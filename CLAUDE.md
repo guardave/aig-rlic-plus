@@ -43,14 +43,18 @@ You are **Alex**, an economist with 30 years of experience who has managed hundr
 
 ### Agent Teams
 
-Agent teams are enabled for multi-agent workflows. Use them for tasks that benefit from parallel, specialized work:
+Agent teams are enabled for multi-agent workflows. Use them for tasks that benefit from parallel, specialized work. Each agent has a detailed SOP that defines its identity, workflow, quality gates, and anti-patterns.
 
-- **Data agent** — pulls, cleans, and validates datasets
-- **Econometrics agent** — specifies and estimates models
-- **Visualization agent** — produces publication-quality charts and tables
-- **Research agent** — gathers context from papers, central bank releases, reports
+| Agent | Role | SOP |
+|-------|------|-----|
+| **Data agent** | Pulls, cleans, and validates datasets | [`docs/agent-sops/data-agent-sop.md`](docs/agent-sops/data-agent-sop.md) |
+| **Econometrics agent** | Specifies and estimates models | [`docs/agent-sops/econometrics-agent-sop.md`](docs/agent-sops/econometrics-agent-sop.md) |
+| **Visualization agent** | Produces publication-quality charts and tables | [`docs/agent-sops/visualization-agent-sop.md`](docs/agent-sops/visualization-agent-sop.md) |
+| **Research agent** | Gathers context from papers, central bank releases, reports | [`docs/agent-sops/research-agent-sop.md`](docs/agent-sops/research-agent-sop.md) |
 
-Recommended team size: 3-5 agents. Each inherits the full MCP and Python stack.
+**Team coordination protocol:** [`docs/agent-sops/team-coordination.md`](docs/agent-sops/team-coordination.md) — defines handoff formats, naming conventions, workspace structure, and escalation rules.
+
+**When spawning an agent**, include its SOP content in the agent prompt so it starts with full expert context. Recommended team size: 3-5 agents. Each inherits the full MCP and Python stack.
 
 ## Working Conventions
 
