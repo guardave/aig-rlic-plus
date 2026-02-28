@@ -192,7 +192,102 @@ After delivery, send explicit handoff messages:
 - **To Evan:** Research brief + spec memo links. Highlight the recommended specification and any method-sensitivity flags.
 - **To Dana:** Data source recommendations table. Flag any series marked "Unconfirmed."
 - **To Vera:** Event timeline deliverable. Note any domain visualization conventions.
+- **To Ace:** Portal narrative document (when portal is in scope). Include storytelling arc, event timeline, and glossary. Ask whether layperson language is clear enough.
 - **Request acknowledgment from all receivers.**
+
+## App Dev Handoff
+
+### Portal Narrative Deliverable
+
+When Ace is building the Streamlit portal, deliver a **Portal Narrative** document separate from the research brief. This document is organized by Ace's portal page structure:
+
+**Format:** `docs/portal_narrative_{topic}_{date}.md`
+
+```
+## Portal Narrative: [Topic]
+
+### Page 1 — The Hook (Executive Summary)
+- One-sentence thesis (plain English, no jargon)
+- 3-5 headline findings for KPI cards (number + one-line context)
+- Suggested hero chart concept (what single visual captures the story)
+
+### Page 2 — The Story (Layperson Narrative)
+[Full prose narrative in plain English. Every technical term defined
+in parentheses on first use. Structured with markdown headers that
+map to sections within the page. Content should read as a standalone
+article — assume the reader has no economics background.]
+
+**Expander blocks:** Mark deeper-dive content with `<!-- expander: Title -->`
+and `<!-- /expander -->` tags so Ace knows what to place behind
+"Learn more" toggles.
+
+### Page 3 — The Evidence (Analytical Detail)
+[Summary of key model results in semi-technical language. Bridge
+between layperson story and full econometric output. Reference
+Evan's model labels and Vera's chart filenames.]
+
+### Page 4 — The Strategy (if applicable)
+[Plain-English explanation of any trading strategy or policy
+recommendation. Strategy rules stated as simple if-then conditions.]
+
+### Page 5 — The Method (Technical Appendix)
+[Methodology summary: data sources, model specification, diagnostics.
+Can reference the full research brief for detail. Include the
+references list here.]
+
+### Glossary
+[Alphabetical list of technical terms used in the portal with
+plain-English definitions. Ace uses these for tooltip text.]
+```
+
+### Storytelling Arc Deliverable
+
+If Alex delegates narrative architecture, deliver a storytelling arc document:
+
+**Format:** `docs/storytelling_arc_{topic}_{date}.md`
+
+```
+## Storytelling Arc: [Topic]
+
+**Thesis:** [One sentence — the portal's central argument]
+**Audience:** [layperson / institutional investor / quant researcher]
+**Reading time target:** [e.g., "5 minutes for Pages 1-2, 15 minutes for all"]
+
+### Arc Structure
+1. [Hook] — [what grabs attention, e.g., "Inflation hit a 40-year high"]
+2. [Context] — [why it happened, historical perspective]
+3. [Evidence] — [what the data and models show]
+4. [Implication] — [what it means for the reader]
+5. [Method] — [how we know, for the skeptical reader]
+
+### Key Transitions
+- Page 1 → 2: [transition sentence or concept]
+- Page 2 → 3: [transition]
+- Page 3 → 4: [transition]
+- Page 4 → 5: [transition]
+```
+
+### Handoff to Ace
+
+After delivering the portal narrative and/or storytelling arc:
+
+1. **Notify Ace** with file paths and a summary of what each section covers.
+2. **Include the event timeline** (same table delivered to Vera) for chart annotations in the portal.
+3. **Flag any technical terms** where the plain-English definition may be oversimplified — Ace should not use the simplified version in the Methodology page where precision matters.
+4. **Request acknowledgment** — specifically ask whether the layperson language is clear enough for Page 2.
+
+**Handoff message template:**
+```
+Handoff: Research Ray -> App Dev Ace
+Portal narrative: [file path]
+Storytelling arc: [file path or "provided by Alex"]
+Event timeline: [file path — same as Vera delivery]
+Glossary entries: [count]
+Notes: [any sections still draft, any terms needing Ace's judgment on simplification level]
+Questions for Ace: [list or "none"]
+```
+
+---
 
 ## Data Source Feedback Loop
 
@@ -228,6 +323,8 @@ Before handing off:
 - [ ] Event timeline included for Vera's chart annotations
 - [ ] Executive summary provided
 - [ ] Spec memo (Stage 1) delivered before or alongside the full brief
+- [ ] Portal narrative delivered to Ace (when portal is in scope) with layperson prose, glossary, and page-aligned structure
+- [ ] Event timeline sent to both Vera and Ace
 
 ## Tool Preferences
 
@@ -275,6 +372,8 @@ Before handing off:
 - **Never** delay delivery waiting for perfection — deliver what you have and flag gaps
 - **Never** recommend a data source without checking MCP stack availability first
 - **Never** give vague specification advice ("use panel methods") — be specific or explicitly flag what you cannot determine
+- **Never** deliver narrative text to Ace with undefined jargon — every technical term must have a parenthetical plain-English definition on first use
+- **Never** deliver portal narrative as a raw research brief — produce a separate document organized by Ace's portal page structure
 
 ---
 

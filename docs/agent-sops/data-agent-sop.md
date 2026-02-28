@@ -113,17 +113,21 @@ Stationarity results format:
 
 - Save to workspace as `.csv` or `.parquet` (parquet preferred for large datasets)
 - File naming: `{subject}_{frequency}_{start}_{end}.{ext}` (e.g., `macro_panel_monthly_200001_202312.parquet`)
+- **Stable filename alias:** For datasets consumed by the portal (App Dev), also create/update a stable-path copy at `data/{subject}_{frequency}_latest.{ext}` (e.g., `data/macro_panel_monthly_latest.parquet`). This prevents portal breakage when the date-range filename changes on refresh. The dated file is the source of truth; the `_latest` alias always points to the most recent version.
 - Include a **data dictionary** (see format below)
 - Report summary statistics (`df.describe()`) with the delivery
 
 **Data dictionary format — required fields for every variable:**
 
-| Column Name | Display Name | Description | Source | Series ID | Unit | Transformation | Seasonal Adj. | Known Quirks |
-|-------------|-------------|-------------|--------|-----------|------|---------------|---------------|-------------|
-| `us_cpi_yoy` | US CPI (% YoY) | Consumer Price Index, all items, year-over-year percent change | FRED | CPIAUCSL | % | YoY % change from index | SA | Base year changed 1982-84 |
+| Column Name | Display Name | Description | Source | Series ID | Unit | Transformation | Seasonal Adj. | Known Quirks | Display Note | Refresh Freq. | Refresh Source |
+|-------------|-------------|-------------|--------|-----------|------|---------------|---------------|-------------|-------------|--------------|----------------|
+| `us_cpi_yoy` | US CPI (% YoY) | Consumer Price Index, all items, year-over-year percent change | FRED | CPIAUCSL | % | YoY % change from index | SA | Base year changed 1982-84 | CPI methodology was updated in the early 1980s; may affect long-term comparisons | Monthly | fred MCP |
 
-- **Display Name** is the chart-ready label for the visualization agent (e.g., `us_cpi_yoy` -> "US CPI (% YoY)")
-- **Known Quirks** captures series-specific issues: base year changes, methodology revisions, structural breaks, vintage differences
+- **Display Name** is the chart-ready label for the visualization agent and portal (e.g., `us_cpi_yoy` -> "US CPI (% YoY)")
+- **Known Quirks** captures series-specific issues for econometric consumers: base year changes, methodology revisions, structural breaks, vintage differences
+- **Display Note** is a plain-English version of Known Quirks suitable for layperson-facing portal pages (for App Dev consumption)
+- **Refresh Freq.** indicates how often the series is updated at the source (one-time / daily / weekly / monthly / quarterly). Used by App Dev for cache TTL configuration
+- **Refresh Source** identifies the MCP server or API that provides updates for this series
 
 ---
 
@@ -167,6 +171,32 @@ Display-name mapping: [pointer to data dictionary or inline list]
 Quirks for visual interpretation: [list or "none"]
 ```
 
+### Data-to-AppDev Handoff
+
+When the App Dev agent needs data for the Streamlit portal (display datasets, refresh pipelines, data-driven page content):
+
+**Deliverables:**
+1. Dataset (`.parquet` or `.csv`) at a **stable path** using the `_latest` alias convention (e.g., `data/macro_panel_monthly_latest.parquet`)
+2. Data dictionary with **all extended fields** populated: Display Name, Display Note (layperson-friendly), Refresh Freq., Refresh Source
+3. Known data quirks written in **plain English** suitable for portal display to non-specialist readers
+4. Data refresh specification: which series update, how often, from which MCP server/API, and recommended cache TTL
+
+**Handoff message template:**
+```
+Handoff: Data Dana -> App Dev Ace
+Files: [list of file paths, using stable _latest aliases]
+Summary: [what's in the data, what portal pages it feeds]
+Data dictionary: [path to data dictionary file]
+Refresh spec: [which series are live-updating, frequency, API source]
+Quirks for portal display: [plain-English notes or "none"]
+Partial delivery: [yes/no — if yes, which files are pending and ETA]
+```
+
+**Special considerations for App Dev:**
+- Always use stable `_latest` file paths in handoff messages so portal code does not break on data refresh
+- When a partial delivery affects portal-facing data, notify Ace explicitly so he can render placeholder content or skip affected pages
+- Refresh specifications should map directly to Ace's `@st.cache_data(ttl=...)` parameters: daily series = `ttl=86400`, monthly = `ttl=2592000`, one-time = no TTL (permanent cache)
+
 ### Partial Delivery Protocol
 
 When a dataset is mostly ready but one or more series are delayed (API outage, sourcing issue):
@@ -209,6 +239,8 @@ Before handing off to another agent:
 - [ ] Summary statistics reviewed for sanity (no impossible values)
 - [ ] Stationarity tests included (if time-series data)
 - [ ] Econometric implications of data decisions flagged (fills, interpolations, frequency changes)
+- [ ] For portal-facing deliveries: stable `_latest` alias created, refresh specs included, Display Note (layperson) populated
+- [ ] For portal-facing deliveries: Ace notified of any partial delivery so he can handle missing data gracefully
 
 ---
 

@@ -188,6 +188,7 @@ Bottom rows contain model-level statistics and key diagnostics. Column 1 is alwa
 - Save model objects (pickle) for downstream use by visualization agent
 - **Acknowledge upstream contributions:** In the narrative, cite Dana's dataset and Ray's brief by file path. Example: "Using the dataset prepared by Dana (see data dictionary at `data/data_dictionary.md`). Model specification follows Ray's research brief (see `docs/research_brief_*.md`), with the following departures: ..."
 - **Hand off to Vera** using the Chart Request Template below
+- **Hand off to Ace** using the App Dev Handoff Template below (when portal assembly is in scope)
 - **Send acknowledgment to Dana and Ray** confirming what you used from their deliverables
 
 ## Chart Request Template
@@ -225,6 +226,71 @@ All coefficient tables delivered as CSV use these standardized columns:
 - For sensitivity/comparison tables, specify which models to compare side-by-side.
 - Include any event dates or threshold values that should be annotated on the chart.
 
+## App Dev Handoff Template
+
+When the analysis feeds into a Streamlit portal (Ace's domain), use this template alongside the Chart Request Template for Vera. Ace needs portal-ready summaries, not raw model output.
+
+```
+## App Dev Handoff — [Analysis Title]
+
+**From:** Econ [Name]
+**To:** App Dev Ace
+**Date:** [YYYY-MM-DD]
+
+### Headline Findings (for executive summary / KPI cards)
+
+1. [One-sentence finding with key number, e.g., "A 1pp rise in credit spreads predicts a 0.4pp decline in GDP growth (p < 0.01)"]
+2. [Second headline]
+3. [Third headline]
+
+### KPI Values
+
+| Metric | Value | Unit | Label (for display) |
+|--------|-------|------|---------------------|
+| [e.g., Key coefficient] | [value] | [unit] | [display-ready label] |
+| [e.g., Model R-squared] | [value] | — | [label] |
+| [e.g., Strategy Sharpe] | [value] | — | [label] |
+
+### Backtest Performance (if applicable)
+
+**Metrics table:** [file path to CSV with columns: metric, value, unit]
+**Equity curve data:** [file path to CSV/parquet with columns: date, strategy_return, benchmark_return, regime]
+**Regime periods:** [file path or inline table with columns: regime, start_date, end_date]
+
+### Strategy Rules (Plain English)
+
+- Entry rule: [e.g., "Go long when the 3-month moving average of the regime indicator exceeds 0.5"]
+- Exit rule: [e.g., "Close position when the indicator falls below 0.3 or after 6 months, whichever comes first"]
+- Rebalancing: [frequency and conditions]
+- Benchmark: [what to compare against]
+
+### Interactive Dimensions (what the portal user should be able to toggle)
+
+| Dimension | Control Type | Options | Default |
+|-----------|-------------|---------|---------|
+| [e.g., Date range] | Slider | [2000-01 to 2024-12] | [Full sample] |
+| [e.g., Model specification] | Dropdown | [Baseline OLS, IV-2SLS, Panel FE] | [Baseline OLS] |
+| [e.g., Regime filter] | Multi-select | [Expansion, Recession, All] | [All] |
+
+### Data Files for Portal
+
+| File | Path | Description | Refresh needed? |
+|------|------|-------------|-----------------|
+| [e.g., Coefficient table] | `results/xxx.csv` | [description] | No (static) |
+| [e.g., Equity curve] | `results/xxx.parquet` | [description] | [Yes — daily / No] |
+
+### Notes for Ace
+
+- [Any caveats about interpretation, e.g., "The backtest assumes no transaction costs"]
+- [Any page-specific guidance, e.g., "The regime indicator chart belongs on Page 4 (Strategy)"]
+```
+
+**Guidance for writing good App Dev handoffs:**
+- KPI values should be pre-formatted for display -- Ace should not need to round, convert units, or extract significance.
+- Strategy rules must be in plain English, not model notation. "Beta > 0.5" is not a strategy rule; "Go long when the indicator exceeds 0.5" is.
+- Interactive dimensions come from the analysis, not the UI. If a date range filter does not make analytical sense, do not include it.
+- If the analysis does not involve a trading strategy, omit the Backtest and Strategy sections and note "N/A -- no strategy component."
+
 ## Mid-Analysis Data Requests
 
 If additional variables are needed during estimation or diagnostics:
@@ -247,6 +313,9 @@ Before handing off:
 - [ ] No data snooping — specification was not chosen to maximize significance
 - [ ] Research brief feedback loop closed (adopted/departed recommendations documented)
 - [ ] Chart request template filled and sent to Vera
+- [ ] App Dev handoff template filled and sent to Ace (when portal is in scope)
+- [ ] Strategy rules documented in plain English (if strategy component exists)
+- [ ] Backtest metrics delivered in structured format (if strategy component exists)
 - [ ] Upstream contributions acknowledged (Dana's dataset, Ray's brief cited)
 
 ## Task Completion Hooks
@@ -260,8 +329,9 @@ Before handing off:
 5. Run a self-review: read your results narrative as if you were Alex — is the economic interpretation clear?
 6. Verify all output files saved with correct naming conventions
 7. Send structured handoff to Vera with Chart Request Template filled in
-8. Send acknowledgment to Dana and Ray confirming what you used from their deliverables
-9. Request acknowledgment from downstream recipients (Vera confirms receipt and flags any issues)
+8. Send structured handoff to Ace with App Dev Handoff Template filled in (when portal is in scope)
+9. Send acknowledgment to Dana and Ray confirming what you used from their deliverables
+10. Request acknowledgment from downstream recipients (Vera and Ace confirm receipt and flag any issues)
 
 ### Reflection and Memory (run after every completed task)
 
@@ -315,3 +385,5 @@ Before handing off:
 - **Never** hand off results to Vera without a structured chart request and main insight sentence
 - **Never** silently depart from Ray's specification recommendations without documenting reasons
 - **Never** submit an ambiguous data request to Dana — specify units, frequency, SA preference, and priority
+- **Never** hand off strategy rules to Ace in model notation — translate to plain English
+- **Never** deliver backtest results as prose — use structured tables and machine-readable files

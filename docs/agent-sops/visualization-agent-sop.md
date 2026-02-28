@@ -127,6 +127,17 @@ This section defines the **minimum viable input** for each chart type. Upstream 
 - Domain visualization conventions from the literature (e.g., "Phillips curves traditionally show unemployment on X, inflation on Y")
 **Protocol:** Proactively read Ray's research briefs in the shared workspace for annotation material. For specific event identification questions, message Ray directly: "What event explains the structural break at [date]?"
 
+### Viz-to-App Dev (Portal Integration Pathway)
+
+**Destination:** App Dev Agent (Ace)
+**Use cases:** All charts destined for the Streamlit portal
+**Outputs delivered:**
+- Plotly figure as JSON (`.json` via `plotly.io.to_json()`) — primary interactive format
+- Static fallback files (`.png`, `.svg`) — for fallback rendering or print
+- Chart metadata sidecar (`.json`) — caption, source, audience tier, portal page, interactive controls hints
+- Handoff message using the Viz-to-App template (see App Dev Handoff section below)
+**Protocol:** Use the structured handoff template for every portal delivery. Tag each chart with audience tier and portal page. Specify which interactive controls are appropriate. Confirm whether static fallbacks are content-identical to the Plotly version.
+
 ---
 
 ## Acknowledgment Template
@@ -285,12 +296,17 @@ Before delivery, check:
 ### 8. Deliver
 
 - Save charts as `.png` (default, 150 DPI) and `.svg` (for scaling)
-- File naming: `{subject}_{chart_type}_{date}_v{N}.{ext}` (e.g., `us_inflation_line_20260228_v1.png`)
+- **For portal-destined charts:** additionally save as Plotly JSON (`.json` via `plotly.io.to_json()`) -- this is Ace's primary intake format
+- **For portal-destined charts:** produce a metadata sidecar file (`{chart_name}_meta.json`) containing: caption, source, audience tier, suggested portal page, and interactive controls hints (see App Dev Handoff section below)
+- File naming: `{subject}_{chart_type}_{audience}_{date}_v{N}.{ext}` (e.g., `us_inflation_line_narrative_20260228_v1.png`)
+  - Audience tags: `exec` (executive summary / KPI), `narrative` (layperson story page), `analytical` (detailed evidence page), `technical` (methodology appendix)
+  - When no portal is in scope, the audience tag may be omitted for backward compatibility
 - Save tables as `.md` (markdown) and `.csv`
-- For interactive charts: save as `.html`
+- For interactive charts without portal destination: save as `.html`
 - Deliver with a one-line caption explaining the chart's takeaway
-- Send deliverable to Alex with one-line caption for each chart
-- Request acknowledgment from Alex
+- **When portal assembly is in scope:** send handoff to App Dev Ace using the Viz-to-App handoff template (see below)
+- **For all deliveries:** send to Alex with one-line caption for each chart
+- Request acknowledgment from Alex (and from Ace, if portal is in scope)
 
 ---
 
@@ -321,6 +337,77 @@ For every chart with annotations, document where the annotation came from:
 | Threshold marker | Alex's instruction | Analysis brief, item Z |
 
 This creates an audit trail and ensures no annotations are invented.
+
+---
+
+## App Dev Handoff (Viz -> Ace)
+
+When portal assembly is in scope, every chart delivery to Ace uses this structured handoff.
+
+### Handoff Message Template
+
+```
+Handoff: Viz Vera -> App Dev Ace
+Date: [YYYY-MM-DD]
+
+Charts delivered:
+- [chart_id]: [file path to .json] (audience: [exec/narrative/analytical/technical], portal page: [N])
+  - Static fallback: [file path to .png and .svg]
+  - Metadata: [file path to _meta.json]
+  ...
+
+Format: Plotly JSON (primary) + PNG/SVG (static fallback)
+Metadata files: [list of _meta.json paths]
+Static fallbacks: [identical to interactive / simplified for print — specify per chart]
+Interactive controls notes: [per chart — e.g., "date range slider appropriate", "regime dropdown possible"]
+Questions for Ace: [list or "none"]
+```
+
+### Chart Metadata Sidecar Schema
+
+For every portal-destined chart, produce `{chart_name}_meta.json`:
+
+```json
+{
+  "chart_id": "us_inflation_line_narrative_20260228_v1",
+  "caption": "US inflation accelerated sharply after 2020, driven by supply-chain disruptions and fiscal expansion",
+  "source": "FRED, BLS",
+  "audience_tier": "narrative",
+  "portal_page": 2,
+  "interactive_controls": ["date_range_slider"],
+  "data_source_path": "data/macro_panel_monthly_200001_202312.parquet",
+  "static_fallback_identical": true
+}
+```
+
+Fields:
+- `chart_id`: matches the file name stem
+- `caption`: one-line takeaway (mandatory)
+- `source`: data attribution
+- `audience_tier`: one of `exec`, `narrative`, `analytical`, `technical`
+- `portal_page`: suggested page number (1-5 per Ace's standard portal structure)
+- `interactive_controls`: list of Streamlit widget types appropriate for this chart (e.g., `date_range_slider`, `regime_dropdown`, `variable_toggle`, `none`)
+- `data_source_path`: path to the underlying data file (so Ace can wire dynamic filtering)
+- `static_fallback_identical`: whether the PNG/SVG version is content-identical to the Plotly version
+
+### Plotly Export Standard
+
+When producing portal-destined interactive charts:
+
+```python
+import plotly.io as pio
+
+# Save as JSON (primary format for Ace)
+pio.write_json(fig, "output/{chart_id}.json")
+
+# Save as static fallback
+fig.write_image("output/{chart_id}.png", scale=2)
+fig.write_image("output/{chart_id}.svg")
+```
+
+- Plotly JSON is the preferred handoff format: serializable, version-safe, no pickle risk
+- Ace loads with `plotly.io.read_json()` and renders with `st.plotly_chart(fig, use_container_width=True)`
+- Do NOT hand off pickled `go.Figure` objects -- version coupling risk is too high
 
 ---
 
@@ -361,9 +448,11 @@ Before handing off:
 - [ ] Text is legible at intended display size
 - [ ] Chart works in grayscale
 - [ ] File saved in correct format(s) — PNG + SVG — and location
-- [ ] File naming follows versioning convention (`_v{N}`)
+- [ ] If portal in scope: Plotly JSON exported and metadata sidecar produced
+- [ ] File naming follows versioning convention (`_v{N}`) with audience tag if portal in scope
 - [ ] Caption provided (one-line takeaway)
 - [ ] Annotation sources documented
+- [ ] If portal in scope: Viz-to-App handoff message sent to Ace using template
 
 ---
 
@@ -374,7 +463,7 @@ Before handing off:
 | Task | Package |
 |------|---------|
 | Static charts | `matplotlib` (primary), `seaborn` (statistical plots) |
-| Interactive charts | `plotly` |
+| Interactive / portal charts | `plotly` (co-primary when portal assembly is in scope) |
 | Tables | `tabulate` (text), `pandas.style` (HTML) |
 | Color palettes | `seaborn.color_palette()`, `matplotlib.cm` |
 | Layout | `matplotlib.gridspec`, `plt.subplots()` |
@@ -389,10 +478,12 @@ Before handing off:
 ## Output Standards
 
 - Static charts: PNG at 150 DPI minimum; SVG for reports
-- Interactive charts: self-contained HTML files
+- Portal-destined interactive charts: Plotly JSON (`.json`) as primary format; `.html` only when no portal is in scope
+- Portal-destined charts: include metadata sidecar file (`_meta.json`) per the App Dev Handoff schema
 - Tables: markdown for inline use; CSV for data exchange
-- All files saved to workspace with descriptive names following versioning convention
+- All files saved to workspace with descriptive names following versioning convention (including audience tag when portal is in scope)
 - Every chart accompanied by a one-line caption
+- When delivering to Ace: use the Viz-to-App handoff message template
 
 ---
 
@@ -422,9 +513,10 @@ Before handing off:
 3. **Title check:** Does the title state the insight (not just the variable name)?
 4. **Self-review:** Look at the chart as if seeing it for the first time — does it tell its story without explanation?
 5. **Accessibility check:** Would this chart work in grayscale? Is text readable at intended size?
-6. **File check:** Verify files saved in all required formats (PNG + SVG) with correct naming and versioning
+6. **File check:** Verify files saved in all required formats (PNG + SVG; plus Plotly JSON + metadata if portal in scope) with correct naming and versioning
 7. **Deliver to Alex** with one-line caption for each chart
-8. **Request acknowledgment** from Alex
+8. **If portal in scope:** Send Viz-to-App handoff to Ace using the structured template
+9. **Request acknowledgment** from Alex (and from Ace if portal in scope)
 
 ### Reflection and Memory (run after every completed task)
 

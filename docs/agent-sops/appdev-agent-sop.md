@@ -185,36 +185,94 @@ Before delivery:
 
 ### From Visualization Agent (Vera) — Primary
 
-- Plotly figure objects or specifications (chart type, data, layout)
-- Static chart files as fallback (`.png`, `.svg`)
-- Chart captions (one-line takeaway per chart)
-- Color palette confirmation (should match Vera's SOP defaults)
+- **For portal-interactive charts:** Plotly figure objects (`.json` serialized or Python code). Preferred for time-series with date sliders, regime selectors, and any chart where user interactivity adds value. Coordinate with Vera upfront (during portal brief) on which charts need Plotly delivery.
+- **For static display charts:** PNG/SVG files as fallback (coefficient plots, diagnostic panels, or any chart where interactivity adds no value). Displayed via `st.image()` with captions.
+- Chart captions (one-line takeaway per chart) — mandatory; this becomes the `st.caption()` text
+- Color palette confirmation (must match Vera's SOP defaults: `#0072B2`, `#D55E00`, `#009E73`, `#CC79A7`, `#999999`)
+- **Clarification:** Vera's default workflow uses matplotlib/seaborn. For portal-bound charts, request Plotly output explicitly in the portal brief. Do not assume Plotly delivery unless coordinated.
 
 ### From Research Agent (Ray)
 
-- Narrative text sections in markdown for each portal page
+- Narrative text sections in markdown for each portal page. **Note:** Ray's primary output is the research brief (academic tone). Portal narrative requires adaptation to layperson language. Workflow: Ace adapts Ray's brief into portal narrative, then sends adapted text back to Ray for accuracy review before publishing.
 - Storytelling arc: section order, key transitions, audience guidance
-- Plain-English definitions for any technical terms
-- Event timeline data for chart annotations
+- Plain-English definitions for any technical terms (request explicitly if not included in the research brief)
+- Event timeline data for chart annotations — preferably in machine-readable format (CSV with columns: `date`, `event`, `relevance`, `type`) in addition to the markdown table in the research brief
 
 ### From Econometrics Agent (Evan)
 
-- Model result summaries (key coefficients, significance, diagnostics)
-- Backtest performance tables (metrics, equity curves, regime periods)
-- Strategy rules in plain English
+- Model result summaries (key coefficients, significance, diagnostics). **Expected format:** Coefficient CSVs using Evan's standardized schema: `variable`, `coef`, `se`, `t_stat`, `p_value`, `ci_lower`, `ci_upper`. Diagnostics in tabular format: `test_name`, `statistic`, `p_value`, `interpretation`.
+- Backtest performance tables (metrics, equity curves, regime periods). Format: CSV with standardized columns (request schema from Evan if not documented).
+- Strategy rules in plain English — needed for the layperson Story page
 - Any interactive analysis specifications (what should the user be able to toggle?)
+- **Note:** Evan currently has no formal Econ-to-AppDev handoff template. Until one is established, request the above explicitly when receiving model results. Evan's Chart Request Template (sent to Vera) is a useful secondary reference for key findings and insights.
 
 ### From Data Agent (Dana)
 
 - Data file locations and formats (parquet/CSV in `data/`)
-- Data dictionary for any series displayed in the portal
-- Data refresh specifications (which series update, how often, from which API)
-- Known data quirks that affect display (base year changes, gaps)
+- Data dictionary for any series displayed in the portal — must include Display Name column (for axis labels and KPI cards) and Known Quirks column (for tooltip explanations or footnotes)
+- **Data refresh specifications for portal-bound series:** which series update, how often, from which API, any rate limits, expected staleness window, and recommended cache TTL. **Note:** Dana's SOP does not currently include a Data-to-AppDev handoff template. Request refresh metadata explicitly when data is portal-bound.
+- Known data quirks that affect display (base year changes, gaps, methodology revisions)
 
 ### Universal Requirements
 
 - **Storytelling arc** from Alex or Ray (mandatory — without this, the portal has no narrative)
 - Target audience designation: layperson / institutional investor / quant researcher
+
+---
+
+## Input Acknowledgment Template
+
+When receiving ANY input from a teammate, send back this structured acknowledgment before starting integration work:
+
+```
+## Input Acknowledgment — Portal Assembly
+
+**Input from:** [agent name]
+**Received:** [date/time]
+
+**What I received:**
+- [ ] Data files: [paths] — [received / missing]
+- [ ] Chart assets: [Plotly objects / static PNGs / missing]
+- [ ] Narrative text: [received / needs adaptation / missing]
+- [ ] Key findings for KPI cards: [received / missing]
+- [ ] Metadata (data dictionary, captions, schemas): [received / missing]
+
+**What is missing (blockers):**
+- [List any missing inputs that block portal assembly]
+
+**What is missing (nice-to-have, will proceed without):**
+- [List optional inputs that would improve the portal]
+
+**Format issues (if any):**
+- [List any format mismatches vs. expected input spec]
+
+**Estimated integration timeline:** [timeframe]
+```
+
+---
+
+## Input Quality Log
+
+Maintain a running log of handoff quality to drive continuous improvement. After each integration task, record:
+
+```
+## Input Quality Log
+
+### [Date] — [Portal Page / Component]
+
+**From:** [agent name]
+**Inputs received:** [list]
+**Quality assessment:**
+- Completeness: [complete / partial — what was missing]
+- Format consistency: [matched expected schema / had to normalize — details]
+- Narrative clarity: [portal-ready / needed adaptation / had to rewrite]
+**Rework caused:** [none / minor / significant — description]
+**Suggestion for next time:** [specific improvement]
+```
+
+Store at: `docs/agent-sops/appdev-input-quality-log.md`
+
+Review at team retrospectives to identify systemic handoff issues.
 
 ---
 
