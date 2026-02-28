@@ -609,11 +609,9 @@ def chart_10_hmm_regime_probs(data):
     hmm = data["hmm_2state"]
     df = data["df"]
 
-    # Determine which state is 'stress' (higher mean VIX)
-    # State with higher prob_state_1 when VIX is high = stress
-    # From summary: state 0 = calm (low VIX), state 1 = stress (high VIX)
-    # Actually let's check: prob_state_1 close to 1 when stress
-    stress_col = "prob_state_1"
+    # State 0 = stress (high VIX, prob_state_0 ~0.90 during GFC)
+    # State 1 = calm  (low VIX, prob_state_1 ~0.97 during 2013-2014)
+    stress_col = "prob_state_0"
 
     fig = go.Figure()
 
@@ -833,8 +831,8 @@ def chart_13_equity_curves(data):
     hmm_oos = hmm.loc[oos_start:]
 
     # Strategy W1: HMM 2-state, p>0.7, Long/Cash
-    # When P(stress) > 0.7 -> cash, else long
-    signal_w1 = (hmm_oos["prob_state_1"] <= 0.7).astype(float)
+    # When P(stress=state_0) > 0.7 -> cash, else long
+    signal_w1 = (hmm_oos["prob_state_0"] <= 0.7).astype(float)
     w1_ret = spy_ret * signal_w1.shift(1)  # use previous day signal
     w1_cum = (1 + w1_ret.fillna(0)).cumprod()
 
@@ -901,8 +899,8 @@ def chart_14_drawdown_comparison(data):
     spy_ret = df_oos["spy"].pct_change()
     hmm_oos = hmm.loc[oos_start:]
 
-    # W1: HMM Long/Cash p>0.7
-    signal_w1 = (hmm_oos["prob_state_1"] <= 0.7).astype(float)
+    # W1: HMM Long/Cash — cash when P(stress=state_0) > 0.7
+    signal_w1 = (hmm_oos["prob_state_0"] <= 0.7).astype(float)
     w1_ret = spy_ret * signal_w1.shift(1)
     w1_cum = (1 + w1_ret.fillna(0)).cumprod()
     w1_dd = w1_cum / w1_cum.cummax() - 1
