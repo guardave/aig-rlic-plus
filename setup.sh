@@ -125,6 +125,18 @@ else
   echo "  SKIP fred (no API key)"
 fi
 
+# Persist API keys to ~/.bashrc so Python scripts (fredapi, etc.) can access them
+# via os.environ, not just MCP server processes.
+BASHRC="$HOME/.bashrc"
+for KEY_NAME in FRED_API_KEY ALPHAVANTAGE_API_KEY; do
+  KEY_VAL="${!KEY_NAME:-}"
+  if [ -n "$KEY_VAL" ]; then
+    # Remove any existing entry, then append
+    sed -i "/^export ${KEY_NAME}=/d" "$BASHRC" 2>/dev/null || true
+    echo "export ${KEY_NAME}=\"${KEY_VAL}\"" >> "$BASHRC"
+  fi
+done
+
 # Tier 3 — Reasoning, docs, persistence, web
 add_mcp context7 -- npx -y @upstash/context7-mcp@latest
 add_mcp sequential-thinking -- npx -y @modelcontextprotocol/server-sequential-thinking
