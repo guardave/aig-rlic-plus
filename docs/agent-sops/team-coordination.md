@@ -41,43 +41,73 @@ Steps 2 and 3 run in parallel. Steps 4 and 5 are sequential dependencies.
 
 ## Handoff Protocol
 
-### From Data Agent → Econometrics Agent
+Every handoff follows three rules:
+1. **Use the structured template** defined in the sender's SOP
+2. **Receiver must acknowledge** within one task cycle (silence ≠ acceptance)
+3. **Partial delivery is OK** — mark it clearly and include a manifest of what's missing
 
-**Deliverables:**
+### Primary Pipeline Handoffs
+
+#### Research Agent → Econometrics Agent (Two-Stage)
+
+**Stage 1 — Quick Spec Memo (deliver ASAP):**
+- 5-bullet specification memo: DV, regressors, instruments, pitfalls, sample conventions
+- Naming: `docs/spec_memo_{topic}_{date}.md`
+
+**Stage 2 — Full Research Brief:**
+- Complete brief with literature synthesis, specification details table, data sources with series IDs, event timeline, references
+- Naming: `docs/research_brief_{topic}_{date}.md`
+
+#### Research Agent → Data Agent
+
+- Data source recommendations table (variable, series ID, MCP server, frequency, availability status)
+- Included in the research brief; Dana extracts on receipt
+
+#### Data Agent → Econometrics Agent
+
 - Analysis-ready dataset (`.parquet` or `.csv`)
-- Data dictionary (variable names, descriptions, sources, transformations)
+- Data dictionary with Display Name column (variable name, display name, description, source, series ID, unit, transformation, SA status, known quirks)
 - Summary statistics
-- Stationarity test results (if time-series)
+- Stationarity test results (structured table: variable, test, statistic, p-value, lags, conclusion)
+- Handoff message using Data-to-Econ template (see Dana's SOP)
+- Naming: `data/{subject}_{frequency}_{start}_{end}.parquet`
 
-**Naming:** `data/{subject}_{frequency}_{start}_{end}.parquet`
+#### Econometrics Agent → Visualization Agent
 
-### From Research Agent → Econometrics Agent
+- Fitted model results (`.pkl`)
+- Coefficient tables (`.csv`) using standardized schema: `variable`, `coef`, `se`, `t_stat`, `p_value`, `ci_lower`, `ci_upper`
+- Diagnostic test results (standardized table: test, statistic, p-value, interpretation)
+- **Chart Request Template** (chart type, data source path, key variables, main insight sentence, audience, comparison notes, special annotations)
+- Naming: `results/{model_name}_{date}.pkl`, `results/{model_name}_coefficients_{date}.csv`
 
-**Deliverables:**
-- Research brief (markdown)
-- Recommended model specifications from the literature
-- Suggested instruments or identification strategies (if relevant)
+#### Visualization Agent → Alex
 
-**Naming:** `docs/research_brief_{topic}_{date}.md`
-
-### From Econometrics Agent → Visualization Agent
-
-**Deliverables:**
-- Fitted model results (`.pkl` for model objects, `.csv` for coefficient tables)
-- Diagnostic test results (markdown table or `.csv`)
-- Specification of what charts/tables are needed
-- Interpretation notes (what the chart should highlight)
-
-**Naming:** `results/{model_name}_{date}.pkl`, `results/{model_name}_coefficients_{date}.csv`
-
-### From Visualization Agent → Alex
-
-**Deliverables:**
-- Charts (`.png` and `.svg`)
+- Charts (`.png` and `.svg`) with versioning: `_v{N}`
 - Formatted tables (`.md` and `.csv`)
 - One-line captions for each chart
+- Annotation source tracking table
+- Naming: `output/{subject}_{chart_type}_{date}_v{N}.{ext}`
 
-**Naming:** `output/{subject}_{chart_type}_{date}.{ext}`
+### Direct (Non-Pipeline) Handoffs
+
+#### Data Agent → Visualization Agent
+
+- For exploratory charts, data quality plots, descriptive visualizations
+- Dataset with Display Name metadata in data dictionary
+- Data quirks relevant to visual interpretation
+- See Dana's SOP: Data-to-Viz Handoff section
+
+#### Research Agent → Visualization Agent
+
+- Event timeline (date, event, relevance, type) for chart annotations
+- Domain visualization conventions from literature
+- See Ray's SOP: Event Timeline section
+
+#### Econometrics Agent → Data Agent (Mid-Analysis)
+
+- Expedited single-variable requests during diagnostics
+- Must include: variable name, source preference, urgency flag, econometric rationale
+- See Evan's SOP: Mid-Analysis Data Requests section
 
 ## Shared Workspace Structure
 
@@ -93,13 +123,27 @@ Steps 2 and 3 run in parallel. Steps 4 and 5 are sequential dependencies.
 └── scripts/           # Reusable analysis scripts
 ```
 
+## Acknowledgment Protocol
+
+Every handoff requires a structured acknowledgment from the receiver:
+
+1. **Sender** delivers output using the handoff template from their SOP
+2. **Receiver** acknowledges within one task cycle with:
+   - What was received (file list)
+   - Whether it meets their needs (accepted / accepted with caveats / blocked — specify what's missing)
+   - Any questions or follow-ups
+3. **If no acknowledgment** within one task cycle, sender follows up explicitly
+4. **Silence is never acceptance** — an unacknowledged handoff is an open loop
+
 ## Communication Rules
 
 1. **Use TaskList / TaskUpdate** for tracking — do not rely on messages alone
 2. **Be explicit about blockers** — if you need input from another agent, say exactly what you need
 3. **Deliver incrementally** — a partial dataset now is better than a perfect one late
 4. **Flag surprises immediately** — unexpected data patterns, missing series, test failures
-5. **Never overwrite another agent's output** — create versioned files if updating
+5. **Never overwrite another agent's output** — create versioned files with `_v{N}` suffix
+6. **Acknowledge every handoff** — confirm receipt and adequacy (see Acknowledgment Protocol above)
+7. **Cite upstream contributions** — reference teammates' deliverables by file path in your output
 
 ## Naming Conventions
 
@@ -133,7 +177,43 @@ Steps 2 and 3 run in parallel. Steps 4 and 5 are sequential dependencies.
 ## Quality Standards (Team-Wide)
 
 - Every output file has a descriptive name following the naming convention
-- Every handoff includes a brief message describing what's being delivered
+- Every handoff includes a structured message using the sender's SOP template
+- Every handoff is acknowledged by the receiver within one task cycle
 - No agent delivers output without running their quality gate checklist
 - All code is reproducible — another agent should be able to re-run it
 - Assumptions are documented, not implicit
+- Upstream contributions are cited by file path
+
+## Task Completion Hooks (Team-Wide Standard)
+
+Every agent must run these two hooks when completing any task. Individual SOPs contain role-specific details; these are the universal minimums.
+
+### Hook 1: Validation & Verification (before marking task done)
+
+1. **Re-read the original request** — does the deliverable actually answer what was asked?
+2. **Run your Quality Gates checklist** — every box must be checked
+3. **Self-review** — read your output as if you were the receiving agent. Would you accept this?
+4. **Verify file naming and location** — follows conventions, saved to correct workspace directory
+5. **Send structured handoff message** — use the template from your SOP
+6. **Request acknowledgment** — explicitly ask the receiver to confirm
+
+### Hook 2: Reflection & Memory (after every completed task)
+
+1. **What went well? What was harder than expected?**
+2. **Did any handoff friction occur?** Note it for SOP improvement
+3. **Did you learn something reusable?** (data gotcha, method insight, tool trick, collaboration pattern)
+4. **Distill 1-2 key lessons** and update your memories file at `~/.claude/agents/{your-id}/memories.md`
+5. **Cross-project lessons** go to `~/.claude/agents/{your-id}/experience.md`
+6. **If a lesson affects another agent's workflow**, message them directly — don't assume they'll discover it
+
+These hooks are not optional. They are the mechanism by which the team improves over time. Skipping them to save time is a false economy — the cost shows up as repeated mistakes and handoff friction in future tasks.
+
+## Retrospective
+
+After completing a major analysis (not after every task), the team lead (Alex) convenes a brief retrospective:
+
+1. Each agent reviews their Input Quality Log / memories for recurring friction
+2. Top 3 improvement suggestions are collected
+3. SOPs are updated by their respective owners
+4. Team coordination protocol is updated if cross-cutting changes are needed
+5. Learnings are promoted to global experience files if cross-project applicable
