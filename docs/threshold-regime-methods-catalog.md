@@ -207,3 +207,7 @@ Based on complexity, expected value-add, and ease of integration with the curren
 - [pandas Windowing Operations](https://pandas.pydata.org/docs/user_guide/window.html)
 - [Structural Break Detection Overview (Towards Data Science)](https://towardsdatascience.com/understanding-time-series-structural-changes-f6a4c44cb13c/)
 - [ECB: Predicting Financial Stress with Markov Models](https://www.ecb.europa.eu/pub/pdf/scpwps/ecb.wp2057.en.pdf)
+
+---
+*Generated: 2026-02-28 | Source: Web research across academic papers, econometrics literature, and Python documentation*
+*Status: Reference catalog — methods selected per analysis based on data characteristics and regime complexity*

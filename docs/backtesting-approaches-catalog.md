@@ -202,3 +202,7 @@ Candidate approaches for enriching a credit-spread-as-equity-signal trading stra
 - [Backtesting.py](https://kernc.github.io/backtesting.py/)
 - [Volatility Trading Strategies (Quantified Strategies)](https://www.quantifiedstrategies.com/volatility-trading-strategies/)
 - [Position Sizing Methods](https://www.luxalgo.com/blog/5-position-sizing-methods-for-high-volatility-trades/)
+
+---
+*Generated: 2026-02-28 | Source: Web research across quant finance literature, backtesting framework docs, and institutional research*
+*Status: Reference catalog — approaches selected per analysis based on strategy type and validation needs*
