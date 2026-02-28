@@ -7,22 +7,29 @@ This document defines how agents on the AIG-RLIC+ team coordinate work, hand off
 ## Team Structure
 
 ```
-                    Alex (Lead Analyst)
-                    ┌───────┼───────┐
-                    │       │       │
-              ┌─────┴──┐  ┌┴────┐  ┌┴──────────┐
-              │ Research │  │Data │  │Econometrics│
-              │  Agent   │  │Agent│  │   Agent    │
-              └─────────┘  └──┬──┘  └─────┬──────┘
-                              │            │
-                              └─────┬──────┘
-                              ┌─────┴──────┐
-                              │Visualization│
-                              │    Agent    │
-                              └────────────┘
+                       Alex (Lead Analyst)
+                    ┌────────┼────────┐
+                    │        │        │
+              ┌─────┴──┐  ┌─┴───┐  ┌─┴──────────┐
+              │Research │  │Data │  │Econometrics │
+              │  Ray    │  │Dana │  │   Evan      │
+              └────┬────┘  └──┬──┘  └──────┬──────┘
+                   │          │            │
+                   │          └─────┬──────┘
+                   │          ┌─────┴──────┐
+                   │          │Visualization│
+                   │          │    Vera     │
+                   │          └──────┬──────┘
+                   │                 │
+                   └────────┬────────┘
+                       ┌────┴─────┐
+                       │ App Dev  │
+                       │   Ace    │
+                       └──────────┘
 ```
 
 **Alex** (lead) assigns tasks, reviews outputs, and makes final decisions on methodology and interpretation.
+**Ace** (app dev) is the integration point — assembles all outputs into the Streamlit portal.
 
 ## Standard Task Flow
 
@@ -34,10 +41,12 @@ A typical analysis follows this sequence:
 3. Data agent sources and cleans datasets            ──┤ (parallel)
 4. Econometrics agent specifies and estimates models  ←┘ (after 2 & 3)
 5. Visualization agent produces charts and tables     ← (after 4)
-6. Alex reviews, interprets, and delivers final output
+6. App dev assembles portal with narrative + visuals  ← (after 5, with input from 2 & 3)
+7. Alex reviews, interprets, and delivers final output
 ```
 
-Steps 2 and 3 run in parallel. Steps 4 and 5 are sequential dependencies.
+Steps 2 and 3 run in parallel. Steps 4, 5, and 6 are sequential dependencies.
+Ace can begin scaffolding the portal structure during steps 2-4 while waiting for final outputs.
 
 ## Handoff Protocol
 
@@ -109,10 +118,48 @@ Every handoff follows three rules:
 - Must include: variable name, source preference, urgency flag, econometric rationale
 - See Evan's SOP: Mid-Analysis Data Requests section
 
+### Portal Assembly Handoffs
+
+#### Visualization Agent → App Dev
+
+- Plotly figure objects (`.json` or Python code) for interactive charts
+- Static chart files (`.png`, `.svg`) for fallback
+- Chart specifications (data source, key message, caption)
+- See Vera's SOP: Output Standards
+
+#### Research Agent → App Dev
+
+- Narrative text sections (markdown) for each portal page
+- Section ordering and storytelling arc
+- Plain-English interpretation of findings for layperson audience
+
+#### Data Agent → App Dev
+
+- Data refresh pipeline code or specifications
+- Cached dataset locations and update frequency
+- Data dictionary for any series displayed in the portal
+
+#### Econometrics Agent → App Dev
+
+- Model result summaries for display (key coefficients, diagnostics, strategy performance)
+- Backtest results in tabular format
+- Regime/signal status for any live indicators
+
+#### App Dev → Alex
+
+- Running portal URL (Streamlit Community Cloud)
+- Portal architecture documentation
+- User guide for content updates
+
 ## Shared Workspace Structure
 
 ```
 /workspaces/aig-rlic-plus/
+├── app/               # Streamlit portal source code (Ace owns)
+│   ├── app.py         # Main Streamlit entry point
+│   ├── pages/         # Multi-page app sections
+│   ├── components/    # Reusable UI components
+│   └── assets/        # Static assets (images, CSS)
 ├── data/              # Cleaned, analysis-ready datasets
 ├── results/           # Model outputs, coefficient tables, diagnostics
 ├── output/            # Final charts, tables, reports
@@ -207,6 +254,33 @@ Every agent must run these two hooks when completing any task. Individual SOPs c
 6. **If a lesson affects another agent's workflow**, message them directly — don't assume they'll discover it
 
 These hooks are not optional. They are the mechanism by which the team improves over time. Skipping them to save time is a false economy — the cost shows up as repeated mistakes and handoff friction in future tasks.
+
+## New Agent Onboarding Protocol
+
+When a new agent joins the team (or when the team is first formed), run this cross-review exercise before starting real work:
+
+### Step 1: Cross-Review SOPs
+Every agent reads ALL teammates' SOPs plus the team coordination protocol. Each writes a structured review covering:
+1. What I learned about each teammate's workflow and pressures
+2. Where our handoffs connect and where friction could arise
+3. Suggestions for each teammate's SOP (empathy, rapport, handoff clarity)
+4. Suggestions for my own SOP (blind spots revealed by reading others')
+5. Suggestions for the team coordination protocol
+
+Reviews are saved to `docs/agent-sops/reviews/{agent-id}-review.md`.
+
+### Step 2: Self-Update SOPs
+Each agent incorporates the best feedback into their own SOP. Ownership matters — you update your own SOP, not someone else's.
+
+### Step 3: Distill and Remember
+Each agent distills key lessons into:
+- `~/.claude/agents/{agent-id}/memories.md` (gotchas, insights, commitments)
+- `~/.claude/agents/{agent-id}/experience.md` (cross-project patterns)
+
+### Why This Matters
+Reading teammates' SOPs reveals handoff gaps, duplicated work, and blind spots that no amount of solo work surfaces. This is not optional — it is the single highest-leverage activity for team cohesion. Do it for every new team or whenever the team composition changes.
+
+---
 
 ## Retrospective
 

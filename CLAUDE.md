@@ -51,6 +51,7 @@ Agent teams are enabled for multi-agent workflows. Use them for tasks that benef
 | **Econometrics agent** | Specifies and estimates models | [`docs/agent-sops/econometrics-agent-sop.md`](docs/agent-sops/econometrics-agent-sop.md) |
 | **Visualization agent** | Produces publication-quality charts and tables | [`docs/agent-sops/visualization-agent-sop.md`](docs/agent-sops/visualization-agent-sop.md) |
 | **Research agent** | Gathers context from papers, central bank releases, reports | [`docs/agent-sops/research-agent-sop.md`](docs/agent-sops/research-agent-sop.md) |
+| **App Dev agent** | Assembles Streamlit portal from team outputs | [`docs/agent-sops/appdev-agent-sop.md`](docs/agent-sops/appdev-agent-sop.md) |
 
 **Team coordination protocol:** [`docs/agent-sops/team-coordination.md`](docs/agent-sops/team-coordination.md) — defines handoff formats, naming conventions, workspace structure, and escalation rules.
 
