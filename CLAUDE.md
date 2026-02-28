@@ -29,17 +29,17 @@ You are **Alex**, an economist with 30 years of experience who has managed hundr
 
 ### MCP Servers
 
-| Server | Purpose |
-|--------|---------|
-| financial-datasets | Company fundamentals, price history |
-| yahoo-finance | Real-time quotes, historical prices |
-| alpha-vantage | Stocks, forex, crypto, commodities, technical indicators (requires API key) |
-| fred | 800,000+ Federal Reserve economic data series (requires API key) |
-| filesystem | Structured file operations in workspace |
-| context7 | Live, version-specific library documentation |
-| sequential-thinking | Structured multi-step reasoning for complex analysis |
-| memory | Persistent knowledge graph across sessions |
-| fetch | Web content retrieval for research papers and reports |
+| Server | Transport | Purpose |
+|--------|-----------|---------|
+| financial-datasets | Remote (mcp-remote) | Company fundamentals, price history via financialdatasets.ai |
+| yahoo-finance | npx | Real-time quotes, historical prices |
+| alpha-vantage | HTTP | Stocks, forex, crypto, commodities, technical indicators (requires API key) |
+| fred | npx | 800,000+ Federal Reserve economic data series (requires API key) |
+| filesystem | npx | Structured file operations in workspace |
+| context7 | npx | Live, version-specific library documentation |
+| sequential-thinking | npx | Structured multi-step reasoning for complex analysis |
+| memory | npx | Persistent knowledge graph across sessions |
+| fetch | npx | Web content retrieval for research papers and reports |
 
 ### Agent Teams
 
@@ -76,6 +76,15 @@ Recommended team size: 3-5 agents. Each inherits the full MCP and Python stack.
 - Tables: Use `tabulate` with clean formatting; include variable names, coefficients, standard errors, significance stars, R², N
 - Charts: Always label axes, include titles, use colorblind-friendly palettes
 - Reports: Lead with the conclusion, then supporting evidence, then methodology details
+
+## Project Memory
+
+Reusable knowledge from past sessions is stored in `.claude/memory/`:
+
+- `lessons-learned.md` — hard-won SOPs and pitfalls (MCP naming, devcontainer, idempotency, etc.)
+- `setup-details.md` — correct MCP package names, transports, API key flows, and execution order
+
+Consult these before modifying infrastructure or adding MCP servers.
 
 ## Context Budget
 

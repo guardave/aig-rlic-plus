@@ -2,15 +2,35 @@
 # ============================================================================
 # AIG-RLIC+ Environment Setup
 # Quantitative & Qualitative Economic/Financial Analysis Toolkit
+#
+# Expected MCP server count: 9 (budget max: 10)
 # ============================================================================
-set -euo pipefail
+set -uo pipefail
+
+WORKSPACE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MCP_FAILURES=0
 
 echo "=========================================="
 echo " AIG-RLIC+ Environment Setup"
 echo "=========================================="
 
 # --------------------------------------------------------------------------
-# 0. Prerequisites — ensure Node.js is available for MCP servers
+# Helper: add MCP server with error isolation & idempotency
+# --------------------------------------------------------------------------
+add_mcp() {
+  local name="$1"; shift
+  # Remove existing entry to ensure idempotency
+  claude mcp remove "$name" 2>/dev/null || true
+  if claude mcp add "$name" "$@" 2>&1; then
+    echo "  OK  $name"
+  else
+    echo "  FAIL $name — see error above"
+    MCP_FAILURES=$((MCP_FAILURES + 1))
+  fi
+}
+
+# --------------------------------------------------------------------------
+# 1. Prerequisites — ensure Node.js is available for MCP servers
 # --------------------------------------------------------------------------
 echo ""
 echo "[1/5] Checking Node.js..."
@@ -35,13 +55,13 @@ else
 fi
 
 # --------------------------------------------------------------------------
-# 1. Python packages
+# 2. Python packages
 # --------------------------------------------------------------------------
 echo ""
 echo "[2/5] Installing Python packages..."
 
-if [ -f "requirements.txt" ]; then
-  pip install --quiet -r requirements.txt
+if [ -f "$WORKSPACE_DIR/requirements.txt" ]; then
+  pip install --quiet -r "$WORKSPACE_DIR/requirements.txt"
 else
   pip install --quiet \
     numpy pandas scipy statsmodels scikit-learn \
@@ -57,16 +77,15 @@ fi
 echo "  -> Python packages installed."
 
 # --------------------------------------------------------------------------
-# 2. MCP Servers
+# 3. MCP Servers (9 total — budget max 10)
 # --------------------------------------------------------------------------
 echo ""
 echo "[3/5] Configuring MCP servers..."
 
 # Tier 1 — No API keys required
-claude mcp add financial-datasets -- npx @financial-datasets/mcp-server
-claude mcp add yahoo-finance -- npx yahoo-finance-mcp
-WORKSPACE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-claude mcp add filesystem -- npx @anthropic/mcp-filesystem "$WORKSPACE_DIR"
+add_mcp financial-datasets -- npx -y mcp-remote https://mcp.financialdatasets.ai/mcp
+add_mcp yahoo-finance -- npx -y @modelcontextprotocol/server-yahoo-finance
+add_mcp filesystem -- npx -y @modelcontextprotocol/server-filesystem "$WORKSPACE_DIR"
 
 # Tier 2 — Require API keys (env → interactive prompt → skip)
 ALPHAVANTAGE_API_KEY="${ALPHAVANTAGE_API_KEY:-}"
@@ -89,33 +108,38 @@ if [ -t 0 ]; then
 fi
 
 if [ -n "$ALPHAVANTAGE_API_KEY" ]; then
-  claude mcp add alpha-vantage \
-    -e ALPHA_VANTAGE_API_KEY="$ALPHAVANTAGE_API_KEY" \
-    -- npx @anthropic/mcp-remote https://mcp.alphavantage.co/sse
-  echo "  -> Alpha Vantage configured."
+  claude mcp remove alpha-vantage 2>/dev/null || true
+  if claude mcp add -t http alpha-vantage "https://mcp.alphavantage.co/mcp?apikey=${ALPHAVANTAGE_API_KEY}" 2>&1; then
+    echo "  OK  alpha-vantage"
+  else
+    echo "  FAIL alpha-vantage"
+    MCP_FAILURES=$((MCP_FAILURES + 1))
+  fi
 else
-  echo "  -> Alpha Vantage skipped (no API key)."
+  echo "  SKIP alpha-vantage (no API key)"
 fi
 
 if [ -n "$FRED_API_KEY" ]; then
-  claude mcp add fred \
-    -e FRED_API_KEY="$FRED_API_KEY" \
-    -- npx -y fred-mcp-server
-  echo "  -> FRED configured."
+  add_mcp fred -e FRED_API_KEY="$FRED_API_KEY" -- npx -y fred-mcp-server
 else
-  echo "  -> FRED skipped (no API key)."
+  echo "  SKIP fred (no API key)"
 fi
 
 # Tier 3 — Reasoning, docs, persistence, web
-claude mcp add context7 -- npx -y @upstash/context7-mcp@latest
-claude mcp add sequential-thinking -- npx -y @modelcontextprotocol/server-sequential-thinking
-claude mcp add memory -- npx -y @modelcontextprotocol/server-memory
-claude mcp add fetch -- npx -y @modelcontextprotocol/server-fetch
+add_mcp context7 -- npx -y @upstash/context7-mcp@latest
+add_mcp sequential-thinking -- npx -y @modelcontextprotocol/server-sequential-thinking
+add_mcp memory -- npx -y @modelcontextprotocol/server-memory
+add_mcp fetch -- npx -y @modelcontextprotocol/server-fetch
 
-echo "  -> MCP servers configured."
+echo ""
+if [ "$MCP_FAILURES" -gt 0 ]; then
+  echo "  -> MCP servers configured with $MCP_FAILURES failure(s)."
+else
+  echo "  -> All MCP servers configured."
+fi
 
 # --------------------------------------------------------------------------
-# 3. Agent Teams
+# 4. Agent Teams
 # --------------------------------------------------------------------------
 echo ""
 echo "[4/5] Enabling agent teams..."
@@ -126,7 +150,7 @@ mkdir -p "$(dirname "$SETTINGS_FILE")"
 if [ -f "$SETTINGS_FILE" ]; then
   # Merge the env key into existing settings using Python
   python3 -c "
-import json, sys
+import json
 with open('$SETTINGS_FILE') as f:
     data = json.load(f)
 data.setdefault('env', {})['CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS'] = '1'
@@ -140,7 +164,7 @@ fi
 echo "  -> Agent teams enabled."
 
 # --------------------------------------------------------------------------
-# 4. Verification
+# 5. Verification
 # --------------------------------------------------------------------------
 echo ""
 echo "[5/5] Verifying installation..."
@@ -186,7 +210,13 @@ print(f'\n  {ok} passed, {fail} failed')
 
 echo ""
 echo "  MCP servers:"
-claude mcp list 2>/dev/null || echo "  (could not list — claude may need restart)"
+claude mcp list 2>&1 || echo "  (could not list — see error above)"
+
+# Check server count against budget
+SERVER_COUNT=$(claude mcp list 2>/dev/null | grep -c "^" || echo "0")
+if [ "$SERVER_COUNT" -gt 10 ]; then
+  echo "  WARN: $SERVER_COUNT MCP servers exceeds budget of 10"
+fi
 
 # --------------------------------------------------------------------------
 # Done
@@ -196,7 +226,3 @@ echo "=========================================="
 echo " Setup complete."
 echo " Restart Claude Code to activate MCP servers."
 echo "=========================================="
-echo ""
-echo " Usage:"
-echo "   ALPHAVANTAGE_API_KEY=xxx FRED_API_KEY=yyy bash setup.sh"
-echo ""

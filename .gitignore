@@ -2,6 +2,8 @@
 .env
 .env.*
 *.key
+credentials*/
+secrets*/
 
 # Python
 __pycache__/

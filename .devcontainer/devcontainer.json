@@ -7,8 +7,9 @@
 		"ghcr.io/stu-bell/devcontainer-features/claude-code:0": {}
 	},
 
-	// Ensure host directories exist before mounting (runs on HOST)
-	"initializeCommand": "mkdir -p ${HOME}/.claude && touch ${HOME}/.claude.json",
+	// Ensure host ~/.claude/ and ~/.claude.json exist before bind-mounting.
+	// Uses python for cross-platform compatibility (macOS, Linux, Windows/WSL2).
+	"initializeCommand": "python3 -c \"import pathlib, os; h=pathlib.Path.home(); (h/'.claude').mkdir(exist_ok=True); (h/'.claude.json').touch(exist_ok=True)\" || python -c \"import pathlib; h=pathlib.Path.home(); (h/'.claude').mkdir(exist_ok=True); (h/'.claude.json').touch(exist_ok=True)\"",
 
 	// Bind-mount host Claude config directly into the container.
 	// Changes inside the container persist to the host and vice versa.
