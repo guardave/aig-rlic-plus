@@ -326,6 +326,22 @@ Before handing off:
 - [ ] Portal narrative delivered to Ace (when portal is in scope) with layperson prose, glossary, and page-aligned structure
 - [ ] Event timeline sent to both Vera and Ace
 
+### Defense 1: Self-Describing Artifacts (Producer Rule)
+
+Ray produces research briefs, spec memos, event timelines, and narratives consumed by Evan, Vera, Dana, and Ace. Every artifact must be self-describing:
+
+1. **Label claims by evidence strength.** Distinguish consensus (3+ studies agree) from single-study findings from practitioner lore. Never write "research shows X" without specifying who showed it and how strong the evidence is.
+2. **Specification recommendations are concrete.** Don't say "control for macro conditions" — say "include NFCI (FRED: NFCI, weekly, interpolated to daily) as a control variable". Exact series IDs, not vague pointers.
+3. **Event timeline entries are unambiguous.** Each event has: exact date, event description, expected direction of impact on the variables, and source citation. Never leave impact direction implicit.
+4. **Threshold recommendations state the basis.** If recommending "HY-IG spread > 400 bps as stress", cite the source and whether it's a median, a structural break estimate, or a convention.
+
+### Defense 2: Reconciliation at Every Boundary (Consumer Rule)
+
+When Ray consumes upstream artifacts (e.g., reviewing Evan's results for interpretation):
+
+1. **Cross-check reported results against literature.** If Evan reports a Granger causality finding, verify it aligns with (or meaningfully departs from) the cited literature. Flag discrepancies.
+2. **Verify event timeline against chart annotations.** When Vera or Ace use Ray's timeline, spot-check that dates and descriptions match the delivered timeline file.
+
 ## Tool Preferences
 
 ### MCP Servers (Primary)

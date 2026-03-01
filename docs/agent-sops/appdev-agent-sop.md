@@ -293,6 +293,29 @@ Before handing off:
 - [ ] No jargon without definition on layperson-facing pages
 - [ ] Portal architecture documentation provided
 
+### Defense 1: Self-Describing Artifacts (Producer Rule)
+
+When Ace produces portal pages, components, or documentation consumed by Alex:
+
+1. **Hardcoded values trace to source.** Every number displayed in a KPI card, table, or narrative must have a comment citing the source file and field (e.g., `# Source: results/tournament_results.csv, row W1, col sharpe_oos`).
+2. **Component contracts are explicit.** Every reusable component documents what data format it expects, what columns must exist, and what happens if data is missing or malformed.
+
+### Defense 2: Reconciliation at Every Boundary (Consumer Rule — Critical for Ace)
+
+Ace is the final integration point — errors from any upstream agent converge here. Reconciliation is mandatory:
+
+1. **Sanity-check every upstream artifact on ingestion.** Before using any data from Evan, Vera, or Dana, verify at least one known fact:
+   - "During GFC (2008-09), stress probability should be > 0.8"
+   - "Tournament winner Sharpe should match the CSV value exactly"
+   - "B&H max drawdown should be approximately -34% to -55% depending on the period"
+   If any check fails, STOP and ask — do not proceed with a guess.
+
+2. **Cross-check displayed numbers against source files.** Every number shown in the portal (KPI cards, table cells, chart annotations) must be verified against the source CSV/parquet. Run a systematic comparison, not spot-checks.
+
+3. **Verify chart data makes economic sense.** Before embedding a chart, check: Does the equity curve go up over time? Does the drawdown chart show negative values? Does the stress indicator spike during known crises? If something looks wrong, investigate before shipping.
+
+4. **Recompute derived quantities independently.** If the portal displays a Sharpe ratio, recompute it from the equity curve data. If it displays max drawdown, recompute from the drawdown series. The recomputed values must match the displayed values within rounding tolerance.
+
 ---
 
 ## Tool Preferences

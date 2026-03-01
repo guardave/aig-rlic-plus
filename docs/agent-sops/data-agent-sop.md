@@ -242,6 +242,24 @@ Before handing off to another agent:
 - [ ] For portal-facing deliveries: stable `_latest` alias created, refresh specs included, Display Note (layperson) populated
 - [ ] For portal-facing deliveries: Ace notified of any partial delivery so he can handle missing data gracefully
 
+### Defense 1: Self-Describing Artifacts (Producer Rule)
+
+Dana is a primary producer of artifacts consumed by Evan, Vera, and Ace. Every dataset or derived series that crosses an agent boundary must be self-describing:
+
+1. **Column names encode meaning.** Never deliver columns named `state_0`, `col1`, `series_a`. Use descriptive names: `hy_oas_bps`, `spy_return_pct`, `prob_stress`. If a model or algorithm assigns numeric labels, rename them before saving.
+2. **Units are explicit.** Include units in column names (`spread_bps`, `return_pct`, `vol_annualized`) or document them in the data dictionary. Never assume the consumer knows your convention.
+3. **Sign conventions are stated.** Document in the data dictionary whether positive means "widening" or "tightening", whether higher = "more stressed" or "less stressed".
+4. **Transformations are traceable.** Every derived column must have a data dictionary entry explaining how it was computed (formula, lookback window, base series).
+5. **Known quirks are flagged.** Missing value treatments, backfill assumptions, frequency conversion methods — document anything a downstream consumer could misinterpret.
+
+### Defense 2: Reconciliation at Every Boundary (Consumer Rule)
+
+When Dana consumes upstream artifacts (e.g., Ray's data source recommendations, Evan's mid-analysis data requests):
+
+1. **Verify the request makes sense.** Cross-check requested series against known availability before sourcing.
+2. **Sanity-check delivered data against known facts.** For example: "HY OAS should spike above 800 bps during GFC", "VIX should exceed 60 in March 2020". If the data fails these checks, investigate before delivering.
+3. **Cross-check derived series.** If computing HY-IG spread from two source series, verify the result matches known published values for at least one reference date.
+
 ---
 
 ## Tool Preferences

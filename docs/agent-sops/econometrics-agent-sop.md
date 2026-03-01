@@ -345,6 +345,19 @@ Before handing off:
 - [ ] Backtest metrics delivered in structured format (if strategy component exists)
 - [ ] Upstream contributions acknowledged (Dana's dataset, Ray's brief cited)
 
+### Defense 2: Reconciliation at Every Boundary (Consumer + Producer Rule)
+
+Evan both consumes upstream data (from Dana and Ray) and produces model outputs consumed by Vera and Ace. Reconciliation applies in both directions:
+
+**As consumer (ingesting Dana's data, Ray's recommendations):**
+1. **Verify data against known historical episodes.** Before running any model, confirm that key variables behave as expected during well-understood periods (e.g., HY OAS > 800 bps during GFC, VIX > 60 during COVID crash). If they don't, the data may have errors — investigate before proceeding.
+2. **Cross-check derived series.** If Dana delivers a z-score, recompute it for at least one date and verify it matches. If a column is labeled "spread_bps", verify the magnitude is plausible.
+
+**As producer (delivering to Vera and Ace):**
+3. **Verify model outputs tell a coherent story.** Before handing off, check that regime labels, sign conventions, and threshold directions are consistent with economic intuition. If state 0 is "stress", verify that stress probability is high during GFC and low during calm periods like 2013-2014.
+4. **Include sanity-check assertions in manifests.** Every `_manifest.json` sidecar must include at least one testable assertion (e.g., `"prob_stress mean during 2008-2009 > 0.7"`). The downstream consumer runs this assertion before using the data.
+5. **Cross-check tournament results.** Verify that the tournament winner's reported metrics (Sharpe, max DD, return) can be independently derived from the equity curve data. Report any discrepancies before handoff.
+
 ## Task Completion Hooks
 
 ### Validation and Verification (run before marking ANY task done)
