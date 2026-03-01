@@ -104,8 +104,23 @@ This section defines the **minimum viable input** for each chart type. Upstream 
 - Chart specification (structured request, see Acknowledgment Template below)
 - Interpretation notes (key finding for chart title)
 - Narrative paragraphs (secondary source: when explicit notes are thin, extract the finding from Evan's narrative — the insight is usually there, just not formatted as a chart title)
+- **Artifact manifest** (`_manifest.json` sidecar) — column semantics, sign conventions, units, and sanity-check assertions (see team coordination protocol, Defense 1)
 
 **When interpretation notes are thin:** Read Evan's narrative paragraphs carefully. Look for sentences that state findings, comparisons, or economic significance. Extract the core insight and draft the title from it. If genuinely ambiguous, ask one structured question: "What is the main takeaway for [specific chart]?" Do not guess or invent narrative.
+
+### Data Ingestion Validation (Mandatory — see team coordination Defense 2)
+
+Before creating any chart from upstream data, run these checks:
+
+1. **Read the manifest.** If a `_manifest.json` exists for the input file, read it first. Use the column semantics it documents — do not infer meaning from column names alone.
+
+2. **Run the manifest assertions.** If the manifest includes sanity-check assertions, run them. If any assertion fails, STOP and ask the upstream agent — do not proceed with a guess.
+
+3. **If no manifest exists, verify your interpretation against a known period.** Pick a well-understood historical episode (e.g., GFC 2008-09, COVID 2020) and confirm that your derived series behaves as expected. For example: if you believe a column represents "stress probability," check that it is high during GFC. If it is low during GFC, your interpretation is inverted.
+
+4. **Cross-check derived quantities against upstream reported values.** If the upstream handoff says "W1 max drawdown = -11.6%," compute the max drawdown from the data you're about to chart. If your number is -35%, something is wrong with your interpretation. Do not proceed.
+
+5. **When in doubt, ask.** A 30-second question to the upstream agent is cheaper than a chart that shows the wrong data. Never guess the meaning of an ambiguous column.
 
 ### Data-to-Viz (Direct Pathway)
 
@@ -440,6 +455,7 @@ Review quarterly (or at team retrospectives) to identify systemic handoff issues
 
 Before handing off:
 
+**Structural checks:**
 - [ ] Title states the insight, not just the variable name
 - [ ] All axes labeled with units
 - [ ] Source note included
@@ -453,6 +469,13 @@ Before handing off:
 - [ ] Caption provided (one-line takeaway)
 - [ ] Annotation sources documented
 - [ ] If portal in scope: Viz-to-App handoff message sent to Ace using template
+
+**Numerical reconciliation (mandatory):**
+- [ ] Every key number displayed in a chart matches the upstream source (CSV, summary, handoff message) within rounding tolerance
+- [ ] For strategy charts: max drawdown, Sharpe, return figures in the chart data match the tournament results CSV
+- [ ] For regime/probability charts: verified against a known historical period (e.g., stress probability high during GFC)
+- [ ] For derived curves (equity curves, drawdown, cumulative returns): endpoint values are consistent with reported annualized returns
+- [ ] If any reconciliation check fails, the chart is not delivered until the discrepancy is resolved
 
 ---
 

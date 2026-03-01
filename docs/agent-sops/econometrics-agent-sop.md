@@ -226,6 +226,33 @@ All coefficient tables delivered as CSV use these standardized columns:
 - For sensitivity/comparison tables, specify which models to compare side-by-side.
 - Include any event dates or threshold values that should be annotated on the chart.
 
+**Self-describing artifacts (mandatory — see team coordination Defense 1):**
+
+Every model output file (`.pkl`, `.parquet`, `.csv`) that Vera or Ace will consume must be accompanied by a `_manifest.json` sidecar that documents:
+
+1. **Column semantics:** What each column means in economic terms (not just variable names)
+2. **Direction/sign:** What higher vs lower values signify (e.g., "higher = more stressed")
+3. **Units:** Basis points, percent, index level, probability, etc.
+4. **Sanity-check assertions:** At least one verifiable fact per artifact (e.g., "prob_stress mean during 2008-2009 should be > 0.8")
+
+Example manifest for HMM output:
+```json
+{
+  "file": "hmm_states_2state.parquet",
+  "columns": {
+    "hmm_state": "Integer state label (0 or 1)",
+    "prob_stress": "Probability of stress regime (high VIX, wide spreads). Higher = more stressed.",
+    "prob_calm": "Probability of calm regime (low VIX, narrow spreads). Higher = calmer."
+  },
+  "assertions": [
+    {"description": "Stress prob high during GFC", "filter": "2008-01-01 to 2009-03-31", "column": "prob_stress", "check": "mean > 0.8"},
+    {"description": "Stress prob low during calm", "filter": "2013-01-01 to 2014-12-31", "column": "prob_stress", "check": "mean < 0.1"}
+  ]
+}
+```
+
+**Rename before you save.** If a model assigns opaque numeric labels (state 0/1, cluster 1/2/3, regime A/B), rename columns to their economic meaning before writing the output file. The downstream agent should never have to guess what `prob_state_0` means.
+
 ## App Dev Handoff Template
 
 When the analysis feeds into a Streamlit portal (Ace's domain), use this template alongside the Chart Request Template for Vera. Ace needs portal-ready summaries, not raw model output.

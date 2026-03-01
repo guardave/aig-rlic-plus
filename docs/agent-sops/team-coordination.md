@@ -231,6 +231,72 @@ Every handoff requires a structured acknowledgment from the receiver:
 - Assumptions are documented, not implicit
 - Upstream contributions are cited by file path
 
+### Defense 1: Self-Describing Artifacts (Producer Rule)
+
+**Any artifact that crosses an agent boundary must carry enough context that the consumer cannot misinterpret it.** Implicit assumptions — state labels, sign conventions, units, date ranges, return types, merge keys — are the #1 source of silent errors in multi-agent pipelines.
+
+**Concrete requirements for producers:**
+
+1. **Column names encode meaning, not indices.** Never deliver columns named `state_0`, `regime_1`, `cluster_2`. Use `stress_prob`, `calm_prob`, `high_vol_regime`. If a model assigns numeric labels, rename them before saving the output file.
+
+2. **Units are explicit.** Include units in column names (`spread_bps`, `return_pct`, `vol_annualized`) or in a sidecar metadata file. Never assume the consumer knows your unit convention.
+
+3. **Sign conventions are stated.** Document whether positive means "widening" or "tightening", whether a higher value means "more stressed" or "less stressed". If the convention is non-obvious, add a comment in the data dictionary row.
+
+4. **Date/sample boundaries are in the file.** If an artifact is OOS-only, the filename or metadata must say so. Never rely on the consumer knowing your train/test split.
+
+5. **Sidecar manifest for model artifacts.** Every `.pkl` or `.parquet` model output must be accompanied by a `_manifest.json` that documents: what each column/variable means, what higher/lower values signify, and at least one sanity-check assertion (see Defense 2).
+
+**Why this matters:** When Vera receives `prob_state_0` and `prob_state_1`, she must guess which is stress. If Evan delivers `prob_stress` and `prob_calm`, guessing is impossible. This principle applies to every handoff, not just HMM states — it covers sign conventions, return types (arithmetic vs geometric), threshold directions, and any other implicit assumption.
+
+### Defense 2: Reconciliation at Every Boundary (Consumer + Reviewer Rule)
+
+**Every agent that consumes an upstream artifact must verify that their interpretation produces results consistent with the upstream agent's reported numbers.** Gate reviewers must run automated numerical reconciliation, not just structural checks.
+
+**Concrete requirements:**
+
+**For consumers (Vera, Ace, or any downstream agent):**
+
+1. **Sanity-check on ingestion.** Before using any upstream data, verify at least one known fact. Examples:
+   - "During GFC (2008-09), stress probability should be > 0.8"
+   - "Tournament winner Sharpe should be ~1.17"
+   - "B&H max drawdown should be ~-34%"
+   These checks are derived from the upstream agent's summary or handoff message. If the check fails, STOP and ask — do not proceed with a guess.
+
+2. **Cross-check derived outputs against source.** If you compute a drawdown curve from raw data, the max drawdown of that curve must match the number reported in the upstream results CSV (within rounding). If it doesn't, your interpretation of the data is wrong.
+
+3. **When in doubt, verify with a known period.** Pick a well-understood historical episode (GFC, COVID) and confirm your derived series behaves as expected during that period. This catches sign inversions, unit errors, and state label swaps generically.
+
+**For gate reviewers (Alex):**
+
+4. **Automated reconciliation script.** Before signing off on any gate, run a script that compares every number displayed in the portal/charts against the source CSV/parquet. This is not optional spot-checking — it is a systematic check that every displayed number traces back to the ground truth.
+
+5. **Reconciliation covers derived quantities.** Don't just check that "Sharpe = 1.17" appears correctly. Recompute the Sharpe from the equity curve data in the chart and verify it matches. This catches errors in the derivation, not just the label.
+
+**Template for a reconciliation script:**
+
+```python
+# gate_reconciliation.py — mandatory before Gate 3/4 sign-off
+import json, pandas as pd
+
+def reconcile_chart(chart_name, check_fn, tolerance=0.02):
+    """Load a chart JSON and run a numerical check against ground truth."""
+    with open(f'output/charts/plotly/{chart_name}.json') as f:
+        fig = json.load(f)
+    result = check_fn(fig)
+    assert result, f"RECONCILIATION FAILED: {chart_name}"
+    print(f"  OK  {chart_name}")
+
+# Example checks:
+# 1. Drawdown chart W1 MDD must match tournament CSV
+# 2. Equity curve final value must be consistent with reported annualized return
+# 3. HMM stress probability must be high during GFC, low during 2013-2014
+# 4. KPI card numbers must match tournament CSV
+# ... add one check per chart
+```
+
+**Why this matters:** Structural reviews (files exist, parse OK, titles are good) catch ~20% of errors. Numerical reconciliation catches the remaining ~80% — the silent errors where the chart looks plausible but shows the wrong data. The cost of writing these checks is low; the cost of shipping wrong charts is high.
+
 ## Task Completion Hooks (Team-Wide Standard)
 
 Every agent must run these two hooks when completing any task. Individual SOPs contain role-specific details; these are the universal minimums.
