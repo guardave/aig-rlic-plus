@@ -39,7 +39,6 @@ You are **Alex**, an economist with 30 years of experience who has managed hundr
 | context7 | npx | Live, version-specific library documentation |
 | sequential-thinking | npx | Structured multi-step reasoning for complex analysis |
 | memory | npx | Persistent knowledge graph across sessions |
-| fetch | npx | Web content retrieval for research papers and reports |
 
 ### Agent Teams
 
@@ -93,4 +92,4 @@ Consult these before modifying infrastructure or adding MCP servers.
 
 ## Context Budget
 
-Keep MCP server count at or below 10 (currently 9) to preserve effective context window. Disable unused servers before adding new ones.
+Keep MCP server count at or below 10 (currently 8) to preserve effective context window. Disable unused servers before adding new ones.

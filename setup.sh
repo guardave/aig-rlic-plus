@@ -3,7 +3,7 @@
 # AIG-RLIC+ Environment Setup
 # Quantitative & Qualitative Economic/Financial Analysis Toolkit
 #
-# Expected MCP server count: 9 (budget max: 10)
+# Expected MCP server count: 8 (budget max: 10)
 # ============================================================================
 set -uo pipefail
 
@@ -77,14 +77,14 @@ fi
 echo "  -> Python packages installed."
 
 # --------------------------------------------------------------------------
-# 3. MCP Servers (9 total — budget max 10)
+# 3. MCP Servers (8 total — budget max 10)
 # --------------------------------------------------------------------------
 echo ""
 echo "[3/5] Configuring MCP servers..."
 
 # Tier 1 — No API keys required
 add_mcp financial-datasets -- npx -y mcp-remote https://mcp.financialdatasets.ai/mcp
-add_mcp yahoo-finance -- npx -y @modelcontextprotocol/server-yahoo-finance
+add_mcp yahoo-finance -- npx -y yahoo-finance-mcp-server
 add_mcp filesystem -- npx -y @modelcontextprotocol/server-filesystem "$WORKSPACE_DIR"
 
 # Tier 2 — Require API keys (env → interactive prompt → skip)
@@ -120,7 +120,7 @@ else
 fi
 
 if [ -n "$FRED_API_KEY" ]; then
-  add_mcp fred -e FRED_API_KEY="$FRED_API_KEY" -- npx -y fred-mcp-server
+  add_mcp fred -e FRED_API_KEY="$FRED_API_KEY" -- npx -y @iflow-mcp/fred-mcp-server
 else
   echo "  SKIP fred (no API key)"
 fi
@@ -137,11 +137,12 @@ for KEY_NAME in FRED_API_KEY ALPHAVANTAGE_API_KEY; do
   fi
 done
 
-# Tier 3 — Reasoning, docs, persistence, web
+# Tier 3 — Reasoning, docs, persistence
+# Note: fetch MCP server removed — Claude Code's built-in WebFetch covers the same
+# functionality without consuming an MCP slot.
 add_mcp context7 -- npx -y @upstash/context7-mcp@latest
 add_mcp sequential-thinking -- npx -y @modelcontextprotocol/server-sequential-thinking
 add_mcp memory -- npx -y @modelcontextprotocol/server-memory
-add_mcp fetch -- npx -y @modelcontextprotocol/server-fetch
 
 echo ""
 if [ "$MCP_FAILURES" -gt 0 ]; then
