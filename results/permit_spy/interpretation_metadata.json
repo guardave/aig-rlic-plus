@@ -1,0 +1,15 @@
+{
+  "indicator": "permit",
+  "target": "spy",
+  "expected_direction": "pro_cyclical",
+  "observed_direction": "pro_cyclical",
+  "direction_consistent": true,
+  "mechanism": "Rising building permits signal housing expansion, driving employment, consumer wealth, and material demand \u2014 bullish for equities.",
+  "confidence": "high",
+  "key_finding": "permit_zscore_60m predicts spy_fwd_12m (coef=0.0273, t=3.32, p=0.0009)",
+  "caveats": [
+    "Monthly frequency with ~3-week publication lag",
+    "Housing bubble (2003-2007) may dominate regime models",
+    "COVID April 2020 collapse is an outlier"
+  ]
+}

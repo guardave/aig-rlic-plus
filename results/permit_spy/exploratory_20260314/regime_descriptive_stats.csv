@@ -1,0 +1,5 @@
+regime,n_months,ann_return_pct,ann_vol_pct,sharpe
+Q1_low,99,12.17,16.15,0.754
+Q2,99,8.67,15.17,0.572
+Q3,98,11.12,13.75,0.809
+Q4_high,99,13.23,13.91,0.951

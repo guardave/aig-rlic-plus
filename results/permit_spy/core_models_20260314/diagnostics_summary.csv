@@ -1,0 +1,3 @@
+test,statistic,p_value
+Jarque-Bera,63.7056,0.0
+Durbin-Watson,0.6416,

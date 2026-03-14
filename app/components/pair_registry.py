@@ -79,6 +79,7 @@ def load_pair_registry():
         # Map indicator/target to display names
         indicator_names = {
             "indpro": "Industrial Production",
+            "permit_spy": "Building Permits",
             "sofr_ted_spy": "SOFR - DTB3 (TED)",
             "dff_ted_spy": "DFF - DTB3 (Fed Funds TED)",
             "ted_spliced_spy": "Spliced TED Spread",
@@ -93,8 +94,14 @@ def load_pair_registry():
 
         # TED variants share a single set of pages
         ted_variants = {"sofr_ted_spy", "dff_ted_spy", "ted_spliced_spy"}
+        page_routing = {
+            "indpro_spy": "pages/5_indpro_spy",
+            "permit_spy": "pages/7_permit_spy",
+        }
         if pair_dir in ted_variants:
             page_prefix = "pages/6_ted_variants"
+        elif pair_dir in page_routing:
+            page_prefix = page_routing[pair_dir]
         else:
             page_prefix = f"pages/5_{pair_dir}"
 

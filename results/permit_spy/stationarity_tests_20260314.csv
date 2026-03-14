@@ -1,0 +1,11 @@
+variable,test,statistic,p_value,conclusion
+permit,ADF,-1.44,0.5629,Non-stationary
+permit,KPSS,0.29,0.1445,Stationary
+spy,ADF,3.8163,1.0,Non-stationary
+spy,KPSS,2.6022,0.0001,Non-stationary
+permit_yoy,ADF,-2.7835,0.0607,Non-stationary
+permit_yoy,KPSS,0.1297,0.4583,Stationary
+permit_mom,ADF,-23.4978,0.0,Stationary
+permit_mom,KPSS,0.1527,0.3822,Stationary
+unrate,ADF,-2.7091,0.0725,Non-stationary
+unrate,KPSS,0.3049,0.1315,Stationary

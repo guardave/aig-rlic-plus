@@ -35,6 +35,16 @@ FINDINGS = [
             "Methodology": "pages/6_ted_variants_methodology.py",
         },
     },
+    {
+        "id": "permit_spy",
+        "label": "Building Permits → SPY",
+        "pages": {
+            "Story": "pages/7_permit_spy_story.py",
+            "Evidence": "pages/7_permit_spy_evidence.py",
+            "Strategy": "pages/7_permit_spy_strategy.py",
+            "Methodology": "pages/7_permit_spy_methodology.py",
+        },
+    },
 ]
 
 
@@ -70,7 +80,7 @@ def render_sidebar():
         st.markdown(
             '<p style="font-size: 0.8rem; color: #999;">'
             "Data through 2025-12-31<br>"
-            "3 of 73 priority pairs analyzed"
+            "4 of 73 priority pairs analyzed"
             "</p>",
             unsafe_allow_html=True,
         )

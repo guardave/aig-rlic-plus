@@ -1,0 +1,12 @@
+{
+  "pair_id": "permit_spy",
+  "total_seconds": 7.0,
+  "stage_times": {
+    "1_data": 4.9,
+    "2_derived": 0.0,
+    "3_stationarity": 0.5,
+    "4_exploratory": 0.0,
+    "5_models": 0.4,
+    "6_tournament": 1.2
+  }
+}

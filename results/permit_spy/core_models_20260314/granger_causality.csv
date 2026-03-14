@@ -1,0 +1,13 @@
+direction,lag,f_stat,p_value
+Permit->SPY,1,0.5672,0.4518
+Permit->SPY,2,0.5376,0.5846
+Permit->SPY,3,0.3047,0.822
+Permit->SPY,4,1.0824,0.3649
+Permit->SPY,5,0.803,0.548
+Permit->SPY,6,0.8744,0.5137
+SPY->Permit,1,14.9436,0.0001
+SPY->Permit,2,8.187,0.0003
+SPY->Permit,3,5.4546,0.0011
+SPY->Permit,4,5.409,0.0003
+SPY->Permit,5,4.6337,0.0004
+SPY->Permit,6,4.0822,0.0006
