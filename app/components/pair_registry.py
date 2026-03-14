@@ -118,7 +118,7 @@ def load_pair_registry():
             "story_page": f"{page_prefix}_story.py",
             "evidence_page": f"{page_prefix}_evidence.py",
             "strategy_page": f"{page_prefix}_strategy.py",
-            "methodology_page": f"{page_prefix}_strategy.py",  # Strategy page has methodology for TED variants
+            "methodology_page": f"{page_prefix}_methodology.py",
         })
 
     return pairs
