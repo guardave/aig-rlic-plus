@@ -14,6 +14,9 @@ Tracks time, token usage, and results for each priority combination analysis run
 | # | Pair | Status | Pipeline (s) | Token Est. | Best OOS Sharpe | BH Sharpe | Valid Combos | Notes |
 |---|------|--------|-------------|------------|-----------------|-----------|-------------|-------|
 | 1 | INDPRO → SPY | Completed | ~14.0 | ~400K | 1.10 | 0.90 | 1,150 / 1,666 | Counter-cyclical z-score surprise |
+| 2a | SOFR-DTB3 → SPY | Completed | 14.4 (3 combined) | ~200K (shared) | 1.89 | 1.41 | 580 / 991 | Short OOS (3yr), inflated Sharpe |
+| 2b | DFF-DTB3 → SPY | Completed | (shared) | (shared) | 0.97 | 0.77 | 388 / 991 | Most robust; long history |
+| 2c | Spliced TED → SPY | Completed | (shared) | (shared) | 1.19 | 0.77 | 598 / 991 | TEDRATE + affine-adjusted DFF-TED |
 
 ---
 
@@ -211,6 +214,34 @@ temp/inspect_portal.py
 | visualization-agent-sop.md | Added Viz Preferences section: 10 standard charts, color palette, naming convention, Streamlit rendering rules | Standardize chart set across pairs; prevent rendering bugs |
 | appdev-agent-sop.md | Added Streamlit Rendering Rules to architecture rules | Prevent HTML/markdown rendering failures |
 | All SOPs | Renamed Alex → Lesandro | Lead analyst name change |
+
+### From Pair #2 (TED Variants → SPY) — MRA
+
+**Measure:**
+- 3 variants, 14.4s combined pipeline, ~200K tokens (shared data sourcing)
+- SOFR-DTB3: Sharpe 1.89 (OOS 3yr only — high variance), DFF-DTB3: 0.97 (robust), Spliced: 1.19
+- Rate-of-change signals won across all 3 variants
+- No portal rendering issues (prior fixes held)
+
+**Review:**
+- SOFR and LIBOR-based TED measure fundamentally different risks (r=-0.04). The splice investigation was essential.
+- DFF-DTB3 is the canonical TED proxy (r=+0.63 with TEDRATE). Should be default going forward.
+- Short-OOS inflates Sharpe — Variant A's 1.89 is not trustworthy with only 3 years.
+- "Variant family" pattern (one indicator question → multiple measurement approaches) is powerful and should be formalized.
+- Analysis brief was written before splice analysis — should update brief post-analysis for completeness.
+
+**Adjust:**
+- Rate-of-change > level signals: consistent finding across INDPRO and TED variants. *Change in conditions* matters more than *level of conditions*.
+- Short-OOS flag needed: when OOS < 5 years, auto-flag the Sharpe as "high variance, interpret with caution".
+- Variant family pattern: when an indicator has measurement alternatives (predecessor/proxy/derived), run all variants in one pipeline. Document the choice rationale in the Story page.
+- 3 TED variants count as 1 priority pair (#2), not 3. Sidebar and tracking reflect this.
+
+### SOP Updates Applied (Pair #2)
+
+| SOP | What Changed | Why |
+|-----|-------------|-----|
+| team-coordination.md | Added MRA (Step 8) to task flow; full MRA protocol section | Formalize Measure-Review-Adjust after every pair |
+| memory | Added MRA feedback memory | Persist across sessions |
 
 ---
 

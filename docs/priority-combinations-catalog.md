@@ -56,7 +56,7 @@ These 73 pairs were analyzed manually and found to have meaningful indicator-tar
 | 17 | S&P 500 | SPY | Credit Card Default | I16 | CC_DEFAULT | FRED: DRCCLACBS | Pending | |
 | 18 | S&P 500 | SPY | Cass Freight Index | I25 | CASS_FREIGHT | Cass Information Systems | Pending | |
 | 19 | S&P 500 | SPY | C&I Loans | I20 | BUSLOANS | FRED: BUSLOANS | Pending | |
-| 20 | S&P 500 | SPY | HY-IG Spread | I19 | HY_IG_OAS | Computed: FRED BAMLH0A0HYM2 - BAMLC0A0CM | Pending | |
+| 20 | S&P 500 | SPY | HY-IG Spread | I19 | HY_IG_OAS | Computed: FRED BAMLH0A0HYM2 - BAMLC0A0CM | Completed | OOS Sharpe 1.17 (HMM regime, Long/Cash). Reference implementation. |
 | 21 | S&P 500 | SPY | Petroleum Inventory | I27 | PETROL_INV | EIA weekly data | Pending | |
 
 ---

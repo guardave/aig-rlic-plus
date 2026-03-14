@@ -37,7 +37,7 @@ def render_sidebar():
         st.markdown(
             '<p style="font-size: 0.8rem; color: #999;">'
             "Data through 2025-12-31<br>"
-            "5 of 73 priority pairs analyzed"
+            "3 of 73 priority pairs analyzed"
             "</p>",
             unsafe_allow_html=True,
         )
