@@ -38,7 +38,7 @@ These 73 pairs were analyzed manually and found to have meaningful indicator-tar
 | # | Target | Ticker | Indicator | Indicator ID | Canonical Name | Source | Status | Comparison Notes |
 |---|--------|--------|-----------|--------------|----------------|--------|--------|------------------|
 | 1 | S&P 500 | SPY | Industrial Production (2017=100) | I1 | INDPRO | FRED: INDPRO | Completed | OOS Sharpe 1.10 (3M mom, L6). Z-score counter-cyclical surprise. |
-| 2 | S&P 500 | SPY | SOFR-US3M (TED Rate) | I17 | SOFR_US3M | Computed: FRED SOFR - TB3MS | Pending | |
+| 2 | S&P 500 | SPY | SOFR-US3M (TED Rate) | I17 | SOFR_US3M | Computed: FRED SOFR - TB3MS | Completed | 3 variants run (SOFR/DFF/spliced). Best: SOFR RoC 63d Sharpe 1.89 (short OOS). DFF-TED Sharpe 0.97 (robust). |
 | 3 | S&P 500 | SPY | Building Permits | I9 | PERMIT | FRED: PERMIT | Pending | |
 | 4 | S&P 500 | SPY | US10Y-US3M | I18 | T10Y3M | FRED: T10Y3M | Pending | |
 | 5 | S&P 500 | SPY | Michigan Consumer Sentiment | I14 | UMCSENT | FRED: UMCSENT | Pending | |

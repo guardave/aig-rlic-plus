@@ -27,12 +27,17 @@ def render_sidebar():
         st.page_link("pages/5_indpro_spy_strategy.py", label="Strategy", icon="🎯")
         st.page_link("pages/5_indpro_spy_methodology.py", label="Methodology", icon="📐")
 
+        st.markdown("### Finding 3: TED Variants → SPY")
+        st.page_link("pages/6_ted_variants_story.py", label="Story", icon="📖")
+        st.page_link("pages/6_ted_variants_evidence.py", label="Evidence", icon="🔬")
+        st.page_link("pages/6_ted_variants_strategy.py", label="Strategy", icon="🎯")
+
         st.markdown("---")
 
         st.markdown(
             '<p style="font-size: 0.8rem; color: #999;">'
             "Data through 2025-12-31<br>"
-            "2 of 73 priority pairs analyzed"
+            "5 of 73 priority pairs analyzed"
             "</p>",
             unsafe_allow_html=True,
         )

@@ -1,0 +1,28 @@
+{
+  "date": "20260314",
+  "total_seconds": 14.4,
+  "stage_times": {
+    "data_sourcing": 6.0,
+    "build_variants": 0.1
+  },
+  "variants": {
+    "sofr_ted_spy": {
+      "label": "SOFR - DTB3",
+      "obs": 2022,
+      "tournament_combos": 991,
+      "valid": 580
+    },
+    "dff_ted_spy": {
+      "label": "DFF - DTB3 (Fed Funds TED)",
+      "obs": 8589,
+      "tournament_combos": 991,
+      "valid": 388
+    },
+    "ted_spliced_spy": {
+      "label": "TEDRATE + adj DFF-TED (scale=1.253, shift=0.226)",
+      "obs": 8589,
+      "tournament_combos": 991,
+      "valid": 598
+    }
+  }
+}

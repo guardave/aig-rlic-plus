@@ -1,0 +1,11 @@
+{
+  "indicator": "ted_spliced_spy",
+  "target": "spy",
+  "expected_direction": "counter_cyclical",
+  "observed_direction": "counter_cyclical",
+  "direction_consistent": true,
+  "mechanism": "Wider funding spread indicates stress in interbank/repo markets, tightening financial conditions, reduced liquidity \u2014 bearish for equities.",
+  "confidence": "medium",
+  "key_finding": "spread predicts spy_fwd_63d (coef=-0.0208, t=-6.45, p=0.0000)",
+  "caveats": []
+}

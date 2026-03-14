@@ -79,15 +79,24 @@ def load_pair_registry():
         # Map indicator/target to display names
         indicator_names = {
             "indpro": "Industrial Production",
+            "sofr_ted_spy": "SOFR - DTB3 (TED)",
+            "dff_ted_spy": "DFF - DTB3 (Fed Funds TED)",
+            "ted_spliced_spy": "Spliced TED Spread",
         }
         target_names = {
             "spy": "S&P 500",
         }
 
-        indicator = indicator_names.get(interp.get("indicator", ""), interp.get("indicator", pair_dir))
+        indicator = indicator_names.get(pair_dir, indicator_names.get(
+            interp.get("indicator", ""), interp.get("indicator", pair_dir)))
         target = target_names.get(interp.get("target", ""), interp.get("target", ""))
 
-        page_prefix = f"pages/5_{pair_dir}"
+        # TED variants share a single set of pages
+        ted_variants = {"sofr_ted_spy", "dff_ted_spy", "ted_spliced_spy"}
+        if pair_dir in ted_variants:
+            page_prefix = "pages/6_ted_variants"
+        else:
+            page_prefix = f"pages/5_{pair_dir}"
 
         pairs.append({
             "pair_id": pair_dir,
@@ -109,7 +118,7 @@ def load_pair_registry():
             "story_page": f"{page_prefix}_story.py",
             "evidence_page": f"{page_prefix}_evidence.py",
             "strategy_page": f"{page_prefix}_strategy.py",
-            "methodology_page": f"{page_prefix}_methodology.py",
+            "methodology_page": f"{page_prefix}_strategy.py",  # Strategy page has methodology for TED variants
         })
 
     return pairs

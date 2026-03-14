@@ -43,7 +43,8 @@ A typical analysis follows this sequence:
 5. Visualization agent produces charts and tables     ← (after 4)
 6. App dev assembles portal with narrative + visuals  ← (after 5, with input from 2 & 3)
 7. Browser verification (headless inspect + fix)      ← (after 6)
-8. Lesandro reviews, interprets, and delivers final output
+8. MRA: Measure, Review, Adjust                       ← (after 7)
+9. Lesandro reviews, interprets, and delivers final output
 ```
 
 Steps 2 and 3 run in parallel. Steps 4, 5, and 6 are sequential dependencies.
@@ -90,6 +91,55 @@ These bugs are **invisible during development** (the Python code looks correct) 
 | `st.markdown("<div><span>text</span></div>", unsafe_allow_html=True)` | **Unreliable** — may show as raw tags | Use `st.container()` + native Streamlit components |
 | `st.metric("Label", value)` in narrow column | Truncates with `...` | Use fewer columns or markdown tables |
 | `st.container(border=True)` | Yes | Preferred for card-like layouts |
+
+## MRA: Measure, Review, Adjust (Mandatory After Browser Verification)
+
+After every pair pipeline + portal + browser verification, conduct **MRA** before the work is considered complete. This is Step 8 in the Standard Task Flow.
+
+### Measure
+
+Record quantitative outcomes in `docs/pair_execution_history.md`:
+
+| What to Measure | Where to Record |
+|----------------|-----------------|
+| Pipeline wall-clock time per stage | Pipeline Timing table |
+| Token usage by component | Token Usage Estimate table |
+| Econometric results: best Sharpe, direction, significance | Key Results table |
+| Tournament stats: combos tested, valid count, benchmark comparison | Key Results table |
+| Portal: rendering issues found and fixed | Key Findings section |
+| Deviation from previous pair's cost/timing | Cost Projections section |
+
+### Review
+
+Reflect on what worked and what didn't:
+
+- **Econometric:** Direction surprises, model convergence issues, unexpected insignificance
+- **Data:** Sourcing failures, frequency mismatches, sample limitations
+- **Portal:** Rendering bugs caught by browser, layout issues, chart quality
+- **Process:** Pipeline friction, script adaptation difficulty, documentation gaps
+
+### Adjust
+
+Update artifacts based on the review:
+
+| If This Happened | Then Adjust This |
+|-----------------|-----------------|
+| New rendering rule discovered | Update viz-agent SOP + appdev SOP |
+| Pipeline step failed or was slow | Fix template script + document in lessons |
+| Econometric method was unhelpful for this indicator type | Note in econometric-methods-catalog Relevance Matrix |
+| Token usage significantly off projection | Revise per-pair estimates in execution history |
+| New data source challenge | Update data-agent SOP |
+| Direction was surprising | Document in interpretation_metadata.json + lessons |
+
+### Documentation
+
+After MRA, update:
+1. `docs/pair_execution_history.md` — full MRA section for this pair
+2. File-based memory (`~/.claude/projects/.../memory/`) — new lessons file if significant
+3. AutoMem knowledge graph — new entities/observations for major findings
+4. SOPs — if any rules changed
+
+**No pair is considered complete until MRA is documented.**
 
 ## Phase 0: Analysis Brief (Mandatory Gate)
 

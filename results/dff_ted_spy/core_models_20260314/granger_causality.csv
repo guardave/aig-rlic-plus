@@ -1,0 +1,11 @@
+direction,lag,f_stat,p_value
+Spread->SPY,1,2.0209,0.1552
+Spread->SPY,2,1.3298,0.2646
+Spread->SPY,3,0.8439,0.4696
+Spread->SPY,4,0.6422,0.6323
+Spread->SPY,5,1.4059,0.2186
+SPY->Spread,1,4.1422,0.0419
+SPY->Spread,2,5.8954,0.0028
+SPY->Spread,3,5.5794,0.0008
+SPY->Spread,4,5.7272,0.0001
+SPY->Spread,5,5.4843,0.0

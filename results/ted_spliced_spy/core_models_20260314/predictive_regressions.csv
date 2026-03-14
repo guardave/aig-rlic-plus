@@ -1,0 +1,10 @@
+signal,horizon,coef,t_stat,p_value,r_squared,n
+spread,spy_fwd_5d,-0.001234,-0.844,0.3986,0.0004,8583
+spread,spy_fwd_21d,-0.004874,-2.034,0.042,0.0017,8567
+spread,spy_fwd_63d,-0.020772,-6.45,0.0,0.0112,8525
+spread_zscore_252d,spy_fwd_5d,0.000542,2.129,0.0332,0.0009,8385
+spread_zscore_252d,spy_fwd_21d,0.003186,6.875,0.0,0.009,8369
+spread_zscore_252d,spy_fwd_63d,0.005879,8.348,0.0,0.0113,8327
+spread_mom_21d,spy_fwd_5d,0.002159,0.775,0.4381,0.0005,8563
+spread_mom_21d,spy_fwd_21d,0.007308,1.636,0.1018,0.0014,8547
+spread_mom_21d,spy_fwd_63d,0.009305,1.51,0.1311,0.0009,8505
