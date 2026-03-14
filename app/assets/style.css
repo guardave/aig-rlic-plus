@@ -1,5 +1,19 @@
 /* AIG-RLIC+ Portal Styles */
 
+/* Equal-height card grid: force columns in a row to stretch to tallest */
+div[data-testid="stHorizontalBlock"] {
+    align-items: stretch;
+}
+
+/* Make bordered containers inside columns fill full height */
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] {
+    height: 100%;
+}
+
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] > div {
+    height: 100%;
+}
+
 /* Readable text blocks */
 .narrative-block {
     max-width: 800px;
