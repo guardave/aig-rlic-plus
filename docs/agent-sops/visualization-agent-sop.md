@@ -118,7 +118,7 @@ Before creating any chart from upstream data, run these checks:
 
 3. **If no manifest exists, verify your interpretation against a known period.** Pick a well-understood historical episode (e.g., GFC 2008-09, COVID 2020) and confirm that your derived series behaves as expected. For example: if you believe a column represents "stress probability," check that it is high during GFC. If it is low during GFC, your interpretation is inverted.
 
-4. **Cross-check derived quantities against upstream reported values.** If the upstream handoff says "W1 max drawdown = -11.6%," compute the max drawdown from the data you're about to chart. If your number is -35%, something is wrong with your interpretation. Do not proceed.
+4. **Cross-check derived quantities against upstream reported values.** If the upstream handoff says "winner max drawdown = X%," compute the max drawdown from the data you're about to chart. If your number differs significantly, something is wrong with your interpretation. The correct value is in the tournament results CSV. Example: if reported MDD is -11.6% but you compute -35%, the discrepancy likely indicates a data interpretation error (e.g., using the wrong column, confusing arithmetic vs log returns, or mixing in-sample with out-of-sample data). Do not proceed.
 
 5. **When in doubt, ask.** A 30-second question to the upstream agent is cheaper than a chart that shows the wrong data. Never guess the meaning of an ambiguous column.
 
@@ -237,6 +237,7 @@ Before charting, perform a quick sanity check on received data:
 - **Legend:** Only if multiple series; placed to avoid obscuring data
 - **Source note:** Bottom-left, small font (e.g., "Source: FRED, BLS")
 - **Date/period label:** If time-series, show sample period
+- **Direction annotation** (when applicable): For indicator-target analysis charts, include the direction relationship inline — not just in a separate callout box. Use the visual language defined above.
 
 **Style defaults:**
 
@@ -270,6 +271,22 @@ plt.rcParams.update({
 | Highlight / alert | `#CC79A7` (pink) |
 | Neutral / baseline | `#999999` (grey) |
 | Full palette | `seaborn.color_palette("colorblind")` |
+
+**Direction Annotation Visual Language:**
+
+When charting indicator-target relationships, use consistent visual encoding for the direction of the relationship:
+
+| Direction | Line Style | Color Modifier | Label |
+|-----------|-----------|----------------|-------|
+| Pro-cyclical (indicator ↑ → target ↑) | Solid line | Standard palette | "↑ Higher {indicator} → Higher {target}" |
+| Counter-cyclical (indicator ↑ → target ↓) | Dashed line | Standard palette | "↓ Higher {indicator} → Lower {target}" |
+| Ambiguous | Dotted line | Grey (#999999) | "Direction determined empirically" |
+| Conditional (regime-dependent) | Dash-dot line | Standard palette | "Direction varies by regime" |
+
+For multi-pair dashboards comparing the same indicator across multiple targets:
+- Show direction arrows inline with the legend entry
+- Add a "Differs From" annotation when the same indicator has opposite interpretations for different targets on the same chart
+- Use Evan's `interpretation_metadata.json` for direction and mechanism text
 
 ### 6. Format Tables
 

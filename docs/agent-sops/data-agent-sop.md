@@ -85,7 +85,8 @@ Before any transformation, document:
   - **Flag econometric implications of data decisions.** For example: "Forward-filled 3 observations for GDP; this may induce serial correlation in monthly regressions."
 - Align frequencies across series (use lowest common frequency unless instructed otherwise)
 - Apply transformations as requested (log, difference, percent change, seasonal adjustment)
-- Name columns descriptively: `us_cpi_yoy`, `sp500_close`, not `col1`, `series_a`
+- Name columns descriptively using canonical names from the Data Series Catalog: `ism_mfg_pmi`, `vix_vix3m`, `permit`, `hy_ig_oas`, `spy_close` — not `col1`, `series_a`. See `docs/data-series-catalog.md`, Section 7 for the full canonical name registry.
+- **Derived series:** For computed indicators (I17 SOFR-US3M, I19 HY-IG spread, I22 VIX/VIX3M, I30 Gold/Copper, I31 ISM ratio, I32 New Orders YoY), follow the computation recipes in `docs/data-series-catalog.md`, Section 7.10. Document the computation in the data dictionary as a transformation. Example: `ism_mfg_svc_ratio` = `ism_mfg_pmi / ism_svc_pmi`.
 
 ### 5. Validate
 
@@ -99,6 +100,8 @@ Run these checks on every delivered dataset:
 | Outliers | Z-score > 4 or domain-specific bounds | Flag, do NOT auto-remove |
 | Merge integrity | Row count before/after joins | Report any expansion or loss |
 | Type consistency | `df.dtypes` review | Fix silently if obvious; flag if ambiguous |
+
+**Frequency alignment:** When merging indicators of different frequencies (e.g., daily I17 with monthly I1), follow the alignment rules in `docs/data-series-catalog.md`, Section 9. Document the alignment method in the data dictionary. Flag any cases where alignment introduces more than 5 days of staleness.
 
 **Stationarity testing ownership:** Dana runs ADF, KPSS, and/or Phillips-Perron tests and delivers results in a structured table. The econometrics agent reviews and confirms these results rather than re-running from scratch. If the econometrics agent disagrees with a test conclusion, they flag it back for discussion rather than silently overriding.
 
@@ -257,7 +260,7 @@ Dana is a primary producer of artifacts consumed by Evan, Vera, and Ace. Every d
 When Dana consumes upstream artifacts (e.g., Ray's data source recommendations, Evan's mid-analysis data requests):
 
 1. **Verify the request makes sense.** Cross-check requested series against known availability before sourcing.
-2. **Sanity-check delivered data against known facts.** For example: "HY OAS should spike above 800 bps during GFC", "VIX should exceed 60 in March 2020". If the data fails these checks, investigate before delivering.
+2. **Sanity-check delivered data against known facts.** For example: "HY OAS should spike above 800 bps during GFC", "VIX should exceed 60 in March 2020", "ISM PMI should drop below 45 during GFC", "Building Permits should decline sharply in 2008-09". If the data fails these checks, investigate before delivering.
 3. **Cross-check derived series.** If computing HY-IG spread from two source series, verify the result matches known published values for at least one reference date.
 
 ---

@@ -39,6 +39,33 @@ After receiving Ray's research brief, perform an explicit intake step:
 
 **Two-stage intake from Ray:** In time-sensitive situations, Ray may deliver a quick specification memo first (5 bullets: DV, key regressors, instruments, pitfalls, sample conventions) followed by a full research brief later. You may begin baseline specification from the quick memo and refine when the full brief arrives. Always note which version of Ray's input informed your specification.
 
+### 2.5. Method Category Selection
+
+Before specifying models, determine which analysis categories to apply using a two-step process:
+
+**Step 1: Consult the Relevance Matrix**
+Look up the indicator type in the Relevance Matrix (`docs/econometric-methods-catalog.md`, Appendix). Categories scored `++` are core — run these first. Categories scored `+` are useful — include if computational budget permits.
+
+**Step 2: Apply the Category Selection Heuristic (Rules A-D)**
+
+| Rule | Condition | Action |
+|------|-----------|--------|
+| **A (Stationarity)** | Both indicator and target are I(1) | Prioritize Category 9 (Cointegration & Equilibrium) |
+| **A (Stationarity)** | Both are I(0) | Skip Category 9 |
+| **B (Frequency)** | Indicator frequency < target frequency (e.g., monthly vs. daily) | Prioritize Categories 2 (Lead-Lag) and 7 (Signal Extraction) |
+| **C (Type)** | Apply indicator type row from Relevance Matrix | Start with `++` categories, add `+` until computational budget reached |
+| **D (Uncertainty)** | Expected direction is `ambiguous` or `conditional` | Add Category 3 (Regime) and Category 12 (Distributional) regardless |
+
+**Worked examples:**
+
+1. **ISM Manufacturing PMI (I2, Activity/Survey) → SPY:** Rule C → Lead-Lag (++), TimeSeries (++), ML (++), Factor (++), FcstEval (++) are core. Rule B → monthly indicator vs daily target → add Signal Extraction. Start with Lead-Lag + TimeSeries + FcstEval.
+
+2. **VIX/VIX3M (I22, Volatility/Options) → TLT:** Rule C → Corr (++), Regime (++), Vol (++), Event/Tail (++) are core. Rule D → expected direction is `conditional` → add Distributional. Start with Regime + Event/Tail + Vol.
+
+3. **HY-IG Spread (I19, Credit Spread) → SPY:** Rule C → 8 core categories (Corr, Lead-Lag, Regime, TimeSeries, Event/Tail, Coint, Distrib, FcstEval). Rule A → both likely I(1) → confirm Cointegration. Apply computational budget to subset.
+
+Document category selection in the analysis log. If departing from the heuristic, state the rationale.
+
 ### 3. Data Request to Dana
 
 Before exploratory analysis, produce a structured data request using the template below.
@@ -139,6 +166,14 @@ Run the appropriate diagnostics for the model class.
 | Stationarity | ADF, KPSS | Confirm I(0) for valid OLS inference |
 | Cointegration | Engle-Granger, Johansen | Needed if series are I(1) |
 | Structural break | Chow test, CUSUM | Subsample analysis if detected |
+
+**Reverse causality check (mandatory for all indicator-target analyses):**
+
+| Diagnostic | Test | Interpret |
+|-----------|------|-----------|
+| Reverse causality | Local Projection: regress indicator on lagged target returns | If significant, the target may be driving the indicator rather than vice versa; document and flag |
+
+Run a Local Projection (Jorda) regression with the target as the independent variable and the indicator as the dependent variable. If the target significantly predicts the indicator at horizons 1-12, flag this as a reverse causality concern in the results narrative. This does not invalidate the analysis but must be documented.
 
 **IV additions:**
 
@@ -251,6 +286,32 @@ Example manifest for HMM output:
 }
 ```
 
+**Interpretation metadata (mandatory per indicator-target pair):**
+
+Every analysis run produces an `interpretation_metadata.json` alongside results:
+
+```json
+{
+  "indicator": "{CANONICAL_NAME}",
+  "target": "{TARGET_TICKER}",
+  "expected_direction": "pro_cyclical | counter_cyclical | ambiguous | conditional",
+  "observed_direction": +1 | -1,
+  "direction_confidence": 0.0-1.0,
+  "mechanism": "Plain-English explanation of the economic channel",
+  "supporting_evidence": [
+    "Correlation sign: negative (r = -0.42)",
+    "Granger causality: indicator → target significant at 5%",
+    "Regime switching: stress regime associated with lower returns"
+  ],
+  "contradictions": "None | Description of any contradiction between expected and observed"
+}
+```
+
+This file is consumed by:
+- **Ray** for validation against academic literature
+- **Vera** for direction annotation visual encoding (solid = pro-cyclical, dashed = counter-cyclical)
+- **Ace** for "How to Read This" portal callout boxes
+
 **Rename before you save.** If a model assigns opaque numeric labels (state 0/1, cluster 1/2/3, regime A/B), rename columns to their economic meaning before writing the output file. The downstream agent should never have to guess what `prob_state_0` means.
 
 ## App Dev Handoff Template
@@ -318,6 +379,76 @@ When the analysis feeds into a Streamlit portal (Ace's domain), use this templat
 - Interactive dimensions come from the analysis, not the UI. If a date range filter does not make analytical sense, do not include it.
 - If the analysis does not involve a trading strategy, omit the Backtest and Strategy sections and note "N/A -- no strategy component."
 
+### Tournament Design Parameters
+
+The tournament evaluates strategies across 5 dimensions:
+
+| Dimension | Variable | Grid Values |
+|-----------|----------|-------------|
+| **Signal** | S | S1_ZScore, S2_Percentile, S3_ROC, S4_HMM2, S5_HMM3, S6_MarkovSwitch |
+| **Threshold** | T | T1_fixed, T2_percentile, T3_zscore, T4_jenks, T5_gmm, T6_hmm_p09, T7_cusum |
+| **Strategy** | P | P1_long_cash, P2_long_short, P3_dynamic_size, P4_vol_target |
+| **Lead Time** | L | L5, L10, L21, L42, L63, L126, L252 |
+| **Lookback** | LB | LB60, LB120, LB252 |
+
+**Full grid:** 6 × 7 × 4 × 7 × 3 = 3,528 combinations (within default 10,000 budget).
+
+**Signal variants:**
+- S4_HMM2: 2-state Hidden Markov Model (expansion/contraction)
+- S5_HMM3: 3-state HMM (expansion/transition/contraction) — **NEW** (G7)
+- S6_MarkovSwitch: Markov-Switching regression (2- and 3-state variants) — ensure 3-state variant is included (G8)
+
+**Threshold variants (expanded):**
+- T4_jenks: Jenks natural breaks optimization (G1)
+- T5_gmm: Gaussian Mixture Model clustering (G2)
+- T6_hmm_p09: HMM posterior probability > 0.9 threshold (G3)
+- T7_cusum: CUSUM-based structural break threshold (G4)
+
+**Strategy variants:**
+- P4_vol_target: Volatility-targeting strategy (G5). Formula: `position_size = target_vol / realized_vol(lookback)`. Default target_vol = 15% annualized. Realized vol computed over the lookback window.
+
+**Lookback windows (NEW — G9):**
+- LB60: ~3 months of trading days
+- LB120: ~6 months
+- LB252: ~1 year
+- Applied to rolling computations (z-scores, percentile ranks, realized volatility for P4)
+
+**Computational budget:**
+If grid exceeds the Analysis Brief's `{MAX_PLAYERS}` (default 10,000), apply stratified sampling:
+1. Keep all `++` category signals (from Relevance Matrix)
+2. Sample uniformly across threshold × strategy × lead time × lookback
+3. Document which combinations were sampled vs. exhaustive
+
+### Target-Class-Aware Backtest Parameters
+
+Different target asset classes require different backtest assumptions. These are specified in the Analysis Brief (Section 9) and applied during tournament execution.
+
+| Parameter | Equities (SPY, Sector ETFs) | Fixed Income (SHY-TLT, LQD, HYG) | Commodities (GC, CL, DBC) | Crypto (BTC, ETH) |
+|-----------|---------------------------|----------------------------------|--------------------------|-------------------|
+| Benchmark | SPY (broad) or sector-specific | AGG or duration-matched | Self (commodity) or DBC (aggregate) | BTC or HODL |
+| Risk-free rate | SOFR / T-bill | SOFR / T-bill | SOFR / T-bill | SOFR / T-bill |
+| Transaction costs | 5 bps | 5 bps | 2 bps (futures) | 10-30 bps |
+| Calendar | US market hours | US market hours | Extended / 24hr | 24/7 |
+| Min sample period | 2000+ (20+ years) | 2000+ | 2000+ | 2014+ (BTC) / 2017+ (ETH) |
+| Vol range (annualized) | 15-35% | 2-18% | 12-30% | 50-80% |
+| Sharpe validity threshold | > 0.3 | > 0.5 (lower vol = higher bar) | > 0.3 | > 0.2 (higher vol = lower bar) |
+
+**Benchmark selection logic:**
+1. If target IS SPY → benchmark is buy-and-hold SPY
+2. If target is a sector ETF → benchmark is buy-and-hold of that sector ETF (relative analysis uses SPY as secondary benchmark)
+3. If target is fixed income → benchmark is buy-and-hold of AGG or duration-matched bond ETF
+4. If target is a commodity → benchmark is buy-and-hold of that commodity
+5. If target is crypto → benchmark is buy-and-hold of that crypto asset
+
+**Calendar handling:**
+- For 24/7 assets (crypto): daily returns = close-to-close using UTC midnight
+- For extended-hours assets (commodities): use settlement prices
+- For US market-hours assets: standard NYSE calendar
+
+**Sample period constraints:**
+- Crypto targets have shorter history — document the reduced sample size and its impact on statistical power
+- Some commodity futures have roll effects — document roll methodology
+
 ## Mid-Analysis Data Requests
 
 If additional variables are needed during estimation or diagnostics:
@@ -350,8 +481,8 @@ Before handing off:
 Evan both consumes upstream data (from Dana and Ray) and produces model outputs consumed by Vera and Ace. Reconciliation applies in both directions:
 
 **As consumer (ingesting Dana's data, Ray's recommendations):**
-1. **Verify data against known historical episodes.** Before running any model, confirm that key variables behave as expected during well-understood periods (e.g., HY OAS > 800 bps during GFC, VIX > 60 during COVID crash). If they don't, the data may have errors — investigate before proceeding.
-2. **Cross-check derived series.** If Dana delivers a z-score, recompute it for at least one date and verify it matches. If a column is labeled "spread_bps", verify the magnitude is plausible.
+1. **Verify data against known historical episodes.** Before running any model, confirm that key variables behave as expected during well-understood periods (e.g., HY OAS > 800 bps during GFC, VIX > 60 during COVID crash, ISM PMI should drop below 45 during GFC, Building Permits should fall > 30% peak-to-trough in 2007-2009). If they don't, the data may have errors — investigate before proceeding.
+2. **Cross-check derived series.** If Dana delivers a z-score, recompute it for at least one date and verify it matches. If a column is labeled "spread_bps", verify the magnitude is plausible, or if a column is labeled `ism_mfg_pmi`, verify the magnitude is between 30-65 (typical PMI range).
 
 **As producer (delivering to Vera and Ace):**
 3. **Verify model outputs tell a coherent story.** Before handing off, check that regime labels, sign conventions, and threshold directions are consistent with economic intuition. If state 0 is "stress", verify that stress probability is high during GFC and low during calm periods like 2013-2014.

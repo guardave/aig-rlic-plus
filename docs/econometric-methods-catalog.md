@@ -1,7 +1,7 @@
 # Econometric & Statistical Methods Catalog
-## Credit Spread / Equity Prediction Analysis — Reference Appendix
+## Multi-Indicator Analysis Framework — Reference Appendix
 
-Here is a comprehensive catalogue of **40+ candidate econometric and statistical methods** organized by category, with relevance to credit-spread-to-equity analysis.
+Here is a comprehensive catalogue of **90+ candidate econometric and statistical methods** organized by category, with relevance to indicator-to-target analysis across credit, macro, volatility, sentiment, and cross-asset dimensions.
 
 ---
 
@@ -113,6 +113,91 @@ Here is a comprehensive catalogue of **40+ candidate econometric and statistical
 
 ---
 
+## 9. Cointegration & Equilibrium
+
+| # | Method | What It Does / When to Use | Relevance to Indicator-Target Analysis | Python Package | Complexity | Key Reference |
+|---|--------|---------------------------|---------------------------------------|----------------|------------|---------------|
+| 53 | **Engle-Granger Two-Step Cointegration** | Tests for a single cointegrating relationship between two I(1) series | Determines whether an indicator and target share a long-run equilibrium; prerequisite for VECM | `statsmodels.tsa.stattools.coint` | Straightforward | Engle & Granger (1987) |
+| 54 | **Johansen Cointegration Test** | Tests for multiple cointegrating vectors in a system of I(1) variables | Handles multivariate systems (e.g., indicator + target + controls); provides rank and cointegrating vectors | `statsmodels.tsa.vector_ar.vecm.coint_johansen` | Moderate | Johansen (1991) |
+| 55 | **ARDL Bounds Test** | Tests for cointegration when variables have mixed orders of integration I(0)/I(1) | Useful when indicator is I(0) but target is I(1), or vice versa; avoids pre-testing pitfalls | `statsmodels` (manual), `ardl` | Moderate | Pesaran, Shin & Smith (2001) |
+| 56 | **Phillips-Ouliaris Cointegration Test** | Residual-based cointegration test with improved power vs Engle-Granger | More robust to serial correlation in residuals than basic Engle-Granger | `arch.unitroot.PhillipsPerron`, custom | Moderate | Phillips & Ouliaris (1990) |
+| 57 | **DOLS (Dynamic OLS)** | Estimates the cointegrating vector with leads and lags to correct for endogeneity | Provides efficient, median-unbiased estimates of the long-run equilibrium between indicator and target | `statsmodels` (manual OLS with leads/lags) | Moderate | Stock & Watson (1993) |
+| 58 | **FMOLS (Fully Modified OLS)** | Non-parametric correction for serial correlation and endogeneity in cointegrating regression | Alternative to DOLS; better in small samples when dynamics are complex | Custom, `statsmodels` (limited) | Moderate | Phillips & Hansen (1990) |
+| 59 | **Threshold Cointegration (TAR/M-TAR)** | Tests whether adjustment to equilibrium is asymmetric (faster in one direction) | Captures asymmetric correction — e.g., indicator-target spread adjusts faster when overshooting than undershooting | Custom implementation | Advanced | Enders & Siklos (2001) |
+
+---
+
+## 10. Network & Spillover
+
+| # | Method | What It Does / When to Use | Relevance to Indicator-Target Analysis | Python Package | Complexity | Key Reference |
+|---|--------|---------------------------|---------------------------------------|----------------|------------|---------------|
+| 60 | **Diebold-Yilmaz Spillover Index** | Measures total and directional volatility/return spillovers using VAR forecast error variance decomposition | Quantifies how much of the target's forecast error variance is explained by the indicator (and vice versa) | `statsmodels` (VAR FEVD), custom | Moderate | Diebold & Yilmaz (2012) |
+| 61 | **Generalized FEVD (GFEVD)** | Order-invariant forecast error variance decomposition | Solves the Cholesky ordering problem in standard FEVD; gives symmetric spillover measures | `statsmodels` (custom from VAR), `networkx` for visualization | Moderate | Pesaran & Shin (1998) |
+| 62 | **Granger Causality Network** | Constructs a directed network where edges represent significant Granger causality | Maps information flow among multiple indicators and targets; identifies hub indicators | `statsmodels` (pairwise Granger tests), `networkx` | Moderate | Billio et al. (2012) |
+| 63 | **Partial Correlation Network** | Constructs undirected network of partial correlations (controls for all other variables) | Identifies direct vs. indirect indicator-target relationships in a multi-variable system | `sklearn.covariance.GraphicalLassoCV`, `networkx` | Moderate | — |
+| 64 | **Connectedness Table** | Matrix summarizing pairwise directional spillovers with FROM/TO/NET rows/columns | Provides a compact summary of which indicators are net transmitters vs. receivers of shocks to targets | Custom from GFEVD output | Moderate | Diebold & Yilmaz (2014) |
+| 65 | **Time-Varying Connectedness** | Rolling-window estimation of the Diebold-Yilmaz spillover index | Captures how indicator-target connectedness changes over time (e.g., spikes during crises) | Custom (rolling VAR + GFEVD) | Advanced | Antonakakis et al. (2020) |
+| 66 | **Systemic Risk Measures (CoVaR, MES, SRISK)** | Measures contribution of one entity/asset to system-wide risk | Quantifies how an indicator's stress state contributes to tail risk in the target asset | Custom, `numpy`, `scipy` | Advanced | Adrian & Brunnermeier (2016) |
+
+---
+
+## 11. Factor Decomposition
+
+| # | Method | What It Does / When to Use | Relevance to Indicator-Target Analysis | Python Package | Complexity | Key Reference |
+|---|--------|---------------------------|---------------------------------------|----------------|------------|---------------|
+| 67 | **Principal Component Analysis (PCA)** | Extracts orthogonal latent factors from a panel of variables | Reduces dimensionality when using many indicators; first PC often captures common macro factor | `sklearn.decomposition.PCA` | Straightforward | Pearson (1901); Hotelling (1933) |
+| 68 | **Factor Analysis (ML / MAP)** | Estimates latent factors with explicit factor loadings and unique variances | Provides interpretable factor loadings showing how each indicator loads onto common factors | `factor_analyzer`, `sklearn.decomposition.FactorAnalysis` | Moderate | — |
+| 69 | **Sparse PCA** | PCA with L1 penalty to produce sparse (interpretable) factor loadings | Identifies which subset of indicators dominates each latent factor — more interpretable than standard PCA | `sklearn.decomposition.SparsePCA` | Moderate | Zou, Hastie & Tibshirani (2006) |
+| 70 | **Independent Component Analysis (ICA)** | Finds statistically independent (not just uncorrelated) components | Separates non-Gaussian mixed signals; useful when indicator signals have non-normal distributions | `sklearn.decomposition.FastICA` | Moderate | Hyvarinen & Oja (2000) |
+| 71 | **Gaussian Mixture Model (GMM) Clustering** | Fits a mixture of Gaussians to identify latent subpopulations | Identifies regime clusters in indicator-target space without imposing sequential (Markov) structure; threshold method T5 | `sklearn.mixture.GaussianMixture` | Moderate | McLachlan & Peel (2000) |
+| 72 | **Jenks Natural Breaks** | Optimizes class boundaries by minimizing within-class variance and maximizing between-class variance | Data-driven threshold identification for indicator regimes; threshold method T4 | `jenkspy` | Straightforward | Jenks (1967) |
+| 73 | **K-Means / Hierarchical Clustering** | Partitions observations into k clusters based on distance metrics | Groups indicator-target observations into regimes based on multiple features simultaneously | `sklearn.cluster.KMeans`, `scipy.cluster.hierarchy` | Straightforward | MacQueen (1967) |
+
+---
+
+## 12. Distributional & Higher-Moment
+
+| # | Method | What It Does / When to Use | Relevance to Indicator-Target Analysis | Python Package | Complexity | Key Reference |
+|---|--------|---------------------------|---------------------------------------|----------------|------------|---------------|
+| 74 | **CRPS (Continuous Ranked Probability Score)** | Scores probabilistic forecasts against realized outcomes | Evaluates the full distributional forecast quality — not just point forecast accuracy | `properscoring`, `scipy` | Moderate | Gneiting & Raftery (2007) |
+| 75 | **Probability Integral Transform (PIT) Histogram** | Tests whether forecast CDF values are uniformly distributed (calibration check) | Verifies that indicator-based probability forecasts are well-calibrated across the distribution | `numpy`, custom | Straightforward | Diebold, Gunther & Tay (1998) |
+| 76 | **Conditional Skewness Regression** | Regresses realized skewness of target returns on indicator levels | Tests whether an indicator predicts asymmetric risk (left tail vs right tail) in the target | `statsmodels`, custom | Moderate | Harvey & Siddique (1999) |
+| 77 | **Conditional Kurtosis Analysis** | Analyzes how target return kurtosis varies with indicator state | Identifies whether indicator stress regimes are associated with fat-tailed target returns | `scipy.stats.kurtosis`, custom | Moderate | — |
+| 78 | **Density Forecasting (KDE-based)** | Produces full conditional density forecasts using kernel methods | Provides richer information than point forecasts — shows how the entire return distribution shifts with indicator | `scipy.stats.gaussian_kde`, `sklearn.neighbors.KernelDensity` | Moderate | Amisano & Giacomini (2007) |
+| 79 | **Expected Shortfall (CVaR) Regression** | Regresses expected shortfall of target on indicator values | Tests whether indicator predicts the severity of tail losses, not just their frequency | `numpy`, custom | Moderate | Rockafellar & Uryasev (2002) |
+| 80 | **Quantile Crossing Test** | Tests whether indicator-based quantile forecasts violate monotonicity | Quality check for quantile regression models — ensures predicted quantiles don't cross | `statsmodels`, custom | Straightforward | Chernozhukov, Fernandez-Val & Galichon (2010) |
+| 81 | **Berkowitz Test** | Likelihood ratio test for density forecast calibration | Formal statistical test of whether density forecasts match realized outcomes | Custom (LR test on transformed residuals) | Moderate | Berkowitz (2001) |
+
+---
+
+## 13. Forecast Evaluation
+
+| # | Method | What It Does / When to Use | Relevance to Indicator-Target Analysis | Python Package | Complexity | Key Reference |
+|---|--------|---------------------------|---------------------------------------|----------------|------------|---------------|
+| 82 | **Diebold-Mariano Test** | Tests whether two competing forecasts have equal predictive accuracy | Compares indicator-based forecast against benchmark (e.g., random walk, AR); formal significance test | `statsmodels` (custom), `arch` | Straightforward | Diebold & Mariano (1995) |
+| 83 | **Clark-West Test** | Modified DM test for nested models; accounts for estimation error in larger model | Tests whether adding indicator variables significantly improves forecast over a parsimonious baseline | Custom (adjusted MSPE differential) | Moderate | Clark & West (2007) |
+| 84 | **Giacomini-White Test** | Tests conditional predictive ability — allows comparison to depend on information set | Tests whether forecast superiority is conditional on market state (e.g., indicator only helps in stress) | Custom | Moderate | Giacomini & White (2006) |
+| 85 | **Model Confidence Set (MCS)** | Identifies the set of "best" models from a collection, with confidence level | From a tournament of indicator-based strategies, determines which are statistically indistinguishable from the best | Custom, `arch` | Advanced | Hansen, Lunde & Nason (2011) |
+| 86 | **CUSUM-based Forecast Monitoring** | Sequential monitoring of forecast performance for structural change | Detects in real-time when an indicator-based model's forecast quality deteriorates | `statsmodels.stats.diagnostic`, custom | Straightforward | Chu, Stinchcombe & White (1996) |
+| 87 | **Encompassing Test** | Tests whether forecast A contains all information in forecast B | Determines whether indicator A's signal subsumes indicator B's signal (or vice versa) | `statsmodels` (OLS), custom | Straightforward | Harvey, Leybourne & Newbold (1998) |
+| 88 | **Fluctuation Test for Forecast Breakdown** | Tests whether out-of-sample forecast performance is stable over time | Detects periods where the indicator-target relationship breaks down out-of-sample | Custom (rolling DM statistics) | Moderate | Giacomini & Rossi (2009) |
+
+---
+
+## 14. Liquidity & Microstructure
+
+| # | Method | What It Does / When to Use | Relevance to Indicator-Target Analysis | Python Package | Complexity | Key Reference |
+|---|--------|---------------------------|---------------------------------------|----------------|------------|---------------|
+| 89 | **Amihud Illiquidity Ratio** | Absolute daily return divided by daily dollar volume; measures price impact per unit of trading | Identifies whether target illiquidity amplifies indicator signals — thin markets may overreact to indicator changes | `numpy`, `pandas` | Straightforward | Amihud (2002) |
+| 90 | **Roll Spread Estimator** | Estimates effective bid-ask spread from serial covariance of price changes | Proxy for transaction costs in the target asset; affects backtest realism and strategy net returns | `numpy` | Straightforward | Roll (1984) |
+| 91 | **Kyle's Lambda** | Estimates price impact coefficient from regression of price change on signed volume | Measures information asymmetry in the target market; high lambda = indicators may be priced in slowly | Custom (OLS regression) | Moderate | Kyle (1985) |
+| 92 | **Corwin-Schultz Spread** | Estimates bid-ask spread from daily high-low prices | Alternative spread estimator using only OHLC data; useful when tick data is unavailable | `numpy`, custom | Straightforward | Corwin & Schultz (2012) |
+| 93 | **Volume-Synchronized Probability of Informed Trading (VPIN)** | Measures probability of informed trading using volume-bucketed analysis | Detects whether indicator information is being front-run by informed traders | Custom | Advanced | Easley, Lopez de Prado & O'Hara (2012) |
+| 94 | **Turnover Rate Analysis** | Trading volume relative to shares outstanding over time | Identifies whether indicator signals coincide with elevated target trading activity (market attention) | `pandas` | Straightforward | — |
+| 95 | **Hasbrouck Information Share** | Decomposes price discovery across multiple venues or related assets | For pairs where the indicator IS a traded asset (e.g., HY ETF, VIX futures), measures which leads in price discovery | Custom (VECM-based) | Advanced | Hasbrouck (1995) |
+
+---
+
 ## Summary Statistics
 
 | Category | Count | Complexity Distribution |
@@ -125,7 +210,13 @@ Here is a comprehensive catalogue of **40+ candidate econometric and statistical
 | Nonlinear & ML | 5 | 0 straightforward, 3 moderate, 2 advanced |
 | Signal Extraction | 6 | 3 straightforward, 2 moderate, 1 advanced |
 | Event Study / Tail | 5 | 2 straightforward, 3 moderate, 0 advanced |
-| **Total** | **52** | **11 straightforward, 22 moderate, 19 advanced** |
+| Cointegration & Equilibrium | 7 | 1 straightforward, 5 moderate, 1 advanced |
+| Network & Spillover | 7 | 0 straightforward, 5 moderate, 2 advanced |
+| Factor Decomposition | 7 | 3 straightforward, 4 moderate, 0 advanced |
+| Distributional & Higher-Moment | 8 | 2 straightforward, 5 moderate, 1 advanced (counted from entries above) |
+| Forecast Evaluation | 7 | 3 straightforward, 3 moderate, 1 advanced |
+| Liquidity & Microstructure | 7 | 4 straightforward, 1 moderate, 2 advanced |
+| **Total** | **95** | **24 straightforward, 45 moderate, 26 advanced** |
 
 ---
 
@@ -156,6 +247,49 @@ For maximum analytical value with manageable implementation effort, I would sequ
 - Wavelet coherence for multi-scale lead-lag (#15)
 - Copula models with tail dependence (#5-9)
 - EVT for tail risk (#48)
+
+**Phase 4 — New categories (extends the toolkit for multi-indicator analysis):**
+- Engle-Granger / Johansen cointegration (#53, #54) — essential for I(1) indicator-target pairs
+- Diebold-Yilmaz spillover index (#60) — quantifies directional information flow
+- PCA / Factor Analysis (#67, #68) — dimensionality reduction when using many indicators
+- GMM clustering (#71) — data-driven regime identification (tournament threshold T5)
+- Jenks natural breaks (#72) — alternative threshold method (tournament threshold T4)
+- Diebold-Mariano test (#82) — formal forecast comparison
+- CUSUM forecast monitoring (#86) — real-time model stability check (tournament threshold T7)
+- Amihud illiquidity (#89) — target liquidity filter for backtest realism
+
+---
+
+## Appendix: Relevance Matrix
+
+Maps indicator types to analysis categories. Scores: `++` core (run first), `+` useful (run if budget permits), `-` low priority, `--` not applicable.
+
+| Indicator Type | 1. Corr | 2. Lead-Lag | 3. Regime | 4. TimeSeries | 5. Vol | 6. ML | 7. Signal | 8. Event/Tail | 9. Coint | 10. Network | 11. Factor | 12. Distrib | 13. FcstEval | 14. Liquidity |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Credit Spread** (I19) | ++ | ++ | ++ | ++ | + | + | + | ++ | ++ | + | + | ++ | ++ | - |
+| **Volatility/Options** (I22) | ++ | + | ++ | + | ++ | + | + | ++ | - | + | + | ++ | + | + |
+| **Activity/Survey** (I1, I2, I3, I4, I6-I8) | + | ++ | + | ++ | - | ++ | + | + | + | + | ++ | + | ++ | - |
+| **Yield Curve/Rates** (I17, I18) | + | ++ | + | ++ | - | + | ++ | + | ++ | - | + | + | ++ | - |
+| **Sentiment/Flow** (I14, I15, I16) | ++ | + | + | - | + | + | + | + | - | + | ++ | + | + | ++ |
+| **Cross-Asset** (I28, I30) | + | + | + | + | + | ++ | + | + | + | ++ | ++ | + | + | + |
+| **Microstructure** (I20, I25, I27) | + | - | - | - | ++ | - | + | - | - | + | - | + | - | ++ |
+
+### Fallback: Category Selection Heuristic
+
+When the Relevance Matrix gives ambiguous guidance (multiple `+` categories), apply these rules in order:
+
+**Rule A (Stationarity):** If both indicator and target are I(1) → prioritize Category 9 (Cointegration). If both are I(0) → skip Category 9.
+
+**Rule B (Frequency):** If indicator is lower frequency than target (e.g., monthly indicator vs. daily target) → prioritize Categories 2 (Lead-Lag) and 7 (Signal Extraction) over Category 1 (Correlation).
+
+**Rule C (Type):** Apply the indicator type row from the matrix above. Start with `++` categories, then add `+` until computational budget is reached.
+
+**Rule D (Uncertainty):** If expected direction (from Analysis Brief) is `ambiguous` or `conditional` → add Category 3 (Regime) and Category 12 (Distributional) regardless of other scores.
+
+**Worked examples:**
+- **ISM Manufacturing PMI (I2) → SPY:** Activity/Survey type → Rule C: Lead-Lag (++), TimeSeries (++), ML (++), Factor (++), FcstEval (++) are core. Regime (+), Signal (+) are secondary. Start with Lead-Lag + TimeSeries.
+- **VIX/VIX3M (I22) → TLT:** Volatility/Options type → Rule C: Corr (++), Regime (++), Vol (++), Event/Tail (++) are core. Rule D: expected direction is `conditional` (bearish for equity, bullish for bonds) → add Regime and Distributional. Start with Regime + Event/Tail.
+- **HY-IG Spread (I19) → SPY:** Credit Spread type → Rule C: Corr (++), Lead-Lag (++), Regime (++), TimeSeries (++), Event/Tail (++), Coint (++), Distrib (++), FcstEval (++) are all core. Rule A: both I(1) → add Cointegration. Apply computational budget to subset.
 
 ---
 
@@ -191,5 +325,5 @@ For maximum analytical value with manageable implementation effort, I would sequ
 - [statsmodels — VAR/SVAR](https://www.statsmodels.org/stable/vector_ar.html)
 
 ---
-*Generated: 2026-02-28 | Source: Web research across academic papers, econometrics textbooks, and quant finance literature*
-*Status: Reference catalog — methods selected per analysis based on data structure and research question*
+*Generated: 2026-02-28 | Updated: 2026-03-14 | Source: Web research across academic papers, econometrics textbooks, and quant finance literature*
+*Status: Reference catalog — methods selected per analysis based on data structure and research question. Multi-indicator framework expansion.*

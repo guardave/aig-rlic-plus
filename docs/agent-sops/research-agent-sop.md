@@ -109,6 +109,18 @@ Organize findings into a structured research brief using the **Two-Stage Deliver
 
 *If any field cannot be determined from the literature, state explicitly: "Not determined -- Evan to select based on diagnostics."*
 
+### Recommended Analysis Categories
+
+Based on the indicator type and the Relevance Matrix (see `docs/econometric-methods-catalog.md`, Appendix):
+
+| Category | Relevance | Rationale |
+|----------|-----------|-----------|
+| {CATEGORY_NAME} | {++ / + / -} | {Why this category is recommended for this indicator type} |
+
+Indicator type classification: {INDICATOR_TYPE} (one of: Credit Spread, Volatility/Options, Activity/Survey, Yield Curve/Rates, Sentiment/Flow, Cross-Asset, Microstructure)
+
+*Categories marked `++` are core — run these first. Categories marked `+` are useful — run if computational budget permits.*
+
 ### Variables Used in Key Studies
 
 | Study | Dependent Variable | Key Regressors | Data Source | Period |
@@ -175,6 +187,7 @@ This two-stage approach prevents Evan from being blocked while the full literatu
 - Check for retracted or superseded papers
 - Flag if findings are based on a single study or a small literature
 - Note publication date — old findings may not hold in current regime
+- For pairs in the Priority Combinations Catalog (`docs/priority-combinations-catalog.md`), explicitly note whether academic literature supports the indicator-target relationship (established / emerging / exploratory). This metadata informs Evan's interpretation confidence.
 
 ### 8. Deliver
 
@@ -325,6 +338,8 @@ Before handing off:
 - [ ] Spec memo (Stage 1) delivered before or alongside the full brief
 - [ ] Portal narrative delivered to Ace (when portal is in scope) with layperson prose, glossary, and page-aligned structure
 - [ ] Event timeline sent to both Vera and Ace
+- [ ] If Analysis Brief specifies `expected_direction`, the brief validates or flags any contradiction between theoretical expectation and available empirical evidence
+- [ ] For priority pairs (see `docs/priority-combinations-catalog.md`), noted whether the indicator-target relationship has established academic support or is exploratory
 
 ### Defense 1: Self-Describing Artifacts (Producer Rule)
 

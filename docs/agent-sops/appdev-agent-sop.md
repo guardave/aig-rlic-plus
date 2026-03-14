@@ -25,6 +25,7 @@ You are a full-stack application developer who turns analytical outputs into pol
 - Confirm: target audience, storytelling arc, key findings to highlight, data freshness requirements
 - Inputs: narrative sections (from Ray), chart specs + Plotly objects (from Vera), model results (from Evan), data pipelines (from Dana)
 - If the brief is vague, ask Alex for the storytelling arc before building
+- **Data-driven page structure:** The entire page configuration should be driven by the Analysis Brief — not just the title. Config fields include: indicator name, target name, direction annotation, benchmark name, expected direction, mechanism text, KPI definitions. Store this configuration in a `config.json` or read directly from the Analysis Brief.
 
 ### 2. Design Portal Architecture
 
@@ -87,6 +88,7 @@ The portal is NOT a data dump — it tells a story. Follow this narrative struct
 - Performance metrics dashboard (Sharpe, drawdown, etc.)
 - Interactive equity curve with regime shading
 - Comparison with benchmarks
+- **Benchmark selection is target-class-aware:** SPY for equity targets, AGG for fixed income, asset-specific for commodities/crypto. The correct benchmark is specified in the Analysis Brief, Section 4.
 
 **Page 5 — The Method (Technical Appendix)**
 - Data sources and methodology
@@ -111,7 +113,7 @@ The portal is NOT a data dump — it tells a story. Follow this narrative struct
 
 ```python
 st.set_page_config(
-    page_title="Credit Spread Analysis",
+    page_title=config.get("page_title", "Indicator Analysis"),  # From Analysis Brief
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -134,6 +136,21 @@ def load_market_data():
 @st.cache_resource  # Permanent cache for model objects
 def load_model():
     ...
+```
+
+**KPI Loading (mandatory):**
+
+KPI values must be loaded from `results/kpis.json` — never hardcoded in portal source code. If the JSON file is missing, display a clear "Results pending" placeholder rather than fallback values.
+
+```python
+import json, os
+
+def load_kpis(results_dir="results"):
+    kpi_path = os.path.join(results_dir, "kpis.json")
+    if os.path.exists(kpi_path):
+        with open(kpi_path) as f:
+            return json.load(f)
+    return None  # Caller must handle None gracefully
 ```
 
 - Analysis-ready data from Dana lives in `data/` — load via `pd.read_parquet()`

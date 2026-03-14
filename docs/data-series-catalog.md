@@ -1,7 +1,7 @@
-# Candidate Data Series Catalog
-## Credit Spread / Equity Prediction Analysis — Reference Appendix
+# Data Series Catalog
+## Multi-Indicator Analysis Framework — Reference Appendix
 
-Below is a structured inventory of 50+ candidate series organized by category. Each entry includes what it measures, why it matters for predicting equity returns or risk, the most accessible data source, and available frequency.
+Below is a structured inventory of data series, indicators, and targets used across the multi-indicator analysis framework. Sections 1-6 catalog the 63 candidate series from the original credit-spread/equity research. Sections 7-10 extend coverage to the full indicator universe (31 indicators), target universe (35 targets), frequency alignment rules, and FSI version resolution.
 
 ---
 
@@ -112,6 +112,218 @@ These are not raw data but transformations that extract signal from the base ser
 
 ---
 
+## 7. Indicator Universe (31 Indicators)
+
+This section catalogs the 31 indicators used in the multi-indicator analysis framework. Each indicator has a canonical column name for consistent use across pipelines, models, and visualizations.
+
+### 7.1 Macro / Activity (7 indicators)
+
+| ID | Indicator | Canonical Name | Source | Freq | Notes |
+|----|-----------|---------------|--------|------|-------|
+| I1 | Industrial Production Total Index (2017=100) | `indpro` | FRED: INDPRO | Monthly | Index level, SA |
+| I2 | ISM Manufacturing PMI | `ism_mfg_pmi` | ISM direct | Monthly | Diffusion index, 50 = neutral |
+| I3 | ISM Services PMI | `ism_svc_pmi` | ISM direct | Monthly | Diffusion index, 50 = neutral |
+| I4 | Unemployment Rate | `unrate` | FRED: UNRATE | Monthly | Percent, SA |
+| I6 | Job Openings (JOLTS) | `jtsjol` | FRED: JTSJOL | Monthly | Thousands, SA |
+| I7 | Advanced Retail Sales | `rsafs` | FRED: RSAFS | Monthly | Millions of dollars, SA |
+| I8 | Portland Cement Shipments | `cement_ship` | Portland Cement Assoc. | Monthly | Physical volume, proprietary source |
+
+### 7.2 Housing / Construction (5 indicators)
+
+| ID | Indicator | Canonical Name | Source | Freq | Notes |
+|----|-----------|---------------|--------|------|-------|
+| I9 | Building/Housing Permits | `permit` | FRED: PERMIT | Monthly | Thousands, SA |
+| I10a | New Home Sales (SA) | `hsn1f` | FRED: HSN1F | Monthly | Thousands, SA |
+| I10b | New Home Sales (NSA) | `hsn1fnsa` | FRED: HSN1FNSA | Monthly | Thousands, NSA — distinct from I10a |
+| I11 | Housing Starts | `houst` | FRED: HOUST | Monthly | Thousands, SA |
+| I12 | NAHB/Wells Fargo Housing Market Index | `nahb_hmi` | FRED: NAHBHMI | Monthly | Diffusion index, 50 = neutral |
+| I13 | Architecture Billings Index | `abi` | AIA (subscription/scrape) | Monthly | Diffusion index; availability risk |
+
+### 7.3 Consumer / Sentiment (3 indicators)
+
+| ID | Indicator | Canonical Name | Source | Freq | Notes |
+|----|-----------|---------------|--------|------|-------|
+| I14 | Michigan Consumer Sentiment | `umcsent` | FRED: UMCSENT | Monthly | Index (1966 Q1 = 100) |
+| I15 | Retail Inventories/Sales Ratio | `retailirsa` | FRED: RETAILIRSA | Monthly | Ratio, SA |
+| I16 | Credit Card Default Rate | `cc_default` | FRED: DRCCLACBS | Quarterly | Percent; see frequency alignment note |
+
+### 7.4 Financial / Monetary (4 indicators)
+
+| ID | Indicator | Canonical Name | Source | Freq | Notes |
+|----|-----------|---------------|--------|------|-------|
+| I17 | SOFR-US3M (TED Rate proxy) | `sofr_us3m` | Computed: FRED SOFR - TB3MS | Daily | Basis points; post-LIBOR TED proxy |
+| I18 | US10Y-US3M (Yield Curve Slope) | `t10y3m` | FRED: T10Y3M | Daily | Percentage points |
+| I19 | HY-IG Credit Spread | `hy_ig_oas` | Computed: FRED BAMLH0A0HYM2 - BAMLC0A0CM | Daily | Basis points |
+| I20 | Commercial & Industrial Loans | `busloans` | FRED: BUSLOANS | Monthly | Billions of dollars, SA |
+
+### 7.5 Monetary Supply (1 indicator)
+
+| ID | Indicator | Canonical Name | Source | Freq | Notes |
+|----|-----------|---------------|--------|------|-------|
+| I21 | M2 Money Supply YoY | `m2sl_yoy` | Derived: FRED M2SL, YoY % change | Monthly | Percent; compute as pct_change(12) |
+
+### 7.6 Volatility / Market (2 indicators)
+
+| ID | Indicator | Canonical Name | Source | Freq | Notes |
+|----|-----------|---------------|--------|------|-------|
+| I22 | VIX/VIX3M (Term Structure Ratio) | `vix_vix3m` | Computed: Yahoo ^VIX / ^VIX3M | Daily | Ratio; >1 = backwardation (stress) |
+| I23 | PHLX Semiconductor Index (SOX) | `sox` | Yahoo: ^SOX | Daily | Index level |
+
+### 7.7 Trade / Transport (3 indicators)
+
+| ID | Indicator | Canonical Name | Source | Freq | Notes |
+|----|-----------|---------------|--------|------|-------|
+| I24 | Import Price Index | `imp_price` | FRED: IR | Monthly | Index (2000=100) |
+| I25 | Cass Freight Index (Shipments) | `cass_freight` | Cass Information Systems | Monthly | Index; proprietary but published |
+| I26 | Manufacturers' New Orders | `neworder` | FRED: NEWORDER | Monthly | Millions of dollars, SA |
+
+### 7.8 Energy (3 indicators)
+
+| ID | Indicator | Canonical Name | Source | Freq | Notes |
+|----|-----------|---------------|--------|------|-------|
+| I27 | Petroleum Inventory | `petrol_inv` | EIA weekly data | Weekly | Thousands of barrels |
+| I28 | Crude Oil Price (WTI) | `cl_f` | Yahoo: CL=F | Daily | USD/barrel; front-month futures |
+| I29 | (Electricity Price - CPI) YoY | `elec_cpi_yoy` | Derived: BLS electricity CPI component | Monthly | Percent; real electricity cost proxy |
+
+### 7.9 Cross-Asset (1 indicator)
+
+| ID | Indicator | Canonical Name | Source | Freq | Notes |
+|----|-----------|---------------|--------|------|-------|
+| I30 | Gold/Copper Ratio | `gold_copper` | Computed: GC=F / HG=F | Daily | Ratio; higher = risk-off |
+
+### 7.10 Derived Ratios (2 indicators)
+
+| ID | Indicator | Canonical Name | Derived From | Computation |
+|----|-----------|---------------|-------------|-------------|
+| I31 | ISM Mfg PMI / ISM Svc PMI Ratio | `ism_mfg_svc_ratio` | I2 / I3 | `ism_mfg_pmi / ism_svc_pmi`; >1 = manufacturing stronger |
+| I32 | Manufacturers' New Orders YoY | `neworder_yoy` | I26 YoY change | `neworder.pct_change(12) * 100`; percent |
+
+---
+
+## 8. Target Universe (35 Targets)
+
+This section catalogs the 35 targets used in the multi-indicator analysis framework, organized by asset class. Each target is an investable security or index against which indicator-based models generate signals.
+
+### 8.1 Broad Equity (1)
+
+| ID | Target | Ticker | Class | Benchmark | Special Considerations |
+|----|--------|--------|-------|-----------|----------------------|
+| T1 | S&P 500 | SPY | Broad Equity | SPY itself | Baseline; ~15-20% annualized vol |
+
+### 8.2 Sector ETFs — SPDR Select Sector (11)
+
+| ID | Target | Ticker | Class | Benchmark | Special Considerations |
+|----|--------|--------|-------|-----------|----------------------|
+| T2 | Communication Services | XLC | Sector | SPY (relative) | Higher vol (18-35%); sector-specific risk factors |
+| T3 | Energy | XLE | Sector | SPY (relative) | Higher vol (18-35%); commodity-linked |
+| T4 | Industrials | XLI | Sector | SPY (relative) | Higher vol (18-35%); cyclical exposure |
+| T5 | Technology | XLK | Sector | SPY (relative) | Higher vol (18-35%); growth/momentum factor |
+| T6 | Consumer Staples | XLP | Sector | SPY (relative) | Lower vol; defensive sector |
+| T7 | Consumer Discretionary | XLY | Sector | SPY (relative) | Higher vol (18-35%); consumer sentiment sensitive |
+| T8 | Materials | XLB | Sector | SPY (relative) | Higher vol (18-35%); commodity-linked |
+| T9 | Financials | XLF | Sector | SPY (relative) | Higher vol (18-35%); credit-cycle sensitive |
+| T10 | Real Estate | XLRE | Sector | SPY (relative) | Higher vol (18-35%); rate-sensitive |
+| T11 | Utilities | XLU | Sector | SPY (relative) | Lower vol; rate-sensitive defensive |
+| T12 | Health Care | XLV | Sector | SPY (relative) | Moderate vol; defensive with policy risk |
+
+### 8.3 Fixed Income — Treasury by Duration (3)
+
+| ID | Target | Ticker | Class | Benchmark | Special Considerations |
+|----|--------|--------|-------|-----------|----------------------|
+| T13 | 1-3 Year Treasury | SHY | Treasury | SHY | Low duration; minimal interest rate risk |
+| T14 | 7-10 Year Treasury | IEF | Treasury | AGG | Moderate duration risk; rate-cycle sensitive |
+| T15 | 20+ Year Treasury | TLT | Treasury | AGG | High duration risk; very different vol profile from SHY |
+
+### 8.4 Fixed Income — Inflation-Protected (2)
+
+| ID | Target | Ticker | Class | Benchmark | Special Considerations |
+|----|--------|--------|-------|-----------|----------------------|
+| T16 | TIPS Bond ETF | TIP | Inflation-Protected | AGG | Real return focus; inflation breakeven exposure |
+| T17 | Short-Term TIPS ETF | VTIP | Inflation-Protected | AGG | Short duration TIPS; lower rate sensitivity |
+
+### 8.5 Fixed Income — Corporate (5)
+
+| ID | Target | Ticker | Class | Benchmark | Special Considerations |
+|----|--------|--------|-------|-----------|----------------------|
+| T18 | Investment Grade Corporate Bond | LQD | Corporate IG | AGG | Credit + duration risk |
+| T19 | Short-Term Corporate Bond | VCSH | Corporate IG | AGG | Lower duration; credit-focused |
+| T20 | High Yield Corporate Bond | HYG | Corporate HY | HYG | Credit risk dominant; equity-like in stress |
+| T21 | High Yield Bond (SPDR) | JNK | Corporate HY | HYG | Similar to HYG; slightly different index methodology |
+| T22 | PIMCO Corporate & Income Opportunity | PTY | Corporate CEF | LQD | CEF premium/discount dynamics; leveraged |
+
+### 8.6 Fixed Income — Aggregate (2)
+
+| ID | Target | Ticker | Class | Benchmark | Special Considerations |
+|----|--------|--------|-------|-----------|----------------------|
+| T23 | US Aggregate Bond | AGG | Aggregate | AGG itself | Broad duration + credit; low turnover expected |
+| T24 | Total Bond Market | BND | Aggregate | AGG | Near-identical to AGG; Vanguard wrapper |
+
+### 8.7 Commodities — Individual (5)
+
+| ID | Target | Ticker | Class | Benchmark | Special Considerations |
+|----|--------|--------|-------|-----------|----------------------|
+| T25 | Gold | GC=F / GLD | Commodity | Self | Roll yield; safe-haven; extended hours |
+| T26 | Silver | SI=F / SLV | Commodity | Self | Roll yield; higher vol than gold; industrial demand |
+| T27 | Platinum | PL=F / PPLT | Commodity | Self | Roll yield; auto-catalyst demand; thin liquidity |
+| T28 | Brent Crude | BZ=F | Commodity | Self | Roll yield; contango/backwardation; geopolitical risk |
+| T29 | WTI Crude | CL=F | Commodity | Self | Roll yield; contango/backwardo; US production sensitive |
+
+### 8.8 Commodities — Aggregate (3)
+
+| ID | Target | Ticker | Class | Benchmark | Special Considerations |
+|----|--------|--------|-------|-----------|----------------------|
+| T30 | Commodity Index Tracking Fund | DBC | Commodity Basket | DBC itself | Diversified basket; roll effects across sectors |
+| T31 | S&P GSCI Commodity ETF | GSG | Commodity Basket | DBC | Energy-heavy weighting; different roll methodology |
+| T32 | Optimum Yield Diversified Commodity | PDBC | Commodity Basket | DBC | Active roll optimization; K-1 tax treatment |
+
+### 8.9 Crypto (2)
+
+| ID | Target | Ticker | Class | Benchmark | Special Considerations |
+|----|--------|--------|-------|-----------|----------------------|
+| T33 | Bitcoin | BTC-USD | Crypto | BTC or HODL | Short history (BTC ~2014+); extreme tails (50-80% vol); 24/7 trading |
+| T34 | Ethereum | ETH-USD | Crypto | BTC or HODL | Shorter history than BTC; higher vol; smart-contract ecosystem |
+
+### 8.10 Senior Loans (1)
+
+| ID | Target | Ticker | Class | Benchmark | Special Considerations |
+|----|--------|--------|-------|-----------|----------------------|
+| T35 | Senior Loan ETF | BKLN | Senior Loan | AGG | Floating rate; credit risk; low duration |
+
+---
+
+## 9. Frequency Alignment Rules
+
+Multi-indicator analysis requires combining series at different native frequencies. The table below defines the canonical alignment methods used across all pipelines.
+
+| Source Freq | Target Freq | Method | Notes |
+|-------------|-------------|--------|-------|
+| Daily -> Monthly | End-of-month value | Use last business day of month | Default for daily indicators paired with monthly targets |
+| Weekly -> Monthly | End-of-month value | Use last weekly observation in the month | |
+| Monthly -> Daily | Last-value carry-forward | Carry the monthly value until next release | Creates step function; document in data dictionary |
+| Quarterly -> Monthly | Last-value carry-forward | Carry quarterly value for 3 months | I16 (Credit Card Default) uses this method |
+| Weekly -> Daily | Last-value carry-forward | Carry until next weekly release | I27 (Petroleum Inventory) uses this method |
+
+**Key implementation notes:**
+
+- When aligning to monthly frequency, always use **end-of-month** convention (last business day) to avoid look-ahead bias.
+- Carry-forward methods introduce staleness. Models should account for this by including a **days-since-release** feature or by weighting more recent observations higher.
+- For quarterly series (e.g., I16 Credit Card Default Rate from FRED: DRCCLACBS), the value is carried forward for 3 months. Consider flagging the first month after release as "fresh" vs. months 2-3 as "stale."
+
+---
+
+## 10. FSI Version Resolution
+
+The St. Louis Fed Financial Stress Index has undergone a significant methodology change tied to the LIBOR-to-SOFR transition.
+
+| Version | FRED Code | Basis Rate | Status | Period |
+|---------|-----------|-----------|--------|--------|
+| **Canonical** | `STLFSI4` | SOFR-based | Active, current | 2022-present (backfilled) |
+| **Legacy** | `STLFSI2` | LIBOR-based | Discontinued | Pre-2022 |
+
+**Migration note:** Any existing code referencing `STLFSI2` should be updated to `STLFSI4`. The two series are not directly comparable due to the SOFR-LIBOR basis difference. For backtesting prior to 2022, use `STLFSI4` which the St. Louis Fed has backfilled using reconstructed SOFR-based inputs.
+
+---
+
 ## Implementation Notes
 
 **Highest-priority additions** (easiest to source, strongest academic backing):
@@ -123,6 +335,12 @@ These are not raw data but transformations that extract signal from the base ser
 5. **Excess Bond Premium** (#10) — Gilchrist-Zakrajsek's EBP has the strongest academic evidence for predicting both GDP and equity returns
 6. **Initial Claims** (#35) — weekly, timely, and a proven leading indicator of labor market and earnings risk
 7. **Bank equity relative strength** (#60) — simple, daily, and captures the credit-equity feedback loop
+
+**Expanded indicator universe:** The 31 indicators in Section 7 are the curated set for the multi-indicator analysis framework. They span macro/activity, housing, consumer sentiment, financial/monetary, volatility, trade/transport, energy, cross-asset, and derived ratio categories. Canonical column names ensure consistent naming across all data pipelines, models, and visualizations.
+
+**Target universe:** The 35 targets in Section 8 cover broad equity, sector ETFs, fixed income (Treasury, inflation-protected, corporate, aggregate), commodities (individual and basket), crypto, and senior loans. Each target has a designated benchmark for relative performance evaluation.
+
+**Priority combinations:** See the Priority Combinations Catalog (`docs/priority-combinations-catalog.md`) for the 73 human-analyzed indicator-target pairs that form the core of the multi-indicator framework.
 
 **Data access priorities:**
 - FRED API covers ~35 of the 50 base series (free, reliable, programmatic via `fredapi`)
@@ -137,5 +355,6 @@ These are not raw data but transformations that extract signal from the base ser
 - [State Street (2025) — Credit Spreads Signal Confidence and Risk](https://www.ssga.com/us/en/institutional/insights/mind-on-the-market-24-november-2025)
 - [RIA — Credit Spreads: The Market's Early Warning Indicators](https://realinvestmentadvice.com/resources/blog/credit-spreads-the-markets-early-warning-indicators/)
 ---
-*Generated: 2026-02-28 | Source: Web research across academic papers, institutional research, and quant finance literature*
-*Status: Reference catalog — not all series will be used in every analysis*
+*Generated: 2026-02-28 | Last updated: 2026-03-14*
+*Source: Web research across academic papers, institutional research, and quant finance literature*
+*Status: Reference catalog — multi-indicator analysis framework with 63 candidate series, 31 curated indicators, and 35 investable targets*

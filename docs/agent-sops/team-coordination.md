@@ -48,6 +48,31 @@ A typical analysis follows this sequence:
 Steps 2 and 3 run in parallel. Steps 4, 5, and 6 are sequential dependencies.
 Ace can begin scaffolding the portal structure during steps 2-4 while waiting for final outputs.
 
+## Phase 0: Analysis Brief (Mandatory Gate)
+
+No agent starts work on a new indicator-target analysis without an approved Analysis Brief. The brief is the single source of truth for:
+- Research question and hypotheses
+- Indicator and target specification (including expected direction)
+- Sample design and data requirements
+- Method categories (from Relevance Matrix)
+- Tournament design parameters (target-class-specific)
+- Computational budget
+- Portal specifications
+
+**Gate rule:** Alex creates or approves the Analysis Brief. Each agent acknowledges receipt and flags domain-specific concerns before proceeding. The brief template is at `docs/analysis_brief_template.md`.
+
+### Brief Acknowledgment Protocol
+
+When the Analysis Brief is issued:
+
+1. **Each agent reads the brief** within one task cycle
+2. **Each agent sends a structured acknowledgment:**
+   - "I have read the Analysis Brief for {INDICATOR} → {TARGET}"
+   - Domain-specific concerns (e.g., Dana: "I16 is quarterly — will use LVCF alignment"; Evan: "Expected direction is ambiguous — will determine empirically")
+   - Blockers (e.g., "Cannot source I13 (ABI) — need alternative")
+3. **Alex reviews all acknowledgments** and resolves any concerns before giving the go-ahead
+4. **No agent proceeds past their intake step** until the go-ahead is issued
+
 ## Handoff Protocol
 
 Every handoff follows three rules:
@@ -150,6 +175,17 @@ Every handoff follows three rules:
 - Running portal URL (Streamlit Community Cloud)
 - Portal architecture documentation
 - User guide for content updates
+
+### Interpretation Annotation Handoffs
+
+When the same indicator is analyzed against multiple targets, interpretation may differ (e.g., VIX/VIX3M rising is bearish for SPY but bullish for TLT). The team must coordinate annotations:
+
+1. **Evan** outputs `interpretation_metadata.json` alongside results: `direction` (+1/-1), `mechanism` (plain English), `confidence` (from analysis)
+2. **Ray** validates direction against literature; flags contradictions between empirical and theoretical expectations
+3. **Vera** renders direction indicators: solid line = pro-cyclical, dashed = counter-cyclical; inline annotations on multi-pair dashboards
+4. **Ace** implements "How to Read This" callout box on each pair's page; "Differs From" notes when same indicator has opposite interpretations across targets on the same dashboard
+
+The `expected_direction` field in the Analysis Brief sets the prior; the `interpretation_metadata.json` from Evan records the empirical finding.
 
 ## Shared Workspace Structure
 
@@ -258,9 +294,9 @@ Every handoff requires a structured acknowledgment from the receiver:
 **For consumers (Vera, Ace, or any downstream agent):**
 
 1. **Sanity-check on ingestion.** Before using any upstream data, verify at least one known fact. Examples:
-   - "During GFC (2008-09), stress probability should be > 0.8"
-   - "Tournament winner Sharpe should be ~1.17"
-   - "B&H max drawdown should be ~-34%"
+   - "During GFC (2008-09), stress probability should be > 0.8" (Example — adjust assertion to match the specific indicator-target pair)
+   - "Tournament winner Sharpe should match the value reported in the Analysis Brief's tournament results"
+   - "B&H max drawdown should be consistent with the target's historical volatility profile (see Analysis Brief, Section 4)"
    These checks are derived from the upstream agent's summary or handoff message. If the check fails, STOP and ask — do not proceed with a guess.
 
 2. **Cross-check derived outputs against source.** If you compute a drawdown curve from raw data, the max drawdown of that curve must match the number reported in the upstream results CSV (within rounding). If it doesn't, your interpretation of the data is wrong.
@@ -357,3 +393,7 @@ After completing a major analysis (not after every task), the team lead (Alex) c
 3. SOPs are updated by their respective owners
 4. Team coordination protocol is updated if cross-cutting changes are needed
 5. Learnings are promoted to global experience files if cross-project applicable
+
+### Run Registry
+
+The team maintains a "Registered Analysis Runs" table in the Reference Catalogs Index (`docs/reference-catalogs-index.md`). Every completed indicator-target analysis is registered there with: pair ID, date completed, lead agent, and link to results. This is the single source of truth for what has been analyzed.
