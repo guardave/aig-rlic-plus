@@ -1,0 +1,6 @@
+signal,threshold,strategy,oos_sharpe,bootstrap_p_value,significant_at_5pct
+S6_mom3m,T1_fixed_p75,P1_long_cash,1.1036,0.3134,False
+S3_mom,T1_fixed_p25,P1_long_cash,1.0955,0.3194,False
+S4_dev_trend,T3_zscore_1.0,P1_long_cash,1.0385,0.3702,False
+S7_mom6m,T2_roll_p50,P1_long_cash,1.0203,0.3898,False
+S6_mom3m,T2_roll_p25,P1_long_cash,1.0024,0.4074,False

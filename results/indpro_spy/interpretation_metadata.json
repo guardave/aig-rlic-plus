@@ -1,0 +1,15 @@
+{
+  "indicator": "indpro",
+  "target": "spy",
+  "expected_direction": "pro_cyclical",
+  "observed_direction": "counter_cyclical",
+  "direction_consistent": false,
+  "mechanism": "Rising industrial production reflects expanding manufacturing activity and higher corporate earnings, supporting equity valuations.",
+  "confidence": "high",
+  "key_finding": "INDPRO indpro_zscore_60m predicts spy_fwd_12m (coef=-0.0204, t=-2.69, p=0.0071, R\u00b2=0.021)",
+  "caveats": [
+    "INDPRO is released with ~6-week lag \u2014 real-time trading must account for publication delay",
+    "COVID-19 April 2020 outlier (-12.7% MoM) may dominate regime models",
+    "Monthly frequency limits signal granularity for daily trading strategies"
+  ]
+}

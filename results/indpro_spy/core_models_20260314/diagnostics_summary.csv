@@ -1,0 +1,5 @@
+test,statistic,p_value,conclusion
+Jarque-Bera (normality),72.2534,0.0,Non-normal residuals
+Breusch-Pagan (heteroskedasticity),23.1857,0.0,Heteroskedastic
+Breusch-Godfrey (serial correlation),211.2417,0.0,Serial correlation present
+Durbin-Watson,0.6365,,DW=0.64 (2.0=no autocorrelation)

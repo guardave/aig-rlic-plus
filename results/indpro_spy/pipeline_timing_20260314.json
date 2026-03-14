@@ -1,0 +1,22 @@
+{
+  "pair_id": "indpro_spy",
+  "indicator": "Industrial Production",
+  "target": "S&P 500",
+  "date": "20260314",
+  "pipeline_seconds": 13.0,
+  "stage_times": {
+    "1_data_sourcing": 5.7,
+    "2_alignment_and_derived": 0.1,
+    "3_stationarity_and_quality": 1.9,
+    "4_exploratory": 0.1,
+    "5_core_models": 1.9,
+    "6_tournament": 3.0,
+    "7_validation": 0.2
+  },
+  "monthly_rows": 432,
+  "monthly_cols": 23,
+  "daily_rows": 9393,
+  "daily_cols": 16,
+  "tournament_combos": 1666,
+  "valid_strategies": 1150
+}
