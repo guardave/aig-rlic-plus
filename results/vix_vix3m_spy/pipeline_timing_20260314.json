@@ -1,0 +1,12 @@
+{
+  "pair_id": "vix_vix3m_spy",
+  "total_seconds": 8.0,
+  "stage_times": {
+    "1_data": 4.1,
+    "2_derived": 0.4,
+    "3_stationarity": 0.6,
+    "4_exploratory": 0.1,
+    "5_models": 0.6,
+    "6_tournament": 2.1
+  }
+}

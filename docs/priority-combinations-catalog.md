@@ -47,7 +47,7 @@ These 73 pairs were analyzed manually and found to have meaningful indicator-tar
 | 8 | S&P 500 | SPY | ISM Services PMI | I3 | ISM_SVC_PMI | ISM direct | Pending | |
 | 9 | S&P 500 | SPY | PHLX SOX Index | I23 | SOX | Yahoo: ^SOX | Pending | |
 | 10 | S&P 500 | SPY | Portland Cement Shipments | I8 | CEMENT_SHIP | Portland Cement Assoc. | Pending | |
-| 11 | S&P 500 | SPY | VIX/VIX3M | I22 | VIX_VIX3M | Computed: Yahoo ^VIX / ^VIX3M | Pending | |
+| 11 | S&P 500 | SPY | VIX/VIX3M | I22 | VIX_VIX3M | Computed: Yahoo ^VIX / ^VIX3M | Completed | OOS Sharpe 1.13 (z126, L0, P1). Strongest regime signal: Q1 6.53 vs Q4 -2.38. P/C proxy. |
 | 12 | S&P 500 | SPY | M2SL YoY | I21 | M2SL_YOY | Derived: FRED M2SL | Pending | |
 | 13 | S&P 500 | SPY | Unemployment Rate | I4 | UNRATE | FRED: UNRATE | Pending | |
 | 14 | S&P 500 | SPY | Import Price Index | I24 | IMP_PRICE | FRED: IR | Pending | |

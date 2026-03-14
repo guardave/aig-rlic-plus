@@ -80,6 +80,7 @@ def load_pair_registry():
         indicator_names = {
             "indpro": "Industrial Production",
             "permit_spy": "Building Permits",
+            "vix_vix3m_spy": "VIX/VIX3M Ratio",
             "sofr_ted_spy": "SOFR - DTB3 (TED)",
             "dff_ted_spy": "DFF - DTB3 (Fed Funds TED)",
             "ted_spliced_spy": "Spliced TED Spread",
@@ -97,6 +98,7 @@ def load_pair_registry():
         page_routing = {
             "indpro_spy": "pages/5_indpro_spy",
             "permit_spy": "pages/7_permit_spy",
+            "vix_vix3m_spy": "pages/8_vix_vix3m_spy",
         }
         if pair_dir in ted_variants:
             page_prefix = "pages/6_ted_variants"

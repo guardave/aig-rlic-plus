@@ -1,0 +1,6 @@
+variable,test,statistic,p_value,conclusion
+vix_ratio,ADF,-9.0895,0.0,Stationary
+vix,ADF,-5.7586,0.0,Stationary
+vix3m,ADF,-4.8284,0.0,Stationary
+spy,ADF,2.3059,0.999,Non-stationary
+vix_ratio_roc_21d,ADF,-15.2392,0.0,Stationary

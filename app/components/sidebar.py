@@ -36,6 +36,16 @@ FINDINGS = [
         },
     },
     {
+        "id": "vix_vix3m_spy",
+        "label": "VIX/VIX3M → SPY",
+        "pages": {
+            "Story": "pages/8_vix_vix3m_spy_story.py",
+            "Evidence": "pages/8_vix_vix3m_spy_evidence.py",
+            "Strategy": "pages/8_vix_vix3m_spy_strategy.py",
+            "Methodology": "pages/8_vix_vix3m_spy_methodology.py",
+        },
+    },
+    {
         "id": "permit_spy",
         "label": "Building Permits → SPY",
         "pages": {
@@ -80,7 +90,7 @@ def render_sidebar():
         st.markdown(
             '<p style="font-size: 0.8rem; color: #999;">'
             "Data through 2025-12-31<br>"
-            "4 of 73 priority pairs analyzed"
+            "5 of 73 priority pairs analyzed"
             "</p>",
             unsafe_allow_html=True,
         )
