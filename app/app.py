@@ -107,9 +107,11 @@ for i in range(0, len(pairs), cols_per_row):
                     f"| **Valid** | **{valid_count:,}** / {total_count:,} | |"
                 )
 
-                # Key finding
+                # Key finding (truncate to ~80 chars for uniform card height)
                 finding = p.get("key_finding", "")
                 if finding:
+                    if len(finding) > 80:
+                        finding = finding[:77] + "..."
                     st.caption(finding)
 
                 # Navigation buttons
