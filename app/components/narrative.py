@@ -11,6 +11,8 @@ def render_narrative(text: str):
     """Render narrative markdown, converting expander blocks to st.expander components.
 
     Parses <!-- expander: Title --> ... <!-- /expander --> blocks.
+    Renders regular markdown content using st.markdown (no HTML wrapping)
+    so that headings, bold, lists, etc. render correctly.
     """
     # Split on expander markers
     pattern = r"<!--\s*expander:\s*(.+?)\s*-->(.*?)<!--\s*/expander\s*-->"
@@ -26,13 +28,10 @@ def render_narrative(text: str):
                 st.markdown(content)
             i += 2
         else:
-            # Regular markdown content
+            # Regular markdown content — render directly so headings work
             content = parts[i].strip()
             if content:
-                st.markdown(
-                    f'<div class="narrative-block">{_md_to_html_simple(content)}</div>',
-                    unsafe_allow_html=True,
-                )
+                st.markdown(content)
             i += 1
 
 

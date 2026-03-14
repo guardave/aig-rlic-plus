@@ -25,56 +25,6 @@ if os.path.exists(css_path):
     with open(css_path) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Inject card CSS
-st.markdown("""
-<style>
-.pair-card {
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 18px;
-    margin-bottom: 16px;
-    background-color: #fafafa;
-    transition: box-shadow 0.2s;
-}
-.pair-card:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-}
-.pair-card h4 {
-    margin: 0 0 6px 0;
-    font-size: 1.1rem;
-}
-.pair-card .direction-tag {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    margin-left: 6px;
-}
-.tag-pro { background-color: #d4edda; color: #155724; }
-.tag-counter { background-color: #f8d7da; color: #721c24; }
-.tag-ambiguous { background-color: #fff3cd; color: #856404; }
-.pair-card .metrics-row {
-    display: flex;
-    gap: 16px;
-    margin: 8px 0;
-    flex-wrap: wrap;
-}
-.pair-card .metric {
-    font-size: 0.85rem;
-}
-.pair-card .metric .value {
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-.pair-card .finding {
-    font-size: 0.85rem;
-    color: #555;
-    margin-top: 6px;
-}
-</style>
-""", unsafe_allow_html=True)
-
 # --- Sidebar ---
 render_sidebar()
 render_glossary_sidebar()
@@ -125,56 +75,50 @@ for i in range(0, len(pairs), cols_per_row):
         p = pairs[idx]
 
         with col:
-            # Direction tag
-            direction = p.get("direction", "unknown")
-            if direction == "pro_cyclical":
-                tag_class = "tag-pro"
-                tag_label = "Pro-cyclical"
-            elif direction == "counter_cyclical":
-                tag_class = "tag-counter"
-                tag_label = "Counter-cyclical"
-            else:
-                tag_class = "tag-ambiguous"
-                tag_label = direction.replace("_", " ").title()
+            with st.container(border=True):
+                # Header row: title + direction badge
+                direction = p.get("direction", "unknown")
+                if direction == "pro_cyclical":
+                    badge = ":green-background[Pro-cyclical]"
+                elif direction == "counter_cyclical":
+                    badge = ":red-background[Counter-cyclical]"
+                else:
+                    badge = f":orange-background[{direction.replace('_', ' ').title()}]"
 
-            # Direction consistency warning
-            dir_warn = ""
-            if not p.get("direction_consistent", True):
-                dir_warn = ' <span style="color:#dc3545;font-size:0.75rem;">⚠ Direction surprise</span>'
+                title = f"**{p['indicator']} → {p['target']}** {badge}"
+                if not p.get("direction_consistent", True):
+                    title += " :warning: Direction surprise"
+                st.markdown(title)
 
-            sharpe_str = f"{p['best_oos_sharpe']:.2f}" if p.get("best_oos_sharpe") else "—"
-            bh_str = f"{p['bh_sharpe']:.2f}" if p.get("bh_sharpe") else "—"
-            dd_str = f"{p['max_drawdown']:.1f}%" if p.get("max_drawdown") is not None else "—"
-            bh_dd_str = f"{p['bh_drawdown']:.1f}%" if p.get("bh_drawdown") is not None else "—"
-            valid_str = f"{p.get('valid_combos', 0):,}/{p.get('total_combos', 0):,}" if p.get("total_combos") else "—"
+                # Metrics row using st.metric
+                sharpe_str = f"{p['best_oos_sharpe']:.2f}" if p.get("best_oos_sharpe") else "—"
+                bh_str = f"{p['bh_sharpe']:.2f}" if p.get("bh_sharpe") else "—"
+                dd_str = f"{p['max_drawdown']:.1f}%" if p.get("max_drawdown") is not None else "—"
+                bh_dd_str = f"{p['bh_drawdown']:.1f}%" if p.get("bh_drawdown") is not None else "—"
+                valid_str = f"{p.get('valid_combos', 0):,}/{p.get('total_combos', 0):,}" if p.get("total_combos") else "—"
 
-            st.markdown(f"""
-<div class="pair-card">
-    <h4>{p['indicator']} → {p['target']}
-        <span class="direction-tag {tag_class}">{tag_label}</span>
-        {dir_warn}
-    </h4>
-    <div class="metrics-row">
-        <div class="metric">Best Sharpe<br><span class="value">{sharpe_str}</span></div>
-        <div class="metric">B&H Sharpe<br><span class="value">{bh_str}</span></div>
-        <div class="metric">Max DD<br><span class="value">{dd_str}</span></div>
-        <div class="metric">B&H DD<br><span class="value">{bh_dd_str}</span></div>
-        <div class="metric">Valid<br><span class="value">{valid_str}</span></div>
-    </div>
-    <div class="finding">{p.get('key_finding', '')}</div>
-</div>
-""", unsafe_allow_html=True)
+                m1, m2, m3, m4, m5 = st.columns(5)
+                m1.metric("Best Sharpe", sharpe_str)
+                m2.metric("B&H Sharpe", bh_str)
+                m3.metric("Max DD", dd_str)
+                m4.metric("B&H DD", bh_dd_str)
+                m5.metric("Valid", valid_str)
 
-            # Navigation buttons
-            btn_cols = st.columns(4)
-            with btn_cols[0]:
-                st.page_link(p["story_page"], label="Story", icon="📖")
-            with btn_cols[1]:
-                st.page_link(p["evidence_page"], label="Evidence", icon="🔬")
-            with btn_cols[2]:
-                st.page_link(p["strategy_page"], label="Strategy", icon="🎯")
-            with btn_cols[3]:
-                st.page_link(p["methodology_page"], label="Methods", icon="📐")
+                # Key finding
+                finding = p.get("key_finding", "")
+                if finding:
+                    st.caption(finding)
+
+                # Navigation buttons
+                btn_cols = st.columns(4)
+                with btn_cols[0]:
+                    st.page_link(p["story_page"], label="Story", icon="📖")
+                with btn_cols[1]:
+                    st.page_link(p["evidence_page"], label="Evidence", icon="🔬")
+                with btn_cols[2]:
+                    st.page_link(p["strategy_page"], label="Strategy", icon="🎯")
+                with btn_cols[3]:
+                    st.page_link(p["methodology_page"], label="Methods", icon="📐")
 
 # --- Footer ---
 st.markdown("---")
