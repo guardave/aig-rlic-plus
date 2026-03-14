@@ -76,20 +76,24 @@ for i in range(0, len(pairs), cols_per_row):
 
         with col:
             with st.container(border=True):
-                # Header: title + direction badge
+                # Header: title + direction badge with hover hints
                 direction = p.get("direction", "unknown")
                 if direction == "pro_cyclical":
-                    badge = ":green-background[Pro-cyclical]"
+                    dir_html = '<span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;cursor:help" title="When this indicator rises, stocks tend to rise too. Think of it as &quot;good news for the economy = good news for stocks.&quot;">Pro-cyclical</span>'
                 elif direction == "counter_cyclical":
-                    badge = ":red-background[Counter-cyclical]"
+                    dir_html = '<span style="background:#f8d7da;color:#721c24;padding:2px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;cursor:help" title="When this indicator rises, stocks tend to fall. Think of it as a stress signal — higher values mean more risk ahead.">Counter-cyclical</span>'
+                elif direction == "ambiguous":
+                    dir_html = '<span style="background:#fff3cd;color:#856404;padding:2px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;cursor:help" title="The direction depends on context. Sometimes rising values are bullish, sometimes bearish — it changes with market conditions.">Ambiguous</span>'
                 else:
-                    badge = f":orange-background[{direction.replace('_', ' ').title()}]"
+                    dir_label = direction.replace("_", " ").title()
+                    dir_html = f'<span style="background:#e2e3e5;color:#383d41;padding:2px 8px;border-radius:4px;font-size:0.8rem;font-weight:600">{dir_label}</span>'
 
-                title = f"**{p['indicator']} → {p['target']}**"
+                warn_html = ""
                 if not p.get("direction_consistent", True):
-                    title += " :warning:"
-                st.markdown(title)
-                st.markdown(badge)
+                    warn_html = ' <span style="cursor:help" title="Surprise: the data showed the opposite direction from what economic theory predicted. This is an important finding — see the Story page for the explanation.">&#9888;&#65039;</span>'
+
+                st.markdown(f"**{p['indicator']} → {p['target']}**{warn_html}", unsafe_allow_html=True)
+                st.markdown(dir_html, unsafe_allow_html=True)
 
                 # Metrics as compact table (no truncation)
                 sharpe_val = f"{p['best_oos_sharpe']:.2f}" if p.get("best_oos_sharpe") else "—"
