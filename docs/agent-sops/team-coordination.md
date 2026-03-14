@@ -7,7 +7,7 @@ This document defines how agents on the AIG-RLIC+ team coordinate work, hand off
 ## Team Structure
 
 ```
-                       Alex (Lead Analyst)
+                       Lesandro (Lead Analyst)
                     ┌────────┼────────┐
                     │        │        │
               ┌─────┴──┐  ┌─┴───┐  ┌─┴──────────┐
@@ -28,7 +28,7 @@ This document defines how agents on the AIG-RLIC+ team coordinate work, hand off
                        └──────────┘
 ```
 
-**Alex** (lead) assigns tasks, reviews outputs, and makes final decisions on methodology and interpretation.
+**Lesandro** (lead) assigns tasks, reviews outputs, and makes final decisions on methodology and interpretation.
 **Ace** (app dev) is the integration point — assembles all outputs into the Streamlit portal.
 
 ## Standard Task Flow
@@ -36,17 +36,60 @@ This document defines how agents on the AIG-RLIC+ team coordinate work, hand off
 A typical analysis follows this sequence:
 
 ```
-1. Alex frames the question and creates tasks
+1. Lesandro frames the question and creates tasks
 2. Research agent gathers literature and context    ──┐
 3. Data agent sources and cleans datasets            ──┤ (parallel)
 4. Econometrics agent specifies and estimates models  ←┘ (after 2 & 3)
 5. Visualization agent produces charts and tables     ← (after 4)
 6. App dev assembles portal with narrative + visuals  ← (after 5, with input from 2 & 3)
-7. Alex reviews, interprets, and delivers final output
+7. Browser verification (headless inspect + fix)      ← (after 6)
+8. Lesandro reviews, interprets, and delivers final output
 ```
 
 Steps 2 and 3 run in parallel. Steps 4, 5, and 6 are sequential dependencies.
 Ace can begin scaffolding the portal structure during steps 2-4 while waiting for final outputs.
+
+## Iterative Review: Browser Verification (Mandatory After Portal Assembly)
+
+After every portal page is created or modified, a **headless browser inspection** must be performed before the work is considered complete. This catches rendering issues that are invisible in Python code but visible in the browser.
+
+### Why This Is Mandatory
+
+Pair #1 (INDPRO → SPY) revealed two classes of rendering bugs:
+1. **Raw HTML in Streamlit:** `st.markdown(unsafe_allow_html=True)` silently fails on nested HTML (e.g., `<div>` with child `<span>` elements). The HTML appears as literal text instead of rendered markup.
+2. **Raw Markdown inside HTML blocks:** Markdown headings (`###`) and bold (`**text**`) inside HTML `<div>` wrappers are not rendered by Streamlit — they display as raw syntax.
+
+These bugs are **invisible during development** (the Python code looks correct) and only appear in the browser.
+
+### Verification Protocol
+
+**Tool:** Playwright headless browser (`temp/inspect_portal.py`)
+
+**Steps:**
+1. Launch Streamlit app
+2. For each page, navigate and wait for render (4-5s for Streamlit hydration)
+3. Take full-page screenshot
+4. Extract `body` inner text and scan for:
+   - Raw HTML tags: `<div`, `<span`, `<b>`, `<br>`, `</h4>`
+   - Raw Markdown syntax: lines starting with `###`, `##`, or containing `**text**`
+5. If issues found → fix and re-verify
+6. Save screenshots for the record
+
+**When to run:**
+- After creating new portal pages
+- After modifying `components/narrative.py`, `components/charts.py`, or any component that renders HTML
+- After updating the landing page layout
+- Before committing any portal changes
+
+### Known Streamlit Rendering Rules
+
+| Pattern | Works? | Fix |
+|---------|--------|-----|
+| `st.markdown("### Heading")` | Yes | Use directly |
+| `st.markdown("<div>### Heading</div>", unsafe_allow_html=True)` | **No** — heading shows as raw `###` | Remove HTML wrapper; use `st.markdown("### Heading")` |
+| `st.markdown("<div><span>text</span></div>", unsafe_allow_html=True)` | **Unreliable** — may show as raw tags | Use `st.container()` + native Streamlit components |
+| `st.metric("Label", value)` in narrow column | Truncates with `...` | Use fewer columns or markdown tables |
+| `st.container(border=True)` | Yes | Preferred for card-like layouts |
 
 ## Phase 0: Analysis Brief (Mandatory Gate)
 
@@ -59,7 +102,7 @@ No agent starts work on a new indicator-target analysis without an approved Anal
 - Computational budget
 - Portal specifications
 
-**Gate rule:** Alex creates or approves the Analysis Brief. Each agent acknowledges receipt and flags domain-specific concerns before proceeding. The brief template is at `docs/analysis_brief_template.md`.
+**Gate rule:** Lesandro creates or approves the Analysis Brief. Each agent acknowledges receipt and flags domain-specific concerns before proceeding. The brief template is at `docs/analysis_brief_template.md`.
 
 ### Brief Acknowledgment Protocol
 
@@ -70,7 +113,7 @@ When the Analysis Brief is issued:
    - "I have read the Analysis Brief for {INDICATOR} → {TARGET}"
    - Domain-specific concerns (e.g., Dana: "I16 is quarterly — will use LVCF alignment"; Evan: "Expected direction is ambiguous — will determine empirically")
    - Blockers (e.g., "Cannot source I13 (ABI) — need alternative")
-3. **Alex reviews all acknowledgments** and resolves any concerns before giving the go-ahead
+3. **Lesandro reviews all acknowledgments** and resolves any concerns before giving the go-ahead
 4. **No agent proceeds past their intake step** until the go-ahead is issued
 
 ## Handoff Protocol
@@ -114,7 +157,7 @@ Every handoff follows three rules:
 - **Chart Request Template** (chart type, data source path, key variables, main insight sentence, audience, comparison notes, special annotations)
 - Naming: `results/{model_name}_{date}.pkl`, `results/{model_name}_coefficients_{date}.csv`
 
-#### Visualization Agent → Alex
+#### Visualization Agent → Lesandro
 
 - Charts (`.png` and `.svg`) with versioning: `_v{N}`
 - Formatted tables (`.md` and `.csv`)
@@ -170,7 +213,7 @@ Every handoff follows three rules:
 - Backtest results in tabular format
 - Regime/signal status for any live indicators
 
-#### App Dev → Alex
+#### App Dev → Lesandro
 
 - Running portal URL (Streamlit Community Cloud)
 - Portal architecture documentation
@@ -251,11 +294,11 @@ Every handoff requires a structured acknowledgment from the receiver:
 
 | Situation | Action |
 |-----------|--------|
-| Missing data for a required variable | Data agent flags to Alex; suggests alternatives |
-| Model diagnostics fail | Econometrics agent reports to Alex with proposed fix |
-| Conflicting literature findings | Research agent presents both sides; Alex decides |
+| Missing data for a required variable | Data agent flags to Lesandro; suggests alternatives |
+| Model diagnostics fail | Econometrics agent reports to Lesandro with proposed fix |
+| Conflicting literature findings | Research agent presents both sides; Lesandro decides |
 | Chart request is ambiguous | Visualization agent asks econometrics agent for clarification |
-| Any agent is blocked for > 1 task cycle | Escalate to Alex immediately |
+| Any agent is blocked for > 1 task cycle | Escalate to Lesandro immediately |
 
 ## Quality Standards (Team-Wide)
 
@@ -303,7 +346,7 @@ Every handoff requires a structured acknowledgment from the receiver:
 
 3. **When in doubt, verify with a known period.** Pick a well-understood historical episode (GFC, COVID) and confirm your derived series behaves as expected during that period. This catches sign inversions, unit errors, and state label swaps generically.
 
-**For gate reviewers (Alex):**
+**For gate reviewers (Lesandro):**
 
 4. **Automated reconciliation script.** Before signing off on any gate, run a script that compares every number displayed in the portal/charts against the source CSV/parquet. This is not optional spot-checking — it is a systematic check that every displayed number traces back to the ground truth.
 
@@ -386,7 +429,7 @@ Reading teammates' SOPs reveals handoff gaps, duplicated work, and blind spots t
 
 ## Retrospective
 
-After completing a major analysis (not after every task), the team lead (Alex) convenes a brief retrospective:
+After completing a major analysis (not after every task), the team lead (Lesandro) convenes a brief retrospective:
 
 1. Each agent reviews their Input Quality Log / memories for recurring friction
 2. Top 3 improvement suggestions are collected

@@ -342,7 +342,7 @@ Apply to the top {TOP_N} tournament winners:
 
 | # | Deliverable | File / Location | Owner | Status |
 |---|------------|-----------------|-------|--------|
-| 1 | **Analysis Brief** (this document) | `docs/analysis_brief_{INDICATOR_ID}_{TARGET_ID}_{DATE}.md` | Alex | {STATUS_BRIEF} |
+| 1 | **Analysis Brief** (this document) | `docs/analysis_brief_{INDICATOR_ID}_{TARGET_ID}_{DATE}.md` | Lesandro | {STATUS_BRIEF} |
 | 2 | **Spec Memo** | `docs/spec_memo_{INDICATOR_ID}_{TARGET_ID}_{DATE}.md` | Ray | {STATUS_SPEC} |
 | 3 | **Research Brief** | `docs/research_brief_{INDICATOR_ID}_{TARGET_ID}_{DATE}.md` | Ray | {STATUS_RESEARCH} |
 | 4 | **Portal Narrative** | `docs/portal_narrative_{INDICATOR_ID}_{TARGET_ID}_{DATE}.md` | Ray | {STATUS_NARRATIVE} |
@@ -480,30 +480,30 @@ Every model output must include a structured interpretation block:
 ## 12. Timeline Dependencies
 
 ```
-Phase 0 (Alex: Brief) ──────────────────────────┐
+Phase 0 (Lesandro: Brief) ──────────────────────────┐
                                                   │
 Phase 1A (Ray: Research) ──────────────────┐     │
 Phase 1B (Dana: Data)     ─────────────────┤     │ parallel
                                             │     │
-Gate 1 (Alex Review) ──────────────────────┤     │
+Gate 1 (Lesandro Review) ──────────────────────┤     │
                                             │     │
 Phase 2 (Evan: Econometrics) ──────────────┤     │
                                             │     │
-Gate 2 (Alex Review) ──────────────────────┤     │
+Gate 2 (Lesandro Review) ──────────────────────┤     │
                                             │     │
 Phase 3 (Vera: Visualization) ─────────────┤     │
                                             │     │
-Gate 3 (Alex Review) ──────────────────────┤     │
+Gate 3 (Lesandro Review) ──────────────────────┤     │
                                             │     │
 Phase 4 (Ace: Portal Assembly) ────────────┤     │
                                             │     │
-Gate 4 (Alex Final Review) ────────────────┘     │
+Gate 4 (Lesandro Final Review) ────────────────┘     │
                                                   │
 Phase 5 (Lessons Learned — All) ─────────────────┘
 ```
 
 > *Guidance: Gates are mandatory review checkpoints. Work does not advance past a gate
-> until Alex approves. Phases 1A and 1B run in parallel. Ace can scaffold portal structure
+> until Lesandro approves. Phases 1A and 1B run in parallel. Ace can scaffold portal structure
 > during Phases 1-2 while waiting for final content.*
 
 ---

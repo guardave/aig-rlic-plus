@@ -181,4 +181,37 @@ temp/inspect_portal.py
 
 ---
 
-*This document is maintained by Alex (lead analyst) and updated after each pair completes.*
+## Lessons Learned
+
+### From Pair #1 (INDPRO → SPY)
+
+**Econometric insights:**
+1. **Direction can surprise.** Expected pro-cyclical, found counter-cyclical z-score at extremes. Always run the analysis before assuming direction — the peak-cycle mean-reversion effect was not in the prior.
+2. **Monthly indicators need longer lead times.** The winning strategy used a 6-month lead — much longer than the 0-5 day leads that worked for daily HY-IG. Publication lag + economic response time matters.
+3. **Granger causality is weak for coincident indicators.** IP is coincident, not leading. Don't expect strong Granger results. The predictive power comes from momentum and regime effects.
+4. **Cointegration is not guaranteed.** Log(INDPRO) and log(SPY) failed the Johansen test. Don't assume all macro indicators cointegrate with equity prices.
+
+**Portal/viz insights:**
+5. **Streamlit `st.markdown(unsafe_allow_html=True)` is unreliable for nested HTML.** Use native components (st.container, st.metric, st.columns) instead.
+6. **Markdown inside HTML div wrappers renders as raw text.** Fixed render_narrative() to use plain st.markdown().
+7. **`st.metric` truncates in narrow columns.** Use markdown tables for compact data display.
+8. **Headless browser verification is essential.** Added to SOP as mandatory step after portal assembly.
+
+**Process insights:**
+9. **One-time infrastructure costs are high for pair #1 (~170K tokens).** Subsequent pairs reuse scripts, landing page, components — ~130K/pair.
+10. **The pipeline script template is the key reusable artifact.** Future pairs adapt `pair_pipeline_indpro_spy.py` with different data sources and derived series.
+11. **Chart generation should be a separate script per pair** (not inline in the pipeline). This allows re-running viz without re-running models.
+12. **Always update tracking docs at every stage**, not just at the end. Missed viz tracking on first pass.
+
+### SOP Updates Applied
+
+| SOP | What Changed | Why |
+|-----|-------------|-----|
+| team-coordination.md | Added Step 7 (browser verification) to task flow; added Iterative Review section with Playwright protocol | Rendering bugs invisible in Python code |
+| visualization-agent-sop.md | Added Viz Preferences section: 10 standard charts, color palette, naming convention, Streamlit rendering rules | Standardize chart set across pairs; prevent rendering bugs |
+| appdev-agent-sop.md | Added Streamlit Rendering Rules to architecture rules | Prevent HTML/markdown rendering failures |
+| All SOPs | Renamed Alex → Lesandro | Lead analyst name change |
+
+---
+
+*This document is maintained by Lesandro (lead analyst) and updated after each pair completes.*

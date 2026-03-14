@@ -240,7 +240,7 @@ How often each indicator appears across the 7 target ETFs.
 - **Status transitions:** Pending --> In Progress --> Completed --> Compared
 - **Comparison Notes column:** Document differences between human and agent findings (e.g., agent missed the relationship, agent found it with different lag, agent found stronger/weaker effect).
 - **Update status** as agent teams complete analysis runs.
-- **Owner:** Alex (lead analyst) maintains this catalog.
+- **Owner:** Lesandro (lead analyst) maintains this catalog.
 
 ---
 

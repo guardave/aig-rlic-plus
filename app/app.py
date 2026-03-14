@@ -64,8 +64,8 @@ if filter_text:
 st.markdown(f"**{len(pairs)} pair{'s' if len(pairs) != 1 else ''} analyzed**")
 st.markdown("")
 
-# --- Render cards in 2-column grid ---
-cols_per_row = 2
+# --- Render cards in 3-column grid ---
+cols_per_row = 3
 for i in range(0, len(pairs), cols_per_row):
     cols = st.columns(cols_per_row)
     for j, col in enumerate(cols):
@@ -76,7 +76,7 @@ for i in range(0, len(pairs), cols_per_row):
 
         with col:
             with st.container(border=True):
-                # Header row: title + direction badge
+                # Header: title + direction badge
                 direction = p.get("direction", "unknown")
                 if direction == "pro_cyclical":
                     badge = ":green-background[Pro-cyclical]"
@@ -85,24 +85,27 @@ for i in range(0, len(pairs), cols_per_row):
                 else:
                     badge = f":orange-background[{direction.replace('_', ' ').title()}]"
 
-                title = f"**{p['indicator']} → {p['target']}** {badge}"
+                title = f"**{p['indicator']} → {p['target']}**"
                 if not p.get("direction_consistent", True):
-                    title += " :warning: Direction surprise"
+                    title += " :warning:"
                 st.markdown(title)
+                st.markdown(badge)
 
-                # Metrics row using st.metric
-                sharpe_str = f"{p['best_oos_sharpe']:.2f}" if p.get("best_oos_sharpe") else "—"
-                bh_str = f"{p['bh_sharpe']:.2f}" if p.get("bh_sharpe") else "—"
-                dd_str = f"{p['max_drawdown']:.1f}%" if p.get("max_drawdown") is not None else "—"
-                bh_dd_str = f"{p['bh_drawdown']:.1f}%" if p.get("bh_drawdown") is not None else "—"
-                valid_str = f"{p.get('valid_combos', 0):,}/{p.get('total_combos', 0):,}" if p.get("total_combos") else "—"
+                # Metrics as compact table (no truncation)
+                sharpe_val = f"{p['best_oos_sharpe']:.2f}" if p.get("best_oos_sharpe") else "—"
+                bh_val = f"{p['bh_sharpe']:.2f}" if p.get("bh_sharpe") else "—"
+                dd_val = f"{p['max_drawdown']:.1f}%" if p.get("max_drawdown") is not None else "—"
+                bh_dd_val = f"{p['bh_drawdown']:.1f}%" if p.get("bh_drawdown") is not None else "—"
+                valid_count = p.get("valid_combos", 0)
+                total_count = p.get("total_combos", 0)
 
-                m1, m2, m3, m4, m5 = st.columns(5)
-                m1.metric("Best Sharpe", sharpe_str)
-                m2.metric("B&H Sharpe", bh_str)
-                m3.metric("Max DD", dd_str)
-                m4.metric("B&H DD", bh_dd_str)
-                m5.metric("Valid", valid_str)
+                st.markdown(
+                    f"| | Strategy | Buy & Hold |\n"
+                    f"|:--|:--:|:--:|\n"
+                    f"| **Sharpe** | **{sharpe_val}** | {bh_val} |\n"
+                    f"| **Max DD** | **{dd_val}** | {bh_dd_val} |\n"
+                    f"| **Valid** | **{valid_count:,}** / {total_count:,} | |"
+                )
 
                 # Key finding
                 finding = p.get("key_finding", "")
@@ -110,15 +113,11 @@ for i in range(0, len(pairs), cols_per_row):
                     st.caption(finding)
 
                 # Navigation buttons
-                btn_cols = st.columns(4)
-                with btn_cols[0]:
-                    st.page_link(p["story_page"], label="Story", icon="📖")
-                with btn_cols[1]:
-                    st.page_link(p["evidence_page"], label="Evidence", icon="🔬")
-                with btn_cols[2]:
-                    st.page_link(p["strategy_page"], label="Strategy", icon="🎯")
-                with btn_cols[3]:
-                    st.page_link(p["methodology_page"], label="Methods", icon="📐")
+                b1, b2, b3, b4 = st.columns(4)
+                b1.page_link(p["story_page"], label="Story", icon="📖")
+                b2.page_link(p["evidence_page"], label="Evidence", icon="🔬")
+                b3.page_link(p["strategy_page"], label="Strategy", icon="🎯")
+                b4.page_link(p["methodology_page"], label="Methods", icon="📐")
 
 # --- Footer ---
 st.markdown("---")

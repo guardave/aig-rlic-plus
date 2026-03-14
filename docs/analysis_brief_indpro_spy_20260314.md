@@ -3,7 +3,7 @@
 | Field       | Value                     |
 |-------------|---------------------------|
 | **Date**    | 2026-03-14                |
-| **Author**  | Alex (Lead Analyst)       |
+| **Author**  | Lesandro (Lead Analyst)       |
 | **Version** | 1.0                       |
 | **Status**  | Approved                  |
 
@@ -257,7 +257,7 @@ Apply to the top 5 tournament winners:
 
 | # | Deliverable | File / Location | Owner | Status |
 |---|------------|-----------------|-------|--------|
-| 1 | **Analysis Brief** | `docs/analysis_brief_indpro_spy_20260314.md` | Alex | Done |
+| 1 | **Analysis Brief** | `docs/analysis_brief_indpro_spy_20260314.md` | Lesandro | Done |
 | 2 | **Master Dataset** | `data/indpro_spy_monthly_19900101_20251231.parquet` | Dana | Not Started |
 | 3 | **Data Dictionary** | `data/data_dictionary_indpro_spy_20260314.csv` | Dana | Not Started |
 | 4 | **Stationarity Tests** | `results/indpro_spy/stationarity_tests_20260314.csv` | Dana | Not Started |
