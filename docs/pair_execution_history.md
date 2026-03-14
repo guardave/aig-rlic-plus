@@ -18,6 +18,7 @@ Tracks time, token usage, and results for each priority combination analysis run
 | 2b | DFF-DTB3 → SPY | Completed | (shared) | (shared) | 0.97 | 0.77 | 388 / 991 | Most robust; long history |
 | 2c | Spliced TED → SPY | Completed | (shared) | (shared) | 1.19 | 0.77 | 598 / 991 | TEDRATE + affine-adjusted DFF-TED |
 | 3 | Building Permits → SPY | Completed | 7.0 | ~150K | 1.45 | 0.90 | 675 / 856 | Pro-cyclical confirmed; MoM+L6+P3 |
+| 11 | VIX/VIX3M → SPY | Completed | 8.0 | ~150K | 1.13 | 0.77 | 332 / 916 | Strongest regime: Q1 6.53 vs Q4 -2.38. P/C proxy. |
 
 ---
 
@@ -268,6 +269,23 @@ temp/inspect_portal.py
 - RoC-over-level is a **confirmed pattern** (3/3 pairs) — promote from observation to rule
 - Long/Short (P3) is viable when signal is strong — don't exclude from tournament grid
 - 6M lead is default for monthly indicators — codify in econometrics SOP
+
+### From Pair #11 (VIX/VIX3M → SPY) — MRA
+
+**Measure:** 8.0s pipeline, ~150K tokens, Sharpe 1.13, 332/916 valid, counter-cyclical confirmed, 11/11 completeness gate.
+
+**Review:**
+- **Strongest regime signal seen**: Q1 (contango) Sharpe 6.53 vs Q4 (backwardation) Sharpe -2.38. This 9-point Sharpe spread dwarfs all other pairs (INDPRO was 0.8, Permits was 0.2).
+- VIX/VIX3M is daily and stationary — different dynamics from monthly macro indicators. L0 (no lead) won, unlike the L6 for monthly indicators. Makes sense: VIX is fast-moving, no publication lag.
+- Z-score 126d won — shorter lookback than 252d. VIX term structure regimes are shorter-lived than macro cycles.
+- Only 332/916 valid (36%) — lower validity rate than previous pairs (60-79%). VIX signal is noisy at daily frequency; many strategies don't survive OOS.
+- Successfully used as **put/call ratio proxy** — when CBOE P/C data is unavailable, VIX term structure captures similar sentiment.
+
+**Adjust:**
+- Daily indicators: L0 is default (no publication lag). Contrast with monthly indicators (L6).
+- Shorter z-score lookbacks (126d) for fast-moving indicators like VIX.
+- Low validity rate (36%) is normal for daily noisy indicators — don't be alarmed.
+- VIX regime quartiles are the best regime discriminator discovered — consider using as a universal control variable.
 
 ---
 
