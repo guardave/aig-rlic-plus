@@ -17,6 +17,7 @@ Tracks time, token usage, and results for each priority combination analysis run
 | 2a | SOFR-DTB3 → SPY | Completed | 14.4 (3 combined) | ~200K (shared) | 1.89 | 1.41 | 580 / 991 | Short OOS (3yr), inflated Sharpe |
 | 2b | DFF-DTB3 → SPY | Completed | (shared) | (shared) | 0.97 | 0.77 | 388 / 991 | Most robust; long history |
 | 2c | Spliced TED → SPY | Completed | (shared) | (shared) | 1.19 | 0.77 | 598 / 991 | TEDRATE + affine-adjusted DFF-TED |
+| 3 | Building Permits → SPY | Completed | 7.0 | ~150K | 1.45 | 0.90 | 675 / 856 | Pro-cyclical confirmed; MoM+L6+P3 |
 
 ---
 
@@ -251,6 +252,22 @@ temp/inspect_portal.py
 | team-coordination.md | Added MRA (Step 9, renumbered); added Deliverables Completeness Gate (Step 8) with 15-item checklist | Missing Methodology page; no completeness verification existed |
 | appdev-agent-sop.md | Added "All 4 page types exist" as first quality gate item | Prevent page omission shortcuts |
 | memory | Added MRA feedback memory | Persist across sessions |
+
+### From Pair #3 (Building Permits → SPY) — MRA
+
+**Measure:** 7.0s pipeline, ~150K tokens, Sharpe 1.45, 675/856 valid, pro-cyclical confirmed, 12/12 completeness gate.
+
+**Review:**
+- RoC/momentum wins for 3rd consecutive pair — now a confirmed pattern across Activity (INDPRO), Rates (TED), and Housing (Permits)
+- Long/Short (P3) won for the first time — permits have strong enough signal for directional bets
+- 6-month lead for monthly indicators is standard — consistent with INDPRO
+- Regime differentiation modest (Q4 0.95 vs Q1 0.75) — permits are a better leading indicator than regime discriminator
+- NumPy bool JSON serialization bug in pipeline template — needs `bool()` cast
+
+**Adjust:**
+- RoC-over-level is a **confirmed pattern** (3/3 pairs) — promote from observation to rule
+- Long/Short (P3) is viable when signal is strong — don't exclude from tournament grid
+- 6M lead is default for monthly indicators — codify in econometrics SOP
 
 ---
 
