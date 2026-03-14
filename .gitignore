@@ -27,6 +27,9 @@ Thumbs.db
 # Claude Code — keep shared settings & agents, ignore local/personal
 .claude/settings.local.json
 
+# Temp working directory
+temp/
+
 # Data (large files — add specific datasets as needed)
 *.parquet
 *.h5
