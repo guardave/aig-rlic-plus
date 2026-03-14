@@ -236,11 +236,20 @@ temp/inspect_portal.py
 - Variant family pattern: when an indicator has measurement alternatives (predecessor/proxy/derived), run all variants in one pipeline. Document the choice rationale in the Story page.
 - 3 TED variants count as 1 priority pair (#2), not 3. Sidebar and tracking reflect this.
 
+### From Pair #2 Post-MRA: Missing Methodology Page
+
+**What happened:** TED variants shipped with 3 portal pages (Story, Evidence, Strategy) but no Methodology page. The developer consciously skipped it as a "shortcut" and routed Methodology links to the Strategy page.
+
+**Root cause:** No deliverables completeness check in the SOPs. Browser verification caught rendering bugs but not missing pages. The Analysis Brief checklist was passive (no one verified it at the end).
+
+**Fix:** Added **Step 8: Deliverables Completeness Gate** to team-coordination SOP with a 15-item checklist. Added "All 4 page types exist" as first item in AppDev Quality Gates.
+
 ### SOP Updates Applied (Pair #2)
 
 | SOP | What Changed | Why |
 |-----|-------------|-----|
-| team-coordination.md | Added MRA (Step 8) to task flow; full MRA protocol section | Formalize Measure-Review-Adjust after every pair |
+| team-coordination.md | Added MRA (Step 9, renumbered); added Deliverables Completeness Gate (Step 8) with 15-item checklist | Missing Methodology page; no completeness verification existed |
+| appdev-agent-sop.md | Added "All 4 page types exist" as first quality gate item | Prevent page omission shortcuts |
 | memory | Added MRA feedback memory | Persist across sessions |
 
 ---

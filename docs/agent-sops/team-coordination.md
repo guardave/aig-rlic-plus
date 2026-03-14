@@ -43,12 +43,50 @@ A typical analysis follows this sequence:
 5. Visualization agent produces charts and tables     ← (after 4)
 6. App dev assembles portal with narrative + visuals  ← (after 5, with input from 2 & 3)
 7. Browser verification (headless inspect + fix)      ← (after 6)
-8. MRA: Measure, Review, Adjust                       ← (after 7)
-9. Lesandro reviews, interprets, and delivers final output
+8. Deliverables completeness gate                     ← (after 7)
+9. MRA: Measure, Review, Adjust                       ← (after 8)
+10. Lesandro reviews, interprets, and delivers final output
 ```
 
 Steps 2 and 3 run in parallel. Steps 4, 5, and 6 are sequential dependencies.
 Ace can begin scaffolding the portal structure during steps 2-4 while waiting for final outputs.
+
+## Deliverables Completeness Gate (Step 8)
+
+After browser verification confirms rendering quality, verify that **all deliverables exist** by reconciling against the Analysis Brief Section 9 checklist.
+
+### Why This Is Mandatory
+
+Pair #2 (TED Variants) shipped without a Methodology page because:
+- The Analysis Brief listed 4 portal pages, but no one verified all 4 were created
+- Browser verification checked rendering quality, not content completeness
+- The developer consciously skipped Methodology as a "shortcut" — which a completeness gate would have caught
+
+### Minimum Deliverables Per Pair
+
+Every completed pair must have **all** of the following. Missing any one blocks completion.
+
+| # | Deliverable | Verify How |
+|---|------------|-----------|
+| 1 | Analysis Brief | `docs/analysis_brief_{id}_{date}.md` exists |
+| 2 | Master dataset | `data/{id}_*.parquet` exists, row count > 0 |
+| 3 | Stationarity tests | `results/{id}/stationarity_tests_*.csv` exists |
+| 4 | Interpretation metadata | `results/{id}/interpretation_metadata.json` exists |
+| 5 | Exploratory results | `results/{id}/exploratory_*/correlations.csv` exists |
+| 6 | Core model results | `results/{id}/core_models_*/*.csv` — at least 3 files |
+| 7 | Tournament results | `results/{id}/tournament_results_*.csv` exists, rows > 0 |
+| 8 | Charts | `output/charts/{id}/plotly/*.json` — at least 5 files |
+| 9 | Portal: Story page | `app/pages/*_{id}_story.py` or shared page exists |
+| 10 | Portal: Evidence page | `app/pages/*_{id}_evidence.py` or shared page exists |
+| 11 | Portal: Strategy page | `app/pages/*_{id}_strategy.py` or shared page exists |
+| 12 | Portal: Methodology page | `app/pages/*_{id}_methodology.py` or shared page exists |
+| 13 | Sidebar navigation | Finding appears in sidebar dropdown |
+| 14 | Landing card | Pair appears in dashboard card grid |
+| 15 | Catalog status | `docs/priority-combinations-catalog.md` updated to "Completed" |
+
+### Variant Families
+
+When one priority pair spawns multiple variants (e.g., TED → 3 variants), the deliverables above apply to the **shared pages** — but all 4 page types (Story, Evidence, Strategy, Methodology) must still exist. Sharing pages across variants is acceptable; omitting a page type is not.
 
 ## Iterative Review: Browser Verification (Mandatory After Portal Assembly)
 

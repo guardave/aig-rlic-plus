@@ -478,6 +478,7 @@ Review at team retrospectives to identify systemic handoff issues.
 
 Before handing off:
 
+- [ ] **All 4 page types exist** (Story, Evidence, Strategy, Methodology) — no exceptions, no shortcuts
 - [ ] All pages load without errors
 - [ ] Storytelling arc is clear from page 1 through page 5
 - [ ] Every chart has a title, caption, and source note
