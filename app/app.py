@@ -1,4 +1,4 @@
-"""AIG-RLIC+ Research Portal — Executive Summary Landing Page."""
+"""AIG-RLIC+ Research Portal — Grid of Analyzed Pairs."""
 
 import os
 import sys
@@ -8,8 +8,7 @@ import streamlit as st
 # Ensure components are importable
 sys.path.insert(0, os.path.dirname(__file__))
 
-from components.charts import load_plotly_chart
-from components.metrics import kpi_row
+from components.pair_registry import load_pair_registry
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
 
@@ -26,98 +25,163 @@ if os.path.exists(css_path):
     with open(css_path) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+# Inject card CSS
+st.markdown("""
+<style>
+.pair-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 16px;
+    background-color: #fafafa;
+    transition: box-shadow 0.2s;
+}
+.pair-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.pair-card h4 {
+    margin: 0 0 6px 0;
+    font-size: 1.1rem;
+}
+.pair-card .direction-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 6px;
+}
+.tag-pro { background-color: #d4edda; color: #155724; }
+.tag-counter { background-color: #f8d7da; color: #721c24; }
+.tag-ambiguous { background-color: #fff3cd; color: #856404; }
+.pair-card .metrics-row {
+    display: flex;
+    gap: 16px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+}
+.pair-card .metric {
+    font-size: 0.85rem;
+}
+.pair-card .metric .value {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+.pair-card .finding {
+    font-size: 0.85rem;
+    color: #555;
+    margin-top: 6px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # --- Sidebar ---
 render_sidebar()
 render_glossary_sidebar()
 
 # --- Header ---
 st.title("AIG-RLIC+ Research Portal")
-st.markdown("### Credit Market Signals for Equity Investors")
+st.markdown("### Indicator-Target Analysis Dashboard")
 
 st.markdown(
-    '<div class="narrative-block">'
-    "The bond market often sees trouble coming before the stock market does — "
-    "and the gap between risky and safe bond yields has been one of the most reliable "
-    "early warning signals for stock market declines over the past 25 years."
-    "</div>",
-    unsafe_allow_html=True,
+    "Each card below represents a completed indicator-target analysis. "
+    "Click through to read the story, examine the evidence, and explore trading strategies."
 )
 
 st.markdown("---")
 
-# --- KPI Cards ---
-kpi_row(
-    [
-        {"label": "OOS Sharpe Ratio", "value": "1.17", "delta": "+0.40 vs buy-and-hold"},
-        {
-            "label": "Max Drawdown",
-            "value": "-11.6%",
-            "delta": "-33.7% buy-and-hold",
-            "delta_color": "inverse",
-        },
-        {"label": "Combinations Tested", "value": "2,304"},
-        {"label": "Academic Citations", "value": "25"},
-        {"label": "OOS Window", "value": "8 years", "delta": "2018-2025"},
-    ]
+# --- Load pairs ---
+pairs = load_pair_registry()
+
+# --- Filter ---
+filter_text = st.text_input(
+    "Filter pairs",
+    placeholder="Type to filter by indicator, target, or finding...",
+    label_visibility="collapsed",
 )
 
-st.markdown("---")
+if filter_text:
+    q = filter_text.lower()
+    pairs = [p for p in pairs if (
+        q in p["indicator"].lower()
+        or q in p["target"].lower()
+        or q in p.get("target_ticker", "").lower()
+        or q in p.get("key_finding", "").lower()
+        or q in p.get("direction", "").lower()
+        or q in p.get("pair_id", "").lower()
+    )]
 
-# --- Hero Chart ---
-st.markdown("### The Big Picture: Credit Spreads vs. Equity Prices (2000-2025)")
-load_plotly_chart(
-    "hero_spread_vs_spy",
-    fallback_text="Hero chart — HY-IG spread vs SPY (2000-2025) — will appear when visualization is complete.",
-    caption=(
-        "Dual-axis view: HY-IG credit spread (left, inverted) and S&P 500 price (right). "
-        "Gray bands mark NBER recessions. Notice how the spread widens (falls on inverted axis) "
-        "before or during equity declines."
-    ),
-)
+st.markdown(f"**{len(pairs)} pair{'s' if len(pairs) != 1 else ''} analyzed**")
+st.markdown("")
 
-st.markdown("---")
+# --- Render cards in 2-column grid ---
+cols_per_row = 2
+for i in range(0, len(pairs), cols_per_row):
+    cols = st.columns(cols_per_row)
+    for j, col in enumerate(cols):
+        idx = i + j
+        if idx >= len(pairs):
+            break
+        p = pairs[idx]
 
-# --- Finding Index ---
-st.markdown("### Current Findings")
+        with col:
+            # Direction tag
+            direction = p.get("direction", "unknown")
+            if direction == "pro_cyclical":
+                tag_class = "tag-pro"
+                tag_label = "Pro-cyclical"
+            elif direction == "counter_cyclical":
+                tag_class = "tag-counter"
+                tag_label = "Counter-cyclical"
+            else:
+                tag_class = "tag-ambiguous"
+                tag_label = direction.replace("_", " ").title()
 
-col1, col2 = st.columns(2)
+            # Direction consistency warning
+            dir_warn = ""
+            if not p.get("direction_consistent", True):
+                dir_warn = ' <span style="color:#dc3545;font-size:0.75rem;">⚠ Direction surprise</span>'
 
-with col1:
-    st.markdown(
-        """
-        **Finding 1: HY-IG Credit Spread as Equity Signal**
+            sharpe_str = f"{p['best_oos_sharpe']:.2f}" if p.get("best_oos_sharpe") else "—"
+            bh_str = f"{p['bh_sharpe']:.2f}" if p.get("bh_sharpe") else "—"
+            dd_str = f"{p['max_drawdown']:.1f}%" if p.get("max_drawdown") is not None else "—"
+            bh_dd_str = f"{p['bh_drawdown']:.1f}%" if p.get("bh_drawdown") is not None else "—"
+            valid_str = f"{p.get('valid_combos', 0):,}/{p.get('total_combos', 0):,}" if p.get("total_combos") else "—"
 
-        Does the gap between high-yield and investment-grade bond yields
-        predict stock market returns? We tested this with 25 years of daily data,
-        12 econometric methods, and a 2,304-combination strategy tournament.
-        """
-    )
+            st.markdown(f"""
+<div class="pair-card">
+    <h4>{p['indicator']} → {p['target']}
+        <span class="direction-tag {tag_class}">{tag_label}</span>
+        {dir_warn}
+    </h4>
+    <div class="metrics-row">
+        <div class="metric">Best Sharpe<br><span class="value">{sharpe_str}</span></div>
+        <div class="metric">B&H Sharpe<br><span class="value">{bh_str}</span></div>
+        <div class="metric">Max DD<br><span class="value">{dd_str}</span></div>
+        <div class="metric">B&H DD<br><span class="value">{bh_dd_str}</span></div>
+        <div class="metric">Valid<br><span class="value">{valid_str}</span></div>
+    </div>
+    <div class="finding">{p.get('key_finding', '')}</div>
+</div>
+""", unsafe_allow_html=True)
 
-    st.page_link(
-        "pages/1_hy_ig_story.py",
-        label="Read the full story",
-        icon="📖",
-    )
-
-with col2:
-    st.markdown(
-        """
-        **Key Results:**
-
-        - Credit leads equity during stress, but equity leads credit during calm periods
-        - HMM regime detection is the strongest signal — a simple Long/Cash strategy
-          achieves OOS Sharpe of 1.17 with max drawdown of -11.6%
-        - Value comes from drawdown avoidance, not alpha generation
-        - The signal does not protect against rate-driven selloffs (2022)
-        """
-    )
+            # Navigation buttons
+            btn_cols = st.columns(4)
+            with btn_cols[0]:
+                st.page_link(p["story_page"], label="Story", icon="📖")
+            with btn_cols[1]:
+                st.page_link(p["evidence_page"], label="Evidence", icon="🔬")
+            with btn_cols[2]:
+                st.page_link(p["strategy_page"], label="Strategy", icon="🎯")
+            with btn_cols[3]:
+                st.page_link(p["methodology_page"], label="Methods", icon="📐")
 
 # --- Footer ---
 st.markdown("---")
 st.markdown(
     '<div class="portal-footer">'
-    "Generated with AIG-RLIC+ | Data through 2025-12-31 | "
-    "Sample: 2000-01-01 to 2025-12-31 (6,783 daily observations)"
+    f"Generated with AIG-RLIC+ | {len(pairs)} pairs analyzed | "
+    "73 priority pairs total"
     "</div>",
     unsafe_allow_html=True,
 )

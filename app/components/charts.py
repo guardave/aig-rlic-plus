@@ -7,8 +7,9 @@ import plotly.io as pio
 import streamlit as st
 
 
-CHART_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "output", "charts", "plotly")
-METADATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "output", "charts", "metadata")
+_APP_DIR = os.path.dirname(os.path.dirname(__file__))
+CHART_DIR = os.path.join(_APP_DIR, "..", "output", "charts", "plotly")
+METADATA_DIR = os.path.join(_APP_DIR, "..", "output", "charts", "metadata")
 
 
 @st.cache_resource
@@ -22,6 +23,7 @@ def load_plotly_chart(
     chart_name: str,
     fallback_text: str = "Chart will appear when visualization is complete.",
     caption: str = None,
+    pair_id: str = None,
 ):
     """Load a Plotly chart from JSON file and render it.
 
@@ -29,8 +31,15 @@ def load_plotly_chart(
         chart_name: Filename without extension (e.g., 'hero_spread_vs_spy').
         fallback_text: Message shown if chart JSON not found.
         caption: Optional caption displayed below the chart.
+        pair_id: Optional pair subdirectory (e.g., 'indpro_spy').
+                 If provided, looks in output/charts/{pair_id}/plotly/.
     """
-    json_path = os.path.normpath(os.path.join(CHART_DIR, f"{chart_name}.json"))
+    if pair_id:
+        chart_dir = os.path.join(_APP_DIR, "..", "output", "charts", pair_id, "plotly")
+    else:
+        chart_dir = CHART_DIR
+
+    json_path = os.path.normpath(os.path.join(chart_dir, f"{chart_name}.json"))
     if os.path.exists(json_path):
         fig = _load_plotly_json(json_path)
         st.plotly_chart(fig, use_container_width=True)

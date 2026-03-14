@@ -44,7 +44,9 @@ Tracks time, token usage, and results for each priority combination analysis run
 | 5. Core models | 1.9 | 7 model types, 45+ parameter estimates |
 | 6. Tournament | 3.0 | 1,666 combinations |
 | 7. Validation | 0.2 | Bootstrap, stress tests, tx cost sensitivity |
-| **Total pipeline** | **13.0** | |
+| 8. Chart generation | ~1.0 | 10 Plotly JSON charts |
+| 9. Portal pages | — | 4 Streamlit pages + sidebar + landing page |
+| **Total pipeline** | **~14.0** | |
 
 #### Token Usage Estimate
 
@@ -54,11 +56,13 @@ Tracks time, token usage, and results for each priority combination analysis run
 | Pipeline script creation | ~100K |
 | Pipeline execution (Bash) | ~5K |
 | RF fix + re-run | ~15K |
+| Chart generation script + run | ~30K |
+| Portal pages (4 pages + sidebar + landing) | ~50K |
 | Documentation updates | ~20K |
 | Context (SOPs, catalogs, templates) | ~80K |
-| **Total for pair #1** | **~250K** |
+| **Total for pair #1** | **~330K** |
 
-Note: Pair #1 includes one-time costs (script creation ~100K) that won't repeat. Subsequent pairs will reuse the pipeline pattern, estimated at ~100-150K tokens each.
+Note: Pair #1 includes one-time costs (script creation ~100K, landing page redesign ~30K) that won't repeat. Subsequent pairs will reuse the pipeline pattern, estimated at ~120-180K tokens each (pipeline + charts + portal pages).
 
 #### Key Results
 
@@ -125,12 +129,12 @@ results/indpro_spy/tournament_validation_20260314/transaction_costs.csv
 
 | Metric | Value |
 |--------|-------|
-| Pair #1 tokens (including one-time costs) | ~250K |
-| Estimated per-pair (recurring) | ~100-150K |
-| Estimated total for 73 pairs | ~8-11M tokens |
-| Pipeline wall-clock per pair | ~13s |
-| Estimated total pipeline wall-clock | ~16 min (73 × 13s) |
-| Total wall-clock including brief + docs | ~3-5 min per pair → ~4-6 hours for 73 |
+| Pair #1 tokens (including one-time costs) | ~330K |
+| Estimated per-pair (recurring, incl. viz + portal) | ~120-180K |
+| Estimated total for 73 pairs | ~9-13M tokens |
+| Pipeline wall-clock per pair | ~14s |
+| Estimated total pipeline wall-clock | ~17 min (73 × 14s) |
+| Total wall-clock including brief + docs + viz | ~5-8 min per pair → ~6-10 hours for 73 |
 
 ---
 
