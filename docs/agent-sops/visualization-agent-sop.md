@@ -120,7 +120,11 @@ Before creating any chart from upstream data, run these checks:
 
 4. **Cross-check derived quantities against upstream reported values.** If the upstream handoff says "winner max drawdown = X%," compute the max drawdown from the data you're about to chart. If your number differs significantly, something is wrong with your interpretation. The correct value is in the tournament results CSV. Example: if reported MDD is -11.6% but you compute -35%, the discrepancy likely indicates a data interpretation error (e.g., using the wrong column, confusing arithmetic vs log returns, or mixing in-sample with out-of-sample data). Do not proceed.
 
-5. **When in doubt, ask.** A 30-second question to the upstream agent is cheaper than a chart that shows the wrong data. Never guess the meaning of an ambiguous column.
+5. **Verify Display Names are present.** Check that the data dictionary includes a Display Name for every variable that will appear as an axis label or legend entry. If Display Names are missing, request them from Dana before proceeding — do not infer display names from column codes.
+
+6. **Check the Direction Convention.** Read Dana's data dictionary for the Direction Convention or sign convention of each indicator (what higher/lower values mean economically). Cross-reference against Evan's `interpretation_metadata.json`. If there is a mismatch between the raw data's sign convention and Evan's interpretation, investigate before charting — a sign error here inverts the entire visual encoding.
+
+7. **When in doubt, ask.** A 30-second question to the upstream agent is cheaper than a chart that shows the wrong data. Never guess the meaning of an ambiguous column.
 
 ### Data-to-Viz (Direct Pathway)
 
@@ -130,17 +134,18 @@ Before creating any chart from upstream data, run these checks:
 - Clean dataset (`.parquet` or `.csv`) with `DatetimeIndex`
 - Data dictionary (critical: variable units, transformations applied, display names)
 - Specific chart request or general "visualize this data" instruction
-**Protocol:** Submit a direct request to Dana specifying: variable(s), date range, and intended chart type. Dana delivers with the same quality gates as Econ handoffs.
+**Protocol:** Submit a direct request to Dana specifying: variable(s) using canonical names from `docs/data-series-catalog.md` Section 7, date range, and intended chart type. Dana delivers with the same quality gates as Econ handoffs.
 
 ### Research-to-Viz (Annotation Pathway)
 
 **Source:** Research Agent (Ray)
 **Use cases:** Chart annotations, event overlays, regime shading, domain chart conventions
 **Inputs received:**
-- Event timeline (key dates, policy events, regime changes) — proactively extract from research briefs
+- Event timeline (key dates, policy events, regime changes) — accept as CSV (`date`, `event`, `relevance`, `type`, `target`, `indicator`) for batch ingestion, or extract from research brief markdown tables for single-pair work
 - Economic context summary for chart narrative framing
 - Domain visualization conventions from the literature (e.g., "Phillips curves traditionally show unemployment on X, inflation on Y")
-**Protocol:** Proactively read Ray's research briefs in the shared workspace for annotation material. For specific event identification questions, message Ray directly: "What event explains the structural break at [date]?"
+- Direction contradiction flags when empirical and theoretical expectations diverge (structured record, not prose)
+**Protocol:** Proactively read Ray's research briefs in the shared workspace for annotation material. For specific event identification questions, message Ray directly: "What event explains the structural break at [date]?" For multi-pair work, request machine-readable CSV timelines to enable batch annotation.
 
 ### Viz-to-App Dev (Portal Integration Pathway)
 
@@ -199,9 +204,10 @@ This closes the feedback loop immediately and sets expectations.
 ### 2. Context Gathering
 
 - Review the research brief for annotation material: event dates, regime boundaries, policy changes, threshold values
-- Check Dana's data dictionary for units, transformations, and display names
+- Check Dana's data dictionary for units, transformations, display names, and direction conventions
 - If display names are missing from column metadata, flag early and request from Dana
 - Note any domain visualization conventions mentioned in the literature
+- Check the frequency alignment method documented in the data dictionary (LVCF, interpolation, etc.) — this affects visual representation of carried-forward data (see Frequency Representation below)
 
 ### 3. Data Validation on Intake
 
@@ -287,6 +293,72 @@ For multi-pair dashboards comparing the same indicator across multiple targets:
 - Show direction arrows inline with the legend entry
 - Add a "Differs From" annotation when the same indicator has opposite interpretations for different targets on the same chart
 - Use Evan's `interpretation_metadata.json` for direction and mechanism text
+- Direction encoding is **per indicator-target pair**, not per indicator — always reference the pair-specific `interpretation_metadata.json`
+
+**Conditional direction — enhanced encoding:**
+
+The dash-dot pattern with the label "Direction varies by regime" is insufficient for pairs where the regime-dependent logic matters (e.g., VIX -> SPY: bullish when VIX is low, bearish when VIX spikes). For conditional direction pairs:
+- Include the conditional text from Evan's `interpretation_metadata.json` `mechanism` field as an inline annotation or legend entry (e.g., "Bearish when VIX > 25; Neutral when VIX < 15")
+- If Evan provides regime-specific direction mappings, use regime-colored line segments (stress color in stress regime, calm color in calm regime) instead of uniform dash-dot
+- If space is constrained, place conditional logic in a chart footnote rather than the legend
+
+**Frequency Representation:**
+
+When overlaying series with different native frequencies (e.g., daily target with monthly indicator carried forward):
+- **Carried-forward (LVCF) data:** Render as step function (`drawstyle='steps-post'` in matplotlib, `line_shape='hv'` in Plotly). This visually communicates that the value is held constant between observations.
+- **Interpolated data:** Render as standard smooth line, but add a footnote: "Interpolated from [native frequency]"
+- **Point observations at native frequency:** Render as scatter points overlaid on the target's line chart, not connected lines. This avoids implying daily variation that does not exist.
+
+**Indicator-Type Charting Conventions:**
+
+Maintain a reusable library of domain-standard charting conventions by indicator type:
+
+| Indicator Type | Convention |
+|---------------|-----------|
+| Activity / Survey (PMI) | Include the 50-threshold horizontal line (expansion/contraction boundary) |
+| Yield Curve / Rates | Maturity on x-axis; show the zero line for spread charts |
+| Credit Spread | Recession shading (NBER dates); crisis markers (GFC, COVID) |
+| Volatility / Options | Consider log scale for VIX extremes; include long-run median line |
+| Sentiment / Flow | Include the neutral/zero line |
+| Cross-Asset | Label the economic interpretation (e.g., "Higher ratio = risk-off" for Gold/Copper) |
+
+Apply the relevant convention for every indicator-target chart. Ray contributes initial library content; Vera maintains and extends.
+
+**Multi-Series Escalation Rules:**
+
+When a chart has many series, escalate the visual approach based on count:
+
+| Series Count | Approach |
+|-------------|---------|
+| 1-3 | Single panel, standard colorblind-safe palette |
+| 4-6 | Single panel, extended palette (full seaborn `colorblind`) |
+| 7-10 | Faceted small multiples with shared X-axis, one series per facet |
+| 10+ | Grouped facets by target class, or interactive Plotly selector (dropdown to toggle series) |
+
+**Target-Class-Specific Chart Defaults:**
+
+Different target asset classes require different chart scaling and annotation:
+
+| Parameter | Equities (SPY, Sector ETFs) | Fixed Income (TLT, LQD, HYG) | Commodities (GC, CL) | Crypto (BTC, ETH) |
+|-----------|---------------------------|-------------------------------|----------------------|-------------------|
+| Drawdown Y-axis range | [-60%, 0%] | [-25%, 0%] | [-50%, 0%] | [-90%, 0%] |
+| Return Y-axis range | [-50%, +60%] | [-20%, +30%] | [-50%, +100%] | [-80%, +300%] |
+| Benchmark label | Buy & Hold SPY (or sector ETF) | Buy & Hold AGG (or duration-matched) | Buy & Hold commodity | Buy & Hold crypto |
+| Annotation set | Recession shading, FOMC dates | Recession shading, rate decisions | OPEC decisions, inventory reports | Halving events, regulatory actions |
+
+Pull the benchmark name from the Analysis Brief Section 4, not from hardcoded defaults.
+
+**Tournament Visualization Templates:**
+
+For the 5-dimension tournament (Signal x Threshold x Strategy x Lead Time x Lookback):
+
+| Template | Purpose | Input | Key Design Choices |
+|----------|---------|-------|-------------------|
+| Tournament heatmap | Show performance across 2 dimensions | Tournament results CSV, 2 selected dimensions | Use Evan's guidance on which 2 dimensions to display; metric = OOS Sharpe by default |
+| Top-N winner comparison | Compare tournament winners | Tournament results CSV (top N rows) | Horizontal bar chart of Sharpe, with secondary metrics (MDD, Sortino) as tooltip |
+| Signal-threshold interaction | Show how signal and threshold choices interact | Tournament results CSV, Signal x Threshold slice | Heatmap with Sharpe as color, strategy fixed |
+| Equity curve comparison | Winner vs benchmark | Strategy equity curve + benchmark data | Dual-panel: equity curve on top, drawdown on bottom; target-class-aware scaling |
+| Regime probability timeline | Regime identification over time | `prob_stress` column + event timeline | Time-series with regime shading; target-class-specific events |
 
 ### 6. Format Tables
 
@@ -330,7 +402,9 @@ Before delivery, check:
 - Save charts as `.png` (default, 150 DPI) and `.svg` (for scaling)
 - **For portal-destined charts:** additionally save as Plotly JSON (`.json` via `plotly.io.to_json()`) -- this is Ace's primary intake format
 - **For portal-destined charts:** produce a metadata sidecar file (`{chart_name}_meta.json`) containing: caption, source, audience tier, suggested portal page, and interactive controls hints (see App Dev Handoff section below)
-- File naming: `{subject}_{chart_type}_{audience}_{date}_v{N}.{ext}` (e.g., `us_inflation_line_narrative_20260228_v1.png`)
+- **File naming (single-pair):** `{indicator_id}_{target_id}_{chart_type}_{audience}_{date}_v{N}.{ext}` (e.g., `hy_ig_spy_regime_prob_narrative_20260315_v1.png`)
+- **File naming (cross-pair comparison):** `{indicator_id}_all_targets_{chart_type}_{audience}_{date}_v{N}.{ext}` or `all_indicators_{target_id}_{chart_type}_{audience}_{date}_v{N}.{ext}`
+- **Directory structure (multi-pair):** Use per-pair subdirectories: `output/{indicator_id}_{target_id}/`. Cross-pair charts go in `output/_comparison/`.
   - Audience tags: `exec` (executive summary / KPI), `narrative` (layperson story page), `analytical` (detailed evidence page), `technical` (methodology appendix)
   - When no portal is in scope, the audience tag may be omitted for backward compatibility
 - Save tables as `.md` (markdown) and `.csv`
@@ -347,7 +421,7 @@ Before delivery, check:
 Chart iterations follow this naming scheme:
 
 ```
-{subject}_{chart_type}_{date}_v{N}.{ext}
+{indicator_id}_{target_id}_{chart_type}_{audience}_{date}_v{N}.{ext}
 ```
 
 - `v1` = initial version
@@ -355,6 +429,28 @@ Chart iterations follow this naming scheme:
 - Never overwrite a previous version; always increment
 - In the delivery message, note what changed: "v2: adjusted Y-axis scale per Alex's feedback"
 - Keep all versions in the same output directory for audit trail
+
+### Chart Registry (Multi-Pair Scale)
+
+When producing charts for 10+ indicator-target pairs, maintain a chart registry at `output/chart_registry.json`:
+
+```json
+[
+  {
+    "chart_id": "hy_ig_spy_regime_prob_narrative_20260315_v1",
+    "indicator_id": "hy_ig",
+    "target_id": "spy",
+    "chart_type": "regime_prob",
+    "audience_tier": "narrative",
+    "file_path": "output/hy_ig_spy/hy_ig_spy_regime_prob_narrative_20260315_v1.json",
+    "meta_path": "output/hy_ig_spy/hy_ig_spy_regime_prob_narrative_20260315_v1_meta.json",
+    "static_path": "output/hy_ig_spy/hy_ig_spy_regime_prob_narrative_20260315_v1.png",
+    "interpretation_metadata_hash": "abc123..."
+  }
+]
+```
+
+Ace uses this registry to discover and load charts programmatically rather than traversing directories.
 
 ---
 
@@ -401,26 +497,53 @@ For every portal-destined chart, produce `{chart_name}_meta.json`:
 
 ```json
 {
-  "chart_id": "us_inflation_line_narrative_20260228_v1",
-  "caption": "US inflation accelerated sharply after 2020, driven by supply-chain disruptions and fiscal expansion",
-  "source": "FRED, BLS",
+  "chart_id": "hy_ig_spy_regime_prob_narrative_20260315_v1",
+  "indicator_id": "hy_ig",
+  "target_id": "spy",
+  "caption": "HY-IG credit spread regime: stress probability spiked during GFC and COVID",
+  "source": "FRED (ICE BofA indices)",
   "audience_tier": "narrative",
-  "portal_page": 2,
-  "interactive_controls": ["date_range_slider"],
-  "data_source_path": "data/macro_panel_monthly_200001_202312.parquet",
-  "static_fallback_identical": true
+  "portal_section": "credit_spreads",
+  "portal_pair": "hy_ig_spy",
+  "portal_page_type": "evidence",
+  "interactive_controls": ["date_range_slider", "regime_dropdown"],
+  "data_source_path": "data/hy_ig_spy_daily_latest.parquet",
+  "static_fallback_identical": true,
+  "interpretation_metadata_version": "results/hy_ig_spy/interpretation_metadata.json:sha256:abc123"
 }
 ```
 
 Fields:
 - `chart_id`: matches the file name stem
+- `indicator_id`, `target_id`: pair identifiers for cross-pair chart discovery
 - `caption`: one-line takeaway (mandatory)
 - `source`: data attribution
 - `audience_tier`: one of `exec`, `narrative`, `analytical`, `technical`
-- `portal_page`: suggested page number (1-5 per Ace's standard portal structure)
+- `portal_section`: indicator group or thematic section (e.g., `credit_spreads`, `volatility`, `activity_survey`)
+- `portal_pair`: indicator-target pair ID (e.g., `hy_ig_spy`)
+- `portal_page_type`: one of `story`, `evidence`, `strategy`, `methodology` (replaces flat page number for multi-pair portals)
 - `interactive_controls`: list of Streamlit widget types appropriate for this chart (e.g., `date_range_slider`, `regime_dropdown`, `variable_toggle`, `none`)
 - `data_source_path`: path to the underlying data file (so Ace can wire dynamic filtering)
 - `static_fallback_identical`: whether the PNG/SVG version is content-identical to the Plotly version
+- `interpretation_metadata_version`: hash or path:hash of the `interpretation_metadata.json` used when this chart was built. If the metadata changes, the chart must be regenerated. This prevents temporal drift between chart annotations and portal callout boxes.
+
+### Comparison Dashboard Charts
+
+When the same indicator is analyzed against multiple targets (or the same target has multiple indicators), Vera produces comparison charts in addition to per-pair charts:
+
+**"Same indicator, multiple targets" chart:**
+- Vera produces a single composite Plotly figure with one trace per target
+- Y-axis normalization: use z-scores or percentile ranks for cross-target comparability (raw levels are not meaningful across asset classes)
+- Direction arrows inline with each legend entry
+- "Differs From" annotation when direction varies across targets (source: cross-reference multiple `interpretation_metadata.json` files)
+- Save to `output/_comparison/{indicator_id}_all_targets_{chart_type}_{audience}_{date}_v{N}.json`
+
+**"Same target, multiple indicators" chart:**
+- Vera produces a faceted small-multiples layout (one panel per indicator) with shared x-axis
+- Each panel includes its own direction annotation (from that pair's `interpretation_metadata.json`)
+- Save to `output/_comparison/all_indicators_{target_id}_{chart_type}_{audience}_{date}_v{N}.json`
+
+**Ownership rule:** Vera produces all comparison charts. Ace assembles them into the portal using the chart registry. Ace does not construct comparison charts from individual pair charts.
 
 ### Plotly Export Standard
 
@@ -493,6 +616,14 @@ Before handing off:
 - [ ] For regime/probability charts: verified against a known historical period (e.g., stress probability high during GFC)
 - [ ] For derived curves (equity curves, drawdown, cumulative returns): endpoint values are consistent with reported annualized returns
 - [ ] If any reconciliation check fails, the chart is not delivered until the discrepancy is resolved
+- [ ] For multi-pair batches: verify each chart's data comes from the correct pair's CSV (chart ID contains `indicator_id` + `target_id`; source CSV contains same pair identifiers)
+
+**Multi-pair scale reconciliation:**
+When delivering charts for 10+ pairs, manual reconciliation per chart is infeasible. Use an automated reconciliation script that:
+1. Iterates through `output/chart_registry.json`
+2. For each chart, loads the Plotly JSON and extracts key displayed values
+3. Compares against the upstream tournament results CSV and `interpretation_metadata.json`
+4. Produces a reconciliation report (`output/reconciliation_report.json`) that Alex can review at Gate 3
 
 ---
 
@@ -524,6 +655,21 @@ Before handing off:
 - All files saved to workspace with descriptive names following versioning convention (including audience tag when portal is in scope)
 - Every chart accompanied by a one-line caption
 - When delivering to Ace: use the Viz-to-App handoff message template
+- **Multi-pair deliveries:** maintain `output/chart_registry.json` listing all charts with metadata paths
+- **Directory organization at scale:** per-pair subdirectories under `output/{indicator_id}_{target_id}/`; cross-pair charts in `output/_comparison/`
+
+### Plotly Performance Guidelines
+
+For portal-destined charts, optimize for Streamlit rendering performance:
+
+| Data Volume | Optimization |
+|------------|-------------|
+| < 10K data points per chart | Standard `go.Scatter` — no optimization needed |
+| 10K-50K data points | Use `go.Scattergl` (WebGL rendering) instead of `go.Scatter` |
+| 50K-100K data points | Pre-downsample using Largest Triangle Three Buckets (LTTB) algorithm; keep full resolution for static PNG |
+| > 100K data points | Mandatory downsampling + WebGL; consider server-side rendering |
+
+For daily data spanning 20+ years with 7+ targets on one chart (35,000+ points), always use `Scattergl` and consider downsampling for the Plotly JSON while preserving full resolution in the static fallback PNG.
 
 ---
 

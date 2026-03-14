@@ -1,131 +1,386 @@
-# Cross-Review: Research Ray's Perspective
+# Cross-Review: Research Ray
 
-**Author:** Research Ray (research-ray)
-**Date:** 2026-02-28
+## Date: 2026-03-14
 
----
-
-## 1. What I Learned About My Teammates
-
-### Data Dana (data-dana) — Data Engineer / Data Wrangler
-
-Dana is the custodian of data quality. Her workflow is heavily procedural and defensive: inspect raw data before touching it, document every transformation, validate with automated checks, and deliver with a data dictionary. What matters most to her is **completeness and traceability** — she never silently drops observations, never forward-fills across large gaps without flagging, and never delivers without a completeness check. She faces pressure from two directions: upstream data sources that are unreliable or inconsistently formatted, and downstream consumers (mainly Evan) who need clean, correctly aligned datasets on a timeline. Her quality gate checklist is thorough — seven items that must all pass before handoff. The anti-pattern about never using `inplace=True` tells me she has been burned by debugging opaque data pipelines before.
-
-### Econ Evan (econ-evan) — Econometrician / Quantitative Analyst
-
-Evan is the methodological backbone of the team. His SOP is the most intellectually demanding — he must choose the right model class from a wide menu (OLS, IV, panel, time-series, GARCH, cointegration), justify every specification choice, run exhaustive diagnostics, and then interpret results economically, not just statistically. What matters most to him is **rigor and identification** — he never runs a regression without a hypothesis, never claims causality without an identification argument, and never cherry-picks specifications. His biggest pressure is the sheer number of diagnostics required: for a panel IV model, he might need to run 10+ diagnostic tests before he can report a result. He also depends heavily on both Dana and me delivering quality inputs — if my research brief suggests the wrong identification strategy or Dana's data has undocumented gaps, his entire estimation could be compromised.
-
-### Viz Vera (viz-vera) — Data Visualization Specialist / Report Producer
-
-Vera turns numbers into stories. Her SOP reveals someone who cares deeply about **clarity and honesty in visual communication** — she follows Tufte's principles, uses colorblind-safe palettes, and insists that titles state the insight rather than just the variable name. What matters most to her is that a chart tells its story without requiring the reader to consult the text. Her pressure comes from being last in the pipeline: she receives model results and must produce publication-quality output, often with tight deadlines and sometimes with vague requests ("make a chart of X"). She depends entirely on Evan for well-structured model outputs and interpretation notes. The anti-patterns about pie charts, rainbow colormaps, and 3D charts tell me she has strong opinions about visualization integrity — and rightfully so.
+**Reviewer:** Research Ray (research-ray)
+**Trigger:** Full cross-review for multi-indicator expansion (73 priority pairs across 7 targets, 27 unique indicators)
 
 ---
 
-## 2. Where Our Work Connects
+## 1. What I Learned About Each Teammate's Workflow and Pressures
 
-### What I Deliver and To Whom
+### Data Dana
 
-| Recipient | Deliverable | Format | Purpose |
-|-----------|------------|--------|---------|
-| Evan | Research brief | Markdown (standard template) | Grounds model specification in literature; provides identification strategies, suggested functional forms, control variable rationale |
-| Evan | Recommended model specifications | Within research brief | Gives him a literature-backed starting point rather than guessing |
-| Evan | Suggested instruments / identification strategies | Within research brief | Critical for IV estimation — instruments must be argued from theory |
-| Dana | Recommended data sources | Within research brief or direct message | Points her to specific series/databases the literature has used |
-| Dana | Variable definitions from papers | Within research brief | Ensures she sources the right proxy variables |
+Dana is the first consumer of my data source recommendations. In the single-pair world (HY-IG x SPY), I recommended 2-3 series and Dana sourced them. In the multi-indicator expansion, each Analysis Brief's Section 6 specifies a data request covering core and secondary series, derived series, and forward target returns. Across 73 pairs involving 27 unique indicators, I will be recommending data sources for indicators spanning every category: Credit Spread (HY-IG), Volatility/Options (VIX/VIX3M), Activity/Survey (ISM PMI, Building Permits, Cass Freight), Yield Curve/Rates (US10Y-US3M), Sentiment/Flow (Michigan Consumer Sentiment, Credit Card Default), Cross-Asset (Gold/Copper, Crude Oil, SOX), and Microstructure-adjacent (Retail Inventories/Sales).
 
-### What I Receive and From Whom
+**Key pressure points for Dana from my recommendations:**
 
-| Source | Input | Purpose |
-|--------|-------|---------|
-| Alex | Research question and scope | Defines what literature to search |
-| Dana | (Indirect) Data availability feedback | Sometimes a paper's recommended data does not exist for our sample; Dana flags this, and I need to find alternatives |
-| Evan | (Indirect) Follow-up questions on methodology | After reading my brief, Evan may need clarification on a paper's method or deeper detail on an identification argument |
+1. **Exotic/non-MCP sources.** Several indicators in the priority catalog have no clear MCP path: Portland Cement Shipments (I8, Portland Cement Association), Architecture Billings Index (I13, AIA subscription/scrape), Cass Freight Index (I25, Cass Information Systems), Electricity-CPI YoY (I29, BLS component extraction). Each of these will trigger Dana's "Availability: UNCONFIRMED" flow and require me to find proxies or alternative sources. At 73 pairs, even 5-10 impractical recommendations could create significant round-trip overhead.
 
-### Where Friction Could Arise
+2. **Derived series complexity.** 6 derived indicators (I17 SOFR-US3M, I19 HY-IG spread, I22 VIX/VIX3M, I30 Gold/Copper, I31 ISM ratio, I32 New Orders YoY) require computation recipes per the Data Series Catalog Section 7.10. My research brief must include the exact computation formula and the constituent series IDs -- if I am vague ("compute the HY-IG spread"), Dana has to reverse-engineer the components.
 
-1. **My brief arrives late, Evan is blocked.** Research and data sourcing run in parallel (steps 2-3 in the task flow), but Evan cannot start model specification until both are done. If I get caught in a deep literature rabbit hole, Evan waits.
+3. **Frequency mismatches at scale.** The 27 indicators span daily (VIX, SOFR), weekly (Petroleum Inventory), monthly (ISM PMI, Building Permits, CPI), and quarterly (Credit Card Default DRCCLACBS) frequencies. When I recommend an indicator-target pair like I16 (quarterly Credit Card Default) x SPY (daily), I need to flag the alignment challenge explicitly in my brief so Dana knows to apply LVCF or another alignment rule. At 73 pairs, frequency mismatch documentation cannot be ad-hoc.
 
-2. **My data source recommendations are impractical.** I might recommend a dataset from a paper (e.g., "use the Jordà-Schularick-Taylor Macrohistory Database") without checking whether Dana can actually access it through our MCP servers. This creates back-and-forth.
+4. **Stable path alias management.** Dana's SOP requires `_latest` alias files for portal-facing datasets. If many of the 73 pairs feed the portal, Dana's alias maintenance grows linearly. My research brief should flag which pairs are portal-priority vs. analytical-only so Dana can prioritize alias creation.
 
-3. **My model recommendations are too vague for Evan.** Saying "the literature uses panel methods" is not helpful. Evan needs specifics: FE vs. RE, which instruments, what lag structure, which controls.
+### Econ Evan
 
-4. **Version drift.** If I update a research brief after Evan has already started working from an earlier version, we risk misalignment. Currently there is no versioning protocol for research briefs.
+Evan depends on my spec memo and research brief to ground his model specification. In the single-pair world, I delivered one spec memo with one recommended specification. At 73 pairs, Evan needs:
 
-5. **No direct channel to Vera.** My work rarely flows directly to Vera, but sometimes she needs context for chart annotations (e.g., "what event caused the structural break in Q3 2008?"). There is no formal mechanism for this.
+1. **Category selection input.** Evan's SOP Section 2.5 specifies a two-step process: consult the Relevance Matrix, then apply Rules A-D. My research brief Section "Recommended Analysis Categories" is the primary input for Rule C (indicator type classification). I must classify every indicator into one of 7 types (Credit Spread, Volatility/Options, Activity/Survey, Yield Curve/Rates, Sentiment/Flow, Cross-Asset, Microstructure). Some indicators are borderline: Is SOX (I23, PHLX Semiconductor Index) an Activity/Survey or Cross-Asset indicator? Is Retail Inventories/Sales (I15) Activity/Survey or Microstructure? My classification directly determines which method categories Evan runs first.
 
----
+2. **Direction determination support.** The Analysis Brief Section 4 requires an `expected_direction` field. For well-studied pairs (HY-IG x SPY: counter-cyclical, strong literature), this is straightforward. For exploratory pairs (Cement Shipments x XLP, Gold/Copper Ratio x XLI, Electricity-CPI x XLE), I may find no academic literature to support a direction hypothesis. My quality gate says I must "validate or flag any contradiction between theoretical expectation and available empirical evidence." At 73 pairs, I need a systematic approach to direction determination, not ad-hoc searching per pair.
 
-## 3. Suggestions for SOP Improvements
+3. **Reverse causality context.** The Analysis Brief Section 11.2 mandates reverse causality checks (G11 gap). My research brief should flag which pairs are at high risk for reverse causality based on the literature. For example, SOX x XLE -- does semiconductor demand drive energy prices, or do energy prices drive semiconductor costs? Both channels are plausible. Flagging these upfront saves Evan from being surprised at the diagnostic stage.
 
-### For Data Dana's SOP
+4. **Specification memo pipeline at scale.** The two-stage delivery (quick spec memo then full brief) works well for one pair at a time. At 73 pairs, Evan needs a batching strategy. Should I deliver spec memos for all 21 SPY pairs at once? Or deliver indicator-by-indicator (all ISM PMI pairs together)? The latter would allow Evan to reuse specification logic across targets, which maps better to his workflow.
 
-1. **Add a "Data Availability Pre-Check" step.** Before deep-diving into sourcing, Dana should cross-reference the research brief's recommended data sources against available MCP servers. This would catch impractical recommendations early and reduce round-trips with me. A simple checklist: "For each variable in the research brief, confirm: (a) MCP server can provide it, (b) frequency matches, (c) sample period is covered."
+### Viz Vera
 
-2. **Include a feedback loop to Research Agent.** Dana's SOP has no step for communicating back to me when a recommended data source is unavailable or problematic. Adding a line like "If a recommended variable or source from the research brief is not accessible, notify the research agent with the specific gap so alternatives can be identified" would save time.
+Vera receives my event timeline for chart annotations. In the single-pair world, one timeline covered one target's relevant events. At 73 pairs across 7 targets:
 
-3. **Document data limitations for downstream agents.** Dana's data dictionary is excellent, but it could include a "Known Limitations" field for each variable — e.g., "CPI series revised quarterly; current values are preliminary" or "This series has a structural break in 2010 due to methodology change." This would help both Evan (for model specification) and me (for interpreting results against the literature).
+1. **Target-class-specific timelines.** SPY events (broad market) differ from XLE events (energy-sector-specific: OPEC decisions, shale revolution, refinery disruptions). XLY events include consumer spending shifts, retail closures, seasonal patterns. I need to produce target-specific event timelines, not one generic timeline. Across 7 targets, this is 7 distinct timeline documents.
 
-4. **Add a section on understanding the research context.** Dana's SOP is purely technical. A brief note encouraging her to read (or at least skim) the research brief before sourcing would help her understand why certain variables matter and make better judgment calls when she encounters sourcing trade-offs.
+2. **Indicator-specific annotations.** When the same indicator appears across multiple targets (e.g., VIX/VIX3M appears in 5 targets), Vera needs to know whether the direction annotation changes. VIX/VIX3M rising is bearish for SPY but the relationship with XLE may be different (energy sector has its own volatility dynamics). The direction annotation visual language (solid = pro-cyclical, dashed = counter-cyclical) must be pair-specific, not indicator-specific.
 
-### For Econ Evan's SOP
+3. **Annotation volume.** 73 pairs x ~5-10 events per pair = 365-730 individual annotations. Vera's Annotation Source Tracking table requires each annotation to cite its source (my research brief, Evan's notes, Alex's instructions). This creates a significant documentation overhead. I should organize event timelines in a machine-readable format (CSV) that Vera can batch-import, not just markdown tables.
 
-1. **Add a "Research Brief Intake" step.** Evan's workflow starts with "Receive Analysis Brief" but does not explicitly mention reading and acknowledging the research brief. Adding a step like "Read the research brief; confirm that the recommended specifications are feasible given available data; flag any disagreements with the literature's approach" would formalize the handoff.
+4. **Domain visualization conventions.** Different indicator types have different charting conventions: yield curves have maturity on x-axis, PMI charts typically include the 50-threshold line, credit spread charts often use recession shading. I should document these conventions per indicator type, not per pair, to avoid 73 redundant notes.
 
-2. **Include a mechanism for requesting deeper research.** Sometimes Evan will read my brief and realize he needs more detail on a specific identification strategy or a comparison of two methodological approaches. His SOP should include a step: "If the research brief does not cover a needed methodological question, request a targeted follow-up from the research agent with specific questions."
+### AppDev Ace
 
-3. **Add interpretation notes for Vera.** Evan's "Deliver Results" section mentions saving model objects and tables, but it could be more explicit about what Vera needs. For instance: "Include a 2-3 sentence 'chart brief' for each requested visualization: what variable(s) to plot, what the chart should highlight, and any annotations (e.g., recession shading, structural break dates)." This would reduce Vera's need to guess.
+Ace receives my portal narrative and storytelling arc. At 73 pairs:
 
-4. **Cross-reference diagnostics with research brief assumptions.** If the research brief flags potential issues (e.g., "the literature warns about structural breaks post-2008"), Evan's diagnostic step should explicitly check those flagged risks. Adding "Review research brief for flagged risks; ensure diagnostics address each one" would tighten the loop.
+1. **Narrative template scalability.** My portal narrative template has 5 pages (Hook, Story, Evidence, Strategy, Method). Writing a bespoke narrative for each of 73 pairs is infeasible. I need a parametric narrative template where the structure is fixed but the content fills in from the Analysis Brief fields: `{INDICATOR_NAME}`, `{TARGET_NAME}`, `{MECHANISM}`, `{EXPECTED_DIRECTION}`, `{LITERATURE_SUPPORT}`.
 
-### For Viz Vera's SOP
+2. **Target-class-specific narrative framing.** The "Story" page for an equity target (SPY) differs from a sector ETF (XLE). For SPY, the narrative is about broad market risk. For XLE, it is about energy sector dynamics -- supply/demand fundamentals, OPEC, transition risk. For XLP (Consumer Staples), the narrative is about defensive positioning and consumer spending resilience. One narrative template is insufficient -- I need at least 3 template variants: broad equity, sector-specific, and cross-asset.
 
-1. **Add a "Context Gathering" step.** Vera's workflow starts with receiving a visualization request but does not mention consulting the research brief for context. Charts are more effective when the designer understands the economic story. A step like "Review the research brief (if available) for economic context, key events, and narrative framing" would improve her chart titles, annotations, and storytelling.
+3. **"How to Read This" callout box content.** Each pair needs a unique direction annotation for the callout box. For 73 pairs, I need a systematic way to generate these annotations. The Analysis Brief Section 10 defines `{DIRECTION_ANNOTATION}` -- I should produce a batch file of direction annotations, one per pair, that Ace can load programmatically rather than embed manually.
 
-2. **Include a channel for requesting context from Research Agent.** Vera might need to know: "What happened in Q3 2008 that explains this structural break?" or "What is the policy-relevant threshold for this coefficient?" Currently, her escalation path goes to Evan for clarification, but some questions are better directed to me. Adding "For economic context or event identification, consult the research agent" would be efficient.
-
-3. **Add annotation guidelines tied to research findings.** Vera's SOP covers chart mechanics thoroughly but could include guidance on economic annotations: recession shading (NBER dates), policy event markers (rate changes, QE announcements), regime indicators. These are things I can provide if asked. A note like "Request event timeline from research agent for time-series charts spanning significant economic episodes" would produce better charts.
-
-4. **Table formatting should account for sensitivity analysis.** Evan produces sensitivity tables alongside main results, but Vera's table formatting section focuses on single regression tables. Adding guidance for multi-specification comparison tables (e.g., "present as side-by-side panels with shared variable rows") would be practical.
+4. **Glossary deduplication.** Many pairs share technical terms (OAS, PMI, VIX term structure, Granger causality). Rather than producing 73 separate glossaries, I should maintain a single consolidated glossary that Ace references across all pair pages. New pairs add terms incrementally; existing terms are not duplicated.
 
 ---
 
-## 4. Suggestions for My Own SOP
+## 2. Where Our Handoffs Connect and Where Friction Could Arise
 
-After reading my teammates' SOPs, I see several improvements I should make to my own:
+### Handoff Map (all paths involving Ray)
 
-1. **Add a "Data Feasibility Check" to my deliverables.** Before recommending data sources, I should verify — even briefly — whether they are accessible through our MCP stack. This means checking FRED, Yahoo Finance, Alpha Vantage, and Financial Datasets coverage before writing "use series X." My SOP should include: "For each recommended data source, note the likely MCP server and confirm basic availability. If uncertain, flag as 'availability unconfirmed — Dana to verify.'"
+```
+              Analysis Brief (from Alex)
+                      |
+                      v
+            +---------+---------+
+            |                   |
+     Spec Memo (to Evan)    Data Source Recs (to Dana)
+            |                   |
+     Full Brief (to Evan)   Availability feedback (from Dana)
+            |                   |
+     Category Recommendation    |
+     Direction Validation       |
+     Literature Support Level   |
+            |                   |
+            v                   v
+     Evan's results -----> interpretation_metadata.json
+            |                         |
+     Ray validates direction          |
+     vs literature                    |
+            |                         |
+            v                         v
+     Event Timeline ---------> Vera (annotations)
+            |                         |
+            v                         v
+     Portal Narrative -------> Ace (story + glossary + callout)
+     Storytelling Arc -------> Ace
+     Direction Annotations --> Ace ("How to Read This")
+```
 
-2. **Make model specification recommendations more concrete.** Evan needs specifics, not generalities. My SOP's synthesis template should include a sub-section: "Recommended Specification Details" with fields for: dependent variable, key regressors, control variables, instruments (if IV), lag structure (if time-series), fixed effects dimension (if panel), and functional form. Even if I cannot fill all fields, the template forces me to be specific about what I can.
+### New Friction Points from the Multi-Indicator Expansion
 
-3. **Add an "Event Timeline" deliverable for Vera.** I should proactively produce a timeline of key economic events relevant to the analysis period (recessions, policy changes, structural breaks) that Vera can use for chart annotations. This should be a standard attachment to the research brief, not something she has to request ad hoc.
+1. **Category recommendation (6th bullet in my SOP).** My research brief must include a "Recommended Analysis Categories" table with indicator type classification and Relevance Matrix scores. If I classify an indicator incorrectly (e.g., Gold/Copper as "Cross-Asset" when Evan treats it as "Activity/Survey" proxy), Evan may run the wrong category set. Resolution: my SOP says "Indicator type classification: {INDICATOR_TYPE}" -- I should cross-reference with the Data Series Catalog's own classification (Section 7) and flag any disagreements.
 
-4. **Include a "Follow-Up Availability" section.** My SOP should explicitly state that I am available for targeted follow-up requests from both Evan and Vera after the initial brief delivery. I should include turnaround expectations: "Quick-turn clarifications (1-2 specific questions): immediate. Deep-dive follow-ups (new sub-topic): treated as a new research request."
+2. **Direction-vs-theory contradiction flag.** My quality gate requires: "If Analysis Brief specifies `expected_direction`, the brief validates or flags any contradiction between theoretical expectation and available empirical evidence." At 73 pairs, some will have contradictions (e.g., Cement Shipments theoretically pro-cyclical for XLP, but empirical evidence may show no significant relationship). I need a systematic contradiction-flagging format, not ad-hoc prose. Suggested format:
 
-5. **Add incremental delivery guidance.** My SOP says "deliver incrementally rather than waiting for perfection" (in the anti-patterns), but my workflow does not operationalize this. I should add: "For complex topics, deliver a preliminary brief (key findings only) within the first pass, then a full brief with synthesis and recommendations. Notify Evan and Dana when the preliminary version is available so they can begin parallel work."
+   ```
+   | Pair | Expected Direction | Literature Direction | Contradiction? | Resolution |
+   |------|--------------------|---------------------|---------------|------------|
+   | I8 x XLP | pro_cyclical | no literature found | FLAG: exploratory | Determine empirically |
+   ```
 
-6. **Add a quality gate for actionability.** My current quality gates focus on sourcing and citation quality. I should add: "Implications section includes at least one specific, testable model specification recommendation" and "Data source recommendations include specific series identifiers (e.g., FRED series code), not just database names."
+3. **Literature validation for 73 priority pairs.** My quality gate says: "For priority pairs, note whether the indicator-target relationship has established academic support or is exploratory." This is the highest-volume single task I face. Of the 73 pairs, I estimate:
+   - ~15-20 have strong academic support (HY-IG x SPY, VIX/VIX3M x SPY, ISM PMI x SPY, Unemployment x SPY, Yield Curve x SPY)
+   - ~25-30 have moderate support (sector-specific versions of well-studied indicators)
+   - ~20-25 are exploratory (Cement x XLP, ABI x XLE, Cass Freight x XLY, Electricity-CPI x XLE, Gold/Copper x XLI)
+
+   Delivering individual literature reviews for each exploratory pair is infeasible. I need a tiered approach: deep review for strong/moderate pairs, indicator-level review (not pair-level) for exploratory pairs, with a note that target-specific evidence is limited.
+
+4. **Indicator type classification for Relevance Matrix.** Some indicators straddle categories:
+   - SOX (I23): Cross-Asset (it is a semiconductor index) or Activity/Survey (it proxies tech manufacturing activity)?
+   - Credit Card Default (I16): Sentiment/Flow (credit stress signal) or Activity/Survey (consumer activity)?
+   - Retail Inventories/Sales (I15): Activity/Survey or Microstructure?
+   - Petroleum Inventory (I27): Cross-Asset or Activity/Survey?
+
+   These classification ambiguities propagate to Evan's category selection heuristic. I should document my classification rationale for borderline indicators and invite Evan to override with justification.
+
+5. **Target-class-specific research contexts.** The same indicator (e.g., Michigan Consumer Sentiment, I14) has different economic channels depending on the target:
+   - I14 x SPY: broad consumer confidence -> spending -> corporate earnings -> equity returns
+   - I14 x XLE: consumer confidence -> energy demand expectations -> energy prices -> energy sector
+   - I14 x XLK: consumer confidence -> tech spending (consumer electronics, cloud services)
+   - I14 x XLP: consumer confidence -> staples spending (actually less sensitive -- staples are defensive)
+   - I14 x XLY: consumer confidence -> discretionary spending -> direct linkage
+
+   Each of these channels needs a distinct mechanism description in the Analysis Brief Section 4. This is 5 different mechanism write-ups for one indicator, multiplied across the 6 indicators that appear in 4+ targets. This is a significant research burden.
 
 ---
 
-## 5. Suggestions for Team Coordination Protocol
+## 3. Suggestions for Each Teammate's SOP
 
-1. **Add a formal research brief acknowledgment step.** The task flow shows Research and Data running in parallel (steps 2-3), then Econometrics starting after both finish. But there is no explicit step where Evan acknowledges receiving and reviewing the research brief. Adding "Econometrics agent confirms receipt of research brief and flags any gaps or disagreements before beginning specification" would catch issues early.
+### For Dana's SOP
 
-2. **Define a lightweight versioning protocol for handoff documents.** The protocol says "Never overwrite another agent's output — create versioned files if updating" but does not specify how. For research briefs that may evolve, a simple convention like `research_brief_{topic}_{date}_v{n}.md` with a changelog section at the top would prevent version confusion.
+1. **Batch data availability pre-check.** Dana's current pre-check is per-pair. For the multi-indicator expansion, I suggest a batch pre-check step: "When the Analysis Brief covers multiple pairs sharing the same indicator (e.g., I14 Michigan Consumer Sentiment appears in 5 targets), source the indicator data once and validate once. Create a shared indicator dataset that feeds all target analyses." This reduces redundant sourcing from 73 pulls to ~27 unique indicator pulls + 7 target pulls.
 
-3. **Add a Research-to-Visualization handoff.** The current handoff matrix covers Data-to-Econ, Research-to-Econ, Econ-to-Viz, and Viz-to-Alex, but there is no formal Research-to-Viz path. I propose adding:
+2. **Exotic indicator sourcing playbook.** Several priority indicators have no MCP path: I8 (Cement), I13 (ABI), I25 (Cass Freight), I29 (Electricity-CPI component). Dana's SOP lists web scraping as Priority 5 but provides no guidance on how to handle subscription-gated sources (AIA requires paid access for ABI). I suggest adding a decision tree: "If source is subscription-gated -> escalate to Alex for access decision -> if denied, recommend proxy (from Ray's brief) -> document the proxy substitution."
 
-   > **From Research Agent to Visualization Agent**
-   > - Event timeline for chart annotations (key dates, policy events, regime changes)
-   > - Economic context summary (1 paragraph) for chart narrative framing
-   > - Naming: `docs/event_timeline_{topic}_{date}.md`
+3. **Frequency alignment documentation at scale.** Dana's SOP requires documenting alignment methods in the data dictionary. For 73 pairs with mixed frequencies, I suggest a standardized alignment summary table in the data delivery: "All quarterly indicators (I16) aligned to daily targets using LVCF. All monthly indicators aligned using last-business-day convention. Staleness exceeding 5 days flagged for: [list]."
 
-4. **Add a "Blockers Board" section.** The communication rules say "Be explicit about blockers" but there is no designated place to record them. A simple shared blockers log (even just a markdown file at `_pws/_team/blockers.md`) where agents post and resolve blockers would improve visibility. Format: `[date] [agent] BLOCKED: [description] NEEDS: [what from whom]`.
+### For Evan's SOP
 
-5. **Clarify parallel work expectations.** The protocol says steps 2 and 3 run in parallel, but it does not address what happens when one finishes significantly before the other. Adding guidance like "If the research brief is complete but data is still in progress, the econometrics agent may begin exploratory analysis and specification planning using the research brief alone" would reduce idle time.
+1. **Category selection batch workflow.** Evan's current heuristic (Rules A-D) is designed for one pair at a time. For 73 pairs, I suggest adding a batch pre-computation step: "Group pairs by indicator type. Apply Rules A-D at the indicator-type level first, then adjust for target-specific considerations. This avoids re-running the heuristic 73 times for 27 indicators."
 
-6. **Add a cross-agent review norm.** Currently, each agent runs their own quality gates but nobody reviews another agent's output before handoff (except Alex at the end). For critical analyses, a lightweight peer review — e.g., "Econometrics agent reviews data dictionary for missing variables before estimating" or "Research agent reviews chart annotations for factual accuracy" — would catch errors earlier and build team trust.
+2. **Reusable specification templates by indicator.** When the same indicator appears across multiple targets (I14 appears in 5 targets), the core specification (regressors, controls, lag structure) is similar -- only the dependent variable changes. Evan's SOP should acknowledge this: "For multi-target indicators, establish a base specification from the first target analysis, then adapt for subsequent targets. Document what changed and why."
+
+3. **Direction consistency checks across targets.** Evan's `interpretation_metadata.json` is per-pair. When I14 Michigan Consumer Sentiment is analyzed against both SPY (pro-cyclical) and XLP (potentially less cyclical or even counter-cyclical for defensive staples), Evan should flag cross-target direction inconsistencies proactively rather than waiting for me to catch them during validation.
+
+4. **Rule C input quality.** Evan's Rule C depends on the indicator type from my brief. I suggest Evan's SOP add: "If Ray's indicator type classification is ambiguous or borderline, request clarification before running the heuristic. Do not default to one classification without documenting the choice." This prevents silent errors in category selection.
+
+### For Vera's SOP
+
+1. **Batch event timeline ingestion.** Vera's current workflow reads event timelines from markdown tables in my research briefs. For 73 pairs across 7 targets, I suggest Vera's SOP add support for machine-readable event timeline ingestion: "Accept event timelines as CSV files with columns: `date`, `event`, `relevance`, `type`, `target`, `indicator`. Batch-load for chart annotation rather than manual extraction from markdown."
+
+2. **Direction annotation per pair, not per indicator.** Vera's SOP defines visual language for direction (solid = pro-cyclical, dashed = counter-cyclical). The SOP should clarify that direction encoding is per indicator-target pair, not per indicator. VIX/VIX3M may be counter-cyclical for SPY but could have a different relationship with XLE. "Always reference the pair-specific `interpretation_metadata.json`, never assume direction from the indicator alone."
+
+3. **Indicator-type charting convention library.** Rather than receiving ad-hoc domain visualization conventions from me per brief, Vera's SOP could maintain a reusable library:
+   - Activity/Survey indicators: include the 50-threshold line for PMI charts
+   - Yield Curve/Rates: maturity on x-axis
+   - Credit Spread: recession shading, crisis markers
+   - Volatility/Options: log scale for VIX extremes
+
+   I would contribute the initial library content; Vera would maintain and extend it.
+
+4. **Multi-pair dashboard annotations.** Vera's SOP mentions "Differs From" annotations when the same indicator has opposite interpretations across targets. At 73 pairs, the number of same-indicator cross-target comparisons is significant (6 indicators appear in 4+ targets). Vera may need a template for cross-target comparison dashboards that I help populate with mechanism text.
+
+### For Ace's SOP
+
+1. **Parametric portal narrative templates.** Ace's SOP assumes bespoke page content per analysis. For 73 pairs, I suggest Ace develop parametric page templates that load content from structured data:
+   - Page title, KPI labels, mechanism text, direction annotation -> all from a `pair_config.json` per analysis
+   - Narrative body -> parametric template with fill-in variables, not freeform prose for every pair
+   - Glossary -> consolidated, incremental, shared across all pair pages
+
+2. **Target-class-specific portal templates.** The "How to Read This" callout box content differs by target class. For equity targets, the benchmark context is SPY. For energy sector (XLE), the benchmark context is XLE itself plus sector-specific dynamics. Ace's SOP should define at least 3 callout templates:
+   - Broad equity (SPY): "This indicator predicts broad market returns..."
+   - Sector equity (XLE, XLI, XLK, XLC, XLP, XLY): "This indicator predicts {sector_name} sector returns. Unlike the broad market..."
+   - (Future: fixed income, commodity, crypto -- not yet in the priority catalog)
+
+3. **Direction annotation batch loading.** Instead of manually embedding `{DIRECTION_ANNOTATION}` per page, Ace should implement a direction annotation service that reads from a batch file I produce: `docs/direction_annotations_batch.json` with one entry per pair. This scales to 73+ pairs without code changes.
+
+4. **Consolidated glossary management.** Ace's SOP should specify how the glossary grows across pairs: "When a new pair adds terms not already in the glossary, append them. When an existing term is used in a new context, add a context-specific note but do not duplicate the definition." I will deliver glossary entries as structured data (term, definition, context) rather than inline prose.
+
+### For Team Coordination Protocol
+
+1. **Phase 0 Analysis Brief batching.** The current protocol assumes one Analysis Brief per analysis run. For 73 pairs, Alex needs a batching strategy: by target (all 21 SPY pairs in one sprint), by indicator (all ISM PMI pairs together), or by indicator type (all Activity/Survey indicators). The protocol should document the recommended batching approach and how it affects the acknowledgment protocol -- does each agent acknowledge 21 briefs individually, or one batch?
+
+2. **Acknowledgment protocol scalability.** The current protocol requires "Each agent reads the brief within one task cycle" and sends a structured acknowledgment. At 73 pairs, this means 73 x 5 agents = 365 acknowledgment messages. The protocol should allow batch acknowledgments: "I have read the Analysis Briefs for pairs #1-#21 (SPY). Domain-specific concerns: [aggregated list]."
+
+3. **Shared indicator data deduplication.** The protocol should address data reuse: "When multiple pairs share the same indicator (e.g., I14 appears in 5 targets), Dana sources the indicator once. The indicator dataset is shared across all target analyses. Only the target-specific data is sourced per pair."
+
+4. **Interpretation annotation coordination at scale.** The Interpretation Annotation Handoffs section (team coordination, lines 179-188) describes a 4-agent workflow per pair. At 73 pairs, this workflow needs a batch coordinator. I suggest adding: "For indicators appearing in multiple targets, Ray validates direction across all targets simultaneously and delivers a consolidated direction validation table, rather than validating each pair individually."
+
+5. **Run Registry integration.** The Run Registry (in `docs/reference-catalogs-index.md`) must track 73+ analysis runs. The protocol should specify how the registry links to the Priority Combinations Catalog -- when a pair moves from "Pending" to "Completed" in the catalog, a corresponding entry should appear in the Run Registry.
 
 ---
 
-*This review reflects my honest assessment as a research analyst who wants the team to work well together. Every suggestion comes from imagining real scenarios where miscommunication or missing context could slow us down or produce weaker output. The team's SOPs are already strong — these suggestions are about closing the remaining gaps.*
+## 4. Suggestions for My Own SOP (Blind Spots Revealed)
+
+Reading all teammates' SOPs in the context of 73 pairs revealed several gaps in my own workflow:
+
+1. **I need an indicator type classification guide.** My SOP says to classify each indicator into one of 7 types, but I have no documented rationale for borderline cases. I should add a classification decision tree:
+   - Does it measure credit risk directly? -> Credit Spread
+   - Does it derive from options markets? -> Volatility/Options
+   - Does it survey economic activity or sentiment? -> Activity/Survey (if output-based) or Sentiment/Flow (if opinion-based)
+   - Does it measure yield differentials? -> Yield Curve/Rates
+   - Does it measure fund flows, positioning, or crowd behavior? -> Sentiment/Flow
+   - Does it measure a non-equity asset that proxies macro conditions? -> Cross-Asset
+   - Does it measure market internal structure? -> Microstructure
+
+   For SOX (I23): it is a semiconductor index (equity-based), used as a proxy for tech/manufacturing activity -> Cross-Asset. For Credit Card Default (I16): it measures consumer credit stress -> Sentiment/Flow. For Petroleum Inventory (I27): it is a physical commodity stock measure -> Cross-Asset.
+
+2. **I need a template for category recommendations.** My current brief includes a "Recommended Analysis Categories" section, but the format is not standardized. I should use the exact format from the Analysis Brief template Section 7.1, mirroring the Relevance Matrix layout, so Evan can directly copy my recommendation without reformatting.
+
+3. **I need target-class-specific research brief templates.** A research brief for ISM PMI x SPY (broad equity) should emphasize different literature than ISM PMI x XLE (energy sector). The mechanism, control variables, and relevant papers differ. I should develop template variants:
+   - **Broad equity template:** emphasize macro channels (aggregate demand, monetary policy, business cycle)
+   - **Sector template:** emphasize sector-specific channels (supply/demand fundamentals, regulatory exposure, competitive dynamics) in addition to macro channels
+   - **Cross-asset template** (future): emphasize price transmission, commodity cycles, global demand
+
+4. **I need a batch literature review strategy.** Reviewing literature for 73 individual pairs is infeasible. My strategy should be:
+   - **Tier 1: Indicator-level review** (27 reviews). For each indicator, review the academic literature on its predictive power for equity returns generally. This covers the mechanism and establishes the indicator type.
+   - **Tier 2: Target-class adjustment** (7 adjustments). For each target class (SPY, XLE, XLI, etc.), document sector-specific factors that modify the indicator's channel.
+   - **Tier 3: Pair-specific notes** (only for pairs where the indicator-target relationship has specific academic study). Most sector-specific pairs will not have dedicated academic studies -- the Tier 1 review plus Tier 2 adjustment is sufficient.
+
+   This reduces 73 full literature reviews to 27 indicator reviews + 7 target-class contexts + a handful of pair-specific deep dives.
+
+5. **My spec memo pipeline needs a batching protocol.** The two-stage delivery (spec memo then full brief) works per-pair. At scale, I should batch spec memos by indicator: "Here are the spec memos for all ISM PMI pairs (I2 x SPY, I2 x XLE, I2 x XLP). The base specification is identical; target-specific adjustments noted per pair." This lets Evan start work on a batch without waiting for 73 individual memos.
+
+6. **I need a direction determination workflow for ambiguous/conditional pairs.** My SOP says I must determine expected direction, but it does not describe how to handle the ~20-25 exploratory pairs where no literature exists. I should add a decision tree:
+   - Is there academic evidence for this indicator's predictive power? -> If yes, use the literature's direction
+   - If no academic evidence: is there a clear theoretical channel? -> If yes, state the theoretical direction and mark as "Weak" literature support
+   - If no clear theoretical channel: is the indicator in the same factor family as a well-studied indicator? -> If yes, use analogical reasoning (e.g., Cass Freight is Activity/Survey like ISM PMI, so expect pro-cyclical)
+   - If none of the above: mark as "ambiguous" and let Evan determine empirically
+
+7. **I need to scale event timeline production.** Producing 7 target-specific event timelines is a one-time investment. I should create a master event database organized by category:
+   - Macro events (recessions, rate changes, QE) -> apply to all targets
+   - Sector events (OPEC for XLE, semiconductor shortages for XLK, consumer spending shifts for XLY) -> apply to specific targets
+   - Indicator events (methodology changes for CPI, ISM survey redesigns) -> apply to pairs using that indicator
+
+   The master database produces pair-specific timelines by filtering: `target_events = macro_events + sector_events[target] + indicator_events[indicator]`.
+
+---
+
+## 5. Key Concerns for the Multi-Indicator Expansion
+
+### 5.1 Literature Coverage for Non-Standard Indicators
+
+Several priority indicators have thin or nonexistent academic coverage:
+
+| Indicator | Literature Status | Concern | Mitigation |
+|-----------|------------------|---------|------------|
+| I8 Portland Cement Shipments | Very thin -- practitioner lore, no peer-reviewed studies | Cannot cite academic support; direction determination relies on theoretical reasoning (construction activity proxy) | Frame as "exploratory" with Activity/Survey classification by analogy to housing starts |
+| I13 Architecture Billings Index | Moderate -- AIA publishes reports, some practitioner research | Subscription-gated source creates data access risk; academic coverage limited to housing/construction sector | Recommend NAHB HMI (I12) as accessible proxy; flag ABI as "UNCONFIRMED" source |
+| I25 Cass Freight Index | Thin -- logistics industry reports, limited academic | No FRED series; proprietary data from Cass Information Systems | Research alternative freight indicators (BTS freight index, trucking tonnage); flag access risk |
+| I29 Electricity-CPI YoY | Very thin -- no dedicated academic study found | Derived BLS component; extraction methodology may be fragile | Provide detailed BLS series hierarchy for Dana; flag as "UNCONFIRMED" |
+| I30 Gold/Copper Ratio | Moderate -- practitioner "Dr. Copper" narrative, some academic | Well-known as economic health proxy but specific academic study of Gold/Copper -> sector ETFs is limited | Leverage broader Gold and Copper individual literature; combine |
+| I32 Manufacturers' New Orders YoY | Good for levels (I26), thin for YoY transform specifically | YoY transformation is an analyst choice, not an academically studied variant | Reference I26 literature and document the transformation rationale |
+
+### 5.2 Cross-Asset Pair Research Challenges
+
+The priority catalog includes several cross-indicator-target pairs where the economic channel is non-obvious:
+
+- **SOX (I23) x XLE:** How does semiconductor demand relate to energy sector returns? Possible channels: tech manufacturing = energy demand, but the linkage is indirect. Academic support is exploratory.
+- **Import Price Index (I24) x XLI:** Import prices affect input costs for industrials, but the direction is ambiguous -- higher import prices could mean stronger global demand (pro-cyclical) or supply shock (stagflationary).
+- **Cement Shipments (I8) x XLP:** Why would construction activity predict consumer staples returns? The channel is very indirect -- possibly through housing wealth effects on consumer spending. This pair may have low academic justification.
+
+For each of these, I must either find a defensible economic channel or recommend the pair be flagged as "exploratory" in the Analysis Brief with `literature_support: Exploratory`.
+
+### 5.3 Scaling Research Briefs for 73 Pairs
+
+The current research brief template is designed for deep single-pair analysis (~3,000-5,000 words). At 73 pairs, this would produce 220,000-365,000 words of research briefs. This is infeasible.
+
+**Proposed tiered approach:**
+
+| Tier | Pairs | Brief Type | Depth | Est. Volume |
+|------|-------|-----------|-------|-------------|
+| Deep | ~10 (flagship pairs with strong literature) | Full research brief per pair | Complete template | ~40,000 words |
+| Standard | ~30 (well-studied indicators, sector adaptation) | Indicator-level brief + target-specific addendum | Core sections + adaptation notes | ~60,000 words |
+| Light | ~33 (exploratory or thin-literature pairs) | Indicator-level brief + direction determination note | Key findings + classification + direction only | ~30,000 words |
+
+Total: ~130,000 words, manageable across a phased rollout.
+
+### 5.4 Direction Determination for Ambiguous/Conditional Pairs
+
+Of the 73 pairs, I estimate:
+- ~35 have clear direction (established literature consensus)
+- ~20 have theoretically motivated direction (moderate confidence)
+- ~10 have conditional direction (regime-dependent -- need to specify conditions)
+- ~8 have ambiguous direction (must be determined empirically)
+
+The conditional and ambiguous pairs are the most challenging for my SOP. Examples:
+
+- **VIX/VIX3M (I22) x XLE:** VIX/VIX3M is counter-cyclical for broad equities, but energy sector has its own volatility dynamics (geopolitical risk, OPEC). Direction may be conditional on whether the VIX spike is market-wide or energy-specific.
+- **US10Y-US3M (I18) x XLE (displayed inverted):** The catalog notes "displayed inverted" -- meaning the human analyst found that inverting the yield curve relationship improved the signal for energy. This is an empirical finding I need to validate or challenge from the literature.
+- **Gold/Copper Ratio (I30) x XLI:** Higher ratio = risk-off (gold up, copper down). For industrials, this should be counter-cyclical. But the magnitude and lag structure are uncertain.
+
+### 5.5 Managing the Spec Memo Pipeline at Scale
+
+If Alex issues Analysis Briefs in batches (e.g., all 21 SPY pairs), I need to deliver 21 spec memos before Evan can start. Serial delivery would create a bottleneck. My recommendation:
+
+1. **Batch by indicator.** Deliver one spec memo per indicator (27 total), each covering all targets for that indicator. This reduces 73 spec memos to 27.
+2. **Reuse base specifications.** For each indicator, the dependent variable definition, lag structure, and core regressors are target-independent. Only the target variable and sector-specific controls change.
+3. **Deliver in priority order.** Start with the 6 most-connected indicators (I14, I18, I22, I1, I25, I26 -- appearing in 4-5 targets each), which cover 26 pairs. This gives Evan the highest-leverage batch first.
+4. **Flag exploratory pairs for deferred deep research.** For the ~33 light-tier pairs, the spec memo says: "No established specification in the literature. Recommend standard lead-lag + correlation analysis. Direction to be determined empirically."
+
+---
+
+*This review reflects my assessment as Research Ray facing a 25x scale-up (from 1 pair to 73). The team's SOPs are strong for single-pair workflows. The primary risk is that per-pair processes (literature reviews, spec memos, event timelines, direction determinations, portal narratives) do not scale linearly. Every suggestion above is aimed at introducing batch processing, template reuse, and tiered depth to make the expansion feasible without sacrificing rigor.*
+
+---
+
+## Addendum: Step 2 — SOP Self-Update Disposition (2026-03-14)
+
+### Suggestions Received from Teammates and Disposition
+
+#### From Data Dana's Review
+
+| # | Suggestion | Disposition | Rationale |
+|---|-----------|:-----------:|-----------|
+| 1 | Add "Data Availability Risk Matrix" to research brief template | **Accepted** | Added to Section 5 brief template. Essential for flagging non-MCP sourcing risks before Dana invests effort. |
+| 2 | Cross-pair direction consistency check across briefs | **Accepted** | Added as Section 6c "Cross-Pair Direction Consistency Check." Produces a consistency table for multi-target indicators. |
+| 3 | Deliver data source recommendations in machine-readable format (CSV/JSON) | **Accepted** | Added CSV delivery note to the Recommended Data Sources section. Enables Dana to automate intake. |
+
+#### From Econ Evan's Review (R3)
+
+| # | Suggestion | Disposition | Rationale |
+|---|-----------|:-----------:|-----------|
+| 5 | Category recommendation rationale depth (cite evidence, not just scores) | **Accepted** | Updated the Recommended Analysis Categories table to require cited evidence in rationale column. |
+| 6 | Indicator type classification for hybrids (tie-breaking rule) | **Accepted** | Added Section 4b "Indicator Type Classification" with decision tree and primary/secondary type convention. |
+| 7 | Expected direction conditional logic (structured, not vague) | **Accepted** | Added to Section 6b "Direction Determination Workflow" with specific conditional logic format and examples. |
+| 8 | Literature support → interpretation confidence mapping | **Accepted** | Added mapping table in Section 6b: Strong→high, Moderate→medium, Weak→low, Exploratory→low. |
+
+#### From Viz Vera's Review (R3)
+
+| # | Suggestion | Disposition | Rationale |
+|---|-----------|:-----------:|-----------|
+| 1 | Target-class-specific event timelines (add impact columns) | **Accepted** | Event timeline table now includes Equity/FI/Commodity/Crypto impact columns. |
+| 2 | "Direction contradiction" deliverable format (structured JSON) | **Accepted** | Added Section 6d "Direction Contradiction Deliverable" with JSON schema. |
+| 3 | Scale event timelines for asset-class-specific events | **Accepted** | Addressed via the Master Event Database in the Multi-Indicator Scaling Protocol (macro + sector + indicator layers). |
+| 4 | Clarify whether Ray validates direction before or after Vera charts | **Accepted** | Added clarification in Defense 2 Section 3: Vera charts from Evan's metadata (v1), Ray validates subsequently, Vera revises if contradiction (v2). No serial dependency. |
+
+#### From AppDev Ace's Review
+
+| # | Suggestion | Disposition | Rationale |
+|---|-----------|:-----------:|-----------|
+| 1 | Narrative scaling strategy (one per indicator + per-pair addenda) | **Accepted** | Added "Narrative Scaling Strategy" in Multi-Indicator Scaling Protocol with three tiers. |
+| 2 | Single canonical glossary | **Accepted** | Added "Canonical Glossary" section with JSON format for portal loading. |
+| 3 | Portfolio-level storytelling arc | **Accepted** | Added to Narrative Scaling Strategy as Tier 3 deliverable. |
+
+#### From My Own Review (Section 4 — Blind Spots)
+
+| # | Suggestion | Disposition | Rationale |
+|---|-----------|:-----------:|-----------|
+| 1 | Indicator type classification guide | **Accepted** | Added as Section 4b with decision tree and borderline rulings table. |
+| 2 | Template for category recommendations | **Accepted** | Enhanced the rationale column format in the brief template. |
+| 3 | Target-class-specific research brief templates | **Partially accepted** | Addressed via the tiered brief strategy rather than separate templates — the tier determines depth, not separate template variants. Full template variants would add complexity without proportional benefit. |
+| 4 | Batch literature review strategy | **Accepted** | Added "Tiered Literature Review Strategy" table in Multi-Indicator Scaling Protocol. |
+| 5 | Spec memo batching protocol | **Accepted** | Added "Batch Spec Memo Protocol" section — deliver by indicator, not by pair. |
+| 6 | Direction determination workflow | **Accepted** | Added as Section 6b with 4-step decision tree and conditional logic format. |
+| 7 | Scalable event timeline production | **Accepted** | Added "Master Event Database" with layered architecture (macro + sector + indicator). |
+
+### Summary of SOP Changes
+
+Total suggestions received: 17 (3 from Dana, 4 from Evan, 4 from Vera, 3 from Ace, 7 from self)
+Accepted in full: 16
+Partially accepted: 1 (target-class-specific templates — addressed via tiered approach instead)
+Rejected: 0
+
+New SOP sections added:
+- Section 4b: Indicator Type Classification
+- Section 6b: Direction Determination Workflow
+- Section 6c: Cross-Pair Direction Consistency Check
+- Section 6d: Direction Contradiction Deliverable
+- Multi-Indicator Scaling Protocol (Tiered Review, Batch Spec Memos, Narrative Scaling, Canonical Glossary, Master Event Database, Batch Direction Annotations)
+
+Enhanced existing sections:
+- Recommended Analysis Categories (rationale depth)
+- Event Timeline (target-class impact columns, CSV delivery)
+- Recommended Data Sources (CSV delivery)
+- Data Availability Risk Matrix (new subsection in brief template)
+- Quality Gates (11 new checklist items)
+- Anti-Patterns (6 new items)
+- Defense 2 (direction validation sequencing clarification)

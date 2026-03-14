@@ -65,6 +65,29 @@ Before recommending any data source in the brief, verify accessibility:
 4. Use the `fred` MCP to spot-check macro series availability when in doubt.
 5. **Never recommend an exotic academic dataset without flagging the access risk.** Recommending a source Dana cannot pull creates wasted round-trips.
 
+### 4b. Indicator Type Classification
+
+Classify every indicator into one of 7 types for the Relevance Matrix. This classification directly determines which method categories Evan runs (his Rule C). For borderline indicators, apply the following decision tree and document the rationale:
+
+1. Does it measure credit risk directly (spreads, default rates, CDS)? → **Credit Spread**
+2. Does it derive from options markets (implied vol, skew, term structure)? → **Volatility/Options**
+3. Does it survey or measure real economic output/activity? → **Activity/Survey**
+4. Does it measure yield differentials or rate levels? → **Yield Curve/Rates**
+5. Does it measure fund flows, positioning, sentiment, or credit stress? → **Sentiment/Flow**
+6. Does it measure a non-equity asset used as a macro proxy? → **Cross-Asset**
+7. Does it measure market internal structure (breadth, volume, order flow)? → **Microstructure**
+
+**Borderline indicator rulings** (document rationale for hybrids):
+
+| Indicator | Classification | Rationale |
+|-----------|---------------|-----------|
+| SOX (I23, PHLX Semiconductor Index) | Cross-Asset | Equity index used as a cross-sector activity proxy, not a direct measure of output |
+| Credit Card Default (I16) | Sentiment/Flow | Measures consumer credit stress signals, not real activity |
+| Retail Inventories/Sales (I15) | Activity/Survey | Direct measure of retail sector output |
+| Petroleum Inventory (I27) | Cross-Asset | Physical commodity stock, not a direct equity market measure |
+
+If classification is genuinely ambiguous after applying the decision tree, assign a **primary type** and a **secondary type**: "Primary: Cross-Asset. Secondary: Activity/Survey." Evan may use the secondary type to add method categories if computational budget permits. Always invite Evan to override with justification.
+
 ### 5. Synthesize
 
 Organize findings into a structured research brief using the **Two-Stage Delivery** protocol (see below):
@@ -113,9 +136,9 @@ Organize findings into a structured research brief using the **Two-Stage Deliver
 
 Based on the indicator type and the Relevance Matrix (see `docs/econometric-methods-catalog.md`, Appendix):
 
-| Category | Relevance | Rationale |
-|----------|-----------|-----------|
-| {CATEGORY_NAME} | {++ / + / -} | {Why this category is recommended for this indicator type} |
+| Category | Relevance | Rationale (must cite evidence) |
+|----------|-----------|-------------------------------|
+| {CATEGORY_NAME} | {++ / + / -} | {Why this category is recommended — cite # of supporting papers, specific finding, or theoretical argument. "Lead-Lag: ++ because 3 papers find Granger causality at monthly frequency" is actionable; "Lead-Lag: ++" is not.} |
 
 Indicator type classification: {INDICATOR_TYPE} (one of: Credit Spread, Volatility/Options, Activity/Survey, Yield Curve/Rates, Sentiment/Flow, Cross-Asset, Microstructure)
 
@@ -137,14 +160,27 @@ Indicator type classification: {INDICATOR_TYPE} (one of: Credit Spread, Volatili
 
 *Vague pointers like "use CPI data" are insufficient. Every recommendation must include exact series identifiers.*
 
+*For batch operations across multiple pairs, also deliver this table as a machine-readable CSV: `data_sources_{topic}_{date}.csv`. Dana can automate intake from CSV rather than manually extracting from markdown.*
+
+### Data Availability Risk Matrix
+
+For indicators with non-trivial sourcing challenges, flag the risk explicitly so Dana can triage sourcing effort:
+
+| Indicator | Sourcing Risk | Reason | Fallback/Proxy |
+|-----------|:------------:|--------|---------------|
+| [indicator name] | Low / Medium / High | [e.g., "Proprietary, subscription required"] | [alternative indicator or "None — escalate to Alex"] |
+
+*This matrix is mandatory for any research brief covering indicators not available through the standard MCP stack (FRED, Yahoo, Alpha Vantage, Financial Datasets).*
+
 ### Event Timeline (for Visualization)
 
-| Date | Event | Relevance | Type |
-|------|-------|-----------|------|
-| [YYYY-MM-DD] | [event description] | [why it matters for this analysis] | [structural break / policy change / regime shift / crisis] |
-| ... | ... | ... | ... |
+| Date | Event | Relevance | Type | Equity Impact | FI Impact | Commodity Impact | Crypto Impact |
+|------|-------|-----------|------|:------------:|:---------:|:----------------:|:------------:|
+| [YYYY-MM-DD] | [event description] | [why it matters] | [structural break / policy change / regime shift / crisis] | [bearish/bullish/neutral] | [bearish/bullish/neutral] | [bearish/bullish/neutral] | [bearish/bullish/neutral/N-A] |
 
-*This timeline is a standard attachment for Vera's chart annotations. Include recession dates (NBER), policy events, and any structural breaks identified in the literature.*
+*This timeline is a standard attachment for Vera's chart annotations. Include recession dates (NBER), policy events, and any structural breaks identified in the literature. The target-class impact columns are mandatory for multi-target analyses — the same event (e.g., Fed rate hike) affects equity, fixed income, and commodity targets differently. Use "N/A" for target classes where the event predates the asset (e.g., crypto before 2014).*
+
+*For batch operations, also deliver the event timeline as CSV: `event_timeline_{topic}_{date}.csv` with the same columns. Vera can batch-import CSV rather than manually extracting from markdown tables.*
 
 ### Domain Visualization Conventions
 
@@ -179,6 +215,72 @@ Format: `research_brief_{topic}_{date}.md`
 Notify Evan, Dana, and Vera when this is ready.
 
 This two-stage approach prevents Evan from being blocked while the full literature synthesis is in progress.
+
+### 6b. Direction Determination Workflow
+
+When the Analysis Brief requires an `expected_direction`, follow this decision tree:
+
+1. **Is there academic evidence for this indicator's predictive power on this target class?**
+   - If yes (3+ studies agree) → Use the literature's direction. Mark `literature_support: Strong`.
+   - If partial (1-2 studies) → Use the literature's direction. Mark `literature_support: Moderate`.
+
+2. **If no academic evidence: is there a clear theoretical channel?**
+   - If yes → State the theoretical direction with mechanism. Mark `literature_support: Weak`.
+   - Example: "Cement shipments proxy construction activity, which drives housing wealth, which supports consumer spending and equity returns. Expected: pro-cyclical."
+
+3. **If no clear theoretical channel: is the indicator in the same factor family as a well-studied indicator?**
+   - If yes → Use analogical reasoning and document the analogy. Mark `literature_support: Weak`.
+   - Example: "Cass Freight is an Activity/Survey indicator like ISM PMI. ISM PMI is pro-cyclical for equities. By analogy, expect pro-cyclical."
+
+4. **If none of the above apply:**
+   - Mark `expected_direction: ambiguous` and `literature_support: Exploratory`.
+   - Note: "Direction to be determined empirically by Evan."
+
+**For `conditional` directions,** provide structured conditional logic, not just "direction varies by regime":
+- Example: "VIX/VIX3M rising from below 0.9 = term structure normalizing = mildly bullish. VIX/VIX3M rising above 1.1 = near-term fear exceeds medium-term = bearish. Threshold: 1.0 separates regimes."
+
+**Literature support → interpretation confidence mapping** (used by Evan in `interpretation_metadata.json`):
+
+| Literature Support | Evan's `direction_confidence` | Meaning |
+|-------------------|:----------------------------:|---------|
+| Strong (5+ studies) | high | High prior confidence; empirical departure requires strong evidence |
+| Moderate (2-4 studies) | medium | Moderate prior; empirical finding carries equal weight |
+| Weak (1 study or theory only) | low | Weak prior; empirical finding dominates |
+| Exploratory (no prior work) | low | No prior; direction is purely empirical |
+
+### 6c. Cross-Pair Direction Consistency Check
+
+When the same indicator is analyzed against multiple targets, verify direction annotations are internally consistent:
+
+1. If the economic mechanism is the same across targets, `expected_direction` should match.
+2. If the mechanism differs by target class (e.g., VIX rising is counter-cyclical for equities but potentially pro-cyclical for treasuries), document the distinct mechanism for each target.
+3. Produce a consolidated direction consistency table for multi-target indicators:
+
+| Indicator | Target | Expected Direction | Mechanism | Consistent? |
+|-----------|--------|-------------------|-----------|:-----------:|
+| VIX/VIX3M | SPY | counter_cyclical | Risk-off → equity sell-off | — |
+| VIX/VIX3M | TLT | conditional | Flight to quality = bullish; but rate expectations complicate | Different mechanism |
+| VIX/VIX3M | XLE | counter_cyclical | Broad risk-off affects energy sector | Consistent with SPY |
+
+*This table prevents silent inconsistencies and feeds Vera's "Differs From" annotations and Ace's cross-pair comparison pages.*
+
+### 6d. Direction Contradiction Deliverable
+
+When validating Evan's `interpretation_metadata.json` against literature and finding a contradiction between empirical and theoretical expectations, deliver a structured contradiction record (not just a prose flag):
+
+```json
+{
+  "indicator": "vix_vix3m",
+  "target": "spy",
+  "empirical_direction": "counter_cyclical",
+  "theoretical_direction": "conditional",
+  "contradiction": true,
+  "explanation": "Literature suggests regime-dependent effect that simple correlation misses. Low-vol regime: VIX changes are noise. High-vol regime: VIX spikes strongly predict equity drawdowns.",
+  "resolution": "Flag conditional relationship in portal callout. Evan to add regime interaction term."
+}
+```
+
+*Vera uses this to render contradiction annotations consistently. Ace uses it for "How to Read This" callout boxes when expected and observed directions disagree.*
 
 ### 7. Fact-Check and Validate
 
@@ -302,6 +404,71 @@ Questions for Ace: [list or "none"]
 
 ---
 
+## Multi-Indicator Scaling Protocol
+
+When the analysis expands to multiple indicator-target pairs (e.g., 73 priority combinations), the per-pair workflow does not scale linearly. Apply these batch protocols:
+
+### Tiered Literature Review Strategy
+
+| Tier | Scope | Brief Type | Depth |
+|------|-------|-----------|-------|
+| **Deep** (~10 pairs) | Flagship pairs with strong literature (HY-IG x SPY, VIX x SPY, Yield Curve x SPY) | Full research brief per pair | Complete template, all sections |
+| **Standard** (~30 pairs) | Well-studied indicators applied to new targets | Indicator-level brief + target-specific addendum | Core sections + per-target mechanism and direction |
+| **Light** (~33 pairs) | Exploratory or thin-literature pairs | Indicator-level brief + direction determination note | Key findings + classification + direction only |
+
+### Batch Spec Memo Protocol
+
+Deliver spec memos **by indicator, not by pair**. One spec memo per indicator covers all targets for that indicator:
+
+- Format: `spec_memo_{indicator_id}_all_targets_{date}.md`
+- Include a base specification (regressors, controls, lag structure) that is target-independent
+- Add per-target notes where the dependent variable or sector-specific controls differ
+- Deliver in priority order: start with the most-connected indicators (those appearing in 4+ targets)
+
+### Narrative Scaling Strategy (for Ace)
+
+At 73+ pairs, produce narratives in three tiers:
+
+1. **Indicator narrative** (one per indicator, ~27-31 docs): What the indicator measures, economic significance, historical context. Reused across all targets for that indicator.
+   - Format: `docs/portal_narrative_{indicator_id}_{date}.md`
+
+2. **Per-pair addendum** (one per priority pair): Direction-specific interpretation, mechanism differences, "Differs From" notes relative to other targets of the same indicator. Lightweight (1-2 paragraphs).
+   - Format: `docs/portal_addendum_{indicator_id}_{target_id}_{date}.md`
+
+3. **Portfolio-level storytelling arc** (one document): Overarching narrative for the multi-indicator portal — "Why 31 indicators? What do they tell us collectively? How should a portfolio manager use this dashboard?"
+   - Format: `docs/storytelling_arc_portfolio_{date}.md`
+
+### Canonical Glossary
+
+Maintain a single consolidated glossary across all analyses rather than per-pair glossaries:
+
+- Format: `docs/portal_glossary.json` (machine-readable for Ace's portal)
+- Structure: `[{"term": "OAS", "definition": "Option-Adjusted Spread — ...", "context": "Used for credit spread indicators"}]`
+- New pairs add terms incrementally; existing terms are not duplicated
+- Ace loads this once for the entire portal
+
+### Master Event Database
+
+Produce event timelines from a layered master database rather than per-pair:
+
+1. **Macro events** (recessions, rate changes, QE) → apply to all targets
+2. **Sector events** (OPEC for XLE, semiconductor shortages for XLK, consumer shifts for XLY) → target-specific
+3. **Indicator events** (methodology changes for CPI, ISM survey redesigns) → indicator-specific
+
+Per-pair timeline = macro events + sector events for that target + indicator events for that indicator.
+
+- Master database format: `docs/event_database_{date}.csv`
+- Columns: `date`, `event`, `relevance`, `type`, `scope` (macro/sector/indicator), `target_class` (all/equity/fi/commodity/crypto), `indicator_id` (all or specific)
+
+### Batch Direction Annotation Delivery
+
+For multi-pair analyses, produce a consolidated direction annotations file that Ace can load programmatically:
+
+- Format: `docs/direction_annotations_batch_{date}.json`
+- Structure: `[{"indicator_id": "hy_ig", "target_id": "spy", "expected_direction": "counter_cyclical", "mechanism": "...", "callout_text": "When the HY-IG spread widens..."}]`
+
+---
+
 ## Data Source Feedback Loop
 
 When Dana reports that a recommended data source is impractical (unavailable, wrong frequency, insufficient coverage):
@@ -340,6 +507,16 @@ Before handing off:
 - [ ] Event timeline sent to both Vera and Ace
 - [ ] If Analysis Brief specifies `expected_direction`, the brief validates or flags any contradiction between theoretical expectation and available empirical evidence
 - [ ] For priority pairs (see `docs/priority-combinations-catalog.md`), noted whether the indicator-target relationship has established academic support or is exploratory
+- [ ] Indicator type classification documented with rationale (including decision tree step for borderline cases)
+- [ ] Category recommendation rationale cites specific evidence (# of papers, key findings), not just relevance scores
+- [ ] For indicators with non-MCP sources, Data Availability Risk Matrix included with fallback/proxy recommendations
+- [ ] For `conditional` or `ambiguous` expected directions, structured conditional logic provided (not just "direction varies")
+- [ ] Literature support level mapped to Evan's `direction_confidence` (Strong→high, Moderate→medium, Weak/Exploratory→low)
+- [ ] For multi-target indicators, cross-pair direction consistency table produced and any target-specific mechanism differences documented
+- [ ] Event timeline includes target-class impact columns (equity/FI/commodity/crypto) for multi-target analyses
+- [ ] Data source recommendations delivered as CSV alongside markdown (for batch operations)
+- [ ] Event timeline delivered as CSV alongside markdown (for Vera's batch import)
+- [ ] For multi-pair batches, direction contradiction records delivered as structured JSON (not prose flags)
 
 ### Defense 1: Self-Describing Artifacts (Producer Rule)
 
@@ -356,6 +533,7 @@ When Ray consumes upstream artifacts (e.g., reviewing Evan's results for interpr
 
 1. **Cross-check reported results against literature.** If Evan reports a Granger causality finding, verify it aligns with (or meaningfully departs from) the cited literature. Flag discrepancies.
 2. **Verify event timeline against chart annotations.** When Vera or Ace use Ray's timeline, spot-check that dates and descriptions match the delivered timeline file.
+3. **Direction validation does not block Vera.** Vera may begin charting using Evan's `interpretation_metadata.json` before Ray validates. If Ray subsequently flags a contradiction, Vera produces a revised chart version (v2) with the contradiction annotation. The sequencing is: Evan delivers → Vera charts (v1) → Ray validates → if contradiction, Vera revises (v2). This avoids adding a serial dependency that slows the pipeline.
 
 ## Tool Preferences
 
@@ -405,6 +583,11 @@ When Ray consumes upstream artifacts (e.g., reviewing Evan's results for interpr
 - **Never** give vague specification advice ("use panel methods") — be specific or explicitly flag what you cannot determine
 - **Never** deliver narrative text to Ace with undefined jargon — every technical term must have a parenthetical plain-English definition on first use
 - **Never** deliver portal narrative as a raw research brief — produce a separate document organized by Ace's portal page structure
+- **Never** classify an indicator type without documenting the rationale — Evan's category selection depends on this classification
+- **Never** write "direction varies by regime" without specifying the regime conditions and threshold values
+- **Never** assign the same `expected_direction` to all targets of a multi-target indicator without verifying the mechanism is truly target-independent
+- **Never** produce 73 full research briefs when the tiered approach (deep/standard/light) is available — scale matters
+- **Never** deliver per-pair glossaries when a single canonical glossary serves all pairs
 
 ---
 

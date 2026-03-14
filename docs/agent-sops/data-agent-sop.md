@@ -101,7 +101,23 @@ Run these checks on every delivered dataset:
 | Merge integrity | Row count before/after joins | Report any expansion or loss |
 | Type consistency | `df.dtypes` review | Fix silently if obvious; flag if ambiguous |
 
-**Frequency alignment:** When merging indicators of different frequencies (e.g., daily I17 with monthly I1), follow the alignment rules in `docs/data-series-catalog.md`, Section 9. Document the alignment method in the data dictionary. Flag any cases where alignment introduces more than 5 days of staleness.
+**Frequency alignment:** When merging indicators of different frequencies (e.g., daily I17 with monthly I1), follow the alignment rules in `docs/data-series-catalog.md`, Section 9. Document the alignment method in the data dictionary's Transformation column (e.g., "Level, LVCF from monthly" not just "Level"). Flag any cases where alignment introduces more than 5 days of staleness.
+
+**Frequency alignment guidance by downstream model class:** Different econometric methods have different sensitivity to alignment artifacts. Use this lookup when choosing alignment methods:
+
+| Downstream Model Class | Recommended Alignment | Rationale |
+|----------------------|----------------------|-----------|
+| OLS / GLS / Panel | LVCF is safe but flag serial correlation risk from step function | Carried-forward values create artificial autocorrelation |
+| VAR / VECM | LVCF preferred; avoid interpolation (introduces false dynamics) | Interpolation can create spurious Granger causality |
+| MIDAS | Provide both high-freq and low-freq series; do not pre-align | MIDAS handles mixed frequencies natively |
+| Regime-switching / HMM | LVCF preferred (step function is consistent with regime logic) | Regime models expect discrete state changes |
+| Rolling statistics (z-score, percentile) | LVCF; consider adding `days_since_release` feature | Staleness affects rolling window calculations |
+
+When the Analysis Brief or data request does not specify the downstream model, deliver LVCF-aligned data and document it. If the econometrics agent needs a different alignment, they will request it.
+
+**Days-since-release feature:** For all carry-forward aligned series (monthly -> daily, quarterly -> monthly, weekly -> daily), optionally include a `{canonical_name}_days_since_release` column counting calendar days since the last fresh observation. This helps the econometrics agent model information staleness. Document this column in the data dictionary if included.
+
+**Derived series computation verification:** For every derived series (I17, I19, I22, I30, I31, I32), verify the computation against at least one known published value or reference date. Examples: "HY-IG spread on 2008-10-10 should match FRED source data within ±5 bps", "VIX/VIX3M ratio during March 2020 should exceed 1.2." Document the verification result in the delivery notes.
 
 **Stationarity testing ownership:** Dana runs ADF, KPSS, and/or Phillips-Perron tests and delivers results in a structured table. The econometrics agent reviews and confirms these results rather than re-running from scratch. If the econometrics agent disagrees with a test conclusion, they flag it back for discussion rather than silently overriding.
 
@@ -116,21 +132,51 @@ Stationarity results format:
 
 - Save to workspace as `.csv` or `.parquet` (parquet preferred for large datasets)
 - File naming: `{subject}_{frequency}_{start}_{end}.{ext}` (e.g., `macro_panel_monthly_200001_202312.parquet`)
-- **Stable filename alias:** For datasets consumed by the portal (App Dev), also create/update a stable-path copy at `data/{subject}_{frequency}_latest.{ext}` (e.g., `data/macro_panel_monthly_latest.parquet`). This prevents portal breakage when the date-range filename changes on refresh. The dated file is the source of truth; the `_latest` alias always points to the most recent version.
+- **Stable filename alias:** For datasets consumed by the portal (App Dev) or by the econometrics agent for re-runs and sensitivity analysis, create/update a stable-path copy at `data/{subject}_{frequency}_latest.{ext}` (e.g., `data/macro_panel_monthly_latest.parquet`). This prevents portal breakage and model re-run failures when the date-range filename changes on refresh. The dated file is the source of truth; the `_latest` alias always points to the most recent version.
+
+**Stable alias maintenance process:** When refreshing a dataset:
+1. Save the new dated file (source of truth)
+2. Update the `_latest` copy to match the new dated file
+3. Verify the alias points to the new file (row count, date range spot-check)
+4. Notify Ace if portal-facing aliases were updated
+5. Update `data/manifest.json` (see Data Manifest below)
+
+**Data manifest (`data/manifest.json`):** Maintain a machine-readable manifest listing all `_latest` aliases, their backing dated files, refresh cadence, last-updated timestamp, and the pairs they serve. This replaces per-handoff discovery for Ace and enables automated staleness detection. Format:
+
+```json
+{
+  "aliases": [
+    {
+      "alias": "data/hy_ig_spy_daily_latest.parquet",
+      "source": "data/hy_ig_spy_daily_20000101_20251231.parquet",
+      "refresh_freq": "daily",
+      "last_updated": "2026-03-14",
+      "pairs": ["hy_ig_spy"],
+      "mixed_freq_ttl_note": "Contains daily market data + monthly ISM; recommend TTL=86400 (daily)"
+    }
+  ]
+}
+```
 - Include a **data dictionary** (see format below)
 - Report summary statistics (`df.describe()`) with the delivery
 
 **Data dictionary format — required fields for every variable:**
 
-| Column Name | Display Name | Description | Source | Series ID | Unit | Transformation | Seasonal Adj. | Known Quirks | Display Note | Refresh Freq. | Refresh Source |
-|-------------|-------------|-------------|--------|-----------|------|---------------|---------------|-------------|-------------|--------------|----------------|
-| `us_cpi_yoy` | US CPI (% YoY) | Consumer Price Index, all items, year-over-year percent change | FRED | CPIAUCSL | % | YoY % change from index | SA | Base year changed 1982-84 | CPI methodology was updated in the early 1980s; may affect long-term comparisons | Monthly | fred MCP |
+| Column Name | Display Name | Description | Source | Series ID | Unit | Transformation | Seasonal Adj. | Direction Convention | Effective Start | Known Quirks | Display Note | Refresh Freq. | Refresh Source |
+|-------------|-------------|-------------|--------|-----------|------|---------------|---------------|---------------------|-----------------|-------------|-------------|--------------|----------------|
+| `hy_ig_oas` | HY-IG Credit Spread (bps) | ICE BofA US HY OAS minus IG OAS | FRED | BAMLH0A0HYM2 - BAMLC0A0CM | bps | Level (computed spread) | N/A | Higher = wider spreads = more credit stress | 1997-01-02 | Spread can invert briefly during dislocations | Measures the extra yield investors demand for risky corporate bonds vs. safe ones | Daily | fred MCP |
 
-- **Display Name** is the chart-ready label for the visualization agent and portal (e.g., `us_cpi_yoy` -> "US CPI (% YoY)")
+- **Display Name** is the chart-ready label for the visualization agent and portal (e.g., `hy_ig_oas` -> "HY-IG Credit Spread (bps)"). **Mandatory** for every variable — if a display name cannot be determined, flag to Alex before delivery. Maintain consistency across multiple deliveries: the same canonical column name must always map to the same display name.
+- **Direction Convention** documents what higher vs. lower values mean economically. Examples: "Higher = wider spreads = more stressed", "Higher = more optimistic", "Ratio > 1 = term structure inversion = near-term fear elevated." This field feeds Evan's interpretation and Vera's visual encoding. **Mandatory** for every indicator variable.
+- **Effective Start** is the first date where the variable has a valid value. For raw series, this is the series start date. For derived/transformed series, this may differ from the raw start (e.g., YoY transform requires 12 months of history; I32 NEWORDER YoY effective start = raw NEWORDER start + 12 months). **Mandatory** for all transformed or derived series.
 - **Known Quirks** captures series-specific issues for econometric consumers: base year changes, methodology revisions, structural breaks, vintage differences
 - **Display Note** is a plain-English version of Known Quirks suitable for layperson-facing portal pages (for App Dev consumption)
 - **Refresh Freq.** indicates how often the series is updated at the source (one-time / daily / weekly / monthly / quarterly). Used by App Dev for cache TTL configuration
 - **Refresh Source** identifies the MCP server or API that provides updates for this series
+
+**Display-name registry:** Maintain a centralized mapping from canonical column names to display names in `data/display_name_registry.csv` with columns: `column_name`, `display_name`, `unit`, `axis_label`. This file is the single source of truth for all chart labels across all deliveries. Vera and Ace consume it directly. Update incrementally as new indicators are sourced.
+
+**Benchmark data inclusion:** Every pair's dataset must include the target-class benchmark series (e.g., SPY returns for equity targets, AGG returns for fixed income targets, self for commodities/crypto). The benchmark is specified in the Analysis Brief Section 3. If the benchmark is the same as the target (e.g., SPY for SPY), include buy-and-hold returns explicitly. This prevents Ace from needing a separate benchmark dataset for every Strategy page.
 
 ---
 
@@ -199,6 +245,7 @@ Partial delivery: [yes/no — if yes, which files are pending and ETA]
 - Always use stable `_latest` file paths in handoff messages so portal code does not break on data refresh
 - When a partial delivery affects portal-facing data, notify Ace explicitly so he can render placeholder content or skip affected pages
 - Refresh specifications should map directly to Ace's `@st.cache_data(ttl=...)` parameters: daily series = `ttl=86400`, monthly = `ttl=2592000`, one-time = no TTL (permanent cache)
+- **Mixed-frequency TTL:** When a pair's dataset contains variables with different refresh frequencies (e.g., daily market data + monthly ISM), recommend the TTL of the **fastest-refreshing** series in the dataset. Document this in `data/manifest.json` with a `mixed_freq_ttl_note` explaining why. Alternatively, if Ace prefers split loading, deliver fast-refresh and slow-refresh series as separate files and note this in the handoff.
 
 ### Partial Delivery Protocol
 
@@ -228,6 +275,88 @@ When the econometrics agent discovers during diagnostics that they need an addit
 
 ---
 
+## Non-MCP Sourcing Protocol
+
+Several indicators in the multi-indicator framework have no direct MCP path (I8 Portland Cement, I13 ABI, I25 Cass Freight, I27 Petroleum Inventory partially, I29 Electricity-CPI). For these:
+
+**Decision tree:**
+1. Is the source freely published on the web? -> Use `fetch` MCP + BeautifulSoup. Document the URL, extraction method, and expected update schedule.
+2. Is the source subscription-gated (e.g., AIA for ABI)? -> Escalate to Alex for access decision. If denied, recommend a proxy from Ray's research brief. Document the proxy substitution in the data dictionary.
+3. Is the source a government agency sub-component (e.g., BLS electricity CPI)? -> Document the full series hierarchy (e.g., BLS series ID, component path). Verify the extraction method produces values consistent with the published aggregate.
+4. Is the source proprietary but published (e.g., Cass Freight Index)? -> Attempt web scraping from the publisher's public reports. If not feasible, escalate and recommend a proxy.
+
+**For all non-MCP sources:**
+- Document the source URL or access method in the data dictionary
+- Include a "Data Access Risk" note: `Low` (free, stable API), `Medium` (published but scraping required), `High` (subscription/proprietary)
+- Run the same validation checks as MCP-sourced data
+- When proposing a proxy, include: proxy variable name, source, correlation with the original (if known), and limitations
+
+---
+
+## Batch Operations for Multi-Indicator Work
+
+When the Analysis Brief covers multiple indicator-target pairs, use batch protocols to avoid O(N) overhead:
+
+### Batch Data Availability Pre-Check
+
+Before sourcing, run a single pass across all requested indicators:
+
+1. Group pairs by indicator (27 unique indicators across 73 priority pairs)
+2. For each indicator, confirm MCP availability once (not per-pair)
+3. Produce an **Indicator Availability Status Board** (`docs/indicator_status_board.md`):
+
+| Indicator ID | Canonical Name | Status | Source | Data Access Risk | Notes |
+|-------------|---------------|--------|--------|-----------------|-------|
+| I1 | `indpro` | Available | FRED: INDPRO | Low | |
+| I8 | `cement_ship` | Blocked | Portland Cement Assoc. | High | Proprietary; proxy needed |
+| I13 | `abi` | Blocked | AIA (subscription) | High | Recommend NAHB HMI (I12) as proxy |
+
+4. Share the status board with Alex and Ray before detailed sourcing begins
+
+### Batch Delivery Protocol
+
+When delivering multiple datasets in a single sprint:
+
+**Deliverables:**
+1. Per-pair datasets (one `.parquet` per indicator-target pair)
+2. A **batch delivery manifest** listing all files, their status, and per-file notes:
+
+```
+## Batch Delivery Manifest
+Date: [YYYY-MM-DD]
+Pairs delivered: [count]
+
+| # | Pair | File Path | Status | Notes |
+|---|------|-----------|--------|-------|
+| 1 | I1 x SPY | data/indpro_spy_daily_*.parquet | Complete | |
+| 2 | I8 x XLP | — | Blocked | Proprietary source; proxy pending |
+| 3 | I14 x SPY | data/umcsent_spy_daily_*.parquet | Complete | LVCF from monthly |
+```
+
+3. A single consolidated data dictionary covering all variables across the batch
+4. Cross-dataset consistency verification (see Quality Gates below)
+
+**Handoff message template (batch):**
+```
+Handoff: Data Dana -> [Recipient]
+Batch: [description, e.g., "All 21 SPY pairs"]
+Manifest: [path to batch manifest]
+Data dictionary: [path]
+Complete: [N of M pairs]
+Blocked: [list with reasons]
+Cross-dataset consistency: [verified / issues found — details]
+```
+
+### Shared Indicator Data Deduplication
+
+When multiple pairs share the same indicator (e.g., I14 Michigan Consumer Sentiment appears in 5 targets):
+1. Source the indicator data once
+2. Create a shared indicator dataset: `data/{indicator_canonical}_raw.parquet`
+3. For each pair, merge the shared indicator with target-specific data and deliver as a per-pair file
+4. Document the shared source in each pair's data dictionary to ensure traceability
+
+---
+
 ## Quality Gates
 
 Before handing off to another agent:
@@ -244,6 +373,22 @@ Before handing off to another agent:
 - [ ] Econometric implications of data decisions flagged (fills, interpolations, frequency changes)
 - [ ] For portal-facing deliveries: stable `_latest` alias created, refresh specs included, Display Note (layperson) populated
 - [ ] For portal-facing deliveries: Ace notified of any partial delivery so he can handle missing data gracefully
+- [ ] Direction Convention populated for every indicator variable in the data dictionary
+- [ ] Effective Start populated for every transformed or derived series
+- [ ] Display Name populated for **every** variable (not just viz-facing) — if display name cannot be determined, flag to Alex
+- [ ] Display-name registry (`data/display_name_registry.csv`) updated with any new variables
+- [ ] For batch deliveries: cross-dataset consistency verified (see below)
+
+**Cross-dataset consistency checks (mandatory for batch deliveries):**
+
+When delivering multiple datasets in a single sprint, verify consistency across all datasets in the batch:
+
+- [ ] Same indicator uses the same canonical column name across all pair datasets
+- [ ] Same indicator has the same unit convention across all pair datasets
+- [ ] Same indicator has the same Direction Convention across all pair datasets
+- [ ] Date range boundaries are consistent (same sample start/end across pairs using the same indicator)
+- [ ] Derived series use the same computation recipe across all pairs
+- [ ] Display names in the registry match the data dictionary entries in every dataset
 
 ### Defense 1: Self-Describing Artifacts (Producer Rule)
 
