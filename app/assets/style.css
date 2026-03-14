@@ -1,17 +1,30 @@
 /* AIG-RLIC+ Portal Styles */
 
-/* Equal-height card grid: force columns in a row to stretch to tallest */
-div[data-testid="stHorizontalBlock"] {
-    align-items: stretch;
+/* Equal-height card grid */
+/* 1. Make the column row a flex stretch container */
+div[data-testid="stMainBlockContainer"] > div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] div[data-testid="stHorizontalBlock"],
+div[data-testid="stMainBlockContainer"] div[data-testid="stHorizontalBlock"] {
+    align-items: stretch !important;
 }
 
-/* Make bordered containers inside columns fill full height */
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] {
-    height: 100%;
+/* 2. Column itself fills height */
+div[data-testid="stColumn"] {
+    display: flex;
+    flex-direction: column;
 }
 
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] > div {
-    height: 100%;
+/* 3. The vertical block inside each column fills height */
+div[data-testid="stColumn"] > div[data-testid="stVerticalBlock"] {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 4. The layout wrapper (bordered container) fills remaining space */
+div[data-testid="stColumn"] > div[data-testid="stVerticalBlock"] > div[data-testid="stLayoutWrapper"] {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Readable text blocks */

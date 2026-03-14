@@ -107,19 +107,18 @@ for i in range(0, len(pairs), cols_per_row):
                     f"| **Valid** | **{valid_count:,}** / {total_count:,} | |"
                 )
 
-                # Key finding (truncate to ~80 chars for uniform card height)
+                # Key finding (full text — card height aligned via CSS)
                 finding = p.get("key_finding", "")
                 if finding:
-                    if len(finding) > 80:
-                        finding = finding[:77] + "..."
                     st.caption(finding)
 
-                # Navigation buttons
-                b1, b2, b3, b4 = st.columns(4)
-                b1.page_link(p["story_page"], label="Story", icon="📖")
-                b2.page_link(p["evidence_page"], label="Evidence", icon="🔬")
-                b3.page_link(p["strategy_page"], label="Strategy", icon="🎯")
-                b4.page_link(p["methodology_page"], label="Methods", icon="📐")
+                # Navigation buttons (2x2 to avoid label clipping)
+                r1a, r1b = st.columns(2)
+                r1a.page_link(p["story_page"], label="Story", icon="📖")
+                r1b.page_link(p["evidence_page"], label="Evidence", icon="🔬")
+                r2a, r2b = st.columns(2)
+                r2a.page_link(p["strategy_page"], label="Strategy", icon="🎯")
+                r2b.page_link(p["methodology_page"], label="Methods", icon="📐")
 
 # --- Footer ---
 st.markdown("---")
