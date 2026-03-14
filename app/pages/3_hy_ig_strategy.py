@@ -54,16 +54,16 @@ st.markdown("")
 # Winner KPI cards
 kpi_row(
     [
-        {"label": "OOS Sharpe Ratio", "value": "1.17", "delta": "+52% vs buy-and-hold"},
-        {"label": "OOS Annualized Return", "value": "11.0%"},
+        {"label": "OOS Sharpe", "value": "1.17", "delta": "vs 0.77 B&H"},
+        {"label": "OOS Return", "value": "+11.0%", "delta": "vs +13.8% B&H"},
         {
             "label": "Max Drawdown",
             "value": "-11.6%",
             "delta": "vs -33.7% B&H",
             "delta_color": "inverse",
         },
-        {"label": "Annual Turnover", "value": "~5 trades/yr"},
-        {"label": "Bootstrap p-value", "value": "< 0.001"},
+        {"label": "Turnover", "value": "~5/yr"},
+        {"label": "Bootstrap p", "value": "< 0.001"},
     ]
 )
 
@@ -187,6 +187,17 @@ with val_tab3:
         "</div>",
         unsafe_allow_html=True,
     )
+
+st.markdown("---")
+
+# ===================== DOWNLOAD TRADING HISTORY =====================
+st.markdown("### Download Trading History")
+
+st.info(
+    "Trading history download for HY-IG → SPY will be available when the "
+    "pipeline is migrated to the standardized template. In the meantime, "
+    "the tournament results are available in `results/tournament_results_20260228.csv`."
+)
 
 st.markdown("---")
 

@@ -56,11 +56,14 @@ for pid, label, oos_start in VARIANTS:
         f"Lead {int(best['lead_days'])}d"
     )
 
+    best_ret = f"{best['oos_ann_return']:+.1f}%" if "oos_ann_return" in best.index else "—"
+    bh_ret = f"{bh.iloc[0]['oos_ann_return']:+.1f}%" if len(bh) > 0 and "oos_ann_return" in bh.columns else "—"
+
     kpi_row([
         {"label": "OOS Sharpe", "value": f"{best['oos_sharpe']:.2f}", "delta": f"vs {bh_sharpe} B&H"},
+        {"label": "OOS Return", "value": best_ret, "delta": f"vs {bh_ret} B&H"},
         {"label": "Max Drawdown", "value": f"{best['max_drawdown']:.1f}%", "delta": f"vs {bh_dd} B&H", "delta_color": "inverse"},
         {"label": "Valid / Total", "value": f"{len(valid)}", "delta": f"of {len(tdf)}"},
-        {"label": "OOS Start", "value": oos_start[:7]},
     ])
 
     # Tournament scatter
@@ -71,13 +74,28 @@ for pid, label, oos_start in VARIANTS:
     top5 = valid.nlargest(5, "oos_sharpe")
     rows = []
     for rank, (_, r) in enumerate(top5.iterrows(), 1):
+        ret_str = f"{r['oos_ann_return']:+.1f}%" if "oos_ann_return" in r.index else "—"
         rows.append({
             "Rank": rank, "Signal": r["signal"], "Threshold": r["threshold"],
             "Strategy": r["strategy"], "Lead": f"{int(r['lead_days'])}d",
             "OOS Sharpe": round(r["oos_sharpe"], 2),
+            "OOS Return": ret_str,
             "Max DD": f"{r['max_drawdown']:.1f}%",
         })
     st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+    # Download button for this variant
+    from components.trade_history import reconstruct_winner_history
+    history = reconstruct_winner_history(pid)
+    if history is not None:
+        csv = history.to_csv(index=False)
+        st.download_button(
+            label=f"Download {label} trading history CSV",
+            data=csv,
+            file_name=f"{pid}_winner_trading_history.csv",
+            mime="text/csv",
+            key=f"dl_{pid}",
+        )
 
     st.markdown("---")
 

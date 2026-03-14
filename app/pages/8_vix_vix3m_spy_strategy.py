@@ -53,11 +53,11 @@ st.markdown(
 )
 
 kpi_row([
-    {"label": "OOS Sharpe Ratio", "value": "1.13", "delta": "+47% vs buy-and-hold"},
-    {"label": "Buy-Hold Sharpe", "value": "0.77"},
-    {"label": "Buy-Hold Max DD", "value": "-33.7%", "delta_color": "inverse"},
-    {"label": "Combinations Tested", "value": "916"},
-    {"label": "Valid Strategies", "value": "332"},
+    {"label": "OOS Sharpe", "value": "1.13", "delta": "vs 0.77 B&H"},
+    {"label": "OOS Return", "value": "+15.3%", "delta": "vs +15.7% B&H"},
+    {"label": "Max Drawdown", "value": "-21.1%", "delta": "vs -33.7% B&H", "delta_color": "inverse"},
+    {"label": "Combinations", "value": "916"},
+    {"label": "Valid", "value": "332"},
 ])
 
 st.markdown("---")
@@ -110,6 +110,7 @@ if os.path.exists(results_path):
             "Strategy": r["strategy"],
             "Lead": f"{int(r['lead_months'])}M" if "lead_months" in r.index else "L0",
             "OOS Sharpe": round(r["oos_sharpe"], 2),
+            "OOS Return": f"{r["oos_ann_return"]:+.1f}%" if "oos_ann_return" in r.index else "—",
             "Max DD": f"{r['max_drawdown']:.1f}%",
             "Turnover": f"{r['annual_turnover']:.1f}/yr",
         })
@@ -122,6 +123,7 @@ if os.path.exists(results_path):
             "Strategy": "Benchmark",
             "Lead": "-",
             "OOS Sharpe": round(b["oos_sharpe"], 2),
+            "OOS Return": f"{b["oos_ann_return"]:+.1f}%" if "oos_ann_return" in b.index else "—",
             "Max DD": f"{b['max_drawdown']:.1f}%",
             "Turnover": "0/yr",
         })
@@ -146,6 +148,34 @@ else:
         "**Top strategy:** Z-score 126d, rolling P75 threshold, Long/Cash, "
         "no lead — OOS Sharpe **1.13** vs buy-and-hold **0.77**."
     )
+
+st.markdown("---")
+
+# ===================== DOWNLOAD TRADING HISTORY =====================
+st.markdown("### Download Trading History")
+
+from components.trade_history import reconstruct_winner_history
+
+history = reconstruct_winner_history("vix_vix3m_spy")
+if history is not None:
+    st.markdown(
+        f"Download the daily trading history for the tournament winner: "
+        f"**{history.attrs.get('winner_signal', '?')}** / "
+        f"**{history.attrs.get('winner_threshold', '?')}** / "
+        f"**{history.attrs.get('winner_strategy', '?')}** / "
+        f"Lead {history.attrs.get('winner_lead', '?')}"
+    )
+    csv = history.to_csv(index=False)
+    st.download_button(
+        label="Download CSV",
+        data=csv,
+        file_name="vix_vix3m_spy_winner_trading_history.csv",
+        mime="text/csv",
+    )
+    with st.expander("Preview (first 20 rows)"):
+        st.dataframe(history.head(20), use_container_width=True, hide_index=True)
+else:
+    st.info("Trading history reconstruction not available for this pair.")
 
 st.markdown("---")
 

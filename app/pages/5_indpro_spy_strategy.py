@@ -51,11 +51,11 @@ st.markdown(
 )
 
 kpi_row([
-    {"label": "OOS Sharpe Ratio", "value": "1.10", "delta": "+22% vs buy-and-hold"},
+    {"label": "OOS Sharpe", "value": "1.10", "delta": "vs 0.90 B&H"},
+    {"label": "OOS Return", "value": "+7.7%", "delta": "vs +14.8% B&H"},
     {"label": "Max Drawdown", "value": "-8.1%", "delta": "vs -23.9% B&H", "delta_color": "inverse"},
-    {"label": "Combinations Tested", "value": "1,666"},
-    {"label": "Valid Strategies", "value": "1,150"},
-    {"label": "Annual Turnover", "value": "~2 trades/yr"},
+    {"label": "Combinations", "value": "1,666"},
+    {"label": "Valid", "value": "1,150"},
 ])
 
 st.markdown("---")
@@ -96,6 +96,7 @@ if os.path.exists(results_path):
             "Strategy": r["strategy"],
             "Lead": f"{int(r['lead_months'])}M",
             "OOS Sharpe": round(r["oos_sharpe"], 2),
+            "OOS Return": f"{r["oos_ann_return"]:+.1f}%" if "oos_ann_return" in r.index else "—",
             "Max DD": f"{r['max_drawdown']:.1f}%",
             "Turnover": f"{r['annual_turnover']:.1f}/yr",
         })
@@ -108,6 +109,7 @@ if os.path.exists(results_path):
             "Strategy": "Benchmark",
             "Lead": "-",
             "OOS Sharpe": round(b["oos_sharpe"], 2),
+            "OOS Return": f"{b["oos_ann_return"]:+.1f}%" if "oos_ann_return" in b.index else "—",
             "Max DD": f"{b['max_drawdown']:.1f}%",
             "Turnover": "0/yr",
         })
@@ -143,6 +145,34 @@ load_plotly_chart(
     ),
     pair_id="indpro_spy",
 )
+
+st.markdown("---")
+
+# ===================== DOWNLOAD TRADING HISTORY =====================
+st.markdown("### Download Trading History")
+
+from components.trade_history import reconstruct_winner_history
+
+history = reconstruct_winner_history("indpro_spy")
+if history is not None:
+    st.markdown(
+        f"Download the daily trading history for the tournament winner: "
+        f"**{history.attrs.get('winner_signal', '?')}** / "
+        f"**{history.attrs.get('winner_threshold', '?')}** / "
+        f"**{history.attrs.get('winner_strategy', '?')}** / "
+        f"Lead {history.attrs.get('winner_lead', '?')}"
+    )
+    csv = history.to_csv(index=False)
+    st.download_button(
+        label="Download CSV",
+        data=csv,
+        file_name="indpro_spy_winner_trading_history.csv",
+        mime="text/csv",
+    )
+    with st.expander("Preview (first 20 rows)"):
+        st.dataframe(history.head(20), use_container_width=True, hide_index=True)
+else:
+    st.info("Trading history reconstruction not available for this pair.")
 
 st.markdown("---")
 
