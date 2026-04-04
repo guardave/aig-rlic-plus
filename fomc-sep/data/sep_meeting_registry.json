@@ -1,0 +1,702 @@
+[
+  {
+    "date": "20071031",
+    "date_formatted": "2007-10-31",
+    "year": 2007,
+    "quarter": "Q4",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20071031.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20080130",
+    "date_formatted": "2008-01-30",
+    "year": 2008,
+    "quarter": "Q1",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20080130.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20080618",
+    "date_formatted": "2008-06-18",
+    "year": 2008,
+    "quarter": "Q2",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20080618.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20081029",
+    "date_formatted": "2008-10-29",
+    "year": 2008,
+    "quarter": "Q4",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20081029.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20090128",
+    "date_formatted": "2009-01-28",
+    "year": 2009,
+    "quarter": "Q1",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20090128.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20090624",
+    "date_formatted": "2009-06-24",
+    "year": 2009,
+    "quarter": "Q2",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20090624.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20091104",
+    "date_formatted": "2009-11-04",
+    "year": 2009,
+    "quarter": "Q4",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20091104.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20100127",
+    "date_formatted": "2010-01-27",
+    "year": 2010,
+    "quarter": "Q1",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20100127.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20100623",
+    "date_formatted": "2010-06-23",
+    "year": 2010,
+    "quarter": "Q2",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20100623.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20101103",
+    "date_formatted": "2010-11-03",
+    "year": 2010,
+    "quarter": "Q4",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20101103.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20110126",
+    "date_formatted": "2011-01-26",
+    "year": 2011,
+    "quarter": "Q1",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20110126.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20110622",
+    "date_formatted": "2011-06-22",
+    "year": 2011,
+    "quarter": "Q2",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20110622.pdf",
+    "source": "pdf"
+  },
+  {
+    "date": "20111102",
+    "date_formatted": "2011-11-02",
+    "year": 2011,
+    "quarter": "Q4",
+    "has_dot_plot": false,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20111102.pdf",
+    "source": "pdf"
+  },
+  {
+    "date": "20120125",
+    "date_formatted": "2012-01-25",
+    "year": 2012,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20120125.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20120125.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20120425",
+    "date_formatted": "2012-04-25",
+    "year": 2012,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20120425.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20120425.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20120620",
+    "date_formatted": "2012-06-20",
+    "year": 2012,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20120620.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20120620.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20120912",
+    "date_formatted": "2012-09-12",
+    "year": 2012,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20120912.pdf",
+    "source": "unknown"
+  },
+  {
+    "date": "20121212",
+    "date_formatted": "2012-12-12",
+    "year": 2012,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20121212.pdf",
+    "source": "pdf"
+  },
+  {
+    "date": "20130320",
+    "date_formatted": "2013-03-20",
+    "year": 2013,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20130320.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20130320.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20130619",
+    "date_formatted": "2013-06-19",
+    "year": 2013,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20130619.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20130619.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20130918",
+    "date_formatted": "2013-09-18",
+    "year": 2013,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20130918.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20130918.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20131218",
+    "date_formatted": "2013-12-18",
+    "year": 2013,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20131218.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20131218.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20140319",
+    "date_formatted": "2014-03-19",
+    "year": 2014,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20140319.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20140319.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20140618",
+    "date_formatted": "2014-06-18",
+    "year": 2014,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20140618.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20140618.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20140917",
+    "date_formatted": "2014-09-17",
+    "year": 2014,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20140917.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20140917.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20141217",
+    "date_formatted": "2014-12-17",
+    "year": 2014,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20141217.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20141217.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20150318",
+    "date_formatted": "2015-03-18",
+    "year": 2015,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20150318.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20150318.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20150617",
+    "date_formatted": "2015-06-17",
+    "year": 2015,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20150617.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20150617.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20150917",
+    "date_formatted": "2015-09-17",
+    "year": 2015,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20150917.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20150917.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20151216",
+    "date_formatted": "2015-12-16",
+    "year": 2015,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20151216.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20151216.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20160316",
+    "date_formatted": "2016-03-16",
+    "year": 2016,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20160316.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20160316.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20160615",
+    "date_formatted": "2016-06-15",
+    "year": 2016,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20160615.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20160615.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20160921",
+    "date_formatted": "2016-09-21",
+    "year": 2016,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20160921.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20160921.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20161214",
+    "date_formatted": "2016-12-14",
+    "year": 2016,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20161214.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20161214.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20170315",
+    "date_formatted": "2017-03-15",
+    "year": 2017,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20170315.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20170315.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20170614",
+    "date_formatted": "2017-06-14",
+    "year": 2017,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20170614.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20170614.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20170920",
+    "date_formatted": "2017-09-20",
+    "year": 2017,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20170920.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20170920.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20171213",
+    "date_formatted": "2017-12-13",
+    "year": 2017,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20171213.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20171213.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20180321",
+    "date_formatted": "2018-03-21",
+    "year": 2018,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20180321.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20180321.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20180613",
+    "date_formatted": "2018-06-13",
+    "year": 2018,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20180613.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20180613.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20180926",
+    "date_formatted": "2018-09-26",
+    "year": 2018,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20180926.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20180926.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20181219",
+    "date_formatted": "2018-12-19",
+    "year": 2018,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20181219.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20181219.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20190320",
+    "date_formatted": "2019-03-20",
+    "year": 2019,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20190320.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20190320.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20190619",
+    "date_formatted": "2019-06-19",
+    "year": 2019,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20190619.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20190619.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20190918",
+    "date_formatted": "2019-09-18",
+    "year": 2019,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20190918.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20190918.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20191211",
+    "date_formatted": "2019-12-11",
+    "year": 2019,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20191211.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20191211.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20200610",
+    "date_formatted": "2020-06-10",
+    "year": 2020,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20200610.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20200610.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20200916",
+    "date_formatted": "2020-09-16",
+    "year": 2020,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20200916.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20200916.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20201216",
+    "date_formatted": "2020-12-16",
+    "year": 2020,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20201216.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20201216.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20210317",
+    "date_formatted": "2021-03-17",
+    "year": 2021,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20210317.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20210317.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20210616",
+    "date_formatted": "2021-06-16",
+    "year": 2021,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20210616.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20210616.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20210922",
+    "date_formatted": "2021-09-22",
+    "year": 2021,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20210922.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20210922.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20211215",
+    "date_formatted": "2021-12-15",
+    "year": 2021,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20211215.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20211215.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20220316",
+    "date_formatted": "2022-03-16",
+    "year": 2022,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": null,
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20220316.pdf",
+    "source": "pdf"
+  },
+  {
+    "date": "20220615",
+    "date_formatted": "2022-06-15",
+    "year": 2022,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20220615.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20220615.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20220921",
+    "date_formatted": "2022-09-21",
+    "year": 2022,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20220921.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20220921.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20221214",
+    "date_formatted": "2022-12-14",
+    "year": 2022,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20221214.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20221214.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20230322",
+    "date_formatted": "2023-03-22",
+    "year": 2023,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20230322.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20230322.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20230614",
+    "date_formatted": "2023-06-14",
+    "year": 2023,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20230614.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20230614.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20230920",
+    "date_formatted": "2023-09-20",
+    "year": 2023,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20230920.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20230920.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20231213",
+    "date_formatted": "2023-12-13",
+    "year": 2023,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20231213.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20231213.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20240320",
+    "date_formatted": "2024-03-20",
+    "year": 2024,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20240320.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20240320.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20240612",
+    "date_formatted": "2024-06-12",
+    "year": 2024,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20240612.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20240612.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20240918",
+    "date_formatted": "2024-09-18",
+    "year": 2024,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20240918.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20240918.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20241218",
+    "date_formatted": "2024-12-18",
+    "year": 2024,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20241218.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20241218.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20250319",
+    "date_formatted": "2025-03-19",
+    "year": 2025,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20250319.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20250319.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20250618",
+    "date_formatted": "2025-06-18",
+    "year": 2025,
+    "quarter": "Q2",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20250618.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20250618.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20250917",
+    "date_formatted": "2025-09-17",
+    "year": 2025,
+    "quarter": "Q3",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20250917.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20250917.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20251210",
+    "date_formatted": "2025-12-10",
+    "year": 2025,
+    "quarter": "Q4",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20251210.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20251210.pdf",
+    "source": "html"
+  },
+  {
+    "date": "20260318",
+    "date_formatted": "2026-03-18",
+    "year": 2026,
+    "quarter": "Q1",
+    "has_dot_plot": true,
+    "html_url": "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260318.htm",
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20260318.pdf",
+    "source": "html"
+  }
+]
