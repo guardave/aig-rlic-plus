@@ -89,49 +89,94 @@ if page == "Dot Plot Explorer":
         meeting_dots = meeting_dots.copy()
         meeting_dots["horizon_label"] = meeting_dots["horizon"].map(horizon_map).fillna(meeting_dots["horizon"])
 
-        # Build dot plot chart
-        fig = go.Figure()
+        # Build SEP-style dot plot: one panel per horizon, dots evenly
+        # distributed horizontally within each rate bucket (like the Fed PDF)
+        import numpy as np
+        from plotly.subplots import make_subplots
 
         horizons_ordered = ["Current Year", "Year +1", "Year +2", "Longer Run"]
-        colors = ["#1f77b4", "#2ca02c", "#d62728", "#7f7f7f"]
 
-        for i, horizon in enumerate(horizons_ordered):
+        # Collect all rates to determine Y-axis range
+        all_rates_flat = []
+        for _, row in meeting_dots.iterrows():
+            all_rates_flat.extend([row["rate"]] * int(row["num_participants"]))
+
+        if all_rates_flat:
+            y_min = min(all_rates_flat) - 0.25
+            y_max = max(all_rates_flat) + 0.25
+            # Determine tick step from data (0.125 or 0.25)
+            unique_rates = sorted(meeting_dots["rate"].unique())
+            if len(unique_rates) > 1:
+                diffs = [unique_rates[i+1] - unique_rates[i] for i in range(len(unique_rates)-1)]
+                tick_step = min(diffs) if min(diffs) > 0.05 else 0.125
+            else:
+                tick_step = 0.125
+        else:
+            y_min, y_max, tick_step = 0, 5, 0.25
+
+        fig = make_subplots(
+            rows=1, cols=len(horizons_ordered),
+            subplot_titles=horizons_ordered,
+            shared_yaxes=True,
+            horizontal_spacing=0.03,
+        )
+
+        for col_idx, horizon in enumerate(horizons_ordered, 1):
             h_dots = meeting_dots[meeting_dots["horizon_label"] == horizon]
             if len(h_dots) == 0:
                 continue
 
-            # Expand dots: each num_participants becomes individual markers
-            rates = []
+            # For each rate level, place dots evenly spaced horizontally
             for _, row in h_dots.iterrows():
-                rates.extend([row["rate"]] * int(row["num_participants"]))
+                rate = row["rate"]
+                n = int(row["num_participants"])
+                if n == 0:
+                    continue
 
-            # Add jitter within the horizon column
-            import numpy as np
-            np.random.seed(42)
-            x_positions = [i + np.random.uniform(-0.15, 0.15) for _ in rates]
+                # Evenly space dots centered at x=0, spread from -0.4 to +0.4
+                if n == 1:
+                    x_positions = [0.0]
+                else:
+                    x_positions = list(np.linspace(-0.4, 0.4, n))
 
-            fig.add_trace(go.Scatter(
-                x=x_positions,
-                y=rates,
-                mode="markers",
-                marker=dict(size=10, color=colors[i], opacity=0.8,
-                           line=dict(width=1, color="white")),
-                name=horizon,
-                hovertemplate=f"{horizon}<br>Rate: %{{y:.3f}}%<extra></extra>",
-            ))
+                fig.add_trace(
+                    go.Scatter(
+                        x=x_positions,
+                        y=[rate] * n,
+                        mode="markers",
+                        marker=dict(
+                            size=9,
+                            color="#1f77b4",
+                            line=dict(width=0.5, color="#0d4f8b"),
+                        ),
+                        hovertemplate=f"{horizon}<br>Rate: {rate:.3f}%<br>{n} participant(s)<extra></extra>",
+                        showlegend=False,
+                    ),
+                    row=1, col=col_idx,
+                )
 
         fig.update_layout(
             title=f"FOMC Dot Plot — {meeting_labels[selected]}",
-            xaxis=dict(
-                tickvals=list(range(len(horizons_ordered))),
-                ticktext=horizons_ordered,
-                title="Projection Horizon",
-            ),
-            yaxis=dict(title="Federal Funds Rate (%)", dtick=0.25),
             template="plotly_white",
-            height=600,
+            height=550,
             showlegend=False,
         )
+
+        # Style each subplot x-axis (hide ticks — dots are just evenly distributed)
+        for col_idx in range(1, len(horizons_ordered) + 1):
+            fig.update_xaxes(
+                showticklabels=False, showgrid=False,
+                zeroline=False, range=[-0.6, 0.6],
+                row=1, col=col_idx,
+            )
+
+        # Y-axis: even rate ticks
+        fig.update_yaxes(
+            title_text="Percent", dtick=tick_step,
+            range=[y_min, y_max], row=1, col=1,
+        )
+        for col_idx in range(2, len(horizons_ordered) + 1):
+            fig.update_yaxes(dtick=tick_step, range=[y_min, y_max], row=1, col=col_idx)
 
         st.plotly_chart(fig, use_container_width=True)
 
