@@ -255,9 +255,9 @@ elif page == "FRED Projections":
         var_data = fred[fred["variable"] == selected_var]
         stats = var_data["statistic"].unique().tolist()
 
-        # Plot median over time if available
-        median_stats = [s for s in stats if "median" in s.lower()]
+        # Plot projections over time
         lr_stats = [s for s in stats if "_lr" in s]
+        non_lr_stats = [s for s in stats if "_lr" not in s]
 
         if lr_stats:
             st.markdown("#### Longer-Run Projections Over Time")
@@ -276,6 +276,46 @@ elif page == "FRED Projections":
                 yaxis_title="Percent",
             )
             st.plotly_chart(fig, use_container_width=True)
+
+        if non_lr_stats:
+            st.markdown("#### Current Projections Over Time")
+            display_stats = ["median", "ct_mid", "ct_low", "ct_high"]
+            plot_stats = [s for s in display_stats if s in non_lr_stats]
+            if not plot_stats:
+                plot_stats = non_lr_stats[:4]
+
+            fig = go.Figure()
+            colors = {"median": "#1f77b4", "ct_mid": "#2ca02c", "ct_low": "#aec7e8", "ct_high": "#aec7e8"}
+            for stat in plot_stats:
+                s_data = var_data[var_data["statistic"] == stat].sort_values("date")
+                if len(s_data) == 0:
+                    continue
+                dash = "dash" if "ct_low" in stat or "ct_high" in stat else "solid"
+                fig.add_trace(go.Scatter(
+                    x=pd.to_datetime(s_data["date"]),
+                    y=s_data["value"],
+                    mode="lines+markers",
+                    name=stat.replace("_", " ").title(),
+                    line=dict(color=colors.get(stat, "#7f7f7f"), dash=dash),
+                    marker=dict(size=5),
+                ))
+
+            var_title = selected_var.replace("_", " ").title()
+            note = ""
+            if selected_var in ("pce_inflation", "core_pce"):
+                note = " (Fed longer-run target is 2.0%)"
+            fig.update_layout(
+                title=f"{var_title} — Current Projections{note}",
+                template="plotly_white", height=400,
+                yaxis_title="Percent",
+            )
+            if selected_var in ("pce_inflation", "core_pce"):
+                fig.add_hline(y=2.0, line_dash="dot", line_color="red",
+                              annotation_text="2% target", annotation_position="top right")
+            st.plotly_chart(fig, use_container_width=True)
+
+        if not lr_stats and not non_lr_stats:
+            st.info("No projection data available for this variable.")
 
         # Raw data table
         st.markdown("#### Raw Data")
