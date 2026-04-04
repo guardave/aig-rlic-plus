@@ -34,3 +34,7 @@ temp/
 *.parquet
 *.h5
 *.hdf5
+
+# Exception: FOMC SEP extracted data (small, needed by viewer)
+!fomc-sep/data/**/*.parquet
+!fomc-sep/data/*.parquet
