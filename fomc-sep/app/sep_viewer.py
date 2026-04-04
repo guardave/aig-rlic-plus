@@ -89,84 +89,91 @@ if page == "Dot Plot Explorer":
         meeting_dots = meeting_dots.copy()
         meeting_dots["horizon_label"] = meeting_dots["horizon"].map(horizon_map).fillna(meeting_dots["horizon"])
 
-        # Build SEP-style dot plot: bar histograms matching the Fed PDF
-        # X-axis = percent range, Y-axis = number of participants
-        # 4 panels stacked vertically, one per horizon
-        from plotly.subplots import make_subplots
+        # Fed-style dot plot (Figure 2 in SEP PDF):
+        # Y-axis = rate levels (percent), X-axis = horizon years
+        # Each dot = one participant, dots equally spaced & centered at each rate level
+        import numpy as np
 
         horizons_ordered = ["Current Year", "Year +1", "Year +2", "Longer Run"]
         active_horizons = [h for h in horizons_ordered
                            if len(meeting_dots[meeting_dots["horizon_label"] == h]) > 0]
 
-        # Build common x-axis range from all rates
+        # Y-axis range from data
         all_rates = sorted(meeting_dots["rate"].unique())
-        if len(all_rates) > 1:
-            diffs = [all_rates[i+1] - all_rates[i] for i in range(len(all_rates)-1)]
-            bar_width = min(d for d in diffs if d > 0.01)
-        else:
-            bar_width = 0.125
+        y_min = max(0, min(all_rates) - 0.5)
+        y_max = max(all_rates) + 0.5
+        # Round to nice 0.5 boundaries
+        y_min = np.floor(y_min * 2) / 2
+        y_max = np.ceil(y_max * 2) / 2
 
-        fig = make_subplots(
-            rows=len(active_horizons), cols=1,
-            subplot_titles=active_horizons,
-            shared_xaxes=True,
-            vertical_spacing=0.08,
-        )
+        fig = go.Figure()
 
-        max_participants = meeting_dots["num_participants"].max()
+        # Fixed dot spacing — equal gap between every dot
+        dot_gap = 0.045
 
-        for row_idx, horizon in enumerate(active_horizons, 1):
+        # Horizon year labels
+        year = int(selected[:4])
+        horizon_xlabels = [str(year), str(year + 1), str(year + 2), "Longer run"]
+
+        for col_idx, horizon in enumerate(active_horizons):
             h_dots = meeting_dots[meeting_dots["horizon_label"] == horizon]
-            if len(h_dots) == 0:
-                continue
 
-            # Format x labels as rate ranges (e.g., "3.13-3.37")
-            rates = h_dots["rate"].values
-            counts = h_dots["num_participants"].astype(int).values
+            for _, row in h_dots.iterrows():
+                rate = row["rate"]
+                n = int(row["num_participants"])
+                if n == 0:
+                    continue
 
-            # Create bar labels matching Fed format: "low-high"
-            half = bar_width / 2
-            bar_labels = [f"{r - half:.2f}–\n{r + half:.2f}" for r in rates]
+                # Center n dots with equal spacing
+                offsets = [(i - (n - 1) / 2) * dot_gap for i in range(n)]
+                x_positions = [col_idx + off for off in offsets]
 
-            fig.add_trace(
-                go.Bar(
-                    x=[f"{r:.3f}" for r in rates],
-                    y=counts,
+                fig.add_trace(go.Scatter(
+                    x=x_positions,
+                    y=[rate] * n,
+                    mode="markers",
                     marker=dict(
-                        color="rgba(135, 186, 223, 0.85)",
-                        line=dict(width=1, color="#4a90b8"),
+                        size=7,
+                        color="#5b9bd5",
+                        line=dict(width=0.5, color="#3a7ab5"),
                     ),
                     hovertemplate=(
-                        f"{horizon}<br>"
-                        "Rate: %{x}%<br>"
-                        "Participants: %{y}<extra></extra>"
+                        f"{horizon_xlabels[col_idx]}<br>"
+                        f"Rate: {rate:.3f}%<br>"
+                        f"{n} participant(s)<extra></extra>"
                     ),
                     showlegend=False,
-                ),
-                row=row_idx, col=1,
-            )
+                ))
 
-        panel_height = 180
         fig.update_layout(
-            title=f"FOMC Dot Plot — {meeting_labels[selected]}",
+            title=dict(
+                text=(
+                    "FOMC participants' assessments of appropriate monetary policy:<br>"
+                    "<sup>Midpoint of target range or target level for the federal funds rate</sup>"
+                ),
+                font=dict(size=13),
+            ),
             template="plotly_white",
-            height=panel_height * len(active_horizons) + 80,
+            height=550,
             showlegend=False,
-            bargap=0.15,
-        )
-
-        # Y-axis: "Number of Participants" with integer ticks
-        for row_idx in range(1, len(active_horizons) + 1):
-            fig.update_yaxes(
-                title_text="Number of\nParticipants" if row_idx == 1 else "",
-                dtick=2, range=[0, max_participants + 2],
-                row=row_idx, col=1,
-            )
-
-        # X-axis: "Percent range" on bottom panel only
-        fig.update_xaxes(
-            title_text="Percent range",
-            row=len(active_horizons), col=1,
+            margin=dict(t=80),
+            xaxis=dict(
+                tickvals=list(range(len(active_horizons))),
+                ticktext=horizon_xlabels[:len(active_horizons)],
+                range=[-0.5, len(active_horizons) - 0.5],
+                showgrid=False,
+                zeroline=False,
+            ),
+            yaxis=dict(
+                title="Percent",
+                dtick=0.5,
+                range=[y_min, y_max],
+                showgrid=True,
+                gridcolor="rgba(0,0,0,0.1)",
+                gridwidth=0.5,
+                zeroline=False,
+            ),
+            plot_bgcolor="white",
         )
 
         st.plotly_chart(fig, use_container_width=True)
