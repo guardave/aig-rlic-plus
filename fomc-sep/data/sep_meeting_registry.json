@@ -6,8 +6,8 @@
     "quarter": "Q4",
     "has_dot_plot": false,
     "html_url": null,
-    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20071031.pdf",
-    "source": "html_minutes"
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/FOMC20071031SEPcompilation.pdf",
+    "source": "html_minutes+pdf"
   },
   {
     "date": "20080130",
@@ -16,8 +16,8 @@
     "quarter": "Q1",
     "has_dot_plot": false,
     "html_url": null,
-    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20080130.pdf",
-    "source": "html_minutes"
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/FOMC20080130SEPcompilation.pdf",
+    "source": "html_minutes+pdf"
   },
   {
     "date": "20080618",
@@ -36,8 +36,8 @@
     "quarter": "Q4",
     "has_dot_plot": false,
     "html_url": null,
-    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20081029.pdf",
-    "source": "html_minutes"
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/FOMC20081029SEPcompilation.pdf",
+    "source": "html_minutes+pdf"
   },
   {
     "date": "20090128",
@@ -46,8 +46,8 @@
     "quarter": "Q1",
     "has_dot_plot": false,
     "html_url": null,
-    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20090128.pdf",
-    "source": "html_minutes"
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/FOMC20090128SEPcompilation.pdf",
+    "source": "html_minutes+pdf"
   },
   {
     "date": "20090624",
@@ -56,8 +56,8 @@
     "quarter": "Q2",
     "has_dot_plot": false,
     "html_url": null,
-    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20090624.pdf",
-    "source": "html_minutes"
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/FOMC20090624SEPcompilation.pdf",
+    "source": "html_minutes+pdf"
   },
   {
     "date": "20091104",
@@ -66,8 +66,8 @@
     "quarter": "Q4",
     "has_dot_plot": false,
     "html_url": null,
-    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20091104.pdf",
-    "source": "html_minutes"
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/FOMC20091104SEPcompilation.pdf",
+    "source": "html_minutes+pdf"
   },
   {
     "date": "20100127",
@@ -76,8 +76,8 @@
     "quarter": "Q1",
     "has_dot_plot": false,
     "html_url": null,
-    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20100127.pdf",
-    "source": "html_minutes"
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/FOMC20100127SEPcompilation.pdf",
+    "source": "html_minutes+pdf"
   },
   {
     "date": "20100623",
@@ -86,8 +86,8 @@
     "quarter": "Q2",
     "has_dot_plot": false,
     "html_url": null,
-    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20100623.pdf",
-    "source": "html_minutes"
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/FOMC20100623SEPcompilation.pdf",
+    "source": "html_minutes+pdf"
   },
   {
     "date": "20101103",
@@ -96,8 +96,8 @@
     "quarter": "Q4",
     "has_dot_plot": false,
     "html_url": null,
-    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20101103.pdf",
-    "source": "html_minutes"
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/FOMC20101103SEPcompilation.pdf",
+    "source": "html_minutes+pdf"
   },
   {
     "date": "20110126",
@@ -106,8 +106,8 @@
     "quarter": "Q1",
     "has_dot_plot": false,
     "html_url": null,
-    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20110126.pdf",
-    "source": "html_minutes"
+    "pdf_url": "https://www.federalreserve.gov/monetarypolicy/files/FOMC20110126SEPcompilation.pdf",
+    "source": "html_minutes+pdf"
   },
   {
     "date": "20110622",
