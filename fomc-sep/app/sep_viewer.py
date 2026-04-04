@@ -89,94 +89,85 @@ if page == "Dot Plot Explorer":
         meeting_dots = meeting_dots.copy()
         meeting_dots["horizon_label"] = meeting_dots["horizon"].map(horizon_map).fillna(meeting_dots["horizon"])
 
-        # Build SEP-style dot plot: one panel per horizon, dots evenly
-        # distributed horizontally within each rate bucket (like the Fed PDF)
-        import numpy as np
+        # Build SEP-style dot plot: bar histograms matching the Fed PDF
+        # X-axis = percent range, Y-axis = number of participants
+        # 4 panels stacked vertically, one per horizon
         from plotly.subplots import make_subplots
 
         horizons_ordered = ["Current Year", "Year +1", "Year +2", "Longer Run"]
+        active_horizons = [h for h in horizons_ordered
+                           if len(meeting_dots[meeting_dots["horizon_label"] == h]) > 0]
 
-        # Collect all rates to determine Y-axis range
-        all_rates_flat = []
-        for _, row in meeting_dots.iterrows():
-            all_rates_flat.extend([row["rate"]] * int(row["num_participants"]))
-
-        if all_rates_flat:
-            y_min = min(all_rates_flat) - 0.25
-            y_max = max(all_rates_flat) + 0.25
-            # Determine tick step from data (0.125 or 0.25)
-            unique_rates = sorted(meeting_dots["rate"].unique())
-            if len(unique_rates) > 1:
-                diffs = [unique_rates[i+1] - unique_rates[i] for i in range(len(unique_rates)-1)]
-                tick_step = min(diffs) if min(diffs) > 0.05 else 0.125
-            else:
-                tick_step = 0.125
+        # Build common x-axis range from all rates
+        all_rates = sorted(meeting_dots["rate"].unique())
+        if len(all_rates) > 1:
+            diffs = [all_rates[i+1] - all_rates[i] for i in range(len(all_rates)-1)]
+            bar_width = min(d for d in diffs if d > 0.01)
         else:
-            y_min, y_max, tick_step = 0, 5, 0.25
+            bar_width = 0.125
 
         fig = make_subplots(
-            rows=1, cols=len(horizons_ordered),
-            subplot_titles=horizons_ordered,
-            shared_yaxes=True,
-            horizontal_spacing=0.03,
+            rows=len(active_horizons), cols=1,
+            subplot_titles=active_horizons,
+            shared_xaxes=True,
+            vertical_spacing=0.08,
         )
 
-        for col_idx, horizon in enumerate(horizons_ordered, 1):
+        max_participants = meeting_dots["num_participants"].max()
+
+        for row_idx, horizon in enumerate(active_horizons, 1):
             h_dots = meeting_dots[meeting_dots["horizon_label"] == horizon]
             if len(h_dots) == 0:
                 continue
 
-            # For each rate level, place dots evenly spaced horizontally
-            for _, row in h_dots.iterrows():
-                rate = row["rate"]
-                n = int(row["num_participants"])
-                if n == 0:
-                    continue
+            # Format x labels as rate ranges (e.g., "3.13-3.37")
+            rates = h_dots["rate"].values
+            counts = h_dots["num_participants"].astype(int).values
 
-                # Evenly space dots centered at x=0, spread from -0.4 to +0.4
-                if n == 1:
-                    x_positions = [0.0]
-                else:
-                    x_positions = list(np.linspace(-0.4, 0.4, n))
+            # Create bar labels matching Fed format: "low-high"
+            half = bar_width / 2
+            bar_labels = [f"{r - half:.2f}–\n{r + half:.2f}" for r in rates]
 
-                fig.add_trace(
-                    go.Scatter(
-                        x=x_positions,
-                        y=[rate] * n,
-                        mode="markers",
-                        marker=dict(
-                            size=9,
-                            color="#1f77b4",
-                            line=dict(width=0.5, color="#0d4f8b"),
-                        ),
-                        hovertemplate=f"{horizon}<br>Rate: {rate:.3f}%<br>{n} participant(s)<extra></extra>",
-                        showlegend=False,
+            fig.add_trace(
+                go.Bar(
+                    x=[f"{r:.3f}" for r in rates],
+                    y=counts,
+                    marker=dict(
+                        color="rgba(135, 186, 223, 0.85)",
+                        line=dict(width=1, color="#4a90b8"),
                     ),
-                    row=1, col=col_idx,
-                )
+                    hovertemplate=(
+                        f"{horizon}<br>"
+                        "Rate: %{x}%<br>"
+                        "Participants: %{y}<extra></extra>"
+                    ),
+                    showlegend=False,
+                ),
+                row=row_idx, col=1,
+            )
 
+        panel_height = 180
         fig.update_layout(
             title=f"FOMC Dot Plot — {meeting_labels[selected]}",
             template="plotly_white",
-            height=550,
+            height=panel_height * len(active_horizons) + 80,
             showlegend=False,
+            bargap=0.15,
         )
 
-        # Style each subplot x-axis (hide ticks — dots are just evenly distributed)
-        for col_idx in range(1, len(horizons_ordered) + 1):
-            fig.update_xaxes(
-                showticklabels=False, showgrid=False,
-                zeroline=False, range=[-0.6, 0.6],
-                row=1, col=col_idx,
+        # Y-axis: "Number of Participants" with integer ticks
+        for row_idx in range(1, len(active_horizons) + 1):
+            fig.update_yaxes(
+                title_text="Number of\nParticipants" if row_idx == 1 else "",
+                dtick=2, range=[0, max_participants + 2],
+                row=row_idx, col=1,
             )
 
-        # Y-axis: even rate ticks
-        fig.update_yaxes(
-            title_text="Percent", dtick=tick_step,
-            range=[y_min, y_max], row=1, col=1,
+        # X-axis: "Percent range" on bottom panel only
+        fig.update_xaxes(
+            title_text="Percent range",
+            row=len(active_horizons), col=1,
         )
-        for col_idx in range(2, len(horizons_ordered) + 1):
-            fig.update_yaxes(dtick=tick_step, range=[y_min, y_max], row=1, col=col_idx)
 
         st.plotly_chart(fig, use_container_width=True)
 
