@@ -474,6 +474,39 @@ Review at team retrospectives to identify systemic handoff issues.
 
 ---
 
+## Indicator Evaluation Framework
+
+### Purpose
+
+Integrate the Indicator Evaluation Layer into the Streamlit portal. The evaluation layer produces two standardized scoring artifacts that quantify indicator-environment interactions and strategy survival characteristics.
+
+### Artifacts
+
+- `environment_interaction_scores.json`
+- `strategy_survival_scores.json`
+
+### Responsibilities
+
+- Integrate evaluation-layer radar charts into the portal (new page or section within Strategy page)
+- Normalize and aggregate evaluation scores for radar display
+- Ensure correct mapping between raw econometric evidence and radar axes
+- Do not modify upstream data or research results — display as received
+
+### Interaction
+
+- Receive validated data from Data Agent
+- Use statistical evidence from Econometrics Agent
+- Collaborate with Visualization Agent to render radar charts (Plotly JSON)
+- Display narrative context from Research Agent alongside evaluation scores
+
+### Integration Notes
+
+- The evaluation layer is appended to the dashboard without overwriting existing functionality
+- Radar charts follow the standard Plotly JSON format in `output/charts/{pair_id}/plotly/`
+- Evaluation results are accessible from the Strategy page via an expander or dedicated tab
+
+---
+
 ## Quality Gates
 
 Before handing off:

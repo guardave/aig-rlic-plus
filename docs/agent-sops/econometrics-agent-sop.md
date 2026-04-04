@@ -555,6 +555,30 @@ If additional variables are needed during estimation or diagnostics:
 3. Do not source data independently unless it is a trivial lookup (e.g., a single constant or known value)
 4. If the request stems from a diagnostic finding, explain the econometric reason (e.g., "Breusch-Godfrey test suggests serial correlation; adding lagged dependent variable requires the data to go back 1 additional period")
 
+## Indicator Evaluation Framework
+
+### Purpose
+
+Provide structured statistical input for evaluation-layer score computation. The evaluation layer quantifies indicator-environment interactions and strategy survival characteristics.
+
+### Artifacts
+
+- `environment_interaction_scores.json`
+- `strategy_survival_scores.json`
+
+### Responsibilities
+
+- Supply raw statistical evidence required for evaluation-layer score computation (correlation, lead/lag, drawdown, regime Sharpe differentials, etc.)
+- Maintain consistent methods for computing evaluation metrics across pairs
+- Ensure outputs are reproducible and documented
+
+### Interaction
+
+- Pass evidence to AppDev Agent for normalization and radar mapping
+- Align methodology with Research Agent guidance on expected indicator behavior
+
+---
+
 ## Quality Gates
 
 Before handing off:

@@ -515,6 +515,26 @@ Reading teammates' SOPs reveals handoff gaps, duplicated work, and blind spots t
 
 ---
 
+## Indicator Evaluation Framework
+
+### Purpose
+
+Integrate the Indicator Evaluation Layer into the multi-agent workflow. This layer provides a structured framework for evaluating how indicators interact with market environments and strategy performance.
+
+### Artifacts
+
+- `environment_interaction_scores.json`
+- `strategy_survival_scores.json`
+
+### Coordination Responsibilities
+
+- Ensure evaluation-layer tasks are properly assigned across agents (Data validates schema, Econ supplies evidence, Research provides grounding, Viz renders radars, AppDev integrates into portal)
+- Monitor completion and integration of evaluation components
+- Maintain clear communication between all agents on evaluation-layer deliverables
+- Evaluation-layer work follows the same Phase 0 → MRA pipeline as pair analysis
+
+---
+
 ## Retrospective
 
 After completing a major analysis (not after every task), the team lead (Lesandro) convenes a brief retrospective:

@@ -591,6 +591,32 @@ Review quarterly (or at team retrospectives) to identify systemic handoff issues
 
 ---
 
+## Indicator Evaluation Framework
+
+### Purpose
+
+Render the evaluation-layer results in the portal dashboard. The evaluation layer produces two radar-style visualizations per indicator.
+
+### Artifacts
+
+- `environment_interaction_scores.json`
+- `strategy_survival_scores.json`
+
+### Responsibilities
+
+- Display Environment Interaction Radar (how the indicator behaves across macro regimes)
+- Display Strategy Survival Radar (how strategies using this indicator perform under stress)
+- Ensure consistent visual style, axis normalization, and colorblind-safe palette
+- Provide tooltip explanations for each radar axis
+
+### Interaction
+
+- Receive normalized scores from AppDev Agent
+- Display metrics alongside narrative context from Research Agent
+- Follow standard chart naming: `{pair_id}_env_radar.json`, `{pair_id}_strategy_radar.json`
+
+---
+
 ## Quality Gates
 
 Before handing off:

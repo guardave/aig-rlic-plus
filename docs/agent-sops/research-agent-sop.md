@@ -487,6 +487,31 @@ After initial brief delivery, remain available for targeted follow-ups:
 - **Deep-dive follow-ups** (new sub-topic or expanded literature search): treat as a new research request with scoping.
 - **Vera context requests** (event dates, threshold values, annotation context): respond immediately — these are typically quick lookups.
 
+## Indicator Evaluation Framework
+
+### Purpose
+
+Guide evaluation-layer interpretation and narrative integration. The evaluation layer scores are grounded in economic theory and empirical literature.
+
+### Artifacts
+
+- `environment_interaction_scores.json`
+- `strategy_survival_scores.json`
+
+### Responsibilities
+
+- Provide conceptual grounding for indicator evaluation (why an indicator should interact with a given environment)
+- Document expected relationships with market environments based on literature
+- Flag potential instability or regime-dependence for evaluation-layer consideration
+
+### Interaction
+
+- Research insights inform Econometrics Agent model selection for evaluation metrics
+- Evaluation-layer scores are interpreted with Research context in portal narratives
+- Provide narrative annotations for radar chart tooltips
+
+---
+
 ## Quality Gates
 
 Before handing off:

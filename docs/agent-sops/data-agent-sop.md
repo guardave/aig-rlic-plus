@@ -357,6 +357,31 @@ When multiple pairs share the same indicator (e.g., I14 Michigan Consumer Sentim
 
 ---
 
+## Indicator Evaluation Framework
+
+### Purpose
+
+Provide the canonical dataset structure for indicator evaluation. The evaluation layer quantifies how indicators behave under different macro regimes and how they support or weaken strategy performance.
+
+### Artifacts
+
+- `environment_interaction_scores.json`
+- `strategy_survival_scores.json`
+
+### Responsibilities
+
+- Validate all evaluation-layer datasets against `docs/agent-sops/evaluation_schema.md`
+- Ensure consistency of fields, naming, and data types for downstream consumption
+- Maintain reproducible data pipeline for radar and strategy metrics
+
+### Interaction
+
+- Supply AppDev Agent with fully validated datasets
+- Coordinate with Research Agent for indicator-specific data annotations
+- Collaborate with Econometrics Agent to confirm statistical evidence matches schema
+
+---
+
 ## Quality Gates
 
 Before handing off to another agent:
