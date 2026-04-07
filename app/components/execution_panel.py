@@ -447,8 +447,7 @@ def _render_evidence_source(paths: dict, metadata: dict | None, pair_id: str):
     if pair_info and pair_info.get("evidence_page"):
         st.page_link(pair_info["evidence_page"],
                      label="View Full Evidence Page",
-                     icon="🔬",
-                     key=f"ep_{pair_id}_evidence_link")
+                     icon="🔬")
 
 
 # ── Top-Level Orchestrator ──────────────────────────────────────────────────
