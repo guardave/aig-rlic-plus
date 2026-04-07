@@ -12,6 +12,7 @@ from components.charts import load_plotly_chart
 from components.metrics import kpi_row
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
+from components.execution_panel import render_execution_panel
 
 st.set_page_config(
     page_title="Permits Strategy | AIG-RLIC+",
@@ -199,6 +200,9 @@ st.warning(
        higher Sharpe comes with commensurately higher risk in adverse scenarios.
     """
 )
+
+# ===================== EXECUTION PANEL =====================
+render_execution_panel("permit_spy")
 
 # --- Transition ---
 st.markdown("---")

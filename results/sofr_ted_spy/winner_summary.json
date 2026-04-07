@@ -1,0 +1,20 @@
+{
+  "pair_id": "sofr_ted_spy",
+  "signal_code": "spread_roc_63d",
+  "signal_display_name": "Spread 63-Day ROC",
+  "threshold_code": "T1_p25",
+  "threshold_display_name": "25th percentile (fixed)",
+  "strategy_code": "P1",
+  "strategy_display_name": "Long/Cash",
+  "strategy_description": "Go fully long SPY when signal is bullish; move to cash otherwise.",
+  "lead_value": 10,
+  "lead_unit": "days",
+  "lead_description": "10 days",
+  "direction": "counter_cyclical",
+  "oos_sharpe": 1.8885,
+  "oos_ann_return": 8.15,
+  "max_drawdown": -3.58,
+  "annual_turnover": 23.43,
+  "win_rate": null,
+  "threshold_value": null
+}

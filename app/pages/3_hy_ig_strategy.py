@@ -12,6 +12,7 @@ from components.metrics import kpi_row
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
 from components.tournament import render_tournament_leaderboard
+from components.execution_panel import render_execution_panel
 
 st.set_page_config(
     page_title="The Strategy | AIG-RLIC+",
@@ -217,6 +218,9 @@ st.warning(
 )
 
 # --- Transition ---
+# ===================== EXECUTION PANEL =====================
+render_execution_panel("hy_ig_spy")
+
 st.markdown("---")
 st.markdown(
     '<div class="transition-text">'

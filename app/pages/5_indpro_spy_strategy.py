@@ -12,6 +12,7 @@ from components.charts import load_plotly_chart
 from components.metrics import kpi_row
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
+from components.execution_panel import render_execution_panel
 
 st.set_page_config(
     page_title="IP Strategy | AIG-RLIC+",
@@ -194,6 +195,9 @@ st.warning(
        the direction of the economy, not about short-term market moves.
     """
 )
+
+# ===================== EXECUTION PANEL =====================
+render_execution_panel("indpro_spy")
 
 # --- Transition ---
 st.markdown("---")

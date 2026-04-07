@@ -9,6 +9,7 @@ from components.charts import load_plotly_chart
 from components.metrics import kpi_row
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
+from components.execution_panel import render_execution_panel
 
 st.set_page_config(page_title="TED Strategy | AIG-RLIC+", page_icon="🎯", layout="wide", initial_sidebar_state="expanded")
 css_path = os.path.join(os.path.dirname(__file__), "..", "assets", "style.css")
@@ -96,6 +97,10 @@ for pid, label, oos_start in VARIANTS:
             mime="text/csv",
             key=f"dl_{pid}",
         )
+
+    # Execution panel for this variant
+    with st.expander(f"Execution Panel: {label}", expanded=False):
+        render_execution_panel(pid)
 
     st.markdown("---")
 

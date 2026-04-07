@@ -1,0 +1,20 @@
+{
+  "pair_id": "vix_vix3m_spy",
+  "signal_code": "S3_z126",
+  "signal_display_name": "Z-Score (126-day)",
+  "threshold_code": "T2_rp75",
+  "threshold_display_name": "75th percentile (rolling)",
+  "strategy_code": "P1",
+  "strategy_display_name": "Long/Cash",
+  "strategy_description": "Go fully long SPY when signal is bullish; move to cash otherwise.",
+  "lead_value": 0,
+  "lead_unit": "days",
+  "lead_description": "No lead (same-period)",
+  "direction": "counter_cyclical",
+  "oos_sharpe": 1.1295,
+  "oos_ann_return": 15.31,
+  "max_drawdown": -21.15,
+  "annual_turnover": 23.34,
+  "win_rate": null,
+  "threshold_value": null
+}

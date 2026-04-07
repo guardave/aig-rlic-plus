@@ -1,0 +1,20 @@
+{
+  "pair_id": "ted_spliced_spy",
+  "signal_code": "spread_roc_21d",
+  "signal_display_name": "Spread 21-Day ROC",
+  "threshold_code": "T1_p25",
+  "threshold_display_name": "25th percentile (fixed)",
+  "strategy_code": "P2",
+  "strategy_display_name": "Signal Strength (Proportional)",
+  "strategy_description": "Scale position size proportionally to signal strength (0% to 100% invested).",
+  "lead_value": 1,
+  "lead_unit": "days",
+  "lead_description": "1 days",
+  "direction": "counter_cyclical",
+  "oos_sharpe": 1.1886,
+  "oos_ann_return": 13.42,
+  "max_drawdown": -12.78,
+  "annual_turnover": 14.15,
+  "win_rate": null,
+  "threshold_value": null
+}
