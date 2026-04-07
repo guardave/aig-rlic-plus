@@ -1,0 +1,15 @@
+{
+  "indicator": "HY_IG_OAS",
+  "target": "spy",
+  "expected_direction": "counter_cyclical",
+  "observed_direction": "counter_cyclical",
+  "direction_consistent": true,
+  "mechanism": "Widening HY-IG credit spreads signal deteriorating credit conditions and rising default risk, which historically precede equity drawdowns. The HMM regime model detects stress states from spread dynamics.",
+  "confidence": "high",
+  "key_finding": "HMM regime detection wins; drawdown avoidance, not alpha",
+  "caveats": [
+    "HMM states are estimated in-sample and may not persist out-of-sample",
+    "Credit spread data begins 2000 — limited to ~25 years of history",
+    "Strategy reduces drawdowns but does not generate excess return over buy-and-hold"
+  ]
+}

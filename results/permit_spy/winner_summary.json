@@ -1,0 +1,20 @@
+{
+  "pair_id": "permit_spy",
+  "signal_code": "S3_mom",
+  "signal_display_name": "1-Month Momentum",
+  "threshold_code": "T1_p25",
+  "threshold_display_name": "25th percentile (fixed)",
+  "strategy_code": "P3",
+  "strategy_display_name": "Long/Short",
+  "strategy_description": "Go long SPY when bullish, short SPY when bearish.",
+  "lead_value": 6,
+  "lead_unit": "months",
+  "lead_description": "6 months",
+  "direction": "pro_cyclical",
+  "oos_sharpe": 1.4454,
+  "oos_ann_return": 22.66,
+  "max_drawdown": -19.42,
+  "annual_turnover": 9.06,
+  "win_rate": null,
+  "threshold_value": null
+}

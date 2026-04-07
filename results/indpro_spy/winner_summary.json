@@ -1,0 +1,21 @@
+{
+  "pair_id": "indpro_spy",
+  "signal_code": "S6_mom3m",
+  "signal_display_name": "3-Month Momentum",
+  "threshold_code": "T1_fixed_p75",
+  "threshold_display_name": "75th percentile (fixed, in-sample)",
+  "strategy_code": "P1_long_cash",
+  "strategy_display_name": "Long/Cash",
+  "strategy_description": "Go fully long SPY when signal is bullish; move to cash otherwise.",
+  "lead_value": 6,
+  "lead_unit": "months",
+  "lead_description": "6 months",
+  "direction": "pro_cyclical",
+  "oos_sharpe": 1.1036,
+  "oos_ann_return": 7.65,
+  "max_drawdown": -8.07,
+  "annual_turnover": 2.22,
+  "win_rate": 0.1979,
+  "threshold_value": null,
+  "breakeven_cost_bps": 50.0
+}
