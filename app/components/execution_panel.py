@@ -176,25 +176,29 @@ def _render_strategy_summary(summary: dict | None, metadata: dict | None):
         st.markdown(f"**Economic rationale:** {metadata['mechanism']}")
 
 
-def _render_trade_visualization(paths: dict):
+def _render_trade_visualization(paths: dict, pair_id: str):
     """Component 2: Equity curve + drawdown charts.
 
     Sources: Plotly JSON charts (Vera).
     """
-    pair_id = paths.get("chart_pair_id")
+    chart_pair_id = paths.get("chart_pair_id")
 
     # Equity curves (existing chart)
+    chart_name = f"{chart_pair_id}_equity_curves" if chart_pair_id else "equity_curves"
     load_plotly_chart(
-        f"{pair_id}_equity_curves" if pair_id else "equity_curves",
+        chart_name,
         fallback_text="Equity curve chart pending.",
-        pair_id=pair_id,
+        pair_id=chart_pair_id,
+        chart_key=f"ep_{pair_id}_performance_equity",
     )
 
     # Drawdown comparison (Vera's new chart)
+    chart_name = f"{chart_pair_id}_drawdown" if chart_pair_id else "drawdown_comparison"
     load_plotly_chart(
-        f"{pair_id}_drawdown" if pair_id else "drawdown_comparison",
+        chart_name,
         fallback_text="Drawdown chart pending — run chart generation pipeline.",
-        pair_id=pair_id,
+        pair_id=chart_pair_id,
+        chart_key=f"ep_{pair_id}_performance_drawdown",
     )
 
 
@@ -263,7 +267,7 @@ def _render_trigger_breakdown(summary: dict | None, metadata: dict | None):
         st.markdown(f"**Direction:** {direction.replace('_', '-')}")
 
 
-def _render_market_regime(paths: dict):
+def _render_market_regime(paths: dict, pair_id: str):
     """Component 5: Current regime + historical regime performance.
 
     Sources: regime_descriptive_stats.csv (Evan), regime_stats chart (Vera).
@@ -292,11 +296,13 @@ def _render_market_regime(paths: dict):
         st.info("Regime statistics pending.")
 
     # Regime chart (pre-built by Vera)
-    pair_id = paths.get("chart_pair_id")
+    chart_pair_id = paths.get("chart_pair_id")
+    chart_name = f"{chart_pair_id}_regime_stats" if chart_pair_id else "returns_by_regime"
     load_plotly_chart(
-        f"{pair_id}_regime_stats" if pair_id else "returns_by_regime",
+        chart_name,
         fallback_text="Regime chart pending.",
-        pair_id=pair_id,
+        pair_id=chart_pair_id,
+        chart_key=f"ep_{pair_id}_performance_regime",
     )
 
     # Current regime (from Markov regime probs if available)
@@ -429,7 +435,8 @@ def _render_evidence_source(paths: dict, metadata: dict | None, pair_id: str):
 
     # Caveats from metadata
     if metadata and metadata.get("caveats"):
-        with st.expander("Caveats & Limitations"):
+        with st.expander("Caveats & Limitations", expanded=False,
+                         key=f"ep_{pair_id}_caveats"):
             for caveat in metadata["caveats"]:
                 st.markdown(f"- {caveat}")
 
@@ -440,7 +447,8 @@ def _render_evidence_source(paths: dict, metadata: dict | None, pair_id: str):
     if pair_info and pair_info.get("evidence_page"):
         st.page_link(pair_info["evidence_page"],
                      label="View Full Evidence Page",
-                     icon="🔬")
+                     icon="🔬",
+                     key=f"ep_{pair_id}_evidence_link")
 
 
 # ── Top-Level Orchestrator ──────────────────────────────────────────────────
@@ -458,9 +466,10 @@ def render_execution_panel(pair_id: str):
     summary = _load_json(paths.get("winner_summary"))
     metadata = _load_json(paths.get("metadata"))
 
-    tab_execute, tab_performance, tab_confidence = st.tabs([
-        "Execute", "Performance", "Confidence"
-    ])
+    tab_execute, tab_performance, tab_confidence = st.tabs(
+        ["Execute", "Performance", "Confidence"],
+        key=f"ep_tabs_{pair_id}",
+    )
 
     with tab_execute:
         with st.container():
@@ -482,7 +491,7 @@ def render_execution_panel(pair_id: str):
     with tab_performance:
         with st.container():
             st.markdown("#### Trade Visualization")
-            _render_trade_visualization(paths)
+            _render_trade_visualization(paths, pair_id)
 
         st.markdown("---")
 
@@ -494,7 +503,7 @@ def render_execution_panel(pair_id: str):
 
         with st.container():
             st.markdown("#### Market Regime")
-            _render_market_regime(paths)
+            _render_market_regime(paths, pair_id)
 
     with tab_confidence:
         with st.container():

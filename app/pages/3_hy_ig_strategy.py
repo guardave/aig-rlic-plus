@@ -74,6 +74,7 @@ st.markdown("---")
 load_plotly_chart(
     "tournament_leaderboard",
     fallback_text="Interactive tournament leaderboard chart — will appear when visualization is complete.",
+    chart_key="main_leaderboard",
 )
 
 render_tournament_leaderboard()
@@ -100,6 +101,7 @@ load_plotly_chart(
         "Cumulative returns for the top 3 tournament winners compared to buy-and-hold SPY (2018-2025). "
         "Note how HMM strategies avoid the major drawdowns while capturing most of the upside."
     ),
+    chart_key="main_equity_curves",
 )
 
 st.markdown("---")
@@ -114,6 +116,7 @@ load_plotly_chart(
         "Peak-to-trough drawdown profiles. The HMM Long/Cash strategy (W1) limits maximum "
         "drawdown to -11.6%, compared to -33.7% for buy-and-hold during the same period."
     ),
+    chart_key="main_drawdown",
 )
 
 st.markdown("---")
@@ -129,6 +132,7 @@ with val_tab1:
     load_plotly_chart(
         "stress_test_table",
         fallback_text="Stress test results table — will appear when visualization is complete.",
+        chart_key="main_stress_test",
     )
 
     st.markdown(
@@ -160,6 +164,7 @@ with val_tab2:
             "Adding a 1-day execution delay drops Sharpe by 0.15-0.25 (material but not fatal). "
             "A 5-day delay costs 0.3-0.5 in Sharpe."
         ),
+        chart_key="main_signal_decay",
     )
 
     st.markdown(
@@ -178,6 +183,7 @@ with val_tab3:
         "walk_forward_sharpe",
         fallback_text="Walk-forward Sharpe ratio chart — will appear when visualization is complete.",
         caption="Rolling annual Sharpe ratio from walk-forward validation (5yr train / 1yr test, rolled annually).",
+        chart_key="main_walk_forward",
     )
 
     st.markdown(
