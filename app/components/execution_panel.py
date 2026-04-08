@@ -14,15 +14,15 @@ Every interpretive sentence comes from upstream agent files.
 import json
 import os
 from glob import glob
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
 from components.charts import load_plotly_chart
 
-_APP_DIR = os.path.dirname(os.path.dirname(__file__))
-_BASE = os.path.join(_APP_DIR, "..")
-_RESULTS_DIR = os.path.join(_BASE, "results")
+_BASE = Path(__file__).resolve().parents[2]
+_RESULTS_DIR = str(_BASE / "results")
 
 
 # ── Path Resolution ──────────────────────────────────────────────────────────
@@ -92,8 +92,8 @@ def _resolve_paths(pair_id: str) -> dict:
             core_models_dir = cm_legacy[-1]
 
     # Chart directory
-    chart_dir_nested = os.path.join(_BASE, "output", "charts", pair_id, "plotly")
-    chart_dir_legacy = os.path.join(_BASE, "output", "charts", "plotly")
+    chart_dir_nested = str(_BASE / "output" / "charts" / pair_id / "plotly")
+    chart_dir_legacy = str(_BASE / "output" / "charts" / "plotly")
 
     def _exists_or_none(path):
         return path if os.path.exists(path) else None
@@ -180,6 +180,7 @@ def _render_trade_visualization(paths: dict, pair_id: str):
     """Component 2: Equity curve + drawdown charts.
 
     Sources: Plotly JSON charts (Vera).
+    Trade markers: overlaid from winner_trade_log.csv when available.
     """
     chart_pair_id = paths.get("chart_pair_id")
 
@@ -191,6 +192,23 @@ def _render_trade_visualization(paths: dict, pair_id: str):
         pair_id=chart_pair_id,
         chart_key=f"ep_{pair_id}_performance_equity",
     )
+
+    # Trade marker annotation
+    # When winner_trade_log.csv is populated, Vera will produce an enhanced
+    # equity curve chart with entry (green) / exit (red) markers overlaid.
+    # Chart name: {pair_id}_equity_curves_with_trades.json
+    # Until then, show a note about marker availability.
+    trade_log = _load_csv(paths.get("trade_log"))
+    if trade_log is not None and len(trade_log) > 0:
+        st.caption(
+            f"Showing {len(trade_log)} trade markers: "
+            "green = entry, red = exit"
+        )
+    else:
+        st.caption(
+            "Trade entry/exit markers will overlay this chart once the "
+            "trade log is populated."
+        )
 
     # Drawdown comparison (Vera's new chart)
     chart_name = f"{chart_pair_id}_drawdown" if chart_pair_id else "drawdown_comparison"
@@ -208,10 +226,19 @@ def _render_trade_table(paths: dict):
     Source: winner_trade_log.csv (Evan).
     Ace only renders; does not compute trade metrics.
     """
-    trade_log = _load_csv(paths.get("trade_log"))
+    # TODO: Remove debug lines after confirming path resolution on Streamlit Cloud
+    trade_log_path = paths.get("trade_log")
+    st.write(f"Trade log path: {trade_log_path}")
+    st.write(f"Exists: {Path(trade_log_path).exists() if trade_log_path else False}")
+
+    trade_log = _load_csv(trade_log_path)
     if trade_log is None:
         st.info("Trade log pending — requires data pipeline to generate "
                 "`winner_trade_log.csv`.")
+        return
+
+    if len(trade_log) == 0:
+        st.info("Trade log will appear once pipeline data is available.")
         return
 
     st.dataframe(
