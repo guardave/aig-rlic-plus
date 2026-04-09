@@ -1,5 +1,27 @@
 # Team Status Board
 
+## 2026-04-09 — Lead Lesandro
+
+**Status:** SOD Checkpoint
+
+**Accomplished:**
+- Pulled 5 new commits from remote (HY-IG execution panel + bug fixes from another session)
+- Local now at `aab9fd0`, synced with origin, clean tree
+- Reviewed PWS, memories, and outstanding work — all current
+
+**Discoveries & Insights:**
+- VIX/VIX3M pair (#11) was completed in prior session (Sharpe 1.13, strongest regime discriminator)
+- HY-IG execution panel added externally with trade log CSV download feature
+
+**Blockers:** None
+
+**Next Steps:**
+- Pair #4: US10Y-US3M → SPY (yield curve slope)
+- Continue systematic pair execution with MRA
+- FOMC SEP: Era A PDF extraction when time permits
+
+---
+
 ## 2026-03-14 — Lead Lesandro
 
 **Status:** Completed / Checkpoint

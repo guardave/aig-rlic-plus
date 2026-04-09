@@ -1,5 +1,27 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-04-09
+
+### Context
+SOD checkpoint. Pulled 5 new commits from remote (another session's work on HY-IG execution panel, trade log CSV, bug fixes). No new work done yet in this session.
+
+### New Commits Since Last Session (from remote)
+- `dd6d15c` HY-IG SPY execution panel (Phase A-C, 7/8 components)
+- `507b115` Fix StreamlitDuplicateElementId in charts
+- `8596afa` Fix invalid key in page_link
+- `78f0d54`/`bdc997f` Fix trade log path resolution
+- `aab9fd0` Add trade log CSV for dashboard display
+
+### Status
+- 5 of 73 pairs completed (#1 INDPRO, #2 TED, #3 Permits, #11 VIX/VIX3M, #20 HY-IG)
+- FOMC SEP sub-project: viewer functional, 70 meetings indexed
+- Next: Pair #4 US10Y-US3M → SPY
+
+### Session Summary
+Brief session — context refresh and sync only. No code changes, no new analysis.
+
+---
+
 ## Session: 2026-03-14
 
 ### Context
