@@ -220,24 +220,26 @@ def _render_trade_visualization(paths: dict, pair_id: str):
     )
 
 
-def _render_trade_table(paths: dict):
+def _render_trade_table(paths: dict, pair_id: str):
     """Component 3: Pre-computed trade log.
 
     Source: winner_trade_log.csv (Evan).
     Ace only renders; does not compute trade metrics.
     """
-    # TODO: Remove debug lines after confirming path resolution on Streamlit Cloud
-    trade_log_path = paths.get("trade_log")
-    st.write(f"Trade log path: {trade_log_path}")
-    st.write(f"Exists: {Path(trade_log_path).exists() if trade_log_path else False}")
+    # Resolve path explicitly using absolute Path — do not rely on paths dict
+    trade_log_path = _BASE / "results" / pair_id / "winner_trade_log.csv"
 
-    trade_log = _load_csv(trade_log_path)
-    if trade_log is None:
+    # TODO: Remove debug lines after confirming path resolution on Streamlit Cloud
+    st.write(f"Trade log path: {trade_log_path}")
+    st.write(f"Exists: {trade_log_path.exists()}")
+
+    if not trade_log_path.exists():
         st.info("Trade log pending — requires data pipeline to generate "
                 "`winner_trade_log.csv`.")
         return
 
-    if len(trade_log) == 0:
+    trade_log = _load_csv(str(trade_log_path))
+    if trade_log is None or len(trade_log) == 0:
         st.info("Trade log will appear once pipeline data is available.")
         return
 
@@ -523,7 +525,7 @@ def render_execution_panel(pair_id: str):
 
         with st.container():
             st.markdown("#### Trade Log")
-            _render_trade_table(paths)
+            _render_trade_table(paths, pair_id)
 
         st.markdown("---")
 
