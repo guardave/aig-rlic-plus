@@ -1,4 +1,4 @@
-"""HY-IG v2 — Methodology: Technical Appendix."""
+"""HY-IG v2 -- Methodology: Technical Appendix."""
 
 import os
 import sys
@@ -30,12 +30,21 @@ render_glossary_sidebar()
 PAIR_ID = "hy_ig_v2_spy"
 _RESULTS_DIR = Path(__file__).resolve().parents[2] / "results" / PAIR_ID
 
-# --- Page Header ---
+# ---------------------------------------------------------------------------
+# Page Header -- address skepticism
+# ---------------------------------------------------------------------------
 st.title("Methodology: Technical Appendix")
-st.markdown("*For reproducibility and scrutiny.*")
+st.markdown(
+    "*For the skeptical reader: this section provides the full methodological "
+    "detail needed to replicate, challenge, or extend our analysis. Every claim "
+    "in the preceding pages traces back to a specific method, dataset, and "
+    "diagnostic described here.*"
+)
 st.markdown("---")
 
-# ===================== SAMPLE =====================
+# ---------------------------------------------------------------------------
+# Sample Period  (Metric Interpretation Rule)
+# ---------------------------------------------------------------------------
 st.markdown("### Sample Period")
 
 col1, col2, col3 = st.columns(3)
@@ -46,10 +55,24 @@ with col2:
 with col3:
     st.metric("Out-of-Sample", "2018-01 to 2025-12", delta="Strategy evaluation (~2,000 obs)")
 
+st.caption(
+    "The 70/30 in-sample/out-of-sample split provides a generous 8-year out-of-sample "
+    "window that includes multiple distinct market episodes (2018 volatility spike, COVID "
+    "crash, 2022 rate shock, 2023-25 recovery), preventing the strategy from being "
+    "validated on only one type of market environment."
+)
+
 st.markdown("---")
 
-# ===================== DATA SOURCES =====================
+# ---------------------------------------------------------------------------
+# Data Sources
+# ---------------------------------------------------------------------------
 st.markdown("### Data Sources")
+
+st.markdown(
+    "All data is sourced from publicly available databases accessible through our "
+    "MCP server stack:"
+)
 
 st.markdown("""
 | Category | Source | Series | Frequency |
@@ -64,20 +87,24 @@ st.markdown("""
 
 st.markdown("---")
 
-# ===================== INDICATOR CONSTRUCTION =====================
+# ---------------------------------------------------------------------------
+# Indicator Construction
+# ---------------------------------------------------------------------------
 st.markdown("### Indicator Construction")
 
 st.markdown(
     "The primary indicator is the HY-IG spread: BAMLH0A0HYM2 minus BAMLC0A0CM, "
     "measured in basis points. From this raw spread, we derive 20 transformed series "
-    "including z-scores (252d and 504d rolling windows), percentile ranks (504d and "
-    "1260d), rates of change (21d, 63d, 126d), momentum changes, acceleration, and "
-    "the CCC-BB quality spread."
+    "including z-scores (252-day and 504-day rolling windows), percentile ranks (504-day "
+    "and 1260-day), rates of change (21-day, 63-day, 126-day), momentum changes, "
+    "acceleration, and the CCC-BB quality spread."
 )
 
 st.markdown("---")
 
-# ===================== STATIONARITY =====================
+# ---------------------------------------------------------------------------
+# Stationarity Tests
+# ---------------------------------------------------------------------------
 st.markdown("### Stationarity Tests")
 
 _stat_path = _RESULTS_DIR / "stationarity_tests_20260410.csv"
@@ -90,46 +117,80 @@ else:
 
 st.markdown("---")
 
-# ===================== METHODS =====================
+# ---------------------------------------------------------------------------
+# Econometric Methods -- with "Why We Chose It" column
+# ---------------------------------------------------------------------------
 st.markdown("### Econometric Methods")
 
+st.markdown(
+    "Each method was chosen to answer a specific question about the credit-equity "
+    "relationship. We used multiple methods deliberately: if a finding holds across "
+    "techniques with different assumptions, we can be far more confident it is genuine."
+)
+
 st.markdown("""
-| Method | Purpose | Key Parameter |
-|:-------|:--------|:--------------|
-| Toda-Yamamoto Granger causality | Linear causality in both directions | Augmented VAR, lags selected by BIC + d_max = 1 |
-| Transfer entropy (Diks-Panchenko) | Nonlinear information flow | Bandwidth per Diks & Panchenko (2006) |
-| Local projections (Jorda) | Impulse responses at multiple horizons | h = 1, 5, 10, 21, 42, 63 days; state-dependent |
-| Markov-switching regression | Regime identification | 2-state and 3-state |
-| Gaussian HMM | Joint regime identification on HY-IG + VIX | 2-state and 3-state |
-| Quantile regression | Distributional effects on return tails | tau = 0.05, 0.10, 0.25, 0.50, 0.75, 0.90 |
-| GJR-GARCH | Volatility dynamics with asymmetry | SPY returns with HY-IG exogenous |
-| Random Forest + SHAP | Nonlinear feature importance | Walk-forward, 1-year test windows |
-| Combinatorial tournament | Strategy optimization | ~1,000 combinations, OOS Sharpe ranking |
+| Method | Question It Answers | Why We Chose It |
+|:-------|:-------------------|:----------------|
+| Toda-Yamamoto Granger causality | Does credit lead equity, or vice versa? | Works correctly with non-stationary data (unlike standard Granger), which matters because spread levels contain trends. Augmented VAR, lags selected by BIC + d_max = 1. |
+| Transfer entropy (Diks-Panchenko) | Is the information flow nonlinear? | Captures threshold effects and asymmetries that linear Granger tests miss -- important because the credit-equity link strengthens nonlinearly during stress. |
+| Local projections (Jorda) | How does a credit shock affect stocks over time? | Does not require specifying the full system dynamics, making it robust to misspecification. h = 1, 5, 10, 21, 42, 63 days; state-dependent versions. |
+| Markov-switching regression | Are there distinct regimes with different dynamics? | Lets the data find the regime boundaries rather than imposing arbitrary thresholds. 2-state and 3-state. |
+| Gaussian HMM | What regime is the market in right now? | Jointly models HY-IG changes and VIX to infer the hidden state in real time -- powers the winning strategy. 2-state and 3-state. |
+| Quantile regression | Does credit primarily warn of bad outcomes? | Estimates the effect at different points in the return distribution, confirming the signal is concentrated in the left tail. tau = 0.05 to 0.90. |
+| GJR-GARCH | Does credit stress increase stock volatility asymmetrically? | Captures the leverage effect while including credit spreads as an external driver. SPY returns with HY-IG exogenous. |
+| Random Forest + SHAP | Which signal transformations matter most? | Nonlinear, non-parametric check on the linear models. Walk-forward with 1-year test windows prevents lookahead bias. |
+| Combinatorial tournament | Which strategy actually works out-of-sample? | Systematically tests ~1,000+ combinations on held-out data, then stress-tests the winners. OOS Sharpe ranking. |
 """)
 
 st.markdown("---")
 
-# ===================== DIAGNOSTICS =====================
+# ---------------------------------------------------------------------------
+# Diagnostics -- with "Why It Matters" column
+# ---------------------------------------------------------------------------
 st.markdown("### Diagnostic Tests")
 
 st.markdown(
-    "Every model undergoes: Jarque-Bera (normality), Breusch-Pagan "
-    "(heteroskedasticity), Breusch-Godfrey (serial correlation), RESET "
-    "(functional form), and stationarity confirmation (ADF + KPSS confirmatory "
-    "approach). HC3 robust standard errors are reported by default."
+    "Every model undergoes a battery of diagnostic tests to ensure the results are "
+    "trustworthy:"
+)
+
+st.markdown("""
+| Test | What It Checks | Why It Matters |
+|:-----|:---------------|:---------------|
+| Jarque-Bera | Whether residuals follow a bell curve (normality) | If not, our confidence intervals may be wrong |
+| Breusch-Pagan | Whether the scatter of residuals is even (homoskedasticity) | Uneven scatter means some predictions are more reliable than others |
+| Breusch-Godfrey | Whether residuals are correlated with their own past values (serial correlation) | Correlated residuals inflate our confidence in results |
+| RESET | Whether the model's functional form is correct (specification) | Catches cases where we should use a curve instead of a straight line |
+| ADF + KPSS | Whether the data has trends that need to be removed (stationarity) | Using trended data in level regressions produces spurious results |
+""")
+
+# --- HAC justification inline ---
+st.markdown(
+    "**HC3 robust standard errors** are reported throughout. We use HC3 rather than "
+    "conventional standard errors because our forward returns overlap in time -- a "
+    "63-day return calculated today shares 62 days with tomorrow's 63-day return. "
+    "Without this correction, we would systematically overstate our confidence in "
+    "every result. For specifications with longer forecast horizons, we use "
+    "**HAC (Newey-West) standard errors**, which additionally correct for the "
+    "autocorrelation introduced by overlapping windows."
 )
 
 _diag_path = _RESULTS_DIR / "core_models_20260410" / "diagnostics_summary.csv"
 if _diag_path.exists():
     _diag_df = pd.read_csv(_diag_path)
     st.dataframe(_diag_df, use_container_width=True, hide_index=True)
-else:
-    st.info("Diagnostics summary not found.")
 
 st.markdown("---")
 
-# ===================== SENSITIVITY =====================
+# ---------------------------------------------------------------------------
+# Sensitivity Analysis
+# ---------------------------------------------------------------------------
 st.markdown("### Sensitivity Analysis")
+
+st.markdown(
+    "To ensure our results are not driven by any single time period or parameter "
+    "choice, we tested:"
+)
 
 st.markdown("""
 - Full sample vs. excluding GFC (2007-2009)
@@ -142,21 +203,27 @@ st.markdown("""
 
 st.markdown("---")
 
-# ===================== REVERSE CAUSALITY =====================
-st.markdown("### Reverse Causality Check (G11 Requirement)")
+# ---------------------------------------------------------------------------
+# Reverse Causality Check
+# ---------------------------------------------------------------------------
+st.markdown("### Reverse Causality Check")
 
 st.markdown(
     "All lead-lag and predictive claims include a reverse-causality test: the same "
-    "model is estimated with SPY -> HY-IG as well as HY-IG -> SPY. Both sets of "
-    "results are reported side by side. Local projection impulse responses are compared "
-    "in both directions. The finding of bidirectional causality is documented and its "
-    "implications discussed -- specifically, that the credit-to-equity signal strengthens "
-    "in stress regimes while the equity-to-credit signal dominates in calm regimes."
+    "model is estimated with SPY leading HY-IG as well as HY-IG leading SPY. Both "
+    "sets of results are reported side by side. Local projection impulse responses are "
+    "compared in both directions. The finding of bidirectional causality is documented "
+    "and its implications discussed -- specifically, that the credit-to-equity signal "
+    "strengthens in stress regimes while the equity-to-credit signal dominates in calm "
+    "regimes. This bidirectionality is not a problem for our strategy -- it is a feature "
+    "that the regime-switching framework explicitly exploits."
 )
 
 st.markdown("---")
 
-# ===================== TOURNAMENT DESIGN =====================
+# ---------------------------------------------------------------------------
+# Tournament Design
+# ---------------------------------------------------------------------------
 st.markdown("### Tournament Design")
 
 st.markdown("""
@@ -172,7 +239,9 @@ st.markdown("""
 
 st.markdown("---")
 
-# ===================== REFERENCES =====================
+# ---------------------------------------------------------------------------
+# References
+# ---------------------------------------------------------------------------
 st.markdown("### Key References")
 
 st.markdown("""
@@ -191,12 +260,11 @@ st.markdown(
     "for the complete list of academic citations."
 )
 
-# --- Footer ---
+# ---------------------------------------------------------------------------
+# Footer
+# ---------------------------------------------------------------------------
 st.markdown("---")
-st.markdown(
-    '<div class="portal-footer">'
+st.caption(
     "Generated with AIG-RLIC+ | Data: 2000-01 to 2025-12 | "
     "Analysis Brief: docs/analysis_brief_hy_ig_v2_spy_20260410.md"
-    "</div>",
-    unsafe_allow_html=True,
 )

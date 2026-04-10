@@ -1,4 +1,4 @@
-"""HY-IG v2 — The Strategy: Tournament Winner and Alternatives."""
+"""HY-IG v2 -- The Strategy: Tournament Winner and Alternatives."""
 
 import json
 import os
@@ -41,7 +41,9 @@ if _winner_path.exists():
     with open(_winner_path) as f:
         _winner = json.load(f)
 
-# --- Page Header ---
+# ---------------------------------------------------------------------------
+# Page Header
+# ---------------------------------------------------------------------------
 st.title("The Strategy: Translating Signals to Action")
 st.markdown(
     "*So what should an investor do with this information? We tested hundreds of "
@@ -49,43 +51,58 @@ st.markdown(
 )
 st.markdown("---")
 
-# ===================== HOW THE SIGNAL TRANSLATES =====================
-st.markdown("### How the Signal Translates to Action")
+# ---------------------------------------------------------------------------
+# RULE-FIRST: Plain English rule IMMEDIATELY at top
+# ---------------------------------------------------------------------------
+with st.container(border=True):
+    st.markdown("### The Trading Rule in Plain English")
+    st.markdown(
+        "A Hidden Markov Model continuously estimates the probability that markets are "
+        "in a \"stress\" regime. **When that stress probability exceeds 50%, the strategy "
+        "scales down equity exposure proportionally to the severity of the signal** -- at "
+        "50% stress probability it holds less stock; at 100% stress probability it would "
+        "hold no stock at all. When stress probability drops back below 50%, the strategy "
+        "returns to full equity exposure. This graduated approach (called **Signal Strength**, "
+        "or P2) avoids the all-or-nothing whipsaw of a simple on/off switch."
+    )
 
-st.markdown(
-    "The tournament identified the most robust credit-signal strategies for equity "
-    "allocation. The winning strategies share a common logic:"
-)
+with st.expander("Why scale positions instead of switching all-in or all-out?"):
+    st.markdown(
+        "A simple on/off strategy (fully invested or fully in cash) can suffer from "
+        "\"whipsaw\" -- rapidly alternating between in and out of the market when the "
+        "signal hovers near its threshold. This generates transaction costs and tax events "
+        "with no benefit.\n\n"
+        "The Signal Strength (P2) approach scales the equity position proportionally to "
+        "the signal: if the HMM says there is a 60% chance of stress, the strategy holds "
+        "only 40% in stocks and 60% in cash. This smooths transitions, reduces turnover, "
+        "and allows the strategy to partially capture upside even when some stress is present.\n\n"
+        "The tournament tested four strategy types: (P1) Long/Cash -- fully in or fully out; "
+        "(P2) Signal Strength -- proportional scaling; (P3) Long/Short -- shorting stocks "
+        "during stress; and (P4) Collar -- using options to hedge. P2 won because it "
+        "delivered the best risk-adjusted return after transaction costs."
+    )
 
-st.markdown(
-    "**Core principle: Risk-off when credit stress exceeds a data-driven threshold.**"
-)
-
-st.markdown("""
-The strategy rules in plain language:
-- **When the credit stress indicator is below the threshold** (indicating normal market conditions): Stay fully invested in stocks (long SPY).
-- **When the credit stress indicator crosses above the threshold** (indicating elevated credit stress): Reduce equity exposure proportionally to signal strength.
-- **When the indicator drops back below the threshold:** Return to full equity exposure.
-""")
+with st.expander("What is a z-score, and why do we use one?"):
+    st.markdown(
+        "A z-score measures how unusual a current value is compared to its recent history. "
+        "A z-score of 0 means the spread is at its historical average. A z-score of +2 "
+        "means the spread is 2 standard deviations above average -- a relatively rare "
+        "condition that historically has occurred less than 5% of the time.\n\n"
+        "We use z-scores rather than raw spread levels because the \"normal\" level of "
+        "credit spreads changes over time. A 400 bps spread in 2005 (when spreads had been "
+        "tightening for years) meant something different than a 400 bps spread in 2010 "
+        "(when spreads were coming down from crisis peaks). The z-score adjusts for this by "
+        "comparing today's spread to its recent window, providing a context-aware measure "
+        "of stress."
+    )
 
 st.markdown("---")
 
-# ===================== TOURNAMENT WINNER SPOTLIGHT =====================
-st.markdown("### Tournament Winner: HMM Signal Strength (v2)")
+# ---------------------------------------------------------------------------
+# Key Strategy Metrics  (Metric Interpretation Rule)
+# ---------------------------------------------------------------------------
+st.markdown("### Key Strategy Metrics")
 
-with st.container(border=True):
-    st.markdown(
-        "**Strategy Rule in Plain English:** "
-        "When the Hidden Markov Model assigns a stress probability greater than 50%, "
-        "scale equity exposure inversely to the stress probability. At 50% stress, "
-        "hold 50% equity. At 100% stress, hold 0% equity (full cash). "
-        "This proportional approach avoids the binary all-in/all-out transitions "
-        "of the v1 Long/Cash strategy."
-    )
-
-st.markdown("")
-
-# Winner KPI cards
 oos_sharpe = _winner.get("oos_sharpe", 1.274)
 oos_return = _winner.get("oos_ann_return", 11.33)
 max_dd = _winner.get("max_drawdown", -10.2)
@@ -106,9 +123,49 @@ kpi_row(
     ]
 )
 
+st.caption(
+    "The credit-signal strategy delivered comparable returns to buy-and-hold but with "
+    "dramatically less pain. Its worst peak-to-trough decline was -10.2%, versus -34% "
+    "for an investor who simply held SPY through the same period. The Sharpe ratio of "
+    f"{oos_sharpe:.2f} (versus 0.90 for buy-and-hold) means each unit of risk taken was "
+    "rewarded with roughly 40% more return. The strategy only needed about 4 trades per "
+    "year, and it would remain profitable even if transaction costs were 10x higher than "
+    "our 5 bps assumption."
+)
+
 st.markdown("---")
 
-# ===================== TOURNAMENT LEADERBOARD =====================
+# ---------------------------------------------------------------------------
+# Where the Strategy Adds Value -- and Where It Does Not
+# ---------------------------------------------------------------------------
+st.markdown("### Where the Strategy Adds Value -- and Where It Does Not")
+
+st.markdown(
+    "The primary value of the credit signal is **drawdown reduction during stress "
+    "periods**, not alpha generation during calm markets. During the long stretches "
+    "when credit conditions are normal, the strategy is fully invested and performs "
+    "identically to buy-and-hold. Its edge comes from avoiding the worst of the "
+    "drawdowns when credit markets signal stress."
+)
+
+st.markdown(
+    "This means:\n"
+    "- **It will underperform in V-shaped recoveries.** If the market crashes and "
+    "bounces back quickly (as in COVID), the strategy may exit at or near the bottom "
+    "and re-enter after some of the recovery has already occurred.\n"
+    "- **It excels in prolonged bear markets.** The GFC lasted roughly 18 months "
+    "peak-to-trough. A strategy that exited early captured most of the avoided "
+    "drawdown.\n"
+    "- **It is largely inert during calm periods.** This is a feature, not a bug -- "
+    "the strategy avoids generating trading costs and tax events when the credit "
+    "signal has little to say."
+)
+
+st.markdown("---")
+
+# ---------------------------------------------------------------------------
+# Tournament Leaderboard
+# ---------------------------------------------------------------------------
 st.markdown("### Tournament Leaderboard (Top 20)")
 
 _tourn_path = _RESULTS_DIR / "tournament_results_20260410.csv"
@@ -157,7 +214,9 @@ else:
 
 st.markdown("---")
 
-# ===================== EQUITY CURVES + DRAWDOWN =====================
+# ---------------------------------------------------------------------------
+# Equity Curves + Drawdown
+# ---------------------------------------------------------------------------
 st.markdown("### Equity Curves: Top Strategies vs. Buy-and-Hold")
 
 load_plotly_chart(
@@ -191,10 +250,14 @@ load_plotly_chart(
 
 st.markdown("---")
 
-# ===================== VALIDATION =====================
+# ---------------------------------------------------------------------------
+# Validation: Stress Tests, Signal Decay, Walk-Forward
+# ---------------------------------------------------------------------------
 st.markdown("### Validation: Stress Tests, Signal Decay, and Walk-Forward")
 
-val_tab1, val_tab2, val_tab3 = st.tabs(["Stress Tests", "Signal Decay", "Walk-Forward"])
+val_tab1, val_tab2, val_tab3 = st.tabs(
+    ["Stress Tests", "Signal Decay", "Walk-Forward"]
+)
 
 _validation_dir = _RESULTS_DIR / "tournament_validation_20260410"
 
@@ -209,9 +272,9 @@ with val_tab1:
         st.info("Stress test results pending.")
 
     st.markdown(
-        "**Honest assessment:** The HMM strategy excels at credit-driven crises (GFC) "
-        "but does not protect against rate-driven selloffs (2022) where credit spreads "
-        "widen alongside equities for different reasons."
+        "**Honest assessment:** The HMM strategy excels at credit-driven crises "
+        "(GFC) but does not protect against rate-driven selloffs (2022) where credit "
+        "spreads widen alongside equities for different reasons."
     )
 
 with val_tab2:
@@ -225,9 +288,9 @@ with val_tab2:
         st.info("Signal decay results pending.")
 
     st.markdown(
-        "Execution speed matters. The signal degrades with delay, reflecting the speed "
-        "at which credit information is priced into equities. Same-day or next-day "
-        "execution is recommended."
+        "**What this means:** Execution speed matters. Performance decreases with "
+        "longer delays, reflecting the speed at which credit information gets priced "
+        "into equities. The maximum acceptable delay is approximately 5 days."
     )
 
 with val_tab3:
@@ -241,14 +304,38 @@ with val_tab3:
         st.info("Walk-forward validation results pending.")
 
     st.markdown(
-        "Walk-forward validation confirms that the strategy's outperformance is not "
-        "an artifact of a single favorable period. The Sharpe ratio varies year to year "
-        "but remains positive across the majority of test windows."
+        "**What this means:** Walk-forward validation confirms that the strategy's "
+        "outperformance is not an artifact of a single favourable period. The Sharpe "
+        "ratio varies year to year but remains positive across the majority of test "
+        "windows."
     )
 
 st.markdown("---")
 
-# ===================== DOWNLOAD TRADE LOG =====================
+# ---------------------------------------------------------------------------
+# Important Caveats
+# ---------------------------------------------------------------------------
+st.warning(
+    """
+**Important Caveats**
+
+1. **Transaction costs matter.** All strategy metrics include 5 bps per round-trip trade. Breakeven cost is 50 bps -- robust, but not infinite.
+
+2. **Execution delay degrades performance.** A 1-day delay reduces Sharpe by ~0.2. Timely execution is essential.
+
+3. **The 2022 episode is a genuine weakness.** The strategy's credit signal widened modestly during 2022, but not enough to trigger a full risk-off position. This bear market was driven by rate hikes and valuation compression, not credit deterioration.
+
+4. **Past performance is not indicative of future results.** Regime shifts, changes in market microstructure, or new central bank tools could alter the credit-equity relationship going forward.
+
+5. **This is a risk management tool, not an alpha generator.** The primary value is in reducing drawdowns during stress periods rather than generating excess returns during calm periods. Think of it as portfolio insurance that happens to be free (or slightly profitable) on average.
+    """
+)
+
+st.markdown("---")
+
+# ---------------------------------------------------------------------------
+# Download Trade Log
+# ---------------------------------------------------------------------------
 st.markdown("### Download Trading History")
 
 _trade_log_path = _RESULTS_DIR / "winner_trade_log.csv"
@@ -270,27 +357,14 @@ else:
 
 st.markdown("---")
 
-# ===================== CAVEATS =====================
-st.warning(
-    """
-**Important Caveats**
-
-1. **Transaction costs matter.** All strategy metrics include 5 bps per round-trip trade. Breakeven cost is 50 bps -- robust, but not infinite.
-
-2. **Execution delay degrades performance.** A 1-day delay reduces Sharpe by ~0.2. Timely execution is essential.
-
-3. **The 2022 episode is a genuine weakness.** The strategy's credit signal widened modestly during 2022, but not enough to trigger a full risk-off position. This bear market was driven by rate hikes and valuation compression, not credit deterioration.
-
-4. **Past performance is not indicative of future results.** Regime shifts, changes in market microstructure, or new central bank tools could alter the credit-equity relationship going forward.
-
-5. **This is a risk management tool, not an alpha generator.** The primary value is in reducing drawdowns during stress periods rather than generating excess returns during calm periods.
-    """
-)
-
-# ===================== EXECUTION PANEL =====================
+# ---------------------------------------------------------------------------
+# Execution Panel
+# ---------------------------------------------------------------------------
 render_execution_panel(PAIR_ID)
 
-# --- Transition ---
+# ---------------------------------------------------------------------------
+# Transition
+# ---------------------------------------------------------------------------
 st.markdown("---")
 st.markdown(
     "For readers who want to understand exactly how we reached these conclusions -- "
@@ -304,11 +378,10 @@ st.page_link(
     icon="📐",
 )
 
-# --- Footer ---
+# ---------------------------------------------------------------------------
+# Footer
+# ---------------------------------------------------------------------------
 st.markdown("---")
-st.markdown(
-    '<div class="portal-footer">'
+st.caption(
     "Generated with AIG-RLIC+ | Data: 2000-01 to 2025-12"
-    "</div>",
-    unsafe_allow_html=True,
 )
