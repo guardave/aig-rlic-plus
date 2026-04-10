@@ -13,8 +13,8 @@ Output filenames follow the spec exactly:
   6. hy_ig_v2_spy_quantile_regression.json
   7. hy_ig_v2_spy_tournament_sharpe_dist.json
   8. hy_ig_v2_spy_equity_curves.json
-  9. hy_ig_v2_spy_regime_stats.json
- 10. hy_ig_v2_spy_drawdown.json
+  9. hy_ig_v2_spy_returns_by_regime.json
+ 10. hy_ig_v2_spy_drawdown_comparison.json
 
 Author: Vera (Visualization Agent)
 Date: 2026-04-10
@@ -644,9 +644,9 @@ def chart_equity_curves():
 
 
 # ══════════════════════════════════════════════════════════════════════════
-# 9. Regime Stats (Grouped Bar)
+# 9. Returns by Regime (Grouped Bar)
 # ══════════════════════════════════════════════════════════════════════════
-def chart_regime_stats():
+def chart_returns_by_regime_grouped():
     """Grouped bar: returns, vol, Sharpe by spread quartile."""
     rdf = pd.read_csv(
         os.path.join(RESULTS_DIR, "exploratory_20260410", "regime_descriptive_stats.csv")
@@ -681,13 +681,13 @@ def chart_regime_stats():
     )
     _note(fig, "Q4 (widest spreads): highest volatility (28.7%), negative returns, "
           "Sharpe near zero. Sharpe values shown on bars (scaled x10 on y-axis).")
-    save_chart(fig, f"{PAIR_ID}_regime_stats")
+    save_chart(fig, f"{PAIR_ID}_returns_by_regime")
 
 
 # ══════════════════════════════════════════════════════════════════════════
 # 10. Drawdown Comparison
 # ══════════════════════════════════════════════════════════════════════════
-def chart_drawdown():
+def chart_drawdown_comparison():
     """Drawdown comparison: winner strategy vs buy-and-hold."""
     df = _load_master()
     winner = _load_winner()
@@ -745,7 +745,7 @@ def chart_drawdown():
     )
     _note(fig, "Source: Drawdown from peak equity. Winner = HMM stress probability, "
           "signal-strength position sizing (P2).")
-    save_chart(fig, f"{PAIR_ID}_drawdown")
+    save_chart(fig, f"{PAIR_ID}_drawdown_comparison")
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -763,8 +763,8 @@ if __name__ == "__main__":
     chart_quantile_regression()          # 6
     chart_tournament_sharpe_dist()       # 7
     chart_equity_curves()                # 8
-    chart_regime_stats()                 # 9
-    chart_drawdown()                     # 10
+    chart_returns_by_regime_grouped()    # 9
+    chart_drawdown_comparison()          # 10
 
     # Summary
     charts = [f for f in os.listdir(CHART_DIR) if f.endswith(".json")]

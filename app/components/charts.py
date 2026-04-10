@@ -45,8 +45,22 @@ def load_plotly_chart(
     if chart_key is None:
         chart_key = f"plotly_{chart_name}_{uuid.uuid4().hex[:8]}"
 
-    json_path = os.path.normpath(os.path.join(chart_dir, f"{chart_name}.json"))
-    if os.path.exists(json_path):
+    # Try exact name first, then with pair_id prefix (agents may use either)
+    candidates = [
+        os.path.normpath(os.path.join(chart_dir, f"{chart_name}.json")),
+    ]
+    if pair_id:
+        candidates.append(
+            os.path.normpath(os.path.join(chart_dir, f"{pair_id}_{chart_name}.json"))
+        )
+
+    json_path = None
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            json_path = candidate
+            break
+
+    if json_path:
         fig = _load_plotly_json(json_path)
         st.plotly_chart(fig, use_container_width=True, key=chart_key)
     else:
