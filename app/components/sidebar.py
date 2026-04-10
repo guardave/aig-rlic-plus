@@ -55,6 +55,16 @@ FINDINGS = [
             "Methodology": "pages/7_permit_spy_methodology.py",
         },
     },
+    {
+        "id": "hy_ig_v2_spy",
+        "label": "HY-IG Spread × SPY",
+        "pages": {
+            "Story": "pages/9_hy_ig_v2_spy_story.py",
+            "Evidence": "pages/9_hy_ig_v2_spy_evidence.py",
+            "Strategy": "pages/9_hy_ig_v2_spy_strategy.py",
+            "Methodology": "pages/9_hy_ig_v2_spy_methodology.py",
+        },
+    },
 ]
 
 
@@ -90,7 +100,7 @@ def render_sidebar():
         st.markdown(
             '<p style="font-size: 0.8rem; color: #999;">'
             "Data through 2025-12-31<br>"
-            "5 of 73 priority pairs analyzed"
+            "6 of 73 priority pairs analyzed"
             "</p>",
             unsafe_allow_html=True,
         )

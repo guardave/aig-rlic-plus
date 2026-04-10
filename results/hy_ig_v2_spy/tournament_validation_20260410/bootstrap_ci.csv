@@ -1,0 +1,6 @@
+rank,signal,threshold,strategy,lead_days,mean_sharpe,ci_2_5,ci_97_5,pct_positive
+1,S6_hmm_stress,T4_hmm_0.5,P2,0,1.3516,0.5961,2.1203,99.9
+2,S6_hmm_stress,T4_hmm_0.7,P2,0,1.3516,0.5961,2.1203,99.9
+3,S6_hmm_stress,T4_hmm_0.7,P1,0,1.1814,0.4832,1.8818,100.0
+4,S6_hmm_stress,T4_hmm_0.5,P1,0,1.1684,0.4787,1.8726,100.0
+5,S2a_zscore_252d,T2_rp95,P1,5,0.9884,0.2854,1.7018,99.8

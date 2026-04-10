@@ -1,0 +1,11 @@
+direction,lag,f_stat,p_value
+HY_IG_Spread->SPY,1,0.0777,0.7805
+HY_IG_Spread->SPY,2,1.168,0.3111
+HY_IG_Spread->SPY,3,3.7465,0.0105
+HY_IG_Spread->SPY,4,3.0994,0.0147
+HY_IG_Spread->SPY,5,2.8498,0.0142
+SPY->HY_IG_Spread,1,331.3676,0.0
+SPY->HY_IG_Spread,2,110.5351,0.0
+SPY->HY_IG_Spread,3,73.2451,0.0
+SPY->HY_IG_Spread,4,56.1709,0.0
+SPY->HY_IG_Spread,5,50.2906,0.0

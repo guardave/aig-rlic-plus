@@ -1,0 +1,13 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "total_seconds": 56.8,
+  "stage_times": {
+    "1_data": 46.5,
+    "2_derived": 1.0,
+    "3_stationarity": 0.4,
+    "4_exploratory": 0.1,
+    "5_models": 2.0,
+    "6_tournament": 3.8,
+    "7_validation": 3.1
+  }
+}

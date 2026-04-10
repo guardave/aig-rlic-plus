@@ -84,6 +84,7 @@ def load_pair_registry():
             "sofr_ted_spy": "SOFR - DTB3 (TED)",
             "dff_ted_spy": "DFF - DTB3 (Fed Funds TED)",
             "ted_spliced_spy": "Spliced TED Spread",
+            "hy_ig_v2_spy": "HY-IG Credit Spread",
         }
         target_names = {
             "spy": "S&P 500",
@@ -99,6 +100,7 @@ def load_pair_registry():
             "indpro_spy": "pages/5_indpro_spy",
             "permit_spy": "pages/7_permit_spy",
             "vix_vix3m_spy": "pages/8_vix_vix3m_spy",
+            "hy_ig_v2_spy": "pages/9_hy_ig_v2_spy",
         }
         if pair_dir in ted_variants:
             page_prefix = "pages/6_ted_variants"

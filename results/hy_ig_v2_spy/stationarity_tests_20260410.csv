@@ -1,0 +1,16 @@
+variable,test,statistic,p_value,lags,n_obs,conclusion
+hy_ig_spread,ADF,-3.1422,0.0236,9,1357,Stationary
+hy_ig_zscore_252d,ADF,-6.7274,0.0,0,1317,Stationary
+hy_ig_roc_21d,ADF,-8.6928,0.0,12,1353,Stationary
+hy_ig_roc_63d,ADF,-7.266,0.0,12,1344,Stationary
+hy_ig_mom_21d,ADF,-8.3512,0.0,12,1353,Stationary
+hy_ig_acceleration,ADF,-16.5863,0.0,11,1349,Stationary
+ccc_bb_spread,ADF,-3.5319,0.0072,12,1357,Stationary
+hy_ig_realized_vol_21d,ADF,-5.7794,0.0,8,1354,Stationary
+vix_term_structure,ADF,-9.5028,0.0,1,1016,Stationary
+yield_spread_10y3m,ADF,-2.1801,0.2136,12,1357,Non-stationary
+yield_spread_10y2y,ADF,-2.0825,0.2516,12,1357,Non-stationary
+nfci_momentum_13w,ADF,-7.8299,0.0,12,1343,Stationary
+bbb_ig_spread,ADF,-3.7694,0.0032,12,1357,Stationary
+spy,ADF,3.5377,1.0,3,1357,Non-stationary
+spy_ret,ADF,-38.0651,0.0,0,1357,Stationary

@@ -1,0 +1,16 @@
+{
+  "indicator": "hy_ig_spread",
+  "target": "spy",
+  "expected_direction": "counter_cyclical",
+  "observed_direction": "counter_cyclical",
+  "direction_consistent": true,
+  "mechanism": "Wider HY-IG credit spreads signal rising default risk and tightening financial conditions \u2014 bearish for equities. Spread compression is bullish.",
+  "confidence": "high",
+  "key_finding": "hy_ig_mom_63d predicts spy_fwd_63d (coef=-0.0119, t=-10.77, p=0.0000)",
+  "caveats": [
+    "OAS data starts 1997; pre-2000 coverage is thin",
+    "GFC 2008-2009 dominates the tails",
+    "COVID March 2020 was an extreme but transient widening",
+    "Regime-model signals (HMM, MS) are fitted in-sample; use persisted probabilities only"
+  ]
+}

@@ -1,0 +1,38 @@
+date,event,relevance,type,equity_impact,fi_impact
+2000-03-10,Dot-com bubble peak (NASDAQ),Equity market reversal begins; credit spreads start widening as telecom defaults rise,regime_shift,bearish,bullish
+2001-03-01,NBER recession begins,Official recession start; credit stress already elevated; HY-IG spread above 600 bps,structural_break,bearish,bullish
+2001-09-11,September 11 attacks,Markets closed for 4 days; acute liquidity crisis; spreads spike on reopening,crisis,bearish,bullish
+2001-11-30,NBER recession ends,Recovery begins but credit stress persists through 2002 due to corporate fraud scandals,regime_shift,bullish,neutral
+2001-12-02,Enron bankruptcy,Largest bankruptcy at the time; shattered confidence in corporate governance and accounting,crisis,bearish,bearish
+2002-07-21,WorldCom bankruptcy,Surpassed Enron as largest bankruptcy; telecom sector credit spreads peak,crisis,bearish,bearish
+2003-06-25,Fed funds rate cut to 1.00%,Aggressive easing completes; risk appetite recovers; credit spreads begin sustained tightening,policy_change,bullish,bullish
+2005-05-05,GM and Ford downgraded to junk,Two iconic investment-grade issuers fall to HY; HY-IG spread temporarily disrupted by index reconstitution,structural_break,bearish,bearish
+2007-06-22,Bear Stearns hedge fund collapse,Two subprime-exposed hedge funds fail; first major signal of GFC; HY-IG spread begins widening,crisis,bearish,bullish
+2007-08-09,BNP Paribas freezes three funds,European contagion; interbank lending freezes; credit spreads accelerate widening,crisis,bearish,bullish
+2007-10-09,S&P 500 all-time high (pre-GFC),Equity peaks ~5 months after credit spreads began widening -- the classic credit-leads-equity pattern,regime_shift,bearish,neutral
+2007-12-01,NBER recession begins,Official recession start; HY-IG spread already above 500 bps,structural_break,bearish,bullish
+2008-03-16,Bear Stearns rescued by JPMorgan,Fed-brokered rescue; systemic risk fears spike; spreads above 600 bps,crisis,bearish,bullish
+2008-09-15,Lehman Brothers bankruptcy,Largest bankruptcy in history; global financial crisis accelerates; HY-IG spread surges past 1000 bps,crisis,bearish,bullish
+2008-12-16,Fed cuts rate to 0-0.25% (ZIRP),Emergency rate cut to zero lower bound; beginning of unconventional monetary policy era,policy_change,bullish,bullish
+2008-12-31,HY-IG spread peaks above 2000 bps,Maximum credit stress in the sample; marks the inflection point before gradual recovery,regime_shift,bullish,neutral
+2009-03-09,S&P 500 GFC trough,Equity market bottom at 666; credit spreads already past peak and declining -- credit led the recovery too,regime_shift,bullish,neutral
+2009-06-01,NBER recession ends,Official end; HY-IG spread still elevated ~700 bps but trending down,structural_break,bullish,neutral
+2010-05-06,Flash Crash,S&P 500 drops ~9% intraday; spreads spike briefly but recover; no sustained credit signal,crisis,bearish,neutral
+2011-08-05,US sovereign downgrade (S&P),First-ever US downgrade from AAA; brief flight to quality; spreads widen ~100 bps,policy_change,bearish,bullish
+2013-05-22,Taper Tantrum begins,Bernanke signals QE tapering; bond markets sell off; credit spreads widen modestly ~50 bps,policy_change,bearish,bearish
+2014-10-15,Treasury flash rally,10Y yield drops 34 bps intraday; liquidity concerns; credit spreads largely unaffected,crisis,neutral,bullish
+2015-12-16,First Fed rate hike since 2006,Liftoff from zero; credit spreads had already widened on energy/commodity sector stress,policy_change,neutral,bearish
+2016-02-11,Energy credit crisis peak,Oil below $30; energy HY defaults spike; HY-IG spread peaks ~600 bps; S&P 500 correction ~13%,crisis,bearish,neutral
+2018-02-05,Volmageddon,VIX spikes from 13 to 50 intraday; XIV collapses; credit spreads widen modestly ~50 bps,crisis,bearish,neutral
+2018-12-24,Christmas Eve sell-off,S&P 500 nearly enters bear market; HY-IG spread peaks ~440 bps; Fed pivot follows,crisis,bearish,bullish
+2019-07-31,First Fed rate cut since 2008,Insurance cut amid trade war uncertainty; credit spreads tighten; risk-on resumes,policy_change,bullish,bullish
+2020-02-20,COVID sell-off begins,S&P 500 begins rapid decline from all-time high; credit spreads widen simultaneously,crisis,bearish,bullish
+2020-03-23,Fed announces corporate bond purchases,Unprecedented intervention; includes primary and secondary market corporate credit facilities; spreads peak ~1100 bps and immediately reverse,policy_change,bullish,bullish
+2020-03-23,S&P 500 COVID trough,Equity bottom coincides with Fed intervention; V-shaped recovery begins,regime_shift,bullish,neutral
+2021-03-11,American Rescue Plan signed ($1.9T stimulus),Fiscal stimulus fuels recovery; credit spreads tighten to pre-COVID levels ~300 bps,policy_change,bullish,neutral
+2022-03-16,First Fed rate hike of tightening cycle,Fed begins fastest tightening cycle in 40 years; 25 bps initial hike,policy_change,bearish,bearish
+2022-06-16,Fed raises 75 bps (first of four),Aggressive tightening accelerates; credit spreads widen to ~500 bps; S&P 500 enters bear market,policy_change,bearish,bearish
+2022-10-12,S&P 500 2022 trough,Equity bottom at ~3577; credit spreads ~500 bps -- modest relative to equity decline (rate shock not credit crisis),regime_shift,bullish,neutral
+2023-03-10,Silicon Valley Bank collapse,Regional banking crisis; credit spreads briefly spike ~100 bps; contained by FDIC/Fed intervention,crisis,bearish,bullish
+2023-07-26,Last Fed hike (5.25-5.50%),Terminal rate reached; credit spreads stable ~350 bps; equity rally underway,policy_change,bullish,neutral
+2024-09-18,First Fed rate cut of easing cycle,50 bps cut signals pivot; credit spreads tighten; risk-on environment,policy_change,bullish,bullish

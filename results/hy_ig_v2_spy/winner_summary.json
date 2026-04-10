@@ -1,0 +1,22 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "signal_code": "S6_hmm_stress",
+  "signal_display_name": "HMM Stress Probability",
+  "threshold_code": "T4_hmm_0.5",
+  "threshold_display_name": "HMM probability > 0.5",
+  "strategy_code": "P2",
+  "strategy_display_name": "Signal Strength",
+  "strategy_description": "Scale position size proportionally to signal strength (0% to 100% invested).",
+  "lead_value": 0,
+  "lead_unit": "days",
+  "lead_description": "No lead (same-period)",
+  "direction": "counter_cyclical",
+  "oos_sharpe": 1.274,
+  "oos_ann_return": 11.33,
+  "max_drawdown": -10.2,
+  "annual_turnover": 3.78,
+  "win_rate": 0.5048,
+  "threshold_value": 0.5,
+  "max_acceptable_delay_days": 5,
+  "breakeven_cost_bps": 50.0
+}
