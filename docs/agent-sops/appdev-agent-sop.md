@@ -272,6 +272,98 @@ These rendering patterns were extracted from the HY-IG reference analysis (pair 
 
 **Cross-reference:** See Research SOP, "Presentation Quality Patterns (Narrative)" for the source patterns Ray encodes in the portal narrative deliverable.
 
+### 3.8 Audience-Friendly Rendering Patterns
+
+These patterns ensure the portal is genuinely readable by a layperson audience — not just technically correct. They address recurring issues where portal pages look polished but still leave non-expert readers confused.
+
+#### 1. Expander Philosophy: Defer, Don't Expand
+
+**Rule:** Expanders hide optional depth — the main narrative must be complete without them. The collapsed expander title should be a complete thought or question (e.g., "What exactly is a credit spread?"). The expanded content provides *additional* context for curious readers, not *essential* context that the narrative depends on.
+
+**Anti-pattern:** Using expanders to add increasingly technical content that the main narrative references or assumes the reader has seen.
+
+**Pattern:** The main narrative stands alone. Expanders answer "I want to know more about X" — not "I need to read this to understand the next paragraph."
+
+**Test:** Read the page with all expanders collapsed. If any sentence references content that is only visible inside an expander, the information layering is broken. Move the essential content out of the expander and into the main flow.
+
+#### 2. Rule-First Strategy Cards
+
+**Rule:** On Strategy pages, state the trading rule in plain English *immediately* — before any abstract principles, bullet-point mechanics, or threshold explanations. The reader's first question is "What does this strategy actually do?" Answer it in one sentence.
+
+**Bad layout:**
+
+```
+Core principle: Risk-off when credit stress exceeds a data-driven threshold.
+- When the indicator is below the threshold: Stay fully invested
+- When the indicator crosses above: Reduce exposure
+- When the indicator drops back: Return to full exposure
+Strategy Rule in Plain English: When the HMM assigns stress > 50%...
+```
+
+**Good layout:**
+
+```
+Strategy Rule in Plain English: When the model detects credit stress
+(probability > 50%), move to cash. When stress fades, return to stocks.
+
+How it works in detail:
+[bullets/expander with mechanics]
+```
+
+The plain-English rule comes first because it anchors the reader. All subsequent detail (thresholds, lead times, regime definitions) elaborates on a rule the reader already understands.
+
+#### 3. Metric Interpretation Rule
+
+**Rule:** Every KPI displayed with `st.metric()` or in a KPI card must include:
+1. The value
+2. A benchmark comparison (delta)
+3. A one-sentence interpretation of what the comparison means
+
+The interpretation can be in `st.caption()` below the metrics row or inline.
+
+**Bad — numbers without interpretation:**
+
+```python
+st.metric("OOS Sharpe", "1.27", delta="vs 0.90 B&H")
+```
+
+The reader sees numbers but doesn't know if 1.27 is good or how much better it is.
+
+**Good — numbers with interpretation:**
+
+```python
+st.metric("OOS Sharpe", "1.27", delta="vs 0.90 B&H")
+st.caption("The strategy delivers 41% better risk-adjusted returns than simply buying and holding the index.")
+```
+
+The caption bridges raw numbers to meaning. For KPI rows with multiple metrics, a single `st.caption()` sentence summarizing the overall picture is acceptable in place of per-metric captions.
+
+#### 4. Translation Bridge Rendering
+
+**Rule:** When rendering Research Agent narrative content, check for "What this means:" or "In plain English:" bridges. If present, render them with slight visual emphasis — e.g., as `st.markdown("**What this means:** ...")` or in a subtle callout. If the narrative content lacks these bridges for a major finding, add one inline.
+
+**Implementation pattern:**
+
+```python
+# When rendering narrative sections from Ray
+if "What this means:" in section_text:
+    # Split at the bridge and render with emphasis
+    parts = section_text.split("What this means:")
+    st.markdown(parts[0])
+    st.markdown(f"**What this means:** {parts[1].strip()}")
+elif "In plain English:" in section_text:
+    parts = section_text.split("In plain English:")
+    st.markdown(parts[0])
+    st.markdown(f"**In plain English:** {parts[1].strip()}")
+else:
+    # No bridge found — flag for manual addition on major findings
+    st.markdown(section_text)
+```
+
+For major findings (top-level conclusions, strategy justifications, regime interpretations), the absence of a translation bridge is a quality gap. Add one during portal assembly rather than shipping without it.
+
+**Cross-reference:** See Research SOP for the narrative patterns Ray uses to produce these bridges upstream.
+
 ### 4. Implement Charts and Interactivity
 
 **Chart integration rules:**

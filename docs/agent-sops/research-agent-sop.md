@@ -400,6 +400,44 @@ These patterns were identified from the HY-IG reference analysis (pair #5), whic
 
 **Cross-reference:** See AppDev SOP, "Rendering Patterns for Presentation Quality" for how Ace implements these in Streamlit.
 
+### Writing Voice & Audience
+
+These rules govern the voice, register, and explanatory depth of all narrative text delivered to Ace. They apply to portal narratives, storytelling arcs, glossary definitions, and any prose that reaches the end reader.
+
+#### Rule 1 — Audience Assumption
+
+Write for a financially literate non-quant — someone who understands markets and investing but is not a statistician. Define every technical term inline on first use. Never assume the reader knows what "counter-cyclical," "Granger causality," "transfer entropy," or "OAS" means without a parenthetical or inline definition.
+
+**Bad:**
+> "The spread is counter-cyclical, with Granger causality confirming bidirectional information flow with regime asymmetry."
+
+**Good:**
+> "The spread moves opposite to stocks (counter-cyclical) — when spreads widen, stocks tend to fall. Statistical tests confirm that information flows in both directions: sometimes stocks lead bonds, sometimes bonds lead stocks. Crucially, which one leads depends on whether markets are calm or stressed."
+
+#### Rule 2 — Translation Bridge
+
+After every statistical or econometric finding, add a "What this means:" or "In plain English:" sentence that translates the result into an actionable insight. The reader should never have to decode a finding on their own.
+
+**Bad:**
+> "Finding 1 — Bidirectional causality with regime asymmetry."
+
+**Good:**
+> "Finding 1 — The bond market and stock market take turns leading each other. **What this means:** In calm markets, stock prices set the pace. But when stress builds, the bond market starts sending warnings first — and those warnings arrive weeks before stocks react."
+
+#### Rule 3 — Method Justification
+
+When citing a method, explain *why* it was chosen for this specific analysis, not just *what* it does. Connect the method choice to the economic question being answered.
+
+**Bad:**
+> "HC3 robust standard errors are reported by default."
+
+**Good:**
+> "We use HC3 robust standard errors throughout because our forward returns overlap in time — a 63-day return calculated today shares 62 days with tomorrow's 63-day return. Without this correction, we'd overstate our confidence in every result."
+
+#### Expander Content in Narratives
+
+When writing content destined for `st.expander()` blocks, write the expander *title* as a self-contained question the reader might have (e.g., "What exactly is a credit spread?" or "Why does the lead-lag relationship flip during crises?"). The expanded content should provide optional depth for the curious reader — the main narrative must be complete and coherent without it. A reader who never clicks an expander should still walk away with the full story; a reader who opens one should get a satisfying, self-contained explanation, not a sentence fragment or a bare table.
+
 ### Handoff to Ace
 
 After delivering the portal narrative and/or storytelling arc:
