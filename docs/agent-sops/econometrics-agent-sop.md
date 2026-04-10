@@ -510,6 +510,30 @@ Deliver tournament results as two files per indicator-target pair:
 
 Include a `tournament_manifest.json` sidecar listing the grid dimensions, total combinations tested, any sampling applied, and assertions (e.g., "top strategy Sharpe > bottom strategy Sharpe", "all Sharpe values are finite").
 
+**Canonical column schema (mandatory):**
+
+All tournament CSVs must use these exact column names. Rename before saving; downstream scripts (e.g., `generate_winner_outputs.py`) must not need ad-hoc schema normalization.
+
+| Canonical Name | Description |
+|---------------|-------------|
+| `signal` | Signal code (e.g., `S6_mom3m`, `hmm_2state_prob_stress`) |
+| `threshold` | Threshold code (e.g., `T1_fixed_p75`, `T4_0.7`) |
+| `strategy` | Strategy code (e.g., `P1`, `P3_long_short`) |
+| `lead_months` or `lead_days` | Lead time (use `lead_months` for monthly indicators, `lead_days` for daily) |
+| `lookback` | Lookback window code (e.g., `LB252`) |
+| `oos_sharpe` | Out-of-sample Sharpe ratio |
+| `oos_ann_return` | Out-of-sample annualized return |
+| `max_drawdown` | Maximum drawdown (negative value) |
+| `win_rate` | Fraction of positive-return periods |
+| `n_trades` | Number of position changes |
+| `annual_turnover` | Annualized trade frequency |
+| `valid` | Boolean: strategy passes validity filters |
+| `oos_n` | Number of OOS observations |
+
+**Prohibited legacy aliases:** `signal_col` → use `signal`; `threshold_method` → use `threshold`; `strategy_id` → use `strategy`; `oos_max_dd` → use `max_drawdown`.
+
+**Evidence:** HY-IG (pair #5) used `signal_col`/`threshold_method` in its tournament CSV. `generate_winner_outputs.py` required ad-hoc mapping code to normalize, violating the pipeline self-containment contract.
+
 **Computational budget:**
 If grid exceeds the Analysis Brief's `{MAX_PLAYERS}` (default 10,000), apply stratified sampling:
 1. Keep all `++` category signals (from Relevance Matrix)
@@ -545,6 +569,26 @@ Different target asset classes require different backtest assumptions. These are
 **Sample period constraints:**
 - Crypto targets have shorter history — document the reduced sample size and its impact on statistical power. **Minimum requirements for crypto:** at least 1,500 daily observations (roughly 6 years for 24/7 assets) to support reliable GARCH estimation and regime detection. For BTC, data before 2017 may have exchange-specific liquidity artifacts — document which exchange data is used. For ETH, 2017+ data only provides ~2,500 observations — flag reduced degrees of freedom when running models with many parameters (e.g., 3-state HMM).
 - Some commodity futures have roll effects — document roll methodology
+
+## Derived Signal Persistence Rule (Mandatory)
+
+**Rule:** Any signal that can become a tournament winner must exist in a persistent artifact (CSV or parquet) before the tournament evaluation step runs. Runtime-only derived signals are prohibited.
+
+**Evidence:** HY-IG (pair #5): `hmm_2state_prob_stress` was computed inside `tournament_backtest.py` at runtime but never saved to disk. When `generate_winner_outputs.py` ran as a separate process, it could not find the signal column. The trade log was generated empty (header only, 0 rows).
+
+**Implementation:**
+
+1. After computing derived signals in the core models stage (HMM probabilities, Markov-switching states, z-scores, composite scores, RF probabilities), save ALL tournament-eligible signals to:
+   ```
+   results/{id}/signals_{date}.parquet
+   ```
+2. Use descriptive column names — never `state_0` or `prob_0`. Examples: `hmm_2state_prob_stress`, `markov_2state_prob_expansion`, `zscore_lb252`.
+3. The tournament stage reads signals from the persisted file, not from in-memory computation.
+4. Downstream consumers (`generate_winner_outputs.py`, execution panel, chart scripts) read from the same persisted file.
+
+**Schema:** DatetimeIndex + one column per signal variant. Signal column names must match the `signal` codes used in the tournament results CSV so that downstream consumers can resolve them without a mapping table.
+
+**Cross-reference:** See Team Coordination SOP, "Pipeline Self-Containment Contract" for the overarching pipeline integrity rule.
 
 ## Mid-Analysis Data Requests
 

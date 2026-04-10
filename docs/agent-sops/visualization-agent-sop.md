@@ -324,6 +324,18 @@ Maintain a reusable library of domain-standard charting conventions by indicator
 
 Apply the relevant convention for every indicator-target chart. Ray contributes initial library content; Vera maintains and extends.
 
+### Chart Presentation Quality Patterns
+
+These chart-level quality patterns were identified from the HY-IG reference analysis (pair #5). They supplement — not replace — the existing Quality Gates and style defaults above.
+
+1. **Dual-Panel Strategy Charts** — For equity curves, always pair with a drawdown panel directly below. The visual proximity helps readers understand risk alongside return. Use shared x-axis for alignment.
+
+2. **Regime Shading Subtlety** — When adding regime shading (recession bars, stress probability background), use subtle transparency (alpha 0.1–0.15). The data series is primary; the regime context is background. Over-saturated shading makes charts unreadable.
+
+3. **Annotation Density Rule** — Maximum 4–5 annotations per chart. If more events need marking, create a separate timeline chart instead. Over-annotated charts lose clarity. Prioritize annotations for: structural breaks, regime transitions, and events referenced in the narrative.
+
+4. **Educating Source Notes** — Source notes should include a brief parenthetical for non-obvious data sources. Example: "Source: FRED (ICE BofA indices — measures corporate bond risk premiums)" rather than just "Source: FRED". This helps layman readers understand what the data represents without leaving the chart.
+
 **Multi-Series Escalation Rules:**
 
 When a chart has many series, escalate the visual approach based on count:

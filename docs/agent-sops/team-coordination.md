@@ -83,10 +83,45 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 13 | Sidebar navigation | Finding appears in sidebar dropdown |
 | 14 | Landing card | Pair appears in dashboard card grid |
 | 15 | Catalog status | `docs/priority-combinations-catalog.md` updated to "Completed" |
+| 16 | Winner summary | `results/{id}/winner_summary.json` exists, all required fields populated (signal, threshold, strategy display names, OOS metrics) |
+| 17 | Winner trade log | `results/{id}/winner_trade_log.csv` exists, rows > 0, columns: `entry_date`, `exit_date`, `direction`, `holding_days`, `trade_return_pct` |
+| 18 | Execution notes | `results/{id}/execution_notes.md` exists, non-empty, includes step-by-step execution guidance |
+
+**Evidence:** HY-IG (pair #5) shipped with a header-only trade log (0 data rows) because items 16–18 were not in the completeness gate. The downstream execution panel showed "Trade log pending" with no data. Nobody caught it until manual inspection.
 
 ### Variant Families
 
 When one priority pair spawns multiple variants (e.g., TED → 3 variants), the deliverables above apply to the **shared pages** — but all 4 page types (Story, Evidence, Strategy, Methodology) must still exist. Sharing pages across variants is acceptable; omitting a page type is not.
+
+## Pipeline Self-Containment Contract (Mandatory)
+
+### Why This Exists
+
+HY-IG (pair #5) required 3 separate scripts run in a specific sequence: `data_pipeline_hy_ig_spy.py` → `stage2_core_models.py` → `tournament_backtest.py`. The HMM probability signal (`hmm_2state_prob_stress`) was computed at runtime inside `tournament_backtest.py` but never persisted. When `generate_winner_outputs.py` ran later as a separate process, it could not find the signal — producing an empty trade log. Fragmented pipelines with runtime-only derived signals create invisible dependencies that break downstream consumers.
+
+### The Contract
+
+Every indicator-target pair must have a **single self-contained pipeline script** (`scripts/pair_pipeline_{id}.py`) that produces ALL artifacts needed by downstream consumers. Specifically, the pipeline must:
+
+1. **Source raw data** from external APIs (FRED, Yahoo Finance, etc.)
+2. **Compute and persist ALL derived signals** — including HMM probabilities, Markov states, z-scores, composite scores, and any other signal that could become a tournament winner. These must be saved to `results/{id}/signals_{date}.parquet` per the Econometrics SOP Derived Signal Persistence Rule.
+3. **Run the tournament** using signals from the persisted file (not in-memory computation)
+4. **Run validation** (walk-forward, bootstrap, stress tests, signal decay, transaction costs)
+5. **Generate winner outputs**: `winner_summary.json`, `winner_trade_log.csv`, `execution_notes.md`
+
+### What's Allowed Outside the Pipeline
+
+- **Chart generation** (`generate_charts_{id}.py`) may be a separate script — charts are a rendering concern, not a data pipeline concern
+- **Portal page creation** — Streamlit page files are developed separately by Ace
+
+### Verification
+
+After the pipeline runs, the following must be true without running any other script:
+- Completeness gate items 1–7 and 16–18 are satisfied from `results/{id}/`
+- The signals parquet contains all columns referenced in the tournament results CSV
+- A fresh clone can regenerate all data by running only the pipeline script (plus API keys)
+
+**Cross-reference:** See Econometrics SOP, "Derived Signal Persistence Rule" for signal-level requirements.
 
 ## Iterative Review: Browser Verification (Mandatory After Portal Assembly)
 

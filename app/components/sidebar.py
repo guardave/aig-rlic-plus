@@ -7,7 +7,7 @@ import streamlit as st
 FINDINGS = [
     {
         "id": "hy_ig_spy",
-        "label": "HY-IG → SPY",
+        "label": "Sample Analysis: HY-IG → SPY",
         "pages": {
             "Story": "pages/1_hy_ig_story.py",
             "Evidence": "pages/2_hy_ig_evidence.py",

@@ -14,7 +14,7 @@ def load_pair_registry():
     # HY-IG → SPY (legacy, hardcoded)
     pairs.append({
         "pair_id": "hy_ig_spy",
-        "indicator": "HY-IG Credit Spread",
+        "indicator": "Sample: HY-IG Credit Spread",
         "indicator_id": "HY_IG_OAS",
         "target": "S&P 500",
         "target_ticker": "SPY",

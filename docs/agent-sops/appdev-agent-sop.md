@@ -218,6 +218,60 @@ def render_differs_from(indicator_id: str, current_target: str,
 
 Display data provenance for transparency: which MCP server sourced each series, last refresh timestamp, alignment method. Populated from Dana's data dictionary (Refresh Source, Refresh Freq columns).
 
+### 3.6 Strategy Execution Panel (Standard Component)
+
+The Strategy Execution Panel appears on every Strategy page for every pair. It provides the complete execution story for the tournament winner in a tabbed layout. **Evidence:** Built ad-hoc for HY-IG (pair #5); proved effective and is now standardized for all pairs.
+
+**Layout: 3 tabs**
+
+**Tab 1 — Execute:**
+
+| Component | Source File | Content |
+|-----------|------------|---------|
+| Strategy Summary | `winner_summary.json` | Signal display name, threshold, strategy type, lead time, plain-English strategy description |
+| Trigger Breakdown | `winner_summary.json` + `interpretation_metadata.json` | Signal/threshold/lead detail in two columns; direction badge |
+| Strategy SOP | `execution_notes.md` | Step-by-step execution guidance; fallback to raw parameters if notes missing |
+
+**Tab 2 — Performance:**
+
+| Component | Source File | Content |
+|-----------|------------|---------|
+| Equity Curve + Drawdown | Plotly JSON charts (`{id}_equity_curves`, `{id}_drawdown`) | Strategy vs buy-and-hold with trade markers when available |
+| Trade Log | `winner_trade_log.csv` | `st.dataframe()` with entry/exit dates, direction, holding days, return per trade |
+| Market Regime | `exploratory_*/regime_descriptive_stats.csv` + regime chart | Historical regime performance table + current regime probabilities |
+
+**Tab 3 — Confidence:**
+
+| Component | Source File | Content |
+|-----------|------------|---------|
+| Confidence Assessment | `interpretation_metadata.json` + validation directory | Bootstrap, stress tests, walk-forward, transaction cost sensitivity |
+| Evidence Sources | `core_models_*/*.csv` (file existence check) | Availability table for each evidence type (Granger, Local Projections, etc.) |
+
+**Data contract:** If a source file is missing, render a "pending" placeholder (`st.info()`). Never fail silently — always show what's missing.
+
+**Implementation:** Import `render_execution_panel(pair_id)` from `components/execution_panel.py`. Single function call at the bottom of each Strategy page.
+
+**Cross-reference:** Winner outputs are mandatory deliverables — see Team Coordination SOP, Completeness Gate items 16–18.
+
+### 3.7 Rendering Patterns for Presentation Quality
+
+These rendering patterns were extracted from the HY-IG reference analysis (pair #5), which achieved excellent layman comprehension. They codify what already worked.
+
+1. **Information Layering** — Within each page, follow this progression: headline → KPIs → charts → narrative prose → caveats. The reader should see the "answer" before the "explanation."
+
+2. **Progressive Disclosure** — Use `st.expander()` for deeper content. The collapsed state must be a complete thought; the expanded state adds detail. Never put essential information only inside an expander.
+
+3. **KPIs Before Prose** — On every page, show headline numbers (via `st.metric()` or markdown table) before narrative text. Numbers are visual summaries; prose is interpretation.
+
+4. **Caveat Formatting** — Render caveats honestly and prominently:
+   - `st.warning()` for important limitations (e.g., "Past performance ≠ future results")
+   - `st.caption()` for minor qualifications
+   - Never hide caveats at the bottom of an expander
+
+5. **Transition Rendering** — Between major page sections, render bridge elements: `st.markdown("---")` followed by a transition sentence that motivates the reader to continue (e.g., "Now that we know the evidence is strong, the natural question is: can we trade on it?").
+
+**Cross-reference:** See Research SOP, "Presentation Quality Patterns (Narrative)" for the source patterns Ray encodes in the portal narrative deliverable.
+
 ### 4. Implement Charts and Interactivity
 
 **Chart integration rules:**

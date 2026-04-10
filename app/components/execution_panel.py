@@ -229,10 +229,6 @@ def _render_trade_table(paths: dict, pair_id: str):
     # Resolve path explicitly using absolute Path — do not rely on paths dict
     trade_log_path = _BASE / "results" / pair_id / "winner_trade_log.csv"
 
-    # TODO: Remove debug lines after confirming path resolution on Streamlit Cloud
-    st.write(f"Trade log path: {trade_log_path}")
-    st.write(f"Exists: {trade_log_path.exists()}")
-
     if not trade_log_path.exists():
         st.info("Trade log pending — requires data pipeline to generate "
                 "`winner_trade_log.csv`.")
@@ -464,8 +460,7 @@ def _render_evidence_source(paths: dict, metadata: dict | None, pair_id: str):
 
     # Caveats from metadata
     if metadata and metadata.get("caveats"):
-        with st.expander("Caveats & Limitations", expanded=False,
-                         key=f"ep_{pair_id}_caveats"):
+        with st.expander("Caveats & Limitations", expanded=False):
             for caveat in metadata["caveats"]:
                 st.markdown(f"- {caveat}")
 
@@ -496,7 +491,6 @@ def render_execution_panel(pair_id: str):
 
     tab_execute, tab_performance, tab_confidence = st.tabs(
         ["Execute", "Performance", "Confidence"],
-        key=f"ep_tabs_{pair_id}",
     )
 
     with tab_execute:

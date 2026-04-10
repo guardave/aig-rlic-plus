@@ -382,6 +382,24 @@ If Lesandro delegates narrative architecture, deliver a storytelling arc documen
 - Page 4 → 5: [transition]
 ```
 
+### Presentation Quality Patterns (Narrative)
+
+These patterns were identified from the HY-IG reference analysis (pair #5), which achieved excellent layman comprehension. They codify what already worked.
+
+**Scope:** Applies primarily to Pages 1–2 (Hook, Story) of the portal narrative. Pages 3–5 may use more technical language appropriate to the audience tier.
+
+1. **Plain English First** — Every section opens with a one-sentence layman summary before any technical content. No section starts with a number, model name, or statistical result. Example: "Most people think of stocks and bonds as separate worlds — but when companies borrow money, the price of that borrowing tells us something about where stock prices are headed."
+
+2. **Honest Caveats Inline** — After every strong claim, include a caveat in the same paragraph or immediately following. Do not bury caveats in a footnote or appendix. Example: "The strategy avoided 70% of the GFC drawdown — though it lagged the COVID V-shaped recovery by 3 months."
+
+3. **Transition Sentences Between Pages** — Every page-to-page transition must include a sentence that tells the reader WHY they should continue. The transition motivates progression, not just announces the next topic. Example: "History suggests a real connection between credit spreads and stocks — but anecdotes are not evidence. We subjected 25 years of daily data to a battery of statistical tests..."
+
+4. **Self-Contained Expanders** — Content marked for `st.expander()` must be self-contained: a reader who skips it should not miss anything essential for understanding the main narrative. A reader who opens it should get a complete deeper explanation, not a fragment.
+
+5. **Analogy-First for Mechanisms** — When explaining an economic mechanism, lead with a concrete analogy, then follow with the technical definition. Example: "Think of the credit spread as the price of insurance against corporate default" → then: "Formally, it is the yield differential between high-yield and investment-grade corporate bonds, measured in basis points."
+
+**Cross-reference:** See AppDev SOP, "Rendering Patterns for Presentation Quality" for how Ace implements these in Streamlit.
+
 ### Handoff to Ace
 
 After delivering the portal narrative and/or storytelling arc:

@@ -3,6 +3,7 @@
 import os
 import sys
 
+import pandas as pd
 import streamlit as st
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -200,11 +201,22 @@ st.markdown("---")
 # ===================== DOWNLOAD TRADING HISTORY =====================
 st.markdown("### Download Trading History")
 
-st.info(
-    "Trading history download for HY-IG → SPY will be available when the "
-    "pipeline is migrated to the standardized template. In the meantime, "
-    "the tournament results are available in `results/tournament_results_20260228.csv`."
-)
+from pathlib import Path
+_trade_log_path = Path(__file__).resolve().parents[2] / "results" / "hy_ig_spy" / "winner_trade_log.csv"
+if _trade_log_path.exists():
+    _trade_df = pd.read_csv(_trade_log_path)
+    if len(_trade_df) > 0:
+        st.dataframe(_trade_df, use_container_width=True, hide_index=True)
+        st.download_button(
+            label="Download CSV",
+            data=_trade_df.to_csv(index=False),
+            file_name="hy_ig_spy_trade_log.csv",
+            mime="text/csv",
+        )
+    else:
+        st.info("Trade log is empty — re-run `scripts/generate_winner_outputs.py`.")
+else:
+    st.info("Trade log not yet generated — run `scripts/generate_winner_outputs.py`.")
 
 st.markdown("---")
 

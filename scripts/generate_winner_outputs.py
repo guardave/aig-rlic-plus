@@ -106,15 +106,45 @@ STRATEGY_DESCRIPTIONS = {
 
 def find_latest_tournament(pair_id: str) -> str | None:
     """Find the latest tournament_results CSV for a pair."""
+    # Nested layout: results/{pair_id}/tournament_results_*.csv
     pair_dir = os.path.join(BASE, "results", pair_id)
     files = sorted(glob(os.path.join(pair_dir, "tournament_results_*.csv")))
-    return files[-1] if files else None
+    if files:
+        return files[-1]
+    # Legacy flat layout: results/tournament_results_*.csv (e.g. hy_ig_spy)
+    flat = sorted(glob(os.path.join(BASE, "results", "tournament_results_*.csv")))
+    return flat[-1] if flat else None
 
 
 def load_winner(tourn_path: str) -> pd.Series | None:
-    """Load tournament CSV and return the winner row."""
+    """Load tournament CSV and return the winner row.
+
+    Handles two schemas:
+      - Standard: columns signal, threshold, strategy, lead_months/lead_days, valid, oos_*
+      - Legacy (hy_ig_spy): signal_id, signal_col, threshold_method, strategy_id, lead_time, valid, oos_*
+    Normalizes legacy to standard column names before returning.
+    """
     tdf = pd.read_csv(tourn_path)
-    valid = tdf[tdf["valid"] & (tdf["signal"] != "BENCHMARK")]
+
+    # Normalize legacy schema
+    rename_map = {}
+    if "signal_id" in tdf.columns and "signal" not in tdf.columns:
+        rename_map["signal_col"] = "signal"
+        rename_map["threshold_method"] = "threshold"
+        rename_map["strategy_id"] = "strategy"
+        if "lead_time" in tdf.columns:
+            rename_map["lead_time"] = "lead_days"
+        if "oos_max_dd" in tdf.columns and "max_drawdown" not in tdf.columns:
+            rename_map["oos_max_dd"] = "max_drawdown"
+    if rename_map:
+        tdf = tdf.rename(columns=rename_map)
+
+    # Compute oos_n if missing (needed for threshold calculation)
+    if "oos_n" not in tdf.columns:
+        tdf["oos_n"] = len(tdf)  # Placeholder; will be overridden below
+
+    signal_col = "signal" if "signal" in tdf.columns else "signal_id"
+    valid = tdf[tdf["valid"] & (tdf[signal_col] != "BENCHMARK")]
     if len(valid) == 0:
         return None
     return valid.loc[valid["oos_sharpe"].idxmax()]
@@ -270,19 +300,70 @@ def resolve_signal_column(df: pd.DataFrame, sig_name: str, pair_id: str) -> str 
     return None
 
 
+def _enrich_with_derived_signals(df: pd.DataFrame, pair_id: str) -> pd.DataFrame:
+    """Augment raw data with derived signals from core model outputs.
+
+    Some signals (HMM probabilities, Markov-switching, composite scores) are
+    computed in stage2_core_models and stored separately.  The tournament scripts
+    load them at runtime, but they are not in the raw parquet.  This function
+    replicates that join so generate_trade_log can resolve those columns.
+    """
+    # Locate core_models directory (nested under pair or legacy top-level)
+    pair_core = os.path.join(BASE, "results", pair_id)
+    candidates = sorted(glob(os.path.join(pair_core, "core_models_*")))
+    if not candidates:
+        # Legacy flat layout
+        candidates = sorted(glob(os.path.join(BASE, "results", "core_models_*")))
+    if not candidates:
+        return df
+
+    core_dir = candidates[-1]
+
+    # HMM 2-state stress probability
+    hmm2_path = os.path.join(core_dir, "hmm_states_2state.parquet")
+    if os.path.exists(hmm2_path) and "hmm_2state_prob_stress" not in df.columns:
+        hmm2 = pd.read_parquet(hmm2_path)
+        if "prob_state_0" in hmm2.columns:
+            df["hmm_2state_prob_stress"] = hmm2["prob_state_0"].reindex(df.index)
+
+    # HMM 3-state
+    hmm3_path = os.path.join(core_dir, "hmm_states_3state.parquet")
+    if os.path.exists(hmm3_path) and "hmm_3state_prob_stress" not in df.columns:
+        hmm3 = pd.read_parquet(hmm3_path)
+        if "prob_state_0" in hmm3.columns:
+            df["hmm_3state_prob_stress"] = hmm3["prob_state_0"].reindex(df.index)
+
+    return df
+
+
 def generate_trade_log(pair_id: str, winner: pd.Series, metadata: dict) -> pd.DataFrame | None:
     """Produce winner_trade_log.csv — pre-computed trade-level metrics.
 
     This is backtest logic belonging to Evan's domain.
     """
-    # Find data file
+    # Find data file — prefer monthly for monthly indicators, daily otherwise
     data_dir = os.path.join(BASE, "data")
     data_files = [f for f in os.listdir(data_dir)
                   if f.startswith(pair_id) and f.endswith(".parquet")]
     if not data_files:
         return None
 
-    df = pd.read_parquet(os.path.join(data_dir, data_files[0]))
+    # Monthly indicators use lead_months; daily use lead_days
+    lead_col, _ = determine_lead_col(winner)
+    prefer_monthly = "month" in lead_col
+    monthly = [f for f in data_files if "monthly" in f]
+    daily = [f for f in data_files if "daily" in f]
+    if prefer_monthly and monthly:
+        chosen = monthly[0]
+    elif daily:
+        chosen = daily[0]
+    else:
+        chosen = data_files[0]
+
+    df = pd.read_parquet(os.path.join(data_dir, chosen))
+
+    # Enrich with derived signals from core model outputs (HMM, etc.)
+    df = _enrich_with_derived_signals(df, pair_id)
 
     # Resolve signal column
     sig_name = winner["signal"]
@@ -522,6 +603,18 @@ def main():
             continue
         if any(f.startswith("tournament_results") for f in os.listdir(pair_path)):
             pairs.append(name)
+
+    # Also include legacy pairs that have a pair subdirectory with metadata
+    # but tournament results at the top level (e.g. hy_ig_spy)
+    for name in sorted(os.listdir(results_dir)):
+        pair_path = os.path.join(results_dir, name)
+        if not os.path.isdir(pair_path) or name in pairs:
+            continue
+        if os.path.exists(os.path.join(pair_path, "interpretation_metadata.json")):
+            if find_latest_tournament(name) is not None:
+                pairs.append(name)
+
+    pairs = sorted(pairs)
 
     if not pairs:
         print("No pairs with tournament results found.")
