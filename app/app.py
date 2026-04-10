@@ -117,12 +117,24 @@ for i in range(0, len(pairs), cols_per_row):
                     st.caption(finding)
 
                 # Navigation buttons (2x2 to avoid label clipping)
+                nav_links = [
+                    ("Story", "📖", p["story_page"]),
+                    ("Evidence", "🔬", p["evidence_page"]),
+                    ("Strategy", "🎯", p["strategy_page"]),
+                    ("Methods", "📐", p["methodology_page"]),
+                ]
                 r1a, r1b = st.columns(2)
-                r1a.page_link(p["story_page"], label="Story", icon="📖")
-                r1b.page_link(p["evidence_page"], label="Evidence", icon="🔬")
                 r2a, r2b = st.columns(2)
-                r2a.page_link(p["strategy_page"], label="Strategy", icon="🎯")
-                r2b.page_link(p["methodology_page"], label="Methods", icon="📐")
+                for slot, (label, icon, page_path) in zip(
+                    [r1a, r1b, r2a, r2b], nav_links
+                ):
+                    try:
+                        slot.page_link(page_path, label=label, icon=icon)
+                    except Exception:
+                        # Fallback: derive URL from page filename
+                        url_name = os.path.splitext(os.path.basename(page_path))[0]
+                        url_name = "_".join(url_name.split("_")[1:])  # strip numeric prefix
+                        slot.markdown(f"{icon} [{label}](/{url_name})")
 
 # --- Footer ---
 st.markdown("---")

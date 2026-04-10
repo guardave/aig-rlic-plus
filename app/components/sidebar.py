@@ -91,9 +91,16 @@ def render_sidebar():
 
         if selected:
             finding = next(f for f in FINDINGS if f["label"] == selected)
+            icons = {"Story": "📖", "Evidence": "🔬", "Strategy": "🎯", "Methodology": "📐"}
             for page_label, page_path in finding["pages"].items():
-                icons = {"Story": "📖", "Evidence": "🔬", "Strategy": "🎯", "Methodology": "📐"}
-                st.page_link(page_path, label=page_label, icon=icons.get(page_label, "📄"))
+                try:
+                    st.page_link(page_path, label=page_label, icon=icons.get(page_label, "📄"))
+                except Exception:
+                    import os
+                    url_name = os.path.splitext(os.path.basename(page_path))[0]
+                    url_name = "_".join(url_name.split("_")[1:])
+                    icon = icons.get(page_label, "📄")
+                    st.markdown(f"{icon} [{page_label}](/{url_name})")
 
         st.markdown("---")
 
