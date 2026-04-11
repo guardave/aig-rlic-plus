@@ -1,6 +1,79 @@
 # Session Notes — Lead Lesandro
 
-## Session: 2026-04-09
+## Session: 2026-04-11 (SOP hardening Part D+E + trade log UX)
+
+### Context
+Full-day session responding to stakeholder dashboard review (pptx comments from 2026-03-21 and 2026-03-28). Major themes: audience-friendliness, 8-element Evidence template, landing page filters, SOP regression prevention, trade log presentation.
+
+### Commits (8 today)
+- `17f1690` Fix StreamlitPageNotFoundError on Cloud (try/except fallback on page_link)
+- `8767a8a` Fix chart rendering filename mismatch (Vera prefixed vs Ace unprefixed)
+- `61efe7d` SOP: Writing Voice & Audience rules (Research + AppDev)
+- `d9aeaff` HY-IG v2 narrative + pages rewritten with audience-friendly rules
+- `c5bf1a9` SOP hardening Part D (8-element template + landing filters + classification schema)
+- `42c0ea7` Force Cloud redeploy (docstring expansion of pair_registry)
+- `62c60e9` SOP hardening Part E (9 stakeholder rules + 15 self-review + 10 cross-review)
+- `b6dd6a9` Retroactive HY-IG v2 fixes (unit audit, method coverage, canonical charts)
+- `8ef55c5` Trade log UX fix (broker-style CSV + column legend + narrative)
+
+### Tag
+- `sop-hardening-partE` — snapshot of SOPs after Parts D+E, before retroactive fixes
+
+### Backup
+- `temp/backups/workspace_backup_20260411_213715_62c60e9_sop-hardening-partE.zip` (199 MB, 2078 files, includes .git)
+
+### Key Accomplishments
+
+**Part D (stakeholder presentation fixes):**
+- 8-element Evidence template (Method/Question/How-to-Read/Graph/Observation/Deep Dive/Interpretation/Key Message) added to Research + AppDev SOPs
+- Classification metadata schema extended (indicator_nature, indicator_type, strategy_objective) with 8 pairs backfilled
+- Landing page enhanced: exec summary, 5-column filter row, classification chips, color-coded Sharpe/MDD badges, integrity warning
+
+**Part E (SOP hardening from stakeholder bug review):**
+- Wave 1: 9 stakeholder-driven rules + "Explicit Over Implicit" meta-rule across 4 SOPs (+164 lines)
+- Wave 2: Phase 1 self-review by 5 agents in parallel, each added 3 targeted rules to their own SOP (+213 lines)
+- Wave 3: Phase 2 Path B consolidated cross-review — 10 contract fixes across 5 SOPs in one pass (+136 lines)
+- Total +513 lines across 6 SOP files
+
+**Retroactive HY-IG v2 application (validates hardened SOPs):**
+- Evan: CCF + Transfer Entropy + Quartile Returns data + tournament_winner.json + regression note
+- Vera: Hero chart unit audit revealed data was 100x too small (percent under "bps" label); fixed to 147-1531 bps range with dual-panel layout. Canonicalized correlation heatmap.
+- Ray: 3 new 8-element method blocks, bps dual notation throughout, 5 glossary entries expanded per 4-element rubric
+- Ace: Evidence page 5 tabs → 8 tabs, render-time 8-element linter implemented
+
+**Trade log UX fix (3-layer fix based on stakeholder complaint):**
+- Econometrics Rule C4: dual trade log output (internal position log + broker-style discrete trade log)
+- AppDev §3.8 #5: column legend required for any downloadable artifact
+- Research: "How to Read the Trade Log" mandatory subsection on Strategy page
+- HY-IG v2 pilot: Evan produced winner_trades_broker_style.csv (418 rows, 10 columns), Ray wrote subsection using COVID 2020 concrete example, Ace rebuilt Strategy page with legend + dual downloads + preview dataframe
+
+### Lessons Learned
+
+1. **Agent delegation is load-bearing.** User corrected me twice when I started doing agent-level work manually. Lead role = diagnose + decide + coordinate, never implement. Even "trivial" rewrites (chart file copies, SOP edits) should be dispatched.
+
+2. **SOPs are the right intervention for stakeholder complaints.** The 2026-03-21/28 review had 9 distinct complaints, and every one was a gap in the SOP rules. Fixing the SOPs systematically (rather than one-off patches) is both more maintainable AND validates that the agent team can deliver quality when the rules are clear.
+
+3. **"Silent changes are unacceptable" is the meta-pattern.** Every stakeholder-visible bug (axis inversion, unit mismatch, dropped methods, heatmap signals changed) was an agent making a deliberate decision without documenting it. The fix is always to make the deviation explicit via regression_note.md — not to patch the display layer.
+
+4. **Phase 1 self-review > Phase 2 cross-review** for ROI. When each agent self-reviews and lists "gaps belonging to other agents," you get 80% of the cross-review value at 20% of the dispatch cost. Skipped Phase 2 cross-review entirely and went straight to consolidation — saved 5 dispatches.
+
+5. **Streamlit Cloud needs forced redeploy sometimes.** Pushing code doesn't always trigger a clean redeploy — cached pair_registry.py served stale ImportError. Fixed via trivial docstring change that forced a rebuild.
+
+6. **Playwright text-content checks fail on Streamlit Cloud.** Streamlit renders content inside iframes/shadow DOM that `content` property can't penetrate. Must use tall viewports (6000px) with `full_page=True` screenshots and verify visually.
+
+7. **Hero chart unit audit caught a 100x bug.** The A2 Unit Discipline rule worked on first production use — Vera's new pre-save audit found the percent-vs-bps mismatch that had been in the chart since the 2026-04-10 v2 run. SOP rules validate themselves when agents actually follow them.
+
+### Status
+- 5 of 73 pairs completed (HY-IG has both sample and v2, v2 now has 8-method Evidence + broker-style trade log)
+- SOPs deeply hardened: 6 SOPs, +513 lines of Part E rules, 3 new trade-log rules
+- Cloud portal verified live with all fixes (6 findings, 8-tab HY-IG v2 Evidence, new Strategy trade log section)
+- Next: Pair #4 US10Y-US3M, OR cross-pair rollout of trade log UX, OR glossary architecture migration
+
+---
+
+## Session: 2026-04-10
+
+### Context
 
 ### Context
 SOD checkpoint. Pulled 5 new commits from remote (another session's work on HY-IG execution panel, trade log CSV, bug fixes). No new work done yet in this session.

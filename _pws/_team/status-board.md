@@ -1,5 +1,32 @@
 # Team Status Board
 
+## 2026-04-11 — Lead Lesandro
+
+**Status:** Completed (EOD)
+
+**Accomplished:**
+- Part D: 8-element Evidence template, classification metadata schema, landing page filters + chips + badges (+650 lines across SOPs + metadata + app)
+- Part E: SOP hardening from stakeholder bug review — 9 stakeholder rules + 15 self-review rules (5 agents in parallel) + 10 cross-review contract fixes (+513 lines across 6 SOPs)
+- Retroactive HY-IG v2 application: CCF + Transfer Entropy + Quartile Returns added, hero chart unit bug fixed (data was 100x too small), canonical heatmap, 8-tab Evidence, broker-style trade log with column legend and COVID 2020 concrete example
+- Trade log UX fix: 3-layer (schema/rendering/explanation) with new Econometrics C4, AppDev §3.8 #5, Research "How to Read" rules
+- 8 commits pushed; tag `sop-hardening-partE`; backup zip created (199 MB)
+
+**Discoveries & Insights:**
+- **Meta-rule: "Silent changes are unacceptable."** Every stakeholder-visible bug (axis inversion, unit mismatch, dropped methods, heatmap signals) was an agent making a deliberate decision without documentation. Fix at source via regression_note.md.
+- **A2 Unit Discipline caught a 100× bug on first production use.** Hero chart had data in percent under a "bps" axis label — Vera's pre-save audit found it.
+- **Phase 1 self-review > Phase 2 cross-review** for ROI. Agents self-flag "gaps belonging to others" during self-review; straight to consolidation saves 5 dispatches.
+- **Cross-agent boundary contracts are the #1 source of bugs.** Chart filenames, caption ownership, trade log schema — every bug was at a handoff point where neither agent's SOP committed to an explicit contract.
+- **Streamlit Cloud can serve stale cached modules** even after push. Fix: trivial docstring change forces a clean redeploy.
+
+**Blockers:** None
+
+**Next Steps:**
+- Cross-pair rollout of trade log UX fix to 5 other pairs (reusable script ready)
+- Pair #4: US10Y-US3M → SPY (first pair on fully hardened SOPs)
+- Glossary architecture migration (docs/portal_glossary.json as source of truth)
+
+---
+
 ## 2026-04-10 — Lead Lesandro
 
 **Status:** Completed

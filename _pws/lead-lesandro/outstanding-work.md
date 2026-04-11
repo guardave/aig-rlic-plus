@@ -17,10 +17,28 @@
 
 ## SOP Improvements To Consider
 - [x] Add audience-friendliness rules to Research + AppDev SOPs (done 2026-04-10)
+- [x] Add 8-element Evidence template to SOPs (done 2026-04-11, Part D)
+- [x] Add classification metadata schema + gate items 19-21 (done 2026-04-11, Part D)
+- [x] SOP hardening from stakeholder bug review (done 2026-04-11, Part E — 34 new rules)
+- [x] Add chart naming convention (done 2026-04-11, Viz Rule A3 canonical path)
+- [x] Add trade log UX rules: Econometrics C4, AppDev §3.8 #5, Research "How to Read" (done 2026-04-11)
 - [ ] Codify "variant family" pattern formally in team-coordination SOP
 - [ ] Add short-OOS auto-flag (< 5 years) to econometrics SOP
 - [ ] Update Relevance Matrix with RoC signal preference note
-- [ ] Add chart naming convention to team-coordination SOP (Vera prefix vs Ace no-prefix)
+
+## Architecture Items Surfaced But Not Yet Done
+- [ ] Glossary architecture migration: Ray owns `docs/portal_glossary.json`, Ace migrates `glossary.py` to read from it. Currently Ray is editing glossary.py directly as a workaround.
+- [ ] Chart filename dedup: both canonical short names (`hero.json`) and legacy prefixed names (`hy_ig_v2_spy_hero.json`) coexist during migration. Cleanup when loader fallback is removed.
+- [ ] tournament_winner.json schema defined in team-coordination but not yet produced by all prior pairs — Evan needs to backfill.
+
+## Trade Log UX — Cross-Pair Rollout Needed
+The three-layer fix (Evan broker-style CSV + Ace column legend + Ray narrative) is live on HY-IG v2. The 5 other completed pairs still use the old bare-CSV download pattern:
+- [ ] hy_ig_spy (sample)
+- [ ] indpro_spy
+- [ ] sofr_ted_spy / dff_ted_spy / ted_spliced_spy (shared pages)
+- [ ] permit_spy
+- [ ] vix_vix3m_spy
+Reusable script `scripts/synthesize_broker_trade_log.py` is ready; just needs per-pair dispatch of Evan → Ray → Ace.
 
 ## Portal Improvements To Consider
 - [ ] Auto-generate sidebar FINDINGS list from pair_registry instead of hardcoding
