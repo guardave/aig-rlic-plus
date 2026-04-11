@@ -1,4 +1,8 @@
-"""Registry of analyzed indicator-target pairs for the portal."""
+"""Registry of analyzed indicator-target pairs for the portal.
+
+Exposes pair metadata loaded from `results/<pair>/interpretation_metadata.json`
+plus classification helpers used by the landing page filter row.
+"""
 
 import json
 import os
