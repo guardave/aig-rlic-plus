@@ -1,0 +1,8 @@
+{
+  "chart_type": "ccf_prewhitened",
+  "pair_id": "hy_ig_v2_spy",
+  "caption": "Pre-whitened cross-correlation bars at lags \u221220 to +20 days between HY-IG spread changes and SPY log returns. Blue bars are significant at 95%, grey are not. Dotted lines mark \u00b11.96/\u221aN significance bands.",
+  "owner": "viz-vera",
+  "produced_on": "2026-04-11",
+  "source_script": "scripts/retro_fix_hy_ig_v2_vera_20260411.py"
+}

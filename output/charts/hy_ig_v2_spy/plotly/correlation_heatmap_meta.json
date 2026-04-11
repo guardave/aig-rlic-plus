@@ -1,0 +1,8 @@
+{
+  "chart_type": "correlation_heatmap",
+  "pair_id": "hy_ig_v2_spy",
+  "caption": "Heatmap of Pearson correlations between 8 credit-stress signals (rows) and SPY forward returns at 6 horizons (1d, 5d, 21d, 63d, 126d, 252d). Signals ranked descending by |correlation| at the 63-day horizon; diverging RdBu_r palette centered at zero.",
+  "owner": "viz-vera",
+  "produced_on": "2026-04-11",
+  "source_script": "scripts/retro_fix_hy_ig_v2_vera_20260411.py"
+}

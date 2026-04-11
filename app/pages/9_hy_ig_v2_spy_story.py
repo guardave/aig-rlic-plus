@@ -68,15 +68,16 @@ st.markdown("---")
 # ---------------------------------------------------------------------------
 st.markdown("### 25 Years of Credit Spreads vs. S&P 500")
 load_plotly_chart(
-    "spread_history_annotated",
+    "hero",
     fallback_text=(
-        "Hero chart: HY-IG spread (inverted) vs SPY price (2000-2025) with "
-        "NBER recession bands and event annotations."
+        "Hero chart: HY-IG spread vs SPY price (2000-2025) with NBER "
+        "recession bands and event annotations."
     ),
     caption=(
-        "Dual-axis view: HY-IG spread (left, inverted so widening = down) and "
-        "SPY price (right). Vertical shaded bands mark NBER recessions. "
-        "Notice how the spread widens (dips) before or during equity declines."
+        "Dual-panel view: HY-IG spread on top (bps, where 100 bps = 1%) and "
+        "SPY price below, sharing a common time axis. Vertical shaded bands "
+        "mark NBER recessions. Notice how the spread widens before or during "
+        "equity declines."
     ),
     pair_id="hy_ig_v2_spy",
 )

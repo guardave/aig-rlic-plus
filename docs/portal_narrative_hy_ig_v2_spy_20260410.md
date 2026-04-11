@@ -16,7 +16,7 @@ The bond market often sees trouble coming before the stock market does -- and th
 ### Headline Findings for KPI Cards
 
 1. **Credit led equity by ~5 months before the 2008 crash** -- the HY-IG credit spread (the extra yield that investors demand to hold risky corporate bonds instead of safe ones -- essentially the price of insurance against companies going bust) began widening in June 2007, while stocks did not peak until October 2007.
-2. **Spreads widened from 300 to 2,000+ basis points during the GFC** -- a basis point is 1/100th of a percentage point, so 2,000 basis points means risky companies were paying 20 full percentage points more than safe ones. That 6x increase reflected a market that believed a wave of corporate defaults was coming.
+2. **Spreads widened from 300 to 2,000+ basis points (3% to 20%+) during the GFC** -- a basis point is 1/100th of a percentage point, so 2,000 basis points means risky companies were paying 20 full percentage points more than safe ones. That 6x increase reflected a market that believed a wave of corporate defaults was coming.
 3. **Credit signals predicted 3 of the last 4 major equity drawdowns** -- a drawdown is a peak-to-trough decline in value. The dot-com bust (2001), the Global Financial Crisis (2008), and the COVID crash (2020) were all preceded or accompanied by dramatic spread widening. The 2022 rate shock is the honest exception -- more on that below.
 4. **The relationship is strongest during stress** -- when spreads are in their top quartile (top 25% of historical values), the connection between credit conditions and subsequent stock returns is significantly stronger than during calm periods. **What this means:** The signal earns its keep when you need it most -- during market crises -- and stays quiet the rest of the time.
 5. **Out-of-sample testing covers 8 years (2018-2025)** -- including the 2018 volatility spike, COVID crash, 2022 rate shock, and 2023-25 recovery. "Out-of-sample" means this period was hidden from the models during training, so it provides a genuine real-world test of whether the signal holds up on data it has never seen.
@@ -67,13 +67,13 @@ The practical implication: when you see credit spreads widening, it means the ma
 
 We analyzed 25 years of daily data (January 2000 through December 2025), covering four major market disruptions. Each episode reveals a different facet of how credit spreads interact with stock prices.
 
-**The Dot-Com Bust (2001-2002).** Credit spreads began widening well before the recession officially started in March 2001. High-yield spreads climbed from roughly 500 to over 1,000 basis points as the telecom and technology sectors imploded, highlighted by the WorldCom bankruptcy in July 2002. The signal was genuine, though the lead time was shorter than in later episodes -- the dot-com bust was driven more by equity overvaluation than by credit deterioration, so the credit market was a contemporaneous confirmer rather than a leading indicator.
+**The Dot-Com Bust (2001-2002).** Credit spreads began widening well before the recession officially started in March 2001. High-yield spreads climbed from roughly 500 to over 1,000 basis points (5% to 10%+) as the telecom and technology sectors imploded, highlighted by the WorldCom bankruptcy in July 2002. The signal was genuine, though the lead time was shorter than in later episodes -- the dot-com bust was driven more by equity overvaluation than by credit deterioration, so the credit market was a contemporaneous confirmer rather than a leading indicator.
 
 **The Global Financial Crisis (2007-2009).** This is the textbook example of credit leading equity. Credit spreads started widening in mid-2007, following the collapse of two Bear Stearns hedge funds that were exposed to subprime mortgages. The stock market did not peak until October 2007 -- giving attentive investors roughly five months of warning. By the time Lehman Brothers collapsed in September 2008, the HY-IG spread had already reached roughly 800 basis points. It eventually peaked above 2,000 basis points in December 2008. An investor who moved to cash when spreads crossed 2 standard deviations above their rolling mean would have avoided the majority of the drawdown -- though the timing of re-entry was equally critical.
 
-**The COVID Crash (2020).** Credit spreads surged from about 350 to 1,100 basis points in just five weeks (late February to late March 2020). This time, credit and equity moved almost simultaneously -- the speed of the pandemic shock compressed the usual lead time to near zero. However, the signal still provided value: the sheer magnitude of spread widening confirmed that the sell-off was not a garden-variety correction but a genuine liquidity crisis. The Federal Reserve's unprecedented intervention -- including direct corporate bond purchases announced on March 23, 2020 -- truncated the stress episode faster than any previous crisis.
+**The COVID Crash (2020).** Credit spreads surged from about 350 to 1,100 basis points (3.5% to 11%) in just five weeks (late February to late March 2020). This time, credit and equity moved almost simultaneously -- the speed of the pandemic shock compressed the usual lead time to near zero. However, the signal still provided value: the sheer magnitude of spread widening confirmed that the sell-off was not a garden-variety correction but a genuine liquidity crisis. The Federal Reserve's unprecedented intervention -- including direct corporate bond purchases announced on March 23, 2020 -- truncated the stress episode faster than any previous crisis.
 
-**The 2022 Rate Shock -- Where the Signal Struggled.** As the Federal Reserve raised interest rates at the fastest pace in four decades, credit spreads widened from about 300 to 500 basis points. The S&P 500 fell roughly 25%. But here is the honest caveat: the spread widening was modest compared to the equity decline. The mechanism was different -- this was not a credit crisis driven by deteriorating corporate balance sheets but a valuation repricing driven by higher discount rates. The HY-IG spread was reacting to the same force (rising rates) rather than providing an independent early warning. This episode illustrates a genuine limitation of the credit signal: it works best when stress originates in the credit cycle, and less well when the driver is pure monetary policy shock.
+**The 2022 Rate Shock -- Where the Signal Struggled.** As the Federal Reserve raised interest rates at the fastest pace in four decades, credit spreads widened from about 300 to 500 basis points (3% to 5%). The S&P 500 fell roughly 25%. But here is the honest caveat: the spread widening was modest compared to the equity decline. The mechanism was different -- this was not a credit crisis driven by deteriorating corporate balance sheets but a valuation repricing driven by higher discount rates. The HY-IG spread was reacting to the same force (rising rates) rather than providing an independent early warning. This episode illustrates a genuine limitation of the credit signal: it works best when stress originates in the credit cycle, and less well when the driver is pure monetary policy shock.
 
 <!-- expander: Is there a deeper signal within the credit market itself? (The CCC-BB quality spread) -->
 Not all high-yield bonds are equally risky. Within the high-yield universe, there is a meaningful hierarchy: BB-rated bonds are the least risky high-yield issues (just one notch below investment grade), while CCC-rated bonds are at the edge of default.
@@ -91,7 +91,7 @@ If the story ended at "wider spreads = lower stocks," building a profitable trad
 
 The connection changes depending on the market **regime** -- a regime is a distinct state of financial conditions, like "calm weather" versus "storm," where each state has its own patterns of returns, volatility, and correlations between assets:
 
-- **During calm periods** (when spreads are in their normal range of roughly 250-400 basis points), the predictive power of credit spreads for stock returns is modest. In fact, during these periods, stock prices tend to lead credit spreads -- equity markets set the pace, and credit markets follow. This makes intuitive sense: when things are going well, there is not much default risk to price, so the credit market mostly mirrors what equities are already saying.
+- **During calm periods** (when spreads are in their normal range of roughly 250-400 basis points, or 2.5% to 4%), the predictive power of credit spreads for stock returns is modest. In fact, during these periods, stock prices tend to lead credit spreads -- equity markets set the pace, and credit markets follow. This makes intuitive sense: when things are going well, there is not much default risk to price, so the credit market mostly mirrors what equities are already saying.
 - **During stress periods** (when spreads are in the top quartile of their historical range, roughly above 500 basis points), the relationship strengthens and may reverse direction -- credit markets appear to lead equity markets. This is consistent with the informed-trading and risk-appetite channels described above. It is also when the signal is most valuable: precisely when investors most need a warning.
 
 **What this means:** A simple "sell stocks when spreads widen" rule will not work because the signal is noisy during calm periods. An effective strategy needs to distinguish between calm and stressed markets and only act on the credit signal when it is in a state where it actually carries predictive power.
@@ -141,6 +141,8 @@ Three things to keep in mind. First, daily stock returns are dominated by noise 
 
 **8. Key Message:** **Linear correlations are weak at trading-horizon speeds but grow meaningfully negative at quarterly-to-annual horizons, confirming that credit spreads carry a slow-moving, right-signed warning rather than a daily trading signal.**
 
+`chart_status: "ready"`
+
 ---
 
 ## Method: Granger Causality (Toda-Yamamoto)
@@ -163,6 +165,8 @@ Not at all, but it does mean we need to read the numbers carefully. Bidirectiona
 **7. Interpretation:** At first glance, this looks like bad news for our hypothesis -- equity seems to lead credit far more strongly than credit leads equity. But read in the context of the Merton model, the result is exactly what theory predicts: both markets are repricing the same underlying corporate asset values, so information flows both ways. The practically important finding is that the credit-to-equity channel exists and is statistically significant at the 3-to-5-day horizon, with enough room for a trader to act. The asymmetry in strength tells us something subtler: in normal times, stock prices set the pace, and credit is a follower; the credit signal is quiet precisely because there is no stress to price. The signal's real value must come from **regime-dependent** behaviour -- which is what the HMM and regime-conditional tests pick up, and which the full-sample Granger test understates by averaging calm and stress together.
 
 **8. Key Message:** **Granger tests confirm a real but modest credit-leads-equity channel at 3-5 day lags -- small in the full-sample average because calm periods dilute it, but the foundation on which the regime-dependent strategy is built.**
+
+`chart_status: "ready"`
 
 ---
 
@@ -187,6 +191,8 @@ Vector autoregressions are the textbook tool for impulse responses, but they req
 
 **8. Key Message:** **A credit-spread shock drags equity returns progressively lower over the next three months, with the effect statistically significant by the 63-day horizon -- the slow burn is a feature, not a bug, because it opens a window for investors to act.**
 
+`chart_status: "ready"`
+
 ---
 
 ## Method: Regime Analysis (Hidden Markov Model)
@@ -210,6 +216,8 @@ The Gaussian HMM we use (fitted on daily HY-IG spread changes and VIX levels joi
 
 **8. Key Message:** **The market really does have two distinct states, and the HMM can identify the transition from calm to stress in near real time -- this is what turns the credit signal from an interesting correlation into a usable trading rule.**
 
+`chart_status: "ready"`
+
 ---
 
 ## Method: Quantile Regression
@@ -232,6 +240,83 @@ This pattern -- zero at the centre, large and opposite-signed at the tails -- is
 **7. Interpretation:** Credit spreads are a **risk signal**, not a return signal. They tell you when the distribution of outcomes is about to widen -- when both terrible and terrific days become more likely -- but they do not tell you the average outcome will be better or worse. This is exactly the right shape for a defensive tool: a rational risk-averse investor cares disproportionately about the left tail, so a signal that sharpens predictions specifically at the 5th and 10th percentiles is far more valuable than one that shifts the mean. The symmetric right-tail response also explains why the strategy cannot be run as a long-short system: the apparent "upside" in the right tail comes from stress-driven volatility, not genuine predictability of gains, and a short-during-stress position would get steamrolled by the same relief rallies that create those positive coefficients.
 
 **8. Key Message:** **Credit spreads are a fire alarm, not a green light -- they sharply predict the worst stock-return outcomes but say nothing about the average, which is why the strategy should reduce exposure in stress and never try to short it.**
+
+`chart_status: "ready"`
+
+---
+
+## Method: Pre-whitened Cross-Correlation Function (CCF)
+
+**1. The Method:** A **pre-whitened Cross-Correlation Function (CCF)** measures how strongly two time series move together at different time offsets -- lag 0 is contemporaneous, negative lags ask whether series A leads series B by that many days, positive lags ask the reverse. "Pre-whitened" means we first fit an ARIMA model to each series and run the cross-correlation on the residuals, because raw CCFs on autocorrelated financial data produce spurious lead-lag signals that are really just each series remembering its own past.
+
+**2. The Question It Answers:** *At short daily horizons, who moves first -- the bond market or the stock market -- and how many days of lead time (if any) does either side enjoy?*
+
+**3. How to Read the Graph:** The horizontal axis is lag in trading days, running from -20 (the spread moves 20 days after SPY) through 0 (contemporaneous) to +20 (the spread moves 20 days before SPY). The vertical axis is the pre-whitened correlation, bounded between -1 and +1. Each vertical bar is one lag; bars that cross the dashed horizontal lines at +/-0.0238 are statistically significant at the 95% level (the band is 1.96/sqrt(N) for N = 6,782 observations). Bars shaded darker are the significant ones; pale bars are noise. Read left-to-right: significant negative-lag bars mean SPY led the spread; significant positive-lag bars mean the spread led SPY.
+
+**4. Graph:** `ccf_prewhitened`
+
+**5. Observation:** 15 of the 41 lags from -20 to +20 are statistically significant at 95% confidence. The significant negative lags (SPY leading the spread) dominate: they land at -1, -2, -5, -7, -9, -12, -15, and -17 days, including the largest magnitude in the whole chart at lag -17 (CCF = -0.069). The contemporaneous lag (0) sits right at the significance boundary on the negative side. The positive-lag side (spread leading SPY) is much sparser, with significant bars only at +6, +7, +9, and +13 days. The overall visual impression is a left-weighted forest of negative bars on the "SPY leads" side and a thinner scatter of alternating-sign bars on the "spread leads" side.
+
+<expander>
+**6. Deep Dive -- What does "pre-whitened" actually change, and why did we pick ARIMA(2,0,2)?**
+A raw CCF on two autocorrelated series inherits the autocorrelation of both sides, so almost every lag ends up "significant" even when there is no genuine cross-dynamic relationship -- the statistic is really measuring each series talking to itself. Pre-whitening fixes this by fitting an ARIMA(p, d, q) model to each series, extracting the residuals (which are approximately white noise by construction), and running the CCF on those residuals. The cross-correlation that survives pre-whitening reflects only genuine dynamic interaction, not self-memory. We selected ARIMA(2,0,2) for both series by BIC grid search over p <= 5 and q <= 2 on the full daily sample (2000-01-03 to 2025-12-31, N = 6,782); the same order was applied to both the HY-IG spread and the SPY log-return series so neither side gets a filter the other does not. The 95% confidence half-width of +/-0.0238 follows from the usual 1.96/sqrt(N) large-sample rule.
+</expander>
+
+**7. Interpretation:** At sub-monthly horizons, the CCF says something that surprises readers who have only seen the "credit leads equity" headline: **it is stocks that move first, not credit.** The strongest significant bars sit on the negative-lag side -- SPY declines today are followed by spread widening over the next 1 to 17 days, not the other way around. This is not a contradiction of the Local Projections result at the 63-day horizon, where credit genuinely leads equity. It is a horizon-specific finding: at daily-to-weekly horizons the equity market reprices first and credit follows, while at the quarterly horizon the bond market's slow accumulation of default-risk information drags equity returns lower. Nor is it a contradiction of the Transfer Entropy result below: CCF is a linear filter that measures price-level co-movement, whereas Transfer Entropy measures nonlinear conditional distribution shifts. The two methods look at different properties of the same joint distribution and answer different questions.
+
+**8. Key Message:** **At daily-to-weekly horizons, equity moves first and credit follows -- the "credit leads equity" story is a quarterly-horizon phenomenon, not a short-term trading edge.**
+
+`chart_status: "ready"`
+
+---
+
+## Method: Transfer Entropy (Nonlinear Information Flow)
+
+**1. The Method:** **Transfer entropy (TE)** is an information-theoretic measure of directed information flow between two time series. Formally, it is the reduction in uncertainty about variable Y's next value that you gain from knowing variable X's past, over and above what you already learn from Y's own past. Unlike Granger causality and the CCF -- both of which are fundamentally linear tests of co-movement in levels -- transfer entropy captures nonlinear relationships and conditional distribution shifts, which is exactly the kind of regime-dependent signal credit-equity data is known to exhibit.
+
+**2. The Question It Answers:** *When we measure information flow in the nonlinear sense -- not just linear price co-movement -- how much information does credit carry about the next move in equities, and how much does equity carry about the next move in credit?*
+
+**3. How to Read the Graph:** The chart is a **paired bar plot** with two bars: one for "Credit -> Equity" (how much the past of the HY-IG spread reduces uncertainty about tomorrow's SPY return) and one for "Equity -> Credit" (the reverse). The vertical axis is transfer entropy measured in **nats** -- a natural-log unit of information, where bigger bars mean more information is flowing in that direction. The permutation p-value is annotated on each bar: p < 0.01 indicates the flow is statistically distinguishable from chance at the 1% level. The visual takeaway is the ratio between the two bars -- not the absolute heights, which are small in any information-theoretic study of daily returns.
+
+**4. Graph:** `transfer_entropy`
+
+**5. Observation:** The Credit -> Equity bar reaches 0.042 nats with permutation p = 0.004 (500 permutations), comfortably clearing the 1% significance threshold. The Equity -> Credit bar reaches only 0.0055 nats with p = 0.050 -- marginal significance at best. The Credit -> Equity bar is roughly 7.6x the height of the Equity -> Credit bar. Both bars are positive (no directional sign in information theory -- TE measures magnitude, not sign), but the asymmetry between them is the headline: information flows from credit into equity far more strongly than it flows from equity into credit.
+
+<expander>
+**6. Deep Dive -- What exactly is transfer entropy, and how is this different from Granger causality?**
+Transfer entropy from X to Y is defined as H(Y_t+1 | Y_t) - H(Y_t+1 | Y_t, X_t), where H denotes Shannon entropy. In plain English: how much smaller is our uncertainty about Y's next value once we know X's past, compared to only knowing Y's own past? If the answer is zero, X tells us nothing new about Y. If the answer is large, X carries genuine predictive information about Y that Y's own history does not capture. The key difference from Granger causality is that Granger is implemented as a linear regression test -- it can only see relationships that show up in conditional means. Transfer entropy is non-parametric and sees the full conditional distribution, so it picks up threshold effects, regime switches, and tail dependencies that a linear Granger test misses entirely. We estimated TE using a Shannon histogram with 6 equal-frequency (quantile) bins and lag 1 day, and tested significance with a circular block-shift permutation test using 500 permutations. Because `pyinform` was not available in the environment, the estimator was implemented from first principles following Schreiber (2000) -- see `scripts/retro_fix_hy_ig_v2_evan_20260411.py::transfer_entropy_hist` for the exact implementation. TE values are sensitive to bin count; the 6-bin choice is documented in the CSV `bin_method` field for reproducibility.
+</expander>
+
+**7. Interpretation:** When information flow is measured in the nonlinear sense -- capturing conditional distribution shifts rather than just linear price co-movement -- **credit leads equity by a decisive margin, roughly 7.6 to 1**. This is the finding that matters for the strategy: the credit channel does genuinely carry information that linear correlation and linear Granger tests understate, because it delivers that information through nonlinearities -- threshold effects, tail events, and regime switches -- which is exactly where credit signals have always been thought to earn their keep. Note that the TE result is not a contradiction of the CCF result above. CCF is a linear filter that picks up price-level co-movement and saw SPY leading at short lags; TE is a nonlinear measure that picks up conditional distribution shifts and sees credit dominating. Both are correct: the two methods measure different properties of the same joint distribution, and the credit signal shows up more clearly in the nonlinear measure because that is the channel through which it actually operates.
+
+**8. Key Message:** **In the nonlinear, information-theoretic sense, credit carries roughly 7.6x more information about equity than equity carries about credit -- this is the quantitative basis for building a credit-led equity-timing strategy.**
+
+`chart_status: "ready"`
+
+---
+
+## Method: Quartile Returns Analysis
+
+**1. The Method:** A **quartile returns analysis** sorts every day in the sample into four bins based on the HY-IG spread level that day -- Q1 is the 25% of days with the tightest spreads, Q4 is the 25% with the widest -- and computes full return statistics (mean, volatility, Sharpe, annualized return, max drawdown) for the SPY returns earned in each bin. It is the simplest possible regime-conditional check: does the forward return distribution for SPY look different depending on which credit-cycle state we are in, without any fitted model telling us where the regime boundaries should fall?
+
+**2. The Question It Answers:** *If we had done nothing more sophisticated than "buy SPY when HY-IG spreads are in their tightest 25% and sit in cash otherwise," how would that strategy have performed -- and how does performance scale across the full spread distribution?*
+
+**3. How to Read the Graph:** The chart is a **bar plot** showing four bars, one per quartile, with the Sharpe ratio on the vertical axis. Q1 (leftmost) represents the tightest-spread days -- the roughly 1,700 days when HY-IG OAS was between 147 and 255 bps (1.47% to 2.55%). Q4 (rightmost) represents the widest-spread days -- 450 to 1,531 bps (4.5% to 15.3%). A reference line at Sharpe = 0 separates bins where risk-taking was rewarded from bins where it was not. A secondary annotation shows the per-quartile max drawdown so readers can see the risk side of the equation alongside the return side.
+
+**4. Graph:** `quartile_returns`
+
+**5. Observation:** Sharpe ratios form a monotone declining gradient from left to right: Q1 = 1.45 (tightest spreads, annualized return +18.4%, max drawdown -10.7%), Q2 = 1.12 (+17.2%, -14.9%), Q3 = 0.32 (+5.6%, -22.1%), Q4 = -0.04 (widest spreads, -1.0% annualized, max drawdown -62.6%). The four bars step cleanly downward from left to right with no non-monotone inversion anywhere. The drawdown gradient is even steeper than the Sharpe gradient: a Q4 investor lost 62.6 cents on the dollar at the worst point, six times the Q1 drawdown. The Q1-vs-Q4 difference in mean returns is not statistically significant on a Welch t-test (t = 1.501, p = 0.134), but the risk-adjusted spread is decisive.
+
+<expander>
+**6. Deep Dive -- Why is the mean difference not significant when the Sharpe difference is so large?**
+The Welch t-test asks whether two groups have different average returns, but averages are dominated by the low-volatility majority of days in each bin. The Q4 bin's daily standard deviation is roughly 2.5x the Q1 bin's daily standard deviation -- when you divide the mean difference by this inflated denominator, the t-statistic comes in at 1.501 and the p-value lands at 0.134. Statistical significance on means is the wrong frame here: **the economically decisive finding is the Sharpe and drawdown gradient, not the mean difference**, because investors care about risk-adjusted outcomes and the risk side is exactly where Q4 blows out. Quartile cutoffs are unconditional (pooled over the full 2000-2025 daily sample), not rolling, which intentionally lets the GFC and COVID widening episodes concentrate in Q4 as they historically did. The cutoffs themselves -- 2.55%, 3.22%, 4.58%, 15.31% -- are reported in the CSV for reproducibility. Welch's t-test is used rather than Student's because the two bins have visibly unequal variances.
+</expander>
+
+**7. Interpretation:** The simplest possible strategy -- **buy SPY only when HY-IG spreads are tight (Q1), sit in cash otherwise** -- would have earned a Sharpe of 1.45 on the days the trader was invested, beating both the HMM-based tournament winner (OOS Sharpe 1.27) and the buy-and-hold benchmark (OOS Sharpe ~0.90) on the risk-adjusted metric that matters most. This does not automatically mean the quartile rule is a better strategy than the HMM (it spends most of the sample in cash, the cutoffs are in-sample, and the mean difference is not significant), but it does frame what regime detection is actually doing: **the HMM is doing a more sophisticated version of quartile classification, using changes and volatility rather than just levels**. The gradient from Q1 to Q4 -- a Sharpe swing of 1.49 points and a drawdown swing of 51.9 ppts -- is the cleanest possible picture of why any credit-conditioned equity strategy works. It also explains the shape of the Quantile Regression result above: when spreads are wide, the SPY return distribution genuinely widens out, and the left tail is where most of the damage happens.
+
+**8. Key Message:** **A no-model "only own stocks when credit spreads are tight" rule would have delivered Sharpe 1.45 and a -10.7% max drawdown, against -0.04 and -62.6% in the widest-spread quartile -- the credit-cycle regime is the single most important variable in this analysis.**
+
+`chart_status: "ready"`
 
 ---
 
@@ -292,7 +377,7 @@ This means:
 
 ### Important Caveats
 
-1. **Transaction costs matter.** All strategy metrics include 5 basis points per round-trip trade. The breakeven transaction cost -- the level at which the strategy's edge disappears entirely -- is 50 bps, providing a comfortable margin of safety.
+1. **Transaction costs matter.** All strategy metrics include 5 basis points (0.05%) per round-trip trade. The breakeven transaction cost -- the level at which the strategy's edge disappears entirely -- is 50 bps, providing a comfortable margin of safety.
 2. **Execution delay degrades performance.** We tested 1, 2, 3, and 5-day delays between signal generation and trade execution. Performance decreases with longer delays, reflecting the speed at which credit information gets priced into equities. The maximum acceptable delay for this strategy is approximately 5 days.
 3. **The 2022 episode is a genuine weakness.** The strategy's credit signal widened modestly during 2022, but not enough to trigger a full risk-off position in most configurations. This is because the 2022 bear market was driven by rate hikes and valuation compression, not by the credit deterioration that the HY-IG spread is designed to detect. Investors should not expect the credit signal to protect against all types of equity drawdowns -- only those rooted in credit stress.
 4. **Past performance is not indicative of future results.** Regime shifts, changes in market microstructure, or new central bank tools (like the Fed's corporate bond purchasing programs, first deployed in 2020) could alter the credit-equity relationship going forward.
@@ -324,7 +409,7 @@ The 70/30 in-sample/out-of-sample split provides a generous 8-year out-of-sample
 
 ### Indicator Construction
 
-The primary indicator is the HY-IG spread: BAMLH0A0HYM2 minus BAMLC0A0CM, measured in basis points. From this raw spread, we derive 20 transformed series including z-scores (252-day and 504-day rolling windows), percentile ranks (504-day and 1260-day), rates of change (21-day, 63-day, 126-day), momentum changes, acceleration, and the CCC-BB quality spread.
+The primary indicator is the HY-IG spread: BAMLH0A0HYM2 minus BAMLC0A0CM, measured in basis points (where 100 bps = 1%). From this raw spread, we derive 20 transformed series including z-scores (252-day and 504-day rolling windows), percentile ranks (504-day and 1260-day), rates of change (21-day, 63-day, 126-day), momentum changes, acceleration, and the CCC-BB quality spread.
 
 ### Econometric Methods
 

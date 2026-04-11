@@ -1,0 +1,24 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "winner": {
+    "signal": "HMM Stress Probability",
+    "threshold": "HMM probability > 0.5",
+    "strategy": "Signal Strength",
+    "oos_sharpe": 1.274,
+    "oos_ann_return": 11.33,
+    "max_drawdown": -10.2,
+    "annual_turnover": 3.78
+  },
+  "benchmark": {
+    "name": "Buy & Hold",
+    "oos_sharpe": 0.7726,
+    "oos_ann_return": 14.75,
+    "max_drawdown": -33.72
+  },
+  "deltas": {
+    "delta_sharpe": 0.5014,
+    "delta_return": -3.42,
+    "delta_max_drawdown": 23.52
+  },
+  "suggested_strategy_objective": "min_mdd"
+}

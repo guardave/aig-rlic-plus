@@ -3,6 +3,11 @@
 Rebuilt to render Ray's narrative using the 8-Element Template (SOP 3.9).
 Each method block follows: (1) Method, (2) Question, (3) How to read,
 (4) Graph, (5) Observation, (6) Deep Dive, (7) Interpretation, (8) Key Message.
+
+Extended 2026-04-11 (retroactive fix per stakeholder review): 5 -> 8 tabs.
+Added Pre-whitened CCF, Transfer Entropy, Quartile Returns method blocks,
+and a render-time 8-element presence linter (SOP 3.9 "Render-time
+completeness check").
 """
 
 import os
@@ -41,7 +46,7 @@ PAIR_ID = "hy_ig_v2_spy"
 # ---------------------------------------------------------------------------
 st.title("The Evidence: What the Data Shows")
 st.markdown(
-    "*We subjected 25 years of daily data to five complementary statistical tests, "
+    "*We subjected 25 years of daily data to eight complementary statistical tests, "
     "each designed to stress a different weakness of the credit-leads-equity "
     "hypothesis. If one test flatters the result and the others reject it, the "
     "story is fragile. If they converge, we have real evidence.*"
@@ -59,59 +64,84 @@ st.markdown("---")
 
 
 # ---------------------------------------------------------------------------
-# 8-Element Render Helper
+# 8-Element Render Helper (with render-time completeness linter per SOP 3.9)
 # ---------------------------------------------------------------------------
-def render_method_block(
-    method_name: str,
-    method_theory: str,
-    question: str,
-    how_to_read: str,
-    chart_name: str | None,
-    chart_caption: str,
-    observation: str,
-    deep_dive_title: str | None,
-    deep_dive_content: str | None,
-    interpretation: str,
-    key_message: str,
-):
+REQUIRED_ELEMENTS = [
+    "method_name",      # 1. The Method (heading)
+    "method_theory",    # 1. The Method (body)
+    "question",         # 2. The Question It Answers
+    "how_to_read",      # 3. How to Read the Graph
+    "observation",      # 5. Observation
+    "interpretation",   # 7. Interpretation
+    "key_message",      # 8. Key Message
+]
+
+
+def render_method_block(content: dict):
     """Render a single method block in the 8-element template order.
 
     Mandatory elements: 1 (Method), 2 (Question), 3 (How to Read),
-    4 (Graph) [may be None], 5 (Observation), 7 (Interpretation), 8 (Key Message).
-    Element 6 (Deep Dive) is optional but encouraged for technical methods.
+    5 (Observation), 7 (Interpretation), 8 (Key Message). Element 4 (Graph)
+    is optional per Rule 3.9b (missing-chart fallback cascade); Element 6
+    (Deep Dive) is optional but encouraged for technical methods.
+
+    Per SOP 3.9 render-time completeness check: missing mandatory elements
+    surface as a visible ``st.error`` and the block does NOT render silently.
     """
+    # Render-time 8-element presence linter
+    missing = [k for k in REQUIRED_ELEMENTS if not content.get(k)]
+    if missing:
+        st.error(
+            "Method block incomplete: missing required element(s) "
+            f"{missing}. This is a gate failure per SOP Rule 3.9."
+        )
+        return
+
+    method_name = content["method_name"]
+    chart_status = content.get("chart_status", "ready")
+
     # 1. The Method
     st.markdown(f"### {method_name}")
-    st.markdown(method_theory)
+    st.markdown(content["method_theory"])
 
     # 2. The Question It Answers
-    st.markdown(f"> *{question}*")
+    st.markdown(f"> *{content['question']}*")
 
     # 3. How to Read the Graph
-    st.markdown(f"**How to read this chart:** {how_to_read}")
+    st.markdown(f"**How to read this chart:** {content['how_to_read']}")
 
-    # 4. Graph
-    if chart_name:
+    # 4. Graph -- with Rule 3.9b missing-chart fallback cascade
+    chart_name = content.get("chart_name")
+    if chart_status == "ready" and chart_name:
         load_plotly_chart(
             chart_name,
             pair_id=PAIR_ID,
-            caption=chart_caption,
-            fallback_text=f"{method_name} chart -- awaiting render.",
+            caption=content.get("chart_caption", ""),
+            fallback_text=(
+                f"{method_name} chart -- canonical path "
+                f"output/charts/{PAIR_ID}/plotly/{chart_name}.json not found."
+            ),
+        )
+    else:
+        st.warning(
+            "Chart pending -- method block rendered from narrative only."
         )
 
     # 5. Observation
-    st.markdown(f"**What the chart shows:** {observation}")
+    st.markdown(f"**What the chart shows:** {content['observation']}")
 
     # 6. Deep Dive (optional)
+    deep_dive_title = content.get("deep_dive_title")
+    deep_dive_content = content.get("deep_dive_content")
     if deep_dive_title and deep_dive_content:
         with st.expander(deep_dive_title):
             st.markdown(deep_dive_content)
 
     # 7. Interpretation
-    st.markdown(f"**What this means:** {interpretation}")
+    st.markdown(f"**What this means:** {content['interpretation']}")
 
     # 8. Key Message
-    st.info(f"**Key message:** {key_message}")
+    st.info(f"**Key message:** {content['key_message']}")
 
 
 # ---------------------------------------------------------------------------
@@ -119,6 +149,7 @@ def render_method_block(
 # ---------------------------------------------------------------------------
 
 CORRELATION_BLOCK = dict(
+    chart_status="ready",
     method_name="Correlation Analysis",
     method_theory=(
         "A **Pearson correlation** is the simplest measure of co-movement between "
@@ -195,6 +226,7 @@ CORRELATION_BLOCK = dict(
 
 
 GRANGER_BLOCK = dict(
+    chart_status="ready",
     method_name="Granger Causality (Toda-Yamamoto)",
     method_theory=(
         "**Granger causality** is a statistical test that asks a precise question: "
@@ -281,6 +313,7 @@ GRANGER_BLOCK = dict(
 
 
 LOCAL_PROJECTIONS_BLOCK = dict(
+    chart_status="ready",
     method_name="Local Projections (Jorda Impulse Responses)",
     method_theory=(
         "A **local projection** is a method for tracing the cumulative effect of a "
@@ -371,6 +404,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
 
 
 REGIME_BLOCK = dict(
+    chart_status="ready",
     method_name="Regime Analysis (Hidden Markov Model)",
     method_theory=(
         "A **Hidden Markov Model (HMM)** is a statistical model that assumes the "
@@ -459,6 +493,7 @@ REGIME_BLOCK = dict(
 
 
 QUANTILE_BLOCK = dict(
+    chart_status="ready",
     method_name="Quantile Regression",
     method_theory=(
         "An ordinary (OLS) regression asks 'on average, how do stock returns "
@@ -554,33 +589,363 @@ QUANTILE_BLOCK = dict(
 )
 
 
+CCF_BLOCK = dict(
+    chart_status="ready",
+    method_name="Pre-whitened Cross-Correlation Function (CCF)",
+    method_theory=(
+        "A **pre-whitened Cross-Correlation Function (CCF)** measures how "
+        "strongly two time series move together at different time offsets -- "
+        "lag 0 is contemporaneous, negative lags ask whether series A leads "
+        "series B by that many days, positive lags ask the reverse. "
+        "\"Pre-whitened\" means we first fit an ARIMA model to each series and "
+        "run the cross-correlation on the residuals, because raw CCFs on "
+        "autocorrelated financial data produce spurious lead-lag signals that "
+        "are really just each series remembering its own past."
+    ),
+    question=(
+        "At short daily horizons, who moves first -- the bond market or the "
+        "stock market -- and how many days of lead time (if any) does either "
+        "side enjoy?"
+    ),
+    how_to_read=(
+        "The horizontal axis is lag in trading days, running from -20 (the "
+        "spread moves 20 days after SPY) through 0 (contemporaneous) to +20 "
+        "(the spread moves 20 days before SPY). The vertical axis is the "
+        "pre-whitened correlation, bounded between -1 and +1. Each vertical "
+        "bar is one lag; bars that cross the dashed horizontal lines at "
+        "+/-0.0238 are statistically significant at the 95% level (the band "
+        "is 1.96/sqrt(N) for N = 6,782 observations). Bars shaded darker are "
+        "the significant ones; pale bars are noise. Read left-to-right: "
+        "significant negative-lag bars mean SPY led the spread; significant "
+        "positive-lag bars mean the spread led SPY."
+    ),
+    chart_name="ccf_prewhitened",
+    chart_caption=(
+        "Pre-whitened cross-correlations between the HY-IG spread and SPY "
+        "log-returns at lags -20 to +20 trading days. Bars beyond the "
+        "+/-0.0238 significance band are statistically distinguishable from "
+        "zero at 95%."
+    ),
+    observation=(
+        "15 of the 41 lags from -20 to +20 are statistically significant at "
+        "95% confidence. The significant negative lags (SPY leading the "
+        "spread) dominate: they land at -1, -2, -5, -7, -9, -12, -15, and "
+        "-17 days, including the largest magnitude in the whole chart at "
+        "lag -17 (CCF = -0.069). The contemporaneous lag (0) sits right at "
+        "the significance boundary on the negative side. The positive-lag "
+        "side (spread leading SPY) is much sparser, with significant bars "
+        "only at +6, +7, +9, and +13 days. The overall visual impression is "
+        "a left-weighted forest of negative bars on the 'SPY leads' side and "
+        "a thinner scatter of alternating-sign bars on the 'spread leads' "
+        "side."
+    ),
+    deep_dive_title=(
+        "What does 'pre-whitened' actually change, and why did we pick "
+        "ARIMA(2,0,2)?"
+    ),
+    deep_dive_content=(
+        "A raw CCF on two autocorrelated series inherits the autocorrelation "
+        "of both sides, so almost every lag ends up 'significant' even when "
+        "there is no genuine cross-dynamic relationship -- the statistic is "
+        "really measuring each series talking to itself. Pre-whitening fixes "
+        "this by fitting an ARIMA(p, d, q) model to each series, extracting "
+        "the residuals (which are approximately white noise by construction), "
+        "and running the CCF on those residuals. The cross-correlation that "
+        "survives pre-whitening reflects only genuine dynamic interaction, "
+        "not self-memory. We selected ARIMA(2,0,2) for both series by BIC "
+        "grid search over p <= 5 and q <= 2 on the full daily sample "
+        "(2000-01-03 to 2025-12-31, N = 6,782); the same order was applied "
+        "to both the HY-IG spread and the SPY log-return series so neither "
+        "side gets a filter the other does not. The 95% confidence "
+        "half-width of +/-0.0238 follows from the usual 1.96/sqrt(N) "
+        "large-sample rule."
+    ),
+    interpretation=(
+        "At sub-monthly horizons, the CCF says something that surprises "
+        "readers who have only seen the 'credit leads equity' headline: "
+        "**it is stocks that move first, not credit.** The strongest "
+        "significant bars sit on the negative-lag side -- SPY declines today "
+        "are followed by spread widening over the next 1 to 17 days, not the "
+        "other way around. This is not a contradiction of the Local "
+        "Projections result at the 63-day horizon, where credit genuinely "
+        "leads equity. It is a horizon-specific finding: at daily-to-weekly "
+        "horizons the equity market reprices first and credit follows, while "
+        "at the quarterly horizon the bond market's slow accumulation of "
+        "default-risk information drags equity returns lower. Nor is it a "
+        "contradiction of the Transfer Entropy result in the next block: CCF "
+        "is a linear filter that measures price-level co-movement, whereas "
+        "Transfer Entropy measures nonlinear conditional distribution "
+        "shifts. The two methods look at different properties of the same "
+        "joint distribution and answer different questions."
+    ),
+    key_message=(
+        "At daily-to-weekly horizons, equity moves first and credit follows "
+        "-- the 'credit leads equity' story is a quarterly-horizon "
+        "phenomenon, not a short-term trading edge."
+    ),
+)
+
+
+TRANSFER_ENTROPY_BLOCK = dict(
+    chart_status="ready",
+    method_name="Transfer Entropy (Nonlinear Information Flow)",
+    method_theory=(
+        "**Transfer entropy (TE)** is an information-theoretic measure of "
+        "directed information flow between two time series. Formally, it is "
+        "the reduction in uncertainty about variable Y's next value that you "
+        "gain from knowing variable X's past, over and above what you "
+        "already learn from Y's own past. Unlike Granger causality and the "
+        "CCF -- both of which are fundamentally linear tests of co-movement "
+        "in levels -- transfer entropy captures nonlinear relationships and "
+        "conditional distribution shifts, which is exactly the kind of "
+        "regime-dependent signal credit-equity data is known to exhibit."
+    ),
+    question=(
+        "When we measure information flow in the nonlinear sense -- not just "
+        "linear price co-movement -- how much information does credit carry "
+        "about the next move in equities, and how much does equity carry "
+        "about the next move in credit?"
+    ),
+    how_to_read=(
+        "The chart is a **paired bar plot** with two bars: one for 'Credit "
+        "-> Equity' (how much the past of the HY-IG spread reduces "
+        "uncertainty about tomorrow's SPY return) and one for 'Equity -> "
+        "Credit' (the reverse). The vertical axis is transfer entropy "
+        "measured in **nats** -- a natural-log unit of information, where "
+        "bigger bars mean more information is flowing in that direction. "
+        "The permutation p-value is annotated on each bar: p < 0.01 "
+        "indicates the flow is statistically distinguishable from chance at "
+        "the 1% level. The visual takeaway is the ratio between the two "
+        "bars -- not the absolute heights, which are small in any "
+        "information-theoretic study of daily returns."
+    ),
+    chart_name="transfer_entropy",
+    chart_caption=(
+        "Shannon transfer entropy between the HY-IG spread and SPY daily "
+        "returns, in both directions, with circular block-shift permutation "
+        "p-values annotated on each bar."
+    ),
+    observation=(
+        "The Credit -> Equity bar reaches 0.042 nats with permutation "
+        "p = 0.004 (500 permutations), comfortably clearing the 1% "
+        "significance threshold. The Equity -> Credit bar reaches only "
+        "0.0055 nats with p = 0.050 -- marginal significance at best. The "
+        "Credit -> Equity bar is roughly 7.6x the height of the Equity -> "
+        "Credit bar. Both bars are positive (no directional sign in "
+        "information theory -- TE measures magnitude, not sign), but the "
+        "asymmetry between them is the headline: information flows from "
+        "credit into equity far more strongly than it flows from equity "
+        "into credit."
+    ),
+    deep_dive_title=(
+        "What exactly is transfer entropy, and how is this different from "
+        "Granger causality?"
+    ),
+    deep_dive_content=(
+        "Transfer entropy from X to Y is defined as H(Y_t+1 | Y_t) - "
+        "H(Y_t+1 | Y_t, X_t), where H denotes Shannon entropy. In plain "
+        "English: how much smaller is our uncertainty about Y's next value "
+        "once we know X's past, compared to only knowing Y's own past? If "
+        "the answer is zero, X tells us nothing new about Y. If the answer "
+        "is large, X carries genuine predictive information about Y that "
+        "Y's own history does not capture. The key difference from Granger "
+        "causality is that Granger is implemented as a linear regression "
+        "test -- it can only see relationships that show up in conditional "
+        "means. Transfer entropy is non-parametric and sees the full "
+        "conditional distribution, so it picks up threshold effects, regime "
+        "switches, and tail dependencies that a linear Granger test misses "
+        "entirely. We estimated TE using a Shannon histogram with 6 "
+        "equal-frequency (quantile) bins and lag 1 day, and tested "
+        "significance with a circular block-shift permutation test using "
+        "500 permutations. Because `pyinform` was not available in the "
+        "environment, the estimator was implemented from first principles "
+        "following Schreiber (2000) -- see "
+        "`scripts/retro_fix_hy_ig_v2_evan_20260411.py::transfer_entropy_hist` "
+        "for the exact implementation. TE values are sensitive to bin "
+        "count; the 6-bin choice is documented in the CSV `bin_method` "
+        "field for reproducibility."
+    ),
+    interpretation=(
+        "When information flow is measured in the nonlinear sense -- "
+        "capturing conditional distribution shifts rather than just linear "
+        "price co-movement -- **credit leads equity by a decisive margin, "
+        "roughly 7.6 to 1**. This is the finding that matters for the "
+        "strategy: the credit channel does genuinely carry information that "
+        "linear correlation and linear Granger tests understate, because it "
+        "delivers that information through nonlinearities -- threshold "
+        "effects, tail events, and regime switches -- which is exactly "
+        "where credit signals have always been thought to earn their keep. "
+        "Note that the TE result is not a contradiction of the CCF result "
+        "in the previous block. CCF is a linear filter that picks up "
+        "price-level co-movement and saw SPY leading at short lags; TE is "
+        "a nonlinear measure that picks up conditional distribution shifts "
+        "and sees credit dominating. Both are correct: the two methods "
+        "measure different properties of the same joint distribution, and "
+        "the credit signal shows up more clearly in the nonlinear measure "
+        "because that is the channel through which it actually operates."
+    ),
+    key_message=(
+        "In the nonlinear, information-theoretic sense, credit carries "
+        "roughly 7.6x more information about equity than equity carries "
+        "about credit -- this is the quantitative basis for building a "
+        "credit-led equity-timing strategy."
+    ),
+)
+
+
+QUARTILE_RETURNS_BLOCK = dict(
+    chart_status="ready",
+    method_name="Quartile Returns Analysis",
+    method_theory=(
+        "A **quartile returns analysis** sorts every day in the sample into "
+        "four bins based on the HY-IG spread level that day -- Q1 is the "
+        "25% of days with the tightest spreads, Q4 is the 25% with the "
+        "widest -- and computes full return statistics (mean, volatility, "
+        "Sharpe, annualized return, max drawdown) for the SPY returns "
+        "earned in each bin. It is the simplest possible regime-conditional "
+        "check: does the forward return distribution for SPY look different "
+        "depending on which credit-cycle state we are in, without any "
+        "fitted model telling us where the regime boundaries should fall?"
+    ),
+    question=(
+        "If we had done nothing more sophisticated than 'buy SPY when HY-IG "
+        "spreads are in their tightest 25% and sit in cash otherwise,' how "
+        "would that strategy have performed -- and how does performance "
+        "scale across the full spread distribution?"
+    ),
+    how_to_read=(
+        "The chart is a **bar plot** showing four bars, one per quartile, "
+        "with the Sharpe ratio on the vertical axis. Q1 (leftmost) "
+        "represents the tightest-spread days -- the roughly 1,700 days when "
+        "HY-IG OAS was between 147 and 255 bps (1.47% to 2.55%). Q4 "
+        "(rightmost) represents the widest-spread days -- 450 to 1,531 bps "
+        "(4.5% to 15.3%). A reference line at Sharpe = 0 separates bins "
+        "where risk-taking was rewarded from bins where it was not. A "
+        "secondary annotation shows the per-quartile max drawdown so "
+        "readers can see the risk side of the equation alongside the "
+        "return side."
+    ),
+    chart_name="quartile_returns",
+    chart_caption=(
+        "SPY performance conditioned on HY-IG spread quartile over "
+        "2000-2025. The Sharpe gradient collapses monotonically from Q1 "
+        "(tightest spreads) to Q4 (widest); the drawdown gradient is even "
+        "steeper."
+    ),
+    observation=(
+        "Sharpe ratios form a monotone declining gradient from left to "
+        "right: Q1 = 1.45 (tightest spreads, annualized return +18.4%, max "
+        "drawdown -10.7%), Q2 = 1.12 (+17.2%, -14.9%), Q3 = 0.32 (+5.6%, "
+        "-22.1%), Q4 = -0.04 (widest spreads, -1.0% annualized, max "
+        "drawdown -62.6%). The four bars step cleanly downward from left "
+        "to right with no non-monotone inversion anywhere. The drawdown "
+        "gradient is even steeper than the Sharpe gradient: a Q4 investor "
+        "lost 62.6 cents on the dollar at the worst point, six times the "
+        "Q1 drawdown. The Q1-vs-Q4 difference in mean returns is not "
+        "statistically significant on a Welch t-test (t = 1.501, "
+        "p = 0.134), but the risk-adjusted spread is decisive."
+    ),
+    deep_dive_title=(
+        "Why is the mean difference not significant when the Sharpe "
+        "difference is so large?"
+    ),
+    deep_dive_content=(
+        "The Welch t-test asks whether two groups have different average "
+        "returns, but averages are dominated by the low-volatility majority "
+        "of days in each bin. The Q4 bin's daily standard deviation is "
+        "roughly 2.5x the Q1 bin's daily standard deviation -- when you "
+        "divide the mean difference by this inflated denominator, the "
+        "t-statistic comes in at 1.501 and the p-value lands at 0.134. "
+        "Statistical significance on means is the wrong frame here: **the "
+        "economically decisive finding is the Sharpe and drawdown gradient, "
+        "not the mean difference**, because investors care about "
+        "risk-adjusted outcomes and the risk side is exactly where Q4 "
+        "blows out. Quartile cutoffs are unconditional (pooled over the "
+        "full 2000-2025 daily sample), not rolling, which intentionally "
+        "lets the GFC and COVID widening episodes concentrate in Q4 as "
+        "they historically did. The cutoffs themselves -- 2.55%, 3.22%, "
+        "4.58%, 15.31% -- are reported in the CSV for reproducibility. "
+        "Welch's t-test is used rather than Student's because the two bins "
+        "have visibly unequal variances."
+    ),
+    interpretation=(
+        "The simplest possible strategy -- **buy SPY only when HY-IG "
+        "spreads are tight (Q1), sit in cash otherwise** -- would have "
+        "earned a Sharpe of 1.45 on the days the trader was invested, "
+        "beating both the HMM-based tournament winner (OOS Sharpe 1.27) "
+        "and the buy-and-hold benchmark (OOS Sharpe ~0.90) on the "
+        "risk-adjusted metric that matters most. This does not "
+        "automatically mean the quartile rule is a better strategy than "
+        "the HMM (it spends most of the sample in cash, the cutoffs are "
+        "in-sample, and the mean difference is not significant), but it "
+        "does frame what regime detection is actually doing: **the HMM is "
+        "doing a more sophisticated version of quartile classification, "
+        "using changes and volatility rather than just levels**. The "
+        "gradient from Q1 to Q4 -- a Sharpe swing of 1.49 points and a "
+        "drawdown swing of 51.9 ppts -- is the cleanest possible picture "
+        "of why any credit-conditioned equity strategy works. It also "
+        "explains the shape of the Quantile Regression result above: when "
+        "spreads are wide, the SPY return distribution genuinely widens "
+        "out, and the left tail is where most of the damage happens."
+    ),
+    key_message=(
+        "A no-model 'only own stocks when credit spreads are tight' rule "
+        "would have delivered Sharpe 1.45 and a -10.7% max drawdown, "
+        "against -0.04 and -62.6% in the widest-spread quartile -- the "
+        "credit-cycle regime is the single most important variable in "
+        "this analysis."
+    ),
+)
+
+
 # ---------------------------------------------------------------------------
-# Tab Layout -- one tab per method block
+# Tab Layout -- one tab per method block (5 existing + 3 new = 8 total)
 # ---------------------------------------------------------------------------
-tab_corr, tab_granger, tab_lp, tab_regime, tab_qr = st.tabs(
+(
+    tab_corr,
+    tab_granger,
+    tab_lp,
+    tab_regime,
+    tab_qr,
+    tab_ccf,
+    tab_te,
+    tab_quartile,
+) = st.tabs(
     [
         "Correlation Analysis",
         "Granger Causality",
         "Local Projections",
         "Regime Analysis",
         "Quantile Regression",
+        "Pre-whitened CCF",
+        "Transfer Entropy",
+        "Quartile Returns",
     ]
 )
 
 with tab_corr:
-    render_method_block(**CORRELATION_BLOCK)
+    render_method_block(CORRELATION_BLOCK)
 
 with tab_granger:
-    render_method_block(**GRANGER_BLOCK)
+    render_method_block(GRANGER_BLOCK)
 
 with tab_lp:
-    render_method_block(**LOCAL_PROJECTIONS_BLOCK)
+    render_method_block(LOCAL_PROJECTIONS_BLOCK)
 
 with tab_regime:
-    render_method_block(**REGIME_BLOCK)
+    render_method_block(REGIME_BLOCK)
 
 with tab_qr:
-    render_method_block(**QUANTILE_BLOCK)
+    render_method_block(QUANTILE_BLOCK)
+
+with tab_ccf:
+    render_method_block(CCF_BLOCK)
+
+with tab_te:
+    render_method_block(TRANSFER_ENTROPY_BLOCK)
+
+with tab_quartile:
+    render_method_block(QUARTILE_RETURNS_BLOCK)
 
 
 # ---------------------------------------------------------------------------

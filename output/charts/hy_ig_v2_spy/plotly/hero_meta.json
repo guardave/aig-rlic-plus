@@ -1,0 +1,8 @@
+{
+  "chart_type": "hero",
+  "pair_id": "hy_ig_v2_spy",
+  "caption": "Dual-panel time series of HY-IG OAS spread (top, bps) and SPY price (bottom, USD) from 2000 to 2025. Both axes are non-inverted. Last observation annotated with current spread in bps.",
+  "owner": "viz-vera",
+  "produced_on": "2026-04-11",
+  "source_script": "scripts/retro_fix_hy_ig_v2_vera_20260411.py"
+}
