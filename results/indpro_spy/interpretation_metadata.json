@@ -1,6 +1,9 @@
 {
   "indicator": "indpro",
   "target": "spy",
+  "indicator_nature": "coincident",
+  "indicator_type": "production",
+  "strategy_objective": "max_sharpe",
   "expected_direction": "pro_cyclical",
   "observed_direction": "counter_cyclical",
   "direction_consistent": false,

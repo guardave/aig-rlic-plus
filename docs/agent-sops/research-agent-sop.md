@@ -282,6 +282,16 @@ When validating Evan's `interpretation_metadata.json` against literature and fin
 
 *Vera uses this to render contradiction annotations consistently. Ace uses it for "How to Read This" callout boxes when expected and observed directions disagree.*
 
+### 6e. Strategy Objective Classification
+
+After tournament results are available from Evan, Ray sets `strategy_objective` in `results/{id}/interpretation_metadata.json`:
+
+- `min_mdd` — drawdown avoidance (winner primarily reduces peak-to-trough loss vs buy-and-hold)
+- `max_sharpe` — risk-adjusted alpha (winner primarily improves Sharpe via timing)
+- `max_return` — absolute return (winner primarily compounds total return)
+
+Dana owns `indicator_nature` and `indicator_type` (data-stage classifications). Ray owns `strategy_objective` because it requires reading tournament output and understanding which economic objective the winning strategy optimizes. These are blocking gate items (team-coordination.md §19-21).
+
 ### 7. Fact-Check and Validate
 
 - Cross-reference key claims across multiple sources
@@ -437,6 +447,59 @@ When citing a method, explain *why* it was chosen for this specific analysis, no
 #### Expander Content in Narratives
 
 When writing content destined for `st.expander()` blocks, write the expander *title* as a self-contained question the reader might have (e.g., "What exactly is a credit spread?" or "Why does the lead-lag relationship flip during crises?"). The expanded content should provide optional depth for the curious reader — the main narrative must be complete and coherent without it. A reader who never clicks an expander should still walk away with the full story; a reader who opens one should get a satisfying, self-contained explanation, not a sentence fragment or a bare table.
+
+### Evidence Page Structure: The 8-Element Template
+
+Every method block on the Evidence page (correlation, CCF, Granger causality, regime analysis, quantile regression, transfer entropy, etc.) must follow the same 8-element structure in the same order. This makes pages predictable, lowers the comprehension cost for the reader, and ensures no method is presented as a black box.
+
+**Write all 8 elements even when the method is familiar (e.g., simple correlation). The audience benefits from consistent structure more than from assuming prior knowledge.**
+
+| # | Element | Purpose | Length guideline |
+|---|---------|---------|------------------|
+| 1 | **The Method** | Name the method + 1-2 sentence theory. What category of test is this? | 1-2 sentences |
+| 2 | **The Question It Answers** | Explicit research question the method addresses. Phrased as a question. | 1 sentence (a question mark) |
+| 3 | **How to Read the Graph** | Plain-English explanation of what the axes mean and how a reader decodes the visual. | 2-4 sentences |
+| 4 | **Graph** | The chart itself (rendered by Ace). Must have descriptive title + axis labels + units. | — |
+| 5 | **Observation** | What the chart literally shows — the raw visual facts (bars, colors, peaks, troughs). No interpretation yet. | 2-4 sentences |
+| 6 | **Deep Dive** (optional, expander) | Statistical details, assumptions, test parameters, robustness checks. For the curious reader only. | 3-6 sentences in expander |
+| 7 | **Interpretation** | The economic/financial meaning. What does the observation imply about the relationship under study? | 2-4 sentences |
+| 8 | **Key Message** | One-sentence takeaway, bolded. The reader should remember this even if they forget everything else. | 1 sentence |
+
+#### Element Authoring Notes
+
+- **Element 1 (The Method)** — Name the method first, then give a one-line theory anchor. Avoid jargon dumps; if a technical term is unavoidable, define it inline.
+- **Element 2 (The Question)** — Must end in a question mark. This is the single most important element for the layperson because it tells them why they should care. If you cannot phrase the method as a clean question, the method may not belong on this page.
+- **Element 3 (How to Read the Graph)** — Walk the reader across the axes explicitly: "X-axis is X, Y-axis is Y, the dotted line means Z." Never assume the reader has seen this chart type before.
+- **Element 5 (Observation)** — Describe only what is visually present. Do *not* explain why it is happening — that is Element 7. Separating observation from interpretation builds trust: the reader sees you are not putting words into the chart.
+- **Element 6 (Deep Dive)** — Optional but encouraged for any method with non-obvious assumptions (pre-whitening, ARIMA pre-filtering, lag selection criteria, robust SE choice). Title the expander as a question the curious reader would ask.
+- **Element 7 (Interpretation)** — This is where domain expertise enters. Connect the visual observation to the economic mechanism. Use cautious language; cite caveats.
+- **Element 8 (Key Message)** — Bolded, one sentence, memorable. If a reader scrolls through the page and only reads the bolded lines, they should still get the full thesis.
+
+#### Worked Example (CCF on credit-equity relationship)
+
+This is the gold-standard example. Use it as the template for what good looks like.
+
+---
+
+**1. The Method:** We use a pre-whitened Cross-Correlation Function (CCF) — an econometric tool that measures the similarity of two time series at different time offsets, with autocorrelation filtered out to avoid spurious lead-lag signals.
+
+**2. The Question It Answers:** *Who moves first — the bond market or the stock market?*
+
+**3. How to Read the Graph:** The X-axis shows time in days relative to today (lag 0). Negative lags mean the bond market moves *before* stocks (credit leads). Positive lags mean stocks move *before* bonds (equity leads). The Y-axis shows the strength of correlation, ranging from -1 to +1. Bars above the dotted line are statistically significant at 95% confidence.
+
+**4. [Graph: CCF bar chart]**
+
+**5. Observation:** 13 of 41 lags are statistically significant at the 95% level. The peak correlation is contemporaneous (lag 0). Over short horizons of less than one month, more bars sit below zero than above, and the negative bars have larger total magnitude.
+
+**6. Deep Dive (expander: "What does 'pre-whitened' mean, and why does it matter?"):** A standard CCF acts on raw data and often produces spurious lead-lag signals because autocorrelation in one series leaks into the cross-correlation estimates. Pre-whitening first fits an ARIMA model to each series and uses the residuals, ensuring the correlation reflects only the true dynamic relationship. We use BIC to select the ARIMA order.
+
+**7. Interpretation:** The dominance of negative bars at short horizons shows that credit conditions and equity prices move together in the same direction — when credit conditions worsen (spreads widen), equities tend to weaken. The modest credit-leading signal at lags -1 to -3 days suggests bonds react marginally faster to new information than stocks, consistent with institutional bond investors processing news on shorter timescales.
+
+**8. Key Message:** **Credit and equity move together daily, with bonds leading by 1-3 days — not enough for a short-term trading edge, but confirmation that the two markets share a common information flow.**
+
+---
+
+**Cross-reference:** Ace is responsible for rendering this 8-element block consistently in Streamlit (heading hierarchy, expander placement, bolded key message). Flag any method where one of the 8 elements is missing or weak before handoff.
 
 ### Handoff to Ace
 
@@ -598,6 +661,7 @@ Before handing off:
 - [ ] Data source recommendations delivered as CSV alongside markdown (for batch operations)
 - [ ] Event timeline delivered as CSV alongside markdown (for Vera's batch import)
 - [ ] For multi-pair batches, direction contradiction records delivered as structured JSON (not prose flags)
+- [ ] `interpretation_metadata.json`: `strategy_objective` (min_mdd/max_sharpe/max_return) set based on tournament winner. "unknown" is NOT acceptable. See team-coordination.md item 21.
 
 ### Defense 1: Self-Describing Artifacts (Producer Rule)
 
@@ -694,3 +758,23 @@ When Ray consumes upstream artifacts (e.g., reviewing Evan's results for interpr
 4. Did Evan depart from your specification recommendation? Understand why and learn from it.
 5. Distill 1-2 key lessons and update your memories file at `~/.claude/agents/research-ray/memories.md`.
 6. If a lesson is cross-project (not specific to this analysis), update `experience.md` too.
+
+### End-of-Task Reflection (EOD-Lightweight)
+
+Before returning your task result, complete these three lightweight steps:
+
+1. **Reflect** — In one sentence, name the key insight from this task. Focus on what was non-obvious or surprising (not just "I completed the task").
+
+2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.claude/agents/research-ray/experience.md`. Use this format:
+   ```markdown
+   ## YYYY-MM-DD — <short insight title>
+
+   <one-paragraph description of what you learned, including context>
+
+   **How to apply:** <when this insight is relevant in future tasks>
+   ```
+   If `experience.md` does not exist, create it first with a simple header: `# Cross-Task Experience — Research Ray`.
+
+3. **Flag cross-role insights** — If the insight involves coordination with another agent (e.g., "Vera and I need to agree on chart filenames"), also append a one-line entry to `_pws/_team/status-board.md` under a section called `## Team Insights — YYYY-MM-DD` (create the section if missing).
+
+**Rationale:** This builds a learning loop across dispatches. When the same agent is spawned again for a similar task, its experience.md will already contain lessons from prior work. Skip this only if the task was purely mechanical (e.g., trivial rename) — use judgment.

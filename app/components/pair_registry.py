@@ -6,19 +6,59 @@ import os
 _BASE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..")
 _RESULTS_DIR = os.path.join(_BASE, "results")
 
+_integrity_issues = []
+
+_CLASSIFICATION_FIELDS = ("indicator_nature", "indicator_type", "strategy_objective")
+
+
+def get_nature_label(nature: str) -> str:
+    return {"leading": "Leading", "coincident": "Coincident", "lagging": "Lagging"}.get(nature, "Unknown")
+
+
+def get_type_label(type_: str) -> str:
+    return {
+        "price": "Price", "production": "Production", "sentiment": "Sentiment",
+        "rates": "Rates", "credit": "Credit", "volatility": "Volatility", "macro": "Macro"
+    }.get(type_, "Unknown")
+
+
+def get_objective_label(objective: str) -> str:
+    return {"min_mdd": "Min MDD", "max_sharpe": "Max Sharpe", "max_return": "Max Return"}.get(objective, "Unknown")
+
+
+def get_integrity_issues() -> list:
+    return list(_integrity_issues)
+
+
+def _check_integrity(pair: dict) -> None:
+    missing = [f for f in _CLASSIFICATION_FIELDS if pair.get(f, "unknown") == "unknown"]
+    if missing:
+        _integrity_issues.append({"pair_id": pair["pair_id"], "missing_fields": missing})
+
 
 def load_pair_registry():
     """Scan results/ for completed pair analyses and return metadata list."""
+    global _integrity_issues
+    _integrity_issues = []
     pairs = []
 
     # HY-IG → SPY (legacy, hardcoded)
-    pairs.append({
+    hy_ig_interp_path = os.path.join(_RESULTS_DIR, "hy_ig_spy", "interpretation_metadata.json")
+    hy_ig_interp = {}
+    if os.path.exists(hy_ig_interp_path):
+        with open(hy_ig_interp_path) as f:
+            hy_ig_interp = json.load(f)
+
+    hy_ig_pair = {
         "pair_id": "hy_ig_spy",
         "indicator": "Sample: HY-IG Credit Spread",
         "indicator_id": "HY_IG_OAS",
         "target": "S&P 500",
         "target_ticker": "SPY",
         "direction": "counter_cyclical",
+        "indicator_nature": hy_ig_interp.get("indicator_nature", "unknown"),
+        "indicator_type": hy_ig_interp.get("indicator_type", "unknown"),
+        "strategy_objective": hy_ig_interp.get("strategy_objective", "unknown"),
         "best_oos_sharpe": 1.17,
         "bh_sharpe": 0.77,
         "valid_combos": 1149,
@@ -31,7 +71,9 @@ def load_pair_registry():
         "evidence_page": "pages/2_hy_ig_evidence.py",
         "strategy_page": "pages/3_hy_ig_strategy.py",
         "methodology_page": "pages/4_hy_ig_methodology.py",
-    })
+    }
+    _check_integrity(hy_ig_pair)
+    pairs.append(hy_ig_pair)
 
     # Dynamically load from interpretation_metadata.json + tournament results
     for pair_dir in sorted(os.listdir(_RESULTS_DIR)):
@@ -109,7 +151,7 @@ def load_pair_registry():
         else:
             page_prefix = f"pages/5_{pair_dir}"
 
-        pairs.append({
+        pair = {
             "pair_id": pair_dir,
             "indicator": indicator,
             "indicator_id": interp.get("indicator", ""),
@@ -118,6 +160,9 @@ def load_pair_registry():
             "direction": interp.get("expected_direction", "unknown"),
             "observed_direction": interp.get("observed_direction", "unknown"),
             "direction_consistent": interp.get("direction_consistent", True),
+            "indicator_nature": interp.get("indicator_nature", "unknown"),
+            "indicator_type": interp.get("indicator_type", "unknown"),
+            "strategy_objective": interp.get("strategy_objective", "unknown"),
             "best_oos_sharpe": best_sharpe,
             "bh_sharpe": bh_sharpe,
             "valid_combos": valid_count,
@@ -130,6 +175,8 @@ def load_pair_registry():
             "evidence_page": f"{page_prefix}_evidence.py",
             "strategy_page": f"{page_prefix}_strategy.py",
             "methodology_page": f"{page_prefix}_methodology.py",
-        })
+        }
+        _check_integrity(pair)
+        pairs.append(pair)
 
     return pairs

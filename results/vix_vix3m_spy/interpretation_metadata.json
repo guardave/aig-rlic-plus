@@ -1,6 +1,9 @@
 {
   "indicator": "vix_vix3m",
   "target": "spy",
+  "indicator_nature": "coincident",
+  "indicator_type": "volatility",
+  "strategy_objective": "min_mdd",
   "expected_direction": "counter_cyclical",
   "observed_direction": "pro_cyclical",
   "direction_consistent": false,

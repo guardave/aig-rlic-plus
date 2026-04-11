@@ -1,6 +1,9 @@
 {
   "indicator": "permit",
   "target": "spy",
+  "indicator_nature": "leading",
+  "indicator_type": "production",
+  "strategy_objective": "max_sharpe",
   "expected_direction": "pro_cyclical",
   "observed_direction": "pro_cyclical",
   "direction_consistent": true,

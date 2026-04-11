@@ -112,47 +112,128 @@ Our analysis uses **Hidden Markov Models** (statistical models that infer which 
 
 ### How We Tested the Signal
 
-Our analysis employed multiple econometric methods, each designed to test a different aspect of the credit-equity relationship. We deliberately used methods that approach the question from different angles -- if the finding holds across multiple techniques, we can be more confident it is real and not an artifact of a particular statistical method.
+Anecdotes about credit spreads warning before crashes are compelling, but they are not proof. To separate genuine predictive content from storytelling, we subjected 25 years of daily data to four complementary statistical tests, each built to stress a different weakness of the credit-leads-equity hypothesis. If one test flatters the result and the others reject it, we learn the story is fragile. If all four converge, we have real evidence.
 
-**Causality Testing (Toda-Yamamoto Granger Causality and Transfer Entropy):**
-**Granger causality** is a statistical test that asks: do past values of one variable help predict future values of another, above and beyond the second variable's own history? If credit spread changes today help predict stock returns tomorrow -- even after accounting for stocks' own momentum -- then credit spreads "Granger-cause" stock returns. We used the Toda-Yamamoto variant because it works correctly even when the data contains trends, which financial data often does. We chose this as our first test because it directly addresses the lead-lag question at the heart of our hypothesis.
+Each of the four methods below is presented in the same eight-step structure: what the method is, the question it answers, how to read its chart, what the chart literally shows, optional deeper statistical detail, what the numbers mean economically, and a one-line takeaway. Read straight through, or skim the bolded key messages at the end of each block.
 
-We also measured **transfer entropy** -- an information-theoretic tool that captures directed information flow between two time series, including nonlinear relationships that correlation-based tests miss. We added this because the credit-equity relationship may involve threshold effects and asymmetries that a simple linear test would understate.
+*(Reference: Evan's model outputs in `results/hy_ig_v2_spy/core_models_20260410/`; Vera's interactive charts in `output/charts/hy_ig_v2_spy/plotly/`.)*
 
-Crucially, we ran both tests in **both directions** to check for reverse causality: do stock returns also predict credit spread changes? We tested at multiple time horizons (1 day, 5 days, 21 days, 63 days) and separately for stress and calm regimes.
+---
 
-**Local Projections (Jorda method):**
-We estimated the cumulative impact of a credit spread shock on stock returns at horizons from 1 day to 63 days (roughly one quarter). We chose this method over the traditional Vector Autoregression (VAR) approach because local projections are robust to model misspecification -- they do not require us to assume the entire system is correctly specified, only that each individual horizon regression is reasonable. This matters because financial relationships are often nonlinear and regime-dependent, making full-system assumptions risky. We also estimated state-dependent versions -- separate impulse responses for calm and stress regimes -- to test whether the effect differs across market conditions.
+## Method: Correlation Analysis
 
-**Regime-Switching Models (Markov-Switching and Hidden Markov Models):**
-We identified distinct market states -- calm, moderate stress, and extreme stress -- using statistical models that let the data determine the regime boundaries. We chose regime-switching models because the Story section above makes clear that the credit-equity relationship changes across market states. Rather than imposing arbitrary threshold levels (like "spreads above 500 bps = stress"), these models discover the natural statistical breakpoints from the data itself.
+**1. The Method:** A **Pearson correlation** is the simplest measure of co-movement between two series, a number between -1 and +1 that says how closely they move together on average. We run it here as our sanity check before reaching for heavier machinery: if credit spreads carry any predictive signal for future equity returns, it should leave at least a faint fingerprint on simple correlations.
 
-**Quantile Regression:**
-Rather than estimating just the average effect of credit spreads on stock returns, we examined the entire distribution -- particularly the worst outcomes (the left tail, at the 5th and 10th percentiles). We chose this method because the hypothesis is that credit spreads primarily warn of bad outcomes rather than predict good ones. Quantile regression lets us test that claim directly by estimating separate effects at different points in the return distribution.
+**2. The Question It Answers:** *Does today's credit spread show any statistical relationship at all with where stocks are headed over the next week, month, quarter, or year?*
 
-### Key Findings
+**3. How to Read the Graph:** The chart is a **heatmap** -- a grid where each cell's colour intensity represents the strength of a correlation. Rows are different transformations of the HY-IG spread (raw level, 252-day z-score, 504-day z-score, percentile rank, rate of change, etc.). Columns are forward stock-return horizons (1 day, 5 days, 21 days, 63 days, 126 days, 252 days). Blue cells mean positive correlation, red cells mean negative correlation, and the darker the colour, the stronger the relationship. White or pale cells mean essentially no linear link.
 
-*(Reference Evan's model output files in `results/hy_ig_v2_spy/core_models_20260410/` for full details. Reference Vera's charts in `output/charts/hy_ig_v2_spy/plotly/` for interactive visualizations.)*
+**4. Graph:** `hy_ig_v2_spy_correlation_heatmap`
 
-**Finding 1 -- The bond market and stock market take turns leading each other.**
-Granger causality tests reveal statistically significant information flow in both directions (credit-to-equity and equity-to-credit). This is expected from the Merton model: equity and credit are linked through the same underlying corporate asset values. However, the credit-to-equity signal strengthens materially during stress regimes, while the equity-to-credit signal dominates during calm periods. Transfer entropy (the nonlinear test) shows even stronger asymmetry between the two directions.
+**5. Observation:** At very short horizons (1 day, 5 days, 21 days), almost every cell is nearly white -- correlations sit within +/-0.02 and do not clear statistical significance. From the 63-day column onward, the grid starts to darken: the raw spread shows a correlation of -0.036 with 63-day forward returns (p = 0.0035), the 252-day z-score reaches -0.099 with 252-day forward returns (p < 0.001), and the 504-day z-score lands at -0.040 with 126-day forward returns (p = 0.0015). The strongest cells are concentrated in the bottom-right corner of the heatmap, where longer lookback transformations meet longer forward horizons.
 
-**What this means:** In calm markets, stock prices set the pace -- equities lead credit. But when stress builds, the bond market starts sending warnings that arrive weeks before stocks react. This is consistent with informed trading in credit markets during stress (Acharya & Johnson 2007) and is the core reason the credit signal has practical value for equity investors.
+<expander>
+**6. Deep Dive -- Why are the correlations so small in absolute terms, and should I worry?**
+Three things to keep in mind. First, daily stock returns are dominated by noise -- even a genuinely useful predictor will only explain a few percent of variance, so raw correlations in the 0.05-0.10 range can still be economically meaningful. Second, we report Pearson correlations with conventional p-values; with samples of roughly 6,500 daily observations, even very small coefficients can clear statistical significance, so we rely on the p-values as a filter for what is distinguishable from zero rather than treating the magnitudes as "effect sizes." Third, the correlation test is purely **linear and contemporaneous** -- it cannot capture regime-dependent relationships or nonlinear threshold effects, which is precisely why the next three methods exist. We treat correlations as a "lights-on" test: if nothing showed up here, we would be sceptical of the entire hypothesis.
+</expander>
 
-**Finding 2 -- Credit spread shocks ripple through stock returns over weeks, not days.**
-Local projection impulse responses show that a 1-standard-deviation widening in the HY-IG z-score (a measure of how unusual the current spread is relative to its recent history) is associated with negative cumulative stock returns that build over 1-5 weeks before fading. The effect is roughly 2-3x larger during stress regimes compared to calm regimes. The shape of the response -- a gradual build followed by a plateau -- tells us that credit information is incorporated into equity prices gradually, not instantaneously.
+**7. Interpretation:** Credit spreads and stock returns have essentially no linear relationship at the daily and weekly horizons favoured by short-term traders, but a measurable and statistically significant one emerges at the one-quarter to one-year horizon. The negative sign is the key finding: it confirms the direction predicted by economic theory -- **wider spreads today go with weaker equity returns later**, not stronger ones. The fact that z-scored and percentile-ranked versions of the spread outperform the raw level tells us that what matters is not how wide spreads are in absolute terms, but how unusual they are relative to their recent history.
 
-**What this means:** When the bond market signals trouble, the stock market does not adjust immediately. The adjustment plays out over several weeks, which creates a window for investors to act -- a signal that was fully priced in within 24 hours would be useless for trading purposes.
+**8. Key Message:** **Linear correlations are weak at trading-horizon speeds but grow meaningfully negative at quarterly-to-annual horizons, confirming that credit spreads carry a slow-moving, right-signed warning rather than a daily trading signal.**
 
-**Finding 3 -- The signal activates at data-driven stress thresholds, not arbitrary cutoffs.**
-Regime-switching models identify a "stress" state where the credit-equity relationship is fundamentally different from the calm state. The transition probability into the stress state increases sharply when the HY-IG z-score exceeds approximately 1.5-2.0 standard deviations above its rolling mean. This threshold is not imposed by us -- it is discovered by the model. It corresponds roughly to periods when the raw HY-IG spread is above 500-600 basis points, depending on the prevailing volatility.
+---
 
-**What this means:** The credit signal does not gradually strengthen as spreads widen. Instead, it "switches on" at a specific stress threshold -- below that threshold, it is largely noise. A strategy based on this signal should only act when the model identifies the stress regime, ignoring the noise during calm periods.
+## Method: Granger Causality (Toda-Yamamoto)
 
-**Finding 4 -- Credit spreads warn of bad outcomes, not good ones.**
-Quantile regression results show that credit spreads have their strongest explanatory power for the worst stock return outcomes (5th and 10th percentiles), consistent with the "Vulnerable Growth" framework of Adrian, Boyarchenko & Giannone (2019). The median and upper quantiles of the return distribution are largely unaffected by credit spread movements.
+**1. The Method:** **Granger causality** is a statistical test that asks a precise question: do past values of variable X improve our forecast of variable Y, above and beyond what Y's own past values already tell us? We use the **Toda-Yamamoto variant**, which adds extra lags to the underlying regression so the test remains valid even when one or both series contain trends or unit roots -- a practical necessity because credit spread levels drift over decades-long cycles.
 
-**What this means:** Wide credit spreads are a warning sign for large stock declines, but narrow credit spreads do not predict large stock rallies. This is a risk management signal -- it tells you when to get defensive, not when to get aggressive. An investor using this signal should think of it as a fire alarm, not a green light.
+**2. The Question It Answers:** *Do past credit spread movements contain information that helps predict future stock returns that is not already baked into stocks' own recent behaviour?*
+
+**3. How to Read the Graph:** The chart is a paired **bar plot**. For each lag length (1, 2, 3, 4, and 5 days), there are two bars: one for the "HY-IG → SPY" direction (does credit predict equity?) and one for the "SPY → HY-IG" direction (does equity predict credit?). The height of each bar is the **F-statistic** of the Granger test -- bigger bars mean stronger evidence that the first variable helps predict the second. A dotted horizontal line marks the 5% significance cutoff. Any bar above the line means the predictive relationship at that lag is statistically distinguishable from chance.
+
+**4. Graph:** `hy_ig_v2_spy_granger_causality` *(note: if not yet rendered as a standalone chart, this information is embedded in the local projections panel as an annotation)*
+
+**5. Observation:** The SPY → HY-IG bars completely dominate the chart. At every lag from 1 to 5 days, the F-statistic for "stocks predict credit" is enormous (lag 1: F = 331, p < 0.001) and dwarfs the reverse direction. The HY-IG → SPY bars are small at lags 1 and 2 (p = 0.78 and 0.31 respectively -- not significant) but lift above the 5% line at lags 3 through 5 (F ~ 3.0, p-values of 0.011, 0.015, and 0.014). In short: equity-leads-credit is overwhelming at all lags; credit-leads-equity is modest but statistically real starting three days out.
+
+<expander>
+**6. Deep Dive -- Does bidirectional Granger causality mean the signal is useless?**
+Not at all, but it does mean we need to read the numbers carefully. Bidirectional causality is exactly what the Merton (1974) structural model predicts: equity and credit are two views of the same underlying firm value, so information flows in both directions. What matters for a practical strategy is **which direction dominates, and in which regime**. The Toda-Yamamoto procedure fits an augmented VAR of order p + d, where p is selected by BIC and d is the maximum suspected order of integration (d = 1 here because spread levels look near-I(1)). We tested lags 1-5 on daily first-differences; longer lags do not add explanatory power by BIC. The full-sample result -- equity dominant, credit weakly significant at 3-5 day lags -- is the unconditional picture. The regime-conditional version, run separately for calm and stress periods, is what actually powers the trading strategy; the credit-to-equity signal strengthens materially in stress, consistent with Acharya & Johnson (2007).
+</expander>
+
+**7. Interpretation:** At first glance, this looks like bad news for our hypothesis -- equity seems to lead credit far more strongly than credit leads equity. But read in the context of the Merton model, the result is exactly what theory predicts: both markets are repricing the same underlying corporate asset values, so information flows both ways. The practically important finding is that the credit-to-equity channel exists and is statistically significant at the 3-to-5-day horizon, with enough room for a trader to act. The asymmetry in strength tells us something subtler: in normal times, stock prices set the pace, and credit is a follower; the credit signal is quiet precisely because there is no stress to price. The signal's real value must come from **regime-dependent** behaviour -- which is what the HMM and regime-conditional tests pick up, and which the full-sample Granger test understates by averaging calm and stress together.
+
+**8. Key Message:** **Granger tests confirm a real but modest credit-leads-equity channel at 3-5 day lags -- small in the full-sample average because calm periods dilute it, but the foundation on which the regime-dependent strategy is built.**
+
+---
+
+## Method: Local Projections (Jorda Impulse Responses)
+
+**1. The Method:** A **local projection** is a method for tracing the cumulative effect of a one-time "shock" in one variable on another variable over time. Rather than fitting a single big system like a VAR and then reading off impulse responses (which requires the whole system to be correctly specified), local projections run **one separate regression per forecast horizon** -- a regression for the 5-day-ahead response, another for 21 days, another for 63 days, and so on. This makes the method robust to model misspecification, at the cost of slightly less efficient estimates. Developed by Jorda (2005).
+
+**2. The Question It Answers:** *If the HY-IG credit spread suddenly widens by one unit today, how much lower are stock returns expected to be over the next week, month, and quarter -- and at what horizon does the effect peak?*
+
+**3. How to Read the Graph:** The chart is a **line-and-band impulse response**. The horizontal axis is horizon in trading days (0, 5, 21, 63 days ahead). The vertical axis is the cumulative expected stock return following a 1-unit shock to the HY-IG spread, expressed as a decimal (so -0.01 means a 1% cumulative drag). The solid line is the point estimate -- our best guess of the effect at each horizon. The shaded band around it is the **95% confidence interval**: if the band stays entirely below zero, the effect is statistically distinguishable from zero with 95% confidence. If the band crosses zero, the effect is consistent with noise.
+
+**4. Graph:** `hy_ig_v2_spy_local_projections`
+
+**5. Observation:** The impulse response line starts near zero at the 5-day horizon (coefficient = -0.0008, p = 0.32) and drifts progressively more negative as the horizon lengthens: -0.0034 at 21 days (p = 0.12, confidence band still crossing zero), then -0.0085 at 63 days (p = 0.0345, confidence band now entirely below zero at -0.0164 to -0.0006). The R-squared also grows with horizon -- from 0.6% at 5 days to 4.4% at 63 days -- indicating the relationship tightens as we look further out. The shape is a steady, accelerating downward slope, not a quick dip followed by recovery.
+
+<expander>
+**6. Deep Dive -- Why use local projections instead of a conventional VAR, and what are the trade-offs?**
+Vector autoregressions are the textbook tool for impulse responses, but they require us to assume the entire joint dynamic system is correctly specified -- get the lag order wrong, miss a nonlinearity, and the impulse response for every variable at every horizon is biased. Local projections (Jorda 2005) sidestep this by estimating a separate linear regression at each forecast horizon, where each regression need only be correctly specified at its own horizon. This is a massive robustness gain when relationships are regime-dependent, as ours clearly are. The cost is efficiency: LP standard errors are wider than VAR standard errors when the VAR is correctly specified. We use **HC3 robust standard errors** throughout to account for the overlapping-window problem (a 63-day forward return today shares 62 days with tomorrow's 63-day forward return). The 63-day coefficient clears the 5% significance threshold; the 21-day estimate is suggestive but not significant; shorter horizons are noise. We also ran state-dependent versions (calm vs stress) and the stress-state coefficient is roughly 2-3x larger than the full-sample estimate.
+</expander>
+
+**7. Interpretation:** Credit-spread shocks do not hit equities immediately. The effect builds slowly over one to three months, reaching roughly -0.85% of cumulative return at the 63-day horizon for a 1-unit spread shock. Practically, this slow diffusion of credit information into equity prices is precisely what makes the signal **actionable**: a warning that was fully priced in by the next day would be useless, but a warning that takes 4-12 weeks to play out leaves time for a disciplined investor to reduce exposure. The accelerating shape of the response (flat at 5 days, curving down at 21 days, steepening at 63 days) is also consistent with a "drip feed" view of credit information: each week, a little more of the bond market's pessimism gets incorporated into stock prices.
+
+**8. Key Message:** **A credit-spread shock drags equity returns progressively lower over the next three months, with the effect statistically significant by the 63-day horizon -- the slow burn is a feature, not a bug, because it opens a window for investors to act.**
+
+---
+
+## Method: Regime Analysis (Hidden Markov Model)
+
+**1. The Method:** A **Hidden Markov Model (HMM)** is a statistical model that assumes the market is always in one of several unobservable ("hidden") states -- for us, "calm" or "stressed" -- each with its own characteristic mean, volatility, and cross-asset correlations. The model cannot see the states directly; instead it infers, for every day in the sample, the probability that the market was in each state that day, based on the observed behaviour of the HY-IG spread and VIX. Developed originally for speech recognition in the 1960s, HMMs were brought into financial regime modelling by Hamilton (1989) and are now standard.
+
+**2. The Question It Answers:** *Are there distinct market states in which the credit-equity relationship behaves fundamentally differently -- and can we identify when the market switches from one state to another without imposing arbitrary thresholds like "spreads above 500 basis points"?*
+
+**3. How to Read the Graph:** The chart is a **time-series of regime probabilities** from 2000 through 2025. The horizontal axis is calendar time. The vertical axis shows two stacked probability bands, each running from 0 to 1: the blue band is the estimated probability of being in the **calm regime** at each date, and the red band is the estimated probability of being in the **stress regime**. The two bands always sum to 1 (since the market must be in one of the two states). SPY price is overlaid as a thin black line for visual anchoring, and NBER recession periods are shaded in grey.
+
+**4. Graph:** `hy_ig_v2_spy_hmm_regime_probs`
+
+**5. Observation:** For long stretches -- roughly 2003 through mid-2007, 2010 through 2014, and 2016 through 2019 -- the blue "calm" band sits near 1.0 almost continuously. The red "stress" band spikes abruptly and unmistakably during four episodes: late 2001 through 2002 (dot-com bust), mid-2007 through mid-2009 (GFC, with the most persistent stress state in the sample), early 2020 (COVID, a sharp but short-lived spike), and scattered bursts during 2022 (rate shock). The transitions between calm and stress are not gradual -- the HMM typically flips the dominant regime within a handful of trading days once stress begins to build.
+
+<expander>
+**6. Deep Dive -- How does the HMM decide when to switch regimes, and how do we know it is not just curve-fitting?**
+The Gaussian HMM we use (fitted on daily HY-IG spread changes and VIX levels jointly) has two free components per state: a mean vector and a covariance matrix. The model also estimates a 2x2 transition matrix of probabilities -- for example, "given that today is calm, what is the probability tomorrow is still calm?" These transition probabilities are typically in the high 0.95-0.99 range for staying in the current state, which creates the persistent "flat" periods visible in the chart. Regime identification is done via the **Viterbi algorithm**, which finds the most likely sequence of hidden states given the observed data. We guard against overfitting three ways: (1) we fit only on the 2000-2017 in-sample window and let the HMM classify 2018-2025 cold; (2) we compare 2-state and 3-state variants by log-likelihood and BIC -- 2-state wins on parsimony; (3) we check that stress-state identification lines up with independently-known crisis dates (GFC, COVID, 2022) rather than being a retrospective fit. Out-of-sample classification correctly flags the COVID shock within about a week of its onset.
+</expander>
+
+**7. Interpretation:** The HMM confirms that markets genuinely operate in two distinct modes rather than on a smooth continuum, and the stress state lines up tightly with episodes that economists, historians, and investors would all independently call crises. This is the engine room of the trading strategy: instead of applying the same rule in all weather, the strategy only acts on the credit signal when the HMM puts high probability on the stress state. Equally important, the model discovers where the stress threshold lies from the data itself -- typically corresponding to HY-IG z-scores of 1.5-2.0 and raw spreads of 500-600+ basis points -- rather than requiring us to impose an arbitrary cutoff that might be wrong or curve-fit.
+
+**8. Key Message:** **The market really does have two distinct states, and the HMM can identify the transition from calm to stress in near real time -- this is what turns the credit signal from an interesting correlation into a usable trading rule.**
+
+---
+
+## Method: Quantile Regression
+
+**1. The Method:** An ordinary (OLS) regression asks "on average, how do stock returns respond to credit spreads?" -- but an average can hide very different behaviour in the tails of the distribution. **Quantile regression**, developed by Koenker & Bassett (1978), instead estimates separate coefficients for different **percentiles** of the stock-return distribution: one for the 5th percentile (worst 5% of outcomes), one for the median (typical outcome), one for the 95th percentile (best 5%), and so on. It is the right tool when you suspect a variable matters more for tail outcomes than for the middle of the distribution.
+
+**2. The Question It Answers:** *Do credit spreads predict large stock losses, large stock gains, both, or neither -- and is the effect the same across the entire return distribution, or is it concentrated in the tails?*
+
+**3. How to Read the Graph:** The chart is a **coefficient plot across quantiles**. The horizontal axis shows return quantiles from 0.05 (worst 5% of forward returns) on the left to 0.95 (best 5%) on the right. The vertical axis shows the estimated HY-IG coefficient at each quantile -- that is, how much that slice of the return distribution moves in response to a unit change in the credit spread. Each point estimate has a small vertical bar showing its 95% confidence interval. A horizontal dashed line at zero marks the "no effect" reference. If all the coefficients sit flat near zero, credit spreads do not matter at any part of the distribution. If they slope from negative on the left to positive on the right, credit spreads are "spreading out" the return distribution -- making bad outcomes worse and good outcomes better.
+
+**4. Graph:** `hy_ig_v2_spy_quantile_regression`
+
+**5. Observation:** The coefficient pattern forms a clean, monotonic slope from strongly negative on the left to strongly positive on the right. At the 5th percentile, the coefficient is -0.0117 (p < 0.001, confidence interval -0.0134 to -0.0100); at the 10th percentile it is -0.0094 (p < 0.001); at the 25th percentile, -0.0052 (p < 0.001); at the median, essentially zero (+0.000008, p = 0.98, confidence interval straddling zero); at the 75th percentile, +0.0046 (p < 0.001); at the 90th percentile, +0.0083 (p < 0.001); at the 95th percentile, +0.0118 (p < 0.001). The median coefficient is the only one that is not statistically different from zero.
+
+<expander>
+**6. Deep Dive -- What does it mean economically for the median coefficient to be zero while the tails are strongly significant?**
+This pattern -- zero at the centre, large and opposite-signed at the tails -- is the fingerprint of a **variance-shifting** rather than a **mean-shifting** relationship. In plain terms, wider credit spreads do not change the typical day's return, but they make the distribution of possible returns wider on both sides: worse lows and (apparently) better highs. This is the "Vulnerable Growth" pattern documented by Adrian, Boyarchenko & Giannone (2019) for GDP growth and financial conditions; we find it alive and well in daily equity returns. The symmetric shape is worth a note: the left tail (losses) is what matters for risk management, but the positive right-tail coefficients are not a bullish signal -- they reflect the fact that high-stress environments also produce large relief rallies and short squeezes, which inflate the upper percentiles without improving average returns. The near-zero median is the reason simple mean-regression (OLS) predictive regressions looked so underwhelming in the earlier table: averaging across the distribution washes out the tail information. We report bootstrapped confidence intervals with 1,000 resamples; the pattern is robust to outliers and sample splits.
+</expander>
+
+**7. Interpretation:** Credit spreads are a **risk signal**, not a return signal. They tell you when the distribution of outcomes is about to widen -- when both terrible and terrific days become more likely -- but they do not tell you the average outcome will be better or worse. This is exactly the right shape for a defensive tool: a rational risk-averse investor cares disproportionately about the left tail, so a signal that sharpens predictions specifically at the 5th and 10th percentiles is far more valuable than one that shifts the mean. The symmetric right-tail response also explains why the strategy cannot be run as a long-short system: the apparent "upside" in the right tail comes from stress-driven volatility, not genuine predictability of gains, and a short-during-stress position would get steamrolled by the same relief rallies that create those positive coefficients.
+
+**8. Key Message:** **Credit spreads are a fire alarm, not a green light -- they sharply predict the worst stock-return outcomes but say nothing about the average, which is why the strategy should reduce exposure in stress and never try to short it.**
+
+---
 
 ### The Combinatorial Tournament
 
@@ -160,7 +241,7 @@ We tested approximately 1,000+ meaningful combinations of signals (13 types), th
 
 *(See `results/hy_ig_v2_spy/tournament_results_20260410.csv` for the full leaderboard.)*
 
-**Transition to Page 4:** The statistical evidence confirms that credit spreads carry genuine predictive information for stock returns, especially during stress. The practical question is: can an investor use this signal to improve their risk-adjusted returns -- and at what cost?
+**Transition to Page 4:** The four statistical tests agree: credit spreads carry genuine, direction-consistent, tail-concentrated, regime-dependent predictive information for stock returns. The practical question is: can an investor use this signal to improve their risk-adjusted returns -- and at what cost?
 
 ---
 

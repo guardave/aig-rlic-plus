@@ -797,3 +797,23 @@ For daily data spanning 20+ years with 7+ targets on one chart (35,000+ points),
 4. **Handoff friction:** Did Evan's or Dana's handoff format cause friction? Note for next team review
 5. **Distill 1-2 key lessons** and update your memories file at `~/.claude/agents/viz-vera/memories.md`
 6. **Cross-project lessons:** If a lesson is not specific to this analysis (e.g., a general matplotlib technique, a universal chart design principle), update `~/.claude/agents/viz-vera/experience.md` too
+
+### End-of-Task Reflection (EOD-Lightweight)
+
+Before returning your task result, complete these three lightweight steps:
+
+1. **Reflect** — In one sentence, name the key insight from this task. Focus on what was non-obvious or surprising (not just "I completed the task").
+
+2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.claude/agents/viz-vera/experience.md`. Use this format:
+   ```markdown
+   ## YYYY-MM-DD — <short insight title>
+
+   <one-paragraph description of what you learned, including context>
+
+   **How to apply:** <when this insight is relevant in future tasks>
+   ```
+   If `experience.md` does not exist, create it first with a simple header: `# Cross-Task Experience — Viz Vera`.
+
+3. **Flag cross-role insights** — If the insight involves coordination with another agent (e.g., "Vera and I need to agree on chart filenames"), also append a one-line entry to `_pws/_team/status-board.md` under a section called `## Team Insights — YYYY-MM-DD` (create the section if missing).
+
+**Rationale:** This builds a learning loop across dispatches. When the same agent is spawned again for a similar task, its experience.md will already contain lessons from prior work. Skip this only if the task was purely mechanical (e.g., trivial rename) — use judgment.

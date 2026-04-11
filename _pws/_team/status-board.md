@@ -1,5 +1,33 @@
 # Team Status Board
 
+## 2026-04-10 — Lead Lesandro
+
+**Status:** Completed
+
+**Accomplished:**
+- SOP Hardening Part C: Full 5-agent pipeline re-run of HY-IG v2 (Sharpe 1.27)
+- Fixed 2 Cloud deployment bugs (page_link fallback, chart filename mismatch)
+- Comparative analysis: v2 vs sample pages → identified 5 audience-friendliness gaps
+- Added 7 SOP rules across Research + AppDev SOPs (writing voice, rendering patterns)
+- Re-ran Ray + Ace with new SOPs → pages now have inline definitions, translation bridges, rule-first layout
+- 5 commits pushed, all verified with headless browser
+
+**Discoveries & Insights:**
+- Lead role = coordinate + decide. Don't do agent-level implementation work.
+- Chart naming needs convention: agents use different prefixes. Fixed in loader, needs SOP rule.
+- Streamlit Cloud page_link resolution differs from local — always verify on Cloud.
+- Translation bridges ("What this means:") are highest-ROI readability improvement.
+- Audience-friendliness is a process/SOP gap, not a content gap — rules fix it systematically.
+
+**Blockers:** None
+
+**Next Steps:**
+- Pair #4: US10Y-US3M → SPY (yield curve slope)
+- Continue systematic pair execution with updated SOPs
+- Consider chart naming convention SOP addition
+
+---
+
 ## 2026-04-09 — Lead Lesandro
 
 **Status:** SOD Checkpoint

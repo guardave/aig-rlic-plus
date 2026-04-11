@@ -364,6 +364,56 @@ For major findings (top-level conclusions, strategy justifications, regime inter
 
 **Cross-reference:** See Research SOP for the narrative patterns Ray uses to produce these bridges upstream.
 
+### 3.9 Evidence Page 8-Element Template
+
+A stakeholder proposed a standard 8-element layout for every Evidence method page so that readers encounter information in the same predictable order on every page. Research Ray now writes narrative content in this structure (see the Research SOP). Ace's job is to render it consistently so the structure is visually obvious to the reader.
+
+#### Rendering rules
+
+For every method block on an Evidence page, render these 8 elements in order:
+
+| # | Element | Rendering approach |
+|---|---------|-------------------|
+| 1 | **The Method** | `st.markdown("### Method Name")` + 1-2 sentences in plain markdown |
+| 2 | **The Question It Answers** | `st.markdown("> *Italic question mark here*")` (blockquote for emphasis) |
+| 3 | **How to Read the Graph** | `st.markdown("**How to read this chart:** ...")` with bold prefix |
+| 4 | **Graph** | `load_plotly_chart("chart_name", pair_id="...")` with meaningful caption |
+| 5 | **Observation** | `st.markdown("**What the chart shows:** ...")` — factual, no interpretation |
+| 6 | **Deep Dive** | `st.expander("Question form title")` with statistical details inside |
+| 7 | **Interpretation** | `st.markdown("**What this means:** ...")` — bridge to economic meaning |
+| 8 | **Key Message** | `st.info("**Key message:** ...")` or `st.success()` — visually distinct box |
+
+#### Pattern example
+
+```python
+def render_method_block(method_name: str, content: dict):
+    st.markdown(f"### {method_name}")
+    st.markdown(content["method_theory"])
+    st.markdown(f"> *{content['question']}*")
+    st.markdown(f"**How to read this chart:** {content['how_to_read']}")
+    load_plotly_chart(
+        content["chart_name"],
+        pair_id=content["pair_id"],
+        caption=content.get("caption"),
+    )
+    st.markdown(f"**What the chart shows:** {content['observation']}")
+    if content.get("deep_dive"):
+        with st.expander(content["deep_dive_title"]):
+            st.markdown(content["deep_dive"])
+    st.markdown(f"**What this means:** {content['interpretation']}")
+    st.info(f"**Key message:** {content['key_message']}")
+```
+
+#### Mandatory vs. optional elements
+
+Every Evidence method block **MUST** include elements 1, 2, 3, 4, 5, 7, and 8. Element 6 (Deep Dive expander) is optional but **strongly encouraged** for technical methods (HMM, cointegration, IV, GARCH, etc.) where curious readers will want statistical details that would clutter the main flow.
+
+#### Why this matters
+
+The 8-element template enforces the audience-friendly principles from section 3.8 at the structural level: every method gets a plain-English question, an explicit reading guide, a separation of observation from interpretation, and a key message in a visually distinct box. Readers learn the rhythm after one or two methods and can skim or deep-read predictably across the entire portal.
+
+**Cross-reference:** See Research SOP "Evidence Page 8-Element Narrative Template" for the upstream content structure Ray delivers. The element names, order, and field names (`method_theory`, `question`, `how_to_read`, `observation`, `deep_dive`, `interpretation`, `key_message`) are aligned across both SOPs so handoff is mechanical.
+
 ### 4. Implement Charts and Interactivity
 
 **Chart integration rules:**
@@ -488,6 +538,97 @@ Before delivery:
 - Share the deployed URL with Lesandro
 - Provide portal architecture documentation (what each page does, where data comes from)
 - Provide a content update guide (how to refresh data, update narrative, add charts)
+
+---
+
+## Landing Page Design Rules
+
+The landing page is the first thing every reader sees. As the pair count grows toward the 73-pair target, a 3-column card grid with a single text filter is no longer enough — readers need an executive orientation, multi-dimensional filtering, at-a-glance performance, and consistent classification.
+
+These rules apply to `app/app.py` and the supporting `app/components/pair_registry.py` loader.
+
+### 1. Executive summary block
+
+At the top of the landing page (above the filter row), render a collapsible block explaining what the portal is, who it is for, and how to navigate it. Use:
+
+```python
+with st.expander("What is this portal?", expanded=True):
+    st.markdown(
+        """
+        The AIG-RLIC+ portal evaluates leading, coincident, and lagging
+        economic indicators as signals for equity allocation. Each card
+        below is one indicator-target pair with a full evidence trail,
+        strategy rule, and out-of-sample performance.
+
+        **How to navigate:** Use the filters to narrow by indicator
+        nature, type, strategy objective, or direction. Click any card
+        to open the full Evidence and Strategy pages for that pair.
+        """
+    )
+```
+
+The expander defaults to `expanded=True` so first-time visitors see the orientation immediately. Returning visitors can collapse it to recover screen space; Streamlit preserves the collapsed state across reruns within a session.
+
+### 2. Multi-dimensional filters
+
+The landing page must support filtering by the following dimensions, arranged in a horizontal row above the card grid (use `st.columns()` to lay them out):
+
+| Filter | Options |
+|--------|---------|
+| **Indicator nature** | All / Leading / Coincident / Lagging |
+| **Indicator type** | All / Price / Production / Sentiment / Rates / Credit / Volatility / Macro |
+| **Strategy objective** | All / Min MDD / Max Sharpe / Max Return |
+| **Direction** | All / Pro-cyclical / Counter-cyclical / Ambiguous |
+| **Free text search** | (existing — name, ticker, description) |
+
+Each dropdown is an `st.selectbox()` with `"All"` as the default option. Filter combinators are AND across dimensions, OR within the free-text match. Show a small caption beneath the filter row indicating the number of matched cards (e.g., "Showing 12 of 73 pairs").
+
+### 3. Card numbering
+
+Each card must display the priority pair number (`#1` to `#73`) in the top-left corner of the card. Use a small grey badge or `st.caption()` styled with `font-weight: bold`. The number comes from the priority combinations catalog and lives in `interpretation_metadata.json` as `priority_rank`.
+
+### 4. Performance badges
+
+Each card must prominently display two performance badges in the card header:
+
+- **Max drawdown badge** — colored by severity:
+  - Green if `max_drawdown > -10%`
+  - Yellow if `-20% <= max_drawdown <= -10%`
+  - Red if `max_drawdown < -20%`
+- **Sharpe ratio badge** — colored by quality:
+  - Green if `oos_sharpe > 1.0`
+  - Yellow if `0.5 <= oos_sharpe <= 1.0`
+  - Red if `oos_sharpe < 0.5`
+
+Render badges as small inline pills using `st.markdown()` with minimal CSS. Both metrics come from the strategy results JSON via the pair registry.
+
+### 5. Classification chips
+
+Each card must show the 3 classification dimensions as small colored chips/badges directly below the card title:
+
+- **Nature chip** — Leading / Coincident / Lagging
+- **Type chip** — Price / Production / Sentiment / Rates / Credit / Volatility / Macro
+- **Objective chip** — Min MDD / Max Sharpe / Max Return
+
+Chips should be visually distinct from the performance badges (different shape or position) so readers can immediately distinguish "what kind of signal is this?" from "how well did it work?". Use a colorblind-safe palette consistent with section 4 styling defaults.
+
+### 6. Metadata source
+
+These classifications come from `interpretation_metadata.json` with an extended schema that adds the following fields:
+
+```json
+{
+  "priority_rank": 1,
+  "indicator_nature": "Leading",
+  "indicator_type": "Production",
+  "strategy_objective": "max_sharpe",
+  "direction": "Pro-cyclical"
+}
+```
+
+The `pair_registry` loader (`app/components/pair_registry.py`) reads these fields when discovering pairs and exposes them on the pair object so the landing page can filter and render without re-parsing JSON. If a pair's metadata file is missing any of the new fields, the loader must fall back to `"Unknown"` and the card must still render — never crash the landing page on partial metadata.
+
+**Cross-reference:** Data agent (Dana) and Research agent (Ray) own the upstream classification fields in `interpretation_metadata.json`. Coordinate with them when adding a new pair to ensure all four classification fields are populated before the pair appears on the landing page.
 
 ---
 
@@ -773,3 +914,23 @@ Ace is the final integration point — errors from any upstream agent converge h
 4. **Did any upstream handoff cause friction?** Note for next team review
 5. **Distill 1-2 key lessons** and update your memories file at `~/.claude/agents/appdev-ace/memories.md`
 6. If a lesson is **cross-project**, update `~/.claude/agents/appdev-ace/experience.md` too
+
+### End-of-Task Reflection (EOD-Lightweight)
+
+Before returning your task result, complete these three lightweight steps:
+
+1. **Reflect** — In one sentence, name the key insight from this task. Focus on what was non-obvious or surprising (not just "I completed the task").
+
+2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.claude/agents/appdev-ace/experience.md`. Use this format:
+   ```markdown
+   ## YYYY-MM-DD — <short insight title>
+
+   <one-paragraph description of what you learned, including context>
+
+   **How to apply:** <when this insight is relevant in future tasks>
+   ```
+   If `experience.md` does not exist, create it first with a simple header: `# Cross-Task Experience — AppDev Ace`.
+
+3. **Flag cross-role insights** — If the insight involves coordination with another agent (e.g., "Vera and I need to agree on chart filenames"), also append a one-line entry to `_pws/_team/status-board.md` under a section called `## Team Insights — YYYY-MM-DD` (create the section if missing).
+
+**Rationale:** This builds a learning loop across dispatches. When the same agent is spawned again for a similar task, its experience.md will already contain lessons from prior work. Skip this only if the task was purely mechanical (e.g., trivial rename) — use judgment.

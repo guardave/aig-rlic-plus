@@ -5,8 +5,8 @@
 - This is a well-studied indicator with strong literature (Estrella & Hardouvelis 1991)
 - Expected: counter-cyclical (inverted curve → recession → equity weakness)
 
-## Remaining Pairs (69 of 73)
-- 4 completed: #1 INDPRO, #2 SOFR/TED (3 variants), #3 Permits, #20 HY-IG
+## Remaining Pairs (68 of 73)
+- 5 completed: #1 INDPRO, #2 SOFR/TED (3 variants), #3 Permits, #11 VIX/VIX3M, #20 HY-IG (sample + v2)
 - Next SPY pairs: #4 T10Y3M, #5 UMCSENT, #6 HSN1F, #7 ISM_MFG_PMI, ...
 - Full list in `docs/priority-combinations-catalog.md`
 
@@ -16,9 +16,11 @@
 - [ ] Consider creating a truly generic `pair_pipeline_generic.py` that reads config from Analysis Brief
 
 ## SOP Improvements To Consider
+- [x] Add audience-friendliness rules to Research + AppDev SOPs (done 2026-04-10)
 - [ ] Codify "variant family" pattern formally in team-coordination SOP
 - [ ] Add short-OOS auto-flag (< 5 years) to econometrics SOP
 - [ ] Update Relevance Matrix with RoC signal preference note
+- [ ] Add chart naming convention to team-coordination SOP (Vera prefix vs Ace no-prefix)
 
 ## Portal Improvements To Consider
 - [ ] Auto-generate sidebar FINDINGS list from pair_registry instead of hardcoding

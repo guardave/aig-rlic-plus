@@ -1,6 +1,9 @@
 {
   "indicator": "sofr_ted_spy",
   "target": "spy",
+  "indicator_nature": "leading",
+  "indicator_type": "credit",
+  "strategy_objective": "min_mdd",
   "expected_direction": "counter_cyclical",
   "observed_direction": "pro_cyclical",
   "direction_consistent": false,

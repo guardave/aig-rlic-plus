@@ -18,6 +18,44 @@ SOD checkpoint. Pulled 5 new commits from remote (another session's work on HY-I
 - Next: Pair #4 US10Y-US3M → SPY
 
 ### Session Summary
+(See 2026-04-10 session below)
+
+---
+
+## Session: 2026-04-10
+
+### Context
+SOP hardening Part C: full multi-agent re-run of HY-IG v2, then audience-friendliness improvements.
+
+### Commits (4 today)
+- `b009674` HY-IG v2: full multi-agent pipeline test of hardened SOPs (40 files, +12,414 lines)
+- `17f1690` Fix StreamlitPageNotFoundError on Cloud (try/except fallback)
+- `8767a8a` Fix chart rendering: filename mismatch between Vera and Ace
+- `61efe7d` SOP: add audience-friendliness rules to Research and AppDev SOPs (+130 lines)
+- `d9aeaff` HY-IG v2: rewrite narrative and pages with audience-friendly SOP rules (+548/-266)
+
+### Key Accomplishments
+1. Full 5-agent pipeline re-run of HY-IG v2 (Ray → Dana → Evan → Vera → Ace)
+   - Winner: HMM stress / T4_0.5 / P2 Signal Strength (Sharpe 1.27 vs ref 1.17)
+   - 18-item completeness gate: 17/17 PASS
+2. Diagnosed and fixed 2 Cloud deployment issues:
+   - st.page_link fails on Cloud (try/except fallback)
+   - Chart filenames: Vera used pair_id prefix, Ace didn't (charts.py now tries both)
+3. Comparative analysis: v2 pages vs sample pages — identified 5 audience-friendliness gaps
+4. Added 7 new SOP rules across Research + AppDev SOPs
+5. Re-ran Ray + Ace with new SOPs — pages now have inline definitions, translation bridges, rule-first layout
+
+### Lessons Learned
+1. **Agent delegation**: User corrected me twice for doing agent-level work manually. Lead role = coordinate and decide, not implement.
+2. **Chart naming convention needs SOP rule**: Vera and Ace used different naming (prefixed vs unprefixed). Fixed in charts.py loader, but should standardize in team-coordination SOP.
+3. **Streamlit Cloud differs from local**: page_link path resolution, version differences. Always test on Cloud, not just locally.
+4. **Audience-friendliness is a process gap, not a content gap**: The v2 data was good; the prose style was the problem. SOP rules fix this systematically.
+5. **Translation bridges are high-ROI**: Adding "What this means:" after findings dramatically improves readability at minimal cost.
+
+### Status
+- 6 of 73 pairs: #1 INDPRO, #2 TED (3 variants), #3 Permits, #11 VIX/VIX3M, #20 HY-IG (sample + v2)
+- SOPs now include audience-friendliness rules
+- Next: Pair #4 US10Y-US3M → SPY
 Brief session — context refresh and sync only. No code changes, no new analysis.
 
 ---

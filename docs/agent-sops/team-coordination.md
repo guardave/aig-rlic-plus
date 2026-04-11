@@ -86,8 +86,25 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 16 | Winner summary | `results/{id}/winner_summary.json` exists, all required fields populated (signal, threshold, strategy display names, OOS metrics) |
 | 17 | Winner trade log | `results/{id}/winner_trade_log.csv` exists, rows > 0, columns: `entry_date`, `exit_date`, `direction`, `holding_days`, `trade_return_pct` |
 | 18 | Execution notes | `results/{id}/execution_notes.md` exists, non-empty, includes step-by-step execution guidance |
+| 19 | `indicator_nature` populated | `results/{id}/interpretation_metadata.json` has `indicator_nature` set to one of `leading`, `coincident`, `lagging`. Missing/empty/`unknown` → pair fails gate. **Owner:** Data Dana |
+| 20 | `indicator_type` populated | `results/{id}/interpretation_metadata.json` has `indicator_type` set to one of `price`, `production`, `sentiment`, `rates`, `credit`, `volatility`, `macro`. Missing/empty/`unknown` → pair fails gate. **Owner:** Data Dana |
+| 21 | `strategy_objective` populated | `results/{id}/interpretation_metadata.json` has `strategy_objective` set to one of `min_mdd`, `max_sharpe`, `max_return`. Missing/empty/`unknown` → pair fails gate. **Owner:** Research Ray (after tournament results known) |
 
 **Evidence:** HY-IG (pair #5) shipped with a header-only trade log (0 data rows) because items 16–18 were not in the completeness gate. The downstream execution panel showed "Trade log pending" with no data. Nobody caught it until manual inspection.
+
+### "Unknown" Is Not a Display State
+
+> "Unknown" classification is an error signal, not a fallback label. If a pair ships with any classification field set to "unknown," it means upstream work was incomplete. The remedy is to fix the gap at source (Data Dana for data-stage fields, Research Ray for narrative-stage fields) — NOT to accept the label as final.
+>
+> The runtime fallback in `pair_registry.py` is a safety net that warns via `get_integrity_issues()` — it is not a license to ship incomplete pairs. Gate reviewers MUST reject any pair flagged by the integrity check before delivery.
+
+### Classification Field Ownership
+
+| Field | Owner | Timing | Source of Truth |
+|-------|-------|--------|-----------------|
+| `indicator_nature` | Data Dana | During data stage (before tournament) | Economic role of the indicator |
+| `indicator_type` | Data Dana | Same time | Economic category of the underlying series |
+| `strategy_objective` | Research Ray | After tournament results known | Tournament winner's optimization objective |
 
 ### Variant Families
 

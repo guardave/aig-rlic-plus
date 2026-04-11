@@ -1,6 +1,9 @@
 {
   "indicator": "hy_ig_spread",
   "target": "spy",
+  "indicator_nature": "leading",
+  "indicator_type": "credit",
+  "strategy_objective": "min_mdd",
   "expected_direction": "counter_cyclical",
   "observed_direction": "counter_cyclical",
   "direction_consistent": true,

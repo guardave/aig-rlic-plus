@@ -178,6 +178,8 @@ Stationarity results format:
 
 **Benchmark data inclusion:** Every pair's dataset must include the target-class benchmark series (e.g., SPY returns for equity targets, AGG returns for fixed income targets, self for commodities/crypto). The benchmark is specified in the Analysis Brief Section 3. If the benchmark is the same as the target (e.g., SPY for SPY), include buy-and-hold returns explicitly. This prevents Ace from needing a separate benchmark dataset for every Strategy page.
 
+**Classification metadata ownership:** When writing `results/{id}/interpretation_metadata.json`, Dana sets `indicator_nature` and `indicator_type` based on the indicator's economic role. These are blocking completeness-gate items (team-coordination.md §19-20). Ray owns `strategy_objective` (§21) after tournament results are known. If genuinely unclassifiable, escalate to Lesandro with rationale — "unknown" is not an acceptable final value.
+
 ---
 
 ## Handoff Specifications
@@ -403,6 +405,7 @@ Before handing off to another agent:
 - [ ] Display Name populated for **every** variable (not just viz-facing) — if display name cannot be determined, flag to Lesandro
 - [ ] Display-name registry (`data/display_name_registry.csv`) updated with any new variables
 - [ ] For batch deliveries: cross-dataset consistency verified (see below)
+- [ ] `interpretation_metadata.json`: `indicator_nature` (leading/coincident/lagging) and `indicator_type` (price/production/sentiment/rates/credit/volatility/macro) populated. "unknown" is NOT acceptable. See team-coordination.md items 19-20.
 
 **Cross-dataset consistency checks (mandatory for batch deliveries):**
 
@@ -496,3 +499,23 @@ When Dana consumes upstream artifacts (e.g., Ray's data source recommendations, 
 3. **Did you discover a data gotcha?** (Series quirk, API issue, transformation pitfall, base year change, seasonal adjustment methodology change)
 4. **Distill 1-2 key lessons** and update your memories file at `~/.claude/agents/data-dana/memories.md`
 5. If a lesson is **cross-project** (not specific to this analysis), update `~/.claude/agents/data-dana/experience.md` too
+
+### End-of-Task Reflection (EOD-Lightweight)
+
+Before returning your task result, complete these three lightweight steps:
+
+1. **Reflect** — In one sentence, name the key insight from this task. Focus on what was non-obvious or surprising (not just "I completed the task").
+
+2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.claude/agents/data-dana/experience.md`. Use this format:
+   ```markdown
+   ## YYYY-MM-DD — <short insight title>
+
+   <one-paragraph description of what you learned, including context>
+
+   **How to apply:** <when this insight is relevant in future tasks>
+   ```
+   If `experience.md` does not exist, create it first with a simple header: `# Cross-Task Experience — Data Dana`.
+
+3. **Flag cross-role insights** — If the insight involves coordination with another agent (e.g., "Vera and I need to agree on chart filenames"), also append a one-line entry to `_pws/_team/status-board.md` under a section called `## Team Insights — YYYY-MM-DD` (create the section if missing).
+
+**Rationale:** This builds a learning loop across dispatches. When the same agent is spawned again for a similar task, its experience.md will already contain lessons from prior work. Skip this only if the task was purely mechanical (e.g., trivial rename) — use judgment.
