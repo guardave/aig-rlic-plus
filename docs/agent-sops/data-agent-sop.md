@@ -180,6 +180,60 @@ Stationarity results format:
 
 **Classification metadata ownership:** When writing `results/{id}/interpretation_metadata.json`, Dana sets `indicator_nature` and `indicator_type` based on the indicator's economic role. These are blocking completeness-gate items (team-coordination.md §19-20). Ray owns `strategy_objective` (§21) after tournament results are known. If genuinely unclassifiable, escalate to Lesandro with rationale — "unknown" is not an acceptable final value.
 
+#### Rule D3 — Classification Decision Procedure (Mandatory Workflow)
+
+Classification ownership is not enough — the decision procedure must be auditable so any future Dana dispatch reaches the same answer. Follow this procedure before writing `interpretation_metadata.json`:
+
+**Step 1 — Look up the indicator in `docs/data-series-catalog.md`.** If the catalog already records `indicator_nature` and `indicator_type`, reuse those values. Catalog is the single source of truth; per-pair drift is forbidden.
+
+**Step 2 — If the indicator is new (not in the catalog), classify using these decision rules, then update the catalog in the same commit:**
+
+- `indicator_nature`:
+  - `leading` — turns before the business/market cycle turns (e.g., building permits, ISM new orders, yield curve slope, credit spreads at long horizons).
+  - `coincident` — moves with the cycle (e.g., industrial production, payroll employment, real GDP).
+  - `lagging` — turns after the cycle (e.g., unemployment rate, CPI services, unit labor costs).
+  - Source of truth order: (1) The Conference Board classification, (2) NBER/Fed research consensus, (3) published econometric tests (e.g., cross-correlation peak lag). Never classify from intuition alone — cite the source in the catalog entry.
+
+- `indicator_type` — use EXACTLY this controlled vocabulary, which is shared with Evan's Rule C1 category routing (see econometrics-agent-sop.md §2 Rule C1):
+  - `price` — asset prices, FX, commodity prices
+  - `production` — industrial/real-economy output (INDPRO, capacity utilization, housing starts)
+  - `sentiment` — survey-based (UMCSENT, ISM diffusion indices, NFIB)
+  - `rates` — interest rates, yield curve spreads, policy rates
+  - `credit` — credit spreads, default rates, bank lending surveys
+  - `volatility` — realized/implied vol, VIX term structure
+  - `macro` — catch-all for composite/other macro series that don't fit above
+
+  Note: Evan's SOP also references `activity` as a near-synonym for `production/macro`. If in doubt between `production` and `macro`, prefer `production` for real-economy output series and `macro` for composites (NFCI, Chicago Fed activity index, etc.). If a new type is genuinely needed (e.g., `liquidity`, `positioning`), coordinate with Evan via a `design_note.md` before introducing it — silent vocabulary drift breaks Rule C1 category routing.
+
+**Step 3 — Write the values into `results/{id}/interpretation_metadata.json` AND confirm Evan's Rule C1 catalog contains a method list for that `indicator_type`.** If Evan's catalog has no entry for the type (e.g., a brand-new `liquidity` type), escalate to Lesandro before delivery — do not ship a pair whose `indicator_type` cannot route to a mandatory method list.
+
+**Step 4 — Never leave as `"unknown"`.** Per team-coordination.md §19-20 and the "Unknown Is Not a Display State" meta-rule, any pair that would otherwise ship with `"unknown"` is a gate failure. Fix at source: escalate to Lesandro with a one-paragraph rationale and a proposed classification for approval.
+
+#### Rule D2 — Default Unit Convention Registry
+
+A silent unit swap (spread in bps on one run, in decimal on a rerun) breaks every downstream consumer: Evan's thresholds, Vera's axes, Ray's dual-notation narrative (research-agent-sop.md Rule 4), and Ace's chart labels. To prevent this, Dana writes all master parquets using this default unit convention. Deviations are permitted only when documented in a `design_note.md` at the pair's results directory, per the team-coordination.md "Explicit Over Implicit" meta-rule.
+
+| Quantity | Default Unit | Column Suffix | Example |
+|----------|-------------|---------------|---------|
+| Credit spreads, yield spreads | basis points (bps) | `_bps` | `hy_ig_oas_bps`, `us10y_us3m_bps` |
+| Interest rates, yields | percent (not decimal) | `_pct` | `dff_pct`, `us10y_pct` |
+| Asset returns (simple) | decimal (0.01 = 1%) | `_ret` | `spy_ret_1d`, `spy_ret_21d` |
+| Asset returns (percent) | percent | `_ret_pct` | `spy_ret_1d_pct` — only when display-ready |
+| Volatility (annualized) | percent (annualized) | `_vol_ann_pct` | `spy_realized_vol_ann_pct` |
+| Volatility (VIX-style index) | index level | `_idx` or raw name | `vix_idx`, `vix3m_idx` |
+| Prices | native currency (USD default) | `_usd` or raw name | `spy_close`, `gold_usd` |
+| Ratios (dimensionless) | decimal ratio | `_ratio` | `vix_vix3m_ratio`, `ism_mfg_svc_ratio` |
+| Diffusion indices (PMI-style) | native index level | raw name | `ism_mfg_pmi`, `umcsent` |
+| Counts | raw integer | raw name | `permit`, `cement_ship` |
+
+**Rules:**
+
+1. **One unit per canonical name.** The same canonical column name must carry the same unit in every delivery, forever. If a downstream consumer needs a different unit (e.g., Vera wants spread in percent for an axis), they derive it locally from the bps column — Dana does not ship two versions under the same name.
+2. **Column suffix matches unit.** When ambiguity is possible (spreads, returns, vol), the suffix above is mandatory. `hy_ig_oas` without a suffix is a quality-gate failure.
+3. **Data dictionary `Unit` column must match.** The `Unit` field in the data dictionary (e.g., "bps", "pct", "decimal return") must equal the suffix convention.
+4. **Deviations require a design note.** If a pair genuinely needs a non-default unit (e.g., a log-spread for an econometric reason), Dana commits `results/{id}/design_note.md` explaining why and how consumers should interpret the column. No note → no deviation.
+5. **Cross-reference for consumers:** Vera's Rule A2 (axis-label unit match) and Ray's Rule 4 (dual-notation narrative) both assume this registry. A unit drift here cascades into wrong axes and wrong narrative immediately.
+
 ---
 
 ## Handoff Specifications
@@ -406,6 +460,44 @@ Before handing off to another agent:
 - [ ] Display-name registry (`data/display_name_registry.csv`) updated with any new variables
 - [ ] For batch deliveries: cross-dataset consistency verified (see below)
 - [ ] `interpretation_metadata.json`: `indicator_nature` (leading/coincident/lagging) and `indicator_type` (price/production/sentiment/rates/credit/volatility/macro) populated. "unknown" is NOT acceptable. See team-coordination.md items 19-20.
+- [ ] Rule D1 — Series Preservation on Reruns: every column present in the prior `data/{subject}_{frequency}_latest.{ext}` is present in the new delivery (same canonical name, same unit per Rule D2). Intentional drops are documented in `results/{id}/regression_note.md` with rationale per column.
+
+#### Rule D1 — Series Preservation on Reruns (No Silent Column Drops)
+
+When refreshing or rerunning data sourcing for a pair that already has a `_latest` alias in `data/`, Dana must preserve every series from the prior master parquet unless a drop is explicitly documented. This is the data-stage counterpart to team-coordination.md §22 (method-coverage no-regression rule) and is governed by the "Explicit Over Implicit" meta-rule.
+
+**Why this matters:** HY-IG v2 silently dropped pre-whitened CCF and transfer entropy at the econometrics stage (§22 evidence). The same failure mode exists at the data stage: a rerun that silently drops `dff_pct` because "this iteration only uses SOFR" removes an analytical option Evan or Ray may have depended on, without any error signal. Downstream agents discover the drop only when their script fails or their narrative goes stale — by which time the delivery is already on main.
+
+**Procedure on every rerun:**
+
+1. **Diff before delivering.** Before overwriting `data/{subject}_{frequency}_latest.{ext}`, load the prior version and compute the column-level diff: added, preserved, removed.
+2. **Preserved is the default.** Any column in the prior version must appear in the new version with the same canonical name and the same unit convention (Rule D2). Row counts may change (sample extension); columns may not disappear.
+3. **Drops require a `regression_note.md`.** If a drop is genuinely justified (source deprecated, vendor changed series definition, series was fabricated in a prior run), write `results/{id}/regression_note.md` with one entry per dropped column: column name, reason, consumer impact, replacement (if any), and sign-off from Lesandro or the affected downstream agent (usually Evan).
+4. **Additions are always allowed** and should be listed in the handoff message so consumers know new columns are available.
+5. **Renames count as drop + add.** If `hy_ig_spread` is renamed to `hy_ig_oas_bps`, Dana must (a) document the rename in the regression note, (b) update `data/display_name_registry.csv`, and (c) notify Evan and Ace before delivery so their scripts and portal code can adapt.
+6. **Gate enforcement.** The "Series Preservation" quality-gate checkbox above is blocking — a delivery that fails the column-diff check without a regression note is rejected at Step 6 (Deliver) and does not reach Evan.
+
+**Handoff message addendum for reruns:**
+
+```
+Rerun diff vs prior _latest:
+  Preserved: [count]
+  Added: [list of new columns + units]
+  Removed: [list of dropped columns] — see regression_note.md
+  Renamed: [old → new] — see regression_note.md
+```
+
+**Metadata flip detection:**
+
+On every rerun, Dana must compare the new `interpretation_metadata.json` against the prior version for classification fields (`indicator_nature`, `indicator_type`, `strategy_objective` — the last one is Ray's but still part of the file Dana diffs).
+
+If any classification changes between runs:
+
+1. Document the change in `regression_note_<YYYYMMDD>.md` under Changes From Prior Version (see team-coordination.md "Regression Note Format")
+2. Include the rationale (new economic evidence, stakeholder reclassification, prior classification was wrong)
+3. Escalate to Lesandro for approval before shipping
+
+Silent classification flips are a gate failure and will break downstream filtering on the landing page.
 
 **Cross-dataset consistency checks (mandatory for batch deliveries):**
 

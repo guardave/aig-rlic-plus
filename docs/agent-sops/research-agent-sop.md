@@ -444,6 +444,63 @@ When citing a method, explain *why* it was chosen for this specific analysis, no
 **Good:**
 > "We use HC3 robust standard errors throughout because our forward returns overlap in time — a 63-day return calculated today shares 62 days with tomorrow's 63-day return. Without this correction, we'd overstate our confidence in every result."
 
+#### Rule 4 — Unit Discipline: Inline Dual Notation
+
+When writing narrative text, the first occurrence of any value with a unit must include dual notation. This is an extension of Rule 1 (Audience Assumption): assume the reader knows markets but may not automatically convert bps ↔ %.
+
+**Examples:**
+> "The HY-IG spread widened from 400 bps (4%) to 800 bps (8%)."
+> "The maximum drawdown was 10.2% (1,020 basis points)."
+> "Annualized return of 11.3% (roughly 43 bps per trading day on average)."
+
+Subsequent occurrences within the same section can drop one form. Apply the same discipline to other unit pairs where readers commonly stumble: decimal vs percent, annualized vs daily, log vs simple returns.
+
+**Anti-pattern:** A sentence like "The spread moved from 0.04 to 0.08" is ambiguous — is that 4 bps or 400 bps? Always anchor the scale.
+
+#### Rule 5 — Regression Prevention on Reruns
+
+When rewriting the narrative for a pair that has been analyzed before, the new narrative must cover **all** methods and findings from the prior version unless explicitly justified. Silent regressions are a completeness gate failure.
+
+**Process (concrete recipe — follow in order):**
+
+1. **Locate the prior version file.** Canonical path: `docs/portal_narrative_<pair_id>_<YYYYMMDD>.md`. If multiple dated versions exist, the prior version is the one with the most recent date that is NOT the current task's date. Use `git log --oneline -- docs/portal_narrative_<pair_id>_*.md` to confirm. If no prior narrative file exists but the pair has prior portal pages under `app/pages/*_<pair_id>_evidence.py`, extract the method list from the rendered page source as the fallback.
+2. **Build a method manifest from the prior version.** For each method block in the prior narrative, record a row: `method_name | element_1_chart_file | element_7_key_finding_one_liner`. Save this as `results/<pair_id>/prior_methods_<olddate>.csv` — this is your checklist for the rewrite and the diff artifact the gate reviewer will inspect.
+3. **Cross-check against the new econometrics results.** For each row in the manifest, verify the method's result file still exists in the new `results/<pair_id>/core_models_<newdate>/` directory per the Econometrics SOP filename table. If any file is missing, STOP and message Evan with the specific filename(s) — do not rewrite until the gap is resolved or formally dropped.
+4. **Write the new narrative covering every retained method**, preserving the 8-element template for each. If an element is missing, apply the Missing-Element Fallback Protocol above; do not drop the method at this stage.
+5. **Write `regression_note.md` ONLY for deliberate drops.** File path: `results/<pair_id>/regression_note.md`. For each dropped method include: (a) method name, (b) reason, (c) approver (Lesandro / Evan / self), (d) pointer to the new-version treatment if the method was merged into another block. Cross-reference this file from the top of the new portal narrative (`See regression note: results/<pair_id>/regression_note.md`).
+6. **Valid drop reasons:** the analysis was later shown to be unreliable; the method has been superseded by a stronger test; the underlying data series is no longer available AND no proxy exists.
+7. **Invalid drop reason:** "No data file exists in the new pipeline run." → request the missing result from Evan (cite Rule C1 mandatory method list) before rewriting. Silent omission is a gate failure (team-coordination.md §22).
+
+#### Rule 6 — Glossary Quality Rubric (4-Element Standard)
+
+Every glossary entry must contain these four elements in order:
+
+1. **Plain-English definition** — one sentence, no jargon.
+2. **Why it matters** — one or two sentences on when/why the concept is used. The motivation.
+3. **Concrete example or analogy** — one or two sentences a layperson can visualize.
+4. **Formula or notation** — optional, only when it adds clarity and not otherwise.
+
+**Anti-pattern (do NOT write this):**
+> "Quantile regression: A statistical method that estimates the effect of a variable on different parts of the outcome distribution."
+
+This is a single-sentence definition with no motivation, no example, and no way for a reader to tell when the method is useful.
+
+**Good example:**
+> **Quantile regression:** A variant of regression analysis that estimates how a predictor affects *different percentiles* of the outcome distribution, not just the average. **Why it matters:** standard regression tells you the effect on an average day, but financial risk is about bad days — quantile regression lets us say "this signal predicts losses in the worst 5% of days, not just average losses." **Example:** if we find that wider credit spreads have a coefficient of −0.01 at the 5% quantile but 0.00 at the median, it means spreads warn of tail risk without predicting normal-day moves. **Formula:** minimize Σ ρ_τ(y − Xβ), where ρ_τ is the tilted absolute loss function that penalizes positive and negative residuals asymmetrically.
+
+**Ownership and edit protocol.** The glossary has two physical artifacts with distinct owners:
+
+| Artifact | Owner | Role |
+|---|---|---|
+| `docs/portal_glossary.json` | **Research Ray** | Canonical source of truth. Ray writes and edits every entry; every entry must satisfy the 4-element rubric before commit. This is the file the rubric applies to. |
+| `app/components/glossary.py` | **App Dev Ace** | Rendering helper — loads `docs/portal_glossary.json` at runtime and exposes lookup/tooltip functions to Streamlit pages. Ace edits the Python code; Ace does NOT edit entry content. |
+
+**Rules:**
+1. Ray never edits `app/components/glossary.py`. Content changes flow through `docs/portal_glossary.json` only.
+2. Ace never edits `docs/portal_glossary.json`. If Ace spots a missing or weak term during portal assembly, Ace files a request back to Ray (handoff message, not a silent fix).
+3. New terms are added incrementally: when a pair's narrative introduces a term not yet in the glossary, Ray appends a rubric-compliant entry in the same task cycle as the narrative delivery.
+4. **Backfill action (tracked separately from this SOP):** audit every existing entry in `docs/portal_glossary.json` against the 4-element rubric and upgrade any entry that lacks motivation, example, or (where applicable) formula. Ray owns this backfill.
+
 #### Expander Content in Narratives
 
 When writing content destined for `st.expander()` blocks, write the expander *title* as a self-contained question the reader might have (e.g., "What exactly is a credit spread?" or "Why does the lead-lag relationship flip during crises?"). The expanded content should provide optional depth for the curious reader — the main narrative must be complete and coherent without it. A reader who never clicks an expander should still walk away with the full story; a reader who opens one should get a satisfying, self-contained explanation, not a sentence fragment or a bare table.
@@ -500,6 +557,28 @@ This is the gold-standard example. Use it as the template for what good looks li
 ---
 
 **Cross-reference:** Ace is responsible for rendering this 8-element block consistently in Streamlit (heading hierarchy, expander placement, bolded key message). Flag any method where one of the 8 elements is missing or weak before handoff.
+
+#### `chart_status` field (mandatory in each method block)
+
+Each method block in the narrative must include `chart_status` with one of:
+
+- `"ready"` — chart exists at canonical path, Ace renders normally
+- `"pending"` — chart will exist but is not yet produced; Ace renders Element 4 as a placeholder
+- `"unavailable"` — chart will not be produced for this method; Ace omits Element 4 and the block uses the missing-element fallback cascade
+
+Ray sets this field based on coordination with Vera/Evan BEFORE handing off to Ace. A block with `chart_status: "pending"` that never becomes "ready" is a gate failure.
+
+#### Missing-Element Fallback Protocol
+
+A method block must carry all 8 elements. If any element is unavailable at narrative-writing time — most commonly Element 4 (Graph), but also Element 5 (Observation) when the chart has not yet been produced — do NOT silently drop the method and do NOT fabricate the missing element. Follow this escalation ladder:
+
+1. **Diagnose the gap.** Identify which element is missing and why (Vera never received the data; Evan's results file lacks the method; the chart type was not in the Standard Chart Catalog; etc.).
+2. **Escalate before rewriting.** If Element 4 (Graph) is missing, message Vera with the method name, the source CSV path, and the chart type required. If Element 5 depends on a chart Vera owes, wait for the chart and write Observation from the visual, not from the underlying numbers. If the underlying data itself is missing, message Evan citing the method from the prior version or the Econometrics SOP Rule C1 mandatory list.
+3. **Block the method, not the page.** While waiting, mark the method block in the narrative draft with `<!-- BLOCKED: waiting on <owner> for <element> -->` and proceed with other methods. Do not remove the block.
+4. **Drop only with a regression note.** A method may be dropped from the new version only after (a) the gap cannot be resolved within the task cycle, AND (b) a `regression_note.md` is written per Rule 5 below. A dropped method without a regression note is a gate failure (team-coordination.md §22).
+5. **Never write Observation from raw data if the chart will render differently.** Element 5 must describe what the reader will actually see on screen, not what Ray sees in the CSV. Writing Observation ahead of the chart is only acceptable when the chart spec is frozen and Ray can describe it unambiguously — otherwise wait for Vera.
+
+**The principle:** The 8-element template is structural, not decorative. An incomplete block is a broken contract with the reader, and ad-hoc handling ("I'll just skip Element 4 this once") is exactly the pattern the template was introduced to eliminate.
 
 ### Handoff to Ace
 

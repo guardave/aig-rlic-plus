@@ -81,6 +81,102 @@ Document category selection in the analysis log. If departing from the heuristic
 4. Direction uncertainty (Rule D) is per pair — apply individually from each Analysis Brief
 Group pairs by indicator and apply Rules A-C at the indicator level, then adjust for pair-specific Rule D. This avoids redundant ADF/KPSS tests and category lookups across targets sharing the same indicator.
 
+#### Rule C1 — Category-Specific Mandatory Method Catalog
+
+Evan must run a minimum set of methods for each indicator-target pair, determined by the pair's category. This is the method-coverage counterpart to the classification metadata gate items in `team-coordination.md` (§19-21): classification fields must be explicit, and method coverage must be explicit. Missing a mandatory method without documenting why it was dropped is a completeness gate failure (see §22).
+
+**Credit-equity pairs** (`indicator_type = credit`, target class = equity):
+
+- Pearson, Spearman, and Kendall correlations at 1d, 5d, 21d, 63d, 252d horizons
+- Distance correlation (for nonlinear dependence)
+- **Pre-whitened cross-correlation function (CCF)** at lags −20 to +20
+- Toda-Yamamoto Granger causality (both directions)
+- **Transfer entropy** (nonlinear information flow)
+- Local projections (Jordà impulse responses)
+- Quantile regression at τ = 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95
+- HMM regime detection (2-state minimum)
+
+**Volatility-equity pairs** (`indicator_type = volatility`):
+
+- Same correlation battery as credit-equity
+- VIX term structure analysis (front-month vs 3M ratio, contango/backwardation)
+- Realized-vs-implied volatility decomposition
+
+**Production/macro pairs** (`indicator_type = production` or `macro`):
+
+- Correlations (full battery)
+- Granger causality (Toda-Yamamoto)
+- Local projections
+- Quantile regression
+- (Transfer entropy and CCF optional here since monthly data makes them less informative.)
+
+**Rates pairs** (`indicator_type = rates`):
+
+- Correlations
+- Granger causality
+- Pre-whitened CCF
+- Local projections
+- Yield curve decomposition (level/slope/curvature)
+
+**Sentiment pairs** (`indicator_type = sentiment`):
+
+- Correlations
+- Granger causality
+- HMM regime analysis
+- Quantile regression
+
+Extend or refine this catalog as new pair categories are added. For each mandatory method, Evan must produce a CSV or Parquet file in `results/<pair>/core_models_<date>/` that Ray can reference when writing the narrative.
+
+**Coordination rule (bidirectional):**
+
+- If Ray's analysis brief specifies a method that is not in Evan's default catalog for that category, Evan adds it.
+- Conversely, if Evan's output is missing a method that Ray needs for the narrative, Ray must request it from Evan BEFORE dropping the method from the narrative. Silent drops are a completeness gate failure on both sides.
+- If Evan intentionally deviates from this catalog (e.g., skipping CCF on a monthly macro pair because of low power), document the deviation in a `design_note.md` in the pair results directory.
+
+#### Rule C2 — Mandatory Output Schema Per Method
+
+Every mandatory method in Rule C1 must be written to a named file with an exact column schema so Ray can consume it without guessing. Ambiguous filenames or ad-hoc column names are the root cause of silent method drops (team-coordination.md §22). Produce each file below in `results/<pair>/core_models_<date>/` whenever the corresponding method is mandatory for the pair's category.
+
+| Method | Filename | Required Columns |
+|--------|----------|------------------|
+| Correlations (battery) | `correlations.csv` | `pair_name`, `horizon_days`, `metric` (`pearson`/`spearman`/`kendall`/`distance`), `value`, `p_value`, `n_obs` |
+| Pre-whitened CCF | `ccf_prewhitened.csv` | `lag`, `ccf`, `lower_ci`, `upper_ci`, `significant`, `arima_order` (pre-whitening filter), `n_obs` |
+| Toda-Yamamoto Granger | `granger_causality.csv` | `direction` (`indicator_to_target`/`target_to_indicator`), `lag`, `f_statistic`, `p_value`, `significant` |
+| Transfer entropy | `transfer_entropy.csv` | `direction`, `te_value`, `permutation_p_value`, `n_permutations`, `bandwidth`, `bin_method` |
+| Local projections | `local_projections.csv` | `horizon`, `coef`, `se`, `ci_lower`, `ci_upper`, `p_value`, `direction` (fwd/rev) |
+| Quantile regression | `quantile_regression.csv` | `tau`, `coef`, `se`, `p_value`, `ci_lower`, `ci_upper` |
+| HMM regime detection | `hmm_states.parquet` + `hmm_summary.csv` | Parquet: DatetimeIndex, `hmm_state`, `prob_<regime_label>` (one col per state, renamed semantically). CSV: `state_label`, `mean_return`, `vol`, `duration_days`, `frequency_pct` |
+| Yield curve decomposition | `yield_curve_factors.csv` | `date`, `level`, `slope`, `curvature` |
+| Volatility decomposition | `vol_decomposition.csv` | `date`, `realized_vol`, `implied_vol`, `vrp` (variance risk premium) |
+| Quartile-returns | `quartile_returns.csv` | `quartile`, `mean_return`, `vol`, `sharpe`, `n_obs`, `cutoff_lower`, `cutoff_upper` |
+
+**Rules of use:**
+
+1. Method names and column names must match this schema exactly — no aliases. If a library returns columns under different names, rename before saving.
+2. Each file must be accompanied by a `_manifest.json` sidecar (see Defense 1) documenting units, sign conventions, and at least three sanity-check assertions.
+3. If a mandatory method is genuinely not applicable (e.g., CCF on a monthly macro pair with <240 observations), write the filename anyway with a single row containing `method_skipped = true`, `reason = "<short justification>"`, and log the skip in `design_note.md`. Do not omit the file silently.
+4. Ray's narrative templates reference these exact filenames and columns. A change to this schema requires a paired update to Ray's SOP — propose via a team-level SOP change request, not a unilateral rename.
+
+**Filename stability across reruns:**
+
+The filenames defined in Rule C2 (mandatory method output schemas) must remain stable across reruns of the same pair. Evan may use a new date in the directory name (`core_models_<newdate>/`) but the filenames INSIDE must match the prior version exactly. This enables Ray's regression prevention recipe (Rule 5b) to do a clean filesystem diff without content parsing.
+
+If Evan needs to rename a file across reruns, the rename must be documented in `regression_note_<YYYYMMDD>.md` with rationale (see team-coordination.md "Regression Note Format").
+
+#### Rule C3 — Producer-Side Rerun Regression Check (Method and Numeric Diff)
+
+When rerunning a pair that already has a prior version (`results/<pair>/` exists from an earlier run), perform a producer-side regression check BEFORE handoff to Ray. Ray's own rerun check (Research SOP B2) is a second line of defense — Evan must not rely on it.
+
+**Procedure:**
+
+1. List the set of method files present in the most recent prior `core_models_*` directory and in the prior tournament output.
+2. Compare against the set you are about to write in the new run.
+3. For any method that existed previously but is absent now, either restore it or document the drop in `regression_note.md` in the new run's results directory. Reasons must match Ray's valid-drop criteria (superseded method, proven unreliable, upstream data unavailable). "I forgot" or "it wasn't in my default catalog this time" are NOT valid reasons.
+4. For methods that exist in both runs, diff the headline numbers (correlation values at horizon 21d, Granger p-values, HMM stress-regime mean return, tournament winner's `oos_sharpe` and `max_drawdown`). Record any material change (|Δ| > 10% on a metric or a flip in sign/significance) in `regression_note.md` with a one-line attribution to the cause (data refresh, method parameter change, sample-period extension).
+5. Attach `regression_note.md` (or a `regression_note.md` stating "no material changes") to the handoff to Ray. Silence is not acceptable — a missing note blocks Gate 22.
+
+**Evidence:** HY-IG v2 silently dropped pre-whitened CCF, transfer entropy, and quartile-returns because Evan's rerun omitted them and Ray had no diff to catch the regression. A producer-side diff would have surfaced the gap before handoff.
+
 ### 3. Data Request to Dana
 
 Before exploratory analysis, produce a structured data request using the template below.
@@ -539,6 +635,18 @@ If grid exceeds the Analysis Brief's `{MAX_PLAYERS}` (default 10,000), apply str
 1. Keep all `++` category signals (from Relevance Matrix)
 2. Sample uniformly across threshold × strategy × lead time × lookback
 3. Document which combinations were sampled vs. exhaustive
+
+**Tournament handoff to Ray for `strategy_objective` classification (mandatory):**
+
+Ray owns `strategy_objective` (team-coordination.md §21) but cannot classify without tournament output that makes the winner's optimization target visible. Evan must deliver the tournament results in a form Ray can read directly:
+
+1. **Include the buy-and-hold benchmark as a row** in `tournament_summary.csv` with `signal = "benchmark"`, `strategy = "P0_buy_and_hold"`, and all other dimensions set to `null`. Use the same `oos_sharpe`, `oos_ann_return`, and `max_drawdown` columns so Ray can diff winner vs. B&H on one line. Without this row, Ray has to guess the benchmark from a separate file.
+2. **Emit a `tournament_winner.json`** alongside the CSVs with: `winner_label` (short display name), `winner_oos_sharpe`, `winner_max_drawdown`, `winner_oos_ann_return`, `bh_oos_sharpe`, `bh_max_drawdown`, `bh_oos_ann_return`, `delta_sharpe`, `delta_max_drawdown`, `delta_ann_return`. Ray classifies `strategy_objective` by inspecting which delta dominates:
+   - `min_mdd` if `delta_max_drawdown` is the largest positive improvement (DD reduction) relative to its class range
+   - `max_sharpe` if `delta_sharpe` is the largest relative improvement and DD/return are not dominant
+   - `max_return` if `delta_ann_return` is the largest relative improvement and Sharpe gain is not dominant
+3. **Send a structured handoff message to Ray** immediately after tournament completion (not bundled with the general results handoff). Content: path to `tournament_summary.csv`, path to `tournament_winner.json`, and a one-line suggestion of the likely `strategy_objective` bucket for Ray to confirm or override. Ray retains final authority; Evan is a supplier of pre-computed deltas.
+4. If the winner fails to beat the benchmark on any dimension, flag this explicitly in `tournament_winner.json` (`beats_benchmark: false`) and escalate to Lesandro before closing the pair. Do not silently classify a losing strategy.
 
 ### Target-Class-Aware Backtest Parameters
 

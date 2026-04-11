@@ -87,16 +87,85 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 17 | Winner trade log | `results/{id}/winner_trade_log.csv` exists, rows > 0, columns: `entry_date`, `exit_date`, `direction`, `holding_days`, `trade_return_pct` |
 | 18 | Execution notes | `results/{id}/execution_notes.md` exists, non-empty, includes step-by-step execution guidance |
 | 19 | `indicator_nature` populated | `results/{id}/interpretation_metadata.json` has `indicator_nature` set to one of `leading`, `coincident`, `lagging`. Missing/empty/`unknown` → pair fails gate. **Owner:** Data Dana |
-| 20 | `indicator_type` populated | `results/{id}/interpretation_metadata.json` has `indicator_type` set to one of `price`, `production`, `sentiment`, `rates`, `credit`, `volatility`, `macro`. Missing/empty/`unknown` → pair fails gate. **Owner:** Data Dana |
+| 20 | `indicator_type` populated | `results/{id}/interpretation_metadata.json` has `indicator_type` set to EXACTLY one of the canonical 7 values: `price`, `production`, `sentiment`, `rates`, `credit`, `volatility`, `macro`. Near-synonyms (`activity`, `output`, `vol`, `fx`) are REJECTED — map to the canonical value at source. Missing/empty/`unknown` → pair fails gate. **Owner:** Data Dana |
 | 21 | `strategy_objective` populated | `results/{id}/interpretation_metadata.json` has `strategy_objective` set to one of `min_mdd`, `max_sharpe`, `max_return`. Missing/empty/`unknown` → pair fails gate. **Owner:** Research Ray (after tournament results known) |
+| 22 | Method coverage — no regression | On a pair rerun, the new Evidence section must include every method from the prior version OR the pair includes a `regression_note.md` documenting each drop with rationale. Missing methods without a regression note → pair fails gate. **Owners:** Evan (produces data), Ray (writes narrative), Ace (renders page) |
 
 **Evidence:** HY-IG (pair #5) shipped with a header-only trade log (0 data rows) because items 16–18 were not in the completeness gate. The downstream execution panel showed "Trade log pending" with no data. Nobody caught it until manual inspection.
+
+**Evidence for item 22:** HY-IG v2 (rerun) silently dropped pre-whitened CCF, transfer entropy, and quartile-returns analysis from the Evidence page. These methods existed in v1 but were missing from v2 because Evan's rerun omitted them and Ray wrote the new narrative without comparing to the prior version. A stakeholder caught the regression; the completeness gate did not.
+
+### Tournament Winner JSON Schema
+
+Every pair must produce `results/<pair_id>/tournament_winner.json` with this schema:
+
+```json
+{
+  "pair_id": "string",
+  "winner": {
+    "signal": "string",
+    "threshold": "string",
+    "strategy": "string",
+    "oos_sharpe": "number",
+    "oos_ann_return": "number",
+    "max_drawdown": "number",
+    "annual_turnover": "number"
+  },
+  "benchmark": {
+    "name": "Buy & Hold",
+    "oos_sharpe": "number",
+    "oos_ann_return": "number",
+    "max_drawdown": "number"
+  },
+  "deltas": {
+    "delta_sharpe": "number",
+    "delta_return": "number",
+    "delta_max_drawdown": "number"
+  },
+  "suggested_strategy_objective": "min_mdd|max_sharpe|max_return"
+}
+```
+
+`deltas` values are computed as winner minus benchmark (e.g., `delta_sharpe = winner.oos_sharpe - benchmark.oos_sharpe`).
+
+**Owners:** Evan produces it at tournament completion. Ray reads `deltas` and `suggested_strategy_objective` to set the canonical `strategy_objective` in `interpretation_metadata.json` (may override with rationale). Vera and Ace read the schema for rendering.
 
 ### "Unknown" Is Not a Display State
 
 > "Unknown" classification is an error signal, not a fallback label. If a pair ships with any classification field set to "unknown," it means upstream work was incomplete. The remedy is to fix the gap at source (Data Dana for data-stage fields, Research Ray for narrative-stage fields) — NOT to accept the label as final.
 >
 > The runtime fallback in `pair_registry.py` is a safety net that warns via `get_integrity_issues()` — it is not a license to ship incomplete pairs. Gate reviewers MUST reject any pair flagged by the integrity check before delivery.
+
+### Explicit Over Implicit (Meta-Rule)
+
+> **Silent changes are unacceptable.**
+>
+> Every deliberate deviation from (a) the Standard Chart Catalog (Viz SOP Rule A3), (b) the category-specific mandatory method list (Econometrics SOP Rule C1), (c) a prior version of the same pair, or (d) default unit/scale conventions (Viz SOP Rule A2, Research SOP Rule 4) must be documented in a `design_note.md` or `regression_note.md` as part of the pair's deliverables. If an agent changes something without documenting it, gate reviewers must reject the delivery.
+>
+> This meta-rule is the organizing principle behind gate items 19–22: classification metadata must be explicit (§19–21), and method/chart coverage must be explicit (§22). The common failure pattern is the same in every case: whenever the portal would show "unknown," drop a method without notice, or silently deviate from a convention, the system failed to capture a required decision. **Fix at source, don't paper over at runtime.**
+
+### Regression Note Format
+
+**Path:** `results/<pair_id>/regression_note_<YYYYMMDD>.md`
+
+**Required sections:**
+
+#### Changes From Prior Version
+List every deliberate change, one per bullet. Include:
+- What changed (file, field, column, method, chart spec)
+- Old value → New value
+- Why the change was made (new data, bug fix, stakeholder request)
+
+#### Approved By
+Name of the Lead (or designated reviewer) who approved each change before delivery.
+
+#### Unchanged
+Brief confirmation that all other methods, charts, columns, and metadata match the prior version. If any silent drift is discovered later, this section is the first thing auditors check.
+
+#### Impact Assessment
+One paragraph per change on how it affects downstream consumers (Evan, Ray, Ace, portal users).
+
+**When to write:** On every pair rerun, BEFORE handoff to the next agent in the chain. If there are no deliberate changes, still write the file with "No deliberate changes from prior version" in the Changes section — silence is not acceptance.
 
 ### Classification Field Ownership
 

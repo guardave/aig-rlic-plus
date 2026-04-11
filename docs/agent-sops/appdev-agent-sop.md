@@ -404,9 +404,60 @@ def render_method_block(method_name: str, content: dict):
     st.info(f"**Key message:** {content['key_message']}")
 ```
 
+#### Caption fallback chain
+
+When rendering Element 4 (Graph), resolve the caption in this exact order:
+
+1. `content.get("caption")` — Ray's narrative-side caption (display, audience-facing)
+2. `load_chart_metadata(chart_name).get("caption")` — Vera's sidecar caption (audit fallback)
+3. `None` — no caption shown
+
+If Ray provides a caption AND Vera's sidecar has a different caption, log a warning but prefer Ray's (display ownership principle; Viz SOP Rule A5 grants Ray display ownership and Vera audit ownership).
+
 #### Mandatory vs. optional elements
 
 Every Evidence method block **MUST** include elements 1, 2, 3, 4, 5, 7, and 8. Element 6 (Deep Dive expander) is optional but **strongly encouraged** for technical methods (HMM, cointegration, IV, GARCH, etc.) where curious readers will want statistical details that would clutter the main flow.
+
+#### Render-time completeness check
+
+The `render_method_block` function must assert that all mandatory elements are present in the content dict before rendering:
+
+```python
+def render_method_block(content: dict):
+    required = ["method_name", "method_theory", "question",
+                "how_to_read", "observation", "interpretation", "key_message"]
+    missing = [k for k in required if not content.get(k)]
+    if missing:
+        st.error(f"Method block incomplete: missing {missing}")
+        return
+```
+
+Element 4 (Graph) is optional per the missing-element fallback protocol (Rule 3.9b), but Elements 1, 2, 3, 5, 7, 8 are always mandatory. A silent render with fewer than these elements is a gate failure and must surface as a visible error, not a quiet omission.
+
+#### Chart filename contract (Rule 3.9a)
+
+**Canonical chart path:** Ace loads charts from `output/charts/{pair_id}/plotly/{chart_type}.json` via:
+
+```python
+load_plotly_chart("{chart_type}", pair_id="{pair_id}")
+```
+
+The loader MUST NOT fall back to alternative filenames (`{pair_id}_{chart_type}.json` or any legacy variant). If a chart is missing at the canonical path, surface a visible error in the rendered block — do not silently try other paths. The canonical path is defined in the Viz SOP Rule A3. If Vera's output does not match, it is a gate failure, not a rendering concern.
+
+Any legacy "try both" fallback logic in the loader is deprecated and must be removed; a missing chart at the canonical path is treated as missing and routed through Rule 3.9b below.
+
+**Cross-reference:** Viz SOP Rule A3 and Viz SOP "Directory structure (multi-pair)" own the upstream naming convention.
+
+#### Missing Element 4 fallback (Rule 3.9b)
+
+When the canonical chart for Element 4 (Graph) does not exist, do NOT silently substitute an unrelated chart and do NOT leave a bare `st.info()`. Apply this cascade in order:
+
+1. **Substitute an economically equivalent chart from the same method family** (e.g., if `granger_causality.json` is missing, reuse `local_projections.json` because both answer directional predictive questions). The substitute MUST come from the same method family as curated in the Evidence template — not the nearest chart by filename.
+2. **Annotate the substitution explicitly** inside the Element 3 "How to read this chart" text: append a one-line note such as "(Granger's standalone chart is not yet rendered; the panel below shows the closely related local-projections view.)". This makes the substitution visible to the reader and to the next reviewer.
+3. **Log the substitution** by writing a one-line entry to `results/{pair_id}/design_note.md` (or creating it if missing) so the completeness gate and the next rerun can see what was substituted and why. This satisfies the team-coordination "Explicit Over Implicit" meta-rule.
+4. **Never skip the method block** to hide the missing chart. Elements 1, 2, 3, 5, 7, and 8 still render from Ray's narrative content; only Element 4 is substituted.
+
+If no family-equivalent chart exists, render an `st.warning("Chart pending — method block rendered from narrative only.")` in place of Element 4 and still log the gap in `design_note.md`. The method block remains visible; the gap does not.
 
 #### Why this matters
 
@@ -628,7 +679,17 @@ These classifications come from `interpretation_metadata.json` with an extended 
 
 The `pair_registry` loader (`app/components/pair_registry.py`) reads these fields when discovering pairs and exposes them on the pair object so the landing page can filter and render without re-parsing JSON. If a pair's metadata file is missing any of the new fields, the loader must fall back to `"Unknown"` and the card must still render — never crash the landing page on partial metadata.
 
-**Cross-reference:** Data agent (Dana) and Research agent (Ray) own the upstream classification fields in `interpretation_metadata.json`. Coordinate with them when adding a new pair to ensure all four classification fields are populated before the pair appears on the landing page.
+### 7. Filter behavior for "Unknown" classification
+
+A pair whose classification falls back to `"Unknown"` for any dimension is an **upstream gap**, not a valid display state (see Team Coordination SOP, "'Unknown' Is Not a Display State"). The landing page handles these pairs as follows:
+
+1. **Always visible on the default (unfiltered) view.** When every classification filter is set to `"All"`, every registered pair renders — including pairs with `"Unknown"` values. The card shows the `"Unknown"` chip so the gap is obvious to the reader and to Lesandro.
+2. **Excluded from filtered views.** When a user selects a specific value on any filter dimension (e.g., `Indicator nature = Leading`), pairs with `"Unknown"` on that dimension are **excluded** from the match set. They do NOT satisfy any specific filter value and they do NOT appear under a synthetic `"Unknown"` filter option. Rationale: `"Unknown"` is a gap to fix at source, not a category to browse.
+3. **Never offered as a filter option.** The `st.selectbox()` options list for each classification dimension MUST NOT include `"Unknown"`. Offering it would legitimize the fallback as a display state.
+4. **Warning banner when any Unknown is present.** Above the filter row, render `st.warning("N of M pairs have incomplete classification metadata and will not appear in filtered views. See the warning chip on each card.")` whenever `pair_registry.get_integrity_issues()` returns a non-empty list. This makes the gate-failure visible without breaking navigation.
+5. **Counter accuracy.** The "Showing X of Y pairs" caption below the filter row counts against the **currently matching** set, not the registered total. When filters exclude Unknown pairs, the counter reflects that (e.g., "Showing 12 of 71 pairs" on a portal with 73 registered pairs including 2 Unknown).
+
+**Cross-reference:** Data agent (Dana) and Research agent (Ray) own the upstream classification fields in `interpretation_metadata.json`. Coordinate with them when adding a new pair to ensure all four classification fields are populated before the pair appears on the landing page. The correct remedy for an Unknown pair is to fix the metadata at source, not to relax the filter rules above.
 
 ---
 

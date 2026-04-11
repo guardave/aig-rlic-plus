@@ -136,6 +136,16 @@ Before creating any chart from upstream data, run these checks:
 - Specific chart request or general "visualize this data" instruction
 **Protocol:** Submit a direct request to Dana specifying: variable(s) using canonical names from `docs/data-series-catalog.md` Section 7, date range, and intended chart type. Dana delivers with the same quality gates as Econ handoffs.
 
+### Chart-gap requests from Research Ray
+
+When Ray flags a missing chart via her Missing-Element Fallback Protocol (Research SOP Rule 5b), Vera must respond within one task cycle (same dispatch if possible):
+
+1. Acknowledge the request by creating a stub `<chart_type>_meta.json` with `status: "requested_by_ray"` and the date
+2. Either produce the chart (preferred) OR provide a written rationale for why it cannot be produced from available data (route to Evan if data is missing)
+3. Update Ray's narrative content dict `chart_status` field accordingly (`ready`, `pending`, or `unavailable` — see Research SOP "chart_status field")
+
+Unacknowledged chart-gap requests are a coordination failure — Ray must not proceed with the block until Vera responds.
+
 ### Research-to-Viz (Annotation Pathway)
 
 **Source:** Research Agent (Ray)
@@ -371,6 +381,87 @@ For the 5-dimension tournament (Signal x Threshold x Strategy x Lead Time x Look
 | Signal-threshold interaction | Show how signal and threshold choices interact | Tournament results CSV, Signal x Threshold slice | Heatmap with Sharpe as color, strategy fixed |
 | Equity curve comparison | Winner vs benchmark | Strategy equity curve + benchmark data | Dual-panel: equity curve on top, drawdown on bottom; target-class-aware scaling |
 | Regime probability timeline | Regime identification over time | `prob_stress` column + event timeline | Time-series with regime shading; target-class-specific events |
+
+### Chart Integrity Rules (Explicit Over Implicit)
+
+The following four rules were added after a stakeholder review found silent deviations in a reran pair (inverted axes, mislabeled units, changed signal selection, missing regression documentation). They are **blocking** — a delivery that violates any of these rules fails the completeness gate.
+
+#### Rule A1 — No Inverted Axes on Financial Dashboards
+
+Do not invert Y-axes to create visual alignment (e.g., "wider spread = down, aligning with equity declines"). Inversion forces the reader to mentally decode "higher is lower," violating the audience-friendliness principle. If visual alignment is the goal, use one of these instead:
+
+- Separate panels (one for spread, one for SPY) with shared X-axis
+- A correlation annotation or callout on a non-inverted chart
+- A pre-computed negative transformation with explicit label (e.g., "−Spread" or "Spread Compression")
+- A dual-axis chart where both axes are clearly labeled
+
+**Never silently invert.** If a transformation is used, it must appear in the axis label AND the chart title. Example good title: "Spread Compression (−HY-IG bps) vs SPY". Example bad title: "HY-IG Spread vs SPY" (with spread axis inverted silently).
+
+#### Rule A2 — Unit Discipline: Axis Labels Must Match Data Values
+
+Every numerical axis label must disclose the unit AND match the actual data scale. Specifically:
+
+- If an axis label says "bps" (basis points), data values must be integers in the hundreds (e.g., 400), **not** decimals (0.04)
+- If an axis label says "%" (percentage), data values should be integers or one-decimal (e.g., 4.0), **not** fractions (0.04)
+- On first occurrence per chart, include a scale cue in parentheses: `"Spread (bps, where 100 bps = 1%)"` or `"Return (%, annualized)"`
+
+**Code audit rule:** Before saving any chart JSON, verify programmatically that `max(y_values)` and `min(y_values)` are consistent with the axis label's expected range. If label says "bps" and max < 10, the chart is wrong. Suggested sanity check:
+
+```python
+if unit_label == "bps" and max(y) < 10:
+    raise ValueError("bps axis but values look like decimals — rescale ×10_000 or fix label")
+if unit_label == "%" and max(abs(y)) < 1:
+    raise ValueError("% axis but values look like fractions — rescale ×100 or fix label")
+```
+
+#### Rule A3 — Standard Chart Catalog with Canonical Signal Selection
+
+For every chart in the standard chart set, the filename, signal selection, ordering, and styling are **canonical**. Reruns of the same pair must match the canonical spec exactly. The canonical catalog is the "Standard Chart Set Per Pair" table below in **Viz Preferences** — that table is the single source of truth. Do not maintain a separate catalog file; update the table in this SOP when a spec changes and record the change in `regression_note.md` (see Rule A4).
+
+**Canonical filename format (blocking):** Every portal-destined chart MUST be saved as `output/charts/{pair_id}/plotly/{chart_type}.json` where `{chart_type}` is the short key from the Standard Chart Set table (`hero`, `regime_bars`, `correlation_heatmap`, `ccf`, `local_projections`, `quantile_regression`, `tournament_scatter`, `equity_curves`, `granger`, `rf_importance`). This matches Ace's loader call `load_plotly_chart("{chart_type}", pair_id="{pair_id}")` exactly. Do NOT prefix the pair_id into the filename (e.g., `hy_ig_v2_spy_correlation_heatmap.json` is WRONG — the pair_id lives in the directory path, not the filename). A pair_id-prefixed filename is a completeness gate failure.
+
+**Canonical signal specs (inline, authoritative):**
+
+| `chart_type` key | Required columns / signals | Ordering | Axis / scale convention |
+|------------------|----------------------------|----------|-------------------------|
+| `hero` | indicator series + target price | chronological | Dual-axis, indicator left (red), target right (blue), no inversion |
+| `regime_bars` | Sharpe by indicator quartile (Q1-Q4) | Q1 to Q4 left-to-right | Y = Sharpe (dimensionless), values labeled outside bars |
+| `correlation_heatmap` | Top 6-8 signals by \|corr\| at 63d horizon | Descending \|corr\| at 63d | Rows = signals, cols = horizons (1d/5d/21d/63d/252d), RdBu_r, zmid=0, cell values shown |
+| `ccf` | CCF coefficients at lags -12..+12 | Lag ascending | Y = correlation, 95% CI dashed, significant = red |
+| `local_projections` | LP coefficient by horizon (h=0..24) | Horizon ascending | Y = coef, shaded CI band, stars for significant |
+| `quantile_regression` | Coef across return quantiles (0.1-0.9) | Quantile ascending | Y = coef, shaded CI, zero line |
+| `tournament_scatter` | OOS Sharpe vs turnover per combo | n/a | X = turnover, Y = Sharpe, color = max DD, stars = top 5, diamond = B&H |
+| `equity_curves` | Top strategies + B&H | Legend in final-value descending order | Y = equity index (base=1.0), OOS period only, log optional |
+| `granger` | Granger p-values by lag, both directions | Lag ascending | Y = p-value, p=0.05 horizontal reference, two lines |
+| `rf_importance` | Feature importance from last walk-forward window | Importance descending | Horizontal bar, Y = feature display name |
+
+When a pair genuinely needs a non-standard chart, add a new row with a new `chart_type` key BEFORE producing it. Do not ship an unlisted chart.
+
+#### Rule A4 — Chart Regression Report
+
+**When to write:** On a rerun of an existing pair (same `pair_id` with any prior portal delivery), after generating new charts and BEFORE handoff to Ace, run a diff against the prior charts directory (`output/charts/{pair_id}/plotly/*.json`). If the new output differs from the previous version in **any** of: filename set, signal selection, signal ordering, axis configuration, color palette, or data transformation — Vera must write a regression note. On the first delivery of a pair, no regression note is required.
+
+**Exact path:** `results/{pair_id}/regression_note_{YYYYMMDD}.md` (one file per rerun date; if multiple reruns on the same day, append sections rather than overwriting).
+
+**Required sections:**
+
+- `## Charts Changed` — bulleted list of `{chart_type}` keys whose JSON differs from the prior version
+- `## Spec Diff` — for each changed chart, a side-by-side "old spec → new spec" table covering the fields from the Rule A3 canonical table (columns/signals, ordering, axis convention)
+- `## Rationale` — why each change was made (new data availability, canonical catalog update, bug fix, upstream Evan handoff change, etc.)
+- `## Approved By` — Lesandro or Evan citation if the change was requested; otherwise Vera self-approves and flags for Lesandro review
+
+**Silent chart differences between reruns are a completeness gate failure (gate item 22).** If the change was unintentional, revert to the canonical spec in Rule A3 instead of writing a regression note. The regression note exists to document *deliberate* deviations, not to rubber-stamp accidental ones.
+
+#### Rule A5 — Caption Ownership (Ray owns display, Vera owns audit)
+
+Chart captions appear in two places, owned by two agents. Do not duplicate or cross-wire them:
+
+| Field | Owner | Location | Purpose |
+|-------|-------|----------|---------|
+| **Display caption** (what the portal reader sees beneath the chart) | Ray | Narrative content dict, field `caption`, consumed by Ace via `load_plotly_chart(..., caption=content.get("caption"))` | Plain-English one-liner aligned with the surrounding story |
+| **Technical caption** (audit / metadata) | Vera | `{chart_name}_meta.json`, field `caption` | Machine-readable one-line description of what the chart literally shows — used for reconciliation, chart registry browsing, and as a FALLBACK if Ray's narrative dict is missing a caption for a given chart |
+
+**Rule:** Vera MUST populate `caption` in every `_meta.json` sidecar (mandatory per the metadata schema below). Ace MUST use Ray's narrative caption as the primary display text. If Ray's content dict omits `caption` for a given chart_type, Ace falls back to Vera's `_meta.json` caption — but Ray and Vera should not silently produce conflicting captions. If Vera notices during QA that Ray's caption contradicts the chart's actual data, flag it to Ray; do not rewrite Ray's narrative.
 
 ### 6. Format Tables
 
@@ -727,11 +818,19 @@ Every pair analysis must produce at minimum these 10 chart types:
 | Benchmark / neutral | Gray | `#7f7f7f` |
 | Contraction shading | Light red | `rgba(214, 39, 40, 0.15)` |
 
-### Chart Naming Convention
+### Chart Naming Convention (Portal Plotly JSON)
 
-All chart files follow: `{pair_id}_{chart_type}.json`
+**Canonical (MUST match Rule A3):** Portal-destined Plotly JSON files live at `output/charts/{pair_id}/plotly/{chart_type}.json` — pair_id appears ONLY in the directory path, NEVER in the filename. This matches Ace's loader call `load_plotly_chart("{chart_type}", pair_id="{pair_id}")` exactly.
 
-Examples: `indpro_spy_hero.json`, `indpro_spy_tournament_scatter.json`
+Examples (correct):
+- `output/charts/indpro_spy/plotly/hero.json`
+- `output/charts/hy_ig_v2_spy/plotly/correlation_heatmap.json`
+
+Examples (WRONG — completeness gate failure):
+- `output/charts/hy_ig_v2_spy/plotly/hy_ig_v2_spy_correlation_heatmap.json` (pair_id duplicated in filename)
+- `output/charts/hy_ig_v2_spy_correlation_heatmap.json` (flat path, no pair_id directory)
+
+The static fallback (`.png`, `.svg`) and versioned-audit naming (`{indicator_id}_{target_id}_{chart_type}_{audience}_{date}_v{N}.{ext}`) described earlier in this SOP apply to `output/` audit trail files, NOT to the portal JSON the Streamlit app loads. The Streamlit loader ALWAYS uses the canonical portal path above.
 
 ### Streamlit Rendering Rules (Critical)
 
