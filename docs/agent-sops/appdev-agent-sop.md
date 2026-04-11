@@ -364,6 +364,35 @@ For major findings (top-level conclusions, strategy justifications, regime inter
 
 **Cross-reference:** See Research SOP for the narrative patterns Ray uses to produce these bridges upstream.
 
+#### 5. Column Legend Requirement for Downloadable Artifacts
+
+**Rule:** Any CSV, JSON, or Parquet file exposed via `st.download_button()` on a user-facing page must be accompanied by a **column legend** rendered on the same page. The legend must appear **above** the download button (not below or in a separate tab — users scroll past things below).
+
+**Required pattern:**
+
+```python
+with st.expander("📋 What do these columns mean?", expanded=False):
+    st.markdown("""
+    | Column | Meaning | Example |
+    |--------|---------|---------|
+    | `trade_date` | Date the position changed | 2008-09-15 |
+    | `side` | BUY, SELL, or CASH | BUY |
+    | `quantity_pct` | % of portfolio allocated | 100.0 |
+    | ...
+    """)
+
+    st.caption(
+        "**Note:** This is a simulated trade record based on backtest signals. "
+        "No real trades were executed."
+    )
+
+st.download_button("Download trade log", data=..., file_name="...")
+```
+
+**Anti-pattern:** Dumping a CSV download button with no explanation of the columns. This is a gate failure.
+
+**For the specific case of trade logs:** render TWO download buttons side by side — one for `winner_trades_broker_style.csv` (labeled "Download trade log (broker-style)", the default primary action) and one for `winner_trade_log.csv` (labeled "Download position log (researcher)", secondary). Both must have their own legends.
+
 ### 3.9 Evidence Page 8-Element Template
 
 A stakeholder proposed a standard 8-element layout for every Evidence method page so that readers encounter information in the same predictable order on every page. Research Ray now writes narrative content in this structure (see the Research SOP). Ace's job is to render it consistently so the structure is visually obvious to the reader.

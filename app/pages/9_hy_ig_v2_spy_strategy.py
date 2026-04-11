@@ -334,26 +334,130 @@ st.warning(
 st.markdown("---")
 
 # ---------------------------------------------------------------------------
-# Download Trade Log
+# Trade Log: Narrative, Legend, Dual Downloads, Preview
 # ---------------------------------------------------------------------------
-st.markdown("### Download Trading History")
+st.markdown("### How to Read the Trade Log")
 
-_trade_log_path = _RESULTS_DIR / "winner_trade_log.csv"
-if _trade_log_path.exists():
-    _trade_df = pd.read_csv(_trade_log_path)
-    if len(_trade_df) > 0:
-        st.dataframe(_trade_df, use_container_width=True, hide_index=True)
+st.markdown(
+    "**These are simulated trades from a backtest, not actual broker executions.** "
+    "The strategy was never run with real money -- the trade log is the output of "
+    "replaying the HMM stress signal against historical prices, assuming a $10,000 "
+    "starting stake and 5 basis points (0.05%) of round-trip commission per trade."
+)
+
+st.markdown(
+    "Two files are available below. The **broker-style log** "
+    "(`winner_trades_broker_style.csv`) is the default, user-friendly view -- one "
+    "row per execution, formatted the way a retail brokerage statement would look. "
+    "The **position log** (`winner_trade_log.csv`) is the researcher/debugging view, "
+    "with one row per position-weight change and additional diagnostic columns."
+)
+
+st.markdown("**Key columns in the broker-style log:**")
+st.markdown(
+    "- `trade_date` -- the date the trade would have been executed.\n"
+    "- `side` -- BUY (scaling up equity exposure) or SELL (scaling down toward cash).\n"
+    "- `quantity_pct` -- the *resulting* target equity exposure as a percentage of "
+    "the portfolio, not the size of the trade itself. Because this is a P2 Signal "
+    "Strength strategy, the position is sized proportionally to the HMM stress "
+    "probability -- 100% long when stress is near zero, 0% (all cash) when stress "
+    "is near one.\n"
+    "- `price` / `notional_usd` -- SPY closing price and dollar value of the "
+    "resulting position.\n"
+    "- `commission_bps` / `commission_usd` -- transaction cost charged on the trade "
+    "(5 bps, i.e. 0.05%).\n"
+    "- `cum_pnl_pct` -- cumulative strategy return since inception, in percent.\n"
+    "- `reason` -- human-readable signal value and the scale-up or scale-down step "
+    "that triggered the row."
+)
+
+with st.container(border=True):
+    st.markdown(
+        "**Concrete example -- COVID 2020.** On **2020-02-24**, the HMM stress "
+        "probability jumped from **0.086 to 1.000** in a single day as credit "
+        "markets reacted to the unfolding pandemic. The broker-style log shows a "
+        "SELL taking the target equity exposure from **91.4% down to 0%** (all "
+        "cash) at an SPY price of $294.65. That row is immediately after "
+        "2020-02-21 in the CSV. This single transition is what kept the "
+        "strategy's maximum drawdown to -10.2%, versus roughly -34% for "
+        "buy-and-hold SPY through the same period."
+    )
+
+st.markdown("#### Download Trading History")
+
+with st.expander("📋 What do these columns mean?", expanded=False):
+    st.markdown(
+        "| Column | Type | Meaning | Example |\n"
+        "|--------|------|---------|---------|\n"
+        "| `trade_date` | date | Date the trade would have been executed | 2020-02-24 |\n"
+        "| `side` | string | BUY (increase exposure) or SELL (decrease to cash) | SELL |\n"
+        "| `instrument` | string | Target ticker -- the asset traded | SPY |\n"
+        "| `quantity_pct` | 0-100 | Target portfolio allocation AFTER this trade | 0.0 |\n"
+        "| `price` | USD | Close price of instrument on trade date | $294.65 |\n"
+        "| `notional_usd` | USD | Dollar value of the resulting position (quantity_pct / 100 × $10,000 starting capital) | $0.00 |\n"
+        "| `commission_bps` | int | Commission rate in basis points | 5 |\n"
+        "| `commission_usd` | USD | Total commission for this trade | $0.00 |\n"
+        "| `cum_pnl_pct` | % | Cumulative portfolio return since inception | 421.05 |\n"
+        "| `reason` | string | Human-readable signal that triggered the trade | \"HMM stress prob 1.000 crossed threshold -- full risk-off\" |\n"
+    )
+    st.caption(
+        "Note: This is a simulated trade record based on backtest signals. "
+        "No real trades were executed."
+    )
+
+_broker_path = _RESULTS_DIR / "winner_trades_broker_style.csv"
+_position_path = _RESULTS_DIR / "winner_trade_log.csv"
+
+_broker_df = None
+if _broker_path.exists():
+    # Broker CSV has a leading "# ..." comment line; skip it.
+    _broker_df = pd.read_csv(_broker_path, comment="#")
+
+_position_df = None
+if _position_path.exists():
+    _position_df = pd.read_csv(_position_path)
+
+_dl_col1, _dl_col2 = st.columns(2)
+
+with _dl_col1:
+    if _broker_df is not None and len(_broker_df) > 0:
+        try:
+            st.download_button(
+                label="Download trade log (broker-style)",
+                data=_broker_df.to_csv(index=False),
+                file_name="hy_ig_v2_spy_trades_broker_style.csv",
+                mime="text/csv",
+                type="primary",
+                use_container_width=True,
+            )
+        except TypeError:
+            st.download_button(
+                label="Download trade log (broker-style)",
+                data=_broker_df.to_csv(index=False),
+                file_name="hy_ig_v2_spy_trades_broker_style.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
+        st.caption(f"{len(_broker_df):,} executions, one row per trade.")
+    else:
+        st.info("Broker-style trade log not yet generated.")
+
+with _dl_col2:
+    if _position_df is not None and len(_position_df) > 0:
         st.download_button(
-            label="Download CSV",
-            data=_trade_df.to_csv(index=False),
+            label="Download position log (researcher)",
+            data=_position_df.to_csv(index=False),
             file_name="hy_ig_v2_spy_trade_log.csv",
             mime="text/csv",
+            use_container_width=True,
         )
-        st.caption(f"{len(_trade_df):,} trades total")
+        st.caption(f"{len(_position_df):,} position-weight change rows.")
     else:
-        st.info("Trade log is empty -- re-run the pipeline.")
-else:
-    st.info("Trade log not yet generated -- run the pipeline.")
+        st.info("Position log not yet generated.")
+
+if _broker_df is not None and len(_broker_df) > 0:
+    st.markdown("**Preview: first 10 rows of the broker-style log**")
+    st.dataframe(_broker_df.head(10), use_container_width=True, hide_index=True)
 
 st.markdown("---")
 

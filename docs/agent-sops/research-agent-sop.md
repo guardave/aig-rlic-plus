@@ -410,6 +410,19 @@ These patterns were identified from the HY-IG reference analysis (pair #5), whic
 
 **Cross-reference:** See AppDev SOP, "Rendering Patterns for Presentation Quality" for how Ace implements these in Streamlit.
 
+### "How to Read the Trade Log" Subsection (Strategy Page)
+
+Every Strategy page narrative (Page 4) must include a dedicated subsection titled "How to Read the Trade Log" (or equivalent). It must state:
+
+1. This is a **simulated** backtest record, not actual executed trades.
+2. There are **two files** available — the broker-style log (user-friendly) and the position log (researcher debugging).
+3. The key columns in the broker-style log and what they mean (point-of-care reference, in addition to Ace's column legend expander).
+4. A **concrete example** from the actual pair. E.g., "On 2008-09-15, when HMM stress probability jumped from 0.2 to 0.8, the strategy moved from 100% long to 0% cash. You can find this as row N in the broker-style CSV."
+
+The subsection should be short (~150-250 words) and audience-facing — no jargon beyond what's already defined in the glossary.
+
+**Cross-reference:** See Econometrics SOP Rule C4 (Dual Trade Log Output) for the broker-style file schema, and AppDev SOP §3.8 "Column Legend Requirement for Downloadable Artifacts" for how Ace renders the legend and download buttons.
+
 ### Writing Voice & Audience
 
 These rules govern the voice, register, and explanatory depth of all narrative text delivered to Ace. They apply to portal narratives, storytelling arcs, glossary definitions, and any prose that reaches the end reader.

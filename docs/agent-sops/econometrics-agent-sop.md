@@ -177,6 +177,39 @@ When rerunning a pair that already has a prior version (`results/<pair>/` exists
 
 **Evidence:** HY-IG v2 silently dropped pre-whitened CCF, transfer entropy, and quartile-returns because Evan's rerun omitted them and Ray had no diff to catch the regression. A producer-side diff would have surfaced the gap before handoff.
 
+#### Rule C4 — Dual Trade Log Output (Internal + Broker-Style)
+
+Every pair tournament winner must produce TWO trade log files, both under `results/<pair>/`:
+
+1. **`winner_trade_log.csv`** — internal daily position log (existing convention). One row per trading day, with signal values, thresholds, position weights, daily returns, cumulative returns. This is for researcher debugging.
+
+2. **`winner_trades_broker_style.csv`** — discrete trade events synthesized from the position log. This is what end users see and download. Required schema (exact column names, exact order):
+
+| Column | Type | Meaning |
+|--------|------|---------|
+| `trade_date` | ISO date (YYYY-MM-DD) | Entry or exit date |
+| `side` | string | `BUY`, `SELL`, or `CASH` |
+| `instrument` | string | Target ticker (e.g., `SPY`) |
+| `quantity_pct` | float | Percentage of portfolio allocated (0.0 to 100.0) |
+| `price` | float | Target's close price on trade date |
+| `notional_usd` | float | `quantity_pct / 100 × starting_capital_usd` (dollar allocation independent of price); assumes $10,000 starting capital |
+| `commission_bps` | int | Commission rate in basis points (from tournament cost parameter) |
+| `commission_usd` | float | `notional_usd × commission_bps / 10000` |
+| `cum_pnl_pct` | float | Running cumulative portfolio P&L since strategy inception |
+| `reason` | string | Human-readable signal that triggered this trade (e.g., "HMM stress prob > 0.5") |
+
+**Synthesis algorithm:** Parse the internal position log row-by-row. Emit a broker-style row only when `position_weight` changes from the prior day. The new row's `side` is:
+
+- `BUY` if moving from lower to higher exposure (including 0% → X%)
+- `SELL` if moving from higher to lower exposure (including X% → 0%)
+- `CASH` is logically equivalent to `SELL` to 0% — use `SELL` with `quantity_pct=0`
+
+**First row:** the initial entry (cash → first position). Last row: the strategy's final position at end of backtest. Include both.
+
+**Disclaimer in file header (as a comment row or metadata):** "This is a simulated trade record based on backtest signals. No real trades were executed. Commissions reflect the tournament's transaction cost parameter."
+
+Add a one-line script or helper in the tournament pipeline to synthesize the broker log from the internal log. The broker log must be produced for every pair, every rerun.
+
 ### 3. Data Request to Dana
 
 Before exploratory analysis, produce a structured data request using the template below.

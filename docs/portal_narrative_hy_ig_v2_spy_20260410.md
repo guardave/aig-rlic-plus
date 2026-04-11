@@ -383,6 +383,23 @@ This means:
 4. **Past performance is not indicative of future results.** Regime shifts, changes in market microstructure, or new central bank tools (like the Fed's corporate bond purchasing programs, first deployed in 2020) could alter the credit-equity relationship going forward.
 5. **This is a risk management tool, not an alpha generator.** The primary value is in reducing drawdowns during stress periods rather than generating excess returns during calm periods. Think of it as portfolio insurance that happens to be free (or slightly profitable) on average.
 
+### How to Read the Trade Log
+
+**These are simulated trades from a backtest, not actual broker executions.** The strategy was never run with real money — the trade log is the output of replaying the HMM stress signal against historical prices, assuming a $10,000 starting stake and 5 basis points (0.05%) of round-trip commission per trade.
+
+Two files are available on the Evidence page. The **broker-style log** (`winner_trades_broker_style.csv`) is the default, user-friendly view — one row per execution, formatted the way a retail brokerage statement would look. The **position log** (`winner_trades.csv`) is the researcher/debugging view, with one row per position-weight change and additional diagnostic columns.
+
+**Key columns in the broker-style log:**
+- `trade_date` — the date the trade would have been executed.
+- `side` — BUY (scaling up equity exposure) or SELL (scaling down toward cash).
+- `quantity_pct` — the *resulting* target equity exposure as a percentage of the portfolio, not the size of the trade itself. Because this is a P2 Signal Strength strategy, the position is sized proportionally to the HMM stress probability — 100% long when stress is near zero, 0% (all cash) when stress is near one.
+- `price` / `notional_usd` — SPY closing price and dollar value of the resulting position.
+- `commission_bps` / `commission_usd` — transaction cost charged on the trade (5 bps, i.e. 0.05%).
+- `cum_pnl_pct` — cumulative strategy return since inception, in percent.
+- `reason` — human-readable signal value and the scale-up or scale-down step that triggered the row.
+
+**Concrete example — COVID 2020.** On **2020-02-24**, the HMM stress probability jumped from **0.086 to 1.000** in a single day as credit markets reacted to the unfolding pandemic. The broker-style log shows a SELL taking the target equity exposure from **91.4% down to 0%** (all cash) at an SPY price of $294.65. That row is immediately after 2020-02-21 in the CSV. This single transition is what kept the strategy's maximum drawdown to -10.2%, versus roughly -34% for buy-and-hold SPY through the same period.
+
 **Transition to Page 5:** For readers who want to understand exactly how we reached these conclusions -- or who want to replicate and extend the analysis -- the methodology section provides full details on data, methods, and diagnostics.
 
 ---

@@ -213,3 +213,35 @@ Lesandro (retroactive fix per stakeholder review)
 
 ### Impact Assessment
 Stakeholder can now see 8 method blocks in the Evidence tab (vs 5 before). Hero chart on the Story page now displays with correct axis orientation and units. Render-time linter catches future regressions where a method block is incomplete.
+
+## Ray's Follow-up Changes (2026-04-11)
+
+### Changes From Prior Version
+- **Added** "How to Read the Trade Log" subsection to Page 4 (Strategy) in `portal_narrative_hy_ig_v2_spy_20260410.md`. New rule from Research SOP (added this session). Includes disclaimer, two-file explanation, column legend summary, and concrete example from HY-IG v2 broker-style CSV.
+
+### Approved By
+Lesandro
+
+### Impact Assessment
+Addresses stakeholder complaint that the trade history "looks cryptic and lacks legends." Complements Ace's column legend expander and Evan's broker-style CSV to form a three-layer fix (schema + rendering + explanation).
+
+## Ace's Follow-up Changes (2026-04-11)
+
+### Changes From Prior Version
+- **Rebuilt** trade log section on `app/pages/9_hy_ig_v2_spy_strategy.py` per new SOP §3.8 rule "Column Legend Requirement for Downloadable Artifacts"
+- **Added** Ray's "How to Read the Trade Log" narrative subsection (from portal_narrative_hy_ig_v2_spy_20260410.md Page 4) rendered above the downloads
+- **Added** `st.expander` column legend with all 10 broker-style columns + disclaimer caption
+- **Added** dual download buttons: primary broker-style CSV, secondary position log CSV, side by side in st.columns(2)
+- **Added** preview dataframe showing first 10 rows of broker-style log
+- **Removed** previous bare download button (if it existed) that violated the new legend requirement
+
+### Approved By
+Lesandro
+
+### Impact Assessment
+Completes the three-layer fix for the "cryptic trade history" stakeholder complaint:
+- Schema layer: Evan's broker-style CSV (Rule C4)
+- Rendering layer: Ace's column legend + dual downloads (this change)
+- Explanation layer: Ray's narrative subsection (Rule "How to Read")
+
+Users now see the trade log in a format matching retail broker statements, with an inline legend, an explanation of what the strategy did at specific historical moments (COVID 2020 concrete example), and a researcher-mode alternative.
