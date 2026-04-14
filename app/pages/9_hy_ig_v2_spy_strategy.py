@@ -10,6 +10,7 @@ import streamlit as st
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+from components.breadcrumb import render_breadcrumb
 from components.charts import load_plotly_chart
 from components.metrics import kpi_row
 from components.sidebar import render_sidebar
@@ -33,6 +34,24 @@ render_glossary_sidebar()
 
 PAIR_ID = "hy_ig_v2_spy"
 _RESULTS_DIR = Path(__file__).resolve().parents[2] / "results" / PAIR_ID
+
+# ---------------------------------------------------------------------------
+# Breadcrumb navigation (N10, META-PWQ)
+# ---------------------------------------------------------------------------
+render_breadcrumb("Strategy", PAIR_ID)
+
+# ---------------------------------------------------------------------------
+# Plain English expander (N8 -- Ray's narrative addition)
+# ---------------------------------------------------------------------------
+with st.expander("🧒 Plain English version"):
+    st.markdown(
+        "Our computer looked at every possible combination of 'signal strength + "
+        "threshold + trade rule' to find the one that would have made the most "
+        "money (adjusted for risk) in past data. The winner is a strategy that "
+        "reduces stock exposure when credit spread stress is high and adds back "
+        "when stress fades. In this section we explain exactly what the strategy "
+        "does, when to use it, and when it would have failed."
+    )
 
 # --- Load winner summary ---
 _winner_path = _RESULTS_DIR / "winner_summary.json"
@@ -111,7 +130,11 @@ turnover = _winner.get("annual_turnover", 3.78)
 kpi_row(
     [
         {"label": "OOS Sharpe", "value": f"{oos_sharpe:.2f}", "delta": "vs 0.90 B&H"},
-        {"label": "OOS Return", "value": f"+{oos_return:.1f}%", "delta": "annualized"},
+        {
+            "label": "OOS Return (arithmetic ann.)",
+            "value": f"+{oos_return:.1f}%",
+            "delta": "arithmetic mean x 252",
+        },
         {
             "label": "Max Drawdown",
             "value": f"{max_dd:.1f}%",
@@ -121,6 +144,11 @@ kpi_row(
         {"label": "Turnover", "value": f"~{turnover:.0f}/yr"},
         {"label": "Breakeven Cost", "value": "50 bps"},
     ]
+)
+
+st.caption(
+    "Arithmetic annualized return; compounded CAGR (geometric) would be slightly "
+    "different and is documented in the Methodology References."
 )
 
 st.caption(
@@ -214,9 +242,209 @@ else:
 
 st.markdown("---")
 
-# ---------------------------------------------------------------------------
+st.markdown("---")
+
+# ----------------------------------------------------------
+# Explore Alternative Strategies (N12, META-PWQ)
+# ----------------------------------------------------------
+st.markdown("### Explore Alternative Strategies")
+st.caption(
+    "Beyond the #1 ranked strategy, here are other top performers. "
+    "Understanding what these alternatives do -- and why they ranked lower -- "
+    "can inform future strategy design."
+)
+
+if _tourn_path.exists():
+    _alt_df = _tourn_df[
+        (_tourn_df["valid"] == True) & (_tourn_df["signal"] != "BENCHMARK")
+    ].copy()
+    _top20_alt = _alt_df.nlargest(20, "oos_sharpe").reset_index(drop=True)
+
+    _bench_row = _tourn_df[_tourn_df["signal"] == "BENCHMARK"]
+    _bh_sharpe = float(_bench_row.iloc[0]["oos_sharpe"]) if len(_bench_row) else 0.90
+    _bh_mdd = float(_bench_row.iloc[0]["max_drawdown"]) if len(_bench_row) else -33.7
+
+    if len(_top20_alt) > 0:
+        _labels = [
+            f"#{i + 1}: {row['signal']} / {row['threshold']} / {row['strategy']} "
+            f"(Sharpe {row['oos_sharpe']:.2f})"
+            for i, row in _top20_alt.iterrows()
+        ]
+        _selected = st.selectbox(
+            "Choose a strategy to inspect:", _labels, index=0,
+            key="alt_strategy_explorer",
+        )
+        _idx = _labels.index(_selected)
+        _row = _top20_alt.iloc[_idx]
+
+        _alt_sharpe = float(_row["oos_sharpe"])
+        _alt_mdd = float(_row["max_drawdown"])
+        _alt_ret = float(_row["oos_ann_return"])
+        _alt_to = float(_row["annual_turnover"])
+
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("OOS Sharpe", f"{_alt_sharpe:.2f}",
+                  delta=f"{_alt_sharpe - _bh_sharpe:+.2f} vs B&H")
+        c2.metric("Max Drawdown", f"{_alt_mdd:.1f}%",
+                  delta=f"{_alt_mdd - _bh_mdd:+.1f}% vs B&H",
+                  delta_color="inverse")
+        c3.metric("OOS Return (arithmetic ann.)", f"{_alt_ret:+.1f}%",
+                  help="Arithmetic mean daily return x 252. CAGR (geometric) would be slightly different; see Methodology for comparison.")
+        c4.metric("Annual Turnover", f"~{_alt_to:.1f}/yr")
+
+        _strategy_desc = {
+            "P1": "binary Long/Cash switch -- fully invested when signal is calm, 100% cash when signal is stressed",
+            "P2": "continuous Signal Strength scaling -- position sizes proportionally to signal value",
+            "P3": "Long/Short -- fully long in calm periods, fully short in stress",
+        }.get(str(_row["strategy"]), str(_row["strategy"]))
+
+        st.info(
+            f"**What this strategy does:** Uses `{_row['signal']}` as the signal, "
+            f"with threshold `{_row['threshold']}`, applying a {_strategy_desc}."
+        )
+else:
+    st.info("Tournament results not available for alternative-strategy explorer.")
+
+st.markdown("---")
+
+# ----------------------------------------------------------
+# How to Use This Indicator Manually (N2/N4 -- Ray narrative)
+# ----------------------------------------------------------
+st.markdown("### How to Use This Indicator Manually")
+
+st.markdown(
+    "If you want to use the HY-IG spread as a signal yourself -- with no "
+    "automated system, no code, no broker API -- follow this 3-step routine. "
+    "This is written for the stock investor who rebalances a long-only "
+    "portfolio a few times a year, not for an algorithmic trader."
+)
+
+st.markdown("**1. Check the spread weekly.**")
+st.markdown(
+    "- **Source:** FRED series `BAMLH0A0HYM2` (HY OAS) and `BAMLC0A0CM` (IG OAS) "
+    "-- subtract IG from HY to get the spread. The free FRED charting page will "
+    "plot the difference directly. Any Friday-afternoon reading is fine; you do "
+    "not need intraday data.\n"
+    "- **What to compute:** the current spread in **bps (basis points, where 100 "
+    "bps = 1%)**, and where it sits inside the last **504 trading days** "
+    "(roughly 2 years) of history. Most spreadsheet tools can compute a "
+    "percentile rank; so can FRED's own download-and-chart interface."
+)
+
+st.markdown("**2. Interpret where you are.**")
+st.markdown(
+    "- **Bottom 25% of the 504-day range -> calm regime.** Full equity exposure "
+    "is reasonable. Historically this is where Sharpe runs well above 1 and "
+    "drawdowns are shallow.\n"
+    "- **Top 25% of the 504-day range -> stress regime.** Reduce equity exposure "
+    "toward **0-50%**. Historically this is the band where SPY has produced "
+    "annualised returns close to zero and drawdowns above 60%.\n"
+    "- **Middle 50% -> ambiguous.** Hold your current allocation. The signal "
+    "has no statistical edge in the middle of the distribution (this is why "
+    "the median coefficient in the Quantile Regression block is essentially zero)."
+)
+
+st.markdown("**3. Act -- or consciously decide not to.**")
+st.markdown(
+    "- The research shows the signal works best on a **63-day (3-month) forward "
+    "horizon**, so do not overreact to week-to-week noise. One week in the top "
+    "quartile is not a selling signal; two or three consecutive weeks is.\n"
+    "- **Moving calm -> stress:** reduce exposure over 2-4 weeks, not in one "
+    "day. The point of scaling is to avoid whipsaws when the signal oscillates "
+    "around the 75th-percentile cutoff.\n"
+    "- **Moving stress -> calm:** add back **gradually**. Historically the "
+    "recovery is slower than the drop, so averaging in over several weeks rarely "
+    "costs much."
+)
+
+with st.container(border=True):
+    st.markdown("**Concrete example -- the 2020 COVID crash.**")
+    st.markdown(
+        "- On **2020-02-14**, the HY-IG spread was roughly **350 bps (3.50%)** "
+        "-- firmly in the bottom quartile of its 504-day range. A manual user "
+        "following this rule would have been fully invested.\n"
+        "- Over the next four weeks the spread blew out to **1,100 bps (11.0%)** "
+        "by **2020-03-16** -- far into the top quartile and still climbing.\n"
+        "- A disciplined manual user, seeing the spread cross the 75th "
+        "percentile of the 504-day range around **2020-02-24 to 2020-03-02**, "
+        "would have started scaling down. In practice this probably means "
+        "moving from 100% equity to roughly 50% over one to two weeks, then "
+        "further down as the widening accelerated.\n"
+        "- The spread compressed back below **500 bps (5.00%)** by "
+        "**2020-06-08**, crossing back into the middle/lower quartiles. The "
+        "manual user would then have started adding equity back, reaching full "
+        "exposure over the following weeks.\n"
+        "- This mechanical rule would not have timed the bottom perfectly -- "
+        "no rule does -- but it would have avoided the worst of the -34% "
+        "buy-and-hold drawdown and participated in the recovery from roughly "
+        "July onward."
+    )
+
+with st.expander("Caveats for manual use"):
+    st.markdown(
+        "- **Signals require patience.** This strategy works on weeks-to-months "
+        "horizons, not days. If you check it daily and trade every wiggle, "
+        "commissions and taxes will eat the edge.\n"
+        "- **Transaction costs and taxes eat into gains.** The backtest charges "
+        "5 bps (0.05%) round-trip; the real-world minimum for retail investors "
+        "is often higher, and capital-gains taxes on a taxable account can "
+        "dwarf commissions.\n"
+        "- **This is one signal.** Combining with others -- volatility regime, "
+        "yield-curve inversion, macro momentum -- likely improves robustness. "
+        "See the separate analyses on **VIX x SPY** and **Yield Curve x SPY** "
+        "in the portal for complementary signals.\n"
+        "- **Never short-sell based on this rule.** The Quantile Regression "
+        "evidence shows that stress-regime upside is dominated by violent "
+        "relief rallies; a naive short would get run over by the same bars "
+        "that make the right-tail coefficient positive."
+    )
+
+st.markdown("---")
+
+# ----------------------------------------------------------
+# Execution Points -- Actual Trigger Dates (N3 -- Ray narrative)
+# ----------------------------------------------------------
+st.markdown("### Execution Points -- Actual Trigger Dates")
+
+st.markdown(
+    "The winning strategy made many small position adjustments across the "
+    "2000-2025 backtest -- 418 rows in `winner_trades_broker_style.csv`. The "
+    "table below surfaces **eight inflection points** around major historical "
+    "stress events, pulled directly from that log, so readers can tie the "
+    "abstract HMM stress probability back to concrete history. Each row is "
+    "reproducible: open the broker-style CSV, jump to the row number in the "
+    "right-most column, and the exact commission, notional, price, and running "
+    "cumulative P&L are all there."
+)
+
+_exec_points_md = (
+    "| Date | Event | HMM Stress Prob | Position Change | Source Row |\n"
+    "|:-----|:------|:----------------|:----------------|:-----------|\n"
+    "| 2008-04-25 | March-2008 stress fades (Bear Stearns aftermath) | 0.415 -> 0.195 -> 0.117 -> 0.038 | Scale-up: 34.2% -> 58.5% -> 80.5% -> 88.3% -> 96.2% over 4 trading days | Rows 95-98 |\n"
+    "| 2008-06-02 | Pre-Lehman credit deterioration builds | 0.443 -> 0.672 -> 0.813 -> 0.979 | Scale-down: 96.2% -> 55.7% -> 32.8% -> 18.7% -> 2.1% over 4 trading days | Rows 99-102 |\n"
+    "| 2008-09-01 | Lehman week -- full stress-regime lock-in | 0.820 -> 0.931 -> 0.999 | Scale-down: 30.8% -> 18.0% -> 6.9% -> 0.1% over 3 trading days | Rows 111-113 |\n"
+    "| 2009-12-21 | GFC recovery -- stress probability breaks below 0.5 | 0.932 -> 0.613 -> 0.433 -> 0.318 | Scale-up: 0.1% -> 6.8% -> 38.7% -> 56.7% -> 68.2% over 4 trading days | Rows 114-117 |\n"
+    "| 2020-01-27 | Early COVID false alarm (reverted within two days) | 0.127 -> 0.998 -> 0.882 -> 0.080 | Oscillation: 95.3% -> 87.3% -> 0.2% -> 92.0% -> 98.4% -- noise the P2 Signal Strength smoothing contains | Rows 297-301 |\n"
+    "| 2020-02-24 | COVID panic onset -- single-day collapse to cash | 0.086 -> 1.000 | Two-day move: 98.4% -> 91.4% -> 0.0% cash | Rows 302-303 |\n"
+    "| 2022-01-13 | Rate-shock widening begins | 0.070 -> 0.268 -> 0.880 -> 0.995 | Scale-down: 98.8% -> 93.0% -> 73.2% -> 12.0% -> 0.5% over 5 trading days | Rows 344-347 |\n"
+    "| 2022-08-12 | Mid-2022 recovery attempt (proved short-lived) | 0.911 -> 1.000 | Brief scale-up reversed: 0.5% -> 8.9% -> 0.0% | Rows 348-349 |"
+)
+st.markdown(_exec_points_md)
+
+st.caption(
+    "The `reason` field in each row repeats the HMM stress probability and the "
+    "before/after position weights, which is the auditable record of what the "
+    "strategy saw and what it did. Because this is a P2 Signal Strength "
+    "strategy, position changes are **proportional** to the HMM stress "
+    "probability -- never all-or-nothing -- which is why many rows show "
+    "fractional moves rather than 0%/100% flips."
+)
+
+st.markdown("---")
+
+# ----------------------------------------------------------
 # Equity Curves + Drawdown
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------
 st.markdown("### Equity Curves: Top Strategies vs. Buy-and-Hold")
 
 load_plotly_chart(

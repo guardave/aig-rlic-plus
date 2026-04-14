@@ -245,3 +245,83 @@ Completes the three-layer fix for the "cryptic trade history" stakeholder compla
 - Explanation layer: Ray's narrative subsection (Rule "How to Read")
 
 Users now see the trade log in a format matching retail broker statements, with an inline legend, an explanation of what the strategy did at specific historical moments (COVID 2020 concrete example), and a researcher-mode alternative.
+
+## Ray's Reference-Pair Polish (2026-04-14)
+
+### Changes From Prior Version
+- **(N1)** Story page restructured to flow from landing-page executive summary themes: new "Where This Fits in the Portal" block opens Page 1 with the indicator-target framing, then the Story/Evidence/Strategy/Methods navigation hint, then the headline Sharpe 1.27 / MDD -10.2% versus B&H.
+- **(N2, N4)** New Strategy subsection: **"How to Use This Indicator Manually"** -- 3-step human-investor routine (check weekly / interpret quartile / act) with a concrete 2020 COVID walk-through and manual-use caveats. Dual bps/% notation applied per RES-4 / RES-B1.
+- **(N3)** New Strategy subsection: **"Execution Points -- Actual Trigger Dates"** -- 8 historical trigger dates pulled from `winner_trades_broker_style.csv` (rows 95-117, 297-303, 344-349) covering Bear Stearns, Lehman, GFC recovery, COVID false alarm, COVID collapse, 2022 rate shock, and 2022 recovery attempt.
+- **(N6)** Quartile Returns 8-element block (Page 3) reframed: new opener "Why this matters" sentence sets up the simplest-possible test; new Key Message connects the quartile finding to the HMM-based tournament winner (HMM = automated quartile classifier using changes and volatility).
+- **(N7)** New Methodology **"References"** section with 17 academic citations across four categories (Credit Spread & Equity Research, Time Series Econometrics, Regime Detection & Risk, HY-IG Specific) using `[AuthorYear]` inline notation -- replaces the prior truncated stub pointing to the analysis brief.
+- **(N8)** Plain English expanders added to all 5 pages (Hook / Story / Evidence / Strategy / Methodology) using `<details><summary>🧒 Plain English version</summary>` HTML expanders; each ~60-100 words at 5th-grade reading level.
+- **(N9)** Scope guidance added: Page 1 "Scope note" above the Page-2 transition plus an inline cross-reference before the regime section on Page 2. Both point readers to the separate **VIX x SPY** and **Yield Curve x SPY** pair pages for deep dives on related signals, without removing awareness of those signals from this narrative.
+
+### Rule IDs Applied
+- **RES-4 / RES-B1** (dual bps/% notation) -- throughout new Strategy subsections (350 bps / 3.50%, 1,100 bps / 11.0%, 500 bps / 5.00%, 5 bps / 0.05%).
+- **RES-PA1** (Storytelling Arc) -- Hook/Story/Evidence/Strategy/Method arc explicitly named in the new "Where This Fits in the Portal" opener.
+- **RES-PA2** (Presentation Quality Patterns) -- skeptical-reader framing preserved; progressive disclosure via expanders.
+- **RES-PA3** (How to Read the Trade Log) -- complemented by the new "Execution Points" block which grounds the trade log in concrete history.
+- **RES-EP1** (Evidence 8-Element Template) -- Quartile Returns block retains all 8 elements after reframing; only the Why-framer and Key Message text were altered.
+- **META-RNF** (Regression Note Format) -- this section follows the required Changes / Approved By / Impact schema.
+- **META-RPD** (Reference Pair Doctrine) -- changes prepare HY-IG v2 for `hy-ig-v2-reference` tagging.
+
+### Approved By
+Lesandro (reference-pair polish for stakeholder review).
+
+### Unchanged
+- Evidence page method blocks for Correlation, Granger, Local Projections, Regime/HMM, Quantile Regression, Pre-whitened CCF, Transfer Entropy remain byte-identical apart from the Quartile block's Why-framer and Key Message (Change 4 scope).
+- Methodology sections other than References are untouched.
+- Glossary and all chart/data/KPI artifacts are untouched.
+- `app/components/glossary.py` (Ace's code) is untouched.
+
+### Impact Assessment
+Addresses 7 stakeholder feedback items from the 2026-04-12 review (N1-N9). Narrative grew from 515 lines / 76,715 chars to 636 lines / 90,604 chars (+121 lines, +13,889 chars) -- all additive; no prior content removed except the truncated References stub and two Quartile framing sentences.
+
+Brings HY-IG v2 narrative to "reference pair" quality for tagging as `hy-ig-v2-reference` under META-RPD. Downstream Ace portal pages do not need changes -- the new expanders render as native HTML inside Streamlit markdown, the new subsections appear as regular markdown on the Strategy page, and the References section renders at the bottom of the Methodology page.
+
+
+---
+
+## Ace's Reference-Pair Polish (2026-04-14)
+
+### Changes From Prior Version
+- **Created** `app/components/breadcrumb.py` -- new reusable 4-step navigation component. Rendered on all 4 HY-IG v2 pages (N10, META-PWQ).
+- **Reorganized** Evidence page tabs into 2-tier structure: Level 1 (Correlation, Granger, CCF) and Level 2 (Local Projections, Regime Analysis, Quantile Regression, Transfer Entropy, Quartile Returns) (N11, META-PWQ).
+- **Added** "Explore Alternative Strategies" section on Strategy page with selectbox over top-20 (ranked by OOS Sharpe) + 4-column metric comparison (Sharpe, Max DD, arithmetic ann. return, annual turnover), each comparing to the BENCHMARK row (N12, META-PWQ).
+- **Updated** OOS Return metric labels on Strategy page to specify "arithmetic ann." basis with inline help tooltip (N13, APP-AF3). Added return-basis caption under the KPI row.
+- **Inserted** "Return Basis and Performance Metrics" subsection on Methodology page making the arithmetic-vs-CAGR distinction explicit.
+- **Rendered** Ray's new narrative additions in native Streamlit:
+  - Story: "Where This Fits in the Portal" bordered container; Plain English expander (N1, N8).
+  - Evidence: Plain English expander; Quartile Returns block now renders `why_this_matters` opener + reframed Key Message via `render_method_block` helper (N6, N8).
+  - Strategy: Plain English expander; "How to Use This Indicator Manually" section with 3-step routine, COVID 2020 worked example, and caveats expander; "Execution Points -- Actual Trigger Dates" section with 8-row markdown table (N2, N3, N4, N8).
+  - Methodology: Plain English expander; new "References" section with 17 bibliography entries across 4 categories (Credit Spread & Equity Research, Time Series Econometrics, Regime Detection & Risk, HY-IG Specific) replacing the prior 8-entry stub (N7, N8).
+
+### Rule IDs Applied
+- **APP-AF3** (Metric Interpretation Rule) -- OOS Return label + help tooltip + caption clarify arithmetic basis.
+- **APP-EP1 / APP-EP3** (Evidence 8-Element Template + render-time completeness check) -- `render_method_block` linter untouched; `why_this_matters` added as optional 9th element that sits above element 1 and does NOT change the mandatory-element presence check.
+- **APP-PA1** (Portal Architecture: 4 canonical page types) -- preserved; breadcrumb enforces the Story -> Evidence -> Strategy -> Methodology arc at every page.
+- **APP-RP1** (Rendering Patterns: no nested HTML for layout) -- breadcrumb uses `st.columns` + `st.page_link` native primitives; only the decorative arrow separator uses `unsafe_allow_html` (non-layout).
+- **APP-SF1** (Storytelling Flow) -- Strategy page preserves rule-first ordering; new sections inserted after leaderboard and before equity curves.
+- **META-PWQ** (Portal-Wide Quality Checklist) -- N10, N11, N12, N13 items now addressed.
+- **META-RPD** (Reference Pair Doctrine) -- changes complete the polish required for `hy-ig-v2-reference` tagging.
+- **META-RNF** (Regression Note Format) -- this section follows the Changes / Rule IDs / Approved By / Unchanged / Impact schema.
+
+### Approved By
+Lesandro (reference pair polish for stakeholder review).
+
+### Unchanged
+- `app/components/charts.py`, `pair_registry.py`, `sidebar.py`, `execution_panel.py`, `trade_history.py`, `glossary.py`, `metrics.py`, `narrative.py` -- infrastructure stability preserved.
+- `app/app.py` (landing page) -- explicitly out of scope.
+- Non-HY-IG-v2 pages (pairs 1-5, legacy HY-IG v1) -- untouched.
+- Evidence method blocks for Correlation, Granger, Local Projections, Regime/HMM, Quantile Regression, Pre-whitened CCF, Transfer Entropy are byte-identical (content-wise); only the tab grouping moved from flat-8 to tiered-2.
+
+### Impact Assessment
+Completes the Wave 2B portal UX polish for reference-pair quality. Together with Ray's Wave 2A narrative polish and the earlier regression-proofing infrastructure, HY-IG v2 is ready for stakeholder review and tagging as `hy-ig-v2-reference`. Downstream pairs can now copy the 4-page scaffold plus `render_breadcrumb` import and receive the full navigation + progressive-disclosure + alt-strategy explorer pattern for free.
+
+Pages affected and line-count deltas (post-edit):
+- `app/components/breadcrumb.py`: **new**, 83 lines.
+- `app/pages/9_hy_ig_v2_spy_story.py`: 244 -> ~290 lines.
+- `app/pages/9_hy_ig_v2_spy_evidence.py`: 949 -> ~975 lines (tiered tabs + Plain English + why_this_matters).
+- `app/pages/9_hy_ig_v2_spy_strategy.py`: 492 -> ~750 lines (alt explorer + manual-use + exec points + Plain English + return-basis label).
+- `app/pages/9_hy_ig_v2_spy_methodology.py`: 271 -> ~370 lines (Plain English + Return Basis note + 17-entry References).

@@ -17,6 +17,7 @@ import streamlit as st
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+from components.breadcrumb import render_breadcrumb
 from components.charts import load_plotly_chart
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
@@ -40,6 +41,23 @@ render_sidebar()
 render_glossary_sidebar()
 
 PAIR_ID = "hy_ig_v2_spy"
+
+# ---------------------------------------------------------------------------
+# Breadcrumb navigation (N10, META-PWQ)
+# ---------------------------------------------------------------------------
+render_breadcrumb("Evidence", PAIR_ID)
+
+# ---------------------------------------------------------------------------
+# Plain English expander (N8 -- Ray's narrative addition)
+# ---------------------------------------------------------------------------
+with st.expander("🧒 Plain English version"):
+    st.markdown(
+        "This section shows the data we used to test whether credit spreads really "
+        "do predict stock market returns. Eight different statistical tests all "
+        "point to the same conclusion: when the credit spread widens, stocks tend "
+        "to do worse in the following weeks and months. None of these tests is "
+        "perfect on its own, but together they tell a consistent story."
+    )
 
 # ---------------------------------------------------------------------------
 # Page Header
@@ -99,6 +117,11 @@ def render_method_block(content: dict):
 
     method_name = content["method_name"]
     chart_status = content.get("chart_status", "ready")
+
+    # Optional: "Why this matters" opener (N6 -- Ray's reframing)
+    why_this_matters = content.get("why_this_matters")
+    if why_this_matters:
+        st.markdown(f"**Why this matters:** {why_this_matters}")
 
     # 1. The Method
     st.markdown(f"### {method_name}")
@@ -889,63 +912,75 @@ QUARTILE_RETURNS_BLOCK = dict(
         "out, and the left tail is where most of the damage happens."
     ),
     key_message=(
-        "A no-model 'only own stocks when credit spreads are tight' rule "
-        "would have delivered Sharpe 1.45 and a -10.7% max drawdown, "
-        "against -0.04 and -62.6% in the widest-spread quartile -- the "
-        "credit-cycle regime is the single most important variable in "
-        "this analysis."
+        "The HMM regime detection strategy (our tournament winner) is "
+        "essentially a sophisticated version of quartile classification -- "
+        "when you cannot manually sort all 6,000+ days and update the cut "
+        "every day, the HMM does it for you with a statistical model. A "
+        "no-model 'only own stocks when credit spreads are tight' rule would "
+        "have delivered Sharpe 1.45 and a -10.7% max drawdown in Q1, against "
+        "-0.04 and -62.6% in Q4 -- the credit-cycle regime is the single most "
+        "important variable in this analysis, and that is precisely what the "
+        "HMM picks up automatically using changes and volatility rather than "
+        "just levels."
+    ),
+    why_this_matters=(
+        "This is the simplest possible strategy test -- if you had just "
+        "sorted all trading days by credit spread level and asked 'how did "
+        "SPY perform?' -- would the answer differ between tight-spread days "
+        "and wide-spread days? The chart below shows that yes, it differs "
+        "dramatically -- and this simple split is the intuitive foundation "
+        "for the more sophisticated HMM-based winning strategy."
     ),
 )
 
 
 # ---------------------------------------------------------------------------
-# Tab Layout -- one tab per method block (5 existing + 3 new = 8 total)
+# 2-Tier Tab Layout (N11, META-PWQ) -- Level 1 basics + Level 2 advanced
 # ---------------------------------------------------------------------------
-(
-    tab_corr,
-    tab_granger,
-    tab_lp,
-    tab_regime,
-    tab_qr,
-    tab_ccf,
-    tab_te,
-    tab_quartile,
-) = st.tabs(
-    [
-        "Correlation Analysis",
-        "Granger Causality",
-        "Local Projections",
-        "Regime Analysis",
-        "Quantile Regression",
-        "Pre-whitened CCF",
-        "Transfer Entropy",
-        "Quartile Returns",
-    ]
+st.markdown(
+    "We organize the evidence in two tiers. **Level 1** covers the basic "
+    "statistical relationships -- whether credit spreads and equity moves are "
+    "correlated, whether one leads the other, and at what time horizons. "
+    "**Level 2** goes deeper into regime-based analysis, tail risk, nonlinear "
+    "dependence, and simple classification strategies."
+)
+st.markdown("")
+
+tier1, tier2 = st.tabs(
+    ["Level 1 -- Basic Analysis", "Level 2 -- Advanced Analysis"]
 )
 
-with tab_corr:
-    render_method_block(CORRELATION_BLOCK)
+with tier1:
+    sub_corr, sub_granger, sub_ccf = st.tabs(
+        ["Correlation", "Granger Causality", "Cross-Correlation (CCF)"]
+    )
+    with sub_corr:
+        render_method_block(CORRELATION_BLOCK)
+    with sub_granger:
+        render_method_block(GRANGER_BLOCK)
+    with sub_ccf:
+        render_method_block(CCF_BLOCK)
 
-with tab_granger:
-    render_method_block(GRANGER_BLOCK)
-
-with tab_lp:
-    render_method_block(LOCAL_PROJECTIONS_BLOCK)
-
-with tab_regime:
-    render_method_block(REGIME_BLOCK)
-
-with tab_qr:
-    render_method_block(QUANTILE_BLOCK)
-
-with tab_ccf:
-    render_method_block(CCF_BLOCK)
-
-with tab_te:
-    render_method_block(TRANSFER_ENTROPY_BLOCK)
-
-with tab_quartile:
-    render_method_block(QUARTILE_RETURNS_BLOCK)
+with tier2:
+    sub_lp, sub_regime, sub_qr, sub_te, sub_quartile = st.tabs(
+        [
+            "Local Projections",
+            "Regime Analysis",
+            "Quantile Regression",
+            "Transfer Entropy",
+            "Quartile Returns",
+        ]
+    )
+    with sub_lp:
+        render_method_block(LOCAL_PROJECTIONS_BLOCK)
+    with sub_regime:
+        render_method_block(REGIME_BLOCK)
+    with sub_qr:
+        render_method_block(QUANTILE_BLOCK)
+    with sub_te:
+        render_method_block(TRANSFER_ENTROPY_BLOCK)
+    with sub_quartile:
+        render_method_block(QUARTILE_RETURNS_BLOCK)
 
 
 # ---------------------------------------------------------------------------

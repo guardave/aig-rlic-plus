@@ -9,6 +9,21 @@
 
 ## Page 1 -- The Hook (Executive Summary)
 
+<details>
+<summary>🧒 Plain English version</summary>
+
+When companies borrow money, lenders charge safer companies lower rates and risky companies higher rates. The gap between those rates is called the credit spread. When it's small, business is going well. When it jumps up, it means investors are scared about the future. This research asks: does watching that gap help predict what the stock market will do? The answer turns out to be yes -- sometimes. You can use it to lose less money in crashes.
+
+</details>
+
+### Where This Fits in the Portal
+
+This is **one indicator-target analysis** -- we ask whether credit spreads can help time equity exposure. The AIG-RLIC+ portal catalogues many such pair-wise studies; this one examines whether the HY-IG credit spread carries useful information about future SPY returns.
+
+**How to read the rest of this page pack.** You'll read the **Story** first (why the signal works in plain English), then the **Evidence** (the statistical proofs, one method block at a time), then the **Strategy** (the actual trading rule and how you would apply it yourself), then the **Methods** (technical appendix for readers who want to reproduce or criticise the work). Each page stands alone; readers short on time can skim the Story and Strategy pages and skip the rest.
+
+**The headline.** Our winning strategy delivered **Sharpe 1.27 with max drawdown -10.2%** -- that's versus **Sharpe 0.77 and max drawdown -33.7%** for a passive buy-and-hold investor over the same out-of-sample period (2018-2025). Same return neighbourhood, a third of the pain.
+
 ### One-Sentence Thesis
 
 The bond market often sees trouble coming before the stock market does -- and the gap between risky and safe bond yields has been one of the most reliable early warning signals for equity declines over the past 25 years.
@@ -25,11 +40,20 @@ The bond market often sees trouble coming before the stock market does -- and th
 
 A dual-axis time series chart (2000-2025) with the HY-IG spread on the left y-axis (inverted, so widening = down) and SPY price on the right y-axis. Vertical shaded bands mark NBER recessions. Key events annotated with date labels. The visual immediately shows that the orange spread line "dips" (widens) before or simultaneously with the blue equity line declining.
 
+**Scope note.** This page pack focuses on the HY-IG credit spread in isolation. Credit stress rarely travels alone -- it typically co-occurs with VIX spikes and yield-curve inversions -- but each of those indicators has its own dynamics and its own separate analysis in the portal. See the separate analyses on **VIX x SPY** and **Yield Curve x SPY** for deep dives on those related signals; here we keep the lens on credit.
+
 **Transition to Page 2:** These numbers tell a compelling story, but to understand *why* credit spreads carry this predictive power -- and when the signal works versus when it fails -- we need to look deeper into how bond and stock markets are connected.
 
 ---
 
 ## Page 2 -- The Story (Layperson Narrative)
+
+<details>
+<summary>🧒 Plain English version</summary>
+
+The bond market usually panics before the stock market does. By the time stocks are falling, bonds have often already been signaling trouble for weeks. This section tells the story of why that happens and how it played out during the 2008 crisis, the 2020 COVID crash, and other stressful moments.
+
+</details>
 
 ### Why Should Stock Investors Care About Bonds?
 
@@ -89,6 +113,8 @@ We include the CCC-BB quality spread as one of our tournament signals (S5) preci
 
 If the story ended at "wider spreads = lower stocks," building a profitable trading strategy would be straightforward. But the relationship between credit spreads and stock returns is more nuanced, and understanding these nuances is essential for using the signal effectively.
 
+*(Related: the VIX term-structure and yield-curve signals exhibit their own regime dependencies, analysed in the separate **VIX x SPY** and **Yield Curve x SPY** pair pages. This page keeps the focus on credit.)*
+
 The connection changes depending on the market **regime** -- a regime is a distinct state of financial conditions, like "calm weather" versus "storm," where each state has its own patterns of returns, volatility, and correlations between assets:
 
 - **During calm periods** (when spreads are in their normal range of roughly 250-400 basis points, or 2.5% to 4%), the predictive power of credit spreads for stock returns is modest. In fact, during these periods, stock prices tend to lead credit spreads -- equity markets set the pace, and credit markets follow. This makes intuitive sense: when things are going well, there is not much default risk to price, so the credit market mostly mirrors what equities are already saying.
@@ -109,6 +135,13 @@ Our analysis uses **Hidden Markov Models** (statistical models that infer which 
 ---
 
 ## Page 3 -- The Evidence (Analytical Detail)
+
+<details>
+<summary>🧒 Plain English version</summary>
+
+This section shows the data we used to test whether credit spreads really do predict stock market returns. Eight different statistical tests all point to the same conclusion: when the credit spread widens, stocks tend to do worse in the following weeks and months. None of these tests is perfect on its own, but together they tell a consistent story.
+
+</details>
 
 ### How We Tested the Signal
 
@@ -297,6 +330,8 @@ Transfer entropy from X to Y is defined as H(Y_t+1 | Y_t) - H(Y_t+1 | Y_t, X_t),
 
 ## Method: Quartile Returns Analysis
 
+**Why this matters:** This is the simplest possible strategy test -- if you had just sorted all trading days by credit spread level and asked "how did SPY perform?" -- would the answer differ between tight-spread days and wide-spread days? The chart below shows that yes, it differs dramatically -- and this simple split is the intuitive foundation for the more sophisticated HMM-based winning strategy.
+
 **1. The Method:** A **quartile returns analysis** sorts every day in the sample into four bins based on the HY-IG spread level that day -- Q1 is the 25% of days with the tightest spreads, Q4 is the 25% with the widest -- and computes full return statistics (mean, volatility, Sharpe, annualized return, max drawdown) for the SPY returns earned in each bin. It is the simplest possible regime-conditional check: does the forward return distribution for SPY look different depending on which credit-cycle state we are in, without any fitted model telling us where the regime boundaries should fall?
 
 **2. The Question It Answers:** *If we had done nothing more sophisticated than "buy SPY when HY-IG spreads are in their tightest 25% and sit in cash otherwise," how would that strategy have performed -- and how does performance scale across the full spread distribution?*
@@ -314,7 +349,7 @@ The Welch t-test asks whether two groups have different average returns, but ave
 
 **7. Interpretation:** The simplest possible strategy -- **buy SPY only when HY-IG spreads are tight (Q1), sit in cash otherwise** -- would have earned a Sharpe of 1.45 on the days the trader was invested, beating both the HMM-based tournament winner (OOS Sharpe 1.27) and the buy-and-hold benchmark (OOS Sharpe ~0.90) on the risk-adjusted metric that matters most. This does not automatically mean the quartile rule is a better strategy than the HMM (it spends most of the sample in cash, the cutoffs are in-sample, and the mean difference is not significant), but it does frame what regime detection is actually doing: **the HMM is doing a more sophisticated version of quartile classification, using changes and volatility rather than just levels**. The gradient from Q1 to Q4 -- a Sharpe swing of 1.49 points and a drawdown swing of 51.9 ppts -- is the cleanest possible picture of why any credit-conditioned equity strategy works. It also explains the shape of the Quantile Regression result above: when spreads are wide, the SPY return distribution genuinely widens out, and the left tail is where most of the damage happens.
 
-**8. Key Message:** **A no-model "only own stocks when credit spreads are tight" rule would have delivered Sharpe 1.45 and a -10.7% max drawdown, against -0.04 and -62.6% in the widest-spread quartile -- the credit-cycle regime is the single most important variable in this analysis.**
+**8. Key Message:** **The HMM regime detection strategy (our tournament winner) is essentially a sophisticated version of quartile classification** -- when you cannot manually sort all 6,000+ days and update the cut every day, the HMM does it for you with a statistical model. A no-model "only own stocks when credit spreads are tight" rule would have delivered Sharpe 1.45 and a -10.7% max drawdown in Q1, against -0.04 and -62.6% in Q4 -- the credit-cycle regime is the single most important variable in this analysis, and that is precisely what the HMM picks up automatically using changes and volatility rather than just levels.
 
 `chart_status: "ready"`
 
@@ -331,6 +366,13 @@ We tested approximately 1,000+ meaningful combinations of signals (13 types), th
 ---
 
 ## Page 4 -- The Strategy (Trading Applications)
+
+<details>
+<summary>🧒 Plain English version</summary>
+
+Our computer looked at every possible combination of "signal strength + threshold + trade rule" to find the one that would have made the most money (adjusted for risk) in past data. The winner is a strategy that reduces stock exposure when credit spread stress is high and adds back when stress fades. In this section we explain exactly what the strategy does, when to use it, and when it would have failed.
+
+</details>
 
 ### How the Signal Translates to Action
 
@@ -375,6 +417,54 @@ This means:
 - **It excels in prolonged bear markets.** The GFC lasted roughly 18 months peak-to-trough. A strategy that exited early in that decline and waited for credit conditions to normalize captured most of the avoided drawdown.
 - **It is largely inert during calm periods.** This is a feature, not a bug -- the strategy avoids generating trading costs and tax events when the credit signal has little to say.
 
+### How to Use This Indicator Manually
+
+If you want to use the HY-IG spread as a signal yourself -- with no automated system, no code, no broker API -- follow this 3-step routine. This is written for the stock investor who rebalances a long-only portfolio a few times a year, not for an algorithmic trader.
+
+**1. Check the spread weekly.**
+- **Source:** FRED series `BAMLH0A0HYM2` (HY OAS) and `BAMLC0A0CM` (IG OAS) -- subtract IG from HY to get the spread. The free FRED charting page will plot the difference directly. Any Friday-afternoon reading is fine; you do not need intraday data.
+- **What to compute:** the current spread in **bps (basis points, where 100 bps = 1%)**, and where it sits inside the last **504 trading days** (roughly 2 years) of history. Most spreadsheet tools can compute a percentile rank; so can FRED's own download-and-chart interface.
+
+**2. Interpret where you are.**
+- **Bottom 25% of the 504-day range -> calm regime.** Full equity exposure is reasonable. Historically this is where Sharpe runs well above 1 and drawdowns are shallow.
+- **Top 25% of the 504-day range -> stress regime.** Reduce equity exposure toward **0-50%**. Historically this is the band where SPY has produced annualised returns close to zero and drawdowns above 60%.
+- **Middle 50% -> ambiguous.** Hold your current allocation. The signal has no statistical edge in the middle of the distribution (this is why the median coefficient in the Quantile Regression block is essentially zero).
+
+**3. Act -- or consciously decide not to.**
+- The research shows the signal works best on a **63-day (3-month) forward horizon**, so do not overreact to week-to-week noise. One week in the top quartile is not a selling signal; two or three consecutive weeks is.
+- **Moving calm -> stress:** reduce exposure over 2-4 weeks, not in one day. The point of scaling is to avoid whipsaws when the signal oscillates around the 75th-percentile cutoff.
+- **Moving stress -> calm:** add back **gradually**. Historically the recovery is slower than the drop, so averaging in over several weeks rarely costs much.
+
+**Concrete example -- the 2020 COVID crash.**
+- On **2020-02-14**, the HY-IG spread was roughly **350 bps (3.50%)** -- firmly in the bottom quartile of its 504-day range. A manual user following this rule would have been fully invested.
+- Over the next four weeks the spread blew out to **1,100 bps (11.0%)** by **2020-03-16** -- far into the top quartile and still climbing.
+- A disciplined manual user, seeing the spread cross the 75th percentile of the 504-day range around **2020-02-24 to 2020-03-02**, would have started scaling down. In practice this probably means moving from 100% equity to roughly 50% over one to two weeks, then further down as the widening accelerated.
+- The spread compressed back below **500 bps (5.00%)** by **2020-06-08**, crossing back into the middle/lower quartiles. The manual user would then have started adding equity back, reaching full exposure over the following weeks.
+- This mechanical rule would not have timed the bottom perfectly -- no rule does -- but it would have avoided the worst of the -34% buy-and-hold drawdown and participated in the recovery from roughly July onward.
+
+**Caveats for manual use.**
+- **Signals require patience.** This strategy works on weeks-to-months horizons, not days. If you check it daily and trade every wiggle, commissions and taxes will eat the edge.
+- **Transaction costs and taxes eat into gains.** The backtest charges 5 bps (0.05%) round-trip; the real-world minimum for retail investors is often higher, and capital-gains taxes on a taxable account can dwarf commissions.
+- **This is one signal.** Combining with others -- volatility regime, yield-curve inversion, macro momentum -- likely improves robustness. See the separate analyses on **VIX x SPY** and **Yield Curve x SPY** in the portal for complementary signals.
+- **Never short-sell based on this rule.** The Quantile Regression evidence shows that stress-regime upside is dominated by violent relief rallies; a naive short would get run over by the same bars that make the right-tail coefficient positive.
+
+### Execution Points -- Actual Trigger Dates
+
+The winning strategy made many small position adjustments across the 2000-2025 backtest -- 418 rows in `winner_trades_broker_style.csv`. The table below surfaces **eight inflection points** around major historical stress events, pulled directly from that log, so readers can tie the abstract HMM stress probability back to concrete history. Each row is reproducible: open the broker-style CSV, jump to the row number in the right-most column, and the exact commission, notional, price, and running cumulative P&L are all there.
+
+| Date | Event | HMM Stress Prob | Position Change | Source Row |
+|------|-------|-----------------|-----------------|------------|
+| 2008-04-25 | March-2008 stress fades (Bear Stearns aftermath) | 0.415 -> 0.195 -> 0.117 -> 0.038 | Scale-up: 34.2% -> 58.5% -> 80.5% -> 88.3% -> 96.2% over 4 trading days | Rows 95-98 |
+| 2008-06-02 | Pre-Lehman credit deterioration builds | 0.443 -> 0.672 -> 0.813 -> 0.979 | Scale-down: 96.2% -> 55.7% -> 32.8% -> 18.7% -> 2.1% over 4 trading days | Rows 99-102 |
+| 2008-09-01 | Lehman week -- full stress-regime lock-in | 0.820 -> 0.931 -> 0.999 | Scale-down: 30.8% -> 18.0% -> 6.9% -> 0.1% over 3 trading days | Rows 111-113 |
+| 2009-12-21 | GFC recovery -- stress probability breaks below 0.5 | 0.932 -> 0.613 -> 0.433 -> 0.318 | Scale-up: 0.1% -> 6.8% -> 38.7% -> 56.7% -> 68.2% over 4 trading days | Rows 114-117 |
+| 2020-01-27 | Early COVID false alarm (reverted within two days) | 0.127 -> 0.998 -> 0.882 -> 0.080 | Oscillation: 95.3% -> 87.3% -> 0.2% -> 92.0% -> 98.4% -- the kind of noise the P2 Signal Strength smoothing is designed to contain | Rows 297-301 |
+| 2020-02-24 | COVID panic onset -- single-day collapse to cash | 0.086 -> 1.000 | Two-day move: 98.4% -> 91.4% -> 0.0% cash | Rows 302-303 |
+| 2022-01-13 | Rate-shock widening begins | 0.070 -> 0.268 -> 0.880 -> 0.995 | Scale-down: 98.8% -> 93.0% -> 73.2% -> 12.0% -> 0.5% over 5 trading days | Rows 344-347 |
+| 2022-08-12 | Mid-2022 recovery attempt (proved short-lived) | 0.911 -> 1.000 | Brief scale-up reversed: 0.5% -> 8.9% -> 0.0% | Rows 348-349 |
+
+The `reason` field in each row repeats the HMM stress probability and the before/after position weights, which is the auditable record of what the strategy saw and what it did. Because this is a P2 Signal Strength strategy, position changes are **proportional** to the HMM stress probability -- never all-or-nothing -- which is why many rows show fractional moves rather than 0%/100% flips.
+
 ### Important Caveats
 
 1. **Transaction costs matter.** All strategy metrics include 5 basis points (0.05%) per round-trip trade. The breakeven transaction cost -- the level at which the strategy's edge disappears entirely -- is 50 bps, providing a comfortable margin of safety.
@@ -405,6 +495,13 @@ Two files are available on the Evidence page. The **broker-style log** (`winner_
 ---
 
 ## Page 5 -- The Method (Technical Appendix)
+
+<details>
+<summary>🧒 Plain English version</summary>
+
+This section explains the technical details of how we did the analysis -- which data we used, which statistical methods, and what could go wrong. Normal readers can skip it. Expert readers can use it to criticise our work and suggest improvements.
+
+</details>
 
 ### Data Sources
 
@@ -475,7 +572,31 @@ All lead-lag and predictive claims include a reverse-causality test: the same mo
 
 ### References
 
-See the full analysis brief (`docs/analysis_brief_hy_ig_v2_spy_20260410.md`) for the complete list of 25 academic citations.
+Below is the consolidated reference list cited by this narrative. Where an in-text reference uses `[AuthorYear]` notation (e.g. `[Merton1974]`), the entry here is the source. The full analysis brief (`docs/analysis_brief_hy_ig_v2_spy_20260410.md`) carries the extended 25-citation list used during the background scoping phase.
+
+**Credit Spread & Equity Research**
+- `[Gilchrist2012]` Gilchrist, S. & Zakrajsek, E. (2012). "Credit Spreads and Business Cycle Fluctuations," *American Economic Review* 102(4), 1692-1720.
+- `[Merton1974]` Merton, R.C. (1974). "On the Pricing of Corporate Debt: The Risk Structure of Interest Rates," *Journal of Finance* 29(2), 449-470.
+- `[Merton1973]` Merton, R.C. (1973). "Theory of Rational Option Pricing," *Bell Journal of Economics & Management Science* 4(1), 141-183.
+- `[Philippon2009]` Philippon, T. (2009). "The Bond Market's q," *Quarterly Journal of Economics* 124(3), 1011-1056.
+- `[Acharya2007]` Acharya, V.V. & Johnson, T.C. (2007). "Insider Trading in Credit Derivatives," *Journal of Financial Economics* 84(1), 110-141.
+
+**Methodology -- Time Series Econometrics**
+- `[Toda1995]` Toda, H.Y. & Yamamoto, T. (1995). "Statistical Inference in Vector Autoregressions with Possibly Integrated Processes," *Journal of Econometrics* 66, 225-250.
+- `[Jorda2005]` Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections," *American Economic Review* 95(1), 161-182.
+- `[Koenker1978]` Koenker, R. & Bassett, G. (1978). "Regression Quantiles," *Econometrica* 46(1), 33-50.
+- `[Koenker2001]` Koenker, R. & Hallock, K.F. (2001). "Quantile Regression," *Journal of Economic Perspectives* 15(4), 143-156.
+- `[Hamilton1989]` Hamilton, J.D. (1989). "A New Approach to the Economic Analysis of Nonstationary Time Series and the Business Cycle," *Econometrica* 57(2), 357-384.
+- `[Schreiber2000]` Schreiber, T. (2000). "Measuring Information Transfer," *Physical Review Letters* 85(2), 461-464.
+- `[Diks2006]` Diks, C. & Panchenko, V. (2006). "A new statistic and practical guidelines for nonparametric Granger causality testing," *Journal of Economic Dynamics & Control* 30, 1647-1669.
+
+**Regime Detection & Risk**
+- `[Guidolin2007]` Guidolin, M. & Timmermann, A. (2007). "Asset allocation under multivariate regime switching," *Journal of Economic Dynamics & Control* 31, 3503-3544.
+- `[AngTimmermann2012]` Ang, A. & Timmermann, A. (2012). "Regime Changes and Financial Markets," *Annual Review of Financial Economics* 4, 313-337.
+- `[Adrian2019]` Adrian, T., Boyarchenko, N. & Giannone, D. (2019). "Vulnerable Growth," *American Economic Review* 109(4), 1263-1289.
+
+**HY-IG Specific**
+- `[Chen2007]` Chen, L., Lesmond, D.A. & Wei, J. (2007). "Corporate Yield Spreads and Bond Liquidity," *Journal of Finance* 62(1), 119-149.
 
 ---
 

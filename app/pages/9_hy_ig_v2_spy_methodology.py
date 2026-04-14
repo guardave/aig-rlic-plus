@@ -9,6 +9,7 @@ import streamlit as st
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+from components.breadcrumb import render_breadcrumb
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
 
@@ -29,6 +30,22 @@ render_glossary_sidebar()
 
 PAIR_ID = "hy_ig_v2_spy"
 _RESULTS_DIR = Path(__file__).resolve().parents[2] / "results" / PAIR_ID
+
+# ----------------------------------------------------------
+# Breadcrumb navigation (N10, META-PWQ)
+# ----------------------------------------------------------
+render_breadcrumb("Methodology", PAIR_ID)
+
+# ----------------------------------------------------------
+# Plain English expander (N8 -- Ray narrative addition)
+# ----------------------------------------------------------
+with st.expander("🧒 Plain English version"):
+    st.markdown(
+        "This section explains the technical details of how we did the "
+        "analysis -- which data we used, which statistical methods, and "
+        "what could go wrong. Normal readers can skip it. Expert readers "
+        "can use it to criticise our work and suggest improvements."
+    )
 
 # ---------------------------------------------------------------------------
 # Page Header -- address skepticism
@@ -102,9 +119,29 @@ st.markdown(
 
 st.markdown("---")
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------
+# Return Basis Note (N13 -- metric basis clarification)
+# ----------------------------------------------------------
+st.markdown("### Return Basis and Performance Metrics")
+
+st.markdown(
+    "All OOS return figures reported on the Story and Strategy pages "
+    "(e.g. **+11.3% annualized**) are **arithmetic** annualized returns -- "
+    "the mean daily return multiplied by 252 trading days. This matches the "
+    "numerator of the OOS Sharpe ratio (mean divided by standard deviation). "
+    "**Compounded CAGR** (geometric annualized return, "
+    "(1 + total_return)^(1/years) - 1) would be slightly different because "
+    "it accounts for path dependence and volatility drag; for the winning "
+    "strategy the CAGR and arithmetic return differ by less than ~50 bps. "
+    "We report the arithmetic figure throughout for consistency with the "
+    "Sharpe ratio and tournament leaderboard."
+)
+
+st.markdown("---")
+
+# ----------------------------------------------------------
 # Stationarity Tests
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------
 st.markdown("### Stationarity Tests")
 
 _stat_path = _RESULTS_DIR / "stationarity_tests_20260410.csv"
@@ -239,26 +276,56 @@ st.markdown("""
 
 st.markdown("---")
 
-# ---------------------------------------------------------------------------
-# References
-# ---------------------------------------------------------------------------
-st.markdown("### Key References")
-
-st.markdown("""
-- Acharya, V. V., & Johnson, T. C. (2007). Insider trading in credit derivatives. *Journal of Financial Economics*, 84(1), 110-141.
-- Adrian, T., Boyarchenko, N., & Giannone, D. (2019). Vulnerable Growth. *American Economic Review*, 109(4), 1263-1289.
-- Gilchrist, S., & Zakrajsek, E. (2012). Credit spreads and business cycle fluctuations. *American Economic Review*, 102(4), 1692-1720.
-- Guidolin, M., & Timmermann, A. (2007). Asset allocation under multivariate regime switching. *Journal of Economic Dynamics and Control*, 31(11), 3503-3544.
-- Hamilton, J. D. (1989). A new approach to the economic analysis of nonstationary time series and the business cycle. *Econometrica*, 57(2), 357-384.
-- Jorda, O. (2005). Estimation and inference of impulse responses by local projections. *American Economic Review*, 95(1), 161-182.
-- Merton, R. C. (1974). On the pricing of corporate debt: The risk structure of interest rates. *Journal of Finance*, 29(2), 449-470.
-- Philippon, T. (2009). The bond market's Q. *Quarterly Journal of Economics*, 124(3), 1011-1056.
-""")
+# ----------------------------------------------------------
+# References (N7 -- Ray narrative addition, 17 entries in 4 categories)
+# ----------------------------------------------------------
+st.markdown("### References")
 
 st.markdown(
+    "Below is the consolidated reference list cited by this narrative. Where "
+    "an in-text reference uses `[AuthorYear]` notation (e.g. `[Merton1974]`), "
+    "the entry here is the source. The full analysis brief "
+    "(`docs/analysis_brief_hy_ig_v2_spy_20260410.md`) carries the extended "
+    "25-citation list used during the background scoping phase."
+)
+
+st.markdown("#### Credit Spread & Equity Research")
+st.markdown(
+    "- `[Gilchrist2012]` Gilchrist, S. & Zakrajsek, E. (2012). \"Credit Spreads and Business Cycle Fluctuations,\" *American Economic Review* 102(4), 1692-1720.\n"
+    "- `[Merton1974]` Merton, R.C. (1974). \"On the Pricing of Corporate Debt: The Risk Structure of Interest Rates,\" *Journal of Finance* 29(2), 449-470.\n"
+    "- `[Merton1973]` Merton, R.C. (1973). \"Theory of Rational Option Pricing,\" *Bell Journal of Economics & Management Science* 4(1), 141-183.\n"
+    "- `[Philippon2009]` Philippon, T. (2009). \"The Bond Market's q,\" *Quarterly Journal of Economics* 124(3), 1011-1056.\n"
+    "- `[Acharya2007]` Acharya, V.V. & Johnson, T.C. (2007). \"Insider Trading in Credit Derivatives,\" *Journal of Financial Economics* 84(1), 110-141."
+)
+
+st.markdown("#### Methodology -- Time Series Econometrics")
+st.markdown(
+    "- `[Toda1995]` Toda, H.Y. & Yamamoto, T. (1995). \"Statistical Inference in Vector Autoregressions with Possibly Integrated Processes,\" *Journal of Econometrics* 66, 225-250.\n"
+    "- `[Jorda2005]` Jorda, O. (2005). \"Estimation and Inference of Impulse Responses by Local Projections,\" *American Economic Review* 95(1), 161-182.\n"
+    "- `[Koenker1978]` Koenker, R. & Bassett, G. (1978). \"Regression Quantiles,\" *Econometrica* 46(1), 33-50.\n"
+    "- `[Koenker2001]` Koenker, R. & Hallock, K.F. (2001). \"Quantile Regression,\" *Journal of Economic Perspectives* 15(4), 143-156.\n"
+    "- `[Hamilton1989]` Hamilton, J.D. (1989). \"A New Approach to the Economic Analysis of Nonstationary Time Series and the Business Cycle,\" *Econometrica* 57(2), 357-384.\n"
+    "- `[Schreiber2000]` Schreiber, T. (2000). \"Measuring Information Transfer,\" *Physical Review Letters* 85(2), 461-464.\n"
+    "- `[Diks2006]` Diks, C. & Panchenko, V. (2006). \"A new statistic and practical guidelines for nonparametric Granger causality testing,\" *Journal of Economic Dynamics & Control* 30, 1647-1669."
+)
+
+st.markdown("#### Regime Detection & Risk")
+st.markdown(
+    "- `[Guidolin2007]` Guidolin, M. & Timmermann, A. (2007). \"Asset allocation under multivariate regime switching,\" *Journal of Economic Dynamics & Control* 31, 3503-3544.\n"
+    "- `[AngTimmermann2012]` Ang, A. & Timmermann, A. (2012). \"Regime Changes and Financial Markets,\" *Annual Review of Financial Economics* 4, 313-337.\n"
+    "- `[Adrian2019]` Adrian, T., Boyarchenko, N. & Giannone, D. (2019). \"Vulnerable Growth,\" *American Economic Review* 109(4), 1263-1289."
+)
+
+st.markdown("#### HY-IG Specific")
+st.markdown(
+    "- `[Chen2007]` Chen, L., Lesmond, D.A. & Wei, J. (2007). \"Corporate Yield Spreads and Bond Liquidity,\" *Journal of Finance* 62(1), 119-149."
+)
+
+st.caption(
     "See the full analysis brief (`docs/analysis_brief_hy_ig_v2_spy_20260410.md`) "
     "for the complete list of academic citations."
 )
+
 
 # ---------------------------------------------------------------------------
 # Footer

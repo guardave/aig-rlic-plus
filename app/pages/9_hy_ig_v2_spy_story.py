@@ -7,6 +7,7 @@ import streamlit as st
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+from components.breadcrumb import render_breadcrumb
 from components.charts import load_plotly_chart
 from components.sidebar import render_sidebar
 from components.narrative import render_narrative, render_transition, render_glossary_sidebar
@@ -25,6 +26,52 @@ if os.path.exists(css_path):
 
 render_sidebar()
 render_glossary_sidebar()
+
+# ---------------------------------------------------------------------------
+# Breadcrumb navigation (N10, META-PWQ)
+# ---------------------------------------------------------------------------
+render_breadcrumb("Story", "hy_ig_v2_spy")
+
+# ---------------------------------------------------------------------------
+# Plain English expander (N8 -- Ray's narrative addition)
+# ---------------------------------------------------------------------------
+with st.expander("🧒 Plain English version"):
+    st.markdown(
+        "When companies borrow money, lenders charge safer companies lower rates "
+        "and risky companies higher rates. The gap between those rates is called "
+        "the credit spread. When it's small, business is going well. When it jumps "
+        "up, it means investors are scared about the future. This research asks: "
+        "does watching that gap help predict what the stock market will do? The "
+        "answer turns out to be yes -- sometimes. You can use it to lose less money "
+        "in crashes."
+    )
+
+# ---------------------------------------------------------------------------
+# Where This Fits in the Portal (N1 -- Ray's narrative addition)
+# ---------------------------------------------------------------------------
+with st.container(border=True):
+    st.markdown("### Where This Fits in the Portal")
+    st.markdown(
+        "This is **one indicator-target analysis** -- we ask whether credit spreads "
+        "can help time equity exposure. The AIG-RLIC+ portal catalogues many such "
+        "pair-wise studies; this one examines whether the HY-IG credit spread "
+        "carries useful information about future SPY returns."
+    )
+    st.markdown(
+        "**How to read the rest of this page pack.** You'll read the **Story** first "
+        "(why the signal works in plain English), then the **Evidence** (the "
+        "statistical proofs, one method block at a time), then the **Strategy** "
+        "(the actual trading rule and how you would apply it yourself), then the "
+        "**Methods** (technical appendix for readers who want to reproduce or "
+        "criticise the work). Each page stands alone; readers short on time can "
+        "skim the Story and Strategy pages and skip the rest."
+    )
+    st.markdown(
+        "**The headline.** Our winning strategy delivered **Sharpe 1.27 with max "
+        "drawdown -10.2%** -- that's versus **Sharpe 0.77 and max drawdown -33.7%** "
+        "for a passive buy-and-hold investor over the same out-of-sample period "
+        "(2018-2025). Same return neighbourhood, a third of the pain."
+    )
 
 # ---------------------------------------------------------------------------
 # Page Header
