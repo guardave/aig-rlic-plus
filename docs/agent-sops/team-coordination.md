@@ -90,6 +90,7 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 20 | `indicator_type` populated | `results/{id}/interpretation_metadata.json` has `indicator_type` set to EXACTLY one of the canonical 7 values: `price`, `production`, `sentiment`, `rates`, `credit`, `volatility`, `macro`. Near-synonyms (`activity`, `output`, `vol`, `fx`) are REJECTED — map to the canonical value at source. Missing/empty/`unknown` → pair fails gate. **Owner:** Data Dana |
 | 21 | `strategy_objective` populated | `results/{id}/interpretation_metadata.json` has `strategy_objective` set to one of `min_mdd`, `max_sharpe`, `max_return`. Missing/empty/`unknown` → pair fails gate. **Owner:** Research Ray (after tournament results known) |
 | 22 | Method coverage — no regression | On a pair rerun, the new Evidence section must include every method from the prior version OR the pair includes a `regression_note.md` documenting each drop with rationale. Missing methods without a regression note → pair fails gate. **Owners:** Evan (produces data), Ray (writes narrative), Ace (renders page) |
+| 23 | Pair acceptance.md | `results/{id}/acceptance.md` exists with every Portal-Wide Quality Checklist item checked, reference pair comparison documented (see Reference Pair Doctrine), and Lead sign-off. Missing/incomplete → pair fails gate. **Owner:** Lead Lesandro |
 
 **Evidence:** HY-IG (pair #5) shipped with a header-only trade log (0 data rows) because items 16–18 were not in the completeness gate. The downstream execution panel showed "Trade log pending" with no data. Nobody caught it until manual inspection.
 
@@ -633,6 +634,118 @@ Each agent distills key lessons into:
 
 ### Why This Matters
 Reading teammates' SOPs reveals handoff gaps, duplicated work, and blind spots that no amount of solo work surfaces. This is not optional — it is the single highest-leverage activity for team cohesion. Do it for every new team or whenever the team composition changes.
+
+---
+
+## Portal-Wide Quality Checklist
+
+Every pair delivery must pass every item below. This is the cross-cutting checklist gate reviewers use during acceptance. Individual agent SOPs own the detailed rules; this document lists the minimum observable outcomes.
+
+### Landing Page
+- [ ] Pair appears as a card in filtered view with correct nature/type/objective/direction chips
+- [ ] Performance badges (Sharpe, Max DD) use correct color thresholds
+- [ ] Card renders without truncation at standard viewport (1280×900)
+
+### Navigation
+- [ ] Breadcrumb component at top of every pair page showing Story → Evidence → Strategy → Methodology with current step highlighted
+- [ ] Sidebar finding selector includes this pair
+- [ ] All Story/Evidence/Strategy/Methodology links work
+
+### Story Page
+- [ ] Hero chart: no inverted axes, correct units disclosed in axis label
+- [ ] KPI strip with interpretation captions (benchmark + one-sentence meaning per metric)
+- [ ] Story narrative flows from the Landing Page executive summary themes
+- [ ] "Why this indicator?" context section present
+- [ ] Progressive disclosure via expanders
+
+### Evidence Page
+- [ ] 8-element template applied to every method block
+- [ ] Difficulty tiers: Level 1 (Correlation, Cross-Correlation, Causality) before Level 2 (Regime, Quantile, Local Projections, advanced)
+- [ ] Every method has "Why we chose this method" rationale
+- [ ] Every method's chart uses canonical filename per VIZ-A3
+- [ ] Unit discipline: all axis labels disclose scale
+
+### Strategy Page
+- [ ] Trading Rule in Plain English appears FIRST
+- [ ] "How to Use This Indicator Manually" tutorial section present (human investor perspective, not just algo description)
+- [ ] KPI cards with interpretation captions
+- [ ] OOS Return label specifies calculation basis (CAGR, arithmetic, total)
+- [ ] Trade log: broker-style CSV + column legend expander + dual download + 10-row preview
+- [ ] "How to Read the Trade Log" narrative subsection with concrete example
+- [ ] Tournament leaderboard shows top 20 with ability to explore non-winning strategies
+
+### Methodology Page
+- [ ] Skeptical reader framing in intro
+- [ ] Methods table with "Why We Chose It" column
+- [ ] Diagnostics table with "Why It Matters" column
+- [ ] References section with full bibliography
+- [ ] Inline citations link to bibliography entries
+
+### Cross-Cutting
+- [ ] Dual notation on first use of unit-laden values (bps AND %)
+- [ ] "Plain English" expander on major sections for simplified explanation
+- [ ] Writing voice consistent across pages
+- [ ] Honest caveats in every page
+- [ ] No silent regressions — deliberate changes documented in `regression_note_<date>.md`
+
+## Reference Pair Doctrine
+
+**HY-IG v2 (tag: `hy-ig-v2-reference` once approved) is the canonical reference pair** for the AIG-RLIC+ portal. It represents the stakeholder-approved gold standard for pair presentation, depth, and audience-friendliness.
+
+### Rules
+
+1. **Comparison is mandatory.** Every new pair dispatch must begin by reading HY-IG v2's equivalent files (narrative, Evidence page, Strategy page, charts directory) for structural and tonal comparison.
+
+2. **Deviations must be documented.** Any deliberate departure from HY-IG v2's pattern requires a `design_note.md` in the pair's results directory with rationale.
+
+3. **Gate reviewers compare side-by-side.** Before accepting a pair as complete, perform a visual side-by-side comparison against HY-IG v2. Divergences without rationale are rejected.
+
+4. **When the reference evolves, flag it.** Stakeholder-prompted changes to HY-IG v2 itself tag a new state (e.g., `hy-ig-v2-reference-v2`); previous tags remain accessible.
+
+### Why
+
+This doctrine turns "good decisions" from tribal knowledge into mechanical artifacts. An agent dispatched for a new pair cannot miss the reference — reading HY-IG v2 is step 1 of the workflow.
+
+### Exception
+
+If a stakeholder explicitly requests a new pair with intentionally different structure, the request itself serves as the design_note rationale.
+
+## Pair Acceptance Checklist
+
+Before any pair is marked "completed," a file `results/<pair_id>/acceptance.md` MUST exist containing the template below, signed off by the Lead. This is a blocking gate item (Gate 23).
+
+### Template (copy to `results/<pair_id>/acceptance.md`)
+
+    # Acceptance — <pair_id> — <YYYY-MM-DD>
+
+    ## Portal-Wide Quality Checklist
+
+    <Copy the Portal-Wide Quality Checklist from team-coordination.md and check every box.
+    For items that deliberately deviate, explain why here.>
+
+    ## Reference Pair Comparison
+
+    **Compared against:** HY-IG v2 (tag: hy-ig-v2-reference)
+    **Comparison date:** YYYY-MM-DD
+    **Key differences:** <list>
+    **design_note.md:** <yes/no — if yes, summarize rationale>
+
+    ## Regression Note
+
+    **regression_note_<YYYYMMDD>.md exists:** <yes/no>
+    **Summary of changes from prior version:** <brief>
+
+    ## Stakeholder Review
+
+    **Reviewed by:** <name>
+    **Review date:** YYYY-MM-DD
+    **Outstanding issues:** <list>
+
+    ## Lead Sign-off
+
+    **Approved by:** Lead Lesandro
+    **Approval date:** YYYY-MM-DD
+    **Tag/commit:** <hash>
 
 ---
 
