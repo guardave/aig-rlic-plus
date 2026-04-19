@@ -1039,6 +1039,20 @@ The APP-SE1..SE5 components all render on the Strategy page and each has its own
 - **APP-SE4 — live_execution_stub.json schema conformance.** If `results/{pair_id}/live_execution_stub.json` is present, it MUST conform to the expected schema: `{current_signal_value: float, target_position_pct: float, current_action: str, as_of_date: str (ISO-8601)}`. Missing keys or type mismatches render `"—"` in the corresponding `st.metric()` and log the schema violation to `design_note.md`.
 - **APP-SE5 — Every caption is a meaningful non-empty string.** Every `st.caption()` call in the Strategy Confidence section, on Evidence Sources status tables, and adjacent to status legends MUST be a non-empty string that relates to the specific adjacent chart/table. Generic placeholder text ("caption pending", "TBD", "see chart above") is a gate failure. Reconciliation step: iterate `st.caption` calls on the Strategy page and assert non-empty + non-placeholder text.
 
+**Loader end-to-end smoke test (added 2026-04-19, post-Wave-2 stakeholder-review patch — rule ID APP-ST1):**
+
+Artifact-existence checks (the prior Defense-2 protocol, META-ZI loader-contract note, and `_resolve_history_zoom_paths` fallback chain) verify that the JSON file is *on disk* and the resolver picks a real path. They do **not** verify that the file *parses* into a valid Plotly `Figure`, that the Figure has traces, or that the chart renders. The Wave-2 "Dot-Com zoom chart pending" regression (Bug #2) is the canonical example: the canonical JSON existed (59 KB valid Plotly JSON), the resolver returned it with `exists=True`, but `load_plotly_chart` had no return channel — so any silent parse or cache failure degraded straight to the GATE-25 placeholder with no observable signal. End-to-end render success must be tested, not inferred.
+
+- **Before Ace finishes a page**, run a smoke test that:
+  1. Parses each page's source (AST-based) and / or maintains a registry listing every `load_plotly_chart(name, pair_id)` call. Where `chart_name` is a variable (e.g., a helper function receives it as a parameter), the registry MUST supplement the AST list with the literal values passed at call sites.
+  2. For each call, executes `load_plotly_chart(chart_name, pair_id=pair_id)` in a test harness (Streamlit stub / mock installed on the `charts` module so rendering is a no-op).
+  3. Asserts the return value is not None AND `len(fig.data) > 0` AND `fig.layout.title.text` is a non-empty string.
+  4. Logs per-call results (PASS / FAIL / SKIP) to `app/_smoke_tests/loader_{pair_id}_{yyyymmdd}.log`.
+- The loader (`app/components/charts.py::load_plotly_chart`) MUST return the loaded `Figure` (or `None` on miss / parse-failure) so smoke tests have something to assert. A loader that only renders as a side-effect is untestable.
+- Parse failures inside `_load_plotly_json` MUST surface as a logged warning AND a visible `st.warning(...)` notice to the user — never swallowed by a bare `except` that falls through to the GATE-25 placeholder, because that masks a real bug as a missing artifact.
+- **Smoke-test failure is a blocker.** Ace does not mark a page done until every `load_plotly_chart` call returns a valid `Figure`. A single failure in the log file blocks shipment.
+- **Root cause of the original Bug #2 (recorded here as the gate-failure learning):** the loader was a "render-only" function with no return value. The `history_zoom_` resolver returned the right path, but any silent failure downstream (e.g., a parse error inside the cached `_load_plotly_json`, or a caching quirk that re-entered the function with `json_path = None` on a hot reload) had no observable exit signal at the call site — so GATE-25 rendered the placeholder and the bug escaped review. Fix: the loader now returns the `Figure`; the smoke test exercises every call site end-to-end; parse errors are logged and surfaced visibly.
+
 ---
 
 ## Tool Preferences

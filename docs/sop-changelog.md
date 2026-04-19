@@ -6,6 +6,28 @@ Entries are listed newest-first. Each entry cites the commit hash, date, and sum
 
 ---
 
+## 2026-04-19 — HY-IG v2 Stakeholder Review Follow-Up: VIZ-V2 Revision + VIZ-V5 Added (Vera)
+
+**Scope:** visualization-agent-sop.md + docs/standards.md. No other agent SOPs touched.
+
+**Bug observed:** HY-IG v2 stakeholder review flagged two bugs the existing SOPs failed to prevent. (1) NBER recession shading at grey alpha 0.12 was imperceptible against the Streamlit off-white background; caption correctly disclosed shading but shading itself was invisible. (2) In the dual-panel hero chart (two x-axes: `xaxis`, `xaxis2`), the 3 shading rects had `xref='x'` only, so the bottom SPY panel had no shading at all. Both bugs cleared prior Quality Gates because the rule as written was wrong, not because it was unfollowed.
+
+**Revised (VIZ-V2):**
+
+- **Alpha + color prescription corrected.** Prior text "alpha 0.1–0.15, grey" replaced with "alpha 0.20–0.28, `rgba(150,120,120,0.22)` faded red-brown or equivalent — must be perceptible against the Streamlit background at standard zoom. Plain grey at alpha < 0.18 is prohibited."
+- **Subplot handling clause added.** When `layout` contains multiple x-axes (`xaxis`, `xaxis2`, …), Vera must emit one shading shape per panel per recession; total shape count = n_recessions × n_panels.
+- **Perceptual-validation step added.** After saving JSON, Vera renders chart to PNG via kaleido (`fig.write_image`) and visually confirms shading is perceptible. PNG saved as `_perceptual_check_{chart}.png` in the same plotly directory. Charts where shading cannot be seen at standard zoom fail **GATE-27 (End-to-End Chart Render Test)**.
+
+**Added (VIZ-V5):**
+
+- **End-to-End Chart Load Smoke Test.** Before handoff to Ace, Vera runs a smoke-test script per chart: (1) `plotly.io.read_json` loads without exception, (2) `len(fig.data) > 0`, (3) `fig.layout.title.text` non-empty. Log saved to `output/charts/{pair_id}/plotly/_smoke_test_{YYYYMMDD}.log`. Any failure blocks handoff.
+
+**Retro-applied to HY-IG v2:** 4 charts updated (hero dual-panel → 6 shading shapes; 3 canonical zoom charts → stronger faded-red-brown alpha). Perceptual check PNGs and smoke test log produced per the new rule. Change recorded in `results/hy_ig_v2_spy/regression_note_20260419.md`.
+
+**Rationale:** "Rule was followed; rule was wrong. Fix the rule." Both bugs were 100% preventable had VIZ-V2 carried (a) a perceptible alpha, (b) a subplot clause, and (c) a perceptual-validation step. V5 smoke test catches the orthogonal structural-integrity failure mode. Operationalizes the learning that quality gates must include a rendered-output check, not only spec-conformance checks.
+
+---
+
 ## 2026-04-12 — Regression-Proofing Infrastructure (this session)
 
 **Scope:** team-coordination.md + new docs/standards.md + new docs/sop-changelog.md. No changes to agent-specific SOPs.

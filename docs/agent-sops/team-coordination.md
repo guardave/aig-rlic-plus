@@ -94,6 +94,8 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 24 | Chart-Text Coherence Audit | When any chart is modified (axis, labels, values, signal, scale), author must `grep -r "<chart_name>" app/pages/` and update every referenced caption/narrative in the **same commit**. The pair's `regression_note_<date>.md` must list BOTH the chart change AND the narrative change together under a single bullet. Missing narrative diff for a recent chart edit blocks acceptance.md sign-off. **Ownership (clarification, 2026-04-19):** When a chart is modified, **Vera initiates an explicit notification** to Ray at handoff ("chart {name} updated — please re-audit {page} captions"). **Ray proactively diffs** prior narrative against new chart catalog on every rerun, independent of whether Vera signaled. Both responsibilities apply — the notification is the fast path, the proactive diff is the safety net. **Addresses SL-3.** **Owners:** Vera (chart) + Ray (narrative), Ace (render verification) |
 | 25 | No Silent Chart Fallbacks | Pages must not silently substitute a different chart when the intended canonical artifact is missing. If the canonical chart for a method does not exist, the page renders a labeled "chart pending" placeholder with an explanation — **never** a lookalike from a different method. acceptance.md must list every method → chart mapping and verify each chart is canonical (not borrowed). Cross-reference: VIZ-V3. **Addresses S18-11.** **Owners:** Vera (canonical artifact), Ace (render path), Lesandro (gate check) |
 | 26 | No Silent Content Drops | When a previously-present analysis element (table, chart, subsection, callout) is removed on a rerun or new version, `regression_note_<date>.md` must include an explicit **Removed** section with rationale per item. If no rationale is provided, the content must be restored. Applies across versions of the same pair (e.g., HY-IG v2 losing content that HY-IG v1 had). Cross-reference: VIZ-V4, RES-5. acceptance.md must include a prior-version inventory diff (see "Prior-Version Inventory Check" below). **Addresses S18-8, SL-2, and the silent-content-drop meta-pattern.** **Owners:** Evan + Ray + Ace (producers), Lesandro (gate) |
+| 27 | End-to-End Chart Render Test | Every chart referenced by any portal page of a pair under acceptance must: (a) load successfully via `load_plotly_chart(name, pair_id)` and return a non-None Figure object; (b) have at least one data trace; (c) have a non-empty title. Enforcement: Vera runs VIZ-V5 smoke tests on all canonical artifacts; Ace runs a loader smoke-test extension of Defense-2 that exercises `load_plotly_chart()` for every chart referenced by every portal page of the pair. Both agents submit their smoke-test logs as part of acceptance.md. **Blocking:** any chart failing the smoke test blocks acceptance until fixed. **Addresses** the Dot-Com canonical zoom bug where the file existed, the path resolved, and the loader still returned None — a failure mode invisible to file-existence checks alone. **Owners:** Vera (canonical artifacts) + Ace (loader + portal), Lesandro (gate). |
+| 28 | Reference-Pair Placeholder Prohibition | On reference-pair pages (see Reference Pair Doctrine), any "chart pending" placeholder (the GATE-25 graceful fallback) is an **acceptance blocker**. Graceful degradation is appropriate for non-reference pairs under development; reference pairs are the gold standard and must render 100% of referenced charts. acceptance.md must assert: zero `chart_pending` placeholders in rendered page DOM, verified via headless-browser DOM audit over every portal page of the reference pair. **Addresses** the gate-level gap that allowed "chart pending" to pass Wave 3 verification on a reference pair. **Owners:** Ace (portal audit) + Lesandro (gate). |
 
 **Evidence:** HY-IG (pair #5) shipped with a header-only trade log (0 data rows) because items 16–18 were not in the completeness gate. The downstream execution panel showed "Trade log pending" with no data. Nobody caught it until manual inspection.
 
@@ -210,6 +212,22 @@ This section is the canonical mechanism for declaring intentional removals and i
 3. If both missing → "chart pending" placeholder per GATE-25
 
 **Why this rule exists:** Cross-pair consistency is free for 80% of cases (event-only references); specialization cost is paid only when it earns its keep. Avoids both duplicate production effort and inconsistent episode representations across pairs.
+
+### Perceptual Validation of Visual Encoding (Meta-Rule META-PV)
+
+> **A rule that was followed but produced the wrong visual is a broken rule. Fix the rule.**
+>
+> Any chart element that depends on color, alpha, shading, or low-contrast visual encoding for information transfer must have a **perceptual-validation step** in the producing agent's SOP. Validation requires: render the chart to a PNG via `plotly.io.write_image` and visually confirm the encoding is perceivable against realistic backgrounds and data traces. Assume nothing from numeric prescriptions alone.
+>
+> Rules that prescribe specific numeric values (alpha ranges, stroke widths, font sizes, marker radii, color saturations) must be validated against perceptual output, not assumed to produce the intended visual. If the PNG shows the encoding as invisible or ambiguous, the numeric prescription is wrong — update the rule, not the individual chart.
+>
+> **Applies to** (non-exhaustive): NBER recession shading (VIZ-V2), regime shading, sparkline thickness, annotation dot size, event-marker opacity, quartile-color gradients, probability-band fill alpha, confidence-interval ribbon fill.
+>
+> **Validation artifact:** every chart with perceptual-encoding risk ships a `{chart_name}_preview.png` sidecar alongside the Plotly JSON; the producing agent signs off that the encoding is perceptible in the PNG before handoff.
+>
+> **Companion to** META-VNC (no silent drops) and META-RNF (regression note format). Operationalized by VIZ-V2 (NBER shading), VIZ-V4 (diagnostic charts), GATE-27 (end-to-end render test).
+>
+> **Addresses** the Wave-2 Hero NBER shading bug: VIZ-V2 prescribed "alpha 0.10–0.15 grey" and the producer complied exactly; the rendered shading was still imperceptible against the dark line trace on a light background. The rule was followed and the visual failed — that is a broken rule, not a broken chart.
 
 ### Classification Field Ownership
 
@@ -779,7 +797,7 @@ Before any pair is marked "completed," a file `results/<pair_id>/acceptance.md` 
     **Summary of changes from prior version:** <brief>
     **Removed section present (if any removals):** <yes/no — cite each removal and rationale>
 
-    ## Blocking Items — GATE-24 / GATE-25 / GATE-26
+    ## Blocking Items — GATE-24 / GATE-25 / GATE-26 / GATE-27 / GATE-28
 
     ### GATE-24 — Chart-Text Coherence Audit
     - [ ] For every chart modified since prior version, `grep -r "<chart_name>" app/pages/` was run and every referenced caption/narrative was updated in the **same commit** as the chart change.
@@ -800,6 +818,18 @@ Before any pair is marked "completed," a file `results/<pair_id>/acceptance.md` 
     - [ ] Prior-Version Inventory Check (below) completed.
     - [ ] Every removed element (vs prior version) is documented in regression_note_<date>.md **Removed** section with rationale and approver.
     - [ ] Any removal without documented rationale has been restored.
+
+    ### GATE-27 — End-to-End Chart Render Test
+    - [ ] Vera's VIZ-V5 smoke test log attached: every canonical chart artifact loads via Plotly, has ≥1 data trace, and has a non-empty title.
+    - [ ] Ace's loader smoke-test log attached: every chart name referenced in every portal page of this pair resolves successfully via `load_plotly_chart(name, pair_id)` and returns a non-None Figure.
+    - [ ] Zero chart loads returned None, zero chart loads returned a Figure with zero traces, zero chart loads returned an empty title.
+    - [ ] Any chart failing any of the three checks is listed here with remediation status; no item in this list is marked "deferred" on a reference pair.
+
+    ### GATE-28 — Reference-Pair Placeholder Prohibition
+    - [ ] This pair IS a reference pair: <yes/no — if no, write "N/A, gate does not apply" and skip>
+    - [ ] Headless-browser DOM audit performed across Story, Evidence, Strategy, Methodology pages.
+    - [ ] DOM-audit log attached showing zero occurrences of the "chart pending" placeholder text (or equivalent GATE-25 fallback rendering).
+    - [ ] Any `chart_pending` occurrence found by the audit is logged here with a chart name, root cause, and remediation commit — no "known issue / deferred" state is permitted on a reference pair.
 
     ### Prior-Version Inventory Check
 

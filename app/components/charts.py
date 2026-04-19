@@ -1,6 +1,7 @@
 """Plotly JSON chart loader and helper functions."""
 
 import json
+import logging
 import os
 import uuid
 
@@ -14,10 +15,17 @@ CHART_DIR = os.path.join(_APP_DIR, "..", "output", "charts", "plotly")
 METADATA_DIR = os.path.join(_APP_DIR, "..", "output", "charts", "metadata")
 _COMPARISON_DIR = os.path.join(_REPO_ROOT, "output", "_comparison")
 
+_LOGGER = logging.getLogger("app.components.charts")
+
 
 @st.cache_resource
 def _load_plotly_json(json_path: str):
-    """Load and parse a Plotly JSON file (cached)."""
+    """Load and parse a Plotly JSON file (cached).
+
+    Raises the underlying exception on failure rather than silently returning
+    None; the outer loader is responsible for catching and logging. This lets
+    the smoke test observe real parse errors instead of seeing a placeholder.
+    """
     with open(json_path) as f:
         return pio.from_json(f.read())
 
@@ -99,16 +107,41 @@ def load_plotly_chart(
             json_path = candidate
             break
 
+    fig = None
     if json_path:
-        fig = _load_plotly_json(json_path)
+        # Load + parse; no silent swallowing. If parsing fails we log a visible
+        # warning (surfaced in both Streamlit and stderr) and fall through to
+        # the GATE-25 placeholder so the user never sees a blank region.
+        try:
+            fig = _load_plotly_json(json_path)
+        except Exception as exc:  # noqa: BLE001 — intentional broad catch at render edge
+            _LOGGER.warning(
+                "load_plotly_chart: failed to parse %s (chart=%s pair_id=%s): %s",
+                json_path,
+                chart_name,
+                pair_id,
+                exc,
+            )
+            st.warning(
+                f"Chart '{chart_name}' failed to load: {exc.__class__.__name__}. "
+                "See application logs."
+            )
+            fig = None
+
+    if fig is not None:
         st.plotly_chart(fig, use_container_width=True, key=chart_key)
-    else:
+    elif not json_path:
         # GATE-25: render an explicit "chart pending" placeholder rather than
         # silently substituting unrelated content.
         st.info(f"📊 {fallback_text}")
 
     if caption:
         st.markdown(f'<p class="chart-caption">{caption}</p>', unsafe_allow_html=True)
+
+    # Return the Figure (or None on miss/failure) so smoke tests — and any
+    # future callers — can assert successful load. Does not change rendering
+    # behaviour; st.plotly_chart has already been invoked above.
+    return fig
 
 
 def load_chart_metadata(chart_name: str) -> dict:

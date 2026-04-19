@@ -498,16 +498,21 @@ Zoom-in charts follow a two-tier artifact model — a shared canonical chart pro
 
 **See META-ZI (team-coordination.md) for the full canonical + override protocol**, including the end-to-end lifecycle across Ray (narrative trigger), Vera (artifact production), and Ace (loader fallback chain).
 
-#### Rule V2 — NBER Recession Shading + Caption Disclosure (addresses SL-2)
+#### Rule V2 — NBER Recession Shading + Caption Disclosure (addresses SL-2; rev 2026-04-19)
 
 Long-horizon equity/credit time-series (span > 5 years) must:
 
-1. Shade NBER recessions using grey rectangles at `alpha` 0.1–0.15 (subtle, per existing Regime Shading Subtlety rule)
+1. **Shade NBER recessions with a perceptible fill.** Use `fillcolor='rgba(150,120,120,0.22)'` (faded red-brown) or equivalent at `alpha` 0.20–0.28. The shading must be clearly distinguishable from the plot background and from data traces at standard viewing zoom. Plain grey at `alpha` < 0.18 is **prohibited** — it is imperceptible against the white/off-white Streamlit background (observed failure: HY-IG v2 hero, April 2026 stakeholder review).
 2. Include explicit disclosure text in the chart caption or figure subtitle: **"Vertical shaded bands mark NBER recessions."**
+3. **Subplot handling (mandatory).** When the chart is a subplot layout — i.e. the Plotly `layout` contains two or more x-axis keys (`xaxis`, `xaxis2`, `xaxis3`, …) — NBER shading rects must be emitted for **each** subplot x-axis. A single `xref='x'` applies only to the first subplot and leaves the other panels un-shaded (observed failure: HY-IG v2 hero dual-panel). Workflow:
+   - Inspect `fig.layout` for every key matching `^xaxis[0-9]*$`.
+   - For each recession episode, emit one `layout.Shape` per panel, with `xref` set to the matching axis reference (`'x'`, `'x2'`, `'x3'`, …), `yref='paper'` (so the rect spans the full panel height), `layer='below'`, and the panel-appropriate fillcolor.
+   - Total shape count = `n_recessions × n_panels`.
+4. **Perceptual validation (mandatory before handoff).** After saving the chart JSON, render it to a PNG via `plotly.io.from_json` + `fig.write_image(...)` (kaleido) OR via browser snapshot, and visually confirm the shading bands are perceptible at standard zoom. Save the test snapshot as `output/charts/{pair_id}/plotly/_perceptual_check_{chart_name}.png` (for per-pair charts) or `output/_comparison/_perceptual_check_{chart_name}.png` (for canonical episode charts). Charts where the shading cannot be seen at standard zoom fail acceptance per **GATE-27 (End-to-End Chart Render Test)**.
 
-The disclosure text is part of the chart deliverable — shading alone is not self-documenting. A reader cannot decode grey bands without being told what they are. Both elements (shading + caption) must ship together or the chart fails the completeness gate.
+All four elements (perceptible shading + caption + subplot coverage + perceptual check) must ship together or the chart fails the completeness gate.
 
-For the HY-IG v2 hero chart, SL-2 observed that shading existed but the disclosure text was missing; restore it as both a chart-level annotation and a narrative caption entry in Ray's content dict.
+For the HY-IG v2 hero chart, SL-2 observed that shading existed but the disclosure text was missing; April 2026 follow-up found that the restored grey-alpha-0.12 shading was still imperceptible AND covered only the top panel. This revision of V2 codifies the prescription + subplot rule + perceptual-validation step that would have caught both bugs.
 
 #### Rule V3 — Per-Chart Ownership: No Silent Fallbacks (addresses S18-11)
 
@@ -540,6 +545,23 @@ Certain diagnostic charts are mandatory per method type. **Removal requires a `r
 S18-8 flagged that the "annualised SPX return by quartile Q1-Q4" chart was present in an earlier CCF Evidence block and silently dropped in a later version. This is a META-RNF violation; the regression_note.md must list each dropped diagnostic with a rationale, or the drop is reverted.
 
 On rerun, Vera must diff the prior chart set under `output/charts/{pair_id}/plotly/` and explicitly reconcile each missing mandatory diagnostic. If absent and undocumented, the chart is restored before handoff.
+
+#### Rule V5 — End-to-End Chart Load Smoke Test (added 2026-04-19)
+
+Before handoff to Ace, Vera MUST run a smoke-test script that, for every chart referenced by any portal page of the pair, verifies:
+
+1. `plotly.io.read_json(path)` loads the JSON without raising any exception.
+2. `len(fig.data) > 0` — the chart has at least one data trace (not an empty figure).
+3. `fig.layout.title.text` is non-empty — the chart is titled.
+
+Each check is logged as pass/fail per chart to `output/charts/{pair_id}/plotly/_smoke_test_{YYYYMMDD}.log` (one file per test run date; if multiple runs on the same day, append). The log includes per-chart `PASS` / `FAIL` lines plus a final tally line `Total: N charts, M pass, K fail`.
+
+**Smoke test failure is a blocker.** Vera cannot hand off to Ace until every chart passes all three checks. If a chart fails:
+- An empty-data failure usually means upstream CSV parse error → fix the builder script and re-save.
+- A missing-title failure usually means a layout template stripped the title → restore per VIZ-UR1.
+- A JSON-read failure usually means a corrupted write or mixing numpy types into Plotly → rebuild using `plotly.io.write_json`.
+
+The smoke test is additive on top of the Quality Gates checklist and the perceptual check introduced in V2; it catches a different failure mode (structural integrity) from the perceptual check (visual legibility) and from A3 (canonical spec conformance).
 
 ### Chart-Text Coherence (Cross-Agent Contract) — addresses SL-3
 

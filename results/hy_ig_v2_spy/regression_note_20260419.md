@@ -230,3 +230,110 @@ No validation failures or warnings flagged for HY-IG v2. The APP-SE1 pre-render 
 ### Approved by
 
 **Ace self-approves** the portal-layer assembly; all five APP-SE rules (SE1–SE5) + META-ZI loader + Status Vocabulary Discipline applied as written. All four pages load cleanly (`python3 -m py_compile` passes on each). Defense-2 validations pass against the HY-IG v2 artifact set. Lesandro review requested at next checkpoint.
+
+---
+
+### Ace's Bug-fix patch (2026-04-19)
+
+**Trigger.** Post-Wave-2 stakeholder review flagged Bug #2: the Dot-Com zoom chart on the Story page rendered as the GATE-25 "chart pending" placeholder, even though `output/_comparison/history_zoom_dotcom.json` existed (59 KB, valid Plotly JSON with one trace and a title) and `_resolve_history_zoom_paths('history_zoom_dotcom', 'hy_ig_v2_spy')` returned that path with `exists=True`.
+
+**Root cause of loader None-return.** `app/components/charts.py::load_plotly_chart` was a render-only function — it invoked `st.plotly_chart(...)` as a side-effect and returned `None` unconditionally. That design had two consequences that combined into Bug #2:
+
+1. **No observable end-to-end signal.** Because the function had no return value, nothing at the call site could distinguish "chart rendered" from "GATE-25 placeholder rendered" from "silent parse failure." Defense-2 as extended in Wave 1.5 could confirm the artifact existed on disk, but could not confirm the Figure actually loaded and had traces + title. The Wave-2 review caught a visibly-broken chart that the Wave-1.5 gate had approved.
+2. **Silent exception swallowing risk.** The cached `_load_plotly_json` was wrapped in `@st.cache_resource`. Any parse-time exception from `pio.from_json` (e.g., encoding quirk, plotly version upgrade, stale cache entry) had no outer `except` handler — it would propagate, terminate the block, and the user would see whatever Streamlit paints in that state (in this case, an empty region visually indistinguishable from the GATE-25 info box). No warning, no log, no path to triage.
+
+**charts.py lines changed.**
+
+- Added `import logging` and a module-level `_LOGGER`.
+- `_load_plotly_json` docstring updated to state that exceptions are intentionally propagated (consumer handles them).
+- `load_plotly_chart`: introduced `fig = None` init; wrapped the `_load_plotly_json` call in `try/except` with a `_LOGGER.warning(...)` + `st.warning(...)` on failure so parse errors surface visibly instead of degrading silently. The GATE-25 `st.info(fallback_text)` placeholder now fires only when `not json_path` (no artifact on disk) — a parse failure emits a distinct, user-visible warning instead.
+- `load_plotly_chart` now **returns the Figure** (or `None` on miss / parse failure) so smoke tests and any future caller can assert load success. Rendering side-effect is unchanged.
+
+**SOP fix: Defense-2 extended with loader smoke test.** `docs/agent-sops/appdev-agent-sop.md` Defense-2 section extended with a new "Loader end-to-end smoke test" block (rule ID **APP-ST1**). Requirements: AST-parse each page (plus a literal registry for dynamic `chart_name` variables in helper functions), execute `load_plotly_chart` under a Streamlit mock for each call site, assert non-None Figure + `len(fig.data) > 0` + non-empty `fig.layout.title.text`, log per-call results to `app/_smoke_tests/loader_{pair_id}_{yyyymmdd}.log`. Any FAIL is a blocker. Root-cause narrative for Bug #2 captured inline in the SOP so future Ace instances see the same lesson in their onboarding read.
+
+**standards.md row added.** New row **APP-ST1** (Loader End-to-End Smoke Test) appended to the APP-* block, referencing the Defense-2 (Loader E2E) subsection. The existing APP-D2 row (Numerical Reconciliation) is unchanged; APP-ST1 is a distinct rule focused on render-path integrity rather than value reconciliation.
+
+**Retro-application.** Smoke-test harness built at `app/_smoke_tests/smoke_loader.py` and run against HY-IG v2 (`python3 app/_smoke_tests/smoke_loader.py hy_ig_v2_spy`). Result:
+
+- **passes = 15**, **failures = 0**, skips = 1 (the dynamic-chart AST site at `9_hy_ig_v2_spy_evidence.py:139`, which is resolved via the supplemental `EVIDENCE_DYNAMIC_CHARTS` literal list; all 8 Evidence charts pass).
+- Bug #2 specifically: `history_zoom_dotcom` now returns a Figure with 1 trace and title "Credit Spreads During the Dot-Com Bust, 1998–2003". The two sibling zoom charts (`history_zoom_gfc`, `history_zoom_covid`) also pass.
+- Log written to `app/_smoke_tests/loader_hy_ig_v2_spy_20260419.log`.
+
+**Gate-failure learning.** *"Artifact-existence checks are not rendering checks. Load end-to-end or you can't know."* The Wave 1.5 Defense-2 extension correctly verified that the canonical Plotly JSON existed on disk and that the resolver returned the right path. That was necessary but not sufficient — it could not surface a render-path failure because the loader had no return channel. Any future Defense-2-style check built around "the file exists and the path resolver works" must be paired with an end-to-end load-and-assert on the object that the file decodes into.
+
+### Lead's Wave 3 Gate Patches (2026-04-19)
+
+**Trigger.** Post-Wave-2 stakeholder review exposed two bugs that slipped past every existing gate:
+
+1. **Hero NBER shading imperceptible.** VIZ-V2 was followed to the letter (grey rectangles, alpha in the 0.10–0.15 prescribed range) and the rendered shading was still invisible against the dark line trace on the chart's light background. Compliance with the numeric prescription did not produce the intended visual.
+2. **Dot-Com canonical zoom loader returned None.** The canonical artifact file existed at `output/_comparison/history_zoom_dotcom.json`, the META-ZI loader path resolved correctly, the file parsed as JSON, and yet `load_plotly_chart()` returned None in the portal — so the Story page rendered the GATE-25 "chart pending" placeholder on the reference pair.
+
+Both are gate-layer failures, not producer failures. Existing Playwright verification checks DOM text/element presence, not visual correctness. Existing Defense-2 checks artifact existence and structural parse, not end-to-end loader success. Existing GATE-25 rightly allows "chart pending" as graceful degradation — but on a reference pair, graceful degradation is a regression, not acceptable behavior.
+
+**Fix the gates, not the symptoms.**
+
+#### Gate fixes registered
+
+- **GATE-27 — End-to-End Chart Render Test (blocking).** Every chart referenced by any portal page of a pair under acceptance must load via `load_plotly_chart(name, pair_id)` as a non-None Figure, carry ≥1 data trace, and have a non-empty title. Vera runs VIZ-V5 smoke tests on all canonical artifacts; Ace runs a loader smoke-test extension of Defense-2 that exercises `load_plotly_chart()` for every chart referenced by every portal page. Both agents attach their smoke-test logs to acceptance.md. Directly addresses the Dot-Com canonical-zoom loader bug.
+- **GATE-28 — Reference-Pair Placeholder Prohibition (blocking).** On reference-pair pages, any "chart pending" placeholder (the GATE-25 fallback) is an acceptance blocker. Headless-browser DOM audit must return zero `chart_pending` occurrences across Story / Evidence / Strategy / Methodology pages of the reference pair. Directly addresses the gate-layer gap that allowed the Dot-Com placeholder to pass Wave 2B verification.
+- **META-PV — Perceptual Validation of Visual Encoding (meta-rule).** Any chart element that depends on color, alpha, shading, or low-contrast visual encoding for information transfer requires a perceptual-validation step in the producing agent's SOP: render to PNG via `plotly.io.write_image` and visually confirm the encoding is perceivable against realistic backgrounds and data traces. Rules that prescribe numeric values (alpha ranges, stroke widths, font sizes) must be validated against perceptual output, not assumed. Directly addresses the Hero NBER shading bug. Companion to META-VNC and META-RNF; operationalized by GATE-27.
+
+All three rules are registered in `docs/standards.md` under the GATE and META sections, and the Pair Acceptance Checklist template in `docs/agent-sops/team-coordination.md` has been extended with GATE-27 (smoke-test logs attached, zero null loads) and GATE-28 (reference-pair DOM audit, zero `chart_pending` occurrences) as blocking items.
+
+#### Gate-failure learning
+
+> **Existence checks are not rendering checks.**
+> **Rule prescriptions that were never validated perceptually are untested assumptions.**
+> **Fix the rules.**
+
+The common thread across both Wave-3 bugs is misplaced trust in intermediate artifacts — file-on-disk trust (Dot-Com) and numeric-prescription trust (NBER alpha). A gate that proves the file exists but does not prove the rendered page shows the intended content is not a complete gate; a rule that prescribes a numeric value but does not require perceptual confirmation is not a complete rule. The Wave-3 patches shift the final verification from "intermediate artifact" to "rendered page DOM" (GATE-28) and "rendered PNG" (META-PV), and from "file-exists" to "loader-returns-a-valid-Figure" (GATE-27).
+
+#### Scope and approval
+
+- **SOP scope:** Vera and Ace are each updating their producer SOPs in parallel to add VIZ-V5 (smoke-test procedure + perceptual-validation step for shading/alpha encodings) and the Defense-2 loader-smoke-test extension respectively. Lead Lesandro owns the gate registration (standards.md, team-coordination.md, this regression note).
+- **Pair scope:** no artifacts under `results/hy_ig_v2_spy/*`, `output/charts/hy_ig_v2_spy/*`, `output/_comparison/*`, or `app/pages/9_hy_ig_v2_spy_*.py` are modified by this Wave-3 gate patch. Remediation of the two underlying bugs (re-render hero with perceptible NBER shading; fix Dot-Com loader path) is tracked under Vera's and Ace's parallel Wave-3 dispatches and will be captured in a follow-up entry when the reference pair clears GATE-27 and GATE-28.
+- **Approved by:** Lead Lesandro. Gate additions do not require producer sign-off; producer SOP updates require the owning agent's self-approval per the standard SOP-change protocol.
+
+
+---
+
+### Vera's Bug-fix patch (2026-04-19)
+
+**Root cause.** The post-Wave-2 stakeholder review caught two NBER-shading bugs on HY-IG v2 that the existing SOPs failed to prevent. Both bugs cleared prior Quality Gates because the **VIZ-V2 rule as written was wrong**, not because it was unfollowed.
+
+1. **Imperceptible alpha.** Rule V2 prescribed "alpha 0.1–0.15, grey". Against the Streamlit off-white background, grey at alpha 0.12 is not visually distinguishable from the plot canvas. The hero caption truthfully disclosed "Vertical shaded bands mark NBER recessions," but there was nothing to see.
+2. **Single-xref on a dual-panel hero.** Rule V2 said nothing about subplots. The hero chart is a two-panel layout (`xaxis` = HY-IG spread, `xaxis2` = SPY price). The three existing shapes all had `xref='x'`, so only the top panel carried shading; the bottom SPY panel had no shading at all, and the caption's claim was half-true.
+
+**SOP fix.**
+
+- **VIZ-V2 revised (docs/agent-sops/visualization-agent-sop.md):**
+  - Alpha prescription bumped to **0.20–0.28**, default fill `rgba(150,120,120,0.22)` (faded red-brown); plain grey at alpha < 0.18 prohibited.
+  - Added mandatory **subplot handling clause**: one shading shape per panel per recession; inspect `layout` for `xaxis/xaxis2/xaxis3…`; total shape count = `n_recessions × n_panels`.
+  - Added mandatory **perceptual-validation step**: after saving JSON, render a PNG via `plotly.io.from_json` + `fig.write_image` (kaleido), save to `_perceptual_check_{chart}.png`, and confirm shading is perceptible at standard zoom. Failure fails **GATE-27 (End-to-End Chart Render Test)**.
+- **VIZ-V5 added:** End-to-End Chart Load Smoke Test. Before handoff, Vera runs a smoke-test script per chart: (1) `plotly.io.read_json` loads cleanly, (2) `len(fig.data) > 0`, (3) `fig.layout.title.text` non-empty. Pass/fail logged to `output/charts/{pair_id}/plotly/_smoke_test_{YYYYMMDD}.log`; any fail blocks handoff.
+- **docs/standards.md updated:** VIZ-V2 row carries `rev 2026-04-19` note citing the new alpha/subplot/perceptual-check clauses; VIZ-V5 row added.
+- **docs/sop-changelog.md updated:** 2026-04-19 entry added describing the revision and the retro-application.
+
+**Retro-application.** Four charts updated using the new rule:
+
+| Chart | Path | Change |
+|-------|------|--------|
+| Hero (dual-panel) | `output/charts/hy_ig_v2_spy/plotly/hero.json` | 3 old shapes (grey 127/127/127 alpha 0.12, `xref=x` only) replaced with **6 new shapes** — 3 recessions × 2 panels (`xref=x` + `xref=x2`), `fillcolor='rgba(150,120,120,0.22)'`, `layer='below'`, `yref='paper'` |
+| Zoom — Dot-Com | `output/_comparison/history_zoom_dotcom.json` | 1 NBER shape (of 5 total; 4 others are event vlines) recolored to `rgba(150,120,120,0.22)` |
+| Zoom — GFC | `output/_comparison/history_zoom_gfc.json` | 1 NBER shape (of 6 total) recolored to `rgba(150,120,120,0.22)` |
+| Zoom — COVID | `output/_comparison/history_zoom_covid.json` | 1 NBER shape (of 4 total) recolored to `rgba(150,120,120,0.22)` |
+
+Recession episode coordinates (2001-03 to 2001-11, 2007-12 to 2009-06, 2020-02 to 2020-04) unchanged. Existing NBER disclosure caption annotations preserved. Hero's annualized-return corner callout preserved.
+
+**Perceptual-check PNGs (new per updated VIZ-V2; visually confirmed by Vera):**
+
+- `output/charts/hy_ig_v2_spy/plotly/_perceptual_check_hero.png` — confirmed: NBER bands visible in BOTH the top HY-IG panel and the bottom SPY panel at 2001, 2008–09, and 2020.
+- `output/_comparison/_perceptual_check_history_zoom_dotcom.png` — confirmed: 2001 NBER band clearly visible against the spread chart.
+- `output/_comparison/_perceptual_check_history_zoom_gfc.png` — confirmed: 2007–09 NBER band clearly visible.
+- `output/_comparison/_perceptual_check_history_zoom_covid.png` — confirmed: 2020 NBER band clearly visible against the tight zoom.
+
+**Smoke-test log (VIZ-V5):** `output/charts/hy_ig_v2_spy/plotly/_smoke_test_20260419.log` — 10 charts tested, **10 pass, 0 fail**. Covered: `hero`, `correlation_heatmap`, `ccf_prewhitened`, `granger_f_by_lag`, `quartile_returns`, `regime_quartile_returns`, `transfer_entropy`, plus the 3 canonical episode zooms.
+
+**Gate-failure learning.** *"Rule was followed; rule was wrong. Fix the rule."* Both bugs were preventable had VIZ-V2 carried (a) a perceptible alpha prescription, (b) a subplot-coverage clause, and (c) a perceptual-validation step — all three are now in the revised rule. VIZ-V5's smoke test catches the orthogonal structural-integrity failure mode (empty/corrupt/untitled JSON). This closes the gap that allowed a chart with an invisible/half-applied regime layer to ship through a passing completeness gate.
+
+**Approved by.** Vera self-approves the SOP revisions and retro-application; escalates to Lead Lesandro for GATE-27 registration and Wave-3 commit.
