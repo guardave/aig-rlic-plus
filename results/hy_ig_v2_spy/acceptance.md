@@ -166,6 +166,53 @@ Full results JSON: `temp/cloud_wave2_results.json`. Screenshots: `temp/cloud_wav
 
 ---
 
+## Wave 4 Cloud Verification (2026-04-19)
+
+Final Cloud verification for Wave 4 after commit `cc3f551` (SOP Part F Waves 4A → 4D). Verified via Playwright headless (chromium) against https://aig-rlic-plus.streamlit.app/ — see `temp/cloud_wave4e_{story,evidence,strategy,methodology}.png` and `temp/cloud_wave4e_results.json`.
+
+### Session Bugs Fixed (all verified Cloud)
+
+- [x] **Bug 1 — "No signals_*.parquet" error on Probability Engine Panel** (Wave 4A fix via ECON-DS2 / GATE-29): Strategy page Execute tab now renders the HMM stress probability time-series chart. No red `st.error` callout. Verified DOM contains no occurrence of "No signals_*.parquet" or "Probability engine panel cannot render" across any of the 4 pages.
+- [x] **Bug 2 — Hero chart NBER shading imperceptible** (Wave 3 fix): Story page hero dual-panel chart renders with 3 visible NBER rose/mauve vertical bands (2001, 2008-09, 2020) on BOTH HY-IG top panel AND SPY bottom panel.
+- [x] **Bug 3 — Dot-Com / GFC / COVID zoom charts as "chart pending" placeholders** (Wave 3 loader fix): Story "What History Shows" renders 3 zoom line charts with event markers ("Mar 2000: Dot-Com peak", "NBER recession start (Mar 2001)", "WorldCom (Jul 2002)", "COVID Shock 2019-2022" etc.) and visible NBER bands. No `st.info` "chart pending" placeholders anywhere.
+- [x] **Bug 4 — GATE-28 compliance audit**: Grep of full DOM text across all 4 pages returned **0** occurrences of "chart pending" (case-insensitive). Raw DOM bodies saved to `temp/cloud_wave4e_{page}_body.txt`.
+- [x] **Bug 5 — APP-DIR1 direction-check red error**: Strategy page renders cleanly at the top. No "Direction disagreement" red banner. 2-way triangulation (Evan=countercyclical, Dana=countercyclical) passes per Wave 4D-1 artifact migration.
+
+### META-CF Schemas Committed (Wave 4C)
+
+8 META-CF contract schemas committed upstream in `e28dd3d` (Wave 4B+4C) and activated on the consumer side in `cc3f551` (Wave 4D). Consumer-side integration verified via `app/_smoke_tests/smoke_schema_consumers.py` (3/3 pass, including first production use of APP-DIR1).
+
+### Cloud Smoke-Test Matrix (Wave 4E, 2026-04-19)
+
+| Item | Result | Notes |
+|------|--------|-------|
+| Cloud live (rebuild complete) | PASS | All 4 pages loaded on first attempt; no splash/please-wait screens |
+| Probability Engine Panel renders (not parquet error) | PASS | Time-series plotly chart visible on Strategy Execute tab |
+| Hero NBER bands visible on both panels | PASS | Dual-panel hero with 2001/2008-09/2020 bands on HY-IG + SPY |
+| Dot-Com zoom renders (not placeholder) | PASS | "Mar 2000: Dot-Com peak" + NBER band + 400 bps crossing marker |
+| GFC zoom renders (not placeholder) | PASS | "Oct 2007" / 2008-09 NBER band rendered |
+| COVID zoom renders (not placeholder) | PASS | "COVID Shock 2019-2022" with Feb/Mar 2020 markers |
+| GATE-28: total `chart pending` across 4 pages | **0** PASS | Grep of 4 body.txt DOM dumps returned zero matches |
+| APP-DIR1 direction check passes | PASS | No red banner; 2-way agreement (Evan=Dana=countercyclical) |
+| Story headline-first + investor-impact bullets | PASS | "Sharpe 1.27 over 8-year OOS..." at top; "What this means for investors" clauses present |
+| Evidence 2-tier tabs + standalone Granger + quartile returns | PASS | Level 1/2 structure visible; Granger tab text confirmed. Level 2 inner tabs collapsed behind outer selector (expected, per Wave 2 verification notes) |
+| Strategy: plain-English signal-gen + trigger cards + live-exec placeholder | PASS | "How the Signal is Generated" before KPIs; "How to Use the Signal — Trigger Scenarios" cards visible; "Future Live Execution" section at bottom |
+| Methodology references + plain-english expander | PASS | References section with ~16 bracket-cited entries across 4 categories; plain-english expander present |
+| Zero Streamlit error banners on any page | PASS | `st.error` / stAlert[kind=error] scan returned no error-text matches on any page |
+
+### Verification Artifacts
+
+- Results JSON: `temp/cloud_wave4e_results.json`
+- Screenshots: `temp/cloud_wave4e_{story,evidence,strategy,methodology}.png`
+- DOM dumps: `temp/cloud_wave4e_{story,evidence,strategy,methodology}_body.txt`
+- Script: `temp/cloud_wave4e.py`
+
+### Recommended Next Action
+
+Cloud state is clean. Ready for stakeholder review — the Wave 4 deploy-artifact gap is closed (GATE-29), schema consumer-side validation is active (APP-WS1 / APP-SEV1 / APP-DIR1), and all 5 session-surfaced bugs are verified fixed on Cloud. The `hy-ig-v2-reference` tag remains reserved for post-stakeholder-approval sign-off per META-RPD.
+
+---
+
 ## Reference Pair Comparison
 
 **Compared against:** N/A — HY-IG v2 IS the reference pair (first to be tagged).
@@ -207,7 +254,7 @@ Full results JSON: `temp/cloud_wave2_results.json`. Screenshots: `temp/cloud_wav
 **Approved by:** Lead Lesandro
 **Approval date:** Pending stakeholder sign-off
 **Tag/commit:** Pending — will tag as `hy-ig-v2-reference` upon stakeholder approval
-**Current commit:** `1f864e8` (Wave 2B: HY-IG v2 portal rebuild). Includes upstream `b9730cb` (Wave 2A: artifacts/charts/narrative), `b7ee4ba` (Wave 1.5: coherence patches), `6bcb5e2` (Wave 1: 2026-04-18 stakeholder feedback). Earlier reference-pair polish landed in `6d40af8`.
+**Current commit:** `cc3f551` (Wave 4D: migrate artifacts + consumer-side schema integration). Includes upstream `e28dd3d` (Wave 4B+4C: cross-review + META-CF), `f295073` (Wave 4A: deploy-artifact gap + GATE-29), `1720c0c` (force Cloud redeploy), `519d042` (Wave 3: gate fixes + retro-apply), `1f864e8` (Wave 2B: portal rebuild), `b9730cb` (Wave 2A: artifacts/charts/narrative), `b7ee4ba` (Wave 1.5: coherence patches), `6bcb5e2` (Wave 1: 2026-04-18 stakeholder feedback). Earlier reference-pair polish landed in `6d40af8`.
 
 ---
 
