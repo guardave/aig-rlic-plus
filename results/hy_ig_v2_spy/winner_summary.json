@@ -2,7 +2,7 @@
   "pair_id": "hy_ig_v2_spy",
   "generated_at": "2026-04-19T17:38:49Z",
   "signal_column": "hmm_2state_prob_stress",
-  "signal_code": "S6_hmm_stress",
+  "signal_code": "hmm_stress",
   "target_symbol": "SPY",
   "threshold_value": 0.5,
   "threshold_rule": "gte",

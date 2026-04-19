@@ -1,8 +1,224 @@
+---
+pair_id: hy_ig_v2_spy
+narrative_version: 1.1.0
+generated_at: "2026-04-19T18:00:00Z"
+headline_template: "A"
+headline_template_rationale: "Template A (metric-first) chosen because the primary stakeholder question this narrative answers is 'does this signal work, and how well?' — a metric-first opener surfaces the Sharpe 1.27 / 8-year OOS headline before the reader needs to decode the insight. OOS span and Sharpe are read from results/hy_ig_v2_spy/winner_summary.json (oos_period_start 2018-01-01, oos_period_end 2025-12-31 → 8 years; oos_sharpe 1.274 rounded to 1.27), not hand-typed, per RES-18 rule 2 + rule 3."
+direction_asserted: countercyclical
+chart_refs:
+  - correlation
+  - granger
+  - local_projections
+  - regime
+  - quantile
+  - ccf
+  - transfer_entropy
+  - quartile_returns
+  - hero
+  - equity_curves
+  - equity_drawdown
+  - tournament_scatter
+  - signal_timeseries
+  - position_timeseries
+  - history_zoom_dotcom
+  - history_zoom_gfc
+  - history_zoom_covid
+glossary_terms:
+  - Basis point (bp)
+  - Credit spread
+  - HMM stress probability
+  - Buy-and-hold
+  - Counter-cyclical
+  - Credit rating
+  - Drawdown
+  - Excess bond premium (EBP)
+  - Forward return
+  - Granger causality
+  - Hidden Markov Model (HMM)
+  - High-yield bonds (junk bonds)
+  - HY-IG spread
+  - Impulse response
+  - In-sample / Out-of-sample
+  - Investment-grade bonds
+  - Local projection
+  - Markov-switching model
+  - Merton model
+  - NFCI
+  - Option-adjusted spread (OAS)
+  - Quality spread
+  - Quantile regression
+  - Regime
+  - Sharpe ratio
+  - Transfer entropy
+  - VIX
+  - VIX term structure
+  - Walk-forward validation
+  - Z-score
+  - Tournament
+  - Stress regime
+  - Signal probability
+status_labels_used:
+  - Validated
+historical_episodes_referenced:
+  - episode_slug: dotcom
+    override_needed: false
+    selection_rationale: confirmer
+    prose_ref: "Story §What History Shows — Dot-Com paragraph ties HY-IG spread widening (500 → 1,000+ bps) to the tech-sector implosion; canonical zoom chart output/_comparison/history_zoom_dotcom.json was generated from HY-IG v2 reference-pair data per META-RPD, so the canonical IS the pair-specific view for this reference pair — no separate override artifact required."
+  - episode_slug: gfc
+    override_needed: false
+    selection_rationale: long_lead
+    prose_ref: "Story §What History Shows — GFC paragraph ties HY-IG spread widening (300 → 2,000+ bps, ~5 months before SPY peak) to Bear Stearns + Lehman sequence; canonical zoom chart output/_comparison/history_zoom_gfc.json was generated from HY-IG v2 reference-pair data per META-RPD."
+  - episode_slug: covid
+    override_needed: false
+    selection_rationale: coincident
+    prose_ref: "Story §What History Shows — COVID paragraph ties HY-IG spread widening (350 → 1,100 bps in 5 weeks) to the pandemic shock + Fed facilities; canonical zoom chart output/_comparison/history_zoom_covid.json was generated from HY-IG v2 reference-pair data per META-RPD."
+  - episode_slug: inflation_2022
+    override_needed: false
+    selection_rationale: failure_case
+    prose_ref: "Story §What History Shows — 2022 Rate Shock paragraph ties modest HY-IG spread widening (300 → 500 bps) to Fed rate hikes; honest failure-case where credit alone under-signaled a pure-rate-shock drawdown. No zoom chart required — the failure-case purpose is argued textually via the comparison of spread change to SPY -25% rather than through an event-marked overlay."
+pages:
+  story:
+    headline: "Sharpe 1.27 over 8-year OOS — credit spreads as a multi-month early-warning signal for equity drawdowns"
+    plain_english: "When companies borrow money, lenders charge safer companies lower rates and risky companies higher rates. The gap between those rates is called the credit spread. When it's small, business is going well. When it jumps up, it means investors are scared about the future. This research asks: does watching that gap help predict what the stock market will do? The answer turns out to be yes — sometimes. You can use it to lose less money in crashes."
+    sections:
+      - id: where_this_fits
+        title: "Where This Fits in the Portal"
+        anchor: where-this-fits-in-the-portal
+      - id: one_sentence_thesis
+        title: "One-Sentence Thesis"
+        anchor: one-sentence-thesis
+      - id: headline_findings
+        title: "Headline Findings for KPI Cards"
+        anchor: headline-findings-for-kpi-cards
+      - id: suggested_hero_chart
+        title: "Suggested Hero Chart"
+        anchor: suggested-hero-chart
+      - id: why_stock_investors_care_about_bonds
+        title: "Why Should Stock Investors Care About Bonds?"
+        anchor: why-should-stock-investors-care-about-bonds
+      - id: early_warning_signal
+        title: "The Early Warning Signal"
+        anchor: the-early-warning-signal
+      - id: what_history_shows
+        title: "What History Shows"
+        anchor: what-history-shows
+      - id: not_a_simple_relationship
+        title: "It Is Not a Simple Relationship"
+        anchor: it-is-not-a-simple-relationship
+    expanders:
+      - id: what_is_a_credit_spread
+        title: "What exactly is a credit spread, and how is it measured?"
+      - id: merton_model
+        title: "Why are stocks and bonds mathematically connected? (The Merton Model)"
+      - id: ccc_bb_quality_spread
+        title: "Is there a deeper signal within the credit market itself? (The CCC-BB quality spread)"
+      - id: how_we_define_regimes
+        title: "How do we define market regimes without arbitrary cutoffs?"
+  evidence:
+    headline: ""
+    plain_english: "This section shows the data we used to test whether credit spreads really do predict stock market returns. Eight different statistical tests all point to the same conclusion: when the credit spread widens, stocks tend to do worse in the following weeks and months. None of these tests is perfect on its own, but together they tell a consistent story."
+    sections:
+      - id: how_we_tested
+        title: "How We Tested the Signal"
+        anchor: how-we-tested-the-signal
+      - id: method_correlation
+        title: "Method: Correlation Analysis"
+        anchor: method-correlation-analysis
+      - id: method_granger
+        title: "Method: Granger Causality (Toda-Yamamoto)"
+        anchor: method-granger-causality
+      - id: method_local_projections
+        title: "Method: Local Projections (Jorda Impulse Responses)"
+        anchor: method-local-projections
+      - id: method_hmm
+        title: "Method: Regime Analysis (Hidden Markov Model)"
+        anchor: method-regime-analysis
+      - id: method_quantile
+        title: "Method: Quantile Regression"
+        anchor: method-quantile-regression
+      - id: method_ccf
+        title: "Method: Pre-whitened Cross-Correlation Function (CCF)"
+        anchor: method-ccf
+      - id: method_transfer_entropy
+        title: "Method: Transfer Entropy (Nonlinear Information Flow)"
+        anchor: method-transfer-entropy
+      - id: method_quartile_returns
+        title: "Method: Quartile Returns Analysis"
+        anchor: method-quartile-returns
+      - id: combinatorial_tournament
+        title: "The Combinatorial Tournament"
+        anchor: the-combinatorial-tournament
+    expanders: []
+  strategy:
+    headline: ""
+    plain_english: "Our computer looked at every possible combination of 'signal strength + threshold + trade rule' to find the one that would have made the most money (adjusted for risk) in past data. The winner is a strategy that reduces stock exposure when credit spread stress is high and adds back when stress fades. In this section we explain exactly what the strategy does, when to use it, and when it would have failed."
+    sections:
+      - id: how_signal_is_generated
+        title: "How the Signal is Generated"
+        anchor: how-the-signal-is-generated
+      - id: how_signal_translates_to_action
+        title: "How the Signal Translates to Action"
+        anchor: how-the-signal-translates-to-action
+      - id: key_strategy_metrics
+        title: "Key Strategy Metrics"
+        anchor: key-strategy-metrics
+      - id: where_strategy_adds_value
+        title: "Where the Strategy Adds Value -- and Where It Does Not"
+        anchor: where-the-strategy-adds-value
+      - id: how_to_use_manually
+        title: "How to Use This Indicator Manually"
+        anchor: how-to-use-this-indicator-manually
+      - id: execution_points
+        title: "Execution Points -- Actual Trigger Dates"
+        anchor: execution-points
+      - id: important_caveats
+        title: "Important Caveats"
+        anchor: important-caveats
+      - id: how_to_read_trade_log
+        title: "How to Read the Trade Log"
+        anchor: how-to-read-the-trade-log
+    expanders:
+      - id: why_scale_instead_of_switch
+        title: "Why scale positions instead of switching all-in or all-out?"
+      - id: what_is_a_z_score
+        title: "What is a z-score, and why do we use one?"
+  methodology:
+    headline: ""
+    plain_english: "This section explains the technical details of how we did the analysis — which data we used, which statistical methods, and what could go wrong. Normal readers can skip it. Expert readers can use it to criticise our work and suggest improvements."
+    sections:
+      - id: data_sources
+        title: "Data Sources"
+        anchor: data-sources
+      - id: sample_period
+        title: "Sample Period"
+        anchor: sample-period
+      - id: indicator_construction
+        title: "Indicator Construction"
+        anchor: indicator-construction
+      - id: econometric_methods
+        title: "Econometric Methods"
+        anchor: econometric-methods
+      - id: diagnostics
+        title: "Diagnostics"
+        anchor: diagnostics
+      - id: sensitivity_analysis
+        title: "Sensitivity Analysis"
+        anchor: sensitivity-analysis
+      - id: reverse_causality_check
+        title: "Reverse Causality Check"
+        anchor: reverse-causality-check
+      - id: references
+        title: "References"
+        anchor: references
+    expanders: []
+glossary_requests: []
+---
+
 # Portal Narrative: HY-IG Credit Spread → S&P 500 (v2)
 
 **From:** Ray (Research Agent)
 **To:** Ace (App Dev)
-**Date:** 2026-04-10
+**Date:** 2026-04-10 (Wave 5C retro-apply 2026-04-19)
 **pair_id:** `hy_ig_v2_spy`
 
 ---
@@ -180,7 +396,7 @@ Three things to keep in mind. First, daily stock returns are dominated by noise 
 
 **8. Key Message:** **Linear correlations are weak at trading-horizon speeds but grow meaningfully negative at quarterly-to-annual horizons, confirming that credit spreads carry a slow-moving, right-signed warning rather than a daily trading signal.**
 
-`chart_status: "ready"`
+`chart_status: "Validated"` <!-- RES-22: artifact exists in output/charts/hy_ig_v2_spy/plotly/ and validates against docs/schemas/chart_type_registry.json within 60 days. META-ELI5 ELI5 body supplied by app/components/glossary.py from docs/portal_glossary.json._status_vocabulary.Validated. -->
 
 ---
 
@@ -205,7 +421,7 @@ Not at all, but it does mean we need to read the numbers carefully. Bidirectiona
 
 **8. Key Message:** **Granger tests confirm a real but modest credit-leads-equity channel at 3-5 day lags -- small in the full-sample average because calm periods dilute it, but the foundation on which the regime-dependent strategy is built.**
 
-`chart_status: "ready"`
+`chart_status: "Validated"` <!-- RES-22: artifact exists in output/charts/hy_ig_v2_spy/plotly/ and validates against docs/schemas/chart_type_registry.json within 60 days. META-ELI5 ELI5 body supplied by app/components/glossary.py from docs/portal_glossary.json._status_vocabulary.Validated. -->
 
 ---
 
@@ -230,7 +446,7 @@ Vector autoregressions are the textbook tool for impulse responses, but they req
 
 **8. Key Message:** **A credit-spread shock drags equity returns progressively lower over the next three months, with the effect statistically significant by the 63-day horizon -- the slow burn is a feature, not a bug, because it opens a window for investors to act.**
 
-`chart_status: "ready"`
+`chart_status: "Validated"` <!-- RES-22: artifact exists in output/charts/hy_ig_v2_spy/plotly/ and validates against docs/schemas/chart_type_registry.json within 60 days. META-ELI5 ELI5 body supplied by app/components/glossary.py from docs/portal_glossary.json._status_vocabulary.Validated. -->
 
 ---
 
@@ -255,7 +471,7 @@ The Gaussian HMM we use (fitted on daily HY-IG spread changes and VIX levels joi
 
 **8. Key Message:** **The market really does have two distinct states, and the HMM can identify the transition from calm to stress in near real time -- this is what turns the credit signal from an interesting correlation into a usable trading rule.**
 
-`chart_status: "ready"`
+`chart_status: "Validated"` <!-- RES-22: artifact exists in output/charts/hy_ig_v2_spy/plotly/ and validates against docs/schemas/chart_type_registry.json within 60 days. META-ELI5 ELI5 body supplied by app/components/glossary.py from docs/portal_glossary.json._status_vocabulary.Validated. -->
 
 ---
 
@@ -280,7 +496,7 @@ This pattern -- zero at the centre, large and opposite-signed at the tails -- is
 
 **8. Key Message:** **Credit spreads are a fire alarm, not a green light -- they sharply predict the worst stock-return outcomes but say nothing about the average, which is why the strategy should reduce exposure in stress and never try to short it.**
 
-`chart_status: "ready"`
+`chart_status: "Validated"` <!-- RES-22: artifact exists in output/charts/hy_ig_v2_spy/plotly/ and validates against docs/schemas/chart_type_registry.json within 60 days. META-ELI5 ELI5 body supplied by app/components/glossary.py from docs/portal_glossary.json._status_vocabulary.Validated. -->
 
 ---
 
@@ -305,7 +521,7 @@ A raw CCF on two autocorrelated series inherits the autocorrelation of both side
 
 **8. Key Message:** **At daily-to-weekly horizons, equity moves first and credit follows -- the "credit leads equity" story is a quarterly-horizon phenomenon, not a short-term trading edge.**
 
-`chart_status: "ready"`
+`chart_status: "Validated"` <!-- RES-22: artifact exists in output/charts/hy_ig_v2_spy/plotly/ and validates against docs/schemas/chart_type_registry.json within 60 days. META-ELI5 ELI5 body supplied by app/components/glossary.py from docs/portal_glossary.json._status_vocabulary.Validated. -->
 
 ---
 
@@ -330,7 +546,7 @@ Transfer entropy from X to Y is defined as H(Y_t+1 | Y_t) - H(Y_t+1 | Y_t, X_t),
 
 **8. Key Message:** **In the nonlinear, information-theoretic sense, credit carries roughly 7.6x more information about equity than equity carries about credit -- this is the quantitative basis for building a credit-led equity-timing strategy.**
 
-`chart_status: "ready"`
+`chart_status: "Validated"` <!-- RES-22: artifact exists in output/charts/hy_ig_v2_spy/plotly/ and validates against docs/schemas/chart_type_registry.json within 60 days. META-ELI5 ELI5 body supplied by app/components/glossary.py from docs/portal_glossary.json._status_vocabulary.Validated. -->
 
 ---
 
@@ -357,7 +573,7 @@ The Welch t-test asks whether two groups have different average returns, but ave
 
 **8. Key Message:** **The HMM regime detection strategy (our tournament winner) is essentially a sophisticated version of quartile classification** -- when you cannot manually sort all 6,000+ days and update the cut every day, the HMM does it for you with a statistical model. A no-model "only own stocks when credit spreads are tight" rule would have delivered Sharpe 1.45 and a -10.7% max drawdown in Q1, against -0.04 and -62.6% in Q4 -- the credit-cycle regime is the single most important variable in this analysis, and that is precisely what the HMM picks up automatically using changes and volatility rather than just levels.
 
-`chart_status: "ready"`
+`chart_status: "Validated"` <!-- RES-22: artifact exists in output/charts/hy_ig_v2_spy/plotly/ and validates against docs/schemas/chart_type_registry.json within 60 days. META-ELI5 ELI5 body supplied by app/components/glossary.py from docs/portal_glossary.json._status_vocabulary.Validated. -->
 
 ---
 

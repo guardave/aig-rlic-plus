@@ -6,10 +6,16 @@
   "produced_on": "2026-04-19",
   "source_script": "temp/vera_wave2.py",
   "rules_applied": [
-    "VIZ-V4"
+    "VIZ-V4",
+    "VIZ-V11",
+    "VIZ-V13"
   ],
   "source_data": "results/hy_ig_v2_spy/regime_quartile_returns.csv",
   "stakeholder_items": [
     "S18-8"
-  ]
+  ],
+  "palette_id": "okabe_ito_2026",
+  "annotation_strategy_id": "top_right_uniform",
+  "updated_on": "2026-04-19",
+  "wave_5c_retro": true
 }

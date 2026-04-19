@@ -50,7 +50,7 @@ render_breadcrumb("Evidence", PAIR_ID)
 # ---------------------------------------------------------------------------
 # Plain English expander (N8 -- Ray's narrative addition)
 # ---------------------------------------------------------------------------
-with st.expander("🧒 Plain English version"):
+with st.expander("Plain English"):
     st.markdown(
         "This section shows the data we used to test whether credit spreads really "
         "do predict stock market returns. Eight different statistical tests all "
@@ -111,7 +111,13 @@ def render_method_block(content: dict):
     if missing:
         st.error(
             "Method block incomplete: missing required element(s) "
-            f"{missing}. This is a gate failure per SOP Rule 3.9."
+            f"{missing}. This is a gate failure per SOP Rule 3.9.\n\n"
+            "Plain English: this statistical evidence block is supposed to "
+            "carry every item of an 8-part template (method, question, "
+            "reading guide, graph, observation, deep dive, interpretation, "
+            "key message). One or more of those parts is missing, so the "
+            "block was not rendered to avoid showing you an incomplete "
+            "evidence write-up."
         )
         return
 
@@ -130,8 +136,8 @@ def render_method_block(content: dict):
     # 2. The Question It Answers
     st.markdown(f"> *{content['question']}*")
 
-    # 3. How to Read the Graph
-    st.markdown(f"**How to read this chart:** {content['how_to_read']}")
+    # 3. How to Read the Graph — APP-CC1 canonical prefix.
+    st.markdown(f"**How to read it:** {content['how_to_read']}")
 
     # 4. Graph -- with Rule 3.9b missing-chart fallback cascade
     chart_name = content.get("chart_name")
@@ -147,21 +153,29 @@ def render_method_block(content: dict):
         )
     else:
         st.warning(
-            "Chart pending -- method block rendered from narrative only."
+            "Chart pending -- method block rendered from narrative only.\n\n"
+            "Plain English: the chart for this analysis has not been "
+            "generated yet, so we are showing you the written findings "
+            "without the accompanying picture. The interpretation and key "
+            "message below are based on the same underlying statistics; "
+            "the chart will appear here once the visualisation pipeline "
+            "produces it."
         )
 
-    # 5. Observation
-    st.markdown(f"**What the chart shows:** {content['observation']}")
+    # 5. Observation — APP-CC1 canonical prefix ("What this shows:").
+    st.markdown(f"**What this shows:** {content['observation']}")
 
-    # 6. Deep Dive (optional)
+    # 6. Deep Dive (optional) — canonical expander title per APP-EX1.
+    # Original method-specific question is surfaced as the first line of
+    # content so readers still see what the deeper-dive block answers.
     deep_dive_title = content.get("deep_dive_title")
     deep_dive_content = content.get("deep_dive_content")
     if deep_dive_title and deep_dive_content:
-        with st.expander(deep_dive_title):
-            st.markdown(deep_dive_content)
+        with st.expander("Deeper dive"):
+            st.markdown(f"*{deep_dive_title}*\n\n{deep_dive_content}")
 
-    # 7. Interpretation
-    st.markdown(f"**What this means:** {content['interpretation']}")
+    # 7. Interpretation — APP-CC1 canonical prefix ("Why this matters:").
+    st.markdown(f"**Why this matters:** {content['interpretation']}")
 
     # 8. Key Message
     st.info(f"**Key message:** {content['key_message']}")
@@ -198,9 +212,9 @@ CORRELATION_BLOCK = dict(
     ),
     chart_name="correlation_heatmap",
     chart_caption=(
-        "Pearson correlations between HY-IG spread transformations (rows) and "
-        "forward SPY returns at multiple horizons (columns). Darker colours indicate "
-        "stronger linear relationships."
+        "How to read it: Pearson correlations between HY-IG spread "
+        "transformations (rows) and forward SPY returns at multiple horizons "
+        "(columns). Darker colours indicate stronger linear relationships."
     ),
     observation=(
         "At very short horizons (1 day, 5 days, 21 days), almost every cell is "
@@ -277,9 +291,9 @@ GRANGER_BLOCK = dict(
     # Evan's new standalone Granger artifact (closes S18-11).
     chart_name="granger_f_by_lag",
     chart_caption=(
-        "F-statistic by lag for the HY-IG → SPY direction (monthly). "
-        "Bars above the F-critical dashed line are statistically significant at 5%. "
-        "Best-lag result: lag 5 with F = 4.07, p = 0.0014."
+        "How to read it: F-statistic by lag for the HY-IG → SPY direction "
+        "(monthly). Bars above the F-critical dashed line are statistically "
+        "significant at 5%. Best-lag result: lag 5 with F = 4.07, p = 0.0014."
     ),
     observation=(
         "At monthly resolution, the HY-IG → SPY direction shows a clear "
@@ -367,10 +381,10 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     ),
     chart_name="local_projections",
     chart_caption=(
-        "Cumulative SPY return response to a 1-unit shock in the HY-IG spread, "
-        "estimated separately at each horizon with HC3 robust standard errors. "
-        "The 95% confidence band crosses zero at short horizons and stays below "
-        "it from the 63-day point onward."
+        "How to read it: cumulative SPY return response to a 1-unit shock "
+        "in the HY-IG spread, estimated separately at each horizon with HC3 "
+        "robust standard errors. The 95% confidence band crosses zero at "
+        "short horizons and stays below it from the 63-day point onward."
     ),
     observation=(
         "The impulse response line starts near zero at the 5-day horizon "
@@ -458,9 +472,10 @@ REGIME_BLOCK = dict(
     ),
     chart_name="hmm_regime_probs",
     chart_caption=(
-        "HMM-inferred probability of being in the calm vs stress regime each day "
-        "from 2000-2025, with SPY overlaid. Stress spikes align tightly with the "
-        "dot-com bust, GFC, COVID, and the 2022 rate shock."
+        "How to read it: HMM-inferred probability of being in the calm vs "
+        "stress regime each day from 2000-2025, with SPY overlaid. Stress "
+        "spikes align tightly with the dot-com bust, GFC, COVID, and the "
+        "2022 rate shock."
     ),
     observation=(
         "For long stretches -- roughly 2003 through mid-2007, 2010 through 2014, "
@@ -550,10 +565,10 @@ QUANTILE_BLOCK = dict(
     ),
     chart_name="quantile_regression",
     chart_caption=(
-        "Quantile-regression coefficients for the HY-IG spread across the full "
-        "range of forward SPY return percentiles, with 95% confidence bars. The "
-        "monotone slope from negative (left tail) to positive (right tail) is "
-        "the 'Vulnerable Growth' fingerprint."
+        "How to read it: quantile-regression coefficients for the HY-IG "
+        "spread across the full range of forward SPY return percentiles, "
+        "with 95% confidence bars. The monotone slope from negative (left "
+        "tail) to positive (right tail) is the 'Vulnerable Growth' fingerprint."
     ),
     observation=(
         "The coefficient pattern forms a clean, monotonic slope from strongly "
@@ -644,10 +659,10 @@ CCF_BLOCK = dict(
     ),
     chart_name="ccf_prewhitened",
     chart_caption=(
-        "Pre-whitened cross-correlations between the HY-IG spread and SPY "
-        "log-returns at lags -20 to +20 trading days. Bars beyond the "
-        "+/-0.0238 significance band are statistically distinguishable from "
-        "zero at 95%."
+        "How to read it: pre-whitened cross-correlations between the HY-IG "
+        "spread and SPY log-returns at lags -20 to +20 trading days. Bars "
+        "beyond the +/-0.0238 significance band are statistically "
+        "distinguishable from zero at 95%."
     ),
     observation=(
         "15 of the 41 lags from -20 to +20 are statistically significant at "
@@ -744,9 +759,9 @@ TRANSFER_ENTROPY_BLOCK = dict(
     ),
     chart_name="transfer_entropy",
     chart_caption=(
-        "Shannon transfer entropy between the HY-IG spread and SPY daily "
-        "returns, in both directions, with circular block-shift permutation "
-        "p-values annotated on each bar."
+        "How to read it: Shannon transfer entropy between the HY-IG spread "
+        "and SPY daily returns, in both directions, with circular "
+        "block-shift permutation p-values annotated on each bar."
     ),
     observation=(
         "The Credit -> Equity bar reaches 0.042 nats with permutation "
@@ -851,9 +866,10 @@ QUARTILE_RETURNS_BLOCK = dict(
     # Evan's new monthly-resolution quartile artifact (closes S18-8).
     chart_name="regime_quartile_returns",
     chart_caption=(
-        "Annualized SPY return by HY-IG spread quartile (monthly). Q1 = tightest "
-        "spreads (< 2.58 pp), Q4 = widest (> 4.62 pp). Green-to-red gradient "
-        "mirrors the stress dimension; zero-line reference included."
+        "What this shows: annualized SPY return by HY-IG spread quartile "
+        "(monthly). Q1 = tightest spreads (< 2.58 pp), Q4 = widest "
+        "(> 4.62 pp). Green-to-red gradient mirrors the stress dimension; "
+        "zero-line reference included."
     ),
     observation=(
         "The annualized-return gradient is monotonically declining from Q1 "
@@ -992,8 +1008,8 @@ st.markdown(
     "transaction cost sensitivity analysis."
 )
 st.caption(
-    "See `results/hy_ig_v2_spy/tournament_results_20260410.csv` for the full "
-    "leaderboard."
+    "What this shows: the full leaderboard of tested combinations is "
+    "available at `results/hy_ig_v2_spy/tournament_results_20260410.csv`."
 )
 
 st.markdown("---")
@@ -1016,6 +1032,6 @@ st.page_link(
 # ---------------------------------------------------------------------------
 st.markdown("---")
 st.caption(
-    "Generated with AIG-RLIC+ | Data: 2000-01 to 2025-12 | "
-    "~6,500 daily observations | Narrative: portal_narrative_hy_ig_v2_spy_20260410.md"
+    "What this shows: generated with AIG-RLIC+ | Data: 2000-01 to 2025-12 | "
+    "~6,500 daily observations | Narrative: portal_narrative_hy_ig_v2_spy_20260410.md."
 )

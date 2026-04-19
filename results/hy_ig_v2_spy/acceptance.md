@@ -223,11 +223,85 @@ Cloud state is clean. Ready for stakeholder review — the Wave 4 deploy-artifac
 
 ---
 
+### Cross-Version Consistency Check (vs Sample HY-IG)
+
+Per META-XVC (team-coordination.md §Cross-Version Discipline). Baseline observed against: Sample HY-IG pair (`results/hy_ig_spy/`, portal pages `app/pages/{1..4}_hy_ig_*.py`, Sample narrative `docs/portal_narrative_hy_ig_spy_20260228.md`). v2 is NOT a successor of Sample in the tag-reference sense (Sample was never tagged and v2 is the first `<pair_id>-reference` candidate per META-RPT), but the audit treats Sample as the de-facto v0 for method continuity.
+
+#### Retained methods (v2 matches Sample — silent match per META-XVC)
+
+Evidence per inspection of Sample's `winner_summary.json`, `interpretation_metadata.json`, Sample chart filenames (`output/charts/plotly/hy_ig_spy_*.json`), Sample portal pages 1-4, and v2 counterparts:
+
+- **HMM family and state count** — both use a 2-state Hidden Markov Model over credit-spread dynamics with the stress-state probability as the tradable signal. Signal column `hmm_2state_prob_stress` is unchanged (Sample `winner_summary.signal_code = hmm_2state_prob_stress` / v2 `winner_summary.signal_column = hmm_2state_prob_stress`). Evidence: both winner_summary.json files; Sample Strategy page §"HMM Long/Cash (W1)" and v2 regime-analysis method block.
+- **Tournament ranking by OOS Sharpe** — v2 preserves Sample's "tournament tests {signal × threshold × strategy} combinations and ranks by OOS Sharpe" model. Evidence: Sample `winner_trade_log.csv` exists alongside `winner_summary.json`; v2 `tournament_results_20260410.csv` + `winner_summary.json` carry the same shape.
+- **Direction assertion = countercyclical** — Sample `expected_direction = counter_cyclical`; v2 `direction = countercyclical`. Semantically identical; spelling normalized to single-token form (enum requirement of `winner_summary.schema.json v1.0.0`, not a method change).
+- **Indicator-nature + indicator-type taxonomy** — `leading` / `credit` in both Sample and v2 `interpretation_metadata.json`.
+- **Strategy objective = min_mdd** — both pairs assert drawdown avoidance as the primary objective (Sample `interpretation_metadata.strategy_objective = min_mdd`; v2 matches).
+- **OOS window concept** — Sample OOS implied by `winner_trade_log.csv` date range; v2 uses the same 2018-01-01 → 2025-12-31 out-of-sample period. v2 promotes the window to an explicit sidecar (`oos_split_record.json`), but the window itself matches Sample (8 years, 2018-2025).
+- **Cost model** — Sample `breakeven_cost_bps = 50`; v2 `breakeven_cost_bps = 50` with `cost_assumption_bps = 5` (round-trip assumption carried forward from Sample's implicit 5 bps).
+- **Evidence method inventory (Level 1 + Level 2 shared subset)** — Correlation, Granger, Local Projections, Regime (HMM), Quantile Regression are present in BOTH Sample (pages 2_hy_ig_evidence) and v2 (page 9_hy_ig_v2_spy_evidence). Method family unchanged.
+- **Hero-chart concept** — dual-panel HY-IG spread over SPY, NBER shading backdrop. Concept retained; unit discipline and palette are declared divergences (see below).
+- **Narrative voice** — "financially-literate-non-quant baseline + plain-English layer" maintained across all four pages (Ray retained the Sample voice; the Wave 1+ enhancements are additive, not replacements).
+
+#### Intentionally diverged (v2 improved on Sample — declared per META-XVC)
+
+Consolidated from the Wave 5C retro-apply sections in `regression_note_20260419.md`. Each row below is a full META-XVC `### Methodological divergence` block condensed to the 6 required fields. All have an upstream regression-note entry for the full text.
+
+| Area | Prior (Sample) | New (v2) | Strong reason | Expected impact | Validation | Cross-ref |
+|------|----------------|----------|---------------|-----------------|------------|-----------|
+| **Strategy family** | P1 Long/Cash, threshold 0.7 (`winner_summary.threshold_code = T4_0.7`) | P2 Signal Strength, threshold 0.5 (`winner_summary.threshold_code = T4_hmm_0.5`) | Tournament re-run with broadened cost model ranked P2 above P1 on OOS Sharpe (1.27 vs 1.17); P2 reduces whipsaw turnover | Sharpe +0.10; turnover falls from 4.83 to 3.78; Max DD changes marginally (-10.2% v2 vs -12% Sample) | Tournament re-run documented in `tournament_results_20260410.csv`; winner validated via walk-forward CV | Ray/Evan Wave 2A; `regression_note_20260411.md` |
+| **HMM emission threshold** | 0.7 | 0.5 | P2 Signal Strength scales position continuously with stress probability; a lower threshold captures earlier stress onset for proportional scaling (not binary switching) | Stress-phase position begins scaling earlier; Sharpe gain concentrated in GFC + COVID regions | Perceptible on walk-forward chart; OOS Sharpe gain validated against schema-validated winner_summary | Evan Wave 2A |
+| **Hero-chart unit** | Decimal spread (silent axis) | bps (explicit unit, dual-panel) | Wave-2A stakeholder report of 100× unit-scale bug (S18-5); Sample rendered the spread axis with the wrong implicit scale | Hero axis labeled "Spread (bps, where 100 bps = 1%)" with values 147-1531 bps range | DATA-D12 column rename `hy_ig_spread` → `hy_ig_spread_pct` + DATA-D5 sidecar declare unit at artifact layer; Vera's VIZ-V5 smoke test passes | Wave 5C Dana Task 1+2; S18-5 |
+| **Color palette** | Matplotlib/Plotly defaults (`#d62728`, `#1f77b4`, `#2ca02c`) | Okabe-Ito 2026 colorblind-safe palette (`#D55E00`, etc.) | Colorblind accessibility + palette drift audit — hero + zoom charts used mismatched palettes in Sample | Perceptual consistency across hero, zoom, regime, quartile charts; no new semantics | VIZ-V11 pre-save lint blocks raw matplotlib defaults; `_meta.json.palette_id` mandatory | Vera Wave 5B-2 (rule) + Wave 5C (retro-apply) |
+| **Historical-episode selection + event-marker registry** | Ad-hoc Dot-Com / GFC references in prose, no chart | Canonical triad (Dot-Com, GFC, COVID) with event-marker registry at `docs/schemas/history_zoom_events_registry.json`; three zoom charts at `output/_comparison/history_zoom_*.json` with rationale + source_citation per event | Sample had historical-episode prose without matching zoom charts (SL-4, SL-5); registry prevents silent episode drift across future pairs | Three new zoom charts render on Story "What History Shows"; no behavior change in Sample | VIZ-V12 registry; META-ZI canonical + override loader; Wave 4E Cloud verification PASS | Ray Wave 2A; Vera Wave 2A + Wave 5B-2 + Wave 5C |
+| **Signal-code canonicalization** | `hmm_2state_prob_stress` (Sample) + `S6_hmm_stress` (v2 pre-Wave-5C tournament CSV) drifted across artifacts | `signal_code = hmm_stress` canonicalized via ECON-DS3 registry in `winner_summary.json` | Wave-5B-2 audit: signal_code drift between `tournament_results_*.csv` and `winner_summary.json` created silent column-lookup failures | No behavior change — registry resolves both the parquet column name AND the display name per APP-WS1 | `winner_summary.schema.json v1.0.0` validates; smoke_schema_consumers PASS | Evan Wave 5C Task 3; ECON-DS3 |
+| **OOS-window provenance** | Sample: window implicit in `winner_trade_log.csv` (no sidecar); reverse-inferable from `oos_n` | v2: explicit `oos_split_record.json` sidecar with 7 fields | ECON-OOS1: downstream agents must NOT recompute OOS bounds from the trade log | No window change (2018-2025 preserved); provenance is now machine-readable | `oos_split_record.json` validated; consumers updated per ECON-OOS1 | Evan Wave 5C Task 1; ECON-OOS1 |
+| **Tournament-tie documentation** | Sample: no tie note | v2: `tournament_tie_note.md` with ECON-T3 rationale | ECON-T3: cascade / tie-break rule change = methodological divergence; must be auditable | No ranking change; top-of-leaderboard rationale documented | File present + cross-referenced from regression note | Evan Wave 5C Task 2; ECON-T3 |
+| **Contract-file governance** | Sample: no META-CF schemas | v2: 8 schemas under `docs/schemas/` (winner_summary, interpretation_metadata, data_subject, chart_type_registry, narrative_frontmatter, url_slug_pins, caption_prefix_vocab, history_zoom_events_registry); producer + consumer validators | Wave-5 audit: inline prose dictionaries drifted between Evan's SOP and Ace's consumer code | No behavior change in happy path; validation-first reads on every portal entry point | Ace's consumer-side APP-WS1 / APP-SEV1 / APP-DIR1 gates run at load time; Wave 4D-2 verified | Wave 4B+4C authoring + Wave 4D producer+consumer migration |
+| **Data-layer sidecar + manifest + display-name registry** | Sample: none | v2: `data/hy_ig_v2_spy_daily_schema.json` sidecar + `data/manifest.json` + `data/display_name_registry.csv` | DATA-D5 / D11 / D12 / D13: unit, ownership, manifest, and display-name must all be machine-readable | No value change in v2 data; structural governance added | 3/3 schema validations exit 0; 4/4 Python consumers compile; 0 bare `hy_ig_spread` references remain | Dana Wave 5C Tasks 1-4 |
+| **Narrative frontmatter contract** | Sample narrative: Markdown body only, no frontmatter | v2: frontmatter block per `narrative_frontmatter.schema.json`; stable `anchor` fields; `direction_asserted`, `status_vocabulary`, `glossary_requests` arrays | RES-17: heading-match fragility (RES-16 / B8) and three-way direction silent-drift risk (APP-DIR1) were structurally open in Sample | No narrative-body change beyond reference-pair polish already shipped in Wave 1; frontmatter is additive metadata | Ray Wave 5C retro-apply validates extracted anchors against the schema; APP-DIR1 2-way agreement PASS | Ray Wave 4C-2 authoring + Wave 5C retro-apply |
+| **Caption-prefix + expander-title + slug canonical vocab** | Sample: ad-hoc prefixes ("What this shows" / "In plain English" / "Read this chart as" co-occur) | v2: APP-CC1 canonical 4-prefix vocabulary + APP-EX1 expander titles + APP-URL1 slug pins | Wave-5 Ace audit: three different caption prefixes on one Strategy tab of Sample | No information loss; unified vocabulary; slug redirects prevent dead external links | Ace Wave 5C Tasks 1-2-5; `_smoke_tests/smoke_url_slugs.py` (scheduled) + manual prefix grep PASS | Ace Wave 5B-2 + Wave 5C |
+| **META-ELI5 on loud errors** | Sample: `st.error` / `st.warning` carry technical label only | v2: every loud error carries technical label + 1-2 sentence ELI5 body; `_status_vocabulary` in `portal_glossary.json` has `{eli5, technical}` object shape for all 7 status labels | META-ELI5: stakeholder should be able to read every on-screen flag without agent translation | New wording appears in Evidence `chart_status != "ready"` warning and Strategy direction-mismatch banner | Grep confirms `_status_vocabulary` has `{eli5, technical}` for Available/Pending/Validated/Stale/Draft/Mature/Unknown | Ace Wave 5C Task 3; Ray Wave 5C glossary body |
+
+**Total:** 13 declared divergences, all with regression-note provenance and validation evidence.
+
+#### Possibly diverged but undeclared (audit)
+
+Findings: **none at the blocker level.** The Wave 5C sweep (Dana, Evan, Vera, Ray, Ace retro-apply sections in `regression_note_20260419.md`) explicitly enumerated drifts against Sample and declared them. Suspicion candidates checked:
+
+- **Strategy P-family semantic drift** — checked: P2 Signal Strength vs Sample's P1 Long/Cash is the single most consequential method change. Declared above (row 1); no residual undeclared drift.
+- **Threshold value 0.7 → 0.5** — declared above (row 2).
+- **Cost basis / turnover accounting** — Sample `annual_turnover = 4.83` vs v2 `3.78`; this is a consequence of the P1→P2 change, not an independent cost-model change. No divergence entry needed (follows from the declared strategy-family change).
+- **OOS period length** — Sample implicit OOS window vs v2 explicit 2018-2025; the window concept matches (retained) and the sidecar promotion is declared (row 7). No residual.
+- **Evidence tab structure (5 tabs in Sample → 8 in v2)** — Added Pre-whitened CCF, Transfer Entropy, Quartile Returns. Documented in `regression_note_20260411.md` Evan's 2026-04-11 changes + Ace's 5→8 tabs; additive, not a drift.
+- **Narrative voice and structure** — Retained, not diverged; Wave 1+ additions (headline-first, plain-English expanders, investor-impact bullets, zoom charts) are additive and all stakeholder-authorized per SL-1..5 + S18-* items.
+- **Hero dual-panel vs single-panel** — Declared (row 3, unit-scale fix bundle).
+
+**Conclusion:** no undeclared drift found; cross-version diff is clean. No BLOCKERS raised by this audit step.
+
+---
+
+### Deflection Audit (GATE-30)
+
+Per GATE-30 (team-coordination.md §Pair Acceptance Checklist, Blocking Items). Two stakeholder items in the 2026-04-18 batch (`docs/stakeholder-feedback/20260418-batch.md`) were closed by deflection (resolution = "see other page/section") rather than in-place fix. Both are audited here for: (a) target anchor actually renders, and (b) target content actually addresses the ask.
+
+| Stakeholder item | Origin page / section | Deflection target page | Deflection target anchor/section | DOM-renders? | Content-matches? | Lead sign-off |
+|------------------|-----------------------|------------------------|----------------------------------|--------------|------------------|----------------|
+| **S18-2** (Market Regime summary) | Strategy tab | Story | Market regime explainer section + "How do we define market regimes without arbitrary cutoffs?" expander | **Y** (verified Wave 4E DOM dumps `temp/cloud_wave4e_story_body.txt`) | **Y** (`docs/portal_narrative_hy_ig_v2_spy_20260410.md` line 340-358 contains "The connection changes depending on the market **regime**", defines regime, explains stress-vs-calm, expander answers "How do we define market regimes without arbitrary cutoffs?" citing Hamilton 1989 and Guidolin-Timmermann 2007) | **Y** — Lead Lesandro |
+| **S18-4** (Evidence Sources Table) | Story/Strategy | Evidence | Statistical-method walk-through (8-element template applied to each of 8 method blocks) + `_status_vocabulary` legend in `portal_glossary.json` | **Y** (Wave 4E cloud verification; `app/pages/9_hy_ig_v2_spy_evidence.py` loads 8 method blocks via `render_method_block`) | **Y** (each of 8 method blocks renders `method_name`, `method_theory`, `question`, `how_to_read`, chart, `observation` rendered as `"What this shows:"` per APP-CC1, optional `deep_dive`, `interpretation` rendered as `"Why this matters:"`, and `key_message` — this is the "plain English" layer S18-4 asked for. Available/Pending clarity provided by `_status_vocabulary` entries `{eli5, technical}` in `docs/portal_glossary.json` — both `Available` and `Pending` carry stakeholder-readable ELI5 bodies. `plain_english` / `why_it_matters` structure additionally present in glossary terms per Ray Wave 2A addition.) | **Y** — Lead Lesandro |
+
+**S18-2 — PASS.** The Story page regime explainer exists, is specific (defines regime, explains stress-vs-calm statistical properties, walks through HMM and MS regressions, cites literature), and directly addresses the stakeholder ask ("short and simple summary — how to identify each regime, what it means for strategy performance"). The explainer includes the "what it means for strategy performance" paragraph (lines 340-345 of the narrative: "A simple 'sell stocks when spreads widen' rule will not work…An effective strategy needs to distinguish between calm and stressed markets…"). Deflection is strong.
+
+**S18-4 — PASS.** The Evidence page statistical-method walk-through exists, is comprehensive (8 methods × 8 elements = 64 populated fields), and carries plain-English prose in every `observation`, `interpretation`, and `key_message` slot — rendered with canonical APP-CC1 prefixes ("What this shows:" / "Why this matters:" / "How to read it:"). Available-vs-Pending status clarity is provided by the glossary's `_status_vocabulary` block which now has `{eli5, technical}` bodies for `Available` ("produced and live on the portal — you can read it now"), `Pending` ("on the to-do list but has not been made yet…"), `Validated`, `Stale`, `Draft`, `Mature`, and `Unknown`. Deflection is strong.
+
+**BLOCKERS:** none raised by GATE-30 audit.
+
+---
+
 ## Regression Note
 
-**Files:** `results/hy_ig_v2_spy/regression_note_20260411.md`
+**Files:** `results/hy_ig_v2_spy/regression_note_20260411.md` + `results/hy_ig_v2_spy/regression_note_20260419.md`
 
-**Sections present:**
+**Sections present (20260411):**
 - Evan's Changes (2026-04-11) — added CCF, Transfer Entropy, Quartile Returns + tournament_winner.json
 - Vera's Changes (2026-04-11) — fixed hero chart axis/units, canonicalized heatmap, 3 new method charts
 - Ray's Changes (2026-04-11) — 3 new 8-element blocks + bps dual notation + 5 glossary entries expanded
@@ -237,7 +311,40 @@ Cloud state is clean. Ready for stakeholder review — the Wave 4 deploy-artifac
 - Ray's Reference-Pair Polish (2026-04-14) — 7 narrative changes for reference quality
 - Ace's Reference-Pair Polish (2026-04-14) — 5 portal UX changes for reference quality
 
-**Summary of changes from prior version:** Comprehensive — see individual sections in the regression note. All changes traceable to stakeholder feedback items (N1-N13, F1-F15) and SOP rules (META-PWQ, META-RPD, etc.).
+**Sections present (20260419):**
+- Wave 2A / 2B — Evan / Vera / Ray / Ace (2026-04-19) — S18-* stakeholder batch closure
+- Wave 3 — Lead gate patches + Vera bug-fix (hero NBER perceptibility) + Ace bug-fix
+- Wave 4A — Evan Deploy-Artifact Allowlist (ECON-DS2) + Lead GATE-29
+- Wave 4B+4C — Lead META-CF contract standard + schema authoring (Evan / Vera / Ray / Dana)
+- Wave 4D-1 — Dana / Evan artifact migration to v1.0.0 schemas
+- Wave 4D-2 — Ace consumer-side schema integration (APP-WS1 / APP-SEV1 / APP-DIR1)
+- Wave 5B-1 — Lead META-* authoring (META-XVC, META-SCV, META-ELI5, META-RPT, META-BL)
+- Wave 5B-2 — Ray / Dana / Vera / Evan / Ace agent-scoped rule authoring
+- **Wave 5C retro-apply (2026-04-19)** — Evan (ECON-OOS1/OOS2/T3/DS3 artifact migration + signal_code canonicalization) / Dana (column rename + sidecar + manifest + display-name registry) / Vera (Okabe-Ito palette + VIZ-V12 events-registry + VIZ-V13 annotation strategy + VIZ-V5 smoke re-run) / Ray (headline + frontmatter + status_labels → _status_vocabulary + glossary ELI5 bodies) / Ace (APP-CC1 caption prefixes + APP-EX1 expander titles + META-ELI5 audit on loud errors + trigger-card sparkline real-history fix + APP-URL1 slug pins)
+- **Lead's Wave 5C consolidation (2026-04-19)** — this acceptance.md update: cross-version diff vs Sample + GATE-30 deflection audit
+
+**New files created by Wave 5C (provenance for reference-pair manifest):**
+
+- `results/hy_ig_v2_spy/oos_split_record.json` (Evan, ECON-OOS1)
+- `results/hy_ig_v2_spy/tournament_tie_note.md` (Evan, ECON-T3)
+- `data/hy_ig_v2_spy_daily_schema.json` (Dana, DATA-D5)
+- `data/manifest.json` (Dana, DATA-D13)
+- `data/display_name_registry.csv` + `data/display_name_registry.json` (Dana, DATA-D13)
+- `output/charts/hy_ig_v2_spy/plotly/_perceptual_check_granger_f_by_lag.png` (Vera, VIZ-V2 refreshed)
+- `output/charts/hy_ig_v2_spy/plotly/_perceptual_check_regime_quartile_returns.png` (Vera, VIZ-V2 refreshed)
+- `output/charts/hy_ig_v2_spy/plotly/_smoke_test_wave5c_20260419.log` (Vera, VIZ-V5)
+
+Plus modifications to `winner_summary.json` (signal_code canonicalized), `docs/portal_glossary.json` (_status_vocabulary shape + ELI5 bodies), `docs/portal_narrative_hy_ig_v2_spy_20260410.md` (frontmatter + status labels), 4× `app/pages/9_hy_ig_v2_spy_*.py` (APP-CC1/EX1/URL1 + META-ELI5 + sparklines), 5× `app/components/*.py` (breadcrumb, charts, direction_check, instructional_trigger_cards, live_execution_placeholder, position_adjustment_panel, probability_engine_panel), `docs/schemas/narrative_frontmatter.schema.json`, `docs/schemas/url_slug_pins.json`, 3× `output/_comparison/history_zoom_*.json` (Vera palette + event-marker registry), `output/charts/hy_ig_v2_spy/plotly/hero.json` + `granger_f_by_lag.json` + `regime_quartile_returns.json` (palette), 2× `scripts/retro_fix_hy_ig_v2_*.py` + `scripts/pair_pipeline_hy_ig_v2_spy.py` + `scripts/generate_charts_hy_ig_v2_spy.py` (registry consumers).
+
+**Wave 5C agent sign-off status (regression_note_20260419.md confirms all 5 present):**
+
+- Evan — self-approved (§Evan's Wave 5C retro-apply)
+- Vera — self-approved (§Vera's Wave 5C retro-apply)
+- Dana — self-approved (§Dana's Wave 5C retro-apply)
+- Ray — self-approved (§Ray's Wave 5C retro-apply)
+- Ace — self-approved (§Ace's Wave 5C retro-apply)
+
+**Summary of changes from prior version:** Comprehensive — see individual sections in the regression note. All changes traceable to stakeholder feedback items (N1-N13, F1-F15, S18-*, SL-*) and SOP rules (META-PWQ, META-RPD, META-XVC, META-RPT, META-ELI5, GATE-23/24/25/26/27/28/29/30, APP-*, ECON-*, DATA-*, VIZ-*, RES-*).
 
 ---
 
@@ -253,8 +360,8 @@ Cloud state is clean. Ready for stakeholder review — the Wave 4 deploy-artifac
 
 **Approved by:** Lead Lesandro
 **Approval date:** Pending stakeholder sign-off
-**Tag/commit:** Pending — will tag as `hy-ig-v2-reference` upon stakeholder approval
-**Current commit:** `cc3f551` (Wave 4D: migrate artifacts + consumer-side schema integration). Includes upstream `e28dd3d` (Wave 4B+4C: cross-review + META-CF), `f295073` (Wave 4A: deploy-artifact gap + GATE-29), `1720c0c` (force Cloud redeploy), `519d042` (Wave 3: gate fixes + retro-apply), `1f864e8` (Wave 2B: portal rebuild), `b9730cb` (Wave 2A: artifacts/charts/narrative), `b7ee4ba` (Wave 1.5: coherence patches), `6bcb5e2` (Wave 1: 2026-04-18 stakeholder feedback). Earlier reference-pair polish landed in `6d40af8`.
+**Tag/commit:** Pending — will tag as `hy-ig-v2-reference-candidate` at Lead commit per META-RPT, promoted to `hy-ig-v2-reference` upon stakeholder approval.
+**Current commit:** `pending Wave 5C commit sha` — the Wave 5C retro-apply (5 agents) + this Lead consolidation (cross-version diff + GATE-30 deflection audit + acceptance.md sign-off update) will be committed centrally by Lead after Task 4 appends the consolidation entry to `regression_note_20260419.md`. Includes upstream: `342f48c` (Wave 5B: 24 new rules + 10 schemas/registries), `d6e4f02` (Wave 5 validation audits), `416ba94` (Wave 4E Cloud verification), `cc3f551` (Wave 4D: migrate artifacts + consumer-side schema integration), `e28dd3d` (Wave 4B+4C: cross-review + META-CF), `f295073` (Wave 4A: deploy-artifact gap + GATE-29), `1720c0c` (force Cloud redeploy), `519d042` (Wave 3: gate fixes + retro-apply), `beca5aa` (Wave 2 verification), `1f864e8` (Wave 2B: portal rebuild), `b9730cb` (Wave 2A: artifacts/charts/narrative), `b7ee4ba` (Wave 1.5: coherence patches), `6bcb5e2` (Wave 1: 2026-04-18 stakeholder feedback), `27c6182` (pre-stakeholder draft). Earlier reference-pair polish landed in `6d40af8`.
 
 ---
 

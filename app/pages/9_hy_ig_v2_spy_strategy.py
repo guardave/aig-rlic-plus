@@ -71,7 +71,7 @@ render_direction_check(PAIR_ID)
 # ---------------------------------------------------------------------------
 # Plain English expander (N8 -- Ray's narrative addition)
 # ---------------------------------------------------------------------------
-with st.expander("🧒 Plain English version"):
+with st.expander("Plain English"):
     st.markdown(
         "Our computer looked at every possible combination of 'signal strength + "
         "threshold + trade rule' to find the one that would have made the most "
@@ -151,8 +151,9 @@ with st.container(border=True):
         "or P2) avoids the all-or-nothing whipsaw of a simple on/off switch."
     )
 
-with st.expander("Why scale positions instead of switching all-in or all-out?"):
+with st.expander("Why we chose this method"):
     st.markdown(
+        "*Why scale positions instead of switching all-in or all-out?*\n\n"
         "A simple on/off strategy (fully invested or fully in cash) can suffer from "
         "\"whipsaw\" -- rapidly alternating between in and out of the market when the "
         "signal hovers near its threshold. This generates transaction costs and tax events "
@@ -167,8 +168,9 @@ with st.expander("Why scale positions instead of switching all-in or all-out?"):
         "delivered the best risk-adjusted return after transaction costs."
     )
 
-with st.expander("What is a z-score, and why do we use one?"):
+with st.expander("Deeper dive"):
     st.markdown(
+        "*What is a z-score, and why do we use one?*\n\n"
         "A z-score measures how unusual a current value is compared to its recent history. "
         "A z-score of 0 means the spread is at its historical average. A z-score of +2 "
         "means the spread is 2 standard deviations above average -- a relatively rare "
@@ -213,18 +215,19 @@ kpi_row(
 )
 
 st.caption(
-    "Arithmetic annualized return; compounded CAGR (geometric) would be slightly "
-    "different and is documented in the Methodology References."
+    "Caveat: arithmetic annualized return; compounded CAGR (geometric) "
+    "would be slightly different and is documented in the Methodology References."
 )
 
 st.caption(
-    "The credit-signal strategy delivered comparable returns to buy-and-hold but with "
-    "dramatically less pain. Its worst peak-to-trough decline was -10.2%, versus -34% "
-    "for an investor who simply held SPY through the same period. The Sharpe ratio of "
-    f"{oos_sharpe:.2f} (versus 0.90 for buy-and-hold) means each unit of risk taken was "
-    "rewarded with roughly 40% more return. The strategy only needed about 4 trades per "
-    "year, and it would remain profitable even if transaction costs were 10x higher than "
-    "our 5 bps assumption."
+    "Why this matters: the credit-signal strategy delivered comparable "
+    "returns to buy-and-hold but with dramatically less pain. Its worst "
+    "peak-to-trough decline was -10.2%, versus -34% for an investor who "
+    "simply held SPY through the same period. The Sharpe ratio of "
+    f"{oos_sharpe:.2f} (versus 0.90 for buy-and-hold) means each unit of "
+    "risk taken was rewarded with roughly 40% more return. The strategy "
+    "only needed about 4 trades per year, and it would remain profitable "
+    "even if transaction costs were 10x higher than our 5 bps assumption."
 )
 
 st.markdown("---")
@@ -352,7 +355,7 @@ with tab_execute:
             "July onward."
         )
 
-    with st.expander("Caveats for manual use"):
+    with st.expander("Honest assessment"):
         st.markdown(
             "- **Signals require patience.** This strategy works on weeks-to-months "
             "horizons, not days. If you check it daily and trade every wiggle, "
@@ -404,12 +407,13 @@ with tab_execute:
     st.markdown(_exec_points_md)
 
     st.caption(
-        "The `reason` field in each row repeats the HMM stress probability and the "
-        "before/after position weights, which is the auditable record of what the "
-        "strategy saw and what it did. Because this is a P2 Signal Strength "
-        "strategy, position changes are **proportional** to the HMM stress "
-        "probability -- never all-or-nothing -- which is why many rows show "
-        "fractional moves rather than 0%/100% flips."
+        "How to read it: the `reason` field in each row repeats the HMM "
+        "stress probability and the before/after position weights, which "
+        "is the auditable record of what the strategy saw and what it "
+        "did. Because this is a P2 Signal Strength strategy, position "
+        "changes are **proportional** to the HMM stress probability -- "
+        "never all-or-nothing -- which is why many rows show fractional "
+        "moves rather than 0%/100% flips."
     )
 
 # ===========================================================================
@@ -425,14 +429,16 @@ with tab_performance:
             "Will appear when visualization is complete."
         ),
         caption=(
-            "Cumulative returns for the tournament winner compared to buy-and-hold SPY. "
-            "The signal-strength strategy avoids major drawdowns while capturing most upside."
+            "What this shows: cumulative returns for the tournament winner "
+            "compared to buy-and-hold SPY. The signal-strength strategy "
+            "avoids major drawdowns while capturing most upside."
         ),
         pair_id=PAIR_ID,
     )
     st.caption(
-        "Takeaway: the winner participates in the upside and steps aside during "
-        "the deepest equity drawdowns — most visible during 2020 and 2022."
+        "Why this matters: the winner participates in the upside and steps "
+        "aside during the deepest equity drawdowns — most visible during "
+        "2020 and 2022."
     )
 
     st.markdown("---")
@@ -445,14 +451,16 @@ with tab_performance:
             "Drawdown comparison chart -- will appear when visualization is complete."
         ),
         caption=(
-            "Peak-to-trough drawdown profiles. The Signal Strength strategy limits "
-            f"maximum drawdown to {max_dd:.1f}%, compared to -33.7% for buy-and-hold."
+            "What this shows: peak-to-trough drawdown profiles. The Signal "
+            "Strength strategy limits maximum drawdown to "
+            f"{max_dd:.1f}%, compared to -33.7% for buy-and-hold."
         ),
         pair_id=PAIR_ID,
     )
     st.caption(
-        f"Takeaway: the worst drawdown is {max_dd:.1f}% vs −33.7% for buy-and-hold "
-        "— about one-third of the pain for comparable total return."
+        f"Why this matters: the worst drawdown is {max_dd:.1f}% vs −33.7% "
+        "for buy-and-hold — about one-third of the pain for comparable "
+        "total return."
     )
 
     st.markdown("---")
@@ -507,7 +515,7 @@ with tab_performance:
 
     st.markdown("#### Download Trading History")
 
-    with st.expander("📋 What do these columns mean?", expanded=False):
+    with st.expander("How to read this chart", expanded=False):
         st.markdown(
             "| Column | Type | Meaning | Example |\n"
             "|--------|------|---------|---------|\n"
@@ -523,8 +531,8 @@ with tab_performance:
             "| `reason` | string | Human-readable signal that triggered the trade | \"HMM stress prob 1.000 crossed threshold -- full risk-off\" |\n"
         )
         st.caption(
-            "Note: This is a simulated trade record based on backtest signals. "
-            "No real trades were executed."
+            "Caveat: this is a simulated trade record based on backtest "
+            "signals. No real trades were executed."
         )
 
     _broker_path = _RESULTS_DIR / "winner_trades_broker_style.csv"
@@ -559,9 +567,18 @@ with tab_performance:
                     mime="text/csv",
                     use_container_width=True,
                 )
-            st.caption(f"{len(_broker_df):,} executions, one row per trade.")
+            st.caption(
+                f"What this shows: {len(_broker_df):,} executions, "
+                "one row per trade."
+            )
         else:
-            st.info("Broker-style trade log not yet generated.")
+            st.info(
+                "Broker-style trade log not yet generated.\n\n"
+                "Plain English: the CSV that mimics a retail brokerage "
+                "statement (one row per simulated execution) has not been "
+                "produced yet. Re-running the tournament pipeline "
+                "regenerates it."
+            )
 
     with _dl_col2:
         if _position_df is not None and len(_position_df) > 0:
@@ -572,16 +589,26 @@ with tab_performance:
                 mime="text/csv",
                 use_container_width=True,
             )
-            st.caption(f"{len(_position_df):,} position-weight change rows.")
+            st.caption(
+                f"What this shows: {len(_position_df):,} position-weight "
+                "change rows."
+            )
         else:
-            st.info("Position log not yet generated.")
+            st.info(
+                "Position log not yet generated.\n\n"
+                "Plain English: the researcher-facing log (one row per "
+                "position-weight change, with extra diagnostic columns) "
+                "has not been produced yet. Run the tournament pipeline "
+                "to produce it."
+            )
 
     if _broker_df is not None and len(_broker_df) > 0:
         st.markdown("**Preview: first 10 rows of the broker-style log**")
         st.dataframe(_broker_df.head(10), use_container_width=True, hide_index=True)
         st.caption(
-            "Takeaway: each row shows a simulated scale-up or scale-down of SPY "
-            "exposure driven by the HMM stress probability crossing key thresholds."
+            "Why this matters: each row shows a simulated scale-up or "
+            "scale-down of SPY exposure driven by the HMM stress "
+            "probability crossing key thresholds."
         )
 
 # ===========================================================================
@@ -604,7 +631,10 @@ with tab_confidence:
                 if label.startswith("_"):
                     continue
                 st.markdown(f"- **{label}** — {definition}")
-            st.caption("Canonical source: `docs/portal_glossary.json` (Rule RES-10).")
+            st.caption(
+                "What this shows: the canonical source for these status "
+                "labels is `docs/portal_glossary.json` (Rule RES-10)."
+            )
 
     val_tab1, val_tab2, val_tab3 = st.tabs(
         ["Stress Tests", "Signal Decay", "Walk-Forward"]
@@ -620,14 +650,21 @@ with tab_confidence:
             _stress_df = pd.read_csv(_stress_path)
             st.dataframe(_stress_df, use_container_width=True, hide_index=True)
             st.caption(
-                "Takeaway: the strategy excels in credit-driven crises (GFC, COVID) "
-                "but offers limited protection during pure rate-shock selloffs (2022)."
+                "Why this matters: the strategy excels in credit-driven "
+                "crises (GFC, COVID) but offers limited protection during "
+                "pure rate-shock selloffs (2022)."
             )
         else:
-            st.info("Stress test results pending.")
+            st.info(
+                "Stress test results pending.\n\n"
+                "Plain English: the table summarising how the strategy "
+                "performed during each historical stress episode (GFC, "
+                "COVID, 2022 rate shock) has not been generated yet. Run "
+                "the validation pipeline to produce it."
+            )
 
         st.markdown(
-            "**Honest assessment:** The HMM strategy excels at credit-driven crises "
+            "**Caveat:** The HMM strategy excels at credit-driven crises "
             "(GFC) but does not protect against rate-driven selloffs (2022) where credit "
             "spreads widen alongside equities for different reasons."
         )
@@ -640,14 +677,21 @@ with tab_confidence:
             _decay_df = pd.read_csv(_decay_path)
             st.dataframe(_decay_df, use_container_width=True, hide_index=True)
             st.caption(
-                "Takeaway: Sharpe declines monotonically as execution delay rises; "
-                "delays beyond ~5 days materially erode the edge."
+                "Why this matters: Sharpe declines monotonically as "
+                "execution delay rises; delays beyond ~5 days materially "
+                "erode the edge."
             )
         else:
-            st.info("Signal decay results pending.")
+            st.info(
+                "Signal decay results pending.\n\n"
+                "Plain English: we have not yet computed how much of the "
+                "strategy's edge survives if a trader acts on the signal "
+                "1 / 2 / 3 / 5 days late. That table is produced by the "
+                "validation pipeline."
+            )
 
         st.markdown(
-            "**What this means:** Execution speed matters. Performance decreases with "
+            "**Why this matters:** Execution speed matters. Performance decreases with "
             "longer delays, reflecting the speed at which credit information gets priced "
             "into equities. The maximum acceptable delay is approximately 5 days."
         )
@@ -660,14 +704,21 @@ with tab_confidence:
             _wf_df = pd.read_csv(_wf_path)
             st.dataframe(_wf_df, use_container_width=True, hide_index=True)
             st.caption(
-                "Takeaway: Sharpe stays positive across the majority of walk-forward "
-                "windows — the edge is not concentrated in any single year."
+                "Why this matters: Sharpe stays positive across the "
+                "majority of walk-forward windows — the edge is not "
+                "concentrated in any single year."
             )
         else:
-            st.info("Walk-forward validation results pending.")
+            st.info(
+                "Walk-forward validation results pending.\n\n"
+                "Plain English: walk-forward validation re-estimates the "
+                "strategy on rolling training windows and tests it on "
+                "the subsequent held-out window. The table showing the "
+                "Sharpe ratio year by year has not been produced yet."
+            )
 
         st.markdown(
-            "**What this means:** Walk-forward validation confirms that the strategy's "
+            "**Why this matters:** Walk-forward validation confirms that the strategy's "
             "outperformance is not an artifact of a single favourable period. The Sharpe "
             "ratio varies year to year but remains positive across the majority of test "
             "windows."
@@ -713,20 +764,28 @@ with tab_confidence:
                 },
             )
             st.caption(
-                "Takeaway: the winning HMM Signal-Strength configuration sits at "
-                "the top of the leaderboard; the next 19 rows show the breadth of "
-                "the credit-signal edge across alternative signal transforms."
+                "Why this matters: the winning HMM Signal-Strength "
+                "configuration sits at the top of the leaderboard; the "
+                "next 19 rows show the breadth of the credit-signal edge "
+                "across alternative signal transforms."
             )
 
         _bench = _valid[_valid["signal"] == "BENCHMARK"]
         if len(_bench) > 0:
             st.caption(
-                f"Benchmark (Buy-and-Hold SPY): Sharpe {_bench.iloc[0]['oos_sharpe']:.2f}, "
+                "What this shows: Benchmark (Buy-and-Hold SPY): Sharpe "
+                f"{_bench.iloc[0]['oos_sharpe']:.2f}, "
                 f"Return {_bench.iloc[0]['oos_ann_return']:.1f}%, "
-                f"Max DD {_bench.iloc[0]['max_drawdown']:.1f}%"
+                f"Max DD {_bench.iloc[0]['max_drawdown']:.1f}%."
             )
     else:
-        st.info("Tournament results not yet available.")
+        st.info(
+            "Tournament results not yet available.\n\n"
+            "Plain English: the file listing every combination the "
+            "tournament tested and ranked has not been produced yet. "
+            "Re-run `scripts/pair_pipeline_hy_ig_v2_spy.py` to populate "
+            "it."
+        )
 
     st.markdown("---")
 
@@ -735,9 +794,9 @@ with tab_confidence:
     # ----------------------------------------------------------
     st.markdown("### Explore Alternative Strategies")
     st.caption(
-        "Beyond the #1 ranked strategy, here are other top performers. "
-        "Understanding what these alternatives do -- and why they ranked lower -- "
-        "can inform future strategy design."
+        "What this shows: beyond the #1 ranked strategy, these are the "
+        "other top performers. Understanding what these alternatives do "
+        "-- and why they ranked lower -- can inform future strategy design."
     )
 
     if _tourn_path.exists():
@@ -789,11 +848,18 @@ with tab_confidence:
                 f"with threshold `{_row['threshold']}`, applying a {_strategy_desc}."
             )
             st.caption(
-                "Takeaway: alternatives demonstrate the winning strategy family's "
-                "robustness — the edge persists across related signal transforms."
+                "Why this matters: alternatives demonstrate the winning "
+                "strategy family's robustness — the edge persists across "
+                "related signal transforms."
             )
     else:
-        st.info("Tournament results not available for alternative-strategy explorer.")
+        st.info(
+            "Tournament results not available for alternative-strategy explorer.\n\n"
+            "Plain English: the alternative-strategy explorer reads the "
+            "same tournament results file. Without that file, we cannot "
+            "let you drill into strategies ranked #2 through #20. Run "
+            "the pipeline to populate it."
+        )
 
     st.markdown("---")
 
@@ -828,6 +894,10 @@ with tab_confidence:
     st.warning(
         """
 **Important Caveats**
+
+*Plain English: the five items below describe real-world frictions and
+limitations that the backtest numbers may understate. Read them before
+deciding whether to allocate capital to this rule.*
 
 1. **Transaction costs matter.** All strategy metrics include 5 bps per round-trip trade. Breakeven cost is 50 bps -- robust, but not infinite.
 
@@ -868,5 +938,5 @@ st.page_link(
 # ---------------------------------------------------------------------------
 st.markdown("---")
 st.caption(
-    "Generated with AIG-RLIC+ | Data: 2000-01 to 2025-12"
+    "What this shows: generated with AIG-RLIC+ | Data: 2000-01 to 2025-12."
 )

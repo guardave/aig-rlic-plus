@@ -9,6 +9,9 @@
   "rules_applied": [
     "VIZ-V1",
     "VIZ-V2",
+    "VIZ-V11",
+    "VIZ-V12",
+    "VIZ-V13",
     "META-ZI"
   ],
   "window": [
@@ -17,20 +20,26 @@
   ],
   "events": [
     [
-      "2000-03-01",
+      "2000-03-10",
       "Mar 2000: Dot-Com peak"
     ],
     [
       "2000-08-01",
-      "Aug 2000: Credit spreads widen past 400 bps"
+      "Aug 2000: Yield curve inversion"
     ],
     [
       "2001-03-01",
-      "Mar 2001: Recession begins (NBER)"
+      "Mar 2001: Recession begins"
     ],
     [
-      "2002-07-01",
+      "2002-07-21",
       "Jul 2002: WorldCom bankruptcy"
     ]
-  ]
+  ],
+  "palette_id": "okabe_ito_2026",
+  "history_zoom_events_registry_version": "1.0.0",
+  "events_registry_version": "1.0.0",
+  "annotation_strategy_id": "descending_stair",
+  "updated_on": "2026-04-19",
+  "wave_5c_retro": true
 }

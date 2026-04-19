@@ -123,8 +123,13 @@ def load_plotly_chart(
                 exc,
             )
             st.warning(
-                f"Chart '{chart_name}' failed to load: {exc.__class__.__name__}. "
-                "See application logs."
+                f"Chart '{chart_name}' failed to load: "
+                f"{exc.__class__.__name__}. See application logs.\n\n"
+                "Plain English: the JSON file for this chart was found "
+                "on disk but could not be parsed by Plotly — usually "
+                "because it was produced by a newer or older Plotly "
+                "version than the one this portal runs. Regenerate the "
+                "chart via the visualisation pipeline to fix it."
             )
             fig = None
 

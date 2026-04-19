@@ -41,7 +41,9 @@ def render_live_execution_placeholder(pair_id: str) -> None:
             with open(stub_path) as fh:
                 stub = json.load(fh)
         except Exception as exc:  # pragma: no cover - defensive
-            st.caption(f"Could not read live_execution_stub.json: {exc}")
+            st.caption(
+                f"Caveat: could not read live_execution_stub.json: {exc}."
+            )
             stub = {}
 
     current_signal = stub.get("current_signal_state", "—")
@@ -58,16 +60,22 @@ def render_live_execution_placeholder(pair_id: str) -> None:
         st.metric("Current Action", current_action)
 
     if as_of:
-        st.caption(f"Stub last updated: {as_of}")
+        st.caption(f"What this shows: stub last updated: {as_of}.")
     else:
         st.caption(
-            "No `live_execution_stub.json` present yet — values render as "
-            "`—` placeholders until a real-time feed is wired."
+            "Caveat: no `live_execution_stub.json` present yet — values "
+            "render as `—` placeholders until a real-time feed is wired."
         )
 
     st.info(
         "This dashboard presents historical backtest results. A real-time "
         "execution layer would surface the fields above; the values shown "
-        "are placeholders. Wiring to a live data feed and broker API is a "
-        "deliberate out-of-scope for this research portal (see Methodology)."
+        "are placeholders. Wiring to a live data feed and broker API is "
+        "deliberately out-of-scope for this research portal (see Methodology)."
+        "\n\n"
+        "Plain English: you are looking at the shape of what a live "
+        "execution panel WOULD display (current signal, target position, "
+        "current action), with dashes where live numbers will eventually "
+        "flow in. The portal is a research tool — building out the "
+        "broker connection is a separate project."
     )

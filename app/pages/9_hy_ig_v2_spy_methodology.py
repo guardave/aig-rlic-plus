@@ -45,7 +45,7 @@ render_breadcrumb("Methodology", PAIR_ID)
 # ----------------------------------------------------------
 # Plain English expander (N8 -- Ray narrative addition)
 # ----------------------------------------------------------
-with st.expander("🧒 Plain English version"):
+with st.expander("Plain English"):
     st.markdown(
         "This section explains the technical details of how we did the "
         "analysis -- which data we used, which statistical methods, and "
@@ -83,8 +83,8 @@ if _GLOSSARY_PATH.exists():
                 continue
             st.markdown(f"- **{_label}** — {_definition}")
         st.caption(
-            "Canonical source: `docs/portal_glossary.json` "
-            "(Rule RES-10 / SOP §3.12)."
+            "What this shows: canonical source is "
+            "`docs/portal_glossary.json` (Rule RES-10 / SOP §3.12)."
         )
     st.markdown("---")
 
@@ -102,10 +102,11 @@ with col3:
     st.metric("Out-of-Sample", "2018-01 to 2025-12", delta="Strategy evaluation (~2,000 obs)")
 
 st.caption(
-    "The 70/30 in-sample/out-of-sample split provides a generous 8-year out-of-sample "
-    "window that includes multiple distinct market episodes (2018 volatility spike, COVID "
-    "crash, 2022 rate shock, 2023-25 recovery), preventing the strategy from being "
-    "validated on only one type of market environment."
+    "Why this matters: the 70/30 in-sample/out-of-sample split provides a "
+    "generous 8-year out-of-sample window that includes multiple distinct "
+    "market episodes (2018 volatility spike, COVID crash, 2022 rate shock, "
+    "2023-25 recovery), preventing the strategy from being validated on "
+    "only one type of market environment."
 )
 
 st.markdown("---")
@@ -177,9 +178,19 @@ _stat_path = _RESULTS_DIR / "stationarity_tests_20260410.csv"
 if _stat_path.exists():
     _stat_df = pd.read_csv(_stat_path)
     st.dataframe(_stat_df, use_container_width=True, hide_index=True)
-    st.caption("ADF: reject null = stationary. KPSS: fail to reject null = stationary.")
+    st.caption(
+        "How to read it: ADF — reject null = stationary. KPSS — fail to "
+        "reject null = stationary."
+    )
 else:
-    st.info("Stationarity tests not found.")
+    st.info(
+        "Stationarity tests not found.\n\n"
+        "Plain English: the CSV of ADF + KPSS stationarity-test results "
+        "has not been produced yet. Stationarity tests tell us whether a "
+        "time series has a stable long-run mean (required for many "
+        "regression methods). Re-run the econometrics pipeline to "
+        "generate this table."
+    )
 
 st.markdown("---")
 
@@ -351,8 +362,9 @@ st.markdown(
 )
 
 st.caption(
-    "See the full analysis brief (`docs/analysis_brief_hy_ig_v2_spy_20260410.md`) "
-    "for the complete list of academic citations."
+    "What this shows: the full analysis brief "
+    "(`docs/analysis_brief_hy_ig_v2_spy_20260410.md`) "
+    "carries the complete list of academic citations."
 )
 
 
@@ -361,6 +373,6 @@ st.caption(
 # ---------------------------------------------------------------------------
 st.markdown("---")
 st.caption(
-    "Generated with AIG-RLIC+ | Data: 2000-01 to 2025-12 | "
-    "Analysis Brief: docs/analysis_brief_hy_ig_v2_spy_20260410.md"
+    "What this shows: generated with AIG-RLIC+ | Data: 2000-01 to 2025-12 | "
+    "Analysis Brief: docs/analysis_brief_hy_ig_v2_spy_20260410.md."
 )

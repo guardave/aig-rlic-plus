@@ -81,7 +81,7 @@ def load_dataset() -> pd.DataFrame:
     log(f"Loading master dataset: {DATA_PATH}")
     df = pd.read_parquet(DATA_PATH)
     # We need the HY-IG spread and SPY daily log return
-    needed = ["hy_ig_spread", "spy_ret", "hy_ig_zscore_252d"]
+    needed = ["hy_ig_spread_pct", "spy_ret", "hy_ig_zscore_252d"]
     for col in needed:
         if col not in df.columns:
             raise RuntimeError(f"Missing required column in master parquet: {col}")
@@ -93,8 +93,8 @@ def load_dataset() -> pd.DataFrame:
         f"{df.index.min().date()} -> {df.index.max().date()}"
     )
     log(
-        f"hy_ig_spread (percentage points): "
-        f"min={df['hy_ig_spread'].min():.2f} max={df['hy_ig_spread'].max():.2f}"
+        f"hy_ig_spread_pct (percentage points): "
+        f"min={df['hy_ig_spread_pct'].min():.2f} max={df['hy_ig_spread_pct'].max():.2f}"
     )
     return df
 
@@ -136,12 +136,12 @@ def compute_prewhitened_ccf(df: pd.DataFrame, max_lag: int = 20) -> pd.DataFrame
     log("Computing pre-whitened CCF (HY-IG spread -> SPY log return, lags -20..+20)")
     # Use spread in percent points (stationary via ARMA residuals). Drop NaN.
     joined = pd.concat(
-        [df["hy_ig_spread"].rename("x"), df["spy_log_ret"].rename("y")], axis=1
+        [df["hy_ig_spread_pct"].rename("x"), df["spy_log_ret"].rename("y")], axis=1
     ).dropna()
     log(f"  Joined sample: {len(joined):,} rows")
 
     # Fit ARIMA to the indicator (spread). Pre-whiten both series by that filter.
-    log("  Fitting ARIMA(p,0,q) to hy_ig_spread by BIC (max p=5, q=2)")
+    log("  Fitting ARIMA(p,0,q) to hy_ig_spread_pct by BIC (max p=5, q=2)")
     order_x, resid_x = fit_arima_bic(joined["x"], max_p=5, max_q=2)
     log(f"  Best ARIMA for spread: {order_x}")
 
@@ -294,7 +294,7 @@ def transfer_entropy_with_pvalue(
 def compute_transfer_entropy(df: pd.DataFrame) -> pd.DataFrame:
     log("Computing transfer entropy (histogram estimator, 6 bins, lag=1, 500 perms)")
     joined = pd.concat(
-        [df["hy_ig_spread"].rename("credit"), df["spy_log_ret"].rename("equity")],
+        [df["hy_ig_spread_pct"].rename("credit"), df["spy_log_ret"].rename("equity")],
         axis=1,
     ).dropna()
     log(f"  Joined sample: {len(joined):,} rows")
@@ -343,7 +343,7 @@ def max_drawdown(returns: pd.Series) -> float:
 def compute_quartile_returns(df: pd.DataFrame) -> pd.DataFrame:
     log("Computing quartile-returns analysis (SPY returns conditional on HY-IG spread quartile)")
     panel = pd.concat(
-        [df["hy_ig_spread"].rename("spread"), df["spy_ret"].rename("ret")], axis=1
+        [df["hy_ig_spread_pct"].rename("spread"), df["spy_ret"].rename("ret")], axis=1
     ).dropna()
     log(f"  Joined sample: {len(panel):,} rows")
 

@@ -164,9 +164,9 @@ def stage_derived(series):
             df[col] = s.reindex(bdays).ffill(limit=limit)
 
     # ── Core indicator: HY-IG spread (bps) ──
-    df["hy_ig_spread"] = df["hy_oas"] - df["ig_oas"]
+    df["hy_ig_spread_pct"] = df["hy_oas"] - df["ig_oas"]
 
-    spread = df["hy_ig_spread"]
+    spread = df["hy_ig_spread_pct"]
 
     # ── Z-scores ──
     df["hy_ig_zscore_252d"] = (
@@ -242,7 +242,7 @@ def stage_derived(series):
     df["spy_fwd_252d"] = spy.shift(-252) / spy - 1
 
     # ── Drop rows missing core variables ──
-    df = df.dropna(subset=["hy_ig_spread", "spy"])
+    df = df.dropna(subset=["hy_ig_spread_pct", "spy"])
 
     # ── Summary ──
     n_derived = len([c for c in df.columns if c.startswith("hy_ig_") or c in [
@@ -257,7 +257,7 @@ def stage_derived(series):
     print(f"  OOS period: {OOS_START} to {END_DATE}")
 
     # Missing-value summary for key columns
-    key_cols = ["hy_ig_spread", "hy_ig_zscore_252d", "hy_ig_roc_21d", "spy", "vix"]
+    key_cols = ["hy_ig_spread_pct", "hy_ig_zscore_252d", "hy_ig_roc_21d", "spy", "vix"]
     for c in key_cols:
         if c in df.columns:
             pct_missing = df[c].isna().mean() * 100
@@ -276,7 +276,7 @@ def stage_stationarity(df):
     from arch.unitroot import ADF
 
     test_vars = [
-        "hy_ig_spread", "hy_ig_zscore_252d", "hy_ig_roc_21d", "hy_ig_roc_63d",
+        "hy_ig_spread_pct", "hy_ig_zscore_252d", "hy_ig_roc_21d", "hy_ig_roc_63d",
         "hy_ig_mom_21d", "hy_ig_acceleration", "ccc_bb_spread",
         "hy_ig_realized_vol_21d", "vix_term_structure",
         "yield_spread_10y3m", "yield_spread_10y2y",
@@ -346,11 +346,11 @@ def stage_exploratory(df):
     corr_df = pd.DataFrame(corr_results)
     corr_df.to_csv(os.path.join(EXPLORE_DIR, "correlations.csv"), index=False)
 
-    # ── Regime descriptive stats: quartiles of hy_ig_spread ──
+    # ── Regime descriptive stats: quartiles of hy_ig_spread_pct ──
     regime_results = []
-    valid = df[["hy_ig_spread", "spy_ret"]].dropna()
+    valid = df[["hy_ig_spread_pct", "spy_ret"]].dropna()
     if len(valid) > 200:
-        quartiles = pd.qcut(valid["hy_ig_spread"], 4,
+        quartiles = pd.qcut(valid["hy_ig_spread_pct"], 4,
                             labels=["Q1_low", "Q2", "Q3", "Q4_high"])
         for q in ["Q1_low", "Q2", "Q3", "Q4_high"]:
             rets = valid.loc[quartiles == q, "spy_ret"]
@@ -386,21 +386,21 @@ def stage_models(df):
     import statsmodels.formula.api as smf
     from statsmodels.tsa.stattools import grangercausalitytests
 
-    work = df.dropna(subset=["hy_ig_spread", "spy_ret"]).copy()
+    work = df.dropna(subset=["hy_ig_spread_pct", "spy_ret"]).copy()
 
     # ── 1. Granger Causality ──
     gc_results = []
     try:
-        gc_data = work[["spy_ret", "hy_ig_spread"]].dropna()
+        gc_data = work[["spy_ret", "hy_ig_spread_pct"]].dropna()
         if len(gc_data) > 100:
-            gc = grangercausalitytests(gc_data[["spy_ret", "hy_ig_spread"]], maxlag=5, verbose=False)
+            gc = grangercausalitytests(gc_data[["spy_ret", "hy_ig_spread_pct"]], maxlag=5, verbose=False)
             for lag, r in gc.items():
                 gc_results.append({
                     "direction": "HY_IG_Spread->SPY", "lag": lag,
                     "f_stat": round(r[0]["ssr_ftest"][0], 4),
                     "p_value": round(r[0]["ssr_ftest"][1], 4),
                 })
-            gc_rev = grangercausalitytests(gc_data[["hy_ig_spread", "spy_ret"]], maxlag=5, verbose=False)
+            gc_rev = grangercausalitytests(gc_data[["hy_ig_spread_pct", "spy_ret"]], maxlag=5, verbose=False)
             for lag, r in gc_rev.items():
                 gc_results.append({
                     "direction": "SPY->HY_IG_Spread", "lag": lag,
@@ -415,7 +415,7 @@ def stage_models(df):
     # ── 2. Predictive Regressions ──
     reg_results = []
     reg_signals = [
-        "hy_ig_spread", "hy_ig_zscore_252d", "hy_ig_zscore_504d",
+        "hy_ig_spread_pct", "hy_ig_zscore_252d", "hy_ig_zscore_504d",
         "hy_ig_pctrank_504d", "hy_ig_pctrank_1260d",
         "hy_ig_roc_21d", "hy_ig_roc_63d", "hy_ig_roc_126d",
         "hy_ig_mom_21d", "hy_ig_mom_63d", "hy_ig_acceleration",
@@ -451,7 +451,7 @@ def stage_models(df):
     for fwd, h in [("spy_fwd_5d", 5), ("spy_fwd_21d", 21), ("spy_fwd_63d", 63)]:
         if fwd not in work.columns:
             continue
-        valid = work[["hy_ig_spread", fwd]].dropna()
+        valid = work[["hy_ig_spread_pct", fwd]].dropna()
         ctrls = [c for c in ["vix", "yield_spread_10y3m"] if c in work.columns]
         for c in ctrls:
             valid[c] = work.loc[valid.index, c]
@@ -459,16 +459,16 @@ def stage_models(df):
         if len(valid) < 100:
             continue
         try:
-            X = sm.add_constant(valid[["hy_ig_spread"] + ctrls])
+            X = sm.add_constant(valid[["hy_ig_spread_pct"] + ctrls])
             nw = int(0.75 * len(valid) ** (1 / 3))
             model = sm.OLS(valid[fwd], X).fit(cov_type="HAC", cov_kwds={"maxlags": nw})
-            ci = model.conf_int().loc["hy_ig_spread"]
+            ci = model.conf_int().loc["hy_ig_spread_pct"]
             lp_results.append({
                 "horizon_days": h,
-                "coef": round(model.params["hy_ig_spread"], 6),
-                "se": round(model.bse["hy_ig_spread"], 6),
-                "t_stat": round(model.tvalues["hy_ig_spread"], 3),
-                "p_value": round(model.pvalues["hy_ig_spread"], 4),
+                "coef": round(model.params["hy_ig_spread_pct"], 6),
+                "se": round(model.bse["hy_ig_spread_pct"], 6),
+                "t_stat": round(model.tvalues["hy_ig_spread_pct"], 3),
+                "p_value": round(model.pvalues["hy_ig_spread_pct"], 4),
                 "ci_lower": round(ci[0], 6), "ci_upper": round(ci[1], 6),
                 "r_squared": round(model.rsquared, 4), "n": int(model.nobs),
             })
@@ -479,17 +479,17 @@ def stage_models(df):
 
     # ── 4. Quantile Regression ──
     qr_results = []
-    valid_qr = work[["hy_ig_spread", "spy_fwd_21d"]].dropna()
+    valid_qr = work[["hy_ig_spread_pct", "spy_fwd_21d"]].dropna()
     if len(valid_qr) > 50:
         for tau in [0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95]:
             try:
-                qr = smf.quantreg("spy_fwd_21d ~ hy_ig_spread", data=valid_qr).fit(q=tau)
+                qr = smf.quantreg("spy_fwd_21d ~ hy_ig_spread_pct", data=valid_qr).fit(q=tau)
                 qr_results.append({
                     "quantile": tau,
-                    "coef": round(qr.params["hy_ig_spread"], 6),
-                    "p_value": round(qr.pvalues["hy_ig_spread"], 4),
-                    "ci_lower": round(qr.conf_int().loc["hy_ig_spread", 0], 6),
-                    "ci_upper": round(qr.conf_int().loc["hy_ig_spread", 1], 6),
+                    "coef": round(qr.params["hy_ig_spread_pct"], 6),
+                    "p_value": round(qr.pvalues["hy_ig_spread_pct"], 4),
+                    "ci_lower": round(qr.conf_int().loc["hy_ig_spread_pct", 0], 6),
+                    "ci_upper": round(qr.conf_int().loc["hy_ig_spread_pct", 1], 6),
                 })
             except Exception:
                 pass
@@ -502,12 +502,12 @@ def stage_models(df):
         from hmmlearn.hmm import GaussianHMM
 
         hmm_features = []
-        for c in ["hy_ig_spread", "vix"]:
+        for c in ["hy_ig_spread_pct", "vix"]:
             if c in work.columns:
                 hmm_features.append(c)
         hmm_data = work[hmm_features].dropna()
         # Compute spread_change for HMM input
-        spread_change = work["hy_ig_spread"].diff()
+        spread_change = work["hy_ig_spread_pct"].diff()
         hmm_data = hmm_data.copy()
         hmm_data["spread_change"] = spread_change.reindex(hmm_data.index)
         hmm_data = hmm_data.dropna()
@@ -554,7 +554,7 @@ def stage_models(df):
     try:
         from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
-        ms_data = work[["spy_ret", "hy_ig_spread"]].dropna()
+        ms_data = work[["spy_ret", "hy_ig_spread_pct"]].dropna()
         # Subsample if too large for speed
         if len(ms_data) > 3000:
             ms_sample = ms_data.iloc[::2]
@@ -563,7 +563,7 @@ def stage_models(df):
 
         ms_model = MarkovRegression(
             ms_sample["spy_ret"], k_regimes=2,
-            exog=sm.add_constant(ms_sample["hy_ig_spread"]),
+            exog=sm.add_constant(ms_sample["hy_ig_spread_pct"]),
             switching_variance=True,
         )
         ms_fit = ms_model.fit(maxiter=200, disp=False)
@@ -586,7 +586,7 @@ def stage_models(df):
     # ── DERIVED SIGNAL PERSISTENCE: Save signals parquet ──
     signals_df = df[[]].copy()  # empty with df index
     # Core derived signals
-    for col in ["hy_ig_spread", "hy_ig_zscore_252d", "hy_ig_zscore_504d",
+    for col in ["hy_ig_spread_pct", "hy_ig_zscore_252d", "hy_ig_zscore_504d",
                 "hy_ig_pctrank_504d", "hy_ig_pctrank_1260d",
                 "hy_ig_roc_21d", "hy_ig_roc_63d", "hy_ig_roc_126d",
                 "hy_ig_mom_21d", "hy_ig_mom_63d", "hy_ig_mom_252d",
@@ -603,9 +603,9 @@ def stage_models(df):
 
     # ── 7. Diagnostics ──
     diag_results = []
-    valid_diag = work[["hy_ig_spread", "spy_fwd_21d"]].dropna()
+    valid_diag = work[["hy_ig_spread_pct", "spy_fwd_21d"]].dropna()
     if len(valid_diag) > 50:
-        X = sm.add_constant(valid_diag["hy_ig_spread"])
+        X = sm.add_constant(valid_diag["hy_ig_spread_pct"])
         model = sm.OLS(valid_diag["spy_fwd_21d"], X).fit()
         jb_s, jb_p = stats.jarque_bera(model.resid)
         diag_results.append({"test": "Jarque-Bera", "statistic": round(jb_s, 4),
@@ -619,7 +619,7 @@ def stage_models(df):
 
     # ── Interpretation metadata ──
     interp = {
-        "indicator": "hy_ig_spread",
+        "indicator": "hy_ig_spread_pct",
         "target": "spy",
         "expected_direction": "counter_cyclical",
         "observed_direction": "unknown",
@@ -672,7 +672,7 @@ def stage_tournament(df):
 
     # ── Signal map (13 signals) ──
     signal_cols = {
-        "S1_spread_level":     "hy_ig_spread",
+        "S1_spread_level":     "hy_ig_spread_pct",
         "S2a_zscore_252d":     "hy_ig_zscore_252d",
         "S2b_zscore_504d":     "hy_ig_zscore_504d",
         "S3a_pctrank_504d":    "hy_ig_pctrank_504d",
@@ -900,7 +900,7 @@ def stage_validation(df, tourn_df):
 
     # Signal name -> column mapping (same as tournament)
     signal_col_map = {
-        "S1_spread_level":     "hy_ig_spread",
+        "S1_spread_level":     "hy_ig_spread_pct",
         "S2a_zscore_252d":     "hy_ig_zscore_252d",
         "S2b_zscore_504d":     "hy_ig_zscore_504d",
         "S3a_pctrank_504d":    "hy_ig_pctrank_504d",
@@ -1112,7 +1112,7 @@ def _generate_winner_outputs(tourn_df, work):
         metadata = json.load(f)
 
     signal_col_map = {
-        "S1_spread_level":     "hy_ig_spread",
+        "S1_spread_level":     "hy_ig_spread_pct",
         "S2a_zscore_252d":     "hy_ig_zscore_252d",
         "S2b_zscore_504d":     "hy_ig_zscore_504d",
         "S3a_pctrank_504d":    "hy_ig_pctrank_504d",

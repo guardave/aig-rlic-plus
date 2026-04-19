@@ -139,7 +139,14 @@ def check_direction_agreement(pair_id: str) -> dict:
             "**Direction triangulation incomplete** (APP-DIR1). "
             f"Evan (winner_summary.direction) = `{evan}`; "
             f"Dana (observed_direction) = `{dana}`. "
-            "At least one leg missing — cannot assert agreement."
+            "At least one leg missing — cannot assert agreement.\n\n"
+            "Plain English: before showing you a trading rule, we "
+            "cross-check that our econometrician and our data analyst "
+            "agree on whether the indicator moves with the market "
+            "(pro-cyclical) or against it (counter-cyclical). One of "
+            "those two opinions is missing, so we cannot yet confirm "
+            "agreement — results may still be right, but they are "
+            "unchecked."
         )
         return report
 
@@ -150,6 +157,12 @@ def check_direction_agreement(pair_id: str) -> dict:
             f"Dana says `{dana}` in "
             f"`interpretation_metadata.json.observed_direction`. "
             f"These must match. Escalate to Lead for reconciliation per META-IA."
+            "\n\nPlain English: our econometrician and our data analyst "
+            "disagree on whether this indicator moves with the market or "
+            "against it. That is a serious inconsistency — trading-rule "
+            "direction is not a matter of opinion. The page is allowed "
+            "to render, but do not act on the results until the "
+            "disagreement is resolved."
         )
         return report
 
@@ -160,7 +173,12 @@ def check_direction_agreement(pair_id: str) -> dict:
         st.warning(
             f"Direction value `{evan}` is not in the canonical schema enum "
             f"{sorted(_CANONICAL_DIRECTIONS)}. Agreement reported, but value "
-            f"violates schema vocabulary — escalate to Lead."
+            f"violates schema vocabulary — escalate to Lead.\n\n"
+            "Plain English: the direction label does not match the "
+            "controlled vocabulary we have pinned in the schema. The "
+            "two sources agree with each other, but they are using a "
+            "variant spelling we do not recognise — a Lead review is "
+            "needed before acting."
         )
 
     return report
@@ -176,7 +194,8 @@ def render_direction_check(pair_id: str) -> dict:
     report = check_direction_agreement(pair_id)
     if report["agreement"]:
         st.caption(
-            f"Direction triangulation (APP-DIR1, 2-way): Evan and Dana agree on "
-            f"`{report['evan']}`. Ray leg pending RES-17 frontmatter migration."
+            f"What this shows: direction triangulation (APP-DIR1, 2-way) "
+            f"— Evan and Dana agree on `{report['evan']}`. Ray leg "
+            f"pending RES-17 frontmatter migration."
         )
     return report

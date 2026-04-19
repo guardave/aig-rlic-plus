@@ -140,11 +140,13 @@ def audit_unit(y, unit_label: str, chart_type: str) -> None:
 def chart_hero() -> None:
     print("\n[1/5] Hero — spread vs SPY (fix axis inversion + bps unit)")
     df = pd.read_parquet(DATA_PARQUET)
-    df = df[["hy_ig_spread", "spy"]].dropna()
+    df = df[["hy_ig_spread_pct", "spy"]].dropna()
     # Rule A2: spread is in percentage points (e.g. 2.02 = 2.02%). Convert to
     # bps for display (2.02% × 100 = 202 bps). Verify the scale before/after.
-    pct_min, pct_max = df["hy_ig_spread"].min(), df["hy_ig_spread"].max()
-    spread_bps = df["hy_ig_spread"] * 100.0
+    # NOTE (Wave 5C retro-apply 2026-04-19): column renamed hy_ig_spread → hy_ig_spread_pct
+    # per DATA-D12 to make the percent unit explicit at the name layer.
+    pct_min, pct_max = df["hy_ig_spread_pct"].min(), df["hy_ig_spread_pct"].max()
+    spread_bps = df["hy_ig_spread_pct"] * 100.0
     bps_min, bps_max = spread_bps.min(), spread_bps.max()
     print(f"  spread (source): pct range [{pct_min:.2f}, {pct_max:.2f}]")
     print(f"  spread (display): bps range [{bps_min:.0f}, {bps_max:.0f}]")

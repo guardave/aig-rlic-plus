@@ -149,8 +149,8 @@ def chart_spread_history_annotated():
 
     # HY-IG spread (inverted y-axis: wider = worse, so inverted for visual alignment with SPY)
     fig.add_trace(
-        go.Scatter(x=df.index, y=df["hy_ig_spread"],
-                   name="HY-IG OAS Spread (bps)",
+        go.Scatter(x=df.index, y=df["hy_ig_spread_pct"],
+                   name="HY-IG OAS Spread (%)",
                    line=dict(color=C_SECONDARY, width=1.5)),
         secondary_y=False,
     )
@@ -172,7 +172,7 @@ def chart_spread_history_annotated():
         if dt < df.index.min() or dt > df.index.max():
             continue
         idx = df.index.get_indexer([dt], method="nearest")[0]
-        y_val = df["hy_ig_spread"].iloc[idx]
+        y_val = df["hy_ig_spread_pct"].iloc[idx]
         fig.add_annotation(
             x=dt, y=y_val, text=label, showarrow=True,
             arrowhead=2, arrowsize=0.8, ax=0, ay=-40,
@@ -185,7 +185,7 @@ def chart_spread_history_annotated():
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         height=520, margin=dict(b=80),
     )
-    fig.update_yaxes(title_text="HY-IG OAS Spread (bps)", autorange="reversed",
+    fig.update_yaxes(title_text="HY-IG OAS Spread (%)", autorange="reversed",
                      secondary_y=False)
     fig.update_yaxes(title_text="SPY Price ($)", secondary_y=True)
 

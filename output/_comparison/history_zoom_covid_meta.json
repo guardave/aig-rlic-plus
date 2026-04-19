@@ -9,6 +9,9 @@
   "rules_applied": [
     "VIZ-V1",
     "VIZ-V2",
+    "VIZ-V11",
+    "VIZ-V12",
+    "VIZ-V13",
     "META-ZI"
   ],
   "window": [
@@ -17,16 +20,22 @@
   ],
   "events": [
     [
-      "2020-02-11",
-      "Feb 2020: Pandemic declared"
+      "2020-02-19",
+      "Feb 2020: SPX pre-COVID peak"
     ],
     [
       "2020-03-23",
-      "Mar 2020: Credit spreads peak ~1100 bps"
+      "Mar 2020: SPX trough + Fed facility"
     ],
     [
-      "2020-04-09",
-      "Apr 2020: Fed credit facilities"
+      "2020-04-30",
+      "Apr 2020: Recession ends"
     ]
-  ]
+  ],
+  "palette_id": "okabe_ito_2026",
+  "history_zoom_events_registry_version": "1.0.0",
+  "events_registry_version": "1.0.0",
+  "annotation_strategy_id": "descending_stair",
+  "updated_on": "2026-04-19",
+  "wave_5c_retro": true
 }

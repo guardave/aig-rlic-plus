@@ -223,8 +223,8 @@ def render_probability_engine_panel(pair_id: str) -> None:
     """
     st.markdown("### Probability Engine Panel")
     st.caption(
-        "How the winning signal evolves over time and where the decision "
-        "threshold sits."
+        "What this shows: how the winning signal evolves over time and "
+        "where the decision threshold sits."
     )
 
     pair_dir = _REPO_ROOT / "results" / pair_id
@@ -250,7 +250,12 @@ def render_probability_engine_panel(pair_id: str) -> None:
     signals_path = _latest_signals_file(pair_dir)
     if signals_path is None:
         msg = f"No signals_*.parquet under {pair_dir}"
-        st.error(f"Probability engine panel cannot render: {msg}")
+        st.error(
+            f"Probability engine panel cannot render: {msg}\n\n"
+            "Plain English: the model needs a history of indicator values "
+            "to draw the time-series chart, but we can't find that file "
+            "on disk. This prevents the probability panel from rendering."
+        )
         st.session_state[f"se1_validation_{pair_id}"] = {"ok": False, "reason": msg}
         return
 
@@ -258,7 +263,13 @@ def render_probability_engine_panel(pair_id: str) -> None:
         signals_df = pd.read_parquet(signals_path)
     except Exception as exc:  # pragma: no cover - defensive
         msg = f"Failed to read {signals_path.name}: {exc}"
-        st.error(f"Probability engine panel cannot render: {msg}")
+        st.error(
+            f"Probability engine panel cannot render: {msg}\n\n"
+            "Plain English: the file containing the historical indicator "
+            "series exists but could not be parsed — typically because "
+            "it was produced by a different pandas / pyarrow version "
+            "than this portal uses. Regenerate via the data pipeline."
+        )
         st.session_state[f"se1_validation_{pair_id}"] = {"ok": False, "reason": msg}
         return
 
@@ -272,6 +283,11 @@ def render_probability_engine_panel(pair_id: str) -> None:
             f"`interpretation_metadata.json` schema violation "
             f"(APP-SEV1 L2 — panel still renders with default stress windows): "
             + "; ".join(meta_errors[:3])
+            + "\n\nPlain English: the side file that describes how to "
+            "interpret the signal (stress episodes, expected direction) "
+            "does not fully conform to its schema. We fell back to "
+            "default stress windows (GFC + COVID) so the chart could "
+            "still render, but the notes file should be regenerated."
         )
     if metadata is None:
         metadata = {}
@@ -279,7 +295,14 @@ def render_probability_engine_panel(pair_id: str) -> None:
     # ---- Pre-render validation ----
     ok, diagnostic = _validate_signal(signals_df, column, winner, metadata)
     if not ok:
-        st.error(f"Probability engine panel cannot render: {diagnostic}")
+        st.error(
+            f"Probability engine panel cannot render: {diagnostic}\n\n"
+            "Plain English: the signal data failed one of our sanity "
+            "checks — it might be the wrong column, outside the expected "
+            "numeric range, or it never reached its stress threshold "
+            "during known historical crises. Rendering would mislead "
+            "you, so the chart is held back until the data is fixed."
+        )
         st.session_state[f"se1_validation_{pair_id}"] = {
             "ok": False,
             "reason": diagnostic,
@@ -320,4 +343,4 @@ def render_probability_engine_panel(pair_id: str) -> None:
         takeaway += " P2 Signal Strength: exposure scales continuously with the signal."
     elif strategy == "P3":
         takeaway += " P3 Long/Short: signal polarity determines long vs short tilt."
-    st.caption(takeaway)
+    st.caption(f"Why this matters: {takeaway}")

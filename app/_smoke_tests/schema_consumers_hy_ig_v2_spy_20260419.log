@@ -1,4 +1,4 @@
-# Schema-consumer smoke test  pair_id=hy_ig_v2_spy  timestamp=2026-04-19T17:49:06
+# Schema-consumer smoke test  pair_id=hy_ig_v2_spy  timestamp=2026-04-19T19:54:30
 PASS  APP-WS1: winner_summary.json conforms to ECON-H5  keys=32
 PASS  APP-WS1 sibling: interpretation_metadata.json conforms to DATA-D6  keys=17
 PASS  APP-DIR1: 2-way agreement (Evan=countercyclical, Dana=countercyclical, Ray=pending RES-17)

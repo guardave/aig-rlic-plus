@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-04-19T00:00:00Z",
+  "artifacts": [
+    {
+      "path": "data/hy_ig_v2_spy_daily_20260410.parquet",
+      "source": "derived:hy_ig_spread_pct = FRED:BAMLH0A0HYM2 - FRED:BAMLC0A0CM; target=yahoo:SPY; inputs FRED (NFCI, DGS10, DTB3, DGS2, DFF, BAMLC0A4CBBB, BAMLH0A1HYBB, BAMLH0A3HYC, ICSA, SOFR) + yahoo (SPY, ^VIX, ^VIX3M, KBE, IWM, ^MOVE, GC=F, HG=F, DX-Y.NYB, HYG) + OFR FSI",
+      "refresh_ttl_days": 1,
+      "schema_ref": "data/hy_ig_v2_spy_daily_schema.json",
+      "last_updated": "2026-04-10",
+      "pairs": ["hy_ig_v2_spy"],
+      "mixed_freq_ttl_note": "Daily market/Treasury data + weekly NFCI + weekly initial claims (LVCF-aligned); TTL=1 per fastest-component rule (DATA-D2)."
+    },
+    {
+      "path": "data/hy_ig_spy_daily_20000101_20251231.parquet",
+      "source": "derived:hy_ig_spread = FRED:BAMLH0A0HYM2 - FRED:BAMLC0A0CM; target=yahoo:SPY (HY-IG v1 master, pre-Wave-5C)",
+      "refresh_ttl_days": 1,
+      "schema_ref": "data/hy_ig_spy_daily_schema.json",
+      "last_updated": "2026-02-28",
+      "pairs": ["hy_ig_spy"]
+    },
+    {
+      "path": "data/hy_ig_spy_daily_latest.parquet",
+      "source": "alias_of:data/hy_ig_spy_daily_20000101_20251231.parquet",
+      "refresh_ttl_days": 1,
+      "schema_ref": "data/hy_ig_spy_daily_schema.json",
+      "last_updated": "2026-02-28",
+      "pairs": ["hy_ig_spy"],
+      "source_master": "data/hy_ig_spy_daily_20000101_20251231.parquet"
+    }
+  ]
+}

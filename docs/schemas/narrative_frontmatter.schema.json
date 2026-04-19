@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aig-rlic-plus.local/schemas/narrative_frontmatter.schema.json",
   "x-owner": "ray",
-  "x-version": "1.0.0",
+  "x-version": "1.1.0",
   "title": "Portal Narrative Frontmatter",
   "description": "Canonical contract for the YAML-or-JSON frontmatter block that opens every `docs/portal_narrative_{pair_id}_{date}.md` file between standard markdown `---` delimiters. Authored by Research Ray; consumed by AppDev Ace's `render_narrative()` / `components/narrative.py` and by the APP-NR1 smoke test. Closes the heading-match fragility bug (RES-16 / B8): Ace no longer extracts sections and expanders by heading text, and renames in the body no longer silently break the portal. The frontmatter is a machine-readable inventory of the narrative's externally-visible surface (sections, expanders, referenced charts, glossary terms, direction assertion). Companion to APP-NR1 (consumer smoke test) and APP-DIR1 (cross-agent direction-assertion integrity). Producers validate this block with `scripts/validate_schema.py` before handoff to Ace; consumers validate on load before rendering.",
   "type": "object",
@@ -86,6 +86,16 @@
           "override_reason": {
             "type": "string",
             "description": "Required when `override_needed=true`. Prose sentence citing the exact Story/Evidence paragraph that motivates the overlay (e.g. `Story §What History Shows — GFC paragraph ties HY-IG spread widening to SPY peak`). Used by Ray's override_request_{date}.md paper trail.",
+            "minLength": 1
+          },
+          "selection_rationale": {
+            "type": "string",
+            "enum": ["long_lead", "coincident", "failure_case", "confirmer"],
+            "description": "RES-20 triad classifier. Each narrative MUST cover at least one `long_lead` + one `coincident` + one `failure_case` entry; `confirmer` is optional 4th slot. Enables a pre-handoff validate_schema check that the triad is represented. Added in schema v1.1.0 (Ray Wave 5C retro-apply 2026-04-19) to implement RES-20 rule 1."
+          },
+          "prose_ref": {
+            "type": "string",
+            "description": "OPTIONAL. Free-text pointer to the exact narrative paragraph where this episode is referenced (e.g. `Story §What History Shows — GFC paragraph`). Human-readable cross-reference for auditors; not machine-consumed. Added in schema v1.1.0 (Ray Wave 5C retro-apply 2026-04-19).",
             "minLength": 1
           }
         }

@@ -1,0 +1,312 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-04-19T00:00:00Z",
+  "columns": [
+    {
+      "column_name": "date",
+      "display_name": "Date",
+      "unit": "date",
+      "axis_label": "Date"
+    },
+    {
+      "column_name": "hy_oas",
+      "display_name": "HY OAS (%)",
+      "unit": "percent",
+      "axis_label": "HY OAS (%)"
+    },
+    {
+      "column_name": "ig_oas",
+      "display_name": "IG OAS (%)",
+      "unit": "percent",
+      "axis_label": "IG OAS (%)"
+    },
+    {
+      "column_name": "bb_hy_oas",
+      "display_name": "BB HY OAS (%)",
+      "unit": "percent",
+      "axis_label": "BB HY OAS (%)"
+    },
+    {
+      "column_name": "ccc_hy_oas",
+      "display_name": "CCC HY OAS (%)",
+      "unit": "percent",
+      "axis_label": "CCC HY OAS (%)"
+    },
+    {
+      "column_name": "dgs10",
+      "display_name": "US 10Y Treasury Yield (%)",
+      "unit": "percent",
+      "axis_label": "10Y Yield (%)"
+    },
+    {
+      "column_name": "dtb3",
+      "display_name": "US 3M T-Bill Yield (%)",
+      "unit": "percent",
+      "axis_label": "3M Yield (%)"
+    },
+    {
+      "column_name": "dgs2",
+      "display_name": "US 2Y Treasury Yield (%)",
+      "unit": "percent",
+      "axis_label": "2Y Yield (%)"
+    },
+    {
+      "column_name": "nfci",
+      "display_name": "Chicago Fed NFCI",
+      "unit": "index",
+      "axis_label": "NFCI"
+    },
+    {
+      "column_name": "fed_funds_rate",
+      "display_name": "Fed Funds Rate (%)",
+      "unit": "percent",
+      "axis_label": "FFR (%)"
+    },
+    {
+      "column_name": "bbb_oas",
+      "display_name": "BBB OAS (%)",
+      "unit": "percent",
+      "axis_label": "BBB OAS (%)"
+    },
+    {
+      "column_name": "fsi",
+      "display_name": "OFR Financial Stress Index",
+      "unit": "index",
+      "axis_label": "FSI"
+    },
+    {
+      "column_name": "initial_claims",
+      "display_name": "Initial Jobless Claims",
+      "unit": "count",
+      "axis_label": "Claims"
+    },
+    {
+      "column_name": "sofr",
+      "display_name": "SOFR (%)",
+      "unit": "percent",
+      "axis_label": "SOFR (%)"
+    },
+    {
+      "column_name": "spy",
+      "display_name": "SPY Close ($)",
+      "unit": "price",
+      "axis_label": "SPY ($)"
+    },
+    {
+      "column_name": "vix",
+      "display_name": "VIX Index Level",
+      "unit": "index",
+      "axis_label": "VIX"
+    },
+    {
+      "column_name": "vix3m",
+      "display_name": "VIX3M Index Level",
+      "unit": "index",
+      "axis_label": "VIX3M"
+    },
+    {
+      "column_name": "kbe",
+      "display_name": "KBE Close ($)",
+      "unit": "price",
+      "axis_label": "KBE ($)"
+    },
+    {
+      "column_name": "iwm",
+      "display_name": "IWM Close ($)",
+      "unit": "price",
+      "axis_label": "IWM ($)"
+    },
+    {
+      "column_name": "move_index",
+      "display_name": "MOVE Index",
+      "unit": "index",
+      "axis_label": "MOVE"
+    },
+    {
+      "column_name": "gold",
+      "display_name": "Gold Spot ($/oz)",
+      "unit": "price",
+      "axis_label": "Gold ($/oz)"
+    },
+    {
+      "column_name": "copper",
+      "display_name": "Copper Spot ($/lb)",
+      "unit": "price",
+      "axis_label": "Copper ($/lb)"
+    },
+    {
+      "column_name": "dxy",
+      "display_name": "DXY Dollar Index",
+      "unit": "index",
+      "axis_label": "DXY"
+    },
+    {
+      "column_name": "hyg",
+      "display_name": "HYG Close ($)",
+      "unit": "price",
+      "axis_label": "HYG ($)"
+    },
+    {
+      "column_name": "hy_ig_spread_pct",
+      "display_name": "HY-IG Credit Spread (%)",
+      "unit": "percent",
+      "axis_label": "Spread (%)"
+    },
+    {
+      "column_name": "hy_ig_zscore_252d",
+      "display_name": "HY-IG Spread Z-Score (252d)",
+      "unit": "ratio",
+      "axis_label": "Z-Score (252d)"
+    },
+    {
+      "column_name": "hy_ig_zscore_504d",
+      "display_name": "HY-IG Spread Z-Score (504d)",
+      "unit": "ratio",
+      "axis_label": "Z-Score (504d)"
+    },
+    {
+      "column_name": "hy_ig_pctrank_504d",
+      "display_name": "HY-IG Spread %-Rank (504d)",
+      "unit": "ratio",
+      "axis_label": "%-Rank (504d)"
+    },
+    {
+      "column_name": "hy_ig_pctrank_1260d",
+      "display_name": "HY-IG Spread %-Rank (1260d)",
+      "unit": "ratio",
+      "axis_label": "%-Rank (1260d)"
+    },
+    {
+      "column_name": "hy_ig_roc_21d",
+      "display_name": "HY-IG Spread 21d Rate-of-Change (%)",
+      "unit": "percent",
+      "axis_label": "21d RoC (%)"
+    },
+    {
+      "column_name": "hy_ig_roc_63d",
+      "display_name": "HY-IG Spread 63d Rate-of-Change (%)",
+      "unit": "percent",
+      "axis_label": "63d RoC (%)"
+    },
+    {
+      "column_name": "hy_ig_roc_126d",
+      "display_name": "HY-IG Spread 126d Rate-of-Change (%)",
+      "unit": "percent",
+      "axis_label": "126d RoC (%)"
+    },
+    {
+      "column_name": "hy_ig_mom_21d",
+      "display_name": "HY-IG Spread 21d Momentum (pp)",
+      "unit": "percent",
+      "axis_label": "21d Mom (pp)"
+    },
+    {
+      "column_name": "hy_ig_mom_63d",
+      "display_name": "HY-IG Spread 63d Momentum (pp)",
+      "unit": "percent",
+      "axis_label": "63d Mom (pp)"
+    },
+    {
+      "column_name": "hy_ig_mom_252d",
+      "display_name": "HY-IG Spread 252d Momentum (pp)",
+      "unit": "percent",
+      "axis_label": "252d Mom (pp)"
+    },
+    {
+      "column_name": "hy_ig_acceleration",
+      "display_name": "HY-IG Spread Acceleration",
+      "unit": "percent",
+      "axis_label": "Accel (%)"
+    },
+    {
+      "column_name": "ccc_bb_spread",
+      "display_name": "CCC-BB HY Quality Spread (%)",
+      "unit": "percent",
+      "axis_label": "CCC-BB (%)"
+    },
+    {
+      "column_name": "hy_ig_realized_vol_21d",
+      "display_name": "HY-IG Spread Realized Vol (21d, decimal)",
+      "unit": "ratio",
+      "axis_label": "Realized Vol"
+    },
+    {
+      "column_name": "vix_term_structure",
+      "display_name": "VIX Term Structure",
+      "unit": "index",
+      "axis_label": "VIX3M-VIX"
+    },
+    {
+      "column_name": "yield_spread_10y3m",
+      "display_name": "10Y-3M Yield Spread (%)",
+      "unit": "percent",
+      "axis_label": "10Y-3M (%)"
+    },
+    {
+      "column_name": "yield_spread_10y2y",
+      "display_name": "10Y-2Y Yield Spread (%)",
+      "unit": "percent",
+      "axis_label": "10Y-2Y (%)"
+    },
+    {
+      "column_name": "bank_smallcap_ratio",
+      "display_name": "KBE/IWM Ratio",
+      "unit": "ratio",
+      "axis_label": "KBE/IWM"
+    },
+    {
+      "column_name": "nfci_momentum_13w",
+      "display_name": "NFCI 13-Week Momentum",
+      "unit": "index",
+      "axis_label": "NFCI 13w Chg"
+    },
+    {
+      "column_name": "bbb_ig_spread",
+      "display_name": "BBB-IG Spread (%)",
+      "unit": "percent",
+      "axis_label": "BBB-IG (%)"
+    },
+    {
+      "column_name": "spy_ret",
+      "display_name": "SPY Daily Return (decimal)",
+      "unit": "decimal_return",
+      "axis_label": "Daily Return"
+    },
+    {
+      "column_name": "spy_fwd_1d",
+      "display_name": "SPY 1-Day Forward Return",
+      "unit": "decimal_return",
+      "axis_label": "1d Fwd Return"
+    },
+    {
+      "column_name": "spy_fwd_5d",
+      "display_name": "SPY 5-Day Forward Return",
+      "unit": "decimal_return",
+      "axis_label": "5d Fwd Return"
+    },
+    {
+      "column_name": "spy_fwd_21d",
+      "display_name": "SPY 21-Day Forward Return",
+      "unit": "decimal_return",
+      "axis_label": "21d Fwd Return"
+    },
+    {
+      "column_name": "spy_fwd_63d",
+      "display_name": "SPY 63-Day Forward Return",
+      "unit": "decimal_return",
+      "axis_label": "63d Fwd Return"
+    },
+    {
+      "column_name": "spy_fwd_126d",
+      "display_name": "SPY 126-Day Forward Return",
+      "unit": "decimal_return",
+      "axis_label": "126d Fwd Return"
+    },
+    {
+      "column_name": "spy_fwd_252d",
+      "display_name": "SPY 252-Day Forward Return",
+      "unit": "decimal_return",
+      "axis_label": "252d Fwd Return"
+    }
+  ]
+}

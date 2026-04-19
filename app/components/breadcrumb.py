@@ -41,7 +41,12 @@ def render_breadcrumb(current_page: str, pair_id: str) -> None:
     if current_page not in STEPS:
         st.warning(
             f"[breadcrumb] Unknown current_page '{current_page}'; "
-            f"expected one of {STEPS}."
+            f"expected one of {STEPS}.\n\n"
+            "Plain English: the breadcrumb at the top of each pair page "
+            "expects the current page to be one of Story, Evidence, "
+            "Strategy, or Methodology. A call arrived with a different "
+            "label, so the breadcrumb was skipped to avoid misleading "
+            "the reader."
         )
         return
 
@@ -55,7 +60,7 @@ def render_breadcrumb(current_page: str, pair_id: str) -> None:
             is_current = (step == current_page)
             if is_current:
                 st.markdown(f"**{ICONS[step]} {step}**")
-                st.caption("← you are here")
+                st.caption("What this shows: ← you are here.")
             else:
                 try:
                     st.page_link(page_path, label=step, icon=ICONS[step])

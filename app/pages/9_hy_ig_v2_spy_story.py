@@ -48,7 +48,7 @@ render_breadcrumb("Story", PAIR_ID)
 # ---------------------------------------------------------------------------
 # Plain English expander (N8 -- Ray's narrative addition)
 # ---------------------------------------------------------------------------
-with st.expander("🧒 Plain English version"):
+with st.expander("Plain English"):
     st.markdown(
         "When companies borrow money, lenders charge safer companies lower rates "
         "and risky companies higher rates. The gap between those rates is called "
@@ -123,12 +123,13 @@ with col5:
     st.metric("OOS Test Period", "8 years", delta="2018-2025")
 
 st.caption(
-    "The HY-IG credit spread -- the extra yield investors demand to hold risky "
-    "corporate bonds instead of safe ones -- began widening five months before the "
-    "2008 stock market peak, correctly flagged 3 of the last 4 major drawdowns, and "
-    "is most predictive during the stress periods when investors need it most. "
-    "The 8-year out-of-sample window includes COVID, the 2022 rate shock, and the "
-    "2023-25 recovery, so these results are not the product of a single favourable episode."
+    "Why this matters: the HY-IG credit spread -- the extra yield investors demand "
+    "to hold risky corporate bonds instead of safe ones -- began widening five "
+    "months before the 2008 stock market peak, correctly flagged 3 of the last 4 "
+    "major drawdowns, and is most predictive during the stress periods when "
+    "investors need it most. The 8-year out-of-sample window includes COVID, the "
+    "2022 rate shock, and the 2023-25 recovery, so these results are not the "
+    "product of a single favourable episode."
 )
 
 st.markdown("---")
@@ -196,10 +197,10 @@ load_plotly_chart(
         "recession bands and event annotations."
     ),
     caption=(
-        "Dual-panel view: HY-IG spread on top (bps, where 100 bps = 1%) and "
-        "SPY price below, sharing a common time axis. Vertical shaded bands "
-        "mark NBER recessions. Notice how the spread widens before or during "
-        "equity declines."
+        "How to read it: dual-panel view — HY-IG spread on top (bps, where "
+        "100 bps = 1%) and SPY price below, sharing a common time axis. "
+        "Vertical shaded bands mark NBER recessions. Notice how the spread "
+        "widens before or during equity declines."
     ),
     pair_id=PAIR_ID,
 )
@@ -284,9 +285,10 @@ load_plotly_chart(
         "output/_comparison/history_zoom_dotcom.json)."
     ),
     caption=(
-        "HY-IG OAS spread, 1998-2003. Event markers: Dot-Com peak (Mar 2000), "
-        "400 bps crossing (Aug 2000), NBER recession start (Mar 2001), "
-        "WorldCom (Jul 2002). Vertical shaded bands mark NBER recessions."
+        "What this shows: HY-IG OAS spread, 1998-2003. Event markers: "
+        "Dot-Com peak (Mar 2000), 400 bps crossing (Aug 2000), NBER "
+        "recession start (Mar 2001), WorldCom (Jul 2002). Vertical shaded "
+        "bands mark NBER recessions."
     ),
     pair_id=PAIR_ID,
 )
@@ -311,9 +313,10 @@ load_plotly_chart(
         "output/_comparison/history_zoom_gfc.json)."
     ),
     caption=(
-        "HY-IG OAS spread, 2005-2010. Event markers: BNP Paribas freeze "
-        "(Aug 2007), Bear Stearns (Mar 2008), Lehman (Sep 2008), NBER "
-        "recession end (Jun 2009). Vertical shaded bands mark NBER recessions."
+        "What this shows: HY-IG OAS spread, 2005-2010. Event markers: "
+        "BNP Paribas freeze (Aug 2007), Bear Stearns (Mar 2008), Lehman "
+        "(Sep 2008), NBER recession end (Jun 2009). Vertical shaded bands "
+        "mark NBER recessions."
     ),
     pair_id=PAIR_ID,
 )
@@ -337,9 +340,10 @@ load_plotly_chart(
         "output/_comparison/history_zoom_covid.json)."
     ),
     caption=(
-        "HY-IG OAS spread, 2019-2022. Event markers: pandemic declared "
-        "(Mar 2020), spread peak ~1,100 bps (Mar 2020), Fed credit "
-        "facilities (Mar 23 2020). Vertical shaded bands mark NBER recessions."
+        "What this shows: HY-IG OAS spread, 2019-2022. Event markers: "
+        "pandemic declared (Mar 2020), spread peak ~1,100 bps (Mar 2020), "
+        "Fed credit facilities (Mar 23 2020). Vertical shaded bands mark "
+        "NBER recessions."
     ),
     pair_id=PAIR_ID,
 )
@@ -359,11 +363,10 @@ st.markdown(
     "when the driver is pure monetary policy shock."
 )
 
-with st.expander(
-    "Is there a deeper signal within the credit market itself? "
-    "(The CCC-BB quality spread)"
-):
+with st.expander("Deeper dive"):
     st.markdown(
+        "*Is there a deeper signal within the credit market itself? "
+        "(The CCC-BB quality spread.)*\n\n"
         "Not all high-yield bonds are equally risky. Within the high-yield "
         "universe, there is a meaningful hierarchy: BB-rated bonds are the "
         "least risky high-yield issues (just one notch below investment "
@@ -395,8 +398,8 @@ load_plotly_chart(
     "returns_by_regime",
     fallback_text="SPY performance by credit spread regime (quartile analysis).",
     caption=(
-        "Equity performance differs across credit spread regimes. "
-        "When spreads are in their top quartile (highest stress), "
+        "Why this matters: equity performance differs across credit spread "
+        "regimes. When spreads are in their top quartile (highest stress), "
         "the credit-equity relationship strengthens significantly."
     ),
     pair_id=PAIR_ID,
@@ -429,8 +432,9 @@ st.markdown(
 
 st.markdown("")
 
-with st.expander("How do we define market regimes without arbitrary cutoffs?"):
+with st.expander("Why we chose this method"):
     st.markdown(
+        "*How do we define market regimes without arbitrary cutoffs?*\n\n"
         'In financial economics, a "regime" refers to a distinct state of the market '
         "characterized by its own set of statistical properties -- its own average return, "
         "level of volatility, and pattern of correlations between assets. Think of weather: "
@@ -462,7 +466,10 @@ if _glossary_path.exists():
             if label.startswith("_"):
                 continue
             st.markdown(f"- **{label}** — {definition}")
-        st.caption("Canonical source: `docs/portal_glossary.json` (Rule RES-10).")
+        st.caption(
+            "What this shows: the canonical source for these labels is "
+            "`docs/portal_glossary.json` (Rule RES-10)."
+        )
 
 # ---------------------------------------------------------------------------
 # Transition
@@ -485,6 +492,6 @@ st.page_link(
 # ---------------------------------------------------------------------------
 st.markdown("---")
 st.caption(
-    "Generated with AIG-RLIC+ | Data: 2000-01 to 2025-12 | "
-    "~6,500 daily observations"
+    "What this shows: generated with AIG-RLIC+ | Data: 2000-01 to 2025-12 | "
+    "~6,500 daily observations."
 )

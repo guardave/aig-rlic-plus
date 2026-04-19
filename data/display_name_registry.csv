@@ -1,0 +1,52 @@
+column_name,display_name,unit,axis_label
+date,Date,date,Date
+hy_oas,HY OAS (%),percent,HY OAS (%)
+ig_oas,IG OAS (%),percent,IG OAS (%)
+bb_hy_oas,BB HY OAS (%),percent,BB HY OAS (%)
+ccc_hy_oas,CCC HY OAS (%),percent,CCC HY OAS (%)
+dgs10,US 10Y Treasury Yield (%),percent,10Y Yield (%)
+dtb3,US 3M T-Bill Yield (%),percent,3M Yield (%)
+dgs2,US 2Y Treasury Yield (%),percent,2Y Yield (%)
+nfci,Chicago Fed NFCI,index,NFCI
+fed_funds_rate,Fed Funds Rate (%),percent,FFR (%)
+bbb_oas,BBB OAS (%),percent,BBB OAS (%)
+fsi,OFR Financial Stress Index,index,FSI
+initial_claims,Initial Jobless Claims,count,Claims
+sofr,SOFR (%),percent,SOFR (%)
+spy,SPY Close ($),price,SPY ($)
+vix,VIX Index Level,index,VIX
+vix3m,VIX3M Index Level,index,VIX3M
+kbe,KBE Close ($),price,KBE ($)
+iwm,IWM Close ($),price,IWM ($)
+move_index,MOVE Index,index,MOVE
+gold,Gold Spot ($/oz),price,Gold ($/oz)
+copper,Copper Spot ($/lb),price,Copper ($/lb)
+dxy,DXY Dollar Index,index,DXY
+hyg,HYG Close ($),price,HYG ($)
+hy_ig_spread_pct,HY-IG Credit Spread (%),percent,Spread (%)
+hy_ig_zscore_252d,HY-IG Spread Z-Score (252d),ratio,Z-Score (252d)
+hy_ig_zscore_504d,HY-IG Spread Z-Score (504d),ratio,Z-Score (504d)
+hy_ig_pctrank_504d,HY-IG Spread %-Rank (504d),ratio,%-Rank (504d)
+hy_ig_pctrank_1260d,HY-IG Spread %-Rank (1260d),ratio,%-Rank (1260d)
+hy_ig_roc_21d,HY-IG Spread 21d Rate-of-Change (%),percent,21d RoC (%)
+hy_ig_roc_63d,HY-IG Spread 63d Rate-of-Change (%),percent,63d RoC (%)
+hy_ig_roc_126d,HY-IG Spread 126d Rate-of-Change (%),percent,126d RoC (%)
+hy_ig_mom_21d,HY-IG Spread 21d Momentum (pp),percent,21d Mom (pp)
+hy_ig_mom_63d,HY-IG Spread 63d Momentum (pp),percent,63d Mom (pp)
+hy_ig_mom_252d,HY-IG Spread 252d Momentum (pp),percent,252d Mom (pp)
+hy_ig_acceleration,HY-IG Spread Acceleration,percent,Accel (%)
+ccc_bb_spread,CCC-BB HY Quality Spread (%),percent,CCC-BB (%)
+hy_ig_realized_vol_21d,"HY-IG Spread Realized Vol (21d, decimal)",ratio,Realized Vol
+vix_term_structure,VIX Term Structure,index,VIX3M-VIX
+yield_spread_10y3m,10Y-3M Yield Spread (%),percent,10Y-3M (%)
+yield_spread_10y2y,10Y-2Y Yield Spread (%),percent,10Y-2Y (%)
+bank_smallcap_ratio,KBE/IWM Ratio,ratio,KBE/IWM
+nfci_momentum_13w,NFCI 13-Week Momentum,index,NFCI 13w Chg
+bbb_ig_spread,BBB-IG Spread (%),percent,BBB-IG (%)
+spy_ret,SPY Daily Return (decimal),decimal_return,Daily Return
+spy_fwd_1d,SPY 1-Day Forward Return,decimal_return,1d Fwd Return
+spy_fwd_5d,SPY 5-Day Forward Return,decimal_return,5d Fwd Return
+spy_fwd_21d,SPY 21-Day Forward Return,decimal_return,21d Fwd Return
+spy_fwd_63d,SPY 63-Day Forward Return,decimal_return,63d Fwd Return
+spy_fwd_126d,SPY 126-Day Forward Return,decimal_return,126d Fwd Return
+spy_fwd_252d,SPY 252-Day Forward Return,decimal_return,252d Fwd Return

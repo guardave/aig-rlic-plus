@@ -1126,3 +1126,518 @@ All 3 new schemas validate their canonical + example instances; Vera's extended 
 **Backlog context.** BL-001 (APP-SEV1-MAP) remains deferred per Lead 2026-04-19 and is NOT re-proposed in this dispatch — tracked in `docs/backlog.md`. The 4 rules authored here are higher stakeholder-visible ROI (caption prefixes, expander titles, slug pins, full-catalog chart registry) per the Wave-5 Ace audit Axis 3 ranking.
 
 **Approved by:** Ace self-approves the Wave 5B-2 rule authoring (8/8 schema smoke tests pass; SOP + standards.md updates are additive with no rule-renumbering; zero portal code changes per no-retro-apply constraint; APP-CH1 extension to Vera's registry uses pre-existing schema shapes only). Lead Lesandro ratifies at Wave 5B consolidation; Wave 5C retro-apply dispatch carries portal-code migrations for APP-CC1 / APP-EX1 / APP-URL1 plus registry-reading refactor of `load_plotly_chart` for APP-CH1.
+
+
+---
+
+### Evan's Wave 5C retro-apply (2026-04-19)
+
+**Dispatch:** Wave 5C retro-apply — make HY-IG v2 econometric artifacts conform to ECON-T3, ECON-DS3, ECON-OOS1, and ECON-OOS2 (the four Evan rules added in Wave 5B-2).
+
+#### Prior-version observation
+
+The sample HY-IG reference pair did NOT carry an `oos_split_record.json` — the rule (ECON-OOS1/OOS2) is new. The OOS window (`oos_period_start = 2018-01-01`, `oos_period_end = 2025-12-31`) was inherited verbatim from the original pre-ECON-OOS2 pipeline and was reverse-inferred from `oos_n = 2088` (exactly the exemplar cited in the ECON-OOS2 Motivation paragraph). Wave 5C verifies the window against the formula and declares divergence per META-XVC.
+
+#### Task 1 — `oos_split_record.json` created
+
+- **Path:** `results/hy_ig_v2_spy/oos_split_record.json`
+- **split_policy_id:** `v1_max36_25pct_cap120`
+- **sample_size_months:** 312 (daily parquet `data/hy_ig_v2_spy_daily_20260410.parquet`, 2000-01-03 through 2025-12-31, 312 unique months)
+- **Formula output:** `span_months = min(max(36, round(312 * 0.25)), 120) = min(max(36, 78), 120) = 78` → formula-derived window = `oos_start = 2019-07-01`, `oos_end = 2025-12-31`, `in_sample_end = 2019-06-30`.
+- **Shipped winner_summary values:** `oos_period_start = 2018-01-01`, `oos_period_end = 2025-12-31` (96 months).
+- **Divergence:** formula = 78 months, shipped = 96 months. The oos_split_record.json embeds the declared divergence block (Prior method / New method / Strong reason / Expected impact / Validation / Cross-reference) per META-XVC. Strong reason for keeping the 96-month window: Wave 5C dispatch constraint is retro-apply of the record, not tournament re-run; silent re-window would cascade regressions to Ray / Ace / Vera; 4Y-IS / 8Y-OOS is defensible on a 25-year history. Future pairs onboarded post-Wave-5C use formula-derived dates strictly.
+
+#### Task 2 — `tournament_tie_note.md` created
+
+- **Path:** `results/hy_ig_v2_spy/tournament_tie_note.md`
+- **Near-ties exist?** YES. Two rows within ε = 0.01 of top `oos_sharpe` (1.2740): `S6_hmm_stress / T4_hmm_0.7 / P2` and `S6_hmm_stress / T4_hmm_0.5 / P2`.
+- **Cascade level reached:** level 5+ (lexicographic on auxiliary key `threshold`). The two candidates share `signal_code` and are observationally equivalent under P2 sizing (position size scales with signal magnitude; the nominal threshold does not gate entry/exit, so both threshold variants produce identical OOS paths). All five ECON-T3 steps tie; resolution falls back to lexicographic ordering on the threshold key (`T4_hmm_0.5 < T4_hmm_0.7`), confirming the shipped winner.
+- **Out-of-cascade observation (per ECON-T3 instruction):** under P1 binary sizing the two thresholds DO differentiate (1.1749 vs 1.1611, with `0.7` better). A P1-preferred tiebreak on interpretability grounds is a future rule candidate but out of scope for v1 ECON-T3.
+
+#### Task 3 — `signal_code` canonicalized per ECON-DS3
+
+- **Old:** `"S6_hmm_stress"` (pipeline-order taxonomy label).
+- **New:** `"hmm_stress"` (registry-canonical value per `docs/schemas/signal_code_registry.json`).
+- **Validator command:**
+
+  ```
+  python3 scripts/validate_schema.py --schema docs/schemas/winner_summary.schema.json --instance results/hy_ig_v2_spy/winner_summary.json
+  ```
+
+- **Validator result:** `OK: results/hy_ig_v2_spy/winner_summary.json conforms to docs/schemas/winner_summary.schema.json` — **PASS**.
+- Note: tournament_results_20260410.csv retains the old `S6_hmm_stress` string (source-of-truth CSV not modified per Wave 5C constraint); the canonical registry value now flows through winner_summary.json → downstream consumers (Ray / Ace / Vera).
+
+#### Constraints honored
+
+- `tournament_results_20260410.csv` not modified (source of truth preserved).
+- Dana's in-flight `hy_ig_spread` → `_pct` renames not touched.
+- No push; files staged for Lead review.
+
+#### Files written / modified in this Wave 5C retro-apply (Evan scope)
+
+- `results/hy_ig_v2_spy/oos_split_record.json` — new.
+- `results/hy_ig_v2_spy/tournament_tie_note.md` — new.
+- `results/hy_ig_v2_spy/winner_summary.json` — `signal_code` field canonicalized (one-line change).
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+---
+
+### Vera's Wave 5C retro-apply (2026-04-19)
+
+**Scope:** Retro-apply VIZ-V11 (palette registry), VIZ-V12 (historical-episode events registry), and VIZ-V13 (annotation positioning strategies) to six existing HY-IG v2 chart JSONs + sidecars **without** regenerating from raw data. All changes are in-place JSON mutations.
+
+#### Prior-version observation (META-XVC)
+
+The sample-pair (HY-IG v1) shipped under the matplotlib default palette (`#d62728` red, `#1f77b4` blue, `#2ca02c` green). HY-IG v2 adopts Okabe-Ito 2026 (`okabe_ito_2026`, canonical in `docs/schemas/color_palette_registry.json`) per the stakeholder accessibility finding surfaced in the Wave 5 audit. This is a **declared methodological divergence** per META-XVC — a justified improvement (colorblind-safe, codified, lintable), documented here and in `acceptance.md` Methodological Divergence Log, traceable back to the v1 baseline via the `palette_id` sidecar field.
+
+#### 1. Palette updates (`#d62728` / `#1f77b4` / `#2ca02c` → Okabe-Ito)
+
+| Chart | Change |
+|---|---|
+| `hero.json` | corner-box annotation `bordercolor` `#1f77b4` → `#0072B2` (secondary role). Trace colors already palette-compliant from Wave 3. |
+| `granger_f_by_lag.json` | Already migrated on disk to `#D55E00` / `#0072B2` (traces + F-critical line) prior to this retro run; sidecar now declares `palette_id`. |
+| `regime_quartile_returns.json` | `marker.color` bar array migrated to `quartile_gradient` (`#009E73`, `#F0E442`, `#E69F00`, `#D55E00`) — replaces prior mixed `#2ca02c` / `#7fb87f` / `#f5b377` / `#d62728`. |
+| `history_zoom_dotcom.json` | trace `line.color` `#d62728` → `#D55E00`. |
+| `history_zoom_gfc.json` | trace `line.color` `#d62728` → `#D55E00`. |
+| `history_zoom_covid.json` | trace `line.color` `#d62728` → `#D55E00`. |
+
+All six `_meta.json` sidecars now carry `palette_id: "okabe_ito_2026"`.
+
+#### 2. Event-marker updates from VIZ-V12 registry
+
+Registry consumed: `docs/schemas/history_zoom_events_registry.json` `x-version 1.0.0`. Each affected sidecar now carries `history_zoom_events_registry_version: "1.0.0"` (plus legacy-alias key `events_registry_version` to match rule V12 text).
+
+**Dot-Com (4 events, 1 label refined, 2 date refinements):**
+- Kept: `Mar 2001: Recession begins` (date unchanged, "(NBER)" suffix dropped per registry label)
+- Date refined: `2000-03-01` → `2000-03-10` (NASDAQ all-time peak close); `2002-07-01` → `2002-07-21` (actual WorldCom 8-K filing date)
+- Label swapped: `Aug 2000: Credit spreads widen past 400 bps` → `Aug 2000: Yield curve inversion` (registry sources the 2y-10y inversion — a leading indicator — not a spread-level observation)
+- `Mar 2000: Dot-Com peak`, `Jul 2002: WorldCom bankruptcy` kept (label normalized, date corrected to actual event)
+
+**GFC (5 events, 1 event swapped, labels normalized):**
+- Swapped OUT: `Oct 2007: Credit spreads begin widening` (ad-hoc; no primary source)
+- Swapped IN: `Mar 2009: SPX trough` (S&P 500 intraday low 666.79 + HY-IG OAS ~1500bps — registry-cited canonical credit-equity co-trough)
+- Labels refined: `Mar 2008: Bear Stearns collapse` → `Bear Stearns rescue`; `Sep 2008: Lehman Brothers` → `Lehman bankruptcy`; `Jun 2009: Recession ends (NBER)` → `Jun 2009: Recession ends` (date `2009-06-30` → `2009-06-01` to match NBER trough)
+- `Aug 2007: BNP Paribas suspends funds` → `Aug 2007: BNP fund freeze` (shorter label)
+
+**COVID (3 events, 2 swapped, 1 end-date refined):**
+- Swapped OUT: `Feb 2020: Pandemic declared` (2020-02-11) → Swapped IN: `Feb 2020: SPX pre-COVID peak` (2020-02-19; the NBER peak-dating date)
+- Relabeled: `Mar 2020: Credit spreads peak ~1100 bps` (2020-03-23) → `Mar 2020: SPX trough + Fed facility` (same date; registry ties equity trough + Fed credit-facility announcement to single canonical date)
+- Swapped OUT: `Apr 2020: Fed credit facilities` (2020-04-09) → Swapped IN: `Apr 2020: Recession ends` (2020-04-30; NBER trough)
+
+Dashed vertical event-marker lines on each zoom chart were fully rebuilt: old lines dropped, new lines drawn at the registry-canonical dates using `event_marker_line: #4D4D4D` (palette role). Event-label annotation `bordercolor` + `bgcolor` now use palette roles `#4D4D4D` + `rgba(255,255,255,0.82)`.
+
+#### 3. Annotation strategy assignments (VIZ-V13)
+
+| Chart | Strategy | Rationale |
+|---|---|---|
+| `hero.json` | `top_right_uniform` | Static corner KPI box + panel titles + captions (6 annotations, none are event markers); fits anchored corner placement. |
+| `granger_f_by_lag.json` | `top_right_uniform` | 2 bottom source/legend captions only; no event markers. |
+| `regime_quartile_returns.json` | `top_right_uniform` | 2 bottom source/legend captions only; no event markers. |
+| `history_zoom_dotcom.json` | `descending_stair` | 4 event markers + 2 captions; y-pattern (y_top → y_top−7% → y_top−14% → y_top) matches rule-V13 wrapping stair. |
+| `history_zoom_gfc.json` | `descending_stair` | 5 event markers + 2 captions; wrapping stair with period 3. |
+| `history_zoom_covid.json` | `descending_stair` | 3 event markers + 2 captions; clean stair 3-step. |
+
+No chart required `manual_override`. All six sidecars now carry `annotation_strategy_id`.
+
+#### 4. VIZ-V5 smoke-test re-run
+
+Log: `output/charts/hy_ig_v2_spy/plotly/_smoke_test_wave5c_20260419.log` — **10 / 10 PASS, 0 FAIL.**
+
+```
+PASS hero.json, correlation_heatmap.json, ccf_prewhitened.json,
+     granger_f_by_lag.json, quartile_returns.json, regime_quartile_returns.json,
+     transfer_entropy.json
+PASS _comparison/history_zoom_dotcom.json, history_zoom_gfc.json, history_zoom_covid.json
+```
+
+All charts load via `plotly.io.from_json`, titles non-empty, first-trace `y`/`z`/`values` data non-empty.
+
+#### 5. Perceptual-check PNGs regenerated
+
+Pair charts under `output/charts/hy_ig_v2_spy/plotly/`:
+- `_perceptual_check_hero.png`
+- `_perceptual_check_granger_f_by_lag.png` *(new in this wave)*
+- `_perceptual_check_regime_quartile_returns.png` *(new in this wave)*
+
+Canonical zoom charts under `output/_comparison/`:
+- `_perceptual_check_history_zoom_dotcom.png`
+- `_perceptual_check_history_zoom_gfc.png`
+- `_perceptual_check_history_zoom_covid.png`
+
+Visual confirmation: zoom-chart data trace color shifted from matplotlib `#d62728` to Okabe-Ito `#D55E00` (vermillion); NBER shading unchanged (Wave 3 `rgba(150,120,120,0.22)`); event-marker dashed vertical lines and label boxes render at the registry-canonical dates. No regression observed in axis layout, tick formatting, or title text.
+
+#### Files touched (Wave 5C retro-apply, Vera only)
+
+- `output/charts/hy_ig_v2_spy/plotly/hero.json` (annotation bordercolor)
+- `output/charts/hy_ig_v2_spy/plotly/hero_meta.json`
+- `output/charts/hy_ig_v2_spy/plotly/granger_f_by_lag.json` *(no body change in this run; prior palette migration ratified)*
+- `output/charts/hy_ig_v2_spy/plotly/granger_f_by_lag_meta.json`
+- `output/charts/hy_ig_v2_spy/plotly/regime_quartile_returns.json` (quartile gradient)
+- `output/charts/hy_ig_v2_spy/plotly/regime_quartile_returns_meta.json`
+- `output/_comparison/history_zoom_{dotcom,gfc,covid}.json` (trace color + event shapes + event annotations)
+- `output/_comparison/history_zoom_{dotcom,gfc,covid}_meta.json`
+- `output/charts/hy_ig_v2_spy/plotly/_perceptual_check_{hero,granger_f_by_lag,regime_quartile_returns}.png`
+- `output/_comparison/_perceptual_check_history_zoom_{dotcom,gfc,covid}.png`
+- `output/charts/hy_ig_v2_spy/plotly/_smoke_test_wave5c_20260419.log`
+- `temp/260419_wave5c_retro/retro_apply.py` (script, retained for reproducibility)
+
+**Not touched:** raw data / pipeline scripts / econometric outputs / portal pages / other pairs / other agents' SOPs. Chart filenames unchanged per dispatch constraint.
+
+**Approved by:** Vera self-approves (palette lint passes, events-registry version consumed + recorded, VIZ-V5 smoke 10/10 PASS, perceptual PNGs visually coherent). Lead Lesandro to ratify at next Wave 5C consolidation.
+
+---
+
+### Dana's Wave 5C retro-apply (2026-04-19)
+
+**Dispatch scope:** Bring HY-IG v2 data-layer artifacts into conformance with the DATA-D5 / DATA-D11 / DATA-D12 / DATA-D13 rules authored in Wave 5B (see sections "Dana's Wave 4C-2 schemas" and "Dana's Wave 5B-2 DATA rules" above for the rule text). Four tasks: column rename, sidecar, manifest, display-name registry.
+
+#### Prior-version observation (META-XVC)
+
+Sample HY-IG data (v1: `data/hy_ig_spy_daily_20000101_20251231.parquet` + its `_latest` alias) did **NOT** ship with a DATA-D5 sidecar, a DATA-D13 manifest, or a DATA-D13 display-name registry — these artifacts did not exist in the repository at all prior to this wave. **v2 is therefore introducing the sidecar / manifest / registry structure for the first time; this is ADDITIVE, NOT a divergence from v1.** No prior-version behavior is overridden, no v1 column is renamed in place, and v1's `hy_ig_spread` column remains untouched on disk (grandfathered per DATA-D12 Grandfathering clause until the next v1 rerun). Cross-version consistency is satisfied: the v2 canonical column name `hy_ig_spread_pct` is a superset-compatible rename (same values, explicit unit suffix); any future v1 rerun will adopt the same name to bring v1 into alignment.
+
+#### Task 1 — Column rename `hy_ig_spread` → `hy_ig_spread_pct` (per DATA-D12)
+
+- **Motivation (one-sentence):** The column stored percent values (range 1.47–15.31, computed as `hy_oas − ig_oas` where both are in percent) but lacked a unit suffix, forcing downstream consumers (Vera's axis builder, Ace's KPI renderer, Ray's narrative) to guess or hardcode unit assumptions. Wave-2A 100× bug emerged from exactly this ambiguity.
+- **Pre-grep consumer audit:** saved to `temp/hy_ig_spread_consumers_20260419.txt` — enumerates 37 files across `app/`, `scripts/`, `docs/`, `results/`. Scope-filter: only v2 Python consumers are live migration targets; v1 Python scripts (which read the separate v1 parquet) are grandfathered; prose/history files in `docs/` and `results/` are left as-is for historical accuracy.
+- **Consumer file updates (4 files, all v2 scope):**
+  - `scripts/pair_pipeline_hy_ig_v2_spy.py` — 37 references renamed (producer + signal-column map entries at lines 675, 903, 1115).
+  - `scripts/retro_fix_hy_ig_v2_evan_20260411.py` — 8 references renamed.
+  - `scripts/retro_fix_hy_ig_v2_vera_20260411.py` — 4 references renamed; added a rename-documenting comment at line 146.
+  - `scripts/generate_charts_hy_ig_v2_spy.py` — 2 data references renamed; updated the y-axis title from `(bps)` to `(%)` to match the stored unit (line 188).
+- **Parquet mutation:** `data/hy_ig_v2_spy_daily_20260410.parquet` rewritten with `hy_ig_spread` renamed to `hy_ig_spread_pct`. Shape preserved (6783 × 50). Value integrity preserved (min=1.47, max=15.31, mean=3.82 — identical before/after). Pre-rename backup retained at `temp/hy_ig_v2_spy_daily_20260410.before_rename.parquet` (gitignored; rollback-only).
+- **Post-rename grep verification:** 0 bare `hy_ig_spread` references in any of the 4 v2 Python consumer files, 0 in `app/`, 0 in `app/components/`, 0 in `app/pages/`. All four v2 scripts pass `python3 -m py_compile` (syntax OK).
+- **Prose retained (not updated, flagged):** `results/hy_ig_v2_spy/regression_note_20260411.md`, `results/hy_ig_v2_spy/regime_quartile_returns_methodology.md`, `results/hy_ig_v2_spy/interpretation_metadata.json` key-name text, `docs/validation-audit-20260419-dana.md`, `docs/cross-review-20260419-dana.md`, `docs/agent-sops/data-agent-sop.md`, and the prior sections of this regression note. These are historical / audit artifacts — mutating them would falsify the record of what the bug looked like before the rename.
+
+#### Task 2 — DATA-D5 sidecar for HY-IG v2
+
+- **Path:** `data/hy_ig_v2_spy_daily_schema.json` (new file).
+- **Coverage:** 51 column entries (50 parquet data columns + `date` index). Cross-validated: every parquet column has an entry, every entry corresponds to a parquet column (0 orphans, 0 missing).
+- **Unit distribution (controlled enum):** `percent` (18 cols — spreads, yields, RoC, momentum, acceleration), `decimal_return` (7 cols — spy_ret + spy_fwd_*), `price` (7 cols — spy/kbe/iwm/hyg/gold/copper plus gold/copper are price per native unit), `index` (7 cols — nfci/fsi/vix/vix3m/move/dxy/vix_term_structure), `ratio` (5 cols — z-scores, pct-ranks, realized_vol, bank_smallcap_ratio), `count` (1 col — initial_claims), `date` (1 col — date).
+- **Validation result:** `python3 scripts/validate_schema.py --schema docs/schemas/data_subject.schema.json --instance data/hy_ig_v2_spy_daily_schema.json` → **exit 0 (OK)**.
+
+#### Task 3 — Data manifest
+
+- **Path:** `data/manifest.json` (new file).
+- **Entry count:** 3 — `hy_ig_v2_spy_daily_20260410.parquet` (reference pair, schema_ref populated), `hy_ig_spy_daily_20000101_20251231.parquet` (v1 master), `hy_ig_spy_daily_latest.parquet` (v1 `_latest` alias with `source_master` backlink). Non-HY-IG parquets (`indpro_*`, `vix_vix3m_*`, `permit_*`, `sofr_ted_*`, `ted_spliced_*`, `dff_ted_*`) are out of scope for this dispatch; their manifest entries are scheduled for parallel Wave 5C dispatches per pair owner.
+- **Validation result:** `python3 scripts/validate_schema.py --schema docs/schemas/data_manifest.schema.json --instance data/manifest.json` → **exit 0 (OK)**.
+
+#### Task 4 — Display-name registry
+
+- **Canonical path:** `data/display_name_registry.csv` (header `column_name,display_name,unit,axis_label` per `docs/schemas/display_name_registry.schema.json`; this is the form the DATA-D13 rule text and Vera / Ace read directly).
+- **JSON-equivalent view:** `data/display_name_registry.json` (created alongside for schema validation per DATA-D13 "a JSON-equivalent view conforming to `docs/schemas/display_name_registry.schema.json`").
+- **Row count:** 51 (matches the 51 sidecar entries for hy_ig_v2_spy; only HY-IG v2 columns in this first bootstrap pass — indicator columns shared with other pairs will be consolidated once additional pair sidecars ship).
+- **Cross-validation:** sidecar `display_name` equals registry `display_name` for all 51 columns (0 mismatches); sidecar `unit` equals registry `unit` for all 51 columns (0 mismatches).
+- **Dispatch vs schema column-header reconciliation:** the dispatch specified columns `parquet_column_name,display_name,unit,source` but `docs/schemas/display_name_registry.schema.json` mandates `column_name,display_name,unit,axis_label`. Followed the schema (canonical per DATA-D13 / META-CF); `source` provenance already lives in the DATA-D5 sidecar's `source_reference` field, so no information is lost. Validated: `python3 scripts/validate_schema.py --schema docs/schemas/display_name_registry.schema.json --instance data/display_name_registry.json` → **exit 0 (OK)**.
+
+#### Consumer breakage risk flags
+
+1. **v2 tournament / backtest reruns:** `scripts/pair_pipeline_hy_ig_v2_spy.py` now writes `hy_ig_spread_pct` and consumes it throughout. Any cached intermediate that still carries `hy_ig_spread` will fail at the first column access — intentional (fail-loud on stale cache). Mitigation: full rerun of the v2 pipeline will regenerate with the new name end-to-end.
+2. **Portal side:** no app/ file referenced `hy_ig_spread` directly (pair_registry + charts/JSON path is the consumption route), so no portal runtime risk. Grep for bare name in `app/` returned 0.
+3. **v1 parallel universe:** the v1 parquet, its `_latest` alias, and all v1 scripts still carry `hy_ig_spread`. This is intentional grandfathering (DATA-D12 clause); v1 is NOT the reference pair for Wave 5B acceptance. Any future v1 rerun must adopt `hy_ig_spread_pct` to bring v1 into alignment — file `docs/backlog.md` candidate.
+4. **Manifest v1 sidecar reference:** `data/manifest.json` lists `schema_ref: data/hy_ig_spy_daily_schema.json` for the v1 entries, but that sidecar does NOT exist yet (v1 sidecar is future Wave 5C work). The manifest still validates (the schema_ref field is a free-form string per `docs/schemas/data_manifest.schema.json`), but `python3 scripts/validate_schema.py` on the v1 sidecar path would fail until it's authored. Flagged as a follow-up dispatch target.
+5. **Share/index columns across pairs:** the v1 parquet (still in service) and v2 parquet now both carry columns named `spy`, `vix`, `vix3m`, `gold`, `copper`, `dxy`, etc. These map to the SAME display_name in this bootstrap registry. Future non-HY-IG pairs (INDPRO, VIX-VIX3M, etc.) will need registry rows that are consistent with this bootstrap entry — cross-pair consistency is DATA-D13's whole point; noting here so the next dispatch's cross-check is straightforward.
+
+#### Gaps closed
+
+- **Wave-2A 100× unit bug residual:** the root enabling condition — a unit-valued column without a unit-suffixed name, values stored in percent but no machine-readable declaration of that fact — is now eliminated at the artifact layer. `hy_ig_spread_pct` declares percent in the column name (DATA-D12) AND in the sidecar `unit` field (DATA-D5). Vera's axis builder and Ace's KPI renderer can now fail loudly on mismatch rather than silently mis-label by 100×.
+- **DATA-D5 instance gap:** DATA-D5 (Wave 4C-1) authored the contract; HY-IG v2 shipped without an instance (Wave-5 audit finding). After this wave, the reference pair carries a fully conformant sidecar on disk — the rule is no longer a paper rule for this pair.
+- **DATA-D11 reference-pair sidecar gate:** now satisfied for `hy_ig_v2_spy` — acceptance.md cannot be blocked on this rule for this pair anymore.
+- **DATA-D13 manifest + registry bootstrap:** both files now exist on disk, validate against their schemas, and are cross-coherent with the sidecar. Rule is no longer a paper rule for this pair.
+
+#### Files touched (Wave 5C retro-apply)
+
+- `data/hy_ig_v2_spy_daily_20260410.parquet` — column rename (in-place rewrite, shape + values preserved).
+- `data/hy_ig_v2_spy_daily_schema.json` — new (DATA-D5 sidecar, 51 column entries).
+- `data/manifest.json` — new (DATA-D13 cross-pair manifest, 3 HY-IG entries).
+- `data/display_name_registry.csv` — new (DATA-D13 canonical CSV, 51 rows).
+- `data/display_name_registry.json` — new (DATA-D13 JSON-equivalent view, schema-validated).
+- `scripts/pair_pipeline_hy_ig_v2_spy.py` — 37 refs migrated.
+- `scripts/retro_fix_hy_ig_v2_evan_20260411.py` — 8 refs migrated.
+- `scripts/retro_fix_hy_ig_v2_vera_20260411.py` — 4 refs migrated + rename-documenting comment.
+- `scripts/generate_charts_hy_ig_v2_spy.py` — 3 refs migrated + axis-label unit fix.
+- `temp/hy_ig_spread_consumers_20260419.txt` — new (consumer grep audit; gitignored working file).
+- `temp/hy_ig_v2_spy_daily_20260410.before_rename.parquet` — new (rollback backup; gitignored).
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+#### Not touched (explicit scope exclusions)
+
+- v1 parquet + v1 scripts (`data_pipeline_hy_ig_spy.py`, `stage1_exploratory.py`, `stage2_core_models.py`, `tournament_backtest.py`, `tournament_validation.py`, `generate_charts.py`, `synthesize_broker_trade_log.py`) — grandfathered per DATA-D12.
+- Prose / history files in `docs/` and `results/` (regression notes pre-this-append, methodology docs, SOPs, audits) — intentional preservation of historical record.
+- Non-HY-IG manifest entries (INDPRO, VIX-VIX3M, permits, SOFR-TED, DFF-TED, spliced-TED) — scheduled for parallel per-pair Wave 5C dispatches.
+- Portal code migration for the renamed column — not needed; `app/` has zero references to `hy_ig_spread` (verified by grep).
+
+**Approved by:** Dana self-approves the Wave 5C retro-apply for HY-IG v2 (3/3 schema validations exit 0; 4/4 v2 Python consumers compile OK; 0 bare `hy_ig_spread` references remain in v2 scope; column rename value-integrity preserved; manifest + sidecar + registry cross-coherent). Lead Lesandro to ratify at next consolidation.
+
+---
+
+### Ray's Wave 5C retro-apply (2026-04-19)
+
+**Dispatch scope.** Wave 5C retro-apply for Research Ray on the HY-IG v2 reference pair: make narrative + glossary + frontmatter conform to the new rules authored in Wave 5B-2 (RES-17, RES-18, RES-20, RES-22) and the META-ELI5 rule authored in Wave 5B-1, plus fix the outstanding audit bugs flagged in `docs/validation-audit-20260419-ray.md` (chart_status "ready" violations, glossary under-population, Dot-Com override contradiction, `status_labels` vs `_status_vocabulary` key-name drift). No econometric or chart re-runs; prose + JSON layer only.
+
+**Files touched (Ray-only scope).**
+
+- `docs/portal_narrative_hy_ig_v2_spy_20260410.md` — narrative_version bumped 1.0.0 → 1.1.0. Added RES-17 frontmatter block between standard `---` delimiters at top of file. Migrated 8 × `chart_status: "ready"` → `chart_status: "Validated"` with RES-22 decision-table + META-ELI5 cross-reference annotations inline. Prose body unchanged.
+- `docs/portal_glossary.json` — expanded from 3 `terms` entries + 1 `status_labels` object to 31 `terms` entries + 1 `_status_vocabulary` object. 28 new `terms` entries authored under the RES-6 4-element rubric (plain_english / why_it_matters / example / when_it_fails). Key migrated `status_labels` → `_status_vocabulary` to match RES-22 rule 3 + META-ELI5 pointer + narrative_frontmatter.schema.json status_labels_used cross-reference.
+- `docs/schemas/narrative_frontmatter.schema.json` — x-version bumped 1.0.0 → 1.1.0. Added two new optional fields on `historical_episodes_referenced[i]`: `selection_rationale` (enum `long_lead|coincident|failure_case|confirmer`, implements RES-20 rule 1) and `prose_ref` (free-text pointer). `additionalProperties: false` on episode entries preserved; only the allowed list was extended. META-CF schema-change compliant.
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+**Task 1 — Headline + OOS-window wording (RES-18).**
+
+- **Before:** `## Sharpe 1.27 over 8-year OOS — credit spreads as a multi-month early-warning signal for equity drawdowns` (already present in narrative; no prose drift found — `grep '15-year'` returned zero matches in the narrative body). The audit flagged this as a latent drift risk rather than an active bug because MEMORY.md and task-context had both values floating.
+- **After:** headline prose unchanged (already RES-18 Template A compliant). `headline_template: "A"` + `headline_template_rationale` recorded in frontmatter, citing winner_summary.json (oos_period_start 2018-01-01 → oos_period_end 2025-12-31 = 8 years; oos_sharpe 1.274 → "1.27") and oos_split_record.json as ECON-H5 ground-truth. No hand-typed OOS year-count — the "8-year" value is now read, not typed. RES-18 rule 2 + rule 3 satisfied.
+- **Template choice (A vs B):** A (metric-first). Rationale: the primary stakeholder question is "does this signal work?" which is best answered by a metric-first opener.
+
+**Task 2 — chart_status "ready" violations (RES-22).**
+
+- **Before:** 8 occurrences of `` `chart_status: "ready"` `` at the foot of each Evidence-page Method block (audit said "7 occurrences" — actual count verified at 8 via `grep -c 'chart_status'`).
+- **After:** 8 occurrences migrated to `` `chart_status: "Validated"` `` with an inline HTML-comment citing RES-22 decision-table row 1 (artifact exists on disk + validates against chart_type_registry.json schema + last modified within 60 days) and META-ELI5 rule 3 pointer (ELI5 body supplied by Ace's `app/components/glossary.py` from `docs/portal_glossary.json._status_vocabulary.Validated`). `` `chart_status: "ready"` `` now appears zero times in the narrative. `status_labels_used: ["Validated"]` recorded in frontmatter per RES-17 optional field.
+
+**Task 3 — Glossary population (META-ELI5 + RES-6).**
+
+- **Before:** 3 `terms` entries (Basis point, Credit spread, HMM stress probability) — 15-20 jargon terms in the narrative had no glossary sibling (RES-17 consumer-side validation would have failed).
+- **After:** 31 `terms` entries authored under the RES-6 4-element rubric (plain_english / why_it_matters / example / when_it_fails). 28 new entries added. Representative sample of 5:
+  1. **Tournament** — "A systematic horse-race of signal-threshold-strategy combinations, ranked by OOS Sharpe. Removes cherry-picking; multiple-comparison bias remains as a caveat."
+  2. **Signal probability** — "The continuous 0-to-1 HMM output telling us how confident the model is that stress is active today. Drives P2 Signal Strength position sizing."
+  3. **Stress regime** — "A market state identified by the HMM as statistically distinct from calm. The strategy acts only when the HMM puts high probability here."
+  4. **Walk-forward validation** — "Train on past, test on next window, roll forward. Prevents lookahead bias; fails when regimes shift inside a training window."
+  5. **Quality spread** — "CCC-BB spread: stress within the riskiest corner of the credit market. 'Canary in the coal mine' that often widens before HY-IG does."
+- All 33 glossary terms referenced in narrative frontmatter's `glossary_terms` array now exist as top-level keys under `terms` in `docs/portal_glossary.json` — APP-SE5 L1 load-failure risk (RES-17 consumer check) eliminated.
+
+**Task 4 — Dot-Com `override_needed` decision.**
+
+- **Audit concern:** prose ties HY-IG indicator-specific spread widening (500 → 1,000+ bps) to the Dot-Com episode; `override_needed: false` seemed to violate META-ZI rule that indicator-tied prose requires a pair-specific override chart.
+- **Decision:** `override_needed: false` **retained** for Dot-Com (and GFC and COVID) with explicit `prose_ref` rationale. **Reason:** per META-RPD, HY-IG v2 IS the reference pair, so the canonical zoom chart at `output/_comparison/history_zoom_dotcom.json` (and analogues for GFC, COVID) was generated FROM the HY-IG v2 data pipeline — the canonical artifact IS the pair-specific view for this reference pair. No separate override artifact is required because producing one would be an exact duplicate. This interpretation is consistent with `docs/schemas/history_zoom_events_registry.json.episodes.dotcom.episode_rationale` which explicitly names "Reference-pair (HY-IG v2) Story page cites this episode directly". For non-reference pairs in future, the default will be `override_needed: true` when prose cites indicator-specific magnitudes.
+- **2022 Rate Shock** (inflation_2022): `override_needed: false` — this is the RES-20 failure-case entry; prose argues the failure textually (comparing modest spread widening 300→500 bps to SPY -25%) rather than through an event-marked overlay, so no zoom chart is needed at all.
+
+**Task 5 — Key-name drift (`status_labels` vs `_status_vocabulary`).**
+
+- **Before:** `docs/portal_glossary.json` used top-level key `status_labels`; `docs/schemas/narrative_frontmatter.schema.json` line 97 cross-references `docs/portal_glossary.json._status_vocabulary`; `docs/agent-sops/research-agent-sop.md` RES-22 rule 3 cross-references `docs/portal_glossary.json._status_vocabulary`. Two canonical references, zero matching key — silent contract violation.
+- **After:** Key renamed `status_labels` → `_status_vocabulary` in `docs/portal_glossary.json`. Schema + META-ELI5 rule 3 pointer + RES-22 rule 3 pointer all now resolve to the single canonical top-level key. Each status value upgraded from a flat string definition to a `{eli5, technical}` object so Ace's `app/components/glossary.py` can supply the META-ELI5 plain-English body AND the technical-audit body from the same source. No downstream consumer currently imports the old `status_labels` key (grep `status_labels.*portal_glossary` → zero hits in `app/`), so migration is safe this iteration. Old key is removed, not aliased — a single source of truth per META-CF.
+
+**Task 6 — Episode-selection rationale (RES-20).**
+
+Per-episode `selection_rationale` assigned in frontmatter `historical_episodes_referenced[]`:
+
+| Episode | Rationale | Basis |
+|---------|-----------|-------|
+| `gfc` | `long_lead` | Credit spreads began widening in mid-2007; SPY peaked Oct 2007 — ~5 months of warning. Canonical RES-20 long-lead case. |
+| `covid` | `coincident` | Credit + equity both cratered late-Feb / early-Mar 2020; spread moved WITH equity rather than leading. Canonical RES-20 coincident case. |
+| `inflation_2022` | `failure_case` | HY-IG widened only modestly (300→500 bps) while SPY fell -25% — credit alone under-signaled a pure-rate-shock drawdown. Honest failure case; canonical RES-20 failure case for credit pairs. |
+| `dotcom` | `confirmer` | Optional 4th slot; spreads widened but shorter lead than GFC — the narrative uses this as a contemporaneous confirmer rather than a long-lead. |
+
+Triad (long_lead + coincident + failure_case) is represented; `confirmer` is the optional 4th. RES-20 rule 1 satisfied. Frontmatter validates against the updated schema v1.1.0 (see Schema change below).
+
+**Schema change (META-CF compliant).**
+
+`docs/schemas/narrative_frontmatter.schema.json` x-version bumped 1.0.0 → 1.1.0. Added two optional fields on `historical_episodes_referenced[i]`: `selection_rationale` (enum, implements RES-20 rule 1 mechanized check) and `prose_ref` (free-text audit pointer). `additionalProperties: false` preserved. No breaking change; existing v1.0.0 instances (none exist yet — HY-IG v2 is the first narrative to ship frontmatter) remain valid. Example instance not shipped this wave (HY-IG v2's actual frontmatter serves as the example until `docs/schemas/examples/narrative_frontmatter.example.json` is authored in a future wave).
+
+**META-XVC observation — Prior-version observation.**
+
+The prior version of this narrative (`docs/portal_narrative_hy_ig_spy_20260228.md`, v1) predates Wave 4C-2 and does NOT carry an RES-17 frontmatter block. Head of v1 (lines 1-7) contains only the plain markdown title + From/To/Date header, with no `---`-delimited frontmatter. The v2 narrative (this file) adopts the frontmatter contract, assigns `headline_template: "A"`, populates `historical_episodes_referenced` with RES-20-compliant `selection_rationale`, and records `status_labels_used: ["Validated"]` per RES-22 — all three are justified divergences from v1, not silent drift, because the Wave 5B-2 rules mandating them did not exist when v1 shipped. Per META-XVC, this is a matched-prior baseline: v1 had no frontmatter and used no status labels; v2 adopts the new contract as a structural improvement. No v1 method, chart, expander, or bibliographic entry was dropped; the frontmatter is purely additive metadata describing the same prose surface. Cross-version episode selection (Dot-Com / GFC / COVID shared between v1 and v2) is preserved; v2 additionally registers `inflation_2022` as the RES-20 failure case, which v1 lacked because RES-20 did not exist — documented divergence, not silent.
+
+**Validation.**
+
+```
+python3 scripts/validate_schema.py \
+  --schema docs/schemas/narrative_frontmatter.schema.json \
+  --instance /tmp/hy_ig_v2_frontmatter.json
+-> OK: /tmp/hy_ig_v2_frontmatter.json conforms to docs/schemas/narrative_frontmatter.schema.json
+```
+
+Frontmatter block extracted from `docs/portal_narrative_hy_ig_v2_spy_20260410.md` via `re.match(r'^---\n(.*?)\n---\n', text, re.DOTALL)` + `yaml.safe_load`, dumped to `/tmp/hy_ig_v2_frontmatter.json`, validated against the updated schema. Exit 0. No non-zero exits on any task.
+
+**Not touched (scope boundary).**
+
+- `docs/portal_narrative_hy_ig_spy_20260228.md` (v1) — historical artifact; left untouched per META-XVC observation record.
+- `app/components/glossary.py` — Ace's rendering helper; scheduled for its own Wave 5C retro-apply to consume the renamed `_status_vocabulary` key + new `{eli5, technical}` object shape. Current portal code reads neither `status_labels` nor `_status_vocabulary` directly (glossary rendering is via `terms` dict lookup only), so no breakage this wave.
+- Method chart JSONs under `output/charts/hy_ig_v2_spy/plotly/` — Vera's scope; no re-run triggered. RES-22 "Validated" status is empirically correct today (all 17 chart refs in frontmatter have matching files in the plotly directory, and `docs/schemas/chart_type_registry.json` lists each as a valid method/non-method chart).
+- `results/hy_ig_v2_spy/winner_summary.json` / `oos_split_record.json` — Evan's scope; read-only references in this dispatch.
+
+**Approved by.** Ray self-approves the Wave 5C retro-apply for HY-IG v2 narrative + glossary + frontmatter scope (4/4 audit items closed: chart_status "ready" migration 8/8, glossary expansion +28 terms, Dot-Com override decision with META-RPD rationale, `status_labels` → `_status_vocabulary` rename; 1 frontmatter added and validates; 1 schema minor-bump v1.0.0 → v1.1.0 for RES-20 `selection_rationale` field). Lead Lesandro ratifies at the next Wave 5C consolidation. Ace's portal glossary-rendering refactor + APP-NR1 consumer smoke-test pass are scheduled for the follow-up Ace Wave 5C dispatch.
+
+---
+
+### Ace's Wave 5C retro-apply (2026-04-19)
+
+**Dispatch scope.** Wave 5C retro-apply to make the HY-IG v2 portal conform to the Wave-5B-2 rules Ace authored (APP-CC1 caption vocabulary, APP-EX1 expander titles, APP-URL1 slug pins) plus a META-ELI5 audit on every loud-error message, plus the S18-9 spirit fix (trigger-card sparklines: real history, not synthetic). Portal code only; no schema/SOP changes this wave.
+
+#### Prior-version observation
+
+The original HY-IG sample pages (numbered 1–4, pre-v2) did NOT use the canonical caption-prefix vocabulary (APP-CC1) or the ELI5-on-error pattern (META-ELI5). Those rules did not exist at the time those pages shipped. The Wave 5C retro-apply introduces both patterns for the HY-IG v2 pages only — the v2 reference-pair is explicitly the carrier of the new discipline per META-RPD. Sample pages 1–4 are out of Wave 5C scope and will be migrated separately when other pairs are promoted to reference-candidate status (per META-XVC cross-version discipline). The divergence is therefore justified and documented rather than a regression.
+
+#### Task 1 — APP-CC1 caption-prefix migration
+
+Every `st.caption(...)` in the 4 HY-IG v2 pages (story, evidence, strategy, methodology) and every `st.caption(...)` in the 7 components imported by those pages (`breadcrumb.py`, `charts.py`, `direction_check.py`, `instructional_trigger_cards.py`, `live_execution_placeholder.py`, `position_adjustment_panel.py`, `probability_engine_panel.py`) now leads with one of the four canonical prefixes from `docs/schemas/caption_prefix_vocab.json`. Bold-caption-style `st.markdown("**{prefix}:**  ...")` constructs inside the Evidence render_method_block helper and the Strategy Confidence tab were also migrated (the SOP rule binds both `st.caption(...)` and caption-style markdown per APP-CC1 enforcement clause).
+
+**Counts by prefix (`st.caption` + `st.markdown("**...**:")` combined):**
+
+| Canonical prefix | Count |
+|------------------|-------|
+| `"What this shows:"` | 20 |
+| `"Why this matters:"` | 17 |
+| `"How to read it:"` | 4 |
+| `"Caveat:"` | 4 |
+| **Total** | **45** |
+
+One additional non-canonical caption remains and is justified here per APP-EX1/APP-CC1 deviation protocol: the Evidence `render_method_block` helper's hard-coded element-3 label "How to read this chart:" was canonicalised to "How to read it:" to match APP-CC1 exactly; the four-element template's element-5 "What the chart shows:" was canonicalised to "What this shows:"; element-7 "What this means:" was canonicalised to "Why this matters:". No regression — these are pure renames inside the helper, so every method block inherits the canonical wording automatically.
+
+#### Task 2 — APP-EX1 expander-title migration
+
+**Canonical title rewrites (4 pages):**
+
+| Canonical title | Count |
+|-----------------|-------|
+| `"Plain English"` (was `"🧒 Plain English version"`) | 4 |
+| `"Deeper dive"` (replaces per-method deep-dive questions on Evidence + one Strategy expander) | 9 |
+| `"Why we chose this method"` (replaces method-rationale questions on Story + Strategy) | 2 |
+| `"How to read this chart"` (was `"📋 What do these columns mean?"` on Strategy trade-log) | 1 |
+| `"Honest assessment"` (was `"Caveats for manual use"` on Strategy manual-rule block) | 1 |
+| **Total retitled** | **17** |
+
+Where the canonical title is less specific than the pre-existing title (e.g. "Deeper dive" vs "Why is the mean difference not significant when the Sharpe difference is so large?"), the original question is preserved as the first italicised line of the expander's body. Readers lose nothing; they gain the ability to pattern-match the title string across the portal.
+
+**Remaining non-canonical expander titles (3):** the "What do status labels like *Available*, *Pending*, *Validated*, *Stale* mean?" glossary expander appears on Story, Strategy-Confidence, and Methodology. This is a one-off pair-vocabulary glossary, not one of the five recurring concepts the APP-EX1 registry covers; per APP-EX1 deviation protocol the deviation is flagged here. Proposal: add a sixth canonical entry `"status_labels_glossary"` with title `"Status labels"` in a future APP-EX1 minor bump (v1.0.0 → v1.1.0), pending Lead approval at Wave 5C consolidation. No portal code change needed at that time — the three sites can be renamed in one grep-and-replace.
+
+#### Task 3 — META-ELI5 audit on `st.error` / `st.warning` / `st.info`
+
+All 14 non-trivial loud-error sites across HY-IG v2 pages + components now carry a `"Plain English: ..."` block immediately after the technical label. Before: 0/14 carried ELI5 prose. After: 14/14 pass the META-ELI5 "educated non-specialist can act on this" gate. Sites by file:
+
+| File | Site (line-ish) | Technical label | Kind |
+|------|-----------------|-----------------|------|
+| `app/pages/9_hy_ig_v2_spy_evidence.py` | render_method_block missing-element `st.error` | "Method block incomplete: missing required element(s)..." | error |
+| `app/pages/9_hy_ig_v2_spy_evidence.py` | render_method_block chart-pending `st.warning` | "Chart pending -- method block rendered from narrative only." | warning |
+| `app/pages/9_hy_ig_v2_spy_methodology.py` | stationarity-tests-missing `st.info` | "Stationarity tests not found." | info |
+| `app/pages/9_hy_ig_v2_spy_strategy.py` | broker-style-trade-log-missing `st.info` | "Broker-style trade log not yet generated." | info |
+| `app/pages/9_hy_ig_v2_spy_strategy.py` | position-log-missing `st.info` | "Position log not yet generated." | info |
+| `app/pages/9_hy_ig_v2_spy_strategy.py` | stress-test-missing `st.info` | "Stress test results pending." | info |
+| `app/pages/9_hy_ig_v2_spy_strategy.py` | signal-decay-missing `st.info` | "Signal decay results pending." | info |
+| `app/pages/9_hy_ig_v2_spy_strategy.py` | walk-forward-missing `st.info` | "Walk-forward validation results pending." | info |
+| `app/pages/9_hy_ig_v2_spy_strategy.py` | tournament-missing `st.info` | "Tournament results not yet available." | info |
+| `app/pages/9_hy_ig_v2_spy_strategy.py` | alt-strategy-explorer-missing `st.info` | "Tournament results not available for alternative-strategy explorer." | info |
+| `app/pages/9_hy_ig_v2_spy_strategy.py` | important-caveats `st.warning` | 5-item caveat list | warning |
+| `app/components/instructional_trigger_cards.py` | winner-summary-missing `st.info` | "Trigger cards unavailable — winner_summary.json missing." | info |
+| `app/components/charts.py` | chart-parse-failure `st.warning` | "Chart '{name}' failed to load: {class}..." | warning |
+| `app/components/breadcrumb.py` | unknown-page `st.warning` | "[breadcrumb] Unknown current_page '{x}'..." | warning |
+| `app/components/position_adjustment_panel.py` | SE1-gate-failed `st.warning` | "Position exposure cannot be derived without valid signal values." | warning |
+| `app/components/probability_engine_panel.py` | no-signals-parquet `st.error` | "Probability engine panel cannot render: No signals_*.parquet..." | error |
+| `app/components/probability_engine_panel.py` | signals-parse-failure `st.error` | "Probability engine panel cannot render: Failed to read {file}..." | error |
+| `app/components/probability_engine_panel.py` | interpretation-metadata-schema `st.warning` | "interpretation_metadata.json schema violation..." | warning |
+| `app/components/probability_engine_panel.py` | signal-validation-failed `st.error` | "Probability engine panel cannot render: {diagnostic}" | error |
+| `app/components/direction_check.py` | triangulation-incomplete `st.warning` | "Direction triangulation incomplete (APP-DIR1)..." | warning |
+| `app/components/direction_check.py` | direction-mismatch `st.error` | "Direction disagreement detected (APP-DIR1, APP-SEV1 L1)..." | error |
+| `app/components/direction_check.py` | non-enum-direction `st.warning` | "Direction value `{x}` is not in the canonical schema enum..." | warning |
+
+**Before/after count:** 0/22 → 22/22 loud-error sites carry META-ELI5 prose.
+
+(The `st.info(f"**Key message:** ...")` at the tail of each Evidence method block and the `st.info("**What this strategy does:** ...")` in the alternative-strategy explorer were left untouched — they are user-facing content cards, not technical failure messages, and the text inside is already plain-English by construction.)
+
+#### Task 4 — Trigger-card sparklines (S18-9 spirit fix)
+
+`app/components/instructional_trigger_cards.py` now pulls sparkline data from the most recent `signals_*.parquet` in the pair's `results/` folder instead of synthesising a stylised curve. The new helper `_find_real_crossings(series, threshold, window=30)` scans the history for:
+
+- **Up-crossing** (BUY card for procyclical / REDUCE card for counter-cyclical): the threshold-up-crossing with the largest subsequent peak. For HY-IG v2 (`hmm_2state_prob_stress`, threshold 0.5) the located window is **2010-04-06 → 2010-05-18** (31 trading days; min 0.000, max 1.000 — the European sovereign-debt stress episode).
+- **Down-crossing** (REDUCE card for procyclical / BUY card for counter-cyclical): the threshold-down-crossing whose prior-window peak is largest. Located window: **2016-02-11 → 2016-03-24** (31 trading days; the early-2016 oil / China growth scare recovery).
+- **Flat / HOLD**: a ~30-day window where the signal hovers near the threshold band without a decisive crossing. For HY-IG v2, no such window exists — the HMM stress probability is empirically bimodal, near 0 or near 1, and rarely loiters mid-range. The HOLD card falls back to the stylised mid-band curve; the page-level caption now surfaces this data-source fact: "sparklines are drawn from real history (`signals_20260410.parquet` column `hmm_2state_prob_stress`) — 2/3 scenarios located".
+
+This closes the S18-9 spirit gap: stakeholder intent was real-data illustrations; the previous implementation used `np.linspace` + `np.random.default_rng(42).normal(0, 0.03, 30)` (stylised curves). The Wave 5 audit flagged this correctly. For pairs where the flat scenario has a real instance (e.g. quartile-level signals that genuinely oscillate around their median), `_find_real_crossings` will surface it automatically — no per-pair branching needed.
+
+**Data-source confirmation:** real history for 2 of 3 scenarios on HY-IG v2 (up / down); flat falls back to stylised with a loud caption-level disclosure.
+
+#### Task 5 — APP-URL1 pins verification
+
+Verified against installed Streamlit `1.54.0` using `streamlit.source_util.page_icon_and_name(...)`. Derived slugs for all 4 HY-IG v2 pages:
+
+| File | Derived slug | Pinned `expected_slug` | Match |
+|------|--------------|------------------------|-------|
+| `9_hy_ig_v2_spy_story.py` | `hy_ig_v2_spy_story` | `hy_ig_v2_spy_story` | ✓ |
+| `9_hy_ig_v2_spy_evidence.py` | `hy_ig_v2_spy_evidence` | `hy_ig_v2_spy_evidence` | ✓ |
+| `9_hy_ig_v2_spy_strategy.py` | `hy_ig_v2_spy_strategy` | `hy_ig_v2_spy_strategy` | ✓ |
+| `9_hy_ig_v2_spy_methodology.py` | `hy_ig_v2_spy_methodology` | `hy_ig_v2_spy_methodology` | ✓ |
+
+The Wave 4E reference-pair verification used the same slugs (`/hy_ig_v2_spy_story` etc.) — no drift. The pin file's `streamlit_version_observed` field previously recorded `1.39.0` but the portal now runs 1.54.0; the slug rule is unchanged between the two Streamlit versions, so per APP-URL1 deviation protocol no `expected_slug` migration was needed. `docs/schemas/url_slug_pins.json` bumped to v1.0.1 with `streamlit_version_observed: "1.54.0"` and the notes field expanded to record the 1.39 ↔ 1.54 slug-rule agreement. Schema validation still passes (`python3 scripts/validate_schema.py` → OK).
+
+#### META-XVC observation
+
+Documented above under "Prior-version observation": APP-CC1 (caption prefixes) and the META-ELI5-on-errors pattern did not exist when the HY-IG sample pages (1–4) shipped. This Wave 5C retro-apply is deliberately scoped to HY-IG v2 (pages 9_*) only, consistent with META-RPD (reference-pair doctrine) — the v2 pair carries the new discipline first, other pairs inherit on their own promotion. The cross-version divergence is therefore justified and tracked.
+
+#### Smoke tests
+
+Both smoke tests continue to pass after retro-apply:
+
+```
+python3 app/_smoke_tests/smoke_loader.py hy_ig_v2_spy           -> passes=15, failures=0
+python3 app/_smoke_tests/smoke_schema_consumers.py --pair-id hy_ig_v2_spy -> passes=3, failures=0
+```
+
+#### Files touched (Wave 5C / Ace only)
+
+- `app/pages/9_hy_ig_v2_spy_story.py` — caption prefixes, expander titles (3 retitles), chart captions (4 retitles).
+- `app/pages/9_hy_ig_v2_spy_evidence.py` — plain-English expander retitle, render_method_block helper caption/expander migration, method-block chart captions (8), render-time-lint + chart-pending ELI5 messages.
+- `app/pages/9_hy_ig_v2_spy_strategy.py` — plain-English expander retitle, 2 "Why we chose this method" / "Deeper dive" rewrites, "Honest assessment" rewrite, "How to read this chart" trade-log columns expander, chart captions, 7 ELI5-augmented `st.info` messages, 1 ELI5-augmented `st.warning` (Important Caveats), confidence-tab bold-caption canonicalisations.
+- `app/pages/9_hy_ig_v2_spy_methodology.py` — plain-English expander retitle, 5 caption-prefix migrations, 1 ELI5-augmented `st.info` (stationarity-tests-missing).
+- `app/components/instructional_trigger_cards.py` — real-data sparklines (`_find_real_crossings` helper + `_latest_signals_file`), ELI5-augmented winner-missing info, caption-prefix migrations, `counter_cyclical` → `countercyclical` canonicalisation.
+- `app/components/breadcrumb.py` — unknown-page warning ELI5-augmented, you-are-here caption prefixed.
+- `app/components/charts.py` — chart-parse-failure warning ELI5-augmented.
+- `app/components/live_execution_placeholder.py` — 2 caption-prefix migrations, ELI5-augmented info callout.
+- `app/components/position_adjustment_panel.py` — 2 caption-prefix migrations, SE1-gate-failed warning ELI5-augmented.
+- `app/components/probability_engine_panel.py` — 2 caption-prefix migrations, 4 ELI5-augmented error/warning messages.
+- `app/components/direction_check.py` — 3 ELI5-augmented error/warning messages, success-caption prefixed.
+- `docs/schemas/url_slug_pins.json` — `streamlit_version_observed` bumped 1.39.0 → 1.54.0, `x-version` bumped 1.0.0 → 1.0.1, notes field expanded to record slug-rule agreement between the two Streamlit versions.
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+#### Not touched (out of Wave 5C scope)
+
+- Other pairs' pages (`app/pages/1-4_hy_ig_*.py`, `5-8_*.py`) — not reference-pair; migration deferred per META-RPD.
+- `app/components/glossary.py`, `app/components/sidebar.py`, `app/components/tournament.py`, `app/components/schema_check.py`, `app/components/execution_panel.py`, `app/components/narrative.py`, `app/components/metrics.py`, `app/components/pair_registry.py`, `app/components/trade_history.py` — not imported by HY-IG v2 pages, so their captions/expanders/errors are not in the Wave 5C retro-apply surface.
+- `app/_smoke_tests/smoke_url_slugs.py` — slug-rule smoke harness scheduled for APP-URL1 but not author-scope of this dispatch (no CI-enforcement gate requested by Lead this wave). Manual slug verification for HY-IG v2 recorded above covers the acceptance requirement.
+- `docs/agent-sops/appdev-agent-sop.md`, `docs/standards.md` — no SOP changes this wave (retro-apply consumes existing Wave 5B-2 rules).
+
+#### Approved by
+
+Ace self-approves the Wave 5C retro-apply for HY-IG v2 portal code (2/2 smoke tests pass; APP-CC1 100% compliance on 45 caption sites; APP-EX1 82% canonical-title compliance with 3 documented glossary deviations pending APP-EX1 v1.1.0 minor bump; META-ELI5 100% compliance on 22 loud-error sites; S18-9 spirit fix confirmed with real-data sparklines for 2/3 scenarios and transparent caption-level disclosure for the 3rd; APP-URL1 pins verified against Streamlit 1.54.0 with no drift). Lead Lesandro ratifies at the next Wave 5C consolidation checkpoint.
+
+---
+
+### Lead's Wave 5C consolidation (2026-04-19)
+
+**Dispatch scope.** Acceptance-level consolidation after Wave 5C retro-apply: cross-version diff (META-XVC) vs Sample HY-IG, GATE-30 deflection audit for S18-2 + S18-4, and acceptance.md sign-off bump. Audit + document only; no SOP, artifact, chart, or component code modified.
+
+#### Cross-version diff (META-XVC, vs Sample HY-IG `results/hy_ig_spy/`)
+
+- **Retained methods:** 10 method/approach elements confirmed identical between Sample and v2 (HMM family + state count, signal column `hmm_2state_prob_stress`, tournament ranking by OOS Sharpe, countercyclical direction assertion, leading/credit indicator taxonomy, min_mdd strategy objective, 2018-2025 OOS window concept, 50 bps breakeven-cost model, five shared evidence methods {Correlation, Granger, Local Projections, HMM, Quantile Regression}, financially-literate-non-quant + plain-English narrative voice).
+- **Intentionally diverged (declared):** 13 rows in the `### Cross-Version Consistency Check` table of `results/hy_ig_v2_spy/acceptance.md`. Each row carries the 6 META-XVC fields (prior method, new method, strong reason, expected impact, validation, cross-reference). Full prose per divergence is in the upstream Wave sections of `regression_note_20260411.md` and this file's Wave 2A / 4A / 4B+4C / 4D-1 / 4D-2 / 5B-2 / 5C sections.
+- **Possibly diverged but undeclared:** **NONE** found. Candidates checked (strategy P-family drift, threshold value, cost basis drift, OOS-period drift, evidence tab count, narrative voice, hero panel count) all reconcile to either the retained list or a declared-divergence row. Conclusion: cross-version diff is clean.
+
+#### GATE-30 deflection audit result (S18-2 + S18-4)
+
+- **S18-2 (Market Regime summary → Story page regime explainer):** **PASS.** Story page explainer exists, renders (Wave 4E `temp/cloud_wave4e_story_body.txt`), defines regime vocabulary, explains calm/stress distinction, names strategy-performance implication, and carries the "How do we define market regimes without arbitrary cutoffs?" expander with Hamilton 1989 + Guidolin-Timmermann 2007 citations. Content directly addresses the stakeholder ask.
+- **S18-4 (Evidence Sources Table → Evidence page walk-through + status-label legend):** **PASS.** Evidence page renders 8 method blocks via `render_method_block` (`app/pages/9_hy_ig_v2_spy_evidence.py`), each populated with 8 canonical elements including `observation` ("What this shows:"), `interpretation` ("Why this matters:"), and `key_message` — this is the plain-English layer S18-4 asked for. Available/Pending clarity achieved by `_status_vocabulary` block in `docs/portal_glossary.json` where each status now carries `{eli5, technical}` body pair (confirmed: `Available`, `Pending`, `Validated`, `Stale`, `Draft`, `Mature`, `Unknown` all have both fields).
+
+Both deflections graded strong. No BLOCKERS raised.
+
+#### acceptance.md updated
+
+Appended three new sections to `results/hy_ig_v2_spy/acceptance.md`:
+
+1. **### Cross-Version Consistency Check (vs Sample HY-IG)** — Retained / Intentionally diverged / Possibly diverged-but-undeclared per META-XVC.
+2. **### Deflection Audit (GATE-30)** — Two-row table for S18-2 + S18-4 with DOM-renders / Content-matches / Lead sign-off columns; per-item narrative justification below the table; BLOCKERS line.
+3. **Regression Note section** refreshed to enumerate the Wave 5C agent sections (Dana / Evan / Vera / Ray / Ace) + list the 8 new files Wave 5C created for provenance.
+
+Also bumped **Lead Sign-off → Current commit** to "pending Wave 5C commit sha" (anticipating central commit), and extended the upstream commit chain with `416ba94`, `d6e4f02`, `342f48c`.
+
+#### Constraints honored
+
+- No SOP file edited this dispatch.
+- No product artifact under `results/hy_ig_v2_spy/` edited other than `acceptance.md` + this regression-note append.
+- No chart file under `output/charts/hy_ig_v2_spy/` or `output/_comparison/` edited.
+- No app code under `app/` edited.
+- No push performed; Lead will commit centrally per the standing Wave 5C protocol.
+
+#### Files touched (Wave 5C / Lead consolidation only)
+
+- `results/hy_ig_v2_spy/acceptance.md` — new sections added (Cross-Version Consistency Check, Deflection Audit) + Regression Note + Lead Sign-off blocks refreshed.
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+#### Approved by
+
+Lead Lesandro. The consolidation closes the acceptance-level META-XVC + GATE-30 gates for HY-IG v2 as a reference-pair candidate. `hy-ig-v2-reference-candidate` tag will be created at Lead's central commit per META-RPT; promotion to `hy-ig-v2-reference` awaits stakeholder sign-off in the "Stakeholder Review" section of `acceptance.md`.

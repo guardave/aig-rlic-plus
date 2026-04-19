@@ -1,9 +1,9 @@
 {
-  "x-version": "1.0.0",
+  "x-version": "1.0.1",
   "x-owner": "ace",
   "x-generated": "2026-04-19",
-  "streamlit_version_observed": "1.39.0",
-  "notes": "Initial pins seeded from the HY-IG v2 reference pair (per META-RPD) after Wave-5 reproducibility-audit flagged the URL-slug rule as implicit. Observed Streamlit 1.39.x slugification: strip leading `N_` numeric-and-underscore prefix, keep remaining underscores as underscores, do not modify case. Consumer smoke test at acceptance time asserts `streamlit.runtime.pages_manager` derives each file's slug to match `expected_slug`; mismatch blocks acceptance per GATE-29. Breadcrumb component reads `canonical_breadcrumb` instead of inferring. All 4 HY-IG v2 pages pinned; remaining pairs pinned as they reach reference-candidate status.",
+  "streamlit_version_observed": "1.54.0",
+  "notes": "Pins seeded from the HY-IG v2 reference pair (per META-RPD) after Wave-5 reproducibility-audit flagged the URL-slug rule as implicit. Observed Streamlit slugification: strip leading `N_` numeric-and-underscore prefix, keep remaining underscores as underscores, do not modify case. Confirmed 2026-04-19 under Streamlit 1.54.0 via `streamlit.source_util.page_icon_and_name`: the 1.39 and 1.54 slug rules agree for all 4 HY-IG v2 pages (no `expected_slug` migration needed). Consumer smoke test at acceptance time asserts the derived slug matches `expected_slug`; mismatch blocks acceptance per GATE-29. Breadcrumb component reads `canonical_breadcrumb` instead of inferring. All 4 HY-IG v2 pages pinned; remaining pairs pinned as they reach reference-candidate status.",
   "pages": {
     "9_hy_ig_v2_spy_story.py": {
       "expected_slug": "hy_ig_v2_spy_story",

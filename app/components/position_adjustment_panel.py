@@ -152,8 +152,8 @@ def render_position_adjustment_panel(pair_id: str) -> None:
     """
     st.markdown("### Position Adjustment Panel")
     st.caption(
-        "How the signal translates into equity exposure — the trading decision "
-        "in one visual."
+        "What this shows: how the signal translates into equity exposure "
+        "— the trading decision in one visual."
     )
 
     # ---- Gate on SE1 validation (Wave 1.5 extension contract) ----
@@ -161,7 +161,11 @@ def render_position_adjustment_panel(pair_id: str) -> None:
     if not se1 or not se1.get("ok"):
         st.warning(
             "Position exposure cannot be derived without valid signal values. "
-            "See diagnostic above."
+            "See diagnostic above.\n\n"
+            "Plain English: the Probability Engine panel above flagged a "
+            "data problem with the signal series, so we cannot compute "
+            "the exposure curve without risking a misleading chart. Fix "
+            "the signal-data issue first, then this panel will render."
         )
         return
 
@@ -213,4 +217,4 @@ def render_position_adjustment_panel(pair_id: str) -> None:
             f"{target_symbol} exposure derived from signal {column}; see the "
             f"Strategy Summary for the exact rule."
         )
-    st.caption(takeaway)
+    st.caption(f"Why this matters: {takeaway}")
