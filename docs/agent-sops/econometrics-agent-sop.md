@@ -759,7 +759,18 @@ Different target asset classes require different backtest assumptions. These are
 - `regime_quartile_returns.csv` — annualized target-return by regime/quartile (Rule E2 below, addresses S18-8)
 - `correlations.csv`, `ccf_prewhitened.csv`, `granger_causality.csv`, `transfer_entropy.csv`, `local_projections.csv`, `quantile_regression.csv`, `hmm_states.parquet` + `hmm_summary.csv` — per Rule C2
 
-**Cross-reference:** See `docs/standards.md` for full mandatory-artifact inventory by method (ECON-C1, ECON-C2, ECON-DS1, ECON-E1, ECON-E2). See Team Coordination SOP, "Pipeline Self-Containment Contract" for the overarching pipeline integrity rule.
+**Cross-reference:** See `docs/standards.md` for full mandatory-artifact inventory by method (ECON-C1, ECON-C2, ECON-DS1, ECON-DS2, ECON-E1, ECON-E2). See Team Coordination SOP, "Pipeline Self-Containment Contract" for the overarching pipeline integrity rule.
+
+### ECON-DS2 — Deploy-Required Artifact Allowlist (Mandatory)
+
+- Any artifact produced by Evan that is read by `app/` code at page-render time must be deployable to Cloud.
+- Two acceptable deployment paths:
+  (a) **Carve-out in `.gitignore`:** add explicit `!` allowlist entries for the artifact pattern, then `git add -f` the file. Suitable for files <5 MB that change infrequently (signals snapshots, regime state parquets, model coefficients).
+  (b) **Build-time regeneration:** include a `scripts/regenerate_{pair_id}_artifacts.py` script that runs at Cloud boot (called from `app/app.py` or a Streamlit session state init) to produce the artifact from source data + persisted parameters. Suitable for files >5 MB or fast-to-regenerate.
+- Agent producing the artifact is responsible for either adding the allowlist entry OR the regeneration script. Silent "it works on my laptop" is a violation.
+- Regression note must list every deploy-required artifact per pair, with either its allowlist entry or its regeneration script path.
+- Cross-reference: GATE-29 (Clean-Checkout Deployment Test, added by Lead in parallel) validates this rule at acceptance.
+- Cross-agent companion: APP-SE1/SE2 consume these artifacts — read failures on Cloud are symptoms of DS2 violations, not symptoms of the rendering layer.
 
 ### Rule E1 — Granger Causality Artifact Persistence (addresses S18-11)
 

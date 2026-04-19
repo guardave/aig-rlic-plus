@@ -96,6 +96,7 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 26 | No Silent Content Drops | When a previously-present analysis element (table, chart, subsection, callout) is removed on a rerun or new version, `regression_note_<date>.md` must include an explicit **Removed** section with rationale per item. If no rationale is provided, the content must be restored. Applies across versions of the same pair (e.g., HY-IG v2 losing content that HY-IG v1 had). Cross-reference: VIZ-V4, RES-5. acceptance.md must include a prior-version inventory diff (see "Prior-Version Inventory Check" below). **Addresses S18-8, SL-2, and the silent-content-drop meta-pattern.** **Owners:** Evan + Ray + Ace (producers), Lesandro (gate) |
 | 27 | End-to-End Chart Render Test | Every chart referenced by any portal page of a pair under acceptance must: (a) load successfully via `load_plotly_chart(name, pair_id)` and return a non-None Figure object; (b) have at least one data trace; (c) have a non-empty title. Enforcement: Vera runs VIZ-V5 smoke tests on all canonical artifacts; Ace runs a loader smoke-test extension of Defense-2 that exercises `load_plotly_chart()` for every chart referenced by every portal page of the pair. Both agents submit their smoke-test logs as part of acceptance.md. **Blocking:** any chart failing the smoke test blocks acceptance until fixed. **Addresses** the Dot-Com canonical zoom bug where the file existed, the path resolved, and the loader still returned None — a failure mode invisible to file-existence checks alone. **Owners:** Vera (canonical artifacts) + Ace (loader + portal), Lesandro (gate). |
 | 28 | Reference-Pair Placeholder Prohibition | On reference-pair pages (see Reference Pair Doctrine), any "chart pending" placeholder (the GATE-25 graceful fallback) is an **acceptance blocker**. Graceful degradation is appropriate for non-reference pairs under development; reference pairs are the gold standard and must render 100% of referenced charts. acceptance.md must assert: zero `chart_pending` placeholders in rendered page DOM, verified via headless-browser DOM audit over every portal page of the reference pair. **Addresses** the gate-level gap that allowed "chart pending" to pass Wave 3 verification on a reference pair. **Owners:** Ace (portal audit) + Lesandro (gate). |
+| 29 | Clean-Checkout Deployment Test | Before acceptance, the pair's portal must pass a smoke test run in a **clean checkout that respects `.gitignore`** — a simulation of Streamlit Cloud's deployment environment. Implementation: `git clone --depth 1 "$(git rev-parse --show-toplevel)" /tmp/clean_checkout_{pair_id}` then `cd /tmp/clean_checkout_{pair_id}` then `python3 app/_smoke_tests/smoke_loader.py --pair-id {pair_id}`. Any file referenced by `app/` code that exists in the working tree but NOT in the clean checkout = gate failure (indicates a silent gitignore exclusion or missing `git add -f`). Blocks acceptance for reference pairs. Rationale: `GATE-27` validates rendering in the dev env; `GATE-29` validates deployability. Cross-reference: `ECON-DS2` (Deploy-Required Artifact Allowlist) is the producer-side counterpart; `APP-ST1` is the reusable smoke-test harness. This gate catches the class of bug "works on my laptop, breaks on Cloud" — the symptom is usually a `FileNotFoundError` or `cannot render` error on a deployed page. **Owners:** Ace (smoke test execution) + Lesandro (gate). |
 
 **Evidence:** HY-IG (pair #5) shipped with a header-only trade log (0 data rows) because items 16–18 were not in the completeness gate. The downstream execution panel showed "Trade log pending" with no data. Nobody caught it until manual inspection.
 
@@ -187,7 +188,9 @@ This section is the canonical mechanism for declaring intentional removals and i
 >
 > Every revision of a pair (v1 → v2 → v3) must preserve the prior version's inventory unless a removal is declared in the `regression_note_<date>.md` **Removed** section with rationale. The **Removed** section is the canonical mechanism for declaring intentional removals.
 >
-> Companion to META-RNF (Regression Note Format) and META-SC (Source Citation / upstream attribution). Operationalized by GATE-24 (chart-text coherence), GATE-25 (no silent chart fallbacks), and GATE-26 (no silent content drops).
+> **Content continuity applies across iterations AND across environments (dev → Cloud). An artifact that works locally but doesn't survive a clean checkout is the same class of bug as an artifact silently dropped across iterations — both are violations of META-VNC.** Operationalized across environments by GATE-29 (Clean-Checkout Deployment Test) and ECON-DS2 (Deploy-Required Artifact Allowlist).
+>
+> Companion to META-RNF (Regression Note Format) and META-SC (Source Citation / upstream attribution). Operationalized by GATE-24 (chart-text coherence), GATE-25 (no silent chart fallbacks), GATE-26 (no silent content drops), and GATE-29 (clean-checkout deployment test).
 >
 > Applies to all 5 agents (Dana, Evan, Ray, Vera, Ace). Every producer is accountable for the elements they authored or rendered in the prior version.
 
@@ -797,7 +800,7 @@ Before any pair is marked "completed," a file `results/<pair_id>/acceptance.md` 
     **Summary of changes from prior version:** <brief>
     **Removed section present (if any removals):** <yes/no — cite each removal and rationale>
 
-    ## Blocking Items — GATE-24 / GATE-25 / GATE-26 / GATE-27 / GATE-28
+    ## Blocking Items — GATE-24 / GATE-25 / GATE-26 / GATE-27 / GATE-28 / GATE-29
 
     ### GATE-24 — Chart-Text Coherence Audit
     - [ ] For every chart modified since prior version, `grep -r "<chart_name>" app/pages/` was run and every referenced caption/narrative was updated in the **same commit** as the chart change.
@@ -830,6 +833,13 @@ Before any pair is marked "completed," a file `results/<pair_id>/acceptance.md` 
     - [ ] Headless-browser DOM audit performed across Story, Evidence, Strategy, Methodology pages.
     - [ ] DOM-audit log attached showing zero occurrences of the "chart pending" placeholder text (or equivalent GATE-25 fallback rendering).
     - [ ] Any `chart_pending` occurrence found by the audit is logged here with a chart name, root cause, and remediation commit — no "known issue / deferred" state is permitted on a reference pair.
+
+    ### GATE-29 — Clean-Checkout Deployment Test
+    - [ ] Clean checkout performed via `git clone --depth 1 "$(git rev-parse --show-toplevel)" /tmp/clean_checkout_{pair_id}`.
+    - [ ] `python3 app/_smoke_tests/smoke_loader.py --pair-id {pair_id}` executed inside the clean-checkout working directory.
+    - [ ] Clean-checkout smoke test log saved to `app/_smoke_tests/clean_checkout_{pair_id}_{date}.log` — zero FileNotFound / zero None-return / zero placeholder must be asserted.
+    - [ ] Every file referenced by `app/` code for this pair is present in the clean checkout (no silent `.gitignore` exclusions; no missing `git add -f` for deploy-required artifacts).
+    - [ ] Cross-reference: ECON-DS2 (Deploy-Required Artifact Allowlist) producer-side checks confirmed by Evan for this pair.
 
     ### Prior-Version Inventory Check
 

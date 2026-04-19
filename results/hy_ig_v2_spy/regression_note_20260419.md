@@ -337,3 +337,64 @@ Recession episode coordinates (2001-03 to 2001-11, 2007-12 to 2009-06, 2020-02 t
 **Gate-failure learning.** *"Rule was followed; rule was wrong. Fix the rule."* Both bugs were preventable had VIZ-V2 carried (a) a perceptible alpha prescription, (b) a subplot-coverage clause, and (c) a perceptual-validation step — all three are now in the revised rule. VIZ-V5's smoke test catches the orthogonal structural-integrity failure mode (empty/corrupt/untitled JSON). This closes the gap that allowed a chart with an invisible/half-applied regime layer to ship through a passing completeness gate.
 
 **Approved by.** Vera self-approves the SOP revisions and retro-application; escalates to Lead Lesandro for GATE-27 registration and Wave-3 commit.
+
+---
+
+### Evan's Deploy-Artifact Allowlist (2026-04-19)
+
+**Trigger.** Stakeholder-reported bug: Probability Engine Panel on Streamlit Cloud returned `No signals_*.parquet under /mount/src/aig-rlic-plus/results/hy_ig_v2_spy`. Local investigation showed `signals_20260410.parquet` (720 KB) existed in the developer's working tree but was never committed to git — the repo-root `.gitignore` had a blanket `*.parquet` rule that silently suppressed `git add`, so Cloud never saw the file.
+
+**Root cause.** `ECON-DS1` stopped at "persist signals to `signals_{date}.parquet`" — it closed the in-process pipeline integrity loop but was silent about the deploy loop. The artifact existed on disk, the tournament read it, but it never made it to the Cloud runtime. The broader SOP system had no rule that named the deploy-required-artifact category. Same hazard applies to the HMM state parquets and Markov regime probability parquets consumed by `app/components/probability_engine_panel.py`, `app/components/position_adjustment_panel.py`, `app/components/execution_panel.py`, and the chart-generation scripts.
+
+**SOP fix.** Added **ECON-DS2 — Deploy-Required Artifact Allowlist (Mandatory)** to `docs/agent-sops/econometrics-agent-sop.md` immediately after ECON-DS1, and registered the rule in `docs/standards.md` under the ECON section. ECON-DS2 codifies two acceptable deployment paths: (a) explicit `.gitignore` carve-out with `!`-pattern allowlist entries plus `git add -f`, suitable for small infrequently-changed artifacts; (b) build-time regeneration script at Cloud boot, suitable for large or fast-to-regenerate artifacts. The producing agent owns the choice and is responsible for wiring in either the allowlist or the regeneration script; the pair's regression note must list every deploy-required artifact with its deployment mechanism. Cross-references GATE-29 (Clean-Checkout Deployment Test) for the gate-side validation. Cross-agent companion to APP-SE1/SE2: read failures on Cloud are symptoms of DS2 violations, not rendering-layer bugs.
+
+**Retro-application — `.gitignore` carve-outs.** The blanket `*.parquet` ignore is retained (large model intermediates should stay out of git by default). Three scoped allowlist entries added immediately after the blanket rule:
+
+```
+# Deploy-required parquet artifacts (per ECON-DS2)
+!results/**/signals_*.parquet
+!results/**/hmm_states_*.parquet
+!results/**/markov_regime_probs_*.parquet
+```
+
+**Retro-application — files now tracked.** Staged via `git add`:
+
+| File | Size | Consumer |
+|------|-----:|----------|
+| `results/hy_ig_v2_spy/signals_20260410.parquet` | 720 KB | `app/components/probability_engine_panel.py`, `app/components/position_adjustment_panel.py` |
+| `results/hy_ig_v2_spy/core_models_20260410/hmm_states_2state.parquet` | 189 KB | Chart-generation scripts + manifest reference |
+| `results/core_models_20260228/hmm_states_2state.parquet` | 185 KB | `scripts/generate_charts.py`, `scripts/tournament_backtest.py` |
+| `results/core_models_20260228/hmm_states_3state.parquet` | 256 KB | `scripts/tournament_backtest.py` |
+| `results/core_models_20260228/markov_regime_probs_2state.parquet` | 61 KB | `scripts/tournament_backtest.py` |
+| `results/core_models_20260228/markov_regime_probs_3state.parquet` | 62 KB | `scripts/tournament_backtest.py` |
+
+`git ls-files 'results/**/*.parquet'` confirms all six are now tracked.
+
+**Coverage verification.** Grep of `pd.read_parquet(` and `glob.glob(...parquet)` in `app/components/` and `app/pages/` returns exactly three call sites: `probability_engine_panel.py:47,275` (signals), `position_adjustment_panel.py:161` (signals, re-use), and `trade_history.py:36` (reads from `data/` not `results/`, outside DS2 scope). The three allowlist patterns (`signals_*`, `hmm_states_*`, `markov_regime_probs_*`) fully cover all Evan-produced parquets read by `app/` code and by the shared chart/backtest scripts that feed app-rendered output.
+
+**Gate-failure learning.** *"'Works on my laptop' is not deployment. Every artifact read by `app/` must survive a clean checkout."* ECON-DS1 closed the in-process persistence loop but left the deploy loop open — a silent failure mode because the producing agent's local tests all passed. The fix is to treat the deploy boundary as a first-class handoff, with an explicit allowlist (or regeneration script) declared per artifact and audited at the gate. Cross-cutting implication: any future Evan-produced artifact consumed by `app/` code must carry its deployment mechanism in the handoff, not as an afterthought discovered only when Cloud's logs return a read error.
+
+**Approved by.** Evan self-approves the SOP addition and retro-application. Lead Lesandro commits after Wave 4A agents finish (DS2 + GATE-29 + smoke-test paired commit).
+
+---
+
+### Lead's Wave 4A Gate Patch (2026-04-19)
+
+**Trigger (stakeholder bug).** Streamlit Cloud returned `Probability engine panel cannot render: No signals_*.parquet under /mount/src/aig-rlic-plus/results/hy_ig_v2_spy` on the HY-IG v2 Strategy page. Local working tree had the file; Cloud's clean checkout did not. Root cause: the repo-root `.gitignore` carried a blanket `*.parquet` rule that silently excluded a deploy-required artifact — `git add` was a no-op against the pattern, so the file was never committed, and the Cloud runtime had no way to resolve it.
+
+**Gate gap.** Existing smoke tests (GATE-27 End-to-End Chart Render, APP-ST1 Loader End-to-End) all run in the developer's working tree where the file exists and the loader returns a non-None Figure. No gate tested a clean-checkout / deployment-clean environment. The bug passed every existing structural and rendering gate because every gate was dev-env scoped. This is the same class of failure as the Wave-3 Dot-Com bug (artifact existed on disk, but something between "on disk" and "rendered in browser" silently broke) — just with the break point shifted from the loader to the deploy boundary.
+
+**Gate fix.** Added **GATE-29 — Clean-Checkout Deployment Test** (blocking) to `docs/agent-sops/team-coordination.md` (Deliverables Completeness Gate row 29, Pair Acceptance Checklist Blocking Items section), and registered the rule in `docs/standards.md` GATE block. Implementation: `git clone --depth 1 "$(git rev-parse --show-toplevel)" /tmp/clean_checkout_{pair_id}` followed by `python3 app/_smoke_tests/smoke_loader.py --pair-id {pair_id}` executed inside the clone. Output log at `app/_smoke_tests/clean_checkout_{pair_id}_{date}.log`; zero FileNotFound / zero None-return / zero placeholder must be asserted. Blocks acceptance for reference pairs. Rationale split from GATE-27: GATE-27 validates rendering in the dev env; GATE-29 validates deployability.
+
+**META-VNC scope extension.** The META-VNC meta-rule (Version-to-Version Content Continuity) had previously been scoped to iterations (v1 → v2 → v3) only. Scope extended in both `docs/agent-sops/team-coordination.md` (Version-to-Version Content Continuity section) and `docs/standards.md` (META-VNC row) to cover cross-environment continuity as well: "Content continuity applies across iterations AND across environments (dev → Cloud). An artifact that works locally but doesn't survive a clean checkout is the same class of bug as an artifact silently dropped across iterations — both are violations of META-VNC." GATE-29 operationalizes the cross-environment axis; GATE-24/25/26 continue to operationalize the cross-iteration axis. Producer-side operationalization of the cross-environment axis is ECON-DS2.
+
+**Cross-reference (Evan, Wave 4A parallel).** ECON-DS2 (Deploy-Required Artifact Allowlist) is the producer-side companion rule. Where GATE-29 is the gate-side verification that the clean-checkout survives end-to-end smoke testing, ECON-DS2 is the producer-side contract that every artifact read by `app/` code is declared deploy-required and wired into the deploy path via one of two mechanisms: (a) explicit `.gitignore` `!`-pattern allowlist entries + `git add -f`, or (b) build-time regeneration script at Cloud boot. Read failures on Cloud are symptoms of DS2 violations on the producer side and are caught at the gate by GATE-29.
+
+**Gate-failure learning.** *"Dev-env gates are necessary but not sufficient. Every gate that runs in the developer's working tree must have a clean-checkout counterpart, or the deploy boundary is untested."* The Wave-4A bug is structurally identical to the Wave-3 Dot-Com loader bug: an intermediate artifact passed structural validation but the end-to-end user-visible path was broken. Wave-3 closed the loader gap (GATE-27); Wave-4A closes the deploy gap (GATE-29). The general principle: final verification belongs on the rendered user-visible surface in the deployment-equivalent environment, not on any intermediate artifact in the dev environment.
+
+**Scope and approval.**
+
+- **SOP scope:** this Wave-4A patch edits `docs/agent-sops/team-coordination.md` (GATE-29 row + Pair Acceptance Checklist extension + META-VNC scope extension), `docs/standards.md` (GATE-29 row + META-VNC row update), and this regression note. Evan in parallel edits `docs/agent-sops/econometrics-agent-sop.md` (ECON-DS2 addition), `docs/standards.md` ECON block (ECON-DS2 row), `.gitignore` (allowlist carve-outs), and the tracked parquet files themselves. No other SOPs are touched.
+- **Pair scope:** no artifacts under `results/hy_ig_v2_spy/*` other than this regression note are modified by this gate patch. Remediation of the underlying bug (actually tracking the signals parquet) is Evan's ECON-DS2 retro-application in the parallel Wave-4A branch.
+- **Approved by:** Lead Lesandro. Gate additions do not require producer sign-off; producer-side ECON-DS2 updates require Evan's self-approval per the standard SOP-change protocol. Central commit held until both Wave-4A agents finish.
+

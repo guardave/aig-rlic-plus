@@ -35,6 +35,11 @@ temp/
 *.h5
 *.hdf5
 
+# Deploy-required parquet artifacts (per ECON-DS2)
+!results/**/signals_*.parquet
+!results/**/hmm_states_*.parquet
+!results/**/markov_regime_probs_*.parquet
+
 # Exception: FOMC SEP extracted data (small, needed by viewer)
 !fomc-sep/data/**/*.parquet
 !fomc-sep/data/*.parquet
