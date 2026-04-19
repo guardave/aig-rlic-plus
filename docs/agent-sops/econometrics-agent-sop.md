@@ -729,7 +729,61 @@ Different target asset classes require different backtest assumptions. These are
 
 **Schema:** DatetimeIndex + one column per signal variant. Signal column names must match the `signal` codes used in the tournament results CSV so that downstream consumers can resolve them without a mapping table.
 
-**Cross-reference:** See Team Coordination SOP, "Pipeline Self-Containment Contract" for the overarching pipeline integrity rule.
+**Required persisted artifacts (non-exhaustive, see standards.md for full mandatory-artifact inventory by method):**
+
+- `signals_{date}.parquet` — all tournament-eligible derived signals (HMM probabilities, Markov states, z-scores, composite scores)
+- `granger_by_lag.csv` — Granger causality F-statistic by lag (Rule E1 below, addresses S18-11)
+- `quartile_returns.csv` — annualized target-return by regime/quartile (Rule E2 below, addresses S18-8)
+- `correlations.csv`, `ccf_prewhitened.csv`, `granger_causality.csv`, `transfer_entropy.csv`, `local_projections.csv`, `quantile_regression.csv`, `hmm_states.parquet` + `hmm_summary.csv` — per Rule C2
+
+**Cross-reference:** See `docs/standards.md` for full mandatory-artifact inventory by method (ECON-C1, ECON-C2, ECON-DS1, ECON-E1, ECON-E2). See Team Coordination SOP, "Pipeline Self-Containment Contract" for the overarching pipeline integrity rule.
+
+### Rule E1 — Granger Causality Artifact Persistence (addresses S18-11)
+
+**Rule:** Every Granger causality test must persist its own diagnostic artifact containing the full F-statistic-by-lag structure. A pass/fail scalar or summary row is insufficient — downstream visualization requires the by-lag distribution.
+
+**Required output file:** `results/{id}/granger_by_lag.csv`
+
+**Required columns (exact names, exact order):**
+
+| Column | Type | Meaning |
+|--------|------|---------|
+| `lag` | int | Lag order tested (1, 2, ..., max_lag) |
+| `f_statistic` | float | F-statistic at this lag |
+| `p_value` | float | p-value for the joint null of no causality at this lag |
+| `df_num` | int | Numerator degrees of freedom |
+| `df_den` | int | Denominator degrees of freedom |
+
+**Rationale:** HY-IG v2's Granger chart silently fell back to the Local Projections chart because `granger_by_lag.csv` did not exist. Vera's VIZ-V3 requires this artifact to render the canonical "F-statistic by lag with significance line" bar chart. Without it, the chart loader either substitutes the wrong artifact (silent fallback — prohibited) or renders a "chart pending" placeholder.
+
+**Consumer:** Vera renders this as an F-statistic-by-lag bar chart with a horizontal significance threshold (typically F-critical at α=0.05) per VIZ-V3. Ace's Evidence page loads this chart via the canonical filename.
+
+**Interaction with Rule C2:** `granger_by_lag.csv` is the by-lag diagnostic artifact; `granger_causality.csv` (per Rule C2) is the summary table with one row per direction. Both are mandatory — they are NOT substitutes.
+
+### Rule E2 — Quartile Regime Return Artifact Persistence (addresses S18-8)
+
+**Rule:** Whenever regime or quartile analysis runs (CCF quartiles, HMM state quartiles, VIX quartiles, z-score quartiles, any signal-value-based bucketing), the annualized target-return by quartile must be persisted as a separate standalone artifact.
+
+**Required output file:** `results/{id}/quartile_returns.csv`
+
+**Required columns (exact names, exact order):**
+
+| Column | Type | Meaning |
+|--------|------|---------|
+| `quartile` | string | Quartile label (`Q1`, `Q2`, `Q3`, `Q4`, or regime label like `stress`/`calm`) |
+| `n_months` | int | Number of monthly observations in this quartile |
+| `ann_return` | float | Annualized target return conditional on this quartile (decimal, e.g. 0.12 = 12%) |
+| `ann_vol` | float | Annualized target return volatility conditional on this quartile |
+| `sharpe` | float | Conditional Sharpe ratio (`ann_return / ann_vol`; assumes zero risk-free or pre-subtracts) |
+| `max_drawdown` | float | Maximum drawdown within this quartile's observation window (negative value) |
+
+**Rationale:** HY-IG v2's prior CCF page included an annualized SPX return Q1-Q4 table; the v2 rerun silently dropped it (S18-8). Regenerating this artifact is mandatory per the stakeholder ruling. This artifact is also the foundation for VIZ-V4 ("No Silent Drop of Diagnostic Charts"), which requires quartile-return bars for every regime-style method.
+
+**Consumer:** Vera renders this as a bar chart (quartile on x-axis, annualized return on y-axis, bars colored by sign) per VIZ-V4. Chart filename follows the canonical per-method convention (e.g. `ccf_quartile_returns.json`, `hmm_quartile_returns.json`).
+
+**Interaction with Rule C2:** `quartile_returns.csv` supersedes the prior `quartile-returns` row in Rule C2 for return-by-quartile persistence. Rule C2's `quartile_returns.csv` schema (`mean_return`, `vol`, `sharpe`, `n_obs`, `cutoff_lower`, `cutoff_upper`) remains valid as an alternative for signal-threshold-defined quartiles (non-regime); Rule E2's schema is canonical for regime/HMM quartile analysis. If both variants are produced in the same run, differentiate by filename prefix (`ccf_quartile_returns.csv`, `hmm_quartile_returns.csv`).
+
+**Rerun invariant:** Once `quartile_returns.csv` exists in a prior version, it must be regenerated in every subsequent rerun. Silent drop is a Rule C3 regression-check failure and blocks GATE-22.
 
 ## Mid-Analysis Data Requests
 

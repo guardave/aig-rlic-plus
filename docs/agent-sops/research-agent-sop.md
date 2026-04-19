@@ -410,6 +410,26 @@ These patterns were identified from the HY-IG reference analysis (pair #5), whic
 
 **Cross-reference:** See AppDev SOP, "Rendering Patterns for Presentation Quality" for how Ace implements these in Streamlit.
 
+### Story Page Layout: Headline First
+
+The Story page MUST lead with the **data summary as a headline** — a key-metric punchline (e.g., "Sharpe 1.17 vs 0.90 B&H; 70% of GFC drawdown avoided") appears at the top of the page BEFORE the supporting narrative arc. The narrative arc (hook → context → evidence → implication) follows the headline, not precedes it.
+
+**Rationale:** Stakeholder review (SL-1) observed that the data summary is better suited as an attention-grabbing headline; the narrative arc earns the reader's continued attention once the headline has established stakes. The previous ordering (narrative-first, headline-buried) loses readers before they reach the numbers.
+
+**Layout pattern:**
+1. **Headline** — 1-line thesis + 2-3 key-metric pills (Sharpe, Max DD, CAGR vs B&H)
+2. **Hook paragraph** — why this matters now
+3. **Narrative arc** — history + mechanism + evidence
+4. **Early Warning Signal bullets** — each bullet follows Rule 9 (investor-impact clause)
+
+Addresses stakeholder feedback item **SL-1** (slide-1 comment: "Suggest swapping the two. The data summary seems better suited as a headline to attract attention.").
+
+### Bibliography Scale
+
+The HY-IG v2 pair ships a **17-entry bibliography** organized across 4 categories (foundational theory, empirical validation, method references, practitioner-market context). This is the **reference template** for bibliography depth.
+
+**Target for new pairs:** **10+ entries across 4 categories**. Pairs with thin literature (RES-MS1 tier: Light) may fall below 10 but must explicitly flag the literature gap in the brief.
+
 ### "How to Read the Trade Log" Subsection (Strategy Page)
 
 Every Strategy page narrative (Page 4) must include a dedicated subsection titled "How to Read the Trade Log" (or equivalent). It must state:
@@ -483,6 +503,69 @@ When rewriting the narrative for a pair that has been analyzed before, the new n
 5. **Write `regression_note.md` ONLY for deliberate drops.** File path: `results/<pair_id>/regression_note.md`. For each dropped method include: (a) method name, (b) reason, (c) approver (Lesandro / Evan / self), (d) pointer to the new-version treatment if the method was merged into another block. Cross-reference this file from the top of the new portal narrative (`See regression note: results/<pair_id>/regression_note.md`).
 6. **Valid drop reasons:** the analysis was later shown to be unreliable; the method has been superseded by a stronger test; the underlying data series is no longer available AND no proxy exists.
 7. **Invalid drop reason:** "No data file exists in the new pipeline run." → request the missing result from Evan (cite Rule C1 mandatory method list) before rewriting. Silent omission is a gate failure (team-coordination.md §22).
+
+#### Rule 7 — Signal Generation in Plain English (Strategy Page Subsection)
+
+Every Strategy page narrative must include a subsection titled **"How the Signal is Generated"** written in plain English with **no mathematical formulas**. The subsection consists of 2-3 short paragraphs focused on the intuitive mechanism: what changes in the world → what the signal measures → what decision it drives. It sits BEFORE any formal methodology reference on the Strategy page.
+
+**Example (HY-IG × SPY):**
+> "The HMM fits two hidden market states — calm and stressed — based on credit-spread behavior. When spreads behave more like stress than calm, the probability of stress rises. Once probability crosses 50%, the strategy reduces equity exposure; when it falls back below, exposure is restored."
+
+**Rules:**
+1. No equations, no Greek letters, no probability notation. If a reader sees `P(S=1|X)`, the rule has been violated.
+2. Use a three-step narrative: **world event → what the signal detects → action taken**.
+3. Sits BEFORE the formal methodology link; the layperson reader should never need to click through to understand the decision rule.
+4. When a method is genuinely novel (not previously seen in the glossary), still prefer analogy over formula.
+
+Addresses stakeholder feedback item **S18-1** (signal-generation explainer requirement on Strategy page).
+
+#### Rule 8 — Historical-Episode Cross-Reference Rule
+
+When narrative prose mentions a historical episode (Dot-Com, GFC, COVID, 2018 Volmageddon, 2022 rate shock, etc.), the paragraph **must reference a matching annotated zoom-in chart** produced by Vera per VIZ-V1. The cross-reference is explicit, in the same paragraph as the prose reference.
+
+**Accepted cross-reference formats:**
+- `"(see zoom-in chart below)"` — inline parenthetical
+- Explicit markdown image: `![Dot-Com zoom](output/charts/{pair_id}/plotly/history_zoom_dotcom.json)`
+- Named link: `"See the Dot-Com zoom-in chart."` when the chart appears in a neighboring section
+
+**If the matching chart does not yet exist:** Ray **flags the gap to Vera in the handoff message** and does NOT ship the prose. Writing the historical reference without the chart is a regression pattern (Wave 2 stakeholder feedback explicitly called this out).
+
+**Coverage:** Every episode named in prose requires its own zoom-in. Listing three episodes in one paragraph requires three cross-references (one per episode).
+
+Addresses stakeholder feedback items **SL-4** (Dot-Com zoom-in), **SL-5** (GFC zoom-in), and enables **S18-12** (investor-impact bullets need chart context).
+
+#### Rule 9 — "What This Means for Investors" Bullet Discipline
+
+Every bullet in Story page narrative lists — specifically "Early Warning Signal", "What History Shows", "Pattern Summary", or any similar historical-observation list — **must include a "what this means for investors" clause**. A bullet that states only an observation without action implication is a gate failure.
+
+**Format:** historical observation + action implication, joined by a dash or colon.
+
+**Anti-pattern (observation-only, REJECTED):**
+> "Credit spreads widened 6 months before the Dot-Com recession."
+
+**Correct pattern (observation + investor impact, ACCEPTED):**
+> "Credit spreads widened 6 months before the Dot-Com recession — investors watching this signal would have trimmed equity exposure before the drawdown."
+
+**Rules:**
+1. Every bullet is self-contained — the action implication is in the same bullet, not deferred to a footnote or later paragraph.
+2. The action implication is concrete ("trimmed equity exposure", "rotated to defensives", "held cash") — not vague ("would have benefited").
+3. Cite the signal that drove the decision when not obvious from context.
+
+Addresses stakeholder feedback item **S18-12** (AF comment: "每點可解釋得詳細些, 例如加上對投資者的影響").
+
+#### Rule 10 — Status Vocabulary Glossary
+
+When narrative uses status labels — e.g., **"Available", "Pending", "Validated", "Draft", "Mature", "Exploratory"** — each distinct label must have a glossary entry in `docs/portal_glossary.json` with a **one-sentence definition**. This is a subset of Rule 6 (Glossary Quality Rubric); status labels may use the compact one-sentence form rather than the full 4-element rubric because their semantic load is narrow.
+
+**Required for HY-IG v2 and all subsequent pairs.** When a pair's narrative introduces a new status label not yet in the glossary, Ray appends the entry in the same task cycle as the narrative delivery.
+
+**Example entries:**
+- **Available** — the signal/chart/data artifact has been produced, validated, and is live on the portal.
+- **Pending** — the artifact is scheduled for production but not yet produced; rendered as a placeholder on the portal.
+- **Validated** — the artifact has passed both producer self-check (Defense 1) and consumer reconciliation (Defense 2).
+- **Mature** — the pair has been through two or more acceptance cycles with no regressions.
+
+Addresses stakeholder feedback item **S18-4 follow-up** (status vocabulary needs definitions rather than ambient assumption).
 
 #### Rule 6 — Glossary Quality Rubric (4-Element Standard)
 

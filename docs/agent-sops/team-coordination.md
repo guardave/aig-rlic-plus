@@ -91,6 +91,9 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 21 | `strategy_objective` populated | `results/{id}/interpretation_metadata.json` has `strategy_objective` set to one of `min_mdd`, `max_sharpe`, `max_return`. Missing/empty/`unknown` → pair fails gate. **Owner:** Research Ray (after tournament results known) |
 | 22 | Method coverage — no regression | On a pair rerun, the new Evidence section must include every method from the prior version OR the pair includes a `regression_note.md` documenting each drop with rationale. Missing methods without a regression note → pair fails gate. **Owners:** Evan (produces data), Ray (writes narrative), Ace (renders page) |
 | 23 | Pair acceptance.md | `results/{id}/acceptance.md` exists with every Portal-Wide Quality Checklist item checked, reference pair comparison documented (see Reference Pair Doctrine), and Lead sign-off. Missing/incomplete → pair fails gate. **Owner:** Lead Lesandro |
+| 24 | Chart-Text Coherence Audit | When any chart is modified (axis, labels, values, signal, scale), author must `grep -r "<chart_name>" app/pages/` and update every referenced caption/narrative in the **same commit**. The pair's `regression_note_<date>.md` must list BOTH the chart change AND the narrative change together under a single bullet. Missing narrative diff for a recent chart edit blocks acceptance.md sign-off. **Addresses SL-3.** **Owners:** Vera (chart) + Ray (narrative), Ace (render verification) |
+| 25 | No Silent Chart Fallbacks | Pages must not silently substitute a different chart when the intended canonical artifact is missing. If the canonical chart for a method does not exist, the page renders a labeled "chart pending" placeholder with an explanation — **never** a lookalike from a different method. acceptance.md must list every method → chart mapping and verify each chart is canonical (not borrowed). Cross-reference: VIZ-V3. **Addresses S18-11.** **Owners:** Vera (canonical artifact), Ace (render path), Lesandro (gate check) |
+| 26 | No Silent Content Drops | When a previously-present analysis element (table, chart, subsection, callout) is removed on a rerun or new version, `regression_note_<date>.md` must include an explicit **Removed** section with rationale per item. If no rationale is provided, the content must be restored. Applies across versions of the same pair (e.g., HY-IG v2 losing content that HY-IG v1 had). Cross-reference: VIZ-V4, RES-5. acceptance.md must include a prior-version inventory diff (see "Prior-Version Inventory Check" below). **Addresses S18-8, SL-2, and the silent-content-drop meta-pattern.** **Owners:** Evan + Ray + Ace (producers), Lesandro (gate) |
 
 **Evidence:** HY-IG (pair #5) shipped with a header-only trade log (0 data rows) because items 16–18 were not in the completeness gate. The downstream execution panel showed "Trade log pending" with no data. Nobody caught it until manual inspection.
 
@@ -166,7 +169,25 @@ Brief confirmation that all other methods, charts, columns, and metadata match t
 #### Impact Assessment
 One paragraph per change on how it affects downstream consumers (Evan, Ray, Ace, portal users).
 
+#### Removed
+List every element (table, chart, subsection, callout, KPI, annotation) that was present in the prior version but is absent in this version. Each entry states:
+- What was removed (path, chart_name, section title)
+- Why (data now invalid, method retired, stakeholder request, scope reduction)
+- Approver and date
+
+This section is the canonical mechanism for declaring intentional removals and is the companion gate to GATE-26. If the section is empty on a rerun, auditors must be able to confirm the prior version's inventory is fully preserved.
+
 **When to write:** On every pair rerun, BEFORE handoff to the next agent in the chain. If there are no deliberate changes, still write the file with "No deliberate changes from prior version" in the Changes section — silence is not acceptance.
+
+### Version-to-Version Content Continuity (Meta-Rule META-VNC)
+
+> **Iterations must be additive or explicitly substitutive — never silently subtractive.**
+>
+> Every revision of a pair (v1 → v2 → v3) must preserve the prior version's inventory unless a removal is declared in the `regression_note_<date>.md` **Removed** section with rationale. The **Removed** section is the canonical mechanism for declaring intentional removals.
+>
+> Companion to META-RNF (Regression Note Format) and META-SC (Source Citation / upstream attribution). Operationalized by GATE-24 (chart-text coherence), GATE-25 (no silent chart fallbacks), and GATE-26 (no silent content drops).
+>
+> Applies to all 5 agents (Dana, Evan, Ray, Vera, Ace). Every producer is accountable for the elements they authored or rendered in the prior version.
 
 ### Classification Field Ownership
 
@@ -734,6 +755,40 @@ Before any pair is marked "completed," a file `results/<pair_id>/acceptance.md` 
 
     **regression_note_<YYYYMMDD>.md exists:** <yes/no>
     **Summary of changes from prior version:** <brief>
+    **Removed section present (if any removals):** <yes/no — cite each removal and rationale>
+
+    ## Blocking Items — GATE-24 / GATE-25 / GATE-26
+
+    ### GATE-24 — Chart-Text Coherence Audit
+    - [ ] For every chart modified since prior version, `grep -r "<chart_name>" app/pages/` was run and every referenced caption/narrative was updated in the **same commit** as the chart change.
+    - [ ] regression_note_<date>.md lists each chart change paired with its narrative change under a single bullet.
+    - [ ] No dangling narrative references an outdated chart state.
+
+    ### GATE-25 — No Silent Chart Fallbacks
+    - [ ] Every Evidence-page method block lists its canonical chart filename (per VIZ-A3 / VIZ-V3) — no borrowed artifacts.
+    - [ ] Method → chart mapping table below is filled in.
+
+        | Method | Canonical chart filename | Rendered as canonical? (Y/N) | Placeholder if N? |
+        |--------|--------------------------|------------------------------|-------------------|
+        | <method> | <filename.json> | <Y/N> | <placeholder text or N/A> |
+
+    - [ ] No page silently substitutes a different method's chart for a missing canonical chart. Missing charts render an explicit "chart pending" placeholder.
+
+    ### GATE-26 — No Silent Content Drops
+    - [ ] Prior-Version Inventory Check (below) completed.
+    - [ ] Every removed element (vs prior version) is documented in regression_note_<date>.md **Removed** section with rationale and approver.
+    - [ ] Any removal without documented rationale has been restored.
+
+    ### Prior-Version Inventory Check
+
+    Required whenever a prior version of this pair exists. If this is a brand-new pair, write "No prior version — N/A" and skip the bullets.
+
+    **Prior version compared against:** <tag or commit hash>
+    **Comparison date:** YYYY-MM-DD
+
+    - **Features retained:** <bulleted list of tables, charts, subsections, callouts that are present in both versions>
+    - **Features added:** <bulleted list of new elements in this version>
+    - **Features intentionally removed:** <bulleted list; each entry cites the regression_note bullet that justifies removal>
 
     ## Stakeholder Review
 

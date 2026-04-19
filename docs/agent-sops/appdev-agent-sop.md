@@ -222,6 +222,45 @@ Display data provenance for transparency: which MCP server sourced each series, 
 
 The Strategy Execution Panel appears on every Strategy page for every pair. It provides the complete execution story for the tournament winner in a tabbed layout. **Evidence:** Built ad-hoc for HY-IG (pair #5); proved effective and is now standardized for all pairs.
 
+**Standard subcomponents (mandatory on every Strategy page):**
+
+- **Rule A1 — Probability Engine Panel** (see below): time-series of the primary signal value. Addresses S18-1.
+- **Rule A2 — Position Adjustment Panel** (see below): time-series of resulting equity exposure 0–100%. Addresses S18-1.
+- **Rule A3 — Instructional Trigger Cards** (see below): compact scenario cards explaining "when probability crosses X → do Y". Addresses S18-9.
+
+These three subcomponents together answer the stakeholder question "how does the signal become a position?" Render A1 and A2 in the Performance tab (stacked), and A3 in the Execute tab as the "How to use the signal" block.
+
+#### Rule A1 — Probability Engine Panel (addresses S18-1)
+
+**Acceptance criteria:**
+- Time-series chart of the primary signal value (e.g. HMM stress probability) over the full sample.
+- Horizontal lines rendered at decision thresholds (e.g. 0.5 for discrete, epsilon band for continuous).
+- NBER recession shading when the displayed span exceeds 5 years (coordinate with VIZ-V2).
+- Mandatory 1-line `st.caption()` "what this panel shows" takeaway directly below the chart.
+
+Data source: `results/{pair_id}/signals_{date}.parquet` (ECON-DS1) or canonical signal chart if Vera delivers it. Fallback: render `st.warning("Probability engine panel pending — signal not yet persisted.")` rather than silently omit.
+
+#### Rule A2 — Position Adjustment Panel (addresses S18-1)
+
+**Acceptance criteria:**
+- Time-series of resulting equity exposure (0–100%) over the full sample.
+- Exposure computed from `signal × strategy family rules` (P1 = fully invested on signal, P2 = exposure proportional to probability, P3 = threshold-gated exposure).
+- Y-axis labeled "SPY Exposure (%)" (or the target symbol from pair config).
+- Mandatory 1-line `st.caption()` takeaway (e.g. "Exposure drops to 0% when stress probability exceeds 50%.").
+
+Render directly beneath A1 with shared x-axis date range so readers see signal → position in one visual unit.
+
+#### Rule A3 — Instructional Trigger Cards (addresses S18-9)
+
+**Acceptance criteria:**
+- Compact card grid (2-4 cards) rendered with `st.columns()` + `st.container(border=True)`.
+- Each card = one trigger scenario: BUY-side, REDUCE-side, HOLD (vary by strategy family).
+- Each card shows a mini-chart snippet of probability crossing its threshold + a text block: "When probability crosses X → do Y".
+- Minimal, conceptual illustration — NOT a full backtest view. No dense data, no full-history equity curve.
+- Render in the Execute tab as the "How to use the signal" block, above the Strategy SOP.
+
+**Anti-pattern:** dumping the full trade log here — that belongs in the Performance tab. The cards are a user-manual page, not an audit trail.
+
 **Layout: 3 tabs**
 
 **Tab 1 — Execute:**
@@ -493,6 +532,49 @@ If no family-equivalent chart exists, render an `st.warning("Chart pending — m
 The 8-element template enforces the audience-friendly principles from section 3.8 at the structural level: every method gets a plain-English question, an explicit reading guide, a separation of observation from interpretation, and a key message in a visually distinct box. Readers learn the rhythm after one or two methods and can skim or deep-read predictably across the entire portal.
 
 **Cross-reference:** See Research SOP "Evidence Page 8-Element Narrative Template" for the upstream content structure Ray delivers. The element names, order, and field names (`method_theory`, `question`, `how_to_read`, `observation`, `deep_dive`, `interpretation`, `key_message`) are aligned across both SOPs so handoff is mechanical.
+
+### 3.10 Rule A4 — Real-time Execution Placeholder (addresses S18-10)
+
+Every Strategy page MUST include a mandatory "Future: Live Execution" section documenting the real-time execution layer. The dashboard is historical; stakeholders need to see the placeholder so strategy design stays aligned with eventual deployment.
+
+**Acceptance criteria:**
+- Section titled `## Future: Live Execution` near the bottom of every Strategy page.
+- Three placeholder fields rendered via `st.metric()`:
+  - **Current Signal State** (e.g. current HMM probability value)
+  - **Target Position** (e.g. % SPY allocation)
+  - **Current Action** (increase / reduce / hold)
+- Accompanying `st.info()` callout: "This dashboard presents historical backtest results. A real-time execution layer would surface the fields above; the values shown are placeholders."
+- Source contract: loader reads from `results/{pair_id}/live_execution_stub.json` if present; if absent, each metric renders `"—"`. Never hardcode live values.
+
+**Anti-pattern:** omitting the section because "it is not live yet" — the placeholder itself is the deliverable. Its presence documents intent and reserves layout.
+
+### 3.11 Rule A5 — Universal Takeaway Caption (addresses S18-3, S18-4 follow-up)
+
+Every table, chart, and diagnostic rendered in the **Confidence section of the Strategy page** MUST carry a 1-line user-facing `st.caption()` takeaway. The caption answers "what should a non-technical reader take away from this?" — not a restatement of the chart title.
+
+**Scope:**
+- Confidence section of Strategy page: bootstrap tables, stress test results, walk-forward panels, transaction cost sensitivity charts, validation summaries — every item gets its own caption.
+- Evidence Sources status table: each status cell carries a caption or inline legend defining what Available / Pending / Validated mean in user-facing language.
+- Any other "status" legend rendered anywhere in the portal (landing page integrity chips, methodology page artifact status, data refresh status) MUST carry an adjacent legend expander or inline definition.
+
+**Acceptance criteria:**
+- Caption is 1 line, layperson-readable, action-oriented ("The 95% confidence interval stays positive, so the edge is unlikely to be noise.").
+- Caption is placed directly beneath the artifact — not at the bottom of the section.
+- Status tokens (Available / Pending / Validated / etc.) are defined in an adjacent legend before or immediately after first use. Never rely on the reader's assumed understanding.
+
+**Anti-pattern:** rendering a bootstrap CI table with no takeaway caption, or a status chip with no definition of what the status means. Both are gate failures.
+
+### 3.12 Status Vocabulary Discipline
+
+Any status label rendered in the portal (e.g. Available / Pending / Validated / Unknown / Stale / Draft) MUST be accompanied by an inline definition or a visible legend expander on the same page.
+
+**Rules:**
+- First use of any status token on a page triggers the legend requirement.
+- Legend format: either inline (`st.caption("Available = artifact produced and verified; Pending = artifact missing; Validated = passed reconciliation.")`) or an `st.expander("What do these statuses mean?")` above the status table.
+- Status vocabulary is drawn from a canonical list — do not invent new status words without registering them here and in the standards registry.
+- Canonical status vocabulary: `Available`, `Pending`, `Validated`, `Stale`, `Draft`, `Unknown` (META-UNK applies — Unknown is a gap, not a display state).
+
+**Rationale:** S18-3 and S18-4 showed that stakeholders cannot decode status tokens without a legend. Codifying the vocabulary prevents per-pair drift and makes the portal consistent across 73 pairs.
 
 ### 4. Implement Charts and Interactivity
 

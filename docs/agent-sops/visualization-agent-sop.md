@@ -414,6 +414,8 @@ if unit_label == "%" and max(abs(y)) < 1:
     raise ValueError("% axis but values look like fractions — rescale ×100 or fix label")
 ```
 
+**SL-2 reinforcement — annualized-return callouts are unit artifacts too.** Unit discipline applies not only to axis labels but also to on-chart callout text (e.g., "Ann. return: 8.4%" banners on the Story hero). SL-2 observed that the HY-IG v2 polish silently dropped the annualized return % overlay/callout that was present in the prior hero version. Treat such callouts as first-class Rule A2 artifacts: if the prior version carried an annualized return number, the new version restores it with matching unit notation (dual notation "8.4% ann." per RES-4 when space permits), or the drop is documented in `regression_note.md`. Silent removal of unit-bearing callouts is an A2 + RNF violation.
+
 #### Rule A3 — Standard Chart Catalog with Canonical Signal Selection
 
 For every chart in the standard chart set, the filename, signal selection, ordering, and styling are **canonical**. Reruns of the same pair must match the canonical spec exactly. The canonical catalog is the "Standard Chart Set Per Pair" table below in **Viz Preferences** — that table is the single source of truth. Do not maintain a separate catalog file; update the table in this SOP when a spec changes and record the change in `regression_note.md` (see Rule A4).
@@ -462,6 +464,74 @@ Chart captions appear in two places, owned by two agents. Do not duplicate or cr
 | **Technical caption** (audit / metadata) | Vera | `{chart_name}_meta.json`, field `caption` | Machine-readable one-line description of what the chart literally shows — used for reconciliation, chart registry browsing, and as a FALLBACK if Ray's narrative dict is missing a caption for a given chart |
 
 **Rule:** Vera MUST populate `caption` in every `_meta.json` sidecar (mandatory per the metadata schema below). Ace MUST use Ray's narrative caption as the primary display text. If Ray's content dict omits `caption` for a given chart_type, Ace falls back to Vera's `_meta.json` caption — but Ray and Vera should not silently produce conflicting captions. If Vera notices during QA that Ray's caption contradicts the chart's actual data, flag it to Ray; do not rewrite Ray's narrative.
+
+#### Rule V1 — Annotated Historical-Episode Zoom-In (addresses SL-4, SL-5; enables S18-12)
+
+When narrative (Story page) references a historical episode (Dot-Com, GFC, COVID, 2018 taper, 2022 inflation shock, etc.), the Story page must include a matching zoom-in chart. Prose references without matching labeled charts fail the stakeholder review (per SL-4 and SL-5 worked examples).
+
+- **Time window:** zoom spans roughly ±2 years around the episode
+- **Event markers:** vertical dashed lines at 3–5 key dates, each with a short text annotation (e.g. "Aug 2000 first inversion", "Oct 2007 spreads widen", "Jul 2002 WorldCom bankruptcy")
+- **Implementation:** Plotly `add_vline` with `annotation_text` + `annotation_position="top right"`
+- **Title:** must name the episode explicitly (e.g. "Credit Spreads During the Dot-Com Bust, 1999–2002")
+- **Filename convention:** `history_zoom_{episode_slug}.json` (e.g. `history_zoom_dotcom.json`, `history_zoom_gfc.json`, `history_zoom_covid.json`) saved under `output/charts/{pair_id}/plotly/`
+- **Per-Pair standard set implication:** when narrative cites an episode, the zoom-in is mandatory; omission requires a regression_note entry
+
+This rule also creates the visual substrate for S18-12: each "Early Warning Signal" bullet with investor-impact wording should land next to (or link down to) the relevant episode zoom-in.
+
+#### Rule V2 — NBER Recession Shading + Caption Disclosure (addresses SL-2)
+
+Long-horizon equity/credit time-series (span > 5 years) must:
+
+1. Shade NBER recessions using grey rectangles at `alpha` 0.1–0.15 (subtle, per existing Regime Shading Subtlety rule)
+2. Include explicit disclosure text in the chart caption or figure subtitle: **"Vertical shaded bands mark NBER recessions."**
+
+The disclosure text is part of the chart deliverable — shading alone is not self-documenting. A reader cannot decode grey bands without being told what they are. Both elements (shading + caption) must ship together or the chart fails the completeness gate.
+
+For the HY-IG v2 hero chart, SL-2 observed that shading existed but the disclosure text was missing; restore it as both a chart-level annotation and a narrative caption entry in Ray's content dict.
+
+#### Rule V3 — Per-Chart Ownership: No Silent Fallbacks (addresses S18-11)
+
+Every chart referenced by a portal page must have its own canonical artifact. If a statistical method doesn't yet have a dedicated chart (e.g. Granger Causality), Vera must produce one — falling back to a different chart (e.g. rendering Local Projections under a Granger heading) is **prohibited**. S18-11 flagged this exact pattern: "Granger chart 同 Local Projections 個 chart 睇落一樣" — the same file was served under two headings, breaking per-method ownership.
+
+**Granger canonical spec (addition to Rule A3 catalog):**
+- **Artifact:** F-statistic by lag as a bar chart (primary) OR lag-coefficient bar chart (alternate if F-stats unavailable)
+- **Significance threshold line:** horizontal reference at the critical F-value (or p=0.05 equivalent)
+- **Both directions:** indicator→target and target→indicator as grouped bars or two-panel layout
+- **Filename:** `granger.json` (already in canonical catalog)
+
+**If producing the dedicated chart is blocked** (data artifact missing from Evan, computational issue):
+- Flag explicitly in `regression_note.md` under "Charts Pending"
+- Portal page renders a "chart pending" placeholder with a one-line explanation (via Ace's missing-element fallback, APP-EP5) — NOT a silent substitute of a different chart
+
+#### Rule V4 — No-Silent-Drop of Diagnostic Charts (addresses S18-8)
+
+Certain diagnostic charts are mandatory per method type. **Removal requires a `regression_note.md` entry citing why.** A prior version shipping with a chart and a new version shipping without it is a regression, not a stylistic choice.
+
+**Mandatory diagnostic charts per method:**
+
+| Method | Mandatory charts |
+|--------|------------------|
+| CCF | Pre-whitened CCF chart + **annualized return by quartile Q1-Q4** bar chart |
+| Regime | Regime probability time-series + regime quartile return chart |
+| Quantile | Quantile coefficient chart (across return quantiles) |
+| Granger | F-statistic by lag chart (per Rule V3) |
+| Transfer Entropy | TE by lag chart |
+
+S18-8 flagged that the "annualised SPX return by quartile Q1-Q4" chart was present in an earlier CCF Evidence block and silently dropped in a later version. This is a META-RNF violation; the regression_note.md must list each dropped diagnostic with a rationale, or the drop is reverted.
+
+On rerun, Vera must diff the prior chart set under `output/charts/{pair_id}/plotly/` and explicitly reconcile each missing mandatory diagnostic. If absent and undocumented, the chart is restored before handoff.
+
+### Chart-Text Coherence (Cross-Agent Contract) — addresses SL-3
+
+When Vera updates a chart's content — axis, labels, values, signal selection, transformation, or color encoding — Vera MUST notify Ray (Research) and Ace (AppDev) in the same dispatch so captions and narrative get updated in the same commit. SL-3 flagged the pattern: the Evidence heatmap was updated but the "What the chart shows" text wasn't, leaving the narrative out of sync with the visual.
+
+**Workflow:**
+
+1. After a chart update that changes semantics (not just aesthetics), post a short "Chart semantics changed" note in the team status board listing: chart_type, pair_id, what changed, and which narrative fields (caption, "What the chart shows", observation text) likely need Ray's review.
+2. The `regression_note.md` for that rerun must list the chart change AND the corresponding narrative change together as a single coupled entry — not two independent entries.
+3. Ace's portal deploy is blocked until the narrative update is confirmed (Ray responds "acknowledged, updated" or "acknowledged, no change needed").
+
+This is a cross-agent contract; unilateral chart updates that leave narrative stale are a coordination failure and a completeness-gate miss (see GATE-22 method coverage / regression).
 
 ### 6. Format Tables
 
