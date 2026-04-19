@@ -1,3 +1,4 @@
+# Force Cloud redeploy: 2026-04-19 wave 3 verification
 """Registry of analyzed indicator-target pairs for the portal.
 
 Exposes pair metadata loaded from `results/<pair>/interpretation_metadata.json`
