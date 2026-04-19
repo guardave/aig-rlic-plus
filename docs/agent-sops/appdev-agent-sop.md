@@ -249,7 +249,7 @@ Before rendering the Probability Engine Panel, Ace MUST load `results/{pair_id}/
 - **Historical plausibility.** During at least one known stress episode (e.g. 2008-09 GFC, 2020 COVID), the signal takes the expected extreme: stress probability `> 0.5`, or z-score significantly above mean. Pair-specific episode windows live in `interpretation_metadata.json` under `known_stress_episodes`.
 - **Failure mode.** If any check fails, render `st.error("Probability engine panel cannot render: <specific diagnostic, e.g. 'signal column hmm_2state_prob_stress missing from signals_2026-04-18.parquet'>")` and DO NOT render the time-series. Never render a chart from invalid data.
 
-**Loader contract note (Gap 5 / META-ZI cross-ref, added 2026-04-19):** For historical-episode zoom charts referenced from APP-SE1 or the Evidence pages, loader contract follows META-ZI (Historical Episode Chart Strategy): try `output/charts/{pair_id}/history_zoom_{episode}.json` first, fall back to `output/_comparison/history_zoom_{episode}.json`, else render the "chart pending" placeholder per GATE-25.
+**Loader contract note (Gap 5 / META-ZI cross-ref, refined Wave 6B 2026-04-19 per META-AL):** For historical-episode zoom charts referenced from APP-SE1 or the Evidence pages, loader contract follows META-ZI (Historical Episode Chart Strategy) as refined in Wave 6B: try `output/charts/{pair_id}/plotly/history_zoom_{episode}.json` only; if missing, render the "chart pending" placeholder per GATE-25. There is no `output/_comparison/` fallback — the canonical layer is the events registry (VIZ-V12), not rendered pixels, and every pair ships its own dual-panel chart per VIZ-V1.
 
 #### Rule A2 — Position Adjustment Panel (addresses S18-1)
 

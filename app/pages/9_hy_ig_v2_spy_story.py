@@ -281,8 +281,8 @@ st.markdown(
 load_plotly_chart(
     "history_zoom_dotcom",
     fallback_text=(
-        "Dot-Com zoom chart pending (canonical path: "
-        "output/_comparison/history_zoom_dotcom.json)."
+        "Dot-Com zoom chart pending (expected at: "
+        "output/charts/hy_ig_v2_spy/plotly/history_zoom_dotcom.json)."
     ),
     caption=(
         "What this shows: HY-IG OAS spread, 1998-2003. Event markers: "
@@ -309,8 +309,8 @@ st.markdown(
 load_plotly_chart(
     "history_zoom_gfc",
     fallback_text=(
-        "GFC zoom chart pending (canonical path: "
-        "output/_comparison/history_zoom_gfc.json)."
+        "GFC zoom chart pending (expected at: "
+        "output/charts/hy_ig_v2_spy/plotly/history_zoom_gfc.json)."
     ),
     caption=(
         "What this shows: HY-IG OAS spread, 2005-2010. Event markers: "
@@ -336,8 +336,8 @@ st.markdown(
 load_plotly_chart(
     "history_zoom_covid",
     fallback_text=(
-        "COVID zoom chart pending (canonical path: "
-        "output/_comparison/history_zoom_covid.json)."
+        "COVID zoom chart pending (expected at: "
+        "output/charts/hy_ig_v2_spy/plotly/history_zoom_covid.json)."
     ),
     caption=(
         "What this shows: HY-IG OAS spread, 2019-2022. Event markers: "

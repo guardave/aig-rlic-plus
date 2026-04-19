@@ -25,11 +25,17 @@ This document defines how agents on the AIG-RLIC+ team coordinate work, hand off
                        ┌────┴─────┐
                        │ App Dev  │
                        │   Ace    │
-                       └──────────┘
+                       └─────┬────┘
+                             │
+                       ┌─────┴─────┐
+                       │    QA     │
+                       │  Quincy   │
+                       └───────────┘
 ```
 
 **Lesandro** (lead) assigns tasks, reviews outputs, and makes final decisions on methodology and interpretation.
 **Ace** (app dev) is the integration point — assembles all outputs into the Streamlit portal.
+**Quincy** (QA) is the independent verifier — audits every producer's self-report, exercises the portal as a stakeholder, and holds the acceptance gate until evidence is on the table. Per `docs/agent-sops/qa-agent-sop.md`, Quincy runs AFTER all producers and BEFORE Lead acceptance sign-off; GATE-31 makes Quincy's sign-off mandatory.
 
 ## Standard Task Flow
 
@@ -42,14 +48,26 @@ A typical analysis follows this sequence:
 4. Econometrics agent specifies and estimates models  ←┘ (after 2 & 3)
 5. Visualization agent produces charts and tables     ← (after 4)
 6. App dev assembles portal with narrative + visuals  ← (after 5, with input from 2 & 3)
-7. Browser verification (headless inspect + fix)      ← (after 6)
-8. Deliverables completeness gate                     ← (after 7)
-9. MRA: Measure, Review, Adjust                       ← (after 8)
-10. Lesandro reviews, interprets, and delivers final output
+7. Each producer self-verifies per META-SRV           ← (each producer at handoff)
+8. Browser verification (headless inspect + fix)      ← (after 6)
+9. Deliverables completeness gate                     ← (after 8)
+10. QA (Quincy) runs independent verification         ← (after 9, per GATE-31)
+11. Lesandro signs off on rule-compliance in acceptance.md
+12. MRA: Measure, Review, Adjust                      ← (after 11)
+13. Stakeholder review (final gate per META-RPT)
+14. Lesandro tags the pair reference and delivers
 ```
 
 Steps 2 and 3 run in parallel. Steps 4, 5, and 6 are sequential dependencies.
 Ace can begin scaffolding the portal structure during steps 2-4 while waiting for final outputs.
+
+**Producer → QA → Lead → Stakeholder pipeline (summary).**
+
+1. Producer agents (Dana / Evan / Vera / Ray / Ace) complete their work and each files a regression-note section with META-SRV evidence blocks (first line of defense).
+2. Lead coordinates producer handoffs and reviews rule-compliance at each wave.
+3. **QA (Quincy) runs independent verification (second line, per `docs/agent-sops/qa-agent-sop.md`)** — re-runs every verification command, audits cross-agent seams, runs Cloud smoke on reference pairs, files findings in regression-note and acceptance.md.
+4. `acceptance.md` sign-off requires QA sign-off per GATE-31. Lead cannot sign without QA's findings block in place.
+5. Stakeholder review is the final gate (per META-RPT) and gates the promotion of `<pair_id>-reference-candidate` to `<pair_id>-reference`.
 
 ## Deliverables Completeness Gate (Step 8)
 
@@ -98,6 +116,7 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 28 | Reference-Pair Placeholder Prohibition | On reference-pair pages (see Reference Pair Doctrine), any "chart pending" placeholder (the GATE-25 graceful fallback) is an **acceptance blocker**. Graceful degradation is appropriate for non-reference pairs under development; reference pairs are the gold standard and must render 100% of referenced charts. acceptance.md must assert: zero `chart_pending` placeholders in rendered page DOM, verified via headless-browser DOM audit over every portal page of the reference pair. **Addresses** the gate-level gap that allowed "chart pending" to pass Wave 3 verification on a reference pair. **Owners:** Ace (portal audit) + Lesandro (gate). |
 | 29 | Clean-Checkout Deployment Test | Before acceptance, the pair's portal must pass a smoke test run in a **clean checkout that respects `.gitignore`** — a simulation of Streamlit Cloud's deployment environment. Implementation: `git clone --depth 1 "$(git rev-parse --show-toplevel)" /tmp/clean_checkout_{pair_id}` then `cd /tmp/clean_checkout_{pair_id}` then `python3 app/_smoke_tests/smoke_loader.py --pair-id {pair_id}`. Any file referenced by `app/` code that exists in the working tree but NOT in the clean checkout = gate failure (indicates a silent gitignore exclusion or missing `git add -f`). Blocks acceptance for reference pairs. Rationale: `GATE-27` validates rendering in the dev env; `GATE-29` validates deployability. Cross-reference: `ECON-DS2` (Deploy-Required Artifact Allowlist) is the producer-side counterpart; `APP-ST1` is the reusable smoke-test harness. This gate catches the class of bug "works on my laptop, breaks on Cloud" — the symptom is usually a `FileNotFoundError` or `cannot render` error on a deployed page. **Owners:** Ace (smoke test execution) + Lesandro (gate). |
 | 30 | Deflection Link Audit | Triggered whenever a stakeholder-feedback item (Sxx-y / SL-n) is closed in `acceptance.md` by deflecting to another page/section rather than by an in-place fix. Rule: (a) the resolution text must explicitly name the target page AND the target section/anchor; (b) the target page/section is **blocking-verified** to exist AND to contain the content claimed — headless-browser DOM assertion on the target anchor and a content-presence assertion on the text that addresses the stakeholder's concern; (c) **Lead sign-off is required** on every deflection-style resolution — agents cannot close a deflection item unilaterally; (d) if the target page is later renamed or restructured, **every deflection reference that pointed at it is automatically re-opened** for re-audit (meta-rule: deflection is a contract between the resolution and the target page, not a one-shot fix). Example: S18-2 (Market Regime section) was closed by deflecting to the Story page regime explainer. GATE-30 requires: (1) the Story page regime explainer exists; (2) it addresses S18-2's concern; (3) if the Story page is later renamed or restructured, S18-2 returns to open status automatically. **Addresses** the Wave-5 audit finding that S18-2 and S18-4 were closed by deflection with no mechanical assertion that the deflection target renders or contains the referenced content. **Owners:** Ace (DOM audit) + Lead Lesandro (sign-off). |
+| 31 | Independent QA Verification (Blocking) | Every `acceptance.md` sign-off must have a QA Verification section authored by Quincy per `docs/agent-sops/qa-agent-sop.md`, with at least one finding recorded per mandated category: **(a) artifact verification** (claim-evidence cross-check on every regression-note bullet); **(b) smoke tests** (`smoke_loader.py` + `smoke_schema_consumers.py` exit-0 logs); **(c) stakeholder-spirit check** (every S-item claimed resolved is re-read as the stakeholder); **(d) cross-agent seam audit** (GATE-24/25/26/28/30 + APP-DIR1 + META-XVC cross-version diff). Zero findings = QA wasn't looking; at least one PASS-with-note observation is required per wave even if nothing blocks. Any **FAIL** finding blocks acceptance until producer fix + QA re-verification; Lead override is allowed but requires a rationale block in `docs/pair_execution_history.md` "QA Override Log" section (mirrors META-FRD). Makes QA involvement mandatory, not optional. **Addresses** the Wave-5 reflection finding that producer self-reports were signed off without independent re-verification — unlocking a silent-drift class that META-SRV formalizes at the producer side. **Owners:** Quincy (authors findings) + Lead Lesandro (accepts sign-off / logs override). Added 2026-04-19 (Wave 6A). Cross-ref META-SRV, META-AL, META-RPD, GATE-23..30. |
 
 **Evidence:** HY-IG (pair #5) shipped with a header-only trade log (0 data rows) because items 16–18 were not in the completeness gate. The downstream execution panel showed "Trade log pending" with no data. Nobody caught it until manual inspection.
 
@@ -197,25 +216,29 @@ This section is the canonical mechanism for declaring intentional removals and i
 
 ### Historical Episode Chart Strategy (Meta-Rule META-ZI)
 
-> **Canonical by default, specialize on justified need.**
+> **Canonical layer is metadata, not pixels. Every pair renders its own dual-panel zoom chart from the shared events registry plus its own indicator + target data.**
 >
-> Historical episodes (Dot-Com, GFC, COVID, 2018 taper, 2022 inflation shock, etc.) appear in multiple pairs' narratives. Ship a shared canonical chart across pairs; create pair-specific overrides only when the pair's prose ties the episode to its own indicator's behavior.
+> Historical episodes (Dot-Com, GFC, COVID, 2018 taper, 2022 inflation shock, etc.) appear in multiple pairs' narratives. The shared, canonical contribution is the **event metadata** (slug, date window, event dates, labels, citations); the **rendered chart** is always pair-specific because it depends on the pair's indicator and target.
 
-**Canonical artifact location:** `output/_comparison/history_zoom_{episode_slug}.json`
-- Owner: Vera produces these once per episode per VIZ-V1
-- Slug list (extend as episodes are encountered): `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`
+**Refined Wave 6B (2026-04-19) per META-AL.** The prior model (canonical rendered chart at `output/_comparison/history_zoom_{episode}.json` with per-pair override) is **superseded**. A rendered chart contains pair-specific data (indicator trace, spread values, HMM overlays) and therefore cannot be "canonical" in the META-AL sense — a pair whose own chart was missing would silently read another pair's overlay data. That failure mode is foreclosed by removing the fallback entirely.
 
-**Override artifact location:** `output/charts/{pair_id}/history_zoom_{episode_slug}.json`
-- Trigger: Ray's narrative coherence check at handoff flags "prose requires indicator overlay" (see RES-8 extension)
-- Construction: override MUST start from canonical and add elements — never silently replace baseline (event markers, NBER shading)
-- Paper trail: regression_note entry "Override of history_zoom_{episode} created because narrative at Story§X requires {indicator} overlay"
+**Canonical (metadata-only) layer:**
+- `docs/schemas/history_zoom_events_registry.json` (VIZ-V12) — authoritative episode slugs, date windows, event dates, labels, and source citations. Owner: Vera.
+- VIZ-V11 palette (trace colors, NBER rgba) and VIZ-V2 NBER shading rules — canonical styling.
+- Slug list (extend via PR to the registry): `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`.
 
-**Loader contract (Ace):**
-1. Try `output/charts/{pair_id}/history_zoom_{episode}.json` (pair override)
-2. Fall back to `output/_comparison/history_zoom_{episode}.json` (canonical)
-3. If both missing → "chart pending" placeholder per GATE-25
+**Per-pair rendered layer (mandatory, dual-panel):**
+- Location: `output/charts/{pair_id}/plotly/history_zoom_{episode_slug}.json`.
+- Construction: each pair renders its own chart from the canonical events + the pair's indicator + target series. VIZ-V1 mandates the dual-panel layout (indicator on top, target on bottom; shared x-axis; event annotations + NBER shading on both subplots).
+- There is **no** canonical rendered chart to "start from" and no `output/_comparison/` fallback — a pair either ships its own dual-panel chart or it ships a GATE-25 "chart pending" placeholder. For reference pairs (GATE-28), the placeholder path is a drill, not a shipped state.
 
-**Why this rule exists:** Cross-pair consistency is free for 80% of cases (event-only references); specialization cost is paid only when it earns its keep. Avoids both duplicate production effort and inconsistent episode representations across pairs.
+**Loader contract (Ace, Wave 6B):**
+1. Try `output/charts/{pair_id}/plotly/history_zoom_{episode}.json`.
+2. If missing → "chart pending" placeholder per GATE-25. No `_comparison/` fallback.
+
+**Cross-references:** META-AL (supersedes canonical-rendered-chart fallback), VIZ-V1 (dual-panel mandate, refined Wave 6B), VIZ-V12 (events registry — canonical metadata), VIZ-V11 (palette), VIZ-V2 (NBER shading), GATE-25 (missing-chart placeholder), GATE-28 (reference pairs have zero placeholders).
+
+**Why this rule exists:** Cross-pair consistency of *events* is free and enforced by the registry; consistency of *rendered chart styling* is free via the palette + dual-panel template; what cannot be made canonical is the rendered data, because it is by construction pair-specific. The old override-with-fallback model saved zero marginal work (every pair still had to render its own dual-panel anyway) while creating a silent cross-pair data-misrepresentation risk. META-AL forecloses the category error; META-ZI is the applied rule.
 
 ### Perceptual Validation of Visual Encoding (Meta-Rule META-PV)
 
@@ -478,6 +501,81 @@ canonical schema instead.
 SOPs (e.g. the ECON-DS1 signals schema, APP-SE1 signal-column assumptions —
 these must migrate to `docs/schemas/` when authored). See
 `docs/schemas/README.md` for the evolution workflow.
+
+### Abstraction Layer Discipline (Meta-Rule META-AL)
+
+> **Before abstracting anything as "canonical," ask: does the output vary across consumers? If yes, the canonical layer is the *inputs/rules*, not the output. Making pixels/content canonical when they depend on pair-specific inputs is a category error.**
+
+**Principle.** The boundary between "shareable canonical" and "per-consumer derived" is the presence of consumer-specific data. A schema, registry, template, or parameter is canonical-eligible. A rendered artifact computed from per-pair inputs is not — it is, by construction, pair-specific.
+
+**Application.**
+
+| Layer | Contents | Location pattern |
+|-------|----------|------------------|
+| Canonical (shareable) | metadata, rules, registries, parameters, templates, schemas | `docs/schemas/`, SOP rule text, `app/components/*` helpers |
+| Pair-specific (per-pair) | rendered outputs, derived artifacts, anything computed from pair-specific inputs | `output/charts/{pair_id}/`, `results/{pair_id}/` |
+
+**Test question.** "Does the artifact contain any pair-specific data?" If yes, it **cannot** be "canonical." It may live in a shared directory (e.g. `output/_comparison/`), but only as a pair's own contribution — not as a one-size-fits-all fallback for other pairs.
+
+**Worked example (the zoom-chart lesson).**
+
+- **Wrong:** canonical rendered zoom chart at `output/_comparison/history_zoom_dotcom.json` serves all pairs. Fails in practice — the file only contains one pair's overlay data, so it cannot serve another pair without silently misrepresenting that pair's indicator behavior.
+- **Right:** canonical events registry at `docs/schemas/history_zoom_events_registry.json` (metadata only: episode slug, date windows, event dates, labels, citations); each pair renders its own dual-panel chart from events + pair data at `output/charts/{pair_id}/history_zoom_{episode}.json`. The registry is the shared layer; the rendered dual-panel is the per-pair layer.
+
+**Cross-references.**
+
+- **Invalidates the META-ZI canonical-rendered-chart fallback.** META-ZI is scheduled for refinement in Wave 6B: the loader drops the `output/_comparison/` rendered-chart fallback, and the canonical layer shrinks to the events registry (VIZ-V12) plus the per-pair rendering contract.
+- Applies to any future shared-artifact proposals. Before a new rule introduces an `output/_comparison/` or `results/_shared/` path, the proposer must pass the test question and write the answer into the proposal.
+
+**Why this rule exists.** Wave 5 reflection revealed that the META-ZI fallback was a silent source of cross-pair data misrepresentation: a pair whose own episode chart was missing would silently read another pair's chart. File-existence gates and loader smoke tests did not catch it because the load technically succeeded. META-AL forecloses that entire failure class by forbidding the abstraction up front.
+
+### Self-Report Verification Discipline (Meta-Rule META-SRV)
+
+> **Every agent self-report must name (a) the file path(s) touched and (b) a machine-checkable verification method. Self-reports without verification evidence are not acceptable for Lead to sign off.**
+
+**Principle.** A claim is not done until it is both stated and verified. Producer agents (Dana, Evan, Vera, Ray, Ace) are the first line: every regression-note entry must carry its own evidence block. QA (Quincy, per `docs/agent-sops/qa-agent-sop.md`) is the second line: re-running the evidence independently.
+
+**Format.** Every regression-note claim follows:
+
+```
+### <Agent>'s Wave X (<date>)
+Claims:
+- <claim 1>: <one sentence>
+Evidence:
+- File: <absolute path>
+- Verification: <command>
+- Result: <output / exit code>
+```
+
+**Verification methods catalog (examples).**
+
+| Claim type | Verification method |
+|------------|---------------------|
+| Schema conformance | `python3 scripts/validate_schema.py --schema <name> --instance <path>` → exit 0 |
+| Grep absence | `grep -r "old_pattern" app/ scripts/ docs/ | wc -l` → 0 |
+| Smoke test | `python3 app/_smoke_tests/smoke_loader.py <pair_id>` → `passes=N/failures=0` |
+| File existence | `ls data/manifest.json` → exists |
+| Diff count | `git diff HEAD~1 --stat <file>` → non-empty |
+| Cloud assertion | Playwright query + expected DOM text / attribute → matches |
+| Schema-instance alignment | validator exit 0 AND instance on disk |
+| Registry registration | `jq '.entries[] | select(.id=="X")' <registry>` → non-empty |
+
+**Two-line defense.**
+
+1. **First line — producer self-verifies.** Every claim in a producer's regression-note section carries its own evidence block. A claim without evidence is a META-SRV violation and cannot be signed off, even by the producer.
+2. **Second line — QA (Quincy) re-verifies independently.** QA re-runs each verification command from a fresh shell, re-derives the result, and files findings per `docs/agent-sops/qa-agent-sop.md`. This catches the self-report blind spot where a producer's own verification drifts silently (e.g., a cached file, an environment variable the producer's shell has but QA's does not).
+
+**Scope.** Applies to all 5 producer agents (Dana, Evan, Vera, Ray, Ace) on every regression-note entry, and to Lead on every acceptance.md sign-off block. QA's findings themselves obey META-SRV — each finding carries its own evidence column.
+
+**Cross-references.**
+
+- `docs/agent-sops/qa-agent-sop.md` — QA is the second line of META-SRV
+- `GATE-31` — Independent QA Verification (the blocking gate that makes META-SRV mandatory at acceptance)
+- META-RNF — Regression Note Format (the container META-SRV slots into)
+- META-CF — Contract File Standard (schema validation is the canonical verification method)
+- META-XVC — Cross-Version Discipline (observation subsection is a META-SRV evidence block)
+
+**Why this rule exists.** Wave 5 reflection showed that several upstream claims had passed acceptance because the regression-note entries were clean prose without reproducible verification. In one case, a schema bump was described accurately but no validator run was logged; in another, a chart was claimed to "render cleanly" without a smoke-test log. META-SRV makes the evidence block a first-class part of every regression-note entry — making producer self-reports mechanically auditable and unlocking the independent QA re-verification layer.
 
 ### Classification Field Ownership
 
@@ -1112,6 +1210,26 @@ Before any pair is marked "completed," a file `results/<pair_id>/acceptance.md` 
     - **Features added:** <bulleted list of new elements in this version>
     - **Features intentionally removed:** <bulleted list; each entry cites the regression_note bullet that justifies removal>
 
+    ## QA Verification (GATE-31)
+
+    **QA agent:** Quincy
+    **Verification date:** YYYY-MM-DD
+    **Findings link:** `results/<pair_id>/regression_note_<date>.md` § QA Verification — Wave X
+
+    ### Summary
+    Total checks: N | PASS: n1 | PASS-with-note: n2 | FAIL: n3 | Blocking: n4
+
+    ### Mandated category coverage (per GATE-31)
+    - [ ] Artifact verification: at least one claim-evidence cross-check per producer's regression-note section
+    - [ ] Smoke tests: `smoke_loader.py` + `smoke_schema_consumers.py` both `failures=0`
+    - [ ] Stakeholder-spirit check: every S-item claimed resolved in this acceptance re-read as the stakeholder
+    - [ ] Cross-agent seam audit: GATE-24 / 25 / 26 / 28 / 30 + APP-DIR1 + META-XVC cross-version diff
+
+    ### Sign-off recommendation
+    <Approve / Block / Approve with Lead override>
+
+    If Lead override: link to "QA Override Log" entry in `docs/pair_execution_history.md`.
+
     ## Stakeholder Review
 
     **Reviewed by:** <name>
@@ -1123,6 +1241,7 @@ Before any pair is marked "completed," a file `results/<pair_id>/acceptance.md` 
     **Approved by:** Lead Lesandro
     **Approval date:** YYYY-MM-DD
     **Tag/commit:** <hash>
+    **QA sign-off received:** <yes/no — if no, override rationale and log link required>
 
 ---
 

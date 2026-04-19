@@ -13,7 +13,6 @@ _APP_DIR = os.path.dirname(os.path.dirname(__file__))
 _REPO_ROOT = os.path.normpath(os.path.join(_APP_DIR, ".."))
 CHART_DIR = os.path.join(_APP_DIR, "..", "output", "charts", "plotly")
 METADATA_DIR = os.path.join(_APP_DIR, "..", "output", "charts", "metadata")
-_COMPARISON_DIR = os.path.join(_REPO_ROOT, "output", "_comparison")
 
 _LOGGER = logging.getLogger("app.components.charts")
 
@@ -31,30 +30,37 @@ def _load_plotly_json(json_path: str):
 
 
 def _resolve_history_zoom_paths(chart_name: str, pair_id: str | None) -> list[str]:
-    """Resolve candidate paths for canonical historical-episode zoom charts.
+    """Resolve candidate paths for historical-episode zoom charts.
 
-    Implements the META-ZI (Historical Episode Chart Strategy) loader contract:
-      1. Per-pair override at ``output/charts/{pair_id}/history_zoom_{episode}.json``
-         (if a pair-specific variant is warranted by Ray's coherence review)
-      2. Canonical baseline at ``output/_comparison/history_zoom_{episode}.json``
-      3. Fallback to GATE-25 "chart pending" placeholder (handled by caller)
+    Implements the META-ZI (Historical Episode Chart Strategy) loader contract
+    as refined in Wave 6B per META-AL (Abstraction Layer Discipline):
 
-    Cross-reference: APP-SE1 loader-contract note (Gap 5 / META-ZI) and Viz SOP
-    VIZ-V1 cross-agent contract. Ray flags override candidates in the narrative
-    coherence check; this loader is the Ace-side wiring that consumes them.
+      1. Per-pair rendered chart at
+         ``output/charts/{pair_id}/plotly/history_zoom_{episode}.json`` only.
+      2. If missing → caller renders the GATE-25 "chart pending" placeholder.
+
+    There is NO canonical-rendered-chart fallback. The canonical layer is
+    metadata only (``docs/schemas/history_zoom_events_registry.json`` — VIZ-V12
+    — plus VIZ-V11 palette and VIZ-V2 NBER shading rules); each pair renders
+    its own dual-panel chart (indicator + target) from the canonical events +
+    pair-specific data. Making rendered pixels canonical was a META-AL
+    category error because the chart depends on pair-specific inputs.
+
+    Cross-reference: META-AL (supersedes override-fallback model), META-ZI
+    (refined Wave 6B), VIZ-V1 (dual-panel mandate), VIZ-V12 (events registry),
+    GATE-25 (placeholder at render time), GATE-28 (reference pairs must have
+    zero placeholders so the missing-chart path is a drill, not a shipped
+    state).
     """
-    candidates: list[str] = []
-    if pair_id:
-        # Pair-specific override tier (no /plotly/ subdir for these episodes)
-        candidates.append(
-            os.path.normpath(
-                os.path.join(_REPO_ROOT, "output", "charts", pair_id, f"{chart_name}.json")
+    if not pair_id:
+        return []
+    return [
+        os.path.normpath(
+            os.path.join(
+                _REPO_ROOT, "output", "charts", pair_id, "plotly", f"{chart_name}.json"
             )
         )
-    candidates.append(
-        os.path.normpath(os.path.join(_COMPARISON_DIR, f"{chart_name}.json"))
-    )
-    return candidates
+    ]
 
 
 def load_plotly_chart(
@@ -74,16 +80,21 @@ def load_plotly_chart(
                  If provided, looks in output/charts/{pair_id}/plotly/.
         chart_key: Unique Streamlit widget key. Auto-generated if None.
 
-    Special routing — META-ZI (Historical Episode Chart Strategy):
-        Chart names starting with ``history_zoom_`` are resolved via the
-        canonical + override fallback chain (per-pair override first,
-        then ``output/_comparison/``). See ``_resolve_history_zoom_paths``.
+    Special routing — META-ZI (Historical Episode Chart Strategy, refined
+    Wave 6B per META-AL):
+        Chart names starting with ``history_zoom_`` resolve only to the
+        per-pair rendered chart at
+        ``output/charts/{pair_id}/plotly/history_zoom_{episode}.json``. There
+        is no canonical-rendered-chart fallback; the canonical layer is the
+        events registry (VIZ-V12), not pixels. See
+        ``_resolve_history_zoom_paths``.
     """
     if chart_key is None:
         chart_key = f"plotly_{chart_name}_{uuid.uuid4().hex[:8]}"
 
-    # META-ZI routing: historical-episode zoom charts use the canonical+override
-    # fallback chain (GATE-25 + VIZ-V1). Bypass the regular per-pair chart_dir.
+    # META-ZI routing (Wave 6B): historical-episode zoom charts are strictly
+    # per-pair. Bypass the regular per-pair chart_dir so we don't accidentally
+    # fall back to a pair_id-prefix variant like the method charts do.
     if chart_name.startswith("history_zoom_"):
         candidates = _resolve_history_zoom_paths(chart_name, pair_id)
     else:

@@ -409,6 +409,60 @@ Plus modifications to `winner_summary.json` (signal_code canonicalized), `docs/p
 
 ---
 
+## QA Verification (Wave 6B, 2026-04-19)
+
+**QA agent:** Quincy (first production run of the QA role)
+**Authority:** GATE-31 (Independent QA Verification)
+**Scope:** Wave 6B META-AL retro-apply — Vera's dual-panel zoom rebuild + Ace's loader refactor.
+**Full findings:** `results/hy_ig_v2_spy/qa_verification_20260419.md`
+
+### Summary
+Total checks: 23 — PASS 20 | PASS-with-note 3 | FAIL 0 | Blocking 0.
+
+### Verified claims matrix (condensed)
+
+| # | Source | Claim | Result |
+|---|--------|-------|--------|
+| V1 | Vera | VIZ-V1 refined to META-AL; dual-panel mandatory; `_comparison/` model removed | PASS |
+| V2 | Vera | 3 dual-panel zoom JSONs + sidecars at `output/charts/hy_ig_v2_spy/plotly/history_zoom_{dotcom,gfc,covid}.json` with `traces=2`, `palette_id=okabe_ito_2026`, `panels=[indicator,target]` | PASS |
+| V3 | Vera | Old `output/_comparison/history_zoom_*` files deleted (9 files) | PASS |
+| V4 | Vera | 3 perceptual-check PNGs regenerated; dual panels + NBER + event markers visible | PASS |
+| V5 | Vera | VIZ-V5 smoke test 10/10 PASS | PASS |
+| V6 | Vera | Events registry NOT modified | PASS |
+| A1 | Ace | `app/components/charts.py` drops `output/_comparison/` fallback | PASS (0 hits) |
+| A2 | Ace | Loader returns dual-panel Figure for all 3 zooms (kwarg call) | PASS (traces=2 × 3) |
+| A3 | Ace | `chart_type_registry.json` history_zoom_* → `expected_chart_type=dual_panel`, `override_supported=false` | PASS (5 entries) |
+| A4 | Ace | META-ZI text in team-coordination.md reflects new model | PASS-with-note (F1) |
+| A5 | Ace | Story fallback_text updated (no "canonical path" / `_comparison`) | PASS |
+| A6 | Ace | smoke_loader.py 15/15 | PASS |
+| A7 | Ace | smoke_schema_consumers.py 3/3 | PASS |
+| A8 | Ace | APP-SE1 loader-contract note refined | PASS |
+| A9 | Ace | chart_type_registry.schema.json description text flagged (non-blocking) | PASS-with-note (F2) |
+
+### GATE-31 standard checklist (12 items)
+
+All 12 PASS or deferred (Cloud check deferred to Wave 6D per scope). Details in QA file §GATE-31.
+
+### Stakeholder-spirit check
+
+**PASS.** The Wave 6 motivation (user wants to *eyeball the pair relationship* in the history zoom charts) is resolved. QA independently re-rendered `history_zoom_gfc.png` and visually confirmed: top panel HY-IG spread peaks in Sep-Oct 2008 around Lehman; bottom panel SPY bottoms Mar 2009; shared x-axis + dual-panel event markers (Aug 2007, Mar 2008, Sep 2008, Mar 2009, Jun 2009) + NBER shading on both panels let a reader eyeball the credit → equity lead-lag in seconds. Same pattern holds for dotcom and covid.
+
+### Cross-agent seam audit
+
+**PASS.** Ace's loader expected paths match Vera's file output paths byte-for-byte including the `/plotly/` subdir. smoke_loader.py runs end-to-end against committed artifacts and reports `traces=2` for all 3 history_zoom_* rows.
+
+### Findings (3 PASS-with-note; 0 FAIL)
+
+- **F1 (A4):** `docs/agent-sops/team-coordination.md` retains 6 `_comparison` mentions, all in historical/deprecation/anti-pattern context. No live contract reference; advisory only. Backlog per META-BL.
+- **F2 (A9):** `docs/schemas/chart_type_registry.schema.json` line 94 description text for `override_supported` still describes the legacy META-ZI model. Ace correctly flagged as SCHEMA-REQUEST within Vera's schema authority. Non-blocking.
+- **F3 (Gate-28):** `app/pages/9_hy_ig_v2_spy_story.py` lines 284/312/339 retain "chart pending" strings as `fallback_text` keyword args. Dead-branch (smoke tests confirm all 3 zooms load); user-visible DOM has 0 occurrences. Consider fail-fast assertion in Wave 7.
+
+### Sign-off decision
+
+**PASS — acceptance sign-off unblocked for Wave 6B central commit.** No FAIL findings; no blocking items; no Lead override required. Lead may update "Current commit" field after commit lands. Cloud re-verification is deferred to Wave 6D.
+
+---
+
 ## Notes for Stakeholder Review
 
 ### Closed in Wave 2 (2026-04-19)

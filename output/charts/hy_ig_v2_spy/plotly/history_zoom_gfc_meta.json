@@ -1,23 +1,31 @@
 {
   "chart_type": "history_zoom_gfc",
-  "pair_id": "_canonical",
+  "pair_id": "hy_ig_v2_spy",
   "episode_slug": "gfc",
-  "caption": "HY-IG OAS spread during GFC episode with event markers and NBER recession shading.",
+  "caption": "HY-IG OAS spread (top) and SPY price (bottom) during the Global Financial Crisis episode, with event markers and NBER recession shading.",
   "owner": "viz-vera",
   "produced_on": "2026-04-19",
-  "source_script": "temp/vera_wave2.py",
+  "source_script": "temp/260419231641_wave6b_dual_panel_zoom/build_dual_panel_zoom.py",
   "rules_applied": [
     "VIZ-V1",
     "VIZ-V2",
     "VIZ-V11",
     "VIZ-V12",
     "VIZ-V13",
-    "META-ZI"
+    "META-AL"
   ],
   "window": [
     "2005-01-01",
     "2010-12-31"
   ],
+  "panels": [
+    "indicator",
+    "target"
+  ],
+  "data_sources": {
+    "indicator": "hy_ig_spread_pct",
+    "target": "spy"
+  },
   "events": [
     [
       "2007-08-09",
@@ -42,8 +50,7 @@
   ],
   "palette_id": "okabe_ito_2026",
   "history_zoom_events_registry_version": "1.0.0",
-  "events_registry_version": "1.0.0",
   "annotation_strategy_id": "descending_stair",
-  "updated_on": "2026-04-19",
-  "wave_5c_retro": true
+  "wave_6b_meta_al": true,
+  "data_rows_in_window": 1565
 }

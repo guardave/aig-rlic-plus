@@ -1641,3 +1641,156 @@ Also bumped **Lead Sign-off → Current commit** to "pending Wave 5C commit sha"
 #### Approved by
 
 Lead Lesandro. The consolidation closes the acceptance-level META-XVC + GATE-30 gates for HY-IG v2 as a reference-pair candidate. `hy-ig-v2-reference-candidate` tag will be created at Lead's central commit per META-RPT; promotion to `hy-ig-v2-reference` awaits stakeholder sign-off in the "Stakeholder Review" section of `acceptance.md`.
+
+---
+
+### Lead's Wave 6A QA role + META-AL + META-SRV (2026-04-19)
+
+**Dispatch scope.** Structural addition of a new 6th agent role (QA / Quincy) plus two new meta-rules (META-AL, META-SRV) and a new blocking gate (GATE-31). Wave 6A is documentation-layer only — no producer artifact under `results/hy_ig_v2_spy/`, no chart, no app code, and no other agent SOP was modified.
+
+#### New role introduced
+
+- **Quincy (QA agent)** — independent verifier and adversarial tester. SOP authored at `docs/agent-sops/qa-agent-sop.md` (267 lines), following the AppDev SOP as structural template. Core mandate = 5 pillars (artifact verification, end-to-end Cloud smoke, stakeholder-eye review, cross-agent seam audit, block authority). Runs AFTER all 5 producers (Dana / Evan / Vera / Ray / Ace) and BEFORE Lead acceptance sign-off. Cannot modify producer artifacts — files findings only. Second line of defense behind META-SRV. Global profile stub created at `~/.claude/agents/qa-quincy/profile.md` mirroring the existing per-agent convention.
+
+#### New meta-rules codified
+
+- **META-AL — Abstraction Layer Discipline.** Test question: "Does the artifact contain any pair-specific data?" If yes → it cannot be canonical. Canonical layer = inputs / rules / registries / parameters / templates / schemas. Pair-specific layer = rendered outputs / derived artifacts. Worked example is the zoom-chart lesson: rendered `output/_comparison/history_zoom_dotcom.json` was miscategorized as canonical; right abstraction is the events registry at `docs/schemas/history_zoom_events_registry.json` (VIZ-V12) + per-pair dual-panel rendering. Invalidates the META-ZI canonical-rendered-chart fallback; refinement scheduled for Wave 6B. Location: `docs/agent-sops/team-coordination.md` § Abstraction Layer Discipline (Meta-Rule META-AL).
+
+- **META-SRV — Self-Report Verification Discipline.** Every agent self-report names (a) the file path(s) touched and (b) a machine-checkable verification method. Regression-note format carries `Claims:` + `Evidence:` (File / Verification command / Result) for every claim. Verification methods catalog includes schema conformance, grep absence, smoke test, file existence, diff count, Cloud assertion. First line of defense = producer self-verifies; second line = Quincy re-verifies independently. Location: `docs/agent-sops/team-coordination.md` § Self-Report Verification Discipline (Meta-Rule META-SRV).
+
+#### New blocking gate
+
+- **GATE-31 — Independent QA Verification (Blocking).** Every `acceptance.md` sign-off must have a QA Verification section authored by Quincy with ≥1 finding per mandated category: artifact verification, smoke tests, stakeholder-spirit check, cross-agent seam audit. Any FAIL blocks acceptance until producer fix + QA re-verify; Lead override permitted but logged to `docs/pair_execution_history.md` "QA Override Log" (mirrors META-FRD). Location: `docs/agent-sops/team-coordination.md` Deliverables Completeness Gate row 31 + Pair Acceptance Checklist template "QA Verification (GATE-31)" section.
+
+#### Team workflow updated
+
+- Team-structure diagram in `team-coordination.md` now shows QA (Quincy) as a sixth agent node under Ace. Standard Task Flow expanded from 10 steps to 14, inserting: Step 7 "Each producer self-verifies per META-SRV", Step 10 "QA (Quincy) runs independent verification", Step 11 "Lesandro signs off on rule-compliance in acceptance.md", Step 13 "Stakeholder review (final gate per META-RPT)". Producer → QA → Lead → Stakeholder pipeline summary added beneath the sequence.
+
+- Pair Acceptance Checklist template extended with new "QA Verification (GATE-31)" section carrying Total-checks summary, 4-item mandated-category-coverage checklist, and sign-off recommendation slot. Lead Sign-off block extended with `QA sign-off received: <yes/no>` field and override-rationale requirement.
+
+#### standards.md rows registered
+
+- New **QA** prefix added to the Rule ID Format table (owner: QA Quincy).
+- New **QA section** created in standards.md (between APP and GATE sections) registering: `QA-SOP`, `QA-CL1` (Standard QA Checklist per Wave), `QA-FF1` (Findings Format), `QA-EP1` (Escalation Path), `QA-H1` (Producer → QA handoff), `QA-H2` (QA → Lead handoff).
+- **GATE-31** registered in the long-form GATE table (after GATE-30) with full description and cross-refs.
+- **META-AL** registered in the META table with worked example and META-ZI refinement cross-ref.
+- **META-SRV** registered in the META table with verification-methods catalog.
+- "Newly Assigned IDs" appendix extended with a 6A block documenting the new QA prefix, META-AL, META-SRV, and GATE-31.
+
+#### Constraints honored
+
+- No producer SOP (Dana / Evan / Vera / Ray / Ace) was edited. Cross-references to QA flow through `team-coordination.md` workflow updates, not per-agent rule additions.
+- No chart file under `output/charts/` or `output/_comparison/` was edited.
+- No app code under `app/` was edited.
+- No artifact under `results/hy_ig_v2_spy/` other than this regression-note append was edited.
+- No push performed. Wave 6A + 6B + 6C commit centrally once all three atomic dispatches land.
+
+#### Files touched (Wave 6A / Lead structural addition)
+
+- `docs/agent-sops/qa-agent-sop.md` — NEW (267 lines).
+- `docs/agent-sops/team-coordination.md` — diagram + Standard Task Flow + new META-AL + META-SRV sections + GATE-31 gate row + acceptance.md template QA Verification block.
+- `docs/standards.md` — new QA prefix + QA section (6 rows) + GATE-31 row + META-AL row + META-SRV row + Newly Assigned IDs appendix block.
+- `~/.claude/agents/qa-quincy/profile.md` — NEW (global agent profile stub).
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+#### Approved by
+
+Lead Lesandro. Wave 6A closes the structural addition of the QA role + self-report verification discipline + abstraction-layer discipline. Next: Wave 6B retro-applies META-AL to the zoom-chart stack (drops the `output/_comparison/` rendered-chart fallback; dual-panel rebuild per pair), and Wave 6C is the first production QA run with Quincy on a reference-pair candidate (HY-IG v2) verifying the Wave 6B delivery end-to-end.
+
+---
+
+### Vera's Wave 6B META-AL retro-apply (2026-04-19)
+
+**Claims:**
+
+1. VIZ-V1 refined in `docs/agent-sops/visualization-agent-sop.md`: old "Canonical + Override Loader Contract" (two-tier model with `output/_comparison/history_zoom_*.json` fallback) removed; replaced with "Abstraction layer discipline — per-pair rendering, canonical metadata only" per META-AL. Dual-panel layout made mandatory (single-panel zooms explicitly prohibited). Event markers and NBER shading now required on BOTH subplots.
+2. 3 new dual-panel pair-specific zoom chart JSONs created at `output/charts/hy_ig_v2_spy/plotly/history_zoom_{dotcom,gfc,covid}.json` with accompanying `_meta.json` sidecars. Each chart: 2 traces (HY-IG spread on top, SPY on bottom), shared x-axis, event markers + NBER shading on both panels, `palette_id=okabe_ito_2026`, `annotation_strategy_id=descending_stair`, `panels=["indicator","target"]`.
+3. Old canonical rendered charts at `output/_comparison/history_zoom_{dotcom,gfc,covid}.json` + `_meta.json` + 3 `_perceptual_check_*.png` all deleted (9 files total).
+4. 3 perceptual-check PNGs regenerated at `output/charts/hy_ig_v2_spy/plotly/_perceptual_check_history_zoom_{dotcom,gfc,covid}.png`; visual inspection confirms both panels render with data, NBER shading visible on both, event markers span both panels.
+5. VIZ-V5 smoke test (Wave 6B) run across all 10 HY-IG v2 canonical charts — 10 pass, 0 fail. Log at `output/charts/hy_ig_v2_spy/plotly/_smoke_test_wave6b_20260419.log`.
+6. Events registry (`docs/schemas/history_zoom_events_registry.json`) NOT modified — it remains the canonical metadata source per META-AL. Only rendered chart artifacts were touched.
+
+**Evidence:**
+
+| # | Claim | File(s) | Verification | Result |
+|---|-------|---------|--------------|--------|
+| 1 | VIZ-V1 refined | `docs/agent-sops/visualization-agent-sop.md` | `grep -n "Abstraction layer discipline\|META-AL\|Dual-panel layout (MANDATORY)\|Single-panel zooms that show only the indicator are \*\*PROHIBITED\*\*" docs/agent-sops/visualization-agent-sop.md` | All 4 phrases present in §Rule V1; old "Canonical + Override Loader Contract" heading replaced; `grep -c "output/_comparison/history_zoom" docs/agent-sops/visualization-agent-sop.md` shows 0 references in V1 body. |
+| 2 | 3 dual-panel charts created | `output/charts/hy_ig_v2_spy/plotly/history_zoom_{dotcom,gfc,covid}.json` + `_meta.json` | `python3 -c "import plotly.io as pio; [print(n, len(pio.from_json(open(f'output/charts/hy_ig_v2_spy/plotly/history_zoom_{n}.json').read()).data)) for n in ('dotcom','gfc','covid')]"` AND `ls output/charts/hy_ig_v2_spy/plotly/history_zoom_*.json` | 6 files present; each chart has `traces=2`, titles set, `panels=["indicator","target"]` in sidecars. Shape counts: dotcom=10 (2 NBER × 2 panels + 3 visible events × 2 panels), gfc=12 (2 NBER × 2 panels + 4 visible events × 2 panels), covid=8 (1 NBER × 2 panels + 3 events × 2 panels). |
+| 3 | Old `_comparison/` rendered charts deleted | `output/_comparison/history_zoom_{dotcom,gfc,covid}.{json,_meta.json}` + 3 PNGs | `ls output/_comparison/history_zoom_*.json 2>&1` | `ls: cannot access ...: No such file or directory` — 0 files (expected). `ls output/_comparison/` returns only `.` and `..`. |
+| 4 | Perceptual PNGs regenerated | `output/charts/hy_ig_v2_spy/plotly/_perceptual_check_history_zoom_{dotcom,gfc,covid}.png` | `ls -la output/charts/hy_ig_v2_spy/plotly/_perceptual_check_history_zoom_*.png` + Claude visual inspection via Read tool | 3 PNG files present (~275–320 KB each); visual inspection confirmed: both panels visible with traces, NBER shading present on BOTH panels, event markers dashed lines span BOTH panels. |
+| 5 | VIZ-V5 smoke test passes | `output/charts/hy_ig_v2_spy/plotly/_smoke_test_wave6b_20260419.log` | `grep "Total:" output/charts/hy_ig_v2_spy/plotly/_smoke_test_wave6b_20260419.log` | `Total: 10 charts, 10 pass, 0 fail`. All 10 PASS lines include traces>=1 and non-empty titles. Script exit 0. |
+| 6 | Events registry untouched | `docs/schemas/history_zoom_events_registry.json` | `git diff --stat docs/schemas/history_zoom_events_registry.json` | 0 lines changed (not staged, no modifications). Registry `x-version` remains `1.0.0`. |
+
+**Files touched (Wave 6B / Vera retro-apply):**
+
+- `docs/agent-sops/visualization-agent-sop.md` — Rule V1 section rewritten per META-AL (removed Canonical + Override Loader Contract block; added Abstraction-layer-discipline block with mandatory dual-panel layout, per-panel event-marker + NBER-shading rules, and new cross-reference list).
+- `output/charts/hy_ig_v2_spy/plotly/history_zoom_dotcom.json` — NEW (dual-panel, 2 traces, 10 shapes, 6 annotations).
+- `output/charts/hy_ig_v2_spy/plotly/history_zoom_dotcom_meta.json` — NEW (panels=["indicator","target"], rules_applied includes META-AL).
+- `output/charts/hy_ig_v2_spy/plotly/history_zoom_gfc.json` — NEW (dual-panel, 2 traces, 12 shapes, 7 annotations).
+- `output/charts/hy_ig_v2_spy/plotly/history_zoom_gfc_meta.json` — NEW.
+- `output/charts/hy_ig_v2_spy/plotly/history_zoom_covid.json` — NEW (dual-panel, 2 traces, 8 shapes, 5 annotations).
+- `output/charts/hy_ig_v2_spy/plotly/history_zoom_covid_meta.json` — NEW.
+- `output/charts/hy_ig_v2_spy/plotly/_perceptual_check_history_zoom_{dotcom,gfc,covid}.png` — NEW (3 PNGs, 1200×720 @ scale 2).
+- `output/charts/hy_ig_v2_spy/plotly/_smoke_test_wave6b_20260419.log` — NEW.
+- `output/_comparison/history_zoom_{dotcom,gfc,covid}.json` — DELETED.
+- `output/_comparison/history_zoom_{dotcom,gfc,covid}_meta.json` — DELETED.
+- `output/_comparison/_perceptual_check_history_zoom_{dotcom,gfc,covid}.png` — DELETED.
+- `temp/260419231641_wave6b_dual_panel_zoom/build_dual_panel_zoom.py` — NEW source script (kept in temp per naming convention).
+- `temp/260419231641_wave6b_dual_panel_zoom/summary.json` — NEW build summary.
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+**Issues discovered:**
+
+- Parquet data starts 2000-01-03, so the Dot-Com window (registered 1998-01-01..2003-12-31) is effectively 2000-01-03..2003-12-31. The earliest registered Dot-Com event is 2000-03-10, so no events are lost — flagged in the sidecar `window` field (effective window) and `data_rows_in_window` for transparency. Remaining episodes (gfc 2005-2010, covid 2019-2022) are fully covered.
+- Plotly `yref='paper'` spans the full figure across both subplots, so NBER rects and event vlines use `yref='y domain'` / `yref='y2 domain'` (subplot-relative) rather than `yref='paper'`. Functionally equivalent for shading, and visually verified in the perceptual PNGs.
+- kaleido deprecation warnings are cosmetic (current engine still renders); upstream upgrade is a separate track and out of scope for this retro-apply.
+
+**Constraints honored:**
+
+- No push performed (Wave 6C Quincy runs first; central commit thereafter).
+- `app/components/charts.py` loader NOT touched — Ace owns that edit in parallel.
+- `docs/schemas/history_zoom_events_registry.json` NOT modified (canonical metadata stays put).
+- No edits under `results/hy_ig_v2_spy/` other than this regression-note append.
+
+**Approved by:** Vera (self-approved per META-SRV producer line). Awaiting Quincy QA re-verification per GATE-31.
+
+---
+
+### Ace's Wave 6B loader + META-ZI refinement (2026-04-19)
+
+**Claims:**
+
+- META-ZI refined per META-AL (team-coordination.md section rewritten: canonical-rendered-chart fallback superseded; canonical layer is events-registry metadata; per-pair rendered chart at `output/charts/{pair_id}/plotly/history_zoom_{episode}.json` is mandatory).
+- `app/components/charts.py` loader drops the `output/_comparison/` fallback entirely; `_resolve_history_zoom_paths` returns only the per-pair `/plotly/` path.
+- `docs/schemas/chart_type_registry.json` history_zoom_* entries updated to `expected_chart_type=dual_panel`, `override_supported=false`, and notes reflect the new model.
+- APP-SE1 loader-contract note in `docs/agent-sops/appdev-agent-sop.md` refined to the new model.
+- Stale `output/_comparison/…` strings in Story page fallback_text updated to point at the per-pair path.
+- Both smoke tests still pass (15/15 loader, 3/3 schema consumers).
+
+**Evidence:**
+
+- File: `docs/agent-sops/team-coordination.md` — META-ZI section (lines ~217–239) rewritten; header unchanged, body replaced with Wave-6B per-META-AL text (canonical metadata layer + per-pair rendered layer + refined loader contract + cross-references).
+- File: `app/components/charts.py` — removed `_COMPARISON_DIR` module constant (line 16 deleted); `_resolve_history_zoom_paths` rewritten (~24 LoC → 9 LoC effective; dropped pair-override + _comparison/ candidate branches; now returns a single per-pair `/plotly/` path or `[]`); `load_plotly_chart` docstring refined to describe the Wave-6B contract.
+- File: `docs/schemas/chart_type_registry.json` — 5 `history_zoom_*` entries updated (`expected_chart_type: line → dual_panel`, `override_supported: true → false`, notes rewritten to cite META-AL + VIZ-V12). No schema change (stayed within existing enum + fields); flagged a SCHEMA-REQUEST in the dotcom notes for Vera to revisit `override_supported` field semantics in the next schema version.
+- File: `docs/agent-sops/appdev-agent-sop.md` — APP-SE1 loader-contract note (line ~252) refined: "try `output/charts/{pair_id}/plotly/history_zoom_{episode}.json` only; if missing, GATE-25 placeholder. No `_comparison/` fallback."
+- File: `app/pages/9_hy_ig_v2_spy_story.py` — 3 `fallback_text` strings updated (lines 285, 313, 340) from "canonical path: output/_comparison/…" to "expected at: output/charts/hy_ig_v2_spy/plotly/…".
+- Verification: `python3 app/_smoke_tests/smoke_loader.py hy_ig_v2_spy`
+- Result: `passes=15 failures=0` (all 3 `history_zoom_{dotcom,gfc,covid}` charts load with 2 traces each, dual-panel confirmed).
+- Verification: `python3 app/_smoke_tests/smoke_schema_consumers.py --pair-id hy_ig_v2_spy`
+- Result: `passes=3 failures=0` (APP-WS1 winner_summary + interpretation_metadata + APP-DIR1 direction-consistency).
+- Verification: `python3 -c "...load_plotly_chart('history_zoom_{ep}', pair_id='hy_ig_v2_spy')..."`
+- Result: 3/3 zooms loaded successfully, all `len(fig.data) == 2`, titles: "Credit Spreads and SPY During the Dot-Com Bust, 1998–2003" / "Credit Spreads and SPY During the Global Financial Crisis…" / "Credit Spreads and SPY During the COVID-19 Shock, 2019–2022".
+- Verification: `python3 -c "import json, jsonschema; jsonschema.validate(json.load(open('docs/schemas/chart_type_registry.json')), json.load(open('docs/schemas/chart_type_registry.schema.json')))"`
+- Result: registry validates against existing schema; no schema edit required.
+
+**Constraints honored:**
+
+- No push performed (Wave 6C Quincy verifies; central commit thereafter).
+- Vera's charts under `output/charts/hy_ig_v2_spy/plotly/history_zoom_*.json` NOT touched.
+- `docs/schemas/history_zoom_events_registry.json` (canonical events metadata) NOT modified.
+- `docs/schemas/chart_type_registry.schema.json` NOT modified (schema edits are Vera's authority; flagged a SCHEMA-REQUEST in the JSON instance instead).
+
+**Issues discovered:**
+
+- `output/_comparison/` directory is now empty but still exists (Vera deleted the JSON files in Wave 6B; directory removal is a separate housekeeping concern, left for Quincy/central commit decision).
+- `chart_type_registry.schema.json` description text still references the old META-ZI override-with-fallback model ("canonical_filename_pattern… META-ZI… lives under output/_comparison/"); flagged via SCHEMA-REQUEST in dotcom notes. Non-blocking (instance data conforms to the enum/field shape; description text is advisory).

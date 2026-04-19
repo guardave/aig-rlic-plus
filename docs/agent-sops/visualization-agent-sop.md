@@ -456,38 +456,41 @@ Chart captions appear in two places, owned by two agents. Do not duplicate or cr
 
 **Rule:** Vera MUST populate `caption` in every `_meta.json` sidecar (mandatory per the metadata schema below). Ace MUST use Ray's narrative caption as the primary display text. If Ray's content dict omits `caption` for a given chart_type, Ace falls back to Vera's `_meta.json` caption — but Ray and Vera should not silently produce conflicting captions. If Vera notices during QA that Ray's caption contradicts the chart's actual data, flag it to Ray; do not rewrite Ray's narrative.
 
-#### Rule V1 — Annotated Historical-Episode Zoom-In (addresses SL-4, SL-5; enables S18-12)
+#### Rule V1 — Annotated Historical-Episode Zoom-In (addresses SL-4, SL-5; enables S18-12; rev 2026-04-19 Wave 6B per META-AL)
 
 When narrative (Story page) references a historical episode (Dot-Com, GFC, COVID, 2018 taper, 2022 inflation shock, etc.), the Story page must include a matching zoom-in chart. Prose references without matching labeled charts fail the stakeholder review (per SL-4 and SL-5 worked examples).
 
-- **Time window:** zoom spans roughly ±2 years around the episode
-- **Event markers:** vertical dashed lines at 3–5 key dates, each with a short text annotation (e.g. "Aug 2000 first inversion", "Oct 2007 spreads widen", "Jul 2002 WorldCom bankruptcy")
-- **Implementation:** Plotly `add_vline` with `annotation_text` + `annotation_position="top right"`
-- **Title:** must name the episode explicitly (e.g. "Credit Spreads During the Dot-Com Bust, 1999–2002")
-- **Per-Pair standard set implication:** when narrative cites an episode, the zoom-in is mandatory; omission requires a regression_note entry
+- **Time window:** zoom spans roughly ±2 years around the episode (use the registered `start_date` / `end_date` in the VIZ-V12 events registry as the source of truth).
+- **Dual-panel layout (MANDATORY):** top panel = indicator (e.g. HY-IG OAS spread); bottom panel = target (e.g. SPY price). Shared x-axis. Single-panel zooms that show only the indicator are **PROHIBITED** — they strip the pair-relationship that is the entire narrative point of the episode reference. (Stakeholder finding, 2026-04-19: single-panel zooms on the HY-IG v2 reference pair hid the credit→equity co-movement that Story prose asserted.)
+- **Event markers:** vertical dashed lines at 3–5 key dates sourced from the VIZ-V12 registry, each with a short text annotation (e.g. "Aug 2000 first inversion", "Sep 2008 Lehman bankruptcy", "Mar 2020 Fed facility"). Event lines MUST span BOTH panels (emit one `layout.Shape` per panel per event, with `xref='x'` on the top panel and `xref='x2'` on the bottom panel, `yref='paper'`). Annotation text is rendered once on the top panel using `annotation_strategy_id` = `descending_stair` (see Rule V13).
+- **NBER shading (per Rule V2):** recession rects must appear on BOTH panels — one rect per recession per panel (total = `n_recessions × 2`), `fillcolor='rgba(150,120,120,0.22)'`, `layer='below'`, `yref='paper'`.
+- **Title:** must name the episode explicitly (e.g. "Credit Spreads and SPY During the Dot-Com Bust, 1998–2003").
+- **Per-Pair standard set implication:** when narrative cites an episode, the zoom-in is mandatory; omission requires a regression_note entry.
 
 This rule also creates the visual substrate for S18-12: each "Early Warning Signal" bullet with investor-impact wording should land next to (or link down to) the relevant episode zoom-in.
 
-**Canonical + Override Loader Contract (2026-04-18 coherence review, Gap 5 decision: "canonical by default, specialize on justified need")**
+**Abstraction layer discipline — per-pair rendering, canonical metadata only (Wave 6B, supersedes the 2026-04-18 canonical + override two-tier model)**
 
-Zoom-in charts follow a two-tier artifact model — a shared canonical chart produced once by Vera, and optional pair-specific overrides created only when a pair's narrative demands indicator overlay.
+The 2026-04-18 "canonical at `output/_comparison/` + per-pair override" fallback model is **REMOVED** per META-AL (team-coordination.md). Wave 5 reflection established that any rendered zoom chart embeds the pair's specific indicator and target series; a canonical rendered chart is therefore logically impossible — two different pairs sharing one rendered chart misrepresents at least one of them. Rendered charts cannot be canonical; the canonical layer is metadata only.
 
-1. **Canonical artifact path (default — shared across pairs):**
-   - `output/_comparison/history_zoom_{episode_slug}.json`
-   - Canonical episode slugs: `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022` (extend the slug registry as new episodes are encountered; record additions in `sop-changelog.md`)
-   - Produced once by Vera and reused across every pair whose Story prose references the episode. Event markers and NBER shading are standardized at this layer.
+1. **Canonical layer — metadata only (shared, versioned schemas, NO rendered chart):**
+   - `docs/schemas/history_zoom_events_registry.json` (VIZ-V12) — authoritative event set per episode slug.
+   - `docs/schemas/color_palette_registry.json` (VIZ-V11) — trace colors, NBER shading rgba, event-marker styling.
+   - VIZ-V2 NBER shading rule, VIZ-V13 annotation-strategy rule, the per-panel shape emission rule above.
+   - No rendered chart lives at `output/_comparison/history_zoom_*.json`. Emitting one is a META-AL violation.
 
-2. **Override artifact path (pair-specific, on justified need):**
-   - `output/charts/{pair_id}/history_zoom_{episode_slug}.json`
-   - Created ONLY when Ray's narrative coherence check identifies a need — i.e., the pair's prose ties the episode to its own indicator's behavior (e.g., "HY-IG spread widened 450bps as Lehman fell"), requiring an indicator overlay the canonical chart does not carry.
-   - **Override must start from the canonical baseline** (same event markers, same NBER shading, same time window) and *add* — never silently replace baseline elements. A silent replacement of canonical event markers is a Rule A4 regression.
-   - **Mandatory regression_note.md entry** when an override is shipped: `"Override of history_zoom_{episode_slug} created because narrative at Story§X requires {indicator} overlay"`. The entry cites the specific Story section and the specific overlay added.
+2. **Per-pair rendering layer — every pair renders its own dual-panel chart:**
+   - Canonical path: `output/charts/{pair_id}/plotly/history_zoom_{episode_slug}.json` (plus `_meta.json` sidecar).
+   - Every pair whose Story prose references an episode MUST produce its own dual-panel chart at this path. Missing-chart behavior is handled by Ace's `render_method_block` via a GATE-25 placeholder — never a cross-pair substitute.
+   - Canonical episode slugs are maintained in the VIZ-V12 registry: `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022` (extensions proposed via PR against the registry; additions recorded in `sop-changelog.md`).
 
 3. **Cross-agent contract:**
-   - Ray triggers override requests during narrative handoff (per RES-8, extended in parallel) — when Ray's prose ties an episode to pair-specific indicator behavior, she flags "override needed" in her handoff to Vera.
-   - Ace's portal loader tries override first (`output/charts/{pair_id}/history_zoom_{slug}.json`), canonical second (`output/_comparison/history_zoom_{slug}.json`), else renders a "chart pending" placeholder (per META-ZI / GATE-25). No silent substitution across episodes.
+   - Ray flags episode references during narrative handoff; Vera renders the dual-panel chart at the per-pair path for that episode.
+   - Ace's portal loader reads `output/charts/{pair_id}/plotly/history_zoom_{slug}.json` directly. There is no `output/_comparison/` fallback — silently reading another pair's rendered chart was the exact failure mode META-AL forecloses.
 
-**See META-ZI (team-coordination.md) for the full canonical + override protocol**, including the end-to-end lifecycle across Ray (narrative trigger), Vera (artifact production), and Ace (loader fallback chain).
+**See META-AL (team-coordination.md) for the abstraction-layer-discipline rule that makes this structure mandatory**, and META-ZI for any remaining episode-registry lifecycle that still applies (registry versioning, slug approval PRs).
+
+**Cross-reference:** META-AL (abstraction-layer discipline — no rendered canonical charts), VIZ-V11 (palette — trace colors and NBER rgba), VIZ-V12 (events registry — canonical event set), VIZ-V2 (NBER shading rule — per-panel subplot coverage), VIZ-V13 (annotation strategies — `descending_stair` for zoom charts), RES-8 (narrative-chart coupling), APP-EP4 / GATE-25 (Ace's missing-chart placeholder behavior).
 
 #### Rule V2 — NBER Recession Shading + Caption Disclosure (addresses SL-2; rev 2026-04-19)
 
