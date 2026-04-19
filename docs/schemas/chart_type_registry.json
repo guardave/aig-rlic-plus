@@ -1,0 +1,166 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "vera",
+  "x-generated": "2026-04-19",
+  "notes": "Initial canonical instance seeded from the HY-IG v2 reference pair (per META-RPD) after Wave 4B cross-review exposed the method-to-chart mapping living in three SOPs (Evan ECON-H4, Vera VIZ-A3, Ace render_method_block). Populated from handoff_to_vera_20260419.md, VIZ-A3 Standard Chart Set, META-ZI episode slugs, and the Strategy-page chart inventory. Producer (Vera) validates a chart's basename against canonical_filename_pattern before save; consumer (Ace) uses method_name to resolve both the chart JSON and the upstream CSV. Evan's ECON-H4 handoff is the INPUT that feeds this registry; this registry is the authoritative OUTPUT (VIZ-V8).",
+  "methods": {
+    "correlation": {
+      "expected_chart_type": "heatmap",
+      "canonical_filename_pattern": "correlation_heatmap.json",
+      "required_result_file": "exploratory_{date}/correlations.csv",
+      "viz_rule_id": "VIZ-A3",
+      "econ_rule_id": "ECON-EX1",
+      "consumer_page": "evidence",
+      "notes": "Pearson/Spearman/Kendall/distance across 1d/5d/21d/63d/252d horizons; RdBu_r zmid=0; top 6-8 signals by |corr| at 63d."
+    },
+    "granger": {
+      "expected_chart_type": "bar_by_lag",
+      "canonical_filename_pattern": "granger_f_by_lag.json",
+      "required_result_file": "granger_by_lag.csv",
+      "viz_rule_id": "VIZ-V3",
+      "econ_rule_id": "ECON-E1",
+      "consumer_page": "evidence",
+      "notes": "S18-11: standalone F-statistic-by-lag bar chart with α=0.05 F-critical line. MUST NOT fall back to local_projections.json — that was the Wave 1.5 silent-fallback bug this registry exists to prevent."
+    },
+    "ccf": {
+      "expected_chart_type": "bar_by_lag",
+      "canonical_filename_pattern": "ccf_prewhitened.json",
+      "required_result_file": "core_models_{date}/ccf_prewhitened.csv",
+      "viz_rule_id": "VIZ-V4",
+      "econ_rule_id": "ECON-C2",
+      "consumer_page": "evidence",
+      "notes": "Pre-whitened CCF (lags -20 to +20) with 95% CI bands; significant bars highlighted."
+    },
+    "local_projections": {
+      "expected_chart_type": "line_with_ci",
+      "canonical_filename_pattern": "local_projections.json",
+      "required_result_file": "core_models_{date}/local_projections.csv",
+      "viz_rule_id": "VIZ-A3",
+      "econ_rule_id": "ECON-C2",
+      "consumer_page": "evidence",
+      "notes": "Jordà IRF coefficient plot (h=0..24), shaded CI band, significance stars. DISTINCT from granger — do not conflate."
+    },
+    "regime": {
+      "expected_chart_type": "area_probability",
+      "canonical_filename_pattern": "hmm_regime_probs.json",
+      "required_result_file": "core_models_{date}/hmm_states_2state.parquet",
+      "viz_rule_id": "VIZ-V4",
+      "econ_rule_id": "ECON-C2",
+      "consumer_page": "evidence",
+      "notes": "HMM stress-probability timeline with regime shading. Column-name discipline per Defense 1: stress_prob / calm_prob, never state_0/state_1."
+    },
+    "quantile": {
+      "expected_chart_type": "quantile_coef",
+      "canonical_filename_pattern": "quantile_coef.json",
+      "required_result_file": "core_models_{date}/quantile_regression.csv",
+      "viz_rule_id": "VIZ-V4",
+      "econ_rule_id": "ECON-C2",
+      "consumer_page": "evidence",
+      "notes": "Quantile coefficient plot across τ ∈ {0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95} with shaded CI and zero line."
+    },
+    "transfer_entropy": {
+      "expected_chart_type": "bar",
+      "canonical_filename_pattern": "transfer_entropy.json",
+      "required_result_file": "core_models_{date}/transfer_entropy.csv",
+      "viz_rule_id": "VIZ-V4",
+      "econ_rule_id": "ECON-C2",
+      "consumer_page": "evidence",
+      "notes": "Directional TE bars (indicator→target vs reverse) with permutation p-values annotated."
+    },
+    "quartile_returns": {
+      "expected_chart_type": "regime_bars",
+      "canonical_filename_pattern": "regime_quartile_returns.json",
+      "required_result_file": "regime_quartile_returns.csv",
+      "viz_rule_id": "VIZ-V4",
+      "econ_rule_id": "ECON-E2",
+      "consumer_page": "evidence",
+      "notes": "S18-8: Q1–Q4 annualized return bars colored by sign with diverging palette; companion to CCF and regime blocks. Do not drop silently on reruns."
+    },
+    "history_zoom_dotcom": {
+      "expected_chart_type": "line",
+      "canonical_filename_pattern": "history_zoom_{episode_slug}.json",
+      "required_result_file": "data/{pair_id}_daily_latest.parquet",
+      "viz_rule_id": "VIZ-V1",
+      "econ_rule_id": "ECON-C2",
+      "override_supported": true,
+      "consumer_page": "story",
+      "notes": "META-ZI canonical at output/_comparison/history_zoom_dotcom.json; pair override at output/charts/{pair_id}/history_zoom_dotcom.json. Override must start from canonical baseline — never silently replace event markers or NBER shading."
+    },
+    "history_zoom_gfc": {
+      "expected_chart_type": "line",
+      "canonical_filename_pattern": "history_zoom_{episode_slug}.json",
+      "required_result_file": "data/{pair_id}_daily_latest.parquet",
+      "viz_rule_id": "VIZ-V1",
+      "econ_rule_id": "ECON-C2",
+      "override_supported": true,
+      "consumer_page": "story",
+      "notes": "META-ZI canonical at output/_comparison/history_zoom_gfc.json. Event markers: Aug 2007 BNP fund freeze, Sep 2008 Lehman, Mar 2009 trough."
+    },
+    "history_zoom_covid": {
+      "expected_chart_type": "line",
+      "canonical_filename_pattern": "history_zoom_{episode_slug}.json",
+      "required_result_file": "data/{pair_id}_daily_latest.parquet",
+      "viz_rule_id": "VIZ-V1",
+      "econ_rule_id": "ECON-C2",
+      "override_supported": true,
+      "consumer_page": "story",
+      "notes": "META-ZI canonical at output/_comparison/history_zoom_covid.json. Event markers: Feb 2020 WHO declaration, Mar 2020 SPX trough, Mar 2020 Fed facility launch."
+    },
+    "history_zoom_taper_2018": {
+      "expected_chart_type": "line",
+      "canonical_filename_pattern": "history_zoom_{episode_slug}.json",
+      "required_result_file": "data/{pair_id}_daily_latest.parquet",
+      "viz_rule_id": "VIZ-V1",
+      "econ_rule_id": "ECON-C2",
+      "override_supported": true,
+      "consumer_page": "story",
+      "notes": "META-ZI canonical slug 'taper_2018'. Event markers per VIZ-V1 slug registry."
+    },
+    "history_zoom_inflation_2022": {
+      "expected_chart_type": "line",
+      "canonical_filename_pattern": "history_zoom_{episode_slug}.json",
+      "required_result_file": "data/{pair_id}_daily_latest.parquet",
+      "viz_rule_id": "VIZ-V1",
+      "econ_rule_id": "ECON-C2",
+      "override_supported": true,
+      "consumer_page": "story",
+      "notes": "META-ZI canonical slug 'inflation_2022'. Event markers per VIZ-V1 slug registry."
+    },
+    "hero": {
+      "expected_chart_type": "dual_panel",
+      "canonical_filename_pattern": "hero.json",
+      "required_result_file": "data/{pair_id}_daily_latest.parquet",
+      "viz_rule_id": "VIZ-V2",
+      "econ_rule_id": "ECON-C2",
+      "consumer_page": "story",
+      "notes": "Dual-axis indicator (red, left) and target (blue, right) with NBER recession shading per VIZ-V2 rev 2026-04-19 (alpha 0.20-0.28, rgba(150,120,120,0.22)). Subplot rule: one shape per xaxis per recession. Mandatory perceptual-check PNG sidecar."
+    },
+    "equity_curves": {
+      "expected_chart_type": "equity_line",
+      "canonical_filename_pattern": "equity_curves.json",
+      "required_result_file": "tournament_top10_equity.csv",
+      "viz_rule_id": "VIZ-A3",
+      "econ_rule_id": "ECON-T1",
+      "consumer_page": "strategy",
+      "notes": "Top strategies + B&H; legend in final-value descending order; OOS period only; log-scale optional."
+    },
+    "equity_drawdown": {
+      "expected_chart_type": "drawdown_area",
+      "canonical_filename_pattern": "equity_drawdown.json",
+      "required_result_file": "tournament_top10_equity.csv",
+      "viz_rule_id": "VIZ-A3",
+      "econ_rule_id": "ECON-T1",
+      "consumer_page": "strategy",
+      "notes": "Drawdown-from-peak shaded area for winner vs B&H; Y inverted so deeper drawdown reads as lower, per VIZ-A1."
+    },
+    "tournament_scatter": {
+      "expected_chart_type": "scatter",
+      "canonical_filename_pattern": "tournament_scatter.json",
+      "required_result_file": "tournament_results_{date}.csv",
+      "viz_rule_id": "VIZ-A3",
+      "econ_rule_id": "ECON-T1",
+      "consumer_page": "strategy",
+      "notes": "OOS Sharpe vs turnover per combo; X = turnover, Y = Sharpe; color = max DD; stars = top 5; diamond = B&H."
+    }
+  }
+}

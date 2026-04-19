@@ -1,0 +1,51 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "parquet_path": "data/hy_ig_v2_spy_daily_20260410.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-04-19T14:00:00Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Daily trading-date index. Aligned to the NYSE calendar; forward-filled from last observation for non-trading days when consumer needs a continuous index."
+    },
+    "hy_ig_spread": {
+      "dtype": "float64",
+      "unit": "bps",
+      "display_name": "HY-IG Credit Spread (bps)",
+      "direction": "lower_is_better",
+      "description": "ICE BofA US High Yield OAS minus ICE BofA US Corporate OAS, expressed in basis points. Widening signals rising credit stress; compression signals improving risk appetite.",
+      "source_reference": "BAMLH0A0HYM2 - BAMLC0A0CM",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_mom_63d": {
+      "dtype": "float64",
+      "unit": "bps",
+      "display_name": "HY-IG Spread 63-day Momentum (bps)",
+      "direction": "lower_is_better",
+      "description": "Rate-of-change of hy_ig_spread over 63 trading days (one quarter), measured as the difference in basis points. Positive = spread widened over 3M (bearish); negative = spread tightened (bullish).",
+      "source_reference": "derived: hy_ig_spread[t] - hy_ig_spread[t-63]",
+      "refresh_ttl_days": 1
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "neutral",
+      "description": "SPDR S&P 500 ETF adjusted close price in USD. Target asset for this pair.",
+      "source_reference": "SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_63d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 63-day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward-looking 63-trading-day total return of SPY, expressed as a decimal (0.05 = +5%). Used as the dependent variable in forward-return regressions against hy_ig_mom_63d.",
+      "source_reference": "derived: spy[t+63] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    }
+  }
+}

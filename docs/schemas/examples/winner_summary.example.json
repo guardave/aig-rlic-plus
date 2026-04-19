@@ -1,0 +1,22 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "generated_at": "2026-04-10T00:00:00Z",
+  "signal_column": "hmm_2state_prob_stress",
+  "signal_code": "S6_hmm_stress",
+  "target_symbol": "SPY",
+  "threshold_value": 0.5,
+  "threshold_rule": "gt",
+  "strategy_family": "P2_signal_strength",
+  "direction": "countercyclical",
+  "oos_sharpe": 1.274,
+  "oos_ann_return": 0.1133,
+  "oos_max_drawdown": -0.102,
+  "oos_n_trades": 3726,
+  "oos_period_start": "2017-01-01",
+  "oos_period_end": "2025-12-31",
+  "bh_sharpe": 0.7726,
+  "bh_ann_return": 0.1475,
+  "annual_turnover": 3.78,
+  "cost_assumption_bps": 5.0,
+  "notes": "Reference-pair instance. OOS Sharpe beats buy-and-hold by +0.50 units while materially reducing drawdown (-10.2% vs -33.7% for B&H). Signal is HMM 2-state stress probability computed on HY-IG OAS spread; strategy scales SPY exposure inversely to stress probability. See results/hy_ig_v2_spy/tournament_winner.json for full winner-vs-benchmark delta record."
+}

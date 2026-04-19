@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/data_subject.schema.json",
+  "x-owner": "dana",
+  "x-version": "1.0.0",
+  "title": "Data Subject Schema (Column-Level Parquet Metadata Sidecar)",
+  "description": "Canonical contract for `data/{subject}_{frequency}_schema.json` — the machine-readable sidecar that travels with every master parquet delivered by Data Dana. Column-level metadata (dtype, unit, display_name, direction, description, optional source_reference and refresh_ttl_days). This schema IS the contract: consumers (Evan, Vera, Ray, Ace) treat this file as the single source of truth for column semantics and unit convention. Replaces parsing the markdown data dictionary for machine-driven consumers. Closes the Wave-2A 100x unit bug class (a wrong `unit` value becomes a contract violation instead of a silent axis mislabel). Governed by DATA-D5 (producer rule) and META-CF (Contract File Standard). Cross-references: DATA-D2 (unit convention registry), DATA-DD1 (data-dictionary extended fields), VIZ-A2 (axis-label unit match), RES-4 (dual-notation narrative), APP-DL1 (cache TTL derivation).",
+  "type": "object",
+  "required": [
+    "pair_id",
+    "parquet_path",
+    "schema_version",
+    "generated_at",
+    "columns"
+  ],
+  "properties": {
+    "pair_id": {
+      "type": "string",
+      "description": "Canonical pair identifier (snake_case, e.g. `hy_ig_v2_spy`). Matches the pair the parquet serves, or `shared` when the parquet is reused across multiple pairs.",
+      "minLength": 1
+    },
+    "parquet_path": {
+      "type": "string",
+      "description": "Repository-relative path to the parquet this sidecar describes. Example: `data/hy_ig_v2_spy_daily_20260410.parquet`. Both the dated master and its `_latest` alias may carry a sidecar; a sidecar describing a `_latest` alias is regenerated on every rerun.",
+      "minLength": 1
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semver of this instance's conformance to the data_subject contract. Bumped when the columns object is materially restructured (add/remove/rename a column, unit change, direction flip)."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 date-time at which Dana produced this sidecar. Used for staleness detection vs the parquet mtime."
+    },
+    "columns": {
+      "type": "object",
+      "description": "Per-column metadata. Keys are the EXACT canonical column names as they appear in the parquet. Every non-date column in the parquet MUST have an entry; every entry MUST correspond to a parquet column (no orphan entries).",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "dtype",
+          "unit",
+          "display_name",
+          "direction",
+          "description"
+        ],
+        "properties": {
+          "dtype": {
+            "type": "string",
+            "enum": [
+              "float64",
+              "float32",
+              "int64",
+              "int32",
+              "bool",
+              "datetime64[ns]",
+              "datetime64[ns, UTC]",
+              "string",
+              "object",
+              "category"
+            ],
+            "description": "Pandas-compatible dtype string. Must match the parquet column dtype as reported by `df.dtypes[col]`. Date/index columns use `datetime64[ns]`."
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "bps",
+              "pct",
+              "percent",
+              "ratio",
+              "decimal_return",
+              "index",
+              "usd",
+              "count",
+              "vol_ann_pct",
+              "price",
+              "date",
+              "none"
+            ],
+            "description": "Controlled unit vocabulary (mirrors DATA-D2). **THIS FIELD CLOSES THE 100x BUG CLASS**: consumers (Vera's axis builder, Ace's KPI rendering, Ray's dual-notation narrative) MUST read this field and MUST NOT infer units from the column name. `bps` = basis points (0-10000 range typical); `pct`/`percent` = percent (0-100 range); `decimal_return` = return as decimal (0.05 = 5%); `ratio` = dimensionless ratio; `index` = normalized index level (100 = base); `usd` = dollar-denominated level; `count` = integer count; `vol_ann_pct` = annualized vol in percent; `price` = asset price in native currency; `date` = datetime column; `none` = dimensionless (used sparingly, only when truly unitless)."
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable label for chart axes, tooltips, and KPI cards. Pulled from `data/display_name_registry.csv`. Vera's axis builder and Ace's KPI renderer MUST use this value; falling back to the canonical column code is a VIZ-A2 violation.",
+            "minLength": 1
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "higher_is_better",
+              "lower_is_better",
+              "neutral"
+            ],
+            "description": "Economic/behavioral direction of the column, from the target asset's perspective. `higher_is_better` = higher values are bullish for the target (e.g. building permits, ISM new orders); `lower_is_better` = higher values are bearish for the target (e.g. HY-IG spread, VIX); `neutral` = no directional signal or column is a descriptor/date/identifier. Consumed by Evan's regime encoding, Vera's line-color convention, Ray's narrative framing. Cross-ref META-IA."
+          },
+          "description": {
+            "type": "string",
+            "description": "One-sentence description of what the column represents. Written for an econometrics audience — may reference transformations, source series, or derivation recipe. Example: `Daily OAS spread in bps; computed as BAMLH0A0HYM2 minus BAMLC0A0CM`.",
+            "minLength": 1
+          },
+          "source_reference": {
+            "type": "string",
+            "description": "Optional. External series identifier if the column is ingested directly from a data provider. FRED series codes (e.g. `BAMLH0A0HYM2`), Yahoo Finance tickers (e.g. `SPY`), Alpha Vantage symbols, or a derivation formula for computed columns (e.g. `BAMLH0A0HYM2 - BAMLC0A0CM`). Omit if purely internal."
+          },
+          "refresh_ttl_days": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Optional. Recommended cache TTL in days for this column. Derived from the source series' refresh cadence: 1 for daily-refreshing market data, 30 for monthly macro series, 90 for quarterly releases, 0 for static/one-time columns. Ace's `resolve_ttl()` helper reads this field (APP-TC1 target). When omitted, Ace falls back to the sidecar-level default or `data/manifest.json`."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

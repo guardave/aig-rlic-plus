@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/winner_summary.schema.json",
+  "x-owner": "evan",
+  "x-version": "1.0.0",
+  "title": "Winner Summary",
+  "description": "Canonical contract for `results/{pair_id}/winner_summary.json`. Produced by Econ Evan at tournament completion; consumed by AppDev Ace's Strategy page (probability engine panel, position adjustment panel, instructional trigger cards, execution panel) and by Research Ray for narrative cross-reference. Resolves ECON-H5 (producer mandate) and APP-WS1 (consumer pre-render contract) in a single artifact per META-CF. Companion to `tournament_winner.json` (META-TWJ) — winner_summary is the render-ready strategy descriptor; tournament_winner is the winner-vs-benchmark delta record.",
+  "type": "object",
+  "required": [
+    "pair_id",
+    "generated_at",
+    "signal_column",
+    "signal_code",
+    "target_symbol",
+    "threshold_value",
+    "threshold_rule",
+    "strategy_family",
+    "direction",
+    "oos_sharpe",
+    "oos_ann_return",
+    "oos_max_drawdown",
+    "oos_n_trades",
+    "oos_period_start",
+    "oos_period_end"
+  ],
+  "properties": {
+    "pair_id": {
+      "type": "string",
+      "description": "Canonical pair identifier (snake_case, e.g. `hy_ig_v2_spy`). Matches the `results/{pair_id}/` directory name and the landing-card key."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 date-time at which the tournament winner was finalized and this file was written. Used for regression diff and rerun detection."
+    },
+    "signal_column": {
+      "type": "string",
+      "description": "**Canonical answer to APP-WS1**: the EXACT parquet column name in `results/{pair_id}/signals_{date}.parquet` that Ace's consumer code (`pd.read_parquet(...)[signal_column]`) must read to resolve the winning strategy's underlying signal. Example: `hmm_2state_prob_stress`. MUST NOT be a display name and MUST NOT be the tournament signal_code — use `signal_code` for that purpose. Producers that rename the parquet column MUST update this field in the same commit.",
+      "minLength": 1
+    },
+    "signal_code": {
+      "type": "string",
+      "description": "Tournament signal identifier (e.g. `S6_hmm_stress`, `S3_ROC`). The taxonomy label used in tournament CSVs and registries. Distinct from `signal_column`: a single signal_code may map to different parquet column names across pairs if the underlying signal is re-parameterized.",
+      "minLength": 1
+    },
+    "target_symbol": {
+      "type": "string",
+      "description": "Target asset ticker (e.g. `SPY`, `AGG`, `TLT`). Matches the Analysis Brief Section 3 target and the pair's benchmark series. Ace reads this to label KPI cards and trigger cards; never hardcode a fallback.",
+      "minLength": 1
+    },
+    "threshold_value": {
+      "type": "number",
+      "description": "Numeric threshold used by the winning strategy rule. Units depend on `signal_column` semantics (probability in [0,1] for HMM signals; z-score units for z-score signals; etc.). Pair with `threshold_rule` to form the complete decision rule."
+    },
+    "threshold_rule": {
+      "type": "string",
+      "enum": ["gt", "lt", "gte", "lte", "crosses_up", "crosses_down"],
+      "description": "Comparison operator applied to `signal_column` vs `threshold_value`. `gt`/`lt`/`gte`/`lte` are static comparisons (entry = signal satisfies relation at t); `crosses_up`/`crosses_down` are event triggers (entry = signal crossed the threshold in direction between t-1 and t)."
+    },
+    "strategy_family": {
+      "type": "string",
+      "enum": ["P1_long_cash", "P2_signal_strength", "P3_long_short"],
+      "description": "Position-sizing family. `P1_long_cash` = binary long/cash; `P2_signal_strength` = continuous scaling by signal magnitude; `P3_long_short` = symmetric long/short. Ace's Position Adjustment panel (APP-SE2) branches on this value."
+    },
+    "direction": {
+      "type": "string",
+      "enum": ["procyclical", "countercyclical", "mixed"],
+      "description": "Empirical relationship between signal and target observed in the tournament winner. `procyclical` = higher signal coincides with higher target returns; `countercyclical` = higher signal coincides with lower target returns (typical of stress/risk signals); `mixed` = sign depends on regime or threshold. Mirrors `interpretation_metadata.json.observed_direction`."
+    },
+    "oos_sharpe": {
+      "type": "number",
+      "description": "Out-of-sample annualized Sharpe ratio of the winning strategy. Risk-free assumption follows the pair's Analysis Brief target-class convention (SOFR for equities/fixed income)."
+    },
+    "oos_ann_return": {
+      "type": "number",
+      "description": "Out-of-sample annualized return as a ratio (e.g. 0.113 = 11.3%). Units: ratio (decimal). Computed as geometric annualization of OOS equity curve."
+    },
+    "oos_max_drawdown": {
+      "type": "number",
+      "maximum": 0,
+      "description": "Out-of-sample maximum drawdown as a ratio (negative, e.g. -0.102 = -10.2%). MUST be negative or zero; positive values are a producer-side bug."
+    },
+    "oos_n_trades": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of position changes in the OOS window. A position change is any non-zero exposure delta crossing the threshold rule."
+    },
+    "oos_period_start": {
+      "type": "string",
+      "format": "date",
+      "description": "Inclusive ISO 8601 start date of the OOS evaluation window (YYYY-MM-DD)."
+    },
+    "oos_period_end": {
+      "type": "string",
+      "format": "date",
+      "description": "Inclusive ISO 8601 end date of the OOS evaluation window (YYYY-MM-DD)."
+    },
+    "bh_sharpe": {
+      "type": "number",
+      "description": "Buy-and-hold benchmark Sharpe over the same OOS window. Recommended for KPI-card delta rendering; if omitted, Ace falls back to `tournament_winner.json.benchmark.oos_sharpe`."
+    },
+    "bh_ann_return": {
+      "type": "number",
+      "description": "Buy-and-hold benchmark annualized return over the same OOS window (ratio, e.g. 0.147 = 14.7%)."
+    },
+    "annual_turnover": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Annualized trade frequency (number of position changes per year). Drives transaction-cost estimation and liquidity stress warnings."
+    },
+    "cost_assumption_bps": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Per-trade transaction cost assumption applied during backtest, in basis points. Target-class default: 5 bps for equities/ETFs (see ECON-T2)."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform producer notes (caveats, sample-period warnings, known limitations). Rendered verbatim by Ace in the Strategy-page 'Important Caveats' section when present."
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "vera",
+  "x-generated": "2026-04-19",
+  "notes": "Minimal 2-method reference instance. The full canonical instance lives at ../chart_type_registry.json. This file exists to satisfy META-CF example-instance separation and to demonstrate the minimum valid shape.",
+  "methods": {
+    "correlation": {
+      "expected_chart_type": "heatmap",
+      "canonical_filename_pattern": "correlation_heatmap.json",
+      "required_result_file": "exploratory_{date}/correlations.csv",
+      "viz_rule_id": "VIZ-A3",
+      "econ_rule_id": "ECON-EX1",
+      "consumer_page": "evidence",
+      "notes": "Example binding: correlation method -> correlation_heatmap.json."
+    },
+    "granger": {
+      "expected_chart_type": "bar_by_lag",
+      "canonical_filename_pattern": "granger_f_by_lag.json",
+      "required_result_file": "granger_by_lag.csv",
+      "viz_rule_id": "VIZ-V3",
+      "econ_rule_id": "ECON-E1",
+      "consumer_page": "evidence",
+      "notes": "Example binding showing the S18-11 fix: granger has its own canonical chart distinct from local_projections."
+    }
+  }
+}

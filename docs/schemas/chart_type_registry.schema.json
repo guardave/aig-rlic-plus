@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus/docs/schemas/chart_type_registry.schema.json",
+  "title": "Chart Type Registry",
+  "description": "Single source of truth mapping econometric methods (and portal-level chart kinds) to their canonical Plotly-JSON chart artifact, the result CSV/parquet that feeds it, and the pair of VIZ- / ECON- rule IDs that own production. This schema IS the registry: the instance (chart_type_registry.json) is what Evan's ECON-H4 handoff, Vera's VIZ-V3/V4/V8 production, and Ace's render_method_block loader all consult. Per META-CF, no inline forks of this table are permitted in any SOP; SOPs link here.",
+  "x-owner": "vera",
+  "x-version": "1.0.0",
+  "type": "object",
+  "required": ["x-version", "x-owner", "methods"],
+  "properties": {
+    "x-version": {
+      "type": "string",
+      "description": "Semver of the registry instance (separate from this schema's x-version). Bumped per META-CF whenever methods are added, renamed, or their canonical bindings change.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "x-owner": {
+      "type": "string",
+      "description": "Single agent accountable for the registry instance. Must be 'vera'.",
+      "const": "vera"
+    },
+    "x-generated": {
+      "type": "string",
+      "description": "ISO-8601 date the instance was last regenerated.",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform top-level notes about the instance (e.g., what was added in this version)."
+    },
+    "methods": {
+      "type": "object",
+      "description": "Map of method_name -> chart metadata. method_name is snake_case and matches the key used by Evan's ECON-H4 handoff table and Ace's render_method_block helper.",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {
+          "$ref": "#/$defs/chart_binding"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "chart_binding": {
+      "type": "object",
+      "description": "Binding of one method to its canonical chart artifact + owning rules.",
+      "required": [
+        "expected_chart_type",
+        "canonical_filename_pattern",
+        "required_result_file",
+        "viz_rule_id",
+        "econ_rule_id"
+      ],
+      "properties": {
+        "expected_chart_type": {
+          "type": "string",
+          "description": "Short, canonical chart-type key describing the visual form. Examples: bar, line, heatmap, dual_panel, sparkline, bar_by_lag, scatter, area_probability, line_with_ci.",
+          "enum": [
+            "bar",
+            "line",
+            "heatmap",
+            "dual_panel",
+            "sparkline",
+            "bar_by_lag",
+            "scatter",
+            "area_probability",
+            "line_with_ci",
+            "quantile_coef",
+            "equity_line",
+            "drawdown_area",
+            "regime_bars"
+          ]
+        },
+        "canonical_filename_pattern": {
+          "type": "string",
+          "description": "Canonical filename (basename) of the Plotly JSON artifact Vera writes under output/charts/{pair_id}/plotly/. pair_id NEVER appears in the filename — it lives in the directory path (VIZ-NM1). {episode_slug} placeholder is only permitted for entries with override_supported=true (META-ZI). Must end in .json.",
+          "pattern": "^[a-z0-9_{}]+\\.json$"
+        },
+        "required_result_file": {
+          "type": "string",
+          "description": "Relative path (under results/{pair_id}/) of the upstream Evan-produced CSV/parquet that feeds this chart. Per ECON-H4, Evan's handoff table points into this field. {date} placeholder is allowed where Evan's dated subdirectory applies (e.g., core_models_{date}/...)."
+        },
+        "viz_rule_id": {
+          "type": "string",
+          "description": "Vera-side rule ID that owns the rendering of this chart (e.g., VIZ-V3 for standalone Granger).",
+          "pattern": "^VIZ-[A-Z0-9]+$"
+        },
+        "econ_rule_id": {
+          "type": "string",
+          "description": "Evan-side rule ID that owns production of the required_result_file (e.g., ECON-E1 for granger_by_lag.csv). Use ECON-EX1 for exploratory files, ECON-C2 for core_models files, ECON-T1/ECON §Tournament for tournament files.",
+          "pattern": "^ECON-[A-Z0-9]+$"
+        },
+        "override_supported": {
+          "type": "boolean",
+          "description": "True for charts that support the META-ZI canonical-override protocol (e.g., history_zoom_* episodes). When true, canonical_filename_pattern contains an {episode_slug} placeholder and lives under output/_comparison/; pair-specific override under output/charts/{pair_id}/.",
+          "default": false
+        },
+        "consumer_page": {
+          "type": "string",
+          "description": "Which portal page type is the primary consumer (story, evidence, strategy, methodology, landing, cross_pair).",
+          "enum": ["story", "evidence", "strategy", "methodology", "landing", "cross_pair"]
+        },
+        "notes": {
+          "type": "string",
+          "description": "Freeform — what to call out during rendering, known pitfalls, historical bug references (e.g., 'S18-11: must NOT fall back to local_projections')."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

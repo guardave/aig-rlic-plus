@@ -328,6 +328,18 @@ When Ace is building the Streamlit portal, deliver a **Portal Narrative** docume
 
 **Format:** `docs/portal_narrative_{topic}_{date}.md`
 
+**Mandatory frontmatter (RES-17 / META-CF).** Every portal narrative markdown begins with a frontmatter block per [`docs/schemas/narrative_frontmatter.schema.json`](../schemas/narrative_frontmatter.schema.json) (META-CF, owned by Ray). The block opens with standard markdown `---` delimiters and contains the machine-readable inventory of pages, sections, expanders, `chart_refs`, `glossary_terms`, `direction_asserted`, and (optional) `historical_episodes_referenced` / `status_labels_used` / `glossary_requests` that Ace consumes via `render_narrative()` — so Ace no longer extracts subsections by heading-match (RES-16 / B8 closure). Section `anchor` fields are stable across title renames; renaming a heading in the body is non-breaking as long as the anchor is correct.
+
+**Producer validation (blocking).** Before handoff to Ace, extract the frontmatter block into a standalone JSON file and run:
+
+```
+python3 scripts/validate_schema.py \
+    --schema docs/schemas/narrative_frontmatter.schema.json \
+    --instance /tmp/frontmatter_{pair_id}.json
+```
+
+A non-zero exit code blocks the handoff. This is Ray's producer-side META-CF obligation; Ace runs the consumer-side validation on load (APP-NR1). See the example instance at [`docs/schemas/examples/narrative_frontmatter.example.json`](../schemas/examples/narrative_frontmatter.example.json) for the HY-IG v2 reference.
+
 ```
 ## Portal Narrative: [Topic]
 
@@ -438,6 +450,28 @@ Before handing off narrative to Ace, Ray checks that all status labels used in p
 - The self-check is performed per handoff: Ray scans the narrative draft (`docs/portal_narrative_<pair_id>_<date>.md` and any status legends or captions referenced from the portal) and records the pass/fail in the Ray→Ace handoff note.
 
 Addresses stakeholder feedback **S18-4 follow-up** (status vocabulary needs definitions rather than ambient assumption) and **S18-3** (captions on status legends).
+
+### Rule RES-17 — Narrative Frontmatter Contract (Blocking, META-CF)
+
+Every portal narrative markdown (`docs/portal_narrative_{pair_id}_{date}.md`) MUST open with a frontmatter block — between standard markdown `---` delimiters — conforming to [`docs/schemas/narrative_frontmatter.schema.json`](../schemas/narrative_frontmatter.schema.json) (x-owner: `ray`, x-version: `1.0.0`).
+
+**Required fields:** `pair_id`, `narrative_version` (semver for Ray's revisions), `generated_at` (ISO 8601), `pages` (Story/Evidence/Strategy/Methodology each with `headline` + `sections` + `expanders`, sections keyed by stable `anchor`), `chart_refs` (canonical names that MUST exist in Vera's `chart_type_registry.json`), `glossary_terms` (MUST exist in `docs/portal_glossary.json`), `direction_asserted` (one of `procyclical` / `countercyclical` / `mixed`, MUST match Evan's `winner_summary.json.direction` per APP-DIR1).
+
+**Optional fields:** `historical_episodes_referenced` (for META-ZI coherence inspection), `status_labels_used` (subset of the RES-VS canonical vocabulary), `glossary_requests` (Ace→Ray request-back ledger — see SLA below).
+
+**Producer validation (blocking).** Before handoff to Ace, Ray extracts the frontmatter and runs `python3 scripts/validate_schema.py --schema docs/schemas/narrative_frontmatter.schema.json --instance <path>`. A non-zero exit code blocks handoff. No prose schema duplicates in this SOP — the schema file is the single source of truth (META-CF).
+
+**Anchor stability.** Section `anchor` fields are NEVER renamed once assigned. Ace keys extraction on `anchor`, not `title`; titles may evolve in prose freely. When a title's semantic meaning diverges from its anchor, allocate a new `id` + `anchor` pair and deprecate the old one in `regression_note`.
+
+**Glossary request-back SLA.** When Ace files a missing-term request against this narrative (RES-6 request-back channel), Ray commits to ONE of:
+1. Close the term in the NEXT narrative revision within **ONE WEEK** of Ace's request (status `closed` in `glossary_requests` with a resolution pointer), OR
+2. Ship the current narrative with a `[term pending definition]` placeholder in the prose AND a matching `glossary_requests` entry with `status='pending_placeholder'` — the term is then queued for the next revision.
+
+Silence is not acceptance. An unaddressed Ace request past the one-week SLA is a RES-17 / RES-6 violation and a gate flag at the next acceptance.
+
+**Closes gap:** Proposed RES-16 (narrative subsection file-path contract, B8) — the frontmatter inventory provides the same stability as standalone files without splitting the narrative. If Lead later decides standalone subsection files are ALSO needed, they are additive; RES-17 remains the authoritative extraction contract.
+
+**Cross-reference:** APP-NR1 (Ace's consumer smoke test), APP-DIR1 (cross-agent direction-assertion integrity), META-CF (Contract File Standard), RES-6 (glossary rubric), RES-VS (status vocabulary self-check), RES-11 (headline-first structure).
 
 ### Bibliography Scale
 

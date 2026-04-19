@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/interpretation_metadata.schema.json",
+  "x-owner": "dana",
+  "x-version": "1.0.0",
+  "title": "Interpretation Metadata Schema (Versioned Pair Classification)",
+  "description": "Canonical contract for `results/{pair_id}/interpretation_metadata.json` — the pair-level classification record read by Ace's landing-page loader, Ray's narrative generator, Evan's method routing (Rule C1), and Vera's chart encoding. Governed by DATA-D6 (producer rule) and META-CF (Contract File Standard). Closes two distinct bug classes: (1) the ad-hoc-field-addition pattern (Wave 3 expansion — indicator_nature, indicator_type, strategy_objective each added in separate waves with no versioned shape); (2) the multi-writer race condition (ECON-CFO-1 — three agents write to the same JSON with no ordering protocol), closed here by the `owner_writes` explicit mapping. Adding a new field to this taxonomy requires a schema bump, not a one-off ad-hoc field. Cross-references: DATA-D3 (classification decision procedure), DATA-DD4 (classification ownership), META-CFO (classification field ownership), GATE-19 / GATE-20 / GATE-21, META-IA (interpretation annotations), APP-LP5 / APP-LP6 (landing-card chips), RES-IT1 (Ray's strategy-objective ownership).",
+  "type": "object",
+  "required": [
+    "pair_id",
+    "schema_version",
+    "indicator_nature",
+    "indicator_type",
+    "strategy_objective",
+    "owner_writes",
+    "last_updated_by",
+    "last_updated_at"
+  ],
+  "properties": {
+    "pair_id": {
+      "type": "string",
+      "description": "Canonical pair identifier (snake_case, e.g. `hy_ig_v2_spy`). Matches the `results/{pair_id}/` directory and the landing-card key.",
+      "minLength": 1
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semver of the contract shape this instance conforms to (matches `x-version` of the governing schema file). DATA-D6: Ace's loader MUST check this field and MUST NOT defensively fall back for unknown versions — mismatch is a hard error until the loader is updated in the same commit as a schema bump."
+    },
+    "indicator_nature": {
+      "type": "string",
+      "enum": ["leading", "coincident", "lagging"],
+      "description": "Dana-owned. Cycle timing of the indicator relative to the business/market cycle. Controlled vocabulary per DATA-D3 Step 2. Source of truth order: (1) Conference Board classification, (2) NBER/Fed research consensus, (3) published econometric tests. Never classify from intuition alone. GATE-19 blocker if missing/empty/`unknown`."
+    },
+    "indicator_type": {
+      "type": "string",
+      "enum": ["price", "production", "sentiment", "rates", "credit", "volatility", "macro", "survey", "housing"],
+      "description": "Dana-owned. Controlled vocabulary shared with Evan's Rule C1 category routing. Canonical 7 values from GATE-20 (`price`, `production`, `sentiment`, `rates`, `credit`, `volatility`, `macro`) plus two extensions from the data-series-catalog (`survey`, `housing`). Near-synonyms (`activity`, `output`, `vol`, `fx`) are REJECTED — map to canonical at source. GATE-20 blocker if missing/empty/`unknown`."
+    },
+    "strategy_objective": {
+      "type": "string",
+      "enum": [
+        "procyclical_capture",
+        "countercyclical_protection",
+        "regime_switching",
+        "tail_hedge",
+        "min_mdd",
+        "max_sharpe",
+        "max_return"
+      ],
+      "description": "Ray-owned (set after tournament results known, per RES-IT1 / DATA-DD4). `procyclical_capture` = long when indicator confirms bullish regime; `countercyclical_protection` = defensive when indicator signals stress; `regime_switching` = symmetric long/short across regimes; `tail_hedge` = asymmetric protection against extreme left-tail episodes; `min_mdd` / `max_sharpe` / `max_return` = legacy tournament-objective labels retained for HY-IG v2 and earlier pairs. GATE-21 blocker if missing/empty/`unknown`."
+    },
+    "owner_writes": {
+      "type": "object",
+      "description": "Explicit field-ownership mapping. Each listed agent is the SOLE writer for its listed fields. Closes ECON-CFO-1 (multi-writer race): the consolidated `interpretation_metadata.json` is produced by atomic merge of agent-specific partial JSONs in a deterministic order (dana → evan → ray), and any field not listed here CANNOT be added without a schema bump (DATA-D6). This forces new taxonomy extensions through registration rather than ad-hoc field drift.",
+      "required": ["dana", "evan", "ray"],
+      "properties": {
+        "dana": {
+          "type": "array",
+          "description": "Fields Data Dana owns exclusively. Default set includes `indicator_nature`, `indicator_type`, `known_stress_episodes`, `data_provenance`. Schema-required fields assigned to Dana: `indicator_nature`, `indicator_type`.",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "evan": {
+          "type": "array",
+          "description": "Fields Econ Evan owns exclusively. Default set includes `observed_direction`, `direction_consistent`, `key_finding`, `confidence`. Evan writes AFTER Dana, can read Dana's fields but never overwrites them.",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "ray": {
+          "type": "array",
+          "description": "Fields Research Ray owns exclusively. Default set includes `strategy_objective`, `narrative_summary`, `expected_direction`, `mechanism`, `caveats`. Ray writes LAST (after tournament is complete), can read Dana's and Evan's fields but never overwrites them. Schema-required field assigned to Ray: `strategy_objective`.",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 }
+      }
+    },
+    "last_updated_by": {
+      "type": "string",
+      "enum": ["dana", "evan", "ray"],
+      "description": "Identifier of the agent that produced the most recent write to this file. MUST be one of the agents listed as a writer in `owner_writes`. Paired with `last_updated_at`, this is the audit trail for the deterministic write order."
+    },
+    "last_updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 date-time of the most recent write. Used by Ace's landing-page loader for staleness detection and by regression tooling to diff metadata across reruns (DATA-R1)."
+    },
+    "indicator": {
+      "type": "string",
+      "description": "Optional. Canonical indicator name (e.g. `hy_ig_spread`) — matches the primary signal column in the master parquet."
+    },
+    "target": {
+      "type": "string",
+      "description": "Optional. Canonical target asset identifier (e.g. `spy`)."
+    },
+    "expected_direction": {
+      "type": "string",
+      "enum": ["procyclical", "countercyclical", "mixed"],
+      "description": "Optional. Ray-owned. Ex-ante direction hypothesis from the research brief."
+    },
+    "observed_direction": {
+      "type": "string",
+      "enum": ["procyclical", "countercyclical", "mixed"],
+      "description": "Optional. Evan-owned. Empirical direction observed in estimation; cross-checked against `expected_direction`."
+    },
+    "direction_consistent": {
+      "type": "boolean",
+      "description": "Optional. Evan-owned. `true` when observed matches expected; `false` triggers a RES-B4 contradiction note."
+    },
+    "mechanism": {
+      "type": "string",
+      "description": "Optional. Ray-owned. One-to-two-sentence economic mechanism describing why the indicator relates to the target."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low"],
+      "description": "Optional. Evan-owned. Confidence assessment based on method-coverage consistency, sample size, and diagnostics."
+    },
+    "key_finding": {
+      "type": "string",
+      "description": "Optional. Evan-owned. One-sentence headline summary of the strongest quantitative finding."
+    },
+    "caveats": {
+      "type": "array",
+      "description": "Optional. Ray-owned. List of sample-period, methodology, or interpretation caveats for downstream readers.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "narrative_summary": {
+      "type": "string",
+      "description": "Optional. Ray-owned. Short prose summary of the pair's story, rendered by Ace on landing cards and page headers."
+    },
+    "related_pair_ids": {
+      "type": "array",
+      "description": "Optional. Dana-owned. Cross-references to other pair_ids that share an indicator family (e.g. variants) or a target (e.g. all SPY pairs). Enables the landing-page 'related pairs' filter.",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "known_stress_episodes": {
+      "type": "array",
+      "description": "Optional. Dana-owned. Dated stress episodes used for reference-value verification (cross-ref DATA-D7 proposal).",
+      "items": {
+        "type": "object",
+        "required": ["label", "start", "end"],
+        "properties": {
+          "label": { "type": "string", "minLength": 1 },
+          "start": { "type": "string", "format": "date" },
+          "end": { "type": "string", "format": "date" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "data_provenance": {
+      "type": "object",
+      "description": "Optional. Dana-owned. Source lineage record for the primary indicator series.",
+      "properties": {
+        "source": { "type": "string" },
+        "series_id": { "type": "string" },
+        "accessed_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

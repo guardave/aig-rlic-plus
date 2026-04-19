@@ -1,0 +1,261 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "narrative_version": "2.0.0",
+  "generated_at": "2026-04-10T00:00:00Z",
+  "pages": {
+    "story": {
+      "headline": "Sharpe 1.27 over 8-year OOS — credit spreads as a multi-month early-warning signal for equity drawdowns",
+      "plain_english": "The bond market often sees trouble coming before the stock market does — and the gap between risky and safe bond yields has been one of the most reliable early warning signals for equity declines over the past 25 years.",
+      "sections": [
+        {
+          "id": "where_this_fits",
+          "title": "Where This Fits in the Portal",
+          "anchor": "where-this-fits-in-the-portal"
+        },
+        {
+          "id": "one_sentence_thesis",
+          "title": "One-Sentence Thesis",
+          "anchor": "one-sentence-thesis"
+        },
+        {
+          "id": "headline_findings",
+          "title": "Headline Findings for KPI Cards",
+          "anchor": "headline-findings-for-kpi-cards"
+        },
+        {
+          "id": "suggested_hero_chart",
+          "title": "Suggested Hero Chart",
+          "anchor": "suggested-hero-chart"
+        },
+        {
+          "id": "why_care_about_bonds",
+          "title": "Why Should Stock Investors Care About Bonds?",
+          "anchor": "why-should-stock-investors-care-about-bonds"
+        },
+        {
+          "id": "early_warning_signal",
+          "title": "The Early Warning Signal",
+          "anchor": "the-early-warning-signal"
+        },
+        {
+          "id": "what_history_shows",
+          "title": "What History Shows",
+          "anchor": "what-history-shows"
+        },
+        {
+          "id": "not_a_simple_relationship",
+          "title": "It Is Not a Simple Relationship",
+          "anchor": "it-is-not-a-simple-relationship"
+        }
+      ],
+      "expanders": [
+        {
+          "id": "what_is_a_credit_spread",
+          "title": "What exactly is a credit spread, and how is it measured?"
+        },
+        {
+          "id": "merton_model",
+          "title": "Why are stocks and bonds mathematically connected? (The Merton Model)"
+        },
+        {
+          "id": "ccc_bb_quality_spread",
+          "title": "Is there a deeper signal within the credit market itself? (The CCC-BB quality spread)"
+        },
+        {
+          "id": "how_regimes_defined",
+          "title": "How do we define market regimes without arbitrary cutoffs?"
+        }
+      ]
+    },
+    "evidence": {
+      "headline": "",
+      "plain_english": "This section shows the data we used to test whether credit spreads really do predict stock market returns. Eight different statistical tests all point to the same conclusion: when the credit spread widens, stocks tend to do worse in the following weeks and months.",
+      "sections": [
+        {
+          "id": "how_we_tested",
+          "title": "How We Tested the Signal",
+          "anchor": "how-we-tested-the-signal"
+        },
+        {
+          "id": "method_correlation",
+          "title": "Method: Correlation Analysis",
+          "anchor": "method-correlation-analysis"
+        },
+        {
+          "id": "method_granger",
+          "title": "Method: Granger Causality (Toda-Yamamoto)",
+          "anchor": "method-granger-causality-toda-yamamoto"
+        },
+        {
+          "id": "method_local_projections",
+          "title": "Method: Local Projections (Jorda Impulse Responses)",
+          "anchor": "method-local-projections-jorda-impulse-responses"
+        },
+        {
+          "id": "method_hmm",
+          "title": "Method: Regime Analysis (Hidden Markov Model)",
+          "anchor": "method-regime-analysis-hidden-markov-model"
+        },
+        {
+          "id": "method_quantile_regression",
+          "title": "Method: Quantile Regression",
+          "anchor": "method-quantile-regression"
+        },
+        {
+          "id": "method_ccf_prewhitened",
+          "title": "Method: Pre-whitened Cross-Correlation Function (CCF)",
+          "anchor": "method-pre-whitened-cross-correlation-function-ccf"
+        },
+        {
+          "id": "combinatorial_tournament",
+          "title": "The Combinatorial Tournament",
+          "anchor": "the-combinatorial-tournament"
+        }
+      ],
+      "expanders": []
+    },
+    "strategy": {
+      "headline": "",
+      "sections": [
+        {
+          "id": "how_signal_generated",
+          "title": "How the Signal is Generated",
+          "anchor": "how-the-signal-is-generated"
+        },
+        {
+          "id": "signal_translates_to_action",
+          "title": "How the Signal Translates to Action",
+          "anchor": "how-the-signal-translates-to-action"
+        },
+        {
+          "id": "key_strategy_metrics",
+          "title": "Key Strategy Metrics",
+          "anchor": "key-strategy-metrics"
+        },
+        {
+          "id": "where_strategy_adds_value",
+          "title": "Where the Strategy Adds Value -- and Where It Does Not",
+          "anchor": "where-the-strategy-adds-value-and-where-it-does-not"
+        },
+        {
+          "id": "how_to_use_manually",
+          "title": "How to Use This Indicator Manually",
+          "anchor": "how-to-use-this-indicator-manually"
+        },
+        {
+          "id": "execution_points",
+          "title": "Execution Points -- Actual Trigger Dates",
+          "anchor": "execution-points-actual-trigger-dates"
+        },
+        {
+          "id": "important_caveats",
+          "title": "Important Caveats",
+          "anchor": "important-caveats"
+        },
+        {
+          "id": "how_to_read_trade_log",
+          "title": "How to Read the Trade Log",
+          "anchor": "how-to-read-the-trade-log"
+        }
+      ],
+      "expanders": [
+        {
+          "id": "why_scale_positions",
+          "title": "Why scale positions instead of switching all-in or all-out?"
+        },
+        {
+          "id": "what_is_a_zscore",
+          "title": "What is a z-score, and why do we use one?"
+        }
+      ]
+    },
+    "methodology": {
+      "headline": "",
+      "sections": [
+        {
+          "id": "data_sources",
+          "title": "Data Sources",
+          "anchor": "data-sources"
+        },
+        {
+          "id": "sample_period",
+          "title": "Sample Period",
+          "anchor": "sample-period"
+        },
+        {
+          "id": "indicator_construction",
+          "title": "Indicator Construction",
+          "anchor": "indicator-construction"
+        },
+        {
+          "id": "econometric_methods",
+          "title": "Econometric Methods",
+          "anchor": "econometric-methods"
+        },
+        {
+          "id": "diagnostics",
+          "title": "Diagnostics",
+          "anchor": "diagnostics"
+        },
+        {
+          "id": "sensitivity_analysis",
+          "title": "Sensitivity Analysis",
+          "anchor": "sensitivity-analysis"
+        },
+        {
+          "id": "reverse_causality_check",
+          "title": "Reverse Causality Check",
+          "anchor": "reverse-causality-check"
+        },
+        {
+          "id": "references",
+          "title": "References",
+          "anchor": "references"
+        }
+      ],
+      "expanders": []
+    }
+  },
+  "chart_refs": [
+    "hero_spread_vs_spy",
+    "correlation_heatmap",
+    "granger_causality",
+    "local_projections",
+    "hmm_regime_probs",
+    "quantile_regression",
+    "ccf_prewhitened",
+    "regime_quartile_returns",
+    "tournament_leaderboard",
+    "equity_curve_winner",
+    "history_zoom_dotcom",
+    "history_zoom_gfc",
+    "history_zoom_covid"
+  ],
+  "glossary_terms": [
+    "Basis point (bp)",
+    "Credit spread",
+    "HMM stress probability"
+  ],
+  "direction_asserted": "countercyclical",
+  "historical_episodes_referenced": [
+    {
+      "episode_slug": "dotcom",
+      "override_needed": false
+    },
+    {
+      "episode_slug": "gfc",
+      "override_needed": true,
+      "override_reason": "Story §What History Shows -- GFC paragraph ties HY-IG spread widening (300 to 2,000+ bps) to SPY peak Oct-2007 and Lehman Sep-2008; prose requires a HY-IG overlay on the canonical history_zoom_gfc baseline."
+    },
+    {
+      "episode_slug": "covid",
+      "override_needed": false
+    },
+    {
+      "episode_slug": "inflation_2022",
+      "override_needed": false
+    }
+  ],
+  "status_labels_used": ["Available", "Validated", "Mature"],
+  "glossary_requests": []
+}

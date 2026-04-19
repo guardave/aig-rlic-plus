@@ -232,6 +232,43 @@ This section is the canonical mechanism for declaring intentional removals and i
 >
 > **Addresses** the Wave-2 Hero NBER shading bug: VIZ-V2 prescribed "alpha 0.10–0.15 grey" and the producer complied exactly; the rendered shading was still imperceptible against the dark line trace on a light background. The rule was followed and the visual failed — that is a broken rule, not a broken chart.
 
+### Contract File Standard (Meta-Rule META-CF)
+
+> **Single authoritative schema per cross-agent artifact. No forks, no inline divergent copies.**
+
+Cross-agent JSON contracts (artifact formats, registries, manifests, metadata
+sidecars) live under `docs/schemas/`. Prose dictionaries inside SOPs and partial
+inline schema copies diverge silently and are prohibited — SOPs link to the
+canonical schema instead.
+
+| Element | Rule |
+|---|---|
+| Location | `docs/schemas/{contract_name}.schema.json` |
+| Format | JSON Schema draft 2020-12 |
+| Ownership | Header field `"x-owner": "<agent-id>"` (single agent owns updates; others PR) |
+| Versioning | Header field `"x-version": "1.0.0"` semver — breaking change → major bump |
+| Example instance | Companion `docs/schemas/examples/{contract_name}.example.json` must validate |
+| Validation | `scripts/validate_schema.py` — called by producer before save AND consumer before use |
+| Change discipline | Schema change → regression_note entry (per META-VNC) + sop-changelog entry |
+| SOP cross-ref | When a new schema is added, every SOP with a producer/consumer role adds a link (no inline schemas allowed in SOPs) |
+| Uniqueness | One authoritative schema per artifact — no forks permitted |
+
+**Producer responsibility.**
+- Before saving an artifact claimed to match a contract, call
+  `scripts/validate_schema.py` and block on failure.
+- Ship the schema in the same commit as the artifact whenever the schema is
+  modified.
+
+**Consumer responsibility.**
+- Before using an artifact claimed to match a contract, call the validator.
+- Never silently fall back — raise or render an explicit error (per
+  APP-SE1/SE5 severity discipline).
+
+**Cross-reference.** Supersedes inline JSON schemas previously embedded in
+SOPs (e.g. the ECON-DS1 signals schema, APP-SE1 signal-column assumptions —
+these must migrate to `docs/schemas/` when authored). See
+`docs/schemas/README.md` for the evolution workflow.
+
 ### Classification Field Ownership
 
 | Field | Owner | Timing | Source of Truth |

@@ -422,22 +422,13 @@ For every chart in the standard chart set, the filename, signal selection, order
 
 **Canonical filename format (blocking):** Every portal-destined chart MUST be saved as `output/charts/{pair_id}/plotly/{chart_type}.json` where `{chart_type}` is the short key from the Standard Chart Set table (`hero`, `regime_bars`, `correlation_heatmap`, `ccf`, `local_projections`, `quantile_regression`, `tournament_scatter`, `equity_curves`, `granger`, `rf_importance`). This matches Ace's loader call `load_plotly_chart("{chart_type}", pair_id="{pair_id}")` exactly. Do NOT prefix the pair_id into the filename (e.g., `hy_ig_v2_spy_correlation_heatmap.json` is WRONG — the pair_id lives in the directory path, not the filename). A pair_id-prefixed filename is a completeness gate failure.
 
-**Canonical signal specs (inline, authoritative):**
+**Canonical method → chart-type mapping (machine-readable):**
 
-| `chart_type` key | Required columns / signals | Ordering | Axis / scale convention |
-|------------------|----------------------------|----------|-------------------------|
-| `hero` | indicator series + target price | chronological | Dual-axis, indicator left (red), target right (blue), no inversion |
-| `regime_bars` | Sharpe by indicator quartile (Q1-Q4) | Q1 to Q4 left-to-right | Y = Sharpe (dimensionless), values labeled outside bars |
-| `correlation_heatmap` | Top 6-8 signals by \|corr\| at 63d horizon | Descending \|corr\| at 63d | Rows = signals, cols = horizons (1d/5d/21d/63d/252d), RdBu_r, zmid=0, cell values shown |
-| `ccf` | CCF coefficients at lags -12..+12 | Lag ascending | Y = correlation, 95% CI dashed, significant = red |
-| `local_projections` | LP coefficient by horizon (h=0..24) | Horizon ascending | Y = coef, shaded CI band, stars for significant |
-| `quantile_regression` | Coef across return quantiles (0.1-0.9) | Quantile ascending | Y = coef, shaded CI, zero line |
-| `tournament_scatter` | OOS Sharpe vs turnover per combo | n/a | X = turnover, Y = Sharpe, color = max DD, stars = top 5, diamond = B&H |
-| `equity_curves` | Top strategies + B&H | Legend in final-value descending order | Y = equity index (base=1.0), OOS period only, log optional |
-| `granger` | Granger p-values by lag, both directions | Lag ascending | Y = p-value, p=0.05 horizontal reference, two lines |
-| `rf_importance` | Feature importance from last walk-forward window | Importance descending | Horizontal bar, Y = feature display name |
+The authoritative per-method binding of `method_name → {expected_chart_type, canonical_filename_pattern, required_result_file, viz_rule_id, econ_rule_id}` lives in **`docs/schemas/chart_type_registry.json`** (schema `docs/schemas/chart_type_registry.schema.json`, owner: Vera, per META-CF). That file is the single source of truth consumed by Evan's ECON-H4 handoff, Vera's production, and Ace's `render_method_block` loader. Inline forks of this mapping in SOPs are prohibited; this SOP links only (VIZ-V8).
 
-When a pair genuinely needs a non-standard chart, add a new row with a new `chart_type` key BEFORE producing it. Do not ship an unlisted chart.
+Axis/ordering/signal-selection preferences that are not structural (palette choices, tick densities, hover templates) remain in this SOP under Viz Preferences.
+
+When a pair genuinely needs a non-standard chart, **add a new method entry to `docs/schemas/chart_type_registry.json` BEFORE producing the chart**, bump the registry's `x-version`, and record the change in `sop-changelog.md` and the pair's `regression_note.md`. Do not ship a chart whose `method_name` is not in the registry.
 
 #### Rule A4 — Chart Regression Report
 
@@ -562,6 +553,28 @@ Each check is logged as pass/fail per chart to `output/charts/{pair_id}/plotly/_
 - A JSON-read failure usually means a corrupted write or mixing numpy types into Plotly → rebuild using `plotly.io.write_json`.
 
 The smoke test is additive on top of the Quality Gates checklist and the perceptual check introduced in V2; it catches a different failure mode (structural integrity) from the perceptual check (visual legibility) and from A3 (canonical spec conformance).
+
+#### Rule V8 — Chart Type Registry (canonical, machine-readable) — addresses S18-11, Wave 1.5 Granger fallback (added 2026-04-19)
+
+The method-to-chart mapping is authoritative in **`docs/schemas/chart_type_registry.json`** (schema `docs/schemas/chart_type_registry.schema.json`, owner: Vera, per META-CF). This registry is the canonical OUTPUT that supersedes the three partial copies of the mapping that previously lived inline across the Evan, Vera, and Ace SOPs — the root cause of the Wave 1.5 Granger silent-fallback (S18-11) and the CCF silent-drop class of bugs.
+
+**Producer responsibility (Vera):**
+
+1. Before saving any chart JSON under `output/charts/{pair_id}/plotly/`, Vera MUST verify the chart's basename matches the `canonical_filename_pattern` in the registry for the corresponding `method_name`. For entries with `override_supported=true`, the `{episode_slug}` placeholder must be substituted with a concrete slug from the META-ZI registry.
+2. Adding a new `method_name` requires bumping the registry instance's `x-version` (patch → additive, minor → new optional fields, major → breaking rename), writing a `sop-changelog.md` entry, and a pair `regression_note.md` entry per META-VNC.
+3. Every pair handoff to Ace includes, implicitly, a statement that every method in the pair's Evidence page is present in the registry and that its chart was produced at the registered canonical path.
+
+**Input contract with Evan (ECON-H4):**
+
+Evan's `results/{pair_id}/handoff_to_vera_{date}.md` per-method table (per ECON-H4) is the INPUT that feeds this registry. Each row — `method / result_file / expected_chart / status` — MUST align with a registry entry: the handoff's `expected_chart` description names the same `expected_chart_type` the registry carries, and `result_file` matches the registry's `required_result_file` after substituting `{date}` and `{pair_id}`. Divergence between Evan's handoff row and the registry is a blocking reconciliation failure: fix the registry (if the handoff is correct and the method is new) or fix the handoff (if the registry is correct). Evan does NOT produce a separate machine-readable `viz_handoff_manifest.json` — the registry is the mutual contract (see regression note 2026-04-19).
+
+**Consumer contract with Ace (APP-CN1, APP-EP4):**
+
+Ace's `render_method_block` helper looks up `method_name` in the registry to resolve the expected filename and falls back to a GATE-25 placeholder (never a lookalike from a different method) when the canonical file is missing. APP-CN1 (legacy-chart-name-fallback sweep) scans for call sites that resolve to non-canonical filenames and reports them.
+
+**Closes gap:** Wave 1.5 Granger → Local Projections silent fallback (S18-11); CCF / TE / quartile-returns silent drops (S18-8); chart-name prefix drift.
+
+**Cross-reference:** META-CF, VIZ-A3 (axis/ordering preferences), VIZ-V3 (no silent chart fallback), VIZ-V4 (no silent drop of diagnostics), ECON-H4 (Evan's handoff table — INPUT), APP-CN1 (Ace's fallback sweep — CONSUMER enforcement).
 
 ### Chart-Text Coherence (Cross-Agent Contract) — addresses SL-3
 

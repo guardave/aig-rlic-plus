@@ -34,3 +34,6 @@ lxml
 # Display
 tabulate
 rich
+
+# Schema validation (per META-CF)
+jsonschema

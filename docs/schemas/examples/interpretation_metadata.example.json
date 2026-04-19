@@ -1,0 +1,60 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "schema_version": "1.0.0",
+  "indicator_nature": "leading",
+  "indicator_type": "credit",
+  "strategy_objective": "countercyclical_protection",
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator_nature",
+      "indicator_type",
+      "indicator",
+      "target",
+      "related_pair_ids",
+      "known_stress_episodes",
+      "data_provenance"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "confidence",
+      "key_finding"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats",
+      "narrative_summary"
+    ]
+  },
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-04-19T14:00:00Z",
+  "indicator": "hy_ig_spread",
+  "target": "spy",
+  "expected_direction": "countercyclical",
+  "observed_direction": "countercyclical",
+  "direction_consistent": true,
+  "mechanism": "Wider HY-IG credit spreads signal rising default risk and tightening financial conditions — bearish for equities. Spread compression is bullish.",
+  "confidence": "high",
+  "key_finding": "hy_ig_mom_63d predicts spy_fwd_63d (coef=-0.0119, t=-10.77, p=0.0000)",
+  "caveats": [
+    "OAS data starts 1997; pre-2000 coverage is thin",
+    "GFC 2008-2009 dominates the tails",
+    "COVID March 2020 was an extreme but transient widening",
+    "Regime-model signals (HMM, MS) are fitted in-sample; use persisted probabilities only"
+  ],
+  "narrative_summary": "HY-IG credit spreads lead SPY by 2-3 months at monthly resolution; the pair is used as a countercyclical protection signal rather than a procyclical capture signal.",
+  "related_pair_ids": ["hy_ig_spy"],
+  "known_stress_episodes": [
+    {"label": "GFC", "start": "2008-09-01", "end": "2009-06-30", "note": "HY-IG spread peaked above 1500 bps; SPY -45% peak-to-trough"},
+    {"label": "COVID", "start": "2020-02-20", "end": "2020-04-30", "note": "Transient widening > 900 bps resolved in 8 weeks"}
+  ],
+  "data_provenance": {
+    "source": "FRED",
+    "series_id": "BAMLH0A0HYM2 - BAMLC0A0CM",
+    "accessed_at": "2026-04-10T12:00:00Z"
+  }
+}

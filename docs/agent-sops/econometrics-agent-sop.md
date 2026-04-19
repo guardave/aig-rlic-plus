@@ -574,6 +574,36 @@ When the analysis feeds into a Streamlit portal (Ace's domain), use this templat
 
 Deliver a `kpis.json` file at `results/{indicator_id}_{target_id}/kpis.json` containing an array of KPI objects for Ace's portal KPI cards. Each object must include: `metric` (display label), `value` (pre-formatted string), `unit`, and `delta` (optional, change vs. previous period). Ace renders these directly — no further formatting or extraction.
 
+### ECON-H5 — Winner Summary JSON Contract (per META-CF)
+
+Every pair produces `results/{pair_id}/winner_summary.json` as the render-ready strategy descriptor consumed by Ace's Strategy-page components (probability engine panel, position adjustment panel, instructional trigger cards, execution panel) and by Ray for narrative cross-reference.
+
+**Canonical schema:** [`docs/schemas/winner_summary.schema.json`](../schemas/winner_summary.schema.json) (per META-CF, owned by Evan, version 1.0.0). Companion example instance: [`docs/schemas/examples/winner_summary.example.json`](../schemas/examples/winner_summary.example.json).
+
+**Producer validation step (blocking):** Before saving `winner_summary.json`, run
+
+```
+python3 scripts/validate_schema.py \
+    --schema docs/schemas/winner_summary.schema.json \
+    --instance {out_path}
+```
+
+and block on failure. A validator exit code of 1 means the file is non-conformant and MUST NOT be handed off — fix the producer (do not patch the file by hand).
+
+**Key contract commitments (see schema for full field list):**
+
+- `signal_column` (required) is the EXACT parquet column name in `signals_{date}.parquet` (e.g. `hmm_2state_prob_stress`). It is NOT a display name and NOT the tournament `signal_code`. Ace's `pd.read_parquet(...)[signal_column]` call path depends on this field being verbatim-accurate.
+- `signal_code` (required) is the tournament identifier (e.g. `S6_hmm_stress`). Both fields are present as siblings; renaming one without the other is a contract violation.
+- `target_symbol` (required) is the target ticker (e.g. `SPY`). Never hardcode a fallback on the consumer side.
+- `threshold_rule` (required) is one of `gt`, `lt`, `gte`, `lte`, `crosses_up`, `crosses_down` — machine-readable operator paired with `threshold_value`.
+- `direction` (required) vocabulary is `procyclical` | `countercyclical` | `mixed` (note: single-word spelling — legacy `counter_cyclical` is deprecated).
+- OOS metrics (`oos_sharpe`, `oos_ann_return`, `oos_max_drawdown`) use ratio units (0.113 = 11.3%). `oos_max_drawdown` MUST be ≤ 0.
+- OOS window (`oos_period_start`, `oos_period_end`) uses ISO 8601 dates.
+
+**Cross-references:** APP-WS1 (Ace's consumer-side pre-render validation), META-TWJ (companion `tournament_winner.json`), META-CF (schema-layer governance).
+
+**Schema evolution:** Changes require a semver bump of `x-version` in the schema file, a regression_note entry (per META-VNC), and a sop-changelog entry. Major bumps require Lead approval.
+
 ### Cross-Pair Comparison Summary (when multiple pairs analyzed)
 
 When handing off results for 2+ indicator-target pairs, include a summary comparison table:

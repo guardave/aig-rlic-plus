@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/narrative_frontmatter.schema.json",
+  "x-owner": "ray",
+  "x-version": "1.0.0",
+  "title": "Portal Narrative Frontmatter",
+  "description": "Canonical contract for the YAML-or-JSON frontmatter block that opens every `docs/portal_narrative_{pair_id}_{date}.md` file between standard markdown `---` delimiters. Authored by Research Ray; consumed by AppDev Ace's `render_narrative()` / `components/narrative.py` and by the APP-NR1 smoke test. Closes the heading-match fragility bug (RES-16 / B8): Ace no longer extracts sections and expanders by heading text, and renames in the body no longer silently break the portal. The frontmatter is a machine-readable inventory of the narrative's externally-visible surface (sections, expanders, referenced charts, glossary terms, direction assertion). Companion to APP-NR1 (consumer smoke test) and APP-DIR1 (cross-agent direction-assertion integrity). Producers validate this block with `scripts/validate_schema.py` before handoff to Ace; consumers validate on load before rendering.",
+  "type": "object",
+  "required": [
+    "pair_id",
+    "narrative_version",
+    "generated_at",
+    "pages",
+    "chart_refs",
+    "glossary_terms",
+    "direction_asserted"
+  ],
+  "properties": {
+    "pair_id": {
+      "type": "string",
+      "description": "Canonical pair identifier (snake_case, e.g. `hy_ig_v2_spy`). MUST match the `results/{pair_id}/` directory, the landing-card key, and the `pair_id` field in the companion `winner_summary.json` / `interpretation_metadata.json`. Ace keys page routing on this value.",
+      "minLength": 1
+    },
+    "narrative_version": {
+      "type": "string",
+      "description": "Semver string tracking Ray's authored revisions of the narrative prose, INDEPENDENT of this schema's `x-version`. Bump the patch digit when fixing typos, the minor digit when adding sections/expanders, the major digit when changing the narrative's headline claim or direction assertion.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 date-time at which this frontmatter was finalized and the narrative was handed off to Ace. Used by regression-note diff tooling and by `prior_methods_*.csv` generation."
+    },
+    "pages": {
+      "type": "object",
+      "description": "Per-page narrative surface inventory. Exactly the four canonical portal page types (Story, Evidence, Strategy, Methodology) — one object per page. Each page object lists the subsections Ace extracts as standalone UI blocks, the expanders Ace wraps in `st.expander()`, and the headline/plain-English copy the page renders verbatim. Keys are STABLE; the `anchor` field on each section is Ace's extraction key (survives title renames).",
+      "required": ["story", "evidence", "strategy", "methodology"],
+      "additionalProperties": false,
+      "properties": {
+        "story": { "$ref": "#/$defs/page" },
+        "evidence": { "$ref": "#/$defs/page" },
+        "strategy": { "$ref": "#/$defs/page" },
+        "methodology": { "$ref": "#/$defs/page" }
+      }
+    },
+    "chart_refs": {
+      "type": "array",
+      "description": "Canonical chart names referenced anywhere in the narrative body (in method blocks, prose cross-references, or hero/KPI placements). Each entry MUST exist in `output/charts/chart_type_registry.json` (Vera's registry). Ace's APP-NR1 smoke test verifies this exhaustively; a reference to a name not in the registry is a blocker. Use the unprefixed canonical name (e.g. `correlation_heatmap`, not `hy_ig_v2_spy_correlation_heatmap`) — Ace resolves to per-pair filenames via `load_plotly_chart(name, pair_id=...)`. For historical-episode charts, use the `history_zoom_{episode_slug}` form and Ace applies the META-ZI canonical/override lookup.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "glossary_terms": {
+      "type": "array",
+      "description": "Every glossary term the narrative invokes that a reader may hover for a definition. Each entry MUST exist as a top-level key under `terms` in `docs/portal_glossary.json` (Ray-owned, per RES-6 / RES-10). Ace's tooltip renderer fails loudly on a missing term (APP-SE5 severity L1). Terms here are spelled exactly as they appear in the glossary file (case-sensitive) so matching is cheap.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "direction_asserted": {
+      "type": "string",
+      "enum": ["procyclical", "countercyclical", "mixed"],
+      "description": "The direction the narrative asserts in prose, exposed here for mechanized cross-check against Evan's `winner_summary.json.direction` (which Evan derives empirically) and Vera's chart line-style sidecar (per APP-DIR1). A three-way mismatch (Ray / Evan / Vera) is a reference-pair acceptance blocker; a two-way mismatch surfaces as a landing-card warning chip. Enum values align EXACTLY with `winner_summary.schema.json.direction` — do NOT introduce hyphenated variants (`counter-cyclical`, `pro-cyclical`) which have caused past drift."
+    },
+    "historical_episodes_referenced": {
+      "type": "array",
+      "description": "OPTIONAL. Machine-readable log of historical episodes (Dot-Com, GFC, COVID, 2018 taper, 2022 inflation shock, etc.) the narrative references in prose — the data the META-ZI coherence inspection consumes. For each entry, `override_needed=true` triggers Ray's override_request artifact (Proposed RES-12) before Vera's chart commit; `override_needed=false` means the canonical `output/_comparison/history_zoom_{slug}.json` is sufficient for the prose. Absent this field, the narrative is assumed to reference no historical episodes.",
+      "items": {
+        "type": "object",
+        "required": ["episode_slug", "override_needed"],
+        "additionalProperties": false,
+        "properties": {
+          "episode_slug": {
+            "type": "string",
+            "description": "Canonical slug from the META-ZI list: one of `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`. Extensions require a META-ZI amendment first.",
+            "minLength": 1
+          },
+          "override_needed": {
+            "type": "boolean",
+            "description": "`true` if the narrative ties the episode to this pair's indicator behaviour (requires a per-pair `output/charts/{pair_id}/history_zoom_{slug}.json` override); `false` if it is an event-only reference served by the canonical chart."
+          },
+          "override_reason": {
+            "type": "string",
+            "description": "Required when `override_needed=true`. Prose sentence citing the exact Story/Evidence paragraph that motivates the overlay (e.g. `Story §What History Shows — GFC paragraph ties HY-IG spread widening to SPY peak`). Used by Ray's override_request_{date}.md paper trail.",
+            "minLength": 1
+          }
+        }
+      },
+      "uniqueItems": true
+    },
+    "status_labels_used": {
+      "type": "array",
+      "description": "OPTIONAL. The canonical status labels the narrative actually uses in prose or captions (subset of the RES-VS vocabulary). Every entry MUST be drawn from: `Available`, `Pending`, `Validated`, `Stale`, `Draft`, `Mature`, `Unknown`. Enables a mechanized RES-VS pre-handoff self-check without re-parsing the whole body; novel labels must be added to the canonical list (and to `docs/portal_glossary.json._status_vocabulary` per RES-VS) BEFORE they can appear here.",
+      "items": {
+        "type": "string",
+        "enum": ["Available", "Pending", "Validated", "Stale", "Draft", "Mature", "Unknown"]
+      },
+      "uniqueItems": true
+    },
+    "glossary_requests": {
+      "type": "array",
+      "description": "OPTIONAL. Ray's open-loop ledger of glossary terms that Ace flagged as missing during portal assembly (RES-6 request-back channel). Each entry records the term, who flagged it, the date, the status, and — when the next narrative revision ships — the resolution. **SLA policy (RES-17):** when Ace files a request back to Ray, Ray commits to closing the term in the NEXT narrative revision within ONE WEEK, OR the narrative ships WITH a `[term pending definition]` placeholder in the prose where the term appears AND a matching entry here with `status='pending_placeholder'`. Silence is not allowed: an unaddressed Ace request is a RES-17 violation and a RES-6 / RES-17 gate flag at the next acceptance.",
+      "items": {
+        "type": "object",
+        "required": ["term", "requested_by", "requested_at", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "term": {
+            "type": "string",
+            "description": "The term Ace requested (case-sensitive, as it appears in the narrative prose).",
+            "minLength": 1
+          },
+          "requested_by": {
+            "type": "string",
+            "description": "The agent that filed the request — typically `ace`, but `lead` or `vera` are also valid when a Lead review or cross-agent audit flags the gap.",
+            "minLength": 1
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date",
+            "description": "ISO 8601 date (YYYY-MM-DD) when the request was filed. Drives the one-week SLA clock."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["open", "pending_placeholder", "closed"],
+            "description": "`open` = request received, not yet decided; `pending_placeholder` = narrative ships with `[term pending definition]` and the term is queued for the next revision (SLA-compliant when the next handoff is within one week); `closed` = term added to `docs/portal_glossary.json` and this narrative revision references it."
+          },
+          "resolution": {
+            "type": "string",
+            "description": "Required when `status='closed'`. Pointer to the glossary entry or prose edit that closed the request (e.g. `Added term to portal_glossary.json v1.4.0; referenced in Story §Early Warning Signal`).",
+            "minLength": 1
+          }
+        }
+      },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "page": {
+      "type": "object",
+      "description": "Per-page surface inventory. All page types share this shape; `headline` is the RES-11 headline on the Story page and may be the empty string on other pages. Sections list the subsections Ace extracts as standalone UI blocks; expanders list the `<!-- expander: ... -->` / `<!-- /expander -->` blocks Ace wraps in `st.expander()`.",
+      "required": ["headline", "sections", "expanders"],
+      "additionalProperties": false,
+      "properties": {
+        "headline": {
+          "type": "string",
+          "description": "For Story page: the RES-11 headline rendered verbatim at the top of the page (`## [Metric summary] — [One-liner]`, MUST include 2-3 KPI metrics). For Evidence / Strategy / Methodology pages: may be the empty string or a short page-level h2 lead. Rendered by Ace before any other page content."
+        },
+        "plain_english": {
+          "type": "string",
+          "description": "OPTIONAL. Copy for the per-page Plain English expander (the `<details><summary>🧒 Plain English version</summary>…</details>` block). Rendered verbatim by Ace; if absent, Ace falls back to the in-body Plain English block extracted by heading match (legacy path, to be retired once every pair has this field populated)."
+        },
+        "sections": {
+          "type": "array",
+          "description": "Ordered list of top-level page subsections. Each section's `anchor` is STABLE across title renames: Ace keys extraction on `anchor`, not `title`. Renaming a heading in the markdown body no longer breaks extraction, so Ray can evolve prose titles freely.",
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "anchor"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Stable, snake_case section id (e.g. `headline_findings`, `how_to_use_manually`). Used internally by Ace as a React-style key and as the `st.anchor` target for deep-linking.",
+                "pattern": "^[a-z0-9_]+$",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "description": "Human-readable section title as it appears in the markdown body (`### Early Warning Signal`). This value MAY change across revisions; extraction keys on `anchor`, not `title`.",
+                "minLength": 1
+              },
+              "anchor": {
+                "type": "string",
+                "description": "Stable extraction key — the SAME string Ace uses to slice the markdown body. Conventionally the kebab-case slug of the original title at first delivery. Once assigned, NEVER rename; if the title evolves beyond the anchor's meaning, allocate a new `id` + `anchor` pair and deprecate the old one in `regression_note`.",
+                "pattern": "^[a-z0-9][a-z0-9\\-]*$",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "expanders": {
+          "type": "array",
+          "description": "Every `<!-- expander: ... -->` block Ace wraps as `st.expander()` on this page. The parser pairs each `<!-- expander: {title} -->` with its matching `<!-- /expander -->`; the APP-NR1 smoke test verifies open/close balance. `content_ref` lets Ray host long expander text in a standalone markdown file when needed (optional).",
+          "items": {
+            "type": "object",
+            "required": ["id", "title"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Stable, snake_case expander id (e.g. `what_is_a_credit_spread`). Used by Ace as the `st.expander` key and for cross-page deep-linking.",
+                "pattern": "^[a-z0-9_]+$",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "description": "The exact string that appears after `<!-- expander:` in the markdown body (Ace uses this to pair the open marker with the close marker at parse time). MUST match the in-body marker verbatim.",
+                "minLength": 1
+              },
+              "content_ref": {
+                "type": "string",
+                "description": "OPTIONAL. Path to a standalone markdown file containing the expander body, relative to repo root. When set, Ace reads the file instead of slicing the main narrative. Useful for reusable expanders (e.g. Merton model explainer shared across credit pairs).",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

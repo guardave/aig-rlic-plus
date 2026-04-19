@@ -130,6 +130,26 @@ Stationarity results format:
 
 ### 6. Deliver
 
+**Canonical schemas (single source of truth — META-CF):**
+
+- **`docs/schemas/data_subject.schema.json`** — column-level metadata sidecar that ships with every master parquet (governs the `data/{subject}_{frequency}_schema.json` file). DATA-D5.
+- **`docs/schemas/interpretation_metadata.schema.json`** — versioned pair-classification contract (governs `results/{pair_id}/interpretation_metadata.json`). DATA-D6.
+
+Dana treats both schemas as authoritative. Before saving, Dana runs the producer-side validator:
+
+```
+python3 scripts/validate_schema.py \
+    --schema docs/schemas/data_subject.schema.json \
+    --instance data/{subject}_{frequency}_schema.json
+python3 scripts/validate_schema.py \
+    --schema docs/schemas/interpretation_metadata.schema.json \
+    --instance results/{pair_id}/interpretation_metadata.json
+```
+
+Both calls MUST return exit code 0 before handoff. A non-zero exit is a blocking gate failure — it is the producer's responsibility to fix at source. Consumers (Evan, Vera, Ray, Ace) read the sidecar for unit, dtype, direction, display_name, and pair classification; parsing the markdown data dictionary for machine-driven consumption is deprecated once a schema-conformant sidecar exists.
+
+**Commitment to Ace (resolving Dana's 2026-04-19 keystone question):** Dana unilaterally commits `data_subject.schema.json` as the single source of truth for column unit, display_name, direction, dtype, and refresh TTL. The schema IS the contract — Ace's landing-page loader and `resolve_ttl()` helper consume this sidecar, or Ace files an APP-side exception explaining why not. The markdown data dictionary remains authored for human reading but is not the machine contract.
+
 - Save to workspace as `.csv` or `.parquet` (parquet preferred for large datasets)
 - File naming: `{subject}_{frequency}_{start}_{end}.{ext}` (e.g., `macro_panel_monthly_200001_202312.parquet`)
 - **Stable filename alias:** For datasets consumed by the portal (App Dev) or by the econometrics agent for re-runs and sensitivity analysis, create/update a stable-path copy at `data/{subject}_{frequency}_latest.{ext}` (e.g., `data/macro_panel_monthly_latest.parquet`). This prevents portal breakage and model re-run failures when the date-range filename changes on refresh. The dated file is the source of truth; the `_latest` alias always points to the most recent version.
@@ -462,6 +482,45 @@ Before handing off to another agent:
 - [ ] `interpretation_metadata.json`: `indicator_nature` (leading/coincident/lagging) and `indicator_type` (price/production/sentiment/rates/credit/volatility/macro) populated. "unknown" is NOT acceptable. See team-coordination.md items 19-20.
 - [ ] Rule D1 — Series Preservation on Reruns: every column present in the prior `data/{subject}_{frequency}_latest.{ext}` is present in the new delivery (same canonical name, same unit per Rule D2). Intentional drops are documented in `results/{id}/regression_note.md` with rationale per column.
 - [ ] Rule DATA-VS — Status Vocabulary Self-Check: all status-type labels used in `_status` columns, `interpretation_metadata.json` metadata fields, and README/data-dictionary files are drawn from the canonical list (Available / Pending / Validated / Stale / Draft / Mature / Unknown). Novel terms escalated to Lead before delivery.
+- [ ] Rule DATA-D5 — Machine-Readable Dataset Schema Sidecar: every delivered master parquet ships with a sibling `data/{subject}_{frequency}_schema.json` that validates OK against `docs/schemas/data_subject.schema.json`. Producer-side `python3 scripts/validate_schema.py` call passed with exit 0. Every non-date column in the parquet has a sidecar entry; every sidecar entry corresponds to a parquet column.
+- [ ] Rule DATA-D6 — Classification Schema Versioning Contract: `results/{id}/interpretation_metadata.json` validates OK against `docs/schemas/interpretation_metadata.schema.json`. `schema_version` matches the schema file's `x-version`. `owner_writes` mapping is present and Dana's required fields (`indicator_nature`, `indicator_type`) are populated to controlled vocabulary values.
+
+#### Rule DATA-D5 — Machine-Readable Dataset Schema Sidecar
+
+Every `data/{subject}_{frequency}_{dates}.parquet` (and its `_latest` alias) MUST ship with a sibling `data/{subject}_{frequency}_schema.json` that conforms to `docs/schemas/data_subject.schema.json`. The sidecar is regenerated on every rerun; a drifted or missing sidecar is a gate failure.
+
+**Why this matters:** The Wave-2A 100x hero chart bug was not preventable at Vera's or Ace's end because unit information lived only in the markdown data dictionary (prose, not parseable by code). A wrong unit propagated silently from parquet → chart axis → KPI card. DATA-D5 turns the unit into a machine-verifiable contract field at the artifact layer — Vera's axis builder and Ace's KPI renderer read the sidecar and fail loudly on mismatch.
+
+**Procedure:**
+
+1. After saving the parquet, generate the sidecar with one entry per column: `dtype`, `unit`, `display_name`, `direction`, `description`, optional `source_reference`, optional `refresh_ttl_days`.
+2. Run `python3 scripts/validate_schema.py --schema docs/schemas/data_subject.schema.json --instance data/{subject}_{frequency}_schema.json`.
+3. Exit 0 before handoff. Exit 1 is a blocking producer-side failure.
+4. The `unit` value MUST come from the controlled enum (`bps`, `pct`, `percent`, `ratio`, `decimal_return`, `index`, `usd`, `count`, `vol_ann_pct`, `price`, `date`, `none`). Any inferred-from-column-name unit is banned — cite the authoritative source explicitly (DATA-D2 registry + data dictionary).
+5. `display_name` values must match `data/display_name_registry.csv` — the sidecar cross-validates the registry, closing the "display name drift" gap.
+
+**Consumer contract:** Vera's axis-label builder, Ace's `resolve_ttl()` helper, Ace's KPI card renderer, Evan's signal-column reader, and Ray's dual-notation narrative all read this sidecar as the single source of truth. Parsing the markdown data dictionary programmatically is deprecated.
+
+**Cross-reference:** DATA-D2 (unit registry), DATA-DD1 (data dictionary human form), VIZ-A2 (axis unit match), APP-DL1 / APP-TC1 (Ace TTL), META-CF (schema governance).
+
+#### Rule DATA-D6 — Classification Schema Versioning Contract
+
+The shape of `results/{pair_id}/interpretation_metadata.json` is governed by `docs/schemas/interpretation_metadata.schema.json`. Every write to an interpretation_metadata file MUST produce a JSON that validates OK against the schema. Adding, removing, or renaming a field requires a semver bump of the schema's `x-version`, a `docs/sop-changelog.md` entry, Ace's loader updated in the same commit, and Lead sign-off. No ad-hoc field additions.
+
+**Why this matters:** The `interpretation_metadata.json` shape grew in three ad-hoc waves — Dana added `indicator_nature` and `indicator_type`, Ray added `strategy_objective` — each addition broke Ace's loader until defensive fallbacks were added. DATA-D6 prevents the next wave of drift by making the taxonomy explicitly versioned. It also closes ECON-CFO-1: three agents (Dana/Evan/Ray) write to the same file with no ordering protocol. The schema's `owner_writes` object is the deterministic field-ownership map; the merge order is `dana → evan → ray` (Ray writes last because `strategy_objective` depends on the tournament outcome Evan produces).
+
+**Procedure:**
+
+1. Before writing the JSON, load `docs/schemas/interpretation_metadata.schema.json` and confirm the field you intend to set is listed under your agent in `owner_writes`.
+2. Do not overwrite fields listed under another agent's ownership. If a correction is needed in another agent's field, file it as a ticket rather than silently overwriting.
+3. After writing, update `last_updated_by` to your agent id and `last_updated_at` to the current ISO 8601 timestamp.
+4. Run `python3 scripts/validate_schema.py --schema docs/schemas/interpretation_metadata.schema.json --instance results/{pair_id}/interpretation_metadata.json`.
+5. Exit 0 before handoff. Exit 1 is a blocking producer-side failure.
+6. On rerun, DATA-R1 diff check compares the new classification against the prior version; any change requires a regression note.
+
+**Consumer contract:** Ace's `pair_registry.py` landing-card loader, Ray's narrative generator, Evan's Rule C1 method router, and Vera's chart encoding all read this file. Missing required fields or wrong enum values cause loud failures (APP-LP7 chip) rather than silent `Unknown` fallbacks.
+
+**Cross-reference:** DATA-D3 (classification decision procedure), DATA-DD4 (classification ownership), META-CFO, META-IA, GATE-19 / GATE-20 / GATE-21, RES-IT1, APP-LP6, META-CF.
 
 #### Rule DATA-VS — Status Vocabulary Self-Check
 
