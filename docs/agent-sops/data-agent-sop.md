@@ -461,6 +461,11 @@ Before handing off to another agent:
 - [ ] For batch deliveries: cross-dataset consistency verified (see below)
 - [ ] `interpretation_metadata.json`: `indicator_nature` (leading/coincident/lagging) and `indicator_type` (price/production/sentiment/rates/credit/volatility/macro) populated. "unknown" is NOT acceptable. See team-coordination.md items 19-20.
 - [ ] Rule D1 — Series Preservation on Reruns: every column present in the prior `data/{subject}_{frequency}_latest.{ext}` is present in the new delivery (same canonical name, same unit per Rule D2). Intentional drops are documented in `results/{id}/regression_note.md` with rationale per column.
+- [ ] Rule DATA-VS — Status Vocabulary Self-Check: all status-type labels used in `_status` columns, `interpretation_metadata.json` metadata fields, and README/data-dictionary files are drawn from the canonical list (Available / Pending / Validated / Stale / Draft / Mature / Unknown). Novel terms escalated to Lead before delivery.
+
+#### Rule DATA-VS — Status Vocabulary Self-Check
+
+Before handing off a dataset to Evan/Vera/Ray, Dana audits all status-type labels used in `_status` columns, metadata fields of `interpretation_metadata.json`, and README / data-dictionary files. All labels must be drawn from the canonical list: **Available / Pending / Validated / Stale / Draft / Mature / Unknown**. Novel status terms are escalated to Lead for either (a) registration in the canonical list (add to `docs/portal_glossary.json` and `team-coordination.md`), or (b) rewrite to use an existing canonical term. Companion to Ray's RES-VS (narrative-layer vocabulary check). Addresses S18-4 follow-up at the data source.
 
 #### Rule D1 — Series Preservation on Reruns (No Silent Column Drops)
 

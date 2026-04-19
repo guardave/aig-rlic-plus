@@ -91,7 +91,7 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 21 | `strategy_objective` populated | `results/{id}/interpretation_metadata.json` has `strategy_objective` set to one of `min_mdd`, `max_sharpe`, `max_return`. Missing/empty/`unknown` → pair fails gate. **Owner:** Research Ray (after tournament results known) |
 | 22 | Method coverage — no regression | On a pair rerun, the new Evidence section must include every method from the prior version OR the pair includes a `regression_note.md` documenting each drop with rationale. Missing methods without a regression note → pair fails gate. **Owners:** Evan (produces data), Ray (writes narrative), Ace (renders page) |
 | 23 | Pair acceptance.md | `results/{id}/acceptance.md` exists with every Portal-Wide Quality Checklist item checked, reference pair comparison documented (see Reference Pair Doctrine), and Lead sign-off. Missing/incomplete → pair fails gate. **Owner:** Lead Lesandro |
-| 24 | Chart-Text Coherence Audit | When any chart is modified (axis, labels, values, signal, scale), author must `grep -r "<chart_name>" app/pages/` and update every referenced caption/narrative in the **same commit**. The pair's `regression_note_<date>.md` must list BOTH the chart change AND the narrative change together under a single bullet. Missing narrative diff for a recent chart edit blocks acceptance.md sign-off. **Addresses SL-3.** **Owners:** Vera (chart) + Ray (narrative), Ace (render verification) |
+| 24 | Chart-Text Coherence Audit | When any chart is modified (axis, labels, values, signal, scale), author must `grep -r "<chart_name>" app/pages/` and update every referenced caption/narrative in the **same commit**. The pair's `regression_note_<date>.md` must list BOTH the chart change AND the narrative change together under a single bullet. Missing narrative diff for a recent chart edit blocks acceptance.md sign-off. **Ownership (clarification, 2026-04-19):** When a chart is modified, **Vera initiates an explicit notification** to Ray at handoff ("chart {name} updated — please re-audit {page} captions"). **Ray proactively diffs** prior narrative against new chart catalog on every rerun, independent of whether Vera signaled. Both responsibilities apply — the notification is the fast path, the proactive diff is the safety net. **Addresses SL-3.** **Owners:** Vera (chart) + Ray (narrative), Ace (render verification) |
 | 25 | No Silent Chart Fallbacks | Pages must not silently substitute a different chart when the intended canonical artifact is missing. If the canonical chart for a method does not exist, the page renders a labeled "chart pending" placeholder with an explanation — **never** a lookalike from a different method. acceptance.md must list every method → chart mapping and verify each chart is canonical (not borrowed). Cross-reference: VIZ-V3. **Addresses S18-11.** **Owners:** Vera (canonical artifact), Ace (render path), Lesandro (gate check) |
 | 26 | No Silent Content Drops | When a previously-present analysis element (table, chart, subsection, callout) is removed on a rerun or new version, `regression_note_<date>.md` must include an explicit **Removed** section with rationale per item. If no rationale is provided, the content must be restored. Applies across versions of the same pair (e.g., HY-IG v2 losing content that HY-IG v1 had). Cross-reference: VIZ-V4, RES-5. acceptance.md must include a prior-version inventory diff (see "Prior-Version Inventory Check" below). **Addresses S18-8, SL-2, and the silent-content-drop meta-pattern.** **Owners:** Evan + Ray + Ace (producers), Lesandro (gate) |
 
@@ -188,6 +188,28 @@ This section is the canonical mechanism for declaring intentional removals and i
 > Companion to META-RNF (Regression Note Format) and META-SC (Source Citation / upstream attribution). Operationalized by GATE-24 (chart-text coherence), GATE-25 (no silent chart fallbacks), and GATE-26 (no silent content drops).
 >
 > Applies to all 5 agents (Dana, Evan, Ray, Vera, Ace). Every producer is accountable for the elements they authored or rendered in the prior version.
+
+### Historical Episode Chart Strategy (Meta-Rule META-ZI)
+
+> **Canonical by default, specialize on justified need.**
+>
+> Historical episodes (Dot-Com, GFC, COVID, 2018 taper, 2022 inflation shock, etc.) appear in multiple pairs' narratives. Ship a shared canonical chart across pairs; create pair-specific overrides only when the pair's prose ties the episode to its own indicator's behavior.
+
+**Canonical artifact location:** `output/_comparison/history_zoom_{episode_slug}.json`
+- Owner: Vera produces these once per episode per VIZ-V1
+- Slug list (extend as episodes are encountered): `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`
+
+**Override artifact location:** `output/charts/{pair_id}/history_zoom_{episode_slug}.json`
+- Trigger: Ray's narrative coherence check at handoff flags "prose requires indicator overlay" (see RES-8 extension)
+- Construction: override MUST start from canonical and add elements — never silently replace baseline (event markers, NBER shading)
+- Paper trail: regression_note entry "Override of history_zoom_{episode} created because narrative at Story§X requires {indicator} overlay"
+
+**Loader contract (Ace):**
+1. Try `output/charts/{pair_id}/history_zoom_{episode}.json` (pair override)
+2. Fall back to `output/_comparison/history_zoom_{episode}.json` (canonical)
+3. If both missing → "chart pending" placeholder per GATE-25
+
+**Why this rule exists:** Cross-pair consistency is free for 80% of cases (event-only references); specialization cost is paid only when it earns its keep. Avoids both duplicate production effort and inconsistent episode representations across pairs.
 
 ### Classification Field Ownership
 

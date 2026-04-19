@@ -240,6 +240,17 @@ These three subcomponents together answer the stakeholder question "how does the
 
 Data source: `results/{pair_id}/signals_{date}.parquet` (ECON-DS1) or canonical signal chart if Vera delivers it. Fallback: render `st.warning("Probability engine panel pending — signal not yet persisted.")` rather than silently omit.
 
+**Acceptance / Pre-render validation** (added 2026-04-19, Gap 2 patch):
+
+Before rendering the Probability Engine Panel, Ace MUST load `results/{pair_id}/signals_{date}.parquet` and validate:
+
+- **Column presence.** The expected signal column exists with the canonical name (e.g. `hmm_2state_prob_stress` for HY-IG v2). The column name is declared in the pair's `winner_summary.json` under the `signal_column` field.
+- **Numeric + bounds.** Signal values are numeric and within expected bounds: probability-type signals (HMM, Markov) in `[0, 1]`; z-score signals within a typical `±5` range; level signals within the metadata-declared `expected_min / expected_max`.
+- **Historical plausibility.** During at least one known stress episode (e.g. 2008-09 GFC, 2020 COVID), the signal takes the expected extreme: stress probability `> 0.5`, or z-score significantly above mean. Pair-specific episode windows live in `interpretation_metadata.json` under `known_stress_episodes`.
+- **Failure mode.** If any check fails, render `st.error("Probability engine panel cannot render: <specific diagnostic, e.g. 'signal column hmm_2state_prob_stress missing from signals_2026-04-18.parquet'>")` and DO NOT render the time-series. Never render a chart from invalid data.
+
+**Loader contract note (Gap 5 / META-ZI cross-ref, added 2026-04-19):** For historical-episode zoom charts referenced from APP-SE1 or the Evidence pages, loader contract follows META-ZI (Historical Episode Chart Strategy): try `output/charts/{pair_id}/history_zoom_{episode}.json` first, fall back to `output/_comparison/history_zoom_{episode}.json`, else render the "chart pending" placeholder per GATE-25.
+
 #### Rule A2 — Position Adjustment Panel (addresses S18-1)
 
 **Acceptance criteria:**
@@ -249,6 +260,10 @@ Data source: `results/{pair_id}/signals_{date}.parquet` (ECON-DS1) or canonical 
 - Mandatory 1-line `st.caption()` takeaway (e.g. "Exposure drops to 0% when stress probability exceeds 50%.").
 
 Render directly beneath A1 with shared x-axis date range so readers see signal → position in one visual unit.
+
+**Acceptance / Pre-render validation** (added 2026-04-19, Gap 2 patch):
+
+APP-SE2 is derived from APP-SE1. If APP-SE1 pre-render validation failed (signal column missing, out-of-bounds values, or historical-plausibility check failed), APP-SE2 MUST NOT attempt to derive exposure from invalid signal data. Instead, render `st.warning("Position exposure cannot be derived without valid signal values. See diagnostic above.")` in place of the exposure time-series. Never compute exposure from an invalid signal.
 
 #### Rule A3 — Instructional Trigger Cards (addresses S18-9)
 
@@ -1014,6 +1029,15 @@ Ace is the final integration point — errors from any upstream agent converge h
 5. **Automated reconciliation at scale.** For portals with 10+ pairs, manual reconciliation is infeasible. Maintain `scripts/portal_reconciliation.py` that iterates over all pairs, loads each pair's `interpretation_metadata.json`, `kpis.json`, and chart metadata, and verifies consistency. Run as a pre-deployment check. Spot-check 5-10 pairs manually per batch for full review.
 
 6. **Direction annotation consistency.** Verify that the direction rendered in Vera's charts (line style encoding) matches the direction in the "How to Read This" callout. Both source from `interpretation_metadata.json`. If Vera charts were built from an earlier version of the metadata, flag for chart regeneration.
+
+**APP-SE Strategy Execution reconciliation (added 2026-04-19, Gap 4 patch):**
+
+The APP-SE1..SE5 components all render on the Strategy page and each has its own Defense-2 reconciliation item:
+
+- **APP-SE1 / APP-SE2 — Signal parquet exists and values are plausible.** Before rendering the Probability Engine Panel or Position Adjustment Panel, verify `results/{pair_id}/signals_{date}.parquet` exists, contains the expected signal column (name per `winner_summary.json.signal_column`), all values are numeric and within expected bounds (probability ∈ [0,1]; z-score within ±5), and the historical-plausibility check passes on at least one known stress episode (2008-09 GFC, 2020 COVID). See APP-SE1 "Acceptance / Pre-render validation" above for the full protocol.
+- **APP-SE3 — Trigger card thresholds are consistent with APP-SE1 signal definition.** Cards showing text like "probability > 0.5 → reduce to cash" must quote the exact threshold declared in `winner_summary.json.threshold`. Cross-check the card text against the JSON before shipping; mismatched thresholds are a gate failure.
+- **APP-SE4 — live_execution_stub.json schema conformance.** If `results/{pair_id}/live_execution_stub.json` is present, it MUST conform to the expected schema: `{current_signal_value: float, target_position_pct: float, current_action: str, as_of_date: str (ISO-8601)}`. Missing keys or type mismatches render `"—"` in the corresponding `st.metric()` and log the schema violation to `design_note.md`.
+- **APP-SE5 — Every caption is a meaningful non-empty string.** Every `st.caption()` call in the Strategy Confidence section, on Evidence Sources status tables, and adjacent to status legends MUST be a non-empty string that relates to the specific adjacent chart/table. Generic placeholder text ("caption pending", "TBD", "see chart above") is a gate failure. Reconciliation step: iterate `st.caption` calls on the Strategy page and assert non-empty + non-placeholder text.
 
 ---
 

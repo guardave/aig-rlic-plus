@@ -56,6 +56,7 @@ Source: [`docs/agent-sops/data-agent-sop.md`](agent-sops/data-agent-sop.md)
 | DATA-B2 | Shared Indicator Deduplication — deduplicate shared indicator series across pair deliveries. | Batch Operations |
 | DATA-Q1 | Quality Gate Checklist — every deliverable passes Dana Quality Gates (including DATA-D1 column diff). | Quality Gates |
 | DATA-R1 | Classification Rerun Diff — on every rerun, diff new interpretation_metadata.json against prior; flag in regression note. | Quality Gates |
+| DATA-VS | Status Vocabulary Self-Check — all status labels in `_status` columns, `interpretation_metadata.json`, and data-dictionary files drawn from canonical list (Available/Pending/Validated/Stale/Draft/Mature/Unknown); novel terms escalated to Lead. Companion to RES-VS. Addresses S18-4. | §Quality Gates Rule DATA-VS |
 
 ---
 
@@ -84,7 +85,8 @@ Source: [`docs/agent-sops/econometrics-agent-sop.md`](agent-sops/econometrics-ag
 | ECON-Q1 | Quality Gates — Evan checklist passed before handoff. | Quality Gates |
 | ECON-D2 | Defense 2 Reconciliation — Evan validates upstream data with known-fact sanity checks before using. | Defense 2 |
 | ECON-E1 | Granger By-Lag Artifact — every Granger causality test persists `results/{id}/granger_by_lag.csv` with columns `lag`, `f_statistic`, `p_value`, `df_num`, `df_den`; Vera renders F-statistic-by-lag bar chart per VIZ-V3. Addresses S18-11. | §Derived Signal Persistence Rule E1 |
-| ECON-E2 | Quartile Returns Artifact — every regime/quartile analysis (CCF, HMM, VIX, z-score quartiles) persists `results/{id}/quartile_returns.csv` with columns `quartile`, `n_months`, `ann_return`, `ann_vol`, `sharpe`, `max_drawdown`; Vera renders quartile-return bar chart per VIZ-V4. Addresses S18-8. | §Derived Signal Persistence Rule E2 |
+| ECON-E2 | Quartile Returns Artifact — every regime/quartile analysis (CCF, HMM, VIX, z-score quartiles) persists `results/{id}/regime_quartile_returns.csv` (renamed from `quartile_returns.csv` to disambiguate from Rule C2's `quantile_regression.csv`; use `{method_prefix}_quartile_returns.csv` when multiple quartile families coexist) with columns `quartile`, `n_months`, `ann_return`, `ann_vol`, `sharpe`, `max_drawdown`; Vera renders quartile-return bar chart per VIZ-V4. Addresses S18-8. | §Derived Signal Persistence Rule E2 |
+| ECON-H4 | Per-Method Chart Artifact Handoff — Evan delivers an explicit table to Vera listing method name, result CSV path, expected chart type per VIZ canonical catalog, and status (ready/blocked/pending) for every mandatory method in Rule C1; blocked entries trigger a "chart pending" placeholder (GATE-25) rather than a silent substitute. Addresses S18-11, S18-8 (handoff clarity). | §App Dev Handoff Template ECON-H4 |
 
 ---
 
@@ -116,7 +118,7 @@ Source: [`docs/agent-sops/visualization-agent-sop.md`](agent-sops/visualization-
 | VIZ-CR1 | Chart Registry — multi-pair chart registry maintained for audit. | Chart Registry |
 | VIZ-CD1 | Comparison Dashboard Charts — cross-pair dashboards use direction indicators (solid vs dashed). | Comparison Dashboards |
 | VIZ-Q1 | Quality Gates — Vera checklist passed before handoff. | Quality Gates |
-| VIZ-V1 | Annotated Historical-Episode Zoom-In — narrative references to Dot-Com/GFC/COVID/etc. require matching ±2-year zoom chart with 3–5 dashed event markers and explicit episode title; filename `history_zoom_{episode_slug}.json`. Addresses SL-4, SL-5; enables S18-12. | Rule V1 |
+| VIZ-V1 | Annotated Historical-Episode Zoom-In — narrative references to Dot-Com/GFC/COVID/etc. require matching ±2-year zoom chart with 3–5 dashed event markers and explicit episode title; filename `history_zoom_{episode_slug}.json`. Canonical+override protocol per META-ZI. Addresses SL-4, SL-5; enables S18-12. | Rule V1 |
 | VIZ-V2 | NBER Shading Caption — long-horizon (>5yr) time-series carries NBER recession shading (grey, alpha 0.1–0.15) AND explicit disclosure text "Vertical shaded bands mark NBER recessions." Addresses SL-2. | Rule V2 |
 | VIZ-V3 | No Silent Chart Fallback — every method gets its own canonical artifact; Granger standard = F-statistic by lag with significance line; if blocked, explicit "chart pending" placeholder, never a silent substitute. Addresses S18-11. | Rule V3 |
 | VIZ-V4 | No Silent Drop of Diagnostic Charts — mandatory diagnostics per method (CCF→pre-whitened + Q1–Q4 return bars; Regime→prob + regime-quartile returns; Quantile→coefficient chart; Granger→F-by-lag; TE→TE-by-lag); removal requires regression_note entry. Addresses S18-8. | Rule V4 |
@@ -146,6 +148,8 @@ Source: [`docs/agent-sops/research-agent-sop.md`](agent-sops/research-agent-sop.
 | RES-8 | Historical-Episode Cross-Reference — prose references to Dot-Com/GFC/COVID/etc. must cite the matching VIZ-V1 zoom-in chart in the same paragraph; missing chart blocks prose shipment. Addresses SL-4, SL-5. | Rule 8 |
 | RES-9 | Investor-Impact Bullet Discipline — every Story-page historical-observation bullet carries a concrete "what this means for investors" action clause. Addresses S18-12. | Rule 9 |
 | RES-10 | Status Vocabulary Glossary — every status label (Available/Pending/Validated/Draft/Mature/Exploratory) used in narrative has a one-sentence glossary entry in docs/portal_glossary.json. Addresses S18-4 follow-up. | Rule 10 |
+| RES-11 | Story Page Headline Structure — every Story page leads with `## [Metric summary] — [One-liner]` headline (2-3 KPI metrics) before hook paragraph, narrative arc, and bullets; acceptance.md confirms headline-first structure. Addresses SL-1. | Rule RES-11 |
+| RES-VS | Narrative Status Vocabulary Self-Check — pre-handoff, Ray verifies every status label in narrative prose matches the canonical set (Available/Pending/Validated/Stale/Draft/Mature/Unknown) or adds the novel term to docs/portal_glossary.json in the same handoff. Companion to DATA-VS. Addresses S18-4 follow-up, S18-3. | Rule RES-VS |
 | RES-EP1 | Evidence Page 8-Element Template — every method block has 8 required elements (Why, How, Method, Graph, Observation, Interpretation, Caveats, Link-back). | Evidence Page Structure |
 | RES-EP2 | chart_status field mandatory — every method block declares chart availability status. | chart_status field |
 | RES-EP3 | Missing-Element Fallback Protocol — structured fallback (escalate before dropping). | Missing-Element Fallback |
@@ -194,8 +198,8 @@ Source: [`docs/agent-sops/appdev-agent-sop.md`](agent-sops/appdev-agent-sop.md)
 | APP-IQ1 | Input Quality Log — Ace logs input quality issues per portal page. | Input Quality Log |
 | APP-D2 | Defense 2 — Numerical Reconciliation — Ace runs reconciliation script against chart numbers before shipping. | Defense 2 |
 | APP-Q1 | Quality Gates — Ace checklist passed before shipping. | Quality Gates |
-| APP-SE1 | Probability Engine Panel — mandatory Strategy page component: time-series of primary signal with decision-threshold lines, NBER shading if span > 5yr, 1-line takeaway caption. Addresses S18-1. | §3.6 Rule A1 |
-| APP-SE2 | Position Adjustment Panel — mandatory Strategy page component: time-series of resulting equity exposure 0–100% derived from signal × strategy family rules, 1-line takeaway caption. Addresses S18-1. | §3.6 Rule A2 |
+| APP-SE1 | Probability Engine Panel — mandatory Strategy page component: time-series of primary signal with decision-threshold lines, NBER shading if span > 5yr, 1-line takeaway caption. Addresses S18-1. Extended 2026-04-19 with pre-render validation (Gap 2) and META-ZI loader cross-ref (Gap 5). | §3.6 Rule A1 |
+| APP-SE2 | Position Adjustment Panel — mandatory Strategy page component: time-series of resulting equity exposure 0–100% derived from signal × strategy family rules, 1-line takeaway caption. Addresses S18-1. Extended 2026-04-19 with pre-render validation fallback and Defense-2 checks (Gap 2, Gap 4). | §3.6 Rule A2 |
 | APP-SE3 | Instructional Trigger Cards — mandatory Strategy page component: 2-4 card grid (st.columns + st.container(border=True)) showing BUY/REDUCE/HOLD scenarios with mini-chart + "when probability crosses X → do Y" text. Addresses S18-9. | §3.6 Rule A3 |
 | APP-SE4 | Real-time Execution Placeholder — mandatory "Future: Live Execution" section on every Strategy page with st.metric() placeholders for Current Signal State / Target Position / Current Action; reads from results/{id}/live_execution_stub.json if present, else "—". Addresses S18-10. | §3.10 Rule A4 |
 | APP-SE5 | Universal Takeaway Caption — every table, chart, diagnostic in Confidence section of Strategy page MUST carry a 1-line st.caption() user-facing takeaway; also required on Evidence Sources status table and any status legend (Available/Pending/Validated definitions). Addresses S18-3, S18-4. | §3.11 Rule A5 |
@@ -233,7 +237,7 @@ Every pair must satisfy every gate item below before being marked completed.
 | GATE-21 | strategy_objective populated | Ray |
 | GATE-22 | Method coverage — no regression | Evan + Ray + Ace |
 | GATE-23 | Pair acceptance.md present with Lead sign-off | Lesandro |
-| GATE-24 | Chart-Text Coherence Audit — every chart modification grep-checked against `app/pages/`; caption/narrative updated in same commit; regression_note pairs chart change with narrative change. Addresses SL-3. | Vera + Ray (Ace verifies) |
+| GATE-24 | Chart-Text Coherence Audit — every chart modification grep-checked against `app/pages/`; caption/narrative updated in same commit; regression_note pairs chart change with narrative change. 2026-04-19: ownership clarified — Vera notifies, Ray proactively diffs. Addresses SL-3. | Vera + Ray (Ace verifies) |
 | GATE-25 | No Silent Chart Fallbacks — every method renders its own canonical chart (VIZ-V3); missing artifacts render a labeled "chart pending" placeholder, never a lookalike from a different method. acceptance.md lists method → chart mapping. Addresses S18-11. | Vera + Ace |
 | GATE-26 | No Silent Content Drops — any element present in a prior version but absent now is declared in regression_note's **Removed** section with rationale; otherwise restored. acceptance.md includes Prior-Version Inventory diff (retained/added/removed). Addresses S18-8, SL-2, silent-drop meta-pattern. | Evan + Ray + Ace (Lesandro gates) |
 
@@ -271,6 +275,7 @@ Source: [`docs/agent-sops/team-coordination.md`](agent-sops/team-coordination.md
 | META-RPD | Reference Pair Doctrine — HY-IG v2 is canonical reference; every new pair compares against it; deviations require design_note.md. | Reference Pair Doctrine |
 | META-PAC | Pair Acceptance Checklist — results/<pair_id>/acceptance.md with Lead sign-off is blocking (GATE-23). | Pair Acceptance Checklist |
 | META-VNC | Version-to-Version Content Continuity — iterations must be additive or explicitly substitutive, never silently subtractive; the **Removed** section in regression_note is the canonical mechanism for declaring intentional removals. Companion to META-RNF and META-SC. Operationalized by GATE-24/25/26. Applies to all 5 agents. Addresses S18-8, SL-2, SL-3, S18-11 and the silent-content-drop meta-pattern. | Version-to-Version Content Continuity |
+| META-ZI | Historical Episode Chart Strategy — canonical by default, specialize on justified need. Shared canonical chart at `output/_comparison/history_zoom_{episode_slug}.json` (Vera produces per VIZ-V1); pair-specific overrides at `output/charts/{pair_id}/history_zoom_{episode_slug}.json` only when prose ties the episode to the pair's indicator behavior (trigger: Ray coherence check per RES-8). Ace loader tries override → canonical → GATE-25 placeholder. Addresses Gap 5 (design decision); supports VIZ-V1, RES-8, APP-SE1. | Historical Episode Chart Strategy |
 
 ---
 

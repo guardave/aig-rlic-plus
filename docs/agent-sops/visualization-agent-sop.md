@@ -473,10 +473,30 @@ When narrative (Story page) references a historical episode (Dot-Com, GFC, COVID
 - **Event markers:** vertical dashed lines at 3–5 key dates, each with a short text annotation (e.g. "Aug 2000 first inversion", "Oct 2007 spreads widen", "Jul 2002 WorldCom bankruptcy")
 - **Implementation:** Plotly `add_vline` with `annotation_text` + `annotation_position="top right"`
 - **Title:** must name the episode explicitly (e.g. "Credit Spreads During the Dot-Com Bust, 1999–2002")
-- **Filename convention:** `history_zoom_{episode_slug}.json` (e.g. `history_zoom_dotcom.json`, `history_zoom_gfc.json`, `history_zoom_covid.json`) saved under `output/charts/{pair_id}/plotly/`
 - **Per-Pair standard set implication:** when narrative cites an episode, the zoom-in is mandatory; omission requires a regression_note entry
 
 This rule also creates the visual substrate for S18-12: each "Early Warning Signal" bullet with investor-impact wording should land next to (or link down to) the relevant episode zoom-in.
+
+**Canonical + Override Loader Contract (2026-04-18 coherence review, Gap 5 decision: "canonical by default, specialize on justified need")**
+
+Zoom-in charts follow a two-tier artifact model — a shared canonical chart produced once by Vera, and optional pair-specific overrides created only when a pair's narrative demands indicator overlay.
+
+1. **Canonical artifact path (default — shared across pairs):**
+   - `output/_comparison/history_zoom_{episode_slug}.json`
+   - Canonical episode slugs: `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022` (extend the slug registry as new episodes are encountered; record additions in `sop-changelog.md`)
+   - Produced once by Vera and reused across every pair whose Story prose references the episode. Event markers and NBER shading are standardized at this layer.
+
+2. **Override artifact path (pair-specific, on justified need):**
+   - `output/charts/{pair_id}/history_zoom_{episode_slug}.json`
+   - Created ONLY when Ray's narrative coherence check identifies a need — i.e., the pair's prose ties the episode to its own indicator's behavior (e.g., "HY-IG spread widened 450bps as Lehman fell"), requiring an indicator overlay the canonical chart does not carry.
+   - **Override must start from the canonical baseline** (same event markers, same NBER shading, same time window) and *add* — never silently replace baseline elements. A silent replacement of canonical event markers is a Rule A4 regression.
+   - **Mandatory regression_note.md entry** when an override is shipped: `"Override of history_zoom_{episode_slug} created because narrative at Story§X requires {indicator} overlay"`. The entry cites the specific Story section and the specific overlay added.
+
+3. **Cross-agent contract:**
+   - Ray triggers override requests during narrative handoff (per RES-8, extended in parallel) — when Ray's prose ties an episode to pair-specific indicator behavior, she flags "override needed" in her handoff to Vera.
+   - Ace's portal loader tries override first (`output/charts/{pair_id}/history_zoom_{slug}.json`), canonical second (`output/_comparison/history_zoom_{slug}.json`), else renders a "chart pending" placeholder (per META-ZI / GATE-25). No silent substitution across episodes.
+
+**See META-ZI (team-coordination.md) for the full canonical + override protocol**, including the end-to-end lifecycle across Ray (narrative trigger), Vera (artifact production), and Ace (loader fallback chain).
 
 #### Rule V2 — NBER Recession Shading + Caption Disclosure (addresses SL-2)
 

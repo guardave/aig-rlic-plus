@@ -410,19 +410,34 @@ These patterns were identified from the HY-IG reference analysis (pair #5), whic
 
 **Cross-reference:** See AppDev SOP, "Rendering Patterns for Presentation Quality" for how Ace implements these in Streamlit.
 
-### Story Page Layout: Headline First
+### Rule RES-11 — Story Page Headline Structure (Blocking)
 
-The Story page MUST lead with the **data summary as a headline** — a key-metric punchline (e.g., "Sharpe 1.17 vs 0.90 B&H; 70% of GFC drawdown avoided") appears at the top of the page BEFORE the supporting narrative arc. The narrative arc (hook → context → evidence → implication) follows the headline, not precedes it.
+Every portal Story page narrative MUST place the **headline (data summary punchline with 2-3 KPI metrics)** at the top, followed by a hook paragraph, the narrative arc, and bullets. This is a blocking rule — Lead rejects Story pages that bury the data summary mid-narrative.
 
-**Rationale:** Stakeholder review (SL-1) observed that the data summary is better suited as an attention-grabbing headline; the narrative arc earns the reader's continued attention once the headline has established stakes. The previous ordering (narrative-first, headline-buried) loses readers before they reach the numbers.
+**Headline format:** `## [Metric summary] — [One-liner]` at the start of the story section.
+- Example: `## Sharpe 1.27 over 15-year OOS — credit spreads as an 8-month early-warning signal for equity drawdowns`
 
-**Layout pattern:**
-1. **Headline** — 1-line thesis + 2-3 key-metric pills (Sharpe, Max DD, CAGR vs B&H)
+**Layout pattern (mandatory order):**
+1. **Headline** — `## [Metric summary] — [One-liner]` with 2-3 KPI metrics (Sharpe, Max DD, CAGR vs B&H)
 2. **Hook paragraph** — why this matters now
 3. **Narrative arc** — history + mechanism + evidence
 4. **Early Warning Signal bullets** — each bullet follows Rule 9 (investor-impact clause)
 
+**Blocking criteria:** `results/<pair_id>/acceptance.md` must confirm headline-first structure. Lead rejects Story pages that open with narrative before the data-summary headline.
+
+**Rationale:** Stakeholder review (SL-1) observed that the data summary is better suited as an attention-grabbing headline; the narrative arc earns the reader's continued attention once the headline has established stakes. Narrative-first ordering loses readers before they reach the numbers.
+
 Addresses stakeholder feedback item **SL-1** (slide-1 comment: "Suggest swapping the two. The data summary seems better suited as a headline to attract attention.").
+
+### Rule RES-VS — Narrative Status Vocabulary Self-Check (Blocking)
+
+Before handing off narrative to Ace, Ray checks that all status labels used in prose match the canonical list: **Available / Pending / Validated / Stale / Draft / Mature / Unknown**.
+
+- Any novel status term must either (a) be added to `docs/portal_glossary.json` in the same handoff, or (b) be rewritten to use an existing canonical term.
+- Companion rule to Dana's **DATA-VS** (pre-handoff vocabulary check at the data layer).
+- The self-check is performed per handoff: Ray scans the narrative draft (`docs/portal_narrative_<pair_id>_<date>.md` and any status legends or captions referenced from the portal) and records the pass/fail in the Ray→Ace handoff note.
+
+Addresses stakeholder feedback **S18-4 follow-up** (status vocabulary needs definitions rather than ambient assumption) and **S18-3** (captions on status legends).
 
 ### Bibliography Scale
 
@@ -531,6 +546,12 @@ When narrative prose mentions a historical episode (Dot-Com, GFC, COVID, 2018 Vo
 **If the matching chart does not yet exist:** Ray **flags the gap to Vera in the handoff message** and does NOT ship the prose. Writing the historical reference without the chart is a regression pattern (Wave 2 stakeholder feedback explicitly called this out).
 
 **Coverage:** Every episode named in prose requires its own zoom-in. Listing three episodes in one paragraph requires three cross-references (one per episode).
+
+**Coherence inspection at narrative handoff:** For each historical episode referenced in prose, Ray inspects the canonical zoom chart at `output/_comparison/history_zoom_{episode_slug}.json` and asks: "Does this chart make the point the narrative is trying to make?"
+- **Ship canonical** if prose is event-only ("spreads widened before the recession")
+- **Request override from Vera** if prose ties the episode to the pair's own indicator behavior ("our signal gave an 8-month early warning") — overlay is needed
+- Decision is logged in the Ray→Ace handoff note
+- See META-ZI (team-coordination.md) for the full protocol
 
 Addresses stakeholder feedback items **SL-4** (Dot-Com zoom-in), **SL-5** (GFC zoom-in), and enables **S18-12** (investor-impact bullets need chart context).
 
