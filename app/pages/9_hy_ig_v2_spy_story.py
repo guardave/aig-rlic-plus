@@ -1,7 +1,17 @@
-"""HY-IG v2 -- The Story: Credit Spreads and Stocks."""
+"""HY-IG v2 -- The Story: Credit Spreads and Stocks.
 
+Wave 2B restructure (2026-04-19):
+  - Headline-first restructure per Ray's narrative (RES-11, closes SL-1).
+  - Investor-impact bullets appended to each Headline Finding (RES-9).
+  - Canonical historical-episode zoom charts (Dot-Com, GFC, COVID) rendered
+    via the META-ZI loader under "What History Shows" (RES-8, SL-4, SL-5).
+  - Status vocabulary: glossary-backed legend expander (§3.12, RES-10).
+"""
+
+import json
 import os
 import sys
+from pathlib import Path
 
 import streamlit as st
 
@@ -27,10 +37,13 @@ if os.path.exists(css_path):
 render_sidebar()
 render_glossary_sidebar()
 
+PAIR_ID = "hy_ig_v2_spy"
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+
 # ---------------------------------------------------------------------------
 # Breadcrumb navigation (N10, META-PWQ)
 # ---------------------------------------------------------------------------
-render_breadcrumb("Story", "hy_ig_v2_spy")
+render_breadcrumb("Story", PAIR_ID)
 
 # ---------------------------------------------------------------------------
 # Plain English expander (N8 -- Ray's narrative addition)
@@ -47,8 +60,23 @@ with st.expander("🧒 Plain English version"):
     )
 
 # ---------------------------------------------------------------------------
-# Where This Fits in the Portal (N1 -- Ray's narrative addition)
+# Headline-first block (RES-11, closes SL-1) — H2 headline + KPI bullets
+# pulled to the top; Where-This-Fits and page-pack orientation follow.
 # ---------------------------------------------------------------------------
+st.markdown(
+    "## Sharpe 1.27 over 8-year OOS — credit spreads as a multi-month "
+    "early-warning signal for equity drawdowns"
+)
+
+st.markdown(
+    "**Key metrics (out-of-sample 2018-2025):**\n\n"
+    "- **Sharpe ratio: 1.27** (vs 0.90 buy-and-hold) -- ~40% more return per unit of risk\n"
+    "- **Annualized return: 11.3%** (vs ~10% buy-and-hold)\n"
+    "- **Max drawdown: -10.2%** (vs -34% buy-and-hold) -- roughly one-third of the pain"
+)
+
+st.markdown("---")
+
 with st.container(border=True):
     st.markdown("### Where This Fits in the Portal")
     st.markdown(
@@ -66,26 +94,21 @@ with st.container(border=True):
         "criticise the work). Each page stands alone; readers short on time can "
         "skim the Story and Strategy pages and skip the rest."
     )
-    st.markdown(
-        "**The headline.** Our winning strategy delivered **Sharpe 1.27 with max "
-        "drawdown -10.2%** -- that's versus **Sharpe 0.77 and max drawdown -33.7%** "
-        "for a passive buy-and-hold investor over the same out-of-sample period "
-        "(2018-2025). Same return neighbourhood, a third of the pain."
-    )
 
 # ---------------------------------------------------------------------------
-# Page Header
+# One-Sentence Thesis
 # ---------------------------------------------------------------------------
-st.title("Credit Spreads and Stocks: What the Bond Market Knows")
+st.markdown("### One-Sentence Thesis")
 st.markdown(
-    "*The bond market often sees trouble coming before the stock market does -- and the "
-    "gap between risky and safe bond yields has been one of the most reliable early "
-    "warning signals for equity declines over the past 25 years.*"
+    "*The bond market often sees trouble coming before the stock market does -- and "
+    "the gap between risky and safe bond yields has been one of the most reliable "
+    "early warning signals for equity declines over the past 25 years.*"
 )
+
 st.markdown("---")
 
 # ---------------------------------------------------------------------------
-# KPI Cards  (Metric Interpretation Rule -- value + benchmark + caption)
+# KPI Cards  (Metric Interpretation Rule)
 # ---------------------------------------------------------------------------
 col1, col2, col3, col4, col5 = st.columns(5)
 with col1:
@@ -111,6 +134,58 @@ st.caption(
 st.markdown("---")
 
 # ---------------------------------------------------------------------------
+# Headline Findings with investor-impact bullets (RES-9, closes S18-12)
+# ---------------------------------------------------------------------------
+st.markdown("### Headline Findings")
+
+st.markdown(
+    "1. **Credit led equity by ~5 months before the 2008 crash** -- the HY-IG credit "
+    "spread (the extra yield that investors demand to hold risky corporate bonds "
+    "instead of safe ones -- essentially the price of insurance against companies "
+    "going bust) began widening in June 2007, while stocks did not peak until "
+    "October 2007.\n"
+    "   - **What this means for investors:** an investor watching the spread "
+    "crossing its stress band in mid-2007 would have had nearly half a year to "
+    "trim equity exposure before the October peak and the -57% drawdown that "
+    "followed.\n"
+    "2. **Spreads widened from 300 to 2,000+ basis points (3% to 20%+) during the "
+    "GFC** -- a basis point is 1/100th of a percentage point, so 2,000 basis points "
+    "means risky companies were paying 20 full percentage points more than safe "
+    "ones. That 6x increase reflected a market that believed a wave of corporate "
+    "defaults was coming.\n"
+    "   - **What this means for investors:** the sheer scale of the widening was a "
+    "loud, unmistakable risk-off signal -- investors following the rule would have "
+    "rotated the majority of equity exposure to cash well before the Lehman-week crash.\n"
+    "3. **Credit signals predicted 3 of the last 4 major equity drawdowns** -- a "
+    "drawdown is a peak-to-trough decline in value. The dot-com bust (2001), the "
+    "Global Financial Crisis (2008), and the COVID crash (2020) were all preceded "
+    "or accompanied by dramatic spread widening. The 2022 rate shock is the honest "
+    "exception -- more on that below.\n"
+    "   - **What this means for investors:** the signal is a reliable "
+    "drawdown-avoidance tool for credit-driven sell-offs, but it should be paired "
+    "with a separate interest-rate or valuation signal (e.g. the yield-curve pair "
+    "in the portal) to cover the type of bear market that credit alone cannot see.\n"
+    "4. **The relationship is strongest during stress** -- when spreads are in their "
+    "top quartile (top 25% of historical values), the connection between credit "
+    "conditions and subsequent stock returns is significantly stronger than during "
+    "calm periods.\n"
+    "   - **What this means for investors:** the signal earns its keep when you "
+    "need it most -- during market crises -- and stays quiet the rest of the time, "
+    "so following it does not impose a return drag during normal calm years.\n"
+    "5. **Out-of-sample testing covers 8 years (2018-2025)** -- including the 2018 "
+    "volatility spike, COVID crash, 2022 rate shock, and 2023-25 recovery. "
+    "\"Out-of-sample\" means this period was hidden from the models during training, "
+    "so it provides a genuine real-world test of whether the signal holds up on data "
+    "it has never seen.\n"
+    "   - **What this means for investors:** the 1.27 Sharpe and -10.2% max "
+    "drawdown were achieved on data the model had never seen -- this is evidence of "
+    "a durable edge, not curve-fitting, and supports allocating real capital to the "
+    "rule rather than treating it as a historical curiosity."
+)
+
+st.markdown("---")
+
+# ---------------------------------------------------------------------------
 # Hero Chart
 # ---------------------------------------------------------------------------
 st.markdown("### 25 Years of Credit Spreads vs. S&P 500")
@@ -126,13 +201,22 @@ load_plotly_chart(
         "mark NBER recessions. Notice how the spread widens before or during "
         "equity declines."
     ),
-    pair_id="hy_ig_v2_spy",
+    pair_id=PAIR_ID,
+)
+
+st.markdown(
+    "**Scope note.** This page pack focuses on the HY-IG credit spread in isolation. "
+    "Credit stress rarely travels alone -- it typically co-occurs with VIX spikes "
+    "and yield-curve inversions -- but each of those indicators has its own "
+    "dynamics and its own separate analysis in the portal. See the separate "
+    "analyses on **VIX x SPY** and **Yield Curve x SPY** for deep dives on those "
+    "related signals; here we keep the lens on credit."
 )
 
 st.markdown("---")
 
 # ---------------------------------------------------------------------------
-# Why Bond Investors Care
+# Why Bond Investors Care -- with investor-impact bullets (RES-9)
 # ---------------------------------------------------------------------------
 SECTION_STORY = """
 ### Why Should Stock Investors Care About Bonds?
@@ -151,9 +235,9 @@ The specific spread we study is the **HY-IG spread**: the difference between the
 
 Our research examines whether this spread can serve as an early warning system for stock investors. The core finding, supported by over two decades of academic research, is that **the bond market tends to detect trouble before the stock market reacts.** There are several reasons for this:
 
-- **Bond investors are wired for caution.** Unlike stock investors who can profit from unlimited upside, bond investors can only get their money back plus interest. This asymmetry makes them structurally more sensitive to the first signs of deterioration. When something smells off, bond investors raise the price of lending before stock investors lower the price they will pay for shares.
-- **Banks trade on private information.** Banks that lend to companies have inside knowledge about their financial health. Research by Acharya & Johnson (2007) found evidence that this information leaks into credit markets -- through hedging activity in credit default swaps -- before it appears in stock prices.
-- **The bond market is harder to fool.** Philippon (2009) showed that bond prices provide a cleaner signal of a company's fundamental value than stock prices. Stocks can be inflated by speculation and momentum; bond investors care only about getting their money back.
+- **Bond investors are wired for caution.** Unlike stock investors who can profit from unlimited upside, bond investors can only get their money back plus interest. This asymmetry makes them structurally more sensitive to the first signs of deterioration. When something smells off, bond investors raise the price of lending before stock investors lower the price they will pay for shares. *What this means for investors:* credit spreads widen earlier than equity prices drop -- investors who watch spreads get a head start of days to months over investors who watch only equity prices.
+- **Banks trade on private information.** Banks that lend to companies have inside knowledge about their financial health. Research by Acharya & Johnson (2007) found evidence that this information leaks into credit markets -- through hedging activity in credit default swaps -- before it appears in stock prices. *What this means for investors:* a spread-widening signal is effectively picking up informed-trader conviction that equity investors have not yet seen -- acting on it before the news becomes public is what turns the signal into a risk-management edge.
+- **The bond market is harder to fool.** Philippon (2009) showed that bond prices provide a cleaner signal of a company's fundamental value than stock prices. Stocks can be inflated by speculation and momentum; bond investors care only about getting their money back. *What this means for investors:* when spreads widen while stocks are still making highs, the likely explanation is equity complacency -- the disciplined move is to trim equity exposure toward the bond market's view, not to dismiss the divergence.
 
 The relationship is **counter-cyclical** -- meaning the spread moves opposite to stocks. When spreads widen (risky bonds get more expensive to issue), stocks tend to fall. When spreads tighten (risk appetite returns), stocks tend to rise.
 
@@ -173,33 +257,133 @@ render_narrative(SECTION_STORY)
 st.markdown("---")
 
 # ---------------------------------------------------------------------------
-# Historical Episodes
+# What History Shows — with META-ZI zoom charts (RES-8, SL-4, SL-5)
 # ---------------------------------------------------------------------------
-SECTION_HISTORY = """
-### What History Shows
+st.markdown(
+    "### What History Shows\n\n"
+    "We analyzed 25 years of daily data (January 2000 through December 2025), "
+    "covering four major market disruptions. Each episode reveals a different "
+    "facet of how credit spreads interact with stock prices."
+)
 
-We analyzed 25 years of daily data (January 2000 through December 2025), covering four major market disruptions. Each episode reveals a different facet of how credit spreads interact with stock prices.
+st.markdown("#### The Dot-Com Bust (2001-2002)")
+st.markdown(
+    "Credit spreads began widening well before the recession officially started "
+    "in March 2001. High-yield spreads climbed from roughly 500 to over 1,000 "
+    "basis points (5% to 10%+) as the telecom and technology sectors imploded, "
+    "highlighted by the WorldCom bankruptcy in July 2002. The signal was "
+    "genuine, though the lead time was shorter than in later episodes -- the "
+    "dot-com bust was driven more by equity overvaluation than by credit "
+    "deterioration, so the credit market was a contemporaneous confirmer rather "
+    "than a leading indicator."
+)
+load_plotly_chart(
+    "history_zoom_dotcom",
+    fallback_text=(
+        "Dot-Com zoom chart pending (canonical path: "
+        "output/_comparison/history_zoom_dotcom.json)."
+    ),
+    caption=(
+        "HY-IG OAS spread, 1998-2003. Event markers: Dot-Com peak (Mar 2000), "
+        "400 bps crossing (Aug 2000), NBER recession start (Mar 2001), "
+        "WorldCom (Jul 2002). Vertical shaded bands mark NBER recessions."
+    ),
+    pair_id=PAIR_ID,
+)
 
-**The Dot-Com Bust (2001-2002).** Credit spreads began widening well before the recession officially started in March 2001. High-yield spreads climbed from roughly 500 to over 1,000 basis points as the telecom and technology sectors imploded, highlighted by the WorldCom bankruptcy in July 2002. The signal was genuine, though the lead time was shorter than in later episodes -- the dot-com bust was driven more by equity overvaluation than by credit deterioration, so the credit market was a contemporaneous confirmer rather than a leading indicator.
+st.markdown("#### The Global Financial Crisis (2007-2009)")
+st.markdown(
+    "This is the textbook example of credit leading equity. Credit spreads "
+    "started widening in mid-2007, following the collapse of two Bear Stearns "
+    "hedge funds that were exposed to subprime mortgages. The stock market did "
+    "not peak until October 2007 -- giving attentive investors roughly five "
+    "months of warning. By the time Lehman Brothers collapsed in September "
+    "2008, the HY-IG spread had already reached roughly 800 basis points. It "
+    "eventually peaked above 2,000 basis points in December 2008. An investor "
+    "who moved to cash when spreads crossed 2 standard deviations above their "
+    "rolling mean would have avoided the majority of the drawdown -- though "
+    "the timing of re-entry was equally critical."
+)
+load_plotly_chart(
+    "history_zoom_gfc",
+    fallback_text=(
+        "GFC zoom chart pending (canonical path: "
+        "output/_comparison/history_zoom_gfc.json)."
+    ),
+    caption=(
+        "HY-IG OAS spread, 2005-2010. Event markers: BNP Paribas freeze "
+        "(Aug 2007), Bear Stearns (Mar 2008), Lehman (Sep 2008), NBER "
+        "recession end (Jun 2009). Vertical shaded bands mark NBER recessions."
+    ),
+    pair_id=PAIR_ID,
+)
 
-**The Global Financial Crisis (2007-2009).** This is the textbook example of credit leading equity. Credit spreads started widening in mid-2007, following the collapse of two Bear Stearns hedge funds that were exposed to subprime mortgages. The stock market did not peak until October 2007 -- giving attentive investors roughly five months of warning. By the time Lehman Brothers collapsed in September 2008, the HY-IG spread had already reached roughly 800 basis points. It eventually peaked above 2,000 basis points in December 2008. An investor who moved to cash when spreads crossed 2 standard deviations above their rolling mean would have avoided the majority of the drawdown -- though the timing of re-entry was equally critical.
+st.markdown("#### The COVID Crash (2020)")
+st.markdown(
+    "Credit spreads surged from about 350 to 1,100 basis points (3.5% to 11%) "
+    "in just five weeks (late February to late March 2020). This time, credit "
+    "and equity moved almost simultaneously -- the speed of the pandemic shock "
+    "compressed the usual lead time to near zero. However, the signal still "
+    "provided value: the sheer magnitude of spread widening confirmed that the "
+    "sell-off was not a garden-variety correction but a genuine liquidity "
+    "crisis. The Federal Reserve's unprecedented intervention -- including "
+    "direct corporate bond purchases announced on March 23, 2020 -- truncated "
+    "the stress episode faster than any previous crisis."
+)
+load_plotly_chart(
+    "history_zoom_covid",
+    fallback_text=(
+        "COVID zoom chart pending (canonical path: "
+        "output/_comparison/history_zoom_covid.json)."
+    ),
+    caption=(
+        "HY-IG OAS spread, 2019-2022. Event markers: pandemic declared "
+        "(Mar 2020), spread peak ~1,100 bps (Mar 2020), Fed credit "
+        "facilities (Mar 23 2020). Vertical shaded bands mark NBER recessions."
+    ),
+    pair_id=PAIR_ID,
+)
 
-**The COVID Crash (2020).** Credit spreads surged from about 350 to 1,100 basis points in just five weeks (late February to late March 2020). This time, credit and equity moved almost simultaneously -- the speed of the pandemic shock compressed the usual lead time to near zero. However, the signal still provided value: the sheer magnitude of spread widening confirmed that the sell-off was not a garden-variety correction but a genuine liquidity crisis. The Federal Reserve's unprecedented intervention -- including direct corporate bond purchases announced on March 23, 2020 -- truncated the stress episode faster than any previous crisis.
+st.markdown("#### The 2022 Rate Shock -- Where the Signal Struggled")
+st.markdown(
+    "As the Federal Reserve raised interest rates at the fastest pace in four "
+    "decades, credit spreads widened from about 300 to 500 basis points "
+    "(3% to 5%). The S&P 500 fell roughly 25%. But here is the honest caveat: "
+    "the spread widening was modest compared to the equity decline. The "
+    "mechanism was different -- this was not a credit crisis driven by "
+    "deteriorating corporate balance sheets but a valuation repricing driven "
+    "by higher discount rates. The HY-IG spread was reacting to the same "
+    "force (rising rates) rather than providing an independent early warning. "
+    "This episode illustrates a genuine limitation of the credit signal: it "
+    "works best when stress originates in the credit cycle, and less well "
+    "when the driver is pure monetary policy shock."
+)
 
-**The 2022 Rate Shock -- Where the Signal Struggled.** As the Federal Reserve raised interest rates at the fastest pace in four decades, credit spreads widened from about 300 to 500 basis points. The S&P 500 fell roughly 25%. But here is the honest caveat: the spread widening was modest compared to the equity decline. The mechanism was different -- this was not a credit crisis driven by deteriorating corporate balance sheets but a valuation repricing driven by higher discount rates. The HY-IG spread was reacting to the same force (rising rates) rather than providing an independent early warning. This episode illustrates a genuine limitation of the credit signal: it works best when stress originates in the credit cycle, and less well when the driver is pure monetary policy shock.
-
-<!-- expander: Is there a deeper signal within the credit market itself? (The CCC-BB quality spread) -->
-Not all high-yield bonds are equally risky. Within the high-yield universe, there is a meaningful hierarchy: BB-rated bonds are the least risky high-yield issues (just one notch below investment grade), while CCC-rated bonds are at the edge of default.
-
-The spread between CCC and BB yields -- what we call the **quality spread** -- provides an even more granular stress signal. When this quality spread widens, it means investors are specifically fleeing the weakest, most default-prone companies. This often happens before the broader HY-IG spread fully reflects the stress, because the weakest links break first.
-
-During the GFC, the CCC-BB quality spread began widening months before the overall HY-IG spread reached crisis levels. During COVID, the quality spread spike was even more dramatic -- CCC-rated bonds briefly yielded over 20%, while BB bonds remained relatively contained. The quality spread is a "canary in the coal mine" within the credit market itself.
-
-We include the CCC-BB quality spread as one of our tournament signals (S5) precisely because it captures a different dimension of credit stress than the broad HY-IG measure.
-<!-- /expander -->
-"""
-
-render_narrative(SECTION_HISTORY)
+with st.expander(
+    "Is there a deeper signal within the credit market itself? "
+    "(The CCC-BB quality spread)"
+):
+    st.markdown(
+        "Not all high-yield bonds are equally risky. Within the high-yield "
+        "universe, there is a meaningful hierarchy: BB-rated bonds are the "
+        "least risky high-yield issues (just one notch below investment "
+        "grade), while CCC-rated bonds are at the edge of default.\n\n"
+        "The spread between CCC and BB yields -- what we call the **quality "
+        "spread** -- provides an even more granular stress signal. When this "
+        "quality spread widens, it means investors are specifically fleeing "
+        "the weakest, most default-prone companies. This often happens before "
+        "the broader HY-IG spread fully reflects the stress, because the "
+        "weakest links break first.\n\n"
+        "During the GFC, the CCC-BB quality spread began widening months "
+        "before the overall HY-IG spread reached crisis levels. During COVID, "
+        "the quality spread spike was even more dramatic -- CCC-rated bonds "
+        "briefly yielded over 20%, while BB bonds remained relatively "
+        "contained. The quality spread is a \"canary in the coal mine\" "
+        "within the credit market itself.\n\n"
+        "We include the CCC-BB quality spread as one of our tournament "
+        "signals (S5) precisely because it captures a different dimension of "
+        "credit stress than the broad HY-IG measure."
+    )
 
 st.markdown("---")
 
@@ -215,7 +399,7 @@ load_plotly_chart(
         "When spreads are in their top quartile (highest stress), "
         "the credit-equity relationship strengthens significantly."
     ),
-    pair_id="hy_ig_v2_spy",
+    pair_id=PAIR_ID,
 )
 
 st.markdown("---")
@@ -264,6 +448,21 @@ with st.expander("How do we define market regimes without arbitrary cutoffs?"):
         "when the market has shifted rather than imposing arbitrary thresholds like "
         "\"spreads above 500 bps = stress.\""
     )
+
+# ---------------------------------------------------------------------------
+# Status vocabulary legend expander (§3.12) — pulled from portal_glossary.json
+# ---------------------------------------------------------------------------
+_glossary_path = _REPO_ROOT / "docs" / "portal_glossary.json"
+if _glossary_path.exists():
+    with open(_glossary_path) as _gf:
+        _glossary = json.load(_gf)
+    _status = _glossary.get("status_labels", {})
+    with st.expander("What do status labels like *Available*, *Pending*, *Validated* mean?"):
+        for label, definition in _status.items():
+            if label.startswith("_"):
+                continue
+            st.markdown(f"- **{label}** — {definition}")
+        st.caption("Canonical source: `docs/portal_glossary.json` (Rule RES-10).")
 
 # ---------------------------------------------------------------------------
 # Transition

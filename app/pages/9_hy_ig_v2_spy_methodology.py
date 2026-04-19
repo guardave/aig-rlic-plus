@@ -1,5 +1,11 @@
-"""HY-IG v2 -- Methodology: Technical Appendix."""
+"""HY-IG v2 -- Methodology: Technical Appendix.
 
+Wave 2B light-touch update (2026-04-19): status-vocabulary legend expander
+added at the top of the page per §3.12 and Ray's `docs/portal_glossary.json`
+canonical source (RES-10). Everything else on the page remains unchanged.
+"""
+
+import json
 import os
 import sys
 from pathlib import Path
@@ -58,6 +64,29 @@ st.markdown(
     "diagnostic described here.*"
 )
 st.markdown("---")
+
+# ---------------------------------------------------------------------------
+# Status vocabulary legend (§3.12 + RES-10) — loaded from canonical glossary.
+# ---------------------------------------------------------------------------
+_GLOSSARY_PATH = Path(__file__).resolve().parents[2] / "docs" / "portal_glossary.json"
+if _GLOSSARY_PATH.exists():
+    with open(_GLOSSARY_PATH) as _gf:
+        _glossary = json.load(_gf)
+    _status = _glossary.get("status_labels", {})
+    with st.expander(
+        "What do status labels (*Available*, *Pending*, *Validated*, *Stale*, "
+        "*Draft*, *Mature*, *Unknown*) mean?",
+        expanded=False,
+    ):
+        for _label, _definition in _status.items():
+            if _label.startswith("_"):
+                continue
+            st.markdown(f"- **{_label}** — {_definition}")
+        st.caption(
+            "Canonical source: `docs/portal_glossary.json` "
+            "(Rule RES-10 / SOP §3.12)."
+        )
+    st.markdown("---")
 
 # ---------------------------------------------------------------------------
 # Sample Period  (Metric Interpretation Rule)

@@ -9,8 +9,10 @@ import streamlit as st
 
 
 _APP_DIR = os.path.dirname(os.path.dirname(__file__))
+_REPO_ROOT = os.path.normpath(os.path.join(_APP_DIR, ".."))
 CHART_DIR = os.path.join(_APP_DIR, "..", "output", "charts", "plotly")
 METADATA_DIR = os.path.join(_APP_DIR, "..", "output", "charts", "metadata")
+_COMPARISON_DIR = os.path.join(_REPO_ROOT, "output", "_comparison")
 
 
 @st.cache_resource
@@ -18,6 +20,33 @@ def _load_plotly_json(json_path: str):
     """Load and parse a Plotly JSON file (cached)."""
     with open(json_path) as f:
         return pio.from_json(f.read())
+
+
+def _resolve_history_zoom_paths(chart_name: str, pair_id: str | None) -> list[str]:
+    """Resolve candidate paths for canonical historical-episode zoom charts.
+
+    Implements the META-ZI (Historical Episode Chart Strategy) loader contract:
+      1. Per-pair override at ``output/charts/{pair_id}/history_zoom_{episode}.json``
+         (if a pair-specific variant is warranted by Ray's coherence review)
+      2. Canonical baseline at ``output/_comparison/history_zoom_{episode}.json``
+      3. Fallback to GATE-25 "chart pending" placeholder (handled by caller)
+
+    Cross-reference: APP-SE1 loader-contract note (Gap 5 / META-ZI) and Viz SOP
+    VIZ-V1 cross-agent contract. Ray flags override candidates in the narrative
+    coherence check; this loader is the Ace-side wiring that consumes them.
+    """
+    candidates: list[str] = []
+    if pair_id:
+        # Pair-specific override tier (no /plotly/ subdir for these episodes)
+        candidates.append(
+            os.path.normpath(
+                os.path.join(_REPO_ROOT, "output", "charts", pair_id, f"{chart_name}.json")
+            )
+        )
+    candidates.append(
+        os.path.normpath(os.path.join(_COMPARISON_DIR, f"{chart_name}.json"))
+    )
+    return candidates
 
 
 def load_plotly_chart(
@@ -36,23 +65,33 @@ def load_plotly_chart(
         pair_id: Optional pair subdirectory (e.g., 'indpro_spy').
                  If provided, looks in output/charts/{pair_id}/plotly/.
         chart_key: Unique Streamlit widget key. Auto-generated if None.
-    """
-    if pair_id:
-        chart_dir = os.path.join(_APP_DIR, "..", "output", "charts", pair_id, "plotly")
-    else:
-        chart_dir = CHART_DIR
 
+    Special routing — META-ZI (Historical Episode Chart Strategy):
+        Chart names starting with ``history_zoom_`` are resolved via the
+        canonical + override fallback chain (per-pair override first,
+        then ``output/_comparison/``). See ``_resolve_history_zoom_paths``.
+    """
     if chart_key is None:
         chart_key = f"plotly_{chart_name}_{uuid.uuid4().hex[:8]}"
 
-    # Try exact name first, then with pair_id prefix (agents may use either)
-    candidates = [
-        os.path.normpath(os.path.join(chart_dir, f"{chart_name}.json")),
-    ]
-    if pair_id:
-        candidates.append(
-            os.path.normpath(os.path.join(chart_dir, f"{pair_id}_{chart_name}.json"))
-        )
+    # META-ZI routing: historical-episode zoom charts use the canonical+override
+    # fallback chain (GATE-25 + VIZ-V1). Bypass the regular per-pair chart_dir.
+    if chart_name.startswith("history_zoom_"):
+        candidates = _resolve_history_zoom_paths(chart_name, pair_id)
+    else:
+        if pair_id:
+            chart_dir = os.path.join(_APP_DIR, "..", "output", "charts", pair_id, "plotly")
+        else:
+            chart_dir = CHART_DIR
+
+        # Try exact name first, then with pair_id prefix (agents may use either)
+        candidates = [
+            os.path.normpath(os.path.join(chart_dir, f"{chart_name}.json")),
+        ]
+        if pair_id:
+            candidates.append(
+                os.path.normpath(os.path.join(chart_dir, f"{pair_id}_{chart_name}.json"))
+            )
 
     json_path = None
     for candidate in candidates:
@@ -64,6 +103,8 @@ def load_plotly_chart(
         fig = _load_plotly_json(json_path)
         st.plotly_chart(fig, use_container_width=True, key=chart_key)
     else:
+        # GATE-25: render an explicit "chart pending" placeholder rather than
+        # silently substituting unrelated content.
         st.info(f"📊 {fallback_text}")
 
     if caption:

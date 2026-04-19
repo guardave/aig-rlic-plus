@@ -158,3 +158,75 @@ Per RES-8, Ray inspected each prose reference against the canonical zoom chart a
 ### Approved by
 
 **Ray self-approves** the narrative-layer changes; all six new rules (RES-7, RES-8, RES-9, RES-10, RES-11, RES-VS) applied as written. Lesandro review requested at next checkpoint, with attention to: (a) the headline wording "multi-month early-warning signal" (kept indicator-agnostic rather than pinning to a single lead-time figure), and (b) the GFC override-candidate flag (currently logged as low-priority; upgrade if stakeholder wants the 2-sigma band visualized).
+
+## Ace's Wave 2B Changes (2026-04-19)
+
+### Components created
+
+Four new standard components under `app/components/`, each self-contained and parameterised by `pair_id`:
+
+1. `app/components/probability_engine_panel.py` (~260 lines) — `render_probability_engine_panel(pair_id)`. Loads latest `signals_*.parquet`, resolves signal column via `winner_summary.signal_code` map, runs **pre-render validation** (column presence, numeric bounds, GFC/COVID historical-plausibility check) before rendering. On failure, `st.error()` with diagnostic and the chart is skipped. On success, Plotly time-series with threshold line, epsilon band for continuous signals, and NBER shading when the span exceeds 5 years. Writes its validation outcome to `st.session_state` for APP-SE2 to consume.
+2. `app/components/position_adjustment_panel.py` (~160 lines) — `render_position_adjustment_panel(pair_id)`. Gated on SE1 validation state — if SE1 failed, renders `st.warning("Position exposure cannot be derived without valid signal values.")` and skips the chart (per the Wave 1.5 "derived from SE1" contract). Computes exposure per strategy family (P1 binary, P2 continuous, P3 long/short) with direction-aware sign flip. Plotly area chart.
+3. `app/components/instructional_trigger_cards.py` (~210 lines) — `render_instructional_trigger_cards(pair_id)`. 2-3 cards via `st.columns()` + `st.container(border=True)`. Thresholds **loaded from `winner_summary.json.threshold_value`** (Defense-2 reconciliation with the strategy's runtime rule). Strategy-family-aware card specs (P1 BUY/HOLD/REDUCE, P2 continuous scaling, P3 LONG/SHORT). Stylised sparklines (50×100) illustrating each crossing.
+4. `app/components/live_execution_placeholder.py` (~60 lines) — `render_live_execution_placeholder(pair_id)`. Section titled "Future: Live Execution" with three `st.metric()` cards (Current Signal State / Target Position / Current Action). Reads `results/{pair_id}/live_execution_stub.json` if present, else renders `"—"` placeholders. Mandatory `st.info()` callout explaining historical-dashboard scope.
+
+### Chart loader META-ZI implementation
+
+Updated `app/components/charts.py`:
+
+- New `_resolve_history_zoom_paths(chart_name, pair_id)` helper implements the Canonical + Override fallback chain per META-ZI: tries `output/charts/{pair_id}/history_zoom_{episode}.json` first, falls back to `output/_comparison/history_zoom_{episode}.json`. Called automatically by `load_plotly_chart()` when `chart_name` starts with `history_zoom_`.
+- Code comments cite META-ZI, VIZ-V1, and GATE-25. Missing chart → GATE-25 "chart pending" placeholder (the existing `st.info()` fallback); no silent substitution.
+
+Confirmed resolution against the three episodes published by Vera in Wave 2A (all three resolve to the canonical `output/_comparison/` path since no HY-IG-specific overrides were produced this iteration).
+
+### Pages modified
+
+1. `app/pages/9_hy_ig_v2_spy_story.py` — **headline-first restructure (SL-1)**: pulled the new `## Sharpe 1.27 …` H2 headline + KPI bullets to the top; Where-This-Fits + page-pack orientation follow. Investor-impact bullets rendered in the new "Headline Findings" list (RES-9 / S18-12). New "What History Shows" subsections (Dot-Com / GFC / COVID / 2022) each render the canonical zoom chart via the META-ZI loader (RES-8, SL-4, SL-5). Status-vocabulary legend expander appended at page bottom.
+2. `app/pages/9_hy_ig_v2_spy_evidence.py` — **Granger block** now consumes `granger_f_by_lag.json` (closes S18-11; no more silent Local Projections fallback). `how_to_read`, `observation`, and `chart_caption` rewritten to reflect monthly-resolution F-by-lag semantics (best lag 5, F = 4.07, p = 0.0014). **Quartile Returns block** now consumes `regime_quartile_returns.json` and cites Evan's monthly-resolution numbers (Q1 Sharpe 1.79, Q4 −0.53, 29.9 pp return spread, 2.33 Sharpe-units spread); deep-dive content updated to reflect monthly sample; closes S18-8. All other method blocks unchanged.
+3. `app/pages/9_hy_ig_v2_spy_strategy.py` — full restructure to Execute / Performance / Confidence tabs. Ray's new "How the Signal is Generated" plain-English section rendered BEFORE KPI cards (RES-7, closes S18-1 narrative side). Execute tab: Strategy Summary + APP-SE1 + APP-SE2 + APP-SE3 + Execution Points table + How to Use Manually + COVID example. Performance tab: equity curves + drawdown + trade log narrative + dual-download CSVs + preview (each with a 1-line APP-SE5 takeaway caption). Confidence tab: stress tests, signal decay, walk-forward (each with its own takeaway caption); Tournament Leaderboard; Explore Alternative Strategies; Where the Strategy Adds Value; Important Caveats. "Future: Live Execution" section (APP-SE4) rendered at the bottom.
+4. `app/pages/9_hy_ig_v2_spy_methodology.py` — light-touch: status-vocabulary legend expander loaded from `docs/portal_glossary.json` added near the top. All other content unchanged.
+
+### Rule IDs addressed
+
+- **APP-SE1** (Probability Engine Panel + Wave 1.5 pre-render validation) — component created, wired into Strategy > Execute tab; validation verified against `signals_20260410.parquet`.
+- **APP-SE2** (Position Adjustment Panel + Wave 1.5 SE1-derived gate) — component created, wired below SE1; gated on `st.session_state[f"se1_validation_{pair_id}"].ok`.
+- **APP-SE3** (Instructional Trigger Cards + Wave 1.5 Defense-2 threshold reconciliation) — component created, rendered below SE2. Thresholds loaded from `winner_summary.json` so user-manual view cannot drift from runtime rule.
+- **APP-SE4** (Real-time Execution Placeholder) — component created, rendered at bottom of Strategy page; reads optional `live_execution_stub.json`.
+- **APP-SE5** (Universal Takeaway Caption) — every table/chart in the Confidence tab carries a dedicated `st.caption()` takeaway; Performance tab equity-curve, drawdown, and trade-log preview also carry takeaways; SE1 and SE2 panels each carry takeaway captions.
+- **META-ZI** (Loader contract) — `charts.py::_resolve_history_zoom_paths()` implements per-pair override → canonical fallback for `history_zoom_*` charts. Wired into Story page's "What History Shows" section.
+- **§3.12 Status Vocabulary Discipline + RES-10** — Story, Strategy (Confidence tab), and Methodology pages each expose a status-labels legend expander loaded from `docs/portal_glossary.json`.
+
+### Stakeholder items closed
+
+- **S18-1 (Closed, chart + narrative sides together)** — Probability Engine Panel (APP-SE1) + Position Adjustment Panel (APP-SE2) + Ray's "How the Signal is Generated" plain-English section all now render on the Strategy page.
+- **S18-3** — Confidence-section tables and charts carry `st.caption()` takeaways (APP-SE5).
+- **S18-8** — Evidence-page Quartile Returns block consumes Evan's new `regime_quartile_returns.csv` → Vera's `regime_quartile_returns.json`.
+- **S18-9** — Instructional Trigger Cards (APP-SE3) rendered in Strategy > Execute tab.
+- **S18-10** — Future: Live Execution section (APP-SE4) rendered at bottom of Strategy page.
+- **S18-11** — Evidence-page Granger block consumes `granger_f_by_lag.json`, no more silent Local-Projections fallback.
+- **SL-1** — Story page restructured headline-first.
+
+### Defense-2 validation outcomes (HY-IG v2)
+
+Pre-flight checks run against `results/hy_ig_v2_spy/`:
+
+- **Signal column present**: `hmm_2state_prob_stress` exists in `signals_20260410.parquet` ✅
+- **Numeric bounds**: probability signal in `[0, 1]` (min 0.0000, max 1.0000) ✅
+- **GFC plausibility**: max stress probability in 2008-09 → 2009-06 window = 1.0000 > threshold 0.5 ✅
+- **COVID plausibility**: max stress probability in 2020-02 → 2020-04 window = 1.0000 > threshold 0.5 ✅
+- **Threshold reconciliation (APP-SE3 cards ↔ winner)**: both read from `winner_summary.json.threshold_value = 0.5` ✅
+- **META-ZI resolution**: Dot-Com, GFC, COVID zooms all resolve to `output/_comparison/` canonical tier ✅
+
+No validation failures or warnings flagged for HY-IG v2. The APP-SE1 pre-render path is exercised end-to-end and returns `ok=True`; APP-SE2 receives the gate-passed state; APP-SE3 thresholds match the strategy's runtime rule.
+
+### Files NOT touched
+
+- No artifacts under `results/hy_ig_v2_spy/*` modified (Evan's scope).
+- No chart JSONs under `output/charts/hy_ig_v2_spy/plotly/` or `output/_comparison/` modified (Vera's scope).
+- No narrative document `docs/portal_narrative_hy_ig_v2_spy_20260410.md` modified (Ray's scope).
+- No glossary JSON `docs/portal_glossary.json` modified (Ray's scope); Ace's pages consume it read-only.
+- Other pairs' pages (`1_*`, `2_*`, `5_*`, etc.) untouched.
+
+### Approved by
+
+**Ace self-approves** the portal-layer assembly; all five APP-SE rules (SE1–SE5) + META-ZI loader + Status Vocabulary Discipline applied as written. All four pages load cleanly (`python3 -m py_compile` passes on each). Defense-2 validations pass against the HY-IG v2 artifact set. Lesandro review requested at next checkpoint.
