@@ -1,0 +1,29 @@
+{
+  "status_labels": {
+    "_note": "Canonical status vocabulary for the portal (Rule RES-10 + RES-VS). Narrative and captions may only use labels from this list. New labels must be added here in the same handoff cycle.",
+    "Available": "The signal, chart, or data artifact has been produced, validated, and is live on the portal.",
+    "Pending": "The artifact is scheduled for production but not yet produced; rendered as a placeholder on the portal with an explicit pending caption.",
+    "Validated": "The artifact has passed both producer self-check (Defense 1) and consumer reconciliation (Defense 2) and is cleared for reader use.",
+    "Stale": "The artifact exists but its underlying data or source has been superseded; readers should treat it as out of date until refreshed.",
+    "Draft": "An in-progress artifact that has been shared internally for review but not yet validated for portal display.",
+    "Mature": "The artifact belongs to a pair that has cleared two or more acceptance cycles with no regressions and is treated as a reference standard.",
+    "Unknown": "The status of the artifact cannot be confirmed at render time; reader should refresh and contact the pair owner before relying on it."
+  },
+  "terms": {
+    "Basis point (bp)": {
+      "plain_english": "One hundredth of a percentage point (0.01%). 100 basis points = 1%.",
+      "why_it_matters": "Yields, spreads, and fees in fixed income move in fractions of a percent, so rounding to whole percentages loses meaningful information.",
+      "example": "When the HY-IG spread moves from 400 bps to 800 bps it has widened by 400 bps (4 percentage points), doubling the extra yield investors demand for holding risky debt."
+    },
+    "Credit spread": {
+      "plain_english": "The difference in yield between a risky bond and a safer benchmark bond; the extra return investors demand to lend to riskier borrowers.",
+      "why_it_matters": "Widening spreads signal rising perceived default risk and typically precede equity drawdowns, so the spread serves as an early-warning indicator for stock investors.",
+      "example": "If a BB-rated high-yield bond yields 8% and an AAA-rated investment-grade bond yields 4%, the credit spread is 400 bps (4 percentage points)."
+    },
+    "HMM stress probability": {
+      "plain_english": "The probability (between 0 and 1) that a Hidden Markov Model assigns to the 'stressed' market state on a given day, based on credit-spread and VIX behaviour.",
+      "why_it_matters": "It is the continuous, data-driven regime indicator that drives the winning strategy's position sizing -- higher values mean a higher weight in cash, lower values mean higher equity exposure.",
+      "example": "When the probability jumped from 0.086 on 2020-02-21 to 1.000 on 2020-02-24, the strategy moved from 98.4% equity to 0% (all cash) over two days."
+    }
+  }
+}

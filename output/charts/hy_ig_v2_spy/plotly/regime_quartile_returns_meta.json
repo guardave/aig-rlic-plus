@@ -1,0 +1,15 @@
+{
+  "chart_type": "regime_quartile_returns",
+  "pair_id": "hy_ig_v2_spy",
+  "caption": "Annualized SPY return by HY-IG spread quartile (Q1 tightest = green, Q4 widest = red).",
+  "owner": "viz-vera",
+  "produced_on": "2026-04-19",
+  "source_script": "temp/vera_wave2.py",
+  "rules_applied": [
+    "VIZ-V4"
+  ],
+  "source_data": "results/hy_ig_v2_spy/regime_quartile_returns.csv",
+  "stakeholder_items": [
+    "S18-8"
+  ]
+}

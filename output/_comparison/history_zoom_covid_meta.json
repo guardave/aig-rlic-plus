@@ -1,0 +1,32 @@
+{
+  "chart_type": "history_zoom_covid",
+  "pair_id": "_canonical",
+  "episode_slug": "covid",
+  "caption": "HY-IG OAS spread during COVID episode with event markers and NBER recession shading.",
+  "owner": "viz-vera",
+  "produced_on": "2026-04-19",
+  "source_script": "temp/vera_wave2.py",
+  "rules_applied": [
+    "VIZ-V1",
+    "VIZ-V2",
+    "META-ZI"
+  ],
+  "window": [
+    "2019-01-01",
+    "2022-12-31"
+  ],
+  "events": [
+    [
+      "2020-02-11",
+      "Feb 2020: Pandemic declared"
+    ],
+    [
+      "2020-03-23",
+      "Mar 2020: Credit spreads peak ~1100 bps"
+    ],
+    [
+      "2020-04-09",
+      "Apr 2020: Fed credit facilities"
+    ]
+  ]
+}

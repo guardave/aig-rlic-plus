@@ -1,0 +1,36 @@
+{
+  "chart_type": "history_zoom_dotcom",
+  "pair_id": "_canonical",
+  "episode_slug": "dotcom",
+  "caption": "HY-IG OAS spread during DOTCOM episode with event markers and NBER recession shading.",
+  "owner": "viz-vera",
+  "produced_on": "2026-04-19",
+  "source_script": "temp/vera_wave2.py",
+  "rules_applied": [
+    "VIZ-V1",
+    "VIZ-V2",
+    "META-ZI"
+  ],
+  "window": [
+    "1998-01-01",
+    "2003-12-31"
+  ],
+  "events": [
+    [
+      "2000-03-01",
+      "Mar 2000: Dot-Com peak"
+    ],
+    [
+      "2000-08-01",
+      "Aug 2000: Credit spreads widen past 400 bps"
+    ],
+    [
+      "2001-03-01",
+      "Mar 2001: Recession begins (NBER)"
+    ],
+    [
+      "2002-07-01",
+      "Jul 2002: WorldCom bankruptcy"
+    ]
+  ]
+}

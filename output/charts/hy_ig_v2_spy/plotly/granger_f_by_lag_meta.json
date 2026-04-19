@@ -1,0 +1,15 @@
+{
+  "chart_type": "granger_f_by_lag",
+  "pair_id": "hy_ig_v2_spy",
+  "caption": "Granger causality F-statistics by lag for HY-IG spread \u2192 SPY; red bars significant at 5%.",
+  "owner": "viz-vera",
+  "produced_on": "2026-04-19",
+  "source_script": "temp/vera_wave2.py",
+  "rules_applied": [
+    "VIZ-V3"
+  ],
+  "source_data": "results/hy_ig_v2_spy/granger_by_lag.csv",
+  "stakeholder_items": [
+    "S18-11"
+  ]
+}
