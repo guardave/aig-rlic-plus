@@ -1,0 +1,36 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "evan",
+  "x-generated": "2026-04-19",
+  "notes": "Bootstrap instance seeded by Evan Wave 5B-2 (2026-04-19) from the HY-IG v2 reference pair and the Tournament Design Parameters signal enumeration. Closes §1.2 of docs/validation-audit-20260419-evan.md (signal-code naming drift). Append-only: later waves extend this list as new pairs introduce new signals. Never reorder or delete existing entries.",
+  "signals": [
+    {
+      "signal_code": "hmm_stress",
+      "display_name": "HMM 2-state stress probability",
+      "parquet_column_pattern": "hmm_2state_prob_stress",
+      "description": "Posterior probability of the stress regime from a 2-state Gaussian Hidden Markov Model fit on the indicator series. Values in [0, 1]; higher = more stressed. Regime label 'stress' is assigned by pre-whitened variance ranking (larger-variance state = stress) per META-D2 sanity check.",
+      "source_method": "hmm_2state",
+      "added_at": "2026-04-19",
+      "first_pair": "hy_ig_v2_spy",
+      "notes": "Sign convention: stress = high. Direction is countercyclical for risk-off targets (SPY, equities). Validated against GFC / COVID episodes (stress_prob > 0.7 during both)."
+    },
+    {
+      "signal_code": "hmm_3state",
+      "display_name": "HMM 3-state regime mode",
+      "parquet_column_pattern": "hmm_3state_mode",
+      "description": "Maximum a-posteriori regime label from a 3-state Gaussian Hidden Markov Model (expansion / transition / contraction). Integer-valued in {0, 1, 2}; labels assigned by variance ranking (lowest variance = expansion, highest = contraction).",
+      "source_method": "hmm_3state",
+      "added_at": "2026-04-19",
+      "notes": "Discrete state index, NOT a probability. Tournament strategies typically condition on mode==0 (expansion) vs mode==2 (contraction); transition state (mode==1) is often pooled with expansion for P1 / P2 strategy families."
+    },
+    {
+      "signal_code": "markov_regime",
+      "display_name": "Markov-switching 2-state regime probability",
+      "parquet_column_pattern": "markov_regime_2state",
+      "description": "Smoothed probability of the high-variance (stress) regime from a 2-state Markov-switching regression with regime-dependent intercept and variance. Values in [0, 1]; higher = more stressed.",
+      "source_method": "markov_switching",
+      "added_at": "2026-04-19",
+      "notes": "Distinct from hmm_stress: Markov-switching fits a regression (with covariates) rather than a marginal Gaussian mixture. Regime labeling follows the same variance-ranking convention as hmm_stress."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "ace",
+  "x-generated": "2026-04-19",
+  "notes": "Initial canonical registry seeded from HY-IG v2 reference pair (per META-RPD) after Wave-5 reproducibility-audit Axis 1 exposed that recurring expander concepts (Plain English / ELI5 / In plain English / What this means) used divergent titles. Five bootstrap entries cover every recurring expander concept in the HY-IG v2 portal. Any new recurring concept is added via PR; ad-hoc deviations require a regression_note entry per APP-EX1.",
+  "titles": {
+    "plain_english": {
+      "canonical_title": "Plain English",
+      "role": "plain_english",
+      "when_to_use": "Layperson-friendly explanation of a technical construct (model, method, metric). N8 Plain English expanders on every page. Must NOT be rendered as 'ELI5', 'In plain English', 'What this means', or emoji-prefixed variants.",
+      "default_expanded": false,
+      "sop_rule_ids": ["RES-2", "APP-AF4", "META-ELI5"],
+      "deprecated_aliases": ["ELI5", "In plain English", "In Plain English", "What this means", "What this means (plain English)", "🧒 Plain English version"]
+    },
+    "deeper_dive": {
+      "canonical_title": "Deeper dive",
+      "role": "deeper_dive",
+      "when_to_use": "Technical detail for quant readers — formulas, citations, parameter choices, references. Used for progressive disclosure per APP-AF1 on Evidence and Methodology pages.",
+      "default_expanded": false,
+      "sop_rule_ids": ["APP-AF1", "RES-PA2"],
+      "deprecated_aliases": ["Technical detail", "For quants", "Advanced"]
+    },
+    "method_rationale": {
+      "canonical_title": "Why we chose this method",
+      "role": "method_rationale",
+      "when_to_use": "Element 3 of the Evidence 8-element template (RES-EP1). One expander per method block explaining the identification strategy, why this method over alternatives, and what question it answers.",
+      "default_expanded": false,
+      "sop_rule_ids": ["RES-EP1", "RES-3", "APP-EP1"],
+      "deprecated_aliases": ["Method rationale", "Why this method", "Methodological choice"]
+    },
+    "chart_reading_guide": {
+      "canonical_title": "How to read this chart",
+      "role": "chart_reading_guide",
+      "when_to_use": "Chart-reading guide for complex visualizations — axis convention, color encoding, threshold lines. Paired with 'How to read it:' caption prefix (APP-CC1). Used for Story-page hero chart, history-zoom charts, and any Evidence chart with non-obvious encoding.",
+      "default_expanded": false,
+      "sop_rule_ids": ["APP-DA1", "VIZ-A5", "APP-EP1"],
+      "deprecated_aliases": ["Chart notes", "How to interpret", "Reading guide"]
+    },
+    "honest_caveat": {
+      "canonical_title": "Honest assessment",
+      "role": "honest_caveat",
+      "when_to_use": "Element 7 of the Evidence 8-element template (RES-EP1). Caveats about sample size, OOS window, regime coverage, model assumptions. Paired with 'Caveat:' caption prefix (APP-CC1).",
+      "default_expanded": false,
+      "sop_rule_ids": ["RES-EP1", "RES-PA2", "APP-SE5"],
+      "deprecated_aliases": ["Caveats", "Limitations", "Assumptions and caveats"]
+    }
+  }
+}

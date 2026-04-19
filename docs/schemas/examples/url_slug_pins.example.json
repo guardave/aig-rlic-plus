@@ -1,0 +1,23 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "ace",
+  "x-generated": "2026-04-19",
+  "streamlit_version_observed": "1.39.0",
+  "notes": "Minimal example showing two pinned pages. Mirrors the production instance shape for consumer-side tests.",
+  "pages": {
+    "9_hy_ig_v2_spy_story.py": {
+      "expected_slug": "hy_ig_v2_spy_story",
+      "pair_id": "hy_ig_v2_spy",
+      "page_type": "story",
+      "canonical_breadcrumb": "HY-IG v2 -> Story",
+      "inbound_links": ["app/app.py landing card"]
+    },
+    "9_hy_ig_v2_spy_methodology.py": {
+      "expected_slug": "hy_ig_v2_spy_methodology",
+      "pair_id": "hy_ig_v2_spy",
+      "page_type": "methodology",
+      "canonical_breadcrumb": "HY-IG v2 -> Methodology",
+      "inbound_links": ["app/app.py landing card"]
+    }
+  }
+}

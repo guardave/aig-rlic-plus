@@ -576,6 +576,106 @@ Ace's `render_method_block` helper looks up `method_name` in the registry to res
 
 **Cross-reference:** META-CF, VIZ-A3 (axis/ordering preferences), VIZ-V3 (no silent chart fallback), VIZ-V4 (no silent drop of diagnostics), ECON-H4 (Evan's handoff table — INPUT), APP-CN1 (Ace's fallback sweep — CONSUMER enforcement).
 
+#### Rule V11 — Color Palette Registry (canonical, machine-readable) — addresses Wave 5 audit gaps #1, #2, #3, #15 (added 2026-04-19)
+
+The canonical color palette for AIG-RLIC+ portal charts is authoritative at **`docs/schemas/color_palette_registry.json`** (schema `docs/schemas/color_palette_registry.schema.json`, owner: Vera, per META-CF). This registry closes the Wave 5 audit finding that HY-IG v2 itself ships two palettes in parallel — the hero chart uses Okabe-Ito `#D55E00` (vermillion) while zoom charts and certain bar charts use matplotlib defaults (`#d62728` red, `#1f77b4` blue, `#2ca02c` green) — because the palette was prose-specified, not codified. Prose-only palette specifications are prohibited; this registry is the single source of truth.
+
+**Palette entries — canonical roles:**
+
+Every palette definition exposes the same named roles, so consumer code (Vera's builders, Ace's loader fallback coloring) can address colors by role rather than by literal hex:
+
+- `primary_data_trace` — the main data color (hero indicator trace, zoom chart data line, headline series)
+- `secondary_data_trace` — overlays (target series on dual-panel, benchmark on equity curve)
+- `nber_shading` — `rgba(150,120,120,0.22)` default per VIZ-V2
+- `event_marker_line` — dashed vertical annotation color (VIZ-V1, VIZ-V12)
+- `event_marker_label_bg` — annotation label background fill
+- `buy_indicator`, `sell_indicator`, `hold_indicator` — APP-SE3 trigger-card colors
+- `equity_curve`, `drawdown_fill` — Strategy page standard roles
+- Optional: `tertiary_data_trace`, `quartile_gradient` (4-color Q1→Q4), `categorical_extended` (multi-series)
+
+**Palette versioning.** The registry ships a versioned `palette_id` (e.g., `okabe_ito_2026`) so a future palette rework (`okabe_ito_2027`) is traceable back to the charts built under the prior palette. Bumping `palette_id` — either adding a new palette or changing any role color on an existing palette — is **methodological divergence per META-XVC**: it requires a `sop-changelog.md` entry, a regression_note.md entry documenting why the palette change was necessary, and (on a reference-pair v-bump) an `acceptance.md` Methodological Divergence Log row.
+
+**Producer validation (Vera, pre-save lint).**
+
+Before saving any chart JSON under `output/charts/**/plotly/` or `output/_comparison/`, Vera runs a pre-save lint that:
+
+1. Extracts every concrete color value from the Plotly figure — trace `line.color`, `marker.color`, `fill` fields; every `layout.Shape.fillcolor` and `line.color`; every `layout.Annotation.bgcolor`, `bordercolor`, `font.color`.
+2. Compares each extracted color against the registered palette identified by the chart's `_meta.json.palette_id`.
+3. **Blocks the save with a clear error** if any extracted color resolves to a raw matplotlib / plotly default (`#d62728`, `#1f77b4`, `#2ca02c`, `#ff7f0e`, `#9467bd`, `#8c564b`, `#e377c2`, `#7f7f7f`, `#bcbd22`, `#17becf`, or a bare Plotly `"C0"..."C9"` reference) and that color is not also a role value in the declared palette. The error names the offending field path and the closest registered palette role.
+
+Legacy charts that cannot be rebuilt immediately may be grandfathered by declaring `palette_id: "matplotlib_legacy"` in their `_meta.json` sidecar with a mandatory `grandfather_until` ISO date — but the lint still reports them as audit-flagged until rebuilt.
+
+**Sidecar contract.**
+
+Every chart's `_meta.json` sidecar (per VIZ-SD1) MUST carry `palette_id` referencing a key in `color_palette_registry.json`. A chart whose sidecar has no `palette_id`, or whose `palette_id` is not in the registry, fails VIZ-V5 smoke test.
+
+**Cross-reference:** META-CF (schema ownership), META-XVC (palette change = methodological divergence), VIZ-V2 (NBER shading exact rgba), VIZ-V5 (smoke test), VIZ-V8 (the other canonical chart-related registry), VIZ-SD1 (sidecar schema), APP-SE3 (Ace consumes buy/sell/hold roles).
+
+#### Rule V12 — Historical-Episode Events Registry (canonical, machine-readable) — addresses Wave 5 audit gaps #5, #6, SL-4 / SL-5 rationale-capture residual (added 2026-04-19)
+
+The canonical event-marker set for `history_zoom_{episode_slug}` charts (VIZ-V1) is authoritative at **`docs/schemas/history_zoom_events_registry.json`** (schema `docs/schemas/history_zoom_events_registry.schema.json`, owner: Vera — Ray may propose entries via PR, per META-CF). This registry closes the Wave 5 audit finding that event markers on the HY-IG v2 zoom charts (Dot-Com: Mar 2000 / Aug 2000 / Mar 2001 / Jul 2002; GFC: 5 events; COVID: 3 events) were picked ad-hoc without a recorded rationale. A second Vera working from the SOP could not reproduce the event set without re-deriving each date from primary sources.
+
+**Episode schema — required fields.**
+
+Each episode entry carries:
+
+- `episode_slug` (snake_case, matches the VIZ-V1 canonical slug: `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`, or a registered extension)
+- `episode_name` (human-readable)
+- `start_date`, `end_date` (ISO-8601 zoom-window bounds)
+- `episode_rationale` (why this episode is in the registry — which stakeholder feedback, narrative arc, or reference pair needs it)
+- `episode_source_citation` (canonical source for the window itself)
+- `key_events` — ordered array of 3-5 events; each event carries a mandatory `date`, `label`, `rationale`, `source_citation`, and optional `event_category`
+
+**Rationale and source_citation are mandatory.** `rationale` is a one-sentence causal / milestone explanation of why the date matters. `source_citation` names the authoritative source — NBER for recession start/end, FOMC statement for policy actions, SEC filing for bankruptcies, primary news wire for market peaks/troughs. Bare agent discretion ("Lesandro discretion" or "Vera judgment") is not a valid source_citation; the audit-question "would another Vera pick this date?" must answer yes given the source_citation alone.
+
+**Rendering contract (Vera).**
+
+When rendering a `history_zoom_{episode_slug}` chart (either canonical at `output/_comparison/` per META-ZI, or a pair override at `output/charts/{pair_id}/`), Vera:
+
+1. Reads the `episodes[{slug}].key_events` array from this registry.
+2. Renders one dashed vertical marker per event at its `date`, with `annotation_text` drawn from `label` (format: `"{MMM YYYY}: {event title ≤5 words}"`).
+3. Does not add, drop, or re-order event markers outside the registry. Ad-hoc event picks are prohibited.
+4. Records the registry `x-version` consumed in the chart's `_meta.json` sidecar (`events_registry_version: "1.0.0"`) so a rerun under a newer registry is auditably detected.
+
+**Adding / amending episodes.**
+
+Any new episode (e.g., a slug added to the META-ZI registry) requires a **registry PR first** before any chart production:
+
+1. Ray proposes the episode (episode_slug, episode_name, 3-5 key events each with rationale + source_citation) — typically in a research handoff tied to RES-20 (Ray's episode selection criterion, pending Wave 5B-2 Ray dispatch).
+2. Vera reviews, merges into `history_zoom_events_registry.json`, bumps `x-version` (additive: patch; structural change: minor; breaking rename: major).
+3. Adds a `sop-changelog.md` entry and, on reference-pair deliveries, a regression_note entry.
+4. Only then may a chart builder script consume the new episode slug.
+
+Amending an existing episode's event list (changing a date, editing a rationale, adding or removing a marker) is **methodological divergence per META-XVC** on every pair that previously rendered that episode — the change must cite the divergence in each affected regression_note.
+
+**Cross-reference:** META-CF (schema ownership), META-XVC (event-set change = methodological divergence), META-ZI (canonical + override episode chart protocol), VIZ-V1 (zoom chart production), RES-20 (Ray's episode-selection criterion, pending), RES-8 (prose-chart coupling for historical episodes).
+
+#### Rule V13 — Annotation Positioning Strategies (named, logged) — addresses Wave 5 audit gap #7 (added 2026-04-19)
+
+Event-annotation positioning on zoom charts (and any chart with >2 text annotations) is currently hand-tuned per chart — the Wave 5 audit found Dot-Com annotations sitting at y-values (867, 807, 748, 867) that Vera picked manually to avoid overlap, with no recorded algorithm. This rule codifies three named strategies so a second Vera can reproduce identical y-positions given identical data.
+
+**Allowed strategies.**
+
+A chart's annotation layout MUST declare exactly one of:
+
+- `descending_stair` — annotations placed in event order; each annotation's y-value shifts down by `plot_height × 0.10` from the previous one, wrapping back to the top when the bottom is hit. Good for a clear timeline of events with moderate density (4-6 markers).
+- `top_right_uniform` — all annotations anchored at the top-right corner, y-offset by a fixed `plot_height × 0.06` per annotation in event order. Works when the chart's data series lives primarily in the lower half.
+- `alternating_top_bottom` — odd-indexed events annotated above the data (y-offset `+plot_height × 0.08`), even-indexed events annotated below (y-offset `-plot_height × 0.08`). Reduces label overlap for dense zoom charts (≥5 markers).
+
+**Declaration in sidecar (mandatory).**
+
+Producer (Vera) records the choice in `_meta.json.annotation_strategy_id` for every chart that emits ≥2 annotations. Accepted values: `descending_stair`, `top_right_uniform`, `alternating_top_bottom`, or `manual_override` (see below). The VIZ-V5 smoke test fails a chart whose `_meta.json` carries ≥2 annotations without `annotation_strategy_id`.
+
+**Hand-tuning overrides.**
+
+A chart whose event layout cannot be represented by one of the three canonical strategies (e.g., a long label colliding with a data peak requires a custom nudge) may declare `annotation_strategy_id: "manual_override"`, but this carries three obligations:
+
+1. A `regression_note.md` entry for the rerun that names each manually-moved annotation and the concrete y-offset applied, with a one-sentence justification (why no canonical strategy works).
+2. The sidecar `_meta.json` carries an `annotation_overrides` array: `[{annotation_idx, y_offset, rationale}]` per moved annotation.
+3. On reference pairs (META-RPD), `manual_override` is a Lead-signoff item — Vera flags it in the acceptance.md Methodological Divergence Log.
+
+**Cross-reference:** META-XVC (strategy change across versions = methodological divergence — a v2 chart switching from `descending_stair` to `alternating_top_bottom` is documented in regression_note), VIZ-V1 (zoom chart production), VIZ-V5 (smoke test enforcement), VIZ-SD1 (sidecar schema).
+
 ### Chart-Text Coherence (Cross-Agent Contract) — addresses SL-3
 
 When Vera updates a chart's content — axis, labels, values, signal selection, transformation, or color encoding — Vera MUST notify Ray (Research) and Ace (AppDev) in the same dispatch so captions and narrative get updated in the same commit. SL-3 flagged the pattern: the Evidence heatmap was updated but the "What the chart shows" text wasn't, leaving the narrative out of sync with the visual.

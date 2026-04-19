@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus/docs/schemas/color_palette_registry.schema.json",
+  "title": "Color Palette Registry",
+  "description": "Single source of truth for color palettes used across AIG-RLIC+ portal charts. Per VIZ-V11 (owner: Vera, per META-CF), every chart's `_meta.json` sidecar must carry a `palette_id` field referencing an entry here. Producer-side lint blocks chart saves when raw matplotlib/plotly default colors appear in trace/shape/annotation color fields instead of a registered palette color. Palette changes between versions are methodological divergence per META-XVC — a bump to palette_id requires a regression_note entry and a sop-changelog entry.",
+  "x-owner": "vera",
+  "x-version": "1.0.0",
+  "type": "object",
+  "required": ["x-version", "x-owner", "palettes"],
+  "properties": {
+    "x-version": {
+      "type": "string",
+      "description": "Semver of the registry instance (separate from this schema's x-version). Bumped per META-CF whenever a palette entry is added, renamed, or any color value changes.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "x-owner": {
+      "type": "string",
+      "description": "Single agent accountable for the registry instance. Must be 'vera'.",
+      "const": "vera"
+    },
+    "x-generated": {
+      "type": "string",
+      "description": "ISO-8601 date the instance was last regenerated.",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform top-level notes about the instance (e.g., what was added in this version, migration notes across palette_id values)."
+    },
+    "palettes": {
+      "type": "object",
+      "description": "Map of palette_id -> palette definition. palette_id is snake_case, versioned (e.g., 'okabe_ito_2026' so a future 'okabe_ito_2027' bump is traceable).",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {
+          "$ref": "#/$defs/palette_definition"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "palette_definition": {
+      "type": "object",
+      "description": "One named, versioned palette. The role keys below are canonical — every chart color field must map to one of these roles.",
+      "required": [
+        "palette_id",
+        "description",
+        "primary_data_trace",
+        "secondary_data_trace",
+        "nber_shading",
+        "event_marker_line",
+        "event_marker_label_bg",
+        "buy_indicator",
+        "sell_indicator",
+        "hold_indicator",
+        "equity_curve",
+        "drawdown_fill"
+      ],
+      "properties": {
+        "palette_id": {
+          "type": "string",
+          "description": "Echo of the map key (e.g., 'okabe_ito_2026'). Versioned so future palette changes are traceable and so charts can record the exact palette_id used at build time.",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "description": {
+          "type": "string",
+          "description": "One-line human-readable summary of the palette (source, accessibility profile, intended audience)."
+        },
+        "source_citation": {
+          "type": "string",
+          "description": "Origin / attribution (e.g., 'Okabe and Ito 2008, Color Universal Design')."
+        },
+        "colorblind_safe": {
+          "type": "boolean",
+          "description": "True if the palette is designed to be distinguishable under common colorblind conditions (deuteranopia, protanopia, tritanopia)."
+        },
+        "primary_data_trace": {
+          "$ref": "#/$defs/color_value",
+          "description": "Main data series color (hero indicator trace, zoom chart data line, the headline series)."
+        },
+        "secondary_data_trace": {
+          "$ref": "#/$defs/color_value",
+          "description": "Overlay / second series (e.g., target series on a dual-panel chart, benchmark on an equity-curve chart)."
+        },
+        "tertiary_data_trace": {
+          "$ref": "#/$defs/color_value",
+          "description": "Optional third series color for charts with >2 traces (e.g., strategy vs B&H vs baseline)."
+        },
+        "nber_shading": {
+          "$ref": "#/$defs/color_value",
+          "description": "NBER recession shading fill — rgba with alpha in 0.20-0.28 band per VIZ-V2. Default 'rgba(150,120,120,0.22)'."
+        },
+        "event_marker_line": {
+          "$ref": "#/$defs/color_value",
+          "description": "Dashed vertical annotation line color for historical-episode event markers (VIZ-V1, VIZ-V12)."
+        },
+        "event_marker_label_bg": {
+          "$ref": "#/$defs/color_value",
+          "description": "Background fill for event-marker annotation labels (typically near-white with alpha for readability over data traces)."
+        },
+        "buy_indicator": {
+          "$ref": "#/$defs/color_value",
+          "description": "Color for BUY / risk-on trigger cards and signal-crossing indicators (APP-SE3)."
+        },
+        "sell_indicator": {
+          "$ref": "#/$defs/color_value",
+          "description": "Color for SELL / REDUCE / risk-off trigger cards and signal-crossing indicators (APP-SE3)."
+        },
+        "hold_indicator": {
+          "$ref": "#/$defs/color_value",
+          "description": "Color for HOLD / neutral trigger cards and signal-crossing indicators (APP-SE3)."
+        },
+        "equity_curve": {
+          "$ref": "#/$defs/color_value",
+          "description": "Default color for the winning strategy equity curve (Strategy page)."
+        },
+        "drawdown_fill": {
+          "$ref": "#/$defs/color_value",
+          "description": "Shaded area fill for drawdown-from-peak charts (VIZ-A3 equity_drawdown)."
+        },
+        "quartile_gradient": {
+          "type": "array",
+          "description": "Optional ordered 4-element gradient for quartile-return bar charts (Q1 → Q4). Tightest/best regime first, widest/worst last.",
+          "items": {"$ref": "#/$defs/color_value"},
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "categorical_extended": {
+          "type": "array",
+          "description": "Optional ordered list for charts that need >3 categorical colors (cross-pair dashboards, multi-target comparisons).",
+          "items": {"$ref": "#/$defs/color_value"},
+          "minItems": 4
+        }
+      },
+      "additionalProperties": false
+    },
+    "color_value": {
+      "type": "string",
+      "description": "Color in hex `#RRGGBB` / `#RRGGBBAA` form or rgba(r,g,b,a) form. No named CSS colors, no matplotlib defaults like 'C0'.",
+      "pattern": "^(#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?|rgba\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*(0|1|0?\\.\\d+)\\s*\\))$"
+    }
+  }
+}

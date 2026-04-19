@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-04-19T20:00:00Z",
+  "artifacts": [
+    {
+      "path": "data/hy_ig_v2_spy_daily_20260410.parquet",
+      "source": "derived:hy_ig_spread = FRED:BAMLH0A0HYM2 - FRED:BAMLC0A0CM; target=yahoo:SPY",
+      "refresh_ttl_days": 1,
+      "schema_ref": "data/hy_ig_v2_spy_daily_schema.json",
+      "last_updated": "2026-04-10",
+      "pairs": ["hy_ig_v2_spy"],
+      "mixed_freq_ttl_note": "Daily market + weekly NFCI + monthly claims; TTL=1 per fastest-component rule."
+    },
+    {
+      "path": "data/hy_ig_spy_daily_latest.parquet",
+      "source": "alias_of:data/hy_ig_spy_daily_20000101_20251231.parquet",
+      "refresh_ttl_days": 1,
+      "schema_ref": "data/hy_ig_spy_daily_schema.json",
+      "last_updated": "2026-02-28",
+      "pairs": ["hy_ig_spy"],
+      "source_master": "data/hy_ig_spy_daily_20000101_20251231.parquet"
+    },
+    {
+      "path": "data/indpro_spy_monthly_19900101_20251231.parquet",
+      "source": "FRED:INDPRO; target=yahoo:SPY",
+      "refresh_ttl_days": 30,
+      "schema_ref": "data/indpro_spy_monthly_schema.json",
+      "last_updated": "2026-03-14",
+      "pairs": ["indpro_spy"]
+    }
+  ]
+}

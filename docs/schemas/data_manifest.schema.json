@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/data_manifest.schema.json",
+  "x-owner": "dana",
+  "x-version": "1.0.0",
+  "title": "Data Manifest Schema (Cross-Pair Artifact Registry)",
+  "description": "Canonical contract for `data/manifest.json` — the machine-readable registry of every data artifact Dana delivers across the portal. Each entry records the stable path, the source-of-record, refresh TTL, the governing schema sidecar, the last-updated timestamp, and the pairs the artifact serves. Governed by DATA-D13 (producer rule) and META-CF (Contract File Standard). Ace's cache-TTL resolver (APP-DL1 / APP-TC1), Vera's axis builder, and Evan's signal-column reader all consume this file as the cross-pair canonical registry. Closes the Wave-5 audit finding that DATA-D5 schema sidecar existed at the per-parquet level but had no portfolio-level registry naming every artifact. Cross-references: DATA-D5 (column-level sidecar), DATA-D12 (column-suffix linter), DATA-D2 (unit convention registry), META-XVC (cross-version consistency), APP-DL1 (cache TTL derivation).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_at",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semver of this instance's conformance to the data_manifest contract. Bumped when the artifact entry shape is materially restructured."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 date-time at which Dana last regenerated this manifest. Used for staleness detection against artifact mtimes."
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "One entry per delivered data artifact. Every parquet under `data/` that any pair consumes must be registered. Orphan artifacts (present on disk but not registered) are a DATA-D13 violation.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "source",
+          "refresh_ttl_days",
+          "schema_ref",
+          "last_updated",
+          "pairs"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Repository-relative path to the data artifact. Example: `data/hy_ig_v2_spy_daily_20260410.parquet`. Both dated master files and `_latest` aliases may appear; aliases must also list a `source_master` field pointing at the dated master.",
+            "minLength": 1
+          },
+          "source": {
+            "type": "string",
+            "description": "Authoritative source-of-record identifier for the artifact. For raw series, a data-provider identifier (e.g. `FRED:BAMLH0A0HYM2`, `yahoo:SPY`). For derived artifacts, a derivation pointer (e.g. `derived:hy_ig_spread = BAMLH0A0HYM2 - BAMLC0A0CM`). Never empty.",
+            "minLength": 1
+          },
+          "refresh_ttl_days": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Recommended cache TTL in days for Ace's `@st.cache_data(ttl=...)`. 1 for daily-refreshing series, 7 for weekly, 30 for monthly, 90 for quarterly, 0 for static/one-time. For mixed-frequency parquets, use the fastest-refreshing component (document reason in `mixed_freq_ttl_note`)."
+          },
+          "schema_ref": {
+            "type": "string",
+            "description": "Repository-relative path to the DATA-D5 sidecar describing this artifact's columns. Example: `data/hy_ig_v2_spy_daily_schema.json`. Consumer tools chain: read this field, then load the sidecar, then look up per-column metadata. Missing sidecar is a DATA-D11 violation."
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date",
+            "description": "ISO 8601 date of the most recent refresh of this artifact. Compared against `refresh_ttl_days` to detect staleness."
+          },
+          "pairs": {
+            "type": "array",
+            "description": "List of canonical pair IDs this artifact serves. A single parquet may serve multiple pairs (e.g. `hy_ig_v2_spy` and a future `hy_ig_v2_hyg`). `shared` allowed when the artifact is deliberately indicator-only (no target).",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "source_master": {
+            "type": "string",
+            "description": "Optional. When `path` is a `_latest` alias, this field points at the dated master. Example: `path=data/hy_ig_spy_daily_latest.parquet`, `source_master=data/hy_ig_spy_daily_20000101_20251231.parquet`. Dated masters omit this field."
+          },
+          "mixed_freq_ttl_note": {
+            "type": "string",
+            "description": "Optional. When the artifact contains series of heterogeneous refresh cadence, explains why the chosen TTL is appropriate. Example: `Contains daily market data + monthly ISM; recommend TTL=1 (daily) per fastest-component rule.`"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus/docs/schemas/url_slug_pins.schema.json",
+  "title": "URL Slug Pins",
+  "description": "Pinned expected URL slugs for every Streamlit page in `app/pages/`. Per APP-URL1 (owner: Ace, per META-CF), Streamlit Cloud derives each page's URL slug from its filename by stripping the leading `N_` numeric prefix and converting underscores. If Streamlit changes its slugification rules (case, separator, prefix stripping) the slug for every page silently shifts and every downstream consumer — breadcrumb components, cross-page `st.page_link(...)` calls, external deep links cited in `acceptance.md` and stakeholder feedback — breaks without a visible error. Pinning the expected slug and asserting it at acceptance-time turns a silent class of regression into a blocking gate. Registry-based breadcrumb rendering reads `expected_slug` here instead of inferring from the filename.",
+  "x-owner": "ace",
+  "x-version": "1.0.0",
+  "type": "object",
+  "required": ["x-version", "x-owner", "pages"],
+  "properties": {
+    "x-version": {
+      "type": "string",
+      "description": "Semver of the pins instance (separate from this schema's x-version). Bumped per META-CF whenever a page is added, renamed, or moved; any `expected_slug` change is a breaking major bump because external links depend on the slug.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "x-owner": {
+      "type": "string",
+      "description": "Single agent accountable for the pins instance. Must be 'ace'.",
+      "const": "ace"
+    },
+    "x-generated": {
+      "type": "string",
+      "description": "ISO-8601 date the instance was last regenerated."
+    },
+    "streamlit_version_observed": {
+      "type": "string",
+      "description": "Streamlit version under which these slugs were observed (e.g., '1.39.0'). Consumer smoke test flags a warning if `streamlit.__version__` at acceptance time differs from this value."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes (e.g., observed slug rule: strip leading `N_`, lowercase, keep underscores as underscores)."
+    },
+    "pages": {
+      "type": "object",
+      "description": "Map of page_file (relative path under app/pages/) -> slug pin entry.",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[0-9]+_[a-z0-9_]+\\.py$": {
+          "$ref": "#/$defs/slug_pin"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "slug_pin": {
+      "type": "object",
+      "description": "One pinned page slug.",
+      "required": ["expected_slug", "pair_id", "page_type"],
+      "properties": {
+        "expected_slug": {
+          "type": "string",
+          "description": "The exact slug Streamlit is expected to derive from this filename at page-registry build time. Observed rule for Streamlit 1.39.x: strip leading `N_` numeric prefix + underscore, keep remaining underscores as underscores, do not modify case. Example: `9_hy_ig_v2_spy_story.py` -> `hy_ig_v2_spy_story`.",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "pair_id": {
+          "type": "string",
+          "description": "Pair the page belongs to (e.g., 'hy_ig_v2_spy'). Landing / cross-pair pages use 'landing'.",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "page_type": {
+          "type": "string",
+          "description": "Page type per APP-PA1.",
+          "enum": ["story", "evidence", "strategy", "methodology", "landing", "cross_pair"]
+        },
+        "canonical_breadcrumb": {
+          "type": "string",
+          "description": "Optional human-readable breadcrumb label rendered by the breadcrumb component (replaces inferred title-casing). Example: 'HY-IG v2 -> Story'."
+        },
+        "inbound_links": {
+          "type": "array",
+          "description": "Cross-page links in other app/pages/*.py that target this page via st.page_link. Used by the slug-pin smoke test to assert every link still resolves after a Streamlit upgrade.",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

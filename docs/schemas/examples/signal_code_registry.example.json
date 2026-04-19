@@ -1,0 +1,66 @@
+{
+  "x-version": "1.2.0",
+  "x-owner": "evan",
+  "x-generated": "2026-05-15",
+  "notes": "Example instance showing an evolved registry (not the live bootstrap). Demonstrates (a) the bootstrap HMM/Markov entries from Wave 5B-2, (b) an appended z-score entry after a later pair's rerun, (c) an appended ROC entry, and (d) a percentile-rank entry — illustrating the append-only evolution pattern. Do NOT use this file in production; it exists only as a META-CF example for rule authors.",
+  "signals": [
+    {
+      "signal_code": "hmm_stress",
+      "display_name": "HMM 2-state stress probability",
+      "parquet_column_pattern": "hmm_2state_prob_stress",
+      "description": "Posterior probability of the stress regime from a 2-state Gaussian Hidden Markov Model fit on the indicator series. Values in [0, 1]; higher = more stressed.",
+      "source_method": "hmm_2state",
+      "added_at": "2026-04-19",
+      "first_pair": "hy_ig_v2_spy",
+      "notes": "Bootstrap entry. Regime label assigned by variance ranking."
+    },
+    {
+      "signal_code": "hmm_3state",
+      "display_name": "HMM 3-state regime mode",
+      "parquet_column_pattern": "hmm_3state_mode",
+      "description": "Maximum a-posteriori regime label from a 3-state Gaussian Hidden Markov Model (expansion / transition / contraction). Integer-valued in {0, 1, 2}.",
+      "source_method": "hmm_3state",
+      "added_at": "2026-04-19",
+      "notes": "Discrete state index, NOT a probability."
+    },
+    {
+      "signal_code": "markov_regime",
+      "display_name": "Markov-switching 2-state regime probability",
+      "parquet_column_pattern": "markov_regime_2state",
+      "description": "Smoothed probability of the high-variance regime from a 2-state Markov-switching regression.",
+      "source_method": "markov_switching",
+      "added_at": "2026-04-19",
+      "notes": "Regression-based sibling to hmm_stress."
+    },
+    {
+      "signal_code": "zscore_lb252",
+      "display_name": "Z-score (252-day lookback)",
+      "parquet_column_pattern": "zscore_lb252",
+      "description": "Rolling 252-trading-day z-score of the indicator level. Standardizes for cross-pair comparability.",
+      "source_method": "zscore",
+      "added_at": "2026-05-01",
+      "first_pair": "building_permits_spy",
+      "notes": "Appended in Wave 6 when Building Permits pair required a standardized momentum signal."
+    },
+    {
+      "signal_code": "roc_63d",
+      "display_name": "Rate-of-change (63-day horizon)",
+      "parquet_column_pattern": "roc_63d",
+      "description": "63-trading-day (quarterly) rate-of-change of the indicator level, expressed as decimal return.",
+      "source_method": "roc",
+      "added_at": "2026-05-10",
+      "first_pair": "indpro_spy",
+      "notes": "Quarterly momentum signal. Sign convention: positive = indicator rising."
+    },
+    {
+      "signal_code": "pctrank_1260d",
+      "display_name": "Percentile rank (5-year lookback)",
+      "parquet_column_pattern": "pctrank_1260d",
+      "description": "Rolling 1260-trading-day (5-year) empirical percentile rank of the indicator level. Values in [0, 1].",
+      "source_method": "percentile_rank",
+      "added_at": "2026-05-15",
+      "first_pair": "vix_vix3m_spy",
+      "notes": "5-year percentile rank is the canonical threshold input for P1_long_cash strategies on volatility indicators."
+    }
+  ]
+}

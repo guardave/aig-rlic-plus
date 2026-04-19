@@ -161,6 +161,42 @@
       "econ_rule_id": "ECON-T1",
       "consumer_page": "strategy",
       "notes": "OOS Sharpe vs turnover per combo; X = turnover, Y = Sharpe; color = max DD; stars = top 5; diamond = B&H."
+    },
+    "trade_log_preview": {
+      "expected_chart_type": "line",
+      "canonical_filename_pattern": "trade_log_preview.json",
+      "required_result_file": "winner_trades_broker_style.csv",
+      "viz_rule_id": "VIZ-A3",
+      "econ_rule_id": "ECON-C4",
+      "consumer_page": "strategy",
+      "notes": "APP-CH1 non-method entry (added Wave 5B-2). Mini cumulative-PnL line with BUY/REDUCE markers at signal-crossing dates, sourced from the broker-style trade log. Paired with the first-N-rows trade-log table preview on the Strategy page (row count governed by APP-AF5 extension; default N=10)."
+    },
+    "signal_timeseries": {
+      "expected_chart_type": "line",
+      "canonical_filename_pattern": "signal_timeseries.json",
+      "required_result_file": "signals_{date}.parquet",
+      "viz_rule_id": "VIZ-V4",
+      "econ_rule_id": "ECON-DS1",
+      "consumer_page": "strategy",
+      "notes": "APP-CH1 non-method entry (added Wave 5B-2). Primary signal column time-series (per winner_summary.signal_column, APP-WS1) with decision-threshold dashed line and NBER shading when span > 5yr. Produced by the Probability Engine Panel (APP-SE1) as a standalone exportable JSON for Ace's loader; the in-page rendering path also reads from `signals_{date}.parquet` directly."
+    },
+    "position_timeseries": {
+      "expected_chart_type": "area_probability",
+      "canonical_filename_pattern": "position_timeseries.json",
+      "required_result_file": "signals_{date}.parquet",
+      "viz_rule_id": "VIZ-V4",
+      "econ_rule_id": "ECON-DS1",
+      "consumer_page": "strategy",
+      "notes": "APP-CH1 non-method entry (added Wave 5B-2). Resulting 0-100% equity exposure derived from signal x strategy_family rules (P1_long_cash / P2_signal_strength / P3_long_short), rendered by the Position Adjustment Panel (APP-SE2). Companion to signal_timeseries; color encoding uses buy/hold/sell_indicator roles from VIZ-V11 color_palette_registry."
+    },
+    "regime_shading_backdrop": {
+      "expected_chart_type": "area_probability",
+      "canonical_filename_pattern": "regime_shading_backdrop.json",
+      "required_result_file": "core_models_{date}/hmm_states_2state.parquet",
+      "viz_rule_id": "VIZ-V4",
+      "econ_rule_id": "ECON-C2",
+      "consumer_page": "story",
+      "notes": "APP-CH1 non-method entry (added Wave 5B-2). Story-page hero-chart companion showing HMM stress/calm regime bands as a full-width backdrop (distinct from the probabilistic hmm_regime_probs chart on Evidence which uses an area-probability encoding). Exists to give the Story hero a simple regime backdrop without re-deriving HMM state labels at render-time."
     }
   }
 }

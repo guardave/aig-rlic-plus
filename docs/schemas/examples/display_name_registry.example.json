@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-04-19T20:00:00Z",
+  "columns": [
+    {
+      "column_name": "hy_ig_spread_bps",
+      "display_name": "HY-IG Credit Spread (bps)",
+      "unit": "bps",
+      "axis_label": "Spread (bps)"
+    },
+    {
+      "column_name": "hy_ig_mom_63d_bps",
+      "display_name": "HY-IG Spread 63-day Momentum (bps)",
+      "unit": "bps",
+      "axis_label": "63d Change (bps)"
+    },
+    {
+      "column_name": "spy_close",
+      "display_name": "SPY Close ($)",
+      "unit": "price",
+      "axis_label": "SPY ($)"
+    },
+    {
+      "column_name": "spy_ret_1d",
+      "display_name": "SPY 1-Day Return (decimal)",
+      "unit": "decimal_return",
+      "axis_label": "Daily Return"
+    },
+    {
+      "column_name": "vix_idx",
+      "display_name": "VIX Index Level",
+      "unit": "index",
+      "axis_label": "VIX"
+    }
+  ]
+}

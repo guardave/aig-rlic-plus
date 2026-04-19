@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus/docs/schemas/history_zoom_events_registry.schema.json",
+  "title": "Historical Episode Events Registry",
+  "description": "Canonical event-marker registry for `history_zoom_{episode_slug}` charts (VIZ-V1). Per VIZ-V12 (owner: Vera; Ray may propose entries via PR, per META-CF), every zoom chart renders its event markers from this registry — no ad-hoc picks. Each key-event row carries a mandatory `rationale` and `source_citation` so a second Vera reruns identically. Any new episode requires registry PR first. Palette / positioning strategy choices live outside this registry (see color_palette_registry and VIZ-V13 annotation strategies).",
+  "x-owner": "vera",
+  "x-version": "1.0.0",
+  "type": "object",
+  "required": ["x-version", "x-owner", "episodes"],
+  "properties": {
+    "x-version": {
+      "type": "string",
+      "description": "Semver of the registry instance. Bumped per META-CF on episode add / event add / rationale rewrite.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "x-owner": {
+      "type": "string",
+      "description": "Single agent accountable for the registry instance. Must be 'vera' (Ray may propose via PR, Vera merges).",
+      "const": "vera"
+    },
+    "x-generated": {
+      "type": "string",
+      "description": "ISO-8601 date the instance was last regenerated.",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform top-level notes (e.g. bootstrap rationale, pending Ray dispatches)."
+    },
+    "episodes": {
+      "type": "object",
+      "description": "Map of episode_slug -> episode definition. Slugs match the canonical set in VIZ-V1 (dotcom, gfc, covid, taper_2018, inflation_2022) and extensions.",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {
+          "$ref": "#/$defs/episode"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "episode": {
+      "type": "object",
+      "description": "One historical episode entry.",
+      "required": [
+        "episode_slug",
+        "episode_name",
+        "start_date",
+        "end_date",
+        "key_events"
+      ],
+      "properties": {
+        "episode_slug": {
+          "type": "string",
+          "description": "Echo of the map key, snake_case (e.g., 'dotcom').",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "episode_name": {
+          "type": "string",
+          "description": "Human-readable name (e.g., 'Dot-Com Bust')."
+        },
+        "start_date": {
+          "type": "string",
+          "description": "Earliest date rendered in the zoom window (ISO-8601 YYYY-MM-DD).",
+          "format": "date"
+        },
+        "end_date": {
+          "type": "string",
+          "description": "Latest date rendered in the zoom window (ISO-8601 YYYY-MM-DD).",
+          "format": "date"
+        },
+        "episode_rationale": {
+          "type": "string",
+          "description": "Why this episode is in the registry — i.e., which stakeholder feedback (SL-4 / SL-5), which narrative arc, which reference pair needs it."
+        },
+        "episode_source_citation": {
+          "type": "string",
+          "description": "Canonical source for the start/end window (NBER recession dates, Fed timeline, etc.)."
+        },
+        "key_events": {
+          "type": "array",
+          "description": "Ordered list of 3-5 dated events rendered as vertical dashed markers on the zoom chart.",
+          "minItems": 3,
+          "maxItems": 8,
+          "items": {"$ref": "#/$defs/event"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "description": "One event marker entry.",
+      "required": ["date", "label", "rationale", "source_citation"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "Event date (ISO-8601 YYYY-MM-DD). Must fall within the episode's [start_date, end_date] window.",
+          "format": "date"
+        },
+        "label": {
+          "type": "string",
+          "description": "Short annotation text rendered next to the vertical marker (e.g., 'Mar 2000: Dot-Com peak'). Per VIZ-V1 recommended format '{MMM YYYY}: {event title ≤5 words}'.",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this date matters in the episode — one-sentence causal or milestone explanation. Mandatory per VIZ-V12.",
+          "minLength": 10
+        },
+        "source_citation": {
+          "type": "string",
+          "description": "Authoritative source for the date/event pair. NBER for recession starts/ends; paper, Fed statement, or news wire for market events. Mandatory per VIZ-V12 — no bare agent discretion.",
+          "minLength": 3
+        },
+        "event_category": {
+          "type": "string",
+          "description": "Optional categorization tag (e.g. 'recession_start', 'policy_action', 'market_peak', 'bankruptcy', 'data_release').",
+          "enum": [
+            "recession_start",
+            "recession_end",
+            "policy_action",
+            "market_peak",
+            "market_trough",
+            "bankruptcy",
+            "data_release",
+            "geopolitical",
+            "other"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/display_name_registry.schema.json",
+  "x-owner": "dana",
+  "x-version": "1.0.0",
+  "title": "Display-Name Registry Schema (Canonical Column-to-Label Mapping)",
+  "description": "Canonical contract for `data/display_name_registry.csv` — the cross-pair mapping from parquet canonical column names to chart-ready display labels and units. Governed by DATA-D13 (producer rule) and META-CF (Contract File Standard). This schema describes the row shape of the CSV; the CSV file itself is the canonical instance Vera and Ace consume directly. Closes the Wave-5 audit finding that display_name was mandated by DATA-DD1 (data dictionary Display Name column) but had no portfolio-level single source of truth; drift was inevitable when the same indicator appeared in multiple pair dictionaries. Cross-references: DATA-D5 (per-parquet sidecar which cross-validates against this registry), DATA-D12 (column-suffix linter — the registry is also the canonical suffix registry for display-name governance), META-XVC (cross-version consistency for the same column name), VIZ-A2 (axis-label unit match), APP-AF3 (metric interpretation rule).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_at",
+    "columns"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semver of this instance's conformance to the registry contract. Bumped when the row shape is materially restructured (add/remove/rename a column of the CSV)."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 date-time at which Dana last regenerated the registry."
+    },
+    "columns": {
+      "type": "array",
+      "description": "One entry per canonical parquet column name across the entire portal. The CSV-on-disk instance has these exact fields as its column headers in the order (column_name, display_name, unit, axis_label). Duplicate `column_name` values are prohibited — a canonical name has exactly one display mapping, forever.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "column_name",
+          "display_name",
+          "unit",
+          "axis_label"
+        ],
+        "properties": {
+          "column_name": {
+            "type": "string",
+            "description": "Canonical parquet column name in snake_case, with DATA-D12 unit suffix where applicable (e.g. `hy_ig_spread_bps`, `spy_ret_1d`, `vix_idx`). Matches the EXACT string as it appears in the parquet file. Unique across the registry.",
+            "minLength": 1
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable chart-title-style label suitable for portal headers and KPI cards. Includes the unit in parentheses where ambiguity is possible. Example: `HY-IG Credit Spread (bps)`.",
+            "minLength": 1
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "bps",
+              "pct",
+              "percent",
+              "ratio",
+              "decimal_return",
+              "index",
+              "usd",
+              "count",
+              "vol_ann_pct",
+              "price",
+              "date",
+              "none"
+            ],
+            "description": "Controlled unit vocabulary (mirrors DATA-D2 and data_subject.schema.json). Must match the `unit` field in the per-parquet DATA-D5 sidecar; mismatches are a cross-artifact integrity failure."
+          },
+          "axis_label": {
+            "type": "string",
+            "description": "Short chart-axis label (typically 2-6 words). Shorter than `display_name` because axis real estate is limited. Example: `Spread (bps)` or `Return (%)`. Vera's VIZ-A2 axis builder consumes this field.",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

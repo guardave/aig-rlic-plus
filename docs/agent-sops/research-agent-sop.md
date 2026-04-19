@@ -473,6 +473,81 @@ Silence is not acceptance. An unaddressed Ace request past the one-week SLA is a
 
 **Cross-reference:** APP-NR1 (Ace's consumer smoke test), APP-DIR1 (cross-agent direction-assertion integrity), META-CF (Contract File Standard), RES-6 (glossary rubric), RES-VS (status vocabulary self-check), RES-11 (headline-first structure).
 
+### Rule RES-18 — Headline Template Constraint (Blocking)
+
+RES-11 mandates the position and H2-level of the Story headline but leaves exact phrasing open. Wave 5 audit confirmed that two rule-compliant Ray authors will produce materially different headline prose (e.g. "Sharpe 1.27 over 8-year OOS — credit spreads warn…" vs "15-year Sharpe 1.27: credit spreads as an early-warning signal…"). RES-18 constrains the phrasing to two sanctioned templates while leaving word choice inside each template to author judgement.
+
+**Sanctioned templates (authors pick ONE per narrative):**
+
+- **Template A — Metric-first:**
+  `## [Metric] over [OOS span] — [indicator] as [role] for [target outcome]`
+  Example: `## Sharpe 1.27 over 8-year OOS — credit spreads as an early-warning signal for equity drawdowns`
+
+- **Template B — Insight-first:**
+  `## [One-line insight]. [Metric] over [OOS span].`
+  Example: `## Credit spreads widen months before equity drawdowns. Sharpe 1.27 over 8-year OOS.`
+
+**Rules:**
+
+1. **Exact wording within the chosen template is author's choice.** RES-18 does not dictate verbs ("warn" vs "signal" vs "precede"), indicator phrasing ("credit spreads" vs "HY-IG spread"), or role phrasing ("early-warning signal" vs "multi-month lead indicator"). The author selects register.
+2. **OOS span is read, not typed.** The `[OOS span]` value is resolved from `results/{pair_id}/oos_split_record.json` (Evan-owned, per ECON-H5 adjacent contract). Ray does NOT hand-type an OOS year-count. This closes the Wave-5 audit bug where the narrative carried "8-year OOS" while project memory carried "15-year OOS" — either value could have been correct, but the hand-typed number silently drifted from the ground truth.
+3. **Metric value is read, not typed.** The `[Metric]` value (Sharpe, CAGR, or Max DD depending on register) is resolved from `results/{pair_id}/winner_summary.json` (ECON-H5). Rounding to 2 decimal places is author's choice; the underlying number is NOT hand-typed.
+4. **Template ID recorded in frontmatter.** Add `headline_template: "A"` or `headline_template: "B"` to the narrative frontmatter (RES-17) so a mechanical regression check can confirm the same template persists across reruns of the same pair unless the regression_note documents a deliberate switch.
+5. **Other forms require design_note.** Any Story page headline that does not match Template A or Template B requires a `design_note.md` rationale block approved by Lead before acceptance.
+
+**Cross-reference:** RES-11 (headline-first structure, position + H2), RES-17 (frontmatter carries `headline_template`), ECON-H5 (`winner_summary.json` + `oos_split_record.json` ground-truth for metric and OOS span), META-XVC (Cross-Version Discipline — template choice across v1→v2 should persist unless divergence is documented).
+
+Addresses Wave-5 audit high-severity gap: headline exact phrasing discretion; simultaneously closes the "hand-typed OOS window" drift class.
+
+### Rule RES-20 — Historical-Episode Selection Criterion (Blocking)
+
+RES-8 governs the presence of a zoom-in chart for each referenced historical episode but does not prescribe WHICH episodes a narrative should reference. Wave 5 audit found Dot-Com / GFC / COVID selected by informal convention — another Ray could equally pick 2018 Taper or 2022 Rate Shock. The selection is load-bearing (the episodes shape the reader's trust in the indicator) so it cannot stay discretionary.
+
+**Selection rule.** Every narrative MUST reference at least THREE historical episodes following this triad:
+
+1. **Long-lead case** — ONE episode where the indicator led the equity market by 6+ months. Purpose: teaches the reader the value of the early warning. Canonical example for credit pairs: GFC (spreads widened ~9 months before SPY peak).
+2. **Coincident case** — ONE episode where the indicator moved WITH the equity market rather than ahead of it. Purpose: honest framing — the signal is not a uniform predictor. Canonical example: COVID (credit + equity fell simultaneously in late-Feb 2020).
+3. **Failure case** — ONE episode where the indicator gave a signal that did NOT pan out, or failed to signal a drawdown it should have caught. Purpose: honest caveat — indicators are not infallible; honesty earns trust. Canonical example for credit pairs: 2022 rate shock (credit spreads stayed compressed through the Fed tightening drawdown that hit equities).
+
+**Optional 4th confirmer.** Authors may add a fourth well-known episode for additional context (e.g. Dot-Com on a credit pair where the triad is already GFC / COVID / 2022). The confirmer is secondary, not required.
+
+**Rules:**
+
+1. **Selection rationale recorded in frontmatter.** Per-episode `selection_rationale` field added to each `historical_episodes_referenced[i]` entry. Enum: `long_lead` / `coincident` / `failure_case` / `confirmer`. Pre-handoff `validate_schema.py` confirms the triad is represented.
+2. **Episode must exist in Vera's registry.** Each `episode_slug` MUST resolve to an entry in `output/charts/chart_type_registry.json` (VIZ-V12 / chart-type registry). If the desired episode is not yet registered, Ray files a PR to add it BEFORE writing the prose reference — the narrative does not ship referencing an unregistered episode.
+3. **Cross-version consistency (META-XVC).** Episode selection between v1 and v2 of the same pair should match unless the regression_note documents a deliberate switch with a strong reason (e.g. v1 Dot-Com → v2 2022 Rate Shock because v2 added the failure-case requirement retroactively).
+
+**Cross-reference:** RES-8 (each referenced episode requires its zoom chart), META-ZI (canonical vs pair-specific override protocol), VIZ-V1 (Vera produces the zoom charts), VIZ-V12 (chart-type registry where episodes are registered), META-XVC (cross-version episode-selection consistency), RES-17 (frontmatter carries `selection_rationale` per episode).
+
+Addresses Wave-5 audit high-severity gap: historical-episode selection discretion (could silently diverge across Ray authors). Also codifies the "failure case" honesty norm that was previously tribal.
+
+### Rule RES-22 — Status-Label Assignment Decision Table (Blocking)
+
+RES-10 + RES-VS define the canonical status vocabulary (Available / Pending / Validated / Stale / Draft / Mature / Unknown) but do NOT specify under which empirical condition each label applies. Wave 5 audit found `chart_status: "ready"` used in the HY-IG v2 narrative — "ready" is not in the canonical vocabulary, yet the author selected it because the rule left the assignment discretionary. RES-22 closes that gap with a deterministic condition → label lookup.
+
+**Decision table (authoritative):**
+
+| Empirical condition of the artifact | Canonical label |
+|---|---|
+| Artifact exists on disk AND validates against its schema AND was last modified within 60 days | **Validated** |
+| Artifact exists on disk AND validates against its schema AND was last modified more than 60 days ago | **Stale** |
+| Artifact exists on disk AND no schema has been authored for it yet | **Available** |
+| Artifact is scheduled (named in a manifest or handoff) but has NOT been produced | **Pending** |
+| Artifact is explicitly marked work-in-progress by its producer | **Draft** |
+| Artifact has persisted across 3+ acceptance cycles with no schema, validation, or content changes | **Mature** |
+| Artifact state cannot be determined (e.g. file present but schema validation raises unexpected error, or producer ownership is unclear) | **Unknown** (BLOCKING — must be resolved before acceptance) |
+
+**Rules:**
+
+1. **Authors assign labels per the decision table, NOT by personal choice.** Ray evaluates each artifact against the conditions in order (top to bottom; first match wins) and applies the matching label. "Felt most natural" is not a valid selection procedure.
+2. **"ready" is a banned informal alias.** Every `chart_status: "ready"` or similar informal label is replaced by `Available` (if the schema-less condition applies) or `Validated` (if a schema has been authored and passes). Wave 5C will migrate existing occurrences in HY-IG v2; this rule blocks new occurrences.
+3. **ELI5 pairing (META-ELI5).** Every status label rendered to users MUST be accompanied by the plain-English definition from `docs/portal_glossary.json._status_vocabulary`. Ace's rendering helper (`app/components/glossary.py`) supplies the ELI5 body; Ray's narrative prose supplies the technical label. Silent emission of a raw label without its ELI5 sibling is a META-ELI5 violation.
+4. **Unknown is blocking.** Per META-UNK, `Unknown` is an error signal, not a ship-state. If Ray cannot determine the artifact's condition, escalation to Lead is required before handoff — shipping `Unknown` on a portal-visible status label is a gate failure.
+
+**Cross-reference:** RES-10 (Status Vocabulary Glossary), RES-VS (narrative status vocabulary self-check), DATA-VS (data-layer companion), META-UNK (Unknown Is Not a Display State), META-ELI5 (every user-visible flag requires plain-English pairing), META-CF (the decision table is a rule, not a contract file, but the canonical vocabulary lives in `portal_glossary.json` which is under META-CF-adjacent governance).
+
+Addresses Wave-5 audit stakeholder-resolution gap: `chart_status: "ready"` violates RES-VS; root cause was that RES-VS validated vocabulary membership but not condition-to-label mapping. Wave 5C will retro-apply the migration.
+
 ### Bibliography Scale
 
 The HY-IG v2 pair ships a **17-entry bibliography** organized across 4 categories (foundational theory, empirical validation, method references, practitioner-market context). This is the **reference template** for bibliography depth.

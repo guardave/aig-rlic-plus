@@ -97,6 +97,7 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 27 | End-to-End Chart Render Test | Every chart referenced by any portal page of a pair under acceptance must: (a) load successfully via `load_plotly_chart(name, pair_id)` and return a non-None Figure object; (b) have at least one data trace; (c) have a non-empty title. Enforcement: Vera runs VIZ-V5 smoke tests on all canonical artifacts; Ace runs a loader smoke-test extension of Defense-2 that exercises `load_plotly_chart()` for every chart referenced by every portal page of the pair. Both agents submit their smoke-test logs as part of acceptance.md. **Blocking:** any chart failing the smoke test blocks acceptance until fixed. **Addresses** the Dot-Com canonical zoom bug where the file existed, the path resolved, and the loader still returned None — a failure mode invisible to file-existence checks alone. **Owners:** Vera (canonical artifacts) + Ace (loader + portal), Lesandro (gate). |
 | 28 | Reference-Pair Placeholder Prohibition | On reference-pair pages (see Reference Pair Doctrine), any "chart pending" placeholder (the GATE-25 graceful fallback) is an **acceptance blocker**. Graceful degradation is appropriate for non-reference pairs under development; reference pairs are the gold standard and must render 100% of referenced charts. acceptance.md must assert: zero `chart_pending` placeholders in rendered page DOM, verified via headless-browser DOM audit over every portal page of the reference pair. **Addresses** the gate-level gap that allowed "chart pending" to pass Wave 3 verification on a reference pair. **Owners:** Ace (portal audit) + Lesandro (gate). |
 | 29 | Clean-Checkout Deployment Test | Before acceptance, the pair's portal must pass a smoke test run in a **clean checkout that respects `.gitignore`** — a simulation of Streamlit Cloud's deployment environment. Implementation: `git clone --depth 1 "$(git rev-parse --show-toplevel)" /tmp/clean_checkout_{pair_id}` then `cd /tmp/clean_checkout_{pair_id}` then `python3 app/_smoke_tests/smoke_loader.py --pair-id {pair_id}`. Any file referenced by `app/` code that exists in the working tree but NOT in the clean checkout = gate failure (indicates a silent gitignore exclusion or missing `git add -f`). Blocks acceptance for reference pairs. Rationale: `GATE-27` validates rendering in the dev env; `GATE-29` validates deployability. Cross-reference: `ECON-DS2` (Deploy-Required Artifact Allowlist) is the producer-side counterpart; `APP-ST1` is the reusable smoke-test harness. This gate catches the class of bug "works on my laptop, breaks on Cloud" — the symptom is usually a `FileNotFoundError` or `cannot render` error on a deployed page. **Owners:** Ace (smoke test execution) + Lesandro (gate). |
+| 30 | Deflection Link Audit | Triggered whenever a stakeholder-feedback item (Sxx-y / SL-n) is closed in `acceptance.md` by deflecting to another page/section rather than by an in-place fix. Rule: (a) the resolution text must explicitly name the target page AND the target section/anchor; (b) the target page/section is **blocking-verified** to exist AND to contain the content claimed — headless-browser DOM assertion on the target anchor and a content-presence assertion on the text that addresses the stakeholder's concern; (c) **Lead sign-off is required** on every deflection-style resolution — agents cannot close a deflection item unilaterally; (d) if the target page is later renamed or restructured, **every deflection reference that pointed at it is automatically re-opened** for re-audit (meta-rule: deflection is a contract between the resolution and the target page, not a one-shot fix). Example: S18-2 (Market Regime section) was closed by deflecting to the Story page regime explainer. GATE-30 requires: (1) the Story page regime explainer exists; (2) it addresses S18-2's concern; (3) if the Story page is later renamed or restructured, S18-2 returns to open status automatically. **Addresses** the Wave-5 audit finding that S18-2 and S18-4 were closed by deflection with no mechanical assertion that the deflection target renders or contains the referenced content. **Owners:** Ace (DOM audit) + Lead Lesandro (sign-off). |
 
 **Evidence:** HY-IG (pair #5) shipped with a header-only trade log (0 data rows) because items 16–18 were not in the completeness gate. The downstream execution panel showed "Trade log pending" with no data. Nobody caught it until manual inspection.
 
@@ -231,6 +232,215 @@ This section is the canonical mechanism for declaring intentional removals and i
 > **Companion to** META-VNC (no silent drops) and META-RNF (regression note format). Operationalized by VIZ-V2 (NBER shading), VIZ-V4 (diagnostic charts), GATE-27 (end-to-end render test).
 >
 > **Addresses** the Wave-2 Hero NBER shading bug: VIZ-V2 prescribed "alpha 0.10–0.15 grey" and the producer complied exactly; the rendered shading was still imperceptible against the dark line trace on a light background. The rule was followed and the visual failed — that is a broken rule, not a broken chart.
+
+### Cross-Version Discipline (Meta-Rule META-XVC)
+
+> **When producing v2+ of a pair, each agent must observe the prior version and attempt to maintain methodological consistency. Improvements are encouraged when supported by strong reasons. Silent divergence is prohibited; documented divergence is welcome.**
+
+Extends META-VNC beyond content-drops to method-drifts. Honors the "Explicit Over Implicit" meta-principle: across versions of the same pair, every method choice that differs from the prior version is either (a) matched to the prior and confirmed silently, or (b) deliberately diverged with full documentation. There is no third option.
+
+**Observation step (mandatory before authoring any v2+ artifact):**
+
+1. Agent reads the prior version's artifact (e.g. v1 of the same pair, or the reference pair's analogous artifact if this is a new-pair dispatch per META-RPD).
+2. Agent records "what the prior version did" in `results/{pair_id}/regression_note_{date}.md` under a new `### Prior-version observation` subsection. Minimum content: method family used, key parameters (lags, lookbacks, thresholds), signal definition, chart style.
+3. **Default behavior: match prior.** Matching the prior version is silent — no divergence paperwork, no SOP ceremony. The observation subsection alone proves the observation step was performed.
+
+**Justified divergence (optional, heavily documented):**
+
+When an agent deliberately departs from the prior version, `regression_note_{date}.md` must carry a `### Methodological divergence` block for each departure. The block has six required fields:
+
+| Field | Content |
+|-------|---------|
+| Prior method | Exact method + parameters used in the prior version |
+| New method | Exact method + parameters used in this version |
+| Strong reason | Why the new method is better — bug fix, stakeholder request, new data, improved theory |
+| Expected impact | Qualitative (what changes in outputs) AND quantitative (approximate magnitude of the change in headline metrics) |
+| Validation | How the agent verified this is an improvement, not a regression — a/b comparison, stakeholder sign-off, literature citation |
+| Cross-reference | Pointer to stakeholder feedback item (Sxx-y / SL-n), commit hash, or design note that authorizes the divergence |
+
+**Traceability:**
+
+- Divergence entries appear in BOTH `regression_note_{date}.md` AND the pair's `acceptance.md` (under a new "Methodological divergence from prior version" subsection, parallel to the existing "Prior-Version Inventory Check").
+- The chain is preserved across versions: v3's divergences cite v2's divergences (or note "matches v2"); v2's divergences cite v1 or the reference pair; v1 cites the Analysis Brief.
+
+**Applies to:** all 5 agents. Dana on data transformations; Evan on method specifications; Ray on narrative structure; Vera on chart specs; Ace on rendering patterns.
+
+**Cross-reference:** META-VNC (content continuity), META-RNF (regression note format), META-RPD (reference pair doctrine — the reference pair is the v0 baseline for new-pair dispatches), META-RPT (tagging — the `<pair_id>-reference` tag identifies the baseline each v2+ observes against).
+
+**Why this rule exists:** The Wave-5 audit revealed that "method drift between v1 and v2" was a latent class of regression that META-VNC covered at the content level (charts, tables, subsections) but not at the method level. If v1 used HMM with 2 states and v2 uses HMM with 3 states, v1's content may still be preserved while the comparison is apples-to-oranges. META-XVC forces that comparison to be explicit — either matched or deliberately diverged.
+
+### Force-Redeploy Discipline (Meta-Rule META-FRD)
+
+> **Streamlit Cloud occasionally serves stale code after a `git push` even though HEAD on the remote matches HEAD locally. The operationally-accepted fix is a trivial "no-op" commit (docstring bump, one-line comment) that forces Cloud to rebuild fresh. This rule codifies when and how that fix is permitted.**
+
+**Trigger:**
+
+A force-redeploy commit is permitted only when:
+
+1. The Lead has observed (via Playwright inspection or equivalent) that Streamlit Cloud renders a state inconsistent with the current `main` branch HEAD.
+2. At least 7 minutes have elapsed since the most recent push, to rule out in-flight deploy latency.
+
+**How:**
+
+A force-redeploy commit must:
+
+1. Be trivial — a docstring bump or a one-line comment in a file Streamlit Cloud's builder will pick up (e.g. `app/components/pair_registry.py`, per precedent set by `42c0ea7` + `1720c0c`). No functional code changes.
+2. Be **alone in the commit** — not batched with any other work. Batching hides the force-redeploy intent and breaks the audit trail.
+3. Carry a commit message that names the stale-Cloud observation: "Force-redeploy: Cloud serving stale <component>; trivial bump to trigger rebuild. Observed at <timestamp> via <method>."
+
+**Logging:**
+
+Every force-redeploy gets an entry in `docs/pair_execution_history.md` under a "Force-Redeploy Log" section with fields `{commit_sha, trigger_reason, time_to_rebuild, observed_stale_element, lead_initials}`.
+
+**Threshold / escalation:**
+
+If force-redeploy is invoked more than **2x per quarter**, escalate to a root-cause investigation — it may indicate a deeper CI/CD issue (e.g. a `.gitignore`-excluded file the Cloud builder depends on, a Streamlit config mismatch, a cache-invalidation bug). A META-FRD >2x/quarter trigger is a hard signal that META-VNC's cross-environment clause (GATE-29 + ECON-DS2) is not fully closing the reproducibility gap.
+
+**Why this rule exists:** Commit `1720c0c` was a force-redeploy performed without a documented precedent. The Wave-5 audit flagged this as tribal knowledge that future Leads may either (a) not know to use when they need it, or (b) over-use and normalize as routine. META-FRD makes the pattern deliberate, rare, and audited.
+
+**Cross-reference:** META-VNC (cross-environment content continuity), GATE-29 (clean-checkout deploy test), ECON-DS2 (deploy-required artifact allowlist).
+
+### Reference-Pair Tagging Protocol (Meta-Rule META-RPT)
+
+> **The reference-pair tag is how META-RPD (Reference Pair Doctrine) becomes Git-native. This rule codifies the tag lifecycle: when to create, when to freeze, when to version.**
+
+**Tag convention:**
+
+| Tag form | State | Created when |
+|----------|-------|--------------|
+| `<pair_id>-reference-candidate` | Pre-approval — Lead has signed `acceptance.md` but stakeholder has not yet reviewed | Automatic at Lead sign-off |
+| `<pair_id>-reference` | Post-approval — stakeholder-signed, frozen, immutable | Stakeholder approves; Lead creates tag |
+
+**Approval requirements:**
+
+- Stakeholder sign-off is mandatory. "Sign-off" means a named reviewer + date written into the `acceptance.md` "Stakeholder Review" block.
+- Lead endorses the stakeholder sign-off and creates the tag.
+- Tag is annotated and carries the sign-off text in its body:
+
+    ```
+    git tag -a <pair_id>-reference <commit_sha> \
+        -m "Stakeholder approved: <reviewer_name> on <YYYY-MM-DD>. Ref: results/<pair_id>/acceptance.md"
+    git push origin <pair_id>-reference
+    ```
+
+**Frozen property:**
+
+Once `<pair_id>-reference` exists, it is **immutable**. Future work on the pair does not move the tag.
+
+**Evolution (new reference needed):**
+
+When methodology or presentation has evolved enough to warrant a new reference state:
+
+1. Create a new versioned candidate tag on the new commit: e.g. `<pair_id>-v3-reference-candidate`.
+2. Run a fresh stakeholder review on the new version.
+3. On approval, promote to `<pair_id>-v3-reference`.
+4. **The original `<pair_id>-reference` tag stays put** — it remains the historical reference for v1/v2 comparisons, and for any pair that was benchmarked against it.
+5. Update `docs/agent-sops/team-coordination.md` §Reference Pair Doctrine to name the new "current" reference, but do not delete the old tag reference.
+
+**Scope of "approval":** single stakeholder review is sufficient (YYY / 土撥鼠C2 / Rex / AF review group count as independent reviewers). No secondary ratification is required unless the Lead explicitly requests it.
+
+**Cross-reference:** META-RPD (Reference Pair Doctrine — the rule that makes the tag meaningful), META-XVC (the tagged reference is the baseline that v2+ observes against).
+
+**Why this rule exists:** Pre-Wave 5, `META-RPD` referred to `hy-ig-v2-reference` as if it existed, but the actual Git tag had never been created, and the procedure for creating it was tribal. META-RPT makes the tag an artifact, not a vague promise.
+
+### Backlog Discipline (Meta-Rule META-BL)
+
+> **Not every proposed rule deserves to ship immediately. Some are deliberately deferred — they solve a real problem but the cost of codification outweighs current benefit, OR the problem hasn't manifested yet at a scale that justifies the overhead. This rule tracks those proposals so they are not lost and not re-derived.**
+
+**Registry file:** `docs/backlog.md`
+
+**Required columns:** `{ID, proposer_agent, proposed_rule_id, motivation, decision, deferred_reason, reactivation_trigger, date}`
+
+**ID format:** `BL-NNN` — a monotonic three-digit counter, starting at `BL-001`. ID is immutable once assigned.
+
+**Review cadence:**
+
+- At EOD (end of each working session), Lead scans the `reactivation_trigger` column for items whose trigger has fired.
+- For each fired trigger, Lead either (a) promotes the item to an SOP (deletes from active, strikes through with pointer to SOP section), OR (b) explicitly re-defers (adds a dated note: "Trigger fired but decision unchanged — re-deferred because …").
+- Items without a fired trigger stay in place; no action needed.
+
+**Authority:**
+
+- Only the Lead can promote a backlog item to an SOP. Agents propose; Lead decides.
+- Agents may add new backlog entries by proposing them in a session; Lead authors the `docs/backlog.md` row with the agreed text.
+
+**Cross-reference:** SOPs, `docs/standards.md`, `docs/sop-changelog.md` — backlog items that are promoted follow the normal rule-addition workflow (text to SOP, entry to changelog, ID registered in standards).
+
+**Why this rule exists:** Without a backlog, proposed-but-deferred rules vanish between sessions. The Lead re-derives them (wasted effort), or worse, the original proposer re-proposes them unaware they were already discussed (friction + inconsistency).
+
+### Schema Consumer Version Contract (Meta-Rule META-SCV)
+
+> **META-CF introduced schema versioning (`x-version: semver`); META-SCV closes the consumer-side gap. When a consumer reads a schema-validated artifact, it must declare the minimum schema version it understands. The validator enforces compatibility.**
+
+**Principle:**
+
+When a consumer (Ace's component, Evan's downstream script, Ray's narrative extractor) reads an artifact claimed to match a schema, the consumer specifies the schema version it was written against. If the producer has bumped to a higher version, the consumer either:
+
+- **Accepts** if the change is additive (minor bump) — the consumer will ignore new fields it doesn't know about, but required fields it relied on are still present.
+- **Raises `SchemaVersionMismatch`** if the change is breaking (major bump) — required fields may have been renamed, removed, or re-typed, and silent acceptance would mean silent data corruption.
+
+**Implementation:**
+
+Extend `validate_or_die` and `validate_soft` in `app/components/schema_check.py` (and the parallel helpers in `scripts/validate_schema.py` for non-Streamlit consumers) to accept a `minimum_x_version` parameter:
+
+    data = validate_or_die(path, "winner_summary", minimum_x_version="1.0.0")
+
+Semantics:
+
+| Producer version | Consumer `minimum_x_version` | Result |
+|------------------|------------------------------|--------|
+| 1.0.0 | 1.0.0 | OK |
+| 1.1.0 (additive bump) | 1.0.0 | OK — consumer reads only the 1.0.0-required fields; new fields ignored |
+| 1.0.0 | 1.1.0 | **Raise** — consumer expects a field that may not exist yet in 1.0.0 instances |
+| 2.0.0 (breaking) | 1.0.0 | **Raise** `SchemaVersionMismatch` — major version mismatch is always breaking |
+
+The rule is: **consumer's `minimum_x_version` major must equal producer's `x-version` major; consumer's minor must be ≤ producer's minor.**
+
+**Documentation requirement:**
+
+Every `validate_or_die` or `validate_soft` call site must pass an explicit `minimum_x_version`. Defaulting to "1.0.0" silently defeats the rule's purpose. If a consumer does not know which version it was written against, that's a bug to fix, not a case for the default.
+
+**Cross-reference:** META-CF (Contract File Standard — introduced versioning), APP-SEV1 (consumer-side validation severity), APP-WS1 (first consumer contract, currently hard-coded to 1.0.0 — migrate on next revision).
+
+**Why this rule exists:** The Wave-5 audit found that if Evan bumps `winner_summary.schema.json` 1.0.0 → 1.1.0 additively, Ace's consumer will silently accept the new instance. That's fine — until a later consumer, written against 1.1.0-only fields, runs against a 1.0.0 instance and gets `KeyError`. META-SCV moves that check from runtime-surprise to validator-blocking.
+
+### User-Facing Technical Flags → Plain English Explanation (Meta-Rule META-ELI5)
+
+> **Every user-visible flag, warning, error, or status message in the portal must be accompanied by a plain-English explanation targeting an educated non-specialist. Technical shorthand is for agents; ELI5 is for stakeholders.**
+
+**Applies to:**
+
+- `st.error` / `st.warning` / `st.info` callouts (all APP-SEV1 severity levels L1/L2/L3).
+- Status labels on artifacts (Available / Pending / Validated / Insufficient / Stale / Draft / Mature / Unknown).
+- Validation failure messages emitted by `app/components/schema_check.py`.
+- "Pending," "unavailable," "chart pending," and other placeholder states.
+
+**Format:**
+
+Every user-facing flag carries two parts:
+
+| Part | Audience | Style |
+|------|----------|-------|
+| **Technical label** | Agent / auditor — appears in logs, regression notes | Short string, canonical vocabulary (e.g. `oos_status:"insufficient_sample"`) |
+| **ELI5 body** | Stakeholder — appears in portal UI | 1-2 sentences, no formulas, no jargon, grounded in everyday analogies |
+
+**Example:**
+
+- Technical: `oos_status:"insufficient_sample"`
+- ELI5: "We only have X years of data for this indicator. To reliably judge whether a strategy works rather than appears lucky, we typically need at least Y years of out-of-sample data the model hasn't seen. Below that threshold, apparent success is hard to distinguish from randomness."
+
+**Ownership:**
+
+- The agent producing the flag carries the ELI5 alongside the technical label. If Ace adds a new `st.error` to a component, Ace authors the ELI5.
+- **Ray is the editorial owner of user-facing prose** and reviews tone at handoff. Disagreements on phrasing are resolved by Ray; Ray-authored replacements are final.
+
+**Retroactive check (scheduled for Wave 5C):**
+
+Audit every `st.error` / `st.warning` / `st.info` call site in the HY-IG v2 portal code. Each must have an ELI5 sibling. Gaps are remediated before Wave 5C closes.
+
+**Cross-reference:** RES-1 (Audience Assumption — layperson voice), RES-3 (Method Justification — "why we chose this" sentences), APP-SE5 (Universal Takeaway Caption — extends the same audience-friendly principle to charts/tables), APP-SEV1 (Validation Severity Policy — the technical-flag layer META-ELI5 sits on top of).
+
+**Why this rule exists:** RES-1/RES-3 enforce layman tone in narrative prose. APP-SE5 enforces takeaway captions on charts/tables in the Confidence section. Neither catches in-line flags ("Insufficient OOS," "chart pending," "Direction disagreement: Evan says X, Dana says Y"). Those flags are technically-correct but user-hostile. META-ELI5 closes that layer.
 
 ### Contract File Standard (Meta-Rule META-CF)
 
@@ -837,7 +1047,7 @@ Before any pair is marked "completed," a file `results/<pair_id>/acceptance.md` 
     **Summary of changes from prior version:** <brief>
     **Removed section present (if any removals):** <yes/no — cite each removal and rationale>
 
-    ## Blocking Items — GATE-24 / GATE-25 / GATE-26 / GATE-27 / GATE-28 / GATE-29
+    ## Blocking Items — GATE-24 / GATE-25 / GATE-26 / GATE-27 / GATE-28 / GATE-29 / GATE-30
 
     ### GATE-24 — Chart-Text Coherence Audit
     - [ ] For every chart modified since prior version, `grep -r "<chart_name>" app/pages/` was run and every referenced caption/narrative was updated in the **same commit** as the chart change.
@@ -877,6 +1087,19 @@ Before any pair is marked "completed," a file `results/<pair_id>/acceptance.md` 
     - [ ] Clean-checkout smoke test log saved to `app/_smoke_tests/clean_checkout_{pair_id}_{date}.log` — zero FileNotFound / zero None-return / zero placeholder must be asserted.
     - [ ] Every file referenced by `app/` code for this pair is present in the clean checkout (no silent `.gitignore` exclusions; no missing `git add -f` for deploy-required artifacts).
     - [ ] Cross-reference: ECON-DS2 (Deploy-Required Artifact Allowlist) producer-side checks confirmed by Evan for this pair.
+
+    ### GATE-30 — Deflection Link Audit
+    - [ ] Every stakeholder-feedback item closed in this acceptance via deflection (resolution = "see other page/section") is listed in the table below.
+    - [ ] For each deflection, target page AND target section/anchor are explicitly named.
+    - [ ] For each deflection, a headless-browser DOM assertion confirms the target anchor renders.
+    - [ ] For each deflection, a content-presence assertion confirms the target section contains the content claimed to address the stakeholder's concern.
+    - [ ] Lead has signed off on every deflection resolution in this table (not agent-only closure).
+
+        | Stakeholder item | Origin page / section | Deflection target page | Deflection target anchor/section | DOM-renders? (Y/N) | Content-matches? (Y/N) | Lead sign-off? (Y/N) |
+        |------------------|----------------------|------------------------|----------------------------------|--------------------|------------------------|----------------------|
+        | <e.g. S18-2>     | <e.g. Strategy>      | <e.g. Story>           | <e.g. regime-explainer>          | <Y/N>              | <Y/N>                  | <Y/N>                |
+
+    - [ ] Any N in the table above is a blocker until resolved. If the deflection target is later restructured (anchor renamed, section removed), every row pointing at it is automatically re-opened.
 
     ### Prior-Version Inventory Check
 

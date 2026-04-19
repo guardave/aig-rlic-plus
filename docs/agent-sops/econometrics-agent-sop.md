@@ -734,6 +734,102 @@ Ray owns `strategy_objective` (team-coordination.md §21) but cannot classify wi
 3. **Send a structured handoff message to Ray** immediately after tournament completion (not bundled with the general results handoff). Content: path to `tournament_summary.csv`, path to `tournament_winner.json`, and a one-line suggestion of the likely `strategy_objective` bucket for Ray to confirm or override. Ray retains final authority; Evan is a supplier of pre-computed deltas.
 4. If the winner fails to beat the benchmark on any dimension, flag this explicitly in `tournament_winner.json` (`beats_benchmark: false`) and escalate to Lesandro before closing the pair. Do not silently classify a losing strategy.
 
+### ECON-T3 — Tournament Tie-Break Cascade (Blocking)
+
+**Motivation.** In the HY-IG v2 tournament, two strategies with identical `oos_sharpe` (1.274) differed only in `threshold_value` (0.5 vs 0.7). The winner was selected by pandas' stable-sort order — silent non-determinism. A second Evan re-running the same pipeline with a different pre-sort order would ship a different `threshold_value`, a different broker trade log, and a different portal caption, without any audit trail. ECON-T3 mechanizes the tie-break so another Evan, given identical inputs, produces an identical winner.
+
+**Rule (blocking).** Winner selection applies the following cascade in order. Advance to the next step only when the current step leaves two or more candidates tied.
+
+1. **Higher `oos_sharpe`** — primary objective.
+2. If tied: **higher `oos_ann_return`** — prefer strategies that earn their Sharpe through return rather than vol suppression.
+3. If tied: **lower absolute `oos_max_drawdown`** (closer to zero) — prefer strategies with smaller worst-case loss.
+4. If tied: **higher `oos_n_trades`** — more position changes = more data underlying the performance estimate = more confidence.
+5. If tied: **lexicographic ascending order of `signal_code`** — fully deterministic, reproducible, platform-independent, and independent of pandas sort stability.
+
+The cascade MUST be implemented explicitly in the tournament script (not delegated to an implicit pandas `sort_values` behavior).
+
+**Tie-note artifact (when any step beyond step 1 fires).** When the winner is resolved by step 2, 3, 4, or 5, write `results/{pair_id}/tournament_tie_note.md` containing:
+
+- The cascade level at which a unique winner emerged (e.g. "resolved at step 3: `oos_max_drawdown`").
+- The full near-equivalent candidate set (all rows tied at step 1).
+- Each candidate's `signal_code`, `threshold_value`, and the metrics that differentiated them at the resolving step.
+- One-sentence economic interpretation: why the selected winner is reasonable under this tiebreaker, and whether any candidate is plausibly superior on an out-of-cascade dimension (e.g. lower turnover) that the cascade does not capture.
+
+**Cross-reference (META-XVC).** If the tie-break cascade definition changes between versions of a pair, that is a methodological divergence and requires the `### Methodological divergence` block in `regression_note_{date}.md` per META-XVC, with the 6 mandatory fields (Prior method / New method / Strong reason / Expected impact / Validation / Cross-reference).
+
+**Validation.** Tournament script asserts the cascade produced exactly one winner before writing `winner_summary.json`. The `signal_code` written to `winner_summary.json` MUST be from the `docs/schemas/signal_code_registry.json` registry per ECON-DS3.
+
+**Closes gap:** §1.1 + §1.7 of `docs/validation-audit-20260419-evan.md`.
+
+### ECON-OOS1 — OOS Window Ownership
+
+**Rule.** The out-of-sample (OOS) window is owned by Evan exclusively. Every pair persists the window decision in a single canonical record at `results/{pair_id}/oos_split_record.json` with the following fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `owner` | string | Always `"evan"`. |
+| `split_policy_id` | string | Versioned policy identifier (e.g. `"v1_max36_25pct_cap120"` per ECON-OOS2). |
+| `in_sample_end` | string (ISO 8601 date) | Last date included in the training sample. |
+| `oos_start` | string (ISO 8601 date) | First date in the OOS window (inclusive). |
+| `oos_end` | string (ISO 8601 date) | Last date in the OOS window (inclusive). |
+| `sample_size_months` | integer | Total sample length in months used as input to the sizing criterion. |
+| `justification` | string | One-paragraph rationale citing the policy ID and any pair-specific considerations (e.g. data availability, structural break exclusion). |
+
+**Downstream consumers (Ray for narrative, Ace for display) read this file — they do NOT compute their own OOS window.** Ray's narrative OOS assertion (`direction_asserted` + OOS sentence) and Ace's KPI cards both resolve through `oos_split_record.json`. Any independent computation by a downstream agent is a contract violation.
+
+**`winner_summary.json.oos_period_start` / `oos_period_end` MUST be copied verbatim from `oos_split_record.{oos_start, oos_end}`** — no reverse-inference from `oos_n`.
+
+**Cross-reference (META-XVC).** A change in the OOS window between versions of the same pair is a methodological divergence (even if the policy ID is unchanged but the resulting dates shift due to newer data). The `### Methodological divergence` block in `regression_note_{date}.md` MUST be populated.
+
+**Cross-reference (META-CF).** `oos_split_record.json` is a cross-agent contract artifact; future waves will promote it to a META-CF schema sidecar. Until the schema ships, producers follow the field table above exactly.
+
+**Closes gap:** §1.4 of `docs/validation-audit-20260419-evan.md`.
+
+### ECON-OOS2 — OOS Window Sizing Criterion (Data-Dependent, Blocking)
+
+**Motivation.** HY-IG v2 ships `oos_period_start: "2018-01-01"` derived from `oos_n = 2088` — a reverse-engineered inference with no documented rule. Another Evan, seeing 25+ years of HY-IG history, might reasonably pick a 10-year OOS window or a fixed 2015 cutoff, both defensible, both producing materially different `oos_sharpe` values. ECON-OOS2 generalizes one criterion to all 73 pairs.
+
+**Rule (blocking — generalizable formula).**
+
+```
+span_months = max(36, round(total_sample_months × 0.25))
+span_months = min(span_months, 120)   # cap at 10 years
+
+if total_sample_months < 48:
+    oos_status = "insufficient_sample"
+    BLOCKING (unless Lead waives with documented justification in acceptance.md)
+
+oos_end   = last available data date
+oos_start = oos_end - span_months
+split_policy_id = "v1_max36_25pct_cap120"   # versioned; bumps trace in regression_note
+```
+
+**Interpretation.**
+- `max(36, …)` = floor of 3 years (adequate for Sharpe significance).
+- `× 0.25` = quarter of sample (preserves 75% for model fitting).
+- `min(…, 120)` = ceiling of 10 years (prevents whole-sample OOS on very long histories).
+- `< 48` total sample = BLOCKING threshold (2 years IS + at least 2 years OOS).
+
+**Persistence.** `oos_split_record.json.split_policy_id = "v1_max36_25pct_cap120"` until a future policy revision. Policy ID bumps (e.g. `v2_…`) require Lead approval, a changelog entry in `docs/sop-changelog.md`, and a regression_note divergence block on every affected pair.
+
+**ELI5 (per META-ELI5).** Every user-facing rendering of the OOS window MUST carry BOTH a technical label AND a plain-English explanation.
+
+*Nominal case* (`oos_status = "validated"`):
+- **Technical:** `"OOS window: 2018-01-01 to 2025-12-31 (8 years)"`
+- **ELI5:** "We kept the last 8 years of data aside as a test set the model never saw during training. This lets us judge whether the strategy really works on new data — or whether it just got lucky on old data."
+
+*Insufficient-sample case* (`oos_status = "insufficient_sample"`):
+- **Technical:** `"insufficient_sample"`
+- **ELI5:** "This indicator only has X years of data available. To reliably judge whether a strategy works rather than just appears lucky, we typically need at least 4 years of out-of-sample data the model hasn't seen. Below that threshold, apparent success is hard to distinguish from randomness."
+
+Ray is editorial owner of the ELI5 text at handoff per META-ELI5. Evan authors a draft; Ray reviews tone for layperson-friendliness.
+
+**Blocking scope.** `oos_status = "insufficient_sample"` blocks GATE-7 (tournament results) and GATE-16 (winner summary complete) unless Lead has documented a waiver in `acceptance.md` with a named stakeholder and date.
+
+**Cross-reference.** ECON-OOS1 (ownership), META-XVC (cross-version divergence), META-ELI5 (dual-label rendering).
+
+**Closes gap:** §1.4 of `docs/validation-audit-20260419-evan.md` (systematic fix).
+
 ### Target-Class-Aware Backtest Parameters
 
 Different target asset classes require different backtest assumptions. These are specified in the Analysis Brief (Section 9) and applied during tournament execution.
@@ -801,6 +897,47 @@ Different target asset classes require different backtest assumptions. These are
 - Regression note must list every deploy-required artifact per pair, with either its allowlist entry or its regeneration script path.
 - Cross-reference: GATE-29 (Clean-Checkout Deployment Test, added by Lead in parallel) validates this rule at acceptance.
 - Cross-agent companion: APP-SE1/SE2 consume these artifacts — read failures on Cloud are symptoms of DS2 violations, not symptoms of the rendering layer.
+
+### ECON-DS3 — Signal Code Registry (per META-CF)
+
+**Motivation.** Today's `signal_code` values (e.g. `S6_hmm_stress`) encode pipeline-registration order — the "S6" is the 6th signal registered in the current pipeline script, not a canonical identifier. If a future rerun drops `S2a_zscore_252d` from the catalog, the same HMM signal renumbers to `S5_hmm_stress` under the current convention, silently breaking every cross-pair tournament registry, every `winner_summary.json` that cites it, and every downstream narrative reference. ECON-DS3 mechanizes a stable, append-only identifier.
+
+**Rule.** There is a single canonical signal-code registry at `docs/schemas/signal_code_registry.json`, schema at `docs/schemas/signal_code_registry.schema.json`, example at `docs/schemas/examples/signal_code_registry.example.json` (all per META-CF Contract File Standard). The registry is:
+
+- **Append-only.** Existing entries never renumber. Dropping a signal from a pipeline does NOT free its code for reuse.
+- **Owned by Evan.** Only Evan writes; all other agents read.
+- **Stable across reruns.** The `signal_code` a pair ships in v2 MUST equal the code it shipped in v1 for the same underlying signal.
+
+**Per-entry fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `signal_code` | string | Stable canonical identifier (e.g. `hmm_stress`, `hmm_3state`, `markov_regime`, `zscore_lb252`). snake_case. NOT prefixed with `S<number>_` — the old prefix convention is deprecated. |
+| `display_name` | string | Human-readable label used on portal cards and captions (e.g. `"HMM 2-state stress probability"`). |
+| `parquet_column_pattern` | string | Canonical column name (or regex) in `signals_{date}.parquet` (e.g. `hmm_2state_prob_stress`). |
+| `description` | string | 1-2 sentence description of what the signal measures. |
+| `source_method` | string | The econometric method that produces the signal (`hmm_2state`, `hmm_3state`, `markov_switching`, `zscore`, `percentile_rank`, `roc`, `composite`, etc.). |
+
+**Starter entries (seeded in initial registry instance):**
+
+- `hmm_stress` — HMM 2-state stress probability, column `hmm_2state_prob_stress`, source_method `hmm_2state`.
+- `hmm_3state` — HMM 3-state mode, column `hmm_3state_mode`, source_method `hmm_3state`.
+- `markov_regime` — Markov regime state (2-state), column `markov_regime_2state`, source_method `markov_switching`.
+
+**Producer validation (blocking).** When writing `results/{pair_id}/winner_summary.json`, the `signal_code` field MUST equal a `signal_code` present in `docs/schemas/signal_code_registry.json`. The tournament script asserts this before save; a missing code is a validation failure, not a warning.
+
+**Adding a new signal.** A new signal requires:
+1. A PR to `docs/schemas/signal_code_registry.json` (append entry; never mutate existing entries).
+2. A `regression_note` entry per META-VNC citing the new code and the source method.
+3. A `sop-changelog.md` entry.
+
+Evan retains authority. Other agents propose via the Proposed-Rule path (META-BL backlog) if they think a new signal code should be registered.
+
+**Cross-reference (META-CF).** This is a META-CF contract: schema + instance + example triad is mandatory; producer validation uses `scripts/validate_schema.py` before save.
+
+**Cross-reference (ECON-H5).** The `signal_code` field in `winner_summary.json` is constrained by this registry. The `winner_summary.schema.json` enum will be upgraded in a future minor bump to reference this registry by `$ref` (per META-SCV). Until that bump lands, the producer-side assertion is the enforcement point.
+
+**Closes gap:** §1.2 + §1.8 of `docs/validation-audit-20260419-evan.md`.
 
 ### Rule E1 — Granger Causality Artifact Persistence (addresses S18-11)
 

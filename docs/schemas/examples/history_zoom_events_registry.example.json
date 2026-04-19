@@ -1,0 +1,39 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "vera",
+  "x-generated": "2026-04-19",
+  "notes": "Minimal 1-episode example instance. Full canonical instance at ../history_zoom_events_registry.json. Exists to satisfy META-CF example-instance separation and demonstrate the minimum valid shape for VIZ-V12.",
+  "episodes": {
+    "dotcom": {
+      "episode_slug": "dotcom",
+      "episode_name": "Dot-Com Bust",
+      "start_date": "1998-01-01",
+      "end_date": "2003-12-31",
+      "episode_rationale": "Example: stakeholder sketch SL-4.",
+      "episode_source_citation": "NBER business cycle dating committee.",
+      "key_events": [
+        {
+          "date": "2000-03-10",
+          "label": "Mar 2000: Dot-Com peak",
+          "rationale": "NASDAQ Composite closed at 5048.62, all-time peak of the tech bubble.",
+          "source_citation": "NASDAQ historical close data.",
+          "event_category": "market_peak"
+        },
+        {
+          "date": "2001-03-01",
+          "label": "Mar 2001: Recession begins",
+          "rationale": "NBER-dated start of the 2001 recession; credit spreads widen.",
+          "source_citation": "NBER US Business Cycle Expansions and Contractions table.",
+          "event_category": "recession_start"
+        },
+        {
+          "date": "2002-07-21",
+          "label": "Jul 2002: WorldCom bankruptcy",
+          "rationale": "Largest US bankruptcy at the time; spread-widening local peak.",
+          "source_citation": "SEC Form 8-K WorldCom July 2002 filing.",
+          "event_category": "bankruptcy"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus/docs/schemas/caption_prefix_vocab.schema.json",
+  "title": "Caption Prefix Vocabulary",
+  "description": "Canonical caption-prefix vocabulary used across every AIG-RLIC+ portal page. Per APP-CC1 (owner: Ace, per META-CF; tone reviewed by Ray), every caption on every page MUST begin with one of the four canonical prefixes enumerated here. Caption body wording remains the author's discretion; the prefix is fixed. Closes the Wave-5 reproducibility-audit finding that caption wording (e.g. 'Takeaway:' vs 'What this shows:' vs 'In plain English:' vs 'Read this chart as:') varied arbitrarily across pages and across pairs. Referenced by APP-SE5 (Universal Takeaway Caption), APP-AF3 (Metric Interpretation), RES-2 (Translation Bridge), and the Evidence 8-element template's 'observation' element.",
+  "x-owner": "ace",
+  "x-version": "1.0.0",
+  "type": "object",
+  "required": ["x-version", "x-owner", "prefixes"],
+  "properties": {
+    "x-version": {
+      "type": "string",
+      "description": "Semver of the vocabulary instance (separate from this schema's x-version). Bumped per META-CF whenever a prefix is added, renamed, or its semantic scope changes. Prefix REMOVAL is a breaking major bump.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "x-owner": {
+      "type": "string",
+      "description": "Single agent accountable for the vocabulary instance. Must be 'ace'. Ray reviews tone at handoff per RES-1 / RES-2 / META-ELI5.",
+      "const": "ace"
+    },
+    "x-generated": {
+      "type": "string",
+      "description": "ISO-8601 date the instance was last regenerated.",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform top-level notes about the instance (what was added in this version, migration notes for prefix renames)."
+    },
+    "prefixes": {
+      "type": "object",
+      "description": "Map of canonical prefix string -> prefix definition. Prefix keys are the exact leading string rendered in st.caption / st.markdown (including the trailing colon and space).",
+      "minProperties": 4,
+      "patternProperties": {
+        "^[A-Z][A-Za-z ]+:$": {
+          "$ref": "#/$defs/prefix_definition"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "prefix_definition": {
+      "type": "object",
+      "description": "One canonical prefix plus metadata describing when to use it.",
+      "required": ["role", "when_to_use", "example"],
+      "properties": {
+        "role": {
+          "type": "string",
+          "description": "Short role tag describing the semantic function of the prefix.",
+          "enum": ["data_description", "investor_impact", "interpretation_guide", "caveat"]
+        },
+        "when_to_use": {
+          "type": "string",
+          "description": "One-sentence guidance on when a caption should use this prefix. Disambiguates from the other three."
+        },
+        "example": {
+          "type": "string",
+          "description": "One concrete example caption (prefix + body) drawn from or suitable for the HY-IG v2 reference pair."
+        },
+        "sop_rule_ids": {
+          "type": "array",
+          "description": "APP / RES rule IDs that use this prefix (e.g., APP-SE5 for 'Why this matters:', RES-2 for 'How to read it:' on translation bridges).",
+          "items": {"type": "string", "pattern": "^(APP|RES|VIZ|ECON|DATA|META|GATE)-[A-Z0-9]+$"},
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

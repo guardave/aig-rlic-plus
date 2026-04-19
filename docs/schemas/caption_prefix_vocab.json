@@ -1,0 +1,32 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "ace",
+  "x-generated": "2026-04-19",
+  "notes": "Initial canonical vocabulary seeded from HY-IG v2 reference pair (per META-RPD) after Wave-5 reproducibility-audit Axis 1 exposed arbitrary caption-prefix variation across pages and pairs. Four prefixes cover the full taxonomy: data description, investor impact, interpretation guide, honest caveat. Every caption on every portal page MUST begin with one of these four; caption body wording remains the author's discretion. Ace owns; Ray reviews tone at handoff per META-ELI5.",
+  "prefixes": {
+    "What this shows:": {
+      "role": "data_description",
+      "when_to_use": "1-line description of what the chart/table/metric is displaying — the literal data content, not its implication. Use when the reader needs to know WHAT they are looking at before interpretation.",
+      "example": "What this shows: HMM stress-probability (0 to 1) computed on HY-IG OAS spread, overlaid with NBER recession shading for 2006-2025.",
+      "sop_rule_ids": ["APP-AF3", "APP-EP1", "VIZ-A5"]
+    },
+    "Why this matters:": {
+      "role": "investor_impact",
+      "when_to_use": "Investor-impact takeaway — the 'so what' for a non-quant stakeholder. Use for APP-SE5 Universal Takeaway Captions in the Strategy Confidence section, Story-page historical-episode bullets (RES-9), and any KPI card delta interpretation.",
+      "example": "Why this matters: the strategy excels in credit-driven crises (GFC, COVID) but offers limited protection during pure rate-shock selloffs (2022).",
+      "sop_rule_ids": ["APP-SE5", "RES-9", "APP-AF3"]
+    },
+    "How to read it:": {
+      "role": "interpretation_guide",
+      "when_to_use": "Guide to reading a complex chart element — axis convention, color encoding, threshold lines, shading semantics. Use for Evidence 8-element 'observation' captions and RES-2 translation bridges on first use of a quant construct.",
+      "example": "How to read it: the dashed line at 0.5 is the decision threshold; probability above that triggers the REDUCE signal; shaded bands are NBER recessions.",
+      "sop_rule_ids": ["APP-EP1", "RES-2", "VIZ-A5"]
+    },
+    "Caveat:": {
+      "role": "caveat",
+      "when_to_use": "Honest caution about sample size, OOS window, regime coverage, or model limitation. Use wherever a result could be over-interpreted by a non-quant reader (per RES-EP1 element 7).",
+      "example": "Caveat: OOS window is 8 years (2017-2025) and covers one credit crisis; post-2026 behaviour under a rate-shock-only regime is extrapolated, not tested.",
+      "sop_rule_ids": ["RES-EP1", "RES-PA2", "APP-SE5"]
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "ace",
+  "x-generated": "2026-04-19",
+  "notes": "Minimal example showing all five canonical titles. Mirrors the production instance at x-version 1.0.0 for consumer-side test stability.",
+  "titles": {
+    "plain_english": {
+      "canonical_title": "Plain English",
+      "role": "plain_english",
+      "when_to_use": "Layperson explanation of a technical construct.",
+      "default_expanded": false,
+      "sop_rule_ids": ["RES-2"],
+      "deprecated_aliases": ["ELI5", "In plain English"]
+    },
+    "deeper_dive": {
+      "canonical_title": "Deeper dive",
+      "role": "deeper_dive",
+      "when_to_use": "Technical detail for quant readers.",
+      "default_expanded": false,
+      "sop_rule_ids": ["APP-AF1"]
+    },
+    "method_rationale": {
+      "canonical_title": "Why we chose this method",
+      "role": "method_rationale",
+      "when_to_use": "Evidence 8-element element 3 method rationale.",
+      "default_expanded": false,
+      "sop_rule_ids": ["RES-EP1"]
+    },
+    "chart_reading_guide": {
+      "canonical_title": "How to read this chart",
+      "role": "chart_reading_guide",
+      "when_to_use": "Axis/color/threshold reading guide.",
+      "default_expanded": false,
+      "sop_rule_ids": ["APP-DA1"]
+    },
+    "honest_caveat": {
+      "canonical_title": "Honest assessment",
+      "role": "honest_caveat",
+      "when_to_use": "Element 7 caveats about sample/OOS/regime coverage.",
+      "default_expanded": false,
+      "sop_rule_ids": ["RES-EP1"]
+    }
+  }
+}

@@ -289,4 +289,51 @@ temp/inspect_portal.py
 
 ---
 
+## Run: HY-IG v2 → SPY — 2026-04-19 (Waves 1–5, rules + portal retro-apply)
+
+| Field | Value |
+|-------|-------|
+| **Pair** | HY-IG v2 → SPY (reference-pair polish sequence, not a new pair) |
+| **Session date** | 2026-04-19 |
+| **Waves executed** | Wave 1 (stakeholder ingestion + SOP Part F) → Wave 2A/2B (retro-apply to HY-IG v2 artifacts/charts/narrative + portal rebuild + acceptance verify) → Wave 3 (perceptual-validation bug fixes: NBER shading, Dot-Com canonical loader) → Wave 4A/4B/4C-1/4C-2/4D-1/4D-2/4E (schema contract standard + 5 schemas + consumer validation + verification) → Wave 5 (validation audits: 5 parallel agents + Lead system-level audit) → Wave 5B-1 (this) and 5B-2 (parallel) consolidate audit findings into new rules |
+| **Commit sequence** | 12 commits `6bcb5e2` → `416ba94` covering Waves 1–4; Wave 5B dispatches in progress |
+| **Force-redeploys** | **1** — commit `1720c0c` (Wave 4A, trivial `pair_registry` docstring bump to force Streamlit Cloud rebuild after observed stale-Cloud state). Logged in Force-Redeploy Log below. |
+| **New rules added this session** | **22 total** across the session. Wave 5B-1 contribution (this dispatch): 7 new META/GATE rules — META-XVC, META-FRD, META-RPT, META-BL, META-SCV, META-ELI5, GATE-30. Earlier waves added APP-SE1..SE5, APP-ST1, APP-WS1, APP-SEV1, APP-DIR1; VIZ-V5, VIZ-V8; RES-7..11, RES-17, RES-VS; DATA-VS, DATA-D5, D6; ECON-DS2, ECON-E1, E2, H4, H5; META-ZI, META-PV, META-CF; GATE-27, 28, 29. |
+| **Token estimate (this session)** | ~2M cumulative across the 5 parallel agent audits + Lead system-level audit + Wave 5B dispatches. Higher than a normal pair run because of audit depth + rule-authoring volume. |
+| **Deferred items** | BL-001 (APP-SEV1-MAP — severity lookup JSON; Ace proposer; deferred to next sprint). Recorded in `docs/backlog.md` per META-BL. |
+| **Reference-pair status** | `hy-ig-v2-reference-candidate` expected at end of Wave 5B consolidation; `hy-ig-v2-reference` awaits stakeholder sign-off per META-RPT. |
+
+### Force-Redeploy Log (per META-FRD)
+
+| commit_sha | trigger_reason | time_to_rebuild | observed_stale_element | lead_initials |
+|------------|----------------|------------------|-------------------------|---------------|
+| `1720c0c` | Streamlit Cloud served a `pair_registry`-cached landing-page state that did not reflect HEAD on main after the Wave 4A push; 7+ minutes elapsed since last push; Playwright inspection confirmed the delta. | Rebuild completed within ~5 minutes of the trivial-bump push. | Landing-page card grid missing the HY-IG v2 schema-validated chips (post-Wave 4A). | LL |
+
+**Quarterly count (2026-Q2):** 1 invocation. Under the META-FRD threshold of 2/quarter. No root-cause investigation triggered this quarter.
+
+### Wave 5B-1 MRA — Meta-Rule Authoring Session
+
+**Measure:**
+
+- 7 new rules authored in one dispatch (~500 lines of SOP text across team-coordination.md + standards.md).
+- 1 new file created (`docs/backlog.md`).
+- 1 existing file updated with session entry (this file).
+- 1 regression note append (`results/hy_ig_v2_spy/regression_note_20260419.md`).
+- Token usage for Wave 5B-1 dispatch only: ~60K input + ~10K output ≈ ~70K total.
+
+**Review:**
+
+- Rule-batching paid off. All 7 rules share the "make tribal knowledge artifact" pattern — force-redeploy discipline, reference-pair tagging, cross-version observation, backlog discipline, schema consumer version contract, ELI5 flag layer, deflection link audit. One Lead dispatch = one review pass = coherent cross-references.
+- The 3 META rules that extend existing meta-principles (META-XVC extends VNC; META-SCV extends CF; META-ELI5 extends RES-1 / APP-SE5) slotted in cleanly. The 3 operational META rules (META-FRD, META-RPT, META-BL) are net-new mechanisms — these required more care on wording because they have no pre-existing frame.
+- GATE-30 is interesting: it's a META-rule disguised as a GATE. The meta-clause ("if the deflection target page is later restructured, every deflection reference is automatically re-opened") is a cross-cutting property that the GATE machinery enforces per-pair. Future pairs will test whether the auto-reopen actually fires — the mechanism needs a trigger implementation (likely a `scripts/audit_deflections.py` helper that Lead runs on SOP/page restructures).
+
+**Adjust:**
+
+- **Next session** (Wave 5B-2 dispatches): confirm no cross-agent rule ID conflicts. Wave 5B-1 added `META-XVC`, `META-FRD`, `META-RPT`, `META-BL`, `META-SCV`, `META-ELI5`, `GATE-30`. Wave 5B-2 agent dispatches will add agent-specific rules (prefixed DATA / ECON / VIZ / RES / APP). No collisions expected since agent dispatches don't touch META / GATE blocks. Central commit at the end of Wave 5B consolidates both.
+- **Wave 5C** (per META-ELI5 retroactive check): audit every `st.error` / `st.warning` / `st.info` in HY-IG v2 portal code and remediate gaps.
+- **META-SCV implementation:** extend `app/components/schema_check.py` `validate_or_die` / `validate_soft` signatures with a `minimum_x_version` parameter. Non-trivial; schedule as its own Wave (likely 5D or a separate Ace dispatch).
+- **META-RPT activation:** once the stakeholder signs off on HY-IG v2 acceptance, Lead creates the `hy-ig-v2-reference` annotated tag and pushes it. This will be the first live test of the META-RPT procedure.
+
+---
+
 *This document is maintained by Lesandro (lead analyst) and updated after each pair completes.*

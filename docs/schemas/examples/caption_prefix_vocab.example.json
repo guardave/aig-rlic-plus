@@ -1,0 +1,32 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "ace",
+  "x-generated": "2026-04-19",
+  "notes": "Minimal example instance demonstrating the four canonical prefixes. Matches the production instance byte-for-byte at x-version 1.0.0; future example bumps track production for consumer-side tests.",
+  "prefixes": {
+    "What this shows:": {
+      "role": "data_description",
+      "when_to_use": "Literal data description before interpretation.",
+      "example": "What this shows: rolling 63-day correlation between HY-IG OAS and SPY returns.",
+      "sop_rule_ids": ["APP-AF3"]
+    },
+    "Why this matters:": {
+      "role": "investor_impact",
+      "when_to_use": "Investor 'so what' takeaway.",
+      "example": "Why this matters: spreads widen before equity drawdowns in 3 of 4 historical episodes.",
+      "sop_rule_ids": ["APP-SE5"]
+    },
+    "How to read it:": {
+      "role": "interpretation_guide",
+      "when_to_use": "Axis / color / threshold reading guide.",
+      "example": "How to read it: values above the dashed 0.5 line indicate the REDUCE regime.",
+      "sop_rule_ids": ["APP-EP1"]
+    },
+    "Caveat:": {
+      "role": "caveat",
+      "when_to_use": "Honest caution about sample or regime coverage.",
+      "example": "Caveat: only one credit crisis in the OOS window.",
+      "sop_rule_ids": ["RES-EP1"]
+    }
+  }
+}

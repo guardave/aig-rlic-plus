@@ -1,0 +1,41 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "vera",
+  "x-generated": "2026-04-19",
+  "notes": "Bootstrapped from the HY-IG v2 reference pair (per META-RPD) after the Wave 5 audit exposed palette inconsistency within the pair itself — the hero chart ships Okabe-Ito #D55E00 (vermillion) while zoom charts and some bar charts ship matplotlib defaults (#d62728 red, #1f77b4 blue, #2ca02c green). VIZ-V11 introduces this registry as the canonical palette source: every chart's `_meta.json` sidecar carries `palette_id`, and a pre-save lint blocks charts whose trace / shape / annotation colors resolve to raw matplotlib-plotly defaults instead of a registered palette role. Palette changes are methodological divergence per META-XVC.",
+  "palettes": {
+    "okabe_ito_2026": {
+      "palette_id": "okabe_ito_2026",
+      "description": "Canonical colorblind-safe palette for AIG-RLIC+ portal charts (2026 vintage). Primary data in Okabe-Ito vermillion; secondary in Okabe-Ito blue; NBER shading at alpha 0.22 per VIZ-V2 rev 2026-04-19. Drop matplotlib #d62728 and similar defaults in favor of these roles.",
+      "source_citation": "Okabe M, Ito K (2008), Color Universal Design — A Color Palette for All, J*FLY / Color Universal Design Organization.",
+      "colorblind_safe": true,
+      "primary_data_trace": "#D55E00",
+      "secondary_data_trace": "#0072B2",
+      "tertiary_data_trace": "#009E73",
+      "nber_shading": "rgba(150,120,120,0.22)",
+      "event_marker_line": "#4D4D4D",
+      "event_marker_label_bg": "rgba(255,255,255,0.82)",
+      "buy_indicator": "#009E73",
+      "sell_indicator": "#D55E00",
+      "hold_indicator": "#999999",
+      "equity_curve": "#0072B2",
+      "drawdown_fill": "rgba(213,94,0,0.35)",
+      "quartile_gradient": [
+        "#009E73",
+        "#F0E442",
+        "#E69F00",
+        "#D55E00"
+      ],
+      "categorical_extended": [
+        "#D55E00",
+        "#0072B2",
+        "#009E73",
+        "#E69F00",
+        "#CC79A7",
+        "#F0E442",
+        "#56B4E9",
+        "#000000"
+      ]
+    }
+  }
+}

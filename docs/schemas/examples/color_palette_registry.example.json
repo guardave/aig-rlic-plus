@@ -1,0 +1,23 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "vera",
+  "x-generated": "2026-04-19",
+  "notes": "Minimal 1-palette example instance. Full canonical instance at ../color_palette_registry.json. Exists to satisfy META-CF example-instance separation and demonstrate the minimum valid shape for VIZ-V11.",
+  "palettes": {
+    "okabe_ito_2026": {
+      "palette_id": "okabe_ito_2026",
+      "description": "Example: Okabe-Ito 2026 canonical palette (minimal role coverage).",
+      "colorblind_safe": true,
+      "primary_data_trace": "#D55E00",
+      "secondary_data_trace": "#0072B2",
+      "nber_shading": "rgba(150,120,120,0.22)",
+      "event_marker_line": "#4D4D4D",
+      "event_marker_label_bg": "rgba(255,255,255,0.82)",
+      "buy_indicator": "#009E73",
+      "sell_indicator": "#D55E00",
+      "hold_indicator": "#999999",
+      "equity_curve": "#0072B2",
+      "drawdown_fill": "rgba(213,94,0,0.35)"
+    }
+  }
+}

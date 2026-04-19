@@ -1088,6 +1088,58 @@ Artifact-existence checks (the prior Defense-2 protocol, META-ZI loader-contract
 - **Blocking:** reference-pair acceptance gate — HY-IG v2 agreement must pass (currently: both legs = `countercyclical` ✓). Non-reference pairs receive a warning until their metadata lands.
 - **Cross-references:** META-IA, META-CFO, ECON-H5 (producer, Evan's `direction`), DATA-D6 (producer, Dana's `observed_direction`), RES-17 (future Ray frontmatter), APP-SEV1, GATE-28.
 
+### Rule APP-CC1 — Caption Prefix Canonical Vocabulary
+
+**Added 2026-04-19 (Wave 5B-2).** Resolves the Wave-5 reproducibility-audit Axis 1 finding that caption-prefix wording was full discretion — three different prefixes ("What this shows" vs "In plain English" vs "Read this chart as") appeared on the Strategy Confidence tab alone, and different Ace sessions produced different prefixes for the same caption type.
+
+- **Binding:** `docs/schemas/caption_prefix_vocab.json` (schema: `docs/schemas/caption_prefix_vocab.schema.json`, owner: Ace per META-CF; Ray reviews tone at handoff). The registry enumerates the four canonical prefixes; the prefix is fixed, the caption body remains the author's discretion.
+- **Canonical prefixes (v1.0.0):**
+  1. `"What this shows:"` — 1-line literal data description (the WHAT, before interpretation).
+  2. `"Why this matters:"` — investor-impact takeaway (the SO WHAT for a non-quant reader). Use for APP-SE5 Universal Takeaway Captions, RES-9 investor-impact bullets, KPI-delta interpretation.
+  3. `"How to read it:"` — interpretation / reading guide (axis convention, color encoding, threshold lines). Pairs with the "How to read this chart" expander (APP-EX1).
+  4. `"Caveat:"` — honest caution (sample size, OOS window, regime coverage, model limitation). Pairs with the "Honest assessment" expander (APP-EX1); companion to RES-EP1 element 7.
+- **Usage rule:** every `st.caption(...)` and every bolded caption-style `st.markdown("**{prefix}**: ...")` rendered by Ace MUST lead with one of the four. Pick the most appropriate by semantic role; do not invent a fifth.
+- **Deviation protocol:** novel prefixes (e.g., a new audience scenario) are proposed via a `regression_note` entry per META-RNF and, if accepted by Lead, bumped into `caption_prefix_vocab.json` (x-version minor bump per META-CF / META-SCV).
+- **Enforcement:** producer-side — Ace authors per the registry. Consumer-side lint (pending, non-blocking at introduction): CI grep-check rejects `st.caption` / `st.markdown("**...**:")` patterns whose leading string is not in the registry, except inside files explicitly opted out (e.g. narrative fixtures). Retro-apply is Wave 5C scope, not this wave.
+- **Cross-references:** APP-SE5 (Universal Takeaway Caption uses `"Why this matters:"`), APP-AF3 (Metric Interpretation uses `"What this shows:"` / `"Why this matters:"`), APP-EX1 (expander-title counterpart), RES-2 (Translation Bridge — `"How to read it:"`), RES-EP1 (element 7 — `"Caveat:"`), META-CF, META-ELI5, META-XVC.
+
+### Rule APP-EX1 — Expander Title Canonical Registry
+
+**Added 2026-04-19 (Wave 5B-2).** Resolves the Wave-5 reproducibility-audit Axis 1 finding that recurring expander concepts (Plain English / ELI5 / In plain English / What this means) used divergent titles across pages and pairs, so readers could not pattern-match.
+
+- **Binding:** `docs/schemas/expander_title_registry.json` (schema: `docs/schemas/expander_title_registry.schema.json`, owner: Ace per META-CF). One canonical title per recurring concept; title RENAME is a breaking major bump because external readers have learned to pattern-match the strings.
+- **Canonical titles (v1.0.0):**
+  1. `"Plain English"` — for N8 Plain English expanders (per RES-2 / APP-AF4 / META-ELI5). MUST NOT be rendered as `"ELI5"`, `"In plain English"`, `"In Plain English"`, `"What this means"`, or emoji-prefixed variants — those are registered deprecated aliases.
+  2. `"Deeper dive"` — for technical-detail expanders (formulas, citations, parameter choices) per APP-AF1 progressive disclosure.
+  3. `"Why we chose this method"` — for method-rationale expanders per the Evidence 8-element template (RES-EP1 element 3, cross-ref APP-EP1). One per method block on Evidence.
+  4. `"How to read this chart"` — for chart-interpretation expanders, paired with the `"How to read it:"` caption prefix (APP-CC1). Used for Story hero chart, history-zoom charts, and any Evidence chart with non-obvious encoding.
+  5. `"Honest assessment"` — for caveat expanders per RES-EP1 element 7, paired with the `"Caveat:"` caption prefix (APP-CC1).
+- **Default expanded state:** per APP-AF1 ("defer, do not expand") all five default to `expanded=False`.
+- **Deviation protocol:** non-standard titles require a justification block in the pair's `regression_note_{date}.md` (per META-RNF) explaining why an ad-hoc title is warranted and why the canonical titles do not fit. Lead reviews at acceptance.
+- **Enforcement:** producer-side — Ace authors per the registry. Consumer-side lint (pending): CI grep-check flags any `st.expander(label=...)` whose label string matches a `deprecated_aliases` entry without a deviation note. Retro-apply is Wave 5C scope.
+- **Cross-references:** APP-CC1 (caption-prefix counterpart), APP-AF1 (default-expanded policy), APP-AF4 (Translation Bridge rendering), RES-2, RES-EP1 (Evidence 8-element authoring), META-CF, META-ELI5, META-XVC.
+
+### Rule APP-URL1 — Page URL-Slug Pin
+
+**Added 2026-04-19 (Wave 5B-2).** Resolves the Wave-5 reproducibility-audit Axis 1 finding that Streamlit Cloud's slugification rule is implicit — it strips the numeric prefix from page filenames (`9_hy_ig_v2_spy_story.py` → URL slug `hy_ig_v2_spy_story`). If Streamlit changes the rule (e.g. case enforcement, separator changes, prefix-stripping scope) on a future upgrade, every breadcrumb, cross-page `st.page_link(...)` call, and external deep link in `acceptance.md` breaks silently — no visible error, just a 404 or a mis-routed page.
+
+- **Binding:** `docs/schemas/url_slug_pins.json` (schema: `docs/schemas/url_slug_pins.schema.json`, owner: Ace per META-CF). Pins the expected slug per `app/pages/*.py` file plus the observed `streamlit_version_observed` string.
+- **Smoke-test contract:** `app/_smoke_tests/smoke_url_slugs.py` (harness to be added in the companion retro-apply wave) iterates every entry, imports `streamlit.runtime.pages_manager` (or the equivalent in the observed Streamlit version), derives each file's slug, and asserts it equals `expected_slug`. Mismatch blocks acceptance.
+- **Breadcrumb contract:** the breadcrumb component reads `canonical_breadcrumb` from the pin — NOT an inferred title-case of the filename. The filename is the source of truth for the SLUG (via the pin); the breadcrumb is the source of truth for the DISPLAY STRING. Decoupling prevents per-Ace breadcrumb drift ("HY-IG v2 → Story" vs "HY/IG v2 > Story" vs "hy-ig-v2 story").
+- **GATE-29 extension:** the Clean-Checkout Deployment Test (GATE-29) is extended to run the slug smoke test inside the clean checkout. A slug mismatch at acceptance is the same severity as a missing artifact: reference-pair acceptance blocker. Non-reference pairs: warning until their pins land.
+- **Deviation protocol:** any Streamlit upgrade (observed via `streamlit.__version__`) that changes slug rules triggers a coordinated bump: (a) `url_slug_pins.json.streamlit_version_observed` updated, (b) `expected_slug` values migrated, (c) a `regression_note_{date}.md` entry per META-RNF, (d) external links in `acceptance.md` / `docs/pair_execution_history.md` audited per GATE-30 (Deflection Link Audit).
+- **Cross-references:** APP-DP1 (`st.page_link` try/except — now supplemented by structural pinning), GATE-29 (Clean-Checkout Deployment Test), GATE-30 (Deflection Link Audit — external links depend on slugs), META-CF, META-VNC (cross-environment content continuity).
+
+### Rule APP-CH1 — Chart Name Registry Extension for Non-Method Charts
+
+**Added 2026-04-19 (Wave 5B-2).** Resolves the Wave-5 reproducibility-audit Axis 1 finding that VIZ-V8 `chart_type_registry.json` covered only method-family charts (correlation, granger, ccf, local_projections, regime, quantile, transfer_entropy, quartile_returns) — leaving non-method charts (hero, equity_curves, drawdown, trade_log_preview, signal_timeseries, position_timeseries, regime_shading_backdrop) with ad-hoc naming and path-resolution discretion inside `app/components/charts.py`.
+
+- **Binding:** non-method charts are registered in the SAME `docs/schemas/chart_type_registry.json` as method charts (VIZ-V8's authoritative registry) — this is an EXTENSION, not a new registry. Vera owns the schema; Ace may PR non-method entries to the instance via the shared file. Added entries as of 2026-04-19: `hero`, `equity_curves`, `equity_drawdown`, `tournament_scatter`, `history_zoom_{dotcom,gfc,covid,taper_2018,inflation_2022}` (pre-existing), plus new non-method entries `trade_log_preview`, `signal_timeseries`, `position_timeseries`, `regime_shading_backdrop`.
+- **Consumer contract:** Ace's `load_plotly_chart(chart_name, pair_id)` loader consults the registry for ALL chart names — method AND non-method — not just method charts. Path resolution uses the registry's `canonical_filename_pattern` (basename) + the standard `output/charts/{pair_id}/plotly/` directory, with the META-ZI override path applied when `override_supported=true`.
+- **PR discipline with Vera's ownership:** Vera owns the registry SCHEMA (`chart_type_registry.schema.json`) and the method-chart ROWS. Ace PRs only non-method rows via shared edit to the JSON instance; any schema change (new `expected_chart_type` enum value, new required field) must be opened as a request to Vera, not committed unilaterally. The 4 new rows added 2026-04-19 use only existing enum values (`line`, `area_probability`) and existing field shapes — no schema change needed.
+- **Enforcement:** producer-side — Vera validates method chart filenames against the registry before save (VIZ-V8). Consumer-side — Ace's loader falls back to GATE-25 "chart pending" placeholder ONLY when the registry has no matching entry for `chart_name` (unknown chart) OR when the resolved path does not exist (missing artifact). Silent filename drift is prevented because path resolution goes through the registry, not per-call-site string literals.
+- **Cross-references:** VIZ-V8 (Vera's registry authority and method-chart rows), VIZ-NM1 (Chart Naming Convention — pair_id lives in directory path, not filename), GATE-25 (No Silent Chart Fallbacks), GATE-27 (End-to-End Chart Render Test), APP-EP4 (Chart Filename Contract — now enforceable for all charts, not just method charts), META-CF, META-ZI.
+
 ---
 
 ## Tool Preferences

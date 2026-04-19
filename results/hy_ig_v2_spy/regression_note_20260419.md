@@ -741,3 +741,388 @@ Evan's `winner_summary.direction` = `countercyclical` (post-Wave 4D-1 migration)
 - `results/hy_ig_v2_spy/regression_note_20260419.md` (this append)
 
 **Approved by:** Ace self-approves the consumer-side integration. Lead Lesandro ratifies at Wave 4D-2 consolidation.
+
+---
+
+### Lead's Wave 5B-1 Meta-Rule Authoring (2026-04-19)
+
+**Context.** Wave 5 produced 6 validation-audit files (5 agent-level + 1 system-level `docs/validation-audit-20260419-lead.md`). Wave 5B consolidates those audits into new rules. Wave 5B-1 (this dispatch) covers the meta-rules and gate items owned by Lead; Wave 5B-2 dispatches in parallel to agents for agent-specific rules.
+
+**Rules authored (7).**
+
+| Rule ID | Type | One-line | Addresses |
+|---------|------|----------|-----------|
+| META-XVC | META | Cross-Version Discipline — observe prior version before v2+, document divergence in `### Methodological divergence` blocks with 6 required fields, trace divergence in acceptance.md | Wave-5 audit: "method drift across v1/v2" was covered at content level by META-VNC but not at method level |
+| META-FRD | META | Force-Redeploy Discipline — trivial no-op commit to force Cloud rebuild; alone in commit; logged in pair_execution_history Force-Redeploy Log; 2×/quarter threshold triggers root-cause investigation | Wave-5 audit Axis 3 re: commit `1720c0c` (undocumented pattern, risk of normalization) |
+| META-RPT | META | Reference-Pair Tagging Protocol — `<pair_id>-reference-candidate` (pre-approval) → `<pair_id>-reference` (post-approval, frozen, immutable); evolution creates new versioned candidate; original tag preserved | Wave-5 audit Axis 3 Decision 2: "hy-ig-v2-reference" was referenced in META-RPD but never created; procedure was tribal |
+| META-BL | META | Backlog Discipline — `docs/backlog.md` with `{ID, proposer_agent, proposed_rule_id, motivation, decision, deferred_reason, reactivation_trigger, date}` columns; Lead reviews at EOD for fired triggers | Wave-5 audit: need a registry for deferred proposals (currently vanish between sessions) |
+| META-SCV | META | Schema Consumer Version Contract — extends `validate_or_die` / `validate_soft` with `minimum_x_version` parameter; consumer major must equal producer major, consumer minor ≤ producer minor | Wave-5 audit Axis 3: Evan bumping winner_summary 1.0.0 → 1.1.0 additively would silently pass a 1.0.0-consumer, setting up downstream `KeyError` when a later 1.1.0-consumer ran against a 1.0.0 instance |
+| META-ELI5 | META | User-Facing Technical Flags → Plain English — every `st.error` / `st.warning` / `st.info`, every status label, every placeholder carries both technical label AND 1–2 sentence ELI5 body; Ray editorial owner | Wave-5 audit: RES-1 / RES-3 / APP-SE5 cover narrative + takeaway captions but none catch in-line technical flags ("Insufficient OOS", "Direction disagreement: Evan says X, Dana says Y") |
+| GATE-30 | GATE | Deflection Link Audit — stakeholder-item resolutions that deflect to another page must name target + anchor, DOM-assert target renders, content-assert target contains claimed content, require Lead sign-off, auto-reopen on target restructure | Wave-5 audit Axis 2: S18-2 and S18-4 were closed by deflection with no mechanical assertion that the deflection target rendered or contained the referenced content |
+
+**Backlog bootstrap (1 entry).**
+
+- **BL-001** — APP-SEV1-MAP — Ace — deferred to next sprint per Lesandro 2026-04-19. Motivation: severity levels (L1 / L2 / L3) currently assigned per-call by Ace; proposal is to move to a lookup JSON for cross-component consistency. Deferred because current ad-hoc assignments work, mechanization doesn't affect what stakeholders see, and other Wave 5B rules have higher stakeholder-visible ROI. Reactivation trigger: (a) inconsistent severity causes a real bug OR (b) after Pair #10 when severity drift becomes more likely with scale.
+
+**pair_execution_history.md update.**
+
+New session entry added: "Run: HY-IG v2 → SPY — 2026-04-19 (Waves 1–5, rules + portal retro-apply)". Includes Force-Redeploy Log section with the `1720c0c` entry (first ever META-FRD log entry), and Wave 5B-1 MRA (Measure / Review / Adjust) block.
+
+**Files touched (Wave 5B-1 only).**
+
+- `docs/agent-sops/team-coordination.md` — appended 6 new META sections (META-XVC, META-FRD, META-RPT, META-BL, META-SCV, META-ELI5) before the existing META-CF block; appended GATE-30 row to the Deliverables Completeness Gate table; appended GATE-30 block to the acceptance.md template.
+- `docs/standards.md` — 6 rows added to META block (META-XVC, META-FRD, META-RPT, META-BL, META-SCV, META-ELI5); 1 row added to GATE block (GATE-30).
+- `docs/backlog.md` — **new file.** Header + `Active Deferrals` table + BL-001 row + `Rejected Proposals` placeholder.
+- `docs/pair_execution_history.md` — appended Wave 5B-1 session entry with Force-Redeploy Log and MRA.
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+**Not touched (Wave 5B-2 scope).**
+
+- Agent-specific SOPs (data-agent-sop.md, econometrics-agent-sop.md, research-agent-sop.md, visualization-agent-sop.md, appdev-agent-sop.md) — Wave 5B-2 agent dispatches own those.
+- `docs/sop-changelog.md` — will be updated in the central commit consolidating Wave 5B-1 + 5B-2 dispatches.
+
+**Coordination concerns with Wave 5B-2 agents.**
+
+- **No file-conflict risk expected** — Wave 5B-1 edits target only META / GATE blocks in team-coordination.md and standards.md; Wave 5B-2 dispatches target agent-specific SOP files and agent-lane blocks in standards.md. The standards.md edit ranges (META block, GATE block vs DATA / ECON / VIZ / RES / APP blocks) do not overlap.
+- **Cross-references agents should use** — Wave 5B-2 agents can freely cite the 7 new rules by ID (META-XVC, META-FRD, META-RPT, META-BL, META-SCV, META-ELI5, GATE-30) in their SOP text. All 7 are registered and have stable IDs as of this commit.
+- **Central commit** — no individual dispatch pushes. Lead consolidates Wave 5B-1 + 5B-2 results into one commit at the end of Wave 5B, runs Playwright verification, then pushes.
+
+**Approved by:** Lead Lesandro self-approves the Wave 5B-1 authoring. Wave 5B-2 agent dispatches cross-reference these IDs at their own handoff.
+
+---
+
+### Ray's Wave 5B-2 RES rules (2026-04-19)
+
+**Context.** Wave 5B-2 is the agent-scoped dispatch that pairs with Lead's Wave 5B-1 META/GATE authoring. Ray's self-audit (`docs/validation-audit-20260419-ray.md`) identified five reproducibility gaps and five stakeholder-resolution gaps in the HY-IG v2 narrative. Three of those gaps become canonical blocking rules in this dispatch; no retro-apply (the HY-IG v2 narrative is left as-is until Wave 5C does the sweep).
+
+**Rules authored (3).**
+
+| Rule ID | Type | One-line | Audit gap closed |
+|---------|------|----------|------------------|
+| RES-18 | RES (Ray) | Headline Template Constraint — two sanctioned templates (A metric-first / B insight-first); OOS span + metric value read from `winner_summary.json` / `oos_split_record.json`, never hand-typed; template ID recorded in narrative frontmatter | Wave-5 audit Axis 1 high-severity: "headline exact phrasing" discretionary; ALSO closes Axis 2 gap: narrative "8-year OOS" vs MEMORY "15-year OOS" drift (ground-truth is now the artifact, not the author's recollection) |
+| RES-20 | RES (Ray) | Historical-Episode Selection Criterion — mandatory triad (long-lead / coincident / failure-case) + optional 4th confirmer; per-episode `selection_rationale` enum in frontmatter; episode slug must exist in VIZ-V12 chart-type registry | Wave-5 audit Axis 1 high-severity: episode selection discretion; also codifies the failure-case honesty norm (previously tribal) |
+| RES-22 | RES (Ray) | Status-Label Assignment Decision Table — deterministic first-match-wins lookup from artifact empirical condition → canonical label (Validated / Stale / Available / Pending / Draft / Mature / Unknown); `"ready"` banned as informal alias; META-ELI5 pairing required for every user-visible label | Wave-5 audit Axis 2: `chart_status: "ready"` in HY-IG v2 narrative violated RES-VS (informal label outside canonical 7); RES-22 makes the assignment mechanical so another Ray cannot pick "ready" again |
+
+**Locations.**
+
+- `docs/agent-sops/research-agent-sop.md` — 3 new rule sections appended after Rule RES-17, before "Bibliography Scale" heading.
+- `docs/standards.md` — 3 rows appended to RES section between `RES-17` and `RES-EP1` rows.
+
+**Glossary status-label audit.**
+
+- Scope: verify the 7 canonical status labels (Available / Pending / Validated / Stale / Draft / Mature / Unknown) each have an ELI5-compliant entry in `docs/portal_glossary.json`.
+- **Result: PASS.** All 7 labels present under the `status_labels` key (lines 2–11 of `portal_glossary.json`), each with a one-sentence plain-English body suitable for META-ELI5 rendering. No additions required for Wave 5B-2.
+- Observed drift (NOT in Wave 5B-2 scope; flagged for Wave 5C): the glossary uses the top-level key `status_labels`, while the schema (`docs/schemas/narrative_frontmatter.schema.json` line 97) and `docs/cross-review-20260419-ray.md` refer to it as `_status_vocabulary`. My new RES-22 text cites `_status_vocabulary` to match the schema + cross-review convention; the key rename (or schema back-reference fix) is queued for Wave 5C as a separate cleanup.
+- Note: the `terms` section (narrative jargon glossary — counter-cyclical, Merton, OAS, HMM, etc.) is drastically under-populated (3 entries) per Axis 2 of the audit; that is a separate RES-6 spirit-violation gap and not in RES-22's scope.
+
+**Cross-references.**
+
+- **META-XVC (Cross-Version Discipline)** — RES-18 (template choice) and RES-20 (episode selection) both require cross-version consistency across v1→v2 of the same pair unless the regression_note documents a deliberate switch. Authors of v3+ iterations observe v2 before diverging.
+- **META-ELI5 (User-Facing Technical Flags → Plain English)** — RES-22 explicitly delegates the plain-English body for every rendered status label to the ELI5 contract. Ace's rendering helper supplies the body; Ray's prose supplies the technical label.
+- **RES-VS (Narrative Status Vocabulary Self-Check)** — RES-22 is the missing half of RES-VS: RES-VS validates that labels are drawn from the canonical 7, but did not specify the condition → label mapping. RES-22 closes that loop; Wave 5C migrates existing `"ready"` occurrences.
+
+**Gaps closed per Wave 5 audit.**
+
+- Headline reproducibility (Axis 1 high-severity) — RES-18.
+- OOS window hand-typed drift (Axis 2 stakeholder gap, 8-year vs 15-year) — RES-18 via ground-truth-artifact resolution.
+- Episode selection discretion (Axis 1 high-severity) — RES-20.
+- `chart_status: "ready"` status-vocabulary violation (Axis 2 stakeholder gap) — RES-22 (rule-level; Wave 5C retro-applies).
+
+**Retro-apply status.** NONE. Wave 5B-2 is rule-authoring only; the HY-IG v2 narrative's headline, episode set, and `"ready"` occurrences are left as-is. Wave 5C performs the retro-apply sweep against the now-canonical rules.
+
+**Files touched (Wave 5B-2, Ray scope only).**
+
+- `docs/agent-sops/research-agent-sop.md` — 3 new rule sections (RES-18, RES-20, RES-22) added after Rule RES-17.
+- `docs/standards.md` — 3 rows (RES-18, RES-20, RES-22) added to RES section.
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+**Not touched.**
+
+- `docs/portal_glossary.json` — audit passed; no changes needed. The `_status_vocabulary` vs `status_labels` key rename is Wave 5C scope.
+- `docs/schemas/narrative_frontmatter.schema.json` — RES-18 (`headline_template`) and RES-20 (`selection_rationale`) field additions are schema changes; queued for a separate schema-bump dispatch to avoid concurrent edits on a META-CF-owned file in Wave 5B-2.
+- Other agent SOPs — not in Ray's scope.
+- HY-IG v2 narrative prose — Wave 5C retro-apply only.
+
+**Approved by:** Ray self-approves the Wave 5B-2 RES authoring. Lead Lesandro ratifies at Wave 5B consolidation commit.
+
+---
+
+### Dana's Wave 5B-2 DATA rules (2026-04-19)
+
+**Context.** Wave 5B-2 dispatches parallel to each agent for agent-specific rule authoring in response to the Wave 5 validation audit (`docs/validation-audit-20260419-dana.md`). Dana's dispatch authors three new DATA-* rules closing the reproducibility and cross-pair-consistency gaps the audit surfaced on HY-IG v2. No retro-apply in this dispatch — Wave 5C will create the actual `data/hy_ig_v2_spy_daily_schema.json` sidecar, `data/manifest.json`, and `data/display_name_registry.csv` instances and rename `hy_ig_spread` → `hy_ig_spread_bps` (or `_pct`) against the reconciliation decision pending from Lead.
+
+**Rules authored (3).**
+
+| Rule ID | Type | One-line | Addresses (Wave 5 audit) |
+|---------|------|----------|-------------------------|
+| DATA-D11 | DATA (Blocking) | Reference-Pair Sidecar Gate — DATA-D5 sidecar MUST exist on disk at `data/{pair_id}_schema.json` and validate OK against `docs/schemas/data_subject.schema.json` before acceptance.md can be signed for any reference pair. | Axis 2 gap A (S18-5 residual) + Axis 1 item #14: schema landed in Wave 4C-1, sidecar for HY-IG v2 was never produced. |
+| DATA-D12 | DATA (Blocking) | Column-Suffix Linter — pre-save linter enforcing DATA-D2 suffix convention; fails the save on numeric unit-valued columns without a matching suffix (`_bps`, `_pct`, `_ratio`, `_usd`, `_pct_mom`, `_pct_yoy`, `_ret`, `_vol_ann_pct`, `_idx`). | Axis 1 items #6 + #7: `hy_ig_spread` stores percent under no-suffix name (data dictionary asserts bps); DATA-D2 was checklist-only and kept slipping past review. |
+| DATA-D13 | DATA | Manifest + Display-Name Registry Bootstrap — canonical `data/manifest.json` (new schema `docs/schemas/data_manifest.schema.json`) + `data/display_name_registry.csv` (new schema `docs/schemas/display_name_registry.schema.json`). Both files are mandatory for reference-pair acceptance; DATA-D13 establishes governance (Wave 5C creates instances). | Axis 1 items #9 + #13: both files mandated by §6 Deliver text but neither existed on disk; silent paper-only SOPs. |
+
+**Schemas authored (2).**
+
+| Schema file | Example file | Smoke-test result |
+|-------------|-------------|-------------------|
+| `docs/schemas/data_manifest.schema.json` | `docs/schemas/examples/data_manifest.example.json` | `python3 scripts/validate_schema.py` → **OK, exit 0** |
+| `docs/schemas/display_name_registry.schema.json` | `docs/schemas/examples/display_name_registry.example.json` | `python3 scripts/validate_schema.py` → **OK, exit 0** |
+
+Both schemas conform to the META-CF Contract File Standard: `x-owner: dana`, `x-version: 1.0.0`, `additionalProperties: false` at every level, controlled enums for `unit` fields (mirrors DATA-D2 and `data_subject.schema.json`).
+
+**Cross-references.**
+
+- **META-CF** — both new schemas land under `docs/schemas/` with owner/version headers + companion example instances; validator-enforced producer and consumer contracts.
+- **META-XVC** — registries apply across pair versions; same canonical column name (e.g. `hy_ig_spread_bps`) must map to the same `display_name` forever, enforced by registry uniqueness.
+- **META-ELI5** — every DATA-D11 / DATA-D12 / DATA-D13 failure message authored with both a technical label (agent-facing) and an ELI5 body (stakeholder-facing, 1-2 sentences, no jargon). Ray editorial owner on tone.
+- **GATE-28** — DATA-D11 is the data-layer sibling to the portal-layer reference-pair placeholder prohibition. Same pattern: a rule satisfied in spirit only at the portal level but not at the artifact level is not satisfied.
+
+**Gaps closed per Wave 5 audit.**
+
+1. **Sidecar-existence gap** (Axis 2 A, Axis 1 #14): DATA-D11 makes the DATA-D5 sidecar a blocking artifact for reference-pair acceptance. Closes the "schema exists but instance doesn't" class of failure that kept Wave-2A's 100x-unit-bug fix half-landed.
+2. **Column-suffix gap** (Axis 1 #6 + #7): DATA-D12 promotes DATA-D2 suffix enforcement from checklist to mechanical pre-save linter. Closes the silent-unit-drift class of failure where a column name doesn't telegraph whether values are bps or percent.
+3. **Manifest + registry bootstrap gap** (Axis 1 #9 + #13): DATA-D13 creates the governance for two portfolio-level registries Evan/Vera/Ray/Ace have been pretending existed. Schemas land now; instances land in Wave 5C retro-apply.
+
+**Files touched (Wave 5B-2 Dana dispatch only).**
+
+- `docs/agent-sops/data-agent-sop.md` — 3 new rule sections (Rule DATA-D11, Rule DATA-D12, Rule DATA-D13) inserted before Rule DATA-VS; 3 new quality-gate checkboxes added.
+- `docs/standards.md` — 3 new rows appended to the DATA block (DATA-D11, DATA-D12, DATA-D13).
+- `docs/schemas/data_manifest.schema.json` — **new file** (META-CF compliant).
+- `docs/schemas/display_name_registry.schema.json` — **new file** (META-CF compliant).
+- `docs/schemas/examples/data_manifest.example.json` — **new file** (smoke-test instance).
+- `docs/schemas/examples/display_name_registry.example.json` — **new file** (smoke-test instance).
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+**Not touched (Wave 5C retro-apply scope).**
+
+- `data/hy_ig_v2_spy_daily_schema.json` — reference-pair sidecar instance. Wave 5C produces.
+- `data/manifest.json` — portfolio-level manifest. Wave 5C produces.
+- `data/display_name_registry.csv` — cross-pair display-name mapping. Wave 5C produces.
+- `hy_ig_spread` column rename (bps-vs-percent reconciliation per Wave-5 audit Question #1). Wave 5C executes after Lead decision.
+
+**Approved by:** Dana self-approves the Wave 5B-2 rule authoring (schemas land clean with exit-0 smoke tests, SOP + standards.md updates are additive). Lead Lesandro ratifies at Wave 5B consolidation; Wave 5C retro-apply dispatch carries the instance-level artifacts and the column rename.
+
+---
+
+### Vera's Wave 5B-2 VIZ rules (2026-04-19)
+
+**Context.** Wave 5 validation audit (`docs/validation-audit-20260419-vera.md`) flagged three HIGH-severity reproducibility gaps on the HY-IG v2 reference pair (per META-RPD): (a) palette inconsistency — hero chart ships Okabe-Ito `#D55E00` while zoom charts and certain bar charts ship matplotlib defaults (`#d62728`, `#1f77b4`, `#2ca02c`); (b) zoom-chart event-marker dates picked ad-hoc with no recorded rationale or source citation; (c) zoom-chart annotation y-positions hand-tuned with no documented algorithm. Wave 5B-2 authors three new VIZ rules closing those gaps at the SOP + registry layer. Retro-apply to HY-IG v2 charts (rebuilding hero + 3 zooms against the registries) is scheduled for Wave 5C.
+
+**Rules authored (3) + locations.**
+
+| Rule ID | One-line | Owning SOP section |
+|---------|----------|--------------------|
+| **VIZ-V11** | Color Palette Registry — canonical at `docs/schemas/color_palette_registry.json` (META-CF, owner: Vera). `_meta.json.palette_id` mandatory; pre-save lint blocks raw matplotlib / plotly defaults. Palette changes are methodological divergence per META-XVC. | `docs/agent-sops/visualization-agent-sop.md` Rule V11 |
+| **VIZ-V12** | Historical-Episode Events Registry — canonical at `docs/schemas/history_zoom_events_registry.json` (META-CF, owner: Vera, Ray proposes via PR). Mandatory `rationale` + `source_citation` per event. Ad-hoc picks prohibited. New episodes require registry PR first. | `docs/agent-sops/visualization-agent-sop.md` Rule V12 |
+| **VIZ-V13** | Annotation Positioning Strategies — three named strategies (`descending_stair`, `top_right_uniform`, `alternating_top_bottom`); chart declares one in `_meta.json.annotation_strategy_id`. Hand-tuning requires `manual_override` + regression_note + sidecar `annotation_overrides` array. | `docs/agent-sops/visualization-agent-sop.md` Rule V13 |
+
+**New registries bootstrapped (2).**
+
+1. `docs/schemas/color_palette_registry.schema.json` + `docs/schemas/color_palette_registry.json` + `docs/schemas/examples/color_palette_registry.example.json`.
+   - Bootstrap content: 1 palette (`okabe_ito_2026`) with all 11 required roles populated from the HY-IG v2 hero values (primary `#D55E00`, secondary `#0072B2`, `nber_shading rgba(150,120,120,0.22)`, buy `#009E73`, sell `#D55E00`, hold `#999999`, equity_curve `#0072B2`, drawdown_fill `rgba(213,94,0,0.35)`) plus optional `tertiary_data_trace`, 4-color `quartile_gradient` (Q1→Q4 green→yellow→orange→vermillion), and 8-color `categorical_extended` for future cross-pair dashboards.
+2. `docs/schemas/history_zoom_events_registry.schema.json` + `docs/schemas/history_zoom_events_registry.json` + `docs/schemas/examples/history_zoom_events_registry.example.json`.
+   - Bootstrap content: 5 episodes (`dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`) with 4 / 5 / 3 / 4 / 5 = **21 key events** total. Every event carries a one-sentence `rationale` and an authoritative `source_citation` (NBER business-cycle table for recession starts / ends; FOMC statements for policy actions; SEC filings for bankruptcies; S&P 500 / NASDAQ / ICE BofA indices for market peaks / troughs; BLS CPI releases for data releases).
+
+**Smoke-test results (4 of 4 PASS).**
+
+Each schema validated against both its canonical instance and its example instance using `scripts/validate_schema.py` (JSON Schema draft 2020-12, META-CF producer-side validation):
+
+```
+OK: docs/schemas/color_palette_registry.json conforms to docs/schemas/color_palette_registry.schema.json
+OK: docs/schemas/examples/color_palette_registry.example.json conforms to docs/schemas/color_palette_registry.schema.json
+OK: docs/schemas/history_zoom_events_registry.json conforms to docs/schemas/history_zoom_events_registry.schema.json
+OK: docs/schemas/examples/history_zoom_events_registry.example.json conforms to docs/schemas/history_zoom_events_registry.schema.json
+```
+
+All four exit-0.
+
+**Cross-references (META-CF, META-XVC, RES-20).**
+
+- **META-CF (Contract File Standard).** Both new schemas adopt the canonical META-CF shape: `x-owner` + `x-version` (semver) header; companion `examples/*.example.json` instance; producer-side validation via `scripts/validate_schema.py`; SOPs link rather than inline.
+- **META-XVC (Cross-Version Discipline).** Palette changes (bumping `palette_id` or any role color value) and event-set amendments (changing a date, editing a rationale, adding/removing a marker) are codified as **methodological divergence**. Both rules state explicitly: a `palette_id` bump or episode amendment requires a `### Methodological divergence` block in the affected pair's regression_note.md and — on reference pairs — an acceptance.md Methodological Divergence Log row. Strategy change across versions (VIZ-V13 switching a chart from `descending_stair` to `alternating_top_bottom`) is likewise methodological divergence.
+- **RES-20 (Ray's episode-selection criterion, pending Wave 5B-2 Ray dispatch).** VIZ-V12 notes Ray's PR-proposer authority and points forward to RES-20 as the paired research-side rule that governs *which* episodes get added to the registry. Cross-agent contract stub: Ray proposes episode slugs + key events (with rationale + source_citation drafts); Vera merges, owns the registry file, bumps `x-version`.
+
+**Gaps closed per Wave 5 audit.**
+
+Audit reproducibility gap table items closed by this rule set:
+
+- **#1** palette metadata missing from sidecar → VIZ-V11 requires `_meta.json.palette_id`.
+- **#2** hero (Okabe-Ito `#D55E00`) vs zoom (matplotlib `#d62728`) palette divergence → VIZ-V11 pre-save lint blocks matplotlib defaults; retro-apply (Wave 5C) rebuilds zoom charts against `okabe_ito_2026`.
+- **#3** Granger / quartile / regime bar colors mixing two palettes on the same pair → VIZ-V11 `quartile_gradient` role + pre-save lint.
+- **#5** zoom event-date selection with no registry → VIZ-V12 registry makes dates deterministic and source-cited.
+- **#6** event-label format loose → VIZ-V12 label format spec `"{MMM YYYY}: {event title ≤5 words}"` codified in schema `maxLength: 80`.
+- **#7** annotation y-positions hand-tuned with no algorithm → VIZ-V13 three named strategies.
+- **#15** color references in narrative (`"the red line"` ambiguous when pair ships two reds) → VIZ-V11 role-named roles mean narrative authors can reference role, not literal hex.
+
+SL-4 and SL-5 residual rationale-capture gaps (zoom events picked without documented rationale) also close at the registry layer — both episodes now carry full `rationale` + `source_citation` per event.
+
+**Files touched (Wave 5B-2 Vera only).**
+
+- `docs/agent-sops/visualization-agent-sop.md` — appended 3 rule sections (Rule V11, Rule V12, Rule V13) after Rule V8.
+- `docs/standards.md` — appended 3 rows to VIZ block (VIZ-V11, VIZ-V12, VIZ-V13) after VIZ-V8.
+- `docs/schemas/color_palette_registry.schema.json` — new.
+- `docs/schemas/color_palette_registry.json` — new (canonical instance, `okabe_ito_2026` palette).
+- `docs/schemas/examples/color_palette_registry.example.json` — new (minimal META-CF example).
+- `docs/schemas/history_zoom_events_registry.schema.json` — new.
+- `docs/schemas/history_zoom_events_registry.json` — new (canonical instance, 5 episodes / 21 events).
+- `docs/schemas/examples/history_zoom_events_registry.example.json` — new (minimal META-CF example).
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+**Not touched (Wave 5C retro-apply scope).**
+
+- HY-IG v2 `hero.json`, `history_zoom_{dotcom,gfc,covid}.json` — chart rebuilds against the registries.
+- Non-canonical palette usages in `granger_f_by_lag.json`, `regime_quartile_returns.json`, `quartile_returns.json` — retro-fix to `okabe_ito_2026` roles.
+- `_meta.json` sidecars — `palette_id` + `annotation_strategy_id` + `events_registry_version` backfill.
+- Builder scripts (`scripts/generate_charts_hy_ig_v2_spy.py`) — registry-reading refactor.
+- Pre-save lint implementation — helper utility to be added in Wave 5C.
+
+**Approved by:** Vera self-approves the Wave 5B-2 rule authoring (schemas land clean with exit-0 smoke tests, SOP + standards.md updates are additive, zero chart regeneration performed per no-retro-apply constraint). Lead Lesandro ratifies at Wave 5B consolidation; Wave 5C retro-apply dispatch carries chart rebuilds + sidecar backfills + builder-script registry integration.
+
+---
+
+### Evan's Wave 5B-2 ECON rules (2026-04-19)
+
+**Context.** Wave 5B-2 dispatch to Evan authored 4 new ECON-* rules responding directly to the reproducibility gaps surfaced in `docs/validation-audit-20260419-evan.md` (Axis 1 §1.1, §1.2, §1.4, §1.7, §1.8). Retro-application to HY-IG v2 is explicitly out of scope for this wave — Wave 5C handles retro.
+
+**Rules registered (4).**
+
+| Rule ID | Type | One-line | Audit gap closed |
+|---------|------|----------|------------------|
+| ECON-T3 | ECON | Tournament Tie-Break Cascade (Blocking) — 5-step cascade (oos_sharpe → oos_ann_return → abs(oos_max_drawdown) → oos_n_trades → lexicographic signal_code); step-2+ resolutions write `tournament_tie_note.md` | §1.1 (pandas-stable-sort non-determinism between threshold 0.5 vs 0.7 at identical Sharpe 1.274) + §1.7 (variant-family within-epsilon selection) |
+| ECON-OOS1 | ECON | OOS Window Ownership — Evan owns; persisted in `results/{pair_id}/oos_split_record.json` with 7 fields; downstream agents read, never recompute; `winner_summary.oos_period_start/end` copied verbatim | §1.4 (OOS boundaries reverse-inferred from `oos_n = 2088` with no audit trail) |
+| ECON-OOS2 | ECON | OOS Window Sizing Criterion (Blocking) — `span_months = min(max(36, round(total × 0.25)), 120)`; < 48 months total → `insufficient_sample` BLOCKING (Lead waiver required); `split_policy_id: "v1_max36_25pct_cap120"`; dual technical + ELI5 rendering per META-ELI5 | §1.4 (systematic sizing rule for all 73 pairs) |
+| ECON-DS3 | ECON | Signal Code Registry (per META-CF) — canonical append-only registry at `docs/schemas/signal_code_registry.json`; per-entry `{signal_code, display_name, parquet_column_pattern, description, source_method}`; existing entries never renumber; `winner_summary.signal_code` MUST be from registry | §1.2 (S-code registration-order drift) + §1.8 (signal_column ↔ signal_code cross-invariant uncaptured) |
+
+**New schema file created (META-CF triad).**
+
+- `docs/schemas/signal_code_registry.schema.json` — JSON Schema draft 2020-12, `x-owner: evan`, `x-version: 1.0.0`. Title: "Signal Code Registry". Required fields: `x-version`, `x-owner` (const `"evan"`), `signals` array. Each signal entry requires `signal_code` (snake_case pattern `^[a-z][a-z0-9_]*$`), `display_name`, `parquet_column_pattern`, `description`, `source_method` (enum of 12 canonical method names).
+- `docs/schemas/signal_code_registry.json` — live bootstrap instance, `x-version: 1.0.0`. 3 starter entries: `hmm_stress` (column `hmm_2state_prob_stress`, source_method `hmm_2state`, first_pair `hy_ig_v2_spy`), `hmm_3state` (column `hmm_3state_mode`, source_method `hmm_3state`), `markov_regime` (column `markov_regime_2state`, source_method `markov_switching`).
+- `docs/schemas/examples/signal_code_registry.example.json` — 6-entry example instance (3 bootstrap + `zscore_lb252` / `roc_63d` / `pctrank_1260d`) illustrating append-only evolution across later waves.
+
+**Smoke-test result.**
+
+```
+$ python3 scripts/validate_schema.py \
+    --schema docs/schemas/signal_code_registry.schema.json \
+    --instance docs/schemas/signal_code_registry.json
+OK: docs/schemas/signal_code_registry.json conforms to docs/schemas/signal_code_registry.schema.json
+
+$ python3 scripts/validate_schema.py \
+    --schema docs/schemas/signal_code_registry.schema.json \
+    --instance docs/schemas/examples/signal_code_registry.example.json
+OK: docs/schemas/examples/signal_code_registry.example.json conforms to docs/schemas/signal_code_registry.schema.json
+```
+
+Both bootstrap and example instance pass validation.
+
+**Cross-references to Wave 5B-1 META-rules.**
+
+- **META-XVC** — ECON-T3 cites it ("cascade-definition changes between versions = methodological divergence, requires `### Methodological divergence` block"); ECON-OOS1 cites it ("OOS window change between versions = divergence"); these are the first ECON-rule-level consumers of META-XVC.
+- **META-ELI5** — ECON-OOS2 cites it for the dual technical + ELI5 rendering of `oos_status` (both the nominal `"validated"` case and the `"insufficient_sample"` case carry prescribed ELI5 prose). Ray is the editorial owner of final ELI5 text per META-ELI5.
+- **META-CF** — ECON-DS3 is a META-CF contract: schema + live instance + example triad is mandatory; producer-side validation uses `scripts/validate_schema.py` before saving `winner_summary.json`.
+
+**Gaps closed per `docs/validation-audit-20260419-evan.md` (Axis 1).**
+
+- §1.1 Tournament tie-break (CRITICAL) → ECON-T3.
+- §1.2 Signal-code naming drift (CRITICAL) → ECON-DS3.
+- §1.4 OOS window boundaries (MODERATE) → ECON-OOS1 + ECON-OOS2.
+- §1.7 Variant-family winner selection (MODERATE) → absorbed into ECON-T3 cascade (steps 2–5 deterministically pick among near-equivalent family members).
+- §1.8 `signal_column` ↔ `signal_code` cross-invariant (MODERATE, partial) → ECON-DS3 makes `signal_code` registry-stable; the cross-invariant is now "`winner_summary.signal_code` maps to exactly one `parquet_column_pattern` via the registry".
+
+Remaining audit items deferred to future waves: §1.3 threshold-rule enum inference (ECON-T4 proposed), §1.5 Granger max-lag default (ECON-E1.1 proposed), §1.6 quartile methodology sidecar (ECON-E2.1 proposed), §1.9 regime/quartile direction convention (stylistic), §1.10 quartile artifact filename collision (stylistic). Evan to queue these to `docs/backlog.md` per META-BL in a separate handoff.
+
+**Files touched (Wave 5B-2 Evan dispatch only).**
+
+- `docs/agent-sops/econometrics-agent-sop.md` — appended ECON-T3, ECON-OOS1, ECON-OOS2 sections inside Tournament Design block (after Tournament handoff to Ray); appended ECON-DS3 section inside Derived Signal Persistence block (after ECON-DS2).
+- `docs/standards.md` — 4 rows added to ECON block (ECON-T3, ECON-OOS1, ECON-OOS2, ECON-DS3) directly below ECON-H5.
+- `docs/schemas/signal_code_registry.schema.json` — **new file**, bootstrap registry schema.
+- `docs/schemas/signal_code_registry.json` — **new file**, 3 bootstrap entries.
+- `docs/schemas/examples/signal_code_registry.example.json` — **new file**, 6-entry evolution example.
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+**Not touched (out of scope for Wave 5B-2).**
+
+- Other agents' SOPs (data, research, visualization, appdev) — agent-scope boundaries respected.
+- HY-IG v2 artifacts (no retro-application of ECON-T3 / ECON-OOS1 / ECON-OOS2 / ECON-DS3 to existing `results/hy_ig_v2_spy/winner_summary.json` or tournament CSV) — Wave 5C owns retro.
+- `docs/sop-changelog.md` — Lead consolidates in the central Wave 5B commit.
+- No push.
+
+**Approved by:** Econ Evan self-approves the Wave 5B-2 authoring. Lead Lesandro ratifies at Wave 5B consolidation; Wave 5C retro-application authorized separately.
+
+---
+
+### Ace's Wave 5B-2 APP rules (2026-04-19)
+
+**Dispatch scope.** Wave 5B-2 agent-specific rule authoring for AppDev Ace, responding to the Wave-5 Ace validation audit (`docs/validation-audit-20260419-ace.md`). Four new APP-* rules authored; three new contract-file schemas + one extension to Vera's existing registry. No retro-apply — portal code unchanged this wave; retro-apply is Wave 5C scope.
+
+**Rules authored (4).**
+
+| Rule ID | One-line | Addresses (Wave-5 audit) |
+|---------|----------|---------------------------|
+| APP-CC1 | Caption-prefix canonical vocabulary pinned at `docs/schemas/caption_prefix_vocab.json`; four prefixes: `"What this shows:"` / `"Why this matters:"` / `"How to read it:"` / `"Caveat:"`. Ray reviews tone. | Axis 1: caption prefixes full discretion ("What this shows" vs "In plain English" vs "Read this chart as"); three different prefixes on Strategy Confidence tab alone |
+| APP-EX1 | Expander-title canonical registry pinned at `docs/schemas/expander_title_registry.json`; five canonical titles: `"Plain English"` (not "ELI5" / "In plain English" / "What this means"), `"Deeper dive"`, `"Why we chose this method"`, `"How to read this chart"`, `"Honest assessment"`. Deprecated aliases registered for grep-based migration. | Axis 1: recurring expander titles divergent across pages; readers cannot pattern-match |
+| APP-URL1 | Page URL-slug pin at `docs/schemas/url_slug_pins.json` with observed `streamlit_version_observed`. Smoke test at acceptance asserts actual slug matches pin; breadcrumb reads `canonical_breadcrumb` from the pin. GATE-29 clean-checkout extended to cover slug verification. | Axis 1: Streamlit slugification rule implicit; downstream consumers (breadcrumb, cross-refs, external links) break silently on upgrade |
+| APP-CH1 | Non-method charts (`hero`, `equity_curves`, `equity_drawdown`, `trade_log_preview`, `signal_timeseries`, `position_timeseries`, `regime_shading_backdrop`) registered in VIZ-V8's `chart_type_registry.json` as an **extension** — not a new registry. Vera owns schema; Ace PRs non-method rows via shared edits. Ace's loader checks registry for ALL chart names. | Axis 1: VIZ-V8 covered only method charts; non-method charts had ad-hoc names and path-resolution discretion |
+
+**Schemas + registries created / extended (3 new + 1 extension).**
+
+| File | Role | Smoke-test status |
+|------|------|-------------------|
+| `docs/schemas/caption_prefix_vocab.schema.json` | New JSON Schema (draft 2020-12); `x-owner: ace`, `x-version: 1.0.0` | OK |
+| `docs/schemas/caption_prefix_vocab.json` | Canonical instance; four prefixes | OK (conforms to schema) |
+| `docs/schemas/examples/caption_prefix_vocab.example.json` | Example instance for consumer tests | OK (conforms to schema) |
+| `docs/schemas/expander_title_registry.schema.json` | New JSON Schema; `x-owner: ace`, `x-version: 1.0.0` | OK |
+| `docs/schemas/expander_title_registry.json` | Canonical instance; five titles with deprecated-aliases tables | OK |
+| `docs/schemas/examples/expander_title_registry.example.json` | Example instance | OK |
+| `docs/schemas/url_slug_pins.schema.json` | New JSON Schema; `x-owner: ace`, `x-version: 1.0.0`; `streamlit_version_observed` top-level field | OK |
+| `docs/schemas/url_slug_pins.json` | Canonical instance; 4 HY-IG v2 pages pinned; observed Streamlit 1.39.0 | OK |
+| `docs/schemas/examples/url_slug_pins.example.json` | Example instance | OK |
+| `docs/schemas/chart_type_registry.json` | **Extension** — 4 non-method rows appended (`trade_log_preview`, `signal_timeseries`, `position_timeseries`, `regime_shading_backdrop`). Vera's method-chart rows and schema untouched. | OK (full instance still validates against Vera's schema) |
+
+**Smoke-test results (8 runs, 0 failures).**
+
+```
+python3 scripts/validate_schema.py --schema docs/schemas/caption_prefix_vocab.schema.json --instance docs/schemas/caption_prefix_vocab.json                    -> OK
+python3 scripts/validate_schema.py --schema docs/schemas/caption_prefix_vocab.schema.json --instance docs/schemas/examples/caption_prefix_vocab.example.json -> OK
+python3 scripts/validate_schema.py --schema docs/schemas/expander_title_registry.schema.json --instance docs/schemas/expander_title_registry.json           -> OK
+python3 scripts/validate_schema.py --schema docs/schemas/expander_title_registry.schema.json --instance docs/schemas/examples/expander_title_registry.example.json -> OK
+python3 scripts/validate_schema.py --schema docs/schemas/url_slug_pins.schema.json --instance docs/schemas/url_slug_pins.json                               -> OK
+python3 scripts/validate_schema.py --schema docs/schemas/url_slug_pins.schema.json --instance docs/schemas/examples/url_slug_pins.example.json              -> OK
+python3 scripts/validate_schema.py --schema docs/schemas/chart_type_registry.schema.json --instance docs/schemas/chart_type_registry.json                    -> OK
+python3 scripts/validate_schema.py --schema docs/schemas/chart_type_registry.schema.json --instance docs/schemas/examples/chart_type_registry.example.json   -> OK
+```
+
+All 3 new schemas validate their canonical + example instances; Vera's extended `chart_type_registry.json` still validates against her existing schema (no schema change — only additive row entries using pre-existing `expected_chart_type` enum values `line` and `area_probability`).
+
+**Cross-references in authored rule text.**
+
+- META-CF (Contract File Standard) — every new schema ships with `x-owner` + `x-version` headers, producer-side validation via `scripts/validate_schema.py`, companion example instance under `docs/schemas/examples/`.
+- META-XVC (Cross-Version Discipline) — deviation protocol for novel prefixes / titles requires `regression_note` entry before divergence; deprecated aliases explicitly enumerated so migration can be grep-audited.
+- META-ELI5 (User-Facing Technical Flags → Plain English) — APP-CC1 + APP-EX1 directly extend the layperson-voice discipline to caption prefixes and expander titles (the UI-vocabulary layer META-ELI5 introduced at the flag layer).
+- VIZ-V8 (Chart Type Registry authority, owner Vera) — APP-CH1 is an EXTENSION, not a new registry. Schema unchanged; method-chart rows unchanged; only non-method rows appended. Any schema change requires a Vera dispatch.
+
+**Files touched (Wave 5B-2 / Ace only).**
+
+- `docs/schemas/caption_prefix_vocab.schema.json` — new.
+- `docs/schemas/caption_prefix_vocab.json` — new.
+- `docs/schemas/examples/caption_prefix_vocab.example.json` — new.
+- `docs/schemas/expander_title_registry.schema.json` — new.
+- `docs/schemas/expander_title_registry.json` — new.
+- `docs/schemas/examples/expander_title_registry.example.json` — new.
+- `docs/schemas/url_slug_pins.schema.json` — new.
+- `docs/schemas/url_slug_pins.json` — new.
+- `docs/schemas/examples/url_slug_pins.example.json` — new.
+- `docs/schemas/chart_type_registry.json` — 4 non-method rows appended (Vera's authority; Ace PR of shared instance per APP-CH1 protocol).
+- `docs/agent-sops/appdev-agent-sop.md` — 4 new rule sections appended (APP-CC1, APP-EX1, APP-URL1, APP-CH1) before the `## Tool Preferences` header.
+- `docs/standards.md` — 4 rows added to APP block (APP-CC1, APP-EX1, APP-URL1, APP-CH1).
+- `results/hy_ig_v2_spy/regression_note_20260419.md` — this append.
+
+**Not touched (no retro-apply per dispatch constraint).**
+
+- `app/pages/9_hy_ig_v2_spy_*.py` — caption prefixes, expander titles, breadcrumb rendering unchanged; retro-apply to existing HY-IG v2 portal code is Wave 5C scope.
+- `app/components/charts.py` — loader unchanged; non-method chart path resolution still per-call-site until Wave 5C registry integration.
+- `app/_smoke_tests/smoke_url_slugs.py` — harness for APP-URL1 smoke test not authored this wave; scheduled for Wave 5C companion retro-apply.
+- Other agents' SOPs — not touched (per dispatch constraint).
+- Vera's `chart_type_registry.schema.json` — not touched (no schema change needed; non-method rows use existing enum values and field shapes).
+
+**Backlog context.** BL-001 (APP-SEV1-MAP) remains deferred per Lead 2026-04-19 and is NOT re-proposed in this dispatch — tracked in `docs/backlog.md`. The 4 rules authored here are higher stakeholder-visible ROI (caption prefixes, expander titles, slug pins, full-catalog chart registry) per the Wave-5 Ace audit Axis 3 ranking.
+
+**Approved by:** Ace self-approves the Wave 5B-2 rule authoring (8/8 schema smoke tests pass; SOP + standards.md updates are additive with no rule-renumbering; zero portal code changes per no-retro-apply constraint; APP-CH1 extension to Vera's registry uses pre-existing schema shapes only). Lead Lesandro ratifies at Wave 5B consolidation; Wave 5C retro-apply dispatch carries portal-code migrations for APP-CC1 / APP-EX1 / APP-URL1 plus registry-reading refactor of `load_plotly_chart` for APP-CH1.

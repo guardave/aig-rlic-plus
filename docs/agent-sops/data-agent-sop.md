@@ -484,6 +484,9 @@ Before handing off to another agent:
 - [ ] Rule DATA-VS — Status Vocabulary Self-Check: all status-type labels used in `_status` columns, `interpretation_metadata.json` metadata fields, and README/data-dictionary files are drawn from the canonical list (Available / Pending / Validated / Stale / Draft / Mature / Unknown). Novel terms escalated to Lead before delivery.
 - [ ] Rule DATA-D5 — Machine-Readable Dataset Schema Sidecar: every delivered master parquet ships with a sibling `data/{subject}_{frequency}_schema.json` that validates OK against `docs/schemas/data_subject.schema.json`. Producer-side `python3 scripts/validate_schema.py` call passed with exit 0. Every non-date column in the parquet has a sidecar entry; every sidecar entry corresponds to a parquet column.
 - [ ] Rule DATA-D6 — Classification Schema Versioning Contract: `results/{id}/interpretation_metadata.json` validates OK against `docs/schemas/interpretation_metadata.schema.json`. `schema_version` matches the schema file's `x-version`. `owner_writes` mapping is present and Dana's required fields (`indicator_nature`, `indicator_type`) are populated to controlled vocabulary values.
+- [ ] Rule DATA-D11 — Reference-Pair Sidecar Gate: for any reference pair (per META-RPD), `data/{pair_id}_schema.json` exists on disk AND `python3 scripts/validate_schema.py --schema docs/schemas/data_subject.schema.json --instance data/{pair_id}_schema.json` exits 0. Blocking — no acceptance.md signature without the sidecar.
+- [ ] Rule DATA-D12 — Column-Suffix Linter: every numeric unit-valued column in the delivered parquet carries a canonical suffix (`_bps`, `_pct`, `_ratio`, `_usd`, `_pct_mom`, `_pct_yoy`, `_ret`, `_vol_ann_pct`, `_idx`); pre-save linter pass recorded. Rename violations resolved; grandfathered columns listed in regression_note.
+- [ ] Rule DATA-D13 — Manifest + Display-Name Registry Bootstrap: `data/manifest.json` validates OK against `docs/schemas/data_manifest.schema.json`; `data/display_name_registry.csv` rows for this pair's columns validate OK against `docs/schemas/display_name_registry.schema.json`; every sidecar `display_name` matches the registry verbatim. Reference-pair blocking.
 
 #### Rule DATA-D5 — Machine-Readable Dataset Schema Sidecar
 
@@ -521,6 +524,94 @@ The shape of `results/{pair_id}/interpretation_metadata.json` is governed by `do
 **Consumer contract:** Ace's `pair_registry.py` landing-card loader, Ray's narrative generator, Evan's Rule C1 method router, and Vera's chart encoding all read this file. Missing required fields or wrong enum values cause loud failures (APP-LP7 chip) rather than silent `Unknown` fallbacks.
 
 **Cross-reference:** DATA-D3 (classification decision procedure), DATA-DD4 (classification ownership), META-CFO, META-IA, GATE-19 / GATE-20 / GATE-21, RES-IT1, APP-LP6, META-CF.
+
+#### Rule DATA-D11 — Reference-Pair Sidecar Gate (Blocking)
+
+For any pair undergoing reference-pair acceptance (per META-RPD), the DATA-D5 sidecar `data/{subject}_{frequency}_schema.json` MUST exist on disk at the time `acceptance.md` is signed. A schema without a reference instance is a paper rule.
+
+**Why this matters:** DATA-D5 (Wave 4C-1) authored the canonical column-metadata contract, but the Wave-5 validation audit (Dana, 2026-04-19) found HY-IG v2 shipped without a concrete sidecar — the exact artifact that would have caught the `hy_ig_spread` bps-vs-percent mismatch at handoff time. DATA-D11 closes the gap between "schema exists" and "reference pair actually carries an instance" at the data layer, the same way GATE-28 closes the chart-placeholder gap at the portal layer.
+
+**Procedure:**
+
+1. Before Dana signs off on the data-stage section of `acceptance.md` for a reference pair, confirm the sidecar is on disk at the conventional path: `data/{pair_id}_schema.json` or `data/{subject}_{frequency}_schema.json`.
+2. Run `python3 scripts/validate_schema.py --schema docs/schemas/data_subject.schema.json --instance data/{pair_id}_schema.json`. Exit 0 is mandatory.
+3. If the sidecar is missing, acceptance is blocked. Dana authors the sidecar before proceeding; no "acceptance with sidecar deferred" is permitted for a reference pair. Non-reference pairs receive a GATE-24-class warning instead of a hard block.
+4. The sidecar entry for every non-date column must populate `unit` from the controlled enum (DATA-D2 registry) — NEVER infer the unit from the column name. If the parquet column name itself violates DATA-D12 (unit-valued data without a matching suffix), rename the column in the same revision rather than papering over the violation in the sidecar.
+
+**ELI5 failure message (per META-ELI5):**
+
+- Technical: `DATA-D11 violation: reference pair hy_ig_v2_spy has no data/hy_ig_v2_spy_schema.json sidecar on disk.`
+- ELI5: "Every reference pair must ship a machine-readable label file describing its data columns — what unit each one is in, what it means, how often it updates. The schema exists; the file for this pair was never written. Acceptance is blocked until the file exists and passes validation."
+
+**Cross-reference:** DATA-D5 (per-column sidecar contract), GATE-28 (reference-pair placeholder prohibition — portal counterpart), META-RPD (reference pair doctrine), META-CF (schema governance), META-ELI5 (plain-English failure prose), META-XVC (cross-version sidecar regeneration on rerun).
+
+#### Rule DATA-D12 — Column-Suffix Linter (Blocking)
+
+DATA-D2 mandates canonical unit suffixes (`_bps`, `_pct`, `_ratio`, `_usd`, `_pct_mom`, `_pct_yoy`, etc.) but enforcement has been checklist-only. The Wave-5 audit found HY-IG v2's `hy_ig_spread` column stored percent values under a no-suffix name — downstream consumers forced to guess the unit. DATA-D12 promotes the suffix convention from a human-reviewed checklist item to a mechanical pre-save gate.
+
+**Required suffix vocabulary (bootstrap list, extensible via META-CF):**
+
+| Suffix | Meaning | Example column |
+|--------|---------|----------------|
+| `_bps` | Basis-point value (credit spreads, yield spreads, rate differentials) | `hy_ig_spread_bps` |
+| `_pct` | Percent value (rates, yields, realized vol) | `dff_pct` |
+| `_ratio` | Dimensionless decimal ratio (0.113 for 11.3%) | `vix_vix3m_ratio` |
+| `_usd` | USD-denominated level | `gold_usd` |
+| `_pct_mom` | Month-over-month percent change | `indpro_pct_mom` |
+| `_pct_yoy` | Year-over-year percent change | `cpi_pct_yoy` |
+| `_ret` | Simple return as decimal (DATA-D2) | `spy_ret_1d` |
+| `_ret_pct` | Simple return in percent (display-ready only) | `spy_ret_21d_pct` |
+| `_vol_ann_pct` | Annualized volatility in percent | `spy_realized_vol_ann_pct` |
+| `_idx` | Index level (VIX-style) | `vix_idx` |
+
+**Procedure:**
+
+1. Before saving a parquet (and before regenerating its DATA-D5 sidecar), Dana runs a pre-save linter that parses column names in the DataFrame.
+2. For each column whose dtype is numeric AND whose semantic content is a unit-valued quantity (spread, yield, return, rate, volatility, dollar amount, ratio), the linter checks that the name carries one of the required suffixes.
+3. Columns that carry no unit (dates, identifiers, raw index levels with well-known conventions like `ism_mfg_pmi` or `umcsent`, raw price columns like `spy_close` when OHLC naming is conventional) are exempt; the linter maintains an explicit exemption list.
+4. Fail-the-save on any unit-valued column without a matching suffix. Fixing the violation — rename the column — is mandatory before delivery.
+5. The linter's exemption list and required-suffix vocabulary are versioned alongside DATA-D2 and this rule's schema sidecar; additions go through a META-CF-style regression_note entry.
+
+**Cross-agent contract:** Vera's VIZ-A2 (Unit Discipline) axis builder reads the suffix to infer axis label units; Ray's RES-4 dual-notation narrative chooses between "bps / %" framing based on the suffix; Ace's KPI renderer formats values based on the suffix. Silent suffix drift breaks all three consumers simultaneously.
+
+**ELI5 failure message (per META-ELI5):**
+
+- Technical: `Column 'hy_ig_spread' stores unit-valued data but has no unit suffix (_bps/_pct/_ratio). DATA-D12 violation.`
+- ELI5: "This column holds numbers that could be bps or percent — we can't tell from the name. Rename it to end in `_bps` or `_pct` (matching what the numbers actually are) so downstream charts label the axis correctly and the narrative uses the right words."
+
+**Grandfathering:** Columns in pre-existing parquets that violate DATA-D12 at the time this rule lands (notably HY-IG v2's `hy_ig_spread`) are grandfathered until the next rerun of the pair — at which point the rename must happen and a regression_note entry documents the mapping for consumers. No silent rename.
+
+**Cross-reference:** DATA-D2 (unit convention registry — the vocabulary source of truth), DATA-D5 (sidecar that cross-validates the rename), DATA-D11 (reference-pair sidecar gate — same class of pre-save enforcement), VIZ-A2 (consumer — axis label), RES-4 (consumer — dual-notation narrative), META-ELI5 (failure message style), META-CF (vocabulary versioning).
+
+#### Rule DATA-D13 — Manifest + Display-Name Registry Bootstrap
+
+Two portfolio-level registries sit above the per-pair sidecars and govern cross-pair consistency:
+
+- **`data/manifest.json`** — machine-readable registry of every delivered data artifact, with `{path, source, refresh_ttl_days, schema_ref, last_updated, pairs}` per entry. Governed by `docs/schemas/data_manifest.schema.json`.
+- **`data/display_name_registry.csv`** — canonical mapping from parquet column names to chart-ready display names and axis labels. Governed by `docs/schemas/display_name_registry.schema.json`.
+
+Both files are Dana-produced, single-source-of-truth, and consumed by Evan (signal-column reader), Vera (axis builder), Ray (narrative column references), and Ace (cache-TTL resolver, KPI card renderer). Section §6 of this SOP previously described both files as mandatory but neither existed on disk — the Wave-5 audit confirmed they were paper rules. DATA-D13 makes the bootstrap requirement explicit, ties it to the reference pair, and anchors it in schemas.
+
+**Bootstrap requirement for reference pairs:**
+
+1. `data/manifest.json` exists and validates OK against `docs/schemas/data_manifest.schema.json` via `python3 scripts/validate_schema.py`.
+2. `data/display_name_registry.csv` exists with the header row `column_name,display_name,unit,axis_label` and a JSON-equivalent view conforming to `docs/schemas/display_name_registry.schema.json`.
+3. Every column in the reference pair's DATA-D5 sidecar has a corresponding row in `display_name_registry.csv`. Cross-validation: the sidecar's `display_name` field MUST match the registry entry verbatim (case-sensitive).
+4. The manifest entry for the reference pair's parquet populates `schema_ref` pointing to its sidecar, `last_updated` dated to the parquet refresh, and `pairs` listing every pair that consumes the artifact.
+
+**Ownership:**
+
+- Producer: Dana. Every rerun that changes a parquet file MUST update the manifest's `last_updated` and regenerate the display-name registry rows for any added/renamed columns.
+- Consumers: Evan / Vera / Ray / Ace read directly; none may duplicate the mapping locally. Forking the mapping (e.g. a hardcoded `_SIGNAL_CODE_TO_COLUMN` map in a portal component) is a META-CF violation.
+
+**Not created yet at this rule's authoring moment:** the actual `data/manifest.json` and `data/display_name_registry.csv` are Wave-5C retro-apply work. DATA-D13 establishes the governance; the Wave-5C retro-apply produces the instances for HY-IG v2 and the other pairs in the registry (INDPRO, VIX-VIX3M, etc.).
+
+**ELI5 failure message (per META-ELI5):**
+
+- Technical: `DATA-D13 violation: data/manifest.json missing or not schema-valid; reference pair cannot be accepted.`
+- ELI5: "We're missing the master index of all our data files — the one page that says which file belongs to which pair and how fresh it is. Until that index exists and is correct, we can't guarantee cache freshness or axis-label consistency across the portal."
+
+**Cross-reference:** DATA-D5 (per-parquet sidecar — the level below this registry), DATA-D11 (reference-pair sidecar gate — companion blocking rule), DATA-D12 (column-suffix linter — feeds the registry's `column_name` values), META-CF (schema governance — both new schemas are governed here), META-XVC (consistency across pairs for the same column names), META-ELI5 (failure prose).
 
 #### Rule DATA-VS — Status Vocabulary Self-Check
 

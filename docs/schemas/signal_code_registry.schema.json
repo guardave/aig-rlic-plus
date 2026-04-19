@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/signal_code_registry.schema.json",
+  "x-owner": "evan",
+  "x-version": "1.0.0",
+  "title": "Signal Code Registry",
+  "description": "Canonical append-only registry of tournament-eligible signal codes (per ECON-DS3). Single source of truth for the `signal_code` field in `results/{pair_id}/winner_summary.json` (ECON-H5) and for the `signal` column in every tournament results CSV. Entries are stable across reruns — dropping a signal from a pipeline does NOT free its code for reuse. Adding a signal requires a PR + regression_note entry (per META-VNC) + sop-changelog entry. The registry is authored by Evan; all other agents read. Per META-CF (Contract File Standard), this schema ships with a companion instance (`docs/schemas/signal_code_registry.json`) and example (`docs/schemas/examples/signal_code_registry.example.json`).",
+  "type": "object",
+  "required": ["x-version", "x-owner", "signals"],
+  "properties": {
+    "x-version": {
+      "type": "string",
+      "description": "Semver of the registry instance (separate from this schema's x-version). Bumped per META-CF whenever signals are added. Minor bumps are additive (append-only); major bumps require Lead approval and a sop-changelog entry.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "x-owner": {
+      "type": "string",
+      "description": "Single agent accountable for the registry instance. Must be 'evan'.",
+      "const": "evan"
+    },
+    "x-generated": {
+      "type": "string",
+      "description": "ISO-8601 date the instance was last regenerated.",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform top-level notes about the instance (e.g., what was added in this version, audit references)."
+    },
+    "signals": {
+      "type": "array",
+      "description": "Ordered append-only list of registered signals. Insertion order is the canonical registration order; new entries append to the end. Never reorder or delete existing entries.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/signal_entry"
+      }
+    }
+  },
+  "$defs": {
+    "signal_entry": {
+      "type": "object",
+      "description": "One registered signal. Identity is the `signal_code`; all other fields describe it.",
+      "required": [
+        "signal_code",
+        "display_name",
+        "parquet_column_pattern",
+        "description",
+        "source_method"
+      ],
+      "properties": {
+        "signal_code": {
+          "type": "string",
+          "description": "Stable canonical identifier. snake_case. NOT prefixed with `S<number>_` — the legacy registration-order prefix convention is deprecated. Example: `hmm_stress`, `hmm_3state`, `markov_regime`, `zscore_lb252`. This is the exact string written to `winner_summary.json.signal_code` and to the tournament CSV `signal` column.",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable label used on portal cards and captions. Example: `HMM 2-state stress probability`.",
+          "minLength": 1
+        },
+        "parquet_column_pattern": {
+          "type": "string",
+          "description": "Canonical column name (or regex) in `results/{pair_id}/signals_{date}.parquet` that carries the signal's time series. Example: `hmm_2state_prob_stress`. MUST match the column Ace's `pd.read_parquet(...)[signal_column]` call reads at render time.",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "description": "One to two sentence description of what the signal measures and the economic interpretation.",
+          "minLength": 10
+        },
+        "source_method": {
+          "type": "string",
+          "description": "The econometric method that produces the signal. Canonical vocabulary: `hmm_2state`, `hmm_3state`, `markov_switching`, `zscore`, `percentile_rank`, `roc`, `composite`, `transfer_entropy`, `ccf_residual`, `cusum`, `gmm_cluster`, `jenks_break`. New methods append to this list only with Lead approval.",
+          "enum": [
+            "hmm_2state",
+            "hmm_3state",
+            "markov_switching",
+            "zscore",
+            "percentile_rank",
+            "roc",
+            "composite",
+            "transfer_entropy",
+            "ccf_residual",
+            "cusum",
+            "gmm_cluster",
+            "jenks_break"
+          ]
+        },
+        "added_at": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO-8601 date the entry was first appended to the registry."
+        },
+        "first_pair": {
+          "type": "string",
+          "description": "The `pair_id` whose rerun first required this signal (audit-trail pointer; optional for bootstrap entries)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Freeform — sign convention, regime-labeling convention, known pitfalls, deprecation markers."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

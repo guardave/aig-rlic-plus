@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus/docs/schemas/expander_title_registry.schema.json",
+  "title": "Expander Title Registry",
+  "description": "Canonical titles for every recurring `st.expander(...)` block rendered by AIG-RLIC+ portal pages. Per APP-EX1 (owner: Ace, per META-CF), every recurring expander concept has exactly one canonical title — no 'Plain English' vs 'In plain English' vs 'ELI5' vs 'What this means' drift. Deviations require a `regression_note` entry (META-RNF + META-XVC). Closes the Wave-5 reproducibility-audit finding (Axis 1) that recurring expander titles varied across pages so readers could not pattern-match. The five bootstrap titles cover Plain English (N8 / RES-2), Deeper dive (technical detail), Why we chose this method (RES-EP1 element 3), How to read this chart (RES-EP1 element 3 reading guide), and Honest assessment (RES-EP1 element 7).",
+  "x-owner": "ace",
+  "x-version": "1.0.0",
+  "type": "object",
+  "required": ["x-version", "x-owner", "titles"],
+  "properties": {
+    "x-version": {
+      "type": "string",
+      "description": "Semver of the registry instance (separate from this schema's x-version). Bumped per META-CF whenever a title is added, renamed, or its scope changes. Title RENAME is a breaking major bump (touches UI strings the stakeholder has learned to pattern-match).",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "x-owner": {
+      "type": "string",
+      "description": "Single agent accountable for the registry instance. Must be 'ace'.",
+      "const": "ace"
+    },
+    "x-generated": {
+      "type": "string",
+      "description": "ISO-8601 date the instance was last regenerated.",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform top-level notes about the instance (added concepts, migration notes, deviation log)."
+    },
+    "titles": {
+      "type": "object",
+      "description": "Map of concept_key (snake_case) -> title definition. concept_key is stable across versions; canonical_title is the user-visible string.",
+      "minProperties": 5,
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {
+          "$ref": "#/$defs/title_definition"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "title_definition": {
+      "type": "object",
+      "description": "One canonical expander title plus metadata describing when to use it.",
+      "required": ["canonical_title", "role", "when_to_use", "default_expanded"],
+      "properties": {
+        "canonical_title": {
+          "type": "string",
+          "description": "Exact user-visible title string (including any emoji, properly spaced). Passed verbatim to st.expander(label=...).",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "description": "Semantic role. Drives the when_to_use guidance and cross-ref to RES / APP rules.",
+          "enum": [
+            "plain_english",
+            "deeper_dive",
+            "method_rationale",
+            "chart_reading_guide",
+            "honest_caveat"
+          ]
+        },
+        "when_to_use": {
+          "type": "string",
+          "description": "One-sentence guidance on when a recurring concept should use this title. Disambiguates from the other canonical titles."
+        },
+        "default_expanded": {
+          "type": "boolean",
+          "description": "Default `expanded=` state on render (per APP-AF1: defer by default). Orientation expanders may be True; depth expanders are False."
+        },
+        "sop_rule_ids": {
+          "type": "array",
+          "description": "APP / RES rule IDs that use or reference this expander title.",
+          "items": {"type": "string", "pattern": "^(APP|RES|VIZ|ECON|DATA|META|GATE)-[A-Z0-9]+$"},
+          "minItems": 1
+        },
+        "deprecated_aliases": {
+          "type": "array",
+          "description": "Former titles the canonical title replaced (for grep-based migration audits). Presence here documents that these strings MUST NOT appear in live portal code.",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
