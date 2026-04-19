@@ -1,13 +1,15 @@
 {
+  "pair_id": "hy_ig_v2_spy",
+  "schema_version": "1.0.0",
   "indicator": "hy_ig_spread",
   "target": "spy",
   "indicator_nature": "leading",
   "indicator_type": "credit",
   "strategy_objective": "min_mdd",
-  "expected_direction": "counter_cyclical",
-  "observed_direction": "counter_cyclical",
+  "expected_direction": "countercyclical",
+  "observed_direction": "countercyclical",
   "direction_consistent": true,
-  "mechanism": "Wider HY-IG credit spreads signal rising default risk and tightening financial conditions \u2014 bearish for equities. Spread compression is bullish.",
+  "mechanism": "Wider HY-IG credit spreads signal rising default risk and tightening financial conditions — bearish for equities. Spread compression is bullish.",
   "confidence": "high",
   "key_finding": "hy_ig_mom_63d predicts spy_fwd_63d (coef=-0.0119, t=-10.77, p=0.0000)",
   "caveats": [
@@ -15,5 +17,29 @@
     "GFC 2008-2009 dominates the tails",
     "COVID March 2020 was an extreme but transient widening",
     "Regime-model signals (HMM, MS) are fitted in-sample; use persisted probabilities only"
-  ]
+  ],
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "indicator_nature",
+      "indicator_type"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats"
+    ]
+  },
+  "last_updated_by": "dana",
+  "last_updated_at": "2026-04-19T17:37:40Z"
 }

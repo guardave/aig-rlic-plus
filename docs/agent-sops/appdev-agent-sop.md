@@ -1053,6 +1053,41 @@ Artifact-existence checks (the prior Defense-2 protocol, META-ZI loader-contract
 - **Smoke-test failure is a blocker.** Ace does not mark a page done until every `load_plotly_chart` call returns a valid `Figure`. A single failure in the log file blocks shipment.
 - **Root cause of the original Bug #2 (recorded here as the gate-failure learning):** the loader was a "render-only" function with no return value. The `history_zoom_` resolver returned the right path, but any silent failure downstream (e.g., a parse error inside the cached `_load_plotly_json`, or a caching quirk that re-entered the function with `json_path = None` on a hot reload) had no observable exit signal at the call site — so GATE-25 rendered the placeholder and the bug escaped review. Fix: the loader now returns the `Figure`; the smoke test exercises every call site end-to-end; parse errors are logged and surfaced visibly.
 
+### Rule APP-WS1 — `winner_summary.json` Consumer Contract (schema-validated at load)
+
+**Added 2026-04-19 (Wave 4D-2).** Resolves the Wave-1.5 open gap flagged in Ace's cross-review (`docs/cross-review-20260419-ace.md` Proposed APP-WS1): the `_SIGNAL_CODE_TO_COLUMN` literal-name fallback map in `app/components/probability_engine_panel.py` masked a missing producer-side contract and has been retired.
+
+- **Binding:** `results/{pair_id}/winner_summary.json` is the canonical descriptor of a pair's winning strategy. Ace's Strategy-page components (APP-SE1 Probability Engine Panel, APP-SE2 Position Adjustment Panel, APP-SE3 Instructional Trigger Cards) MUST load it via `app.components.schema_check.validate_or_die(path, "winner_summary")` — which validates the instance against `docs/schemas/winner_summary.schema.json` (v1.0.0, owner: Evan, producer rule ECON-H5) before returning the dict.
+- **Required fields guaranteed by schema:** `signal_column` (exact parquet column name), `signal_code` (tournament taxonomy label), `target_symbol`, `threshold_value`, `threshold_rule`, `strategy_family` (enum: `P1_long_cash` | `P2_signal_strength` | `P3_long_short`), `direction` (enum: `procyclical` | `countercyclical` | `mixed`), plus OOS metrics. Consumer code reads these directly; no fallback inference permitted.
+- **On validation failure** → `st.error(...)` with the full validator error list is rendered (per APP-SEV1 L1) AND a `SchemaValidationError` is raised to short-circuit the component's render path. The panel does NOT fall back to a literal-name map, a "chart pending" placeholder, or any silent default.
+- **Retired fallbacks:** the `_SIGNAL_CODE_TO_COLUMN` dict and the `_resolve_signal_column` helper in `probability_engine_panel.py` are removed — structurally unnecessary once the schema guarantees `signal_column`.
+- **Cross-references:** ECON-H5 (producer-side mandate in the same artifact), META-CF (Contract File Standard), APP-SEV1 (severity policy), APP-DIR1 (direction cross-check), ECON-H2 (App Dev Handoff).
+
+### Rule APP-SEV1 — Validation Severity Policy (loud-error / loud-warning / caption; silent skip prohibited)
+
+**Added 2026-04-19 (Wave 4D-2).** Resolves Ace cross-review Proposed APP-SEV1. Replaces the ad-hoc per-component severity decisions with a single policy.
+
+- **L1 (Loud-Error, `st.error`).** Required artifact missing or invalid; the page's primary purpose CANNOT be served. The component renders `st.error(...)` with a specific diagnostic AND short-circuits (raises `SchemaValidationError` or early `return`). No placeholder rendering. Examples: APP-WS1 schema violation on `winner_summary.json`; APP-SE1 signal column missing from parquet.
+- **L2 (Loud-Warning, `st.warning`).** Primary purpose can be served but the gap is meaningful (e.g., optional artifact violates schema; override chart missing with canonical fallback present). The component renders `st.warning(...)` AND continues with the degraded render. Examples: `interpretation_metadata.json` schema violation when only `known_stress_episodes` is consumed; override history-zoom chart missing so canonical is used.
+- **L3 (Caption-Note, `st.caption`).** Minor gap that readers should know about but that does not affect rendering quality. Examples: Ray caption missing, falling back to Vera sidecar; `bh_sharpe` absent, KPI delta suppressed.
+- **Silent skip prohibited.** A `try: ... except: return`, a bare `pass`, or a degraded render with no user-visible signal is a violation. CI-grep policy (pending): any new `except:` without a visible severity call in `app/` is a merge blocker.
+- **Helper contract:** `app/components/schema_check.py` exports `validate_or_die` (L1 behavior) and `validate_soft` (caller-owned severity). New consumer code uses these; legacy raw `json.load` of governed artifacts is discouraged.
+- **Cross-references:** META-UNK (Unknown Is Not A Display State — same philosophy extended to gap states), APP-WS1, APP-DIR1, GATE-25, GATE-28.
+
+### Rule APP-DIR1 — 3-Way Direction Triangulation
+
+**Added 2026-04-19 (Wave 4D-2).** Resolves Ace cross-review Proposed APP-DIR1. Mechanizes META-IA (Interpretation Annotation Handoffs) at page-load time.
+
+- **Scope:** every reference-pair page load invokes `app/components/direction_check.py::check_direction_agreement(pair_id)`, which reads:
+  1. `winner_summary.json.direction` (Evan — validated via APP-WS1 / ECON-H5).
+  2. `interpretation_metadata.json.observed_direction` (Dana — validated via DATA-D6).
+  3. `docs/portal_narrative_{pair_id}_{date}.md` frontmatter `direction_asserted` (Ray — **pending RES-17 migration; currently skipped with TODO**).
+- **Canonical enum:** `procyclical` | `countercyclical` | `mixed`. Legacy spellings (`counter_cyclical`, `pro_cyclical`) are folded at read time but schema validation now mandates the canonical form.
+- **Assertion:** all available legs MUST agree. Mismatch between Evan and Dana → `st.error(...)` per APP-SEV1 L1 with the message "Direction disagreement: Evan says X, Dana says Y" and an escalation pointer to Lead per META-IA.
+- **Current state:** Wave 4D-2 ships a 2-way check (Evan ↔ Dana). The 3-way upgrade lands when Ray's `narrative_frontmatter.schema.json` migration (RES-17) is complete and `direction_asserted` is populated per pair.
+- **Blocking:** reference-pair acceptance gate — HY-IG v2 agreement must pass (currently: both legs = `countercyclical` ✓). Non-reference pairs receive a warning until their metadata lands.
+- **Cross-references:** META-IA, META-CFO, ECON-H5 (producer, Evan's `direction`), DATA-D6 (producer, Dana's `observed_direction`), RES-17 (future Ray frontmatter), APP-SEV1, GATE-28.
+
 ---
 
 ## Tool Preferences

@@ -597,3 +597,147 @@ Gap list is recorded; the real HY-IG v2 instance is NOT edited in this wave. Mig
 - **SOP scope:** edits limited to `docs/agent-sops/data-agent-sop.md` (§6 Deliver canonical-schemas link, two new Quality-Gate lines, two new Rule DATA-D5 / DATA-D6 sections) and `docs/standards.md` (two new DATA rows). No other agent SOPs touched.
 - **Pair scope:** no existing pair artifacts modified; this regression-note append is the only change under `results/hy_ig_v2_spy/`.
 - **Approved by:** Dana self-approves the schema authorship and the unilateral consumer-contract commitment to Ace; Lead Lesandro ratifies at Wave 4C-2 consolidation alongside the winner_summary, narrative_frontmatter, and chart_type_registry schemas from Evan, Ray, and Vera.
+
+### Dana's Wave 4D-1 interpretation_metadata migration (2026-04-19)
+
+**Scope:** First real-world migration of `results/hy_ig_v2_spy/interpretation_metadata.json` to `interpretation_metadata.schema.json` v1.0.0 shape. Governed by DATA-D6 (producer rule) and closes ECON-CFO-1 (multi-writer race) at the instance level for this pair.
+
+**Validator result:** `python3 scripts/validate_schema.py --schema docs/schemas/interpretation_metadata.schema.json --instance results/hy_ig_v2_spy/interpretation_metadata.json` → exit 0 (`OK: ... conforms to ...`). File size: 1350 bytes.
+
+**Fields added (with source of inferred values):**
+
+| Field | Value | Source |
+|-------|-------|--------|
+| `pair_id` | `hy_ig_v2_spy` | Dispatch-specified; matches `results/{pair_id}/` directory key. |
+| `schema_version` | `1.0.0` | Matches `x-version` of the governing schema file (Wave 4C-2 authorship). |
+| `owner_writes` | explicit 3-way map (see below) | Per schema DATA-D6 + dispatch-specified ownership conventions. |
+| `last_updated_by` | `dana` | Dispatch-specified; Dana is performing this migration. |
+| `last_updated_at` | `2026-04-19T17:37:40Z` | Current UTC timestamp (ISO 8601) at migration time. |
+
+**Enum corrections applied (before → after):**
+
+| Field | Before | After | Rationale |
+|-------|--------|-------|-----------|
+| `expected_direction` | `counter_cyclical` | `countercyclical` | Schema enum canonical spelling (no underscore), APP-DIR1 alignment. |
+| `observed_direction` | `counter_cyclical` | `countercyclical` | Same as above. |
+
+No `procyclical` occurrences to canonicalize (file had none). Direction spelling was canonicalized — **not** re-inferred — per the dispatch's "don't invent a direction" rule.
+
+**`owner_writes` 3-way contract committed to:**
+
+- **Dana (data-layer fields):** `pair_id`, `schema_version`, `indicator`, `target`, `indicator_nature`, `indicator_type`. `pair_id` and `schema_version` are structural identifiers owned by the producer of the record (Dana per DATA-D6). `indicator` and `target` are canonical series identifiers from the data-series catalog. `indicator_nature` and `indicator_type` are schema-required Dana fields per META-CFO.
+- **Evan (empirical-estimation fields):** `observed_direction`, `direction_consistent`, `key_finding`, `confidence`. All four are Evan-owned per schema description (lines 67, 107–127).
+- **Ray (narrative + strategy-objective fields):** `strategy_objective`, `expected_direction`, `mechanism`, `caveats`. Schema-required `strategy_objective` plus the three optional Ray fields present in this instance. `narrative_summary` and `related_pair_ids` are listed in Ray's / Dana's default sets per the schema but are not populated in this instance; they are therefore not listed in the `owner_writes` arrays (the arrays enumerate only fields actually written to this file).
+
+**Superset check:** every field present in the instance appears in exactly one agent's `owner_writes` array. No field is ambiguously assigned; no field is orphaned. The deterministic write order `dana → evan → ray` (META-CFO) is honoured — the migration writer (`last_updated_by: dana`) is the latest in-band producer for this migration event.
+
+**Cross-agent alignment (dispatch-mandated triangulation):**
+
+- Evan's parallel migration of `winner_summary.json` carries a `direction` field whose enum is `procyclical|countercyclical|mixed` (APP-DIR1). This instance's `expected_direction` = `observed_direction` = `countercyclical` is the metadata side of that contract. If Evan writes `direction: "countercyclical"` in `winner_summary.json`, triangulation passes. If Evan writes anything else, Lead escalates.
+- Ray's narrative frontmatter `direction_asserted` must also be `countercyclical` for this pair. Same enum, same triangulation rule.
+- `indicator_nature = "leading"` + `indicator_type = "credit"` + `strategy_objective = "min_mdd"` + `observed_direction = "countercyclical"` is internally consistent: a leading credit indicator used countercyclically (i.e., defensive when credit stress widens) targeting minimum drawdown is the canonical HY-IG v2 story.
+
+**Files touched:** `results/hy_ig_v2_spy/interpretation_metadata.json` (migrated in place). `results/hy_ig_v2_spy/regression_note_20260419.md` (this append). No other pair's instance touched. No schema touched. No push.
+
+**Approved by:** Dana self-approves the migration (Wave 4D-1 sub-dispatch from Lead). Lead Lesandro ratifies at Wave 4D consolidation alongside Evan's `winner_summary.json` migration and Ray's `narrative_frontmatter` migration.
+
+
+---
+
+### Evan's Wave 4D-1 winner_summary migration (2026-04-19)
+
+First real-world migration of `results/hy_ig_v2_spy/winner_summary.json` to conform to `docs/schemas/winner_summary.schema.json` v1.0.0 (META-CF producer mandate).
+
+**Fields added (9 required):**
+- `generated_at`: `2026-04-19T17:38:49Z` (current UTC at migration time).
+- `signal_column`: `hmm_2state_prob_stress` — exact parquet column in `signals_20260410.parquet` (verified by column listing).
+- `target_symbol`: `SPY` (HY-IG v2 target).
+- `threshold_rule`: `gte` — static P2 scaling comparison against stress-probability threshold 0.5 (per `execution_notes.md`: "HMM probability > 0.5").
+- `strategy_family`: `P2_signal_strength` (winner P2, Signal Strength).
+- `oos_max_drawdown`: `-0.102` (ratio; from `tournament_winner.json` −10.2%).
+- `oos_n_trades`: `169` — count of materialized position changes in OOS window from `winner_trades_broker_style.csv` (5% emission epsilon); distinct from tournament raw `n_trades=6004` which counts every daily tick.
+- `oos_period_start`: `2018-01-01` (derived: 2088 OOS trading days ending 2025-12-31).
+- `oos_period_end`: `2025-12-31` (last signal row in parquet).
+
+**Corrections:**
+- `direction`: `counter_cyclical` → `countercyclical` (schema enum).
+
+**Unit conversions (percent → ratio):**
+- `oos_ann_return`: `11.33` → `0.1133`.
+- `max_drawdown` (renamed to `oos_max_drawdown`): `-10.2` → `-0.102`.
+- Added `bh_ann_return`: `0.1475` (from benchmark 14.75%).
+- `oos_sharpe`, `bh_sharpe`, `annual_turnover`, `threshold_value` are dimensionless / unit-free — unchanged.
+
+**Optional fields populated from available evidence:**
+- `bh_sharpe`: `0.7726` (from `tournament_winner.json` benchmark).
+- `cost_assumption_bps`: `5.0` — from broker-style CSV header ("Commission: 5 bps"); matches ECON-T2 equity/ETF target-class default.
+- `notes`: producer caveats summarized from `execution_notes.md` plus OOS trade-count methodology disclosure.
+
+**Inferred values flagged:**
+- `threshold_rule=gte`: P2 Signal Strength is a continuous scaler, not a discrete entry rule. `gte` chosen as the static-comparison enum that most closely matches the "HMM probability ≥ 0.5 → stress regime active" semantics documented in `execution_notes.md`. Not `crosses_up` because P2 does not re-enter on crossing events; scaling is applied at every tick.
+- `oos_n_trades=169`: materialized count under 5% emission epsilon. Under a different epsilon the count would differ. Flagged here so downstream consumers (Ace's Execution panel) can cross-reference the broker-style CSV if a lower emission threshold is applied.
+
+**Preserved non-schema fields** (schema is non-strict): `signal_display_name`, `threshold_code`, `threshold_display_name`, `strategy_code`, `strategy_display_name`, `strategy_description`, `lead_value`, `lead_unit`, `lead_description`, `win_rate`, `max_acceptable_delay_days`, `breakeven_cost_bps`. These continue to back existing Ace display logic; they are neither promoted to nor contradicted by the v1.0.0 schema.
+
+**Companion `tournament_winner.json`:** retained unchanged. Overlapping values (`oos_sharpe`, `oos_ann_return`, `max_drawdown`, `annual_turnover`, benchmark triplet) agree numerically with `winner_summary.json` modulo ratio conversion — no drift.
+
+**Validator result:** `scripts/validate_schema.py` exits 0 against `docs/schemas/winner_summary.schema.json`.
+
+
+---
+
+### Ace's Wave 4D-2 consumer-side schema integration (2026-04-19)
+
+First consumer-side adoption of META-CF schemas in the portal pipeline. Now that Evan's `winner_summary.json` and Dana's `interpretation_metadata.json` validate against their v1.0.0 schemas (Wave 4D-1 producer migration), Ace drops the Wave-1.5 fallback workarounds and enforces validation-first reads at every Strategy-page entry point.
+
+**Trigger:** Ace's own cross-review (`docs/cross-review-20260419-ace.md`) proposed APP-WS1, APP-SEV1, APP-DIR1. Wave 4D-1 unblocked implementation by producing schema-conforming artifacts.
+
+**Components modified:**
+
+- `app/components/schema_check.py` — **new.** Exports `validate_or_die(instance_path, schema_name)` (APP-SEV1 L1: st.error + `SchemaValidationError` on failure), `validate_soft(instance_path, schema_name)` (non-blocking variant returning `(data, errors)`), and the `SchemaValidationError` exception class. Loads schemas from `docs/schemas/{schema_name}.schema.json`, calls `scripts.validate_schema.validate_json`, renders the full validator error list via `st.error` on L1 failures. Docstring cites APP-WS1, APP-SEV1, META-CF.
+- `app/components/probability_engine_panel.py` — **refactored.** Removed the `_SIGNAL_CODE_TO_COLUMN` fallback dict (2 entries: `S6_hmm_stress` → `hmm_2state_prob_stress`, `S7_ms_stress` → `ms_2state_stress_prob`) and the `_resolve_signal_column` helper (3-tier resolver: explicit field → map → literal). Now reads `winner_summary.json` via `validate_or_die(...)`. The `signal_column` field is schema-guaranteed — consumer reads it directly. Interpretation metadata loaded via `validate_soft` (L2: warn, don't crash). Unused `json` and `os` imports removed.
+- `app/components/position_adjustment_panel.py` — **refactored.** Same treatment: `winner_summary.json` loaded via `validate_or_die`; `strategy_family`, `direction`, `target_symbol` read directly as schema-guaranteed. Updated all strategy-family comparisons from legacy `"P1"` / `"P2"` / `"P3"` shortcodes to canonical schema enums (`P1_long_cash`, `P2_signal_strength`, `P3_long_short`). Legacy `"counter_cyclical"` spelling folded to canonical `"countercyclical"` via an in-function alias check so the component remains robust to historical instances.
+- `app/components/direction_check.py` — **new.** Exports `check_direction_agreement(pair_id) -> dict` and a thin `render_direction_check(pair_id)` wrapper for use at page top. Reads `winner_summary.direction` (Evan) and `interpretation_metadata.observed_direction` (Dana), canonicalizes both, asserts agreement, and renders `st.error("Direction disagreement: Evan says X, Dana says Y")` on mismatch per APP-SEV1 L1. Ray leg (`narrative_frontmatter.direction_asserted`) marked `TODO(Ace, post-RES-17)` — 3-way activation pending Ray's narrative-frontmatter migration.
+
+**Rules registered:**
+
+- **APP-WS1** — `winner_summary.json` consumer contract (schema-validated at load). Registered in `docs/agent-sops/appdev-agent-sop.md` §Rule APP-WS1 and `docs/standards.md` APP section.
+- **APP-SEV1** — Validation severity policy (L1 error / L2 warning / L3 caption; silent skip prohibited). Registered in SOP §Rule APP-SEV1 and standards.md.
+- **APP-DIR1** — 3-way direction triangulation (currently 2-way until RES-17). Registered in SOP §Rule APP-DIR1 and standards.md.
+
+**Cross-references:** ECON-H5 (producer-side schema), DATA-D6 (interpretation_metadata schema), META-CF (Contract File Standard), META-IA (Interpretation Annotation Handoffs), META-UNK (Unknown Is Not a Display State).
+
+**Structural simplifications (removed fallbacks):**
+
+- `_SIGNAL_CODE_TO_COLUMN` dict in `probability_engine_panel.py` (purpose: translate `signal_code` from `winner_summary.json` to the parquet column name when `signal_column` field is missing). **Deleted** — schema now guarantees `signal_column` is present, so the map is dead code.
+- `_resolve_signal_column(signals_df, winner)` helper in `probability_engine_panel.py` (purpose: three-tier resolution `explicit signal_column` → `map lookup` → `literal signal_code` with a `None` fallback). **Deleted** — replaced with a single schema-guaranteed read `winner["signal_column"]`.
+- Per-call `winner.get("strategy_code", "P2")`, `winner.get("direction", "counter_cyclical")`, `winner.get("target_symbol", "SPY")` defaults in `position_adjustment_panel.py`. **Deleted** — fields are required by schema; `winner["..."]` is safe and intentional.
+- Raw `json.load` of `winner_summary.json` and `interpretation_metadata.json` at component bodies. **Replaced** with `validate_or_die` / `validate_soft`.
+
+**Smoke-test results:**
+
+- `python3 app/_smoke_tests/smoke_loader.py hy_ig_v2_spy` → **15 passes / 0 failures** (unchanged vs pre-refactor baseline). Log: `app/_smoke_tests/loader_hy_ig_v2_spy_20260419.log`.
+- `python3 app/_smoke_tests/smoke_schema_consumers.py --pair-id hy_ig_v2_spy` (**new harness**) → **3 passes / 0 failures**. Validates every `validate_or_die` call path plus the APP-DIR1 2-way check against HY-IG v2 artifacts. Log: `app/_smoke_tests/schema_consumers_hy_ig_v2_spy_20260419.log`.
+
+**APP-DIR1 first real check:**
+
+Evan's `winner_summary.direction` = `countercyclical` (post-Wave 4D-1 migration); Dana's `interpretation_metadata.observed_direction` = `countercyclical` (post-Wave 4D-1 migration). **Agreement: PASS.** Ray's leg (`direction_asserted`) is out of scope until RES-17 ships — current assertion is 2-way and clean for the reference pair.
+
+**Issues discovered during integration:**
+
+1. **Legacy strategy-code aliases.** The pre-refactor code used short codes (`"P1"`, `"P2"`, `"P3"`) while the schema mandates `P1_long_cash` | `P2_signal_strength` | `P3_long_short`. Updated all call sites in `position_adjustment_panel.py`. No current portal page reads `strategy_code` directly from this component, but the legacy HY-IG v1 code path (`winner_summary.strategy_code = "P2"`, preserved as a non-schema field in the migrated instance) still exists for downstream display logic. Not touched in this wave — it's a display-only field, not a contract field.
+2. **Direction spelling canonicalization.** Legacy `counter_cyclical` spelling is still folded at read time in `position_adjustment_panel._compute_exposure` and `direction_check._canonicalize` even though the schema mandates `countercyclical`. This is deliberate belt-and-suspenders: if a legacy pair artifact slips through validation (e.g. during a partial migration), the component still renders correctly. The schema catches such cases producer-side; this is defence-in-depth, not a silent fallback.
+3. **`interpretation_metadata` validation severity.** Used `validate_soft` + `st.warning` rather than `validate_or_die` for this file because the probability-engine panel only reads the optional `known_stress_episodes` list (which has a default). A hard block on schema failure would be stricter than necessary. This is the APP-SEV1 L2 path, used deliberately.
+4. **`sys.path` manipulation.** `schema_check.py` imports `scripts.validate_schema` from the repo root; added a one-shot `sys.path.insert(0, repo_root)` at import time. Consistent with existing pattern in `smoke_loader.py`.
+
+**Files touched:**
+- `app/components/schema_check.py` (new, 205 lines)
+- `app/components/direction_check.py` (new, 175 lines)
+- `app/components/probability_engine_panel.py` (refactor, −35 lines net)
+- `app/components/position_adjustment_panel.py` (refactor, ~12 lines changed)
+- `app/_smoke_tests/smoke_schema_consumers.py` (new, 165 lines)
+- `docs/agent-sops/appdev-agent-sop.md` (3 new rule sections appended)
+- `docs/standards.md` (3 rows added to APP block: APP-WS1, APP-SEV1, APP-DIR1)
+- `results/hy_ig_v2_spy/regression_note_20260419.md` (this append)
+
+**Approved by:** Ace self-approves the consumer-side integration. Lead Lesandro ratifies at Wave 4D-2 consolidation.

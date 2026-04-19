@@ -6,37 +6,37 @@ component MUST validate column presence, numeric bounds, and historical
 plausibility. Invalid data surfaces as ``st.error()`` and the chart is
 skipped — we never render a time-series from invalid signal values.
 
+**Wave 4D-2 (2026-04-19) refactor per APP-WS1 + APP-SEV1 + META-CF:**
+The Wave-1.5 ``_SIGNAL_CODE_TO_COLUMN`` literal-name fallback map has been
+removed. ``winner_summary.json`` is now schema-validated at load via
+``app.components.schema_check.validate_or_die`` — the ``signal_column``
+field is guaranteed present by the schema, so the fallback map is
+structurally unnecessary. Schema failures surface as ``st.error(...)``
+(APP-SEV1 L1, never silent skip).
+
 Contract:
     render_probability_engine_panel(pair_id: str) -> None
 
 Data sources (read-only):
     - results/{pair_id}/signals_*.parquet       (most recent file auto-selected)
-    - results/{pair_id}/winner_summary.json     (signal_column + threshold)
-    - results/{pair_id}/interpretation_metadata.json (known_stress_episodes)
+    - results/{pair_id}/winner_summary.json     (schema-validated — ECON-H5)
+    - results/{pair_id}/interpretation_metadata.json (known_stress_episodes — DATA-D6)
 """
 
 from __future__ import annotations
 
 import glob
-import json
-import os
 from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from components.schema_check import SchemaValidationError, validate_or_die, validate_soft
+
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
-
-# Map from signal_code (in winner_summary.json) to the canonical column name in
-# the signals parquet. If the code is not in this map, we fall back to the
-# literal signal_code and the validator will surface a clear error if missing.
-_SIGNAL_CODE_TO_COLUMN = {
-    "S6_hmm_stress": "hmm_2state_prob_stress",
-    "S7_ms_stress": "ms_2state_stress_prob",
-}
 
 # Default column-type bounds per Rule APP-SE1 "Numeric + bounds" check.
 _PROBABILITY_PREFIXES = ("hmm_", "ms_", "prob_", "stress_prob")
@@ -46,30 +46,6 @@ def _latest_signals_file(pair_dir: Path) -> Path | None:
     """Return the most recent ``signals_*.parquet`` under ``pair_dir``."""
     matches = sorted(glob.glob(str(pair_dir / "signals_*.parquet")))
     return Path(matches[-1]) if matches else None
-
-
-def _resolve_signal_column(signals_df: pd.DataFrame, winner: dict) -> tuple[str | None, str]:
-    """Resolve the canonical signal column name.
-
-    Returns (column_name, display_name). ``column_name`` is None if unresolved.
-    """
-    signal_code = winner.get("signal_code", "")
-    display_name = winner.get("signal_display_name", signal_code or "Signal")
-
-    # 1) Explicit signal_column field (if producer populates it per SOP)
-    if winner.get("signal_column") and winner["signal_column"] in signals_df.columns:
-        return winner["signal_column"], display_name
-
-    # 2) Map-based lookup
-    mapped = _SIGNAL_CODE_TO_COLUMN.get(signal_code)
-    if mapped and mapped in signals_df.columns:
-        return mapped, display_name
-
-    # 3) Literal signal_code as column name
-    if signal_code and signal_code in signals_df.columns:
-        return signal_code, display_name
-
-    return None, display_name
 
 
 def _validate_signal(
@@ -253,15 +229,22 @@ def render_probability_engine_panel(pair_id: str) -> None:
 
     pair_dir = _REPO_ROOT / "results" / pair_id
 
-    # ---- Load winner_summary ----
+    # ---- Load + schema-validate winner_summary (APP-WS1 / ECON-H5 / META-CF) ----
+    # Per APP-SEV1 L1: schema failure = st.error + short-circuit (no silent skip).
     winner_path = pair_dir / "winner_summary.json"
-    if not winner_path.exists():
-        msg = f"winner_summary.json missing at {winner_path}"
-        st.error(f"Probability engine panel cannot render: {msg}")
-        st.session_state[f"se1_validation_{pair_id}"] = {"ok": False, "reason": msg}
+    try:
+        winner = validate_or_die(winner_path, "winner_summary")
+    except SchemaValidationError as exc:
+        # validate_or_die already rendered st.error with the full error list.
+        st.session_state[f"se1_validation_{pair_id}"] = {
+            "ok": False,
+            "reason": f"winner_summary schema violation: {exc.errors}",
+        }
         return
-    with open(winner_path) as fh:
-        winner = json.load(fh)
+
+    # Schema guarantees signal_column is present and non-empty.
+    column: str = winner["signal_column"]
+    display_name: str = winner.get("signal_display_name", column)
 
     # ---- Load signals parquet ----
     signals_path = _latest_signals_file(pair_dir)
@@ -279,23 +262,19 @@ def render_probability_engine_panel(pair_id: str) -> None:
         st.session_state[f"se1_validation_{pair_id}"] = {"ok": False, "reason": msg}
         return
 
-    # ---- Load interpretation_metadata (optional) ----
-    metadata: dict = {}
+    # ---- Load interpretation_metadata (schema-validated, soft — DATA-D6) ----
+    # Metadata is optional for rendering, but if present it must conform to the
+    # schema (APP-SEV1 L2 — loud-warning, not hard block).
     meta_path = pair_dir / "interpretation_metadata.json"
-    if meta_path.exists():
-        with open(meta_path) as fh:
-            metadata = json.load(fh)
-
-    # ---- Resolve signal column ----
-    column, display_name = _resolve_signal_column(signals_df, winner)
-    if column is None:
-        msg = (
-            f"Signal column for code `{winner.get('signal_code')}` "
-            f"(display: {display_name}) not resolvable from signals parquet."
+    metadata, meta_errors = validate_soft(meta_path, "interpretation_metadata")
+    if meta_errors and meta_path.exists():
+        st.warning(
+            f"`interpretation_metadata.json` schema violation "
+            f"(APP-SEV1 L2 — panel still renders with default stress windows): "
+            + "; ".join(meta_errors[:3])
         )
-        st.error(f"Probability engine panel cannot render: {msg}")
-        st.session_state[f"se1_validation_{pair_id}"] = {"ok": False, "reason": msg}
-        return
+    if metadata is None:
+        metadata = {}
 
     # ---- Pre-render validation ----
     ok, diagnostic = _validate_signal(signals_df, column, winner, metadata)

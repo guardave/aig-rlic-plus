@@ -28,6 +28,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from components.breadcrumb import render_breadcrumb
 from components.charts import load_plotly_chart
+from components.direction_check import render_direction_check
 from components.instructional_trigger_cards import render_instructional_trigger_cards
 from components.live_execution_placeholder import render_live_execution_placeholder
 from components.metrics import kpi_row
@@ -59,6 +60,13 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 # Breadcrumb navigation (N10, META-PWQ)
 # ---------------------------------------------------------------------------
 render_breadcrumb("Strategy", PAIR_ID)
+
+# ---------------------------------------------------------------------------
+# APP-DIR1: 3-way direction triangulation (Evan ↔ Dana ↔ Ray).
+# Currently 2-way (Ray leg pending RES-17 narrative-frontmatter migration).
+# Agreement → silent caption. Mismatch → st.error per APP-SEV1 L1.
+# ---------------------------------------------------------------------------
+render_direction_check(PAIR_ID)
 
 # ---------------------------------------------------------------------------
 # Plain English expander (N8 -- Ray's narrative addition)
