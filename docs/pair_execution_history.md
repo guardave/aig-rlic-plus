@@ -308,8 +308,23 @@ temp/inspect_portal.py
 | commit_sha | trigger_reason | time_to_rebuild | observed_stale_element | lead_initials |
 |------------|----------------|------------------|-------------------------|---------------|
 | `1720c0c` | Streamlit Cloud served a `pair_registry`-cached landing-page state that did not reflect HEAD on main after the Wave 4A push; 7+ minutes elapsed since last push; Playwright inspection confirmed the delta. | Rebuild completed within ~5 minutes of the trivial-bump push. | Landing-page card grid missing the HY-IG v2 schema-validated chips (post-Wave 4A). | LL |
+| `f7587a3` (dashboard reboot; no force-redeploy commit layered) | **Manual Reboot App via Cloud dashboard.** Triggered by: Lesandro. Reason: Cloud cache held pre-Wave-5C zoom chart JSON (Story "What History Shows" rendered 3 zoom charts with matplotlib-default red `#d62728` in `gd.data[0].line.color`); the committed `output/charts/hy_ig_v2_spy/plotly/history_zoom_*.json` files on `f7587a3` correctly declared Okabe-Ito `#D55E00`, confirming Cloud-side staleness rather than artifact error. | Rebuild completed within ~2 minutes of dashboard Reboot click. | Story page zoom charts (Dot-Com / GFC / COVID) served pre-Wave-5C palette. | LL |
 
-**Quarterly count (2026-Q2):** 1 invocation. Under the META-FRD threshold of 2/quarter. No root-cause investigation triggered this quarter.
+**Quarterly count (2026-Q2):** 2 invocations — `1720c0c` (force-redeploy commit, Wave 4A) + `f7587a3` (dashboard Reboot App, Wave 5D). At the META-FRD threshold of 2/quarter; next invocation in 2026-Q2 triggers a root-cause investigation of Cloud caching behavior (chart-JSON bundle hashing vs. `pair_registry` docstring dependency).
+
+#### Wave 5D Reboot Event — detailed entry (per META-FRD)
+
+- **Event:** Manual Reboot App via Cloud dashboard
+- **Triggered by:** Lesandro
+- **Date/time:** 2026-04-19
+- **Commit at Cloud HEAD:** `f7587a3` (Wave 5C)
+- **Reason:** Cloud cache held pre-Wave-5C zoom chart JSON; committed files were correct but Cloud was stale.
+- **Detection method:** Playwright DOM probe (`temp/cloud_wave5d_color_probe.py`) extracted `gd.data[0].line.color` from each `.js-plotly-plot` div on the Story page and found `#d62728` on the 3 zoom charts (Dot-Com / GFC / COVID) — the pre-Wave-5C matplotlib default, not the Okabe-Ito `#D55E00` declared in the on-disk artifacts.
+- **Action taken:** Lesandro clicked "Reboot App" in the Streamlit Cloud dashboard for this app. No force-redeploy commit was layered on top, per META-FRD authority-of-dashboard-reboot.
+- **Outcome:** Post-reboot re-verify (`temp/cloud_wave5d_rerun_story.py`) returned `#D55E00` on all 3 zoom charts. **PASS.** Full Wave 5D 9-item matrix cleared.
+- **Screenshot:** `temp/cloud_wave5d_rerun_story.png`
+- **DOM dump:** `temp/cloud_wave5d_rerun_dom.json`
+- **Consequence:** Wave 5D Cloud Verification section appended to `results/hy_ig_v2_spy/acceptance.md` with all 9 items PASS and reboot disclosure.
 
 ### Wave 5B-1 MRA — Meta-Rule Authoring Session
 

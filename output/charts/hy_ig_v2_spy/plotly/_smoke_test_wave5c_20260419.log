@@ -1,0 +1,12 @@
+VIZ-V5 smoke test (Wave 5C) — pair=hy_ig_v2_spy — run 2026-04-19T19:31:54.523641
+  PASS hero.json: PASS (traces=2, title='HY-IG OAS Spread vs SPY — 2000 to 2025')
+  PASS correlation_heatmap.json: PASS (traces=1, title='Credit-Stress Signals vs SPY Forward Returns<br><sub>Top-8 s')
+  PASS ccf_prewhitened.json: PASS (traces=1, title='Pre-whitened Cross-correlation: HY-IG Spread Changes vs SPY ')
+  PASS granger_f_by_lag.json: PASS (traces=2, title='Granger Causality: HY-IG Spread → SPY Returns, F-statistic b')
+  PASS quartile_returns.json: PASS (traces=1, title='SPY Performance Conditional on HY-IG Spread Quartile')
+  PASS regime_quartile_returns.json: PASS (traces=1, title='Annualized SPY Return by HY-IG Spread Quartile (Q1 = Tightes')
+  PASS transfer_entropy.json: PASS (traces=1, title='Transfer Entropy — Nonlinear Information Flow')
+  PASS _comparison/history_zoom_dotcom.json: PASS (traces=1, title='Credit Spreads During the Dot-Com Bust, 1998–2003')
+  PASS _comparison/history_zoom_gfc.json: PASS (traces=1, title='Credit Spreads During the Global Financial Crisis, 2005–2010')
+  PASS _comparison/history_zoom_covid.json: PASS (traces=1, title='Credit Spreads During the COVID Shock, 2019–2022')
+Total: 10 charts, 10 pass, 0 fail

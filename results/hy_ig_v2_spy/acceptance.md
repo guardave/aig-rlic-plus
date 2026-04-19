@@ -213,6 +213,49 @@ Cloud state is clean. Ready for stakeholder review — the Wave 4 deploy-artifac
 
 ---
 
+## Wave 5D Cloud Verification (2026-04-19)
+
+Cloud verification after Wave 5C retro-apply landed on `f7587a3`. Initial Wave 5D Playwright sweep exposed one stale-Cloud failure (zoom-chart `line.color` resolved to `#d62728` matplotlib-default red, not the Okabe-Ito vermilion `#D55E00` that the committed `history_zoom_*.json` artifacts declare). Lesandro invoked a manual **Reboot App** via the Streamlit Cloud dashboard per META-FRD (dashboard reboot is authoritative, no force-redeploy layering). Post-reboot re-verify executed 2026-04-19 via `temp/cloud_wave5d_rerun_story.py`; all 3 zoom charts now render the canonical Okabe-Ito vermilion.
+
+### Wave 5D Cloud Smoke-Test Matrix (9 items)
+
+| Item | Result | Notes |
+|------|--------|-------|
+| 1. Cloud live across all 4 v2 pages (Story / Evidence / Strategy / Methodology) | PASS | Pages hydrate; no splash/please-wait; no `st.error` banners (continuation of Wave 4E state on `f7587a3`) |
+| 2. Okabe-Ito palette on hero chart (`#D55E00` vermilion + second panel accent) | PASS | DOM probe `gd.data[0].line.color = "#D55E00"` on hero (idx 0) |
+| 3. Okabe-Ito palette on 3 Story zoom charts (Dot-Com / GFC / COVID) | PASS (after reboot) | Initial run returned `#d62728` across all 3 (stale Cloud cache). After Lesandro's manual Reboot App, re-verify returned `#D55E00` for all 3. See "Reboot Event" note below. |
+| 4. Okabe-Ito palette on regime-quartile bars (Q1-Q4 marker colors) | PASS | DOM probe returned `["#009E73","#0072B2","#D55E00","#CC79A7"]` (Okabe-Ito Q1-Q4 sequence) |
+| 5. VIZ-V11 pre-save lint absence of `#d62728` / `#1f77b4` / `#2ca02c` across charts | PASS | 0 matplotlib-default color codes detected in any rendered Plotly div (post-reboot DOM dump) |
+| 6. GATE-28 `chart pending` residual count across 4 pages | PASS — **0** occurrences | DOM-body grep on `temp/cloud_wave5d_{page}_body.txt` |
+| 7. APP-DIR1 direction-check renders without red banner | PASS | Continues Wave 4E state; 2-way agreement (Evan=Dana=countercyclical) |
+| 8. Story `What History Shows` renders 3 zoom charts with event markers | PASS | All 3 zoom-chart titles present: "Credit Spreads During the Dot-Com Bust, 1998-2003" / "... Global Financial Crisis, 2005-2010" / "... COVID Shock, 2019-2022" |
+| 9. META-ZI event-marker registry integrity (`docs/schemas/history_zoom_events_registry.json`) | PASS | Registry file present; loader populates zoom charts from canonical events |
+
+All 9 PASS.
+
+### Reboot Event (per META-FRD)
+
+**Item 3** required one manual Reboot App via the Streamlit Cloud dashboard. Cloud had served a stale chart JSON bundle: committed `output/charts/hy_ig_v2_spy/plotly/history_zoom_*.json` files on `f7587a3` declared the correct Okabe-Ito `#D55E00` values, but the live Cloud served pre-Wave-5C palette (`#d62728`). This is the second META-FRD invocation in 2026-Q2 (first was `1720c0c` trivial-bump redeploy in Wave 4A). No force-redeploy commit was layered — Lesandro's dashboard Reboot is the authoritative action. Logged in the Force-Redeploy / Reboot register in `docs/pair_execution_history.md` per META-FRD.
+
+### Verification Artifacts
+
+- Screenshot (full page, post-reboot): `temp/cloud_wave5d_rerun_story.png`
+- DOM dump (all Plotly divs with `line.color` / `marker.color`): `temp/cloud_wave5d_rerun_dom.json`
+- Re-verify script: `temp/cloud_wave5d_rerun_story.py`
+- Prior Wave-5D supplementary captures: `temp/cloud_wave5d_{landing,story,evidence,strategy,methodology}.png` + `temp/cloud_wave5d_*_body.txt`
+
+### Zoom-Chart Color Matrix (post-reboot)
+
+| Zoom chart | Plotly div title | `data[0].line.color` | Verdict |
+|------------|------------------|----------------------|---------|
+| Dot-Com | "Credit Spreads During the Dot-Com Bust, 1998-2003" | `#D55E00` | PASS |
+| GFC | "Credit Spreads During the Global Financial Crisis, 2005-2010" | `#D55E00` | PASS |
+| COVID | "Credit Spreads During the COVID Shock, 2019-2022" | `#D55E00` | PASS |
+
+Cloud state is clean on `f7587a3`. Ready for stakeholder review; `hy-ig-v2-reference` tag continues to be reserved until stakeholder approval per META-RPT (no self-tagging by Lead).
+
+---
+
 ## Reference Pair Comparison
 
 **Compared against:** N/A — HY-IG v2 IS the reference pair (first to be tagged).
@@ -360,8 +403,9 @@ Plus modifications to `winner_summary.json` (signal_code canonicalized), `docs/p
 
 **Approved by:** Lead Lesandro
 **Approval date:** Pending stakeholder sign-off
-**Tag/commit:** Pending — will tag as `hy-ig-v2-reference-candidate` at Lead commit per META-RPT, promoted to `hy-ig-v2-reference` upon stakeholder approval.
-**Current commit:** `pending Wave 5C commit sha` — the Wave 5C retro-apply (5 agents) + this Lead consolidation (cross-version diff + GATE-30 deflection audit + acceptance.md sign-off update) will be committed centrally by Lead after Task 4 appends the consolidation entry to `regression_note_20260419.md`. Includes upstream: `342f48c` (Wave 5B: 24 new rules + 10 schemas/registries), `d6e4f02` (Wave 5 validation audits), `416ba94` (Wave 4E Cloud verification), `cc3f551` (Wave 4D: migrate artifacts + consumer-side schema integration), `e28dd3d` (Wave 4B+4C: cross-review + META-CF), `f295073` (Wave 4A: deploy-artifact gap + GATE-29), `1720c0c` (force Cloud redeploy), `519d042` (Wave 3: gate fixes + retro-apply), `beca5aa` (Wave 2 verification), `1f864e8` (Wave 2B: portal rebuild), `b9730cb` (Wave 2A: artifacts/charts/narrative), `b7ee4ba` (Wave 1.5: coherence patches), `6bcb5e2` (Wave 1: 2026-04-18 stakeholder feedback), `27c6182` (pre-stakeholder draft). Earlier reference-pair polish landed in `6d40af8`.
+**Tag/commit:** Pending — will tag as `hy-ig-v2-reference-candidate` at Lead commit per META-RPT, promoted to `hy-ig-v2-reference` upon stakeholder approval. Per META-RPT, the `hy-ig-v2-reference` tag is **NOT** applied here — it remains reserved until stakeholder sign-off.
+**Current commit:** `f7587a3` (Wave 5C retro-apply of 24 new Wave-5B rules; Cloud-verified 2026-04-19 post-reboot).
+**Upstream chain:** `416ba94` (Wave 4E Cloud verification) ← `cc3f551` (Wave 4D: migrate artifacts + consumer-side schema integration) ← `e28dd3d` (Wave 4B+4C: cross-review + META-CF) ← `f295073` (Wave 4A: deploy-artifact gap + GATE-29) ← `519d042` (Wave 3: gate fixes + retro-apply) ← `342f48c` (Wave 5B: 24 new rules + 10 schemas/registries) ← `f7587a3` (Wave 5C: retro-apply). Further upstream: `d6e4f02` (Wave 5 validation audits), `1720c0c` (force Cloud redeploy), `beca5aa` (Wave 2 verification), `1f864e8` (Wave 2B: portal rebuild), `b9730cb` (Wave 2A: artifacts/charts/narrative), `b7ee4ba` (Wave 1.5: coherence patches), `6bcb5e2` (Wave 1: 2026-04-18 stakeholder feedback), `27c6182` (pre-stakeholder draft). Earlier reference-pair polish landed in `6d40af8`.
 
 ---
 
