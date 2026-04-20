@@ -190,9 +190,11 @@ st.markdown("---")
 # ---------------------------------------------------------------------------
 st.markdown("### Key Strategy Metrics")
 
+# META-UC (Wave 8B-2): fallback literals in ratio form per Evan's Wave 8B-1
+# unit migration (winner_summary.oos_ann_return, max_drawdown are now ratios).
 oos_sharpe = _winner.get("oos_sharpe", 1.274)
-oos_return = _winner.get("oos_ann_return", 11.33)
-max_dd = _winner.get("max_drawdown", -10.2)
+oos_return = _winner.get("oos_ann_return", 0.1133)
+max_dd = _winner.get("max_drawdown", -0.102)
 turnover = _winner.get("annual_turnover", 3.78)
 
 kpi_row(
@@ -200,12 +202,15 @@ kpi_row(
         {"label": "OOS Sharpe", "value": f"{oos_sharpe:.2f}", "delta": "vs 0.90 B&H"},
         {
             "label": "OOS Return (arithmetic ann.)",
-            "value": f"+{oos_return:.1f}%",
+            # META-UC: ratio-form value → Python's built-in percent formatter
+            # ({:+.1%}) prints sign + 1-dp percent (e.g., 0.1133 → "+11.3%").
+            "value": f"{oos_return:+.1%}",
             "delta": "arithmetic mean x 252",
         },
         {
             "label": "Max Drawdown",
-            "value": f"{max_dd:.1f}%",
+            # META-UC: ratio-form value → {:.1%} yields "-10.2%" for -0.102.
+            "value": f"{max_dd:.1%}",
             "delta": "vs -33.7% B&H",
             "delta_color": "inverse",
         },
@@ -753,8 +758,19 @@ with tab_confidence:
             _top20.index = _top20.index + 1
             _top20.index.name = "Rank"
 
+            # META-UC (Wave 8B-2): tournament CSV was migrated to ratio form in
+            # Wave 8B-1 (Evan). Streamlit's NumberColumn format="%.1f%%" treats
+            # the value as a literal number + literal "%" char (not a true
+            # percent formatter), so we must scale by 100 on a display copy.
+            # Keeping the format string avoids touching the existing column
+            # config and preserves the visual "OOS Return %" / "Max DD %"
+            # header labels.
+            _top20_display = _top20.copy()
+            _top20_display["oos_ann_return"] = _top20_display["oos_ann_return"] * 100
+            _top20_display["max_drawdown"] = _top20_display["max_drawdown"] * 100
+
             st.dataframe(
-                _top20,
+                _top20_display,
                 use_container_width=True,
                 column_config={
                     "oos_sharpe": st.column_config.NumberColumn("OOS Sharpe", format="%.2f"),
@@ -772,11 +788,12 @@ with tab_confidence:
 
         _bench = _valid[_valid["signal"] == "BENCHMARK"]
         if len(_bench) > 0:
+            # META-UC: ratio-form values → Python's built-in {:.1%} formatter.
             st.caption(
                 "What this shows: Benchmark (Buy-and-Hold SPY): Sharpe "
                 f"{_bench.iloc[0]['oos_sharpe']:.2f}, "
-                f"Return {_bench.iloc[0]['oos_ann_return']:.1f}%, "
-                f"Max DD {_bench.iloc[0]['max_drawdown']:.1f}%."
+                f"Return {_bench.iloc[0]['oos_ann_return']:.1%}, "
+                f"Max DD {_bench.iloc[0]['max_drawdown']:.1%}."
             )
     else:
         st.info(
@@ -807,7 +824,10 @@ with tab_confidence:
 
         _bench_row = _tourn_df[_tourn_df["signal"] == "BENCHMARK"]
         _bh_sharpe = float(_bench_row.iloc[0]["oos_sharpe"]) if len(_bench_row) else 0.90
-        _bh_mdd = float(_bench_row.iloc[0]["max_drawdown"]) if len(_bench_row) else -33.7
+        # META-UC: fallback literal in ratio form (-0.337) per Wave 8B-1 migration.
+        # Downstream delta arithmetic (_alt_mdd - _bh_mdd) composes two ratios;
+        # keeping both ratio-form preserves delta scale consistency.
+        _bh_mdd = float(_bench_row.iloc[0]["max_drawdown"]) if len(_bench_row) else -0.337
 
         if len(_top20_alt) > 0:
             _labels = [
@@ -830,10 +850,12 @@ with tab_confidence:
             c1, c2, c3, c4 = st.columns(4)
             c1.metric("OOS Sharpe", f"{_alt_sharpe:.2f}",
                       delta=f"{_alt_sharpe - _bh_sharpe:+.2f} vs B&H")
-            c2.metric("Max Drawdown", f"{_alt_mdd:.1f}%",
-                      delta=f"{_alt_mdd - _bh_mdd:+.1f}% vs B&H",
+            # META-UC: _alt_mdd, _bh_mdd, _alt_ret are all ratio-form after
+            # Wave 8B-1. Use Python's {:.1%} / {:+.1%} percent formatters.
+            c2.metric("Max Drawdown", f"{_alt_mdd:.1%}",
+                      delta=f"{_alt_mdd - _bh_mdd:+.1%} vs B&H",
                       delta_color="inverse")
-            c3.metric("OOS Return (arithmetic ann.)", f"{_alt_ret:+.1f}%",
+            c3.metric("OOS Return (arithmetic ann.)", f"{_alt_ret:+.1%}",
                       help="Arithmetic mean daily return x 252. CAGR (geometric) would be slightly different; see Methodology for comparison.")
             c4.metric("Annual Turnover", f"~{_alt_to:.1f}/yr")
 

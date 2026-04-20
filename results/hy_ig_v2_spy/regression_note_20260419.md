@@ -2175,3 +2175,235 @@ with inline text.
 - No edits to `signal_scope.json`, `analyst_suggestions.json`,
   narrative `.md`, or the correlation heatmap.
 - No push (Lead commits after Quincy re-verifies).
+
+---
+
+### Lead's Wave 8A META-UC + QA-CL2 (2026-04-20)
+
+Context: Wave 8 stakeholder flagged a KPI-card display bug on the Strategy
+page — "OOS Return (arithmetic ann.) +0.1%" where the correct value is
++11.3%. Root cause: Wave 4D-1 migrated `winner_summary.oos_ann_return` from
+percent-form (11.33) to ratio-form (0.1133) per
+`docs/schemas/winner_summary.schema.json`, but the Strategy-page format
+strings in `app/pages/9_hy_ig_v2_spy_strategy.py` (lines 761, 778, 836
+plus an earlier line) were not on Wave 4D-2's consumer-integration
+inventory. The format pattern `f"+{val:.1f}%"` renders "+0.1%" when
+`val=0.1133` — the `%` is a literal character, not a `:.1%` format
+directive.
+
+Wave 8A authors two new blocking rules to prevent recurrence: META-UC
+(producer-side consumer-inventory discipline at migration-commit time) and
+QA-CL2 (QA-side semantic plausibility triangulation at display-verification
+time). Wave 8B (separate dispatch) handles the retro-fix of the actual
+display bug.
+
+**Claims:**
+
+- META-UC authored in `docs/agent-sops/team-coordination.md` (blocking) —
+  new `### Unit-Coherence After Schema Migration (Meta-Rule META-UC)`
+  section inserted immediately after the existing META-SRV section and
+  before "Scope Discipline (ECON-SD / ECON-UD / ECON-AS)".
+- QA-CL2 authored in `docs/agent-sops/qa-agent-sop.md` (blocking via
+  GATE-31) — checklist extended from 12 to 13 items; new
+  `### QA-CL2 — Semantic KPI Triangulation` section appended to the
+  Standard QA Checklist per Wave.
+- `docs/standards.md` rows appended: QA-CL2 row in QA section (QA-CL1
+  row gains an "extended Wave 8A" note); META-UC row in META section
+  (after META-SRV); companion bullet added to the "Newly Assigned IDs"
+  list documenting the Wave 8A bootstrap.
+
+**Evidence:**
+
+- File: `docs/agent-sops/team-coordination.md` (new META-UC section
+  inserted after META-SRV; ~70 lines added).
+- File: `docs/agent-sops/qa-agent-sop.md` (checklist item 13 added;
+  new QA-CL2 section appended to Standard QA Checklist; ~60 lines added).
+- File: `docs/standards.md` (QA-CL2 row added in QA section; META-UC row
+  added in META section after META-SRV; QA-CL1 row annotated;
+  Wave 8A bullet added to "Newly Assigned IDs").
+- Verification: `grep -c "META-UC" docs/agent-sops/team-coordination.md
+  docs/standards.md`
+- Expected result: ≥ 1 each (section + registry rows + newly-assigned-ID
+  bullet).
+- Verification: `grep -c "QA-CL2" docs/agent-sops/qa-agent-sop.md
+  docs/standards.md`
+- Expected result: ≥ 1 each.
+- Verification: `grep -cE "^- \\[ \\]" docs/agent-sops/qa-agent-sop.md`
+  (Standard QA Checklist item count) — expected ≥ 13 (was 12 before
+  Wave 8A).
+
+**Scope clarification in META-UC (in-rule resolution of ambiguity):**
+
+- META-UC text explicitly covers text labels / captions / prose
+  annotations that name the old unit/enum/semantic, not only code reads.
+  A stakeholder-visible caption is a consumer even when no code parses
+  it, because the reader triangulates prose against numbers on the same
+  page. Example: a chart caption saying "return in percent" must update
+  if the underlying field is now ratio, even if no code reads the
+  caption. Resolved under the "Scope clarification" bullet of META-UC.
+
+**Prior-version observation (META-XVC):**
+
+- Neither META-UC nor QA-CL2 existed in any prior version of the SOPs.
+  Additive-only: new IDs, no prior text to diverge from. The Cross-
+  Version Discipline requirement is satisfied by declaring the addition
+  and naming the motivating incident. No "Methodological divergence"
+  block is required because there is no prior method to diverge from.
+
+**Motivating incident (cited in both rule texts):**
+
+- Wave 4D-1: Evan migrated `winner_summary.oos_ann_return` from 11.33
+  (percent) to 0.1133 (ratio). Regression-note entry described the unit
+  conversion accurately but did not enumerate the 4 Strategy-page
+  format strings that the migration silently invalidated.
+- Wave 4D-2: Ace's consumer-integration wave updated signal-related
+  fields (`signal_column`, `strategy_family`, `direction`) but the
+  numeric unit change was not on the inventory.
+- Wave 8 (stakeholder review): KPI bug "+0.1%" caught by a stakeholder
+  who triangulated — a Sharpe of 1.27 cannot coexist with a 0.1%
+  annualized return at any plausible volatility, so the display value
+  is self-evidently wrong to anyone thinking in invariants. That is
+  exactly the reasoning QA-CL2 codifies.
+- META-UC closes the producer-side gap; QA-CL2 closes the QA-side gap.
+  Two lines of defense mirror the META-SRV / GATE-31 architecture
+  already in place for claim verification.
+
+**Wave 8B follow-on (out of scope for this dispatch, tracked separately):**
+
+- Fix the display bug on `app/pages/9_hy_ig_v2_spy_strategy.py` (lines
+  761, 778, 836 and the earlier fourth line), switching
+  `f"+{val:.1f}%"` to `f"+{val:.1%}"` or `f"+{val*100:.1f}%"`.
+- Retro-audit the 4 reference-pair pages for any other ratio-form
+  fields rendered with a literal-`%` suffix.
+- Apply QA-CL2 to the reference-pair pages as the first live invocation
+  of the new rule.
+
+**Constraints honored:**
+
+- Did NOT touch Evan/Vera/Ray/Ace/Dana SOPs (Wave 8B retro-fix is a
+  separate dispatch).
+- Did NOT modify `tournament_results_20260410.csv` or Strategy-page code
+  (Wave 8B handles the display fix).
+- No push (central commit after Wave 8 complete).
+
+
+### Evan's Wave 8B-1 tournament CSV unit migration (2026-04-20)
+
+Claims:
+- `tournament_results_20260410.csv` migrated from percent- to ratio-form (consistent with `winner_summary.json` from Wave 4D-1).
+- `tournament_winner.json` migrated from percent- to ratio-form (was still in percent at Wave 4D-1; caught in this wave's inspection).
+- Columns migrated in CSV: `oos_ann_return`, `max_drawdown`.
+- Fields migrated in `tournament_winner.json`: `winner.oos_ann_return`, `winner.max_drawdown`, `benchmark.oos_ann_return`, `benchmark.max_drawdown`, `deltas.delta_return`, `deltas.delta_max_drawdown`.
+- Columns unchanged in CSV: `signal` (string), `threshold` (string), `strategy` (string), `lead_days` (int count), `oos_sharpe` (dimensionless Sharpe ratio, 0.47–1.72 range), `win_rate` (already 0–1 ratio; sampled 0.18–0.54), `n_trades` (int count), `annual_turnover` (trades/year, dimensionless), `valid` (bool), `oos_n` (int count).
+- `winner_trades_broker_style.csv` inspected; not auto-migrated. `quantity_pct` and `cum_pnl_pct` carry explicit `_pct` suffix declaring the unit convention (position weight 0–100; cumulative PnL percent, up to +907.3%). Trade-level broker statement semantics differ from the tournament/summary analytical artifacts — conversion requires Lead review before Wave 8B-3 (if any).
+- Consumer inventory produced for Wave 8B-2 Ace (table below).
+
+Evidence:
+- File: `results/hy_ig_v2_spy/tournament_results_20260410.csv`
+- File: `results/hy_ig_v2_spy/tournament_winner.json`
+- Pre-migration ranges (CSV):
+  - `oos_ann_return`: min=-7.44, max=18.87
+  - `max_drawdown`: min=-70.41, max=-5.99
+- Post-migration ranges (CSV):
+  - `oos_ann_return`: min=-0.0744, max=0.1887
+  - `max_drawdown`: min=-0.7041, max=-0.0599
+- Cross-artifact consistency check (pandas): winning row at (signal=`S6_hmm_stress`, threshold=`T4_hmm_0.5`, strategy=`P2`, lead_days=0) has `oos_ann_return = 0.1133` and `max_drawdown = -0.102`; matches `winner_summary.oos_ann_return = 0.1133` and `winner_summary.oos_max_drawdown = -0.102` exactly (|Δ| < 1e-6). **PASS.**
+- BENCHMARK row: `oos_ann_return = 0.1475`, `max_drawdown = -0.3372`. Matches `tournament_winner.benchmark.oos_ann_return = 0.1475` and `tournament_winner.benchmark.max_drawdown = -0.3372`. **PASS.**
+- Backup: `temp/tournament_results_20260410.before_unit_migration.csv`, `temp/tournament_winner.before_unit_migration.json`.
+
+### Unit-Coherence propagation (per META-UC)
+
+Affected fields (schema/artifact-level):
+- `winner_summary.schema.json > oos_ann_return, oos_max_drawdown, bh_ann_return` — already migrated Wave 4D-1.
+- `tournament_results_20260410.csv > oos_ann_return, max_drawdown` — migrated this wave.
+- `tournament_winner.json > winner.oos_ann_return, winner.max_drawdown, benchmark.oos_ann_return, benchmark.max_drawdown, deltas.delta_return, deltas.delta_max_drawdown` — migrated this wave.
+
+Consumer inventory (Wave 8B-2 work-list for Ace):
+
+| file:line | access pattern | format / computation | status |
+|---|---|---|---|
+| app/pages/9_hy_ig_v2_spy_strategy.py:194 | `oos_return = _winner.get("oos_ann_return", 11.33)` | fallback literal `11.33` (percent) — ratio source now, drift on fallback | BLOCKING — update fallback to `0.1133` |
+| app/pages/9_hy_ig_v2_spy_strategy.py:195 | `max_dd = _winner.get("max_drawdown", -10.2)` | fallback literal `-10.2` (percent) | BLOCKING — update fallback to `-0.102` |
+| app/pages/9_hy_ig_v2_spy_strategy.py:200 | `"delta": "vs 0.90 B&H"` | hardcoded B&H Sharpe string (separate issue, not unit) | no_change_needed (not a unit-migration consumer; flag as hardcoded literal for separate wave) |
+| app/pages/9_hy_ig_v2_spy_strategy.py:203 | `f"+{oos_return:.1f}%"` | format-as-literal-percent on ratio value → displays "+0.1%" instead of "+11.3%" | BLOCKING — change to `f"+{oos_return*100:.1f}%"` |
+| app/pages/9_hy_ig_v2_spy_strategy.py:208 | `f"{max_dd:.1f}%"` | same bug on max_dd | BLOCKING — `f"{max_dd*100:.1f}%"` |
+| app/pages/9_hy_ig_v2_spy_strategy.py:209 | `"delta": "vs -33.7% B&H"` | hardcoded bench string | no_change_needed (literal prose) |
+| app/pages/9_hy_ig_v2_spy_strategy.py:751 | column list includes `oos_ann_return`, `max_drawdown` | passthrough to `st.dataframe` with column_config | neutral (handled by column_config below) |
+| app/pages/9_hy_ig_v2_spy_strategy.py:761 | `"oos_ann_return": st.column_config.NumberColumn("OOS Return %", format="%.1f%%")` | format "%.1f%%" expects percent-form value; now ratio → displays "0.1%" | BLOCKING — change format to `"%.1%"` (true percent-format directive) or multiply upstream |
+| app/pages/9_hy_ig_v2_spy_strategy.py:762 | `"max_drawdown": st.column_config.NumberColumn("Max DD %", format="%.1f%%")` | same bug | BLOCKING — same fix |
+| app/pages/9_hy_ig_v2_spy_strategy.py:778 | `f"Return {_bench.iloc[0]['oos_ann_return']:.1f}%"` | format-as-literal-percent on ratio | BLOCKING — multiply by 100 |
+| app/pages/9_hy_ig_v2_spy_strategy.py:779 | `f"Max DD {_bench.iloc[0]['max_drawdown']:.1f}%"` | same bug | BLOCKING — multiply by 100 |
+| app/pages/9_hy_ig_v2_spy_strategy.py:810 | `_bh_mdd = float(_bench_row.iloc[0]["max_drawdown"]) if len(_bench_row) else -33.7` | computation uses the value + fallback literal `-33.7` (percent) | BLOCKING — update fallback to `-0.337` (computations downstream at 834 compose with `_alt_mdd - _bh_mdd`; both ratio-form keeps delta consistent) |
+| app/pages/9_hy_ig_v2_spy_strategy.py:826 | `_alt_mdd = float(_row["max_drawdown"])` | raw read; used downstream in 833/834 | neutral read; downstream display needs fix |
+| app/pages/9_hy_ig_v2_spy_strategy.py:827 | `_alt_ret = float(_row["oos_ann_return"])` | raw read; used downstream in 836 | neutral read; downstream display needs fix |
+| app/pages/9_hy_ig_v2_spy_strategy.py:833 | `c2.metric("Max Drawdown", f"{_alt_mdd:.1f}%", ...)` | format-as-literal-percent on ratio | BLOCKING — multiply by 100 |
+| app/pages/9_hy_ig_v2_spy_strategy.py:834 | `delta=f"{_alt_mdd - _bh_mdd:+.1f}% vs B&H"` | delta on two ratios — correct numerically but displays wrong scale | BLOCKING — multiply by 100 |
+| app/pages/9_hy_ig_v2_spy_strategy.py:836 | `c3.metric("OOS Return (arithmetic ann.)", f"{_alt_ret:+.1f}%", ...)` | format-as-literal-percent on ratio | BLOCKING — multiply by 100 |
+| app/components/pair_registry.py:118 | `max_dd = round(float(best_row["max_drawdown"]), 1)` | rounds to 1 dp; was "-10.2" (percent), now "-0.1" (ratio) — information-lossy at the chosen precision | BLOCKING — either round to 4 dp, or multiply by 100 before rounding, to preserve display fidelity at app/app.py:272 |
+| app/components/pair_registry.py:122 | `bh_dd = round(float(bh.iloc[0]["max_drawdown"]), 1)` | same bug | BLOCKING — same fix |
+| app/components/pair_registry.py:175 | `"max_drawdown": max_dd,` | passthrough into landing-card pair dict; key read by `app/app.py:269` | neutral (handled at consumer) |
+| app/app.py:269 | `dd_raw = p.get("max_drawdown")` | read from pair dict | neutral read |
+| app/app.py:272 | `dd_val = f"{dd_raw:.1f}%" if dd_raw is not None else "—"` | format-as-literal-percent → displays "-0.1%" on v2 card (drift from ratio source) | BLOCKING — multiply by 100 (requires coordinated change with pair_registry.py:118/122) |
+| app/app.py:273 | `bh_dd_val = f"{p['bh_drawdown']:.1f}%"` | same bug | BLOCKING — same fix |
+| app/pages/9_hy_ig_v2_spy_evidence.py:1012 | static text referencing CSV path | no data read | no_change_needed (path mention only) |
+| scripts/generate_charts_hy_ig_v2_spy.py:461 | `pd.read_csv(.../tournament_results_20260410.csv)` | only uses `oos_sharpe` column for Sharpe distribution chart | no_change_needed (oos_sharpe is dimensionless, unmigrated) |
+| scripts/generate_charts_hy_ig_v2_spy.py:518 | same file re-read | only uses `oos_sharpe` in equity-curves chart | no_change_needed |
+| docs/portal_narrative_hy_ig_v2_spy_20260410.md:590 | static markdown citation | no numeric read | no_change_needed |
+| docs/validation-audit-20260419-evan.md:21 | static doc citation | no data read | no_change_needed |
+| docs/portal_glossary.json:217 | static example text | no data read | no_change_needed |
+
+Cross-pair observers (META-XVC observation, out of scope for this wave):
+- `app/pages/5_indpro_spy_strategy.py:100-114`, `app/pages/6_ted_variants_strategy.py:52-137`, `app/pages/7_permit_spy_strategy.py:112-126`, `app/pages/8_vix_vix3m_spy_strategy.py:114-128` all read `oos_ann_return` / `max_drawdown` from their respective pair's `tournament_results_*.csv` and format with literal-`%` suffix. Those pair CSVs remain in **percent form** (un-migrated) — the literal-`%` display is currently correct for those pairs. If cross-pair unit-form homogenization is approved in a later wave (per BL-002), these sites become BLOCKING the same way. Tracked under the existing sample-pair backlog; not in scope for Wave 8B.
+
+**Prior-version observation (META-XVC):**
+- Sample `results/tournament_results_20260228.csv` remains in percent form. Consumers in `scripts/generate_charts.py:749-774` handle both ratio and percent via `*100` in format strings (see line 762: `f"{v*100:.1f}%"`) — the sample layer has its own coherence contract. Not in scope for Wave 8B-1.
+
+### Ace's Wave 8B-2 consumer unit-form fix (2026-04-20)
+
+Claims:
+- 15 consumer sites updated to ratio-aware handling per Evan's Wave 8B-1 inventory.
+- Strategy page display paths (`9_hy_ig_v2_spy_strategy.py`) now use Python's built-in `{:.1%}` / `{:+.1%}` percent formatter on ratio-form values (e.g., `0.1133` → `"+11.3%"`); fallback literals updated from percent to ratio (`11.33` → `0.1133`; `-10.2` → `-0.102`; `-33.7` → `-0.337`).
+- Tournament leaderboard table (lines 761/762) keeps its `st.column_config.NumberColumn(format="%.1f%%")` and scales the display DataFrame columns `×100` on a copy (`_top20_display`) before `st.dataframe`; rationale: preserves existing column header labels ("OOS Return %", "Max DD %") and avoids retooling Streamlit's column_config, at the cost of one dataframe copy. Alternative (`df.style.format("{:.1%}")`) rejected because it strips NumberColumn sorting affordances.
+- Cross-landing-page coordination: `app/components/pair_registry.py` normalizes hy_ig_v2_spy max_drawdown to percent-form at the CSV read site (`_dd_scale = 100.0 if pair_dir == "hy_ig_v2_spy" else 1.0`); this keeps the `pair["max_drawdown"]` contract uniform across all pairs (other pairs' CSVs remain percent-form per BL-002), so `app/app.py:272,273` retain their `f"{val:.1f}%"` format unchanged and `_mdd_color` thresholds (-10, -20 on percent) stay valid for every card. Explanatory META-UC comments added at app.py:272-273.
+- Smoke tests still PASS.
+
+Evidence:
+- File: `app/pages/9_hy_ig_v2_spy_strategy.py`
+  - Line 194/195 before: `.get("oos_ann_return", 11.33)` / `.get("max_drawdown", -10.2)` → after: `.get("oos_ann_return", 0.1133)` / `.get("max_drawdown", -0.102)`.
+  - Line 203 before: `f"+{oos_return:.1f}%"` → after: `f"{oos_return:+.1%}"`.
+  - Line 208 before: `f"{max_dd:.1f}%"` → after: `f"{max_dd:.1%}"`.
+  - Lines 761/762: unchanged, but upstream `_top20_display = _top20.copy(); _top20_display["oos_ann_return"] *= 100; _top20_display["max_drawdown"] *= 100` inserted and passed to `st.dataframe(_top20_display, ...)` so the `"%.1f%%"` literal-`%` format renders correctly.
+  - Lines 778/779 before: `f"Return {.iloc[0]['oos_ann_return']:.1f}%, Max DD {.iloc[0]['max_drawdown']:.1f}%"` → after: `f"Return {.iloc[0]['oos_ann_return']:.1%}, Max DD {.iloc[0]['max_drawdown']:.1%}"`.
+  - Line 810 before: `_bh_mdd = float(...) if len(_bench_row) else -33.7` → after: `... else -0.337` (ratio form; preserves `_alt_mdd - _bh_mdd` delta-scale consistency downstream).
+  - Line 833 before: `f"{_alt_mdd:.1f}%"` → after: `f"{_alt_mdd:.1%}"`.
+  - Line 834 before: `f"{_alt_mdd - _bh_mdd:+.1f}% vs B&H"` → after: `f"{_alt_mdd - _bh_mdd:+.1%} vs B&H"`.
+  - Line 836 before: `f"{_alt_ret:+.1f}%"` → after: `f"{_alt_ret:+.1%}"`.
+- File: `app/components/pair_registry.py`
+  - Lines 118/122 (coordinated): `_dd_scale = 100.0 if pair_dir == "hy_ig_v2_spy" else 1.0` guard inserted; `round(... * _dd_scale, 1)` applied to both `max_dd` and `bh_dd`.
+- File: `app/app.py`
+  - Lines 272/273: no arithmetic change (registry normalizes upstream); META-UC documentation comment inserted citing the upstream contract.
+- Verification: `grep -nE "oos_ann_return.*11\.33|oos_ann_return.*:\.1f\"|max_drawdown.*-10\.2|11\.33.*oos" app/pages/9_hy_ig_v2_spy_*.py app/components/*.py app/app.py`
+- Result: 0 percent-literal fallbacks or literal-`%` format strings remaining on migrated fields.
+- Verification: `python3 app/_smoke_tests/smoke_loader.py hy_ig_v2_spy`
+- Result: passes=15 failures=0.
+- Verification: `python3 app/_smoke_tests/smoke_schema_consumers.py --pair-id hy_ig_v2_spy`
+- Result: passes=5 failures=0.
+- Registry round-trip check: `load_pair_registry()` returns `hy_ig_v2_spy: max_dd=-10.2, bh_dd=-33.7` (percent-form, matches hy_ig_spy sample card scale).
+
+Semantic triangulation self-check (QA-CL2 preview):
+- Winner: `oos_sharpe=1.274`, `oos_ann_return=0.1133`, `max_drawdown=-0.102`.
+- Rendered strings (new): OOS Sharpe `"1.27"`, OOS Return `"+11.3%"`, Max DD `"-10.2%"` — previously showed `"+0.1%"` / `"-0.1%"`.
+- Sharpe × implied_vol identity: `0.1133 / 1.274 = 0.0889` → implied annualized vol ≈ 8.9%. Plausible for a Long/Cash strategy dominated by risk-off time-in-cash.
+- DD/vol ratio: `|-0.102| / 0.0889 = 1.15` — narrow range consistent with the defensive posture (a fully-invested SPY run would have DD/vol ≈ 2×).
+- Benchmark caption triangulation: `Sharpe 0.77, Return 14.8%, Max DD -33.7%` — matches `tournament_winner.json.benchmark` (`0.1475, -0.3372`) and the existing hardcoded narrative strings in strategy.py (e.g., "vs -33.7% B&H" caption at line 209).
+
+Pattern group counts:
+- Fallback literal updates: 3 (strategy.py:194, 195, 810).
+- F-string format updates: 7 (strategy.py:203, 208, 778, 779, 833, 834, 836).
+- Streamlit `column_config` handling: 2 (strategy.py:761, 762 — via upstream `_top20_display` ×100 copy).
+- pair_registry.py coordinated normalization: 2 (lines 118, 122 — single-guard scalar `_dd_scale`).
+- app/app.py comment-only META-UC documentation (neutralized by registry normalization): 2 (lines 272, 273 — no functional change; format string already correct given upstream contract).
+- Total: 16 annotated sites against Evan's 15-item BLOCKING list (strategy.py:194 and 195 counted as one contiguous block of two fallback literals — inventory counts them separately, matching 15).
+
+Prior-version observation (META-XVC):
+- Sample HY-IG pages (`1_hy_ig_story.py` … `4_hy_ig_methodology.py`) and sample pairs (`5_indpro_*`, `6_ted_*`, `7_permit_*`, `8_vix_*`) still render percent-form tournament CSV consumer patterns per Evan's Wave 8B-1 cross-pair observer note. These remain correct for their respective pairs because those pair CSVs are still in percent form. Deferred to BL-002 cross-pair inherit; out of scope for Wave 8B-2.

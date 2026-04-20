@@ -577,6 +577,56 @@ Evidence:
 
 **Why this rule exists.** Wave 5 reflection showed that several upstream claims had passed acceptance because the regression-note entries were clean prose without reproducible verification. In one case, a schema bump was described accurately but no validator run was logged; in another, a chart was claimed to "render cleanly" without a smoke-test log. META-SRV makes the evidence block a first-class part of every regression-note entry — making producer self-reports mechanically auditable and unlocking the independent QA re-verification layer.
 
+### Unit-Coherence After Schema Migration (Meta-Rule META-UC)
+
+> **When a META-CF schema revision changes the unit form, enum values, or semantic interpretation of any numeric or enum field, silent consumer drift is the single highest-probability bug mode. Every consumer must be explicitly accounted for in the migration commit.**
+
+**Principle.** A schema type check (`type: number`) is blind to unit form: `11.33` (percent) and `0.1133` (ratio) both pass. The same is true for enum renames (`"counter_cyclical"` → `"countercyclical"`) and semantic reinterpretations (`direction` meaning flipped between versions). The schema validator cannot catch these drifts — only an explicit consumer inventory can. META-UC makes that inventory mandatory on every migration commit.
+
+**Rule.**
+
+When a producer migrates a schema-governed field's unit form, enum vocabulary, or semantic interpretation (e.g., percent → ratio, short-code → registry-code, enum rename, direction-sign flip, label prose change that consumers may string-match on), the migration's regression_note entry **MUST** include a `### Unit-Coherence propagation` section listing:
+
+1. **Affected fields** — identified by schema path and field name, with before/after unit/enum/semantics. Example: `winner_summary.schema.json > oos_ann_return: percent (11.33) → ratio (0.1133)`.
+2. **Consumer inventory** from grep across `app/`, `scripts/`, `output/`, `docs/`, `results/`:
+   - Every read of the field (`get("field")`, `df["field"]`, `.field`, `json.load(...)["field"]`).
+   - Every format / computation / comparison using the field (f-strings, `.format()`, numeric ops, threshold checks).
+   - Every fallback default value in code (`… or 0.0`, `… or "unknown"`).
+   - Every **text label or caption** that names the old unit/enum in prose (e.g., a chart caption saying "in percent" must update if the underlying field is now ratio — the label is a consumer of the semantics even when no code reads the field).
+3. **Per-consumer status** — each hit resolved to one of:
+   - **`updated`** — consumer adjusted in the same commit (file:line diff cited).
+   - **`no_change_needed`** — consumer reads but does not format/interpret the affected semantic (e.g., passes the field through as opaque payload). Rationale one-liner required.
+   - **`deferred_with_reason`** — e.g., "consumer is sample pair page, out of this wave's scope; tracked as backlog BL-XXX". Backlog ID required; "will fix later" without an ID is not acceptable.
+
+**Scope clarification.** META-UC applies to:
+
+- Numeric unit forms (percent ↔ ratio ↔ basis points ↔ decimal).
+- Enum value renames or vocabulary shifts.
+- Sign conventions (negative-is-good → positive-is-good).
+- Semantic re-interpretation (direction fields, status labels).
+- **Text labels / captions / prose annotations** that name the old unit, enum, or semantic — a user-visible caption is a consumer even when no code parses it, because a stakeholder reading the page will triangulate prose against numbers.
+
+It does **not** apply to:
+
+- Purely additive schema bumps (new optional field) — no existing consumer can drift.
+- Documentation-only changes with no instance-file impact.
+
+**Blocking.** Acceptance cannot be signed until every enumerated consumer is in one of the three statuses. Silently-unaccounted consumers violate META-UC and are treated as a BLOCK per GATE-31 (QA independent verification). QA's semantic triangulation check (QA-CL2, in `docs/agent-sops/qa-agent-sop.md`) catches surviving inconsistencies when the inventory misses a consumer.
+
+**Cross-references.**
+
+- Companion to META-SRV — producer self-report discipline. META-SRV asks *did you verify your claim*; META-UC asks *did you enumerate every consumer of the migrated field*.
+- Companion to META-CF — schema-migration is the trigger event. Every `x-version` major/minor bump that changes unit/enum/semantics fires META-UC.
+- Enforced by QA-CL2 — Quincy's semantic KPI triangulation catches surviving drift at the display layer.
+- Operationalizes META-VNC cross-iteration continuity at the semantic-layer (beyond chart/content-drop).
+
+**Example incident (what motivated this rule).**
+
+- **Wave 4D-1:** Evan migrated `winner_summary.oos_ann_return` from percent-form (11.33) to ratio-form (0.1133) and `max_drawdown` from −10.2 to −0.102. The regression_note entry reported the unit conversion accurately but did **not** enumerate the 4 Strategy-page lines (`app/pages/9_hy_ig_v2_spy_strategy.py` lines 761, 778, 836 and one earlier line) that format the field with a literal-`%` suffix (`f"+{val:.1f}%"`).
+- **Wave 4D-2:** Ace's consumer-integration wave updated signal-related fields (`signal_column`, `strategy_family`, `direction`) but the numeric unit change was not on the enumerated inventory and was not caught.
+- **Wave 8 (stakeholder):** Strategy-page KPI card displayed `OOS Return (arithmetic ann.) +0.1%` instead of the correct `+11.3%`. Root cause: `f"+{0.1133:.1f}%"` formats as "+0.1%" (the `%` is a character, not a percent-format directive).
+- **META-UC formalizes the consumer-inventory step** that would have caught the 4 Strategy-page format-strings at Wave 4D-1 time. The bug would not have shipped.
+
 ### Scope Discipline (ECON-SD / ECON-UD / ECON-AS)
 
 > **A pair's page makes a thematic promise on both axes. Off-scope signals violate that promise silently; disclosure + scope-registry + suggestion-channel operationalize the promise without losing useful observations.**

@@ -1,4 +1,4 @@
-# Loader smoke test  pair_id=hy_ig_v2_spy  timestamp=2026-04-20T00:54:55
+# Loader smoke test  pair_id=hy_ig_v2_spy  timestamp=2026-04-20T01:31:55
 # Pages scanned: 4
 #   app/pages/9_hy_ig_v2_spy_evidence.py
 #   app/pages/9_hy_ig_v2_spy_methodology.py
@@ -11,8 +11,8 @@ PASS  app/pages/9_hy_ig_v2_spy_story.py:281  chart=history_zoom_dotcom  traces=2
 PASS  app/pages/9_hy_ig_v2_spy_story.py:309  chart=history_zoom_gfc  traces=2  title='Credit Spreads and SPY During the Global Financial Crisis, 2005–2010'
 PASS  app/pages/9_hy_ig_v2_spy_story.py:336  chart=history_zoom_covid  traces=2  title='Credit Spreads and SPY During the COVID-19 Shock, 2019–2022'
 PASS  app/pages/9_hy_ig_v2_spy_story.py:402  chart=returns_by_regime  traces=1  title='Tight Spreads (Q1) Deliver Sharpe 1.45; Wide Spreads (Q4) Near Zero'
-PASS  app/pages/9_hy_ig_v2_spy_strategy.py:425  chart=equity_curves  traces=4  title='Top Strategies Outperform Buy-and-Hold (OOS from 2010-01-01)'
-PASS  app/pages/9_hy_ig_v2_spy_strategy.py:448  chart=drawdown_comparison  traces=2  title='Winner Strategy Cuts Maximum Drawdown (-10% vs -34% B&H)'
+PASS  app/pages/9_hy_ig_v2_spy_strategy.py:430  chart=equity_curves  traces=4  title='Top Strategies Outperform Buy-and-Hold (OOS from 2010-01-01)'
+PASS  app/pages/9_hy_ig_v2_spy_strategy.py:453  chart=drawdown_comparison  traces=2  title='Winner Strategy Cuts Maximum Drawdown (-10% vs -34% B&H)'
 
 # Dynamic charts (Evidence render_method_block helper)
 PASS  hy_ig_v2_spy/evidence<render_method_block>  chart=correlation_heatmap  traces=1  title='HY-IG Derivatives vs SPY Forward Returns<br><sub>Top-8 by |correlation| at the 63-day horizon, drawn from 17 HY-IG derivatives in signal_scope.json</sub>'

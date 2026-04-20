@@ -111,15 +111,23 @@ def load_pair_registry():
                 tdf = pd.read_csv(tourn_path)
                 total_count = len(tdf)
                 valid_count = int(tdf["valid"].sum())
+                # META-UC (Wave 8B-2): hy_ig_v2_spy's tournament CSV was
+                # migrated to ratio form in Wave 8B-1 (Evan). Other pairs
+                # still use percent-form CSVs (tracked BL-002). Normalize to
+                # percent form here so the downstream `pair["max_drawdown"]`
+                # contract remains uniform across all pairs, and app/app.py
+                # display sites (lines 272/273) can keep their existing
+                # `f"{val:.1f}%"` formatter unchanged.
+                _dd_scale = 100.0 if pair_dir == "hy_ig_v2_spy" else 1.0
                 valid_strats = tdf[tdf["valid"] & (tdf["signal"] != "BENCHMARK")]
                 if len(valid_strats) > 0:
                     best_row = valid_strats.loc[valid_strats["oos_sharpe"].idxmax()]
                     best_sharpe = round(float(best_row["oos_sharpe"]), 2)
-                    max_dd = round(float(best_row["max_drawdown"]), 1)
+                    max_dd = round(float(best_row["max_drawdown"]) * _dd_scale, 1)
                 bh = tdf[tdf["signal"] == "BENCHMARK"]
                 if len(bh) > 0:
                     bh_sharpe = round(float(bh.iloc[0]["oos_sharpe"]), 2)
-                    bh_dd = round(float(bh.iloc[0]["max_drawdown"]), 1)
+                    bh_dd = round(float(bh.iloc[0]["max_drawdown"]) * _dd_scale, 1)
             except Exception:
                 pass
 

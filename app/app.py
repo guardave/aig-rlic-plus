@@ -269,6 +269,11 @@ for i in range(0, len(pairs), cols_per_row):
                 dd_raw = p.get("max_drawdown")
                 sharpe_val = f"{sharpe_raw:.2f}" if sharpe_raw is not None else "—"
                 bh_val = f"{p['bh_sharpe']:.2f}" if p.get("bh_sharpe") is not None else "—"
+                # META-UC (Wave 8B-2): `dd_raw` / `bh_drawdown` are normalized
+                # to percent-form for all pairs at pair_registry.py (ratio
+                # pairs like hy_ig_v2_spy are scaled ×100 upstream). Keep
+                # literal-"%" suffix here; `_mdd_color` thresholds (-10, -20)
+                # also operate on percent-form values.
                 dd_val = f"{dd_raw:.1f}%" if dd_raw is not None else "—"
                 bh_dd_val = f"{p['bh_drawdown']:.1f}%" if p.get("bh_drawdown") is not None else "—"
                 valid_count = p.get("valid_combos", 0)

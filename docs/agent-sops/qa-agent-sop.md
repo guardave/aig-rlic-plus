@@ -164,6 +164,50 @@ Result codes:
 - [ ] META-ELI5: all user-facing `st.error` / `st.warning` / `st.info` carry a plain-English block
 - [ ] Deflection audit (GATE-30): every deflection target exists and contains the claimed content
 - [ ] Any discrepancy recorded with specific evidence (file path + exact command/output)
+- [ ] **QA-CL2** — Semantic KPI triangulation passes on every reference-pair Strategy/Evidence page (Sharpe-return-vol, drawdown-vol, turnover-trade-count invariants all plausible)
+
+### QA-CL2 — Semantic KPI Triangulation
+
+> **A schema validator cannot catch a unit-form bug: both `11.33` and `0.1133` are valid numbers. Only the *relationship* between displayed KPIs exposes the drift. QA-CL2 operationalizes that relationship check as a mandatory item in the per-wave checklist.**
+
+For every reference-pair Strategy page and Evidence page that displays numeric KPIs (Sharpe ratio, annualized return, max drawdown, annualized volatility, trade count, annual turnover, hit rate, cost assumption), Quincy verifies that displayed values are **mutually consistent** via plausibility triangulations. A KPI card that passes a raw-value range check but fails triangulation is flagged as BLOCKING per GATE-31 — the contradiction is almost always a display-unit bug, a data bug, or a rendering bug, and the pair cannot accept until it is reconciled.
+
+**The three mandatory triangulations.**
+
+1. **Sharpe ↔ return ↔ volatility.** Given `Sharpe ≈ (ann_return − risk_free) / ann_vol`, the displayed Sharpe and return imply a volatility in a plausible range (5–40% for equity-style strategies; 1–15% for fixed-income/carry strategies). Examples:
+   - Sharpe 1.27 + ann_return 11.3% → implied vol ≈ 8.9% — **plausible (PASS).**
+   - Sharpe 1.27 + ann_return 0.1% → implied vol ≈ 0.08% — **IMPOSSIBLE (FAIL).** This is the exact pattern that would have caught the Wave 4D-1 percent-to-ratio drift.
+   - Sharpe 2.5 + ann_return 8% → implied vol ≈ 2.8% — **suspicious for equity strategies; check for cost-assumption mismatch or look-ahead leakage.**
+
+2. **Max drawdown ↔ volatility.** For daily- or monthly-rebalanced strategies, `|max_drawdown|` is typically 2–4× annualized volatility; a ratio outside [1, 6] is suspicious. Examples:
+   - Vol 15% + MDD −10% → ratio 0.67 — **PASS-with-note** (drawdown is shallow for vol; check sample length).
+   - Vol 15% + MDD −70% → ratio 4.7 — **suspicious;** investigate regime change, survivor bias, or a percent-vs-ratio bug.
+   - Vol 15% + MDD −0.1% → ratio 0.007 — **IMPOSSIBLE (FAIL)** — almost certainly a unit-form or rendering bug.
+
+3. **Annual turnover ↔ trade count ↔ horizon.** For a round-trip turnover measure (entry + exit = 2 transactions), `n_trades / years ≈ annual_turnover × 2`. Deviations >2× in either direction warrant investigation. Examples:
+   - 169 trades over 8 years with annual turnover 10/yr → `n_trades/years = 21.1`; `turnover × 2 = 20` — **PASS.**
+   - 169 trades over 8 years with annual turnover 4/yr → `n_trades/years = 21.1`; `turnover × 2 = 8` — **FAIL (2.6× off);** check whether turnover definition is one-way vs round-trip, or whether trade count includes partial-position adjustments.
+
+**Execution protocol.**
+
+- Quincy reads the Strategy KPI card and the Evidence page's performance-summary table.
+- For each displayed KPI set, computes the three implied invariants from the rendered numbers (ignoring what the schema instance says — QA-CL2 checks the *display*, not the source).
+- Records each triangulation as PASS / PASS-with-note / FAIL in the findings table with the specific numbers and the computed implied value.
+
+**Action on FAIL.**
+
+- Record the exact displayed values, the invariant that was violated, and the implied-value contradiction.
+- Treat as **BLOCKING** per GATE-31 — acceptance cannot proceed until the contradictory numbers are reconciled.
+- Open the finding against the likely owner: Ace (rendering bug), Evan (source-data bug), or whichever producer authored the failing consumer. When a META-UC-class unit drift is suspected, file the finding against the most recent producer who migrated the schema.
+
+**Cross-references.**
+
+- **META-UC** — the producer-side companion. META-UC makes the consumer inventory mandatory at migration-commit time; QA-CL2 catches surviving drift at the display layer when META-UC's inventory missed a consumer.
+- **GATE-31** — the blocking gate QA-CL2 slots into. A QA-CL2 FAIL is a GATE-31 FAIL.
+- **META-SRV** — QA-CL2's evidence block (displayed values + computed implied invariant + contradiction) satisfies META-SRV evidence discipline.
+- **APP-DIR1** — direction triangulation is the *categorical* analog of QA-CL2's *numerical* triangulation; same principle, different data type.
+
+**Why this rule exists.** Wave 4D-1 migrated `winner_summary.oos_ann_return` from percent-form (11.33) to ratio-form (0.1133). Four Strategy-page lines in `app/pages/9_hy_ig_v2_spy_strategy.py` formatted the field as `f"+{val:.1f}%"`, which renders "+0.1%" instead of "+11.3%". Every upstream check passed (schema valid, smoke tests green, file exists, DOM renders). The bug was only caught by a stakeholder reading the Strategy page and noticing that a Sharpe of 1.27 cannot coexist with a 0.1% annualized return. QA-CL2 formalizes that stakeholder-style triangulation as a mandatory QA step so the Wave 4D-1 class of bug cannot ship again.
 
 ## Quality Gates
 

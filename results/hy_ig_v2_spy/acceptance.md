@@ -575,3 +575,38 @@ Wave 7 scope discipline (ECON-SD/UD/AS) verified on Cloud.
 Screenshots: temp/cloud_wave7d_{evidence,methodology,story}.png
 
 Known separate issue (Wave 8 scope): Strategy page KPI "OOS Return (arithmetic ann.)" displays 0.1% instead of 11.3% — caused by Wave 4D-1 schema unit migration not propagating to rendering code. Does not affect Wave 7 verdict.
+
+---
+
+## QA Verification (Wave 8, 2026-04-20)
+
+**Wave scope:** Wave 8A (Lead: META-UC + QA-CL2 authoring) + Wave 8B-1 (Evan: tournament CSV + tournament_winner.json unit migration) + Wave 8B-2 (Ace: 15-site consumer retro-fix). First production run of **QA-CL2 Semantic KPI Triangulation**.
+
+**Checks:** 28 total | PASS 23 | PASS-with-note 5 | FAIL 0 | Blocking 0.
+
+**Highlights:**
+- META-UC rule text verified in `docs/agent-sops/team-coordination.md` L580 with full Principle / Scope / Blocking body (not just ID registration). QA-CL2 rule text verified in `docs/agent-sops/qa-agent-sop.md` L167 (checklist item 13) + L169 (full subsection). Both registered in `docs/standards.md` L248-249 (QA) + L363 (META).
+- META-UC compliance of Wave 8B-1 handoff: Evan's regression note includes the full Consumer Inventory (25 rows covering `app/`, `scripts/`, `docs/`) per META-UC §Blocking — YES.
+- tournament_results CSV: `oos_ann_return` migrated to ratio ([-0.074, 0.189]); `max_drawdown` migrated to ratio ([-0.704, -0.060]); winner row `0.1133 / -0.102` matches `winner_summary.json` exactly (|Δ|<1e-6).
+- tournament_winner.json: `winner.oos_ann_return=0.1133`, `benchmark.oos_ann_return=0.1475` confirmed.
+- Ace's 15 consumer sites: all verified at the cited line numbers (±17 lines for a few due to comment insertions, content correct). Final grep for percent-literal patterns on migrated fields = 0 hits. Smoke tests green (15/0 loader; 5/0 schema consumers).
+
+**QA-CL2 first production run (the central new check):**
+- **Sharpe ↔ return ↔ vol:** implied_vol = 0.1133 / 1.274 = **8.89%** → PLAUSIBLE (defensive equity, 5-40% band).
+- **Drawdown ↔ vol:** |-0.102| / 0.0889 = **1.15** → PLAUSIBLE (thin for typical equity, defensive construction + 8-yr OOS explains — F6 note).
+- **Turnover ↔ trade count:** implied `(169/8)/2 = 10.57`/yr vs stated `3.78`/yr → 2.80× deviation trips flag; root cause is definition mismatch (P2 dollar-weighted turnover vs emission-count trades), NOT a display bug (F7 note).
+
+**Strategy page KPI render (Wave 4D-1 motivating bug):** OOS Return displays **"+11.3%"** (not "+0.1%"). Max Drawdown displays **"-10.2%"**. Sharpe displays **"1.27"**. **Bug CLOSED.**
+
+**Cross-pair inventory (BL-002 follow-up):** All 6 non-reference pairs have percent-form CSVs paired with percent-literal `:+.1f%` format — internally coherent. Zero URGENT mismatches.
+
+**PASS-with-note findings (all advisory, none blocking):**
+- **F4** — `9_hy_ig_v2_spy_strategy.py:197` reads `_winner.get("max_drawdown", -0.102)` but schema key is `oos_max_drawdown`; rendering correct today only because fallback literal matches reality. Latent bug; propose **BL-801** for Wave 9.
+- **F5** — Evan's line-number citations off by +17 vs actual file (post-edit shift); content correct.
+- **F6** — DD/vol ratio 1.15 is thin; add `winner_summary.notes` explanation.
+- **F7** — Turnover triangulation exposes need for a `turnover_basis` enum in `winner_summary.schema.json`; propose Wave 9.
+- **F8** — `winner_trades_broker_style.csv` intentionally not migrated (Evan flagged; broker-statement semantics differ from analytical artifacts).
+
+**Sign-off:** PASS — acceptance.md Wave 8 section unblocked. Central commit by Lead. Current commit field NOT updated in this pass (Lead step).
+
+**Approved by:** Quincy (QA) | **Date:** 2026-04-20 | **Dispatch:** Wave 8C (verification of 8A authoring + 8B retro-fix; first production run of QA-CL2)

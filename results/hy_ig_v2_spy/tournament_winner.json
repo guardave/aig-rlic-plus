@@ -5,20 +5,20 @@
     "threshold": "HMM probability > 0.5",
     "strategy": "Signal Strength",
     "oos_sharpe": 1.274,
-    "oos_ann_return": 11.33,
-    "max_drawdown": -10.2,
+    "oos_ann_return": 0.1133,
+    "max_drawdown": -0.102,
     "annual_turnover": 3.78
   },
   "benchmark": {
     "name": "Buy & Hold",
     "oos_sharpe": 0.7726,
-    "oos_ann_return": 14.75,
-    "max_drawdown": -33.72
+    "oos_ann_return": 0.1475,
+    "max_drawdown": -0.3372
   },
   "deltas": {
     "delta_sharpe": 0.5014,
-    "delta_return": -3.42,
-    "delta_max_drawdown": 23.52
+    "delta_return": -0.0342,
+    "delta_max_drawdown": 0.2352
   },
   "suggested_strategy_objective": "min_mdd"
 }
