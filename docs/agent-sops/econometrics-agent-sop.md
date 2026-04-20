@@ -1147,6 +1147,7 @@ Before handing off:
 - [ ] `interpretation_metadata.json` delivered for every indicator-target pair (all fields populated, direction vocabulary matches Analysis Brief Section 11.4)
 - [ ] `kpis.json` delivered for every indicator-target pair (pre-formatted for portal display)
 - [ ] `_manifest.json` sidecar delivered for every output file (minimum 3 assertions per artifact)
+- [ ] **ECON-DS2 deploy-artifact gate** — `results/{pair_id}/signals_{date}.parquet` exists on disk AND is committed to git (verify with `git ls-files results/{pair_id}/signals_*.parquet`). This file is consumed by the Strategy page Probability Engine Panel (APP-SE1) at cloud render time. Missing = portal error on cloud even when all local smoke tests pass. This check is blocking — Evan cannot hand off without it. (Cross-ref: ECON-DS2, Derived Signal Persistence Rule)
 
 ### Defense 2: Reconciliation at Every Boundary (Consumer + Producer Rule)
 

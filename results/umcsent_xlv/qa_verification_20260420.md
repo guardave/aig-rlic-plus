@@ -119,3 +119,60 @@ Verification artefacts:
 - Screenshots: `temp/260420_wave10d_cloud/screenshots/umcsent_xlv_*.png`
 - DOM text: `temp/260420_wave10d_cloud/dom_text/umcsent_xlv_*_dom.txt`
 - JSON: `temp/260420_wave10d_cloud/wave10d_gate28_structural_results.json`
+
+---
+
+## QA Verification — Wave 10D Signal Universe (2026-04-20, Quincy)
+
+**QA Agent:** Quincy | **Commit verified:** 57d1bb6 | **Gate:** Signal Universe non-empty render
+
+### Context
+
+`10_umcsent_xlv_methodology.py` already used the shared `render_signal_universe()` component — no code change was needed for this page. This verification confirms the page continues to render a populated Signal Universe section (regression guard) alongside the verification of the indpro_xlp fix.
+
+### Checks
+
+| # | Check | Result | Evidence |
+|---|-------|--------|----------|
+| 1 | Signal Universe section header present (`signal universe`) | PASS | Found: "Signal Universe (ECON-UD)" section present |
+| 2 | In-scope subsection header present (`indicator derivatives`) | PASS | "Indicator derivatives — U of Michigan Consumer Sentiment" rendered |
+| 3 | Derivative name `umcsent` present in DOM | PASS | 7 UMCSENT derivatives listed (umcsent, umcsent_yoy, umcsent_mom, umcsent_zscore, umcsent_3m_ma, umcsent_direction, umcsent_dev_ma) |
+| 4 | No `chart pending` text | PASS | 0 occurrences |
+| 5 | No Python errors in DOM | PASS | No traceback, AttributeError, KeyError, or other exception text found |
+| 6 | Breadcrumb/pair identifier `umcsent_xlv` present | PASS | Present in footer: "Pair ID: umcsent_xlv" |
+
+**Overall: PASS — 6/6 checks pass**
+
+### Signal Universe content confirmed (DOM extract)
+
+```
+Signal Universe (ECON-UD)
+
+...the authoritative list of in-scope signals per ECON-SD scope discipline.
+Loaded from results/umcsent_xlv/signal_scope.json.
+
+Indicator derivatives — U of Michigan Consumer Sentiment
+
+Takeaway: 5 indicator-axis derivatives disclosed...
+
+Target derivatives — Health Care Select Sector (XLV)
+
+Takeaway: 5 target-axis derivatives disclosed...
+```
+
+Note: umcsent_xlv uses `render_signal_universe()` component which renders "Indicator derivatives" / "Target derivatives" subheaders, while indpro_xlp uses the legacy inline renderer producing "In-scope:" headers. Both are populated and correct.
+
+### Playwright technical note
+
+Same as indpro_xlp: content extracted from Streamlit's `/~/+/<page_slug>` iframe frame. DOM text length: 8,486 chars (larger than indpro_xlp's 6,616 chars due to more detailed IS/OOS split explanation and indicator construction tables).
+
+### Verification artefacts
+
+- Script: `temp/260420_wave10d_cloud/wave10d_signal_universe.py`
+- Screenshot: `temp/260420_wave10d_cloud/screenshots/umcsent_xlv_methodology_signal_universe.png`
+- DOM text: `temp/260420_wave10d_cloud/dom_text/umcsent_xlv_methodology_signal_universe_dom.txt` (8,486 chars)
+- JSON: `temp/260420_wave10d_cloud/wave10d_signal_universe_results.json`
+
+### Sign-off recommendation
+
+PASS — Signal Universe section renders correctly on `umcsent_xlv_methodology` page. No regression introduced by Wave 10D changes.

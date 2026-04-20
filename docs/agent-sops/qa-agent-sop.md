@@ -265,6 +265,12 @@ For every wave that adds or modifies portal pages, Quincy verifies cloud/deploy 
 - Run `python3 app/_smoke_tests/smoke_loader.py` inside the clean checkout.
 - Assert: zero FileNotFound, zero None-return, zero placeholder.
 - Confirms no file is silently `.gitignore`-excluded or missing from `git add`.
+- **GATE-29 mandatory parquet check (added 2026-04-20):** In addition to the chart smoke test, Quincy MUST explicitly verify the following deploy-required parquet artifacts exist in the clean checkout for every new pair:
+  ```
+  git ls-files results/{pair_id}/signals_*.parquet   # must return ≥1 file
+  git ls-files results/{pair_id}/*.parquet           # full list for audit
+  ```
+  A missing `signals_*.parquet` is a GATE-29 FAIL even if `smoke_loader` passes. Root cause: `smoke_loader` tests chart JSON loading only — it does not exercise the Strategy page Probability Engine Panel (APP-SE1), which reads `signals_*.parquet` at cloud render time. This gap caused the Wave-10E cloud error ("Probability engine panel cannot render: No signals_*.parquet") which passed all local smoke tests. Quincy's GATE-29 is now the explicit parquet existence gate. Owner of the fix: Evan (ECON-DS2).
 
 **Execution protocol.**
 1. Run GATE-27 smoke tests locally first — fast, catches most render failures.
