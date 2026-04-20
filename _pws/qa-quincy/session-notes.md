@@ -274,3 +274,37 @@ Streamlit Cloud renders content in an iframe at `/~/+/<slug>`. Outer `document.b
 ---
 
 *Last updated: 2026-04-20 (Wave 10D GATE-NR).*
+
+---
+
+## 2026-04-20 — Wave 10E Final Cloud Verify (GATE-28 + GATE-NR)
+
+**Dispatch:** Final cloud verification of `indpro_xlp` pages after commit `a9ae669`.
+**Changes verified:**
+1. APP-PT1: All 4 pages now template-based thin wrappers (structural logic in `page_templates.py`, content in `indpro_xlp_config.py`)
+2. RES-NR1: Narrative heading corrected from "It Is Not a Perfect Inverse of the S&P 500" → "XLP Is Not a Mechanical Inverse of the IP Cycle"
+
+**Script:** `temp/260420_wave10d_cloud/wave10d_final_verify.py`
+
+**Results:** 23 checks | PASS: 22 | PASS-with-note: 1 | FAIL: 0 | Blocking: 0
+
+**Key findings:**
+- GATE-28 PASS on all 4 pages: zero chart-pending, zero Python errors, DOM lengths 4,695–7,777 chars, breadcrumb nav confirmed on all pages.
+- Evidence page PASS: Level 1/Level 2 two-tier structure confirmed.
+- Methodology page PASS: Signal Universe renders with "Indicator derivatives — Industrial Production Index" (APP-PT1 template format). Note: new template uses `"Indicator derivatives — {display_name}"` not `"In-scope: ..."` — both formats accepted in updated check.
+- GATE-NR PASS: Corrected heading "XLP Is Not a Mechanical Inverse of the IP Cycle" confirmed live on Cloud. Old heading absent.
+- S&P 500 PASS-with-note (1 occurrence): contrastive benchmark sentence + data sources table row — both legitimate.
+
+**Lesson learned — APP-PT1 template format change:** The `signal_universe_table.py` in APP-PT1 renders section headers as `"Indicator derivatives — {display_name}"` rather than the old `"In-scope: ..."` label. GATE-28 Signal Universe check must accept both formats. Updated `check_signal_universe()` to detect either pattern. This needs to propagate to the authoritative QA SOP.
+
+**QA report updated:** `results/indpro_xlp/qa_verification_20260420.md` § Wave 10E Final Cloud Verify
+
+**Artefacts:**
+- Script: `temp/260420_wave10d_cloud/wave10d_final_verify.py`
+- Screenshots: `temp/260420_wave10d_cloud/screenshots/final_indpro_xlp_*.png` (4 files)
+- DOM text: `temp/260420_wave10d_cloud/dom_text/final_indpro_xlp_*_dom.txt` (4 files)
+- JSON: `temp/260420_wave10d_cloud/wave10e_final_verify_results.json`
+
+**Sign-off:** GATE-28 PASS + GATE-NR PASS. Both APP-PT1 and RES-NR1 changes are live and structurally correct on Cloud.
+
+*Last updated: 2026-04-20 (Wave 10E Final Cloud Verify).*

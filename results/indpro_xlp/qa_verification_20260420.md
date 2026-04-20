@@ -288,3 +288,103 @@ All 20 instruments from `KNOWN_INSTRUMENTS` were scanned:
 ### Sign-off
 
 **GATE-NR: PASS** — No instrument violations found on either `indpro_xlp_story` or `indpro_xlp_evidence`. Two comparative S&P 500 references on the Story page are correctly classified as PASS-with-note. Ray's heading fix (pending deployment) will eliminate both notes when deployed.
+
+---
+
+## QA Verification — Wave 10E Final Cloud Verify (2026-04-20, Quincy)
+
+**QA Agent:** Quincy | **Commit verified:** `a9ae669` | **Gate:** GATE-28 + GATE-NR  
+**Pages audited:** `indpro_xlp_story`, `indpro_xlp_evidence`, `indpro_xlp_strategy`, `indpro_xlp_methodology`  
+**Script:** `temp/260420_wave10d_cloud/wave10d_final_verify.py`  
+**Cloud app:** `https://aig-rlic-plus.streamlit.app/`
+
+### Context
+
+Two changes were introduced in commit `a9ae669` and its parent `bfb1b70`:
+
+1. **APP-PT1**: All 4 `indpro_xlp` pages refactored to thin wrappers — structural and presentational logic moved to `app/components/page_templates.py`; pair-specific content in `app/pair_configs/indpro_xlp_config.py`.
+2. **RES-NR1**: Narrative heading in `NARRATIVE_SECTION_2` corrected from `"The Nuance: It Is Not a Perfect Inverse of the S&P 500"` to `"The Nuance: XLP Is Not a Mechanical Inverse of the IP Cycle"`.
+
+This wave is the final cloud sign-off confirming both changes are live and structurally sound.
+
+### Summary
+
+Total checks: 23 | PASS: 22 | PASS-with-note: 1 | FAIL: 0 | Blocking: 0
+
+**Overall verdict: PASS**
+
+### Detailed findings
+
+| # | Page | Check | Result | Evidence |
+|---|------|-------|--------|----------|
+| 1 | `indpro_xlp_story` | chart_pending | PASS | No "chart pending" found |
+| 2 | `indpro_xlp_story` | python_errors | PASS | No Python errors detected |
+| 3 | `indpro_xlp_story` | page_not_blank | PASS | dom=7,777 chars |
+| 4 | `indpro_xlp_story` | breadcrumb_nav | PASS | All 4 labels confirmed: 📖 Story, 🔬 Evidence, 🎯 Strategy, 📐 Methodology |
+| 5 | `indpro_xlp_story` | gate_nr_target_symbol | PASS | XLP found extensively in DOM |
+| 6 | `indpro_xlp_story` | gate_nr_wrong_instruments | PASS-with-note | S&P 500 ×2 in contrastive phrasing only (see note below) |
+| 7 | `indpro_xlp_story` | gate_nr_corrected_heading | PASS | "The Nuance: XLP Is Not a Mechanical Inverse of the IP Cycle" confirmed live |
+| 8 | `indpro_xlp_evidence` | chart_pending | PASS | No "chart pending" found |
+| 9 | `indpro_xlp_evidence` | python_errors | PASS | No Python errors detected |
+| 10 | `indpro_xlp_evidence` | page_not_blank | PASS | dom=4,695 chars |
+| 11 | `indpro_xlp_evidence` | breadcrumb_nav | PASS | All 4 labels confirmed |
+| 12 | `indpro_xlp_evidence` | evidence_tab_structure | PASS | "Level 1 — Basic Analysis" confirmed — two-tier Level 1/Level 2 structure present |
+| 13 | `indpro_xlp_evidence` | gate_nr_target_symbol | PASS | XLP found in DOM |
+| 14 | `indpro_xlp_evidence` | gate_nr_wrong_instruments | PASS | No wrong-pair instruments found |
+| 15 | `indpro_xlp_strategy` | chart_pending | PASS | No "chart pending" found |
+| 16 | `indpro_xlp_strategy` | python_errors | PASS | No Python errors detected |
+| 17 | `indpro_xlp_strategy` | page_not_blank | PASS | dom=5,494 chars |
+| 18 | `indpro_xlp_strategy` | breadcrumb_nav | PASS | All 4 labels confirmed |
+| 19 | `indpro_xlp_methodology` | chart_pending | PASS | No "chart pending" found |
+| 20 | `indpro_xlp_methodology` | python_errors | PASS | No Python errors detected |
+| 21 | `indpro_xlp_methodology` | page_not_blank | PASS | dom=7,217 chars |
+| 22 | `indpro_xlp_methodology` | breadcrumb_nav | PASS | All 4 labels confirmed |
+| 23 | `indpro_xlp_methodology` | signal_universe | PASS | "Indicator derivatives — Industrial Production Index" + 7 INDPRO derivatives confirmed; Target derivatives (XLP) confirmed |
+
+### APP-PT1 confirmation (thin wrapper structure live)
+
+All 4 pages render content consistent with the template abstraction:
+- `indpro_xlp_story`: Story page template renders hero, KPIs, regime chart, narrative, and thesis sections.
+- `indpro_xlp_evidence`: Two-tier Level 1/Level 2 Evidence tab structure confirmed ("Evidence is organized in two tiers. Level 1 covers basic statistical relationships. Level 2 adds regime analysis...")
+- `indpro_xlp_strategy`: Strategy page renders with breadcrumb and substantive content (dom=5,494 chars).
+- `indpro_xlp_methodology`: Methodology template renders with "Methodology: Technical Appendix" header, full Signal Universe section, econometric methods table.
+
+### RES-NR1 confirmation (corrected heading live)
+
+**Story page DOM extract:**
+```
+The Nuance: XLP Is Not a Mechanical Inverse of the IP Cycle
+```
+Old heading (`"It Is Not a Perfect Inverse of the S&P 500"`) is absent. Fix confirmed live on Cloud.
+
+### GATE-NR narrative note — S&P 500 on Story page (PASS-with-note)
+
+Two S&P 500 references remain on the Story page and are classified PASS-with-note (legitimate contrastive use):
+
+**Occurrence 1:**
+```
+This is the opposite of what we expect for the broad S&P 500, where rising IP is bullish. XLP is the defensive case.
+```
+Classification: contrastive benchmark reference — XLP is clearly the subject.
+
+**Occurrence 2** (in Data Sources table):
+```
+S&P 500 (benchmark) | Yahoo Finance | SPY | Daily → Monthly
+```
+Classification: benchmark row in data sources table — not a target misidentification.
+
+The original GATE-NR violation (heading "It Is Not a Perfect Inverse of the S&P 500") is now resolved. The two remaining S&P 500 occurrences are legitimate. Overall GATE-NR: **PASS**.
+
+### Signal Universe — APP-PT1 template format note
+
+The APP-PT1 template (`signal_universe_table.py`) renders Signal Universe subheadings as:
+- `"Indicator derivatives — {display_name}"` (new format, not `"In-scope: ..."`)
+
+Both formats are now accepted by the GATE-28 signal_universe check. The section renders correctly with 7 INDPRO derivatives and 5 XLP derivatives disclosed.
+
+### Verification artefacts
+
+- Script: `temp/260420_wave10d_cloud/wave10d_final_verify.py`
+- Screenshots: `temp/260420_wave10d_cloud/screenshots/final_indpro_xlp_{story,evidence,strategy,methodology}.png`
+- DOM text: `temp/260420_wave10d_cloud/dom_text/final_indpro_xlp_{story,evidence,strategy,methodology}_dom.txt`
+- JSON: `temp/260420_wave10d_cloud/wave10e_final_verify_results.json`
