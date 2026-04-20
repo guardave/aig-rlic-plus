@@ -404,7 +404,7 @@ Plus modifications to `winner_summary.json` (signal_code canonicalized), `docs/p
 **Approved by:** Lead Lesandro
 **Approval date:** Pending stakeholder sign-off
 **Tag/commit:** Pending — will tag as `hy-ig-v2-reference-candidate` at Lead commit per META-RPT, promoted to `hy-ig-v2-reference` upon stakeholder approval. Per META-RPT, the `hy-ig-v2-reference` tag is **NOT** applied here — it remains reserved until stakeholder sign-off.
-**Current commit:** `17a73ce` (Wave 6D dual-panel zoom rebuild; Cloud-verified 2026-04-19 post-manual-Reboot).
+**Current commit:** `28cc0df` (Wave 7D: ECON scope discipline verified on Cloud 2026-04-20; backlog filing BL-002/003/004 from Wave 7C audit).
 **Upstream chain:** `17a73ce` (Wave 6D: dual-panel zoom rebuild + Cloud verification post-Reboot) ← `f7587a3` (Wave 5C retro-apply of 24 new Wave-5B rules) ← `416ba94` (Wave 4E Cloud verification) ← `cc3f551` (Wave 4D: migrate artifacts + consumer-side schema integration) ← `e28dd3d` (Wave 4B+4C: cross-review + META-CF) ← `f295073` (Wave 4A: deploy-artifact gap + GATE-29) ← `519d042` (Wave 3: gate fixes + retro-apply) ← `342f48c` (Wave 5B: 24 new rules + 10 schemas/registries). Further upstream: `d6e4f02` (Wave 5 validation audits), `1720c0c` (force Cloud redeploy), `beca5aa` (Wave 2 verification), `1f864e8` (Wave 2B: portal rebuild), `b9730cb` (Wave 2A: artifacts/charts/narrative), `b7ee4ba` (Wave 1.5: coherence patches), `6bcb5e2` (Wave 1: 2026-04-18 stakeholder feedback), `27c6182` (pre-stakeholder draft). Earlier reference-pair polish landed in `6d40af8`.
 
 ---
@@ -559,3 +559,19 @@ Wave 7 stakeholder ask: *"If I see a correlation on the heatmap, can I trace it 
 **Approved by:** Quincy (QA)
 **Date:** 2026-04-20
 **Waves covered:** 7A (Lead) + 7B (Evan, Vera, Ray, Ace) + 7B fix-up (Ace) + 7C-1 (QA BLOCK) + 7C-2 (QA PASS)
+
+---
+
+## Wave 7D Cloud Verification (2026-04-20)
+
+Wave 7 scope discipline (ECON-SD/UD/AS) verified on Cloud.
+
+| Check | Result |
+|---|---|
+| Correlation heatmap filtered to HY-IG derivatives only | PASS |
+| Methodology Signal Universe + Analyst Suggestions sections live | PASS |
+| Story CCC-BB expander reframed as out-of-scope | PASS |
+
+Screenshots: temp/cloud_wave7d_{evidence,methodology,story}.png
+
+Known separate issue (Wave 8 scope): Strategy page KPI "OOS Return (arithmetic ann.)" displays 0.1% instead of 11.3% — caused by Wave 4D-1 schema unit migration not propagating to rendering code. Does not affect Wave 7 verdict.
