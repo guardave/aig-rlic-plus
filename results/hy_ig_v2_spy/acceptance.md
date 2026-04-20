@@ -404,7 +404,7 @@ Plus modifications to `winner_summary.json` (signal_code canonicalized), `docs/p
 **Approved by:** Lead Lesandro
 **Approval date:** Pending stakeholder sign-off
 **Tag/commit:** Pending — will tag as `hy-ig-v2-reference-candidate` at Lead commit per META-RPT, promoted to `hy-ig-v2-reference` upon stakeholder approval. Per META-RPT, the `hy-ig-v2-reference` tag is **NOT** applied here — it remains reserved until stakeholder sign-off.
-**Current commit:** `28cc0df` (Wave 7D: ECON scope discipline verified on Cloud 2026-04-20; backlog filing BL-002/003/004 from Wave 7C audit).
+**Current commit:** `219d1fd` (Wave 8: META-UC + QA-CL2 + unit-form migration completes KPI fix; Wave 8D Cloud verification 2026-04-20).
 **Upstream chain:** `17a73ce` (Wave 6D: dual-panel zoom rebuild + Cloud verification post-Reboot) ← `f7587a3` (Wave 5C retro-apply of 24 new Wave-5B rules) ← `416ba94` (Wave 4E Cloud verification) ← `cc3f551` (Wave 4D: migrate artifacts + consumer-side schema integration) ← `e28dd3d` (Wave 4B+4C: cross-review + META-CF) ← `f295073` (Wave 4A: deploy-artifact gap + GATE-29) ← `519d042` (Wave 3: gate fixes + retro-apply) ← `342f48c` (Wave 5B: 24 new rules + 10 schemas/registries). Further upstream: `d6e4f02` (Wave 5 validation audits), `1720c0c` (force Cloud redeploy), `beca5aa` (Wave 2 verification), `1f864e8` (Wave 2B: portal rebuild), `b9730cb` (Wave 2A: artifacts/charts/narrative), `b7ee4ba` (Wave 1.5: coherence patches), `6bcb5e2` (Wave 1: 2026-04-18 stakeholder feedback), `27c6182` (pre-stakeholder draft). Earlier reference-pair polish landed in `6d40af8`.
 
 ---
@@ -610,3 +610,26 @@ Known separate issue (Wave 8 scope): Strategy page KPI "OOS Return (arithmetic a
 **Sign-off:** PASS — acceptance.md Wave 8 section unblocked. Central commit by Lead. Current commit field NOT updated in this pass (Lead step).
 
 **Approved by:** Quincy (QA) | **Date:** 2026-04-20 | **Dispatch:** Wave 8C (verification of 8A authoring + 8B retro-fix; first production run of QA-CL2)
+
+---
+
+## Wave 8D Cloud Verification (2026-04-20)
+
+Wave 8 unit-coherence fix verified on Cloud (commit `219d1fd`).
+
+| KPI | Expected | Actual |
+|---|---|---|
+| OOS Sharpe | 1.27 | 1.27 |
+| OOS Return (arithmetic ann.) | +11.3% | +11.3% |
+| Max DD | -10.2% | -10.2% |
+| Annual Turnover | ~4/yr | ~4/yr (also "~3.8/yr" in detail card) |
+
+Benchmark caption: dispatch expected the exact string "Sharpe 0.77, Return 14.8%, Max DD -33.7%", but the actual HY-IG v2 page benchmark (shown in KPI deltas + narrative) is **Sharpe 0.90 / Max DD -33.7%** — the v2 sample-period benchmark, not v1's 0.77/14.8%. Max DD -33.7% confirmed. Sharpe 0.90 confirmed ("vs 0.90 B&H" delta + narrative "Sharpe ratio of 1.27 versus 0.90 for buy-and-hold"). The "0.77 / 14.8%" figures belong to the INDPRO/VIX/v1-HY-IG pages (verified in source), not to v2 — dispatch spec mismatch, not a Cloud render issue.
+
+Regression check: Evidence heatmap title "HY-IG Derivatives vs SPY Forward Returns" present; Methodology Signal Universe + Analyst Suggestions tables render; no errors/exceptions/tracebacks on any page.
+
+Semantic triangulation (QA-CL2 on Cloud): implied vol = 11.3% / 1.27 = **8.9%** — PLAUSIBLE (defensive equity, 5–40% band). Consistent with QA's Wave 8C triangulation.
+
+Screenshots: `temp/cloud_wave8d_strategy.png`, `temp/cloud_wave8d_evidence.png`, `temp/cloud_wave8d_methodology.png`.
+
+**Verdict:** PASS — Wave 8 motivating fix (+11.3% vs +0.1%, -10.2% vs -0.1%) live on Cloud. `hy-ig-v2-reference` tag NOT applied — stakeholder gate per META-RPT.
