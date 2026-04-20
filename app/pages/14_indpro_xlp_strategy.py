@@ -14,6 +14,7 @@ import streamlit as st
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+from components.breadcrumb import render_breadcrumb
 from components.charts import load_plotly_chart
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
@@ -34,6 +35,7 @@ render_sidebar()
 render_glossary_sidebar()
 
 PAIR_ID = "indpro_xlp"
+render_breadcrumb("Strategy", PAIR_ID)
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _RESULTS_DIR = _REPO_ROOT / "results" / PAIR_ID
 

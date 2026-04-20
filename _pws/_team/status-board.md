@@ -33,6 +33,12 @@
 
 ---
 
+## Team Insights — 2026-04-20
+
+- **[Ace]** Template discipline: new pair pages built from scratch instead of derived from `9_hy_ig_v2_spy_story.py` silently drop mandatory components (breadcrumb, `render_method_block` evidence structure) — always derive from the reference template, not from scratch.
+
+---
+
 ## 2026-04-11 — Lead Lesandro
 
 **Status:** Completed (EOD)

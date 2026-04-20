@@ -986,6 +986,8 @@ Integrate the Indicator Evaluation Layer into the Streamlit portal. The evaluati
 Before handing off:
 
 - [ ] **All 4 page types exist** (Story, Evidence, Strategy, Methodology) — no exceptions, no shortcuts
+- [ ] **Breadcrumb nav present on all 4 pages** — every pair's pages MUST include the standard 4-step breadcrumb (`Story → Evidence → Strategy → Methodology`). Verify by opening each page and confirming the breadcrumb row renders at the top. Reference: `app/pages/9_hy_ig_v2_spy_story.py` is the canonical template — new pair pages MUST be derived from it, not built from scratch. Structural differences from the reference template require a documented justification in `regression_note_{date}.md`.
+- [ ] **Evidence page tab structure matches reference pair** — tabs must follow the Level 1 / Level 2 → sub-tab structure (Correlation, Granger Causality, etc.) as implemented in `app/pages/9_hy_ig_v2_spy_evidence.py`. Method blocks must use `render_method_block()`. Any deviation requires a documented justification.
 - [ ] All pages load without errors
 - [ ] Storytelling arc is clear from page 1 through page 5
 - [ ] Every chart has a title, caption, and source note

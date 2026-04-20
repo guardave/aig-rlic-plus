@@ -82,13 +82,17 @@ Both must report `failures=0`. Any failure blocks acceptance.
 
 ### 4. Cloud Visual Smoke
 
-For reference-pair pages (per META-RPD / GATE-28), QA runs a Playwright script that:
+For every pair under review (per META-RPD / GATE-28), QA runs a Playwright script that:
 
-1. Opens each of the 4 reference-pair pages (Story, Evidence, Strategy, Methodology) on the live Cloud URL
+1. Opens each of the 4 pages (Story, Evidence, Strategy, Methodology) on the live Cloud URL
 2. Asserts no `st.error` / `st.warning` banner text in the rendered DOM
 3. Asserts zero "chart pending" / "chart_pending" occurrences (GATE-28)
 4. Asserts no blank plot containers (every Plotly container has `.js-plotly-plot` children)
-5. Saves screenshots to `temp/qa_cloud_smoke_<pair_id>_<date>/` for the record
+5. **Asserts breadcrumb nav is present** — the DOM must contain the 4-step breadcrumb row (`Story → Evidence → Strategy → Methodology`) on every page. A missing breadcrumb is a GATE-28 structural failure, not a cosmetic issue. (Rule APP-URL1 mandates this; QA enforces it.) Check by searching the rendered DOM text for all four labels in one page load.
+6. **Asserts Evidence page tab structure matches reference** — the Evidence page must render the Level 1 / Level 2 tabs consistent with `hy_ig_v2_spy_evidence`. Check by asserting at least one tab with text "Level 1" or "Basic Analysis" exists in the DOM. Absence or a flat single-level tab structure is a GATE-28 structural failure.
+7. Saves screenshots to `temp/qa_cloud_smoke_<pair_id>_<date>/` for the record
+
+**Structural parity is mandatory, not optional.** Automated checks (smoke_loader, schema_consumers) test content correctness. Cloud visual smoke is the only gate that can catch structural regressions — missing nav components, wrong tab layouts, inconsistent page skeletons. A page that loads without Python errors but lacks the standard structure is a GATE-28 FAIL.
 
 ### 5. Stakeholder-Spirit Check
 
