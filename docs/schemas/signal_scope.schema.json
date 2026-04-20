@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/signal_scope.schema.json",
+  "x-owner": "evan",
+  "x-version": "1.0.0",
+  "title": "Signal Scope",
+  "description": "Per-pair scope registry for indicator-axis and target-axis derivatives permitted on a pair's portal pages. Governs `results/{pair_id}/signal_scope.json`. Single source of truth enforcing ECON-SD (Pair Scope Discipline) and feeding ECON-UD (Universe Disclosure Methodology tables). Per META-CF (Contract File Standard) — producer (Evan) validates before save; consumers (Vera for chart rendering, Ace for Methodology-page tables, Quincy for QA audit) validate before use via `scripts/validate_schema.py`. Only mathematical derivatives of the single named indicator column (indicator_axis) and the single named target column (target_axis) are permitted. Non-derivative signals (alternative indicators, alternative targets) are scope violations per ECON-SD and cannot appear on the pair's page.",
+  "type": "object",
+  "required": [
+    "pair_id",
+    "schema_version",
+    "indicator_axis",
+    "target_axis",
+    "last_updated_by",
+    "last_updated_at",
+    "owner"
+  ],
+  "properties": {
+    "pair_id": {
+      "type": "string",
+      "description": "Canonical pair identifier (snake_case, e.g. `hy_ig_v2_spy`). Matches the `results/{pair_id}/` directory name and the Analysis Brief pair slug.",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "minLength": 2
+    },
+    "schema_version": {
+      "type": "string",
+      "description": "Semver of this instance. Bumped per META-CF on structural evolution of the scope registry. Minor bumps are additive (new derivatives appended); major bumps imply a renamed or removed derivative, which is a METAVNC-trackable change.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Single agent accountable for this scope instance. Defaults to `evan`; other agents propose via Analyst Suggestions (ECON-AS) path.",
+      "const": "evan"
+    },
+    "last_updated_by": {
+      "type": "string",
+      "description": "Agent code of the last editor (`dana` / `evan` / `vera` / `ray` / `ace` / `quincy`). Separate from `owner` — owner is accountable, last_updated_by is the actual editor (typically matches owner).",
+      "enum": ["dana", "evan", "vera", "ray", "ace", "quincy"]
+    },
+    "last_updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 date-time of the last edit to this instance."
+    },
+    "indicator_axis": {
+      "$ref": "#/$defs/axis_block",
+      "description": "Indicator-axis block: the single named indicator column plus every mathematical derivative computed from it that is permitted on the pair's pages (ECON-SD)."
+    },
+    "target_axis": {
+      "$ref": "#/$defs/axis_block",
+      "description": "Target-axis block: the single named target column plus every mathematical derivative computed from it that is permitted on the pair's pages (ECON-SD)."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes about this scope instance — e.g., retro-fit context, stakeholder-feedback references, known-gap disclosures."
+    }
+  },
+  "$defs": {
+    "axis_block": {
+      "type": "object",
+      "description": "One side of the pair's scope — either indicator_axis or target_axis. Contains the single canonical column name, the display label, and the full list of permitted derivatives.",
+      "required": [
+        "canonical_column",
+        "display_name",
+        "derivatives"
+      ],
+      "properties": {
+        "canonical_column": {
+          "type": "string",
+          "description": "Exact parquet column name for the raw series (e.g. `hy_ig_spread_bps`, `spy_close`). This is the SINGLE column permitted as the raw input on this axis; any derivative must be computed from this column alone.",
+          "minLength": 1
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable label used on portal captions and Methodology-page tables (e.g. `HY-IG Credit Spread`, `SPY Total Return`).",
+          "minLength": 1
+        },
+        "derivatives": {
+          "type": "array",
+          "description": "Ordered list of permitted derivatives on this axis. The raw column itself is included as the first entry with role='raw'. Subsequent entries are mathematical derivatives computed from that single column. Deduplicated by `name`.",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/derivative_entry"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "derivative_entry": {
+      "type": "object",
+      "description": "One permitted derivative on an axis. Rendered as a single row in the ECON-UD Universe Disclosure table on the Methodology page.",
+      "required": [
+        "name",
+        "definition",
+        "formula",
+        "role",
+        "appears_in_charts"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Derivative identifier (snake_case). Used internally and rendered in the Methodology-page table `name` column.",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "definition": {
+          "type": "string",
+          "description": "Plain-English one-sentence description (META-ELI5 compliant — no formulas, no jargon without inline translation).",
+          "minLength": 10
+        },
+        "formula": {
+          "type": "string",
+          "description": "Readable mathematical formula or pointer to source column. Example: `(x_t - mean_252(x)) / std_252(x)` for a z-score; `ln(p_{t+21}) - ln(p_t)` for a 21-day forward log return; `raw column` for the un-transformed series.",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "description": "Functional role of the derivative. `raw` = un-transformed source column (one per axis); `derivative` = mathematical transformation; `threshold_input` = fed to a strategy threshold rule; `regime_state` = HMM / Markov state label or probability; `diagnostic` = considered for diagnostic output only (not rendered as a primary chart trace).",
+          "enum": [
+            "raw",
+            "derivative",
+            "threshold_input",
+            "regime_state",
+            "diagnostic"
+          ]
+        },
+        "appears_in_charts": {
+          "type": "array",
+          "description": "List of chart names (drawn from VIZ-V8 chart_type_registry) on which this derivative is rendered. Empty array = considered but not charted (still disclosed on the Methodology Universe table for transparency).",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "notes": {
+          "type": "string",
+          "description": "Freeform notes — sign convention, lookback window caveats, stationarity remarks, known pitfalls."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

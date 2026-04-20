@@ -18,6 +18,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from components.breadcrumb import render_breadcrumb
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
+from components.signal_universe_table import render_signal_universe
+from components.analyst_suggestions_table import render_analyst_suggestions
 
 st.set_page_config(
     page_title="HY-IG v2 Methodology | AIG-RLIC+",
@@ -124,12 +126,20 @@ st.markdown(
 st.markdown("""
 | Category | Source | Series | Frequency |
 |:---------|:-------|:-------|:----------|
-| **Credit spreads** | FRED | BAMLH0A0HYM2 (HY OAS), BAMLC0A0CM (IG OAS) | Daily |
-| **Quality spreads** | FRED | BAMLH0A1HYBB (BB OAS), BAMLH0A3HYC (CCC OAS), BAMLC0A4CBBB (BBB OAS) | Daily |
-| **Equity prices** | Yahoo Finance | SPY (adjusted close) | Daily |
-| **Volatility** | Yahoo Finance | ^VIX, ^VIX3M, ^MOVE | Daily |
-| **Macro variables** | FRED | DGS10, DGS2, DTB3, NFCI, ICSA, DFF, SOFR, STLFSI2 | Daily/Weekly |
-| **Cross-asset** | Yahoo Finance | GC=F, HG=F, DX-Y.NYB, HYG, KBE, IWM | Daily |
+| **Credit spreads (in scope)** | FRED | BAMLH0A0HYM2 (HY OAS), BAMLC0A0CM (IG OAS) | Daily |
+| **Quality spreads (context only)** | FRED | BAMLH0A1HYBB (BB OAS), BAMLH0A3HYC (CCC OAS), BAMLC0A4CBBB (BBB OAS) | Daily |
+| **Equity prices (in scope)** | Yahoo Finance | SPY (adjusted close) | Daily |
+| **Volatility (context only)** | Yahoo Finance | ^VIX, ^VIX3M, ^MOVE | Daily |
+| **Macro variables (context only)** | FRED | DGS10, DGS2, DTB3, NFCI, ICSA, DFF, SOFR, STLFSI2 | Daily/Weekly |
+| **Cross-asset (context only)** | Yahoo Finance | GC=F, HG=F, DX-Y.NYB, HYG, KBE, IWM | Daily |
+
+*Scope discipline (ECON-SD).* Only the **in-scope** rows above feed the Signal Universe,
+regressions, and tournament for this pair. The **context only** rows are pulled by the
+data pipeline for exploratory correlation work; any predictive signals they generated
+(e.g., NFCI Momentum, Bank/Small-Cap Ratio, Yield Curve 10Y-3M, BBB-IG Spread, CCC-BB
+Quality Spread) are logged in **Analyst Suggestions for Future Work** below and are
+**not** part of this pair's analysis. The authoritative in-scope list is the Signal
+Universe tables rendered from `signal_scope.json`.
 """)
 
 st.markdown("---")
@@ -141,11 +151,55 @@ st.markdown("### Indicator Construction")
 
 st.markdown(
     "The primary indicator is the HY-IG spread: BAMLH0A0HYM2 minus BAMLC0A0CM, "
-    "measured in basis points. From this raw spread, we derive 20 transformed series "
+    "measured in basis points. From this raw spread, we derive transformed series "
     "including z-scores (252-day and 504-day rolling windows), percentile ranks (504-day "
-    "and 1260-day), rates of change (21-day, 63-day, 126-day), momentum changes, "
-    "acceleration, and the CCC-BB quality spread."
+    "and 1260-day), rates of change (21-day, 63-day, 126-day), momentum changes, and "
+    "acceleration. The authoritative list of in-scope derivatives is rendered from "
+    "`signal_scope.json` in the **Signal Universe** section below. Related quality-spread "
+    "signals (e.g., CCC-BB) were noted during exploration but are out of scope for this "
+    "pair — see *Analyst Suggestions for Future Work* below."
 )
+
+st.markdown("---")
+
+# ---------------------------------------------------------------------------
+# Signal Universe (ECON-UD -- Wave 7B; rendered from signal_scope.json)
+# ---------------------------------------------------------------------------
+# Ray may later feed intro prose into this section via the narrative
+# frontmatter (RES-17 anchor `signal_universe`). Until then, the section
+# carries its own plain-English lead-in.
+st.markdown("### Signal Universe")
+
+st.markdown(
+    "This section lists every derivative of the HY-IG spread (indicator axis) "
+    "and of SPY (target axis) that was considered during the analysis. It is "
+    "the single source of truth for what is **in scope** for this pair. "
+    "Anything that is not in these two tables was deliberately excluded from "
+    "the pair's charts, regressions, and tournament — and is instead logged "
+    "in the sibling *Analyst Suggestions* section below."
+)
+
+render_signal_universe(PAIR_ID)
+
+st.markdown("---")
+
+# ---------------------------------------------------------------------------
+# Analyst Suggestions for Future Work (ECON-AS -- Wave 7B)
+# ---------------------------------------------------------------------------
+# Narrative frontmatter anchor (Ray, RES-17): `analyst_suggestions`.
+st.markdown("### Analyst Suggestions for Future Work")
+
+st.markdown(
+    "During the HY-IG × SPY analysis, the team occasionally observed signals "
+    "outside this pair's formal scope that looked worth exploring in future "
+    "work (a different pair, a variant family extension, or a regime "
+    "overlay). Those observations are captured below — **for the record "
+    "only**. They did not influence this pair's winning strategy, and the "
+    "renderer carries an explicit disclaimer to reinforce the read-only, "
+    "non-ticket nature of the list."
+)
+
+render_analyst_suggestions(PAIR_ID)
 
 st.markdown("---")
 
@@ -306,7 +360,7 @@ st.markdown("### Tournament Design")
 st.markdown("""
 | Dimension | Values |
 |:----------|:-------|
-| **Signals (13)** | Spread level, z-scores (252d/504d), percentile ranks, RoC (21d/63d/126d), momentum, acceleration, quality spread (CCC-BB), HMM stress prob, Markov-switching prob |
+| **Signals** | Spread level, z-scores (252d/504d), percentile ranks (504d/1260d), RoC (21d/63d/126d), momentum (21d/63d/252d), acceleration, HMM stress/calm probabilities, Markov-switching stress probability. Authoritative list: see **Signal Universe** rendered from `signal_scope.json`. |
 | **Threshold methods (7)** | Fixed percentile (IS), rolling percentile, rolling z-score, Bollinger bands, zero-crossing, HMM prob, Markov-switching prob |
 | **Strategies (4)** | Long/Cash, Signal-Strength, Long/Short, Inverse-Signal |
 | **Lead times (9)** | 0, 1, 2, 3, 5, 10, 21, 42, 63 days |

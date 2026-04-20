@@ -577,6 +577,35 @@ Evidence:
 
 **Why this rule exists.** Wave 5 reflection showed that several upstream claims had passed acceptance because the regression-note entries were clean prose without reproducible verification. In one case, a schema bump was described accurately but no validator run was logged; in another, a chart was claimed to "render cleanly" without a smoke-test log. META-SRV makes the evidence block a first-class part of every regression-note entry — making producer self-reports mechanically auditable and unlocking the independent QA re-verification layer.
 
+### Scope Discipline (ECON-SD / ECON-UD / ECON-AS)
+
+> **A pair's page makes a thematic promise on both axes. Off-scope signals violate that promise silently; disclosure + scope-registry + suggestion-channel operationalize the promise without losing useful observations.**
+
+Pair pages titled "indicator X vs target Y" must honor both axes. Three cross-agent rules — authored by Evan in the Econometrics SOP (see `docs/agent-sops/econometrics-agent-sop.md` §ECON-SD, §ECON-UD, §ECON-AS) — make that honoring mechanical:
+
+| Rule | Short | Blocking? | Anchor file |
+|------|-------|-----------|-------------|
+| **ECON-SD** | Pair Scope Discipline — only the indicator column + its mathematical derivatives AND the target column + its mathematical derivatives may appear on a pair's Story / Evidence / Strategy page. | Blocking (all pairs) | `results/{pair_id}/signal_scope.json` |
+| **ECON-UD** | Universe Disclosure — every pair's Methodology page carries a "Signal Universe" section with two tables (indicator derivatives, target derivatives) rendered from the scope file. | Blocking (reference pairs per META-RPD); recommended (non-reference) | `results/{pair_id}/signal_scope.json` + Methodology page |
+| **ECON-AS** | Analyst Suggestions — off-scope-but-interesting observations captured as informational entries (no lifecycle, no status), rendered read-only on Methodology under "Analyst Suggestions for Future Work." | Informational | `results/{pair_id}/analyst_suggestions.json` |
+
+**Downstream impact by agent.**
+
+- **Evan (author, producer).** Maintains `signal_scope.json` as the single source of truth; validates every econometric artifact against it before save. Files ECON-AS suggestions when off-scope signals surface during exploratory work. See ECON-SD producer-side rule.
+- **Vera (consumer).** Chart-generation scripts read `signal_scope.json` and refuse to render any chart whose signal is not in scope (ECON-SD enforcement at the chart-save boundary). Cross-ref VIZ-V8 chart_type_registry: only charts referencing in-scope signals are eligible for the canonical filename pattern.
+- **Ray (consumer).** Narrative cross-references the Signal Universe when introducing a derivative on Story / Evidence pages; narrative frontmatter (`chart_refs`, per RES-17) aligns with `appears_in_charts` column in the scope registry. ECON-AS rationale text may be Ray-edited for tone (plain-English owner per META-ELI5).
+- **Ace (renderer).** Methodology page renders the Signal Universe tables (ECON-UD) and Analyst Suggestions table (ECON-AS) from the two JSON sidecars. Caption prefixes follow APP-CC1 (`"What this shows:"` on the Universe tables; `"How to read it:"` on the Suggestions table). If `analyst_suggestions.json` is absent or its `suggestions` array empty, the Suggestions section is silently omitted — the single sanctioned silent omission (because the rule is informational).
+- **Quincy (QA).** GATE-31 verifier: parses chart sidecars and narrative frontmatter; cross-checks every signal name against `signal_scope.json`; any off-scope hit is a FAIL finding that blocks acceptance. Also verifies the Methodology page carries both required sections on reference pairs.
+
+**Contract files (per META-CF).**
+
+| Artifact | Schema | Example instance |
+|----------|--------|------------------|
+| `results/{pair_id}/signal_scope.json` | `docs/schemas/signal_scope.schema.json` (owner: Evan, v1.0.0) | `docs/schemas/examples/signal_scope.example.json` |
+| `results/{pair_id}/analyst_suggestions.json` | `docs/schemas/analyst_suggestions.schema.json` (owner: Evan, v1.0.0) | `docs/schemas/examples/analyst_suggestions.example.json` |
+
+**Why this rule family exists.** HY-IG v2 Wave 7 stakeholder review caught a scope leak on the Evidence-page correlation heatmap (NFCI, Yield Curve, Bank ratio, BBB-IG, CCC-BB all included on a page titled "HY-IG × SPY"). ECON-SD forecloses scope leaks by making the permitted universe a mechanical registry. ECON-UD makes that universe visible to users so they can cross-check nothing is hidden. ECON-AS captures the interesting off-scope observations that would otherwise be smuggled onto the page or forgotten.
+
 ### Classification Field Ownership
 
 | Field | Owner | Timing | Source of Truth |

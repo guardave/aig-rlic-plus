@@ -1,0 +1,63 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "schema_version": "1.0.0",
+  "last_updated_at": "2026-04-20T00:29:06Z",
+  "suggestions": [
+    {
+      "signal_name": "NFCI Momentum (13-week)",
+      "proposed_by": "evan",
+      "source": "FRED:NFCI (Chicago Fed National Financial Conditions Index) — derivative: 13-week change",
+      "observation": "Pearson r = -0.21 with SPY 63-day forward return (p < 1e-4, N = 6720); r = -0.19 at the 126-day horizon. Source: results/hy_ig_v2_spy/exploratory_20260410/correlations.csv.",
+      "rationale": "NFCI aggregates roughly 100 financial-conditions indicators into one composite, and its 13-week momentum captures the rate at which conditions are tightening. The negative sign is economically coherent — rapidly tightening financial conditions predict lower forward SPY returns — and magnitude (|r| ~ 0.2) is meaningfully above the HY-IG derivatives at the same horizon.",
+      "possible_use_case": "cross-pair composite credit-stress indicator; new pair (nfci_momentum_13w -> SPY)",
+      "caveats": "NFCI is itself constructed from overlapping financial-market inputs that may include credit-spread components, so direct compositing with HY-IG risks double-counting. Needs a dedicated decomposition check before being used as an independent signal alongside hy_ig_spread_pct.",
+      "date_filed": "2026-04-19",
+      "notes": "Off-scope for HY-IG v2 per ECON-SD (not a derivative of hy_ig_spread_pct). Flagged here so the observation is not lost when Vera's Wave 7B regeneration drops it from the heatmap."
+    },
+    {
+      "signal_name": "Bank vs Small-Cap Ratio (KBE / IWM)",
+      "proposed_by": "evan",
+      "source": "derived: yahoo:KBE / yahoo:IWM (SPDR S&P Bank ETF divided by iShares Russell 2000 ETF)",
+      "observation": "Pearson r = -0.26 with SPY 126-day forward return (p < 1e-4, N ~ 6660) and r = -0.19 at 63d. Strongest off-scope predictor at the 126-day horizon in the exploratory set. Source: results/hy_ig_v2_spy/exploratory_20260410/correlations.csv.",
+      "rationale": "The banks-to-small-caps ratio is a relative-strength gauge for banking-sector health. A rising ratio means banks are outperforming small-caps — historically a late-cycle tell, which explains the negative forward-return correlation. It carries information about lender balance-sheet stress that is complementary to the HY-IG credit-risk signal.",
+      "possible_use_case": "new pair — equity-stress family (bank_smallcap_ratio -> SPY)",
+      "caveats": "Constructed from two equity ETFs, so it is partially endogenous to SPY itself. Needs orthogonalization (regress out SPY beta) before being interpreted as a clean predictor. Also sensitive to KBE / IWM index-composition changes.",
+      "date_filed": "2026-04-19",
+      "notes": "Off-scope for HY-IG v2 per ECON-SD — not derived from hy_ig_spread_pct. Candidate for a dedicated equity-stress pair rather than compositing here."
+    },
+    {
+      "signal_name": "Yield Curve 10Y-3M",
+      "proposed_by": "evan",
+      "source": "FRED: DGS10 minus DTB3 (US Treasury 10-year minus 3-month yield spread, percentage points)",
+      "observation": "Pearson r = -0.11 with SPY 63-day forward return (p < 1e-4, N = 6720); r = -0.12 at 126d. Source: results/hy_ig_v2_spy/exploratory_20260410/correlations.csv.",
+      "rationale": "The 10Y-3M term spread is a canonical recession predictor — inversions have preceded every US recession in the post-war sample. Its negative correlation with forward SPY returns reflects the backdrop-regime mechanism: when the curve is flat or inverted, the probability of a near-term recession is elevated and forward equity returns are suppressed.",
+      "possible_use_case": "regime overlay — recession backdrop; new pair (yield_spread_10y3m -> SPY)",
+      "caveats": "Long lead-lag (typically 6-18 months from inversion to equity drawdown), so near-term forward-return correlation is weaker than its episode-level signal. Small-sample bias in recession-episode analysis (only 4-5 inversions in the modern sample). 2022 inversion has not (yet) produced the expected equity drawdown, so the relationship may be evolving.",
+      "date_filed": "2026-04-19",
+      "notes": "Off-scope for HY-IG v2 per ECON-SD. Prime candidate for a regime-overlay role in a future HY-IG v3 or a standalone yield-curve pair."
+    },
+    {
+      "signal_name": "BBB-IG Spread",
+      "proposed_by": "evan",
+      "source": "FRED: BAMLC0A4CBBB minus BAMLC0A0CM (ICE BofA BBB OAS minus total IG OAS, percentage points)",
+      "observation": "Pearson r = +0.09 with SPY 63-day forward return (p < 1e-4, N = 6720); r = +0.16 at 126d. Source: results/hy_ig_v2_spy/exploratory_20260410/correlations.csv.",
+      "rationale": "The BBB-IG spread is a within-investment-grade quality-tier stress gauge — how much more yield the market demands for the lowest IG rung relative to the IG average. The positive forward-return correlation at 126d is intriguing (wider BBB-IG spread today appears to predict higher SPY return 6 months forward), which would be consistent with a mean-reversion / compensated-risk interpretation. Complements HY-IG with an IG-side stress view.",
+      "possible_use_case": "variant family extension — within-IG quality tier as a companion to HY-IG quality tier",
+      "caveats": "Sign is opposite to the HY-IG / CCC-BB direction, so economic interpretation is not straightforward — could reflect compensated risk-premium rather than distress. Small |r| (0.09 at 63d) means weak standalone predictive power; likely useful only in a composite. BBB share of IG has grown structurally since 2010, introducing composition drift.",
+      "date_filed": "2026-04-19",
+      "notes": "Off-scope for HY-IG v2 per ECON-SD (the v2 axis is HY-IG, not BBB-IG). A future variant family could cover the spectrum HY-IG, BBB-IG, CCC-BB together."
+    },
+    {
+      "signal_name": "CCC-BB Spread",
+      "proposed_by": "evan",
+      "source": "derived: FRED BAMLH0A3HYC minus BAMLH0A1HYBB (ICE BofA CCC HY OAS minus BB HY OAS, percentage points)",
+      "observation": "Pearson r = -0.08 with SPY 63-day forward return (p < 1e-4, N = 6720). Tested as tournament signal S5 but did not survive OOS validation; best-variant OOS Sharpe well below the HMM winner. Source: results/hy_ig_v2_spy/exploratory_20260410/correlations.csv and tournament_results_20260410.csv.",
+      "rationale": "The CCC-BB quality spread is a within-HY gauge of distress concentration — wider spreads mean stress is piling up at the riskiest end of HY rather than spreading uniformly. Complementary to the HY-IG spread, which captures the HY-vs-IG gap but says nothing about HY-internal dispersion.",
+      "possible_use_case": "variant family extension — within-HY quality-tier companion to HY-IG",
+      "caveats": "Already tested in Wave 2 tournament (signal code S5); did not win on OOS Sharpe. Still retained here as a suggestion because it was appearing in the correlation heatmap, which is the Evidence page, not the Strategy page — so its informational value as an exploratory diagnostic is distinct from its weight as a trading signal. Small |r| (0.08).",
+      "date_filed": "2026-04-19",
+      "notes": "Off-scope for HY-IG v2 per ECON-SD (not derived from hy_ig_spread_pct). Should move from the correlation heatmap to this suggestions file in Vera's Wave 7B regeneration."
+    }
+  ],
+  "notes": "Wave 7B retro-apply: captures the 5 off-scope signals that Lesandro flagged in the HY-IG v2 correlation heatmap during Wave 6 stakeholder review. Logged here as informational per ECON-AS so the observations are preserved after Vera's Wave 7B chart regeneration drops them from the heatmap. Empty 'status' / 'priority' / 'assigned_to' fields are intentional per the ECON-AS schema — these are observations, not tickets."
+}

@@ -207,6 +207,12 @@ pages:
       - id: reverse_causality_check
         title: "Reverse Causality Check"
         anchor: reverse-causality-check
+      - id: signal_universe
+        title: "Signal Universe"
+        anchor: signal-universe
+      - id: analyst_suggestions
+        title: "Analyst Suggestions for Future Work"
+        anchor: analyst-suggestions
       - id: references
         title: "References"
         anchor: references
@@ -328,7 +334,7 @@ The spread between CCC and BB yields -- what we call the **quality spread** -- p
 
 During the GFC, the CCC-BB quality spread began widening months before the overall HY-IG spread reached crisis levels. During COVID, the quality spread spike was even more dramatic -- CCC-rated bonds briefly yielded over 20%, while BB bonds remained relatively contained. The quality spread is a "canary in the coal mine" within the credit market itself.
 
-We include the CCC-BB quality spread as one of our tournament signals (S5) precisely because it captures a different dimension of credit stress than the broad HY-IG measure.
+The CCC-BB quality spread is **off-scope for this pair** under ECON-SD -- this page is strictly HY-IG-spread derivatives vs SPY derivatives. CCC-BB was considered during exploration and is logged in the Methodology page's *Analyst Suggestions for Future Work* section as a candidate for a future within-HY variant family (see `results/hy_ig_v2_spy/analyst_suggestions.json`). It is not used in any regression, tournament, or chart on this pair's Evidence or Strategy pages.
 <!-- /expander -->
 
 ### It Is Not a Simple Relationship
@@ -737,11 +743,9 @@ This section explains the technical details of how we did the analysis -- which 
 
 All data is sourced from publicly available databases accessible through our MCP server stack:
 
-- **Credit spreads:** ICE BofA Option-Adjusted Spread indices via FRED. OAS (option-adjusted spread) strips out the effect of embedded options like call provisions to isolate pure credit risk. Series: BAMLH0A0HYM2 (HY OAS), BAMLC0A0CM (IG OAS), BAMLH0A1HYBB (BB OAS), BAMLH0A3HYC (CCC OAS), BAMLC0A4CBBB (BBB OAS).
+- **Credit spreads (in-scope):** ICE BofA Option-Adjusted Spread indices via FRED. OAS (option-adjusted spread) strips out the effect of embedded options like call provisions to isolate pure credit risk. The analytical universe for this pair is strictly HY-IG: BAMLH0A0HYM2 (HY OAS) minus BAMLC0A0CM (IG OAS).
 - **Equity prices:** SPY ETF adjusted close via Yahoo Finance.
-- **Volatility:** CBOE VIX (^VIX) and VIX3M (^VIX3M) indices via Yahoo Finance; MOVE Index (^MOVE) via Yahoo Finance.
-- **Macro variables:** Treasury yields (DGS10, DGS2, DTB3), NFCI, initial claims (ICSA), fed funds rate (DFF), SOFR, St. Louis FSI (STLFSI2) via FRED.
-- **Cross-asset:** Gold (GC=F), Copper (HG=F), DXY (DX-Y.NYB), HYG, KBE, IWM via Yahoo Finance.
+- **Exploratory-only series (not in the HY-IG × SPY analytical universe):** BAMLH0A1HYBB (BB OAS), BAMLH0A3HYC (CCC OAS), BAMLC0A4CBBB (BBB OAS), CBOE VIX (^VIX) / VIX3M (^VIX3M) / MOVE via Yahoo Finance, Treasury yields (DGS10, DGS2, DTB3), NFCI, initial claims (ICSA), fed funds rate (DFF), SOFR, St. Louis FSI (STLFSI2), gold (GC=F), copper (HG=F), DXY (DX-Y.NYB), HYG, KBE, IWM. These were inspected during exploration; those that showed noteworthy off-scope relationships are logged under *Analyst Suggestions for Future Work* on this page per ECON-AS. None of them enter the Evidence- or Strategy-page analyses per ECON-SD.
 
 ### Sample Period
 
@@ -753,7 +757,7 @@ The 70/30 in-sample/out-of-sample split provides a generous 8-year out-of-sample
 
 ### Indicator Construction
 
-The primary indicator is the HY-IG spread: BAMLH0A0HYM2 minus BAMLC0A0CM, measured in basis points (where 100 bps = 1%). From this raw spread, we derive 20 transformed series including z-scores (252-day and 504-day rolling windows), percentile ranks (504-day and 1260-day), rates of change (21-day, 63-day, 126-day), momentum changes, acceleration, and the CCC-BB quality spread.
+The primary indicator is the HY-IG spread: BAMLH0A0HYM2 minus BAMLC0A0CM, measured in basis points (where 100 bps = 1%). From this raw spread, we derive the series enumerated in the *Signal Universe* section below -- z-scores (252-day and 504-day rolling windows), percentile ranks (504-day and 1260-day), rates of change (21-day, 63-day, 126-day), momentum changes (absolute differences at 21/63/252 days), an acceleration second-difference, realised-volatility diagnostic, and two families of regime-state probabilities (Gaussian HMM and Markov-switching). The complete, authoritative inventory is generated from `results/hy_ig_v2_spy/signal_scope.json` and rendered under *Signal Universe* on this page.
 
 ### Econometric Methods
 
@@ -799,6 +803,42 @@ To ensure our results are not driven by any single time period or parameter choi
 ### Reverse Causality Check
 
 All lead-lag and predictive claims include a reverse-causality test: the same model is estimated with SPY leading HY-IG as well as HY-IG leading SPY. Both sets of results are reported side by side. Local projection impulse responses are compared in both directions. The finding of bidirectional causality is documented and its implications discussed -- specifically, that the credit-to-equity signal strengthens in stress regimes while the equity-to-credit signal dominates in calm regimes. This bidirectionality is not a problem for our strategy -- it is a feature that the regime-switching framework explicitly exploits.
+
+### Signal Universe
+
+<details>
+<summary>🧒 Plain English version</summary>
+
+A transparent list of every signal the analysis considered -- not just the ones that bubbled to the top of the correlation chart. If something's in a chart on another page, it's in this list. If it's in this list but not in a chart, we considered it but didn't highlight it. You can reconstruct what was filtered in and out by reading here.
+
+</details>
+
+Every chart, regression, and statistical test on the Evidence and Strategy pages is drawn from the same closed set of HY-IG spread derivatives (on the signal side) and SPY transformations (on the target side). Nothing outside this universe is silently mixed into the analysis. If you see a chart reference a signal, you can find it here.
+
+This table is the authoritative list. It is generated from `results/hy_ig_v2_spy/signal_scope.json`.
+
+#### Indicator derivatives (HY-IG spread side)
+
+<!-- Ace: render table from results/hy_ig_v2_spy/signal_scope.json -> indicator_axis.derivatives. Columns: name | definition | formula | role | appears_in_charts. Caption per APP-CC1: "What this shows: every HY-IG-spread derivative considered in this pair's analysis, whether charted or not." -->
+
+#### Target derivatives (SPY side)
+
+<!-- Ace: render table from results/hy_ig_v2_spy/signal_scope.json -> target_axis.derivatives. Columns: name | definition | formula | role | appears_in_charts. Caption per APP-CC1: "What this shows: every SPY-side derivative considered in this pair's analysis, whether charted or not." -->
+
+### Analyst Suggestions for Future Work
+
+<details>
+<summary>🧒 Plain English version</summary>
+
+During the work on this pair, we noticed some other indicators that correlate with SPY returns. We're NOT using them in this pair's analysis -- that would blur what the page is about. But they're listed here in case you'd like us to explore them in a future pair or a variant family. It's just a notes page for you, not a queue that auto-runs.
+
+</details>
+
+During this pair's analysis, the team noticed several signals outside the HY-IG × SPY scope that showed interesting relationships. These are informational only -- they are NOT included in the analyses above, which are strictly HY-IG-derivative vs SPY-derivative per ECON-SD scope discipline.
+
+If any of these seem worth follow-up work (a new pair, a variant family, a regime overlay, a cross-pair comparison), please request explicitly to the team. There is no automated trigger from this table.
+
+<!-- Ace: render table from results/hy_ig_v2_spy/analyst_suggestions.json -> suggestions. Columns: signal_name | proposed_by | observation | rationale | possible_use_case | caveats. Caption per APP-CC1: "How to read it: suggestions are informational. If any warrant follow-up work, please request explicitly to the team." -->
 
 ### References
 

@@ -1,0 +1,128 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-04-19T14:35:00Z",
+  "indicator_axis": {
+    "canonical_column": "hy_ig_spread_bps",
+    "display_name": "HY-IG Credit Spread",
+    "derivatives": [
+      {
+        "name": "hy_ig_spread_bps",
+        "definition": "The raw HY-IG credit spread in basis points. A higher number means investors demand more yield to hold high-yield bonds relative to investment-grade bonds — a classic stress signal.",
+        "formula": "raw column (BAML HY OAS - BAML IG OAS), unit = bps",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "history_zoom_dotcom",
+          "history_zoom_gfc",
+          "history_zoom_covid",
+          "signal_timeseries"
+        ],
+        "notes": "Sign convention: up = wider spread = more stress. Monthly series 1997+."
+      },
+      {
+        "name": "hy_ig_zscore_lb252",
+        "definition": "The 252-day rolling z-score of the HY-IG spread. It tells you how unusual the current spread is relative to its own recent history.",
+        "formula": "(x_t - mean_252(x)) / std_252(x)",
+        "role": "derivative",
+        "appears_in_charts": [
+          "zscore_timeseries",
+          "regime_shading_backdrop"
+        ],
+        "notes": "Used as a threshold-ready standardized signal. Lookback aligns with OOS window."
+      },
+      {
+        "name": "hy_ig_roc_63d",
+        "definition": "The 63-day (one quarter) rate of change of the HY-IG spread. It captures recent momentum — is the spread widening or tightening?",
+        "formula": "(x_t - x_{t-63}) / x_{t-63}",
+        "role": "derivative",
+        "appears_in_charts": [
+          "roc_timeseries"
+        ],
+        "notes": "Quarterly momentum. Decimal output (0.10 = 10% increase)."
+      },
+      {
+        "name": "hy_ig_hmm_2state_prob_stress",
+        "definition": "The probability that the HY-IG series is in the high-stress regime according to a 2-state Hidden Markov Model. Values near 1 mean the model is confident we are in a stressed regime.",
+        "formula": "Posterior P(regime=stress | spread_{1..t}) from Gaussian HMM(K=2)",
+        "role": "regime_state",
+        "appears_in_charts": [
+          "regime_probability",
+          "probability_engine_panel"
+        ],
+        "notes": "Regime label assigned by variance ranking; state 0 = calm, state 1 = stress."
+      },
+      {
+        "name": "hy_ig_pctrank_1260d",
+        "definition": "The 5-year percentile rank of the HY-IG spread. A value of 0.95 means the current spread is wider than 95% of the last five years of observations.",
+        "formula": "empirical_cdf_{1260d}(x_t)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "percentile_rank_timeseries"
+        ],
+        "notes": "Alternative threshold input for P1_long_cash strategy. Values in [0, 1]."
+      },
+      {
+        "name": "hy_ig_vol_ann_21d",
+        "definition": "The 21-day annualized volatility of the HY-IG spread's daily change. It captures how choppy the spread has been recently.",
+        "formula": "sqrt(252) * std_21(diff(x))",
+        "role": "diagnostic",
+        "appears_in_charts": [],
+        "notes": "Considered as a possible overlay but not rendered on production charts. Kept in scope for diagnostic transparency per ECON-UD."
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy_close",
+    "display_name": "SPY Total Return",
+    "derivatives": [
+      {
+        "name": "spy_close",
+        "definition": "The raw adjusted close price of the SPY ETF. All target-axis derivatives are computed from this single series.",
+        "formula": "raw column (Yahoo Finance adjusted close)",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "history_zoom_dotcom",
+          "history_zoom_gfc",
+          "history_zoom_covid"
+        ],
+        "notes": "Adjusted for dividends and splits. Daily series 1993+."
+      },
+      {
+        "name": "spy_fwd_return_21d",
+        "definition": "The forward 21-day (roughly one month) total return of SPY. Used to see whether a signal today predicts returns over the next month.",
+        "formula": "ln(p_{t+21}) - ln(p_t)",
+        "role": "derivative",
+        "appears_in_charts": [
+          "ccf_prewhitened",
+          "regime_quartile_returns"
+        ],
+        "notes": "Primary evaluation horizon. Forward-looking — leakage-safe by construction."
+      },
+      {
+        "name": "spy_fwd_return_63d",
+        "definition": "The forward 63-day (one quarter) total return of SPY. A secondary horizon used to test whether a signal's predictive power decays with horizon.",
+        "formula": "ln(p_{t+63}) - ln(p_t)",
+        "role": "derivative",
+        "appears_in_charts": [
+          "horizon_comparison"
+        ],
+        "notes": "Sensitivity horizon."
+      },
+      {
+        "name": "spy_drawdown_path",
+        "definition": "The running drawdown of SPY from its trailing all-time high. Used to see how signals behave as drawdowns deepen.",
+        "formula": "p_t / cummax(p_{1..t}) - 1",
+        "role": "diagnostic",
+        "appears_in_charts": [
+          "equity_drawdown"
+        ],
+        "notes": "Non-positive by construction. Used in Strategy-page drawdown panel."
+      }
+    ]
+  },
+  "notes": "Reference-instance example for ECON-SD / ECON-UD (Wave 7A). Mirrors the HY-IG v2 pair structure the stakeholder will re-audit in Wave 7B. Populated with realistic derivatives; not the live production registry."
+}

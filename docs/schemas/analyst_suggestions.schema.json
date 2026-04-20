@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/analyst_suggestions.schema.json",
+  "x-owner": "evan",
+  "x-version": "1.0.0",
+  "title": "Analyst Suggestions",
+  "description": "Per-pair informational sidecar capturing off-scope signals that might be interesting for follow-up work (per ECON-AS). Governs `results/{pair_id}/analyst_suggestions.json`. Any agent (dana / evan / vera / ray / ace / quincy) may file an entry during pair work. Entries are informational only — NO lifecycle fields, NO automated trigger, NO workflow state. Rendered on the Methodology page as a read-only table under 'Analyst Suggestions for Future Work'. Per META-CF (Contract File Standard) — producer validates before save; Ace (consumer) validates before render via `scripts/validate_schema.py`. Schema ownership is Evan (per META-CF schema-owner discipline); per-entry `proposed_by` can be any agent code, not just evan.",
+  "type": "object",
+  "required": [
+    "pair_id",
+    "schema_version",
+    "suggestions",
+    "last_updated_at"
+  ],
+  "properties": {
+    "pair_id": {
+      "type": "string",
+      "description": "Canonical pair identifier (snake_case, e.g. `hy_ig_v2_spy`). Matches the `results/{pair_id}/` directory name.",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "minLength": 2
+    },
+    "schema_version": {
+      "type": "string",
+      "description": "Semver of this instance. Bumped per META-CF when entries are appended or edited.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "last_updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 date-time of the most recent edit to this instance."
+    },
+    "suggestions": {
+      "type": "array",
+      "description": "List of analyst suggestions. Order is insertion order (append-only from the agent's perspective). Empty array is valid — consumers render no section when the array is empty.",
+      "items": {
+        "$ref": "#/$defs/suggestion_entry"
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform top-level notes (e.g., retro-fit context, wave reference)."
+    }
+  },
+  "$defs": {
+    "suggestion_entry": {
+      "type": "object",
+      "description": "One informational suggestion. All eight fields are mandatory. No lifecycle or workflow fields (no `status`, no `assigned_to`, no `priority`) — suggestions are captured metadata, not tickets.",
+      "required": [
+        "signal_name",
+        "proposed_by",
+        "source",
+        "observation",
+        "rationale",
+        "possible_use_case",
+        "caveats",
+        "date_filed"
+      ],
+      "properties": {
+        "signal_name": {
+          "type": "string",
+          "description": "Human-readable signal label (e.g. `NFCI (Chicago Fed National Financial Conditions Index)`, `Yield Curve 10Y-3M`).",
+          "minLength": 1
+        },
+        "proposed_by": {
+          "type": "string",
+          "description": "Agent code of the proposer. Any producer or QA agent may propose; there is no restriction to Evan.",
+          "enum": ["dana", "evan", "vera", "ray", "ace", "quincy"]
+        },
+        "source": {
+          "type": "string",
+          "description": "Upstream source — `FRED`, `BAML`, `Yahoo`, `constructed`, `OECD`, etc. Free-text but canonical vocabulary encouraged for grep-auditability.",
+          "minLength": 1
+        },
+        "observation": {
+          "type": "string",
+          "description": "The metric observed that prompted the suggestion. Example: `correlation 0.87 with SPY 21d forward return; Granger p=0.01 at lag 2`.",
+          "minLength": 10
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Plain-English one- to three-sentence rationale for why this observation is noteworthy. META-ELI5 compliant.",
+          "minLength": 10
+        },
+        "possible_use_case": {
+          "type": "string",
+          "description": "Free-text tag describing the suggested follow-up path. Canonical vocabulary (not enforced by enum, but encouraged): `variant family`, `new pair`, `regime overlay`, `cross-pair comparison`. Multiple tags allowed as free-text.",
+          "minLength": 1
+        },
+        "caveats": {
+          "type": "string",
+          "description": "Honest caveats — small sample size, overfitting risk, look-ahead bias suspicion, stationarity concerns, data-quality flags. An empty caveats field is a META-ELI5 red flag; at minimum state 'none observed at time of filing'.",
+          "minLength": 4
+        },
+        "date_filed": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO 8601 date the suggestion was filed (YYYY-MM-DD)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional freeform notes — references to specific exploratory artifacts, related suggestions, etc."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

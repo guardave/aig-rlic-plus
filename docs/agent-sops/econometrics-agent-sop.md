@@ -988,6 +988,112 @@ Filename disambiguates from Rule C2's quantile regression artifact (semantically
 
 **Rerun invariant:** Once `regime_quartile_returns.csv` exists in a prior version, it must be regenerated in every subsequent rerun. Silent drop is a Rule C3 regression-check failure and blocks GATE-22.
 
+### ECON-SD — Pair Scope Discipline for Econometric Analyses (Blocking)
+
+**Principle.** A pair's page makes a thematic promise of the form "indicator X vs target Y" (e.g. "HY-IG × SPY"). Any econometric analysis rendered on that page must honor that promise on BOTH axes, or the page silently misleads users about what they are looking at. Pulling in off-scope indicators — even ones that happen to correlate — is scope leak and violates the page's implicit contract with the stakeholder.
+
+**Rule.** Every chart, table, statistical test, and quantitative claim on a pair's Story, Evidence, or Strategy page must contain only:
+
+- **Indicator axis:** the raw indicator column named in the Analysis Brief PLUS mathematical derivatives computed from that single indicator column. Permitted derivatives include lags, z-scores, percentile ranks, momentum / rate-of-change, rolling volatility, HMM / Markov regime states and probabilities, mean-reversion scores, cumulative deviations, CUSUM statistics, and any deterministic function whose only data input is the indicator series itself.
+- **Target axis:** the raw target column named in the Analysis Brief PLUS mathematical derivatives computed from that single target column. Permitted derivatives include forward returns at any horizon, rolling volatility, rolling Sharpe, drawdown paths, realized covariance with itself (autocorrelation), and any deterministic function whose only data input is the target series itself.
+
+**Prohibited.**
+
+- Non-derivative signals (other indicators — e.g. NFCI, Yield Curve, Bank ratio, BBB-IG, CCC-BB, any FRED series or BAML sleeve not named as the pair's indicator). These are off-scope even when they correlate strongly with the in-scope indicator; including them violates the page's thematic promise.
+- Alternative targets (other indices, bond sleeves, sectors) — those belong on cross-pair comparison pages (future work per META-AL), not on a single-pair page.
+- "Top-N by correlation" or similar selection mechanisms that pull rows from a broader pool than the pair's registered scope. A correlation heatmap constrained to `signal_scope.json` is compliant; one that surveys the full FRED panel is not.
+
+**Enforcement.**
+
+- **Producer-side (Evan).** Before saving any econometric artifact that will be rendered on a pair's page (correlation heatmap inputs, regression design matrices, lead-lag tables, regime overlays), validate every signal/target name that appears against the pair's `results/{pair_id}/signal_scope.json`. A signal not in the registered indicator-axis or target-axis derivative list is a scope violation. The save function MUST exit 1 and emit a user-facing error per META-ELI5 — technical label `ECON-SD scope violation`, plain-English body naming the offending signal and the single permitted indicator/target.
+- **QA (Quincy).** Verifies every pair page's chart set and table set against `signal_scope.json`; any off-scope signal found is a GATE-31 block. Verification method: parse chart sidecar `_meta.json` for signal names, parse narrative chart references (per RES-17 frontmatter), cross-check against `signal_scope.json` entries — any row not in the scope registry is a FAIL finding.
+- **Regression-note requirement.** When ECON-SD is invoked in a wave (either at initial authoring or as a retro-fix), the regression note lists (a) the signals removed / moved off-scope, (b) the scope registry entries added, (c) a before/after signal count by page. Silent scope removals are META-VNC violations.
+
+**Cross-references.**
+
+- **META-AL** (Abstraction Layer Discipline) — ECON-SD is pair-specific scope applied to the canonical-vs-per-pair boundary: "does the output vary across pages?" → yes, each pair has its own indicator and target, so scope is enforced per pair.
+- **META-ELI5** (Plain English on technical flags) — scope-violation errors carry a technical + plain-English pair.
+- **META-CF** (Contract File Standard) — `signal_scope.json` is the registry-as-contract that makes ECON-SD mechanically enforceable.
+- **ECON-UD** (Universe Disclosure) — the consumer-side companion: ECON-SD restricts *what* appears; ECON-UD requires *disclosure* of the full permitted universe so users can cross-check.
+- **ECON-AS** (Analyst Suggestions) — the escape valve: an off-scope observation that might be interesting is filed as an informational suggestion, never smuggled onto the pair page.
+
+**Closes gap.** HY-IG v2 Wave 7 stakeholder review: Evidence-page correlation heatmap included non-HY-IG signals (NFCI, Yield Curve, Bank ratio, BBB-IG, CCC-BB) without disclosure — misleading on a page titled "HY-IG × SPY." ECON-SD forecloses this failure class by making the scope a mechanically enforced contract rather than authorial discretion.
+
+### ECON-UD — Universe Disclosure (Blocking on Reference Pairs)
+
+**Principle.** Scope discipline (ECON-SD) restricts what can appear on a pair's page. Universe disclosure makes the *permitted* universe visible to the user. A stakeholder looking at a correlation heatmap should be able to cross-reference any signal back to a complete, plain-English list of every derivative considered in the analysis — no hidden filtering, no mysterious omissions. Visible universe builds trust; invisible universe invites suspicion.
+
+**Rule.** Every pair's Methodology page must include a **"Signal Universe"** section rendered from `results/{pair_id}/signal_scope.json` containing two tables:
+
+1. **Indicator derivatives table** — one row per derivative of the named indicator that was considered in the analysis (whether it made it into the winner or not).
+2. **Target derivatives table** — one row per derivative of the named target that was considered.
+
+**Required columns per table:**
+
+| Column | Content |
+|--------|---------|
+| `name` | Derivative identifier (e.g. `hy_ig_zscore_lb252`, `spy_fwd_return_21d`) — matches the key Evan uses internally. |
+| `definition` | Plain-English one-sentence description (meets META-ELI5 prose standard). |
+| `formula / source` | Mathematical formula in readable notation OR pointer to source column. |
+| `role` | One of: `raw`, `derivative`, `threshold_input`, `regime_state`, `diagnostic`. |
+| `appears_in_charts` | Comma-separated list of chart names (from VIZ-V8 chart_type_registry) where the derivative is rendered; `—` if considered but not charted. |
+
+**Rendering.** Ace reads `signal_scope.json` and renders the two tables under a Methodology-page H2 "Signal Universe" section (per APP-CC1 caption vocabulary, the accompanying caption leads with `"What this shows:"`). Tables are informational — they do NOT gate rendering of other sections.
+
+**Blocking status.**
+
+- **Reference pairs (per META-RPD):** ECON-UD is blocking. Missing Methodology "Signal Universe" section OR `signal_scope.json` absent on disk = acceptance block per GATE-31.
+- **Non-reference pairs:** ECON-UD is strongly recommended; absence is a GATE-24-class warning but not a block. Will be upgraded to blocking once the reference-pair pattern proves out.
+
+**Cross-references.**
+
+- **ECON-SD** — Universe Disclosure is the companion to Scope Discipline: SD restricts, UD discloses.
+- **META-CF** — `signal_scope.json` is the single source of truth that both rules rely on. Inline copies of the universe in prose are prohibited; the Methodology tables are rendered from the JSON.
+- **META-ELI5** — every definition row is plain-English; no raw jargon without a translation.
+- **APP-CC1 / APP-EX1** — canonical caption prefix and expander title vocabulary for the rendered section.
+- **RES-17** — narrative frontmatter `chart_refs` must include any chart cited in the `appears_in_charts` column; Ray's narrative cross-references the Signal Universe when introducing a derivative.
+
+**Closes gap.** HY-IG v2 Wave 7 stakeholder review: users had no way to cross-check which signals were in scope, because the full permitted universe was never disclosed. ECON-UD makes that universe a visible, machine-generated artifact.
+
+### ECON-AS — Analyst Suggestions (Informational, Cross-Agent)
+
+**Principle.** Scope discipline (ECON-SD) is strict — off-scope signals do not ship on a pair page. But agents doing pair work often notice off-scope signals that *might* be interesting for future work (a variant family candidate, a new pair proposal, a regime overlay idea, a cross-pair comparison hint). Suppressing these observations loses institutional knowledge; smuggling them onto the current pair page violates ECON-SD. ECON-AS creates a third path: a per-pair sidecar file that captures the observation as informational metadata, surfaced transparently on the Methodology page but not acted on automatically.
+
+**Rule.** Any agent — not just Evan; Dana, Evan, Vera, Ray, Ace, and Quincy are all eligible — who notices during pair work an off-scope signal that might be interesting for follow-up may file an entry in `results/{pair_id}/analyst_suggestions.json`. Entries are informational; no agent takes automated action on them.
+
+**Per-entry fields (all required; informational only — NO lifecycle or workflow fields).**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `signal_name` | string | Human-readable signal label. |
+| `proposed_by` | string | Agent code (`dana`, `evan`, `vera`, `ray`, `ace`, `quincy`). |
+| `source` | string | Upstream source — `FRED`, `BAML`, `Yahoo`, `constructed`, etc. |
+| `observation` | string | The metric observed that prompted the suggestion (e.g. "correlation 0.87 with SPY, Granger p=0.01 at lag 2"). |
+| `rationale` | string | Why it is noteworthy. |
+| `possible_use_case` | string | Free-text tag — `variant family`, `new pair`, `regime overlay`, `cross-pair comparison`, or any combination. |
+| `caveats` | string | Honest caveats — small sample size, overfitting risk, leakage suspicion, etc. |
+| `date_filed` | string | ISO 8601 date. |
+
+**Explicit non-rules.**
+
+- **NO `status` field.** Suggestions are not tickets; there is no "approved" / "rejected" / "in-progress" lifecycle in-file. Approving a suggestion means the user requests follow-up work, which spawns a regular wave with full team context — the suggestion file itself is read-only to the workflow layer.
+- **NO automated trigger.** Filing a suggestion does not schedule a pipeline run, open an issue, or notify any agent. It is captured metadata.
+- **NO workflow lifecycle.** The suggestion file is append-only from the agent's perspective; the only way an entry "closes" is that the user acts on it verbally / by email / by filing a follow-up wave. No in-file state transitions.
+
+**Rendering.** Ace renders a read-only table on the Methodology page under an "Analyst Suggestions for Future Work" H2 section. The section carries a top-of-section caption: *"Suggestions are informational. If any warrant follow-up work, please request explicitly to the team."* (per META-ELI5 plain-English voice; per APP-CC1 the caption leads with `"How to read it:"`.) If the file is absent or the `suggestions` array is empty, the section is omitted silently — this is one of the rare allowed silent omissions because ECON-AS is informational, not diagnostic.
+
+**User workflow.** The stakeholder reads the table → if interested in an entry, they request follow-up work verbally / by email / via an issue → that request triggers a regular wave with full team context (Analysis Brief, Phase 0 gate, full SOP stack). ECON-AS does not shortcut this path; it is an input to the user's prioritization, nothing more.
+
+**Cross-references.**
+
+- **ECON-SD** — Analyst Suggestions is the escape valve that makes strict scope enforceable without losing cross-scope observations.
+- **META-BL** (Backlog Discipline) — ECON-AS is NOT a backlog. Backlog items are proposed rules with a lifecycle; suggestions are informational observations with no lifecycle. A suggestion acted on may later produce a backlog item, but the two files are distinct.
+- **META-CF** — `analyst_suggestions.json` is a META-CF contract with schema `docs/schemas/analyst_suggestions.schema.json`.
+- **META-ELI5** — the rendered table and the per-entry `rationale` / `caveats` fields are plain-English.
+- **APP-CC1 / APP-EX1** — canonical caption vocabulary and expander title for the rendered section.
+
+**Closes gap.** HY-IG v2 Wave 7 stakeholder review surfaced that several off-scope signals *were* interesting (NFCI, Yield Curve, Bank ratio) but had no capture path other than being quietly rendered on the HY-IG page. ECON-AS gives those observations a first-class home without scope-leaking them onto the current pair.
+
 ## Mid-Analysis Data Requests
 
 If additional variables are needed during estimation or diagnostics:

@@ -79,6 +79,12 @@ def run_smoke(pair_id: str) -> tuple[int, int, list[str]]:
          "APP-WS1: winner_summary.json conforms to ECON-H5"),
         (pair_dir / "interpretation_metadata.json", "interpretation_metadata",
          "APP-WS1 sibling: interpretation_metadata.json conforms to DATA-D6"),
+        # Wave 7B additions (ECON-UD / ECON-AS) — Methodology-page renderers.
+        (pair_dir / "signal_scope.json", "signal_scope",
+         "ECON-UD: signal_scope.json conforms to signal_scope.schema.json"),
+        (pair_dir / "analyst_suggestions.json", "analyst_suggestions",
+         "ECON-AS: analyst_suggestions.json conforms to "
+         "analyst_suggestions.schema.json"),
     ]
 
     for inst_path, schema_name, label in cases:

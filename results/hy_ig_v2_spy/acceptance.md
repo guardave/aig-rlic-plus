@@ -504,3 +504,58 @@ now eyeball-visible in all 3 historical zooms.
 
 Manual Reboot required (3rd this quarter, past META-FRD 2/quarter threshold).
 See docs/pair_execution_history.md for escalation note.
+
+---
+
+## QA Verification (Wave 7, 2026-04-20)
+
+**Authority:** GATE-31 (Independent QA Verification); second line of defense after META-SRV.
+**QA report:** `results/hy_ig_v2_spy/qa_verification_20260419.md` — sections "Wave 7" (7C-1 BLOCK) and "Wave 7C-2 Re-Verification" (PASS).
+
+### Summary
+
+- Wave 7 introduced 3 ECON rules (ECON-SD / ECON-UD / ECON-AS), two schemas (`signal_scope`, `analyst_suggestions`), two portal renderers (Signal Universe table + Analyst Suggestions table), and a narrative scope cleanup.
+- **7C-1 (first QA run, BLOCK):** data + component layers ECON-SD-compliant; narrative `.md` clean; but 5 prose citations in portal `.py` files still asserted CCC-BB as an in-scope tournament signal — stakeholder-visible contradiction of `signal_scope.json` and the rendered Signal Universe table.
+- **7C-2 (re-verification after Ace's fix-up, PASS):** all 5 citations rewritten to ECON-SD scope; primary scope grep returns 0 in-scope claims; Data Sources table gated "in scope" / "context only"; smoke_loader 15/0; smoke_schema_consumers 5/0.
+
+### Verified claims (aggregate)
+
+| Producer | Wave 7 claims | Result |
+|---|---|---|
+| Lead (Wave 7A) | 3 ECON rules + 2 schemas + standards.md rows + team-coordination subsection | 5/5 PASS |
+| Evan (Wave 7B) | `signal_scope.json` (17 indicator + 10 target derivatives), `analyst_suggestions.json` (5 entries), strict schema validation | 3/3 PASS |
+| Vera (Wave 7B) | Correlation heatmap filtered (0 off-scope rows), title updated, `_meta.json` sidecar, per-pair-prefixed copy | 4/4 PASS (1 PASS-with-note on filename shorthand) |
+| Ray (Wave 7B) | Signal Universe + Analyst Suggestions narrative sections, scope cleanup, frontmatter anchors | 2/2 PASS (7C-2; `.md` was always clean, `.py` prose leak was Ace's to fix per dispatch) |
+| Ace (Wave 7B + 7B fix-up) | 2 portal renderers, methodology page wiring, smoke tests extended, plus 7B fix-up of 5 CCC-BB prose citations + Data Sources gating | 5/5 Wave 7B PASS + 5/5 Wave 7B fix-up PASS (7C-2) |
+
+### GATE-31 standard checklist (12 items)
+
+PASS on 10 items; PASS-with-note on 2 (GATE-28 guarded fallback strings in story.py — dead-branch, not user-visible; filename-shorthand doc polish for `_meta.json`). Cloud verification deferred to a later wave per scope.
+
+### Stakeholder-spirit check
+
+Wave 7 stakeholder ask: *"If I see a correlation on the heatmap, can I trace it back to a derivative of HY-IG? Can I see the full universe? Can I see what else the team considered?"*
+
+- **Heatmap traceability:** YES. 8/8 rows map to in-scope derivatives in `signal_scope.json`.
+- **Full universe disclosure:** YES. Signal Universe table renders 17+10 derivatives via `validate_or_die`.
+- **Alternatives logged:** YES. Analyst Suggestions table surfaces 5 off-scope ideas read-only with disclaimer.
+- **Prose/data consistency:** YES (after 7C-2). Portal `.py` prose now matches `signal_scope.json`; a stakeholder cross-checking expander text against the Signal Universe table will find no contradiction.
+
+**Stakeholder-spirit check: PASS.**
+
+### Cross-Pair Scope-Leak Inventory
+
+6 other pairs scanned; all 6 correlation charts and exploratory CSVs are already ECON-SD-compliant by construction. HY-IG v2 was a unique outlier. No backlog items warranted from scope-leak alone. Proposed backlog items (BL-701 / BL-702 — uniform ECON-UD retro for clean pairs; BL-703 candidate — `.py` prose vs `.md` narrative authority seam) deferred to Lead for filing.
+
+### Sign-off decision
+
+**Decision: PASS** (after 7C-2 re-verification). All blocking items resolved; no FAIL findings remain.
+
+- **acceptance.md sign-off unblocked** for Wave 7 central commit.
+- **Lead override invoked?** No.
+- **Blocking items returned to producers?** None (all resolved in Wave 7B fix-up).
+- **Lead Sign-off "Current commit" field:** NOT updated in this QA pass per dispatch — that is Lead's step after the central commit lands.
+
+**Approved by:** Quincy (QA)
+**Date:** 2026-04-20
+**Waves covered:** 7A (Lead) + 7B (Evan, Vera, Ray, Ace) + 7B fix-up (Ace) + 7C-1 (QA BLOCK) + 7C-2 (QA PASS)

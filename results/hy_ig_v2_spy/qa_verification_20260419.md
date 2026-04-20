@@ -159,3 +159,209 @@ Including the `/plotly/` subdirectory. No drift. smoke_loader.py runs the loader
 - Wave 6C (this run) exits successfully; Wave 6D (Cloud re-verification after central commit) is Lead's to schedule.
 
 **Handoff to Lead:** this file + appended section in `acceptance.md` below.
+
+---
+
+# QA Verification — Wave 7 (2026-04-20, Quincy)
+
+## Summary
+
+**Total checks: 25**
+- PASS: 21
+- PASS-with-note: 3
+- FAIL: 1
+- Blocking: 1
+
+**Sign-off decision: BLOCK** — one stakeholder-visible scope-leak contradiction in `app/pages/9_hy_ig_v2_spy_methodology.py` and `app/pages/9_hy_ig_v2_spy_story.py` that directly contradicts Ray's Wave 7B narrative and Evan's `signal_scope.json`. Narrow fix scope; Ace or Ray to remediate (hand-off decision for Lead). Recommend a Wave 7B hotfix and one-shot QA re-verification before the central commit.
+
+## Claims matrix
+
+### Lead (Wave 7A) — ALL PASS
+
+| # | Claim | File | Verification | Result |
+|---|-------|------|--------------|--------|
+| L1 | 3 new ECON rules (SD/UD/AS) | `docs/agent-sops/econometrics-agent-sop.md` | `grep -n "^### ECON-SD\|^### ECON-UD\|^### ECON-AS"` | 3 lines, in order (991/1022/1058). **PASS** |
+| L2 | signal_scope.schema.json + example | `docs/schemas/signal_scope.{schema,examples/signal_scope.example}.json` | `validate_schema.py` default + strict | exit 0 twice. **PASS** |
+| L3 | analyst_suggestions.schema.json + example | `docs/schemas/analyst_suggestions.{schema,examples/analyst_suggestions.example}.json` | `validate_schema.py` default + strict | exit 0 twice. **PASS** |
+| L4 | 3 rows appended to standards.md | `docs/standards.md` | `grep -n "^| ECON-SD\|^| ECON-UD\|^| ECON-AS"` | 3 lines (102/103/104). **PASS** |
+| L5 | team-coordination Scope Discipline subsection | `docs/agent-sops/team-coordination.md:580` | `grep -n "### Scope Discipline"` | 1 line. **PASS** |
+
+### Evan (Wave 7B) — ALL PASS
+
+| # | Claim | File | Verification | Result |
+|---|-------|------|--------------|--------|
+| E1 | 17 indicator + 10 target derivatives | `results/hy_ig_v2_spy/signal_scope.json` | `python3 -c "json.load ...; len(derivatives)"` | 17 / 10. **PASS** |
+| E2 | 5 off-scope suggestions | `results/hy_ig_v2_spy/analyst_suggestions.json` | same | 5 entries. **PASS** |
+| E3 | Strict schema validation of both | both | `validate_schema.py ... --strict` | exit 0 twice. **PASS** |
+
+### Vera (Wave 7B) — ALL PASS
+
+| # | Claim | File | Verification | Result |
+|---|-------|------|--------------|--------|
+| V1 | correlation_heatmap.json has 0 off-scope rows | `output/charts/hy_ig_v2_spy/plotly/correlation_heatmap.json` | regression-note Python snippet | leak=[], 8 rows all in-scope. **PASS** |
+| V2 | Title updated to "HY-IG Derivatives vs SPY Forward Returns" | same | JSON field `layout.title.text` | matches verbatim, with sub-title "Top-8 by \|correlation\| at the 63-day horizon, drawn from 17 HY-IG derivatives in signal_scope.json". **PASS** |
+| V3 | `_meta.json` carries `signal_scope_ref`, `signal_scope_schema_version`, `palette_id`, `off_scope_signals_removed` | `output/charts/hy_ig_v2_spy/plotly/correlation_heatmap_meta.json` (sidecar filename; the regression-note referred to it as `_meta.json`) | Python dict lookups | all 4 fields present and correct. **PASS-with-note** (filename convention is `<chart>_meta.json`, not a single `_meta.json` — producer regression-note prose uses the shortened name; flag for ECON-UD doc polish, not a defect). |
+| V4 | Per-pair-prefixed copy `hy_ig_v2_spy_correlation_heatmap.json` also filtered | same dir | Python load, y-axis rows | identical 8-row label set; title matches. **PASS** |
+
+### Ray (Wave 7B) — 1 FAIL + 1 PASS
+
+| # | Claim | File | Verification | Result |
+|---|-------|------|--------------|--------|
+| R1 | "Signal Universe" + "Analyst Suggestions for Future Work" sections + frontmatter anchors | `docs/portal_narrative_hy_ig_v2_spy_20260410.md` | section-heading grep + yaml parse | 807/828 sections present; anchors `signal-universe` / `analyst-suggestions` in `pages.methodology.sections`. Frontmatter validates against `docs/schemas/narrative_frontmatter.schema.json` (exit 0). **PASS** |
+| R2 | "Off-scope signal references in analytical context: 0 (was 3)" | narrative markdown | grep for CCC-BB / NFCI / BBB-IG in analytical context | narrative `.md` is clean (CCC-BB references are explicitly tagged off-scope per ECON-SD). **PASS for the `.md` artifact.** **FAIL at the stakeholder-visible seam:** the rendered portal pages (`.py`) still assert CCC-BB as in-scope (`app/pages/9_hy_ig_v2_spy_methodology.py:149` — "...acceleration, and the CCC-BB quality spread"; `:352` — table row reads `Signals (13) \| ... quality spread (CCC-BB) ...`; `app/pages/9_hy_ig_v2_spy_story.py:369/380/386` — the CCC-BB expander still claims CCC-BB is "one of our tournament signals (S5)"). Stakeholder who reads the portal still sees the scope leak. |
+
+### Ace (Wave 7B) — ALL PASS
+
+| # | Claim | File | Verification | Result |
+|---|-------|------|--------------|--------|
+| A1 | signal_universe_table.py renders the registry (150 lines, `validate_or_die` against `signal_scope`) | `app/components/signal_universe_table.py` | wc -l + grep for `validate_or_die(instance_path, "signal_scope")` | 150 lines, validator call present. **PASS** |
+| A2 | analyst_suggestions_table.py renders suggestions (129 lines, `validate_or_die` against `analyst_suggestions`) | `app/components/analyst_suggestions_table.py` | wc -l + grep | 129 lines, validator call present. **PASS** |
+| A3 | Methodology page calls both renderers | `app/pages/9_hy_ig_v2_spy_methodology.py:171, 191` | grep imports + calls | imports at 21-22, calls at 171 / 191, section headings + intro prose in place. **PASS** |
+| A4 | `smoke_loader.py` — 15 passes / 0 failures | same | ran | `passes=15 failures=0`. **PASS** |
+| A5 | `smoke_schema_consumers.py` — 5 passes / 0 failures (extended from 3) | same | ran | `passes=5 failures=0` — now includes `ECON-UD: signal_scope` and `ECON-AS: analyst_suggestions`. **PASS** |
+
+## Stakeholder-spirit check (critical for Wave 7)
+
+The stakeholder's Wave 6 ask was: **"If I see a correlation on this heatmap, can I trace it back to a derivative of HY-IG? Can I see the full universe? Can I see what else the team considered?"**
+
+- **Heatmap traceability** — YES. Every row label on `correlation_heatmap.json` maps 1:1 to an in-scope derivative in `signal_scope.json` (verified: all 8 rows are `hy_ig_*` derivatives with `role` ∈ {raw, derivative, diagnostic}; no `NFCI / Bank / Yield Curve / BBB / CCC` signals remain).
+- **Full universe disclosure** — YES at the data layer (17 + 10 derivatives in `signal_scope.json`). YES at the Methodology-page-component layer (`signal_universe_table.py` renders both tables via `validate_or_die`). Rendering works on smoke test.
+- **Alternatives logged** — YES. `analyst_suggestions.json` has all 5 entries (NFCI, Bank/Small-Cap, Yield Curve, BBB-IG, CCC-BB) with honest caveats and "proposed by evan" attribution. `analyst_suggestions_table.py` surfaces this read-only with the mandated disclaimer.
+
+**Partial fail:** the stakeholder who opens the *rendered* Methodology and Story pages still reads prose that calls CCC-BB an in-scope tournament signal (see R2 FAIL). The contract/data layer is clean; the prose layer on the portal is not. If the stakeholder cross-checks the prose against the rendered Signal Universe table (17 derivatives, none CCC-BB), they will notice the contradiction and re-flag. **Wave 7 scope-discipline claim is not fully satisfied until the .py prose matches the .md narrative.**
+
+## GATE-31 Standard Checklist (12 items)
+
+| # | Item | Result | Evidence |
+|---|------|--------|----------|
+| 1 | Every regression-note claim has verification command + result | PASS | All 5 producer sections include Verification + Result bullets; this QA report maps each claim to a command |
+| 2 | All schemas validate against instances | PASS | 4 validator runs — 2 example + 2 instance — all exit 0; narrative frontmatter validates exit 0 |
+| 3 | `smoke_loader.py` failures = 0 | PASS | `passes=15 failures=0` log at `app/_smoke_tests/loader_hy_ig_v2_spy_20260420.log` |
+| 4 | `smoke_schema_consumers.py` failures = 0 | PASS | `passes=5 failures=0` log at `app/_smoke_tests/schema_consumers_hy_ig_v2_spy_20260420.log` — 2 new cases added per Ace's extension |
+| 5 | Cloud pages render for reference pair | DEFERRED | Wave 7D, per dispatch. Local is this run |
+| 6 | Zero "chart pending" on reference-pair pages (GATE-28) | PASS-with-note | 3 matches in `9_hy_ig_v2_spy_story.py` but all are guarded fallback text inside branches that do NOT fire when the JSON artifact exists (loader smoke confirms Dot-Com / GFC / COVID charts all load with traces=2). The guarded strings are pre-existing legit defensive paths, not exposed placeholders |
+| 7 | Direction triangulation (APP-DIR1) | PASS | Evan winner_summary.direction=`countercyclical`, Dana interp_metadata.observed_direction=`countercyclical`, Ray frontmatter.direction_asserted=`countercyclical`. 3-way match |
+| 8 | Stakeholder items addressed in spirit | PARTIAL | Data + component layer clean; portal .py prose contradicts both. See FAIL R2 |
+| 9 | META-XVC cross-version diff | PASS | All 4 producers recorded a Prior-version observation block. Each frames the additive work as improvement over Sample HY-IG v1 rather than drift |
+| 10 | META-ELI5 on new Methodology sections + table components | PASS | `signal_universe_table.py` has APP-CC1 "What this shows:" captions above both tables and 1-line takeaway captions below; `analyst_suggestions_table.py` has `st.info` disclaimer, plain-English fallback on missing file and empty array |
+| 11 | Deflection audit (GATE-30) | PASS | No new deflections introduced by Wave 7. Existing deflections from prior waves unchanged |
+| 12 | Discrepancy recorded with evidence | PASS | R2 FAIL recorded with 5 exact line citations in the .py files |
+| — | At least one PASS-with-note (no rubber-stamping) | PASS | V3 (`_meta.json` vs `<chart>_meta.json` naming), GATE-28 (guarded fallback strings), and implicit observations below |
+
+## Cross-Pair Scope-Leak Inventory (flag-only)
+
+I scanned the 6 other completed pairs for off-scope signals in any exploratory correlations file and in any correlation chart y-axis labels:
+
+| Pair | Scope leak in heatmap / correlations chart? | Off-scope signals found | Suggested action |
+|------|---------------------------------------------|-------------------------|------------------|
+| indpro_spy (Pair #1) | NO | chart `indpro_spy_correlations.json` rows are all `IP *` (accel, contraction, dev_trend, mom, mom_3m, mom_6m, yoy, zscore_60m); `results/indpro_spy/exploratory_20260314/correlations.csv` contains only `indpro_*` signals | none |
+| sofr_ted_spy (Pair #2) | NO | chart rows are all spread-derivatives (mom_21d/63d, pctrank_252d, roc_21d/63d, stress, vol_21d, zscore_126d/252d); csv same | none |
+| dff_ted_spy (Pair #2 variant) | NO | identical row set; csv same | none |
+| ted_spliced_spy (Pair #2 variant) | NO | identical row set; csv same | none |
+| permit_spy (Pair #3) | NO | chart rows are all `permit_*` (accel, contraction, dev_trend, mom, mom_3m, mom_6m, yoy, zscore_60m); csv same | none |
+| vix_vix3m_spy (Pair #11) | NO | chart rows are all `VR *` + `backwardation / ratio / term_spread` (all VIX-family derivatives); csv same | none |
+| hy_ig_spy (sample, Pair #20) | N/A | no correlation chart exists; no `exploratory_*/correlations.csv` under `results/hy_ig_spy/` | retro-apply signal_scope / analyst_suggestions per META-RPD if the sample pair is ever re-ran as a reference |
+
+**Finding:** HY-IG v2 was a unique outlier. It was the only pair whose exploratory phase pulled cross-indicator comparisons (NFCI / Bank-KBE / Yield Curve / BBB / CCC) directly into the correlation chart Vera rendered. Every other pair's correlation chart is already ECON-SD-compliant by construction — their exploratory phase only pulled derivatives of the named indicator.
+
+**Backlog recommendation:** No `BL-00X` entries are warranted from the cross-pair audit alone — the other 5 pairs are clean. The recommended backlog items are instead driven by Wave 7 roll-forward, not by scope leak:
+
+- **BL-701 (proposed):** Retro-produce `signal_scope.json` for the 5 clean pairs (indpro, sofr_ted, dff_ted, ted_spliced, permit_spy, vix_vix3m) — not because of any leak, but to establish uniform ECON-UD compliance across the pair portfolio before more pairs are added. Producer: Evan. Gate: M (medium).
+- **BL-702 (proposed):** Author `analyst_suggestions.json` for the same 5 pairs as empty-array placeholders (or lightly populated if the respective pair brief has ideas captured). Producer: Evan. Gate: L (low).
+
+Lead decides whether to file these; per dispatch, QA does NOT write to `docs/backlog.md` directly.
+
+## Observations (QA memory candidates)
+
+1. **Narrative-to-portal seam is implicit.** The project treats `docs/portal_narrative_*_<date>.md` as the canonical prose, but the .py portal pages render their own literal strings. When Ray rewrites the .md, nothing propagates automatically. Wave 7 surfaced this: Ray's cleanup is honest at the .md layer but invisible at the portal layer. **Candidate new rule** (META-NP? RES-??) for Lead/Ray/Ace to discuss: "Every narrative section revision with a scope-discipline label must also update the corresponding portal-page string with a paired diff; QA verifies at both layers." Filing to `~/.claude/agents/qa-quincy/memories.md` after this run.
+2. **Chart sidecar filename convention.** Vera's regression-note shorthand `_meta.json` is close to but not the actual filename (`<chart>_meta.json`). Minor doc polish for the ECON-UD/VIZ-V5 sections.
+3. **Cross-pair ECON-UD retro.** The 5 clean pairs are ECON-SD-compliant by luck of construction, not by contract. Without a `signal_scope.json` on record, a future pipeline re-run that silently adds a cross-indicator signal to any of those pair's exploratory_*/correlations.csv would NOT be caught by Quincy unless we run a per-pair scope audit every time. Uniform ECON-UD retro (BL-701 above) would make this a schema-enforced guarantee rather than a convention.
+
+## FAIL / BLOCKING items (detail)
+
+**R2 — Ray's Wave 7B claim "off-scope in analytical context: 0 (was 3)" is FAIL at the stakeholder-visible portal layer.**
+
+- **Claim made:** all 3 pre-Wave-7 off-scope references resolved.
+- **Evidence:** narrative markdown (`docs/portal_narrative_hy_ig_v2_spy_20260410.md`) is clean. The prose at lines 330-337 explicitly labels CCC-BB as "off-scope for this pair under ECON-SD" with the full disclaimer. Data Sources section at line 748 splits into in-scope / exploratory-only. All of this is correct at the markdown layer.
+- **What Quincy found:** portal .py files still carry the stale pre-Wave-7 prose:
+  - `app/pages/9_hy_ig_v2_spy_methodology.py:149` — "...acceleration, **and the CCC-BB quality spread.**"
+  - `app/pages/9_hy_ig_v2_spy_methodology.py:352` — tournament-design table row reads `Signals (13) | ... **quality spread (CCC-BB)**, HMM stress prob, Markov-switching prob`
+  - `app/pages/9_hy_ig_v2_spy_story.py:369` — "*(The CCC-BB quality spread.)*" as an alternative-headline answer
+  - `app/pages/9_hy_ig_v2_spy_story.py:380` — "During the GFC, the CCC-BB quality spread began widening months..." (educational prose, can be retained per Ray's own tricky-phrasing decision #1 — but the next line must add the scope disclaimer)
+  - `app/pages/9_hy_ig_v2_spy_story.py:386` — "We include the CCC-BB quality spread as one of our tournament signals (S5)..." — this directly contradicts `signal_scope.json` (17 derivatives, none is CCC-BB) and also contradicts the Methodology Signal Universe table Ace renders from that same JSON
+- **Severity:** Blocking. A stakeholder opening the portal reads CCC-BB as "one of our 13 tournament signals" and simultaneously reads from the Signal Universe table that there are 17 derivatives, none of which is CCC-BB. Direct internal contradiction at the stakeholder-visible layer.
+- **Fix scope (narrow):** 4 tiny .py edits (M:149, M:352, S:369, S:386) to mirror Ray's .md decisions: for expository prose, retain the "canary in coal mine" context + append scope disclaimer + point to `analyst_suggestions.json`; for list membership claims (`:149, :352, :386`), remove CCC-BB from the in-scope enumeration (it is not in `signal_scope.json.indicator_axis`).
+- **Owner recommendation:** Lead to dispatch a Wave 7B hotfix. Ace or Ray are both plausible owners — Ace owns the .py files in the conventions tree; Ray owns the prose content. The narrow-fix scope is small enough either can execute; I defer to Lead.
+- **Re-verification by QA:** one-shot grep of the 5 citations + one re-run of `smoke_loader.py` (no regression expected because the edits are pure string changes to already-rendered `st.markdown` blocks).
+
+---
+
+## QA sign-off
+
+**Decision: BLOCK.**
+
+**Approved by:** Quincy (QA)
+**Date:** 2026-04-20
+
+**Blocking items:**
+- R2: CCC-BB prose leak in 2 portal .py files (5 exact citations above). Narrow .py-only fix.
+
+**Non-blocking observations (PASS-with-note, logged for future polish):**
+- V3: Vera's regression-note shorthand `_meta.json` (actual filename `correlation_heatmap_meta.json`)
+- GATE-28 guarded-fallback strings in story.py (pre-existing; loader proves no exposure)
+- Cross-pair ECON-UD retro recommended (BL-701, BL-702 proposed to Lead)
+
+**Handoff to Lead:**
+- This file + block above is the full evidence pack.
+- Once Ace/Ray fixes R2, re-verification is a 2-minute QA re-run (5 greps + loader smoke).
+- `acceptance.md` is NOT updated in this run because sign-off is BLOCK. On re-verification PASS, QA will append a `## QA Verification (Wave 7, <date>)` block there.
+
+---
+
+## Wave 7C-2 Re-Verification (2026-04-20, Quincy)
+
+### Summary of BLOCKING finding from 7C-1
+
+Wave 7C-1 blocked on R2: 5 prose citations in portal `.py` files asserted CCC-BB as an in-scope tournament signal, directly contradicting `signal_scope.json` (17 HY-IG derivatives, none CCC-BB) and the Methodology Signal Universe table Ace rendered from that JSON. A stakeholder reading the portal would have seen the contradiction.
+
+### Ace's remediation (from regression_note §"Ace's Wave 7B fix-up: CCC-BB prose leak")
+
+- `app/pages/9_hy_ig_v2_spy_methodology.py` L149: CCC-BB removed from the in-scope derivative enumeration; replaced with a pointer to `signal_scope.json` + scope disclaimer.
+- `app/pages/9_hy_ig_v2_spy_methodology.py` L352: Tournament-design table row hardcoded "Signals (13) | … quality spread (CCC-BB)" replaced with non-counted "Signals | … acceleration, HMM stress/calm probabilities, Markov-switching stress probability. Authoritative list: see Signal Universe rendered from `signal_scope.json`." (CCC-BB removed; count mismatch 13 vs 17 resolved by deferring to Signal Universe.)
+- `app/pages/9_hy_ig_v2_spy_story.py` L369: Expander retitled "Deeper dive (background only — out of scope for this pair)"; CCC-BB reframed as "educational background" pointer.
+- `app/pages/9_hy_ig_v2_spy_story.py` L380: GFC / COVID quality-spread narrative reframed as "general market observation" not "our analysis".
+- `app/pages/9_hy_ig_v2_spy_story.py` L386 (now L387 after edits): final paragraph rewritten to an explicit Scope note pointing to Analyst Suggestions + `signal_scope.json`.
+- Bonus audit: Data Sources table at methodology.py L126-144 gated row labels with "in scope" vs "context only" + scope-discipline footnote naming all 5 off-scope signals.
+
+### Re-verification commands + results
+
+| # | Check | Command | Result |
+|---|-------|---------|--------|
+| 1 | Primary scope grep (was 5 matches) | `grep -n -E "CCC-BB.*signal\|CCC.*S5\|CCC-BB.*tournament\|tournament.*CCC" app/pages/9_hy_ig_v2_spy_story.py app/pages/9_hy_ig_v2_spy_methodology.py` | **0 hits.** PASS |
+| 2 | methodology.py L149 | Read file | PASS — enumeration ends at "acceleration"; CCC-BB moved behind scope disclaimer + signal_scope.json pointer. |
+| 3 | methodology.py L352 | Read file | PASS — "Signals" row no longer hardcodes a count, omits CCC-BB, defers to Signal Universe. |
+| 4 | story.py L369 | Read file | PASS — now reads "The CCC-BB quality spread — educational background" inside an expander titled "Deeper dive (background only — out of scope for this pair)". |
+| 5 | story.py L380 | Read file | PASS — "As a general market observation, during the GFC the CCC-BB quality spread…" — properly reframed as general observation, not in-scope claim. |
+| 6 | story.py L386 (now L387 region) | Read file | PASS — final block is an explicit Scope note: "The CCC-BB quality spread is **not** part of this pair's analytical universe." + pointer to Analyst Suggestions. |
+| 7 | Data Sources gating at methodology.py L126-144 | Read file | PASS — 6 table rows now labelled either **(in scope)** or **(context only)**; scope-discipline footnote cites ECON-SD and names all 5 off-scope signals (NFCI Momentum, Bank/Small-Cap Ratio, Yield Curve 10Y-3M, BBB-IG Spread, CCC-BB Quality Spread) as being routed to Analyst Suggestions. |
+| 8 | story.py L213 claim ("pointer to OTHER pairs") | Read file | PASS — lines 208-215 are a Scope note saying "See the separate analyses on **VIX x SPY** and **Yield Curve x SPY** for deep dives on those related signals; here we keep the lens on credit." This is an out-of-pair pointer, not an in-scope claim. |
+| 9 | smoke_loader.py | `python3 app/_smoke_tests/smoke_loader.py hy_ig_v2_spy` | `passes=15 failures=0`. PASS |
+| 10 | smoke_schema_consumers.py | `python3 app/_smoke_tests/smoke_schema_consumers.py --pair-id hy_ig_v2_spy` | `passes=5 failures=0`. PASS |
+
+### Observation on rewrite quality (anti-rubber-stamp)
+
+Ace's rewrite is substantively correct, not just scope-compliant. One concrete example: the L352 hardcoded signal count `Signals (13)` contradicted `signal_scope.json` (17 derivatives) independently of the CCC-BB leak. Ace removed the count entirely and deferred to the rendered Signal Universe — which is the right architectural fix because any future schema addition would silently re-break the count. Minor note: the expander heading reframe at L366 uses an em-dash `— out of scope` where the rest of the page uses a `--` double-hyphen (ASCII fallback) — not a defect but a small stylistic inconsistency in the scope-note vocabulary that Vera/Ray could standardise in a future META-ELI5 polish pass. Log to `~/.claude/agents/qa-quincy/memories.md`.
+
+### Updated sign-off
+
+**Decision: PASS** (previously BLOCK on 7C-1).
+
+- All 5 blocking citations resolved; primary grep is now 0 hits.
+- Remaining CCC-BB mentions in the two files are all (a) scope-note pointers to Analyst Suggestions, (b) educational-background content explicitly flagged "out of scope for this pair", or (c) Data Sources rows labelled "context only" with ECON-SD footnote.
+- Secondary Ace claims (Data Sources gating, story L213 pointer) verified.
+- Smoke tests remain green.
+- **acceptance.md** Wave 7 section now unblocked for append; updating in this same pass per dispatch instruction.
+
+**Approved by:** Quincy (QA)
+**Date:** 2026-04-20
+**Wave:** 7C-2 (re-verification after 7C-1 BLOCK)

@@ -1794,3 +1794,384 @@ Lead Lesandro. Wave 6A closes the structural addition of the QA role + self-repo
 
 - `output/_comparison/` directory is now empty but still exists (Vera deleted the JSON files in Wave 6B; directory removal is a separate housekeeping concern, left for Quincy/central commit decision).
 - `chart_type_registry.schema.json` description text still references the old META-ZI override-with-fallback model ("canonical_filename_pattern… META-ZI… lives under output/_comparison/"); flagged via SCHEMA-REQUEST in dotcom notes. Non-blocking (instance data conforms to the enum/field shape; description text is advisory).
+
+---
+
+### Lead's Wave 7A ECON scope + universe + suggestions (2026-04-19)
+
+**Claims:**
+
+- 3 new ECON rules authored in the Econometrics SOP — ECON-SD (Pair Scope Discipline, blocking on all pairs), ECON-UD (Universe Disclosure, blocking on reference pairs), ECON-AS (Analyst Suggestions, informational / cross-agent filing).
+- 2 new META-CF schemas created — `docs/schemas/signal_scope.schema.json` (owner: evan, v1.0.0) and `docs/schemas/analyst_suggestions.schema.json` (owner: evan, v1.0.0).
+- 2 companion reference-instance examples created — `docs/schemas/examples/signal_scope.example.json` (realistic HY-IG v2 content: 6 indicator derivatives, 4 target derivatives) and `docs/schemas/examples/analyst_suggestions.example.json` (2 realistic suggestions — NFCI proposed by evan, Yield Curve 10Y-3M proposed by ray).
+- `docs/standards.md` updated with 3 new ECON rule rows (ECON-SD, ECON-UD, ECON-AS) appended to the ECON section.
+- `docs/agent-sops/team-coordination.md` updated with a new "Scope Discipline (ECON-SD / ECON-UD / ECON-AS)" subsection under the meta-rules zone, describing downstream impact on Vera (chart save filter), Ray (narrative cross-ref + ELI5 tone), Ace (Methodology rendering + APP-CC1 captions), Quincy (GATE-31 scope audit).
+- Both schema smoke-tests pass at exit 0 (default mode and strict mode).
+
+**Evidence:**
+
+- File: `docs/agent-sops/econometrics-agent-sop.md` — new rules appended between `### Rule E2` and `## Mid-Analysis Data Requests`. Three new ### sections: `### ECON-SD — Pair Scope Discipline for Econometric Analyses (Blocking)`, `### ECON-UD — Universe Disclosure (Blocking on Reference Pairs)`, `### ECON-AS — Analyst Suggestions (Informational, Cross-Agent)`.
+- Verification: `grep -n "^### ECON-SD\|^### ECON-UD\|^### ECON-AS" docs/agent-sops/econometrics-agent-sop.md`
+- Result: exactly 3 matching lines, in-order.
+- File: `docs/schemas/signal_scope.schema.json` — new file, JSON Schema draft 2020-12, header `x-owner: evan` + `x-version: 1.0.0`, required top-level fields {pair_id, schema_version, indicator_axis, target_axis, last_updated_by, last_updated_at, owner}, axis_block $def with {canonical_column, display_name, derivatives[]}, derivative_entry $def with {name, definition, formula, role, appears_in_charts}.
+- File: `docs/schemas/examples/signal_scope.example.json` — new file, pair_id hy_ig_v2_spy, 6 indicator derivatives (raw + z-score + RoC + HMM stress prob + percentile rank + annualized vol) and 4 target derivatives (raw + 21d fwd return + 63d fwd return + drawdown path).
+- Verification: `python3 scripts/validate_schema.py --schema docs/schemas/signal_scope.schema.json --instance docs/schemas/examples/signal_scope.example.json`
+- Result: `OK: docs/schemas/examples/signal_scope.example.json conforms to docs/schemas/signal_scope.schema.json` — exit 0 (strict mode also exit 0).
+- File: `docs/schemas/analyst_suggestions.schema.json` — new file, JSON Schema draft 2020-12, header `x-owner: evan` + `x-version: 1.0.0`, required top-level fields {pair_id, schema_version, suggestions, last_updated_at}, suggestion_entry $def with all 8 required fields (signal_name, proposed_by [enum: dana/evan/vera/ray/ace/quincy], source, observation, rationale, possible_use_case, caveats, date_filed) and NO status / lifecycle / workflow fields.
+- File: `docs/schemas/examples/analyst_suggestions.example.json` — new file, 2 realistic suggestions (NFCI proposed by evan, Yield Curve 10Y-3M proposed by ray) with honest caveats.
+- Verification: `python3 scripts/validate_schema.py --schema docs/schemas/analyst_suggestions.schema.json --instance docs/schemas/examples/analyst_suggestions.example.json`
+- Result: `OK: docs/schemas/examples/analyst_suggestions.example.json conforms to docs/schemas/analyst_suggestions.schema.json` — exit 0 (strict mode also exit 0).
+- File: `docs/standards.md` — 3 new rows appended to the ECON section immediately after ECON-DS3: ECON-SD, ECON-UD, ECON-AS. No existing row modified.
+- Verification: `grep -n "^| ECON-SD\|^| ECON-UD\|^| ECON-AS" docs/standards.md`
+- Result: exactly 3 matching lines, in-order.
+- File: `docs/agent-sops/team-coordination.md` — new `### Scope Discipline (ECON-SD / ECON-UD / ECON-AS)` subsection inserted between META-SRV and "### Classification Field Ownership". Contains per-agent downstream impact table and META-CF contract-file inventory.
+- Verification: `grep -n "### Scope Discipline" docs/agent-sops/team-coordination.md`
+- Result: 1 matching line.
+
+**Constraints honored:**
+
+- No push performed (central commit after all Wave 7 waves complete, per dispatch).
+- Vera / Ray / Ace / Dana SOPs NOT touched (Wave 7B handles consumer-side additions).
+- `results/hy_ig_v2_spy/signal_scope.json` NOT created (Wave 7B retro-apply per dispatch — Evan populates).
+- `results/hy_ig_v2_spy/analyst_suggestions.json` NOT created (Wave 7B retro-apply).
+- No edits under `results/hy_ig_v2_spy/` other than this regression-note append.
+
+**Issues / ambiguities surfaced:**
+
+- `docs/standards.md` does not have a dedicated schema-inventory sub-table — schemas are registered inline within the rule rows that reference them (e.g. ECON-DS3 references `signal_code_registry` inline). Task 5 asked for "2 rows to META-CF schemas inventory (if there's a schema inventory section)"; there is no such section, so schema registration for both new schemas is done via their inline mention in the ECON-SD / ECON-UD / ECON-AS rule rows and via the META-CF contract-file table in the team-coordination Scope-Discipline subsection. Flagged for Lead in case a dedicated SCHEMA-* inventory block is wanted in a future revision.
+- The QA SOP references `GATE-31` already; no new ID required there. The Scope-Discipline verification method (parse sidecars, cross-check against `signal_scope.json`) will need to be added to QA-CL1 checklist in a later Wave (Wave 7B/7C) when Quincy's SOP is touched.
+- The sop-changelog.md entry is NOT authored here (dispatch listed SOP + schemas + standards + team-coordination + regression-note only). Flagged for the post-Wave-7 central commit step.
+
+**Approved by:** Lead Lesandro (self-approved per META-SRV producer line, Wave 7A authorship). Awaiting Wave 7B consumer-side authoring (Vera/Ray/Ace/Dana) and Wave 7C Quincy QA re-verification per GATE-31.
+
+---
+
+### Evan's Wave 7B signal_scope + analyst_suggestions (2026-04-19)
+
+**Claims:**
+
+- `results/hy_ig_v2_spy/signal_scope.json` created with 17 indicator-axis derivatives and 10 target-axis derivatives.
+- `results/hy_ig_v2_spy/analyst_suggestions.json` created with 5 off-scope suggestions (NFCI Momentum 13w, Bank/Small-Cap Ratio, Yield Curve 10Y-3M, BBB-IG Spread, CCC-BB Spread).
+- Both instances pass strict schema validation (exit 0).
+
+**Evidence:**
+
+- File: `results/hy_ig_v2_spy/signal_scope.json` (14,966 bytes).
+- Verification: `python3 scripts/validate_schema.py --schema docs/schemas/signal_scope.schema.json --instance results/hy_ig_v2_spy/signal_scope.json --strict`
+- Result: `OK: results/hy_ig_v2_spy/signal_scope.json conforms to docs/schemas/signal_scope.schema.json` — exit 0.
+- File: `results/hy_ig_v2_spy/analyst_suggestions.json` (7,831 bytes).
+- Verification: `python3 scripts/validate_schema.py --schema docs/schemas/analyst_suggestions.schema.json --instance results/hy_ig_v2_spy/analyst_suggestions.json --strict`
+- Result: `OK: results/hy_ig_v2_spy/analyst_suggestions.json conforms to docs/schemas/analyst_suggestions.schema.json` — exit 0.
+
+**Scope inventory (indicator axis, 17 derivatives):**
+
+- Raw: `hy_ig_spread_pct` (role=raw; Dana's Wave 5C DATA-D12 canonical column).
+- Standardized threshold inputs: `hy_ig_zscore_252d`, `hy_ig_zscore_504d`, `hy_ig_pctrank_504d`, `hy_ig_pctrank_1260d` (role=threshold_input).
+- Momentum / RoC derivatives: `hy_ig_roc_21d`, `hy_ig_roc_63d`, `hy_ig_roc_126d`, `hy_ig_mom_21d`, `hy_ig_mom_63d`, `hy_ig_mom_252d`, `hy_ig_acceleration` (role=derivative).
+- Volatility diagnostic: `hy_ig_realized_vol_21d` (role=diagnostic).
+- Regime states: `hmm_2state_prob_stress` (WINNER), `hmm_2state_prob_calm`, `hmm_2state_state`, `ms_2state_stress_prob` (role=regime_state).
+
+**Scope inventory (target axis, 10 derivatives):**
+
+- Raw: `spy` (role=raw; canonical column name in data/hy_ig_v2_spy_daily_20260410.parquet, not `spy_close`).
+- 1-day: `spy_ret`, `spy_fwd_1d` (role=derivative).
+- Forward returns (heatmap horizons): `spy_fwd_5d`, `spy_fwd_21d`, `spy_fwd_63d`, `spy_fwd_126d`, `spy_fwd_252d` (role=derivative).
+- Strategy-page diagnostics: `spy_drawdown_path`, `spy_equity_curve` (role=diagnostic).
+
+**Prior-version observation (per META-XVC):**
+
+- Sample HY-IG (v1, `hy_ig_spy/`) does not have `signal_scope.json` or `analyst_suggestions.json` files — these contracts are new in Wave 7A. This is additive scope under META-CF; not a divergence from the prior reference version.
+
+**Off-scope signals logged to analyst_suggestions.json (per ECON-SD):**
+
+- NFCI Momentum (13w) — proposed for cross-pair composite credit-stress indicator / new NFCI->SPY pair.
+- Bank vs Small-Cap Ratio (KBE/IWM) — proposed for new equity-stress-family pair.
+- Yield Curve 10Y-3M — proposed as regime overlay / recession backdrop pair.
+- BBB-IG Spread — proposed as variant-family extension (within-IG quality tier).
+- CCC-BB Spread — proposed as variant-family extension (within-HY quality tier); already tested as tournament S5 and did not win OOS.
+
+**Constraints honored:**
+
+- No edits to the correlation heatmap artifact (`output/charts/hy_ig_v2_spy/plotly/correlation_heatmap.json` and the per-pair-prefixed copy) — Vera's Wave 7B chart regeneration is the downstream consumer that removes the 5 off-scope traces.
+- No edits to the Methodology narrative (Ray's Wave 7B task).
+- No push performed (central commit after all Wave 7 waves complete, per dispatch).
+- No edits under `results/hy_ig_v2_spy/` other than the two new contract files and this regression-note append.
+
+**Issues / ambiguities surfaced for downstream agents:**
+
+- The signals parquet uses `hy_ig_spread` (the Wave 2 column name) while the source data parquet uses the Wave 5C DATA-D12 rename `hy_ig_spread_pct`. The signal_scope canonical column is `hy_ig_spread_pct` (authoritative per Dana). Flagged for Ace/Vera in case any consumer references the pre-rename column — should use the canonical one.
+- 17 indicator derivatives is higher than the starter list of ~13 in the Wave 7B dispatch. The extras are: `hy_ig_mom_21d`, `hy_ig_mom_252d`, `hy_ig_acceleration`, `hmm_2state_prob_calm`, `hmm_2state_state`, `ms_2state_stress_prob`. All are actually present in the signals parquet or tournament and/or exploratory outputs, so they are kept for completeness per ECON-UD.
+- `hy_ig_realized_vol_21d` is in exploratory correlations but not in the tournament signals list — logged with role=diagnostic and kept in scope for transparency per ECON-UD.
+- `appears_in_charts` uses the display names Vera renders on the HY-IG v2 Evidence / Story / Strategy pages (hero, history_zoom_*, correlation_heatmap, hmm_regime_probs, equity_curves, drawdown, drawdown_comparison, local_projections, quantile_regression, ccf_prewhitened, spread_history_annotated). Vera should cross-check against chart_type_registry.json on her end; any mismatches are cosmetic (Ray's Methodology table renders the strings as-is).
+
+---
+
+### Vera's Wave 7B correlation heatmap filter (2026-04-19)
+
+**Claims:**
+
+- `correlation_heatmap.json` regenerated with in-scope signals only (HY-IG indicator-axis derivatives per `signal_scope.json` v1.0.0).
+- Off-scope signals removed: **5** — NFCI Momentum (13w), Bank vs Small-Cap Ratio, Yield Curve 10y-3m, BBB-IG Spread, CCC-BB Spread.
+- Title honest: "HY-IG Derivatives vs SPY Forward Returns" (was the misleading "Credit-Stress Signals vs SPY Forward Returns" per META-ELI5).
+- Subtitle states the pool transparently: "Top-8 by |correlation| at the 63-day horizon, drawn from 17 HY-IG derivatives in signal_scope.json".
+- `_meta.json` carries `signal_scope_ref: results/hy_ig_v2_spy/signal_scope.json`, `signal_scope_schema_version: 1.0.0`, `palette_id: okabe_ito_2026`, and an explicit `off_scope_signals_removed` list for audit traceability.
+
+**Evidence:**
+
+- File: `output/charts/hy_ig_v2_spy/plotly/correlation_heatmap.json` (rows = 8 in-scope derivatives, cols = 6 SPY forward-return horizons)
+- Verification:
+
+  ```python
+  import json
+  allowed_off_scope = {'NFCI Momentum (13w)', 'Bank vs Small-Cap Ratio',
+                       'Yield Curve 10y-3m', 'BBB-IG Spread', 'CCC-BB Spread'}
+  d = json.load(open('output/charts/hy_ig_v2_spy/plotly/correlation_heatmap.json'))
+  rows = d['data'][0]['y']
+  leak = [r for r in rows if r in allowed_off_scope]
+  assert not leak, f'FAIL off-scope leak: {leak}'
+  ```
+
+- Result: **PASS** — 0 off-scope labels. Row set: `['HY-IG Momentum (63d, pp)', 'HY-IG Realized Vol (21d)', 'HY-IG RoC (63d)', 'HY-IG RoC (126d)', 'HY-IG Acceleration', 'HY-IG Momentum (252d, pp)', 'HY-IG Momentum (21d, pp)', 'HY-IG Spread (raw, %)']`.
+- Row-selection rule (documented in `_meta.json.row_selection_rule`): top-8 by |Pearson r| at `spy_fwd_63d` drawn from the in-scope pool (13 of 17 scope derivatives have correlation data; 4 regime-state derivatives — HMM and MS-regression probabilities — are in-scope per `signal_scope.json` but are not present in `exploratory_20260410/correlations.csv` because they were not evaluated via Pearson in that run).
+- Perceptual PNG: `output/charts/hy_ig_v2_spy/plotly/_perceptual_check_correlation_heatmap.png` — visual confirmation: (a) no off-scope row labels visible, (b) title reads "HY-IG Derivatives vs SPY Forward Returns", (c) cells readable, (d) diverging RdBu_r palette with zmid=0.
+- VIZ-V5 smoke test: `output/charts/hy_ig_v2_spy/plotly/_smoke_test_wave7b_20260419.log` — **10 of 10 charts PASS**; `correlation_heatmap.json` now reads `title='HY-IG Derivatives vs SPY Forward Returns'` replacing the pre-Wave-7B `title='Credit-Stress Signals vs SPY Forward Returns'`.
+- Source script: `temp/260419_wave7b_vera/regen_correlation_heatmap.py`.
+
+**Prior-version observation (per META-XVC):**
+
+- Sample HY-IG (v1) and HY-IG v2 pre-Wave-7 both carried the same scope leak (5 off-scope traces: NFCI Momentum, Bank/Small-Cap Ratio, Yield Curve 10y-3m, BBB-IG, CCC-BB). Wave 7 introduces the ECON-SD scope-discipline rule and the signal_scope.json canonical registry; this chart is the **first conforming artifact** under the new discipline. The Wave-6B smoke log (title beginning "Credit-Stress Signals vs SPY Forward Returns") is retained for audit contrast with the Wave-7B log.
+
+**Constraints honored:**
+
+- Only the correlation heatmap artifact touched. No modifications to Granger, CCF, Transfer Entropy, Local Projections, Quantile Regression, Quartile Returns, hero, or history-zoom charts (Evan's Wave 7A audit confirmed these are already in-scope).
+- No edits to `signal_scope.json` or `analyst_suggestions.json` (Evan's files).
+- No edits to narrative (Ray's job) or Methodology tables (Ace's job).
+- No push.
+
+---
+
+### Ace's Wave 7B Methodology table renderers (2026-04-19)
+
+**Claims:**
+
+- Two new components rendering the ECON-UD Signal Universe and the ECON-AS
+  Analyst Suggestions tables from Evan's JSON registries on the HY-IG v2
+  Methodology page.
+- Methodology page updated to call both renderers in two new sections
+  (`Signal Universe`, `Analyst Suggestions for Future Work`) inserted
+  between `Indicator Construction` and `Return Basis and Performance Metrics`.
+- Schema-consumer smoke test extended to validate the two new producer
+  artifacts (`signal_scope.json`, `analyst_suggestions.json`) against their
+  schemas on every run.
+- Loader smoke test and schema-consumer smoke test both still PASS with
+  zero failures after the changes.
+
+**Evidence:**
+
+- File: `app/components/signal_universe_table.py` (new, 150 lines) — reads
+  `results/{pair_id}/signal_scope.json` via `validate_or_die`, renders two
+  `st.dataframe` tables with columns `Name | Definition | Formula | Role |
+  Appears in`. APP-CC1 "What this shows:" caption above each table;
+  APP-SE5 1-line takeaway caption below. META-ELI5 fallback on missing
+  file. APP-SEV1 L1 short-circuit on schema violation.
+- File: `app/components/analyst_suggestions_table.py` (new, 129 lines) —
+  reads `results/{pair_id}/analyst_suggestions.json` via `validate_or_die`,
+  renders a single `st.dataframe` with columns `Signal | Proposed by |
+  Observation | Rationale | Possible use case | Caveats`. Carries the
+  ECON-AS explicit disclaimer ("These are informational. If any warrant
+  follow-up work, please request explicitly to the team — there is no
+  automated action from this table.") via `st.info`. META-ELI5 fallback on
+  missing file or empty array.
+- File: `app/pages/9_hy_ig_v2_spy_methodology.py` (updated):
+  - Lines 21-22: new imports (`render_signal_universe`,
+    `render_analyst_suggestions`).
+  - Lines 152-173: new `### Signal Universe` section with intro prose and
+    `render_signal_universe(PAIR_ID)` call.
+  - Lines 175-193: new `### Analyst Suggestions for Future Work` section
+    with intro prose and `render_analyst_suggestions(PAIR_ID)` call.
+  - Narrative frontmatter anchors `signal_universe` and
+    `analyst_suggestions` left in code comments so Ray can wire RES-17
+    prose later without restructuring the page.
+- File: `app/_smoke_tests/smoke_schema_consumers.py` (updated) — appended
+  `signal_scope` and `analyst_suggestions` cases to the `cases` list so
+  every future run validates the two new producer artifacts.
+
+- Verification: `python3 -c "from components.signal_universe_table import
+  render_signal_universe; from components.analyst_suggestions_table import
+  render_analyst_suggestions; print('import OK')"` (run from `app/`)
+- Result: `import OK`
+
+- Verification: `python3 app/_smoke_tests/smoke_loader.py hy_ig_v2_spy`
+- Result: `passes=15 failures=0` — log at
+  `app/_smoke_tests/loader_hy_ig_v2_spy_20260420.log`.
+
+- Verification: `python3 app/_smoke_tests/smoke_schema_consumers.py
+  --pair-id hy_ig_v2_spy`
+- Result: `passes=5 failures=0` (was 3 pre-Wave-7B; +2 for the new
+  schema-consumer cases, +1 existing APP-DIR1 triangulation). Log at
+  `app/_smoke_tests/schema_consumers_hy_ig_v2_spy_20260420.log`.
+
+- Row-level sampling verification: sampled row
+  `hmm_2state_prob_stress` from `indicator_axis.derivatives` surfaces in
+  the rendered dataframe with `Role='regime_state'` and `Appears in
+  ='hmm_regime_probs, correlation_heatmap'`. Sampled row 0 of
+  `suggestions` (`NFCI Momentum (13-week)`, `proposed_by='evan'`)
+  projects correctly onto the Signal / Proposed by columns. Indicator
+  table has 17 rows, target table has 10 rows, suggestions table has 5
+  rows — matching Evan's Wave 7B signal_scope.json (17 + 10
+  derivatives) and analyst_suggestions.json (5 entries).
+
+**Prior-version observation (per META-XVC):**
+
+- The sample HY-IG (v1) Methodology page did NOT carry a Signal Universe
+  or Analyst Suggestions section; neither did HY-IG v2 pre-Wave-7.
+  These are new components introduced by Wave 7B per ECON-UD (Universe
+  Disclosure) and ECON-AS (Analyst Suggestions) — a deliberate
+  improvement driven by Lesandro's Wave 6 scope-discipline feedback
+  (5 off-scope traces in the correlation heatmap had been surfaced
+  without a canonical registry explaining why they were there). The
+  renderers are pair-agnostic by design (`pair_id` parameter), so future
+  pairs can adopt the same Methodology-page pattern once their
+  `signal_scope.json` and `analyst_suggestions.json` are produced.
+
+**Constraints honored:**
+
+- No edits to `signal_scope.json` or `analyst_suggestions.json`
+  (Evan's contracts).
+- No edits to narrative markdown (Ray's job).
+- No edits to charts or chart JSONs (Vera's Wave 7B regeneration
+  already complete).
+- No git push.
+
+---
+
+### Ray's Wave 7B Methodology sections + narrative cleanup (2026-04-19)
+
+**Claims:**
+
+- New Methodology sections: **Signal Universe** (per ECON-UD) + **Analyst Suggestions for Future Work** (per ECON-AS)
+- Narrative frontmatter updated with 2 new `pages.methodology.sections` entries (anchors `signal-universe` and `analyst-suggestions`)
+- Evidence-/Methodology-page narrative references to off-scope signals audited and updated
+
+**Evidence:**
+
+- File: `docs/portal_narrative_hy_ig_v2_spy_20260410.md`
+- Verification: `grep -c "Signal Universe\|Analyst Suggestions" docs/portal_narrative_hy_ig_v2_spy_20260410.md` — expect ≥ 2
+- Result: **7** (section headings + ELI5 + prose + cross-references from the Story-page CCC-BB expander and the Methodology Indicator-Construction / Data-Sources cleanups)
+- Verification: `python3 scripts/validate_schema.py --schema docs/schemas/narrative_frontmatter.schema.json --instance <extracted frontmatter>`
+- Result: `OK: /tmp/fm_hy_ig_v2.json conforms to docs/schemas/narrative_frontmatter.schema.json` (EXIT 0)
+- Off-scope signal references (analytical context only — excludes glossary passive definitions and cross-portal-pair pointers to VIX × SPY / Yield Curve × SPY):
+  - **Before: 3** analytical claims that silently absorbed off-scope signals.
+    1. Story-page CCC-BB expander: *"We include the CCC-BB quality spread as one of our tournament signals (S5)..."* — asserted CCC-BB was IN the HY-IG v2 tournament.
+    2. Methodology §Indicator Construction: *"...rates of change..., and the CCC-BB quality spread."* — listed CCC-BB as one of the 20 HY-IG derivatives.
+    3. Methodology §Data Sources: raw-series list co-mingled the in-scope HY/IG OAS pair with off-scope BB/CCC/BBB OAS, NFCI, Treasury yields, KBE/IWM, etc., without any scope tag.
+  - **After: 0** in analytical context. All three replaced:
+    1. CCC-BB expander now explicitly labels CCC-BB as *off-scope per ECON-SD*, points to `analyst_suggestions.json`, and states it is not in any regression, tournament, or chart on this pair.
+    2. Indicator Construction now points to `signal_scope.json` as authoritative and enumerates only the HY-IG derivatives actually in scope (no CCC-BB).
+    3. Data Sources now splits the list into **(in-scope)** HY-IG pair-series only vs **(exploratory-only, not in the HY-IG × SPY analytical universe)** the off-scope series, with an explicit note that those off-scope series are logged in Analyst Suggestions.
+
+**Prior-version observation (per META-XVC):**
+
+- Sample HY-IG Methodology (v1) did not have Universe + Suggestions sections; added in Wave 7B per ECON-UD and ECON-AS — justified improvement rather than drift. HY-IG v2 pre-Wave-7B also lacked both sections; Wave 7B retro-applies the new rules. The three-way Ray–Evan–Vera Wave 7B sweep (Evan's JSON contracts, Vera's chart title rename, Ray's narrative sections) now presents a consistent scope story across data, charts, and prose.
+
+**Tricky phrasing decisions:**
+
+1. **CCC-BB Story expander.** The expander's body is still valuable stakeholder pedagogy (it explains the canary-in-coal-mine intuition during GFC / COVID), so I kept the educational content but appended a one-paragraph scope disclaimer that makes the off-scope status explicit and points readers to Analyst Suggestions. The alternative of deleting the expander would have lost useful context without strengthening scope discipline — the disclaimer achieves scope discipline at a fraction of the content cost.
+2. **External-pair pointers retained.** References to *VIX × SPY* and *Yield Curve × SPY* (lines 265, 338, 678 of the pre-edit file) are portal-navigation pointers, not analytical claims that this pair uses those signals. Guidance allowed this pattern; I retained them.
+3. **Data Sources re-split.** Rewriting the bullet list from one flat block into two labelled blocks (*in-scope* vs *exploratory-only*) made the scope boundary visible at the Data-Sources level, which was otherwise implicit. Avoided a full deletion of the exploratory series because Dana's pull scripts still produce them for the exploratory workstream.
+4. **ELI5 wording.** Used the verbatim ELI5 paragraphs supplied in the instructions for both new sections rather than paraphrasing — keeps the stakeholder voice consistent with META-ELI5 and avoids introducing new phrasings the Lead has not reviewed.
+
+**Constraints honored:**
+
+- No edits to `signal_scope.json` or `analyst_suggestions.json` (Evan's contracts).
+- Table rendering is deferred to Ace via HTML-comment placeholders referencing the JSON source files and the APP-CC1 caption prefix; no inline tables shipped in the narrative body.
+- No push.
+
+---
+
+### Ace's Wave 7B fix-up: CCC-BB prose leak (2026-04-20)
+
+Context: Quincy's Wave 7C QA blocked on 5 prose citations in portal .py files that
+contradicted signal_scope.json. Narrative .md was clean (Ray); pages overrode it
+with inline text.
+
+**Claims:**
+
+- 5 prose citations rewritten to match ECON-SD scope
+- Other off-scope signals (NFCI, Yield Curve, Bank ratio, BBB-IG) audited for
+  same pattern — Data Sources table in methodology.py gated with an
+  "in scope" / "context only" distinction plus an explicit scope-discipline
+  footnote pointing to `signal_scope.json` as the authoritative in-scope list.
+
+**Evidence — File: app/pages/9_hy_ig_v2_spy_methodology.py**
+
+- Line 149 (before): "…rates of change (21-day, 63-day, 126-day), momentum
+  changes, acceleration, and the CCC-BB quality spread."
+- Line 149 (after): "…rates of change …, momentum changes, and acceleration.
+  The authoritative list of in-scope derivatives is rendered from
+  `signal_scope.json` in the Signal Universe section below. Related
+  quality-spread signals (e.g., CCC-BB) were noted during exploration but
+  are out of scope for this pair — see Analyst Suggestions for Future Work
+  below."
+- Line 352 (before): "| Signals (13) | Spread level, z-scores …, quality
+  spread (CCC-BB), HMM stress prob, Markov-switching prob |"
+- Line 352 (after): "| Signals | Spread level, z-scores (252d/504d),
+  percentile ranks (504d/1260d), RoC …, momentum …, acceleration, HMM
+  stress/calm probabilities, Markov-switching stress probability.
+  Authoritative list: see Signal Universe rendered from
+  `signal_scope.json`. |" (hardcoded count removed; CCC-BB removed;
+  count mismatch — prose said 13, signal_scope has 17 derivatives —
+  resolved by deferring to Signal Universe)
+- Data Sources table rows labelled "in scope" vs "context only", with a
+  footnote naming all 5 off-scope signals (NFCI Momentum, Bank/Small-Cap
+  Ratio, Yield Curve 10Y-3M, BBB-IG Spread, CCC-BB Quality Spread) and
+  routing them to Analyst Suggestions.
+
+**Evidence — File: app/pages/9_hy_ig_v2_spy_story.py**
+
+- Lines 369 / 380 / 386 (before): expander prose described CCC-BB quality
+  spread as a granular stress signal; closed with "We include the CCC-BB
+  quality spread as one of our tournament signals (S5) precisely because
+  it captures a different dimension of credit stress…"
+- Lines 369 / 380 / 387 (after): expander retitled "Deeper dive (background
+  only — out of scope for this pair)". Educational content on BB / CCC
+  hierarchy and the quality spread kept. GFC / COVID passage reframed as
+  "general market observation" rather than "our analysis". Final paragraph
+  rewritten to an explicit Scope note: "The CCC-BB quality spread is **not**
+  part of this pair's analytical universe. The authoritative list of
+  in-scope signals for HY-IG v2 × SPY is the Signal Universe table on
+  the Methodology page (rendered from `signal_scope.json`). CCC-BB was
+  noted during exploration but is logged as informational only — see
+  Analyst Suggestions for Future Work on the Methodology page for the
+  formal record and for candidate follow-up pairs."
+
+**Verification:**
+
+- Command: `grep -cE "CCC-BB.*signal|CCC.*S5|CCC-BB.*tournament|tournament.*CCC"
+  app/pages/9_hy_ig_v2_spy_*.py`
+- Result: story.py → 0, methodology.py → 0 (was 5 in-scope claims total
+  across the two files).
+- Remaining CCC-BB mentions are all (a) scope-note pointers to Analyst
+  Suggestions, (b) educational-background content explicitly flagged as
+  out of scope, or (c) the Data Sources catalog row labelled "context
+  only" with the scope-discipline footnote.
+- Command: `python3 app/_smoke_tests/smoke_loader.py hy_ig_v2_spy`
+- Result: passes=15 failures=0
+- Command: `python3 app/_smoke_tests/smoke_schema_consumers.py
+  --pair-id hy_ig_v2_spy`
+- Result: passes=5 failures=0
+
+**META-XVC prior-version observation:**
+
+- Sample HY-IG pages (`app/pages/1-4_hy_ig_*.py`) likely contain the same
+  prose pattern (CCC-BB described as a tournament signal). Fix for
+  HY-IG v2 only; Sample is out of scope for this wave. Cross-pair audit
+  (BL-703 candidate) captures the pattern — prose in `.py` files bypasses
+  the narrative `.md` authority, and narrative-cleanup by Ray cannot reach
+  it. Flag for Lead as backlog candidate.
+
+**Constraints honored:**
+
+- No edits to `signal_scope.json`, `analyst_suggestions.json`,
+  narrative `.md`, or the correlation heatmap.
+- No push (Lead commits after Quincy re-verifies).

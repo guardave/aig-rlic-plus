@@ -1,8 +1,32 @@
 {
   "chart_type": "correlation_heatmap",
   "pair_id": "hy_ig_v2_spy",
-  "caption": "Heatmap of Pearson correlations between 8 credit-stress signals (rows) and SPY forward returns at 6 horizons (1d, 5d, 21d, 63d, 126d, 252d). Signals ranked descending by |correlation| at the 63-day horizon; diverging RdBu_r palette centered at zero.",
+  "caption": "Heatmap of Pearson correlations between the top-8 in-scope HY-IG derivatives (rows) and SPY forward returns at 6 horizons (1d, 5d, 21d, 63d, 126d, 252d). Derivatives ranked descending by |correlation| at the 63-day horizon; diverging RdBu_r palette centered at zero. Scope strictly constrained to signal_scope.json (HY-IG indicator-axis derivatives only).",
   "owner": "viz-vera",
-  "produced_on": "2026-04-11",
-  "source_script": "scripts/retro_fix_hy_ig_v2_vera_20260411.py"
+  "produced_on": "2026-04-19",
+  "source_script": "temp/260419_wave7b_vera/regen_correlation_heatmap.py",
+  "palette_id": "okabe_ito_2026",
+  "signal_scope_ref": "results/hy_ig_v2_spy/signal_scope.json",
+  "signal_scope_schema_version": "1.0.0",
+  "wave": "7B",
+  "off_scope_signals_removed": [
+    "NFCI Momentum (13w)",
+    "Bank vs Small-Cap Ratio",
+    "Yield Curve 10y-3m",
+    "BBB-IG Spread",
+    "CCC-BB Spread"
+  ],
+  "rows_selected": [
+    "HY-IG Momentum (63d, pp)",
+    "HY-IG Realized Vol (21d)",
+    "HY-IG RoC (63d)",
+    "HY-IG RoC (126d)",
+    "HY-IG Acceleration",
+    "HY-IG Momentum (252d, pp)",
+    "HY-IG Momentum (21d, pp)",
+    "HY-IG Spread (raw, %)"
+  ],
+  "row_count": 8,
+  "column_count": 6,
+  "row_selection_rule": "top-8 by |Pearson r| at spy_fwd_63d, drawn from the in-scope pool (signal_scope.json indicator_axis.derivatives)"
 }

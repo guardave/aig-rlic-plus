@@ -1,0 +1,303 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-04-20T00:29:06Z",
+  "indicator_axis": {
+    "canonical_column": "hy_ig_spread_pct",
+    "display_name": "HY-IG Credit Spread (%)",
+    "derivatives": [
+      {
+        "name": "hy_ig_spread_pct",
+        "definition": "The raw HY-IG credit spread — the extra yield investors demand to hold high-yield bonds relative to investment-grade bonds, expressed in percentage points. A wider spread signals credit stress.",
+        "formula": "raw column (ICE BofA US HY OAS minus ICE BofA US IG OAS), unit = percent",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "history_zoom_dotcom",
+          "history_zoom_gfc",
+          "history_zoom_covid",
+          "spread_history_annotated",
+          "correlation_heatmap"
+        ],
+        "notes": "Canonical indicator column after Wave 5C DATA-D12 rename (was `hy_ig_spread`). Sign convention: up = wider = more stress. Daily 2000-01-03 to 2025-12-31. Monthly-release OAS series aligned to daily NYSE calendar via LVCF."
+      },
+      {
+        "name": "hy_ig_zscore_252d",
+        "definition": "The 252-day (1-year) rolling z-score of the HY-IG spread. It tells you how unusual today's spread is relative to the last twelve months.",
+        "formula": "(hy_ig_spread_pct[t] - rolling_mean_252(hy_ig_spread_pct)) / rolling_std_252(hy_ig_spread_pct)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S2a. Used as threshold input for T3_z1.5 / T3_z2.0 / T3_z2.5 gates. Dimensionless."
+      },
+      {
+        "name": "hy_ig_zscore_504d",
+        "definition": "The 504-day (~2-year) rolling z-score of the HY-IG spread. A longer lookback than the 252d variant to capture slower-moving regime shifts.",
+        "formula": "(hy_ig_spread_pct[t] - rolling_mean_504(hy_ig_spread_pct)) / rolling_std_504(hy_ig_spread_pct)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S2b. Longer window to reduce sensitivity to near-term mean drift."
+      },
+      {
+        "name": "hy_ig_pctrank_504d",
+        "definition": "The 2-year percentile rank of the HY-IG spread. A value of 0.90 means the current spread is wider than 90% of the last two years.",
+        "formula": "empirical_cdf_504d(hy_ig_spread_pct)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S3a. Values in [0, 1]. Used with T1_p75/T1_p85/T1_p95 threshold variants."
+      },
+      {
+        "name": "hy_ig_pctrank_1260d",
+        "definition": "The 5-year percentile rank of the HY-IG spread. A longer-memory gauge of how extreme the current spread is relative to recent cycle history.",
+        "formula": "empirical_cdf_1260d(hy_ig_spread_pct)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S3b. Values in [0, 1]."
+      },
+      {
+        "name": "hy_ig_roc_21d",
+        "definition": "The 21-day (~1 month) percent rate-of-change of the HY-IG spread. Captures near-term momentum — is the spread widening or tightening over the last month?",
+        "formula": "(hy_ig_spread_pct[t] / hy_ig_spread_pct[t-21] - 1) * 100",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S4a. Unit = percent. Monthly momentum diagnostic."
+      },
+      {
+        "name": "hy_ig_roc_63d",
+        "definition": "The 63-day (~1 quarter) percent rate-of-change of the HY-IG spread. Captures quarterly widening or tightening momentum.",
+        "formula": "(hy_ig_spread_pct[t] / hy_ig_spread_pct[t-63] - 1) * 100",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S4b. Quarterly momentum. Unit = percent."
+      },
+      {
+        "name": "hy_ig_roc_126d",
+        "definition": "The 126-day (~6 months) percent rate-of-change of the HY-IG spread. Semi-annual momentum gauge.",
+        "formula": "(hy_ig_spread_pct[t] / hy_ig_spread_pct[t-126] - 1) * 100",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S4c. Unit = percent."
+      },
+      {
+        "name": "hy_ig_mom_21d",
+        "definition": "The 21-day absolute change (in percentage points) of the HY-IG spread. An absolute-difference twin of the 21d rate-of-change, expressed in the spread's native unit.",
+        "formula": "hy_ig_spread_pct[t] - hy_ig_spread_pct[t-21]",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S10. Unit = percentage points (matches the parent spread)."
+      },
+      {
+        "name": "hy_ig_mom_63d",
+        "definition": "The 63-day absolute change (in percentage points) of the HY-IG spread — captures one quarter of widening or tightening in the spread's native unit.",
+        "formula": "hy_ig_spread_pct[t] - hy_ig_spread_pct[t-63]",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S11. Strongest raw-correlation HY-IG derivative at 63d (r = -0.17)."
+      },
+      {
+        "name": "hy_ig_mom_252d",
+        "definition": "The 252-day (~1 year) absolute change in the HY-IG spread, in percentage points. A long-horizon momentum gauge useful for cycle-scale analysis.",
+        "formula": "hy_ig_spread_pct[t] - hy_ig_spread_pct[t-252]",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S12."
+      },
+      {
+        "name": "hy_ig_acceleration",
+        "definition": "The change in the HY-IG spread's 21-day rate-of-change — a second-difference proxy. Rising acceleration means the spread is widening faster than it was a month ago.",
+        "formula": "hy_ig_roc_21d[t] - hy_ig_roc_21d[t-21]",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S13. Captures inflection dynamics (the derivative of momentum)."
+      },
+      {
+        "name": "hy_ig_realized_vol_21d",
+        "definition": "The 21-day annualized realized volatility of daily HY-IG spread changes. Captures how choppy the spread has been recently, irrespective of direction.",
+        "formula": "sqrt(252) * std_21(diff(hy_ig_spread_pct))",
+        "role": "diagnostic",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Decimal output (0.30 = 30% annualized). Exploratory diagnostic — not shipped as a tournament signal in Wave 2; present in exploratory correlations.csv."
+      },
+      {
+        "name": "hmm_2state_prob_stress",
+        "definition": "The probability that the HY-IG spread is currently in the high-stress regime according to a 2-state Gaussian Hidden Markov Model. Values near 1 mean the model is confident we are in a stressed regime.",
+        "formula": "posterior P(regime = stress | hy_ig_spread_pct_{1..t}) from 2-state Gaussian HMM",
+        "role": "regime_state",
+        "appears_in_charts": [
+          "hmm_regime_probs",
+          "correlation_heatmap"
+        ],
+        "notes": "Tournament signal code S6. WINNER signal (OOS Sharpe 1.274 vs B&H 0.77). HMM fitted on the HY-IG spread series alone; stress regime identified by higher-variance cluster per Defense 1 column-name discipline."
+      },
+      {
+        "name": "hmm_2state_prob_calm",
+        "definition": "The mirror of the stress probability — how likely the model thinks we are in the calm, low-variance regime.",
+        "formula": "posterior P(regime = calm | hy_ig_spread_pct_{1..t}) = 1 - hmm_2state_prob_stress",
+        "role": "regime_state",
+        "appears_in_charts": [
+          "hmm_regime_probs"
+        ],
+        "notes": "Complement of hmm_2state_prob_stress by construction. Rendered as the lower area in the regime-probability stacked chart."
+      },
+      {
+        "name": "hmm_2state_state",
+        "definition": "The discrete regime label from the 2-state HMM (0 = calm, 1 = stress) — the hard-classified version of the stress probability.",
+        "formula": "argmax over states of the HMM posterior at time t",
+        "role": "regime_state",
+        "appears_in_charts": [],
+        "notes": "Diagnostic-only hard label; production charts use the probability, not the state label, to avoid flicker. Present in core_models_20260410/hmm_states_2state.parquet."
+      },
+      {
+        "name": "ms_2state_stress_prob",
+        "definition": "The 2-state Markov-switching regression's estimate of the probability we are in the high-stress regime — an alternative to the HMM model with similar economic interpretation.",
+        "formula": "smoothed P(regime = stress | hy_ig_spread_pct_{1..T}) from a 2-regime Markov-switching mean-variance model",
+        "role": "regime_state",
+        "appears_in_charts": [],
+        "notes": "Tournament signal code S7. Cross-check against HMM; correlated but not identical. Used with T5_ms_0.5 / T5_ms_0.7 thresholds."
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy",
+    "display_name": "SPY Adjusted Close",
+    "derivatives": [
+      {
+        "name": "spy",
+        "definition": "The raw adjusted close price of the SPY ETF (SPDR S&P 500). All target-axis derivatives are computed from this single series.",
+        "formula": "raw column (Yahoo Finance adjusted close, USD)",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "history_zoom_dotcom",
+          "history_zoom_gfc",
+          "history_zoom_covid",
+          "equity_curves",
+          "drawdown"
+        ],
+        "notes": "Adjusted for dividends and splits. Daily series 2000-01-03 to 2025-12-31."
+      },
+      {
+        "name": "spy_ret",
+        "definition": "The 1-day simple return of SPY. Base input to most Strategy-page calculations (equity curves, Sharpe, volatility).",
+        "formula": "spy[t] / spy[t-1] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "equity_curves",
+          "drawdown",
+          "drawdown_comparison"
+        ],
+        "notes": "Decimal return (0.01 = 1%)."
+      },
+      {
+        "name": "spy_fwd_1d",
+        "definition": "The forward 1-day return of SPY — what SPY returns between today's close and tomorrow's close. Used for short-horizon correlation diagnostics.",
+        "formula": "spy[t+1] / spy[t] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Shortest horizon in the correlation heatmap. Forward-looking — leakage-safe by construction."
+      },
+      {
+        "name": "spy_fwd_5d",
+        "definition": "The forward 5-trading-day (~1 week) return of SPY. Short-horizon predictive response.",
+        "formula": "spy[t+5] / spy[t] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Weekly horizon diagnostic."
+      },
+      {
+        "name": "spy_fwd_21d",
+        "definition": "The forward 21-trading-day (~1 month) return of SPY. Monthly horizon used across correlation and CCF analyses.",
+        "formula": "spy[t+21] / spy[t] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "ccf_prewhitened"
+        ],
+        "notes": "Common evaluation horizon for cross-correlation and Granger diagnostics."
+      },
+      {
+        "name": "spy_fwd_63d",
+        "definition": "The forward 63-trading-day (~1 quarter) return of SPY. Primary dependent variable for predictive regressions on this pair.",
+        "formula": "spy[t+63] / spy[t] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "local_projections",
+          "quantile_regression"
+        ],
+        "notes": "Primary forecast horizon; aligns with tournament holding-period bias."
+      },
+      {
+        "name": "spy_fwd_126d",
+        "definition": "The forward 126-trading-day (~6 months) return of SPY. Medium-term horizon used in correlation matrix and horizon-decay checks.",
+        "formula": "spy[t+126] / spy[t] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Semi-annual diagnostic."
+      },
+      {
+        "name": "spy_fwd_252d",
+        "definition": "The forward 252-trading-day (~1 year) return of SPY. Longest horizon in the correlation heatmap; tests whether signals retain predictive value over annual windows.",
+        "formula": "spy[t+252] / spy[t] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "Annual horizon."
+      },
+      {
+        "name": "spy_drawdown_path",
+        "definition": "The running drawdown of SPY from its trailing all-time high. Used on the Strategy page to show how the winning strategy behaves during SPY drawdowns.",
+        "formula": "spy[t] / cummax(spy[1..t]) - 1",
+        "role": "diagnostic",
+        "appears_in_charts": [
+          "drawdown",
+          "drawdown_comparison"
+        ],
+        "notes": "Non-positive by construction. Companion to equity_curves on the Strategy page."
+      },
+      {
+        "name": "spy_equity_curve",
+        "definition": "The cumulative total-return index of SPY — a $1 starting equity grown by the 1-day SPY returns. Used as the benchmark line on the Strategy-page equity-curve chart.",
+        "formula": "cumprod(1 + spy_ret)",
+        "role": "diagnostic",
+        "appears_in_charts": [
+          "equity_curves"
+        ],
+        "notes": "Buy-and-hold benchmark trace; the strategy equity curves are layered on top."
+      }
+    ]
+  },
+  "notes": "Wave 7B retro-apply: populates the META-CF ECON-SD / ECON-UD scope registry for HY-IG v2 after Lesandro's Wave 6 scope-discipline feedback flagged 5 off-scope traces in the correlation heatmap. Canonical indicator column = hy_ig_spread_pct (Dana's Wave 5C DATA-D12 rename); canonical target column = spy. Off-scope signals (NFCI Momentum, Bank/Smallcap Ratio, Yield Curve 10y-3m, BBB-IG Spread, CCC-BB Spread) are explicitly NOT included here per ECON-SD — they are logged as informational suggestions in analyst_suggestions.json per ECON-AS. Vera's Wave 7B chart regeneration is the downstream consumer that will drop those 5 traces from the heatmap."
+}

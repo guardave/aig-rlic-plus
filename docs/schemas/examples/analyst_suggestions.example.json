@@ -1,0 +1,30 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "schema_version": "1.0.0",
+  "last_updated_at": "2026-04-19T14:45:00Z",
+  "suggestions": [
+    {
+      "signal_name": "NFCI (Chicago Fed National Financial Conditions Index)",
+      "proposed_by": "evan",
+      "source": "FRED",
+      "observation": "During the HY-IG Wave 2 exploratory pass, NFCI correlated 0.74 with HY-IG spread changes at monthly frequency over 2000-2023 and Granger-caused SPY 21d forward returns at p=0.02, lag 2.",
+      "rationale": "NFCI aggregates roughly 100 financial-conditions indicators into a single composite; if HY-IG spread proxies one slice of that composite, NFCI might serve as a broader-conditions variant for a separate NFCI -> SPY pair or as a regime overlay for HY-IG v3.",
+      "possible_use_case": "new pair (NFCI -> SPY); regime overlay for HY-IG v3",
+      "caveats": "NFCI is itself constructed from overlapping financial indicators (HY-IG spread may be an input), so direct inclusion on the HY-IG page would be double-counting. Sample pre-2000 is thin.",
+      "date_filed": "2026-04-19",
+      "notes": "Observed during Wave 2 exploratory; flagged here rather than shipped to avoid ECON-SD scope violation."
+    },
+    {
+      "signal_name": "Yield Curve 10Y-3M",
+      "proposed_by": "ray",
+      "source": "FRED",
+      "observation": "Narrative review noted that 10Y-3M inversion episodes (1989, 2000, 2006, 2019) each preceded HY-IG spread widening by 6-12 months with roughly 80% hit rate across the 4 episodes.",
+      "rationale": "The term structure carries recession-probability information that complements credit-market stress. A dedicated Yield Curve -> SPY pair (or a Yield Curve -> HY-IG chain pair) could pick up signal 6+ months earlier than HY-IG alone.",
+      "possible_use_case": "new pair (yield_curve_10y_3m -> SPY); long-lead confirmer in cross-pair comparison",
+      "caveats": "4 episodes is a very small sample; 2022 inversion did not (yet) generate a comparable HY-IG widening, so the relationship may be breaking down. Needs proper Cox-regression survival analysis before taking strategy weight.",
+      "date_filed": "2026-04-19",
+      "notes": "Mentioned in the Wave 2 Story narrative as a cross-reference; captured here so it is not lost."
+    }
+  ],
+  "notes": "Reference-instance example for ECON-AS (Wave 7A). Realistic HY-IG v2 suggestions; not the live registry. Illustrates (a) cross-agent filing (evan and ray both proposed), (b) honest caveats, (c) no status / lifecycle fields."
+}
