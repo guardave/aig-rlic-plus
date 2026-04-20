@@ -404,8 +404,8 @@ Plus modifications to `winner_summary.json` (signal_code canonicalized), `docs/p
 **Approved by:** Lead Lesandro
 **Approval date:** Pending stakeholder sign-off
 **Tag/commit:** Pending — will tag as `hy-ig-v2-reference-candidate` at Lead commit per META-RPT, promoted to `hy-ig-v2-reference` upon stakeholder approval. Per META-RPT, the `hy-ig-v2-reference` tag is **NOT** applied here — it remains reserved until stakeholder sign-off.
-**Current commit:** `f7587a3` (Wave 5C retro-apply of 24 new Wave-5B rules; Cloud-verified 2026-04-19 post-reboot).
-**Upstream chain:** `416ba94` (Wave 4E Cloud verification) ← `cc3f551` (Wave 4D: migrate artifacts + consumer-side schema integration) ← `e28dd3d` (Wave 4B+4C: cross-review + META-CF) ← `f295073` (Wave 4A: deploy-artifact gap + GATE-29) ← `519d042` (Wave 3: gate fixes + retro-apply) ← `342f48c` (Wave 5B: 24 new rules + 10 schemas/registries) ← `f7587a3` (Wave 5C: retro-apply). Further upstream: `d6e4f02` (Wave 5 validation audits), `1720c0c` (force Cloud redeploy), `beca5aa` (Wave 2 verification), `1f864e8` (Wave 2B: portal rebuild), `b9730cb` (Wave 2A: artifacts/charts/narrative), `b7ee4ba` (Wave 1.5: coherence patches), `6bcb5e2` (Wave 1: 2026-04-18 stakeholder feedback), `27c6182` (pre-stakeholder draft). Earlier reference-pair polish landed in `6d40af8`.
+**Current commit:** `17a73ce` (Wave 6D dual-panel zoom rebuild; Cloud-verified 2026-04-19 post-manual-Reboot).
+**Upstream chain:** `17a73ce` (Wave 6D: dual-panel zoom rebuild + Cloud verification post-Reboot) ← `f7587a3` (Wave 5C retro-apply of 24 new Wave-5B rules) ← `416ba94` (Wave 4E Cloud verification) ← `cc3f551` (Wave 4D: migrate artifacts + consumer-side schema integration) ← `e28dd3d` (Wave 4B+4C: cross-review + META-CF) ← `f295073` (Wave 4A: deploy-artifact gap + GATE-29) ← `519d042` (Wave 3: gate fixes + retro-apply) ← `342f48c` (Wave 5B: 24 new rules + 10 schemas/registries). Further upstream: `d6e4f02` (Wave 5 validation audits), `1720c0c` (force Cloud redeploy), `beca5aa` (Wave 2 verification), `1f864e8` (Wave 2B: portal rebuild), `b9730cb` (Wave 2A: artifacts/charts/narrative), `b7ee4ba` (Wave 1.5: coherence patches), `6bcb5e2` (Wave 1: 2026-04-18 stakeholder feedback), `27c6182` (pre-stakeholder draft). Earlier reference-pair polish landed in `6d40af8`.
 
 ---
 
@@ -485,3 +485,22 @@ All 12 PASS or deferred (Cloud check deferred to Wave 6D per scope). Details in 
 5. **"Explore Alternative Strategies"** still shows metric comparison only — no per-strategy equity-curve overlay (carried over). Vera could add if requested.
 
 6. **Landing-page card metrics** still read from `winner_summary.json`; no Wave 2 changes here. Sharpe 1.27 / Max DD -10.2% currently displayed are correct.
+
+---
+
+## Wave 6D Cloud Verification (2026-04-19)
+
+Dual-panel zoom rebuild verified on Cloud post-Reboot.
+
+| Chart | trace_count | Status |
+|---|---|---|
+| Dot-Com | 2 | PASS |
+| GFC | 2 | PASS |
+| COVID | 2 | PASS |
+
+GATE-28 DOM audit: 0 "chart pending" strings.
+Stakeholder-spirit: pair relationship (credit → equity lead-lag) 
+now eyeball-visible in all 3 historical zooms.
+
+Manual Reboot required (3rd this quarter, past META-FRD 2/quarter threshold).
+See docs/pair_execution_history.md for escalation note.

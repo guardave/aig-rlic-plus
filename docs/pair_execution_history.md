@@ -352,3 +352,18 @@ temp/inspect_portal.py
 ---
 
 *This document is maintained by Lesandro (lead analyst) and updated after each pair completes.*
+
+---
+
+### 2026-04-19 Wave 6D — Cloud file-sync stale on Wave 6 commit (17a73ce)
+
+Moved 9 files from `output/_comparison/` → `output/charts/hy_ig_v2_spy/plotly/`; 
+Cloud served new page code but old file tree → zoom charts rendered as 
+"chart pending" placeholders. Resolved via manual Reboot App. 
+
+**Third incident this quarter** — above META-FRD 2/quarter threshold. 
+Escalation candidate for backlog: file-moves under `output/` don't reliably 
+trigger Cloud's change-detection for non-`app/` paths. 
+
+Future pair work should consider: (a) dual-step moves (land new → wait → 
+confirm → delete old), or (b) per-pair-subdir-only pattern avoiding moves.
