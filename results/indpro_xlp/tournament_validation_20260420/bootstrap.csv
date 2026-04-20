@@ -1,0 +1,6 @@
+signal,threshold,strategy,oos_sharpe,bootstrap_p_value,significant_at_5pct
+S8_accel,T2_roll_p75,P3_long_short_counter,1.1147,0.1942,False
+S3_mom,T1_fixed_p50,P1_long_cash_counter,1.0791,0.2138,False
+S8_accel,T2_roll_p25,P1_long_cash_counter,1.0628,0.2276,False
+S7_mom6m,T2_roll_p75,P1_long_cash_pro,1.0368,0.248,False
+S8_accel,T2_roll_p50,P1_long_cash_counter,1.0221,0.2594,False

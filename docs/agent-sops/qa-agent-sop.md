@@ -156,8 +156,7 @@ Result codes:
 - [ ] All schemas mentioned validate against their instances (`scripts/validate_schema.py` exit 0)
 - [ ] `smoke_loader.py` passes (failures = 0)
 - [ ] `smoke_schema_consumers.py` passes (failures = 0)
-- [ ] Cloud pages render for the reference pair (all 4: Story, Evidence, Strategy, Methodology)
-- [ ] Zero "chart pending" on reference-pair pages (GATE-28)
+- [ ] **QA-CL4** — Cloud / deploy verification passes (GATE-27 render test + GATE-28 placeholder prohibition + GATE-29 clean-checkout smoke test). See QA-CL4 section below.
 - [ ] Direction triangulation passes (APP-DIR1)
 - [ ] All new stakeholder items addressed in spirit (not just letter)
 - [ ] META-XVC cross-version diff: undeclared drift count = 0
@@ -165,6 +164,7 @@ Result codes:
 - [ ] Deflection audit (GATE-30): every deflection target exists and contains the claimed content
 - [ ] Any discrepancy recorded with specific evidence (file path + exact command/output)
 - [ ] **QA-CL2** — Semantic KPI triangulation passes on every reference-pair Strategy/Evidence page (Sharpe-return-vol, drawdown-vol, turnover-trade-count invariants all plausible)
+- [ ] **QA-CL3** — Every agent dispatched this wave has updated `experience.md` + `memories.md` + `session-notes.md` with META-SRV evidence (wc -l or git diff citation). Check PostToolUse hook log for mtime warnings first; re-verify each flagged agent manually.
 
 ### QA-CL2 — Semantic KPI Triangulation
 
@@ -208,6 +208,80 @@ For every reference-pair Strategy page and Evidence page that displays numeric K
 - **APP-DIR1** — direction triangulation is the *categorical* analog of QA-CL2's *numerical* triangulation; same principle, different data type.
 
 **Why this rule exists.** Wave 4D-1 migrated `winner_summary.oos_ann_return` from percent-form (11.33) to ratio-form (0.1133). Four Strategy-page lines in `app/pages/9_hy_ig_v2_spy_strategy.py` formatted the field as `f"+{val:.1f}%"`, which renders "+0.1%" instead of "+11.3%". Every upstream check passed (schema valid, smoke tests green, file exists, DOM renders). The bug was only caught by a stakeholder reading the Strategy page and noticing that a Sharpe of 1.27 cannot coexist with a 0.1% annualized return. QA-CL2 formalizes that stakeholder-style triangulation as a mandatory QA step so the Wave 4D-1 class of bug cannot ship again.
+
+### QA-CL3 — Agent Memory Discipline Verification
+
+> **SOPs accumulate every lesson. Agents do not — unless memory files are updated at wave closure. QA-CL3 makes that update auditable, the same way QA-CL2 makes KPI display auditable.**
+
+For every agent dispatched in the wave, Quincy verifies that `experience.md`, `memories.md`, and `session-notes.md` were updated during the dispatch and carry evidence per META-SRV.
+
+**Execution protocol.**
+
+1. Check the PostToolUse hook log output for `⚠  META-AM` warnings (these appear inline after each Agent tool call in Lead's session). List every agent that triggered a warning.
+2. For each dispatched agent (warned or not), verify independently:
+   - `wc -l ~/.claude/agents/<role>-<name>/experience.md` — line count must have increased vs. prior wave (use `git diff HEAD~N` on the file as evidence).
+   - `wc -l ~/.claude/agents/<role>-<name>/memories.md` — same.
+   - `wc -l _pws/<role>-<name>/session-notes.md` — same.
+3. Record each as PASS / PASS-with-note / FAIL with the verification command and output.
+
+**Action on FAIL.**
+
+- **First occurrence (agent):** PASS-with-note. Note: wisdom captured in transient chat but not persisted; context already lost.
+- **Subsequent occurrences (same agent):** FAIL (blocking). Systemic non-capture means SOD is running on stale memory across multiple dispatches.
+- On FAIL, Lead must manually reconstruct from `session-notes.md` + `git diff` and update the agent's global profile before wave closure.
+
+**Cross-references.**
+
+- **META-AM** — the rule QA-CL3 enforces. See `docs/agent-sops/team-coordination.md` §META-AM.
+- **PostToolUse hook** — `~/.claude/hooks/check-agent-eod.sh` — automated mtime audit; QA-CL3 is the independent re-verification.
+- **Mandatory Dispatch Template** — `team-coordination.md` §Mandatory Dispatch Template — the `AGENT_ID:` convention and EOD block that make the hook and this check possible.
+- **GATE-31** — a QA-CL3 FAIL (subsequent occurrence) blocks acceptance the same as any other GATE-31 FAIL.
+
+**Why this rule exists.** Wave 9B audit showed that after 8 waves of multi-agent work, five of six agents had never updated their global profile. Every lesson lived in the SOPs and regression notes; none lived in the agents themselves. A fresh dispatch of any agent would SOD with near-empty memory. QA-CL3 closes the gap by making memory-update compliance as auditable as KPI display compliance.
+
+### QA-CL4 — Cloud / Deploy Verification
+
+> **A pair that passes all local smoke tests but fails in the cloud environment is not shipped. QA-CL4 is Quincy's ownership of the cloud render gate — previously Lead-owned and unnamed, which allowed the step to be deferred silently.**
+
+For every wave that adds or modifies portal pages, Quincy verifies cloud/deploy correctness via three nested gates:
+
+**GATE-27 — End-to-End Chart Render Test.**
+- Vera's VIZ-V5 smoke test log: every canonical chart artifact loads via Plotly, has ≥1 data trace, and non-empty title.
+- Ace's loader smoke test: every chart referenced in portal pages resolves via `load_plotly_chart(name, pair_id)` and returns a non-None Figure.
+- Verify: `python3 app/_smoke_tests/smoke_loader.py` → `failures=0`.
+
+**GATE-28 — Reference-Pair Placeholder Prohibition.**
+- Headless-browser DOM audit across all 4 pages (Story, Evidence, Strategy, Methodology).
+- Zero occurrences of "chart pending" placeholder text on reference pairs.
+- Verify: `python3 temp/inspect_portal.py` or equivalent Playwright headless pass.
+
+**GATE-29 — Clean-Checkout Deployment Test.**
+- Simulate cloud environment: `git clone --depth 1 "$(git rev-parse --show-toplevel)" /tmp/clean_checkout_{pair_id}`.
+- Run `python3 app/_smoke_tests/smoke_loader.py` inside the clean checkout.
+- Assert: zero FileNotFound, zero None-return, zero placeholder.
+- Confirms no file is silently `.gitignore`-excluded or missing from `git add`.
+
+**Execution protocol.**
+1. Run GATE-27 smoke tests locally first — fast, catches most render failures.
+2. Run GATE-28 headless browser pass if Streamlit server is available.
+3. Run GATE-29 clean-checkout test for every new pair added in this wave.
+4. Record each gate as PASS / PASS-with-note / FAIL with the command and output.
+
+**Action on FAIL.**
+- GATE-27 FAIL: Vera (chart rendering bug) or Ace (loader reference bug) — narrow scope, fix before acceptance.
+- GATE-28 FAIL: Ace (placeholder not replaced) — BLOCKING on reference pairs.
+- GATE-29 FAIL: almost always a missing `git add` or `.gitignore` exclusion of a required artifact — fix with `git add -f` after confirming ECON-DS2 allows it.
+
+**Cross-references.**
+- **GATE-27 / GATE-28 / GATE-29** — the three blocking gates QA-CL4 operationalizes.
+- **ECON-DS2** — deploy-required artifact allowlist (Evan's companion rule for GATE-29).
+- **META-VNC** — cross-environment content continuity; GATE-29 is its deployment operationalization.
+- **META-FRD** — force-redeploy rule; a QA-CL4 FAIL on GATE-29 triggers force-redeploy only after the root cause is confirmed.
+- **Standard Task Flow step 8** — "Browser verification (headless inspect + fix)" — this was previously Lead-owned; QA-CL4 makes it Quincy-owned and evidence-gated.
+
+**When QA-CL4 fires.** Every wave that adds new portal pages or modifies existing ones. For memory-only or SOP-only waves with no portal changes, QA-CL4 is N/A — mark as skipped with rationale.
+
+**Why this rule exists.** Waves 5D, 7D, and 8D each required a dedicated cloud-verification dispatch after the main wave because the portal rendered locally but failed a clean-checkout or cloud-render check. These dispatches were ad-hoc and Lead-owned; they happened because Lesandro remembered to add them, not because the SOP required them. QA-CL4 makes the cloud verify step a named, Quincy-owned, evidence-gated requirement so it cannot be forgotten.
 
 ## Quality Gates
 

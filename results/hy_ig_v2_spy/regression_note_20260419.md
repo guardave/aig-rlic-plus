@@ -2407,3 +2407,46 @@ Pattern group counts:
 
 Prior-version observation (META-XVC):
 - Sample HY-IG pages (`1_hy_ig_story.py` … `4_hy_ig_methodology.py`) and sample pairs (`5_indpro_*`, `6_ted_*`, `7_permit_*`, `8_vix_*`) still render percent-form tournament CSV consumer patterns per Evan's Wave 8B-1 cross-pair observer note. These remain correct for their respective pairs because those pair CSVs are still in percent form. Deferred to BL-002 cross-pair inherit; out of scope for Wave 8B-2.
+
+
+### Lead's Wave 9A META-AM + self catch-up (2026-04-20)
+
+Claims:
+- Authored META-AM (Agent Memory Discipline) in `docs/agent-sops/team-coordination.md` as a blocking meta-rule at wave closure, requiring agents to update `~/.claude/agents/<role>-<name>/experience.md`, `~/.claude/agents/<role>-<name>/memories.md`, and `_pws/<role>-<name>/session-notes.md` with META-SRV evidence format.
+- Registered META-AM in `docs/standards.md` META table and in the Newly Assigned IDs section.
+- Performed Lead's own 48-hour session catch-up: appended cross-project patterns to `~/.claude/agents/lead-lesandro/experience.md` (+31 lines); created global `~/.claude/agents/lead-lesandro/memories.md` (37 lines, dated-incident format); appended session update to `~/.claude/agents/lead-lesandro/projects/aig-rlic-plus.md` (+~45 lines, total 72); appended full Waves 1-9A timeline to `_pws/lead-lesandro/session-notes.md` (+85 lines, total 268).
+- Did not modify other agents' profile/experience/memory files (running in parallel dispatches per Wave 9 plan).
+
+Evidence:
+- File: `docs/agent-sops/team-coordination.md` section `### Agent Memory Discipline (Meta-Rule META-AM)`
+- Verification: `grep -nE "^### Agent Memory Discipline" docs/agent-sops/team-coordination.md`
+- Result: 1 match, inserted after META-UC and before ECON-SD (Scope Discipline) section.
+- File: `docs/standards.md` META table row + Newly Assigned IDs entry
+- Verification: `grep -nE "\| META-AM \|" docs/standards.md`
+- Result: 1 table row match; Newly Assigned IDs section gains a META-AM bullet post-`META-UC, QA-CL2` bullet.
+- File: `~/.claude/agents/lead-lesandro/experience.md`
+- Verification: `wc -l ~/.claude/agents/lead-lesandro/experience.md`
+- Result: 99 lines (was 68; +31 lines for the `## 2026-04-19/20 session` section distilling 8 cross-project patterns).
+- File: `~/.claude/agents/lead-lesandro/memories.md`
+- Verification: `wc -l ~/.claude/agents/lead-lesandro/memories.md`
+- Result: 37 lines (file newly created; dated-incident format covering Waves 3 / 4B / 4D-1 / 5 / 5-force-redeploy / 6A / 6B / Quincy runs 6C-7C-8C / user-principle quote / Wave-9A audit).
+- File: `~/.claude/agents/lead-lesandro/projects/aig-rlic-plus.md`
+- Verification: `wc -l ~/.claude/agents/lead-lesandro/projects/aig-rlic-plus.md`
+- Result: 72 lines (previously ~34; gained wave-by-wave summary, reference-pair-candidate state, next-session priorities).
+- File: `_pws/lead-lesandro/session-notes.md`
+- Verification: `wc -l _pws/lead-lesandro/session-notes.md`
+- Result: 268 lines (was 183; +85 lines for the `## Session: 2026-04-19/20 (Waves 1-9A, 48-hour intensive)` append).
+
+Top 5 cross-project insights distilled into lead-lesandro/experience.md:
+1. Fix SOPs first, never hot-patch the symptom (user-confirmed principle; "scalable and reproducible" is the test).
+2. Cross-agent boundary contracts are the #1 bug source (Wave 4B proof: 13+ discretion points at handoffs).
+3. Canonical = metadata, not pixels (META-AL abstraction test: "does the artifact contain pair-specific data?").
+4. Independent QA catches what producer self-review misses (3 proof points: Waves 6C/7C/8C).
+5. Schema migrations need consumer inventory; agent memory needs its own update layer (META-UC + META-AM — two distinct SOP-blind gaps closed this session).
+
+Pattern group counts:
+- Rules authored: 1 (META-AM).
+- Registry rows updated: 1 (META table in standards.md).
+- Newly Assigned IDs bullet: 1 (META-AM entry).
+- Lead memory files updated: 4 (experience / memories / projects / session-notes).
+- Total lines added across all Lead files: ~198 (31 + 37 + ~45 + 85).

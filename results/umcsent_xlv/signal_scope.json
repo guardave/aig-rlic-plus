@@ -1,0 +1,100 @@
+{
+  "pair_id": "umcsent_xlv",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-04-20T00:00:00Z",
+  "indicator_axis": {
+    "canonical_column": "umcsent",
+    "display_name": "U of Michigan Consumer Sentiment",
+    "derivatives": [
+      {
+        "name": "umcsent",
+        "definition": "The raw University of Michigan Consumer Sentiment index — a monthly survey of US consumer confidence about personal finances and the economy.",
+        "formula": "raw column (FRED: UMCSENT, monthly frequency)",
+        "role": "raw",
+        "appears_in_charts": ["hero", "spread_history_annotated"],
+        "notes": "Non-stationary in levels. Use derived transforms for regression and tournament signals."
+      },
+      {
+        "name": "umcsent_yoy",
+        "definition": "The year-over-year percentage change in consumer sentiment — how much sentiment has risen or fallen compared with the same month last year.",
+        "formula": "(umcsent / umcsent.shift(12) - 1) * 100",
+        "role": "threshold_input",
+        "appears_in_charts": ["correlation_heatmap"],
+        "notes": "WINNER signal (tournament code S2_yoy). Zero-crossing threshold (T4_zero). Approximately stationary."
+      },
+      {
+        "name": "umcsent_mom",
+        "definition": "The month-over-month percentage change in consumer sentiment — how much sentiment moved compared with the prior month.",
+        "formula": "(umcsent / umcsent.shift(1) - 1) * 100",
+        "role": "derivative",
+        "appears_in_charts": ["correlation_heatmap"],
+        "notes": "Tournament signal code S3_mom. Approximately stationary."
+      },
+      {
+        "name": "umcsent_zscore",
+        "definition": "The 36-month rolling z-score of consumer sentiment — how many standard deviations the current reading is from its recent average, with memory of the last 3 years.",
+        "formula": "(umcsent - rolling_mean_36m(umcsent)) / rolling_std_36m(umcsent)",
+        "role": "derivative",
+        "appears_in_charts": ["correlation_heatmap"],
+        "notes": "Tournament signal code S4_zscore. Stationary by construction. Key finding: countercyclical signal at extremes per interpretation_metadata."
+      },
+      {
+        "name": "umcsent_3m_ma",
+        "definition": "The 3-month moving average of consumer sentiment — a smoothed version that reduces month-to-month noise.",
+        "formula": "umcsent.rolling(3, min_periods=2).mean()",
+        "role": "derivative",
+        "appears_in_charts": ["hero"],
+        "notes": "Tournament signal code S5_3m_ma. Non-stationary in levels; used as a regime indicator."
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "xlv",
+    "display_name": "Health Care Select Sector (XLV)",
+    "derivatives": [
+      {
+        "name": "xlv",
+        "definition": "The raw adjusted close price of the XLV ETF (Health Care Select Sector SPDR). All target-axis derivatives are computed from this single series.",
+        "formula": "raw column (Yahoo Finance, auto_adjust=True, monthly last close)",
+        "role": "raw",
+        "appears_in_charts": ["hero", "equity_curves"],
+        "notes": "Adjusted for dividends and splits."
+      },
+      {
+        "name": "xlv_ret_1m",
+        "definition": "The 1-month simple return of XLV — how much the ETF gained or lost in the current month.",
+        "formula": "xlv.pct_change()",
+        "role": "derivative",
+        "appears_in_charts": ["equity_curves", "drawdown"],
+        "notes": "Base return used in tournament performance calculations."
+      },
+      {
+        "name": "xlv_ret_3m",
+        "definition": "The 3-month total return of XLV — cumulative price change over a quarter.",
+        "formula": "xlv / xlv.shift(3) - 1",
+        "role": "derivative",
+        "appears_in_charts": ["correlation_heatmap"],
+        "notes": "Medium-horizon return diagnostic."
+      },
+      {
+        "name": "xlv_ret_12m",
+        "definition": "The 12-month total return of XLV — one year of cumulative price appreciation, a long-horizon trend measure.",
+        "formula": "xlv / xlv.shift(12) - 1",
+        "role": "derivative",
+        "appears_in_charts": ["correlation_heatmap"],
+        "notes": "Annual return diagnostic."
+      },
+      {
+        "name": "xlv_vol_12m",
+        "definition": "The 12-month rolling realized volatility of XLV monthly returns, annualized — how volatile the ETF has been over the past year.",
+        "formula": "xlv_ret_1m.rolling(12).std() * sqrt(12)",
+        "role": "diagnostic",
+        "appears_in_charts": [],
+        "notes": "Risk metric for regime characterization. Decimal output (0.15 = 15% annualized)."
+      }
+    ]
+  },
+  "notes": "Wave 10B retro-apply: migrated from flat-array structure to schema-compliant axis_block format per QA-CL BLOCK. Controls (UNRATE, DGS10, VIX) remain out of scope per ECON-SD and are documented in interpretation_metadata.json."
+}

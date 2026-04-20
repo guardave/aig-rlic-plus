@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "pair_id": "umcsent_xlv",
+  "indicator": "umcsent",
+  "target": "xlv",
+  "indicator_nature": "leading",
+  "indicator_type": "sentiment",
+  "strategy_objective": "min_mdd",
+  "expected_direction": "countercyclical",
+  "observed_direction": "procyclical",
+  "direction_consistent": false,
+  "key_finding": "UMCSENT umcsent_zscore predicts xlv_fwd_6m (coef=0.0127, t=2.81, p=0.0050, R\u00b2=0.034)",
+  "owner_writes": {
+    "dana": [
+      "indicator",
+      "target"
+    ],
+    "evan": [
+      "indicator_nature",
+      "indicator_type",
+      "strategy_objective"
+    ],
+    "ray": [
+      "key_finding"
+    ]
+  },
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-04-20T00:00:00Z"
+}

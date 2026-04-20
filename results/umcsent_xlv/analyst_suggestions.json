@@ -1,0 +1,47 @@
+{
+  "pair_id": "umcsent_xlv",
+  "schema_version": "1.0.0",
+  "last_updated_at": "2026-04-20T00:00:00Z",
+  "suggestions": [
+    {
+      "signal_name": "Unemployment Rate YoY Change (UNRATE)",
+      "proposed_by": "evan",
+      "source": "FRED: UNRATE",
+      "observation": "Unemployment rate year-over-year change historically rises predictively before recessions; UMCSENT and UNRATE are known to be correlated with consumer confidence.",
+      "rationale": "Rising unemployment reduces consumer confidence and may interact with UMCSENT as a leading or coincident signal for healthcare sector defensive rotation. A UNRATE x XLV pair could test this channel directly.",
+      "possible_use_case": "new pair",
+      "caveats": "Out-of-scope for this pair per ECON-SD. Correlation with XLV not formally tested in this pipeline. UNRATE has publication lag of approximately 30 days.",
+      "date_filed": "2026-04-20"
+    },
+    {
+      "signal_name": "Yield Curve 10Y-3M Spread",
+      "proposed_by": "evan",
+      "source": "FRED: DGS10, DTB3",
+      "observation": "10Y-3M Treasury yield spread is a well-documented recession predictor; yield curve inversion precedes defensive sector rotation.",
+      "rationale": "Inverted yield curves signal economic slowdown and historically trigger rotation into defensive sectors like healthcare. A yield-curve x XLV pair would be a natural extension of yield-curve x SPY analysis already in the pair catalog.",
+      "possible_use_case": "new pair",
+      "caveats": "Out-of-scope for this pair per ECON-SD. Correlation with XLV not formally tested here. Yield curve has multiple inversion false-alarms in recent cycles.",
+      "date_filed": "2026-04-20"
+    },
+    {
+      "signal_name": "VIX Level (CBOE Volatility Index)",
+      "proposed_by": "evan",
+      "source": "Yahoo Finance: ^VIX",
+      "observation": "VIX level is a known regime indicator for risk-on vs risk-off positioning; elevated VIX correlates with flight-to-defensive sectors.",
+      "rationale": "VIX spikes often coincide with defensive healthcare sector outperformance as investors seek lower-beta assets. A VIX x XLV pair could quantify this regime relationship separately from the UMCSENT sentiment channel.",
+      "possible_use_case": "new pair",
+      "caveats": "Out-of-scope for this pair per ECON-SD. Formal Pearson r with XLV not computed in this pipeline. VIX is a non-stationary daily series requiring frequency alignment for monthly XLV analysis.",
+      "date_filed": "2026-04-20"
+    },
+    {
+      "signal_name": "PCE Health Care Expenditures (DHLCRG3Q086SBEA)",
+      "proposed_by": "evan",
+      "source": "FRED: DHLCRG3Q086SBEA",
+      "observation": "Personal Consumption Expenditures in Health Care capture sector-specific demand; this is a direct fundamental driver of healthcare company revenues.",
+      "rationale": "Unlike sentiment-based predictors, PCE Health Care directly measures consumer spending in the sector that XLV tracks. Rising health care spending could support XLV returns through fundamental revenue channels independent of general consumer confidence.",
+      "possible_use_case": "new pair",
+      "caveats": "Out-of-scope for this sentiment-based pair per ECON-SD. Quarterly frequency requires interpolation for monthly alignment. Series may have significant revision history affecting real-time signal quality.",
+      "date_filed": "2026-04-20"
+    }
+  ]
+}

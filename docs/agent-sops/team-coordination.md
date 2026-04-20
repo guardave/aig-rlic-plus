@@ -627,6 +627,78 @@ It does **not** apply to:
 - **Wave 8 (stakeholder):** Strategy-page KPI card displayed `OOS Return (arithmetic ann.) +0.1%` instead of the correct `+11.3%`. Root cause: `f"+{0.1133:.1f}%"` formats as "+0.1%" (the `%` is a character, not a percent-format directive).
 - **META-UC formalizes the consumer-inventory step** that would have caught the 4 Strategy-page format-strings at Wave 4D-1 time. The bug would not have shipped.
 
+### Agent Memory Discipline (Meta-Rule META-AM)
+
+> **Agent-level wisdom — patterns learned across multiple waves, gotchas internalized, cross-task discoveries — must be captured in agent-level memory files at wave closure. Otherwise a fresh dispatch of the same role re-reads the SOP from scratch but has no "what this agent actually learned" to draw on, and the SOD procedure is hollow.**
+
+**Principle.** SOPs encode timeless rules; regression notes encode session-specific claims. Neither captures the connective-tissue wisdom an agent accumulates across waves ("this heuristic works better than what the SOP literally says", "this failure mode recurs in scenario X", "my prior instance solved this by Y"). If that wisdom stays in transient chat context and is never written to the agent's profile, it evaporates at session end — and every fresh dispatch of the role rediscovers the same gotchas from zero.
+
+**Rule.** At the end of every wave closure — or every major dispatch that meaningfully touches an agent's domain — the agent **MUST** append entries to all three of:
+
+1. `~/.claude/agents/<role>-<name>/experience.md` — cross-project, timeless patterns (the wisdom that generalizes beyond this project).
+2. `~/.claude/agents/<role>-<name>/memories.md` — specific incidents and the lesson drawn from each (dated, concrete).
+3. `_pws/<role>-<name>/session-notes.md` — project-specific session log (this project's chronology).
+
+**Required content per append (all three files).**
+
+- **What I did** — brief, tied to a commit SHA or wave ID (e.g., "Wave 8B-2, commit `a2f6570`: migrated 15 consumer sites to ratio-aware formatters").
+- **What I learned** — rules internalized, gotchas noticed, patterns observed across this wave and prior ones.
+- **What I'd tell my next instance** — actionable wisdom the next dispatch of this role can act on without re-discovery.
+
+**META-SRV evidence format applies.** Every claim in the memory update carries its own evidence block — file path, verification command, result. "I updated experience.md" without a `wc -l` or `git diff` citation is a META-AM violation the same way it is a META-SRV violation.
+
+**Enforcement.** QA-CL3 (active as of Wave 9C) checks that every wave closure has corresponding `experience.md` + `memories.md` + `session-notes.md` updates with META-SRV evidence. The PostToolUse hook (`~/.claude/hooks/check-agent-eod.sh`) audits file mtime after each Agent tool call and warns Lead if files are stale.
+
+- **First occurrence:** PASS-with-note (the wisdom is captured in transient chat but not persisted).
+- **Subsequent occurrences:** FAIL (blocking). Systemic non-capture means the SOD procedure is running on stale memory across multiple dispatches.
+
+**Cross-references.**
+
+- **Companion to META-SRV** — self-report discipline applies to memory updates. A memory-update claim that cannot be verified by `wc -l` / `git diff` is not a valid self-report.
+- **Companion to META-VNC** — memory evolution is content-continuity across sessions. An agent's experience.md must grow monotonically; silent drops of prior learnings are the same class of bug as silent content drops across iterations.
+- **Supports SOD procedure** — agents re-read profile + experience + memories at session start; if these files are never updated, SOD surfaces no cumulative wisdom and the session launches with amnesia.
+- **Operationalizes CLAUDE.md Agent Lifecycle § EOD** — the global agent protocol already requires "Promote cross-project learnings to global experience.md" at EOD; META-AM makes that requirement blocking at wave closure (the finer granularity) with concrete evidence format.
+
+**Why this rule exists.** Wave 9 kickoff audit (2026-04-20) showed that after 8 waves of heavy multi-agent work — MRA reviews, Quincy audits, stakeholder catches, SOP evolutions, cross-version discipline — five of six agents had experience.md and memories.md files whose last-modified date preceded Wave 1. The SOPs absorbed every lesson (META-SRV, META-UC, META-AL, META-FRD, META-VNC, META-XVC, QA-CL1/CL2 …), but the agents themselves did not retain the connective-tissue "what did I, as Evan / Vera / Ace / Ray / Quincy, actually learn." A fresh dispatch of any of those agents in a future session would SOD-recall near-empty memory files. META-AM closes that gap by making the memory update as mandatory as the regression-note entry, with the same verification rigor.
+
+**Scope.** Applies to all 6 agent roles (Dana, Evan, Vera, Ray, Ace, Quincy) and to Lead (whose own memory update is proportionally larger because Lead coordinates across all agents). Applies every wave closure, not only major releases — small waves still produce cumulative wisdom worth capturing.
+
+### Mandatory Dispatch Template (META-AM enforcement at the prompt level)
+
+> **Every agent dispatch prompt must (a) identify the agent with a machine-parseable `AGENT_ID:` line and (b) end with the mandatory EOD block. These two conventions are what allow the PostToolUse audit hook and QA-CL3 to function.**
+
+**`AGENT_ID:` convention.** The first non-blank line of every agent dispatch prompt must be:
+
+```
+AGENT_ID: <role>-<name>
+```
+
+Example: `AGENT_ID: appdev-ace`. This is consumed by the PostToolUse hook (`~/.claude/hooks/check-agent-eod.sh`) to identify which agent's global profile to audit after the dispatch returns.
+
+**Mandatory EOD block.** Every dispatch prompt must close with the following block, verbatim (substitute `<role>-<name>` with the agent's ID):
+
+```
+---
+## MANDATORY EOD — complete before returning, no exceptions
+
+1. Append to `~/.claude/agents/<role>-<name>/experience.md` — cross-project patterns learned this wave.
+2. Append to `~/.claude/agents/<role>-<name>/memories.md` — dated incident log for this wave.
+3. Append to `_pws/<role>-<name>/session-notes.md` — project-specific session summary.
+4. For each file: record evidence (wc -l or git diff) per META-AM / META-SRV.
+
+Do not return without completing all four steps.
+```
+
+**Enforcement chain.**
+
+| Layer | Mechanism | When it fires |
+|-------|-----------|---------------|
+| L1 (prevention) | This template — EOD block is part of the task definition | At dispatch time |
+| L2 (audit) | PostToolUse hook checks file mtime; warns Lead if stale | After dispatch returns |
+| L3 (verification) | QA-CL3 — Quincy checks evidence at wave closure | At wave sign-off |
+
+**Why context loss makes L1 load-bearing.** Once a dispatch returns, the sub-agent's context is gone. A re-dispatch to fix a missed EOD update can only reconstruct from `session-notes.md` + `git diff`. L1 (this template) is the only mechanism that acts while context is live. L2 and L3 detect and log the failure but cannot fully recover it.
+
 ### Scope Discipline (ECON-SD / ECON-UD / ECON-AS)
 
 > **A pair's page makes a thematic promise on both axes. Off-scope signals violate that promise silently; disclosure + scope-registry + suggestion-channel operationalize the promise without losing useful observations.**

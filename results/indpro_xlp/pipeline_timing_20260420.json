@@ -1,0 +1,25 @@
+{
+  "pair_id": "indpro_xlp",
+  "indicator": "Industrial Production",
+  "target": "Consumer Staples (XLP)",
+  "date": "20260420",
+  "pipeline_seconds": 11.8,
+  "stage_times": {
+    "1_data_sourcing": 0.9,
+    "2_alignment_and_derived": 0.1,
+    "3_stationarity_and_quality": 0.5,
+    "4_exploratory": 0.1,
+    "5_core_models": 5.3,
+    "6_tournament": 4.9,
+    "7_validation": 0.2
+  },
+  "monthly_rows": 336,
+  "monthly_cols": 33,
+  "daily_rows": 7305,
+  "daily_cols": 17,
+  "tournament_combos": 3331,
+  "valid_strategies": 2692,
+  "oos_n_months": 84,
+  "oos_start": "2019-01-31",
+  "is_end": "2018-12-31"
+}

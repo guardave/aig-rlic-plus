@@ -1,0 +1,19 @@
+# Loader smoke test  pair_id=umcsent_xlv  timestamp=2026-04-20T13:16:12
+# Pages scanned: 4
+#   app/pages/10_umcsent_xlv_evidence.py
+#   app/pages/10_umcsent_xlv_methodology.py
+#   app/pages/10_umcsent_xlv_story.py
+#   app/pages/10_umcsent_xlv_strategy.py
+
+SKIP  app/pages/10_umcsent_xlv_evidence.py:100  chart_name is a variable; resolved via EVIDENCE_DYNAMIC_CHARTS list
+PASS  app/pages/10_umcsent_xlv_story.py:198  chart=umcsent_xlv_hero  traces=2  title='Michigan Consumer Sentiment YoY Change vs XLV Price (1999-2025)'
+PASS  app/pages/10_umcsent_xlv_story.py:252  chart=umcsent_xlv_regime_stats  traces=2  title='XLV Returns by Michigan Consumer Sentiment Quartile'
+PASS  app/pages/10_umcsent_xlv_strategy.py:260  chart=umcsent_xlv_equity_curves  traces=4  title='Equity Curves: Top Strategies vs Buy-and-Hold (OOS 2019-04 – 2025-12)'
+PASS  app/pages/10_umcsent_xlv_strategy.py:278  chart=umcsent_xlv_drawdown  traces=2  title='Drawdown Comparison: Winner Strategy vs Buy-and-Hold XLV'
+PASS  app/pages/10_umcsent_xlv_strategy.py:296  chart=umcsent_xlv_rolling_sharpe  traces=2  title='Rolling 12-Month Sharpe Ratio (OOS Period)'
+PASS  app/pages/10_umcsent_xlv_strategy.py:342  chart=umcsent_xlv_wf_sharpe  traces=2  title='Walk-Forward Annual Sharpe Ratio (OOS Period by Year)'
+PASS  app/pages/10_umcsent_xlv_strategy.py:416  chart=umcsent_xlv_tournament_scatter  traces=4  title='Tournament Results: 1,306 Combinations (1,195 Valid)'
+
+# Dynamic charts (Evidence render_method_block helper)
+
+# RESULT  passes=7  failures=0

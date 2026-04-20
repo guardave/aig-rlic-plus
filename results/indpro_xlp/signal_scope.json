@@ -1,0 +1,116 @@
+{
+  "pair_id": "indpro_xlp",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-04-20T00:00:00Z",
+  "indicator_axis": {
+    "canonical_column": "indpro",
+    "display_name": "Industrial Production Index",
+    "derivatives": [
+      {
+        "name": "indpro",
+        "definition": "The raw Federal Reserve Industrial Production Index — a monthly measure of real output from US manufacturing, mining, and utilities, indexed to 2017=100.",
+        "formula": "raw column (FRED: INDPRO, monthly frequency, seasonally adjusted)",
+        "role": "raw",
+        "appears_in_charts": ["hero", "spread_history_annotated"],
+        "notes": "Non-stationary in levels. Unit: index. COVID-19 April 2020 outlier (-12.7% MoM) is a known extreme observation."
+      },
+      {
+        "name": "indpro_yoy",
+        "definition": "The year-over-year percentage change in industrial production — how much output has grown or contracted compared with the same month last year.",
+        "formula": "(indpro / indpro.shift(12) - 1) * 100",
+        "role": "derivative",
+        "appears_in_charts": ["correlation_heatmap"],
+        "notes": "Tournament signal code S2_yoy. Approximately stationary."
+      },
+      {
+        "name": "indpro_mom",
+        "definition": "The month-over-month percentage change in industrial production — the near-term momentum of the manufacturing and mining sector.",
+        "formula": "(indpro / indpro.shift(1) - 1) * 100",
+        "role": "derivative",
+        "appears_in_charts": ["correlation_heatmap"],
+        "notes": "Tournament signal code S3_mom. Approximately stationary."
+      },
+      {
+        "name": "indpro_zscore",
+        "definition": "The 36-month rolling z-score of industrial production — how far the current IP level deviates from its recent 3-year mean, in standard deviation units.",
+        "formula": "(indpro - rolling_mean_36m(indpro)) / rolling_std_36m(indpro)",
+        "role": "derivative",
+        "appears_in_charts": ["correlation_heatmap"],
+        "notes": "Tournament signal code S4_zscore. Stationary by construction."
+      },
+      {
+        "name": "indpro_3m_ma",
+        "definition": "The 3-month moving average of industrial production — a smoothed version that removes high-frequency noise from the monthly series.",
+        "formula": "indpro.rolling(3, min_periods=2).mean()",
+        "role": "derivative",
+        "appears_in_charts": ["hero"],
+        "notes": "Tournament signal code S5_3m_ma. Non-stationary in levels."
+      },
+      {
+        "name": "indpro_6m_ma",
+        "definition": "The 6-month moving average of industrial production — a slower-moving trend filter than the 3-month average, capturing half-year industrial cycles.",
+        "formula": "indpro.rolling(6, min_periods=4).mean()",
+        "role": "derivative",
+        "appears_in_charts": [],
+        "notes": "Tournament signal code S6_6m_ma. Non-stationary in levels; used for trend deviation diagnostics."
+      },
+      {
+        "name": "indpro_accel",
+        "definition": "The acceleration of industrial production — the change in the month-over-month rate of change, capturing whether the IP growth rate is itself speeding up or slowing down.",
+        "formula": "indpro_mom.diff(1)  [i.e., indpro_mom[t] - indpro_mom[t-1]]",
+        "role": "threshold_input",
+        "appears_in_charts": ["correlation_heatmap"],
+        "notes": "WINNER signal (tournament code S8_accel). Used with T2_roll_p75 threshold (gt rule). Stationary by construction as a second-difference of levels."
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "xlp",
+    "display_name": "Consumer Staples Select Sector (XLP)",
+    "derivatives": [
+      {
+        "name": "xlp",
+        "definition": "The raw adjusted close price of the XLP ETF (Consumer Staples Select Sector SPDR). All target-axis derivatives are computed from this single series.",
+        "formula": "raw column (Yahoo Finance, auto_adjust=True, monthly last close)",
+        "role": "raw",
+        "appears_in_charts": ["hero", "equity_curves"],
+        "notes": "Adjusted for dividends and splits. Sample starts 1998 (shorter than INDPRO which begins 1919)."
+      },
+      {
+        "name": "xlp_ret_1m",
+        "definition": "The 1-month simple return of XLP — how much the ETF gained or lost in the current month.",
+        "formula": "xlp.pct_change()",
+        "role": "derivative",
+        "appears_in_charts": ["equity_curves", "drawdown"],
+        "notes": "Base return used in tournament performance calculations."
+      },
+      {
+        "name": "xlp_ret_3m",
+        "definition": "The 3-month total return of XLP — cumulative price change over a quarter.",
+        "formula": "xlp / xlp.shift(3) - 1",
+        "role": "derivative",
+        "appears_in_charts": ["correlation_heatmap"],
+        "notes": "Medium-horizon return diagnostic."
+      },
+      {
+        "name": "xlp_ret_12m",
+        "definition": "The 12-month total return of XLP — one year of cumulative price appreciation, a long-horizon trend measure.",
+        "formula": "xlp / xlp.shift(12) - 1",
+        "role": "derivative",
+        "appears_in_charts": ["correlation_heatmap"],
+        "notes": "Annual return diagnostic."
+      },
+      {
+        "name": "xlp_vol_12m",
+        "definition": "The 12-month rolling realized volatility of XLP monthly returns, annualized — how volatile the ETF has been over the past year.",
+        "formula": "xlp_ret_1m.rolling(12).std() * sqrt(12)",
+        "role": "diagnostic",
+        "appears_in_charts": [],
+        "notes": "Risk metric for regime characterization. Decimal output (0.12 = 12% annualized)."
+      }
+    ]
+  },
+  "notes": "Wave 10B retro-apply: migrated from flat-array structure to schema-compliant axis_block format per QA-CL BLOCK. Controls (VIX, yield spread, UNRATE, CAPUT) remain out of scope per ECON-SD."
+}

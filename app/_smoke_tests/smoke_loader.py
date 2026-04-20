@@ -62,18 +62,25 @@ class _MockSt:
         pass
 
 
-# HY-IG v2 Evidence page uses dynamic chart_name (via render_method_block).
-# Enumerate the literal values here to keep the smoke test comprehensive.
-EVIDENCE_DYNAMIC_CHARTS = [
-    "correlation_heatmap",
-    "granger_f_by_lag",
-    "local_projections",
-    "hmm_regime_probs",
-    "quantile_regression",
-    "ccf_prewhitened",
-    "transfer_entropy",
-    "regime_quartile_returns",
-]
+# Per-pair dynamic chart lists for render_method_block helpers.
+# Only needed when chart names aren't literal strings in the page source
+# (AST can't see them). Add a new entry when a pair uses non-literal chart names.
+# Pairs whose block dicts use literal strings are already covered by AST — leave
+# them out of this dict (or map to an empty list).
+EVIDENCE_DYNAMIC_CHARTS: dict[str, list[str]] = {
+    "hy_ig_v2_spy": [
+        "correlation_heatmap",
+        "granger_f_by_lag",
+        "local_projections",
+        "hmm_regime_probs",
+        "quantile_regression",
+        "ccf_prewhitened",
+        "transfer_entropy",
+        "regime_quartile_returns",
+    ],
+    # umcsent_xlv and indpro_xlp block dicts use literal chart names →
+    # fully covered by AST parsing; no dynamic supplement needed.
+}
 
 
 def extract_static_calls(page_path: str) -> list[tuple[int, str | None]]:
@@ -119,10 +126,10 @@ def run_smoke_test(pair_id: str) -> tuple[int, int, list[str]]:
     mock_st = _MockSt()
     charts_mod.st = mock_st
 
-    # Short-form pair token for glob (HY-IG v2 uses pair_id='hy_ig_v2_spy' and
-    # page filenames start with '9_hy_ig_v2_spy_*')
+    # Dynamically discover page prefix — pages follow N_{pair_id}_*.py naming
+    # where N varies per pair (e.g. 9 for hy_ig_v2_spy, 10 for umcsent_xlv).
     page_glob = os.path.join(
-        repo_root, "app", "pages", f"9_{pair_id}_*.py"
+        repo_root, "app", "pages", f"*_{pair_id}_*.py"
     )
     pages = sorted(glob.glob(page_glob))
 
@@ -186,7 +193,7 @@ def run_smoke_test(pair_id: str) -> tuple[int, int, list[str]]:
     # Dynamic-chart set (Evidence render_method_block helper)
     log.append("")
     log.append("# Dynamic charts (Evidence render_method_block helper)")
-    for chart_name in EVIDENCE_DYNAMIC_CHARTS:
+    for chart_name in EVIDENCE_DYNAMIC_CHARTS.get(pair_id, []):
         _check(chart_name, f"{pair_id}/evidence<render_method_block>")
 
     log.append("")

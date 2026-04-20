@@ -1,0 +1,37 @@
+{
+  "pair_id": "indpro_xlp",
+  "schema_version": "1.0.0",
+  "last_updated_at": "2026-04-20T00:00:00Z",
+  "suggestions": [
+    {
+      "signal_name": "S&P 500 Return (SPY)",
+      "proposed_by": "evan",
+      "source": "Yahoo Finance: SPY",
+      "observation": "Pearson r = 0.038, p = 0.497 — no statistically significant correlation between INDPRO acceleration and SPY contemporaneous returns over the in-sample period.",
+      "rationale": "The weak and insignificant correlation confirms that XLP, as a defensive sector, has different return drivers than the broad market, validating the choice of XLP as target. A separate INDPRO x SPY pair (Pair #1) has been completed and serves as the natural comparison baseline.",
+      "possible_use_case": "cross-pair comparison",
+      "caveats": "Out-of-scope for this pair per ECON-SD. Contemporaneous correlation may differ from predictive lead-lag relationship tested in the tournament.",
+      "date_filed": "2026-04-20"
+    },
+    {
+      "signal_name": "VIX Volatility Index",
+      "proposed_by": "evan",
+      "source": "Yahoo Finance: ^VIX",
+      "observation": "Pearson r = -0.006, p = 0.917 — essentially zero correlation between INDPRO acceleration and VIX over the sample period.",
+      "rationale": "VIX could serve as a regime overlay for the INDPRO x XLP strategy — for example, conditioning the long-short signal on low-VIX periods when the countercyclical relationship is expected to be more stable. However, direct correlation is negligible.",
+      "possible_use_case": "regime overlay",
+      "caveats": "Out-of-scope for this pair per ECON-SD. Near-zero correlation may reflect frequency mismatch (daily VIX aggregated to monthly). VIX as a regime indicator would require separate pair analysis.",
+      "date_filed": "2026-04-20"
+    },
+    {
+      "signal_name": "Yield Curve 10Y-3M Spread",
+      "proposed_by": "evan",
+      "source": "FRED: DGS10, DTB3",
+      "observation": "Pearson r = -0.028, p = 0.612 — no significant linear correlation between INDPRO acceleration and yield curve slope over the sample period.",
+      "rationale": "The yield curve and industrial production are both recession predictors but appear to operate on different timescales and channels. A yield spread x XLP pair could test whether the fixed income recession signal generates a stronger XLP defensive-rotation strategy than the IP production channel.",
+      "possible_use_case": "new pair",
+      "caveats": "Out-of-scope for this pair per ECON-SD. Yield curve has multiple false inversions in recent cycles and may be structurally less informative in the post-QE era.",
+      "date_filed": "2026-04-20"
+    }
+  ]
+}

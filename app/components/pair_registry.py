@@ -134,15 +134,19 @@ def load_pair_registry():
         # Map indicator/target to display names
         indicator_names = {
             "indpro": "Industrial Production",
+            "indpro_xlp": "Industrial Production",
             "permit_spy": "Building Permits",
             "vix_vix3m_spy": "VIX/VIX3M Ratio",
             "sofr_ted_spy": "SOFR - DTB3 (TED)",
             "dff_ted_spy": "DFF - DTB3 (Fed Funds TED)",
             "ted_spliced_spy": "Spliced TED Spread",
             "hy_ig_v2_spy": "HY-IG Credit Spread",
+            "umcsent_xlv": "Michigan Consumer Sentiment",
         }
         target_names = {
             "spy": "S&P 500",
+            "xlv": "Health Care Select Sector (XLV)",
+            "xlp": "Consumer Staples Select Sector (XLP)",
         }
 
         indicator = indicator_names.get(pair_dir, indicator_names.get(
@@ -156,6 +160,8 @@ def load_pair_registry():
             "permit_spy": "pages/7_permit_spy",
             "vix_vix3m_spy": "pages/8_vix_vix3m_spy",
             "hy_ig_v2_spy": "pages/9_hy_ig_v2_spy",
+            "umcsent_xlv": "pages/10_umcsent_xlv",
+            "indpro_xlp": "pages/14_indpro_xlp",
         }
         if pair_dir in ted_variants:
             page_prefix = "pages/6_ted_variants"

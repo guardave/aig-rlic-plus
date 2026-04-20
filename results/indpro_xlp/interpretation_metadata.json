@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "pair_id": "indpro_xlp",
+  "indicator": "indpro",
+  "target": "xlp",
+  "indicator_nature": "coincident",
+  "indicator_type": "production",
+  "strategy_objective": "min_mdd",
+  "expected_direction": "countercyclical",
+  "observed_direction": "countercyclical",
+  "direction_consistent": true,
+  "key_finding": "Best strategy: S8_accel / T2_roll_p75 / P3_long_short_counter / L3. OOS Sharpe 1.11 vs 0.7437 B&H. Max drawdown -13.5% vs -13.3% B&H.",
+  "mechanism": "Rising industrial production signals economic expansion and improved corporate earnings. During expansions, investors rotate away from defensive consumer staples (XLP) toward growth sectors, causing XLP to underperform. During contractions (falling IP), defensive sectors outperform as investors seek capital preservation.",
+  "caveats": [
+    "INDPRO is released with ~6-week publication lag \u2014 real-time trading must account for delay",
+    "COVID-19 April 2020 outlier (-12.7% MoM) may distort regime estimates",
+    "Consumer staples are defensive but not perfectly countercyclical \u2014 earnings quality matters",
+    "Monthly frequency limits signal granularity for daily strategies",
+    "XLP sample starts 1998 \u2014 shorter history than INDPRO (1919)"
+  ],
+  "owner_writes": {
+    "dana": [
+      "indicator",
+      "target"
+    ],
+    "evan": [
+      "indicator_nature",
+      "indicator_type",
+      "strategy_objective"
+    ],
+    "ray": [
+      "key_finding"
+    ]
+  },
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-04-20T00:00:00Z"
+}
