@@ -111,25 +111,33 @@ if _scope_path.exists():
     with open(_scope_path) as f:
         scope = json.load(f)
 
-    in_scope = scope.get("in_scope", {})
+    ind_axis = scope.get("indicator_axis", {})
+    tgt_axis = scope.get("target_axis", {})
+    ind_derivatives = ind_axis.get("derivatives", [])
+    tgt_derivatives = tgt_axis.get("derivatives", [])
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("**In-scope: INDPRO Derivatives**")
-        for s in in_scope.get("indicator_derivatives", []):
-            st.markdown(f"- `{s}`")
-    with col2:
-        st.markdown("**In-scope: XLP Derivatives**")
-        for s in in_scope.get("target_derivatives", []):
-            st.markdown(f"- `{s}`")
+    if not ind_derivatives and not tgt_derivatives:
+        st.error("signal_scope.json is missing indicator_axis/target_axis — check schema migration (APP-SS1)")
+    else:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown(f"**In-scope: {ind_axis.get('display_name', 'Indicator')} Derivatives**")
+            for d in ind_derivatives:
+                st.markdown(f"- **`{d['name']}`** — {d.get('definition', '')}")
+        with col2:
+            st.markdown(f"**In-scope: {tgt_axis.get('display_name', 'Target')} Derivatives**")
+            for d in tgt_derivatives:
+                st.markdown(f"- **`{d['name']}`** — {d.get('definition', '')}")
 
-    st.caption(
-        "What this shows: per ECON-SD (Signal Discipline), only INDPRO and XLP derivatives "
-        "are eligible as primary tournament signals. Controls (VIX, yield spread, UNRATE, CAPUT) "
-        "are used only in regression controls, not as trading signals."
-    )
+        st.caption(
+            "What this shows: per ECON-SD (Signal Discipline), only "
+            f"{ind_axis.get('display_name', 'indicator')} and "
+            f"{tgt_axis.get('display_name', 'target')} derivatives "
+            "are eligible as primary tournament signals. Controls (VIX, yield spread, UNRATE, CAPUT) "
+            "are used only in regression controls, not as trading signals."
+        )
 else:
-    st.info("Signal scope file not found.")
+    st.error("signal_scope.json not found — Signal Universe cannot be rendered (APP-SS1)")
 
 st.markdown("---")
 

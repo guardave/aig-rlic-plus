@@ -59,3 +59,63 @@ Blocking items:
 Non-blocking observations:
 - `max_drawdown` key alias (vs `oos_max_drawdown`) is a pre-existing known issue (BL-801, filed Wave 8C).
 - MDD/vol ratio of 0.929 is borderline but defensible for a defensive sector ETF with a 6-year OOS window.
+
+---
+
+## QA Verification — Wave 10D GATE-28 Cloud Structural (2026-04-20, Quincy)
+
+### Context
+Cloud app rebooted at commit `eb023f9` which fixed two structural bugs caught by prior visual review:
+- **BUG-1** (all 8 pages): Missing breadcrumb nav component (`render_breadcrumb()`)
+- **BUG-2** (`indpro_xlp` Evidence only): Flat tab structure instead of required Level 1/Level 2 tabs
+
+This wave verifies that both fixes are live on the cloud app for umcsent_xlv (4 pages).
+
+### Summary
+Total checks: 18 (4 pages × 4 structural checks + 1 evidence-tab check for evidence page)
+PASS: 18 | FAIL: 0 | NAV_ERROR: 0
+
+### Detailed findings
+| # | Page | Check | Result | Evidence |
+|---|------|-------|--------|----------|
+| 1 | umcsent_xlv_story | chart_pending | PASS | No "chart pending" found |
+| 2 | umcsent_xlv_story | python_errors | PASS | No Python errors detected |
+| 3 | umcsent_xlv_story | page_not_blank | PASS | dom=9257 chars |
+| 4 | umcsent_xlv_story | breadcrumb_nav | PASS | All 4 labels present: Story, Evidence, Strategy, Methodology |
+| 5 | umcsent_xlv_evidence | chart_pending | PASS | No "chart pending" found |
+| 6 | umcsent_xlv_evidence | python_errors | PASS | No Python errors detected |
+| 7 | umcsent_xlv_evidence | page_not_blank | PASS | dom=4653 chars |
+| 8 | umcsent_xlv_evidence | breadcrumb_nav | PASS | All 4 labels present: Story, Evidence, Strategy, Methodology |
+| 9 | umcsent_xlv_evidence | evidence_tab_structure | PASS | Found "Level 1" — Level 1/Level 2 tab structure confirmed |
+| 10 | umcsent_xlv_strategy | chart_pending | PASS | No "chart pending" found |
+| 11 | umcsent_xlv_strategy | python_errors | PASS | No Python errors detected |
+| 12 | umcsent_xlv_strategy | page_not_blank | PASS | dom=4430 chars |
+| 13 | umcsent_xlv_strategy | breadcrumb_nav | PASS | All 4 labels present: Story, Evidence, Strategy, Methodology |
+| 14 | umcsent_xlv_methodology | chart_pending | PASS | No "chart pending" found |
+| 15 | umcsent_xlv_methodology | python_errors | PASS | No Python errors detected |
+| 16 | umcsent_xlv_methodology | page_not_blank | PASS | dom=8486 chars |
+| 17 | umcsent_xlv_methodology | breadcrumb_nav | PASS | All 4 labels present: Story, Evidence, Strategy, Methodology |
+| 18 | All 4 pages | nav_error | PASS | All pages loaded successfully (networkidle, 90s timeout) |
+
+### Evidence of BUG-1 fix (breadcrumb)
+DOM text sample from `umcsent_xlv_story`:
+```
+📖 Story  🔬 Evidence  🎯 Strategy  📐 Methodology
+```
+All 4 navigation labels confirmed in live DOM.
+
+### Evidence of Level 1/Level 2 tab structure (umcsent_xlv_evidence)
+DOM text sample:
+```
+Evidence is organized in two tiers. Level 1 covers basic correlations and cross-correlations. Level 2 adds regime analysis and distributional methods.
+Level 1 — Basic Analysis
+```
+
+### Sign-off recommendation
+GATE-28 PASS — All 18 structural checks pass across 4 umcsent_xlv pages. BUG-1 (missing breadcrumb) confirmed resolved. Evidence page Level 1/Level 2 tab structure confirmed present.
+
+Verification artefacts:
+- Script: `temp/260420_wave10d_cloud/wave10d_gate28_structural.py`
+- Screenshots: `temp/260420_wave10d_cloud/screenshots/umcsent_xlv_*.png`
+- DOM text: `temp/260420_wave10d_cloud/dom_text/umcsent_xlv_*_dom.txt`
+- JSON: `temp/260420_wave10d_cloud/wave10d_gate28_structural_results.json`

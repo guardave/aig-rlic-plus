@@ -987,7 +987,8 @@ Before handing off:
 
 - [ ] **All 4 page types exist** (Story, Evidence, Strategy, Methodology) — no exceptions, no shortcuts
 - [ ] **Breadcrumb nav present on all 4 pages** — every pair's pages MUST include the standard 4-step breadcrumb (`Story → Evidence → Strategy → Methodology`). Verify by opening each page and confirming the breadcrumb row renders at the top. Reference: `app/pages/9_hy_ig_v2_spy_story.py` is the canonical template — new pair pages MUST be derived from it, not built from scratch. Structural differences from the reference template require a documented justification in `regression_note_{date}.md`.
-- [ ] **Evidence page tab structure matches reference pair** — tabs must follow the Level 1 / Level 2 → sub-tab structure (Correlation, Granger Causality, etc.) as implemented in `app/pages/9_hy_ig_v2_spy_evidence.py`. Method blocks must use `render_method_block()`. Any deviation requires a documented justification.
+- [ ] **Evidence page tab structure matches reference pair** — tabs must follow the Level 1 / Level 2 → sub-tab structure
+- [ ] **Signal Universe section renders non-empty** — both the indicator derivatives column and target derivatives column on the Methodology page must display ≥1 item. Empty columns indicate a schema reader mismatch (see APP-SS1). Verify by opening the Methodology page and visually confirming the Signal Universe section is populated. (Correlation, Granger Causality, etc.) as implemented in `app/pages/9_hy_ig_v2_spy_evidence.py`. Method blocks must use `render_method_block()`. Any deviation requires a documented justification.
 - [ ] All pages load without errors
 - [ ] Storytelling arc is clear from page 1 through page 5
 - [ ] Every chart has a title, caption, and source note
@@ -1064,6 +1065,19 @@ Artifact-existence checks (the prior Defense-2 protocol, META-ZI loader-contract
 - **On validation failure** → `st.error(...)` with the full validator error list is rendered (per APP-SEV1 L1) AND a `SchemaValidationError` is raised to short-circuit the component's render path. The panel does NOT fall back to a literal-name map, a "chart pending" placeholder, or any silent default.
 - **Retired fallbacks:** the `_SIGNAL_CODE_TO_COLUMN` dict and the `_resolve_signal_column` helper in `probability_engine_panel.py` are removed — structurally unnecessary once the schema guarantees `signal_column`.
 - **Cross-references:** ECON-H5 (producer-side mandate in the same artifact), META-CF (Contract File Standard), APP-SEV1 (severity policy), APP-DIR1 (direction cross-check), ECON-H2 (App Dev Handoff).
+
+### Rule APP-SS1 — `signal_scope.json` Consumer Contract (Methodology Page Signal Universe)
+
+**Added 2026-04-20 (Wave 10D post-cloud-verify).** Closes the gap exposed when `signal_scope.json` was migrated from the legacy flat-array format to the axis-block schema (`indicator_axis` / `target_axis`) but the Methodology page reader was not updated, causing the Signal Universe section to render silently empty.
+
+- **Binding:** `results/{pair_id}/signal_scope.json` is the canonical descriptor of in-scope indicator and target derivatives per ECON-SD (Signal Discipline). The Methodology page **MUST** read derivatives from the axis-block format:
+  - Indicator derivatives: `scope["indicator_axis"]["derivatives"]` — a list of objects, each with `name`, `definition`, `formula`, `role`, `appears_in_charts`, `notes`.
+  - Target derivatives: `scope["target_axis"]["derivatives"]` — same object shape.
+- **Legacy format retired:** the old `scope["in_scope"]["indicator_derivatives"]` / `scope["in_scope"]["target_derivatives"]` flat-string-list keys are no longer authoritative. Reader code using the legacy path will silently render empty columns because the key does not exist in migrated files. This is a silent failure with no Python error — it is the exact failure mode this rule closes.
+- **Required display:** the Signal Universe section MUST render at least one item in each column (indicator derivatives and target derivatives). If either column renders empty, treat as APP-SEV1 L1 (Loud-Error) — use `st.error("signal_scope.json missing indicator_axis/target_axis — check schema migration")` and short-circuit.
+- **Quality gate:** add to the pre-handoff checklist — "Signal Universe section renders ≥1 derivative in both columns on the Methodology page." An empty column is a gate failure regardless of whether any Python error is raised.
+- **Schema migration protocol:** whenever Evan migrates `signal_scope.json` to a new schema version, Ace MUST update all existing Methodology page readers in the same commit. The schema version field (`schema_version`) must be read and logged at page load; a version mismatch between the reader's expected version and the file's `schema_version` is an L2 Warning (APP-SEV1).
+- **Cross-references:** ECON-SD (producer-side scope discipline), ECON-UD (producer-side derivative documentation), APP-SEV1 (severity policy), GATE-28 (structural checks now include Signal Universe non-empty), META-CF (Contract File Standard).
 
 ### Rule APP-SEV1 — Validation Severity Policy (loud-error / loud-warning / caption; silent skip prohibited)
 

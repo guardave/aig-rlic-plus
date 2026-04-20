@@ -106,6 +106,24 @@
 
 **Smoke test:** `python3 app/_smoke_tests/smoke_loader.py indpro_xlp` → `failures=0` (6 PASS, 0 FAIL).
 
+### APP-SS1 dispatch (2026-04-20) -- Signal Universe reader mismatch retro-apply
+
+**What:** Retro-applied rule APP-SS1 to `14_indpro_xlp_methodology.py`. The Signal Universe block used the legacy `in_scope.indicator_derivatives` / `in_scope.target_derivatives` path which does not exist in the current `signal_scope.json` schema (migrated to `indicator_axis.derivatives` / `target_axis.derivatives`). Both columns rendered silently empty.
+
+**Files changed:**
+- `app/pages/14_indpro_xlp_methodology.py` — lines 114–132: replaced legacy `scope.get("in_scope", {})` reader with APP-SS1 canonical `scope.get("indicator_axis", {}).get("derivatives", [])` reader. Updated display to show `name` + `definition` per derivative object (was just column name strings).
+
+**`10_umcsent_xlv_methodology.py` status:** Already uses `render_signal_universe(PAIR_ID)` component — no change needed. Component reads new schema correctly.
+
+**Validation result:**
+```
+indpro_xlp: indicator=7 derivatives, target=5 derivatives
+umcsent_xlv: indicator=5 derivatives, target=5 derivatives
+APP-SS1 validation PASS
+```
+
+**Root cause:** `14_indpro_xlp_methodology.py` had an inline hand-rolled JSON reader instead of using the `render_signal_universe` component. The component was already correct; only the inline reader was stale.
+
 ## Open threads / backlog
 
 - BL-002 -- cross-pair unit-form inherit for sample pairs (1-4_*, 5-8_*) still in percent form.
