@@ -168,6 +168,7 @@ Result codes:
 - [ ] Deflection audit (GATE-30): every deflection target exists and contains the claimed content
 - [ ] Any discrepancy recorded with specific evidence (file path + exact command/output)
 - [ ] **QA-CL2** — Semantic KPI triangulation passes on every reference-pair Strategy/Evidence page (Sharpe-return-vol, drawdown-vol, turnover-trade-count invariants all plausible)
+- [ ] **QA-CL5 / GATE-NR** — Narrative instrument reference check passes on all Story and Evidence pages (see GATE-NR below)
 - [ ] **QA-CL3** — Every agent dispatched this wave has updated `experience.md` + `memories.md` + `session-notes.md` with META-SRV evidence (wc -l or git diff citation). Check PostToolUse hook log for mtime warnings first; re-verify each flagged agent manually.
 
 ### QA-CL2 — Semantic KPI Triangulation
@@ -286,6 +287,41 @@ For every wave that adds or modifies portal pages, Quincy verifies cloud/deploy 
 **When QA-CL4 fires.** Every wave that adds new portal pages or modifies existing ones. For memory-only or SOP-only waves with no portal changes, QA-CL4 is N/A — mark as skipped with rationale.
 
 **Why this rule exists.** Waves 5D, 7D, and 8D each required a dedicated cloud-verification dispatch after the main wave because the portal rendered locally but failed a clean-checkout or cloud-render check. These dispatches were ad-hoc and Lead-owned; they happened because Lesandro remembered to add them, not because the SOP required them. QA-CL4 makes the cloud verify step a named, Quincy-owned, evidence-gated requirement so it cannot be forgotten.
+
+### QA-CL5 / GATE-NR — Narrative Instrument Reference Check
+
+> **Schema validation, KPI triangulation, and direction checks all verify numbers and enums. They cannot detect prose that names the wrong instrument. GATE-NR fills that gap.**
+
+**Added 2026-04-20 (Wave 10E).** Root cause: `indpro_xlp` Story page displayed "It Is Not a Perfect Inverse of the S&P 500" — the S&P 500 is the target of a different pair (`indpro_spy`). The narrative had been copied without pair-specific revision. No existing gate caught it because all gates checked data, not prose text.
+
+**What Quincy checks:**
+
+For every Story page and Evidence page in the wave, QA reads the rendered DOM text (from the cloud verify Playwright pass or a local equivalent) and:
+
+1. **Extracts instrument names** — scan for equity/index instrument names: all ETF tickers (`SPY`, `XLV`, `XLP`, `VIX`, `QQQ`, etc.), index names (`S&P 500`, `S&P500`, `Nasdaq`, `Dow Jones`, `Russell`), and asset class shorthand (`the market` when unambiguous context makes it mean SPY specifically).
+2. **Reads the pair's expected instruments** — from `results/{pair_id}/interpretation_metadata.json`: `target_symbol` (e.g., `XLP`) and `indicator_id` (e.g., `INDPRO`). Also load `results/{pair_id}/winner_summary.json` for `target_symbol` cross-check.
+3. **Asserts no wrong-pair instruments appear** — any instrument name found in the narrative that does not match the pair's `target_symbol` or `indicator_id` is a GATE-NR FAIL. A single wrong reference is blocking.
+
+**Result codes:**
+- **PASS** — all instrument references match the pair's target and indicator.
+- **FAIL (blocking)** — a wrong-pair instrument name found. Producer: Ray must correct; Ace must re-render. Acceptance blocked.
+- **PASS-with-note** — an instrument appears in a clearly comparative context (e.g., "unlike SPY, XLP...") and is semantically correct — note it but do not block.
+
+**Verification command pattern:**
+```python
+# Pseudocode for the DOM check
+wrong_instruments = [name for name in KNOWN_INSTRUMENTS
+                     if name in dom_text
+                     and name != target_symbol
+                     and name not in comparison_whitelist]
+assert len(wrong_instruments) == 0, f"GATE-NR FAIL: {wrong_instruments}"
+```
+
+**When GATE-NR fires:** every wave that adds or modifies Story or Evidence pages. For schema-only or SOP-only waves, mark as N/A.
+
+**Why this rule exists.** Wave 10E cloud verify caught "S&P 500" on the `indpro_xlp` Story page. The target for that pair is XLP (Consumer Staples). The text was copied by Ace from a different pair's narrative without Ray's pair-specific authoring. GATE-NR formalises the instrument-name check so this class of factual narrative error cannot survive to cloud delivery.
+
+**Cross-references:** RES-NR1 (Ray's production-side rule — narrative must be pair-specific), APP-PT1 (Ace renders only; Ray authors), APP-DIR1 (direction triangulation — the categorical companion to this numerical check).
 
 ## Quality Gates
 

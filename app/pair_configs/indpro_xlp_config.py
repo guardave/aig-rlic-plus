@@ -136,7 +136,7 @@ The acceleration signal is inherently noisier than level or momentum signals (be
 """
 
     NARRATIVE_SECTION_2 = """
-### The Nuance: It Is Not a Perfect Inverse of the S&P 500
+### The Nuance: XLP Is Not a Mechanical Inverse of the IP Cycle
 
 If XLP perfectly mirrored the inverse of industrial production, building a profitable strategy would be trivial. Reality is more complex:
 

@@ -1096,6 +1096,15 @@ Artifact-existence checks (the prior Defense-2 protocol, META-ZI loader-contract
 - **Quality gate (retro-applied to SOP Quality Gates list):** "New pair pages use page_templates.py, not hand-written pages". An `st.*` call in a page file (other than the template call) blocks acceptance.
 - **Cross-references:** APP-CC1 (caption-prefix registry — templates author per registry), APP-EX1 (expander-title registry — templates author per registry), APP-SEV1 (severity policy), APP-SS1 (Signal Universe reader — template owns it), APP-WS1 (winner_summary schema load — template owns it), APP-DIR1 (direction-check call site — template owns it), META-CF, META-ELI5, META-NMF (no ad-hoc fix — fix lives in template, not in page).
 
+**APP-PT1 Supplement — Narrative Authorship Contract (added 2026-04-20).**
+
+Narrative text in `app/pair_configs/{pair_id}_config.py` must be **authored by Research Ray for that specific pair** — not written inline by Ace, not copied from another pair without Ray's review. This rule closes the root cause of the Wave-10E narrative instrument reference bug ("S&P 500" appearing on the `indpro_xlp` XLP pair).
+
+- **Ace's role:** structure and rendering only. Ace populates config skeleton fields (data sources, methods table rows, tournament design rows) from the pair's actual JSON/CSV artifacts. All narrative prose fields (story sections, thesis, nuance text, plain-English expander body, "How to Read This" text) are left as explicit placeholders until Ray delivers them.
+- **Ray's role:** author all narrative prose fields in `pair_configs/{pair_id}_config.py`. Ray's handoff to Ace includes the completed narrative fields.
+- **Placeholder convention:** until Ray delivers, Ace sets narrative prose fields to `"[NARRATIVE PENDING — Ray to author per RES-NR1]"` and the page renders a visible `st.warning("Narrative pending — Ray has not yet delivered pair-specific prose for this section.")`. This makes the gap observable, not silent.
+- **RES-NR1 is Ray's companion rule:** before delivering narrative, Ray must verify all instrument names against `interpretation_metadata.json.target_symbol`. See Research SOP Rule RES-NR1.
+
 ### Rule APP-SEV1 — Validation Severity Policy (loud-error / loud-warning / caption; silent skip prohibited)
 
 **Added 2026-04-19 (Wave 4D-2).** Resolves Ace cross-review Proposed APP-SEV1. Replaces the ad-hoc per-component severity decisions with a single policy.

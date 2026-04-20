@@ -422,6 +422,19 @@ These patterns were identified from the HY-IG reference analysis (pair #5), whic
 
 **Cross-reference:** See AppDev SOP, "Rendering Patterns for Presentation Quality" for how Ace implements these in Streamlit.
 
+### Rule RES-NR1 — Narrative Instrument Reference Accuracy (Blocking)
+
+**Added 2026-04-20 (Wave 10E post-cloud-verify).** Closes the gap where narrative prose authored by Ace (or copied between pairs) contained the wrong target instrument name — e.g., "S&P 500" appearing on a page for the `indpro_xlp` (XLP) pair.
+
+- **Who owns narrative text:** Ray owns all user-facing narrative prose on Story, Evidence, Strategy, and Methodology pages. Ace renders and structures; Ace does NOT author narrative. Any narrative text in `app/pair_configs/{pair_id}_config.py` must have been written or reviewed by Ray for that specific pair. Narrative copied from another pair without Ray's sign-off is a violation of this rule.
+- **Instrument reference rule:** every reference to an equity instrument (ETF ticker, index name, asset class label) in a portal narrative MUST match `results/{pair_id}/interpretation_metadata.json.target_symbol` (for the target) and `interpretation_metadata.json.indicator_id` (for the indicator). Hardcoded instrument names from a different pair constitute a factual error and a GATE-31 blocking failure.
+- **Verification step (mandatory before handoff):** Ray must read `interpretation_metadata.json` for the pair and confirm that all instrument names in the narrative match. This check is logged in the handoff note as:
+  ```
+  RES-NR1 check: target_symbol={value}; narrative references verified: [list of instrument names found and confirmed]
+  ```
+- **Quality gate item:** added to Ray's checklist — "All instrument references in Story/Evidence narrative match `interpretation_metadata.json.target_symbol` and indicator fields."
+- **Cross-references:** APP-PT1 (Ace renders, Ray authors), GATE-NR (QA enforcement of this rule at DOM level), RES-17 (narrative frontmatter), APP-DIR1 (direction triangulation — direction accuracy is the companion rule to instrument accuracy).
+
 ### Rule RES-11 — Story Page Headline Structure (Blocking)
 
 Every portal Story page narrative MUST place the **headline (data summary punchline with 2-3 KPI metrics)** at the top, followed by a hook paragraph, the narrative arc, and bullets. This is a blocking rule — Lead rejects Story pages that bury the data summary mid-narrative.
@@ -967,6 +980,7 @@ Before handing off:
 - [ ] Event timeline delivered as CSV alongside markdown (for Vera's batch import)
 - [ ] For multi-pair batches, direction contradiction records delivered as structured JSON (not prose flags)
 - [ ] `interpretation_metadata.json`: `strategy_objective` (min_mdd/max_sharpe/max_return) set based on tournament winner. "unknown" is NOT acceptable. See team-coordination.md item 21.
+- [ ] **RES-NR1** — All instrument references in Story/Evidence narrative match `interpretation_metadata.json.target_symbol` and indicator fields. RES-NR1 check logged in handoff note.
 
 ### Defense 1: Self-Describing Artifacts (Producer Rule)
 

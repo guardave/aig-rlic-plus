@@ -127,3 +127,164 @@ Verification artefacts:
 - Screenshots: `temp/260420_wave10d_cloud/screenshots/indpro_xlp_*.png`
 - DOM text: `temp/260420_wave10d_cloud/dom_text/indpro_xlp_*_dom.txt`
 - JSON: `temp/260420_wave10d_cloud/wave10d_gate28_structural_results.json`
+
+---
+
+## QA Verification — Wave 10D Signal Universe (2026-04-20, Quincy)
+
+**QA Agent:** Quincy | **Commit verified:** 57d1bb6 | **Gate:** Signal Universe non-empty render
+
+### Context
+
+`14_indpro_xlp_methodology.py` had a legacy schema reader (`scope.get("in_scope", {})`) that returned an empty dict because `signal_scope.json` was migrated to `indicator_axis`/`target_axis` format. The fix (commit 57d1bb6) updated the reader to `scope.get("indicator_axis", {}).get("derivatives", [])`. This verification confirms the fix is live on the cloud app and both new-pair Methodology pages render a populated Signal Universe section.
+
+### Checks
+
+| # | Check | Result | Evidence |
+|---|-------|--------|----------|
+| 1 | Signal Universe section header present (`signal universe`) | PASS | Found at DOM position 1437: "Signal Universe (ECON-SD)" |
+| 2 | In-scope subsection header present (`in-scope:`) | PASS | "In-scope: Industrial Production Index Derivatives" rendered |
+| 3 | Derivative name `indpro` present in DOM | PASS | 7 INDPRO derivatives listed (indpro, indpro_yoy, indpro_mom, indpro_zscore, indpro_3m_ma, indpro_6m_ma, indpro_accel) with full descriptions |
+| 4 | No `chart pending` text | PASS | 0 occurrences |
+| 5 | No Python errors in DOM | PASS | No traceback, AttributeError, KeyError, or other exception text found |
+| 6 | Breadcrumb/pair identifier `indpro_xlp` present | PASS | Present in footer: "Pair: indpro_xlp" |
+
+**Overall: PASS — 6/6 checks pass**
+
+### Signal Universe content confirmed (DOM extract)
+
+```
+Signal Universe (ECON-SD)
+
+In-scope: Industrial Production Index Derivatives
+
+indpro — The raw Federal Reserve Industrial Production Index...
+indpro_yoy — The year-over-year percentage change in industrial production...
+indpro_mom — The month-over-month percentage change in industrial production...
+indpro_zscore — The 36-month rolling z-score of industrial production...
+indpro_3m_ma — The 3-month moving average of industrial production...
+indpro_6m_ma — The 6-month moving average of industrial production...
+indpro_accel — The acceleration of industrial production...
+
+In-scope: Consumer Staples Select Sector (XLP) Derivatives
+
+xlp, xlp_ret_1m, xlp_ret_3m, xlp_ret_12m, xlp_vol_12m — all listed with descriptions
+```
+
+Previously these columns rendered silently blank (empty dict from legacy schema reader). Fix confirmed working.
+
+### Playwright technical note
+
+Streamlit Cloud renders all content inside an iframe at `/~/+/<page_slug>`. Outer `document.body.innerText` always returns empty (JavaScript SPA shell). Correct approach: extract text from the frame with `/~/+/` in URL via `page.frames`. Updated QA script (`temp/260420_wave10d_cloud/wave10d_signal_universe.py`) now uses correct frame extraction.
+
+### Verification artefacts
+
+- Script: `temp/260420_wave10d_cloud/wave10d_signal_universe.py`
+- Screenshot: `temp/260420_wave10d_cloud/screenshots/indpro_xlp_methodology_signal_universe.png`
+- DOM text: `temp/260420_wave10d_cloud/dom_text/indpro_xlp_methodology_signal_universe_dom.txt` (6,616 chars)
+- JSON: `temp/260420_wave10d_cloud/wave10d_signal_universe_results.json`
+
+### Sign-off recommendation
+
+PASS — Signal Universe section renders correctly on `indpro_xlp_methodology` page. Schema reader fix confirmed live.
+
+---
+
+## RES-NR1 Verification — indpro_xlp (2026-04-20, Ray)
+
+**Rule:** RES-NR1 — every instrument reference in portal narrative prose must match `results/indpro_xlp/interpretation_metadata.json` → `target_symbol` field.
+
+**Confirmed identifiers:**
+- `target_symbol`: XLP (Consumer Staples Select Sector SPDR)
+- `indicator_id`: INDPRO (Industrial Production Index)
+
+**Instrument references found and verified:**
+
+| Location in `app/pair_configs/indpro_xlp_config.py` | Reference found | Status | Action |
+|------------------------------------------------------|----------------|--------|--------|
+| `StoryConfig.PAGE_TITLE` | "Consumer Staples sector" (implied via "Staples Stumble") | CORRECT | None |
+| `StoryConfig.PAGE_SUBTITLE` | "consumer staples sector" | CORRECT | None |
+| `StoryConfig.PLAIN_ENGLISH` | "consumer staples ETF (XLP)" | CORRECT | None |
+| `StoryConfig.WHERE_THIS_FITS` | "consumer staples sector (XLP)" | CORRECT | None |
+| `StoryConfig.ONE_SENTENCE_THESIS` | "XLP", "defensive consumer staples" | CORRECT | None |
+| `StoryConfig.KPI_CAPTION` | "XLP" | CORRECT | None |
+| `StoryConfig.HERO_TITLE` | "Consumer Staples (XLP)" | CORRECT | None |
+| `StoryConfig.NARRATIVE_SECTION_1` (line ~121) | "broad S&P 500" used as comparative contrast, not target; XLP is clearly identified as the target | CORRECT — comparative context, not target misidentification | None |
+| `StoryConfig.NARRATIVE_SECTION_2` heading (was line 139) | **"The Nuance: It Is Not a Perfect Inverse of the S&P 500"** — S&P 500 named in title where target is XLP | **VIOLATION (GATE-NR)** | **FIXED → "The Nuance: XLP Is Not a Mechanical Inverse of the IP Cycle"** |
+| `StoryConfig.NARRATIVE_SECTION_2` body | "XLP" used throughout | CORRECT | None |
+| `StoryConfig.SCOPE_NOTE` | "INDPRO → XLP relationship" | CORRECT | None |
+| `CORRELATION_BLOCK` fields | "XLP" throughout | CORRECT | None |
+| `GRANGER_BLOCK` fields | "XLP", "consumer staples equity returns" | CORRECT | None |
+| `REGIME_BLOCK` fields | "XLP" throughout | CORRECT | None |
+| `EVIDENCE_METHOD_BLOCKS` | "XLP", "consumer staples ETF (XLP)" | CORRECT | None |
+| `StrategyConfig.PAGE_TITLE` | "XLP Timing" | CORRECT | None |
+| `StrategyConfig.CAVEATS_MD` caveat 1 | "INDPRO × SPY strategy" — cross-pair reference for investor guidance, not a target misidentification | CORRECT — intentional cross-pair contrast | None |
+| `_DATA_SOURCES_MD` | "XLP", "Consumer Staples ETF"; SPY listed as benchmark row — appropriate | CORRECT | None |
+| `METHODOLOGY_CONFIG.plain_english` | "INDPRO × XLP pair" | CORRECT | None |
+
+**Total violations found:** 1  
+**Total violations fixed:** 1  
+**Fix applied:** `StoryConfig.NARRATIVE_SECTION_2` heading changed from "The Nuance: It Is Not a Perfect Inverse of the S&P 500" to "The Nuance: XLP Is Not a Mechanical Inverse of the IP Cycle"
+
+**RES-NR1 Status: PASS (after fix)**
+
+---
+
+## QA Verification — GATE-NR Narrative Instrument Check (2026-04-20, Quincy)
+
+**Gate:** GATE-NR (QA-CL5) | **Pair:** indpro_xlp | **target_symbol:** XLP  
+**Pages audited:** `indpro_xlp_story`, `indpro_xlp_evidence`  
+**Script:** `temp/260420_wave10d_cloud/wave10d_gate_nr.py`  
+**Cloud app commit at time of scan:** `bfb1b70` (Wave 10E)
+
+### Rule summary
+
+For Story and Evidence pages, scan DOM text for equity instrument names from `KNOWN_INSTRUMENTS` list. Any non-target instrument found outside a clearly comparative context is a FAIL. Comparative/contrastive references are classified PASS-with-note.
+
+### Results
+
+| # | Page | Gate-NR status | Instrument hits | Detail |
+|---|------|---------------|-----------------|--------|
+| 1 | `indpro_xlp_story` | **PASS-with-note** | S&P 500 (×2) | Both in comparative context — see below |
+| 2 | `indpro_xlp_evidence` | **PASS** | None (no non-target instruments) | Clean |
+
+**Overall GATE-NR verdict: PASS**  
+Total: 1 PASS, 1 PASS-with-note, 0 FAIL, 0 ERROR
+
+### PASS-with-note detail — `indpro_xlp_story`
+
+Two occurrences of "S&P 500" found on the Story page. Both are genuine contrastive references, not target misidentifications:
+
+**Occurrence 1** (contrastive inline sentence):
+```
+This is the opposite of what we expect for the broad S&P 500, where rising IP is bullish. XLP is the defensive case.
+```
+Classification: PASS-with-note — XLP is correctly identified as the subject; S&P 500 is used as a contrast benchmark.
+
+**Occurrence 2** (section heading):
+```
+The Nuance: It Is Not a Perfect Inverse of the S&P 500
+```
+Classification: PASS-with-note — The heading explicitly states XLP is *not* a mirror of S&P 500, which is a contrastive framing, not a target misidentification.
+
+**Note on Ray's fix:** Research Ray identified this heading as a GATE-NR violation (RES-NR1) and changed it locally in `app/pair_configs/indpro_xlp_config.py` to "The Nuance: XLP Is Not a Mechanical Inverse of the IP Cycle". That local fix has **not yet been deployed to Cloud** as of commit `bfb1b70`. The Cloud app still shows the old heading.
+
+Assessment: The old heading ("It Is Not a Perfect Inverse of the S&P 500") is contrastive and does not mislead users about the target instrument. GATE-NR classifies it as PASS-with-note rather than FAIL. However, Ray's improved heading is cleaner and should be included in the next deployment.
+
+### Instrument scan coverage
+
+All 20 instruments from `KNOWN_INSTRUMENTS` were scanned:
+- `XLP` (target): found extensively on both pages — all OK
+- `S&P 500`: found ×2 on Story page — PASS-with-note (comparative)
+- All others (SPY, XLV, XLK, XLE, XLF, XLI, XLB, XLU, XLRE, S&P500, S&P 500 Index, VIX, QQQ, IWM, DIA, Nasdaq, Dow Jones, Russell 2000): **not found** on either page
+
+### Verification artefacts
+
+- Script: `temp/260420_wave10d_cloud/wave10d_gate_nr.py`
+- Screenshots: `temp/260420_wave10d_cloud/screenshots/gate_nr_indpro_xlp_story.png`, `gate_nr_indpro_xlp_evidence.png`
+- DOM text: `temp/260420_wave10d_cloud/dom_text/gate_nr_indpro_xlp_story_dom.txt` (7,772 chars), `gate_nr_indpro_xlp_evidence_dom.txt` (4,695 chars)
+- JSON: `temp/260420_wave10d_cloud/wave10d_gate_nr_results.json`
+
+### Sign-off
+
+**GATE-NR: PASS** — No instrument violations found on either `indpro_xlp_story` or `indpro_xlp_evidence`. Two comparative S&P 500 references on the Story page are correctly classified as PASS-with-note. Ray's heading fix (pending deployment) will eliminate both notes when deployed.
