@@ -1,5 +1,38 @@
 # Team Status Board
 
+## 2026-04-20 — Lead Lesandro
+
+**Status:** Completed (Checkpoint — awaiting cloud reboot for Wave 10D)
+
+**Accomplished:**
+- **Two new pairs delivered end-to-end** (Wave 9/10):
+  - `umcsent_xlv`: Michigan Consumer Sentiment × XLV — OOS Sharpe 1.02, Sortino 2.01, 81 OOS months
+  - `indpro_xlp`: Industrial Production × XLP — OOS Sharpe 1.11, Sortino 2.07, 84 OOS months
+  - Each: 7-stage pipeline script, 10 Plotly charts, 4 portal pages, full sidecar set
+- **QA GATE-31 PASS** on both pairs: smoke_loader 0 failures, schema_consumers 5/5 pass
+- **Enforcement infrastructure shipped** (3-layer META-AM system):
+  - L1: Mandatory dispatch template with AGENT_ID + 4-step EOD block
+  - L2: PostToolUse hook (`check-agent-eod.sh`) audits experience.md/memories.md mtime
+  - L3: QA-CL3 (agent memory discipline) activated in qa-agent-sop.md
+- **QA-CL4 (cloud verify)** added as named checklist item with GATE-27/28/29 protocol
+- **smoke_loader hardening**: dynamic page prefix (`*_{pair_id}_*.py`) + per-pair EVIDENCE_DYNAMIC_CHARTS dict
+- **settings.json cleanup**: 36→19 entries, double-slash typo fixed, FRED MCP allow-listed
+- **Commit d4df8b9** pushed — 98 files, 14,330 insertions
+
+**Discoveries & Insights:**
+- **Schema lag is the dominant failure mode at scale.** As pair count grows, pipeline agents generate sidecars from pre-schema templates. Winner_summary, signal_scope, analyst_suggestions all required structural updates. Pattern 10 (Quincy classification): schema compliance checks must be part of the standard QA gate.
+- **Re-dispatch after context loss is lossy.** L2 hook fires after the agent window closes; by then context is gone. L1 (dispatch template) is the only mechanism that acts while context is live — make it mandatory and auditable.
+- **EVIDENCE_DYNAMIC_CHARTS must be per-pair.** The original global list applied HY-IG v2 chart names to all pairs, causing 8 false-positive failures per new pair.
+- **Commit before cloud verify, not after.** GATE-28/29 require the cloud app to have the new pages. Correct order: commit → push → reboot → verify.
+
+**Blockers:** Waiting for user to reboot cloud Streamlit app (Wave 10D GATE-28/29 pending)
+
+**Next Steps:**
+- Wave 10D: GATE-28 (headless browser, zero "chart pending" on 8 new pages) + GATE-29 (smoke_loader clean-checkout)
+- Agent global profile writes (econ-evan, qa-quincy experience.md / memories.md) — permission fix in settings.json, needs verification
+
+---
+
 ## 2026-04-11 — Lead Lesandro
 
 **Status:** Completed (EOD)

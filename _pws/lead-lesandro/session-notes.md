@@ -1,5 +1,52 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-04-20 (Wave 9/10 — two new pairs + enforcement infra)
+
+### Context
+Continuation session (context compacted from prior). Goal: deliver umcsent_xlv + indpro_xlp pairs end-to-end, plus activate 3-layer META-AM enforcement system. FRED API key was invalid; worked around using FRED MCP.
+
+### Commit
+- `d4df8b9` Wave 9/10: Add umcsent_xlv + indpro_xlp pairs; enforcement infra (98 files, 14,330 insertions)
+
+### Key Accomplishments
+
+**Two new pairs (full pipeline → charts → portal):**
+- `umcsent_xlv`: Michigan Consumer Sentiment × XLV. Signal: umcsent_yoy, crosses_up 0.0, P1_long_cash, procyclical, L6. OOS Sharpe 1.02, ann_return 11.9%, max_drawdown -10.9%, 81 OOS months. Portal: pages 10_umcsent_xlv_{story,evidence,strategy,methodology}.py
+- `indpro_xlp`: Industrial Production × XLP. Signal: indpro_accel, S8_accel, gt 0.75, P3_long_short, countercyclical, L3. OOS Sharpe 1.11, ann_return 14.1%, max_drawdown -13.5%, 84 OOS months. Portal: pages 14_indpro_xlp_{story,evidence,strategy,methodology}.py
+
+**QA (Wave 10B, GATE-31):**
+- smoke_loader umcsent_xlv: 7 passes, 0 failures
+- smoke_loader indpro_xlp: 8 passes, 0 failures
+- schema_consumers: 5 passes, 0 failures
+
+**Enforcement infrastructure (3-layer META-AM):**
+- L1: Mandatory dispatch template (AGENT_ID: + 4-step EOD block) — documented in team-coordination.md
+- L2: PostToolUse hook `/home/vscode/.claude/hooks/check-agent-eod.sh` — audits agent experience.md/memories.md mtime post-dispatch
+- L3: QA-CL3 activated in qa-agent-sop.md (first occurrence = PASS-with-note, subsequent = FAIL blocking)
+- QA-CL4 added: GATE-27 (chart render), GATE-28 (headless browser), GATE-29 (clean-checkout smoke test)
+
+**smoke_loader hardening (BL-803 + dynamic chart fix):**
+- Page glob: `9_{pair_id}_*.py` → `*_{pair_id}_*.py` (supports prefix 10, 14, etc.)
+- EVIDENCE_DYNAMIC_CHARTS: global list → per-pair dict with `.get(pair_id, [])` fallback
+
+### Lessons Learned
+
+1. **Schema lag is the dominant failure mode at scale.** Pipeline agents use templates that predate the current schema. Every new pair produced at least 3 sidecar files with wrong field names or structure. Add schema validation to the standard pipeline exit check.
+
+2. **Commit order matters for cloud verify.** GATE-28/29 require the cloud app to serve the new pages. Must push before rebooting the app, not after verifying. Re-ordered the wave sequence: commit → push → reboot → verify.
+
+3. **Re-dispatch after context loss is lossy — L1 is the only live mechanism.** L2 hook fires after the agent window closes; by then the agent context is gone and re-dispatch loses thread. The dispatch template (L1) is the only thing that acts while the agent still has live context.
+
+4. **EVIDENCE_DYNAMIC_CHARTS must be scoped per pair.** A global list applied HY-IG chart names to every pair. This produced 8 false-positive failures per new pair added. Per-pair dict with `.get(pair_id, [])` default is the correct pattern.
+
+5. **Agent drift under re-dispatch.** Quincy drifted off-task when re-dispatched for re-verification (analyzed settings.json instead of running smoke tests). For focused re-checks, use direct Bash rather than agent dispatch.
+
+### Pending
+- Wave 10D: GATE-28 (headless browser, 8 new pages) + GATE-29 (clean-checkout) — waiting for cloud app reboot
+- Agent global profile writes for econ-evan, qa-quincy: settings.json permission fix applied but needs forward verification
+
+---
+
 ## Session: 2026-04-11 (SOP hardening Part D+E + trade log UX)
 
 ### Context
@@ -181,3 +228,88 @@ Continued from prior session that completed the multi-indicator enhancement fram
 - NumPy bool JSON serialization bug (needs `bool()` cast in template)
 - First landing page used raw HTML divs (Streamlit silently fails)
 - TED methodology page was skipped until user caught it
+
+
+## Session: 2026-04-19/20 (Waves 1-9A, 48-hour intensive)
+
+### Context
+Two-day multi-agent intensive running from SOP hardening Part F through Wave 9 catch-up. Started with 5 agents and a backlog of stakeholder bug reports from the 2026-03-28 dashboard review; ended with 6 agents (Quincy added in Wave 6A), 66+ rules, 12 META-CF schemas, and HY-IG v2 as reference-pair-candidate awaiting stakeholder sign-off.
+
+### Commits This Session (selected, 25+ total)
+- Wave 3 perceptual validation + META-PV + GATE-27
+- Wave 4A `.gitignore`-exclusion Cloud deploy fix + META-VNC cross-environment extension
+- Wave 4B-D zoom-chart dual-panel + schema migration percent→ratio (the latent KPI bug)
+- Wave 5 audit consolidation: META-XVC, META-FRD, META-RPT, META-SCV, META-BL, META-ELI5
+- Wave 6A QA agent introduction (Quincy SOP + META-SRV + GATE-31)
+- Wave 6B META-AL + META-ZI refinement (dropped canonical-rendered-chart fallback)
+- Wave 6C/D Quincy's first production run (PASS-with-4-notes)
+- Wave 7 ECON-SD/UD/AS scope-discipline family + heatmap fix
+- Wave 7C Quincy BLOCKED on CCC-BB prose leak; 7D Cloud verify PASS post-fix
+- Wave 8 META-UC + QA-CL2 + unit-form migration (`a2f6570` … `d242e6e`) — KPI bug structurally closed
+- Wave 9A META-AM (Agent Memory Discipline) + Lead catch-up + agent memory refresh (this wave)
+
+### Wave-by-Wave Narrative
+
+**Waves 1-2 (continuation of Part F):**
+- Retroactive fixes on HY-IG v2 per Part E-F rules (classification metadata, canonical catalogs, 8-method Evidence)
+- Landing page filter row + performance-colored badges
+
+**Wave 3 — Perceptual Validation:**
+- Stakeholder flagged Hero chart NBER shading was invisible at alpha=0.12
+- Root cause: numeric prescription was quantitatively wrong; nobody perceptually validated
+- Added META-PV (Perceptual Validation) and GATE-27 (end-to-end render test)
+- All numeric visual-encoding prescriptions now require PNG render + eyeball check
+
+**Wave 4 — Cloud deploy + schema migration:**
+- 4A: Cloud build failed because a required artifact was in `.gitignore` (passed locally, broke on clean checkout) → META-VNC cross-environment extension, GATE-29 + ECON-DS2
+- 4B: Cross-review of all 5 SOPs — 13+ discretion points found at agent boundaries
+- 4C: META-CF (Contract File Standard) — canonical JSON schemas at `docs/schemas/`, draft 2020-12, x-owner + x-version mandatory
+- 4D-1 (Evan): Migrated `winner_summary.oos_ann_return` from 11.33 (percent) to 0.1133 (ratio), `max_drawdown` from -10.2 to -0.102. Regression note reported the migration but did not enumerate display consumers.
+- 4D-2 (Ace): Updated signal-related fields but missed the numeric unit change in the Strategy-page format strings — latent bug deferred to Wave 8
+
+**Wave 5 — Audit wave:**
+- Dedicated cross-audit: each agent audits other 4 SOPs, files blocking/non-blocking findings
+- Consolidation produced 6 new META rules in one pass
+- Force-redeploy commit `1720c0c` identified as undocumented tribal knowledge → META-FRD
+
+**Wave 6 — QA introduction + abstraction discipline:**
+- 6A: Added Quincy as 6th agent; QA SOP at `docs/agent-sops/qa-agent-sop.md`; META-SRV producer self-verification + GATE-31 independent QA blocking gate; QA-CL1 12-item checklist
+- 6B: META-AL (Abstraction Layer Discipline) — canonical rendered zoom chart dropped in favor of canonical events registry (metadata only); each pair renders its own chart
+- 6C: Quincy's first production run — PASS-with-4-notes on HY-IG v2 dual-panel refinement
+- 6D: Cloud verify PASS post-fix (force-redeploy required — META-FRD incident 1 of 3 this session)
+
+**Wave 7 — Scope discipline:**
+- Stakeholder caught pair-derivative signals (CCC-BB, Bank ratio, NFCI, Yield Curve, BBB-IG) on HY-IG × SPY Evidence heatmap — scope leak
+- ECON-SD (Pair Scope Discipline), ECON-UD (Universe Disclosure), ECON-AS (Analyst Suggestions) codified
+- 7C: Quincy BLOCKED — CCC-BB prose leak on narrative (evidence page text still referenced it after heatmap filter); producer had to re-fix narrative frontmatter + narrative prose
+- 7D: Cloud verify PASS (META-FRD incident 2 of 3)
+
+**Wave 8 — Unit coherence migration fix:**
+- Stakeholder caught `+0.1%` KPI on Strategy page for HY-IG v2 (should be `+11.3%`)
+- Root cause traced to Wave 4D-1 migration: `f"+{0.1133:.1f}%"` formats as "+0.1%" (literal `%` character, not percent directive)
+- META-UC (Unit-Coherence After Schema Migration) drafted: consumer inventory is blocking
+- QA-CL2 (Semantic KPI Triangulation) added to QA checklist — Sharpe × vol and MDD × vol plausibility checks catch surviving drift
+- 8A: Rules landed; 8B-1 (Evan) enumerated 15 consumer sites; 8B-2 (Ace) migrated 15 sites; 8C (Quincy) PASS with 5 notes including latent BL-801; 8D Cloud verify PASS (META-FRD incident 3)
+
+**Wave 9A — Meta-rule + memory catch-up (this wave):**
+- META-AM (Agent Memory Discipline): wave closure requires experience.md + memories.md + session-notes.md update with META-SRV evidence format
+- Triggered by audit: 5 of 6 agents had memory files predating Wave 1 despite 8 waves of cumulative wisdom
+- Lead catch-up: this session-notes append + experience.md cross-project patterns + global memories.md creation + projects/aig-rlic-plus.md update
+- Parallel: other 6 agents doing their own catch-ups in separate dispatches
+
+### Key Patterns Confirmed This Session
+- RoC/momentum > level (still holds — no new pairs ran but HY-IG v2 re-validated)
+- Streamlit Cloud stale-cache on file-move commits — systemic (3 force-redeploy incidents)
+- Stakeholder eyeball catches what all N agents miss — distinct perceptual channel, not redundant one
+- Independent QA catches what producer self-review misses — 3 consecutive proof points
+
+### What Worked Well
+- Consolidation passes (Wave 5 audit) yielded 6 META rules in one dispatch vs ping-pong
+- META-CF schemas at `docs/schemas/` — 12 registered, validator catches type drift mechanically
+- QA role introduction: Quincy caught 3 material issues in first 3 runs
+- Retro-application pattern (fix SOP → apply retroactively to current artifact as validation run) worked for every rule added
+
+### What Didn't Work Well
+- Wave 4D-1 schema migration passed every mechanical check but shipped a user-visible bug → led to META-UC, but ideally should have been caught producer-side
+- Three force-redeploy incidents — infrastructure-level investigation required, workaround is not a fix
+- Agent memory files stayed static for 8 waves — SOPs absorbed the wisdom, agents did not → led to META-AM

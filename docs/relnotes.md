@@ -1,5 +1,45 @@
 # Release Notes
 
+## 2026-04-20 — Wave 9/10: New Pairs + Enforcement Infrastructure
+
+### New Features
+
+**2 new pairs delivered (of 73 total):**
+- **umcsent_xlv** — Michigan Consumer Sentiment × XLV (Health Care). Signal: umcsent_yoy crosses_up 0.0, P1_long_cash, procyclical, L6. OOS Sharpe 1.02, ann return 11.9%, max drawdown -10.9%, 81 OOS months (2019-04 to 2026-01). Portal: pages 10.
+- **indpro_xlp** — Industrial Production × XLP (Consumer Staples). Signal: indpro_accel gt 0.75, P3_long_short, countercyclical, L3. OOS Sharpe 1.11, ann return 14.1%, max drawdown -13.5%, 84 OOS months (2019-01 to 2026-01). Portal: pages 14.
+
+**Each pair includes:** 7-stage pipeline script, 10 Plotly charts, 4 portal pages, winner_summary, signal_scope, analyst_suggestions, trade log, tournament CSV (3,332 rows for indpro_xlp).
+
+### Enforcement Infrastructure (3-Layer META-AM)
+
+| Layer | Mechanism | Trigger |
+|-------|-----------|---------|
+| L1 | Mandatory dispatch template (AGENT_ID + 4-step EOD block) | Structural — every dispatch |
+| L2 | PostToolUse hook `check-agent-eod.sh` | Automated — fires after every Agent tool call |
+| L3 | QA-CL3 checklist item (now active) | Verified — per-wave QA audit |
+
+**QA-CL4 (Cloud Verify)** added with GATE-27 (chart render), GATE-28 (headless browser no "chart pending"), GATE-29 (clean-checkout smoke test).
+
+### Bug Fixes
+
+| ID | Fix |
+|----|-----|
+| BL-803 | smoke_loader page glob `9_{pair_id}_*.py` → `*_{pair_id}_*.py` |
+| — | EVIDENCE_DYNAMIC_CHARTS: global list → per-pair dict (fixes 8 false-positive failures per new pair) |
+| — | umcsent_xlv_regime_stats chart: patched missing `layout.title.text` |
+| — | settings.json: 36→19 allow entries, double-slash typo fixed, FRED MCP allow-listed |
+
+### Lessons Learned
+
+| # | Pattern | Evidence |
+|---|---------|----------|
+| 10 | Schema lag is the dominant QA failure mode at scale | 6 sidecar files required structural fix across 2 pairs |
+| 11 | Commit before cloud verify, not after | GATE-28/29 require live cloud pages; order matters |
+| 12 | Re-dispatch after context loss is lossy; L1 dispatch template is the only live enforcement mechanism | L2 hook fires post-window-close |
+| 13 | Per-pair EVIDENCE_DYNAMIC_CHARTS scoping prevents cross-pair chart name contamination | Global list caused 8 false-positives per pair |
+
+---
+
 ## 2026-03-14 — Priority Pair Execution (Pairs #1-3 + #20)
 
 ### New Features
