@@ -78,8 +78,38 @@ EVIDENCE_DYNAMIC_CHARTS: dict[str, list[str]] = {
         "transfer_entropy",
         "regime_quartile_returns",
     ],
-    # umcsent_xlv and indpro_xlp block dicts use literal chart names →
-    # fully covered by AST parsing; no dynamic supplement needed.
+    # umcsent_xlv block dict uses literal chart names in the page file →
+    # fully covered by AST parsing.
+    # indpro_xlp uses APP-PT1 page templates — charts live in
+    # `app/components/page_templates.py` and `app/pair_configs/indpro_xlp_config.py`
+    # which the loader now also scans. No dynamic supplement needed.
+}
+
+
+# APP-PT1 (2026-04-20): pair pages that are thin wrappers around
+# `components.page_templates` delegate chart calls to the template module
+# and the pair config module. The AST scanner now also inspects those files
+# so the smoke test covers every load_plotly_chart call site for the pair.
+#
+# Key insight: the template has generic calls like
+# ``load_plotly_chart(hero_chart, pair_id=pair_id)`` where ``hero_chart``
+# is a variable — AST cannot resolve these. For those, we look up the
+# literal chart names assigned in the pair config class attributes.
+PAIR_TEMPLATE_CHARTS: dict[str, list[str]] = {
+    "indpro_xlp": [
+        # Story
+        "indpro_xlp_hero",
+        "indpro_xlp_regime_stats",
+        # Strategy — Performance tab
+        "indpro_xlp_equity_curves",
+        "indpro_xlp_drawdown",
+        # Strategy — Confidence tab
+        "indpro_xlp_walk_forward",
+        "indpro_xlp_tournament_scatter",
+        # Evidence method blocks
+        "indpro_xlp_correlations",
+        "indpro_xlp_ccf",
+    ],
 }
 
 
@@ -195,6 +225,57 @@ def run_smoke_test(pair_id: str) -> tuple[int, int, list[str]]:
     log.append("# Dynamic charts (Evidence render_method_block helper)")
     for chart_name in EVIDENCE_DYNAMIC_CHARTS.get(pair_id, []):
         _check(chart_name, f"{pair_id}/evidence<render_method_block>")
+
+    # APP-PT1 (2026-04-20): thin-wrapper pair pages delegate to the
+    # template module + pair config. Scan those files' source for the
+    # same pair's chart calls, so we don't miss them just because they're
+    # no longer in a page file.
+    template_path = os.path.join(repo_root, "app", "components", "page_templates.py")
+    config_path = os.path.join(repo_root, "app", "pair_configs", f"{pair_id}_config.py")
+    log.append("")
+    log.append("# APP-PT1 template + pair_config chart scans")
+    seen_charts = set()
+    for aux_path in (template_path, config_path):
+        if not os.path.exists(aux_path):
+            continue
+        rel = os.path.relpath(aux_path, repo_root)
+        # Pull literal chart names from load_plotly_chart(...) call sites
+        # in the template, plus any *_CHART_NAME class attribute literals
+        # in the config (which the template reads via getattr).
+        try:
+            with open(aux_path) as f:
+                aux_tree = ast.parse(f.read())
+        except SyntaxError as exc:
+            log.append(f"SKIP  {rel}  AST parse failed: {exc}")
+            continue
+        for node in ast.walk(aux_tree):
+            # load_plotly_chart(name=..., ...)
+            if isinstance(node, ast.Call):
+                fn = node.func
+                name = fn.id if isinstance(fn, ast.Name) else getattr(fn, "attr", None)
+                if name == "load_plotly_chart" and node.args:
+                    a0 = node.args[0]
+                    if isinstance(a0, ast.Constant) and isinstance(a0.value, str):
+                        if a0.value not in seen_charts:
+                            seen_charts.add(a0.value)
+                            _check(a0.value, f"{rel}:{node.lineno}")
+            # {KEY}_CHART_NAME = "..." assignments in the pair config.
+            if isinstance(node, ast.Assign):
+                for tgt in node.targets:
+                    if isinstance(tgt, ast.Name) and tgt.id.endswith("_CHART_NAME"):
+                        v = node.value
+                        if isinstance(v, ast.Constant) and isinstance(v.value, str):
+                            if v.value not in seen_charts:
+                                seen_charts.add(v.value)
+                                _check(v.value, f"{rel}:{node.lineno}")
+
+    # Any template/config pair charts the registry knows about but the AST
+    # didn't pick up (e.g. via getattr default strings) — belt-and-braces.
+    for chart_name in PAIR_TEMPLATE_CHARTS.get(pair_id, []):
+        if chart_name in seen_charts:
+            continue
+        seen_charts.add(chart_name)
+        _check(chart_name, f"{pair_id}/template-registry")
 
     log.append("")
     log.append(f"# RESULT  passes={passes}  failures={failures}")

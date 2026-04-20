@@ -1060,6 +1060,50 @@ Every handoff requires a structured acknowledgment from the receiver:
 - `data/{source}` for data pipeline changes
 - `docs/{topic}` for documentation updates
 
+## META-NMF — No Manual Fix (Inviolable Lead Rule)
+
+**Added 2026-04-20. This rule is inviolable and overrides any pressure to "just fix it quickly."**
+
+> **No agent, including Lead (Lesandro), may implement an ad-hoc or manual fix directly. Every fix must flow through the SOP-first protocol.**
+
+### The Protocol (mandatory, no exceptions)
+
+```
+1. Identify the bug or gap
+2. Identify which SOP is missing the rule that would have prevented it
+3. Write the rule into the SOP (or template) FIRST
+4. Dispatch the responsible agent to apply the fix, citing the new SOP rule
+5. QA verifies the fix as usual
+```
+
+Steps 2-3 are non-negotiable even when the fix is a one-line code change. If a fix took 30 seconds to make manually, the SOP update may take 5 minutes — that 5 minutes closes the gap for every future pair.
+
+### Why this rule exists
+
+Every ad-hoc manual fix that bypasses the SOP:
+- Fixes the symptom but not the cause — the next agent will repeat the same mistake
+- Leaves no auditable trace of why the fix was needed
+- Trains agents (via example) that ad-hoc is acceptable
+- Means the same bug will appear in the next pair, and the one after that
+
+The SOP-first discipline is the only mechanism that makes learnings permanent across context loss, agent re-dispatches, and wave boundaries.
+
+### How Lead identifies violations
+
+If Lead catches itself or any agent about to make a direct code change without a corresponding SOP update in the same commit, that is a META-NMF violation. Stop. Write the rule. Then fix.
+
+### Scope
+
+- Applies to all agents: Lesandro (Lead), Ace, Evan, Dana, Vera, Ray, Quincy
+- Applies to all artifact types: code, schemas, config files, SOPs themselves
+- **Only exception:** typo corrections and formatting-only changes that carry zero risk of recurrence (e.g., fixing a spelling mistake in a label). Even then, if the typo suggests a SOP rule is missing, write the rule.
+
+### Cross-references
+
+- **Lead-role mandate:** "Lead role = coordinate + decide. Don't do agent-level implementation work." (Lessons Learned, 2026-04-10)
+- **META-SRV:** Self-report verification discipline — same philosophy applied to claims
+- **META-RNF:** Regression note format — every fix documented with root cause, not just the patch
+
 ## Escalation Rules
 
 | Situation | Action |

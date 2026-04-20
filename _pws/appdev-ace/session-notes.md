@@ -124,9 +124,40 @@ APP-SS1 validation PASS
 
 **Root cause:** `14_indpro_xlp_methodology.py` had an inline hand-rolled JSON reader instead of using the `render_signal_universe` component. The component was already correct; only the inline reader was stale.
 
+### APP-PT1 dispatch (2026-04-20) -- page template abstraction + indpro_xlp migration
+
+**What:** Authored APP-PT1 rule and built the page-template abstraction for the portal. Replaced the 4 `14_indpro_xlp_*.py` pages with thin wrappers; introduced `app/pair_configs/` package with `indpro_xlp_config.py`; extended smoke loader to scan template + config modules.
+
+**Files created:**
+- `app/components/page_templates.py` (~850 LoC) — four template functions: `render_story_page`, `render_evidence_page`, `render_strategy_page`, `render_methodology_page`. Public `MethodologyConfig` dataclass. Shared helpers: `_apply_page_config`, `_load_winner_summary` (APP-SEV1 L1), `_load_interpretation_metadata` (soft load), `_latest_dated_file` (glob `*_YYYYMMDD.*`), `_indicator_target_display` (mirrors `pair_registry` display maps), `_format_ratio_pct`, `_page_prefix` (mirrors `pair_registry` routing). 8-element `_render_method_block` lives inside the template.
+- `app/pair_configs/__init__.py` — package marker.
+- `app/pair_configs/indpro_xlp_config.py` (~450 LoC) — `STORY_CONFIG`, `EVIDENCE_METHOD_BLOCKS` (CORRELATION + GRANGER + REGIME blocks, 8-element), `STRATEGY_CONFIG`, `METHODOLOGY_CONFIG` (MethodologyConfig dataclass). Content migrated verbatim from the prior hand-written pages.
+
+**Files modified:**
+- `app/pages/14_indpro_xlp_story.py` — thin wrapper (11 lines, zero `st.*` calls).
+- `app/pages/14_indpro_xlp_evidence.py` — thin wrapper (11 lines, zero `st.*` calls).
+- `app/pages/14_indpro_xlp_strategy.py` — thin wrapper (11 lines, zero `st.*` calls).
+- `app/pages/14_indpro_xlp_methodology.py` — thin wrapper (11 lines, zero `st.*` calls).
+- `app/_smoke_tests/smoke_loader.py` — added `PAIR_TEMPLATE_CHARTS` registry + AST scanner for `page_templates.py` and `pair_configs/{pair_id}_config.py`. Scans `load_plotly_chart(...)` args and `_CHART_NAME` assignments.
+- `docs/agent-sops/appdev-agent-sop.md` — added APP-PT1 rule body after APP-SS1 and added a new Quality Gates checklist item for thin-wrapper compliance.
+
+**Validation:**
+- `python3 -c "from components.page_templates import *; from pair_configs.indpro_xlp_config import *"` → Import OK.
+- `python3 app/_smoke_tests/smoke_loader.py indpro_xlp` → 8 PASS / 0 FAIL (2 Story charts, 2 Performance charts, 2 Confidence charts, 2 Evidence method-block charts).
+- `python3 app/_smoke_tests/smoke_loader.py hy_ig_v2_spy` → 15 PASS / 0 FAIL (non-regression).
+- `python3 app/_smoke_tests/smoke_loader.py umcsent_xlv` → 7 PASS / 0 FAIL (non-regression).
+- `python3 app/_smoke_tests/smoke_schema_consumers.py --pair-id indpro_xlp` → 5 PASS / 0 FAIL (APP-WS1 / DATA-D6 / ECON-UD / ECON-AS / APP-DIR1).
+- AST verification: all 4 `14_indpro_xlp_*.py` page files contain zero `st.*` calls (thin-wrapper compliance verified).
+
+**Root-cause framing:** Wave 10D was the catalyst (breadcrumb missing, Evidence flat tabs, Signal Universe empty). Those bugs were symptoms of a single class — copy-paste page files drift from the reference. APP-PT1 fixes the class: page files are now pure routing with no room for structural divergence. META-NMF compliant — the fix is at the abstraction layer, not inline patches.
+
+**Scope discipline:** Did NOT migrate hy_ig_v2_spy, umcsent_xlv, or any other pair pages. Retroactive migration is scheduled pair-by-pair in a subsequent wave (see APP-PT1 §migration-protocol in the SOP).
+
 ## Open threads / backlog
 
 - BL-002 -- cross-pair unit-form inherit for sample pairs (1-4_*, 5-8_*) still in percent form.
 - BL-004 -- cross-pair prose leak audit (other pages may cite signals that Ray narrative has scoped out).
 - APP-EX1 v1.1.0 -- propose sixth canonical entry `"status_labels_glossary"` with title `"Status labels"` (pending Lead approval).
 - RES-17 upgrade -- when Ray narrative_frontmatter migration lands, upgrade APP-DIR1 from 2-way to 3-way check.
+- APP-PT1 retro-apply -- migrate HY-IG v2, umcsent_xlv, indpro_spy, permit_spy, vix_vix3m_spy, ted_variants, hy_ig_spy legacy pages to thin wrappers in subsequent waves. Each migration is pure restructure: lift narrative text to config, leave template untouched. Net LoC per pair: -400 to -700 page lines, +300 config lines.
+- APP-PT1 v1.1 -- if a pair needs a genuinely different Story structure (different section order, alternate hero layout), promote it as `render_story_page_variant_a` in `page_templates.py` — do NOT allow per-page overrides.
