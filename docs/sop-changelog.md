@@ -20,7 +20,7 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 **Planned sub-phases (to be completed in this session or next wave):**
 
-- **Wave 10G.3:** extend `app/components/page_templates.py` to support two Sample features currently absent from the template — `HISTORY_ZOOM_EPISODES` (Story page) and `regime_context` (Evidence Level 2 scaffolding). APP-PT1 supplement in `appdev-agent-sop.md`.
+- **Wave 10G.3 (DONE — 2026-04-22):** extended `app/components/page_templates.py` with two optional config fields: `HISTORY_ZOOM_EPISODES` (list of crisis-episode dicts on Story page, renders "How the Signal Performed in Past Crises" section with per-episode chart via `load_plotly_chart`, APP-SEV1 L2 on missing artifact) and `regime_context` (optional markdown string on Evidence method block dict, renders `st.info(...)` callout between theory and chart). Both additive/optional — existing pairs render identically. APP-PT1 supplement added to `appdev-agent-sop.md`. smoke_loader: indpro_xlp 8/0, umcsent_xlv 7/0, hy_ig_v2_spy 15/0.
 
 - **Wave 10G.4A–F:** full 5-agent pipeline (Dana → Ray → Evan → Vera → Ace → Quincy) to build a fresh `hy_ig_spy` pair using the latest SOPs + extended templates. Targets Sample-quality feature parity via template (no hand-coded pages).
 

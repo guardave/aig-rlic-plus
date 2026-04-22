@@ -1105,6 +1105,14 @@ Narrative text in `app/pair_configs/{pair_id}_config.py` must be **authored by R
 - **Placeholder convention:** until Ray delivers, Ace sets narrative prose fields to `"[NARRATIVE PENDING — Ray to author per RES-NR1]"` and the page renders a visible `st.warning("Narrative pending — Ray has not yet delivered pair-specific prose for this section.")`. This makes the gap observable, not silent.
 - **RES-NR1 is Ray's companion rule:** before delivering narrative, Ray must verify all instrument names against `interpretation_metadata.json.target_symbol`. See Research SOP Rule RES-NR1.
 
+**APP-PT1 Wave 10G.3 Extension — Two Optional Config Fields (added 2026-04-22).**
+
+The following additive, optional fields extend APP-PT1's config contract. Both are backward-compatible: existing pairs that omit them render identically to before.
+
+1. **`HISTORY_ZOOM_EPISODES`** (Story page, `render_story_page`). A `list[dict]` on the config object. Each dict has keys `slug` (str), `title` (str), `narrative` (markdown str), `caption` (str). When present and non-empty, `render_story_page` inserts a "### How the Signal Performed in Past Crises" section immediately after the regime chart. Each episode renders: title → narrative markdown → chart (`history_zoom_{slug}` via `load_plotly_chart`) → caption. Missing chart artifacts follow APP-SEV1 L2 severity (`st.warning` placeholder). When the field is absent or empty, the section is silently skipped.
+
+2. **`regime_context`** (Evidence method block dict, `_render_method_block`). An optional markdown string in a method-block dict. When present, an `st.info(...)` callout is rendered between the `method_theory` body and the question / chart row. Typical use: "This method examines the relationship **conditional on market regime** — how does the signal behave in calm vs. stress conditions?" When absent, the block renders unchanged.
+
 ### Rule APP-SEV1 — Validation Severity Policy (loud-error / loud-warning / caption; silent skip prohibited)
 
 **Added 2026-04-19 (Wave 4D-2).** Resolves Ace cross-review Proposed APP-SEV1. Replaces the ad-hoc per-component severity decisions with a single policy.

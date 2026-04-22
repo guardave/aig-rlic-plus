@@ -488,6 +488,34 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     )
     st.markdown("---")
 
+    # ------ 11b. Crisis-episode zoom charts (Wave 10G.3) ------
+    # Optional: HISTORY_ZOOM_EPISODES is a list of dicts with keys:
+    #   slug, title, narrative, caption
+    # Each episode loads output/charts/{pair_id}/plotly/history_zoom_{slug}.json
+    # via load_plotly_chart. APP-SEV1 L2 severity if chart is missing.
+    history_episodes = getattr(config, "HISTORY_ZOOM_EPISODES", None)
+    if history_episodes:
+        st.markdown("### How the Signal Performed in Past Crises")
+        for ep in history_episodes:
+            ep_slug = ep.get("slug", "")
+            ep_title = ep.get("title", ep_slug)
+            ep_narrative = ep.get("narrative", "")
+            ep_caption = ep.get("caption", "")
+            if ep_title:
+                st.markdown(f"#### {ep_title}")
+            if ep_narrative:
+                st.markdown(ep_narrative)
+            load_plotly_chart(
+                f"history_zoom_{ep_slug}",
+                pair_id=pair_id,
+                fallback_text=(
+                    f"History zoom chart pending (expected at "
+                    f"output/charts/{pair_id}/plotly/history_zoom_{ep_slug}.json)."
+                ),
+                caption=ep_caption or None,
+            )
+        st.markdown("---")
+
     # ------ 12. Narrative section 2 ------
     narrative_2 = getattr(config, "NARRATIVE_SECTION_2", None)
     if narrative_2:
@@ -634,6 +662,15 @@ def _render_method_block(content: dict, pair_id: str) -> None:
 
     st.markdown(f"### {method_name}")
     st.markdown(content["method_theory"])
+
+    # Optional regime_context callout (Wave 10G.3). When present, renders an
+    # info callout between theory and chart for regime-conditional methods
+    # (HMM, regime quartiles, etc.). APP-PT1 additive extension — absent in
+    # existing pairs, no change to required structure.
+    regime_context = content.get("regime_context")
+    if regime_context:
+        st.info(regime_context)
+
     st.markdown(f"> *{content['question']}*")
     st.markdown(f"**How to read it:** {content['how_to_read']}")
 
