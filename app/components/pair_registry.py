@@ -135,6 +135,7 @@ def load_pair_registry():
             "hy_ig_v2_spy": "pages/9_hy_ig_v2_spy",
             "umcsent_xlv": "pages/10_umcsent_xlv",
             "indpro_xlp": "pages/14_indpro_xlp",
+            "hy_ig_spy": "pages/15_hy_ig_spy",
         }
         if pair_dir in ted_variants:
             page_prefix = "pages/6_ted_variants"

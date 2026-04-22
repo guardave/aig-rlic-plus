@@ -99,8 +99,17 @@ def _validate_signal(
     ]
     threshold = float(winner.get("threshold_value", 0.5))
 
+    # Normalise stress_windows: each element may be a (start, end) tuple/list
+    # OR a dict with "start"/"end" keys (as produced by Evan's
+    # interpretation_metadata.json). Both forms are supported.
+    def _to_window(w):
+        if isinstance(w, dict):
+            return w["start"], w["end"]
+        return w[0], w[1]
+
     stress_hit = False
-    for win_start, win_end in stress_windows:
+    for _w in stress_windows:
+        win_start, win_end = _to_window(_w)
         try:
             sliced = series.loc[win_start:win_end]
         except Exception:
