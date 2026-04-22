@@ -346,3 +346,80 @@ Streamlit Cloud renders content in an iframe at `/~/+/<slug>`. Outer `document.b
 **Sign-off:** GATE-28 PASS + GATE-NR PASS. Both APP-PT1 and RES-NR1 changes are live and structurally correct on Cloud.
 
 *Last updated: 2026-04-20 (Wave 10E Final Cloud Verify).*
+
+---
+
+## 2026-04-22 — Wave 10F Cloud Closure Verify (GATE-28 + GATE-NR, 12 pages)
+
+**Dispatch:** Final cloud verification of Wave 10F migration commits (3c6bb50 + 27fb01f + cc99fc4) — bare-name chart filename migration + loader pair-prefix fallback removal.
+
+**Script:** `temp/260422_wave10f/wave10f_cloud_verify.py`
+
+**Results:** 12 pages | PASS: 7 | PASS-with-note: 1 | FAIL (script): 4
+
+**Real findings:**
+- **F1 FAIL:** `indpro_xlp_story` — "chart pending" pair-prefix path (`indpro_xlp_hero.json`). STORY_CONFIG resolution failure on Cloud; getattr falls back to `f"{pair_id}_hero"` default.
+- **F2 FAIL:** `indpro_xlp_evidence` — same config-resolution class, evidence method blocks.
+- **F3/F4 FALSE-FAIL:** All 3 methodology pages — 0 Plotly charts by design (not a failure).
+
+**GATE-NR:** PASS all 6 pages. 3 PASS-with-note comparative refs (S&P 500, DIA, SPY) — all contrastive.
+
+**Patterns added:** Pattern 17 (chart-render scope — methodology excluded), Pattern 18 (pair-prefix in fallback text = config import failure diagnostic).
+
+**Sign-off:** BLOCK (partial) — HY-IG v2 + UMCSENT approved; INDPRO story/evidence blocked (Wave 10G).
+
+**wc -l DOM:** 2,214 total lines, 12 files.
+
+**QA report:** `results/qa_verification_wave10f_20260422.md`
+
+---
+
+## 2026-04-22 — Wave 10F Re-verify (post a74364f)
+
+**Dispatch:** Focused re-verify of 3 pages — `indpro_xlp_story` (prev FAIL), `indpro_xlp_evidence` (prev FAIL), `hy_ig_v2_spy_story` (sanity).
+
+**Script:** `temp/260422_wave10f/wave10f_reverify.py` — 60s hydration, 2-retry logic.
+
+**Results:** 3 pages | PASS: 1 | FAIL: 2 | Script FAILs: 0
+
+- `indpro_xlp_story`: FAIL (×2 attempts). Pair-prefix paths `indpro_xlp_hero.json` + `indpro_xlp_regime_stats.json`. Both attempts returned identical 7,596-char DOM — stable stale Cloud, not mid-deploy.
+- `indpro_xlp_evidence`: FAIL (×2 attempts). Pair-prefix path `indpro_xlp_correlations.json`, 0 charts. Identical 4,632-char DOM.
+- `hy_ig_v2_spy_story`: PASS. 5 charts, 17,059 chars, breadcrumb OK.
+
+**Root cause:** Streamlit Cloud is serving pre-`3c6bb50` `indpro_xlp_config.py` despite `origin/main` = `a74364f`. Fix is in GitHub; Cloud has not redeployed the affected module.
+
+**Sign-off:** BLOCK (Wave 10F NOT COMPLETE). Recommended: manual Cloud reboot → re-run `wave10f_reverify.py`.
+
+**New pattern:** Pattern 19 — identical DOM across retries = stable stale Cloud deployment (not mid-deploy transient).
+
+**wc -l evidence:**
+  324 /workspaces/aig-rlic-plus/temp/260422_wave10f/dom_text/reverify_hy_ig_v2_spy_story_attempt1_dom.txt
+   93 /workspaces/aig-rlic-plus/temp/260422_wave10f/dom_text/reverify_indpro_xlp_evidence_attempt1_dom.txt
+   93 /workspaces/aig-rlic-plus/temp/260422_wave10f/dom_text/reverify_indpro_xlp_evidence_attempt2_dom.txt
+  158 /workspaces/aig-rlic-plus/temp/260422_wave10f/dom_text/reverify_indpro_xlp_story_attempt1_dom.txt
+  158 /workspaces/aig-rlic-plus/temp/260422_wave10f/dom_text/reverify_indpro_xlp_story_attempt2_dom.txt
+  826 total
+
+---
+
+## Session: Wave 10F Re-verify After Cloud Reboot — 2026-04-22
+
+**Task:** Re-verify 3 pages post manual cloud reboot.
+
+**Result:** ALL 3 PASS — Wave 10F COMPLETE.
+
+| Page | DOM | Charts | Verdict |
+|------|-----|--------|---------|
+| indpro_xlp_story | 7,777 | 2 | PASS |
+| indpro_xlp_evidence | 4,695 | 3 | PASS |
+| hy_ig_v2_spy_story | 17,059 | 5 | PASS |
+
+**Files updated:**
+- `results/qa_verification_wave10f_20260422.md` — re-verify section appended
+- `_pws/_team/status-board.md` — one-liner appended
+- `~/.claude/agents/qa-quincy/experience.md` — Pattern 20 added
+- `~/.claude/agents/qa-quincy/memories.md` — production run 11 recorded
+
+**Key insight:** Manual reboot cleared stale deployment instantly. First attempt clean, no retries needed. Pattern 19 (stable stale deployment diagnosis) confirmed; Pattern 20 (manual reboot = definitive fix) added.
+
+*Production run count: 11.*

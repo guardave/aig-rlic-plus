@@ -202,3 +202,51 @@ APP-SS1 validation PASS
 - 2026-04-20: Undefined rule IDs referenced in my template or other SOPs — APP-CC1, APP-EX1, APP-URL1, APP-SEV1 (partially), APP-ST1.
 - 2026-04-20: Pairs NOT migrated to APP-PT1 include the reference pair HY-IG v2; gap is structural.
 - 2026-04-20: indpro_xlp_config.py narrative migrated by Ace, not re-authored by Ray (APP-PT1 supplement gap).
+
+---
+
+## Session 2026-04-22T08:35Z — Wave 10F item 6: VIZ-NM1/APP-EP4 fallback removal
+
+**Dispatch:** Remove pair-prefix fallback from `app/components/charts.py` (L106-113).
+
+**Before:** 181 lines. Fallback block (5 lines) tried `{chart_name}.json` first, then `{pair_id}_{chart_name}.json` as second candidate.
+
+**After:** 180 lines (net -1). Single candidate: bare-name `{chart_name}.json` only. Comment added citing VIZ-NM1, APP-EP4, Wave 10F item 6, and Vera's migration commits.
+
+**Diff summary:** `charts.py` — 1 file changed, 4 insertions(+), 5 deletions(-)
+
+**Smoke loader results (all pass):**
+- `hy_ig_v2_spy`: passes=15, failures=0
+- `indpro_xlp`: passes=8, failures=0
+- `umcsent_xlv`: passes=7, failures=0
+
+**Commit:** `cc99fc4` — pushed to remote main.
+
+**Violation lifetime:** ~13 days (VIZ-NM1 ratified 2026-04-09; fallback removed 2026-04-22). Detected by Wave 10F cross-review (commit `85ee737`). Root cause: rule ratification did not include a code-deletion gate or follow-up grep scan. Process fix documented in global experience.md.
+
+---
+
+## 2026-04-22 Wave 10F item 6b dispatch — VIZ-NM1 page_templates.py
+
+**Dispatch:** a55c9dc3 cloud verify failure on indpro_xlp story+evidence ("chart pending" with pair-prefixed paths)
+
+**Root cause:** 6 getattr defaults in `app/components/page_templates.py` using `f"{pair_id}_Y"` form
+
+**Line-by-line diff (6 changes, 0 net delta):**
+- L457: `f"{pair_id}_hero"` → `"hero"`
+- L476: `f"{pair_id}_regime_stats"` → `"regime_stats"`
+- L973: `f"{pair_id}_equity_curves"` → `"equity_curves"`
+- L988: `f"{pair_id}_drawdown"` → `"drawdown"`
+- L1025: `f"{pair_id}_walk_forward"` → `"walk_forward"`
+- L1042: `f"{pair_id}_tournament_scatter"` → `"tournament_scatter"`
+
+**wc -l evidence:** 1318 before, 1318 after (no structural change)
+
+**smoke_loader results:**
+- hy_ig_v2_spy: passes=15, failures=0
+- indpro_xlp: passes=8, failures=0
+- umcsent_xlv: passes=7, failures=0
+
+**Commit:** `a74364f` — pushed to remote main
+
+**Post-mortem:** item 6 deletion gate (cc99fc4) only covered charts.py; page_templates.py contained 6 more violations undetected. Project-wide grep scope is mandatory after any VIZ-NM1 change.

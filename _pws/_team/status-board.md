@@ -29,6 +29,19 @@
 
 ---
 
+## Team Insights — 2026-04-22
+
+**QA Quincy — Wave 10F Cloud Closure Verify**
+
+- **HY-IG v2 + UMCSENT: APPROVED.** All 8 pages structurally clean — zero errors, breadcrumb nav OK, evidence structure OK, signal universe OK, charts loading correctly (5–8 per page on story/evidence/strategy).
+- **INDPRO XLP: BLOCKED (story + evidence).** Both pages render "chart pending" with pair-prefix fallback paths (`indpro_xlp_hero.json`, `indpro_xlp_correlations.json`). Root cause: Cloud app appears to be resolving HERO_CHART_NAME to the pre-`3c6bb50` value ("indpro_xlp_hero") despite the config file setting HERO_CHART_NAME="hero" at HEAD. Possible causes: (a) Streamlit partial-redeploy state mixing bfb1b70-era config with renamed chart files; (b) STORY_CONFIG import failure causing `getattr` to fall back to the `f"{pair_id}_hero"` default. INDPRO strategy page PASSES (5 charts), indicating the pair's bare-name setup for strategy charts is working; the issue is specific to story/evidence config resolution.
+- **Methodology pages (all 3): PASS-with-note.** No charts by design — Signal Universe, FAQ text, and tables only. Chart-render criterion (≥1 per page) does not apply to methodology pages. Criterion gap logged: future QA specs should scope chart-render probe to story/evidence/strategy only.
+- **GATE-NR: PASS** on all 6 story + evidence pages. Three PASS-with-note comparative references (S&P 500 on indpro_xlp_story, DIA + SPY on umcsent_xlv_story) — all legitimately contrastive. First occurrence of DIA in umcsent_xlv narrative; advisory to Ray to standardize benchmark to SPY.
+- **New process pattern (Pattern 17 candidate):** Chart-render criteria must be scoped to page types that actually render charts. Blanket "≥1 chart per page" specifications will false-FAIL methodology pages on every cloud run.
+- **QA report:** `results/qa_verification_wave10f_20260422.md`
+
+---
+
 ## 2026-04-20 — Lead Lesandro
 
 **Status:** Completed (Checkpoint — awaiting cloud reboot for Wave 10D)
@@ -170,3 +183,11 @@
 - Pair #4: US10Y-US3M → SPY (yield curve slope)
 - Continue systematic pair execution with MRA
 - Consider template-based portal pages at 10+ pairs
+
+---
+
+## Team Insights — 2026-04-22 (Wave 10F Re-verify)
+
+**QA Quincy re-verify (post `a74364f`):** BLOCK persisting — `indpro_xlp` story/evidence still serving pair-prefix chart paths (`indpro_xlp_hero.json`, `indpro_xlp_correlations.json`) on Cloud after 2×60s retry; fix is on GitHub (`origin/main` = `a74364f`) but Streamlit Cloud has NOT redeployed `indpro_xlp_config.py` — manual Cloud reboot required before Wave 10F can close as COMPLETE. HY-IG v2 story sanity regression: PASS (5 charts, clean).
+
+**QA Quincy re-verify AFTER cloud reboot (09:31 UTC):** ALL 3 PAGES PASS — `indpro_xlp_story` (7,777 chars, 2 charts), `indpro_xlp_evidence` (4,695 chars, 3 charts), `hy_ig_v2_spy_story` (17,059 chars, 5 charts). Zero chart-pending, zero errors, zero pair-prefix matches. Wave 10F COMPLETE.

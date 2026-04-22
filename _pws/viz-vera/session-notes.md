@@ -5,6 +5,15 @@
 **Agent identity:** Vera (Viz specialist)
 **Current branch:** `main`
 
+## Wave 10F Session — 2026-04-22
+
+**Task:** Complete HY-IG v2 bare-name migration (deferred from commit 3c6bb50).
+**Outcome:** 12 charts + 12 _meta.json sidecars renamed via `git mv`. No conflicts found. Zero consumer code hits on prefixed chart names. Smoke tests: hy_ig_v2_spy 15/0, indpro_xlp 8/0, umcsent_xlv 7/0. Committed 27fb01f and pushed.
+**Flagged for audit:** `hero_spread_vs_spy`, `spread_history_annotated`, `tournament_sharpe_dist` — zero references in consumer code, possibly stale.
+**Unblocked:** Ace can now remove the loader fallback (Wave 10F item 6).
+
+wc -l evidence (pre-session): experience.md 87L, memories.md 88L, session-notes.md 109L.
+
 ## Session Summary
 
 This session covered Waves 3 through 7B of the HY-IG v2 reference-pair hardening, plus the Wave 9B memory-catch-up that produced this file. The common thread: **converting prose-specified visual conventions into machine-readable contracts with perceptual validation gates**, and **retro-applying those contracts to the reference pair** so future pairs inherit a clean template.
@@ -74,3 +83,36 @@ This session covered Waves 3 through 7B of the HY-IG v2 reference-pair hardening
 **Evidence:** `wc -l _pws/_team/cross-review-20260420-viz-vera.md` → 240. META-AM updates: global experience.md appended (3 new patterns), memories.md appended (Wave 10F-CR incident), this file appended. Global `last_seen` updated to 2026-04-22T00:00:00Z.
 
 **PROMOTED 2026-04-22T00:00:00Z** — experience.md: 65→79 lines (+3 patterns). memories.md: 51→70 lines (+1 incident block).
+
+---
+
+## 2026-04-22 — Wave 10F Filename Migration Session
+
+**Identity:** Viz Vera (viz-vera)
+**SOD performed:** Yes — read sod.md, team-standards.md §2.1/§3/§4, sop-changelog.md, experience.md, memories.md.
+
+### Phase-by-phase counts
+
+| Phase | Action | Count |
+|-------|--------|-------|
+| 1 | HY-IG v2 pair-prefixed duplicates deleted (git rm) | 5 |
+| 2a | indpro_xlp charts renamed to bare-name (git mv) | 10 |
+| 2b | umcsent_xlv charts renamed to bare-name (git mv) | 10 |
+| 3 | _meta.json sidecars created | 32 |
+| 3 | _meta.json sidecars pre-existing (skipped) | 10 |
+| + | Consumer files updated (pages + config + smoke_loader) | 5 |
+| 4 | Smoke tests: hy_ig_v2_spy passes | 15/0 |
+| 4 | Smoke tests: indpro_xlp passes | 8/0 |
+| 4 | Smoke tests: umcsent_xlv passes | 7/0 |
+
+### Commit
+- SHA: 3c6bb50
+- 65 files changed, +516/-34
+- Pushed to remote main
+
+### Key finding
+Consumer-side references (portal pages, pair config class attributes, smoke_loader registry) are not updated by `git mv`. All 5 consumer files required explicit sed updates to pass smoke tests. This is now documented in experience.md as a mandatory migration step.
+
+### wc -l evidence (META-AM)
+- experience.md: 79 → 93 lines
+- memories.md: 70 → 103 lines

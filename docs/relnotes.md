@@ -1,6 +1,18 @@
 # Release Notes
 
-## 2026-04-22 — Wave 10F: Standardization Infrastructure + Cross-Review + Migration
+## 2026-04-22 — Wave 10F: Standardization Infrastructure + Cross-Review + Migration — **COMPLETE**
+
+**Final cloud verify (Quincy, post-reboot):** indpro_xlp_story PASS (2 charts), indpro_xlp_evidence PASS (3 charts), hy_ig_v2_spy_story PASS (5 charts). All 7 assertions clean on first attempt. No retries needed.
+
+**Two new patterns absorbed during closure:**
+- **Pattern 19 (Quincy):** identical DOM across retries = stable stale Cloud deployment; divergent DOM = mid-deploy transient. Distinguishes "wait longer" from "needs manual reboot."
+- **Pattern 20 (Quincy):** manual Streamlit Cloud reboot is the definitive fix for stuck auto-redeploy — clean first attempt after reboot, no ambiguity.
+
+**Second code-deletion-gate violation caught during closure:** Ace's item-6 fix to `charts.py` did not catch 6 sibling `getattr` defaults in `page_templates.py` that used the same deprecated `f"{pair_id}_X"` form. Fixed in `a74364f`. Reinforces Pattern 14: VIZ-NM1 deletion gate must be project-wide (`grep -rn 'pair_id}_' app/`), not scoped to the most obvious call site.
+
+**Final commit count:** 10 commits across Wave 10F (90cadd4 → a74364f + closure commits).
+
+
 
 ### New Infrastructure (team-wide enforcement)
 
