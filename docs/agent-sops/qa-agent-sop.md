@@ -87,7 +87,7 @@ For every pair under review (per META-RPD / GATE-28), QA runs a Playwright scrip
 1. Opens each of the 4 pages (Story, Evidence, Strategy, Methodology) on the live Cloud URL
 2. Asserts no `st.error` / `st.warning` banner text in the rendered DOM
 3. Asserts zero "chart pending" / "chart_pending" occurrences (GATE-28)
-4. Asserts no blank plot containers (every Plotly container has `.js-plotly-plot` children)
+4. Asserts charts are present on non-Methodology pages — detected via text markers (axis labels, month-year date patterns `"Jan 20"`, `"2020-"`, chart titles present in the DOM text), NOT via CSS class name counting. **Pattern 22 (added 2026-04-22):** `.count("js-plotly-plot")` on `page.inner_text()` always returns 0 because CSS class names are not included in extracted text. Use `page.query_selector_all(".js-plotly-plot")` on the full DOM tree, or use text-marker heuristics, to detect chart presence. Asserting `inner_text.count("js-plotly-plot") >= 1` is a false-negative trap — do not use it.
 5. **Asserts breadcrumb nav is present** — the DOM must contain the 4-step breadcrumb row (`Story → Evidence → Strategy → Methodology`) on every page. A missing breadcrumb is a GATE-28 structural failure, not a cosmetic issue. (Rule APP-URL1 mandates this; QA enforces it.) Check by searching the rendered DOM text for all four labels in one page load.
 6. **Asserts Evidence page tab structure matches reference** — the Evidence page must render the Level 1 / Level 2 tabs consistent with `hy_ig_v2_spy_evidence`. Check by asserting at least one tab with text "Level 1" or "Basic Analysis" exists in the DOM. Absence or a flat single-level tab structure is a GATE-28 structural failure.
 7. Saves screenshots to `temp/qa_cloud_smoke_<pair_id>_<date>/` for the record
@@ -211,6 +211,14 @@ For every reference-pair Strategy page and Evidence page that displays numeric K
 - **GATE-31** — the blocking gate QA-CL2 slots into. A QA-CL2 FAIL is a GATE-31 FAIL.
 - **META-SRV** — QA-CL2's evidence block (displayed values + computed implied invariant + contradiction) satisfies META-SRV evidence discipline.
 - **APP-DIR1** — direction triangulation is the *categorical* analog of QA-CL2's *numerical* triangulation; same principle, different data type.
+
+**Strategy-family exception — P2 continuous-rebalancing (added 2026-04-22).**
+
+Triangulation 3 (annual turnover ↔ trade count ↔ horizon) is **not applicable** to P2 signal-strength strategies (continuous proportional position sizing that rebalances daily). For these strategies, `annual_turnover` is portfolio-change-weighted (sum of |Δposition| normalized by portfolio value, annualized) and `oos_n_trades` counts daily rebalance events. These two quantities are incommensurate: a P2 strategy with `annual_turnover = 3.84×` and `oos_n_trades = 387` (daily rebalances over ~5yr OOS) will fail the invariant check `n_trades/years ≈ annual_turnover × 2` by design, not due to a bug.
+
+**How to detect P2 strategies:** `winner_summary.json` field `position_sizing` is `"proportional"` or `"signal_strength"` (as opposed to `"binary"` or `"long_cash"`).
+
+**Action:** when P2 strategy is detected, skip Triangulation 3 and record `"QA-CL2 T3: N/A — P2 continuous rebalancing, turnover basis incommensurate with trade count"` in the findings table. Do not flag as FAIL or PASS-with-note. The underlying schema gap (no `turnover_basis` enum in `winner_summary.schema.json`) is tracked in `docs/backlog.md` BL-802.
 
 **Why this rule exists.** Wave 4D-1 migrated `winner_summary.oos_ann_return` from percent-form (11.33) to ratio-form (0.1133). Four Strategy-page lines in `app/pages/9_hy_ig_v2_spy_strategy.py` formatted the field as `f"+{val:.1f}%"`, which renders "+0.1%" instead of "+11.3%". Every upstream check passed (schema valid, smoke tests green, file exists, DOM renders). The bug was only caught by a stakeholder reading the Strategy page and noticing that a Sharpe of 1.27 cannot coexist with a 0.1% annualized return. QA-CL2 formalizes that stakeholder-style triangulation as a mandatory QA step so the Wave 4D-1 class of bug cannot ship again.
 

@@ -1113,6 +1113,45 @@ The following additive, optional fields extend APP-PT1's config contract. Both a
 
 2. **`regime_context`** (Evidence method block dict, `_render_method_block`). An optional markdown string in a method-block dict. When present, an `st.info(...)` callout is rendered between the `method_theory` body and the question / chart row. Typical use: "This method examines the relationship **conditional on market regime** — how does the signal behave in calm vs. stress conditions?" When absent, the block renders unchanged.
 
+### Rule APP-PT2 — Methodology Page Exploratory Insights Section (added 2026-04-22)
+
+**Closes the gap where Vera's exploratory charts (VIZ-E1 `"disposition": "suggested"`) had no page home and silently evaporated.** This rule makes the Methodology page the canonical landing zone for exploratory analytical output without requiring editorial review before shipping.
+
+**Binding:** `render_methodology_page()` in `app/components/page_templates.py` MUST include an **"Exploratory Insights"** section at the bottom of the page. The section renders only when the pair has ≥1 entry in `results/{pair_id}/analyst_suggestions.json` under key `"exploratory_charts"`. When the key is absent or the list is empty, the section is silently skipped.
+
+**Section structure (rendered by Ace, in order):**
+
+1. Section heading: `### Exploratory Insights`
+2. Introductory callout (`st.info`): *"The following charts were generated as exploratory findings beyond the standard analytical set. Each captures an angle our team found potentially useful. If you find any of these views valuable and would like them included as a standard view for all pairs, let the team know."*
+3. For each entry in `exploratory_charts` list (order preserved from JSON):
+   a. **Chart render** — `load_plotly_chart(entry["chart_name"], pair_id)`. On chart-not-found: APP-SEV1 L2 warning (`st.warning(f"Exploratory chart '{entry['chart_name']}' not found.")`), continue to next entry.
+   b. **ELI5 caption** (`st.caption`) — `entry["narrative_alignment_note"]`. This is the plain-English explanation Vera wrote per VIZ-E1. Rendered verbatim.
+   c. **Vera's rationale** (`st.caption`, italic markdown) — `_"Analytical note: {entry['vera_rationale']}"_`
+   d. **Feedback prompt** (`st.caption`) — *"Useful? Let the team know if you'd like this included as a standard view."*
+
+**`analyst_suggestions.json` schema extension** — add `"exploratory_charts"` key alongside existing keys:
+
+```json
+{
+  "exploratory_charts": [
+    {
+      "chart_name": "tournament_sharpe_dist",
+      "narrative_alignment_note": "...",
+      "vera_rationale": "...",
+      "portal_page_hint": "methodology"
+    }
+  ]
+}
+```
+
+Ace reads this key at Methodology page load. If `analyst_suggestions.json` does not exist, section is silently skipped (not an error — older pairs without exploratory charts are unaffected).
+
+**Non-blocking default:** exploratory charts ship on the Methodology page automatically. No editorial gate, no lead review required before shipping. Promotion of an exploratory chart to a core template slot happens at wave closure, driven by aggregated user feedback and Lead judgment — not as a blocking step in the current pair's pipeline.
+
+**Backward compatibility:** existing pairs (`hy_ig_v2_spy`, `indpro_xlp`, `umcsent_xlv`) that have no `exploratory_charts` key in their `analyst_suggestions.json` render their Methodology pages identically to before. No migration required.
+
+**Cross-references:** VIZ-O1 (disposition mandate — `"suggested"` disposition routes here), VIZ-E1 (sidecar spec — `narrative_alignment_note` and `vera_rationale` fields), APP-SEV1 (severity for missing chart artifacts), META-ELI5 (ELI5 requirement on all user-facing explanatory text).
+
 ### Rule APP-RL1 — Single-Source Routing / Label Maps (No Duplicates Across Modules)
 
 **Added 2026-04-22 (Wave 10G.5 post-cloud-verify).** Closes a real bug where the page-link routing dict was duplicated between `app/components/pair_registry.py::load_pair_registry()` and `app/components/page_templates.py::_page_prefix()`. When `hy_ig_spy` was added in Wave 10G.4E, only the `pair_registry.py` entry was updated; the template's duplicate kept stale content and `st.page_link` raised `StreamlitPageNotFoundError` on cloud. Local `smoke_loader` never exercises `st.page_link` resolution, so the bug shipped past all gates.

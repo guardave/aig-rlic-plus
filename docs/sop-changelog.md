@@ -8,6 +8,24 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-04-22 — Wave 10H: Chart Governance + Exploration Framework
+
+**Scope:** visualization agent (VIZ-O1, VIZ-E1), app dev agent (APP-PT2), QA agent (Pattern 22 fix, QA-CL2 P2 exception). Affects Vera, Ace, and Quincy. Lead-authored.
+
+**Rules added:**
+
+- **VIZ-O1 — Chart Disposition Mandate (`visualization-agent-sop.md`):** Every chart Vera produces must receive one of three dispositions before handoff: `consumed` (page template references it), `suggested` (routes to Methodology Exploratory Insights section per APP-PT2), or `retired` (logged with reason, not shipped). Disposition is recorded in the chart's `_meta.json` sidecar. Missing or blank disposition is a GATE-28 failure. Closes the chart evaporation gap exposed by the 3 orphaned Sample charts.
+
+- **VIZ-E1 — Exploration Zone + Sidecar Spec (`visualization-agent-sop.md`):** Vera is not confined to the core chart set. Every pair_config has a Core zone (mandatory named slots) and an Exploration zone (open — Vera produces any chart she judges analytically valuable). Exploratory charts get `"exploratory": true, "disposition": "suggested"` in their `_meta.json` sidecar. Mandatory sidecar fields: `narrative_alignment_note` (ELI5 plain-English explanation, **no jargon**, displayed verbatim on Methodology page), `vera_rationale` (one-line analyst note, italicized below ELI5 caption). The ELI5 field is a blocking handoff requirement for exploratory charts.
+
+- **APP-PT2 — Methodology Page Exploratory Insights Section (`appdev-agent-sop.md`):** `render_methodology_page()` must render an "Exploratory Insights" section at page bottom when `results/{pair_id}/analyst_suggestions.json` has ≥1 entry under `"exploratory_charts"`. Section renders: section heading → `st.info` callout (non-quant framing + feedback invitation) → for each chart: rendered chart + ELI5 caption (`st.caption`) + Vera's rationale (italic) + feedback prompt. Non-blocking default: charts ship automatically without editorial gate. Promotion to core template slot happens at wave closure. Backward-compatible: older pairs with no `exploratory_charts` key render Methodology page identically.
+
+- **Pattern 22 fix — QA cloud verify (`qa-agent-sop.md`):** DOM chart detection via `.count("js-plotly-plot")` on `page.inner_text()` always returns 0 — CSS class names are not included in extracted text. Correct approach: `page.query_selector_all(".js-plotly-plot")` on the DOM tree, or text-marker heuristics (axis labels, date strings). False-negative trap removed from cloud verify protocol.
+
+- **QA-CL2 P2 exception (`qa-agent-sop.md`):** Triangulation 3 (annual turnover ↔ trade count ↔ horizon) is not applicable to P2 continuous-rebalancing strategies (`position_sizing = "proportional"` or `"signal_strength"`). For these strategies, `annual_turnover` is portfolio-change-weighted and `oos_n_trades` counts daily rebalances — incommensurate quantities. Quincy skips T3 and records "N/A — P2 continuous rebalancing" in findings. Schema gap (no `turnover_basis` enum) tracked in backlog BL-802.
+
+---
+
 ## 2026-04-22 — Wave 10G: Sample Ratification + Archive + New HY-IG × SPY
 
 **Scope:** sample governance, namespace management, template extensions, full pair pipeline. Affects ALL agents for discoverability; Lead owns ratification, dispatches agents for new pair build.

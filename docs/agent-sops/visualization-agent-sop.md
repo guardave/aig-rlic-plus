@@ -430,6 +430,51 @@ Axis/ordering/signal-selection preferences that are not structural (palette choi
 
 When a pair genuinely needs a non-standard chart, **add a new method entry to `docs/schemas/chart_type_registry.json` BEFORE producing the chart**, bump the registry's `x-version`, and record the change in `sop-changelog.md` and the pair's `regression_note.md`. Do not ship a chart whose `method_name` is not in the registry.
 
+#### Rule VIZ-O1 — Chart Disposition Mandate (added 2026-04-22)
+
+**Every chart Vera produces must receive exactly one disposition before handoff.** No chart may exist in `output/charts/{pair_id}/plotly/` without a recorded disposition. The three permitted dispositions:
+
+| Disposition | Meaning | Where recorded |
+|-------------|---------|---------------|
+| `consumed` | A page_template slot or pair_config `chart_name` field references this chart. Ace renders it. | `_meta.json` sidecar → `"disposition": "consumed"` |
+| `suggested` | Chart has analytical value but no current page home. Vera routes it to `results/{pair_id}/analyst_suggestions.json` under key `"exploratory_charts"`. It will render on the Methodology page's Exploratory Insights section (Rule APP-PT2). | `_meta.json` → `"disposition": "suggested"` |
+| `retired` | Chart is superseded, duplicates an existing analytical angle, or is low signal. Logged with reason; not shipped. | `_meta.json` → `"disposition": "retired", "retire_reason": "..."` |
+
+**Why this rule exists.** Prior to this rule, charts produced by Vera that had no pair_config slot silently disappeared — neither consumed by a page nor surfaced to stakeholders. The 3 orphaned charts in the Sample pair (`hero_spread_vs_spy`, `spread_history_annotated`, `tournament_sharpe_dist`) were lost this way. VIZ-O1 closes the evaporation gap without restricting what Vera produces.
+
+**Completeness gate:** Quincy verifies that every `.json` file in `output/charts/{pair_id}/plotly/` has a corresponding `_meta.json` with a `disposition` field set to one of the three permitted values. Missing or blank disposition is a GATE-28 failure.
+
+#### Rule VIZ-E1 — Exploration Zone + Sidecar Spec for Exploratory Charts (added 2026-04-22)
+
+**Vera is not confined to the core chart set.** The pair_config has two chart zones:
+
+- **Core zone:** named slots the page template expects (e.g., `hero`, `correlation_heatmap`, `regime_quartile_returns`). These are mandatory — Vera must fill them with `"disposition": "consumed"` charts.
+- **Exploration zone:** open. Vera produces any chart she judges analytically valuable. Each exploratory chart receives `"disposition": "suggested"` and a `_meta.json` sidecar with mandatory fields (see below). Vera routes it through `analyst_suggestions.json` for Methodology-page rendering (Rule APP-PT2).
+
+**Guiding principles for the exploration zone** (principles, not rules — use judgment):
+1. Does this chart reveal something the core set cannot? If it duplicates an existing analytical angle, assign `retired`.
+2. Can a non-specialist read it without the underlying model? If not, the ELI5 `narrative_alignment_note` (see below) is especially important.
+3. Is there a natural page home? If yes, flag it in `portal_page_hint`; if not, the Methodology Exploratory section is the default home.
+
+**Sidecar `_meta.json` spec for exploratory charts (`"exploratory": true`):**
+
+```json
+{
+  "chart_name": "short_key",
+  "exploratory": true,
+  "disposition": "suggested",
+  "palette_id": "...",
+  "rules_applied": ["VIZ-E1", "..."],
+  "narrative_alignment_note": "Plain-English, ELI5 explanation of what this chart shows and why it is interesting. Write as if explaining to a smart non-quant reader — no jargon, no model names. This text is displayed verbatim beneath the chart on the Methodology page.",
+  "vera_rationale": "One-line analyst note on why Vera produced this chart — the analytical angle it captures. Rendered in italics beneath the ELI5 caption.",
+  "portal_page_hint": "methodology"
+}
+```
+
+**ELI5 requirement (blocking):** for any chart with `"exploratory": true`, `narrative_alignment_note` MUST be written in plain English accessible to a non-quant reader. Analyst shorthand, model names, or statistical jargon in this field is a handoff failure. The rule exists because exploratory charts ship directly to the public Methodology page without an intervening editorial review step.
+
+**Cross-references:** APP-PT2 (Methodology page Exploratory Insights renderer), VIZ-O1 (disposition mandate that applies to all charts including exploratory ones), GATE-28 (QA enforcement of disposition completeness).
+
 #### Rule A4 — Chart Regression Report
 
 **When to write:** On a rerun of an existing pair (same `pair_id` with any prior portal delivery), after generating new charts and BEFORE handoff to Ace, run a diff against the prior charts directory (`output/charts/{pair_id}/plotly/*.json`). If the new output differs from the previous version in **any** of: filename set, signal selection, signal ordering, axis configuration, color palette, or data transformation — Vera must write a regression note. On the first delivery of a pair, no regression note is required.
