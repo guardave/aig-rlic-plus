@@ -525,6 +525,21 @@ The shape of `results/{pair_id}/interpretation_metadata.json` is governed by `do
 
 **Cross-reference:** DATA-D3 (classification decision procedure), DATA-DD4 (classification ownership), META-CFO, META-IA, GATE-19 / GATE-20 / GATE-21, RES-IT1, APP-LP6, META-CF.
 
+#### Rule DATA-D6b — User-Facing Text Fields Use Human-Readable Names (Blocking)
+
+**Added 2026-04-22 (Wave 10G.5 post-cloud-verify).** Closes the gap surfaced when `hy_ig_spy`'s landing-page card displayed "Best signal: S6_hmm_stress / T4_hmm_0.5 / P2 / L0. OOS Sharpe 1.41 vs B&H 0.81. **hy_ig_spread_pct predicts spy_fwd_63d** (coef=-0.0013, p=0.0758). Direction: countercyclical." — where `hy_ig_spread_pct` and `spy_fwd_63d` are raw column identifiers leaked into user-visible text.
+
+- **Binding:** Every `interpretation_metadata.json` field that renders in the portal's landing card, Story page, or Strategy page MUST use human-readable names for instruments, indicators, signals, and forward-return horizons. Raw column identifiers (e.g., `hy_ig_spread_pct`, `spy_fwd_63d`, `hmm_2state_prob_stress`) are prohibited in these fields.
+- **Applies to fields:** `key_finding` (primary — this is the landing-card display text), `mechanism`, `caveats` (each string), `direction_asserted_rationale`, any other free-prose field that renders user-side. The `owner_writes` fields that don't render user-side (like `indicator_id`, `target_symbol`, or signal_scope's `canonical_column`) are exempt — those are the machine contract.
+- **Canonical human names** (examples):
+  - `hy_ig_spread_pct` → "HY-IG credit spread" (or "HY-IG spread")
+  - `spy_fwd_63d` → "3-month forward SPY returns" (or similar time-horizon phrasing)
+  - `hmm_2state_prob_stress` → "HMM stress-regime probability" (or "the HMM stress signal")
+- **Producer-side lint (mandatory before handoff):** grep the `key_finding` string for any token matching `[a-z_]+_(pct|bps|yoy|mom|fwd_\d+d|prob_stress|zscore)\b`. If any match, rewrite with a plain-English equivalent. Log the lint in the handoff note.
+- **Exempt pages:** the Methodology page's Signal Universe (ECON-UD) and Analyst Suggestions (ECON-AS) may legitimately reference raw column names because those sections ARE the technical reference layer. DATA-D6b scope is the user-facing display fields only.
+- **QA check (GATE-NR extension):** Quincy's GATE-NR DOM scan now includes this check — if the landing-card card text contains a raw column identifier, it is a FAIL.
+- **Cross-references:** RES-NR1 (Ray's narrative instrument reference accuracy — the parallel rule on the Ray-authored side), META-RYW (Read Your Own Work — Dana must re-read `key_finding` before handoff and catch this class), DATA-D6 (the schema this rule extends), APP-RL1 (single-source label maps — the rendering layer).
+
 #### Rule DATA-D11 — Reference-Pair Sidecar Gate (Blocking)
 
 For any pair undergoing reference-pair acceptance (per META-RPD), the DATA-D5 sidecar `data/{subject}_{frequency}_schema.json` MUST exist on disk at the time `acceptance.md` is signed. A schema without a reference instance is a paper rule.
