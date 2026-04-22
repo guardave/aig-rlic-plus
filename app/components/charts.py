@@ -103,14 +103,13 @@ def load_plotly_chart(
         else:
             chart_dir = CHART_DIR
 
-        # Try exact name first, then with pair_id prefix (agents may use either)
+        # VIZ-NM1 + APP-EP4: bare-name is canonical. Pair-prefix fallback removed
+        # (Wave 10F item 6 — all active pairs migrated to bare-name by Vera,
+        # commits 3c6bb50 + 27fb01f). A single candidate; genuinely-missing charts
+        # fall through to the GATE-25 "chart pending" placeholder below.
         candidates = [
             os.path.normpath(os.path.join(chart_dir, f"{chart_name}.json")),
         ]
-        if pair_id:
-            candidates.append(
-                os.path.normpath(os.path.join(chart_dir, f"{pair_id}_{chart_name}.json"))
-            )
 
     json_path = None
     for candidate in candidates:
