@@ -255,3 +255,10 @@
 - Backward-compatible: legacy pairs (no `exploratory_charts` key) render identically — verified via smoke_loader (hy_ig_v2_spy 15/0, hy_ig_spy 6/0) and via 4-scenario dry-run harness under `temp/260422_app_pt2/`.
 - Awaiting Vera (`exploratory_charts` authoring in `analyst_suggestions.json` + sidecar backfill per VIZ-O1/VIZ-E1) and Quincy (cloud DOM verify per handoff notes).
 - Handoff: `results/_cross_agent/handoff_ace_wave10h1_20260422.md`.
+
+## 2026-04-22T23:50Z — Quincy (Wave 10H.1 attempt 3)
+
+- scripts/cloud_verify.py patched — selector-based iframe discovery (replaces page.frames race).
+- Full verify: **15/17 PASS**. Real FAILs on landing (raw-col leak, Ace) and hy_ig_v2_spy_methodology (APP-PT2 section absent — suspect cloud deployment lag).
+- META-AM: b3facc8 slash fix validated. BL-PERM-SUBAGENT → RESOLVED.
+- Handoff appended: results/_cross_agent/handoff_quincy_wave10h1_20260422.md §"Post-reboot verify (attempt 3)".

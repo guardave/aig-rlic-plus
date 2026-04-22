@@ -169,3 +169,77 @@ No Ace bugs identified. No Vera bugs beyond the pre-declared legacy-generator ga
 `scripts/cloud_verify.py` + this handoff + `_pws/qa-quincy/` updates + `_pws/_team/status-board.md` entry. Not touching `app/components/page_templates.py`, chart sidecars, or `analyst_suggestions.json` (LEAD-DL1 ownership respected).
 
 🤖 Agent: QA Quincy
+
+---
+
+## Post-reboot verify (attempt 3 — 2026-04-22T23:41Z)
+
+**Result: PASS 15 / FAIL 2 / TOTAL 17.** App is reachable; prior 17/17 `no_iframe` was a Playwright iframe-discovery race, NOT cloud hibernation. Surgical patch applied to `scripts/cloud_verify.py`.
+
+### Root cause of earlier no_iframe
+
+`cloud_verify.py` used `page.frames` iteration to locate the `/~/+/` Streamlit iframe. Streamlit Cloud's outer shell injects the iframe via `<iframe title="streamlitApp" src="//.../~/+/">` but Playwright's `page.frames` list populates *after* Playwright's event loop fully processes the frame load — that can lag DOM presence by 15-60s and sometimes never registers in a given session. During diagnostic probing I observed the iframe element in the outer HTML (`iframe_handle` via `wait_for_selector` resolves in < 1s) but `page.frames` returned only `[outer, statuspage]` for 60s+.
+
+### Patch (scripts/cloud_verify.py)
+
+1. Replaced `page.frames` iteration with:
+   ```python
+   handle = page.wait_for_selector('iframe[title="streamlitApp"]', timeout=60000)
+   target = handle.content_frame()
+   ```
+2. Bumped `page.goto` timeout to 60s.
+3. Added chart-stability poll (up to 20s) after text body hydrates, since `.js-plotly-plot` containers render lazily ~5-15s after first text.
+4. Bumped iframe inner-text hydration wait from 30s to 45s.
+
+### Cell-by-cell verdict (full grid)
+
+```
+FAIL  landing                       (raw col leak)
+PASS  hy_ig_v2_spy_story            charts=5
+PASS  hy_ig_v2_spy_evidence         charts=8
+PASS  hy_ig_v2_spy_strategy         charts=7
+FAIL  hy_ig_v2_spy_methodology      charts=0, Exploratory Insights section absent
+PASS  hy_ig_spy_story               charts=5
+PASS  hy_ig_spy_evidence            charts=8
+PASS  hy_ig_spy_strategy            charts=9
+PASS  hy_ig_spy_methodology         charts=0 (no section — correct)
+PASS  indpro_xlp_story              charts=2
+PASS  indpro_xlp_evidence           charts=3
+PASS  indpro_xlp_strategy           charts=9
+PASS  indpro_xlp_methodology        charts=0 (no section — correct)
+PASS  umcsent_xlv_story             charts=2
+PASS  umcsent_xlv_evidence          charts=4
+PASS  umcsent_xlv_strategy          charts=5
+PASS  umcsent_xlv_methodology       charts=0 (no section — correct)
+```
+
+### Real findings (not script artifacts)
+
+1. **FAIL landing — raw column leak.** DOM contains `spy_fwd_21d` and `spy_fwd_63d` (verified via grep on captured DOM). SAMPLE badge present and correct; `dom_ok=True`. This is a landing-page label leak, owner **Ace**. Severity: VIZ-NM1 / APP display standard violation. Evidence: `temp/20260422T234114Z_cloud_verify/dom_text/landing.txt`.
+
+2. **FAIL hy_ig_v2_spy_methodology — APP-PT2 section missing.** `section=False eli5_markers=0/3`. DOM captured (14,138 chars) renders through "Analyst Suggestions for Future Work" straight into "References" with no "Exploratory Insights" heading in between. Verified locally: `results/hy_ig_v2_spy/analyst_suggestions.json` DOES carry `exploratory_charts` with 3 entries (`hero_spread_vs_spy`, `spread_history_annotated`, `tournament_sharpe_dist`), and `app/components/page_templates.py:1400` DOES call `_render_exploratory_insights(pair_id)`. Both commits are pushed on origin/main (`c9f4d47` Vera, `e6767e0` Ace). Most-likely cause: **Streamlit Cloud has not yet redeployed the c9f4d47 / e6767e0 commits into the running container** (common symptom: cached git state survives reboot; force-reboot or manual rebuild trigger required). Secondary hypothesis: `_REPO_ROOT` path resolves differently on cloud and file read misses silently. Recommend Lead trigger a Streamlit Cloud manual reboot AGAIN (with explicit "clear cache" if available) and re-run cloud verify; if still fails, dispatch Ace to wrap `_render_exploratory_insights` with `st.exception` fallback for debuggability.
+
+### QA-CL gate status (refreshed)
+
+- **GATE-28:** 15/17 PASS. Two real FAILs documented; expected post Streamlit Cloud rebuild: 16-17/17.
+- **APP-PT2:** FAIL on Sample pair (deployment lag suspected). Regression gate PASS on all 3 non-Sample pairs.
+- **VIZ-O1:** PASS on 65/65 in-scope focus-pair sidecars (unchanged from prior report).
+- **QA-CL2:** covered; P2 exception stands.
+
+### META-AM permission test (settings.json slash fix — b3facc8)
+
+- Write to `/home/vscode/.claude/agents/qa-quincy/memories.md`: **SUCCEEDED.**
+- Write to `/home/vscode/.claude/agents/qa-quincy/experience.md`: **SUCCEEDED.**
+- **Verdict: Lead's b3facc8 single-slash → double-slash fix RESOLVED BL-PERM-SUBAGENT.** Both global-profile writes went through without permission prompts. Can promote BL-PERM-SUBAGENT from "open blocker" to "resolved, validated in Wave 10H.1 attempt 3."
+
+### Diagnostic artifacts
+
+- `temp/20260422T234114Z_cloud_verify/` — full 17-cell run (results.json, summary.txt, 16 dom_text, 16 screenshots).
+- Earlier diagnostics captured in /tmp/diag (probe scripts proving iframe race root cause) — not committed; key probe logs referenced above.
+
+### Recommendation to Lead
+
+1. Close Deliverable B as "verify script fixed, methodology genuinely delivers 15/17 post-fix." The 2 remaining FAILs are real bugs, not script artifacts.
+2. Request another Streamlit Cloud reboot/manual rebuild to confirm APP-PT2 Sample bug is deployment lag vs. code defect.
+3. Dispatch Ace for landing raw-column leak (spy_fwd_21d / spy_fwd_63d).
+4. Mark BL-PERM-SUBAGENT as RESOLVED by b3facc8.

@@ -471,3 +471,15 @@ Streamlit Cloud renders content in an iframe at `/~/+/<slug>`. Outer `document.b
 - `~/.claude/agents/qa-quincy/last_seen` — updated
 
 *Production run count: 12.*
+
+## 2026-04-22 — Wave 10H.1 attempt 3 (post-reboot)
+
+Root-caused earlier 17/17 no_iframe: Playwright `page.frames` iteration races frame registration on Streamlit Cloud. Switched to `wait_for_selector('iframe[title="streamlitApp"]').content_frame()`; iframe resolves in <1s thereafter. Surgical patch to `scripts/cloud_verify.py` (selector-based iframe discovery + 60s goto + 45s body hydrate + 20s chart-stability poll).
+
+Full run: **15 PASS / 2 FAIL / 17 TOTAL** at `temp/20260422T234114Z_cloud_verify/`.
+
+Two real FAILs (not script bugs):
+- landing: raw-col leak (`spy_fwd_21d`, `spy_fwd_63d`) — Ace fix.
+- hy_ig_v2_spy_methodology: Exploratory Insights section absent — suspect Streamlit Cloud deployment lag on commits c9f4d47/e6767e0. File+code verified locally. Recommend second reboot.
+
+META-AM: both global-profile writes (memories.md, experience.md) succeeded. b3facc8 slash fix RESOLVES BL-PERM-SUBAGENT.

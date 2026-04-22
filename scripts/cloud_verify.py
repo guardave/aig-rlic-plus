@@ -48,6 +48,13 @@ PAGES = ["story", "evidence", "strategy", "methodology"]
 
 HYDRATE_SECS = 25
 IFRAME_WAIT_SECS = 10
+# Wave 10H.1 attempt 3: use selector-based iframe discovery. page.frames list
+# is unreliable on Streamlit Cloud — the iframe element exists in DOM long
+# before Playwright populates it in page.frames. wait_for_selector +
+# content_frame is the canonical pattern.
+IFRAME_SELECTOR = 'iframe[title="streamlitApp"]'
+IFRAME_SELECTOR_TIMEOUT_MS = 60000
+POST_HYDRATE_CHART_WAIT_SECS = 20  # charts render lazily after text body
 
 ERR_PATS = [
     "Traceback", "StreamlitPageNotFoundError", "StreamlitAPIException",
@@ -81,21 +88,20 @@ def get_dom(page, url, slug, dom_dir, ss_dir):
     """Return (text, source_tag, plotly_count) or (None, err, 0)."""
     print(f"  navigating {url} ...", flush=True)
     try:
-        page.goto(url, timeout=45000, wait_until="domcontentloaded")
+        page.goto(url, timeout=60000, wait_until="domcontentloaded")
     except Exception as e:
         return None, f"goto: {e}", 0
-    time.sleep(HYDRATE_SECS)
 
+    # Attempt 3 fix: resolve iframe via selector + content_frame, not
+    # page.frames iteration. The former is deterministic; the latter races
+    # against frame registration in Playwright's event loop.
     target = None
-    t0 = time.time()
-    while time.time() - t0 < IFRAME_WAIT_SECS:
-        for f in page.frames:
-            if "/~/+/" in f.url:
-                target = f
-                break
-        if target:
-            break
-        time.sleep(1)
+    try:
+        handle = page.wait_for_selector(IFRAME_SELECTOR, timeout=IFRAME_SELECTOR_TIMEOUT_MS)
+        if handle is not None:
+            target = handle.content_frame()
+    except Exception as e:
+        print(f"  iframe selector wait failed: {e}", flush=True)
 
     if target is None:
         # Fallback: landing page has no /~/+/ iframe — outer body.
@@ -120,7 +126,7 @@ def get_dom(page, url, slug, dom_dir, ss_dir):
     # Wait for iframe DOM to hydrate (Streamlit lazy-renders into /~/+/).
     t0 = time.time()
     text = ""
-    while time.time() - t0 < 30:
+    while time.time() - t0 < 45:
         try:
             text = target.inner_text("body")
             if len(text) > 200:
@@ -134,12 +140,30 @@ def get_dom(page, url, slug, dom_dir, ss_dir):
         except Exception as e:
             return None, f"inner_text: {e}", 0
 
-    # Pattern 22 fix: query DOM tree for plotly containers (CSS class names
-    # are NOT present in inner_text).
+    # Charts render lazily AFTER text body appears. Poll for .js-plotly-plot
+    # containers; stop early when count stabilizes.
+    plotly_count = 0
+    last_count = -1
+    stable_ticks = 0
+    t0 = time.time()
+    while time.time() - t0 < POST_HYDRATE_CHART_WAIT_SECS:
+        try:
+            plotly_count = len(target.query_selector_all(".js-plotly-plot"))
+        except Exception:
+            plotly_count = 0
+        if plotly_count == last_count and plotly_count > 0:
+            stable_ticks += 1
+            if stable_ticks >= 2:
+                break
+        else:
+            stable_ticks = 0
+        last_count = plotly_count
+        time.sleep(2)
+    # Refresh text after charts may have triggered further DOM updates.
     try:
-        plotly_count = len(target.query_selector_all(".js-plotly-plot"))
+        text = target.inner_text("body")
     except Exception:
-        plotly_count = 0
+        pass
 
     with open(os.path.join(dom_dir, f"{slug}.txt"), "w") as fh:
         fh.write(text)
