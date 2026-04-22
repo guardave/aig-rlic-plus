@@ -1,8 +1,60 @@
 # AIG-RLIC+ SOP Changelog
 
-Chronological record of every rule addition and modification across the AIG-RLIC+ agent SOP system. New rules are entered here first, then registered in [`docs/standards.md`](standards.md).
+Chronological record of every rule addition and modification across the AIG-RLIC+ agent SOP system. New rules are entered here first, then registered in [`docs/standards.md`](standards.md) and/or [`docs/team-standards.md`](team-standards.md).
 
-Entries are listed newest-first. Each entry cites the commit hash, date, and summarizes what changed.
+Entries are listed newest-first. Each entry cites the commit hash (when available), date, scope, and summarizes what changed.
+
+**SOD read protocol (added Wave 10F):** every agent, at session start, reads this file from the top down to the first entry whose date is earlier than the timestamp in `~/.claude/agents/<role>-<name>/last_seen`. Every entry above that line is a rule added while the agent was away — apply if scope matches.
+
+---
+
+## 2026-04-20 — Wave 10F: Standardization Infrastructure (Lead)
+
+**Scope:** team-coordination.md + new project-local /sod + new hooks + new team-standards.md. Affects ALL agents.
+
+**Additions:**
+
+- **META-RYW (team-coordination.md, ALL agents)** — **Read Your Own Work before handoff.** Every producer re-reads their deliverable end-to-end (prose word-by-word, each chart matched against its description, each numeric claim against its source, each instrument/date/direction word against interpretation_metadata.json) and logs the re-read in the handoff note. Closes the class of bug where agents ship artifacts without looking at them (Wave 10E "S&P 500 on XLP page" was the proximate trigger).
+- **VIZ-IC1 (visualization-agent-sop.md, vera)** — **Pre-save intra-chart consistency check.** Before saving any chart JSON, Vera asserts: title↔axes coherence; legend↔data series match; annotations↔data range match; palette registry conformance (role-based aliases); unit discipline in tick formatters; narrative-alignment note in chart _meta.json sidecar.
+- **Project-local `/sod` (new `.claude/commands/sod.md`, ALL agents)** — project override of the global `/sod` skill. Defines the 7-step SOD procedure for this project: identity → global profile → PWS → core project docs + team-standards.md → sop-changelog.md since last_seen → team status → acknowledge. Updates `last_seen` at end.
+- **SOD / EOD hooks moved into repo (`scripts/hooks/`)** — `check-agent-sod.sh` (new PreToolUse) + `check-agent-eod.sh` (moved from ~/.claude/hooks). `.claude/settings.json` uses repo-relative paths. Portable across clones; single source of truth.
+- **Mandatory Dispatch Template extended** — every dispatch prompt must now contain `## SOD Block` in addition to the existing `AGENT_ID:` line and `## MANDATORY EOD` block. PreToolUse hook warns if SOD block absent.
+- **`docs/team-standards.md` (stub)** — new canonical cross-agent conventions file (directory layout, filename conventions, sidecar schema, palette roles, handoff contracts, deploy-required artifact registry, dispatch template). Sections marked `[TO BE POPULATED BY CROSS-REVIEW]` are held for the next wave's parallel agent audit.
+
+**Commit:** `90cadd4` (infrastructure portions); this changelog update is part of the same wave.
+
+---
+
+## 2026-04-20 — Wave 10E: Template Abstraction + Narrative Accuracy + ECON-DS2 Gap (Multi-agent)
+
+**Scope:** appdev-agent-sop.md + research-agent-sop.md + qa-agent-sop.md + econometrics-agent-sop.md + team-coordination.md. Affects ALL agents.
+
+**Additions:**
+
+- **APP-PT1 (ace)** — **Page Template Abstraction.** New pair portal pages MUST be thin wrappers calling `app/components/page_templates.py`. Pair-specific content lives in `app/pair_configs/{pair_id}_config.py`. Any `st.*` call in a page file (other than the template call) is a gate failure. Eliminates copy-paste drift across pairs.
+- **APP-PT1 supplement (ace + ray)** — **Narrative authorship.** Narrative prose in `pair_configs/` MUST be authored by Ray, not Ace. Ace renders structure only; narrative fields are explicit placeholders until Ray delivers. Prevents the Wave-10E "wrong instrument in narrative" class of bug.
+- **APP-SS1 (ace)** — **signal_scope.json consumer contract.** Methodology page readers MUST use the `indicator_axis.derivatives` / `target_axis.derivatives` schema, not the legacy `in_scope.*` flat arrays. Empty Signal Universe columns = L1 st.error + short-circuit.
+- **RES-NR1 (ray)** — **Narrative instrument reference accuracy.** All instrument names in narrative prose must match `interpretation_metadata.json.target_symbol`. Log RES-NR1 check in handoff. Ray owns all narrative prose for a pair (no copy-paste from other pairs without pair-specific re-authoring).
+- **GATE-NR / QA-CL5 (quincy)** — **Narrative instrument reference check.** DOM scan of Story/Evidence pages for wrong-pair instrument names. Blocking at GATE-31.
+- **META-NMF (team-coordination.md, ALL)** — **No Manual Fix (inviolable).** Every fix flows through SOP update first, then agent dispatch. Lead included. No ad-hoc shortcuts.
+- **ECON-DS2 explicit quality gate (evan)** — `git ls-files results/{pair_id}/signals_*.parquet` must return ≥1 file before handoff. Rule existed in prose; now a named checklist item.
+- **GATE-29 parquet check (quincy)** — clean-checkout test extended to explicitly verify `signals_*.parquet` is committed. Missing = GATE-29 FAIL even when smoke_loader passes.
+
+**Commits:** `bfb1b70` (APP-PT1), `a9ae669` (RES-NR1/GATE-NR), `dadd8f5` (ECON-DS2 gap), `e1cff0f` (Evan's signals parquet retro-fix).
+
+---
+
+## 2026-04-20 — Wave 10D: Cloud Verify Structural Enforcement (Multi-agent)
+
+**Scope:** appdev-agent-sop.md + qa-agent-sop.md. Affects ace, quincy.
+
+**Additions:**
+
+- **AppDev Quality Gate extensions (ace)** — new checklist items: breadcrumb nav present on all 4 pages; Evidence page tab structure matches reference pair (Level 1 / Level 2); new pages MUST be derived from canonical reference template, not built from scratch; Signal Universe section renders non-empty.
+- **GATE-28 structural parity (quincy)** — cloud DOM audit now asserts breadcrumb present (all 4 section labels in DOM) AND Evidence tabs contain "Level 1" or "Basic Analysis" text. Missing/wrong = GATE-28 FAIL.
+- **QA-CL4 (quincy)** — named cloud verify gate (GATE-27 + GATE-28 + GATE-29). Previously ad-hoc Lead-owned; now Quincy-owned, evidence-gated.
+
+**Commits:** `eb023f9` (fix + SOP tightening), `a815fde` (final cloud verify PASS).
 
 ---
 

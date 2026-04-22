@@ -675,6 +675,23 @@ AGENT_ID: <role>-<name>
 
 Example: `AGENT_ID: appdev-ace`. This is consumed by the PostToolUse hook (`~/.claude/hooks/check-agent-eod.sh`) to identify which agent's global profile to audit after the dispatch returns.
 
+**Mandatory SOD block (added Wave 10F).** Every dispatch prompt must contain an `## SOD Block` section (typically near the top, after the task description) instructing the dispatched agent to run the project-local `/sod` procedure before starting work. Minimal acceptable form:
+
+```
+## SOD Block
+
+Before starting this task:
+1. Read `CLAUDE.md`, `docs/agent-sops/team-coordination.md`, `docs/agent-sops/<your-role>-agent-sop.md`.
+2. Read `docs/team-standards.md` (cross-agent conventions — filenames, sidecars, palette, handoff).
+3. Read `docs/sop-changelog.md` entries since `~/.claude/agents/<role>-<name>/last_seen` (any rule added while you were away).
+4. Re-read your global profile + PWS.
+5. After reading, update `last_seen` to current UTC timestamp.
+
+Reference: `.claude/commands/sod.md` (project-local SOD procedure).
+```
+
+This block is consumed by the PreToolUse hook (`scripts/hooks/check-agent-sod.sh`) which warns Lead if the dispatch prompt lacks the SOD block pattern. Enforcement chain mirrors EOD: L1 (template), L2 (PreToolUse hook), L3 (QA spot-audit).
+
 **Mandatory EOD block.** Every dispatch prompt must close with the following block, verbatim (substitute `<role>-<name>` with the agent's ID):
 
 ```
