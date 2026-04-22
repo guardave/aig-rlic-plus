@@ -1,0 +1,458 @@
+{
+  "pair_id": "hy_ig_spy",
+  "parquet_path": "/workspaces/aig-rlic-plus/data/hy_ig_spy_daily_20000101_20260422.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-04-22T10:27:23Z",
+  "columns": {
+    "hy_oas": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "HY OAS (%)",
+      "direction": "lower_is_better",
+      "description": "ICE BofA US High Yield Option-Adjusted Spread, quoted in percentage points (e.g. 4.68 = 4.68%).",
+      "source_reference": "FRED:BAMLH0A0HYM2",
+      "refresh_ttl_days": 1
+    },
+    "ig_oas": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "IG OAS (%)",
+      "direction": "lower_is_better",
+      "description": "ICE BofA US Corporate (Investment Grade) Option-Adjusted Spread, quoted in percentage points.",
+      "source_reference": "FRED:BAMLC0A0CM",
+      "refresh_ttl_days": 1
+    },
+    "bb_hy_oas": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "BB HY OAS (%)",
+      "direction": "lower_is_better",
+      "description": "ICE BofA BB US High Yield OAS (sub-IG but highest-rated HY slice), in percent.",
+      "source_reference": "FRED:BAMLH0A1HYBB",
+      "refresh_ttl_days": 1
+    },
+    "ccc_hy_oas": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "CCC HY OAS (%)",
+      "direction": "lower_is_better",
+      "description": "ICE BofA CCC & Lower US High Yield OAS (lowest-rated HY tranche), in percent.",
+      "source_reference": "FRED:BAMLH0A3HYC",
+      "refresh_ttl_days": 1
+    },
+    "dgs10": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "US 10Y Treasury Yield (%)",
+      "direction": "neutral",
+      "description": "10-Year Treasury Constant Maturity Rate, in percent.",
+      "source_reference": "FRED:DGS10",
+      "refresh_ttl_days": 1
+    },
+    "dtb3": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "US 3M T-Bill Yield (%)",
+      "direction": "neutral",
+      "description": "3-Month Treasury Bill Secondary Market Rate, in percent.",
+      "source_reference": "FRED:DTB3",
+      "refresh_ttl_days": 1
+    },
+    "dgs2": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "US 2Y Treasury Yield (%)",
+      "direction": "neutral",
+      "description": "2-Year Treasury Constant Maturity Rate, in percent.",
+      "source_reference": "FRED:DGS2",
+      "refresh_ttl_days": 1
+    },
+    "nfci": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "Chicago Fed NFCI",
+      "direction": "lower_is_better",
+      "description": "Chicago Fed National Financial Conditions Index; positive = tighter-than-average conditions, negative = looser. Weekly release, LVCF-aligned to daily.",
+      "source_reference": "FRED:NFCI",
+      "refresh_ttl_days": 7
+    },
+    "fed_funds_rate": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "Fed Funds Rate (%)",
+      "direction": "neutral",
+      "description": "Effective Federal Funds Rate, in percent.",
+      "source_reference": "FRED:DFF",
+      "refresh_ttl_days": 1
+    },
+    "bbb_oas": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "BBB OAS (%)",
+      "direction": "lower_is_better",
+      "description": "ICE BofA BBB US Corporate OAS (lowest-rated IG tranche), in percent.",
+      "source_reference": "FRED:BAMLC0A4CBBB",
+      "refresh_ttl_days": 1
+    },
+    "fsi": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "St. Louis Fed Financial Stress Index",
+      "direction": "lower_is_better",
+      "description": "St. Louis Fed Financial Stress Index (STLFSI4); higher = more systemic stress. Standardized composite.",
+      "source_reference": "FRED:STLFSI4",
+      "refresh_ttl_days": 1
+    },
+    "initial_claims": {
+      "dtype": "float64",
+      "unit": "count",
+      "display_name": "Initial Jobless Claims",
+      "direction": "lower_is_better",
+      "description": "Weekly initial unemployment-insurance claims filed, US total. LVCF-aligned to daily from weekly release.",
+      "source_reference": "FRED:ICSA",
+      "refresh_ttl_days": 7
+    },
+    "sofr": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "SOFR (%)",
+      "direction": "neutral",
+      "description": "Secured Overnight Financing Rate, in percent. Start 2018-04-03; earlier dates backfilled with Fed Funds proxy.",
+      "source_reference": "FRED:SOFR",
+      "refresh_ttl_days": 1
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "higher_is_better",
+      "description": "SPDR S&P 500 ETF adjusted close price in USD. Target asset for the hy_ig_spy pair.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "vix": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "VIX Index Level",
+      "direction": "lower_is_better",
+      "description": "CBOE Volatility Index \u2014 30-day implied volatility of S&P 500 options, quoted as an index level (also interpretable as annualized percent).",
+      "source_reference": "yahoo:^VIX",
+      "refresh_ttl_days": 1
+    },
+    "vix3m": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "VIX3M Index Level",
+      "direction": "lower_is_better",
+      "description": "CBOE 3-Month Volatility Index \u2014 forward-looking implied vol at 3M horizon.",
+      "source_reference": "yahoo:^VIX3M",
+      "refresh_ttl_days": 1
+    },
+    "kbe": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "KBE Close ($)",
+      "direction": "higher_is_better",
+      "description": "SPDR S&P Bank ETF adjusted close, used for bank/small-cap regime indicator.",
+      "source_reference": "yahoo:KBE",
+      "refresh_ttl_days": 1
+    },
+    "iwm": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "IWM Close ($)",
+      "direction": "higher_is_better",
+      "description": "iShares Russell 2000 ETF adjusted close \u2014 small-cap equity proxy for regime overlay.",
+      "source_reference": "yahoo:IWM",
+      "refresh_ttl_days": 1
+    },
+    "move_index": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "MOVE Index",
+      "direction": "lower_is_better",
+      "description": "ICE BofA MOVE Index \u2014 Treasury option-implied volatility index.",
+      "source_reference": "yahoo:^MOVE",
+      "refresh_ttl_days": 1
+    },
+    "gold": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "Gold Spot ($/oz)",
+      "direction": "neutral",
+      "description": "Gold spot price in USD per troy ounce.",
+      "source_reference": "yahoo:GC=F",
+      "refresh_ttl_days": 1
+    },
+    "copper": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "Copper Spot ($/lb)",
+      "direction": "higher_is_better",
+      "description": "Copper spot price in USD per pound. Higher = stronger global industrial demand.",
+      "source_reference": "yahoo:HG=F",
+      "refresh_ttl_days": 1
+    },
+    "dxy": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "DXY Dollar Index",
+      "direction": "neutral",
+      "description": "ICE US Dollar Index \u2014 USD vs basket of 6 major currencies.",
+      "source_reference": "yahoo:DX-Y.NYB",
+      "refresh_ttl_days": 1
+    },
+    "hyg": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "HYG Close ($)",
+      "direction": "higher_is_better",
+      "description": "iShares iBoxx $ High Yield Corporate Bond ETF adjusted close.",
+      "source_reference": "yahoo:HYG",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_spread_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "HY-IG Credit Spread (%)",
+      "direction": "lower_is_better",
+      "description": "ICE BofA US High Yield OAS minus ICE BofA US Corporate OAS, expressed in percentage points (e.g. 3.52 = 3.52%). Primary indicator for hy_ig_spy pair. Column carries _pct suffix per DATA-D12.",
+      "source_reference": "derived: BAMLH0A0HYM2 - BAMLC0A0CM",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_zscore_252d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "HY-IG Spread Z-Score (252d)",
+      "direction": "lower_is_better",
+      "description": "Standardized hy_ig_spread_pct vs trailing 252-day rolling mean and standard deviation. Dimensionless.",
+      "source_reference": "derived: (hy_ig_spread_pct - rolling_mean_252) / rolling_std_252",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_zscore_504d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "HY-IG Spread Z-Score (504d)",
+      "direction": "lower_is_better",
+      "description": "Standardized hy_ig_spread_pct vs trailing 504-day (~2y) rolling window. Dimensionless.",
+      "source_reference": "derived: (hy_ig_spread_pct - rolling_mean_504) / rolling_std_504",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_pctrank_504d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "HY-IG Spread %-Rank (504d)",
+      "direction": "lower_is_better",
+      "description": "Percentile rank (0 to 1) of hy_ig_spread_pct within trailing 504-day window. 1.0 = widest-in-window.",
+      "source_reference": "derived: percentile_rank(hy_ig_spread_pct, window=504)",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_pctrank_1260d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "HY-IG Spread %-Rank (1260d)",
+      "direction": "lower_is_better",
+      "description": "Percentile rank (0 to 1) of hy_ig_spread_pct within trailing 1260-day (~5y) window.",
+      "source_reference": "derived: percentile_rank(hy_ig_spread_pct, window=1260)",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_roc_21d": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "HY-IG Spread 21d Rate-of-Change (%)",
+      "direction": "lower_is_better",
+      "description": "21-trading-day percent-change of hy_ig_spread_pct. Positive = spread widened (bearish).",
+      "source_reference": "derived: (spread[t] / spread[t-21] - 1) * 100",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_roc_63d": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "HY-IG Spread 63d Rate-of-Change (%)",
+      "direction": "lower_is_better",
+      "description": "63-trading-day (~3M) percent-change of hy_ig_spread_pct.",
+      "source_reference": "derived: (spread[t] / spread[t-63] - 1) * 100",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_roc_126d": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "HY-IG Spread 126d Rate-of-Change (%)",
+      "direction": "lower_is_better",
+      "description": "126-trading-day (~6M) percent-change of hy_ig_spread_pct.",
+      "source_reference": "derived: (spread[t] / spread[t-126] - 1) * 100",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_mom_21d": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "HY-IG Spread 21d Momentum (pp)",
+      "direction": "lower_is_better",
+      "description": "21-trading-day difference (in percentage points) of hy_ig_spread_pct. Unit matches the parent spread (percent).",
+      "source_reference": "derived: hy_ig_spread_pct[t] - hy_ig_spread_pct[t-21]",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_mom_63d": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "HY-IG Spread 63d Momentum (pp)",
+      "direction": "lower_is_better",
+      "description": "63-trading-day difference (in percentage points) of hy_ig_spread_pct.",
+      "source_reference": "derived: hy_ig_spread_pct[t] - hy_ig_spread_pct[t-63]",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_mom_252d": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "HY-IG Spread 252d Momentum (pp)",
+      "direction": "lower_is_better",
+      "description": "252-trading-day (~1y) difference in percentage points of hy_ig_spread_pct.",
+      "source_reference": "derived: hy_ig_spread_pct[t] - hy_ig_spread_pct[t-252]",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_acceleration": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "HY-IG Spread Acceleration",
+      "direction": "lower_is_better",
+      "description": "Change in rate-of-change (second-difference proxy) of hy_ig_spread_pct, expressed in percent. Captures inflection dynamics.",
+      "source_reference": "derived: hy_ig_roc_21d[t] - hy_ig_roc_21d[t-21]",
+      "refresh_ttl_days": 1
+    },
+    "ccc_bb_spread_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "CCC-BB HY Quality Spread (%)",
+      "direction": "lower_is_better",
+      "description": "Within-HY quality spread \u2014 CCC OAS minus BB OAS, in percent. Wider = stress concentrated at distressed end. Column renamed ccc_bb_spread_pct (was ccc_bb_spread in v1/v2) per DATA-D12.",
+      "source_reference": "derived: ccc_hy_oas - bb_hy_oas",
+      "refresh_ttl_days": 1
+    },
+    "hy_ig_realized_vol_21d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "HY-IG Spread Realized Vol (21d, decimal)",
+      "direction": "lower_is_better",
+      "description": "21-day rolling realized volatility of daily hy_ig_spread_pct changes, expressed as a decimal (0.30 = 30% annualized).",
+      "source_reference": "derived: std(diff(spread), 21) * sqrt(252)",
+      "refresh_ttl_days": 1
+    },
+    "vix_term_structure": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "VIX Term Structure",
+      "direction": "higher_is_better",
+      "description": "VIX3M minus VIX (index-level difference). Positive = normal contango (calm); negative = backwardation (acute stress).",
+      "source_reference": "derived: vix3m - vix",
+      "refresh_ttl_days": 1
+    },
+    "yield_spread_10y3m_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "10Y-3M Yield Spread (%)",
+      "direction": "higher_is_better",
+      "description": "US Treasury 10Y yield minus 3M T-bill yield, in percentage points. Inversion (negative) is a classic recession signal. Column suffixed _pct per DATA-D12 (was yield_spread_10y3m in v1/v2).",
+      "source_reference": "derived: dgs10 - dtb3",
+      "refresh_ttl_days": 1
+    },
+    "yield_spread_10y2y_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "10Y-2Y Yield Spread (%)",
+      "direction": "higher_is_better",
+      "description": "US Treasury 10Y minus 2Y yield, in percentage points. Column suffixed _pct per DATA-D12 (was yield_spread_10y2y in v1/v2).",
+      "source_reference": "derived: dgs10 - dgs2",
+      "refresh_ttl_days": 1
+    },
+    "bank_smallcap_ratio": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "KBE/IWM Ratio",
+      "direction": "higher_is_better",
+      "description": "Banks (KBE) divided by small-caps (IWM) \u2014 relative-strength gauge for banking health. Dimensionless ratio.",
+      "source_reference": "derived: kbe / iwm",
+      "refresh_ttl_days": 1
+    },
+    "nfci_momentum_13w": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "NFCI 13-Week Momentum",
+      "direction": "lower_is_better",
+      "description": "13-week (~1 quarter) change in NFCI. Rising = conditions tightening faster.",
+      "source_reference": "derived: nfci[t] - nfci[t-65bdays]",
+      "refresh_ttl_days": 7
+    },
+    "bbb_ig_spread_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "BBB-IG Spread (%)",
+      "direction": "lower_is_better",
+      "description": "BBB OAS minus total IG OAS, in percent. Within-IG quality-tier stress gauge. Column suffixed _pct per DATA-D12 (was bbb_ig_spread in v1/v2).",
+      "source_reference": "derived: bbb_oas - ig_oas",
+      "refresh_ttl_days": 1
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Daily Return (decimal)",
+      "direction": "higher_is_better",
+      "description": "Simple 1-day total return of SPY as decimal (0.01 = 1%).",
+      "source_reference": "derived: spy[t] / spy[t-1] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_1d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 1-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward-looking 1-trading-day total return of SPY (decimal).",
+      "source_reference": "derived: spy[t+1] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_5d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 5-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward-looking 5-trading-day total return of SPY (decimal).",
+      "source_reference": "derived: spy[t+5] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_21d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 21-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward-looking 21-trading-day (~1M) total return of SPY (decimal).",
+      "source_reference": "derived: spy[t+21] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_63d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 63-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward-looking 63-trading-day (~3M) total return of SPY (decimal). Primary dependent variable for predictive regressions.",
+      "source_reference": "derived: spy[t+63] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_126d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 126-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward-looking 126-trading-day (~6M) total return of SPY (decimal).",
+      "source_reference": "derived: spy[t+126] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_252d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 252-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward-looking 252-trading-day (~1y) total return of SPY (decimal).",
+      "source_reference": "derived: spy[t+252] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    }
+  }
+}

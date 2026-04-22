@@ -1,0 +1,88 @@
+{
+  "pair_id": "hy_ig_spy",
+  "schema_version": "1.0.0",
+  "indicator": "hy_ig_spread_pct",
+  "target": "spy",
+  "target_symbol": "SPY",
+  "indicator_nature": "leading",
+  "indicator_type": "credit",
+  "strategy_objective": "countercyclical_protection",
+  "expected_direction": "countercyclical",
+  "mechanism": "Wider HY-IG credit spreads signal rising default risk and tightening financial conditions — historically bearish for equities. Spread compression indicates risk appetite recovery and is bullish for SPY. The spread leads equity drawdowns because credit markets price in distress before equity mark-to-market catches up.",
+  "key_finding": "tbd — pending Evan tournament in Wave 10G.4C",
+  "caveats": [
+    "FRED BAMLH0A0HYM2 series observation_start was 2023-04-24 as of 2026-04-22; pre-2023 OAS history sourced from hy_ig_spy_v1 parquet (v1+FRED splice). Data quality verified against v2 parquet.",
+    "OAS data starts 1997 on FRED; effective pair start date is 2000-01-03 (limited by SPY availability).",
+    "GFC 2008-2009 dominates the tails; regime models should be stress-tested for out-of-sample stability.",
+    "COVID March 2020 was an extreme but transient spread widening — check tournament sensitivity to inclusion/exclusion.",
+    "Derived columns ccc_bb_spread_pct, yield_spread_10y3m_pct, yield_spread_10y2y_pct, bbb_ig_spread_pct are renamed from v1/v2 bare names per DATA-D12 suffix convention. Downstream consumers (Evan) must use new column names."
+  ],
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "target_symbol",
+      "indicator_nature",
+      "indicator_type",
+      "known_stress_episodes",
+      "data_provenance",
+      "related_pair_ids"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats",
+      "narrative_summary"
+    ]
+  },
+  "related_pair_ids": ["hy_ig_v2_spy", "hy_ig_spy_v1"],
+  "known_stress_episodes": [
+    {
+      "label": "Dot-com bust",
+      "start": "2000-03-24",
+      "end": "2002-10-09",
+      "note": "HY-IG spread widened from ~3% to ~8% as credit conditions deteriorated with equity bear market."
+    },
+    {
+      "label": "Global Financial Crisis",
+      "start": "2007-10-09",
+      "end": "2009-03-09",
+      "note": "Peak HY-IG spread ~15% in late 2008. Dominant tail event for the sample."
+    },
+    {
+      "label": "European Sovereign Debt Crisis",
+      "start": "2010-04-23",
+      "end": "2011-10-04",
+      "note": "Moderate spread widening; smaller amplitude than GFC but meaningful regime shift."
+    },
+    {
+      "label": "COVID-19 shock",
+      "start": "2020-02-19",
+      "end": "2020-03-23",
+      "note": "Rapid spike to ~10% spread followed by equally rapid Fed-driven compression — extreme but transient."
+    },
+    {
+      "label": "Rate-hike cycle 2022",
+      "start": "2022-01-03",
+      "end": "2022-10-12",
+      "note": "Gradual spread widening alongside equity re-rating; less acute than GFC/COVID."
+    }
+  ],
+  "data_provenance": {
+    "source": "FRED + Yahoo Finance + v1 splice",
+    "series_id": "BAMLH0A0HYM2 - BAMLC0A0CM",
+    "accessed_at": "2026-04-22T00:00:00Z",
+    "splice_note": "FRED BAMLH0A0HYM2/BAMLC0A0CM truncated to 2023-04-24 onward as of fetch date; pre-2023 history back-filled from hy_ig_spy_v1 parquet (Wave 10G.1 archive). Splice method: combine_first (live FRED overrides on overlap)."
+  },
+  "last_updated_by": "dana",
+  "last_updated_at": "2026-04-22T00:00:00Z"
+}
