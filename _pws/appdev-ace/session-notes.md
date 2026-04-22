@@ -336,3 +336,23 @@ APP-SS1 validation PASS
 - load_pair_registry assertion: PASS.
 - smoke_loader: hy_ig_spy 6/0, hy_ig_v2_spy 15/0, indpro_xlp 8/0, umcsent_xlv 7/0.
 - Commit: 35bb008, pushed to remote.
+
+---
+## 2026-04-22 — Wave 10H.1 — APP-PT2 Exploratory Insights
+
+**Task:** Implement Rule APP-PT2 (Methodology page Exploratory Insights section) in the centralised template.
+
+**Edit:** single file — `app/components/page_templates.py`.
+- Added helper `_render_exploratory_insights(pair_id)` (~63 LoC) near `_load_interpretation_metadata`.
+- Wired into `render_methodology_page` as section 13b (between Analyst Suggestions and References). Helper owns its trailing `---` separator so that legacy pairs (no `exploratory_charts` key) render identically.
+- Reads `results/{pair_id}/analyst_suggestions.json`; soft-fail on missing file / JSON error / key absent / empty list. Missing `chart_name` in an entry → `continue`. Missing chart artifact → `st.warning` (APP-SEV1 L2) → `continue`.
+- Caption prefix `"What this shows:"` per APP-CC1; italic rationale per APP-PT2 §3c; feedback prompt per APP-PT2 §3d.
+
+**Smoke evidence:**
+- `smoke_loader hy_ig_v2_spy` → 15/0 PASS
+- `smoke_loader hy_ig_spy` → 6/0 PASS
+- Dry-run harness at `temp/260422_app_pt2/dry_run_helper.py` → 4/4 scenarios PASS (missing file, key absent, two entries, missing chart recover).
+
+**Handoff:** `results/_cross_agent/handoff_ace_wave10h1_20260422.md`.
+
+**Scope discipline (LEAD-DL1):** no writes to `analyst_suggestions.json`, chart sidecars, pair_config narrative, QA scripts, or hand-written legacy `.py` pages.

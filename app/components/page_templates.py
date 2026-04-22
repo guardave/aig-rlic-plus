@@ -213,6 +213,68 @@ def _load_interpretation_metadata(pair_id: str) -> dict[str, Any]:
         return {}
 
 
+def _render_exploratory_insights(pair_id: str) -> None:
+    """Render the "Exploratory Insights" section on the Methodology page (APP-PT2).
+
+    Reads ``results/{pair_id}/analyst_suggestions.json`` and renders any entries
+    under the ``exploratory_charts`` key. Silently returns if the file is
+    missing, unreadable, or the key is absent/empty — backward-compatible with
+    legacy pairs that have not adopted the VIZ-E1 exploration zone.
+
+    Per APP-PT2: section heading → non-quant framing callout → for each entry:
+    chart render, ELI5 caption (VIZ-E1 narrative_alignment_note verbatim),
+    italicised analyst rationale, feedback prompt. Missing chart artifact →
+    APP-SEV1 L2 warning and continue to next entry (no short-circuit)."""
+    path = _REPO_ROOT / "results" / pair_id / "analyst_suggestions.json"
+    if not path.exists():
+        return
+    try:
+        with open(path) as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return
+
+    entries = data.get("exploratory_charts") or []
+    if not entries:
+        return
+
+    st.markdown("### Exploratory Insights")
+    st.info(
+        "The following charts were generated as exploratory findings beyond "
+        "the standard analytical set. Each captures an angle our team found "
+        "potentially useful. If you find any of these views valuable and "
+        "would like them included as a standard view for all pairs, let the "
+        "team know."
+    )
+
+    for idx, entry in enumerate(entries):
+        chart_name = entry.get("chart_name")
+        if not chart_name:
+            continue
+        fig = load_plotly_chart(
+            chart_name,
+            pair_id=pair_id,
+            chart_key=f"exploratory_{pair_id}_{chart_name}_{idx}",
+        )
+        if fig is None:
+            st.warning(
+                f"Exploratory chart '{chart_name}' not found."
+            )
+            continue
+        eli5 = entry.get("narrative_alignment_note")
+        if eli5:
+            st.caption(f"**What this shows:** {eli5}")
+        rationale = entry.get("vera_rationale")
+        if rationale:
+            st.markdown(f"_Analytical note: {rationale}_")
+        st.caption(
+            "Useful? Let the team know if you'd like this included as a "
+            "standard view."
+        )
+
+    st.markdown("---")
+
+
 def _latest_dated_file(pair_id: str, prefix: str, ext: str = "csv") -> Path | None:
     """Return the latest file matching ``{prefix}_YYYYMMDD.{ext}`` under the
     pair's results dir, or None if no match. APP-PT1 §dated-file-globbing."""
@@ -1331,6 +1393,11 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
     )
     render_analyst_suggestions(pair_id)
     st.markdown("---")
+
+    # ------ 13b. Exploratory Insights (APP-PT2) — renders its own
+    # trailing separator only if any entries are present; silent no-op
+    # otherwise so legacy pairs render identically.
+    _render_exploratory_insights(pair_id)
 
     # ------ 14. References ------
     st.markdown("### References")

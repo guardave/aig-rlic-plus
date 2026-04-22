@@ -215,3 +215,14 @@
 **QA Quincy re-verify (post `a74364f`):** BLOCK persisting — `indpro_xlp` story/evidence still serving pair-prefix chart paths (`indpro_xlp_hero.json`, `indpro_xlp_correlations.json`) on Cloud after 2×60s retry; fix is on GitHub (`origin/main` = `a74364f`) but Streamlit Cloud has NOT redeployed `indpro_xlp_config.py` — manual Cloud reboot required before Wave 10F can close as COMPLETE. HY-IG v2 story sanity regression: PASS (5 charts, clean).
 
 **QA Quincy re-verify AFTER cloud reboot (09:31 UTC):** ALL 3 PAGES PASS — `indpro_xlp_story` (7,777 chars, 2 charts), `indpro_xlp_evidence` (4,695 chars, 3 charts), `hy_ig_v2_spy_story` (17,059 chars, 5 charts). Zero chart-pending, zero errors, zero pair-prefix matches. Wave 10F COMPLETE.
+
+---
+
+## 2026-04-22 — Wave 10H.1 [Ace] APP-PT2 landed
+
+**Status:** READY FOR CLOUD VERIFY.
+
+- `app/components/page_templates.py`: added `_render_exploratory_insights(pair_id)` helper + wired into `render_methodology_page` as section 13b.
+- Backward-compatible: legacy pairs (no `exploratory_charts` key) render identically — verified via smoke_loader (hy_ig_v2_spy 15/0, hy_ig_spy 6/0) and via 4-scenario dry-run harness under `temp/260422_app_pt2/`.
+- Awaiting Vera (`exploratory_charts` authoring in `analyst_suggestions.json` + sidecar backfill per VIZ-O1/VIZ-E1) and Quincy (cloud DOM verify per handoff notes).
+- Handoff: `results/_cross_agent/handoff_ace_wave10h1_20260422.md`.
