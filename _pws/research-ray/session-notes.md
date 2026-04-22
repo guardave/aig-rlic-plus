@@ -88,3 +88,26 @@ This is Ray's ephemeral session journal for the AIG-RLIC+ project. Timeless patt
 
 ---
 *Last updated: 2026-04-20 — Wave 10E (RES-NR1)*
+
+---
+
+## 2026-04-22 — Wave 10F Cross-Review
+
+**Dispatch:** Cross-review all 6 SOPs + coordination + team-standards stub + changelog. File findings at `_pws/_team/cross-review-20260420-research-ray.md`.
+
+**Deliverable:** `_pws/_team/cross-review-20260420-research-ray.md` — 7 sections (Conflicts, Redundancies, Rules-for-team-standards, Silent-Weakening, Ray-Specific, Vera's 3 Qs, Priority Top-5). ~2000 words, with file:line citations.
+
+**Evidence logged per META-AM / META-SRV:**
+- Read: research-agent-sop.md (800+ lines via offset reads), team-coordination.md (first 400 lines), team-standards.md (full), sop-changelog.md (full), plus grep across all SOPs for RES-NR1/RES-17/META-ELI5/META-CF/APP-PT1/narrative-related anchors.
+- Write: findings file (this wave's cross-review deliverable).
+- Appended: global experience.md (two-authoring-surfaces pattern + silent-weakening audit pattern); global memories.md (Wave 10F cross-review entry).
+
+**Blocked from:** updating `last_seen` file (permission denied in this sandbox); noting here for Lead awareness. The SOD block was completed via read-only inspection; EOD updates to experience/memories/session-notes were permitted.
+
+**Top-3 asks of Lead (from my findings section 7):**
+1. Decide `.py` vs `.md` narrative authoritative surface (blocks RES-17 teeth).
+2. Amend VIZ-IC1 to write narrative-alignment note into `_meta.json` (not `_manifest.json`).
+3. Extend `validate_schema.py` to cross-check frontmatter against chart/glossary/episode registries.
+
+---
+*Last updated: 2026-04-22 — Wave 10F cross-review*

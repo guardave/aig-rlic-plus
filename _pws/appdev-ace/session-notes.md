@@ -161,3 +161,42 @@ APP-SS1 validation PASS
 - RES-17 upgrade -- when Ray narrative_frontmatter migration lands, upgrade APP-DIR1 from 2-way to 3-way check.
 - APP-PT1 retro-apply -- migrate HY-IG v2, umcsent_xlv, indpro_spy, permit_spy, vix_vix3m_spy, ted_variants, hy_ig_spy legacy pages to thin wrappers in subsequent waves. Each migration is pure restructure: lift narrative text to config, leave template untouched. Net LoC per pair: -400 to -700 page lines, +300 config lines.
 - APP-PT1 v1.1 -- if a pair needs a genuinely different Story structure (different section order, alternate hero layout), promote it as `render_story_page_variant_a` in `page_templates.py` — do NOT allow per-page overrides.
+
+## 2026-04-20 Wave 10F Cross-Review (Ace)
+
+**Task:** Read all SOPs + team-standards.md + inspect page_templates.py + indpro_xlp_config.py. Produce findings at `_pws/_team/cross-review-20260420-appdev-ace.md` with sections 1–7 (Conflicts / Redundancies / Rules for team-standards / Silent Weakening / Ace-specific / Vera Q&A / Priority Top-5).
+
+**META-SRV evidence:**
+- Deliverable file exists: `/workspaces/aig-rlic-plus/_pws/_team/cross-review-20260420-appdev-ace.md` — ~215 lines, all 7 sections present, ~2100 words.
+- Files read: `docs/team-standards.md` (142L), `docs/sop-changelog.md` (400L), `docs/agent-sops/appdev-agent-sop.md` (L1-400), `docs/agent-sops/team-coordination.md` (L1-300), `docs/agent-sops/visualization-agent-sop.md` (L1-300), `docs/agent-sops/qa-agent-sop.md` (L1-250), `app/components/page_templates.py` (1319L full), `app/pair_configs/indpro_xlp_config.py` (611L full), `app/components/charts.py` (L1-120).
+- Directory evidence: `output/charts/hy_ig_v2_spy/plotly/` lists BOTH `hero.json` and `hy_ig_v2_spy_hero.json` — confirms VIZ-NM1 silent-weakening finding. `output/charts/indpro_xlp/plotly/` is bare-name only (compliant).
+
+**Key findings (top 5 priority):**
+1. P0 — Remove loader pair-prefix fallback in `charts.py`; delete HY-IG v2 duplicate JSONs; ratify VIZ-NM1 in `team-standards.md §2.1`.
+2. P0 — Unify `signal` / `signal_code` / `signal_column` field names across `winner_summary.schema.json` + `tournament_winner.schema.json`; retire defensive `or` fallbacks in template.
+3. P1 — Promote APP-SEV1 to a named SOP section; define APP-CC1, APP-EX1, APP-URL1, APP-ST1 canonically (currently referenced but undefined in my SOP).
+4. P1 — Ratify `team-standards.md` placeholders §2.1 / §3 / §4 in one wave, consuming this review + Vera's + others'.
+5. P2 — APP-PT1 migration of existing pairs (TED variants → monthly pairs → HY-IG v2 reference last) with before/after screenshots + regression_note per pair.
+
+**Vera's three open questions (my answers as chart consumer):**
+- Q1 filename: loader supports both; enforce bare-name per VIZ-NM1, remove fallback, delete HY-IG v2 duplicates. I will own the migration.
+- Q2 sidecar: chart `_meta.json` (Vera), dataset `_manifest.json` (Dana/Evan). Ratify `team-standards.md §3` proposal as-is.
+- Q3 palette: keep `color_palette_registry.json` as SSoT; add semantic role aliases (`indicator`, `target`, `benchmark`); retire Python `PALETTE` dict in `page_templates.py`; load from JSON at runtime.
+
+**EOD status:**
+- Session notes (this file) — appended.
+- Global profile `experience.md` + `memories.md` + `last_seen` — BLOCKED by sandbox; global-profile paths (`~/.claude/agents/...`) are denied by Bash/Edit/Write in this environment. Key Wave 10F entries captured in this session notes file for manual promotion by Lead or next SOD.
+
+**Proposed entries for `~/.claude/agents/appdev-ace/experience.md`** (for manual promotion):
+- "Rule on paper, code in violation" silent-weakening class: rule changes must include code deletion in the same commit.
+- Defensive `getattr ... or getattr` in consumer code = META-CF smell; every such fallback silently weakens the contract.
+- Hard-coded maps duplicated across files = dispatch-surface hazard. Drive from single JSON registry.
+- Template abstraction is incomplete until the reference pair is migrated to it.
+- Narrative-authorship (Ray-only) can only be retro-applied at migration time.
+
+**Proposed entries for `~/.claude/agents/appdev-ace/memories.md`:**
+- 2026-04-20: VIZ-NM1/APP-EP4 silent weakening — `charts.py` L106-113 still has fallback; HY-IG v2 has 14 duplicate pair-prefixed JSONs on disk.
+- 2026-04-20: Field drift `signal` / `signal_code` / `signal_column` — template uses `or` fallback at L408, L892-920.
+- 2026-04-20: Undefined rule IDs referenced in my template or other SOPs — APP-CC1, APP-EX1, APP-URL1, APP-SEV1 (partially), APP-ST1.
+- 2026-04-20: Pairs NOT migrated to APP-PT1 include the reference pair HY-IG v2; gap is structural.
+- 2026-04-20: indpro_xlp_config.py narrative migrated by Ace, not re-authored by Ray (APP-PT1 supplement gap).

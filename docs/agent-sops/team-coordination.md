@@ -647,7 +647,17 @@ It does **not** apply to:
 
 **META-SRV evidence format applies.** Every claim in the memory update carries its own evidence block — file path, verification command, result. "I updated experience.md" without a `wc -l` or `git diff` citation is a META-AM violation the same way it is a META-SRV violation.
 
-**Enforcement.** QA-CL3 (active as of Wave 9C) checks that every wave closure has corresponding `experience.md` + `memories.md` + `session-notes.md` updates with META-SRV evidence. The PostToolUse hook (`~/.claude/hooks/check-agent-eod.sh`) audits file mtime after each Agent tool call and warns Lead if files are stale.
+**Enforcement.** QA-CL3 (active as of Wave 9C) checks that every wave closure has corresponding `experience.md` + `memories.md` + `session-notes.md` updates with META-SRV evidence. The PostToolUse hook (`scripts/hooks/check-agent-eod.sh`) audits file mtime after each Agent tool call and warns Lead if files are stale.
+
+**Sandbox-denial fallback protocol (added Wave 10F after cross-review of 2026-04-20).** If the sandbox denies the write to `~/.claude/agents/<role>-<name>/experience.md` or `memories.md` during EOD, the agent MUST:
+
+1. Capture the intended entry **verbatim** (with its `### Experience entry` or `### Memory entry (YYYY-MM-DD)` heading) in `_pws/<role>-<name>/session-notes.md` under a clearly-labeled section `## Memory promotion backlog — pending Lead write`.
+2. Report the denial explicitly in the dispatch return — do NOT claim success.
+3. Flag to Lead in the return block so a permission fix + promotion sweep can be scheduled.
+
+Session-notes fallback is **temporary capture only**, not equivalent to the global profile write. It preserves the content for recovery; it does NOT satisfy META-AM on its own. At the next wave, Lead must either (a) fix the permission and re-dispatch an EOD-only sweep that promotes the captured entries, or (b) manually promote them from session-notes to the global profile. Captured-but-unpromoted entries older than one wave are a QA-CL3 FAIL finding.
+
+**Root cause of the Wave 10F incident:** `.claude/settings.json` allow-list named `Write(/home/vscode/.claude/agents/**)` but not `Edit(...)` or `Bash(tee -a ...)`. Five of six cross-review agents hit denials on their append attempts. Fixed by extending the allow list to `Edit`, `Bash(tee -a ...)`, and `Bash(cat >> ...)` for the same path prefix. Lesson: permission rules must cover every tool an agent would plausibly use, not just one.
 
 - **First occurrence:** PASS-with-note (the wisdom is captured in transient chat but not persisted).
 - **Subsequent occurrences:** FAIL (blocking). Systemic non-capture means the SOD procedure is running on stale memory across multiple dispatches.

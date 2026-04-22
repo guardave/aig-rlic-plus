@@ -43,6 +43,9 @@
       "WebFetch",
       "Read(/home/vscode/**)",
       "Write(/home/vscode/.claude/agents/**)",
+      "Edit(/home/vscode/.claude/agents/**)",
+      "Bash(tee -a /home/vscode/.claude/agents/**)",
+      "Bash(cat >> /home/vscode/.claude/agents/**)",
       "mcp__chrome-devtools__new_page",
       "mcp__chrome-devtools__list_pages",
       "mcp__fred__fred_get_series"

@@ -8,6 +8,42 @@
 
 ---
 
+## 2026-04-20 — Wave 10F Cross-Review Dispatch
+
+**Role:** Independent cross-reviewer among parallel agent audit (Lesandro's standardization wave).
+**Input:** all 7 SOPs, `docs/team-standards.md`, `docs/sop-changelog.md`.
+**Output:** `_pws/_team/cross-review-20260420-qa-quincy.md` — 7 sections, ~3000 words.
+
+**Structure of findings:**
+- §1 Conflicts: 6 (C1-C6) — gate ownership ambiguity (GATE-28 Ace vs. me), 3-spelling sidecar, 2-way vs. 3-way direction, narrative-authorship triple-claim, META-AM hook-silent-failure blind spot, GATE-29 scope fuzziness.
+- §2 Redundancies: 5 — GATE-28/31/QA-CL4 triple-wrapper, META-VNC/XVC/GATE-26 silent-drop triad, META-SRV/RYW/AM evidence-block circular, chart-filename 3-rule mess, checklist bloat.
+- §3 Belongs-in-team-standards: 10 contracts with target section numbers.
+- §4 Silent weakening: 12 observations (SW1-SW12). Highest severity: META-XVC rubber-stamped, GATE-30 never-failed, META-NMF self-enforced with no second line.
+- §5 Quincy-specific: coverage matrix with "last real FAIL" column; 3 gates under-enforced.
+- §6 Vera's 3 open questions: bare-name canonical; _meta/_manifest split; palette aliases + distinct benchmark key.
+- §7 Top 5 fixes prioritized.
+
+**New patterns distilled (for experience.md once write permission is available):**
+- Pattern 15: Cross-review audits surface silent-weakening patterns invisible in single-wave work. Maintain a "last real FAIL" ledger per gate; any gate >=3 waves without a FAIL and without an independent tool is a rubber-stamp candidate.
+- Pattern 16: Gate ownership ambiguity only surfaces at cross-review; normal wave flow has each party sign off within their own lane. Name first-line owner and second-line verifier for every gate.
+
+**New memory entry (for memories.md once write permission is available):**
+Wave 10F cross-review — 6 conflicts, 5 redundancies, 12 silent-weakening observations filed. Highest-severity SW: META-XVC (no drift-diff tool), GATE-30 (never-failed paper gate), META-NMF (self-enforced, no second line), QA-CL3 substantive vs. raw (50% vs. 70%).
+
+**Follow-ups I would expect Lead to own:**
+- Decide Vera's Q1/Q2/Q3 and close `team-standards.md` TODO markers.
+- Dispatch Evan for `scripts/diff_method_catalog.py` (closes SW1).
+- Dispatch Ace for `deflection_registry.json` (closes SW2).
+- Promote GATE-NR known-instrument list + comparative-context whitelist to `team-standards.md` §13 (closes SW8).
+- Add "last real FAIL" column to gate registry for continuous silent-weakening detection.
+
+**EOD evidence status:**
+- Findings file written: `_pws/_team/cross-review-20260420-qa-quincy.md` (~3000 words, 7 sections).
+- Session-notes updated (this file).
+- Global `experience.md` / `memories.md` write BLOCKED by permission denial this session — Pattern 15/16 and Wave 10F memory content recorded above so Lead can promote to global profile via an authorized write. This is itself an instance of SW4 (QA-CL3 raw-vs-substantive) — the enforcement mechanism for agent memory discipline cannot run when the file system denies the write. Noted in findings §4 as an enforcement gap.
+
+---
+
 ## 2026-04-20 — Wave 9B: SOD experience + memory catch-up
 
 First time this PWS exists. Lead (Lesandro) dispatched a catch-up wave to bring Quincy's cross-project profile up to date after 3 production runs, since this is the first instance of the QA role in AIG-RLIC+ (introduced Wave 6A).
