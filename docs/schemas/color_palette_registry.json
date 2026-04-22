@@ -1,7 +1,9 @@
 {
-  "x-version": "1.0.0",
+  "x-version": "1.1.0",
   "x-owner": "vera",
   "x-generated": "2026-04-19",
+  "x-revised": "2026-04-22",
+  "x-revision-notes": "v1.1.0 (2026-04-22 Wave 10F): added `benchmark_trace` visual key (distinct muted grey-blue for reference / buy-and-hold comparison series — visually distinguishable from `equity_curve` which is reserved for the active strategy's own equity). Added `aliases` block providing semantic role names (`indicator`/`target`/`benchmark`) that resolve to the visual keys — consumed by VIZ-IC1 palette-conformance check. Per-asset-class benchmark split (`benchmark_equity`/`benchmark_fixed_income`/`benchmark_commodity`) is deferred until the portal actually hosts non-equity pairs (Ray's Wave-10F cross-review nuance, deferred to a future wave).",
   "notes": "Bootstrapped from the HY-IG v2 reference pair (per META-RPD) after the Wave 5 audit exposed palette inconsistency within the pair itself — the hero chart ships Okabe-Ito #D55E00 (vermillion) while zoom charts and some bar charts ship matplotlib defaults (#d62728 red, #1f77b4 blue, #2ca02c green). VIZ-V11 introduces this registry as the canonical palette source: every chart's `_meta.json` sidecar carries `palette_id`, and a pre-save lint blocks charts whose trace / shape / annotation colors resolve to raw matplotlib-plotly defaults instead of a registered palette role. Palette changes are methodological divergence per META-XVC.",
   "palettes": {
     "okabe_ito_2026": {
@@ -12,6 +14,7 @@
       "primary_data_trace": "#D55E00",
       "secondary_data_trace": "#0072B2",
       "tertiary_data_trace": "#009E73",
+      "benchmark_trace": "#6C7A89",
       "nber_shading": "rgba(150,120,120,0.22)",
       "event_marker_line": "#4D4D4D",
       "event_marker_label_bg": "rgba(255,255,255,0.82)",
@@ -35,7 +38,13 @@
         "#F0E442",
         "#56B4E9",
         "#000000"
-      ]
+      ],
+      "aliases": {
+        "x-note": "Semantic role aliases → visual keys. Added 2026-04-22 (Wave 10F) so VIZ-IC1 palette-conformance check can assert role assignments without forcing producer scripts to know the underlying hex. Aliases are additive — visual keys remain the source of truth and can be referenced directly.",
+        "indicator": "primary_data_trace",
+        "target": "secondary_data_trace",
+        "benchmark": "benchmark_trace"
+      }
     }
   }
 }

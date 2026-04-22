@@ -30,9 +30,17 @@ Read order for every agent at SOD (see `.claude/commands/sod.md`): this file →
 
 ## 2. Filename Conventions
 
-### 2.1 Chart JSONs
+### 2.1 Chart JSONs — bare-name canonical (Wave 10F ratification)
 
-`[TO BE POPULATED BY CROSS-REVIEW]` — resolve bare-name vs pair-prefixed convention. Current state: HY-IG v2 has both; indpro_xlp & umcsent_xlv have bare-name only. VIZ-NM1 declares bare-name canonical; this file needs to mandate deprecation of prefixed duplicates.
+**Canonical form:** `output/charts/{pair_id}/plotly/{chart_type}.json` — bare-name only. `{chart_type}` is the short key from the Standard Chart Set (e.g. `hero`, `correlations`, `ccf`, `regime_stats`, `equity_curves`, `drawdown`, `walk_forward`, `tournament_scatter`, `rolling_sharpe`, `signal_dist`). The pair_id lives in the directory path, NEVER prefixed into the filename. This is VIZ-NM1 promoted to team standard.
+
+**Deprecated:** pair-prefixed duplicates like `hy_ig_v2_spy_hero.json` alongside `hero.json`. HY-IG v2 currently carries 13-14 such duplicates on disk — scheduled for deletion. `indpro_xlp` and `umcsent_xlv` bare-name files were produced under a different path (some prefixed, some not); pending Vera migration sweep (next wave).
+
+**Loader contract:** `app/components/charts.py::load_plotly_chart(chart_name, pair_id)` resolves bare-name only. The pair-prefix fallback at `charts.py:106-113` is a live violation of VIZ-NM1 — scheduled for removal in the next Ace dispatch.
+
+**Enforcement:** producer-side pre-commit hook (to be implemented — currently a planned follow-up) asserts every file under `output/charts/{pair_id}/plotly/` matches the registry pattern in `docs/schemas/chart_type_registry.json`. A pair-prefixed filename is a commit failure.
+
+**Unanimous cross-review consensus** (Dana, Evan, Vera, Ray, Ace, Quincy — 2026-04-20).
 
 ### 2.2 Parquet and CSV artifacts
 
@@ -44,28 +52,44 @@ Pattern: `results/{pair_id}/signals_{yyyymmdd}.parquet`, `results/{pair_id}/tour
 
 ---
 
-## 3. Sidecar Schema
+## 3. Sidecar Schema — two names, two owners, two artifact classes (Wave 10F ratification)
 
-`[TO BE POPULATED BY CROSS-REVIEW]` — canonicalise `_meta.json` vs `_manifest.json`. Current state: Vera uses `_meta.json` for HY-IG v2 bare-name charts only; indpro_xlp and umcsent_xlv have no sidecars. Evan uses `_manifest.json` for dataset sidecars. Need one name per artifact type, documented here.
+The split is deliberate and authoritative. Different artifacts, different owners, different content shapes — they do NOT share a filename.
 
-Proposed (to confirm via cross-review):
-- **Chart sidecars:** `{chart_name}_meta.json` — Vera-owned, per VIZ-V8
-- **Dataset sidecars:** `{artifact}_manifest.json` — Evan-owned, per ECON-DS2
+| Artifact class | Sidecar filename pattern | Owner | Primary content |
+|---------------|-------------------------|-------|----------------|
+| Chart JSON | `output/charts/{pair_id}/plotly/{chart_name}_meta.json` | Vera (VIZ-V8) | `palette_id`, `rules_applied`, `narrative_alignment_note`, `method_name`, `expected_chart_type`, VIZ-IC1 lint results |
+| Dataset / model output | `data/{artifact}_manifest.json` or `results/{pair_id}/{artifact}_manifest.json` | Dana (data), Evan (econometrics model outputs) | column semantics, sign conventions, units, sanity-check assertions (Defense 1) |
+
+**Why two names:** a chart sidecar and a dataset sidecar are consumed at different times, by different agents, with different schemas. Forcing one filename would require a discriminator inside the JSON, which is a worse contract than a filename that already encodes the artifact class.
+
+**The Wave 10F drafting slip that triggered this ratification:** `visualization-agent-sop.md:962` (VIZ-IC1 §6) originally wrote `_manifest.json` for a chart sidecar — contradicting VIZ-V8 which declares `_meta.json`. Fixed 2026-04-22; see sop-changelog.md entry.
+
+**Enforcement:** chart sidecar schema at `docs/schemas/chart_sidecar.schema.json` (to be created — planned follow-up). Dataset manifest schema already exists per ECON-DS2 / DATA-D-series rules.
+
+**Unanimous cross-review consensus** (Dana, Evan, Vera, Ray, Ace, Quincy — 2026-04-20).
 
 ---
 
-## 4. Color Palette & Role Aliases
+## 4. Color Palette & Role Aliases — Wave 10F ratification (v1.1.0)
 
-Canonical palette file: `docs/schemas/color_palette_registry.json` (`okabe_ito_2026`).
+**Canonical palette file:** `docs/schemas/color_palette_registry.json` (palette `okabe_ito_2026`). Bumped to `x-version: 1.1.0` on 2026-04-22.
 
-Current role keys: `primary_data_trace`, `secondary_data_trace`, `equity_curve`, `drawdown_fill`, `quartile_gradient`, `nber_shading`.
+**Semantic role aliases → visual keys** (added Wave 10F via `aliases` block inside `okabe_ito_2026`):
 
-`[TO BE POPULATED BY CROSS-REVIEW]` — add semantic role aliases so VIZ-IC1's palette conformance check (which expects `indicator` / `target` / `benchmark`) is verifiable. Proposed mapping:
-- `indicator` → `primary_data_trace`
-- `target` → `secondary_data_trace`
-- `benchmark` → `equity_curve` (or new key if visually distinct)
+| Semantic alias | Resolves to | Hex | Used for |
+|----------------|------------|-----|----------|
+| `indicator` | `primary_data_trace` | `#D55E00` (Okabe-Ito vermillion) | The pair's indicator series (left-axis indicator — e.g. HY-IG spread, INDPRO YoY) |
+| `target` | `secondary_data_trace` | `#0072B2` (Okabe-Ito blue) | The pair's target series (right-axis target — e.g. XLP, XLV, SPY when it IS the target) |
+| `benchmark` | `benchmark_trace` | `#6C7A89` (muted slate) | Reference / buy-and-hold comparison when distinct from the strategy's own equity curve |
 
-Confirm or revise via cross-review.
+**Why `benchmark_trace` is a new visual key (not reuse of `equity_curve`):** on a chart that displays the strategy's own equity curve AND a buy-and-hold benchmark (common on Strategy pages), reusing `equity_curve` for both collapses them to one color. The Wave 10F cross-review consensus (3 of 6 — Dana, Evan, Quincy) was to give `benchmark` its own visually-distinct registry key. Muted slate (`#6C7A89`) reads as "reference, not star" against the Okabe-Ito foreground palette and preserves colorblind safety.
+
+**Deferred:** per-asset-class benchmark variants (`benchmark_equity`, `benchmark_fixed_income`, `benchmark_commodity`) per Ray's Wave 10F nuance — held until the portal hosts non-equity pairs, since today the distinction would be speculative.
+
+**Consumption pattern (VIZ-IC1 §4):** Vera's chart-save pipeline resolves `indicator` / `target` / `benchmark` aliases to hex by reading the registry at save time. Ad-hoc hex codes are prohibited. Legacy keys (`primary_data_trace`, `equity_curve`, etc.) remain usable directly — aliases are additive, not replacing.
+
+**Cross-references:** VIZ-V11 (registry source rule), VIZ-IC1 (consumption + pre-save lint), ECON-UD (`signal_scope.json` semantics that drive which role each column gets).
 
 ---
 

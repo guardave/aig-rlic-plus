@@ -669,7 +669,7 @@ When narrative prose mentions a historical episode (Dot-Com, GFC, COVID, 2018 Vo
 
 **Coverage:** Every episode named in prose requires its own zoom-in. Listing three episodes in one paragraph requires three cross-references (one per episode).
 
-**Coherence inspection at narrative handoff:** For each historical episode referenced in prose, Ray inspects the canonical zoom chart at `output/_comparison/history_zoom_{episode_slug}.json` and asks: "Does this chart make the point the narrative is trying to make?"
+**Coherence inspection at narrative handoff:** For each historical episode referenced in prose, Ray inspects the canonical zoom chart at `output/charts/{pair_id}/plotly/history_zoom_{episode_slug}.json` (per META-ZI Wave 6B refinement — the earlier `output/_comparison/` comparison layer was retired; each pair ships its own dual-panel zoom chart) and asks: "Does this chart make the point the narrative is trying to make?"
 - **Ship canonical** if prose is event-only ("spreads widened before the recession")
 - **Request override from Vera** if prose ties the episode to the pair's own indicator behavior ("our signal gave an 8-month early warning") — overlay is needed
 - Decision is logged in the Ray→Ace handoff note
@@ -997,7 +997,7 @@ When Ray consumes upstream artifacts (e.g., reviewing Evan's results for interpr
 
 1. **Cross-check reported results against literature.** If Evan reports a Granger causality finding, verify it aligns with (or meaningfully departs from) the cited literature. Flag discrepancies.
 2. **Verify event timeline against chart annotations.** When Vera or Ace use Ray's timeline, spot-check that dates and descriptions match the delivered timeline file.
-3. **Direction validation does not block Vera.** Vera may begin charting using Evan's `interpretation_metadata.json` before Ray validates. If Ray subsequently flags a contradiction, Vera produces a revised chart version (v2) with the contradiction annotation. The sequencing is: Evan delivers → Vera charts (v1) → Ray validates → if contradiction, Vera revises (v2). This avoids adding a serial dependency that slows the pipeline.
+3. **Direction validation does not block Vera.** Vera may begin charting using Dana's `interpretation_metadata.json` (producer per DATA-D6 — note: earlier revisions of this SOP named Evan as producer; corrected 2026-04-22 Wave 10F per cross-review finding) before Ray validates. If Ray subsequently flags a contradiction, Vera produces a revised chart version (v2) with the contradiction annotation. The sequencing is: Dana delivers → Vera charts (v1) → Ray validates → if contradiction, Vera revises (v2). This avoids adding a serial dependency that slows the pipeline.
 
 ## Tool Preferences
 
