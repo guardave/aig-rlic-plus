@@ -1,0 +1,19 @@
+# Loader smoke test  pair_id=hy_ig_spy  timestamp=2026-04-22T11:00:44
+# Pages scanned: 4
+#   app/pages/15_hy_ig_spy_evidence.py
+#   app/pages/15_hy_ig_spy_methodology.py
+#   app/pages/15_hy_ig_spy_story.py
+#   app/pages/15_hy_ig_spy_strategy.py
+
+
+# Dynamic charts (Evidence render_method_block helper)
+
+# APP-PT1 template + pair_config chart scans
+PASS  app/pair_configs/hy_ig_spy_config.py:75  chart=hero  traces=2  title='Credit Stress Predicts Equity Drawdowns: 25 Years of HY-IG vs SPY'
+PASS  app/pair_configs/hy_ig_spy_config.py:84  chart=regime_stats  traces=1  title='HMM Regime Discrimination: Calm = Strong SPY Returns, Stress = Negative'
+PASS  app/pair_configs/hy_ig_spy_config.py:784  chart=equity_curves  traces=2  title='HMM Signal Beats Buy-and-Hold: OOS Sharpe 1.41 vs 0.81 (from 2019-10-01)'
+PASS  app/pair_configs/hy_ig_spy_config.py:785  chart=drawdown  traces=1  title='Winner Strategy Max Drawdown: -8.5% (OOS, HMM-P2)'
+PASS  app/pair_configs/hy_ig_spy_config.py:786  chart=walk_forward  traces=1  title='Walk-Forward OOS Sharpe: Positive in 14/17 Years; Strategy Robust'
+PASS  app/pair_configs/hy_ig_spy_config.py:787  chart=tournament_scatter  traces=4  title='Tournament: 2036 Valid Combos — Winner Sharpe 1.41 (HMM-P2)'
+
+# RESULT  passes=6  failures=0
