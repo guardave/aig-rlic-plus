@@ -4,5 +4,6 @@
   "caption": "SPY Sharpe ratio by HY-IG spread quartile (Q1 = tightest, Q4 = widest), with annualized return annotation and sample counts. Illustrates the credit-cycle gradient from Q1 Sharpe +1.45 to Q4 Sharpe \u22120.04.",
   "owner": "viz-vera",
   "produced_on": "2026-04-11",
-  "source_script": "scripts/retro_fix_hy_ig_v2_vera_20260411.py"
+  "source_script": "scripts/retro_fix_hy_ig_v2_vera_20260411.py",
+  "disposition": "consumed"
 }

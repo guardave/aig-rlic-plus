@@ -11,5 +11,6 @@
   "narrative_alignment_note": "Granger F-stats by lag identify at which monthly horizons spread provides predictive content for SPY.",
   "created_at": "2026-04-22T10:50:44Z",
   "method_name": "Granger Causality",
-  "expected_chart_type": "bar"
+  "expected_chart_type": "bar",
+  "disposition": "consumed"
 }

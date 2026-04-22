@@ -5,6 +5,21 @@
 **Agent identity:** Vera (Viz specialist)
 **Current branch:** `main`
 
+## Wave 10H.1 Session — 2026-04-22
+
+**Task:** VIZ-O1 (disposition mandate) + VIZ-E1 (exploratory sidecar spec) first implementation.
+
+**Delivered:**
+1. `scripts/backfill_chart_dispositions.py` — idempotent migration. First run: `{"consumed":62,"suggested":3,"unchanged":0,"errors":0}`. Rerun: all 65 unchanged.
+2. `results/hy_ig_v2_spy/analyst_suggestions.json` — added top-level `exploratory_charts` key (3 entries) alongside Evan's existing `suggestions` array (LEAD-DL1 shared-file split honoured).
+3. Generator updates: `generate_charts_hy_ig_spy.py`, `retro_fix_hy_ig_v2_vera_20260411.py`, `generate_charts.py` — now emit `"disposition": "consumed"` on future runs. Four other per-pair generators have no sidecar-writer function to patch — flagged as follow-up refactor candidate.
+
+**ELI5 authorship:** 3 orphan charts each got a 3-4 sentence plain-English caption (no jargon, no model names) + a one-line analyst rationale. Lead earlier flagged the audit on these three; now surfaced through the Methodology-page Exploratory Insights section rather than deleted.
+
+**Handoff:** `results/_cross_agent/handoff_vera_wave10h1_20260422.md`. Parallel: Ace implementing APP-PT2 consumer — both commits are backward-compatible either order.
+
+**Learning:** the dispatch said "65 sidecars" but the glob `output/charts/*/plotly/*_meta.json` currently matches exactly 65 across 5 pair dirs (the 19 files under `metadata/` are outside that glob — they're an older convention and will be handled in a future wave if needed).
+
 ## Wave 10F Session — 2026-04-22
 
 **Task:** Complete HY-IG v2 bare-name migration (deferred from commit 3c6bb50).

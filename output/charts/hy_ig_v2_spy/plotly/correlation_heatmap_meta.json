@@ -28,5 +28,6 @@
   ],
   "row_count": 8,
   "column_count": 6,
-  "row_selection_rule": "top-8 by |Pearson r| at spy_fwd_63d, drawn from the in-scope pool (signal_scope.json indicator_axis.derivatives)"
+  "row_selection_rule": "top-8 by |Pearson r| at spy_fwd_63d, drawn from the in-scope pool (signal_scope.json indicator_axis.derivatives)",
+  "disposition": "consumed"
 }

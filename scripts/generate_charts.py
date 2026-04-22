@@ -152,6 +152,11 @@ def save_chart(fig, name, title, description, page, data_source, insight,
         "interactive_controls": interactive_controls or ["zoom", "pan", "hover"],
         "data_source_path": data_source,
         "static_fallback_identical": True,
+        # VIZ-O1: disposition mandate. Default "consumed" — this generator
+        # only emits core-zone charts that have a page slot. Exploratory
+        # outputs route via analyst_suggestions.json → exploratory_charts
+        # (Rule VIZ-E1 / APP-PT2).
+        "disposition": "consumed",
     }
     with open(OUT_META / f"{name}_meta.json", "w") as f:
         json.dump(meta, f, indent=2)

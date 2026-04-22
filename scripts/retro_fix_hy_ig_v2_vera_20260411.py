@@ -102,6 +102,11 @@ def save_chart(fig: go.Figure, chart_type: str, tech_caption: str) -> None:
         "owner": "viz-vera",
         "produced_on": "2026-04-11",
         "source_script": "scripts/retro_fix_hy_ig_v2_vera_20260411.py",
+        # VIZ-O1: disposition mandate. Every chart this script produces is a
+        # page_template slot (core-zone). Exploratory orphans for this pair
+        # are handled separately via results/hy_ig_v2_spy/analyst_suggestions.json
+        # under key "exploratory_charts" (Rule VIZ-E1 / APP-PT2).
+        "disposition": "consumed",
     }
     meta_path.write_text(json.dumps(meta, indent=2))
     print(f"  saved: {canonical_path.relative_to(REPO_ROOT)}")

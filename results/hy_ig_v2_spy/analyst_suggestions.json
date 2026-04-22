@@ -1,7 +1,27 @@
 {
   "pair_id": "hy_ig_v2_spy",
   "schema_version": "1.0.0",
-  "last_updated_at": "2026-04-20T00:29:06Z",
+  "last_updated_at": "2026-04-22T00:00:00Z",
+  "exploratory_charts": [
+    {
+      "chart_name": "hero_spread_vs_spy",
+      "narrative_alignment_note": "Two lines on one chart over the last 25 years: how nervous bond investors are about risky companies (left axis) and the US stock market (right axis). When the bond-worry line jumps up, it is usually warning that a stock-market drop is coming or is already underway. Look at 2008 and 2020 — the worry line spiked first and stocks followed. This is the single clearest picture of why we pay attention to credit stress when thinking about equities.",
+      "vera_rationale": "Single-panel dual-axis view lets the reader see credit stress leading equity drawdowns without needing a second chart.",
+      "portal_page_hint": "story"
+    },
+    {
+      "chart_name": "spread_history_annotated",
+      "narrative_alignment_note": "The same bond-worry line as above, but now with real historical events labelled directly on the chart: the dot-com bust, the 2008 Lehman collapse, the 2020 COVID crash, and the 2022 rate shock. Seeing each big worry-spike tied to a named crisis makes the pattern memorable — stress in credit markets is not a statistical curiosity, it is the fingerprint of every major market episode in living memory.",
+      "vera_rationale": "Event-labelled spread history grounds the abstract signal in concrete crises for non-specialist readers.",
+      "portal_page_hint": "story"
+    },
+    {
+      "chart_name": "tournament_sharpe_dist",
+      "narrative_alignment_note": "We tested nearly 2,000 different trading rules against the same data. This chart shows how well each one performed, ranked from worst to best. Most rules are mediocre — they cluster in the middle. The strategy we picked sits out at the right-hand edge, in the top 2. The shape of this chart is the honest answer to the question most readers ask: did you get lucky, or is this rule genuinely strong? The tail tells you our winner is unusually good, not a fluke in the middle of the pack.",
+      "vera_rationale": "Distribution view contextualises the winner against the full search space and directly answers the data-mining-risk question.",
+      "portal_page_hint": "methodology"
+    }
+  ],
   "suggestions": [
     {
       "signal_name": "NFCI Momentum (13-week)",

@@ -4,5 +4,6 @@
   "caption": "Bidirectional transfer entropy (nats) between HY-IG spread and SPY daily returns. Credit\u2192Equity channel carries ~7.6\u00d7 more information than the reverse. Blue = significant at p<0.05.",
   "owner": "viz-vera",
   "produced_on": "2026-04-11",
-  "source_script": "scripts/retro_fix_hy_ig_v2_vera_20260411.py"
+  "source_script": "scripts/retro_fix_hy_ig_v2_vera_20260411.py",
+  "disposition": "consumed"
 }

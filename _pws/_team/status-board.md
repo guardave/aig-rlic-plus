@@ -1,5 +1,21 @@
 # Team Status Board
 
+## 2026-04-22 — Viz Vera (Wave 10H.1)
+
+**Status:** Completed.
+
+**Accomplished:**
+- `scripts/backfill_chart_dispositions.py` (new) — idempotent. First run: 62 consumed + 3 suggested on 65 existing sidecars. Rerun: 65 unchanged.
+- `results/hy_ig_v2_spy/analyst_suggestions.json` — added top-level `exploratory_charts` key (3 entries with ELI5 captions + Vera rationales). Evan's `suggestions` array untouched (LEAD-DL1 split honoured).
+- Generator scripts updated to emit `"disposition": "consumed"` on future runs: `generate_charts_hy_ig_spy.py`, `retro_fix_hy_ig_v2_vera_20260411.py`, `generate_charts.py`.
+- Handoff: `results/_cross_agent/handoff_vera_wave10h1_20260422.md`.
+
+**Follow-up flagged:** 4 other per-pair generators have no sidecar-writer function to patch — refactor candidate for a shared `_chart_sidecar.py` helper.
+
+**Next:** Ace's APP-PT2 renderer lands in parallel; Quincy verifies Exploratory Insights section on cloud.
+
+---
+
 ## 2026-04-22 — Lead Lesandro (Wave 10F closure)
 
 **Status:** Completed (pending final cloud verify by Quincy, in flight)

@@ -158,12 +158,17 @@ def _save_chart(fig, name, narrative_note, method_name=None, expected_chart_type
     with open(chart_path, "w") as f:
         json.dump(fig_dict, f)
 
-    # Save sidecar
+    # Save sidecar (VIZ-O1: disposition mandate; default "consumed" — every
+    # chart this generator emits is rendered by a page_template slot. If a
+    # future variant of this generator produces an exploratory chart, pass
+    # `exploratory=True` + `vera_rationale` and route it via
+    # analyst_suggestions.json per VIZ-E1.)
     meta = {
         "chart_name": name,
         "pair_id": PAIR_ID,
         "palette_id": PALETTE_ID,
-        "rules_applied": RULES_APPLIED,
+        "rules_applied": RULES_APPLIED + ["VIZ-O1"],
+        "disposition": "consumed",
         "narrative_alignment_note": narrative_note,
         "created_at": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "method_name": method_name or name,

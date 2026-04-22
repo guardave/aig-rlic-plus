@@ -52,5 +52,6 @@
   "history_zoom_events_registry_version": "1.0.0",
   "annotation_strategy_id": "descending_stair",
   "wave_6b_meta_al": true,
-  "data_rows_in_window": 1565
+  "data_rows_in_window": 1565,
+  "disposition": "consumed"
 }

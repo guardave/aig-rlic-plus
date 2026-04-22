@@ -11,5 +11,6 @@
   "narrative_alignment_note": "CCF at lag 0 is strongly negative; some lead at lags -1 to -5 suggests spread widening precedes next-day SPY weakness.",
   "created_at": "2026-04-22T10:50:44Z",
   "method_name": "Pre-whitened CCF",
-  "expected_chart_type": "bar"
+  "expected_chart_type": "bar",
+  "disposition": "consumed"
 }

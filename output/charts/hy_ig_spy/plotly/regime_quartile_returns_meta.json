@@ -11,5 +11,6 @@
   "narrative_alignment_note": "Monotonic return degradation Q1\u2192Q4 confirms that spread level is a strong regime discriminator for SPY returns.",
   "created_at": "2026-04-22T10:50:45Z",
   "method_name": "Quartile Returns",
-  "expected_chart_type": "bar"
+  "expected_chart_type": "bar",
+  "disposition": "consumed"
 }
