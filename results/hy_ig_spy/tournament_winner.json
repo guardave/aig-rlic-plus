@@ -1,0 +1,21 @@
+{
+  "pair_id": "hy_ig_spy",
+  "generated_at": "2026-04-22T10:42:16Z",
+  "winner_signal": "S6_hmm_stress",
+  "winner_threshold": "T4_hmm_0.5",
+  "winner_strategy": "P2",
+  "lead_days": 0,
+  "oos_sharpe": 1.4083,
+  "oos_ann_return": 0.117208,
+  "oos_max_drawdown": -0.084985,
+  "oos_n_trades": 387,
+  "oos_period_start": "2019-10-01",
+  "oos_period_end": "2026-04-22",
+  "bh_sharpe": 0.8129,
+  "bh_ann_return": 0.160798,
+  "bh_max_drawdown": -0.337173,
+  "delta_sharpe": 0.5954,
+  "delta_ann_return": -0.04359,
+  "delta_mdd": 0.252188,
+  "strategy_objective": "min_mdd"
+}

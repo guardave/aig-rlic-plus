@@ -1,0 +1,12 @@
+{
+  "pair_id": "hy_ig_spy",
+  "owner": "evan",
+  "split_policy_id": "v1_max36_25pct_cap120",
+  "in_sample_end": "2019-09-30",
+  "oos_start": "2019-10-01",
+  "oos_end": "2026-04-22",
+  "sample_size_months": 316,
+  "oos_span_months": 79,
+  "justification": "Total sample 2000-01-03 to 2026-04-22 \u2248 316 months. ECON-OOS2 formula: span = min(max(36, round(316\u00d70.25)), 120) = 79 months. OOS window 2019-10-01 to 2026-04-22. GFC 2008-09 and COVID 2020 remain in-sample, providing stress-episode coverage for the HMM/MS model fits.",
+  "generated_at": "2026-04-22T10:42:16Z"
+}

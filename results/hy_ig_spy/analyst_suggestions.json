@@ -1,0 +1,63 @@
+{
+  "pair_id": "hy_ig_spy",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-04-22T10:42:16Z",
+  "last_updated_at": "2026-04-22T10:42:16Z",
+  "suggestions": [
+    {
+      "signal_name": "NFCI Momentum (13-week)",
+      "proposed_by": "evan",
+      "source": "FRED:NFCI \u2014 derived: 13-week change",
+      "observation": "Pearson r = -0.2102 with SPY 63d fwd return (p=0.0, if available).",
+      "rationale": "NFCI aggregates ~100 financial-conditions indicators. Its 13-week momentum captures rate at which conditions tighten. Negative sign is economically coherent: rapidly tightening conditions predict lower forward SPY returns.",
+      "possible_use_case": "Cross-pair credit-stress composite or new pair nfci_momentum -> SPY",
+      "caveats": "NFCI incorporates overlapping credit-spread components; double-counting risk when composited directly with HY-IG.",
+      "date_filed": "2026-04-22",
+      "notes": "Off-scope per ECON-SD (not an hy_ig_spread_pct derivative). Flagged for future pair catalog."
+    },
+    {
+      "signal_name": "Bank vs Small-Cap Ratio (KBE/IWM)",
+      "proposed_by": "evan",
+      "source": "derived: yahoo:KBE / yahoo:IWM",
+      "observation": "Pearson r = -0.2576 with SPY 126d fwd return (p=0.0, if available).",
+      "rationale": "Banks-to-small-caps relative strength gauges lender balance-sheet health. A rising ratio signals late-cycle stress complementary to HY-IG.",
+      "possible_use_case": "New pair \u2014 equity-stress family (bank_smallcap_ratio -> SPY)",
+      "caveats": "Partially endogenous to SPY (both ETFs contain equity). Needs orthogonalization before use as clean predictor.",
+      "date_filed": "2026-04-22",
+      "notes": "Off-scope per ECON-SD. Candidate for dedicated equity-stress pair."
+    },
+    {
+      "signal_name": "Yield Curve 10Y-3M",
+      "proposed_by": "evan",
+      "source": "FRED: DGS10 - DTB3 (yield_spread_10y3m_pct per DATA-D12)",
+      "observation": "Pearson r = -0.1069 with SPY 63d fwd return (p=0.0, if available).",
+      "rationale": "Classic recession predictor. Inversion historically precedes every US recession and typically leads equity drawdowns by 6-18 months.",
+      "possible_use_case": "Recession-backdrop regime overlay or standalone pair",
+      "caveats": "Long lead-lag (6-18 months) means near-term r is weak. 2022 inversion did not produce expected drawdown \u2014 relationship may be evolving.",
+      "date_filed": "2026-04-22",
+      "notes": "Off-scope per ECON-SD. Prime candidate for yield_spread_10y3m -> SPY pair."
+    },
+    {
+      "signal_name": "BBB-IG Quality Spread",
+      "proposed_by": "evan",
+      "source": "FRED: BAMLC0A4CBBB - BAMLC0A0CM (bbb_ig_spread_pct per DATA-D12)",
+      "observation": "Pearson r = 0.0894 with SPY 63d fwd return (p=0.0, if available).",
+      "rationale": "Within-IG quality-tier stress gauge \u2014 how much extra yield the market demands for the lowest IG rung. Complements HY-IG with IG-side stress signal.",
+      "possible_use_case": "Variant family extension alongside HY-IG",
+      "caveats": "Sign may differ from HY-IG; BBB share of IG index has grown structurally since 2010 introducing composition drift.",
+      "date_filed": "2026-04-22",
+      "notes": "Off-scope per ECON-SD (axis is HY-IG not BBB-IG). Future variant family: HY-IG + BBB-IG + CCC-BB spectrum."
+    },
+    {
+      "signal_name": "VIX Term Structure (VIX3M - VIX)",
+      "proposed_by": "evan",
+      "source": "derived: yahoo:^VIX3M - yahoo:^VIX",
+      "observation": "Pearson r = -0.0029 with SPY 21d fwd return (p=0.8331, if available).",
+      "rationale": "Backwardation (negative term structure) indicates acute short-horizon fear premium exceeding long-horizon \u2014 historically a near-term stress signal. Complements credit spread with options-market sentiment.",
+      "possible_use_case": "Complementary regime filter alongside HY-IG or standalone VIX-regime pair",
+      "caveats": "Noisy at short horizons. COVID March 2020 spike dominates the tail. May double-count stress signal with HMM state probability.",
+      "date_filed": "2026-04-22",
+      "notes": "Off-scope per ECON-SD. Covered in VIX/VIX3M -> SPY pair (Pair #11 already completed)."
+    }
+  ]
+}

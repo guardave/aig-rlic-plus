@@ -1,0 +1,219 @@
+{
+  "pair_id": "hy_ig_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-04-22T10:42:16Z",
+  "indicator_axis": {
+    "canonical_column": "hy_ig_spread_pct",
+    "display_name": "HY-IG Credit Spread (%)",
+    "derivatives": [
+      {
+        "name": "hy_ig_spread_pct",
+        "definition": "HY OAS minus IG OAS in percent. Wider = more credit stress. Primary indicator column.",
+        "formula": "hy_oas - ig_oas",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "spread_history_annotated",
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "hy_ig_zscore_252d",
+        "definition": "252-day rolling z-score of HY-IG spread. Dimensionless; positive = spread above recent norm.",
+        "formula": "(spread - rolling_mean_252) / rolling_std_252",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "hy_ig_zscore_504d",
+        "definition": "504-day (~2yr) rolling z-score of HY-IG spread. Slower-moving regime gauge.",
+        "formula": "(spread - rolling_mean_504) / rolling_std_504",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "hy_ig_pctrank_504d",
+        "definition": "2-year percentile rank of HY-IG spread. Values near 1 = historically wide.",
+        "formula": "empirical_cdf_504d(spread)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "hy_ig_pctrank_1260d",
+        "definition": "5-year percentile rank of HY-IG spread. Longer-memory gauge.",
+        "formula": "empirical_cdf_1260d(spread)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "hy_ig_roc_21d",
+        "definition": "21-day percent change in HY-IG spread. Positive = spread widening (bearish).",
+        "formula": "(spread[t]/spread[t-21]-1)*100",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "hy_ig_roc_63d",
+        "definition": "63-day (~3M) percent change in HY-IG spread.",
+        "formula": "(spread[t]/spread[t-63]-1)*100",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "hy_ig_roc_126d",
+        "definition": "126-day (~6M) percent change in HY-IG spread.",
+        "formula": "(spread[t]/spread[t-126]-1)*100",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hy_ig_mom_21d",
+        "definition": "21-day absolute level change in HY-IG spread (pp).",
+        "formula": "spread[t]-spread[t-21]",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hy_ig_mom_63d",
+        "definition": "63-day absolute level change in HY-IG spread (pp).",
+        "formula": "spread[t]-spread[t-63]",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hy_ig_mom_252d",
+        "definition": "252-day (~1yr) absolute level change in HY-IG spread (pp).",
+        "formula": "spread[t]-spread[t-252]",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hy_ig_acceleration",
+        "definition": "Change in 21d rate-of-change \u2014 second-difference proxy. Captures inflection dynamics.",
+        "formula": "roc_21d[t]-roc_21d[t-21]",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "ccc_bb_spread_pct",
+        "definition": "CCC OAS minus BB OAS \u2014 within-HY quality spread. Wider = distress concentrated at speculative end.",
+        "formula": "ccc_hy_oas - bb_hy_oas",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "hy_ig_realized_vol_21d",
+        "definition": "21-day realized volatility of daily spread changes (decimal). Rising vol = worsening credit environment.",
+        "formula": "std(diff(spread),21)",
+        "role": "diagnostic",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hmm_2state_prob_stress",
+        "definition": "HMM 2-state model: probability of being in the stress regime (defined by high spread_change \u00d7 high VIX).",
+        "formula": "GaussianHMM(n_components=2, features=[spread_change, vix], random_state=42)",
+        "role": "regime_state",
+        "appears_in_charts": [
+          "hmm_regime_overlay"
+        ]
+      },
+      {
+        "name": "ms_2state_stress_prob",
+        "definition": "Markov-Switching regression: smoothed probability of the high-variance (stress) regime.",
+        "formula": "MarkovRegression(spy_ret ~ hy_ig_spread, k_regimes=2, switching_variance=True)",
+        "role": "regime_state",
+        "appears_in_charts": [
+          "hmm_regime_overlay"
+        ]
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy",
+    "display_name": "SPY (SPDR S&P 500 ETF)",
+    "derivatives": [
+      {
+        "name": "spy_ret",
+        "definition": "SPY daily total return (decimal). Primary dependent variable for strategy backtest.",
+        "formula": "spy[t]/spy[t-1]-1",
+        "role": "raw",
+        "appears_in_charts": [
+          "return_distribution"
+        ]
+      },
+      {
+        "name": "spy_fwd_1d",
+        "definition": "SPY 1-day forward return (decimal).",
+        "formula": "spy[t+1]/spy[t]-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_5d",
+        "definition": "SPY 5-day forward return (decimal).",
+        "formula": "spy[t+5]/spy[t]-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_21d",
+        "definition": "SPY 21-day (~1M) forward return (decimal). Primary regression target.",
+        "formula": "spy[t+21]/spy[t]-1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "scatter_signal_vs_fwd"
+        ]
+      },
+      {
+        "name": "spy_fwd_63d",
+        "definition": "SPY 63-day (~3M) forward return (decimal).",
+        "formula": "spy[t+63]/spy[t]-1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "scatter_signal_vs_fwd"
+        ]
+      },
+      {
+        "name": "spy_fwd_126d",
+        "definition": "SPY 126-day (~6M) forward return (decimal).",
+        "formula": "spy[t+126]/spy[t]-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_252d",
+        "definition": "SPY 252-day (~1yr) forward return (decimal).",
+        "formula": "spy[t+252]/spy[t]-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "strategy_returns",
+        "definition": "Daily backtest return stream for the winning strategy. Computed from winner signal \u00d7 SPY daily return.",
+        "formula": "pos(t-1) \u00d7 spy_ret(t)",
+        "role": "diagnostic",
+        "appears_in_charts": [
+          "cumulative_return",
+          "drawdown_chart"
+        ]
+      }
+    ]
+  },
+  "notes": "Scope-disciplined per ECON-SD. All 16 indicator derivatives are hy_ig_spread_pct-derived or credit-regime signals. Off-scope cross-market signals (yield curve, bank/small-cap ratio, NFCI momentum) are reported in analyst_suggestions.json."
+}

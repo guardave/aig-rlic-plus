@@ -1,0 +1,15 @@
+{
+  "pair_id": "hy_ig_spy",
+  "date_tag": "20260422",
+  "total_seconds": 8.8,
+  "stage_times": {
+    "1_data_load": 0.0,
+    "2_features": 0.0,
+    "4_core_models": 2.7,
+    "3_signals": 0.0,
+    "5_exploratory": 0.1,
+    "6_tournament": 3.8,
+    "7_validation": 2.1
+  },
+  "generated_at": "2026-04-22T10:42:16Z"
+}
