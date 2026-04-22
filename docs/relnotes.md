@@ -1,5 +1,90 @@
 # Release Notes
 
+## 2026-04-22 — Wave 10F: Standardization Infrastructure + Cross-Review + Migration
+
+### New Infrastructure (team-wide enforcement)
+
+| Layer | Mechanism | Purpose |
+|-------|-----------|---------|
+| Project-local `/sod` | `.claude/commands/sod.md` | Overrides global skill inside repo; 7-step procedure (identity → profile → PWS → project docs + team-standards.md → sop-changelog.md since `last_seen` → team status → acknowledge) |
+| PreToolUse hook | `scripts/hooks/check-agent-sod.sh` | Warns Lead if Agent dispatch prompt lacks `## SOD Block` |
+| PostToolUse hook | `scripts/hooks/check-agent-eod.sh` (moved from `~/.claude/hooks`) | Warns Lead if dispatched agent didn't update global profile |
+| Canonical cross-agent conventions | `docs/team-standards.md` | Single source of truth for filenames, sidecars, palette, handoff contracts, deploy artifacts |
+| Changelog | `docs/sop-changelog.md` | Append-only rule log; read-since-last_seen at every SOD |
+| Dispatch template extension | `## SOD Block` now mandatory in every agent prompt | Enforced via PreToolUse hook |
+
+Hooks now live in `scripts/hooks/` (repo-local, portable); settings reference repo-relative paths. Single source of truth.
+
+### New Rules
+
+| Rule | SOP | Scope | Purpose |
+|------|-----|-------|---------|
+| META-RYW | team-coordination.md | ALL | Read Your Own Work before handoff — log chart/numeric/instrument re-read in handoff note |
+| META-NMF | team-coordination.md | ALL | No ad-hoc/manual fix ever — every fix flows SOP-first, dispatch-second |
+| META-AM sandbox fallback | team-coordination.md | ALL | Session-notes fallback when sandbox denies home-dir writes; temporary, not equivalent to profile |
+| VIZ-IC1 | visualization-agent-sop.md | Vera | Pre-save intra-chart consistency: title-axes, legend-data, annotations-data, palette aliases, units, narrative-alignment note |
+| RES-NR1 | research-agent-sop.md | Ray | Narrative instrument references must match `interpretation_metadata.target_symbol` |
+| GATE-NR / QA-CL5 | qa-agent-sop.md | Quincy | DOM scan of Story/Evidence pages for wrong-pair instrument names |
+| APP-PT1 supplement | appdev-agent-sop.md | Ace + Ray | Narrative prose in pair_configs must be authored by Ray, not Ace |
+| APP-SS1 | appdev-agent-sop.md | Ace | `signal_scope.json` consumer uses `indicator_axis.derivatives` / `target_axis.derivatives` schema |
+| ECON-DS2 quality gate | econometrics-agent-sop.md | Evan | Explicit checklist item: `git ls-files signals_*.parquet` ≥1 before handoff |
+| GATE-29 parquet check | qa-agent-sop.md | Quincy | Clean-checkout test now explicitly verifies signals parquet committed |
+
+### Cross-Review Outputs (6 agents in parallel, Opus min)
+
+Each agent produced a structured findings doc at `_pws/_team/cross-review-20260420-<role>-<name>.md`. Consensus decisions ratified in `docs/team-standards.md` §2.1, §3, §4:
+
+- **§2.1 Chart filenames:** bare-name canonical (`{chart_type}.json`); pair-prefixed deprecated. Unanimous.
+- **§3 Sidecar schema:** `_meta.json` for charts (Vera), `_manifest.json` for datasets/models (Dana/Evan) — deliberate split, two classes. Unanimous.
+- **§4 Color palette v1.1.0:** added `benchmark_trace` (`#6C7A89` muted slate) + `aliases` block (`indicator`/`target`/`benchmark` → visual keys). Majority (3/6).
+
+### Migrations Executed
+
+| Pair | Chart files | Sidecars added | Status |
+|------|-------------|----------------|--------|
+| hy_ig_v2_spy | 17 unique charts (5 deprecated duplicates deleted, 12 renamed prefixed → bare-name) | 12 new sidecars | All bare-name ✓ |
+| indpro_xlp | 10 renamed prefixed → bare-name | 10 new sidecars | All bare-name ✓ |
+| umcsent_xlv | 10 renamed prefixed → bare-name | 10 new sidecars | All bare-name ✓ |
+
+Loader pair-prefix fallback at `charts.py:106-113` **removed** after all three pairs confirmed bare-name-only. 13-day violation of VIZ-NM1 closed.
+
+### Dead Letters Identified (backlog for future waves)
+
+- DATA-D12 (column suffix linter) — no script exists
+- DATA-D13 (manifest.json + display_name_registry.csv) — files absent
+- META-XVC (cross-version diff) — no diff tool, rubber-stamped
+- GATE-30 (deflection audit) — 0 FAILs in 7 runs
+- `chart_manifest.json` documented but absent on disk
+- 3 HY-IG v2 charts with zero consumer references (`hero_spread_vs_spy`, `spread_history_annotated`, `tournament_sharpe_dist`) — candidate for deletion after audit
+- HY-IG v2 pages not yet migrated to APP-PT1 templates (item 8, separate wave)
+
+### Bug Fixes (Wave 10F)
+
+| Fix | Where |
+|-----|-------|
+| VIZ-IC1 §6 sidecar name `_manifest.json` → `_meta.json` | visualization-agent-sop.md:962 |
+| VIZ-IC1 §4 palette reference uses aliases | visualization-agent-sop.md:960 |
+| Deprecated `output/_comparison/` path corrected | research-agent-sop.md:672 |
+| `interpretation_metadata.json` producer: Evan → Dana | research-agent-sop.md:1000 |
+| Loader pair-prefix fallback removed | app/components/charts.py |
+| Permission allow-list extended (Edit, Bash tee -a, cat >>) | .claude/settings.json |
+
+### Commits (in order)
+
+`90cadd4` → `f1d78bb` → `85ee737` → `daea311` → `beb84a5` → `3c6bb50` → `27fb01f` → `cc99fc4` (+ checkpoint commit).
+
+### Lessons (to absorb into future waves)
+
+| # | Pattern | Evidence |
+|---|---------|----------|
+| 14 | Rule adoption without code-deletion gate leaves dead violators alive | Loader fallback persisted 13 days after VIZ-NM1 was ratified |
+| 15 | Permission allow-lists must enumerate every tool that might be used (Write ≠ Edit ≠ Bash append) | 5 of 6 cross-reviewers hit home-dir write denials despite `Write(...)` in allow-list |
+| 16 | Cross-review surfaces silent-weakening bugs invisible in single-wave work | Quincy found 12 SW observations (META-XVC, GATE-30, META-NMF, QA-CL3 all rubber-stamped to some degree) |
+| 17 | "Missed read" risk solved by project-local command override, not global skill extension | Global `/sod` + `team-coordination.md` split would scatter concepts; single project-local file keeps it canonical |
+| 18 | Two-name sidecar split (_meta.json / _manifest.json) is not a conflict — different classes need different names | Apparent conflict turned out to be a single-line drafting slip in VIZ-IC1 §6 |
+
+---
+
 ## 2026-04-20 — Wave 9/10: New Pairs + Enforcement Infrastructure
 
 ### New Features

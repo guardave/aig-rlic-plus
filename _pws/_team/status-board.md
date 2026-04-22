@@ -1,5 +1,34 @@
 # Team Status Board
 
+## 2026-04-22 — Lead Lesandro (Wave 10F closure)
+
+**Status:** Completed (pending final cloud verify by Quincy, in flight)
+
+**Accomplished:**
+- **Standardization infrastructure shipped:** project-local `/sod` (`.claude/commands/sod.md`), PreToolUse SOD hook + PostToolUse EOD hook both in repo (`scripts/hooks/`), `docs/team-standards.md` as cross-agent SSoT, `docs/sop-changelog.md` with SOD read protocol, dispatch template extended with mandatory `## SOD Block`.
+- **Cross-review executed** — 6 agents in parallel (Opus min): findings docs at `_pws/_team/cross-review-20260420-*.md`. Identified 6 conflicts, 5 redundancies, 12 silent-weakening observations, 3 Vera open questions — all resolved.
+- **Team-standards ratified:** §2.1 bare-name chart filenames; §3 two-name sidecar split (`_meta.json` chart / `_manifest.json` dataset); §4 palette v1.1.0 with `benchmark_trace` key + semantic aliases.
+- **New rules:** META-RYW (read your own work), META-NMF (no manual fix), VIZ-IC1 (intra-chart consistency), RES-NR1 (narrative instrument accuracy), GATE-NR/QA-CL5 (DOM instrument check), APP-PT1 supplement (Ray authors narrative).
+- **Migrations executed (3 pairs):** 5 HY-IG v2 prefixed duplicates deleted, 22 prefixed files renamed to bare-name, 32 `_meta.json` sidecars added, loader pair-prefix fallback removed (VIZ-NM1 closure after 13-day violation).
+- **Permission fix:** `.claude/settings.json` allow-list extended — unblocked 5 of 6 cross-reviewers who hit sandbox denials. Memory promotion sweep completed for all 5.
+- **Self-contradictions fixed:** VIZ-IC1 §4 + §6, research SOP L672 + L1000.
+- 8 commits: 90cadd4 → f1d78bb → 85ee737 → daea311 → beb84a5 → 3c6bb50 → 27fb01f → cc99fc4.
+
+**Discoveries & Insights:**
+- **Rule adoption without a code-deletion gate leaves dead violators alive.** VIZ-NM1 ratified 2026-04-09; loader fallback persisted 13 days. Every new SOP rule needs a follow-up grep/AST audit confirming the prior code path is deleted.
+- **Permission allow-lists must enumerate every tool.** `Write(...)` alone is insufficient — Edit and Bash append are separate checks. Five of six cross-reviewers hit denials despite `Write(...)` being allowed.
+- **Cross-review surfaces silent-weakening invisible in single-wave work.** Quincy's audit found 12 SW observations across META-XVC, GATE-30, META-NMF, QA-CL3.
+- **Project-local command override beats global-skill extension** for per-project conventions. Splitting SOD between global skill and team-coordination.md would have recreated the "missed read" pattern we were trying to solve.
+- **Two-name sidecar pattern is a feature, not a bug.** The apparent conflict was a single-line drafting slip.
+
+**Blockers:** Cloud verify in flight (Quincy dispatch `a55c9dc3`).
+
+**Next Steps:**
+- **Wave 10G candidate:** HY-IG v2 migration to APP-PT1 templates (item 8 from earlier plan; risky, separate wave).
+- **Backlog:** DATA-D12 linter, DATA-D13 manifest bootstrap, META-XVC diff tool, 3 unreferenced HY-IG v2 charts audit.
+
+---
+
 ## 2026-04-20 — Lead Lesandro
 
 **Status:** Completed (Checkpoint — awaiting cloud reboot for Wave 10D)
