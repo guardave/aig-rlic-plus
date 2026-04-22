@@ -1,4 +1,4 @@
-# Schema-consumer smoke test  pair_id=hy_ig_v2_spy  timestamp=2026-04-20T01:31:55
+# Schema-consumer smoke test  pair_id=hy_ig_v2_spy  timestamp=2026-04-20T13:16:14
 PASS  APP-WS1: winner_summary.json conforms to ECON-H5  keys=32
 PASS  APP-WS1 sibling: interpretation_metadata.json conforms to DATA-D6  keys=17
 PASS  ECON-UD: signal_scope.json conforms to signal_scope.schema.json  keys=8

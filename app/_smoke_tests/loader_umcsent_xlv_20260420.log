@@ -1,4 +1,4 @@
-# Loader smoke test  pair_id=umcsent_xlv  timestamp=2026-04-20T13:16:12
+# Loader smoke test  pair_id=umcsent_xlv  timestamp=2026-04-20T18:36:54
 # Pages scanned: 4
 #   app/pages/10_umcsent_xlv_evidence.py
 #   app/pages/10_umcsent_xlv_methodology.py
@@ -15,5 +15,7 @@ PASS  app/pages/10_umcsent_xlv_strategy.py:342  chart=umcsent_xlv_wf_sharpe  tra
 PASS  app/pages/10_umcsent_xlv_strategy.py:416  chart=umcsent_xlv_tournament_scatter  traces=4  title='Tournament Results: 1,306 Combinations (1,195 Valid)'
 
 # Dynamic charts (Evidence render_method_block helper)
+
+# APP-PT1 template + pair_config chart scans
 
 # RESULT  passes=7  failures=0

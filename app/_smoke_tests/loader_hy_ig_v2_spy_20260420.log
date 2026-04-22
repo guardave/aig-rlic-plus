@@ -1,4 +1,4 @@
-# Loader smoke test  pair_id=hy_ig_v2_spy  timestamp=2026-04-20T01:31:55
+# Loader smoke test  pair_id=hy_ig_v2_spy  timestamp=2026-04-20T18:36:53
 # Pages scanned: 4
 #   app/pages/9_hy_ig_v2_spy_evidence.py
 #   app/pages/9_hy_ig_v2_spy_methodology.py
@@ -23,5 +23,7 @@ PASS  hy_ig_v2_spy/evidence<render_method_block>  chart=quantile_regression  tra
 PASS  hy_ig_v2_spy/evidence<render_method_block>  chart=ccf_prewhitened  traces=1  title='Pre-whitened Cross-correlation: HY-IG Spread Changes vs SPY Returns'
 PASS  hy_ig_v2_spy/evidence<render_method_block>  chart=transfer_entropy  traces=1  title='Transfer Entropy — Nonlinear Information Flow'
 PASS  hy_ig_v2_spy/evidence<render_method_block>  chart=regime_quartile_returns  traces=1  title='Annualized SPY Return by HY-IG Spread Quartile (Q1 = Tightest → Q4 = Widest)'
+
+# APP-PT1 template + pair_config chart scans
 
 # RESULT  passes=15  failures=0

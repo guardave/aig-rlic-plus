@@ -948,11 +948,36 @@ Render the evaluation-layer results in the portal dashboard. The evaluation laye
 
 ---
 
+## Rule VIZ-IC1 — Intra-Chart Consistency Check (Mandatory Pre-Save)
+
+**Added 2026-04-20 (Wave 10F).** Closes the gap where charts ship with internal inconsistencies: title that doesn't match axis units, legend entries that don't match data series, annotations that cite wrong dates or magnitudes, colors inconsistent with the pair's palette registry.
+
+Before saving any chart JSON (`output/charts/{pair_id}/plotly/{chart_type}.json`), Vera runs the VIZ-IC1 pre-save assertion:
+
+1. **Title ↔ axes coherence.** Chart title references the variables actually plotted. If title says "Rolling Sharpe" the y-axis must be Sharpe units. If title says "Drawdown" the y-axis must be percentage or ratio with a negative domain. Unit words in the title (`bps`, `%`, `index`, `ratio`) match the y-axis unit suffix.
+2. **Legend ↔ data series.** Every legend entry names a series that is actually drawn in `fig.data`. No orphan legend labels. No un-labeled series. For comparative charts, the legend disambiguates the pair's indicator/target from any benchmark series.
+3. **Annotations ↔ data.** Every `layout.annotations[*]` and every `layout.shapes[*]` that cites a date or value references a point that actually exists in the plotted data's x-range/y-range. A 2008-09-15 event annotation on a chart whose x-range starts 2015 is a VIZ-IC1 failure.
+4. **Palette registry conformance.** Every trace color must come from `docs/schemas/color_palette_registry.json`. The pair's indicator series uses the `indicator` role color; the target series uses the `target` role color; benchmark series use the `benchmark` role color. Ad-hoc hex codes are prohibited.
+5. **Unit discipline.** Number formatters in tick labels match the declared unit (`%` for percent-form values; `.2f` for ratios; `,.0f` for index level). A chart that formats 0.0113 as "0.01%" instead of "1.13%" is a VIZ-IC1 failure (same class as the Wave 4D-1 unit drift).
+6. **Narrative-alignment note.** If the chart is referenced in Ray's narrative, Vera includes a one-line `narrative_alignment_note` in the chart's `_manifest.json` sidecar stating: "Chart shows X; narrative cites X; verified consistent at save time on {date}."
+
+**Pre-save assertion (implementation guidance):**
+
+Vera's chart-save pipeline calls a `validate_intra_chart_consistency(fig, pair_id, chart_name)` helper before `fig.write_json(...)`. The helper returns a list of violations; any non-empty list blocks the save and Vera fixes before retrying.
+
+**Action on failure:**
+
+- Block save. Fix the chart (relabel, recolor, correct annotation). Re-run VIZ-IC1.
+- Log the violation in Vera's session notes so patterns can be promoted to schema-level rules over time.
+
+**Cross-references:** VIZ-V11 (color palette registry — the canonical color source), VIZ-V12 (events registry — annotation date source), VIZ-V8 (chart type registry — filename + expected chart type), META-RYW (team-level self-review — VIZ-IC1 is its chart-specific instance), QA-CL6/GATE-NC (QA cross-checks narrative claims against chart data at acceptance).
+
 ## Quality Gates
 
 Before handing off:
 
 **Structural checks:**
+- [ ] **VIZ-IC1 pre-save assertions PASS for every saved chart** (title-axes coherence, legend-data match, annotations-data match, palette registry conformance, unit discipline, narrative-alignment note in manifest)
 - [ ] Title states the insight, not just the variable name
 - [ ] All axes labeled with units
 - [ ] Source note included

@@ -1060,6 +1060,50 @@ Every handoff requires a structured acknowledgment from the receiver:
 - `data/{source}` for data pipeline changes
 - `docs/{topic}` for documentation updates
 
+## META-RYW — Read Your Own Work (Pre-Handoff Self-Review, Mandatory)
+
+**Added 2026-04-20 (Wave 10F).** Closes the self-review discipline gap where agents ship artifacts without re-reading them holistically — verifying artifact *existence* and *schema conformance*, but not whether the prose actually matches the chart, the chart actually matches the data, or the claim actually matches its evidence.
+
+> **Before handing off any deliverable, every producer agent must re-read their own work end-to-end as if they were the stakeholder. Not a glance — an actual reading. The re-read is a required evidence block in the handoff note.**
+
+### The Protocol (mandatory)
+
+Before filing a handoff, every producer agent (Dana, Evan, Vera, Ray, Ace) must:
+
+1. **Re-read the artifact end-to-end** — prose word-by-word, chart by chart, table by table. Not skim.
+2. **For every chart referenced in prose:** open the chart and confirm the description matches what the chart actually shows (axis, direction, magnitude, time range). A chart reference whose text does not match the chart is a META-RYW failure.
+3. **For every numeric claim in prose:** verify it against the source artifact (winner_summary.json field, CSV value, regression output). A numeric claim without traceable source is a META-RYW failure.
+4. **For every instrument / ticker / date / directional word (rises, falls, countercyclical, etc.):** verify against `interpretation_metadata.json` and the source data. This subsumes RES-NR1 for the narrative case.
+5. **Log the re-read in the handoff note:**
+```
+META-RYW self-review: re-read {artifact paths} on {date}.
+  - Charts checked: {list of chart names} → prose consistent
+  - Numeric claims checked: {list of claims} → all traceable to source
+  - Instrument references: verified against interpretation_metadata.target_symbol = {value}
+  - Issues found: {none | list of issues + how fixed}
+```
+
+### Why this rule exists
+
+Wave 10E cloud review surfaced three symptoms of the same root cause:
+- "S&P 500" heading on `indpro_xlp` (XLP target) — prose not re-read after copy
+- Empty Signal Universe render — page not re-opened after schema migration
+- Narrative claims (direction words, dates) that diverge from what charts show
+
+Each was caught by the user, not by the producing agent's own review. Every existing gate (schema validation, smoke tests, GATE-28) can pass while these bugs ship, because they check *whether the thing exists / schema-validates*, not *whether the agent actually looked at it*. META-RYW makes self-reading a named, logged, auditable step.
+
+### Cross-references
+
+- **META-SRV** — self-report discipline (what to verify). META-RYW is *how* to verify at the stakeholder-prose level.
+- **RES-NR1** — narrative instrument reference check (specific case of META-RYW).
+- **VIZ-IC1** — chart intra-consistency check (specific case for chart self-review).
+- **META-NMF** — no ad-hoc fix (philosophical sibling: discipline over shortcut).
+
+### Enforcement
+
+- Handoff notes without a META-RYW block are returned as META-SRV violations and do not reach QA.
+- Quincy spot-audits META-RYW blocks at acceptance: randomly sample 2 claims per agent per wave and verify the re-read actually found what it said it found.
+
 ## META-NMF — No Manual Fix (Inviolable Lead Rule)
 
 **Added 2026-04-20. This rule is inviolable and overrides any pressure to "just fix it quickly."**

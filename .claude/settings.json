@@ -1,12 +1,24 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/hooks/check-agent-sod.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Agent",
         "hooks": [
           {
             "type": "command",
-            "command": "/home/vscode/.claude/hooks/check-agent-eod.sh",
+            "command": "scripts/hooks/check-agent-eod.sh",
             "timeout": 15
           }
         ]
