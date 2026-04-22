@@ -3,18 +3,12 @@
 import streamlit as st
 
 
-# Registry of all findings with their pages
+# Registry of all findings with their pages.
+# Wave 10G.1 (2026-04-22): v1 hy_ig_spy entry removed — pair archived to
+# results/hy_ig_spy_v1/ and pages moved to app/pages_archive/. The Sample
+# (canonical reference) is now hy_ig_v2_spy, surfaced via pair_registry.py
+# auto-discovery and rendered with the is_sample badge on the landing page.
 FINDINGS = [
-    {
-        "id": "hy_ig_spy",
-        "label": "Sample Analysis: HY-IG → SPY",
-        "pages": {
-            "Story": "pages/1_hy_ig_story.py",
-            "Evidence": "pages/2_hy_ig_evidence.py",
-            "Strategy": "pages/3_hy_ig_strategy.py",
-            "Methodology": "pages/4_hy_ig_methodology.py",
-        },
-    },
     {
         "id": "indpro_spy",
         "label": "INDPRO → SPY",

@@ -111,7 +111,7 @@ def find_latest_tournament(pair_id: str) -> str | None:
     files = sorted(glob(os.path.join(pair_dir, "tournament_results_*.csv")))
     if files:
         return files[-1]
-    # Legacy flat layout: results/tournament_results_*.csv (e.g. hy_ig_spy)
+    # Legacy flat layout: results/tournament_results_*.csv (e.g. hy_ig_spy_v1)
     flat = sorted(glob(os.path.join(BASE, "results", "tournament_results_*.csv")))
     return flat[-1] if flat else None
 
@@ -121,7 +121,7 @@ def load_winner(tourn_path: str) -> pd.Series | None:
 
     Handles two schemas:
       - Standard: columns signal, threshold, strategy, lead_months/lead_days, valid, oos_*
-      - Legacy (hy_ig_spy): signal_id, signal_col, threshold_method, strategy_id, lead_time, valid, oos_*
+      - Legacy (hy_ig_spy_v1): signal_id, signal_col, threshold_method, strategy_id, lead_time, valid, oos_*
     Normalizes legacy to standard column names before returning.
     """
     tdf = pd.read_csv(tourn_path)
@@ -166,8 +166,8 @@ def find_validation_dir(pair_id: str) -> str | None:
     nested = sorted(glob(os.path.join(pair_dir, "tournament_validation_*")))
     if nested:
         return nested[-1]
-    # Legacy: results/tournament_validation_*/ (only for hy_ig_spy)
-    if pair_id == "hy_ig_spy":
+    # Legacy: results/tournament_validation_*/ (only for hy_ig_spy_v1)
+    if pair_id == "hy_ig_spy_v1":
         legacy = sorted(glob(os.path.join(BASE, "results", "tournament_validation_*")))
         if legacy:
             return legacy[-1]
@@ -605,7 +605,7 @@ def main():
             pairs.append(name)
 
     # Also include legacy pairs that have a pair subdirectory with metadata
-    # but tournament results at the top level (e.g. hy_ig_spy)
+    # but tournament results at the top level (e.g. hy_ig_spy_v1)
     for name in sorted(os.listdir(results_dir)):
         pair_path = os.path.join(results_dir, name)
         if not os.path.isdir(pair_path) or name in pairs:

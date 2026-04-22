@@ -47,46 +47,19 @@ def load_pair_registry():
     _integrity_issues = []
     pairs = []
 
-    # HY-IG → SPY (legacy, hardcoded)
-    hy_ig_interp_path = os.path.join(_RESULTS_DIR, "hy_ig_spy", "interpretation_metadata.json")
-    hy_ig_interp = {}
-    if os.path.exists(hy_ig_interp_path):
-        with open(hy_ig_interp_path) as f:
-            hy_ig_interp = json.load(f)
-
-    hy_ig_pair = {
-        "pair_id": "hy_ig_spy",
-        "indicator": "Sample: HY-IG Credit Spread",
-        "indicator_id": "HY_IG_OAS",
-        "target": "S&P 500",
-        "target_ticker": "SPY",
-        "direction": "counter_cyclical",
-        "indicator_nature": hy_ig_interp.get("indicator_nature", "unknown"),
-        "indicator_type": hy_ig_interp.get("indicator_type", "unknown"),
-        "strategy_objective": hy_ig_interp.get("strategy_objective", "unknown"),
-        "best_oos_sharpe": 1.17,
-        "bh_sharpe": 0.77,
-        "valid_combos": 1149,
-        "total_combos": 2304,
-        "max_drawdown": -11.6,
-        "bh_drawdown": -33.7,
-        "key_finding": "HMM regime detection wins; drawdown avoidance, not alpha",
-        "status": "Completed",
-        "story_page": "pages/1_hy_ig_story.py",
-        "evidence_page": "pages/2_hy_ig_evidence.py",
-        "strategy_page": "pages/3_hy_ig_strategy.py",
-        "methodology_page": "pages/4_hy_ig_methodology.py",
-    }
-    _check_integrity(hy_ig_pair)
-    pairs.append(hy_ig_pair)
+    # Wave 10G.1 (2026-04-22): v1 hy_ig_spy archived to results/hy_ig_spy_v1/.
+    # Legacy hardcoded block removed. Auto-discovery loop below now handles
+    # all pairs uniformly. Archived v1 is NOT rendered on the dashboard —
+    # directory name hy_ig_spy_v1 is explicitly excluded below.
+    # Files preserved under results/hy_ig_spy_v1/ for historical reference.
 
     # Dynamically load from interpretation_metadata.json + tournament results
     for pair_dir in sorted(os.listdir(_RESULTS_DIR)):
         pair_path = os.path.join(_RESULTS_DIR, pair_dir)
         if not os.path.isdir(pair_path):
             continue
-        if pair_dir == "hy_ig_spy":
-            continue  # Already handled
+        if pair_dir.endswith("_v1") or pair_dir.endswith("_archived"):
+            continue  # Archived pairs are not surfaced on the dashboard (Wave 10G.1)
 
         interp_path = os.path.join(pair_path, "interpretation_metadata.json")
         if not os.path.exists(interp_path):

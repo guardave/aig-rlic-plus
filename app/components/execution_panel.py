@@ -63,7 +63,7 @@ def _resolve_paths(pair_id: str) -> dict:
         nested = os.path.join(pair_dir, f"tournament_validation_{date_tag}")
         if os.path.isdir(nested):
             validation_dir = nested
-    if validation_dir is None and pair_id == "hy_ig_spy":
+    if validation_dir is None and pair_id == "hy_ig_spy_v1":
         legacy = sorted(glob(os.path.join(_RESULTS_DIR, "tournament_validation_*")))
         if legacy:
             validation_dir = legacy[-1]
@@ -77,7 +77,7 @@ def _resolve_paths(pair_id: str) -> dict:
     if exploratory_dir is None:
         # Legacy flat
         exp_legacy = sorted(glob(os.path.join(_RESULTS_DIR, f"exploratory_*")))
-        if exp_legacy and pair_id == "hy_ig_spy":
+        if exp_legacy and pair_id == "hy_ig_spy_v1":
             exploratory_dir = exp_legacy[-1]
 
     # Core models
@@ -86,7 +86,7 @@ def _resolve_paths(pair_id: str) -> dict:
         cm = os.path.join(pair_dir, f"core_models_{date_tag}")
         if os.path.isdir(cm):
             core_models_dir = cm
-    if core_models_dir is None and pair_id == "hy_ig_spy":
+    if core_models_dir is None and pair_id == "hy_ig_spy_v1":
         cm_legacy = sorted(glob(os.path.join(_RESULTS_DIR, "core_models_*")))
         if cm_legacy:
             core_models_dir = cm_legacy[-1]
