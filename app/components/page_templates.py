@@ -62,6 +62,7 @@ from components.narrative import (
 )
 from components.position_adjustment_panel import render_position_adjustment_panel
 from components.probability_engine_panel import render_probability_engine_panel
+from components.pair_registry import get_page_prefix
 from components.sidebar import render_sidebar
 from components.signal_universe_table import render_signal_universe
 
@@ -542,7 +543,7 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     # from the pair_id + a prefix guess. Page files are named
     # ``{n}_{pair_id}_evidence.py``; the prefix lookup comes from
     # pair_registry's routing map.
-    page_prefix = _page_prefix(pair_id)
+    page_prefix = get_page_prefix(pair_id)
     st.page_link(
         f"{page_prefix}_evidence.py",
         label="Continue to The Evidence",
@@ -589,24 +590,8 @@ def _story_kpi_oos_years(winner: dict[str, Any]) -> str:
     return "OOS"
 
 
-def _page_prefix(pair_id: str) -> str:
-    """Return the page-link prefix for a pair (``pages/{n}_{pair_id}``).
-
-    Mirrors the routing map in `pair_registry.load_pair_registry()`. When a
-    new pair is added, both places need the entry.
-    """
-    page_routing = {
-        "indpro_spy": "pages/5_indpro_spy",
-        "permit_spy": "pages/7_permit_spy",
-        "vix_vix3m_spy": "pages/8_vix_vix3m_spy",
-        "hy_ig_v2_spy": "pages/9_hy_ig_v2_spy",
-        "umcsent_xlv": "pages/10_umcsent_xlv",
-        "indpro_xlp": "pages/14_indpro_xlp",
-    }
-    ted_variants = {"sofr_ted_spy", "dff_ted_spy", "ted_spliced_spy"}
-    if pair_id in ted_variants:
-        return "pages/6_ted_variants"
-    return page_routing.get(pair_id, f"pages/5_{pair_id}")
+# APP-RL1: _page_prefix() removed. Use get_page_prefix() from pair_registry
+# (imported at top of file) — single source of truth per APP-RL1.
 
 
 # ---------------------------------------------------------------------------
@@ -841,7 +826,7 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     )
     st.markdown(transition)
 
-    page_prefix = _page_prefix(pair_id)
+    page_prefix = get_page_prefix(pair_id)
     st.page_link(
         f"{page_prefix}_strategy.py",
         label="Continue to The Strategy",
@@ -1121,7 +1106,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         "the methodology section provides full details on data, methods, "
         "and diagnostics."
     )
-    page_prefix = _page_prefix(pair_id)
+    page_prefix = get_page_prefix(pair_id)
     st.page_link(
         f"{page_prefix}_methodology.py",
         label="Continue to Methodology",

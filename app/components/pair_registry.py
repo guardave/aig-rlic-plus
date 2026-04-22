@@ -35,6 +35,32 @@ def get_integrity_issues() -> list:
     return list(_integrity_issues)
 
 
+# APP-RL1 (Wave 10G.5-fix): single source of truth for page-link routing.
+# Consume this helper everywhere — do NOT inline a local page_routing dict.
+_TED_VARIANTS = {"sofr_ted_spy", "dff_ted_spy", "ted_spliced_spy"}
+PAGE_ROUTING = {
+    "indpro_spy": "pages/5_indpro_spy",
+    "permit_spy": "pages/7_permit_spy",
+    "vix_vix3m_spy": "pages/8_vix_vix3m_spy",
+    "hy_ig_v2_spy": "pages/9_hy_ig_v2_spy",
+    "umcsent_xlv": "pages/10_umcsent_xlv",
+    "indpro_xlp": "pages/14_indpro_xlp",
+    "hy_ig_spy": "pages/15_hy_ig_spy",
+}
+
+
+def get_page_prefix(pair_id: str) -> str:
+    """Return the page-link prefix for a pair (``pages/{n}_{pair_id}``).
+
+    Single source of truth per APP-RL1. All consumers — pair_registry and
+    page_templates — must call this helper rather than maintaining their own
+    local routing dicts.
+    """
+    if pair_id in _TED_VARIANTS:
+        return "pages/6_ted_variants"
+    return PAGE_ROUTING.get(pair_id, f"pages/5_{pair_id}")
+
+
 def _check_integrity(pair: dict) -> None:
     missing = [f for f in _CLASSIFICATION_FIELDS if pair.get(f, "unknown") == "unknown"]
     if missing:
@@ -114,6 +140,7 @@ def load_pair_registry():
             "dff_ted_spy": "DFF - DTB3 (Fed Funds TED)",
             "ted_spliced_spy": "Spliced TED Spread",
             "hy_ig_v2_spy": "HY-IG Credit Spread",
+            "hy_ig_spy": "HY-IG Credit Spread",
             "umcsent_xlv": "Michigan Consumer Sentiment",
         }
         target_names = {
@@ -126,23 +153,8 @@ def load_pair_registry():
             interp.get("indicator", ""), interp.get("indicator", pair_dir)))
         target = target_names.get(interp.get("target", ""), interp.get("target", ""))
 
-        # TED variants share a single set of pages
-        ted_variants = {"sofr_ted_spy", "dff_ted_spy", "ted_spliced_spy"}
-        page_routing = {
-            "indpro_spy": "pages/5_indpro_spy",
-            "permit_spy": "pages/7_permit_spy",
-            "vix_vix3m_spy": "pages/8_vix_vix3m_spy",
-            "hy_ig_v2_spy": "pages/9_hy_ig_v2_spy",
-            "umcsent_xlv": "pages/10_umcsent_xlv",
-            "indpro_xlp": "pages/14_indpro_xlp",
-            "hy_ig_spy": "pages/15_hy_ig_spy",
-        }
-        if pair_dir in ted_variants:
-            page_prefix = "pages/6_ted_variants"
-        elif pair_dir in page_routing:
-            page_prefix = page_routing[pair_dir]
-        else:
-            page_prefix = f"pages/5_{pair_dir}"
+        # APP-RL1: single source of truth via get_page_prefix()
+        page_prefix = get_page_prefix(pair_dir)
 
         # Wave 10G.2 (2026-04-22): Sample ratification. hy_ig_v2_spy is the
         # canonical quality benchmark — display it with a distinct label and
