@@ -104,6 +104,8 @@ This is Ray's ephemeral session journal for the AIG-RLIC+ project. Timeless patt
 
 **Blocked from:** updating `last_seen` file (permission denied in this sandbox); noting here for Lead awareness. The SOD block was completed via read-only inspection; EOD updates to experience/memories/session-notes were permitted.
 
+**PROMOTED 2026-04-22T07:49:45Z** — Experience (86→102 lines) and memories (163→193 lines) updated in `~/.claude/agents/research-ray/` by Wave 10F-EOD promotion pass.
+
 **Top-3 asks of Lead (from my findings section 7):**
 1. Decide `.py` vs `.md` narrative authoritative surface (blocks RES-17 teeth).
 2. Amend VIZ-IC1 to write narrative-alignment note into `_meta.json` (not `_manifest.json`).

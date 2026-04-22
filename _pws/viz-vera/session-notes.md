@@ -72,3 +72,5 @@ This session covered Waves 3 through 7B of the HY-IG v2 reference-pair hardening
 **Top-5 priority fixes:** (P1) filename migration, (P2) palette aliases, (P3) VIZ-IC1 §6 fix + sidecar schema, (P4) `scripts/viz_ic1_check.py` reference impl, (P5) sidecar retro-apply for the two prefixed pairs.
 
 **Evidence:** `wc -l _pws/_team/cross-review-20260420-viz-vera.md` → 240. META-AM updates: global experience.md appended (3 new patterns), memories.md appended (Wave 10F-CR incident), this file appended. Global `last_seen` updated to 2026-04-22T00:00:00Z.
+
+**PROMOTED 2026-04-22T00:00:00Z** — experience.md: 65→79 lines (+3 patterns). memories.md: 51→70 lines (+1 incident block).

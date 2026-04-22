@@ -209,6 +209,8 @@ ECON-SD (scope discipline), ECON-UD (signal universe on Methodology), ECON-AS (a
 - Home-dir EOD files could not be updated (permission denied). Recorded here instead.
 - BL-801 / BL-802 from prior session still open.
 
+> **PROMOTED 2026-04-22T00:00Z** — Cross-pair insights ("IP acceleration wins for defensive targets", countercyclical orientation, non-monotonic regime Sharpes, Sharpe vs return lift divergence, T2 vs T1 heuristic) and technical incidents (plotly vline, signal map, FRED CSV fallback, reference-pair parquet reuse) promoted to `~/.claude/agents/econ-evan/experience.md` and `memories.md` by EOD promotion dispatch.
+
 ### Next-session SOD reading order
 
 1. `~/.claude/agents/econ-evan/experience.md` + `memories.md`
@@ -260,6 +262,8 @@ The "Three-sidecar schema fix" pattern was authored and is stored here due to ho
 ### EOD compliance note
 
 Home-dir files (`~/.claude/agents/econ-evan/experience.md` and `memories.md`) could not be updated — write permission denied by sandbox policy. Cross-project learnings recorded here in session-notes.md as per precedent from prior sessions. Recommend user grant home-dir write access for future EOD compliance.
+
+> **PROMOTED 2026-04-22T00:00Z** — Three-sidecar schema fix pattern promoted to `~/.claude/agents/econ-evan/experience.md` and session incident promoted to `memories.md` by EOD promotion dispatch.
 
 ### Next-session SOD reading order (updated)
 

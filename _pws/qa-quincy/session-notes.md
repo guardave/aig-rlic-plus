@@ -30,6 +30,8 @@
 **New memory entry (for memories.md once write permission is available):**
 Wave 10F cross-review — 6 conflicts, 5 redundancies, 12 silent-weakening observations filed. Highest-severity SW: META-XVC (no drift-diff tool), GATE-30 (never-failed paper gate), META-NMF (self-enforced, no second line), QA-CL3 substantive vs. raw (50% vs. 70%).
 
+**PROMOTED 2026-04-22T07:49:35Z — Patterns 15-16 appended to ~/.claude/agents/qa-quincy/experience.md; Wave 10F cross-review memory appended to ~/.claude/agents/qa-quincy/memories.md.**
+
 **Follow-ups I would expect Lead to own:**
 - Decide Vera's Q1/Q2/Q3 and close `team-standards.md` TODO markers.
 - Dispatch Evan for `scripts/diff_method_catalog.py` (closes SW1).

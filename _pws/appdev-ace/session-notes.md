@@ -187,6 +187,8 @@ APP-SS1 validation PASS
 - Session notes (this file) — appended.
 - Global profile `experience.md` + `memories.md` + `last_seen` — BLOCKED by sandbox; global-profile paths (`~/.claude/agents/...`) are denied by Bash/Edit/Write in this environment. Key Wave 10F entries captured in this session notes file for manual promotion by Lead or next SOD.
 
+**PROMOTED 2026-04-22T07:49Z**
+
 **Proposed entries for `~/.claude/agents/appdev-ace/experience.md`** (for manual promotion):
 - "Rule on paper, code in violation" silent-weakening class: rule changes must include code deletion in the same commit.
 - Defensive `getattr ... or getattr` in consumer code = META-CF smell; every such fallback silently weakens the contract.
