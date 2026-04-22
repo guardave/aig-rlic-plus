@@ -24,6 +24,12 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 - **Wave 10G.4A–F:** full 5-agent pipeline (Dana → Ray → Evan → Vera → Ace → Quincy) to build a fresh `hy_ig_spy` pair using the latest SOPs + extended templates. Targets Sample-quality feature parity via template (no hand-coded pages).
 
+- **Wave 10G.5 (COMPLETE — 2026-04-22):** cloud verify exposed two class-of-duplication bugs + one raw-column-leak content bug. All resolved:
+  - `_page_prefix()` duplicate routing dict in page_templates.py → APP-RL1 added + merged to pair_registry (`35bb008`).
+  - Missing `hy_ig_spy` entry in `indicator_names` → fixed same commit.
+  - `interpretation_metadata.key_finding` leaked column identifiers (`hy_ig_spread_pct`, `spy_fwd_63d`) → DATA-D6b added, Dana rewrote to human-readable (`3c37d96`).
+  - Final cloud verify (`bd3wvyjep`): landing PASS, all 4 hy_ig_spy pages zero-traceback / breadcrumb-present / no-prefix-pending.
+  - **Pattern 22 (new):** DOM chart detection via `.count("js-plotly-plot")` on `inner_text` always returns 0 — CSS class names don't appear in extracted text. Use text markers (axis labels, month-year patterns, chart titles) or query the DOM structure via `query_selector_all`.
 - **Wave 10G.5 (IN PROGRESS — 2026-04-22):** cloud verify exposed two class-of-duplication bugs:
   - `_page_prefix()` in `page_templates.py` had a duplicate routing dict that Ace missed when adding `hy_ig_spy` to `pair_registry.py`'s routing dict → `StreamlitPageNotFoundError` on Story + Evidence pages.
   - `indicator_names` dict in `pair_registry.py` missing `hy_ig_spy` entry → landing-page card displayed the raw column identifier `"hy_ig_spread_pct"` instead of a human label.

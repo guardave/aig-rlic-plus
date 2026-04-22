@@ -1,5 +1,57 @@
 # Release Notes
 
+## 2026-04-22 — Wave 10G: Sample Ratification + New HY-IG × SPY Dashboard — **COMPLETE**
+
+### New Features
+
+**HY-IG × SPY dashboard rebuilt from scratch** using the latest SOPs + APP-PT1 templates:
+- Winner: HMM stress-regime probability (S6_hmm_stress, T4_hmm_0.5, P2 signal-strength, L0 lead)
+- OOS Sharpe 1.41, ann return 11.7%, max drawdown −8.5%, 387 trades over 2019-10 to 2026-04
+- Buy-and-hold SPY benchmark: Sharpe 0.81, max drawdown −33.7%
+- 2166 tournament combos (2036 valid)
+- 22 charts under `output/charts/hy_ig_spy/plotly/` (bare-name, all with `_meta.json` sidecars)
+- 4 portal pages as APP-PT1 thin wrappers (pages `15_hy_ig_spy_{story,evidence,strategy,methodology}.py`)
+- Matches Sample (hy_ig_v2_spy) feature set through the template — no hand-coded pages
+
+**Sample ratification:**
+- `hy_ig_v2_spy` promoted as the canonical quality benchmark. All future pairs quality-compared to this.
+- Git tag `sample-v1.0` pinned.
+- Landing card renders blue ★ SAMPLE badge.
+- pair_id unchanged on disk; display-layer rename only.
+
+**v1 archived:**
+- `results/hy_ig_spy_v1/`, `data/hy_ig_spy_v1_*`, `app/pages_archive/hy_ig_spy_v1_*`, `scripts/archive/`, `docs/archive/`
+- Files preserved for historical reference.
+- Namespace `hy_ig_spy` freed for the new pair.
+
+### New SOP Rules
+
+| Rule | SOP | Purpose |
+|------|-----|---------|
+| APP-RL1 | AppDev | Single-source routing / label maps — no duplicate dicts across modules. Root cause of the 10G.4E `StreamlitPageNotFoundError`. |
+| DATA-D6b | Data Dana | User-facing text fields in `interpretation_metadata.json` (`key_finding`, `mechanism`, `caveats`) must use human-readable instrument/signal names, not raw column identifiers. Root cause of the landing-card `hy_ig_spread_pct` leak. |
+| GATE-28 scope extension | QA Quincy | Cloud verify now covers ALL active pairs × ALL 4 pages. Partial pass → wave does not close. No more "fixed 3 of 4 pages and forgot the 4th." |
+| HISTORY_ZOOM_EPISODES + regime_context (APP-PT1 supplement) | AppDev | Template optional fields so new pairs can render crisis-episode zooms + regime callouts via config, without hand-coding. |
+
+### Migrations / Refactors
+
+- `_page_prefix()` duplicate dict in `page_templates.py` **deleted** — template now imports `get_page_prefix(pair_id)` from `pair_registry.py` (single source per APP-RL1).
+- `probability_engine_panel._validate_signal` handles both tuple-form and dict-form stress-episode registries (backward-compat normaliser added).
+- Chart loader pair-prefix fallback finally buried — new pair inherits bare-name-only contract automatically.
+
+### Patterns Absorbed (21–22)
+
+| # | Pattern | Evidence |
+|---|---------|----------|
+| 21 | QA-CL2 turnover-trade-count triangulation needs a P2 strategy-class exception — `annual_turnover` and `oos_n_trades` are incommensurate when the signal rebalances continuously | Quincy Wave 10G.4F (commit `b72a293`) |
+| 22 | DOM chart detection via `"js-plotly-plot"` in `inner_text` always returns 0 — CSS classes aren't in extracted text. Use axis-label / month-year text patterns or `query_selector_all` instead. | Wave 10G.5 full-verify false negative on 3 structurally-clean pages |
+
+### Commits (in order)
+
+`02251bd` (10G.1 archive v1) → `567b711` (10G.2 Sample + tag `sample-v1.0`) → `cfe66fb` (10G.3 template extensions) → `b15c1d1` (10G.4A Dana) → `1561370` (10G.4B Ray) → `fb49123` (10G.4C Evan) → `c525470` (10G.4D Vera) → `4e45eb0` (10G.4E Ace) → `b72a293` (10G.4F Quincy local QA) → `75d6574` (10G.4E-fix Ace partial) → `9ba3649` (10G.5 SOPs: APP-RL1, GATE-28 scope) → `35bb008` (10G.5-fix APP-RL1 merged) → `236bce3` (DATA-D6b SOP) → `3c37d96` (Dana DATA-D6b fix applied).
+
+---
+
 ## 2026-04-22 — Wave 10F: Standardization Infrastructure + Cross-Review + Migration — **COMPLETE**
 
 **Final cloud verify (Quincy, post-reboot):** indpro_xlp_story PASS (2 charts), indpro_xlp_evidence PASS (3 charts), hy_ig_v2_spy_story PASS (5 charts). All 7 assertions clean on first attempt. No retries needed.
