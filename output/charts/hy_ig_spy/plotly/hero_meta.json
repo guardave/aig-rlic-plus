@@ -1,0 +1,15 @@
+{
+  "chart_name": "hero",
+  "pair_id": "hy_ig_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Full 25-year context establishes the counter-cyclical link: spread spikes (2001, 2008, 2020) precede equity drawdowns.",
+  "created_at": "2026-04-22T10:50:44Z",
+  "method_name": "hero",
+  "expected_chart_type": "dual_axis_line"
+}

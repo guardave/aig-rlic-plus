@@ -1,0 +1,15 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "hy_ig_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Granger F-stats by lag identify at which monthly horizons spread provides predictive content for SPY.",
+  "created_at": "2026-04-22T10:50:44Z",
+  "method_name": "Granger Causality",
+  "expected_chart_type": "bar"
+}

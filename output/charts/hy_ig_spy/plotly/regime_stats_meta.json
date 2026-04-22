@@ -1,0 +1,15 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "hy_ig_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Winner signal (HMM stress prob > 0.5) divides regimes with strong return differential, validating the trading strategy.",
+  "created_at": "2026-04-22T10:50:44Z",
+  "method_name": "HMM 2-State",
+  "expected_chart_type": "bar"
+}

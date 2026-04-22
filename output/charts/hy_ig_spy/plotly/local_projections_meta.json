@@ -1,0 +1,15 @@
+{
+  "chart_name": "local_projections",
+  "pair_id": "hy_ig_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "LP impulse response shows effect intensifies at longer horizons (63d), consistent with credit-to-equity transmission lag.",
+  "created_at": "2026-04-22T10:50:45Z",
+  "method_name": "Local Projections",
+  "expected_chart_type": "line"
+}

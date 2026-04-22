@@ -1,0 +1,15 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "hy_ig_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Heatmap shows which signals and horizons have strongest predictive correlations with SPY forward returns.",
+  "created_at": "2026-04-22T10:50:45Z",
+  "method_name": "Correlation Analysis",
+  "expected_chart_type": "heatmap"
+}

@@ -1,0 +1,27 @@
+VIZ-V5 Smoke Test — hy_ig_spy — 2026-04-22T10:51:01.673646Z
+============================================================
+PASS  output/charts/hy_ig_spy/plotly/ccf.json  [1 traces]
+PASS  output/charts/hy_ig_spy/plotly/correlation_heatmap.json  [1 traces]
+PASS  output/charts/hy_ig_spy/plotly/correlations.json  [1 traces]
+PASS  output/charts/hy_ig_spy/plotly/drawdown.json  [1 traces]
+PASS  output/charts/hy_ig_spy/plotly/drawdown_comparison.json  [2 traces]
+PASS  output/charts/hy_ig_spy/plotly/equity_curves.json  [2 traces]
+PASS  output/charts/hy_ig_spy/plotly/granger_f_by_lag.json  [1 traces]
+PASS  output/charts/hy_ig_spy/plotly/hero.json  [2 traces]
+PASS  output/charts/hy_ig_spy/plotly/history_zoom_covid.json  [2 traces]
+PASS  output/charts/hy_ig_spy/plotly/history_zoom_dotcom.json  [2 traces]
+PASS  output/charts/hy_ig_spy/plotly/history_zoom_gfc.json  [2 traces]
+PASS  output/charts/hy_ig_spy/plotly/hmm_regime_probs.json  [2 traces]
+PASS  output/charts/hy_ig_spy/plotly/local_projections.json  [3 traces]
+PASS  output/charts/hy_ig_spy/plotly/quantile_regression.json  [3 traces]
+PASS  output/charts/hy_ig_spy/plotly/quartile_returns.json  [2 traces]
+PASS  output/charts/hy_ig_spy/plotly/regime_quartile_returns.json  [1 traces]
+PASS  output/charts/hy_ig_spy/plotly/regime_stats.json  [1 traces]
+PASS  output/charts/hy_ig_spy/plotly/returns_by_regime.json  [2 traces]
+PASS  output/charts/hy_ig_spy/plotly/spread_history_annotated.json  [2 traces]
+PASS  output/charts/hy_ig_spy/plotly/tournament_scatter.json  [4 traces]
+PASS  output/charts/hy_ig_spy/plotly/tournament_sharpe_dist.json  [1 traces]
+PASS  output/charts/hy_ig_spy/plotly/transfer_entropy.json  [2 traces]
+PASS  output/charts/hy_ig_spy/plotly/walk_forward.json  [1 traces]
+
+Total: 23 PASS, 0 FAIL
