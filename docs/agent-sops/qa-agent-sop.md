@@ -255,10 +255,13 @@ For every wave that adds or modifies portal pages, Quincy verifies cloud/deploy 
 - Ace's loader smoke test: every chart referenced in portal pages resolves via `load_plotly_chart(name, pair_id)` and returns a non-None Figure.
 - Verify: `python3 app/_smoke_tests/smoke_loader.py` → `failures=0`.
 
-**GATE-28 — Reference-Pair Placeholder Prohibition.**
-- Headless-browser DOM audit across all 4 pages (Story, Evidence, Strategy, Methodology).
-- Zero occurrences of "chart pending" placeholder text on reference pairs.
-- Verify: `python3 temp/inspect_portal.py` or equivalent Playwright headless pass.
+**GATE-28 — Reference-Pair Placeholder Prohibition + Comprehensive Error-Free Render (scope extended 2026-04-22).**
+- Headless-browser DOM audit across **ALL 4 pages** of **EVERY ACTIVE PAIR** in the pair_registry (not just the pair being waved in, not just the reference pair). For Wave closure, scope = `{active pair_ids from pair_registry} × {story, evidence, strategy, methodology}`. A wave with N new pairs and 5 existing = 6 pairs × 4 pages = 24 DOM captures minimum.
+- **Zero Python errors** in DOM text across every page: no `Traceback`, `StreamlitAPIException`, `StreamlitPageNotFoundError`, `AttributeError`, `KeyError`, `FileNotFoundError`, `ValueError`, `TypeError`, `NameError`, `Error loading page`. A single page with any traceback is a GATE-28 FAIL.
+- Zero occurrences of "chart pending" placeholder text on reference / Sample pairs. Non-sample pairs tolerate "chart pending" only on pages where the chart is explicitly registered as not-yet-produced.
+- **No partial pass.** A wave does not close if any page of any active pair hits a traceback. This is the basic stakeholder expectation — an error on any published page is a broken product.
+- Verify: adapt `temp/260422_wave10g/wave10g_cloud_verify.py` (or equivalent) to iterate the full `pair_id × page` grid. Hydration wait 30–60s per page; retry once on transient failure (Pattern 19/20). Save DOMs + screenshots.
+- **Rationale for the scope extension (Wave 10G.5 incident):** a prior cloud verify passed 3 of 4 new-pair pages and didn't re-verify the remaining pair × page combinations after a fix commit. A `StreamlitPageNotFoundError` on `hy_ig_spy_story` shipped to production. Partial-scope cloud verify is how silent-shipped bugs happen. GATE-28 scope is now total coverage per wave.
 
 **GATE-29 — Clean-Checkout Deployment Test.**
 - Simulate cloud environment: `git clone --depth 1 "$(git rev-parse --show-toplevel)" /tmp/clean_checkout_{pair_id}`.

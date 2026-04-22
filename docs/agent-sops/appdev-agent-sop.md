@@ -1113,6 +1113,18 @@ The following additive, optional fields extend APP-PT1's config contract. Both a
 
 2. **`regime_context`** (Evidence method block dict, `_render_method_block`). An optional markdown string in a method-block dict. When present, an `st.info(...)` callout is rendered between the `method_theory` body and the question / chart row. Typical use: "This method examines the relationship **conditional on market regime** — how does the signal behave in calm vs. stress conditions?" When absent, the block renders unchanged.
 
+### Rule APP-RL1 — Single-Source Routing / Label Maps (No Duplicates Across Modules)
+
+**Added 2026-04-22 (Wave 10G.5 post-cloud-verify).** Closes a real bug where the page-link routing dict was duplicated between `app/components/pair_registry.py::load_pair_registry()` and `app/components/page_templates.py::_page_prefix()`. When `hy_ig_spy` was added in Wave 10G.4E, only the `pair_registry.py` entry was updated; the template's duplicate kept stale content and `st.page_link` raised `StreamlitPageNotFoundError` on cloud. Local `smoke_loader` never exercises `st.page_link` resolution, so the bug shipped past all gates.
+
+- **Binding:** any dict or map that drives per-pair routing, display labels, or chart-name lookups may live in **exactly one module**. Other modules that need the same data import it — they must NOT carry their own private copy, even with a "mirror the map in X.py" comment.
+- **Current canonical locations** (all in `app/components/pair_registry.py`):
+  - Page-prefix routing → the `page_routing` dict inside `load_pair_registry()`. Template and any other consumer must import via a thin helper (e.g. add `get_page_prefix(pair_id)` to `pair_registry.py`) — NOT re-define the dict locally.
+  - Indicator / target display names → the `indicator_names`, `target_names` dicts. Single source of truth for UI display; consumers import rather than duplicate.
+- **Consequence of the rule:** adding a new pair's entry requires editing exactly one place. The previous duplicate at `page_templates.py::_page_prefix()::page_routing` must be removed and replaced by an import.
+- **Detection:** `grep -rn "page_routing\s*=\s*{" app/` should return exactly one match. Same for `indicator_names\s*=\s*{` and `target_names\s*=\s*{`. Any grep returning >1 is an APP-RL1 violation — fix by consolidating.
+- **Cross-references:** Pattern 14 from Wave 10F cross-review (code-deletion gate for deprecated forms — same root class: rule on paper, duplicate code in violation), META-CF (Contract File Standard — the authoritative-location principle generalizes here).
+
 ### Rule APP-SEV1 — Validation Severity Policy (loud-error / loud-warning / caption; silent skip prohibited)
 
 **Added 2026-04-19 (Wave 4D-2).** Resolves Ace cross-review Proposed APP-SEV1. Replaces the ad-hoc per-component severity decisions with a single policy.

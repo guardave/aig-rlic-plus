@@ -24,7 +24,12 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 - **Wave 10G.4A–F:** full 5-agent pipeline (Dana → Ray → Evan → Vera → Ace → Quincy) to build a fresh `hy_ig_spy` pair using the latest SOPs + extended templates. Targets Sample-quality feature parity via template (no hand-coded pages).
 
-- **Wave 10G.5:** cloud verify closure, relnotes, wave checkpoint.
+- **Wave 10G.5 (IN PROGRESS — 2026-04-22):** cloud verify exposed two class-of-duplication bugs:
+  - `_page_prefix()` in `page_templates.py` had a duplicate routing dict that Ace missed when adding `hy_ig_spy` to `pair_registry.py`'s routing dict → `StreamlitPageNotFoundError` on Story + Evidence pages.
+  - `indicator_names` dict in `pair_registry.py` missing `hy_ig_spy` entry → landing-page card displayed the raw column identifier `"hy_ig_spread_pct"` instead of a human label.
+  **SOP additions in response:**
+  - **APP-RL1 (appdev-agent-sop.md, ace):** single-source routing / label maps — no duplicate dicts across modules. Detection grep + canonical-location list. Pattern 14 sibling.
+  - **GATE-28 scope extension (qa-agent-sop.md, quincy):** cloud verify now covers ALL active pairs × ALL 4 pages with zero-Python-error requirement. Partial pass → wave does not close. Rationale: the Wave 10G incident where a fix for one page didn't re-verify the others.
 
 ## 2026-04-20 — Wave 10F: Standardization Infrastructure (Lead)
 
