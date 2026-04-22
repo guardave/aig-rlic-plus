@@ -9,13 +9,13 @@
   "strategy_objective": "countercyclical_protection",
   "expected_direction": "countercyclical",
   "mechanism": "Wider HY-IG credit spreads signal rising default risk and tightening financial conditions \u2014 historically bearish for equities. Spread compression indicates risk appetite recovery and is bullish for SPY. The spread leads equity drawdowns because credit markets price in distress before equity mark-to-market catches up.",
-  "key_finding": "Best signal: S6_hmm_stress / T4_hmm_0.5 / P2 / L0. OOS Sharpe 1.41 vs B&H 0.81. hy_ig_spread_pct predicts spy_fwd_63d (coef=-0.0013, p=0.0758). Direction: countercyclical.",
+  "key_finding": "Best signal: HMM stress-regime probability (S6_hmm_stress) with 0.5 threshold, signal-strength strategy, L0 lead. OOS Sharpe 1.41 vs buy-and-hold 0.81. The HY-IG credit spread predicts 3-month forward SPY returns (coef=-0.0013, p=0.0758). Direction: countercyclical — wider spreads forecast lower equity returns.",
   "caveats": [
     "FRED BAMLH0A0HYM2 series observation_start was 2023-04-24 as of 2026-04-22; pre-2023 OAS history sourced from hy_ig_spy_v1 parquet (v1+FRED splice). Data quality verified against v2 parquet.",
     "OAS data starts 1997 on FRED; effective pair start date is 2000-01-03 (limited by SPY availability).",
     "GFC 2008-2009 dominates the tails; regime models should be stress-tested for out-of-sample stability.",
     "COVID March 2020 was an extreme but transient spread widening \u2014 check tournament sensitivity to inclusion/exclusion.",
-    "Derived columns ccc_bb_spread_pct, yield_spread_10y3m_pct, yield_spread_10y2y_pct, bbb_ig_spread_pct are renamed from v1/v2 bare names per DATA-D12 suffix convention. Downstream consumers (Evan) must use new column names."
+    "Derived spread columns (CCC-BB spread, 10Y-3M yield spread, 10Y-2Y yield spread, BBB-IG spread) are renamed from legacy bare names to carry unit suffixes per DATA-D12 convention. Downstream consumers (Evan) must use the updated column names — see data sidecar for the mapping."
   ],
   "owner_writes": {
     "dana": [
@@ -86,8 +86,8 @@
     "accessed_at": "2026-04-22T00:00:00Z",
     "splice_note": "FRED BAMLH0A0HYM2/BAMLC0A0CM truncated to 2023-04-24 onward as of fetch date; pre-2023 history back-filled from hy_ig_spy_v1 parquet (Wave 10G.1 archive). Splice method: combine_first (live FRED overrides on overlap)."
   },
-  "last_updated_by": "evan",
-  "last_updated_at": "2026-04-22T10:42:16Z",
+  "last_updated_by": "dana",
+  "last_updated_at": "2026-04-22T12:00:00Z",
   "observed_direction": "countercyclical",
   "direction_consistent": true,
   "confidence": "medium"
