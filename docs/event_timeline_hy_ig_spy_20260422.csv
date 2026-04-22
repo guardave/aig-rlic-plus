@@ -1,0 +1,37 @@
+date,event,expected_direction,source
+2000-03-10,NASDAQ peak — Dot-Com bubble top; tech sector begins collapse,spread_widening_negative_for_SPY,NBER/Bloomberg
+2000-10-01,HY-IG spread crosses 600 bps — credit stress signaling broad corporate distress,spread_widening_negative_for_SPY,FRED BAMLH0A0HYM2EY
+2001-09-11,9/11 attacks — acute liquidity shock; spreads spike; SPY gapped down,spread_widening_negative_for_SPY,Bloomberg/FRED
+2002-10-09,SPY trough of Dot-Com bear market (-49% from March 2000 peak),spread_compression_positive_for_SPY,Bloomberg
+2007-06-15,Bear Stearns hedge fund distress announced — first visible crack in subprime credit,spread_widening_negative_for_SPY,Bloomberg/WSJ
+2007-08-09,BNP Paribas suspends three funds — money market freeze; HY-IG spread widens sharply,spread_widening_negative_for_SPY,Bloomberg
+2007-10-09,SPY all-time high at the time; HY-IG spread already ~500 bps (was ~250 in Jun 2007),spread_already_widening,Bloomberg
+2008-03-14,Bear Stearns near-failure; Fed-brokered rescue by JPMorgan; credit markets seize,spread_widening_negative_for_SPY,Bloomberg/Fed
+2008-09-15,Lehman Brothers bankruptcy — systemic crisis; HY-IG spreads surge toward 1000+ bps,spread_widening_negative_for_SPY,Bloomberg/FRED
+2008-10-10,SPY closing low of GFC; HY-IG spreads peaked near 2000 bps in subsequent weeks,spread_widening_negative_for_SPY,Bloomberg
+2009-03-09,SPY absolute trough GFC bear market (-57% from Oct 2007 peak),spread_compression_positive_for_SPY,Bloomberg
+2009-03-23,Fed TALF announcement; credit markets begin recovery; spreads start compressing,spread_compression_positive_for_SPY,Fed/Bloomberg
+2010-04-27,Greek sovereign crisis intensifies; European contagion widens US HY-IG spreads,spread_widening_negative_for_SPY,Bloomberg
+2010-08-27,Bernanke Jackson Hole QE2 signal; risk-on rally; spreads compress,spread_compression_positive_for_SPY,Fed/Bloomberg
+2011-08-05,S&P downgrade of US debt + European sovereign crisis peak; SPY flash drawdown,spread_widening_negative_for_SPY,Bloomberg
+2012-07-26,Draghi "whatever it takes" speech — European credit calm restored; HY-IG compression resumes,spread_compression_positive_for_SPY,ECB/Bloomberg
+2015-07-01,China equity crash + commodity collapse; US HY-IG spread widens as energy sector distress,spread_widening_negative_for_SPY,Bloomberg/FRED
+2016-02-11,SPY intraday low of energy-crisis cycle; HY-IG at ~850 bps; oil at $26/barrel,spread_widening_negative_for_SPY,Bloomberg
+2016-07-01,Energy-crisis spreads compress as oil recovers; SPY rallies through end of 2016,spread_compression_positive_for_SPY,Bloomberg
+2018-12-24,Q4 2018 SPY selloff (-20%); HY-IG spread widened from 320 to 530 bps during the quarter,spread_widening_negative_for_SPY,Bloomberg/FRED
+2019-01-04,Fed Powell "patient" pivot; credit rally; HY-IG spreads compress sharply,spread_compression_positive_for_SPY,Fed/Bloomberg
+2020-02-19,SPY pre-COVID all-time high; HY-IG spread still near 330 bps (no advance warning),coincident_not_leading,Bloomberg
+2020-03-09,Oil price crash (Saudi-Russia price war) + COVID lockdown fears; HY-IG spread spikes,spread_widening_negative_for_SPY,Bloomberg/FRED
+2020-03-23,SPY intraday COVID trough; HY-IG spread peak ~1100 bps; Fed corporate bond facilities announced,spread_widening_negative_for_SPY,Bloomberg/Fed
+2020-03-23,Fed Primary and Secondary Market Corporate Credit Facilities (PMCCF/SMCCF) announced,spread_compression_positive_for_SPY,Fed
+2020-04-09,Fed expands SMCCF to include HY ETFs (fallen angels); unprecedented; HY-IG spreads compress,spread_compression_positive_for_SPY,Fed/Bloomberg
+2020-09-02,SPY new all-time high; HY-IG spreads near pre-COVID levels (~350 bps),spread_compression_positive_for_SPY,Bloomberg
+2022-01-03,Fed signals accelerated rate hike cycle; SPY begins 2022 bear market; HY-IG starts widening,spread_widening_negative_for_SPY,Fed/Bloomberg
+2022-03-16,First Fed hike of cycle (+25 bps); HY-IG spread ~340 bps — modest relative to rate shock,spread_widening_partial_signal,Fed/Bloomberg
+2022-06-16,Fed +75 bps — largest hike since 1994; SPY -25% YTD; HY-IG ~580 bps (partial signal),spread_widening_negative_for_SPY,Fed/Bloomberg
+2022-10-13,SPY 2022 bear market trough; HY-IG ~580 bps; rate-shock bear — signal underperformed,blind_spot_rate_shock,Bloomberg/FRED
+2023-03-10,Silicon Valley Bank failure; regional bank contagion; HY-IG spread spikes briefly,spread_widening_negative_for_SPY,Bloomberg/FDIC
+2023-03-16,First Republic / SVB contagion contained by Fed emergency lending; spreads normalize,spread_compression_positive_for_SPY,Fed/Bloomberg
+2023-07-27,Fed terminal rate likely at 5.25-5.50%; HY-IG spreads near 370 bps — low stress,spread_compression_positive_for_SPY,Fed/Bloomberg
+2024-08-05,Global equity selloff (JPY carry unwind + recession fears); brief HY-IG widening,spread_widening_temporary,Bloomberg
+2025-09-18,Fed begins rate-cutting cycle; HY-IG at historically tight ~260 bps; credit cycle benign,spread_compression_positive_for_SPY,Fed/Bloomberg
