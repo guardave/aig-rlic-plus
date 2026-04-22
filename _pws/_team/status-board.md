@@ -42,6 +42,30 @@
 
 ---
 
+## Wave 10G.4F — QA Quincy (2026-04-22)
+
+**Status:** Completed — APPROVE for cloud verify
+
+**Accomplished:**
+- Full pre-cloud QA sweep on new `hy_ig_spy` pair (Waves 10G.4A-4E deliverables).
+- **9 checks executed: 8 PASS, 1 PASS-with-note, 0 FAIL.**
+- GATE-27: smoke_loader 6/6 + schema_consumers 5/5; all 4 regression pairs clean.
+- GATE-29: signals_20260422.parquet committed; clean-checkout smoke passes; all 6 §5.2 deploy-required artifacts present.
+- Schema validation: all 4 JSON instances conform to registered schemas.
+- APP-DIR1: 3-way direction consensus (Evan + Dana + Ray all = `countercyclical`).
+- APP-PT1: 0 `st.*` calls in all 4 page files.
+- GATE-NR: zero non-target tickers; "bonds" language is historical narrative, not bond exposure.
+- Feature parity: 14/14 features verified via config + template inspection.
+- Stakeholder-spirit: numeric claims consistent (Sharpe 1.41, return 11.7%, MDD -8.5%); B&H alpha win correctly framed as risk-adjusted (Sharpe), not absolute return.
+
+**One note (non-blocking):** QA-CL2 turnover-trade-count triangulation is not applicable to signal-strength (P2 continuous proportional sizing) strategies. annual_turnover (3.84x portfolio/year) and oos_n_trades (387 daily rebalances) are incommensurate metrics. SOP should note this class exception.
+
+**QA report:** `results/hy_ig_spy/qa_verification_10g_20260422.md`
+
+**Next action for Lead:** Reboot Streamlit → navigate to pair 15 (hy_ig_spy) → Phase 5 cloud DOM verify.
+
+---
+
 ## 2026-04-20 — Lead Lesandro
 
 **Status:** Completed (Checkpoint — awaiting cloud reboot for Wave 10D)

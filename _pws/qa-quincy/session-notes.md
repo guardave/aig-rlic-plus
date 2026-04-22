@@ -423,3 +423,35 @@ Streamlit Cloud renders content in an iframe at `/~/+/<slug>`. Outer `document.b
 **Key insight:** Manual reboot cleared stale deployment instantly. First attempt clean, no retries needed. Pattern 19 (stable stale deployment diagnosis) confirmed; Pattern 20 (manual reboot = definitive fix) added.
 
 *Production run count: 11.*
+
+---
+
+## Wave 10G.4F — Local Pre-Cloud QA, hy_ig_spy (2026-04-22)
+
+**Task:** Full local QA gate sweep for the new hy_ig_spy pair assembled in Waves 10G.4A-4E (Dana+Ray+Evan+Vera+Ace). Cloud verify deferred to Phase 5 after user reboots Streamlit.
+
+**Verdict: APPROVED for cloud verify** — 8 PASS + 1 PASS-with-note, 0 FAIL.
+
+**Checks executed (9):**
+1. GATE-27 smoke_loader hy_ig_spy: 6/6 PASS
+2. GATE-27 smoke_schema_consumers hy_ig_spy: 5/5 PASS
+3. GATE-27 regression sanity (hy_ig_v2_spy, indpro_xlp, umcsent_xlv): all clean
+4. GATE-29 clean-checkout + parquet: signals_20260422.parquet committed; all 6 §5.2 artifacts present; clean smoke PASS
+5. Schema validation (jsonschema): all 4 JSON instances PASS
+6. APP-DIR1 3-way: Evan+Dana+Ray all countercyclical PASS
+7. QA-CL2 KPI triangulation: PASS-with-note (turnover-trade-count N/A for P2)
+8. APP-PT1 thin-wrapper: 0 st.* calls in all 4 pages PASS
+9. GATE-NR instrument scan: zero non-target tickers PASS
+10. Feature parity 14/14: all present PASS
+11. Stakeholder-spirit: numeric claims consistent; framing honest PASS
+
+**SOP amendment proposed:** QA-CL2 section needs P2 strategy-family exception note.
+
+**EOD files updated:**
+- `results/hy_ig_spy/qa_verification_10g_20260422.md` — full report
+- `_pws/_team/status-board.md` — Wave 10G.4F entry appended
+- `~/.claude/agents/qa-quincy/experience.md` — Pattern 21 added
+- `~/.claude/agents/qa-quincy/memories.md` — Wave 10G.4F incident log entry
+- `~/.claude/agents/qa-quincy/last_seen` — updated
+
+*Production run count: 12.*
