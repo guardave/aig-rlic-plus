@@ -8,6 +8,22 @@
 
 ---
 
+## 2026-04-22 — Wave 10H.1 Dispatch (A) canonical cloud_verify + (B) run + (C) gates
+
+**Deliverable A:** Promoted `temp/260422_wave10g_full/focused_verify.py` to canonical `scripts/cloud_verify.py` (clean rewrite). Pattern 22 fix retained + full focus-pair grid + APP-PT2 Sample Methodology check (3 unique ELI5 markers hardcoded from Vera's narrative_alignment_note) + backward-compat regression gate (non-Sample Methodology pages assert section absent) + configurable base URL + exit code.
+
+**Deliverable B:** BLOCKED. Two runs, 17/17 FAIL (no_iframe). Probe confirmed Streamlit Cloud is hibernating (body stub: "Hosted with Streamlit / Created by guardave"). Pattern 19/20 — user reboot required. Did not retry in tight loop per dispatch instruction.
+
+**Deliverable C VIZ-O1:** 65/65 focus-pair sidecars PASS (all disposition valid). 35 sidecars MISSING on 6 legacy pairs (dff_ted_spy, indpro_spy, permit_spy, sofr_ted_spy, ted_spliced_spy, vix_vix3m_spy) — Vera pre-flagged as follow-up refactor, not blocking Wave 10H.1 closure. File BL-VIZ-O1-LEGACY for Wave 10H.2/10I.
+
+**GATE-28:** BLOCKED by hibernation.
+**APP-PT2 live render:** BLOCKED, logic-verified locally.
+**QA-CL2:** T1/T2 unchanged from Wave 10G.4F; T3 = N/A per new P2 exception.
+
+Handoff: `results/_cross_agent/handoff_quincy_wave10h1_20260422.md`.
+
+---
+
 ## 2026-04-20 — Wave 10F Cross-Review Dispatch
 
 **Role:** Independent cross-reviewer among parallel agent audit (Lesandro's standardization wave).

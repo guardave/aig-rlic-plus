@@ -1,5 +1,18 @@
 # Team Status Board
 
+## 2026-04-22 — QA Quincy (Wave 10H.1)
+
+**Status:** Completed with blocker. Cloud verify BLOCKED on Streamlit app hibernation (Pattern 19/20) — needs user reboot.
+
+- **Deliverable A:** `scripts/cloud_verify.py` canonical + Pattern 22 fix + APP-PT2 Sample Methodology check + backward-compat regression gate.
+- **Deliverable B:** 17/17 FAIL (no_iframe) × 2 runs. Probe confirms hibernating body stub. Did not retry in tight loop.
+- **VIZ-O1:** 65/65 focus-pair sidecars PASS. 35 missing on 6 legacy pairs (Vera pre-flagged). Proposed BL-VIZ-O1-LEGACY for Wave 10H.2/10I.
+- **GATE-28 / APP-PT2 render:** BLOCKED until reboot. Regression gate structurally safe (only hy_ig_v2_spy has `exploratory_charts` key).
+- **QA-CL2 T3:** N/A per new P2 continuous-rebalancing exception.
+- **Handoff:** `results/_cross_agent/handoff_quincy_wave10h1_20260422.md`.
+
+---
+
 ## 2026-04-22 — Viz Vera (Wave 10H.1)
 
 **Status:** Completed.
