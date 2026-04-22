@@ -8,6 +8,24 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-04-22 — Wave 10H.0: Lead Delegation Discipline (LEAD-DL1)
+
+**Scope:** Lead agent only. Affects every future wave's execution-vs-authorship boundary.
+
+**Trigger.** During Wave 10H.1 planning I accepted a user ask to "proceed as suggested" and then implemented the framework myself — Ace's template helper, Vera's sidecar backfill + ELI5 exploratory-chart authoring, Quincy's Pattern 22 script fix — 70+ files under Lead identity. User reverted it: *"Drilling into execution often blurs your vision into the bigger picture. Please find a way to maintain this discipline so that you grow into a genuine leader."*
+
+**Rule added (new Lead SOP):**
+
+- **`docs/agent-sops/lead-agent-sop.md` (new file) — LEAD-DL1 Delegation Discipline.** Binding: Lead never writes to files owned by role agents. Lead-owned write categories are explicitly enumerated (SOPs, coordination docs, meta docs, `_pws/_team/`, `_pws/lead-lesandro/`, git tags). Everything else → dispatch. Pre-edit gate, narrow exceptions (emergency / user override / self-revert), File Ownership Map covering all 6 agents + shared-key files (analyst_suggestions.json, pair_config.py), self-audit protocol at wave closure (`git diff --stat` against Ownership Map).
+
+**Memory trigger added:**
+
+- `memory/lead_delegation_discipline.md` — loaded at every SOD via `MEMORY.md` index.
+
+**What this changes going forward.** Every Lead action that would touch a file now runs the pre-edit gate: *who owns this file?* If not Lead → stop and dispatch. Wave closures include a Lead-commit self-audit step. Any drift surfaces as a "Lessons" entry in relnotes and a PWS escalation.
+
+---
+
 ## 2026-04-22 — Wave 10H: Chart Governance + Exploration Framework
 
 **Scope:** visualization agent (VIZ-O1, VIZ-E1), app dev agent (APP-PT2), QA agent (Pattern 22 fix, QA-CL2 P2 exception). Affects Vera, Ace, and Quincy. Lead-authored.
