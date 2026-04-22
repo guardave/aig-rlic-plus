@@ -113,3 +113,26 @@ This is Ray's ephemeral session journal for the AIG-RLIC+ project. Timeless patt
 
 ---
 *Last updated: 2026-04-22 — Wave 10F cross-review*
+
+---
+## Session: Wave 10G.4B — 2026-04-22
+
+**Task:** Build fresh research/narrative layer for new `hy_ig_spy` pair.
+
+**Status: COMPLETE**
+
+**Deliverables committed (1561370):**
+- `docs/portal_narrative_hy_ig_spy_20260422.md` — 423 lines, all 4 pages, 3 crisis episodes, regime_context callouts
+- `docs/research/hy_ig_spy_narrative_prose_20260422.md` — 364 lines, Python-string-ready prose for Ace's pair_config
+- `docs/event_timeline_hy_ig_spy_20260422.csv` — 37 rows, 2000-2025
+- `results/hy_ig_spy/handoff_ray_20260422.md` — RES-NR1 PASS, META-RYW complete
+
+**RES-NR1:** PASS — target_symbol = SPY throughout; no wrong-pair tickers.
+
+**META-RYW:** Complete — re-read all deliverables end-to-end before commit.
+
+**Dana contract assumption:** interpretation_metadata.json for hy_ig_spy not yet written (parallel pipeline). Contract values assumed from hy_ig_v2_spy: target_symbol="SPY", indicator="hy_ig_spread", direction=countercyclical. Handoff note flags this explicitly.
+
+**Pushed to remote:** yes (main branch, commit 1561370)
+
+**Outstanding:** None from Ray's scope. Ace (4E), Vera (4C), Evan (4D) complete the pipeline.

@@ -43,3 +43,6 @@ temp/
 # Exception: FOMC SEP extracted data (small, needed by viewer)
 !fomc-sep/data/**/*.parquet
 !fomc-sep/data/*.parquet
+
+# Claude Code scheduled-tasks transient lock
+.claude/scheduled_tasks.lock

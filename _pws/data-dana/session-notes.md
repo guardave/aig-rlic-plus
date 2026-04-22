@@ -102,3 +102,41 @@ Dispatched to cross-review all team SOPs from Dana's lens. Produced findings doc
 - Generate DATA-D5 sidecars for INDPRO, VIX, HY-IG v2 retroactively
 
 **Evidence:** `git status _pws/_team/` shows new findings file; `wc -l _pws/_team/cross-review-20260420-data-dana.md` ~260 lines.
+
+## 2026-04-22 — Wave 10G.4A
+
+**Task:** hy_ig_spy fresh data layer (bare pair_id)
+
+**SOD:** Read team-standards, sop-changelog, data-agent-sop. Key Wave 10G entries applied: v1 archived, v2 ratified as Sample, Wave 10G.4A dispatch scope.
+
+**Work done:**
+- Wrote `scripts/pair_pipeline_hy_ig_spy.py` (1070 lines; data stages 1-2 only)
+- Ran pipeline: 6863 rows × 50 cols, 2000-01-03 to 2026-04-22
+- DATA-D12 linter: 12 violations → fixed → PASS
+- Wrote `data/hy_ig_spy_daily_schema.json` (DATA-D5, 50 columns)
+- Wrote `results/hy_ig_spy/interpretation_metadata.json` (DATA-D6, schema PASS)
+- Created `results/hy_ig_spy/` directory
+- Wrote `results/hy_ig_spy/handoff_dana_20260422.md` with META-RYW and META-SRV evidence
+
+**Key finding:** FRED OAS series truncated at 2023-04-24 (structural change on FRED side). Resolved by v1 parquet splice. Non-blocking; fully documented.
+
+**Committed:** scripts + schema JSON + interpretation_metadata + handoff note
+
+**Next:** Evan picks up in Wave 10G.4C with tournament stages
+
+## 2026-04-22 — Wave 10G.5
+
+**Task:** Apply DATA-D6b to `results/hy_ig_spy/interpretation_metadata.json` — replace raw column identifiers in user-facing text fields with plain English.
+
+**Changes:**
+- `key_finding`: rewrote to eliminate `hy_ig_spread_pct` and `spy_fwd_63d`; expanded tournament codes with descriptors.
+- `caveats[4]`: eliminated `ccc_bb_spread_pct`, `yield_spread_10y3m_pct`, `yield_spread_10y2y_pct`, `bbb_ig_spread_pct` — replaced with spread names.
+- `last_updated_by`: `evan` → `dana`, `last_updated_at`: updated to 2026-04-22T12:00:00Z.
+
+**Results:**
+- DATA-D6b lint: PASS
+- Schema validation: PASS (exit 0)
+- Commit: 3c37d96 (pushed)
+- `wc -l results/hy_ig_spy/interpretation_metadata.json` → 94 lines
+
+**Gotcha for next instance:** `last_updated_by` schema enum is `['dana', 'evan', 'ray']` — NOT `data-dana`. Using the full agent handle fails validation.

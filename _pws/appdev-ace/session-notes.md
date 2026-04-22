@@ -250,3 +250,89 @@ APP-SS1 validation PASS
 **Commit:** `a74364f` — pushed to remote main
 
 **Post-mortem:** item 6 deletion gate (cc99fc4) only covered charts.py; page_templates.py contained 6 more violations undetected. Project-wide grep scope is mandatory after any VIZ-NM1 change.
+
+---
+## Wave 10G.3 Dispatch — 2026-04-22
+
+**Task:** Close two APP-PT1 template gaps for Sample feature parity.
+
+**Gap 1 — HISTORY_ZOOM_EPISODES:**
+- Added optional section in `render_story_page()` after regime chart (line ~491)
+- `getattr(config, "HISTORY_ZOOM_EPISODES", None)` guard — absent → silent skip
+- Each episode: title → narrative markdown → `load_plotly_chart(history_zoom_{slug})` → caption
+- Missing chart → APP-SEV1 L2 `st.warning`
+
+**Gap 2 — regime_context:**
+- Added `regime_context = content.get("regime_context")` inside `_render_method_block()`
+- When present: `st.info(regime_context)` between method_theory and question
+- When absent: block unchanged
+
+**Validation:**
+- imports OK
+- indpro_xlp: 8/0
+- umcsent_xlv: 7/0
+- hy_ig_v2_spy: 15/0
+
+**SOP/Docs:**
+- APP-PT1 supplement added to appdev-agent-sop.md
+- sop-changelog.md Wave 10G.3 updated to DONE
+
+**Commit:** cfe66fb — pushed to remote main
+
+**wc -l page_templates.py:** 1318 → 1355 (+37 lines)
+
+---
+## 2026-04-22 — Wave 10G.4E Session
+
+**Task:** Build hy_ig_spy portal (pair_config + 4 thin wrappers).
+
+**Completed:**
+- `app/pair_configs/hy_ig_spy_config.py` (922 lines)
+  - STORY_CONFIG with HISTORY_ZOOM_EPISODES (3 episodes: dotcom, gfc, covid)
+  - EVIDENCE_METHOD_BLOCKS: 3 level-1 (Correlation, Granger, CCF) + 5 level-2 (HMM, Regime Quartile, Transfer Entropy, Local Projections, Quantile Regression)
+  - regime_context on HMM, Regime Quartile, Transfer Entropy blocks
+  - STRATEGY_CONFIG + METHODOLOGY_CONFIG
+- `app/pages/15_hy_ig_spy_{story,evidence,strategy,methodology}.py` — 4 thin wrappers, 0 st.* calls each
+- `results/hy_ig_spy/handoff_ace_20260422.md`
+
+**Validation (all PASS):**
+- Import: HISTORY_ZOOM_EPISODES=3, level1=3, level2=5
+- smoke_loader hy_ig_spy: 6/0
+- smoke_loader hy_ig_v2_spy: 15/0 (no regression)
+- smoke_loader indpro_xlp: 8/0 (no regression)
+- smoke_loader umcsent_xlv: 7/0 (no regression)
+- smoke_schema_consumers hy_ig_spy: 5/5
+- APP-PT1 gate: 0 st.* calls in all 4 page files
+- Commit: 4e45eb0, pushed to remote
+
+**Next:** Quincy (GATE-NR narrative scan + cloud verify).
+
+---
+## 2026-04-22 — Wave 10G.4E-fix Session
+
+**Task:** Fix two cloud-only bugs on hy_ig_spy pair (Bug 1: page_link routing; Bug 2: _validate_signal ValueError).
+
+**Bug 1 root cause:** `page_routing` dict in `pair_registry.py` missing `hy_ig_spy` entry. Fell through to default `pages/5_hy_ig_spy` but actual pages live at `pages/15_hy_ig_spy_*.py`. Fix: added `"hy_ig_spy": "pages/15_hy_ig_spy"` to dict.
+
+**Bug 2 root cause:** `_validate_signal` in `probability_engine_panel.py` unpacked `known_stress_episodes` elements as 2-tuples `(win_start, win_end)`, but Evan's `interpretation_metadata.json` uses dicts `{label, start, end, note}`. Fix: added `_to_window()` normaliser inside `_validate_signal` that handles both formats.
+
+**Backlog note (META-NMF):** The `_validate_signal` function has no documented contract for its acceptable `stress_windows` element shape (tuple vs dict). Should add to probability_engine_panel.py docstring and the data agent SOP: `known_stress_episodes` must be a list of `{start, end, ...}` dicts; the validator accepts both dict and tuple for backward compat.
+
+**Validation (all PASS):**
+- `_validate_signal` local repro: ok=True, diag='ok'
+- `load_pair_registry` hy_ig_spy story_page = `pages/15_hy_ig_spy_story.py` ✓
+- smoke_loader hy_ig_spy: 6/0
+- smoke_loader hy_ig_v2_spy: 15/0
+- smoke_loader indpro_xlp: 8/0
+- smoke_loader umcsent_xlv: 7/0
+- Commit: 75d6574, pushed to remote
+
+### Wave 10G.5-fix -- APP-RL1 single-source routing (2026-04-22)
+
+- Bug A closed: deleted `_page_prefix()` from `page_templates.py` (19-line func + dict). Added import of `get_page_prefix` from pair_registry. Replaced 3 call sites.
+- Bug B closed: added `"hy_ig_spy": "HY-IG Credit Spread"` to `indicator_names` in `load_pair_registry()`.
+- New helper `get_page_prefix(pair_id)` in pair_registry.py backed by module-level `PAGE_ROUTING = {...}`. `load_pair_registry()` refactored to use it.
+- APP-RL1 grep: `grep -rn -E "PAGE_ROUTING\s*=\s*\{" app/` returns exactly 1 match.
+- load_pair_registry assertion: PASS.
+- smoke_loader: hy_ig_spy 6/0, hy_ig_v2_spy 15/0, indpro_xlp 8/0, umcsent_xlv 7/0.
+- Commit: 35bb008, pushed to remote.

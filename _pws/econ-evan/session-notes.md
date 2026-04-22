@@ -368,3 +368,38 @@ Source parquet files (`data/{pair_id}_monthly_*.parquet`) already contain all to
 2. `docs/agent-sops/econometrics-agent-sop.md`
 3. `docs/schemas/winner_summary.schema.json`
 4. Next pair: Pair #4 US10Y-US3M → SPY
+
+## 2026-04-22 session — Wave 10G.4C: hy_ig_spy full tournament
+
+Agent: Econ Evan | Commit: fb49123
+
+### What was done
+
+Loaded Dana's parquet (6863×50, staged on 2026-04-22). Ran all 7 pipeline stages end-to-end in 8.8s wall-clock:
+- Stage 1: Loaded from parquet (2000-01-03 → 2026-04-22)
+- Stage 2: Feature engineering (all 12 derived cols verified from parquet)
+- Stage 3: signals_20260422.parquet (17 cols: 12 base + ccc_bb, vol, HMM, calm, MS)
+- Stage 4: Core models (Granger 12-lag monthly, 60 regressions, LP 3 horizons, QR 7 quantiles, HMM 2-state, MS 2-state, 30 stationarity rows)
+- Stage 5: Exploratory (120 correlations, 4-quartile regime stats)
+- Stage 6: Tournament (2166 combos, 2036 valid, winner Sharpe=1.41)
+- Stage 7: Validation (85 walk-fwd, 5 bootstrap, 25 costs, 25 decay, 14 stress entries)
+
+### Winner
+S6_hmm_stress / T4_hmm_0.5 / P2_signal_strength / L0
+OOS Sharpe: 1.41 | Ann Return: 11.7% | Max DD: -8.5% | B&H Sharpe: 0.81 | B&H DD: -33.7%
+Direction: countercyclical (confirmed by regression coef sign)
+OOS window: 2019-10-01 → 2026-04-22 (79 months, ECON-OOS2)
+
+### Schema fixes required (2 rounds before 5/5 PASS)
+1. strategy_family enum: 'P2' → 'P2_signal_strength'
+2. signal_scope role enum: 'momentum'/'regime_prob'/'quality_gauge' → 'derivative'/'regime_state'/'diagnostic'
+3. analyst_suggestions: added required 'last_updated_at' field
+
+### Artifacts committed
+All 16 required top-level artifacts + subdirectories. signals_*.parquet tracked per gitignore carve-out.
+
+### Next steps for downstream
+- Vera: generate 10-chart set per handoff_to_vera_20260422.md
+- Ray: finalize narrative prose (strategy_objective + mechanism already in interpretation_metadata.json from Ray)
+- Ace: assemble portal page using signal_scope.json + winner_summary.json
+- Quincy: GATE-29 parquet check + smoke_loader + GATE-31 narrative instrument check

@@ -116,3 +116,42 @@ Consumer-side references (portal pages, pair config class attributes, smoke_load
 ### wc -l evidence (META-AM)
 - experience.md: 79 → 93 lines
 - memories.md: 70 → 103 lines
+
+---
+
+## Session: 2026-04-22 Wave 10G.4D — Fresh hy_ig_spy 22-Chart Suite
+
+### Identity
+Agent: Viz Vera | Pair: hy_ig_spy | Wave: 10G.4D
+
+### Task
+Produce Sample-parity 22-chart suite for fresh `hy_ig_spy` pair (bare pair_id, Wave 10G.4C Evan outputs at fb49123).
+
+### Completed
+
+| Step | Item | Count |
+|------|------|-------|
+| 1 | Chart generation script written | 1 script (~500 lines) |
+| 2 | Charts produced | 23 (22 required + 1 bonus) |
+| 3 | _meta.json sidecars | 23 |
+| 4 | VIZ-V5 smoke: hy_ig_spy | 23/23 PASS |
+| 5 | smoke_loader: hy_ig_v2_spy | 15/0 PASS |
+| 5 | smoke_loader: indpro_xlp | 8/0 PASS |
+| 5 | smoke_loader: umcsent_xlv | 7/0 PASS |
+| 6 | Handoff vera_20260422.md | written |
+| 7 | Commit + push | c525470 |
+
+### Data Sources Used
+- Master: `data/hy_ig_spy_daily_20000101_20260422.parquet` (6,863 × 50 cols)
+- Signals: `results/hy_ig_spy/signals_20260422.parquet` (17 cols)
+- Models: `core_models_20260422/`, `exploratory_20260422/`, `tournament_validation_20260422/`
+- Events: `docs/event_timeline_hy_ig_spy_20260422.csv` (Ray)
+- Winner: S6_hmm_stress / T4_hmm_0.5 / P2 / L0 → OOS Sharpe 1.41
+
+### Key decisions
+- `regime_quartile_returns` produced from `results/hy_ig_spy/regime_quartile_returns.csv` (separate from `quartile_returns` which adds vol overlay)
+- `transfer_entropy` computed inline (no pre-built artifact) via rolling conditional correlation proxy
+- `walk_forward` filtered rank==1 only to get winner series
+
+### wc -l evidence
+- memories.md: ~119 lines (before 94 → after ~119)
