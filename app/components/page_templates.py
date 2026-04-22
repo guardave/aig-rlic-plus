@@ -454,7 +454,7 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     hero_title = getattr(config, "HERO_TITLE", None)
     if hero_title:
         st.markdown(f"### {hero_title}")
-    hero_chart = getattr(config, "HERO_CHART_NAME", f"{pair_id}_hero")
+    hero_chart = getattr(config, "HERO_CHART_NAME", "hero")
     load_plotly_chart(
         hero_chart,
         pair_id=pair_id,
@@ -473,7 +473,7 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     regime_title = getattr(config, "REGIME_TITLE", None)
     if regime_title:
         st.markdown(f"### {regime_title}")
-    regime_chart = getattr(config, "REGIME_CHART_NAME", f"{pair_id}_regime_stats")
+    regime_chart = getattr(config, "REGIME_CHART_NAME", "regime_stats")
     load_plotly_chart(
         regime_chart,
         pair_id=pair_id,
@@ -970,7 +970,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     # --- Performance tab ---
     with tab_performance:
         st.markdown("### Equity Curves vs. Buy-and-Hold")
-        equity_chart = getattr(config, "EQUITY_CHART_NAME", f"{pair_id}_equity_curves")
+        equity_chart = getattr(config, "EQUITY_CHART_NAME", "equity_curves")
         load_plotly_chart(
             equity_chart,
             pair_id=pair_id,
@@ -985,7 +985,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         )
         st.markdown("---")
         st.markdown("### Drawdown Comparison")
-        drawdown_chart = getattr(config, "DRAWDOWN_CHART_NAME", f"{pair_id}_drawdown")
+        drawdown_chart = getattr(config, "DRAWDOWN_CHART_NAME", "drawdown")
         load_plotly_chart(
             drawdown_chart,
             pair_id=pair_id,
@@ -1022,7 +1022,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     # --- Confidence tab ---
     with tab_confidence:
         st.markdown("### Walk-Forward Rolling Sharpe")
-        wf_chart = getattr(config, "WALK_FORWARD_CHART_NAME", f"{pair_id}_walk_forward")
+        wf_chart = getattr(config, "WALK_FORWARD_CHART_NAME", "walk_forward")
         load_plotly_chart(
             wf_chart,
             pair_id=pair_id,
@@ -1039,7 +1039,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         st.markdown("---")
         st.markdown("### Tournament Scatter")
         scatter_chart = getattr(
-            config, "TOURNAMENT_SCATTER_CHART_NAME", f"{pair_id}_tournament_scatter"
+            config, "TOURNAMENT_SCATTER_CHART_NAME", "tournament_scatter"
         )
         load_plotly_chart(
             scatter_chart,
