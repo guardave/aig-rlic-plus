@@ -143,9 +143,21 @@ def load_pair_registry():
         else:
             page_prefix = f"pages/5_{pair_dir}"
 
+        # Wave 10G.2 (2026-04-22): Sample ratification. hy_ig_v2_spy is the
+        # canonical quality benchmark — display it with a distinct label and
+        # an is_sample flag so the landing page can render a Reference
+        # Implementation badge/section. Other pairs unaffected.
+        is_sample = pair_dir == "hy_ig_v2_spy"
+        if is_sample:
+            display_indicator = "Sample: HY-IG Credit Spread × S&P 500"
+            display_name = "Sample (Reference Implementation)"
+        else:
+            display_indicator = indicator
+            display_name = None
+
         pair = {
             "pair_id": pair_dir,
-            "indicator": indicator,
+            "indicator": display_indicator,
             "indicator_id": interp.get("indicator", ""),
             "target": target,
             "target_ticker": interp.get("target", "").upper(),
@@ -167,6 +179,8 @@ def load_pair_registry():
             "evidence_page": f"{page_prefix}_evidence.py",
             "strategy_page": f"{page_prefix}_strategy.py",
             "methodology_page": f"{page_prefix}_methodology.py",
+            "is_sample": is_sample,
+            "display_name": display_name,
         }
         _check_integrity(pair)
         pairs.append(pair)

@@ -221,6 +221,18 @@ for i in range(0, len(pairs), cols_per_row):
                 if not p.get("direction_consistent", True):
                     warn_html = ' <span style="cursor:help" title="Surprise: the data showed the opposite direction from what economic theory predicted. This is an important finding — see the Story page for the explanation.">&#9888;&#65039;</span>'
 
+                # Sample (benchmark / reference implementation) badge
+                # Wave 10G.2 (2026-04-22): hy_ig_v2_spy is the canonical
+                # quality benchmark — flagged via is_sample in pair_registry.
+                if p.get("is_sample"):
+                    st.markdown(
+                        '<span style="background:#0d6efd;color:#fff;padding:3px 10px;'
+                        'border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.4px;'
+                        'cursor:help" title="Canonical reference pair. All future pairs are '
+                        'quality-compared against this dashboard.">★ SAMPLE — REFERENCE IMPLEMENTATION</span>',
+                        unsafe_allow_html=True,
+                    )
+
                 st.markdown(
                     f"**{p['indicator']} → {p['target']}**{warn_html}",
                     unsafe_allow_html=True,

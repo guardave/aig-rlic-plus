@@ -8,6 +8,24 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-04-22 — Wave 10G: Sample Ratification + Archive + New HY-IG × SPY
+
+**Scope:** sample governance, namespace management, template extensions, full pair pipeline. Affects ALL agents for discoverability; Lead owns ratification, dispatches agents for new pair build.
+
+**Sub-phases committed so far:**
+
+- **Wave 10G.1 (commit `02251bd`):** v1 `hy_ig_spy` archived to `_v1` suffix. All artifacts moved via `git mv` (history preserved): `results/`, `data/`, `scripts/`, `docs/`, `app/pages/`. `app/pages_archive/` created (Streamlit does not auto-scan). `app/components/pair_registry.py` hardcoded v1 block removed; auto-discovery loop now skips any directory ending in `_v1` or `_archived`. Legacy flat-layout conditionals in `execution_panel.py` and `generate_winner_outputs.py` remapped from `pair_id == "hy_ig_spy"` to `pair_id == "hy_ig_spy_v1"` to isolate legacy logic and prevent false-matching the fresh `hy_ig_spy` pair created in Wave 10G.4.
+
+- **Wave 10G.2:** `hy_ig_v2_spy` ratified as the **Sample / canonical reference pair**. Git tag `sample-v1.0`. `pair_registry.py` now flags it with `is_sample=True` and renders a blue SAMPLE badge on its landing-page card. Every future pair is quality-compared against Sample (feature set: probability engine, position adjustment, trigger cards, 3-way direction check, 8-element Evidence, historical zoom charts, etc.). Sample pair_id and on-disk paths unchanged — display-layer rename only.
+
+**Planned sub-phases (to be completed in this session or next wave):**
+
+- **Wave 10G.3:** extend `app/components/page_templates.py` to support two Sample features currently absent from the template — `HISTORY_ZOOM_EPISODES` (Story page) and `regime_context` (Evidence Level 2 scaffolding). APP-PT1 supplement in `appdev-agent-sop.md`.
+
+- **Wave 10G.4A–F:** full 5-agent pipeline (Dana → Ray → Evan → Vera → Ace → Quincy) to build a fresh `hy_ig_spy` pair using the latest SOPs + extended templates. Targets Sample-quality feature parity via template (no hand-coded pages).
+
+- **Wave 10G.5:** cloud verify closure, relnotes, wave checkpoint.
+
 ## 2026-04-20 — Wave 10F: Standardization Infrastructure (Lead)
 
 **Scope:** team-coordination.md + new project-local /sod + new hooks + new team-standards.md. Affects ALL agents.

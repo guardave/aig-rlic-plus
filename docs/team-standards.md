@@ -12,7 +12,7 @@ Read order for every agent at SOD (see `.claude/commands/sod.md`): this file →
 
 | Path | Owner | Purpose |
 |------|-------|---------|
-| `results/{pair_id}/` | Evan | Econometrics outputs per pair (signals parquet, winner summary, tournament CSV, interpretation metadata) |
+| `results/{pair_id}/` | Evan | Econometrics outputs per pair (signals parquet, winner summary, tournament CSV, interpretation metadata). **Sample/benchmark pair:** `results/hy_ig_v2_spy/` — ratified 2026-04-22 (Wave 10G.2), git tag `sample-v1.0`. Carries the full SOP-required feature set; every new pair's portal is quality-compared to this one. |
 | `data/` | Dana | Raw & cleaned datasets |
 | `output/charts/{pair_id}/plotly/` | Vera | Plotly chart JSONs per pair |
 | `app/pages/` | Ace | Streamlit portal pages (thin wrappers per APP-PT1) |
