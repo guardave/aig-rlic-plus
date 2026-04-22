@@ -73,7 +73,7 @@ class StoryConfig:
     )
 
     HERO_TITLE = "27 Years of Industrial Production vs. Consumer Staples (XLP)"
-    HERO_CHART_NAME = "indpro_xlp_hero"
+    HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
         "How to read it: dual-axis view — IP YoY growth (left, red) and "
         "XLP price (right, blue) on a common time axis. Red shaded bands "
@@ -83,7 +83,7 @@ class StoryConfig:
     )
 
     REGIME_TITLE = "What History Shows: XLP Returns by IP Growth Regime"
-    REGIME_CHART_NAME = "indpro_xlp_regime_stats"
+    REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
         "What this shows: XLP annualized Sharpe ratio in each of the four "
         "IP growth quartile regimes. Q1 (lowest IP growth) and Q2 tend to "
@@ -191,7 +191,7 @@ CORRELATION_BLOCK = dict(
         "with weaker XLP returns. The dashed vertical line marks the start of the "
         "out-of-sample period (2019-01)."
     ),
-    chart_name="indpro_xlp_correlations",
+    chart_name="correlations",
     chart_caption=(
         "What this shows: rolling Pearson correlation between INDPRO YoY growth and "
         "XLP monthly return. Negative values (below zero) confirm countercyclical "
@@ -257,7 +257,7 @@ GRANGER_BLOCK = dict(
         "95% confidence bands are statistically significant. A cluster of significant "
         "negative bars would confirm IP as a leading indicator for XLP."
     ),
-    chart_name="indpro_xlp_ccf",
+    chart_name="ccf",
     chart_caption=(
         "What this shows: cross-correlation function between INDPRO YoY growth "
         "and XLP monthly return at lags -12 to +12 months. Red bars are statistically "
@@ -321,7 +321,7 @@ REGIME_BLOCK = dict(
         "Q1 (highest XLP Sharpe) to Q4 (lowest) would confirm the countercyclical "
         "defensive rotation hypothesis."
     ),
-    chart_name="indpro_xlp_regime_stats",
+    chart_name="regime_stats",
     chart_caption=(
         "What this shows: annualized XLP Sharpe ratio and return by quartile "
         "of the INDPRO acceleration signal. Q1 = IP decelerating most (best XLP "
@@ -469,10 +469,10 @@ class StrategyConfig:
         "tool."
     )
 
-    EQUITY_CHART_NAME = "indpro_xlp_equity_curves"
-    DRAWDOWN_CHART_NAME = "indpro_xlp_drawdown"
-    WALK_FORWARD_CHART_NAME = "indpro_xlp_walk_forward"
-    TOURNAMENT_SCATTER_CHART_NAME = "indpro_xlp_tournament_scatter"
+    EQUITY_CHART_NAME = "equity_curves"
+    DRAWDOWN_CHART_NAME = "drawdown"
+    WALK_FORWARD_CHART_NAME = "walk_forward"
+    TOURNAMENT_SCATTER_CHART_NAME = "tournament_scatter"
 
     CAVEATS_MD = """
 **Important Caveats**

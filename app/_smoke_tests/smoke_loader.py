@@ -98,17 +98,17 @@ EVIDENCE_DYNAMIC_CHARTS: dict[str, list[str]] = {
 PAIR_TEMPLATE_CHARTS: dict[str, list[str]] = {
     "indpro_xlp": [
         # Story
-        "indpro_xlp_hero",
-        "indpro_xlp_regime_stats",
+        "hero",
+        "regime_stats",
         # Strategy — Performance tab
-        "indpro_xlp_equity_curves",
-        "indpro_xlp_drawdown",
+        "equity_curves",
+        "drawdown",
         # Strategy — Confidence tab
-        "indpro_xlp_walk_forward",
-        "indpro_xlp_tournament_scatter",
+        "walk_forward",
+        "tournament_scatter",
         # Evidence method blocks
-        "indpro_xlp_correlations",
-        "indpro_xlp_ccf",
+        "correlations",
+        "ccf",
     ],
 }
 

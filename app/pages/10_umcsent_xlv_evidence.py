@@ -149,7 +149,7 @@ CORRELATION_BLOCK = dict(
         "horizons. Blue = positive correlation (higher sentiment → higher XLV returns), "
         "Red = negative. Stars indicate significance: * p<0.05, ** p<0.01."
     ),
-    chart_name="umcsent_xlv_correlations",
+    chart_name="correlations",
     chart_caption=(
         "What this shows: Pearson correlation heatmap between UMCSENT signals "
         "and XLV forward returns. Blue cells indicate procyclical relationships "
@@ -212,7 +212,7 @@ GRANGER_BLOCK = dict(
         "indicate statistically significant predictive content from sentiment "
         "to healthcare returns."
     ),
-    chart_name="umcsent_xlv_ccf",
+    chart_name="ccf",
     chart_caption=(
         "What this shows: cross-correlation function between UMCSENT YoY change "
         "and XLV monthly return at lags -12 to +12 months. Red bars are statistically "
@@ -274,7 +274,7 @@ REGIME_BLOCK = dict(
         "(most negative) YoY change. Q4 = highest (most positive). Look for a "
         "monotonic pattern to confirm the regime-return relationship."
     ),
-    chart_name="umcsent_xlv_regime_stats",
+    chart_name="regime_stats",
     chart_caption=(
         "What this shows: annualized XLV Sharpe ratio and return by quartile "
         "of UMCSENT year-over-year change. Q1 = most negative sentiment trend, "
@@ -338,7 +338,7 @@ QUANTILE_BLOCK = dict(
         "is rising or falling. The box shows median and interquartile range; whiskers "
         "show the 5th-95th percentile range."
     ),
-    chart_name="umcsent_xlv_signal_dist",
+    chart_name="signal_dist",
     chart_caption=(
         "What this shows: left panel — distribution of UMCSENT YoY changes "
         "(roughly symmetric, centered near zero); right panel — XLV 3-month "

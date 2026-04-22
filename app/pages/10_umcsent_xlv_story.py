@@ -196,10 +196,10 @@ st.markdown("---")
 # ---------------------------------------------------------------------------
 st.markdown("### 25 Years of Consumer Sentiment vs. Health Care Stocks")
 load_plotly_chart(
-    "umcsent_xlv_hero",
+    "hero",
     fallback_text=(
         "Hero chart: UMCSENT YoY change vs XLV price (1999-2025). "
-        "Expected at: output/charts/umcsent_xlv/plotly/umcsent_xlv_hero.json"
+        "Expected at: output/charts/umcsent_xlv/plotly/hero.json"
     ),
     caption=(
         "How to read it: UMCSENT year-over-year % change (red line, left axis) "
@@ -250,7 +250,7 @@ st.markdown("---")
 # ---------------------------------------------------------------------------
 st.markdown("### XLV Returns by Sentiment Regime")
 load_plotly_chart(
-    "umcsent_xlv_regime_stats",
+    "regime_stats",
     fallback_text="XLV returns by UMCSENT YoY quartile.",
     caption=(
         "What this shows: annualized XLV Sharpe ratio and return by quartile of "

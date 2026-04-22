@@ -258,7 +258,7 @@ with tab_performance:
     st.markdown("### Equity Curves: Strategy vs. Buy-and-Hold")
 
     load_plotly_chart(
-        "umcsent_xlv_equity_curves",
+        "equity_curves",
         fallback_text="Equity curves for top strategies vs buy-and-hold XLV.",
         caption=(
             "What this shows: cumulative returns for the tournament winner "
@@ -276,7 +276,7 @@ with tab_performance:
     st.markdown("### Drawdown Comparison")
 
     load_plotly_chart(
-        "umcsent_xlv_drawdown",
+        "drawdown",
         fallback_text="Drawdown comparison: strategy vs buy-and-hold XLV.",
         caption=(
             f"What this shows: peak-to-trough drawdown profiles. Strategy max DD = "
@@ -294,7 +294,7 @@ with tab_performance:
     st.markdown("### Rolling Sharpe Ratio")
 
     load_plotly_chart(
-        "umcsent_xlv_rolling_sharpe",
+        "rolling_sharpe",
         fallback_text="Rolling 12-month Sharpe ratio.",
         caption=(
             "What this shows: 12-month rolling Sharpe for the winner strategy "
@@ -340,7 +340,7 @@ with tab_confidence:
     st.markdown("### Walk-Forward Annual Sharpe")
 
     load_plotly_chart(
-        "umcsent_xlv_wf_sharpe",
+        "wf_sharpe",
         fallback_text="Walk-forward annual Sharpe ratio.",
         caption=(
             "What this shows: annualized Sharpe ratio by calendar year (OOS period). "
@@ -414,7 +414,7 @@ with tab_confidence:
     st.markdown("### Tournament Scatter: Sharpe vs. Turnover")
 
     load_plotly_chart(
-        "umcsent_xlv_tournament_scatter",
+        "tournament_scatter",
         fallback_text="Tournament scatter: OOS Sharpe vs annual turnover.",
         caption=(
             "What this shows: all 1,305 strategy combinations plotted by annual "
