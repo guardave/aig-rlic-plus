@@ -403,3 +403,25 @@ All 16 required top-level artifacts + subdirectories. signals_*.parquet tracked 
 - Ray: finalize narrative prose (strategy_objective + mechanism already in interpretation_metadata.json from Ray)
 - Ace: assemble portal page using signal_scope.json + winner_summary.json
 - Quincy: GATE-29 parquet check + smoke_loader + GATE-31 narrative instrument check
+
+---
+
+## 2026-04-23 — Wave 10H.2 [Evan] APP-TL1 broker-style CSV data backfill
+
+**Dispatch scope:** produce `winner_trades_broker_style.csv` for `indpro_xlp` and `umcsent_xlv` (APP-TL1 mandates dual CSV artifacts on Strategy page; these two lacked the broker-style variant).
+
+**Discovery:** existing `scripts/synthesize_broker_trade_log.py` is hard-coded to the HY-IG daily family (SIGNAL_COL_MAP, daily parquet, SPY). Not reusable for monthly macro→sector pairs.
+
+**Refactor:** hoisted a new shared helper `scripts/_trade_log_broker.py::synthesize_from_position_log` that derives the broker-style CSV from the already-shipping `winner_trade_log.csv` + monthly parquet. No tournament rerun; winner unchanged.
+
+**Outputs:**
+- `results/indpro_xlp/winner_trades_broker_style.csv` — 43 rows, 2019-01-31 → 2025-10-31, +52.46% cum P&L, P3 long/short countercyclical.
+- `results/umcsent_xlv/winner_trades_broker_style.csv` — 15 rows, 2019-04-30 → 2025-07-31, +77.14% cum P&L, P1 long/cash procyclical.
+
+Schema matches APP-TL1 exactly (10 cols + `#`-prefix metadata row). Both within typical 10–100 range.
+
+**Flags for Dana:**
+- No `data_dictionary_indpro_xlp_*.csv` / `…_umcsent_xlv_*.csv` exist; broker schema documented centrally in APP-TL1 but per-pair dictionaries may want to mirror it.
+- `winner_summary.json` for both pairs lacks `commission_bps`; defaulted to 5 bps. Confirm tournament cost tier.
+
+**Handoff:** `results/_cross_agent/handoff_evan_wave10h2_20260423.md`.

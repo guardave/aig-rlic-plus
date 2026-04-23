@@ -317,3 +317,13 @@ No residual FAILs, no deferred QA items from this wave.
 - Full verify: **15/17 PASS**. Real FAILs on landing (raw-col leak, Ace) and hy_ig_v2_spy_methodology (APP-PT2 section absent — suspect cloud deployment lag).
 - META-AM: b3facc8 slash fix validated. BL-PERM-SUBAGENT → RESOLVED.
 - Handoff appended: results/_cross_agent/handoff_quincy_wave10h1_20260422.md §"Post-reboot verify (attempt 3)".
+
+## 2026-04-23 — Wave 10H.2 [Evan] APP-TL1 data backfill COMPLETE
+
+- New shared helper: `scripts/_trade_log_broker.py` (monthly-pair broker CSV synthesis from position log).
+- `results/indpro_xlp/winner_trades_broker_style.csv` — 43 rows.
+- `results/umcsent_xlv/winner_trades_broker_style.csv` — 15 rows.
+- Schema APP-TL1 compliant; `comment="#"` header row as reference.
+- Two items flagged to Dana: per-pair data dictionaries missing; `commission_bps` absent from `winner_summary.json` (defaulted 5 bps).
+- Handoff: `results/_cross_agent/handoff_evan_wave10h2_20260423.md`.
+- Ace unblocked on template-side APP-TL1 rollout for these two pairs.
