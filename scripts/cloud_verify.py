@@ -43,7 +43,16 @@ from playwright.sync_api import sync_playwright  # type: ignore
 # ---------------------------------------------------------------------------
 
 DEFAULT_BASE = "https://aig-rlic-plus.streamlit.app"
-FOCUS_PAIRS = ["hy_ig_v2_spy", "hy_ig_spy", "indpro_xlp", "umcsent_xlv"]
+# Wave 10I.A: expanded from 4 to 10 pairs. Ace-A migrated 4 legacy pairs
+# (indpro_spy, permit_spy, vix_vix3m_spy, umcsent_xlv) to APP-PT1 thin
+# wrappers; Ace-B exploded the TED composite into 3 variants
+# (sofr_ted_spy, dff_ted_spy, ted_spliced_spy). All 10 are now active
+# pair_ids with 4 pages each.
+FOCUS_PAIRS = [
+    "hy_ig_v2_spy", "hy_ig_spy", "indpro_xlp", "umcsent_xlv",
+    "indpro_spy", "permit_spy", "vix_vix3m_spy",
+    "sofr_ted_spy", "dff_ted_spy", "ted_spliced_spy",
+]
 PAGES = ["story", "evidence", "strategy", "methodology"]
 
 HYDRATE_SECS = 25

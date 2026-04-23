@@ -478,3 +478,17 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 - Flags for Lead: (1) 3 pairs (indpro, permit, vix) lack canonical broker-style CSV — candidate Vera/Dana dispatch; (2) permit_spy and vix_vix3m_spy lack equity/drawdown/wf charts on disk (pre-existing gap, Ace Part-1 flag); (3) chart-filename drift persists for 3 pairs.
 - Handoff: `results/_cross_agent/handoff_ray_wave10i_partA_20260423.md`.
 - Scope discipline: no touches to `app/components/*`, TED configs (Ray-B's scope), Sample config, chart artefacts, scripts, or SOPs.
+
+---
+
+## 2026-04-23 — Wave 10I.A Part 4 [Quincy] cloud verify — 35/41 PASS, 6 FAIL
+
+- **Not ready to close.** 6 newly-migrated Strategy pages FAIL with identical `TypeError` at `instructional_trigger_cards.py:385` (`float(winner.get("threshold_value", 0.5))`).
+- **Affected:** `indpro_spy`, `permit_spy`, `vix_vix3m_spy`, `sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy` (all 6 new pairs, Strategy only).
+- **Regression gate holds:** 4 pre-existing template pairs + Sample = 17/17 PASS identical to Wave 10H.2. No prior-passing surface regressed. APP-TL1, APP-PT2 markers intact.
+- **Other 18 new-pair cells (story/evidence/methodology × 6):** all PASS. Breadcrumbs present. No prefix-pending or chart-pending banners hit.
+- **Root-cause:** legacy winner artifacts carry non-`float()`-coercible `threshold_value` — code path unexercised by legacy hand-written pages. Exactly the silent-regression class Wave 10I was meant to address.
+- **Recommendation:** Ace surgical defensive-coerce fix (APP-SEV1 L2 banner) in `instructional_trigger_cards.py`. Lead to dispatch.
+- **Script:** `scripts/cloud_verify.py` `FOCUS_PAIRS` expanded 4→10.
+- **Evidence:** `temp/20260423T085519Z_cloud_verify_wave10iA/`.
+- **Handoff:** `results/_cross_agent/handoff_quincy_wave10i_partA_20260423.md`.

@@ -521,3 +521,23 @@ Artifacts: `temp/20260423T001633Z_cloud_verify/`, handoff final section appended
 **Compliance:** No Ace/Ray/Evan/Vera-owned files touched. Changes confined to Quincy-owned `scripts/cloud_verify.py`, PWS, team board, handoff.
 
 **META-AM:** Global profile writes deferred this session (pure verification pass). Lead's permission fix remains to be validated further; no global writes attempted.
+
+---
+
+## 2026-04-23 — Wave 10I.A cloud verify dispatch
+
+**SOD:** Read sop-changelog from top to previous `last_seen` (2026-04-23 Wave 10H.2 closure). New rule since: APP-PR1 Path Resolution Discipline (commit `8234014`). No QA-script impact (grep-checkable; Lead-only enforcement point for now). Read Ace-A, Ace-B, Ray-A, Ray-B Wave 10I.A handoffs.
+
+**Dispatch:** Cloud verify HEAD `742156b`, expanded `FOCUS_PAIRS` from 4 to 10 (4 original template + 3 Ace-A non-TED + 3 Ace-B TED variants).
+
+**Result: 35 PASS / 6 FAIL / 41 TOTAL.**
+
+All 6 FAILs on Strategy page, single root cause: `TypeError` at `app/components/instructional_trigger_cards.py:385` in `float(winner.get("threshold_value", 0.5))` — the key IS present in winner records for the 6 newly-migrated pairs but its value is non-`float()`-coercible. The 4 pre-existing template pairs pass this line because their `winner` artifacts happen to carry numeric values; legacy-pair artifacts exercise a code path the hand-written pages never touched.
+
+**Regression gate:** Sample + all 3 prior-template pairs verify identically to Wave 10H.2 (17 cells PASS identical). No regression on prior-passing surface. APP-TL1 markers intact on `hy_ig_spy`/`indpro_xlp`. APP-PT2 Exploratory Insights intact on Sample Methodology. Non-Sample Methodology pages correctly do NOT render the section.
+
+**Recommendation (handoff):** Ace surgical defensive-coerce fix in `instructional_trigger_cards.py` (APP-SEV1 L2 banner pattern). 2nd path would be Dana/Evan regeneration — heavier.
+
+**Script change:** `scripts/cloud_verify.py` — `FOCUS_PAIRS` list expansion only. No helper or DOM-extractor change. Committed under QA identity.
+
+**Compliance:** No Ace/Ray/Evan/Vera-owned files touched. No SOP edits. No pair configs touched. No chart artefacts touched.
