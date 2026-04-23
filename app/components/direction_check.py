@@ -6,9 +6,9 @@ Evan can ship to production while Dana's metadata and Ray's narrative
 silently disagree — exactly the class of bug META-IA (Interpretation
 Annotation Handoffs) was written to prevent but had no mechanized gate for.
 
-**Scope (Wave 4D-2):** 2-way triangulation (Evan ↔ Dana). The 3rd leg —
-Ray's ``narrative_frontmatter.direction_asserted`` — is flagged as TODO and
-will be added once RES-17 narrative-frontmatter migration lands.
+**Scope (Wave 10I.C):** 3-way triangulation (Evan ↔ Dana ↔ Ray). Ray's leg
+reads ``direction_asserted`` from the narrative frontmatter block in
+``docs/portal_narrative_{pair_id}_*.md`` (RES-17 migration complete).
 
 Rules cited:
 
@@ -19,10 +19,12 @@ Rules cited:
   interpretation-annotation protocol.
 - **ECON-H5** — `winner_summary.direction` canonical enum.
 - **DATA-D6** — `interpretation_metadata.observed_direction` canonical enum.
+- **RES-17** — narrative frontmatter contract; Ray owns ``direction_asserted``.
 """
 
 from __future__ import annotations
 
+import glob
 from pathlib import Path
 
 import streamlit as st
@@ -31,6 +33,62 @@ from components.schema_check import SchemaValidationError, validate_or_die
 
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _load_ray_direction(pair_id: str) -> tuple[str | None, str | None]:
+    """Read Ray's ``direction_asserted`` from the narrative frontmatter.
+
+    Finds the most-recent ``docs/portal_narrative_{pair_id}_*.md`` file
+    (by filename sort, which is date-ordered) and extracts the YAML
+    frontmatter block between the opening and closing ``---`` delimiters.
+
+    Returns:
+        (direction, note) where direction is the canonical string or None,
+        and note is a diagnostic message explaining any gap.
+    """
+    docs_dir = _REPO_ROOT / "docs"
+    pattern = str(docs_dir / f"portal_narrative_{pair_id}_*.md")
+    matches = sorted(glob.glob(pattern))
+    if not matches:
+        return None, (
+            f"Ray leg missing — no docs/portal_narrative_{pair_id}_*.md found. "
+            "Ray must create a narrative frontmatter file (RES-17)."
+        )
+
+    latest = matches[-1]
+    try:
+        content = Path(latest).read_text(encoding="utf-8")
+    except OSError as exc:
+        return None, f"Ray leg read error ({exc})"
+
+    if not content.startswith("---"):
+        return None, (
+            f"Ray leg malformed — {Path(latest).name} has no YAML frontmatter "
+            "opening delimiter. RES-17 requires frontmatter starting with '---'."
+        )
+
+    try:
+        end_idx = content.index("---", 3)
+    except ValueError:
+        return None, (
+            f"Ray leg malformed — {Path(latest).name} YAML frontmatter "
+            "has no closing '---' delimiter."
+        )
+
+    try:
+        import yaml  # type: ignore[import]
+        fm = yaml.safe_load(content[3:end_idx])
+    except Exception as exc:  # noqa: BLE001
+        return None, f"Ray leg YAML parse error in {Path(latest).name}: {exc}"
+
+    direction = fm.get("direction_asserted") if isinstance(fm, dict) else None
+    if direction is None:
+        return None, (
+            f"Ray leg incomplete — {Path(latest).name} frontmatter lacks "
+            "'direction_asserted'. RES-17 requires this field."
+        )
+
+    return direction, None
 
 
 # Schema enum for direction (winner_summary v1.0.0, interpretation_metadata
@@ -119,15 +177,11 @@ def check_direction_agreement(pair_id: str) -> dict:
         report["schema_errors"].append(f"interpretation_metadata: {exc.errors}")
         return report
 
-    # ---- Ray leg: narrative_frontmatter.direction_asserted (TODO) ----
-    # TODO(Ace, post-RES-17): once the narrative markdown files carry a
-    # schema-validated frontmatter (`docs/schemas/narrative_frontmatter.schema.json`),
-    # read `direction_asserted` here and include in the 3-way assertion.
-    # Until then, Ray's leg is None and APP-DIR1 is a 2-way check.
-    report["notes"].append(
-        "Ray leg (narrative_frontmatter.direction_asserted) skipped — "
-        "RES-17 narrative-frontmatter migration pending."
-    )
+    # ---- Ray leg: narrative_frontmatter.direction_asserted (RES-17) ----
+    ray_direction, ray_note = _load_ray_direction(pair_id)
+    report["ray"] = _canonicalize(ray_direction)
+    if ray_note:
+        report["notes"].append(ray_note)
 
     # ---- Assert agreement between available legs ----
     evan = report["evan"]
@@ -166,7 +220,20 @@ def check_direction_agreement(pair_id: str) -> dict:
         )
         return report
 
-    # Valid 2-way agreement (Ray leg pending until RES-17).
+    # ---- Check Ray leg disagreement (non-blocking warning per RES-17 launch) ----
+    ray = report["ray"]
+    if ray is not None and ray != evan:
+        st.warning(
+            f"**Direction partial mismatch** (APP-DIR1, 3-way). "
+            f"Evan/Dana agree on `{evan}` but Ray's narrative frontmatter "
+            f"asserts `{ray}` (from `docs/portal_narrative_{pair_id}_*.md`). "
+            "Ray must update `direction_asserted` to match. Escalate to Lead.\n\n"
+            "Plain English: the narrative's stated direction does not match "
+            "what the model found empirically — the portal story may mislead "
+            "readers. The page renders but Ray must reconcile before acceptance."
+        )
+
+    # Valid agreement (2-way Evan ↔ Dana, with Ray cross-check above).
     if evan in _CANONICAL_DIRECTIONS:
         report["agreement"] = True
     else:
@@ -193,9 +260,14 @@ def render_direction_check(pair_id: str) -> dict:
     """
     report = check_direction_agreement(pair_id)
     if report["agreement"]:
+        ray = report.get("ray")
+        ray_status = (
+            f"Ray agrees on `{ray}`"
+            if ray is not None
+            else "Ray leg: no narrative file found (RES-17 stub expected)"
+        )
         st.caption(
-            f"What this shows: direction triangulation (APP-DIR1, 2-way) "
-            f"— Evan and Dana agree on `{report['evan']}`. Ray leg "
-            f"pending RES-17 frontmatter migration."
+            f"What this shows: direction triangulation (APP-DIR1, 3-way) "
+            f"— Evan and Dana agree on `{report['evan']}`. {ray_status}."
         )
     return report

@@ -63,7 +63,7 @@ render_breadcrumb("Strategy", PAIR_ID)
 
 # ---------------------------------------------------------------------------
 # APP-DIR1: 3-way direction triangulation (Evan ↔ Dana ↔ Ray).
-# Currently 2-way (Ray leg pending RES-17 narrative-frontmatter migration).
+# 3-way triangulation active (RES-17 complete, Wave 10I.C).
 # Agreement → silent caption. Mismatch → st.error per APP-SEV1 L1.
 # ---------------------------------------------------------------------------
 render_direction_check(PAIR_ID)
