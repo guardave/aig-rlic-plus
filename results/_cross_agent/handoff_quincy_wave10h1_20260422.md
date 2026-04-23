@@ -243,3 +243,59 @@ PASS  umcsent_xlv_methodology       charts=0 (no section — correct)
 2. Request another Streamlit Cloud reboot/manual rebuild to confirm APP-PT2 Sample bug is deployment lag vs. code defect.
 3. Dispatch Ace for landing raw-column leak (spy_fwd_21d / spy_fwd_63d).
 4. Mark BL-PERM-SUBAGENT as RESOLVED by b3facc8.
+
+---
+
+## Re-verify (post-2nd-reboot 2026-04-23T00:03Z)
+
+**Result: PASS 15 / FAIL 2 / TOTAL 17 — IDENTICAL to attempt 3.** Same two cells, same error fingerprints. User performed a second Streamlit Cloud reboot with cache-clear explicitly requested; the result did not change.
+
+### Evidence
+
+- New run: `temp/20260423T000315Z_cloud_verify/` (results.json, summary.txt, 16 dom_text, 16 screenshots).
+- Prior run: `temp/20260422T234114Z_cloud_verify/` — same 15/2/17 split, same FAIL cells.
+
+### Cell-by-cell comparison vs attempt 3 (20260422T234114Z)
+
+| Cell | Attempt 3 | Re-verify | Delta |
+|---|---|---|---|
+| landing | FAIL (raw_col_leak=True, dom_ok=True, sample_badge=True) | FAIL (raw_col_leak=True, dom_ok=True, sample_badge=True) | none |
+| hy_ig_v2_spy_methodology | FAIL (section=False, eli5=0/3, dom_len=14138) | FAIL (section=False, eli5=0/3, dom_len=14138) | none — byte-identical DOM length |
+| all 15 PASS cells | PASS | PASS | none |
+
+### Diagnosis — FAIL 2 (hy_ig_v2_spy_methodology) is NOT deploy-lag
+
+A second forced reboot with cache-clear should have re-pulled commits `c9f4d47` (Vera) and `e6767e0` (Ace) into a fresh container. Two possibilities remained going in:
+
+1. Deploy-lag → resolved by cache-clear reboot → would now PASS.
+2. Code defect → unaffected by reboot → would still FAIL.
+
+Result: still FAIL with byte-identical DOM length (14,138 chars). **This rules out deploy-lag and confirms FAIL 2 is a real code defect in Ace's `_render_exploratory_insights` path on `hy_ig_v2_spy` Methodology.** The renderer is present (commit `e6767e0` verified on `origin/main`) and the data is present (`results/hy_ig_v2_spy/analyst_suggestions.json` has `exploratory_charts` with 3 entries), but the section does not render between "Analyst Suggestions for Future Work" and "References" on the live cloud deployment.
+
+Likely failure modes for Ace to investigate (NOT my lane to fix):
+- `_REPO_ROOT` path resolution differs on Streamlit Cloud (sandboxed CWD) → silent file-read miss → renderer early-returns with no content and no `st.error`.
+- Conditional branch that checks for the `exploratory_charts` key uses wrong key name, wrong dict level, or returns early when entries list shape doesn't match expectation.
+- Renderer is called but wrapped in a `try/except` that swallows exceptions without logging — DOM shows nothing, no visible error, classic silent-fail symptom.
+
+Recommend: Ace wraps `_render_exploratory_insights(pair_id)` with `st.exception` (or `logger.exception` + visible `st.warning`) to surface the root cause on next cloud verify.
+
+### Diagnosis — FAIL 1 (landing raw-column leak) unchanged
+
+DOM still contains five lines with raw column tokens `spy_fwd_21d` / `spy_fwd_63d` inside strategy-description cards on the landing page (grep-confirmed on new `dom_text/landing.txt`). Display standard violation, owner Ace.
+
+### QA-CL gate status (refreshed, re-verify)
+
+- **GATE-28:** 15/17 PASS, unchanged. Both FAILs are real code defects, not deployment or script artifacts.
+- **APP-PT2:** FAIL on Sample Methodology pair — **confirmed code defect** (no longer "deploy-lag suspected"). Regression gate PASS on all 3 non-Sample pairs.
+- **VIZ-O1:** 65/65 in-scope focus-pair sidecars PASS, unchanged.
+- **QA-CL2:** unchanged; P2 exception stands.
+
+### Verdict for Lead
+
+**(c) Both FAILs still present.** Both need Ace dispatch in a follow-up wave (10H.2 or 10I):
+
+1. **Landing raw-column leak** — display-label fix on cards referencing `spy_fwd_21d` / `spy_fwd_63d`. Display-standard bug, low severity, isolated fix.
+2. **APP-PT2 Exploratory Insights missing on Sample Methodology** — code defect in `_render_exploratory_insights`; recommend Ace instrument with visible exception surface for cloud debuggability before re-verify.
+
+Wave 10H.1 QA verdict: **closed with 2 real FAILs escalated to Ace** (not QA-script / deployment / cache issues). My script is sound; the findings are genuine.
+

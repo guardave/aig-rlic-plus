@@ -1,5 +1,16 @@
 # Team Status Board
 
+## 2026-04-23 — QA Quincy (Wave 10H.1 Re-verify, post-2nd-reboot)
+
+**Status:** Re-verify complete. **15 PASS / 2 FAIL / 17** — identical to attempt 3; user's 2nd Streamlit Cloud reboot with cache-clear did not change the outcome.
+
+- **FAIL `landing`**: raw-column leak (`spy_fwd_21d`, `spy_fwd_63d`) unchanged. Display-standard bug, owner Ace.
+- **FAIL `hy_ig_v2_spy_methodology`**: APP-PT2 Exploratory Insights section still absent (section=False, eli5=0/3). **Cache-clear reboot rules out deploy-lag** → confirmed code defect in `_render_exploratory_insights`, owner Ace.
+- **Verdict:** (c) Both FAILs need Ace dispatch in Wave 10H.2 / 10I. My verify script is sound; findings are genuine cloud-side code defects.
+- Evidence: `temp/20260423T000315Z_cloud_verify/`. Handoff `Re-verify` section appended to `results/_cross_agent/handoff_quincy_wave10h1_20260422.md`.
+
+---
+
 ## 2026-04-22 — QA Quincy (Wave 10H.1)
 
 **Status:** Completed with blocker. Cloud verify BLOCKED on Streamlit app hibernation (Pattern 19/20) — needs user reboot.

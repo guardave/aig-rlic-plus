@@ -18,6 +18,15 @@
 
 **GATE-28:** BLOCKED by hibernation.
 **APP-PT2 live render:** BLOCKED, logic-verified locally.
+
+## 2026-04-23 — Wave 10H.1 Re-verify (post-2nd-reboot)
+
+Ran `scripts/cloud_verify.py` after user's 2nd Streamlit Cloud reboot with cache-clear. Result: **15 PASS / 2 FAIL / 17**, byte-identical to attempt 3 (20260422T234114Z).
+
+- FAIL `landing`: raw col leak unchanged (spy_fwd_21d/63d still in card text).
+- FAIL `hy_ig_v2_spy_methodology`: section=False eli5=0/3 unchanged (dom_len=14138 identical).
+
+**Diagnosis:** the 2nd cache-clear reboot rules out deploy-lag for FAIL 2 — it is a real code defect in Ace's `_render_exploratory_insights` path. Both FAILs need Ace dispatch (not QA). Handoff updated with Re-verify section. Evidence: `temp/20260423T000315Z_cloud_verify/`.
 **QA-CL2:** T1/T2 unchanged from Wave 10G.4F; T3 = N/A per new P2 exception.
 
 Handoff: `results/_cross_agent/handoff_quincy_wave10h1_20260422.md`.
