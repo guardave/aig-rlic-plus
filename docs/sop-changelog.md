@@ -8,6 +8,25 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-04-23 — Wave 10I.A Closure: Legacy Migration + Schema-Drift Backfill Shipped + Pattern 24 Codified
+
+**Final cloud verify (commit `e11dc20`):** 41/41 PASS. 6 legacy hand-written pages (`indpro_spy`, `permit_spy`, `vix_vix3m_spy`, `sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy`) migrated onto APP-PT1 template. Three layered schema-drift defects resolved: `winner_summary.json` v1.1.0 backfill (Evan `a5952e2`), `interpretation_metadata.json` v1.0.0 backfill (Ray `8fc4270`), consumer defensive coerce (Ace `5f2e50d` + `ccb0d5f`, activated by Lead's Cloud reboot after reverify #2 diagnosed staleness).
+
+**Pattern 24 codified** (pending write into `qa-agent-sop.md`): *when cloud traceback line-number disagrees with HEAD source at that line (e.g., traceback points at a line that is a comment at HEAD), suspect stale Cloud deploy before further code patches — escalate to Lead for manual reboot.* Direct analog of Pattern 22/23 but for deploy-layer staleness rather than DOM-traversal artifacts.
+
+**Schema version bumps shipped:**
+- `docs/schemas/winner_summary.schema.json` 1.0.0 → 1.1.0 (`threshold_value` null-tolerant). 6 legacy pairs backfilled to v1.1.0 shape.
+- `docs/schemas/interpretation_metadata.schema.json` — no schema change; 6 legacy pairs backfilled to v1.0.0 shape.
+
+**What agents need to know going forward:**
+- Any future legacy-page migration MUST run strict `jsonschema.validate` against ALL pair artifacts (not just `winner_summary.json`) before cloud verify. Producer-side drift beyond the one visible consumer path is the norm, not the exception, for pre-template pairs. Tracked as proposed `BL-LEGACY-MIGRATION-AUDIT-GATE`.
+- Artifact-only commits (results/*.json) may not trigger Streamlit Cloud auto-redeploy. When a code fix landed but verify shows the pre-fix behavior, diff the cloud traceback line number against HEAD before dispatching more code patches.
+- Consumer-side defensive coerce (APP-SEV1 L2) is only effective when reachable. If an upstream `validate_or_die` gate fails first, the downstream coerce is dead code for that pair. Fix the producer, not the consumer, in that class.
+
+**Git tag:** `wave-10i-a-complete` recommended at `e11dc20`.
+
+---
+
 ## 2026-04-23 — Wave 10I: APP-PR1 Path Resolution Discipline
 
 **Trigger.** Opening a hygiene wave (Cluster A from backlog review) to address the central silent-regression class: legacy hand-written pages that bypass `render_*_page()` templates. Before beginning the legacy-page migration (BL-APP-PT1-LEGACY + BL-APP-PT1-UMCSENT + Sample Strategy decommission), codify APP-PR1 so all migrated pages ship compliant with the path-resolution discipline from day one.

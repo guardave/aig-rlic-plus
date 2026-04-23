@@ -559,3 +559,14 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 - Scope discipline: no data files, no `app/components/*`, no producer code. Legacy data-shape deep fix stays on `BL-THRESHOLD-VALUE-SCHEMA`.
 - Backlog additions proposed in handoff: BL-LEGACY-WINNER-SUMMARY-SHAPE (6 legacy pairs missing 7+ required fields), BL-WINNER-SUMMARY-ADDL-PROPS, BL-WIN-RATE-NULL.
 - Handoff: `results/_cross_agent/handoff_evan_wave10i_schema_20260423.md`.
+
+---
+
+## 2026-04-23 — Wave 10I.A CLOSURE [Lead] — 41/41 PASS, legacy migration SHIPPED
+
+- Final cloud verify `e11dc20`: **41/41 PASS**. All 6 legacy pairs (`indpro_spy`, `permit_spy`, `vix_vix3m_spy`, `sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy`) now route via APP-PT1 template across all 4 pages. Regression gate intact.
+- Three layered schema-drift defects resolved in sequence: Evan `winner_summary.json` v1.1.0 backfill (`a5952e2`) → Ray `interpretation_metadata.json` v1.0.0 backfill (`8fc4270`) → Ace defensive coerce (`5f2e50d`+`ccb0d5f`, activated by Lead Cloud reboot after Quincy diagnosed stale-bundle at reverify #2).
+- Closure commit: relnotes + sop-changelog entries. Pattern 24 (traceback-vs-HEAD line diff → suspect stale deploy) codified.
+- Backlog opened: BL-LEGACY-MIGRATION-AUDIT-GATE, BL-CLOUD-REDEPLOY-TRIGGER, BL-OOS-SPLIT-LEGACY, BL-SIGNAL-COLUMN-RECONCILE.
+- LEAD-DL1 held: zero Lead writes to agent-owned files across the wave. Every fix landed via the responsible agent.
+- Next: Wave 10I.B — Sample (`hy_ig_v2_spy`) Strategy page decommission onto APP-PT1 template.
