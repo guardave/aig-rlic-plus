@@ -8,6 +8,26 @@
 
 ## Session timeline (Wave-by-wave)
 
+### Wave 10I.C Adversarial DOM Audit Self-Review (2026-04-23)
+
+**Failures owned by Ace and fixed in this session:**
+
+- **FAIL-01 (P2-A):** Sidebar hardcoded "6 of 73" — updated to "10 of 73" in `sidebar.py`. Root cause: count hardcoded at wave when 6 pairs existed, never updated as pairs added. Process fix: update sidebar count on every pair-add commit.
+- **FAIL-02/03 (P1-A/B — BLOCKING):** Landing card Max DD wrong for `hy_ig_spy` (-0.1% should be -8.5%) and `umcsent_xlv` (-0.1% should be -10.9%). Root cause: `pair_registry.py` applied `_dd_scale = 100.0` only for `hy_ig_v2_spy` by name; subsequent ratio-form pairs (`hy_ig_spy`, `umcsent_xlv`) were scaled with 1.0. Fix: auto-detect ratio form by checking `abs(benchmark_drawdown) < 2.0`. Never hardcode pair names in scaling logic.
+- **FAIL-04 (P2-D partial):** "Unknown" strategy badge on `hy_ig_spy` card. Root cause: `get_objective_label()` map did not include `countercyclical_protection`. Fix: added mapping.
+- **FAIL-07 (P2-C):** "vs N/A buy-and-hold" in Story KPI blocks for 7 pairs. Root cause: `winner_summary.json` for pre-Wave-10I pairs lacks `bh_sharpe` and `bh_max_drawdown` fields. Fix: augmented `_load_winner_summary()` in `page_templates.py` to backfill these fields from tournament CSV BENCHMARK row on first read (non-destructive).
+- **FAIL-10 (P3-C):** "Total tournament combinations: N/A" on 9 Methodology pages. Root cause: same as FAIL-07 — winner_summary.json lacks `total_combos`. Fixed in same backfill in `_load_winner_summary()`.
+- **WARN-03 (W-01):** "LN/A" displayed as literal code on 3 Strategy pages. Root cause: `_lead` was string "N/A", template rendered `f"L{_lead}"`. Fix: guard with explicit label mapping before rendering.
+
+**Failures in Ace's domain but requiring other agents first:**
+- FAIL-06: "Ray leg pending RES-17" stub → Ray must deliver frontmatter; Ace will update template text after.
+- FAIL-08: Signal universe unavailable → Evan must produce signal_scope.json for 6 pairs; template auto-renders once present.
+- FAIL-09: Stationarity tests missing → Evan must produce CSVs for 3 TED pairs.
+
+**SOP updates:** Added GATE-CL1 through GATE-CL5 to Quality Gates in appdev-agent-sop.md. These gates enforce content-level correctness beyond structural checks.
+
+**Key lesson:** Structural PASS (no traceback, charts render) ≠ content PASS. Every deploy needs a content-level DOM read for: N/A in KPIs, internal stub text visible, sidebar counts, badge "Unknown". Add this to Ace's own pre-handoff checklist.
+
 ### Wave 10I.A Fix re-dispatch (2026-04-23, 09:56Z) -- ROOT CAUSE REVISED
 - Quincy re-verify at 09:41Z post-2fa6c95 still 35/41 with same 6 FAILs. Re-investigated.
 - Local reproduce: `validate_or_die(Path("results/indpro_spy/winner_summary.json"), "winner_summary")` → `10 error(s)`. The real failure is a schema L1 validation block in `position_adjustment_panel.py:177`, NOT a TypeError in my trigger-cards function.

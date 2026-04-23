@@ -28,7 +28,13 @@ def get_type_label(type_: str) -> str:
 
 
 def get_objective_label(objective: str) -> str:
-    return {"min_mdd": "Min MDD", "max_sharpe": "Max Sharpe", "max_return": "Max Return"}.get(objective, "Unknown")
+    return {
+        "min_mdd": "Min MDD",
+        "max_sharpe": "Max Sharpe",
+        "max_return": "Max Return",
+        "countercyclical_protection": "Counter-cyclical",
+        "risk_reduction": "Risk Reduction",
+    }.get(objective, "Unknown")
 
 
 # APP-RL1 extension: friendly-label map for raw forward-return column names
@@ -157,14 +163,21 @@ def load_pair_registry():
                 tdf = pd.read_csv(tourn_path)
                 total_count = len(tdf)
                 valid_count = int(tdf["valid"].sum())
-                # META-UC (Wave 8B-2): hy_ig_v2_spy's tournament CSV was
-                # migrated to ratio form in Wave 8B-1 (Evan). Other pairs
-                # still use percent-form CSVs (tracked BL-002). Normalize to
-                # percent form here so the downstream `pair["max_drawdown"]`
-                # contract remains uniform across all pairs, and app/app.py
-                # display sites (lines 272/273) can keep their existing
-                # `f"{val:.1f}%"` formatter unchanged.
-                _dd_scale = 100.0 if pair_dir == "hy_ig_v2_spy" else 1.0
+                # META-UC (Wave 8B-2 / Wave 10I.C fix): Detect ratio vs
+                # percent form by inspecting the benchmark drawdown value.
+                # Ratio form: abs(max_drawdown) < 2 (e.g. -0.337).
+                # Percent form: abs(max_drawdown) >= 2 (e.g. -33.7).
+                # hy_ig_v2_spy was the first ratio-form pair; subsequent
+                # pairs (hy_ig_spy, umcsent_xlv) also use ratio form.
+                # Hardcoding pair names is fragile — auto-detect instead.
+                _bh_sample = tdf[tdf["signal"] == "BENCHMARK"]
+                if len(_bh_sample) > 0:
+                    _sample_dd = abs(float(_bh_sample.iloc[0]["max_drawdown"]))
+                    _dd_scale = 100.0 if _sample_dd < 2.0 else 1.0
+                else:
+                    # Fallback: infer from strategy rows
+                    _all_dd = tdf["max_drawdown"].dropna()
+                    _dd_scale = 100.0 if (len(_all_dd) > 0 and abs(_all_dd.iloc[0]) < 2.0) else 1.0
                 valid_strats = tdf[tdf["valid"] & (tdf["signal"] != "BENCHMARK")]
                 if len(valid_strats) > 0:
                     best_row = valid_strats.loc[valid_strats["oos_sharpe"].idxmax()]

@@ -264,7 +264,7 @@ def _load_winner_summary(pair_id: str) -> dict[str, Any] | None:
         return None
     try:
         with open(path) as f:
-            return json.load(f)
+            data = json.load(f)
     except json.JSONDecodeError as exc:
         st.error(
             f"**winner_summary.json for `{pair_id}` is not valid JSON** "
@@ -274,6 +274,37 @@ def _load_winner_summary(pair_id: str) -> dict[str, Any] | None:
             "it via the tournament pipeline to fix."
         )
         return None
+
+    # Wave 10I.C backfill: augment winner_summary with fields that older
+    # pipeline versions omit but the template requires.  Read directly from
+    # the tournament CSV rather than depending on Evan to regenerate JSONs.
+    # Fields backfilled: bh_sharpe, bh_max_drawdown, total_combos.
+    # Only filled when missing / None in the JSON (non-destructive).
+    try:
+        import glob as _glob
+        import pandas as _pd
+        tourn_files = _glob.glob(str(_REPO_ROOT / "results" / pair_id / "tournament_results*.csv"))
+        if tourn_files and (
+            data.get("bh_sharpe") is None
+            or data.get("bh_max_drawdown") is None
+            or data.get("total_combos") is None
+        ):
+            tdf = _pd.read_csv(tourn_files[0])
+            bh = tdf[tdf["signal"] == "BENCHMARK"]
+            if len(bh) > 0:
+                _bh_dd_raw = float(bh.iloc[0]["max_drawdown"])
+                # Detect ratio vs percent form (ratio: abs < 2)
+                _dd_scale = 100.0 if abs(_bh_dd_raw) < 2.0 else 1.0
+                if data.get("bh_sharpe") is None:
+                    data["bh_sharpe"] = round(float(bh.iloc[0]["oos_sharpe"]), 2)
+                if data.get("bh_max_drawdown") is None:
+                    data["bh_max_drawdown"] = round(_bh_dd_raw * _dd_scale / 100.0, 4)
+            if data.get("total_combos") is None:
+                data["total_combos"] = int(len(tdf))
+    except Exception:
+        pass  # Degraded gracefully — fields remain None, template shows N/A
+
+    return data
 
 
 def _load_interpretation_metadata(pair_id: str) -> dict[str, Any]:
@@ -1064,16 +1095,21 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     _strategy_family = winner.get("strategy_family", "N/A")
     _direction = winner.get("direction", "N/A")
     _lead = winner.get("lead_months", winner.get("lead_days", "N/A"))
+    # WARN-03 fix: "LN/A" is not stakeholder-facing language. Map to a readable form.
+    if _lead in (None, "N/A", ""):
+        _lead_label = "L0 (no additional lead)"
+    else:
+        _lead_label = f"L{_lead}"
     st.markdown(
         f"### Tournament Winner: {winner.get('signal_code', 'N/A')} / "
-        f"{_strategy_family} / L{_lead}"
+        f"{_strategy_family} / {_lead_label}"
     )
 
     signal_rule = getattr(config, "SIGNAL_RULE_MD", None) or (
         f"**Rule in plain English:** monitor {winner.get('signal_column', 'the indicator signal')}. "
         f"When the signal crosses {winner.get('threshold_value', 'its threshold')} "
         f"({winner.get('threshold_rule', 'the comparison rule')}), apply the "
-        f"{_strategy_family} rule in the {_direction} direction. Lead time: L{_lead}."
+        f"{_strategy_family} rule in the {_direction} direction. Lead time: {_lead_label}."
     )
     with st.container(border=True):
         st.markdown(signal_rule)

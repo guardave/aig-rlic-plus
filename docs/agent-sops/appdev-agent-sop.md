@@ -1006,6 +1006,11 @@ Before handing off:
 - [ ] "Differs From" notes display when same indicator has different directions for different targets
 - [ ] Data staleness warnings display when `_latest` data exceeds 2x expected refresh frequency
 - [ ] For multi-pair portals: pair selector and navigation work correctly; cross-pair comparison pages load
+- [ ] **GATE-CL1 — Content-level DOM audit (Wave 10I.C, 2026-04-23).** Structural checks (no traceback, charts render, breadcrumbs present) are necessary but not sufficient. After every deploy, read the DOM text of every page and check: (a) no "N/A" in any KPI slot that should carry a number; (b) no internal development stub text visible (e.g., "pending migration", "Ray leg pending", "unavailable for pair"); (c) sidebar pair count matches portal actual pair count; (d) no APP-SEV1 L1 banners on production pages. Structural-PASS + content-FAIL is still a FAIL.
+- [ ] **GATE-CL2 — Sidebar pair count is dynamic or manually kept current.** `sidebar.py` must display the number of pairs actually shown on the landing page. Hardcoded counts are a gate failure if they do not match reality. Fix: read from `pair_registry.py` or update manually on every pair add/remove commit.
+- [ ] **GATE-CL3 — B&H KPIs are present on all Story pages.** Every Story page key metrics block must show "vs X buy-and-hold" — never "vs N/A". Source: tournament CSV BENCHMARK row. If `winner_summary.json` is missing these fields, the template must backfill from tournament CSV.
+- [ ] **GATE-CL4 — Total tournament combinations is present on all Methodology pages.** Must not display "N/A". Source: tournament CSV row count or `winner_summary.json.total_combos`. Backfill from CSV if JSON field absent.
+- [ ] **GATE-CL5 — All landing card badges display meaningful text.** No "Unknown" visible to a stakeholder unless the underlying data is genuinely ambiguous. `get_objective_label()` and `get_type_label()` must map every value produced by the pipeline; unmapped values trigger an integrity alert, not silent "Unknown".
 
 ### Defense 1: Self-Describing Artifacts (Producer Rule)
 
