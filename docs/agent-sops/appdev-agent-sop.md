@@ -1152,6 +1152,73 @@ Ace reads this key at Methodology page load. If `analyst_suggestions.json` does 
 
 **Cross-references:** VIZ-O1 (disposition mandate — `"suggested"` disposition routes here), VIZ-E1 (sidecar spec — `narrative_alignment_note` and `vera_rationale` fields), APP-SEV1 (severity for missing chart artifacts), META-ELI5 (ELI5 requirement on all user-facing explanatory text).
 
+### Rule APP-TL1 — Trade Log Rendering Contract (added 2026-04-23, Wave 10H.2)
+
+**Why this rule exists.** The Strategy page's "Trading History" section on template-based pairs regressed relative to the Sample pair (`hy_ig_v2_spy`). Sample is a hand-written legacy page that ships a rich block — simulated-vs-real disclosure, two-file explanation, column glossary, concrete example, dual downloads (broker-style + researcher position log), always-visible preview. The APP-PT1 template was extracted from an *earlier* Sample and renders only a single-file `st.download_button` with no prose, so every pair built on the template (`hy_ig_spy`, `indpro_xlp`, `umcsent_xlv`) inherits the regressed view. Mirror of `BL-APP-PT1-LEGACY`: reference implementation richer than template. This rule elevates the Sample trade-log block to the template contract so new pairs match quality by default. Full discovery report: `results/_cross_agent/ace_discovery_trade_log_20260423.md` (Ace, commit `3d6f096`).
+
+**Binding.** `render_strategy_page()` in `app/components/page_templates.py` MUST invoke a single helper `_render_trade_log_block(pair_id, config)` that produces the full Trading History block per the spec below. The helper reads two CSV artifacts and renders a fixed narrative scaffold, dual downloads, preview, and APP-SEV1-aligned fallbacks. The current inline single-download block (prior `render_strategy_page` body around the Performance tab's trade log area) is replaced by the helper call.
+
+**Required data artifacts (Evan-produced, Dana schema):**
+
+| File | Schema (columns) |
+|---|---|
+| `results/{pair_id}/winner_trades_broker_style.csv` (primary, user-facing; header carries `# ...` comments — read with `pd.read_csv(path, comment="#")`) | `trade_date, side, instrument, quantity_pct, price, notional_usd, commission_bps, commission_usd, cum_pnl_pct, reason` |
+| `results/{pair_id}/winner_trade_log.csv` (secondary, researcher) | existing position-log schema — one row per position-weight change |
+
+**Required render structure (fixed order, no reordering permitted):**
+
+1. **`### How to Read the Trade Log` heading** (template canonical).
+2. **Simulated-vs-real disclosure paragraph** (template canonical default): explicit "These are simulated trades from a backtest, not actual broker executions" language. Compliance-critical; do not make pair-specific.
+3. **Two-file model explanation** (template canonical default): plain-English contrast between broker-style (one row per trade) and researcher position log (one row per position-weight change).
+4. **`Key columns in the broker-style log:` bulleted glossary** (template canonical default): each of the 10 canonical columns with plain-English meaning.
+5. **Pair-specific concrete example** (bordered `st.container(border=True)` block): pulled from `config.TRADE_LOG_EXAMPLE_MD` on the pair's `StrategyConfig` object — **Ray-authored**, not Ace-written. Must reference an actual crisis episode or regime change from the pair's OOS period, with specific signal values, before/after position weights, and (where applicable) a source-row pointer. When the config anchor is absent, render an APP-SEV1 L3 `st.caption(...)` coda noting the example is missing and continue.
+6. **`#### Download Trading History` sub-heading.**
+7. **"How to read this chart" expander** (canonical copy in template) containing a 10-row markdown table: Column / Type / Meaning / Example. Pair configs MAY override example values via an optional `config.TRADE_LOG_COLUMN_EXAMPLES` dict (Ray-scoped) when schema differs; default example values live in the template.
+8. **Two-column download layout:**
+   - **Left**: primary-styled `st.download_button("Download trade log (broker-style)", type="primary")` reading `winner_trades_broker_style.csv`, caption `"{N} executions, one row per trade"`.
+   - **Right**: secondary `st.download_button("Download position log (researcher)")` reading `winner_trade_log.csv`, caption `"{N} position-weight change rows"`.
+9. **Always-visible preview:** first 10 rows of the broker-style log (not behind an expander), followed by `st.caption(...)` explaining that each row is a scale-up / scale-down execution.
+
+**Config anchors added to `StrategyConfig` (APP-PT1 supplement):**
+
+| Attribute | Required? | Owner | Purpose |
+|---|:-:|---|---|
+| `TRADE_LOG_EXAMPLE_MD: str` | Yes | **Ray** (narrative) | Pair-specific concrete example markdown (step 5 above). If omitted, L3 caption-coda noting absence. |
+| `TRADE_LOG_COLUMN_EXAMPLES: dict[str, str]` | No | **Ray** (narrative) | Override example values in the column-dictionary expander when pair's schema example values differ meaningfully. |
+
+Narrative defaults for steps 2, 3, 4 (disclosure, two-file model, column glossary) live as canonical constants in `page_templates.py`, **authored by Ray**, referenced by Ace's helper. Ace does NOT write the narrative prose; Ace wires the structure.
+
+**APP-SEV1 severity alignment for missing / malformed CSVs:**
+
+| Condition | Severity | Behaviour |
+|---|---|---|
+| Both CSVs missing | **L1** (`st.error` + short-circuit) | Trading History block does NOT render; Strategy page continues to the next tab/section |
+| Broker-style missing, position log present | **L2** (`st.info` + degraded render) | Plain-English info banner explains the gap; right-side position-log download pane renders alone |
+| Broker-style present, position log missing | **L2** (`st.info` + degraded render) | Left-side broker pane renders; info banner explains position-log absence |
+| Either CSV present but unreadable / malformed (parse exception) | **L2** (`st.warning`) | Warning with exception class; healthy pane renders; broken pane suppressed |
+| `TRADE_LOG_EXAMPLE_MD` absent on config | **L3** (`st.caption` coda) | Block continues; caption notes missing example and suggests pair config update |
+
+**Ownership split (LEAD-DL1 shared-file compliance):**
+
+| Layer | Owner | File(s) |
+|---|---|---|
+| Structure: `_render_trade_log_block` helper, section order, widget layout, dual downloads, preview, severity branching | **Ace** | `app/components/page_templates.py` |
+| Narrative canonical defaults (steps 2, 3, 4) | **Ray** | `app/components/page_templates.py` (constants near top of module) |
+| Pair-specific concrete example (`TRADE_LOG_EXAMPLE_MD`) | **Ray** | `app/pair_configs/{pair_id}_config.py` |
+| Broker-style CSV production | **Evan** (pipeline), **Dana** (schema doc) | `scripts/pair_pipeline_{pair_id}.py`, `data/data_dictionary_*.csv` |
+| QA gate | **Quincy** | `docs/agent-sops/qa-agent-sop.md` cloud-visual-smoke checklist |
+
+**Migration protocol (retro-apply to 3 existing template-based pairs):**
+
+1. **Ace: template upgrade.** Implement `_render_trade_log_block` + wire into `render_strategy_page`. Add config anchors to `StrategyConfig`.
+2. **Ray: narrative canon + per-pair examples.** Author canonical defaults for steps 2–4 in the template. Add `TRADE_LOG_EXAMPLE_MD` to `hy_ig_spy_config.py`, `indpro_xlp_config.py`, `umcsent_xlv_config.py`.
+3. **Evan / Dana: data backfill.** Produce `winner_trades_broker_style.csv` for `indpro_xlp` and `umcsent_xlv` (hy_ig_spy already has it). Update schemas.
+4. **Quincy: cloud verify.** New checklist item: "Strategy page Trading History block renders `### How to Read the Trade Log` heading, five narrative elements in order, both download buttons, preview dataframe, row-count captions."
+5. **Sample decommission (follow-on, NOT first-land scope).** Once template parity is proven on all three template pairs, migrate `hy_ig_v2_spy` from its legacy Strategy page to the template + rich config. Tracked separately, bundles with `BL-APP-PT1-LEGACY`.
+6. **Legacy pair audit (follow-on).** Separately audit legacy Strategy pages on `indpro_spy`, `permit_spy`, `vix_vix3m_spy`, TED variants for trade-log parity with the rule; log deltas as individual backlog items.
+
+**Cross-references:** APP-PT1 (template abstraction this rule extends), APP-SEV1 (severity for missing artifacts), APP-EX1 (expander title canonical registry — "How to read this chart" reuses that vocabulary), META-UC (schema-versioned broker-style header comments), META-ELI5 (plain-English disclosure and glossary requirement), BL-APP-PT1-LEGACY (sibling gap — Sample's rich Strategy page; Sample decommission is the follow-on).
+
 ### Rule APP-RL1 — Single-Source Routing / Label Maps (No Duplicates Across Modules)
 
 **Added 2026-04-22 (Wave 10G.5 post-cloud-verify).** Closes a real bug where the page-link routing dict was duplicated between `app/components/pair_registry.py::load_pair_registry()` and `app/components/page_templates.py::_page_prefix()`. When `hy_ig_spy` was added in Wave 10G.4E, only the `pair_registry.py` entry was updated; the template's duplicate kept stale content and `st.page_link` raised `StreamlitPageNotFoundError` on cloud. Local `smoke_loader` never exercises `st.page_link` resolution, so the bug shipped past all gates.

@@ -8,6 +8,22 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-04-23 — Wave 10H.2: APP-TL1 Trade Log Rendering Contract
+
+**Trigger.** User surfaced a regression after Wave 10H.1 shipped: the newly-rebuilt `hy_ig_spy` (on APP-PT1 template) has a "Download Trading History" section less rich than Sample (`hy_ig_v2_spy`, hand-written legacy). Sample has dual downloads (broker-style + researcher position log), multi-paragraph narrative scaffold, column glossary, concrete example, always-visible preview. Template has a single generic `st.download_button` with no prose. Every template-based pair inherited the regressed view. Direct mirror of `BL-APP-PT1-LEGACY`: reference richer than template.
+
+**Discovery dispatch (Ace, commit `3d6f096`):** full delta report at `results/_cross_agent/ace_discovery_trade_log_20260423.md`. Blast radius: 3 template-based pairs (`hy_ig_spy` — pure renderer gap; `indpro_xlp`, `umcsent_xlv` — renderer + data gap, broker-style CSV missing). Sample itself retains richer legacy page.
+
+**Rule added:**
+
+- **`docs/agent-sops/appdev-agent-sop.md` — APP-TL1 Trade Log Rendering Contract.** Binding: `render_strategy_page()` MUST invoke `_render_trade_log_block(pair_id, config)` helper producing the full Trading History block — dual CSV artifacts (`winner_trades_broker_style.csv` primary + `winner_trade_log.csv` secondary), fixed 5-element narrative scaffold (heading, simulated-vs-real disclosure, two-file model, column glossary, pair-specific example), column-dictionary expander, two-column download layout (primary broker + secondary researcher), always-visible 10-row preview with captions. APP-SEV1 alignment: both missing = L1 short-circuit; one missing = L2 degraded render; malformed = L2 warning + healthy-pane render; missing pair-specific example = L3 caption coda. Ownership: Ace (structure), Ray (narrative defaults + pair example via `TRADE_LOG_EXAMPLE_MD` config anchor), Evan (broker-style CSV production), Dana (schema), Quincy (QA gate). Migration: 6-step protocol; first land scope = 3 template pairs + template upgrade + narrative canon + data backfill + QA verify. Sample decommission + legacy-pair audit deferred as follow-ons.
+
+**What changes for agents going forward.** Every new pair from Wave 10H.2 onward ships with APP-TL1-compliant Strategy page by default via the template. Existing template-based pairs (`hy_ig_spy`, `indpro_xlp`, `umcsent_xlv`) retro-apply in this wave. Pair configs gain `TRADE_LOG_EXAMPLE_MD` as a required narrative anchor.
+
+**Open scope (retro-apply, dispatched Wave 10H.2):** Ace template structure + Ray narrative + Evan data + Quincy verify.
+
+---
+
 ## 2026-04-23 — Wave 10H.1 Closure: Chart Governance Framework Shipped End-to-End
 
 **Scope.** No new rules this entry — this records the implementation closure of the rules shipped in Wave 10H (paper SOPs) and Wave 10H.0 (Lead discipline). Purpose: tell future agents the framework is now live.
