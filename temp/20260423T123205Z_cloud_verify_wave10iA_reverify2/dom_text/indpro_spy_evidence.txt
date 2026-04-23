@@ -1,0 +1,141 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+What this shows: ← you are here.
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Evidence: What the Data Shows
+
+We tested the IP-equity relationship with nine econometric methods across 35 years of data. Six method blocks are foregrounded here — correlation, CCF, Granger, local projections, quantile regression, and a Random Forest importance ranking. Markov-Switching, cointegration and PELT change-point results are archived in results/indpro_spy/core_models_20260314/.
+
+Each method follows the same 8-part structure: what the method is, the question it answers, how to read the chart, what we observe, deeper technical detail, economic interpretation, and the key message. Read in order for the full picture, or skip to the Key message lines for a quick summary.
+
+Evidence is organized in two tiers. Level 1 covers basic statistical relationships. Level 2 adds regime analysis, tail risk, nonlinear dependence, or other advanced techniques.
+
+Level 1 — Basic Analysis
+
+Level 2 — Advanced Analysis
+
+Correlation
+
+Cross-Correlation (CCF)
+
+Granger Causality
+
+Correlation Analysis
+
+Pearson correlations measure the linear co-movement between eight INDPRO signal variants (level, YoY, MoM, z-score, 3M/6M momentum, acceleration, contraction dummy) and SPY forward returns at 1M, 3M, 6M and 12M horizons. Spearman rank correlations are run as a robustness check.
+
+Which INDPRO transforms correlate most strongly with forward SPY returns, and at which horizon?
+
+How to read it: Rows are IP signal variants; columns are forward SPY return horizons. Warm colours = positive (pro-cyclical); cool colours = negative. Stars mark conventional significance levels.
+
+-0.002
+0.045
+0.026
+0.016
+-0.037
+-0.071
+-0.076
+0.039
+0.052
+0.035
+0.014
+-0.057
+0.067
+0.047
+0.074
+0.026
+0.043
+0.034
+0.045
+-0.016
+0.070
+0.053
+0.033
+-0.030
+0.030
+0.019
+0.013
+-0.050
+-0.022
+-0.071
+-0.108
+-0.144
+1M
+3M
+6M
+12M
+IP accel
+IP contraction
+IP dev_trend
+IP mom
+IP mom_3m
+IP mom_6m
+IP yoy
+IP zscore_60m
+−0.2
+−0.1
+0
+0.1
+0.2
+Pearson Correlation: IP Signals → SPY Forward Returns
+Forward Return Horizon
+Signal
+
+Pearson correlations between 8 IP signal variants and 4 forward return horizons. Warm colours = positive (pro-cyclical), cool colours = negative. Note the z-score's negative correlation at 12M — the peak-cycle effect.
+
+What this shows: Momentum transforms (3M, 6M, MoM) show the strongest positive correlations at 3-6 month forward horizons. The z-score flips sign at the 12-month horizon — the peak-cycle effect surfaced in the Story page. Raw levels correlate weakly because INDPRO is non-stationary.
+
+Why this matters: The dominant signal is direction of change, not level. The z-score's 12-month sign flip is a warning that stationary-looking transforms can still carry counter-intuitive information at longer horizons — a reminder that blind automation of 'higher is better' heuristics can destroy alpha.
+
+Key message: Momentum is the winning transform; levels and z-scores can mislead at longer horizons. The tournament will formalise this.
+
+The Combinatorial Tournament
+
+With the econometric case established, we swept a 5-dimensional tournament over 9 signal transforms, 6 threshold methods, 3 strategy families, 5 lead times, and 3 lookback windows — ~8,100 raw specifications pruned to 1,666 valid combinations. The winning specification is on the Strategy page.
+
+What this shows: tournament results at results/indpro_spy/tournament_results_20260314.csv.
+
+The statistical evidence confirms a real but nuanced IP-equity relationship. The practical question is whether investors can use IP signals to improve risk-adjusted outcomes — the next page shows the winning rule and its full performance profile.
+
+🎯
+
+Continue to The Strategy
+
+What this shows: generated with AIG-RLIC+ | Pair: indpro_spy.

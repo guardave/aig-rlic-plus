@@ -1,0 +1,129 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+
+📐 Methodology
+
+What this shows: direction triangulation (APP-DIR1, 2-way) — Evan and Dana agree on procyclical. Ray leg pending RES-17 frontmatter migration.
+
+keyboard_arrow_right
+
+Plain English
+
+The Strategy: Translating Permit Signals into SPY Positioning
+
+We tested hundreds of strategy combinations to find the most robust way to time SPY exposure using Building Permits.
+
+Tournament Winner: S3_mom / P3_long_short / LN/A
+
+Tournament winner: Signal S3_mom (1-month momentum) / Threshold T1_p25 (25th percentile, fixed in-sample) / Strategy P3_long_short (Long/Short) / Lead 6 months.
+
+When the month-over-month change in Building Permits is above its historical 25th percentile (i.e., not deeply negative), go long SPY. When permits momentum falls below the 25th percentile (sharp decline), go short. Apply the signal with a 6-month lead to exploit permits' role as a leading indicator.
+
+How the Signal is Generated
+Pull PERMIT. FRED series PERMIT, monthly SAAR. Released ~2-3 weeks after the reference month.
+Compute MoM momentum. mom_t = permit_t / permit_{t-1} - 1.
+Fix the threshold once, in-sample. Take the 25th percentile of MoM momentum from 1990-01 to 2017-12 and keep that number as the threshold for the entire OOS period.
+Apply the 6-month lead. Today's position uses the MoM reading from 6 months ago.
+Translate to position. If the 6-month-lagged MoM is above the fixed 25th-percentile threshold → long SPY (+1). Otherwise → short SPY (-1). Rebalance monthly.
+
+OOS Sharpe
+
+1.45
+
+OOS Return
+
++22.7%
+
+annualized
+
+Max Drawdown
+
+-19.4%
+
+Turnover
+
+~9.1/yr
+
+Win Rate
+
+N/A
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal code: S3_mom
+
+Signal column: permit_mom1m
+
+Threshold: gt None
+
+Strategy family: P3_long_short
+
+Direction: procyclical
+
+Lead time: LN/A
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+Probability engine panel cannot render: No signals_*.parquet under /mount/src/aig-rlic-plus/results/permit_spy
+
+Plain English: the model needs a history of indicator values to draw the time-series chart, but we can't find that file on disk. This prevents the probability panel from rendering.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+Position exposure cannot be derived without valid signal values. See diagnostic above.
+
+Plain English: the Probability Engine panel above flagged a data problem with the signal series, so we cannot compute the exposure curve without risking a misleading chart. Fix the signal-data issue first, then this panel will render.
+
+How to Use the Signal — Trigger Scenarios
+TypeError: This app has encountered an error. The original error message is redacted to prevent data leaks. Full error details have been recorded in the logs (if you're on Streamlit Cloud, click on 'Manage app' in the lower right of your app).
+Traceback:
+File "/mount/src/aig-rlic-plus/app/pages/7_permit_spy_strategy.py", line 18, in <module>
+    render_strategy_page("permit_spy", STRATEGY_CONFIG)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/mount/src/aig-rlic-plus/app/components/page_templates.py", line 1136, in render_strategy_page
+    render_instructional_trigger_cards(pair_id)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+File "/mount/src/aig-rlic-plus/app/components/instructional_trigger_cards.py", line 385, in render_instructional_trigger_cards
+    # Wave 10I.A defensive coerce: legacy pairs may carry `threshold_value` as a

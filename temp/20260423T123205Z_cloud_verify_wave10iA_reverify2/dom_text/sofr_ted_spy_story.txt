@@ -1,0 +1,164 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+What this shows: ← you are here.
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Story: SOFR-TED Spread as an Equity Signal
+
+Does the modern (SOFR-based) funding-stress measure predict S&P 500 returns?
+
+SOFR - DTB3 as a post-LIBOR funding-stress signal for SPY — OOS Sharpe vs buy-and-hold
+
+Key metrics (out-of-sample 2015-01–2025-12):
+
+Sharpe ratio: 1.89 (vs N/A buy-and-hold S&P 500)
+Annualized return: +8.2% with risk-adjusted exposure
+Max drawdown: -3.6% (vs N/A buy-and-hold S&P 500)
+Where This Fits in the Portal
+
+This is the modern, pure variant in our three-way TED study. It uses the post-LIBOR benchmark that regulators adopted in 2018, so it captures repo and collateral stress accurately — but only for the short post-2018 window. The two sibling variants (DFF-TED and Spliced TED) trade some purity for a much longer sample period; this one trades sample length for definitional cleanness.
+
+How to read the rest of this page pack. You'll read the Story first (the economic logic), then the Evidence (statistical proofs), then the Strategy (the actual trading rule), then the Methodology (technical appendix). Each page stands alone.
+
+One-Sentence Thesis
+
+High or rising SOFR-TED spreads signal repo-market stress that has historically been followed by softer SPY returns over the next 1–3 weeks.
+
+OOS Sharpe
+
+1.89
+
+OOS Return
+
++8.2%
+
+annualized
+
+Max Drawdown
+
+-3.6%
+
+Signal
+
+spread_roc_63d
+
+N/A
+
+OOS Period
+
+11.0 yrs
+
+2015-01–2025-12
+
+What this shows: Winner strategy KPIs: OOS Sharpe 1.89 on 3 years of out-of-sample data (2023-01 onwards) — strong headline, but confidence intervals are wide given only ~2,000 daily observations.
+
+What Is the TED Spread?
+
+The TED spread measures the gap between what banks pay to borrow short-term cash and the risk-free government rate. When banks trust each other and collateral is plentiful, this gap is small (typically 10–30 basis points). When fear rises — because of credit concerns, liquidity squeezes, or systemic risk — the gap widens, sometimes dramatically.
+
+The classic TED spread used LIBOR (the London Interbank Offered Rate) as the bank-borrowing leg. After the LIBOR manipulation scandal, U.S. regulators replaced it with SOFR (the Secured Overnight Financing Rate) in 2018. Crucially, SOFR and LIBOR are not the same thing:
+
+LIBOR measured unsecured interbank lending — it embedded bank credit risk.
+SOFR measures secured overnight repo backed by Treasury collateral — so it reflects liquidity and collateral-market stress rather than credit risk per se.
+
+For this Variant A surface, we take the purist view: measure today's funding stress with today's benchmark (SOFR), accept the short history, and let the 2018-onwards data speak.
+
+SOFR - 3M T-Bill (2018-2025) vs. S&P 500
+2019
+2020
+2021
+2022
+2023
+2024
+2025
+−1
+0
+1
+2
+3
+200
+300
+400
+500
+600
+700
+SOFR - DTB3
+SPY
+SOFR - DTB3 vs S&P 500
+Spread (%)
+SPY ($)
+
+SOFR minus 3M T-Bill, 2018-2025. Note the extreme spike in March 2020 — COVID-era repo stress — and the more modest widening during the 2022-2023 rate-hiking cycle. Most of the time the spread sits in a narrow band.
+
+What History Shows: SPY Returns by SOFR-TED Stress Regime
+0.48
+1.13
+1.96
+0.14
+Q1_low
+Q2
+Q3
+Q4_high
+0
+0.5
+1
+1.5
+2
+SPY Sharpe by Spread Quartile
+Spread Quartile (Q1=Lowest, Q4=Highest)
+Annualized Sharpe
+
+SPY Sharpe ratios sorted by SOFR-TED quartile. Q1 = calmest funding conditions; Q4 = most stressed. Counter-cyclical pattern: equity risk-adjusted returns are systematically higher in low-stress quartiles.
+
+Caveats Specific to Variant A
+
+The SOFR-DTB3 series has only existed since April 2018, giving roughly 2,000 daily observations and only ~3 years of out-of-sample data after the 2022 in-sample cutoff. That means:
+
+Confidence intervals around the OOS Sharpe are wide. A headline Sharpe of 1.89 is attractive, but the small sample means the true risk-adjusted return could realistically lie anywhere from ~1.0 to ~2.5.
+One regime only. The entire sample is post-LIBOR-transition, post-QE-4, and spans only one Fed hiking cycle. We cannot test how the signal behaves in dot-com or GFC-type stress.
+Structural purity comes at a cost. For a longer-history view, consult the sibling DFF-TED (Variant B) and Spliced TED (Variant C) surfaces.
+
+Scope note. Scope discipline: only SOFR and DTB3 are the in-scope primary signals for this pair. VIX, 10Y yields, and yield-curve slopes appear only as regression controls, never as standalone trading signals.
+
+The regime view suggests a counter-cyclical pattern. The evidence page digs into the econometric detail — correlation structure and local-projection impulse responses — to test whether the pattern survives formal specification.
+🔬
+
+Continue to The Evidence
+
+What this shows: generated with AIG-RLIC+ | Pair: sofr_ted_spy.

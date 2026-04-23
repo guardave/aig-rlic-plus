@@ -1,0 +1,308 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+📖
+
+Story
+
+→
+🔬
+
+Evidence
+
+→
+🎯
+
+Strategy
+
+→
+
+📐 Methodology
+
+What this shows: ← you are here.
+
+keyboard_arrow_right
+
+Plain English
+
+Methodology: Technical Appendix
+
+For the skeptical reader: this section provides the full methodological detail needed to replicate, challenge, or extend our analysis. Every claim in the preceding pages traces back to a specific method, dataset, and diagnostic described here.
+
+keyboard_arrow_right
+
+What do status labels (Available, Pending, Validated, Stale, Draft, Mature, Unknown) mean?
+
+Sample Period
+
+Full Sample
+
+2000-01 to 2025-12
+
+~6,500 daily observations
+
+In-Sample
+
+2000-01 to 2017-12
+
+Model estimation (~4,500 obs)
+
+Out-of-Sample
+
+2018-01 to 2025-12
+
+Strategy evaluation (~2,000 obs)
+
+Why this matters: the 70/30 in-sample/out-of-sample split provides a generous 8-year out-of-sample window that includes multiple distinct market episodes (2018 volatility spike, COVID crash, 2022 rate shock, 2023-25 recovery), preventing the strategy from being validated on only one type of market environment.
+
+Data Sources
+
+All data is sourced from publicly available databases accessible through our MCP server stack:
+
+Category	Source	Series	Frequency
+Credit spreads (in scope)	FRED	BAMLH0A0HYM2 (HY OAS), BAMLC0A0CM (IG OAS)	Daily
+Quality spreads (context only)	FRED	BAMLH0A1HYBB (BB OAS), BAMLH0A3HYC (CCC OAS), BAMLC0A4CBBB (BBB OAS)	Daily
+Equity prices (in scope)	Yahoo Finance	SPY (adjusted close)	Daily
+Volatility (context only)	Yahoo Finance	^VIX, ^VIX3M, ^MOVE	Daily
+Macro variables (context only)	FRED	DGS10, DGS2, DTB3, NFCI, ICSA, DFF, SOFR, STLFSI2	Daily/Weekly
+Cross-asset (context only)	Yahoo Finance	GC=F, HG=F, DX-Y.NYB, HYG, KBE, IWM	Daily
+
+Scope discipline (ECON-SD). Only the in-scope rows above feed the Signal Universe, regressions, and tournament for this pair. The context only rows are pulled by the data pipeline for exploratory correlation work; any predictive signals they generated (e.g., NFCI Momentum, Bank/Small-Cap Ratio, Yield Curve 10Y-3M, BBB-IG Spread, CCC-BB Quality Spread) are logged in Analyst Suggestions for Future Work below and are not part of this pair's analysis. The authoritative in-scope list is the Signal Universe tables rendered from signal_scope.json.
+
+Indicator Construction
+
+The primary indicator is the HY-IG spread: BAMLH0A0HYM2 minus BAMLC0A0CM, measured in basis points. From this raw spread, we derive transformed series including z-scores (252-day and 504-day rolling windows), percentile ranks (504-day and 1260-day), rates of change (21-day, 63-day, 126-day), momentum changes, and acceleration. The authoritative list of in-scope derivatives is rendered from signal_scope.json in the Signal Universe section below. Related quality-spread signals (e.g., CCC-BB) were noted during exploration but are out of scope for this pair — see Analyst Suggestions for Future Work below.
+
+Signal Universe
+
+This section lists every derivative of the HY-IG spread (indicator axis) and of SPY (target axis) that was considered during the analysis. It is the single source of truth for what is in scope for this pair. Anything that is not in these two tables was deliberately excluded from the pair's charts, regressions, and tournament — and is instead logged in the sibling Analyst Suggestions section below.
+
+Indicator derivatives — HY-IG Credit Spread (%)
+
+What this shows: every derivative of the hy_ig_spread_pct indicator column considered in this analysis. Includes raw series, statistical transforms (z-scores, percentile ranks), momentum measures, and regime-state probabilities.
+
+Takeaway: 17 indicator-axis derivatives disclosed. Every derivative is a mathematical transform of the single canonical column hy_ig_spread_pct (ECON-SD scope discipline).
+
+Target derivatives — SPY Adjusted Close
+
+What this shows: every derivative of the spy target column considered in this analysis. Includes the raw price series, simple returns, forward-return horizons, and diagnostic curves (drawdown, equity curve).
+
+Takeaway: 10 target-axis derivatives disclosed. All derived from the single canonical column spy (ECON-SD scope discipline).
+
+Analyst Suggestions for Future Work
+
+During the HY-IG × SPY analysis, the team occasionally observed signals outside this pair's formal scope that looked worth exploring in future work (a different pair, a variant family extension, or a regime overlay). Those observations are captured below — for the record only. They did not influence this pair's winning strategy, and the renderer carries an explicit disclaimer to reinforce the read-only, non-ticket nature of the list.
+
+What this shows: signals the team noticed during this pair's work that are outside the HY-IG × SPY formal scope. Logged here so the observations are not lost; none of them fed into this pair's winning strategy.
+
+These are informational. If any warrant follow-up work, please request explicitly to the team — there is no automated action from this table.
+
+Takeaway: 5 off-scope observations on file for this pair. Each includes the observed metric, the rationale, a possible use case, and honest caveats.
+
+Return Basis and Performance Metrics
+
+All OOS return figures reported on the Story and Strategy pages (e.g. +11.3% annualized) are arithmetic annualized returns — the mean daily return multiplied by 252 trading days. This matches the numerator of the OOS Sharpe ratio (mean divided by standard deviation). Compounded CAGR (geometric annualized return, (1 + total_return)^(1/years) - 1) would be slightly different because it accounts for path dependence and volatility drag; for the winning strategy the CAGR and arithmetic return differ by less than ~50 bps. We report the arithmetic figure throughout for consistency with the Sharpe ratio and tournament leaderboard.
+
+Stationarity Tests
+
+How to read it: ADF — reject null = stationary. KPSS — fail to reject null = stationary.
+
+Econometric Methods
+
+Each method was chosen to answer a specific question about the credit-equity relationship. We used multiple methods deliberately: if a finding holds across techniques with different assumptions, we can be far more confident it is genuine.
+
+Method	Question It Answers	Why We Chose It
+Toda-Yamamoto Granger causality	Does credit lead equity, or vice versa?	Works correctly with non-stationary data (unlike standard Granger), which matters because spread levels contain trends. Augmented VAR, lags selected by BIC + d_max = 1.
+Transfer entropy (Diks-Panchenko)	Is the information flow nonlinear?	Captures threshold effects and asymmetries that linear Granger tests miss — important because the credit-equity link strengthens nonlinearly during stress.
+Local projections (Jorda)	How does a credit shock affect stocks over time?	Does not require specifying the full system dynamics, making it robust to misspecification. h = 1, 5, 10, 21, 42, 63 days; state-dependent versions.
+Markov-switching regression	Are there distinct regimes with different dynamics?	Lets the data find the regime boundaries rather than imposing arbitrary thresholds. 2-state and 3-state.
+Gaussian HMM	What regime is the market in right now?	Jointly models HY-IG changes and VIX to infer the hidden state in real time — powers the winning strategy. 2-state and 3-state.
+Quantile regression	Does credit primarily warn of bad outcomes?	Estimates the effect at different points in the return distribution, confirming the signal is concentrated in the left tail. tau = 0.05 to 0.90.
+GJR-GARCH	Does credit stress increase stock volatility asymmetrically?	Captures the leverage effect while including credit spreads as an external driver. SPY returns with HY-IG exogenous.
+Random Forest + SHAP	Which signal transformations matter most?	Nonlinear, non-parametric check on the linear models. Walk-forward with 1-year test windows prevents lookahead bias.
+Combinatorial tournament	Which strategy actually works out-of-sample?	Systematically tests ~1,000+ combinations on held-out data, then stress-tests the winners. OOS Sharpe ranking.
+Diagnostic Tests
+
+Every model undergoes a battery of diagnostic tests to ensure the results are trustworthy:
+
+Test	What It Checks	Why It Matters
+Jarque-Bera	Whether residuals follow a bell curve (normality)	If not, our confidence intervals may be wrong
+Breusch-Pagan	Whether the scatter of residuals is even (homoskedasticity)	Uneven scatter means some predictions are more reliable than others
+Breusch-Godfrey	Whether residuals are correlated with their own past values (serial correlation)	Correlated residuals inflate our confidence in results
+RESET	Whether the model's functional form is correct (specification)	Catches cases where we should use a curve instead of a straight line
+ADF + KPSS	Whether the data has trends that need to be removed (stationarity)	Using trended data in level regressions produces spurious results
+
+HC3 robust standard errors are reported throughout. We use HC3 rather than conventional standard errors because our forward returns overlap in time — a 63-day return calculated today shares 62 days with tomorrow's 63-day return. Without this correction, we would systematically overstate our confidence in every result. For specifications with longer forecast horizons, we use HAC (Newey-West) standard errors, which additionally correct for the autocorrelation introduced by overlapping windows.
+
+Sensitivity Analysis
+
+To ensure our results are not driven by any single time period or parameter choice, we tested:
+
+Full sample vs. excluding GFC (2007-2009)
+Full sample vs. excluding COVID (2020)
+Pre-2008 vs. post-2008 sub-samples
+Alternative lag structures (BIC, AIC, fixed 5/10/21)
+Alternative threshold levels and methods
+Walk-forward validation with rolling windows
+Reverse Causality Check
+
+All lead-lag and predictive claims include a reverse-causality test: the same model is estimated with SPY leading HY-IG as well as HY-IG leading SPY. Both sets of results are reported side by side. Local projection impulse responses are compared in both directions. The finding of bidirectional causality is documented and its implications discussed — specifically, that the credit-to-equity signal strengthens in stress regimes while the equity-to-credit signal dominates in calm regimes. This bidirectionality is not a problem for our strategy — it is a feature that the regime-switching framework explicitly exploits.
+
+Tournament Design
+Dimension	Values
+Signals	Spread level, z-scores (252d/504d), percentile ranks (504d/1260d), RoC (21d/63d/126d), momentum (21d/63d/252d), acceleration, HMM stress/calm probabilities, Markov-switching stress probability. Authoritative list: see Signal Universe rendered from signal_scope.json.
+Threshold methods (7)	Fixed percentile (IS), rolling percentile, rolling z-score, Bollinger bands, zero-crossing, HMM prob, Markov-switching prob
+Strategies (4)	Long/Cash, Signal-Strength, Long/Short, Inverse-Signal
+Lead times (9)	0, 1, 2, 3, 5, 10, 21, 42, 63 days
+Lookback windows (4)	126d, 252d, 504d, 1260d
+Total grid	~1,000+ after pruning
+Exploratory Insights
+
+The following charts were generated as exploratory findings beyond the standard analytical set. Each captures an angle our team found potentially useful. If you find any of these views valuable and would like them included as a standard view for all pairs, let the team know.
+
+2005
+2010
+2015
+2020
+2025
+16
+14
+12
+10
+8
+6
+4
+2
+100
+200
+300
+400
+500
+600
+700
+HY-IG OAS Spread (bps)
+SPY Price ($)
+Wider Credit Spreads Foreshadow Equity Drawdowns (2000-2025)
+HY-IG OAS Spread (bps)
+SPY Price ($)
+9/11
+Lehman
+US Downgrade
+COVID Low
+2022 Bear
+Source: ICE BofA OAS indices via FRED; SPY via Yahoo Finance. Grey bars = NBER recessions.
+
+What this shows: Two lines on one chart over the last 25 years: how nervous bond investors are about risky companies (left axis) and the US stock market (right axis). When the bond-worry line jumps up, it is usually warning that a stock-market drop is coming or is already underway. Look at 2008 and 2020 — the worry line spiked first and stocks followed. This is the single clearest picture of why we pay attention to credit stress when thinking about equities.
+
+Analytical note: Single-panel dual-axis view lets the reader see credit stress leading equity drawdowns without needing a second chart.
+
+Useful? Let the team know if you'd like this included as a standard view.
+
+2005
+2010
+2015
+2020
+2025
+16
+14
+12
+10
+8
+6
+4
+2
+100
+200
+300
+400
+500
+600
+700
+HY-IG OAS Spread (bps)
+SPY Price ($)
+Wider Credit Spreads Foreshadow Equity Drawdowns (2000-2025)
+HY-IG OAS Spread (bps)
+SPY Price ($)
+9/11
+Lehman
+US Downgrade
+COVID Low
+2022 Bear
+Source: ICE BofA OAS indices via FRED; SPY via Yahoo Finance. Grey bars = NBER recessions.
+
+What this shows: The same bond-worry line as above, but now with real historical events labelled directly on the chart: the dot-com bust, the 2008 Lehman collapse, the 2020 COVID crash, and the 2022 rate shock. Seeing each big worry-spike tied to a named crisis makes the pattern memorable — stress in credit markets is not a statistical curiosity, it is the fingerprint of every major market episode in living memory.
+
+Analytical note: Event-labelled spread history grounds the abstract signal in concrete crises for non-specialist readers.
+
+Useful? Let the team know if you'd like this included as a standard view.
+
+0
+0.2
+0.4
+0.6
+0.8
+1
+1.2
+0
+50
+100
+150
+200
+Winner Ranks in Top 2 of 1969 Valid Strategies
+OOS Sharpe Ratio
+Count
+Winner: 1.27
+B&H: 0.77
+Source: 5D tournament, 2167 total combinations, 1969 pass validity filters.
+
+What this shows: We tested nearly 2,000 different trading rules against the same data. This chart shows how well each one performed, ranked from worst to best. Most rules are mediocre — they cluster in the middle. The strategy we picked sits out at the right-hand edge, in the top 2. The shape of this chart is the honest answer to the question most readers ask: did you get lucky, or is this rule genuinely strong? The tail tells you our winner is unusually good, not a fluke in the middle of the pack.
+
+Analytical note: Distribution view contextualises the winner against the full search space and directly answers the data-mining-risk question.
+
+Useful? Let the team know if you'd like this included as a standard view.
+
+References
+
+Below is the consolidated reference list cited by this narrative. Where an in-text reference uses [AuthorYear] notation (e.g. [Merton1974]), the entry here is the source. The full analysis brief (docs/analysis_brief_hy_ig_v2_spy_20260410.md) carries the extended 25-citation list used during the background scoping phase.
+
+Credit Spread & Equity Research
+[Gilchrist2012] Gilchrist, S. & Zakrajsek, E. (2012). "Credit Spreads and Business Cycle Fluctuations," American Economic Review 102(4), 1692-1720.
+[Merton1974] Merton, R.C. (1974). "On the Pricing of Corporate Debt: The Risk Structure of Interest Rates," Journal of Finance 29(2), 449-470.
+[Merton1973] Merton, R.C. (1973). "Theory of Rational Option Pricing," Bell Journal of Economics & Management Science 4(1), 141-183.
+[Philippon2009] Philippon, T. (2009). "The Bond Market's q," Quarterly Journal of Economics 124(3), 1011-1056.
+[Acharya2007] Acharya, V.V. & Johnson, T.C. (2007). "Insider Trading in Credit Derivatives," Journal of Financial Economics 84(1), 110-141.
+Methodology — Time Series Econometrics
+[Toda1995] Toda, H.Y. & Yamamoto, T. (1995). "Statistical Inference in Vector Autoregressions with Possibly Integrated Processes," Journal of Econometrics 66, 225-250.
+[Jorda2005] Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections," American Economic Review 95(1), 161-182.
+[Koenker1978] Koenker, R. & Bassett, G. (1978). "Regression Quantiles," Econometrica 46(1), 33-50.
+[Koenker2001] Koenker, R. & Hallock, K.F. (2001). "Quantile Regression," Journal of Economic Perspectives 15(4), 143-156.
+[Hamilton1989] Hamilton, J.D. (1989). "A New Approach to the Economic Analysis of Nonstationary Time Series and the Business Cycle," Econometrica 57(2), 357-384.
+[Schreiber2000] Schreiber, T. (2000). "Measuring Information Transfer," Physical Review Letters 85(2), 461-464.
+[Diks2006] Diks, C. & Panchenko, V. (2006). "A new statistic and practical guidelines for nonparametric Granger causality testing," Journal of Economic Dynamics & Control 30, 1647-1669.
+Regime Detection & Risk
+[Guidolin2007] Guidolin, M. & Timmermann, A. (2007). "Asset allocation under multivariate regime switching," Journal of Economic Dynamics & Control 31, 3503-3544.
+[AngTimmermann2012] Ang, A. & Timmermann, A. (2012). "Regime Changes and Financial Markets," Annual Review of Financial Economics 4, 313-337.
+[Adrian2019] Adrian, T., Boyarchenko, N. & Giannone, D. (2019). "Vulnerable Growth," American Economic Review 109(4), 1263-1289.
+HY-IG Specific
+[Chen2007] Chen, L., Lesmond, D.A. & Wei, J. (2007). "Corporate Yield Spreads and Bond Liquidity," Journal of Finance 62(1), 119-149.
+
+What this shows: the full analysis brief (docs/analysis_brief_hy_ig_v2_spy_20260410.md) carries the complete list of academic citations.
+
+What this shows: generated with AIG-RLIC+ | Data: 2000-01 to 2025-12 | Analysis Brief: docs/analysis_brief_hy_ig_v2_spy_20260410.md.

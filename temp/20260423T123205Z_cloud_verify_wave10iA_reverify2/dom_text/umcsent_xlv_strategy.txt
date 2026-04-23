@@ -1,0 +1,184 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+
+📐 Methodology
+
+What this shows: direction triangulation (APP-DIR1, 2-way) — Evan and Dana agree on procyclical. Ray leg pending RES-17 frontmatter migration.
+
+keyboard_arrow_right
+
+Plain English
+
+The Strategy: Translating Consumer Sentiment Signals into XLV Positioning
+
+We tested over 1,300 strategy combinations to find the most robust way to time healthcare sector (XLV) exposure using consumer sentiment.
+
+Tournament Winner: S2_yoy / P1_long_cash / L6
+
+Tournament winner: Signal UMCSENT YoY change / Threshold zero-crossing (crosses-up) / Strategy P1 Long/Cash / Lead 6 months.
+
+Each month, look at the current UMCSENT reading versus 12 months ago and compute the percentage change. Apply this to what the 12-month change was 6 months ago (the lead). If the 6-month-ago YoY change was positive (sentiment improving) → hold XLV fully. If zero or negative → move to cash. No leverage, no shorting.
+
+How the Signal is Generated
+
+The winning strategy uses UMCSENT Year-over-Year Change with a 6-month lead:
+
+Each month, look at the current UMCSENT reading versus 12 months ago; compute the percentage change.
+Check what this YoY change was 6 months ago (the lead).
+If the 6-month-ago YoY change was positive (sentiment improving): hold XLV (Long/Cash position = 1).
+If the 6-month-ago YoY change was zero or negative (sentiment flat or deteriorating): move to cash (Long/Cash position = 0).
+Update the position at the start of each month.
+
+The 6-month lead means you are acting on information that is 6 months stale — and the strategy still works. This confirms that sentiment anticipates sector dynamics well in advance.
+
+OOS Sharpe
+
+1.02
+
+OOS Return
+
++11.9%
+
+annualized
+
+Max Drawdown
+
+-10.9%
+
+vs -15.6% B&H
+
+Turnover
+
+~2.4/yr
+
+Win Rate
+
+N/A
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal code: S2_yoy
+
+Signal column: umcsent_yoy
+
+Threshold: crosses_up 0.0
+
+Strategy family: P1_long_cash
+
+Direction: procyclical
+
+Lead time: L6
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+Probability engine panel cannot render: Signal umcsent_yoy magnitude unusually large: min=-41.5205, max=38.8350 — expected z-score / level in ~±5 range.
+
+Plain English: the signal data failed one of our sanity checks — it might be the wrong column, outside the expected numeric range, or it never reached its stress threshold during known historical crises. Rendering would mislead you, so the chart is held back until the data is fixed.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+Position exposure cannot be derived without valid signal values. See diagnostic above.
+
+Plain English: the Probability Engine panel above flagged a data problem with the signal series, so we cannot compute the exposure curve without risking a misleading chart. Fix the signal-data issue first, then this panel will render.
+
+How to Use the Signal — Trigger Scenarios
+
+What this shows: Strategy family P2 () · threshold loaded from winner_summary.json = 0 · direction: procyclical.
+
+REDUCE
+
+When S2_yoy rises above 0 → scale XLV exposure down proportionally. At signal = 1.0, exposure = 0%.
+
+HOLD
+
+When S2_yoy lingers near 0 → hold exposure at roughly 100%. The signal-strength rule prevents whipsaw.
+
+BUY
+
+When S2_yoy falls below 0 → scale XLV exposure back up. At signal = 0, exposure = 100%.
+
+How to read it: sparklines are drawn from real history (signals_20260420.parquet column umcsent_yoy) — 2/3 scenarios located; thresholds match the runtime rule. The dashed horizontal line is the decision threshold at which the action in each card fires.
+
+How to Use This Indicator Manually
+
+You do not need software to implement this signal:
+
+1. Retrieve the UMCSENT reading. FRED series: UMCSENT. Published mid-month for the current month. Free at fred.stlouisfed.org.
+
+2. Compute the YoY change. Divide today's reading by the reading from 12 months ago and subtract 1. E.g. UMCSENT = 72.0, 12M ago = 68.0 → YoY = +5.9%.
+
+3. Check what this YoY reading was 6 months ago. Pull the UMCSENT reading from 18 months ago and 6 months ago, compute the YoY for 6 months back: (6M ago / 18M ago − 1).
+
+4. Apply the rule. If that 6M-ago YoY change was positive → hold XLV. If zero or negative → hold cash or short-duration bonds.
+
+5. Rebalance monthly. The signal changes once a month at most. Turnover averages ~2.4 round-trips per year — negligible transaction costs.
+
+Future: Live Execution
+
+Current Signal State
+
+—
+
+Target Position
+
+—
+
+Current Action
+
+—
+
+Caveat: no live_execution_stub.json present yet — values render as — placeholders until a real-time feed is wired.
+
+This dashboard presents historical backtest results. A real-time execution layer would surface the fields above; the values shown are placeholders. Wiring to a live data feed and broker API is deliberately out-of-scope for this research portal (see Methodology).
+
+Plain English: you are looking at the shape of what a live execution panel WOULD display (current signal, target position, current action), with dashes where live numbers will eventually flow in. The portal is a research tool — building out the broker connection is a separate project.
+
+For readers who want to understand exactly how we reached these conclusions — or who want to replicate and extend the analysis — the methodology section provides full details on data, methods, and diagnostics.
+
+📐
+
+Continue to Methodology
+
+What this shows: generated with AIG-RLIC+ | Pair: umcsent_xlv.

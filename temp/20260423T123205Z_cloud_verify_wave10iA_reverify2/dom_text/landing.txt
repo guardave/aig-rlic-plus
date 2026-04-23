@@ -1,0 +1,319 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+AIG-RLIC+ Research Portal
+Indicator-Target Analysis Dashboard
+
+Each card below represents a completed indicator-target analysis. Click through to read the story, examine the evidence, and explore trading strategies.
+
+keyboard_arrow_right
+
+📚 What is this portal?
+
+All
+All
+All
+All
+
+Showing 10 of 10 pairs
+
+DFF - DTB3 (Fed Funds TED) → S&P 500 ⚠️
+
+Countercyclical
+
+LeadingCreditMin MDD
+	Strategy	Buy & Hold
+Sharpe	0.97	0.77
+Max DD	-14.7%	-33.7%
+Valid	388 / 991	
+
+spread_zscore_252d predicts SPY 21-day forward return (coef=0.0043, t=10.74, p=0.0000)
+
+📖
+
+Story
+
+🔬
+
+Evidence
+
+🎯
+
+Strategy
+
+📐
+
+Methods
+
+HY-IG Credit Spread → S&P 500
+
+Countercyclical
+
+LeadingCreditUnknown
+	Strategy	Buy & Hold
+Sharpe	1.41	0.81
+Max DD	-0.1%	-0.3%
+Valid	2,037 / 2,167	
+
+Best signal: HMM stress-regime probability (S6_hmm_stress) with 0.5 threshold, signal-strength strategy, L0 lead. OOS Sharpe 1.41 vs buy-and-hold 0.81. The HY-IG credit spread predicts 3-month forward SPY returns (coef=-0.0013, p=0.0758). Direction: countercyclical — wider spreads forecast lower equity returns.
+
+📖
+
+Story
+
+🔬
+
+Evidence
+
+🎯
+
+Strategy
+
+📐
+
+Methods
+
+★ SAMPLE — REFERENCE IMPLEMENTATION
+
+Sample: HY-IG Credit Spread × S&P 500 → S&P 500
+
+Countercyclical
+
+LeadingCreditMin MDD
+	Strategy	Buy & Hold
+Sharpe	1.27	0.77
+Max DD	-10.2%	-33.7%
+Valid	1,970 / 2,167	
+
+hy_ig_mom_63d predicts SPY 63-day forward return (coef=-0.0119, t=-10.77, p=0.0000)
+
+📖
+
+Story
+
+🔬
+
+Evidence
+
+🎯
+
+Strategy
+
+📐
+
+Methods
+
+Industrial Production → S&P 500 ⚠️
+
+Procyclical
+
+CoincidentProductionMax Sharpe
+	Strategy	Buy & Hold
+Sharpe	1.10	0.90
+Max DD	-8.1%	-23.9%
+Valid	1,150 / 1,666	
+
+INDPRO indpro_zscore_60m predicts SPY 12-month forward return (coef=-0.0204, t=-2.69, p=0.0071, R²=0.021)
+
+📖
+
+Story
+
+🔬
+
+Evidence
+
+🎯
+
+Strategy
+
+📐
+
+Methods
+
+Industrial Production → Consumer Staples Select Sector (XLP)
+
+Countercyclical
+
+CoincidentProductionMin MDD
+	Strategy	Buy & Hold
+Sharpe	1.11	0.74
+Max DD	-13.5%	-13.3%
+Valid	2,692 / 3,331	
+
+Best strategy: S8_accel / T2_roll_p75 / P3_long_short_counter / L3. OOS Sharpe 1.11 vs 0.7437 B&H. Max drawdown -13.5% vs -13.3% B&H.
+
+📖
+
+Story
+
+🔬
+
+Evidence
+
+🎯
+
+Strategy
+
+📐
+
+Methods
+
+Building Permits → S&P 500
+
+Procyclical
+
+LeadingProductionMax Sharpe
+	Strategy	Buy & Hold
+Sharpe	1.45	0.90
+Max DD	-19.4%	-23.9%
+Valid	675 / 856	
+
+permit_zscore_60m predicts SPY 12-month forward return (coef=0.0273, t=3.32, p=0.0009)
+
+📖
+
+Story
+
+🔬
+
+Evidence
+
+🎯
+
+Strategy
+
+📐
+
+Methods
+
+SOFR - DTB3 (TED) → S&P 500 ⚠️
+
+Countercyclical
+
+LeadingCreditMin MDD
+	Strategy	Buy & Hold
+Sharpe	1.89	1.41
+Max DD	-3.6%	-18.8%
+Valid	580 / 991	
+
+spread predicts SPY 63-day forward return (coef=0.0641, t=7.19, p=0.0000)
+
+📖
+
+Story
+
+🔬
+
+Evidence
+
+🎯
+
+Strategy
+
+📐
+
+Methods
+
+Spliced TED Spread → S&P 500
+
+Countercyclical
+
+LeadingCreditMin MDD
+	Strategy	Buy & Hold
+Sharpe	1.19	0.77
+Max DD	-12.8%	-33.7%
+Valid	598 / 991	
+
+spread predicts SPY 63-day forward return (coef=-0.0208, t=-6.45, p=0.0000)
+
+📖
+
+Story
+
+🔬
+
+Evidence
+
+🎯
+
+Strategy
+
+📐
+
+Methods
+
+Michigan Consumer Sentiment → Health Care Select Sector (XLV) ⚠️
+
+Countercyclical
+
+LeadingSentimentMin MDD
+	Strategy	Buy & Hold
+Sharpe	1.02	0.72
+Max DD	-0.1%	-0.2%
+Valid	1,196 / 1,306	
+
+UMCSENT umcsent_zscore predicts xlv_fwd_6m (coef=0.0127, t=2.81, p=0.0050, R²=0.034)
+
+📖
+
+Story
+
+🔬
+
+Evidence
+
+🎯
+
+Strategy
+
+📐
+
+Methods
+
+VIX/VIX3M Ratio → S&P 500 ⚠️
+
+Countercyclical
+
+CoincidentVolatilityMin MDD
+	Strategy	Buy & Hold
+Sharpe	1.13	0.77
+Max DD	-21.1%	-33.7%
+Valid	332 / 916	
+
+vix_ratio_zscore_252d predicts SPY 63-day forward return (coef=0.0042, t=3.54, p=0.0004)
+
+📖
+
+Story
+
+🔬
+
+Evidence
+
+🎯
+
+Strategy
+
+📐
+
+Methods
+
+Generated with AIG-RLIC+ | 10 pairs shown | 73 priority pairs total

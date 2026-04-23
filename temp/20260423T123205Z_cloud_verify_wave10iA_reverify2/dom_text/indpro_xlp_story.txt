@@ -1,0 +1,195 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+What this shows: ← you are here.
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Story: When the Factory Hums, Staples Stumble
+
+Does industrial activity predict returns in the defensive consumer staples sector?
+
+Factory-output acceleration as a defensive sector timing signal
+
+Key metrics (out-of-sample 2019-01–2026-01):
+
+Sharpe ratio: 1.11 (vs 0.74 buy-and-hold Consumer Staples Select Sector (XLP))
+Annualized return: +14.1% with risk-adjusted exposure
+Max drawdown: -13.5% (vs -13.3% buy-and-hold Consumer Staples Select Sector (XLP))
+Where This Fits in the Portal
+
+This is one indicator-target analysis — we ask whether INDPRO momentum can help time exposure to the consumer staples sector (XLP). Consumer staples are defensive stocks: companies that sell essential goods like food, beverages, and household products. They tend to outperform when the economy weakens and underperform when the economy accelerates — the opposite of the broad market.
+
+How to read the rest of this page pack. You'll read the Story first (the economic logic), then the Evidence (statistical proofs), then the Strategy (the actual trading rule), then the Methodology (technical appendix). Each page stands alone.
+
+One-Sentence Thesis
+
+Rising industrial production signals economic expansion, which triggers rotation away from defensive consumer staples — and watching that signal can help investors avoid the worst periods in XLP while capturing the defensive upside during slowdowns.
+
+OOS Sharpe
+
+1.11
+
+vs 0.74 B&H
+
+OOS Return
+
++14.1%
+
+annualized
+
+Max Drawdown
+
+-13.5%
+
+vs -13.3% B&H
+
+Signal
+
+S8_accel
+
+L3
+
+OOS Period
+
+7.0 yrs
+
+2019-01–2026-01
+
+What this shows: the tournament winner uses IP acceleration (the rate of change of MoM IP growth) as the signal, with a 3-month lead time. The countercyclical orientation means we hold XLP when IP momentum is slowing — the defensive trade.
+
+Why Should XLP Investors Care About Factory Output?
+
+Consumer staples are the ultimate defensive sector. Companies like Procter & Gamble, Coca-Cola, and Walmart sell products people need regardless of the economic cycle — toothpaste, soft drinks, and groceries don't disappear during recessions. This is exactly why they behave differently from the broad market.
+
+When the economy is expanding (factories busy, unemployment low, corporate earnings rising), investors typically shift money from defensive sectors toward growth-oriented ones — technology, industrials, consumer discretionary. This "rotation away from defensives" causes XLP to underperform relative to the broad market.
+
+When the economy contracts (factories idle, layoffs rising, earnings falling), the rotation reverses. Investors seek safety in the reliable cash flows of staples companies. XLP outperforms.
+
+keyboard_arrow_right
+
+What is XLP and what does it hold?
+
+The INDPRO-XLP Connection
+
+Our analysis tests whether Industrial Production growth rates predict XLP returns. The economic logic operates through two channels:
+
+Channel 1: The Rotation Mechanism. Rising IP signals expanding manufacturing activity. When IP accelerates, institutional investors — pension funds, endowments, hedge funds — rotate their equity exposure away from defensive sectors (staples, utilities, healthcare) toward cyclical sectors (industrials, materials, technology). This rotation reduces demand for XLP shares, depressing its relative performance.
+
+Channel 2: The Earnings Effect. Consumer staples companies are relatively insulated from IP cycles because their revenues depend on consumer spending, not industrial production. But during strong expansions, raw material costs rise (packaging, agricultural inputs), squeezing staples margins, while revenues remain flat. This creates a mild earnings headwind that stock prices gradually reflect.
+
+The combined prediction: rising IP → XLP underperformance; falling IP → XLP outperformance. This is the opposite of what we expect for the broad S&P 500, where rising IP is bullish. XLP is the defensive case.
+
+The Acceleration Signal
+
+Our tournament found that the winning signal is not IP level or IP YoY growth, but IP acceleration — the change in the month-over-month growth rate. This is mathematically the second derivative of the production index: not "how fast are factories growing?" but "is that growth speeding up or slowing down?"
+
+Why acceleration? Because financial markets are forward-looking. By the time IP level or YoY growth signal a regime shift, the rotation has already begun. IP acceleration, however, can detect the early inflection point — the moment growth begins to slow before a full contraction arrives, or the moment recovery begins to gain steam.
+
+keyboard_arrow_right
+
+How does IP acceleration differ from IP momentum?
+
+27 Years of Industrial Production vs. Consumer Staples (XLP)
+2000
+2005
+2010
+2015
+2020
+2025
+−15
+−10
+−5
+0
+5
+10
+15
+10
+20
+30
+40
+50
+60
+70
+80
+IP YoY Growth (%)
+XLP Price ($)
+Industrial Production Growth vs Consumer Staples ETF (XLP, 1998-2025)
+IP YoY Growth (%)
+XLP Price ($)
+
+How to read it: dual-axis view — IP YoY growth (left, red) and XLP price (right, blue) on a common time axis. Red shaded bands mark industrial contraction periods (YoY growth < 0). Notice how XLP often holds up or outperforms during contractions — the defensive effect.
+
+What History Shows: XLP Returns by IP Growth Regime
+0.36
+0.80
+0.77
+0.40
+Q1_low
+Q2
+Q3
+Q4_high
+0
+0.2
+0.4
+0.6
+0.8
+XLP Sharpe Ratio by INDPRO YoY Growth Quartile
+IP Growth Quartile (Q1=Lowest, Q4=Highest)
+Annualized Sharpe Ratio
+
+What this shows: XLP annualized Sharpe ratio in each of the four IP growth quartile regimes. Q1 (lowest IP growth) and Q2 tend to be where XLP earns its keep; Q3 and Q4 (highest IP growth) are less favorable for this defensive ETF.
+
+The Nuance: XLP Is Not a Mechanical Inverse of the IP Cycle
+
+If XLP perfectly mirrored the inverse of industrial production, building a profitable strategy would be trivial. Reality is more complex:
+
+XLP still earns positive absolute returns in expansion periods — defensive stocks grow earnings over time even if they rotate out temporarily. The countercyclical relationship is about relative performance, not absolute losses.
+The relationship has regime-dependent strength. During deep contractions (Q1 of IP growth), XLP's defensive properties shine. During mild slowdowns, the advantage is more modest.
+Dividend yield provides a floor. XLP's historically higher-than-market dividend yield (around 2.5-3%) cushions performance during mild underperformance periods.
+COVID distorted the signal. The COVID shock (April 2020: IP -12.7% MoM) was extreme and indiscriminate — everything fell, and then everything bounced, overwhelming normal regime patterns.
+
+The practical implication for strategy design: a simple "hold XLP when IP contracts" rule misses important nuance. The winning strategy instead uses IP acceleration with a rolling percentile threshold, which is more adaptive to the current IP regime.
+
+Scope note. This page pack analyzes only the INDPRO → XLP relationship. XLP performance also responds to interest rates (higher rates hurt dividend stocks), consumer sentiment, and commodity input costs — but each of those has its own separate analysis in the portal. Here the lens stays on industrial production as the single predictor.
+
+Economic logic suggests rising factory output signals rotation away from defensive consumer staples. We ran 9 econometric methods to test whether the data bears this out.
+🔬
+
+Continue to The Evidence
+
+What this shows: generated with AIG-RLIC+ | Pair: indpro_xlp.

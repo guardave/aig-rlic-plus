@@ -1,0 +1,166 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+What this shows: ← you are here.
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Story: The VIX Term Structure as a Fear Barometer for SPY
+
+Does the ratio of near-term to medium-term implied volatility predict S&P 500 returns?
+
+VIX/VIX3M ratio as a volatility-regime signal for SPY — OOS Sharpe vs buy-and-hold
+
+Key metrics (out-of-sample 2015-01–2025-12):
+
+Sharpe ratio: 1.13 (vs N/A buy-and-hold S&P 500)
+Annualized return: +15.3% with risk-adjusted exposure
+Max drawdown: -21.1% (vs N/A buy-and-hold S&P 500)
+Where This Fits in the Portal
+
+This pair anchors the Volatility / Options family in the portal. It is the only daily-frequency pair among the four Wave 10I.A non-TED migrations — the other three (INDPRO, Permits, UMCSENT) are monthly macro signals. It also delivers the largest regime Sharpe spread we have observed anywhere in the catalogue.
+
+How to read the rest of this page pack. You'll read the Story first (the economic logic), then the Evidence (statistical proofs), then the Strategy (the actual trading rule), then the Methodology (technical appendix). Each page stands alone.
+
+One-Sentence Thesis
+
+A 126-day z-score of the VIX/VIX3M ratio, thresholded at its 75th rolling percentile, switched SPY to cash during acute term-structure backwardation and delivered an out-of-sample Sharpe of 1.13 with a max drawdown of -21% versus -34% for buy-and-hold over the COVID-inclusive 2020-2025 window.
+
+OOS Sharpe
+
+1.13
+
+OOS Return
+
++15.3%
+
+annualized
+
+Max Drawdown
+
+-21.1%
+
+Signal
+
+S3_z126
+
+N/A
+
+OOS Period
+
+11.0 yrs
+
+2015-01–2025-12
+
+What this shows: Turnover is ~23 round-trips per year — high relative to the monthly pairs but well within daily-rebalance execution budgets. The OOS annualised return is essentially in line with buy-and-hold (+15.3% vs. +15.7%); the Sharpe gain comes from drawdown compression, not from higher returns.
+
+Why Should Stock Investors Care About the VIX Term Structure?
+
+The VIX index measures 30-day implied volatility derived from S&P 500 options. VIX3M measures the same thing over a 3-month horizon. In normal markets, longer-dated options carry a higher volatility premium (contango), so VIX/VIX3M sits below 1.0. When markets panic, traders bid up near-term protection aggressively, pushing the ratio above 1.0 into backwardation.
+
+This ratio captures something fundamentally important: the urgency of fear. It functions as a real-time put/call sentiment proxy — when near-term put demand surges relative to longer-term hedging, the ratio spikes. Unlike the VIX level alone (which can stay elevated for extended periods), the term-structure ratio reveals whether the market is experiencing acute stress versus chronic anxiety.
+
+The Term Structure as a Fear Gauge
+
+Our analysis examines 18 years of daily data (2007-2025) to test whether the VIX/VIX3M ratio predicts S&P 500 returns. The economic logic is direct: ratio below 1.0 (contango) is the normal state — markets are calm, hedging demand is balanced, equities tend to grind higher, and the bulk of positive equity returns occur here. Ratio above 1.0 (backwardation) is acute stress — near-term put demand exceeds longer-term hedging, signalling panic, and equities underperform or crash.
+
+The backwardation line at 1.0 is not an arbitrary percentile — it is a structural boundary derived from options pricing theory, making it one of the most economically meaningful thresholds in the entire catalogue. This is a counter-cyclical relationship: the indicator rises when the stock market falls, and vice versa.
+
+VIX Term Structure (VIX / VIX3M) vs. S&P 500
+2010
+2015
+2020
+2025
+0.8
+1
+1.2
+1.4
+100
+200
+300
+400
+500
+600
+700
+VIX/VIX3M
+SPY
+VIX/VIX3M Ratio vs S&P 500 (2007-2025)
+VIX/VIX3M Ratio
+SPY ($)
+Backwardation line (VIX > VIX3M)
+
+Dual-axis view: VIX/VIX3M ratio (left) and SPY price (right). The dashed line at ratio = 1.0 marks the backwardation boundary. Every major equity drawdown — the 2008 crisis, the 2011 debt ceiling, the 2018 Volmageddon, and the 2020 COVID crash — was accompanied by a spike above 1.0. Calm, rising markets correspond to the ratio sitting well below 1.0 in contango.
+
+What History Shows: SPY Returns by VIX/VIX3M Quartile
+6.53
+3.91
+1.62
+-2.38
+Q1_low
+Q2
+Q3
+Q4_high
+0
+5
+SPY Sharpe by VIX/VIX3M Quartile
+VIX/VIX3M Quartile (Q1=Contango/Calm, Q4=Backwardation/Panic)
+Ann. Sharpe
+
+Equity performance across VIX/VIX3M ratio regimes. Q1 (low ratio, deep contango) delivers a Sharpe of **6.53**; Q4 (high ratio, backwardation / panic) delivers **-2.38**. This nearly 9-point spread is the largest regime differential observed across any pair in the portal — more than three times wider than credit spreads (~3 points) and dwarfing the IP or permits spreads.
+
+Nuance and Limits
+
+Four historical episodes illustrate the signal's power — and its limits:
+
+Global Financial Crisis (2008-2009). The ratio spiked to extreme backwardation as Lehman Brothers collapsed. Near-term VIX exceeded 80 while VIX3M, though elevated, lagged behind. The term-structure inversion preceded the worst of the equity drawdown.
+
+Debt-ceiling crisis (August 2011). A sharp, brief backwardation spike coincided with the S&P downgrade of U.S. sovereign debt. SPY fell ~19% peak to trough; the ratio reverted to contango as the market recovered.
+
+Volmageddon (February 2018). The XIV (inverse VIX) blow-up caused a violent term-structure inversion. This was a volatility-specific event rather than a macro crisis, yet the signal correctly flagged the equity sell-off.
+
+COVID crash (March 2020). The ratio surged above 1.0 as the pandemic triggered the fastest bear market in history. The OOS period (2020-2025) includes this extreme event, providing a severe stress test for the signal.
+
+The main limit is sample length: VIX3M data begins in 2007, so the full sample covers only 18 years and roughly three full market cycles. Relationships calibrated on pre-2018 data may not fully capture the post-Volmageddon microstructure — a caveat worth keeping in mind before scaling capital to this rule.
+
+Scope note. Scope discipline (ECON-SD). Only the VIX/VIX3M ratio and SPY are in-scope primary signals for this pair. The VIX3M series begins 2007-12, which defines the sample start. DFF and USREC are used only as regression controls, not as trading signals.
+
+The VIX term structure offers the most powerful regime differentiation we have observed across all indicator pairs. But does the econometric evidence confirm a statistically robust and exploitable relationship with equity returns?
+🔬
+
+Continue to The Evidence
+
+What this shows: generated with AIG-RLIC+ | Pair: vix_vix3m_spy.

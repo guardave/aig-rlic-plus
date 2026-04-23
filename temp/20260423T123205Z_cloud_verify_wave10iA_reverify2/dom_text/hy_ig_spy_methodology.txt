@@ -1,0 +1,140 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+What this shows: ← you are here.
+
+keyboard_arrow_right
+
+Plain English
+
+Methodology: Technical Appendix
+
+For the skeptical reader: this section provides the full methodological detail needed to replicate, challenge, or extend our analysis. Every claim in the preceding pages traces back to a specific method, dataset, and diagnostic described here.
+
+Sample Period
+
+Out-of-Sample Window
+
+2019-10 to 2026-04
+
+Total tournament combinations
+
+N/A
+
+What this shows: OOS window determined by ECON-OOS2 formula: 79 months (2019-10-01 → 2026-04-22). HY-IG spread data available from approximately 1997; full sample used from 1997-01 onward. OAS data before 2000 is thinner in the underlying constituent universe — results are robust to truncating the pre-2000 period.
+
+Data Sources
+Category	Source	Series	Frequency
+HY-IG Spread (HY leg)	FRED	BAMLH0A0HYM2EY	Daily
+HY-IG Spread (IG leg)	FRED	BAMLC0A0CMEY	Daily
+SPY (Target)	Yahoo Finance	SPY	Daily → Monthly
+S&P 500 (benchmark)	Yahoo Finance	SPY	Daily → Monthly
+NBER Recession Dates	FRED / NBER	USREC	Monthly
+Fed Funds Rate	FRED	DFF	Daily → Monthly
+VIX	Yahoo Finance	^VIX	Daily → Monthly
+
+Scope discipline (ECON-SD). Only the HY-IG spread and SPY are in-scope primary signals. Controls (VIX, DFF, UNRATE) are used only in regression controls, not as trading signals.
+
+Indicator Construction
+
+The primary indicator is the HY-IG credit spread, constructed daily as the difference between the ICE BofA US High Yield Index Option-Adjusted Spread (FRED: BAMLH0A0HYM2EY) and the ICE BofA US Investment Grade Corporate Index Option-Adjusted Spread (FRED: BAMLC0A0CMEY). From this raw series we derive: the level, z-score against a rolling window, rate-of-change (1M, 3M), momentum (3M, 6M), and HMM stress probability (2-state Hidden Markov Model fitted to daily spread history). The authoritative list of in-scope derivatives is rendered from signal_scope.json in the Signal Universe section below. The winning signal (hmm_2state_prob_stress) aggregates level, trend, and volatility information into a single calibrated probability of being in the credit stress regime.
+
+Signal Universe
+
+This section lists every derivative of the indicator and target considered during the analysis. It is the single source of truth for what is in scope for this pair. Anything not in these two tables was deliberately excluded — and is instead logged under Analyst Suggestions below.
+
+Indicator derivatives — HY-IG Credit Spread (%)
+
+What this shows: every derivative of the hy_ig_spread_pct indicator column considered in this analysis. Includes raw series, statistical transforms (z-scores, percentile ranks), momentum measures, and regime-state probabilities.
+
+Takeaway: 16 indicator-axis derivatives disclosed. Every derivative is a mathematical transform of the single canonical column hy_ig_spread_pct (ECON-SD scope discipline).
+
+Target derivatives — SPY (SPDR S&P 500 ETF)
+
+What this shows: every derivative of the spy target column considered in this analysis. Includes the raw price series, simple returns, forward-return horizons, and diagnostic curves (drawdown, equity curve).
+
+Takeaway: 8 target-axis derivatives disclosed. All derived from the single canonical column spy (ECON-SD scope discipline).
+
+Stationarity Tests
+
+How to read it: ADF — reject null = stationary. KPSS — fail to reject null = stationary.
+
+Econometric Methods
+Method	Question It Answers	Why We Chose It
+Pearson / Rolling Correlation	Linear co-movement at multiple horizons	Baseline linearity test; rolling view reveals regime dependence
+Granger Causality (Toda-Yamamoto)	One-directional predictive content, robust to non-stationarity	Tests asymmetric credit-leads-equity hypothesis
+Pre-Whitened CCF	Lead-lag timing structure after removing autocorrelation	Identifies the peak predictive lag without spurious persistence
+Hidden Markov Model (2-state)	Latent regime identification from spread data alone	Tournament winner; aggregates signal into interpretable probability
+Regime Quartile Returns	Model-free gradient across spread distribution	Assumption-light cross-check on HMM regime assignments
+Transfer Entropy	Nonlinear directional information flow	Detects threshold effects and nonlinear channels Granger misses
+Local Projections (Jordà)	Full dynamic path of SPY response to spread shock	Robust impulse response without VAR parameter restrictions
+Quantile Regression	Asymmetric predictive power across SPY return distribution	Confirms left-tail (downside) concentration — risk management signal
+Tournament Design
+Dimension	Values
+Signals (6)	HY-IG level, z-score, 1M rate-of-change, 3M momentum, 6M momentum, HMM stress probability (S6_hmm_stress)
+Threshold methods	HMM 0.5 cutoff (T4_hmm_0.5), rolling percentile (p25/p50/p75), rolling z-score (±1.0/±1.5)
+Strategies (3)	Signal-Strength (P2), Long/Cash (P1), Long/Short (P3)
+Lead times	L0 (winning combination)
+Orientation	Countercyclical (wide spreads → reduce SPY exposure)
+
+The tournament tested all valid combinations and ranked by out-of-sample Sharpe ratio over 2019-10-01 → 2026-04-22 (79 months). Winner: S6_hmm_stress / T4_hmm_0.5 / P2 / L0, OOS Sharpe 1.41 vs B&H 0.81.
+
+Analyst Suggestions for Future Work
+
+Signals flagged during analysis that look worth pursuing in future work (a different pair, a variant family extension, or a regime overlay). These are informational only — they did not influence this pair's winning strategy.
+
+What this shows: signals the team noticed during this pair's work that are outside the HY-IG × SPY formal scope. Logged here so the observations are not lost; none of them fed into this pair's winning strategy.
+
+These are informational. If any warrant follow-up work, please request explicitly to the team — there is no automated action from this table.
+
+Takeaway: 5 off-scope observations on file for this pair. Each includes the observed metric, the rationale, a possible use case, and honest caveats.
+
+References
+Credit Markets and Equity Prediction
+Gertler, M., & Lown, C. S. (1999). The information in the high yield bond spread for the business cycle. Oxford Review of Economic Policy, 15(3), 132–150.
+Gilchrist, S., & Zakrajšek, E. (2012). Credit spreads and business cycle fluctuations. American Economic Review, 102(4), 1692–1720.
+Mueller, P. (2009). Credit spreads and real activity. Working Paper, Columbia Business School.
+Hidden Markov Models and Regime Detection
+Hamilton, J. D. (1989). A new approach to the economic analysis of nonstationary time series and the business cycle. Econometrica, 57(2), 357–384.
+Guidolin, M., & Timmermann, A. (2007). Asset allocation under multivariate regime switching. Journal of Economic Dynamics and Control, 31(11), 3503–3544.
+Nonlinear Dependence and Information Theory
+Schreiber, T. (2000). Measuring information transfer. Physical Review Letters, 85(2), 461–464.
+Impulse Response and Local Projections
+Jordà, Ò. (2005). Estimation and inference of impulse responses by local projections. American Economic Review, 95(1), 161–182.
+Quantile Methods
+Koenker, R., & Bassett, G. (1978). Regression quantiles. Econometrica, 46(1), 33–50.
+Adrian, T., Boyarchenko, N., & Giannone, D. (2019). Vulnerable growth. American Economic Review, 109(4), 1263–1289.
+
+What this shows: generated with AIG-RLIC+ | Pair: hy_ig_spy.

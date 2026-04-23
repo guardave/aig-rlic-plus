@@ -1,0 +1,168 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+What this shows: ← you are here.
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Story: Building Permits as an Economic Leading Indicator for Equity
+
+Do Building Permits, the most forward-looking housing indicator, predict S&P 500 returns?
+
+Building Permits as a leading macro signal for SPY — OOS Sharpe vs buy-and-hold
+
+Key metrics (out-of-sample 2018-01–2025-12):
+
+Sharpe ratio: 1.45 (vs N/A buy-and-hold S&P 500)
+Annualized return: +22.7% with risk-adjusted exposure
+Max drawdown: -19.4% (vs N/A buy-and-hold S&P 500)
+Where This Fits in the Portal
+
+This pair sits in the Activity / Survey indicator family of the portal. Building Permits has been part of the Conference Board's Leading Economic Index since 1959, so it is one of the oldest and best-pedigreed leading indicators in the catalogue. It complements the Industrial Production pair (a coincident activity measure) and the UMCSENT consumer-sentiment pair (a survey measure).
+
+How to read the rest of this page pack. You'll read the Story first (the economic logic), then the Evidence (statistical proofs), then the Strategy (the actual trading rule), then the Methodology (technical appendix). Each page stands alone.
+
+One-Sentence Thesis
+
+Monthly Building Permits growth (MoM change, 6-month lead) is a pro-cyclical signal that historically delivered an out-of-sample Sharpe of 1.45 on SPY versus 0.90 for buy-and-hold.
+
+OOS Sharpe
+
+1.45
+
+OOS Return
+
++22.7%
+
+annualized
+
+Max Drawdown
+
+-19.4%
+
+Signal
+
+S3_mom
+
+N/A
+
+OOS Period
+
+8.0 yrs
+
+2018-01–2025-12
+
+What this shows: The OOS period runs 2018-01 to 2025-12. The winning Long/Short strategy doubles gross exposure versus the Long/Cash benchmark, which explains part of the return premium but also the tighter max-drawdown profile.
+
+Why Permits Lead the Business Cycle
+
+Building Permits (FRED: PERMIT) count the number of new privately-owned housing units authorised by building permits each month. They have been a component of the Conference Board's Leading Economic Index since 1959 — one of the longest-tenured leading indicators in macroeconomics — and are published by the U.S. Census Bureau approximately 2-3 weeks after the reference month, seasonally adjusted at an annual rate.
+
+For stock investors, permits matter because housing is the leading sector of the economy. Residential construction accounts for roughly 15-18% of GDP once you include direct construction, furnishings, and the wealth effect from home equity. When permits rise, it signals future construction activity, construction employment, consumer spending on durables, and eventually corporate earnings. When permits fall, a broader slowdown typically follows within 3-6 months.
+
+The economic logic is straightforward. Rising permits signal expanding housing demand, future construction jobs, household wealth accumulation, and consumer confidence — all bullish for stocks. Falling permits signal housing weakness, reduced construction, and a cooling economy — bearish for stocks. Permits precede actual construction starts by 1-3 months and broader economic activity by 3-6 months, which is why a 6-month lead in the trading rule is the tournament optimum. As Edward Leamer argued in his 2007 Jackson Hole paper, 'Housing IS the business cycle.'
+
+Building Permits vs. S&P 500 Over the Business Cycle
+1995
+2000
+2005
+2010
+2015
+2020
+2025
+−60
+−40
+−20
+0
+20
+40
+60
+0
+100
+200
+300
+400
+500
+600
+700
+Permits YoY%
+SPY
+Building Permits YoY Growth vs S&P 500
+Permits YoY%
+SPY ($)
+
+Dual-axis view: Building Permits (left, red) and SPY price (right, blue). Permits peaked before the 2001 and 2008 recessions and collapsed during the housing crisis, providing an early warning signal for equity declines. The 2020 COVID dip was shorter and V-shaped, and permits led the recovery by several months.
+
+What History Shows: SPY Returns by Building-Permit Regime
+0.75
+0.57
+0.81
+0.95
+Q1_low
+Q2
+Q3
+Q4_high
+0
+0.2
+0.4
+0.6
+0.8
+1
+SPY Sharpe by Permits Growth Quartile
+
+SPY Sharpe by Building Permits growth quartile. The high-growth regime (Q4) delivers a Sharpe near 0.95; the deep-contraction regime (Q1) falls to roughly 0.75. The spread is narrower than for VIX/VIX3M (9 Sharpe points) or credit spreads (3 points), suggesting permits work best as a directional signal rather than as a stand-alone regime-timing tool.
+
+Nuance and Limits
+
+Three episodes dominate the permits data and every user of this signal should understand them:
+
+Housing bubble (2003-2007). Permits surged to record highs on the back of subprime lending and speculation. The pro-cyclical signal was correct — stocks did rise — but the bubble masked underlying credit risk, and the eventual collapse was unprecedented in modern data.
+
+Great Recession (2008-2009). Permits fell more than 50% peak to trough, one of the deepest contractions on record. Here the signal worked as advertised: permits flagged severe weakness well before equities finished falling.
+
+COVID collapse (April 2020). Permits plunged as construction halted, then recovered on a V-shape driven by mortgage forbearance, fiscal stimulus, and a shift to suburban demand. Post-COVID supply-chain distortions (2021-2022) created additional noise in the signal that persisted until lumber and labour bottlenecks cleared.
+
+The practical limit is that permits are monthly and publication-lagged — the strategy cannot react to a fast crash the way a daily options-based signal (see the VIX × VIX3M pair) can. It captures durable business-cycle turns, not short-term market moves.
+
+Scope note. Scope discipline (ECON-SD). Only PERMIT and SPY are in-scope primary signals for this pair. UNRATE, DGS10, DFF, and VIX are retained only as regression controls in the Methodology section and are not traded.
+
+History and economic theory position building permits as one of the strongest leading indicators available. But does the econometric evidence actually confirm a statistically significant, tradable relationship with equity returns?
+🔬
+
+Continue to The Evidence
+
+What this shows: generated with AIG-RLIC+ | Pair: permit_spy.

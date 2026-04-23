@@ -1,0 +1,130 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+What this shows: ← you are here.
+
+keyboard_arrow_right
+
+Plain English
+
+Methodology: Technical Appendix
+
+For the skeptical reader: this section provides the full methodological detail needed to replicate, challenge, or extend our analysis. Every claim in the preceding pages traces back to a specific method, dataset, and diagnostic described here.
+
+Sample Period
+
+Out-of-Sample Window
+
+2015-01 to 2025-12
+
+Total tournament combinations
+
+N/A
+
+What this shows: Sample period: 2018-04 to 2025-12, ~2,022 daily observations. ADF statistic −5.116 (p ≈ 0.0000) — stationary. IS/OOS split: 2018-04 → 2022-12 / 2023-01 onwards (~3 years OOS).
+
+Data Sources
+Category	Source	Series	Frequency	Notes
+SOFR	FRED	SOFR	Daily	Starts April 2018; occasional quarter-end spikes
+3M T-Bill (Secondary Market)	FRED	DTB3	Daily	Risk-free short rate
+S&P 500 (Target)	Yahoo Finance	SPY	Daily	Adjusted close
+VIX	Yahoo Finance	^VIX	Daily	Control variable
+10Y Treasury	FRED	DGS10	Daily	For yield-curve control
+
+Scope discipline (ECON-SD). Only SOFR and DTB3 are in-scope primary signals. Controls (VIX, yield spread) are used only in regression controls, not as trading signals.
+
+Indicator Construction
+
+Core indicator. SOFR_TED_t = SOFR_t − DTB3_t, in percentage points, daily. Sample: 2018-04-02 onwards, ~2,022 daily observations as of the 2026-03-14 cutoff.
+
+Derived signals used in the tournament (10 total):
+
+Level — raw spread value.
+Z-score (126d, 252d) — rolling-window standardisation; isolates "unusual" levels.
+Rate of Change (21d, 63d) — proportional change over the window; captures stress acceleration/easing.
+Momentum (21d, 63d) — differenced level; directional shift in absolute terms.
+Percentile rank — today's spread as a percentile of its 252-day trailing distribution.
+Realised volatility — rolling std of daily spread changes; regime-volatility proxy.
+Stress dummy — binary indicator (above historical 75th percentile).
+
+Rate-of-change and momentum variants dominate the tournament leaderboard, consistent with the finding (replicated across TED variants) that changes in funding stress carry more predictive information than the level itself, especially in a sample with a relatively narrow range of absolute spread values.
+
+Signal Universe
+
+This section lists every derivative of the indicator and target considered during the analysis. It is the single source of truth for what is in scope for this pair. Anything not in these two tables was deliberately excluded — and is instead logged under Analyst Suggestions below.
+
+Signal universe table unavailable for sofr_ted_spy.
+
+Plain English: this section normally lists every derivative (z-scores, rates of change, regime probabilities, forward returns, etc.) that was considered during the analysis, so you can see exactly what was in and out of scope. The underlying registry file (signal_scope.json) has not been produced for this pair yet — this is Evan's Wave 7B artifact and is only retro-fitted for HY-IG v2 at present.
+
+Stationarity Tests
+
+Stationarity tests missing for sofr_ted_spy — expected at results/sofr_ted_spy/stationarity_tests_*.csv.
+
+Econometric Methods
+Method	Question It Answers	Key Parameters
+Pearson / Rolling Correlation	Linear co-movement at multiple horizons	Baseline test for SOFR-TED ↔ SPY link
+Granger Causality	Test if spread predicts SPY returns	Up to 5 daily lags
+Predictive OLS	Baseline regressions with HC3 robust SEs	3 signals × 3 horizons
+Local Projections (Jordà)	Impulse response at 5d, 21d, 63d	HAC (Newey-West) SEs
+Quantile Regression	Tail-risk / asymmetric effects	7 quantiles (0.05 to 0.95)
+Combinatorial Tournament	~991 strategy combinations	5 leads × 6 thresholds × 3 strategies
+Tournament Design
+Dimension	Values
+Signals (10)	Spread level, z-score (126d, 252d), RoC (21d, 63d), momentum (21d, 63d), percentile rank, realized vol, stress dummy
+Thresholds (6)	Fixed percentile (IS) at 25th/50th/75th, rolling percentile (252d) at 25th/50th/75th
+Strategies (3)	P1 Long/Cash, P2 Signal-Strength, P3 Long/Short
+Lead times (5)	0, 1, 5, 10, 21 days
+Total	~991 combinations
+Direction	Counter-cyclical — BELOW threshold = bullish, ABOVE = bearish
+IS / OOS split	2018-04 → 2022-12 / 2023-01 → present
+
+See results/sofr_ted_spy/winner_summary.json for the canonical winner.
+
+Analyst Suggestions for Future Work
+
+Signals flagged during analysis that look worth pursuing in future work (a different pair, a variant family extension, or a regime overlay). These are informational only — they did not influence this pair's winning strategy.
+
+No analyst suggestions filed for sofr_ted_spy.
+
+Plain English: during a pair's work, any team member (Dana, Evan, Vera, Ray, Ace, Quincy) can log an observation about a signal that's outside the pair's formal scope but might be worth pursuing later. No entries have been recorded for this pair — that is a valid state, not an error.
+
+References
+Brunnermeier, M. K. (2009). Deciphering the liquidity and credit crunch 2007-2008. Journal of Economic Perspectives, 23(1), 77-100.
+Duffie, D., & Stein, J. C. (2015). Reforming LIBOR and other financial market benchmarks. Journal of Economic Perspectives, 29(2), 191-212.
+ARRC (2017). The ARRC selects a broad Repo rate as its preferred alternative reference rate. Federal Reserve Bank of New York.
+Jordà, Ò. (2005). Estimation and inference of impulse responses by local projections. American Economic Review, 95(1), 161-182.
+
+What this shows: generated with AIG-RLIC+ | Pair: sofr_ted_spy.

@@ -1,0 +1,152 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+What this shows: ← you are here.
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Evidence: What the Data Shows
+
+We tested the VIX-term-structure-equity relationship with multiple econometric methods across 18 years of daily data. Two method blocks are foregrounded — correlations (for breadth across transforms and horizons) and local projections (for the dynamic response). The full battery (Granger, quantile, Markov-switching, RF walk-forward) is archived in results/vix_vix3m_spy/core_models_20260314/.
+
+Each method follows the same 8-part structure: what the method is, the question it answers, how to read the chart, what we observe, deeper technical detail, economic interpretation, and the key message. Read in order for the full picture, or skip to the Key message lines for a quick summary.
+
+Evidence is organized in two tiers. Level 1 covers basic statistical relationships. Level 2 adds regime analysis, tail risk, nonlinear dependence, or other advanced techniques.
+
+Level 1 — Basic Analysis
+
+Level 2 — Advanced Analysis
+
+Correlation
+
+Correlation Analysis
+
+Pearson and Spearman correlations between VIX/VIX3M signal variants (ratio level, 63/126/252-day z-score, rolling percentile, ratio change, momentum, backwardation dummy) and SPY forward returns at 1, 5, 10, and 21 trading-day horizons.
+
+Which transforms of the VIX/VIX3M ratio show the strongest — and most directionally consistent — relationship with forward SPY returns, and at what horizon?
+
+How to read it: Rows: ratio transforms. Columns: forward SPY return horizons in trading days. Cool colours = negative (counter-cyclical). Stars mark conventional significance.
+
+0.008
+0.028
+0.050
+0.046
+0.020
+0.017
+0.021
+0.045
+-0.007
+-0.025
+-0.018
+0.030
+0.031
+0.040
+-0.020
+0.011
+0.011
+0.021
+0.039
+0.071
+-0.007
+-0.026
+-0.016
+0.027
+0.025
+0.039
+-0.020
+0.013
+-0.006
+-0.015
+-0.018
+-0.006
+0.015
+0.021
+0.019
+0.051
+0.016
+0.013
+0.017
+0.060
+-0.038
+-0.006
+0.001
+-0.010
+1d
+5d
+21d
+63d
+backwardation
+ratio
+VR mom_21d
+VR mom_5d
+VR pctrank_252d
+VR roc_21d
+VR roc_5d
+VR vol_21d
+VR zscore_126d
+VR zscore_252d
+term_spread
+−0.15
+−0.1
+−0.05
+0
+0.05
+0.1
+0.15
+Correlation: VIX Signals → SPY Returns
+
+Pearson correlations between VIX/VIX3M signal variants and forward return horizons. Cool colours = negative (counter-cyclical). The z-score and rolling percentile signals show the strongest negative correlations with forward equity returns, confirming that elevated ratios precede weak performance.
+
+What this shows: The correlation structure is uniformly negative across signal variants and forward horizons — exactly what a counter-cyclical fear gauge should look like. The strongest correlations appear at the 1-5 trading-day horizon, consistent with the high-frequency, options-derived nature of the signal.
+
+Why this matters: Unlike pro-cyclical macro indicators (where higher values correlate with better returns), higher VIX/VIX3M ratios are associated with lower forward equity returns across every variant and every horizon tested. There is no ambiguity: when near-term fear dominates, stocks suffer.
+
+Key message: Every transform and every horizon agrees: higher VIX/VIX3M → lower forward SPY returns. This is the cleanest directional picture in the portal.
+
+The Combinatorial Tournament
+
+With the statistical case firmly established, we swept a 5-dimensional tournament over signal transforms, threshold methods, strategy families, lead times (in trading days, since this is a daily pair), and lookback windows — 916 raw specifications pruned to 332 valid combinations. The winner is detailed on the Strategy page.
+
+What this shows: tournament results at results/vix_vix3m_spy/tournament_results_20260314.csv.
+
+The statistical evidence confirms a powerful counter-cyclical relationship between the VIX term structure and equity returns. The signal operates at daily frequency with strong significance. The practical question is whether investors can translate this into a profitable strategy.
+
+🎯
+
+Continue to The Strategy
+
+What this shows: generated with AIG-RLIC+ | Pair: vix_vix3m_spy.

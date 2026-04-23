@@ -1,0 +1,139 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+
+📐 Methodology
+
+Direction disagreement detected (APP-DIR1, APP-SEV1 L1). Evan says countercyclical in winner_summary.json.direction; Dana says procyclical in interpretation_metadata.json.observed_direction. These must match. Escalate to Lead for reconciliation per META-IA.
+
+Plain English: our econometrician and our data analyst disagree on whether this indicator moves with the market or against it. That is a serious inconsistency — trading-rule direction is not a matter of opinion. The page is allowed to render, but do not act on the results until the disagreement is resolved.
+
+keyboard_arrow_right
+
+Plain English
+
+The Strategy: Translating SOFR-TED Signals into SPY Positioning
+
+We tested ~991 strategy combinations on SOFR - DTB3 (Variant A) to find the most robust funding-stress timing rule.
+
+Tournament Winner: spread_roc_63d / P1_long_cash / LN/A
+
+Winner (from results/sofr_ted_spy/winner_summary.json):
+
+Field	Value
+Signal	Spread 63-Day Rate of Change (spread_roc_63d)
+Threshold	25th percentile, fixed in-sample (T1_p25)
+Strategy	Long / Cash (P1)
+Lead time	10 days
+Direction	Counter-cyclical — go long when signal is below the 25th percentile
+OOS Sharpe	1.89
+OOS annualised return	+8.15%
+Max drawdown	−3.58%
+Annual turnover	~23 round-trips
+How the Signal is Generated
+Compute the SOFR-TED spread (SOFR − DTB3) daily.
+Compute its 63-day rate of change: roc_63 = spread_t / spread_{t-63} − 1.
+Fix the 25th-percentile threshold on the in-sample window (2018-04 to 2022-12).
+Each day, compare today's roc_63 to that fixed threshold.
+If below the threshold (stress easing), enter Long SPY with a 10-day lead lag; otherwise hold cash.
+
+OOS Sharpe
+
+1.89
+
+OOS Return
+
++8.2%
+
+annualized
+
+Max Drawdown
+
+-3.6%
+
+Turnover
+
+~23.4/yr
+
+Win Rate
+
+N/A
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal code: spread_roc_63d
+
+Signal column: spread_roc_63d
+
+Threshold: lt None
+
+Strategy family: P1_long_cash
+
+Direction: countercyclical
+
+Lead time: LN/A
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+Probability engine panel cannot render: No signals_*.parquet under /mount/src/aig-rlic-plus/results/sofr_ted_spy
+
+Plain English: the model needs a history of indicator values to draw the time-series chart, but we can't find that file on disk. This prevents the probability panel from rendering.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+Position exposure cannot be derived without valid signal values. See diagnostic above.
+
+Plain English: the Probability Engine panel above flagged a data problem with the signal series, so we cannot compute the exposure curve without risking a misleading chart. Fix the signal-data issue first, then this panel will render.
+
+How to Use the Signal — Trigger Scenarios
+TypeError: This app has encountered an error. The original error message is redacted to prevent data leaks. Full error details have been recorded in the logs (if you're on Streamlit Cloud, click on 'Manage app' in the lower right of your app).
+Traceback:
+File "/mount/src/aig-rlic-plus/app/pages/6_sofr_ted_spy_strategy.py", line 22, in <module>
+    render_strategy_page("sofr_ted_spy", STRATEGY_CONFIG)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/mount/src/aig-rlic-plus/app/components/page_templates.py", line 1136, in render_strategy_page
+    render_instructional_trigger_cards(pair_id)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+File "/mount/src/aig-rlic-plus/app/components/instructional_trigger_cards.py", line 385, in render_instructional_trigger_cards
+    # Wave 10I.A defensive coerce: legacy pairs may carry `threshold_value` as a
