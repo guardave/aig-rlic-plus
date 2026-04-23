@@ -1,0 +1,190 @@
+{
+  "pair_id": "vix_vix3m_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-04-23T22:00:00Z",
+  "indicator_axis": {
+    "canonical_column": "vix_vix3m_ratio",
+    "display_name": "VIX/VIX3M Ratio (term structure proxy)",
+    "derivatives": [
+      {
+        "name": "vix_vix3m_ratio",
+        "definition": "Raw VIX/VIX3M ratio. Values >1 indicate inverted VIX term structure (short-term fear exceeds medium-term).",
+        "formula": "vix[t] / vix3m[t]",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "history_zoom_gfc",
+          "history_zoom_covid",
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "vix_vix3m_ratio_z252",
+        "definition": "252-day rolling z-score of the VIX/VIX3M ratio.",
+        "formula": "(ratio[t] - rolling_mean_252(ratio)) / rolling_std_252(ratio)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "regime_returns"
+        ],
+        "notes": "S2_z252 in tournament."
+      },
+      {
+        "name": "vix_vix3m_ratio_z126",
+        "definition": "126-day rolling z-score of the VIX/VIX3M ratio.",
+        "formula": "(ratio[t] - rolling_mean_126(ratio)) / rolling_std_126(ratio)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "hero",
+          "correlation_heatmap"
+        ],
+        "notes": "S3_z126 \u2014 tournament WINNER. T2_rp75, lt, countercyclical."
+      },
+      {
+        "name": "vix_vix3m_roc5",
+        "definition": "5-day rate-of-change of the VIX/VIX3M ratio.",
+        "formula": "ratio[t] / ratio[t-5] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "S4_roc5 in tournament."
+      },
+      {
+        "name": "vix_vix3m_roc21",
+        "definition": "21-day rate-of-change of the VIX/VIX3M ratio.",
+        "formula": "ratio[t] / ratio[t-21] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "S5_roc21 in tournament."
+      },
+      {
+        "name": "vix_vix3m_mom5",
+        "definition": "5-day momentum of the ratio.",
+        "formula": "ratio[t] - ratio[t-5]",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "S6_mom5 in tournament."
+      },
+      {
+        "name": "vix_vix3m_mom21",
+        "definition": "21-day momentum of the ratio.",
+        "formula": "ratio[t] - ratio[t-21]",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "S7_mom21 in tournament (invalid: high turnover)."
+      },
+      {
+        "name": "vix_vix3m_pctrank",
+        "definition": "252-day percentile rank of the ratio.",
+        "formula": "empirical_cdf_252d(ratio[t])",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "S8_pctrank in tournament."
+      },
+      {
+        "name": "vix_vix3m_backwardation",
+        "definition": "Binary: 1 when ratio > 1 (inverted term structure / backwardation).",
+        "formula": "1 if ratio[t] > 1 else 0",
+        "role": "regime_state",
+        "appears_in_charts": [
+          "regime_returns"
+        ],
+        "notes": "S9_backwd in tournament."
+      },
+      {
+        "name": "vix_spread",
+        "definition": "Absolute spread: VIX minus VIX3M.",
+        "formula": "vix[t] - vix3m[t]",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": "S10_spread in tournament."
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy",
+    "display_name": "SPY (S&P 500 ETF)",
+    "derivatives": [
+      {
+        "name": "spy",
+        "definition": "Daily closing price of SPY (S&P 500 ETF).",
+        "formula": "raw column, unit = USD",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "correlation_heatmap",
+          "regime_returns"
+        ],
+        "notes": "Log-returns used in all forward-return targets."
+      },
+      {
+        "name": "spy_fwd_1d",
+        "definition": "1-day forward log-return of SPY.",
+        "formula": "log(spy[t+1]/spy[t])",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spy_fwd_5d",
+        "definition": "5-day (~1 week) forward cumulative log-return of SPY.",
+        "formula": "log(spy[t+5]/spy[t])",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spy_fwd_21d",
+        "definition": "21-day (~1 month) forward cumulative log-return of SPY.",
+        "formula": "log(spy[t+21]/spy[t])",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spy_fwd_63d",
+        "definition": "63-day (~1 quarter) forward cumulative log-return of SPY.",
+        "formula": "log(spy[t+63]/spy[t])",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "regime_returns",
+          "forward_return_dist"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spy_ret",
+        "definition": "1-day simple return of SPY.",
+        "formula": "(spy[t] - spy[t-1]) / spy[t-1]",
+        "role": "derivative",
+        "appears_in_charts": [
+          "regime_returns",
+          "drawdown_chart"
+        ],
+        "notes": ""
+      }
+    ]
+  },
+  "notes": "Produced 2026-04-23 to resolve FAIL-08. Covers VIX/VIX3M ratio signal universe (10 signals, S7_mom21 invalid due to excessive turnover, valid winner is S3_z126)."
+}

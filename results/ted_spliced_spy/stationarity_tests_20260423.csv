@@ -1,0 +1,13 @@
+variable,test,statistic,p_value,conclusion
+spread,ADF,-6.779,0.0,Stationary
+spread,KPSS,2.202,0.01,Non-stationary
+spy,ADF,3.5954,1.0,Non-stationary
+spy,KPSS,11.2782,0.01,Non-stationary
+spread_roc_63d,ADF,-23.791,0.0,Stationary
+spread_roc_63d,KPSS,0.8663,0.01,Non-stationary
+spread_roc_21d,ADF,-24.1668,0.0,Stationary
+spread_roc_21d,KPSS,0.075,0.1,Stationary
+spread_zscore_252d,ADF,-10.384,0.0,Stationary
+spread_zscore_252d,KPSS,0.1454,0.1,Stationary
+spread_mom_63d,ADF,-11.521,0.0,Stationary
+spread_mom_63d,KPSS,0.0212,0.1,Stationary

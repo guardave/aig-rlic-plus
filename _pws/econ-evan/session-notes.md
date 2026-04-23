@@ -443,6 +443,53 @@ Schema matches APP-TL1 exactly (10 cols + `#`-prefix metadata row). Both within 
 
 **Handoff:** `results/_cross_agent/handoff_evan_wave10h2_20260423.md`.
 
+## 2026-04-23 — Wave 10I.C adversarial DOM audit: Evan domain failures
+
+**Dispatch:** read audit handoff at `results/_cross_agent/handoff_quincy_fullaudit_20260423.md`, own failures in Evan's domain, fix what is fixable.
+
+### Failures owned
+
+| FAIL | Root cause | Fix |
+|------|-----------|-----|
+| FAIL-05: APP-DIR1 L1 direction banners on 4 Strategy pages (indpro_spy, vix_vix3m_spy, sofr_ted_spy, dff_ted_spy) | `observed_direction` set from linear regression coefficient sign, not from tournament winner signal. A positive coefficient for VIX or TED spread does NOT imply procyclical. Threshold orientation (lt/gt) determines actual trading direction. | Already fixed in commit e0a342d (Ray's fix). Evan's SOP updated with ECON-DIR1 gate requiring reconciliation before handoff. |
+| FAIL-08: Signal universe unavailable on 6 Methodology pages | ECON-UD was "strongly recommended" (not blocking) for non-reference pairs. Evan interpreted that as optional. All 6 lacked `signal_scope.json`. | Produced `signal_scope.json` for all 6 pairs (indpro_spy, permit_spy, vix_vix3m_spy, sofr_ted_spy, dff_ted_spy, ted_spliced_spy). Schema-validated (PASS). SOP updated: now blocking for ALL pairs. |
+| FAIL-09: Stationarity tests missing on 3 TED pairs | TED pipeline printed ADF results to stdout but never saved `.to_csv()`. Portal reads from file. | Generated `stationarity_tests_20260423.csv` for sofr_ted_spy, dff_ted_spy, ted_spliced_spy using parquet data. SOP updated with mandatory artifact rule. |
+| FAIL-04: risk_category null on hy_ig_spy card | `winner_summary.json` had no `risk_category` field. | Added `risk_category: "credit_spread"` to `results/hy_ig_spy/winner_summary.json`. |
+
+### Root cause analysis (meta pattern)
+
+All three artifact gaps share one failure mode: **"print to stdout" ≠ "save to disk"** and **"strongly recommended" = never enforced**. The SOP had the rule; the pipeline had no `to_csv()` call; the QA automated check didn't look at file presence. Only a human-read adversarial audit caught the visible "unavailable" text.
+
+Fix: ECON-UD upgraded to blocking for all pairs. Added mandatory artifact rule for stationarity CSV. Added ECON-DIR1 gate to pre-handoff checklist and Anti-Patterns section of SOP.
+
+### Artifacts produced this session
+
+- `results/indpro_spy/signal_scope.json` — schema PASS
+- `results/permit_spy/signal_scope.json` — schema PASS
+- `results/vix_vix3m_spy/signal_scope.json` — schema PASS
+- `results/sofr_ted_spy/signal_scope.json` — schema PASS
+- `results/dff_ted_spy/signal_scope.json` — schema PASS
+- `results/ted_spliced_spy/signal_scope.json` — schema PASS
+- `results/sofr_ted_spy/stationarity_tests_20260423.csv` — 12 rows (6 variables × ADF + KPSS)
+- `results/dff_ted_spy/stationarity_tests_20260423.csv` — 12 rows
+- `results/ted_spliced_spy/stationarity_tests_20260423.csv` — 12 rows
+- `results/hy_ig_spy/winner_summary.json` — `risk_category: "credit_spread"` added
+
+### SOP rules updated
+
+- `docs/agent-sops/econometrics-agent-sop.md`:
+  - ECON-UD blocking status: reference pairs only → ALL pairs (Wave 10I.C)
+  - Stationarity: added mandatory artifact rule + sentinel lesson
+  - Task Completion Hooks #6: ECON-DIR1 direction reconciliation gate
+  - Anti-Patterns: 3 new never-do rules (direction, signal_scope, stationarity stdout)
+
+### EOD compliance
+
+- Experience file update blocked (home-dir write permission denied as usual). Learning recorded here.
+- Commit will be made after this session note is complete.
+
+---
+
 ## 2026-04-23 — Wave 10H.2 follow-up: hy_ig_spy broker CSV regen
 
 Ray caught a miss from my earlier Wave 10H.2 handoff: I claimed `hy_ig_spy/winner_trades_broker_style.csv` was already compliant, but it was on the legacy 12-col schema. Fixed.

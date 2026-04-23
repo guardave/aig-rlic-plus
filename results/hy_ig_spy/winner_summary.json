@@ -30,5 +30,6 @@
   "lead_description": "No lead (same-period)",
   "win_rate": 0.5035,
   "max_acceptable_delay_days": 5,
-  "breakeven_cost_bps": 50.0
+  "breakeven_cost_bps": 50.0,
+  "risk_category": "credit_spread"
 }

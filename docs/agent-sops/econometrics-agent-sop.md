@@ -279,7 +279,7 @@ Before estimating anything:
 
 - **Correlation matrix** — pairwise correlations among candidate variables
 - **Time-series plots** — visual inspection for trends, breaks, seasonality
-- **Stationarity** — ADF/KPSS tests on each series; document order of integration. If Dana has already provided stationarity tests, review and confirm rather than re-running from scratch. Flag disagreements.
+- **Stationarity** — ADF/KPSS tests on each series; document order of integration. If Dana has already provided stationarity tests, review and confirm rather than re-running from scratch. Flag disagreements. **Mandatory artifact:** Save stationarity results to `results/{pair_id}/stationarity_tests_{YYYYMMDD}.csv` with columns `variable, test, statistic, p_value, conclusion`. A missing CSV shows "Stationarity tests missing" on the portal Methodology page (GATE-31 FAIL). The adversarial DOM audit (Wave 10I.C) found this missing on all 3 TED pairs because the pipeline only printed results to stdout rather than saving to disk. Producer: after any stationarity computation, always `df.to_csv(...)` before moving to the next pipeline stage.
 - **Scatter plots** — bivariate relationships between Y and key X variables
 - Flag potential issues: multicollinearity (VIF > 10), structural breaks, outliers
 - Cross-reference with research brief's flagged risks — ensure exploratory analysis addresses each one
@@ -1042,8 +1042,8 @@ Filename disambiguates from Rule C2's quantile regression artifact (semantically
 
 **Blocking status.**
 
-- **Reference pairs (per META-RPD):** ECON-UD is blocking. Missing Methodology "Signal Universe" section OR `signal_scope.json` absent on disk = acceptance block per GATE-31.
-- **Non-reference pairs:** ECON-UD is strongly recommended; absence is a GATE-24-class warning but not a block. Will be upgraded to blocking once the reference-pair pattern proves out.
+- **All pairs (updated 2026-04-23, Wave 10I.C):** ECON-UD is now blocking for ALL pairs, not just reference pairs. The adversarial DOM audit found "Signal universe table unavailable" on 6 of 10 portal pairs — a GATE-31 FAIL on every affected Methodology page. Root cause: the prior non-blocking status for non-reference pairs meant Evan skipped `signal_scope.json` production entirely. Upgrade: `signal_scope.json` must be produced for every pair before handoff to Ace. Missing file = GATE-31 block regardless of pair type.
+- **Reference pairs (per META-RPD):** ECON-UD blocking (unchanged).
 
 **Cross-references.**
 
@@ -1161,6 +1161,7 @@ Evan both consumes upstream data (from Dana and Ray) and produces model outputs 
 3. **Verify model outputs tell a coherent story.** Before handing off, check that regime labels, sign conventions, and threshold directions are consistent with economic intuition. If state 0 is "stress", verify that stress probability is high during GFC and low during calm periods like 2013-2014.
 4. **Include sanity-check assertions in manifests.** Every `_manifest.json` sidecar must include at least one testable assertion (e.g., `"prob_stress mean during 2008-2009 > 0.7"`). The downstream consumer runs this assertion before using the data.
 5. **Cross-check tournament results.** Verify that the tournament winner's reported metrics (Sharpe, max DD, return) can be independently derived from the equity curve data. Report any discrepancies before handoff.
+6. **Direction reconciliation gate (ECON-DIR1 — new, Wave 10I.C).** Before finalizing `interpretation_metadata.json`, compare `observed_direction` against `winner_summary.json.direction`. They MUST match. These fields describe the same economic quantity — the direction the strategy exploits — and any discrepancy will trigger APP-DIR1 L1 warning banners on the portal Strategy page. Reconciliation procedure: (a) set `observed_direction` to match the tournament winner's direction; (b) update `key_finding` to reference the winning signal (not just the best linear regression); (c) set `direction_consistent: true`. Root cause of the 2026-04-23 FAIL-05 finding: `observed_direction` was set from the linear regression coefficient sign of the best exploratory predictor, which differed from the tournament winner signal. VIX positive coefficient ≠ procyclical; TED spread positive coefficient ≠ procyclical — economic interpretation of direction must account for threshold orientation (lt vs gt) and signal type (z-score, momentum, rate-of-change), not just the raw coefficient sign.
 
 ## Task Completion Hooks
 
@@ -1231,6 +1232,9 @@ Evan both consumes upstream data (from Dana and Ray) and produces model outputs 
 - **Never** submit an ambiguous data request to Dana — specify units, frequency, SA preference, and priority
 - **Never** hand off strategy rules to Ace in model notation — translate to plain English
 - **Never** deliver backtest results as prose — use structured tables and machine-readable files
+- **Never** set `observed_direction` in `interpretation_metadata.json` from a linear regression coefficient alone without cross-checking against `winner_summary.json.direction`. Positive coefficient for a stress indicator (VIX, spread) does NOT imply procyclical — the threshold orientation (lt vs gt) and signal type determine the actual trading direction (ECON-DIR1 gate)
+- **Never** finalize a pair without producing `signal_scope.json` (ECON-UD) and `stationarity_tests_{YYYYMMDD}.csv` — both must be saved to disk before handoff; printing to stdout does not satisfy the artifact contract
+- **Never** produce a tournament pipeline that only prints stationarity results to stdout — always save to CSV in the same code block as the computation
 
 ---
 

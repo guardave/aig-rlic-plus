@@ -1,0 +1,197 @@
+{
+  "pair_id": "sofr_ted_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-04-23T22:00:00Z",
+  "indicator_axis": {
+    "canonical_column": "spread",
+    "display_name": "SOFR-3M TED Spread (SOFR minus 3-month T-bill rate)",
+    "derivatives": [
+      {
+        "name": "spread",
+        "definition": "Raw SOFR-3M TED Spread (SOFR minus 3-month T-bill rate) level.",
+        "formula": "raw column, unit = percentage points",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "history_zoom_gfc",
+          "history_zoom_covid",
+          "correlation_heatmap"
+        ],
+        "notes": "SOFR data from 2018; short sample."
+      },
+      {
+        "name": "spread_zscore_252d",
+        "definition": "252-day rolling z-score of the spread.",
+        "formula": "(spread[t] - rolling_mean_252(spread)) / rolling_std_252(spread)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spread_zscore_126d",
+        "definition": "126-day rolling z-score of the spread.",
+        "formula": "(spread[t] - rolling_mean_126(spread)) / rolling_std_126(spread)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spread_roc_21d",
+        "definition": "21-day rate-of-change of the spread.",
+        "formula": "(spread[t] / spread[t-21] - 1) * 100",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spread_roc_63d",
+        "definition": "63-day rate-of-change of the spread \u2014 tournament WINNER signal.",
+        "formula": "(spread[t] / spread[t-63] - 1) * 100",
+        "role": "derivative",
+        "appears_in_charts": [
+          "hero",
+          "correlation_heatmap"
+        ],
+        "notes": "Winner: T1_p25 (low spread RoC = spread narrowing = risk-on), P1_long_cash, countercyclical."
+      },
+      {
+        "name": "spread_mom_21d",
+        "definition": "21-day momentum (absolute change) of the spread.",
+        "formula": "spread[t] - spread[t-21]",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spread_mom_63d",
+        "definition": "63-day momentum (absolute change) of the spread.",
+        "formula": "spread[t] - spread[t-63]",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spread_pctrank_252d",
+        "definition": "252-day percentile rank of the spread.",
+        "formula": "empirical_cdf_252d(spread[t])",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spread_vol_21d",
+        "definition": "21-day rolling standard deviation of spread (volatility proxy).",
+        "formula": "rolling_std_21(spread[t])",
+        "role": "diagnostic",
+        "appears_in_charts": [],
+        "notes": ""
+      },
+      {
+        "name": "spread_stress",
+        "definition": "Binary stress flag: 1 when spread > 75th percentile of full sample.",
+        "formula": "1 if spread[t] > p75_spread else 0",
+        "role": "regime_state",
+        "appears_in_charts": [
+          "regime_returns"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spread_level",
+        "definition": "Smoothed level: 21-day rolling mean of spread.",
+        "formula": "rolling_mean_21(spread[t])",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy",
+    "display_name": "SPY (S&P 500 ETF)",
+    "derivatives": [
+      {
+        "name": "spy",
+        "definition": "Daily closing price of SPY (S&P 500 ETF).",
+        "formula": "raw column, unit = USD",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "correlation_heatmap",
+          "regime_returns"
+        ],
+        "notes": "Log-returns used in all forward-return targets."
+      },
+      {
+        "name": "spy_fwd_1d",
+        "definition": "1-day forward log-return of SPY.",
+        "formula": "log(spy[t+1]/spy[t])",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spy_fwd_5d",
+        "definition": "5-day (~1 week) forward cumulative log-return of SPY.",
+        "formula": "log(spy[t+5]/spy[t])",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spy_fwd_21d",
+        "definition": "21-day (~1 month) forward cumulative log-return of SPY.",
+        "formula": "log(spy[t+21]/spy[t])",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spy_fwd_63d",
+        "definition": "63-day (~1 quarter) forward cumulative log-return of SPY.",
+        "formula": "log(spy[t+63]/spy[t])",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "regime_returns",
+          "forward_return_dist"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "spy_ret",
+        "definition": "1-day simple return of SPY.",
+        "formula": "(spy[t] - spy[t-1]) / spy[t-1]",
+        "role": "derivative",
+        "appears_in_charts": [
+          "regime_returns",
+          "drawdown_chart"
+        ],
+        "notes": ""
+      }
+    ]
+  },
+  "notes": "Produced 2026-04-23 to resolve FAIL-08. SOFR-3M spread derived from SOFR (risk-free) minus DTB3 (3-month T-bill). Note: SOFR only available from 2018 \u2014 short OOS window."
+}
