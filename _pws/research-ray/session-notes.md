@@ -168,3 +168,30 @@ This is Ray's ephemeral session journal for the AIG-RLIC+ project. Timeless patt
 **Cross-agent coordination:** Purely downstream of Ace's 10H.2 structural commit `a32eaff`. No interaction with Vera/Evan/Dana this wave.
 
 **LEAD-DL1:** Honoured — only touched Ray-owned files (narrative constants, pair config narrative fields, handoff, PWS, team status).
+
+---
+## Session: Wave 10I.A Part 3a — 2026-04-23 — narrative port for 4 non-TED pairs
+
+**Task:** Replace all TODO-Ray stubs in the 4 non-TED pair configs Ace migrated in Wave 10I.A Part 1.
+
+**Status: COMPLETE.**
+
+**Deliverables:**
+- 190 TODO-Ray stubs filled (indpro_spy 65, permit_spy 37, vix_vix3m_spy 37, umcsent_xlv 51). Zero remaining.
+- Smoke tests: 16 passes / 0 failures across the 4 pairs.
+- Source: legacy `app/pages/{N}_{pair}_*.py` via `git show 24e2f16~1:...`; ported, lightly edited, META-ELI5 compliant.
+- TRADE_LOG_EXAMPLE_MD per pair:
+  - indpro_spy — 2020 COVID cash anchor (672 days cash 2019-03 → 2021-01).
+  - permit_spy — 2008 GFC short (+26.65% over 123 days) with honest whipsaw commentary.
+  - vix_vix3m_spy — 2020 COVID cash 2020-01-24 → 2020-04-03 then long +36.09% over 186 days.
+  - umcsent_xlv — 2020-02-29 broker-CSV entry (BUY XLV at $83.70, UMCSENT YoY +7.676%, cum P&L +14.25%).
+- Handoff: `results/_cross_agent/handoff_ray_wave10i_partA_20260423.md`.
+
+**KPI cross-check (Ace's flag resolved):** All 4 pairs' `_TOURNAMENT_DESIGN_MD` numbers from `docs/pair_execution_history.md` matched the authoritative `winner_summary.json`. No corrections required. Enriched each design table with additional JSON fields (Sortino, Calmar, win rate, turnover, breakeven-cost where present).
+
+**Flags to Lead:**
+1. Only `umcsent_xlv` has the canonical broker-style CSV (APP-TL1). The other three pairs use legacy 5-column `winner_trade_log.csv`. Candidate for Vera/Dana dispatch.
+2. `permit_spy` and `vix_vix3m_spy` lack `equity_curves`/`drawdown`/`walk_forward` charts on disk (pre-existing; Ace flagged this in Part-1).
+3. Chart-filename drift remains (`indpro_spy_hero.json` vs bare `hero.json`). Candidate for Vera cleanup.
+
+**LEAD-DL1:** Honoured — only touched Ray-owned narrative fields in pair configs, handoff doc, PWS, and team status.

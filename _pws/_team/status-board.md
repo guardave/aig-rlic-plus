@@ -465,3 +465,16 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 - Flag for Evan: pre-existing data gap — TED pairs lack `equity_curves`/`drawdown`/`walk_forward` charts. Not a regression (composite didn't render them either). Queue as Vera backlog.
 - Flag for Ray: 111 TODO-Ray stubs; prose retrievable via `git show HEAD~1:app/pages/6_ted_variants_*.py` after the explode commit lands.
 - Handoff: `results/_cross_agent/handoff_ace_wave10i_partB_20260423.md`.
+
+---
+
+## 2026-04-23 — Wave 10I.A Part 3a [Ray] narrative port COMPLETE
+
+- Filled **190 TODO-Ray stubs** across 4 pair configs (indpro_spy 65, permit_spy 37, vix_vix3m_spy 37, umcsent_xlv 51). Zero remaining.
+- Smoke: 4/4 pairs `failures=0` (16 passes total).
+- Source: legacy `app/pages/{N}_{pair}_*.py` via `git show 24e2f16~1:...`; ported + lightly edited for META-ELI5 and Wave 10H+ voice consistency.
+- KPI cross-check: all 4 pairs' `_TOURNAMENT_DESIGN_MD` numbers match `winner_summary.json` (authoritative). **No corrections required** for Ace's flagged concern; enriched with additional JSON fields (Sortino, Calmar, win rate, turnover).
+- TRADE_LOG_EXAMPLE_MD authored per pair with crisis anchors: indpro (2020 COVID cash), permit (2008 GFC short), vix (2020 COVID cash + rebound), umcsent (Feb 2020 broker-CSV entry).
+- Flags for Lead: (1) 3 pairs (indpro, permit, vix) lack canonical broker-style CSV — candidate Vera/Dana dispatch; (2) permit_spy and vix_vix3m_spy lack equity/drawdown/wf charts on disk (pre-existing gap, Ace Part-1 flag); (3) chart-filename drift persists for 3 pairs.
+- Handoff: `results/_cross_agent/handoff_ray_wave10i_partA_20260423.md`.
+- Scope discipline: no touches to `app/components/*`, TED configs (Ray-B's scope), Sample config, chart artefacts, scripts, or SOPs.
