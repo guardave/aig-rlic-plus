@@ -541,3 +541,39 @@ All 6 FAILs on Strategy page, single root cause: `TypeError` at `app/components/
 **Script change:** `scripts/cloud_verify.py` — `FOCUS_PAIRS` list expansion only. No helper or DOM-extractor change. Committed under QA identity.
 
 **Compliance:** No Ace/Ray/Evan/Vera-owned files touched. No SOP edits. No pair configs touched. No chart artefacts touched.
+
+---
+
+## 2026-04-23 — Wave 10I.C Full-Coverage Adversarial DOM Audit
+
+**Dispatch:** Lead. User found visible errors after "41/41 PASS" wave verify. Full adversarial audit of ALL 10 pairs × 4 pages + landing = 41 pages. Read actual DOM text, not just structural markers.
+
+**Method:** Used DOM text captures from `temp/20260423T132025Z_cloud_verify_wave10iA_reverify3/dom_text/` (the 41/41 PASS run). Read every file and hunted for content a human would flag as wrong or incomplete.
+
+**Verdict: BLOCK. 20 FAIL / 3 WARN / 18 PASS across 41 pages.**
+
+Evidence pages (all 10 pairs): ALL PASS — no content errors.
+
+**Key failures found:**
+
+1. **FAIL-02/03 (BLOCKING, QA-CL2):** Landing card Max DD wrong for `hy_ig_spy` (-0.1% shown; correct is -8.5%) and `umcsent_xlv` (-0.1% shown; correct is -10.9%). Root cause: `pair_registry.py` `_dd_scale = 1.0` for non-`hy_ig_v2_spy` pairs, but hy_ig_spy and umcsent_xlv tournament CSVs use ratio form. `f"{-0.085:.1f}%"` → "-0.1%". Wave 4D-1 pattern resurfaces.
+
+2. **FAIL-05 (BLOCKING):** APP-DIR1 L1 direction disagreement banners live on 4 Strategy pages (indpro_spy, vix_vix3m_spy, sofr_ted_spy, dff_ted_spy). Human-visible: "do not act on the results until the disagreement is resolved."
+
+3. **FAIL-06:** "Ray leg pending RES-17 frontmatter migration" visible stub on 8 Strategy pages — including the SAMPLE pair (hy_ig_v2_spy).
+
+4. **FAIL-07:** "vs N/A buy-and-hold" in Story KPI key metrics block on 8 pairs — B&H benchmark comparison not populated.
+
+5. **FAIL-08/09/10:** Methodology stub text on 6-9 pairs: "Signal universe table unavailable", "Stationarity tests missing", "Total tournament combinations: N/A".
+
+6. **FAIL-01:** Sidebar header hardcoded "6 of 73 priority pairs analyzed" — shows 10 pairs, header says 6.
+
+**Why prior verify missed all of this:** `scripts/cloud_verify.py` checks for Python tracebacks and chart presence only. It does not read content for accuracy, missing B&H data, stub phrases ("Ray leg pending", "Signal universe table unavailable"), APP-SEV1 L1 banners, or stale hardcoded counts. The 41/41 PASS was structurally correct but content-incomplete.
+
+**New pattern (Pattern 24):** Cloud verify passing 41/41 on structural markers is NECESSARY but NOT SUFFICIENT. A separate content-level audit pass must read DOM text for: stub phrases, "N/A" placeholders in key metrics, visible warning banners that are not Python errors, and stale hardcoded values. Both gates are needed before stakeholder sign-off.
+
+**Deliverables:**
+- Evidence: `temp/20260423T204310Z_cloud_audit_fullcoverage/` (41 DOM text files)
+- Handoff: `results/_cross_agent/handoff_quincy_fullaudit_20260423.md`
+
+**Compliance:** QA-only — no edits to app/, results/, scripts/, or pair configs. Pure find-and-report.
