@@ -140,3 +140,26 @@ Dispatched to cross-review all team SOPs from Dana's lens. Produced findings doc
 - `wc -l results/hy_ig_spy/interpretation_metadata.json` → 94 lines
 
 **Gotcha for next instance:** `last_updated_by` schema enum is `['dana', 'evan', 'ray']` — NOT `data-dana`. Using the full agent handle fails validation.
+
+## 2026-04-23 — EOD close-out (Wave 10H.1 tail)
+
+**Scope:** Housekeeping only. No dispatch, no SOP work, no data-artifact rerun.
+
+**Work done:**
+1. Committed 4 orphan artifacts untracked since 2026-04-20 (Wave 9/10 `indpro_xlp` + `umcsent_xlv` pipeline byproducts):
+   - `data/missing_value_report_indpro_xlp_20260420.md` (41 lines — monthly + daily missing-value tables for 33+17 columns)
+   - `data/missing_value_report_umcsent_xlv_20260420.md` (29 lines — monthly 22-column missing-value table)
+   - `data/summary_stats_indpro_xlp_20260420.csv` (34 rows — pandas describe() for 33 columns + skew/kurtosis)
+   - `data/summary_stats_umcsent_xlv_20260420.csv` (23 rows — pandas describe() for 22 columns + skew/kurtosis)
+   - Content audit: confirmed vanilla byproducts, no secrets/PII. Should have shipped alongside `b15c1d1` (Wave 10G.4A).
+2. Global profile sync: `last_seen` → 2026-04-23T00:42Z. `projects/aig-rlic-plus.md` updated with Wave 10H.1 snapshot + open-backlog section. `experience.md` + `memories.md` extended with two lessons: orphan-artifact hygiene + subagent permission pattern.
+
+**Permission check:** Writes to `~/.claude/agents/data-dana/*.md` succeeded without prompt — Lead's `b3facc8` (single-slash → double-slash in `.claude/settings.json`) resolved earlier wave denial. BL-PERM-SUBAGENT stays RESOLVED.
+
+**Wave 10H.1 observations logged from sidelines (no direct participation):**
+- VIZ-O1 chart-disposition sidecar + VIZ-E1 exploration_zone expose `exploratory_charts` under `analyst_suggestions.json`. Dana-owned sidecar fields untouched.
+- APP-PT2 Methodology Exploratory Insights renders `exploratory_charts` if present — legacy pairs (no key) render unchanged.
+- Pattern 22 (Playwright `inner_text()` drops CSS class names) — relevant to any future cloud DOM probe I write for data artifacts.
+- LEAD-DL1 Lead Delegation Discipline: Lead commits stay category 1/6 paths (`docs/`, `.claude/settings.json`). Data-owned paths (`data/`, `scripts/pair_pipeline_*.py`, `docs/schemas/*`) flow through Dana dispatch only.
+
+**Next:** Await next wave dispatch. Backlog candidates: v1 HY-IG rerun (DATA-D12 bare-name cleanup, BL-002), DATA-D12 linter as standalone script, DATA-D13 bootstrap for legacy pairs.
