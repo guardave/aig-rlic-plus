@@ -76,13 +76,23 @@ def get_integrity_issues() -> list:
 
 # APP-RL1 (Wave 10G.5-fix): single source of truth for page-link routing.
 # Consume this helper everywhere — do NOT inline a local page_routing dict.
-_TED_VARIANTS = {"sofr_ted_spy", "dff_ted_spy", "ted_spliced_spy"}
+#
+# Wave 10I.A Part 2 (2026-04-23): the three TED variants were previously
+# multiplexed into a single composite `pages/6_ted_variants_*` surface via
+# `st.tabs`. That composite has been exploded into three separate
+# one-pair-per-page thin-wrapper surfaces — see
+# `app/pair_configs/{sofr_ted_spy,dff_ted_spy,ted_spliced_spy}_config.py`.
+# The `_TED_VARIANTS` branch in `get_page_prefix` is therefore removed and
+# each variant is a regular entry in `PAGE_ROUTING`.
 PAGE_ROUTING = {
     "indpro_spy": "pages/5_indpro_spy",
+    "sofr_ted_spy": "pages/6_sofr_ted_spy",
     "permit_spy": "pages/7_permit_spy",
     "vix_vix3m_spy": "pages/8_vix_vix3m_spy",
     "hy_ig_v2_spy": "pages/9_hy_ig_v2_spy",
     "umcsent_xlv": "pages/10_umcsent_xlv",
+    "dff_ted_spy": "pages/11_dff_ted_spy",
+    "ted_spliced_spy": "pages/12_ted_spliced_spy",
     "indpro_xlp": "pages/14_indpro_xlp",
     "hy_ig_spy": "pages/15_hy_ig_spy",
 }
@@ -95,8 +105,6 @@ def get_page_prefix(pair_id: str) -> str:
     page_templates — must call this helper rather than maintaining their own
     local routing dicts.
     """
-    if pair_id in _TED_VARIANTS:
-        return "pages/6_ted_variants"
     return PAGE_ROUTING.get(pair_id, f"pages/5_{pair_id}")
 
 

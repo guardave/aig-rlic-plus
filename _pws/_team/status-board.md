@@ -428,3 +428,18 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 - **Pattern 23 discovered** (tab-panel lazy-hide): Streamlit `st.tabs` hides inactive panels via CSS; Playwright `inner_text` does NOT traverse them. First verify pass false-FAILed both retro-applied pairs (Trade Log lives in "Performance" tab; default-active is "Execute"). Fix: use `frame.content()` HTML for tab-content markers. Will codify in qa-agent-sop.md at next SOP revision.
 - Handoff: `results/_cross_agent/handoff_quincy_wave10h2_20260423.md`.
 - Artifacts: `temp/20260423T075033Z_cloud_verify_wave10h2/`.
+
+---
+
+## 2026-04-23 — Wave 10I.A Part 2 [Ace] TED composite explode COMPLETE
+
+- Shipped: 3 new pair configs (sofr_ted_spy, dff_ted_spy, ted_spliced_spy) — 880 lines, 111 TODO-Ray stubs.
+- Shipped: 12 new thin wrappers at prefixes 6, 11, 12 (4 per pair).
+- Deleted: 4 composite pages (`6_ted_variants_{story,evidence,strategy,methodology}.py`, 458 lines).
+- Routing updated: `pair_registry.PAGE_ROUTING` absorbs 3 TED pair_ids (dropped composite branch); `sidebar.FINDINGS` split into 3 entries.
+- Smoke: all 3 pairs `failures=0` (3 passes each; evidence method-block chart_names are dict literals — not AST-covered, consistent with Part-1 pairs).
+- Landing page: 3 TED pair cards now render separately, each routing to its exploded page surface.
+- No Dana gaps — all 3 pair dirs already have `interpretation_metadata.json` + tournament artifacts.
+- Flag for Evan: pre-existing data gap — TED pairs lack `equity_curves`/`drawdown`/`walk_forward` charts. Not a regression (composite didn't render them either). Queue as Vera backlog.
+- Flag for Ray: 111 TODO-Ray stubs; prose retrievable via `git show HEAD~1:app/pages/6_ted_variants_*.py` after the explode commit lands.
+- Handoff: `results/_cross_agent/handoff_ace_wave10i_partB_20260423.md`.

@@ -20,13 +20,33 @@ FINDINGS = [
         },
     },
     {
-        "id": "ted_variants",
-        "label": "TED Variants → SPY",
+        "id": "sofr_ted_spy",
+        "label": "SOFR-TED → SPY",
         "pages": {
-            "Story": "pages/6_ted_variants_story.py",
-            "Evidence": "pages/6_ted_variants_evidence.py",
-            "Strategy": "pages/6_ted_variants_strategy.py",
-            "Methodology": "pages/6_ted_variants_methodology.py",
+            "Story": "pages/6_sofr_ted_spy_story.py",
+            "Evidence": "pages/6_sofr_ted_spy_evidence.py",
+            "Strategy": "pages/6_sofr_ted_spy_strategy.py",
+            "Methodology": "pages/6_sofr_ted_spy_methodology.py",
+        },
+    },
+    {
+        "id": "dff_ted_spy",
+        "label": "DFF-TED → SPY",
+        "pages": {
+            "Story": "pages/11_dff_ted_spy_story.py",
+            "Evidence": "pages/11_dff_ted_spy_evidence.py",
+            "Strategy": "pages/11_dff_ted_spy_strategy.py",
+            "Methodology": "pages/11_dff_ted_spy_methodology.py",
+        },
+    },
+    {
+        "id": "ted_spliced_spy",
+        "label": "Spliced TED → SPY",
+        "pages": {
+            "Story": "pages/12_ted_spliced_spy_story.py",
+            "Evidence": "pages/12_ted_spliced_spy_evidence.py",
+            "Strategy": "pages/12_ted_spliced_spy_strategy.py",
+            "Methodology": "pages/12_ted_spliced_spy_methodology.py",
         },
     },
     {

@@ -408,3 +408,23 @@ Smoke: both pairs failures=0. CWD-independence regression test added at `temp/26
 **Handoff:** `results/_cross_agent/handoff_ace_wave10h2_20260423.md`.
 
 **Lesson (to promote on EOD):** When authoring a "structural skeleton for another agent to fill," bare string literals + `# TODO <agent>` prefix is the cleanest substrate for a downstream `Edit` pass. Avoid composing them from helpers or f-strings — Ray needs a zero-context replace.
+
+## 2026-04-23 — Wave 10I.A Part 2 (TED composite explode)
+
+**Dispatch:** Lead — explode 3-in-1 TED composite (`app/pages/6_ted_variants_*.py`) into 3 separate pair surfaces matching the APP-PT1 one-pair-per-page model.
+
+**What I shipped:**
+- 3 new pair configs (sofr_ted_spy, dff_ted_spy, ted_spliced_spy): 880 lines, 111 TODO-Ray stubs (37 per pair). Structural fields (chart names, data-source table, methods, tournament design, references) filled in-place; narrative prose stubbed.
+- 12 new thin wrappers (4 surfaces × 3 pairs) at prefixes `6_sofr_ted_spy_*`, `11_dff_ted_spy_*`, `12_ted_spliced_spy_*`. 22 lines each (264 total).
+- 4 composite pages deleted via `git rm` (458 lines removed).
+- Routing plumbing: `pair_registry.py` — removed `_TED_VARIANTS` composite branch, added 3 pair_ids to `PAGE_ROUTING`. `sidebar.py` — replaced single `ted_variants` FINDING entry with 3 separate entries.
+
+**Smoke:** sofr_ted_spy 3/0, dff_ted_spy 3/0, ted_spliced_spy 3/0. All `failures=0`.
+
+**Landing page:** confirmed `load_pair_registry()` routes each TED pair to its own exploded page prefix (6/11/12) — 3 separate cards, no composite ghost.
+
+**Flags:** Pre-existing data gap (not a regression) — none of the 3 TED pairs has `equity_curves`/`drawdown`/`walk_forward` charts on disk; Strategy-page Performance tab shows "chart pending" identical to legacy. Queued as Evan follow-up.
+
+**Handoff:** `results/_cross_agent/handoff_ace_wave10i_partB_20260423.md`.
+
+**LEAD-DL1 compliance:** touched only Ace-owned files (pages, pair_configs, navigation components) + handoff + PWS. Zero narrative prose. Zero template changes. Zero `results/*` or `scripts/*` edits.
