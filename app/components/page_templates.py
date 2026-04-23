@@ -227,11 +227,22 @@ def _render_exploratory_insights(pair_id: str) -> None:
     APP-SEV1 L2 warning and continue to next entry (no short-circuit)."""
     path = _REPO_ROOT / "results" / pair_id / "analyst_suggestions.json"
     if not path.exists():
+        # Silent skip: legacy pairs need not ship analyst_suggestions.json.
+        # This is expected, not a failure — no DOM footprint.
         return
     try:
         with open(path) as f:
             data = json.load(f)
-    except (json.JSONDecodeError, OSError):
+    except (json.JSONDecodeError, OSError) as exc:
+        # APP-SEV1 L2: path-exists-but-unreadable / malformed JSON is a real
+        # data-integrity issue, not a legacy pair. Surface it instead of
+        # silently hiding the section (prior behaviour made cloud debugging
+        # opaque — see Wave 10H.1 follow-up diagnosis).
+        st.warning(
+            f"Exploratory Insights: could not read "
+            f"`results/{pair_id}/analyst_suggestions.json` "
+            f"({exc.__class__.__name__}: {exc})."
+        )
         return
 
     entries = data.get("exploratory_charts") or []

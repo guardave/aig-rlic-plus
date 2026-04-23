@@ -14,6 +14,7 @@ from components.pair_registry import (
     get_type_label,
     get_objective_label,
     get_integrity_issues,
+    humanize_column_tokens,
 )
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
@@ -306,10 +307,12 @@ for i in range(0, len(pairs), cols_per_row):
                     unsafe_allow_html=True,
                 )
 
-                # Key finding (full text — card height aligned via CSS)
+                # Key finding (full text — card height aligned via CSS).
+                # Humanize raw forward-return column tokens (e.g. `spy_fwd_63d`)
+                # that leak from pipeline-generated text — see APP-RL1 helper.
                 finding = p.get("key_finding", "")
                 if finding:
-                    st.caption(finding)
+                    st.caption(humanize_column_tokens(finding))
 
                 # Navigation buttons (2x2 to avoid label clipping)
                 nav_links = [

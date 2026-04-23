@@ -31,6 +31,45 @@ def get_objective_label(objective: str) -> str:
     return {"min_mdd": "Min MDD", "max_sharpe": "Max Sharpe", "max_return": "Max Return"}.get(objective, "Unknown")
 
 
+# APP-RL1 extension: friendly-label map for raw forward-return column names
+# that leak from pipeline-generated text fields (e.g. `key_finding` strings
+# like "… predicts spy_fwd_63d …"). Single source of truth — do NOT inline a
+# duplicate dict elsewhere. Keys are raw column tokens produced by
+# scripts/pair_pipeline_*.py; values are non-quant display phrases.
+_FWD_RETURN_LABELS = {
+    "spy_fwd_21d": "SPY 21-day forward return",
+    "spy_fwd_63d": "SPY 63-day forward return",
+    "spy_fwd_126d": "SPY 126-day forward return",
+    "spy_fwd_252d": "SPY 252-day forward return",
+    "spy_fwd_12m": "SPY 12-month forward return",
+    "xlv_fwd_21d": "XLV 21-day forward return",
+    "xlv_fwd_63d": "XLV 63-day forward return",
+    "xlv_fwd_12m": "XLV 12-month forward return",
+    "xlp_fwd_21d": "XLP 21-day forward return",
+    "xlp_fwd_63d": "XLP 63-day forward return",
+    "xlp_fwd_12m": "XLP 12-month forward return",
+}
+
+
+def humanize_column_tokens(text: str) -> str:
+    """Replace raw forward-return column tokens with friendly labels.
+
+    Landing-page display polish: pipeline-generated strings such as
+    ``"indpro_zscore_60m predicts spy_fwd_12m (coef=-0.02 …)"`` leak raw
+    column names into the user-facing card. This helper substitutes known
+    tokens from ``_FWD_RETURN_LABELS``. Unknown tokens pass through
+    unchanged (no masking of legitimate content).
+    """
+    if not text:
+        return text
+    out = text
+    # Sort longest-first so ``spy_fwd_126d`` matches before ``spy_fwd_12``.
+    for token in sorted(_FWD_RETURN_LABELS, key=len, reverse=True):
+        if token in out:
+            out = out.replace(token, _FWD_RETURN_LABELS[token])
+    return out
+
+
 def get_integrity_issues() -> list:
     return list(_integrity_issues)
 

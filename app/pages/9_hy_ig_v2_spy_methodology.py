@@ -20,6 +20,7 @@ from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
 from components.signal_universe_table import render_signal_universe
 from components.analyst_suggestions_table import render_analyst_suggestions
+from components.page_templates import _render_exploratory_insights
 
 st.set_page_config(
     page_title="HY-IG v2 Methodology | AIG-RLIC+",
@@ -369,6 +370,15 @@ st.markdown("""
 """)
 
 st.markdown("---")
+
+# ----------------------------------------------------------
+# Exploratory Insights (APP-PT2) — Wave 10H.1 follow-up.
+# This hand-written legacy page does not use the centralized
+# render_methodology_page template, so the helper must be invoked
+# directly. Silent no-op for pairs without `exploratory_charts` in
+# their analyst_suggestions.json; warning surface on read/parse failure.
+# ----------------------------------------------------------
+_render_exploratory_insights(PAIR_ID)
 
 # ----------------------------------------------------------
 # References (N7 -- Ray narrative addition, 17 entries in 4 categories)

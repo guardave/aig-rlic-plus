@@ -1,5 +1,18 @@
 # Team Status Board
 
+## 2026-04-23 — Dev Ace (Wave 10H.1 follow-up — both FAILs fixed)
+
+**Status:** Both cloud-verify FAILs fixed. Awaiting Quincy re-verify.
+
+- **Bug 1 landing raw-col leak — FIXED.** Root cause: `key_finding` string in `interpretation_metadata.json` carries raw `spy_fwd_*d` tokens; `app/app.py` rendered verbatim. Added `humanize_column_tokens()` + canonical `_FWD_RETURN_LABELS` map in `pair_registry.py` (APP-RL1 SSoT), wrapped the display site. 7 pairs covered, no other pair's cards regressed.
+- **Bug 2 APP-PT2 silent no-op — FIXED.** Root cause ≠ Quincy's hypothesis: helper was already using `_REPO_ROOT` correctly. Real cause: `app/pages/9_hy_ig_v2_spy_methodology.py` is hand-written legacy and bypasses `render_methodology_page`, where `_render_exploratory_insights` was wired in Wave 10H.1. Added direct call before References section. Also tightened observability (APP-SEV1 L2): JSON parse failure now surfaces `st.warning` instead of silent return.
+- **CWD-independence regression test:** `temp/260423_ace_wave10h1_followup/cwd_independence_test.py` simulates `os.chdir('/tmp')` before importing — 12 streamlit calls emitted, heading present, info banner present. PASS.
+- **Smoke:** `hy_ig_v2_spy` 15/0, `hy_ig_spy` 6/0.
+- **Proposed rule for Lead:** **APP-PR1 Path Resolution Discipline** — mandate `_REPO_ROOT` anchors in `app/components/**` + `app/pages/**`; require surfaced warnings on unreadable files of shipped pairs. 5 other hand-written methodology pages currently bypass the template (no visible bug today but pre-positioned to silently drop future `exploratory_charts` adoption).
+- Handoff follow-up appended to `results/_cross_agent/handoff_ace_wave10h1_20260422.md`.
+
+---
+
 ## 2026-04-23 — QA Quincy (Wave 10H.1 Re-verify, post-2nd-reboot)
 
 **Status:** Re-verify complete. **15 PASS / 2 FAIL / 17** — identical to attempt 3; user's 2nd Streamlit Cloud reboot with cache-clear did not change the outcome.

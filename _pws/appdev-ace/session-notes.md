@@ -356,3 +356,17 @@ APP-SS1 validation PASS
 **Handoff:** `results/_cross_agent/handoff_ace_wave10h1_20260422.md`.
 
 **Scope discipline (LEAD-DL1):** no writes to `analyst_suggestions.json`, chart sidecars, pair_config narrative, QA scripts, or hand-written legacy `.py` pages.
+
+## 2026-04-23 — Wave 10H.1 follow-up (2 FAILs from Quincy cloud verify)
+
+Two real FAILs, byte-identical across 2 cloud reboots → not deploy-lag.
+
+**Bug 1 landing raw-col leak:** root cause = `key_finding` string in `interpretation_metadata.json` contains raw `spy_fwd_*d` tokens, rendered verbatim at `app/app.py:312`. Fixed by adding `humanize_column_tokens()` + `_FWD_RETURN_LABELS` map in `pair_registry.py` (APP-RL1 SSoT) and wrapping the key_finding display.
+
+**Bug 2 APP-PT2 silent no-op:** root cause = `app/pages/9_hy_ig_v2_spy_methodology.py` is hand-written legacy page; does NOT use `render_methodology_page` template where I wired `_render_exploratory_insights` in Wave 10H.1 (e6767e0). Classic template-scope miss. Fix: direct call in the page file before References section. Also tightened observability in the helper's JSON read error branch (st.warning instead of silent return) per APP-SEV1 L2.
+
+**Lesson logged for global experience:** when adding a feature via a centralized template, always grep pages/ for bypass (`grep -L "render_methodology_page"`). 5 pages currently bypass (not just hy_ig_v2_spy).
+
+Proposed APP-PR1 to Lead: mandate `_REPO_ROOT` anchors for all project-relative file reads; require `st.warning`/`st.error` on path-exists-but-unreadable failures of shipped-pair files.
+
+Smoke: both pairs failures=0. CWD-independence regression test added at `temp/260423_ace_wave10h1_followup/`.
