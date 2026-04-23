@@ -1,5 +1,22 @@
 # Econ Evan — AIG-RLIC+ Session Notes
 
+## 2026-04-23 — Wave 10I.A schema relaxation (fast-path)
+
+Dispatch: relax `winner_summary.schema.json` `threshold_value` to accept `null` to unblock 6/41 cloud-verify FAILs.
+
+Changes:
+- `threshold_value.type`: `"number"` → `["number","null"]` with description note citing `BL-THRESHOLD-VALUE-SCHEMA` and Ace's Defense-2 coerce @ 5f2e50d.
+- `x-version`: 1.0.0 → 1.1.0 (minor, per META-SCV; additive tolerant change).
+
+Smoke: `smoke_loader.py` across 10 pairs → all `failures=0`.
+
+Backlog items logged in handoff (`results/_cross_agent/handoff_evan_wave10i_schema_20260423.md`):
+- BL-LEGACY-WINNER-SUMMARY-SHAPE (6 legacy pairs deviate from schema beyond just threshold_value — missing `generated_at`, `signal_column`, `target_symbol`, `threshold_rule`, `strategy_family`, `oos_max_drawdown`, OOS window fields; legacy extras: `threshold_code`, `strategy_code`, `*_display_name`, `lead_*`, `win_rate`).
+- BL-WINNER-SUMMARY-ADDL-PROPS (decide whether to add `additionalProperties: false` or formally declare legacy fields).
+- BL-WIN-RATE-NULL (`win_rate` null in 7 of 11 pairs).
+
+Do-NOT boundary respected: no data files, no `app/components/*`, no producer code touched.
+
 ## 2026-04-19/20 session — HY-IG v2 reference-pair hardening (Waves 1 → 8D)
 
 Agent: Econ Evan

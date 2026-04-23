@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aig-rlic-plus.local/schemas/winner_summary.schema.json",
   "x-owner": "evan",
-  "x-version": "1.0.0",
+  "x-version": "1.1.0",
   "title": "Winner Summary",
   "description": "Canonical contract for `results/{pair_id}/winner_summary.json`. Produced by Econ Evan at tournament completion; consumed by AppDev Ace's Strategy page (probability engine panel, position adjustment panel, instructional trigger cards, execution panel) and by Research Ray for narrative cross-reference. Resolves ECON-H5 (producer mandate) and APP-WS1 (consumer pre-render contract) in a single artifact per META-CF. Companion to `tournament_winner.json` (META-TWJ) — winner_summary is the render-ready strategy descriptor; tournament_winner is the winner-vs-benchmark delta record.",
   "type": "object",
@@ -49,8 +49,8 @@
       "minLength": 1
     },
     "threshold_value": {
-      "type": "number",
-      "description": "Numeric threshold used by the winning strategy rule. Units depend on `signal_column` semantics (probability in [0,1] for HMM signals; z-score units for z-score signals; etc.). Pair with `threshold_rule` to form the complete decision rule."
+      "type": ["number", "null"],
+      "description": "Numeric threshold used by the winning strategy rule. Units depend on `signal_column` semantics (probability in [0,1] for HMM signals; z-score units for z-score signals; etc.). Pair with `threshold_rule` to form the complete decision rule. `null` is tolerated for legacy pairs whose producers did not emit a numeric threshold (see backlog BL-THRESHOLD-VALUE-SCHEMA for producer-side backfill); consumers must render a user-visible fallback per Ace's Defense-2 coerce (commit 5f2e50d)."
     },
     "threshold_rule": {
       "type": "string",

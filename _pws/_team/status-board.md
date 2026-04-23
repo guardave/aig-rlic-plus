@@ -514,3 +514,13 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 - **Script:** `scripts/cloud_verify.py` `FOCUS_PAIRS` expanded 4→10.
 - **Evidence:** `temp/20260423T085519Z_cloud_verify_wave10iA/`.
 - **Handoff:** `results/_cross_agent/handoff_quincy_wave10i_partA_20260423.md`.
+
+---
+
+## 2026-04-23 — Wave 10I.A [Evan] schema relaxation — threshold_value null tolerated
+
+- `docs/schemas/winner_summary.schema.json` v1.0.0 → v1.1.0: `threshold_value.type` = `"number"` → `["number","null"]`. Ace's L2 Defense-2 coerce (5f2e50d) now takes effect instead of L1 short-circuit.
+- Smoke: `smoke_loader.py` × 10 pairs → all `failures=0`.
+- Scope discipline: no data files, no `app/components/*`, no producer code. Legacy data-shape deep fix stays on `BL-THRESHOLD-VALUE-SCHEMA`.
+- Backlog additions proposed in handoff: BL-LEGACY-WINNER-SUMMARY-SHAPE (6 legacy pairs missing 7+ required fields), BL-WINNER-SUMMARY-ADDL-PROPS, BL-WIN-RATE-NULL.
+- Handoff: `results/_cross_agent/handoff_evan_wave10i_schema_20260423.md`.
