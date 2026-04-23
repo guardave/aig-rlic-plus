@@ -1219,6 +1219,44 @@ Narrative defaults for steps 2, 3, 4 (disclosure, two-file model, column glossar
 
 **Cross-references:** APP-PT1 (template abstraction this rule extends), APP-SEV1 (severity for missing artifacts), APP-EX1 (expander title canonical registry — "How to read this chart" reuses that vocabulary), META-UC (schema-versioned broker-style header comments), META-ELI5 (plain-English disclosure and glossary requirement), BL-APP-PT1-LEGACY (sibling gap — Sample's rich Strategy page; Sample decommission is the follow-on).
 
+### Rule APP-PR1 — Path Resolution Discipline (added 2026-04-23, Wave 10I)
+
+**Why this rule exists.** Wave 10H.1 debugging surfaced a class risk: Streamlit Cloud's runtime working directory is NOT the repo root (it is the container's app-launch directory, which varies by deploy). Any `pd.read_csv("results/...")`, `open("data/...")`, or `Path("results") / pair_id / ...` in `app/` silently resolves to a non-existent path on cloud, raising `FileNotFoundError` — which `app/` code frequently swallows inside broad `try/except`, producing a silent-skip. That is exactly how the Wave 10H.1 APP-PT2 Exploratory Insights section went missing on cloud at first investigation (the real cause was different, but the class risk is live). Local smoke always passes because local CWD is the repo root. Without a rule, the bug class will recur every time a new `app/` helper reads a repo-relative path.
+
+**Binding.** Every file read under `app/components/**` and `app/pages/**` that targets a project-relative path MUST resolve it via a `_REPO_ROOT`-anchored `pathlib.Path` object. The anchor pattern is:
+
+```python
+from pathlib import Path
+_REPO_ROOT = Path(__file__).resolve().parents[N]  # N = depth from this file to repo root
+```
+
+Canonical values of `N` for existing modules:
+- `app/components/*.py` → `parents[2]` (already in use in `charts.py`, `page_templates.py`).
+- `app/pages/*.py` → `parents[2]` (page files live at same depth as components via symlinked imports).
+- `app/_smoke_tests/*.py` → `parents[2]`.
+
+All project-relative reads must be expressed as `_REPO_ROOT / "results" / pair_id / "foo.json"` (or equivalent). The following patterns are PROHIBITED:
+- `Path("results") / pair_id / ...` (bare relative `Path`).
+- `open("results/...")`, `pd.read_csv("results/...")`, `json.load(open("data/..."))` with string literals that begin with a project-root directory name.
+- `os.path.join("results", ...)` — same class, different syntax.
+
+Exception: `app/assets/` is intentionally sibling-relative from `app/components/*.py` via `os.path.join(os.path.dirname(__file__), "..", "assets", ...)` and does NOT need `_REPO_ROOT`. Any other "relative from `__file__`" use is allowed if it resolves to a location that moves with the source tree (not with the working directory). If a read can succeed on cloud via `__file__`-relative resolution, it is compliant.
+
+**Severity pairing with APP-SEV1.** A project-relative read that RESOLVES but fails to parse (JSON decode error, CSV schema error) must surface per APP-SEV1 L2 — `st.warning(...)` with the exception class and the resolved absolute path in the user-visible message. Silent skip is permitted ONLY when:
+- The path does not exist, AND
+- The artifact is documented as optional (per the consumer's SOP section).
+
+For any required artifact (`winner_summary.json`, `signal_scope.json`, `interpretation_metadata.json`, `analyst_suggestions.json` when `exploratory_charts` key is documented, `winner_trades_broker_style.csv` per APP-TL1 at the L1/L2 gates, `winner_trade_log.csv` similarly), path-does-not-exist is the L1/L2 condition per APP-SEV1 — not a silent skip.
+
+**Detection / enforcement (grep-checkable CI, future):**
+- `grep -rn "open(\"results/\|open(\"data/\|pd\.read_csv(\"results/\|pd\.read_csv(\"data/" app/` should return zero matches. Any match is a violation.
+- `grep -rn "Path(\"results\"\|Path(\"data\"\|Path(\"output\"" app/` should return zero matches.
+- `grep -rn "_REPO_ROOT" app/components/ app/pages/` should show all project-relative reads are anchored.
+
+**Migration protocol.** APP-PR1 lands prophylactic — Ace's Wave 10H.1 audit of `page_templates.py` found zero bare-relative instances in the centralised template. At APP-PR1 ratification, Ace runs the three greps above across `app/**` and either confirms compliance or opens a follow-up ticket per violation. Existing compliant code uses this pattern already (`charts.py::_chart_json_path`, `page_templates.py::_latest_dated_file`); future code must match. Legacy hand-written pages scheduled for APP-PT1 migration (BL-APP-PT1-LEGACY) must be audited as part of that migration.
+
+**Cross-references:** APP-SEV1 (severity policy for read failures), APP-PT1 (centralised template — the reference implementation of `_REPO_ROOT` anchoring), BL-APP-PT1-LEGACY (legacy pages that need path-resolution audit during their migration), META-UNK (silent-skip prohibition for required artifacts).
+
 ### Rule APP-RL1 — Single-Source Routing / Label Maps (No Duplicates Across Modules)
 
 **Added 2026-04-22 (Wave 10G.5 post-cloud-verify).** Closes a real bug where the page-link routing dict was duplicated between `app/components/pair_registry.py::load_pair_registry()` and `app/components/page_templates.py::_page_prefix()`. When `hy_ig_spy` was added in Wave 10G.4E, only the `pair_registry.py` entry was updated; the template's duplicate kept stale content and `st.page_link` raised `StreamlitPageNotFoundError` on cloud. Local `smoke_loader` never exercises `st.page_link` resolution, so the bug shipped past all gates.

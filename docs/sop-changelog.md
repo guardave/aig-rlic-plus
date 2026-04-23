@@ -8,6 +8,20 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-04-23 — Wave 10I: APP-PR1 Path Resolution Discipline
+
+**Trigger.** Opening a hygiene wave (Cluster A from backlog review) to address the central silent-regression class: legacy hand-written pages that bypass `render_*_page()` templates. Before beginning the legacy-page migration (BL-APP-PT1-LEGACY + BL-APP-PT1-UMCSENT + Sample Strategy decommission), codify APP-PR1 so all migrated pages ship compliant with the path-resolution discipline from day one.
+
+**Rule added:**
+
+- **`docs/agent-sops/appdev-agent-sop.md` — APP-PR1 Path Resolution Discipline.** Binding: every file read under `app/components/**` and `app/pages/**` targeting a project-relative path MUST resolve via `_REPO_ROOT = Path(__file__).resolve().parents[N]`. Bare relatives (`Path("results") / ...`, `open("results/...")`, `pd.read_csv("results/...")`) are prohibited. Pairs with APP-SEV1: resolved-but-unparseable required artifacts surface as L2 warnings with the resolved absolute path; silent skip permitted ONLY for optional artifacts whose path does not exist. Grep-checkable CI pattern provided for future enforcement. Ace's Wave 10H.1 audit of `page_templates.py` already showed zero bare-relative instances; rule is prophylactic and becomes mandatory for the legacy-page migration work.
+
+**Closes backlog item:** `BL-APP-PR1` (proposed by Ace in Wave 10H.1 follow-up handoff).
+
+**What agents need to know going forward.** Any new `app/` helper that reads a project artifact must use `_REPO_ROOT`. Any migration of a legacy hand-written page to a thin template wrapper (Wave 10I scope) must audit for bare-relative reads as part of the migration.
+
+---
+
 ## 2026-04-23 — Wave 10H.2 Closure: APP-TL1 Shipped + Pattern 23 Codified
 
 **Final cloud verify (commit `8e743ce`):** 17/17 PASS. APP-TL1 retro-applied to `hy_ig_spy` and `indpro_xlp`. Regression gate holds for Sample (legacy page) and umcsent_xlv (tracked as BL-APP-PT1-UMCSENT).
