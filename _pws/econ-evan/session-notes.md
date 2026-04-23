@@ -425,3 +425,14 @@ Schema matches APP-TL1 exactly (10 cols + `#`-prefix metadata row). Both within 
 - `winner_summary.json` for both pairs lacks `commission_bps`; defaulted to 5 bps. Confirm tournament cost tier.
 
 **Handoff:** `results/_cross_agent/handoff_evan_wave10h2_20260423.md`.
+
+## 2026-04-23 — Wave 10H.2 follow-up: hy_ig_spy broker CSV regen
+
+Ray caught a miss from my earlier Wave 10H.2 handoff: I claimed `hy_ig_spy/winner_trades_broker_style.csv` was already compliant, but it was on the legacy 12-col schema. Fixed.
+
+- Shared helper `scripts/_trade_log_broker.py` doesn't apply — hy_ig_spy's `winner_trade_log.csv` is trade-pair format (entry/exit rows), not position-log format.
+- Wrote one-off converter `temp/260423_hyig_broker_regen.py`: 387 trades → 774 BUY/SELL events.
+- Prices from daily parquet `spy` col; signal values from `signals_20260422.parquet::hmm_2state_prob_stress`; `cum_pnl_pct` via compounded `trade_return_pct`.
+- Commission: 5 bps from `cost_assumption_bps` in summary (explicit).
+- Smoke passed: `passes=6 failures=0`.
+- Lesson: when surveying pre-existing broker CSVs for compliance, actually `pd.read_csv(..., comment="#")` and check column list — don't eyeball.

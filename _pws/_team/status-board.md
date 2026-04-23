@@ -358,3 +358,11 @@ No residual FAILs, no deferred QA items from this wave.
 - Smoke: hy_ig_spy 6/0 PASS · hy_ig_v2_spy 15/0 PASS · indpro_xlp 8/0 PASS · umcsent_xlv 7/0 PASS.
 - Handoff: `results/_cross_agent/handoff_ray_wave10h2_20260423.md`.
 - Skipped `TRADE_LOG_COLUMN_EXAMPLES` per-pair override — canonical defaults read cleanly for both active pairs.
+
+---
+
+## 2026-04-23 — Econ Evan (Wave 10H.2 follow-up — hy_ig_spy broker CSV schema fix)
+
+**Status:** Done. Ray's APP-TL1 narrative authoring surfaced that `results/hy_ig_spy/winner_trades_broker_style.csv` was on the legacy 12-col schema (Wave 10G artifact). Regenerated to APP-TL1 10-col schema (774 rows = 387 trade-pairs × {BUY,SELL}). Commission 5 bps (pulled from `winner_summary.json::cost_assumption_bps`). Smoke: `passes=6 failures=0`. Addendum appended to `results/_cross_agent/handoff_evan_wave10h2_20260423.md` (corrects prior §6 claim that file was already compliant).
+
+Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair format (not position-log format like indpro_xlp / umcsent_xlv), so a one-off converter in `temp/260423_hyig_broker_regen.py` was the right tool. No pipeline rerun.

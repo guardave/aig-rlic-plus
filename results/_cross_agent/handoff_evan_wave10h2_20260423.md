@@ -91,3 +91,24 @@ Spot-check of first few rows of each file confirmed BUY on initial entry, SELL o
 - `results/hy_ig_v2_spy/winner_trades_broker_style.csv` (Sample) — already compliant.
 - `scripts/pair_pipeline_indpro_xlp.py` — the broker-style CSV is produced by the shared helper as a post-pipeline step (matches how `synthesize_broker_trade_log.py` is invoked for HY-IG variants). No pipeline rerun needed; the tournament winner is unchanged.
 - Data dictionary files — Dana-owned; flagged above.
+
+---
+
+## Addendum — 2026-04-23 (follow-up dispatch from Lead)
+
+**Correction to §6:** My prior claim that `results/hy_ig_spy/winner_trades_broker_style.csv` was "already compliant" was wrong. That file was on the legacy 12-col schema (`trade_id, entry_date, exit_date, direction, qty_pct, notional_usd, price_entry, holding_days, trade_return_pct, signal_code, threshold_code, strategy_code`) — a Wave 10G pair-pipeline artifact predating APP-TL1. Ray's APP-TL1 narrative authoring (commit `fc17274`) surfaced the mismatch against Ace's renderer (which uses `comment="#"` + expects the 10-col layout).
+
+**What I did:** Regenerated `results/hy_ig_spy/winner_trades_broker_style.csv` to the APP-TL1 10-col schema using a one-off converter (`temp/260423_hyig_broker_regen.py`). The shared helper `scripts/_trade_log_broker.py::synthesize_from_position_log` does not apply directly here because `hy_ig_spy/winner_trade_log.csv` ships in trade-pair format (entry/exit rows), not position-log format. Converter preserved the authoritative trade sequence (387 trades → 774 BUY/SELL events), pulled exit prices from `data/hy_ig_spy_daily_20000101_20260422.parquet` (`spy` column), pulled HMM stress signal values from `results/hy_ig_spy/signals_20260422.parquet`, compounded `trade_return_pct` to populate `cum_pnl_pct`.
+
+**Verification:**
+- Schema: `pd.read_csv(path, comment="#")` yields exactly the 10 APP-TL1 columns ✔
+- Metadata row: single `#`-prefixed line with starting-capital, commission, strategy, signal, source ✔
+- Row count: 774 broker events = 387 trade-pairs (higher than the ~30–200 hint because P2 HMM stress flips ~daily; this matches `winner_summary.json::oos_n_trades = 387`).
+- Commission basis: 5 bps, pulled from `winner_summary.json::cost_assumption_bps` (explicit, not defaulted).
+- Spot-check: first 3 rows match trade-log in order — `2002-03-11 BUY @ 75.38`, `2002-03-12 SELL @ 75.33 (ret -0.03%)`, `2002-03-12 BUY qty 71%`.
+- Smoke: `python3 app/_smoke_tests/smoke_loader.py hy_ig_spy` → `passes=6  failures=0` ✔
+- Final `cum_pnl_pct` on last row: **935.96%** over 24y OOS+IS window — sanity-reasonable for HMM-P2.
+
+**Scope discipline:** Only `results/hy_ig_spy/winner_trades_broker_style.csv` touched. Shared helper untouched (no bug found — hy_ig_spy's log format differs from indpro_xlp / umcsent_xlv; rather than bend the helper to a second shape, used a one-off converter in `temp/`). Tournament not rerun, `winner_summary.json` unmodified.
+
+**Caveat still open:** BL-COMMISSION-BASIS — no change. `hy_ig_spy/winner_summary.json` already carried `cost_assumption_bps=5`, so this pair is not affected.
