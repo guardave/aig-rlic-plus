@@ -8,6 +8,16 @@
 
 ## Session timeline (Wave-by-wave)
 
+### Wave 10I discovery -- legacy-page migration scope (2026-04-23)
+- Scoped entire `app/pages/` surface: 24 page files; 8 THIN (complete), 15 HAND + 1 HYBRID + 4 TED-composite pages to migrate.
+- Zero template code changes required for Sample migration (all rich components already wired in `page_templates.py`).
+- Zero bare-relative `results/` reads anywhere in `app/pages/`; APP-PR1 prophylactic rule holds. 16 non-canonical `os.path.join(dirname, "..", ...)` idioms go away on migration.
+- Recommended **two waves**: 10I.A non-Sample (5 pair surfaces, 8 new configs, 32 wrappers) then 10I.B Sample (reference port + regression parity vs. sample-v1.0).
+- Amber flag: TED composite architectural decision (explode to 3 × 4 pages vs. preserve composite) is a prerequisite to Wave 10I.A scoping.
+- Long pole: umcsent_xlv — serialises on Ray's `TRADE_LOG_EXAMPLE_MD` + Evan's broker-style CSV backfill (BL-APP-PT1-UMCSENT).
+- Total budget: 14 agent-waves (8 Ace, 3 Ray, 1 Evan, 0 Dana, 2 Quincy); token prior ~500K–700K across both waves.
+- Report: `results/_cross_agent/ace_discovery_legacy_migration_20260423.md`.
+
 ### Wave 2B -- HY-IG v2 reference-pair polish (2026-04-14)
 - Authored breadcrumb component; 5 UX changes on the 4 HY-IG v2 pages.
 - Rule IDs applied: N10-N13, META-PWQ, META-RPD, APP-AF3, APP-EP1, APP-PA1, APP-RP1.

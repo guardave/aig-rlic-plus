@@ -1,5 +1,25 @@
 # Team Status Board
 
+## 2026-04-23 — Dev Ace (Wave 10I discovery — legacy-page migration scope)
+
+**Status:** Discovery report shipped per Lead dispatch. No implementation (per LEAD-DL1 handoff contract).
+
+**Top-line numbers:**
+- 19 files / 5,829 lines to migrate (15 hand-written + 1 hybrid + 4 TED composite = 5 pair surfaces + Sample).
+- 8 pair configs to create (7 non-Sample + 1 Sample reference).
+- **0 template extensions needed.** `page_templates.py` already supports every Sample-exclusive component.
+- Ballpark: **14 agent-waves total** (8 Ace, 3 Ray, 1 Evan, 0 Dana, 2 Quincy). ~500K–700K tokens.
+
+**Phasing recommendation:** Two waves. 10I.A = non-Sample (5 surfaces in parallel lanes, umcsent is the long pole). 10I.B = Sample (reference-defining port, regression parity vs. sample-v1.0 gate).
+
+**Gate for Lead:** TED composite decision (explode to 3 × 4 pages or preserve composite with tab-safe template mode) is a prerequisite before Wave 10I.A scoping finalises. Recommendation: explode — keeps 1-pair-per-card-per-4-pages invariant and needs zero template changes.
+
+**Report:** `results/_cross_agent/ace_discovery_legacy_migration_20260423.md`
+
+**APP-PR1 audit:** zero bare-relative `results/` reads in any `app/pages/` file. Migration removes all 16 non-canonical `os.path.join(dirname, "..", ...)` idioms by deletion.
+
+---
+
 ## 2026-04-23 — Lead Lesandro (Wave 10H.1 CLOSED ✅ — EOD)
 
 **Status:** Wave 10H.1 complete. Git tag `wave-10h1-complete` pinned at Quincy's final verify `aca5602`. Closure commit `08546f3` (relnotes + sop-changelog).
