@@ -10,6 +10,14 @@ Promoted from `temp/260422_wave10g_full/focused_verify.py` (Wave 10G) with:
   contain an "Exploratory Insights" section with the three orphan charts'
   ELI5 markers in DOM text. Other pairs' Methodology pages must NOT render
   the section (regression gate — backward compatibility).
+- Wave 10I.C: APP_SEV1_PATS and STUB_PATS soft-error detection; GATE-29
+  parquet pre-flight hard-wired into main flow.
+- Wave 10I.C (screenshot-all-tabs): After each page loads and hydrates,
+  captures a default-state screenshot {pair}_{page}_default.png, then
+  enumerates all [data-baseweb="tab"] buttons and clicks through each,
+  waiting 3s per tab, saving {pair}_{page}_tab_{n}_{label}.png. Produces
+  screenshots/index.md listing every screenshot as a shared evidence package
+  for cross-agent domain inspection.
 
 Usage
 -----
@@ -20,10 +28,12 @@ Usage
 Outputs
 -------
 Scratch (gitignored, under ``temp/<ts>_cloud_verify/``):
-    results.json         – structured verdicts per (pair, page)
-    summary.txt          – human-readable summary
-    dom_text/*.txt       – extracted DOM per slug
-    screenshots/*.png    – viewport screenshots per slug
+    results.json              – structured verdicts per (pair, page)
+    summary.txt               – human-readable summary
+    dom_text/*.txt            – extracted DOM per slug
+    screenshots/*.png         – default-state + per-tab screenshots per slug
+    screenshots/index.md      – shared evidence package: all screenshots listed
+                                with pair, page, tab label, and file path
 """
 
 from __future__ import annotations
@@ -136,19 +146,78 @@ APP_TL1_PREVIEW_CAPTION = "executions, one row per trade"
 # DOM extraction
 # ---------------------------------------------------------------------------
 
-def get_dom(page, url, slug, dom_dir, ss_dir):
-    """Return (text, source_tag, plotly_count, html) or (None, err, 0, "").
+def _sanitize_label(label: str) -> str:
+    """Convert a tab label into a safe filename fragment (lowercase, underscored)."""
+    label = label.strip()
+    # Replace whitespace runs and non-alphanumeric chars with underscores.
+    label = re.sub(r"[^a-zA-Z0-9]+", "_", label)
+    return label.lower().strip("_")[:40]
+
+
+def _screenshot_tabs(page_obj, frame, slug, ss_dir, pair_id, page_name):
+    """Click through all visible Streamlit tab buttons and take screenshots.
+
+    Wave 10I.C screenshot-all-tabs standard:
+    - Default-state screenshot already taken by the caller as {slug}_default.png.
+    - This helper enumerates [data-baseweb="tab"] elements in the frame,
+      clicks each one, waits 3 s for content to settle, then takes a viewport
+      screenshot named {slug}_tab_{n}_{label}.png.
+    - Returns a list of dicts: {pair, page, tab_n, tab_label, filename, path}.
+    """
+    records = []
+    try:
+        tab_els = frame.query_selector_all('[data-baseweb="tab"]')
+    except Exception:
+        tab_els = []
+
+    if not tab_els:
+        print(f"    no tabs found on {slug}", flush=True)
+        return records
+
+    print(f"    found {len(tab_els)} tab(s) on {slug}", flush=True)
+    for n, tab_el in enumerate(tab_els):
+        try:
+            raw_label = tab_el.inner_text() or f"tab{n}"
+        except Exception:
+            raw_label = f"tab{n}"
+        safe_label = _sanitize_label(raw_label) or f"tab{n}"
+        filename = f"{slug}_tab_{n}_{safe_label}.png"
+        path = os.path.join(ss_dir, filename)
+        try:
+            tab_el.click()
+            time.sleep(3)
+            page_obj.screenshot(path=path, full_page=False)
+            print(f"    tab {n} [{raw_label}] → {filename}", flush=True)
+        except Exception as exc:
+            print(f"    tab {n} [{raw_label}] screenshot failed: {exc}", flush=True)
+            path = ""
+        records.append({
+            "pair": pair_id,
+            "page": page_name,
+            "tab_n": n,
+            "tab_label": raw_label.strip(),
+            "filename": filename,
+            "path": path,
+        })
+
+    return records
+
+
+def get_dom(page, url, slug, dom_dir, ss_dir, pair_id="", page_name=""):
+    """Return (text, source_tag, plotly_count, html, tab_screenshots) or (None, err, 0, "", []).
 
     ``text`` is ``inner_text("body")`` — only traverses visible DOM (does NOT
     pick up content inside inactive Streamlit tab panels).
     ``html`` is the full rendered HTML (via ``frame.content()``), used for
     marker-presence checks on content that Streamlit lazy-hides behind tabs.
+    ``tab_screenshots`` is the list of per-tab screenshot records produced by
+    _screenshot_tabs() (empty for landing page).
     """
     print(f"  navigating {url} ...", flush=True)
     try:
         page.goto(url, timeout=60000, wait_until="domcontentloaded")
     except Exception as e:
-        return None, f"goto: {e}", 0, ""
+        return None, f"goto: {e}", 0, "", [], None
 
     # Attempt 3 fix: resolve iframe via selector + content_frame, not
     # page.frames iteration. The former is deterministic; the latter races
@@ -168,8 +237,9 @@ def get_dom(page, url, slug, dom_dir, ss_dir):
             if len(text) > 200:
                 with open(os.path.join(dom_dir, f"{slug}.txt"), "w") as fh:
                     fh.write(text)
+                default_ss = os.path.join(ss_dir, f"{slug}_default.png")
                 try:
-                    page.screenshot(path=os.path.join(ss_dir, f"{slug}.png"), full_page=False)
+                    page.screenshot(path=default_ss, full_page=False)
                 except Exception:
                     pass
                 try:
@@ -180,10 +250,10 @@ def get_dom(page, url, slug, dom_dir, ss_dir):
                     html_outer = page.content()
                 except Exception:
                     html_outer = ""
-                return text, "outer_body", pc, html_outer
+                return text, "outer_body", pc, html_outer, [], None
         except Exception:
             pass
-        return None, "no_iframe", 0, ""
+        return None, "no_iframe", 0, "", [], None
 
     # Wait for iframe DOM to hydrate (Streamlit lazy-renders into /~/+/).
     t0 = time.time()
@@ -200,7 +270,7 @@ def get_dom(page, url, slug, dom_dir, ss_dir):
         try:
             text = target.inner_text("body")
         except Exception as e:
-            return None, f"inner_text: {e}", 0, ""
+            return None, f"inner_text: {e}", 0, "", [], None
 
     # Charts render lazily AFTER text body appears. Poll for .js-plotly-plot
     # containers; stop early when count stabilizes.
@@ -229,17 +299,27 @@ def get_dom(page, url, slug, dom_dir, ss_dir):
 
     with open(os.path.join(dom_dir, f"{slug}.txt"), "w") as fh:
         fh.write(text)
+
+    # Wave 10I.C: capture default-state screenshot BEFORE clicking any tabs.
+    default_ss_path = os.path.join(ss_dir, f"{slug}_default.png")
     try:
-        page.screenshot(path=os.path.join(ss_dir, f"{slug}.png"), full_page=False)
+        page.screenshot(path=default_ss_path, full_page=False)
+        print(f"    default screenshot → {slug}_default.png", flush=True)
     except Exception:
         pass
+
+    # Wave 10I.C: click through all tabs and screenshot each.
+    tab_records = _screenshot_tabs(page, target, slug, ss_dir, pair_id, page_name)
+
     # Capture full rendered HTML for marker-presence checks on content
     # Streamlit lazy-hides behind inactive tab panels.
     try:
         html_full = target.content()
     except Exception:
         html_full = ""
-    return text, "iframe", plotly_count, html_full
+    # Return the resolved frame so the caller can run locator-based checks
+    # (e.g. APP-TL1 download-button clickability via frame.locator().count()).
+    return text, "iframe", plotly_count, html_full, tab_records, target
 
 
 # ---------------------------------------------------------------------------
@@ -461,14 +541,29 @@ def main():
         ctx = browser.new_context(viewport={"width": 1280, "height": 900})
         page = ctx.new_page()
 
+        # Wave 10I.C: accumulate all screenshot records across pages for index.md.
+        all_screenshots: list[dict] = []
+
         # Landing
         print(f"\n[landing] {args.base}/", flush=True)
-        dom, src, _, _ = get_dom(page, f"{args.base}/", "landing", dom_dir, ss_dir)
+        dom, src, _, _, _, _ = get_dom(
+            page, f"{args.base}/", "landing", dom_dir, ss_dir,
+            pair_id="landing", page_name="landing",
+        )
         if dom:
             r = check_landing(dom)
             r["src"] = src
             print(f"  verdict={r['verdict']} sample_badge={r['sample_badge']} leak={r['raw_col_leak']}", flush=True)
             results.append(r)
+            # Landing default screenshot.
+            landing_ss = os.path.join(ss_dir, "landing_default.png")
+            if os.path.exists(landing_ss):
+                all_screenshots.append({
+                    "pair": "landing", "page": "landing",
+                    "tab_n": None, "tab_label": "default",
+                    "filename": "landing_default.png",
+                    "path": landing_ss,
+                })
         else:
             results.append({"slug": "landing", "verdict": "FAIL", "error": src})
 
@@ -478,7 +573,10 @@ def main():
                 slug = f"{pair_id}_{pg}"
                 url = f"{args.base}/{slug}"
                 print(f"\n[{slug}] {url}", flush=True)
-                dom, src, pc, html_full = get_dom(page, url, slug, dom_dir, ss_dir)
+                dom, src, pc, html_full, tab_recs, frame = get_dom(
+                    page, url, slug, dom_dir, ss_dir,
+                    pair_id=pair_id, page_name=pg,
+                )
                 if dom is None:
                     results.append({
                         "slug": slug, "pair_id": pair_id, "page": pg,
@@ -486,8 +584,41 @@ def main():
                     })
                     print(f"  FAIL: {src}", flush=True)
                     continue
+
                 r = check_page(dom, slug, pair_id, pg, pc, html=html_full)
                 r["src"] = src
+
+                # Wave 10I.C: APP-TL1 download-button locator check (Strategy
+                # pages for APP-TL1 pairs only). Supplements the HTML-source
+                # check in check_page() with a live DOM locator count — confirms
+                # the button element is rendered and reachable, not merely present
+                # as a string in the raw HTML. Out-of-scope: actually clicking
+                # the download (network event testing deferred to local smoke).
+                if pg == "strategy" and pair_id in APP_TL1_PAIRS and frame is not None:
+                    try:
+                        broker_btn_count = frame.locator(
+                            f"text={APP_TL1_BROKER_BTN}"
+                        ).count()
+                        tl1_locator_ok = broker_btn_count > 0
+                    except Exception as exc:
+                        broker_btn_count = -1
+                        tl1_locator_ok = False
+                        print(f"    TL1 locator check exception: {exc}", flush=True)
+                    r["app_tl1_locator"] = {
+                        "broker_btn_count": broker_btn_count,
+                        "ok": tl1_locator_ok,
+                    }
+                    if not tl1_locator_ok:
+                        # Upgrade the verdict to FAIL if the locator-based check
+                        # disagrees with the HTML-source check (belt-and-suspenders).
+                        r["verdict"] = "FAIL"
+                    print(
+                        f"  APP-TL1 locator: broker_btn_count={broker_btn_count} ok={tl1_locator_ok}",
+                        flush=True,
+                    )
+                else:
+                    r["app_tl1_locator"] = {"scope": "n/a"}
+
                 print(
                     f"  verdict={r['verdict']} dom_len={r['dom_len']} "
                     f"charts={r['chart_count']} errs={r['errors']} "
@@ -498,6 +629,19 @@ def main():
                     flush=True,
                 )
                 results.append(r)
+
+                # Accumulate default + tab screenshots into the shared index.
+                default_fn = f"{slug}_default.png"
+                default_path = os.path.join(ss_dir, default_fn)
+                if os.path.exists(default_path):
+                    all_screenshots.append({
+                        "pair": pair_id, "page": pg,
+                        "tab_n": None, "tab_label": "default",
+                        "filename": default_fn,
+                        "path": default_path,
+                    })
+                for trec in tab_recs:
+                    all_screenshots.append(trec)
 
         browser.close()
 
@@ -526,6 +670,25 @@ def main():
                      f"sev1={sev1 if sev1 else 'OK'}  "
                      f"stubs={stubs if stubs else 'OK'}  "
                      f"app_pt2={r.get('app_pt2_ok','-')}\n")
+
+    # Wave 10I.C: write shared evidence package index.md inside screenshots/.
+    index_path = os.path.join(ss_dir, "index.md")
+    with open(index_path, "w") as fh:
+        fh.write(f"# Screenshot Evidence Package\n\n")
+        fh.write(f"Generated: {t_end}  \nBase URL: {args.base}  \n")
+        fh.write(f"Total screenshots: {len(all_screenshots)}\n\n")
+        fh.write("| Pair | Page | Tab | Filename | Path |\n")
+        fh.write("|------|------|-----|----------|------|\n")
+        for s in all_screenshots:
+            tab_label = s.get("tab_label") or "default"
+            tab_n = s.get("tab_n")
+            tab_cell = f"{tab_n}: {tab_label}" if tab_n is not None else tab_label
+            fh.write(
+                f"| {s.get('pair','')} | {s.get('page','')} "
+                f"| {tab_cell} | {s.get('filename','')} "
+                f"| {s.get('path','')} |\n"
+            )
+    print(f"Screenshot index: {index_path}", flush=True)
 
     print(f"\n=== SUMMARY: {summary['pass']} PASS / {summary['fail']} FAIL / {summary['total']} TOTAL ===", flush=True)
     print(f"Results: {out_dir}/results.json", flush=True)
