@@ -79,18 +79,34 @@ EXPLORATORY_ELI5_MARKERS = [
 
 SAMPLE_PAIR = "hy_ig_v2_spy"
 
+# Wave 10H.2 APP-TL1 markers — Trade Log Rendering Contract. Applied on the
+# Strategy page for pairs retro-fitted onto the APP-PT1 template in this wave:
+# hy_ig_spy and indpro_xlp. Sample (hy_ig_v2_spy) and umcsent_xlv are bypassed
+# (hand-rolled Strategy pages — tracked as BL-APP-PT1-UMCSENT / legacy).
+APP_TL1_PAIRS = {"hy_ig_spy", "indpro_xlp"}
+APP_TL1_HEADING = "How to Read the Trade Log"
+APP_TL1_BROKER_BTN = "Download trade log (broker-style)"
+APP_TL1_POSITION_BTN = "Download position log (researcher)"
+APP_TL1_PREVIEW_CAPTION = "executions, one row per trade"
+
 
 # ---------------------------------------------------------------------------
 # DOM extraction
 # ---------------------------------------------------------------------------
 
 def get_dom(page, url, slug, dom_dir, ss_dir):
-    """Return (text, source_tag, plotly_count) or (None, err, 0)."""
+    """Return (text, source_tag, plotly_count, html) or (None, err, 0, "").
+
+    ``text`` is ``inner_text("body")`` — only traverses visible DOM (does NOT
+    pick up content inside inactive Streamlit tab panels).
+    ``html`` is the full rendered HTML (via ``frame.content()``), used for
+    marker-presence checks on content that Streamlit lazy-hides behind tabs.
+    """
     print(f"  navigating {url} ...", flush=True)
     try:
         page.goto(url, timeout=60000, wait_until="domcontentloaded")
     except Exception as e:
-        return None, f"goto: {e}", 0
+        return None, f"goto: {e}", 0, ""
 
     # Attempt 3 fix: resolve iframe via selector + content_frame, not
     # page.frames iteration. The former is deterministic; the latter races
@@ -118,10 +134,14 @@ def get_dom(page, url, slug, dom_dir, ss_dir):
                     pc = len(page.query_selector_all(".js-plotly-plot"))
                 except Exception:
                     pc = 0
-                return text, "outer_body", pc
+                try:
+                    html_outer = page.content()
+                except Exception:
+                    html_outer = ""
+                return text, "outer_body", pc, html_outer
         except Exception:
             pass
-        return None, "no_iframe", 0
+        return None, "no_iframe", 0, ""
 
     # Wait for iframe DOM to hydrate (Streamlit lazy-renders into /~/+/).
     t0 = time.time()
@@ -138,7 +158,7 @@ def get_dom(page, url, slug, dom_dir, ss_dir):
         try:
             text = target.inner_text("body")
         except Exception as e:
-            return None, f"inner_text: {e}", 0
+            return None, f"inner_text: {e}", 0, ""
 
     # Charts render lazily AFTER text body appears. Poll for .js-plotly-plot
     # containers; stop early when count stabilizes.
@@ -171,14 +191,20 @@ def get_dom(page, url, slug, dom_dir, ss_dir):
         page.screenshot(path=os.path.join(ss_dir, f"{slug}.png"), full_page=False)
     except Exception:
         pass
-    return text, "iframe", plotly_count
+    # Capture full rendered HTML for marker-presence checks on content
+    # Streamlit lazy-hides behind inactive tab panels.
+    try:
+        html_full = target.content()
+    except Exception:
+        html_full = ""
+    return text, "iframe", plotly_count, html_full
 
 
 # ---------------------------------------------------------------------------
 # Checks
 # ---------------------------------------------------------------------------
 
-def check_page(text, slug, pair_id, page_name, plotly_count):
+def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
     is_methodology = (page_name == "methodology")
     errs = [p for p in ERR_PATS if p in text]
     breadcrumb_missing = [b for b in BREADCRUMB if b not in text]
@@ -210,9 +236,37 @@ def check_page(text, slug, pair_id, page_name, plotly_count):
         app_pt2_ok = True
         app_pt2_note = "N/A (non-methodology)"
 
+    # Wave 10H.2 APP-TL1 Trade Log Rendering Contract (Strategy page only).
+    # For pairs retro-applied this wave, assert four DOM markers are present.
+    # For other pairs, this check is N/A and does NOT affect verdict.
+    is_strategy = (page_name == "strategy")
+    # APP-TL1 markers live inside the "Performance" tab panel which Streamlit
+    # renders into DOM but hides when "Execute" is the active tab. Check the
+    # full rendered HTML (`target.content()`), not `inner_text` which only
+    # traverses visible elements.
+    tl1_source = html if html else text
+    tl1_heading = APP_TL1_HEADING in tl1_source
+    tl1_broker_btn = APP_TL1_BROKER_BTN in tl1_source
+    tl1_position_btn = APP_TL1_POSITION_BTN in tl1_source
+    tl1_preview = APP_TL1_PREVIEW_CAPTION in tl1_source
+    if is_strategy and pair_id in APP_TL1_PAIRS:
+        app_tl1_ok = tl1_heading and tl1_broker_btn and tl1_position_btn and tl1_preview
+        app_tl1_check = {
+            "scope": "applied",
+            "heading": tl1_heading,
+            "broker_button": tl1_broker_btn,
+            "position_button": tl1_position_btn,
+            "preview": tl1_preview,
+            "ok": app_tl1_ok,
+        }
+    else:
+        app_tl1_ok = True
+        app_tl1_check = {"scope": "n/a", "ok": True}
+
     verdict = "PASS" if (
         not errs and not breadcrumb_missing and not prefix_pending
         and not chart_pending and dom_ok and chart_ok and app_pt2_ok
+        and app_tl1_ok
     ) else "FAIL"
 
     return {
@@ -231,6 +285,7 @@ def check_page(text, slug, pair_id, page_name, plotly_count):
         "app_pt2_note": app_pt2_note,
         "exploratory_section_present": exploratory_section,
         "exploratory_eli5_markers_hit": exploratory_markers_hit,
+        "app_tl1_check": app_tl1_check,
         "verdict": verdict,
     }
 
@@ -285,7 +340,7 @@ def main():
 
         # Landing
         print(f"\n[landing] {args.base}/", flush=True)
-        dom, src, _ = get_dom(page, f"{args.base}/", "landing", dom_dir, ss_dir)
+        dom, src, _, _ = get_dom(page, f"{args.base}/", "landing", dom_dir, ss_dir)
         if dom:
             r = check_landing(dom)
             r["src"] = src
@@ -300,7 +355,7 @@ def main():
                 slug = f"{pair_id}_{pg}"
                 url = f"{args.base}/{slug}"
                 print(f"\n[{slug}] {url}", flush=True)
-                dom, src, pc = get_dom(page, url, slug, dom_dir, ss_dir)
+                dom, src, pc, html_full = get_dom(page, url, slug, dom_dir, ss_dir)
                 if dom is None:
                     results.append({
                         "slug": slug, "pair_id": pair_id, "page": pg,
@@ -308,13 +363,14 @@ def main():
                     })
                     print(f"  FAIL: {src}", flush=True)
                     continue
-                r = check_page(dom, slug, pair_id, pg, pc)
+                r = check_page(dom, slug, pair_id, pg, pc, html=html_full)
                 r["src"] = src
                 print(
                     f"  verdict={r['verdict']} dom_len={r['dom_len']} "
                     f"charts={r['chart_count']} errs={r['errors']} "
                     f"prefix={r['prefix_pending']} bcmiss={r['breadcrumb_missing']} "
-                    f"app_pt2={r['app_pt2_ok']} ({r['app_pt2_note']})",
+                    f"app_pt2={r['app_pt2_ok']} ({r['app_pt2_note']}) "
+                    f"app_tl1={r['app_tl1_check']}",
                     flush=True,
                 )
                 results.append(r)

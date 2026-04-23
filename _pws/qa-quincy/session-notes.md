@@ -505,3 +505,19 @@ Ran `scripts/cloud_verify.py` at 2026-04-23T00:16:33Z after ~75s Cloud redeploy 
 **Wave 10H.1 QA complete.** No residual FAILs, no deferred items. Streamlit Cloud auto-redeploy worked as expected (no manual reboot needed).
 
 Artifacts: `temp/20260423T001633Z_cloud_verify/`, handoff final section appended.
+
+---
+
+## 2026-04-23 — Wave 10H.2 cloud verify dispatch
+
+**SOD:** Read sop-changelog top-of-stack (APP-TL1 Trade Log Rendering Contract), Ace/Evan/Ray wave10h2 handoffs, Ace's discovery spec. last_seen was 2026-04-23T00:42Z — the APP-TL1 entry is the only rule since.
+
+**Dispatch:** Cloud verify HEAD `2574d83` + extend `scripts/cloud_verify.py` with APP-TL1 DOM markers on Strategy pages for `hy_ig_spy` and `indpro_xlp`.
+
+**Result:** 17/17 PASS. APP-TL1 markers all green on both retro-applied pairs. Sample + `umcsent_xlv` unchanged (bypassed this wave).
+
+**Pattern 23 learned.** First verify pass false-FAILed both retro-applied pairs: `inner_text("body")` on a Streamlit iframe does NOT traverse content inside hidden `st.tabs` panels. The Trading History block lives inside the "Performance" tab; default-active tab is "Execute". Chart count (7→9) confirmed the Performance-tab content IS in DOM — but markers were absent from visible text. Switched APP-TL1 checks to `target.content()` (full HTML). Kept `inner_text` for existing checks (all prior GATE-28 markers live on visible surfaces). Will codify under QA-CL2 next SOP revision.
+
+**Compliance:** No Ace/Ray/Evan/Vera-owned files touched. Changes confined to Quincy-owned `scripts/cloud_verify.py`, PWS, team board, handoff.
+
+**META-AM:** Global profile writes deferred this session (pure verification pass). Lead's permission fix remains to be validated further; no global writes attempted.

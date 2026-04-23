@@ -366,3 +366,20 @@ No residual FAILs, no deferred QA items from this wave.
 **Status:** Done. Ray's APP-TL1 narrative authoring surfaced that `results/hy_ig_spy/winner_trades_broker_style.csv` was on the legacy 12-col schema (Wave 10G artifact). Regenerated to APP-TL1 10-col schema (774 rows = 387 trade-pairs × {BUY,SELL}). Commission 5 bps (pulled from `winner_summary.json::cost_assumption_bps`). Smoke: `passes=6 failures=0`. Addendum appended to `results/_cross_agent/handoff_evan_wave10h2_20260423.md` (corrects prior §6 claim that file was already compliant).
 
 Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair format (not position-log format like indpro_xlp / umcsent_xlv), so a one-off converter in `temp/260423_hyig_broker_regen.py` was the right tool. No pipeline rerun.
+
+---
+
+## 2026-04-23 — Wave 10H.2 [Quincy] APP-TL1 cloud verify COMPLETE
+
+**Status:** WAVE 10H.2 READY TO CLOSE. 17/17 PASS.
+
+- Cloud verify HEAD `2574d83` on `https://aig-rlic-plus.streamlit.app`: **17 PASS / 0 FAIL / 17 TOTAL**.
+- APP-TL1 markers present on both retro-applied pairs' Strategy pages:
+  - `hy_ig_spy`: heading ✓, broker button ✓, position button ✓, preview ✓
+  - `indpro_xlp`: heading ✓, broker button ✓, position button ✓, preview ✓
+- Regression gate: Sample (`hy_ig_v2_spy`) and `umcsent_xlv` Strategy pages unchanged (both bypassed — hand-rolled / pending BL-APP-PT1-UMCSENT).
+- Smoke: all 4 pairs failures=0 (hy_ig_v2_spy 15, hy_ig_spy 6, indpro_xlp 8, umcsent_xlv 7).
+- Script extensions: `scripts/cloud_verify.py` — APP-TL1 marker constants, `app_tl1_check` result field, `get_dom` now returns `(text, src, plotly_count, html)` with `frame.content()` captured, `check_page` uses HTML source for APP-TL1 assertions.
+- **Pattern 23 discovered** (tab-panel lazy-hide): Streamlit `st.tabs` hides inactive panels via CSS; Playwright `inner_text` does NOT traverse them. First verify pass false-FAILed both retro-applied pairs (Trade Log lives in "Performance" tab; default-active is "Execute"). Fix: use `frame.content()` HTML for tab-content markers. Will codify in qa-agent-sop.md at next SOP revision.
+- Handoff: `results/_cross_agent/handoff_quincy_wave10h2_20260423.md`.
+- Artifacts: `temp/20260423T075033Z_cloud_verify_wave10h2/`.
