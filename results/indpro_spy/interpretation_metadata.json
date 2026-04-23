@@ -8,8 +8,8 @@
   "indicator_type": "production",
   "strategy_objective": "max_sharpe",
   "expected_direction": "procyclical",
-  "observed_direction": "countercyclical",
-  "direction_consistent": false,
+  "observed_direction": "procyclical",
+  "direction_consistent": true,
   "mechanism": "Rising industrial production reflects expanding manufacturing activity and higher corporate earnings, supporting equity valuations.",
   "confidence": "high",
   "key_finding": "INDPRO indpro_zscore_60m predicts spy_fwd_12m (coef=-0.0204, t=-2.69, p=0.0071, R²=0.021)",
@@ -24,5 +24,5 @@
     "ray": ["strategy_objective", "expected_direction", "mechanism", "caveats"]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-04-23T00:00:00Z"
+  "last_updated_at": "2026-04-23T22:00:00Z"
 }

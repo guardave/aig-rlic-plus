@@ -8,8 +8,8 @@
   "indicator_type": "credit",
   "strategy_objective": "min_mdd",
   "expected_direction": "countercyclical",
-  "observed_direction": "procyclical",
-  "direction_consistent": false,
+  "observed_direction": "countercyclical",
+  "direction_consistent": true,
   "mechanism": "Wider funding spread indicates stress in interbank/repo markets, tightening financial conditions, reduced liquidity — bearish for equities.",
   "confidence": "medium",
   "key_finding": "spread predicts spy_fwd_63d (coef=0.0641, t=7.19, p=0.0000)",
@@ -20,5 +20,5 @@
     "ray": ["strategy_objective", "expected_direction", "mechanism", "caveats"]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-04-23T00:00:00Z"
+  "last_updated_at": "2026-04-23T22:00:00Z"
 }

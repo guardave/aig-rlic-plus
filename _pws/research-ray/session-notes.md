@@ -195,3 +195,41 @@ This is Ray's ephemeral session journal for the AIG-RLIC+ project. Timeless patt
 3. Chart-filename drift remains (`indpro_spy_hero.json` vs bare `hero.json`). Candidate for Vera cleanup.
 
 **LEAD-DL1:** Honoured — only touched Ray-owned narrative fields in pair configs, handoff doc, PWS, and team status.
+
+---
+## Session: Wave 10I.C — 2026-04-23 — Adversarial audit self-review and FAIL-05 fix
+
+**Task:** Read Quincy's full-coverage adversarial DOM audit, own the failures in Ray's domain, fix what is fixable, update SOP and experience.
+
+**Status: COMPLETE (Ray-owned fixes done; out-of-scope failures documented below).**
+
+### What I owned
+
+**FAIL-05 (BLOCKING) — APP-DIR1 L1 error banners on 4 Strategy pages.**
+
+Root cause: During Wave 10I.A backfill of `interpretation_metadata.json` for 6 legacy pairs, I preserved the pre-existing `observed_direction` values verbatim without cross-checking them against `winner_summary.json.direction`. Four values were wrong:
+
+| Pair | winner_summary.direction | old observed_direction | fixed |
+|------|-------------------------|----------------------|-------|
+| indpro_spy | procyclical | countercyclical | to procyclical, direction_consistent true |
+| vix_vix3m_spy | countercyclical | procyclical | to countercyclical, direction_consistent true |
+| sofr_ted_spy | countercyclical | procyclical | to countercyclical, direction_consistent true |
+| dff_ted_spy | countercyclical | procyclical | to countercyclical, direction_consistent true |
+
+**Fixes applied:** All 4 `interpretation_metadata.json` files corrected. Smoke tests: 4/4 pairs 0 failures after fix.
+
+**SOP updated:** Added Rule RES-OD1 (observed_direction cross-check, blocking) to Quality Gates checklist and Defense 2 section of `docs/agent-sops/research-agent-sop.md`.
+
+### Experience lesson (for manual promotion to experience.md)
+
+**2026-04-23 — Wave 10I.C: backfill passes must cross-check observed_direction against winner_summary.direction (RES-OD1)**
+
+During the Wave 10I.A backfill, I preserved `observed_direction` verbatim from legacy files. Four of those values disagreed with `winner_summary.json.direction` (the tournament ground truth), triggering APP-DIR1 L1 error banners on 4 Strategy pages. These were stakeholder-visible but missed by structural smoke tests (which only catch Python tracebacks, not content banners).
+
+Root cause: "preserve verbatim" is not safe for `observed_direction` during schema migration. Rule RES-OD1 now mandates: read `winner_summary.json.direction` first, set `observed_direction` to match, recompute `direction_consistent`, run the 1-line Python assert before commit.
+
+### What is NOT mine to fix (flagged to Lead/Ace)
+
+**FAIL-06** ("Ray leg pending RES-17 frontmatter migration" caption on 8 Strategy pages) — internal dev note hard-coded in `app/components/direction_check.py:197-200` leaking to stakeholders. Ace should replace with "Direction check: Evan and Dana agree on `{direction}`."
+
+**All other FAILs** (FAIL-01 through FAIL-04, FAIL-07 through FAIL-10) — owned by Ace and/or Evan per Quincy's audit table.

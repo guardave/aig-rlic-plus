@@ -981,6 +981,7 @@ Before handing off:
 - [ ] For multi-pair batches, direction contradiction records delivered as structured JSON (not prose flags)
 - [ ] `interpretation_metadata.json`: `strategy_objective` (min_mdd/max_sharpe/max_return) set based on tournament winner. "unknown" is NOT acceptable. See team-coordination.md item 21.
 - [ ] **RES-NR1** — All instrument references in Story/Evidence narrative match `interpretation_metadata.json.target_symbol` and indicator fields. RES-NR1 check logged in handoff note.
+- [ ] **RES-OD1** — `interpretation_metadata.json.observed_direction` matches `winner_summary.json.direction` for the pair. These must be identical after any backfill or schema-migration pass. Check: `python3 -c "import json; ws=json.load(open('results/{pair}/winner_summary.json')); im=json.load(open('results/{pair}/interpretation_metadata.json')); assert ws['direction']==im['observed_direction'], f'{ws[\"direction\"]} != {im[\"observed_direction\"]}'"`. A mismatch renders a live APP-DIR1 L1 error banner on the Strategy page — BLOCKING.
 
 ### Defense 1: Self-Describing Artifacts (Producer Rule)
 
@@ -997,7 +998,29 @@ When Ray consumes upstream artifacts (e.g., reviewing Evan's results for interpr
 
 1. **Cross-check reported results against literature.** If Evan reports a Granger causality finding, verify it aligns with (or meaningfully departs from) the cited literature. Flag discrepancies.
 2. **Verify event timeline against chart annotations.** When Vera or Ace use Ray's timeline, spot-check that dates and descriptions match the delivered timeline file.
-3. **Direction validation does not block Vera.** Vera may begin charting using Dana's `interpretation_metadata.json` (producer per DATA-D6 — note: earlier revisions of this SOP named Evan as producer; corrected 2026-04-22 Wave 10F per cross-review finding) before Ray validates. If Ray subsequently flags a contradiction, Vera produces a revised chart version (v2) with the contradiction annotation. The sequencing is: Dana delivers → Vera charts (v1) → Ray validates → if contradiction, Vera revises (v2). This avoids adding a serial dependency that slows the pipeline.
+3. **Direction validation does not block Vera.**
+
+### Rule RES-OD1 — observed_direction Cross-Check (Blocking)
+
+**Added 2026-04-23 (Wave 10I.C adversarial audit).** Closes the backfill gap where `interpretation_metadata.json.observed_direction` was silently carried over from a legacy value that disagreed with the tournament's ground truth in `winner_summary.json.direction`.
+
+- **The invariant:** `interpretation_metadata.json.observed_direction` MUST equal `winner_summary.json.direction` for the same pair. These are two representations of the same empirical fact — the direction the winning strategy exploits. Any divergence triggers the APP-DIR1 L1 error banner ("Direction disagreement detected") on the Strategy page.
+- **When to run this check:** After ANY write to `interpretation_metadata.json` — schema migration, backfill, manual edit. Not just on fresh pair delivery.
+- **Mechanical check:**
+  ```bash
+  python3 -c "
+  import json, sys
+  pair = sys.argv[1]
+  ws = json.load(open(f'results/{pair}/winner_summary.json'))
+  im = json.load(open(f'results/{pair}/interpretation_metadata.json'))
+  assert ws.get('direction') == im.get('observed_direction'), \
+    f\"MISMATCH: winner_summary.direction={ws.get('direction')} vs observed_direction={im.get('observed_direction')}\"
+  print(f'OK: {pair} direction={ws[\"direction\"]}')
+  " <pair_id>
+  ```
+- **Root cause prevention:** When backfilling `interpretation_metadata.json` for legacy pairs, never blindly preserve `observed_direction` from the pre-existing file. Always read `winner_summary.json.direction` first and set `observed_direction` to match.
+- **Also update `direction_consistent`:** `direction_consistent` must reflect `expected_direction == observed_direction` after the correction. A stale `direction_consistent: false` when both directions now match is a data integrity error.
+- **Cross-references:** APP-DIR1 (direction triangulation gate), DATA-D6 (Dana's `observed_direction` ownership for fresh pairs — Ray applies the cross-check during schema migrations), team-coordination.md §19-21 (blocking gate items). Vera may begin charting using Dana's `interpretation_metadata.json` (producer per DATA-D6 — note: earlier revisions of this SOP named Evan as producer; corrected 2026-04-22 Wave 10F per cross-review finding) before Ray validates. If Ray subsequently flags a contradiction, Vera produces a revised chart version (v2) with the contradiction annotation. The sequencing is: Dana delivers → Vera charts (v1) → Ray validates → if contradiction, Vera revises (v2). This avoids adding a serial dependency that slows the pipeline.
 
 ## Tool Preferences
 
