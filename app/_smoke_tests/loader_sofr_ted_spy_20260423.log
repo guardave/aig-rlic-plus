@@ -1,4 +1,4 @@
-# Loader smoke test  pair_id=sofr_ted_spy  timestamp=2026-04-23T08:33:42
+# Loader smoke test  pair_id=sofr_ted_spy  timestamp=2026-04-23T12:13:53
 # Pages scanned: 4
 #   app/pages/6_sofr_ted_spy_evidence.py
 #   app/pages/6_sofr_ted_spy_methodology.py
@@ -9,8 +9,8 @@
 # Dynamic charts (Evidence render_method_block helper)
 
 # APP-PT1 template + pair_config chart scans
-PASS  app/pair_configs/sofr_ted_spy_config.py:51  chart=sofr_ted_spy_hero  traces=2  title='SOFR - DTB3 vs S&P 500'
-PASS  app/pair_configs/sofr_ted_spy_config.py:59  chart=sofr_ted_spy_regime_stats  traces=1  title='SPY Sharpe by Spread Quartile'
-PASS  app/pair_configs/sofr_ted_spy_config.py:205  chart=sofr_ted_spy_tournament_scatter  traces=4  title='Tournament: 991 Combos (579 Valid)'
+PASS  app/pair_configs/sofr_ted_spy_config.py:59  chart=sofr_ted_spy_hero  traces=2  title='SOFR - DTB3 vs S&P 500'
+PASS  app/pair_configs/sofr_ted_spy_config.py:67  chart=sofr_ted_spy_regime_stats  traces=1  title='SPY Sharpe by Spread Quartile'
+PASS  app/pair_configs/sofr_ted_spy_config.py:277  chart=sofr_ted_spy_tournament_scatter  traces=4  title='Tournament: 991 Combos (579 Valid)'
 
 # RESULT  passes=3  failures=0
