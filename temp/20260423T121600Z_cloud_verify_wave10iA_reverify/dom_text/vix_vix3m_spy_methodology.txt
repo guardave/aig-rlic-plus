@@ -1,0 +1,125 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+What this shows: ← you are here.
+
+keyboard_arrow_right
+
+Plain English
+
+Methodology: Technical Appendix
+
+For the skeptical reader: this section provides the full methodological detail needed to replicate, challenge, or extend our analysis. Every claim in the preceding pages traces back to a specific method, dataset, and diagnostic described here.
+
+Sample Period
+
+Out-of-Sample Window
+
+2015-01 to 2025-12
+
+Total tournament combinations
+
+N/A
+
+What this shows: Full sample: 2007-01 to 2025-12 (~4,500 daily observations). In-sample: 2007-01 to 2019-12 (13 years, model estimation). Out-of-sample: 2020-01 to 2025-12 (6 years, strategy evaluation). The OOS window is short relative to macro pairs (8 years) because VIX3M begins 2007-12; OOS performance is partly driven by the single March 2020 COVID event — read Sharpe with that caveat in mind.
+
+Data Sources
+Category	Source	Series	Frequency
+VIX (1-month implied vol)	Yahoo Finance / CBOE	^VIX	Daily
+VIX3M (3-month implied vol)	Yahoo Finance / CBOE	^VIX3M	Daily
+S&P 500 (Target)	Yahoo Finance	SPY	Daily → Monthly
+NBER Recession Dates	FRED / NBER	USREC	Monthly
+Fed Funds Rate	FRED	DFF	Daily → Monthly
+
+Scope discipline (ECON-SD). Only the VIX/VIX3M ratio and SPY are in-scope primary signals. VIX3M series begins 2007-12, defining the sample start.
+
+Indicator Construction
+
+VIX/VIX3M ratio. Computed as ^VIX / ^VIX3M at daily close. Ratio > 1 = backwardation (near-term fear dominates long-term hedging demand, signalling acute stress). Ratio < 1 = contango (the normal regime). Derived signals entered into the tournament:
+
+Signal	Formula	Intent
+ratio	VIX / VIX3M	raw ratio
+ratio_z63	63-day z-score	short-window deviation
+ratio_z126	126-day z-score	winner
+ratio_z252	252-day z-score	annual z-score
+ratio_rpct	rolling percentile rank	distribution-free signal
+ratio_chg	day-over-day change	acceleration
+backwardation	dummy (ratio > 1)	regime indicator
+
+SPY daily adjusted closes from Yahoo Finance; forward returns computed in trading days at horizons h = 1, 5, 10, 21.
+
+Signal Universe
+
+This section lists every derivative of the indicator and target considered during the analysis. It is the single source of truth for what is in scope for this pair. Anything not in these two tables was deliberately excluded — and is instead logged under Analyst Suggestions below.
+
+Signal universe table unavailable for vix_vix3m_spy.
+
+Plain English: this section normally lists every derivative (z-scores, rates of change, regime probabilities, forward returns, etc.) that was considered during the analysis, so you can see exactly what was in and out of scope. The underlying registry file (signal_scope.json) has not been produced for this pair yet — this is Evan's Wave 7B artifact and is only retro-fitted for HY-IG v2 at present.
+
+Stationarity Tests
+
+How to read it: ADF — reject null = stationary. KPSS — fail to reject null = stationary.
+
+Econometric Methods
+Method	Question It Answers	Why We Chose It
+Pearson / Rolling Correlation	Linear co-movement at multiple horizons	Baseline VIX/VIX3M-SPY test
+Local Projections (Jordà)	Full dynamic path of SPY response to ratio shock	Robust IRF without VAR restrictions
+Tournament Design
+Dimension	Values
+Signals	VIX/VIX3M level, z-score (63d/126d/252d), rolling percentile, ratio change, backwardation dummy
+Threshold methods	Fixed percentile (p25/p50/p75), rolling percentile (winner = rolling p75), rolling z-score, natural boundary (ratio=1.0), HMM prob, Markov-Switching prob
+Strategies	Long/Cash (P1), Signal-Strength (P2), Long/Short (P3)
+Lead times	L0 (same-day, winner), L1, L2, L5, L10, L21 trading days
+Orientation	Counter-cyclical (backwardation / ratio > 1 → reduce SPY exposure)
+
+Ranked by out-of-sample Sharpe. Winner (per results/vix_vix3m_spy/winner_summary.json, authoritative): S3_z126 / T2_rp75 / P1_long_cash / L0 → OOS Sharpe 1.1295, OOS annualised return +15.31%, max drawdown −21.15%, annual turnover 23.3. Regime spread: Q1 Sharpe 6.53 vs Q4 −2.38 — strongest regime discriminator in the portal.
+
+Analyst Suggestions for Future Work
+
+Signals flagged during analysis that look worth pursuing in future work (a different pair, a variant family extension, or a regime overlay). These are informational only — they did not influence this pair's winning strategy.
+
+No analyst suggestions filed for vix_vix3m_spy.
+
+Plain English: during a pair's work, any team member (Dana, Evan, Vera, Ray, Ace, Quincy) can log an observation about a signal that's outside the pair's formal scope but might be worth pursuing later. No entries have been recorded for this pair — that is a valid state, not an error.
+
+References
+Whaley, R. E. (2000). The investor fear gauge. Journal of Portfolio Management, 26(3), 12–17.
+Mixon, S. (2007). The implied volatility term structure of stock index options. Journal of Empirical Finance, 14(3), 333-354.
+Eraker, B. (2004). Do stock prices and volatility jump? Reconciling evidence from spot and option prices. Journal of Finance, 59(3), 1367-1404.
+Bollerslev, T., Tauchen, G., & Zhou, H. (2009). Expected stock returns and variance risk premia. Review of Financial Studies, 22(11), 4463–4492.
+Johnson, T. L. (2017). Risk premia and the VIX term structure. Journal of Financial and Quantitative Analysis, 52(6), 2461–2490.
+Jordà, Ò. (2005). Estimation and inference of impulse responses by local projections. American Economic Review, 95(1), 161–182.
+
+What this shows: generated with AIG-RLIC+ | Pair: vix_vix3m_spy.

@@ -1,0 +1,105 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+What this shows: ← you are here.
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Evidence: What the Data Shows
+
+We subjected 27 years of monthly data to multiple complementary statistical methods. Each is designed to test a different aspect of the INDPRO-XLP relationship. All converge on the same direction: countercyclical — rising IP is bearish for XLP, falling IP is bullish for XLP.
+
+Each method follows the same 8-part structure: what the method is, the question it answers, how to read the chart, what we observe, deeper technical detail, economic interpretation, and the key message. Read in order for the full picture, or skip to the Key message lines for a quick summary.
+
+Evidence is organized in two tiers. Level 1 covers basic statistical relationships. Level 2 adds regime analysis, tail risk, nonlinear dependence, or other advanced techniques.
+
+Level 1 — Basic Analysis
+
+Level 2 — Advanced Analysis
+
+Correlation
+
+Granger Causality
+
+Correlation Analysis
+
+A Pearson correlation measures the linear relationship between two variables on a scale from -1 (perfectly opposing) to +1 (perfectly aligned). We test multiple INDPRO-derived signals (level, YoY growth, MoM change, z-score, acceleration) against XLP forward returns at four horizons (1M, 3M, 6M, 12M). A rolling correlation view shows how the relationship has evolved over time.
+
+Do any INDPRO-derived signals show a statistically meaningful linear relationship with future XLP returns — and in which direction?
+
+How to read it: The chart shows rolling 12M and 36M Pearson correlations between INDPRO YoY growth and XLP monthly return over the full sample. A consistently negative reading confirms the countercyclical hypothesis: higher IP growth coincides with weaker XLP returns. The dashed vertical line marks the start of the out-of-sample period (2019-01).
+
+2000
+2005
+2010
+2015
+2020
+2025
+−0.5
+0
+0.5
+12M Rolling Correlation
+36M Rolling Correlation
+Rolling Correlation: INDPRO YoY vs XLP Monthly Return
+Date
+Pearson Correlation
+
+What this shows: rolling Pearson correlation between INDPRO YoY growth and XLP monthly return. Negative values (below zero) confirm countercyclical behavior — rising industrial production is associated with weaker consumer staples performance. The relationship has been persistent but not constant.
+
+What this shows: Rolling correlations are predominantly negative across the full sample, confirming the countercyclical hypothesis. The 12M rolling correlation oscillates between roughly -0.4 and +0.2, with the most negative readings during industrial expansions. The static Pearson correlation table shows the IP z-score has the strongest link to 12M forward XLP returns (r=-0.187, p=0.002). The acceleration signal shows weaker point correlation but higher predictive utility in the tournament — consistent with a nonlinear, threshold-based relationship.
+
+keyboard_arrow_right
+
+Deeper dive
+
+Why this matters: Correlation analysis confirms a real countercyclical link between IP signals and XLP forward returns. The relationship is most pronounced at the 12-month horizon and for normalized signals (z-score). The rolling correlation view shows the relationship is persistent but regime-dependent — it strengthens during clear industrial cycles and weakens during idiosyncratic shocks (COVID).
+
+Key message: INDPRO z-score shows a statistically significant negative correlation with 12-month forward XLP returns (r=-0.187, p=0.002): higher industrial production relative to recent history is associated with XLP underperformance — the classic defensive rotation signal.
+
+The Combinatorial Tournament
+
+We tested combinations of signals (IP level, YoY, MoM, z-score, acceleration), thresholds (7 methods including percentile cuts), strategies (Long/Cash, Long/Short), and lead times (0-6 months). These were ranked by out-of-sample Sharpe ratio over 2019-2025. The winning combination: IP acceleration signal, 0.75 percentile threshold, Long/Cash, L3 lead, producing OOS Sharpe 1.1147 vs 0.90 buy-and-hold XLP.
+
+What this shows: tournament results at results/indpro_xlp/tournament_results_20260420.csv.
+
+Transition: Multiple statistical methods confirm the countercyclical relationship: rising industrial production signals rotation away from defensive consumer staples. Now: what does the winning strategy actually do, and how has it performed out-of-sample?
+
+🎯
+
+Continue to The Strategy
+
+What this shows: generated with AIG-RLIC+ | Pair: indpro_xlp.

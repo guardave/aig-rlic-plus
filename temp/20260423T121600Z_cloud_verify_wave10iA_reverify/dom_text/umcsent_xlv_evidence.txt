@@ -1,0 +1,131 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+What this shows: ← you are here.
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Evidence: What the Data Shows
+
+We subjected 27 years of monthly data to four complementary statistical methods. Each is designed to test a different aspect of the sentiment-healthcare relationship. All four converge on the same direction: procyclical, not countercyclical — the direction surprise flagged on the Story page.
+
+Each method follows the same 8-part structure: what the method is, the question it answers, how to read the chart, what we observe, deeper technical detail, economic interpretation, and the key message. Read in order for the full picture, or skip to the Key message lines for a quick summary.
+
+Evidence is organized in two tiers. Level 1 covers basic statistical relationships. Level 2 adds regime analysis, tail risk, nonlinear dependence, or other advanced techniques.
+
+Level 1 — Basic Analysis
+
+Level 2 — Advanced Analysis
+
+Correlation
+
+Granger Causality
+
+Correlation Analysis
+
+Pearson correlations measure the linear relationship between two variables on a scale from −1 to +1. We test six UMCSENT-derived signals (level, YoY, MoM, z-score, 3M MA, direction, deviation) against XLV forward returns at 1M, 3M, 6M and 12M horizons. Spearman rank correlations are run in parallel as a robustness check against outliers.
+
+Do any UMCSENT-derived signals show a statistically meaningful linear relationship with future XLV returns — and in which direction?
+
+How to read it: Rows: UMCSENT signals. Columns: forward XLV return horizons. Blue = positive correlation (higher sentiment → higher XLV); Red = negative. Stars: * p<0.05, ** p<0.01.
+
+-0.026
+-0.051
+-0.085
+-0.191**
+-0.002
+0.008
+0.091
+0.065
+0.010
+0.053
+0.129*
+0.142*
+-0.015
+0.025
+0.074
+0.052
+0.051
+0.113*
+0.155**
+0.120*
+0.024
+0.082
+0.186**
+0.176**
+1M
+3M
+6M
+12M
+UMCSENT 3m ma
+UMCSENT dev ma
+UMCSENT direction
+UMCSENT mom
+UMCSENT yoy
+UMCSENT zscore
+−0.3
+−0.2
+−0.1
+0
+0.1
+0.2
+0.3
+Pearson Correlation: UMCSENT Signals → XLV Forward Returns​* p<0.05, ** p<0.01​
+XLV Forward Return Horizon
+Signal
+
+Pearson correlation heatmap between UMCSENT signals and XLV forward returns. Blue cells indicate procyclical relationships (high sentiment → XLV outperforms). Stars mark statistical significance.
+
+What this shows: The 3-month moving-average signal shows the strongest negative correlation with 12-month forward XLV returns (r = -0.198, p = 0.0004) — a long-horizon mean-reversion effect. The YoY change — the winning tournament signal — shows a modest positive correlation with shorter horizons, consistent with the procyclical observed direction. Sixteen of 48 correlations clear the 5% significance threshold, confirming the relationship is not a statistical artefact.
+
+Why this matters: Different UMCSENT transforms capture different aspects of the sentiment cycle. The raw level and 3M moving average capture the state of sentiment (high vs. low), while the YoY change captures momentum (improving vs. deteriorating). The tournament winner (YoY change) is a momentum signal that picks up improving/worsening trends, not absolute states. The negative 3M MA correlation at 12M horizons may reflect mean-reversion — sustained high sentiment is followed by normalisation.
+
+Key message: UMCSENT momentum (YoY change) shows a procyclical correlation with XLV forward returns: improving sentiment is associated with XLV outperformance, contradicting the defensive-rotation hypothesis.
+
+The Combinatorial Tournament
+
+With the econometric case established, we swept a 5-dimensional tournament over 7 signal transforms, 7 threshold methods, 3 strategy families, and 5 lead times — 1,305 raw combinations pruned to 1,196 valid. The top 5 strategies were validated with bootstrap significance testing and transaction-cost sensitivity. The winning specification is on the Strategy page.
+
+What this shows: tournament results at results/umcsent_xlv/tournament_results_20260420.csv.
+
+Four statistical methods converge on the same conclusion: consumer sentiment momentum (YoY change) is a procyclical leading indicator for XLV healthcare returns. Now: what does the winning strategy actually do, and how has it performed?
+
+🎯
+
+Continue to The Strategy
+
+What this shows: generated with AIG-RLIC+ | Pair: umcsent_xlv.

@@ -1,0 +1,138 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+
+📐 Methodology
+
+interpretation_metadata.json does not conform to interpretation_metadata.schema.json. APP-SEV1 L1 blocks render. Fix the producer artifact or bump the schema.
+
+Schema errors (7):
+
+[<root>] 'pair_id' is a required property
+[<root>] 'schema_version' is a required property
+[<root>] 'owner_writes' is a required property
+[<root>] 'last_updated_by' is a required property
+[<root>] 'last_updated_at' is a required property
+[expected_direction] 'counter_cyclical' is not one of ['procyclical', 'countercyclical', 'mixed']
+[observed_direction] 'pro_cyclical' is not one of ['procyclical', 'countercyclical', 'mixed']
+keyboard_arrow_right
+
+Plain English
+
+The Strategy: Translating VIX Term-Structure Signals into SPY Positioning
+
+We tested hundreds of strategy combinations to find the most robust way to time SPY exposure using the VIX/VIX3M ratio.
+
+Tournament Winner: S3_z126 / P1_long_cash / LN/A
+
+Tournament winner: Signal S3_z126 (126-day z-score of the VIX/VIX3M ratio) / Threshold T2_rp75 (rolling 75th percentile) / Strategy P1_long_cash / Lead 0 (same-day).
+
+Compute the VIX/VIX3M ratio's z-score over a trailing 126-day (6-month) window. When this z-score is below its rolling 75th percentile — meaning term-structure stress is not extreme — stay long SPY. When the z-score exceeds the 75th percentile (acute backwardation / panic), move to cash. No leverage, no shorting.
+
+How the Signal is Generated
+Pull VIX and VIX3M. Yahoo Finance tickers ^VIX and ^VIX3M. Daily.
+Compute the ratio. ratio_t = VIX_t / VIX3M_t.
+Compute the 126-day z-score. Rolling 126-day mean and standard deviation of the ratio; z_t = (ratio_t - mean) / std.
+Compute the rolling 75th-percentile threshold. Rolling quantile of the z-score over the same 126-day window.
+Translate to position. If z_t < threshold → long SPY (+1). Otherwise → cash (0). Rebalance at the next market open.
+
+OOS Sharpe
+
+1.13
+
+OOS Return
+
++15.3%
+
+annualized
+
+Max Drawdown
+
+-21.1%
+
+Turnover
+
+~23.3/yr
+
+Win Rate
+
+N/A
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal code: S3_z126
+
+Signal column: vix_vix3m_ratio_z126
+
+Threshold: lt None
+
+Strategy family: P1_long_cash
+
+Direction: countercyclical
+
+Lead time: LN/A
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+Probability engine panel cannot render: No signals_*.parquet under /mount/src/aig-rlic-plus/results/vix_vix3m_spy
+
+Plain English: the model needs a history of indicator values to draw the time-series chart, but we can't find that file on disk. This prevents the probability panel from rendering.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+Position exposure cannot be derived without valid signal values. See diagnostic above.
+
+Plain English: the Probability Engine panel above flagged a data problem with the signal series, so we cannot compute the exposure curve without risking a misleading chart. Fix the signal-data issue first, then this panel will render.
+
+How to Use the Signal — Trigger Scenarios
+TypeError: This app has encountered an error. The original error message is redacted to prevent data leaks. Full error details have been recorded in the logs (if you're on Streamlit Cloud, click on 'Manage app' in the lower right of your app).
+Traceback:
+File "/mount/src/aig-rlic-plus/app/pages/8_vix_vix3m_spy_strategy.py", line 18, in <module>
+    render_strategy_page("vix_vix3m_spy", STRATEGY_CONFIG)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/mount/src/aig-rlic-plus/app/components/page_templates.py", line 1136, in render_strategy_page
+    render_instructional_trigger_cards(pair_id)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+File "/mount/src/aig-rlic-plus/app/components/instructional_trigger_cards.py", line 385, in render_instructional_trigger_cards
+    # Wave 10I.A defensive coerce: legacy pairs may carry `threshold_value` as a

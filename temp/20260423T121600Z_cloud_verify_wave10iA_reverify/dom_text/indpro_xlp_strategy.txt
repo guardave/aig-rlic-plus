@@ -1,0 +1,196 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+
+📐 Methodology
+
+What this shows: direction triangulation (APP-DIR1, 2-way) — Evan and Dana agree on countercyclical. Ray leg pending RES-17 frontmatter migration.
+
+keyboard_arrow_right
+
+Plain English
+
+The Strategy: Translating IP Signals into XLP Timing
+
+We tested thousands of strategy combinations to find the most robust way to time consumer staples exposure using industrial production signals.
+
+Tournament Winner: S8_accel / P3_long_short / L3
+
+Strategy Rule in Plain English: Monitor the acceleration of Industrial Production (how quickly the monthly growth rate is changing). When IP acceleration is in its upper quartile (economy speeding up fast), hold a short / underweight position in XLP. When IP acceleration is below that threshold (growth slowing or contracting), hold a long position in XLP. Apply the signal with a 3-month lead to account for the publication lag and the time markets take to react.
+
+How the Signal is Generated
+
+Each month when FRED publishes Industrial Production, we compute two numbers: the month-over-month growth rate and its own month-over-month change (the acceleration). We then ask where today's acceleration sits within the rolling 504-month window of historical readings — below the 75th percentile is 'decelerating enough for staples'; above the 75th percentile is 'accelerating hard enough to rotate out of staples'. Because INDPRO is released with a 6-week lag, the effective lead is three months, which is also the horizon at which the research shows the signal has the tightest link to forward XLP returns.
+
+OOS Sharpe
+
+1.11
+
+vs 0.74 B&H
+
+OOS Return
+
++14.1%
+
+annualized
+
+Max Drawdown
+
+-13.5%
+
+vs -13.3% B&H
+
+Turnover
+
+~10.1/yr
+
+Win Rate
+
+63%
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal code: S8_accel
+
+Signal column: indpro_accel
+
+Threshold: gt 0.75
+
+Strategy family: P3_long_short
+
+Direction: countercyclical
+
+Lead time: L3
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+2000
+2005
+2010
+2015
+2020
+2025
+−10
+−5
+0
+5
+10
+15
+Date
+indpro_accel
+threshold = 0.75
+
+Why this matters: The signal (indpro_accel) drives the strategy; position changes are triggered when the value crosses 0.75.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+2000
+2005
+2010
+2015
+2020
+2025
+−100
+−50
+0
+50
+100
+Date
+XLP Exposure (%)
+
+Why this matters: XLP exposure swings between +100% (long) and −100% (short) based on signal polarity.
+
+How to Use the Signal — Trigger Scenarios
+
+What this shows: Strategy family P2 () · threshold loaded from winner_summary.json = 0.75 · direction: countercyclical.
+
+REDUCE
+
+When S8_accel rises above 0.75 → scale XLP exposure down proportionally. At signal = 1.0, exposure = 0%.
+
+HOLD
+
+When S8_accel lingers near 0.75 → hold exposure at roughly 25%. The signal-strength rule prevents whipsaw.
+
+BUY
+
+When S8_accel falls below 0.75 → scale XLP exposure back up. At signal = 0, exposure = 100%.
+
+How to read it: sparklines are drawn from real history (signals_20260420.parquet column indpro_accel) — 2/3 scenarios located; thresholds match the runtime rule. The dashed horizontal line is the decision threshold at which the action in each card fires.
+
+How to Use This Indicator Manually
+
+If you want to use this signal yourself — with no code, no broker API — follow this monthly routine:
+
+Pull INDPRO from FRED (series INDPRO) on the third Friday of each month (roughly when the prior month's value is released).
+Compute the month-over-month percentage change, then compute that series' own month-over-month change (the acceleration).
+Rank today's acceleration against the last 504 months of history. If it sits above the 75th percentile, move XLP exposure toward cash or an underweight. If it sits below, hold or restore full exposure.
+Re-rank monthly — the threshold is rolling, not a fixed number. The signal is a regime indicator, not a daily trading tool.
+Future: Live Execution
+
+Current Signal State
+
+—
+
+Target Position
+
+—
+
+Current Action
+
+—
+
+Caveat: no live_execution_stub.json present yet — values render as — placeholders until a real-time feed is wired.
+
+This dashboard presents historical backtest results. A real-time execution layer would surface the fields above; the values shown are placeholders. Wiring to a live data feed and broker API is deliberately out-of-scope for this research portal (see Methodology).
+
+Plain English: you are looking at the shape of what a live execution panel WOULD display (current signal, target position, current action), with dashes where live numbers will eventually flow in. The portal is a research tool — building out the broker connection is a separate project.
+
+For readers who want to understand exactly how we reached these conclusions — or who want to replicate and extend the analysis — the methodology section provides full details on data, methods, and diagnostics.
+
+📐
+
+Continue to Methodology
+
+What this shows: generated with AIG-RLIC+ | Pair: indpro_xlp.

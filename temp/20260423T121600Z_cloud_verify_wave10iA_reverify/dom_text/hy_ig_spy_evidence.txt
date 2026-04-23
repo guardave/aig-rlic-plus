@@ -1,0 +1,105 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+What this shows: ← you are here.
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Evidence: What the Data Shows
+
+We subjected 25+ years of monthly credit spread data to multiple complementary statistical methods. Each is designed to test a different aspect of the HY-IG → SPY relationship. All converge on the same direction: countercyclical — rising credit spreads are bearish for SPY, tightening spreads are bullish.
+
+Each method follows the same 8-part structure: what the method is, the question it answers, how to read the chart, what we observe, deeper technical detail, economic interpretation, and the key message. Read in order for the full picture, or skip to the Key message lines for a quick summary.
+
+Evidence is organized in two tiers. Level 1 covers basic statistical relationships. Level 2 adds regime analysis, tail risk, nonlinear dependence, or other advanced techniques.
+
+Level 1 — Basic Analysis
+
+Level 2 — Advanced Analysis
+
+Correlation
+
+Granger Causality
+
+Pre-Whitened CCF
+
+Correlation Analysis
+
+A Pearson correlation measures the linear co-movement between two variables on a -1 to +1 scale. We compute rolling correlations at multiple forward horizons (1M, 3M, 6M, 12M SPY returns) and static point-in-time correlations for each HY-IG signal variant — level, z-score, rate-of-change, and momentum. A rolling correlation view shows how the relationship has evolved over time and across market regimes.
+
+Is there a statistically meaningful linear relationship between the HY-IG spread and future SPY returns — and which signal variant and forward horizon carries the most information?
+
+How to read it: The correlation chart shows rolling 12-month and 36-month Pearson correlations between the HY-IG spread and SPY forward monthly return. Negative values (below the zero line) confirm the countercyclical hypothesis: wider spreads coincide with lower subsequent SPY returns. The dashed vertical line marks the start of the out-of-sample period.
+
+2005
+2010
+2015
+2020
+2025
+−0.4
+−0.3
+−0.2
+−0.1
+0
+0.1
+0.2
+HY-IG Spread Negatively Correlated with SPY Returns — Persistently Since 2008
+Date
+Rolling 252-Day Correlation
+252-day rolling Pearson r between HY-IG spread (bps) and SPY daily returns. Gray = NBER recessions.
+
+What this shows: rolling Pearson correlation between the HY-IG spread and SPY forward monthly return. Negative values confirm the countercyclical pattern — wider credit spreads are associated with weaker subsequent SPY performance. The relationship is regime-dependent, strengthening during credit cycles.
+
+What this shows: Rolling correlations for the HY-IG spread against SPY forward returns are predominantly negative across the full sample, particularly at 3-month and 6-month forward horizons. The relationship is strongest during stress regimes and weakest during the compressed-spread period of 2014-2019. The point-in-time correlation across the full sample is negative and statistically significant (p < 0.01), confirming the countercyclical direction.
+
+Why this matters: Correlation analysis confirms a real countercyclical link between HY-IG spread levels and SPY forward returns. The relationship is most pronounced at the 3-6 month forward horizon and for normalized signal variants (z-score). The rolling correlation view shows the relationship is regime-dependent — it strengthens during credit cycles and weakens during rate-driven or idiosyncratic market episodes.
+
+Key message: The HY-IG spread shows a statistically significant negative correlation with SPY forward returns at 3-6 month horizons: wider credit spreads are associated with weaker subsequent SPY performance — the countercyclical early-warning pattern.
+
+The Combinatorial Tournament
+
+We tested combinations of signals (HY-IG level, z-score, rate-of-change, momentum, and HMM stress probability), thresholds (including HMM 0.5 cutoff), strategies (Signal-Strength, Long/Cash, Long/Short), and lead times (L0). These were ranked by out-of-sample Sharpe ratio over 2019-2026. The winning combination: HMM stress probability (S6_hmm_stress), threshold T4_hmm_0.5, Signal-Strength strategy (P2), L0 lead, producing OOS Sharpe 1.41 vs 0.81 buy-and-hold SPY.
+
+What this shows: tournament results at results/hy_ig_spy/tournament_results_20260422.csv.
+
+Transition: Multiple statistical methods confirm the countercyclical relationship: rising HY-IG credit spreads signal forward SPY weakness. Now: what does the winning strategy actually do, and how has it performed out-of-sample?
+
+🎯
+
+Continue to The Strategy
+
+What this shows: generated with AIG-RLIC+ | Pair: hy_ig_spy.

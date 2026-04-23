@@ -1,0 +1,138 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+What this shows: ← you are here.
+
+keyboard_arrow_right
+
+Plain English
+
+Methodology: Technical Appendix
+
+For the skeptical reader: this section provides the full methodological detail needed to replicate, challenge, or extend our analysis. Every claim in the preceding pages traces back to a specific method, dataset, and diagnostic described here.
+
+Sample Period
+
+Out-of-Sample Window
+
+2018-01 to 2025-12
+
+Total tournament combinations
+
+N/A
+
+What this shows: Full sample: 1990-01 to 2025-12 (432 monthly observations). In-sample: 1990-01 to 2017-12 (28 years, model estimation and threshold calibration). Out-of-sample: 2018-01 to 2025-12 (8 years, strategy evaluation). This spans two full NBER cycles (2001, 2008-09) in-sample and the COVID cycle plus 2022-23 inflation regime out-of-sample.
+
+Data Sources
+Category	Source	Series	Frequency
+Industrial Production	FRED	INDPRO	Monthly
+S&P 500 (Target)	Yahoo Finance	SPY	Daily → Monthly
+NBER Recession Dates	FRED / NBER	USREC	Monthly
+Treasury yields	FRED	DGS10, DTB3	Daily → Monthly
+Fed Funds Rate	FRED	DFF	Daily → Monthly
+Unemployment	FRED	UNRATE	Monthly
+Capacity Utilization	FRED	TCU	Monthly
+VIX	Yahoo Finance	^VIX	Daily → Monthly
+
+Scope discipline (ECON-SD). Only INDPRO and SPY are in-scope primary signals. Controls (VIX, yield spread, UNRATE, CAPUT) are used only in regression controls, not as trading signals.
+
+Indicator Construction
+
+Industrial Production (INDPRO). FRED series measuring real output of manufacturing, mining, and utilities. Monthly, seasonally adjusted, indexed to 100 in 2017. Derived signals entered into the tournament:
+
+Signal	Formula	Intent
+indpro	raw level	non-stationary; regime context only
+indpro_yoy	12-month growth	year-on-year activity
+indpro_mom	1-month growth	high-frequency momentum
+indpro_zscore	60M rolling z-score	peak-cycle detector
+indpro_mom3m	3-month momentum	winner
+indpro_mom6m	6-month momentum	medium-horizon momentum
+indpro_accel	change of momentum	acceleration
+indpro_contract	dummy (YoY < 0)	contraction regime
+
+SPY daily adjusted closes are resampled to monthly last close; forward returns computed as spy.shift(-h) / spy - 1 for h = 1, 3, 6, 12 months.
+
+Signal Universe
+
+This section lists every derivative of the indicator and target considered during the analysis. It is the single source of truth for what is in scope for this pair. Anything not in these two tables was deliberately excluded — and is instead logged under Analyst Suggestions below.
+
+Signal universe table unavailable for indpro_spy.
+
+Plain English: this section normally lists every derivative (z-scores, rates of change, regime probabilities, forward returns, etc.) that was considered during the analysis, so you can see exactly what was in and out of scope. The underlying registry file (signal_scope.json) has not been produced for this pair yet — this is Evan's Wave 7B artifact and is only retro-fitted for HY-IG v2 at present.
+
+Stationarity Tests
+
+How to read it: ADF — reject null = stationary. KPSS — fail to reject null = stationary.
+
+Econometric Methods
+Method	Question It Answers	Why We Chose It
+Pearson / Rolling Correlation	Linear co-movement at multiple horizons	Baseline test for IP-SPY link
+Cross-Correlation Function (CCF)	Lead-lag timing structure	Identifies peak predictive lag
+Granger Causality	One-directional predictive content	Tests IP → SPY vs SPY → IP asymmetry
+Local Projections (Jordà)	Full dynamic path of SPY response to IP shock	Robust IRF without VAR restrictions
+Quantile Regression	Asymmetric predictive power across return distribution	Tests left-tail (downside) protection
+Markov-Switching Regression	2-state regime identification	NBER-consistent regime dating
+Random Forest	Walk-forward feature importance	Nonlinear feature ranking with OOS validation
+Tournament Design
+Dimension	Values
+Signals	IP level, YoY growth, MoM change, z-score, 3M/6M momentum, acceleration, contraction dummy
+Threshold methods	Fixed IS percentile (p25/p50/p75), rolling percentile, rolling z-score (±1.0/±1.5)
+Strategies	Long/Cash (P1), Signal-Strength (P2), Long/Short (P3)
+Lead times	L0 through L6 (winner L6)
+Orientation	Pro-cyclical and countercyclical
+
+The tournament tested all valid combinations and ranked by out-of-sample Sharpe. Winner (per results/indpro_spy/winner_summary.json, authoritative): S6_mom3m / T1_fixed_p75 / P1_long_cash / L6 → OOS Sharpe 1.1036, OOS annualised return +7.65%, max drawdown −8.07%, annual turnover 2.22, win rate 19.8%, break-even cost ~50 bps.
+
+Analyst Suggestions for Future Work
+
+Signals flagged during analysis that look worth pursuing in future work (a different pair, a variant family extension, or a regime overlay). These are informational only — they did not influence this pair's winning strategy.
+
+No analyst suggestions filed for indpro_spy.
+
+Plain English: during a pair's work, any team member (Dana, Evan, Vera, Ray, Ace, Quincy) can log an observation about a signal that's outside the pair's formal scope but might be worth pursuing later. No entries have been recorded for this pair — that is a valid state, not an error.
+
+References
+Business Cycle and Equity Returns
+Chen, N. F., Roll, R., & Ross, S. A. (1986). Economic forces and the stock market. Journal of Business, 59(3), 383–403.
+Fama, E. F., & French, K. R. (1989). Business conditions and expected returns on stocks and bonds. Journal of Financial Economics, 25(1), 23–49.
+Stock, J. H., & Watson, M. W. (1989). New indexes of coincident and leading economic indicators. NBER Macroeconomics Annual, 4, 351–394.
+Impulse Response and Local Projections
+Jordà, Ò. (2005). Estimation and inference of impulse responses by local projections. American Economic Review, 95(1), 161–182.
+Regime Models
+Hamilton, J. D. (1989). A new approach to the economic analysis of nonstationary time series and the business cycle. Econometrica, 57(2), 357–384.
+Quantile Methods
+Koenker, R., & Bassett, G. (1978). Regression quantiles. Econometrica, 46(1), 33–50.
+
+What this shows: generated with AIG-RLIC+ | Pair: indpro_spy.

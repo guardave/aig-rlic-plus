@@ -1,0 +1,128 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+What this shows: ← you are here.
+
+keyboard_arrow_right
+
+Plain English
+
+Methodology: Technical Appendix
+
+For the skeptical reader: this section provides the full methodological detail needed to replicate, challenge, or extend our analysis. Every claim in the preceding pages traces back to a specific method, dataset, and diagnostic described here.
+
+Sample Period
+
+Out-of-Sample Window
+
+2015-01 to 2025-12
+
+Total tournament combinations
+
+N/A
+
+What this shows: Sample period: 1993-01 to 2025-12, ~8,589 daily observations. ADF statistic −4.074 (p = 0.0011) — stationary. IS/OOS split: 1993-01 → 2017-12 / 2018-01 onwards. The post-2022 portion of the OOS window uses the affine-adjusted DFF extension.
+
+Data Sources
+Category	Source	Series	Frequency	Notes
+TED Spread (official)	FRED	TEDRATE	Daily	LIBOR-based; 1993-01 to 2022-01
+Fed Funds Rate	FRED	DFF	Daily	Used for post-2022 splice extension
+3M T-Bill (Secondary Market)	FRED	DTB3	Daily	Risk-free short rate
+S&P 500 (Target)	Yahoo Finance	SPY	Daily	Adjusted close
+VIX	Yahoo Finance	^VIX	Daily	Control variable
+10Y Treasury	FRED	DGS10	Daily	For yield-curve control
+
+Scope discipline (ECON-SD). TEDRATE + DFF + DTB3 are in-scope primary inputs to construct the spliced spread. Splice calibration: affine adjustment adjusted = DFF_TED × scale + shift fitted on the 1993-2022 overlap so the post-2022 continuation matches TEDRATE's mean and standard deviation.
+
+Indicator Construction
+
+Core indicator. Two-segment construction:
+
+1993-01-04 → 2022-01-31: Spliced_TED_t = TEDRATE_t (official FRED series).
+2022-02-01 → present: Spliced_TED_t = (DFF_t − DTB3_t) × scale + shift, where scale and shift are fitted on the 1993-2022 overlap to match TEDRATE's mean and standard deviation.
+
+Total sample: ~8,589 daily observations through the 2026-03-14 cutoff.
+
+Derived signals used in the tournament (10 total): Level, z-score (126d, 252d), rate of change (21d, 63d), momentum (21d, 63d), percentile rank, realised volatility, stress dummy.
+
+The splice boundary is visible as a slight change in short-term volatility behaviour around January 2022 — the overlap-matched moments do not enforce higher-moment equivalence. Rate-of-change signals are relatively robust to this because they cancel out the level shift automatically; level-based signals should be treated with more caution across the splice boundary.
+
+Signal Universe
+
+This section lists every derivative of the indicator and target considered during the analysis. It is the single source of truth for what is in scope for this pair. Anything not in these two tables was deliberately excluded — and is instead logged under Analyst Suggestions below.
+
+Signal universe table unavailable for ted_spliced_spy.
+
+Plain English: this section normally lists every derivative (z-scores, rates of change, regime probabilities, forward returns, etc.) that was considered during the analysis, so you can see exactly what was in and out of scope. The underlying registry file (signal_scope.json) has not been produced for this pair yet — this is Evan's Wave 7B artifact and is only retro-fitted for HY-IG v2 at present.
+
+Stationarity Tests
+
+Stationarity tests missing for ted_spliced_spy — expected at results/ted_spliced_spy/stationarity_tests_*.csv.
+
+Econometric Methods
+Method	Question It Answers	Key Parameters
+Pearson / Rolling Correlation	Linear co-movement at multiple horizons	Baseline test for Spliced-TED ↔ SPY link
+Granger Causality	Test if spread predicts SPY returns	Up to 5 daily lags
+Predictive OLS	Baseline regressions with HC3 robust SEs	3 signals × 3 horizons
+Local Projections (Jordà)	Impulse response at 5d, 21d, 63d	HAC (Newey-West) SEs
+Quantile Regression	Tail-risk / asymmetric effects	7 quantiles (0.05 to 0.95)
+Combinatorial Tournament	~991 strategy combinations	5 leads × 6 thresholds × 3 strategies
+Tournament Design
+Dimension	Values
+Signals (10)	Spread level, z-score (126d, 252d), RoC (21d, 63d), momentum (21d, 63d), percentile rank, realized vol, stress dummy
+Thresholds (6)	Fixed percentile (IS) at 25th/50th/75th, rolling percentile (252d) at 25th/50th/75th
+Strategies (3)	P1 Long/Cash, P2 Signal-Strength, P3 Long/Short
+Lead times (5)	0, 1, 5, 10, 21 days
+Total	~991 combinations
+Direction	Counter-cyclical — BELOW threshold = bullish, ABOVE = bearish
+IS / OOS split	1993-01 → 2017-12 / 2018-01 → present
+
+See results/ted_spliced_spy/winner_summary.json for the canonical winner.
+
+Analyst Suggestions for Future Work
+
+Signals flagged during analysis that look worth pursuing in future work (a different pair, a variant family extension, or a regime overlay). These are informational only — they did not influence this pair's winning strategy.
+
+No analyst suggestions filed for ted_spliced_spy.
+
+Plain English: during a pair's work, any team member (Dana, Evan, Vera, Ray, Ace, Quincy) can log an observation about a signal that's outside the pair's formal scope but might be worth pursuing later. No entries have been recorded for this pair — that is a valid state, not an error.
+
+References
+Brunnermeier, M. K. (2009). Deciphering the liquidity and credit crunch 2007-2008. Journal of Economic Perspectives, 23(1), 77-100.
+Gilchrist, S., & Zakrajsek, E. (2012). Credit spreads and business cycle fluctuations. American Economic Review, 102(4), 1692-1720.
+Duffie, D., & Stein, J. C. (2015). Reforming LIBOR and other financial market benchmarks. Journal of Economic Perspectives, 29(2), 191-212.
+Jordà, Ò. (2005). Estimation and inference of impulse responses by local projections. American Economic Review, 95(1), 161-182.
+
+What this shows: generated with AIG-RLIC+ | Pair: ted_spliced_spy.

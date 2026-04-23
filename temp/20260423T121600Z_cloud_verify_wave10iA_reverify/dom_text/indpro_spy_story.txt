@@ -1,0 +1,165 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+What this shows: ← you are here.
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Story: Factory Output and the Stock Market
+
+Does the pace of industrial activity predict where stocks are headed?
+
+Industrial Production as a pro-cyclical equity timing signal — OOS Sharpe vs SPY buy-and-hold
+
+Key metrics (out-of-sample 2018-01–2025-12):
+
+Sharpe ratio: 1.10 (vs N/A buy-and-hold S&P 500)
+Annualized return: +7.6% with risk-adjusted exposure
+Max drawdown: -8.1% (vs N/A buy-and-hold S&P 500)
+Where This Fits in the Portal
+
+This pair anchors the Activity / Survey family of the portal. INDPRO is one of the four components of the Conference Board's Coincident Economic Index and has been tracked by the Fed since 1919. It complements the forward-looking Building Permits pair and the consumer-sentiment UMCSENT pair.
+
+How to read the rest of this page pack. You'll read the Story first (the economic logic), then the Evidence (statistical proofs), then the Strategy (the actual trading rule), then the Methodology (technical appendix). Each page stands alone.
+
+One-Sentence Thesis
+
+When INDPRO 3-month momentum is strong (above its in-sample 75th percentile) and applied with a 6-month lead, a simple Long/Cash rule delivered an out-of-sample Sharpe of 1.10 on SPY with a maximum drawdown of -8.1% — versus 0.90 and -23.9% for buy-and-hold.
+
+OOS Sharpe
+
+1.10
+
+OOS Return
+
++7.6%
+
+annualized
+
+Max Drawdown
+
+-8.1%
+
+Signal
+
+S6_mom3m
+
+N/A
+
+OOS Period
+
+8.0 yrs
+
+2018-01–2025-12
+
+What this shows: The edge comes primarily from drawdown avoidance, not from higher returns. OOS annualised return is +7.7% versus +14.8% for buy-and-hold, but the strategy spends roughly two-thirds of its time in cash — translating into a much smoother ride. A pragmatic use case is as a risk-management overlay rather than as a stand-alone alpha engine.
+
+Why Should Stock Investors Care About Factory Output?
+
+Industrial Production measures the real output of the manufacturing, mining, and utility sectors. It is one of the four components of the Conference Board's Coincident Economic Index and has been tracked by the Federal Reserve Board since 1919. The index is published monthly, about six weeks after the reference month, seasonally adjusted, and indexed to 100 in the base year 2017.
+
+For stock investors, IP matters because it directly connects to corporate earnings. When factories are running at full capacity, companies are selling more goods, hiring more workers, and generating higher profits. When production contracts, earnings fall — and so do stock prices, usually with a lag.
+
+The IP–Equity Connection
+
+Rising IP signals expanding manufacturing activity, higher capacity utilisation, and growing corporate earnings — bullish for stocks. Falling IP signals contraction, lower utilisation, and earnings pressure — bearish. The signal operates with a publication lag of about six weeks, and markets typically need additional time to price the information fully. This is what economists call a pro-cyclical relationship: the indicator and the stock market move in the same direction over the business cycle.
+
+35 Years of Industrial Production vs. S&P 500
+1995
+2000
+2005
+2010
+2015
+2020
+2025
+−15
+−10
+−5
+0
+5
+10
+15
+0
+100
+200
+300
+400
+500
+600
+700
+IP YoY Growth (%)
+SPY Price ($)
+Industrial Production Growth vs S&P 500 (1990-2025)
+IP YoY Growth (%)
+SPY Price ($)
+
+Dual-axis view: IP YoY growth (left, red) and SPY price (right, blue). Red shaded bands mark industrial contraction periods (YoY growth < 0). Notice how contractions tend to overlap with, or precede, equity declines — most visibly in 2001, 2008-09 and 2020.
+
+What History Shows: Returns by IP Growth Regime
+0.31
+1.09
+0.69
+1.15
+Q1_low
+Q2
+Q3
+Q4_high
+0
+0.5
+1
+SPY Sharpe Ratio by INDPRO YoY Growth Quartile
+IP Growth Quartile (Q1=Lowest, Q4=Highest)
+Annualized Sharpe Ratio
+
+Equity performance differs sharply across IP growth regimes. Stocks perform best during moderate growth (Q2, Sharpe ~1.09) and high growth (Q4, ~1.15), and worst during deep contractions (Q1, ~0.31). Q3 sits in between at ~0.69. The pattern is non-linear — moderate is nearly as good as strong, but weak is very costly.
+
+The Surprise: A Peak-Cycle Warning
+
+While the overall relationship is pro-cyclical, the IP z-score (how far IP is from its long-term trend) shows a negative relationship with 12-month forward returns. When IP is well above its 5-year trend, future returns tend to be lower.
+
+Interpretation. This is a peak-cycle effect. At cycle highs growth is unsustainable and mean-reverts; investors who buy at the peak of industrial activity tend to underperform. This is consistent with Fama & French (1989): business conditions predict stock returns, but the relationship is nuanced, and the level and the rate of change carry different information.
+
+The practical implication is that you should pay attention to momentum transforms (YoY, MoM, 3M momentum) rather than levels or z-scores when building a trading rule. The tournament winner below does exactly that.
+
+Scope note. Scope discipline (ECON-SD). Only INDPRO and SPY are in-scope primary signals. Controls (VIX, yield spread, UNRATE, capacity utilisation) are used only in regression controls — not as trading signals.
+
+History and economic logic suggest a real connection between factory output and stock returns. But does the data confirm this statistically? We ran nine different econometric models, and the headline result is that the relationship is real but nuanced — it survives in the momentum transforms more than in the levels.
+🔬
+
+Continue to The Evidence
+
+What this shows: generated with AIG-RLIC+ | Pair: indpro_spy.

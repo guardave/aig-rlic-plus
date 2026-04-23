@@ -1,0 +1,195 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+
+📐 Methodology
+
+What this shows: direction triangulation (APP-DIR1, 2-way) — Evan and Dana agree on countercyclical. Ray leg pending RES-17 frontmatter migration.
+
+keyboard_arrow_right
+
+Plain English
+
+The Strategy: Translating Credit Signals into SPY Positioning
+
+We tested hundreds of strategy combinations to find the most robust way to time SPY exposure using the HY-IG credit spread signal.
+
+Tournament Winner: S6_hmm_stress / P2_signal_strength / LN/A
+
+Strategy Rule in Plain English: Monitor the HMM stress probability derived from the HY-IG credit spread. When the stress probability exceeds the 0.5 threshold (credit market signaling stress regime), scale down SPY exposure proportionally to the probability level. When stress probability falls below 0.5 (calm regime), restore full SPY exposure. The HMM is updated monthly using available spread history.
+
+How the Signal is Generated
+
+Each day, the HY-IG spread (difference between ICE BofA HY OAS and IG OAS) is computed from FRED series BAMLH0A0HYM2EY and BAMLC0A0CMEY. A 2-state Hidden Markov Model (HMM) fitted to the daily spread history produces a continuous probability of being in the 'stress' vs 'calm' state. This probability (hmm_2state_prob_stress) is the tournament-winning signal (S6_hmm_stress). The signal operates at L0 — no additional lead lag beyond the HMM's own probabilistic smoothing. Monthly portfolio positions are rebalanced at each month-end based on the end-of-month stress probability.
+
+OOS Sharpe
+
+1.41
+
+vs 0.81 B&H
+
+OOS Return
+
++11.7%
+
+annualized
+
+Max Drawdown
+
+-8.5%
+
+Turnover
+
+~3.8/yr
+
+Win Rate
+
+N/A
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal code: S6_hmm_stress
+
+Signal column: hmm_2state_prob_stress
+
+Threshold: gte 0.5
+
+Strategy family: P2_signal_strength
+
+Direction: countercyclical
+
+Lead time: LN/A
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+2005
+2010
+2015
+2020
+2025
+0
+0.2
+0.4
+0.6
+0.8
+1
+Date
+HMM Stress Probability
+threshold = 0.5
+
+Why this matters: The hmm stress probability is the live stress meter; the strategy scales equity exposure down whenever this probability rises above 0.5. P2 Signal Strength: exposure scales continuously with the signal.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+2005
+2010
+2015
+2020
+2025
+0
+20
+40
+60
+80
+100
+Date
+SPY Exposure (%)
+
+Why this matters: Exposure scales continuously: SPY allocation falls toward zero as the stress signal approaches 1, and returns to 100% as the signal fades.
+
+How to Use the Signal — Trigger Scenarios
+
+What this shows: Strategy family P2 (Signal Strength) · threshold loaded from winner_summary.json = 0.5 · direction: countercyclical.
+
+REDUCE
+
+When HMM Stress Probability rises above 0.5 → scale SPY exposure down proportionally. At signal = 1.0, exposure = 0%.
+
+HOLD
+
+When HMM Stress Probability lingers near 0.5 → hold exposure at roughly 50%. The signal-strength rule prevents whipsaw.
+
+BUY
+
+When HMM Stress Probability falls below 0.5 → scale SPY exposure back up. At signal = 0, exposure = 100%.
+
+How to read it: sparklines are drawn from real history (signals_20260422.parquet column hmm_2state_prob_stress) — 2/3 scenarios located; thresholds match the runtime rule. The dashed horizontal line is the decision threshold at which the action in each card fires.
+
+How to Use This Indicator Manually
+
+If you want to use this signal with minimal code:
+
+Pull HY and IG OAS from FRED (BAMLH0A0HYM2EY and BAMLC0A0CMEY) at month-end.
+Compute the spread: HY OAS minus IG OAS in percentage points.
+Run a 2-state HMM on the full spread history using hmmlearn (or similar). The higher-mean state is 'stress'; the lower-mean state is 'calm'.
+Read the current stress probability from the final observation.
+Scale SPY position: full weight when probability < 0.5; scaled proportionally when probability ≥ 0.5. The model re-estimates monthly.
+Re-estimate monthly — HMM parameters should be refreshed annually or after major structural breaks.
+Future: Live Execution
+
+Current Signal State
+
+—
+
+Target Position
+
+—
+
+Current Action
+
+—
+
+Caveat: no live_execution_stub.json present yet — values render as — placeholders until a real-time feed is wired.
+
+This dashboard presents historical backtest results. A real-time execution layer would surface the fields above; the values shown are placeholders. Wiring to a live data feed and broker API is deliberately out-of-scope for this research portal (see Methodology).
+
+Plain English: you are looking at the shape of what a live execution panel WOULD display (current signal, target position, current action), with dashes where live numbers will eventually flow in. The portal is a research tool — building out the broker connection is a separate project.
+
+For readers who want to understand exactly how we reached these conclusions — or who want to replicate and extend the analysis — the methodology section provides full details on data, methods, and diagnostics.
+
+📐
+
+Continue to Methodology
+
+What this shows: generated with AIG-RLIC+ | Pair: hy_ig_spy.
