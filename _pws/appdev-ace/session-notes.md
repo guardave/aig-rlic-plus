@@ -8,6 +8,14 @@
 
 ## Session timeline (Wave-by-wave)
 
+### Wave 10I.A Fix -- defensive coerce threshold_value (2026-04-23, later)
+- Quincy cloud verify (commit `08bb0c8`) returned 35/6/41. All 6 FAILs = same `TypeError` on `float(winner.get("threshold_value", 0.5))` at `instructional_trigger_cards.py:385`.
+- Root cause: the 6 legacy pairs' `winner_summary.json.threshold_value` is JSON `null` (Python `None`). `.get()` default does NOT fire because the key is present. `float(None)` raises TypeError.
+- Fix: wrapped the `float()` in try/except `(TypeError, ValueError)`; on catch falls back to `0.5` and emits APP-SEV1 L2 `st.info(...)` banner. ~15 lines patched around line 385. Only call site in the file (grep confirmed).
+- Smoke: all 10 pairs failures=0 (indpro_spy 4, permit_spy 3, vix_vix3m_spy 3, sofr_ted_spy 3, dff_ted_spy 3, ted_spliced_spy 3, hy_ig_spy 6, hy_ig_v2_spy 15, indpro_xlp 8, umcsent_xlv 6).
+- Handoff: `results/_cross_agent/handoff_ace_wave10i_fix_20260423.md` with proposed backlog entry `BL-THRESHOLD-VALUE-SCHEMA` for Lead to add (LEAD-DL1: never edit backlog.md).
+- Scope discipline: single shared component file; no winner_summary.json, no pair configs, no pages, no SOPs touched. Producer-side schema normalization deferred to Evan/Dana via backlog.
+
 ### Wave 10I.A Part 1 -- 4 non-TED legacy pair migrations (2026-04-23)
 - Created 4 pair configs: `indpro_spy_config.py` (440L), `permit_spy_config.py` (272L), `vix_vix3m_spy_config.py` (279L), `umcsent_xlv_config.py` (343L). Total 1,334 lines, 190 TODO-Ray stubs.
 - Replaced 16 legacy pages with 18-line thin wrappers. Total pages reduced 3,622 → 288 (-3,334 lines).

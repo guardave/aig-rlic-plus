@@ -382,7 +382,22 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
 
     strategy = winner.get("strategy_code", "P2")
     direction = winner.get("direction", "countercyclical")
-    threshold = float(winner.get("threshold_value", 0.5))
+    # Wave 10I.A defensive coerce: legacy pairs may carry `threshold_value` as a
+    # non-numeric string (e.g. an expression like "hmm_prob > 0.5"). The `.get`
+    # default only fires when the key is absent, so we must catch the cast error
+    # and emit an APP-SEV1 L2 fallback banner instead of crashing the page.
+    _raw_threshold = winner.get("threshold_value", 0.5)
+    try:
+        threshold = float(_raw_threshold)
+    except (TypeError, ValueError):
+        threshold = 0.5
+        st.info(
+            "Trigger thresholds shown use a default heuristic (0.5) — this "
+            "pair's `winner_summary.json.threshold_value` is on a legacy "
+            "non-numeric schema and could not be coerced to a float. "
+            "Numeric trigger cards will display after the pair pipeline is "
+            "rerun against the current schema."
+        )
     signal_display = winner.get("signal_display_name", winner.get("signal_code", "Signal"))
     target_symbol = winner.get("target_symbol", "SPY")
     signal_column = winner.get("signal_column")

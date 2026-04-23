@@ -1,5 +1,27 @@
 # Team Status Board
 
+## 2026-04-23 — Dev Ace (Wave 10I.A Fix — defensive coerce threshold_value, APP-SEV1 L2 fallback COMPLETE)
+
+**Status:** Cloud-verify regression (6/41 FAIL on commit `08bb0c8`) resolved with surgical defensive patch.
+
+**Root cause:** `app/components/instructional_trigger_cards.py:385` called `float(winner.get("threshold_value", 0.5))`. The `.get` default fires only on missing key — but the 6 legacy pairs carry `threshold_value = null` (key present), triggering `TypeError` on `float(None)`.
+
+**Fix (~15 lines around line 385):** wrapped `float()` in try/except `(TypeError, ValueError)` → falls back to `0.5` + emits APP-SEV1 L2 `st.info(...)` banner so the gap is visible, not silent. Sole call site in the file.
+
+**Smoke (all 10 pairs failures=0):** indpro_spy 4, permit_spy 3, vix_vix3m_spy 3, sofr_ted_spy 3, dff_ted_spy 3, ted_spliced_spy 3, hy_ig_spy 6, hy_ig_v2_spy 15, indpro_xlp 8, umcsent_xlv 6.
+
+**Banner wording shipped:** "Trigger thresholds shown use a default heuristic (0.5) — this pair's `winner_summary.json.threshold_value` is on a legacy non-numeric schema and could not be coerced to a float. Numeric trigger cards will display after the pair pipeline is rerun against the current schema."
+
+**Proposed backlog entry for Lead (LEAD-DL1 — Ace does not edit backlog.md):** `BL-THRESHOLD-VALUE-SCHEMA` — Evan/Dana normalize `threshold_value` to numeric across all `winner_summary.json`, update `winner_summary.schema.json` to `{"type":"number"}` non-nullable, add pipeline guard. P2.
+
+**Scope discipline:** only `app/components/instructional_trigger_cards.py` + handoff + PWS + this board. No winner_summary.json / pair configs / pages / SOPs touched. META-AM clean.
+
+**Handoff:** `results/_cross_agent/handoff_ace_wave10i_fix_20260423.md`.
+
+**Ready for Quincy:** re-dispatch cloud verify → expected 41/41.
+
+---
+
 ## 2026-04-23 — Research Ray (Wave 10I.A Part 3b — TED variants narrative port COMPLETE)
 
 **Status:** 3 TED pair configs fully narrative-populated. 111/111 TODO-Ray stubs replaced.
