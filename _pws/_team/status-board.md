@@ -1,5 +1,30 @@
 # Team Status Board
 
+## 2026-04-23 — Dev Ace (Wave 10I.A Part 1 — 4 legacy-pair migrations COMPLETE)
+
+**Status:** 4 of 5 non-Sample legacy pair surfaces migrated to APP-PT1 thin-wrapper pattern. TED composite explode is separate Ace-B dispatch.
+
+**Shipped:**
+- 4 new pair configs: `indpro_spy_config.py`, `permit_spy_config.py`, `vix_vix3m_spy_config.py`, `umcsent_xlv_config.py` (1,334 lines, 190 TODO-Ray narrative stubs).
+- 16 legacy pages rewritten as 18-line thin wrappers (3,622 → 288 lines; -3,334 page-file lines).
+- Handoff doc: `results/_cross_agent/handoff_ace_wave10i_partA_20260423.md`.
+
+**Smoke evidence (all PASS):**
+- indpro_spy: passes=4, failures=0
+- permit_spy: passes=3, failures=0
+- vix_vix3m_spy: passes=3, failures=0
+- umcsent_xlv: passes=6, failures=0
+
+**Ready for Ray:** Narrative content port — 190 stubs with explicit source-line hints. Greppable via `grep "TODO Ray (Wave 10I.A)" app/pair_configs/*_config.py`.
+
+**Discovery observations Lead may want to triage:**
+- Chart filename drift on 3 pairs (pair-id-prefixed on disk, not canonical bare-name) — future Vera rename wave could canonicalise.
+- permit_spy and vix_vix3m_spy lack equity_curves / drawdown / walk_forward chart files — pre-existing data gap, Evan/Vera backlog candidate.
+
+**LEAD-DL1 self-check:** Ace wrote zero narrative prose. All prose fields are TODO-Ray stubs. Structural content (chart names, tables, references) is the Ace ownership.
+
+---
+
 ## 2026-04-23 — Dev Ace (Wave 10I discovery — legacy-page migration scope)
 
 **Status:** Discovery report shipped per Lead dispatch. No implementation (per LEAD-DL1 handoff contract).

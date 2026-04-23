@@ -8,6 +8,16 @@
 
 ## Session timeline (Wave-by-wave)
 
+### Wave 10I.A Part 1 -- 4 non-TED legacy pair migrations (2026-04-23)
+- Created 4 pair configs: `indpro_spy_config.py` (440L), `permit_spy_config.py` (272L), `vix_vix3m_spy_config.py` (279L), `umcsent_xlv_config.py` (343L). Total 1,334 lines, 190 TODO-Ray stubs.
+- Replaced 16 legacy pages with 18-line thin wrappers. Total pages reduced 3,622 → 288 (-3,334 lines).
+- All smoke tests PASS: indpro_spy 4/0, permit_spy 3/0, vix_vix3m_spy 3/0, umcsent_xlv 6/0 (passes/failures).
+- Structural fields filled by Ace (chart names, methods tables, tournament design, references, data sources); narrative prose stubbed for Ray with explicit line-range hints to legacy pages.
+- Chart filename drift observed: indpro_spy / permit_spy / vix_vix3m_spy still use pair_id-prefixed chart filenames on disk. Configs set `*_CHART_NAME = "pair_id_chartname"` to keep smoke green; future Vera rename wave can canonicalise.
+- Data gap surfaced: permit_spy and vix_vix3m_spy have no equity_curves/drawdown/walk_forward chart files. Template falls back to "chart pending" — pre-existing gap, not a regression.
+- Handoff: `results/_cross_agent/handoff_ace_wave10i_partA_20260423.md`.
+- LEAD-DL1 clean: zero narrative prose authored by Ace; all prose fields are TODO-Ray stubs.
+
 ### Wave 10I discovery -- legacy-page migration scope (2026-04-23)
 - Scoped entire `app/pages/` surface: 24 page files; 8 THIN (complete), 15 HAND + 1 HYBRID + 4 TED-composite pages to migrate.
 - Zero template code changes required for Sample migration (all rich components already wired in `page_templates.py`).
