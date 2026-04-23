@@ -1,14 +1,24 @@
 {
+  "pair_id": "dff_ted_spy",
+  "schema_version": "1.0.0",
   "indicator": "dff_ted_spy",
   "target": "spy",
+  "target_symbol": "SPY",
   "indicator_nature": "leading",
   "indicator_type": "credit",
   "strategy_objective": "min_mdd",
-  "expected_direction": "counter_cyclical",
-  "observed_direction": "pro_cyclical",
+  "expected_direction": "countercyclical",
+  "observed_direction": "procyclical",
   "direction_consistent": false,
-  "mechanism": "Wider funding spread indicates stress in interbank/repo markets, tightening financial conditions, reduced liquidity \u2014 bearish for equities.",
+  "mechanism": "Wider funding spread indicates stress in interbank/repo markets, tightening financial conditions, reduced liquidity — bearish for equities.",
   "confidence": "medium",
   "key_finding": "spread_zscore_252d predicts spy_fwd_21d (coef=0.0043, t=10.74, p=0.0000)",
-  "caveats": []
+  "caveats": [],
+  "owner_writes": {
+    "dana": ["pair_id", "schema_version", "indicator", "target", "target_symbol", "indicator_nature", "indicator_type"],
+    "evan": ["observed_direction", "direction_consistent", "key_finding", "confidence"],
+    "ray": ["strategy_objective", "expected_direction", "mechanism", "caveats"]
+  },
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-04-23T00:00:00Z"
 }

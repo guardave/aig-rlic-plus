@@ -1,18 +1,28 @@
 {
+  "pair_id": "vix_vix3m_spy",
+  "schema_version": "1.0.0",
   "indicator": "vix_vix3m",
   "target": "spy",
+  "target_symbol": "SPY",
   "indicator_nature": "coincident",
   "indicator_type": "volatility",
   "strategy_objective": "min_mdd",
-  "expected_direction": "counter_cyclical",
-  "observed_direction": "pro_cyclical",
+  "expected_direction": "countercyclical",
+  "observed_direction": "procyclical",
   "direction_consistent": false,
-  "mechanism": "VIX/VIX3M > 1 (backwardation) signals near-term fear exceeding longer-term expectations \u2014 a panic indicator. Historically associated with sharp selloffs and elevated put demand.",
+  "mechanism": "VIX/VIX3M > 1 (backwardation) signals near-term fear exceeding longer-term expectations — a panic indicator. Historically associated with sharp selloffs and elevated put demand.",
   "confidence": "high",
   "key_finding": "vix_ratio_zscore_252d predicts spy_fwd_63d (coef=0.0042, t=3.54, p=0.0004)",
   "caveats": [
     "VIX3M starts ~2007, limiting sample to 18 years",
-    "VIX ratio mean-reverts quickly \u2014 signal may be too fast for monthly strategies",
+    "VIX ratio mean-reverts quickly — signal may be too fast for monthly strategies",
     "COVID March 2020 was extreme backwardation"
-  ]
+  ],
+  "owner_writes": {
+    "dana": ["pair_id", "schema_version", "indicator", "target", "target_symbol", "indicator_nature", "indicator_type"],
+    "evan": ["observed_direction", "direction_consistent", "key_finding", "confidence"],
+    "ray": ["strategy_objective", "expected_direction", "mechanism", "caveats"]
+  },
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-04-23T00:00:00Z"
 }
