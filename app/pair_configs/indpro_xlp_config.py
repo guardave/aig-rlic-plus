@@ -500,6 +500,27 @@ class StrategyConfig:
    but one full cycle remains desirable for confirmation.
 """
 
+    TRADE_LOG_EXAMPLE_MD = (
+        "**Concrete example — COVID 2020 industrial shock.** On "
+        "**2020-02-29** the signal read industrial-production "
+        "acceleration of **+0.992** (a firming manufacturing pulse), "
+        "and the countercyclical rule told us to **SELL XLP to 0%** "
+        "(cash) at a close of **$49.18**. One month later, on "
+        "**2020-03-31**, the COVID lockdown wrecked the factory data: "
+        "INDPRO acceleration collapsed to **-4.248**, a deep-negative "
+        "reading that deliberately fires the long leg — so the log "
+        "shows a **BUY back to 100% XLP** at **$46.46**, buying "
+        "consumer staples into the worst of the equity sell-off. That "
+        "sequence (rows dated 2020-02-29 and 2020-03-31 in "
+        "`winner_trades_broker_style.csv`) is exactly the "
+        "countercyclical logic the tournament selected: lean defensive "
+        "when the economy is accelerating hard (staples underperform "
+        "growth) and lean back into staples when the industrial cycle "
+        "is collapsing. By **2020-05-31** acceleration had "
+        "mean-reverted sharply to **+14.8%** and the log exits again, "
+        "crystallising the gain."
+    )
+
 
 STRATEGY_CONFIG = StrategyConfig()
 

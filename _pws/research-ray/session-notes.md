@@ -136,3 +136,25 @@ This is Ray's ephemeral session journal for the AIG-RLIC+ project. Timeless patt
 **Pushed to remote:** yes (main branch, commit 1561370)
 
 **Outstanding:** None from Ray's scope. Ace (4E), Vera (4C), Evan (4D) complete the pipeline.
+
+---
+## Session: Wave 10H.2 — 2026-04-23 — APP-TL1 narrative fill
+
+**Task:** Replace Ace's 4 `# TODO Ray` stubs in `page_templates.py` with canonical APP-TL1 prose; add `TRADE_LOG_EXAMPLE_MD` to 3 pair configs.
+
+**Status: COMPLETE (2 of 3 pair configs — 3rd flagged to Lead).**
+
+**Deliverables:**
+- 4 narrative constants authored (disclosure, two-file model, column glossary, 10-row column dict).
+- 2 pair configs enriched with `TRADE_LOG_EXAMPLE_MD` (hy_ig_spy, indpro_xlp) — both anchored on COVID 2020 transitions with verifiable broker-CSV rows.
+- 1 pair config (umcsent_xlv) flagged NOT to create — page hand-rolled, bypasses render_strategy_page; would be orphan code.
+- Smoke: 4/4 pairs PASS failures=0.
+- Handoff: `results/_cross_agent/handoff_ray_wave10h2_20260423.md`.
+
+**Flags to Lead:**
+1. umcsent_xlv's strategy page is outside APP-PT1 template flow; open `BL-APP-PT1-UMCSENT` before extending APP-TL1 coverage there.
+2. `results/hy_ig_spy/winner_trades_broker_style.csv` still on legacy 12-col schema; dispatch Evan/Dana to regenerate per APP-TL1 canonical 10-col schema (does not block Ray's prose but breaks UX consistency of Ace's column-dictionary expander).
+
+**Cross-agent coordination:** Purely downstream of Ace's 10H.2 structural commit `a32eaff`. No interaction with Vera/Evan/Dana this wave.
+
+**LEAD-DL1:** Honoured — only touched Ray-owned files (narrative constants, pair config narrative fields, handoff, PWS, team status).

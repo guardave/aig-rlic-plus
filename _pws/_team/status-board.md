@@ -340,3 +340,21 @@ No residual FAILs, no deferred QA items from this wave.
 - Smoke: hy_ig_v2_spy 15/0 PASS, hy_ig_spy 6/0 PASS. Strategy page will show visible `TODO Ray` placeholders until Ray's pass — expected.
 - Handoff: `results/_cross_agent/handoff_ace_wave10h2_20260423.md` (includes exact line numbers + per-constant Ray assignments).
 - Awaiting: Ray narrative fill (4 constants + 3 pair_config `TRADE_LOG_EXAMPLE_MD` fields); Quincy cloud verify last.
+
+## 2026-04-23 — Wave 10H.2 [Ray] APP-TL1 narrative fill COMPLETE
+
+**Status:** READY FOR QUINCY (cloud verify).
+
+- `app/components/page_templates.py`: all 4 Ray-owned narrative constants filled.
+  - `_TRADE_LOG_DISCLOSURE_MD` (line 114): simulated-vs-real compliance paragraph (214 → 572 bytes).
+  - `_TRADE_LOG_TWO_FILE_MODEL_MD` (line 126): broker-style vs position-log contrast (336 → 710 bytes).
+  - `_TRADE_LOG_COLUMN_GLOSSARY_MD` (line 141): 10-col bulleted glossary (251 → 992 bytes).
+  - `_TRADE_LOG_COLUMN_DICT_DEFAULTS` (line 168): canonical 10-row dict, example values anchored on 2020-02-24 COVID trade.
+- `TRADE_LOG_EXAMPLE_MD` added to 2 pair configs:
+  - `hy_ig_spy_config.py` (StrategyConfig): COVID 2020-02-24 HMM stress 0.09→1.00 → 91.5%→0% at $294.65.
+  - `indpro_xlp_config.py` (StrategyConfig): COVID 2020 industrial cycle, 2020-02-29 SELL / 2020-03-31 BUY / 2020-05-31 SELL.
+- **umcsent_xlv_config.py NOT created** — flagged to Lead. Pages bypass `render_strategy_page`, so no helper call site exists; creating config would produce orphan code. Suggest backlog item `BL-APP-PT1-UMCSENT`.
+- Heads-up to Evan/Dana: `results/hy_ig_spy/winner_trades_broker_style.csv` still uses legacy 12-col schema (`trade_id/entry_date/exit_date/direction/...`) — does not match APP-TL1 canonical 10-col schema. Regeneration needed for UX consistency of the column-dictionary expander. Not blocking Ray.
+- Smoke: hy_ig_spy 6/0 PASS · hy_ig_v2_spy 15/0 PASS · indpro_xlp 8/0 PASS · umcsent_xlv 7/0 PASS.
+- Handoff: `results/_cross_agent/handoff_ray_wave10h2_20260423.md`.
+- Skipped `TRADE_LOG_COLUMN_EXAMPLES` per-pair override — canonical defaults read cleanly for both active pairs.

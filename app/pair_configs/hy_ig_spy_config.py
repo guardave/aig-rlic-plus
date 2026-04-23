@@ -818,6 +818,24 @@ class StrategyConfig:
    any rule-based risk-management system.
 """
 
+    TRADE_LOG_EXAMPLE_MD = (
+        "**Concrete example — COVID 2020.** In the last week of February "
+        "2020, as credit markets woke up to the pandemic, the HY-IG "
+        "HMM stress probability jumped from near-calm (around **0.09**) "
+        "to a full-stress reading of **1.00** within a handful of "
+        "sessions. In the broker-style log this shows up as a rapid "
+        "de-risking sequence ending on **2020-02-24** with a SELL that "
+        "takes the target SPY weight from **91.5% down to 0%** (all "
+        "cash) at an SPY price of **$294.65** (row `trade_id=282` in "
+        "`winner_trades_broker_style.csv`). The strategy then sat in "
+        "cash for roughly a year while the HMM remained in the stress "
+        "state. That single transition is what kept the strategy's "
+        "maximum drawdown around **-8.5%** over the OOS window, versus "
+        "roughly **-34%** for buy-and-hold SPY through the same "
+        "period — the countercyclical scale-down is the engine of the "
+        "1.41 OOS Sharpe."
+    )
+
 
 STRATEGY_CONFIG = StrategyConfig()
 

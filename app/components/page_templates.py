@@ -112,23 +112,52 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 # Do not merge without Ray's narrative pass.
 # ---------------------------------------------------------------------------
 _TRADE_LOG_DISCLOSURE_MD: str = (
-    "# TODO Ray (Wave 10H.2): simulated-vs-real disclosure paragraph per "
-    "APP-TL1 step 2. See `results/_cross_agent/ace_discovery_trade_log_"
-    "20260423.md` §2.1 for reference text lifted from the Sample legacy page."
+    "**These are simulated trades from a backtest, not actual broker "
+    "executions.** No real money was ever committed to this strategy. The "
+    "trade log below is produced by replaying the winning tournament signal "
+    "against historical prices, assuming a **$10,000 starting stake** and a "
+    "round-trip transaction cost of **5 basis points (0.05%)** per trade. "
+    "Real-world execution would additionally face bid-ask spread, market "
+    "impact, slippage, and behavioural risk — none of which are modelled "
+    "here. Treat every row as a research artifact, not a statement of "
+    "account."
 )
 
 _TRADE_LOG_TWO_FILE_MODEL_MD: str = (
-    "# TODO Ray (Wave 10H.2): two-file model explanation per APP-TL1 step 3. "
-    "Plain-English contrast: broker-style (one row per execution) vs. "
-    "researcher position log (one row per position-weight change). Reference "
-    "text in `results/_cross_agent/ace_discovery_trade_log_20260423.md` §2.2."
+    "Two files are published side by side so you can pick the view that "
+    "matches your question. The **broker-style log** "
+    "(`winner_trades_broker_style.csv`) is the default, retail-friendly "
+    "view — one row per trade execution, formatted the way a brokerage "
+    "statement would look, with a fixed 10-column schema (trade date, "
+    "side, instrument, quantity, price, notional, commissions, cumulative "
+    "P&L, and the signal-based reason). The **position log** "
+    "(`winner_trade_log.csv`) is the researcher / debugging view — one row "
+    "per position-weight change, with additional diagnostic columns such "
+    "as the raw signal value, threshold comparison, and regime tag. Both "
+    "files describe the exact same backtest; they just index it "
+    "differently."
 )
 
 _TRADE_LOG_COLUMN_GLOSSARY_MD: str = (
-    "# TODO Ray (Wave 10H.2): column glossary per APP-TL1 step 4. Bulleted "
-    "plain-English meaning of each of the 10 canonical broker-style columns. "
-    "Reference text in `results/_cross_agent/ace_discovery_trade_log_"
-    "20260423.md` §2.3."
+    "**Key columns in the broker-style log:**\n"
+    "- `trade_date` — the calendar date the trade would have been "
+    "executed.\n"
+    "- `side` — **BUY** scales equity exposure up; **SELL** scales it "
+    "down toward cash (or short, if the strategy allows).\n"
+    "- `instrument` — the target ticker being traded (for example SPY, "
+    "XLP, or XLV).\n"
+    "- `quantity_pct` — the **resulting** target portfolio weight after "
+    "the trade, expressed as a percentage (0–100). It is the new "
+    "position, not the size of the trade itself.\n"
+    "- `price` / `notional_usd` — the closing price of the instrument "
+    "on the trade date and the dollar value of the resulting position "
+    "(using a $10,000 notional base).\n"
+    "- `commission_bps` / `commission_usd` — the per-trade transaction "
+    "cost in basis points and the corresponding dollar charge.\n"
+    "- `cum_pnl_pct` — cumulative strategy return since inception, in "
+    "percent.\n"
+    "- `reason` — a human-readable one-liner naming the signal value "
+    "and the rule that triggered the row."
 )
 
 # 10-row column dictionary defaults for the "How to read this chart" expander
@@ -137,16 +166,16 @@ _TRADE_LOG_COLUMN_GLOSSARY_MD: str = (
 # Schema per APP-TL1: Column / Type / Meaning / Example.
 # Ray: replace the "TODO Ray" strings in each row with canonical values.
 _TRADE_LOG_COLUMN_DICT_DEFAULTS: dict[str, dict[str, str]] = {
-    "trade_date":     {"type": "date",     "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
-    "side":           {"type": "enum",     "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
-    "instrument":     {"type": "string",   "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
-    "quantity_pct":   {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
-    "price":          {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
-    "notional_usd":   {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
-    "commission_bps": {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
-    "commission_usd": {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
-    "cum_pnl_pct":    {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
-    "reason":         {"type": "string",   "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
+    "trade_date":     {"type": "date",   "meaning": "Calendar date the trade would have been executed.",                                                       "example": "2020-02-24"},
+    "side":           {"type": "enum",   "meaning": "BUY increases target exposure; SELL reduces it (toward cash or short).",                                  "example": "SELL"},
+    "instrument":     {"type": "string", "meaning": "Ticker of the asset being traded.",                                                                        "example": "SPY"},
+    "quantity_pct":   {"type": "float",  "meaning": "Target portfolio weight AFTER this trade, as a percentage (0–100).",                                       "example": "0.0"},
+    "price":          {"type": "float",  "meaning": "Closing price of the instrument on trade_date, in USD.",                                                   "example": "294.65"},
+    "notional_usd":   {"type": "float",  "meaning": "Dollar value of the resulting position (quantity_pct / 100 × $10,000 starting capital).",                  "example": "0.00"},
+    "commission_bps": {"type": "float",  "meaning": "Round-trip transaction cost applied to the trade, in basis points.",                                       "example": "5"},
+    "commission_usd": {"type": "float",  "meaning": "Dollar commission charged on this trade.",                                                                 "example": "0.00"},
+    "cum_pnl_pct":    {"type": "float",  "meaning": "Cumulative strategy return since inception, in percent.",                                                  "example": "52.15"},
+    "reason":         {"type": "string", "meaning": "Human-readable signal value and rule that triggered the trade.",                                           "example": "HMM stress prob 1.000 crossed threshold — full risk-off"},
 }
 
 
