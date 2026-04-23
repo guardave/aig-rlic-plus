@@ -299,3 +299,37 @@ DOM still contains five lines with raw column tokens `spy_fwd_21d` / `spy_fwd_63
 
 Wave 10H.1 QA verdict: **closed with 2 real FAILs escalated to Ace** (not QA-script / deployment / cache issues). My script is sound; the findings are genuine.
 
+
+---
+
+## Final verify (post-Ace 387062f — 2026-04-23T00:16Z)
+
+- **HEAD verified:** `387062f` "Wave 10H.1 [Ace]: fix landing raw-col leak + _render_exploratory_insights cloud path"
+- **Wait for Cloud redeploy:** ~75s after commit; Streamlit Cloud auto-redeploy appeared to succeed (page DOMs updated; no stale content).
+- **Script:** `scripts/cloud_verify.py` run at 2026-04-23T00:16:33Z
+- **Artifacts:** `temp/20260423T001633Z_cloud_verify/` (results.json, summary, dom_text/)
+
+### Result: **17 PASS / 0 FAIL / 17 TOTAL**
+
+| Check | Prior (post-14f36f0) | Final (post-387062f) |
+|-------|----------------------|----------------------|
+| Landing — `sample_badge=True`, `leak=False` | FAIL (leak=True) | **PASS (leak=False)** |
+| `hy_ig_v2_spy_methodology` — APP-PT2 section + ELI5 markers | FAIL (section=False) | **PASS (section=True, eli5=3/3)** |
+| All 12 non-methodology pages (story/evidence/strategy × 4 pairs) | PASS | PASS |
+| All 3 non-Sample methodology pages (section=False expected) | PASS | PASS |
+
+### Bug-fix verification
+
+- **Bug 1 (landing raw-col leak):** `humanize_column_tokens()` routing of `interpretation_metadata.key_finding` is live — landing DOM no longer contains raw `spy_fwd_21d` / `spy_fwd_63d` tokens. `leak=False` on landing check.
+- **Bug 2 (APP-PT2 absent on Sample Methodology):** Direct call to `_render_exploratory_insights(PAIR_ID)` in the hand-written `9_hy_ig_v2_spy_methodology.py` is live — DOM length grew from 14,138 → 17,356 chars; `section=True`, all 3 ELI5 markers present.
+
+### QA-CL gate status (final)
+
+- **GATE-28:** 17/17 PASS ✅
+- **APP-PT2:** PASS on Sample pair; regression gate PASS on 3 non-Sample pairs
+- **VIZ-O1:** 65/65 focus-pair sidecars PASS (unchanged)
+- **QA-CL2:** unchanged (P2 exception stands)
+
+### Verdict for Lead
+
+**Wave 10H.1 QA complete — 17/17 PASS.** Both code defects surfaced in prior re-verify are resolved by Ace's `387062f`. No residual FAILs, no deferred QA items from this wave. Streamlit Cloud auto-redeploy behaved as expected (no manual reboot required).

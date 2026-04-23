@@ -492,3 +492,16 @@ Two real FAILs (not script bugs):
 - hy_ig_v2_spy_methodology: Exploratory Insights section absent — suspect Streamlit Cloud deployment lag on commits c9f4d47/e6767e0. File+code verified locally. Recommend second reboot.
 
 META-AM: both global-profile writes (memories.md, experience.md) succeeded. b3facc8 slash fix RESOLVES BL-PERM-SUBAGENT.
+
+## 2026-04-23 — Wave 10H.1 final re-verify (post-Ace 387062f)
+
+Ran `scripts/cloud_verify.py` at 2026-04-23T00:16:33Z after ~75s Cloud redeploy window on Ace's commit `387062f`.
+
+**Result: 17 PASS / 0 FAIL / 17 TOTAL ✅**
+
+- Bug 1 (landing raw-col leak) — FIXED. `humanize_column_tokens()` helper routes `interpretation_metadata.key_finding`; `leak=False`.
+- Bug 2 (APP-PT2 absent on Sample Methodology) — FIXED. Direct `_render_exploratory_insights(PAIR_ID)` call in hand-written `9_hy_ig_v2_spy_methodology.py` lives; section=True, eli5=3/3; DOM 14,138 → 17,356 chars.
+
+**Wave 10H.1 QA complete.** No residual FAILs, no deferred items. Streamlit Cloud auto-redeploy worked as expected (no manual reboot needed).
+
+Artifacts: `temp/20260423T001633Z_cloud_verify/`, handoff final section appended.

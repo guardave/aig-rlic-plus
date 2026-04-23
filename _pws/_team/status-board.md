@@ -1,5 +1,16 @@
 # Team Status Board
 
+## 2026-04-23T00:16Z — QA Quincy (Wave 10H.1 FINAL re-verify — 17/17 PASS ✅)
+
+**Status:** **Wave 10H.1 QA COMPLETE.** Cloud verify on HEAD `387062f` returned 17 PASS / 0 FAIL / 17 TOTAL.
+
+- Bug 1 (landing raw-col leak) — FIXED: `leak=False`, `humanize_column_tokens()` live.
+- Bug 2 (APP-PT2 absent on Sample Methodology) — FIXED: `section=True`, eli5=3/3; DOM grew 14,138→17,356 chars on `hy_ig_v2_spy_methodology`.
+- Streamlit Cloud auto-redeploy confirmed working (~75s window post-commit, no manual reboot required).
+- Artifacts: `temp/20260423T001633Z_cloud_verify/`, handoff `results/_cross_agent/handoff_quincy_wave10h1_20260422.md` final section appended.
+
+No residual FAILs, no deferred QA items from this wave.
+
 ## 2026-04-23 — Dev Ace (Wave 10H.1 follow-up — both FAILs fixed)
 
 **Status:** Both cloud-verify FAILs fixed. Awaiting Quincy re-verify.
