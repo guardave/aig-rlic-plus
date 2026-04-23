@@ -1,5 +1,25 @@
 # Team Status Board
 
+## 2026-04-23 — Lead Lesandro (Wave 10H.1 CLOSED ✅ — EOD)
+
+**Status:** Wave 10H.1 complete. Git tag `wave-10h1-complete` pinned at Quincy's final verify `aca5602`. Closure commit `08546f3` (relnotes + sop-changelog).
+
+**Shipped end-to-end:** VIZ-O1 chart disposition + VIZ-E1 exploration zone (Vera); APP-PT2 Methodology Exploratory Insights (Ace); Pattern 22 verify fix + canonical `scripts/cloud_verify.py` (Quincy); LEAD-DL1 Lead delegation discipline + File Ownership Map (Lead); `.claude/settings.json` permission-syntax fix (Lead).
+
+**LEAD-DL1 self-audit clean:** 6 Lead commits across Wave 10H/10H.1 touched only category-1/6 paths (`docs/`, `.claude/settings.json`). Zero drift after initial revert.
+
+**Meta-event of the wave:** user caught Lead drifting into agent work, asked for durable discipline mechanism. LEAD-DL1 SOP + auto-memory + wave-closure self-audit is the result. Framework validated through the rest of the wave — 5 clean agent dispatches, no further drift.
+
+**Backlog opened for Wave 10H.2/10I hygiene:** BL-VIZ-O1-LEGACY, BL-VIZ-SIDECAR-HELPER, BL-APP-PR1, BL-APP-PT1-LEGACY. All bundleable.
+
+**Team insights — 2026-04-23:**
+- Pattern 22 (CSS class names not in `inner_text`) formally codified; future cloud verify scripts must use DOM-tree queries.
+- Playwright `page.frames` iteration races Streamlit frame registration → use `wait_for_selector('iframe[title=...]').content_frame()`.
+- `.claude/settings.json` double-slash = absolute, single-slash = project-relative (Claude Code docs).
+- Centralised template only protects pages that actually use it — 5 Methodology pages still hand-written. Agent briefs for any future Methodology-rule addition must list bypass pages requiring defensive direct calls until migration.
+
+---
+
 ## 2026-04-23T00:16Z — QA Quincy (Wave 10H.1 FINAL re-verify — 17/17 PASS ✅)
 
 **Status:** **Wave 10H.1 QA COMPLETE.** Cloud verify on HEAD `387062f` returned 17 PASS / 0 FAIL / 17 TOTAL.

@@ -1,5 +1,15 @@
 # Outstanding Work — Lead Lesandro
 
+## Wave 10H.2/10I Hygiene Wave (bundleable)
+
+Four backlog items, all closely related, best shipped together:
+- **BL-VIZ-O1-LEGACY** — create minimal `_meta.json` sidecars for 35 legacy-pair chart JSONs (6 legacy pairs)
+- **BL-VIZ-SIDECAR-HELPER** — consolidate 4 bypass generators into `scripts/_chart_sidecar.py` shared helper
+- **BL-APP-PR1** — new rule for path-resolution discipline (`_REPO_ROOT` anchors mandatory, bare relatives prohibited)
+- **BL-APP-PT1-LEGACY** — migrate 5 hand-written Methodology pages to template wrappers (Sample, indpro_spy, permit_spy, vix_vix3m_spy, ted variants, umcsent_xlv)
+
+Scope estimate: ~1 full agent-wave (Ace-heavy, Vera light support, Quincy verify). Blocks: none — framework is live on active pairs; legacy gap is hygiene.
+
 ## Next Priority Pair
 - **Pair #4: US10Y-US3M → SPY** (yield curve slope, daily, Yield Curve/Rates type)
 - This is a well-studied indicator with strong literature (Estrella & Hardouvelis 1991)
