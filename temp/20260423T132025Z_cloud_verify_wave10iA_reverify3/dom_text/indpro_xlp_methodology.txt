@@ -1,0 +1,137 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+What this shows: ← you are here.
+
+keyboard_arrow_right
+
+Plain English
+
+Methodology: Technical Appendix
+
+For the skeptical reader: this section provides the full methodological detail needed to replicate, challenge, or extend our analysis. Every claim in the preceding pages traces back to a specific method, dataset, and diagnostic described here.
+
+Sample Period
+
+Out-of-Sample Window
+
+2019-01 to 2026-01
+
+84 obs
+
+Total tournament combinations
+
+3,331
+
+What this shows: OOS window determined by formula: OOS = min(max(36, round(N×0.25)), 120) = min(max(36, 84), 120) = 84 months. XLP IPO was December 1998; the sample starts January 1998 to capture full-year INDPRO context for derived signals.
+
+Data Sources
+Category	Source	Series	Frequency
+Industrial Production	FRED	INDPRO	Monthly
+Consumer Staples ETF	Yahoo Finance	XLP	Daily → Monthly
+S&P 500 (benchmark)	Yahoo Finance	SPY	Daily → Monthly
+Volatility	Yahoo Finance	^VIX	Daily → Monthly
+Treasury yields	FRED	DGS10, DTB3	Daily → Monthly
+Fed Funds Rate	FRED	DFF	Daily → Monthly
+Unemployment	FRED	UNRATE	Monthly
+Capacity Utilization	FRED	TCU	Monthly
+
+Scope discipline (ECON-SD). Only INDPRO and XLP are in-scope primary signals. Controls (VIX, yield spread, UNRATE, CAPUT) are used only in regression controls, not as trading signals. Any predictive value observed in the controls is logged under Analyst Suggestions below — not added to this pair's signal universe.
+
+Indicator Construction
+
+The primary indicator is the FRED Industrial Production index (INDPRO, monthly). From this raw series we derive: the level, year-over-year growth (YoY%), month-over-month growth (MoM%), the deviation from a rolling trend, the z-score against a 252-month rolling window, momentum (3M and 6M windows), acceleration (the month-over-month change in MoM%), and a contraction dummy. The authoritative list of in-scope derivatives is rendered from signal_scope.json in the Signal Universe section below. INDPRO is released with a ~6-week publication lag, so all signal transformations are computed on lagged data and the strategy applies an additional lead parameter to account for the time markets take to react.
+
+Signal Universe
+
+This section lists every derivative of the indicator and target considered during the analysis. It is the single source of truth for what is in scope for this pair. Anything not in these two tables was deliberately excluded — and is instead logged under Analyst Suggestions below.
+
+Indicator derivatives — Industrial Production Index
+
+What this shows: every derivative of the indpro indicator column considered in this analysis. Includes raw series, statistical transforms (z-scores, percentile ranks), momentum measures, and regime-state probabilities.
+
+Takeaway: 7 indicator-axis derivatives disclosed. Every derivative is a mathematical transform of the single canonical column indpro (ECON-SD scope discipline).
+
+Target derivatives — Consumer Staples Select Sector (XLP)
+
+What this shows: every derivative of the xlp target column considered in this analysis. Includes the raw price series, simple returns, forward-return horizons, and diagnostic curves (drawdown, equity curve).
+
+Takeaway: 5 target-axis derivatives disclosed. All derived from the single canonical column xlp (ECON-SD scope discipline).
+
+Stationarity Tests
+
+How to read it: ADF — reject null = stationary. KPSS — fail to reject null = stationary.
+
+Econometric Methods
+Method	Purpose	Key Detail
+Granger causality	Linear predictive relationship (both directions)	Up to 6 monthly lags
+Predictive OLS	Baseline regression with HC3 robust SEs	3 signals × 4 horizons = 12 regressions
+Local projections (Jorda)	Impulse response at multiple horizons	HAC (Newey-West) standard errors
+Regime-dependent LP	Interaction with contraction dummy	Tests asymmetric countercyclical effect
+Markov-Switching regression	2-state regime identification	Switching variance, 500 EM iterations
+Quantile regression	Distributional effects	7 quantiles (0.05 to 0.95)
+Johansen cointegration	Long-run equilibrium test	Log levels, det_order=1
+PELT change-point detection	Structural breaks in IP YoY	RBF kernel, penalty=10
+Random Forest	Walk-forward feature importance	200 trees, max_depth=5
+Tournament Design
+Dimension	Values
+Signals (9)	IP level, YoY%, MoM%, deviation from trend, z-score, 3M momentum, 6M momentum, acceleration, contraction dummy
+Threshold methods (5)	Fixed IS percentile (p25/p50/p75), rolling percentile (p25/p50/p75), rolling z-score (±1.0/±1.5/±2.0), zero-crossing
+Strategies (3×2)	Long/Cash, Signal-Strength, Long/Short — each in pro-cyclical and counter-cyclical orientation
+Lead times (5)	0, 1, 2, 3, 6 months
+Orientation	Both pro-cyclical and countercyclical tested for each combo
+
+Because XLP is a defensive ETF, we expect IP acceleration to be negatively correlated with future XLP returns. Standard threshold strategies generate a 'long when above threshold' rule (pro-cyclical). For XLP, the counter-cyclical orientation inverts this: long XLP when the IP signal is BELOW the threshold (i.e., when IP growth is slow or contracting). Both orientations were tested exhaustively; the counter-cyclical strategies dominated the leaderboard.
+
+Analyst Suggestions for Future Work
+
+Signals flagged during analysis that look worth pursuing in future work (a different pair, a variant family extension, or a regime overlay). These are informational only — they did not influence this pair's winning strategy.
+
+What this shows: signals the team noticed during this pair's work that are outside the HY-IG × SPY formal scope. Logged here so the observations are not lost; none of them fed into this pair's winning strategy.
+
+These are informational. If any warrant follow-up work, please request explicitly to the team — there is no automated action from this table.
+
+Takeaway: 3 off-scope observations on file for this pair. Each includes the observed metric, the rationale, a possible use case, and honest caveats.
+
+References
+Chen, N. F., Roll, R., & Ross, S. A. (1986). Economic forces and the stock market. Journal of Business, 59(3), 383–403.
+Fama, E. F., & French, K. R. (1989). Business conditions and expected returns on stocks and bonds. Journal of Financial Economics, 25(1), 23–49.
+Stock, J. H., & Watson, M. W. (1989). New indexes of coincident and leading economic indicators. NBER Macroeconomics Annual, 4, 351–394.
+Jorda, O. (2005). Estimation and inference of impulse responses by local projections. American Economic Review, 95(1), 161–182.
+Hamilton, J. D. (1989). A new approach to the economic analysis of nonstationary time series and the business cycle. Econometrica, 57(2), 357–384.
+Ang, A., & Bekaert, G. (2007). Stock return predictability: Is it there? Review of Financial Studies, 20(3), 651–707.
+Hahn, J., & Lee, H. (2006). Yield spreads as alternative risk factors for size and book-to-market. Journal of Financial and Quantitative Analysis, 41(2), 245–269.
+
+What this shows: generated with AIG-RLIC+ | Pair: indpro_xlp.

@@ -1,0 +1,164 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+What this shows: ← you are here.
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Story: Spliced TED Spread as an Equity Signal
+
+Can we extend the classic LIBOR-TED history past its 2022 end-date by splicing in an affine-adjusted Fed-Funds proxy — and does the resulting 30-year spread predict S&P 500 returns?
+
+Spliced TED (official 1993-2022 + DFF-adjusted 2022+) as an extended-history funding-stress signal for SPY
+
+Key metrics (out-of-sample 2015-01–2025-12):
+
+Sharpe ratio: 1.19 (vs N/A buy-and-hold S&P 500)
+Annualized return: +13.4% with risk-adjusted exposure
+Max drawdown: -12.8% (vs N/A buy-and-hold S&P 500)
+Where This Fits in the Portal
+
+This is the extended-history continuity variant. It honours the legacy TED concept by using the real TEDRATE series wherever available, and paying a structural-assumption cost only in the post-2022 tail. Compared to Variant A (SOFR, purist but short) it gives up definitional modernity for 30 years of history; compared to Variant B (DFF-TED, single homogeneous series) it gives up homogeneity for fidelity to the original indicator where that indicator existed.
+
+How to read the rest of this page pack. You'll read the Story first (the economic logic), then the Evidence (statistical proofs), then the Strategy (the actual trading rule), then the Methodology (technical appendix). Each page stands alone.
+
+One-Sentence Thesis
+
+The spliced TED series delivers the strongest long-sample tournament KPIs of the three variants, at the cost of one structural assumption: that the affine adjustment fitted on the 1993-2022 overlap continues to hold out-of-sample.
+
+OOS Sharpe
+
+1.19
+
+OOS Return
+
++13.4%
+
+annualized
+
+Max Drawdown
+
+-12.8%
+
+Signal
+
+spread_roc_21d
+
+N/A
+
+OOS Period
+
+11.0 yrs
+
+2015-01–2025-12
+
+What this shows: Winner strategy KPIs: OOS Sharpe 1.19 on ~8 years of out-of-sample data (2018-01 onwards). Higher than the DFF variant, slightly lower than the SOFR headline, and — uniquely — tested across GFC, COVID, and the post-2022 rate-hiking cycle.
+
+What Is the TED Spread — and Why Splice?
+
+The TED spread measures the gap between what banks pay to borrow short-term cash and the risk-free government rate. When banks trust each other, this gap is small; when credit or liquidity fear rises, it widens dramatically. The classic TED spread used LIBOR as the bank-borrowing leg.
+
+The splice problem. FRED's official TED series (TEDRATE) ends in January 2022 because LIBOR itself was retired. That leaves us with a 29-year series of the right indicator, and no principled way to extend it using the replacement rate (SOFR) — because SOFR and LIBOR measure fundamentally different things (the overlap correlation between SOFR-DTB3 and TEDRATE is only −0.04, i.e. no relationship).
+
+The splice solution. The Fed Funds rate minus T-Bill (DFF-TED) has a +0.63 overlap correlation with TEDRATE. That is not identical, but it is close enough to extend the history credibly if we calibrate an affine adjustment: adjusted_post_2022 = DFF_TED × scale + shift, where scale and shift are chosen on the 1993-2022 overlap so the two series have matching mean and standard deviation. The result is Variant C — the actual TEDRATE where it exists, and a mean-and-variance-matched DFF-TED where it does not.
+
+Spliced TED Spread (1993-2025) vs. S&P 500
+1995
+2000
+2005
+2010
+2015
+2020
+2025
+−1
+0
+1
+2
+3
+4
+0
+100
+200
+300
+400
+500
+600
+700
+TEDRATE + adj DFF-TED (Spliced)
+SPY
+TEDRATE + adj DFF-TED (Spliced) vs S&P 500
+Spread (%)
+SPY ($)
+
+Spliced TED: the official FRED TEDRATE series through January 2022, then extended by an affine-adjusted DFF-TED continuation. The 2008 GFC spike dwarfs all other episodes; dot-com, European sovereign, 2015 China wobble, and COVID are each clearly visible.
+
+What History Shows: SPY Returns by Spliced-TED Stress Regime
+0.72
+1.16
+0.41
+0.42
+Q1_low
+Q2
+Q3
+Q4_high
+0
+0.5
+1
+SPY Sharpe by Spread Quartile
+Spread Quartile (Q1=Lowest, Q4=Highest)
+Annualized Sharpe
+
+SPY Sharpe ratios sorted by Spliced-TED quartile over 1993-2025. Q1 = calmest funding conditions; Q4 = highest stress. The counter-cyclical pattern is the strongest of the three variants, reflecting the richer crisis content of the long sample.
+
+Caveats Specific to Variant C
+
+Variant C's main advantage — 30 years of the original indicator plus a continuous extension — comes with one genuine structural assumption:
+
+The affine adjustment must continue to hold out-of-sample. We fit scale and shift on the 1993-2022 overlap, where both TEDRATE and DFF-TED were observable. For 2022-onwards, we are assuming the same two numbers still describe the relationship. If the post-LIBOR credit-vs-repo dynamics shift materially, the extension could drift.
+Different risk mixes across the splice boundary. Pre-2022 the series reflects LIBOR-based credit stress; post-2022 it reflects a DFF-based funding premium. Mean and standard deviation are matched, but the underlying economic drivers are not identical.
+OOS window straddles the splice. Only the 2022-onwards portion of the out-of-sample data uses the adjusted-DFF continuation. This limits the degree to which the splice assumption has been stress-tested live.
+
+For a structurally clean alternative, consult Variant B (DFF-TED) — no splice, but a proxy throughout.
+
+Scope note. Scope discipline: TEDRATE, DFF, and DTB3 are the in-scope primary inputs for constructing the spliced series. SPY is the target. Controls appear only in regressions, never as trading signals.
+
+The regime view shows the strongest counter-cyclical spread of the three TED variants. The evidence page formalises this with econometric tests that exploit the 30-year window — including crisis-rich episodes that Variant A cannot see.
+🔬
+
+Continue to The Evidence
+
+What this shows: generated with AIG-RLIC+ | Pair: ted_spliced_spy.

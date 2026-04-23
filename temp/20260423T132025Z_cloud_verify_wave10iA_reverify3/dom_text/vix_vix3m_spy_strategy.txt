@@ -1,0 +1,178 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+
+📐 Methodology
+
+Direction disagreement detected (APP-DIR1, APP-SEV1 L1). Evan says countercyclical in winner_summary.json.direction; Dana says procyclical in interpretation_metadata.json.observed_direction. These must match. Escalate to Lead for reconciliation per META-IA.
+
+Plain English: our econometrician and our data analyst disagree on whether this indicator moves with the market or against it. That is a serious inconsistency — trading-rule direction is not a matter of opinion. The page is allowed to render, but do not act on the results until the disagreement is resolved.
+
+keyboard_arrow_right
+
+Plain English
+
+The Strategy: Translating VIX Term-Structure Signals into SPY Positioning
+
+We tested hundreds of strategy combinations to find the most robust way to time SPY exposure using the VIX/VIX3M ratio.
+
+Tournament Winner: S3_z126 / P1_long_cash / LN/A
+
+Tournament winner: Signal S3_z126 (126-day z-score of the VIX/VIX3M ratio) / Threshold T2_rp75 (rolling 75th percentile) / Strategy P1_long_cash / Lead 0 (same-day).
+
+Compute the VIX/VIX3M ratio's z-score over a trailing 126-day (6-month) window. When this z-score is below its rolling 75th percentile — meaning term-structure stress is not extreme — stay long SPY. When the z-score exceeds the 75th percentile (acute backwardation / panic), move to cash. No leverage, no shorting.
+
+How the Signal is Generated
+Pull VIX and VIX3M. Yahoo Finance tickers ^VIX and ^VIX3M. Daily.
+Compute the ratio. ratio_t = VIX_t / VIX3M_t.
+Compute the 126-day z-score. Rolling 126-day mean and standard deviation of the ratio; z_t = (ratio_t - mean) / std.
+Compute the rolling 75th-percentile threshold. Rolling quantile of the z-score over the same 126-day window.
+Translate to position. If z_t < threshold → long SPY (+1). Otherwise → cash (0). Rebalance at the next market open.
+
+OOS Sharpe
+
+1.13
+
+OOS Return
+
++15.3%
+
+annualized
+
+Max Drawdown
+
+-21.1%
+
+Turnover
+
+~23.3/yr
+
+Win Rate
+
+N/A
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal code: S3_z126
+
+Signal column: vix_vix3m_ratio_z126
+
+Threshold: lt None
+
+Strategy family: P1_long_cash
+
+Direction: countercyclical
+
+Lead time: LN/A
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+Probability engine panel cannot render: No signals_*.parquet under /mount/src/aig-rlic-plus/results/vix_vix3m_spy
+
+Plain English: the model needs a history of indicator values to draw the time-series chart, but we can't find that file on disk. This prevents the probability panel from rendering.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+Position exposure cannot be derived without valid signal values. See diagnostic above.
+
+Plain English: the Probability Engine panel above flagged a data problem with the signal series, so we cannot compute the exposure curve without risking a misleading chart. Fix the signal-data issue first, then this panel will render.
+
+How to Use the Signal — Trigger Scenarios
+
+Trigger thresholds shown use a default heuristic (0.5) — this pair's winner_summary.json.threshold_value is on a legacy non-numeric schema and could not be coerced to a float. Numeric trigger cards will display after the pair pipeline is rerun against the current schema.
+
+What this shows: Strategy family P1 (Long/Cash) · threshold loaded from winner_summary.json = 0.5 · direction: countercyclical.
+
+REDUCE
+
+When Z-Score (126-day) crosses above 0.5 → switch to 100% cash.
+
+HOLD
+
+While Z-Score (126-day) hovers near 0.5 → keep current position; wait for a decisive crossing.
+
+BUY
+
+When Z-Score (126-day) crosses below 0.5 → return to 100% SPY.
+
+How to read it: sparklines are drawn from stylised (no signals parquet found); thresholds match the runtime rule. The dashed horizontal line is the decision threshold at which the action in each card fires.
+
+How to Use This Indicator Manually
+
+This is a daily-cadence rule, so it is most practical with a simple spreadsheet or a five-line Python script rather than eyeball calculation. Pipeline-reproducible steps:
+
+Daily download of ^VIX and ^VIX3M closes from Yahoo.
+Keep the last 126 business days in a ring buffer.
+Compute ratio, z-score, and rolling 75th-percentile threshold.
+Rebalance SPY position at next open based on today's close.
+
+Turnover is ~23 round-trips per year — meaningful but well inside daily-rebalance execution budgets.
+
+Future: Live Execution
+
+Current Signal State
+
+—
+
+Target Position
+
+—
+
+Current Action
+
+—
+
+Caveat: no live_execution_stub.json present yet — values render as — placeholders until a real-time feed is wired.
+
+This dashboard presents historical backtest results. A real-time execution layer would surface the fields above; the values shown are placeholders. Wiring to a live data feed and broker API is deliberately out-of-scope for this research portal (see Methodology).
+
+Plain English: you are looking at the shape of what a live execution panel WOULD display (current signal, target position, current action), with dashes where live numbers will eventually flow in. The portal is a research tool — building out the broker connection is a separate project.
+
+For readers who want to understand exactly how we reached these conclusions — or who want to replicate and extend the analysis — the methodology section provides full details on data, methods, and diagnostics.
+
+📐
+
+Continue to Methodology
+
+What this shows: generated with AIG-RLIC+ | Pair: vix_vix3m_spy.

@@ -1,0 +1,141 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+What this shows: ← you are here.
+
+keyboard_arrow_right
+
+Plain English
+
+Methodology: Technical Appendix
+
+For the skeptical reader: this section provides the full methodological detail needed to replicate, challenge, or extend our analysis. Every claim in the preceding pages traces back to a specific method, dataset, and diagnostic described here.
+
+Sample Period
+
+Out-of-Sample Window
+
+2019-04 to 2026-01
+
+81 obs
+
+Total tournament combinations
+
+N/A
+
+What this shows: Full sample: 1998-12 to 2025-12 (325 monthly observations). The IS/OOS cut is computed dynamically using ECON-OOS2: OOS_months = min(max(36, round(N × 0.25)), 120). With N = 325, OOS = 81 months. In-sample: 1998-12 to 2019-03 (~243 observations). Out-of-sample: 2019-04-30 to 2025-12 (~81 observations, ~6.75 years). XLV data starts 1998-12 (the ETF's inception); UMCSENT is available from 1978 but is aligned to the XLV sample for this pair.
+
+Data Sources
+Category	Source	Series	Frequency
+UMich Consumer Sentiment	FRED	UMCSENT	Monthly
+Healthcare Sector ETF	Yahoo Finance	XLV	Daily → Monthly
+S&P 500 (benchmark)	Yahoo Finance	SPY	Daily → Monthly
+NBER Recession Dates	FRED / NBER	USREC	Monthly
+Fed Funds Rate	FRED	DFF	Daily → Monthly
+Unemployment	FRED	UNRATE	Monthly
+
+Scope discipline (ECON-SD). Only UMCSENT and XLV are in-scope primary signals.
+
+Indicator Construction
+
+Michigan Consumer Sentiment (UMCSENT). FRED series: monthly index of consumer confidence published by the University of Michigan Survey of Consumers. Index baseline = 100 (November 1966). Released mid-month for the current survey month. Approximately 500 households surveyed. Not seasonally adjusted (the survey methodology removes most seasonality at source).
+
+Derived signals entered into the tournament:
+
+Signal	Formula	Stationarity
+umcsent	raw level	non-stationary (use transformed)
+umcsent_yoy	(umcsent / umcsent.shift(12) − 1) × 100	winner — approximately stationary
+umcsent_mom	1-month change	approximately stationary
+umcsent_zscore	36M rolling z-score	stationary by construction
+umcsent_3m_ma	3-month moving average	non-stationary (regime indicator)
+umcsent_direction	sign(umcsent_mom)	stationary by construction
+umcsent_dev_ma	level − 3M MA	approximately stationary
+
+XLV target. Daily adjusted closing prices (Yahoo Finance, auto_adjust=True) resampled to monthly last close. Forward return series computed as xlv.shift(-h) / xlv - 1 for h = 1, 3, 6, 12 months.
+
+Signal Universe
+
+This section lists every derivative of the indicator and target considered during the analysis. It is the single source of truth for what is in scope for this pair. Anything not in these two tables was deliberately excluded — and is instead logged under Analyst Suggestions below.
+
+Indicator derivatives — U of Michigan Consumer Sentiment
+
+What this shows: every derivative of the umcsent indicator column considered in this analysis. Includes raw series, statistical transforms (z-scores, percentile ranks), momentum measures, and regime-state probabilities.
+
+Takeaway: 5 indicator-axis derivatives disclosed. Every derivative is a mathematical transform of the single canonical column umcsent (ECON-SD scope discipline).
+
+Target derivatives — Health Care Select Sector (XLV)
+
+What this shows: every derivative of the xlv target column considered in this analysis. Includes the raw price series, simple returns, forward-return horizons, and diagnostic curves (drawdown, equity curve).
+
+Takeaway: 5 target-axis derivatives disclosed. All derived from the single canonical column xlv (ECON-SD scope discipline).
+
+Stationarity Tests
+
+How to read it: ADF — reject null = stationary. KPSS — fail to reject null = stationary.
+
+Econometric Methods
+Method	Question It Answers	Why We Chose It
+Pearson / Rolling Correlation	Linear co-movement at multiple horizons	Baseline UMCSENT-XLV test
+Granger Causality	One-directional predictive content	Tests sentiment → XLV asymmetry
+Regime Quartile Returns	Model-free gradient across sentiment distribution	Assumption-light regime check
+Signal Distribution Analysis	Full empirical distribution of the signal	Diagnostic for threshold choice
+Tournament Design
+Dimension	Values
+Signals (7)	umcsent (level), umcsent_yoy, umcsent_mom, umcsent_zscore, umcsent_3m_ma, umcsent_direction, umcsent_dev_ma
+Thresholds	T1 fixed IS percentile (p25/p50/p75), T2 rolling percentile (60M), T3 rolling z-score bands (±1.0, ±1.5, ±2.0), T4 zero-crossing (for change signals)
+Strategies (3)	P1 Long/Cash (binary toggle), P2 Signal Strength (proportional scaling), P3 Long/Short (±1 position)
+Lead times (5)	0, 1, 2, 3, 6 months
+Direction	Procyclical applied (empirically observed direction)
+
+Ranked by out-of-sample Sharpe. 1,305 total combinations tested; 1,196 valid (OOS Sharpe > 0, turnover ≤ 24/yr, OOS n ≥ 12). Winner (per results/umcsent_xlv/winner_summary.json, authoritative): umcsent_yoy / zero-crossing (crosses-up) / P1_long_cash / Lead 6M → OOS Sharpe 1.0202, OOS annualised return +11.93%, max drawdown −10.87%, OOS volatility 11.7%, Sortino 2.01, Calmar 1.10, 81 OOS trades, win rate 37.0%, annual turnover 2.4. Buy-and-hold XLV benchmark: Sharpe 0.7164, max DD −15.6%.
+
+Analyst Suggestions for Future Work
+
+Signals flagged during analysis that look worth pursuing in future work (a different pair, a variant family extension, or a regime overlay). These are informational only — they did not influence this pair's winning strategy.
+
+What this shows: signals the team noticed during this pair's work that are outside the HY-IG × SPY formal scope. Logged here so the observations are not lost; none of them fed into this pair's winning strategy.
+
+These are informational. If any warrant follow-up work, please request explicitly to the team — there is no automated action from this table.
+
+Takeaway: 4 off-scope observations on file for this pair. Each includes the observed metric, the rationale, a possible use case, and honest caveats.
+
+References
+Curtin, R. T. (2007). Consumer sentiment surveys: Worldwide review and assessment. Journal of Business Cycle Measurement and Analysis, 2007(1), 7–42.
+Ludvigson, S. C. (2004). Consumer confidence and consumer spending. Journal of Economic Perspectives, 18(2), 29–50.
+Baker, M., & Wurgler, J. (2006). Investor sentiment and the cross-section of stock returns. Journal of Finance, 61(4), 1645–1680.
+Lemmon, M., & Portniaguina, E. (2006). Consumer confidence and asset prices: Some empirical evidence. Review of Financial Studies, 19(4), 1499–1529.
+Jordà, Ò. (2005). Estimation and inference of impulse responses by local projections. American Economic Review, 95(1), 161–182.
+
+What this shows: generated with AIG-RLIC+ | Pair: umcsent_xlv.

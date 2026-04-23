@@ -1,0 +1,135 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+What this shows: ← you are here.
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Evidence: What the Data Shows
+
+We tested the permits-equity relationship with complementary econometric methods across 35 years of monthly data. Two method blocks are reported here — correlations (for breadth across signal variants and horizons) and local projections (for the dynamic impulse-response path). The full battery is archived in results/permit_spy/core_models_20260314/.
+
+Each method follows the same 8-part structure: what the method is, the question it answers, how to read the chart, what we observe, deeper technical detail, economic interpretation, and the key message. Read in order for the full picture, or skip to the Key message lines for a quick summary.
+
+Evidence is organized in two tiers. Level 1 covers basic statistical relationships. Level 2 adds regime analysis, tail risk, nonlinear dependence, or other advanced techniques.
+
+Level 1 — Basic Analysis
+
+Level 2 — Advanced Analysis
+
+Correlation
+
+Correlation Analysis
+
+Pearson correlations measure the linear co-movement between permit signal variants (level, YoY growth, MoM change, z-score, 3M/6M momentum) and SPY forward returns at 1M, 3M, 6M, and 12M horizons. Spearman correlations are run in parallel as a rank-based robustness check.
+
+Do any of the permit-derived signals show a statistically meaningful linear relationship with future SPY returns, and in which direction?
+
+How to read it: Rows are permit signal variants; columns are forward SPY return horizons. Warm colours (blue→green) indicate positive (pro-cyclical) correlation; cool colours (red) indicate negative. Stars mark conventional significance levels (* p<0.05, ** p<0.01).
+
+0.002
+0.024
+0.011
+0.007
+0.035
+0.051
+-0.010
+-0.119
+0.048
+0.045
+0.047
+0.144
+0.068
+0.075
+0.047
+0.040
+0.050
+0.058
+0.016
+0.060
+0.043
+0.016
+0.016
+0.110
+0.038
+0.048
+0.095
+0.178
+0.051
+0.088
+0.132
+0.217
+1m
+3m
+6m
+12m
+accel
+contraction
+dev_trend
+mom
+mom_3m
+mom_6m
+yoy
+zscore_60m
+−0.2
+−0.1
+0
+0.1
+0.2
+Correlation: Permit Signals → SPY Returns
+
+Pearson correlations between Building Permits signal variants and forward return horizons. Warm colours = positive (pro-cyclical). Permits YoY growth and momentum signals show the strongest positive correlations with 3-6 month forward returns.
+
+What this shows: The correlation heatmap is consistently positive across signal variants and forward horizons, with the strongest correlations appearing on the momentum transforms (MoM and 3M momentum) at 3-6 month forward windows. Level-based signals are weaker — consistent with the non-stationary nature of the raw permit series.
+
+Why this matters: The structure confirms the pro-cyclical relationship that economic theory predicts. Unlike Industrial Production (where the z-score showed a counter-intuitive peak-cycle effect), permits correlations are consistently positive across signal types and horizons. Permits signal direction, and the direction is consistent.
+
+Key message: Rising permits correlate with better forward SPY returns across multiple signal definitions and horizons — a clean, directionally consistent pro-cyclical relationship.
+
+The Combinatorial Tournament
+
+With the econometric case established, we then swept a 5-dimensional tournament over signal transforms, threshold methods, strategy families, lead times, and lookback windows. The leaderboard lives on the Strategy page; the key headline is a winning OOS Sharpe of 1.45 versus 0.90 for SPY buy-and-hold.
+
+What this shows: tournament results at results/permit_spy/tournament_results_20260314.csv.
+
+The statistical evidence confirms a genuine pro-cyclical relationship between building permits and equity returns, with permits leading by 3-6 months. The practical question is whether investors can translate this into a profitable, execution-ready strategy.
+
+🎯
+
+Continue to The Strategy
+
+What this shows: generated with AIG-RLIC+ | Pair: permit_spy.

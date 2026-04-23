@@ -1,0 +1,168 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+📖
+
+Story
+
+→
+
+🔬 Evidence
+
+What this shows: ← you are here.
+
+→
+🎯
+
+Strategy
+
+→
+📐
+
+Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Evidence: What the Data Shows
+
+We subjected 25 years of daily data to eight complementary statistical tests, each designed to stress a different weakness of the credit-leads-equity hypothesis. If one test flatters the result and the others reject it, the story is fragile. If they converge, we have real evidence.
+
+Each of the methods below is presented in the same eight-step structure: what the method is, the question it answers, how to read its chart, what the chart literally shows, optional deeper statistical detail, what the numbers mean economically, and a one-line takeaway. Read straight through, or skim the bolded key messages at the end of each block.
+
+We organize the evidence in two tiers. Level 1 covers the basic statistical relationships — whether credit spreads and equity moves are correlated, whether one leads the other, and at what time horizons. Level 2 goes deeper into regime-based analysis, tail risk, nonlinear dependence, and simple classification strategies.
+
+Level 1 — Basic Analysis
+
+Level 2 — Advanced Analysis
+
+Correlation
+
+Granger Causality
+
+Cross-Correlation (CCF)
+
+Correlation Analysis
+
+A Pearson correlation is the simplest measure of co-movement between two series, a number between -1 and +1 that says how closely they move together on average. We run it here as our sanity check before reaching for heavier machinery: if credit spreads carry any predictive signal for future equity returns, it should leave at least a faint fingerprint on simple correlations.
+
+Does today's credit spread show any statistical relationship at all with where stocks are headed over the next week, month, quarter, or year?
+
+How to read it: The chart is a heatmap — a grid where each cell's colour intensity represents the strength of a correlation. Rows are different transformations of the HY-IG spread (raw level, 252-day z-score, 504-day z-score, percentile rank, rate of change, etc.). Columns are forward stock-return horizons (1 day, 5 days, 21 days, 63 days, 126 days, 252 days). Blue cells mean positive correlation, red cells mean negative correlation, and the darker the colour, the stronger the relationship. White or pale cells mean essentially no linear link.
+
++0.012
++0.014
+-0.041
+-0.169
+-0.099
+-0.053
++0.018
++0.035
++0.071
++0.077
++0.135
++0.198
++0.021
++0.040
++0.035
+-0.054
+-0.024
+-0.021
++0.008
++0.008
++0.014
+-0.051
+-0.015
+-0.048
++0.006
++0.011
++0.016
++0.048
++0.022
+-0.001
++0.004
+-0.002
+-0.021
+-0.042
+-0.009
++0.001
++0.025
++0.045
++0.058
+-0.041
+-0.032
+-0.036
++0.005
++0.004
+-0.004
+-0.036
++0.025
++0.077
+1D
+5D
+21D
+63D
+126D
+252D
+HY-IG Spread (raw, %)
+HY-IG Momentum (21d, pp)
+HY-IG Momentum (252d, pp)
+HY-IG Acceleration
+HY-IG RoC (126d)
+HY-IG RoC (63d)
+HY-IG Realized Vol (21d)
+HY-IG Momentum (63d, pp)
+−0.2
+−0.1
+0
+0.1
+0.2
+Pearson r
+HY-IG Derivatives vs SPY Forward Returns​Top-8 by |correlation| at the 63-day horizon, drawn from 17 HY-IG derivatives in signal_scope.json​
+SPY Forward Return Horizon
+HY-IG Derivative
+Pearson correlations between HY-IG spread transformations (rows) and SPY forward returns (columns). Signal universe per signal_scope.json — see Methodology page for the full list.
+
+How to read it: Pearson correlations between HY-IG spread transformations (rows) and forward SPY returns at multiple horizons (columns). Darker colours indicate stronger linear relationships.
+
+What this shows: At very short horizons (1 day, 5 days, 21 days), almost every cell is nearly white — correlations sit within plus or minus 0.02 and do not clear statistical significance. From the 63-day column onward, the grid starts to darken: the raw spread shows a correlation of -0.036 with 63-day forward returns (p = 0.0035), the 252-day z-score reaches -0.099 with 252-day forward returns (p < 0.001), and the 504-day z-score lands at -0.040 with 126-day forward returns (p = 0.0015). The strongest cells are concentrated in the bottom-right corner of the heatmap, where longer lookback transformations meet longer forward horizons.
+
+keyboard_arrow_right
+
+Deeper dive
+
+Why this matters: Credit spreads and stock returns have essentially no linear relationship at the daily and weekly horizons favoured by short-term traders, but a measurable and statistically significant one emerges at the one-quarter to one-year horizon. The negative sign is the key finding: it confirms the direction predicted by economic theory — wider spreads today go with weaker equity returns later, not stronger ones. The fact that z-scored and percentile-ranked versions of the spread outperform the raw level tells us that what matters is not how wide spreads are in absolute terms, but how unusual they are relative to their recent history.
+
+Key message: Linear correlations are weak at trading-horizon speeds but grow meaningfully negative at quarterly-to-annual horizons, confirming that credit spreads carry a slow-moving, right-signed warning rather than a daily trading signal.
+
+The Combinatorial Tournament
+
+We tested approximately 1,000+ meaningful combinations of signals (13 types), thresholds (7 methods), strategies (4 types), lead times (9 values), and lookback windows (4 lengths). These were ranked by out-of-sample Sharpe ratio — a measure of risk-adjusted return calculated as (return minus risk-free rate) divided by volatility, where higher values mean better returns per unit of risk taken — over 2018-2025 (data the models never saw during estimation). The top 5 strategies were then subjected to rigorous walk-forward validation, bootstrap significance testing, and transaction cost sensitivity analysis.
+
+What this shows: the full leaderboard of tested combinations is available at results/hy_ig_v2_spy/tournament_results_20260410.csv.
+
+Transition: The five statistical tests agree — credit spreads carry genuine, direction-consistent, tail-concentrated, regime-dependent predictive information for stock returns. The practical question is: can an investor use this signal to improve their risk-adjusted returns — and at what cost?
+
+📈
+
+Continue to The Strategy
+
+What this shows: generated with AIG-RLIC+ | Data: 2000-01 to 2025-12 | ~6,500 daily observations | Narrative: portal_narrative_hy_ig_v2_spy_20260410.md.

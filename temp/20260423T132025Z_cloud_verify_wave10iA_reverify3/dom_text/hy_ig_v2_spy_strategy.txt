@@ -1,0 +1,256 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+📖
+
+Story
+
+→
+🔬
+
+Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+📐
+
+Methodology
+
+What this shows: direction triangulation (APP-DIR1, 2-way) — Evan and Dana agree on countercyclical. Ray leg pending RES-17 frontmatter migration.
+
+keyboard_arrow_right
+
+Plain English
+
+The Strategy: Translating Signals to Action
+
+So what should an investor do with this information? We tested hundreds of strategy combinations to find the most robust answer.
+
+How the Signal is Generated
+
+The HMM (hidden Markov model) fits two hidden market states to the credit-spread data — "calm" and "stressed." Every day, it asks a simple question: given how the HY-IG spread and VIX moved today, is the market more likely to be in the calm state or the stressed state? The answer is a probability between 0 and 1 — think of it as a continuously-updating "stress meter" built from the behaviour of the bond market itself, with no arbitrary thresholds imposed by the analyst.
+
+When that stress probability crosses 50%, the strategy reduces equity exposure; the higher the probability, the lower the target allocation to SPY. When the probability falls back below 50%, equity exposure is restored in the same proportional way. The strategy is not trying to predict the next crisis — it is responding to the market's own indication that something is wrong, and acting before the equity market has fully priced it in.
+
+The key insight behind the rule is that credit markets price in deterioration earlier than equity markets. By the time equity volatility spikes, credit spreads have typically already widened. The HMM translates that widening into an actionable probability signal — so the investor does not need to watch every spread tick themselves and does not need to judge "how wide is wide enough" on any given day. For the formal mathematical specification of the HMM, see the Methodology page.
+
+The Trading Rule in Plain English
+
+A Hidden Markov Model continuously estimates the probability that markets are in a "stress" regime. When that stress probability exceeds 50%, the strategy scales down equity exposure proportionally to the severity of the signal — at 50% stress probability it holds less stock; at 100% stress probability it would hold no stock at all. When stress probability drops back below 50%, the strategy returns to full equity exposure. This graduated approach (called Signal Strength, or P2) avoids the all-or-nothing whipsaw of a simple on/off switch.
+
+keyboard_arrow_right
+
+Why we chose this method
+
+keyboard_arrow_right
+
+Deeper dive
+
+Key Strategy Metrics
+
+OOS Sharpe
+
+1.27
+
+vs 0.90 B&H
+
+OOS Return (arithmetic ann.)
+
++11.3%
+
+arithmetic mean x 252
+
+Max Drawdown
+
+-10.2%
+
+vs -33.7% B&H
+
+Turnover
+
+~4/yr
+
+Breakeven Cost
+
+50 bps
+
+Caveat: arithmetic annualized return; compounded CAGR (geometric) would be slightly different and is documented in the Methodology References.
+
+Why this matters: the credit-signal strategy delivered comparable returns to buy-and-hold but with dramatically less pain. Its worst peak-to-trough decline was -10.2%, versus -34% for an investor who simply held SPY through the same period. The Sharpe ratio of 1.27 (versus 0.90 for buy-and-hold) means each unit of risk taken was rewarded with roughly 40% more return. The strategy only needed about 4 trades per year, and it would remain profitable even if transaction costs were 10x higher than our 5 bps assumption.
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal: HMM Stress Probability
+
+Threshold: HMM probability > 0.5
+
+Strategy family: Signal Strength (P2)
+
+Lead time: No lead (same-period)
+
+Direction: countercyclical
+
+Strategy description: Scale position size proportionally to signal strength (0% to 100% invested).
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+2005
+2010
+2015
+2020
+2025
+0
+0.2
+0.4
+0.6
+0.8
+1
+Date
+HMM Stress Probability
+threshold = 0.5
+
+Why this matters: The hmm stress probability is the live stress meter; the strategy scales equity exposure down whenever this probability rises above 0.5. P2 Signal Strength: exposure scales continuously with the signal.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+2005
+2010
+2015
+2020
+2025
+0
+20
+40
+60
+80
+100
+Date
+SPY Exposure (%)
+
+Why this matters: Exposure scales continuously: SPY allocation falls toward zero as the stress signal approaches 1, and returns to 100% as the signal fades.
+
+How to Use the Signal — Trigger Scenarios
+
+What this shows: Strategy family P2 (Signal Strength) · threshold loaded from winner_summary.json = 0.5 · direction: countercyclical.
+
+REDUCE
+
+When HMM Stress Probability rises above 0.5 → scale SPY exposure down proportionally. At signal = 1.0, exposure = 0%.
+
+HOLD
+
+When HMM Stress Probability lingers near 0.5 → hold exposure at roughly 50%. The signal-strength rule prevents whipsaw.
+
+BUY
+
+When HMM Stress Probability falls below 0.5 → scale SPY exposure back up. At signal = 0, exposure = 100%.
+
+How to read it: sparklines are drawn from real history (signals_20260410.parquet column hmm_2state_prob_stress) — 2/3 scenarios located; thresholds match the runtime rule. The dashed horizontal line is the decision threshold at which the action in each card fires.
+
+How to Use This Indicator Manually
+
+If you want to use the HY-IG spread as a signal yourself — with no automated system, no code, no broker API — follow this 3-step routine. This is written for the stock investor who rebalances a long-only portfolio a few times a year, not for an algorithmic trader.
+
+1. Check the spread weekly.
+
+Source: FRED series BAMLH0A0HYM2 (HY OAS) and BAMLC0A0CM (IG OAS) — subtract IG from HY to get the spread. The free FRED charting page will plot the difference directly. Any Friday-afternoon reading is fine; you do not need intraday data.
+What to compute: the current spread in bps (basis points, where 100 bps = 1%), and where it sits inside the last 504 trading days (roughly 2 years) of history. Most spreadsheet tools can compute a percentile rank; so can FRED's own download-and-chart interface.
+
+2. Interpret where you are.
+
+Bottom 25% of the 504-day range → calm regime. Full equity exposure is reasonable. Historically this is where Sharpe runs well above 1 and drawdowns are shallow.
+Top 25% of the 504-day range → stress regime. Reduce equity exposure toward 0-50%. Historically this is the band where SPY has produced annualised returns close to zero and drawdowns above 60%.
+Middle 50% → ambiguous. Hold your current allocation. The signal has no statistical edge in the middle of the distribution (this is why the median coefficient in the Quantile Regression block is essentially zero).
+
+3. Act — or consciously decide not to.
+
+The research shows the signal works best on a 63-day (3-month) forward horizon, so do not overreact to week-to-week noise. One week in the top quartile is not a selling signal; two or three consecutive weeks is.
+Moving calm → stress: reduce exposure over 2-4 weeks, not in one day. The point of scaling is to avoid whipsaws when the signal oscillates around the 75th-percentile cutoff.
+Moving stress → calm: add back gradually. Historically the recovery is slower than the drop, so averaging in over several weeks rarely costs much.
+
+Concrete example — the 2020 COVID crash.
+
+On 2020-02-14, the HY-IG spread was roughly 350 bps (3.50%) — firmly in the bottom quartile of its 504-day range. A manual user following this rule would have been fully invested.
+Over the next four weeks the spread blew out to 1,100 bps (11.0%) by 2020-03-16 — far into the top quartile and still climbing.
+A disciplined manual user, seeing the spread cross the 75th percentile of the 504-day range around 2020-02-24 to 2020-03-02, would have started scaling down. In practice this probably means moving from 100% equity to roughly 50% over one to two weeks, then further down as the widening accelerated.
+The spread compressed back below 500 bps (5.00%) by 2020-06-08, crossing back into the middle/lower quartiles. The manual user would then have started adding equity back, reaching full exposure over the following weeks.
+This mechanical rule would not have timed the bottom perfectly — no rule does — but it would have avoided the worst of the -34% buy-and-hold drawdown and participated in the recovery from roughly July onward.
+keyboard_arrow_right
+
+Honest assessment
+
+Execution Points — Actual Trigger Dates
+
+The winning strategy made many small position adjustments across the 2000-2025 backtest — 418 rows in winner_trades_broker_style.csv. The table below surfaces eight inflection points around major historical stress events, pulled directly from that log, so readers can tie the abstract HMM stress probability back to concrete history. Each row is reproducible: open the broker-style CSV, jump to the row number in the right-most column, and the exact commission, notional, price, and running cumulative P&L are all there.
+
+Date	Event	HMM Stress Prob	Position Change	Source Row
+2008-04-25	March-2008 stress fades (Bear Stearns aftermath)	0.415 → 0.195 → 0.117 → 0.038	Scale-up: 34.2% → 58.5% → 80.5% → 88.3% → 96.2% over 4 trading days	Rows 95-98
+2008-06-02	Pre-Lehman credit deterioration builds	0.443 → 0.672 → 0.813 → 0.979	Scale-down: 96.2% → 55.7% → 32.8% → 18.7% → 2.1% over 4 trading days	Rows 99-102
+2008-09-01	Lehman week — full stress-regime lock-in	0.820 → 0.931 → 0.999	Scale-down: 30.8% → 18.0% → 6.9% → 0.1% over 3 trading days	Rows 111-113
+2009-12-21	GFC recovery — stress probability breaks below 0.5	0.932 → 0.613 → 0.433 → 0.318	Scale-up: 0.1% → 6.8% → 38.7% → 56.7% → 68.2% over 4 trading days	Rows 114-117
+2020-01-27	Early COVID false alarm (reverted within two days)	0.127 → 0.998 → 0.882 → 0.080	Oscillation: 95.3% → 87.3% → 0.2% → 92.0% → 98.4% — noise the P2 Signal Strength smoothing contains	Rows 297-301
+2020-02-24	COVID panic onset — single-day collapse to cash	0.086 → 1.000	Two-day move: 98.4% → 91.4% → 0.0% cash	Rows 302-303
+2022-01-13	Rate-shock widening begins	0.070 → 0.268 → 0.880 → 0.995	Scale-down: 98.8% → 93.0% → 73.2% → 12.0% → 0.5% over 5 trading days	Rows 344-347
+2022-08-12	Mid-2022 recovery attempt (proved short-lived)	0.911 → 1.000	Brief scale-up reversed: 0.5% → 8.9% → 0.0%	Rows 348-349
+
+How to read it: the reason field in each row repeats the HMM stress probability and the before/after position weights, which is the auditable record of what the strategy saw and what it did. Because this is a P2 Signal Strength strategy, position changes are proportional to the HMM stress probability — never all-or-nothing — which is why many rows show fractional moves rather than 0%/100% flips.
+
+Future: Live Execution
+
+Current Signal State
+
+—
+
+Target Position
+
+—
+
+Current Action
+
+—
+
+Caveat: no live_execution_stub.json present yet — values render as — placeholders until a real-time feed is wired.
+
+This dashboard presents historical backtest results. A real-time execution layer would surface the fields above; the values shown are placeholders. Wiring to a live data feed and broker API is deliberately out-of-scope for this research portal (see Methodology).
+
+Plain English: you are looking at the shape of what a live execution panel WOULD display (current signal, target position, current action), with dashes where live numbers will eventually flow in. The portal is a research tool — building out the broker connection is a separate project.
+
+For readers who want to understand exactly how we reached these conclusions — or who want to replicate and extend the analysis — the methodology section provides full details on data, methods, and diagnostics.
+
+📐
+
+Continue to Methodology
+
+What this shows: generated with AIG-RLIC+ | Data: 2000-01 to 2025-12.

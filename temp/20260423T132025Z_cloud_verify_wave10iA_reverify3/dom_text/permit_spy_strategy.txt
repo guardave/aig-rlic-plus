@@ -1,0 +1,173 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+
+📐 Methodology
+
+What this shows: direction triangulation (APP-DIR1, 2-way) — Evan and Dana agree on procyclical. Ray leg pending RES-17 frontmatter migration.
+
+keyboard_arrow_right
+
+Plain English
+
+The Strategy: Translating Permit Signals into SPY Positioning
+
+We tested hundreds of strategy combinations to find the most robust way to time SPY exposure using Building Permits.
+
+Tournament Winner: S3_mom / P3_long_short / LN/A
+
+Tournament winner: Signal S3_mom (1-month momentum) / Threshold T1_p25 (25th percentile, fixed in-sample) / Strategy P3_long_short (Long/Short) / Lead 6 months.
+
+When the month-over-month change in Building Permits is above its historical 25th percentile (i.e., not deeply negative), go long SPY. When permits momentum falls below the 25th percentile (sharp decline), go short. Apply the signal with a 6-month lead to exploit permits' role as a leading indicator.
+
+How the Signal is Generated
+Pull PERMIT. FRED series PERMIT, monthly SAAR. Released ~2-3 weeks after the reference month.
+Compute MoM momentum. mom_t = permit_t / permit_{t-1} - 1.
+Fix the threshold once, in-sample. Take the 25th percentile of MoM momentum from 1990-01 to 2017-12 and keep that number as the threshold for the entire OOS period.
+Apply the 6-month lead. Today's position uses the MoM reading from 6 months ago.
+Translate to position. If the 6-month-lagged MoM is above the fixed 25th-percentile threshold → long SPY (+1). Otherwise → short SPY (-1). Rebalance monthly.
+
+OOS Sharpe
+
+1.45
+
+OOS Return
+
++22.7%
+
+annualized
+
+Max Drawdown
+
+-19.4%
+
+Turnover
+
+~9.1/yr
+
+Win Rate
+
+N/A
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal code: S3_mom
+
+Signal column: permit_mom1m
+
+Threshold: gt None
+
+Strategy family: P3_long_short
+
+Direction: procyclical
+
+Lead time: LN/A
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+Probability engine panel cannot render: No signals_*.parquet under /mount/src/aig-rlic-plus/results/permit_spy
+
+Plain English: the model needs a history of indicator values to draw the time-series chart, but we can't find that file on disk. This prevents the probability panel from rendering.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+Position exposure cannot be derived without valid signal values. See diagnostic above.
+
+Plain English: the Probability Engine panel above flagged a data problem with the signal series, so we cannot compute the exposure curve without risking a misleading chart. Fix the signal-data issue first, then this panel will render.
+
+How to Use the Signal — Trigger Scenarios
+
+Trigger thresholds shown use a default heuristic (0.5) — this pair's winner_summary.json.threshold_value is on a legacy non-numeric schema and could not be coerced to a float. Numeric trigger cards will display after the pair pipeline is rerun against the current schema.
+
+What this shows: Strategy family P3 (Long/Short) · threshold loaded from winner_summary.json = 0.5 · direction: procyclical.
+
+SHORT
+
+When 1-Month Momentum crosses above 0.5 → flip to 100% short SPY.
+
+LONG
+
+When 1-Month Momentum crosses below 0.5 → flip to 100% long SPY.
+
+How to read it: sparklines are drawn from stylised (no signals parquet found); thresholds match the runtime rule. The dashed horizontal line is the decision threshold at which the action in each card fires.
+
+How to Use This Indicator Manually
+
+You do not need software to run this rule. Each month:
+
+Download the latest PERMIT CSV from FRED.
+Compute the month-over-month percentage change for the reading six months ago.
+Compare that number to -2.1% (the fixed in-sample 25th percentile; exact value is regenerated in the pipeline notebook).
+If the number is above -2.1% → hold SPY long. Below → short.
+Revisit next month.
+
+Turnover averages about 9 round-trips per year — well inside any retail-friendly execution envelope.
+
+Future: Live Execution
+
+Current Signal State
+
+—
+
+Target Position
+
+—
+
+Current Action
+
+—
+
+Caveat: no live_execution_stub.json present yet — values render as — placeholders until a real-time feed is wired.
+
+This dashboard presents historical backtest results. A real-time execution layer would surface the fields above; the values shown are placeholders. Wiring to a live data feed and broker API is deliberately out-of-scope for this research portal (see Methodology).
+
+Plain English: you are looking at the shape of what a live execution panel WOULD display (current signal, target position, current action), with dashes where live numbers will eventually flow in. The portal is a research tool — building out the broker connection is a separate project.
+
+For readers who want to understand exactly how we reached these conclusions — or who want to replicate and extend the analysis — the methodology section provides full details on data, methods, and diagnostics.
+
+📐
+
+Continue to Methodology
+
+What this shows: generated with AIG-RLIC+ | Pair: permit_spy.

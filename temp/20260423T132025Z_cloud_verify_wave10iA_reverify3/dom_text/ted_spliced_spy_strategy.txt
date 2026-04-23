@@ -1,0 +1,182 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+
+📐 Methodology
+
+What this shows: direction triangulation (APP-DIR1, 2-way) — Evan and Dana agree on countercyclical. Ray leg pending RES-17 frontmatter migration.
+
+keyboard_arrow_right
+
+Plain English
+
+The Strategy: Translating Spliced-TED Signals into SPY Positioning
+
+We tested ~991 strategy combinations on the Spliced-TED series (Variant C) to find the most robust extended-history timing rule.
+
+Tournament Winner: spread_roc_21d / P2_signal_strength / LN/A
+
+Winner (from results/ted_spliced_spy/winner_summary.json):
+
+Field	Value
+Signal	Spread 21-Day Rate of Change (spread_roc_21d)
+Threshold	25th percentile, fixed in-sample (T1_p25)
+Strategy	Signal-Strength / Proportional (P2)
+Lead time	1 day
+Direction	Counter-cyclical — scale long exposure as RoC drops below threshold
+OOS Sharpe	1.19
+OOS annualised return	+13.42%
+Max drawdown	−12.78%
+Annual turnover	~14 round-trips
+How the Signal is Generated
+Construct the spliced daily series: TEDRATE for 1993-01 through 2022-01, then adjusted_DFF_TED = DFF_TED × scale + shift (calibrated on overlap) from 2022-02 onwards.
+Compute its 21-day rate of change.
+Fix the 25th-percentile threshold on the in-sample window (1993-01 to 2017-12).
+Map the gap between today's RoC and the threshold to a proportional SPY exposure in [0, 100%].
+Apply a 1-day lead lag — today's signal implements tomorrow's position.
+
+OOS Sharpe
+
+1.19
+
+OOS Return
+
++13.4%
+
+annualized
+
+Max Drawdown
+
+-12.8%
+
+Turnover
+
+~14.2/yr
+
+Win Rate
+
+N/A
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal code: spread_roc_21d
+
+Signal column: spread_roc_21d
+
+Threshold: lt None
+
+Strategy family: P2_signal_strength
+
+Direction: countercyclical
+
+Lead time: LN/A
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+Probability engine panel cannot render: No signals_*.parquet under /mount/src/aig-rlic-plus/results/ted_spliced_spy
+
+Plain English: the model needs a history of indicator values to draw the time-series chart, but we can't find that file on disk. This prevents the probability panel from rendering.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+Position exposure cannot be derived without valid signal values. See diagnostic above.
+
+Plain English: the Probability Engine panel above flagged a data problem with the signal series, so we cannot compute the exposure curve without risking a misleading chart. Fix the signal-data issue first, then this panel will render.
+
+How to Use the Signal — Trigger Scenarios
+
+Trigger thresholds shown use a default heuristic (0.5) — this pair's winner_summary.json.threshold_value is on a legacy non-numeric schema and could not be coerced to a float. Numeric trigger cards will display after the pair pipeline is rerun against the current schema.
+
+What this shows: Strategy family P2 (Signal Strength (Proportional)) · threshold loaded from winner_summary.json = 0.5 · direction: countercyclical.
+
+REDUCE
+
+When Spread 21-Day ROC rises above 0.5 → scale SPY exposure down proportionally. At signal = 1.0, exposure = 0%.
+
+HOLD
+
+When Spread 21-Day ROC lingers near 0.5 → hold exposure at roughly 50%. The signal-strength rule prevents whipsaw.
+
+BUY
+
+When Spread 21-Day ROC falls below 0.5 → scale SPY exposure back up. At signal = 0, exposure = 100%.
+
+How to read it: sparklines are drawn from stylised (no signals parquet found); thresholds match the runtime rule. The dashed horizontal line is the decision threshold at which the action in each card fires.
+
+How to Use This Indicator Manually
+
+A human operator replicating the rule would:
+
+Pull the latest TEDRATE (through 2022) and DFF, DTB3 (through today) from FRED.
+Apply the published affine adjustment to extend TEDRATE post-2022.
+Maintain a rolling 21-day RoC series.
+Compare today's RoC to the fixed 25th-percentile benchmark; scale SPY position proportionally when below.
+Rebalance next business day (1-day lead). Monthly review is sufficient given ~14 round-trips per year.
+Future: Live Execution
+
+Current Signal State
+
+—
+
+Target Position
+
+—
+
+Current Action
+
+—
+
+Caveat: no live_execution_stub.json present yet — values render as — placeholders until a real-time feed is wired.
+
+This dashboard presents historical backtest results. A real-time execution layer would surface the fields above; the values shown are placeholders. Wiring to a live data feed and broker API is deliberately out-of-scope for this research portal (see Methodology).
+
+Plain English: you are looking at the shape of what a live execution panel WOULD display (current signal, target position, current action), with dashes where live numbers will eventually flow in. The portal is a research tool — building out the broker connection is a separate project.
+
+For readers who want to understand exactly how we reached these conclusions — or who want to replicate and extend the analysis — the methodology section provides full details on data, methods, and diagnostics.
+
+📐
+
+Continue to Methodology
+
+What this shows: generated with AIG-RLIC+ | Pair: ted_spliced_spy.

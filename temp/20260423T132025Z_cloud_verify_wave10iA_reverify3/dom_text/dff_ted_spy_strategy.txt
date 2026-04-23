@@ -1,0 +1,184 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+
+📐 Methodology
+
+Direction disagreement detected (APP-DIR1, APP-SEV1 L1). Evan says countercyclical in winner_summary.json.direction; Dana says procyclical in interpretation_metadata.json.observed_direction. These must match. Escalate to Lead for reconciliation per META-IA.
+
+Plain English: our econometrician and our data analyst disagree on whether this indicator moves with the market or against it. That is a serious inconsistency — trading-rule direction is not a matter of opinion. The page is allowed to render, but do not act on the results until the disagreement is resolved.
+
+keyboard_arrow_right
+
+Plain English
+
+The Strategy: Translating DFF-TED Signals into SPY Positioning
+
+We tested ~991 strategy combinations on DFF - DTB3 (Variant B) — the longest-history TED variant — to find the most robust timing rule.
+
+Tournament Winner: spread_roc_21d / P2_signal_strength / LN/A
+
+Winner (from results/dff_ted_spy/winner_summary.json):
+
+Field	Value
+Signal	Spread 21-Day Rate of Change (spread_roc_21d)
+Threshold	25th percentile, fixed in-sample (T1_p25)
+Strategy	Signal-Strength / Proportional (P2)
+Lead time	5 days
+Direction	Counter-cyclical — scale long exposure as RoC drops below threshold
+OOS Sharpe	0.97
+OOS annualised return	+11.04%
+Max drawdown	−14.71%
+Annual turnover	~10 round-trips
+How the Signal is Generated
+Compute the daily DFF-TED spread (DFF − DTB3).
+Compute its 21-day rate of change: roc_21 = spread_t / spread_{t-21} − 1.
+Fix the 25th-percentile threshold on the in-sample window (1993-01 to 2017-12).
+Each day, map the gap between today's roc_21 and the threshold to a proportional position size in [0, 100%] SPY exposure.
+Apply a 5-day lead lag — today's signal drives positioning five business days hence.
+
+OOS Sharpe
+
+0.97
+
+OOS Return
+
++11.0%
+
+annualized
+
+Max Drawdown
+
+-14.7%
+
+Turnover
+
+~10.0/yr
+
+Win Rate
+
+N/A
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal code: spread_roc_21d
+
+Signal column: spread_roc_21d
+
+Threshold: lt None
+
+Strategy family: P2_signal_strength
+
+Direction: countercyclical
+
+Lead time: LN/A
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+Probability engine panel cannot render: No signals_*.parquet under /mount/src/aig-rlic-plus/results/dff_ted_spy
+
+Plain English: the model needs a history of indicator values to draw the time-series chart, but we can't find that file on disk. This prevents the probability panel from rendering.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+Position exposure cannot be derived without valid signal values. See diagnostic above.
+
+Plain English: the Probability Engine panel above flagged a data problem with the signal series, so we cannot compute the exposure curve without risking a misleading chart. Fix the signal-data issue first, then this panel will render.
+
+How to Use the Signal — Trigger Scenarios
+
+Trigger thresholds shown use a default heuristic (0.5) — this pair's winner_summary.json.threshold_value is on a legacy non-numeric schema and could not be coerced to a float. Numeric trigger cards will display after the pair pipeline is rerun against the current schema.
+
+What this shows: Strategy family P2 (Signal Strength (Proportional)) · threshold loaded from winner_summary.json = 0.5 · direction: countercyclical.
+
+REDUCE
+
+When Spread 21-Day ROC rises above 0.5 → scale SPY exposure down proportionally. At signal = 1.0, exposure = 0%.
+
+HOLD
+
+When Spread 21-Day ROC lingers near 0.5 → hold exposure at roughly 50%. The signal-strength rule prevents whipsaw.
+
+BUY
+
+When Spread 21-Day ROC falls below 0.5 → scale SPY exposure back up. At signal = 0, exposure = 100%.
+
+How to read it: sparklines are drawn from stylised (no signals parquet found); thresholds match the runtime rule. The dashed horizontal line is the decision threshold at which the action in each card fires.
+
+How to Use This Indicator Manually
+
+A human operator replicating the rule would:
+
+Pull daily DFF and DTB3 from FRED.
+Maintain a rolling 21-day RoC series.
+Compare today's RoC to the fixed 25th-percentile benchmark (in the methodology appendix).
+Scale SPY position size proportionally to the gap below the threshold; exit to cash when the signal is above.
+Review weekly — annual turnover is low (~10 trades), so weekly monitoring is sufficient.
+Future: Live Execution
+
+Current Signal State
+
+—
+
+Target Position
+
+—
+
+Current Action
+
+—
+
+Caveat: no live_execution_stub.json present yet — values render as — placeholders until a real-time feed is wired.
+
+This dashboard presents historical backtest results. A real-time execution layer would surface the fields above; the values shown are placeholders. Wiring to a live data feed and broker API is deliberately out-of-scope for this research portal (see Methodology).
+
+Plain English: you are looking at the shape of what a live execution panel WOULD display (current signal, target position, current action), with dashes where live numbers will eventually flow in. The portal is a research tool — building out the broker connection is a separate project.
+
+For readers who want to understand exactly how we reached these conclusions — or who want to replicate and extend the analysis — the methodology section provides full details on data, methods, and diagnostics.
+
+📐
+
+Continue to Methodology
+
+What this shows: generated with AIG-RLIC+ | Pair: dff_ted_spy.

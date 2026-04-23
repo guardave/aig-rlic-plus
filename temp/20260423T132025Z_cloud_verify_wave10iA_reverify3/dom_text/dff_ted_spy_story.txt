@@ -1,0 +1,164 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+What this shows: ← you are here.
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Story: DFF-TED Spread as an Equity Signal
+
+Does the Fed-Funds-based funding-stress proxy (DFF - DTB3) — the most conservative TED variant — predict S&P 500 returns?
+
+DFF - DTB3 as a long-history funding-stress signal for SPY — OOS Sharpe vs buy-and-hold
+
+Key metrics (out-of-sample 2015-01–2025-12):
+
+Sharpe ratio: 0.97 (vs N/A buy-and-hold S&P 500)
+Annualized return: +11.0% with risk-adjusted exposure
+Max drawdown: -14.7% (vs N/A buy-and-hold S&P 500)
+Where This Fits in the Portal
+
+This is the long-history, pragmatic variant. It trades definitional purity (DFF is not LIBOR) for a 30+ year window that spans three major stress events. It is the best variant for statistical confidence; it is the weakest variant for regulatory fidelity to the legacy TED concept. The sibling Variant A (SOFR-TED) is the modern purist view; Variant C (Spliced) stitches the old LIBOR-TED to a DFF-based extension.
+
+How to read the rest of this page pack. You'll read the Story first (the economic logic), then the Evidence (statistical proofs), then the Strategy (the actual trading rule), then the Methodology (technical appendix). Each page stands alone.
+
+One-Sentence Thesis
+
+Wider DFF-TED spreads have historically been followed by softer SPY returns, but the predictive edge is modest and survives only within a disciplined tournament-selected rule.
+
+OOS Sharpe
+
+0.97
+
+OOS Return
+
++11.0%
+
+annualized
+
+Max Drawdown
+
+-14.7%
+
+Signal
+
+spread_roc_21d
+
+N/A
+
+OOS Period
+
+11.0 yrs
+
+2015-01–2025-12
+
+What this shows: Winner strategy KPIs: OOS Sharpe 0.97 on ~8 years of out-of-sample data (2018-01 onwards) — lower than the SOFR variant's headline but built on far more observations, making it the most statistically reliable of the three.
+
+What Is the TED Spread, and Why a Fed-Funds Proxy?
+
+The TED spread measures the gap between what banks pay to borrow short-term cash and the risk-free government rate. When banks trust each other, this gap is small (10–30 basis points); when credit fear or liquidity stress rises, it widens dramatically.
+
+The classic TED spread used LIBOR as the bank-borrowing leg. LIBOR was retired in 2022 after the manipulation scandal, leaving a discontinuity in the legacy series. But the economic concept — a funding premium over T-bills — can be reconstructed from the Fed Funds rate.
+
+Why DFF-DTB3 is a valid TED proxy. In the overlap period (1993–2022), the correlation between the official TEDRATE and DFF-DTB3 is +0.63. Both series capture the same "funding premium over T-bills" concept; DFF simply replaces LIBOR (a survey-based unsecured rate) with the observed effective Fed Funds rate. The two are not identical — DFF omits the bank-credit component that LIBOR carried — but they co-move strongly enough to make DFF-TED a useful long-history stand-in.
+
+Fed Funds - 3M T-Bill (1993-2025) vs. S&P 500
+1995
+2000
+2005
+2010
+2015
+2020
+2025
+−1
+0
+1
+2
+0
+100
+200
+300
+400
+500
+600
+700
+DFF - DTB3 (Fed Funds TED)
+SPY
+DFF - DTB3 (Fed Funds TED) vs S&P 500
+Spread (%)
+SPY ($)
+
+DFF minus 3M T-Bill, 1993-2025. Visible funding-stress episodes: the 2000 dot-com bust, the 2008 Global Financial Crisis (the largest spike), the 2015 China-devaluation wobble, and COVID-March-2020. The 2022-2023 rate-hiking cycle is also visible as a sustained elevated spread.
+
+What History Shows: SPY Returns by DFF-TED Stress Regime
+0.63
+0.66
+0.69
+0.57
+Q1_low
+Q2
+Q3
+Q4_high
+0
+0.2
+0.4
+0.6
+0.8
+SPY Sharpe by Spread Quartile
+Spread Quartile (Q1=Lowest, Q4=Highest)
+Annualized Sharpe
+
+SPY Sharpe ratios sorted by DFF-TED quartile across 30+ years. Q1 = calmest funding conditions; Q4 = highest stress. The counter-cyclical pattern survives across multiple business cycles — the key advantage of Variant B's long history.
+
+Why Variant B Is the Most Conservative Choice
+
+Of the three TED variants we study, DFF-TED is the one a cautious researcher would reach for first:
+
+Longest continuous history. ~8,600 daily observations back to 1993 — more than 4× the SOFR variant.
+No splicing. Variant C stitches two different series with an affine adjustment. Variant B is a single, homogeneous series end-to-end.
+Spans multiple regimes. Dot-com, GFC, euro crisis, COVID, rate-hike cycles all in-sample.
+
+The cost is that DFF-TED is a proxy, not the original indicator. The Sharpe numbers will look less spectacular than Variant A's short-sample headline, but they are earned on far more observations and cross multiple true out-of-sample crises.
+
+Scope note. Scope discipline: only DFF and DTB3 are the in-scope primary signals for this pair. TEDRATE appears only for the overlap-period correlation check that justifies using DFF-TED as a proxy; it is not a trading input.
+
+The regime view suggests the counter-cyclical pattern is robust across business cycles. The evidence page formalises this with correlation and impulse-response analysis over the full 30-year window.
+🔬
+
+Continue to The Evidence
+
+What this shows: generated with AIG-RLIC+ | Pair: dff_ted_spy.

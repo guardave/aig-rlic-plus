@@ -1,0 +1,142 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+What this shows: ← you are here.
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Evidence: What the Data Shows
+
+We test the SOFR-TED → SPY relationship with two complementary methods: correlation analysis (model-free, multiple horizons) and Jordà local projections (impulse-response, HAC-corrected). Both target the same question from different angles.
+
+Each method follows the same 8-part structure: what the method is, the question it answers, how to read the chart, what we observe, deeper technical detail, economic interpretation, and the key message. Read in order for the full picture, or skip to the Key message lines for a quick summary.
+
+Evidence is organized in two tiers. Level 1 covers basic statistical relationships. Level 2 adds regime analysis, tail risk, nonlinear dependence, or other advanced techniques.
+
+Level 1 — Basic Analysis
+
+Level 2 — Advanced Analysis
+
+Correlation
+
+Correlation Analysis
+
+Pearson and rolling correlation quantify the linear co-movement between the SOFR-TED spread (and its derived signals) and forward SPY returns across multiple horizons. It is the first, simplest filter: if no contemporaneous or lagged co-movement exists, a predictive relationship is unlikely to be found by more elaborate methods.
+
+Is there a stable, directionally consistent linear relationship between SOFR-TED stress and subsequent SPY returns at 5-, 21-, and 63-day horizons?
+
+How to read it: Darker blue cells indicate stronger negative correlation (stress up → SPY returns down). Darker red indicates positive correlation. Cells near zero mean no linear relationship at that horizon.
+
+-0.023
+-0.057
+-0.044
+0.037
+-0.010
+-0.012
+0.053
+0.221
+-0.002
+-0.007
+0.069
+0.227
+-0.138
+-0.230
+-0.112
+-0.017
+-0.089
+-0.111
+-0.069
+-0.107
+0.008
+-0.017
+0.055
+0.165
+0.010
+0.027
+0.093
+0.084
+0.008
+0.029
+0.122
+0.299
+0.021
+0.041
+0.116
+0.278
+1d
+5d
+21d
+63d
+mom_21d
+mom_63d
+pctrank_252d
+roc_21d
+roc_63d
+stress
+vol_21d
+zscore_126d
+zscore_252d
+−0.15
+−0.1
+−0.05
+0
+0.05
+0.1
+0.15
+Correlation: Spread Signals → SPY Returns
+
+Correlation heatmap of SOFR-TED signals versus forward SPY returns. Negative-signed cells are consistent with the counter-cyclical thesis.
+
+What this shows: Rate-of-change (RoC) signals show modestly negative correlations with forward SPY returns, strongest at the 21-day horizon. Level and z-score signals are weaker and noisier — consistent with the short sample.
+
+Why this matters: In the post-2018 sample the SOFR-TED spread carries a weak but directionally correct predictive signal. RoC dominates level — changes in funding stress matter more than its absolute value, which is what one would expect when the sample spans a narrow range of regimes.
+
+Key message: Negative signs are there, magnitudes are small. The correlation view is supportive but not decisive — formal impulse-response analysis is needed.
+
+The Combinatorial Tournament
+
+Econometric evidence points in the right direction; the next step is to ask whether a disciplined trading rule built on this signal actually outperforms buy-and-hold. The strategy page reports the tournament winner.
+
+What this shows: tournament results at results/sofr_ted_spy/tournament_results_20260314.csv.
+
+Continue to the Strategy page for the tournament winner and its KPIs.
+
+🎯
+
+Continue to The Strategy
+
+What this shows: generated with AIG-RLIC+ | Pair: sofr_ted_spy.

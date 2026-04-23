@@ -1,0 +1,44 @@
+cloud_verify 2026-04-23T13:20:25.660199+00:00
+PASS 41  FAIL 0  TOTAL 41
+
+  PASS  landing                                   charts=-  app_pt2=-
+  PASS  hy_ig_v2_spy_story                        charts=5  app_pt2=True
+  PASS  hy_ig_v2_spy_evidence                     charts=8  app_pt2=True
+  PASS  hy_ig_v2_spy_strategy                     charts=7  app_pt2=True
+  PASS  hy_ig_v2_spy_methodology                  charts=3  app_pt2=True
+  PASS  hy_ig_spy_story                           charts=5  app_pt2=True
+  PASS  hy_ig_spy_evidence                        charts=8  app_pt2=True
+  PASS  hy_ig_spy_strategy                        charts=9  app_pt2=True
+  PASS  hy_ig_spy_methodology                     charts=0  app_pt2=True
+  PASS  indpro_xlp_story                          charts=2  app_pt2=True
+  PASS  indpro_xlp_evidence                       charts=3  app_pt2=True
+  PASS  indpro_xlp_strategy                       charts=9  app_pt2=True
+  PASS  indpro_xlp_methodology                    charts=0  app_pt2=True
+  PASS  umcsent_xlv_story                         charts=2  app_pt2=True
+  PASS  umcsent_xlv_evidence                      charts=4  app_pt2=True
+  PASS  umcsent_xlv_strategy                      charts=7  app_pt2=True
+  PASS  umcsent_xlv_methodology                   charts=0  app_pt2=True
+  PASS  indpro_spy_story                          charts=2  app_pt2=True
+  PASS  indpro_spy_evidence                       charts=6  app_pt2=True
+  PASS  indpro_spy_strategy                       charts=3  app_pt2=True
+  PASS  indpro_spy_methodology                    charts=0  app_pt2=True
+  PASS  permit_spy_story                          charts=2  app_pt2=True
+  PASS  permit_spy_evidence                       charts=2  app_pt2=True
+  PASS  permit_spy_strategy                       charts=3  app_pt2=True
+  PASS  permit_spy_methodology                    charts=0  app_pt2=True
+  PASS  vix_vix3m_spy_story                       charts=2  app_pt2=True
+  PASS  vix_vix3m_spy_evidence                    charts=2  app_pt2=True
+  PASS  vix_vix3m_spy_strategy                    charts=4  app_pt2=True
+  PASS  vix_vix3m_spy_methodology                 charts=0  app_pt2=True
+  PASS  sofr_ted_spy_story                        charts=2  app_pt2=True
+  PASS  sofr_ted_spy_evidence                     charts=2  app_pt2=True
+  PASS  sofr_ted_spy_strategy                     charts=4  app_pt2=True
+  PASS  sofr_ted_spy_methodology                  charts=0  app_pt2=True
+  PASS  dff_ted_spy_story                         charts=2  app_pt2=True
+  PASS  dff_ted_spy_evidence                      charts=2  app_pt2=True
+  PASS  dff_ted_spy_strategy                      charts=4  app_pt2=True
+  PASS  dff_ted_spy_methodology                   charts=0  app_pt2=True
+  PASS  ted_spliced_spy_story                     charts=2  app_pt2=True
+  PASS  ted_spliced_spy_evidence                  charts=2  app_pt2=True
+  PASS  ted_spliced_spy_strategy                  charts=4  app_pt2=True
+  PASS  ted_spliced_spy_methodology               charts=0  app_pt2=True

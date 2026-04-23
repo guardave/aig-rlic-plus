@@ -1,0 +1,195 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+What this shows: ← you are here.
+
+→
+
+🔬 Evidence
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Story: Consumer Sentiment and the Healthcare Sector
+
+Does University of Michigan consumer sentiment predict returns in the defensive healthcare sector (XLV)?
+
+UMCSENT as a directional signal for XLV — OOS Sharpe vs buy-and-hold
+
+Key metrics (out-of-sample 2019-04–2026-01):
+
+Sharpe ratio: 1.02 (vs N/A buy-and-hold Health Care Select Sector (XLV))
+Annualized return: +11.9% with risk-adjusted exposure
+Max drawdown: -10.9% (vs -15.6% buy-and-hold Health Care Select Sector (XLV))
+Where This Fits in the Portal
+
+This pair sits in the Sentiment / Flow family of the portal. Unlike the SPY-targeting pairs (INDPRO, Permits, VIX, TED), the target here is the XLV healthcare sector rather than broad-market equity. It is the first pair in the catalogue whose empirical direction contradicts its textbook prior — a useful reminder that priors must be audited against data, not assumed.
+
+How to read the rest of this page pack. You'll read the Story first (the economic logic), then the Evidence (statistical proofs), then the Strategy (the actual trading rule), then the Methodology (technical appendix). Each page stands alone.
+
+One-Sentence Thesis
+
+When consumer sentiment trends upward — measured by a year-over-year gain, with a 6-month lead — XLV healthcare stocks have historically outperformed, contradicting the defensive-rotation hypothesis and suggesting that sentiment captures broad risk appetite that lifts even defensive sectors during bull markets.
+
+OOS Sharpe
+
+1.02
+
+OOS Return
+
++11.9%
+
+annualized
+
+Max Drawdown
+
+-10.9%
+
+vs -15.6% B&H
+
+Signal
+
+S2_yoy
+
+L6
+
+OOS Period
+
+6.8 yrs
+
+2019-04–2026-01
+
+What this shows: The winning rule uses UMCSENT year-over-year change with a 6-month lead. When the 12-month change is positive (sentiment trending up), the strategy holds XLV; when negative, it moves to cash. The 6-month lead suggests sentiment anticipates sector rotation well in advance rather than coinciding with it. OOS Sharpe is 1.02 vs 0.72 for buy-and-hold XLV — ~42% more return per unit of risk — with max drawdown reduced from -15.6% to -10.9%.
+
+Why Consumer Sentiment and Health Care?
+
+The University of Michigan Consumer Sentiment Index has been published monthly since 1978. Each month, 500 households are asked about their financial situation, their outlook for the broader economy in the next 12 months, and their views on conditions five years out. The index is one of the most watched leading indicators in the world — central banks, equity analysts, and economists all track it because it has historically turned before consumer spending does.
+
+The Defensive-Healthcare Hypothesis (and Why It Fails)
+
+The standard economic story about healthcare stocks is that they are defensive: people consume healthcare regardless of the cycle, so healthcare companies generate stable cash flows in both good times and bad. The theory predicts that when consumers feel confident, they rotate money out of defensive sectors like healthcare and into cyclical growth sectors (technology, industrials, discretionary). When confidence falls, money flows back into defensives.
+
+If this theory were correct, we would expect high sentiment → XLV underperforms (risk-on rotation out of defensives), and low sentiment → XLV outperforms (flight to defensives).
+
+Our data shows the opposite. Periods of rising consumer sentiment (positive year-over-year change) have been associated with XLV outperformance, not underperformance. The most likely explanations:
+
+Bull markets lift everything. In sustained bull markets, investor optimism drives all sectors higher. The defensive characteristic of healthcare reduces its beta relative to SPY, but XLV still participates in the upside when broad sentiment is strong.
+Healthcare spending grows during booms. When consumers feel wealthy, they actually spend more on elective care: voluntary procedures, premium medications, wellness. This revenue impact is captured in XLV earnings during high-sentiment periods.
+Sentiment captures risk appetite broadly. High consumer confidence is associated with low risk premiums across all asset classes — including healthcare.
+Consumer Sentiment vs. Healthcare Sector (XLV)
+2000
+2005
+2010
+2015
+2020
+2025
+−40
+−30
+−20
+−10
+0
+10
+20
+30
+40
+20
+40
+60
+80
+100
+120
+140
+160
+UMCSENT YoY Change (%)
+XLV Price ($)
+Michigan Consumer Sentiment YoY Change vs XLV Price (1999-2025)
+UMCSENT YoY Change (%)
+XLV Price ($)
+
+UMCSENT year-over-year % change (red line, left axis) vs XLV adjusted price (blue line, right axis). Shaded bands mark periods when sentiment was falling year-over-year. Notice that XLV often continues rising even during modest sentiment declines — which is the surface pattern of the direction surprise explored below.
+
+What History Shows: XLV Returns by Consumer-Sentiment Regime
+0.23
+1.08
+0.56
+0.93
+Q1_low
+Q2
+Q3
+Q4_high
+0
+0.2
+0.4
+0.6
+0.8
+1
+1.2
+4.2%
+13.8%
+7.7%
+10.6%
+Q1_low
+Q2
+Q3
+Q4_high
+0
+5
+10
+15
+XLV Returns by Michigan Consumer Sentiment Quartile
+Sentiment YoY Quartile (Q1=Low, Q4=High)
+Sentiment YoY Quartile (Q1=Low, Q4=High)
+Annualized Sharpe
+Annualized Return (%)
+Annualized Sharpe by UMCSENT YoY Quartile
+Annualized Return by UMCSENT YoY Quartile
+
+Annualised XLV Sharpe ratio by quartile of UMCSENT year-over-year change. Q1 = lowest (most negative) YoY change; Q4 = highest (most positive). The non-monotonic pattern (Q2 ~1.09 > Q4 ~0.93 > Q3 ~0.56 > Q1 ~0.23) confirms the procyclical direction — falling sentiment coincides with the worst XLV regime — while suggesting that the peak of optimism is itself a late-cycle warning sign.
+
+Nuance and Limits
+
+Two facts about this pair deserve special emphasis:
+
+The year-over-year change, not the level, is the key signal. Raw sentiment levels are non-stationary and reflect long secular trends. The year-over-year change captures whether sentiment is improving or deteriorating relative to a year ago — which is what correlates with forward XLV returns. A sentiment reading of 70 (below long-run average of ~85) still generates a bullish signal if it has risen from 65 a year ago.
+
+A 6-month lead is optimal. The rule works best with a 6-month lag before acting on the signal — meaning current sentiment changes predict XLV performance half a year later, not immediately. This multi-month delay is typical of macro sentiment indicators feeding through to sector returns, and it means the rule is not a short-term timing tool.
+
+The main limits are sample length (XLV starts 1998-12, so the full sample is 325 monthly observations and the OOS window is only about 6 years) and the sector-specific nature of the target (ACA, drug-pricing policy, COVID, and demographics all affect XLV independently of consumer sentiment).
+
+Scope note. Scope discipline (ECON-SD). Only UMCSENT derivatives and XLV derivatives are in-scope primary signals. UNRATE, DGS10, and VIX are used only as regression controls, not as trading signals. SPY appears as a benchmark comparison, not as a tradable target for this pair.
+
+The direction surprise is the central finding of this analysis. The Evidence page shows the full battery of statistical tests that confirm this is a robust result, not an artefact of data selection or time period.
+🔬
+
+Continue to The Evidence
+
+What this shows: generated with AIG-RLIC+ | Pair: umcsent_xlv.

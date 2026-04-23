@@ -1,0 +1,142 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+6 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Fork
+
+📖 Story
+
+→
+
+🔬 Evidence
+
+What this shows: ← you are here.
+
+→
+
+🎯 Strategy
+
+→
+
+📐 Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+The Evidence: What the Data Shows
+
+We test the Spliced-TED → SPY relationship with correlation analysis and Jordà local projections over 1993-2025. The long sample and the use of the original TEDRATE data pre-2022 give this variant the strongest impulse-response evidence in our study.
+
+Each method follows the same 8-part structure: what the method is, the question it answers, how to read the chart, what we observe, deeper technical detail, economic interpretation, and the key message. Read in order for the full picture, or skip to the Key message lines for a quick summary.
+
+Evidence is organized in two tiers. Level 1 covers basic statistical relationships. Level 2 adds regime analysis, tail risk, nonlinear dependence, or other advanced techniques.
+
+Level 1 — Basic Analysis
+
+Level 2 — Advanced Analysis
+
+Correlation
+
+Correlation Analysis
+
+Pearson and rolling correlations measure the linear co-movement between the spliced TED spread and forward SPY returns at multiple horizons. Because the series spans three decades, precision is high; the splice itself does not distort correlation estimates because the overlap calibration matches both moments used by Pearson's formula.
+
+Does the spliced TED spread co-move negatively with forward SPY returns over 5-, 21-, and 63-day horizons across 1993-2025?
+
+How to read it: Darker blue = stronger negative correlation (stress up → forward returns down). Red cells are positive co-movement. Near-zero cells mean no linear relationship at that horizon.
+
+0.013
+0.021
+0.038
+0.029
+0.016
+0.026
+0.028
+-0.032
+0.008
+0.019
+0.066
+0.048
+0.012
+0.024
+-0.001
+-0.001
+0.001
+0.004
+0.011
+0.027
+0.013
+0.024
+0.069
+0.066
+-0.009
+-0.026
+-0.050
+-0.135
+0.006
+0.016
+0.074
+0.074
+0.012
+0.031
+0.095
+0.106
+1d
+5d
+21d
+63d
+mom_21d
+mom_63d
+pctrank_252d
+roc_21d
+roc_63d
+stress
+vol_21d
+zscore_126d
+zscore_252d
+−0.15
+−0.1
+−0.05
+0
+0.05
+0.1
+0.15
+Correlation: Spread Signals → SPY Returns
+
+Correlation heatmap of Spliced-TED signals versus forward SPY returns, 1993-2025. Negative-signed cells are consistent with the counter-cyclical thesis.
+
+What this shows: Consistently negative correlations across RoC and momentum signals at 21-day horizons, with magnitudes at least as large as Variant B's. The inclusion of GFC in the sample sharpens the signal.
+
+Why this matters: The spliced series inherits Variant B's robust linear relationship and adds the information content of the original LIBOR-based data during GFC and earlier episodes. The correlation view is the cleanest of the three variants.
+
+Key message: Negative, directionally correct, and statistically sharp — the spliced series is the highest-information TED variant at the correlation level.
+
+The Combinatorial Tournament
+
+The econometrics give Variant C the strongest statistical case. The tournament page asks whether that translates into the best trading rule.
+
+What this shows: tournament results at results/ted_spliced_spy/tournament_results_20260314.csv.
+
+Continue to the Strategy page for the tournament winner and its KPIs.
+
+🎯
+
+Continue to The Strategy
+
+What this shows: generated with AIG-RLIC+ | Pair: ted_spliced_spy.
