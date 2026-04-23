@@ -1,5 +1,89 @@
 # Release Notes
 
+## 2026-04-23 — Wave 10H.1: Chart Governance Framework (Implementation) — **COMPLETE**
+
+**Final verify: 17/17 PASS on cloud** (Quincy commit `aca5602`). Wave 10H.1 implements the rules shipped as paper SOPs in Wave 10H — chart disposition, exploration-zone, Methodology-page Exploratory Insights, Pattern 22 verify fix — across Ace's template, Vera's sidecars, and Quincy's verify tooling.
+
+### New features / artifacts shipped
+
+**Methodology page — Exploratory Insights section (APP-PT2):**
+- New `_render_exploratory_insights(pair_id)` helper in `app/components/page_templates.py` wired into `render_methodology_page()` section 13b. Reads `results/{pair_id}/analyst_suggestions.json` → `exploratory_charts` list, renders each with ELI5 "What this shows" caption (`narrative_alignment_note`) + italic analyst note (`vera_rationale`) + feedback invitation. Silent skip when the key is absent (backward-compatible for pre-Wave-10H pairs).
+- Sample pair (`hy_ig_v2_spy`): 3 orphan charts (`hero_spread_vs_spy`, `spread_history_annotated`, `tournament_sharpe_dist`) promoted from silent-void to Exploratory Insights, each with ELI5 + rationale authored by Vera.
+
+**Chart disposition mandate (VIZ-O1) + Exploration zone (VIZ-E1):**
+- Idempotent backfill script `scripts/backfill_chart_dispositions.py` stamped `disposition` on all 65 existing sidecars across 4 active pairs (62 `consumed`, 3 `suggested`).
+- Generator updates on 3 pair-generator scripts so future runs emit the field by default.
+- Chart generators that currently bypass the shared sidecar path (4 pairs) flagged to `BL-VIZ-SIDECAR-HELPER` for a future hygiene wave.
+
+**Cloud verify — Pattern 22 fix + APP-PT2 check:**
+- `scripts/cloud_verify.py` promoted from `temp/` to canonical location. DOM-tree `query_selector_all(".js-plotly-plot")` replaces the `inner_text.count()` pattern that always returned 0. Iframe resolution switched from `page.frames` iteration (raced Streamlit's frame registration) to `wait_for_selector('iframe[title="streamlitApp"]').content_frame()`. 60s goto + 45s body-hydrate + 20s chart-stability polls.
+- New APP-PT2 render check: Sample Methodology must contain "Exploratory Insights" section + 3 unique ELI5 markers; other pairs' Methodology pages must NOT (regression gate).
+- QA-CL2 P2 exception applied to continuous-rebalancing strategies.
+
+**Bug fixes discovered during rollout:**
+- Landing page raw-column leak (`spy_fwd_21d`/`63d` tokens from `interpretation_metadata.key_finding`). Fixed by new `humanize_column_tokens()` helper in `app/components/pair_registry.py` routed through the existing APP-RL1 single-source map; display layer wrapped in `app/app.py`.
+- APP-PT2 section absent on Sample Methodology despite correct template wiring. Root cause: `app/pages/9_hy_ig_v2_spy_methodology.py` is a hand-written legacy page that bypasses `render_methodology_page()`. 5 other Methodology pages share the same pattern. Fix: direct `_render_exploratory_insights(PAIR_ID)` call added to the Sample page. The broader legacy-page migration is tracked as `BL-APP-PT1-LEGACY`.
+
+### Governance / discipline shipped mid-wave
+
+**Wave 10H.0 — LEAD-DL1 (Lead Delegation Discipline):** new dedicated Lead SOP `docs/agent-sops/lead-agent-sop.md` with pre-edit gate, File Ownership Map covering all 6 agents + shared-key files (`analyst_suggestions.json`, `pair_config.py`), narrow exceptions, wave-closure self-audit via `git diff --stat` against the Ownership Map. Triggered by a self-caught drift earlier in Wave 10H.1 where Lead did Ace+Vera+Quincy work across 70+ files; user reverted and asked for a durable mechanism. Rule loaded at every SOD via `lead_delegation_discipline.md` auto-memory.
+
+**Permissions syntax fix (`b3facc8`):** single-slash absolute paths in `.claude/settings.json` (`Write(/home/vscode/.claude/agents/**)`) were being interpreted as project-relative per Claude Code docs, causing subagents to hit sandbox denial on global-profile writes (all 3 Wave 10H.1 dispatches affected). Converted to double-slash (`Write(//home/vscode/.claude/agents/**)`). Validated twice — Quincy's 3rd attempt and Ace's follow-up dispatch both wrote to `~/.claude/agents/<role>-<name>/memories.md` + `experience.md` without prompt. `BL-PERM-SUBAGENT` closed.
+
+### Backlog items opened
+
+- `BL-VIZ-O1-LEGACY` — 35 chart JSONs on 6 legacy pairs lack `_meta.json` sidecars; VIZ-O1 retro-apply scheduled for Wave 10H.2/10I.
+- `BL-VIZ-SIDECAR-HELPER` — 4 generators bypass the shared sidecar path; refactor candidate bundled with BL-VIZ-O1-LEGACY.
+- `BL-APP-PR1` — path resolution discipline rule (proposed by Ace); prophylactic, bundles with legacy-page migration.
+- `BL-APP-PT1-LEGACY` — 5 Methodology pages still bypass `render_methodology_page()`; migration wave scheduled.
+
+### Commits
+
+| Commit | Author | Content |
+|--------|--------|---------|
+| `e6767e0` | Ace | APP-PT2 helper + methodology wiring |
+| `c9f4d47` | Vera | VIZ-O1/E1 backfill + Sample exploratory_charts + generator updates |
+| `f0fcd02` | Quincy | canonical cloud_verify.py + GATE-28 verification |
+| `a74fedf` | Lead | backlog: BL-VIZ-O1-LEGACY, BL-VIZ-SIDECAR-HELPER, BL-PERM-SUBAGENT |
+| `b3facc8` | Lead | settings.json permission path syntax fix |
+| `c91e32b` | Lead | Wave 10H.0 Lead Delegation Discipline SOP |
+| `44a487a` | Quincy | cloud_verify iframe resolution fix (3rd attempt) |
+| `b86f960` | Lead | close BL-PERM-SUBAGENT |
+| `387062f` | Ace | fix landing raw-col leak + Sample Methodology Exploratory Insights direct call |
+| `6e3e821` | Lead | backlog: BL-APP-PR1, BL-APP-PT1-LEGACY |
+| `aca5602` | Quincy | final re-verify — 17/17 PASS |
+
+### Lessons
+
+- **Pattern 22 is a class of bug, not an isolated one.** Playwright's `inner_text` strips CSS markup; any check assuming class names appear in extracted text is doomed. Lesson codified in qa-agent-sop.md cloud-visual-smoke protocol.
+- **Playwright `page.frames` iteration races Streamlit frame registration.** Use selector-based discovery (`wait_for_selector('iframe[title=...]').content_frame()`) for reliability. Codified in Quincy's SOP.
+- **A centralised template only protects pages that actually use it.** APP-PT1 migration is incomplete — 5 of 7 Methodology pages are hand-written, so Wave 10H.1's new helper was silently absent there despite being "wired correctly". Any future APP-* rule touching a non-thin page will repeat this bug class. `BL-APP-PT1-LEGACY` exists to close the gap; in the interim, agent briefs for any Methodology-page rule must explicitly list bypass pages that need defensive direct calls.
+- **Path-resolution discipline matters more on cloud than local.** Streamlit Cloud's runtime CWD differs from the repo root; bare relative paths (`Path("results") / ...`) silently fail. Anchor to `_REPO_ROOT = Path(__file__).resolve().parents[N]` or equivalent. Codified as `BL-APP-PR1` for a future SOP.
+- **Settings file syntax: double-slash = absolute, single-slash = project-relative.** Confirmed from official Claude Code docs; fix validated twice. Worth noting in team-standards.
+- **Lead drift is the dominant failure mode.** The wave's governance meta-event was Lead doing agent work, noticed by the user. The LEAD-DL1 SOP + auto-memory trigger + wave-closure self-audit is the durable mitigation. The test of whether this holds is whether future wave closures show Lead commits touching only category-1-to-6 paths.
+
+### Sample of what users see now
+
+Opening the Sample Methodology page, scrolling past "Analyst Suggestions for Future Work", the user now sees:
+
+> ### Exploratory Insights
+> ℹ️ The following charts were generated as exploratory findings beyond the standard analytical set. Each captures an angle our team found potentially useful. If you find any of these views valuable and would like them included as a standard view for all pairs, let the team know.
+>
+> [hero_spread_vs_spy chart]
+> **What this shows:** A dual-axis 25-year picture of credit-market stress vs the S&P 500…
+> *Analytical note: Dual-axis rendering makes the co-movement visually direct…*
+> ↳ Useful? Let the team know if you'd like this included as a standard view.
+>
+> [spread_history_annotated chart]
+> **What this shows:** The same spread history with crisis episodes labelled inline…
+>
+> [tournament_sharpe_dist chart]
+> **What this shows:** A distribution view of how every candidate strategy performed…
+
+Before this wave, these 3 charts existed on disk under `output/charts/hy_ig_v2_spy/plotly/` but no page rendered them — silent evaporation. VIZ-O1 (disposition mandate) + APP-PT2 (Methodology consumer) closes the class of bug; this is the first pair where the framework ships end-to-end.
+
+---
+
 ## 2026-04-22 — Wave 10G: Sample Ratification + New HY-IG × SPY Dashboard — **COMPLETE**
 
 ### New Features

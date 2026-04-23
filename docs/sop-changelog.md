@@ -8,6 +8,32 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-04-23 — Wave 10H.1 Closure: Chart Governance Framework Shipped End-to-End
+
+**Scope.** No new rules this entry — this records the implementation closure of the rules shipped in Wave 10H (paper SOPs) and Wave 10H.0 (Lead discipline). Purpose: tell future agents the framework is now live.
+
+**Final cloud verify (commit `aca5602`):** 17/17 PASS on all active pairs × 4 pages + landing.
+
+**What agents need to know going forward:**
+
+1. **VIZ-O1 disposition** is now enforced — every `*_meta.json` sidecar in `output/charts/*/plotly/` must carry `disposition: "consumed" | "suggested" | "retired"`. Quincy's `scripts/cloud_verify.py` audits this on active pairs; GATE-28 scope now includes it. Vera writes the field at production time on 3 of 7 pair generators; the other 4 are flagged as `BL-VIZ-SIDECAR-HELPER` for a hygiene wave.
+
+2. **VIZ-E1 exploration zone** is now routable — Vera's `exploratory_charts` entries in `results/{pair_id}/analyst_suggestions.json` auto-render on the Methodology page (for pair pages that use the template). Each entry carries ELI5 `narrative_alignment_note` (blocking requirement) + `vera_rationale`. Feedback loop: users see the section, tell the team which to promote.
+
+3. **APP-PT2 Methodology Exploratory Insights** is live on Sample pair. For pairs using `render_methodology_page()` it is automatic. For the 5 legacy Methodology pages that bypass the template (`BL-APP-PT1-LEGACY`), the helper must be called directly from the page file until migration. This is a silent-regression risk class — agent briefs for any Methodology-page rule addition MUST explicitly list bypass pages requiring defensive direct calls.
+
+4. **Pattern 22 fix** is now canonical — use `query_selector_all(".js-plotly-plot")` on the DOM tree, never `inner_text.count("js-plotly-plot")`. Playwright `page.frames` iteration races Streamlit frame registration; use `wait_for_selector('iframe[title="streamlitApp"]').content_frame()` instead. Codified in qa-agent-sop.md.
+
+5. **LEAD-DL1 is validated in practice.** Wave 10H.1 end-to-end: 3 agent dispatches (Ace, Vera, Quincy) + 1 follow-up Ace dispatch + 1 Quincy re-verify dispatch, zero Lead commits touching agent-owned files post the initial revert. Lead commits in the wave touch only `docs/` + `.claude/settings.json` (infrastructure). Self-audit at closure: `git log --author='Lead' --since='Wave 10H start' --name-only` confirms compliance.
+
+6. **Permissions syntax (infrastructure).** `settings.json` entries targeting absolute paths must use double-slash prefix (`Write(//home/vscode/.claude/agents/**)`). Single-slash is project-relative per Claude Code docs. Fix `b3facc8` validated twice — global-profile writes succeed without prompt on current subagent dispatches.
+
+**Open backlog (Wave 10H.2/10I candidates):** `BL-VIZ-O1-LEGACY` (35 legacy-pair sidecars), `BL-VIZ-SIDECAR-HELPER` (4 generator refactors), `BL-APP-PR1` (path resolution discipline), `BL-APP-PT1-LEGACY` (5-Methodology-page template migration). All bundleable into one hygiene wave.
+
+**Git tag.** `wave-10h1-complete` pinned at `aca5602`.
+
+---
+
 ## 2026-04-22 — Wave 10H.0: Lead Delegation Discipline (LEAD-DL1)
 
 **Scope:** Lead agent only. Affects every future wave's execution-vs-authorship boundary.
