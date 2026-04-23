@@ -71,6 +71,39 @@ ERR_PATS = [
     "NameError", "KeyError", "Error loading page", "Something went wrong",
     "ModuleNotFoundError",
 ]
+
+# Wave 10I.C: APP-SEV1 banner patterns — user-visible error strings rendered by
+# Streamlit components that do NOT raise Python exceptions. These are soft-error
+# strings written by app code (st.error / st.warning / conditional renders) that
+# produce human-visible red banners or fallback text. They are NOT in ERR_PATS
+# because ERR_PATS is for Python exception class names that appear in tracebacks.
+# A page can pass every ERR_PATS check and still show a user-visible red banner.
+#
+# Root cause of the Wave 10I.A false-PASS on dff_ted_spy_strategy:
+#   DOM text contained: "Probability engine panel cannot render: No signals_*.parquet
+#   under /mount/src/aig-rlic-plus/results/dff_ted_spy"
+#   ERR_PATS missed it entirely — "cannot render" is not a Python exception name.
+#   GATE-29 parquet pre-flight was never run — signals_*.parquet was absent from git.
+APP_SEV1_PATS = [
+    "cannot render",           # generic APP-SEV1 L2 banner phrase
+    "panel cannot render",     # Probability Engine Panel error
+    "No signals_",             # missing parquet diagnostic string
+    "parquet not found",       # fallback from signal loader
+    "data problem",            # softcoded fallback in probability panel
+    "no signals parquet found", # lowercase variant in sparkline fallback
+]
+
+# Stub/placeholder patterns that indicate incomplete content — not Python errors
+# but user-visible evidence of missing data or unfinished sections.
+STUB_PATS = [
+    "vs N/A",                  # B&H benchmark not populated (Story KPI block)
+    "Ray leg pending",         # unmerged narrative stub
+    "Signal universe table unavailable",  # Methodology stub
+    "Stationarity tests missing",         # Methodology stub
+    "Total tournament combinations: N/A", # Methodology stub
+    "TODO",                    # generic stub marker
+    "pending RES-",            # pending Ray dispatch
+]
 BREADCRUMB = ["Story", "Evidence", "Strategy", "Methodology"]
 PREFIX_PENDING_RE = re.compile(
     r"(hy_ig_spy_|hy_ig_v2_spy_|indpro_xlp_|umcsent_xlv_|indpro_spy_|permit_spy_|vix_vix3m_spy_)\w+\.json"
@@ -216,9 +249,14 @@ def get_dom(page, url, slug, dom_dir, ss_dir):
 def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
     is_methodology = (page_name == "methodology")
     errs = [p for p in ERR_PATS if p in text]
+    # Wave 10I.C: check APP-SEV1 banner strings — user-visible soft errors that
+    # are NOT Python exceptions and thus never appear in ERR_PATS.
+    text_lower = text.lower()
+    app_sev1_hits = [p for p in APP_SEV1_PATS if p.lower() in text_lower]
+    stub_hits = [p for p in STUB_PATS if p in text]
     breadcrumb_missing = [b for b in BREADCRUMB if b not in text]
     prefix_pending = bool(PREFIX_PENDING_RE.search(text))
-    chart_pending = "chart pending" in text.lower()
+    chart_pending = "chart pending" in text_lower
     dom_ok = len(text) > 200
     # Non-methodology pages must have >=1 plotly container.
     chart_ok = is_methodology or plotly_count >= 1
@@ -273,7 +311,8 @@ def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
         app_tl1_check = {"scope": "n/a", "ok": True}
 
     verdict = "PASS" if (
-        not errs and not breadcrumb_missing and not prefix_pending
+        not errs and not app_sev1_hits and not stub_hits
+        and not breadcrumb_missing and not prefix_pending
         and not chart_pending and dom_ok and chart_ok and app_pt2_ok
         and app_tl1_ok
     ) else "FAIL"
@@ -284,6 +323,8 @@ def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
         "page": page_name,
         "dom_len": len(text),
         "errors": errs,
+        "app_sev1_hits": app_sev1_hits,   # Wave 10I.C: soft-error banners
+        "stub_hits": stub_hits,            # Wave 10I.C: stub/placeholder text
         "breadcrumb_missing": breadcrumb_missing,
         "prefix_pending": prefix_pending,
         "chart_pending_text": chart_pending,
@@ -318,12 +359,58 @@ def check_landing(text):
 # Main
 # ---------------------------------------------------------------------------
 
+def gate29_parquet_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+    """GATE-29 pre-flight: assert signals_*.parquet is committed in git for every pair.
+
+    Wave 10I.C root-cause fix: smoke_loader.py only tests chart JSON loading; it
+    does NOT exercise the Strategy page Probability Engine Panel (APP-SE1), which
+    reads signals_*.parquet at cloud render time. A missing signals_*.parquet will
+    produce a user-visible red banner ("Probability engine panel cannot render:
+    No signals_*.parquet under ...") that passes every ERR_PATS check because
+    it is not a Python exception — it is app-level soft-error text.
+
+    This pre-flight runs BEFORE the browser pass so that a missing parquet is
+    surfaced as a hard FAIL with a clear diagnostic before spending 40s per page
+    loading the browser.
+
+    Returns: list of failure dicts (empty = all pairs pass).
+    """
+    import subprocess
+    failures = []
+    for pair_id in pairs:
+        pattern = f"results/{pair_id}/signals_*.parquet"
+        result = subprocess.run(
+            ["git", "ls-files", pattern],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+        )
+        matched = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+        if not matched:
+            failures.append({
+                "pair_id": pair_id,
+                "gate": "GATE-29",
+                "finding": f"signals_*.parquet not committed for {pair_id}",
+                "detail": (
+                    f"`git ls-files {pattern}` returned empty. "
+                    "Strategy page Probability Engine Panel will render a red banner "
+                    "on Streamlit Cloud. Fix: Evan must produce and commit "
+                    f"results/{pair_id}/signals_<date>.parquet (ECON-DS2)."
+                ),
+            })
+        else:
+            print(f"  GATE-29 PASS {pair_id}: {matched}", flush=True)
+    return failures
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", default=DEFAULT_BASE)
     ap.add_argument("--out", default=None, help="Output dir (default: temp/<ts>_cloud_verify)")
     ap.add_argument("--pairs", default=",".join(FOCUS_PAIRS),
                     help="Comma-separated pair_ids to verify")
+    ap.add_argument("--skip-gate29", action="store_true",
+                    help="Skip GATE-29 parquet pre-flight (use only when explicitly approved)")
     args = ap.parse_args()
 
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -341,6 +428,33 @@ def main():
     print(f"  base: {args.base}", flush=True)
     print(f"  pairs: {pairs}", flush=True)
     print(f"  out: {out_dir}", flush=True)
+
+    # --- GATE-29 pre-flight (Wave 10I.C binding requirement) ---
+    # Run before browser pass. A missing signals_*.parquet means the Strategy
+    # page Probability Engine Panel will show a red APP-SEV1 banner on Cloud.
+    # smoke_loader.py does NOT catch this because it only loads chart JSON.
+    gate29_failures = []
+    if not args.skip_gate29:
+        print("\n[GATE-29 pre-flight] checking signals_*.parquet for all pairs ...", flush=True)
+        gate29_failures = gate29_parquet_preflight(pairs)
+        for f in gate29_failures:
+            print(f"  GATE-29 FAIL {f['pair_id']}: {f['finding']}", flush=True)
+            results.append({
+                "slug": f"{f['pair_id']}_strategy",
+                "pair_id": f["pair_id"],
+                "page": "strategy",
+                "gate": "GATE-29",
+                "verdict": "FAIL",
+                "error": f["detail"],
+            })
+        if gate29_failures:
+            print(
+                f"  *** {len(gate29_failures)} GATE-29 FAIL(s) — Strategy pages for these "
+                "pairs will show APP-SEV1 red banners on Cloud. Fix before browser pass. ***",
+                flush=True,
+            )
+    else:
+        print("\n[GATE-29 pre-flight] SKIPPED (--skip-gate29 flag set)", flush=True)
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True)
@@ -377,6 +491,7 @@ def main():
                 print(
                     f"  verdict={r['verdict']} dom_len={r['dom_len']} "
                     f"charts={r['chart_count']} errs={r['errors']} "
+                    f"sev1={r['app_sev1_hits']} stubs={r['stub_hits']} "
                     f"prefix={r['prefix_pending']} bcmiss={r['breadcrumb_missing']} "
                     f"app_pt2={r['app_pt2_ok']} ({r['app_pt2_note']}) "
                     f"app_tl1={r['app_tl1_check']}",
@@ -404,8 +519,12 @@ def main():
         fh.write(f"cloud_verify {t_start}\n")
         fh.write(f"PASS {summary['pass']}  FAIL {summary['fail']}  TOTAL {summary['total']}\n\n")
         for r in results:
-            fh.write(f"  {r.get('verdict','?'):4}  {r.get('slug'):40}  "
+            sev1 = r.get('app_sev1_hits') or []
+            stubs = r.get('stub_hits') or []
+            fh.write(f"  {r.get('verdict','?'):4}  {r.get('slug','?'):42}  "
                      f"charts={r.get('chart_count','-')}  "
+                     f"sev1={sev1 if sev1 else 'OK'}  "
+                     f"stubs={stubs if stubs else 'OK'}  "
                      f"app_pt2={r.get('app_pt2_ok','-')}\n")
 
     print(f"\n=== SUMMARY: {summary['pass']} PASS / {summary['fail']} FAIL / {summary['total']} TOTAL ===", flush=True)

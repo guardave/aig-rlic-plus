@@ -146,6 +146,23 @@ Result codes:
 - **FAIL** → `acceptance.md` sign-off blocked; producer fixes; QA re-verifies the narrow set of claims that changed.
 - **Lead override** (rare) → Lead writes a rationale block in `docs/pair_execution_history.md` under a new "QA Override Log" section (mirrors the "Force-Redeploy Log" per META-FRD). Override count >1/quarter triggers a retro on QA scope.
 
+## HABIT-QA1 — Binding Post-Verify DOM Reading Rule (added Wave 10I.C, 2026-04-23)
+
+> **A script PASS is necessary but not sufficient for QA sign-off. The script gathers evidence. The judgment is Quincy's. No judgment, no sign-off.**
+
+**Root cause of Wave 10I.A false-PASS:** `scripts/cloud_verify.py` reported 41/41 PASS. The DOM text files it captured contained the string "Probability engine panel cannot render: No signals_*.parquet" on three Strategy pages. The script's `ERR_PATS` did not match this string (it only checks Python exception class names). Quincy did not read the DOM text files. The user found the red banner manually.
+
+**The binding rule.** After EVERY run of `scripts/cloud_verify.py`, before signing off with any PASS verdict:
+
+1. **Open and read** the strategy page DOM text file (`dom_text/<pair_id>_strategy.txt`) for EVERY pair that is new or has changes in this wave. Minimum: 3 files per verify run.
+2. **Scan for** (but do not limit to): "cannot render", "vs N/A", "pending", "unavailable", "N/A" in metric positions, visible warning banners that are not Python exceptions.
+3. **Write one sentence** in `_pws/qa-quincy/session-notes.md`: "I read DOM text for [pages]. I found [nothing / the following]."
+4. Only after step 3 is written does the verify run count as QA-signed.
+
+**What HABIT-QA1 is not.** It does not replace the script. The script now checks `APP_SEV1_PATS` and `STUB_PATS` automatically (Wave 10I.C upgrade). HABIT-QA1 is the human judgment layer on top — because app code can always produce new patterns that the script has not seen. A human read catches the pattern before it is codified.
+
+**Enforcement.** Lead may spot-check compliance by reading `session-notes.md`. Any PASS verdict in session-notes that lacks the HABIT-QA1 sentence is evidence of non-compliance. On first occurrence: PASS-with-note. On recurrence: the wave is re-opened.
+
 ## Anti-Patterns (what QA must NOT do)
 
 - **Never modify producers' artifacts.** Scope separation is core; QA finds, producer fixes. Mixing roles destroys the second-line-of-defense property.
@@ -153,6 +170,7 @@ Result codes:
 - **Never accept "should work" without evidence.** A screenshot of a passing smoke test is evidence. "I ran it and it looked fine" is not.
 - **Never rubber-stamp.** Each wave must produce at least one observation (even a minor PASS-with-note). A wave with zero findings signals that QA wasn't looking.
 - **Never own fixes.** If QA finds a broken chart, the ticket goes to Vera. If QA finds a broken loader, the ticket goes to Ace. QA's contribution is the find, not the fix.
+- **Never sign off on a verify run without reading DOM text (HABIT-QA1).** Script PASS alone is not QA sign-off. The DOM text files are the evidence; reading them is the judgment. Skipping this step is the same failure mode that produced the Wave 10I.A false-PASS.
 
 ## Standard QA Checklist per Wave
 
