@@ -370,3 +370,21 @@ Two real FAILs, byte-identical across 2 cloud reboots → not deploy-lag.
 Proposed APP-PR1 to Lead: mandate `_REPO_ROOT` anchors for all project-relative file reads; require `st.warning`/`st.error` on path-exists-but-unreadable failures of shipped-pair files.
 
 Smoke: both pairs failures=0. CWD-independence regression test added at `temp/260423_ace_wave10h1_followup/`.
+
+## 2026-04-23 — Wave 10H.2 (APP-TL1 structural skeleton)
+
+**Dispatch:** Lead — implement APP-TL1 structure in `app/components/page_templates.py`, stub narrative prose with `# TODO Ray` markers for Ray's serial-follow-on dispatch.
+
+**What I shipped:**
+- Added 4 module-level narrative constants at lines **114, 120, 127, 139** — all stub strings/dicts containing `# TODO Ray` markers with discovery-doc cross-refs.
+- Added `_render_trade_log_block(pair_id, config)` helper at line **1311** implementing the full 9-step APP-TL1 render order + APP-SEV1 L1/L2/L3 branching + unique widget keys.
+- Wired into `render_strategy_page` at line **1149**, replacing the prior ~20-line inline single-download block.
+- Used `getattr(config, "TRADE_LOG_EXAMPLE_MD", "")` / `getattr(config, "TRADE_LOG_COLUMN_EXAMPLES", {})` so no pair config edits needed (Ray's territory). Absence triggers intentional L3 coda.
+
+**Smoke:** `hy_ig_v2_spy` 15/0 PASS; `hy_ig_spy` 6/0 PASS.
+
+**LEAD-DL1 compliance:** touched only Ace-owned file (`page_templates.py`) + cross-agent handoff + PWS/team-status. Zero pair_config, zero pipeline, zero QA script edits.
+
+**Handoff:** `results/_cross_agent/handoff_ace_wave10h2_20260423.md`.
+
+**Lesson (to promote on EOD):** When authoring a "structural skeleton for another agent to fill," bare string literals + `# TODO <agent>` prefix is the cleanest substrate for a downstream `Edit` pass. Avoid composing them from helpers or f-strings — Ray needs a zero-context replace.

@@ -101,6 +101,56 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 # ---------------------------------------------------------------------------
+# APP-TL1 (Wave 10H.2) — Trade Log narrative constants.
+# Ace owns the STRUCTURE below (skeleton, placement, plumbing). Ray owns the
+# PROSE — the four constants below are stubbed with `# TODO Ray` markers and
+# will be replaced in Ray's serial-follow-on dispatch with canonical narrative
+# text authored per APP-TL1 steps 2, 3, 4 and the column-dictionary defaults.
+# Reference copy for Ray lives in the discovery report:
+#   results/_cross_agent/ace_discovery_trade_log_20260423.md §2.1 (disclosure),
+#   §2.2 (two-file model), §2.3 (column glossary), §2.4 (column dict table).
+# Do not merge without Ray's narrative pass.
+# ---------------------------------------------------------------------------
+_TRADE_LOG_DISCLOSURE_MD: str = (
+    "# TODO Ray (Wave 10H.2): simulated-vs-real disclosure paragraph per "
+    "APP-TL1 step 2. See `results/_cross_agent/ace_discovery_trade_log_"
+    "20260423.md` §2.1 for reference text lifted from the Sample legacy page."
+)
+
+_TRADE_LOG_TWO_FILE_MODEL_MD: str = (
+    "# TODO Ray (Wave 10H.2): two-file model explanation per APP-TL1 step 3. "
+    "Plain-English contrast: broker-style (one row per execution) vs. "
+    "researcher position log (one row per position-weight change). Reference "
+    "text in `results/_cross_agent/ace_discovery_trade_log_20260423.md` §2.2."
+)
+
+_TRADE_LOG_COLUMN_GLOSSARY_MD: str = (
+    "# TODO Ray (Wave 10H.2): column glossary per APP-TL1 step 4. Bulleted "
+    "plain-English meaning of each of the 10 canonical broker-style columns. "
+    "Reference text in `results/_cross_agent/ace_discovery_trade_log_"
+    "20260423.md` §2.3."
+)
+
+# 10-row column dictionary defaults for the "How to read this chart" expander
+# (APP-TL1 step 7). Pair configs MAY override per-key via
+# `config.TRADE_LOG_COLUMN_EXAMPLES: dict[str, str]`.
+# Schema per APP-TL1: Column / Type / Meaning / Example.
+# Ray: replace the "TODO Ray" strings in each row with canonical values.
+_TRADE_LOG_COLUMN_DICT_DEFAULTS: dict[str, dict[str, str]] = {
+    "trade_date":     {"type": "date",     "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
+    "side":           {"type": "enum",     "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
+    "instrument":     {"type": "string",   "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
+    "quantity_pct":   {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
+    "price":          {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
+    "notional_usd":   {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
+    "commission_bps": {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
+    "commission_usd": {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
+    "cum_pnl_pct":    {"type": "float",    "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
+    "reason":         {"type": "string",   "meaning": "TODO Ray: meaning", "example": "TODO Ray: example"},
+}
+
+
+# ---------------------------------------------------------------------------
 # MethodologyConfig dataclass — the structured content a pair config must
 # provide for the Methodology page. The rest (signal universe, stationarity
 # tests, analyst suggestions) is read from disk by the template.
@@ -1095,24 +1145,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         )
         st.markdown("---")
         st.markdown("### Trading History")
-        _trade_path = _REPO_ROOT / "results" / pair_id / "winner_trade_log.csv"
-        if _trade_path.exists():
-            trade_df = pd.read_csv(_trade_path)
-            csv_bytes = trade_df.to_csv(index=False)
-            st.download_button(
-                label="Download trading history (CSV)",
-                data=csv_bytes,
-                file_name=f"{pair_id}_winner_trade_log.csv",
-                mime="text/csv",
-            )
-            with st.expander("Preview (first 20 rows)"):
-                st.dataframe(trade_df.head(20), use_container_width=True, hide_index=True)
-        else:
-            st.warning(
-                f"Trade log missing for `{pair_id}` — expected at "
-                f"`results/{pair_id}/winner_trade_log.csv`. Re-run the "
-                "pair pipeline to produce it."
-            )
+        # APP-TL1 (Wave 10H.2): dual-CSV, fixed-order narrative block.
+        _render_trade_log_block(pair_id, config)
 
     # --- Confidence tab ---
     with tab_confidence:
@@ -1269,6 +1303,180 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str) -> None:
         f"**{len(tdf):,} combinations tested** | "
         f"**{len(valid):,} valid** (OOS Sharpe > 0)."
     )
+
+
+# ---------------------------------------------------------------------------
+# APP-TL1 (Wave 10H.2) — Trade Log block helper.
+# ---------------------------------------------------------------------------
+def _render_trade_log_block(pair_id: str, config: Any) -> None:
+    """Render the APP-TL1 Trading History block for ``pair_id``.
+
+    Structural scaffold authored by Ace (Wave 10H.2). Narrative prose is
+    sourced from module-level constants (``_TRADE_LOG_DISCLOSURE_MD``,
+    ``_TRADE_LOG_TWO_FILE_MODEL_MD``, ``_TRADE_LOG_COLUMN_GLOSSARY_MD``,
+    ``_TRADE_LOG_COLUMN_DICT_DEFAULTS``) and from the pair config's
+    ``TRADE_LOG_EXAMPLE_MD`` / ``TRADE_LOG_COLUMN_EXAMPLES`` fields — all
+    Ray-authored. Ace does NOT write prose here; Ace wires the structure.
+
+    APP-SEV1 severity branching:
+      - Both CSVs missing                    → L1 (``st.error`` + short-circuit)
+      - One CSV missing                      → L2 (``st.info`` + degraded render)
+      - Either CSV present but malformed     → L2 (``st.warning``)
+      - ``TRADE_LOG_EXAMPLE_MD`` absent      → L3 (``st.caption`` coda)
+
+    See Rule APP-TL1 in ``docs/agent-sops/appdev-agent-sop.md``.
+    """
+    results_dir = _REPO_ROOT / "results" / pair_id
+    broker_path = results_dir / "winner_trades_broker_style.csv"
+    pos_path = results_dir / "winner_trade_log.csv"
+
+    broker_exists = broker_path.exists()
+    pos_exists = pos_path.exists()
+
+    # L1: both CSVs missing → error + short-circuit
+    if not broker_exists and not pos_exists:
+        st.error(
+            f"Trade logs missing for `{pair_id}` — expected both "
+            f"`results/{pair_id}/winner_trades_broker_style.csv` and "
+            f"`results/{pair_id}/winner_trade_log.csv`. "
+            "Re-run the pair pipeline to produce them (APP-TL1 / APP-SEV1 L1)."
+        )
+        return
+
+    # Attempt to load each CSV; capture parse errors as L2 warnings.
+    broker_df: pd.DataFrame | None = None
+    broker_err: str | None = None
+    if broker_exists:
+        try:
+            broker_df = pd.read_csv(broker_path, comment="#")
+        except Exception as exc:  # pragma: no cover — surfaces as L2
+            broker_err = f"{type(exc).__name__}: {exc}"
+
+    pos_df: pd.DataFrame | None = None
+    pos_err: str | None = None
+    if pos_exists:
+        try:
+            pos_df = pd.read_csv(pos_path)
+        except Exception as exc:  # pragma: no cover — surfaces as L2
+            pos_err = f"{type(exc).__name__}: {exc}"
+
+    # ---- Step 1: heading ----
+    st.markdown("### How to Read the Trade Log")
+
+    # ---- Step 2: simulated-vs-real disclosure (Ray stub) ----
+    st.markdown(_TRADE_LOG_DISCLOSURE_MD)
+
+    # ---- Step 3: two-file model explanation (Ray stub) ----
+    st.markdown(_TRADE_LOG_TWO_FILE_MODEL_MD)
+
+    # ---- Step 4: column glossary (Ray stub) ----
+    st.markdown(_TRADE_LOG_COLUMN_GLOSSARY_MD)
+
+    # ---- Step 5: pair-specific concrete example (Ray-authored via config) ----
+    example_md = getattr(config, "TRADE_LOG_EXAMPLE_MD", "") or ""
+    if example_md.strip():
+        with st.container(border=True):
+            st.markdown(example_md)
+    else:
+        # L3 caption coda — APP-SEV1
+        st.caption(
+            f"Pair-specific trade-log example missing for `{pair_id}`. "
+            "Add `TRADE_LOG_EXAMPLE_MD` to the pair config "
+            f"(`app/pair_configs/{pair_id}_config.py`) per APP-TL1 step 5."
+        )
+
+    # ---- Step 6: sub-heading ----
+    st.markdown("#### Download Trading History")
+
+    # ---- Step 7: column-dictionary expander ----
+    # Merge pair-specific overrides on top of canonical defaults.
+    col_overrides: dict[str, str] = getattr(config, "TRADE_LOG_COLUMN_EXAMPLES", {}) or {}
+    table_lines = ["| Column | Type | Meaning | Example |", "|---|---|---|---|"]
+    for col_name, row in _TRADE_LOG_COLUMN_DICT_DEFAULTS.items():
+        example_val = col_overrides.get(col_name, row.get("example", ""))
+        table_lines.append(
+            f"| `{col_name}` | {row.get('type', '')} | "
+            f"{row.get('meaning', '')} | {example_val} |"
+        )
+    with st.expander("How to read this chart"):
+        st.markdown("\n".join(table_lines))
+
+    # ---- Step 8: two-column download layout ----
+    left, right = st.columns(2)
+
+    with left:
+        if broker_df is not None:
+            csv_bytes = broker_df.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label="Download trade log (broker-style)",
+                data=csv_bytes,
+                file_name=f"{pair_id}_winner_trades_broker_style.csv",
+                mime="text/csv",
+                type="primary",
+                key=f"tl_dl_broker_{pair_id}",
+            )
+            st.caption(f"{len(broker_df):,} executions, one row per trade")
+        elif broker_err is not None:
+            # L2 — malformed broker-style CSV
+            st.warning(
+                f"Broker-style log unreadable for `{pair_id}` ({broker_err}). "
+                "Position log still available on the right (APP-SEV1 L2)."
+            )
+        else:
+            # L2 — missing broker-style CSV (position log present)
+            st.info(
+                f"Broker-style log missing for `{pair_id}` — expected at "
+                f"`results/{pair_id}/winner_trades_broker_style.csv`. "
+                "Re-run the pair pipeline to produce it (APP-SEV1 L2)."
+            )
+
+    with right:
+        if pos_df is not None:
+            csv_bytes = pos_df.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label="Download position log (researcher)",
+                data=csv_bytes,
+                file_name=f"{pair_id}_winner_trade_log.csv",
+                mime="text/csv",
+                key=f"tl_dl_position_{pair_id}",
+            )
+            st.caption(f"{len(pos_df):,} position-weight change rows")
+        elif pos_err is not None:
+            st.warning(
+                f"Position log unreadable for `{pair_id}` ({pos_err}). "
+                "Broker-style log still available on the left (APP-SEV1 L2)."
+            )
+        else:
+            st.info(
+                f"Position log missing for `{pair_id}` — expected at "
+                f"`results/{pair_id}/winner_trade_log.csv`. "
+                "Re-run the pair pipeline to produce it (APP-SEV1 L2)."
+            )
+
+    # ---- Step 9: always-visible 10-row preview of broker-style log ----
+    if broker_df is not None:
+        st.markdown("**Broker-style log — first 10 executions:**")
+        st.dataframe(
+            broker_df.head(10),
+            use_container_width=True,
+            hide_index=True,
+        )
+        st.caption(
+            "Each row is a single scale-up or scale-down execution of the "
+            "winning strategy (simulated)."
+        )
+    elif pos_df is not None:
+        # Degraded preview: show position log when broker-style is unavailable.
+        st.markdown("**Position log — first 10 rows (degraded preview):**")
+        st.dataframe(
+            pos_df.head(10),
+            use_container_width=True,
+            hide_index=True,
+        )
+        st.caption(
+            "Each row represents a position-weight change in the researcher "
+            "view (broker-style executions unavailable)."
+        )
 
 
 # ---------------------------------------------------------------------------

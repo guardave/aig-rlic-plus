@@ -327,3 +327,16 @@ No residual FAILs, no deferred QA items from this wave.
 - Two items flagged to Dana: per-pair data dictionaries missing; `commission_bps` absent from `winner_summary.json` (defaulted 5 bps).
 - Handoff: `results/_cross_agent/handoff_evan_wave10h2_20260423.md`.
 - Ace unblocked on template-side APP-TL1 rollout for these two pairs.
+
+## 2026-04-23 — Wave 10H.2 [Ace] APP-TL1 structural skeleton LANDED
+
+**Status:** READY FOR RAY (narrative fill).
+
+- `app/components/page_templates.py`:
+  - 4 narrative constants (stubs with `# TODO Ray`) at lines 114, 120, 127, 139.
+  - New helper `_render_trade_log_block(pair_id, config)` at line 1311 — 9-step APP-TL1 render order, APP-SEV1 L1/L2/L3 branching, unique widget keys, `_REPO_ROOT` path resolution, dual-CSV loading with `comment="#"` on broker-style.
+  - Wired into `render_strategy_page` at line 1149 (replaces prior inline block).
+- Config anchors read via `getattr` defaults — **no pair_config edits made** (Ray's territory).
+- Smoke: hy_ig_v2_spy 15/0 PASS, hy_ig_spy 6/0 PASS. Strategy page will show visible `TODO Ray` placeholders until Ray's pass — expected.
+- Handoff: `results/_cross_agent/handoff_ace_wave10h2_20260423.md` (includes exact line numbers + per-constant Ray assignments).
+- Awaiting: Ray narrative fill (4 constants + 3 pair_config `TRADE_LOG_EXAMPLE_MD` fields); Quincy cloud verify last.
