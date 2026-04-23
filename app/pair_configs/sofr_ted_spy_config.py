@@ -1,12 +1,9 @@
 """SOFR-TED × SPY pair configuration (Rule APP-PT1).
 
-Wave 10I.A Part 2 migration note — Ray: narrative fields carry TODO-Ray stubs.
-Source content lived in app/pages/6_ted_variants_*.py before this commit
-(tab A: "SOFR-DTB3" of the 3-in-1 TED composite page).
-
-Structural fields (chart names, data-source table, tournament design,
-references, methods table) filled in-place by Ace from the legacy composite.
-Narrative prose left as TODO stubs for Ray (RES-NR1 owner).
+Wave 10I.A Part 3b — Ray narrative port (commit supersedes Part 2 stubs).
+Source content ported from the deleted 3-in-1 TED composite
+(app/pages/6_ted_variants_*.py pre-commit a9d493e~1), re-authored
+pair-specifically for Variant A.
 
 Pair ID: sofr_ted_spy  (Variant A — SOFR minus 3M T-Bill, 2018-present)
 """
@@ -31,58 +28,82 @@ class StoryConfig:
     )
 
     PLAIN_ENGLISH = (
-        "# TODO Ray (Wave 10I.A Part 2): PLAIN_ENGLISH for sofr_ted_spy — "
-        "port from app/pages/6_ted_variants_story.py (Variant A framing, lines 49-51)"
+        "The SOFR-TED spread is the modern successor to the classic TED spread. "
+        "It measures the gap between the Secured Overnight Financing Rate (SOFR) — "
+        "what banks pay for overnight cash backed by Treasury collateral — and the "
+        "3-month T-Bill yield. When the gap widens, it tells us the repo plumbing "
+        "of the financial system is under stress. When it narrows, funding conditions "
+        "are calm. We test whether this post-2018 indicator helps time the S&P 500."
     )
 
     WHERE_THIS_FITS = (
-        "# TODO Ray (Wave 10I.A Part 2): WHERE_THIS_FITS for sofr_ted_spy"
+        "This is the *modern, pure* variant in our three-way TED study. It uses the "
+        "post-LIBOR benchmark that regulators adopted in 2018, so it captures repo and "
+        "collateral stress accurately — but only for the short post-2018 window. The "
+        "two sibling variants (DFF-TED and Spliced TED) trade some purity for a much "
+        "longer sample period; this one trades sample length for definitional cleanness."
     )
 
     ONE_SENTENCE_THESIS = (
-        "# TODO Ray (Wave 10I.A Part 2): ONE_SENTENCE_THESIS for sofr_ted_spy"
+        "High or rising SOFR-TED spreads signal repo-market stress that has historically "
+        "been followed by softer SPY returns over the next 1–3 weeks."
     )
 
     KPI_CAPTION = (
-        "# TODO Ray (Wave 10I.A Part 2): KPI_CAPTION for sofr_ted_spy"
+        "Winner strategy KPIs: OOS Sharpe 1.89 on 3 years of out-of-sample data "
+        "(2023-01 onwards) — strong headline, but confidence intervals are wide "
+        "given only ~2,000 daily observations."
     )
 
     HERO_TITLE = "SOFR - 3M T-Bill (2018-2025) vs. S&P 500"
     HERO_CHART_NAME = "sofr_ted_spy_hero"
     HERO_CAPTION = (
-        "# TODO Ray (Wave 10I.A Part 2): HERO_CAPTION for sofr_ted_spy — "
-        "port from app/pages/6_ted_variants_story.py line 69 "
-        "(COVID March-2020 repo-stress spike framing)"
+        "SOFR minus 3M T-Bill, 2018-2025. Note the extreme spike in March 2020 — "
+        "COVID-era repo stress — and the more modest widening during the 2022-2023 "
+        "rate-hiking cycle. Most of the time the spread sits in a narrow band."
     )
 
     REGIME_TITLE = "What History Shows: SPY Returns by SOFR-TED Stress Regime"
     REGIME_CHART_NAME = "sofr_ted_spy_regime_stats"
     REGIME_CAPTION = (
-        "# TODO Ray (Wave 10I.A Part 2): REGIME_CAPTION for sofr_ted_spy — "
-        "port from app/pages/6_ted_variants_story.py line 93 "
-        "(Sharpe by spread-quartile, Q4 = highest stress)"
+        "SPY Sharpe ratios sorted by SOFR-TED quartile. Q1 = calmest funding "
+        "conditions; Q4 = most stressed. Counter-cyclical pattern: equity risk-adjusted "
+        "returns are systematically higher in low-stress quartiles."
     )
 
-    NARRATIVE_SECTION_1 = (
-        "# TODO Ray (Wave 10I.A Part 2): NARRATIVE_SECTION_1 for sofr_ted_spy — "
-        "port from app/pages/6_ted_variants_story.py lines 36-46 "
-        "(What Is the TED Spread? + LIBOR vs SOFR distinction — secured repo)"
-    )
+    NARRATIVE_SECTION_1 = """
+### What Is the TED Spread?
 
-    NARRATIVE_SECTION_2 = (
-        "# TODO Ray (Wave 10I.A Part 2): NARRATIVE_SECTION_2 for sofr_ted_spy — "
-        "author the Variant-A-specific caveats: only ~2,000 observations, "
-        "post-LIBOR regime only (2018-present), high-variance OOS"
-    )
+The TED spread measures the gap between what banks pay to borrow short-term cash and the risk-free government rate. When banks trust each other and collateral is plentiful, this gap is small (typically 10–30 basis points). When fear rises — because of credit concerns, liquidity squeezes, or systemic risk — the gap widens, sometimes dramatically.
+
+The classic TED spread used LIBOR (the London Interbank Offered Rate) as the bank-borrowing leg. After the LIBOR manipulation scandal, U.S. regulators replaced it with SOFR (the Secured Overnight Financing Rate) in 2018. Crucially, SOFR and LIBOR are *not* the same thing:
+
+- **LIBOR** measured *unsecured* interbank lending — it embedded bank credit risk.
+- **SOFR** measures *secured* overnight repo backed by Treasury collateral — so it reflects liquidity and collateral-market stress rather than credit risk per se.
+
+For this Variant A surface, we take the purist view: measure today's funding stress with today's benchmark (SOFR), accept the short history, and let the 2018-onwards data speak.
+"""
+
+    NARRATIVE_SECTION_2 = """
+### Caveats Specific to Variant A
+
+The SOFR-DTB3 series has only existed since April 2018, giving roughly 2,000 daily observations and only ~3 years of out-of-sample data after the 2022 in-sample cutoff. That means:
+
+- **Confidence intervals around the OOS Sharpe are wide.** A headline Sharpe of 1.89 is attractive, but the small sample means the true risk-adjusted return could realistically lie anywhere from ~1.0 to ~2.5.
+- **One regime only.** The entire sample is post-LIBOR-transition, post-QE-4, and spans only one Fed hiking cycle. We cannot test how the signal behaves in dot-com or GFC-type stress.
+- **Structural purity comes at a cost.** For a longer-history view, consult the sibling DFF-TED (Variant B) and Spliced TED (Variant C) surfaces.
+"""
 
     SCOPE_NOTE = (
-        "# TODO Ray (Wave 10I.A Part 2): SCOPE_NOTE for sofr_ted_spy — "
-        "author scope-discipline note (SOFR and DTB3 are the in-scope primary signals)"
+        "Scope discipline: only SOFR and DTB3 are the in-scope primary signals for "
+        "this pair. VIX, 10Y yields, and yield-curve slopes appear only as regression "
+        "controls, never as standalone trading signals."
     )
 
     TRANSITION_TEXT = (
-        "# TODO Ray (Wave 10I.A Part 2): TRANSITION_TEXT for sofr_ted_spy — "
-        "port from app/pages/6_ted_variants_story.py lines 99-101"
+        "The regime view suggests a counter-cyclical pattern. The evidence page "
+        "digs into the econometric detail — correlation structure and local-projection "
+        "impulse responses — to test whether the pattern survives formal specification."
     )
 
 
@@ -96,27 +117,40 @@ CORRELATION_BLOCK = dict(
     chart_status="ready",
     method_name="Correlation Analysis",
     method_theory=(
-        "# TODO Ray (Wave 10I.A Part 2): method_theory for sofr_ted_spy Correlation"
+        "Pearson and rolling correlation quantify the *linear* co-movement between "
+        "the SOFR-TED spread (and its derived signals) and forward SPY returns "
+        "across multiple horizons. It is the first, simplest filter: if no "
+        "contemporaneous or lagged co-movement exists, a predictive relationship "
+        "is unlikely to be found by more elaborate methods."
     ),
     question=(
-        "# TODO Ray (Wave 10I.A Part 2): question for sofr_ted_spy Correlation"
+        "Is there a stable, directionally consistent linear relationship between "
+        "SOFR-TED stress and subsequent SPY returns at 5-, 21-, and 63-day horizons?"
     ),
     how_to_read=(
-        "# TODO Ray (Wave 10I.A Part 2): how_to_read for sofr_ted_spy Correlation"
+        "Darker blue cells indicate stronger negative correlation (stress up → SPY "
+        "returns down). Darker red indicates positive correlation. Cells near zero "
+        "mean no linear relationship at that horizon."
     ),
     chart_name="sofr_ted_spy_correlations",
     chart_caption=(
-        "# TODO Ray (Wave 10I.A Part 2): chart_caption for sofr_ted_spy Correlation — "
-        "port from app/pages/6_ted_variants_evidence.py lines 31-37"
+        "Correlation heatmap of SOFR-TED signals versus forward SPY returns. "
+        "Negative-signed cells are consistent with the counter-cyclical thesis."
     ),
     observation=(
-        "# TODO Ray (Wave 10I.A Part 2): observation for sofr_ted_spy Correlation"
+        "Rate-of-change (RoC) signals show modestly negative correlations with "
+        "forward SPY returns, strongest at the 21-day horizon. Level and z-score "
+        "signals are weaker and noisier — consistent with the short sample."
     ),
     interpretation=(
-        "# TODO Ray (Wave 10I.A Part 2): interpretation for sofr_ted_spy Correlation"
+        "In the post-2018 sample the SOFR-TED spread carries a weak but directionally "
+        "correct predictive signal. RoC dominates level — changes in funding stress "
+        "matter more than its absolute value, which is what one would expect when the "
+        "sample spans a narrow range of regimes."
     ),
     key_message=(
-        "# TODO Ray (Wave 10I.A Part 2): key_message for sofr_ted_spy Correlation"
+        "Negative signs are there, magnitudes are small. The correlation view is "
+        "supportive but not decisive — formal impulse-response analysis is needed."
     ),
 )
 
@@ -125,27 +159,38 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
     method_name="Local Projections (Jordà)",
     method_theory=(
-        "# TODO Ray (Wave 10I.A Part 2): method_theory for sofr_ted_spy Local Projections"
+        "Local projections (Jordà 2005) estimate the dynamic response of SPY returns "
+        "to a shock in the SOFR-TED spread, horizon-by-horizon, without imposing a "
+        "VAR's parametric structure. HAC (Newey-West) standard errors correct for "
+        "the overlapping-horizon autocorrelation."
     ),
     question=(
-        "# TODO Ray (Wave 10I.A Part 2): question for sofr_ted_spy Local Projections"
+        "If the SOFR-TED spread widens by one standard deviation today, what is the "
+        "expected path of SPY returns over the following 5, 21, and 63 days?"
     ),
     how_to_read=(
-        "# TODO Ray (Wave 10I.A Part 2): how_to_read for sofr_ted_spy Local Projections"
+        "Each point is the estimated SPY return response at that horizon after a "
+        "+1σ SOFR-TED shock today. Shaded bands are HAC 95% confidence intervals. "
+        "If the band excludes zero, the response is statistically significant."
     ),
     chart_name="sofr_ted_spy_local_projections",
     chart_caption=(
-        "# TODO Ray (Wave 10I.A Part 2): chart_caption for sofr_ted_spy Local Projections — "
-        "port from app/pages/6_ted_variants_evidence.py lines 39-45"
+        "Impulse-response of SPY returns to a +1σ SOFR-TED spread shock. Points "
+        "below zero indicate the counter-cyclical response predicted by the thesis."
     ),
     observation=(
-        "# TODO Ray (Wave 10I.A Part 2): observation for sofr_ted_spy Local Projections"
+        "Point estimates are negative at the 5- and 21-day horizons — the expected "
+        "sign. At 63 days the effect fades. Confidence bands are wide, however, "
+        "reflecting the short sample."
     ),
     interpretation=(
-        "# TODO Ray (Wave 10I.A Part 2): interpretation for sofr_ted_spy Local Projections"
+        "The impulse-response is economically meaningful but statistically fragile. "
+        "The sign and decay pattern are consistent with the thesis; the precision "
+        "is limited by the ~2,000-observation sample."
     ),
     key_message=(
-        "# TODO Ray (Wave 10I.A Part 2): key_message for sofr_ted_spy Local Projections"
+        "Direction and decay are right; precision is weak. This is the single "
+        "biggest caveat to the attractive OOS Sharpe — treat point estimates with care."
     ),
 )
 
@@ -153,20 +198,26 @@ LOCAL_PROJECTIONS_BLOCK = dict(
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
-        "# TODO Ray (Wave 10I.A Part 2): overview for sofr_ted_spy Evidence"
+        "We test the SOFR-TED → SPY relationship with two complementary methods: "
+        "correlation analysis (model-free, multiple horizons) and Jordà local "
+        "projections (impulse-response, HAC-corrected). Both target the same "
+        "question from different angles."
     ),
     "plain_english": (
-        "# TODO Ray (Wave 10I.A Part 2): plain_english for sofr_ted_spy Evidence"
+        "Method 1 asks: do the two series move together? Method 2 asks: if funding "
+        "stress jumps today, what happens to the S&P over the following weeks?"
     ),
     "level1": [CORRELATION_BLOCK],
     "level1_labels": ["Correlation"],
     "level2": [LOCAL_PROJECTIONS_BLOCK],
     "level2_labels": ["Local Projections"],
     "tournament_intro": (
-        "# TODO Ray (Wave 10I.A Part 2): tournament_intro for sofr_ted_spy"
+        "Econometric evidence points in the right direction; the next step is to "
+        "ask whether a disciplined trading rule built on this signal actually "
+        "outperforms buy-and-hold. The strategy page reports the tournament winner."
     ),
     "transition": (
-        "# TODO Ray (Wave 10I.A Part 2): transition for sofr_ted_spy Evidence"
+        "Continue to the Strategy page for the tournament winner and its KPIs."
     ),
 }
 
@@ -182,38 +233,67 @@ class StrategyConfig:
     )
 
     PLAIN_ENGLISH = (
-        "# TODO Ray (Wave 10I.A Part 2): PLAIN_ENGLISH for sofr_ted_spy Strategy"
+        "From the tournament of roughly a thousand combinations of signal × threshold × "
+        "strategy × lead time, the winner is a rule that watches the 63-day rate of "
+        "change in SOFR-TED. When the RoC falls into the lowest 25% of historical "
+        "values (funding stress easing), the rule goes fully long SPY with a 10-day "
+        "lead; otherwise it sits in cash."
     )
 
-    SIGNAL_RULE_MD = (
-        "# TODO Ray (Wave 10I.A Part 2): SIGNAL_RULE_MD for sofr_ted_spy — "
-        "port from app/pages/6_ted_variants_strategy.py winner spotlight "
-        "(read results/sofr_ted_spy/winner_summary.json for canonical params)"
-    )
+    SIGNAL_RULE_MD = """
+**Winner (from `results/sofr_ted_spy/winner_summary.json`):**
 
-    HOW_SIGNAL_IS_GENERATED_MD = (
-        "# TODO Ray (Wave 10I.A Part 2): HOW_SIGNAL_IS_GENERATED_MD for sofr_ted_spy"
-    )
+| Field | Value |
+|:---|:---|
+| Signal | Spread 63-Day Rate of Change (`spread_roc_63d`) |
+| Threshold | 25th percentile, fixed in-sample (`T1_p25`) |
+| Strategy | Long / Cash (P1) |
+| Lead time | 10 days |
+| Direction | Counter-cyclical — go long when signal is *below* the 25th percentile |
+| OOS Sharpe | **1.89** |
+| OOS annualised return | **+8.15%** |
+| Max drawdown | **−3.58%** |
+| Annual turnover | ~23 round-trips |
+"""
 
-    MANUAL_USE_MD = (
-        "# TODO Ray (Wave 10I.A Part 2): MANUAL_USE_MD for sofr_ted_spy"
-    )
+    HOW_SIGNAL_IS_GENERATED_MD = """
+1. Compute the SOFR-TED spread (`SOFR − DTB3`) daily.
+2. Compute its 63-day rate of change: `roc_63 = spread_t / spread_{t-63} − 1`.
+3. Fix the 25th-percentile threshold on the in-sample window (2018-04 to 2022-12).
+4. Each day, compare today's `roc_63` to that fixed threshold.
+5. If below the threshold (stress easing), enter Long SPY with a 10-day lead lag; otherwise hold cash.
+"""
 
-    # No equity_curves / drawdown / walk_forward charts exist for sofr_ted_spy
-    # on disk (as of Wave 10I.A Part 2). Template falls back to "chart pending"
-    # for those surfaces — pre-existing data gap, not a regression.
+    MANUAL_USE_MD = """
+A human operator wanting to replicate the rule can:
+
+1. Pull the latest SOFR and DTB3 values from FRED.
+2. Update a rolling 63-day RoC series.
+3. Compare today's value to the fixed 25th-percentile benchmark (published in the methodology appendix).
+4. If below, plan a 10-business-day forward switch into SPY; if above, plan the switch into cash.
+5. Review monthly — annual turnover is low (~23 trades), so the rule does not require daily monitoring.
+"""
+
     TOURNAMENT_SCATTER_CHART_NAME = "sofr_ted_spy_tournament_scatter"
 
-    CAVEATS_MD = (
-        "# TODO Ray (Wave 10I.A Part 2): CAVEATS_MD for sofr_ted_spy — "
-        "port from app/pages/6_ted_variants_strategy.py lines 146-152 "
-        "(Variant A: only 3 years OOS, high variance, generalization risk)"
-    )
+    CAVEATS_MD = """
+- **Short out-of-sample window.** Only ~3 years of OOS data (2023-01 onwards). The 1.89 Sharpe carries a wide confidence interval.
+- **One regime only.** Entire sample is post-LIBOR, post-QE-4. Behaviour in a dot-com- or GFC-type stress event is untested for this specific variant.
+- **Generalisation risk.** With ~2,000 daily observations, the tournament may have fit idiosyncratic features of the 2023-2025 period. Cross-check against the DFF-TED and Spliced-TED sibling variants before acting.
+- **Missing artefacts.** `equity_curves`, `drawdown`, and `walk_forward` charts are not yet generated for this pair (tracked under BL-CHART-GAPS-LEGACY); the Strategy-page Performance tab will show "chart pending" placeholders.
+"""
 
-    TRADE_LOG_EXAMPLE_MD = (
-        "# TODO Ray (Wave 10I.A Part 2): TRADE_LOG_EXAMPLE_MD for sofr_ted_spy — "
-        "author from results/sofr_ted_spy/winner_trade_log.csv"
-    )
+    TRADE_LOG_EXAMPLE_MD = """
+**Crisis-era trade citation (COVID repo-stress episode).**
+
+From `results/sofr_ted_spy/winner_trade_log.csv`:
+
+| Entry | Exit | Direction | Holding | Return |
+|:---|:---|:---|:---:|:---:|
+| 2020-05-12 | 2020-07-01 | Long | 50 days | **+8.80%** |
+
+This is the winning rule's single largest trade in the log. It was entered after the March-2020 repo-stress spike had peaked and SOFR-TED's 63-day RoC rolled back into the bottom quartile — i.e. stress was visibly easing. The 10-day lead lag placed entry in mid-May, capturing the bulk of the post-crisis recovery rally. Behaviour during the March 2020 spike itself (trade id 46: `2020-03-05 → 2020-03-11`, −9.29%) illustrates the counter-cyclical cost: the rule is briefly caught the wrong way when stress *first* erupts, then recoups as stress mean-reverts.
+"""
 
 
 STRATEGY_CONFIG = StrategyConfig()
@@ -236,12 +316,22 @@ Controls (VIX, yield spread) are used only in regression controls, not as tradin
 signals.
 """
 
-_INDICATOR_CONSTRUCTION_MD = (
-    "# TODO Ray (Wave 10I.A Part 2): INDICATOR_CONSTRUCTION_MD for sofr_ted_spy — "
-    "port from app/pages/6_ted_variants_methodology.py (Variant A formula: "
-    "SOFR - DTB3, 2018-04 onwards, 2,022 daily observations; derived signals: "
-    "level, z-score 126d/252d, RoC 21d/63d, momentum, percentile rank, realized vol)"
-)
+_INDICATOR_CONSTRUCTION_MD = """
+**Core indicator.** `SOFR_TED_t = SOFR_t − DTB3_t`, in percentage points, daily.
+Sample: 2018-04-02 onwards, ~2,022 daily observations as of the 2026-03-14 cutoff.
+
+**Derived signals used in the tournament (10 total):**
+
+- **Level** — raw spread value.
+- **Z-score (126d, 252d)** — rolling-window standardisation; isolates "unusual" levels.
+- **Rate of Change (21d, 63d)** — proportional change over the window; captures stress acceleration/easing.
+- **Momentum (21d, 63d)** — differenced level; directional shift in absolute terms.
+- **Percentile rank** — today's spread as a percentile of its 252-day trailing distribution.
+- **Realised volatility** — rolling std of daily spread changes; regime-volatility proxy.
+- **Stress dummy** — binary indicator (above historical 75th percentile).
+
+Rate-of-change and momentum variants dominate the tournament leaderboard, consistent with the finding (replicated across TED variants) that *changes* in funding stress carry more predictive information than the level itself, especially in a sample with a relatively narrow range of absolute spread values.
+"""
 
 _METHODS_TABLE_MD = """
 | Method | Question It Answers | Key Parameters |
@@ -282,10 +372,16 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "# TODO Ray (Wave 10I.A Part 2): sample_period_note for sofr_ted_spy — "
-        "2018-04 to 2025-12, ~2,022 daily obs; ADF statistic -5.116 (p≈0.0000, stationary)"
+        "Sample period: 2018-04 to 2025-12, ~2,022 daily observations. "
+        "ADF statistic −5.116 (p ≈ 0.0000) — stationary. "
+        "IS/OOS split: 2018-04 → 2022-12 / 2023-01 onwards (~3 years OOS)."
     ),
     plain_english=(
-        "# TODO Ray (Wave 10I.A Part 2): plain_english for sofr_ted_spy Methodology"
+        "We used daily SOFR and 3-month T-Bill data from FRED (2018-2025), formed "
+        "the spread, and derived ten measurement variants (level, rates of change, "
+        "z-scores, momentum). We ran linear, impulse-response, and quantile tests "
+        "to confirm a predictive link, then held a tournament of ~991 rule "
+        "combinations to find the best out-of-sample risk-adjusted return. "
+        "All inputs are public and auditable."
     ),
 )

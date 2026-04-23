@@ -1,5 +1,27 @@
 # Team Status Board
 
+## 2026-04-23 — Research Ray (Wave 10I.A Part 3b — TED variants narrative port COMPLETE)
+
+**Status:** 3 TED pair configs fully narrative-populated. 111/111 TODO-Ray stubs replaced.
+
+**Shipped:**
+- `app/pair_configs/sofr_ted_spy_config.py` — 37 stubs filled.
+- `app/pair_configs/dff_ted_spy_config.py` — 37 stubs filled.
+- `app/pair_configs/ted_spliced_spy_config.py` — 37 stubs filled.
+- Handoff: `results/_cross_agent/handoff_ray_wave10i_partB_20260423.md`.
+
+**Smoke (all PASS):** sofr_ted_spy 3/0, dff_ted_spy 3/0, ted_spliced_spy 3/0.
+
+**KPI verification:** all prose numbers reconcile with each pair's `winner_summary.json` (SOFR Sharpe 1.89 / DFF 0.97 / Spliced 1.19). Crisis-trade citations sourced from `winner_trade_log.csv` — no trade-example gaps.
+
+**Narrative discipline:** each variant framed on its own merits — Variant A (SOFR, modern purist, short sample), Variant B (DFF, long-history proxy, most conservative), Variant C (Spliced, extended continuity with affine-adjustment structural assumption). No paraphrase-copies across siblings.
+
+**Ready for Quincy cloud verify:** 12 exploded TED pages now render full pair-specific prose. Remaining chart-gap placeholders (equity_curves/drawdown/walk_forward) are tracked under `BL-CHART-GAPS-LEGACY` and explicitly flagged inside each `CAVEATS_MD`.
+
+**Scope discipline:** touched only 3 configs + handoff + PWS/status-board. No template, page, component, script, SOP, or result-artifact writes. META-AM clean.
+
+---
+
 ## 2026-04-23 — Dev Ace (Wave 10I.A Part 1 — 4 legacy-pair migrations COMPLETE)
 
 **Status:** 4 of 5 non-Sample legacy pair surfaces migrated to APP-PT1 thin-wrapper pattern. TED composite explode is separate Ace-B dispatch.

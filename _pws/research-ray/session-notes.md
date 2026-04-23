@@ -11,6 +11,16 @@ This is Ray's ephemeral session journal for the AIG-RLIC+ project. Timeless patt
 
 ## Session Timeline
 
+### 2026-04-23 — Wave 10I.A Part 3b (TED variants narrative port)
+- Filled 111/111 TODO-Ray stubs across 3 TED pair configs (`sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy`), 37 stubs each.
+- Source retrieval: `git show a9d493e~1:app/pages/6_ted_variants_*.py` per Ace handoff.
+- KPI verification: all prose numbers cross-checked against each pair's `results/{pid}/winner_summary.json`. SOFR 1.89 / DFF 0.97 / Spliced 1.19 confirmed.
+- Crisis-trade citations: SOFR → COVID recovery trade (+8.8%, largest in log), DFF → GFC Oct-2008 (+10.5%), Spliced → late-Oct-2008 (+10.1%, on pre-splice authentic TEDRATE portion).
+- Narrative distribution honours "don't conflate variants" discipline: each variant frames its own purpose (SOFR = modern purist short sample, DFF = long-history proxy, Spliced = continuity with structural assumption). Cross-references in `WHERE_THIS_FITS` orient readers comparing siblings.
+- All 3 smoke tests `passes=3 failures=0`.
+- Handoff: `results/_cross_agent/handoff_ray_wave10i_partB_20260423.md`.
+- No scope bleed (only 3 configs + handoff + PWS + status-board touched); META-AM clean.
+
 ### 2026-04-19 — Wave 1 (stakeholder feedback batch)
 - Added RES-7 (plain-English signal generation on Strategy), RES-8 (episode cross-references), RES-9 (investor-impact clause), RES-10 (status vocabulary glossary).
 - Narrative edits landed on `docs/portal_narrative_hy_ig_v2_spy_20260410.md`.
