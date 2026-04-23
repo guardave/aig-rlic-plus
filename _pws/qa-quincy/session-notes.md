@@ -654,6 +654,30 @@ A script PASS with no DOM reading is NOT a QA PASS. It is an automated check. Qu
 
 *Self-diagnosis completed: 2026-04-23 (Wave 10I.C).*
 
+---
+
+## 2026-04-23 — Wave 10I.C Full Re-Verify (after all agent fixes: Ace `27fb460`, Ray `e0a342d`, Evan `86d13f7` + `625a86e`)
+
+**Script run:** `scripts/cloud_verify.py` (upgraded Wave 10I.C version with screenshot-all-tabs)  
+**Evidence:** `temp/20260423T225942Z_cloud_verify/`  
+**Result: 31 PASS / 10 FAIL / 41 TOTAL**
+
+**GATE-29:** ALL 10 PASS. All `signals_*.parquet` committed and present.
+
+**Remaining FAILs — 3 failure classes:**
+
+**FC-RAY (10 strategy pages, all pairs):** "Ray leg pending RES-17 frontmatter migration" stub on ALL 10 Strategy pages. Ray's `e0a342d` fixed direction enum values but did NOT complete RES-17 frontmatter. Owner: Research Ray.
+
+**FC-TRACEBACK (indpro_spy, vix_vix3m_spy strategy):** Full Python traceback: `probability_engine_panel.py:100` — `float(winner.get("threshold_value", 0.5))` still crashing. Ace's `27fb460` fix appears to have been applied to `instructional_trigger_cards.py`, NOT to `probability_engine_panel.py`. Two different files — the fix targeted the wrong component. Owner: App Dev Ace.
+
+**FC-APP-SEV1 (umcsent_xlv, permit_spy, sofr_ted_spy, dff_ted_spy, ted_spliced_spy strategy):** "Probability engine panel cannot render: Signal [col] magnitude unusually large: min=X, max=Y — expected z-score / level in ~±5 range." Parquets ARE loaded; the sanity check rejects non-HMM signal columns with natural-unit values (YoY%, momentum%) that exceed ±5. Owner: Ace (app logic) + Evan (signal scaling).
+
+**What fixed:** Story pages for all 6 legacy pairs now PASS (B&H values populated). Methodology pages for all 6 legacy pairs now PASS (signal_scope + stationarity). Landing PASS (sidebar count = 10, no raw-col leak). 20 cells flipped from FAIL to PASS.
+
+**HABIT-QA1 compliance:** I read DOM text for hy_ig_v2_spy_strategy, indpro_spy_strategy, and umcsent_xlv_strategy. I found: (1) Ray stub on all three, (2) Python Traceback on indpro_spy — Ace's probability_engine_panel.py fix not deployed or applied to wrong file, (3) signal sanity-check failure on umcsent_xlv — umcsent_yoy column in raw percent units, failing ±5 range check.
+
+**Handoff:** `results/_cross_agent/handoff_quincy_wave10iC_reverify_20260423.md`
+
 **NOTE on global experience.md:** Write permission to `~/.claude/agents/qa-quincy/experience.md` was denied in this session (same recurring permission issue documented in Wave 10B, 10D, 10F). Patterns 25-27 are recorded in full in this session-notes entry above. Lead must promote them to global profile, or grant write permission. Content to add is:
 
 - Pattern 25: APP-SEV1 soft-error banners not caught by ERR_PATS — need APP_SEV1_PATS separate list.
