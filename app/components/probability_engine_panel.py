@@ -26,6 +26,7 @@ Data sources (read-only):
 from __future__ import annotations
 
 import glob
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -83,12 +84,24 @@ def _validate_signal(
                 f"min={lo:.4f}, max={hi:.4f}."
             )
     else:
-        lo, hi = float(series.min()), float(series.max())
-        if abs(lo) > 20 or abs(hi) > 20:
-            return False, (
-                f"Signal `{column}` magnitude unusually large: "
-                f"min={lo:.4f}, max={hi:.4f} — expected z-score / level in ~±5 range."
-            )
+        # Magnitude check is only meaningful for z-score / standardised signals.
+        # Raw momentum, YoY, RoC, or basis-point signals can have arbitrarily
+        # large natural-unit values — applying a ±20 threshold to them is
+        # incorrect and produces false FC-APP-SEV1 failures.
+        # Heuristic: treat column as a z-score if its name ends with an
+        # underscore-z + optional digits suffix (e.g. "_z", "_z63", "_z126")
+        # or contains "_zscore".  All other non-probability columns skip the
+        # magnitude bound and rely solely on the historical-plausibility gate.
+        _is_zscore_col = bool(
+            re.search(r"_z\d*$", column) or "_zscore" in column
+        )
+        if _is_zscore_col:
+            lo, hi = float(series.min()), float(series.max())
+            if abs(lo) > 20 or abs(hi) > 20:
+                return False, (
+                    f"Signal `{column}` magnitude unusually large: "
+                    f"min={lo:.4f}, max={hi:.4f} — expected z-score in ~±5 range."
+                )
 
     # Historical plausibility — during at least one known stress window the
     # signal should reach the expected extreme. Default windows cover GFC and
@@ -97,7 +110,9 @@ def _validate_signal(
         ("2008-09-01", "2009-06-30"),
         ("2020-02-15", "2020-04-30"),
     ]
-    threshold = float(winner.get("threshold_value", 0.5))
+    # winner["threshold_value"] may be JSON null (None) — coerce safely.
+    _tv = winner.get("threshold_value")
+    threshold = float(_tv) if _tv is not None else 0.5
 
     # Normalise stress_windows: each element may be a (start, end) tuple/list
     # OR a dict with "start"/"end" keys (as produced by Evan's
@@ -320,7 +335,9 @@ def render_probability_engine_panel(pair_id: str) -> None:
         return
 
     # ---- Validation passed — record + render ----
-    threshold = float(winner.get("threshold_value", 0.5))
+    # winner["threshold_value"] may be JSON null (None) — coerce safely.
+    _tv = winner.get("threshold_value")
+    threshold = float(_tv) if _tv is not None else 0.5
     is_probability = column.startswith(_PROBABILITY_PREFIXES) or "_prob_" in column
     st.session_state[f"se1_validation_{pair_id}"] = {
         "ok": True,
