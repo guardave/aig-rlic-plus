@@ -1,5 +1,40 @@
 # Team Status Board
 
+## 2026-04-23 (re-dispatch) — Dev Ace (Wave 10I.A Fix — ROOT CAUSE REVISED, not a trigger-cards bug)
+
+**Status:** Post-Evan-2fa6c95 re-verify at 09:41Z still shows 35/41 with same 6 Strategy FAILs. Deep root-cause investigation reveals my prior diagnosis and Evan's schema relaxation are both **insufficient** because the actual failure is upstream of `render_instructional_trigger_cards`.
+
+**Real unredacted exception (local reproduce via `validate_or_die` on `results/indpro_spy/winner_summary.json`):**
+
+```
+results/indpro_spy/winner_summary.json failed schema validation against
+winner_summary.schema.json: 10 error(s)
+```
+
+10 errors per failing file: 8 missing required fields (`generated_at`, `signal_column`, `target_symbol`, `threshold_rule`, `strategy_family`, `oos_max_drawdown`, `oos_n_trades`, `oos_period_start`, `oos_period_end`) + `direction: "pro_cyclical"` not in enum (should be `procyclical` no underscore). Legacy files also use `strategy_code` where schema requires `strategy_family`.
+
+**Why my 5f2e50d patch didn't help:** the APP-SEV1 L1 banner fires in `position_adjustment_panel.py:177` via `validate_or_die`, rendered BEFORE `render_instructional_trigger_cards` at `page_templates.py:1136`. My defensive coerce at line 389-400 is never reached for the 6 failing pairs. The cloud traceback frame `line 385` is a comment line (red herring). Widening the coerce further cannot fix a page that short-circuits upstream.
+
+**Why Evan's 2fa6c95 didn't help:** relaxing `threshold_value` to allow null eliminates only 1 of 10 schema errors. The remaining 9 still fail validation.
+
+**Affected pairs (6, confirmed by local schema-validate sweep):** indpro_spy, permit_spy, vix_vix3m_spy, sofr_ted_spy, dff_ted_spy, ted_spliced_spy. Matches Quincy's FAIL set exactly.
+
+**Ace scope boundary respected (META-NMF, LEAD-DL1):** no code change committed in this dispatch — no defensive coerce will fix producer-side field absence. Recommended path:
+
+- **Option A (preferred):** Evan regenerates the 6 legacy `winner_summary.json` to v1.1.0 schema (producer-side rerun of post-processor).
+- **Option B:** Evan bumps schema to v1.2.0 relaxing the 8 fields + adding `pro_cyclical` legacy alias.
+- **Option C:** legacy adapter in `schema_check.py` pre-validate normalizer — Ace can own if Lead dispatches.
+
+**Smoke adequacy note for Quincy:** `smoke_loader.py` reports PASS because it exercises import + pair-registry, not the Streamlit render path. `validate_or_die` runs at render time inside components, so import-time smoke cannot catch the schema failure — explains the "smoke green, cloud red" gap. Quincy should strengthen smoke with `streamlit.testing.v1.AppTest` render probes that count `st.error` emissions as FAIL (details in handoff). Ace will not modify smoke scripts (LEAD-DL1).
+
+**Proposed backlog amendment:** upgrade `BL-LEGACY-WINNER-SUMMARY-SHAPE` (a131774) to P1 and assign to Evan. Supersedes `BL-THRESHOLD-VALUE-SCHEMA` as a subset.
+
+**Handoff addendum:** `results/_cross_agent/handoff_ace_wave10i_fix_20260423.md` (addendum section, post the 09:11Z original).
+
+**Ready for Lead:** re-dispatch Evan (Option A) or approve Option C for Ace.
+
+---
+
 ## 2026-04-23 — Dev Ace (Wave 10I.A Fix — defensive coerce threshold_value, APP-SEV1 L2 fallback COMPLETE)
 
 **Status:** Cloud-verify regression (6/41 FAIL on commit `08bb0c8`) resolved with surgical defensive patch.

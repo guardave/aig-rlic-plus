@@ -8,6 +8,19 @@
 
 ## Session timeline (Wave-by-wave)
 
+### Wave 10I.A Fix re-dispatch (2026-04-23, 09:56Z) -- ROOT CAUSE REVISED
+- Quincy re-verify at 09:41Z post-2fa6c95 still 35/41 with same 6 FAILs. Re-investigated.
+- Local reproduce: `validate_or_die(Path("results/indpro_spy/winner_summary.json"), "winner_summary")` → `10 error(s)`. The real failure is a schema L1 validation block in `position_adjustment_panel.py:177`, NOT a TypeError in my trigger-cards function.
+- The cloud traceback frame `instructional_trigger_cards.py:385` is a comment line (red herring from Python frame-at-comment capture).
+- My 5f2e50d defensive coerce at line 389-400 is code-correct but unreachable for failing pairs — page short-circuits upstream.
+- Evan's 2fa6c95 fixed 1 of 10 errors (threshold_value null). 9 errors remain: 8 missing required fields + `direction: "pro_cyclical"` enum typo (legacy underscore vs schema `procyclical`). Legacy files use `strategy_code` where schema wants `strategy_family`.
+- Per-pair schema-validate sweep: 6 active FAIL (indpro_spy, permit_spy, vix_vix3m_spy, sofr_ted_spy, dff_ted_spy, ted_spliced_spy) + 1 archived (hy_ig_spy_v1). 4 PASS (hy_ig_spy, hy_ig_v2_spy, indpro_xlp, umcsent_xlv). Matches Quincy exactly.
+- **No code change committed.** Consumer-side defensive coding cannot synthesize producer-emitted fields (oos_period_start, signal_column, etc.). META-NMF + LEAD-DL1 respected.
+- Handoff addendum in `results/_cross_agent/handoff_ace_wave10i_fix_20260423.md` documents: unredacted exception, why line-385 frame was misleading, per-pair schema status, remediation options A/B/C, smoke adequacy gap, scope discipline.
+- Smoke adequacy gap for Quincy: `smoke_loader.py` exercises import + pair-registry but not the Streamlit render path; `validate_or_die` runs at render time inside components. Recommend `streamlit.testing.v1.AppTest` render probes that count `st.error` as FAIL. Ace does not modify smoke scripts (LEAD-DL1).
+- Proposed backlog amendment: upgrade `BL-LEGACY-WINNER-SUMMARY-SHAPE` to P1, assign Evan, supersede `BL-THRESHOLD-VALUE-SCHEMA`.
+- Lesson: trust the DOM text over the stack traceback. The cloud DOM showed the APP-SEV1 L1 banner with all 10 schema errors listed verbatim — that was the real signal, not the traceback frame line number.
+
 ### Wave 10I.A Fix -- defensive coerce threshold_value (2026-04-23, later)
 - Quincy cloud verify (commit `08bb0c8`) returned 35/6/41. All 6 FAILs = same `TypeError` on `float(winner.get("threshold_value", 0.5))` at `instructional_trigger_cards.py:385`.
 - Root cause: the 6 legacy pairs' `winner_summary.json.threshold_value` is JSON `null` (Python `None`). `.get()` default does NOT fire because the key is present. `float(None)` raises TypeError.
