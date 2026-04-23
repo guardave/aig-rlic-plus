@@ -8,6 +8,21 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-04-23 — Wave 10H.2 Closure: APP-TL1 Shipped + Pattern 23 Codified
+
+**Final cloud verify (commit `8e743ce`):** 17/17 PASS. APP-TL1 retro-applied to `hy_ig_spy` and `indpro_xlp`. Regression gate holds for Sample (legacy page) and umcsent_xlv (tracked as BL-APP-PT1-UMCSENT).
+
+**Pattern 23 codified** in `qa-agent-sop.md` §Cloud Visual Smoke item 4: `frame.inner_text("body")` does NOT traverse hidden `st.tabs` panel content — only the active tab's text is returned. Fix: use `frame.content()` HTML for tab-gated markers; retain `inner_text` for unconditionally-visible surfaces. Direct analog of Pattern 22.
+
+**What agents need to know going forward:**
+- Every pair added from Wave 10H.2 onward ships APP-TL1-compliant Strategy page via the template, with `TRADE_LOG_EXAMPLE_MD` as a required pair-config narrative anchor.
+- Sample legacy Strategy page decommission tracked as follow-on (sibling to BL-APP-PT1-LEGACY).
+- QA verify scripts: for Strategy-page markers (and any marker inside `st.tabs`), use `frame.content()` not `frame.inner_text()`.
+
+**Git tag:** `wave-10h2-complete` pinned at `8e743ce`.
+
+---
+
 ## 2026-04-23 — Wave 10H.2: APP-TL1 Trade Log Rendering Contract
 
 **Trigger.** User surfaced a regression after Wave 10H.1 shipped: the newly-rebuilt `hy_ig_spy` (on APP-PT1 template) has a "Download Trading History" section less rich than Sample (`hy_ig_v2_spy`, hand-written legacy). Sample has dual downloads (broker-style + researcher position log), multi-paragraph narrative scaffold, column glossary, concrete example, always-visible preview. Template has a single generic `st.download_button` with no prose. Every template-based pair inherited the regressed view. Direct mirror of `BL-APP-PT1-LEGACY`: reference richer than template.

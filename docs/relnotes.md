@@ -1,5 +1,59 @@
 # Release Notes
 
+## 2026-04-23 — Wave 10H.2: APP-TL1 Trade Log Rendering Contract — **COMPLETE**
+
+**Final verify: 17/17 PASS on cloud** (Quincy commit `8e743ce`). Wave 10H.2 closes the Trade Log regression surfaced by user after Wave 10H.1: template-based pairs (`hy_ig_spy`, `indpro_xlp`) now render a Strategy-page Trading History block at parity with Sample (`hy_ig_v2_spy`) — dual downloads, five-element narrative scaffold, column dictionary, always-visible preview.
+
+### New rule
+
+**APP-TL1 — Trade Log Rendering Contract** (`docs/agent-sops/appdev-agent-sop.md`). Binding: `render_strategy_page()` must invoke `_render_trade_log_block(pair_id, config)` helper producing dual CSV downloads (broker-style + researcher position log), narrative scaffold (heading → simulated-vs-real disclosure → two-file explanation → column glossary → pair-specific example), `#### Download Trading History` sub-heading, column-dictionary expander (10-row Column/Type/Meaning/Example), two-column download layout with row-count captions, always-visible 10-row preview. APP-SEV1-aligned: both missing = L1 short-circuit; one missing = L2 degraded; malformed = L2 warning + healthy-pane; missing pair example = L3 caption coda. Ownership split: Ace (structure), Ray (narrative defaults + `TRADE_LOG_EXAMPLE_MD` anchor), Evan (broker-style CSV), Dana (schema doc), Quincy (QA gate).
+
+### What users see now
+
+On `hy_ig_spy` and `indpro_xlp` Strategy page → Performance tab:
+- Heading `### How to Read the Trade Log` followed by compliance-explicit simulated-trade disclosure (Ray canonical copy, not real broker executions).
+- Two-file model explanation (broker-style vs researcher position log).
+- `Key columns` bulleted glossary of the 10 APP-TL1 canonical columns.
+- Pair-specific concrete example in bordered container — e.g. hy_ig_spy: COVID 2020-02-24 HMM stress prob 0.09→1.00 SELL at SPY $294.65 (`trade_id=282` in the broker-style log).
+- `#### Download Trading History` sub-heading.
+- "How to read this chart" expander with full 10-row column dictionary.
+- Two download buttons: left primary `Download trade log (broker-style)` with row-count caption; right secondary `Download position log (researcher)`.
+- Always-visible 10-row preview of broker-style log.
+
+Previously: a single generic `st.download_button` with no prose.
+
+### Commits
+
+| Commit | Author | Content |
+|--------|--------|---------|
+| `3d6f096` | Ace | Discovery report: Sample-vs-template delta + spec proposal |
+| `7364585` | Lead | APP-TL1 SOP authorship + sop-changelog entry |
+| `a32eaff` | Ace | Structural skeleton: `_render_trade_log_block` helper + `StrategyConfig` fields + TODO-Ray narrative stubs |
+| `2c11046` | Evan | Shared `scripts/_trade_log_broker.py` helper + broker-style CSV for `indpro_xlp` + `umcsent_xlv` |
+| `76b6e06` | Lead | Backlog: BL-DATA-DICT-APPTL1, BL-COMMISSION-BASIS |
+| `fc17274` | Ray | Narrative canonical defaults (4 constants) + `TRADE_LOG_EXAMPLE_MD` for `hy_ig_spy`, `indpro_xlp` |
+| `ed1f484` | Lead | Backlog: BL-APP-PT1-UMCSENT |
+| `2574d83` | Evan | Regenerate `hy_ig_spy` broker-style CSV to 10-col APP-TL1 schema (was 12-col legacy) |
+| `8e743ce` | Quincy | Cloud verify + APP-TL1 DOM markers + Pattern 23 discovery |
+| `<this>` | Lead | Closure: relnotes + sop-changelog + Pattern 23 codification + tag |
+
+### Lessons
+
+- **Inverted legacy risk class.** BL-APP-PT1-LEGACY catalogued "legacy pages bypass the template." Wave 10H.2 surfaced the mirror: "reference implementation is richer than the template." Every rule addition risks this asymmetry. Mitigation: at wave closure, Lead audits the reference pair's layer against the template output; if Sample has prose or structure the template lacks, log a BL item.
+- **Pattern 23 — hidden `st.tabs` content is invisible to `inner_text`.** Quincy's first pass false-FAILed the APP-TL1 markers because the Trade Log lives in the "Performance" tab while the default-active tab is "Execute." Fix: use `frame.content()` HTML for tab-gated markers; retain `inner_text` for unconditionally-visible surfaces. Codified in `qa-agent-sop.md` alongside Pattern 22.
+- **Schema audits must actually read the file.** Evan's §6 of his first handoff claimed `hy_ig_spy` broker CSV was "already compliant." Ray's narrative pass caught a 12-col-vs-10-col mismatch by actually running `pd.read_csv(comment="#")`. Evan captured the lesson in his PWS: compliance audits must check the column list with a parser, not eyeball. Applies to every future schema-compliance check — don't trust "looks right."
+- **Lead self-audit held again.** 4 Lead commits this wave (`7364585`, `76b6e06`, `ed1f484`, closure). All in `docs/`. Zero agent-owned file writes. LEAD-DL1 mechanism continues to hold.
+- **Shared helper hoisting pays off.** Evan consolidated broker-style logic into `scripts/_trade_log_broker.py` at first use (two new pairs). When a third pair needed regeneration (`hy_ig_spy`), the helper didn't fit its trade-pair format — so Evan wrote a one-off converter in `temp/` rather than bending the shared helper. Correct judgment: preserve the helper for the common path; handle the outlier with a local script.
+
+### Backlog opened / updated
+
+- `BL-APP-PT1-UMCSENT` — `umcsent_xlv` Strategy page is hand-rolled, bypasses template. Narrow subset of `BL-APP-PT1-LEGACY`.
+- `BL-DATA-DICT-APPTL1` — per-pair data dictionaries for APP-TL1 schema (Dana, non-blocking).
+- `BL-COMMISSION-BASIS` — `commission_bps` field on `winner_summary.json` (latent display-lie class; Evan audit).
+- Plus the Wave 10H.1 backlog (BL-VIZ-O1-LEGACY, BL-VIZ-SIDECAR-HELPER, BL-APP-PR1, BL-APP-PT1-LEGACY) still open.
+
+---
+
 ## 2026-04-23 — Wave 10H.1: Chart Governance Framework (Implementation) — **COMPLETE**
 
 **Final verify: 17/17 PASS on cloud** (Quincy commit `aca5602`). Wave 10H.1 implements the rules shipped as paper SOPs in Wave 10H — chart disposition, exploration-zone, Methodology-page Exploratory Insights, Pattern 22 verify fix — across Ace's template, Vera's sidecars, and Quincy's verify tooling.
