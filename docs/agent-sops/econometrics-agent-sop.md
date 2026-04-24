@@ -1103,6 +1103,173 @@ If additional variables are needed during estimation or diagnostics:
 3. Do not source data independently unless it is a trivial lookup (e.g., a single constant or known value)
 4. If the request stems from a diagnostic finding, explain the econometric reason (e.g., "Breusch-Godfrey test suggests serial correlation; adding lagged dependent variable requires the data to go back 1 additional period")
 
+## Cross-Period Consistency
+
+### ECON-CP1 — Cross-Period Consistency (Mandatory for all pairs)
+
+**Motivation.** A strategy that wins the tournament with OOS Sharpe 1.10 may owe its entire edge to a single crisis episode (e.g., COVID crash). If the signal is "durable," it should generate positive Sharpe in most economic regimes, not just the one that happened to dominate the OOS window. ECON-CP1 formalizes this durability test as a mandatory part of the Evidence block for every pair.
+
+**Rule.** Every pair's Evidence output must include a Cross-Period Consistency block computed on the winning signal configuration (winner signal code, threshold, strategy, lead time, and lookback from `winner_summary.json`). Three analyses are mandatory:
+
+#### CP1-A: Sub-Period Sharpe Decomposition
+
+Partition the OOS sample into four named episodes. For each episode, compute annualized Sharpe, win-rate, and max drawdown using the winning strategy's daily P&L series (from `winner_trade_log.csv`). Report only trading days within the episode window; if the OOS window does not fully overlap an episode, compute over the overlapping sub-window (minimum 21 trading days required — otherwise mark episode as `insufficient_data`).
+
+**Named episodes:**
+
+| Episode | Start | End |
+|---------|-------|-----|
+| Dot-Com Crash | 2000-03-01 | 2002-10-31 |
+| GFC | 2007-12-01 | 2009-06-30 |
+| COVID | 2020-02-01 | 2020-12-31 |
+| 2022 Rates Shock | 2022-01-01 | 2022-12-31 |
+
+**Durability verdict:** Signal is "durable" if Sharpe > 0 in ≥ 3 of 4 episodes. If Sharpe > 0 in exactly 2 episodes, label "conditionally durable." If Sharpe > 0 in ≤ 1 episode, label "episode-concentrated — interpret with caution."
+
+**Output file:** `results/{pair_id}/subperiod_sharpe.csv`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `episode` | string | Episode name (`dot_com`, `gfc`, `covid`, `rates_shock_2022`) |
+| `start_date` | ISO date | Episode start used (may differ from nominal if outside OOS) |
+| `end_date` | ISO date | Episode end used |
+| `n_trading_days` | int | Trading days in episode within OOS window |
+| `ann_sharpe` | float | Annualized Sharpe ratio (0.1133 ratio form, NOT percent) |
+| `win_rate` | float | Fraction of profitable trading days (ratio form) |
+| `max_drawdown` | float | Maximum drawdown within episode (negative, ratio form) |
+| `data_status` | string | `validated` or `insufficient_data` |
+| `durability_verdict` | string | `durable`, `conditionally_durable`, or `episode_concentrated` — written to final row only (full-sample verdict) |
+
+#### CP1-B: Rolling 24-Month Pearson Correlation
+
+Rolling 24-month Pearson correlation between the winning signal value and the forward 1-month target return. Compute over the full sample (IS + OOS combined; the rolling series itself is not a trading rule, so IS contamination is not an issue). Report the fraction of months where the rolling correlation holds the same sign as the full-sample correlation coefficient.
+
+**Stability verdict:** Signal is "sign-stable" if rolling correlation holds the full-sample direction in ≥ 70% of months. Between 50–70%, label "moderately stable." Below 50%, label "sign-unstable — correlation direction reverses frequently."
+
+**Output file:** `results/{pair_id}/rolling_correlation_{pair_id}.csv`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `date` | ISO date | End date of the 24M rolling window |
+| `rolling_corr` | float | Pearson correlation over the 24M window |
+| `n_obs` | int | Number of monthly observations in the window |
+| `window_start` | ISO date | Start date of the window |
+
+**Derived scalar (written to `structural_break_{pair_id}.json` metadata section):**
+- `rolling_corr_sign_stability`: fraction of months with same-direction rolling correlation (ratio form).
+- `rolling_corr_stability_verdict`: `sign_stable`, `moderately_stable`, or `sign_unstable`.
+
+#### CP1-C: Structural Break Test
+
+Quandt-Andrews unknown breakpoint test on the OLS regression `target_return ~ signal_value` over the full sample (monthly frequency; if the pair is daily-only, use monthly aggregated returns and signal means). Report the most likely break date (the date that maximizes the Wald or F-statistic across all candidate break points) and the associated p-value.
+
+**Break flag:** If p-value < 0.10, write flag `"Structural break detected — interpret cross-period results with caution."` to the output and to `interpretation_metadata.json` under a new optional field `structural_break_warning`.
+
+**Implementation:** Use `statsmodels.stats.breaktest.breaks_cusumolsresid` for CUSUM visual diagnostic and `statsmodels.compat.pandas.Appender` with the Andrews-Quandt via `statsmodels.stats.diagnostic.breaks_quandt` (or manual implementation: estimate the breakpoint as argmax of Chow F-statistics over the trimmed interval [15%, 85%] of the sample).
+
+**Output file:** `results/{pair_id}/structural_break_{pair_id}.json`
+
+```json
+{
+  "pair_id": "{pair_id}",
+  "test": "Quandt-Andrews unknown breakpoint",
+  "sample_start": "YYYY-MM-DD",
+  "sample_end": "YYYY-MM-DD",
+  "n_obs": 123,
+  "trimming_pct": 0.15,
+  "break_date": "YYYY-MM-DD",
+  "f_stat": 4.12,
+  "p_value": 0.043,
+  "flagged": true,
+  "flag_message": "Structural break detected — interpret cross-period results with caution.",
+  "rolling_corr_sign_stability": 0.72,
+  "rolling_corr_stability_verdict": "sign_stable"
+}
+```
+
+If `flagged: false`, `flag_message` is `null`.
+
+---
+
+### ECON-CP2 — Extended Cross-Period Analyses (conditional on `regime_story: true`)
+
+**Condition.** Run CP2 analyses only when `results/{pair_id}/signal_scope.json` contains `"regime_story": true`. If the field is absent or false, skip CP2 and note "CP2 skipped — regime_story not set" in `structural_break_{pair_id}.json` metadata.
+
+**Motivation.** Regime-story pairs (pairs where the primary narrative is about distinct economic regimes rather than a linear signal) benefit from richer rolling diagnostics. A simple rolling correlation misses whether the Granger causal link is episodic. CP2 provides the statistical depth that substantiates a regime narrative.
+
+#### CP2-A: Rolling 24M Sharpe
+
+Rolling 24-month annualized Sharpe of the winning strategy's daily P&L series. Same 24M window as CP1-B. This chart is the time-series companion to the sub-period bar chart (CP1-A).
+
+**Output file:** `results/{pair_id}/rolling_sharpe_{pair_id}.csv`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `date` | ISO date | End date of the 24M rolling window |
+| `rolling_sharpe` | float | Annualized Sharpe over the 24M window |
+| `rolling_return` | float | Annualized return over the 24M window |
+| `rolling_vol` | float | Annualized volatility over the 24M window |
+| `n_trading_days` | int | Trading days in the window |
+
+#### CP2-B: Rolling 24M Granger Causality
+
+Re-estimate the Toda-Yamamoto Granger F-statistic in each 24M rolling window at the winning lag (the lag from `granger_causality.csv` where the F-statistic is maximized in the full-sample test, or the tournament winner's `lead_months`/`lead_days` if Granger lag and tournament lead are closely aligned). Use monthly data (or monthly aggregated if daily pair). Report the F-statistic time series with the 10% critical value as a reference line.
+
+**Output file:** `results/{pair_id}/rolling_granger_{pair_id}.csv`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `date` | ISO date | End date of the 24M rolling window |
+| `f_stat` | float | Toda-Yamamoto Granger F-statistic over the 24M window |
+| `p_value` | float | p-value for the F-stat |
+| `significant_10pct` | bool | True if p_value < 0.10 |
+| `critical_value_10pct` | float | 10% critical value for F-distribution at window's df |
+| `n_obs` | int | Monthly observations in the window |
+| `lag_used` | int | Lag order used (stable across windows) |
+
+---
+
+### Standard Evidence Block (Updated for ECON-CP1/CP2)
+
+The complete Evidence block for every pair now includes the following analyses. All analyses are computed on the winning signal configuration unless noted.
+
+**Always mandatory (CP1 and below):**
+
+| Analysis | Rule | Output Artifact(s) |
+|----------|------|--------------------|
+| Correlation battery (Pearson, Spearman, Kendall, distance; 1d/5d/21d/63d/252d) | Rule C1/C2 | `correlations.csv` |
+| Pre-whitened CCF (lags −20 to +20) | Rule C1/C2 | `ccf_prewhitened.csv` |
+| Toda-Yamamoto Granger causality (both directions, all lags) | Rule C1/C2 | `granger_causality.csv` |
+| Granger by-lag diagnostic | Rule E1 | `granger_by_lag.csv` |
+| Local projections (Jordà IRF) | Rule C1/C2 | `local_projections.csv` |
+| Transfer entropy (credit/rates pairs) | Rule C1/C2 | `transfer_entropy.csv` |
+| Quantile regression (τ = 0.05 to 0.95) | Rule C1/C2 | `quantile_regression.csv` |
+| HMM regime detection (2-state min) | Rule C1/C2 | `hmm_states.parquet`, `hmm_summary.csv` |
+| Regime quartile returns | Rule E2 | `regime_quartile_returns.csv` |
+| Tournament full grid + winner | §Tournament Design | `tournament_summary.csv`, `winner_summary.json`, `tournament_winner.json` |
+| Sub-period Sharpe decomposition | **ECON-CP1-A** | `subperiod_sharpe.csv` |
+| Rolling 24M correlation + stability verdict | **ECON-CP1-B** | `rolling_correlation_{pair_id}.csv` |
+| Structural break test (Quandt-Andrews) | **ECON-CP1-C** | `structural_break_{pair_id}.json` |
+
+**Conditional on `regime_story: true` (CP2):**
+
+| Analysis | Rule | Output Artifact(s) |
+|----------|------|--------------------|
+| Rolling 24M Sharpe | **ECON-CP2-A** | `rolling_sharpe_{pair_id}.csv` |
+| Rolling 24M Granger F-statistic | **ECON-CP2-B** | `rolling_granger_{pair_id}.csv` |
+
+**Pair-type conditional (by indicator type — Rule C1):**
+
+| Analysis | Condition | Output Artifact(s) |
+|----------|-----------|-------------------|
+| Yield curve decomposition | Rates pairs | `yield_curve_factors.csv` |
+| Volatility decomposition (realized vs implied, VRP) | Volatility pairs | `vol_decomposition.csv` |
+| VIX term structure | Volatility pairs | included in `hmm_summary.csv` annotations |
+
+All CP1 output files must be produced before handoff to Vera and Ray. CP1 findings must be summarized in the Vera chart request (ECON-H4) and in the Ray narrative handoff. If `flagged: true` in `structural_break_{pair_id}.json`, Ray's narrative must include the caution flag verbatim.
+
+---
+
 ## Indicator Evaluation Framework
 
 ### Purpose
