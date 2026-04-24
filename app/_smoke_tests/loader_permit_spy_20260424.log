@@ -1,0 +1,16 @@
+# Loader smoke test  pair_id=permit_spy  timestamp=2026-04-24T00:09:26
+# Pages scanned: 4
+#   app/pages/7_permit_spy_evidence.py
+#   app/pages/7_permit_spy_methodology.py
+#   app/pages/7_permit_spy_story.py
+#   app/pages/7_permit_spy_strategy.py
+
+
+# Dynamic charts (Evidence render_method_block helper)
+
+# APP-PT1 template + pair_config chart scans
+PASS  app/pair_configs/permit_spy_config.py:62  chart=permit_spy_hero  traces=2  title='Building Permits YoY Growth vs S&P 500'
+PASS  app/pair_configs/permit_spy_config.py:72  chart=permit_spy_regime_stats  traces=1  title='SPY Sharpe by Permits Growth Quartile'
+PASS  app/pair_configs/permit_spy_config.py:338  chart=permit_spy_tournament_scatter  traces=3  title='Tournament: 856 Combos (674 Valid)'
+
+# RESULT  passes=3  failures=0

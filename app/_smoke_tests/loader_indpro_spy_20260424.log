@@ -1,0 +1,17 @@
+# Loader smoke test  pair_id=indpro_spy  timestamp=2026-04-24T00:09:22
+# Pages scanned: 4
+#   app/pages/5_indpro_spy_evidence.py
+#   app/pages/5_indpro_spy_methodology.py
+#   app/pages/5_indpro_spy_story.py
+#   app/pages/5_indpro_spy_strategy.py
+
+
+# Dynamic charts (Evidence render_method_block helper)
+
+# APP-PT1 template + pair_config chart scans
+PASS  app/pair_configs/indpro_spy_config.py:65  chart=indpro_spy_hero  traces=2  title='Industrial Production Growth vs S&P 500 (1990-2025)'
+PASS  app/pair_configs/indpro_spy_config.py:74  chart=indpro_spy_regime_stats  traces=1  title='SPY Sharpe Ratio by INDPRO YoY Growth Quartile'
+PASS  app/pair_configs/indpro_spy_config.py:504  chart=indpro_spy_equity_curves  traces=4  title='Equity Curves: Top Strategies vs Buy-and-Hold (OOS 2018-2025)'
+PASS  app/pair_configs/indpro_spy_config.py:507  chart=indpro_spy_tournament_scatter  traces=4  title='Tournament Results: 1666 Combinations (1149 Valid)'
+
+# RESULT  passes=4  failures=0
