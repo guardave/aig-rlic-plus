@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-04-24 — Wave 10I.C Final Verify (post-Ace fb101e5 + Ray f8fa75d)
+
+**Run:** `scripts/cloud_verify.py` — 41-page full sweep  
+**Result: 41 PASS / 0 FAIL / 41 TOTAL**  
+**Evidence dir:** `temp/20260423T234318Z_cloud_verify/`  
+**Handoff:** `results/_cross_agent/handoff_quincy_wave10iC_final_20260423.md`
+
+**FC-TRACEBACK (indpro_spy, vix_vix3m_spy):** CLEAN — no tracebacks in DOM.  
+**FC-APP-SEV1 (umcsent_xlv, permit_spy, sofr_ted_spy, dff_ted_spy, ted_spliced_spy):** CLEAN — no sev1 banners.  
+**FC-RAY stub ("Ray leg pending"):** CLEAN — old phrase gone.
+
+**HABIT-QA1 compliance:** DOM texts read for 3 Strategy pages (indpro_spy, dff_ted_spy, sofr_ted_spy) before sign-off.
+
+**FC-RAY-PARTIAL (post-HABIT-QA1 finding):** All 10 Strategy pages display
+`"Ray leg: no narrative file found (RES-17 stub expected)"` despite 10 narrative
+frontmatter files committed to origin/main. The `_load_ray_direction()` glob is
+returning empty at cloud runtime. STUB_PAT `"Ray leg pending"` did NOT catch this;
+`"no narrative file found"` must be added to STUB_PATS. Severity: non-blocking
+(2-way Evan↔Dana agreement active). Owner: Ace (path resolution) + Ray (verify).
+
+**STUB_PATS gap identified:** `"no narrative file found"` must be added to
+`cloud_verify.py` STUB_PATS in a future wave to prevent false-PASS on Ray-leg
+failures.
+
+---
+
 ## 2026-04-22 — Wave 10H.1 Dispatch (A) canonical cloud_verify + (B) run + (C) gates
 
 **Deliverable A:** Promoted `temp/260422_wave10g_full/focused_verify.py` to canonical `scripts/cloud_verify.py` (clean rewrite). Pattern 22 fix retained + full focus-pair grid + APP-PT2 Sample Methodology check (3 unique ELI5 markers hardcoded from Vera's narrative_alignment_note) + backward-compat regression gate (non-Sample Methodology pages assert section absent) + configurable base URL + exit code.
