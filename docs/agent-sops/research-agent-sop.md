@@ -435,6 +435,20 @@ These patterns were identified from the HY-IG reference analysis (pair #5), whic
 - **Quality gate item:** added to Ray's checklist — "All instrument references in Story/Evidence narrative match `interpretation_metadata.json.target_symbol` and indicator fields."
 - **Cross-references:** APP-PT1 (Ace renders, Ray authors), GATE-NR (QA enforcement of this rule at DOM level), RES-17 (narrative frontmatter), APP-DIR1 (direction triangulation — direction accuracy is the companion rule to instrument accuracy).
 
+### Rule RES-CPC1 — CONFIG-PARSE-CHECK After Every Config Rewrite (Blocking)
+
+**Added 2026-04-24 (Wave 10J Round 1 unanimous convergence — smoke test taxonomy rename).** The informal practice of "run the config file to make sure it doesn't crash" is now formally named **CONFIG-PARSE-CHECK** per the shared team taxonomy in `team-coordination.md`. The term "smoke test" is retired from Ray's SOP for this check class.
+
+- **When to run:** After every write to any `app/pair_configs/{pair_id}_config.py` file — initial authorship, narrative edits, schema-field additions, or any config rewrite pass.
+- **What it tests:** Python syntax validity and import correctness only. It does NOT test chart load, DOM render, or cloud deployment — those are Ace's LOCAL-LOAD-CHECK and Quincy's CLOUD-DEPLOY-VERIFY.
+- **Mechanical check:**
+  ```bash
+  python3 -c "import importlib.util, sys; spec = importlib.util.spec_from_file_location('cfg', 'app/pair_configs/{pair_id}_config.py'); mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod); print('CONFIG-PARSE-CHECK: OK')"
+  ```
+  Or equivalently: `python3 app/pair_configs/{pair_id}_config.py` if the file is executable as a script.
+- **Log the result:** Handoff note must include `CONFIG-PARSE-CHECK: OK: {pair_id}_config.py` for each config written in the task cycle. A syntax error in the config file is a BLOCKING failure — Ray does not hand off until it is resolved.
+- **Do NOT call this a "smoke test"** in handoff notes, escalations, or status updates. Use "CONFIG-PARSE-CHECK" so it is unambiguous which check class is being reported.
+
 ### Rule RES-11 — Story Page Headline Structure (Blocking)
 
 Every portal Story page narrative MUST place the **headline (data summary punchline with 2-3 KPI metrics)** at the top, followed by a hook paragraph, the narrative arc, and bullets. This is a blocking rule — Lead rejects Story pages that bury the data summary mid-narrative.
@@ -484,7 +498,7 @@ Silence is not acceptance. An unaddressed Ace request past the one-week SLA is a
 
 **Closes gap:** Proposed RES-16 (narrative subsection file-path contract, B8) — the frontmatter inventory provides the same stability as standalone files without splitting the narrative. If Lead later decides standalone subsection files are ALSO needed, they are additive; RES-17 remains the authoritative extraction contract.
 
-**Cross-reference:** APP-NR1 (Ace's consumer smoke test), APP-DIR1 (cross-agent direction-assertion integrity), META-CF (Contract File Standard), RES-6 (glossary rubric), RES-VS (status vocabulary self-check), RES-11 (headline-first structure).
+**Cross-reference:** APP-NR1 (Ace's LOCAL-LOAD-CHECK — formerly called "consumer smoke test"; renamed Wave 10J per team taxonomy), APP-DIR1 (cross-agent direction-assertion integrity), META-CF (Contract File Standard), RES-6 (glossary rubric), RES-VS (status vocabulary self-check), RES-11 (headline-first structure).
 
 ### Rule RES-18 — Headline Template Constraint (Blocking)
 
@@ -1013,11 +1027,34 @@ When Ray consumes upstream artifacts (e.g., reviewing Evan's results for interpr
   pair = sys.argv[1]
   ws = json.load(open(f'results/{pair}/winner_summary.json'))
   im = json.load(open(f'results/{pair}/interpretation_metadata.json'))
-  assert ws.get('direction') == im.get('observed_direction'), \
-    f\"MISMATCH: winner_summary.direction={ws.get('direction')} vs observed_direction={im.get('observed_direction')}\"
-  print(f'OK: {pair} direction={ws[\"direction\"]}')
+
+  CANONICAL_DIRECTION_VOCAB = {'procyclical', 'countercyclical', 'mixed'}
+
+  ws_direction = ws.get('direction')
+  im_direction = im.get('observed_direction')
+
+  # Step 1: vocabulary validation on winner_summary.json
+  assert ws_direction in CANONICAL_DIRECTION_VOCAB, (
+      f\"RES-OD1 VOCAB FAIL: winner_summary.direction='{ws_direction}' \"
+      f\"not in canonical vocabulary {CANONICAL_DIRECTION_VOCAB}\"
+  )
+
+  # Step 2: vocabulary validation on interpretation_metadata.json
+  assert im_direction in CANONICAL_DIRECTION_VOCAB, (
+      f\"RES-OD1 VOCAB FAIL: interpretation_metadata.observed_direction='{im_direction}' \"
+      f\"not in canonical vocabulary {CANONICAL_DIRECTION_VOCAB}\"
+  )
+
+  # Step 3: equality check (unchanged from prior version)
+  assert ws_direction == im_direction, (
+      f\"RES-OD1 EQUALITY FAIL: direction mismatch — \"
+      f\"winner_summary='{ws_direction}', observed_direction='{im_direction}'\"
+  )
+
+  print(f'direction_vocab_valid=True, direction_consistent=True, pair={pair}, direction={ws_direction}')
   " <pair_id>
   ```
+  The vocabulary assertions (Steps 1 and 2) MUST precede the equality check (Step 3). If either field contains a deprecated or non-canonical spelling (e.g., `counter_cyclical`, `pro_cyclical`), the assertion fails immediately with an explicit message naming the file and the bad value — making the error diagnosable at a glance. The canonical set is `{procyclical, countercyclical, mixed}` (no hyphens, no underscores).
 - **Root cause prevention:** When backfilling `interpretation_metadata.json` for legacy pairs, never blindly preserve `observed_direction` from the pre-existing file. Always read `winner_summary.json.direction` first and set `observed_direction` to match.
 - **Also update `direction_consistent`:** `direction_consistent` must reflect `expected_direction == observed_direction` after the correction. A stale `direction_consistent: false` when both directions now match is a data integrity error.
 - **Cross-references:** APP-DIR1 (direction triangulation gate), DATA-D6 (Dana's `observed_direction` ownership for fresh pairs — Ray applies the cross-check during schema migrations), team-coordination.md §19-21 (blocking gate items). Vera may begin charting using Dana's `interpretation_metadata.json` (producer per DATA-D6 — note: earlier revisions of this SOP named Evan as producer; corrected 2026-04-22 Wave 10F per cross-review finding) before Ray validates. If Ray subsequently flags a contradiction, Vera produces a revised chart version (v2) with the contradiction annotation. The sequencing is: Dana delivers → Vera charts (v1) → Ray validates → if contradiction, Vera revises (v2). This avoids adding a serial dependency that slows the pipeline.
