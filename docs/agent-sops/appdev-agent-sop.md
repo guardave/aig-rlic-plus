@@ -1124,6 +1124,53 @@ The following additive, optional fields extend APP-PT1's config contract. Both a
 
 2. **`regime_context`** (Evidence method block dict, `_render_method_block`). An optional markdown string in a method-block dict. When present, an `st.info(...)` callout is rendered between the `method_theory` body and the question / chart row. Typical use: "This method examines the relationship **conditional on market regime** — how does the signal behave in calm vs. stress conditions?" When absent, the block renders unchanged.
 
+### Rule ACE-HZE1 — History Zoom Episodes Config Population (added 2026-04-24)
+
+**Why this rule exists.** The "How the Signal Performed in Past Crises" section on Story pages silently disappears for any pair whose config does not define `HISTORY_ZOOM_EPISODES`. The template feature, Ray's episode frontmatter, and Vera's `history_zoom_{slug}.json` charts all exist — but Ace had no rule mandating the connection between them. As a result, 8 of 9 pair configs were shipped without this field, and the section rendered as a silent omission with no error, no placeholder, and no Quincy gate catching it.
+
+**Binding.** When authoring or migrating any pair config (`app/pair_configs/{pair_id}_config.py`), Ace MUST populate `HISTORY_ZOOM_EPISODES` on the `StoryConfig` object if either of the following is true:
+
+- Ray's handoff document (or Ray's narrative frontmatter in `results/{pair_id}/`) declares one or more episode slugs under the field `history_zoom_episodes` (or equivalent `HISTORY_ZOOM_EPISODES` key).
+- Vera has delivered one or more `output/charts/{pair_id}/plotly/history_zoom_{slug}.json` files for the pair.
+
+**Mandatory pre-ship checklist (ACE-HZE1 gate — run before opening handoff to Quincy):**
+
+1. **Read Ray's handoff.** Check `results/_cross_agent/handoff_ray_wave{N}_{pair_id}*.md` and the pair's `results/{pair_id}/` directory for any `history_zoom_episodes` frontmatter. If Ray's handoff has no episode data and Vera has no zoom charts, `HISTORY_ZOOM_EPISODES` MAY be omitted (section is genuinely empty for this pair). Record the explicit decision in the Ace handoff note as: `"ACE-HZE1: confirmed — no Ray episodes and no Vera history_zoom charts for {pair_id}. Field intentionally omitted."`.
+2. **Audit Vera's chart directory and cross-check against episode registry.** Run `ls output/charts/{pair_id}/plotly/history_zoom_*.json` to collect on-disk slugs. For each on-disk slug, Ace MUST cross-check the slug against `docs/schemas/episode_registry.json` keyed on `indicator_category` for the pair. A slug that is present on disk but absent from `episode_registry.json` MUST NOT be wired into the config — instead, Ace files a Vera blocker in `_pws/_team/status-board.md`: `"ACE-HZE1 BLOCKER [Vera]: history_zoom_{slug}.json found on disk for {pair_id} but slug '{slug}' is not registered in docs/schemas/episode_registry.json. Vera used the wrong slug — chart must be regenerated with a registered slug before Ace can wire it."` Only slugs that pass both the filesystem check and the registry check may appear in `HISTORY_ZOOM_EPISODES`. For every slug in `HISTORY_ZOOM_EPISODES`, a matching chart file MUST also exist on disk.
+3. **File a blocker if mismatch is found.** If `HISTORY_ZOOM_EPISODES` lists a slug whose chart is absent (`history_zoom_{slug}.json` not on disk): Ace MUST NOT silently omit the entry. Ace MUST add the entry to the config AND file a Vera blocker in `_pws/_team/status-board.md` in the format: `"ACE-HZE1 BLOCKER [Vera]: history_zoom_{slug}.json missing for {pair_id}. Config entry exists; chart must be generated before Story page renders correctly. See VIZ-ZOOM1."` Ace does NOT delete or comment out the entry to work around the missing chart — the template's APP-SEV1 L2 `st.warning` fallback is the correct degraded-UX path.
+4. **Request Ray's data if absent.** If Vera's chart directory has zoom charts but Ray's handoff lacks episode narratives (`narrative` field empty or not delivered): Ace MUST NOT ship the config with empty or placeholder narrative strings for this section. Ace files a Ray blocker in `status-board.md`: `"ACE-HZE1 BLOCKER [Ray]: {pair_id} has {n} history_zoom chart(s) from Vera but no episode narratives in handoff. `HISTORY_ZOOM_EPISODES.narrative` cannot be Ace-authored (LEAD-DL1). Blocking config ship until Ray delivers per RES-HZE1."` This is a **hard blocking dependency** — config is not shipped until Ray delivers.
+
+**Schema for each `HISTORY_ZOOM_EPISODES` entry:**
+
+```python
+{
+    "slug": "gfc_2008",          # matches Vera's filename: history_zoom_gfc_2008.json
+    "title": "The 2008 Global Financial Crisis",   # display heading (Ray-authored)
+    "narrative": "...",          # markdown prose (Ray-authored per RES-HZE1)
+    "caption": "...",            # chart caption (Ray-authored)
+}
+```
+
+**Ownership split:**
+- `slug` — Ace derives from `ls output/charts/{pair_id}/plotly/history_zoom_*.json` (filename stem after `history_zoom_`), then validates each slug against `docs/schemas/episode_registry.json` before use (see step 2 above).
+- `title`, `narrative`, `caption` — Ray-authored per RES-HZE1. Ace MUST NOT ship the config with absent or placeholder narrative strings. If Ray's narratives are absent, the config is not shipped — block until Ray delivers (file a Ray blocker per step 4 above).
+
+**Verification grep (run as part of ACE-HZE1 gate):**
+
+```bash
+# 1. Count zoom charts on disk for a pair
+ls output/charts/{pair_id}/plotly/history_zoom_*.json 2>/dev/null | wc -l
+
+# 2. Count HISTORY_ZOOM_EPISODES entries in config
+grep -c '"slug"' app/pair_configs/{pair_id}_config.py
+
+# Counts must match. Mismatch = gate failure.
+```
+
+**Retrospective application.** All 8 existing pair configs that currently omit `HISTORY_ZOOM_EPISODES` must be audited against steps 1–2 above at the start of the next pair-config wave. Configs where Vera has delivered zoom charts must be updated; configs where neither Ray nor Vera has delivered episode data must be annotated with the explicit omission note.
+
+**Cross-references:** VIZ-ZOOM1 (Vera zoom chart generation rule), RES-HZE1 (Ray episode narrative rule), APP-PT1 Wave 10G.3 Extension (template rendering contract for `HISTORY_ZOOM_EPISODES`), APP-SEV1 (severity levels for missing artifacts), LEAD-DL1 (narrative authored by Ray only, never Ace).
+
 ### Rule APP-PT2 — Methodology Page Exploratory Insights Section (added 2026-04-22)
 
 **Closes the gap where Vera's exploratory charts (VIZ-E1 `"disposition": "suggested"`) had no page home and silently evaporated.** This rule makes the Methodology page the canonical landing zone for exploratory analytical output without requiring editorial review before shipping.
