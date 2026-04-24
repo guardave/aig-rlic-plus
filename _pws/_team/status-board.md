@@ -1,5 +1,19 @@
 # Team Status Board
 
+## Cross-Agent Impact Log
+
+*Protocol: defined in `docs/agent-sops/team-coordination.md` §Cross-Agent Impact Log Protocol (D3a). All agents read this table at SOD and act on any entry where they appear in `affected_agents`.*
+
+| rule_id | authored_by | affected_agents | action_required | wave |
+|---------|-------------|-----------------|-----------------|------|
+| ECON-CP1/CP2 | Evan | Vera, Ray, Ace, Quincy | Vera: generate VIZ-CP1 charts for cross-period comparison; Ray: provide RES-CP1 narrative framing for cross-period sections; Ace: wire cross-period chart references into page templates; Quincy: add STUB check for cross-period section to cloud_verify.py | 10J |
+| VIZ-NBER1 | Vera | Quincy | Add GATE-VIZ-NBER1 to cloud_verify.py — portal-level NBER shading check via HTML content scan for "NBER" or shading-related class | 10J |
+| VIZ-ZOOM1 | Vera | Ray | Provide zoom episode narratives per RES-ZOOM1 — one narrative block per canonical episode slug for each pair Ray authors | 10J |
+| RES-OD1a/b/c | Ray | Quincy | Verify OD1 batch log exists in handoff before sign-off — cloud_verify.py must check that `results/{pair_id}/od1_batch_log.md` (or equivalent) is present and non-empty | 10J |
+| GATE-CL6 | Ace | Quincy | Add cross-period section check to HABIT-QA1 DOM read — verify cross-period section renders in portal DOM for all pairs that declare cross-period content in their config | 10J |
+
+---
+
 ## 2026-04-23 (re-dispatch) — Dev Ace (Wave 10I.A Fix — ROOT CAUSE REVISED, not a trigger-cards bug)
 
 **Status:** Post-Evan-2fa6c95 re-verify at 09:41Z still shows 35/41 with same 6 Strategy FAILs. Deep root-cause investigation reveals my prior diagnosis and Evan's schema relaxation are both **insufficient** because the actual failure is upstream of `render_instructional_trigger_cards`.
