@@ -548,6 +548,68 @@ RES-8 governs the presence of a zoom-in chart for each referenced historical epi
 
 Addresses Wave-5 audit high-severity gap: historical-episode selection discretion (could silently diverge across Ray authors). Also codifies the "failure case" honesty norm that was previously tribal.
 
+### Rule RES-HZE1 — HISTORY_ZOOM_EPISODES Config Block in Pair Config Handoff to Ace (Blocking)
+
+**Gap this rule closes.** RES-8 mandates a zoom chart for every referenced episode, and RES-20 mandates episode triad selection. However, the resulting episode list has historically been authored only in the narrative frontmatter (`historical_episodes_referenced`) — which is Ray-authored markdown. Ace's template (`APP-PT1`) reads `HISTORY_ZOOM_EPISODES` from the **pair config** Python class, not from the markdown frontmatter. When Ray omits this structured block from the config handoff, Ace has no machine-readable source to wire into the template, and the "How the Signal Performed in Past Crises" section is silently missing from the Story page. This is a handoff contract gap, not a prose gap.
+
+**Rule.** Every pair config handoff from Ray to Ace MUST include a fully populated `HISTORY_ZOOM_EPISODES` list as a top-level attribute of the pair config block. The list is a direct translation of the frontmatter `historical_episodes_referenced` into structured config form and is NOT optional regardless of whether the pair is a fresh build, a migration, or a retroactive port.
+
+**Required fields per entry:**
+
+| Field | Type | Contract |
+|---|---|---|
+| `slug` | string | Must exactly match a slug in `docs/schemas/episode_registry.json` under the pair's `indicator_category` key. No invented slugs. |
+| `title` | string | Human-readable display title (e.g. `"GFC (2007–2009)"`). Match the `label` field in `episode_registry.json` unless Lead approves a display-name override. |
+| `narrative` | string | 1–2 sentence prose describing what happened to the indicator and the target during this episode. Written by Ray, in plain English (META-ELI5 voice). Must be verifiable against the pair's results CSVs. |
+| `caption` | string | Chart caption for the zoom chart panel. ≤ 120 characters. States the signal behavior concisely (e.g. `"HY–IG spread led SPY peak by 5 months"`). |
+
+**Slug matching procedure:**
+
+1. Open `docs/schemas/episode_registry.json`.
+2. Look up the pair's `indicator_category` (from `interpretation_metadata.json`).
+3. The episode set for that category is the canonical superset. Ray selects the triad (RES-20) from this set. Every selected slug must appear verbatim in the registry key — no renaming, no abbreviation.
+4. If the desired failure-case episode is NOT in the registry for the pair's category, Ray files a registry PR (adding the episode entry) BEFORE writing the config entry. The config does not ship with an unregistered slug.
+
+**Handoff format.** The config handoff note (Ray → Ace) MUST include a section headed `HISTORY_ZOOM_EPISODES` containing the list in JSON/Python dict form, immediately following the `HISTORY_SECTION_MD` or equivalent narrative block:
+
+```python
+HISTORY_ZOOM_EPISODES = [
+    {
+        "slug": "gfc",
+        "title": "GFC (2007–2009)",
+        "narrative": "HY–IG spreads widened sharply 5 months before SPY peaked in Oct 2007, giving early warning of the equity bear market. The signal held elevated through the trough, then compressed as equities recovered.",
+        "caption": "HY–IG spread led SPY peak by ~5 months"
+    },
+    {
+        "slug": "covid",
+        "title": "COVID Shock (2020)",
+        "narrative": "Spreads and equities fell nearly simultaneously in late February 2020, confirming coincident (not leading) behavior in fast-crash regimes. The signal recovered with equities by Q3 2020.",
+        "caption": "Coincident signal — spread and SPY fell together"
+    },
+    {
+        "slug": "rates_2022",
+        "title": "2022 Rates Shock",
+        "narrative": "Credit spreads stayed compressed through the 2022 equity drawdown driven by Fed tightening, demonstrating a failure mode: the indicator cannot detect rate-shock-driven bear markets.",
+        "caption": "Failure case — spreads compressed while SPY fell 20 %"
+    },
+]
+```
+
+**Pre-handoff validation (blocking).** Before delivering the config handoff note to Ace, Ray MUST verify:
+
+1. Every `slug` value resolves in `docs/schemas/episode_registry.json` under the correct category key. Verification command: `python3 -c "import json; reg=json.load(open('docs/schemas/episode_registry.json')); cat=<category>; slugs=[e['slug'] for e in (reg[cat] if isinstance(reg[cat], list) else reg[cat]['episodes'])]; print('OK' if all(e['slug'] in slugs for e in HISTORY_ZOOM_EPISODES) else 'SLUG MISMATCH')"`.
+2. The triad requirement (RES-20) is satisfied: at least one `long_lead`, one `coincident`, one `failure_case` (verified by checking `selection_rationale` values in the frontmatter against the config entries).
+3. Each `narrative` field is 1–2 sentences and contains no hand-typed metric values — cite the behavior pattern, not a precise Sharpe or date that might drift. Verifiable data points (e.g. spread level, SPY drawdown %) are acceptable only if they are auditable in a result CSV.
+4. Each `caption` is ≤ 120 characters.
+
+A config handoff note that omits `HISTORY_ZOOM_EPISODES`, contains unregistered slugs, or fails the triad check is a **blocking gate failure**. Ace must refuse acceptance and return it to Ray.
+
+**Relationship to frontmatter.** The frontmatter `historical_episodes_referenced` (RES-17 / RES-20) and the config `HISTORY_ZOOM_EPISODES` are two representations of the same selection. They must be consistent (same slugs, same triad). When they diverge, the config block wins as the authoritative rendering source until BL-004 lands (at which point `render_narrative()` will read the markdown directly). Ray is responsible for keeping both in sync.
+
+**Cross-reference:** RES-8 (zoom chart required for every referenced episode), RES-17 (frontmatter carries `historical_episodes_referenced`), RES-20 (episode triad selection criterion), META-ZI (canonical vs pair-specific zoom protocol), VIZ-V1 (Vera produces the zoom charts), APP-PT1 (Ace template reads `HISTORY_ZOOM_EPISODES` from config), VIZ-V12 (chart-type registry where episode slugs are registered).
+
+Addresses 2026-04-24 audit finding: Ray authored episode triad in narrative frontmatter only; no SOP rule required a structured config block, so Ace's template received no machine-readable episode list and the "Past Crises" section was silently absent from all Story pages.
+
 ### Rule RES-22 — Status-Label Assignment Decision Table (Blocking)
 
 RES-10 + RES-VS define the canonical status vocabulary (Available / Pending / Validated / Stale / Draft / Mature / Unknown) but do NOT specify under which empirical condition each label applies. Wave 5 audit found `chart_status: "ready"` used in the HY-IG v2 narrative — "ready" is not in the canonical vocabulary, yet the author selected it because the rule left the assignment discretionary. RES-22 closes that gap with a deterministic condition → label lookup.
@@ -1338,3 +1400,7 @@ Before returning your task result, complete these three lightweight steps:
 3. **Flag cross-role insights** — If the insight involves coordination with another agent (e.g., "Vera and I need to agree on chart filenames"), also append a one-line entry to `_pws/_team/status-board.md` under a section called `## Team Insights — YYYY-MM-DD` (create the section if missing).
 
 **Rationale:** This builds a learning loop across dispatches. When the same agent is spawned again for a similar task, its experience.md will already contain lessons from prior work. Skip this only if the task was purely mechanical (e.g., trivial rename) — use judgment.
+
+## Git and Handoff Protocol
+
+Per META-CPD (team-coordination.md), every `git commit` must be immediately followed by `git push origin main` — a commit without a push is not a completed deliverable.
