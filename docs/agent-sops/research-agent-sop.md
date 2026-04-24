@@ -1022,6 +1022,185 @@ When Ray consumes upstream artifacts (e.g., reviewing Evan's results for interpr
 - **Also update `direction_consistent`:** `direction_consistent` must reflect `expected_direction == observed_direction` after the correction. A stale `direction_consistent: false` when both directions now match is a data integrity error.
 - **Cross-references:** APP-DIR1 (direction triangulation gate), DATA-D6 (Dana's `observed_direction` ownership for fresh pairs — Ray applies the cross-check during schema migrations), team-coordination.md §19-21 (blocking gate items). Vera may begin charting using Dana's `interpretation_metadata.json` (producer per DATA-D6 — note: earlier revisions of this SOP named Evan as producer; corrected 2026-04-22 Wave 10F per cross-review finding) before Ray validates. If Ray subsequently flags a contradiction, Vera produces a revised chart version (v2) with the contradiction annotation. The sequencing is: Dana delivers → Vera charts (v1) → Ray validates → if contradiction, Vera revises (v2). This avoids adding a serial dependency that slows the pipeline.
 
+#### RES-OD1a — Logged Output Requirement (Blocking, Wave 10J tightening)
+
+The handoff note MUST include the literal stdout of the assertion script for each pair written in the task cycle. The format is:
+
+```
+RES-OD1 check: OK: indpro_spy direction=counter_cyclical
+RES-OD1 check: OK: permit_spy direction=pro_cyclical
+```
+
+Pasting "RES-OD1 checked" without script output is NOT sufficient. If `winner_summary.json` does not yet exist for a pair, the handoff for that pair is BLOCKED until it is produced — Ray does not guess or carry forward a prior value.
+
+#### RES-OD1b — `direction_consistent` Recalculation Gate (Blocking, Wave 10J tightening)
+
+After any write to `observed_direction`, Ray MUST explicitly recalculate `direction_consistent` as `expected_direction == observed_direction` (boolean) and write the updated value to `interpretation_metadata.json`. Leaving a stale `direction_consistent: false` after correcting `observed_direction` is a separate data integrity failure — a pair can pass the RES-OD1 check while still carrying a wrong `direction_consistent` flag.
+
+**Mechanical check (run immediately after the OD1 assertion):**
+
+```bash
+python3 -c "
+import json, sys
+pair = sys.argv[1]
+im = json.load(open(f'results/{pair}/interpretation_metadata.json'))
+expected = im.get('expected_direction')
+observed = im.get('observed_direction')
+consistent = im.get('direction_consistent')
+computed = (expected == observed)
+assert consistent == computed, \
+  f'direction_consistent={consistent} but expected({expected})==observed({observed}) is {computed}'
+print(f'OK: {pair} direction_consistent={consistent}')
+" <pair_id>
+```
+
+#### RES-OD1c — Batch-Run Log for Migration Passes (Wave 10J tightening)
+
+When performing a batch backfill across N pairs, produce a machine-readable log at `results/res_od1_batch_check_YYYYMMDD.txt` with one line per pair:
+
+```
+OK: indpro_spy direction=counter_cyclical direction_consistent=false
+OK: permit_spy direction=pro_cyclical direction_consistent=true
+MISMATCH: sofr_ted_spy winner_summary.direction=counter_cyclical vs observed_direction=pro_cyclical
+```
+
+This file is the audit artifact Quincy reads during verification — one file covers all pairs in the migration, eliminating per-pair spot checks.
+
+### Rule RES-CP1 — Cross-Period Narrative (Mandatory alongside ECON-CP1)
+
+**Added 2026-04-24 (Wave 10J).** Whenever Evan produces ECON-CP1 (Cross-Period Consistency) analysis for a pair, Ray MUST author narrative prose for the Cross-Period Consistency block on the Evidence page. This prose accompanies the statistical output and is required before handoff to Ace. Three sub-components are mandatory:
+
+#### 1. Sub-Period Commentary (one paragraph per episode)
+
+For each sub-period identified in ECON-CP1 output (e.g., pre-GFC / GFC / post-GFC / COVID / post-COVID), write one paragraph explaining **why** the signal performed as it did during that episode. The explanation must cite the specific macro, credit, or policy context of that sub-period — not just report the number.
+
+**Required elements per paragraph:**
+- The sub-period label and date range (read from ECON-CP1 output, never hand-typed)
+- The signal's performance metric for that period (Sharpe, hit rate, or coefficient — read from ECON-CP1 output)
+- The dominant economic mechanism: what was happening in the macro/credit/policy environment that made the signal work (or not work)
+- A concrete anchor event: at least one named episode (e.g., "the Fed's emergency 100 bps cut in March 2020") that situates the sub-period for the reader
+
+**Anti-pattern (observation-only, REJECTED):**
+> "The signal performed well during 2002–2006 (Sharpe 1.4) and poorly during 2020–2022 (Sharpe 0.3)."
+
+**Correct pattern (mechanism + context, ACCEPTED):**
+> "During the 2002–2006 recovery, the signal's mean-reversion property thrived in a gradually tightening credit environment where spreads compressed in response to improving fundamentals — a regime where the indicator's z-score produced reliable contrarian signals (Sharpe 1.4). By contrast, the 2020–2022 period combined the COVID shock with unprecedented fiscal and monetary stimulus that compressed spreads far below historical norms; the signal repeatedly triggered a defensive posture that the market's extraordinary liquidity injection quickly reversed (Sharpe 0.3)."
+
+#### 2. Rolling Correlation Interpretation (one sentence per sign-flip)
+
+For each period where the rolling correlation between the indicator and the target flipped sign (identified by Evan's rolling correlation chart), Ray writes **one sentence** that names the period and gives the economic reason for the sign flip.
+
+**Required elements:**
+- The approximate date range when the flip occurred (read from chart output)
+- The direction of the flip (positive-to-negative or negative-to-positive)
+- The economic reason in plain English (mechanism, not just observation)
+
+**Example:**
+> "The rolling correlation flipped from negative to positive in mid-2020, reflecting the COVID stimulus phase when both spreads and equity prices recovered simultaneously — the usual counter-cyclical lead relationship temporarily broke down as policy-driven liquidity overwhelmed fundamental credit signals."
+
+**Format:** deliver as a `<!-- rolling_correlation_sign_flips -->` annotated block in the Evidence page narrative so Ace can locate and render it as a callout.
+
+#### 3. Structural Break Interpretation (conditional: when p < 0.10 in ECON-CP1 Chow/Quandt test)
+
+When Evan's ECON-CP1 analysis flags a structural break (p < 0.10), Ray writes **one paragraph** explaining the most plausible economic cause. The paragraph must:
+- State the break date (read from ECON-CP1 output)
+- Identify the break type: regime change, policy shift, or structural change in the indicator itself
+- Cite at least one concrete policy or market event that coincides with the break
+- State the directional consequence: did the break strengthen or weaken the signal, and what is the implication for out-of-sample reliability?
+
+**Example:**
+> "The structural break in late 2008 (p = 0.04, Quandt test) coincides with the Federal Reserve's first round of quantitative easing and the TARP program. Before the break, HY-IG spread widening reliably preceded equity drawdowns by 5–8 months. After the break, the Fed's floor under credit markets compressed the spread channel's predictive window to 1–2 months, as markets priced in policy backstops faster than the spread signal could transmit. This break means the pre-2008 Sharpe figures overstate the strategy's post-2008 reliability — a key caveat for OOS interpretation."
+
+**Quality gate:** when a break is flagged, the Evidence page narrative MUST include both the statistical finding (Evan's) and this economic interpretation (Ray's). A missing interpretation is a blocking handoff failure for the Evidence page.
+
+**Cross-references:** ECON-CP1 (Evan's cross-period consistency analysis), RES-CP2 (extended narrative for rolling Granger), RES-8 (historical episode cross-reference rule), RES-20 (episode selection criterion).
+
+### Rule RES-CP2 — Extended Cross-Period Narrative (Conditional, when ECON-CP2 applies)
+
+**Added 2026-04-24 (Wave 10J).** When Evan produces ECON-CP2 analysis — rolling Sharpe bands and rolling Granger causality p-values — Ray MUST author extended narrative covering two specific questions. This rule is conditional: it triggers only when ECON-CP2 output files are present in `results/{pair_id}/`.
+
+#### Rolling Sharpe Narrative
+
+Write one to two paragraphs addressing:
+
+1. **Persistence vs. episodic pattern:** Is the strategy's risk-adjusted return persistent across the full sample, or concentrated in discrete episodes? State this clearly using the rolling Sharpe chart.
+2. **Reliability implication:** What does the persistence pattern mean for trusting the strategy in live trading? If the strategy's alpha is episodic (concentrated in 2-3 market stress events), state that explicitly — it means the strategy is an insurance payoff, not a stable alpha stream.
+
+**Framing guidance:**
+- If rolling Sharpe rarely drops below 0.5 across 3+ year windows → "the strategy generates persistent, if moderate, risk-adjusted returns across multiple market regimes — the signal is not dependent on a single favorable episode."
+- If rolling Sharpe spends long periods near zero or negative, punctuated by stress-period spikes → "the strategy's alpha is episodic — most of the observed Sharpe is earned during 2-3 stress events; investors who enter between stress episodes may experience long flat periods."
+
+#### Rolling Granger Narrative
+
+Write one to two paragraphs addressing:
+
+1. **Predictive power persistence:** Does the indicator's Granger-causal predictive power hold consistently across rolling windows, or does it strengthen/weaken in specific regimes?
+2. **Trading rule reliability implication:** If the Granger p-value consistently stays below 0.05 → the predictive relationship is robust and the trading rule's signal generation has a stable statistical foundation. If the p-value frequently exceeds 0.10 → the predictive relationship is intermittent; the trading rule may work in calm periods but loses its informational advantage in specific regimes.
+3. **Regime identification (if applicable):** When the rolling Granger p-value clearly separates into a low-p regime and a high-p regime, identify what economic conditions characterize each. This is especially important when the low-p regime corresponds to market stress — it validates the strategy's "flight-to-quality" or "stress-amplification" mechanism.
+
+**Delivery format:** both the rolling Sharpe narrative and rolling Granger narrative are delivered as labeled blocks in the Evidence page narrative:
+```
+<!-- rcp2_rolling_sharpe_narrative -->
+[prose here]
+<!-- /rcp2_rolling_sharpe_narrative -->
+
+<!-- rcp2_rolling_granger_narrative -->
+[prose here]
+<!-- /rcp2_rolling_granger_narrative -->
+```
+
+**Cross-references:** ECON-CP2 (Evan's rolling Sharpe and Granger analysis), RES-CP1 (primary cross-period narrative), RES-8 (historical episode integration).
+
+### Rule RES-ZOOM1 — Historical Zoom Episode Narrative (Conditional)
+
+**Added 2026-04-24 (Wave 10J).** When Vera produces `history_zoom_{episode}.json` charts per VIZ-ZOOM1, Ray MUST provide a narrative paragraph per episode in the pair's portal config. This rule is conditional: it triggers exactly when VIZ-ZOOM1 mandates zoom charts for the pair.
+
+#### Four Canonical Episodes
+
+| Episode slug | Date range | Narrative focus |
+|---|---|---|
+| `dot_com` | 2000-03-01 to 2002-10-31 | Equity bubble deflation, corporate fraud (Enron, WorldCom), cautious credit widening |
+| `gfc` | 2007-06-01 to 2009-03-31 | Credit crisis, Lehman collapse, extreme spread widening, policy panic |
+| `covid` | 2020-02-01 to 2020-06-30 | Simultaneous shock, near-instantaneous spread + equity collapse, V-shaped recovery |
+| `rates_2022` | 2022-01-01 to 2022-12-31 | Fed tightening cycle, duration-driven equity drawdown, credit spreads diverged from equities |
+
+#### Required Content per Episode Paragraph
+
+Each zoom episode paragraph MUST cover three elements:
+
+1. **Macroeconomic context:** What was happening in the economy and credit/policy environment during this episode? (~2-3 sentences, specific to the episode)
+
+2. **Signal behavior:** How did the indicator behave? Did it lead, coincide, or lag equity moves? Did it give a clear signal, a partial signal, or fail to signal? (~2-3 sentences, anchored on the zoom chart — read the chart's behavior before writing)
+
+3. **Trader action implication:** What would a trader following this strategy have done, and was it the right call in hindsight? (~1-2 sentences, concrete action: "reduced equity exposure in [month]," "remained fully invested despite the drawdown," etc.)
+
+#### Format
+
+Deliver each episode paragraph as a named config attribute in the pair config file under the `ZOOM_EPISODE_NARRATIVES` dict, keyed by episode slug:
+
+```python
+ZOOM_EPISODE_NARRATIVES = {
+    "dot_com": """...""",
+    "gfc": """...""",
+    "covid": """...""",
+    "rates_2022": """...""",
+}
+```
+
+Ace reads this dict and renders each paragraph beneath its corresponding zoom chart on the Evidence page. Episodes not produced by Vera (i.e., not mandated by VIZ-ZOOM1 for this pair) are omitted from the dict — do NOT write placeholder text for absent charts.
+
+#### RES-ZOOM1 Pre-Write Checklist
+
+Before authoring any episode paragraph:
+
+1. Confirm the zoom chart exists at `output/charts/{pair_id}/plotly/history_zoom_{episode}.json`
+2. Read the chart (or Vera's chart-description handoff note) to understand what the indicator did during the episode — do NOT write from memory of the general episode without chart grounding
+3. Confirm the episode slug matches VIZ-ZOOM1's canonical list (dot_com / gfc / covid / rates_2022) — custom slugs require Vera approval
+
+**If a zoom chart is missing but VIZ-ZOOM1 mandates it:** do NOT write the prose. File a gap notice to Vera and block the Evidence page handoff to Ace until the chart arrives. Writing prose for a chart that doesn't exist is a RES-8 violation.
+
+**Cross-references:** VIZ-ZOOM1 (Vera's zoom chart mandate), RES-8 (historical episode cross-reference rule), RES-20 (episode selection triad), META-ZI (canonical vs pair-specific zoom protocol), APP-PT1 (Ace template rendering of zoom blocks).
+
 ## Tool Preferences
 
 ### MCP Servers (Primary)
