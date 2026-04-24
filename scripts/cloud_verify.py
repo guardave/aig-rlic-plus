@@ -565,6 +565,85 @@ def gate29_parquet_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     return failures
 
 
+def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+    """GATE-DP1 (Wave 10K, 2026-04-24): Dual-Panel Trace Visibility Check.
+
+    For every history_zoom_*.json chart committed under
+    ``output/charts/{pair_id}/plotly/``, verify that:
+      - top-panel traces (yaxis absent or "y") are assigned xaxis="x" (or absent)
+      - bottom-panel traces (yaxis="y2") are assigned xaxis="x2"
+
+    Root cause of the gap: all 29 history_zoom charts shipped with
+    xaxis="x" on the bottom-panel target trace.  The panel rendered with
+    correct y-axis tick labels but a completely blank line — data was present
+    in the JSON (800+ points) but invisible on screen because the trace was
+    drawing against the wrong x-axis subplot reference.
+
+    GATE-HZE1 confirms heading presence; it cannot catch this because it only
+    checks the DOM heading string, not chart internal structure.  GATE-DP1 is
+    a JSON-structural extension of GATE-27 and runs as part of the preflight
+    before any browser time is spent.
+
+    Returns: list of failure dicts (empty = all charts pass).
+    """
+    import glob as _glob
+    failures = []
+    for pair_id in pairs:
+        pattern = f"{project_root}/output/charts/{pair_id}/plotly/history_zoom_*.json"
+        for fpath in sorted(_glob.glob(pattern)):
+            chart_name = os.path.basename(fpath)
+            try:
+                with open(fpath) as f:
+                    chart = json.load(f)
+            except Exception as exc:
+                failures.append({
+                    "pair_id": pair_id,
+                    "chart": chart_name,
+                    "gate": "GATE-DP1",
+                    "finding": f"JSON parse error: {exc}",
+                    "detail": str(fpath),
+                })
+                print(f"  GATE-DP1 FAIL {pair_id}/{chart_name}: JSON parse error: {exc}", flush=True)
+                continue
+
+            traces = chart.get("data", [])
+            chart_ok = True
+            for i, trace in enumerate(traces):
+                yaxis = trace.get("yaxis", "y")   # absent defaults to top panel
+                xaxis = trace.get("xaxis", "x")   # absent defaults to top panel
+                is_bottom = yaxis == "y2"
+                expected_xaxis = "x2" if is_bottom else "x"
+                if xaxis != expected_xaxis:
+                    chart_ok = False
+                    finding = (
+                        f"GATE-DP1 FAIL: trace[{i}] '{trace.get('name', '<unnamed>')}' "
+                        f"has yaxis='{yaxis}' but xaxis='{xaxis}' "
+                        f"(expected '{expected_xaxis}'). "
+                        f"Mismatched axis reference = invisible trace on screen. "
+                        f"Owner: Vera. File: {fpath}"
+                    )
+                    failures.append({
+                        "pair_id": pair_id,
+                        "chart": chart_name,
+                        "gate": "GATE-DP1",
+                        "trace_index": i,
+                        "trace_name": trace.get("name", "<unnamed>"),
+                        "yaxis": yaxis,
+                        "xaxis_actual": xaxis,
+                        "xaxis_expected": expected_xaxis,
+                        "finding": finding,
+                        "detail": str(fpath),
+                    })
+                    print(f"  GATE-DP1 FAIL {pair_id}/{chart_name}: {finding}", flush=True)
+            if chart_ok:
+                print(
+                    f"  GATE-DP1 PASS {pair_id}/{chart_name}: "
+                    f"{len(traces)} trace(s) axis-assignments correct",
+                    flush=True,
+                )
+    return failures
+
+
 def gate27_perceptual_png_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     """GATE-27 extension (D4, Wave 10J): assert perceptual-check PNGs are committed.
 
@@ -661,6 +740,33 @@ def main():
             )
     else:
         print("\n[GATE-29 pre-flight] SKIPPED (--skip-gate29 flag set)", flush=True)
+
+    # --- GATE-DP1 pre-flight (Wave 10K, 2026-04-24) ---
+    # JSON-level structural check: every history_zoom_*.json dual-panel chart must
+    # assign bottom-panel traces to xaxis="x2" (not xaxis="x").  A mismatch renders
+    # correct tick labels but an invisible line — data is present but not drawn.
+    # GATE-HZE1 confirms heading presence in DOM; it cannot catch this rendering defect.
+    # Run before browser pass; abort browser run if any GATE-DP1 failures exist.
+    print("\n[GATE-DP1 pre-flight] checking history_zoom_*.json axis assignments ...", flush=True)
+    dp1_failures = gate_dp1_dual_panel_preflight(pairs)
+    for f in dp1_failures:
+        results.append({
+            "slug": f"{f['pair_id']}_story",
+            "pair_id": f["pair_id"],
+            "page": "story",
+            "gate": "GATE-DP1",
+            "verdict": "FAIL",
+            "error": f["finding"],
+        })
+    if dp1_failures:
+        print(
+            f"  *** {len(dp1_failures)} GATE-DP1 FAIL(s) — history_zoom chart(s) have "
+            "mismatched axis assignments. Bottom-panel traces are invisible on screen. "
+            "Fix owner: Vera. Do not proceed to browser pass until resolved. ***",
+            flush=True,
+        )
+    else:
+        print("  GATE-DP1: all history_zoom charts PASS axis-assignment check.", flush=True)
 
     # --- GATE-27 PNG pre-flight (D4, Wave 10J) ---
     # Check that Vera committed at least one _perceptual_check_*.png per pair.
@@ -797,6 +903,7 @@ def main():
         "fail": sum(1 for r in results if r.get("verdict") == "FAIL"),
         "total": len(results),
         "gate27_png_warnings": gate27_png_warnings,   # D4 Wave 10J: perceptual PNG existence
+        "gate_dp1_failures": dp1_failures,            # Wave 10K: dual-panel axis-assignment check
         "results": results,
     }
     with open(os.path.join(out_dir, "results.json"), "w") as fh:
@@ -835,11 +942,20 @@ def main():
     print(f"Screenshot index: {index_path}", flush=True)
 
     png_warn_count = len(gate27_png_warnings)
+    dp1_fail_count = len(dp1_failures)
     print(f"\n=== SUMMARY: {summary['pass']} PASS / {summary['fail']} FAIL / {summary['total']} TOTAL"
-          f" | GATE-27-PNG WARN: {png_warn_count} pair(s) missing perceptual PNGs ===", flush=True)
+          f" | GATE-27-PNG WARN: {png_warn_count} pair(s) missing perceptual PNGs"
+          f" | GATE-DP1 FAIL: {dp1_fail_count} axis-assignment issue(s) ===", flush=True)
     if png_warn_count:
         print("  GATE-27-PNG: pairs missing _perceptual_check_*.png: "
               + ", ".join(w["pair_id"] for w in gate27_png_warnings), flush=True)
+    if dp1_fail_count:
+        seen = set()
+        for f in dp1_failures:
+            key = f"{f['pair_id']}/{f['chart']}"
+            if key not in seen:
+                seen.add(key)
+                print(f"  GATE-DP1 FAIL: {key} — {f.get('finding','')}", flush=True)
     print(f"Results: {out_dir}/results.json", flush=True)
     return 0 if summary["fail"] == 0 else 1
 

@@ -1,5 +1,24 @@
 # Team Status Board
 
+## 2026-04-24 — QA Quincy (GATE-DP1 — Dual-Panel Trace Visibility Check)
+
+**Status:** SOP authored. Verification code wired into `scripts/cloud_verify.py`. No chart files touched (LEAD-DL1 respected).
+
+**Finding (the gap):** GATE-HZE1 checks that the "How the Signal Performed in Past Crises" heading is present in the Story DOM — and it passed for all 29 committed `history_zoom_*.json` charts. But those 29 charts had a systematic bug: the bottom-panel target trace was assigned `xaxis="x"` instead of `xaxis="x2"`. The panel rendered correct y-axis tick labels but a completely blank line — 800+ data points in the JSON, none visible on screen.
+
+**Root cause class:** "section present + chart file exists + heading in DOM" ≢ "chart is visually correct." Silent rendering failures from structural axis misconfiguration pass all existence and DOM-presence checks. A fourth independent layer is required: JSON-structural assertion on subplot axis bindings.
+
+**Actions taken (Quincy-owned — LEAD-DL1 respected):**
+- `docs/agent-sops/qa-agent-sop.md`: new rule **GATE-DP1 — Dual-Panel Trace Visibility Check** added as GATE-27 extension in QA-CL4. Defines: yaxis→xaxis binding check per trace; failure disposition (FAIL, owner Vera); `gate_dp1_dual_panel_preflight()` snippet; integration point (before browser pass, abort on failure).
+- `scripts/cloud_verify.py`: `gate_dp1_dual_panel_preflight()` function added and wired into `main()` before the Playwright browser session.
+- `~/.claude/agents/qa-quincy/experience.md`: Pattern 31 added — "data present ≠ data visible — structural JSON checks must cover axis assignments, not just data existence."
+
+**Cross-agent action required (Lead to dispatch):** Vera — fix chart generator so all bottom-panel traces emit `xaxis="x2"`. Regenerate all 29 `history_zoom_*.json` charts. GATE-DP1 preflight confirms 0 failures on next cloud verify.
+
+**Scope discipline:** Own SOP + own experience.md + own cloud_verify.py tooling + this status board. Zero writes to chart files, pair configs, portal pages, or other agent SOPs.
+
+---
+
 ## 2026-04-24 — Data Dana (Wave 10J/10K checkpoint — META-CPD + self-reflection)
 
 **Status:** Checkpoint complete.

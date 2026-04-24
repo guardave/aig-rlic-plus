@@ -388,6 +388,91 @@ else:
 
 **Cross-references:** VIZ-ZOOM1 (Vera produces zoom charts); RES-HZE1 (Ray provides zoom episode narratives); GATE-28 (structural parity gate GATE-HZE1 extends); HABIT-QA1 (DOM read requirement that enables this check).
 
+**GATE-DP1 — Dual-Panel Trace Visibility Check (added Wave 10K, 2026-04-24).**
+
+> **Data present in a JSON file does not mean data visible on screen. A trace silently assigned to the wrong axis reference renders with correct tick labels and data points internally — but draws nothing to the viewport. GATE-DP1 closes the gap between "file exists and has data" and "chart renders correctly."**
+
+**Root cause of the gap.** GATE-HZE1 confirms that the "How the Signal Performed in Past Crises" heading is present in the Story DOM — and it passed for all 29 committed `history_zoom_*.json` charts. But the bottom panel (target trace) in every one of those 29 charts was assigned `xaxis="x"` instead of `xaxis="x2"`. The panel rendered with correct y-axis labels and tick values, but the line itself was invisible. GATE-HZE1 cannot catch this: it checks heading presence, not chart visual correctness. The chart files exist, the heading is in the DOM, the section renders — and the bottom panel is blank.
+
+**Failure class: "section present + chart file exists + heading in DOM" ≢ "chart is visually correct."** Silent rendering failures (blank panels, invisible traces) require a JSON-level structural check, not a DOM-level check.
+
+**What Quincy checks.** For every `history_zoom_*.json` file under `output/charts/{pair_id}/plotly/`, before the browser pass:
+
+1. Load the JSON and extract all traces (items in the `data` array).
+2. Determine which panel each trace belongs to — top vs. bottom — by its `yaxis` value: traces with `yaxis` absent or `yaxis="y"` are top-panel; traces with `yaxis="y2"` are bottom-panel.
+3. Assert that top-panel traces are assigned to `xaxis="x"` (or absent, which defaults to `x`).
+4. Assert that bottom-panel traces are assigned to `xaxis="x2"`.
+5. **FAIL** if any trace has a mismatched axis assignment: a top-panel trace on `x2`, or a bottom-panel trace on `x` (or absent).
+
+**This is a JSON-level structural check — run it as part of GATE-27 preflight, before any browser time is spent.** It does not require Playwright or a live server. It runs locally against committed JSON files.
+
+**Verification command pattern (for `scripts/cloud_verify.py`):**
+
+```python
+import glob, json
+
+def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+    """GATE-DP1: Dual-Panel Trace Visibility Check.
+
+    For every history_zoom_*.json chart, verify that top-panel traces use xaxis='x'
+    and bottom-panel traces use xaxis='x2'. A mismatch means the trace is invisible
+    on screen even though data is present in the JSON.
+
+    Returns: list of failure dicts (empty = all charts pass).
+    """
+    failures = []
+    for pair_id in pairs:
+        pattern = f"{project_root}/output/charts/{pair_id}/plotly/history_zoom_*.json"
+        for fpath in sorted(glob.glob(pattern)):
+            chart_name = os.path.basename(fpath)
+            try:
+                with open(fpath) as f:
+                    chart = json.load(f)
+            except Exception as e:
+                failures.append({
+                    "pair_id": pair_id,
+                    "chart": chart_name,
+                    "gate": "GATE-DP1",
+                    "finding": f"JSON parse error: {e}",
+                })
+                continue
+
+            traces = chart.get("data", [])
+            for i, trace in enumerate(traces):
+                yaxis = trace.get("yaxis", "y")        # absent → top panel
+                xaxis = trace.get("xaxis", "x")        # absent → top panel
+                is_bottom = yaxis == "y2"
+                expected_xaxis = "x2" if is_bottom else "x"
+                if xaxis != expected_xaxis:
+                    failures.append({
+                        "pair_id": pair_id,
+                        "chart": chart_name,
+                        "gate": "GATE-DP1",
+                        "trace_index": i,
+                        "trace_name": trace.get("name", "<unnamed>"),
+                        "yaxis": yaxis,
+                        "xaxis_actual": xaxis,
+                        "xaxis_expected": expected_xaxis,
+                        "finding": (
+                            f"GATE-DP1 FAIL: trace[{i}] '{trace.get('name','<unnamed>')}' "
+                            f"has yaxis='{yaxis}' but xaxis='{xaxis}' "
+                            f"(expected '{expected_xaxis}'). "
+                            f"Bottom-panel traces MUST use xaxis='x2'; top-panel traces "
+                            f"MUST use xaxis='x'. Mismatched axis = invisible trace on screen. "
+                            f"Owner: Vera (fix chart generator). File: {fpath}"
+                        ),
+                    })
+    return failures
+```
+
+**FAIL disposition:** Vera fixes the chart generator (ensure all bottom-panel traces emit `xaxis="x2"`). QA re-runs GATE-DP1 preflight to confirm zero failures before browser pass. Do not proceed to browser verification while GATE-DP1 failures persist — the section will render with blank bottom panels regardless of heading presence.
+
+**Scope:** All `history_zoom_*.json` charts for all active pairs. New chart types with dual-panel layouts (if added in future) should be added to the same preflight with matching axis-assignment assertions.
+
+**Integration point in `scripts/cloud_verify.py`:** add a call to `gate_dp1_dual_panel_preflight(pairs)` immediately after the GATE-29 parquet preflight and before the Playwright browser session begins. Hard-fail (abort browser run) if any GATE-DP1 failures are returned.
+
+**Cross-references:** VIZ-ZOOM1 (Vera produces zoom charts); GATE-HZE1 (heading presence — necessary but not sufficient); GATE-27 (chart render validation — GATE-DP1 is a JSON-structural extension of this gate); HABIT-QA1 (DOM read requirement).
+
 **GATE-32 — Mandatory-Section Placeholder Expiry Gate (added Wave 10J, 2026-04-24).**
 
 After any wave that adds new mandatory Evidence (or other) sections — e.g., ECON-CP1/CP2 cross-period consistency, VIZ-CP1 rolling-window charts — the placeholder text that Ace renders while charts are pending MUST transition from WARN to FAIL in `STUB_PATS` before that wave can be considered permanently closed.
