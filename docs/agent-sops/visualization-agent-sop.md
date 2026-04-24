@@ -650,6 +650,75 @@ A `history_zoom_{episode_slug}.json` chart is REQUIRED for an episode when ALL T
 
 ---
 
+#### Rule VIZ-HZE1 — History Zoom Episode Completeness Gate (added 2026-04-24, Wave 10J)
+
+**Problem addressed:** Wave 10J audit found that `history_zoom_{slug}.json` files were silently absent for 8 of 10 pairs. Rule VIZ-ZOOM1 defines when zoom charts are required and Rule VIZ-V1 specifies how to build them, but neither rule contained a **pre-handoff gate** that verifies every required slug was actually committed to disk before Vera hands off to Ace. The gap allowed structurally complete dispatches to ship while the "How the Signal Performed in Past Crises" section remained empty on most Story pages — a silent content failure invisible to smoke tests.
+
+**Root cause of the gap:** Zoom chart production is triggered by data availability and domain relevance (VIZ-ZOOM1), but the check was purely conceptual — no mechanical verification step was mandated before handoff. A producer working from the SOP could read VIZ-ZOOM1, generate charts for the pair's most prominent episode, and hand off, without realising that additional slugs registered for the pair's `indicator_category` were also required. Without a gate that enumerates required slugs from the registry and checks them against disk, omissions are invisible.
+
+**Mandatory pre-handoff gate (BLOCKING):**
+
+Before any Vera handoff note is written and before the Ace dispatch is sent, Vera MUST:
+
+1. **Identify required slugs:** Read `docs/schemas/episode_registry.json`, find the entry keyed on the pair's `interpretation_metadata.indicator_category`. Extract the list of canonical episode slugs registered for that category.
+
+2. **Check data coverage per slug:** For each slug, confirm the pair's indicator data spans the episode's `start_date`/`end_date` window (from `docs/schemas/history_zoom_events_registry.json`). Slugs that fail coverage are SKIP candidates (see §Skip Protocol below).
+
+3. **Verify files exist on disk:** Run the following shell command for each required slug:
+
+   ```bash
+   git ls-files output/charts/{pair_id}/plotly/history_zoom_{slug}.json
+   ```
+
+   Each command MUST return the file path (non-empty output). An empty return means the chart was never committed and is a **blocking gate failure**.
+
+4. **Aggregate check:** The following command must return at least one result per registered (non-skipped) slug:
+
+   ```bash
+   git ls-files output/charts/{pair_id}/plotly/history_zoom_*.json
+   ```
+
+5. **Record the gate result** in the handoff note:
+
+   ```
+   VIZ-HZE1 gate — {pair_id}:
+     Required slugs: [dotcom, gfc, covid, inflation_2022]
+     Coverage check: dotcom=PASS, gfc=PASS, covid=PASS, inflation_2022=SKIP (data starts 2018)
+     Disk check: history_zoom_dotcom.json PASS, history_zoom_gfc.json PASS, history_zoom_covid.json PASS
+     Gate verdict: PASS
+   ```
+
+   Any slug that is required (not skipped) and does not resolve on disk → **Gate verdict: FAIL — handoff is BLOCKED.**
+
+**Skip protocol — when pair data does not cover an episode:**
+
+When the pair's indicator data does not span an episode's date window, the chart is not required for that slug. Vera must:
+
+1. Add a `history_zoom_{slug}_skip` entry to the pair's `_meta.json` sidecar at `output/charts/{pair_id}/plotly/_meta.json`:
+
+   ```json
+   "history_zoom_dotcom_skip": {
+     "reason": "Indicator (SOFR) data begins 2014-04-01; Dot-Com episode ends 2002-10-09. No data coverage.",
+     "episode_slug": "dotcom",
+     "skipped_by": "VIZ-HZE1",
+     "wave": "10J"
+   }
+   ```
+
+2. Include the skip in the VIZ-HZE1 gate record in the handoff note (see §4 above, e.g., `inflation_2022=SKIP (data starts 2018)`).
+
+3. Do NOT leave the skip undocumented. An undocumented missing chart is indistinguishable from a production failure.
+
+**Remediation when gate fails:**
+
+If `git ls-files` returns empty for a required slug, Vera must generate the missing chart before proceeding. The chart must be built to VIZ-V1 spec (dual-panel, NBER shading per VIZ-V2, events from VIZ-V12 registry, annotation strategy per VIZ-V13). After generation, commit the file and rerun the gate. Do not proceed to handoff until the gate passes.
+
+**Scope:** This gate applies to every pair that has at least one portal page and is included in a Vera handoff to Ace. It applies retroactively to pairs already on the portal — missing zoom charts on existing pairs must be flagged in the next Vera dispatch touching that pair.
+
+**Cross-reference:** VIZ-ZOOM1 (trigger conditions and required episode list), VIZ-V1 (full zoom chart production spec — dual-panel, event markers, NBER shading, annotation strategy), VIZ-V2 (NBER shading — per-panel subplot coverage), VIZ-V12 (events registry — canonical event set per slug), VIZ-V13 (annotation strategies), VIZ-V5 / VIZ-CV1 (chart rendering validation — must pass for all committed zoom charts), APP-EP4 / GATE-25 (Ace's placeholder behavior for missing charts).
+
+---
+
 #### Rule VIZ-CP1 — Cross-Period Consistency Chart Types (added 2026-04-24, Wave 10J)
 
 **Context:** The econometrics agent (ECON-CP1 and ECON-CP2) generates cross-period consistency analyses that compare indicator-target relationships across historical episodes and rolling windows. This rule defines the canonical visualization specification for each chart type produced by these analyses.
@@ -1396,3 +1465,7 @@ Before returning your task result, complete these three lightweight steps:
 3. **Flag cross-role insights** — If the insight involves coordination with another agent (e.g., "Vera and I need to agree on chart filenames"), also append a one-line entry to `_pws/_team/status-board.md` under a section called `## Team Insights — YYYY-MM-DD` (create the section if missing).
 
 **Rationale:** This builds a learning loop across dispatches. When the same agent is spawned again for a similar task, its experience.md will already contain lessons from prior work. Skip this only if the task was purely mechanical (e.g., trivial rename) — use judgment.
+
+## Git and Handoff Protocol
+
+Per META-CPD (team-coordination.md), every `git commit` must be immediately followed by `git push origin main` — a commit without a push is not a completed deliverable.
