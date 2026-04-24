@@ -1,0 +1,39 @@
+{
+  "_comment": "Canonical stress-episode sets by indicator_category. Each agent reads episodes from this registry keyed on indicator_category from interpretation_metadata.json. One source of truth — edit here, all pipeline stages pick it up.",
+  "rates": [
+    {"slug": "dot_com",    "label": "Dot-Com Crash",      "start": "2000-03-01", "end": "2002-10-31", "rationale": "Rate curve steepened sharply as Fed cut; rate-spread dynamics distinct from equity bear market"},
+    {"slug": "gfc",        "label": "GFC",                 "start": "2007-12-01", "end": "2009-06-30", "rationale": "Inversion preceded recession by 12+ months; canonical yield curve signal validation"},
+    {"slug": "taper_2013", "label": "Taper Tantrum",       "start": "2013-05-01", "end": "2013-12-31", "rationale": "Rapid rate repricing without recession — key test for rate-spread signals outside crisis context"},
+    {"slug": "rates_2022", "label": "2022 Rates Shock",    "start": "2022-01-01", "end": "2022-12-31", "rationale": "Fastest hiking cycle in 40 years; rate-spread signals face structural break test"}
+  ],
+  "credit": [
+    {"slug": "dot_com",    "label": "Dot-Com Crash",      "start": "2000-03-01", "end": "2002-10-31", "rationale": "HY spread widening as corporate defaults rose with equity bust"},
+    {"slug": "gfc",        "label": "GFC",                 "start": "2007-12-01", "end": "2009-06-30", "rationale": "Peak credit stress; HY-IG spread dominant tail event"},
+    {"slug": "covid",      "label": "COVID Shock",         "start": "2020-02-01", "end": "2020-12-31", "rationale": "Rapid spread widening and Fed credit facility intervention — tests signal adaptivity"},
+    {"slug": "rates_2022", "label": "2022 Rates Shock",    "start": "2022-01-01", "end": "2022-12-31", "rationale": "Gradual spread widening alongside equity re-rating; different mechanism from GFC"}
+  ],
+  "activity": [
+    {"slug": "dot_com",    "label": "Dot-Com Crash",      "start": "2000-03-01", "end": "2002-10-31", "rationale": "Industrial slowdown preceded equity bear market; leading-indicator test"},
+    {"slug": "gfc",        "label": "GFC",                 "start": "2007-12-01", "end": "2009-06-30", "rationale": "Sharpest activity contraction in post-war history; dominant test for activity signals"},
+    {"slug": "covid",      "label": "COVID Shock",         "start": "2020-02-01", "end": "2020-12-31", "rationale": "Extreme but transient activity collapse; tests signal behavior in fast-recovery regime"},
+    {"slug": "china_2015", "label": "China/EM Shock",      "start": "2015-06-01", "end": "2016-02-29", "rationale": "Activity slowdown + commodity crash without US recession; tests signal in mid-cycle softness"}
+  ],
+  "volatility": [
+    {"slug": "dot_com",    "label": "Dot-Com Crash",      "start": "2000-03-01", "end": "2002-10-31", "rationale": "Prolonged elevated vol; tests vol-regime signal in sustained drawdown"},
+    {"slug": "gfc",        "label": "GFC",                 "start": "2007-12-01", "end": "2009-06-30", "rationale": "VIX peaked at 89; extreme regime test"},
+    {"slug": "covid",      "label": "COVID Shock",         "start": "2020-02-01", "end": "2020-12-31", "rationale": "VIX spike + rapid mean-reversion; tests signal in transient vs. sustained vol regimes"},
+    {"slug": "rates_2022", "label": "2022 Rates Shock",    "start": "2022-01-01", "end": "2022-12-31", "rationale": "Elevated but not extreme vol; tests signal in grinding bear market"}
+  ],
+  "sentiment": [
+    {"slug": "dot_com",    "label": "Dot-Com Crash",      "start": "2000-03-01", "end": "2002-10-31", "rationale": "Sentiment collapsed from euphoria; leading-indicator test at extremes"},
+    {"slug": "gfc",        "label": "GFC",                 "start": "2007-12-01", "end": "2009-06-30", "rationale": "Deep pessimism sustained; sentiment signals face mean-reversion vs. momentum test"},
+    {"slug": "covid",      "label": "COVID Shock",         "start": "2020-02-01", "end": "2020-12-31", "rationale": "Rapid sentiment collapse and recovery; tests signal speed of adaptation"},
+    {"slug": "rates_2022", "label": "2022 Rates Shock",    "start": "2022-01-01", "end": "2022-12-31", "rationale": "Persistent pessimism under inflation + rate pressure; sustained signal test"}
+  ],
+  "_fallback": [
+    {"slug": "dot_com",    "label": "Dot-Com Crash",      "start": "2000-03-01", "end": "2002-10-31", "rationale": "Standard episode"},
+    {"slug": "gfc",        "label": "GFC",                 "start": "2007-12-01", "end": "2009-06-30", "rationale": "Standard episode"},
+    {"slug": "covid",      "label": "COVID Shock",         "start": "2020-02-01", "end": "2020-12-31", "rationale": "Standard episode"},
+    {"slug": "rates_2022", "label": "2022 Rates Shock",    "start": "2022-01-01", "end": "2022-12-31", "rationale": "Standard episode"}
+  ]
+}

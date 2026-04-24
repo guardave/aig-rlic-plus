@@ -18,6 +18,24 @@ warnings.filterwarnings("ignore")
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 BASE = Path("/workspaces/aig-rlic-plus")
+
+
+def load_episodes(pair_id: str) -> list:
+    """Load pair-class-specific stress episodes from the canonical registry.
+
+    Reads docs/schemas/episode_registry.json, looks up indicator_category from
+    results/{pair_id}/interpretation_metadata.json, and returns the matching
+    episode list. Falls back to _fallback if the category is absent or unknown.
+    The episode dict has keys: slug, label, start, end, rationale.
+    Use for any episode-dependent chart logic (e.g., sub-period bar chart labels).
+    """
+    registry = json.loads((BASE / "docs/schemas/episode_registry.json").read_text())
+    interp_path = BASE / f"results/{pair_id}/interpretation_metadata.json"
+    category = "unknown"
+    if interp_path.exists():
+        interp = json.loads(interp_path.read_text())
+        category = interp.get("indicator_category", interp.get("indicator_type", "unknown"))
+    return registry.get(category, registry["_fallback"])
 RESULTS = BASE / "results"
 CHARTS = BASE / "output" / "charts"
 GENERATED_AT = "2026-04-24"

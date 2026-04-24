@@ -11,6 +11,7 @@
 | VIZ-ZOOM1 | Vera | Ray | Provide zoom episode narratives per RES-ZOOM1 — one narrative block per canonical episode slug for each pair Ray authors | 10J |
 | RES-OD1a/b/c | Ray | Quincy | Verify OD1 batch log exists in handoff before sign-off — cloud_verify.py must check that `results/{pair_id}/od1_batch_log.md` (or equivalent) is present and non-empty | 10J |
 | GATE-CL6 | Ace | Quincy | Add cross-period section check to HABIT-QA1 DOM read — verify cross-period section renders in portal DOM for all pairs that declare cross-period content in their config | 10J |
+| RES-EPIS1 | Ray | Evan, Vera, Ray | Read episodes from docs/schemas/episode_registry.json keyed on indicator_category — replace all hardcoded episode lists in ECON-CP1, RES-CP1, VIZ-ZOOM1 | Wave 10K |
 
 ---
 

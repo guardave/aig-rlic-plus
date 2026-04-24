@@ -612,6 +612,8 @@ A `history_zoom_{episode_slug}.json` chart is REQUIRED for an episode when ALL T
 2. **Relevance:** The episode is a major stress event relevant to the indicator's economic domain. All four canonical episodes are relevant to all financial indicator-target pairs unless the data coverage check fails.
 3. **Portal delivery:** The pair has at least one portal page (Story, Evidence, Strategy, or Methodology). Pairs not yet ported to the portal may defer zoom charts until portal delivery.
 
+**Episode selection for zoom charts:** Read from `docs/schemas/episode_registry.json` keyed on `interpretation_metadata.indicator_category`. The slugs in the registry define the canonical zoom chart filenames (`history_zoom_{slug}.json`).
+
 **Required episodes (canonical):** Dot-Com (2000–2002), GFC (2007–2009), COVID (2020), 2022 Rates Shock (2021–2023).
 
 **Episode slug names:** `dotcom`, `gfc`, `covid`, `inflation_2022`.

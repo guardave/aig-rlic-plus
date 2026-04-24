@@ -126,14 +126,28 @@ PAIRS = [
     ),
 ]
 
-SUB_PERIODS = [
-    ("Dot-Com Crash", "2000-03-01", "2002-10-31"),
-    ("GFC",           "2007-12-01", "2009-06-30"),
-    ("COVID",         "2020-02-01", "2020-12-31"),
-    ("2022 Rates Shock", "2022-01-01", "2022-12-31"),
-]
+import pathlib
 
 MIN_COVERAGE_MONTHS = 6  # minimum months to compute Sharpe
+
+
+def load_episodes(pair_id: str) -> list:
+    """Load pair-class-specific stress episodes from the canonical registry.
+
+    Reads docs/schemas/episode_registry.json, looks up indicator_category from
+    results/{pair_id}/interpretation_metadata.json, and returns the matching
+    episode list. Falls back to _fallback if the category is absent or unknown.
+    """
+    registry = json.loads(
+        pathlib.Path(os.path.join(BASE, "docs/schemas/episode_registry.json")).read_text()
+    )
+    interp_path = pathlib.Path(os.path.join(BASE, f"results/{pair_id}/interpretation_metadata.json"))
+    category = "unknown"
+    if interp_path.exists():
+        interp = json.loads(interp_path.read_text())
+        category = interp.get("indicator_category", interp.get("indicator_type", "unknown"))
+    episodes = registry.get(category, registry["_fallback"])
+    return episodes
 
 
 # ── Helper: load and merge data + signals ────────────────────────────────────
@@ -207,7 +221,9 @@ def compute_subperiod_sharpe(df, strat_ret, cfg):
     oos_start = pd.Timestamp(cfg["oos_start"])
     rows = []
 
-    periods = list(SUB_PERIODS) + [
+    episodes = load_episodes(cfg["pair_id"])
+    episode_tuples = [(ep["label"], ep["start"], ep["end"]) for ep in episodes]
+    periods = episode_tuples + [
         ("Full OOS", cfg["oos_start"], str(df.index.max().date()))
     ]
 
@@ -465,10 +481,16 @@ print("=" * 70)
 for pid, info in summary.items():
     if info["status"] == "OK":
         sp = info.get("subperiod_sharpes", {})
-        covid = sp.get("COVID", np.nan)
+        # Use first available episode Sharpe for summary (varies by indicator_category)
+        first_ep_sharpe = next(
+            (v for v in sp.values() if isinstance(v, float) and not np.isnan(v)), np.nan
+        )
+        first_ep_name = next(
+            (k for k, v in sp.items() if isinstance(v, float) and not np.isnan(v)), "—"
+        )
         oos = sp.get("Full OOS", np.nan)
         bp = info.get("breakpoint")
-        print(f"  {pid:<25s} OK  | COVID Sharpe={covid:.2f}  OOS Sharpe={oos:.2f}  BP={bp}")
+        print(f"  {pid:<25s} OK  | {first_ep_name} Sharpe={first_ep_sharpe:.2f}  OOS Sharpe={oos:.2f}  BP={bp}")
     else:
         print(f"  {pid:<25s} ERR | {info.get('error', '')[:60]}")
 

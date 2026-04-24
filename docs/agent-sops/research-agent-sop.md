@@ -1107,6 +1107,8 @@ This file is the audit artifact Quincy reads during verification — one file co
 
 **Added 2026-04-24 (Wave 10J).** Whenever Evan produces ECON-CP1 (Cross-Period Consistency) analysis for a pair, Ray MUST author narrative prose for the Cross-Period Consistency block on the Evidence page. This prose accompanies the statistical output and is required before handoff to Ace. Three sub-components are mandatory:
 
+**Episode selection:** Read episodes from `docs/schemas/episode_registry.json` keyed on `interpretation_metadata.indicator_category`. Narrative framing must match the episodes chosen for this pair's class — do not use generic episode descriptions from another class.
+
 #### 1. Sub-Period Commentary (one paragraph per episode)
 
 For each sub-period identified in ECON-CP1 output (e.g., pre-GFC / GFC / post-GFC / COVID / post-COVID), write one paragraph explaining **why** the signal performed as it did during that episode. The explanation must cite the specific macro, credit, or policy context of that sub-period — not just report the number.

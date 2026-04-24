@@ -1115,7 +1115,9 @@ If additional variables are needed during estimation or diagnostics:
 
 Partition the OOS sample into four named episodes. For each episode, compute annualized Sharpe, win-rate, and max drawdown using the winning strategy's daily P&L series (from `winner_trade_log.csv`). Report only trading days within the episode window; if the OOS window does not fully overlap an episode, compute over the overlapping sub-window (minimum 21 trading days required — otherwise mark episode as `insufficient_data`).
 
-**Named episodes:**
+**Episode selection:** Read episodes from `docs/schemas/episode_registry.json` keyed on `interpretation_metadata.indicator_category`. If the category is not in the registry, use `_fallback`. Do NOT hardcode episode dates in scripts — always read from the registry.
+
+**Named episodes (example for `_fallback` / universal category):**
 
 | Episode | Start | End |
 |---------|-------|-----|
