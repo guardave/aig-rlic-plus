@@ -159,6 +159,8 @@ class StoryConfig:
         "exploitable relationship with equity returns?"
     )
 
+    # ACE-HZE1: dot_com excluded — VIX3M data starts 2007-01-03; episode ends 2002-10-31.
+    # VIZ-HZE1 skip documented in output/charts/vix_vix3m_spy/plotly/_meta.json.
     HISTORY_ZOOM_EPISODES = [
         {
             "slug": "gfc",
