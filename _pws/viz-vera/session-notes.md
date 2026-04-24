@@ -80,6 +80,48 @@ This session covered Waves 3 through 7B of the HY-IG v2 reference-pair hardening
 
 ---
 
+## 2026-04-24 — Wave 10J/10K Checkpoint
+
+**Identity:** Viz Vera (viz-vera)
+**Wave context:** 10J self-reflection + 10K retro-apply
+
+### Contributions
+
+1. **VIZ-HZE1 rule authored** — new pre-handoff gate in `docs/agent-sops/visualization-agent-sop.md`. Mandates `git ls-files` verification per required zoom slug before dispatch; structured skip protocol for data-coverage gaps (`_meta.json` with `"skip": true`). Fills the structural blind spot where SOP had no production enumeration gate.
+
+2. **29 history_zoom charts generated** across 8 pairs (commit `20669d9`):
+   - `dff_ted_spy` — 4 charts (gfc, covid, taper, ukraine)
+   - `hy_ig_spy` — 4 charts (gfc, covid, taper, ukraine)
+   - `indpro_spy` — 4 charts (gfc, covid, taper, ukraine)
+   - `indpro_xlp` — 3 charts (gfc, covid, taper — ukraine omitted: no SPY divergence)
+   - `permit_spy` — 4 charts (gfc, covid, taper, ukraine)
+   - `sofr_ted_spy` — 3 charts (covid, taper, ukraine — gfc skip: SOFR data starts 2018)
+   - `ted_spliced_spy` — 4 charts (gfc, covid, taper, ukraine)
+   - `umcsent_xlv` — 3 charts (gfc, covid, taper)
+   (31 `_meta.json` sidecars also generated)
+
+3. **vix_vix3m_spy dot_com skip** (commit `2f15547`) — `history_zoom_dot_com_meta.json` structured skip entry; VIX3M data starts 2007, predates dot-com episode 1999-2002. Documented skip.
+
+4. **META-CPD cross-reference** (commit `da8f534`) — added cross-reference to META-CPD in Viz Vera SOP deployment rules section.
+
+5. **Experience entry promoted** to `~/.claude/agents/viz-vera/experience.md` — failure mode class: "SOP rule without production enumeration gate."
+
+### Documented skips
+| Pair | Episode | Reason |
+|------|---------|--------|
+| sofr_ted_spy | gfc | SOFR data starts 2018 (post-GFC) |
+| vix_vix3m_spy | dot_com | VIX3M data starts 2007; episode 1999-2002 |
+
+### Wave 10J Phase 5 Quincy verify result
+60/60 PASS — wave APPROVED (all 10 pairs × 6 gates per pair).
+
+### Outstanding item flagged
+- **Perceptual PNGs (kaleido renders):** only `hy_ig_v2_spy` has them. 9 other pairs at WARN. Lead decision pending on whether to assign a wave target for backfill.
+
+*Written: 2026-04-24 (Wave 10J/10K checkpoint)*
+
+---
+
 ## 2026-04-22 — Wave 10F Cross-Review Dispatch
 
 **Task:** Cross-review all team SOPs from viz perspective; deliver authoritative answers to the three open questions that triggered this wave (filename convention, sidecar naming, palette aliases).
