@@ -9,7 +9,7 @@
   "expected_direction": "countercyclical",
   "observed_direction": "countercyclical",
   "direction_consistent": true,
-  "mechanism": "Wider HY-IG credit spreads signal rising default risk and tightening financial conditions — bearish for equities. Spread compression is bullish.",
+  "mechanism": "Wider HY-IG credit spreads signal rising default risk and tightening financial conditions \u2014 bearish for equities. Spread compression is bullish.",
   "confidence": "high",
   "key_finding": "hy_ig_mom_63d predicts spy_fwd_63d (coef=-0.0119, t=-10.77, p=0.0000)",
   "caveats": [
@@ -41,5 +41,6 @@
     ]
   },
   "last_updated_by": "dana",
-  "last_updated_at": "2026-04-19T17:37:40Z"
+  "last_updated_at": "2026-04-19T17:37:40Z",
+  "indicator_category": "credit"
 }

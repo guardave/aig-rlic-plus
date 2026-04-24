@@ -10,15 +10,34 @@
   "expected_direction": "countercyclical",
   "observed_direction": "countercyclical",
   "direction_consistent": true,
-  "mechanism": "Wider funding spread indicates stress in interbank/repo markets, tightening financial conditions, reduced liquidity — bearish for equities.",
+  "mechanism": "Wider funding spread indicates stress in interbank/repo markets, tightening financial conditions, reduced liquidity \u2014 bearish for equities.",
   "confidence": "medium",
   "key_finding": "spread predicts spy_fwd_63d (coef=-0.0208, t=-6.45, p=0.0000)",
   "caveats": [],
   "owner_writes": {
-    "dana": ["pair_id", "schema_version", "indicator", "target", "target_symbol", "indicator_nature", "indicator_type"],
-    "evan": ["observed_direction", "direction_consistent", "key_finding", "confidence"],
-    "ray": ["strategy_objective", "expected_direction", "mechanism", "caveats"]
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "target_symbol",
+      "indicator_nature",
+      "indicator_type"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats"
+    ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-04-23T00:00:00Z"
+  "last_updated_at": "2026-04-23T00:00:00Z",
+  "indicator_category": "credit"
 }

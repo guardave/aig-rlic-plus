@@ -10,7 +10,7 @@
   "expected_direction": "procyclical",
   "observed_direction": "procyclical",
   "direction_consistent": true,
-  "mechanism": "Rising building permits signal housing expansion, driving employment, consumer wealth, and material demand — bullish for equities.",
+  "mechanism": "Rising building permits signal housing expansion, driving employment, consumer wealth, and material demand \u2014 bullish for equities.",
   "confidence": "high",
   "key_finding": "permit_zscore_60m predicts spy_fwd_12m (coef=0.0273, t=3.32, p=0.0009)",
   "caveats": [
@@ -19,10 +19,29 @@
     "COVID April 2020 collapse is an outlier"
   ],
   "owner_writes": {
-    "dana": ["pair_id", "schema_version", "indicator", "target", "target_symbol", "indicator_nature", "indicator_type"],
-    "evan": ["observed_direction", "direction_consistent", "key_finding", "confidence"],
-    "ray": ["strategy_objective", "expected_direction", "mechanism", "caveats"]
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "target_symbol",
+      "indicator_nature",
+      "indicator_type"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats"
+    ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-04-23T00:00:00Z"
+  "last_updated_at": "2026-04-23T00:00:00Z",
+  "indicator_category": "production"
 }

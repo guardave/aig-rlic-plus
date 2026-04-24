@@ -18,6 +18,15 @@
     {"slug": "covid",      "label": "COVID Shock",         "start": "2020-02-01", "end": "2020-12-31", "rationale": "Extreme but transient activity collapse; tests signal behavior in fast-recovery regime"},
     {"slug": "china_2015", "label": "China/EM Shock",      "start": "2015-06-01", "end": "2016-02-29", "rationale": "Activity slowdown + commodity crash without US recession; tests signal in mid-cycle softness"}
   ],
+  "production": {
+    "_comment": "Alias for activity — INDPRO, permits, real-economy leading indicators share the same canonical episode set.",
+    "episodes": [
+      {"slug": "dot_com",    "label": "Dot-Com Crash",      "start": "2000-03-01", "end": "2002-10-31", "rationale": "Industrial slowdown preceded equity bear market; leading-indicator test"},
+      {"slug": "gfc",        "label": "GFC",                 "start": "2007-12-01", "end": "2009-06-30", "rationale": "Sharpest activity contraction in post-war history; dominant test for activity signals"},
+      {"slug": "covid",      "label": "COVID Shock",         "start": "2020-02-01", "end": "2020-12-31", "rationale": "Extreme but transient activity collapse; tests signal behavior in fast-recovery regime"},
+      {"slug": "china_2015", "label": "China/EM Shock",      "start": "2015-06-01", "end": "2016-02-29", "rationale": "Activity slowdown + commodity crash without US recession; tests signal in mid-cycle softness"}
+    ]
+  },
   "volatility": [
     {"slug": "dot_com",    "label": "Dot-Com Crash",      "start": "2000-03-01", "end": "2002-10-31", "rationale": "Prolonged elevated vol; tests vol-regime signal in sustained drawdown"},
     {"slug": "gfc",        "label": "GFC",                 "start": "2007-12-01", "end": "2009-06-30", "rationale": "VIX peaked at 89; extreme regime test"},
