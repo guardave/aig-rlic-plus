@@ -499,7 +499,7 @@ def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus
 
 1. Derive the slug from the filename (`history_zoom_{slug}.json` → `slug`).
 2. Classify the slug: recession-overlapping (`dot_com`, `gfc`, `covid`) or non-overlapping (all others).
-3. Scan `layout.shapes` for NBER recession bands. A shape qualifies as an NBER band when: `type="rect"`, `xref` is date-axis (not `"paper"`), and `fillcolor` (or `line.color`) contains a red/salmon hue consistent with Vera's NBER palette.
+3. Scan `layout.shapes` for NBER recession bands. A shape qualifies as an NBER band when: `type="rect"`, `xref` is date-axis (not `"paper"`), and `fillcolor` starts with `rgba(150` OR equals `rgba(150,120,120,0.22)` exactly — Vera's canonical NBER shading color per VIZ-NBER1. (Note: earlier heuristics that checked for `rgba(220`, `rgba(210`, `#d4`, `red`, or `salmon` were incorrect and would silently PASS charts with missing shading.)
 4. **If recession-overlapping and no NBER bands found → FAIL.** Missing shading in a recession episode misleads the stakeholder into thinking there was no recession.
 5. **If non-overlapping and NBER bands found → WARN (non-blocking).** Spurious shading implies a recession that did not occur. Less harmful than missing shading, but still a defect.
 

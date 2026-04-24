@@ -694,18 +694,10 @@ def gate_viz_nber2_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     # Slugs that overlap at least one NBER recession window.
     RECESSION_SLUGS = {"dot_com", "gfc", "covid"}
 
-    # Heuristic: colors used by Vera's NBER shading (partial match, lower-case).
-    # Covers: rgba(220,50,47,...), rgba(210,…), "#d43f3f", "red", "salmon", grey variants.
-    NBER_FILLCOLOR_HINTS = [
-        "rgba(220",   # Vera's primary NBER shading (solarized red family)
-        "rgba(210",
-        "rgba(200",
-        "rgba(180",
-        "#d4",        # hex reds used in older charts
-        "red",
-        "salmon",
-        "nber",       # explicit label in fillcolor string (rare but valid)
-    ]
+    # Vera's canonical NBER shading color (VIZ-NBER1): rgba(150,120,120,0.22)
+    # A shape qualifies when fillcolor starts with "rgba(150" OR equals the exact value.
+    NBER_FILLCOLOR_EXACT = "rgba(150,120,120,0.22)"
+    NBER_FILLCOLOR_PREFIX = "rgba(150"
 
     def _is_nber_shape(shape: dict) -> bool:
         """Return True if this Plotly shape looks like an NBER recession band."""
@@ -714,10 +706,8 @@ def gate_viz_nber2_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
         xref = shape.get("xref", "")
         if "paper" in xref:  # paper-ref shapes are annotations, not data bands
             return False
-        fc = str(shape.get("fillcolor", "")).lower()
-        lc = str(shape.get("line", {}).get("color", "")).lower()
-        combined = fc + lc
-        return any(hint in combined for hint in NBER_FILLCOLOR_HINTS)
+        fc = str(shape.get("fillcolor", ""))
+        return fc == NBER_FILLCOLOR_EXACT or fc.startswith(NBER_FILLCOLOR_PREFIX)
 
     failures = []
     warnings = []
