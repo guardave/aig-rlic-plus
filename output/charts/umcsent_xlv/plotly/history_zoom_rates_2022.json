@@ -100,7 +100,8 @@
         "width": 1.5
       },
       "yaxis": "y2",
-      "hovertemplate": "%{x|%Y-%m-%d}<br>XLV Price ($): %{y:.2f}<extra></extra>"
+      "hovertemplate": "%{x|%Y-%m-%d}<br>XLV Price ($): %{y:.2f}<extra></extra>",
+      "xaxis": "x2"
     }
   ],
   "layout": {
