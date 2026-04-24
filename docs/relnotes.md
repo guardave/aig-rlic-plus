@@ -30,11 +30,20 @@ Each agent authored a structured reflection covering: what went well, what fell 
 
 `20669d9` Vera HZE1 retro-apply (8 pairs) · `816444f` Ace HZE1 config wire-up · `2f15547` Vera vix dot_com skip · `d99e7da` Ace note for dot_com omission · `3086bb7` Quincy 60/60 wave verify · SOP commits: `da8f534` (Vera) · `d013b08` (Dana) · `00f27d9` (Ray) · `57e53b5` (Evan) · `66b58d3` (Ace)
 
+### Quincy contributions (Wave 10J)
+
+- **GATE-HZE1 authored** in `docs/agent-sops/qa-agent-sop.md` (QA-CL4 section): positive-presence gate for "How the Signal Performed in Past Crises" Story heading. Two-valued failure disposition: FAIL when `history_zoom_*.json` charts exist + heading absent; WARN when no zoom charts committed yet. Full `scripts/cloud_verify.py` pseudocode included.
+- **Pattern 30** added to experience.md: "Silent feature absence requires positive-presence gates."
+- **Coherence fix** (commit `d7c0a19`): GATE-HZE1 cross-reference corrected from `RES-ZOOM1` to `RES-HZE1`.
+- **Wave 10J Phase 5 verify** (commit `3086bb7`): 10 pairs × 4 gates = **60/60 PASS**. HABIT-QA1 DOM read completed for all 10 Story pages.
+- **Outstanding items**: (1) 9/10 pairs GATE-HZE1 WARN — no Vera zoom charts on disk; (2) GATE-VIZ-NBER1 severity flip pending Lead; (3) GATE-HZE1 script implementation pending Ace.
+
 ### Lessons
 
 - **A rule without an enforcement script is debt.** DATA-D12 (column-suffix canon) had no linter; manually applied once, silently violated thereafter. Author the tool in the same commit as the rule.
 - **Three-agent chains need a closing rule.** Ray provides frontmatter → Vera generates charts → Ace populates config. Without ACE-HZE1, the last link was advisory. Silent omission propagated to 8 pairs with no error.
 - **Cross-review findings are backlog candidates, not observations.** Dana found the HZE1 gap in Wave 10F cross-review and logged it as a finding, not a BL entry. Ray backfilled reactively after Quincy's cloud-verify failures.
+- **Positive-presence gates are a distinct requirement.** GATE-28 catches wrong-rendering (errors, placeholders). Structurally mandatory sections that are absent with no error signal require separate heading/marker assertions.
 
 ---
 
