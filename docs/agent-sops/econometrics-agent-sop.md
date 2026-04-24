@@ -480,8 +480,8 @@ Every analysis run produces an `interpretation_metadata.json` alongside results.
   "indicator_id": "{INDICATOR_ID}",
   "target": "{TARGET_TICKER}",
   "target_id": "{TARGET_ID}",
-  "expected_direction": "pro_cyclical | counter_cyclical | ambiguous | conditional",
-  "observed_direction": "pro_cyclical | counter_cyclical | ambiguous | conditional",
+  "expected_direction": "procyclical | countercyclical | mixed",
+  "observed_direction": "procyclical | countercyclical | mixed",
   "direction_consistent": true | false,
   "direction_confidence": "high | medium | low",
   "mechanism": "Plain-English explanation of the economic channel",
@@ -513,7 +513,7 @@ This file is consumed by:
 - **Vera** for direction annotation visual encoding (solid = pro-cyclical, dashed = counter-cyclical)
 - **Ace** for "How to Read This" portal callout boxes and "Differs From" notes
 
-**Cross-pair direction consistency check (for multi-pair sprints):** After generating `interpretation_metadata.json` for multiple pairs sharing the same indicator, verify that the `observed_direction` is consistent across targets within the same asset class. For example, if HY-IG spread is counter-cyclical to SPY, it should also be counter-cyclical to QQQ. If directions differ across targets in the same class, investigate and document the reason — it may indicate a genuine structural difference (e.g., sector-specific exposure) or a data/model issue. Report inconsistencies to Ray for literature validation.
+**Cross-pair direction consistency check (for multi-pair sprints):** After generating `interpretation_metadata.json` for multiple pairs sharing the same indicator, verify that the `observed_direction` is consistent across targets within the same asset class. For example, if HY-IG spread is countercyclical to SPY, it should also be countercyclical to QQQ. If directions differ across targets in the same class, investigate and document the reason — it may indicate a genuine structural difference (e.g., sector-specific exposure) or a data/model issue. Report inconsistencies to Ray for literature validation.
 
 **Rename before you save.** If a model assigns opaque numeric labels (state 0/1, cluster 1/2/3, regime A/B), rename columns to their economic meaning before writing the output file. The downstream agent should never have to guess what `prob_state_0` means.
 
@@ -1311,7 +1311,7 @@ Before handing off:
 - [ ] Strategy rules documented in plain English (if strategy component exists)
 - [ ] Backtest metrics delivered in structured format (if strategy component exists)
 - [ ] Upstream contributions acknowledged (Dana's dataset, Ray's brief cited)
-- [ ] `interpretation_metadata.json` delivered for every indicator-target pair (all fields populated, direction vocabulary matches Analysis Brief Section 11.4)
+- [ ] `interpretation_metadata.json` received from Dana and validated at ECON-DIR1 consumer gate: (a) `observed_direction` in permitted vocabulary `{procyclical, countercyclical, mixed}` — no underscore/hyphen forms; (b) `observed_direction` matches `winner_summary.json.direction`. If either check fails, file returned to Dana — not patched by Evan.
 - [ ] `kpis.json` delivered for every indicator-target pair (pre-formatted for portal display)
 - [ ] `_manifest.json` sidecar delivered for every output file (minimum 3 assertions per artifact)
 - [ ] **ECON-DS2 deploy-artifact gate** — `results/{pair_id}/signals_{date}.parquet` exists on disk AND is committed to git (verify with `git ls-files results/{pair_id}/signals_*.parquet`). This file is consumed by the Strategy page Probability Engine Panel (APP-SE1) at cloud render time. Missing = portal error on cloud even when all local smoke tests pass. This check is blocking — Evan cannot hand off without it. (Cross-ref: ECON-DS2, Derived Signal Persistence Rule)
@@ -1328,7 +1328,15 @@ Evan both consumes upstream data (from Dana and Ray) and produces model outputs 
 3. **Verify model outputs tell a coherent story.** Before handing off, check that regime labels, sign conventions, and threshold directions are consistent with economic intuition. If state 0 is "stress", verify that stress probability is high during GFC and low during calm periods like 2013-2014.
 4. **Include sanity-check assertions in manifests.** Every `_manifest.json` sidecar must include at least one testable assertion (e.g., `"prob_stress mean during 2008-2009 > 0.7"`). The downstream consumer runs this assertion before using the data.
 5. **Cross-check tournament results.** Verify that the tournament winner's reported metrics (Sharpe, max DD, return) can be independently derived from the equity curve data. Report any discrepancies before handoff.
-6. **Direction reconciliation gate (ECON-DIR1 — new, Wave 10I.C).** Before finalizing `interpretation_metadata.json`, compare `observed_direction` against `winner_summary.json.direction`. They MUST match. These fields describe the same economic quantity — the direction the strategy exploits — and any discrepancy will trigger APP-DIR1 L1 warning banners on the portal Strategy page. Reconciliation procedure: (a) set `observed_direction` to match the tournament winner's direction; (b) update `key_finding` to reference the winning signal (not just the best linear regression); (c) set `direction_consistent: true`. Root cause of the 2026-04-23 FAIL-05 finding: `observed_direction` was set from the linear regression coefficient sign of the best exploratory predictor, which differed from the tournament winner signal. VIX positive coefficient ≠ procyclical; TED spread positive coefficient ≠ procyclical — economic interpretation of direction must account for threshold orientation (lt vs gt) and signal type (z-score, momentum, rate-of-change), not just the raw coefficient sign.
+6. **Direction receipt gate (ECON-DIR1 — updated Wave 10J R2; originally added Wave 10I.C).** Before accepting Dana's `interpretation_metadata.json` handoff, perform the following consumer-side validation. Evan does NOT write to `interpretation_metadata.json` directly — Dana is the producer (per DATA-D6). Evan is the consumer-gatekeeper.
+
+   **Step 1 — Vocabulary check [SCRIPT]:** Assert that `observed_direction` is in the permitted vocabulary set `{procyclical, countercyclical, mixed}`. Underscore-separated forms (`counter_cyclical`, `pro_cyclical`) and hyphenated forms are deprecated and non-conformant. If the value is outside the permitted set, return the file to Dana with a documented mismatch report — do NOT accept the handoff.
+
+   **Step 2 — Consistency check [SCRIPT]:** Compare `observed_direction` against `winner_summary.json.direction`. They MUST match. These fields describe the same economic quantity — the direction the strategy exploits — and any discrepancy will trigger APP-DIR1 L1 warning banners on the portal Strategy page.
+
+   **If mismatch is found (Step 2 fails):** Escalate to Dana with a structured mismatch report. Do NOT write to `interpretation_metadata.json` yourself. The reconciliation instructions Dana should follow are: (a) set `observed_direction` to match the tournament winner's direction in `winner_summary.json`; (b) update `key_finding` to reference the winning signal (not just the best linear regression); (c) set `direction_consistent: true`. Root cause context for Dana: VIX positive coefficient ≠ procyclical; TED spread positive coefficient ≠ procyclical — economic interpretation of direction must account for threshold orientation (lt vs gt) and signal type (z-score, momentum, rate-of-change), not just the raw coefficient sign.
+
+   **Note:** RES-OD1 (Ray) is the editorial-side gate that runs after Ray writes narrative — it is complementary to ECON-DIR1, not a substitute. Both gates must fire at their respective pipeline moments.
 
 ## Task Completion Hooks
 
@@ -1399,7 +1407,7 @@ Evan both consumes upstream data (from Dana and Ray) and produces model outputs 
 - **Never** submit an ambiguous data request to Dana — specify units, frequency, SA preference, and priority
 - **Never** hand off strategy rules to Ace in model notation — translate to plain English
 - **Never** deliver backtest results as prose — use structured tables and machine-readable files
-- **Never** set `observed_direction` in `interpretation_metadata.json` from a linear regression coefficient alone without cross-checking against `winner_summary.json.direction`. Positive coefficient for a stress indicator (VIX, spread) does NOT imply procyclical — the threshold orientation (lt vs gt) and signal type determine the actual trading direction (ECON-DIR1 gate)
+- **Never** write to `interpretation_metadata.json` directly — Dana is the producer (DATA-D6). If `observed_direction` is wrong, escalate to Dana with the mismatch report; do not patch the file yourself (ECON-DIR1 gate). Note: Positive coefficient for a stress indicator (VIX, spread) does NOT imply procyclical — the threshold orientation (lt vs gt) and signal type determine the actual trading direction. Include this context in any mismatch report to Dana.
 - **Never** finalize a pair without producing `signal_scope.json` (ECON-UD) and `stationarity_tests_{YYYYMMDD}.csv` — both must be saved to disk before handoff; printing to stdout does not satisfy the artifact contract
 - **Never** produce a tournament pipeline that only prints stationarity results to stdout — always save to CSV in the same code block as the computation
 
