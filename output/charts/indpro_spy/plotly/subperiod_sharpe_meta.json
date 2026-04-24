@@ -1,6 +1,6 @@
 {
   "pair_id": "indpro_spy",
-  "chart_type": "horizontal_bar",
+  "chart_type": "subperiod_sharpe",
   "rules_applied": [
     "VIZ-CP1"
   ],
