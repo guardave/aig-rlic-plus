@@ -644,6 +644,159 @@ def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus
     return failures
 
 
+def gate_viz_nber2_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+    """GATE-VIZ-NBER2 (Wave 10K, 2026-04-24): Episode-window-aware NBER shading check.
+
+    Pure JSON preflight — no browser needed.  Runs alongside GATE-DP1.
+
+    For every committed history_zoom_{slug}.json chart under
+    ``output/charts/{pair_id}/plotly/``:
+
+    1. Derive the episode slug from the filename
+       (history_zoom_{slug}.json → slug).
+    2. Look up whether that slug overlaps a known NBER recession window.
+    3. If overlap  → FAIL if layout.shapes contains NO vrect/rect with a
+       fillcolor that matches the NBER shading pattern (missing shading in a
+       recession episode is a hard defect).
+    4. If no overlap → WARN if layout.shapes contains ANY NBER vrect (spurious
+       shading is less harmful than missing shading; warn only, not FAIL).
+
+    NBER recessions (canonical, hardcoded):
+      - 2001-03-01 → 2001-11-01
+      - 2007-12-01 → 2009-06-01
+      - 2020-02-01 → 2020-04-01
+
+    Episode–recession overlap table (derived from episode_registry.json):
+      dot_com   : overlaps 2001 recession  → NBER shading required
+      gfc       : overlaps 2008 recession  → NBER shading required
+      covid     : overlaps 2020 recession  → NBER shading required
+      taper_2013: no recession             → no NBER shading expected
+      china_2015: no recession             → no NBER shading expected
+      rates_2022: no recession             → no NBER shading expected
+
+    NBER vrect detection heuristic: a shape is treated as an NBER recession
+    band when ALL of the following hold:
+      - type is "rect" (vrects are represented as rects in Plotly JSON)
+      - xref contains "x" (date axis, not "paper")
+      - fillcolor is present and contains a red/grey/salmon hue substring OR
+        the shape has a "line" dict with color matching those hues.
+    The heuristic is intentionally broad to survive minor palette changes; a
+    false-positive (spurious shape counted as NBER) is acceptable because the
+    WARN path is non-blocking and QA's job is to flag, not to adjudicate.
+
+    Returns: (failures, warnings) — two lists of dicts.
+      failures : GATE-VIZ-NBER2 FAIL items (missing shading in recession window)
+      warnings : GATE-VIZ-NBER2 WARN items (spurious shading in non-recession window)
+    """
+    import glob as _glob
+    from datetime import date
+
+    # Slugs that overlap at least one NBER recession window.
+    RECESSION_SLUGS = {"dot_com", "gfc", "covid"}
+
+    # Heuristic: colors used by Vera's NBER shading (partial match, lower-case).
+    # Covers: rgba(220,50,47,...), rgba(210,…), "#d43f3f", "red", "salmon", grey variants.
+    NBER_FILLCOLOR_HINTS = [
+        "rgba(220",   # Vera's primary NBER shading (solarized red family)
+        "rgba(210",
+        "rgba(200",
+        "rgba(180",
+        "#d4",        # hex reds used in older charts
+        "red",
+        "salmon",
+        "nber",       # explicit label in fillcolor string (rare but valid)
+    ]
+
+    def _is_nber_shape(shape: dict) -> bool:
+        """Return True if this Plotly shape looks like an NBER recession band."""
+        if shape.get("type") != "rect":
+            return False
+        xref = shape.get("xref", "")
+        if "paper" in xref:  # paper-ref shapes are annotations, not data bands
+            return False
+        fc = str(shape.get("fillcolor", "")).lower()
+        lc = str(shape.get("line", {}).get("color", "")).lower()
+        combined = fc + lc
+        return any(hint in combined for hint in NBER_FILLCOLOR_HINTS)
+
+    failures = []
+    warnings = []
+
+    for pair_id in pairs:
+        pattern = f"{project_root}/output/charts/{pair_id}/plotly/history_zoom_*.json"
+        for fpath in sorted(_glob.glob(pattern)):
+            chart_name = os.path.basename(fpath)
+            # Derive slug: strip prefix "history_zoom_" and suffix ".json"
+            slug = chart_name.replace("history_zoom_", "").replace(".json", "")
+
+            try:
+                with open(fpath) as fh:
+                    chart = json.load(fh)
+            except Exception as exc:
+                failures.append({
+                    "pair_id": pair_id,
+                    "slug": slug,
+                    "chart": chart_name,
+                    "gate": "GATE-VIZ-NBER2",
+                    "finding": f"JSON parse error: {exc}",
+                    "detail": str(fpath),
+                })
+                print(
+                    f"  GATE-VIZ-NBER2 FAIL {pair_id}/{chart_name}: JSON parse error: {exc}",
+                    flush=True,
+                )
+                continue
+
+            shapes = chart.get("layout", {}).get("shapes", [])
+            nber_shapes = [s for s in shapes if _is_nber_shape(s)]
+            has_nber = len(nber_shapes) > 0
+            expects_nber = slug in RECESSION_SLUGS
+
+            if expects_nber and not has_nber:
+                finding = (
+                    f"GATE-VIZ-NBER2 FAIL: {slug} overlaps an NBER recession but "
+                    f"layout.shapes contains no NBER recession band (vrect/rect with "
+                    f"red/salmon fillcolor). Missing shading misleads the viewer. "
+                    f"Owner: Vera. File: {fpath}"
+                )
+                failures.append({
+                    "pair_id": pair_id,
+                    "slug": slug,
+                    "chart": chart_name,
+                    "gate": "GATE-VIZ-NBER2",
+                    "finding": finding,
+                    "detail": str(fpath),
+                })
+                print(f"  GATE-VIZ-NBER2 FAIL {pair_id}/{chart_name}: {finding}", flush=True)
+
+            elif not expects_nber and has_nber:
+                finding = (
+                    f"GATE-VIZ-NBER2 WARN: {slug} does NOT overlap any NBER recession but "
+                    f"layout.shapes contains {len(nber_shapes)} apparent NBER band(s). "
+                    f"Spurious shading may confuse stakeholders. "
+                    f"Owner: Vera. File: {fpath}"
+                )
+                warnings.append({
+                    "pair_id": pair_id,
+                    "slug": slug,
+                    "chart": chart_name,
+                    "gate": "GATE-VIZ-NBER2",
+                    "finding": finding,
+                    "detail": str(fpath),
+                })
+                print(f"  GATE-VIZ-NBER2 WARN {pair_id}/{chart_name}: {finding}", flush=True)
+
+            else:
+                status = "shading present" if has_nber else "no shading (correct)"
+                print(
+                    f"  GATE-VIZ-NBER2 PASS {pair_id}/{chart_name}: "
+                    f"slug={slug} expects_nber={expects_nber} → {status}",
+                    flush=True,
+                )
+
+    return failures, warnings
+
+
 def gate27_perceptual_png_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     """GATE-27 extension (D4, Wave 10J): assert perceptual-check PNGs are committed.
 
@@ -767,6 +920,45 @@ def main():
         )
     else:
         print("  GATE-DP1: all history_zoom charts PASS axis-assignment check.", flush=True)
+
+    # --- GATE-VIZ-NBER2 pre-flight (Wave 10K, 2026-04-24) ---
+    # Episode-window-aware NBER shading check for history_zoom_*.json charts.
+    # FAIL if a recession-overlapping slug has no NBER shading band in layout.shapes.
+    # WARN if a non-recession slug has spurious NBER shading (non-blocking).
+    print("\n[GATE-VIZ-NBER2 pre-flight] checking NBER shading in history_zoom_*.json ...", flush=True)
+    nber2_failures, nber2_warnings = gate_viz_nber2_preflight(pairs)
+    for f in nber2_failures:
+        results.append({
+            "slug": f"{f['pair_id']}_story",
+            "pair_id": f["pair_id"],
+            "page": "story",
+            "gate": "GATE-VIZ-NBER2",
+            "verdict": "FAIL",
+            "error": f["finding"],
+        })
+    for w in nber2_warnings:
+        results.append({
+            "slug": f"{w['pair_id']}_story",
+            "pair_id": w["pair_id"],
+            "page": "story",
+            "gate": "GATE-VIZ-NBER2",
+            "verdict": "WARN",
+            "error": w["finding"],
+        })
+    if nber2_failures:
+        print(
+            f"  *** {len(nber2_failures)} GATE-VIZ-NBER2 FAIL(s) — recession-episode "
+            "history_zoom charts missing NBER shading. Fix owner: Vera. ***",
+            flush=True,
+        )
+    if nber2_warnings:
+        print(
+            f"  *** {len(nber2_warnings)} GATE-VIZ-NBER2 WARN(s) — non-recession-episode "
+            "history_zoom charts have spurious NBER shading. Fix owner: Vera (non-blocking). ***",
+            flush=True,
+        )
+    if not nber2_failures and not nber2_warnings:
+        print("  GATE-VIZ-NBER2: all history_zoom charts PASS episode-window NBER check.", flush=True)
 
     # --- GATE-27 PNG pre-flight (D4, Wave 10J; promoted to FAIL Wave 10K 2026-04-24) ---
     # Perceptual PNGs are mandatory for ALL chart types on ALL pairs (VIZ-CV1 mandate).

@@ -1,5 +1,30 @@
 # Team Status Board
 
+## 2026-04-24 — QA Quincy (GATE-VIZ-NBER2 — Episode-Window-Aware NBER Shading Check)
+
+**Status:** Complete. New gate authored, wired, experience entry added.
+
+**The gap closed.** GATE-VIZ-NBER1 checks Evidence-page HTML for NBER strings — it cannot distinguish missing shading on a recession-overlapping episode from correct absence on a non-recession episode. A `history_zoom_gfc.json` with zero NBER shapes in `layout.shapes` would pass GATE-VIZ-NBER1 silently.
+
+**GATE-VIZ-NBER2 logic:**
+- Hardcoded recession-slug set: `{dot_com, gfc, covid}` (all overlap a known NBER recession).
+- Non-recession slugs: `taper_2013`, `china_2015`, `rates_2022`.
+- For each `history_zoom_{slug}.json`: detect NBER shapes via `layout.shapes` (type=rect, date xref, red/salmon fillcolor heuristic).
+- Recession slug + no NBER shapes → **FAIL** (blocking). Missing shading misleads stakeholder.
+- Non-recession slug + NBER shapes → **WARN** (non-blocking). Spurious shading implies a recession that did not occur.
+- Pure JSON preflight — no browser needed. Runs alongside GATE-DP1.
+
+**Actions taken (Quincy-owned — LEAD-DL1 respected):**
+- `scripts/cloud_verify.py`: `gate_viz_nber2_preflight()` added and wired into `main()` after GATE-DP1, before Playwright browser session. FAIL items appended to `results`; WARN items included with `"verdict": "WARN"`.
+- `docs/agent-sops/qa-agent-sop.md`: **GATE-VIZ-NBER2** rule added after GATE-DP1 section. Includes: gap explanation, NBER recession table, slug-overlap table, what Quincy checks, severity, integration point, cross-references.
+- `~/.claude/agents/qa-quincy/experience.md`: Pattern 32 added — "DOM-level NBER checks are not episode-window-aware — JSON-structural checks must know which slugs require shading."
+
+**Cross-agent action required (Lead to dispatch):** Vera — audit all `history_zoom_*.json` charts for the 3 recession slugs (`dot_com`, `gfc`, `covid`). Any chart missing NBER shading shapes in `layout.shapes` is a GATE-VIZ-NBER2 FAIL. Run `gate_viz_nber2_preflight()` locally to enumerate failures before next cloud verify.
+
+**Scope:** Own SOP + own cloud_verify.py tooling + experience.md + this status board. LEAD-DL1 clean.
+
+---
+
 ## 2026-04-24 — QA Quincy (GATE-27-PNG: WARN → FAIL promotion)
 
 **Status:** Complete. Perceptual PNG mandate approved for all chart types on all pairs.

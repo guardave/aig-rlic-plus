@@ -473,6 +473,44 @@ def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus
 
 **Cross-references:** VIZ-ZOOM1 (Vera produces zoom charts); GATE-HZE1 (heading presence — necessary but not sufficient); GATE-27 (chart render validation — GATE-DP1 is a JSON-structural extension of this gate); HABIT-QA1 (DOM read requirement).
 
+**GATE-VIZ-NBER2 — Episode-Window-Aware NBER Shading Check (added Wave 10K, 2026-04-24).**
+
+> **GATE-VIZ-NBER1 checks Evidence-page charts for NBER shading via DOM text. It is not episode-aware — it cannot know whether a given history_zoom chart covers a recession window. GATE-VIZ-NBER2 closes that gap with a pure JSON preflight.**
+
+**What GATE-VIZ-NBER1 misses.** GATE-VIZ-NBER1 scans the rendered Evidence-page HTML for the strings "nber", "NBER", or "recession". It does not check `history_zoom_*.json` charts at the JSON level, and it has no concept of which episode windows overlap an NBER recession. A `history_zoom_gfc.json` (GFC = 2007-12 → 2009-06, fully recession-overlapping) with no NBER shading in `layout.shapes` would pass GATE-VIZ-NBER1 silently.
+
+**NBER recessions (canonical, hardcoded):**
+- 2001-03-01 → 2001-11-01
+- 2007-12-01 → 2009-06-01
+- 2020-02-01 → 2020-04-01
+
+**Episode–recession overlap table (from `docs/schemas/episode_registry.json`):**
+
+| Slug | Window | NBER overlap? | Required shading |
+|---|---|---|---|
+| dot_com | 2000-03-01 → 2002-10-31 | ✅ 2001 recession | REQUIRED (FAIL if absent) |
+| gfc | 2007-12-01 → 2009-06-30 | ✅ 2008 recession | REQUIRED (FAIL if absent) |
+| covid | 2020-02-01 → 2020-12-31 | ✅ 2020 recession | REQUIRED (FAIL if absent) |
+| taper_2013 | 2013-05-01 → 2013-12-31 | ❌ none | MUST NOT have NBER shading (WARN if present) |
+| china_2015 | 2015-06-01 → 2016-02-29 | ❌ none | MUST NOT have NBER shading (WARN if present) |
+| rates_2022 | 2022-01-01 → 2022-12-31 | ❌ none | MUST NOT have NBER shading (WARN if present) |
+
+**What Quincy checks.** For every `history_zoom_{slug}.json` file under `output/charts/{pair_id}/plotly/`:
+
+1. Derive the slug from the filename (`history_zoom_{slug}.json` → `slug`).
+2. Classify the slug: recession-overlapping (`dot_com`, `gfc`, `covid`) or non-overlapping (all others).
+3. Scan `layout.shapes` for NBER recession bands. A shape qualifies as an NBER band when: `type="rect"`, `xref` is date-axis (not `"paper"`), and `fillcolor` (or `line.color`) contains a red/salmon hue consistent with Vera's NBER palette.
+4. **If recession-overlapping and no NBER bands found → FAIL.** Missing shading in a recession episode misleads the stakeholder into thinking there was no recession.
+5. **If non-overlapping and NBER bands found → WARN (non-blocking).** Spurious shading implies a recession that did not occur. Less harmful than missing shading, but still a defect.
+
+**This is a pure JSON preflight — no browser or Playwright needed.** Runs alongside GATE-DP1 before any browser time is spent.
+
+**Severity:** FAIL for recession-overlapping slugs with missing shading; WARN for non-recession slugs with spurious shading. Fix owner: Vera.
+
+**Integration point:** `gate_viz_nber2_preflight(pairs)` in `scripts/cloud_verify.py`, called immediately after GATE-DP1 preflight and before the Playwright session begins. FAIL items are emitted to `results.json`; WARN items are included but do not block the browser pass.
+
+**Cross-references:** GATE-VIZ-NBER1 (Evidence-page DOM check — complementary, not superseded); VIZ-ZOOM1 (Vera produces zoom charts with NBER shading); GATE-DP1 (structural JSON check for axis assignment — runs in the same preflight batch); HABIT-QA1 (DOM read requirement — applies to browser checks; this gate is JSON-only).
+
 **GATE-32 — Mandatory-Section Placeholder Expiry Gate (added Wave 10J, 2026-04-24).**
 
 After any wave that adds new mandatory Evidence (or other) sections — e.g., ECON-CP1/CP2 cross-period consistency, VIZ-CP1 rolling-window charts — the placeholder text that Ace renders while charts are pending MUST transition from WARN to FAIL in `STUB_PATS` before that wave can be considered permanently closed.
