@@ -233,3 +233,34 @@ Root cause: "preserve verbatim" is not safe for `observed_direction` during sche
 **FAIL-06** ("Ray leg pending RES-17 frontmatter migration" caption on 8 Strategy pages) — internal dev note hard-coded in `app/components/direction_check.py:197-200` leaking to stakeholders. Ace should replace with "Direction check: Evan and Dana agree on `{direction}`."
 
 **All other FAILs** (FAIL-01 through FAIL-04, FAIL-07 through FAIL-10) — owned by Ace and/or Evan per Quincy's audit table.
+
+---
+
+## Session: Wave 10J / 10K — 2026-04-24 — Self-Reflection + HZE1 Retro-Apply
+
+### Self-Reflection Round (Wave 10J Phase 1)
+
+Participated in team-wide self-reflection. My two real failures this wave were design failures:
+1. **RES-OD1 equality-check-only design** — assumed if two files agreed, both were correct. Vera's vocabulary challenge exposed that both inputs can be wrong while agreeing. Conceded in full and specified the three-step fix.
+2. **SOP operational inconsistency** — my SOP required both `memories.md` and `experience.md` while every other agent uses only `experience.md`. Executed my own SOP correctly for multiple waves without noticing the inconsistency — surfaced only by external debate.
+
+**Top lesson:** after authoring any SOP rule, apply the meta-question — "can this rule pass while the underlying reality is wrong?" — and audit your own SOP's operational conventions against the other agents' SOPs at every self-reflection, not only during formal cross-review waves.
+
+### Wave 10J Phase 2-4: Rule Set Finalization
+
+New rules confirmed and committed: VIZ-HZE1, RES-HZE1, ACE-HZE1, GATE-HZE1, LEAD-QF1, META-CPD.
+
+### Wave 10J Phase 5: Episode Registry Design & Implementation
+
+Designed and authored `docs/schemas/episode_registry.json` — canonical source of truth for all historical crisis episodes across all pairs. Episodes covered: GFC 2008, COVID 2020, Taper 2013, China Shock 2015, Euro Crisis 2011, Volcker 1980s, COVID Recovery 2021, Russia-Ukraine 2022.
+
+**Pair reclassification confirmed:** `dff_ted_spy` + `sofr_ted_spy` → rates class; `ted_spliced_spy` → credit class (LIBOR-era ancestry). Wave 10J Phase 5 final verify: 60/60 PASS. Wave APPROVED.
+
+### HZE1 Retro-Apply (Wave 10K)
+
+Authored HISTORY_ZOOM_EPISODES narratives for all 8 deployed pairs across all pair classes. RES-20 triad verified for all 8 (3 episodes each, correct pair-class selection, prose cross-references to Methodology page). META-CPD cross-reference added (commit `00f27d9`).
+
+Handoff: `results/_cross_agent/handoff_ray_hze1_retro_20260424.md`
+
+---
+*Last updated: 2026-04-24 — Wave 10J/10K checkpoint*

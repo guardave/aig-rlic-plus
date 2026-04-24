@@ -850,3 +850,28 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 3. Pair-class routing is now in `indicator_category` (Evan) + episode_registry (Ray) — both must stay in sync.
 
 **Next:** Await Lead dispatch for Pair #4 (US10Y-US3M → SPY).
+
+---
+
+## 2026-04-24 — QA Quincy (Wave 10J/10K Checkpoint)
+
+**Status:** Checkpoint complete. 60/60 PASS on full adversarial verify.
+
+**Accomplished this session:**
+- Authored **GATE-HZE1** in `docs/agent-sops/qa-agent-sop.md` — positive-presence gate for "How the Signal Performed in Past Crises" Story heading. Two-valued: FAIL when zoom charts exist but heading absent; WARN when no zoom charts yet. Full pseudocode for `scripts/cloud_verify.py` included.
+- Fixed coherence gap in GATE-HZE1 (commit d7c0a19): `RES-ZOOM1` reference corrected to `RES-HZE1` throughout.
+- Ran Wave 10J Phase 5 full adversarial verify: **60/60 PASS** across 10 pairs × 4 gates (GATE-28, GATE-29, GATE-HZE1, GATE-NR).
+- HABIT-QA1: read DOM text for all 10 Story pages before sign-off.
+- Filed results: `results/_cross_agent/quincy_wave10j_verify_20260424.md`.
+- Created `_pws/qa-quincy/outstanding-work.md` with 3 active items + 6 deferred backlog.
+
+**Key insights:**
+- GATE-28 detects wrong-rendering. It cannot detect absent-rendering. Positive-presence gates are a distinct requirement for structurally mandatory sections.
+- Pattern 30: "Silent feature absence is harder to catch than errors — gate it explicitly with heading/marker presence assertions."
+
+**Outstanding items (3 active, awaiting Lead decision):**
+1. OW-1: Perceptual PNGs — 9/10 pairs at GATE-HZE1 WARN (no zoom charts on disk). Vera dispatch needed.
+2. OW-2: GATE-32 severity flip — GATE-VIZ-NBER1 WARN → FAIL pending Lead confirmation.
+3. OW-3: GATE-HZE1 in `scripts/cloud_verify.py` — Ace to implement per pseudocode in SOP.
+
+**Blockers:** None on Quincy's side. Three items are Lead/Ace/Vera-dependent.

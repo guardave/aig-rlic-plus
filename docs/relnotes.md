@@ -22,7 +22,7 @@ Each agent authored a structured reflection covering: what went well, what fell 
 ### HZE1 retro-apply (Vera + Ray + Ace)
 
 - Vera: `history_zoom` charts generated for 8 pairs (29 charts + 31 sidecars, commit `20669d9`)
-- Ray: `HISTORY_ZOOM_EPISODES` narratives authored for 8 pairs (commit in same wave)
+- Ray: `HISTORY_ZOOM_EPISODES` narratives authored for 8 pairs (commit `00f27d9`); episode registry designed and implemented (`docs/schemas/episode_registry.json`); pair reclassification confirmed — `dff_ted_spy`/`sofr_ted_spy` → rates, `ted_spliced_spy` → credit. RES-20 triad verified across all 8 pairs.
 - Ace: `HISTORY_ZOOM_EPISODES` wired into 8 pair configs (`816444f`)
 - Exception: `vix_vix3m_spy` dot_com episode skipped per VIZ-HZE1 rationale; `_meta.json` documents decision (`2f15547`)
 
