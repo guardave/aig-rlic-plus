@@ -698,6 +698,7 @@ For cross-pair comparison pages (leaderboards, heatmaps), use a pre-aggregated `
 - Test locally with `streamlit run app/app.py` before pushing
 - Pin all dependencies — no floating versions
 - Keep `requirements.txt` minimal — only what the app needs, not the full analysis stack
+- Per META-CPD (team-coordination.md), every `git commit` must be immediately followed by `git push origin main` — a commit without a push is not a completed deliverable.
 
 ### 7. Review and Polish
 
