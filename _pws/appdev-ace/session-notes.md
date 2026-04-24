@@ -214,6 +214,40 @@ APP-SS1 validation PASS
 
 **Scope discipline:** Did NOT migrate hy_ig_v2_spy, umcsent_xlv, or any other pair pages. Retroactive migration is scheduled pair-by-pair in a subsequent wave (see APP-PT1 §migration-protocol in the SOP).
 
+## 2026-04-24 — Wave 10J/10K Self-Reflection + ACE-HZE1 Rule + Retro-Apply
+
+### Self-reflection round (Wave 10J)
+- Read all agent SOPs + experience files. Identified gap: HISTORY_ZOOM_EPISODES populated only in `hy_ig_spy_config.py`; 8 configs silent-skip the section.
+- Authored new SOP rule **ACE-HZE1** in `docs/agent-sops/appdev-agent-sop.md`. Key provisions:
+  - At config-authorship time, audit Ray handoff + `ls output/charts/{pair_id}/plotly/history_zoom_*.json`.
+  - If episode data present → MUST populate `HISTORY_ZOOM_EPISODES`.
+  - Missing Vera chart → file Vera blocker (do NOT omit entry).
+  - Missing Ray narrative → file Ray blocker (LEAD-DL1: cannot author prose).
+  - Genuinely no data → record explicit omission in handoff note.
+- Cross-agent impact log entry written for ACE-HZE1 (Ray / Vera / Quincy action required).
+
+### Coherence gap fixes (commit d2b52ae)
+Three inconsistencies caught by cross-agent review fixed before Wave 10J close:
+1. `RES-ZOOM1` reference corrected to `RES-HZE1` (Ray's rule was renamed).
+2. Slug authority cross-check — ACE-HZE1 gate now explicitly checks slugs against `docs/schemas/episode_registry.json` (not just Ray handoff).
+3. Removed [NARRATIVE PENDING] placeholder convention — conflicts with LEAD-DL1 (Ace cannot author narrative even in placeholder form; correct action is Vera/Ray blocker filing).
+
+### ACE-HZE1 retro-apply to 8 pair configs (commit 816444f)
+Wired `HISTORY_ZOOM_EPISODES` into all 8 configs where Vera zoom charts exist on disk:
+- `indpro_spy_config.py`, `permit_spy_config.py`, `vix_vix3m_spy_config.py`, `umcsent_xlv_config.py`, `sofr_ted_spy_config.py`, `dff_ted_spy_config.py`, `ted_spliced_spy_config.py`, `hy_ig_spy_config.py` (already had it; cross-checked slugs).
+- Full ACE-HZE1 gate check performed for each: Ray handoff audit + disk file count + slug validation.
+- `vix_vix3m_spy`: `dot_com` zoom chart was absent from Vera's VIZ-HZE1 batch; omission note filed (commit d99e7da).
+
+### META-CPD cross-reference (commit 66b58d3)
+Added cross-reference to META-CPD in AppDev SOP deployment rules section.
+
+### Wave 10J Phase 5: Quincy verify — 60/60 PASS, wave APPROVED
+
+### Key lessons
+- Silent omissions (section never renders) are harder to gate than rendering errors — need positive-presence assertions.
+- Slug authority must be cross-checked against a canonical registry, not just the pair config author's memory.
+- [NARRATIVE PENDING] placeholder is a LEAD-DL1 violation risk — correct substitute is a blocker filing.
+
 ## Open threads / backlog
 
 - BL-002 -- cross-pair unit-form inherit for sample pairs (1-4_*, 5-8_*) still in percent form.

@@ -751,3 +751,102 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 | Walk-forward continuous x-axis redesign | Evan → Vera | Backlog |
 | BL-LEGACY-WINNER-SUMMARY-SHAPE (6 pairs) | Evan | Wave 10K |
 | GATE-VIZ-NBER1 HTML scan validation | Quincy | Wave 10K |
+
+---
+
+## 2026-04-24 — Viz Vera (Wave 10J/10K Checkpoint)
+
+**Status:** Completed. Wave 10J 60/60 PASS confirmed by Quincy.
+
+**Accomplished:**
+1. **VIZ-HZE1 rule authored** in `docs/agent-sops/visualization-agent-sop.md` — pre-handoff gate requiring `git ls-files` verification per required zoom slug; structured skip protocol for data-coverage gaps (`_meta.json` with `"skip": true`). Fills the silent-omission blind spot.
+2. **29 history_zoom charts + 31 `_meta.json` sidecars** generated across 8 pairs (commit `20669d9`): dff_ted_spy (4), hy_ig_spy (4), indpro_spy (4), indpro_xlp (3), permit_spy (4), sofr_ted_spy (3), ted_spliced_spy (4), umcsent_xlv (3).
+3. **vix_vix3m_spy dot_com skip** (commit `2f15547`) — structured skip entry for VIX3M coverage gap (data starts 2007; dot-com episode 1999-2002).
+4. **META-CPD cross-reference** added to Viz SOP (commit `da8f534`).
+5. **Experience entry** promoted to `~/.claude/agents/viz-vera/experience.md` — failure mode class: "SOP rule without production enumeration gate."
+
+**Documented skips:**
+- `sofr_ted_spy` / gfc: SOFR data starts 2018 (post-GFC)
+- `vix_vix3m_spy` / dot_com: VIX3M data starts 2007
+
+**Outstanding item:**
+- **Perceptual PNGs:** 9 pairs remain at WARN (only `hy_ig_v2_spy` has kaleido renders). Lead decision pending on wave assignment. Logged in `_pws/viz-vera/outstanding-work.md`.
+
+**Next steps (if dispatched):**
+- Perceptual PNG backfill for 9 pairs (~198 renders) — awaiting Lead assignment.
+- history_zoom charts for any new pairs (VIZ-HZE1 now enforces this at handoff time).
+
+---
+
+## 2026-04-24 — Econ Evan (Wave 10J/10K Checkpoint)
+
+**Status:** Checkpoint complete. All Wave 10J/10K Evan deliverables committed and pushed (META-CPD compliant).
+
+**Accomplished:**
+- Added `indicator_category` field to all 10 `interpretation_metadata.json` files. Field routes pair into correct episode set for RES-EPIS1 (values: rates, production, sentiment, credit, volatility). Smoke: 0 failures.
+- Reclassified 5 pairs per Ray's domain verdicts: `dff_ted_spy` + `sofr_ted_spy` → rates; `indpro_spy` + `indpro_xlp` + `permit_spy` → production. Reran `subperiod_sharpe` for all 5 with correct episode sets.
+- Added META-CPD cross-reference to `docs/agent-sops/econometrics-agent-sop.md` (commit 57e53b5).
+- Self-reflection authored: ECON-DIR1 producer-voice failure diagnosed. CP1 sub-period Sharpe communication gap identified.
+
+**Outstanding in my lane:**
+- BL-LEGACY-WINNER-SUMMARY-SHAPE — 6 legacy pairs, Wave 10K first dispatch.
+- CP1 methodology_note — SOP rule before Pair #4 handoff.
+- `interpretation_metadata.schema.json` not yet authored.
+
+**Lessons:**
+1. Write rules from the file-ownership graph, not from the active-fixer perspective.
+2. CP1 sub-period Sharpes are directional-durability metrics — always annotate in handoff.
+3. Schema bumps trigger portfolio-wide re-validation sweeps.
+
+**Next:** Wave 10K Phase 1 — BL-LEGACY-WINNER-SUMMARY-SHAPE backfill + ECON-CP1 methodology_note SOP rule.
+
+---
+
+## 2026-04-24 — Dev Ace (Wave 10J/10K checkpoint — ACE-HZE1 complete, gate_cl_audit.py next)
+
+**Status:** Checkpoint complete. Wave 10J closed 60/60 PASS.
+
+**Accomplished this session:**
+- Authored SOP rule ACE-HZE1 (pair config acceptance gate for history zoom episodes) with full cross-agent provisions.
+- Fixed 3 coherence gaps in ACE-HZE1 (commit d2b52ae): slug authority cross-check vs episode_registry.json, RES-ZOOM1→RES-HZE1 rename, removed [NARRATIVE PENDING] placeholder convention (LEAD-DL1 conflict).
+- Retro-applied ACE-HZE1: wired `HISTORY_ZOOM_EPISODES` into 8 pair configs, full gate check per config (commit 816444f).
+- Filed vix_vix3m_spy dot_com omission note per ACE-HZE1 §3c (commit d99e7da).
+- Added META-CPD cross-reference to AppDev SOP deployment rules (commit 66b58d3).
+
+**Key insights:**
+- Silent section absence (no render error, no placeholder) is a distinct failure class requiring positive-presence gates — GATE-28 cannot catch it.
+- Slug authority must be validated against `docs/schemas/episode_registry.json`.
+- [NARRATIVE PENDING] placeholder is a LEAD-DL1 violation risk — correct action is blocker filing.
+
+**Blockers:** None. gate_cl_audit.py Phase 1 is Ace-owned and unblocked.
+
+**Next steps (P0):** Implement GATE-HZE1 in `scripts/cloud_verify.py` before Wave 10K closes.
+
+---
+
+## 2026-04-24 — Research Ray (Wave 10J/10K Checkpoint)
+
+**Status:** Checkpoint complete. All Wave 10J/10K Ray deliverables committed and pushed (META-CPD compliant).
+
+**Accomplished:**
+- **Self-reflection:** Diagnosed two design failures — RES-OD1 equality-check-only design (conceded to Vera; specified three-step fix) and SOP operational inconsistency (memories.md + experience.md vs team-standard experience.md only).
+- **RES-HZE1 authored:** Blocking gate for HISTORY_ZOOM_EPISODES — pair-class-specific episode selection required; failure mode clause included.
+- **Episode registry designed + implemented:** `docs/schemas/episode_registry.json` — canonical source of truth for 8 crisis episodes, keyed by pair class (rates, credit, production, sentiment, volatility).
+- **Pair reclassification:** `dff_ted_spy` + `sofr_ted_spy` → rates class; `ted_spliced_spy` → credit class (LIBOR-era ancestry). Classification rationale documented in registry.
+- **HZE1 retro-apply:** HISTORY_ZOOM_EPISODES narratives authored for all 8 deployed pairs. RES-20 triad verified (3 episodes each, correct pair-class selection, Methodology cross-references).
+- **META-CPD cross-reference:** Added to research-agent-sop.md and episode registry (commit `00f27d9`).
+- **Handoff filed:** `results/_cross_agent/handoff_ray_hze1_retro_20260424.md`
+
+**Wave 10J final verify:** 60/60 PASS. Wave APPROVED.
+
+**Outstanding in my lane:**
+- RES-OD1 three-step fix (correctness check, not equality check) — propose code patch before Pair #4.
+- Pair-class-specific episode expansion for Taper 2013 + China 2015 — awaiting Lead disposition.
+- SOP operational inconsistency (memories.md) — align with Lead at next available wave.
+
+**Lessons:**
+1. Every SOP rule should include a "failure mode" clause — "can this rule pass while the underlying reality is wrong?"
+2. Audit your own SOP's operational conventions against other agents' SOPs at every self-reflection.
+3. Pair-class routing is now in `indicator_category` (Evan) + episode_registry (Ray) — both must stay in sync.
+
+**Next:** Await Lead dispatch for Pair #4 (US10Y-US3M → SPY).
