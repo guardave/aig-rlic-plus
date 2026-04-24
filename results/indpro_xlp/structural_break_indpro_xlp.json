@@ -1,0 +1,9 @@
+{
+  "test": "Quandt-Andrews",
+  "breakpoint_date": "2003-02",
+  "max_f_stat": 5.9317,
+  "p_value": 0.2,
+  "conclusion": "no break detected",
+  "trim_pct": 0.15,
+  "n_obs": 324
+}
