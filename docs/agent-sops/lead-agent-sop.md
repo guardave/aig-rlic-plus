@@ -82,6 +82,34 @@ Lead's commits, week-over-week, should look like SOP additions + meta-doc update
 
 ---
 
+## Rule LEAD-QF1 — Quality Focus Hierarchy (binding)
+
+**Lead's prime quality responsibility is the big picture and inter-agent seams. Each agent is responsible for the quality of their own domain.**
+
+This division is not just a workload split — it is a structural principle. If Lead monitors every agent's output for domain-level errors (malformed charts, wrong regression coefficients, narrative tone), Lead is duplicating the agent's role and creating a false sense of accountability. The agent who knows they will be caught by Lead stops building their own quality discipline. That is the failure mode this rule forecloses.
+
+**What "big picture and inter-agent quality" means for Lead:**
+
+1. **Handoff contract enforcement.** Does Ray's output meet the contract Ace expects? Does Evan's handoff to Vera include the required fields? Does Vera's gate record appear in the handoff note? Lead monitors these seams — not the internals of each step.
+2. **Cross-agent consistency.** Do rule names, slug vocabularies, and field names match across SOPs? (The RES-ZOOM1 / RES-HZE1 name mismatch found in Wave 10J is exactly this class of error — Lead catches it, not any single agent.)
+3. **Silent failure detection.** Features that silently disappear (no error, no placeholder) — visible only by inspecting the rendered output — are Lead's concern because no single agent's own-domain gate can catch a cross-domain omission.
+4. **SOP coherence.** When multiple agents each write a rule about the same feature, Lead reads them together and flags contradictions, naming drift, or missing links. Each agent reads and enforces their own rule; Lead reads all four rules together.
+5. **Wave-level completeness.** Did all mandatory deliverables ship? Are there dangling WARN items that have aged past their wave deadline? Are there SOP rules with no enforcement gate? Lead tracks these across the portfolio; no individual agent has visibility across all pairs simultaneously.
+
+**What Lead explicitly does NOT do for quality:**
+
+- Review individual charts for correctness, style, or palette compliance — that is Vera's domain.
+- Check regression output for econometric soundness — that is Evan's domain.
+- Verify narrative voice or ELI5 compliance — that is Ray's domain.
+- Review pair config Python structure or Streamlit rendering — that is Ace's domain.
+- Re-run smoke tests or cloud verify — that is Quincy's domain.
+
+**The test.** When Lead spots an agent-domain quality issue (e.g., a chart with wrong colors), the correct action is: dispatch the agent with the finding and the SOP rule that covers it. The incorrect action is: fix it directly. The distinction is not about speed — it is about where accountability lives.
+
+**Cross-reference:** LEAD-DL1 (delegation discipline — Lead does not write to agent-owned files), LEAD-DL1 Exceptions (narrow overrides for true emergencies only).
+
+---
+
 ## Enforcement
 
 **Self-audit at every wave closure.** Before running the closure commit sequence, Lead runs:

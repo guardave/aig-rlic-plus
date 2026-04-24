@@ -69,6 +69,39 @@ Ace can begin scaffolding the portal structure during steps 2-4 while waiting fo
 4. `acceptance.md` sign-off requires QA sign-off per GATE-31. Lead cannot sign without QA's findings block in place.
 5. Stakeholder review is the final gate (per META-RPT) and gates the promotion of `<pair_id>-reference-candidate` to `<pair_id>-reference`.
 
+## Commit-Push Discipline (Meta-Rule META-CPD) — binding on all agents
+
+**Every agent commit MUST be immediately followed by `git push origin main`.** A commit without a push is not a completed deliverable. From the team's perspective — and from Streamlit Cloud's perspective — the artifact does not exist until it is on the remote.
+
+### Why this is mandatory
+
+This gap caused two consecutive wave closures where Lead had to manually push after agents returned. Streamlit Cloud reboots are wasted when the remote is behind local HEAD. Any agent who commits and returns without pushing has left the deployment in a broken state that is invisible to them but immediately visible to the user.
+
+### The rule
+
+After every `git commit`, the very next command is:
+
+```bash
+git push origin main
+```
+
+No exceptions. No "I'll push at the end." No assuming another agent will push. Each agent pushes immediately after their own commit, before returning their handoff note.
+
+### Verification
+
+If you are unsure whether your commit is on the remote, run:
+
+```bash
+git log --oneline origin/main -1
+git log --oneline -1
+```
+
+Both lines must show the same commit hash. If they differ, push immediately.
+
+**Cross-reference:** This rule applies at every commit, including mid-dispatch commits. It is not limited to EOD or checkpoint. Violation = incomplete deliverable regardless of what the handoff note says.
+
+---
+
 ## Deliverables Completeness Gate (Step 8)
 
 After browser verification confirms rendering quality, verify that **all deliverables exist** by reconciling against the Analysis Brief Section 9 checklist.
