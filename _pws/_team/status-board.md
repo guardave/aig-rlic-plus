@@ -1,5 +1,19 @@
 # Team Status Board
 
+## 2026-04-24 — QA Quincy (GATE-27-PNG: WARN → FAIL promotion)
+
+**Status:** Complete. Perceptual PNG mandate approved for all chart types on all pairs.
+
+**Change made:**
+- `docs/agent-sops/qa-agent-sop.md` — GATE-27 PNG existence check severity changed from WARN to FAIL (blocking). Added VIZ-CV1 cross-reference as the producer-side gate Vera must satisfy before handoff. Any pair with zero committed `_perceptual_check_*.png` files is now a blocking gate failure; owner: Vera.
+- `scripts/cloud_verify.py` — `gate27_perceptual_png_preflight()` updated: print output changed from `WARN` to `FAIL`; failures now appended directly to `results` list (counted in FAIL tally); summary line updated from `GATE-27-PNG WARN` to `GATE-27-PNG FAIL`. Comment block updated to reflect permanent FAIL status.
+
+**Producer-side note for Vera:** VIZ-CV1 (perceptual render mandate) is the producer-side companion gate. If VIZ-CV1 is executed correctly before handoff, GATE-27-PNG will never reach Quincy as a FAIL. Vera's outstanding-work item (perceptual PNG backfill for 9 pairs) is now a blocking prerequisite before those pairs can pass cloud verify.
+
+**Scope:** Own SOP + own cloud_verify.py tooling + this status board. LEAD-DL1 clean.
+
+---
+
 ## 2026-04-24 — QA Quincy (GATE-DP1 — Dual-Panel Trace Visibility Check)
 
 **Status:** SOP authored. Verification code wired into `scripts/cloud_verify.py`. No chart files touched (LEAD-DL1 respected).

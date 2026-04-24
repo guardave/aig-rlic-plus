@@ -647,19 +647,19 @@ def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus
 def gate27_perceptual_png_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     """GATE-27 extension (D4, Wave 10J): assert perceptual-check PNGs are committed.
 
-    For every pair that has mandatory-NBER charts, Vera is required to commit a
-    kaleido-rendered PNG at ``output/charts/{pair_id}/plotly/_perceptual_check_*.png``
-    as evidence that VIZ-NBER1 shading was visually confirmed before handoff.
+    For every pair, Vera is required to commit a kaleido-rendered PNG at
+    ``output/charts/{pair_id}/plotly/_perceptual_check_*.png`` as evidence that
+    VIZ-CV1 perceptual render was performed before handoff. This is mandatory for
+    all chart types on all pairs (mandate approved Wave 10K, 2026-04-24).
 
     QA cannot verify visual quality — only existence. Absence means Vera skipped
-    the kaleido render step, which is a producer self-attestation gap. Logged as
-    WARNING (not FAIL) until Vera's VIZ-NBER1 retro-apply to all pairs is complete.
-    # WARN during 10J retro, FAIL after VIZ-NBER1 retro-apply complete.
+    the kaleido render step (VIZ-CV1 producer-side gate). Severity: FAIL (blocking).
+    Owner of fix: Vera.
 
-    Returns: list of warning dicts (empty = all pairs have ≥1 PNG committed).
+    Returns: list of failure dicts (empty = all pairs have ≥1 PNG committed).
     """
     import subprocess
-    warnings_out = []
+    failures_out = []
     for pair_id in pairs:
         pattern = f"output/charts/{pair_id}/plotly/_perceptual_check_*.png"
         result = subprocess.run(
@@ -671,21 +671,21 @@ def gate27_perceptual_png_preflight(pairs, project_root="/workspaces/aig-rlic-pl
         matched = [line.strip() for line in result.stdout.splitlines() if line.strip()]
         count = len(matched)
         if count == 0:
-            warnings_out.append({
+            failures_out.append({
                 "pair_id": pair_id,
                 "gate": "GATE-27-PNG",
                 "finding": f"No committed _perceptual_check_*.png for {pair_id}",
                 "detail": (
                     f"`git ls-files {pattern}` returned 0 files. "
-                    "Vera must render and commit at least one kaleido PNG for mandatory-NBER charts "
-                    f"(VIZ-NBER1). Fix: Vera regenerates Evidence charts with kaleido and commits "
+                    "GATE-27-PNG FAIL: perceptual PNGs are mandatory for all charts on all pairs "
+                    f"(VIZ-CV1). Fix: Vera regenerates charts with kaleido and commits "
                     f"output/charts/{pair_id}/plotly/_perceptual_check_<chart_name>.png."
                 ),
             })
-            print(f"  GATE-27-PNG WARN {pair_id}: 0 perceptual PNGs committed", flush=True)
+            print(f"  GATE-27-PNG FAIL {pair_id}: 0 perceptual PNGs committed", flush=True)
         else:
             print(f"  GATE-27-PNG PASS {pair_id}: {count} perceptual PNG(s) committed", flush=True)
-    return warnings_out
+    return failures_out
 
 
 def main():
@@ -768,18 +768,27 @@ def main():
     else:
         print("  GATE-DP1: all history_zoom charts PASS axis-assignment check.", flush=True)
 
-    # --- GATE-27 PNG pre-flight (D4, Wave 10J) ---
-    # Check that Vera committed at least one _perceptual_check_*.png per pair.
-    # This is a WARNING only during Wave 10J while VIZ-NBER1 retro-apply is in progress.
+    # --- GATE-27 PNG pre-flight (D4, Wave 10J; promoted to FAIL Wave 10K 2026-04-24) ---
+    # Perceptual PNGs are mandatory for ALL chart types on ALL pairs (VIZ-CV1 mandate).
+    # Absence = FAIL (blocking). Owner: Vera.
     print("\n[GATE-27-PNG pre-flight] checking _perceptual_check_*.png for all pairs ...", flush=True)
     gate27_png_warnings = gate27_perceptual_png_preflight(pairs)
     png_warn_counts = {}
     for w in gate27_png_warnings:
         png_warn_counts[w["pair_id"]] = w["detail"]
+        results.append({
+            "slug": f"{w['pair_id']}_preflight",
+            "pair_id": w["pair_id"],
+            "page": "preflight",
+            "gate": "GATE-27-PNG",
+            "verdict": "FAIL",
+            "error": w["detail"],
+        })
     if gate27_png_warnings:
         print(
-            f"  *** {len(gate27_png_warnings)} GATE-27-PNG WARN(s) — perceptual PNGs missing. "
-            "WARN during 10J retro, FAIL after VIZ-NBER1 retro-apply complete. ***",
+            f"  *** {len(gate27_png_warnings)} GATE-27-PNG FAIL(s) — perceptual PNGs missing. "
+            "Perceptual PNGs are mandatory for all chart types on all pairs (VIZ-CV1). "
+            "Owner: Vera. Fix before browser pass. ***",
             flush=True,
         )
 
@@ -941,13 +950,13 @@ def main():
             )
     print(f"Screenshot index: {index_path}", flush=True)
 
-    png_warn_count = len(gate27_png_warnings)
+    png_fail_count = len(gate27_png_warnings)
     dp1_fail_count = len(dp1_failures)
     print(f"\n=== SUMMARY: {summary['pass']} PASS / {summary['fail']} FAIL / {summary['total']} TOTAL"
-          f" | GATE-27-PNG WARN: {png_warn_count} pair(s) missing perceptual PNGs"
+          f" | GATE-27-PNG FAIL: {png_fail_count} pair(s) missing perceptual PNGs"
           f" | GATE-DP1 FAIL: {dp1_fail_count} axis-assignment issue(s) ===", flush=True)
-    if png_warn_count:
-        print("  GATE-27-PNG: pairs missing _perceptual_check_*.png: "
+    if png_fail_count:
+        print("  GATE-27-PNG FAIL: pairs missing _perceptual_check_*.png: "
               + ", ".join(w["pair_id"] for w in gate27_png_warnings), flush=True)
     if dp1_fail_count:
         seen = set()
