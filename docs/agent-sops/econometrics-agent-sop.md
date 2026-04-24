@@ -1394,6 +1394,10 @@ Evan both consumes upstream data (from Dana and Ray) and produces model outputs 
 - Coefficient CSVs use the standardized schema: `variable`, `coef`, `se`, `t_stat`, `p_value`, `ci_lower`, `ci_upper`
 - Save `.pkl` of fitted model objects for reuse
 
+## Git and Handoff Protocol
+
+Per META-CPD (team-coordination.md), every `git commit` must be immediately followed by `git push origin main` — a commit without a push is not a completed deliverable.
+
 ## Anti-Patterns
 
 - **Never** run a regression without stating the hypothesis first
