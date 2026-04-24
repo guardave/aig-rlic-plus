@@ -159,6 +159,27 @@ class StoryConfig:
         "exploitable relationship with equity returns?"
     )
 
+    HISTORY_ZOOM_EPISODES = [
+        {
+            "slug": "gfc",
+            "title": "Global Financial Crisis (2007–2009)",
+            "narrative": "The VIX/VIX3M ratio spiked into extreme backwardation in October 2008 when the VIX hit 80 while the 3-month vol surface was far less elevated. This is the defining event for this indicator: the ratio's 126-day z-score was off the charts, and SPY fell ~20% in the following two weeks. A clear long-lead case — backwardation signaled extreme panic before the final equity capitulation in March 2009.",
+            "caption": "Oct 2008 VIX hit 80, ratio in extreme backwardation — z-score signal fired well before March 2009 equity trough",
+        },
+        {
+            "slug": "covid",
+            "title": "COVID Crash (2020)",
+            "narrative": "In March 2020, the VIX spiked to 85 (exceeding GFC levels) while VIX3M remained lower — creating the sharpest and most rapid backwardation in the ratio's history. The 126-day z-score hit extreme readings. SPY fell 34% in 33 days. The Long/Cash strategy moved to cash rapidly, avoiding most of the drawdown. The signal reverted just as fast — this is a textbook coincident case for a high-frequency fear indicator.",
+            "caption": "March 2020 VIX hit 85, ratio backwardation extreme — Long/Cash moved to cash within days, avoided SPY -34% crash",
+        },
+        {
+            "slug": "rates_2022",
+            "title": "Fed Hiking Cycle (2022)",
+            "narrative": "Unlike the GFC or COVID, the 2022 bear market was a slow grind rather than a panic spike. VIX rose steadily (peaking around 35) but did not create sustained extreme backwardation in the ratio — the vol term structure remained relatively flat. The z-score signal fired intermittently rather than with the conviction of a panic episode. This is a partial failure case: the indicator is better suited to shock events than sustained macro-driven bear markets.",
+            "caption": "2022 bear market was a grind, not a panic — VIX/VIX3M ratio never hit extreme backwardation; signal fired intermittently",
+        },
+    ]
+
 
 STORY_CONFIG = StoryConfig()
 

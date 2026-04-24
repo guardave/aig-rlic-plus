@@ -172,6 +172,33 @@ class StoryConfig:
         "selection or time period."
     )
 
+    HISTORY_ZOOM_EPISODES = [
+        {
+            "slug": "dot_com",
+            "title": "Dot-Com Bust (2000–2002)",
+            "narrative": "Consumer sentiment deteriorated sharply through 2001 as the economy contracted and unemployment rose. XLV, as a defensive healthcare holding, held up relatively well. But the year-over-year sentiment signal turned negative — and the strategy correctly moved to cash. This is a long-lead success case where the signal anticipated XLV's underperformance relative to its defensive reputation.",
+            "caption": "2001 sentiment decline: UMCSENT YoY turned negative; XLV held up but signal correctly reduced exposure",
+        },
+        {
+            "slug": "gfc",
+            "title": "Global Financial Crisis (2007–2009)",
+            "narrative": "Sentiment collapsed through 2008–2009 as unemployment surged and household wealth evaporated. XLV declined meaningfully, though less than SPY. The UMCSENT YoY signal turned sharply negative in late 2007, moving the strategy to cash ahead of most of the healthcare drawdown. A clean long-lead case: sentiment fell before the equity trough, and the long-cash strategy avoided the worst of the decline.",
+            "caption": "GFC: UMCSENT YoY signal moved to cash late 2007; XLV declined -30% peak-to-trough but strategy avoided bulk of it",
+        },
+        {
+            "slug": "covid",
+            "title": "COVID Crash (2020)",
+            "narrative": "Sentiment plunged to near-record lows in April 2020. XLV experienced a moderate drawdown before recovering sharply — healthcare stocks benefited from vaccine and treatment demand. The UMCSENT signal went negative, and the 6-month lead meant the strategy was positioned cautiously. However, XLV's rapid recovery created a signal lag problem: the strategy sat in cash during some of the healthcare upswing. A mixed coincident case.",
+            "caption": "COVID: UMCSENT collapsed April 2020; XLV recovered fast on healthcare demand — 6-month lead caused cash lag into recovery",
+        },
+        {
+            "slug": "rates_2022",
+            "title": "Fed Hiking Cycle (2022)",
+            "narrative": "Consumer sentiment hit multi-decade lows in June 2022 (University of Michigan index at 50) driven by inflation and rising rates. XLV outperformed SPY during this period — a partial vindication of the defensive thesis. But the UMCSENT YoY signal had already turned negative, keeping the strategy in cash. This is a failure case: the signal was bearish, but XLV actually held up, so the strategy missed the relative outperformance.",
+            "caption": "June 2022 sentiment hit 50-year low; XLV outperformed SPY but UMCSENT signal was bearish — missed defensive rally",
+        },
+    ]
+
 
 STORY_CONFIG = StoryConfig()
 

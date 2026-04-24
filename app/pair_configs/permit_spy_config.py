@@ -139,6 +139,33 @@ class StoryConfig:
         "relationship with equity returns?"
     )
 
+    HISTORY_ZOOM_EPISODES = [
+        {
+            "slug": "dot_com",
+            "title": "Dot-Com Bust (2000–2002)",
+            "narrative": "Building permits actually held up surprisingly well through the 2000–2002 recession — the bust was concentrated in the technology sector, not housing construction. Permits dipped modestly and recovered quickly. The 1-month momentum signal may have briefly turned negative but quickly reverted. This is a failure case: the indicator correctly reflected housing resilience, but that resilience did not prevent SPY from falling ~50%.",
+            "caption": "2001: Building permits held up through dot-com bust — housing was fine, but SPY fell 50% on tech collapse",
+        },
+        {
+            "slug": "gfc",
+            "title": "Global Financial Crisis (2007–2009)",
+            "narrative": "Permits peaked in January 2006 and fell for nearly four years — one of the longest and deepest collapses in the series history. The 1-month momentum signal turned bearish in 2006, well before the equity market peaked in October 2007. This is the strongest long-lead case in the series: permits led the equity top by ~18 months. The Long/Short strategy would have been short SPY during most of the crash.",
+            "caption": "Permits peaked Jan 2006, fell 4 years — the GFC's earliest macro warning, leading equity top by 18 months",
+        },
+        {
+            "slug": "covid",
+            "title": "COVID Crash (2020)",
+            "narrative": "Permits collapsed briefly in April 2020 but recovered sharply by June 2020 on a wave of pandemic-era housing demand. The 1-month momentum signal fired bearish, then turned bullish almost immediately — a fast coincident case. The signal correctly called the turn but the trade window was extremely short, and the strategy's 6-month lead would have carried stale bearish positioning well into the recovery.",
+            "caption": "COVID permits: brief April 2020 collapse, then V-shaped recovery — 6-month lead lag caused stale bearish carry",
+        },
+        {
+            "slug": "china_2015",
+            "title": "China Slowdown / EM Stress (2015–2016)",
+            "narrative": "US permits grew steadily through 2015–2016 despite global headwinds, reflecting strong domestic housing demand and low mortgage rates. The momentum signal stayed positive. SPY was volatile but did not crash. A success case for the signal's \"stay long\" reading, though the narrow equity upside limited realized outperformance.",
+            "caption": "2015-16: US permits continued rising despite EM stress — signal correctly stayed long SPY through the volatility",
+        },
+    ]
+
 
 STORY_CONFIG = StoryConfig()
 

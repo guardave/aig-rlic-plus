@@ -106,6 +106,15 @@ The SOFR-DTB3 series has only existed since April 2018, giving roughly 2,000 dai
         "impulse responses — to test whether the pattern survives formal specification."
     )
 
+    HISTORY_ZOOM_EPISODES = [
+        {
+            "slug": "rates_2022",
+            "title": "Fed Hiking Cycle (2022)",
+            "narrative": "As the Fed raised rates aggressively through 2022, SOFR tracked the DFF higher while T-bills also rose — but the SOFR-TED spread's 63-day rate-of-change captured the acceleration in funding cost relative to short government paper. SPY fell ~20%. The signal's Long/Cash strategy moved to cash early in the hiking cycle, protecting against the drawdown.",
+            "caption": "SOFR-TED spread ROC turned negative early 2022 as Fed hikes accelerated; Long/Cash avoided SPY drawdown",
+        },
+    ]
+
 
 STORY_CONFIG = StoryConfig()
 

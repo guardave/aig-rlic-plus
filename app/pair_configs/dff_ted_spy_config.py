@@ -110,6 +110,33 @@ The cost is that DFF-TED is a *proxy*, not the original indicator. The Sharpe nu
         "impulse-response analysis over the full 30-year window."
     )
 
+    HISTORY_ZOOM_EPISODES = [
+        {
+            "slug": "dot_com",
+            "title": "Dot-Com Bust (2000–2002)",
+            "narrative": "The DFF–TED spread widened modestly during the 2000–2002 equity bear market as the Fed cut rates aggressively, but the interbank premium stayed muted — the stress was in tech credit, not broad bank funding. This is a partial failure case: the spread gave an early warning in late 2000 but underestimated the depth of the drawdown.",
+            "caption": "DFF-TED spread widened early 2001 but missed depth of equity selloff — a partial leading signal, not a clean one",
+        },
+        {
+            "slug": "gfc",
+            "title": "Global Financial Crisis (2007–2009)",
+            "narrative": "The DFF–TED spread surged dramatically in 2007–2008 as the Fed cut the DFF to near zero while T-bill yields spiked on a flight to safety, creating an extreme negative reading that coincided with catastrophic SPY losses. This is the clearest long-lead case: the spread blew out months before the equity bottom in March 2009.",
+            "caption": "GFC stress peak in late 2008 — spread explosion preceded the equity trough by ~6 months",
+        },
+        {
+            "slug": "taper_2013",
+            "title": "Taper Tantrum (2013)",
+            "narrative": "When the Fed signaled QE tapering in May 2013, T-bill yields briefly spiked while the DFF remained anchored near zero, compressing and then reversing the spread. SPY experienced only a mild pullback. This is a coincident case: spread moves were small and equity impact was short-lived — a good example of the signal's limitations in rate-shock environments.",
+            "caption": "Taper Tantrum 2013: T-bill spike briefly compressed spread; SPY dipped but recovered quickly",
+        },
+        {
+            "slug": "rates_2022",
+            "title": "Fed Hiking Cycle (2022)",
+            "narrative": "As the Fed raised the DFF from near zero to above 5% through 2022–2023, the DFF–TED spread was dragged higher by the elevated DFF floor. SPY fell ~20% in 2022. The spread's 21-day rate-of-change signal fired early in the hiking cycle, correctly flagging the bear market — a strong long-lead confirmation.",
+            "caption": "2022 hikes lifted DFF-TED spread; ROC signal turned bearish early in the rate cycle as SPY declined",
+        },
+    ]
+
 
 STORY_CONFIG = StoryConfig()
 

@@ -138,6 +138,33 @@ class StoryConfig:
         "momentum transforms more than in the levels."
     )
 
+    HISTORY_ZOOM_EPISODES = [
+        {
+            "slug": "dot_com",
+            "title": "Dot-Com Bust (2000–2002)",
+            "narrative": "Industrial production peaked in mid-2000 and fell for 18 months through 2001, coinciding with the equity bear market. The 3-month momentum signal turned negative roughly 3–6 months before the steepest SPY drawdowns, making this a solid long-lead case. However, the signal also stayed bearish well into the early 2002 recovery, illustrating the lag cost.",
+            "caption": "INDPRO 3M momentum turned negative mid-2000, leading SPY decline — recovery signal lagged equity bottom by months",
+        },
+        {
+            "slug": "gfc",
+            "title": "Global Financial Crisis (2007–2009)",
+            "narrative": "Industrial production fell sharply from late 2007 through mid-2009, one of the steepest declines since World War II. The 3-month momentum signal tracked the contraction closely, remaining bearish for the entire episode. Because INDPRO has a ~6-week publication lag, real-time signal entry was coincident rather than truly leading — but the sustained bearish reading correctly kept the strategy in cash during the worst of the selloff.",
+            "caption": "INDPRO momentum stayed deeply negative through entire GFC contraction — strategy avoided SPY's -55% trough",
+        },
+        {
+            "slug": "covid",
+            "title": "COVID Crash (2020)",
+            "narrative": "April 2020 produced the single largest monthly drop in INDPRO on record (-12.7%), creating an extreme outlier that distorts z-score-based signals. The 3-month momentum signal collapsed and then snapped back almost as fast as the equity market — this is both a coincident case (signal tracked SPY direction) and a known model limitation, as the outlier can dominate regime classification for subsequent periods.",
+            "caption": "April 2020: INDPRO -12.7% MoM — largest single-month drop on record; z-score outlier distorts subsequent signals",
+        },
+        {
+            "slug": "china_2015",
+            "title": "China Slowdown / EM Stress (2015–2016)",
+            "narrative": "US industrial production contracted mildly through 2015–2016 amid a manufacturing slowdown, energy sector weakness, and strong dollar headwinds. SPY experienced a volatile but ultimately shallow correction. The 3-month momentum signal turned modestly negative — a partial failure case where signal and outcome were directionally consistent but the equity impact was far smaller than prior contractions.",
+            "caption": "2015-16 US manufacturing slowdown: INDPRO momentum mildly negative, SPY volatile but held up — shallow failure case",
+        },
+    ]
+
 
 STORY_CONFIG = StoryConfig()
 

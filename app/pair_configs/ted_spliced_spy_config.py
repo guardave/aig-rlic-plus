@@ -116,6 +116,33 @@ For a structurally clean alternative, consult Variant B (DFF-TED) — no splice,
         "Variant A cannot see."
     )
 
+    HISTORY_ZOOM_EPISODES = [
+        {
+            "slug": "dot_com",
+            "title": "Dot-Com Bust (2000–2002)",
+            "narrative": "The TED spread (LIBOR-based at this time) widened modestly in 2001 as the Fed cut rates and short-term liquidity demand rose. SPY fell substantially but the TED spike was not extreme — suggesting the crisis was more a valuation and earnings story than a bank-funding-stress event. A partial failure case for the spread as a signal.",
+            "caption": "TED spread widened mildly in 2001 dot-com downturn — funding stress was secondary to valuation collapse",
+        },
+        {
+            "slug": "gfc",
+            "title": "Global Financial Crisis (2007–2009)",
+            "narrative": "The TED spread exploded to over 450 basis points in October 2008 — its all-time high — as interbank lending froze and Libor surged while T-bills plummeted on a flight to safety. The spliced series captures this episode in full. The 21-day ROC signal turned sharply bearish months before the March 2009 equity trough, making this the clearest long-lead case in the series.",
+            "caption": "TED spread hit 450bps Oct 2008 — the most extreme interbank stress ever recorded, well ahead of the equity bottom",
+        },
+        {
+            "slug": "covid",
+            "title": "COVID Crash (2020)",
+            "narrative": "In March 2020, the TED spread spiked sharply but briefly as dollar funding markets seized up globally. The Fed's emergency facilities (FIMA repo, swap lines) collapsed the spread within weeks. The ROC signal fired and reversed quickly — a coincident case where the signal was accurate but the trade window was extremely short.",
+            "caption": "COVID March 2020: TED spiked then collapsed in weeks as Fed facilities intervened — short coincident signal",
+        },
+        {
+            "slug": "rates_2022",
+            "title": "Fed Hiking Cycle (2022)",
+            "narrative": "In 2022, the TED spread (now SOFR-based in the spliced series) rose alongside the Fed funds rate, but the spread's ROC signal captured the inflection in funding conditions early. SPY declined ~20% across 2022. Unlike the GFC, this was a slow-building stress rather than a panic spike — the signal's proportional strategy gradually reduced equity exposure through the year.",
+            "caption": "2022 rate cycle: spliced TED ROC signaled gradual tightening; proportional strategy reduced exposure progressively",
+        },
+    ]
+
 
 STORY_CONFIG = StoryConfig()
 

@@ -163,6 +163,33 @@ The practical implication for strategy design: **a simple "hold XLP when IP cont
         "methods to test whether the data bears this out."
     )
 
+    HISTORY_ZOOM_EPISODES = [
+        {
+            "slug": "dot_com",
+            "title": "Dot-Com Bust (2000–2002)",
+            "narrative": "When industrial production turned negative in 2000–2001, investors rotated into defensive consumer staples — XLP outperformed SPY significantly during this period. The INDPRO acceleration signal turned bearish on IP early, correctly flipping the strategy long XLP (and short the broader market). This is the clearest long-lead case for the countercyclical mechanism.",
+            "caption": "2001 IP contraction drove rotation into consumer staples — INDPRO accel signal correctly anticipated XLP outperformance",
+        },
+        {
+            "slug": "gfc",
+            "title": "Global Financial Crisis (2007–2009)",
+            "narrative": "XLP held up far better than SPY during the GFC, confirming the defensive rotation thesis. The INDPRO acceleration signal turned sharply negative in late 2007 as manufacturing decelerated, producing a sustained long-XLP signal through 2009. A strong coincident-to-leading case: signal fired early, and the defensive play paid off across the entire crisis window.",
+            "caption": "GFC: XLP outperformed SPY by ~40pp; INDPRO acceleration signal correctly positioned long defensives",
+        },
+        {
+            "slug": "covid",
+            "title": "COVID Crash (2020)",
+            "narrative": "The April 2020 INDPRO collapse (-12.7%) should have sent the signal sharply long XLP. However, COVID hit all sectors simultaneously — XLP experienced its own meaningful drawdown. The strategy was mechanically correct (defensive rotation) but the diversification benefit was compressed by the synchronized nature of the shock. A partial failure case where the signal was right but the target underdelivered.",
+            "caption": "COVID hit all sectors simultaneously — XLP drew down with SPY, limiting the defensive benefit of INDPRO's signal",
+        },
+        {
+            "slug": "china_2015",
+            "title": "China Slowdown / EM Stress (2015–2016)",
+            "narrative": "The 2015–2016 US manufacturing contraction was mild but sustained, and XLP did outperform SPY over this window as investors sought stability. The INDPRO acceleration signal caught the deceleration early and held a long-XLP tilt. A moderate success case: direction correct, but the outperformance margin was narrower than during the GFC or dot-com period.",
+            "caption": "2015-16 mild IP contraction: XLP modestly outperformed SPY — INDPRO accel signal directionally correct, smaller payoff",
+        },
+    ]
+
 
 STORY_CONFIG = StoryConfig()
 
