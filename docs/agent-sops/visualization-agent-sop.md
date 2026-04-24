@@ -553,6 +553,180 @@ All four elements (perceptible shading + caption + subplot coverage + perceptual
 
 For the HY-IG v2 hero chart, SL-2 observed that shading existed but the disclosure text was missing; April 2026 follow-up found that the restored grey-alpha-0.12 shading was still imperceptible AND covered only the top panel. This revision of V2 codifies the prescription + subplot rule + perceptual-validation step that would have caught both bugs.
 
+#### Rule VIZ-NBER1 — NBER Shading Mandatory Chart Types (added 2026-04-24, Wave 10J)
+
+**Problem addressed:** Wave 10J audit found that 5 of 10 active pairs have hero charts with no NBER shading, and 4 of 5 equity-curve charts have no NBER shading. The existing Rule V2 prescribed shading for "long-horizon equity/credit time-series" but did not enumerate chart types precisely enough to be applied consistently by pipeline generators.
+
+**Mandatory NBER shading chart types.** The following chart types MUST carry NBER recession shading when the chart's x-axis spans more than 5 calendar years. Application is unconditional — no per-pair or per-indicator exceptions:
+
+| Chart Type | Canonical Filename | Notes |
+|-----------|-------------------|-------|
+| Hero (dual-axis indicator vs target) | `hero.json` | Both panels if dual-panel |
+| Spread history annotated | `spread_history_annotated.json` | Both panels if dual-panel |
+| History zoom (all episodes) | `history_zoom_{slug}.json` | BOTH panels mandatory per Rule V1 |
+| Equity curves | `equity_curves.json` | Single or dual panel |
+| HMM regime probability | `hmm_regime_probs.json` | |
+| Rolling Sharpe | `rolling_sharpe.json`, `wf_sharpe.json`, `walk_forward.json` | |
+| Rolling correlation | `rolling_correlation.json` | |
+| Rolling Granger (F-stat) | `rolling_granger.json` | |
+| Drawdown | `drawdown.json`, `drawdown_comparison.json` | |
+| Walk-forward performance | `walk_forward.json` | |
+
+**Exempt chart types** (x-axis is not calendar time; NBER shading is inapplicable and PROHIBITED):
+
+| Exempt Chart | Reason |
+|-------------|--------|
+| Correlation heatmap | X-axis is signal horizon (lags), not time |
+| CCF bar chart | X-axis is lag count |
+| Quantile regression | X-axis is return quantile |
+| Tournament scatter | X-axis is turnover metric |
+| RF feature importance | X-axis is feature name |
+| Regime bar chart / quartile returns | X-axis is regime/quartile label |
+| Signal distribution | X-axis is signal value |
+
+**Implementation rule:** Every pair pipeline generator script that produces a chart in the mandatory list MUST include NBER shading. A chart from the mandatory list delivered without NBER shading is a **completeness gate failure (GATE-VIZ-NBER1)**. The QA agent verifies this at smoke-test time by checking that `layout.shapes` contains at least one shape with `fillcolor` matching the NBER shading rgba pattern.
+
+**NBER shading parameters (canonical, from VIZ-V2):**
+- `fillcolor='rgba(150,120,120,0.22)'`
+- `layer='below'`
+- `line_width=0`
+- `yref='paper'` (so the rect spans the full chart height)
+- For dual/multi-panel layouts: one shape per panel per recession (total = `n_recessions × n_panels`)
+- Caption disclosure: "Shaded bands mark NBER recessions."
+
+**Cross-reference:** VIZ-V2 (NBER shading parameters and subplot handling), VIZ-V1 (zoom chart dual-panel rule), VIZ-CP1 (rolling-chart NBER shading for CP-series charts).
+
+---
+
+#### Rule VIZ-ZOOM1 — Historical Zoom Chart Trigger and Episode Coverage (added 2026-04-24, Wave 10J)
+
+**Problem addressed:** Wave 10J audit found that 8 of 10 active pairs have zero historical zoom charts. The existing Rule V1 specified zoom chart mechanics (dual-panel, events, NBER shading) but did not define WHEN they are required — leaving the decision implicit and producing inconsistency.
+
+**When zoom charts are REQUIRED (blocking):**
+
+A `history_zoom_{episode_slug}.json` chart is REQUIRED for an episode when ALL THREE of the following are true:
+
+1. **Data coverage:** The pair's indicator data spans the episode's time window (from `docs/schemas/history_zoom_events_registry.json` `start_date` / `end_date`). A SOFR-based pair cannot have a `dotcom` zoom because SOFR data begins 2014.
+2. **Relevance:** The episode is a major stress event relevant to the indicator's economic domain. All four canonical episodes are relevant to all financial indicator-target pairs unless the data coverage check fails.
+3. **Portal delivery:** The pair has at least one portal page (Story, Evidence, Strategy, or Methodology). Pairs not yet ported to the portal may defer zoom charts until portal delivery.
+
+**Required episodes (canonical):** Dot-Com (2000–2002), GFC (2007–2009), COVID (2020), 2022 Rates Shock (2021–2023).
+
+**Episode slug names:** `dotcom`, `gfc`, `covid`, `inflation_2022`.
+
+**When zoom charts are OPTIONAL:**
+
+- For pairs where the indicator is a short-sample daily series (< 5 years of history as of the episode end date): zoom chart is not required.
+- For the `inflation_2022` episode: required only for rate/credit/volatility indicator pairs where rising rates are the primary mechanism. For activity-survey indicators (INDPRO, permits, UMCSENT), `inflation_2022` is optional unless the narrative explicitly references it.
+
+**Per-pair status at Wave 10J (remediation guide):**
+
+| Pair | Dotcom | GFC | COVID | 2022 | Required Actions |
+|------|--------|-----|-------|------|-----------------|
+| `hy_ig_spy` | ✓ | ✓ | ✓ | MISSING | Add `inflation_2022` |
+| `hy_ig_v2_spy` | ✓ | ✓ | ✓ | MISSING | Add `inflation_2022` |
+| `indpro_spy` | MISSING | MISSING | MISSING | MISSING | Add all 4 |
+| `permit_spy` | MISSING | MISSING | MISSING | MISSING | Add all 4 |
+| `sofr_ted_spy` | N/A | N/A | MISSING | MISSING | Add covid + inflation_2022 |
+| `ted_spliced_spy` | MISSING | MISSING | MISSING | MISSING | Add all 4 |
+| `dff_ted_spy` | MISSING | MISSING | MISSING | MISSING | Add all 4 |
+| `vix_vix3m_spy` | N/A | MISSING | MISSING | MISSING | Add gfc + covid + inflation_2022 |
+| `indpro_xlp` | MISSING | MISSING | MISSING | MISSING | Add all 4 |
+| `umcsent_xlv` | MISSING | MISSING | MISSING | MISSING | Add all 4 |
+
+**Production spec (cross-reference Rule V1 for full parameters):**
+- Dual-panel: indicator (top), target (bottom), shared x-axis
+- NBER shading on BOTH panels per VIZ-V2
+- 3–5 event markers from `docs/schemas/history_zoom_events_registry.json`
+- `annotation_strategy_id: "descending_stair"` in `_meta.json`
+- Title explicitly names indicator, target, and episode (e.g., "INDPRO and SPY During the GFC, 2006–2010")
+- File path: `output/charts/{pair_id}/plotly/history_zoom_{slug}.json`
+
+**Cross-reference:** VIZ-V1 (full zoom chart production spec), VIZ-V2 (NBER shading), VIZ-V12 (events registry), VIZ-V13 (annotation strategies), GATE-VIZ-ZOOM1 (QA check — verifies required slugs exist for each pair in portal scope).
+
+---
+
+#### Rule VIZ-CP1 — Cross-Period Consistency Chart Types (added 2026-04-24, Wave 10J)
+
+**Context:** The econometrics agent (ECON-CP1 and ECON-CP2) generates cross-period consistency analyses that compare indicator-target relationships across historical episodes and rolling windows. This rule defines the canonical visualization specification for each chart type produced by these analyses.
+
+**Chart type specifications:**
+
+##### VIZ-CP1.1 — `subperiod_sharpe.json` — Grouped Episode Bar Chart
+
+- **Purpose:** Show Sharpe ratio, win-rate, and max-drawdown for the winning strategy across canonical episodes (Dot-Com, GFC, COVID, 2022 Rates Shock).
+- **Chart type:** Grouped bar chart, one group per episode.
+- **Bars per group:** Three bars — Sharpe (primary bar, height = Sharpe value), win-rate (secondary), max-drawdown (tertiary, shown as absolute value for visual consistency, labeled negative in hover).
+- **X-axis:** Episode labels (Dot-Com 2000–02, GFC 2007–09, COVID 2020, 2022 Rates 2021–23). Fixed order, left-to-right.
+- **Y-axis:** Dual-axis if needed (Sharpe on left, win-rate/MDD on right), or normalized to a common scale. If dual-axis, both must be clearly labeled per Rule A2.
+- **Bar colors:** Use palette roles — Sharpe: `primary_data_trace`, win-rate: `tertiary_data_trace`, max-drawdown: `secondary_data_trace` (from `color_palette_registry.json`).
+- **Reference line:** Horizontal dashed line at Sharpe = 1.0 (good) and Sharpe = 0.0 (breakeven). Labels: "Sharpe = 1.0 (target)" and "Sharpe = 0.0".
+- **Annotations:** Label bar tops with the numeric value (1 decimal place). For MDD bars, annotate with the negative value (e.g., "-11.6%").
+- **NBER shading:** NOT applicable (x-axis is episode labels, not calendar time).
+- **`_meta.json` required fields:** `chart_name: "subperiod_sharpe"`, `source: "ECON-CP1 results"`, `portal_page_hint: "evidence"`.
+- **Filename:** `subperiod_sharpe.json` (bare name, pair_id in directory per VIZ-A3).
+
+##### VIZ-CP1.2 — `rolling_correlation.json` — Rolling Correlation Line Chart
+
+- **Purpose:** Show how the correlation between the indicator and forward returns evolves over time using a rolling window.
+- **Chart type:** Single-panel line chart, x-axis = calendar date.
+- **Traces:** One line per rolling window size if multiple are provided (e.g., 12-month, 24-month). If only one window, one line.
+- **Zero reference line:** Mandatory horizontal dashed line at y = 0, color `#4D4D4D` (event-marker line role from palette), label "No correlation".
+- **NBER shading:** MANDATORY when the chart's time span exceeds 5 years. Implement per VIZ-V2 parameters. Caption must include "Shaded bands mark NBER recessions."
+- **Y-axis label:** "Rolling Correlation (r)" with range hint [-1, 1].
+- **Annotation:** Label the window size in the legend (e.g., "24M rolling corr").
+- **`_meta.json` required fields:** `chart_name: "rolling_correlation"`, `annotation_strategy_id: "descending_stair"` if event markers are added.
+- **Filename:** `rolling_correlation.json`.
+
+##### VIZ-CP1.3 — `structural_break.json` — Annotated Signal Time-Series with Break Date
+
+- **Purpose:** Show the indicator's signal over time with a vertical line marking the structural break date identified by ECON-CP2.
+- **Chart type:** Line chart, x-axis = calendar date, y-axis = signal value.
+- **Break date line:** A single vertical dashed line at the break date. Color: `#CC79A7` (highlight/alert role from palette). Line width: 2. Label: "Structural Break: {MMM YYYY}" placed as a `layout.annotation` above the line.
+- **NBER shading:** MANDATORY if the time span exceeds 5 years, per VIZ-NBER1.
+- **Pre/post shading:** Optional light background shading to visually segment pre-break vs. post-break periods. Use two `layout.shapes` with very low alpha (0.05–0.08), distinct colors (pre: `rgba(0,114,178,0.07)` blue-tinted, post: `rgba(230,159,0,0.07)` amber-tinted). This is additive to NBER shading.
+- **Annotation strategy:** `descending_stair` for event markers; the break-date line label is placed with `y: 0.95, yref='paper'` to avoid collision with the data trace.
+- **`_meta.json` required fields:** `chart_name: "structural_break"`, `annotation_strategy_id`, `break_date` (ISO-8601 string, pulled from ECON-CP2 result).
+- **Filename:** `structural_break.json`.
+
+##### VIZ-CP1.4 — `rolling_sharpe.json` *(ECON-CP2)* — Rolling Strategy Sharpe Line Chart
+
+- **Purpose:** Show how the winning strategy's rolling Sharpe ratio evolves over time, revealing performance stability or regime-dependence.
+- **Chart type:** Single-panel line chart, x-axis = calendar date, y-axis = Sharpe ratio.
+- **Traces:** Rolling Sharpe of the winning strategy (solid line, `primary_data_trace` color). Optionally add a 1-year smoothed version (dashed line, `secondary_data_trace`).
+- **Reference lines:** Mandatory horizontal dashed lines at y = 1.0 ("Target Sharpe") and y = 0.0 ("Breakeven"). Colors: `#999999` (neutral/baseline).
+- **NBER shading:** MANDATORY per VIZ-NBER1. Caption must include "Shaded bands mark NBER recessions."
+- **Y-axis:** Label "Rolling Sharpe (annualized)". No fixed range clipping — allow negative values to show through.
+- **`_meta.json` required fields:** `chart_name: "rolling_sharpe"`, `window_months` (the rolling window size, from ECON-CP2 result).
+- **Filename:** `rolling_sharpe.json`.
+
+  **Note on filename collision:** If a pair already has a `rolling_sharpe.json` from a walk-forward analysis (not from ECON-CP2), the ECON-CP2 version is saved as `cp2_rolling_sharpe.json` to avoid overwrite. Document the collision in `regression_note.md`.
+
+##### VIZ-CP1.5 — `rolling_granger.json` *(ECON-CP2)* — Rolling Granger F-Statistic Line Chart
+
+- **Purpose:** Show how the Granger causality F-statistic (indicator → target direction) evolves over time using a rolling estimation window.
+- **Chart type:** Single-panel line chart, x-axis = calendar date, y-axis = F-statistic.
+- **Traces:** One line for F-stat of indicator→target direction (solid, `primary_data_trace`). Optionally a second line for target→indicator (dashed, `secondary_data_trace`) if ECON-CP2 provides bidirectional results.
+- **Critical value reference line:** Mandatory horizontal dashed line at the 10% critical F-value (provided by ECON-CP2 in the result file). Label: "10% critical value (F={value:.2f})". Color: `#D55E00` (alert — warm tone to signal a threshold).
+- **NBER shading:** MANDATORY per VIZ-NBER1. Caption must include "Shaded bands mark NBER recessions."
+- **Y-axis:** Label "Granger F-Statistic". Log scale is permitted if the F-stat range spans more than 2 orders of magnitude.
+- **Annotation:** If the F-stat line crosses above the critical value for extended periods, annotate the first crossing date with "Causality detected from {date}".
+- **`_meta.json` required fields:** `chart_name: "rolling_granger"`, `critical_f_value` (numeric, from ECON-CP2 result), `window_months`.
+- **Filename:** `rolling_granger.json`.
+
+**Naming convention (all VIZ-CP1 charts):** All five CP chart types follow the canonical bare-name convention per VIZ-A3 — pair_id in the directory path only, never in the filename.
+
+**`_meta.json` sidecar:** Every CP chart gets a `_meta.json` sidecar. In addition to the standard sidecar fields (VIZ-SD1), CP chart sidecars include:
+- `"econ_rule_id"`: the ECON rule that generated the result (e.g., `"ECON-CP1"` or `"ECON-CP2"`)
+- `"result_file"`: path to the upstream result CSV (e.g., `"results/{pair_id}/subperiod_sharpe.csv"`)
+- `"rules_applied"`: must include the relevant VIZ-CP1 sub-rule (e.g., `["VIZ-CP1.1", "VIZ-NBER1"]`)
+
+**VIZ-IC1 lint applies:** All CP charts undergo the standard intra-chart consistency check before save.
+
+**Cross-reference:** ECON-CP1 (subperiod Sharpe method), ECON-CP2 (rolling Sharpe, rolling Granger, structural break methods), VIZ-NBER1 (mandatory NBER shading for rolling charts), VIZ-A3 (canonical filenames), VIZ-IC1 (pre-save lint), VIZ-V5 (smoke test), VIZ-O1 (disposition mandate — all CP charts must have disposition in `_meta.json`).
+
+---
+
 #### Rule V3 — Per-Chart Ownership: No Silent Fallbacks (addresses S18-11)
 
 Every chart referenced by a portal page must have its own canonical artifact. If a statistical method doesn't yet have a dedicated chart (e.g. Granger Causality), Vera must produce one — falling back to a different chart (e.g. rendering Local Projections under a Granger heading) is **prohibited**. S18-11 flagged this exact pattern: "Granger chart 同 Local Projections 個 chart 睇落一樣" — the same file was served under two headings, breaking per-method ownership.
