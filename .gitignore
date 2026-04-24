@@ -46,3 +46,4 @@ temp/
 
 # Claude Code scheduled-tasks transient lock
 .claude/scheduled_tasks.lock
+.claude/settings.json
