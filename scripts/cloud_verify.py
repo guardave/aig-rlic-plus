@@ -113,7 +113,41 @@ STUB_PATS = [
     "Total tournament combinations: N/A", # Methodology stub
     "TODO",                    # generic stub marker
     "pending RES-",            # pending Ray dispatch
+    # Wave 10J ECON-CP1/CP2 / VIZ-CP1 cross-period consistency placeholder.
+    # Ace renders this text when cross-period charts are missing (e.g. during
+    # the Wave 10J retro-apply window while older pairs are being updated).
+    #
+    # Severity transition:
+    #   WARN during Wave 10J retro-apply — pairs not yet updated tolerate the stub.
+    #   FAIL after Wave 10J retro-apply is complete — no pair should show this.
+    #
+    # Implementation note: `check_page()` promotes stub_hits to FAIL when
+    # CROSS_PERIOD_STUB_IS_FAIL is True; set to False during Wave 10J retro.
+    # WARN during 10J retro, FAIL after.
+    "Cross-period analysis pending",      # ECON-CP1/CP2 / VIZ-CP1 placeholder
 ]
+
+# Wave 10J: controls whether the cross-period-consistency stub triggers a FAIL
+# or is downgraded to a WARN (PASS-with-note in summary) during the retro-apply
+# transition window. Set to True once all pairs have been retro-applied.
+# WARN during 10J retro, FAIL after.
+CROSS_PERIOD_STUB_IS_FAIL = False  # flip to True after Wave 10J retro-apply complete
+
+# Wave 10J NBER shading spot-check patterns.
+# Rolling-correlation and rolling-sharpe Evidence page charts should carry NBER
+# recession shading. These patterns detect the shading presence in the rendered
+# DOM HTML (Vera encodes recession band labels in the Plotly layout). Absence
+# on a chart that is supposed to have NBER shading is logged as a WARNING — not
+# a FAIL — because Vera's VIZ-NBER audit is the authoritative list; QA's check
+# here is a spot-check that flags for follow-up, not a hard gate.
+NBER_SHADING_DOM_PATS = [
+    "recession",           # Plotly shape label or annotation text
+    "NBER",                # explicit NBER label in chart title or annotation
+    "nber",                # lowercase variant (Plotly JSON keys are case-sensitive
+                           # but inner_text may normalize)
+]
+# Chart types on Evidence pages expected to carry NBER shading.
+NBER_EXPECTED_CHART_TYPES = ["rolling_correlation", "rolling_sharpe"]
 BREADCRUMB = ["Story", "Evidence", "Strategy", "Methodology"]
 PREFIX_PENDING_RE = re.compile(
     r"(hy_ig_spy_|hy_ig_v2_spy_|indpro_xlp_|umcsent_xlv_|indpro_spy_|permit_spy_|vix_vix3m_spy_)\w+\.json"
@@ -328,12 +362,54 @@ def get_dom(page, url, slug, dom_dir, ss_dir, pair_id="", page_name=""):
 
 def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
     is_methodology = (page_name == "methodology")
+    is_evidence = (page_name == "evidence")
     errs = [p for p in ERR_PATS if p in text]
     # Wave 10I.C: check APP-SEV1 banner strings — user-visible soft errors that
     # are NOT Python exceptions and thus never appear in ERR_PATS.
     text_lower = text.lower()
     app_sev1_hits = [p for p in APP_SEV1_PATS if p.lower() in text_lower]
-    stub_hits = [p for p in STUB_PATS if p in text]
+
+    # Wave 10J: split stub hits into two buckets:
+    #   - cross_period_stub_hits: "Cross-period analysis pending" — severity
+    #     depends on CROSS_PERIOD_STUB_IS_FAIL flag (WARN during retro, FAIL after).
+    #   - other_stub_hits: all other STUB_PATS — always FAIL.
+    CROSS_PERIOD_STUB_PAT = "Cross-period analysis pending"
+    raw_stub_hits = [p for p in STUB_PATS if p in text]
+    cross_period_stub_hits = [p for p in raw_stub_hits if p == CROSS_PERIOD_STUB_PAT]
+    other_stub_hits = [p for p in raw_stub_hits if p != CROSS_PERIOD_STUB_PAT]
+    # Compose the effective stub_hits list used by the verdict logic below.
+    # During Wave 10J retro (CROSS_PERIOD_STUB_IS_FAIL=False) the cross-period
+    # stub is recorded but does NOT contribute to a FAIL verdict.
+    stub_hits_for_verdict = other_stub_hits + (
+        cross_period_stub_hits if CROSS_PERIOD_STUB_IS_FAIL else []
+    )
+    # For reporting, include all hits regardless of severity.
+    stub_hits = raw_stub_hits
+
+    # Wave 10J NBER shading spot-check (Evidence pages only).
+    # For Evidence pages, check that NBER recession shading indicators appear
+    # somewhere in the rendered DOM (inner_text or full HTML). This is a spot-
+    # check warning, NOT a hard FAIL — Vera's VIZ-NBER audit holds the definitive
+    # list. Log missing shading as a warning for follow-up.
+    nber_warn = False
+    nber_note = "N/A (non-evidence)"
+    if is_evidence:
+        # Use full HTML for NBER checks: Plotly shape labels appear in JSON
+        # embedded in <script> tags which are present in content() but NOT
+        # in inner_text(). Fall back to text if html unavailable.
+        nber_source = html if html else text
+        nber_source_lower = nber_source.lower()
+        nber_found = any(p.lower() in nber_source_lower for p in NBER_SHADING_DOM_PATS)
+        if not nber_found:
+            nber_warn = True
+            nber_note = (
+                "WARN: No NBER shading indicators found in Evidence page DOM "
+                f"(checked patterns: {NBER_SHADING_DOM_PATS}). "
+                "Vera's VIZ-NBER audit is authoritative — log for follow-up."
+            )
+        else:
+            nber_note = f"PASS: NBER shading indicator present in Evidence DOM ({pair_id})"
+
     breadcrumb_missing = [b for b in BREADCRUMB if b not in text]
     prefix_pending = bool(PREFIX_PENDING_RE.search(text))
     chart_pending = "chart pending" in text_lower
@@ -390,8 +466,9 @@ def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
         app_tl1_ok = True
         app_tl1_check = {"scope": "n/a", "ok": True}
 
+    # NBER warn does NOT affect the PASS/FAIL verdict — it is a warning only.
     verdict = "PASS" if (
-        not errs and not app_sev1_hits and not stub_hits
+        not errs and not app_sev1_hits and not stub_hits_for_verdict
         and not breadcrumb_missing and not prefix_pending
         and not chart_pending and dom_ok and chart_ok and app_pt2_ok
         and app_tl1_ok
@@ -404,7 +481,11 @@ def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
         "dom_len": len(text),
         "errors": errs,
         "app_sev1_hits": app_sev1_hits,   # Wave 10I.C: soft-error banners
-        "stub_hits": stub_hits,            # Wave 10I.C: stub/placeholder text
+        "stub_hits": stub_hits,            # Wave 10I.C/10J: stub/placeholder text (all)
+        "cross_period_stub_hits": cross_period_stub_hits,  # Wave 10J: sub-bucket
+        "cross_period_stub_is_fail": CROSS_PERIOD_STUB_IS_FAIL,  # Wave 10J
+        "nber_warn": nber_warn,            # Wave 10J: NBER shading spot-check (Evidence)
+        "nber_note": nber_note,            # Wave 10J: NBER shading detail
         "breadcrumb_missing": breadcrumb_missing,
         "prefix_pending": prefix_pending,
         "chart_pending_text": chart_pending,
@@ -665,11 +746,13 @@ def main():
         for r in results:
             sev1 = r.get('app_sev1_hits') or []
             stubs = r.get('stub_hits') or []
+            nber_w = r.get('nber_warn', False)
             fh.write(f"  {r.get('verdict','?'):4}  {r.get('slug','?'):42}  "
                      f"charts={r.get('chart_count','-')}  "
                      f"sev1={sev1 if sev1 else 'OK'}  "
                      f"stubs={stubs if stubs else 'OK'}  "
-                     f"app_pt2={r.get('app_pt2_ok','-')}\n")
+                     f"app_pt2={r.get('app_pt2_ok','-')}  "
+                     f"nber={'WARN' if nber_w else 'OK'}\n")
 
     # Wave 10I.C: write shared evidence package index.md inside screenshots/.
     index_path = os.path.join(ss_dir, "index.md")

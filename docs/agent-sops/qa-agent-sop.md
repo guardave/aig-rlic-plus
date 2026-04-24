@@ -146,7 +146,7 @@ Result codes:
 - **FAIL** → `acceptance.md` sign-off blocked; producer fixes; QA re-verifies the narrow set of claims that changed.
 - **Lead override** (rare) → Lead writes a rationale block in `docs/pair_execution_history.md` under a new "QA Override Log" section (mirrors the "Force-Redeploy Log" per META-FRD). Override count >1/quarter triggers a retro on QA scope.
 
-## HABIT-QA1 — Binding Post-Verify DOM Reading Rule (added Wave 10I.C, 2026-04-23)
+## HABIT-QA1 — Binding Post-Verify DOM Reading Rule (added Wave 10I.C, 2026-04-23; strengthened Wave 10J, 2026-04-24)
 
 > **A script PASS is necessary but not sufficient for QA sign-off. The script gathers evidence. The judgment is Quincy's. No judgment, no sign-off.**
 
@@ -154,14 +154,21 @@ Result codes:
 
 **The binding rule.** After EVERY run of `scripts/cloud_verify.py`, before signing off with any PASS verdict:
 
-1. **Open and read** the strategy page DOM text file (`dom_text/<pair_id>_strategy.txt`) for EVERY pair that is new or has changes in this wave. Minimum: 3 files per verify run.
-2. **Scan for** (but do not limit to): "cannot render", "vs N/A", "pending", "unavailable", "N/A" in metric positions, visible warning banners that are not Python exceptions.
-3. **Write one sentence** in `_pws/qa-quincy/session-notes.md`: "I read DOM text for [pages]. I found [nothing / the following]."
-4. Only after step 3 is written does the verify run count as QA-signed.
+1. **Open and read** DOM text files for EVERY pair that is new or has changes in this wave, covering ALL FOUR PAGE TYPES:
+   - `dom_text/<pair_id>_strategy.txt` — Strategy (Probability Engine Panel, KPI cards)
+   - `dom_text/<pair_id>_evidence.txt` — Evidence (new cross-period sections ECON-CP1/CP2, VIZ-CP1 live here; NBER shading warnings appear here)
+   - `dom_text/<pair_id>_story.txt` — Story (KPI block, B&H comparison, narrative)
+   - `dom_text/<pair_id>_methodology.txt` — Methodology (Signal Universe, APP-PT2 Exploratory Insights)
+   - **Minimum: ≥1 file per page type per verify run, across the new/changed pairs.** For a 10-pair wave: read at least one strategy, one evidence, one story, one methodology. For waves where all pairs were touched: sample ≥2 per page type. Do not read only strategy files.
+2. **Scan for** (but do not limit to): "cannot render", "vs N/A", "pending", "unavailable", "N/A" in metric positions, visible warning banners that are not Python exceptions, "Cross-period analysis pending" (ECON-CP1/CP2 stub), absence of expected section headings.
+3. **Write one sentence per page type read** in `_pws/qa-quincy/session-notes.md`: "I read DOM text for [pair_id]_[page_type]. I found [nothing / the following]." The sentence MUST name the specific files read and the specific page types covered.
+4. Only after step 3 is written — for each of the four page types — does the verify run count as QA-signed.
+
+**Why Evidence pages are now explicitly required (Wave 10J addition).** The original HABIT-QA1 text named only strategy pages. ECON-CP1/CP2 and VIZ-CP1 cross-period consistency sections live on Evidence pages. A false-PASS on Evidence pages (e.g., "Cross-period analysis pending" stub visible to stakeholders after retro-apply) would be the same failure mode as Wave 10I.A, on a different page. HABIT-QA1 now covers all four page types by name.
 
 **What HABIT-QA1 is not.** It does not replace the script. The script now checks `APP_SEV1_PATS` and `STUB_PATS` automatically (Wave 10I.C upgrade). HABIT-QA1 is the human judgment layer on top — because app code can always produce new patterns that the script has not seen. A human read catches the pattern before it is codified.
 
-**Enforcement.** Lead may spot-check compliance by reading `session-notes.md`. Any PASS verdict in session-notes that lacks the HABIT-QA1 sentence is evidence of non-compliance. On first occurrence: PASS-with-note. On recurrence: the wave is re-opened.
+**Enforcement.** Lead may spot-check compliance by reading `session-notes.md`. Any PASS verdict in session-notes that lacks the HABIT-QA1 sentence (covering all four page types) is evidence of non-compliance. On first occurrence: PASS-with-note. On recurrence: the wave is re-opened.
 
 ## Anti-Patterns (what QA must NOT do)
 
@@ -171,6 +178,8 @@ Result codes:
 - **Never rubber-stamp.** Each wave must produce at least one observation (even a minor PASS-with-note). A wave with zero findings signals that QA wasn't looking.
 - **Never own fixes.** If QA finds a broken chart, the ticket goes to Vera. If QA finds a broken loader, the ticket goes to Ace. QA's contribution is the find, not the fix.
 - **Never sign off on a verify run without reading DOM text (HABIT-QA1).** Script PASS alone is not QA sign-off. The DOM text files are the evidence; reading them is the judgment. Skipping this step is the same failure mode that produced the Wave 10I.A false-PASS.
+- **Never skip re-reading the SOP checklist at the start of a verify run.** Wave 10I.A's GATE-29 omission was not caused by an unclear SOP — GATE-29 was documented. It was caused by not re-reading QA-CL4 before starting. The checklist is an execution checklist, not a reference document. Read it every time.
+- **Never carry a WARN→FAIL stub transition across multiple waves (GATE-32).** Once retro-apply is confirmed for a new mandatory section, flip the severity to FAIL and re-run cloud_verify. A stub that stays in WARN mode indefinitely is a silent quality regression.
 
 ## Standard QA Checklist per Wave
 
@@ -188,6 +197,7 @@ Result codes:
 - [ ] **QA-CL2** — Semantic KPI triangulation passes on every reference-pair Strategy/Evidence page (Sharpe-return-vol, drawdown-vol, turnover-trade-count invariants all plausible)
 - [ ] **QA-CL5 / GATE-NR** — Narrative instrument reference check passes on all Story and Evidence pages (see GATE-NR below)
 - [ ] **QA-CL3** — Every agent dispatched this wave has updated `experience.md` + `memories.md` + `session-notes.md` with META-SRV evidence (wc -l or git diff citation). Check PostToolUse hook log for mtime warnings first; re-verify each flagged agent manually.
+- [ ] **GATE-32** — If this wave added new mandatory Evidence sections: (a) confirm all active pairs have been retro-applied; (b) flip `CROSS_PERIOD_STUB_IS_FAIL = True` in `scripts/cloud_verify.py`; (c) re-run cloud_verify and confirm 0 stub hits. Do not close the wave without completing this transition.
 
 ### QA-CL2 — Semantic KPI Triangulation
 
@@ -319,6 +329,25 @@ For every wave that adds or modifies portal pages, Quincy verifies cloud/deploy 
 - **META-FRD** — force-redeploy rule; a QA-CL4 FAIL on GATE-29 triggers force-redeploy only after the root cause is confirmed.
 - **Standard Task Flow step 8** — "Browser verification (headless inspect + fix)" — this was previously Lead-owned; QA-CL4 makes it Quincy-owned and evidence-gated.
 
+**GATE-32 — Mandatory-Section Placeholder Expiry Gate (added Wave 10J, 2026-04-24).**
+
+After any wave that adds new mandatory Evidence (or other) sections — e.g., ECON-CP1/CP2 cross-period consistency, VIZ-CP1 rolling-window charts — the placeholder text that Ace renders while charts are pending MUST transition from WARN to FAIL in `STUB_PATS` before that wave can be considered permanently closed.
+
+**The rule:**
+- When a new mandatory section is added, its placeholder text is added to `STUB_PATS` with `CROSS_PERIOD_STUB_IS_FAIL = False` (WARN severity during the retro-apply window).
+- Once all active pairs have been retro-applied (Vera and Ace confirm), Quincy MUST flip `CROSS_PERIOD_STUB_IS_FAIL = True` (or the equivalent flag for the section in question) and re-run `scripts/cloud_verify.py` to confirm zero stub hits.
+- The WARN→FAIL flip is a required deliverable for wave closure — it is NOT optional and MUST NOT be deferred indefinitely. The stub should be a hard FAIL by the wave immediately after retro-apply is confirmed.
+
+**Do not carry forward WARN→FAIL transitions.** A STUB_PATS entry that remains in WARN mode across multiple waves after retro-apply is complete is a silent quality regression — new pairs could ship with the placeholder visible without triggering a FAIL. GATE-32 is the gate that prevents this.
+
+**Verification command:**
+```bash
+grep "CROSS_PERIOD_STUB_IS_FAIL" scripts/cloud_verify.py  # must be True after retro
+python3 scripts/cloud_verify.py --pairs <all_active_pairs>  # must show 0 stub hits
+```
+
+**Action on FAIL (stub found after FAIL flip):** Ace must replace the placeholder with real rendered content. Not a schema fix — a content fix. Block until clean.
+
 **When QA-CL4 fires.** Every wave that adds new portal pages or modifies existing ones. For memory-only or SOP-only waves with no portal changes, QA-CL4 is N/A — mark as skipped with rationale.
 
 **Why this rule exists.** Waves 5D, 7D, and 8D each required a dedicated cloud-verification dispatch after the main wave because the portal rendered locally but failed a clean-checkout or cloud-render check. These dispatches were ad-hoc and Lead-owned; they happened because Lesandro remembered to add them, not because the SOP required them. QA-CL4 makes the cloud verify step a named, Quincy-owned, evidence-gated requirement so it cannot be forgotten.
@@ -444,6 +473,7 @@ Lead either signs acceptance or routes blocking items back to the responsible pr
 - **META-BL** — Backlog Discipline (QA PASS-with-note items may become backlog entries)
 - **GATE-24..30** — all blocking gates QA enforces at seam audit
 - **GATE-31** — Independent QA Verification (the gate this role exists to satisfy)
+- **GATE-32** — Mandatory-Section Placeholder Expiry Gate (Wave 10J); WARN→FAIL transition for new Evidence section stubs after retro-apply is confirmed
 - **APP-WS1 / APP-DIR1 / APP-SEV1** — consumer-side contracts QA verifies at the seam
 - **RES-17** — narrative frontmatter schema (QA validates instance)
 - **ECON-H5** — winner_summary.json schema (QA validates instance)
