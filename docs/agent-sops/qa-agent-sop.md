@@ -331,6 +331,63 @@ For every wave that adds or modifies portal pages, Quincy verifies cloud/deploy 
 - **META-FRD** — force-redeploy rule; a QA-CL4 FAIL on GATE-29 triggers force-redeploy only after the root cause is confirmed.
 - **Standard Task Flow step 8** — "Browser verification (headless inspect + fix)" — this was previously Lead-owned; QA-CL4 makes it Quincy-owned and evidence-gated.
 
+**GATE-HZE1 — "How the Signal Performed in Past Crises" Story-Page Presence Check (added Wave 10J/10K, 2026-04-24).**
+
+> **Silent feature absence is harder to catch than errors — and that makes the gate more important, not less. A page that loads without Python errors but omits a mandatory section is a structural failure GATE-28's error-and-placeholder scan cannot detect.**
+
+**Root cause of the gap.** GATE-28 asserts zero Python errors and zero "chart pending" text. Both assertions pass when `HISTORY_ZOOM_EPISODES` is absent from a pair config — the history-zoom section simply does not render, with no error, no placeholder, and no diagnostic string. The section is structurally mandatory (same standing as breadcrumb nav and Level 1 / Level 2 Evidence tabs), but no prior gate verified its presence. GATE-HZE1 closes this blind spot.
+
+**What Quincy checks.** For every Story page DOM captured during GATE-28's headless-browser pass:
+
+1. **Load the Story page DOM** (already captured as `dom_text/<pair_id>_story.txt`).
+2. **Search for the section heading** — assert that the DOM text or HTML source contains the string `"How the Signal Performed in Past Crises"` (exact, case-sensitive, as rendered by `render_history_zoom_section()` or equivalent).
+3. **Determine failure disposition:**
+   - **FAIL (blocking)** — the heading is absent AND at least one `history_zoom_*.json` chart artifact is committed under `output/charts/{pair_id}/plotly/` for this pair. Charts exist → section must render → heading absence = Ace bug (config missing `HISTORY_ZOOM_EPISODES`, or template not calling the renderer). Block acceptance; owner: Ace.
+   - **WARN (Vera blocker, not Ace bug)** — the heading is absent AND no `history_zoom_*.json` file exists for the pair in `output/charts/{pair_id}/plotly/`. Charts not yet produced → Ray has authored the narratives but Vera has not generated the zoom charts yet. Record as WARN with disposition: "Vera blocker — zoom charts not yet committed for {pair_id}; section cannot render until VIZ-ZOOM1 delivery."
+   - **PASS** — heading present in Story DOM. Record in findings table.
+
+**Verification command pattern (for `scripts/cloud_verify.py`):**
+
+```python
+# In check_page() — Story page branch
+HZE_HEADING = "How the Signal Performed in Past Crises"
+
+# Step 1: check heading presence in DOM text
+hze_present = HZE_HEADING in dom_text
+
+# Step 2: check whether zoom charts exist on disk (git-committed)
+import subprocess, glob
+zoom_charts = glob.glob(
+    f"output/charts/{pair_id}/plotly/history_zoom_*.json"
+)
+# Optionally: subprocess.check_output(["git", "ls-files", ...]) for clean-checkout parity
+
+if not hze_present:
+    if zoom_charts:
+        results["hze1"] = "FAIL"
+        results["hze1_note"] = (
+            f"GATE-HZE1 FAIL: Story heading absent but "
+            f"{len(zoom_charts)} history_zoom chart(s) committed — "
+            f"Ace must wire HISTORY_ZOOM_EPISODES config or template call."
+        )
+    else:
+        results["hze1"] = "WARN"
+        results["hze1_note"] = (
+            f"GATE-HZE1 WARN: Story heading absent; no history_zoom charts "
+            f"committed — Vera blocker (VIZ-ZOOM1 not yet delivered for {pair_id})."
+        )
+else:
+    results["hze1"] = "PASS"
+```
+
+**Summary rule.** GATE-HZE1 must be executed as part of every GATE-28 Story-page DOM check. It does not require a separate browser pass — it piggybacks on the `dom_text/<pair_id>_story.txt` already captured. Zero additional round-trips.
+
+**FAIL disposition:** Ace fixes (wire `HISTORY_ZOOM_EPISODES` into pair config and confirm template renders the section). QA re-verifies the Story page DOM for that pair only.
+
+**WARN disposition:** No Ace fix required. Record the WARN in the findings table. The WARN converts to FAIL automatically once `history_zoom_*.json` charts are committed — at that point the heading must appear in Story DOM on next cloud verify.
+
+**Cross-references:** VIZ-ZOOM1 (Vera produces zoom charts); RES-HZE1 (Ray provides zoom episode narratives); GATE-28 (structural parity gate GATE-HZE1 extends); HABIT-QA1 (DOM read requirement that enables this check).
+
 **GATE-32 — Mandatory-Section Placeholder Expiry Gate (added Wave 10J, 2026-04-24).**
 
 After any wave that adds new mandatory Evidence (or other) sections — e.g., ECON-CP1/CP2 cross-period consistency, VIZ-CP1 rolling-window charts — the placeholder text that Ace renders while charts are pending MUST transition from WARN to FAIL in `STUB_PATS` before that wave can be considered permanently closed.
