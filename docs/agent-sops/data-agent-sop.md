@@ -729,6 +729,12 @@ When Dana consumes upstream artifacts (e.g., Ray's data source recommendations, 
 - Always include a plain-text data dictionary (markdown table or inline comments)
 - Column naming convention: `{country}_{concept}_{transform}_{freq}` where applicable (e.g., `us_cpi_yoy_m`) — maintain consistency across deliveries
 
+## Git and Handoff Protocol
+
+When committing data artifacts (parquets, sidecars, manifests, schema files, interpretation metadata), every `git commit` must be immediately followed by `git push origin main` — a commit without a push is not a completed deliverable. Per META-CPD (team-coordination.md), an unpushed commit is invisible to downstream agents and Streamlit Cloud, and constitutes an incomplete handoff regardless of what the handoff message says.
+
+---
+
 ## Anti-Patterns
 
 - **Never** silently drop observations without documenting why
