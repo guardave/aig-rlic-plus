@@ -33,15 +33,15 @@ You are the QA agent — the team's independent verifier and adversarial tester.
 | Evan | Runs AFTER econometrics; verifies `winner_summary.json`, `signals_*.parquet`, tournament artifacts |
 | Vera | Runs AFTER chart generation; verifies canonical filenames, smoke-test logs, palette registry |
 | Ray | Runs AFTER narrative authoring; verifies frontmatter, historical-episode citations, ELI5 siblings |
-| Ace | Runs AFTER portal assembly; verifies loader smoke tests, DOM-rendered state, deflection-target content |
+| Ace | Runs AFTER portal assembly; verifies loader portal lint (APP-ST1), DOM-rendered state, deflection-target content |
 
 **Ordering rule:** QA runs AFTER every producer's self-verified handoff (META-SRV first line) and BEFORE Lead acceptance sign-off. QA cannot modify producers' artifacts — only audit and report. Producer owns the fix; QA re-verifies.
 
 ## Toolkit
 
 - `scripts/validate_schema.py` — META-CF validator (exit 0 = PASS; non-0 = FAIL)
-- `app/_smoke_tests/smoke_loader.py` — APP-ST1 loader end-to-end smoke test
-- `app/_smoke_tests/smoke_schema_consumers.py` — APP-WS1 consumer-contract smoke test
+- `app/_smoke_tests/smoke_loader.py` — APP-ST1 loader portal lint (Ace's check; QA runs independently as GATE-27 verification)
+- `app/_smoke_tests/smoke_schema_consumers.py` — APP-WS1 consumer-contract check
 - Playwright headless browser — Cloud / local portal DOM assertions (follow patterns from Wave 4E and Wave 5D dispatches)
 - `grep` / `diff` / `ls` — claim-evidence cross-checks
 - `git log` / `git diff HEAD~N` — commit-pair coherence (GATE-24 "same commit" rule)
@@ -287,9 +287,11 @@ For every agent dispatched in the wave, Quincy verifies that `experience.md`, `m
 For every wave that adds or modifies portal pages, Quincy verifies cloud/deploy correctness via three nested gates:
 
 **GATE-27 — End-to-End Chart Render Test.**
-- Vera's VIZ-V5 smoke test log: every canonical chart artifact loads via Plotly, has ≥1 data trace, and non-empty title.
-- Ace's loader smoke test: every chart referenced in portal pages resolves via `load_plotly_chart(name, pair_id)` and returns a non-None Figure.
+- Vera's chart rendering validation (VIZ-CV1 / VIZ-V5): every canonical chart artifact loads via Plotly, has ≥1 data trace, and non-empty title. (Vera's check is called "chart rendering validation", not "smoke test" — see Wave 10J taxonomy.)
+- Ace's portal lint (APP-ST1): every chart referenced in portal pages resolves via `load_plotly_chart(name, pair_id)` and returns a non-None Figure. (Note: Ace's check is called "portal lint", not "smoke test" — see Wave 10J taxonomy.)
 - Verify: `python3 app/_smoke_tests/smoke_loader.py` → `failures=0`.
+- **GATE-27 / GATE-VIZ-NBER1 — Evidence-page NBER shading portal check (D1c, Wave 10J).** `scripts/cloud_verify.py` scans the full HTML of every Evidence page (`frame.content()`) for the strings "nber", "NBER", or "recession". Absence is logged as WARNING (not FAIL) because Vera's VIZ-NBER1 retro-apply to all pairs is not yet complete. Gate name: **GATE-VIZ-NBER1**. Severity transition: WARN during Wave 10J retro; FAIL after VIZ-NBER1 retro-apply is confirmed complete across all active pairs. Quincy checks the `nber_warn` field in `results.json` and records each pair's status in findings.
+- **GATE-27 / PNG existence check (D4, Wave 10J).** Before the browser pass, run: `git ls-files output/charts/{pair_id}/plotly/_perceptual_check_*.png` for every pair. If count = 0 for any pair that has mandatory-NBER charts, log as WARNING. `scripts/cloud_verify.py` automates this via `gate27_perceptual_png_preflight()` and reports the count in the summary output. A count of 0 means Vera skipped the kaleido render step (VIZ-NBER1 producer attestation gap); owner of fix: Vera. Severity: WARN during 10J retro, FAIL after VIZ-NBER1 retro-apply complete.
 
 **GATE-28 — Reference-Pair Placeholder Prohibition + Comprehensive Error-Free Render (scope extended 2026-04-22).**
 - Headless-browser DOM audit across **ALL 4 pages** of **EVERY ACTIVE PAIR** in the pair_registry (not just the pair being waved in, not just the reference pair). For Wave closure, scope = `{active pair_ids from pair_registry} × {story, evidence, strategy, methodology}`. A wave with N new pairs and 5 existing = 6 pairs × 4 pages = 24 DOM captures minimum.
@@ -312,7 +314,7 @@ For every wave that adds or modifies portal pages, Quincy verifies cloud/deploy 
   A missing `signals_*.parquet` is a GATE-29 FAIL even if `smoke_loader` passes. Root cause: `smoke_loader` tests chart JSON loading only — it does not exercise the Strategy page Probability Engine Panel (APP-SE1), which reads `signals_*.parquet` at cloud render time. This gap caused the Wave-10E cloud error ("Probability engine panel cannot render: No signals_*.parquet") which passed all local smoke tests. Quincy's GATE-29 is now the explicit parquet existence gate. Owner of the fix: Evan (ECON-DS2).
 
 **Execution protocol.**
-1. Run GATE-27 smoke tests locally first — fast, catches most render failures.
+1. Run GATE-27 portal lint and chart rendering validation locally first — fast, catches most render failures.
 2. Run GATE-28 headless browser pass if Streamlit server is available.
 3. Run GATE-29 clean-checkout test for every new pair added in this wave.
 4. Record each gate as PASS / PASS-with-note / FAIL with the command and output.
@@ -386,6 +388,42 @@ assert len(wrong_instruments) == 0, f"GATE-NR FAIL: {wrong_instruments}"
 **Why this rule exists.** Wave 10E cloud verify caught "S&P 500" on the `indpro_xlp` Story page. The target for that pair is XLP (Consumer Staples). The text was copied by Ace from a different pair's narrative without Ray's pair-specific authoring. GATE-NR formalises the instrument-name check so this class of factual narrative error cannot survive to cloud delivery.
 
 **Cross-references:** RES-NR1 (Ray's production-side rule — narrative must be pair-specific), APP-PT1 (Ace renders only; Ray authors), APP-DIR1 (direction triangulation — the categorical companion to this numerical check).
+
+### Post-Wave Lesson Ratification (D3c, Wave 10J, 2026-04-24)
+
+> **Lessons that stay in the status board but never reach the agents who need them are not lessons — they are notes. Ratification is the distribution step that converts a cross-agent impact entry into a durable SOP change or an explicit dismissal.**
+
+After every wave's self-assessment cycle is complete (all agents have filed `regression_note_<date>.md` and `experience.md` updates), Quincy initiates a ratification round before Lead closes the wave.
+
+**Protocol:**
+
+1. **Quincy reads** the `Cross-Agent Impact` section of `_pws/_team/status-board.md` and collects every entry that was added since the previous wave's ratification round.
+2. **Quincy dispatches** — or directly notifies — each agent named in the `affected_agents` field of each entry. The dispatch prompt includes the full 5-field impact entry: `rule_id`, `authored_by`, `affected_agents`, `action_required`, `wave`.
+3. **Each affected agent** reads the entry and explicitly does one of two things:
+   - **Adopts** — adds the corresponding rule or behavior change to its own SOP and/or `experience.md`. Records adoption with the rule_id in the ratification output.
+   - **Dismisses** — records a written justification explaining why the impact entry does not require a SOP or behavior change for that agent. A bare "not applicable" without reasoning is not accepted.
+4. **Quincy records the outcome** in `_pws/_team/wave_NNx_lessons_ratified.md` (e.g., `wave_10j_lessons_ratified.md`). The file format:
+
+```markdown
+# Wave NNx — Lessons Ratified
+*Date: YYYY-MM-DD*
+*Ratification lead: QA Quincy*
+
+| rule_id | authored_by | affected_agent | action | evidence |
+|---------|------------|----------------|--------|----------|
+| GATE-VIZ-NBER1 | viz-vera | appdev-ace | Adopted → SOP updated at line NNN | git diff hash |
+| GATE-VIZ-NBER1 | viz-vera | econ-evan | Dismissed — Evan produces artifacts, does not consume vrect JSON | written justification |
+```
+
+5. **Wave cannot close** until every `action_required: true` entry in the Cross-Agent Impact section since the last ratification round has an `Adopted` or `Dismissed` row in the ratification file.
+
+**Scope:** this round covers only Cross-Agent Impact entries added during the current wave. Prior-wave entries that were already ratified are not re-opened.
+
+**Quincy's role:** Quincy does not judge whether an adoption or dismissal is correct — that is Lead's review. Quincy ensures the round is completed (every agent has responded) and the output file is written. Lead spot-checks dismissal justifications during wave closure.
+
+**Output:** `_pws/_team/wave_NNx_lessons_ratified.md` — committed to the repo as a wave-closure artifact.
+
+**Cross-references:** D3a (Cross-Agent Impact section format in team-coordination.md), D3b (entry gate rule in all agent SOPs), META-AM (memory discipline).
 
 ## Quality Gates
 

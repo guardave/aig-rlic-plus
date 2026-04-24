@@ -386,11 +386,12 @@ def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
     # For reporting, include all hits regardless of severity.
     stub_hits = raw_stub_hits
 
-    # Wave 10J NBER shading spot-check (Evidence pages only).
-    # For Evidence pages, check that NBER recession shading indicators appear
-    # somewhere in the rendered DOM (inner_text or full HTML). This is a spot-
-    # check warning, NOT a hard FAIL — Vera's VIZ-NBER audit holds the definitive
-    # list. Log missing shading as a warning for follow-up.
+    # GATE-VIZ-NBER1 — Evidence-page NBER shading spot-check (Wave 10J).
+    # For Evidence pages, scan the rendered HTML (frame.content()) for "nber",
+    # "NBER", or "recession" strings — indicators that NBER recession shading is
+    # present in at least one Plotly chart on the page.  This is a WARNING, not
+    # a FAIL, because Vera's VIZ-NBER retro-apply to all pairs is not yet complete.
+    # WARN during 10J retro, FAIL after VIZ-NBER1 retro-apply complete.
     nber_warn = False
     nber_note = "N/A (non-evidence)"
     if is_evidence:
@@ -403,12 +404,12 @@ def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
         if not nber_found:
             nber_warn = True
             nber_note = (
-                "WARN: No NBER shading indicators found in Evidence page DOM "
+                "GATE-VIZ-NBER1 WARN: No NBER shading indicators found in Evidence page HTML "
                 f"(checked patterns: {NBER_SHADING_DOM_PATS}). "
-                "Vera's VIZ-NBER audit is authoritative — log for follow-up."
+                "WARN during 10J retro, FAIL after VIZ-NBER1 retro-apply complete."
             )
         else:
-            nber_note = f"PASS: NBER shading indicator present in Evidence DOM ({pair_id})"
+            nber_note = f"GATE-VIZ-NBER1 PASS: NBER shading indicator present in Evidence HTML ({pair_id})"
 
     breadcrumb_missing = [b for b in BREADCRUMB if b not in text]
     prefix_pending = bool(PREFIX_PENDING_RE.search(text))
@@ -564,6 +565,50 @@ def gate29_parquet_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     return failures
 
 
+def gate27_perceptual_png_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+    """GATE-27 extension (D4, Wave 10J): assert perceptual-check PNGs are committed.
+
+    For every pair that has mandatory-NBER charts, Vera is required to commit a
+    kaleido-rendered PNG at ``output/charts/{pair_id}/plotly/_perceptual_check_*.png``
+    as evidence that VIZ-NBER1 shading was visually confirmed before handoff.
+
+    QA cannot verify visual quality — only existence. Absence means Vera skipped
+    the kaleido render step, which is a producer self-attestation gap. Logged as
+    WARNING (not FAIL) until Vera's VIZ-NBER1 retro-apply to all pairs is complete.
+    # WARN during 10J retro, FAIL after VIZ-NBER1 retro-apply complete.
+
+    Returns: list of warning dicts (empty = all pairs have ≥1 PNG committed).
+    """
+    import subprocess
+    warnings_out = []
+    for pair_id in pairs:
+        pattern = f"output/charts/{pair_id}/plotly/_perceptual_check_*.png"
+        result = subprocess.run(
+            ["git", "ls-files", pattern],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+        )
+        matched = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+        count = len(matched)
+        if count == 0:
+            warnings_out.append({
+                "pair_id": pair_id,
+                "gate": "GATE-27-PNG",
+                "finding": f"No committed _perceptual_check_*.png for {pair_id}",
+                "detail": (
+                    f"`git ls-files {pattern}` returned 0 files. "
+                    "Vera must render and commit at least one kaleido PNG for mandatory-NBER charts "
+                    f"(VIZ-NBER1). Fix: Vera regenerates Evidence charts with kaleido and commits "
+                    f"output/charts/{pair_id}/plotly/_perceptual_check_<chart_name>.png."
+                ),
+            })
+            print(f"  GATE-27-PNG WARN {pair_id}: 0 perceptual PNGs committed", flush=True)
+        else:
+            print(f"  GATE-27-PNG PASS {pair_id}: {count} perceptual PNG(s) committed", flush=True)
+    return warnings_out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", default=DEFAULT_BASE)
@@ -616,6 +661,21 @@ def main():
             )
     else:
         print("\n[GATE-29 pre-flight] SKIPPED (--skip-gate29 flag set)", flush=True)
+
+    # --- GATE-27 PNG pre-flight (D4, Wave 10J) ---
+    # Check that Vera committed at least one _perceptual_check_*.png per pair.
+    # This is a WARNING only during Wave 10J while VIZ-NBER1 retro-apply is in progress.
+    print("\n[GATE-27-PNG pre-flight] checking _perceptual_check_*.png for all pairs ...", flush=True)
+    gate27_png_warnings = gate27_perceptual_png_preflight(pairs)
+    png_warn_counts = {}
+    for w in gate27_png_warnings:
+        png_warn_counts[w["pair_id"]] = w["detail"]
+    if gate27_png_warnings:
+        print(
+            f"  *** {len(gate27_png_warnings)} GATE-27-PNG WARN(s) — perceptual PNGs missing. "
+            "WARN during 10J retro, FAIL after VIZ-NBER1 retro-apply complete. ***",
+            flush=True,
+        )
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True)
@@ -736,6 +796,7 @@ def main():
         "pass": sum(1 for r in results if r.get("verdict") == "PASS"),
         "fail": sum(1 for r in results if r.get("verdict") == "FAIL"),
         "total": len(results),
+        "gate27_png_warnings": gate27_png_warnings,   # D4 Wave 10J: perceptual PNG existence
         "results": results,
     }
     with open(os.path.join(out_dir, "results.json"), "w") as fh:
@@ -773,7 +834,12 @@ def main():
             )
     print(f"Screenshot index: {index_path}", flush=True)
 
-    print(f"\n=== SUMMARY: {summary['pass']} PASS / {summary['fail']} FAIL / {summary['total']} TOTAL ===", flush=True)
+    png_warn_count = len(gate27_png_warnings)
+    print(f"\n=== SUMMARY: {summary['pass']} PASS / {summary['fail']} FAIL / {summary['total']} TOTAL"
+          f" | GATE-27-PNG WARN: {png_warn_count} pair(s) missing perceptual PNGs ===", flush=True)
+    if png_warn_count:
+        print("  GATE-27-PNG: pairs missing _perceptual_check_*.png: "
+              + ", ".join(w["pair_id"] for w in gate27_png_warnings), flush=True)
     print(f"Results: {out_dir}/results.json", flush=True)
     return 0 if summary["fail"] == 0 else 1
 
