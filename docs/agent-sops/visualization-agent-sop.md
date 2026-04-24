@@ -850,7 +850,7 @@ pio.write_image(
 
 Open the PNG and visually confirm: (a) both panels contain visible lines, (b) NBER shading is perceptible in both panels, (c) event-marker vertical lines span both panels. If the bottom panel is blank, the xaxis assignment is wrong — fix the chart script before committing.
 
-The perceptual PNG is a working artifact (not committed to git, not a deliverable to Ace). Its sole purpose is catching visual defects before commit.
+The perceptual PNG is committed to git alongside the chart JSON (see VIZ-CV1 extended mandate). It serves as visual QA evidence in the commit history. Ace does not consume it.
 
 **VIZ-DP1 compliance is a BLOCKING pre-handoff gate.** No Vera handoff proceeds until:
 1. The axis-assignment check script returns PASS for every dual-panel chart in scope.
@@ -974,7 +974,7 @@ S18-8 flagged that the "annualised SPX return by quartile Q1-Q4" chart was prese
 
 On rerun, Vera must diff the prior chart set under `output/charts/{pair_id}/plotly/` and explicitly reconcile each missing mandatory diagnostic. If absent and undocumented, the chart is restored before handoff.
 
-#### Rule V5 — Chart Rendering Validation (VIZ-CV1) (added 2026-04-19; renamed from "smoke test" 2026-04-24 Wave 10J)
+#### Rule V5 — Chart Rendering Validation (VIZ-CV1) (added 2026-04-19; renamed from "smoke test" 2026-04-24 Wave 10J; perceptual PNG mandate extended to ALL charts 2026-04-24)
 
 Before handoff to Ace, Vera MUST run a chart rendering validation (VIZ-CV1) script that, for every chart referenced by any portal page of the pair, verifies:
 
@@ -992,6 +992,50 @@ Each check is logged as pass/fail per chart to `output/charts/{pair_id}/plotly/_
 The chart rendering validation (VIZ-CV1) is additive on top of the Quality Gates checklist and the perceptual check introduced in V2; it catches a different failure mode (structural integrity) from the perceptual check (visual legibility) and from A3 (canonical spec conformance).
 
 > **Taxonomy note:** "Smoke test" is reserved exclusively for Quincy's `cloud_verify.py` end-to-end run. Vera's JSON integrity + kaleido render step is "chart rendering validation (VIZ-CV1)".
+
+**Kaleido perceptual render — ALL mandatory charts (extended 2026-04-24):**
+
+Prior iterations of this rule mandated perceptual PNGs only for `hero` and `equity_curves` charts (original VIZ-CV1), then extended the mandate to `history_zoom_{slug}` charts (VIZ-DP1). This revision extends the mandate to **every `.json` chart file committed to `output/charts/{pair_id}/plotly/`** — no exceptions.
+
+**Rationale:** The blank-panel class of defects (wrong xaxis assignment, invisible NBER shading, truncated data) is invisible to JSON-structural checks and is only detectable by rendering. If kaleido renders are not produced for every chart, defects accumulate silently across pairs and chart types.
+
+**Naming convention:** `_perceptual_check_{chart_name}.png` where `{chart_name}` is the chart filename stem (e.g., `hero` → `_perceptual_check_hero.png`; `history_zoom_gfc` → `_perceptual_check_history_zoom_gfc.png`; `regime_bars` → `_perceptual_check_regime_bars.png`).
+
+**Render spec:** Use `plotly.io.to_image(fig, format='png', width=1200, height=600)` (or `fig.write_image(...)` with equivalent parameters). kaleido must be `>= 1.0.0` — the prior version was deprecated September 2025. Install with `pip install 'kaleido>=1.0.0'`.
+
+**Committed artifact:** Unlike the earlier phrasing in VIZ-DP1 (which called the PNG a "working artifact, not committed"), perceptual PNGs are now **committed to git alongside their corresponding JSON**. They serve as visual evidence in the commit history that the chart was perceptually correct at handoff time. Ace does not consume them; they are Vera's QA record.
+
+**Skip condition:** If a `.json` file is a `_meta.json` sidecar (i.e., filename ends in `_meta.json`) or a `_smoke_test_*.log`, no perceptual PNG is required — these are not rendered chart files.
+
+**Procedure:**
+
+```python
+import os, glob
+import plotly.io as pio
+
+pair_id = "your_pair_id"
+plotly_dir = f"output/charts/{pair_id}/plotly"
+
+for json_path in sorted(glob.glob(f"{plotly_dir}/*.json")):
+    stem = os.path.basename(json_path).replace(".json", "")
+    # Skip sidecars and logs
+    if stem.endswith("_meta") or stem.startswith("_smoke_test"):
+        continue
+    png_path = f"{plotly_dir}/_perceptual_check_{stem}.png"
+    if os.path.exists(png_path):
+        print(f"SKIP (exists): {stem}")
+        continue
+    try:
+        fig = pio.read_json(json_path)
+        img_bytes = pio.to_image(fig, format="png", width=1200, height=600)
+        with open(png_path, "wb") as f:
+            f.write(img_bytes)
+        print(f"RENDERED: {stem}")
+    except Exception as e:
+        print(f"FAIL: {stem} — {e}")
+```
+
+**Gate:** Before any Vera handoff, confirm that for every `{chart_name}.json` (non-sidecar) in the pair's plotly directory, a corresponding `_perceptual_check_{chart_name}.png` exists and is committed to git. Missing PNGs are a completeness gate failure equivalent to a missing chart JSON.
 
 #### Rule V8 — Chart Type Registry (canonical, machine-readable) — addresses S18-11, Wave 1.5 Granger fallback (added 2026-04-19)
 
