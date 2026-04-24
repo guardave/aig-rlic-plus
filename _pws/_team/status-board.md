@@ -596,3 +596,50 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 - 6 new binding SOP rules: HABIT-QA1, ECON-UD blocking, ECON-DIR1, RES-OD1, GATE-CL1-5, Pattern 24.
 - Process reform: agents own their failures and their fixes. Lead coordinates, does not diagnose.
 - Next: one more reboot to confirm Ray's 3-way direction triangulation renders on cloud, then wave fully closed.
+
+---
+
+## Self-Reflection Round — 2026-04-24
+
+**Dana:** Schema architecture (interpretation_metadata v1.0 + owner_writes) held cleanly across all 10 pairs including the Wave 10I.A legacy backfill — that design choice paid off consistently. Fresh-pair handoffs shipped clean on first pass (hy_ig_spy Wave 10G.4A: no Evan clarification requests needed). Top shortfall: DATA-D12 linter script still does not exist despite the rule being authored in Wave 5B-2 — I am better at writing rules than building the tools that enforce them. Wave 10F cross-review findings (6 legacy pairs lacked v1.0 interpretation_metadata) were not escalated as BL entries, forcing a reactive diagnostic loop in Wave 10I.A that Ray and Ace bore the cost of. Open issue: `indicator_type: "production"` on indpro_spy is outside the controlled vocabulary enum and was not schema-bump-coordinated with Evan — latent correctness risk. **Top lesson: write the enforcement script in the same commit as the rule; convert every cross-review gap finding into a BL ticket immediately rather than leaving it as an observation.**
+
+---
+
+## Self-Reflection Round — 2026-04-24
+
+**Evan:** My systematic weakness is writing rules from the active-fixer's perspective rather than the file-ownership graph — ECON-DIR1 encoded a scope violation (Evan writing to Dana's `interpretation_metadata.json`) into the rule meant to prevent it, which Vera correctly caught in Round 2 debate. The CP1 sub-period Sharpe issue (Full OOS = 0.02 vs tournament 1.11 for indpro_xlp) is a communication gap, not a methodology error: the simplified sign formula is a directional-durability metric, not a tournament-replication tool, and every CP1 handoff must annotate that distinction explicitly. Top lesson: after authoring any SOP rule that instructs Evan to act on a file, ask "who owns this file?" before committing — if the answer is not Evan, the rule must be recast as a consumer-gatekeeper check with escalation instructions, not write operations.
+
+---
+
+## Self-Reflection Round — 2026-04-24
+
+**Ray:** My two real failures this wave were design failures, not execution failures. First: RES-OD1's equality-check-only design assumed that if two files agreed, both were correct — I never asked "can this assertion pass while both inputs are wrong?" Vera's vocabulary challenge exposed this cleanly. I conceded in full and specified the exact code fix. Second: my SOP required both `memories.md` and `experience.md` while every other agent uses only `experience.md`. I executed my own SOP correctly for multiple waves without noticing the inconsistency — it took an external debate catch to surface it. Both failures share the same root: I audited my work against my own rules, not against the team standard. **Top lesson: after authoring any SOP rule, apply the meta-question — "can this rule pass while the underlying reality is wrong?" — and audit your own SOP's operational conventions against the other agents' SOPs at every self-reflection, not only during formal cross-review waves.**
+
+---
+
+## Self-Reflection Round — 2026-04-24
+
+**Dana:** Delivered clean schema architecture and fresh-pair handoffs, but failed to operationalize two rules across multiple waves — DATA-D12 linter script still doesn't exist after being authored twice. Good at writing rules, slow at converting them into enforcement artifacts. Top lesson: write the enforcement script in the same commit as the rule.
+
+**Evan:** Conceded ECON-DIR1 producer-voice failure with intellectual honesty and fixed it immediately. CP1 sub-period Sharpe numbers are methodologically non-comparable with tournament Sharpe — this caveat must appear in every CP1 handoff to Vera and Ray. Top lesson: stress-test every new rule against "who owns this file?" before committing.
+
+**Vera:** Identified the NBER shading gap before being prompted with a complete non-compliance inventory. Root cause: treated "rule exists in SOP" as equivalent to "rule is implemented in all code paths" — they are not. Pipeline generator scripts were forked from a pre-V2 original. Top lesson: audit pipeline scripts for SOP rule compliance at rule-authoring time, not post-hoc.
+
+**Ray:** Conceded D6 cleanly with a specified three-step fix. Key insight: equality checks between two files are weaker than correctness checks — both can be wrong while agreeing. Proposes pair-class-specific episode sets (rate-spread pairs need 2013 Taper Tantrum; activity pairs need 2015-16 China shock). Top lesson: every SOP rule should include a "failure mode" clause.
+
+**Ace:** Delivered structural migrations reliably with LEAD-DL1 discipline. GATE-CL1-5 are aspirational without enforcement tooling — gate text without a verification script is an intention, not a gate. Wave 10K Phase 1: `scripts/gate_cl_audit.py` ships before any other deliverable. Top lesson: gate text and enforcement script ship in the same commit.
+
+**Quincy:** Adversarial DOM audit in Wave 10I.C was thorough and self-diagnosed honestly. NBER shading missed across 5/10 pairs because GATE-28 checks DOM presence, not chart contents — GATE-VIZ-NBER1 closes this. Standing WARNs unremediated after 2 waves must be escalated to Lead for explicit disposition (close or assign), not left as noise. Top lesson: a WARN with no disposition is not a finding.
+
+### Lead Cross-Synthesis — Open Issues Requiring Decision
+
+| Issue | Owner | Priority |
+|---|---|---|
+| `scripts/gate_cl_audit.py` Phase 1 | Ace | Wave 10K — non-negotiable |
+| `scripts/lint_column_suffixes.py` (DATA-D12) | Dana | Wave 10K |
+| Perceptual PNG disposition — close or assign? | Lead decision | Immediate |
+| CP1 methodology_note in handoff format | Evan | Next pair |
+| Pair-class-specific episode sets (Taper 2013, China 2015) | Ray → Lead | Before Pair #4 |
+| Walk-forward continuous x-axis redesign | Evan → Vera | Backlog |
+| BL-LEGACY-WINNER-SUMMARY-SHAPE (6 pairs) | Evan | Wave 10K |
+| GATE-VIZ-NBER1 HTML scan validation | Quincy | Wave 10K |
