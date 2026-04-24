@@ -551,6 +551,8 @@ Long-horizon equity/credit time-series (span > 5 years) must:
 
 All four elements (perceptible shading + caption + subplot coverage + perceptual check) must ship together or the chart fails the completeness gate.
 
+**VIZ-NBER1 compliance is a BLOCKING pre-handoff gate.** No Vera handoff proceeds until: (a) the chart rendering validation (VIZ-CV1) log shows all charts pass the structural check, AND (b) every mandatory-NBER chart (see Rule VIZ-NBER1 below) has been verified to contain `vrect`/`rect` shapes in the Plotly JSON. Run `python scripts/check_nber_shading.py {pair_id}` (or equivalent JSON inspection) and paste the output into the handoff note.
+
 For the HY-IG v2 hero chart, SL-2 observed that shading existed but the disclosure text was missing; April 2026 follow-up found that the restored grey-alpha-0.12 shading was still imperceptible AND covered only the top panel. This revision of V2 codifies the prescription + subplot rule + perceptual-validation step that would have caught both bugs.
 
 #### Rule VIZ-NBER1 — NBER Shading Mandatory Chart Types (added 2026-04-24, Wave 10J)
@@ -584,7 +586,7 @@ For the HY-IG v2 hero chart, SL-2 observed that shading existed but the disclosu
 | Regime bar chart / quartile returns | X-axis is regime/quartile label |
 | Signal distribution | X-axis is signal value |
 
-**Implementation rule:** Every pair pipeline generator script that produces a chart in the mandatory list MUST include NBER shading. A chart from the mandatory list delivered without NBER shading is a **completeness gate failure (GATE-VIZ-NBER1)**. The QA agent verifies this at smoke-test time by checking that `layout.shapes` contains at least one shape with `fillcolor` matching the NBER shading rgba pattern.
+**Implementation rule:** Every pair pipeline generator script that produces a chart in the mandatory list MUST include NBER shading. A chart from the mandatory list delivered without NBER shading is a **completeness gate failure (GATE-VIZ-NBER1)**. The QA agent verifies this at chart rendering validation (VIZ-CV1) time by checking that `layout.shapes` contains at least one shape with `fillcolor` matching the NBER shading rgba pattern.
 
 **NBER shading parameters (canonical, from VIZ-V2):**
 - `fillcolor='rgba(150,120,120,0.22)'`
@@ -723,7 +725,7 @@ A `history_zoom_{episode_slug}.json` chart is REQUIRED for an episode when ALL T
 
 **VIZ-IC1 lint applies:** All CP charts undergo the standard intra-chart consistency check before save.
 
-**Cross-reference:** ECON-CP1 (subperiod Sharpe method), ECON-CP2 (rolling Sharpe, rolling Granger, structural break methods), VIZ-NBER1 (mandatory NBER shading for rolling charts), VIZ-A3 (canonical filenames), VIZ-IC1 (pre-save lint), VIZ-V5 (smoke test), VIZ-O1 (disposition mandate — all CP charts must have disposition in `_meta.json`).
+**Cross-reference:** ECON-CP1 (subperiod Sharpe method), ECON-CP2 (rolling Sharpe, rolling Granger, structural break methods), VIZ-NBER1 (mandatory NBER shading for rolling charts), VIZ-A3 (canonical filenames), VIZ-IC1 (pre-save lint), VIZ-V5 (chart rendering validation — VIZ-CV1), VIZ-O1 (disposition mandate — all CP charts must have disposition in `_meta.json`).
 
 ---
 
@@ -759,9 +761,9 @@ S18-8 flagged that the "annualised SPX return by quartile Q1-Q4" chart was prese
 
 On rerun, Vera must diff the prior chart set under `output/charts/{pair_id}/plotly/` and explicitly reconcile each missing mandatory diagnostic. If absent and undocumented, the chart is restored before handoff.
 
-#### Rule V5 — End-to-End Chart Load Smoke Test (added 2026-04-19)
+#### Rule V5 — Chart Rendering Validation (VIZ-CV1) (added 2026-04-19; renamed from "smoke test" 2026-04-24 Wave 10J)
 
-Before handoff to Ace, Vera MUST run a smoke-test script that, for every chart referenced by any portal page of the pair, verifies:
+Before handoff to Ace, Vera MUST run a chart rendering validation (VIZ-CV1) script that, for every chart referenced by any portal page of the pair, verifies:
 
 1. `plotly.io.read_json(path)` loads the JSON without raising any exception.
 2. `len(fig.data) > 0` — the chart has at least one data trace (not an empty figure).
@@ -769,12 +771,14 @@ Before handoff to Ace, Vera MUST run a smoke-test script that, for every chart r
 
 Each check is logged as pass/fail per chart to `output/charts/{pair_id}/plotly/_smoke_test_{YYYYMMDD}.log` (one file per test run date; if multiple runs on the same day, append). The log includes per-chart `PASS` / `FAIL` lines plus a final tally line `Total: N charts, M pass, K fail`.
 
-**Smoke test failure is a blocker.** Vera cannot hand off to Ace until every chart passes all three checks. If a chart fails:
+**Chart rendering validation (VIZ-CV1) failure is a blocker.** Vera cannot hand off to Ace until every chart passes all three checks. If a chart fails:
 - An empty-data failure usually means upstream CSV parse error → fix the builder script and re-save.
 - A missing-title failure usually means a layout template stripped the title → restore per VIZ-UR1.
 - A JSON-read failure usually means a corrupted write or mixing numpy types into Plotly → rebuild using `plotly.io.write_json`.
 
-The smoke test is additive on top of the Quality Gates checklist and the perceptual check introduced in V2; it catches a different failure mode (structural integrity) from the perceptual check (visual legibility) and from A3 (canonical spec conformance).
+The chart rendering validation (VIZ-CV1) is additive on top of the Quality Gates checklist and the perceptual check introduced in V2; it catches a different failure mode (structural integrity) from the perceptual check (visual legibility) and from A3 (canonical spec conformance).
+
+> **Taxonomy note:** "Smoke test" is reserved exclusively for Quincy's `cloud_verify.py` end-to-end run. Vera's JSON integrity + kaleido render step is "chart rendering validation (VIZ-CV1)".
 
 #### Rule V8 — Chart Type Registry (canonical, machine-readable) — addresses S18-11, Wave 1.5 Granger fallback (added 2026-04-19)
 
@@ -829,9 +833,9 @@ Legacy charts that cannot be rebuilt immediately may be grandfathered by declari
 
 **Sidecar contract.**
 
-Every chart's `_meta.json` sidecar (per VIZ-SD1) MUST carry `palette_id` referencing a key in `color_palette_registry.json`. A chart whose sidecar has no `palette_id`, or whose `palette_id` is not in the registry, fails VIZ-V5 smoke test.
+Every chart's `_meta.json` sidecar (per VIZ-SD1) MUST carry `palette_id` referencing a key in `color_palette_registry.json`. A chart whose sidecar has no `palette_id`, or whose `palette_id` is not in the registry, fails VIZ-V5 chart rendering validation (VIZ-CV1).
 
-**Cross-reference:** META-CF (schema ownership), META-XVC (palette change = methodological divergence), VIZ-V2 (NBER shading exact rgba), VIZ-V5 (smoke test), VIZ-V8 (the other canonical chart-related registry), VIZ-SD1 (sidecar schema), APP-SE3 (Ace consumes buy/sell/hold roles).
+**Cross-reference:** META-CF (schema ownership), META-XVC (palette change = methodological divergence), VIZ-V2 (NBER shading exact rgba), VIZ-V5 (chart rendering validation — VIZ-CV1), VIZ-V8 (the other canonical chart-related registry), VIZ-SD1 (sidecar schema), APP-SE3 (Ace consumes buy/sell/hold roles).
 
 #### Rule V12 — Historical-Episode Events Registry (canonical, machine-readable) — addresses Wave 5 audit gaps #5, #6, SL-4 / SL-5 rationale-capture residual (added 2026-04-19)
 
@@ -886,7 +890,7 @@ A chart's annotation layout MUST declare exactly one of:
 
 **Declaration in sidecar (mandatory).**
 
-Producer (Vera) records the choice in `_meta.json.annotation_strategy_id` for every chart that emits ≥2 annotations. Accepted values: `descending_stair`, `top_right_uniform`, `alternating_top_bottom`, or `manual_override` (see below). The VIZ-V5 smoke test fails a chart whose `_meta.json` carries ≥2 annotations without `annotation_strategy_id`.
+Producer (Vera) records the choice in `_meta.json.annotation_strategy_id` for every chart that emits ≥2 annotations. Accepted values: `descending_stair`, `top_right_uniform`, `alternating_top_bottom`, or `manual_override` (see below). The VIZ-V5 chart rendering validation (VIZ-CV1) fails a chart whose `_meta.json` carries ≥2 annotations without `annotation_strategy_id`.
 
 **Hand-tuning overrides.**
 
@@ -896,7 +900,7 @@ A chart whose event layout cannot be represented by one of the three canonical s
 2. The sidecar `_meta.json` carries an `annotation_overrides` array: `[{annotation_idx, y_offset, rationale}]` per moved annotation.
 3. On reference pairs (META-RPD), `manual_override` is a Lead-signoff item — Vera flags it in the acceptance.md Methodological Divergence Log.
 
-**Cross-reference:** META-XVC (strategy change across versions = methodological divergence — a v2 chart switching from `descending_stair` to `alternating_top_bottom` is documented in regression_note), VIZ-V1 (zoom chart production), VIZ-V5 (smoke test enforcement), VIZ-SD1 (sidecar schema).
+**Cross-reference:** META-XVC (strategy change across versions = methodological divergence — a v2 chart switching from `descending_stair` to `alternating_top_bottom` is documented in regression_note), VIZ-V1 (zoom chart production), VIZ-V5 (chart rendering validation — VIZ-CV1), VIZ-SD1 (sidecar schema).
 
 ### Chart-Text Coherence (Cross-Agent Contract) — addresses SL-3
 
@@ -1197,6 +1201,8 @@ Before handing off:
 
 **Structural checks:**
 - [ ] **VIZ-IC1 pre-save assertions PASS for every saved chart** (title-axes coherence, legend-data match, annotations-data match, palette registry conformance, unit discipline, narrative-alignment note in manifest)
+- [ ] **NBER shading gate (BLOCKING — VIZ-NBER1):** Run `python scripts/check_nber_shading.py {pair_id}` (or equivalent Plotly JSON inspection) and paste output into handoff note. Every mandatory-NBER chart must show `vrect`/`rect` shapes present: PASS. Any mandatory chart with no shapes: FAIL — do not proceed with handoff.
+- [ ] **Chart rendering validation (VIZ-CV1) log present and all-PASS:** Confirm `output/charts/{pair_id}/plotly/_smoke_test_{YYYYMMDD}.log` exists and shows `Total: N charts, N pass, 0 fail`.
 - [ ] Title states the insight, not just the variable name
 - [ ] All axes labeled with units
 - [ ] Source note included
