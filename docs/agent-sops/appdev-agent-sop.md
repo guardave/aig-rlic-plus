@@ -1011,6 +1011,7 @@ Before handing off:
 - [ ] **GATE-CL3 — B&H KPIs are present on all Story pages.** Every Story page key metrics block must show "vs X buy-and-hold" — never "vs N/A". Source: tournament CSV BENCHMARK row. If `winner_summary.json` is missing these fields, the template must backfill from tournament CSV.
 - [ ] **GATE-CL4 — Total tournament combinations is present on all Methodology pages.** Must not display "N/A". Source: tournament CSV row count or `winner_summary.json.total_combos`. Backfill from CSV if JSON field absent.
 - [ ] **GATE-CL5 — All landing card badges display meaningful text.** No "Unknown" visible to a stakeholder unless the underlying data is genuinely ambiguous. `get_objective_label()` and `get_type_label()` must map every value produced by the pipeline; unmapped values trigger an integrity alert, not silent "Unknown".
+- [ ] **GATE-CL6 — Cross-Period Consistency section renders without `st.error` for all active pairs (Wave 10J, 2026-04-24).** After wiring ECON-CP1/CP2 + VIZ-CP1 charts into `render_evidence_page()`, verify that every active pair's Evidence page either (a) shows the cross-period charts when the JSON files are present, or (b) shows `st.info("Cross-period analysis pending — ... chart not yet available for this pair.")` when they are absent. A bare `st.error` in this section is a gate failure. Verification: load each Evidence page with headless Playwright and grep the rendered text for "Error" in the Cross-Period Consistency region.
 
 ### Defense 1: Self-Describing Artifacts (Producer Rule)
 

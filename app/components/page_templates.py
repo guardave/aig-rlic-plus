@@ -981,6 +981,47 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
                 with sub:
                     _render_method_block(block, pair_id)
 
+    # ------ Cross-Period Consistency (ECON-CP1/CP2 + VIZ-CP1) ------
+    # Rule GATE-CL6: this section must render without st.error for all active
+    # pairs. Missing chart files show st.info("Cross-period analysis pending")
+    # — not an error — so pairs that have not yet been retro-applied degrade
+    # gracefully.
+    st.markdown("---")
+    st.markdown("### Cross-Period Consistency")
+    st.markdown(
+        "These charts test whether the signal's predictive relationship holds "
+        "across different historical sub-periods. A finding that vanishes in "
+        "one era or only appears in a specific decade is fragile; one that "
+        "persists across regimes is robust."
+    )
+
+    _cp_always = [
+        ("subperiod_sharpe",      "Sub-period Sharpe",      "How to read it: each bar shows the strategy's Sharpe ratio for a distinct historical sub-period. Consistent positive bars across all periods indicate a robust signal."),
+        ("rolling_correlation",   "Rolling Correlation",    "How to read it: the time-varying correlation between indicator and target. A flat, stable line suggests the relationship is not regime-dependent."),
+        ("structural_break",      "Structural Break Test",  "How to read it: formal test for parameter instability. A clean chart with no break-date flags means the relationship is stationary across the sample."),
+    ]
+    for _chart_name, _label, _caption in _cp_always:
+        _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
+        if _path.exists():
+            st.markdown(f"**{_label}**")
+            load_plotly_chart(_chart_name, pair_id=pair_id, caption=_caption)
+        else:
+            st.info(f"Cross-period analysis pending — {_label} chart not yet available for this pair.")
+
+    _evidence_config = method_blocks.get("EVIDENCE_CONFIG", {})
+    if _evidence_config.get("regime_story") is True:
+        _cp_conditional = [
+            ("rolling_sharpe",   "Rolling Sharpe",   "How to read it: 36-month rolling Sharpe ratio. Persistent positive values confirm the strategy survives across market regimes, not just in a lucky window."),
+            ("rolling_granger",  "Rolling Granger",  "How to read it: p-value of Granger causality tested on rolling windows. Values consistently below 0.05 show the predictive relationship is not a sample artefact."),
+        ]
+        for _chart_name, _label, _caption in _cp_conditional:
+            _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
+            if _path.exists():
+                st.markdown(f"**{_label}**")
+                load_plotly_chart(_chart_name, pair_id=pair_id, caption=_caption)
+            else:
+                st.info(f"Cross-period analysis pending — {_label} chart not yet available for this pair.")
+
     # ------ Tournament pointer ------
     st.markdown("---")
     st.markdown("### The Combinatorial Tournament")
