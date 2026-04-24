@@ -1,0 +1,9 @@
+{
+  "test": "rolling_r2_qlr_proxy",
+  "breakpoint_date": "2007-07-30",
+  "max_f_stat": 0.026326,
+  "p_value": 0.768544,
+  "conclusion": "Rolling R\u00b2 jump of 0.0263 detected near 2007-07-30; potential structural break \u2014 verify with Chow test",
+  "trim_pct": 0.15,
+  "n_obs": 6860
+}

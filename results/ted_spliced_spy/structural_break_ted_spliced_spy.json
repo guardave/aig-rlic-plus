@@ -1,0 +1,9 @@
+{
+  "test": "rolling_r2_qlr_proxy",
+  "breakpoint_date": "2020-03-24",
+  "max_f_stat": 0.035208,
+  "p_value": 0.703222,
+  "conclusion": "Rolling R\u00b2 jump of 0.0352 detected near 2020-03-24; potential structural break \u2014 verify with Chow test",
+  "trim_pct": 0.15,
+  "n_obs": 8567
+}

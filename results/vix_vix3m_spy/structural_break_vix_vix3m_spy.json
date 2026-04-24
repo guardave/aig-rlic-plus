@@ -1,0 +1,9 @@
+{
+  "test": "rolling_r2_qlr_proxy",
+  "breakpoint_date": "2017-08-01",
+  "max_f_stat": 0.007182,
+  "p_value": 0.930696,
+  "conclusion": "No substantial structural break detected",
+  "trim_pct": 0.15,
+  "n_obs": 4856
+}
