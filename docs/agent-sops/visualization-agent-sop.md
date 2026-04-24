@@ -719,6 +719,148 @@ If `git ls-files` returns empty for a required slug, Vera must generate the miss
 
 ---
 
+#### Rule VIZ-DP1 — Dual-Panel Axis Assignment Verification (added 2026-04-24, Wave 10J retro)
+
+**Problem addressed:** Wave 10J HZE1 retro-apply produced 29 `history_zoom` charts, all structurally valid (800+ data points per trace, correct y-axis tick labels). Visual inspection of the rendered portal revealed that the bottom-panel target trace was assigned `xaxis="x"` instead of `xaxis="x2"`. Because `yaxis2` is anchored to `x2`, the bottom panel rendered with correct y-axis labels but a completely blank line. The data was present in the JSON but invisible on screen. This failure class — **data present in JSON ≠ data visible on screen** — is invisible to any data-existence check (VIZ-HZE1 `git ls-files`), invisible to structural smoke (VIZ-CV1 `len(fig.data) > 0`), and only detectable by rendering the chart and inspecting the visual output.
+
+**Root cause:** No prior SOP rule required verifying that dual-panel trace axis assignments were internally consistent before handoff. VIZ-CV1 (chart rendering validation) checked structural integrity and perceptual quality for hero and equity-curve charts, but kaleido renders were not required for `history_zoom` charts — the blank bottom panel was never seen.
+
+**The axis assignment contract for dual-panel charts:**
+
+| Panel | xaxis | yaxis | Plotly layout key |
+|-------|-------|-------|-------------------|
+| Top (indicator) | `"x"` | `"y"` | `layout.xaxis`, `layout.yaxis` |
+| Bottom (target) | `"x2"` | `"y2"` | `layout.xaxis2`, `layout.yaxis2` |
+
+Any trace assigned to the wrong axis reference will render blank (correct axis labels, no line). This is a silent failure — the JSON is valid, the data count is non-zero, but the trace is plotted against a coordinate system with no matching data range.
+
+**VIZ-DP1 mandatory verification procedure:**
+
+Before committing any dual-panel chart JSON and before handoff, run the following axis-assignment check programmatically:
+
+```python
+import json, pathlib
+
+def check_dual_panel_axis_assignment(json_path: str) -> dict:
+    """
+    Verify that a dual-panel Plotly chart JSON has correct xaxis/yaxis
+    assignments. Top panel traces must use xaxis='x'/yaxis='y';
+    bottom panel traces must use xaxis='x2'/yaxis='y2'.
+
+    Returns a dict with 'pass' (bool) and 'violations' (list of str).
+    """
+    fig = json.loads(pathlib.Path(json_path).read_text())
+    layout = fig.get("layout", {})
+    traces = fig.get("data", [])
+
+    # Determine if this is a dual-panel layout
+    if "yaxis2" not in layout:
+        return {"pass": True, "violations": [], "note": "Not a dual-panel chart — skip."}
+
+    # yaxis2 must be anchored to x2
+    y2_anchor = layout.get("yaxis2", {}).get("anchor", "x2")
+    if y2_anchor != "x2":
+        return {
+            "pass": False,
+            "violations": [f"layout.yaxis2.anchor = '{y2_anchor}' (expected 'x2')"],
+        }
+
+    violations = []
+    for i, trace in enumerate(traces):
+        name = trace.get("name", f"trace[{i}]")
+        xaxis = trace.get("xaxis", "x")   # Plotly default is "x" if omitted
+        yaxis = trace.get("yaxis", "y")   # Plotly default is "y" if omitted
+
+        # Top panel traces: xaxis must be "x", yaxis must be "y"
+        if yaxis == "y" and xaxis != "x":
+            violations.append(
+                f"Top-panel trace '{name}': yaxis='y' but xaxis='{xaxis}' (must be 'x')"
+            )
+        # Bottom panel traces: yaxis must be "y2", xaxis must be "x2"
+        if yaxis == "y2" and xaxis != "x2":
+            violations.append(
+                f"Bottom-panel trace '{name}': yaxis='y2' but xaxis='{xaxis}' (must be 'x2')"
+            )
+
+    return {"pass": len(violations) == 0, "violations": violations}
+
+
+# Usage — run before every handoff for each dual-panel chart:
+if __name__ == "__main__":
+    import sys
+    result = check_dual_panel_axis_assignment(sys.argv[1])
+    if result["pass"]:
+        print(f"PASS: {sys.argv[1]}")
+    else:
+        print(f"FAIL: {sys.argv[1]}")
+        for v in result["violations"]:
+            print(f"  - {v}")
+        sys.exit(1)
+```
+
+**How to apply the gate in a handoff batch:**
+
+```python
+import glob, sys
+
+pair_id = "your_pair_id"
+dual_panel_patterns = [
+    f"output/charts/{pair_id}/plotly/history_zoom_*.json",
+    f"output/charts/{pair_id}/plotly/hero.json",
+]
+
+failures = []
+for pattern in dual_panel_patterns:
+    for path in sorted(glob.glob(pattern)):
+        result = check_dual_panel_axis_assignment(path)
+        if not result["pass"]:
+            failures.append((path, result["violations"]))
+
+if failures:
+    print("VIZ-DP1 FAIL — axis assignment errors found:")
+    for path, viols in failures:
+        print(f"  {path}:")
+        for v in viols:
+            print(f"    {v}")
+    sys.exit(1)
+else:
+    print("VIZ-DP1 PASS — all dual-panel axis assignments correct.")
+```
+
+**Paste the output verbatim into the handoff note.** A VIZ-DP1 FAIL is a blocker — do not hand off to Ace until all violations are resolved.
+
+**Kaleido perceptual render is MANDATORY for all `history_zoom` charts (extension of VIZ-CV1):**
+
+VIZ-CV1 already mandates kaleido perceptual renders for hero charts and equity-curve charts. This rule extends that mandate to all `history_zoom_{slug}.json` charts. Reason: a dual-panel blank-panel failure (wrong xaxis assignment) is invisible to JSON inspection and only detectable by rendering the chart. A blank lower panel is immediately visible in a kaleido PNG; it would have caught the HZE1 retro-apply defect before any chart was committed.
+
+Procedure: after generating each `history_zoom_{slug}.json`, run:
+
+```python
+import plotly.io as pio
+
+fig = pio.read_json(f"output/charts/{pair_id}/plotly/history_zoom_{slug}.json")
+pio.write_image(
+    fig,
+    f"output/charts/{pair_id}/plotly/_perceptual_check_history_zoom_{slug}.png",
+    format="png",
+    width=1400,
+    height=700,
+)
+```
+
+Open the PNG and visually confirm: (a) both panels contain visible lines, (b) NBER shading is perceptible in both panels, (c) event-marker vertical lines span both panels. If the bottom panel is blank, the xaxis assignment is wrong — fix the chart script before committing.
+
+The perceptual PNG is a working artifact (not committed to git, not a deliverable to Ace). Its sole purpose is catching visual defects before commit.
+
+**VIZ-DP1 compliance is a BLOCKING pre-handoff gate.** No Vera handoff proceeds until:
+1. The axis-assignment check script returns PASS for every dual-panel chart in scope.
+2. The kaleido perceptual render for every `history_zoom` chart has been visually inspected and confirmed (both panels non-blank, NBER shading visible, event markers present in both panels).
+3. Gate results are pasted verbatim into the handoff note.
+
+**Cross-reference:** VIZ-V1 (dual-panel zoom chart production spec), VIZ-CV1 (chart rendering validation — kaleido render mandate extended here to history_zoom charts), VIZ-HZE1 (zoom chart completeness gate — VIZ-DP1 is a companion gate for axis-assignment correctness), VIZ-NBER1 (NBER shading per-panel coverage — also requires both panels).
+
+---
+
 #### Rule VIZ-CP1 — Cross-Period Consistency Chart Types (added 2026-04-24, Wave 10J)
 
 **Context:** The econometrics agent (ECON-CP1 and ECON-CP2) generates cross-period consistency analyses that compare indicator-target relationships across historical episodes and rolling windows. This rule defines the canonical visualization specification for each chart type produced by these analyses.

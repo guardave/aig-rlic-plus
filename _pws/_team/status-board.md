@@ -60,9 +60,34 @@
 | GATE-CL6 | Ace | Quincy | Add cross-period section check to HABIT-QA1 DOM read — verify cross-period section renders in portal DOM for all pairs that declare cross-period content in their config | 10J |
 | RES-EPIS1 | Ray | Evan, Vera, Ray | Read episodes from docs/schemas/episode_registry.json keyed on indicator_category — replace all hardcoded episode lists in ECON-CP1, RES-CP1, VIZ-ZOOM1 | Wave 10K |
 | RES-HZE1 | Ray | Ace, Ray | **Ace:** pair config acceptance gate — refuse any Ray handoff that lacks a populated `HISTORY_ZOOM_EPISODES` list (slug/title/narrative/caption) or contains unregistered slugs. **Ray:** every future pair config handoff MUST include `HISTORY_ZOOM_EPISODES` block validated against `docs/schemas/episode_registry.json`. Retroactive backfill of existing pairs required before next Quincy smoke run. | 2026-04-24 |
+| VIZ-DP1 | Vera | Quincy | Quincy: advisory — when GATE-HZE1 DOM check runs and finds zoom charts present, a blank lower panel is indistinguishable from a "loaded" chart via text inspection alone. Consider adding a kaleido-PNG existence check (`_perceptual_check_history_zoom_*.png`) as a WARN-level signal that VIZ-DP1 perceptual render was performed. No blocking action required from Quincy in current wave — VIZ-DP1 is a producer-side gate. | 10J retro |
 | ACE-HZE1 | Ace | Ray, Vera, Quincy | **Ray:** ensure every pair handoff includes `history_zoom_episodes` frontmatter before Ace authors config — Ace blocks config ship if narratives are absent when Vera zoom charts are present. **Vera:** watch for `ACE-HZE1 BLOCKER [Vera]` entries in status board; generate missing `history_zoom_{slug}.json` files to unblock. **Quincy:** consider GATE-CL check — count `HISTORY_ZOOM_EPISODES` config entries vs `history_zoom_*.json` files on disk per pair — mismatch = gate failure. | 2026-04-24 |
 
 ---
+
+---
+
+## 2026-04-24 — Viz Vera (VIZ-DP1 — Dual-Panel Axis Assignment Verification, post HZE1 retro)
+
+**Status:** SOP rule authored. Charts NOT yet fixed (Lead will dispatch separately).
+
+**Finding:** All 29 `history_zoom` charts generated in the HZE1 retro-apply have a systematic axis assignment bug: the bottom-panel target trace carries `xaxis="x"` instead of `xaxis="x2"`. Because `yaxis2` is anchored to `x2`, every bottom panel renders with correct y-axis labels and ticks but a completely blank line. Data exists in the JSON (800+ points) but is plotted against the wrong coordinate system and is invisible on screen.
+
+**Failure mode class:** "data present in JSON ≠ data visible on screen." This is a distinct failure class from structural absence (VIZ-HZE1) and from perceptual quality issues (VIZ-V2 alpha floor). It is invisible to every prior gate — `git ls-files`, `len(fig.data) > 0`, JSON field inspection. It is only detectable by rendering the chart and looking at it. The root cause is that kaleido perceptual renders were not required for `history_zoom` charts, so the blank bottom panel was never seen before commit.
+
+**Shipped:**
+- New SOP rule **VIZ-DP1** in `docs/agent-sops/visualization-agent-sop.md`:
+  - Mandates that top-panel traces use `xaxis="x"` / `yaxis="y"` and bottom-panel traces use `xaxis="x2"` / `yaxis="y2"`.
+  - Includes a full Python verification script snippet (`check_dual_panel_axis_assignment`) to be run on every dual-panel chart JSON before handoff, output pasted verbatim into handoff note.
+  - Extends VIZ-CV1 kaleido perceptual render mandate to ALL `history_zoom` charts (was previously hero + equity-curve only).
+- Experience entry promoted to `~/.claude/agents/viz-vera/experience.md`.
+
+**Not done (awaiting Lead dispatch):** The 29 defective chart files are NOT fixed in this dispatch. Lead will dispatch Vera separately to regenerate them once the SOP rule is written and committed.
+
+**Cross-agent impact:**
+- **Quincy:** No new gate rule required — VIZ-DP1 is a producer-side check (Vera runs it before handoff). However, if Quincy adds a DOM check for the "How the Signal Performed in Past Crises" section, a blank lower panel might manifest as a chart that "loaded" but shows no visible line — an existing structural check would not catch it. Advisory only.
+
+**Scope discipline:** Own SOP, own experience file, shared status board. Zero writes to chart files, scripts, or other agent SOPs. META-AM clean.
 
 ---
 
