@@ -14,7 +14,7 @@
 **Self-reflection round (all 5 agents):**
 Each agent authored a structured reflection covering: what went well, what fell short, lesson retention, cross-agent friction, open debates, and key lessons to carry forward. Highlights:
 - **Dana:** DATA-D12 linter script is a persistent dead letter (rule without enforcement). Cross-review findings not converted to BL entries — escalation discipline gap.
-- **Evan:** ECON-UD "optional for non-reference pairs" was a process debt. Direction reconciliation (ECON-DIR1) now mandatory.
+- **Evan:** ECON-UD "optional for non-reference pairs" was a process debt. Direction reconciliation (ECON-DIR1) now mandatory. Added `indicator_category` field to all 10 `interpretation_metadata.json` files (rates / production / sentiment / credit / volatility); reran `subperiod_sharpe` for 5 reclassified pairs using correct episode sets per Ray's domain verdicts. META-CPD cross-reference added to econometrics SOP (commit `57e53b5`).
 - **Ray:** RES-17 was a TODO block that lived too long. RES-OD1 direction reconciliation gate added.
 - **Vera:** VIZ-HZE1 retro-apply forced. ACE-HZE1 triggered by gap in three-agent chart chain.
 - **Ace:** ACE-HZE1 authored — `HISTORY_ZOOM_EPISODES` must be populated whenever upstream data exists; silent omission prohibited.

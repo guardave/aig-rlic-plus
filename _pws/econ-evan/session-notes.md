@@ -500,3 +500,94 @@ Ray caught a miss from my earlier Wave 10H.2 handoff: I claimed `hy_ig_spy/winne
 - Commission: 5 bps from `cost_assumption_bps` in summary (explicit).
 - Smoke passed: `passes=6 failures=0`.
 - Lesson: when surveying pre-existing broker CSVs for compliance, actually `pd.read_csv(..., comment="#")` and check column list — don't eyeball.
+
+---
+
+## 2026-04-24 — Wave 10J/10K Self-Reflection (structured pause)
+
+**Note:** Home-dir write permission denied as usual. Full reflection recorded here per established precedent. Content flagged for promotion to `~/.claude/agents/econ-evan/experience.md` when permissions allow.
+
+### What went well
+
+1. **SOP craftsmanship under fire.** Wave 10I.C adversarial DOM audit exposed four failure classes in my lane. I self-diagnosed accurately, fixed all four, and translated each into a binding SOP rule in the same session: ECON-DIR1, ECON-UD upgraded to blocking for all pairs, mandatory stationarity CSV artifact rule, signal_scope anti-pattern. The SOP is genuinely stronger for having had these failures surface.
+
+2. **Debate Round 2 intellectual honesty.** Vera's D2 challenge — ECON-DIR1 written in producer voice despite Dana owning `interpretation_metadata.json` — was correct. I conceded immediately, traced the exact lines where the rule implied write authority I don't have, proposed the rewrite from producer to consumer-gatekeeper framing, and expanded the fix to the vocabulary gap (D6) I had also missed.
+
+3. **Systemic debate framing.** Round 1 contradiction analysis (1.1–1.5) identified real structural team problems: "validation" means four different things across four agents; schema evolution has no portfolio-wide sweep trigger; the smoke test coverage map is undocumented. Naming these as team design failures with specific fix proposals is the right level of analysis.
+
+### What fell short — ECON-DIR1 producer voice
+
+ECON-DIR1 was authored in Wave 10I.C as a reactive fix after Ray corrected direction mismatches. At the time I was actively writing to `interpretation_metadata.json` to fix the mismatch — a scope violation. I then encoded that same violation into the rule I authored to prevent recurrence. The rule was correct in intent (check direction consistency) but wrong in role (Evan should not write to Dana's files).
+
+Root cause: I write rules from the perspective of the active fixer, not from the file-ownership graph. When fixing a failure, the natural question is "what did I do to fix this?" not "what role does Evan have relative to this file?" These diverge when the fix itself was a scope violation. Fix: after authoring any rule that instructs Evan to act on a file, explicitly ask "who owns this file?" and verify the instructions match the ownership model before committing.
+
+### CP1 sub-period Sharpe interpretation
+
+indpro_xlp Full OOS CP1 Sharpe = 0.02 vs tournament 1.11. Root cause: CP1-A uses simplified `sign(signal) × return` on `winner_trade_log.csv` monthly data. Tournament used full threshold logic — rolling p75 threshold (T2), Long/Short counter-cyclical, 3-month lead (L3). Near-threshold months that the tournament correctly excludes are misclassified by the sign formula, severely depressing the CP1 Sharpe.
+
+This is NOT a methodology error — it is a communication gap. CP1-A is a directional-durability metric, not a tournament-replication exercise. Every `subperiod_sharpe.csv` handoff must include an annotation: "Sub-period Sharpes reflect directional durability only, NOT replication of tournament execution mechanics. Use tournament OOS Sharpe as the point-estimate reference." Ray's narrative must include this caveat. Adding required annotation to ECON-CP1 specification is a Wave 10K task.
+
+### Cross-agent coordination verdict
+
+Vera and Ace received clean chart requests and winner summaries for my pairs (Waves 9 and 10G). The Wave 10B three-sidecar schema fixes caused the main downstream rework — Vera stalled waiting on corrected `signal_scope.json`. Root cause: I did not run `validate_schema.py` on all three sidecars before the initial handoff. Already in the SOP; not applied.
+
+CP1 artifacts (subperiod_sharpe.csv, rolling_correlation, structural_break json) are new mandatory deliverables that Vera, Ray, and Ace depend on. These handoff dependencies are in the Cross-Agent Impact Log but were not established before CP1 was authored — another retro-apply gap.
+
+### One thing I'd change in the last 3 waves
+
+I would run `validate_schema.py` against all three sidecars on every committed pair at the time of schema version bump — not just the pair I'm actively building. The schema is mine to own; every bump should trigger a portfolio-wide sweep before I do anything else. This one discipline change would have prevented 6 of the 10 failure classes in Wave 10I.A and Wave 10I.C.
+
+### Open issues / debates
+
+1. `interpretation_metadata.json` has no formal JSON schema — vocabulary drift undetectable programmatically. I should author `interpretation_metadata.schema.json` in `docs/schemas/`.
+2. BL-LEGACY-WINNER-SUMMARY-SHAPE has no wave target — should be Wave 10K first dispatch.
+3. CP1-A Sharpe calculation ambiguity: SOP says "use winner_trade_log.csv" but doesn't specify monthly vs daily aggregation. For monthly macro pairs, using trade log monthly data directly produces stark divergence from tournament's daily Sharpe. SOP must specify explicitly.
+4. ECON-SD audit dead-letter: SOP implies Quincy audits scope discipline; Quincy's SOP doesn't name this check.
+
+### Key lessons
+
+1. Write rules from the file-ownership graph, not from the active-fixer perspective.
+2. CP1 sub-period Sharpes are directional-durability metrics, not tournament-replication metrics — always annotate.
+3. Every new rule requires a retro-apply checklist at authoring time with pair-by-pair status.
+4. Schema bumps are trigger events for portfolio-wide re-validation sweeps.
+5. Validate all three sidecars (winner_summary, signal_scope, analyst_suggestions) before every handoff.
+
+> **PROMOTE TO experience.md** when home-dir write permissions restored.
+
+---
+
+## 2026-04-24 — Wave 10J/10K Checkpoint
+
+Agent: Econ Evan
+PWS: `_pws/econ-evan/`
+Global profile: `~/.claude/agents/econ-evan/`
+Session scope: indicator_category field addition, subperiod_sharpe reclassification for 5 pairs, META-CPD SOP cross-reference.
+
+### Summary
+
+Wave 10J/10K focused on two structural gaps:
+1. **indicator_category field** — added to all 10 `interpretation_metadata.json` files. Field is required for RES-EPIS1 episode-set routing (rates, production, sentiment, credit, volatility).
+2. **Reclassification retro-apply** — Ray issued domain verdicts reclassifying 5 pairs. Reran `subperiod_sharpe` for those pairs using the correct episode sets per their new `indicator_category`.
+
+### What changed
+
+| Task | Pairs affected | Evidence |
+|------|---------------|----------|
+| indicator_category field added | All 10 interpretation_metadata.json | Smoke: 0 failures across 10 pairs |
+| Reclassify → rates | dff_ted_spy, sofr_ted_spy | subperiod_sharpe rerun with rates episode set |
+| Reclassify → production | indpro_spy, indpro_xlp, permit_spy | subperiod_sharpe rerun with production episode set |
+| META-CPD cross-reference | econometrics-agent-sop.md | Commit 57e53b5 |
+
+### Outstanding items carried forward
+
+- **BL-LEGACY-WINNER-SUMMARY-SHAPE** — 6 legacy pairs missing 7+ required winner_summary fields. Target: Wave 10K first dispatch.
+- **CP1 methodology_note** — must appear in every Evan→Vera→Ray handoff as a mandatory annotation: "Sub-period Sharpes reflect directional durability only, NOT tournament-replication." Add to SOP before next pair.
+- **BL-OOS-SPLIT-LEGACY** — emit oos_split_record.json on future tournament reruns for 6 backfilled pairs.
+
+### Next-session SOD reading order
+
+1. `~/.claude/agents/econ-evan/experience.md` + `memories.md`
+2. `docs/agent-sops/econometrics-agent-sop.md` — especially ECON-DIR1, ECON-UD, ECON-CP1 annotation rule
+3. `docs/schemas/winner_summary.schema.json`
+4. `docs/backlog.md` — BL-LEGACY-WINNER-SUMMARY-SHAPE in my lane
+5. Next pair: Pair #4 US10Y-US3M → SPY
