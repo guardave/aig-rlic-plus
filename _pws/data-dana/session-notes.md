@@ -163,3 +163,74 @@ Dispatched to cross-review all team SOPs from Dana's lens. Produced findings doc
 - LEAD-DL1 Lead Delegation Discipline: Lead commits stay category 1/6 paths (`docs/`, `.claude/settings.json`). Data-owned paths (`data/`, `scripts/pair_pipeline_*.py`, `docs/schemas/*`) flow through Dana dispatch only.
 
 **Next:** Await next wave dispatch. Backlog candidates: v1 HY-IG rerun (DATA-D12 bare-name cleanup, BL-002), DATA-D12 linter as standalone script, DATA-D13 bootstrap for legacy pairs.
+
+---
+
+## 2026-04-24 — Self-Reflection Round (Wave 10J/10K pause)
+
+*Full text also written to `~/.claude/agents/data-dana/experience.md` (pending permission fix — see note at end).*
+
+### What went well
+
+1. **Schema architecture held across all 10 pairs.** The `interpretation_metadata.json` v1.0 schema I authored in Wave 4C-2 with explicit `owner_writes` partitioning proved robust across every pair through Wave 10I.A. When Ray backfilled 6 legacy files to v1.0 shape (`8fc4270`), he had a clear spec to follow. No schema-disagreement incidents between agents post-4C-2.
+
+2. **Fresh-pair data stages shipped clean on first handoff.** The `hy_ig_spy` fresh pair (Wave 10G.4A) arrived at Evan with a DATA-D12-clean parquet, a validated sidecar, a schema-valid `interpretation_metadata.json`, and a handoff document that pre-disclosed the FRED OAS truncation fix. No clarification requests needed.
+
+3. **Cross-review (Wave 10F) surfaced dead-letter rules before they caused downstream failures.** The finding that DATA-D12 had no linter script was the intellectual foundation for diagnosing the Wave 10I.A legacy-pair schema drift. The [rule_id / enforcement_mechanism / honest_status] table technique is a genuine team process contribution.
+
+### What fell short
+
+1. **Orphan-artifact hygiene failed on first attempt.** `indpro_xlp` and `umcsent_xlv` byproducts went untracked for 3 days. Lesson written, pipeline-script patch never implemented.
+
+2. **DATA-D12 linter script never shipped.** Rule authored Wave 5B-2, retro-applied manually Wave 5C, flagged missing in Wave 10F cross-review. As of today `scripts/lint_column_suffixes.py` does not exist. I am diagnosing the dead-letter class in others while maintaining my own.
+
+3. **No proactive escalation on legacy `interpretation_metadata.json` gaps after Wave 10F.** Had visibility of the gap; did not convert to BL entry. Ray backfilled reactively after Quincy's cloud-verify failures. Earlier escalation would have shortened the loop.
+
+### Lesson retention assessment
+
+Mixed. Retained and applied: DATA-D5/D6/D11 gates, FRED OAS truncation, DATA-D6b lint. Not operationalized: DATA-D12 linter (written twice, never built), orphan-artifact pipeline patch. Net verdict: good at writing rules, slow at building enforcement tools.
+
+### Cross-agent friction points
+
+- **Evan (10G.4A → 10G.4C):** No friction. Pre-disclosed splice note absorbed without rework.
+- **Ray (10I.A backfill):** Ray inferred migration spec without a Dana-provided migration checklist. Worked, but shifted inference burden to Ray. A "legacy backfill guide" was the missing deliverable.
+- **Ace/Quincy (10I.A cascade):** Wave 10F gap findings not converted to BL entries. Downstream agents bore discovery cost.
+
+### Open issues / debates
+
+1. **DATA-D12 linter: dead-letter rule.** `scripts/lint_column_suffixes.py` does not exist. P1. Owner: Dana.
+2. **DATA-D13 manifest: stale for legacy pairs.** `data/manifest.json` has HY-IG v2 entries only. 6 legacy pairs have no entry. Cross-pair data provenance unverifiable.
+3. **`indicator_type: "production"` on `indpro_spy` is outside controlled vocabulary.** Enum is `{macro, credit, volatility, rates, survey, housing}`. Not schema-bump-coordinated with Evan. Latent correctness risk if Evan's Rule C1 branches on this field.
+
+### Key lessons to carry forward
+
+1. Write the enforcement script in the same commit as the rule. A rule without a script is debt.
+2. Cross-review findings are backlog candidates, not observations. Convert immediately to BL entries.
+3. Proactive gap escalation beats reactive fire-fighting. Seeing a gap and not logging it is a process failure.
+4. Migration checklists are data-agent deliverables. Schema version changes must ship with a backfill guide.
+
+---
+
+**NOTE — experience.md write blocked:** Write/Edit/Bash to `~/.claude/agents/data-dana/experience.md` was denied in this session. Full reflection is preserved here in session-notes.md. Recommend Lead grant `~/.claude/agents/**` write permission (same fix pattern as `b3facc8`) so the global profile can be updated.
+
+---
+
+## 2026-04-24 — Wave 10J/10K Checkpoint
+
+**Scope:** Self-reflection + META-CPD cross-reference added to Data Dana SOP.
+
+**Work done:**
+1. Self-reflection round completed: authored full `### 2026-04-24 — Self-Reflection Round` section above covering what went well, what fell short, lesson retention, cross-agent friction, open issues, and key lessons.
+2. Added META-CPD (Commit-Push Discipline) cross-reference to `docs/agent-sops/data-agent-sop.md` (commit `d013b08`). Rule mandates that every `git commit` is immediately followed by `git push origin main` — no deferred pushes.
+3. Experience entry for the commit-without-push anti-pattern added to global profile (write succeeded this session per Lead's permission fix).
+
+**META-CPD lesson reinforced:** commit `d013b08` itself was immediately followed by push — no accumulation.
+
+**Wave 10J closure:** Quincy full adversarial verify 60/60 PASS. Wave APPROVED.
+
+**Outstanding (not dispatched to Dana this wave):**
+- `scripts/lint_column_suffixes.py` — DATA-D12 dead-letter rule. Still not built. Carried forward.
+- DATA-D13 manifest stale for legacy pairs (6 pairs missing). Not yet dispatched.
+- `indicator_type: "production"` enum gap on `indpro_spy` — latent correctness risk.
+
+*Dana — Wave 10J/10K checkpoint, 2026-04-24*

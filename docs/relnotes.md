@@ -1,5 +1,43 @@
 # Release Notes
 
+## 2026-04-24 — Wave 10J/10K: META-CPD Discipline + Self-Reflection Round — **COMPLETE**
+
+**Final verify: 60/60 PASS** (Quincy `3086bb7`). Wave 10J closes with all agents having completed a structured self-reflection round and the META-CPD (Commit-Push Discipline) rule propagated to all five agent SOPs.
+
+### What changed
+
+**New rule: META-CPD — Commit-Push Discipline** (added to `docs/agent-sops/team-coordination.md` and all 5 agent SOPs)
+- Every `git commit` MUST be immediately followed by `git push origin main` within the same turn.
+- No deferred pushes. No "push at EOD" accumulation.
+- Motivation: agents were committing silently without pushing; downstream agents and cloud deploys operated on stale HEAD.
+
+**Self-reflection round (all 5 agents):**
+Each agent authored a structured reflection covering: what went well, what fell short, lesson retention, cross-agent friction, open debates, and key lessons to carry forward. Highlights:
+- **Dana:** DATA-D12 linter script is a persistent dead letter (rule without enforcement). Cross-review findings not converted to BL entries — escalation discipline gap.
+- **Evan:** ECON-UD "optional for non-reference pairs" was a process debt. Direction reconciliation (ECON-DIR1) now mandatory.
+- **Ray:** RES-17 was a TODO block that lived too long. RES-OD1 direction reconciliation gate added.
+- **Vera:** VIZ-HZE1 retro-apply forced. ACE-HZE1 triggered by gap in three-agent chart chain.
+- **Ace:** ACE-HZE1 authored — `HISTORY_ZOOM_EPISODES` must be populated whenever upstream data exists; silent omission prohibited.
+
+### HZE1 retro-apply (Vera + Ray + Ace)
+
+- Vera: `history_zoom` charts generated for 8 pairs (29 charts + 31 sidecars, commit `20669d9`)
+- Ray: `HISTORY_ZOOM_EPISODES` narratives authored for 8 pairs (commit in same wave)
+- Ace: `HISTORY_ZOOM_EPISODES` wired into 8 pair configs (`816444f`)
+- Exception: `vix_vix3m_spy` dot_com episode skipped per VIZ-HZE1 rationale; `_meta.json` documents decision (`2f15547`)
+
+### Commits (chronological)
+
+`20669d9` Vera HZE1 retro-apply (8 pairs) · `816444f` Ace HZE1 config wire-up · `2f15547` Vera vix dot_com skip · `d99e7da` Ace note for dot_com omission · `3086bb7` Quincy 60/60 wave verify · SOP commits: `da8f534` (Vera) · `d013b08` (Dana) · `00f27d9` (Ray) · `57e53b5` (Evan) · `66b58d3` (Ace)
+
+### Lessons
+
+- **A rule without an enforcement script is debt.** DATA-D12 (column-suffix canon) had no linter; manually applied once, silently violated thereafter. Author the tool in the same commit as the rule.
+- **Three-agent chains need a closing rule.** Ray provides frontmatter → Vera generates charts → Ace populates config. Without ACE-HZE1, the last link was advisory. Silent omission propagated to 8 pairs with no error.
+- **Cross-review findings are backlog candidates, not observations.** Dana found the HZE1 gap in Wave 10F cross-review and logged it as a finding, not a BL entry. Ray backfilled reactively after Quincy's cloud-verify failures.
+
+---
+
 ## 2026-04-23 — Wave 10I.C: Quality Gate Overhaul + Portal Error Elimination — **COMPLETE**
 
 **Final verify: 41/41 PASS** (Quincy `0cedde6`). User inspection triggered a comprehensive adversarial DOM audit that exposed 20 visible failures across 9 classes — all invisible to the prior structural verify. Wave 10I.C resolves every failure class and rebuilds the quality gate from the ground up.

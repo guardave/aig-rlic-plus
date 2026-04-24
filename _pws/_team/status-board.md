@@ -1,17 +1,124 @@
 # Team Status Board
 
+## 2026-04-24 — Data Dana (Wave 10J/10K checkpoint — META-CPD + self-reflection)
+
+**Status:** Checkpoint complete.
+
+**Accomplished this wave:**
+- Added META-CPD cross-reference to `docs/agent-sops/data-agent-sop.md` (commit `d013b08`). Rule: every `git commit` MUST be immediately followed by `git push origin main`. No deferred pushes.
+- Authored full self-reflection entry covering 10 waves of data-agent work — what held, what failed, cross-agent friction, open debates.
+- Experience entry for commit-without-push anti-pattern promoted to global profile.
+
+**Key finding from self-reflection:**
+- DATA-D12 linter script (`scripts/lint_column_suffixes.py`) is a persistent dead letter — rule exists, manual retro-apply done, script never built. Diagnosing the dead-letter class in others while maintaining my own.
+- Cross-review findings (Wave 10F) were never converted to BL entries — downstream agents bore discovery cost. Proactive gap escalation beats reactive fire-fighting.
+
+**Blockers/issues:**
+- `~/.claude/agents/data-dana/experience.md` write was denied during self-reflection session (no Lead permission fix at that time). Reflection preserved in `session-notes.md`.
+
+**Outstanding items carried forward:**
+- `scripts/lint_column_suffixes.py` — DATA-D12 dead-letter rule. P1.
+- DATA-D13 manifest stale for 6 legacy pairs.
+- `indicator_type: "production"` enum gap on `indpro_spy`.
+
+**Next steps:** Await next wave dispatch. Ready for DATA-D12 linter build if Lead authorizes.
+
+---
+
+## 2026-04-24 — Dev Ace (ACE-HZE1 self-reflection — SOP gap closed)
+
+**Finding:** "How the Signal Performed in Past Crises" section is silently absent from 8 of 9 pair Story pages. Root cause: `HISTORY_ZOOM_EPISODES` is defined only in `hy_ig_spy_config.py`. The template correctly renders the section when the field is present; when absent, it silently skips — no error, no placeholder, no QA signal.
+
+**Three-agent chain had no closing rule.** Ray provides episode frontmatter (RES-ZOOM1). Vera generates `history_zoom_{slug}.json` charts (VIZ-ZOOM1). The template renders when `HISTORY_ZOOM_EPISODES` is populated. Ace had no rule mandating it read the upstream handoffs and populate this field for every pair.
+
+**Resolution:** New SOP rule **ACE-HZE1** added to `docs/agent-sops/appdev-agent-sop.md`. Key provisions:
+- Ace MUST audit Ray's handoff and `ls output/charts/{pair_id}/plotly/history_zoom_*.json` at config-authorship time.
+- If either has episode data, `HISTORY_ZOOM_EPISODES` MUST be populated.
+- If Vera's chart is missing for a listed slug → file Vera blocker, do NOT silently omit the entry.
+- If Ray's narrative is missing → file Ray blocker (hard block — Ace cannot author narrative per LEAD-DL1).
+- If genuinely no episode data from either → record explicit omission decision in Ace handoff note.
+
+**Retrospective audit needed (Wave 10K):** all 8 configs missing `HISTORY_ZOOM_EPISODES` must be re-checked against Ray's handoffs and Vera's chart directories. Configs where zoom charts exist must be updated.
+
+**Cross-agent notice:** Ray: ensure every handoff includes `history_zoom_episodes` frontmatter before config ship. Vera: watch for `ACE-HZE1 BLOCKER [Vera]` entries. Quincy: consider adding GATE-CL check — config entry count vs disk file count per pair.
+
+**Scope:** SOP edit only + experience file + this board. No config files, page files, or other agent SOPs touched. LEAD-DL1 clean.
+
+---
+
 ## Cross-Agent Impact Log
 
 *Protocol: defined in `docs/agent-sops/team-coordination.md` §Cross-Agent Impact Log Protocol (D3a). All agents read this table at SOD and act on any entry where they appear in `affected_agents`.*
 
 | rule_id | authored_by | affected_agents | action_required | wave |
 |---------|-------------|-----------------|-----------------|------|
+| VIZ-HZE1 | Vera | Ace, Quincy | Ace: Story page "How the Signal Performed in Past Crises" section currently missing for 8 pairs — history_zoom_*.json charts are absent. Block any new pair handoff from Vera until VIZ-HZE1 gate is confirmed PASS in the handoff note. Quincy: add GATE-VIZ-HZE1 to cloud_verify.py — for each pair in portal scope, assert at least one `history_zoom_*.json` is committed and loaded (non-placeholder) on the Story page. | 10J/10K |
 | ECON-CP1/CP2 | Evan | Vera, Ray, Ace, Quincy | Vera: generate VIZ-CP1 charts for cross-period comparison; Ray: provide RES-CP1 narrative framing for cross-period sections; Ace: wire cross-period chart references into page templates; Quincy: add STUB check for cross-period section to cloud_verify.py | 10J |
 | VIZ-NBER1 | Vera | Quincy | Add GATE-VIZ-NBER1 to cloud_verify.py — portal-level NBER shading check via HTML content scan for "NBER" or shading-related class | 10J |
 | VIZ-ZOOM1 | Vera | Ray | Provide zoom episode narratives per RES-ZOOM1 — one narrative block per canonical episode slug for each pair Ray authors | 10J |
 | RES-OD1a/b/c | Ray | Quincy | Verify OD1 batch log exists in handoff before sign-off — cloud_verify.py must check that `results/{pair_id}/od1_batch_log.md` (or equivalent) is present and non-empty | 10J |
 | GATE-CL6 | Ace | Quincy | Add cross-period section check to HABIT-QA1 DOM read — verify cross-period section renders in portal DOM for all pairs that declare cross-period content in their config | 10J |
 | RES-EPIS1 | Ray | Evan, Vera, Ray | Read episodes from docs/schemas/episode_registry.json keyed on indicator_category — replace all hardcoded episode lists in ECON-CP1, RES-CP1, VIZ-ZOOM1 | Wave 10K |
+| RES-HZE1 | Ray | Ace, Ray | **Ace:** pair config acceptance gate — refuse any Ray handoff that lacks a populated `HISTORY_ZOOM_EPISODES` list (slug/title/narrative/caption) or contains unregistered slugs. **Ray:** every future pair config handoff MUST include `HISTORY_ZOOM_EPISODES` block validated against `docs/schemas/episode_registry.json`. Retroactive backfill of existing pairs required before next Quincy smoke run. | 2026-04-24 |
+| ACE-HZE1 | Ace | Ray, Vera, Quincy | **Ray:** ensure every pair handoff includes `history_zoom_episodes` frontmatter before Ace authors config — Ace blocks config ship if narratives are absent when Vera zoom charts are present. **Vera:** watch for `ACE-HZE1 BLOCKER [Vera]` entries in status board; generate missing `history_zoom_{slug}.json` files to unblock. **Quincy:** consider GATE-CL check — count `HISTORY_ZOOM_EPISODES` config entries vs `history_zoom_*.json` files on disk per pair — mismatch = gate failure. | 2026-04-24 |
+
+---
+
+---
+
+## 2026-04-24 — Viz Vera (VIZ-HZE1 SOP Gap Remediation)
+
+**Status:** Completed.
+
+**Finding:** `history_zoom_{slug}.json` charts exist only for `hy_ig_spy` and `hy_ig_v2_spy`. 8 other pairs have zero zoom charts committed to disk. The "How the Signal Performed in Past Crises" section on those Story pages is silently empty.
+
+**Root cause:** Rules VIZ-ZOOM1 and VIZ-V1 specified zoom chart production requirements and mechanics, but neither contained a pre-handoff gate that mechanically verified every required slug was committed before Ace dispatch. Structural smoke (VIZ-CV1) only validates charts that exist — it cannot detect charts that are absent. A producer working from the SOP could generate one zoom chart and hand off without realising additional slugs for the pair's `indicator_category` were also required.
+
+**Shipped:**
+- New SOP rule **VIZ-HZE1** in `docs/agent-sops/visualization-agent-sop.md` — mandates `git ls-files output/charts/{pair_id}/plotly/history_zoom_{slug}.json` gate per required slug before handoff. Includes skip protocol for pairs where data does not cover an episode (data coverage gap → `_meta.json` structured skip entry). Gate result must appear verbatim in handoff note. Gate verdict FAIL is a blocker.
+- Experience entry added to `~/.claude/agents/viz-vera/experience.md` — failure mode class: "SOP rule without a production enumeration gate."
+- Cross-agent impact entry added to impact log (Ace + Quincy actions required).
+
+**Affected agents (action required):**
+- **Ace:** Block Vera handoffs lacking a VIZ-HZE1 gate-PASS confirmation in the handoff note. 8 pairs still lack zoom charts — next Vera dispatch will generate them per VIZ-ZOOM1 + VIZ-HZE1.
+- **Quincy:** Add GATE-VIZ-HZE1 to `scripts/cloud_verify.py` — for each pair in portal scope, assert at least one `history_zoom_*.json` is loaded (non-placeholder) on the Story page.
+
+**Scope discipline:** Touched only own SOP, own experience file, and this shared status board. META-AM clean.
+
+## 2026-04-24 — Research Ray (RES-HZE1 SOP Gap Reflection)
+
+**Status:** SOP update complete.
+
+**Finding.** The "How the Signal Performed in Past Crises" Story section was silently absent across all pairs except HY-IG v2. Root cause: Ray authored episode triad in narrative frontmatter (`historical_episodes_referenced`, per RES-17/RES-20) but never produced the `HISTORY_ZOOM_EPISODES` Python list that Ace's `APP-PT1` template reads from the pair config class. No prior SOP rule required the config-side block. Ace had no machine-readable episodes to render.
+
+**Fix applied.**
+- New blocking rule **RES-HZE1** added to `docs/agent-sops/research-agent-sop.md` (after RES-20).
+- Rule requires: every pair config handoff includes a fully populated `HISTORY_ZOOM_EPISODES` list; slugs match `docs/schemas/episode_registry.json` for the pair's `indicator_category`; triad per RES-20 cross-checked before delivery; Ace's acceptance gate now blocks missing or malformed blocks.
+- `experience.md` updated at `~/.claude/agents/research-ray/experience.md`.
+
+**Action required (Ace):** add `HISTORY_ZOOM_EPISODES` presence/slug-validity check to pair config acceptance gate. See cross-agent impact log row above.
+
+**Action required (Ray — retroactive):** populate `HISTORY_ZOOM_EPISODES` in all 5 existing pair configs (indpro_spy, sofr_ted_spy, permit_spy, vix_vix3m_spy, hy_ig_spy) before next Quincy smoke run. Coordinate with Lead for dispatch timing.
+
+---
+
+## 2026-04-24 — QA Quincy (GATE-HZE1 Gap Identification and SOP Extension)
+
+**Status:** SOP updated. Action items for Ace captured in Cross-Agent Impact Log. No cloud verify triggered — SOP/tooling reflection wave only.
+
+**Finding:** GATE-28 has a structural blind spot — silent section absence. When `HISTORY_ZOOM_EPISODES` is missing from a pair config, the "How the Signal Performed in Past Crises" Story section does not render. No Python error, no `chart_pending` text, no diagnostic string. Both GATE-28 assertions (zero errors, zero placeholders) pass while the section is entirely absent. The section is structurally mandatory on Story pages — same tier as breadcrumb nav and the Evidence Level 1/Level 2 tab hierarchy — but had no positive-presence gate.
+
+**Root cause class:** GATE-28 was designed to catch content that rendered wrongly (errors, placeholders). It cannot catch content that did not render at all. Silent omissions require positive-assertion checks. This is a distinct failure class from anything previously gated.
+
+**Actions taken (Quincy only — LEAD-DL1 respected):**
+- `docs/agent-sops/qa-agent-sop.md`: new rule **GATE-HZE1** added in QA-CL4 section as an extension to GATE-28. Defines: heading string to assert (`"How the Signal Performed in Past Crises"`); two-valued failure disposition (FAIL if `history_zoom_*.json` charts committed + heading absent = Ace/config bug; WARN if no zoom charts yet = Vera blocker); full verification pseudocode for `scripts/cloud_verify.py`; cross-references to VIZ-ZOOM1, RES-ZOOM1, GATE-28, HABIT-QA1.
+- `~/.claude/agents/qa-quincy/experience.md`: Pattern 30 added — "Silent feature absence is harder to catch than errors — gate it explicitly."
+
+**Cross-agent actions required (Lead to dispatch):**
+- **Ace:** Implement the GATE-HZE1 check in `scripts/cloud_verify.py` per the pseudocode in the GATE-HZE1 SOP section. Wire into `check_page()` Story-page branch. Script-only; no portal code required.
+- **Vera (informational):** Once VIZ-ZOOM1 zoom charts are committed for any pair, GATE-HZE1 WARN auto-promotes to FAIL on the next cloud verify until heading is confirmed present in Story DOM. No Vera action needed now.
+
+**Scope discipline:** Zero writes to agent-owned files, scripts, or portal code. Only own SOP, own experience.md, and this status board touched.
 
 ---
 
