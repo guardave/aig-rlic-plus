@@ -8,6 +8,28 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-04-23 — Wave 10I.C Closure: Quality Gate Overhaul + 6 New SOP Rules
+
+**Final verify (commit `0cedde6`):** 41/41 PASS. 10 visible-error failure classes eliminated. Quality gate rebuilt from structural-marker checking to adversarial DOM content inspection.
+
+**New rules — binding immediately:**
+
+- **HABIT-QA1** (Quincy / `qa-agent-sop.md`): After every cloud verify run, Quincy reads ≥3 Strategy-page DOM text files and writes one-sentence sign-off in session-notes. Script PASS is necessary but not sufficient for wave closure.
+- **ECON-UD blocking** (Evan / `econometrics-agent-sop.md`): `signal_scope.json` is now a blocking required artifact for ALL pairs, not reference pairs only. Prior "strongly recommended" classification caused 6 Methodology pages to show unavailability banners.
+- **ECON-DIR1** (Evan / `econometrics-agent-sop.md`): Before handoff, reconcile `observed_direction` in `interpretation_metadata.json` against `winner_summary.json.direction`. Include economic interpretation of threshold orientation — a positive OLS coefficient does not imply procyclical if the strategy threshold inverts the direction.
+- **RES-OD1** (Ray / `research-agent-sop.md`): After any write to `interpretation_metadata.json`, assert `observed_direction == winner_summary.direction` before committing. "Preserve verbatim" is not safe for derived assertions.
+- **GATE-CL1-5** (Ace / `appdev-agent-sop.md`): Pre-handoff content audit — check for N/A KPI slots, stub text, sidebar count, label map completeness, and scaling logic correctness before filing handoff.
+- **Pattern 24** (Quincy / `qa-agent-sop.md`): When cloud traceback line-number disagrees with HEAD source at that line, suspect stale Cloud deploy — escalate for manual reboot before further code patches.
+
+**Verify script upgrades (Quincy `0c2b92a`):** `APP_SEV1_PATS` for soft-error banners, `STUB_PATS` for placeholder text, `gate29_parquet_preflight()` pre-browser check, screenshot-all-tabs workflow with shared `index.md` evidence package.
+
+**What agents need to know going forward:**
+- Every agent must verify their own output renders correctly before handoff — not just that artifacts exist or smoke passes.
+- The screenshot evidence package (Quincy's `index.md`) is the shared inspection surface. Each agent inspects their own domain pages from it.
+- `signals_*.parquet` is a deploy-required artifact for every pair that shows a Strategy page. ECON-DS2 (Evan) and GATE-29 (Quincy) both enforce this.
+
+---
+
 ## 2026-04-23 — Wave 10I.A Closure: Legacy Migration + Schema-Drift Backfill Shipped + Pattern 24 Codified
 
 **Final cloud verify (commit `e11dc20`):** 41/41 PASS. 6 legacy hand-written pages (`indpro_spy`, `permit_spy`, `vix_vix3m_spy`, `sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy`) migrated onto APP-PT1 template. Three layered schema-drift defects resolved: `winner_summary.json` v1.1.0 backfill (Evan `a5952e2`), `interpretation_metadata.json` v1.0.0 backfill (Ray `8fc4270`), consumer defensive coerce (Ace `5f2e50d` + `ccb0d5f`, activated by Lead's Cloud reboot after reverify #2 diagnosed staleness).

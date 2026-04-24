@@ -570,3 +570,15 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 - Backlog opened: BL-LEGACY-MIGRATION-AUDIT-GATE, BL-CLOUD-REDEPLOY-TRIGGER, BL-OOS-SPLIT-LEGACY, BL-SIGNAL-COLUMN-RECONCILE.
 - LEAD-DL1 held: zero Lead writes to agent-owned files across the wave. Every fix landed via the responsible agent.
 - Next: Wave 10I.B — Sample (`hy_ig_v2_spy`) Strategy page decommission onto APP-PT1 template.
+
+---
+
+## 2026-04-23 — Wave 10I.C CLOSURE [Lead] — 41/41 PASS, quality gate overhauled
+
+- User inspection triggered adversarial DOM audit: 20 FAILs found across 9 classes, all invisible to prior structural verify.
+- All 4 agents self-diagnosed their own failures from audit evidence. No Lead-supplied analysis.
+- All 10 failure classes eliminated: signals parquets (Evan), traceback + sanity check (Ace), direction banners (Ray), RES-17 stub (Ray), Max DD scale (Ace), N/A KPIs (Ace), signal_scope + stationarity (Evan), sidebar count (Ace).
+- Verify script upgraded: APP_SEV1_PATS, STUB_PATS, GATE-29 pre-flight, screenshot-all-tabs with shared index.md.
+- 6 new binding SOP rules: HABIT-QA1, ECON-UD blocking, ECON-DIR1, RES-OD1, GATE-CL1-5, Pattern 24.
+- Process reform: agents own their failures and their fixes. Lead coordinates, does not diagnose.
+- Next: one more reboot to confirm Ray's 3-way direction triangulation renders on cloud, then wave fully closed.

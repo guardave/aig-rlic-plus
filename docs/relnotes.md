@@ -1,5 +1,68 @@
 # Release Notes
 
+## 2026-04-23 — Wave 10I.C: Quality Gate Overhaul + Portal Error Elimination — **COMPLETE**
+
+**Final verify: 41/41 PASS** (Quincy `0cedde6`). User inspection triggered a comprehensive adversarial DOM audit that exposed 20 visible failures across 9 classes — all invisible to the prior structural verify. Wave 10I.C resolves every failure class and rebuilds the quality gate from the ground up.
+
+### What users see now
+
+All 10 pairs × 4 pages render without red banners, stub text, wrong numbers, or tracebacks. Probability Engine Panel active on all Strategy pages. Direction triangulation now 3-way (Evan + Dana + Ray). Landing card Max DD correct for all pairs. Sidebar shows accurate pair count.
+
+### Failures resolved
+
+| Class | Pairs affected | Root cause | Fix |
+|-------|---------------|------------|-----|
+| Missing signals parquet | 6 legacy pairs (Strategy) | Never generated post-migration | Evan `625a86e`: regenerated from existing data parquets |
+| Python traceback (threshold_value None) | indpro_spy, vix_vix3m_spy | Wrong file patched in Wave 10I.A | Ace `fb101e5`: fixed `probability_engine_panel.py` |
+| Signal magnitude sanity check rejection | umcsent_xlv + 4 TED/permit pairs | ±20 bound designed for z-scores, applied to all | Ace `fb101e5`: check restricted to z-score columns |
+| Direction disagreement banners (APP-DIR1) | indpro_spy, vix_vix3m_spy, sofr_ted_spy, dff_ted_spy | `observed_direction` not reconciled vs tournament winner | Ray `e0a342d`: 4 files corrected |
+| "Ray leg pending" stub on all Strategy pages | All 10 pairs | RES-17 frontmatter migration never implemented in code | Ray `f8fa75d`: 3-way direction_check live |
+| Max DD wrong scale (-0.1% instead of -8.5%) | hy_ig_spy, umcsent_xlv | Hardcoded pair-name scaling logic | Ace `27fb460`: auto-detect from data shape |
+| "vs N/A buy-and-hold" KPI | 8 pairs Story | bh_sharpe/bh_max_drawdown absent from legacy winner_summary | Ace `27fb460`: backfill from tournament CSV on load |
+| Signal universe unavailable (Methodology) | 6 legacy pairs | ECON-UD classified optional for non-reference pairs | Evan `86d13f7`: all 6 signal_scope.json produced |
+| Stationarity tests missing (Methodology) | 3 TED pairs | Pipeline printed to stdout, never saved CSV | Evan `86d13f7`: ADF+KPSS CSVs saved for all 3 |
+| Sidebar "6 of 73" stale count | All pages | Hardcoded, never updated as pairs were added | Ace `27fb460`: updated to 10 |
+
+### New quality gate standard
+
+**Quincy `0c2b92a` — verify script upgraded:**
+- `APP_SEV1_PATS`: catches user-visible soft-error banners ("cannot render", "No signals_", etc.) — not just Python exception class names
+- `STUB_PATS`: catches placeholder text ("vs N/A", "Ray leg pending", "TODO", "Signal universe unavailable")
+- `gate29_parquet_preflight()`: checks `git ls-files results/{pair_id}/signals_*.parquet` before browser opens — hard FAIL if missing
+- Screenshot-all-tabs workflow: default state + every tab state captured per page; `index.md` shared evidence package for all agents
+
+**HABIT-QA1 (new binding SOP rule):** after every verify run, Quincy reads ≥3 Strategy-page DOM text files and writes a one-sentence sign-off in session-notes. Script PASS is necessary but not sufficient.
+
+### Process reform: agents own their own failures
+
+Each agent diagnosed their own gap from the audit evidence — Lead did not hand them the analysis:
+- **Quincy**: found that DOM evidence was on disk but never read; script treated as ceiling not floor
+- **Ace**: found 6 failures in her own code; committed to content audit before every handoff; no more hardcoded pair names in scaling logic
+- **Evan**: found ECON-UD was "optional" for non-reference pairs; pipeline printed instead of saved; ECON-UD now blocking for all pairs; ECON-DIR1 direction reconciliation gate added
+- **Ray**: found RES-17 implementation was a TODO block that was never completed; committed to cross-checking `observed_direction` against tournament ground truth after every write (RES-OD1)
+
+### SOP rules added this wave
+
+- **HABIT-QA1** (Quincy): DOM text read + sign-off mandatory after every verify run
+- **ECON-UD** (Evan): signal_scope.json blocking for ALL pairs, not reference pairs only
+- **ECON-DIR1** (Evan): direction reconciliation gate — cross-check `observed_direction` vs `winner_summary.direction` before handoff
+- **RES-OD1** (Ray): after any write to `interpretation_metadata.json`, assert `observed_direction == winner_summary.direction` before committing
+- **GATE-CL1-5** (Ace): content audit gates — N/A slots, stub text, sidebar count, label maps, scaling logic all checked before handoff
+- **Pattern 24** (Quincy): traceback line vs HEAD mismatch → suspect stale Cloud deploy, escalate for reboot before more patches
+
+### Lessons
+
+- **The verify script was the ceiling, not the floor.** Every agent treated passing an automated check as done. The right habit: automated checks gather evidence; human judgment closes the loop.
+- **"Preserve verbatim" is not safe for derived fields.** Ray's backfill preserved `observed_direction` without checking it against Evan's tournament output. Derived assertions must be reconciled, not just preserved.
+- **Print ≠ save.** Evan's stationarity pipeline wrote results to stdout. Three Methodology pages had no artifact. Any pipeline output that feeds a rendered page must be saved to disk and `os.path.exists()` asserted before advancing.
+- **One screenshot once, shared.** 116 screenshots from a single Playwright run replaced five separate agent browser sessions. Token-efficient and consistent — all agents inspect the same evidence.
+
+### Commits (chronological)
+
+`d925db9` Quincy adversarial audit · `0c2b92a` Quincy script upgrade + HABIT-QA1 · `e0a342d` Ray direction fixes · `27fb460` Ace 6 display fixes · `86d13f7` Evan signal_scope + stationarity · `625a86e` Evan signals parquets · `6bf0956` Quincy screenshot-all-tabs verify · `fb101e5` Ace traceback + sanity check · `f8fa75d` Ray RES-17 3-way direction · `0cedde6` Quincy 41/41 final verify · `e8e5b8c` Ace APP-PR1 path confirmation
+
+---
+
 ## 2026-04-23 — Wave 10I.A: Legacy-Page Migration + Schema-Drift Backfill — **COMPLETE**
 
 **Final verify: 41/41 PASS on cloud** (Quincy commit `e11dc20`). Wave 10I.A migrates 6 legacy hand-written pages (`indpro_spy`, `permit_spy`, `vix_vix3m_spy`, `sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy`) onto the APP-PT1 template and resolves three layered schema-drift defects that surfaced on the Strategy render path. APP-PR1 path-resolution discipline codified as prophylactic SOP before the migration.
