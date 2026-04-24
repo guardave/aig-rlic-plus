@@ -1,0 +1,8 @@
+{
+  "chart_name": "history_zoom_taper_2013",
+  "pair_id": "sofr_ted_spy",
+  "disposition": "skipped",
+  "skip_reason": "Insufficient data in episode window (0 rows)",
+  "viz_hze1_applied": true,
+  "created_at": "2026-04-24T14:23:00Z"
+}

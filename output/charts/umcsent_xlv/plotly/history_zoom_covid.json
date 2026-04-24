@@ -1,0 +1,281 @@
+{
+  "data": [
+    {
+      "name": "UMich Consumer Sentiment",
+      "type": "scatter",
+      "x": [
+        "2019-11-30T00:00:00",
+        "2019-12-31T00:00:00",
+        "2020-01-31T00:00:00",
+        "2020-02-29T00:00:00",
+        "2020-03-31T00:00:00",
+        "2020-04-30T00:00:00",
+        "2020-05-31T00:00:00",
+        "2020-06-30T00:00:00",
+        "2020-07-31T00:00:00",
+        "2020-08-31T00:00:00",
+        "2020-09-30T00:00:00",
+        "2020-10-31T00:00:00",
+        "2020-11-30T00:00:00",
+        "2020-12-31T00:00:00",
+        "2021-01-31T00:00:00",
+        "2021-02-28T00:00:00",
+        "2021-03-31T00:00:00"
+      ],
+      "y": [
+        96.8,
+        99.3,
+        99.8,
+        101.0,
+        89.1,
+        71.8,
+        72.3,
+        78.1,
+        72.5,
+        74.1,
+        80.4,
+        81.8,
+        76.9,
+        80.7,
+        79.0,
+        76.8,
+        84.9
+      ],
+      "mode": "lines",
+      "line": {
+        "color": "#0072B2",
+        "width": 1.5
+      },
+      "yaxis": "y",
+      "hovertemplate": "%{x|%Y-%m-%d}<br>UMich Consumer Sentiment: %{y:.3f}<extra></extra>"
+    },
+    {
+      "name": "XLV Price ($)",
+      "type": "scatter",
+      "x": [
+        "2019-11-30T00:00:00",
+        "2019-12-31T00:00:00",
+        "2020-01-31T00:00:00",
+        "2020-02-29T00:00:00",
+        "2020-03-31T00:00:00",
+        "2020-04-30T00:00:00",
+        "2020-05-31T00:00:00",
+        "2020-06-30T00:00:00",
+        "2020-07-31T00:00:00",
+        "2020-08-31T00:00:00",
+        "2020-09-30T00:00:00",
+        "2020-10-31T00:00:00",
+        "2020-11-30T00:00:00",
+        "2020-12-31T00:00:00",
+        "2021-01-31T00:00:00",
+        "2021-02-28T00:00:00",
+        "2021-03-31T00:00:00"
+      ],
+      "y": [
+        88.97010803222656,
+        92.06207275390625,
+        89.60371398925781,
+        83.70182800292969,
+        80.44805145263672,
+        90.57442474365234,
+        93.55329895019531,
+        91.2682113647461,
+        96.24797058105469,
+        98.73783874511719,
+        96.58489990234375,
+        93.0870361328125,
+        100.48567962646484,
+        104.30192565917969,
+        105.76383209228516,
+        103.53878021240234,
+        107.7086410522461
+      ],
+      "mode": "lines",
+      "line": {
+        "color": "#D55E00",
+        "width": 1.5
+      },
+      "yaxis": "y2",
+      "hovertemplate": "%{x|%Y-%m-%d}<br>XLV Price ($): %{y:.2f}<extra></extra>"
+    }
+  ],
+  "layout": {
+    "title": {
+      "text": "COVID-19 Shock (2020): UMich Consumer Sentiment vs XLV (2020\u20132020)"
+    },
+    "xaxis": {
+      "anchor": "y",
+      "domain": [
+        0.0,
+        1.0
+      ],
+      "matches": "x2",
+      "showticklabels": false
+    },
+    "yaxis": {
+      "anchor": "x",
+      "domain": [
+        0.43,
+        1.0
+      ],
+      "title": {
+        "text": "UMich Consumer Sentiment"
+      }
+    },
+    "xaxis2": {
+      "anchor": "y2",
+      "domain": [
+        0.0,
+        1.0
+      ]
+    },
+    "yaxis2": {
+      "anchor": "x2",
+      "domain": [
+        0.0,
+        0.38
+      ],
+      "title": {
+        "text": "XLV Price ($)"
+      }
+    },
+    "shapes": [
+      {
+        "fillcolor": "rgba(150,120,120,0.22)",
+        "layer": "below",
+        "line": {
+          "width": 0
+        },
+        "type": "rect",
+        "x0": "2020-02-01T00:00:00",
+        "x1": "2020-04-30T00:00:00",
+        "xref": "x",
+        "y0": 0,
+        "y1": 1,
+        "yref": "y domain"
+      },
+      {
+        "fillcolor": "rgba(150,120,120,0.22)",
+        "layer": "below",
+        "line": {
+          "width": 0
+        },
+        "type": "rect",
+        "x0": "2020-02-01T00:00:00",
+        "x1": "2020-04-30T00:00:00",
+        "xref": "x2",
+        "y0": 0,
+        "y1": 1,
+        "yref": "y2 domain"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "UMich Consumer Sentiment",
+        "x": 0.5,
+        "xref": "paper",
+        "xanchor": "center",
+        "y": 1.0,
+        "yref": "paper",
+        "yanchor": "bottom",
+        "showarrow": false,
+        "font": {
+          "size": 16
+        }
+      },
+      {
+        "text": "XLV Price ($)",
+        "x": 0.5,
+        "xref": "paper",
+        "xanchor": "center",
+        "y": 0.38,
+        "yref": "paper",
+        "yanchor": "bottom",
+        "showarrow": false,
+        "font": {
+          "size": 16
+        }
+      },
+      {
+        "text": "Zoom: COVID-19 Shock (2020). Source: FRED / Yahoo Finance. Gray = NBER recession.",
+        "x": 0,
+        "xref": "paper",
+        "xanchor": "left",
+        "y": -0.12,
+        "yref": "paper",
+        "showarrow": false,
+        "font": {
+          "size": 9,
+          "color": "#888888"
+        }
+      },
+      {
+        "x": "2020-02-19T00:00:00",
+        "xref": "x",
+        "y": 101.0,
+        "yref": "y",
+        "text": "Feb 2020: SPX pre-COVID peak",
+        "showarrow": true,
+        "arrowhead": 2,
+        "arrowsize": 0.7,
+        "ax": 0,
+        "ay": -35,
+        "font": {
+          "size": 8,
+          "color": "#4D4D4D"
+        },
+        "bgcolor": "rgba(255,255,255,0.82)",
+        "borderpad": 2
+      },
+      {
+        "x": "2020-03-23T00:00:00",
+        "xref": "x",
+        "y": 89.1,
+        "yref": "y",
+        "text": "Mar 2020: SPX trough + Fed facility",
+        "showarrow": true,
+        "arrowhead": 2,
+        "arrowsize": 0.7,
+        "ax": 0,
+        "ay": -35,
+        "font": {
+          "size": 8,
+          "color": "#4D4D4D"
+        },
+        "bgcolor": "rgba(255,255,255,0.82)",
+        "borderpad": 2
+      },
+      {
+        "x": "2020-04-30T00:00:00",
+        "xref": "x",
+        "y": 71.8,
+        "yref": "y",
+        "text": "Apr 2020: Recession ends",
+        "showarrow": true,
+        "arrowhead": 2,
+        "arrowsize": 0.7,
+        "ax": 0,
+        "ay": -35,
+        "font": {
+          "size": 8,
+          "color": "#4D4D4D"
+        },
+        "bgcolor": "rgba(255,255,255,0.82)",
+        "borderpad": 2
+      }
+    ],
+    "legend": {
+      "orientation": "h",
+      "x": 0,
+      "y": -0.05
+    },
+    "height": 500,
+    "hovermode": "x unified",
+    "margin": {
+      "l": 60,
+      "r": 20,
+      "t": 60,
+      "b": 60
+    }
+  }
+}

@@ -1,0 +1,292 @@
+{
+  "data": [
+    {
+      "name": "UMich Consumer Sentiment",
+      "type": "scatter",
+      "x": [
+        "2021-10-31T00:00:00",
+        "2021-11-30T00:00:00",
+        "2021-12-31T00:00:00",
+        "2022-01-31T00:00:00",
+        "2022-02-28T00:00:00",
+        "2022-03-31T00:00:00",
+        "2022-04-30T00:00:00",
+        "2022-05-31T00:00:00",
+        "2022-06-30T00:00:00",
+        "2022-07-31T00:00:00",
+        "2022-08-31T00:00:00",
+        "2022-09-30T00:00:00",
+        "2022-10-31T00:00:00",
+        "2022-11-30T00:00:00",
+        "2022-12-31T00:00:00",
+        "2023-01-31T00:00:00",
+        "2023-02-28T00:00:00",
+        "2023-03-31T00:00:00"
+      ],
+      "y": [
+        71.7,
+        67.4,
+        70.6,
+        67.2,
+        62.8,
+        59.4,
+        65.2,
+        58.4,
+        50.0,
+        51.5,
+        58.2,
+        58.6,
+        59.9,
+        56.7,
+        59.8,
+        64.9,
+        66.9,
+        62.0
+      ],
+      "mode": "lines",
+      "line": {
+        "color": "#0072B2",
+        "width": 1.5
+      },
+      "yaxis": "y",
+      "hovertemplate": "%{x|%Y-%m-%d}<br>UMich Consumer Sentiment: %{y:.3f}<extra></extra>"
+    },
+    {
+      "name": "XLV Price ($)",
+      "type": "scatter",
+      "x": [
+        "2021-10-31T00:00:00",
+        "2021-11-30T00:00:00",
+        "2021-12-31T00:00:00",
+        "2022-01-31T00:00:00",
+        "2022-02-28T00:00:00",
+        "2022-03-31T00:00:00",
+        "2022-04-30T00:00:00",
+        "2022-05-31T00:00:00",
+        "2022-06-30T00:00:00",
+        "2022-07-31T00:00:00",
+        "2022-08-31T00:00:00",
+        "2022-09-30T00:00:00",
+        "2022-10-31T00:00:00",
+        "2022-11-30T00:00:00",
+        "2022-12-31T00:00:00",
+        "2023-01-31T00:00:00",
+        "2023-02-28T00:00:00",
+        "2023-03-31T00:00:00"
+      ],
+      "y": [
+        124.38583374023438,
+        120.58417510986328,
+        131.460693359375,
+        122.44719696044922,
+        121.26219940185547,
+        128.22039794921875,
+        121.94931030273438,
+        123.76512145996094,
+        120.53727722167969,
+        124.44738006591797,
+        117.26630401611328,
+        114.28927612304688,
+        125.27373504638672,
+        131.1906280517578,
+        128.72726440429688,
+        126.3677978515625,
+        120.50235748291016,
+        123.1507797241211
+      ],
+      "mode": "lines",
+      "line": {
+        "color": "#D55E00",
+        "width": 1.5
+      },
+      "yaxis": "y2",
+      "hovertemplate": "%{x|%Y-%m-%d}<br>XLV Price ($): %{y:.2f}<extra></extra>"
+    }
+  ],
+  "layout": {
+    "title": {
+      "text": "2022 Rates Shock: UMich Consumer Sentiment vs XLV (2022\u20132022)"
+    },
+    "xaxis": {
+      "anchor": "y",
+      "domain": [
+        0.0,
+        1.0
+      ],
+      "matches": "x2",
+      "showticklabels": false
+    },
+    "yaxis": {
+      "anchor": "x",
+      "domain": [
+        0.43,
+        1.0
+      ],
+      "title": {
+        "text": "UMich Consumer Sentiment"
+      }
+    },
+    "xaxis2": {
+      "anchor": "y2",
+      "domain": [
+        0.0,
+        1.0
+      ]
+    },
+    "yaxis2": {
+      "anchor": "x2",
+      "domain": [
+        0.0,
+        0.38
+      ],
+      "title": {
+        "text": "XLV Price ($)"
+      }
+    },
+    "shapes": [],
+    "annotations": [
+      {
+        "text": "UMich Consumer Sentiment",
+        "x": 0.5,
+        "xref": "paper",
+        "xanchor": "center",
+        "y": 1.0,
+        "yref": "paper",
+        "yanchor": "bottom",
+        "showarrow": false,
+        "font": {
+          "size": 16
+        }
+      },
+      {
+        "text": "XLV Price ($)",
+        "x": 0.5,
+        "xref": "paper",
+        "xanchor": "center",
+        "y": 0.38,
+        "yref": "paper",
+        "yanchor": "bottom",
+        "showarrow": false,
+        "font": {
+          "size": 16
+        }
+      },
+      {
+        "text": "Zoom: 2022 Rates Shock. Source: FRED / Yahoo Finance. Gray = NBER recession.",
+        "x": 0,
+        "xref": "paper",
+        "xanchor": "left",
+        "y": -0.12,
+        "yref": "paper",
+        "showarrow": false,
+        "font": {
+          "size": 9,
+          "color": "#888888"
+        }
+      },
+      {
+        "x": "2022-01-03T00:00:00",
+        "xref": "x",
+        "y": 70.6,
+        "yref": "y",
+        "text": "Jan 2022: SPX peak",
+        "showarrow": true,
+        "arrowhead": 2,
+        "arrowsize": 0.7,
+        "ax": 0,
+        "ay": -35,
+        "font": {
+          "size": 8,
+          "color": "#4D4D4D"
+        },
+        "bgcolor": "rgba(255,255,255,0.82)",
+        "borderpad": 2
+      },
+      {
+        "x": "2022-03-16T00:00:00",
+        "xref": "x",
+        "y": 59.4,
+        "yref": "y",
+        "text": "Mar 2022: First Fed hike",
+        "showarrow": true,
+        "arrowhead": 2,
+        "arrowsize": 0.7,
+        "ax": 0,
+        "ay": -35,
+        "font": {
+          "size": 8,
+          "color": "#4D4D4D"
+        },
+        "bgcolor": "rgba(255,255,255,0.82)",
+        "borderpad": 2
+      },
+      {
+        "x": "2022-06-10T00:00:00",
+        "xref": "x",
+        "y": 58.4,
+        "yref": "y",
+        "text": "Jun 2022: CPI 9.1% print",
+        "showarrow": true,
+        "arrowhead": 2,
+        "arrowsize": 0.7,
+        "ax": 0,
+        "ay": -35,
+        "font": {
+          "size": 8,
+          "color": "#4D4D4D"
+        },
+        "bgcolor": "rgba(255,255,255,0.82)",
+        "borderpad": 2
+      },
+      {
+        "x": "2022-10-12T00:00:00",
+        "xref": "x",
+        "y": 58.6,
+        "yref": "y",
+        "text": "Oct 2022: SPX cycle low",
+        "showarrow": true,
+        "arrowhead": 2,
+        "arrowsize": 0.7,
+        "ax": 0,
+        "ay": -35,
+        "font": {
+          "size": 8,
+          "color": "#4D4D4D"
+        },
+        "bgcolor": "rgba(255,255,255,0.82)",
+        "borderpad": 2
+      },
+      {
+        "x": "2023-03-10T00:00:00",
+        "xref": "x",
+        "y": 66.9,
+        "yref": "y",
+        "text": "Mar 2023: SVB collapse",
+        "showarrow": true,
+        "arrowhead": 2,
+        "arrowsize": 0.7,
+        "ax": 0,
+        "ay": -35,
+        "font": {
+          "size": 8,
+          "color": "#4D4D4D"
+        },
+        "bgcolor": "rgba(255,255,255,0.82)",
+        "borderpad": 2
+      }
+    ],
+    "legend": {
+      "orientation": "h",
+      "x": 0,
+      "y": -0.05
+    },
+    "height": 500,
+    "hovermode": "x unified",
+    "margin": {
+      "l": 60,
+      "r": 20,
+      "t": 60,
+      "b": 60
+    }
+  }
+}
