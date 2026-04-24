@@ -1,0 +1,21 @@
+# Loader smoke test  pair_id=indpro_xlp  timestamp=2026-04-24T15:54:15
+# Pages scanned: 4
+#   app/pages/14_indpro_xlp_evidence.py
+#   app/pages/14_indpro_xlp_methodology.py
+#   app/pages/14_indpro_xlp_story.py
+#   app/pages/14_indpro_xlp_strategy.py
+
+
+# Dynamic charts (Evidence render_method_block helper)
+
+# APP-PT1 template + pair_config chart scans
+PASS  app/pair_configs/indpro_xlp_config.py:76  chart=hero  traces=2  title='Industrial Production Growth vs Consumer Staples ETF (XLP, 1998-2025)'
+PASS  app/pair_configs/indpro_xlp_config.py:86  chart=regime_stats  traces=1  title='XLP Sharpe Ratio by INDPRO YoY Growth Quartile'
+PASS  app/pair_configs/indpro_xlp_config.py:499  chart=equity_curves  traces=4  title='Equity Curves: Top Strategies vs Buy-and-Hold XLP (OOS 2019-01-2025)'
+PASS  app/pair_configs/indpro_xlp_config.py:500  chart=drawdown  traces=2  title='Drawdown Comparison: Winner Strategy vs Buy-and-Hold XLP (OOS)'
+PASS  app/pair_configs/indpro_xlp_config.py:501  chart=walk_forward  traces=2  title='Walk-Forward Rolling Sharpe: Winner vs Buy-and-Hold XLP (OOS)'
+PASS  app/pair_configs/indpro_xlp_config.py:502  chart=tournament_scatter  traces=4  title='Tournament Results: 3,331 Combinations (2,691 Valid)'
+PASS  indpro_xlp/template-registry  chart=correlations  traces=2  title='Rolling Correlation: INDPRO YoY vs XLP Monthly Return'
+PASS  indpro_xlp/template-registry  chart=ccf  traces=1  title='Cross-Correlation: INDPRO YoY Growth vs XLP Monthly Return'
+
+# RESULT  passes=8  failures=0

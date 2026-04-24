@@ -1,4 +1,4 @@
-# Loader smoke test  pair_id=vix_vix3m_spy  timestamp=2026-04-24T00:09:25
+# Loader smoke test  pair_id=vix_vix3m_spy  timestamp=2026-04-24T15:54:16
 # Pages scanned: 4
 #   app/pages/8_vix_vix3m_spy_evidence.py
 #   app/pages/8_vix_vix3m_spy_methodology.py
@@ -11,6 +11,6 @@
 # APP-PT1 template + pair_config chart scans
 PASS  app/pair_configs/vix_vix3m_spy_config.py:69  chart=vix_vix3m_spy_hero  traces=2  title='VIX/VIX3M Ratio vs S&P 500 (2007-2025)'
 PASS  app/pair_configs/vix_vix3m_spy_config.py:80  chart=vix_vix3m_spy_regime_stats  traces=1  title='SPY Sharpe by VIX/VIX3M Quartile'
-PASS  app/pair_configs/vix_vix3m_spy_config.py:363  chart=vix_vix3m_spy_tournament_scatter  traces=3  title='Tournament: 916 Combos (331 Valid)'
+PASS  app/pair_configs/vix_vix3m_spy_config.py:386  chart=vix_vix3m_spy_tournament_scatter  traces=3  title='Tournament: 916 Combos (331 Valid)'
 
 # RESULT  passes=3  failures=0
