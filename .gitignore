@@ -50,3 +50,6 @@ temp/
 
 # Local reconstructed ICE/FRED archive (manual, terms-gated)
 data/legacy_fred_archive/
+
+# Devcontainer generated lock file
+.devcontainer/devcontainer-lock.json
