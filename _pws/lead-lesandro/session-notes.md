@@ -364,3 +364,62 @@ Two-day multi-agent intensive running from SOP hardening Part F through Wave 9 c
 - Wave 4D-1 schema migration passed every mechanical check but shipped a user-visible bug → led to META-UC, but ideally should have been caught producer-side
 - Three force-redeploy incidents — infrastructure-level investigation required, workaround is not a fix
 - Agent memory files stayed static for 8 waves — SOPs absorbed the wisdom, agents did not → led to META-AM
+
+## 2026-04-30 — Lead Review: Repeatability, Statistical Honesty, and ELI5 Evidence Layer
+
+Reviewed branch `260430` after rebuilding the devcontainer and confirming the remediated environment works. Key infrastructure checks passed: `FRED_API_KEY` present, `CODEX_HOME=/home/vscode/.codex`, Codex mount active, Chromium available, Kaleido PNG smoke test passed. Follow-up fix committed for Python 3.14: `pandas-datareader` is now conditional below Python 3.14 and the legacy fallback handles incompatibility cleanly.
+
+### Main Learning
+
+The current tournament framework is useful as a discovery engine, but the dashboard language should not imply confirmation. The right plain-English framing is: **"Best rule found in the search"** by default, not **"confirmed predictor."** The user responded strongly to this ELI5 distinction, especially the explanation that trying many signal recipes is fine, but the winner may partly be the luckiest recipe unless it passes a separate final exam.
+
+### Statistical-Honesty Decision
+
+Adopt a two-layer interpretation model:
+
+1. **Discovery layer:** current tournament searches many raw-series derivatives, thresholds, leads, and position rules. Output status: `found_in_search`.
+2. **Confirmation layer:** future P2 work tests the selected rule as if it had to work in real time, using walk-forward validation, untouched holdout/final exam, block bootstrap, and multiple-testing/luck adjustment.
+
+Dashboard copy should be ELI5-first:
+
+- `found_in_search`: "Best rule we found in the search. Promising, but not final-exam confirmed."
+- `needs_final_exam`: "We tried many recipes, so this winner needs a final exam on data it did not help choose."
+- `walk_forward_passed`: "Worked when tested like real time, using only past information."
+- `passed_final_exam`: "Passed the final exam on data held back from the search."
+
+### Implementation Strategy Agreed
+
+Proceed incrementally without regenerating existing static artifacts first:
+
+1. Add UI honesty layer now. If no new evidence artifact exists, infer `found_in_search` from existing tournament/winner artifacts.
+2. Add a canonical optional artifact: `results/{pair_id}/evidence_status.json`.
+3. Add `docs/schemas/evidence_status.schema.json` plus an example.
+4. Update app Strategy/landing components to read it when present and otherwise show the inferred ELI5 default.
+5. Update SOPs: tournament winners are discovery-grade until confirmation artifacts exist.
+6. Later P2 pipeline work can produce confirmation artifacts and promote pairs to stronger tiers. Existing pairs do not need immediate regeneration.
+
+### Schema Review Learning
+
+Existing schemas are helpful but not yet fully canonical for scale. `winner_summary`, `interpretation_metadata`, `signal_scope`, and `analyst_suggestions` are valuable contracts, but gaps remain:
+
+- No canonical schema for `tournament_results_*.csv`.
+- `tournament_winner.json` is described in SOPs but lacks a dedicated schema file.
+- No canonical evidence/confidence tier artifact yet.
+- `winner_summary` lacks discovery/confirmation fields such as tested combinations, selection window, final-exam status, and multiple-testing adjustment.
+- `interpretation_metadata` vocabulary has drift: prose says canonical 7 indicator types, schema enum also includes `survey` and `housing`.
+- Some schemas intentionally tolerate extra fields, which helps migration but weakens scale discipline.
+
+### Engineering Review Learning
+
+Major repeatability and maintainability findings from the review:
+
+- `.venv/` is tracked in git: 5,583 tracked files, about 280 MB. This should be removed and ignored in a hygiene pass.
+- There is no single canonical reproduction command such as `make reproduce PAIR=...`.
+- Per-pair pipeline scripts are large and duplicated; future consolidation should introduce shared tournament/validation modules.
+- Many scripts swallow exceptions in loops; this is acceptable for exploratory sweeps only if failures are counted and emitted as diagnostics.
+- Most pairs are not at the same completeness standard as the sample/reference pair.
+
+### Next Session Starter
+
+Start with the low-impact artifact-free change: implement ELI5 evidence-status display and schema scaffolding. Do not rerun pipelines yet. Default all pairs without `evidence_status.json` to `found_in_search` and make the dashboard wording explicit that the current winner is promising but not final-exam confirmed.
+
