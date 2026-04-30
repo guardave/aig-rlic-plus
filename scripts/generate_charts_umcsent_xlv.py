@@ -21,6 +21,7 @@ Date: 2026-04-20
 """
 
 import os
+from pathlib import Path
 import json
 import warnings
 import numpy as np
@@ -30,7 +31,7 @@ from plotly.subplots import make_subplots
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = str(Path(__file__).resolve().parents[1])
 PAIR_ID = "umcsent_xlv"
 DATE_TAG = "20260420"
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)

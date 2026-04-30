@@ -17,7 +17,7 @@ from plotly.subplots import make_subplots
 warnings.filterwarnings("ignore")
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-BASE = Path("/workspaces/aig-rlic-plus")
+BASE = Path(__file__).resolve().parents[1]
 
 
 def load_episodes(pair_id: str) -> list:

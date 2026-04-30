@@ -11,6 +11,7 @@ Produces per-pair:
 """
 
 import os
+from pathlib import Path
 import json
 import glob
 import warnings
@@ -21,7 +22,7 @@ import traceback
 
 warnings.filterwarnings("ignore")
 
-BASE = "/workspaces/aig-rlic-plus"
+BASE = str(Path(__file__).resolve().parents[1])
 
 # ── Pair configuration ────────────────────────────────────────────────────────
 PAIRS = [

@@ -28,6 +28,7 @@ import os
 import sys
 import json
 import warnings
+from pathlib import Path
 import time
 from datetime import datetime
 
@@ -48,7 +49,7 @@ START_DATE = "1998-01-01"
 END_DATE = "2025-12-31"
 DATE_TAG = "20260420"
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = str(Path(__file__).resolve().parents[1])
 DATA_DIR = os.path.join(BASE_DIR, "data")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")

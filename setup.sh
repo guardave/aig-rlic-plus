@@ -76,6 +76,29 @@ fi
 
 echo "  -> Python packages installed."
 
+
+# Plotly static export needs Chrome/Chromium for Kaleido v1+.
+echo ""
+echo "[2b/5] Checking chart export browser..."
+if command -v google-chrome &>/dev/null || command -v chromium &>/dev/null || command -v chromium-browser &>/dev/null; then
+  echo "  -> Chrome/Chromium found."
+else
+  ARCH="$(uname -m)"
+  if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+    echo "  -> Installing native Chromium for ARM64..."
+    if command -v sudo &>/dev/null; then
+      sudo apt-get update -y && sudo apt-get install -y chromium
+    else
+      apt-get update -y && apt-get install -y chromium
+    fi
+  elif command -v plotly_get_chrome &>/dev/null; then
+    echo "  -> Installing Chrome via plotly_get_chrome..."
+    plotly_get_chrome -y || echo "  WARN: plotly_get_chrome failed; PNG export may require manual Chrome install."
+  else
+    echo "  WARN: No Chrome/Chromium installer found; PNG export may require manual Chrome install."
+  fi
+fi
+
 # --------------------------------------------------------------------------
 # 3. MCP Servers (8 total — budget max 10)
 # --------------------------------------------------------------------------
@@ -207,6 +230,13 @@ packages = [
     ('plotly',       'plotly'),
     ('yfinance',     'yfinance'),
     ('fredapi',      'fredapi'),
+    ('pandas-datareader', 'pandas_datareader'),
+    ('shap',         'shap'),
+    ('ruptures',     'ruptures'),
+    ('hmmlearn',     'hmmlearn'),
+    ('streamlit',    'streamlit'),
+    ('kaleido',      'kaleido'),
+    ('pyarrow',      'pyarrow'),
 ]
 ok, fail = 0, 0
 for name, mod in packages:

@@ -15,10 +15,16 @@ from statsmodels.tsa.stattools import grangercausalitytests
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
 import pickle
 import warnings
+from pathlib import Path
 warnings.filterwarnings('ignore')
 
-OUT = '/workspaces/aig-rlic-plus/results/core_models_20260228'
-df = pd.read_parquet('/workspaces/aig-rlic-plus/data/hy_ig_spy_daily_20000101_20251231.parquet')
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / 'results' / 'core_models_20260228'
+OUT.mkdir(parents=True, exist_ok=True)
+DATASET = ROOT / 'data' / 'hy_ig_spy_daily_20000101_20251231.parquet'
+if not DATASET.exists():
+    raise FileNotFoundError(f'Missing required dataset: {DATASET}. Run the HY-IG pipeline first.')
+df = pd.read_parquet(DATASET)
 df['spy_ret'] = df['spy'].pct_change()
 df['hy_ig_spread_chg'] = df['hy_ig_spread'].diff()
 df['log_spy'] = np.log(df['spy'])

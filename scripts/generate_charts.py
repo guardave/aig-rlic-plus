@@ -26,7 +26,7 @@ import plotly.io as pio
 warnings.filterwarnings("ignore")
 
 # ── Paths ──────────────────────────────────────────────────────────────────
-ROOT = Path("/workspaces/aig-rlic-plus")
+ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 RESULTS = ROOT / "results"
 EXPLOR = RESULTS / "exploratory_20260228"

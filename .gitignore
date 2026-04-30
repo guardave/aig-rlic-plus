@@ -47,3 +47,6 @@ temp/
 # Claude Code scheduled-tasks transient lock
 .claude/scheduled_tasks.lock
 .claude/settings.json
+
+# Local reconstructed ICE/FRED archive (manual, terms-gated)
+data/legacy_fred_archive/

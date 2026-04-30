@@ -17,6 +17,13 @@ plotly
 # Financial data
 yfinance
 fredapi
+pyarrow
+kaleido
+streamlit
+hmmlearn
+ruptures
+shap
+pandas-datareader
 
 # Jupyter
 jupyterlab

@@ -8,7 +8,8 @@ VIX/VIX3M > 1 (backwardation) = near-term fear exceeds longer-term = bearish.
 Date: 2026-03-14
 """
 
-import os, sys, json, warnings, time
+import os, sys
+from pathlib import Path, json, warnings, time
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -24,7 +25,7 @@ IS_END = "2019-12-31"
 OOS_START = "2020-01-01"
 DATE_TAG = "20260314"
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = str(Path(__file__).resolve().parents[1])
 DATA_DIR = os.path.join(BASE_DIR, "data")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
@@ -51,7 +52,10 @@ def timed(name):
 def stage_data():
     import yfinance as yf
     from fredapi import Fred
-    api_key = os.environ.get("FRED_API_KEY", "952aa4d0c4b2057609fbf3ecc6954e58")
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        print("  [WARN] FRED_API_KEY not set; using FRED DEMO_KEY fallback. For reliable full refreshes, set FRED_API_KEY.")
+        api_key = "DEMO_KEY"
     fred = Fred(api_key=api_key)
 
     series = {}

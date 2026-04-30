@@ -21,6 +21,7 @@ Date: 2026-04-10
 """
 
 import os
+from pathlib import Path
 import json
 import numpy as np
 import pandas as pd
@@ -28,7 +29,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 # ── Paths ──────────────────────────────────────────────────────────────────
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = str(Path(__file__).resolve().parents[1])
 PAIR_ID = "hy_ig_v2_spy"
 DATA_DIR = os.path.join(BASE_DIR, "data")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)

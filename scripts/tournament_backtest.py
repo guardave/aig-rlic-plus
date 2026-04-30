@@ -9,14 +9,19 @@ Date: 2026-02-28
 import numpy as np
 import pandas as pd
 import warnings
+from pathlib import Path
 warnings.filterwarnings('ignore')
 
 # ── Load Data ────────────────────────────────────────────────────────────────
-df = pd.read_parquet('/workspaces/aig-rlic-plus/data/hy_ig_spy_daily_20000101_20251231.parquet')
+ROOT = Path(__file__).resolve().parents[1]
+DATASET = ROOT / 'data' / 'hy_ig_spy_daily_20000101_20251231.parquet'
+if not DATASET.exists():
+    raise FileNotFoundError(f'Missing required dataset: {DATASET}. Run the HY-IG pipeline first.')
+df = pd.read_parquet(DATASET)
 df['spy_ret'] = df['spy'].pct_change()
 
 # Load model outputs from Stage 2
-CORE = '/workspaces/aig-rlic-plus/results/core_models_20260228'
+CORE = ROOT / 'results' / 'core_models_20260228'
 
 # HMM states
 try:
@@ -294,7 +299,7 @@ results.append({
 
 # ── Save & Summarize ─────────────────────────────────────────────────────────
 results_df = pd.DataFrame(results)
-results_df.to_csv('/workspaces/aig-rlic-plus/results/tournament_results_20260228.csv', index=False)
+results_df.to_csv(ROOT / 'results' / 'tournament_results_20260228.csv', index=False)
 
 print(f"\n=== Tournament Complete ===")
 print(f"Total combinations tested: {n_combos}")

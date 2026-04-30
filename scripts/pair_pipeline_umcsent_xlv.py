@@ -26,6 +26,7 @@ import os
 import sys
 import json
 import warnings
+from pathlib import Path
 import time
 from datetime import datetime
 
@@ -46,7 +47,7 @@ START_DATE = "1998-01-01"
 END_DATE = "2025-12-31"
 DATE_TAG = "20260420"
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = str(Path(__file__).resolve().parents[1])
 DATA_DIR = os.path.join(BASE_DIR, "data")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
@@ -96,7 +97,10 @@ def stage_data_sourcing():
         "DGS10":   "dgs10",     # 10Y Treasury Yield (Daily)
     }
 
-    api_key = os.environ.get("FRED_API_KEY", "952aa4d0c4b2057609fbf3ecc6954e58")
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        print("  [WARN] FRED_API_KEY not set; using FRED DEMO_KEY fallback. For reliable full refreshes, set FRED_API_KEY.")
+        api_key = "DEMO_KEY"
     fred_data = {}
 
     import urllib.request

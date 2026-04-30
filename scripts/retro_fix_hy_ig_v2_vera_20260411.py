@@ -57,7 +57,7 @@ from plotly.subplots import make_subplots
 # Paths
 # ---------------------------------------------------------------------------
 
-REPO_ROOT = Path("/workspaces/aig-rlic-plus")
+REPO_ROOT = Path(__file__).resolve().parents[1]
 PAIR_ID = "hy_ig_v2_spy"
 
 RESULTS_DIR = REPO_ROOT / "results" / PAIR_ID

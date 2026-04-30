@@ -17,7 +17,7 @@ RECESSIONS = [
 NBER_SHADING = "rgba(150,120,120,0.22)"
 
 # ── Charts to patch ────────────────────────────────────────────────────────────
-ROOT = Path("/workspaces/aig-rlic-plus/output/charts")
+ROOT = Path(__file__).resolve().parents[1] / "output" / "charts"
 TARGETS = [
     ROOT / "dff_ted_spy/plotly/dff_ted_spy_hero.json",
     ROOT / "permit_spy/plotly/permit_spy_hero.json",

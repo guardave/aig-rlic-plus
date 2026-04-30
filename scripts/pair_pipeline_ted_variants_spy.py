@@ -13,7 +13,8 @@ Date: 2026-03-14
 Analysis Brief: docs/analysis_brief_sofr_us3m_spy_20260314.md
 """
 
-import os, sys, json, warnings, time
+import os, sys
+from pathlib import Path, json, warnings, time
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -21,7 +22,7 @@ from scipy import stats
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = str(Path(__file__).resolve().parents[1])
 DATA_DIR = os.path.join(BASE_DIR, "data")
 DATE_TAG = "20260314"
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -51,7 +52,10 @@ def source_all():
     from fredapi import Fred
     import yfinance as yf
 
-    api_key = os.environ.get("FRED_API_KEY", "952aa4d0c4b2057609fbf3ecc6954e58")
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        print("  [WARN] FRED_API_KEY not set; using FRED DEMO_KEY fallback. For reliable full refreshes, set FRED_API_KEY.")
+        api_key = "DEMO_KEY"
     fred = Fred(api_key=api_key)
 
     series = {}

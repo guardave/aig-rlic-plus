@@ -30,10 +30,11 @@ from __future__ import annotations
 import glob
 import json
 import os
+from pathlib import Path
 import sys
 from typing import Any
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = str(Path(__file__).resolve().parents[1])
 CHART_GLOB = os.path.join(BASE_DIR, "output", "charts", "*", "plotly", "*_meta.json")
 
 # (pair_id, file_stem) → desired exploratory payload

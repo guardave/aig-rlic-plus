@@ -23,13 +23,14 @@ Pair: indpro_xlp
 """
 
 import os
+from pathlib import Path
 import json
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = str(Path(__file__).resolve().parents[1])
 RESULTS_DIR = os.path.join(BASE_DIR, "results", "indpro_xlp")
 DATA_DIR = os.path.join(BASE_DIR, "data")
 CHART_DIR = os.path.join(BASE_DIR, "output", "charts", "indpro_xlp", "plotly")

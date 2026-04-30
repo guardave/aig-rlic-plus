@@ -45,6 +45,7 @@ import re
 import sys
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 
 from playwright.sync_api import sync_playwright  # type: ignore
 
@@ -53,6 +54,7 @@ from playwright.sync_api import sync_playwright  # type: ignore
 # ---------------------------------------------------------------------------
 
 DEFAULT_BASE = "https://aig-rlic-plus.streamlit.app"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # Wave 10I.A: expanded from 4 to 10 pairs. Ace-A migrated 4 legacy pairs
 # (indpro_spy, permit_spy, vix_vix3m_spy, umcsent_xlv) to APP-PT1 thin
 # wrappers; Ace-B exploded the TED composite into 3 variants
@@ -521,7 +523,7 @@ def check_landing(text):
 # Main
 # ---------------------------------------------------------------------------
 
-def gate29_parquet_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+def gate29_parquet_preflight(pairs, project_root=PROJECT_ROOT):
     """GATE-29 pre-flight: assert signals_*.parquet is committed in git for every pair.
 
     Wave 10I.C root-cause fix: smoke_loader.py only tests chart JSON loading; it
@@ -565,7 +567,7 @@ def gate29_parquet_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     return failures
 
 
-def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+def gate_dp1_dual_panel_preflight(pairs, project_root=PROJECT_ROOT):
     """GATE-DP1 (Wave 10K, 2026-04-24): Dual-Panel Trace Visibility Check.
 
     For every history_zoom_*.json chart committed under
@@ -644,7 +646,7 @@ def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus
     return failures
 
 
-def gate_viz_nber2_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+def gate_viz_nber2_preflight(pairs, project_root=PROJECT_ROOT):
     """GATE-VIZ-NBER2 (Wave 10K, 2026-04-24): Episode-window-aware NBER shading check.
 
     Pure JSON preflight — no browser needed.  Runs alongside GATE-DP1.
@@ -787,7 +789,7 @@ def gate_viz_nber2_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     return failures, warnings
 
 
-def gate27_perceptual_png_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+def gate27_perceptual_png_preflight(pairs, project_root=PROJECT_ROOT):
     """GATE-27 extension (D4, Wave 10J): assert perceptual-check PNGs are committed.
 
     For every pair, Vera is required to commit a kaleido-rendered PNG at
@@ -842,7 +844,7 @@ def main():
     args = ap.parse_args()
 
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    out_dir = args.out or f"/workspaces/aig-rlic-plus/temp/{ts}_cloud_verify"
+    out_dir = args.out or str(PROJECT_ROOT / "temp" / f"{ts}_cloud_verify")
     dom_dir = os.path.join(out_dir, "dom_text")
     ss_dir = os.path.join(out_dir, "screenshots")
     os.makedirs(dom_dir, exist_ok=True)

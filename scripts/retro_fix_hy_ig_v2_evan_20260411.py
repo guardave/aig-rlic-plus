@@ -53,7 +53,7 @@ from statsmodels.tsa.arima.model import ARIMA
 # Paths
 # --------------------------------------------------------------------------- #
 
-ROOT = Path("/workspaces/aig-rlic-plus")
+ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "hy_ig_v2_spy_daily_20260410.parquet"
 RESULTS_DIR = ROOT / "results" / "hy_ig_v2_spy"
 CORE_DIR = RESULTS_DIR / "core_models_20260410"

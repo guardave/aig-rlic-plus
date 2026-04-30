@@ -7,7 +7,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-BASE = "/workspaces/aig-rlic-plus"
+BASE = str(Path(__file__).resolve().parents[1])
 C_IND = "#d62728"; C_EQ = "#1f77b4"; C_STRAT = "#2ca02c"; C_BM = "#7f7f7f"
 
 VARIANTS = [

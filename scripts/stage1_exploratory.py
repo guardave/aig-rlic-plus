@@ -11,14 +11,20 @@ import pandas as pd
 from scipy import stats
 from scipy.spatial.distance import pdist, squareform
 import warnings
+from pathlib import Path
 warnings.filterwarnings('ignore')
 
 # ── Load data ────────────────────────────────────────────────────────────────
-df = pd.read_parquet('/workspaces/aig-rlic-plus/data/hy_ig_spy_daily_20000101_20251231.parquet')
+ROOT = Path(__file__).resolve().parents[1]
+DATASET = ROOT / 'data' / 'hy_ig_spy_daily_20000101_20251231.parquet'
+if not DATASET.exists():
+    raise FileNotFoundError(f'Missing required dataset: {DATASET}. Run the HY-IG pipeline first.')
+df = pd.read_parquet(DATASET)
 print(f"Dataset: {df.shape[0]} rows x {df.shape[1]} columns")
 print(f"Date range: {df.index.min()} to {df.index.max()}")
 
-OUT = '/workspaces/aig-rlic-plus/results/exploratory_20260228'
+OUT = ROOT / 'results' / 'exploratory_20260228'
+OUT.mkdir(parents=True, exist_ok=True)
 
 # Compute daily SPY returns
 df['spy_ret'] = df['spy'].pct_change()

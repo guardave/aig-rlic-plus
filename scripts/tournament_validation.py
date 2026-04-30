@@ -9,13 +9,19 @@ Date: 2026-02-28
 import numpy as np
 import pandas as pd
 import warnings
+from pathlib import Path
 warnings.filterwarnings('ignore')
 
-VOUT = '/workspaces/aig-rlic-plus/results/tournament_validation_20260228'
-df = pd.read_parquet('/workspaces/aig-rlic-plus/data/hy_ig_spy_daily_20000101_20251231.parquet')
+ROOT = Path(__file__).resolve().parents[1]
+VOUT = ROOT / 'results' / 'tournament_validation_20260228'
+VOUT.mkdir(parents=True, exist_ok=True)
+DATASET = ROOT / 'data' / 'hy_ig_spy_daily_20000101_20251231.parquet'
+if not DATASET.exists():
+    raise FileNotFoundError(f'Missing required dataset: {DATASET}. Run the HY-IG pipeline first.')
+df = pd.read_parquet(DATASET)
 df['spy_ret'] = df['spy'].pct_change()
 
-CORE = '/workspaces/aig-rlic-plus/results/core_models_20260228'
+CORE = ROOT / 'results' / 'core_models_20260228'
 try:
     hmm2 = pd.read_parquet(f'{CORE}/hmm_states_2state.parquet')
     df['hmm_2state_prob_stress'] = hmm2['prob_state_0']

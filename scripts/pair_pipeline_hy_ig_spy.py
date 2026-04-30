@@ -49,7 +49,8 @@ Date   : 2026-04-22
 SOP    : docs/agent-sops/econometrics-agent-sop.md Wave 10G
 """
 
-import os, sys, json, warnings, time, datetime, itertools
+import os, sys
+from pathlib import Path, json, warnings, time, datetime, itertools
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -76,7 +77,7 @@ IS_END    = "2019-09-30"
 OOS_START = "2019-10-01"
 OOS_END   = END_DATE
 
-BASE_DIR      = "/workspaces/aig-rlic-plus"
+BASE_DIR      = str(Path(__file__).resolve().parents[1])
 DATA_DIR      = os.path.join(BASE_DIR, "data")
 RESULTS_DIR   = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR   = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
@@ -101,6 +102,23 @@ def timed(name):
             return r
         return wrap
     return dec
+
+
+
+
+def load_legacy_fred_archive() -> dict:
+    """Load optional local Wayback archive created by fetch_fred_wayback_archive.py."""
+    path = os.path.join(DATA_DIR, "legacy_fred_archive", "ice_bofa_oas_wayback.csv")
+    if not os.path.exists(path):
+        print("  [WARN] Legacy ICE/FRED archive not found. To restore pre-truncation OAS history on clean refreshes, run scripts/fetch_fred_wayback_archive.py --accept-ice-terms.")
+        return {}
+    legacy = pd.read_csv(path, parse_dates=["date"]).set_index("date")
+    out = {}
+    for col in ["hy_oas", "ig_oas", "bb_hy_oas", "ccc_hy_oas", "bbb_oas"]:
+        if col in legacy.columns:
+            out[col] = pd.to_numeric(legacy[col], errors="coerce").dropna()
+    print(f"  Loaded legacy ICE/FRED archive: {path}")
+    return out
 
 
 # ─────────────────────────────────────────────────────────────
@@ -136,7 +154,10 @@ def stage_data() -> pd.DataFrame:
     import yfinance as yf
     from fredapi import Fred
 
-    api_key = os.environ.get("FRED_API_KEY") or "952aa4d0c4b2057609fbf3ecc6954e58"
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        print("  [WARN] FRED_API_KEY not set; using FRED DEMO_KEY fallback. For reliable full refreshes, set FRED_API_KEY.")
+        api_key = "DEMO_KEY"
     fred = Fred(api_key=api_key)
     series: dict = {}
 
@@ -159,6 +180,10 @@ def stage_data() -> pd.DataFrame:
             except Exception as e:
                 if attempt == 2:
                     print(f"  [FRED] {sid} FAILED: {e}")
+
+    for col, legacy_series in load_legacy_fred_archive().items():
+        live = series.get(col, pd.Series(dtype=float)).dropna()
+        series[col] = live.combine_first(legacy_series).astype(float)
 
     # OAS splice from v1 parquet
     v1_path = os.path.join(DATA_DIR, "hy_ig_spy_v1_daily_20000101_20251231.parquet")

@@ -13,6 +13,7 @@ Date: 2026-02-28
 import os
 import sys
 import warnings
+from pathlib import Path
 from datetime import datetime
 
 import numpy as np
@@ -26,8 +27,9 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 # ---------------------------------------------------------------------------
 START_DATE = "2000-01-01"
 END_DATE = "2025-12-31"
-OUTPUT_DIR = "/workspaces/aig-rlic-plus/data"
-RESULTS_DIR = "/workspaces/aig-rlic-plus/results"
+ROOT = Path(__file__).resolve().parents[2]
+OUTPUT_DIR = str(ROOT / "data")
+RESULTS_DIR = str(ROOT / "results")
 FFILL_LIMIT = 5  # max business days to forward-fill
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -55,7 +57,10 @@ def source_fred_series():
         "SOFR": "sofr",
     }
 
-    api_key = os.environ.get("FRED_API_KEY", "952aa4d0c4b2057609fbf3ecc6954e58")
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        print("  [WARN] FRED_API_KEY not set; using FRED DEMO_KEY fallback. For reliable full refreshes, set FRED_API_KEY.")
+        api_key = "DEMO_KEY"
     fred_data = {}
 
     # Try fredapi
