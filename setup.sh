@@ -217,6 +217,8 @@ fi
 echo ""
 echo "  Python packages:"
 python3 -c "
+import sys
+
 packages = [
     ('numpy',        'numpy'),
     ('pandas',       'pandas'),
@@ -230,7 +232,6 @@ packages = [
     ('plotly',       'plotly'),
     ('yfinance',     'yfinance'),
     ('fredapi',      'fredapi'),
-    ('pandas-datareader', 'pandas_datareader'),
     ('shap',         'shap'),
     ('ruptures',     'ruptures'),
     ('hmmlearn',     'hmmlearn'),
@@ -238,6 +239,10 @@ packages = [
     ('kaleido',      'kaleido'),
     ('pyarrow',      'pyarrow'),
 ]
+if sys.version_info < (3, 14):
+    packages.append(('pandas-datareader', 'pandas_datareader'))
+else:
+    print('  SKIP pandas-datareader     incompatible with Python >=3.14 / pandas 3.x; FRED CSV fallback remains available')
 ok, fail = 0, 0
 for name, mod in packages:
     try:
@@ -245,8 +250,8 @@ for name, mod in packages:
         ver = getattr(m, '__version__', '?')
         print(f'  OK  {name:20s} {ver}')
         ok += 1
-    except ImportError as e:
-        print(f'  FAIL {name:20s} {e}')
+    except Exception as e:
+        print(f'  FAIL {name:20s} {type(e).__name__}: {e}')
         fail += 1
 print(f'\n  {ok} passed, {fail} failed')
 "

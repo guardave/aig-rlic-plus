@@ -99,8 +99,8 @@ def source_fred_series():
                     print(f"  [PDR]  {series_id} -> {col_name}: {len(s)} obs, {s.index.min().date()} to {s.index.max().date()}")
                 except Exception as e:
                     print(f"  [PDR]  {series_id} -> {col_name}: FAILED ({e})")
-        except ImportError:
-            print("  [PDR] pandas-datareader not available")
+        except Exception as e:
+            print(f"  [PDR] pandas-datareader unavailable or incompatible: {e}")
 
     # Final fallback: direct FRED CSV download
     if len(fred_data) < len(fred_series):

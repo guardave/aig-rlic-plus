@@ -23,7 +23,7 @@ streamlit
 hmmlearn
 ruptures
 shap
-pandas-datareader
+pandas-datareader; python_version < "3.14"
 
 # Jupyter
 jupyterlab
