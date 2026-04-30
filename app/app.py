@@ -9,6 +9,7 @@ import streamlit as st
 sys.path.insert(0, os.path.dirname(__file__))
 
 from components.charts import load_plotly_chart
+from components.data_quality import render_data_quality_warnings
 from components.metrics import kpi_row
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
@@ -42,6 +43,8 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True,
 )
+
+render_data_quality_warnings()
 
 st.markdown("---")
 

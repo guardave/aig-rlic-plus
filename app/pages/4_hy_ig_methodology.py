@@ -8,6 +8,7 @@ import streamlit as st
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from components.charts import load_plotly_chart
+from components.data_quality import render_data_quality_warnings
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
 
@@ -32,6 +33,8 @@ st.markdown(
     "*For the skeptical reader — and healthy skepticism is essential in finance — "
     "here is exactly how we arrived at these conclusions.*"
 )
+render_data_quality_warnings()
+
 st.markdown("---")
 
 # ===================== STATIONARITY TESTS =====================

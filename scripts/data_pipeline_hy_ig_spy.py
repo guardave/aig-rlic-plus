@@ -10,10 +10,12 @@ Author: Dana (Data Agent)
 Date: 2026-02-28
 """
 
+import json
 import os
 import sys
 import warnings
-from datetime import datetime
+from datetime import UTC, datetime
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -26,8 +28,9 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 # ---------------------------------------------------------------------------
 START_DATE = "2000-01-01"
 END_DATE = "2025-12-31"
-OUTPUT_DIR = "/workspaces/aig-rlic-plus/data"
-RESULTS_DIR = "/workspaces/aig-rlic-plus/results"
+ROOT = Path(__file__).resolve().parents[1]
+OUTPUT_DIR = ROOT / "data"
+RESULTS_DIR = ROOT / "results"
 FFILL_LIMIT = 5  # max business days to forward-fill
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -36,6 +39,27 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 # ---------------------------------------------------------------------------
 # 1. Source Raw Series
 # ---------------------------------------------------------------------------
+
+def load_legacy_fred_archive():
+    """Load optional local legacy ICE/BofA archive built by fetch_fred_wayback_archive.py."""
+    archive_path = ROOT / "data" / "legacy_fred_archive" / "ice_bofa_oas_wayback.csv"
+    if not archive_path.exists():
+        return {}
+
+    legacy = pd.read_csv(archive_path, parse_dates=["date"]).set_index("date")
+    out = {}
+    for col in ["hy_oas", "ig_oas", "bb_hy_oas", "ccc_hy_oas", "bbb_oas"]:
+        if col in legacy.columns:
+            s = pd.to_numeric(legacy[col], errors="coerce").dropna()
+            if not s.empty:
+                s.name = col
+                out[col] = s.astype(float)
+                print(
+                    f"  [LEGACY] {col}: {len(s)} obs, "
+                    f"{s.index.min().date()} to {s.index.max().date()}"
+                )
+    return out
+
 
 def source_fred_series():
     """Source all FRED series. Try fredapi first, fall back to pandas-datareader."""
@@ -55,7 +79,7 @@ def source_fred_series():
         "SOFR": "sofr",
     }
 
-    api_key = os.environ.get("FRED_API_KEY", "952aa4d0c4b2057609fbf3ecc6954e58")
+    api_key = os.environ.get("FRED_API_KEY")
     fred_data = {}
 
     # Try fredapi
@@ -94,8 +118,8 @@ def source_fred_series():
                     print(f"  [PDR]  {series_id} -> {col_name}: {len(s)} obs, {s.index.min().date()} to {s.index.max().date()}")
                 except Exception as e:
                     print(f"  [PDR]  {series_id} -> {col_name}: FAILED ({e})")
-        except ImportError:
-            print("  [PDR] pandas-datareader not available")
+        except Exception as e:
+            print(f"  [PDR] pandas-datareader unavailable ({e})")
 
     # Final fallback: direct FRED CSV download
     if len(fred_data) < len(fred_series):
@@ -104,7 +128,7 @@ def source_fred_series():
         for series_id, col_name in missing.items():
             try:
                 url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}&cosd={START_DATE}&coed={END_DATE}"
-                local_path = f"/tmp/fred_{series_id}.csv"
+                local_path = Path("/tmp") / f"fred_{series_id}.csv"
                 urllib.request.urlretrieve(url, local_path)
                 s = pd.read_csv(local_path, index_col=0, parse_dates=True).iloc[:, 0]
                 # FRED uses '.' for missing
@@ -114,6 +138,15 @@ def source_fred_series():
                 print(f"  [CSV]  {series_id} -> {col_name}: {len(s)} obs, {s.index.min().date()} to {s.index.max().date()}")
             except Exception as e:
                 print(f"  [CSV]  {series_id} -> {col_name}: FAILED ({e})")
+
+    legacy_data = load_legacy_fred_archive()
+    if legacy_data:
+        print("  -> Merging local legacy ICE/BofA archive with current FRED data")
+        for col_name, legacy_series in legacy_data.items():
+            if col_name in fred_data:
+                fred_data[col_name] = fred_data[col_name].combine_first(legacy_series).sort_index()
+            else:
+                fred_data[col_name] = legacy_series
 
     return fred_data
 
@@ -441,6 +474,42 @@ def generate_missing_report(df, unavailable_yahoo):
     return "\n".join(lines)
 
 
+
+def generate_data_quality_warnings(df):
+    """Generate machine-readable warnings for dashboard display."""
+    warnings_out = []
+    ice_cols = ["hy_oas", "ig_oas", "bb_hy_oas", "ccc_hy_oas", "bbb_oas"]
+    archive_path = ROOT / "data" / "legacy_fred_archive" / "ice_bofa_oas_wayback.csv"
+
+    first_valid = {}
+    for col in ice_cols + ["hy_ig_spread"]:
+        if col in df.columns:
+            first_idx = df[col].first_valid_index()
+            if first_idx is not None:
+                first_valid[col] = str(pd.Timestamp(first_idx).date())
+
+    hy_ig_start = first_valid.get("hy_ig_spread")
+    if hy_ig_start and hy_ig_start > "2001-01-01" and not archive_path.exists():
+        warnings_out.append({
+            "id": "ice_bofa_oas_truncated",
+            "severity": "warning",
+            "title": "ICE/BofA credit-spread history is truncated",
+            "message": (
+                "Current FRED/ALFRED access only returned recent ICE/BofA OAS observations, "
+                f"so the HY-IG spread starts on {hy_ig_start}. Credit-spread conclusions are "
+                "based on that shorter effective sample unless the optional local Wayback archive is created."
+            ),
+            "action": "Run: python scripts/fetch_fred_wayback_archive.py --accept-ice-terms",
+            "artifact": str(archive_path.relative_to(ROOT)),
+            "first_valid_dates": first_valid,
+        })
+
+    return {
+        "generated_at": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
+        "warnings": warnings_out,
+    }
+
+
 def generate_data_dictionary():
     """Generate data dictionary as a list of dicts for CSV output."""
     entries = [
@@ -569,6 +638,15 @@ def main():
     summary_path = os.path.join(OUTPUT_DIR, "summary_stats_20260228.csv")
     summary.to_csv(summary_path)
     print(f"  -> Summary stats: {summary_path}")
+
+    warning_payload = generate_data_quality_warnings(df)
+    warnings_path = OUTPUT_DIR / "data_quality_warnings_20260228.json"
+    with open(warnings_path, "w") as f:
+        json.dump(warning_payload, f, indent=2)
+    warning_count = len(warning_payload["warnings"])
+    print(f"  -> Data quality warnings: {warnings_path} ({warning_count})")
+    for warning in warning_payload["warnings"]:
+        print(f"     WARN {warning['title']}: {warning['action']}")
 
     # Data dictionary
     dict_entries = generate_data_dictionary()

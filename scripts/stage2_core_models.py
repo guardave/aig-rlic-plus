@@ -13,12 +13,18 @@ import statsmodels.api as sm
 from statsmodels.tsa.api import VAR
 from statsmodels.tsa.stattools import grangercausalitytests
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
+from pathlib import Path
 import pickle
 import warnings
 warnings.filterwarnings('ignore')
 
-OUT = '/workspaces/aig-rlic-plus/results/core_models_20260228'
-df = pd.read_parquet('/workspaces/aig-rlic-plus/data/hy_ig_spy_daily_20000101_20251231.parquet')
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / 'results' / 'core_models_20260228'
+OUT.mkdir(parents=True, exist_ok=True)
+DATASET = ROOT / 'data' / 'hy_ig_spy_daily_20000101_20251231.parquet'
+if not DATASET.exists():
+    raise FileNotFoundError(f"Missing required dataset: {DATASET}. Run scripts/data_pipeline_hy_ig_spy.py first.")
+df = pd.read_parquet(DATASET)
 df['spy_ret'] = df['spy'].pct_change()
 df['hy_ig_spread_chg'] = df['hy_ig_spread'].diff()
 df['log_spy'] = np.log(df['spy'])
@@ -45,6 +51,15 @@ pair_data = df[['hy_ig_spread_chg', 'spy_ret']].dropna()
 
 d_max = 1  # augmentation order
 
+def toda_yamamoto_wald(var_result, caused, causing, lag_k):
+    """Wald test that restricts only the first k lags, leaving augmented lags unrestricted."""
+    keys = [(f'L{lag}.{causing}', caused) for lag in range(1, lag_k + 1)]
+    params = var_result.params.loc[[key[0] for key in keys], caused].to_numpy()
+    cov = var_result.cov_params().loc[keys, keys].to_numpy()
+    test_stat = float(params.T @ np.linalg.pinv(cov) @ params)
+    p_value = float(stats.chi2.sf(test_stat, lag_k))
+    return test_stat, p_value
+
 for regime_label, regime_mask in [
     ('full_sample', pd.Series(True, index=pair_data.index)),
     ('stress', df.loc[pair_data.index, 'stress'] == 1),
@@ -59,38 +74,14 @@ for regime_label, regime_mask in [
         if len(sub) < total_lags + 50:
             continue
         try:
-            model = VAR(sub.values)
+            model = VAR(sub)
             result = model.fit(total_lags)
 
-            for direction, col_idx, cause_idx in [
-                ('Credit->Equity', 1, 0),  # test if spread_chg Granger-causes spy_ret
-                ('Equity->Credit', 0, 1),  # test if spy_ret Granger-causes spread_chg
+            for direction, caused, causing in [
+                ('Credit->Equity', 'spy_ret', 'hy_ig_spread_chg'),
+                ('Equity->Credit', 'hy_ig_spread_chg', 'spy_ret'),
             ]:
-                # Test restriction: coefficients on cause variable at lags 1..k are zero
-                # Build restriction matrix
-                n_vars = 2
-                n_params = total_lags * n_vars + 1  # +1 for const
-                R = np.zeros((lag_k, n_params))
-                for i in range(lag_k):
-                    # Position of cause variable at lag i+1
-                    param_pos = i * n_vars + cause_idx + 1  # +1 for const
-                    R[i, param_pos] = 1
-
-                # Get params and vcov for the equation of the response variable
-                params = result.params[:, col_idx]
-                # Flatten params: const, y1_L1, y2_L1, y1_L2, y2_L2, ...
-                # statsmodels VAR stores as [const, L1, L2, ...] where each L has n_vars params
-                p_flat = np.concatenate([[params[0]], params[1:].flatten()])
-
-                # Use Wald test from the VAR result
-                test_result = result.test_causality(
-                    caused=sub.columns[col_idx] if hasattr(sub, 'columns') else col_idx,
-                    causing=[cause_idx],
-                    kind='wald'
-                )
-                test_stat = test_result.test_statistic
-                p_value = test_result.pvalue
-
+                test_stat, p_value = toda_yamamoto_wald(result, caused, causing, lag_k)
                 conclusion = 'Reject H0 (causal)' if p_value < 0.05 else 'Fail to reject H0'
                 granger_rows.append({
                     'direction': direction,
@@ -481,7 +472,7 @@ for test_start_year in range(start_year + train_years, end_year + 1, test_years)
     acc = accuracy_score(y_test, preds)
     try:
         auc = roc_auc_score(y_test, probs)
-    except:
+    except ValueError:
         auc = np.nan
 
     wf_rows.append({

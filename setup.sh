@@ -76,6 +76,29 @@ fi
 
 echo "  -> Python packages installed."
 
+echo ""
+echo "[2b/5] Ensuring Chrome is available for Plotly/Kaleido image export..."
+if command -v google-chrome &>/dev/null || command -v chromium &>/dev/null || command -v chromium-browser &>/dev/null; then
+  echo "  -> Chrome/Chromium found."
+elif [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then
+  echo "  -> ARM container detected; installing native Chromium via apt."
+  if command -v sudo &>/dev/null && command -v apt-get &>/dev/null; then
+    sudo apt-get update && sudo apt-get install -y chromium
+  elif command -v apt-get &>/dev/null; then
+    apt-get update && apt-get install -y chromium
+  else
+    echo "  WARN: apt-get not found. Install native Chromium before scripts/generate_charts.py."
+  fi
+elif command -v plotly_get_chrome &>/dev/null; then
+  if plotly_get_chrome -y; then
+    echo "  -> Chrome installed for Kaleido."
+  else
+    echo "  WARN: Chrome installation failed. Run 'plotly_get_chrome -y' before scripts/generate_charts.py."
+  fi
+else
+  echo "  WARN: plotly_get_chrome not found. Install Chrome before scripts/generate_charts.py."
+fi
+
 # --------------------------------------------------------------------------
 # 3. MCP Servers (8 total — budget max 10)
 # --------------------------------------------------------------------------
@@ -198,15 +221,22 @@ packages = [
     ('numpy',        'numpy'),
     ('pandas',       'pandas'),
     ('scipy',        'scipy'),
+    ('pyarrow',      'pyarrow'),
     ('statsmodels',  'statsmodels'),
     ('scikit-learn', 'sklearn'),
     ('arch',         'arch'),
     ('linearmodels', 'linearmodels'),
+    ('hmmlearn',     'hmmlearn'),
+    ('ruptures',     'ruptures'),
+    ('shap',         'shap'),
     ('matplotlib',   'matplotlib'),
     ('seaborn',      'seaborn'),
     ('plotly',       'plotly'),
+    ('kaleido',      'kaleido'),
+    ('streamlit',    'streamlit'),
     ('yfinance',     'yfinance'),
     ('fredapi',      'fredapi'),
+    ('pandas-datareader', 'pandas_datareader'),
 ]
 ok, fail = 0, 0
 for name, mod in packages:

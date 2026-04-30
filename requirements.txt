@@ -2,21 +2,28 @@
 numpy
 pandas
 scipy
+pyarrow
 
 # Econometrics & statistics
 statsmodels
 scikit-learn
 arch
 linearmodels
+hmmlearn
+ruptures
+shap
 
 # Visualization
 matplotlib
 seaborn
 plotly
+kaleido
+streamlit
 
 # Financial data
 yfinance
 fredapi
+pandas-datareader
 
 # Jupyter
 jupyterlab

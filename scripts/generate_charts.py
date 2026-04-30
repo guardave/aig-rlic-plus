@@ -15,18 +15,20 @@ Date: 2026-02-28
 
 import json
 import os
+import shutil
 import warnings
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import kaleido
 import plotly.graph_objects as go
 import plotly.io as pio
 
 warnings.filterwarnings("ignore")
 
 # ── Paths ──────────────────────────────────────────────────────────────────
-ROOT = Path("/workspaces/aig-rlic-plus")
+ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 RESULTS = ROOT / "results"
 EXPLOR = RESULTS / "exploratory_20260228"
@@ -101,24 +103,31 @@ EVENTS_KEY = [
 
 
 # ── Load Data ─────────────────────────────────────────────────────────────
+def require_file(path: Path, upstream_step: str) -> Path:
+    """Return path if present, otherwise fail with the pipeline step to rerun."""
+    if not path.exists():
+        raise FileNotFoundError(f"Missing required artifact: {path}. Run {upstream_step} first.")
+    return path
+
+
 def load_data():
     """Load all required data files."""
     data = {}
-    data["df"] = pd.read_parquet(DATA / "hy_ig_spy_daily_20000101_20251231.parquet")
-    data["correlations"] = pd.read_csv(EXPLOR / "correlations.csv")
-    data["rolling_corr"] = pd.read_csv(EXPLOR / "rolling_252d_correlation.csv", parse_dates=["date"])
-    data["ccf"] = pd.read_csv(EXPLOR / "ccf.csv")
-    data["regime_stats"] = pd.read_csv(EXPLOR / "regime_descriptive_stats.csv")
-    data["granger"] = pd.read_csv(CORE / "granger_causality.csv")
-    data["quantile_reg"] = pd.read_csv(CORE / "quantile_regression.csv")
-    data["rf_importance"] = pd.read_csv(CORE / "rf_feature_importance.csv")
-    data["change_points"] = pd.read_csv(CORE / "change_points.csv", parse_dates=["date"])
-    data["hmm_2state"] = pd.read_parquet(CORE / "hmm_states_2state.parquet")
-    data["tournament"] = pd.read_csv(RESULTS / "tournament_results_20260228.csv")
-    data["walk_forward"] = pd.read_csv(VALID / "walk_forward.csv")
-    data["signal_decay"] = pd.read_csv(VALID / "signal_decay.csv")
-    data["stress_tests"] = pd.read_csv(VALID / "stress_tests.csv")
-    data["stationarity"] = pd.read_csv(RESULTS / "stationarity_tests_20260228.csv")
+    data["df"] = pd.read_parquet(require_file(DATA / "hy_ig_spy_daily_20000101_20251231.parquet", "scripts/data_pipeline_hy_ig_spy.py"))
+    data["correlations"] = pd.read_csv(require_file(EXPLOR / "correlations.csv", "scripts/stage1_exploratory.py"))
+    data["rolling_corr"] = pd.read_csv(require_file(EXPLOR / "rolling_252d_correlation.csv", "scripts/stage1_exploratory.py"), parse_dates=["date"])
+    data["ccf"] = pd.read_csv(require_file(EXPLOR / "ccf.csv", "scripts/stage1_exploratory.py"))
+    data["regime_stats"] = pd.read_csv(require_file(EXPLOR / "regime_descriptive_stats.csv", "scripts/stage1_exploratory.py"))
+    data["granger"] = pd.read_csv(require_file(CORE / "granger_causality.csv", "scripts/stage2_core_models.py"))
+    data["quantile_reg"] = pd.read_csv(require_file(CORE / "quantile_regression.csv", "scripts/stage2_core_models.py"))
+    data["rf_importance"] = pd.read_csv(require_file(CORE / "rf_feature_importance.csv", "scripts/stage2_core_models.py"))
+    data["change_points"] = pd.read_csv(require_file(CORE / "change_points.csv", "scripts/stage2_core_models.py"), parse_dates=["date"])
+    data["hmm_2state"] = pd.read_parquet(require_file(CORE / "hmm_states_2state.parquet", "scripts/stage2_core_models.py"))
+    data["tournament"] = pd.read_csv(require_file(RESULTS / "tournament_results_20260228.csv", "scripts/tournament_backtest.py"))
+    data["walk_forward"] = pd.read_csv(require_file(VALID / "walk_forward.csv", "scripts/tournament_validation.py"))
+    data["signal_decay"] = pd.read_csv(require_file(VALID / "signal_decay.csv", "scripts/tournament_validation.py"))
+    data["stress_tests"] = pd.read_csv(require_file(VALID / "stress_tests.csv", "scripts/tournament_validation.py"))
+    data["stationarity"] = pd.read_csv(require_file(RESULTS / "stationarity_tests_20260228.csv", "scripts/data_pipeline_hy_ig_spy.py"))
     return data
 
 
@@ -139,7 +148,22 @@ def save_chart(fig, name, title, description, page, data_source, insight,
     # JSON
     pio.write_json(fig, str(OUT_JSON / f"{name}.json"))
     # PNG
-    fig.write_image(str(OUT_PNG / f"{name}.png"), width=1200, height=700, scale=2)
+    browser_path = (
+        os.environ.get("BROWSER_PATH")
+        or shutil.which("chromium")
+        or shutil.which("chromium-browser")
+        or shutil.which("google-chrome")
+    )
+    png_path = OUT_PNG / f"{name}.png"
+    if browser_path:
+        kaleido.write_fig_sync(
+            fig,
+            path=png_path,
+            opts={"format": "png", "width": 1200, "height": 700, "scale": 2},
+            kopts={"path": browser_path},
+        )
+    else:
+        fig.write_image(str(png_path), width=1200, height=700, scale=2)
     # Metadata
     meta = {
         "chart_id": name,

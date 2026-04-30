@@ -1,10 +1,10 @@
 model,test,statistic,p_value,interpretation
-Johansen Cointegration,Trace (r=0),18.022596651045724,,Reject
-Markov-Switching 2S,AIC,-45027.70360063258,,2-state model AIC
-Markov-Switching 3S,AIC,-45606.833264850786,,3-state model AIC
-GJR-GARCH,Log-Likelihood,-8283.037028733512,,Model fit
-GJR-GARCH,AIC,16580.074057467024,,Model complexity
-LP h=21,Jarque-Bera,15562.702971567944,0.0,Non-normal
-LP h=21,Breusch-Pagan,390.3596523684487,2.711810499727224e-84,Heteroskedastic
-LP h=21,Breusch-Godfrey,5866.075273169527,0.0,Serial correlation
-LP h=21,RESET,32.83346229563872,6.439293542825908e-15,Misspecified
+Johansen Cointegration,Trace (r=0),13.519670511362955,,Fail to reject
+Markov-Switching 2S,AIC,-5014.450172029835,,2-state model AIC
+Markov-Switching 3S,AIC,-5028.480788317589,,3-state model AIC
+GJR-GARCH,Log-Likelihood,-690.7858860034655,,Model fit
+GJR-GARCH,AIC,1395.571772006931,,Model complexity
+LP h=21,Jarque-Bera,366.447520338445,2.6725879437584877e-80,Non-normal
+LP h=21,Breusch-Pagan,13.967832883952152,0.0029492662945695366,Heteroskedastic
+LP h=21,Breusch-Godfrey,417.7544451138091,1.5612928475992444e-83,Serial correlation
+LP h=21,RESET,0.3976182415542906,0.6721433390015555,Correctly specified

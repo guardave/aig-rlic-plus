@@ -8,23 +8,31 @@ Date: 2026-02-28
 
 import numpy as np
 import pandas as pd
+from pathlib import Path
 import warnings
 warnings.filterwarnings('ignore')
 
-VOUT = '/workspaces/aig-rlic-plus/results/tournament_validation_20260228'
-df = pd.read_parquet('/workspaces/aig-rlic-plus/data/hy_ig_spy_daily_20000101_20251231.parquet')
+ROOT = Path(__file__).resolve().parents[1]
+VOUT = ROOT / 'results' / 'tournament_validation_20260228'
+VOUT.mkdir(parents=True, exist_ok=True)
+DATASET = ROOT / 'data' / 'hy_ig_spy_daily_20000101_20251231.parquet'
+if not DATASET.exists():
+    raise FileNotFoundError(f"Missing required dataset: {DATASET}. Run scripts/data_pipeline_hy_ig_spy.py first.")
+df = pd.read_parquet(DATASET)
 df['spy_ret'] = df['spy'].pct_change()
 
-CORE = '/workspaces/aig-rlic-plus/results/core_models_20260228'
+CORE = ROOT / 'results' / 'core_models_20260228'
 try:
-    hmm2 = pd.read_parquet(f'{CORE}/hmm_states_2state.parquet')
+    hmm2 = pd.read_parquet(CORE / 'hmm_states_2state.parquet')
     df['hmm_2state_prob_stress'] = hmm2['prob_state_0']
-except: df['hmm_2state_prob_stress'] = np.nan
+except FileNotFoundError as e:
+    raise FileNotFoundError("Missing HMM 2-state artifact. Run scripts/stage2_core_models.py first.") from e
 
 try:
-    ms2 = pd.read_parquet(f'{CORE}/markov_regime_probs_2state.parquet')
+    ms2 = pd.read_parquet(CORE / 'markov_regime_probs_2state.parquet')
     df['ms_2state_stress_prob'] = ms2['regime_1_prob']
-except: df['ms_2state_stress_prob'] = np.nan
+except FileNotFoundError as e:
+    raise FileNotFoundError("Missing Markov 2-state probabilities. Run scripts/stage2_core_models.py first.") from e
 
 # Composite
 zscore_norm = (df['hy_ig_zscore_252d'] - df['hy_ig_zscore_252d'].mean()) / df['hy_ig_zscore_252d'].std()

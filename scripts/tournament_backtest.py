@@ -8,50 +8,54 @@ Date: 2026-02-28
 
 import numpy as np
 import pandas as pd
+from pathlib import Path
 import warnings
 warnings.filterwarnings('ignore')
 
 # ── Load Data ────────────────────────────────────────────────────────────────
-df = pd.read_parquet('/workspaces/aig-rlic-plus/data/hy_ig_spy_daily_20000101_20251231.parquet')
+ROOT = Path(__file__).resolve().parents[1]
+DATASET = ROOT / 'data' / 'hy_ig_spy_daily_20000101_20251231.parquet'
+if not DATASET.exists():
+    raise FileNotFoundError(f"Missing required dataset: {DATASET}. Run scripts/data_pipeline_hy_ig_spy.py first.")
+df = pd.read_parquet(DATASET)
 df['spy_ret'] = df['spy'].pct_change()
 
 # Load model outputs from Stage 2
-CORE = '/workspaces/aig-rlic-plus/results/core_models_20260228'
+CORE = ROOT / 'results' / 'core_models_20260228'
 
 # HMM states
 try:
-    hmm2 = pd.read_parquet(f'{CORE}/hmm_states_2state.parquet')
+    hmm2 = pd.read_parquet(CORE / 'hmm_states_2state.parquet')
     df['hmm_2state'] = hmm2['hmm_state']
     df['hmm_2state_prob_stress'] = hmm2['prob_state_0']  # state 0 = high VIX = stress
-except:
-    df['hmm_2state'] = np.nan
-    df['hmm_2state_prob_stress'] = np.nan
+except FileNotFoundError as e:
+    raise FileNotFoundError("Missing HMM 2-state artifact. Run scripts/stage2_core_models.py first.") from e
 
 try:
-    hmm3 = pd.read_parquet(f'{CORE}/hmm_states_3state.parquet')
+    hmm3 = pd.read_parquet(CORE / 'hmm_states_3state.parquet')
     df['hmm_3state'] = hmm3['hmm_state']
-except:
+except FileNotFoundError:
     df['hmm_3state'] = np.nan
 
 # Markov-Switching regime probabilities
 try:
-    ms2 = pd.read_parquet(f'{CORE}/markov_regime_probs_2state.parquet')
+    ms2 = pd.read_parquet(CORE / 'markov_regime_probs_2state.parquet')
     df['ms_2state_stress_prob'] = ms2['regime_1_prob']  # regime 1 = high variance = stress
-except:
-    df['ms_2state_stress_prob'] = np.nan
+except FileNotFoundError as e:
+    raise FileNotFoundError("Missing Markov 2-state probabilities. Run scripts/stage2_core_models.py first.") from e
 
 try:
-    ms3 = pd.read_parquet(f'{CORE}/markov_regime_probs_3state.parquet')
+    ms3 = pd.read_parquet(CORE / 'markov_regime_probs_3state.parquet')
     # For 3-state, find the highest-variance regime
     df['ms_3state_stress_prob'] = ms3.iloc[:, -1]  # last regime typically high var
-except:
+except FileNotFoundError:
     df['ms_3state_stress_prob'] = np.nan
 
 # RF probabilities
 try:
-    rf_probs = pd.read_csv(f'{CORE}/rf_probabilities.csv', index_col=0, parse_dates=True)
+    rf_probs = pd.read_csv(CORE / 'rf_probabilities.csv', index_col=0, parse_dates=True)
     df['rf_prob'] = rf_probs.iloc[:, 0]
-except:
+except FileNotFoundError:
     df['rf_prob'] = np.nan
 
 # Composite signal: equal weight of z-score and VIX term structure (both normalized)
@@ -294,7 +298,7 @@ results.append({
 
 # ── Save & Summarize ─────────────────────────────────────────────────────────
 results_df = pd.DataFrame(results)
-results_df.to_csv('/workspaces/aig-rlic-plus/results/tournament_results_20260228.csv', index=False)
+results_df.to_csv(ROOT / 'results' / 'tournament_results_20260228.csv', index=False)
 
 print(f"\n=== Tournament Complete ===")
 print(f"Total combinations tested: {n_combos}")

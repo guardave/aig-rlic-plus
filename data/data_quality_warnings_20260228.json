@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-04-30T18:16:16Z",
+  "warnings": [
+    {
+      "id": "ice_bofa_oas_truncated",
+      "severity": "warning",
+      "title": "ICE/BofA credit-spread history is truncated",
+      "message": "Current FRED/ALFRED access only returned recent ICE/BofA OAS observations, so the HY-IG spread starts on 2023-05-01. Credit-spread conclusions are based on that shorter effective sample unless the optional local Wayback archive is created.",
+      "action": "Run: python scripts/fetch_fred_wayback_archive.py --accept-ice-terms",
+      "artifact": "data/legacy_fred_archive/ice_bofa_oas_wayback.csv",
+      "first_valid_dates": {
+        "hy_oas": "2023-05-01",
+        "ig_oas": "2023-05-01",
+        "bb_hy_oas": "2023-05-01",
+        "ccc_hy_oas": "2023-05-01",
+        "bbb_oas": "2023-05-01",
+        "hy_ig_spread": "2023-05-01"
+      }
+    }
+  ]
+}
