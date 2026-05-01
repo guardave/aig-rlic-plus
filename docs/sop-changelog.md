@@ -8,6 +8,38 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-01 — Final-Exam Confirmation Contract
+
+**Trigger.** After APP-LP8 made search-grade evidence visible, Lead dispatched one
+Evan and one Quincy, each with mandatory SOD/EOD, to define the next layer:
+what it takes to move a pair beyond `found_in_search`.
+
+**Rules added:**
+
+- **ECON-FE1 Final-Exam Confirmation Contract** (`econometrics-agent-sop.md`):
+  Evan may recommend `passed_final_exam` only after a frozen-rule confirmation
+  passes sample separation, target-class Sharpe floor, positive after-cost
+  excess return, delta-Sharpe, drawdown tolerance, block-bootstrap uncertainty,
+  multiple-testing/luck adjustment, machine-readable artifact validation, and
+  Quincy replay.
+- **GATE-ES1 Evidence-Status Promotion Verification** (`qa-agent-sop.md`):
+  Quincy independently blocks any promotion above `found_in_search` unless
+  `evidence_status.json` and the referenced final-exam evidence validate,
+  anti-gaming checks pass, reproducibility evidence exists, and landing/Strategy
+  DOM copy matches the artifact status.
+
+**Schemas added/changed.**
+
+- `docs/schemas/evidence_status.schema.json` bumped to v1.1.0 with optional
+  `final_exam` lineage block. `passed_final_exam` now requires confirmation
+  fields plus `final_exam.qa_status = "qa_passed"`.
+- `docs/schemas/final_exam_results.schema.json` added for the detailed
+  confirmation metric artifact.
+
+No pair status was upgraded in this wave.
+
+---
+
 ## 2026-05-01 — BL-ELI5-EVIDENCE-STATUS First Land
 
 **Trigger.** The 2026-04-30 review concluded current tournament winners are discovery-grade unless they have a post-selection confirmation test. The portal needed to say that plainly instead of letting Sharpe cards imply confirmed prediction.

@@ -1,5 +1,47 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-05-01 (Final-exam confirmation contract)
+
+### Summary
+Proceeded with the recommended evidence-status sequence using one agent per role:
+Evan (`econ-evan`) drafted the econometric confirmation-test contract and
+Quincy (`qa-quincy`) drafted the independent promotion gate. Both agents ran
+SOD at the beginning and EOD at the end, per user instruction. Lead arbitrated
+their handoffs into shared scaffolding without upgrading any pair.
+
+### Agent drafts
+- `_pws/econ-evan/evidence_status_confirmation_contract_20260501.md`
+- `_pws/qa-quincy/evidence-status-final-exam-qa-gate-20260501.md`
+
+### Lead decision
+- Promote Evan's contract as `ECON-FE1`: tournament winners remain
+  discovery-grade unless a frozen-rule final exam passes sample separation,
+  target-class metric floors, block-bootstrap uncertainty, multiple-testing
+  adjustment, artifact validation, and Quincy replay.
+- Promote Quincy's gate as `GATE-ES1`: no promotion above `found_in_search`
+  without schema validation, reproducibility evidence, anti-gaming review, and
+  landing/Strategy DOM consistency.
+- Bump `docs/schemas/evidence_status.schema.json` to v1.1.0 with an optional
+  `final_exam` lineage block.
+- Add `docs/schemas/final_exam_results.schema.json` for detailed confirmation
+  metrics.
+
+### Files changed
+- `docs/schemas/evidence_status.schema.json`
+- `docs/schemas/final_exam_results.schema.json` + example
+- `docs/agent-sops/econometrics-agent-sop.md`
+- `docs/agent-sops/qa-agent-sop.md`
+- `docs/standards.md`
+- `docs/sop-changelog.md`
+- Lead/Evan/Quincy PWS notes and outstanding-work updates
+
+### Follow-on
+No current pair has passed the final exam. The next implementation wave should
+have Evan build the final-exam computation/replay helper for one pilot pair,
+then Quincy verifies with `GATE-ES1`.
+
+---
+
 ## Session: 2026-05-01 (BL-ELI5-EVIDENCE-STATUS first land)
 
 ### Summary

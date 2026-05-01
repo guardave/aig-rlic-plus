@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/final_exam_results.schema.json",
+  "x-owner": "evan",
+  "x-version": "1.0.0",
+  "title": "Final Exam Results",
+  "description": "Machine-readable confirmation artifact for a frozen tournament winner. Produced only when a pair is being evaluated for `needs_final_exam` or `passed_final_exam` evidence status.",
+  "type": "object",
+  "required": [
+    "pair_id",
+    "schema_version",
+    "generated_at",
+    "owner",
+    "status_recommendation",
+    "frozen_rule",
+    "sample",
+    "metrics",
+    "uncertainty",
+    "multiple_testing",
+    "pass_fail",
+    "artifact_lineage",
+    "qa"
+  ],
+  "properties": {
+    "pair_id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "owner": { "type": "string", "minLength": 1 },
+    "status_recommendation": {
+      "type": "string",
+      "enum": ["found_in_search", "needs_final_exam", "passed_final_exam"]
+    },
+    "frozen_rule": {
+      "type": "object",
+      "required": [
+        "rule_id",
+        "signal_column",
+        "threshold_rule",
+        "threshold_value",
+        "lead_lag",
+        "strategy_family",
+        "position_rule",
+        "cost_bps",
+        "benchmark"
+      ],
+      "properties": {
+        "rule_id": { "type": "string", "minLength": 1 },
+        "signal_column": { "type": "string", "minLength": 1 },
+        "threshold_rule": {
+          "type": "string",
+          "enum": ["gt", "lt", "gte", "lte", "crosses_up", "crosses_down"]
+        },
+        "threshold_value": { "type": ["number", "null"] },
+        "lead_lag": { "type": "integer" },
+        "strategy_family": { "type": "string", "minLength": 1 },
+        "position_rule": { "type": "string", "minLength": 1 },
+        "cost_bps": { "type": "number", "minimum": 0 },
+        "benchmark": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "sample": {
+      "type": "object",
+      "required": [
+        "search_start",
+        "search_end",
+        "confirm_start",
+        "confirm_end",
+        "confirm_n_obs",
+        "frequency",
+        "holdout_type"
+      ],
+      "properties": {
+        "search_start": { "type": "string", "format": "date" },
+        "search_end": { "type": "string", "format": "date" },
+        "confirm_start": { "type": "string", "format": "date" },
+        "confirm_end": { "type": "string", "format": "date" },
+        "confirm_n_obs": { "type": "integer", "minimum": 1 },
+        "frequency": {
+          "type": "string",
+          "enum": ["daily", "monthly", "weekly", "crypto_daily"]
+        },
+        "holdout_type": {
+          "type": "string",
+          "enum": ["chronological", "nested_walk_forward", "locked_rule_forward"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "confirm_ann_return",
+        "confirm_sharpe",
+        "confirm_sortino",
+        "confirm_max_drawdown",
+        "confirm_calmar",
+        "confirm_hit_rate",
+        "confirm_turnover",
+        "confirm_n_trades",
+        "confirm_excess_ann_return",
+        "confirm_delta_sharpe",
+        "confirm_delta_max_drawdown",
+        "confirm_cost_bps",
+        "confirm_benchmark_sharpe",
+        "confirm_benchmark_ann_return",
+        "confirm_benchmark_max_drawdown"
+      ],
+      "properties": {
+        "confirm_ann_return": { "type": "number" },
+        "confirm_sharpe": { "type": "number" },
+        "confirm_sortino": { "type": "number" },
+        "confirm_max_drawdown": { "type": "number", "maximum": 0 },
+        "confirm_calmar": { "type": "number" },
+        "confirm_hit_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "confirm_turnover": { "type": "number", "minimum": 0 },
+        "confirm_n_trades": { "type": "integer", "minimum": 0 },
+        "confirm_excess_ann_return": { "type": "number" },
+        "confirm_delta_sharpe": { "type": "number" },
+        "confirm_delta_max_drawdown": { "type": "number" },
+        "confirm_cost_bps": { "type": "number", "minimum": 0 },
+        "confirm_benchmark_sharpe": { "type": "number" },
+        "confirm_benchmark_ann_return": { "type": "number" },
+        "confirm_benchmark_max_drawdown": { "type": "number", "maximum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "uncertainty": {
+      "type": "object",
+      "required": [
+        "bootstrap_method",
+        "block_length",
+        "n_bootstrap",
+        "bootstrap_ci_sharpe",
+        "bootstrap_ci_excess_return",
+        "bootstrap_prob_sharpe_gt_benchmark",
+        "bootstrap_prob_return_gt_benchmark",
+        "bootstrap_prob_mdd_not_worse"
+      ],
+      "properties": {
+        "bootstrap_method": {
+          "type": "string",
+          "enum": ["stationary", "circular_block"]
+        },
+        "block_length": { "type": "integer", "minimum": 1 },
+        "n_bootstrap": { "type": "integer", "minimum": 1000 },
+        "bootstrap_ci_sharpe": { "$ref": "#/$defs/ci" },
+        "bootstrap_ci_excess_return": { "$ref": "#/$defs/ci" },
+        "bootstrap_prob_sharpe_gt_benchmark": { "type": "number", "minimum": 0, "maximum": 1 },
+        "bootstrap_prob_return_gt_benchmark": { "type": "number", "minimum": 0, "maximum": 1 },
+        "bootstrap_prob_mdd_not_worse": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "multiple_testing": {
+      "type": "object",
+      "required": [
+        "n_trials_raw",
+        "n_trials_effective",
+        "adjustment_method"
+      ],
+      "properties": {
+        "n_trials_raw": { "type": "integer", "minimum": 1 },
+        "n_trials_effective": { "type": "integer", "minimum": 1 },
+        "adjustment_method": {
+          "type": "string",
+          "enum": [
+            "deflated_sharpe_ratio",
+            "probabilistic_sharpe_ratio_adjusted",
+            "bootstrap_max_statistic"
+          ]
+        },
+        "adjusted_p_value": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "deflated_sharpe_ratio": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "probabilistic_sharpe_ratio_adjusted": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "pass_fail": {
+      "type": "object",
+      "required": ["overall_pass", "failed_gates", "warnings"],
+      "properties": {
+        "overall_pass": { "type": "boolean" },
+        "failed_gates": { "type": "array", "items": { "type": "string" } },
+        "warnings": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "artifact_lineage": {
+      "type": "object",
+      "required": ["tournament_results", "winner_summary", "winner_trade_log", "code_version"],
+      "properties": {
+        "tournament_results": { "type": "string" },
+        "winner_summary": { "type": "string" },
+        "winner_trade_log": { "type": "string" },
+        "code_version": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "qa": {
+      "type": "object",
+      "required": ["quincy_status", "qa_artifact"],
+      "properties": {
+        "quincy_status": {
+          "type": "string",
+          "enum": ["not_started", "pending", "passed", "failed"]
+        },
+        "qa_artifact": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "ci": {
+      "type": "object",
+      "required": ["p025", "p50", "p975"],
+      "properties": {
+        "p025": { "type": "number" },
+        "p50": { "type": "number" },
+        "p975": { "type": "number" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

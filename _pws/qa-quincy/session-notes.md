@@ -8,6 +8,20 @@
 
 ---
 
+## 2026-05-01 — Evidence-status final-exam QA gate draft
+
+**Dispatch:** Lead/user asked Quincy to define independent QA gate wording for promoting `evidence_status.json` from `found_in_search` to `needs_final_exam` or `passed_final_exam`. Scope was verification only; no producer artifacts or shared SOP files edited.
+
+**SOD context:** Role confirmed as `qa-quincy`; branch `260430`; repo status clean at start; read SOD skill, QA SOP, team coordination, README, Quincy PWS notes/outstanding work, team status board, and backlog. Backlog confirms `APP-LP8` is promoted and the open follow-on is Evan/Quincy defining final-exam confirmation criteria.
+
+**Output:** `_pws/qa-quincy/evidence-status-final-exam-qa-gate-20260501.md`.
+
+**Recommendation summary:** Add **GATE-ES1 — Evidence-Status Promotion Verification** before any pair can move above the conservative `found_in_search` default. QA should validate schema, verify promotion artifacts, rerun final-exam commands, apply anti-gaming checks, read landing/Strategy DOM text, and block any overclaim or unreproducible confirmation. Proposed SOP patch text and a DOM-only `cloud_verify.py` hook shape are included in the draft note for Lead arbitration.
+
+**Files changed this session:** Quincy-owned draft note plus this session note. No shared SOP, econometrics-owned file, producer artifact, commit, or push.
+
+---
+
 ## 2026-04-24 — Wave 10I.C Final Verify (post-Ace fb101e5 + Ray f8fa75d)
 
 **Run:** `scripts/cloud_verify.py` — 41-page full sweep  

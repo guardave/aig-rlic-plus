@@ -2,8 +2,8 @@
 
 ## Evidence-Status Follow-On
 
-- **Final-exam metrics not yet defined** — `APP-LP8` and `docs/schemas/evidence_status.schema.json` are live, but current pairs still default to `found_in_search` until Evan/Quincy define confirmation criteria and produce per-pair `evidence_status.json` artifacts.
-- Candidate next dispatch: Evan drafts confirmation-test metric options; Quincy drafts gate/check wording; Lead arbitrates status thresholds before any pair is upgraded to `passed_final_exam`.
+- **Final-exam contract defined, implementation pending** — Evan and Quincy completed SOD/EOD-gated drafts on 2026-05-01. Lead promoted `ECON-FE1`, `GATE-ES1`, `evidence_status` v1.1, and `final_exam_results.schema.json`. Current pairs still default to `found_in_search`; no pair may upgrade until Evan produces a valid `final_exam_results_{YYYYMMDD}.json` artifact and Quincy verifies it.
+- Candidate next dispatch: Evan builds the final-exam computation/replay helper for one pilot pair; Quincy adds a focused verification path once the producer artifact exists.
 
 ## Wave 10H.2/10I Hygiene Wave (bundleable)
 

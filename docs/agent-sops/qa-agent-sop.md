@@ -250,6 +250,68 @@ Triangulation 3 (annual turnover ↔ trade count ↔ horizon) is **not applicabl
 
 **Why this rule exists.** Wave 4D-1 migrated `winner_summary.oos_ann_return` from percent-form (11.33) to ratio-form (0.1133). Four Strategy-page lines in `app/pages/9_hy_ig_v2_spy_strategy.py` formatted the field as `f"+{val:.1f}%"`, which renders "+0.1%" instead of "+11.3%". Every upstream check passed (schema valid, smoke tests green, file exists, DOM renders). The bug was only caught by a stakeholder reading the Strategy page and noticing that a Sharpe of 1.27 cannot coexist with a 0.1% annualized return. QA-CL2 formalizes that stakeholder-style triangulation as a mandatory QA step so the Wave 4D-1 class of bug cannot ship again.
 
+### GATE-ES1 — Evidence-Status Promotion Verification
+
+When `results/{pair_id}/evidence_status.json` promotes a pair above the
+conservative default `found_in_search`, Quincy independently verifies the
+promotion before Lead acceptance. Missing files remain allowed and default to
+`found_in_search`; they do not trigger this gate.
+
+Required checks:
+
+1. Validate `results/{pair_id}/evidence_status.json` against
+   `docs/schemas/evidence_status.schema.json`.
+2. Confirm `pair_id`, `schema_version`, `status`, and `updated_at`. For
+   `passed_final_exam`, also require non-empty `confirmation_test`,
+   `confirmation_window`, `technical_note`, `owner`, and `final_exam`.
+3. Validate the referenced
+   `results/{pair_id}/final_exam_results_{YYYYMMDD}.json` against
+   `docs/schemas/final_exam_results.schema.json` when present or required.
+4. Rerun the stated confirmation command, or perform a documented
+   checksum/metric replay when the command is intentionally expensive.
+5. Compare expected versus observed headline metrics: confirmation Sharpe,
+   excess return, delta Sharpe, drawdown, bootstrap uncertainty, and
+   multiple-testing adjustment.
+6. Perform anti-gaming review: the confirmation window did not help select the
+   winner, thresholds/rules were not changed after seeing holdout performance,
+   failed variants are disclosed, and pass/fail thresholds were pre-declared.
+7. Verify landing-card and Strategy-page DOM show the canonical APP-LP8 label
+   and contain no stronger claim than the artifact supports.
+8. Read the captured landing and Strategy DOM text before signing off, mirroring
+   HABIT-QA1: script PASS gathers evidence; Quincy still makes the judgment.
+
+Blocking:
+
+- Schema invalidity, missing reproducible evidence, final-exam data leakage,
+  undisclosed variant shopping, after-the-fact threshold choice, disagreement
+  between `evidence_status.json` and `final_exam_results_*.json`, or DOM/status
+  mismatch blocks promotion.
+- If `status = "passed_final_exam"` but `final_exam.qa_status` is not
+  `"qa_passed"`, the promotion is a FAIL.
+- The conservative fallback is `found_in_search` unless Lead records an
+  explicit override.
+
+Finding format:
+
+```markdown
+## QA Verification — GATE-ES1 Evidence-Status Promotion (<date>, Quincy)
+
+### Summary
+Pair: <pair_id>
+Requested promotion: <old_status> -> <new_status>
+Verdict: PASS / PASS-with-note / FAIL
+Blocking findings: <n>
+
+### Detailed findings
+| # | Category | Check | Result | Evidence | Action |
+|---|----------|-------|--------|----------|--------|
+| 1 | Schema | evidence_status validates | PASS | `python3 scripts/validate_schema.py ...` exit 0 | none |
+| 2 | Artifact | final_exam_results validates | PASS | `<path>` | none |
+| 3 | Repro | final-exam command replay | PASS | expected vs observed metrics | none |
+| 4 | Anti-gaming | holdout did not select winner | PASS-with-note | split/cutoff evidence | Lead review |
+| 5 | DOM | landing + Strategy show canonical label | PASS | DOM text files in `temp/...` | none |
+```
+
 ### QA-CL3 — Agent Memory Discipline Verification
 
 > **SOPs accumulate every lesson. Agents do not — unless memory files are updated at wave closure. QA-CL3 makes that update auditable, the same way QA-CL2 makes KPI display auditable.**

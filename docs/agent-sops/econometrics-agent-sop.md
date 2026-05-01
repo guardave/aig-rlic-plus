@@ -210,6 +210,38 @@ Every pair tournament winner must produce TWO trade log files, both under `resul
 
 Add a one-line script or helper in the tournament pipeline to synthesize the broker log from the internal log. The broker log must be produced for every pair, every rerun.
 
+#### Rule FE1 — Final-Exam Confirmation Contract
+
+Tournament winners are discovery-grade until a frozen-rule final exam is
+recorded. A high OOS Sharpe or leaderboard rank from the tournament/search
+layer is not sufficient to call a pair confirmed, because the winner was chosen
+from many signal, threshold, lead, and strategy recipes.
+
+Evidence-status semantics:
+
+| Status | Evan's meaning |
+|--------|----------------|
+| `found_in_search` | Default for tournament winners. The rule is promising but no post-selection confirmation record exists. |
+| `needs_final_exam` | A frozen-rule confirmation plan or partial confirmation artifact exists, but required metrics, uncertainty checks, sample separation, or Quincy replay are incomplete or failed. |
+| `passed_final_exam` | A frozen winner passed the final exam and Quincy verified the evidence. |
+
+Evan may recommend `passed_final_exam` only when all conditions hold:
+
+1. The frozen rule matches the selected tournament winner: signal column, threshold rule/value, lead/lag, strategy family, cost assumption, benchmark, and target-class parameters.
+2. The confirmation window did not help select, tune, narratively rescue, or threshold the rule.
+3. Minimum confirmation sample is met: daily equity/rates/credit at least 24 months and 252 trading days; monthly macro strategies at least 36 observations; crypto daily at least 18 months and 365 calendar days.
+4. Confirmation Sharpe meets the target-class floor: equity `>= 0.30`, fixed income/rates/credit `>= 0.50`, crypto `>= 0.20`.
+5. After costs, `confirm_excess_ann_return >= 0.00` and `confirm_delta_sharpe >= +0.10` versus benchmark.
+6. Drawdown is not materially worse than benchmark: winner maximum drawdown may be no more than 5 percentage points worse than benchmark maximum drawdown.
+7. Time-series uncertainty is estimated with a stationary or circular block bootstrap, paired across strategy and benchmark returns. Defaults: daily block length 21 trading days, monthly 6 months, crypto daily 30 calendar days; at least 1,000 replications.
+8. Multiple-testing/luck adjustment is recorded with `n_trials_raw`, `n_trials_effective`, and either Deflated Sharpe Ratio, adjusted Probabilistic Sharpe Ratio, or bootstrap max-statistic p-value.
+9. `results/{pair_id}/final_exam_results_{YYYYMMDD}.json` validates against `docs/schemas/final_exam_results.schema.json`.
+10. `results/{pair_id}/evidence_status.json` validates against `docs/schemas/evidence_status.schema.json` and, for `passed_final_exam`, carries a `final_exam` block with `qa_status = "qa_passed"`.
+
+If any required condition is missing, failed, too short, or not QA-replayed,
+Evan must recommend `needs_final_exam`, not `passed_final_exam`. Existing pairs
+without confirmation artifacts remain `found_in_search`.
+
 ### 3. Data Request to Dana
 
 Before exploratory analysis, produce a structured data request using the template below.

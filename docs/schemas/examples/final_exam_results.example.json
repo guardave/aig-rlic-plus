@@ -1,0 +1,85 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-05-01T00:00:00Z",
+  "owner": "evan",
+  "status_recommendation": "needs_final_exam",
+  "frozen_rule": {
+    "rule_id": "S6_hmm_stress__T4_0_5__P2_signal_strength__L3",
+    "signal_column": "hmm_2state_prob_stress",
+    "threshold_rule": "gt",
+    "threshold_value": 0.5,
+    "lead_lag": 3,
+    "strategy_family": "P2_signal_strength",
+    "position_rule": "proportional",
+    "cost_bps": 5,
+    "benchmark": "SPY"
+  },
+  "sample": {
+    "search_start": "1998-01-01",
+    "search_end": "2025-12-31",
+    "confirm_start": "2026-01-01",
+    "confirm_end": "2026-12-31",
+    "confirm_n_obs": 252,
+    "frequency": "daily",
+    "holdout_type": "locked_rule_forward"
+  },
+  "metrics": {
+    "confirm_ann_return": 0.08,
+    "confirm_sharpe": 0.55,
+    "confirm_sortino": 0.72,
+    "confirm_max_drawdown": -0.12,
+    "confirm_calmar": 0.67,
+    "confirm_hit_rate": 0.54,
+    "confirm_turnover": 3.2,
+    "confirm_n_trades": 18,
+    "confirm_excess_ann_return": 0.01,
+    "confirm_delta_sharpe": 0.12,
+    "confirm_delta_max_drawdown": 0.02,
+    "confirm_cost_bps": 5,
+    "confirm_benchmark_sharpe": 0.43,
+    "confirm_benchmark_ann_return": 0.07,
+    "confirm_benchmark_max_drawdown": -0.14
+  },
+  "uncertainty": {
+    "bootstrap_method": "circular_block",
+    "block_length": 21,
+    "n_bootstrap": 1000,
+    "bootstrap_ci_sharpe": {
+      "p025": -0.05,
+      "p50": 0.55,
+      "p975": 1.11
+    },
+    "bootstrap_ci_excess_return": {
+      "p025": -0.04,
+      "p50": 0.01,
+      "p975": 0.07
+    },
+    "bootstrap_prob_sharpe_gt_benchmark": 0.61,
+    "bootstrap_prob_return_gt_benchmark": 0.58,
+    "bootstrap_prob_mdd_not_worse": 0.66
+  },
+  "multiple_testing": {
+    "n_trials_raw": 1305,
+    "n_trials_effective": 115,
+    "adjustment_method": "deflated_sharpe_ratio",
+    "adjusted_p_value": 0.09,
+    "deflated_sharpe_ratio": 0.53,
+    "probabilistic_sharpe_ratio_adjusted": null
+  },
+  "pass_fail": {
+    "overall_pass": false,
+    "failed_gates": ["qa_not_replayed"],
+    "warnings": ["Example artifact only; no pair is upgraded by this file."]
+  },
+  "artifact_lineage": {
+    "tournament_results": "results/hy_ig_v2_spy/tournament_results_20260501.csv",
+    "winner_summary": "results/hy_ig_v2_spy/winner_summary.json",
+    "winner_trade_log": "results/hy_ig_v2_spy/winner_trade_log.csv",
+    "code_version": "example"
+  },
+  "qa": {
+    "quincy_status": "not_started",
+    "qa_artifact": null
+  }
+}

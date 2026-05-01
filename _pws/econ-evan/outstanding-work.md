@@ -1,8 +1,18 @@
 # Econ Evan — Outstanding Work
 
-_Last updated: 2026-04-24 Wave 10J/10K checkpoint_
+_Last updated: 2026-05-01 evidence-status contract draft_
 
 ## Active Backlog (Evan's lane)
+
+### Evidence-status final-exam contract [Drafted 2026-05-01 — awaiting Lead/Quincy arbitration]
+Draft note exists at `_pws/econ-evan/evidence_status_confirmation_contract_20260501.md`.
+
+Action: Lead and Quincy decide whether to:
+- Promote proposed ECON-FE1 and GATE-32 wording into SOPs.
+- Add the proposed `final_exam` object to `docs/schemas/evidence_status.schema.json` v1.1.0.
+- Create a separate `docs/schemas/final_exam_results.schema.json` for detailed confirmation metrics.
+
+No pair should be upgraded to `passed_final_exam` until this contract is accepted and a QA replay gate exists.
 
 ### BL-LEGACY-WINNER-SUMMARY-SHAPE [Wave 10K — FIRST DISPATCH]
 6 legacy pairs (`indpro_spy`, `permit_spy`, `vix_vix3m_spy`, `sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy`) have `winner_summary.json` files missing 7+ required fields versus schema v1.1.0 shape. Fields typically absent:

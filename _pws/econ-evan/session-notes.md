@@ -1,5 +1,23 @@
 # Econ Evan — AIG-RLIC+ Session Notes
 
+## 2026-05-01 — Evidence-status confirmation-test contract draft
+
+Agent: Econ Evan
+Branch: `260430`
+Scope: Drafted the econometric confirmation-test contract for promoting pairs from `found_in_search` to `needs_final_exam` or `passed_final_exam`.
+
+Changes:
+- Added `_pws/econ-evan/evidence_status_confirmation_contract_20260501.md`.
+- Left shared schemas/SOPs untouched per dispatch; included exact proposed patch text for a v1.1 `final_exam` block and new ECON-FE1 / GATE-32 wording.
+
+Core recommendation:
+- Existing tournament winners remain `found_in_search` unless a frozen-rule, post-selection final exam exists.
+- `needs_final_exam` covers declared or partial confirmation work.
+- `passed_final_exam` requires sample separation, frozen-rule consistency, target-class Sharpe floor, positive after-cost excess return, delta-Sharpe, drawdown gate, block-bootstrap uncertainty, multiple-testing/luck adjustment, and Quincy replay.
+
+Open follow-up:
+- Lead/Quincy arbitration needed on whether to promote the proposed `final_exam` object into `docs/schemas/evidence_status.schema.json` v1.1.0 or create a dedicated `final_exam_results.schema.json` first.
+
 ## 2026-04-23 — Wave 10I.A schema relaxation (fast-path)
 
 Dispatch: relax `winner_summary.schema.json` `threshold_value` to accept `null` to unblock 6/41 cloud-verify FAILs.

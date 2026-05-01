@@ -6,6 +6,13 @@
 
 ## Active — awaiting Lead decision
 
+### OW-4: GATE-ES1 evidence-status promotion gate arbitration
+
+**Status:** Drafted by Quincy 2026-05-01; awaiting Lead/Evan arbitration.
+**Evidence:** `_pws/qa-quincy/evidence-status-final-exam-qa-gate-20260501.md`.
+**Impact:** No pair should be promoted from `found_in_search` to `passed_final_exam` until Lead accepts final-exam thresholds/artifact shape and QA verifies reproducibility plus DOM honesty.
+**What Quincy does next:** after Evan/Lead define the confirmation-output schema/metrics, convert the draft gate into final QA SOP wording or verify the producer implementation without editing econometrics-owned files.
+
 ### OW-1: Perceptual PNGs — 9/10 pairs at GATE-HZE1 WARN
 
 **Status:** WARN (not FAIL). No `history_zoom_*.json` on disk for 9 of 10 pairs.

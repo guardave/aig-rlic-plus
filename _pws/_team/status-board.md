@@ -1,5 +1,28 @@
 # Team Status Board
 
+## 2026-05-01 — Lead Lesandro (Evidence-Status Final-Exam Contract)
+
+**Status:** Contract/gate scaffolding promoted. No pair status upgraded.
+
+**Process discipline:** User required at most one agent per role, with SOD at
+the beginning and EOD at the end. Lead dispatched one Evan (`econ-evan`) and
+one Quincy (`qa-quincy`). Both completed SOD/EOD and wrote role-owned drafts:
+
+- `_pws/econ-evan/evidence_status_confirmation_contract_20260501.md`
+- `_pws/qa-quincy/evidence-status-final-exam-qa-gate-20260501.md`
+
+**Lead arbitration:**
+- Promoted Evan's criteria into `ECON-FE1`.
+- Promoted Quincy's verification wording into `GATE-ES1`.
+- Bumped `evidence_status.schema.json` to v1.1.0 with optional `final_exam`.
+- Added `final_exam_results.schema.json` for detailed confirmation metrics.
+
+**Next cross-agent action:** Evan builds a pilot final-exam computation/replay
+artifact for one pair; Quincy verifies it with GATE-ES1. Until then, all current
+pairs remain `found_in_search`.
+
+---
+
 ## 2026-04-24 — QA Quincy (GATE-VIZ-NBER2 — Episode-Window-Aware NBER Shading Check)
 
 **Status:** Complete. New gate authored, wired, experience entry added.
