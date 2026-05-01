@@ -218,6 +218,7 @@ APP-SS1 validation PASS
 
 ### Self-reflection round (Wave 10J)
 - Read all agent SOPs + experience files. Identified gap: HISTORY_ZOOM_EPISODES populated only in `hy_ig_spy_config.py`; 8 configs silent-skip the section.
+
 - Authored new SOP rule **ACE-HZE1** in `docs/agent-sops/appdev-agent-sop.md`. Key provisions:
   - At config-authorship time, audit Ray handoff + `ls output/charts/{pair_id}/plotly/history_zoom_*.json`.
   - If episode data present → MUST populate `HISTORY_ZOOM_EPISODES`.
@@ -247,6 +248,16 @@ Added cross-reference to META-CPD in AppDev SOP deployment rules section.
 - Silent omissions (section never renders) are harder to gate than rendering errors — need positive-presence assertions.
 - Slug authority must be cross-checked against a canonical registry, not just the pair config author's memory.
 - [NARRATIVE PENDING] placeholder is a LEAD-DL1 violation risk — correct substitute is a blocker filing.
+
+## 2026-05-01 — indpro_xlp AppDev readiness pass
+
+- Role/session: `appdev-ace`; ran required SOD/EOD workflows, read AppDev SOP and team coordination.
+- Scope: readiness pass only, no full producer rebuild, no QA-owned files, no commits/pushes.
+- Result: ready for Quincy; no app-owned APP-* defect found.
+- Checks: `python3 app/_smoke_tests/smoke_loader.py indpro_xlp` PASS 8/0; `python3 app/_smoke_tests/smoke_schema_consumers.py --pair-id indpro_xlp` PASS 5/0.
+- Verified: APP-PT1 thin wrappers across all four pages; APP-LP8 missing `evidence_status.json` defaults to `found_in_search`; APP-TL1 broker-style + position logs both present and non-empty.
+- Note filed: `_pws/appdev-ace/indpro_xlp_appdev_readiness_20260501.md` with proposed Lead-owned `acceptance.md` text.
+- Harness caveat: `streamlit.testing.v1.AppTest.from_file(...)` is inconclusive for these pages because shared `st.page_link("app.py")` in the sidebar raises `KeyError: 'url_pathname'` in single-page test metadata before pair content renders.
 
 ## Open threads / backlog
 
