@@ -26,23 +26,38 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+USER_FACING_INTERNAL_PATS = [
+    "Ray leg",
+    "RES-17",
+    "stub expected",
+    "no narrative file found",
+    "pending migration",
+]
+
+
 class _MockSt:
-    """Minimal Streamlit stub — swallows rendering calls."""
+    """Minimal Streamlit stub — captures user-facing rendering calls."""
+
+    def __init__(self) -> None:
+        self.messages: list[str] = []
+
+    def _capture(self, *args, **kwargs):
+        self.messages.extend(str(arg) for arg in args)
 
     def error(self, *args, **kwargs):
-        pass
+        self._capture(*args, **kwargs)
 
     def warning(self, *args, **kwargs):
-        pass
+        self._capture(*args, **kwargs)
 
     def caption(self, *args, **kwargs):
-        pass
+        self._capture(*args, **kwargs)
 
     def info(self, *args, **kwargs):
-        pass
+        self._capture(*args, **kwargs)
 
     def markdown(self, *args, **kwargs):
-        pass
+        self._capture(*args, **kwargs)
 
 
 def run_smoke(pair_id: str) -> tuple[int, int, list[str]]:
@@ -117,7 +132,7 @@ def run_smoke(pair_id: str) -> tuple[int, int, list[str]]:
             passes += 1
             log.append(
                 f"PASS  APP-DIR1: 2-way agreement (Evan={report['evan']}, "
-                f"Dana={report['dana']}, Ray=pending RES-17)"
+                f"Dana={report['dana']}, story cross-check=not yet added)"
             )
         else:
             failures += 1
@@ -128,6 +143,31 @@ def run_smoke(pair_id: str) -> tuple[int, int, list[str]]:
     except Exception as exc:  # pragma: no cover
         failures += 1
         log.append(f"FAIL  APP-DIR1 triangulation raised: {exc!r}")
+        log.append(traceback.format_exc())
+
+    # APP-DIR1 render text: user-facing copy must stay ELI5 and not leak
+    # internal agent names, ticket IDs, or migration diagnostics.
+    try:
+        fake_st.messages.clear()
+        direction_check.render_direction_check(pair_id)
+        rendered_text = "\n".join(fake_st.messages)
+        leaks = [
+            token
+            for token in USER_FACING_INTERNAL_PATS
+            if token.lower() in rendered_text.lower()
+        ]
+        if leaks:
+            failures += 1
+            log.append(
+                "FAIL  APP-DIR1 render copy: internal terms visible "
+                f"{leaks!r} in {rendered_text!r}"
+            )
+        else:
+            passes += 1
+            log.append("PASS  APP-DIR1 render copy: ELI5 text has no internal tokens")
+    except Exception as exc:  # pragma: no cover
+        failures += 1
+        log.append(f"FAIL  APP-DIR1 render copy raised: {exc!r}")
         log.append(traceback.format_exc())
 
     return passes, failures, log

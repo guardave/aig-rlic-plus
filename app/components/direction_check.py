@@ -108,6 +108,16 @@ def _canonicalize(direction: str | None) -> str | None:
     return direction
 
 
+def _plain_direction_label(direction: str | None) -> str:
+    """Return a reader-friendly label for the canonical direction enum."""
+    labels = {
+        "countercyclical": "counter-cyclical",
+        "procyclical": "pro-cyclical",
+        "mixed": "mixed",
+    }
+    return labels.get(direction or "", "unknown")
+
+
 def check_direction_agreement(pair_id: str) -> dict:
     """Validate 3-way direction agreement (Evan ↔ Dana ↔ Ray) for a pair.
 
@@ -261,13 +271,17 @@ def render_direction_check(pair_id: str) -> dict:
     report = check_direction_agreement(pair_id)
     if report["agreement"]:
         ray = report.get("ray")
-        ray_status = (
-            f"Ray agrees on `{ray}`"
-            if ray is not None
-            else "Ray leg: no narrative file found (RES-17 stub expected)"
-        )
-        st.caption(
-            f"What this shows: direction triangulation (APP-DIR1, 3-way) "
-            f"— Evan and Dana agree on `{report['evan']}`. {ray_status}."
-        )
+        direction_label = _plain_direction_label(report.get("evan"))
+        if ray is not None:
+            st.caption(
+                "What this shows: direction check — the model record, "
+                "metadata record, and story record all agree this signal is "
+                f"{direction_label}."
+            )
+        else:
+            st.caption(
+                "What this shows: direction check — two independent project "
+                f"records agree this signal is {direction_label}. The optional "
+                "story cross-check has not been added yet."
+            )
     return report

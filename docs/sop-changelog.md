@@ -8,6 +8,29 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-01 — APP-DIR1 ELI5 Copy Gate
+
+**Trigger.** The Strategy DOM showed an accurate but cryptic engineering
+diagnostic: "Ray leg: no narrative file found (RES-17 stub expected)". Evan and
+Dana agreed on direction, so the page was usable, but the visible explanation
+leaked agent/ticket/file language to readers.
+
+**Rule updated:**
+
+- **GATE-CL1** (`appdev-agent-sop.md`): user-facing APP-DIR1 gaps must explain
+  the state in reader language. If the optional story cross-check is absent,
+  the page says that plainly and does not mention Ray, RES IDs, stubs, or file
+  paths.
+- **GATE-28 / HABIT-QA1** (`qa-agent-sop.md`): cloud DOM review and
+  `scripts/cloud_verify.py` now treat "Ray leg", "RES-17", "stub expected", and
+  "no narrative file found" as internal diagnostic leaks.
+
+**Retro-test.** `app/_smoke_tests/smoke_schema_consumers.py` now renders the
+APP-DIR1 caption with a Streamlit stub and fails if those internal tokens appear
+in user-facing text.
+
+---
+
 ## 2026-05-01 — Final-Exam Confirmation Contract
 
 **Trigger.** After APP-LP8 made search-grade evidence visible, Lead dispatched one

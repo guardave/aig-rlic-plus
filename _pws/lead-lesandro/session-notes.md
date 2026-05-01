@@ -524,3 +524,15 @@ Major repeatability and maintainability findings from the review:
 ### Next Session Starter
 
 Start with the low-impact artifact-free change: implement ELI5 evidence-status display and schema scaffolding. Do not rerun pipelines yet. Default all pairs without `evidence_status.json` to `found_in_search` and make the dashboard wording explicit that the current winner is promising but not final-exam confirmed.
+
+---
+
+## 2026-05-01 — APP-DIR1 Copy Leak Retro-Fix
+
+User flagged the Strategy caption "Ray leg: no narrative file found (RES-17 stub expected)" as too cryptic. Resolution was not a one-off pair edit:
+
+- Updated the shared APP-DIR1 renderer so missing story cross-checks render as ELI5 copy: two independent project records agree; optional story cross-check has not been added yet.
+- Added a schema-consumer smoke regression that renders APP-DIR1 with a Streamlit stub and fails on internal user-facing tokens (`Ray leg`, `RES-17`, `stub expected`, `no narrative file found`).
+- Updated AppDev GATE-CL1 and QA GATE-28/HABIT-QA1 so future agents treat this as a SOP/test issue, not a local wording nit.
+- Retro-ran `python3 app/_smoke_tests/smoke_schema_consumers.py --pair-id indpro_xlp`: 6 PASS / 0 FAIL.
+- Also ran the APP-DIR1 render-copy check across all 10 active registry pairs with logs in `/tmp`: APP-DIR1 caption passed on every pair. Six legacy pairs still fail the broader smoke on missing `analyst_suggestions.json`, which is pre-existing and unrelated to this APP-DIR1 copy leak.

@@ -110,6 +110,9 @@ APP_SEV1_PATS = [
 STUB_PATS = [
     "vs N/A",                  # B&H benchmark not populated (Story KPI block)
     "Ray leg pending",         # unmerged narrative stub
+    "Ray leg:",                # internal APP-DIR1 diagnostic leak
+    "RES-17 stub",             # internal APP-DIR1 ticket/migration leak
+    "no narrative file found", # internal APP-DIR1 file diagnostic leak
     "Signal universe table unavailable",  # Methodology stub
     "Stationarity tests missing",         # Methodology stub
     "Total tournament combinations: N/A", # Methodology stub
