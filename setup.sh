@@ -99,11 +99,29 @@ else
   fi
 fi
 
+echo ""
+echo "[2c/5] Checking Playwright browser bundle..."
+if python3 - <<'PY' 2>/dev/null
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+
+with sync_playwright() as pw:
+    path = Path(pw.chromium.executable_path)
+    if not path.exists():
+        raise SystemExit(1)
+PY
+then
+  echo "  -> Playwright Chromium found."
+else
+  echo "  -> Installing Playwright Chromium..."
+  python3 -m playwright install chromium
+fi
+
 # Codex runs inside this project devcontainer, so the container is the isolation
 # boundary for this repo. Avoid Codex's nested bubblewrap sandbox here; it is
 # fragile under Docker Desktop / devcontainer security profiles.
 echo ""
-echo "[2c/5] Configuring Codex for this workspace..."
+echo "[2d/5] Configuring Codex for this workspace..."
 CODEX_CONFIG_DIR="${CODEX_HOME:-$HOME/.codex}"
 CODEX_CONFIG_FILE="$CODEX_CONFIG_DIR/config.toml"
 mkdir -p "$CODEX_CONFIG_DIR"
