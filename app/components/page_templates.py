@@ -52,6 +52,7 @@ from components.analyst_suggestions_table import render_analyst_suggestions
 from components.breadcrumb import render_breadcrumb
 from components.charts import load_plotly_chart
 from components.direction_check import render_direction_check
+from components.evidence_status import render_evidence_status_note
 from components.instructional_trigger_cards import render_instructional_trigger_cards
 from components.live_execution_placeholder import render_live_execution_placeholder
 from components.metrics import kpi_row
@@ -1152,6 +1153,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     )
     with st.container(border=True):
         st.markdown(signal_rule)
+
+    render_evidence_status_note(pair_id)
 
     how_signal = getattr(config, "HOW_SIGNAL_IS_GENERATED_MD", None)
     if how_signal:

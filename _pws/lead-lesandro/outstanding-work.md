@@ -1,5 +1,10 @@
 # Outstanding Work — Lead Lesandro
 
+## Evidence-Status Follow-On
+
+- **Final-exam metrics not yet defined** — `APP-LP8` and `docs/schemas/evidence_status.schema.json` are live, but current pairs still default to `found_in_search` until Evan/Quincy define confirmation criteria and produce per-pair `evidence_status.json` artifacts.
+- Candidate next dispatch: Evan drafts confirmation-test metric options; Quincy drafts gate/check wording; Lead arbitrates status thresholds before any pair is upgraded to `passed_final_exam`.
+
 ## Wave 10H.2/10I Hygiene Wave (bundleable)
 
 Four backlog items, all closely related, best shipped together:

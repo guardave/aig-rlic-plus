@@ -1,5 +1,28 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-05-01 (BL-ELI5-EVIDENCE-STATUS first land)
+
+### Summary
+Promoted `BL-ELI5-EVIDENCE-STATUS` into `APP-LP8 Evidence-Status Honesty Label` and shipped the first UI/schema layer. Landing cards and Strategy-page Tournament Winner sections now state whether a pair is still search-grade evidence. Missing `results/{pair_id}/evidence_status.json` defaults conservatively to `found_in_search` / "Best rule found in the search."
+
+### Files changed
+- `app/components/evidence_status.py` — optional status loader, defaulting, badge HTML, Strategy-page note renderer.
+- `app/app.py` — landing-card badge/caption.
+- `app/components/page_templates.py` — Strategy-page evidence-status note.
+- `docs/schemas/evidence_status.schema.json` + example.
+- `docs/agent-sops/appdev-agent-sop.md`, `docs/standards.md`, `docs/sop-changelog.md`, `docs/backlog.md` — APP-LP8 registration and backlog promotion.
+
+### Validation
+- `python3 scripts/validate_schema.py --schema docs/schemas/evidence_status.schema.json --instance docs/schemas/examples/evidence_status.example.json` — PASS.
+- `python3 -m py_compile app/components/evidence_status.py app/app.py app/components/page_templates.py` — PASS.
+- Loader smoke: `hy_ig_v2_spy` with no status file returns `found_in_search`, label "Best rule found in the search", 0 errors.
+- Local Streamlit responded HTTP 200 on port 8501.
+
+### Follow-on
+This is display/contract only. It does not rerun pipelines, alter tournament winners, or compute confirmation metrics. Next methodological work is Evan/Quincy defining the actual final-exam confirmation criteria so selected pairs can move from `found_in_search` to `needs_final_exam` or `passed_final_exam`.
+
+---
+
 ## Session: 2026-04-22/23 (Wave 10H + 10H.1 — Chart governance framework + LEAD-DL1)
 
 ### Summary
@@ -422,4 +445,3 @@ Major repeatability and maintainability findings from the review:
 ### Next Session Starter
 
 Start with the low-impact artifact-free change: implement ELI5 evidence-status display and schema scaffolding. Do not rerun pipelines yet. Default all pairs without `evidence_status.json` to `found_in_search` and make the dashboard wording explicit that the current winner is promising but not final-exam confirmed.
-

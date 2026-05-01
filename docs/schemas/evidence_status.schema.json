@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/evidence_status.schema.json",
+  "x-owner": "evan",
+  "x-version": "1.0.0",
+  "title": "Evidence Status",
+  "description": "Optional per-pair honesty label at `results/{pair_id}/evidence_status.json`. It tells dashboard consumers whether the currently displayed winner is merely the best rule found in a broad search, still needs a fresh confirmation test, or has passed that confirmation. Missing files default to `found_in_search` in the app.",
+  "type": "object",
+  "required": [
+    "pair_id",
+    "schema_version",
+    "status",
+    "updated_at"
+  ],
+  "properties": {
+    "pair_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$",
+      "description": "Canonical pair identifier matching `results/{pair_id}`."
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Instance schema version."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "found_in_search",
+        "needs_final_exam",
+        "passed_final_exam"
+      ],
+      "description": "`found_in_search` means the winner is the best rule selected from the tournament search. `needs_final_exam` means confirmation is planned or partially prepared but not yet passed. `passed_final_exam` means a fresh holdout or equivalent confirmation test was run after selection and passed."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp for the evidence-status decision."
+    },
+    "confirmation_test": {
+      "type": "string",
+      "description": "Name of the final-exam/confirmation method, when applicable."
+    },
+    "confirmation_window": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date"
+        },
+        "end": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "additionalProperties": false
+    },
+    "plain_english": {
+      "type": "string",
+      "description": "Optional pair-specific plain-English wording. If omitted, the app uses canonical ELI5 copy for the status enum."
+    },
+    "technical_note": {
+      "type": "string",
+      "description": "Optional technical note documenting the statistical reason for the status."
+    },
+    "next_step": {
+      "type": "string",
+      "description": "Optional next action, especially for `found_in_search` or `needs_final_exam`."
+    },
+    "owner": {
+      "type": "string",
+      "description": "Agent or human who made the evidence-status decision."
+    }
+  },
+  "additionalProperties": false
+}

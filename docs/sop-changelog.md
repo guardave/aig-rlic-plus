@@ -8,6 +8,18 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-01 — BL-ELI5-EVIDENCE-STATUS First Land
+
+**Trigger.** The 2026-04-30 review concluded current tournament winners are discovery-grade unless they have a post-selection confirmation test. The portal needed to say that plainly instead of letting Sharpe cards imply confirmed prediction.
+
+**Rule added:**
+
+- **APP-LP8 Evidence-Status Honesty Label** (`appdev-agent-sop.md` Landing Page 8): landing cards and Strategy-page Tournament Winner sections show an evidence-status label. Optional artifact: `results/{pair_id}/evidence_status.json`, schema `docs/schemas/evidence_status.schema.json`. Missing artifact defaults to `found_in_search` / **Best rule found in the search**. Schema-invalid artifacts degrade to the same conservative default with APP-SEV1 L2 warning.
+
+**Implementation first land.** Added reusable loader/render helper in `app/components/evidence_status.py`, landing-card badge/caption, Strategy-page status note, schema, and example. No pair artifacts or pipeline reruns required.
+
+---
+
 ## 2026-04-23 — Wave 10I.C Closure: Quality Gate Overhaul + 6 New SOP Rules
 
 **Final verify (commit `0cedde6`):** 41/41 PASS. 10 visible-error failure classes eliminated. Quality gate rebuilt from structural-marker checking to adversarial DOM content inspection.

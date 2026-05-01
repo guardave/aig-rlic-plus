@@ -16,6 +16,7 @@ from components.pair_registry import (
     get_integrity_issues,
     humanize_column_tokens,
 )
+from components.evidence_status import evidence_status_badge_html, load_evidence_status
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
 
@@ -60,6 +61,7 @@ industrial production, building permits) can be used to time equity exposure.
 - Use the filter row to narrow by indicator nature, type, strategy objective, or direction
 - Click **Story** for the narrative, **Evidence** for statistics, **Strategy** for the trading rule, **Methods** for the econometrics
 - Each card shows the winning strategy's Sharpe ratio and max drawdown vs buy-and-hold
+- Evidence status labels tell you whether a result is still search-grade or has passed a fresh confirmation test
         """
     )
 
@@ -276,6 +278,16 @@ for i in range(0, len(pairs), cols_per_row):
                     f'</div>'
                 )
                 st.markdown(chips_html, unsafe_allow_html=True)
+
+                evidence_status_html = evidence_status_badge_html(p["pair_id"])
+                status_data, status_errors = load_evidence_status(p["pair_id"])
+                st.markdown(evidence_status_html, unsafe_allow_html=True)
+                st.caption(status_data.get("short_explanation", ""))
+                if status_errors:
+                    st.caption(
+                        "Evidence status file did not validate; showing the "
+                        "conservative default."
+                    )
 
                 # Metrics as compact table (with performance coloring)
                 sharpe_raw = p.get("best_oos_sharpe")

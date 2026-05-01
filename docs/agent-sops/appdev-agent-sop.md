@@ -818,6 +818,27 @@ A pair whose classification falls back to `"Unknown"` for any dimension is an **
 
 **Cross-reference:** Data agent (Dana) and Research agent (Ray) own the upstream classification fields in `interpretation_metadata.json`. Coordinate with them when adding a new pair to ensure all four classification fields are populated before the pair appears on the landing page. The correct remedy for an Unknown pair is to fix the metadata at source, not to relax the filter rules above.
 
+### 8. Evidence-status honesty label
+
+Every landing-page card MUST show an evidence-status label loaded from
+`results/{pair_id}/evidence_status.json` when present. The artifact validates
+against `docs/schemas/evidence_status.schema.json`. Missing files are not a
+display error; they default to `found_in_search` with the plain-English label
+**Best rule found in the search**.
+
+Canonical labels:
+
+| Status | Label | Meaning |
+|--------|-------|---------|
+| `found_in_search` | Best rule found in the search | The winner came from a broad tournament search and is a promising lead, not confirmed prediction. |
+| `needs_final_exam` | Needs final exam | The rule is queued for a fresh post-selection confirmation test. |
+| `passed_final_exam` | Passed final exam | The rule passed a fresh holdout or equivalent confirmation test after selection. |
+
+Strategy pages MUST repeat the status near the Tournament Winner section so
+readers do not mistake a search-selected winner for confirmed forecasting
+evidence. Schema-invalid status files degrade to the conservative
+`found_in_search` default and surface an APP-SEV1 L2 warning.
+
 ---
 
 ## Inputs I Need

@@ -219,6 +219,7 @@ Source: [`docs/agent-sops/appdev-agent-sop.md`](agent-sops/appdev-agent-sop.md)
 | APP-LP5 | Classification Chips — nature/type/objective/direction chips on each card. | Landing Page 5 |
 | APP-LP6 | Metadata Source — cards read from interpretation_metadata.json + winner_summary.json + tournament_winner.json. | Landing Page 6 |
 | APP-LP7 | Filter Behavior for Unknown — unknown values surfaced as integrity warnings, not silent. | Landing Page 7 |
+| APP-LP8 | Evidence-Status Honesty Label — landing cards and Strategy Tournament Winner sections show `evidence_status.json` when present, defaulting missing files to `found_in_search` with ELI5 wording. | Landing Page 8 |
 | APP-IQ1 | Input Quality Log — Ace logs input quality issues per portal page. | Input Quality Log |
 | APP-D2 | Defense 2 — Numerical Reconciliation — Ace runs reconciliation script against chart numbers before shipping. | Defense 2 |
 | APP-Q1 | Quality Gates — Ace checklist passed before shipping. | Quality Gates |
