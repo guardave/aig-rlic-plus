@@ -99,6 +99,21 @@ else
   fi
 fi
 
+# Codex command sandboxing uses bubblewrap. The devcontainer security profile
+# must also allow user namespace creation; see .devcontainer/devcontainer.json.
+echo ""
+echo "[2c/5] Checking Codex sandbox helper..."
+if command -v bwrap &>/dev/null; then
+  echo "  -> bubblewrap found."
+else
+  echo "  -> Installing bubblewrap..."
+  if command -v sudo &>/dev/null; then
+    sudo apt-get update -y && sudo apt-get install -y bubblewrap
+  else
+    apt-get update -y && apt-get install -y bubblewrap
+  fi
+fi
+
 # --------------------------------------------------------------------------
 # 3. MCP Servers (8 total — budget max 10)
 # --------------------------------------------------------------------------
