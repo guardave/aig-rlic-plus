@@ -99,20 +99,53 @@ else
   fi
 fi
 
-# Codex command sandboxing uses bubblewrap. The devcontainer security profile
-# must also allow user namespace creation; see .devcontainer/devcontainer.json.
+# Codex runs inside this project devcontainer, so the container is the isolation
+# boundary for this repo. Avoid Codex's nested bubblewrap sandbox here; it is
+# fragile under Docker Desktop / devcontainer security profiles.
 echo ""
-echo "[2c/5] Checking Codex sandbox helper..."
-if command -v bwrap &>/dev/null; then
-  echo "  -> bubblewrap found."
-else
-  echo "  -> Installing bubblewrap..."
-  if command -v sudo &>/dev/null; then
-    sudo apt-get update -y && sudo apt-get install -y bubblewrap
-  else
-    apt-get update -y && apt-get install -y bubblewrap
-  fi
-fi
+echo "[2c/5] Configuring Codex for this workspace..."
+CODEX_CONFIG_DIR="${CODEX_HOME:-$HOME/.codex}"
+CODEX_CONFIG_FILE="$CODEX_CONFIG_DIR/config.toml"
+mkdir -p "$CODEX_CONFIG_DIR"
+touch "$CODEX_CONFIG_FILE"
+python3 - "$CODEX_CONFIG_FILE" "$WORKSPACE_DIR" <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+workspace = sys.argv[2]
+section = f'[projects."{workspace}"]'
+lines = path.read_text().splitlines()
+
+out = []
+in_section = False
+section_seen = False
+sandbox_written = False
+
+for line in lines:
+    stripped = line.strip()
+    if stripped.startswith("[") and stripped.endswith("]"):
+        if in_section and not sandbox_written:
+            out.append('sandbox_mode = "danger-full-access"')
+            sandbox_written = True
+        in_section = stripped == section
+        section_seen = section_seen or in_section
+    if in_section and stripped.startswith("sandbox_mode"):
+        out.append('sandbox_mode = "danger-full-access"')
+        sandbox_written = True
+    else:
+        out.append(line)
+
+if in_section and not sandbox_written:
+    out.append('sandbox_mode = "danger-full-access"')
+elif not section_seen:
+    if out and out[-1] != "":
+        out.append("")
+    out.extend([section, 'trust_level = "trusted"', 'sandbox_mode = "danger-full-access"'])
+
+path.write_text("\n".join(out) + "\n")
+PY
+echo "  -> Codex sandbox_mode set to danger-full-access for $WORKSPACE_DIR."
 
 # --------------------------------------------------------------------------
 # 3. MCP Servers (8 total — budget max 10)
