@@ -3,7 +3,7 @@
 **Pair:** Industrial Production (`INDPRO`) -> Consumer Staples ETF (`XLP`)  
 **Date:** 2026-05-01  
 **Lead:** Lesandro  
-**Status:** Accepted for repo closure with browser-verification note  
+**Status:** Accepted for repo closure
 
 ## Summary
 
@@ -59,23 +59,30 @@ QA verified APP-LP8/APP-TL1 and closure gates:
 
 Source: `results/indpro_xlp/qa_verification_20260501.md`.
 
-## Residual Risk
+## Browser/Cloud Verification
 
-Canonical browser/Cloud DOM verification was not run in this workspace because
-`scripts/cloud_verify.py` requires Playwright and exits with
-`ModuleNotFoundError: No module named 'playwright'`.
+Canonical browser/Cloud verification was completed on 2026-05-01 after
+Playwright installation.
 
-Before external stakeholder delivery, run the canonical Cloud/browser verify in
-a Playwright-enabled environment and append the evidence here. This is a
-delivery-hardening note, not a current repo-closure blocker, because:
+- Command: `python3 scripts/cloud_verify.py --pairs indpro_xlp`
+- Output directory: `temp/20260501T193407Z_cloud_verify/`
+- Result: PASS — `5 PASS / 0 FAIL / 5 TOTAL`
+- Key evidence: `temp/20260501T193407Z_cloud_verify/results.json`,
+  `temp/20260501T193407Z_cloud_verify/screenshots/index.md`, and
+  `temp/20260501T193407Z_cloud_verify/dom_text/indpro_xlp_{story,evidence,strategy,methodology}.txt`
 
-- current local loader and schema-consumer checks pass;
-- prior 2026-04-20 Cloud structural checks for `indpro_xlp` passed after the
-  breadcrumb and Evidence-tab fixes;
-- Quincy found zero current local artifact/schema blockers.
+QA read the captured Story, Evidence, Strategy, and Methodology DOM text per
+HABIT-QA1. No chart-pending placeholders, APP-SEV1 banners, Python tracebacks,
+or active warning/error text were found. Breadcrumb navigation is intact on all
+four pages, and the Evidence page renders the Level 1 / Level 2 tab structure.
+
+PASS-with-note remains for the visible Strategy APP-DIR1 fallback sentence,
+`Ray leg: no narrative file found (RES-17 stub expected)`. This is non-blocking
+for closure because Evan and Dana agree on `countercyclical` direction and the
+two-way agreement path is active.
 
 ## Lead Sign-Off
 
-Lead accepts `indpro_xlp` for repo closure on 2026-05-01 with the browser
-verification note above. The pair remains search-grade evidence under APP-LP8
-until a future final-exam artifact is produced and verified under GATE-ES1.
+Lead accepts `indpro_xlp` for repo closure on 2026-05-01. The pair remains
+search-grade evidence under APP-LP8 until a future final-exam artifact is
+produced and verified under GATE-ES1.

@@ -69,6 +69,14 @@ closure with one explicit residual note: canonical browser/Cloud DOM verify was
 not run because Playwright is missing from this workspace. Run Cloud verify in a
 Playwright-enabled environment before external stakeholder delivery.
 
+### Browser verification follow-up
+User asked to install Playwright and dispatch Quincy to complete the residual
+browser check. Installed Python Playwright plus Chromium bundle. Quincy ran
+`python3 scripts/cloud_verify.py --pairs indpro_xlp` with result 5 PASS / 0
+FAIL / 5 TOTAL, read all four page DOM text files per HABIT-QA1, and wrote
+`results/indpro_xlp/qa_browser_verification_20260501.md`. Acceptance updated to
+replace the residual-risk note with the browser/Cloud evidence.
+
 ---
 
 ## Session: 2026-05-01 (BL-ELI5-EVIDENCE-STATUS first land)

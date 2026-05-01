@@ -24,6 +24,34 @@
 
 ---
 
+## 2026-05-01 — indpro_xlp browser/Cloud QA verification after Playwright install
+
+**Dispatch:** Lead/user asked Quincy to complete the remaining canonical browser/Cloud verification for `indpro_xlp` now that Playwright and Chromium are installed. Scope: QA-owned notes/reports only; no producer or appdev artifact edits; no commit/push.
+
+**SOD context:** Role confirmed as `qa-quincy`; branch `260430`; repo clean at start of this dispatch. Read SOD skill, QA SOP, team coordination, README, Quincy PWS notes/outstanding work, team status board, and `results/indpro_xlp/acceptance.md`.
+
+**Command:** `python3 scripts/cloud_verify.py --pairs indpro_xlp`
+
+**Output directory:** `temp/20260501T193407Z_cloud_verify/`
+
+**Verdict:** PASS-with-note, blockers 0. Canonical browser/Cloud result: `5 PASS / 0 FAIL / 5 TOTAL`. Evidence file: `results/indpro_xlp/qa_browser_verification_20260501.md`.
+
+**HABIT-QA1:** I read DOM text for `temp/20260501T193407Z_cloud_verify/dom_text/indpro_xlp_story.txt` (Story). I found substantive XLP narrative, KPIs, crisis-history charts, breadcrumb labels, and no chart-pending, warning, APP-SEV1, or traceback text.
+
+**HABIT-QA1:** I read DOM text for `temp/20260501T193407Z_cloud_verify/dom_text/indpro_xlp_evidence.txt` (Evidence). I found the Level 1 / Level 2 Evidence structure, cross-period charts, NBER-shading context, breadcrumb labels, and no chart-pending, warning, APP-SEV1, or traceback text; visible `N/A` values are labelled no-data episode bars, not broken metrics.
+
+**HABIT-QA1:** I read DOM text for `temp/20260501T193407Z_cloud_verify/dom_text/indpro_xlp_strategy.txt` (Strategy). I found the Strategy page content, Execute/Performance/Confidence tabs, APP-TL1 trade-log locator pass in results, breadcrumb labels, and no chart-pending, warning, APP-SEV1, or traceback text; I did find the non-blocking APP-DIR1 Ray-leg fallback sentence.
+
+**HABIT-QA1:** I read DOM text for `temp/20260501T193407Z_cloud_verify/dom_text/indpro_xlp_methodology.txt` (Methodology). I found the technical appendix, Signal Universe, method table, references, breadcrumb labels, and no chart-pending, warning, APP-SEV1, or traceback text.
+
+**APP-LP8:** Direct check with `PYTHONPATH=app` returned `status=found_in_search`, label `Best rule found in the search`, source `default_missing_file`, `errors=[]`; live landing DOM for `Industrial Production -> Consumer Staples Select Sector (XLP)` contains no final-exam overclaim.
+
+**PASS-with-note detail:** Strategy DOM still shows `Ray leg: no narrative file found (RES-17 stub expected)`. This is visible but non-blocking under the two-way Evan/Dana APP-DIR1 agreement path.
+
+**Files changed this session:** `results/indpro_xlp/qa_browser_verification_20260501.md` and this session note. No producer artifacts, appdev files, commit, or push.
+
+---
+
 ## 2026-05-01 — Evidence-status final-exam QA gate draft
 
 **Dispatch:** Lead/user asked Quincy to define independent QA gate wording for promoting `evidence_status.json` from `found_in_search` to `needs_final_exam` or `passed_final_exam`. Scope was verification only; no producer artifacts or shared SOP files edited.
