@@ -504,6 +504,11 @@ A **"narrative instrument reference"** is any financial instrument name — ETF 
   RES-NR1 check: target_symbol={value}; narrative references verified: [list of instrument names found and confirmed]
   ```
 - **Quality gate item:** added to Ray's checklist — "All instrument references in Story/Evidence narrative match `interpretation_metadata.json.target_symbol` and indicator fields."
+
+**Whitelist obligation:** When narrative prose legitimately references an out-of-pair instrument for comparison (e.g., "Unlike SPY, XLP tends to..." on an XLP pair; or "the VIX spiked" as economic context on a non-VIX pair), Ray MUST add those instrument names to `gate_nr_comparison_whitelist` in `results/{pair_id}/interpretation_metadata.json` before handoff. An empty whitelist on a pair whose narrative contains any comparative instrument reference is a RES-NR1 violation. Log the whitelist entries in the handoff note alongside the RES-NR1 check line:
+```
+RES-NR1 whitelist: gate_nr_comparison_whitelist = ["S&P 500", "VIX"]
+```
 - **Cross-references:** APP-PT1 (Ace renders, Ray authors), GATE-NR (QA enforcement of this rule at DOM level), RES-17 (narrative frontmatter), APP-DIR1 (direction triangulation — direction accuracy is the companion rule to instrument accuracy).
 
 ### Rule RES-CPC1 — CONFIG-PARSE-CHECK After Every Config Rewrite (Blocking)
@@ -1146,6 +1151,7 @@ Before handing off:
 - [ ] **RES-PA3** — "How to Read the Trade Log" subsection present on Strategy page with all four mandatory elements; heading exactly matches required title.
 - [ ] **RES-EGL1** — Run the structured EGL1 self-check table below before handoff. All six sub-rules pass.
 - [ ] **RES-NR1** — All instrument references in Story/Evidence narrative match `interpretation_metadata.json.target_symbol` and indicator fields. RES-NR1 check logged in handoff note.
+- [ ] `gate_nr_comparison_whitelist` reviewed; any legitimate out-of-pair instrument references added to `interpretation_metadata.json` before handoff.
 - [ ] **RES-OD1 / OD1a / OD1b** — Run the full three-step script in the RES-OD1 Defense 2 section (Step 1: vocabulary assertions on `winner_summary.json.direction`; Step 2: vocabulary assertions on `interpretation_metadata.observed_direction`; Step 3: equality check); paste literal stdout into handoff note per OD1a. Then run the OD1b `direction_consistent` recalculation gate. For batch migrations, also produce the OD1c batch log at `results/res_od1_batch_check_YYYYMMDD.txt`.
 - [ ] **Stub-check (C-A4)** — Before completing narrative handoff to Ace, confirm with Ace that no "Ray leg pending", "stub expected", or "RES-17" diagnostic strings appear in the current template for this pair. If such strings exist, deliver the missing narrative field before Ace deploys.
 

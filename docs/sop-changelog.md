@@ -8,6 +8,26 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-08 — GATE-NR-SOP wave — Fix Two Producer-Side SOP Gaps Causing Systematic GATE-NR Failures
+
+**Trigger.** Cloud verify (2026-05-08T20:58Z) returned 14 FAILs across all 10 pairs — every story page and 4 evidence pages — all driven by `gate_nr_result = FAIL`. Root cause: two SOP gaps, not narrative defects.
+
+Gap 1: `target_symbol` blank in `interpretation_metadata.json` for 3 pairs (`hy_ig_v2_spy`, `indpro_xlp`, `umcsent_xlv`). DATA-D6 named `target_symbol` as Dana's field but did not require it to be non-blank. With `target_symbol = ""`, GATE-NR's allow-list contains only the indicator_id, so any mention of the target ETF in the narrative fails.
+
+Gap 2: `gate_nr_comparison_whitelist` never populated on any pair. RES-NR1 required instrument *accuracy* but not whitelist population for legitimate comparative references (e.g., "S&P 500" on SPY-target pairs, "VIX" as economic context). QA-CL5/GATE-NR documented the whitelist mechanism reactively but imposed no delivery gate.
+
+**Rules added/updated:**
+
+- **DATA-D6** (`data-agent-sop.md`) — Added non-blank requirement for `target_symbol`. An empty string is blocking; Dana must populate before handoff. Added checklist bullet.
+- **RES-NR1** (`research-agent-sop.md`) — Added whitelist obligation. When narrative legitimately references an out-of-pair instrument for comparison, Ray must add it to `gate_nr_comparison_whitelist` before handoff. Added checklist bullet and handoff log format.
+- **QA-CL5/GATE-NR** (`qa-agent-sop.md`) — Added delivery gate. Quincy rejects any pair for cloud verify if `target_symbol` is blank or whitelist is incomplete for confirmed comparative references.
+
+**Artifacts:** `_pws/lead-lesandro/gate_nr_sop_wave_plan_20260508.md`
+
+**Post-wave obligation:** Artifact backfill wave (separate) — Dana populates `target_symbol` for 3 pairs; Ray reviews all 10 pairs and populates `gate_nr_comparison_whitelist`; Quincy re-runs cloud verify targeting 0 GATE-NR FAILs.
+
+---
+
 ## 2026-05-08 — META-DM wave — Dispatch Matrix & EOD Dispatch Gate
 
 **Trigger.** After promoting `hy_ig_v2_spy` to `passed_final_exam` via the three-period re-run, the qualitative narrative (Ray) was not reviewed for reconciliation — no SOP rule required it. Per-agent rules would have been combinatorially expensive and drift-prone (META-NCD). A static dispatch matrix in `team-coordination.md` plus a two-item universal EOD extension is the minimal correct fix.

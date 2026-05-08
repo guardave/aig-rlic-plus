@@ -818,6 +818,8 @@ For every Story page and Evidence page in the wave, QA reads the rendered DOM te
 
 **Scope limitation and exemption mechanism (Phase 3 C-Q1, Phase 4):** Full-DOM instrument scanning generates false FAILs on legitimate comparative references in episode prose (e.g., "Unlike SPY, XLP tends to..."). GATE-NR in `cloud_verify.py` (`_gate_nr_check()`) scans the DOM text but permits exemptions via `interpretation_metadata.json` key `gate_nr_comparison_whitelist` (list[str]). Per-episode comparative references that are semantically correct can be added to this allow-list by Ray or Lead. Full prose instrument scanning remains a HABIT-QA1 manual read obligation — GATE-NR automates only the headline instrument check.
 
+**Delivery gate (blocking):** Before accepting a pair's Story/Evidence pages as GATE-NR clean, Quincy checks that `results/{pair_id}/interpretation_metadata.json` contains: (a) a non-blank `target_symbol`, AND (b) a `gate_nr_comparison_whitelist` entry for every instrument name in the narrative that is not the pair's own target or indicator. If (a) is missing, return to Dana (DATA-D6 violation). If (b) is missing, return to Ray (RES-NR1 violation). Cloud verify is not run until both conditions are met.
+
 **Implementation status (F-03, Phase 4):** `_gate_nr_check()` implemented in `cloud_verify.py`. Called from `check_page()` for Story and Evidence pages. `FAIL` on wrong-pair instrument names contributes to verdict.
 
 **Verification command pattern:**
