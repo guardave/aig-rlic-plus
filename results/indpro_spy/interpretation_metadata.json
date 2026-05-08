@@ -58,5 +58,9 @@
     "manifest_ref": "BLOCKER: data/manifest.json has no entry for this pair",
     "missingness_ref": "data/missing_value_report_indpro_spy_20260314.md",
     "data_dictionary_ref": "BLOCKER: no current data dictionary found in data/"
-  }
+  },
+  "gate_nr_comparison_whitelist": [
+    "S&P 500",
+    "VIX"
+  ]
 }

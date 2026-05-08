@@ -99,5 +99,9 @@
   "observed_direction": "countercyclical",
   "direction_consistent": true,
   "confidence": "medium",
-  "indicator_category": "credit"
+  "indicator_category": "credit",
+  "gate_nr_comparison_whitelist": [
+    "VIX",
+    "S&P 500"
+  ]
 }
