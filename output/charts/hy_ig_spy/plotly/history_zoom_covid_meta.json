@@ -6,11 +6,28 @@
     "VIZ-V8",
     "VIZ-V11",
     "VIZ-NM1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V1",
+    "VIZ-NBER1",
+    "VIZ-DP1"
   ],
   "narrative_alignment_note": "Episode zoom (COVID 2019-2021) shows spread lead/lag relationship with SPY drawdown.",
   "created_at": "2026-04-22T10:50:44Z",
   "method_name": "History Zoom",
   "expected_chart_type": "dual_panel_line",
-  "disposition": "consumed"
+  "disposition": "consumed",
+  "title": "COVID Crash: HMM Correctly Signaled Stress; Strategy Avoided 30% Drawdown (2019-2021)",
+  "caption": "Episode zoom (COVID 2019-2021) shows spread lead/lag relationship with SPY drawdown.",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "2019-06-03 to 2021-06-30",
+  "data_source_path": "data/hy_ig_spy_daily_latest.parquet",
+  "exploratory": false,
+  "econ_rule_id": "ECON-C2",
+  "result_file": "data/hy_ig_spy_daily_latest.parquet",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

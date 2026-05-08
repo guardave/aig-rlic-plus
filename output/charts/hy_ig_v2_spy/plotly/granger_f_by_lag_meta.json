@@ -8,7 +8,8 @@
   "rules_applied": [
     "VIZ-V3",
     "VIZ-V11",
-    "VIZ-V13"
+    "VIZ-V13",
+    "VIZ-O1"
   ],
   "source_data": "results/hy_ig_v2_spy/granger_by_lag.csv",
   "stakeholder_items": [
@@ -18,5 +19,18 @@
   "annotation_strategy_id": "top_right_uniform",
   "updated_on": "2026-04-19",
   "wave_5c_retro": true,
-  "disposition": "consumed"
+  "disposition": "consumed",
+  "chart_name": "granger_f_by_lag",
+  "title": "Granger Causality: HY-IG Spread \u2192 SPY Returns, F-statistic by Lag",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "sample period not declared in legacy chart artifact",
+  "data_source_path": "granger_by_lag.csv",
+  "exploratory": false,
+  "econ_rule_id": "ECON-E1",
+  "result_file": "granger_by_lag.csv",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

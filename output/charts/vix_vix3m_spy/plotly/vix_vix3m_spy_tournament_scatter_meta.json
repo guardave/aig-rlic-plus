@@ -1,0 +1,22 @@
+{
+  "chart_name": "vix_vix3m_spy_tournament_scatter",
+  "pair_id": "vix_vix3m_spy",
+  "title": "Tournament: 916 Combos (331 Valid)",
+  "caption": "Tournament: 916 Combos (331 Valid)",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "sample period not declared in legacy chart artifact",
+  "data_source_path": "output/charts/vix_vix3m_spy/plotly/vix_vix3m_spy_tournament_scatter.json",
+  "rules_applied": [
+    "VIZ-O1"
+  ],
+  "disposition": "retired",
+  "palette_id": "okabe_ito_2026",
+  "exploratory": false,
+  "retire_reason": "Superseded by canonical bare filename or retained as legacy audit artifact per VIZ-A3/VIZ-V8.",
+  "canonical_consumption": false,
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
+}

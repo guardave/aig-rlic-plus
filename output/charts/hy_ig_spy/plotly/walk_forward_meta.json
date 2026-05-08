@@ -6,11 +6,26 @@
     "VIZ-V8",
     "VIZ-V11",
     "VIZ-NM1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-NBER1"
   ],
   "narrative_alignment_note": "Annual Sharpe bars show consistent outperformance in most years, with expected weakness in 2020 (COVID rapid recovery).",
   "created_at": "2026-04-22T10:50:45Z",
   "method_name": "Walk-Forward Validation",
   "expected_chart_type": "bar",
-  "disposition": "consumed"
+  "disposition": "consumed",
+  "title": "Walk-Forward OOS Sharpe: Positive in 14/17 Years; Strategy Robust",
+  "caption": "Annual Sharpe bars show consistent outperformance in most years, with expected weakness in 2020 (COVID rapid recovery).",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "sample period not declared in legacy chart artifact",
+  "data_source_path": "results/hy_ig_spy/walk_forward.csv",
+  "exploratory": false,
+  "econ_rule_id": "ECON-T1",
+  "result_file": "results/hy_ig_spy/walk_forward.csv",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

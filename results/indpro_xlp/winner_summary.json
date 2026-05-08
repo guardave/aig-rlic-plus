@@ -15,7 +15,7 @@
   "oos_ann_return": 0.1413,
   "oos_ann_vol": 0.1267,
   "oos_max_drawdown": -0.1353,
-  "oos_n_trades": 84,
+  "oos_n_trades": 43,
   "oos_period_start": "2019-01-31",
   "oos_period_end": "2026-01-31",
   "oos_n": 84,
@@ -25,5 +25,8 @@
   "bh_ann_return": 0.0968,
   "bh_max_drawdown": -0.1329,
   "total_combos": 3331,
-  "valid_combos": 2692
+  "valid_combos": 2692,
+  "oos_n_obs": 84,
+  "oos_n_trades_source": "winner_trades_broker_style.csv rows within OOS window",
+  "notes": "2026-05-08 ECON-OOS3 retro audit: oos_n_obs populated from tournament oos_n; oos_n_trades set to 43 broker-style OOS trade events."
 }

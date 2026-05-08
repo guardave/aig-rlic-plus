@@ -1,8 +1,19 @@
 {
-  "x-version": "1.0.0",
+  "x-version": "1.1.0",
   "x-owner": "vera",
   "x-generated": "2026-04-19",
-  "notes": "Bootstrapped from HY-IG v2 reference pair zoom charts (SL-4, SL-5) plus META-ZI canonical slug registry (dotcom, gfc, covid, taper_2018, inflation_2022). Dot-Com events match the stakeholder sketch from SL-4; GFC events from the NY Fed GFC timeline; COVID events from CBO + Fed H.4.1 launch record; Taper 2018 events from FOMC statements; Inflation 2022 events from FOMC + CPI releases. VIZ-V12 makes this the single source for all event markers on history_zoom_* charts — ad-hoc picks are prohibited. Ray may propose additions (e.g., new episodes aligned with RES-20 pending) via PR; Vera merges. Each entry's rationale + source_citation is mandatory.",
+  "x-revised": "2026-05-08",
+  "x-revision-notes": "v1.1.0 (2026-05-08 Phase 4 SOP fixes LA-1/LA-2): (1) Added top-level `indicator_category_map` keying the canonical episode slug list per indicator_category — satisfies LA-1 requirement that this registry be the single canonical source for RES-HZE1 / VIZ-HZE1 category-based episode selection. (2) Added `china_2015` episode: 3 production pairs (indpro_spy, indpro_xlp, permit_spy) carry history_zoom_china_2015.json charts marked `suggested`; promoted to canonical per LA-2 evaluation clause. (3) `ukraine` has zero production charts on disk; non-canonical status documented in registry notes and SOP per LA-2.",
+  "notes": "Bootstrapped from HY-IG v2 reference pair zoom charts (SL-4, SL-5) plus META-ZI canonical slug registry. VIZ-V12 makes this the single source for all event markers on history_zoom_* charts — ad-hoc picks are prohibited. Ray may propose additions via PR; Vera merges. Each entry's rationale + source_citation is mandatory. The `indicator_category_map` object provides per-category slug lists for VIZ-HZE1 / RES-HZE1 episode selection (LA-1). Canonical slug set per LA-2: dotcom, gfc, covid, taper_2018, inflation_2022, china_2015. Non-canonical slugs (dot_com, rates_2022, taper_2013, ukraine) are forbidden. `ukraine` has zero production charts on disk and requires a registry PR + full key_events block before chart production.",
+  "indicator_category_map": {
+    "_note": "Maps interpretation_metadata.indicator_category values to the ordered list of canonical episode slugs required for that category (subject to data-coverage check per VIZ-HZE1 step 2). Used by VIZ-HZE1 step 1 and RES-HZE1 slug-matching procedure (LA-1). If indicator_category is absent or unrecognised, fall back to the `default` entry.",
+    "credit_spread": ["dotcom", "gfc", "covid", "taper_2018", "inflation_2022"],
+    "rate_spread": ["dotcom", "gfc", "covid", "taper_2018", "inflation_2022"],
+    "volatility": ["gfc", "covid", "taper_2018", "inflation_2022"],
+    "activity_survey": ["dotcom", "gfc", "covid", "china_2015"],
+    "equity_flow": ["dotcom", "gfc", "covid", "taper_2018", "inflation_2022", "china_2015"],
+    "default": ["dotcom", "gfc", "covid", "taper_2018", "inflation_2022"]
+  },
   "episodes": {
     "dotcom": {
       "episode_slug": "dotcom",
@@ -198,6 +209,44 @@
           "rationale": "Silicon Valley Bank failure; regional-bank stress caused a 90bps HY-IG OAS widening in one week and Fed emergency BTFP facility launch, but did not tip into recession.",
           "source_citation": "FDIC SVB receivership notice 2023-03-10; Federal Reserve Board BTFP press release 2023-03-12.",
           "event_category": "bankruptcy"
+        }
+      ]
+    },
+    "china_2015": {
+      "episode_slug": "china_2015",
+      "episode_name": "China/EM Shock (2015-2016)",
+      "start_date": "2015-03-01",
+      "end_date": "2016-06-30",
+      "episode_rationale": "Promoted to canonical per LA-2 Phase 4 evaluation: production charts exist on disk for indpro_spy, indpro_xlp, and permit_spy (all marked `suggested`). The China yuan devaluation and EM growth scare produced a significant industrial-production and permit signal divergence from prior recovery trend, making this episode valuable for activity-survey indicator pairs. Ray may propose additional key events via PR.",
+      "episode_source_citation": "People's Bank of China yuan devaluation announcement 2015-08-11; NBER (no US recession dated); Federal Reserve August 2015 minutes (international spillover discussion).",
+      "key_events": [
+        {
+          "date": "2015-08-11",
+          "label": "Aug 2015: Yuan devaluation",
+          "rationale": "PBOC devalued the yuan by ~1.9% and shifted to a market-determined fix; triggered global risk-off, EM capital outflows, and a brief US industrial-production growth scare.",
+          "source_citation": "People's Bank of China official announcement 2015-08-11; IMF World Economic Outlook October 2015.",
+          "event_category": "policy_action"
+        },
+        {
+          "date": "2015-08-24",
+          "label": "Aug 2015: Black Monday",
+          "rationale": "Shanghai Composite fell 8.5% in one day; S&P 500 briefly entered correction territory (-12% from peak). US industrial output and building permits activity moderated in subsequent months.",
+          "source_citation": "Shanghai Composite index historical data; S&P 500 historical price data.",
+          "event_category": "market_trough"
+        },
+        {
+          "date": "2016-01-20",
+          "label": "Jan 2016: S&P 500 correction low",
+          "rationale": "S&P 500 reached 1812 intraday (correction low), driven by renewed China growth fears, oil price collapse, and EM contagion — the trough of the episode's risk-off phase.",
+          "source_citation": "S&P 500 historical price data; Federal Reserve January 2016 FOMC minutes.",
+          "event_category": "market_trough"
+        },
+        {
+          "date": "2016-02-11",
+          "label": "Feb 2016: Oil / EM trough",
+          "rationale": "WTI crude touched a 13-year low of $26.05/bbl; global EM stress peaked. US permit and INDPRO activity reached local trough before recovery through H2 2016.",
+          "source_citation": "EIA WTI spot price data 2016-02-11; Federal Reserve Beige Book February 2016.",
+          "event_category": "market_trough"
         }
       ]
     }

@@ -1,0 +1,10 @@
+{
+  "pair_id": "permit_spy",
+  "schema_version": "1.1.0",
+  "status": "found_in_search",
+  "updated_at": "2026-05-08T00:00:00Z",
+  "plain_english": "This winner is the best rule found in the search layer. It has not yet passed a frozen-rule final exam.",
+  "technical_note": "No schema-valid final_exam_results_YYYYMMDD.json artifact with Quincy QA replay was present during the 2026-05-08 Evan SOP retro audit. Per ECON-FE1, tournament winners remain discovery-grade.",
+  "next_step": "Freeze the selected rule, run FE1 confirmation with block-bootstrap uncertainty and multiple-testing adjustment, then request Quincy replay.",
+  "owner": "econ-evan"
+}

@@ -136,7 +136,14 @@ STUB_PATS = [
 # or is downgraded to a WARN (PASS-with-note in summary) during the retro-apply
 # transition window. Set to True once all pairs have been retro-applied.
 # WARN during 10J retro, FAIL after.
-CROSS_PERIOD_STUB_IS_FAIL = False  # flip to True after Wave 10J retro-apply complete
+# F-08 (Phase 4): pending confirmation from Vera/Ace that all pairs have ECON-CP1/CP2
+# retro-applied. Flip to True once confirmed; open blockers are tracked in OW-5.
+CROSS_PERIOD_STUB_IS_FAIL = False  # flip to True after Wave 10J retro-apply confirmed
+
+# F-06 (Phase 4): controls GATE-VIZ-NBER1 severity (Evidence-page NBER shading DOM check).
+# Parallel to CROSS_PERIOD_STUB_IS_FAIL. Flip to True once Vera confirms VIZ-NBER1
+# retro-apply is complete across all active pairs. See QA-CL1 checklist trigger item.
+NBER1_WARN_IS_FAIL = False  # flip to True after VIZ-NBER1 retro-apply confirmed (Vera handoff)
 
 # Wave 10J NBER shading spot-check patterns.
 # Rolling-correlation and rolling-sharpe Evidence page charts should carry NBER
@@ -365,9 +372,218 @@ def get_dom(page, url, slug, dom_dir, ss_dir, pair_id="", page_name=""):
 # Checks
 # ---------------------------------------------------------------------------
 
+def _gate_nr_check(text: str, pair_id: str, project_root: "Path" = PROJECT_ROOT):
+    """F-03 / GATE-NR: Narrative instrument reference check (headline scope).
+
+    Loads the pair's target_symbol from results/{pair_id}/interpretation_metadata.json.
+    Scans DOM text for wrong-pair instrument names from a fixed known-instruments list.
+    Comparison whitelist is read from interpretation_metadata.json key
+    'gate_nr_comparison_whitelist' (list[str]) if present.
+
+    SCOPE: headline instrument names only — not full prose. Legitimate comparative
+    references are common in episode prose and must not generate false FAILs.
+    Full DOM instrument scanning remains a HABIT-QA1 manual obligation.
+
+    Returns: (result_str, note_str) where result_str in {"PASS", "FAIL", "WARN", "SKIP"}.
+    """
+    KNOWN_INSTRUMENTS = [
+        "SPY", "XLV", "XLP", "VIX", "QQQ", "XLF", "XLE", "GLD",
+        "S&P 500", "S&P500", "Nasdaq", "Dow Jones", "Russell 2000",
+    ]
+    meta_path = project_root / "results" / pair_id / "interpretation_metadata.json"
+    if not meta_path.exists():
+        return "SKIP", f"GATE-NR SKIP: {meta_path} not found — manual HABIT-QA1 check required"
+    try:
+        with open(meta_path) as fh:
+            meta = json.load(fh)
+        target_symbol = meta.get("target_symbol", "")
+        indicator_id = meta.get("indicator_id", "")
+        whitelist = set(meta.get("gate_nr_comparison_whitelist", []))
+    except Exception as exc:
+        return "SKIP", f"GATE-NR SKIP: could not parse {meta_path}: {exc}"
+
+    allow = {target_symbol, indicator_id} | whitelist
+    wrong = [
+        name for name in KNOWN_INSTRUMENTS
+        if name in text and name not in allow
+    ]
+    if wrong:
+        return "FAIL", (
+            f"GATE-NR FAIL: wrong-pair instrument(s) {wrong} found in {pair_id} DOM. "
+            f"Expected only {allow}. Owner: Ray must correct narrative; Ace re-renders. "
+            "NOTE: if these are legitimate comparisons, add them to "
+            "'gate_nr_comparison_whitelist' in interpretation_metadata.json."
+        )
+    return "PASS", f"GATE-NR PASS: no wrong-pair instrument names found in {pair_id} ({allow})"
+
+
+def gate_hze1_preflight(pairs, project_root=PROJECT_ROOT):
+    """F-01 / GATE-HZE1 pre-flight: determine chart existence for FAIL vs WARN disposition.
+
+    Called in main() before the browser pass. Returns a dict mapping pair_id to a
+    boolean indicating whether history_zoom_*.json charts are committed for that pair.
+    check_page() uses this to resolve the 'ABSENT' sentinel to FAIL or WARN.
+
+    Returns: {pair_id: bool} where True = charts committed (heading absence = FAIL).
+    """
+    import glob as _glob
+    result = {}
+    for pair_id in pairs:
+        pattern = f"{project_root}/output/charts/{pair_id}/plotly/history_zoom_*.json"
+        charts = _glob.glob(pattern)
+        result[pair_id] = len(charts) > 0
+        status = f"{len(charts)} chart(s)" if charts else "no charts"
+        print(f"  GATE-HZE1 preflight {pair_id}: {status}", flush=True)
+    return result
+
+
+def gate_sd1_preflight(pairs, project_root=PROJECT_ROOT):
+    """LA-9 / GATE-SD1: Signal-Scope Discipline audit gate.
+
+    For every active pair, loads results/{pair_id}/signal_scope.json and verifies
+    that the chart set and table set committed under output/charts/{pair_id}/plotly/
+    contain only signals within the pair's declared scope.
+
+    ECON-SD (Evan) is the producer-side companion — it enforces scope at estimation time.
+    GATE-SD1 is QA's independent re-verification at artefact handoff.
+
+    Scope check: every chart filename under output/charts/{pair_id}/plotly/ should
+    correspond to a signal_id listed in signal_scope.json. A chart that references an
+    off-scope signal (i.e. a signal_id not declared in the pair's scope) is a FAIL.
+
+    NOTE: signal_scope.json schema is owned by Evan (ECON-SD). If the file is missing,
+    GATE-SD1 emits a WARN and defers to Evan's ECON-SD self-certification.
+
+    Returns: list of failure/warn dicts (empty = all pairs pass).
+    """
+    import glob as _glob
+    import re as _re
+    findings = []
+    for pair_id in pairs:
+        scope_path = project_root / "results" / pair_id / "signal_scope.json"
+        if not scope_path.exists():
+            findings.append({
+                "pair_id": pair_id,
+                "gate": "GATE-SD1",
+                "verdict": "WARN",
+                "finding": (
+                    f"GATE-SD1 WARN: results/{pair_id}/signal_scope.json not found. "
+                    "Cannot verify signal scope. Owner: Evan (ECON-SD) must produce scope file."
+                ),
+            })
+            print(f"  GATE-SD1 WARN {pair_id}: signal_scope.json missing", flush=True)
+            continue
+        try:
+            with open(scope_path) as fh:
+                scope_data = json.load(fh)
+            allowed_signals = set(scope_data.get("signal_ids", []))
+        except Exception as exc:
+            findings.append({
+                "pair_id": pair_id,
+                "gate": "GATE-SD1",
+                "verdict": "FAIL",
+                "finding": f"GATE-SD1 FAIL: could not parse signal_scope.json for {pair_id}: {exc}",
+            })
+            continue
+        if not allowed_signals:
+            findings.append({
+                "pair_id": pair_id,
+                "gate": "GATE-SD1",
+                "verdict": "WARN",
+                "finding": (
+                    f"GATE-SD1 WARN: signal_scope.json for {pair_id} has empty signal_ids list. "
+                    "Scope check skipped. Owner: Evan to populate."
+                ),
+            })
+            continue
+        # Check chart filenames for off-scope signal references.
+        chart_dir = project_root / "output" / "charts" / pair_id / "plotly"
+        if not chart_dir.exists():
+            print(f"  GATE-SD1 PASS {pair_id}: no chart dir (no off-scope charts possible)", flush=True)
+            continue
+        off_scope = []
+        for chart_path in sorted(chart_dir.glob("*.json")):
+            chart_name = chart_path.stem  # e.g. "rolling_sharpe_indpro_spy"
+            # Check if the chart name embeds a signal_id that is NOT in the allowed set.
+            # Heuristic: the chart name may contain the signal identifier as a substring.
+            # A chart is off-scope if NONE of the allowed signal IDs appear as a substring
+            # of its name AND it is not a pair-level aggregate chart (e.g. tournament, hero).
+            AGGREGATE_CHART_PREFIXES = (
+                "tournament", "hero", "spread", "equity_curve",
+                "rolling_correlation", "rolling_sharpe", "history_zoom",
+            )
+            if any(chart_name.startswith(pfx) for pfx in AGGREGATE_CHART_PREFIXES):
+                continue  # aggregate/pair-level chart; signal scope doesn't apply
+            matched = any(sig in chart_name for sig in allowed_signals)
+            if not matched:
+                off_scope.append(chart_name)
+        if off_scope:
+            findings.append({
+                "pair_id": pair_id,
+                "gate": "GATE-SD1",
+                "verdict": "FAIL",
+                "finding": (
+                    f"GATE-SD1 FAIL: {len(off_scope)} chart(s) in output/charts/{pair_id}/plotly/ "
+                    f"do not match any declared signal_id in signal_scope.json "
+                    f"(allowed: {sorted(allowed_signals)}). "
+                    f"Off-scope chart names: {off_scope}. "
+                    "Owner: Vera (remove or retarget chart) or Evan (update scope declaration)."
+                ),
+            })
+            print(f"  GATE-SD1 FAIL {pair_id}: {len(off_scope)} off-scope chart(s): {off_scope}", flush=True)
+        else:
+            print(f"  GATE-SD1 PASS {pair_id}: all chart names within declared signal scope", flush=True)
+    return findings
+
+
+def check_evidence_status_promotion(pairs, project_root=PROJECT_ROOT):
+    """F-04 / GATE-ES1 helper stub: flag pairs with evidence_status > found_in_search.
+
+    Reads results/{pair_id}/evidence_status.json for each pair. Emits a WARN if any
+    pair has a status above 'found_in_search' without a documented QA sign-off, so
+    Quincy knows to run the full GATE-ES1 eight-step protocol for that pair.
+
+    This is a triggering stub, not a replacement for GATE-ES1. It surfaces promotions
+    automatically so QA-CL1 does not require manual inspection of every pair's status.
+
+    Returns: list of WARN/note dicts (empty = all pairs at default status).
+    """
+    CONSERVATIVE_DEFAULT = "found_in_search"
+    findings = []
+    for pair_id in pairs:
+        status_path = project_root / "results" / pair_id / "evidence_status.json"
+        if not status_path.exists():
+            continue  # missing file defaults to found_in_search — no action
+        try:
+            with open(status_path) as fh:
+                ev = json.load(fh)
+            status = ev.get("status", CONSERVATIVE_DEFAULT)
+        except Exception as exc:
+            findings.append({
+                "pair_id": pair_id,
+                "gate": "GATE-ES1",
+                "verdict": "WARN",
+                "finding": f"GATE-ES1 WARN: could not parse evidence_status.json for {pair_id}: {exc}",
+            })
+            continue
+        if status != CONSERVATIVE_DEFAULT:
+            findings.append({
+                "pair_id": pair_id,
+                "gate": "GATE-ES1",
+                "verdict": "WARN",
+                "finding": (
+                    f"GATE-ES1 TRIGGER: {pair_id} has evidence_status='{status}' (above default). "
+                    "Run GATE-ES1 eight-step promotion verification protocol before acceptance sign-off."
+                ),
+            })
+            print(f"  GATE-ES1 TRIGGER {pair_id}: status={status} — full promotion review required", flush=True)
+    return findings
+
+
 def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
     is_methodology = (page_name == "methodology")
     is_evidence = (page_name == "evidence")
+    is_story = (page_name == "story")
     errs = [p for p in ERR_PATS if p in text]
     # Wave 10I.C: check APP-SEV1 banner strings — user-visible soft errors that
     # are NOT Python exceptions and thus never appear in ERR_PATS.
@@ -408,13 +624,74 @@ def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
         nber_found = any(p.lower() in nber_source_lower for p in NBER_SHADING_DOM_PATS)
         if not nber_found:
             nber_warn = True
+            severity = "FAIL" if NBER1_WARN_IS_FAIL else "WARN"
             nber_note = (
-                "GATE-VIZ-NBER1 WARN: No NBER shading indicators found in Evidence page HTML "
+                f"GATE-VIZ-NBER1 {severity}: No NBER shading indicators found in Evidence page HTML "
                 f"(checked patterns: {NBER_SHADING_DOM_PATS}). "
-                "WARN during 10J retro, FAIL after VIZ-NBER1 retro-apply complete."
+                "WARN during VIZ-NBER1 retro window; flip NBER1_WARN_IS_FAIL=True when Vera confirms complete."
             )
         else:
             nber_note = f"GATE-VIZ-NBER1 PASS: NBER shading indicator present in Evidence HTML ({pair_id})"
+
+    # F-02 (Phase 4) GATE-28 Evidence tab structure check.
+    # The Evidence page must render Level 1 / Level 2 tab structure matching the
+    # reference pair hy_ig_v2_spy_evidence. Absence is a GATE-28 structural FAIL.
+    # Check full HTML (frame.content()) so hidden tab labels are included.
+    level_tab_missing = False
+    level_tab_note = "N/A (non-evidence)"
+    if is_evidence:
+        ev_source = html if html else text
+        has_level_tab = ("Level 1" in ev_source or "Basic Analysis" in ev_source)
+        if not has_level_tab:
+            level_tab_missing = True
+            level_tab_note = (
+                "GATE-28 FAIL: Evidence page tab structure missing 'Level 1' or 'Basic Analysis' "
+                f"in rendered HTML for {pair_id}. Expected Level 1/Level 2 tab structure. "
+                "Owner: Ace (template regression)."
+            )
+        else:
+            level_tab_note = f"GATE-28 PASS: Evidence tab structure present ({pair_id})"
+
+    # F-01 (Phase 4) GATE-HZE1: "How the Signal Performed in Past Crises" heading check.
+    # Story pages must contain this heading when history_zoom_*.json charts are committed.
+    # Implemented in check_page() Story branch; runs on already-captured dom_text.
+    # Separate preflight (gate_hze1_preflight) is called in main() before the browser pass
+    # to produce the chart-existence evidence needed for FAIL vs WARN disposition.
+    HZE_HEADING = "How the Signal Performed in Past Crises"
+    hze1_result = "N/A (non-story)"
+    hze1_note = ""
+    if is_story:
+        hze_present = HZE_HEADING in text
+        if hze_present:
+            hze1_result = "PASS"
+            hze1_note = f"GATE-HZE1 PASS: heading present in Story DOM ({pair_id})"
+        else:
+            # Disposition depends on whether zoom charts are committed — determined by
+            # gate_hze1_preflight() in main(). Embed a sentinel here; main() overwrites
+            # with FAIL or WARN after calling the preflight.
+            hze1_result = "ABSENT"
+            hze1_note = (
+                f"GATE-HZE1: Story heading absent for {pair_id}. "
+                "Disposition (FAIL vs WARN) set by gate_hze1_preflight() in main() — "
+                "FAIL if history_zoom charts committed; WARN if no charts committed (Vera blocker)."
+            )
+
+    # F-03 (Phase 4) GATE-NR: Narrative instrument reference check.
+    # Scans Story and Evidence DOM text for wrong-pair instrument names using the
+    # pair's target_symbol from interpretation_metadata.json as the allow-list.
+    #
+    # SCOPE NOTE (per Phase 3 C-Q1 / Ray Phase 3 finding): GATE-NR applies only to
+    # the HEADLINE instrument reference area, not the full DOM prose. Legitimate
+    # comparative references (e.g. "Unlike SPY, XLP...") are common in episode prose
+    # and would generate false FAILs if the full DOM were scanned. This implementation
+    # checks only the pair_id-level target symbol; full prose instrument scanning
+    # remains a HABIT-QA1 manual DOM read obligation (see HABIT-QA1 §scan patterns).
+    # Allow-list extensions per episode may be added to interpretation_metadata.json
+    # under the key "gate_nr_comparison_whitelist".
+    gate_nr_result = "N/A"
+    gate_nr_note = ""
+    if is_story or is_evidence:
+        gate_nr_result, gate_nr_note = _gate_nr_check(text, pair_id)
 
     breadcrumb_missing = [b for b in BREADCRUMB if b not in text]
     prefix_pending = bool(PREFIX_PENDING_RE.search(text))
@@ -472,12 +749,22 @@ def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
         app_tl1_ok = True
         app_tl1_check = {"scope": "n/a", "ok": True}
 
-    # NBER warn does NOT affect the PASS/FAIL verdict — it is a warning only.
+    # NBER warn does NOT affect the PASS/FAIL verdict when NBER1_WARN_IS_FAIL is False.
+    # F-06: when NBER1_WARN_IS_FAIL is True (Vera confirms retro complete), nber_warn → FAIL.
+    nber_fail = nber_warn and NBER1_WARN_IS_FAIL
+
+    # F-02: Evidence tab structure missing → GATE-28 structural FAIL.
+    # F-01: GATE-HZE1 heading absent with charts committed → FAIL (set by main() after preflight).
+    #   "ABSENT" sentinel here does not affect verdict; main() overwrites hze1_result.
+    # F-03: GATE-NR FAIL (wrong-pair instrument in headline area) is blocking.
+    gate_nr_fail = (gate_nr_result == "FAIL")
+
     verdict = "PASS" if (
         not errs and not app_sev1_hits and not stub_hits_for_verdict
         and not breadcrumb_missing and not prefix_pending
         and not chart_pending and dom_ok and chart_ok and app_pt2_ok
-        and app_tl1_ok
+        and app_tl1_ok and not level_tab_missing and not nber_fail
+        and not gate_nr_fail
     ) else "FAIL"
 
     return {
@@ -490,8 +777,15 @@ def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
         "stub_hits": stub_hits,            # Wave 10I.C/10J: stub/placeholder text (all)
         "cross_period_stub_hits": cross_period_stub_hits,  # Wave 10J: sub-bucket
         "cross_period_stub_is_fail": CROSS_PERIOD_STUB_IS_FAIL,  # Wave 10J
-        "nber_warn": nber_warn,            # Wave 10J: NBER shading spot-check (Evidence)
+        "nber_warn": nber_warn,            # Wave 10J/F-06: NBER shading spot-check (Evidence)
+        "nber_fail": nber_fail,            # F-06: True when NBER1_WARN_IS_FAIL is True
         "nber_note": nber_note,            # Wave 10J: NBER shading detail
+        "level_tab_missing": level_tab_missing,  # F-02: Evidence tab structure check
+        "level_tab_note": level_tab_note,
+        "hze1_result": hze1_result,        # F-01: GATE-HZE1 heading check (Story pages)
+        "hze1_note": hze1_note,
+        "gate_nr_result": gate_nr_result,  # F-03: GATE-NR instrument name check
+        "gate_nr_note": gate_nr_note,
         "breadcrumb_missing": breadcrumb_missing,
         "prefix_pending": prefix_pending,
         "chart_pending_text": chart_pending,
@@ -672,12 +966,12 @@ def gate_viz_nber2_preflight(pairs, project_root=PROJECT_ROOT):
       - 2020-02-01 → 2020-04-01
 
     Episode–recession overlap table (derived from episode_registry.json):
-      dot_com   : overlaps 2001 recession  → NBER shading required
-      gfc       : overlaps 2008 recession  → NBER shading required
-      covid     : overlaps 2020 recession  → NBER shading required
-      taper_2013: no recession             → no NBER shading expected
-      china_2015: no recession             → no NBER shading expected
-      rates_2022: no recession             → no NBER shading expected
+      dotcom       : overlaps 2001 recession  → NBER shading required  (LA-2 canonical)
+      gfc          : overlaps 2008 recession  → NBER shading required
+      covid        : overlaps 2020 recession  → NBER shading required
+      taper_2018   : no recession             → no NBER shading expected  (LA-2 canonical)
+      inflation_2022: no recession            → no NBER shading expected  (LA-2 canonical)
+      china_2015   : no recession             → no NBER shading expected  (pending registry promotion per LA-2)
 
     NBER vrect detection heuristic: a shape is treated as an NBER recession
     band when ALL of the following hold:
@@ -697,7 +991,10 @@ def gate_viz_nber2_preflight(pairs, project_root=PROJECT_ROOT):
     from datetime import date
 
     # Slugs that overlap at least one NBER recession window.
-    RECESSION_SLUGS = {"dot_com", "gfc", "covid"}
+    # LA-1 / LA-2 (Phase 4): canonical slug set from history_zoom_events_registry.json.
+    # Deprecated slugs (dot_com, rates_2022, taper_2013) are non-canonical; replace with
+    # dotcom, inflation_2022, taper_2018 per Lead arbitration 2026-05-08.
+    RECESSION_SLUGS = {"dotcom", "gfc", "covid"}
 
     # Vera's canonical NBER shading color (VIZ-NBER1): rgba(150,120,120,0.22)
     # A shape qualifies when fillcolor starts with "rgba(150" OR equals the exact value.
@@ -910,9 +1207,14 @@ def main():
         print(
             f"  *** {len(dp1_failures)} GATE-DP1 FAIL(s) — history_zoom chart(s) have "
             "mismatched axis assignments. Bottom-panel traces are invisible on screen. "
-            "Fix owner: Vera. Do not proceed to browser pass until resolved. ***",
+            "Fix owner: Vera. Aborting browser pass per SOP (F-07). ***",
             flush=True,
         )
+        # F-07 (Phase 4): SOP says "abort browser run if any GATE-DP1 failures exist."
+        # Write partial results before exit so evidence is preserved.
+        with open(os.path.join(out_dir, "results.json"), "w") as fh:
+            json.dump({"aborted": "GATE-DP1", "dp1_failures": dp1_failures, "results": results}, fh, indent=2)
+        sys.exit(1)
     else:
         print("  GATE-DP1: all history_zoom charts PASS axis-assignment check.", flush=True)
 
@@ -959,9 +1261,9 @@ def main():
     # Perceptual PNGs are mandatory for ALL chart types on ALL pairs (VIZ-CV1 mandate).
     # Absence = FAIL (blocking). Owner: Vera.
     print("\n[GATE-27-PNG pre-flight] checking _perceptual_check_*.png for all pairs ...", flush=True)
-    gate27_png_warnings = gate27_perceptual_png_preflight(pairs)
+    gate27_png_failures = gate27_perceptual_png_preflight(pairs)
     png_warn_counts = {}
-    for w in gate27_png_warnings:
+    for w in gate27_png_failures:
         png_warn_counts[w["pair_id"]] = w["detail"]
         results.append({
             "slug": f"{w['pair_id']}_preflight",
@@ -971,13 +1273,53 @@ def main():
             "verdict": "FAIL",
             "error": w["detail"],
         })
-    if gate27_png_warnings:
+    if gate27_png_failures:
         print(
-            f"  *** {len(gate27_png_warnings)} GATE-27-PNG FAIL(s) — perceptual PNGs missing. "
+            f"  *** {len(gate27_png_failures)} GATE-27-PNG FAIL(s) — perceptual PNGs missing. "
             "Perceptual PNGs are mandatory for all chart types on all pairs (VIZ-CV1). "
             "Owner: Vera. Fix before browser pass. ***",
             flush=True,
         )
+
+    # --- F-01 GATE-HZE1 pre-flight: determine chart existence for FAIL vs WARN ---
+    # run before browser pass so check_page() can resolve the 'ABSENT' sentinel.
+    print("\n[GATE-HZE1 pre-flight] checking history_zoom chart existence ...", flush=True)
+    hze1_charts_present = gate_hze1_preflight(pairs)
+
+    # --- LA-9 / GATE-SD1 pre-flight: signal-scope discipline audit ---
+    print("\n[GATE-SD1 pre-flight] verifying chart/table scope against signal_scope.json ...", flush=True)
+    sd1_findings = gate_sd1_preflight(pairs)
+    for f in sd1_findings:
+        results.append({
+            "slug": f"{f['pair_id']}_preflight",
+            "pair_id": f["pair_id"],
+            "page": "preflight",
+            "gate": f["gate"],
+            "verdict": f["verdict"],
+            "error": f["finding"],
+        })
+    sd1_fails = [f for f in sd1_findings if f.get("verdict") == "FAIL"]
+    if sd1_fails:
+        print(
+            f"  *** {len(sd1_fails)} GATE-SD1 FAIL(s) — off-scope signal artefacts found. "
+            "Owner: Vera/Evan. Fix before acceptance sign-off. ***",
+            flush=True,
+        )
+
+    # --- F-04 GATE-ES1 trigger check ---
+    print("\n[GATE-ES1 trigger] scanning for evidence_status promotions ...", flush=True)
+    es1_triggers = check_evidence_status_promotion(pairs)
+    for t in es1_triggers:
+        results.append({
+            "slug": f"{t['pair_id']}_preflight",
+            "pair_id": t["pair_id"],
+            "page": "preflight",
+            "gate": "GATE-ES1",
+            "verdict": "WARN",
+            "error": t["finding"],
+        })
+    if not es1_triggers:
+        print("  GATE-ES1 trigger: all pairs at default status — no promotion review required", flush=True)
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True)
@@ -1062,13 +1404,32 @@ def main():
                 else:
                     r["app_tl1_locator"] = {"scope": "n/a"}
 
+                # F-01: resolve GATE-HZE1 'ABSENT' sentinel to FAIL or WARN.
+                if pg == "story" and r.get("hze1_result") == "ABSENT":
+                    charts_present = hze1_charts_present.get(pair_id, False)
+                    if charts_present:
+                        r["hze1_result"] = "FAIL"
+                        r["hze1_note"] = (
+                            f"GATE-HZE1 FAIL: Story heading absent but history_zoom charts "
+                            f"committed for {pair_id}. Owner: Ace (wire HISTORY_ZOOM_EPISODES config)."
+                        )
+                        r["verdict"] = "FAIL"
+                    else:
+                        r["hze1_result"] = "WARN"
+                        r["hze1_note"] = (
+                            f"GATE-HZE1 WARN: Story heading absent; no history_zoom charts "
+                            f"committed for {pair_id} — Vera blocker (VIZ-ZOOM1 not yet delivered)."
+                        )
+                    print(f"  GATE-HZE1 {r['hze1_result']} {pair_id}: {r['hze1_note']}", flush=True)
+
                 print(
                     f"  verdict={r['verdict']} dom_len={r['dom_len']} "
                     f"charts={r['chart_count']} errs={r['errors']} "
                     f"sev1={r['app_sev1_hits']} stubs={r['stub_hits']} "
                     f"prefix={r['prefix_pending']} bcmiss={r['breadcrumb_missing']} "
                     f"app_pt2={r['app_pt2_ok']} ({r['app_pt2_note']}) "
-                    f"app_tl1={r['app_tl1_check']}",
+                    f"app_tl1={r['app_tl1_check']} hze1={r.get('hze1_result','N/A')} "
+                    f"gate_nr={r.get('gate_nr_result','N/A')}",
                     flush=True,
                 )
                 results.append(r)
@@ -1098,8 +1459,10 @@ def main():
         "pass": sum(1 for r in results if r.get("verdict") == "PASS"),
         "fail": sum(1 for r in results if r.get("verdict") == "FAIL"),
         "total": len(results),
-        "gate27_png_warnings": gate27_png_warnings,   # D4 Wave 10J: perceptual PNG existence
+        "gate27_png_failures": gate27_png_failures,   # F-15/D4 Wave 10J: perceptual PNG existence (renamed from gate27_png_warnings)
         "gate_dp1_failures": dp1_failures,            # Wave 10K: dual-panel axis-assignment check
+        "gate_sd1_findings": sd1_findings,            # LA-9/GATE-SD1: signal-scope discipline
+        "gate_es1_triggers": es1_triggers,            # F-04/GATE-ES1: promotion trigger scan
         "results": results,
     }
     with open(os.path.join(out_dir, "results.json"), "w") as fh:
@@ -1137,14 +1500,17 @@ def main():
             )
     print(f"Screenshot index: {index_path}", flush=True)
 
-    png_fail_count = len(gate27_png_warnings)
+    png_fail_count = len(gate27_png_failures)
     dp1_fail_count = len(dp1_failures)
+    sd1_fail_count = len([f for f in sd1_findings if f.get("verdict") == "FAIL"])
     print(f"\n=== SUMMARY: {summary['pass']} PASS / {summary['fail']} FAIL / {summary['total']} TOTAL"
           f" | GATE-27-PNG FAIL: {png_fail_count} pair(s) missing perceptual PNGs"
-          f" | GATE-DP1 FAIL: {dp1_fail_count} axis-assignment issue(s) ===", flush=True)
+          f" | GATE-DP1 FAIL: {dp1_fail_count} axis-assignment issue(s)"
+          f" | GATE-SD1 FAIL: {sd1_fail_count} off-scope artefact(s)"
+          f" | GATE-ES1 triggers: {len(es1_triggers)} ===", flush=True)
     if png_fail_count:
         print("  GATE-27-PNG FAIL: pairs missing _perceptual_check_*.png: "
-              + ", ".join(w["pair_id"] for w in gate27_png_warnings), flush=True)
+              + ", ".join(w["pair_id"] for w in gate27_png_failures), flush=True)
     if dp1_fail_count:
         seen = set()
         for f in dp1_failures:

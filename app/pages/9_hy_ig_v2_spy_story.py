@@ -64,15 +64,15 @@ with st.expander("Plain English"):
 # pulled to the top; Where-This-Fits and page-pack orientation follow.
 # ---------------------------------------------------------------------------
 st.markdown(
-    "## Sharpe 1.27 over 8-year OOS — credit spreads as a multi-month "
+    "## Sharpe 1.41 over 6-year OOS — credit spreads as a multi-month "
     "early-warning signal for equity drawdowns"
 )
 
 st.markdown(
-    "**Key metrics (out-of-sample 2018-2025):**\n\n"
-    "- **Sharpe ratio: 1.27** (vs 0.90 buy-and-hold) -- ~40% more return per unit of risk\n"
-    "- **Annualized return: 11.3%** (vs ~10% buy-and-hold)\n"
-    "- **Max drawdown: -10.2%** (vs -34% buy-and-hold) -- roughly one-third of the pain"
+    "**Key metrics (out-of-sample 2018-10 to 2024-12):**\n\n"
+    "- **Sharpe ratio: 1.41** (vs 0.81 buy-and-hold) -- ~74% more return per unit of risk\n"
+    "- **Max drawdown: -8.5%** (vs -34% buy-and-hold) -- roughly one-quarter of the pain\n"
+    "- **Passed final exam** on sealed 2025 holdout (Sharpe 2.35, MDD -4.1%)"
 )
 
 st.markdown("---")
@@ -120,16 +120,17 @@ with col3:
 with col4:
     st.metric("Strongest During", "Stress", delta="Top quartile")
 with col5:
-    st.metric("OOS Test Period", "8 years", delta="2018-2025")
+    st.metric("OOS Test Period", "6 years", delta="2018-10 to 2024-12")
 
 st.caption(
     "Why this matters: the HY-IG credit spread -- the extra yield investors demand "
     "to hold risky corporate bonds instead of safe ones -- began widening five "
     "months before the 2008 stock market peak, correctly flagged 3 of the last 4 "
     "major drawdowns, and is most predictive during the stress periods when "
-    "investors need it most. The 8-year out-of-sample window includes COVID, the "
-    "2022 rate shock, and the 2023-25 recovery, so these results are not the "
-    "product of a single favourable episode."
+    "investors need it most. The 6-year validation window (2018-10 to 2024-12) "
+    "includes COVID, the 2022 rate shock, and the 2023-24 recovery — these results "
+    "are not the product of a single favourable episode. The rule then passed a "
+    "sealed 2025 final exam (Sharpe 2.35, MDD -4.1%)."
 )
 
 st.markdown("---")
@@ -173,15 +174,16 @@ st.markdown(
     "   - **What this means for investors:** the signal earns its keep when you "
     "need it most -- during market crises -- and stays quiet the rest of the time, "
     "so following it does not impose a return drag during normal calm years.\n"
-    "5. **Out-of-sample testing covers 8 years (2018-2025)** -- including the 2018 "
-    "volatility spike, COVID crash, 2022 rate shock, and 2023-25 recovery. "
-    "\"Out-of-sample\" means this period was hidden from the models during training, "
-    "so it provides a genuine real-world test of whether the signal holds up on data "
-    "it has never seen.\n"
-    "   - **What this means for investors:** the 1.27 Sharpe and -10.2% max "
-    "drawdown were achieved on data the model had never seen -- this is evidence of "
-    "a durable edge, not curve-fitting, and supports allocating real capital to the "
-    "rule rather than treating it as a historical curiosity."
+    "5. **Out-of-sample validation covers 6 years (2018-10 to 2024-12)** -- including "
+    "the 2018 volatility spike, COVID crash, 2022 rate shock, and 2023-24 recovery. "
+    "\"Out-of-sample\" means this period was not used to pick the winning rule. "
+    "Beyond that, the rule was then tested on a sealed 2025 holdout that was never "
+    "seen during the tournament — and passed (Sharpe 2.35 vs 0.96 buy-and-hold, "
+    "MDD -4.1% vs -18.8% for SPY).\n"
+    "   - **What this means for investors:** the 1.41 Sharpe and -8.5% max "
+    "drawdown in validation, confirmed by the 2025 final exam, are evidence of "
+    "a durable edge, not curve-fitting. This is the strongest grade of evidence "
+    "in this portal."
 )
 
 st.markdown("---")

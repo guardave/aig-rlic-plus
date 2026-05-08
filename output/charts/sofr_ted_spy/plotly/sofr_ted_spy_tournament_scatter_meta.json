@@ -1,0 +1,22 @@
+{
+  "chart_name": "sofr_ted_spy_tournament_scatter",
+  "pair_id": "sofr_ted_spy",
+  "title": "Tournament: 991 Combos (579 Valid)",
+  "caption": "Tournament: 991 Combos (579 Valid)",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "sample period not declared in legacy chart artifact",
+  "data_source_path": "output/charts/sofr_ted_spy/plotly/sofr_ted_spy_tournament_scatter.json",
+  "rules_applied": [
+    "VIZ-O1"
+  ],
+  "disposition": "retired",
+  "palette_id": "okabe_ito_2026",
+  "exploratory": false,
+  "retire_reason": "Superseded by canonical bare filename or retained as legacy audit artifact per VIZ-A3/VIZ-V8.",
+  "canonical_consumption": false,
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
+}

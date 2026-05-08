@@ -35,14 +35,14 @@ hy_ig_mom_21d,HY-IG Spread 21d Momentum (pp),percent,21d Mom (pp)
 hy_ig_mom_63d,HY-IG Spread 63d Momentum (pp),percent,63d Mom (pp)
 hy_ig_mom_252d,HY-IG Spread 252d Momentum (pp),percent,252d Mom (pp)
 hy_ig_acceleration,HY-IG Spread Acceleration,percent,Accel (%)
-ccc_bb_spread,CCC-BB HY Quality Spread (%),percent,CCC-BB (%)
+ccc_bb_spread_pct,CCC-BB HY Quality Spread (%),percent,CCC-BB (%)
 hy_ig_realized_vol_21d,"HY-IG Spread Realized Vol (21d, decimal)",ratio,Realized Vol
 vix_term_structure,VIX Term Structure,index,VIX3M-VIX
-yield_spread_10y3m,10Y-3M Yield Spread (%),percent,10Y-3M (%)
-yield_spread_10y2y,10Y-2Y Yield Spread (%),percent,10Y-2Y (%)
+yield_spread_10y3m_pct,10Y-3M Yield Spread (%),percent,10Y-3M (%)
+yield_spread_10y2y_pct,10Y-2Y Yield Spread (%),percent,10Y-2Y (%)
 bank_smallcap_ratio,KBE/IWM Ratio,ratio,KBE/IWM
 nfci_momentum_13w,NFCI 13-Week Momentum,index,NFCI 13w Chg
-bbb_ig_spread,BBB-IG Spread (%),percent,BBB-IG (%)
+bbb_ig_spread_pct,BBB-IG Spread (%),percent,BBB-IG (%)
 spy_ret,SPY Daily Return (decimal),decimal_return,Daily Return
 spy_fwd_1d,SPY 1-Day Forward Return,decimal_return,1d Fwd Return
 spy_fwd_5d,SPY 5-Day Forward Return,decimal_return,5d Fwd Return

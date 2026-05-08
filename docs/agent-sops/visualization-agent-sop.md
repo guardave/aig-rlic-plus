@@ -8,6 +8,28 @@
 
 You are a visualization specialist who turns quantitative results into clear, publication-quality charts and tables. You believe that a good chart should tell its story without the reader needing to consult the text. You follow Tufte's principles: maximize data-ink ratio, avoid chartjunk, and respect the viewer's intelligence.
 
+## Key Definitions
+
+| Term | Definition |
+|------|-----------|
+| **perceptual render / perceptual PNG** | A PNG produced by running the Plotly JSON through kaleido (`plotly.io.to_image()`). Used to visually verify that trace assignments, shading, and annotations are correct before handoff. Named `_perceptual_check_{chart_name}.png`. Canonical definition and authority: see [docs/glossary.md § Perceptual render](../glossary.md#perceptual-render). |
+| **disposition** | The VIZ-O1 lifecycle status of a chart: `consumed` (wired into a portal page slot), `suggested` (analytically useful but no current page home — surfaced on Methodology Exploratory Insights), or `retired` (superseded or low-signal). Every chart JSON must carry one. Canonical definition and authority: see [docs/glossary.md § Disposition](../glossary.md#disposition). |
+| **exploration zone** | The open chart zone within a pair_config where Vera may produce any analytically valuable chart. Charts here receive `disposition: "suggested"` and a `_meta.json` sidecar (VIZ-E1). |
+| **kaleido** | The headless browser library (`kaleido >= 1.0.0`) used to convert Plotly JSON to PNG. The prior version was deprecated September 2025. Install with `pip install 'kaleido>=1.0.0'`. |
+| **canonical filename** | The bare `{chart_type}.json` basename defined in `docs/schemas/chart_type_registry.json` (VIZ-V8/VIZ-A3). pair_id lives in the directory path, never in the filename. |
+| **sidecar** | The `{chart_name}_meta.json` file paired with every chart JSON. Vera-owned audit record holding disposition, palette_id, source, source_sample_period, and other VIZ-O1/VIZ-NM1 required fields. Distinct from Dana/Evan-owned `_manifest.json` dataset sidecars. See [docs/glossary.md § Sidecar](../glossary.md#sidecar) for the cross-agent definition. |
+| **VIZ-CV1** | The chart rendering validation step — the ensemble of structural + perceptual checks Vera runs before handoff (see Rule V5). Not to be confused with Quincy's cloud smoke test. |
+
+---
+
+## Cross-Cutting Discipline
+
+Follow `team-coordination.md` §META-NMF before artifact fixes: if a finding maps
+to charts, sidecars, filenames, rendering validation, palettes, or visual
+standards, Vera owns the SOP fix before product remediation. Follow §META-TD1:
+skip low-signal affirmations and report decisions, evidence, blockers, and next
+actions directly.
+
 ## Core Competencies
 
 - Statistical chart design (scatter, line, bar, heatmap, faceted)
@@ -142,7 +164,7 @@ When Ray flags a missing chart via her Missing-Element Fallback Protocol (Resear
 
 1. Acknowledge the request by creating a stub `<chart_type>_meta.json` with `status: "requested_by_ray"` and the date
 2. Either produce the chart (preferred) OR provide a written rationale for why it cannot be produced from available data (route to Evan if data is missing)
-3. Update Ray's narrative content dict `chart_status` field accordingly (`ready`, `pending`, or `unavailable` — see Research SOP "chart_status field")
+3. Update Ray's narrative content dict `chart_status` field with a canonical RES-22 value only. Status labels per `docs/portal_glossary.json._status_vocabulary` (canonical via RES-10 / DATA-VS / RES-VS). The informal alias `"ready"` is banned by RES-22. If Ray passes `"ready"` in the incoming request, substitute `"Available"` in the `_meta.json` sidecar and log a VIZ-IC1 warning. Do not propagate the banned alias.
 
 Unacknowledged chart-gap requests are a coordination failure — Ray must not proceed with the block until Vera responds.
 
@@ -338,7 +360,7 @@ Apply the relevant convention for every indicator-target chart. Ray contributes 
 
 These chart-level quality patterns were identified from the HY-IG reference analysis (pair #5). They supplement — not replace — the existing Quality Gates and style defaults above.
 
-1. **Dual-Panel Strategy Charts** — For equity curves, always pair with a drawdown panel directly below. The visual proximity helps readers understand risk alongside return. Use shared x-axis for alignment.
+1. **Dual-Panel Strategy Charts** — The default strategy chart is `equity_curves.json`: equity curves on the top panel and drawdown directly below, using a shared x-axis. A separate `drawdown.json` / `drawdown_comparison.json` is produced only when the chart registry or pair_config explicitly asks for a standalone drawdown view.
 
 2. **Regime Shading Subtlety** — When adding regime shading (recession bars, stress probability background), use subtle transparency (alpha 0.1–0.15). The data series is primary; the regime context is background. Over-saturated shading makes charts unreadable.
 
@@ -397,7 +419,7 @@ Do not invert Y-axes to create visual alignment (e.g., "wider spread = down, ali
 
 **Never silently invert.** If a transformation is used, it must appear in the axis label AND the chart title. Example good title: "Spread Compression (−HY-IG bps) vs SPY". Example bad title: "HY-IG Spread vs SPY" (with spread axis inverted silently).
 
-#### Rule A2 — Unit Discipline: Axis Labels Must Match Data Values
+#### Rule A2 — Unit Discipline: Axis Labels Must Match Data Values (see also Dana Rule D2 — upstream unit convention registry)
 
 Every numerical axis label must disclose the unit AND match the actual data scale. Specifically:
 
@@ -418,9 +440,11 @@ if unit_label == "%" and max(abs(y)) < 1:
 
 #### Rule A3 — Standard Chart Catalog with Canonical Signal Selection
 
-For every chart in the standard chart set, the filename, signal selection, ordering, and styling are **canonical**. Reruns of the same pair must match the canonical spec exactly. The canonical catalog is the "Standard Chart Set Per Pair" table below in **Viz Preferences** — that table is the single source of truth. Do not maintain a separate catalog file; update the table in this SOP when a spec changes and record the change in `regression_note.md` (see Rule A4).
+For every chart in the standard chart set, the filename, signal selection, ordering, and styling are **canonical**. Reruns of the same pair must match the canonical spec exactly. The machine-readable catalog in `docs/schemas/chart_type_registry.json` is the single source of truth for method-to-chart bindings and canonical filename patterns (VIZ-V8). Inline SOP tables, including "Standard Chart Set Per Pair" below, are explanatory preference tables only; if they diverge from the registry, the registry wins and this SOP table must be corrected in the next SOP maintenance pass.
 
-**Canonical filename format (blocking):** Every portal-destined chart MUST be saved as `output/charts/{pair_id}/plotly/{chart_type}.json` where `{chart_type}` is the short key from the Standard Chart Set table (`hero`, `regime_bars`, `correlation_heatmap`, `ccf`, `local_projections`, `quantile_regression`, `tournament_scatter`, `equity_curves`, `granger`, `rf_importance`). This matches Ace's loader call `load_plotly_chart("{chart_type}", pair_id="{pair_id}")` exactly. Do NOT prefix the pair_id into the filename (e.g., `hy_ig_v2_spy_correlation_heatmap.json` is WRONG — the pair_id lives in the directory path, not the filename). A pair_id-prefixed filename is a completeness gate failure.
+**Canonical filename format (blocking):** Every portal-destined chart MUST be saved as `output/charts/{pair_id}/plotly/{chart_type}.json` where `{chart_type}` is the canonical basename from `docs/schemas/chart_type_registry.json` (examples: `hero`, `regime_bars`, `correlation_heatmap`, `ccf`, `local_projections`, `quantile_regression`, `tournament_scatter`, `equity_curves`, `granger`, `rf_importance`). This matches Ace's loader call `load_plotly_chart("{chart_type}", pair_id="{pair_id}")` exactly. Do NOT prefix the pair_id into the filename (e.g., `hy_ig_v2_spy_correlation_heatmap.json` is WRONG — the pair_id lives in the directory path, not the filename). A pair_id-prefixed filename is a completeness gate failure.
+
+**Legacy/current portal consumption:** A legacy pair-prefixed chart file may remain in the audit trail only if its same-name `_meta.json` marks it `retired` or `suggested`; it must not be the file Ace consumes. If the portal, pair_config, or narrative content points at `output/charts/{pair_id}/plotly/{pair_id}_*.json`, Vera blocks handoff and requests Ace switch to the canonical bare filename before marking the chart `consumed`.
 
 **Canonical method → chart-type mapping (machine-readable):**
 
@@ -442,7 +466,9 @@ When a pair genuinely needs a non-standard chart, **add a new method entry to `d
 
 **Why this rule exists.** Prior to this rule, charts produced by Vera that had no pair_config slot silently disappeared — neither consumed by a page nor surfaced to stakeholders. The 3 orphaned charts in the Sample pair (`hero_spread_vs_spy`, `spread_history_annotated`, `tournament_sharpe_dist`) were lost this way. VIZ-O1 closes the evaporation gap without restricting what Vera produces.
 
-**Completeness gate:** Quincy verifies that every `.json` file in `output/charts/{pair_id}/plotly/` has a corresponding `_meta.json` with a `disposition` field set to one of the three permitted values. Missing or blank disposition is a GATE-28 failure.
+**Completeness gate:** Quincy verifies that every `.json` file in `output/charts/{pair_id}/plotly/` has a corresponding `_meta.json` with a `disposition` field set to one of the three permitted values. Missing or blank disposition is a VIZ-O1/QA cross-check failure and blocks handoff.
+
+**Sidecar naming and scope (blocking):** Every non-sidecar chart JSON in `output/charts/{pair_id}/plotly/`, including legacy/current rerun charts and CP charts, must have a same-name sidecar: `{chart_name}.json` → `{chart_name}_meta.json`. A chart marked `consumed` must be the canonical bare filename for its chart type (VIZ-A3/VIZ-V8). Sidecars for `consumed` and `suggested` charts must include `title`, `caption`, `source`, `source_sample_period`, `data_source_path`, `rules_applied`, and `disposition`; CP sidecars also include `econ_rule_id` and `result_file`. Missing same-name sidecar or missing required source/sample metadata blocks handoff.
 
 #### Rule VIZ-E1 — Exploration Zone + Sidecar Spec for Exploratory Charts (added 2026-04-22)
 
@@ -461,10 +487,16 @@ When a pair genuinely needs a non-standard chart, **add a new method entry to `d
 ```json
 {
   "chart_name": "short_key",
+  "title": "Plain-English chart title shown in Plotly or portal chrome",
+  "caption": "One-line takeaway that states what the chart literally shows",
+  "source": "Source system or dataset family, e.g. FRED + internal tournament results",
+  "source_sample_period": "1998-01-01 to 2026-03-31",
+  "data_source_path": "results/{pair_id}/path/to/input_file.csv",
   "exploratory": true,
   "disposition": "suggested",
   "palette_id": "...",
-  "rules_applied": ["VIZ-E1", "..."],
+  "rules_applied": ["VIZ-E1", "VIZ-O1", "..."],
+  "canonical_consumption": false,
   "narrative_alignment_note": "Plain-English, ELI5 explanation of what this chart shows and why it is interesting. Write as if explaining to a smart non-quant reader — no jargon, no model names. This text is displayed verbatim beneath the chart on the Methodology page.",
   "vera_rationale": "One-line analyst note on why Vera produced this chart — the analytical angle it captures. Rendered in italics beneath the ELI5 caption.",
   "portal_page_hint": "methodology"
@@ -473,7 +505,13 @@ When a pair genuinely needs a non-standard chart, **add a new method entry to `d
 
 **ELI5 requirement (blocking):** for any chart with `"exploratory": true`, `narrative_alignment_note` MUST be written in plain English accessible to a non-quant reader. Analyst shorthand, model names, or statistical jargon in this field is a handoff failure. The rule exists because exploratory charts ship directly to the public Methodology page without an intervening editorial review step.
 
-**Cross-references:** APP-PT2 (Methodology page Exploratory Insights renderer), VIZ-O1 (disposition mandate that applies to all charts including exploratory ones), GATE-28 (QA enforcement of disposition completeness).
+**Exploratory quarantine:** Extra exploratory artifacts are never canonical by filename, implication, or directory presence. They remain `suggested` until routed through `analyst_suggestions.json`, or `retired` with `retire_reason`; only registry-backed bare filenames may be `consumed`. Exploratory sidecars must set `"exploratory": true` and include `"canonical_consumption": false` unless the chart is promoted through VIZ-V8 first.
+
+**Cross-references:** APP-PT2 (Methodology page Exploratory Insights renderer — defined as a named rule in Ace's SOP; VIZ-O1/VIZ-E1 cross-references point to that rule), VIZ-O1 (disposition mandate that applies to all charts including exploratory ones), QA chart-sidecar completeness checks.
+
+**Caption audience note (VIZ-A5 / C1-A04):** The `caption` field in `_meta.json` is an **audit-quality** sidecar field, not a display-quality portal caption. `audience_tier: "technical"` must be set on sidecars whose caption contains technical identifiers or model names not suitable for end-user display. Ace's fallback caption chain (APP §3.9) should only surface Vera's `_meta.json` caption to the portal reader when `audience_tier` is NOT `"technical"` and Ray's narrative caption is absent. Ray owns the display caption; Vera owns the audit caption.
+
+**Standards registry note:** VIZ-IC1 registration in `docs/standards.md` is handled by Lead in Phase 4b (LA-5 batch update). No action by Vera here.
 
 #### Rule A4 — Chart Regression Report
 
@@ -527,7 +565,7 @@ The 2026-04-18 "canonical at `output/_comparison/` + per-pair override" fallback
 2. **Per-pair rendering layer — every pair renders its own dual-panel chart:**
    - Canonical path: `output/charts/{pair_id}/plotly/history_zoom_{episode_slug}.json` (plus `_meta.json` sidecar).
    - Every pair whose Story prose references an episode MUST produce its own dual-panel chart at this path. Missing-chart behavior is handled by Ace's `render_method_block` via a GATE-25 placeholder — never a cross-pair substitute.
-   - Canonical episode slugs are maintained in the VIZ-V12 registry: `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022` (extensions proposed via PR against the registry; additions recorded in `sop-changelog.md`).
+   - Canonical episode slugs are maintained in `docs/schemas/history_zoom_events_registry.json` (VIZ-V12): `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`, `china_2015` (category-scoped). Extensions are proposed via PR against the registry; additions recorded in `sop-changelog.md`. Non-canonical variants (`dot_com`, `rates_2022`, `taper_2013`, `ukraine`) are prohibited. `episode_registry.json` is deprecated per LA-1 — do not reference it.
 
 3. **Cross-agent contract:**
    - Ray flags episode references during narrative handoff; Vera renders the dual-panel chart at the per-pair path for that episode.
@@ -547,7 +585,7 @@ Long-horizon equity/credit time-series (span > 5 years) must:
    - Inspect `fig.layout` for every key matching `^xaxis[0-9]*$`.
    - For each recession episode, emit one `layout.Shape` per panel, with `xref` set to the matching axis reference (`'x'`, `'x2'`, `'x3'`, …), `yref='paper'` (so the rect spans the full panel height), `layer='below'`, and the panel-appropriate fillcolor.
    - Total shape count = `n_recessions × n_panels`.
-4. **Perceptual validation (mandatory before handoff).** After saving the chart JSON, render it to a PNG via `plotly.io.from_json` + `fig.write_image(...)` (kaleido) OR via browser snapshot, and visually confirm the shading bands are perceptible at standard zoom. Save the test snapshot as `output/charts/{pair_id}/plotly/_perceptual_check_{chart_name}.png` (for per-pair charts) or `output/_comparison/_perceptual_check_{chart_name}.png` (for canonical episode charts). Charts where the shading cannot be seen at standard zoom fail acceptance per **GATE-27 (End-to-End Chart Render Test)**.
+4. **Perceptual validation (mandatory before handoff).** After saving the chart JSON, render it to a PNG via `plotly.io.from_json` + `fig.write_image(...)` (kaleido) OR via browser snapshot, and visually confirm the shading bands are perceptible at standard zoom. Save the test snapshot as `output/charts/{pair_id}/plotly/_perceptual_check_{chart_name}.png`. Charts where the shading cannot be seen at standard zoom fail acceptance per **GATE-27 (End-to-End Chart Render Test)**.
 
 All four elements (perceptible shading + caption + subplot coverage + perceptual check) must ship together or the chart fails the completeness gate.
 
@@ -566,12 +604,12 @@ For the HY-IG v2 hero chart, SL-2 observed that shading existed but the disclosu
 | Hero (dual-axis indicator vs target) | `hero.json` | Both panels if dual-panel |
 | Spread history annotated | `spread_history_annotated.json` | Both panels if dual-panel |
 | History zoom (all episodes) | `history_zoom_{slug}.json` | BOTH panels mandatory per Rule V1 |
-| Equity curves | `equity_curves.json` | Single or dual panel |
+| Equity curves | `equity_curves.json` | Default strategy chart: equity top panel + drawdown bottom panel |
 | HMM regime probability | `hmm_regime_probs.json` | |
 | Rolling Sharpe | `rolling_sharpe.json`, `wf_sharpe.json`, `walk_forward.json` | |
 | Rolling correlation | `rolling_correlation.json` | |
 | Rolling Granger (F-stat) | `rolling_granger.json` | |
-| Drawdown | `drawdown.json`, `drawdown_comparison.json` | |
+| Drawdown | `drawdown.json`, `drawdown_comparison.json` | Standalone drawdown view only when explicitly registry- or pair_config-requested |
 | Walk-forward performance | `walk_forward.json` | |
 
 **Exempt chart types** (x-axis is not calendar time; NBER shading is inapplicable and PROHIBITED):
@@ -612,11 +650,11 @@ A `history_zoom_{episode_slug}.json` chart is REQUIRED for an episode when ALL T
 2. **Relevance:** The episode is a major stress event relevant to the indicator's economic domain. All four canonical episodes are relevant to all financial indicator-target pairs unless the data coverage check fails.
 3. **Portal delivery:** The pair has at least one portal page (Story, Evidence, Strategy, or Methodology). Pairs not yet ported to the portal may defer zoom charts until portal delivery.
 
-**Episode selection for zoom charts:** Read from `docs/schemas/episode_registry.json` keyed on `interpretation_metadata.indicator_category`. The slugs in the registry define the canonical zoom chart filenames (`history_zoom_{slug}.json`).
+**Episode selection for zoom charts:** Read from `docs/schemas/history_zoom_events_registry.json` (`indicator_category_map` object, keyed on `interpretation_metadata.indicator_category`). If the category is absent or unrecognised, use the `default` entry. The slugs in the registry define the canonical zoom chart filenames (`history_zoom_{slug}.json`).
 
-**Required episodes (canonical):** Dot-Com (2000–2002), GFC (2007–2009), COVID (2020), 2022 Rates Shock (2021–2023).
+**Required episodes (canonical — per LA-2):** Dot-Com (`dotcom`), GFC (`gfc`), COVID (`covid`), 2018 Taper/Volmageddon (`taper_2018`), 2022 Inflation Shock (`inflation_2022`). `china_2015` is canonical for activity-survey and equity-flow categories (see `indicator_category_map`). `ukraine` is non-canonical pending a registry PR.
 
-**Episode slug names:** `dotcom`, `gfc`, `covid`, `inflation_2022`.
+**Episode slug names (canonical — per LA-2):** `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`, `china_2015` (category-scoped). Non-canonical variants `dot_com`, `rates_2022`, `taper_2013`, `taper`, `ukraine` are PROHIBITED. Use of a non-canonical slug is a VIZ-V12 violation and a gate failure.
 
 **When zoom charts are OPTIONAL:**
 
@@ -646,7 +684,7 @@ A `history_zoom_{episode_slug}.json` chart is REQUIRED for an episode when ALL T
 - Title explicitly names indicator, target, and episode (e.g., "INDPRO and SPY During the GFC, 2006–2010")
 - File path: `output/charts/{pair_id}/plotly/history_zoom_{slug}.json`
 
-**Cross-reference:** VIZ-V1 (full zoom chart production spec), VIZ-V2 (NBER shading), VIZ-V12 (events registry), VIZ-V13 (annotation strategies), GATE-VIZ-ZOOM1 (QA check — verifies required slugs exist for each pair in portal scope).
+**Cross-reference:** VIZ-V1 (full zoom chart production spec), VIZ-V2 (NBER shading), VIZ-V12 (`docs/schemas/history_zoom_events_registry.json` — events registry and indicator_category_map), VIZ-V13 (annotation strategies), GATE-VIZ-ZOOM1 (QA check — verifies required slugs exist for each pair in portal scope).
 
 ---
 
@@ -660,9 +698,9 @@ A `history_zoom_{episode_slug}.json` chart is REQUIRED for an episode when ALL T
 
 Before any Vera handoff note is written and before the Ace dispatch is sent, Vera MUST:
 
-1. **Identify required slugs:** Read `docs/schemas/episode_registry.json`, find the entry keyed on the pair's `interpretation_metadata.indicator_category`. Extract the list of canonical episode slugs registered for that category.
+1. **Identify required slugs:** Read `docs/schemas/history_zoom_events_registry.json`, find the `indicator_category_map` entry keyed on the pair's `interpretation_metadata.indicator_category` (fall back to `default` if the category is absent or unrecognised). Extract the list of canonical episode slugs for that category.
 
-2. **Check data coverage per slug:** For each slug, confirm the pair's indicator data spans the episode's `start_date`/`end_date` window (from `docs/schemas/history_zoom_events_registry.json`). Slugs that fail coverage are SKIP candidates (see §Skip Protocol below).
+2. **Check data coverage per slug:** For each slug, confirm the pair's indicator data spans the episode's `start_date`/`end_date` window (from the `episodes[{slug}]` entry in `docs/schemas/history_zoom_events_registry.json`). Slugs that fail coverage are SKIP candidates (see §Skip Protocol below).
 
 3. **Verify files exist on disk:** Run the following shell command for each required slug:
 
@@ -682,13 +720,19 @@ Before any Vera handoff note is written and before the Ace dispatch is sent, Ver
 
    ```
    VIZ-HZE1 gate — {pair_id}:
-     Required slugs: [dotcom, gfc, covid, inflation_2022]
-     Coverage check: dotcom=PASS, gfc=PASS, covid=PASS, inflation_2022=SKIP (data starts 2018)
-     Disk check: history_zoom_dotcom.json PASS, history_zoom_gfc.json PASS, history_zoom_covid.json PASS
+     Required slugs: [dotcom, gfc, covid, taper_2018, inflation_2022]
+     Coverage check: dotcom=PASS, gfc=PASS, covid=PASS, taper_2018=PASS, inflation_2022=SKIP (data starts 2018)
+     Disk check: history_zoom_dotcom.json PASS, history_zoom_gfc.json PASS, history_zoom_covid.json PASS, history_zoom_taper_2018.json PASS
      Gate verdict: PASS
    ```
 
    Any slug that is required (not skipped) and does not resolve on disk → **Gate verdict: FAIL — handoff is BLOCKED.**
+
+**Skip protocol — data-coverage gap vs upstream block:**
+
+Two distinct skip causes must be recorded differently:
+- **Data-coverage skip (Vera-initiated):** The pair's indicator data does not span an episode's date window. Vera writes a VIZ-HZE1 skip entry (below) and GATE-HZE1 records it as authorized absence — no Vera blocker is raised at QA.
+- **Upstream-blocked skip (Evan-initiated via ECON-H4 `status: "blocked"`):** The chart cannot be produced because Evan's upstream result is blocked. Vera writes a skip entry in `_meta.json` with `skip_reason: "upstream-blocked"` and `block_source: "ECON-H4"`. GATE-HZE1 tracks this separately from a data-coverage gap. No GATE-HZE1 implication for Vera (the block is on Evan's side).
 
 **Skip protocol — when pair data does not cover an episode:**
 
@@ -715,7 +759,9 @@ If `git ls-files` returns empty for a required slug, Vera must generate the miss
 
 **Scope:** This gate applies to every pair that has at least one portal page and is included in a Vera handoff to Ace. It applies retroactively to pairs already on the portal — missing zoom charts on existing pairs must be flagged in the next Vera dispatch touching that pair.
 
-**Cross-reference:** VIZ-ZOOM1 (trigger conditions and required episode list), VIZ-V1 (full zoom chart production spec — dual-panel, event markers, NBER shading, annotation strategy), VIZ-V2 (NBER shading — per-panel subplot coverage), VIZ-V12 (events registry — canonical event set per slug), VIZ-V13 (annotation strategies), VIZ-V5 / VIZ-CV1 (chart rendering validation — must pass for all committed zoom charts), APP-EP4 / GATE-25 (Ace's placeholder behavior for missing charts).
+**Downstream consumer protocol (Ace / GATE-HZE1):** Ace's ACE-HZE1 step 1 reads the skip entry from `_meta.json` to distinguish authorized absence (VIZ-HZE1 skip recorded) from pending production (no skip entry). Ensure the skip entry format is machine-parsable: the `skipped_by: "VIZ-HZE1"` field is the signal Ace checks. GATE-HZE1 uses the same field to record "GATE-HZE1: authorized VIZ-HZE1 skip" rather than "Vera blocker."
+
+**Cross-reference:** VIZ-ZOOM1 (trigger conditions and required episode list), VIZ-V1 (full zoom chart production spec — dual-panel, event markers, NBER shading, annotation strategy), VIZ-V2 (NBER shading — per-panel subplot coverage), VIZ-V12 (events registry — canonical event set per slug), VIZ-V13 (annotation strategies), VIZ-V5 / VIZ-CV1 (chart rendering validation — must pass for all committed zoom charts), APP-EP4 / GATE-25 (Ace's placeholder behavior for missing charts), ACE-HZE1 (Ace's consumer protocol for VIZ-HZE1 skip entries).
 
 ---
 
@@ -807,6 +853,7 @@ pair_id = "your_pair_id"
 dual_panel_patterns = [
     f"output/charts/{pair_id}/plotly/history_zoom_*.json",
     f"output/charts/{pair_id}/plotly/hero.json",
+    f"output/charts/{pair_id}/plotly/equity_curves.json",
 ]
 
 failures = []
@@ -935,6 +982,9 @@ The perceptual PNG is committed to git alongside the chart JSON (see VIZ-CV1 ext
 - `"econ_rule_id"`: the ECON rule that generated the result (e.g., `"ECON-CP1"` or `"ECON-CP2"`)
 - `"result_file"`: path to the upstream result CSV (e.g., `"results/{pair_id}/subperiod_sharpe.csv"`)
 - `"rules_applied"`: must include the relevant VIZ-CP1 sub-rule (e.g., `["VIZ-CP1.1", "VIZ-NBER1"]`)
+- `"disposition"`: one of VIZ-O1's permitted values; CP charts consumed by Evidence must be `"consumed"`
+- `"source_sample_period"`: ISO start/end or compact label for the upstream sample used in the CP result
+- `"source"`: upstream result provenance, not only the economic data vendor
 
 **VIZ-IC1 lint applies:** All CP charts undergo the standard intra-chart consistency check before save.
 
@@ -976,15 +1026,18 @@ On rerun, Vera must diff the prior chart set under `output/charts/{pair_id}/plot
 
 #### Rule V5 — Chart Rendering Validation (VIZ-CV1) (added 2026-04-19; renamed from "smoke test" 2026-04-24 Wave 10J; perceptual PNG mandate extended to ALL charts 2026-04-24)
 
-Before handoff to Ace, Vera MUST run a chart rendering validation (VIZ-CV1) script that, for every chart referenced by any portal page of the pair, verifies:
+Before handoff to Ace, Vera MUST run a chart rendering validation (VIZ-CV1) script that, for every non-sidecar chart JSON in `output/charts/{pair_id}/plotly/` and every chart referenced by any portal page of the pair, verifies:
 
 1. `plotly.io.read_json(path)` loads the JSON without raising any exception.
 2. `len(fig.data) > 0` — the chart has at least one data trace (not an empty figure).
 3. `fig.layout.title.text` is non-empty — the chart is titled.
+4. The same-name `_meta.json` exists and its `title` matches or faithfully abbreviates `fig.layout.title.text`.
+5. The chart basename is canonical when `_meta.json.disposition == "consumed"`; pair-prefixed consumed filenames fail.
+6. The chart has visible source/sample text: either figure subtitle/source note/footer contains `source` and `source_sample_period`, or the title explicitly includes the sample window where space is constrained.
 
 Each check is logged as pass/fail per chart to `output/charts/{pair_id}/plotly/_smoke_test_{YYYYMMDD}.log` (one file per test run date; if multiple runs on the same day, append). The log includes per-chart `PASS` / `FAIL` lines plus a final tally line `Total: N charts, M pass, K fail`.
 
-**Chart rendering validation (VIZ-CV1) failure is a blocker.** Vera cannot hand off to Ace until every chart passes all three checks. If a chart fails:
+**Chart rendering validation (VIZ-CV1) failure is a blocker.** Vera cannot hand off to Ace until every chart passes all checks. If a chart fails:
 - An empty-data failure usually means upstream CSV parse error → fix the builder script and re-save.
 - A missing-title failure usually means a layout template stripped the title → restore per VIZ-UR1.
 - A JSON-read failure usually means a corrupted write or mixing numpy types into Plotly → rebuild using `plotly.io.write_json`.
@@ -1003,9 +1056,9 @@ Prior iterations of this rule mandated perceptual PNGs only for `hero` and `equi
 
 **Render spec:** Use `plotly.io.to_image(fig, format='png', width=1200, height=600)` (or `fig.write_image(...)` with equivalent parameters). kaleido must be `>= 1.0.0` — the prior version was deprecated September 2025. Install with `pip install 'kaleido>=1.0.0'`.
 
-**Committed artifact:** Unlike the earlier phrasing in VIZ-DP1 (which called the PNG a "working artifact, not committed"), perceptual PNGs are now **committed to git alongside their corresponding JSON**. They serve as visual evidence in the commit history that the chart was perceptually correct at handoff time. Ace does not consume them; they are Vera's QA record.
+**Committed artifact:** Perceptual PNGs are **committed to git alongside their corresponding JSON**. They serve as visual evidence in the commit history that the chart was perceptually correct at handoff time. Ace does not consume them; they are Vera's QA record.
 
-**Skip condition:** If a `.json` file is a `_meta.json` sidecar (i.e., filename ends in `_meta.json`) or a `_smoke_test_*.log`, no perceptual PNG is required — these are not rendered chart files.
+**Skip condition:** Skip files whose basename ends in `_meta` (sidecar files — not rendered charts) or starts with `_smoke_test` (log files are `.log`, not `.json`, so this pattern is a belt-and-suspenders guard). No perceptual PNG is required for either class.
 
 **Procedure:**
 
@@ -1035,7 +1088,7 @@ for json_path in sorted(glob.glob(f"{plotly_dir}/*.json")):
         print(f"FAIL: {stem} — {e}")
 ```
 
-**Gate:** Before any Vera handoff, confirm that for every `{chart_name}.json` (non-sidecar) in the pair's plotly directory, a corresponding `_perceptual_check_{chart_name}.png` exists and is committed to git. Missing PNGs are a completeness gate failure equivalent to a missing chart JSON.
+**Gate:** Before any Vera handoff, confirm that for every `{chart_name}.json` (non-sidecar) in the pair's plotly directory, a corresponding `_perceptual_check_{chart_name}.png` exists and is committed to git. Missing PNGs are a completeness gate failure equivalent to a missing chart JSON. Note: GATE-27 (Quincy) is a hard FAIL when PNGs are absent — the producer-side gate here must catch missing PNGs before handoff so GATE-27 acts as a confirmation gate, not a discovery gate (META-SRV principle).
 
 #### Rule V8 — Chart Type Registry (canonical, machine-readable) — addresses S18-11, Wave 1.5 Granger fallback (added 2026-04-19)
 
@@ -1043,7 +1096,7 @@ The method-to-chart mapping is authoritative in **`docs/schemas/chart_type_regis
 
 **Producer responsibility (Vera):**
 
-1. Before saving any chart JSON under `output/charts/{pair_id}/plotly/`, Vera MUST verify the chart's basename matches the `canonical_filename_pattern` in the registry for the corresponding `method_name`. For entries with `override_supported=true`, the `{episode_slug}` placeholder must be substituted with a concrete slug from the META-ZI registry.
+1. Before saving any chart JSON under `output/charts/{pair_id}/plotly/`, Vera MUST verify the chart's basename matches the `canonical_filename_pattern` in the registry for the corresponding `method_name`. For entries with `override_supported=true`, the `{episode_slug}` placeholder must be substituted with a concrete slug from the META-ZI registry. Registry-backed consumed charts use bare canonical basenames only; pair-prefixed basenames are legacy artifacts and cannot be consumed.
 2. Adding a new `method_name` requires bumping the registry instance's `x-version` (patch → additive, minor → new optional fields, major → breaking rename), writing a `sop-changelog.md` entry, and a pair `regression_note.md` entry per META-VNC.
 3. Every pair handoff to Ace includes, implicitly, a statement that every method in the pair's Evidence page is present in the registry and that its chart was produced at the registered canonical path.
 
@@ -1080,19 +1133,21 @@ Every palette definition exposes the same named roles, so consumer code (Vera's 
 
 **Producer validation (Vera, pre-save lint).**
 
-Before saving any chart JSON under `output/charts/**/plotly/` or `output/_comparison/`, Vera runs a pre-save lint that:
+Before saving any chart JSON under `output/charts/**/plotly/` (per-pair charts) or `output/_comparison/` (**cross-pair comparison charts only** — `output/_comparison/` is valid for same-indicator/multi-target and same-target/multi-indicator composite charts; `output/_comparison/history_zoom_*.json` is explicitly PROHIBITED per META-AL and VIZ-V1), Vera runs a pre-save lint that:
 
 1. Extracts every concrete color value from the Plotly figure — trace `line.color`, `marker.color`, `fill` fields; every `layout.Shape.fillcolor` and `line.color`; every `layout.Annotation.bgcolor`, `bordercolor`, `font.color`.
 2. Compares each extracted color against the registered palette identified by the chart's `_meta.json.palette_id`.
 3. **Blocks the save with a clear error** if any extracted color resolves to a raw matplotlib / plotly default (`#d62728`, `#1f77b4`, `#2ca02c`, `#ff7f0e`, `#9467bd`, `#8c564b`, `#e377c2`, `#7f7f7f`, `#bcbd22`, `#17becf`, or a bare Plotly `"C0"..."C9"` reference) and that color is not also a role value in the declared palette. The error names the offending field path and the closest registered palette role.
 
-Legacy charts that cannot be rebuilt immediately may be grandfathered by declaring `palette_id: "matplotlib_legacy"` in their `_meta.json` sidecar with a mandatory `grandfather_until` ISO date — but the lint still reports them as audit-flagged until rebuilt.
+Legacy charts that cannot be rebuilt immediately may be grandfathered by declaring `palette_id: "matplotlib_legacy"` in their `_meta.json` sidecar with a mandatory `grandfather_until` ISO date. `matplotlib_legacy` IS a registered palette in `docs/schemas/color_palette_registry.json` (added v1.2.0); VIZ-CV1 accepts it without a blocking failure but the lint still reports it as WARN (audit-flagged) until rebuilt to `okabe_ito_2026`. Without registry registration, VIZ-CV1 would block all grandfathered charts — the registration is what makes the grandfathering clause operative.
 
 **Sidecar contract.**
 
 Every chart's `_meta.json` sidecar (per VIZ-SD1) MUST carry `palette_id` referencing a key in `color_palette_registry.json`. A chart whose sidecar has no `palette_id`, or whose `palette_id` is not in the registry, fails VIZ-V5 chart rendering validation (VIZ-CV1).
 
-**Cross-reference:** META-CF (schema ownership), META-XVC (palette change = methodological divergence), VIZ-V2 (NBER shading exact rgba), VIZ-V5 (chart rendering validation — VIZ-CV1), VIZ-V8 (the other canonical chart-related registry), VIZ-SD1 (sidecar schema), APP-SE3 (Ace consumes buy/sell/hold roles).
+**Implementation script:** `scripts/viz_v11_palette_lint.py` (planned — P2 backlog item per Phase 2 D2). Until the script exists, VIZ-IC1 check 4 (palette registry conformance, enforced by `validate_intra_chart_consistency()`) is the implementation vehicle for this check. When `viz_v11_palette_lint.py` ships, it will run standalone before VIZ-IC1 and produce a machine-readable audit report. Cross-reference VIZ-IC1 check 4 for the current implementation path.
+
+**Cross-reference:** META-CF (schema ownership), META-XVC (palette change = methodological divergence), VIZ-V2 (NBER shading exact rgba), VIZ-V5 (chart rendering validation — VIZ-CV1), VIZ-IC1 check 4 (current palette-conformance implementation), VIZ-V8 (the other canonical chart-related registry), VIZ-SD1 (sidecar schema), APP-SE3 (Ace consumes buy/sell/hold roles).
 
 #### Rule V12 — Historical-Episode Events Registry (canonical, machine-readable) — addresses Wave 5 audit gaps #5, #6, SL-4 / SL-5 rationale-capture residual (added 2026-04-19)
 
@@ -1113,7 +1168,7 @@ Each episode entry carries:
 
 **Rendering contract (Vera).**
 
-When rendering a `history_zoom_{episode_slug}` chart (either canonical at `output/_comparison/` per META-ZI, or a pair override at `output/charts/{pair_id}/`), Vera:
+When rendering a `history_zoom_{episode_slug}` chart, Vera:
 
 1. Reads the `episodes[{slug}].key_events` array from this registry.
 2. Renders one dashed vertical marker per event at its `date`, with `annotation_text` drawn from `label` (format: `"{MMM YYYY}: {event title ≤5 words}"`).
@@ -1131,7 +1186,9 @@ Any new episode (e.g., a slug added to the META-ZI registry) requires a **regist
 
 Amending an existing episode's event list (changing a date, editing a rationale, adding or removing a marker) is **methodological divergence per META-XVC** on every pair that previously rendered that episode — the change must cite the divergence in each affected regression_note.
 
-**Cross-reference:** META-CF (schema ownership), META-XVC (event-set change = methodological divergence), META-ZI (canonical + override episode chart protocol), VIZ-V1 (zoom chart production), RES-20 (Ray's episode-selection criterion, pending), RES-8 (prose-chart coupling for historical episodes).
+**Registry scope note (C1-R05):** This registry (`history_zoom_events_registry.json`) governs **episode slugs and event markers** for zoom charts. It is NOT the same as `docs/schemas/chart_type_registry.json`, which governs **method-to-chart-type bindings and canonical filenames**. Ray's `chart_refs` validation should use `chart_type_registry.json` for chart-type references and `history_zoom_events_registry.json` for episode slug references — the two files serve different purposes and must not be conflated.
+
+**Cross-reference:** META-CF (schema ownership), META-XVC (event-set change = methodological divergence), META-ZI (canonical + override episode chart protocol), VIZ-V1 (zoom chart production), VIZ-V8 / `docs/schemas/chart_type_registry.json` (distinct registry — method-to-chart bindings), RES-20 (Ray's episode-selection criterion, pending), RES-8 (prose-chart coupling for historical episodes).
 
 #### Rule V13 — Annotation Positioning Strategies (named, logged) — addresses Wave 5 audit gap #7 (added 2026-04-19)
 
@@ -1213,9 +1270,9 @@ Before delivery, check:
 - Save charts as `.png` (default, 150 DPI) and `.svg` (for scaling)
 - **For portal-destined charts:** additionally save as Plotly JSON (`.json` via `plotly.io.to_json()`) -- this is Ace's primary intake format
 - **For portal-destined charts:** produce a metadata sidecar file (`{chart_name}_meta.json`) containing: caption, source, audience tier, suggested portal page, and interactive controls hints (see App Dev Handoff section below)
-- **File naming (single-pair):** `{indicator_id}_{target_id}_{chart_type}_{audience}_{date}_v{N}.{ext}` (e.g., `hy_ig_spy_regime_prob_narrative_20260315_v1.png`)
+- **File naming (single-pair audit/static outputs only):** `{indicator_id}_{target_id}_{chart_type}_{audience}_{date}_v{N}.{ext}` (e.g., `hy_ig_spy_regime_prob_narrative_20260315_v1.png`). Portal Plotly JSON uses the canonical bare filename in VIZ-A3 instead.
 - **File naming (cross-pair comparison):** `{indicator_id}_all_targets_{chart_type}_{audience}_{date}_v{N}.{ext}` or `all_indicators_{target_id}_{chart_type}_{audience}_{date}_v{N}.{ext}`
-- **Directory structure (multi-pair):** Use per-pair subdirectories: `output/{indicator_id}_{target_id}/`. Cross-pair charts go in `output/_comparison/`.
+- **Directory structure (multi-pair):** Use per-pair subdirectories: `output/charts/{indicator_id}_{target_id}/plotly/`. Cross-pair **comparison** charts (same-indicator/multi-target or same-target/multi-indicator composites) go in `output/_comparison/`. `output/_comparison/history_zoom_*.json` is PROHIBITED per META-AL — zoom charts are always per-pair.
   - Audience tags: `exec` (executive summary / KPI), `narrative` (layperson story page), `analytical` (detailed evidence page), `technical` (methodology appendix)
   - When no portal is in scope, the audience tag may be omitted for backward compatibility
 - Save tables as `.md` (markdown) and `.csv`
@@ -1311,8 +1368,13 @@ For every portal-destined chart, produce `{chart_name}_meta.json`:
   "chart_id": "hy_ig_spy_regime_prob_narrative_20260315_v1",
   "indicator_id": "hy_ig",
   "target_id": "spy",
+  "title": "HY-IG credit spread stress probability spiked during GFC and COVID",
   "caption": "HY-IG credit spread regime: stress probability spiked during GFC and COVID",
   "source": "FRED (ICE BofA indices)",
+  "source_sample_period": "1998-01-01 to 2026-03-31",
+  "disposition": "consumed",
+  "exploratory": false,
+  "rules_applied": ["VIZ-O1", "VIZ-V5"],
   "audience_tier": "narrative",
   "portal_section": "credit_spreads",
   "portal_pair": "hy_ig_spy",
@@ -1327,8 +1389,13 @@ For every portal-destined chart, produce `{chart_name}_meta.json`:
 Fields:
 - `chart_id`: matches the file name stem
 - `indicator_id`, `target_id`: pair identifiers for cross-pair chart discovery
+- `title`: exact Plotly title text or a faithful text equivalent (mandatory)
 - `caption`: one-line takeaway (mandatory)
 - `source`: data attribution
+- `source_sample_period`: source/sample window used in the rendered data (mandatory; use ISO dates or a compact label)
+- `disposition`: VIZ-O1 value (`consumed`, `suggested`, or `retired`) (mandatory)
+- `exploratory`: boolean; `true` only for VIZ-E1 charts
+- `rules_applied`: VIZ rule IDs materially applied to this chart (mandatory)
 - `audience_tier`: one of `exec`, `narrative`, `analytical`, `technical`
 - `portal_section`: indicator group or thematic section (e.g., `credit_spreads`, `volatility`, `activity_survey`)
 - `portal_pair`: indicator-target pair ID (e.g., `hy_ig_spy`)
@@ -1337,6 +1404,8 @@ Fields:
 - `data_source_path`: path to the underlying data file (so Ace can wire dynamic filtering)
 - `static_fallback_identical`: whether the PNG/SVG version is content-identical to the Plotly version
 - `interpretation_metadata_version`: hash or path:hash of the `interpretation_metadata.json` used when this chart was built. If the metadata changes, the chart must be regenerated. This prevents temporal drift between chart annotations and portal callout boxes.
+
+Visible chart text must expose provenance too: every portal chart includes source and sample period in the title/subtitle/footer/source note, not only in `_meta.json`. Space-constrained charts may use compact text such as `Source: FRED; sample: 1998-2026`.
 
 ### Comparison Dashboard Charts
 
@@ -1424,7 +1493,7 @@ Render the evaluation-layer results in the portal dashboard. The evaluation laye
 
 - Receive normalized scores from AppDev Agent
 - Display metrics alongside narrative context from Research Agent
-- Follow standard chart naming: `{pair_id}_env_radar.json`, `{pair_id}_strategy_radar.json`
+- Follow standard chart naming: `env_radar.json`, `strategy_radar.json` (bare names per VIZ-NM1 — pair_id lives in the directory path `output/charts/{pair_id}/plotly/`, never in the filename)
 
 ---
 
@@ -1440,6 +1509,7 @@ Before saving any chart JSON (`output/charts/{pair_id}/plotly/{chart_type}.json`
 4. **Palette registry conformance.** Every trace color must come from `docs/schemas/color_palette_registry.json`. The registry defines semantic role **aliases** that map to visual palette keys: `indicator` → `primary_data_trace`, `target` → `secondary_data_trace`, `benchmark` → `benchmark_trace`. Vera resolves aliases to hex via the registry lookup at chart-save time. Ad-hoc hex codes are prohibited. (Cross-ref: team-standards.md §4; palette aliases block was added 2026-04-22 per Wave 10F cross-review consensus.)
 5. **Unit discipline.** Number formatters in tick labels match the declared unit (`%` for percent-form values; `.2f` for ratios; `,.0f` for index level). A chart that formats 0.0113 as "0.01%" instead of "1.13%" is a VIZ-IC1 failure (same class as the Wave 4D-1 unit drift).
 6. **Narrative-alignment note.** If the chart is referenced in Ray's narrative, Vera includes a one-line `narrative_alignment_note` in the chart's `_meta.json` sidecar stating: "Chart shows X; narrative cites X; verified consistent at save time on {date}." (Chart sidecars are named `_meta.json`, NOT `_manifest.json` — the two-sidecar split is: `_meta.json` for chart sidecars (Vera-owned), `_manifest.json` for dataset / model sidecars (Dana- or Evan-owned). See team-standards.md §3.)
+7. **Source / visible provenance.** The chart includes source attribution and `source_sample_period` in visible chart text — figure subtitle, footer, source-note annotation, or compact title notation (e.g., `"Source: FRED; sample: 1998-2026"`). A chart where the only provenance record is in `_meta.json` (invisible to the portal reader) fails this check. This is the VIZ-IC1 pre-save enforcement of the visible-provenance requirement in VIZ-CV1 check 6 and the Quality Gates checklist.
 
 **Pre-save assertion (implementation guidance):**
 
@@ -1450,19 +1520,23 @@ Vera's chart-save pipeline calls a `validate_intra_chart_consistency(fig, pair_i
 - Block save. Fix the chart (relabel, recolor, correct annotation). Re-run VIZ-IC1.
 - Log the violation in Vera's session notes so patterns can be promoted to schema-level rules over time.
 
-**Cross-references:** VIZ-V11 (color palette registry — the canonical color source), VIZ-V12 (events registry — annotation date source), VIZ-V8 (chart type registry — filename + expected chart type), META-RYW (team-level self-review — VIZ-IC1 is its chart-specific instance), QA-CL6/GATE-NC (QA cross-checks narrative claims against chart data at acceptance).
+**Cross-references:** VIZ-V11 (color palette registry — the canonical color source), VIZ-V12 (events registry — annotation date source), VIZ-V8 (chart type registry — filename + expected chart type), META-QS (team quality standards — VIZ-IC1 is the chart-specific enforcement instance), QA-CL1 (QA standard checklist — QA cross-checks narrative claims against chart data at acceptance).
 
 ## Quality Gates
 
 Before handing off:
 
 **Structural checks:**
-- [ ] **VIZ-IC1 pre-save assertions PASS for every saved chart** (title-axes coherence, legend-data match, annotations-data match, palette registry conformance, unit discipline, narrative-alignment note in manifest)
+- [ ] **VIZ-IC1 pre-save assertions PASS for every saved chart** (title-axes coherence, legend-data match, annotations-data match, palette registry conformance, unit discipline, narrative-alignment note in `_meta.json`)
 - [ ] **NBER shading gate (BLOCKING — VIZ-NBER1):** Run `python scripts/check_nber_shading.py {pair_id}` (or equivalent Plotly JSON inspection) and paste output into handoff note. Every mandatory-NBER chart must show `vrect`/`rect` shapes present: PASS. Any mandatory chart with no shapes: FAIL — do not proceed with handoff.
 - [ ] **Chart rendering validation (VIZ-CV1) log present and all-PASS:** Confirm `output/charts/{pair_id}/plotly/_smoke_test_{YYYYMMDD}.log` exists and shows `Total: N charts, N pass, 0 fail`.
+- [ ] **Sidecar completeness:** Every non-sidecar chart JSON has same-name `_meta.json` with VIZ-O1 disposition, title, caption, source, source_sample_period, data_source_path, rules_applied, and palette_id.
+- [ ] **Canonical consumption:** Every chart with `disposition: consumed` uses the bare VIZ-A3/VIZ-V8 canonical filename; pair-prefixed files are marked `suggested` or `retired` and are not referenced by the portal.
+- [ ] **Perceptual PNG coverage:** Every non-sidecar chart JSON has committed `_perceptual_check_{chart_name}.png`, including current `history_zoom_{slug}` charts.
 - [ ] Title states the insight, not just the variable name
 - [ ] All axes labeled with units
 - [ ] Source note included
+- [ ] Source/sample period appears in visible chart text and in `_meta.json`
 - [ ] Colorblind-safe palette used
 - [ ] No chartjunk (unnecessary gridlines, 3D effects, decorative elements)
 - [ ] Text is legible at intended display size
@@ -1516,7 +1590,7 @@ When delivering charts for 10+ pairs, manual reconciliation per chart is infeasi
 - Portal-destined interactive charts: Plotly JSON (`.json`) as primary format; `.html` only when no portal is in scope
 - Portal-destined charts: include metadata sidecar file (`_meta.json`) per the App Dev Handoff schema
 - Tables: markdown for inline use; CSV for data exchange
-- All files saved to workspace with descriptive names following versioning convention (including audience tag when portal is in scope)
+- All non-portal and static/audit files saved to workspace with descriptive names following the versioning convention; portal Plotly JSON uses VIZ-A3 bare canonical filenames
 - Every chart accompanied by a one-line caption
 - When delivering to Ace: use the Viz-to-App handoff message template
 - **Multi-pair deliveries:** maintain `output/chart_registry.json` listing all charts with metadata paths
@@ -1528,7 +1602,7 @@ These preferences were established during the INDPRO → SPY pair analysis and a
 
 ### Standard Chart Set Per Pair
 
-Every pair analysis must produce at minimum these 10 chart types:
+This table is a human-readable baseline for common pair analyses, not the canonical method-to-chart source of truth. Use `docs/schemas/chart_type_registry.json` for active required filenames, method bindings, and additions; this table is explanatory and may lag until SOP maintenance catches up.
 
 | # | Chart | Purpose | Key Design Notes |
 |---|-------|---------|-----------------|
@@ -1539,19 +1613,25 @@ Every pair analysis must produce at minimum these 10 chart types:
 | 5 | **Local projections** | Coefficient by forecast horizon with CI | Line+markers, shaded CI band, stars for significant |
 | 6 | **Quantile regression** | Coefficient across return quantiles | Line+markers, shaded CI, zero line |
 | 7 | **Tournament scatter** | OOS Sharpe vs turnover for all combos | Color=max DD, stars=top 5, diamond=benchmark |
-| 8 | **Equity curves** | Top strategies vs buy-and-hold | Multiple lines, labeled, OOS period only |
+| 8 | **Equity curves** | Top strategies vs buy-and-hold | `equity_curves.json` defaults to equity top panel + drawdown bottom panel, OOS period only |
 | 9 | **Granger causality** | P-values by lag, both directions | Two lines (indicator→target, target→indicator), p=0.05 threshold |
 | 10 | **RF feature importance** | Horizontal bar chart | Sorted descending, from last walk-forward window |
 
 ### Color Palette (Mandatory)
 
-| Role | Color | Hex |
-|------|-------|-----|
-| Indicator / stress | Red | `#d62728` |
-| Target / equity | Blue | `#1f77b4` |
-| Strategy / positive | Green | `#2ca02c` |
-| Benchmark / neutral | Gray | `#7f7f7f` |
-| Contraction shading | Light red | `rgba(214, 39, 40, 0.15)` |
+The canonical palette is **`okabe_ito_2026`** in `docs/schemas/color_palette_registry.json` (VIZ-V11). Do NOT use the matplotlib-default hex values (`#d62728`, `#1f77b4`, `#2ca02c`, `#7f7f7f`) — these are prohibited raw defaults that trigger the VIZ-V11 pre-save lint block. The table below was the Wave-1 baseline and is now superseded by VIZ-V11.
+
+Canonical roles in `okabe_ito_2026`:
+
+| Role | Registry key | Hex |
+|------|-------------|-----|
+| Indicator / primary series | `primary_data_trace` | `#D55E00` |
+| Target / secondary series | `secondary_data_trace` | `#0072B2` |
+| Strategy / positive | `tertiary_data_trace` | `#009E73` |
+| Benchmark / neutral | `benchmark_trace` | `#6C7A89` |
+| NBER recession shading | `nber_shading` | `rgba(150,120,120,0.22)` |
+
+Semantic aliases (`indicator` → `primary_data_trace`, `target` → `secondary_data_trace`, `benchmark` → `benchmark_trace`) are defined in the registry `aliases` block and consumed by VIZ-IC1 palette-conformance check. Use aliases in builder scripts; the registry resolves them to hex at lint time.
 
 ### Chart Naming Convention (Portal Plotly JSON)
 
@@ -1651,6 +1731,8 @@ Before returning your task result, complete these three lightweight steps:
 3. **Flag cross-role insights** — If the insight involves coordination with another agent (e.g., "Vera and I need to agree on chart filenames"), also append a one-line entry to `_pws/_team/status-board.md` under a section called `## Team Insights — YYYY-MM-DD` (create the section if missing).
 
 **Rationale:** This builds a learning loop across dispatches. When the same agent is spawned again for a similar task, its experience.md will already contain lessons from prior work. Skip this only if the task was purely mechanical (e.g., trivial rename) — use judgment.
+
+**Cross-reference:** Step 5 (Dispatch gate) is defined in `docs/agent-sops/team-coordination.md § Dispatch Matrix (Meta-Rule META-DM)`. Consult the META-DM matrix there before returning your handoff.
 
 ## Git and Handoff Protocol
 

@@ -96,20 +96,22 @@ if _GLOSSARY_PATH.exists():
 # ---------------------------------------------------------------------------
 st.markdown("### Sample Period")
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.metric("Full Sample", "2000-01 to 2025-12", delta="~6,500 daily observations")
+    st.metric("Full Sample", "2000-01-03 to 2025-12-31", delta="~6,783 daily observations")
 with col2:
-    st.metric("In-Sample", "2000-01 to 2017-12", delta="Model estimation (~4,500 obs)")
+    st.metric("In-Sample", "2000-01-03 to 2018-09-28", delta="Model estimation (~4,890 obs)")
 with col3:
-    st.metric("Out-of-Sample", "2018-01 to 2025-12", delta="Strategy evaluation (~2,000 obs)")
+    st.metric("Validation OOS", "2018-10-01 to 2024-12-31", delta="Tournament evaluation (~1,632 obs, 75 mo)")
+with col4:
+    st.metric("Holdout (Final Exam)", "2025-01-01 to 2025-12-31", delta="Sealed — 261 trading days")
 
 st.caption(
-    "Why this matters: the 70/30 in-sample/out-of-sample split provides a "
-    "generous 8-year out-of-sample window that includes multiple distinct "
-    "market episodes (2018 volatility spike, COVID crash, 2022 rate shock, "
-    "2023-25 recovery), preventing the strategy from being validated on "
-    "only one type of market environment."
+    "Three-period split per ECON-OOS4. The 75-month validation window (6 years, "
+    "2018-10 to 2024-12) includes the 2018 volatility spike, COVID crash, "
+    "2022 rate shock, and 2023-24 recovery. The 2025 holdout was sealed throughout "
+    "the tournament and used only for the final exam — the rule passed "
+    "(Sharpe 2.35, MDD -4.1%)."
 )
 
 st.markdown("---")

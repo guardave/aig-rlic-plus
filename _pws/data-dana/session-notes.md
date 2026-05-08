@@ -234,3 +234,36 @@ Mixed. Retained and applied: DATA-D5/D6/D11 gates, FRED OAS truncation, DATA-D6b
 - `indicator_type: "production"` enum gap on `indpro_spy` — latent correctness risk.
 
 *Dana — Wave 10J/10K checkpoint, 2026-04-24*
+
+## 2026-05-08 — Phase 1 SOP Review (intra-SOP only)
+
+Read all SOD materials; reviewed own SOP fully against current standards.md, sop-changelog, and experience files. Found 14 findings (3 FAIL, 7 WARN, 4 info); top themes are DATA-D12 dead-letter linter, ownership gaps in interpretation_metadata fields, and orphaned Indicator Evaluation Framework section. Full report at `_pws/data-dana/sop_review_phase1_intra_20260508.md`. No SOP edits made (LEAD-DL1 respected).
+
+## 2026-05-08 — Phase 4 SOP fixes
+
+Applied all assigned fixes to `docs/agent-sops/data-agent-sop.md`. No schema files required changes (all fixes were SOP prose). Changes by finding ID:
+
+| Finding | Change made |
+|---------|-------------|
+| F-01 (DATA-D12 dead-letter) | Added fallback manual audit procedure to DATA-D12 Procedure step 1 when `scripts/lint_column_suffixes.py` does not exist; cites BL-D12-LINTER (P1). |
+| F-03 (Indicator Evaluation Framework orphan) | Promoted section to named rule DATA-EV1 with WARN severity, integration point, gate item, and registration note (pending LA-5 batch). |
+| F-06 / LA-4 (observed_direction ownership) | Added explicit "Dana does NOT write" sentence to DATA-D6 Procedure step 1 for `observed_direction`, `direction_consistent`, `key_finding`, `confidence`. Cites LA-4. |
+| F-07 (DATA-D6b quality-gate checkbox missing) | Added DATA-D6b checkbox to Quality Gates section including `callout_text` lint scope note. |
+| F-04 / F-05 (standards.md registration) | No SOP text change needed — rule text is final; Lead handles batch registration in Phase 4b (LA-5). Confirmed rule text is complete. |
+| F-08 (Expedited Protocol gaps) | Added WARN severity for missing urgency/use flags, WARN for skipped lightweight validation, and BL tracking + escalation requirement for deferred gates. |
+| F-09 (`activity` near-synonym) | Added explicit "Dana MUST NOT write `activity` in `indicator_type`" sentence to Rule D3 Step 2. |
+| F-12 (provenance metadata schema mapping) | Replaced vague provenance paragraph with an 8-row mapping table linking each provenance item to its schema field or noting "data dictionary only — schema bump pending under META-CF/META-SBP". |
+| F-13 (META-DASH1 cross-reference) | Added META-DASH1 cross-reference note in §6 Deliver. |
+| F-14 / P3-A3 (ECON-FE1 cross-reference) | Added ECON-FE1/ECON-OOS1 cross-reference note in §6 Deliver. |
+| Phase 3 C-D (`callout_text` lint gap) | Covered in F-07 DATA-D6b checkbox addition — if Evan authors `callout_text`, lint is deferred to Evan (noted in checkbox). |
+| P3-R5 (UNCONFIRMED availability flags) | Added intake rule in §6 Deliver: Dana verifies and reports inaccessible UNCONFIRMED series to Ray+Evan within one task cycle. |
+| P3-A2 (`_latest` alias expedited) | Added note in §6 Deliver: expedited deliveries still create `_latest` alias. |
+| P3-A4 (Display Name canonical source) | Added clarifying sentence in §6 Deliver: registry is authoritative; dictionary column is derived. |
+| Phase 3 handoff incompleteness | Added "Late or missing Dana artifacts" paragraph in §6 Deliver with Dana response SLA and blocker filing protocol. |
+
+**Deferred items:**
+- F-04/F-05: standards.md rows for DATA-D6b and GATE-NR — Lead handles in Phase 4b (LA-5 batch). SOP rule text confirmed final.
+- DATA-EV1 standards.md registration — same LA-5 batch.
+- `scripts/lint_column_suffixes.py` — script-build dispatch, not SOP (LA-D1 carries in backlog as BL-D12-LINTER, P1).
+
+**Files changed:** `docs/agent-sops/data-agent-sop.md` (~60 lines added/modified).

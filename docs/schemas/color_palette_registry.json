@@ -1,11 +1,29 @@
 {
-  "x-version": "1.1.0",
+  "x-version": "1.2.0",
   "x-owner": "vera",
   "x-generated": "2026-04-19",
-  "x-revised": "2026-04-22",
-  "x-revision-notes": "v1.1.0 (2026-04-22 Wave 10F): added `benchmark_trace` visual key (distinct muted grey-blue for reference / buy-and-hold comparison series — visually distinguishable from `equity_curve` which is reserved for the active strategy's own equity). Added `aliases` block providing semantic role names (`indicator`/`target`/`benchmark`) that resolve to the visual keys — consumed by VIZ-IC1 palette-conformance check. Per-asset-class benchmark split (`benchmark_equity`/`benchmark_fixed_income`/`benchmark_commodity`) is deferred until the portal actually hosts non-equity pairs (Ray's Wave-10F cross-review nuance, deferred to a future wave).",
+  "x-revised": "2026-05-08",
+  "x-revision-notes": "v1.2.0 (2026-05-08 Phase 4 SOP fix F-14): added `matplotlib_legacy` named exception palette so the VIZ-V11 grandfathering clause works without causing VIZ-CV1 failures. Any chart declaring palette_id='matplotlib_legacy' must also include a `grandfather_until` ISO date in its _meta.json; the lint reports WARN (not FAIL). Canonical replacement target remains okabe_ito_2026. Prior v1.1.0 (2026-04-22 Wave 10F): added `benchmark_trace` visual key and `aliases` block.",
   "notes": "Bootstrapped from the HY-IG v2 reference pair (per META-RPD) after the Wave 5 audit exposed palette inconsistency within the pair itself — the hero chart ships Okabe-Ito #D55E00 (vermillion) while zoom charts and some bar charts ship matplotlib defaults (#d62728 red, #1f77b4 blue, #2ca02c green). VIZ-V11 introduces this registry as the canonical palette source: every chart's `_meta.json` sidecar carries `palette_id`, and a pre-save lint blocks charts whose trace / shape / annotation colors resolve to raw matplotlib-plotly defaults instead of a registered palette role. Palette changes are methodological divergence per META-XVC.",
   "palettes": {
+    "matplotlib_legacy": {
+      "palette_id": "matplotlib_legacy",
+      "description": "Named exception palette for legacy charts that cannot be rebuilt immediately (VIZ-V11 grandfathering clause). Declaring this palette_id in a chart's _meta.json sidecar suppresses the VIZ-CV1 lint block but keeps the chart audit-flagged until rebuilt to okabe_ito_2026. A `grandfather_until` ISO date is mandatory alongside this palette_id. Charts grandfathered under this palette fail VIZ-V11 lint with WARN (not FAIL) and appear in the palette-audit report. Canonical replacement target: okabe_ito_2026.",
+      "source_citation": "Internal AIG-RLIC+ exception palette — no external authority. Colors are the matplotlib 2.x default cycle (CN notation C0-C9) that preceded the Wave 5 palette standardisation.",
+      "colorblind_safe": false,
+      "primary_data_trace": "#d62728",
+      "secondary_data_trace": "#1f77b4",
+      "tertiary_data_trace": "#2ca02c",
+      "benchmark_trace": "#7f7f7f",
+      "nber_shading": "rgba(214,39,40,0.15)",
+      "event_marker_line": "#4D4D4D",
+      "event_marker_label_bg": "rgba(255,255,255,0.80)",
+      "buy_indicator": "#2ca02c",
+      "sell_indicator": "#d62728",
+      "hold_indicator": "#7f7f7f",
+      "equity_curve": "#1f77b4",
+      "drawdown_fill": "rgba(214,39,40,0.20)"
+    },
     "okabe_ito_2026": {
       "palette_id": "okabe_ito_2026",
       "description": "Canonical colorblind-safe palette for AIG-RLIC+ portal charts (2026 vintage). Primary data in Okabe-Ito vermillion; secondary in Okabe-Ito blue; NBER shading at alpha 0.22 per VIZ-V2 rev 2026-04-19. Drop matplotlib #d62728 and similar defaults in favor of these roles.",

@@ -8,6 +8,199 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-08 — META-DM wave — Dispatch Matrix & EOD Dispatch Gate
+
+**Trigger.** After promoting `hy_ig_v2_spy` to `passed_final_exam` via the three-period re-run, the qualitative narrative (Ray) was not reviewed for reconciliation — no SOP rule required it. Per-agent rules would have been combinatorially expensive and drift-prone (META-NCD). A static dispatch matrix in `team-coordination.md` plus a two-item universal EOD extension is the minimal correct fix.
+
+**Rules added:**
+
+- **META-DM** (`team-coordination.md`, `standards.md`) — Dispatch Matrix. Static table mapping producer-artifact changes to downstream agents that must review. Lead consults at every wave closure; dispatches or records skip rationale. Wave may not be marked CLOSED until all obligations resolved.
+- **EOD-Lightweight step 5** (`team-coordination.md`) — Universal dispatch gate added to the mandatory EOD block. Agents flag META-DM obligations in their handoff; Lead routes.
+- **Lead SOP wave-closure gate** (`lead-agent-sop.md`) — META-DM check added to the self-audit sequence at wave closure.
+- **Role SOPs (×6)** — One cross-reference line to META-DM added to each EOD-Lightweight section. No table duplicated (META-NCD).
+
+**Design decisions recorded:** Flag mechanism rejected (runtime state overhead); per-agent checklists rejected (combinatorial, drift-prone); role-specific EOD items rejected (duplicate existing phase checklists); global SOP chosen as canonical home (META-NCD).
+
+**Artifacts:** `_pws/lead-lesandro/meta_dm_wave_plan_20260508.md`
+
+**Post-wave obligation:** `hy_ig_v2_spy` three-period re-run changed `oos_split_record.json` and promoted `evidence_status.json`. META-DM requires Ray, Vera, Ace, Quincy consequential review → ECON-3PERIOD-DOWNSTREAM wave queued.
+
+---
+
+## 2026-05-08 — ECON-3PERIOD wave — Three-Period Split as Required Default
+
+**Trigger.** Retro-apply of ECON-FE1 to `hy_ig_v2_spy` produced `needs_final_exam` because the tournament OOS window (2018–2025) was reused as the confirmation window — the same data that ranked the winner cannot independently confirm it (ECON-FE1 condition 2). No fresh holdout existed because the dataset ends 2025-12-31 and only ~85 post-OOS trading days have elapsed. Root cause: two-period IS/OOS design conflates validation (selection) and confirmation (test) into a single window. User decision: three-period design (IS / Validation OOS / Confirmation holdout) is the required default.
+
+**Rules added/updated:**
+
+- **ECON-OOS4** (`econometrics-agent-sop.md`, `standards.md`) — Three-Period Split Policy. Three-period design required when `total_sample_months >= 84`. Confirmation holdout carved from chronological data end before ECON-OOS2 formula applied to remainder. Minimum holdout: 252 trading days (daily equity/rates/credit). Two-period fallback permitted only when `total_sample_months < 84`; records `split_design: "two_period_data_constrained"`; pair permanently capped at `needs_final_exam`.
+- **ECON-FE1 condition 2** (`econometrics-agent-sop.md`) — Updated to make the three-period/two-period distinction explicit. Three-period design structurally guarantees condition 2 via sealed holdout. Two-period design cannot satisfy condition 2 regardless of numeric outcomes; permanently barred from `passed_final_exam`.
+- **ECON-OOS1 field table** (`econometrics-agent-sop.md`) — Added `split_design`, `holdout_start`, `holdout_end`, `holdout_n_obs` fields to `oos_split_record.json`. Clarified that `oos_start`/`oos_end` = validation window in three-period design.
+- **`final_exam_results.schema.json`** bumped to v1.1.0 — `split_design` required in `sample` block; `validation_start`/`validation_end` optional; `holdout_type` enum extended with `three_period_holdout` and `two_period_data_constrained`.
+- **`docs/glossary.md`** — OOS window entry updated to distinguish validation OOS from confirmation holdout. New entry **Validation OOS** added. Confirmation window entry updated to explain three-period vs two-period behaviour and the permanent `needs_final_exam` cap.
+
+**Artifacts:** `_pws/lead-lesandro/econ_3period_wave_plan_20260508.md`
+
+---
+
+## 2026-05-08 — META-AVD added (Acceptance Verification Discipline) — post-BL-SOP-NORMALIZE retro
+
+**Trigger.** User asked: "I wonder if you run their scripts blindly, it implies an unconditional trust on them. Correct?" Lead conceded the gap: BL-SOP-NORMALIZE wave plan specified only positive-pattern acceptance commands. A Layer-3 spot-check after the audit closed confirmed the agents had also retired duplicates, but the confirmation came from ad-hoc grepping, not from the plan's specified criteria. If the agents had been less careful, the wave would have audited PASS while inline duplicates remained alongside the new cross-references.
+
+**Rule added:**
+
+- **META-AVD** (`team-coordination.md` + `standards.md`) — Acceptance Verification Discipline. Wave plans for mechanically-auditable removal/retirement/migration work specify BOTH a positive-pattern acceptance check (what should now exist) AND a negative-pattern check (what should no longer exist). Both run by agent and Lead; both must match. Positive-only audit defends Layers 1 and 2 of trust (no fabrication, well-designed test) but leaves Layer 3 (semantic correctness) on unconditional trust.
+
+**Three layers of trust framing (codified in META-AVD body):**
+
+- Layer 1 — did the agent run the command and report real output? Defended by Lead re-running.
+- Layer 2 — does the command measure the right thing? Defended by Lead authoring the commands.
+- Layer 3 — does the metric reflect real semantic work? Only defended when both positive and negative checks are specified.
+
+**Pattern templates documented in the rule:** glossary consolidation (positive `grep -c "docs/glossary.md"` ≥ N + negative `grep -c "<term> is/=/—"` = 0); registry deprecation (new canonical exists + 0 references to old path in active prose); canonical-set centralization (single canonical reference + 0 enumerations in non-canonical SOPs); schema bump (per META-SBP — all instances re-validated + 0 instances at old version).
+
+**Companion rules:** META-SRV (verification evidence), META-NCD (failure class this protects against), META-SBP (one specific application of two-sided pattern for schema bumps).
+
+---
+
+## 2026-05-08 — BL-SOP-NORMALIZE Wave (META-NCD + glossary + canonical SSoTs)
+
+**Trigger.** Following the six-phase SOP review, user identified that the deeper risk is duplication structure (drift over time degrades quality), not raw token count. Lead authored a formal change plan with pre-stated mechanical acceptance commands per item; six agents executed in parallel; Lead audit closed.
+
+**Verification mechanism (new pattern).** Each NORM item carried a deterministic shell command + expected output. Agents ran the command after applying changes, pasted output verbatim. Lead re-ran every command in the closing audit. Outputs matched exactly. No prose self-attestation accepted. This adapts META-SRV from per-claim to per-wave-item.
+
+**Rules added:**
+
+- **META-NCD** (`team-coordination.md` + `standards.md`) — Normalization & Concept Discipline. Any concept used in 2+ rulebooks declares one canonical location; other locations cross-reference. Generalizes META-AL from data files to prose.
+
+**Artifacts created:**
+
+- `docs/glossary.md` — single source of truth for cross-SOP terms; 16 entries covering OOS window, Confirmation window, Perceptual render, Thin wrapper, Page template, Pair config module, Sidecar, Disposition, Tournament winner, Block bootstrap, Smoke test, PASS-with-note, Trigger card, `_REPO_ROOT` anchor, Narrative instrument reference, Episode triad.
+- `_pws/lead-lesandro/sop_normalize_wave_plan_20260508.md` — change plan with 8 NORM items.
+- `_pws/lead-lesandro/sop_normalize_audit_20260508.md` — closing audit (every item PASS).
+
+**Canonical SSoTs ratified:**
+
+- Status vocabulary canonical at `docs/portal_glossary.json._status_vocabulary` (via RES-10 / RES-VS / DATA-VS). Five role SOPs retired prose enumerations; Ray retains one canonical citation.
+- L1/L2/L3 severity scheme canonical at APP-SEV1. Five role SOPs replaced paraphrases with cross-references.
+- Cross-SOP terminology canonical at `docs/glossary.md`. Each role SOP refactored inline definitions to glossary cross-references; canonical authorities (e.g., VIZ-CV1 for perceptual render, RES-NR1 for narrative instrument reference) retain operational rules with "see glossary" pointers.
+
+**Process meta-event.** Wave closed first-pass clean — zero residue items at Lead audit. Contrast with the six-phase review wave, which required a Phase-5 fix-up dispatch for four residues caught only by ad-hoc Lead grep. The difference is the pre-stated mechanical acceptance command: agents had a deterministic target before starting, Lead had a deterministic check at audit, no interpretation gap in either direction. Pattern adopted for future mechanically-auditable waves.
+
+**Anti-filler note (per user request 2026-05-08).** All agents and Lead drop filler words and ceremonial openings in handoff prose, summaries, and status-board entries. Substance only.
+
+**Out of scope (deferred to backlog):**
+- BL-VIZ-V11-LINT — VIZ-V11 palette lint script externalization (pseudocode → real script).
+- BL-GATE-CL-AUDIT — GATE-CL family audit script.
+- Schema field enumeration replacement in rule prose (substantial; separate wave).
+- Cross-reference list compression (low drift risk; defer).
+
+---
+
+## 2026-05-08 — Six-Phase SOP Review Wave
+
+**Trigger.** User dispatched a full six-phase SOP review (intra → Lead protocol → cross-review → fixes → Lead review → token/rapport pass).
+
+**Phase counts.** Phase 1 intra-SOP review: ~90 findings across six role SOPs. Phase 2 Lead protocol/global review: 10 binding arbitrations (LA-1..LA-10), 6 backlog items. Phase 3 cross-review: ~133 handoff findings across six pairs of cross-reviews. Phase 4: ~117 SOP edits + 8 schema/registry edits + standards.md batch + META-SBP promotion.
+
+**Lead arbitrations promoted to binding.**
+
+- **LA-1** — `docs/schemas/history_zoom_events_registry.json` is the canonical episode registry. `docs/schemas/episode_registry.json` deprecated and converted to thin pointer.
+- **LA-2** — Canonical episode slug set: `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`. Non-canonical (`dot_com`, `rates_2022`, `taper_2013`, etc.) prohibited. `china_2015` promoted to registry by Vera based on existing pair coverage; `ukraine` documented as non-canonical until promotion PR.
+- **LA-3** — `HISTORY_ZOOM_EPISODES` is the canonical pair-config attribute for zoom narratives. `ZOOM_EPISODE_NARRATIVES` retired.
+- **LA-4** — `observed_direction` ownership clarified: Evan writes post-tournament; Dana leaves absent at data-stage handoff. APP-DIR1, ECON-DIR1, DATA-D6 all updated accordingly.
+- **LA-5** — `docs/standards.md` batch update registering all unregistered rules (DATA-D6b, DATA-EV1, ECON-T4, ECON-INF1, ECON-DIR2, ECON-OOS3, ECON-C2a, ECON-BUMP1, VIZ-IC1, VIZ-O1, VIZ-E1, VIZ-NBER1, VIZ-ZOOM1, VIZ-HZE1, VIZ-DP1, VIZ-NM1, VIZ-CP1, VIZ-CV1, RES-NR1, RES-EGL1, RES-OD1, RES-CPC1, RES-CP1, RES-CP2, RES-HZE1, RES-ZOOM1, APP-PT1, APP-PT2, APP-TL1, APP-PR1, APP-RL1, APP-SS1, ACE-HZE1, GATE-DP1, GATE-HZE1, GATE-VIZ-NBER1, GATE-VIZ-NBER2, GATE-VIZ-ZOOM1, GATE-CL6, GATE-CL7, GATE-CL8, GATE-NR, GATE-SD1, META-SBP).
+- **LA-6** — GATE-CL family (CL1–CL8) registered under GATE prefix in `docs/standards.md`.
+- **LA-7** — `memories.md` requirement removed from research-agent-sop.md; Ray consolidates to `experience.md`. META-AM amended with Ray exemption.
+- **LA-8** — Schema-bump propagation rule promoted from Evan-side to cross-agent META rule (META-SBP) in `team-coordination.md`.
+- **LA-9** — ECON-SD audit gate (GATE-SD1) added to QA SOP and `cloud_verify.py`.
+- **LA-10** — Stale items retired: matplotlib palette table (Vera), v1.0.0 schema citation (Evan), pre-migration list (Ace), "Unlike earlier phrasing" sentence (Vera).
+
+**Files changed (summary).**
+
+- 6 role SOPs (data, econometrics, visualization, research, appdev, qa) — ~117 fixes applied across all six.
+- 5 schemas updated: `final_exam_results.schema.json` (1.0.0 → 1.0.1 with `minimum_confirmation_n_obs`), `history_zoom_events_registry.json` + schema (1.0.0 → 1.1.0 with `indicator_category_map` and `china_2015`), `color_palette_registry.json` (1.1.0 → 1.2.0 with `matplotlib_legacy` exception palette), `episode_registry.json` (converted to thin pointer per LA-1).
+- `scripts/cloud_verify.py` — significant additions (~366 lines): `gate_hze1_preflight`, `gate_sd1_preflight`, `_gate_nr_check`, `check_evidence_status_promotion`, level-1/2 tab structure check, GATE-DP1 abort enforcement, `gate27_png_warnings` → `gate27_png_failures` rename, RECESSION_SLUGS canonicalization.
+- `docs/standards.md` — 44 new rule rows registered + ECON-H5 v1.0.0→v1.1.0 + META-AM Ray exemption.
+- `docs/agent-sops/team-coordination.md` — META-SBP section authored.
+
+**Process meta-event.** First time the team executed a structured 6-phase SOP review with parallel agent dispatch in each agent-side phase. Outcome validates the pattern for future SOP-hardening waves: ~90 + 133 = 223 distinct findings surfaced and triaged in roughly 6 sequential agent-wave cycles. SOP-first remediation principle held — no product/artifact remediation in scope.
+
+---
+
+## 2026-05-08 — SOP Cross-Review Reconciliation
+
+**Trigger.** Cross-review of the SOP-first remediation patch found protocol
+drift between role SOPs, standards registration, and Lead ownership rules.
+
+**Rules updated:**
+
+- **APP-DIR1** (`standards.md`): registered reader-safe direction-mismatch
+  language and canonical direction enum use.
+- **VIZ-CP1** (`standards.md`): corrected the duplicate/stale standards entry
+  so VIZ-CP1 refers to cross-period chart consistency; palette authority remains
+  VIZ-V11.
+- **META-AL / META-ZI** (`standards.md`, `team-coordination.md`): removed stale
+  future-scheduled wording and confirmed the current pair-specific zoom-chart
+  contract.
+- **GATE-28 / GATE-29** (`team-coordination.md`): aligned the team checklist
+  with current delivered-page scope and clean-checkout scope.
+- **LEAD-DL1 ownership map** (`lead-agent-sop.md`): recorded the narrow
+  APP-TL1 split where Ray owns narrative constants currently stored in Ace's
+  `page_templates.py`, while Ace owns template mechanics.
+
+---
+
+## 2026-05-07 — Four-Page Dashboard Consistency Gate
+
+**Trigger.** User asked whether the SOPs explicitly check that a pair's four
+standard dashboard pages tell a consistent story. Existing rules covered
+direction triangulation, chart-text coherence, and rerun regression, but not
+same-dashboard narrative consistency across Story, Evidence, Strategy, and
+Methodology.
+
+**Rule added:**
+
+- **META-DASH1** (`team-coordination.md`): canonical four-page consistency
+  checklist covering thesis, direction/sign, evidence status, key metrics,
+  caveats/confidence, terminology, signal/strategy identity, and action
+  language.
+
+**Role hooks added:**
+
+- Ray owns author-side narrative consistency.
+- Ace owns rendered label/status/navigation consistency.
+- Quincy independently verifies four-page DOM/read-through consistency.
+- Lead routes unresolved cross-role conflicts to role owners.
+
+---
+
+## 2026-05-07 — SOP-First Remediation + Token Discipline
+
+**Trigger.** Review of current implemented pairs found product, methodology,
+manifest, chart, language, and QA issues. User set the remediation principle:
+fix the rule system first, cross-review it, let Lead check global coherence and
+token efficiency, then update products/artifacts under the updated SOPs.
+
+**Rules updated/added:**
+
+- **META-NMF** (`team-coordination.md`): expanded from "No Manual Fix" into the
+  9-step SOP-first remediation protocol. Findings are classified as SOP
+  missing, SOP unclear, SOP present but unenforced, or execution failure under
+  an existing rule. Role owners fix their SOPs first; cross-review and Lead
+  global/token-efficiency review precede artifact remediation.
+- **META-TD1** (`team-coordination.md`): token-efficient communication rule.
+  Agents skip filler affirmations, ceremonial openings, repeated prompt
+  restatements, and duplicated rule prose; reports focus on decisions,
+  evidence, blockers, and next actions.
+- **LEAD-SOP1** (`lead-agent-sop.md`): Lead owns SOP mapping, global-picture
+  review, return of global issues to role owners, final review, and
+  token-efficiency review before artifact work.
+- All role SOPs now cross-reference META-NMF and META-TD1 with one compact
+  ownership rule.
+
+---
+
 ## 2026-05-01 — APP-DIR1 ELI5 Copy Gate
 
 **Trigger.** The Strategy DOM showed an accurate but cryptic engineering

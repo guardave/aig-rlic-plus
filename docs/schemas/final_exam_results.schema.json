@@ -2,7 +2,21 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aig-rlic-plus.local/schemas/final_exam_results.schema.json",
   "x-owner": "evan",
-  "x-version": "1.0.0",
+  "x-version": "1.1.0",
+  "x-changelog": [
+    {
+      "version": "1.1.0",
+      "date": "2026-05-08",
+      "author": "econ-evan",
+      "changes": "NORM-3P-04: Added `split_design` (required) and optional `validation_start`/`validation_end` fields to `sample` block to support three-period split design (ECON-OOS4). Extended `holdout_type` enum with `three_period_holdout` and `two_period_data_constrained` values. Updated `schema_version` const to `1.1.0`."
+    },
+    {
+      "version": "1.0.1",
+      "date": "2026-05-08",
+      "author": "econ-evan",
+      "changes": "Added `minimum_confirmation_n_obs` field to `sample` block (F-01). Documents the target-class floor applied per ECON-FE1 condition 3; producer asserts confirm_n_obs >= minimum_confirmation_n_obs before writing this file."
+    }
+  ],
   "title": "Final Exam Results",
   "description": "Machine-readable confirmation artifact for a frozen tournament winner. Produced only when a pair is being evaluated for `needs_final_exam` or `passed_final_exam` evidence status.",
   "type": "object",
@@ -23,7 +37,7 @@
   ],
   "properties": {
     "pair_id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
-    "schema_version": { "type": "string", "const": "1.0.0" },
+    "schema_version": { "type": "string", "const": "1.1.0" },
     "generated_at": { "type": "string", "format": "date-time" },
     "owner": { "type": "string", "minLength": 1 },
     "status_recommendation": {
@@ -67,8 +81,10 @@
         "confirm_start",
         "confirm_end",
         "confirm_n_obs",
+        "minimum_confirmation_n_obs",
         "frequency",
-        "holdout_type"
+        "holdout_type",
+        "split_design"
       ],
       "properties": {
         "search_start": { "type": "string", "format": "date" },
@@ -76,14 +92,25 @@
         "confirm_start": { "type": "string", "format": "date" },
         "confirm_end": { "type": "string", "format": "date" },
         "confirm_n_obs": { "type": "integer", "minimum": 1 },
+        "minimum_confirmation_n_obs": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Target-class floor applied per ECON-FE1 condition 3: daily equity/rates/credit >= 252; monthly macro >= 36; crypto_daily >= 365. Producer assertion: confirm_n_obs >= minimum_confirmation_n_obs. Schema validation enforces presence of this field; numeric floor is checked producer-side (see ECON-FE1 checklist item 11) and QA-side (GATE-ES1 condition 9)."
+        },
         "frequency": {
           "type": "string",
           "enum": ["daily", "monthly", "weekly", "crypto_daily"]
         },
         "holdout_type": {
           "type": "string",
-          "enum": ["chronological", "nested_walk_forward", "locked_rule_forward"]
-        }
+          "enum": ["chronological", "nested_walk_forward", "locked_rule_forward", "three_period_holdout", "two_period_data_constrained"]
+        },
+        "split_design": {
+          "type": "string",
+          "enum": ["three_period", "two_period_data_constrained"]
+        },
+        "validation_start": { "type": "string", "format": "date" },
+        "validation_end": { "type": "string", "format": "date" }
       },
       "additionalProperties": false
     },

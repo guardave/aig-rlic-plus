@@ -110,8 +110,8 @@ The SOFR-DTB3 series has only existed since April 2018, giving roughly 2,000 dai
         {
             "slug": "rates_2022",
             "title": "Fed Hiking Cycle (2022)",
-            "narrative": "As the Fed raised rates aggressively through 2022, SOFR tracked the DFF higher while T-bills also rose — but the SOFR-TED spread's 63-day rate-of-change captured the acceleration in funding cost relative to short government paper. SPY fell ~20%. The signal's Long/Cash strategy moved to cash early in the hiking cycle, protecting against the drawdown.",
-            "caption": "SOFR-TED spread ROC turned negative early 2022 as Fed hikes accelerated; Long/Cash avoided SPY drawdown",
+            "narrative": "As the Fed raised rates aggressively through 2022, SOFR tracked the DFF higher while T-bills also rose — but the SOFR-TED spread's 63-day rate-of-change captured the acceleration in funding cost relative to short government paper. SPY fell ~20%. The signal's Long/Cash strategy moved to cash early in the hiking cycle in the backtest, reducing exposure during the drawdown.",
+            "caption": "SOFR-TED spread ROC turned negative early 2022 as Fed hikes accelerated; Long/Cash reduced SPY exposure during the drawdown",
         },
     ]
 
@@ -288,8 +288,8 @@ A human operator wanting to replicate the rule can:
     CAVEATS_MD = """
 - **Short out-of-sample window.** Only ~3 years of OOS data (2023-01 onwards). The 1.89 Sharpe carries a wide confidence interval.
 - **One regime only.** Entire sample is post-LIBOR, post-QE-4. Behaviour in a dot-com- or GFC-type stress event is untested for this specific variant.
-- **Generalisation risk.** With ~2,000 daily observations, the tournament may have fit idiosyncratic features of the 2023-2025 period. Cross-check against the DFF-TED and Spliced-TED sibling variants before acting.
-- **Missing artefacts.** `equity_curves`, `drawdown`, and `walk_forward` charts are not yet generated for this pair (tracked under BL-CHART-GAPS-LEGACY); the Strategy-page Performance tab will show "chart pending" placeholders.
+- **Generalisation risk.** With ~2,000 daily observations, the tournament may have fit idiosyncratic features of the 2023-2025 period. Cross-check against the DFF-TED and Spliced-TED sibling variants before treating the result as reliable.
+- **Performance-view limitation.** Some performance visuals may be unavailable for this short-history variant. Treat the table metrics as the primary performance evidence until the chart set is complete.
 """
 
     TRADE_LOG_EXAMPLE_MD = """
@@ -389,7 +389,7 @@ METHODOLOGY_CONFIG = MethodologyConfig(
         "We used daily SOFR and 3-month T-Bill data from FRED (2018-2025), formed "
         "the spread, and derived ten measurement variants (level, rates of change, "
         "z-scores, momentum). We ran linear, impulse-response, and quantile tests "
-        "to confirm a predictive link, then held a tournament of ~991 rule "
+        "to test for a predictive link, then held a tournament of ~991 rule "
         "combinations to find the best out-of-sample risk-adjusted return. "
         "All inputs are public and auditable."
     ),

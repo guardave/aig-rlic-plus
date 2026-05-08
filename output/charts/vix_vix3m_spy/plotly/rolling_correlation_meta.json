@@ -2,7 +2,25 @@
   "pair_id": "vix_vix3m_spy",
   "chart_type": "time_series_line",
   "rules_applied": [
-    "VIZ-CP1"
+    "VIZ-CP1",
+    "VIZ-O1",
+    "VIZ-CP1.2"
   ],
-  "generated_at": "2026-04-24"
+  "generated_at": "2026-04-24",
+  "chart_name": "rolling_correlation",
+  "title": "Rolling 24-Month Signal\u2013Return Correlation",
+  "caption": "Rolling 24-Month Signal\u2013Return Correlation",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "2009-04-24 to 2025-12-31",
+  "data_source_path": "results/vix_vix3m_spy/rolling_correlation.csv",
+  "disposition": "consumed",
+  "palette_id": "okabe_ito_2026",
+  "exploratory": false,
+  "econ_rule_id": "ECON-CP2",
+  "result_file": "results/vix_vix3m_spy/rolling_correlation.csv",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

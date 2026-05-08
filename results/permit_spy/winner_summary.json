@@ -27,5 +27,7 @@
   "oos_n_trades": 96,
   "oos_period_start": "2018-01-01",
   "oos_period_end": "2025-12-31",
-  "notes": "Backfilled 2026-04-23 from tournament_results_20260314.csv per Wave 10I.A; OOS dates reconstructed from default monthly/daily windows. Fields: signal_column=permit_mom1m, threshold_rule=gt (inferred from T1_p25 + direction=procyclical), strategy_family=P3_long_short, oos_n_trades=96 (from tournament CSV oos_n column \u2014 period count, not discrete trade count), OOS window 2018-01-01..2025-12-31 (monthly default reconstruction)."
+  "notes": "Backfilled 2026-04-23 from tournament_results_20260314.csv per Wave 10I.A; OOS dates reconstructed from default monthly/daily windows. Fields: signal_column=permit_mom1m, threshold_rule=gt (inferred from T1_p25 + direction=procyclical), strategy_family=P3_long_short, oos_n_trades=96 (from tournament CSV oos_n column — period count, not discrete trade count), OOS window 2018-01-01..2025-12-31 (monthly default reconstruction). 2026-05-08 ECON-OOS3 retro audit: oos_n_obs is populated from tournament oos_n; true oos_n_trades remains unresolved because no broker-style trade log exists for deterministic event counting.",
+  "oos_n_obs": 96,
+  "oos_n_trades_source": "legacy value not remediated: broker-style trade log absent; true position-change count requires pipeline recomputation"
 }

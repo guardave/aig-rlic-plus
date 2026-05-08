@@ -317,7 +317,7 @@ A human operator replicating the rule would:
 - **Splice assumption.** The `scale` and `shift` parameters are calibrated on the 1993-2022 overlap and assumed to hold out-of-sample for 2022-onwards. A regime shift in the LIBOR-to-Fed-Funds relationship would invalidate the extension. This is the single biggest structural risk of Variant C.
 - **Heterogeneous economic drivers across the splice boundary.** Pre-2022 reflects LIBOR-based bank credit risk; post-2022 reflects Fed-Funds-based funding premia. Mean and variance are matched, but the underlying stress mechanisms are not identical.
 - **Drawdown closer to Variant B.** −12.8% max drawdown — well above Variant A's −3.6% but modestly better than Variant B's −14.7%.
-- **Missing artefacts.** `equity_curves`, `drawdown`, and `walk_forward` charts are not yet generated (tracked under BL-CHART-GAPS-LEGACY); Performance tab shows "chart pending" placeholders.
+- **Performance-view limitation.** Some performance visuals may be unavailable for this spliced legacy variant. Treat the table metrics as the primary performance evidence until the chart set is complete.
 """
 
     TRADE_LOG_EXAMPLE_MD = """
@@ -415,7 +415,7 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     plain_english=(
         "We stitched together the official LIBOR-based TED spread (1993-2022) "
         "with an affine-adjusted Fed-Funds proxy (2022-present) to get a "
-        "continuous 30-year series. We validated the splice on the overlap, "
+        "continuous 30-year series. We compared the splice on the overlap, "
         "derived ten measurement variants, ran the standard econometric "
         "battery, and held a ~991-combination tournament. The result is the "
         "best long-sample tournament performance of the three TED variants, "

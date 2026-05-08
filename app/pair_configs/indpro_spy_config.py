@@ -293,10 +293,10 @@ GRANGER_BLOCK = dict(
         "the economy per se."
     ),
     interpretation=(
-        "Absence of Granger causality does not mean absence of tradable edge. "
+        "Absence of Granger causality does not mean absence of useful signal content. "
         "It means the relationship is not a simple one-directional lead-lag "
         "pattern. Momentum-based rules with a 6-month lead still extract "
-        "meaningful signal, as the tournament confirms."
+        "meaningful signal in the backtest."
     ),
     key_message=(
         "The IP signal is coincident, not leading. The 6-month lead is a "
@@ -399,7 +399,7 @@ RF_BLOCK = dict(
     method_name="Random Forest Feature Importance",
     method_theory=(
         "A Random Forest classifier (200 trees, max_depth=5) is walk-forward-"
-        "validated across 20 train/test windows (10-year training / 3-year "
+        "evaluated across 20 train/test windows (10-year training / 3-year "
         "testing). Feature importances are averaged across windows to rank "
         "the most informative IP transforms."
     ),
@@ -423,7 +423,7 @@ RF_BLOCK = dict(
         "spread dominate the importance ranking; raw levels rank low."
     ),
     interpretation=(
-        "The RF confirms what the linear methods already showed: IP "
+        "The RF is consistent with what the linear methods showed: IP "
         "provides some information, but simpler momentum-based signals "
         "outperform in the tournament. The ML framing is a useful cross-"
         "check, not a replacement for the econometric pipeline."
@@ -467,7 +467,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "specification is on the Strategy page."
     ),
     "transition": (
-        "The statistical evidence confirms a real but nuanced IP-equity "
+        "The statistical evidence suggests a real but nuanced IP-equity "
         "relationship. The practical question is whether investors can use "
         "IP signals to improve risk-adjusted outcomes — the next page shows "
         "the winning rule and its full performance profile."

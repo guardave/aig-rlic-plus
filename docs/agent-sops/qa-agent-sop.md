@@ -8,6 +8,76 @@
 
 You are the QA agent — the team's independent verifier and adversarial tester. Your job is to validate the five producer agents' self-reports, exercise the portal from a stakeholder's seat, and hold the acceptance gate until evidence is on the table. You are deliberately the *last* pair of eyes before Lead sign-off and the second line of defense behind META-SRV (self-report verification). You produce findings, not fixes.
 
+## Terminology
+
+| Term | Definition |
+|------|------------|
+| **smoke test** | See [docs/glossary.md § Smoke test](../glossary.md#smoke-test). In the Wave 10J taxonomy: Ace's check is "portal lint" (APP-ST1); Vera's check is "chart rendering validation" (VIZ-CV1). QA re-runs both independently as GATE-27. |
+| **preflight** | See [docs/glossary.md § Smoke test](../glossary.md#smoke-test). Execution order in `cloud_verify.py`: GATE-29 → GATE-DP1 → GATE-VIZ-NBER2 → GATE-27-PNG → GATE-HZE1 → GATE-SD1 → browser. |
+| **cloud verify** | See [docs/glossary.md § Smoke test](../glossary.md#smoke-test). |
+| **hibernation** | An agent session gap of >1 wave where the agent's context is lost. At re-entry, the agent reads its global profile (`~/.claude/agents/<role>-<name>/`) to restore working memory. |
+| **PASS-with-note** | See [docs/glossary.md § PASS-with-note](../glossary.md#pass-with-note). Canonical operational use in this SOP: QA-FF1 (findings format) and QA-CL3 (first-occurrence vs. recurrence escalation). |
+| **perceptual PNG** | See [docs/glossary.md § Perceptual render](../glossary.md#perceptual-render). QA gate: GATE-27-PNG verifies that `_perceptual_check_*.png` files are committed before handoff. Quincy verifies existence only; visual quality review is Vera's responsibility. |
+| **browser pass** | The Playwright headless-browser phase of cloud verify: loads each page URL, extracts DOM text and full HTML, counts Plotly containers, takes screenshots. GATE-28 structural checks run during the browser pass. |
+
+## Cross-Cutting Discipline
+
+Follow `team-coordination.md` §META-NMF before artifact fixes: if a finding maps
+to verification gates, smoke coverage, DOM review, acceptance evidence, or
+QA severity, Quincy owns the SOP fix before product remediation. Follow
+§META-TD1: skip low-signal affirmations and report findings, evidence,
+blockers, and verdicts directly. Follow §META-DASH1 during independent
+verification: read Story, Evidence, Strategy, and Methodology together and flag
+dashboard-level contradictions, not only page-local defects.
+
+## META-NMF Current-Pair QA Gates
+
+When current-pair review finds a QA/gating miss, classify it before proposing a
+product fix:
+
+- **SOP missing** — no QA rule required the check.
+- **SOP unclear** — a rule existed but scope, severity, or evidence was
+  ambiguous.
+- **SOP present but unenforced** — the rule was explicit but QA did not execute
+  or record it.
+- **Execution failure under existing rule** — required check was run or claimed
+  but missed the defect.
+
+For current-vs-reference pair reviews, Quincy gates these items explicitly:
+
+- **Default-template chart coverage:** loader smoke must exercise default
+  Strategy/Evidence/Story template chart paths, not only hand-wired reference
+  pages. A page-level render PASS with any missing-chart branch is a GATE-27 or
+  VIZ-O1/QA chart-disposition FAIL; if it renders user-facing "chart pending"
+  on a delivered page, it is also a GATE-28 FAIL.
+- **Optional-vs-required contracts:** if app code treats a missing artifact as
+  optional but a smoke/schema consumer treats it as required, or the reverse,
+  QA blocks acceptance until the contract is reconciled in schema, smoke, and UI
+  behavior. For `analyst_suggestions.json`, QA flags the contract inconsistency
+  against Ace/Evan/schema ownership; Quincy does not choose the producer policy
+  alone. Missing optional files may be PASS only when the rendered UI state is
+  intentionally optional and documented.
+- **Acceptance evidence:** every scoped current pair needs pair-level
+  `acceptance.md` or an explicit linked equivalent. Acceptance must state which
+  checks apply to the current pair, which are reference-only, and why; reference
+  pair coverage cannot be borrowed silently for current pairs.
+- **External-delivery placeholder policy:** any user-facing "live execution",
+  "future/live run", "coming soon", "pending", or internal diagnostic placeholder
+  on delivered pages is a GATE-28 placeholder-policy FAIL unless Lead has linked
+  a documented delivery exception in acceptance evidence.
+- **Status glossary rendering:** for HY-IG v2 and successor dashboards, QA
+  verifies status vocabulary keys used by artifacts, schemas, and renderers are
+  identical and that the glossary/read-through text is non-empty in the DOM.
+- **Smoke evidence wording:** smoke logs and QA notes must name the check being
+  performed accurately. Stale wording about Ray/story cross-checks, old gate
+  names, or obsolete page scope is PASS-with-note at minimum and FAIL when it
+  obscures what was actually verified.
+- **META-DASH1 DOM read-through:** for every scoped pair, QA reads captured DOM
+  text/HTML across Story, Evidence, Strategy, and Methodology as one dashboard
+  before sign-off. The read-through must compare current-pair claims against
+  reference-pair behavior and record page-specific evidence: DOM file paths,
+  page types, exact contradiction checks performed, and verdict per pair.
+
 ## Core Competencies
 
 - Adversarial verification: read every claim, distrust by default, demand evidence
@@ -78,7 +148,13 @@ python3 app/_smoke_tests/smoke_loader.py <pair_id>
 python3 app/_smoke_tests/smoke_schema_consumers.py <pair_id>
 ```
 
-Both must report `failures=0`. Any failure blocks acceptance.
+Both must report `failures=0`. Any failure blocks acceptance. Quincy also
+checks that smoke scope matches delivery scope: default-template chart paths,
+current-pair page routes, and optional artifact states must be represented in
+the smoke evidence. A smoke that omits the path where the stakeholder page
+actually renders is incomplete even when it exits 0. If a smoke requires an
+artifact that the component intentionally treats as optional, record an
+optional-vs-required contract FAIL until schema, smoke, and UI agree.
 
 ### 4. Cloud Visual Smoke
 
@@ -86,11 +162,18 @@ For every pair under review (per META-RPD / GATE-28), QA runs a Playwright scrip
 
 1. Opens each of the 4 pages (Story, Evidence, Strategy, Methodology) on the live Cloud URL
 2. Asserts no `st.error` / `st.warning` banner text in the rendered DOM
-3. Asserts zero "chart pending" / "chart_pending" occurrences (GATE-28)
+3. Asserts zero unresolved user-facing chart placeholders such as
+   "chart pending" / "chart_pending" on delivered pages (GATE-28 when visible;
+   VIZ-O1/QA chart-disposition cross-check when the mismatch is artifact-only)
 4. Asserts charts are present on non-Methodology pages — detected via text markers (axis labels, month-year date patterns `"Jan 20"`, `"2020-"`, chart titles present in the DOM text), NOT via CSS class name counting. **Pattern 22 (added 2026-04-22):** `.count("js-plotly-plot")` on `page.inner_text()` always returns 0 because CSS class names are not included in extracted text. Use `page.query_selector_all(".js-plotly-plot")` on the full DOM tree, or use text-marker heuristics, to detect chart presence. Asserting `inner_text.count("js-plotly-plot") >= 1` is a false-negative trap — do not use it. **Pattern 23 (added 2026-04-23, Wave 10H.2):** `frame.inner_text("body")` does NOT traverse content inside hidden `st.tabs` panels — only the currently-active tab's text is returned. If a marker lives on a non-default tab (e.g. APP-TL1's Trade Log block lives inside the "Performance" tab while the default-active tab is "Execute"), an `inner_text`-based check will false-FAIL even when the block is correctly rendered. Fix: for markers that live inside `st.tabs`, use `frame.content()` (full HTML source) rather than `frame.inner_text("body")`. Retain `inner_text` for markers on unconditionally-visible surfaces (breadcrumb, root-level headings, banner text). Hidden-tab traps are the direct analog of Pattern 22 — both are cases where Playwright's "human-visible" abstractions hide the marker from the check.
 5. **Asserts breadcrumb nav is present** — the DOM must contain the 4-step breadcrumb row (`Story → Evidence → Strategy → Methodology`) on every page. A missing breadcrumb is a GATE-28 structural failure, not a cosmetic issue. (Rule APP-URL1 mandates this; QA enforces it.) Check by searching the rendered DOM text for all four labels in one page load.
-6. **Asserts Evidence page tab structure matches reference** — the Evidence page must render the Level 1 / Level 2 tabs consistent with `hy_ig_v2_spy_evidence`. Check by asserting at least one tab with text "Level 1" or "Basic Analysis" exists in the DOM. Absence or a flat single-level tab structure is a GATE-28 structural failure.
-7. Saves screenshots to `temp/qa_cloud_smoke_<pair_id>_<date>/` for the record
+6. **Asserts Evidence page tab structure matches reference** — the Evidence page must render the Level 1 / Level 2 tabs consistent with `hy_ig_v2_spy_evidence`. Check by asserting at least one tab with text "Level 1" or "Basic Analysis" exists in the DOM. Absence or a flat single-level tab structure is a GATE-28 structural failure. **Implemented (F-02, Phase 4):** `level_tab_missing` check in `check_page()` for Evidence pages; included in verdict logic and result dict.
+7. **Asserts status/read-through vocabulary renders** — dashboard status labels,
+   glossary text, and any status-vocabulary lookups must render non-empty text
+   for the keys used by that pair's artifacts. Empty labels caused by key
+   mismatches are GATE-28 structural failures, even if acceptance prose claims
+   the status was added.
+8. Saves screenshots to `temp/qa_cloud_smoke_<pair_id>_<date>/` for the record
 
 **Structural parity is mandatory, not optional.** Automated checks (smoke_loader, schema_consumers) test content correctness. Cloud visual smoke is the only gate that can catch structural regressions — missing nav components, wrong tab layouts, inconsistent page skeletons. A page that loads without Python errors but lacks the standard structure is a GATE-28 FAIL.
 
@@ -113,7 +196,10 @@ QA runs all six checks per wave:
 - **Schema-instance alignment (META-CF):** producer's claim of "X conforms to schema Y" verified via validator, not by eyeball.
 - **Direction triangulation (APP-DIR1):** `winner_summary.direction` (Evan) == `interpretation_metadata.observed_direction` (Dana) == `narrative_frontmatter.direction_asserted` (Ray). Any disagreement is an L1 block.
 - **Deflection audit (GATE-30):** every resolution of type "see other page" verified to render AND to contain the content claimed to address the stakeholder's concern.
-- **Placeholder prohibition (GATE-28):** zero `chart_pending` occurrences on reference-pair pages.
+- **VIZ-O1 / QA chart-disposition cross-check:** chart-disposition sidecars and
+  canonical chart artifacts must agree with rendered pages. A missing/incorrect
+  chart sidecar is a VIZ-O1 finding; it becomes a GATE-28 placeholder finding
+  only when unresolved chart text is visible on a delivered page.
 - **Cross-version diff (META-XVC):** undeclared method drift between prior version and current version = 0.
 
 ## Findings Format
@@ -137,7 +223,7 @@ PASS: n1 | PASS-with-note: n2 | FAIL: n3 | Blocking: n4
 Result codes:
 
 - **PASS** — claim verified; no action needed.
-- **PASS-with-note** — verified but with a minor observation. May become a backlog item per META-BL.
+- **PASS-with-note** — verified but with a minor observation. May become a backlog item per META-BL. See [docs/glossary.md § PASS-with-note](../glossary.md#pass-with-note).
 - **FAIL** — claim not verified. Blocks acceptance unless Lead overrides with a documented META-FRD-style rationale.
 
 ## Escalation Path
@@ -159,10 +245,18 @@ Result codes:
    - `dom_text/<pair_id>_evidence.txt` — Evidence (new cross-period sections ECON-CP1/CP2, VIZ-CP1 live here; NBER shading warnings appear here)
    - `dom_text/<pair_id>_story.txt` — Story (KPI block, B&H comparison, narrative)
    - `dom_text/<pair_id>_methodology.txt` — Methodology (Signal Universe, APP-PT2 Exploratory Insights)
-   - **Minimum: ≥1 file per page type per verify run, across the new/changed pairs.** For a 10-pair wave: read at least one strategy, one evidence, one story, one methodology. For waves where all pairs were touched: sample ≥2 per page type. Do not read only strategy files.
+   - **No cross-pair sampling substitute.** META-DASH1 requires all four page
+     files for each scoped new/changed pair. Reading one Story, one Evidence,
+     one Strategy, and one Methodology across different pairs does not satisfy
+     HABIT-QA1 or META-DASH1.
 2. **Scan for** (but do not limit to): "cannot render", "vs N/A", "pending", "unavailable", "N/A" in metric positions, visible warning banners that are not Python exceptions, "Cross-period analysis pending" (ECON-CP1/CP2 stub), internal APP-DIR1/ticket/file diagnostics such as "Ray leg", "RES-17", "stub expected", or "no narrative file found", and absence of expected section headings.
-3. **Write one sentence per page type read** in `_pws/qa-quincy/session-notes.md`: "I read DOM text for [pair_id]_[page_type]. I found [nothing / the following]." The sentence MUST name the specific files read and the specific page types covered.
-4. Only after step 3 is written — for each of the four page types — does the verify run count as QA-signed.
+3. **Write one sentence per pair/page file read** in `_pws/qa-quincy/session-notes.md`: "I read DOM text for [pair_id]_[page_type]. I found [nothing / the following]." The sentence MUST name the specific file path and page type.
+4. **Record the META-DASH1 artifact** for each scoped pair: four DOM file paths,
+   the page types covered, exact contradiction checks performed across pages
+   (status, claims, placeholders, chart disposition, method/version claims), and
+   a PASS / PASS-with-note / FAIL verdict for that pair.
+5. Only after steps 3-4 are written for all four page types of every scoped pair
+   does the verify run count as QA-signed.
 
 **Why Evidence pages are now explicitly required (Wave 10J addition).** The original HABIT-QA1 text named only strategy pages. ECON-CP1/CP2 and VIZ-CP1 cross-period consistency sections live on Evidence pages. A false-PASS on Evidence pages (e.g., "Cross-period analysis pending" stub visible to stakeholders after retro-apply) would be the same failure mode as Wave 10I.A, on a different page. HABIT-QA1 now covers all four page types by name.
 
@@ -181,13 +275,48 @@ Result codes:
 - **Never skip re-reading the SOP checklist at the start of a verify run.** Wave 10I.A's GATE-29 omission was not caused by an unclear SOP — GATE-29 was documented. It was caused by not re-reading QA-CL4 before starting. The checklist is an execution checklist, not a reference document. Read it every time.
 - **Never carry a WARN→FAIL stub transition across multiple waves (GATE-32).** Once retro-apply is confirmed for a new mandatory section, flip the severity to FAIL and re-run cloud_verify. A stub that stays in WARN mode indefinitely is a silent quality regression.
 
-## Standard QA Checklist per Wave
+## GATE-31 — Independent QA Verification
+
+> **The gate this role exists to satisfy. Acceptance.md may not be signed without it.**
+
+**Scope:** All active pair_ids in the pair_registry, for the current wave. GATE-31 is the terminal gate that wraps every sub-gate and checklist.
+
+**Completion criteria:** Every item in QA-CL1 is checked OR has a documented FAIL finding with producer notified. Specifically, the following sub-gates must all be satisfied:
+- GATE-27 (portal lint + DP1 preflight + VIZ-NBER2 preflight + PNG preflight + HZE1 DOM)
+- GATE-28 (all-pair × all-page DOM audit: errors, placeholders, breadcrumb, tab structure, status vocab)
+- GATE-29 (parquet clean-checkout smoke for new/changed pairs)
+- QA-CL2 (semantic KPI triangulation)
+- QA-CL3 (agent memory discipline)
+- QA-CL4 (cloud/deploy verification — wraps GATE-27/28/29)
+- QA-CL5 / GATE-NR (narrative instrument reference check)
+- GATE-SD1 (signal-scope discipline, LA-9)
+- GATE-ES1 (if any pair has evidence_status > found_in_search)
+
+**Output:** QA sign-off block appended to `acceptance.md` for the wave. Format: QA → Lead handoff template (see §Handoff: QA → Lead).
+
+**Partial pass:** GATE-31 is wave-scoped, not pair-scoped. If any pair in the wave has a blocking FAIL, GATE-31 blocks all pairs in that wave until the FAIL is resolved and re-verified. A pair cannot be accepted in isolation when a blocking FAIL exists elsewhere in the same wave — unless Lead writes a documented exception in `docs/pair_execution_history.md`.
+
+**Severity:** Blocking. Acceptance.md sign-off blocked until GATE-31 is satisfied. Lead override: Lead writes rationale in pair_execution_history.md; override count >1/quarter triggers a retro on QA scope.
+
+**Cross-references:** QA-CL1 (checklist), QA-CL2/3/4/5 (sub-checklists), GATE-32 (mandatory-section placeholder expiry — runs as part of GATE-31 wave closure), HABIT-QA1 (DOM read requirement that enables GATE-28 structural checks), META-SRV (first-line self-verification Quincy is the second line for).
+
+## Standard QA Checklist per Wave (QA-CL1)
 
 - [ ] Every regression-note claim has a verification command + result recorded
 - [ ] All schemas mentioned validate against their instances (`scripts/validate_schema.py` exit 0)
 - [ ] `smoke_loader.py` passes (failures = 0)
 - [ ] `smoke_schema_consumers.py` passes (failures = 0)
-- [ ] **QA-CL4** — Cloud / deploy verification passes (GATE-27 render test + GATE-28 placeholder prohibition + GATE-29 clean-checkout smoke test). See QA-CL4 section below.
+- [ ] Smoke evidence covers default-template chart paths and current-pair routes,
+  and any optional-vs-required artifact mismatch, including
+  `analyst_suggestions.json`, is filed as a contract finding
+- [ ] **QA-CL4** — Cloud / deploy verification passes. Sub-gates: GATE-27 (portal lint + GATE-DP1 preflight + GATE-VIZ-NBER2 preflight + GATE-27-PNG preflight + GATE-HZE1 Story DOM check) + GATE-28 (all-pair × all-page DOM: errors, placeholders, breadcrumb, Evidence tab structure, status vocab) + GATE-29 (parquet clean-checkout for new/changed pairs). See QA-CL4 section below.
+- [ ] Current-pair `acceptance.md` exists or links an explicit equivalent with
+  current-vs-reference scope, evidence, and N/A rationale
+- [ ] External-delivery placeholder policy passes: no user-facing live-execution,
+  future/live-run, pending, TODO, or internal diagnostic placeholders on
+  delivered pages without a linked Lead exception
+- [ ] Status glossary/read-through text renders non-empty for the artifact status
+  keys used by the pair
 - [ ] Direction triangulation passes (APP-DIR1)
 - [ ] All new stakeholder items addressed in spirit (not just letter)
 - [ ] META-XVC cross-version diff: undeclared drift count = 0
@@ -198,6 +327,15 @@ Result codes:
 - [ ] **QA-CL5 / GATE-NR** — Narrative instrument reference check passes on all Story and Evidence pages (see GATE-NR below)
 - [ ] **QA-CL3** — Every agent dispatched this wave has updated `experience.md` + `memories.md` + `session-notes.md` with META-SRV evidence (wc -l or git diff citation). Check PostToolUse hook log for mtime warnings first; re-verify each flagged agent manually.
 - [ ] **GATE-32** — If this wave added new mandatory Evidence sections: (a) confirm all active pairs have been retro-applied; (b) flip `CROSS_PERIOD_STUB_IS_FAIL = True` in `scripts/cloud_verify.py`; (c) re-run cloud_verify and confirm 0 stub hits. Do not close the wave without completing this transition.
+- [ ] **GATE-ES1** — If any pair has `evidence_status.json` with status > `found_in_search` (surfaced by `check_evidence_status_promotion()` preflight in `cloud_verify.py`), run GATE-ES1 eight-step promotion verification before sign-off.
+- [ ] **GATE-VIZ-NBER1 severity** — confirm whether VIZ-NBER1 retro-apply is complete (Vera to confirm). If yes, flip `NBER1_WARN_IS_FAIL = True` in `cloud_verify.py` and re-run. If not yet complete, record open retro blockers in session-notes.
+- [ ] **GATE-SD1** — `gate_sd1_preflight()` run as part of `cloud_verify.py`; zero FAIL findings for off-scope signal artefacts across all active pairs. Warn findings (missing `signal_scope.json`) routed to Evan (ECON-SD).
+- [ ] **Post-wave lesson ratification** — `_pws/_team/wave_NNx_lessons_ratified.md` exists and every `action_required: true` Cross-Agent Impact entry since the last ratification round has an Adopted or Dismissed row.
+- [ ] **META-DASH1** — Read Story, Evidence, Strategy, and Methodology DOM
+  together for every scoped pair; record DOM file paths, page types, exact
+  contradiction checks, verdict per pair, and any dashboard-level contradiction
+- [ ] Smoke logs and QA notes use current, accurate wording for page scope,
+  gate names, and Ray/story or narrative cross-checks
 
 ### QA-CL2 — Semantic KPI Triangulation
 
@@ -312,18 +450,27 @@ Blocking findings: <n>
 | 5 | DOM | landing + Strategy show canonical label | PASS | DOM text files in `temp/...` | none |
 ```
 
+**Cross-references (F-12, Phase 4):**
+- **ECON-FE1** — econometrics-side final-exam criteria; GATE-ES1 step 5 must use ECON-FE1 numeric floors verbatim (equity Sharpe ≥ 0.30, FI ≥ 0.50, crypto ≥ 0.20; excess return ≥ 0.00; delta Sharpe ≥ +0.10; MDD ≤ 5 pp worse than benchmark).
+- **`docs/schemas/evidence_status.schema.json`** — schema Quincy validates in step 1.
+- **`docs/schemas/final_exam_results.schema.json`** — schema Quincy validates in step 3.
+- **APP-LP8** — landing-card evidence-status label rule Quincy checks in step 7.
+- **HABIT-QA1** — DOM read requirement step 8 mirrors.
+
 ### QA-CL3 — Agent Memory Discipline Verification
 
 > **SOPs accumulate every lesson. Agents do not — unless memory files are updated at wave closure. QA-CL3 makes that update auditable, the same way QA-CL2 makes KPI display auditable.**
 
 For every agent dispatched in the wave, Quincy verifies that `experience.md`, `memories.md`, and `session-notes.md` were updated during the dispatch and carry evidence per META-SRV.
 
+**LA-7 exception (binding, 2026-05-08):** Ray no longer maintains `memories.md`. Per Lead arbitration LA-7, Ray's reflection consolidates to `experience.md` only. QA-CL3 must check only `experience.md` and `session-notes.md` for the research agent; a missing or unchanged `memories.md` for Ray is not a finding. All other agents (Dana, Evan, Vera, Ace, Quincy) continue to maintain both `experience.md` and `memories.md`.
+
 **Execution protocol.**
 
 1. Check the PostToolUse hook log output for `⚠  META-AM` warnings (these appear inline after each Agent tool call in Lead's session). List every agent that triggered a warning.
 2. For each dispatched agent (warned or not), verify independently:
    - `wc -l ~/.claude/agents/<role>-<name>/experience.md` — line count must have increased vs. prior wave (use `git diff HEAD~N` on the file as evidence).
-   - `wc -l ~/.claude/agents/<role>-<name>/memories.md` — same.
+   - `wc -l ~/.claude/agents/<role>-<name>/memories.md` — same. **Skip for Ray (research agent) per LA-7.**
    - `wc -l _pws/<role>-<name>/session-notes.md` — same.
 3. Record each as PASS / PASS-with-note / FAIL with the verification command and output.
 
@@ -352,14 +499,31 @@ For every wave that adds or modifies portal pages, Quincy verifies cloud/deploy 
 - Vera's chart rendering validation (VIZ-CV1 / VIZ-V5): every canonical chart artifact loads via Plotly, has ≥1 data trace, and non-empty title. (Vera's check is called "chart rendering validation", not "smoke test" — see Wave 10J taxonomy.)
 - Ace's portal lint (APP-ST1): every chart referenced in portal pages resolves via `load_plotly_chart(name, pair_id)` and returns a non-None Figure. (Note: Ace's check is called "portal lint", not "smoke test" — see Wave 10J taxonomy.)
 - Verify: `python3 app/_smoke_tests/smoke_loader.py` → `failures=0`.
-- **GATE-27 / GATE-VIZ-NBER1 — Evidence-page NBER shading portal check (D1c, Wave 10J).** `scripts/cloud_verify.py` scans the full HTML of every Evidence page (`frame.content()`) for the strings "nber", "NBER", or "recession". Absence is logged as WARNING (not FAIL) because Vera's VIZ-NBER1 retro-apply to all pairs is not yet complete. Gate name: **GATE-VIZ-NBER1**. Severity transition: WARN during Wave 10J retro; FAIL after VIZ-NBER1 retro-apply is confirmed complete across all active pairs. Quincy checks the `nber_warn` field in `results.json` and records each pair's status in findings.
+- **GATE-27 / GATE-VIZ-NBER1 — Evidence-page NBER shading portal check (D1c, Wave 10J).** `scripts/cloud_verify.py` scans the full HTML of every Evidence page (`frame.content()`) for the strings "nber", "NBER", or "recession". Gate name: **GATE-VIZ-NBER1**. **Severity flag (F-06, Phase 4):** `NBER1_WARN_IS_FAIL = False` in `cloud_verify.py` — WARN during the VIZ-NBER1 retro-apply window. Flip to `True` once Vera confirms VIZ-NBER1 retro-apply is complete across all active pairs. QA-CL1 includes a mandatory checklist item to prompt this flip. Quincy checks the `nber_warn` field in `results.json` and records each pair's status in findings.
 - **GATE-27 / PNG existence check (D4, Wave 10J; promoted to FAIL Wave 10K 2026-04-24).** Before the browser pass, run: `git ls-files output/charts/{pair_id}/plotly/_perceptual_check_*.png` for every pair. If count = 0 for any pair, log as **FAIL (blocking)**. Perceptual PNGs are mandatory for ALL chart types on ALL pairs — the mandate was approved 2026-04-24 and this gate's severity is now permanently FAIL. `scripts/cloud_verify.py` automates this via `gate27_perceptual_png_preflight()` and adds FAIL entries directly to the results list. A count of 0 means Vera skipped the VIZ-CV1 kaleido render step; owner of fix: Vera. **Producer-side gate:** VIZ-CV1 (Vera's perceptual render rule) is the producer-side companion — Vera must run kaleido renders and commit `_perceptual_check_*.png` before handoff, so this should never reach Quincy as a FAIL on a compliant handoff. If it does, it is a VIZ-CV1 attestation gap and Vera is the fix owner.
 
-**GATE-28 — Reference-Pair Placeholder Prohibition + Comprehensive Error-Free Render (scope extended 2026-04-22).**
-- Headless-browser DOM audit across **ALL 4 pages** of **EVERY ACTIVE PAIR** in the pair_registry (not just the pair being waved in, not just the reference pair). For Wave closure, scope = `{active pair_ids from pair_registry} × {story, evidence, strategy, methodology}`. A wave with N new pairs and 5 existing = 6 pairs × 4 pages = 24 DOM captures minimum.
+**GATE-28 — Delivered-Page Placeholder Prohibition + Comprehensive Error-Free Render (scope extended 2026-04-22).**
+- Headless-browser DOM audit across **ALL 4 pages** of **EVERY ACTIVE PAIR**
+  in the pair_registry for cloud/deploy closure. Scope =
+  `{active pair_ids from pair_registry} × {story, evidence, strategy,
+  methodology}`. This all-active DOM scope is separate from GATE-29's
+  clean-checkout scope, which covers changed/new pairs and deploy-required
+  artifacts.
 - **Zero Python errors** in DOM text across every page: no `Traceback`, `StreamlitAPIException`, `StreamlitPageNotFoundError`, `AttributeError`, `KeyError`, `FileNotFoundError`, `ValueError`, `TypeError`, `NameError`, `Error loading page`. A single page with any traceback is a GATE-28 FAIL.
-- Zero occurrences of "chart pending" placeholder text on reference / Sample pairs. Non-sample pairs tolerate "chart pending" only on pages where the chart is explicitly registered as not-yet-produced.
+- Zero unresolved user-facing chart placeholders on delivered reference, sample,
+  and current-pair pages. Chart-disposition sidecar mismatches are filed under
+  **VIZ-O1 / QA chart-disposition cross-check**; they become GATE-28 FAILs when
+  they render as stakeholder-visible placeholders such as "chart pending".
+  Default-template chart branches count: if a page uses the shared template, QA
+  must verify that template's chart names resolve for the pair under review.
 - Zero occurrences of internal development diagnostics in user-facing DOM text, including APP-DIR1/ticket/file wording such as "Ray leg", "RES-17", "stub expected", or "no narrative file found". Missing optional cross-checks must be explained in reader language.
+- Zero user-facing external-delivery placeholders such as "live execution
+  pending", "future/live run", "coming soon", "TODO", or internal status
+  scaffolding unless Lead has linked an approved delivery exception in
+  acceptance evidence.
+- Status labels and glossary/read-through blocks must render non-empty text for
+  the exact status keys emitted by pair artifacts. Key spelling drift between
+  HY-IG v2 artifacts, schemas, and renderer dictionaries is a GATE-28 FAIL.
 - **No partial pass.** A wave does not close if any page of any active pair hits a traceback. This is the basic stakeholder expectation — an error on any published page is a broken product.
 - Verify: adapt `temp/260422_wave10g/wave10g_cloud_verify.py` (or equivalent) to iterate the full `pair_id × page` grid. Hydration wait 30–60s per page; retry once on transient failure (Pattern 19/20). Save DOMs + screenshots.
 - **Rationale for the scope extension (Wave 10G.5 incident):** a prior cloud verify passed 3 of 4 new-pair pages and didn't re-verify the remaining pair × page combinations after a fix commit. A `StreamlitPageNotFoundError` on `hy_ig_spy_story` shipped to production. Partial-scope cloud verify is how silent-shipped bugs happen. GATE-28 scope is now total coverage per wave.
@@ -369,7 +533,11 @@ For every wave that adds or modifies portal pages, Quincy verifies cloud/deploy 
 - Run `python3 app/_smoke_tests/smoke_loader.py` inside the clean checkout.
 - Assert: zero FileNotFound, zero None-return, zero placeholder.
 - Confirms no file is silently `.gitignore`-excluded or missing from `git add`.
-- **GATE-29 mandatory parquet check (added 2026-04-20):** In addition to the chart smoke test, Quincy MUST explicitly verify the following deploy-required parquet artifacts exist in the clean checkout for every new pair:
+- Scope: every new or changed pair in the wave, plus any reference pair whose
+  shared template, deploy-required artifact contract, or route wiring changed.
+  GATE-29 does not need to clone-test every active pair unless the change
+  touched shared deployment behavior.
+- **GATE-29 mandatory parquet check (added 2026-04-20):** In addition to the chart smoke test, Quincy MUST explicitly verify the following deploy-required parquet artifacts exist in the clean checkout for every new/changed pair in GATE-29 scope:
   ```
   git ls-files results/{pair_id}/signals_*.parquet   # must return ≥1 file
   git ls-files results/{pair_id}/*.parquet           # full list for audit
@@ -379,12 +547,14 @@ For every wave that adds or modifies portal pages, Quincy verifies cloud/deploy 
 **Execution protocol.**
 1. Run GATE-27 portal lint and chart rendering validation locally first — fast, catches most render failures.
 2. Run GATE-28 headless browser pass if Streamlit server is available.
-3. Run GATE-29 clean-checkout test for every new pair added in this wave.
+3. Run GATE-29 clean-checkout test for every new/changed pair in this wave and
+   any reference pair affected by shared deploy behavior.
 4. Record each gate as PASS / PASS-with-note / FAIL with the command and output.
 
 **Action on FAIL.**
 - GATE-27 FAIL: Vera (chart rendering bug) or Ace (loader reference bug) — narrow scope, fix before acceptance.
-- GATE-28 FAIL: Ace (placeholder not replaced) — BLOCKING on reference pairs.
+- GATE-28 FAIL: Ace (render error, structural miss, or user-facing placeholder)
+  — BLOCKING on delivered pages unless Lead has documented an exception.
 - GATE-29 FAIL: almost always a missing `git add` or `.gitignore` exclusion of a required artifact — fix with `git add -f` after confirming ECON-DS2 allows it.
 
 **Cross-references.**
@@ -449,7 +619,11 @@ else:
 
 **WARN disposition:** No Ace fix required. Record the WARN in the findings table. The WARN converts to FAIL automatically once `history_zoom_*.json` charts are committed — at that point the heading must appear in Story DOM on next cloud verify.
 
-**Cross-references:** VIZ-ZOOM1 (Vera produces zoom charts); RES-HZE1 (Ray provides zoom episode narratives); GATE-28 (structural parity gate GATE-HZE1 extends); HABIT-QA1 (DOM read requirement that enables this check).
+**Implementation status (F-01, Phase 4):** `gate_hze1_check()` logic is implemented in `check_page()` (Story branch) and as `gate_hze1_preflight()` in `scripts/cloud_verify.py`. `check_page()` records `hze1_result = "ABSENT"` when the heading is missing; `main()` calls `gate_hze1_preflight()` before the browser pass and resolves the sentinel to FAIL or WARN based on chart existence. Both functions are wired into the GATE-28 Story-page branch. This supersedes the OW-3 note that the gate ran only as a HABIT-QA1 manual DOM read.
+
+**Content scope note (R-03, Phase 4):** GATE-HZE1 checks structural presence only — the heading string and chart file existence. It does NOT verify content quality: narrative triad structure (setup/shock/signal-behaviour), caption length (≤ 120 characters), or narrative non-placeholder status. Content requirements are RES-HZE1's domain (Ray's SOP). A GATE-HZE1 PASS does not imply content compliance with RES-HZE1.
+
+**Cross-references:** VIZ-ZOOM1 (Vera produces zoom charts); RES-HZE1 (Ray provides zoom episode narratives — content requirements; GATE-HZE1 covers structural presence only); GATE-28 (structural parity gate GATE-HZE1 extends); HABIT-QA1 (DOM read requirement that enables this check).
 
 **GATE-DP1 — Dual-Panel Trace Visibility Check (added Wave 10K, 2026-04-24).**
 
@@ -532,7 +706,7 @@ def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus
 
 **Scope:** All `history_zoom_*.json` charts for all active pairs. New chart types with dual-panel layouts (if added in future) should be added to the same preflight with matching axis-assignment assertions.
 
-**Integration point in `scripts/cloud_verify.py`:** add a call to `gate_dp1_dual_panel_preflight(pairs)` immediately after the GATE-29 parquet preflight and before the Playwright browser session begins. Hard-fail (abort browser run) if any GATE-DP1 failures are returned.
+**Integration point in `scripts/cloud_verify.py`:** `gate_dp1_dual_panel_preflight(pairs)` is called after GATE-29 parquet preflight and before the Playwright browser session begins. **Abort behavior implemented (F-07, Phase 4):** `if dp1_failures: sys.exit(1)` — the run writes partial results to `results.json` and exits with code 1. Do not proceed to browser verification while GATE-DP1 failures persist. Note: a GATE-DP1 abort prevents GATE-VIZ-NBER2 from running; resolve GATE-DP1 first.
 
 **Cross-references:** VIZ-ZOOM1 (Vera produces zoom charts); GATE-HZE1 (heading presence — necessary but not sufficient); GATE-27 (chart render validation — GATE-DP1 is a JSON-structural extension of this gate); HABIT-QA1 (DOM read requirement).
 
@@ -547,16 +721,18 @@ def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus
 - 2007-12-01 → 2009-06-01
 - 2020-02-01 → 2020-04-01
 
-**Episode–recession overlap table (from `docs/schemas/episode_registry.json`):**
+**Episode–recession overlap table (canonical source: `docs/schemas/history_zoom_events_registry.json` per LA-1):**
+
+Slug names per LA-2 (binding 2026-05-08). Non-canonical slugs `dot_com`, `taper_2013`, `rates_2022` are deprecated.
 
 | Slug | Window | NBER overlap? | Required shading |
 |---|---|---|---|
-| dot_com | 2000-03-01 → 2002-10-31 | ✅ 2001 recession | REQUIRED (FAIL if absent) |
+| dotcom | 2000-03-01 → 2002-10-31 | ✅ 2001 recession | REQUIRED (FAIL if absent) |
 | gfc | 2007-12-01 → 2009-06-30 | ✅ 2008 recession | REQUIRED (FAIL if absent) |
 | covid | 2020-02-01 → 2020-12-31 | ✅ 2020 recession | REQUIRED (FAIL if absent) |
-| taper_2013 | 2013-05-01 → 2013-12-31 | ❌ none | MUST NOT have NBER shading (WARN if present) |
-| china_2015 | 2015-06-01 → 2016-02-29 | ❌ none | MUST NOT have NBER shading (WARN if present) |
-| rates_2022 | 2022-01-01 → 2022-12-31 | ❌ none | MUST NOT have NBER shading (WARN if present) |
+| taper_2018 | 2018-01-01 → 2018-12-31 | ❌ none | MUST NOT have NBER shading (WARN if present) |
+| china_2015 | 2015-06-01 → 2016-02-29 | ❌ none | MUST NOT have NBER shading (WARN if present) — pending registry promotion per LA-2 |
+| inflation_2022 | 2022-01-01 → 2022-12-31 | ❌ none | MUST NOT have NBER shading (WARN if present) |
 
 **What Quincy checks.** For every `history_zoom_{slug}.json` file under `output/charts/{pair_id}/plotly/`:
 
@@ -566,7 +742,7 @@ def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus
 4. **If recession-overlapping and no NBER bands found → FAIL.** Missing shading in a recession episode misleads the stakeholder into thinking there was no recession.
 5. **If non-overlapping and NBER bands found → WARN (non-blocking).** Spurious shading implies a recession that did not occur. Less harmful than missing shading, but still a defect.
 
-**This is a pure JSON preflight — no browser or Playwright needed.** Runs alongside GATE-DP1 before any browser time is spent.
+**This is a pure JSON preflight — no browser or Playwright needed.** Runs after GATE-DP1 preflight and before the browser pass. Note: if GATE-DP1 aborts the run (F-07 — `sys.exit(1)` on GATE-DP1 failures), GATE-VIZ-NBER2 will not execute. Resolve GATE-DP1 failures first.
 
 **Severity:** FAIL for recession-overlapping slugs with missing shading; WARN for non-recession slugs with spurious shading. Fix owner: Vera.
 
@@ -583,6 +759,8 @@ After any wave that adds new mandatory Evidence (or other) sections — e.g., EC
 - Once all active pairs have been retro-applied (Vera and Ace confirm), Quincy MUST flip `CROSS_PERIOD_STUB_IS_FAIL = True` (or the equivalent flag for the section in question) and re-run `scripts/cloud_verify.py` to confirm zero stub hits.
 - The WARN→FAIL flip is a required deliverable for wave closure — it is NOT optional and MUST NOT be deferred indefinitely. The stub should be a hard FAIL by the wave immediately after retro-apply is confirmed.
 
+**Current state (F-08, Phase 4):** `CROSS_PERIOD_STUB_IS_FAIL = False` as of 2026-05-08. Retro-apply of ECON-CP1/CP2 to all active pairs is NOT yet confirmed complete. Open blockers are tracked in OW-5. Until Vera and Ace confirm all pairs retro-applied, the flag must remain False. The QA-CL1 GATE-32 checklist item is the mandatory confirmation gate — do not close any wave without checking OW-5 status.
+
 **Do not carry forward WARN→FAIL transitions.** A STUB_PATS entry that remains in WARN mode across multiple waves after retro-apply is complete is a silent quality regression — new pairs could ship with the placeholder visible without triggering a FAIL. GATE-32 is the gate that prevents this.
 
 **Verification command:**
@@ -596,6 +774,28 @@ python3 scripts/cloud_verify.py --pairs <all_active_pairs>  # must show 0 stub h
 **When QA-CL4 fires.** Every wave that adds new portal pages or modifies existing ones. For memory-only or SOP-only waves with no portal changes, QA-CL4 is N/A — mark as skipped with rationale.
 
 **Why this rule exists.** Waves 5D, 7D, and 8D each required a dedicated cloud-verification dispatch after the main wave because the portal rendered locally but failed a clean-checkout or cloud-render check. These dispatches were ad-hoc and Lead-owned; they happened because Lesandro remembered to add them, not because the SOP required them. QA-CL4 makes the cloud verify step a named, Quincy-owned, evidence-gated requirement so it cannot be forgotten.
+
+**GATE-SD1 — Signal-Scope Discipline Audit Gate (LA-9, Phase 4, 2026-05-08).**
+
+> **ECON-SD enforces pair scope at estimation time; GATE-SD1 is QA's independent re-verification at artefact handoff. An off-scope signal in a committed chart or table is an ECON-SD violation that persisted past the producer's self-check.**
+
+**Root cause of the gap (LA-9).** ECON-SD (Evan's SOP) defines "pair scope discipline" — each model must use only the designated pair's instruments. No QA gate independently verified scope compliance at the artefact level. GATE-SD1 closes this gap.
+
+**What Quincy checks.** For every active pair, GATE-SD1:
+
+1. Loads `results/{pair_id}/signal_scope.json` (produced by Evan per ECON-SD). If missing → WARN: route to Evan.
+2. Extracts the declared `signal_ids` list.
+3. Scans `output/charts/{pair_id}/plotly/*.json` chart filenames for signal-identifier substrings not in the declared list.
+4. Exempts aggregate/pair-level chart types (prefix exemption list: `tournament`, `hero`, `spread`, `equity_curve`, `rolling_correlation`, `rolling_sharpe`, `history_zoom`).
+5. **FAIL (blocking)** — any chart name embeds a signal_id not in the declared scope. Owner: Vera (remove/retarget chart) or Evan (update scope declaration). Both must be notified.
+
+**Implementation:** `gate_sd1_preflight(pairs)` in `scripts/cloud_verify.py`, called in `main()` before the browser pass. FAIL findings are added to `results` and counted in `gate_sd1_findings` summary key.
+
+**Severity:** FAIL is blocking — a chart that visualizes an off-scope signal misleads stakeholders about what the model tested. WARN (missing `signal_scope.json`) is not blocking but routes to Evan for ECON-SD compliance.
+
+**Companion gate — QA-CL2 extension:** if a GATE-SD1 FAIL is found on a strategy-page KPI chart, also check whether the KPI values on the Strategy page reflect the correct (in-scope) signal. Off-scope KPI values are a QA-CL2 FAIL in addition to GATE-SD1.
+
+**Cross-references:** ECON-SD (Evan — producer-side companion; scope declaration); VIZ-ZOOM1 (Vera — chart producer, fix owner for off-scope chart files); GATE-31 (GATE-SD1 is a required sub-gate for wave closure per QA-CL1).
 
 ### QA-CL5 / GATE-NR — Narrative Instrument Reference Check
 
@@ -615,6 +815,10 @@ For every Story page and Evidence page in the wave, QA reads the rendered DOM te
 - **PASS** — all instrument references match the pair's target and indicator.
 - **FAIL (blocking)** — a wrong-pair instrument name found. Producer: Ray must correct; Ace must re-render. Acceptance blocked.
 - **PASS-with-note** — an instrument appears in a clearly comparative context (e.g., "unlike SPY, XLP...") and is semantically correct — note it but do not block.
+
+**Scope limitation and exemption mechanism (Phase 3 C-Q1, Phase 4):** Full-DOM instrument scanning generates false FAILs on legitimate comparative references in episode prose (e.g., "Unlike SPY, XLP tends to..."). GATE-NR in `cloud_verify.py` (`_gate_nr_check()`) scans the DOM text but permits exemptions via `interpretation_metadata.json` key `gate_nr_comparison_whitelist` (list[str]). Per-episode comparative references that are semantically correct can be added to this allow-list by Ray or Lead. Full prose instrument scanning remains a HABIT-QA1 manual read obligation — GATE-NR automates only the headline instrument check.
+
+**Implementation status (F-03, Phase 4):** `_gate_nr_check()` implemented in `cloud_verify.py`. Called from `check_page()` for Story and Evidence pages. `FAIL` on wrong-pair instrument names contributes to verdict.
 
 **Verification command pattern:**
 ```python
@@ -743,6 +947,8 @@ Lead either signs acceptance or routes blocking items back to the responsible pr
 4. Distill 1-2 lessons → `~/.claude/agents/qa-quincy/memories.md`
 5. Cross-project patterns → `~/.claude/agents/qa-quincy/experience.md`
 
+**Cross-reference:** Step 5 (Dispatch gate) is defined in `docs/agent-sops/team-coordination.md § Dispatch Matrix (Meta-Rule META-DM)`. Consult the META-DM matrix there before returning your handoff.
+
 ## Cross-References
 
 - **META-SRV** — Self-Report Verification Discipline (first line; QA is the second line)
@@ -753,12 +959,17 @@ Lead either signs acceptance or routes blocking items back to the responsible pr
 - **META-FRD** — Force-Redeploy Discipline (template for QA Override Log)
 - **META-BL** — Backlog Discipline (QA PASS-with-note items may become backlog entries)
 - **GATE-24..30** — all blocking gates QA enforces at seam audit
-- **GATE-31** — Independent QA Verification (the gate this role exists to satisfy)
+- **GATE-31** — Independent QA Verification (the gate this role exists to satisfy; see standalone definition above)
 - **GATE-32** — Mandatory-Section Placeholder Expiry Gate (Wave 10J); WARN→FAIL transition for new Evidence section stubs after retro-apply is confirmed
+- **GATE-SD1** — Signal-Scope Discipline Audit Gate (LA-9, Phase 4); verifies chart artefacts match signal_scope.json; companion to ECON-SD
 - **APP-WS1 / APP-DIR1 / APP-SEV1** — consumer-side contracts QA verifies at the seam
 - **RES-17** — narrative frontmatter schema (QA validates instance)
 - **ECON-H5** — winner_summary.json schema (QA validates instance)
+- **ECON-SD** — signal-scope discipline (producer-side companion to GATE-SD1)
+- **ECON-FE1** — final-exam acceptance criteria (numeric floors for GATE-ES1 step 5)
 - **DATA-D6 / DATA-D11** — interpretation metadata schema + reference-pair sidecar (QA validates)
+- **VIZ-CV1** — Vera's perceptual render mandate; producer-side companion to GATE-27-PNG. VIZ-CV1 requires kaleido renders of all Plotly charts; GATE-27-PNG verifies committed PNG existence. A perceptual PNG is a kaleido static-render (`_perceptual_check_*.png`) committed under `output/charts/{pair_id}/plotly/`.
+- **RES-NR1** — Ray's production-side narrative instrument rule; producer-side companion to GATE-NR
 
 ## Anti-Patterns Summary
 

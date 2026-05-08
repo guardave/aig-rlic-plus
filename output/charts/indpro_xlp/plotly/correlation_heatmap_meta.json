@@ -1,0 +1,29 @@
+{
+  "chart_name": "correlations",
+  "pair_id": "indpro_xlp",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-A3"
+  ],
+  "narrative_alignment_note": "Chart shows Rolling Correlation: INDPRO YoY vs XLP Monthly Return; verified intra-chart consistent per VIZ-IC1 on 2026-04-22.",
+  "created_at": "2026-04-22T08:28:57Z",
+  "disposition": "consumed",
+  "title": "Rolling Correlation: INDPRO YoY vs XLP Monthly Return",
+  "caption": "Chart shows Rolling Correlation: INDPRO YoY vs XLP Monthly Return; verified intra-chart consistent per VIZ-IC1 on 2026-04-22.",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "1998-01-31 to 2025-12-31",
+  "data_source_path": "exploratory_{date}/correlations.csv",
+  "exploratory": false,
+  "econ_rule_id": "ECON-EX1",
+  "result_file": "exploratory_{date}/correlations.csv",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
+}

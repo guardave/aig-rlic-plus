@@ -1,0 +1,22 @@
+{
+  "chart_name": "ted_spliced_spy_hero",
+  "pair_id": "ted_spliced_spy",
+  "title": "TEDRATE + adj DFF-TED (Spliced) vs S&P 500",
+  "caption": "TEDRATE + adj DFF-TED (Spliced) vs S&P 500",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "1993-01-29 to 2025-12-31",
+  "data_source_path": "output/charts/ted_spliced_spy/plotly/ted_spliced_spy_hero.json",
+  "rules_applied": [
+    "VIZ-O1"
+  ],
+  "disposition": "retired",
+  "palette_id": "okabe_ito_2026",
+  "exploratory": false,
+  "retire_reason": "Superseded by canonical bare filename or retained as legacy audit artifact per VIZ-A3/VIZ-V8.",
+  "canonical_consumption": false,
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
+}

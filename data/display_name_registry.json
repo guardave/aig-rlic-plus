@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-04-19T00:00:00Z",
+  "generated_at": "2026-05-08T00:00:00Z",
   "columns": [
     {
       "column_name": "date",
@@ -219,7 +219,7 @@
       "axis_label": "Accel (%)"
     },
     {
-      "column_name": "ccc_bb_spread",
+      "column_name": "ccc_bb_spread_pct",
       "display_name": "CCC-BB HY Quality Spread (%)",
       "unit": "percent",
       "axis_label": "CCC-BB (%)"
@@ -237,13 +237,13 @@
       "axis_label": "VIX3M-VIX"
     },
     {
-      "column_name": "yield_spread_10y3m",
+      "column_name": "yield_spread_10y3m_pct",
       "display_name": "10Y-3M Yield Spread (%)",
       "unit": "percent",
       "axis_label": "10Y-3M (%)"
     },
     {
-      "column_name": "yield_spread_10y2y",
+      "column_name": "yield_spread_10y2y_pct",
       "display_name": "10Y-2Y Yield Spread (%)",
       "unit": "percent",
       "axis_label": "10Y-2Y (%)"
@@ -261,7 +261,7 @@
       "axis_label": "NFCI 13w Chg"
     },
     {
-      "column_name": "bbb_ig_spread",
+      "column_name": "bbb_ig_spread_pct",
       "display_name": "BBB-IG Spread (%)",
       "unit": "percent",
       "axis_label": "BBB-IG (%)"

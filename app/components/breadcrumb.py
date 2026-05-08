@@ -15,6 +15,8 @@ element), consistent with APP-RP1 (no nested HTML for layout).
 
 import streamlit as st
 
+from components.pair_registry import get_page_prefix
+
 STEPS = ["Story", "Evidence", "Strategy", "Methodology"]
 ICONS = {
     "Story": "📖",
@@ -34,9 +36,7 @@ def render_breadcrumb(current_page: str, pair_id: str) -> None:
         label matching this argument is rendered as a bold, non-clickable
         "you are here" marker.
     pair_id : str
-        Pair identifier used to build page_link targets. The canonical
-        filename pattern is ``pages/9_{pair_id}_{step_lower}.py`` for the
-        HY-IG v2 pair family; other pair pages may need to override.
+        Pair identifier used to build page_link targets from the registry.
     """
     if current_page not in STEPS:
         st.warning(
@@ -56,7 +56,7 @@ def render_breadcrumb(current_page: str, pair_id: str) -> None:
     for i, step in enumerate(STEPS):
         col_idx = i * 2  # 0, 2, 4, 6
         with cols[col_idx]:
-            page_path = f"pages/9_{pair_id}_{step.lower()}.py"
+            page_path = f"{get_page_prefix(pair_id)}_{step.lower()}.py"
             is_current = (step == current_page)
             if is_current:
                 st.markdown(f"**{ICONS[step]} {step}**")

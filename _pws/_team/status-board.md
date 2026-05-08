@@ -1,5 +1,357 @@
 # Team Status Board
 
+## 2026-05-08 — Lead Lesandro (BL-SOP-NORMALIZE wave — CLOSED ✅)
+
+**Status:** All 8 NORM items PASS at Lead closing audit (NORM-008). Zero re-dispatches needed.
+
+**What landed:**
+- META-NCD rule authored in `team-coordination.md` + registered in `docs/standards.md`.
+- `docs/glossary.md` created with 16 H2 entries (single source of truth for cross-SOP terms).
+- 6 role SOPs refactored: inline definitions → glossary cross-references where applicable.
+- Status vocabulary canonical at `docs/portal_glossary.json._status_vocabulary` (5 SOPs retired prose enumerations; Ray retains 1 canonical citation).
+- L1/L2/L3 severity scheme canonical at APP-SEV1 (5 SOPs replaced paraphrases with cross-references; Ace's rule body retains the 3 canonical definitions).
+
+**Lead audit (NORM-008) — every acceptance command re-run, all match agent reports:**
+- NORM-001: 1 section + 10 META-NCD refs in team-coordination.md (PASS).
+- NORM-002: glossary file exists, 16 H2, 210 lines (PASS).
+- NORM-003/004/005/006 per-agent: Dana 2/0/0, Evan 4/0/0, Vera 3/0/0, Ray 2/1/0, Ace 6/0/3, Quincy 6/0/0 — all match expected ranges (PASS).
+- NORM-007: META-NCD row in standards.md (PASS).
+
+**Process pattern validated.** Pre-stated mechanical acceptance commands per wave item produced zero residue at audit. Contrast with the six-phase review wave which needed a Phase-5 fix-up dispatch for four residues. Pattern adopted for future mechanically-auditable waves.
+
+**LEAD-DL1 self-check:** Lead writes confined to `team-coordination.md`, `standards.md`, `docs/sop-changelog.md`, `docs/glossary.md` (Lead-coordinated cross-agent file), `_pws/lead-lesandro/*`, this status board. Zero edits to role-owned SOPs or other agent files.
+
+**Anti-filler instruction in effect.** All agents and Lead drop "You're right" / "Great" / etc. Substance only.
+
+**Outstanding (deferred to backlog):** BL-VIZ-V11-LINT, BL-GATE-CL-AUDIT, schema field enumeration replacement, cross-reference list compression.
+
+---
+
+## 2026-05-08 — AppDev Ace (BL-SOP-NORMALIZE: NORM-003 / NORM-004 / NORM-005 / NORM-006)
+
+**Status:** Complete.
+
+**Files modified:** `docs/agent-sops/appdev-agent-sop.md` only. `docs/glossary.md` — no changes (all five Ace-domain H2 sections confirmed accurate as authored by Lead).
+
+**NORM-003 — Glossary sections reviewed (Ace domain):**
+- Thin wrapper: confirmed accurate — `app/pages/` file contract, APP-PT1 canonical authority. No amendment.
+- Page template: confirmed accurate — four canonical page types, APP-PT1/APP-PT2 authority. No amendment.
+- Pair config module: confirmed accurate — content-only export contract, APP-PT1 authority. No amendment.
+- Trigger card: confirmed accurate — `st.container(border=True)` grid, BUY/REDUCE/HOLD scenarios, APP-SE3 authority. No amendment.
+- `_REPO_ROOT` anchor: confirmed accurate — `Path(__file__).resolve().parents[N]` pattern, APP-PR1 authority. No amendment.
+- New terms added: none.
+
+**NORM-004 — Definition-to-reference refactor:**
+- Pre-baseline glossary cross-refs: 0. Post-change: 6.
+- Definitions table replaced with cross-reference table. Five glossary terms (Thin wrapper, Page template, Pair config module, `_REPO_ROOT` anchor, Trigger card) now link to `docs/glossary.md` anchors. Two non-glossary appdev-specific terms (Evidence-status badge, L1/L2 banner) retained locally.
+
+**NORM-005 — Status vocabulary (consumer side):**
+- Retired inline enumerations in sections 3.11 and 3.12. Replaced with: "Status labels per `docs/portal_glossary.json._status_vocabulary` (canonical via RES-10 / DATA-VS / RES-VS)."
+
+**NORM-006 — Severity scheme (canonical owner side):**
+- APP-SEV1 rule body is the sole canonical definition of L1/L2/L3. Confirmed.
+- Retired `L3 (Caption-Note)` phrasing from Definitions table entry for "L1/L2 banner" — replaced with `L3 (\`st.caption()\`)`.
+- Retired `L1 (Loud-Error)` phrasing from APP-SS1 — replaced with `APP-SEV1 L1 (severity levels per APP-SEV1)`.
+
+**Acceptance command outputs (verbatim):**
+
+```
+$ grep -c "docs/glossary.md\|glossary.md#" docs/agent-sops/appdev-agent-sop.md
+6
+# Expected: >= 5  PASS
+
+$ grep -cE "Available[/, ]+Pending[/, ]+Validated|Available, Pending, Validated, Stale, Draft, Mature, Unknown" docs/agent-sops/appdev-agent-sop.md
+0
+# Expected: 0  PASS
+
+$ grep -cE "L1[ )].*Loud-Error|L2[ )].*Loud-Warning|L3[ )].*Caption-Note" docs/agent-sops/appdev-agent-sop.md
+3
+# Expected: <= 3  PASS
+```
+
+**LEAD-DL1 self-check:** clean. Edits confined to `docs/agent-sops/appdev-agent-sop.md`. Glossary untouched. No rule rewrites; no new rules; no other agents' SOPs touched.
+
+---
+
+## 2026-05-08 — QA Quincy (BL-SOP-NORMALIZE: NORM-003 / NORM-004 / NORM-005 / NORM-006)
+
+**Status:** Complete.
+
+**Files modified:**
+- `docs/glossary.md` — `## Smoke test` H2 amended (Quincy domain). `## PASS-with-note` H2 confirmed accurate, no amendment.
+- `docs/agent-sops/qa-agent-sop.md` — Terminology table refactored (NORM-004); no status vocab enumerations or severity paraphrases existed (NORM-005/006 pre-clean).
+
+**NORM-003 — Glossary sections reviewed (Quincy domain):**
+- `## Smoke test` — amended: clarified Wave 10J taxonomy (Ace "portal lint" APP-ST1 vs Vera "chart rendering validation" VIZ-CV1); expanded preflight bullet to include "No Playwright required"; expanded cloud verify bullet to include HABIT-QA1 mandate; updated canonical authority to list both APP-ST1 and VIZ-CV1 explicitly; added Perceptual render to See also.
+- `## PASS-with-note` — confirmed accurate. Definition, canonical authority (QA-FF1/QA-CL3), and See also all correct. No amendment.
+- New terms added: none. No Quincy-domain term appearing in 2+ SOPs was absent from the glossary. (`browser pass` appears only in qa-agent-sop.md; `hibernation` appears in qa-agent-sop.md + appdev-agent-sop.md but is lifecycle/cross-role, not QA-domain.)
+
+**NORM-004 — Definition-to-reference refactor:**
+- Pre-baseline glossary cross-refs in qa-agent-sop.md: 0.
+- Replaced `smoke test`, `preflight`, `cloud verify` Terminology table definitions with cross-references to `docs/glossary.md § Smoke test`; retained QA-specific execution order detail in preflight row.
+- Replaced `PASS-with-note` Terminology table definition with cross-reference to `docs/glossary.md § PASS-with-note`; retained QA-FF1/QA-CL3 canonical authority note per wave plan.
+- Replaced `perceptual PNG` Terminology table definition with cross-reference to `docs/glossary.md § Perceptual render`; retained QA-specific GATE-27-PNG operational note.
+- Added "see glossary" pointer to the PASS-with-note result code in Findings Format (QA-FF1 body — canonical authority retained, pointer added).
+- `hibernation` and `browser pass` rows kept as-is: hibernation is not glossary-registered; browser pass appears only in this SOP.
+- Post-change glossary cross-refs: 6.
+
+**NORM-005 — Status vocabulary (consumer side):**
+- Pre-count 0. No status vocabulary enumerations present. No action required.
+
+**NORM-006 — Severity scheme (consumer side):**
+- Pre-count 0. No L1/L2/L3 severity paraphrases present. No action required.
+
+**Acceptance command outputs (verbatim):**
+
+```
+$ grep -c "docs/glossary.md\|glossary.md#" docs/agent-sops/qa-agent-sop.md
+6
+# Expected: >= 2  PASS
+
+$ grep -cE "Available[/, ]+Pending[/, ]+Validated|Available, Pending, Validated, Stale, Draft, Mature, Unknown" docs/agent-sops/qa-agent-sop.md
+0
+# Expected: 0  PASS
+
+$ grep -cE "L1[ )].*Loud-Error|L2[ )].*Loud-Warning|L3[ )].*Caption-Note" docs/agent-sops/qa-agent-sop.md
+0
+# Expected: 0  PASS
+```
+
+**LEAD-DL1 self-check:** clean. Edits confined to `docs/agent-sops/qa-agent-sop.md` (Quincy-owned) and `docs/glossary.md` § Smoke test and § PASS-with-note (Quincy-owned H2 sections only). No rule rewrites; no new rules; no other agents' SOPs or glossary sections touched.
+
+---
+
+## 2026-05-08 — Research Ray (BL-SOP-NORMALIZE: NORM-003 / NORM-004 / NORM-005 / NORM-006)
+
+**Status:** Complete.
+
+**Files modified:** `docs/agent-sops/research-agent-sop.md` only. `docs/glossary.md` — no changes (both H2 sections confirmed accurate as authored by Lead).
+
+**NORM-003 — Glossary sections reviewed (Ray domain):**
+- Narrative instrument reference: confirmed accurate — definition matches RES-NR1 usage; canonical authority RES-NR1 / GATE-NR correct. No amendment.
+- Episode triad: confirmed accurate — long-lead / coincident / failure-case framing, canonical authority RES-20 / RES-HZE1, registry pointer correct. No amendment.
+- New terms added: none. No Ray-domain term appearing in 2+ SOPs absent from the glossary.
+
+**NORM-004 — Definition-to-reference refactor:**
+- Pre-baseline glossary cross-refs in research SOP: 0.
+- Added "see glossary" pointer to RES-NR1's operational definition of "narrative instrument reference" (glossary is the term definition; RES-NR1 retains the canonical operational rule).
+- Added "see glossary" pointer to RES-20's episode triad selection rule (glossary is the term definition; RES-20 retains the canonical selection criterion).
+- Post-change glossary cross-refs: 2.
+
+**NORM-005 — Status vocabulary (canonical owner):**
+- RES-VS (canonical enumeration) confirmed and retained as the single canonical reference.
+- Retired inline enumeration in RES-22 preamble → replaced with `docs/portal_glossary.json._status_vocabulary` reference.
+- Retired inline enumeration in quality gate checklist RES-VS row → replaced with canonical reference phrasing.
+- Result: exactly ONE canonical enumeration remains (in RES-VS body).
+
+**NORM-006 — Severity scheme (consumer side):**
+- Pre-baseline L1/L2/L3 paraphrase count: 0. No action required.
+
+**Acceptance command outputs (verbatim):**
+
+```
+$ grep -c "docs/glossary.md\|glossary.md#" docs/agent-sops/research-agent-sop.md
+2
+# Expected: >= 2  PASS
+
+$ grep -cE "Available[/, ]+Pending[/, ]+Validated|Available, Pending, Validated, Stale, Draft, Mature, Unknown" docs/agent-sops/research-agent-sop.md
+1
+# Expected: <= 1  PASS
+
+$ grep -cE "L1[ )].*Loud-Error|L2[ )].*Loud-Warning|L3[ )].*Caption-Note" docs/agent-sops/research-agent-sop.md
+0
+# Expected: 0  PASS
+```
+
+**LEAD-DL1 self-check:** clean. Edits confined to `docs/agent-sops/research-agent-sop.md` (Ray-owned). Glossary untouched. No rule rewrites; no new rules; no other agents' SOPs touched.
+
+---
+
+## 2026-05-08 — Viz Vera (BL-SOP-NORMALIZE: NORM-003 / NORM-004 / NORM-005 / NORM-006)
+
+**Status:** Complete.
+
+**Files modified:** `docs/agent-sops/visualization-agent-sop.md` only. `docs/glossary.md` — no changes (Perceptual render and Disposition H2 sections confirmed accurate as authored by Lead).
+
+**NORM-003 — Glossary sections reviewed (Vera domain):**
+- Perceptual render: confirmed accurate — kaleido library, `_perceptual_check_{chart_name}.png` filename, VIZ-CV1 canonical authority. No amendment.
+- Disposition: confirmed accurate — three enum values (`consumed`, `suggested`, `retired`), VIZ-O1 / VIZ-E1 canonical authority. No amendment.
+- New terms added: none. No Vera-domain term appearing in 2+ SOPs was absent from the glossary.
+
+**NORM-004 — Definition-to-reference refactor:**
+- Pre-baseline glossary cross-refs in viz SOP: 0.
+- Added pointer to `docs/glossary.md § Perceptual render` in Key Definitions table (Vera-owned canonical — local definition retained, glossary pointer added per wave plan two-step rule).
+- Added pointer to `docs/glossary.md § Disposition` in Key Definitions table (Vera-owned canonical — same treatment).
+- Added pointer to `docs/glossary.md § Sidecar` in Key Definitions table (co-owned; Vera-specific operational detail retained).
+- Post-change glossary cross-refs: 3.
+
+**NORM-005 — Status vocabulary (consumer side):**
+- Replaced inline enumeration of all seven status values in the Chart-gap requests section with: "Status labels per `docs/portal_glossary.json._status_vocabulary` (canonical via RES-10 / DATA-VS / RES-VS)."
+
+**NORM-006 — Severity scheme (consumer side):**
+- No L1/L2/L3 severity paraphrases present. Pre-count 0; no action.
+
+**Acceptance command outputs (verbatim):**
+
+```
+$ grep -c "docs/glossary.md\|glossary.md#" docs/agent-sops/visualization-agent-sop.md
+3
+# Expected: >= 2  PASS
+
+$ grep -cE "Available[/, ]+Pending[/, ]+Validated|Available, Pending, Validated, Stale, Draft, Mature, Unknown" docs/agent-sops/visualization-agent-sop.md
+0
+# Expected: 0  PASS
+
+$ grep -cE "L1[ )].*Loud-Error|L2[ )].*Loud-Warning|L3[ )].*Caption-Note" docs/agent-sops/visualization-agent-sop.md
+0
+# Expected: 0  PASS
+```
+
+**LEAD-DL1 self-check:** clean. Edits confined to `docs/agent-sops/visualization-agent-sop.md` (Vera-owned). Glossary untouched. No rule rewrites; no new rules; no other agents' SOPs touched.
+
+---
+
+## 2026-05-08 — Econ Evan (BL-SOP-NORMALIZE: NORM-003/004/005/006)
+
+**Status:** Complete.
+
+**Files modified:**
+- `docs/glossary.md` — Confirmation window entry amended (added crypto daily minimum: ≥ 18 months / 365 calendar days; Lead's OOS window, Block bootstrap, Tournament winner entries confirmed accurate, no further amendment needed).
+- `docs/agent-sops/econometrics-agent-sop.md` — Rule FE1 Key Terms (F-14) table converted: all four inline definitions replaced with glossary cross-references + operational-note column. Four `glossary.md#` links added (OOS window, Confirmation window, Block bootstrap, Tournament winner). No status vocabulary enumerations existed; no severity paraphrases existed (NORM-005/006 were already clean).
+
+**NORM-003 — Glossary sections reviewed:**
+- OOS window — confirmed accurate; no amendment.
+- Confirmation window — amended (crypto minimum added).
+- Block bootstrap — confirmed accurate; no amendment.
+- Tournament winner — confirmed accurate; no amendment.
+
+**NORM-003 diff stat:**
+```
+docs/glossary.md | 1 line amended (Confirmation window definition)
+```
+
+**NORM-004/005/006 — Acceptance command outputs:**
+
+```
+grep -c "docs/glossary.md\|glossary.md#" docs/agent-sops/econometrics-agent-sop.md
+4
+
+grep -cE "Available[/, ]+Pending[/, ]+Validated|Available, Pending, Validated, Stale, Draft, Mature, Unknown" docs/agent-sops/econometrics-agent-sop.md
+0
+
+grep -cE "L1[ )].*Loud-Error|L2[ )].*Loud-Warning|L3[ )].*Caption-Note" docs/agent-sops/econometrics-agent-sop.md
+0
+```
+
+All three acceptance criteria met (≥ 4 glossary refs, 0 status vocab enumerations, 0 severity paraphrases).
+
+---
+
+## 2026-05-08 — Lead Lesandro (Six-Phase SOP Review Wave — CLOSED ✅)
+
+**Status:** All six phases complete. SOP corpus internally consistent, cross-referentially closed, work-chain integrity verified.
+
+**Final tallies.**
+- Phase 1 intra-SOP: ~90 findings.
+- Phase 2 Lead protocol/global: 10 binding arbitrations (LA-1..LA-10) + 6 backlog items.
+- Phase 3 cross-review: ~133 handoff findings.
+- Phase 4a (agents): ~117 SOP edits + 5 schema bumps + significant `cloud_verify.py` additions.
+- Phase 4b (Lead): 44 new rule rows in `docs/standards.md`; META-SBP authored in `team-coordination.md`; META-AM Ray exemption; sop-changelog entry.
+- Phase 5 (Lead audit): caught 4 residue items (Evan example schema/slug, Ace residual `episode_registry.json` reference, Vera schema x-version) + 1 Lead self-finding (GATE-VIZ-NBER2 row). All closed in a parallel mini-dispatch.
+- Phase 6 (Lead final pass): token-efficiency assessment (4 advisory items deferred to BL-SOP-COMPRESS); cross-reference health verified; META-RYW backfilled into `standards.md`; three key work-chains (episode-narrative, direction, final-exam evidence-status) traced end-to-end.
+
+**LEAD-DL1 self-check (full wave):** clean. Lead writes confined to `docs/standards.md`, `docs/agent-sops/team-coordination.md`, `docs/sop-changelog.md`, `_pws/lead-lesandro/*`, and this status board. Zero edits to role-owned SOPs, schemas, configs, charts, results, or scripts in any phase.
+
+**Outstanding (deferred to backlog):** BL-SOP-COMPRESS, BL-D12-LINTER, BL-VIZ-V11-LINT, BL-GATE-CL-AUDIT, BL-LEGACY-WINNER-SUMMARY-SHAPE, BL-D13-MANIFEST, BL-004, META-SBP audit step in QA-CL1.
+
+**Next:** team can resume product work — pair #4 US10Y-US3M → SPY, or the final-exam pilot — on the updated SOP foundation.
+
+---
+
+## 2026-05-08 — QA Quincy (Phase 4 SOP fixes)
+
+**Status:** Complete. Applied 18 fixes (F-01–F-15 + LA-1/LA-2/LA-7/LA-9) to `docs/agent-sops/qa-agent-sop.md` and `scripts/cloud_verify.py`. Key changes: GATE-HZE1 implemented in cloud_verify.py (gate_hze1_preflight + check_page Story branch); Evidence tab structure check wired (F-02); GATE-NR `_gate_nr_check()` implemented with allow-list + scope-limited to headline area (F-03); GATE-SD1 defined + gate_sd1_preflight() implemented (LA-9); GATE-31 standalone definition added (F-05); Terminology section added (F-10); GATE-DP1 abort `sys.exit(1)` added (F-07); `gate27_png_warnings` renamed to `gate27_png_failures` (F-15); GATE-VIZ-NBER2 slug set updated to canonical LA-2 names (dotcom/gfc/covid); LA-7 Ray memories.md exemption in QA-CL3. `CROSS_PERIOD_STUB_IS_FAIL` NOT flipped — retro not confirmed; open in OW-5. F-08 documented. No other agents' SOPs touched.
+
+## 2026-05-08 — AppDev Ace (Phase 4 SOP fixes)
+
+**Status:** Complete. Applied 29 fixes (F-02–F-20, LA-1/LA-2/LA-3/LA-4/LA-6 compliance, P3-DANA-03/04/05, P3-EVAN-02/04, P3-VERA-01/03, P3-RAY-03, P3-QUINCY-03/05) to `docs/agent-sops/appdev-agent-sop.md`. Key changes: Definitions section added (7 terms), GATE-CL1 split into CL1-a–e with per-sub-item severity, ACE-HZE1 updated to canonical registry (LA-1/LA-2) and skip-entry check (P3-VERA-03), APP-DIR1 `observed_direction` re-attributed to Evan (LA-4), APP-PT1 migration list updated (LA-10), bypass-page grep gate added (F-16 FAIL). F-01 standards.md registration deferred to Lead batch (LA-5).
+Phase 5 fix-up: PHASE5-F3 closed.
+
+## 2026-05-08 — Viz Vera (Phase 4 SOP fixes)
+
+**Status:** Complete. Applied 15 Phase-1 finding fixes (F-01 to F-15, F-08 deferred to Lead) + 8 Phase-3 cross-SOP fixes in Vera's lane. Edited `docs/agent-sops/visualization-agent-sop.md`; bumped `history_zoom_events_registry.json` v1.0.0→v1.1.0 (added `indicator_category_map` + `china_2015` episode); bumped `color_palette_registry.json` v1.1.0→v1.2.0 (added `matplotlib_legacy` named exception palette); updated `history_zoom_events_registry.schema.json`. **Registry consolidation LIVE (LA-1/LA-2):** `docs/schemas/history_zoom_events_registry.json` is the single canonical episode registry. Canonical slugs: `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`, `china_2015` (category-scoped). All `episode_registry.json` references in VIZ SOP replaced. **Ray, Evan, Quincy: retarget your episode-registry reads to `docs/schemas/history_zoom_events_registry.json` and use `indicator_category_map` for per-category slug lists.** Non-canonical slugs (`dot_com`, `rates_2022`, `taper_2013`, `ukraine`) prohibited.
+Phase 5 fix-up: PHASE5-F4 closed.
+
+---
+
+## 2026-05-08 — Econ Evan (Phase 4 SOP fixes)
+
+**Status:** Complete. Applied 16 finding fixes (F-01 through F-18, excluding F-09/F-15/F-16 deferred to Lead) plus 8 Phase-3 cross-agent Evan-owned fixes. Edited `docs/agent-sops/econometrics-agent-sop.md` and bumped `final_exam_results.schema.json` 1.0.0 → 1.0.1. Deferred: standards.md registration (Lead LA-5), META-SBP (Lead LA-8), Quincy GATE-31/ECON-SD gate (LA-9), Vera VIZ-CP1 filename fix, Ray R-P3-02 structural break, Quincy Q-P3-01 GATE-ES1 condition 9, Ace ACE-HZE1 registry retarget.
+
+---
+
+## 2026-05-08 — QA Quincy (Phase 1 intra-SOP review)
+
+**Status:** Complete. 15 findings (1 CRITICAL, 2 HIGH, 5 MEDIUM, 7 LOW). No SOP or cloud_verify.py edits (LEAD-DL1 respected). Findings at `_pws/qa-quincy/sop_review_phase1_intra_20260508.md`. Top-3 themes: (1) SOP↔code drift — 3 gates declared in SOP have no implementation in `cloud_verify.py` (GATE-HZE1 CRITICAL, Evidence tab structure HIGH, GATE-NR HIGH); (2) Stale/unresolved WARN→FAIL transitions — GATE-VIZ-NBER1 and GATE-32 `CROSS_PERIOD_STUB_IS_FAIL` both linger past their intended expiry (MEDIUM); (3) GATE-31 and GATE-ES1 completeness — GATE-31 has no own definition, GATE-ES1 is not on QA-CL1 checklist and has no code hook (MEDIUM each). 5 items deferred to Phase 3 cross-review.
+
+Phase 3 cross-review: 20 findings (4 CRITICAL, 5 HIGH, 5 MEDIUM, 4 LOW) across Dana/Evan/Vera/Ray/Ace — no edits made (LEAD-DL1 respected). File: `_pws/qa-quincy/sop_review_phase3_cross_20260508.md`.
+
+---
+
+## 2026-05-08 — Research Ray (Phase 1 intra-SOP review)
+
+**Status:** Complete. 14 findings (5 FAIL, 9 WARN). No SOP edits (LEAD-DL1 respected). Findings at `_pws/research-ray/sop_review_phase1_intra_20260508.md`. Top-3 themes: (1) Quality Gates checklist under-populated — 9+ blocking rules added since Wave 5B-2 have no gate items (F-03, FAIL); (2) Episode slug namespace fragmentation — dot_com vs dotcom / rates_2022 vs inflation_2022 across Ray/Vera/registry (F-01, FAIL, cross-agent); (3) RES-ZOOM1 vs RES-HZE1 config attribute conflict — ZOOM_EPISODE_NARRATIVES vs HISTORY_ZOOM_EPISODES name the same delivery with different structures (F-05, FAIL). 6 items deferred to Phase 3 cross-review.
+Phase 3 cross-review: 19 findings (8 FAIL, 11 WARN), file: `_pws/research-ray/sop_review_phase3_cross_20260508.md`.
+
+## 2026-05-08 — AppDev Ace (Phase 1 intra-SOP review)
+
+**Status:** Complete. 20 findings (1 FAIL, 10 WARN, 3 INFO, 6 Phase-3 deferred). No SOP edits (LEAD-DL1 respected). Findings at `_pws/appdev-ace/sop_review_phase1_intra_20260508.md`. Top-3 themes: (1) 8 APP rules unregistered in standards.md, (2) hand-written legacy bypass creates silent recurrence class on every template feature addition, (3) ACE-HZE1 cites RES-HZE1 which is not confirmed in Research SOP or standards.md (broken cross-ref, FAIL severity).
+
+Phase 3 cross-review: 25 findings (4 FAIL, 17 WARN, 4 INFO), file: `_pws/appdev-ace/sop_review_phase3_cross_20260508.md`.
+
+## 2026-05-08 — Viz Vera (Phase 1 intra-SOP review)
+
+**Status:** Complete. No SOP edits (LEAD-DL1 respected).
+
+15 findings: 3 FAIL / 12 WARN. Top themes: (1) Stale matplotlib palette table contradicts VIZ-V11 blocking lint (F-01, FAIL); (2) Episode slug names inconsistent across VIZ-V1 / VIZ-ZOOM1 / VIZ-HZE1 (F-05, FAIL); (3) `output/_comparison/` still in three live-save locations despite META-AL zoom-chart prohibition (F-02, FAIL); (4) VIZ-IC1 unregistered in standards.md, dangling cross-references (META-RYW, QA-CL6, GATE-NC). Full findings at `_pws/viz-vera/sop_review_phase1_intra_20260508.md`. 6 items deferred to Phase 3 cross-review.
+
+---
+
+## 2026-05-08 — Data Dana (BL-SOP-NORMALIZE — NORM-003/004/005/006)
+
+**Status:** Complete. Phase NORM execution: `docs/glossary.md` Sidecar and Tournament winner H2 sections amended; `docs/agent-sops/data-agent-sop.md` 2 glossary cross-references added (Sidecar, Tournament winner), 2 status enumerations replaced with canonical reference (quality-gate checkbox + Rule DATA-VS body). L1/L2/L3 severity pattern was not present — NORM-006 was already 0, no change needed.
+
+Acceptance command outputs:
+```
+# NORM-004
+grep -c "docs/glossary.md\|glossary.md#" docs/agent-sops/data-agent-sop.md
+2
+
+# NORM-005
+grep -cE "Available[/, ]+Pending[/, ]+Validated|Available, Pending, Validated, Stale, Draft, Mature, Unknown" docs/agent-sops/data-agent-sop.md
+0
+
+# NORM-006
+grep -cE "L1[ )].*Loud-Error|L2[ )].*Loud-Warning|L3[ )].*Caption-Note" docs/agent-sops/data-agent-sop.md
+0
+```
+
+Files edited: `docs/glossary.md` (Sidecar and Tournament winner H2 blocks only), `docs/agent-sops/data-agent-sop.md`. No other agents' SOPs, schemas, or files touched.
+
+---
+
+## 2026-05-08 — Data Dana (Phase 1 intra-SOP review)
+
+**Status:** Complete. No SOP edits (LEAD-DL1 respected).
+
+14 findings: 3 FAIL / 7 WARN / 4 info. Top themes: (1) DATA-D12 linter is a persistent dead-letter rule — no enforcement script exists; (2) `observed_direction` ownership silent gap in data SOP vs. Evan SOP / APP-DIR1 in standards.md; (3) Indicator Evaluation Framework section orphaned with no rule ID, severity, gate item, or integration point; (4) DATA-D6b not registered in `docs/standards.md`. Full findings at `_pws/data-dana/sop_review_phase1_intra_20260508.md`.
+
+Phase 3 cross-review: 23 findings (6 FAIL, 17 WARN), file: `_pws/data-dana/sop_review_phase3_cross_20260508.md`.
+
+**Phase 4 SOP fixes — COMPLETE (2026-05-08):** 15 fixes applied to `docs/agent-sops/data-agent-sop.md` covering F-01 (DATA-D12 fallback), F-03 (DATA-EV1 rule promotion), F-06/LA-4 (observed_direction do-not-write), F-07 (DATA-D6b gate checkbox), F-08 (Expedited Protocol severity+BL), F-09 (activity prohibition), F-12 (provenance schema mapping table), F-13 (META-DASH1 cross-ref), F-14/P3-A3 (ECON-FE1 cross-ref), P3-R5 (UNCONFIRMED intake rule), P3-A2 (_latest alias expedited), P3-A4 (Display Name canonical source), Phase-3 handoff incompleteness (Dana response SLA). Deferred: standards.md rows for DATA-D6b/GATE-NR/DATA-EV1 to Lead's LA-5 batch; linter script remains BL-D12-LINTER (P1).
+
+---
+
 ## 2026-05-01 — Lead Lesandro (indpro_xlp Closure)
 
 **Status:** Accepted for repo closure.
@@ -1002,3 +1354,19 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 3. OW-3: GATE-HZE1 in `scripts/cloud_verify.py` — Ace to implement per pseudocode in SOP.
 
 **Blockers:** None on Quincy's side. Three items are Lead/Ace/Vera-dependent.
+
+---
+
+## 2026-05-08 — Econ Evan (Phase 1 intra-SOP review)
+
+**Status:** Complete. Findings written to `_pws/econ-evan/sop_review_phase1_intra_20260508.md`. No SOP or shared-file edits (LEAD-DL1 clean).
+
+**Summary:** 18 findings — 6 FAIL / 13 WARN. Top themes: (1) 4+ in-SOP rules unregistered in `standards.md` (ECON-T4, ECON-INF1, ECON-DIR2, ECON-C2a, ECON-OOS3); (2) FE1 schema enforcement gaps (minimum confirmation sample not machine-checked, drawdown gate ratio-unit ambiguity, bootstrap method underdefined); (3) dead-letter integration contracts (CP1 methodology_note never in SOP, no schema-bump sweep rule, ECON-SD Quincy audit not in QA SOP). Stale version reference: ECON-H5 cites winner_summary.schema.json v1.0.0 — live schema is v1.1.0 (FAIL). Cross-review items filed for Dana (2), Vera (2), Ray (2), Quincy (2), Ace (1).
+
+Phase 3 cross-review: 25 findings (12 FAIL, 13 WARN), file: `_pws/econ-evan/sop_review_phase3_cross_20260508.md`.
+
+---
+
+## 2026-05-08 — Research Ray (Phase 4 SOP fixes)
+
+**Status:** Complete. Applied 20 fixes across 14 Phase-1 findings (F-01 through F-14, all covered: F-11 deferred to Lead LA-5 as designed) and 6 Phase-3 cross-agent Ray-owned items (C-V2, C-V3, C-E3, C-E4, C-A4, plus LA-1/LA-2/LA-3 propagation). Edited `docs/agent-sops/research-agent-sop.md`; converted `docs/schemas/episode_registry.json` to thin pointer (LA-1). Key: all `episode_registry.json` consumers in Ray SOP retargeted to `history_zoom_events_registry.json`; `ZOOM_EPISODE_NARRATIVES` retired (LA-3); `memories.md` requirement removed (LA-7); 11 missing Quality Gates items added; EGL1 structured self-check table added. Deferred to other agents: C-D1–C-D3 (Dana), C-E1–C-E2 (Evan), C-V1/C-V4 (Vera), C-A1–C-A3 (Ace/Lead), C-Q1–C-Q4 (QA), F-11/LA-5 (Lead standards.md batch).

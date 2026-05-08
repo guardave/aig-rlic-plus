@@ -132,7 +132,7 @@ The cost is that DFF-TED is a *proxy*, not the original indicator. The Sharpe nu
         {
             "slug": "rates_2022",
             "title": "Fed Hiking Cycle (2022)",
-            "narrative": "As the Fed raised the DFF from near zero to above 5% through 2022–2023, the DFF–TED spread was dragged higher by the elevated DFF floor. SPY fell ~20% in 2022. The spread's 21-day rate-of-change signal fired early in the hiking cycle, correctly flagging the bear market — a strong long-lead confirmation.",
+            "narrative": "As the Fed raised the DFF from near zero to above 5% through 2022–2023, the DFF–TED spread was dragged higher by the elevated DFF floor. SPY fell ~20% in 2022. The spread's 21-day rate-of-change signal fired early in the hiking cycle, consistent with a long-lead warning for this bear market.",
             "caption": "2022 hikes lifted DFF-TED spread; ROC signal turned bearish early in the rate cycle as SPY declined",
         },
     ]
@@ -307,9 +307,9 @@ A human operator replicating the rule would:
 
     CAVEATS_MD = """
 - **Proxy, not the original.** DFF-DTB3 is a valid long-history stand-in (r = +0.63 vs TEDRATE in overlap) but it omits the bank-credit component that LIBOR-TED carried. Treat the signal as a funding-stress proxy, not a direct measure of interbank credit fear.
-- **Most conservative choice of the three.** Longest history, no splicing, spans multiple crises — but also the lowest headline Sharpe. This is the variant to trust when statistical reliability matters more than peak KPIs.
+- **Most conservative choice of the three.** Longest history, no splicing, spans multiple crises — but also the lowest headline Sharpe. This is the variant to emphasize when statistical reliability matters more than peak KPIs.
 - **Larger drawdown.** −14.7% max drawdown is meaningfully worse than Variant A's −3.6% — partly because Variant B actually lived through GFC and dot-com, while Variant A did not.
-- **Missing artefacts.** `equity_curves`, `drawdown`, and `walk_forward` charts are not yet generated (tracked under BL-CHART-GAPS-LEGACY); Performance tab shows "chart pending" placeholders.
+- **Performance-view limitation.** Some performance visuals may be unavailable for this legacy variant. Treat the table metrics as the primary performance evidence until the chart set is complete.
 """
 
     TRADE_LOG_EXAMPLE_MD = """
@@ -408,7 +408,7 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     ),
     plain_english=(
         "We constructed a 30-year daily spread (Fed Funds minus 3-month T-Bill) "
-        "from FRED, validated it against the official TED spread in the overlap "
+        "from FRED, compared it against the official TED spread in the overlap "
         "window, derived ten measurement variants, ran the standard econometric "
         "battery, and then held a ~991-combination tournament to find the best "
         "out-of-sample rule. Because this variant spans multiple crises, the "

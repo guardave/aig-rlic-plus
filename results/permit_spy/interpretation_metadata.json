@@ -26,7 +26,9 @@
       "target",
       "target_symbol",
       "indicator_nature",
-      "indicator_type"
+      "indicator_type",
+      "data_provenance",
+      "indicator_category"
     ],
     "evan": [
       "observed_direction",
@@ -41,7 +43,20 @@
       "caveats"
     ]
   },
-  "last_updated_by": "ray",
-  "last_updated_at": "2026-04-23T00:00:00Z",
-  "indicator_category": "production"
+  "last_updated_by": "dana",
+  "last_updated_at": "2026-05-08T00:00:00Z",
+  "indicator_category": "production",
+  "data_provenance": {
+    "source": "FRED + Yahoo Finance target merge",
+    "series_id": "PERMIT; target SPY",
+    "accessed_at": "2026-04-23T00:00:00Z",
+    "canonical_signal_column": "permit",
+    "unit": "thousands_saar",
+    "source_frequency": "monthly",
+    "schema_ref": "BLOCKER: DATA-D5 sidecar missing for current pair signals",
+    "stationarity_ref": "results/permit_spy/stationarity_tests_20260314.csv",
+    "manifest_ref": "BLOCKER: data/manifest.json has no entry for this pair",
+    "missingness_ref": "BLOCKER: no Data-owned missingness report found",
+    "data_dictionary_ref": "BLOCKER: no current data dictionary found in data/"
+  }
 }

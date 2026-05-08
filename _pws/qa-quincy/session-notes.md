@@ -66,6 +66,44 @@
 
 ---
 
+## Phase 4 SOP fixes — 2026-05-08
+
+**Dispatch:** Apply all Phase 4 fixes to `docs/agent-sops/qa-agent-sop.md` and `scripts/cloud_verify.py` per Phase 1 intra-SOP review, Phase 2 Lead arbitrations (LA-1 through LA-10), and Phase 3 cross-review findings.
+
+**Scope:** QA-owned files only — SOP, cloud_verify.py. No other agents' SOPs or shared docs touched.
+
+**Changes applied:**
+
+| Finding | Description | File | Status |
+|---------|-------------|------|--------|
+| F-01 / GATE-HZE1 | Implemented `gate_hze1_preflight()` + check_page() Story branch with FAIL/WARN disposition | cloud_verify.py | Done |
+| F-02 / Evidence tab | Added `level_tab_missing` check for Evidence pages in `check_page()`; verdict-wired | cloud_verify.py | Done |
+| F-03 / GATE-NR | Implemented `_gate_nr_check()` with allow-list from `interpretation_metadata.json`; scope-limited to headline area with exemption mechanism | cloud_verify.py | Done |
+| F-04 / GATE-ES1 | Added `check_evidence_status_promotion()` stub + QA-CL1 checklist item | cloud_verify.py + SOP | Done |
+| F-05 / GATE-31 | Added standalone GATE-31 definition block with scope, completion criteria, partial-pass rule | SOP | Done |
+| F-06 / NBER1 flag | Added `NBER1_WARN_IS_FAIL = False` flag; updated check_page() to use it; added QA-CL1 flip-trigger item | cloud_verify.py + SOP | Done |
+| F-07 / GATE-DP1 abort | Added `if dp1_failures: sys.exit(1)` after GATE-DP1 block; partial results written before exit | cloud_verify.py | Done |
+| F-08 / CROSS_PERIOD_STUB | Added Phase 4 state note: still False, open blockers in OW-5; QA-CL1 GATE-32 item updated | SOP | Done — flag NOT flipped (retro not confirmed) |
+| F-09 / QA-CL4 enumerate | Expanded QA-CL4 checklist line to enumerate all sub-gates (DP1, NBER2, PNG, HZE1, GATE-28 tab structure) | SOP | Done |
+| F-10 / Terminology | Added Terminology section with 7 definitions (smoke, preflight, cloud verify, hibernation, PASS-with-note, perceptual PNG, browser pass) | SOP | Done |
+| F-11 / NBER2 ordering | Changed "runs alongside GATE-DP1" to "runs after GATE-DP1 preflight and before browser pass"; added DP1-abort dependency note | SOP | Done |
+| F-12 / GATE-ES1 cross-refs | Added Cross-references block to GATE-ES1 section: ECON-FE1, schemas, APP-LP8, HABIT-QA1 | SOP | Done |
+| F-13 / VIZ-CV1 cross-ref | Added VIZ-CV1 to Cross-References section with perceptual PNG definition | SOP | Done |
+| F-14 / ratification checklist | Added post-wave lesson ratification checklist item to QA-CL1 | SOP | Done |
+| F-15 / variable rename | Renamed `gate27_png_warnings` → `gate27_png_failures` throughout cloud_verify.py | cloud_verify.py | Done |
+| LA-1/LA-2 / slug set | Updated GATE-VIZ-NBER2: RECESSION_SLUGS = {"dotcom","gfc","covid"}; episode table updated to canonical slugs; canonical source updated to history_zoom_events_registry.json | cloud_verify.py + SOP | Done |
+| LA-7 / QA-CL3 Ray | Added LA-7 exception: Ray no longer maintains memories.md; QA-CL3 checks only experience.md for Ray | SOP | Done |
+| LA-9 / GATE-SD1 | Defined GATE-SD1 section in SOP; implemented `gate_sd1_preflight()` in cloud_verify.py; added to QA-CL1 checklist; cited ECON-SD as companion | SOP + cloud_verify.py | Done |
+| R-03 / GATE-HZE1 note | Added "does not check content quality — see RES-HZE1" note to GATE-HZE1 section | SOP | Done |
+
+**GATE-SD1 status:** Defined in SOP and implemented as `gate_sd1_preflight()` in cloud_verify.py. Reads `signal_scope.json` per pair; FAIL on off-scope chart filenames; WARN when scope file missing. Wired into `main()` before browser pass. Results stored in `gate_sd1_findings` summary key. QA-CL1 checklist item added. ECON-SD cited as producer companion.
+
+**F-08 note:** `CROSS_PERIOD_STUB_IS_FAIL` flag NOT flipped to True — retro-apply of ECON-CP1/CP2 to all pairs is not yet confirmed. Open blockers documented in OW-5. Will flip in the wave immediately after Vera/Ace confirm complete retro.
+
+**Files changed:** `docs/agent-sops/qa-agent-sop.md`, `scripts/cloud_verify.py`, `_pws/qa-quincy/session-notes.md`, `_pws/_team/status-board.md`. No producer artifacts, other SOPs, or commit/push.
+
+---
+
 ## 2026-04-24 — Wave 10I.C Final Verify (post-Ace fb101e5 + Ray f8fa75d)
 
 **Run:** `scripts/cloud_verify.py` — 41-page full sweep  
@@ -89,6 +127,25 @@ returning empty at cloud runtime. STUB_PAT `"Ray leg pending"` did NOT catch thi
 **STUB_PATS gap identified:** `"no narrative file found"` must be added to
 `cloud_verify.py` STUB_PATS in a future wave to prevent false-PASS on Ray-leg
 failures.
+
+---
+
+## 2026-05-08 — Phase 1 SOP review (intra-SOP only)
+
+**Dispatch:** Lead Lesandro asked Quincy to run a Phase 1 intra-SOP review of `docs/agent-sops/qa-agent-sop.md` and `scripts/cloud_verify.py` for completeness, self-consistency, definitions, coverage gaps, cross-references, severity, and SOP↔code drift. No edits made to any file other than own PWS.
+
+**SOD context:** Role confirmed as `qa-quincy`; branch `260430`; read QA SOP (full), `scripts/cloud_verify.py` (full, 1160 lines), team status board, team coordination SOP (first 100 lines), Quincy PWS notes/outstanding-work/memories, and Cross-Agent Impact Log.
+
+**Findings summary:** 15 findings written to `_pws/qa-quincy/sop_review_phase1_intra_20260508.md`.
+- 1 CRITICAL (code-drift): GATE-HZE1 declared in SOP but not implemented in `cloud_verify.py`.
+- 2 HIGH (code-drift): Evidence tab structure check missing from code; GATE-NR has no code implementation despite being on QA-CL1 checklist.
+- 4 MEDIUM: GATE-ES1 not on QA-CL1 checklist; GATE-31 has no own definition block; GATE-VIZ-NBER1 WARN→FAIL transition has no flip trigger; GATE-DP1 abort-on-failure declared in SOP but not enforced in code.
+- 5 LOW: QA-CL1 missing explicit GATE-HZE1/DP1/NBER2 items; no glossary for smoke/preflight/hibernation/PASS-with-note; GATE-VIZ-NBER2 integration wording inconsistency; GATE-ES1 missing cross-references block; GATE-27-PNG variable named `_warnings` despite FAIL severity.
+- 3 LOW: `CROSS_PERIOD_STUB_IS_FAIL` still False (active GATE-32 violation), Post-Wave Ratification not on QA-CL1, VIZ-CV1/perceptual-PNG not in cross-references.
+
+**SOP↔code drift (summary):** 3 gates declared in SOP have no matching code (GATE-HZE1, Evidence tab structure, GATE-NR). 1 gate has a declared behavior not enforced in code (GATE-DP1 abort). 1 stale flag in code (`CROSS_PERIOD_STUB_IS_FAIL = False`). 1 misleading variable name (`gate27_png_warnings` despite FAIL severity).
+
+**Files changed this session:** `_pws/qa-quincy/sop_review_phase1_intra_20260508.md`, `_pws/qa-quincy/session-notes.md` (this entry). No SOP, cloud_verify.py, or other agent file edits. LEAD-DL1 clean.
 
 ---
 

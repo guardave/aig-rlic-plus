@@ -52,7 +52,7 @@ broad US equity performance measured via SPY.
 
 **How to navigate the four pages.** The Story page explains the economic mechanism —
 why bond spreads and equity prices are related at all. The Evidence page presents
-eight statistical tests. The Strategy page describes the actionable trading rule
+eight statistical tests. The Strategy page describes the tested strategy rule
 and its honest track record. The Methodology page is the technical appendix for
 practitioners who want to reproduce or challenge the work.
 """
@@ -282,14 +282,14 @@ CORRELATION_BLOCK = dict(
     how_to_read=(
         "The correlation chart shows rolling 12-month and 36-month Pearson correlations "
         "between the HY-IG spread and SPY forward monthly return. Negative values (below "
-        "the zero line) confirm the countercyclical hypothesis: wider spreads coincide "
+        "the zero line) support the countercyclical hypothesis: wider spreads coincide "
         "with lower subsequent SPY returns. The dashed vertical line marks the start of "
         "the out-of-sample period."
     ),
     chart_name="correlations",
     chart_caption=(
         "What this shows: rolling Pearson correlation between the HY-IG spread and SPY "
-        "forward monthly return. Negative values confirm the countercyclical pattern — "
+        "forward monthly return. Negative values support the countercyclical pattern — "
         "wider credit spreads are associated with weaker subsequent SPY performance. "
         "The relationship is regime-dependent, strengthening during credit cycles."
     ),
@@ -299,10 +299,10 @@ CORRELATION_BLOCK = dict(
         "6-month forward horizons. The relationship is strongest during stress regimes "
         "and weakest during the compressed-spread period of 2014-2019. The point-in-time "
         "correlation across the full sample is negative and statistically significant "
-        "(p < 0.01), confirming the countercyclical direction."
+        "(p < 0.01), supporting the countercyclical direction."
     ),
     interpretation=(
-        "Correlation analysis confirms a real countercyclical link between HY-IG spread "
+        "Correlation analysis suggests a countercyclical link between HY-IG spread "
         "levels and SPY forward returns. The relationship is most pronounced at the 3-6 "
         "month forward horizon and for normalized signal variants (z-score). The rolling "
         "correlation view shows the relationship is regime-dependent — it strengthens "
@@ -325,7 +325,7 @@ GRANGER_BLOCK = dict(
         "of future SPY returns beyond what SPY's own history already predicts. The "
         "Toda-Yamamoto variant handles non-stationarity robustly, avoiding spurious "
         "rejection caused by integrated series. We test both directions (HY-IG → SPY "
-        "and SPY → HY-IG) at lags 1-6 months to confirm whether the relationship is "
+        "and SPY → HY-IG) at lags 1-6 months to test whether the relationship is "
         "asymmetric."
     ),
     question=(
@@ -342,14 +342,14 @@ GRANGER_BLOCK = dict(
     chart_name="granger_f_by_lag",
     chart_caption=(
         "What this shows: Granger causality F-statistics by lag (months) for the "
-        "HY-IG → SPY direction. Bars above the threshold confirm statistically significant "
+        "HY-IG → SPY direction. Bars above the threshold indicate statistically significant "
         "predictive content at that horizon. The reverse direction (SPY → HY-IG) is shown "
         "for comparison."
     ),
     observation=(
         "HY-IG spreads Granger-cause SPY returns at lags 1-4 months (p < 0.05) using "
         "Toda-Yamamoto tests. The reverse direction — whether SPY return history improves "
-        "spread forecasts — is not significant, confirming a one-directional information "
+        "spread forecasts — is not significant in this test, suggesting a one-directional information "
         "flow from credit to equity."
     ),
     interpretation=(
@@ -720,7 +720,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "producing OOS Sharpe 1.41 vs 0.81 buy-and-hold SPY."
     ),
     "transition": (
-        "**Transition:** Multiple statistical methods confirm the countercyclical "
+        "**Transition:** Multiple statistical methods support the countercyclical "
         "relationship: rising HY-IG credit spreads signal forward SPY weakness. "
         "Now: what does the winning strategy actually do, and how has it performed "
         "out-of-sample?"
@@ -768,7 +768,7 @@ class StrategyConfig:
     )
 
     MANUAL_USE_MD = (
-        "If you want to use this signal with minimal code:\n\n"
+        "To monitor this signal as a research indicator:\n\n"
         "1. **Pull HY and IG OAS from FRED** (BAMLH0A0HYM2EY and BAMLC0A0CMEY) "
         "at month-end.\n"
         "2. **Compute the spread**: HY OAS minus IG OAS in percentage points.\n"

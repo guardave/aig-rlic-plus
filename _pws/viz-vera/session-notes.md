@@ -5,6 +5,91 @@
 **Agent identity:** Vera (Viz specialist)
 **Current branch:** `main`
 
+## 2026-05-08 — Phase 4 SOP Fixes
+
+**Task:** Apply Phase 1/3/Lead Phase 2 findings to own SOP and owned schemas. Critical LA-1/LA-2 registry consolidation work.
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `docs/agent-sops/visualization-agent-sop.md` | 15 finding fixes (F-01 through F-15 minus F-08) + 8 cross-SOP fixes |
+| `docs/schemas/history_zoom_events_registry.json` | v1.0.0 → v1.1.0: added `indicator_category_map` (LA-1), added `china_2015` episode (LA-2) |
+| `docs/schemas/history_zoom_events_registry.schema.json` | Added `indicator_category_map`, `x-revised`, `x-revision-notes` properties |
+| `docs/schemas/color_palette_registry.json` | v1.1.0 → v1.2.0: added `matplotlib_legacy` named exception palette (F-14) |
+
+### Finding Resolution Log
+
+| ID | Status | Action |
+|----|--------|--------|
+| F-01 | FIXED | Replaced stale matplotlib palette table with pointer to `okabe_ito_2026` in registry |
+| F-02 | FIXED | Added `_comparison/` scoping carve-out in VIZ-V11 lint preamble + §8 Deliver |
+| F-03 | FIXED | Deleted "Unlike earlier phrasing in VIZ-DP1..." ghost sentence from Rule V5 |
+| F-04 | FIXED | Added check 7 to VIZ-IC1: source/visible-provenance in chart text |
+| F-05 | FIXED | Covered by LA-1/LA-2 work (episode_registry → history_zoom_events_registry; taper_2018 added to ZOOM1/HZE1; china_2015 promoted) |
+| F-06 | FIXED | Replaced META-RYW with META-QS; QA-CL6/GATE-NC with QA-CL1 in VIZ-IC1 cross-refs |
+| F-07 | FIXED | Removed stale self-flagging note; added note that Lead handles standards.md registration (LA-5) |
+| F-08 | OUT OF SCOPE | standards.md gate registration — Lead Phase 4b |
+| F-09 | FIXED | Added `equity_curves.json` to VIZ-DP1 `dual_panel_patterns` |
+| F-10 | FIXED | Clarified .json/.log skip-condition prose in Rule V5 |
+| F-11 | FIXED | Added `scripts/viz_v11_palette_lint.py` reference + confirmed VIZ-IC1 check 4 as current implementation vehicle |
+| F-12 | FIXED | Corrected Indicator Evaluation Framework filenames to `env_radar.json`, `strategy_radar.json` |
+| F-13 | FIXED | Added Key Definitions section after Identity block |
+| F-14 | FIXED | Added `matplotlib_legacy` to color_palette_registry.json; updated SOP text to confirm registry registration |
+| F-15 | FIXED | Covered by LA-1 (registry consolidation); episode_registry.json references in VIZ-ZOOM1/VIZ-HZE1 replaced |
+
+### Cross-SOP Fixes (Vera's lane)
+
+| ID | Action |
+|----|--------|
+| C1-D03 | Added reciprocal Dana Rule D2 cross-reference to VIZ-A2 header |
+| C1-E03 | Added data-coverage vs upstream-blocked skip distinction in VIZ-HZE1 |
+| C1-R04 | Added chart_status canonical vocabulary guard in chart-gap requests section |
+| C1-R05 | Added registry scope note in VIZ-V12 distinguishing from chart_type_registry |
+| C1-A01 | Added downstream consumer protocol note in VIZ-HZE1 for Ace ACE-HZE1 |
+| C1-A03 | Confirmed APP-PT2 cross-reference note in VIZ-E1 |
+| C1-A04 | Added caption audience_tier note in VIZ-E1 (VIZ-A5 clarification) |
+| C1-Q02 | Added GATE-27 severity note in Rule V5 gate section |
+
+### LA-1/LA-2 Registry Consolidation (canonical — unblocks Ray, Evan, Quincy retargeting)
+
+- `history_zoom_events_registry.json` is now the single canonical episode registry (LA-1 confirmed).
+- Added `indicator_category_map`: per-category slug lists for VIZ-HZE1/RES-HZE1 (satisfies LA-1 keying requirement).
+- Canonical slug set: `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`, `china_2015` (category-scoped).
+- `china_2015` promoted to canonical: 3 production pairs have `suggested` charts on disk.
+- `ukraine`: zero production charts; non-canonical status documented in registry notes and SOP.
+- All `episode_registry.json` references in VIZ-ZOOM1, VIZ-HZE1, VIZ-V1 replaced with `history_zoom_events_registry.json`.
+- Non-canonical slug variants (`dot_com`, `rates_2022`, `taper_2013`, `taper`) explicitly prohibited in SOP.
+
+---
+
+## 2026-05-08 — Phase 3 Cross-SOP Review
+
+**Task:** Review five peer SOPs (Dana, Evan, Ray, Ace, Quincy) from a handoff perspective. No peer SOP edits (LEAD-DL1). Output: `_pws/viz-vera/sop_review_phase3_cross_20260508.md`.
+
+**Status-board EOD line:** Phase 3 cross-review: 21 findings (8 FAIL, 13 WARN), file: `_pws/viz-vera/sop_review_phase3_cross_20260508.md`.
+
+---
+
+## 2026-05-08 — Phase 1 Intra-SOP Review
+
+**Task:** Review own SOP for completeness, self-consistency, definition gaps, coverage gaps, cross-reference validity, and severity consistency. No edits to SOP (LEAD-DL1 binding).
+
+**Findings file:** `_pws/viz-vera/sop_review_phase1_intra_20260508.md`
+
+**Summary:**
+- 15 findings total: 3 FAIL, 12 WARN.
+- FAIL-01: Stale matplotlib palette table directly contradicts VIZ-V11 (blocking lint violation).
+- FAIL-02: `output/_comparison/` still referenced for live chart saves despite META-AL prohibition for zoom charts — ambiguous scope for comparison charts.
+- FAIL-05: Episode slug names inconsistent across VIZ-V1, VIZ-ZOOM1, VIZ-HZE1 (dotcom vs dot_com; taper_2018 absent from ZOOM1; ukraine produced but not registered).
+- Key WARN themes: unregistered VIZ-IC1, dangling META-RYW/QA-CL6/GATE-NC cross-references, VIZ-V11 grandfather clause potentially contradicting VIZ-CV1, episode_registry.json vs history_zoom_events_registry.json naming ambiguity, equity_curves.json missing from VIZ-DP1 batch check.
+- Strengths preserved: VIZ-DP1 inline code, VIZ-HZE1 skip protocol, three-pathway handoff model, VIZ-O1 disposition mandate, VIZ-V13 annotation strategies.
+- 6 items deferred to Phase 3 cross-review (slug naming with Quincy, APP-PT2 definition gap with Ace, ukraine episode registry question for Lead).
+
+**No SOP edits made (LEAD-DL1 respected).**
+
+---
+
 ## Wave 10H.1 Session — 2026-04-22
 
 **Task:** VIZ-O1 (disposition mandate) + VIZ-E1 (exploratory sidecar spec) first implementation.

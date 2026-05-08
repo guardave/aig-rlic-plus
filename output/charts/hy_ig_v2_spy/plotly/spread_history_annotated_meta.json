@@ -6,10 +6,25 @@
     "VIZ-V8",
     "VIZ-V11",
     "VIZ-NM1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V2"
   ],
   "narrative_alignment_note": "Chart shows Wider Credit Spreads Foreshadow Equity Drawdowns (2000-2025); verified intra-chart consistent per VIZ-IC1 on 2026-04-22.",
   "created_at": "2026-04-22T08:28:57Z",
   "disposition": "suggested",
-  "exploratory": true
+  "exploratory": true,
+  "title": "Wider Credit Spreads Foreshadow Equity Drawdowns (2000-2025)",
+  "caption": "Chart shows Wider Credit Spreads Foreshadow Equity Drawdowns (2000-2025); verified intra-chart consistent per VIZ-IC1 on 2026-04-22.",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "2000-01-03 to 2025-12-31",
+  "data_source_path": "data/hy_ig_v2_spy_daily_latest.parquet",
+  "canonical_consumption": false,
+  "econ_rule_id": "ECON-C2",
+  "result_file": "data/hy_ig_v2_spy_daily_latest.parquet",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

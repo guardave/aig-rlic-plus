@@ -43,9 +43,9 @@ class StoryConfig:
         "stocks like soap and cereal companies — and toward more exciting, "
         "growth-oriented ones. This research asks: can we use factory "
         "output data to predict when that rotation happens? It turns out "
-        "you can — at least partially. When industrial production is "
+        "the backtest suggests it can — at least partially. When industrial production is "
         "accelerating, consumer staples ETF (XLP) tends to lag behind. The "
-        "signal isn't perfect, but it can help reduce how badly you lose "
+        "signal isn't perfect, but it may reduce drawdowns "
         "during bad periods."
     )
 
@@ -214,7 +214,7 @@ CORRELATION_BLOCK = dict(
     how_to_read=(
         "The chart shows rolling 12M and 36M Pearson correlations between INDPRO YoY "
         "growth and XLP monthly return over the full sample. A consistently negative "
-        "reading confirms the countercyclical hypothesis: higher IP growth coincides "
+        "reading supports the countercyclical hypothesis: higher IP growth coincides "
         "with weaker XLP returns. The dashed vertical line marks the start of the "
         "out-of-sample period (2019-01)."
     ),
@@ -227,7 +227,7 @@ CORRELATION_BLOCK = dict(
     ),
     observation=(
         "Rolling correlations are predominantly negative across the full sample, "
-        "confirming the countercyclical hypothesis. The 12M rolling correlation "
+        "supporting the countercyclical hypothesis. The 12M rolling correlation "
         "oscillates between roughly -0.4 and +0.2, with the most negative readings "
         "during industrial expansions. The static Pearson correlation table shows "
         "the IP z-score has the strongest link to 12M forward XLP returns "
@@ -247,7 +247,7 @@ CORRELATION_BLOCK = dict(
         "high relative to recent expectations."
     ),
     interpretation=(
-        "Correlation analysis confirms a real countercyclical link between IP signals "
+        "Correlation analysis suggests a countercyclical link between IP signals "
         "and XLP forward returns. The relationship is most pronounced at the 12-month "
         "horizon and for normalized signals (z-score). The rolling correlation view "
         "shows the relationship is persistent but regime-dependent — it strengthens "
@@ -282,7 +282,7 @@ GRANGER_BLOCK = dict(
         "The CCF chart shows bars at lags -12 to +12 months. Negative lags mean "
         "INDPRO leads XLP (IP first, then XLP reacts). Bars outside the dashed "
         "95% confidence bands are statistically significant. A cluster of significant "
-        "negative bars would confirm IP as a leading indicator for XLP."
+        "negative bars would support IP as a leading indicator for XLP."
     ),
     chart_name="ccf",
     chart_caption=(
@@ -291,13 +291,13 @@ GRANGER_BLOCK = dict(
         "significant at 95% confidence. Bars at negative lags indicate IP leading XLP."
     ),
     observation=(
-        "The CCF confirms that INDPRO carries predictive content for XLP at negative "
+        "The CCF suggests that INDPRO carries predictive content for XLP at negative "
         "lags (IP leading XLP), with the most significant bars at lags -1 to -6 months. "
         "INDPRO is a coincident indicator (released with a 6-week lag), so the practical "
         "tradable lead comes from the publication lag rather than true economic advance. "
         "The formal Granger causality tests show INDPRO YoY Granger-causes XLP returns "
         "at lags 1-3 (p < 0.05). The reverse direction (XLP → INDPRO) is not "
-        "significant, confirming the directional relationship."
+        "significant, supporting the directional relationship."
     ),
     deep_dive_title="If INDPRO is a coincident indicator, how can it be used predictively?",
     deep_dive_content=(
@@ -447,8 +447,8 @@ class StrategyConfig:
     )
 
     PLAIN_ENGLISH = (
-        "Our computer tested every combination of 'signal + threshold + trade "
-        "rule' to find the one that would have made the most money (adjusted "
+        "The backtest tested combinations of 'signal + threshold + trade "
+        "rule' to find the strongest risk-adjusted result "
         "for risk) on past data. The winner holds XLP when industrial "
         "production is decelerating and moves to cash (or short) when "
         "production accelerates. The defensive logic: when factories hum, "

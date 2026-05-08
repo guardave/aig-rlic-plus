@@ -1,0 +1,96 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "generated_at": "2026-05-08T00:00:00Z",
+  "owner": "econ-evan",
+  "retro_audit": true,
+  "indicator_type": "credit",
+  "sop_rules": [
+    "ECON-C1",
+    "ECON-C2",
+    "ECON-C2a",
+    "META-DASH1"
+  ],
+  "coverage": [
+    {
+      "method": "correlations",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_v2_spy/exploratory_20260410/correlations.csv",
+      "all_candidate_paths": [
+        "results/hy_ig_v2_spy/exploratory_20260410/correlations.csv"
+      ],
+      "skip_reason": null,
+      "producer_assertions_passed": null
+    },
+    {
+      "method": "distance_correlation",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_v2_spy/exploratory_20260410/correlations.csv",
+      "all_candidate_paths": [
+        "results/hy_ig_v2_spy/exploratory_20260410/correlations.csv"
+      ],
+      "skip_reason": "Presence inferred from correlations.csv; verify metric=distance row before narrative use.",
+      "producer_assertions_passed": null
+    },
+    {
+      "method": "ccf_prewhitened",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_v2_spy/core_models_20260410/ccf_prewhitened.csv",
+      "all_candidate_paths": [
+        "results/hy_ig_v2_spy/core_models_20260410/ccf_prewhitened.csv"
+      ],
+      "skip_reason": null,
+      "producer_assertions_passed": null
+    },
+    {
+      "method": "granger_causality",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_v2_spy/core_models_20260410/granger_causality.csv",
+      "all_candidate_paths": [
+        "results/hy_ig_v2_spy/core_models_20260410/granger_causality.csv"
+      ],
+      "skip_reason": null,
+      "producer_assertions_passed": null
+    },
+    {
+      "method": "transfer_entropy",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_v2_spy/core_models_20260410/transfer_entropy.csv",
+      "all_candidate_paths": [
+        "results/hy_ig_v2_spy/core_models_20260410/transfer_entropy.csv"
+      ],
+      "skip_reason": null,
+      "producer_assertions_passed": null
+    },
+    {
+      "method": "local_projections",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_v2_spy/core_models_20260410/local_projections.csv",
+      "all_candidate_paths": [
+        "results/hy_ig_v2_spy/core_models_20260410/local_projections.csv"
+      ],
+      "skip_reason": null,
+      "producer_assertions_passed": null
+    },
+    {
+      "method": "quantile_regression",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_v2_spy/core_models_20260410/quantile_regression.csv",
+      "all_candidate_paths": [
+        "results/hy_ig_v2_spy/core_models_20260410/quantile_regression.csv"
+      ],
+      "skip_reason": null,
+      "producer_assertions_passed": null
+    },
+    {
+      "method": "hmm_regime",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_v2_spy/core_models_20260410/hmm_states_2state.parquet",
+      "all_candidate_paths": [
+        "results/hy_ig_v2_spy/core_models_20260410/hmm_states_2state.parquet"
+      ],
+      "skip_reason": null,
+      "producer_assertions_passed": null
+    }
+  ],
+  "notes": "Retro manifest generated from existing artifacts only. missing_blocker means no deterministic skip record was present; it is not a valid production skip."
+}

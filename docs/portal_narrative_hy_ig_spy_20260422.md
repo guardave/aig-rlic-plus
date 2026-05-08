@@ -199,7 +199,7 @@ When companies borrow money, lenders charge higher rates to riskier companies. T
 
 This is a **single indicator-target analysis**: does the HY-IG credit spread carry advance information about SPY returns? The portal contains dozens of such pair studies. Here the lens is fixed on corporate credit stress as a predictor of broad US equity performance measured via SPY.
 
-**How to navigate the four pages.** The Story page explains the economic mechanism — why bond spreads and equity prices are related at all. The Evidence page presents eight statistical tests. The Strategy page describes the actionable trading rule and its honest track record. The Methodology page is the technical appendix for practitioners who want to reproduce or challenge the work.
+**How to navigate the four pages.** The Story page explains the economic mechanism — why bond spreads and equity prices are related at all. The Evidence page presents eight statistical tests. The Strategy page describes the tested strategy rule and its honest track record. The Methodology page is the technical appendix for practitioners who want to reproduce or challenge the work.
 
 ### One-Sentence Thesis
 

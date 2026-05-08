@@ -135,7 +135,7 @@ class StoryConfig:
     TRANSITION_TEXT = (
         "History and economic theory position building permits as one of the "
         "strongest leading indicators available. But does the econometric "
-        "evidence actually confirm a statistically significant, tradable "
+        "evidence actually support a statistically significant, economically useful "
         "relationship with equity returns?"
     )
 
@@ -295,10 +295,10 @@ EVIDENCE_METHOD_BLOCKS = {
         "SPY buy-and-hold."
     ),
     "transition": (
-        "The statistical evidence confirms a genuine pro-cyclical relationship "
+        "The statistical evidence supports a pro-cyclical relationship "
         "between building permits and equity returns, with permits leading by 3-6 "
         "months. The practical question is whether investors can translate this "
-        "into a profitable, execution-ready strategy."
+        "into a backtested strategy."
     ),
 }
 
@@ -356,7 +356,7 @@ class StrategyConfig:
         "4. If the number is above -2.1% → hold SPY long. Below → short.\n"
         "5. Revisit next month.\n\n"
         "Turnover averages about 9 round-trips per year — well inside any "
-        "retail-friendly execution envelope."
+        "manageable monthly-monitoring range."
     )
 
     # No equity_curves / drawdown / walk_forward charts exist for permit_spy

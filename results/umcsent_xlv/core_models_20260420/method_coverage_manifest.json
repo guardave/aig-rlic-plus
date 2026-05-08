@@ -1,0 +1,57 @@
+{
+  "pair_id": "umcsent_xlv",
+  "generated_at": "2026-05-08T00:00:00Z",
+  "owner": "econ-evan",
+  "retro_audit": true,
+  "indicator_type": "sentiment",
+  "sop_rules": [
+    "ECON-C1",
+    "ECON-C2",
+    "ECON-C2a",
+    "META-DASH1"
+  ],
+  "coverage": [
+    {
+      "method": "correlations",
+      "status": "produced",
+      "artifact_path": "results/umcsent_xlv/exploratory_20260420/correlations.csv",
+      "all_candidate_paths": [
+        "results/umcsent_xlv/exploratory_20260420/correlations.csv"
+      ],
+      "skip_reason": null,
+      "producer_assertions_passed": null
+    },
+    {
+      "method": "granger_causality",
+      "status": "produced",
+      "artifact_path": "results/umcsent_xlv/core_models_20260420/granger_causality.csv",
+      "all_candidate_paths": [
+        "results/umcsent_xlv/core_models_20260420/granger_causality.csv"
+      ],
+      "skip_reason": null,
+      "producer_assertions_passed": null
+    },
+    {
+      "method": "hmm_regime",
+      "status": "produced",
+      "artifact_path": "results/umcsent_xlv/core_models_20260420/markov_regime_probs_2state.csv",
+      "all_candidate_paths": [
+        "results/umcsent_xlv/core_models_20260420/markov_regime_probs_2state.csv",
+        "results/umcsent_xlv/core_models_20260420/markov_switching_2state.csv"
+      ],
+      "skip_reason": null,
+      "producer_assertions_passed": null
+    },
+    {
+      "method": "quantile_regression",
+      "status": "produced",
+      "artifact_path": "results/umcsent_xlv/core_models_20260420/quantile_regression.csv",
+      "all_candidate_paths": [
+        "results/umcsent_xlv/core_models_20260420/quantile_regression.csv"
+      ],
+      "skip_reason": null,
+      "producer_assertions_passed": null
+    }
+  ],
+  "notes": "Retro manifest generated from existing artifacts only. missing_blocker means no deterministic skip record was present; it is not a valid production skip."
+}

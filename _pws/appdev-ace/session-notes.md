@@ -8,6 +8,75 @@
 
 ## Session timeline (Wave-by-wave)
 
+### 2026-05-08 — Phase 4 SOP fixes
+
+**Task:** Apply Phase 4 fixes to appdev-agent-sop.md based on Phase 1 intra-review findings (F-01 through F-20), Lead Phase 2 arbitrations (LA-1 through LA-10), and Phase 3 cross-SOP findings (P3-DANA-*, P3-EVAN-*, P3-VERA-*, P3-RAY-*, P3-QUINCY-*).
+
+**Scope:** `docs/agent-sops/appdev-agent-sop.md` only. No edits to other SOPs, `docs/standards.md` (Lead 4b batch), or `team-coordination.md`.
+
+**Fixes applied:**
+
+| Finding | Fix | Notes |
+|---------|-----|-------|
+| F-02, F-03, F-04, F-05, F-06, F-20a | Added Definitions section near top of SOP with 7 terms: thin wrapper, page template, pair config module, evidence-status badge, L1/L2 banner, `_REPO_ROOT` anchor, trigger card | |
+| F-03 | Marked `config/pairs/` JSON schema block as LEGACY REFERENCE — deprecated by pair config module (APP-PT1) | |
+| F-07 | Added cross-references to APP-LP8: ECON-FE1, GATE-ES1, `docs/schemas/evidence_status.schema.json`; added L1 escalation clause for badge mismatch | P3-EVAN-04 also addressed |
+| F-08 | RES-HZE1 confirmed real (Phase 2 arbitration A6). No change to cross-ref text needed beyond clarification | |
+| F-09 | Added VIZ-ZOOM1 (production) vs VIZ-HZE1 (enumeration gate) distinction in ACE-HZE1 cross-references and new VIZ-ZOOM1/VIZ-HZE1 note | |
+| F-10 | Added integration-point note to APP-PR1: manual greps before commit, GATE-29 second line of defense | |
+| F-11 (LA-10) | Updated APP-PT1 migration list — struck completed pairs (indpro_spy, permit_spy, vix_vix3m_spy, ted_variants, hy_ig_spy). Remaining: HY-IG v2, BL-APP-PT1-UMCSENT | |
+| F-12 | Split GATE-CL1 into 5 labeled sub-items (CL1-a through CL1-e) with individual FAIL/WARN severities | |
+| F-13 | Added explicit cross-reference to APP-ST1 in GATE-CL7 as partial enforcement vehicle | |
+| F-14 (LA-10) | Replaced forward-looking "Lead must..." with 2026-05-08 resolution: narrow shared ownership recorded per LEAD-DL1 | |
+| F-15 | Added schema-violation escalation clause to APP-WS1: file blocker on FAIL for delivered (non-WIP) pairs | |
+| F-16 | Added hand-written legacy bypass gate (FAIL severity) to APP-PT1: grep-L command + either patch or file blocker in same commit | |
+| F-17 | Added hibernation/cache-clear note to §6 Deploy with Pattern 24 cross-reference | |
+| F-18 | Added scope limitation note to APP-ST1: portal lint vs cloud-verify gap explicit, with GATE-31 cross-reference | |
+| F-19 | Added GATE-CL1 cross-ref to APP-DIR1; defined "Ray leg present" as file-exists AND field-populated; noted LA-4 for `observed_direction` Evan ownership | |
+| F-20b | Added APP-SE3 `threshold_value` null fallback clause: default 0.5 + APP-SEV1 L3 caption | |
+| LA-3 | `HISTORY_ZOOM_EPISODES` confirmed canonical throughout SOP — no change needed | |
+| LA-4 | APP-DIR1 updated: `observed_direction` attributed to Evan (post-tournament), not Dana; reference to DATA-D6 changed to ECON-DIR1; explicit LA-4 citation | |
+| LA-6 | Added GATE-CL family ownership note above ASPIRATIONAL block: Ace self-checks, Quincy independently verifies, Lead registers under GATE prefix | |
+| LA-1/LA-2 | ACE-HZE1 Step 2 updated: `episode_registry.json` replaced by `history_zoom_events_registry.json`; canonical slug set documented | |
+| P3-DANA-03 | Added `interpretation_metadata.json` consumer-side validation note to APP-DIR1 (validate_soft call, APP-SEV1 L1 on failure) | |
+| P3-DANA-04 | Added scope note to APP-RL1: covers `callout_text` (Evan-authored), with DATA-D6b cross-ref | |
+| P3-DANA-05 | Added consumption contract note to Indicator Evaluation Framework: L2 fallback on absent files | |
+| P3-EVAN-02 | Clarified in APP-DIR1 assertion: `direction_consistent=false` is not a triangulation FAIL; true mismatch between `winner_summary.direction` and `interpretation_metadata.observed_direction` is still a FAIL | |
+| P3-VERA-01 | Strengthened caption fallback chain: when both Ray and Vera sidecar captions absent, emit APP-SEV1 L3 "Chart caption pending" | |
+| P3-VERA-03 | Added VIZ-HZE1 skip entry check to ACE-HZE1 Step 3: check `_meta.json` for skip entries before filing blocker | |
+| P3-QUINCY-03 | Added GATE-CL ownership note: Ace self-checks, Quincy verifies independently | |
+| P3-QUINCY-05 | Added APP-SEV1 ↔ Quincy severity mapping (L1→FAIL, L2→PASS-with-note, L3→PASS; L2 with internal text→FAIL) | |
+| P3-RAY-03 | Added legacy bypass narrative note to APP-PT1 supplement: Ray review required for bypass pages' narrative text until migration | |
+
+**Out of scope (not touched):** F-01 standards.md registration (Lead 4b), docs/standards.md, team-coordination.md, pair files, peer SOPs.
+
+**File changed:** `docs/agent-sops/appdev-agent-sop.md`
+
+---
+
+### 2026-05-08 — Phase 1 Intra-SOP Review
+
+**Task:** Lead Lesandro dispatched Ace to review the AppDev SOP for completeness, self-consistency, definition coverage, cross-references, severity consistency, and stale items. No edits to SOP (LEAD-DL1). Findings only.
+
+**SOD:** Read global profile (profile.md, experience.md, memories.md), project PWS (session-notes, outstanding-work, indpro_xlp readiness note), team status board (last 10 entries), team-coordination.md, appdev-agent-sop.md (full), standards.md (APP + GATE sections), sop-changelog.md (top 100 lines).
+
+**Review scope:** appdev-agent-sop.md in full (1533 lines). Standards.md APP table for registration completeness. Sop-changelog.md for recent promotions (2026-05-07/08 batches).
+
+**Findings summary:**
+- 1 FAIL: F-08 (ACE-HZE1 cites RES-HZE1 — likely phantom rule ID not registered in Research SOP or standards.md)
+- 10 WARN: F-01 (8 APP rules unregistered in standards.md), F-02 ("thin wrapper" undefined), F-03 ("page template" undefined / legacy config schema stale), F-04 ("evidence-status badge" no rendering spec), F-07 (APP-LP8 missing ECON-FE1/GATE-ES1 cross-refs), F-09 (ACE-HZE1 VIZ-ZOOM1/VIZ-HZE1 naming inconsistency), F-10 (APP-PR1 no current integration point stated), F-11 (APP-PT1 migration list stale — names already-migrated pairs), F-15 (winner_summary schema drift: no escalation mandate for Ace), F-16 (hand-written legacy bypass not gated — active recurrence class), F-17 (cloud hibernation/cache-clear not gated), F-18 (APP-ST1 scope limitation not stated)
+- 3 INFO: F-05 ("L1/L2 banner" alias undefined), F-06 ("_REPO_ROOT anchor" not labeled as term), F-14 (APP-TL1 ownership note still forward-looking after Lead resolution)
+- 6 Phase 3 deferred: APP-LP8↔Strategy split, APP-DIR1 loop completeness, legacy bypass cross-agent scope, APP-TL1 shared file Lead map, GATE-CL registration, APP-ST1↔cloud-verify gap
+
+**Key themes:**
+1. Standards registration gap (F-01): 8 rules added after Wave 5B-2 not in standards.md
+2. Active recurrence class (F-16): hand-written legacy pages bypass new template features silently
+3. Broken/unverified cross-reference (F-08): ACE-HZE1 cites RES-HZE1 which may not exist
+
+**Deliverable:** `_pws/appdev-ace/sop_review_phase1_intra_20260508.md` (20 findings, including 6 deferred)
+
+**EOD:** Session notes updated (this entry). Status board appended.
+
 ### Wave 10I.C Adversarial DOM Audit Self-Review (2026-04-23)
 
 **Failures owned by Ace and fixed in this session:**

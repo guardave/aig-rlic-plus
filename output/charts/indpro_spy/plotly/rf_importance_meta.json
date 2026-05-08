@@ -1,0 +1,21 @@
+{
+  "chart_name": "rf_importance",
+  "pair_id": "indpro_spy",
+  "title": "Random Forest Feature Importance (Last Walk-Forward Window)",
+  "caption": "Random Forest Feature Importance (Last Walk-Forward Window)",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "sample period not declared in legacy chart artifact",
+  "data_source_path": "output/charts/indpro_spy/plotly/rf_importance.json",
+  "rules_applied": [
+    "VIZ-O1"
+  ],
+  "disposition": "suggested",
+  "palette_id": "okabe_ito_2026",
+  "exploratory": true,
+  "canonical_consumption": false,
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
+}

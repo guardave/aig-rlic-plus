@@ -1,0 +1,23 @@
+{
+  "chart_name": "hero",
+  "pair_id": "sofr_ted_spy",
+  "title": "SOFR - DTB3 vs S&P 500",
+  "caption": "SOFR - DTB3 vs S&P 500",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "2018-04-03 to 2025-12-31",
+  "data_source_path": "data/sofr_ted_spy_daily_latest.parquet",
+  "rules_applied": [
+    "VIZ-O1",
+    "VIZ-V2"
+  ],
+  "disposition": "consumed",
+  "palette_id": "okabe_ito_2026",
+  "exploratory": false,
+  "econ_rule_id": "ECON-C2",
+  "result_file": "data/sofr_ted_spy_daily_latest.parquet",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
+}

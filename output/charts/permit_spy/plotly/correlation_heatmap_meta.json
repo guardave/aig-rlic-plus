@@ -1,0 +1,23 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "permit_spy",
+  "title": "Correlation: Permit Signals \u2192 SPY Returns",
+  "caption": "Correlation: Permit Signals \u2192 SPY Returns",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "sample period not declared in legacy chart artifact",
+  "data_source_path": "exploratory_{date}/correlations.csv",
+  "rules_applied": [
+    "VIZ-O1",
+    "VIZ-A3"
+  ],
+  "disposition": "consumed",
+  "palette_id": "okabe_ito_2026",
+  "exploratory": false,
+  "econ_rule_id": "ECON-EX1",
+  "result_file": "exploratory_{date}/correlations.csv",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
+}

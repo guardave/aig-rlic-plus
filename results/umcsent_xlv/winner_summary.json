@@ -15,12 +15,15 @@
   "oos_sortino": 2.014,
   "oos_calmar": 1.0984,
   "oos_max_drawdown": -0.10865,
-  "oos_n_trades": 81,
+  "oos_n_trades": 15,
   "oos_period_start": "2019-04-30",
   "oos_period_end": "2026-01-30",
   "win_rate": 0.3704,
   "annual_turnover": 2.4,
   "oos_n": 81,
   "bh_oos_sharpe": 0.7164,
-  "bh_max_drawdown": -0.156182
+  "bh_max_drawdown": -0.156182,
+  "oos_n_obs": 81,
+  "oos_n_trades_source": "winner_trades_broker_style.csv rows within OOS window",
+  "notes": "2026-05-08 ECON-OOS3 retro audit: oos_n_obs populated from tournament oos_n; oos_n_trades set to 15 broker-style OOS trade events."
 }

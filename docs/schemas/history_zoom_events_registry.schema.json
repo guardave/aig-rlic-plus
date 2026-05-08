@@ -4,7 +4,7 @@
   "title": "Historical Episode Events Registry",
   "description": "Canonical event-marker registry for `history_zoom_{episode_slug}` charts (VIZ-V1). Per VIZ-V12 (owner: Vera; Ray may propose entries via PR, per META-CF), every zoom chart renders its event markers from this registry — no ad-hoc picks. Each key-event row carries a mandatory `rationale` and `source_citation` so a second Vera reruns identically. Any new episode requires registry PR first. Palette / positioning strategy choices live outside this registry (see color_palette_registry and VIZ-V13 annotation strategies).",
   "x-owner": "vera",
-  "x-version": "1.0.0",
+  "x-version": "1.1.0",
   "type": "object",
   "required": ["x-version", "x-owner", "episodes"],
   "properties": {
@@ -26,6 +26,28 @@
     "notes": {
       "type": "string",
       "description": "Freeform top-level notes (e.g. bootstrap rationale, pending Ray dispatches)."
+    },
+    "x-revised": {
+      "type": "string",
+      "description": "ISO-8601 date of last revision.",
+      "format": "date"
+    },
+    "x-revision-notes": {
+      "type": "string",
+      "description": "Freeform notes on what changed in this revision."
+    },
+    "indicator_category_map": {
+      "type": "object",
+      "description": "Maps interpretation_metadata.indicator_category values to the ordered list of canonical episode slugs required for that category (subject to VIZ-HZE1 data-coverage check). Used by VIZ-HZE1 step 1 and RES-HZE1 slug-matching procedure (LA-1). The special key `_note` is a human-readable annotation and is ignored by consumers. The key `default` is the fallback for unrecognised categories.",
+      "properties": {
+        "_note": {"type": "string"}
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {"type": "string"},
+          {"type": "array", "items": {"type": "string"}}
+        ]
+      }
     },
     "episodes": {
       "type": "object",

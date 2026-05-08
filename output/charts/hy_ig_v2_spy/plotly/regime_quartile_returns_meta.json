@@ -8,7 +8,8 @@
   "rules_applied": [
     "VIZ-V4",
     "VIZ-V11",
-    "VIZ-V13"
+    "VIZ-V13",
+    "VIZ-O1"
   ],
   "source_data": "results/hy_ig_v2_spy/regime_quartile_returns.csv",
   "stakeholder_items": [
@@ -18,5 +19,18 @@
   "annotation_strategy_id": "top_right_uniform",
   "updated_on": "2026-04-19",
   "wave_5c_retro": true,
-  "disposition": "consumed"
+  "disposition": "consumed",
+  "chart_name": "regime_quartile_returns",
+  "title": "Annualized SPY Return by HY-IG Spread Quartile (Q1 = Tightest \u2192 Q4 = Widest)",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "sample period not declared in legacy chart artifact",
+  "data_source_path": "regime_quartile_returns.csv",
+  "exploratory": false,
+  "econ_rule_id": "ECON-E2",
+  "result_file": "regime_quartile_returns.csv",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

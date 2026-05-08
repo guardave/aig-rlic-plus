@@ -12,7 +12,10 @@
     "VIZ-V11",
     "VIZ-V12",
     "VIZ-V13",
-    "META-AL"
+    "META-AL",
+    "VIZ-O1",
+    "VIZ-NBER1",
+    "VIZ-DP1"
   ],
   "window": [
     "2005-01-01",
@@ -53,5 +56,18 @@
   "annotation_strategy_id": "descending_stair",
   "wave_6b_meta_al": true,
   "data_rows_in_window": 1565,
-  "disposition": "consumed"
+  "disposition": "consumed",
+  "chart_name": "history_zoom_gfc",
+  "title": "Credit Spreads and SPY During the Global Financial Crisis, 2005\u20132010",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "2005-01-03 to 2010-12-31",
+  "data_source_path": "data/hy_ig_v2_spy_daily_latest.parquet",
+  "exploratory": false,
+  "econ_rule_id": "ECON-C2",
+  "result_file": "data/hy_ig_v2_spy_daily_latest.parquet",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

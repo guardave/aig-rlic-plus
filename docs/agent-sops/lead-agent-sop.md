@@ -12,7 +12,7 @@
 
 **Lead owns, and only owns, these categories of writes:**
 
-1. **SOP authorship** (`docs/agent-sops/*.md` — including this file and agent SOPs).
+1. **Lead/team SOP authorship** (`docs/agent-sops/lead-agent-sop.md`, `docs/agent-sops/team-coordination.md`). Role SOP patches are authored or ratified by the owning role under META-NMF; Lead edits them only for cross-system wiring, user-approved governance changes, or final token-efficiency cleanup.
 2. **Meta / coordination** (`docs/team-standards.md`, `docs/sop-changelog.md`, `docs/relnotes.md`, `docs/pair_execution_history.md`, `docs/backlog.md`).
 3. **Team coordination** (`_pws/_team/*`, dispatch briefs under `_pws/lead-lesandro/`).
 4. **Ratification / tagging commits** (git tags, wave-closure commits that only touch category 1-3 files).
@@ -46,7 +46,7 @@ No other exceptions. In particular, "I already have the context" / "it's faster"
 
 | Owner | Paths (globs) | Notes |
 |-------|---------------|-------|
-| **Lead (Lesandro)** | `docs/agent-sops/*.md`, `docs/team-standards.md`, `docs/sop-changelog.md`, `docs/relnotes.md`, `docs/pair_execution_history.md`, `docs/backlog.md`, `_pws/_team/*`, `_pws/lead-lesandro/*`, git tags | SOP authorship, coordination, meta docs |
+| **Lead (Lesandro)** | `docs/agent-sops/lead-agent-sop.md`, `docs/agent-sops/team-coordination.md`, `docs/team-standards.md`, `docs/sop-changelog.md`, `docs/relnotes.md`, `docs/pair_execution_history.md`, `docs/backlog.md`, `_pws/_team/*`, `_pws/lead-lesandro/*`, git tags | Lead/team SOPs, coordination, meta docs |
 | **Dana (data)** | `scripts/data_pipeline_*.py`, `scripts/fetch_*.py`, `data/*.parquet`, `data/*.csv`, `data/data_dictionary_*.csv`, `data/*_schema.json`, `data/missing_value_report_*.md`, `data/summary_stats_*.csv`, `results/{pair_id}/interpretation_metadata.json`, `_pws/data-dana/*` | Raw data ingestion + cleaning + schema docs |
 | **Ray (research)** | `docs/portal_narrative_*.md`, `docs/analysis_brief_*.md`, `docs/research_brief_*.md`, `docs/storytelling_arc_*.md`, `docs/spec_memo_*.md`, narrative prose fields in `app/pair_configs/*_config.py` (NOT the rest of config), `_pws/research-ray/*` | Narrative authoring, economic framing, historical episode content |
 | **Evan (econometrics)** | `scripts/pair_pipeline_*.py`, `scripts/tournament_*.py`, `results/{pair_id}/*.csv`, `results/{pair_id}/*.parquet`, `results/{pair_id}/winner_summary.json`, `results/{pair_id}/signal_scope.json`, `results/{pair_id}/analyst_suggestions.json` (signals; see note), `results/{pair_id}/granger_*.csv`, `results/{pair_id}/stationarity_tests_*.csv`, `_pws/econ-evan/*` | Modeling, tournament, signal artifacts |
@@ -65,6 +65,11 @@ No other exceptions. In particular, "I already have the context" / "it's faster"
   - Narrative prose fields (`story_md`, episode `narrative` fields, Evidence block ELI5 text) — **Ray**
   - Structural fields (chart slot names, method block keys, tournament design table, references list) — **Ace**
   - Lead does not edit either.
+
+- `app/components/page_templates.py`
+  - Component structure, helper logic, widget layout, severity branching, and rendering mechanics — **Ace**
+  - Narrow APP-TL1 narrative constants for disclosure, two-file model, and column-glossary defaults — **Ray**
+  - Preferred future state: move these constants to a Ray-owned content artifact consumed by the template. Until then, Ace must not rewrite the prose and Ray must not change template logic.
 
 ---
 
@@ -110,6 +115,24 @@ This division is not just a workload split — it is a structural principle. If 
 
 ---
 
+## Rule LEAD-SOP1 — SOP-First and Token-Efficiency Gates
+
+Lead enforces `team-coordination.md` §META-NMF before product remediation:
+
+1. Map every finding to SOP coverage: missing, unclear, unenforced, or execution failure under an existing rule.
+2. Dispatch role-owned SOP fixes to the responsible agent; Lead owns only Lead/team rules.
+3. Require cross-review before artifact fixes.
+4. Review the patched SOPs for global coherence: no circular dependencies, orphan owners, duplicated authority, or impossible gates.
+5. Return global issues to role owners; do not patch their domains directly.
+6. Run a final token-efficiency review before artifact work starts.
+7. Enforce `META-DASH1` when dashboard-level contradictions span multiple roles.
+
+Token-efficiency review removes duplicated rule text, stale history, filler phrases,
+and examples that do not change behavior. Shared protocols live once in
+`team-coordination.md`; role SOPs cross-reference them.
+
+---
+
 ## Enforcement
 
 **Self-audit at every wave closure.** Before running the closure commit sequence, Lead runs:
@@ -119,6 +142,14 @@ git diff --stat HEAD~N HEAD  # N = commits since wave start
 ```
 
 For each Lead-authored commit in the range, eyeball the file paths against the Ownership Map. Any Lead commit touching non-Lead paths is a LEAD-DL1 violation — flag in relnotes under "Lessons" and in PWS memories.
+
+**META-DM gate at every wave closure.** After the self-audit, consult the dispatch matrix in `docs/agent-sops/team-coordination.md § Dispatch Matrix (Meta-Rule META-DM)`. For every artifact changed in this wave:
+
+1. Look up the artifact row in the matrix.
+2. For each downstream agent in "Must review": dispatch a consequential review, or record an explicit rationale for skipping in the wave closure note.
+3. Wave may not be marked CLOSED until all META-DM obligations are dispatched or explicitly skipped with rationale.
+
+Record META-DM dispatch evidence in the wave closure note as: `META-DM: <artifact> changed → dispatched <agent> / skipped (<rationale>)`.
 
 **Memory trigger.** `lead_delegation_discipline.md` in auto-memory is loaded at SOD. Its pointer in `MEMORY.md` is the re-minder every new conversation.
 

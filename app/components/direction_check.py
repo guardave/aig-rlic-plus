@@ -200,10 +200,11 @@ def check_direction_agreement(pair_id: str) -> dict:
         # One leg missing — cannot triangulate. Raise a loud warning, not
         # an error (agreement check is moot until both legs exist).
         st.warning(
-            "**Direction triangulation incomplete** (APP-DIR1). "
-            f"Evan (winner_summary.direction) = `{evan}`; "
-            f"Dana (observed_direction) = `{dana}`. "
-            "At least one leg missing — cannot assert agreement.\n\n"
+            "**Direction check incomplete.** "
+            f"Model record = `{_plain_direction_label(evan)}`; "
+            f"metadata record = `{_plain_direction_label(dana)}`. "
+            "At least one required direction record is missing, so agreement "
+            "cannot be confirmed yet.\n\n"
             "Plain English: before showing you a trading rule, we "
             "cross-check that our econometrician and our data analyst "
             "agree on whether the indicator moves with the market "
@@ -216,11 +217,10 @@ def check_direction_agreement(pair_id: str) -> dict:
 
     if evan != dana:
         st.error(
-            f"**Direction disagreement detected** (APP-DIR1, APP-SEV1 L1). "
-            f"Evan says `{evan}` in `winner_summary.json.direction`; "
-            f"Dana says `{dana}` in "
-            f"`interpretation_metadata.json.observed_direction`. "
-            f"These must match. Escalate to Lead for reconciliation per META-IA."
+            "**Direction disagreement detected.** "
+            f"The model record says `{_plain_direction_label(evan)}`; "
+            f"the metadata record says `{_plain_direction_label(dana)}`. "
+            "These must match before the trading rule can be accepted."
             "\n\nPlain English: our econometrician and our data analyst "
             "disagree on whether this indicator moves with the market or "
             "against it. That is a serious inconsistency — trading-rule "
@@ -234,13 +234,14 @@ def check_direction_agreement(pair_id: str) -> dict:
     ray = report["ray"]
     if ray is not None and ray != evan:
         st.warning(
-            f"**Direction partial mismatch** (APP-DIR1, 3-way). "
-            f"Evan/Dana agree on `{evan}` but Ray's narrative frontmatter "
-            f"asserts `{ray}` (from `docs/portal_narrative_{pair_id}_*.md`). "
-            "Ray must update `direction_asserted` to match. Escalate to Lead.\n\n"
-            "Plain English: the narrative's stated direction does not match "
-            "what the model found empirically — the portal story may mislead "
-            "readers. The page renders but Ray must reconcile before acceptance."
+            "**Direction partial mismatch.** "
+            f"The model and metadata records agree on "
+            f"`{_plain_direction_label(evan)}`, but the story record says "
+            f"`{_plain_direction_label(ray)}`. The story direction must match "
+            "before acceptance.\n\n"
+            "Plain English: the page narrative's stated direction does not "
+            "match what the model found empirically, so the portal story may "
+            "mislead readers until reconciled."
         )
 
     # Valid agreement (2-way Evan ↔ Dana, with Ray cross-check above).
@@ -248,9 +249,8 @@ def check_direction_agreement(pair_id: str) -> dict:
         report["agreement"] = True
     else:
         st.warning(
-            f"Direction value `{evan}` is not in the canonical schema enum "
-            f"{sorted(_CANONICAL_DIRECTIONS)}. Agreement reported, but value "
-            f"violates schema vocabulary — escalate to Lead.\n\n"
+            "The direction records agree with each other, but the agreed "
+            "label is not part of the approved direction vocabulary.\n\n"
             "Plain English: the direction label does not match the "
             "controlled vocabulary we have pinned in the schema. The "
             "two sources agree with each other, but they are using a "
@@ -281,7 +281,6 @@ def render_direction_check(pair_id: str) -> dict:
         else:
             st.caption(
                 "What this shows: direction check — two independent project "
-                f"records agree this signal is {direction_label}. The optional "
-                "story cross-check has not been added yet."
+                f"records agree this signal is {direction_label}."
             )
     return report

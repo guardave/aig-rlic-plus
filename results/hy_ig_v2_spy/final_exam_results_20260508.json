@@ -1,0 +1,95 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-05-08T00:00:00Z",
+  "owner": "evan",
+  "status_recommendation": "passed_final_exam",
+  "frozen_rule": {
+    "rule_id": "S6_hmm_stress__T4_hmm_0.5__P2_signal_strength__L0",
+    "signal_column": "hmm_2state_prob_stress",
+    "threshold_rule": "gte",
+    "threshold_value": 0.5,
+    "lead_lag": 0,
+    "strategy_family": "P2_signal_strength",
+    "position_rule": "proportional_countercyclical",
+    "cost_bps": 5.0,
+    "benchmark": "SPY"
+  },
+  "sample": {
+    "search_start": "2000-01-03",
+    "search_end": "2018-09-28",
+    "confirm_start": "2025-01-01",
+    "confirm_end": "2025-12-31",
+    "confirm_n_obs": 261,
+    "minimum_confirmation_n_obs": 252,
+    "frequency": "daily",
+    "holdout_type": "three_period_holdout",
+    "split_design": "three_period",
+    "validation_start": "2018-10-01",
+    "validation_end": "2024-12-31"
+  },
+  "metrics": {
+    "confirm_ann_return": 0.2222,
+    "confirm_sharpe": 2.3492,
+    "confirm_sortino": 3.1079,
+    "confirm_max_drawdown": -0.0410,
+    "confirm_calmar": 5.4138,
+    "confirm_hit_rate": 0.5505,
+    "confirm_turnover": 2.9,
+    "confirm_n_trades": 3,
+    "confirm_excess_ann_return": 0.0432,
+    "confirm_delta_sharpe": 1.3908,
+    "confirm_delta_max_drawdown": 0.1465,
+    "confirm_cost_bps": 5.0,
+    "confirm_benchmark_sharpe": 0.9584,
+    "confirm_benchmark_ann_return": 0.179,
+    "confirm_benchmark_max_drawdown": -0.1876
+  },
+  "uncertainty": {
+    "bootstrap_method": "stationary",
+    "block_length": 21,
+    "n_bootstrap": 1000,
+    "bootstrap_ci_sharpe": {
+      "p025": 0.9173,
+      "p50": 2.3625,
+      "p975": 3.8426
+    },
+    "bootstrap_ci_excess_return": {
+      "p025": -0.3835,
+      "p50": 0.0346,
+      "p975": 0.3815
+    },
+    "bootstrap_prob_sharpe_gt_benchmark": 0.97,
+    "bootstrap_prob_return_gt_benchmark": 0.582,
+    "bootstrap_prob_mdd_not_worse": 0.98
+  },
+  "multiple_testing": {
+    "n_trials_raw": 2167,
+    "n_trials_effective": 150,
+    "adjustment_method": "deflated_sharpe_ratio",
+    "adjusted_p_value": null,
+    "deflated_sharpe_ratio": null,
+    "probabilistic_sharpe_ratio_adjusted": null
+  },
+  "pass_fail": {
+    "overall_pass": true,
+    "failed_gates": [],
+    "warnings": [
+      "C2_PASS (three_period): Holdout (2025-01-01 to 2025-12-31) was not used in tournament winner selection. Tournament ranked on validation window (2018-10-01 to 2024-12-31) only. Condition 2 structurally satisfied by three-period design.",
+      "HOLDOUT_SHORT: Holdout is 261 trading days (~1 calendar year). Sharpe point estimate (2.35) is high but CI is wide (0.92, 3.84). Single-year holdout is vulnerable to market-regime luck.",
+      "DSR_CAVEAT: n_trials_raw=2167 with high cross-strategy correlation; effective N estimated at 150. DSR not computed on holdout (holdout is a fresh OOS window, not a re-ranking exercise).",
+      "EXCESS_RETURN_CI: Bootstrap CI for excess return includes zero (-0.38 to +0.38). Point estimate +4.32% is positive but uncertain. Single year sample.",
+      "2025_MARKET: SPY had an 18.8% drawdown peak-to-trough in April 2025 (tariff shock), then recovered. HMM flagged 63 stress days, allowing strategy to reduce exposure. This regime was favorable for the countercyclical signal — results may be environment-specific."
+    ]
+  },
+  "artifact_lineage": {
+    "tournament_results": "results/hy_ig_v2_spy/tournament_results_3period_20260508.csv",
+    "winner_summary": "results/hy_ig_v2_spy/winner_summary.json",
+    "winner_trade_log": "results/hy_ig_v2_spy/winner_trades_broker_style.csv",
+    "code_version": "branch/260430"
+  },
+  "qa": {
+    "quincy_status": "not_started",
+    "qa_artifact": null
+  }
+}

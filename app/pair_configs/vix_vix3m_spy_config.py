@@ -43,8 +43,8 @@ class StoryConfig:
 
     WHERE_THIS_FITS = (
         "This pair anchors the **Volatility / Options** family in the portal. "
-        "It is the only daily-frequency pair among the four Wave 10I.A "
-        "non-TED migrations — the other three (INDPRO, Permits, UMCSENT) are "
+        "It is a daily-frequency pair, unlike the monthly macro pairs "
+        "(INDPRO, Permits, UMCSENT), which are "
         "monthly macro signals. It also delivers the largest regime Sharpe "
         "spread we have observed anywhere in the catalogue."
     )
@@ -154,9 +154,9 @@ class StoryConfig:
 
     TRANSITION_TEXT = (
         "The VIX term structure offers the most powerful regime "
-        "differentiation we have observed across all indicator pairs. But "
-        "does the econometric evidence confirm a statistically robust and "
-        "exploitable relationship with equity returns?"
+        "differentiation we have observed across the current indicator set. But "
+        "does the econometric evidence support a statistically robust relationship "
+        "with equity returns?"
     )
 
     # ACE-HZE1: dot_com excluded — VIX3M data starts 2007-01-03; episode ends 2002-10-31.
@@ -310,7 +310,7 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2": [LOCAL_PROJECTIONS_BLOCK],
     "level2_labels": ["Local Projections"],
     "tournament_intro": (
-        "With the statistical case firmly established, we swept a "
+        "With the statistical case established, we swept a "
         "5-dimensional tournament over signal transforms, threshold "
         "methods, strategy families, lead times (in trading days, since "
         "this is a daily pair), and lookback windows — 916 raw "
@@ -318,11 +318,11 @@ EVIDENCE_METHOD_BLOCKS = {
         "detailed on the Strategy page."
     ),
     "transition": (
-        "The statistical evidence confirms a powerful counter-cyclical "
+        "The statistical evidence supports a counter-cyclical "
         "relationship between the VIX term structure and equity returns. "
         "The signal operates at daily frequency with strong significance. "
         "The practical question is whether investors can translate this "
-        "into a profitable strategy."
+        "into a backtested strategy."
     ),
 }
 

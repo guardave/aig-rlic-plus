@@ -6,11 +6,26 @@
     "VIZ-V8",
     "VIZ-V11",
     "VIZ-NM1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V4"
   ],
   "narrative_alignment_note": "HMM stress probability visually aligns with known market stress episodes, validating the winning signal.",
   "created_at": "2026-04-22T10:50:45Z",
   "method_name": "HMM 2-State",
   "expected_chart_type": "line",
-  "disposition": "consumed"
+  "disposition": "consumed",
+  "title": "HMM Stress Probability > 0.5 Correctly Flags Every Major Drawdown",
+  "caption": "HMM stress probability visually aligns with known market stress episodes, validating the winning signal.",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "2000-01-03 to 2026-04-22",
+  "data_source_path": "core_models_{date}/hmm_states_2state.parquet",
+  "exploratory": false,
+  "econ_rule_id": "ECON-C2",
+  "result_file": "core_models_{date}/hmm_states_2state.parquet",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

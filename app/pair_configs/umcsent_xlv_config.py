@@ -107,7 +107,7 @@ class StoryConfig:
         "The standard economic story about healthcare stocks is that they "
         "are **defensive**: people consume healthcare regardless of the "
         "cycle, so healthcare companies generate stable cash flows in "
-        "both good times and bad. The theory predicts that when consumers "
+        "both good times and bad. The prior theory predicted that when consumers "
         "feel confident, they rotate money *out* of defensive sectors "
         "like healthcare and *into* cyclical growth sectors (technology, "
         "industrials, discretionary). When confidence falls, money flows "
@@ -241,7 +241,7 @@ CORRELATION_BLOCK = dict(
         "change — the winning tournament signal — shows a modest positive "
         "correlation with shorter horizons, consistent with the procyclical "
         "observed direction. Sixteen of 48 correlations clear the 5% "
-        "significance threshold, confirming the relationship is not a "
+        "significance threshold, suggesting the relationship is not a "
         "statistical artefact."
     ),
     interpretation=(
@@ -293,7 +293,7 @@ GRANGER_BLOCK = dict(
         "The CCF shows that the strongest predictive lags are at negative "
         "lags (UMCSENT leading XLV), consistent with sentiment as a "
         "leading indicator. Several lags between -3 and -8 months clear "
-        "the 95% significance threshold. Formal Granger tests confirm: "
+        "the 95% significance threshold. Formal Granger tests are consistent with this pattern: "
         "UMCSENT YoY Granger-causes XLV returns at lags 3-6 (p < 0.05) "
         "but not at lags 1-2. The reverse direction (XLV → UMCSENT) is "
         "not significant at any lag tested."
@@ -304,14 +304,14 @@ GRANGER_BLOCK = dict(
         "The one-directional result here reflects the nature of consumer "
         "surveys: households form opinions based on their actual economic "
         "experience (jobs, wages, prices), not from watching XLV price "
-        "ticks. This independence means UMCSENT carries genuine new "
+        "ticks. This independence suggests UMCSENT may carry new "
         "information about future sector dynamics that is not yet in "
         "healthcare stock prices at the time of the survey."
     ),
     key_message=(
         "Sentiment leads healthcare equity at 3-6 months — a directionally "
         "clean, one-way Granger causality that supports using UMCSENT as "
-        "an actionable leading indicator for XLV timing."
+        "a medium-frequency input for XLV timing research."
     ),
 )
 
@@ -447,7 +447,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "With the econometric case established, we swept a 5-dimensional "
         "tournament over 7 signal transforms, 7 threshold methods, 3 "
         "strategy families, and 5 lead times — 1,305 raw combinations "
-        "pruned to 1,196 valid. The top 5 strategies were validated with "
+        "pruned to 1,196 valid. The top 5 strategies were evaluated with "
         "bootstrap significance testing and transaction-cost sensitivity. "
         "The winning specification is on the Strategy page."
     ),

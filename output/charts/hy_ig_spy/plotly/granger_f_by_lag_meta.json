@@ -6,11 +6,26 @@
     "VIZ-V8",
     "VIZ-V11",
     "VIZ-NM1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V3"
   ],
   "narrative_alignment_note": "Granger F-stats by lag identify at which monthly horizons spread provides predictive content for SPY.",
   "created_at": "2026-04-22T10:50:44Z",
   "method_name": "Granger Causality",
   "expected_chart_type": "bar",
-  "disposition": "consumed"
+  "disposition": "consumed",
+  "title": "Granger Causality: HY-IG Spread Predicts SPY (Monthly, Lags 1-12)",
+  "caption": "Granger F-stats by lag identify at which monthly horizons spread provides predictive content for SPY.",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "sample period not declared in legacy chart artifact",
+  "data_source_path": "granger_by_lag.csv",
+  "exploratory": false,
+  "econ_rule_id": "ECON-E1",
+  "result_file": "granger_by_lag.csv",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

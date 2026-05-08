@@ -7,7 +7,52 @@
 
 ## Purpose
 
-This is Ray's ephemeral session journal for the AIG-RLIC+ project. Timeless patterns belong in `~/.claude/agents/research-ray/experience.md`; pair- and wave-specific incidents belong in `~/.claude/agents/research-ray/memories.md`; this file is the chronological working notebook for in-flight work.
+This is Ray's ephemeral session journal for the AIG-RLIC+ project. Timeless patterns belong in `~/.claude/agents/research-ray/experience.md`; this file is the chronological working notebook for in-flight work. (`memories.md` retired per LA-7 — all reflection now goes to `experience.md`.)
+
+## Phase 4 SOP fixes — 2026-05-08
+
+**Scope:** Research-Ray-owned edits only. Files changed: `docs/agent-sops/research-agent-sop.md`, `docs/schemas/episode_registry.json`.
+
+### Changes applied
+
+| Finding / LA | Change | Location in SOP |
+|---|---|---|
+| LA-1 | All `episode_registry.json` references retargeted to `history_zoom_events_registry.json` | RES-HZE1 slug table, slug matching procedure, verification command; RES-20 rule 2; RES-CP1 episode selection; RES-ZOOM1 pre-write checklist |
+| LA-2 | Canonical slugs enforced: `dotcom`, `gfc`, `covid`, `taper_2018`, `inflation_2022`; `dot_com` and `rates_2022` forbidden | RES-HZE1 field table, example block (`rates_2022` → `inflation_2022`), RES-ZOOM1 episode table (replaced 4-slug deprecated table with 5-slug canonical table), RES-20, RES-CP1 |
+| LA-3 | `ZOOM_EPISODE_NARRATIVES` retired; RES-ZOOM1 delivery format now defers to RES-HZE1 `HISTORY_ZOOM_EPISODES` | RES-ZOOM1 Format section rewritten; explicit statement that `ZOOM_EPISODE_NARRATIVES` is retired |
+| LA-7 / F-06 | Removed `memories.md` update requirement; consolidated to `experience.md` | Reflection & Memory step 5 |
+| F-01 / F-02 | RES-20 rule 2 corrected: episode registry pointer changed from `output/charts/chart_type_registry.json` → `docs/schemas/history_zoom_events_registry.json` | RES-20 rule 2 |
+| F-03 | 11 missing Quality Gates checklist items added for RES-11, RES-17, RES-18, RES-20, RES-22, RES-VS, RES-HZE1, RES-CP1, RES-CP2, RES-CPC1, RES-PA3 | Quality Gates section |
+| F-04 | RES-CP2 trigger expanded to include `regime_story: true` in `signal_scope.json`; escalation to Evan if files absent | RES-CP2 opening paragraph |
+| F-05 | Covered by LA-3 above | — |
+| F-07 | Stale RES-OD1 single-line inline script replaced with reference to three-step Wave 10J script (vocabulary + equality + direction_consistent + OD1a stdout requirement + OD1c batch log) | Quality Gates RES-OD1 item |
+| F-08 | "How to Read the Trade Log" section upgraded to `### Rule RES-PA3 — How to Read the Trade Log (Blocking)`; four mandatory elements specified without "or equivalent" discretion; Quality Gates item added | RES-PA3 section heading + Quality Gates |
+| F-09 | SLA added to RES-ZOOM1 (BLOCKED comment if chart not delivered in current cycle); how-to-determine-VIZ-ZOOM1-trigger procedure added | RES-ZOOM1 |
+| F-10 | Structured EGL1 self-check table (6 sub-rules with check and pass condition) added to Quality Gates | Quality Gates EGL1 self-check table |
+| F-12 | Formal definition of "narrative instrument reference" added at start of RES-NR1 | RES-NR1 |
+| F-13 | Scope statement added to RES-CP1 (applies to all pairs; Light-tier waiver details) | RES-CP1 |
+| F-14 | `<!-- OOS_SPAN_TBD: ... -->` fallback added to RES-18 rule 2 | RES-18 |
+| C-V2 | Skip-entry check added to RES-HZE1 pre-handoff validation step 5 (check `_meta.json` before filing Vera blocker) | RES-HZE1 |
+| C-V3 | `caption` field marked mandatory in RES-HZE1 field table and validation step 4 | RES-HZE1 |
+| C-E3 | Parenthetical note added to RES-18 rule 3 distinguishing Ray's "headline" sentence from Evan's "Headline Findings" KPI table | RES-18 |
+| C-E4 | Canonical slugs enforced in RES-CP1 episode selection; `history_zoom_events_registry.json` cited as authority | RES-CP1 |
+| C-A4 | Stub-check item added to Quality Gates (confirm no "Ray leg pending" strings before Ace handoff) | Quality Gates |
+
+### Schema / registry changes
+
+| File | Change |
+|---|---|
+| `docs/schemas/episode_registry.json` | Converted to thin pointer: `{"deprecated": true, "canonical": "history_zoom_events_registry.json", "see": "LA-1", "note": ...}`. All data removed. Consumers must retarget to `history_zoom_events_registry.json`. |
+
+### Items NOT addressed (out of scope)
+
+- F-11 / LA-5: `docs/standards.md` registration of new rules — Lead batch update task.
+- C-D1, C-D2, C-D3: Dana-owned fixes.
+- C-E1, C-E2: Evan-owned fixes.
+- C-V1, C-V4: Vera-owned fixes.
+- C-A1, C-A2, C-A3: Ace/Lead-owned fixes.
+- C-Q1, C-Q2, C-Q3, C-Q4: QA-owned fixes.
+- BL-004: Architectural decision deferred; TBD note already in RES-EGL1.
 
 ## Session Timeline
 
@@ -264,3 +309,28 @@ Handoff: `results/_cross_agent/handoff_ray_hze1_retro_20260424.md`
 
 ---
 *Last updated: 2026-04-24 — Wave 10J/10K checkpoint*
+
+---
+
+## Session: 2026-05-08 — Phase 1 Intra-SOP Review
+
+**Task:** Read and review own SOP for completeness, internal consistency, definition gaps, coverage gaps, cross-reference validity, severity consistency, and stale items. No edits to SOP permitted this phase (LEAD-DL1).
+
+**Status: COMPLETE.**
+
+**Deliverable:** `_pws/research-ray/sop_review_phase1_intra_20260508.md`
+
+**Findings summary:**
+- 14 findings total: 5 FAIL (blocking), 9 WARN (non-blocking)
+- FAIL items: F-01 (slug namespace mismatch dot_com vs dotcom / rates_2022 vs inflation_2022), F-02 (RES-20 wrong registry file pointer), F-03 (Quality Gates missing 9+ rule items), F-05 (RES-ZOOM1 vs RES-HZE1 config attribute conflict), F-07 (OD1 checklist item stale vs Wave-10J tightening)
+- WARN items: F-04 (RES-CP2 trigger mismatch vs ECON-CP2), F-06 (memories.md still required), F-08 (RES-PA3 not in quality gates), F-09 (RES-ZOOM1/RES-8 missing SLA + trigger verification), F-10 (RES-EGL1 gate entry too thin), F-11 (9 rules not in standards.md), F-12 (narrative instrument undefined), F-13 (RES-CP1 scope unstated), F-14 (RES-18 missing file-absent escalation)
+
+**Top-3 themes:**
+1. Quality Gates checklist is significantly under-populated — 9+ blocking rules added since Wave 5B-2 have no corresponding gate items.
+2. Episode slug namespace fragmentation — two independent slug naming conventions (with/without underscore; rates_2022 vs inflation_2022) create pipeline compatibility failures across Ray→Vera→Ace.
+3. Rule supersession ambiguity — RES-ZOOM1 and RES-HZE1 appear to govern the same config delivery with different attribute names; one may be stale.
+
+**LEAD-DL1:** Honoured — only touched `_pws/research-ray/sop_review_phase1_intra_20260508.md`, `_pws/research-ray/session-notes.md`, and `_pws/_team/status-board.md`.
+
+---
+*Last updated: 2026-05-08 — Phase 1 intra-SOP review*

@@ -26,8 +26,7 @@ pages:
 
 # Portal Narrative: ted_spliced_spy
 
-> **RES-17 stub — 2026-04-23.**  This file carries the machine-readable frontmatter
-> required to complete the APP-DIR1 3-way direction-triangulation check (Ray leg).
-> Full narrative prose is pending the next pair deep-dive pass.
+This inventory records Ray's current narrative direction for the live portal
+configuration. Full prose is maintained in `app/pair_configs/ted_spliced_spy_config.py`.
 
 direction_asserted: countercyclical

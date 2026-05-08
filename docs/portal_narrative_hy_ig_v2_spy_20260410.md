@@ -3,7 +3,7 @@ pair_id: hy_ig_v2_spy
 narrative_version: 1.1.0
 generated_at: "2026-04-19T18:00:00Z"
 headline_template: "A"
-headline_template_rationale: "Template A (metric-first) chosen because the primary stakeholder question this narrative answers is 'does this signal work, and how well?' — a metric-first opener surfaces the Sharpe 1.27 / 8-year OOS headline before the reader needs to decode the insight. OOS span and Sharpe are read from results/hy_ig_v2_spy/winner_summary.json (oos_period_start 2018-01-01, oos_period_end 2025-12-31 → 8 years; oos_sharpe 1.274 rounded to 1.27), not hand-typed, per RES-18 rule 2 + rule 3."
+headline_template_rationale: "Template A (metric-first) chosen because the primary stakeholder question this narrative answers is 'does this signal work, and how well?' — a metric-first opener surfaces the validation Sharpe 1.87 / 6-year validation OOS headline before the reader needs to decode the insight. Validation OOS period: 2018-10-01 to 2024-12-31; validation Sharpe 1.8714 rounded to 1.87. A separate sealed confirmation holdout (2025-01-01 to 2025-12-31) yielded Sharpe 2.35 and excess return +4.32%. Evidence status: passed_final_exam. Updated from prior two-period split per META-DM consequential review 2026-05-08; the three-period split supersedes the earlier single-period OOS result."
 direction_asserted: countercyclical
 chart_refs:
   - correlation
@@ -78,8 +78,8 @@ historical_episodes_referenced:
     prose_ref: "Story §What History Shows — 2022 Rate Shock paragraph ties modest HY-IG spread widening (300 → 500 bps) to Fed rate hikes; honest failure-case where credit alone under-signaled a pure-rate-shock drawdown. No zoom chart required — the failure-case purpose is argued textually via the comparison of spread change to SPY -25% rather than through an event-marked overlay."
 pages:
   story:
-    headline: "Sharpe 1.27 over 8-year OOS — credit spreads as a multi-month early-warning signal for equity drawdowns"
-    plain_english: "When companies borrow money, lenders charge safer companies lower rates and risky companies higher rates. The gap between those rates is called the credit spread. When it's small, business is going well. When it jumps up, it means investors are scared about the future. This research asks: does watching that gap help predict what the stock market will do? The answer turns out to be yes — sometimes. You can use it to lose less money in crashes."
+    headline: "Sharpe 1.87 over 6-year validation OOS — credit spreads as a multi-month early-warning signal for equity drawdowns"
+    plain_english: "When companies borrow money, lenders charge safer companies lower rates and risky companies higher rates. The gap between those rates is called the credit spread. When it jumps up, it means investors are worried about the future. This research asks whether watching that gap helps flag periods when stock-market drawdown risk is elevated. The backtest says yes — sometimes, with important caveats."
     sections:
       - id: where_this_fits
         title: "Where This Fits in the Portal"
@@ -116,7 +116,7 @@ pages:
         title: "How do we define market regimes without arbitrary cutoffs?"
   evidence:
     headline: ""
-    plain_english: "This section shows the data we used to test whether credit spreads really do predict stock market returns. Eight different statistical tests all point to the same conclusion: when the credit spread widens, stocks tend to do worse in the following weeks and months. None of these tests is perfect on its own, but together they tell a consistent story."
+    plain_english: "This section shows the data we used to test whether credit spreads contain useful information about future stock returns. Several statistical tests are consistent with the same pattern: when the credit spread widens, stocks tend to do worse in the following weeks and months. None of these tests is definitive on its own, but together they tell a consistent story."
     sections:
       - id: how_we_tested
         title: "How We Tested the Signal"
@@ -231,18 +231,19 @@ glossary_requests: []
 
 ## Page 1 -- The Hook (Executive Summary)
 
-## Sharpe 1.27 over 8-year OOS — credit spreads as a multi-month early-warning signal for equity drawdowns
+## Sharpe 1.87 over 6-year validation OOS — credit spreads as a multi-month early-warning signal for equity drawdowns
 
-**Key metrics (out-of-sample 2018-2025):**
+**Key metrics (out-of-sample validation 2018-2024):**
 
-- **Sharpe ratio: 1.27** (vs 0.90 buy-and-hold) -- ~40% more return per unit of risk
+- **Sharpe ratio: 1.87** (vs 0.90 buy-and-hold) -- more than double the return per unit of risk
 - **Annualized return: 11.3%** (vs ~10% buy-and-hold)
 - **Max drawdown: -10.2%** (vs -34% buy-and-hold) -- roughly one-third of the pain
+- **Sealed confirmation test (2025):** Sharpe 2.35, excess return +4.32%, MDD −4.1% vs buy-and-hold −18.8%
 
 <details>
 <summary>🧒 Plain English version</summary>
 
-When companies borrow money, lenders charge safer companies lower rates and risky companies higher rates. The gap between those rates is called the credit spread. When it's small, business is going well. When it jumps up, it means investors are scared about the future. This research asks: does watching that gap help predict what the stock market will do? The answer turns out to be yes -- sometimes. You can use it to lose less money in crashes.
+When companies borrow money, lenders charge safer companies lower rates and risky companies higher rates. The gap between those rates is called the credit spread. When it jumps up, it means investors are worried about the future. This research asks whether watching that gap helps flag periods when stock-market drawdown risk is elevated. The backtest says yes -- sometimes, with important caveats.
 
 </details>
 
@@ -260,9 +261,9 @@ The bond market often sees trouble coming before the stock market does -- and th
 
 1. **Credit led equity by ~5 months before the 2008 crash** -- the HY-IG credit spread (the extra yield that investors demand to hold risky corporate bonds instead of safe ones -- essentially the price of insurance against companies going bust) began widening in June 2007, while stocks did not peak until October 2007. **What this means for investors:** an investor watching the spread crossing its stress band in mid-2007 would have had nearly half a year to trim equity exposure before the October peak and the -57% drawdown that followed.
 2. **Spreads widened from 300 to 2,000+ basis points (3% to 20%+) during the GFC** -- a basis point is 1/100th of a percentage point, so 2,000 basis points means risky companies were paying 20 full percentage points more than safe ones. That 6x increase reflected a market that believed a wave of corporate defaults was coming. **What this means for investors:** the sheer scale of the widening was a loud, unmistakable risk-off signal -- investors following the rule would have rotated the majority of equity exposure to cash well before the Lehman-week crash.
-3. **Credit signals predicted 3 of the last 4 major equity drawdowns** -- a drawdown is a peak-to-trough decline in value. The dot-com bust (2001), the Global Financial Crisis (2008), and the COVID crash (2020) were all preceded or accompanied by dramatic spread widening. The 2022 rate shock is the honest exception -- more on that below. **What this means for investors:** the signal is a reliable drawdown-avoidance tool for credit-driven sell-offs, but it should be paired with a separate interest-rate or valuation signal (e.g. the yield-curve pair in the portal) to cover the type of bear market that credit alone cannot see.
+3. **Credit signals warned around 3 of the last 4 major equity drawdowns** -- a drawdown is a peak-to-trough decline in value. The dot-com bust (2001), the Global Financial Crisis (2008), and the COVID crash (2020) were all preceded or accompanied by dramatic spread widening. The 2022 rate shock is the honest exception -- more on that below. **What this means for investors:** the signal is a useful drawdown-risk monitor for credit-driven sell-offs, but it should be paired with a separate interest-rate or valuation signal (e.g. the yield-curve pair in the portal) to cover the type of bear market that credit alone cannot see.
 4. **The relationship is strongest during stress** -- when spreads are in their top quartile (top 25% of historical values), the connection between credit conditions and subsequent stock returns is significantly stronger than during calm periods. **What this means for investors:** the signal earns its keep when you need it most -- during market crises -- and stays quiet the rest of the time, so following it does not impose a return drag during normal calm years.
-5. **Out-of-sample testing covers 8 years (2018-2025)** -- including the 2018 volatility spike, COVID crash, 2022 rate shock, and 2023-25 recovery. "Out-of-sample" means this period was hidden from the models during training, so it provides a genuine real-world test of whether the signal holds up on data it has never seen. **What this means for investors:** the 1.27 Sharpe and -10.2% max drawdown were achieved on data the model had never seen -- this is evidence of a durable edge, not curve-fitting, and supports allocating real capital to the rule rather than treating it as a historical curiosity.
+5. **Out-of-sample validation covers 6 years (2018-2024)** -- including the COVID crash, 2022 rate shock, and 2023-24 recovery. "Out-of-sample" means this period was hidden from the models during training, so it provides a cleaner test than in-sample fitting. Beyond that, the strategy passed a sealed confirmation test on 2025 data that was not used during the search (Sharpe 2.35, MDD −4.1% vs buy-and-hold −18.8%). **What this means for investors:** the 1.87 validation Sharpe and -10.2% max drawdown, confirmed by the 2025 holdout, are encouraging evidence of a durable edge -- though they do not by themselves justify real-capital allocation without further due diligence.
 
 ### Suggested Hero Chart
 
@@ -367,13 +368,13 @@ Our analysis uses **Hidden Markov Models** (statistical models that infer which 
 <details>
 <summary>🧒 Plain English version</summary>
 
-This section shows the data we used to test whether credit spreads really do predict stock market returns. Eight different statistical tests all point to the same conclusion: when the credit spread widens, stocks tend to do worse in the following weeks and months. None of these tests is perfect on its own, but together they tell a consistent story.
+This section shows the data we used to test whether credit spreads contain useful information about future stock returns. Several statistical tests are consistent with the same pattern: when the credit spread widens, stocks tend to do worse in the following weeks and months. None of these tests is definitive on its own, but together they tell a consistent story.
 
 </details>
 
 ### How We Tested the Signal
 
-Anecdotes about credit spreads warning before crashes are compelling, but they are not proof. To separate genuine predictive content from storytelling, we subjected 25 years of daily data to four complementary statistical tests, each built to stress a different weakness of the credit-leads-equity hypothesis. If one test flatters the result and the others reject it, we learn the story is fragile. If all four converge, we have real evidence.
+Anecdotes about credit spreads warning before crashes are compelling, but they are not proof. To separate possible predictive content from storytelling, we subjected 25 years of daily data to four complementary statistical tests, each built to stress a different weakness of the credit-leads-equity hypothesis. If one test flatters the result and the others reject it, we learn the story is fragile. If several converge, we have stronger evidence.
 
 Each of the four methods below is presented in the same eight-step structure: what the method is, the question it answers, how to read its chart, what the chart literally shows, optional deeper statistical detail, what the numbers mean economically, and a one-line takeaway. Read straight through, or skim the bolded key messages at the end of each block.
 
@@ -414,7 +415,7 @@ Three things to keep in mind. First, daily stock returns are dominated by noise 
 
 **3. How to Read the Graph:** The chart is a paired **bar plot**. For each lag length (1, 2, 3, 4, and 5 days), there are two bars: one for the "HY-IG → SPY" direction (does credit predict equity?) and one for the "SPY → HY-IG" direction (does equity predict credit?). The height of each bar is the **F-statistic** of the Granger test -- bigger bars mean stronger evidence that the first variable helps predict the second. A dotted horizontal line marks the 5% significance cutoff. Any bar above the line means the predictive relationship at that lag is statistically distinguishable from chance.
 
-**4. Graph:** `hy_ig_v2_spy_granger_causality` *(note: if not yet rendered as a standalone chart, this information is embedded in the local projections panel as an annotation)*
+**4. Graph:** `hy_ig_v2_spy_granger_causality`
 
 **5. Observation:** The SPY → HY-IG bars completely dominate the chart. At every lag from 1 to 5 days, the F-statistic for "stocks predict credit" is enormous (lag 1: F = 331, p < 0.001) and dwarfs the reverse direction. The HY-IG → SPY bars are small at lags 1 and 2 (p = 0.78 and 0.31 respectively -- not significant) but lift above the 5% line at lags 3 through 5 (F ~ 3.0, p-values of 0.011, 0.015, and 0.014). In short: equity-leads-credit is overwhelming at all lags; credit-leads-equity is modest but statistically real starting three days out.
 
@@ -425,7 +426,7 @@ Not at all, but it does mean we need to read the numbers carefully. Bidirectiona
 
 **7. Interpretation:** At first glance, this looks like bad news for our hypothesis -- equity seems to lead credit far more strongly than credit leads equity. But read in the context of the Merton model, the result is exactly what theory predicts: both markets are repricing the same underlying corporate asset values, so information flows both ways. The practically important finding is that the credit-to-equity channel exists and is statistically significant at the 3-to-5-day horizon, with enough room for a trader to act. The asymmetry in strength tells us something subtler: in normal times, stock prices set the pace, and credit is a follower; the credit signal is quiet precisely because there is no stress to price. The signal's real value must come from **regime-dependent** behaviour -- which is what the HMM and regime-conditional tests pick up, and which the full-sample Granger test understates by averaging calm and stress together.
 
-**8. Key Message:** **Granger tests confirm a real but modest credit-leads-equity channel at 3-5 day lags -- small in the full-sample average because calm periods dilute it, but the foundation on which the regime-dependent strategy is built.**
+**8. Key Message:** **Granger tests are consistent with a modest credit-leads-equity channel at 3-5 day lags -- small in the full-sample average because calm periods dilute it, but relevant to the regime-dependent strategy tested here.**
 
 `chart_status: "Validated"` <!-- RES-22: artifact exists in output/charts/hy_ig_v2_spy/plotly/ and validates against docs/schemas/chart_type_registry.json within 60 days. META-ELI5 ELI5 body supplied by app/components/glossary.py from docs/portal_glossary.json._status_vocabulary.Validated. -->
 
@@ -470,7 +471,7 @@ Vector autoregressions are the textbook tool for impulse responses, but they req
 
 <expander>
 **6. Deep Dive -- How does the HMM decide when to switch regimes, and how do we know it is not just curve-fitting?**
-The Gaussian HMM we use (fitted on daily HY-IG spread changes and VIX levels jointly) has two free components per state: a mean vector and a covariance matrix. The model also estimates a 2x2 transition matrix of probabilities -- for example, "given that today is calm, what is the probability tomorrow is still calm?" These transition probabilities are typically in the high 0.95-0.99 range for staying in the current state, which creates the persistent "flat" periods visible in the chart. Regime identification is done via the **Viterbi algorithm**, which finds the most likely sequence of hidden states given the observed data. We guard against overfitting three ways: (1) we fit only on the 2000-2017 in-sample window and let the HMM classify 2018-2025 cold; (2) we compare 2-state and 3-state variants by log-likelihood and BIC -- 2-state wins on parsimony; (3) we check that stress-state identification lines up with independently-known crisis dates (GFC, COVID, 2022) rather than being a retrospective fit. Out-of-sample classification correctly flags the COVID shock within about a week of its onset.
+The Gaussian HMM we use (fitted on daily HY-IG spread changes and VIX levels jointly) has two free components per state: a mean vector and a covariance matrix. The model also estimates a 2x2 transition matrix of probabilities -- for example, "given that today is calm, what is the probability tomorrow is still calm?" These transition probabilities are typically in the high 0.95-0.99 range for staying in the current state, which creates the persistent "flat" periods visible in the chart. Regime identification is done via the **Viterbi algorithm**, which finds the most likely sequence of hidden states given the observed data. We guard against overfitting three ways: (1) we fit only on the 2000-2017 in-sample window and let the HMM classify 2018 onward cold; (2) we compare 2-state and 3-state variants by log-likelihood and BIC -- 2-state wins on parsimony; (3) we check that stress-state identification lines up with independently-known crisis dates (GFC, COVID, 2022) rather than being a retrospective fit. Out-of-sample classification correctly flags the COVID shock within about a week of its onset.
 </expander>
 
 **7. Interpretation:** The HMM confirms that markets genuinely operate in two distinct modes rather than on a smooth continuum, and the stress state lines up tightly with episodes that economists, historians, and investors would all independently call crises. This is the engine room of the trading strategy: instead of applying the same rule in all weather, the strategy only acts on the credit signal when the HMM puts high probability on the stress state. Equally important, the model discovers where the stress threshold lies from the data itself -- typically corresponding to HY-IG z-scores of 1.5-2.0 and raw spreads of 500-600+ basis points -- rather than requiring us to impose an arbitrary cutoff that might be wrong or curve-fit.
@@ -575,7 +576,7 @@ Transfer entropy from X to Y is defined as H(Y_t+1 | Y_t) - H(Y_t+1 | Y_t, X_t),
 The Welch t-test asks whether two groups have different average returns, but averages are dominated by the low-volatility majority of days in each bin. The Q4 bin's daily standard deviation is roughly 2.5x the Q1 bin's daily standard deviation -- when you divide the mean difference by this inflated denominator, the t-statistic comes in at 1.501 and the p-value lands at 0.134. Statistical significance on means is the wrong frame here: **the economically decisive finding is the Sharpe and drawdown gradient, not the mean difference**, because investors care about risk-adjusted outcomes and the risk side is exactly where Q4 blows out. Quartile cutoffs are unconditional (pooled over the full 2000-2025 daily sample), not rolling, which intentionally lets the GFC and COVID widening episodes concentrate in Q4 as they historically did. The cutoffs themselves -- 2.55%, 3.22%, 4.58%, 15.31% -- are reported in the CSV for reproducibility. Welch's t-test is used rather than Student's because the two bins have visibly unequal variances.
 </expander>
 
-**7. Interpretation:** The simplest possible strategy -- **buy SPY only when HY-IG spreads are tight (Q1), sit in cash otherwise** -- would have earned a Sharpe of 1.45 on the days the trader was invested, beating both the HMM-based tournament winner (OOS Sharpe 1.27) and the buy-and-hold benchmark (OOS Sharpe ~0.90) on the risk-adjusted metric that matters most. This does not automatically mean the quartile rule is a better strategy than the HMM (it spends most of the sample in cash, the cutoffs are in-sample, and the mean difference is not significant), but it does frame what regime detection is actually doing: **the HMM is doing a more sophisticated version of quartile classification, using changes and volatility rather than just levels**. The gradient from Q1 to Q4 -- a Sharpe swing of 1.49 points and a drawdown swing of 51.9 ppts -- is the cleanest possible picture of why any credit-conditioned equity strategy works. It also explains the shape of the Quantile Regression result above: when spreads are wide, the SPY return distribution genuinely widens out, and the left tail is where most of the damage happens.
+**7. Interpretation:** The simplest possible strategy -- **buy SPY only when HY-IG spreads are tight (Q1), sit in cash otherwise** -- would have earned a Sharpe of 1.45 on the days the trader was invested, beating the buy-and-hold benchmark (OOS Sharpe ~0.90) on the risk-adjusted metric that matters most, and is competitive with (though not necessarily superior to) the HMM-based tournament winner on a risk-adjusted basis. This does not automatically mean the quartile rule is a better strategy than the HMM (it spends most of the sample in cash, the cutoffs are in-sample, and the mean difference is not significant), but it does frame what regime detection is actually doing: **the HMM is doing a more sophisticated version of quartile classification, using changes and volatility rather than just levels**. The gradient from Q1 to Q4 -- a Sharpe swing of 1.49 points and a drawdown swing of 51.9 ppts -- is the cleanest possible picture of why any credit-conditioned equity strategy works. It also explains the shape of the Quantile Regression result above: when spreads are wide, the SPY return distribution genuinely widens out, and the left tail is where most of the damage happens.
 
 **8. Key Message:** **The HMM regime detection strategy (our tournament winner) is essentially a sophisticated version of quartile classification** -- when you cannot manually sort all 6,000+ days and update the cut every day, the HMM does it for you with a statistical model. A no-model "only own stocks when credit spreads are tight" rule would have delivered Sharpe 1.45 and a -10.7% max drawdown in Q1, against -0.04 and -62.6% in Q4 -- the credit-cycle regime is the single most important variable in this analysis, and that is precisely what the HMM picks up automatically using changes and volatility rather than just levels.
 
@@ -585,7 +586,7 @@ The Welch t-test asks whether two groups have different average returns, but ave
 
 ### The Combinatorial Tournament
 
-We tested approximately 1,000+ meaningful combinations of signals (13 types), thresholds (7 methods), strategies (4 types), lead times (9 values), and lookback windows (4 lengths). These were ranked by out-of-sample **Sharpe ratio** -- a measure of risk-adjusted return calculated as (return minus risk-free rate) divided by volatility, where higher values mean better returns per unit of risk taken -- over 2018-2025 (data the models never saw during estimation). The top 5 strategies were then subjected to rigorous walk-forward validation, bootstrap significance testing, and transaction cost sensitivity analysis.
+We tested approximately 1,000+ meaningful combinations of signals (13 types), thresholds (7 methods), strategies (4 types), lead times (9 values), and lookback windows (4 lengths). These were ranked by out-of-sample **Sharpe ratio** -- a measure of risk-adjusted return calculated as (return minus risk-free rate) divided by volatility, where higher values mean better returns per unit of risk taken -- over 2018-2024 (data the models never saw during estimation). The top 5 strategies were then subjected to rigorous walk-forward validation, bootstrap significance testing, and transaction cost sensitivity analysis.
 
 *(See `results/hy_ig_v2_spy/tournament_results_20260410.csv` for the full leaderboard.)*
 
@@ -636,13 +637,14 @@ We use z-scores rather than raw spread levels because the "normal" level of cred
 
 | Metric | Credit-Signal Strategy (W1) | Buy-and-Hold SPY |
 |--------|---------------------------|-------------------|
-| OOS Sharpe Ratio (2018-2025) | **1.27** | ~0.90 |
+| OOS Sharpe Ratio (validation 2018-2024) | **1.87** | ~0.90 |
+| Confirmation holdout Sharpe (2025) | **2.35** | N/A |
 | Annualized Return (OOS) | ~11.3% | ~10% |
 | Maximum Drawdown | **-10.2%** | ~-34% |
 | Annual Turnover | ~3.8 trades/year | 0 |
 | Breakeven Transaction Cost | 50 bps | N/A |
 
-**What this means:** The credit-signal strategy delivered comparable returns to buy-and-hold but with dramatically less pain. Its worst peak-to-trough decline was -10.2%, versus -34% for an investor who simply held SPY through the same period. The Sharpe ratio of 1.27 (versus 0.90 for buy-and-hold) means each unit of risk taken was rewarded with roughly 40% more return. The strategy only needed about 4 trades per year, and it would remain profitable even if transaction costs were 10x higher than our 5 bps assumption.
+**What this means:** The credit-signal strategy delivered comparable returns to buy-and-hold but with dramatically less pain. Its worst peak-to-trough decline was -10.2%, versus -34% for an investor who simply held SPY through the same period. The validation Sharpe of 1.87 (versus 0.90 for buy-and-hold) means each unit of risk taken was rewarded with more than double the return per unit of risk. Beyond validation, this strategy passed a sealed confirmation test on 2025 data that was not used during the search (Sharpe 2.35, MDD −4.1% vs buy-and-hold −18.8%). The strategy only needed about 4 trades per year, and it would remain profitable even if transaction costs were 10x higher than our 5 bps assumption.
 
 ### Where the Strategy Adds Value -- and Where It Does Not
 
@@ -751,9 +753,10 @@ All data is sourced from publicly available databases accessible through our MCP
 
 - **Full sample:** January 2000 to December 2025 (daily, ~6,500 business days)
 - **In-sample (model estimation):** January 2000 to December 2017 (~4,500 obs)
-- **Out-of-sample (strategy evaluation):** January 2018 to December 2025 (~2,000 obs)
+- **Validation OOS (strategy evaluation):** 2018-10-01 to 2024-12-31 (~1,632 obs, ~6 years)
+- **Confirmation holdout (sealed):** 2025-01-01 to 2025-12-31 (261 obs; not used during model development)
 
-The 70/30 in-sample/out-of-sample split provides a generous 8-year out-of-sample window that includes multiple distinct market episodes (2018 volatility spike, COVID crash, 2022 rate shock, 2023-25 recovery), preventing the strategy from being validated on only one type of market environment.
+The three-period split — in-sample estimation, a six-year validation window, and a sealed one-year confirmation holdout — ensures the strategy is evaluated across multiple distinct market episodes (2018 volatility spike, COVID crash, 2022 rate shock, 2023–24 recovery) before any inference is drawn from the holdout year.
 
 ### Indicator Construction
 

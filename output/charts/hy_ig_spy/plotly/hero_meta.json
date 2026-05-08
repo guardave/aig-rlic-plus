@@ -6,11 +6,26 @@
     "VIZ-V8",
     "VIZ-V11",
     "VIZ-NM1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V2"
   ],
   "narrative_alignment_note": "Full 25-year context establishes the counter-cyclical link: spread spikes (2001, 2008, 2020) precede equity drawdowns.",
   "created_at": "2026-04-22T10:50:44Z",
   "method_name": "hero",
   "expected_chart_type": "dual_axis_line",
-  "disposition": "consumed"
+  "disposition": "consumed",
+  "title": "Credit Stress Predicts Equity Drawdowns: 25 Years of HY-IG vs SPY",
+  "caption": "Full 25-year context establishes the counter-cyclical link: spread spikes (2001, 2008, 2020) precede equity drawdowns.",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "2000-01-03 to 2026-04-22",
+  "data_source_path": "data/hy_ig_spy_daily_latest.parquet",
+  "exploratory": false,
+  "econ_rule_id": "ECON-C2",
+  "result_file": "data/hy_ig_spy_daily_latest.parquet",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

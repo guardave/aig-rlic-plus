@@ -2,7 +2,25 @@
   "pair_id": "hy_ig_v2_spy",
   "chart_type": "event_annotation",
   "rules_applied": [
-    "VIZ-CP1"
+    "VIZ-CP1",
+    "VIZ-O1",
+    "VIZ-CP1.3"
   ],
-  "generated_at": "2026-04-24"
+  "generated_at": "2026-04-24",
+  "chart_name": "structural_break",
+  "title": "Structural Break Analysis \u2014 hy_ig_v2_spy",
+  "caption": "Structural Break Analysis \u2014 hy_ig_v2_spy",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "2001-12-10 to 2025-12-31",
+  "data_source_path": "results/hy_ig_v2_spy/structural_break.csv",
+  "disposition": "consumed",
+  "palette_id": "okabe_ito_2026",
+  "exploratory": false,
+  "econ_rule_id": "ECON-CP2",
+  "result_file": "results/hy_ig_v2_spy/structural_break.csv",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

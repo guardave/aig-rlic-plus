@@ -146,8 +146,8 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 25 | No Silent Chart Fallbacks | Pages must not silently substitute a different chart when the intended canonical artifact is missing. If the canonical chart for a method does not exist, the page renders a labeled "chart pending" placeholder with an explanation — **never** a lookalike from a different method. acceptance.md must list every method → chart mapping and verify each chart is canonical (not borrowed). Cross-reference: VIZ-V3. **Addresses S18-11.** **Owners:** Vera (canonical artifact), Ace (render path), Lesandro (gate check) |
 | 26 | No Silent Content Drops | When a previously-present analysis element (table, chart, subsection, callout) is removed on a rerun or new version, `regression_note_<date>.md` must include an explicit **Removed** section with rationale per item. If no rationale is provided, the content must be restored. Applies across versions of the same pair (e.g., HY-IG v2 losing content that HY-IG v1 had). Cross-reference: VIZ-V4, RES-5. acceptance.md must include a prior-version inventory diff (see "Prior-Version Inventory Check" below). **Addresses S18-8, SL-2, and the silent-content-drop meta-pattern.** **Owners:** Evan + Ray + Ace (producers), Lesandro (gate) |
 | 27 | End-to-End Chart Render Test | Every chart referenced by any portal page of a pair under acceptance must: (a) load successfully via `load_plotly_chart(name, pair_id)` and return a non-None Figure object; (b) have at least one data trace; (c) have a non-empty title. Enforcement: Vera runs VIZ-V5 smoke tests on all canonical artifacts; Ace runs a loader smoke-test extension of Defense-2 that exercises `load_plotly_chart()` for every chart referenced by every portal page of the pair. Both agents submit their smoke-test logs as part of acceptance.md. **Blocking:** any chart failing the smoke test blocks acceptance until fixed. **Addresses** the Dot-Com canonical zoom bug where the file existed, the path resolved, and the loader still returned None — a failure mode invisible to file-existence checks alone. **Owners:** Vera (canonical artifacts) + Ace (loader + portal), Lesandro (gate). |
-| 28 | Reference-Pair Placeholder Prohibition | On reference-pair pages (see Reference Pair Doctrine), any "chart pending" placeholder (the GATE-25 graceful fallback) is an **acceptance blocker**. Graceful degradation is appropriate for non-reference pairs under development; reference pairs are the gold standard and must render 100% of referenced charts. acceptance.md must assert: zero `chart_pending` placeholders in rendered page DOM, verified via headless-browser DOM audit over every portal page of the reference pair. **Addresses** the gate-level gap that allowed "chart pending" to pass Wave 3 verification on a reference pair. **Owners:** Ace (portal audit) + Lesandro (gate). |
-| 29 | Clean-Checkout Deployment Test | Before acceptance, the pair's portal must pass a smoke test run in a **clean checkout that respects `.gitignore`** — a simulation of Streamlit Cloud's deployment environment. Implementation: `git clone --depth 1 "$(git rev-parse --show-toplevel)" /tmp/clean_checkout_{pair_id}` then `cd /tmp/clean_checkout_{pair_id}` then `python3 app/_smoke_tests/smoke_loader.py --pair-id {pair_id}`. Any file referenced by `app/` code that exists in the working tree but NOT in the clean checkout = gate failure (indicates a silent gitignore exclusion or missing `git add -f`). Blocks acceptance for reference pairs. Rationale: `GATE-27` validates rendering in the dev env; `GATE-29` validates deployability. Cross-reference: `ECON-DS2` (Deploy-Required Artifact Allowlist) is the producer-side counterpart; `APP-ST1` is the reusable smoke-test harness. This gate catches the class of bug "works on my laptop, breaks on Cloud" — the symptom is usually a `FileNotFoundError` or `cannot render` error on a deployed page. **Owners:** Ace (smoke test execution) + Lesandro (gate). |
+| 28 | Delivered-Page Placeholder Prohibition | On reference, current, or external-delivery pages in scope, user-facing chart/stub/live-execution placeholders are an **acceptance blocker** unless a Lead-approved exception is recorded. Headless-browser DOM audit must name scoped pairs and page types. Graceful degradation remains allowed only for non-delivered work-in-progress pages. **Owners:** Ace (portal audit) + Quincy (verification) + Lesandro (gate). |
+| 29 | Clean-Checkout Deployment Test | Before acceptance, every new or changed delivered pair in scope must pass a smoke test run in a **clean checkout that respects `.gitignore`** — a simulation of Streamlit Cloud's deployment environment. Implementation: `git clone --depth 1 "$(git rev-parse --show-toplevel)" /tmp/clean_checkout_{pair_id}` then `cd /tmp/clean_checkout_{pair_id}` then `python3 app/_smoke_tests/smoke_loader.py --pair-id {pair_id}`. Any file referenced by `app/` code that exists in the working tree but NOT in the clean checkout = gate failure (indicates a silent gitignore exclusion or missing `git add -f`). Rationale: `GATE-27` validates rendering in the dev env; `GATE-29` validates deployability. Cross-reference: `ECON-DS2` (Deploy-Required Artifact Allowlist) is the producer-side counterpart; `APP-ST1` is the reusable smoke-test harness. This gate catches the class of bug "works on my laptop, breaks on Cloud" — the symptom is usually a `FileNotFoundError` or `cannot render` error on a deployed page. **Owners:** Ace (smoke test execution) + Quincy (verification) + Lesandro (gate). |
 | 30 | Deflection Link Audit | Triggered whenever a stakeholder-feedback item (Sxx-y / SL-n) is closed in `acceptance.md` by deflecting to another page/section rather than by an in-place fix. Rule: (a) the resolution text must explicitly name the target page AND the target section/anchor; (b) the target page/section is **blocking-verified** to exist AND to contain the content claimed — headless-browser DOM assertion on the target anchor and a content-presence assertion on the text that addresses the stakeholder's concern; (c) **Lead sign-off is required** on every deflection-style resolution — agents cannot close a deflection item unilaterally; (d) if the target page is later renamed or restructured, **every deflection reference that pointed at it is automatically re-opened** for re-audit (meta-rule: deflection is a contract between the resolution and the target page, not a one-shot fix). Example: S18-2 (Market Regime section) was closed by deflecting to the Story page regime explainer. GATE-30 requires: (1) the Story page regime explainer exists; (2) it addresses S18-2's concern; (3) if the Story page is later renamed or restructured, S18-2 returns to open status automatically. **Addresses** the Wave-5 audit finding that S18-2 and S18-4 were closed by deflection with no mechanical assertion that the deflection target renders or contains the referenced content. **Owners:** Ace (DOM audit) + Lead Lesandro (sign-off). |
 | 31 | Independent QA Verification (Blocking) | Every `acceptance.md` sign-off must have a QA Verification section authored by Quincy per `docs/agent-sops/qa-agent-sop.md`, with at least one finding recorded per mandated category: **(a) artifact verification** (claim-evidence cross-check on every regression-note bullet); **(b) smoke tests** (`smoke_loader.py` + `smoke_schema_consumers.py` exit-0 logs); **(c) stakeholder-spirit check** (every S-item claimed resolved is re-read as the stakeholder); **(d) cross-agent seam audit** (GATE-24/25/26/28/30 + APP-DIR1 + META-XVC cross-version diff). Zero findings = QA wasn't looking; at least one PASS-with-note observation is required per wave even if nothing blocks. Any **FAIL** finding blocks acceptance until producer fix + QA re-verification; Lead override is allowed but requires a rationale block in `docs/pair_execution_history.md` "QA Override Log" section (mirrors META-FRD). Makes QA involvement mandatory, not optional. **Addresses** the Wave-5 reflection finding that producer self-reports were signed off without independent re-verification — unlocking a silent-drift class that META-SRV formalizes at the producer side. **Owners:** Quincy (authors findings) + Lead Lesandro (accepts sign-off / logs override). Added 2026-04-19 (Wave 6A). Cross-ref META-SRV, META-AL, META-RPD, GATE-23..30. |
 
@@ -269,7 +269,7 @@ This section is the canonical mechanism for declaring intentional removals and i
 1. Try `output/charts/{pair_id}/plotly/history_zoom_{episode}.json`.
 2. If missing → "chart pending" placeholder per GATE-25. No `_comparison/` fallback.
 
-**Cross-references:** META-AL (supersedes canonical-rendered-chart fallback), VIZ-V1 (dual-panel mandate, refined Wave 6B), VIZ-V12 (events registry — canonical metadata), VIZ-V11 (palette), VIZ-V2 (NBER shading), GATE-25 (missing-chart placeholder), GATE-28 (reference pairs have zero placeholders).
+**Cross-references:** META-AL (supersedes canonical-rendered-chart fallback), VIZ-V1 (dual-panel mandate, refined Wave 6B), VIZ-V12 (events registry — canonical metadata), VIZ-V11 (palette), VIZ-V2 (NBER shading), GATE-25 (missing-chart placeholder), GATE-28 (delivered pages have zero unresolved placeholders).
 
 **Why this rule exists:** Cross-pair consistency of *events* is free and enforced by the registry; consistency of *rendered chart styling* is free via the palette + dual-panel template; what cannot be made canonical is the rendered data, because it is by construction pair-specific. The old override-with-fallback model saved zero marginal work (every pair still had to render its own dual-panel anyway) while creating a silent cross-pair data-misrepresentation risk. META-AL forecloses the category error; META-ZI is the applied rule.
 
@@ -496,7 +496,7 @@ Audit every `st.error` / `st.warning` / `st.info` call site in the HY-IG v2 port
 
 **Cross-reference:** RES-1 (Audience Assumption — layperson voice), RES-3 (Method Justification — "why we chose this" sentences), APP-SE5 (Universal Takeaway Caption — extends the same audience-friendly principle to charts/tables), APP-SEV1 (Validation Severity Policy — the technical-flag layer META-ELI5 sits on top of).
 
-**Why this rule exists:** RES-1/RES-3 enforce layman tone in narrative prose. APP-SE5 enforces takeaway captions on charts/tables in the Confidence section. Neither catches in-line flags ("Insufficient OOS," "chart pending," "Direction disagreement: Evan says X, Dana says Y"). Those flags are technically-correct but user-hostile. META-ELI5 closes that layer.
+**Why this rule exists:** RES-1/RES-3 enforce layman tone in narrative prose. APP-SE5 enforces takeaway captions on charts/tables in the Confidence section. Neither catches in-line flags ("Insufficient OOS," "chart pending," or direction-mismatch errors). Those flags may be technically correct but user-hostile. META-ELI5 closes that layer.
 
 ### Contract File Standard (Meta-Rule META-CF)
 
@@ -557,7 +557,7 @@ these must migrate to `docs/schemas/` when authored). See
 
 **Cross-references.**
 
-- **Invalidates the META-ZI canonical-rendered-chart fallback.** META-ZI is scheduled for refinement in Wave 6B: the loader drops the `output/_comparison/` rendered-chart fallback, and the canonical layer shrinks to the events registry (VIZ-V12) plus the per-pair rendering contract.
+- **Invalidates the META-ZI canonical-rendered-chart fallback.** META-ZI now requires the loader to use pair-specific rendered charts only; the canonical layer is the events registry (VIZ-V12) plus the per-pair rendering contract.
 - Applies to any future shared-artifact proposals. Before a new rule introduces an `output/_comparison/` or `results/_shared/` path, the proposer must pass the test question and write the answer into the proposal.
 
 **Why this rule exists.** Wave 5 reflection revealed that the META-ZI fallback was a silent source of cross-pair data misrepresentation: a pair whose own episode chart was missing would silently read another pair's chart. File-existence gates and loader smoke tests did not catch it because the load technically succeeded. META-AL forecloses that entire failure class by forbidding the abstraction up front.
@@ -706,6 +706,164 @@ Session-notes fallback is **temporary capture only**, not equivalent to the glob
 
 **Scope.** Applies to all 6 agent roles (Dana, Evan, Vera, Ray, Ace, Quincy) and to Lead (whose own memory update is proportionally larger because Lead coordinates across all agents). Applies every wave closure, not only major releases — small waves still produce cumulative wisdom worth capturing.
 
+**Per LA-7 (2026-05-08 SOP review):** Ray no longer maintains `memories.md` — the file is consolidated into `experience.md` only. All other agents continue with the three-file pattern. QA-CL3 in `qa-agent-sop.md` reflects this exemption.
+
+### Schema-Bump Propagation Contract (Meta-Rule META-SBP)
+
+> **Whenever any META-CF schema bumps its `x-version`, the producer agent runs a portfolio-wide validation sweep against every committed instance before any other work. Pair handoffs block until the sweep is closed.**
+
+**Principle.** Schema bumps that pass validator tests on the schema author's pilot instance can silently invalidate dozens of legacy instances elsewhere. Wave 10I.A is the canonical example: a `winner_summary.schema.json` 1.0.0 → 1.1.0 bump (`threshold_value` made nullable) shipped with 6 legacy `winner_summary.json` instances missing 7+ required fields. The drift was caught only by Quincy cloud-verify FAIL — every consumer that reached schema validation broke at render time. The right place to catch this is at the producer, not the consumer.
+
+**Rule.** On any META-CF schema's `x-version` change (semver minor or major), the schema-owning agent **MUST**:
+
+1. Before any other work in the wave, run `python3 scripts/validate_schema.py --schema <schema_path> --instance <instance_path>` against every committed instance found via `git ls-files`. Record `pass`/`fail` per instance.
+2. Write a version-bump regression note at `_pws/<role>-<name>/regression_note_schema_bump_{schema_name}_{date}.md` with:
+   - Old version → new version
+   - Breaking changes summary (additive vs subtractive vs unit-coherence — see META-UC if any unit/enum semantics changed)
+   - Per-instance status table (`pass` / `fail` with error count / `n/a — pre-schema legacy`)
+   - Action plan for failures: same-wave fix OR BL entry with explicit wave target
+3. Pair-level handoffs and portfolio-level handoffs **block** until either every failure has a fix in the wave or every failure has a documented BL entry. Silent skips of failed instances are a BLOCKING META-SBP violation.
+
+**Scope.** All META-CF schemas and their owners:
+
+- Dana — `data_manifest`, `display_name_registry`, `signal_code_registry` (extension shared with Evan), `data_subject`, `caption_prefix_vocab`, `expander_title_registry`
+- Evan — `winner_summary`, `signal_scope`, `final_exam_results`, `evidence_status`, `signal_code_registry`
+- Vera — `chart_type_registry`, `color_palette_registry`, `history_zoom_events_registry`
+- Ray — `narrative_frontmatter`
+- Ace — `url_slug_pins`
+
+**Companion rules.**
+
+- **META-CF** — schema authority and producer-side validation contract. META-SBP extends META-CF to cover the version-bump moment specifically.
+- **META-SCV** — consumer-side version contract. META-SBP and META-SCV together prevent the producer-bumps-consumer-stays-stale failure class from both ends.
+- **META-VNC** — silent-content-drop prevention. A schema bump that invalidates legacy instances and ships without sweep is a silent drop in the artifact layer.
+- **META-UC** — unit-coherence after migration. If the schema bump changes unit/enum semantics, META-UC's full propagation section applies on top of META-SBP's instance sweep.
+- **ECON-BUMP1** — Evan-side instantiation of META-SBP for `winner_summary.schema.json`. Other agents author similar instantiations as their schemas mature.
+
+**Why this rule exists.** Documented in Wave 10I.A session-notes: the v1.0.0 → v1.1.0 bump on `winner_summary.schema.json` shipped without a portfolio sweep. 6 legacy pairs failed schema validation at portal render time. Quincy cloud-verify caught it; producer-side prevention would have closed the gap two days earlier. Lead arbitration LA-8 (2026-05-08) promoted the rule from a buried Evan-only sub-rule to a cross-agent META rule because the failure class is general.
+
+**Enforcement.** Quincy adds a META-SBP audit to QA-CL1 wave checklist: "if any schema's `x-version` bumped this wave, regression note exists with portfolio-wide instance sweep table." First-occurrence PASS-with-note; subsequent occurrence FAIL.
+
+Added 2026-05-08 (LA-8 from six-phase SOP review). Cross-ref META-CF, META-SCV, META-VNC, META-UC, ECON-BUMP1.
+
+### Normalization & Concept Discipline (Meta-Rule META-NCD)
+
+> **Any concept used in two or more rulebooks declares one canonical location; every other location cites the canonical via cross-reference. Authoring a duplicate definition is a META-NCD violation.**
+
+**Principle.** Duplication is the structural cause of drift. Two copies of the same concept will diverge over time as one gets edited and the other doesn't — and the team operates on two slightly different definitions until a stakeholder bug forces reconciliation. The 2026-05-08 six-phase SOP review surfaced 223 distinct findings; nearly every one was a downstream consequence of duplicated concepts that had drifted (`dot_com` vs `dotcom`, two parallel episode registries, `ZOOM_EPISODE_NARRATIVES` vs `HISTORY_ZOOM_EPISODES`, three claims about who owns `observed_direction`, stale schema version cited in rule body, schema bump that didn't update the example file). META-NCD generalizes the existing META-AL principle from data files to prose-level concepts.
+
+**Concept categories that MUST be normalized.**
+
+1. **Term definitions** — terms used in 2+ SOPs are defined once in `docs/glossary.md`; rule bodies reference the glossary, not redefine inline.
+2. **Field enumerations** — JSON-schema field lists belong to the schema; rule bodies describe semantics and ownership but do not enumerate field names.
+3. **Enum sets** — controlled vocabularies (status labels, severity levels, episode slugs, signal codes, palette role names) live in their canonical registry / canonical rule; consumer rules reference, not enumerate.
+4. **Code blocks** — pseudocode that mirrors a real script is debt; convert to a referenced script when the rule lands. Inline pseudocode is allowed only when no script exists yet (record as a backlog item to externalize).
+5. **Status vocabulary** — `docs/portal_glossary.json` `_status_vocabulary` is canonical; consumers reference via RES-10 / DATA-VS / RES-VS.
+6. **Severity scheme** — APP-SEV1 in the AppDev SOP is canonical for L1/L2/L3 definitions; consumer rules reference, not paraphrase.
+
+**Rule.** When any agent authors a new rule, definition, or example that overlaps with an existing one elsewhere in the SOP corpus, the agent MUST:
+
+1. Identify the canonical location (existing or newly chosen).
+2. Make the canonical entry the single source of truth.
+3. Cite via cross-reference from every non-canonical location.
+4. If the agent is *creating* the canonical, record the choice in the wave's regression note so other authors converge.
+
+**Enforcement.**
+- Quincy adds a META-NCD spot-audit to the per-quarter QA review: pick three terms used in 3+ SOPs, grep each, confirm each non-canonical occurrence is a cross-reference rather than a definition. Drift findings are reported to Lead and reopened as a normalization mini-wave.
+- Authors creating duplicates without a "see <canonical>" reference produce a META-NCD violation finding at the next cross-review.
+- The principle is structural, not stylistic — one definition is enough; the second is a liability.
+
+**What META-NCD is not.**
+- Not anti-cross-reference. Long `Cross-ref X, Y, Z` blocks at the end of a rule are not duplications; they are a useful navigation aid.
+- Not anti-context. A rule may include the *minimum* terminology required to be self-readable. The line is between "you need to know what this term roughly means to read this rule" (allowed inline) vs. "the authoritative definition lives here" (canonical, single location).
+- Not retroactive on stable rules with no observed drift. New duplications are caught immediately; existing duplications are normalized opportunistically when the surrounding rule is touched.
+
+**Companion rules.**
+- **META-AL** (Abstraction Layer Discipline) — META-NCD is META-AL extended to prose-level concepts (terms, severity, status). META-AL handles data files; META-NCD handles rules.
+- **META-CF** (Contract File Standard) — single authoritative schema per cross-agent JSON artifact. META-NCD generalizes the same SSoT principle to non-schema concepts.
+- **META-VNC** (Version-to-Version Content Continuity) — silent content drops are forbidden; META-NCD prevents the silent-drop class where one of two copies is updated and the other isn't.
+
+**Why this rule exists.** The 2026-05-08 BL-SOP-NORMALIZE wave operationalized the principle on the existing corpus (consolidating six per-SOP glossaries into `docs/glossary.md`, retiring duplicate status / severity enumerations, etc.). META-NCD is the rule that prevents the corpus from re-fragmenting at the next wave.
+
+Added 2026-05-08 (BL-SOP-NORMALIZE). Cross-ref META-AL, META-CF, META-VNC, META-SBP, RES-10, DATA-VS, RES-VS, APP-SEV1, `docs/glossary.md`.
+
+### Acceptance Verification Discipline (Meta-Rule META-AVD)
+
+> **Wave-plan items that specify a change with a removal or retirement component carry both a positive-pattern acceptance check (what should now exist) and a negative-pattern acceptance check (what should no longer exist). Match between agent-reported and Lead-audit outputs at BOTH passes = wave clean. Match at only the positive pass = unconditional trust at Layer 3, drift admitted.**
+
+**Principle.** Mechanical acceptance commands defend three layers of trust unevenly:
+
+- **Layer 1 — did the agent run the command and report real output?** Defended by Lead re-running independently. Match → no fabrication.
+- **Layer 2 — does the command measure the right thing?** Defended by Lead authoring the commands (agent cannot game test design). Subject to Lead's test-design quality.
+- **Layer 3 — does the metric reflect real semantic work?** Defended only when both positive- and negative-pattern checks are specified. A positive check ("≥ N cross-references exist") confirms the work was attempted but does not confirm the duplicate it was meant to replace is actually gone — the agent could have added a cross-reference next to an existing inline definition without retiring it. A negative check ("0 inline-definition patterns remain") closes that gap.
+
+**Rule.** Every mechanically-auditable wave plan item whose intent includes a removal, retirement, deprecation, or migration MUST specify two acceptance commands:
+
+1. **Positive-pattern check** — what should now exist (cross-references, canonical pointers, registry entries, replacement artifact). Confirms the work was done.
+2. **Negative-pattern check** — what should no longer exist (inline definitions of glossary terms, prose enumerations of canonical sets, references to a deprecated path, paraphrases of a now-canonical scheme). Confirms the duplicate is gone.
+
+Both commands run by the agent post-change with output pasted verbatim into the handoff. Both re-run by Lead at audit. Both must match between agent and Lead. The wave is clean only when both pass; positive-only is insufficient.
+
+**When the rule applies.**
+
+- Always for normalization waves (replace inline definitions with canonical references).
+- Always for deprecation waves (retire a rule, file, or artifact).
+- Always for migration waves (move an artifact; old location should disappear).
+- Always for refactor waves whose intent is "consolidate two implementations into one."
+- Optional for purely additive waves (no removal component); positive-only is sufficient there.
+
+**Examples of the two-sided pattern.**
+
+| Wave intent | Positive check | Negative check |
+|---|---|---|
+| Glossary consolidation | `grep -c "docs/glossary.md" <sop>` ≥ N | `grep -c "<term> (is\|=\|means\|—)" <sop>` = 0 in non-canonical SOPs |
+| Registry deprecation (e.g., LA-1 episode_registry retirement) | New canonical registry exists; thin pointer in old path | `grep -rc "old/path/episode_registry.json" docs/` = 0 in active rule prose |
+| Canonical-set centralization | Single canonical reference exists in canonical owner's rule | `grep -c "<enum_set_pattern>" <consumer>` = 0 in non-canonical SOPs |
+| Schema bump (per META-SBP) | All instances re-validated under new version | No instance left at old `schema_version` value |
+
+**Why this rule exists.** BL-SOP-NORMALIZE wave plan (2026-05-08) specified only positive-pattern checks (cross-reference counts ≥ N). The wave passed Lead audit cleanly. A Layer-3 spot-check after closure confirmed the agents had also retired the inline definitions — but that confirmation came from ad-hoc grepping, not from the wave plan's specified acceptance criteria. If the agents had been less careful, the wave would have audited as PASS while inline duplicates remained alongside the new cross-references. The user identified the gap directly: "running their scripts blindly implies unconditional trust on them, correct?" Layer 3 was, in fact, unconditional trust. META-AVD codifies the fix: wave plans for mechanically-auditable removal-class work specify two-sided acceptance from the start.
+
+**Companion rules.**
+
+- **META-SRV** — every claim carries verification evidence. META-AVD is META-SRV applied to wave-plan acceptance specifically: the verification spec is two-sided.
+- **META-NCD** — concept normalization (the failure class that BL-SOP-NORMALIZE addressed). META-AVD ensures future normalization waves audit cleanly at Layer 3, not only Layer 1.
+- **META-SBP** — schema-bump propagation. META-SBP is one specific application of META-AVD's two-sided pattern (sweep both must succeed and old-version absence).
+
+Added 2026-05-08 (post-BL-SOP-NORMALIZE retro on user feedback re: Layer-3 trust). Cross-ref META-SRV, META-NCD, META-SBP, META-CF.
+
+---
+
+### Dispatch Matrix (Meta-Rule META-DM)
+
+**Rule.** When any agent completes work that changes an artifact listed in the matrix below, Lead consults the matrix at wave closure and dispatches the listed downstream agents for consequential review before marking the wave CLOSED. Downstream review is a wave-closure gate, not optional. If Lead determines a listed downstream agent is not materially affected (e.g., Ray's narrative contains no OOS date references and split dates changed), Lead records the rationale for skipping in the wave closure note. Silent skips without rationale are a META-DM violation.
+
+**The matrix.**
+
+| Producer | Changed artifact / event | Must review |
+|----------|--------------------------|-------------|
+| Evan | `oos_split_record.json` dates change | Ray, Vera, Ace |
+| Evan | `winner_summary.json` winner changes | Ray, Vera, Ace, Quincy |
+| Evan | `evidence_status.json` status promotion | Ray, Ace, Quincy |
+| Evan | Any owned schema version bump | Quincy, Ace |
+| Dana | `signal_scope.json` change | Evan, Quincy |
+| Dana | Dataset columns added / removed | Evan |
+| Vera | Chart artifact renamed / removed | Ace, Quincy |
+| Ray | Narrative KPI values change | Ace |
+| Ace | Portal template structure change | Quincy |
+| Quincy | `cloud_verify.py` gate added / removed | All |
+| Lead | Schema version bump (META-SBP) | All affected owners |
+
+**Scope.** The matrix covers material changes — those that alter values, dates, structure, or gates downstream agents rely on. Cosmetic edits (prose wording, comment cleanup) within an artifact that downstream agents do not read programmatically do not trigger the matrix. Lead adjudicates borderline cases.
+
+**Canonical location.** This matrix lives here only. Role SOPs cross-reference this section; they do not duplicate the table. Adding a row to a role SOP rather than here is a META-NCD violation.
+
+**Companion rules.**
+- **META-NCD** — single canonical location for cross-SOP concepts; the matrix is the canonical dispatch protocol.
+- **META-AVD** — wave closure audit must confirm META-DM obligations were dispatched or explicitly skipped.
+- **META-SRV** — dispatch evidence (agent ID, artifact reviewed, verdict) is recorded in the wave closure note.
+
+Added 2026-05-08 (META-DM wave). Cross-ref META-NCD, META-AVD, META-SRV.
+
 ### Mandatory Dispatch Template (META-AM enforcement at the prompt level)
 
 > **Every agent dispatch prompt must (a) identify the agent with a machine-parseable `AGENT_ID:` line and (b) end with the mandatory EOD block. These two conventions are what allow the PostToolUse audit hook and QA-CL3 to function.**
@@ -745,8 +903,12 @@ This block is consumed by the PreToolUse hook (`scripts/hooks/check-agent-sod.sh
 2. Append to `~/.claude/agents/<role>-<name>/memories.md` — dated incident log for this wave.
 3. Append to `_pws/<role>-<name>/session-notes.md` — project-specific session summary.
 4. For each file: record evidence (wc -l or git diff) per META-AM / META-SRV.
+5. Dispatch gate — for every artifact you changed this session, check the META-DM matrix in
+   `docs/agent-sops/team-coordination.md § Dispatch Matrix`. If any downstream agent appears
+   in the "Must review" column, note it in your handoff so Lead can route at wave closure.
+   Do not dispatch directly — Lead owns routing decisions.
 
-Do not return without completing all four steps.
+Do not return without completing all five steps.
 ```
 
 **Enforcement chain.**
@@ -1100,6 +1262,67 @@ Every handoff requires a structured acknowledgment from the receiver:
 5. **Never overwrite another agent's output** — create versioned files with `_v{N}` suffix
 6. **Acknowledge every handoff** — confirm receipt and adequacy (see Acknowledgment Protocol above)
 7. **Cite upstream contributions** — reference teammates' deliverables by file path in your output
+8. **Write token-efficiently** — skip low-signal affirmations, ceremonial openings, and repeated restatements. State the decision, evidence, blocker, or next action.
+
+### META-TD1 — Token-Efficient Communication
+
+Agents must conserve context for analysis and evidence. Do not spend tokens on
+empty praise or agreement such as "Great idea", "Absolutely", "I completely
+agree", or "This is a fantastic suggestion." Prefer:
+
+```
+Adopted. Next action: <specific action>.
+Blocked by: <specific blocker>.
+Finding: <specific issue + evidence>.
+```
+
+Rules:
+
+1. Do not restate the user's prompt unless resolving ambiguity.
+2. Do not use ceremonial openings or "as an agent" framing.
+3. Do not promise care ("I will carefully..."); provide evidence instead.
+4. Use one evidence citation per finding unless more is needed.
+5. Cross-reference shared rules instead of copying them into every SOP.
+6. Move wave history to changelog/PWS; keep live SOP text focused on current behavior.
+7. Use compact tables only when they reduce prose.
+
+### META-DASH1 — Four-Page Dashboard Consistency
+
+For each implemented pair, the Story, Evidence, Strategy, and Methodology pages
+must read as one coherent dashboard, not four independent documents.
+
+Before product remediation or stakeholder delivery, check the four pages
+together for consistency on:
+
+| Item | Check |
+|------|-------|
+| Thesis | Same headline claim and mechanism across pages |
+| Direction/sign | Expected direction, observed direction, coefficient sign, and strategy rule do not conflict |
+| Evidence status | Copy strength matches `evidence_status` / FE1 status |
+| Key metrics | Sharpe, return, drawdown, trade count, sample window use the same definitions |
+| Caveats/confidence | Limitations and diagnostic weakness are not hidden on only one page |
+| Terminology | Same terms for signal, target, benchmark, and regime |
+| Signal/strategy identity | Winner signal, threshold, lead, and strategy family match across pages |
+| Action language | User-facing action/investment wording does not exceed the evidence grade |
+
+Ownership:
+
+- Ray owns author-side narrative consistency.
+- Ace owns rendered label/status/navigation consistency.
+- Quincy independently verifies DOM/read-through consistency.
+- Lead routes unresolved cross-role conflicts back to role owners.
+
+Minimum QA evidence per scoped pair:
+
+| Field | Requirement |
+|-------|-------------|
+| DOM files | Story, Evidence, Strategy, and Methodology file paths named |
+| Checks | Each META-DASH1 checklist item marked PASS / NOTE / FAIL |
+| Evidence | One concise citation per NOTE/FAIL |
+| Verdict | Pair-level PASS / PASS-with-note / FAIL |
+
+Sampling across different pairs does not satisfy META-DASH1. Dashboard
+consistency is pair-local by definition.
 
 ## Naming Conventions
 
@@ -1309,7 +1532,7 @@ The following terms are reserved and must not be used interchangeably:
 - Handoff notes without a META-RYW block are returned as META-SRV violations and do not reach QA.
 - Quincy spot-audits META-RYW blocks at acceptance: randomly sample 2 claims per agent per wave and verify the re-read actually found what it said it found.
 
-## META-NMF — No Manual Fix (Inviolable Lead Rule)
+## META-NMF — SOP-First Remediation Protocol
 
 **Added 2026-04-20. This rule is inviolable and overrides any pressure to "just fix it quickly."**
 
@@ -1317,15 +1540,23 @@ The following terms are reserved and must not be used interchangeably:
 
 ### The Protocol (mandatory, no exceptions)
 
-```
-1. Identify the bug or gap
-2. Identify which SOP is missing the rule that would have prevented it
-3. Write the rule into the SOP (or template) FIRST
-4. Dispatch the responsible agent to apply the fix, citing the new SOP rule
-5. QA verifies the fix as usual
-```
+For every product, artifact, review, or stakeholder finding:
 
-Steps 2-3 are non-negotiable even when the fix is a one-line code change. If a fix took 30 seconds to make manually, the SOP update may take 5 minutes — that 5 minutes closes the gap for every future pair.
+1. **Map the finding to SOP coverage.** Classify it as:
+   - `SOP missing` — no rule would have prevented the issue.
+   - `SOP unclear` — ownership, evidence, severity, or gate wording is ambiguous.
+   - `SOP present but unenforced` — a rule exists, but no check caught the failure.
+   - `SOP present and enforced` — execution failed; product remediation can proceed under the existing rule.
+2. **Fix SOPs before artifacts.** If the classification is missing, unclear, or unenforced, the responsible role updates its own SOP first. Lead updates only Lead/team coordination rules.
+3. **Cross-review SOP changes.** Affected agents review the SOP patches for protocol clashes, vocabulary drift, duplicated authority, impossible gates, or missing ownership.
+4. **Resolve cross-review findings.** The agent who owns the SOP fixes issues in that SOP. Do not edit another role's SOP unless Lead explicitly assigns it.
+5. **Lead global-picture review.** Lead checks whether the patched SOPs compose into a coherent system: no circular dependencies, no impossible sequence, no orphan owner, no duplicated rule text.
+6. **Return global issues to owners.** Lead identifies cross-system problems; responsible agents fix their SOPs.
+7. **Lead final review.** Lead confirms cross-review issues and global-picture issues are resolved.
+8. **Lead token-efficiency review.** Before artifact work begins, Lead removes duplicated prose, bloated examples, stale history, and low-signal language from the final SOP set. Cross-reference instead of copy-paste.
+9. **Update products/artifacts under the new SOPs.** Only after the SOP set is accepted do agents repair code, schemas, manifests, charts, narratives, portal pages, or QA artifacts.
+
+Steps 1-8 are non-negotiable even when the artifact fix is a one-line change. The time spent on the SOP closes the gap for every future pair.
 
 ### Why this rule exists
 
@@ -1617,13 +1848,14 @@ Before any pair is marked "completed," a file `results/<pair_id>/acceptance.md` 
     - [ ] Zero chart loads returned None, zero chart loads returned a Figure with zero traces, zero chart loads returned an empty title.
     - [ ] Any chart failing any of the three checks is listed here with remediation status; no item in this list is marked "deferred" on a reference pair.
 
-    ### GATE-28 — Reference-Pair Placeholder Prohibition
-    - [ ] This pair IS a reference pair: <yes/no — if no, write "N/A, gate does not apply" and skip>
+    ### GATE-28 — Delivered-Page Placeholder Prohibition
+    - [ ] This pair is in delivered scope: <reference/current/external-delivery/non-delivered WIP>. If non-delivered WIP, write "N/A, gate does not apply" and skip.
     - [ ] Headless-browser DOM audit performed across Story, Evidence, Strategy, Methodology pages.
-    - [ ] DOM-audit log attached showing zero occurrences of the "chart pending" placeholder text (or equivalent GATE-25 fallback rendering).
-    - [ ] Any `chart_pending` occurrence found by the audit is logged here with a chart name, root cause, and remediation commit — no "known issue / deferred" state is permitted on a reference pair.
+    - [ ] DOM-audit log attached showing zero user-facing chart/stub/live-execution placeholders, including "chart pending" text or equivalent GATE-25 fallback rendering.
+    - [ ] Any placeholder occurrence found by the audit is logged here with a page, element, root cause, remediation commit, or documented Lead exception.
 
     ### GATE-29 — Clean-Checkout Deployment Test
+    - [ ] This pair is new or changed in the delivery scope: <yes/no>. If no, write "N/A, unchanged pair" and skip.
     - [ ] Clean checkout performed via `git clone --depth 1 "$(git rev-parse --show-toplevel)" /tmp/clean_checkout_{pair_id}`.
     - [ ] `python3 app/_smoke_tests/smoke_loader.py --pair-id {pair_id}` executed inside the clean-checkout working directory.
     - [ ] Clean-checkout smoke test log saved to `app/_smoke_tests/clean_checkout_{pair_id}_{date}.log` — zero FileNotFound / zero None-return / zero placeholder must be asserted.

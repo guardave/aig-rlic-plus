@@ -6,11 +6,26 @@
     "VIZ-V8",
     "VIZ-V11",
     "VIZ-NM1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V4"
   ],
   "narrative_alignment_note": "Quartile return chart (without HMM conditioning) validates the raw spread level as a regime signal.",
   "created_at": "2026-04-22T10:50:45Z",
   "method_name": "Quartile Returns (raw)",
   "expected_chart_type": "bar",
-  "disposition": "consumed"
+  "disposition": "consumed",
+  "title": "Spread Quartile Returns: Monotone Return Decline, Rising Vol \u2014 Q1 Best, Q4 Worst",
+  "caption": "Quartile return chart (without HMM conditioning) validates the raw spread level as a regime signal.",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "sample period not declared in legacy chart artifact",
+  "data_source_path": "results/hy_ig_spy/regime_quartile_returns.csv",
+  "exploratory": false,
+  "econ_rule_id": "ECON-E2",
+  "result_file": "results/hy_ig_spy/regime_quartile_returns.csv",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

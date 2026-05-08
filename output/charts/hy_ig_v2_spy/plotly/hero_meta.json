@@ -9,7 +9,8 @@
     "VIZ-V2",
     "VIZ-V11",
     "VIZ-V13",
-    "RES-4"
+    "RES-4",
+    "VIZ-O1"
   ],
   "stakeholder_items_closed": [
     "SL-2"
@@ -19,5 +20,18 @@
   "palette_id": "okabe_ito_2026",
   "annotation_strategy_id": "top_right_uniform",
   "wave_5c_retro": true,
-  "disposition": "consumed"
+  "disposition": "consumed",
+  "chart_name": "hero",
+  "title": "HY-IG OAS Spread vs SPY \u2014 2000 to 2025",
+  "source": "legacy chart artifact; upstream source not declared in prior sidecar",
+  "source_sample_period": "2000-01-03 to 2025-12-31",
+  "data_source_path": "data/hy_ig_v2_spy_daily_latest.parquet",
+  "exploratory": false,
+  "econ_rule_id": "ECON-C2",
+  "result_file": "data/hy_ig_v2_spy_daily_latest.parquet",
+  "artifact_remediation": {
+    "remediated_by": "viz-vera",
+    "remediated_on": "2026-05-08",
+    "reason": "SOP retro audit for VIZ-O1/VIZ-V8 sidecar and canonical filename compliance"
+  }
 }

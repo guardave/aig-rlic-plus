@@ -1,5 +1,56 @@
 # Econ Evan — AIG-RLIC+ Session Notes
 
+## Phase 4 SOP fixes — 2026-05-08
+
+**Agent:** Econ Evan | **Branch:** 260430 | **Inputs:** Phase 1 intra, Phase 3 cross, Lead Phase 2 (LA-1–LA-10)
+
+### Files changed
+- `docs/agent-sops/econometrics-agent-sop.md` — 18 finding fixes applied
+- `docs/schemas/final_exam_results.schema.json` — bumped 1.0.0 → 1.0.1; added `minimum_confirmation_n_obs`
+
+### Fixes applied by finding ID
+
+| ID | Description | Status |
+|----|-------------|--------|
+| F-01 | Added `minimum_confirmation_n_obs` to `final_exam_results.schema.json` v1.0.1 (`required`); added producer-side assertion (FE1 checklist item 11) | Applied |
+| F-02 | Replaced "5 percentage points" with "0.05 in ratio units" in FE1 condition 6 | Applied |
+| F-03 | Added bootstrap method selection guidance (stationary vs circular block; Politis-Romano / Künsch refs) under FE1 condition 7 | Applied |
+| F-04 | Added GATE-ES1 cross-reference at end of FE1 consumer wording guard | Applied |
+| F-05 | Updated ECON-H5 to cite winner_summary.schema.json **v1.1.0** with `threshold_value` nullable parenthetical (LA-10) | Applied |
+| F-06 | Added `{pair_id}` disambiguation parenthetical in C2 `quartile_returns.csv` row | Applied |
+| F-07 | Added ECON-CP1 mandatory handoff annotation requirement as prose block before CP1-B | Applied |
+| F-08 | Retargeted ECON-CP1 episode reference to `docs/schemas/history_zoom_events_registry.json` per LA-1 | Applied |
+| F-09/F-15/F-16 | Deferred — Lead handles standards.md registration (LA-5). Rule text confirmed final. | Deferred (Lead) |
+| F-10 | Added ECON-DIR2 explicit gate item to Quality Gates checklist | Applied |
+| F-11 | Added ECON-BUMP1 schema-bump portfolio sweep rule (placeholder pending META-SBP per LA-8) | Applied |
+| F-12 | Specified `method_coverage_manifest.json` `inference_robustness` key as ECON-INF1 artifact; updated checklist | Applied |
+| F-13 | Added producer-side backup compensating control to ECON-SD; cross-ref LA-9 and Quincy Phase 4 | Applied |
+| F-14 | Added "Key Terms" sub-section at top of ECON-FE1 (OOS window / confirmation window / block bootstrap / tournament winner) | Applied |
+| F-17 | Added disambiguation note in Rule E2 interaction paragraph for `quartile_returns.csv` vs `regime_quartile_returns.csv` | Applied |
+| F-18 | Added intake triage rule at end of §1/§2 boundary: indicator type resolved before intake parameter errors | Applied |
+
+### Phase 3 cross-review fixes (Evan-owned)
+
+| Finding | Description | Status |
+|---------|-------------|--------|
+| V-P3-01 | Added chart_type_registry cross-check step to ECON-H4 handoff instructions | Applied |
+| V-P3-06 | Added `econ_rule_id` column to ECON-H4 handoff table template | Applied |
+| D-P3-01 | Added stationarity CSV path rule to Quality Gates checklist | Applied |
+| D-P3-03 | Added DATA-D6b callout_text lint requirement to interpretation_metadata field notes | Applied |
+| D-P3-04 | Added display_name_registry pre-tournament check to Quality Gates checklist | Applied |
+| R-P3-01 | Added `oos_year_count` field to ECON-OOS1 `oos_split_record.json` field table | Applied |
+| A-P3-04 | Added "Benchmark fields" subsection to ECON-H5 | Applied |
+| A-P3-02 | Added APP-LP8 cross-reference in FE1 consumer wording guard (APP-LP8 `qa_status` check) | Applied |
+
+### Deferred
+- F-09, F-15, F-16: standards.md registration → Lead (LA-5, batch update)
+- LA-8 (META-SBP): team-coordination.md update → Lead
+- LA-9 (GATE-31/ECON-SD QA gate): Quincy Phase 4 edit
+- V-P3-02 (CP filenames in Vera VIZ-CP1 `_meta.json`): Vera Phase 4 edit
+- R-P3-02 (structural break flag propagation rule): Ray Phase 4 edit
+- Q-P3-01 (GATE-ES1 condition 9): Quincy Phase 4 edit
+- A-P3-05 (ACE-HZE1 registry retarget): Ace Phase 4 edit (after Vera's registry PR)
+
 ## 2026-05-01 — Evidence-status confirmation-test contract draft
 
 Agent: Econ Evan
@@ -609,3 +660,27 @@ Wave 10J/10K focused on two structural gaps:
 3. `docs/schemas/winner_summary.schema.json`
 4. `docs/backlog.md` — BL-LEGACY-WINNER-SUMMARY-SHAPE in my lane
 5. Next pair: Pair #4 US10Y-US3M → SPY
+
+---
+
+## 2026-05-08 — Phase 1 Intra-SOP Review
+
+**Agent:** Econ Evan  
+**Branch:** 260430  
+**Scope:** Intra-SOP review of `docs/agent-sops/econometrics-agent-sop.md`. No edits to SOP or shared files (LEAD-DL1 binding).
+
+**Deliverable:** `_pws/econ-evan/sop_review_phase1_intra_20260508.md`
+
+**Summary:**  
+18 findings across 3 themes. 6 FAIL, 13 WARN (F-09 contributes one of each).
+
+**Top-3 themes:**
+1. **Missing standards.md registration for in-SOP rules** (F-09 ECON-T4/INF1, F-10 ECON-DIR2, F-15 ECON-C2a, F-16 ECON-OOS3): 4+ named rules exist in SOP body but are absent from the canonical rule inventory. They cannot be independently audited by Lead or Quincy via standards.md.
+2. **FE1 schema-enforcement gaps** (F-01 minimum confirmation sample, F-02 ratio-unit drawdown ambiguity, F-03 bootstrap method guidance): The 10-condition FE1 contract is well-written but has implementation ambiguities that a producer-side validation script could not catch without additional tooling.
+3. **Dead-letter integration contracts** (F-07 CP1 methodology_note never promoted to SOP, F-11 schema-bump portfolio sweep unruled, F-13 ECON-SD audit not in Quincy's SOP): Rules documented in PWS notes or cross-agent impact log but never encoded as binding SOP text.
+
+**Stale version reference:** F-05 (ECON-H5 cites `winner_summary.schema.json` v1.0.0; live schema is v1.1.0) — a FAIL severity item that could mislead a new producer.
+
+**Cross-review items deferred:** Dana (2 items), Vera (2), Ray (2), Quincy (2), Ace (1) — all listed in the findings file's deferred section.
+
+**LEAD-DL1 compliance:** All changes confined to this session-notes entry and the new PWS findings file. Zero edits to SOP, standards, or any other agent's files.
