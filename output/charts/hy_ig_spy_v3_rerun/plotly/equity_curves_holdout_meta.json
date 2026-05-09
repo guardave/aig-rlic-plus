@@ -1,0 +1,17 @@
+{
+  "pair_id": "hy_ig_spy_v3_rerun",
+  "chart_type": "equity_curves_holdout",
+  "holdout_start": "2025-01-14",
+  "holdout_end": "2025-12-31",
+  "winner_rule": "S2a_zscore_252d / T2_rp75 / P1 / L0",
+  "signal_column": "hy_ig_zscore_252d",
+  "threshold": "rolling 75th percentile (252-day window)",
+  "position_type": "P1 binary (flat when signal > threshold, else 100% long)",
+  "lag": "L0",
+  "transaction_cost_bps": 5,
+  "strategy_sharpe_annualised": 1.2773,
+  "bh_sharpe_annualised": 1.0232,
+  "n_holdout_days": 252,
+  "disposition": "suggested",
+  "generated_by": "viz-vera"
+}

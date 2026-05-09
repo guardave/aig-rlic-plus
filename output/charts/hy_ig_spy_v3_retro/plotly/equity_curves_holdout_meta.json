@@ -1,0 +1,18 @@
+{
+  "pair_id": "hy_ig_spy_v3_retro",
+  "chart_type": "equity_curves_holdout",
+  "holdout_start": "2025-01-14",
+  "holdout_end": "2025-12-31",
+  "winner_rule": "S6_hmm_stress / T4_hmm_0.5 / P2 / L0",
+  "signal_column": "sigmoid(hy_ig_zscore_252d) \u2014 proxy, hmm_2state_prob_stress not in parquet",
+  "threshold": 0.5,
+  "position_type": "P2 proportional: max(0, 1-stress_prob) when >0.5, else 1.0",
+  "lag": "L0",
+  "transaction_cost_bps": 5,
+  "strategy_sharpe_annualised": 1.1166,
+  "bh_sharpe_annualised": 1.0232,
+  "n_holdout_days": 252,
+  "signal_note": "sigmoid(hy_ig_zscore_252d) \u2014 proxy, hmm_2state_prob_stress not in parquet",
+  "disposition": "suggested",
+  "generated_by": "viz-vera"
+}
