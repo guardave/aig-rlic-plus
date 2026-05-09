@@ -8,6 +8,18 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-09 — ECON-OOS4 retro-apply constraint
+
+**Trigger.** Controlled experiment (`hy_ig_spy_v3_rerun` vs `hy_ig_spy_v3_retro`): same data, same grid, same holdout window — clean rerun selected `S2a_zscore_252d / P1`, retro-apply inherited `S6_hmm_stress / P2`. Different signal families, holdout Sharpe 0.85 vs 1.61. The retro fork's "winner unchanged" confirmation check is not equivalent to blind re-selection on the shortened validation window.
+
+**Rule updated:**
+
+- **ECON-OOS4** (`econometrics-agent-sop.md`, `standards.md`) — Added retro-apply constraint. For any `found_in_search` pair being migrated from two-period to three-period, the full tournament MUST be re-run blind on the shortened validation window. Inheriting the prior winner is prohibited. If the new winner differs, the old winner is retired and all downstream artifacts must reflect the new winner.
+
+**Empirical basis:** `temp/20260509_rerun_vs_retro_comparison/report.html`
+
+---
+
 ## 2026-05-08 — GATE-NR-SOP wave — Fix Two Producer-Side SOP Gaps Causing Systematic GATE-NR Failures
 
 **Trigger.** Cloud verify (2026-05-08T20:58Z) returned 14 FAILs across all 10 pairs — every story page and 4 evidence pages — all driven by `gate_nr_result = FAIL`. Root cause: two SOP gaps, not narrative defects.

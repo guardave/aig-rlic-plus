@@ -1,0 +1,21 @@
+{
+  "pair_id": "hy_ig_spy_v3_rerun",
+  "split_design": "three_period",
+  "econ_oos4": true,
+  "total_trading_days": 6783,
+  "data_start": "2000-01-03",
+  "data_end": "2025-12-31",
+  "is_start": "2000-01-03",
+  "is_end": "2018-10-03",
+  "is_n_days": 4893,
+  "val_start": "2018-10-04",
+  "val_end": "2025-01-13",
+  "val_span_months": 78,
+  "val_n_days": 1638,
+  "holdout_start": "2025-01-14",
+  "holdout_end": "2025-12-31",
+  "holdout_n_days": 252,
+  "remaining_months": 311,
+  "formula": "span = min(max(36, round(remaining_months * 0.25)), 120)",
+  "generated_at": "2026-05-09T08:29:57Z"
+}

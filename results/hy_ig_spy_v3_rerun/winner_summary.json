@@ -1,0 +1,18 @@
+{
+  "pair_id": "hy_ig_spy_v3_rerun",
+  "generated_at": "2026-05-09T08:30:11Z",
+  "signal_code": "S2a_zscore_252d",
+  "threshold_code": "T2_rp75",
+  "strategy_code": "P1",
+  "lead_days": 0,
+  "direction": "countercyclical",
+  "target_symbol": "SPY",
+  "indicator": "hy_ig_spread_pct",
+  "val_oos_sharpe": 1.2,
+  "val_oos_start": "2018-10-04",
+  "val_oos_end": "2025-01-13",
+  "holdout_sharpe": 0.8459,
+  "holdout_start": "2025-01-14",
+  "holdout_end": "2025-12-31",
+  "cost_assumption_bps": 5.0
+}

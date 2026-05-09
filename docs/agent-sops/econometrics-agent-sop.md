@@ -952,6 +952,16 @@ See ECON-FE1 condition 2 for the structural reason.
 
 **`oos_split_record.json` field.** Three-period pairs record `split_design: "three_period"`. Two-period fallback pairs record `split_design: "two_period_data_constrained"`.
 
+**Retro-apply constraint (binding).** When migrating an existing pair from two-period to three-period design, retro-apply — inheriting the previously selected winner and running the final exam only on the carved holdout — is **only safe if the winner was already frozen under ECON-FE1 before the holdout was carved**. If the winner was selected on the full two-period OOS window (as all `found_in_search` pairs are), that selection is invalidated when the window shortens. The tournament MUST be re-run blind on the shortened validation window. Inheriting the old winner and confirming it is unchanged is not equivalent to a blind re-selection — it is a confirmation bias.
+
+**Empirical basis (2026-05-09 experiment).** A controlled comparison of clean rerun vs retro-apply on `hy_ig_spy` found that the same data and same grid, evaluated on a 3-month-shorter validation window, selected a different signal family entirely (`S2a_zscore_252d / P1` vs `S6_hmm_stress / P2`). The retro fork's "winner unchanged" check passed only because the old winner happened to rank in the top tier on the new window — not because retro-apply structurally guarantees this. The two forks produced materially different holdout Sharpe ratios (0.85 vs 1.61) driven solely by the winner discrepancy.
+
+**Practical rule.** For any pair at `found_in_search` being upgraded to three-period:
+1. Carve the holdout first.
+2. Re-run the full tournament blind on IS + shortened validation. Do not load or reference the prior winner until after ranking is complete.
+3. If the new winner matches the old winner, document this as a coincidence, not a design guarantee.
+4. If the new winner differs, the old winner is retired for this pair. All downstream artifacts (narrative, portal, charts) must reflect the new winner.
+
 **Cross-references.** ECON-OOS1 (field table), ECON-OOS2 (sizing formula), ECON-FE1 (confirmation condition 2).
 
 ### Target-Class-Aware Backtest Parameters
