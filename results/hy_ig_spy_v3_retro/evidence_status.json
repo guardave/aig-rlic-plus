@@ -1,0 +1,15 @@
+{
+  "pair_id": "hy_ig_spy_v3_retro",
+  "generated_at": "2026-05-09T08:27:36Z",
+  "split_design": "three_period",
+  "evidence_status": "CONDITIONAL_PASS",
+  "conditions_passed": 7,
+  "conditions_total": 10,
+  "holdout_sharpe": 1.6116,
+  "holdout_ann_return": 0.145873,
+  "holdout_mdd": -0.058973,
+  "dsr": 0.9419,
+  "boot_ci_lo": -0.3455,
+  "boot_pct_positive": 0.9441,
+  "narrative": "7/10 conditions met but key robustness gates (DSR/CI) may be borderline."
+}
