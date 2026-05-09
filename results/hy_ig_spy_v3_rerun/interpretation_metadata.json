@@ -1,0 +1,26 @@
+{
+  "pair_id": "hy_ig_spy_v3_rerun",
+  "schema_version": "1.0.0",
+  "indicator": "hy_ig_spread_pct",
+  "indicator_id": "hy_ig_spread_pct",
+  "target": "spy",
+  "target_symbol": "SPY",
+  "indicator_nature": "leading",
+  "indicator_type": "credit",
+  "strategy_objective": "countercyclical_protection",
+  "expected_direction": "countercyclical",
+  "observed_direction": "countercyclical",
+  "direction_consistent": true,
+  "confidence": "low",
+  "key_finding": "EXPERIMENT FORK (clean rerun): 252-day z-score threshold rule (S2a_zscore_252d/T2_rp75/P1/L0). Validation Sharpe 1.20, holdout Sharpe 0.85. Status: needs_final_exam.",
+  "mechanism": "HY-IG credit spread z-score above rolling 75th percentile signals elevated stress; strategy moves to cash (binary P1 rule).",
+  "caveats": ["Experiment fork only — not a production pair.", "252-day holdout insufficient for statistical significance in 2025 bull market."],
+  "gate_nr_comparison_whitelist": ["S&P 500", "VIX"],
+  "last_updated_by": "dana",
+  "last_updated_at": "2026-05-09T00:00:00Z",
+  "owner_writes": {
+    "dana": ["pair_id", "schema_version", "indicator", "indicator_id", "target", "target_symbol", "indicator_nature", "indicator_type"],
+    "evan": ["observed_direction", "direction_consistent", "key_finding", "confidence"],
+    "ray": ["strategy_objective", "expected_direction", "mechanism", "caveats"]
+  }
+}

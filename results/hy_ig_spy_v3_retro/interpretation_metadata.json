@@ -1,0 +1,26 @@
+{
+  "pair_id": "hy_ig_spy_v3_retro",
+  "schema_version": "1.0.0",
+  "indicator": "hy_ig_spread_pct",
+  "indicator_id": "hy_ig_spread_pct",
+  "target": "spy",
+  "target_symbol": "SPY",
+  "indicator_nature": "leading",
+  "indicator_type": "credit",
+  "strategy_objective": "countercyclical_protection",
+  "expected_direction": "countercyclical",
+  "observed_direction": "countercyclical",
+  "direction_consistent": true,
+  "confidence": "low",
+  "key_finding": "EXPERIMENT FORK (retro-apply): HMM stress probability rule (S6_hmm_stress/T4_hmm_0.5/P2/L0) inherited from original hy_ig_spy. Validation Sharpe 1.24, holdout Sharpe 1.61. Status: needs_final_exam.",
+  "mechanism": "HMM 2-state stress probability above 0.5 triggers proportional de-risking of SPY exposure (P2 rule).",
+  "caveats": ["Experiment fork only — not a production pair.", "Winner inherited from original pipeline — not blind re-selected per ECON-OOS4 retro-apply constraint."],
+  "gate_nr_comparison_whitelist": ["S&P 500", "VIX"],
+  "last_updated_by": "dana",
+  "last_updated_at": "2026-05-09T00:00:00Z",
+  "owner_writes": {
+    "dana": ["pair_id", "schema_version", "indicator", "indicator_id", "target", "target_symbol", "indicator_nature", "indicator_type"],
+    "evan": ["observed_direction", "direction_consistent", "key_finding", "confidence"],
+    "ray": ["strategy_objective", "expected_direction", "mechanism", "caveats"]
+  }
+}
