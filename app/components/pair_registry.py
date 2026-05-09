@@ -101,6 +101,9 @@ PAGE_ROUTING = {
     "ted_spliced_spy": "pages/12_ted_spliced_spy",
     "indpro_xlp": "pages/14_indpro_xlp",
     "hy_ig_spy": "pages/15_hy_ig_spy",
+    # Experiment forks (rerun vs retro comparison, 2026-05-09)
+    "hy_ig_spy_v3_rerun": "pages/90_hy_ig_spy_v3_rerun",
+    "hy_ig_spy_v3_retro": "pages/91_hy_ig_spy_v3_retro",
 }
 
 
