@@ -1370,3 +1370,30 @@ Phase 3 cross-review: 25 findings (12 FAIL, 13 WARN), file: `_pws/econ-evan/sop_
 ## 2026-05-08 — Research Ray (Phase 4 SOP fixes)
 
 **Status:** Complete. Applied 20 fixes across 14 Phase-1 findings (F-01 through F-14, all covered: F-11 deferred to Lead LA-5 as designed) and 6 Phase-3 cross-agent Ray-owned items (C-V2, C-V3, C-E3, C-E4, C-A4, plus LA-1/LA-2/LA-3 propagation). Edited `docs/agent-sops/research-agent-sop.md`; converted `docs/schemas/episode_registry.json` to thin pointer (LA-1). Key: all `episode_registry.json` consumers in Ray SOP retargeted to `history_zoom_events_registry.json`; `ZOOM_EPISODE_NARRATIVES` retired (LA-3); `memories.md` requirement removed (LA-7); 11 missing Quality Gates items added; EGL1 structured self-check table added. Deferred to other agents: C-D1–C-D3 (Dana), C-E1–C-E2 (Evan), C-V1/C-V4 (Vera), C-A1–C-A3 (Ace/Lead), C-Q1–C-Q4 (QA), F-11/LA-5 (Lead standards.md batch).
+
+---
+
+## 2026-05-11 — Lead Lesandro EOD
+
+**Status:** Completed
+
+**Accomplished today:**
+1. Fixed landing card bugs (display_name not rendering, Sharpe/MDD blank, evidence_status schema mismatch)
+2. **META-CDR** — new meta-rule: Lead cross-domain review between producers and QA; Standard Task Flow updated
+3. **V3-EXP-RERUN wave** — full rebuild of hy_ig_spy_v3_rerun and hy_ig_spy_v3_retro experiment forks with complete 4-page portal, charts, narratives. All 8 pages QA-PASS (GATE-31).
+4. Fixed all breadcrumb 404s across 8 v3 pages (`st.markdown` bare links → `st.page_link`)
+5. Updated both forks' `evidence_status.json` to `passed_final_exam` (exam was complete, status was wrong)
+6. **APP-TT1** — new rule: pair display name as `st.title` must be first content on every page; applied to all 8 v3 pages
+
+**Key discoveries:**
+- `st.markdown("[Evidence](bare_page_name)")` does NOT route in Streamlit — 404s. Must use `st.page_link("pages/file.py")`. Add to Ace anti-patterns.
+- META-CDR caught a real cross-agent seam gap (retro `winner_summary.json` field naming) before Quincy — first real-world validation of the rule.
+- DSR p-value exactly 0.0 is a `scipy.stats.norm.cdf` underflow for extreme z-values — fix with `norm.sf(-z)` and clamp to 1e-15.
+
+**Outstanding for next session:**
+- APP-TT1 compliance audit on production pages
+- Ace SOP: add st.page_link anti-pattern
+- hy_ig_spy production pair migration to clean rerun winner
+- Next priority pair: US10Y-US3M → SPY
+
+**Branch:** 260430 | All pushed.

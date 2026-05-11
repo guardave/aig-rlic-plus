@@ -59,3 +59,15 @@ Reusable script `scripts/synthesize_broker_trade_log.py` is ready; just needs pe
 - [ ] Auto-generate sidebar FINDINGS list from pair_registry instead of hardcoding
 - [ ] Add cross-pair comparison page when 10+ pairs completed
 - [ ] Consider template-based pages instead of per-pair files (per appdev SOP guidance for 10+ pairs)
+
+## Added 2026-05-11
+
+### Immediate (carry to next session)
+- [ ] **APP-TT1 compliance audit** — run against all production pages (15_*, 9_*, 10_*, 11_*, 12_*, 14_*) to confirm `st.title` is first content. page_templates.py renders via config `page_title` — check that field is display name, not slug.
+- [ ] **Ace SOP anti-pattern** — add `st.page_link` vs `st.markdown` bare-link distinction to Ace's anti-patterns section. Current Ace SOP does not warn against this.
+- [ ] **GATE-HZE1 false positive** — `hy_ig_v2_spy` uses "What History Shows" heading; cloud_verify GATE-HZE1 flags it. Low priority but should be fixed to accept alternate headings.
+- [ ] **hy_ig_spy production pair** — still uses old two-period split. The clean rerun winner (S2a_zscore_252d/P1) from v3_rerun should be applied. Separate wave needed.
+
+### Medium term
+- [ ] **Wave 10H.2/10I Hygiene Wave** — sidecar backfill, APP-PR1 path discipline, APP-PT1 legacy migration
+- [ ] **Next priority pair** — #4 US10Y-US3M → SPY (yield curve slope)
