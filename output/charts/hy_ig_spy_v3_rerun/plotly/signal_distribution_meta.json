@@ -1,0 +1,14 @@
+{
+  "title": "hy_ig_spy_v3_rerun signal distribution \u2014 in-sample",
+  "caption": "Histogram of HY/IG z-score (252d) over in-sample period. Red dashed line = T2_rp75 threshold (0.7278).",
+  "source": "yfinance / FRED",
+  "source_sample_period": "2000-01-03 to 2018-10-03",
+  "data_source_path": "/workspaces/aig-rlic-plus/results/hy_ig_spy/signals_20260422.parquet",
+  "rules_applied": [
+    "VIZ-V1",
+    "VIZ-V8",
+    "VIZ-O1"
+  ],
+  "disposition": "consumed",
+  "window": "in_sample"
+}

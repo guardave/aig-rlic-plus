@@ -1,0 +1,14 @@
+{
+  "title": "hy_ig_spy_v3_retro equity curves \u2014 validation",
+  "caption": "Winner: hmm_2state_prob_stress / T4_hmm_0.5 / P2. Validation Sharpe=1.2427.",
+  "source": "yfinance / FRED",
+  "source_sample_period": "2018-10-04 to 2025-01-13",
+  "data_source_path": "/workspaces/aig-rlic-plus/data/hy_ig_spy_daily_latest.parquet",
+  "rules_applied": [
+    "VIZ-V1",
+    "VIZ-V8",
+    "VIZ-O1"
+  ],
+  "disposition": "consumed",
+  "window": "validation"
+}
