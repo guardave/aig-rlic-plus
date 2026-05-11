@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.1.0",
+  "split_design": "three_period",
+  "pair_id": "hy_ig_spy_v3_rerun",
+  "generated_at": "2026-05-11T17:14:33Z",
+  "winner_rule": {
+    "signal_code": "S2a_zscore_252d",
+    "threshold_code": "T2_rp75",
+    "strategy_code": "P1",
+    "lead_days": 0,
+    "direction": "countercyclical"
+  },
+  "holdout_period": {
+    "start": "2025-01-14",
+    "end": "2025-12-31",
+    "n_obs": 251,
+    "n_trades": 16
+  },
+  "metrics": {
+    "holdout_sharpe": 0.8459,
+    "holdout_ann_return": 0.052417,
+    "bh_ann_return": 0.196898,
+    "excess_ann_return": -0.144481,
+    "holdout_max_drawdown": -0.05079,
+    "bh_max_drawdown": -0.187552,
+    "win_rate": 0.2063,
+    "validation_oos_sharpe": 1.2,
+    "n_trials_raw": 2143,
+    "n_trials_effective": 150,
+    "bootstrap_sharpe_ci_lower": -1.1895,
+    "bootstrap_sharpe_ci_upper": 2.1899,
+    "bootstrap_block_size": 21,
+    "bootstrap_n_draws": 1000,
+    "dsr_expected_max_sr": 2.6701,
+    "dsr_pvalue": 1e-15
+  },
+  "econ_fe1_conditions": {
+    "C01_holdout_sharpe_positive": {
+      "pass": true,
+      "value": 0.845893,
+      "threshold": 0.0,
+      "description": "Holdout Sharpe > 0"
+    },
+    "C02_holdout_sharpe_vs_threshold": {
+      "pass": true,
+      "value": 0.845893,
+      "threshold": 0.3,
+      "description": "Holdout Sharpe >= 0.3 (equity validity threshold)"
+    },
+    "C03_bootstrap_ci_positive": {
+      "pass": false,
+      "value": -1.189526,
+      "threshold": 0.0,
+      "description": "Block bootstrap 2.5th percentile > 0"
+    },
+    "C04_deflated_sharpe_pass": {
+      "pass": false,
+      "value": 0.0,
+      "threshold": 0.05,
+      "description": "DSR p-value >= 0.05 (not over-fitted)"
+    },
+    "C05_excess_return_positive": {
+      "pass": false,
+      "value": -0.144481,
+      "threshold": 0.0,
+      "description": "Excess ann. return vs B&H > 0"
+    },
+    "C06_max_drawdown_acceptable": {
+      "pass": true,
+      "value": -0.05079,
+      "threshold": -0.3,
+      "description": "Max drawdown > -30%"
+    },
+    "C07_drawdown_vs_benchmark": {
+      "pass": true,
+      "value": 0.136763,
+      "threshold": 0.0,
+      "description": "Strategy max DD shallower than B&H max DD"
+    },
+    "C08_val_sharpe_consistency": {
+      "pass": true,
+      "value": 1.2,
+      "threshold": 0.3,
+      "description": "Validation OOS Sharpe >= validity threshold (no regime collapse)"
+    },
+    "C09_holdout_n_sufficient": {
+      "pass": true,
+      "value": 251.0,
+      "threshold": 200.0,
+      "description": "Holdout has >= 200 observations"
+    },
+    "C10_sharpe_degradation_moderate": {
+      "pass": true,
+      "value": 0.354107,
+      "threshold": 0.5,
+      "description": "Sharpe degradation val\u2192holdout <= 0.5"
+    }
+  },
+  "summary": {
+    "n_conditions_pass": 7,
+    "n_conditions_total": 10,
+    "all_pass": false
+  }
+}

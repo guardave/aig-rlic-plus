@@ -17,5 +17,5 @@
   "holdout_n_days": 252,
   "remaining_months": 311,
   "formula": "span = min(max(36, round(remaining_months * 0.25)), 120)",
-  "generated_at": "2026-05-09T08:29:57Z"
+  "generated_at": "2026-05-11T17:14:19Z"
 }

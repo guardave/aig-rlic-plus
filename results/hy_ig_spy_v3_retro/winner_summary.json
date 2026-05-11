@@ -1,6 +1,6 @@
 {
   "pair_id": "hy_ig_spy_v3_retro",
-  "generated_at": "2026-05-09T08:27:36Z",
+  "generated_at": "2026-05-11T17:15:31Z",
   "split_design": "three_period",
   "winner_signal": "S6_hmm_stress",
   "winner_threshold": "T4_hmm_0.5",
@@ -15,5 +15,6 @@
   "winner_changed_vs_original": false,
   "original_winner_signal": "S6_hmm_stress",
   "original_winner_threshold": "T4_hmm_0.5",
-  "original_winner_strategy": "P2"
+  "original_winner_strategy": "P2",
+  "oos_sharpe": 1.2427
 }

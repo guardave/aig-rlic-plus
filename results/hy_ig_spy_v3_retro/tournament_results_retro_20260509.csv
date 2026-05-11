@@ -1,4 +1,4 @@
-signal,threshold,strategy,lead_days,val_sharpe,val_ann_return,max_drawdown,win_rate,n_trades,annual_turnover,valid,val_n
+signal,threshold,strategy,lead_days,oos_sharpe,oos_ann_return,max_drawdown,win_rate,n_trades,annual_turnover,valid,oos_n
 S6_hmm_stress,T4_hmm_0.5,P1,0,1.0831,0.097854,-0.097412,0.3211,83,3.2,True,1638
 S6_hmm_stress,T4_hmm_0.5,P2,0,1.2427,0.108807,-0.084984,0.4994,352,3.65,True,1638
 S6_hmm_stress,T4_hmm_0.5,P3,0,0.2789,0.054807,-0.485836,0.5128,83,6.41,True,1638

@@ -1,6 +1,6 @@
 {
   "pair_id": "hy_ig_spy_v3_rerun",
-  "generated_at": "2026-05-09T08:30:11Z",
+  "generated_at": "2026-05-11T17:14:33Z",
   "signal_code": "S2a_zscore_252d",
   "threshold_code": "T2_rp75",
   "strategy_code": "P1",

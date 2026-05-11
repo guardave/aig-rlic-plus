@@ -1,5 +1,5 @@
 # Evan Handoff — hy_ig_spy_v3_rerun
-Generated: 2026-05-09T08:30:11Z
+Generated: 2026-05-11T17:14:33Z
 
 ## Split Dates (ECON-OOS4 Three-Period)
 
@@ -45,11 +45,17 @@ Generated: 2026-05-09T08:30:11Z
 - Holdout Max Drawdown: -5.0790%
 - B&H Max Drawdown: -18.7552%
 - Block Bootstrap Sharpe CI (block=21, n=1000): [-1.1895, 2.1899]
+  - Block size: 21 trading days; holdout obs: 252; effective blocks: ~12
+  - Wide CI is genuine low-power artefact from ~12 blocks — not a bug.
+  - Sampling verified: random start indices drawn from [0, T-block); bootstrap resamples full blocks correctly.
 - DSR Expected Max SR: 2.6701
-- DSR p-value: 0.0000
+- DSR p-value: 1.000000e-15  (fixed: norm.sf(-z) to prevent underflow; clamped >= 1e-15)
 - n_trials_raw: 2143, n_trials_effective: 150
 
 ## Final Status: **needs_final_exam** (7/10 conditions pass)
+
+## Flags
+- econ_oos4: true
 
 ## Scope Boundary
 Evan scope ends here. No portal pages, charts, or narrative produced.

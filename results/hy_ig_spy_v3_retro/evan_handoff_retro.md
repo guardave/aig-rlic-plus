@@ -1,73 +1,61 @@
 # Evan Handoff — hy_ig_spy_v3_retro
+Generated: 2026-05-11T17:15:31Z
 
-Generated: 2026-05-09T08:27:36Z
+## Split Dates (ECON-OOS4 Three-Period)
 
-## Split Dates (Three-Period, ECON-OOS4)
+| Window      | Start          | End            | N Days |
+|-------------|----------------|----------------|--------|
+| In-Sample   | 2000-01-03 | 2018-10-03 | 4893 |
+| Validation  | 2018-10-04 | 2025-01-13 | 1638 |
+| Holdout     | 2025-01-14 | 2025-12-31 | 252 |
 
-| Period | Start | End | Days |
-|--------|-------|-----|------|
-| In-Sample (IS) | 2000-01-03 | 2018-10-03 | 4893 |
-| Validation | 2018-10-04 | 2025-01-13 | ~1638 |
-| Holdout | 2025-01-14 | 2025-12-31 | 252 |
+## Winner Rule
 
-ECON-OOS2 formula: val_months = min(max(36, round(311×0.25)), 120) = 78
+| Field           | Value            |
+|-----------------|------------------|
+| Signal code     | S6_hmm_stress |
+| Threshold code  | T4_hmm_0.5 |
+| Strategy code   | P2 |
+| Lead days       | 0 |
+| Direction       | countercyclical   |
 
-## Original hy_ig_spy Winner Rule
+## Validation OOS Sharpe: 1.2427
 
-- Signal: S6_hmm_stress
-- Threshold: T4_hmm_0.5
-- Strategy: P2
-- Lead days: 0
-- Original OOS Sharpe (2019-10-01 to 2026-04-22): 1.4083
+## ECON-FE1 Condition Results (Holdout)
 
-## Re-Tournament Result (IS + Validation Only)
+| Condition | Pass | Value | Threshold | Description |
+|-----------|------|-------|-----------|-------------|
+| C01_holdout_sharpe_positive | PASS | 1.6116 | 0.0 | Holdout Sharpe > 0 |
+| C02_holdout_sharpe_vs_threshold | PASS | 1.6116 | 0.3 | Holdout Sharpe >= 0.3 |
+| C03_bootstrap_ci_positive | FAIL | -0.3455 | 0.0 | Block bootstrap 2.5th percentile > 0 |
+| C04_deflated_sharpe_pass | FAIL | 0.0000 | 0.05 | DSR p-value >= 0.05 (not over-fitted) |
+| C05_excess_return_positive | FAIL | -0.0510 | 0.0 | Excess ann. return vs B&H > 0 |
+| C06_max_drawdown_acceptable | PASS | -0.0590 | -0.3 | Max drawdown > -30% |
+| C07_drawdown_vs_benchmark | PASS | 0.1286 | 0.0 | Strategy max DD shallower than B&H max DD |
+| C08_val_sharpe_consistency | PASS | 1.2427 | 0.3 | Validation OOS Sharpe >= validity threshold |
+| C09_holdout_n_sufficient | PASS | 252.0000 | 200 | Holdout has >= 200 observations |
+| C10_sharpe_degradation_moderate | PASS | -0.3689 | 0.5 | Sharpe degradation val->holdout <= 0.5 |
 
-- New winner: S6_hmm_stress / T4_hmm_0.5 / P2 / L0
-- Validation Sharpe (new window): 1.2427
-- Validation Ann Return: 10.88%
-- Validation MDD: -8.5%
+## Key Metrics Summary
 
-**Winner changed vs original hy_ig_spy: NO**
+- Holdout Sharpe: 1.6116
+- Holdout Ann. Return: 14.5873%
+- B&H Ann. Return: 19.6898%
+- Excess Return: -5.1025%
+- Holdout Max Drawdown: -5.8973%
+- B&H Max Drawdown: -18.7552%
+- Block Bootstrap Sharpe CI (block=21, n=10000): [-0.3455, 3.6777]
+  - Block size: 21 trading days; holdout obs: 252; effective blocks: ~12
+  - Wide CI is genuine low-power artefact from ~12 blocks — not a bug.
+- DSR Expected Max SR: 2.6701
+- DSR p-value: 1.000000e-15  (fixed: norm.sf(-z) to prevent underflow; clamped >= 1e-15)
+- n_trials_effective: 150
 
-| | Original OOS Sharpe | New Validation Sharpe |
-|--|---------------------|----------------------|
-| S6_hmm_stress/T4_hmm_0.5/P2 | 1.3530 | 1.2427 |
+## Final Status: **needs_final_exam** (7/10 conditions pass)
 
-## Final Exam — Holdout (2025-01-14 to 2025-12-31)
+## Flags
+- econ_oos4: true
+- retro_apply: true (retro-apply fork; tournament not re-run — column fix only)
 
-| Metric | Strategy | B&H |
-|--------|----------|-----|
-| Sharpe | 1.6116 | 1.0232 |
-| Ann Return | 14.59% | 19.69% |
-| MDD | -5.9% | -18.8% |
-| DSR | 0.9419 | — |
-| Boot CI 95% | [-0.345, 3.678] | — |
-| Boot % positive | 94.4% | — |
-
-## ECON-FE1 Condition Results (7/10 passed)
-
-| Condition | Result |
-|-----------|--------|
-| C1_sharpe_positive | PASS |
-| C2_sharpe_gt_0.5 | PASS |
-| C3_beats_bh_sharpe | PASS |
-| C4_mdd_lt_20pct | PASS |
-| C5_mdd_better_than_bh | PASS |
-| C6_boot_ci_lo_positive | FAIL |
-| C7_boot_pct_pos_gt90 | PASS |
-| C8_dsr_gt_0.95 | FAIL |
-| C9_ann_return_positive | PASS |
-| C10_alpha_positive | FAIL |
-
-## Evidence Status
-
-**CONDITIONAL_PASS** — 7/10 conditions met but key robustness gates (DSR/CI) may be borderline.
-
-## Output Files
-
-- `results/hy_ig_spy_v3_retro/oos_split_record.json`
-- `results/hy_ig_spy_v3_retro/tournament_results_retro_20260509.csv`
-- `results/hy_ig_spy_v3_retro/winner_summary.json`
-- `results/hy_ig_spy_v3_retro/final_exam_results_20260509.json`
-- `results/hy_ig_spy_v3_retro/evidence_status.json`
-- `results/hy_ig_spy_v3_retro/evan_handoff_retro.md`
+## Scope Boundary
+Evan scope ends here. No portal pages, charts, or narrative produced.
