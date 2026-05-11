@@ -19,20 +19,12 @@ st.warning(
 )
 
 # ── BREADCRUMB NAV ──────────────────────────────────────────────────────────
-st.markdown(
-    "**Pages:** "
-    "📄 Story · "
-    "[Evidence](90_hy_ig_spy_v3_rerun_evidence) · "
-    "[Strategy](90_hy_ig_spy_v3_rerun_strategy) · "
-    "[Methodology](90_hy_ig_spy_v3_rerun_methodology)"
-)
-st.markdown(
-    "**Pair comparison:** "
-    "📄 You are here: `hy_ig_spy_v3_rerun` (Clean Rerun, page 90) "
-    "· "
-    "[→ Retro-Apply fork (page 91)](91_hy_ig_spy_v3_retro_story)",
-    unsafe_allow_html=False,
-)
+col_b1, col_b2, col_b3, col_b4, col_b5 = st.columns(5)
+with col_b1: st.markdown("**📖 Story**")
+with col_b2: st.page_link("pages/90_hy_ig_spy_v3_rerun_evidence.py", label="Evidence", icon="🔬")
+with col_b3: st.page_link("pages/90_hy_ig_spy_v3_rerun_strategy.py", label="Strategy", icon="⚙️")
+with col_b4: st.page_link("pages/90_hy_ig_spy_v3_rerun_methodology.py", label="Methodology", icon="📐")
+with col_b5: st.page_link("pages/91_hy_ig_spy_v3_retro_story.py", label="Retro fork →", icon="⚗️")
 st.divider()
 
 # ── TITLE ───────────────────────────────────────────────────────────────────
@@ -182,16 +174,9 @@ m7.metric("N Holdout Trades", "16")
 st.divider()
 
 # ── BREADCRUMB NAV (BOTTOM) ──────────────────────────────────────────────────
-st.markdown(
-    "**Pages:** "
-    "📄 Story · "
-    "[Evidence](90_hy_ig_spy_v3_rerun_evidence) · "
-    "[Strategy](90_hy_ig_spy_v3_rerun_strategy) · "
-    "[Methodology](90_hy_ig_spy_v3_rerun_methodology)"
-)
-st.markdown(
-    "**Pair comparison:** "
-    "📄 You are here: `hy_ig_spy_v3_rerun` (Clean Rerun, page 90) "
-    "· "
-    "[→ Retro-Apply fork (page 91)](91_hy_ig_spy_v3_retro_story)"
-)
+col_b1, col_b2, col_b3, col_b4, col_b5 = st.columns(5)
+with col_b1: st.markdown("**📖 Story**")
+with col_b2: st.page_link("pages/90_hy_ig_spy_v3_rerun_evidence.py", label="Evidence", icon="🔬")
+with col_b3: st.page_link("pages/90_hy_ig_spy_v3_rerun_strategy.py", label="Strategy", icon="⚙️")
+with col_b4: st.page_link("pages/90_hy_ig_spy_v3_rerun_methodology.py", label="Methodology", icon="📐")
+with col_b5: st.page_link("pages/91_hy_ig_spy_v3_retro_story.py", label="Retro fork →", icon="⚗️")

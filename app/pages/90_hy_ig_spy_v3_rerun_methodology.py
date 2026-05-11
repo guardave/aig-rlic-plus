@@ -111,10 +111,9 @@ st.caption(
 st.divider()
 
 # ── NAVIGATION ───────────────────────────────────────────────────────────────
-st.markdown(
-    "**Pages:** "
-    "[Story](90_hy_ig_spy_v3_rerun_story) · "
-    "[Evidence](90_hy_ig_spy_v3_rerun_evidence) · "
-    "[Strategy](90_hy_ig_spy_v3_rerun_strategy) · "
-    "📄 Methodology"
-)
+col_b1, col_b2, col_b3, col_b4, col_b5 = st.columns(5)
+with col_b1: st.page_link("pages/90_hy_ig_spy_v3_rerun_story.py", label="Story", icon="📖")
+with col_b2: st.page_link("pages/90_hy_ig_spy_v3_rerun_evidence.py", label="Evidence", icon="🔬")
+with col_b3: st.page_link("pages/90_hy_ig_spy_v3_rerun_strategy.py", label="Strategy", icon="⚙️")
+with col_b4: st.markdown("**📐 Methodology**")
+with col_b5: st.page_link("pages/91_hy_ig_spy_v3_retro_story.py", label="Retro fork →", icon="⚗️")
