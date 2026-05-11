@@ -8,6 +8,18 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-11 — APP-TT1: Pair Title at Page Top (new rule)
+
+**Trigger.** User observed that navigating to a non-story page provided no immediate visual anchor for which pair was being viewed — banners and breadcrumbs appeared before the pair name.
+
+**Rule added:**
+
+- **APP-TT1** (`appdev-agent-sop.md`) — `st.title(display_name)` must be the first content element after `st.set_page_config()` on every page (Story, Evidence, Strategy, Methodology). No banner, breadcrumb, or warning may precede it. Raw `pair_id` slug as title is prohibited — must use human-readable display name.
+
+**Artifact fix:** All 8 v3 experiment fork pages updated to comply (story pages: title moved above banner; evidence/strategy/methodology: title moved above banner and raw pair_id replaced with display_name).
+
+---
+
 ## 2026-05-11 — META-CDR: Cross-Domain Review (new meta-rule)
 
 **Trigger.** Wave 10I post-mortem (2026-05-09): producers completed their tasks and self-verified, but cross-domain issues (PAGE_ROUTING gap, evidence_status.json schema mismatch, column name mismatch `val_sharpe` vs `oos_sharpe`, display_name not wired to card title) were only caught after cloud deploy — not by any single producer's gate. No rule required Lead to audit cross-agent seams *before* Quincy.

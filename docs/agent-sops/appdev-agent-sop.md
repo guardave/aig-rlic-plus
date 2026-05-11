@@ -1485,6 +1485,35 @@ For any required artifact (`winner_summary.json`, `signal_scope.json`, `interpre
 - **Deviation protocol:** any Streamlit upgrade (observed via `streamlit.__version__`) that changes slug rules triggers a coordinated bump: (a) `url_slug_pins.json.streamlit_version_observed` updated, (b) `expected_slug` values migrated, (c) a `regression_note_{date}.md` entry per META-RNF, (d) external links in `acceptance.md` / `docs/pair_execution_history.md` audited per GATE-30 (Deflection Link Audit).
 - **Cross-references:** APP-DP1 (`st.page_link` try/except — now supplemented by structural pinning), GATE-29 (Clean-Checkout Deployment Test), GATE-30 (Deflection Link Audit — external links depend on slugs), META-CF, META-VNC (cross-environment content continuity).
 
+### Rule APP-TT1 — Pair Title at Page Top (binding, all pages)
+
+**Added 2026-05-11.**
+
+Every portal page — Story, Evidence, Strategy, Methodology — MUST render the pair's display name as an `st.title()` call as the **first content element** after `st.set_page_config()`. No banner, breadcrumb, warning, or any other `st.*` call may appear before the pair title.
+
+**Rationale:** When a user navigates between pages or lands directly on a non-story page, there is no visual anchor identifying which pair they are looking at. Banners and breadcrumbs that appear before the title force the reader to scan downward to find the pair name. The title at the very top provides immediate orientation.
+
+**Required structure (all pages):**
+```python
+st.set_page_config(...)
+
+# ── PAIR TITLE (APP-TT1) ────────────────────────────────────────────────────
+st.title(display_name)          # pair display name — first content, always
+st.subheader("Evidence")        # page-type label, if applicable (omit on Story)
+
+# ── [banners, breadcrumbs, content below] ───────────────────────────────────
+```
+
+**`display_name` source:** from `interpretation_metadata.json` → `display_name` field, or from the pair config module. Do NOT use the raw `pair_id` string as the title.
+
+**Template compliance:** `page_templates.py` renders `st.title(page_title)` from the config — confirm the config's `page_title` field is set to the human-readable display name, not the pair_id slug.
+
+**Gate:** Ace self-checks APP-TT1 compliance before handoff. Quincy verifies at QA time: the first `st.*` call after `st.set_page_config()` in every page file must be `st.title(...)`.
+
+**Cross-references:** APP-PT1 (page template abstraction), LEAD-QF1 (Lead catches silent omission across pages).
+
+---
+
 ### Rule APP-CH1 — Chart Name Registry Extension for Non-Method Charts
 
 **Added 2026-04-19 (Wave 5B-2).** Resolves the Wave-5 reproducibility-audit Axis 1 finding that VIZ-V8 `chart_type_registry.json` covered only method-family charts (correlation, granger, ccf, local_projections, regime, quantile, transfer_entropy, quartile_returns) — leaving non-method charts (hero, equity_curves, drawdown, trade_log_preview, signal_timeseries, position_timeseries, regime_shading_backdrop) with ad-hoc naming and path-resolution discretion inside `app/components/charts.py`.

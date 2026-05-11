@@ -11,6 +11,10 @@ st.set_page_config(
     layout="wide",
 )
 
+# ── PAIR TITLE (APP-TT1) ────────────────────────────────────────────────────
+st.title("⚗️ HY-IG × SPY v3 Rerun (z-score/P1)")
+st.caption("Experiment fork — clean rerun | Pair: hy_ig_spy_v3_rerun")
+
 # ── EXPERIMENT FORK BANNER ──────────────────────────────────────────────────
 st.warning(
     "⚗️ EXPERIMENT FORK — Clean Rerun | "
@@ -28,7 +32,6 @@ with col_b5: st.page_link("pages/91_hy_ig_spy_v3_retro_story.py", label="Retro f
 st.divider()
 
 # ── TITLE ───────────────────────────────────────────────────────────────────
-st.title("hy_ig_spy_v3_rerun")
 st.subheader(
     "HY-IG Spread → SPY  |  252-day z-score, rolling 75th-pct threshold, "
     "binary long/flat, no lag  |  Clean Rerun Fork"

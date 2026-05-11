@@ -11,6 +11,10 @@ st.set_page_config(
     layout="wide",
 )
 
+# ── PAIR TITLE (APP-TT1) ────────────────────────────────────────────────────
+st.title("⚗️ HY-IG × SPY v3 Retro (HMM/P2)")
+st.caption("Experiment fork — retro-apply | Pair: hy_ig_spy_v3_retro")
+
 # ── EXPERIMENT FORK BANNER ──────────────────────────────────────────────────
 st.warning(
     "⚗️ EXPERIMENT FORK — Retro-Apply | "
@@ -28,7 +32,6 @@ with col_b5: st.page_link("pages/90_hy_ig_spy_v3_rerun_story.py", label="← Rer
 st.divider()
 
 # ── TITLE ───────────────────────────────────────────────────────────────────
-st.title("hy_ig_spy_v3_retro")
 st.subheader(
     "HY-IG / SPY  |  HMM stress probability, 0.5 threshold, "
     "proportional sizing, no lag  |  Retro-Apply Fork"

@@ -24,13 +24,15 @@ st.set_page_config(
     layout="wide",
 )
 
+# ── PAIR TITLE (APP-TT1) ────────────────────────────────────────────────────
+st.title(f"{display_name}")
+st.subheader("Evidence")
+
 # ── EXPERIMENT FORK BANNER ──────────────────────────────────────────────────
 st.warning(
     "⚗️ EXPERIMENT FORK — not a production pair. "
     "Results are for comparison purposes only."
 )
-
-st.title(f"Evidence — {display_name}")
 st.caption(
     f"Winner: {winner_summary['signal_code']} / {winner_summary['threshold_code']} / "
     f"{winner_summary['strategy_code']} / L{winner_summary['lead_days']}  |  "
