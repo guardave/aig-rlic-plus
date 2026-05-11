@@ -51,21 +51,22 @@ A typical analysis follows this sequence:
 7. Each producer self-verifies per META-SRV           ← (each producer at handoff)
 8. Browser verification (headless inspect + fix)      ← (after 6)
 9. Deliverables completeness gate                     ← (after 8)
-10. QA (Quincy) runs independent verification         ← (after 9, per GATE-31)
-11. Lesandro signs off on rule-compliance in acceptance.md
-12. MRA: Measure, Review, Adjust                      ← (after 11)
-13. Stakeholder review (final gate per META-RPT)
-14. Lesandro tags the pair reference and delivers
+10. Lead cross-domain review per META-CDR             ← (after 9, before QA)
+11. QA (Quincy) runs independent verification         ← (after 10, per GATE-31)
+12. Lesandro signs off on rule-compliance in acceptance.md
+13. MRA: Measure, Review, Adjust                      ← (after 12)
+14. Stakeholder review (final gate per META-RPT)
+15. Lesandro tags the pair reference and delivers
 ```
 
 Steps 2 and 3 run in parallel. Steps 4, 5, and 6 are sequential dependencies.
 Ace can begin scaffolding the portal structure during steps 2-4 while waiting for final outputs.
 
-**Producer → QA → Lead → Stakeholder pipeline (summary).**
+**Producer → Lead CDR → QA → Lead acceptance → Stakeholder pipeline (summary).**
 
 1. Producer agents (Dana / Evan / Vera / Ray / Ace) complete their work and each files a regression-note section with META-SRV evidence blocks (first line of defense).
-2. Lead coordinates producer handoffs and reviews rule-compliance at each wave.
-3. **QA (Quincy) runs independent verification (second line, per `docs/agent-sops/qa-agent-sop.md`)** — re-runs every verification command, audits cross-agent seams, runs Cloud smoke on reference pairs, files findings in regression-note and acceptance.md.
+2. **Lead runs cross-domain review per META-CDR** — challenges cross-agent seams, flags issues that no single producer can see (schema inconsistencies, narrative/chart mismatches, silently-skipped tasks). Producers fix any blockers before QA is invoked.
+3. **QA (Quincy) runs independent verification (third line, per `docs/agent-sops/qa-agent-sop.md`)** — re-runs every verification command, audits cross-agent seams, runs Cloud smoke on reference pairs, files findings in regression-note and acceptance.md.
 4. `acceptance.md` sign-off requires QA sign-off per GATE-31. Lead cannot sign without QA's findings block in place.
 5. Stakeholder review is the final gate (per META-RPT) and gates the promotion of `<pair_id>-reference-candidate` to `<pair_id>-reference`.
 
@@ -609,6 +610,35 @@ Evidence:
 - META-XVC — Cross-Version Discipline (observation subsection is a META-SRV evidence block)
 
 **Why this rule exists.** Wave 5 reflection showed that several upstream claims had passed acceptance because the regression-note entries were clean prose without reproducible verification. In one case, a schema bump was described accurately but no validator run was logged; in another, a chart was claimed to "render cleanly" without a smoke-test log. META-SRV makes the evidence block a first-class part of every regression-note entry — making producer self-reports mechanically auditable and unlocking the independent QA re-verification layer.
+
+### Cross-Domain Review (Meta-Rule META-CDR)
+
+> **After producers self-verify (META-SRV) and before QA (GATE-31), Lead runs a cross-domain review that challenges what no individual producer can see: cross-agent seams, silently-skipped tasks, and issues that span multiple domains.**
+
+**Principle.** Producers optimise for completing their own scope. Each agent's self-verify gate (META-SRV) is domain-local: Ray checks narrative, Vera checks charts, Ace checks portal rendering. None of them is positioned to notice that Ray wrote about a chart Vera never produced, that Ace silently dropped the Strategy page, or that the evidence_status.json schema changed but Ray's narrative still cites the old status enum. Lead is the only role with cross-domain visibility, and META-CDR makes that visibility a mandatory step — not a reactive fix after cloud verify fails.
+
+**What META-CDR requires of Lead (second line of defense, runs at Step 10):**
+
+1. **Seam audit.** For each producer handoff boundary (Dana→Evan, Evan→Vera, Vera→Ray, Ray→Ace), Lead reads both sides of the handoff note and confirms the contract was met. Mismatches (field missing, file not found, schema version wrong) are returned to the upstream producer before Quincy is invoked.
+2. **Silently-skipped task check.** Lead reads the dispatch brief and checks each scope item was actually delivered. A handoff note that says "see attached" without the attachment, or that omits an entire deliverable section, is a blocking META-CDR finding.
+3. **Cross-domain consistency spot-check.** Lead picks two or three cross-domain claims (e.g., "the holdout Sharpe in the story page matches the tournament CSV") and verifies them with a grep or file read — not a full re-run, but enough to catch gross divergence. Any discrepancy is a blocking finding.
+4. **Log findings.** Lead records the CDR outcome in the wave's `_pws/lead-lesandro/` dispatch note or in `acceptance.md` pre-QA section, with: (a) seams checked, (b) tasks confirmed delivered, (c) any blocking findings returned to producers, (d) CDR PASS or RETURN verdict.
+
+**What META-CDR does NOT require of Lead:**
+
+- Verifying domain-internal correctness (chart colors, regression coefficients, narrative tone) — that remains each agent's responsibility per LEAD-QF1.
+- Re-running smoke tests or cloud verify — that is Quincy's domain.
+- Fixing producer errors directly — Lead returns findings to the producer per LEAD-DL1.
+
+**Trigger:** Step 10 of the Standard Task Flow — after Step 9 (completeness gate) and before Step 11 (Quincy QA).
+
+**Blocking behavior:** QA (Quincy) is not invoked until Lead's CDR returns PASS. If Lead returns blocking findings to producers, the cycle is: producer fixes → producer re-self-verifies → Lead re-runs CDR → QA.
+
+**Why this rule exists.** Wave 10I observation (2026-05-09): agents working in silos completed their individual tasks but did not flag cross-domain problems they encountered. A portal reboot revealed: v3 fork pages missing from sidebar (PAGE_ROUTING gap), evidence_status.json schema mismatch, tournament CSV column name mismatch (`val_sharpe` vs `oos_sharpe`), and display_name not wired through to card title. No individual producer's self-verify gate covered the cross-domain path. META-CDR formalizes the Lead review that caught these only after cloud deploy.
+
+**Cross-references:** LEAD-QF1 (quality focus hierarchy — domain internals stay with producers), LEAD-DL1 (Lead does not fix; Lead returns), META-SRV (producer first line), GATE-31 (Quincy third line).
+
+Added 2026-05-11.
 
 ### Unit-Coherence After Schema Migration (Meta-Rule META-UC)
 

@@ -80,6 +80,7 @@ No other exceptions. In particular, "I already have the context" / "it's faster"
 3. **Authors SOPs** — when a gap is identified, Lead writes the rule. Rules go in category-1 files.
 4. **Dispatches** — writes dispatch briefs for each agent with: scope, inputs, expected outputs, SOP cross-refs, EOD/handoff requirements. Briefs live in `_pws/lead-lesandro/dispatches/` or inline in the Agent tool call.
 5. **Coordinates** — tracks agent progress in status-board, resolves cross-agent seams (handoff mismatches, schema disputes).
+5a. **Cross-domain review (META-CDR)** — at Step 10 of the Standard Task Flow, after producers self-verify and before Quincy, Lead audits seams, confirms all scope items were delivered, and spot-checks two or three cross-domain claims. Logs CDR verdict in the wave note. QA is not invoked until CDR passes.
 6. **Ratifies** — reviews agent commits, runs smoke at-a-distance (reading the agent's smoke log, not re-running it), and commits the wave-closure doc entries.
 7. **Reflects** — EOD updates MEMORY.md and `_pws/_team/status-board.md` with pattern-level observations, not implementation detail.
 
@@ -111,7 +112,7 @@ This division is not just a workload split — it is a structural principle. If 
 
 **The test.** When Lead spots an agent-domain quality issue (e.g., a chart with wrong colors), the correct action is: dispatch the agent with the finding and the SOP rule that covers it. The incorrect action is: fix it directly. The distinction is not about speed — it is about where accountability lives.
 
-**Cross-reference:** LEAD-DL1 (delegation discipline — Lead does not write to agent-owned files), LEAD-DL1 Exceptions (narrow overrides for true emergencies only).
+**Cross-reference:** LEAD-DL1 (delegation discipline — Lead does not write to agent-owned files), LEAD-DL1 Exceptions (narrow overrides for true emergencies only), META-CDR (cross-domain review — the structured mechanism by which Lead exercises big-picture quality between producer self-verify and QA).
 
 ---
 

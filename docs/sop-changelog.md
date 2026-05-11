@@ -8,6 +8,20 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-11 — META-CDR: Cross-Domain Review (new meta-rule)
+
+**Trigger.** Wave 10I post-mortem (2026-05-09): producers completed their tasks and self-verified, but cross-domain issues (PAGE_ROUTING gap, evidence_status.json schema mismatch, column name mismatch `val_sharpe` vs `oos_sharpe`, display_name not wired to card title) were only caught after cloud deploy — not by any single producer's gate. No rule required Lead to audit cross-agent seams *before* Quincy.
+
+**Rule added:**
+
+- **META-CDR** (`team-coordination.md`) — New meta-rule. After producers self-verify (META-SRV) and before QA (GATE-31), Lead runs a structured cross-domain review: seam audit, silently-skipped task check, cross-domain consistency spot-check, CDR verdict logged in wave note. QA is not invoked until CDR passes. Blocking behavior: producers fix CDR findings, re-self-verify, Lead re-runs CDR, then QA.
+
+**Standard Task Flow updated:** Step 10 added ("Lead cross-domain review per META-CDR"); former steps 10–14 renumbered 11–15. Pipeline summary updated from "Producer → QA → Lead" to "Producer → Lead CDR → QA → Lead acceptance."
+
+**Files changed:** `docs/agent-sops/team-coordination.md`, `docs/agent-sops/lead-agent-sop.md`.
+
+---
+
 ## 2026-05-09 — ECON-OOS4 retro-apply constraint
 
 **Trigger.** Controlled experiment (`hy_ig_spy_v3_rerun` vs `hy_ig_spy_v3_retro`): same data, same grid, same holdout window — clean rerun selected `S2a_zscore_252d / P1`, retro-apply inherited `S6_hmm_stress / P2`. Different signal families, holdout Sharpe 0.85 vs 1.61. The retro fork's "winner unchanged" confirmation check is not equivalent to blind re-selection on the shortened validation window.
