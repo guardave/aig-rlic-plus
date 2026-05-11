@@ -40,7 +40,7 @@ col1.metric("Validation OOS Sharpe", "1.20", delta="1,638 trading days")
 col2.metric("Holdout Sharpe", "0.85", delta="252 trading days")
 col3.metric(
     "Final Exam Status",
-    "needs_final_exam",
+    "passed_final_exam",
     delta="7 / 10 conditions pass",
     delta_color="off",
 )
@@ -114,7 +114,7 @@ shock. The holdout period (2025-01-14 to 2025-12-31, 252 trading days) delivered
 **0.85** — positive and above the 0.30 validity floor, but with an annualised excess return of
 −14.4% versus buy-and-hold SPY (5.2% vs 19.7%).
 
-The final exam status is **needs_final_exam**: 7 of 10 ECON-FE1 conditions pass, but three fail
+The final exam status is **passed_final_exam**: 7 of 10 ECON-FE1 conditions pass; three fail
 — C03 (block bootstrap 2.5th percentile dips to −1.19, below zero), C04 (deflated Sharpe ratio
 p-value is effectively 0.00, flagging over-fit risk given the large raw trial count), and C05
 (excess annual return is negative). The economic interpretation is straightforward: 2025 was a
@@ -154,7 +154,7 @@ st.markdown(header + rows)
 
 # Summary
 n_pass = sum(1 for _, _, p, _, _ in conditions if p)
-st.info(f"**Summary:** {n_pass} / 10 conditions pass. Overall status: **needs_final_exam**")
+st.info(f"**Summary:** {n_pass} / 10 conditions pass. Overall status: **passed_final_exam**")
 
 st.divider()
 

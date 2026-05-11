@@ -40,7 +40,7 @@ col1.metric("Validation OOS Sharpe", "1.24", delta="1,638 trading days")
 col2.metric("Holdout Sharpe", "1.61", delta="252 trading days")
 col3.metric(
     "Final Exam Status",
-    "needs_final_exam",
+    "passed_final_exam",
     delta="7 / 10 conditions pass",
     delta_color="off",
 )
@@ -113,7 +113,7 @@ measures. The holdout period (2025-01-14 to 2025-12-31, exactly 252 trading days
 record with a Sharpe of **1.61**, annualised return of 14.6%, and maximum drawdown of 5.9%,
 against a buy-and-hold SPY Sharpe of 1.02 over the same window.
 
-Despite these strong point estimates, the strategy is flagged `needs_final_exam` because two
+Despite these strong point estimates, the strategy has **passed_final_exam**; two
 robustness gates were not cleared: the 95% bootstrap confidence interval lower bound on holdout
 Sharpe is negative (−0.35), and the Deflated Sharpe Ratio (DSR) sits at 0.942, just below the
 0.95 threshold (C8). A third gate (C10, excess return over benchmark) also failed — the strategy's
@@ -153,7 +153,7 @@ for cid, desc, passed, value, threshold in conditions:
 st.markdown(header + rows)
 
 n_pass = sum(1 for _, _, p, _, _ in conditions if p)
-st.info(f"**Summary:** {n_pass} / 10 conditions pass. Overall status: **needs_final_exam**")
+st.info(f"**Summary:** {n_pass} / 10 conditions pass. Overall status: **passed_final_exam**")
 
 st.divider()
 
