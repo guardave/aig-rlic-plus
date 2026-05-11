@@ -1,7 +1,10 @@
 {
   "pair_id": "hy_ig_spy_v3_rerun",
+  "schema_version": "1.0.0",
   "status": "needs_final_exam",
-  "n_pass": 7,
-  "n_total": 10,
-  "generated_at": "2026-05-09T08:30:11Z"
+  "updated_at": "2026-05-09T08:30:11Z",
+  "plain_english": "EXPERIMENT FORK: Winner (S2a_zscore_252d/P1) selected blind on validation window ending 2023-12-31. Holdout Sharpe 0.85 — confirmation holdout run but not yet QA-gated as final exam.",
+  "technical_note": "7/10 ECON-FE1 conditions met. Clean rerun per ECON-OOS4: winner selected blind on validation window, confirmed on 2024 holdout. Needs Quincy QA gate before status upgrades to passed_final_exam.",
+  "next_step": "Quincy to run QA gate; upgrade to passed_final_exam if holdout Sharpe >= threshold.",
+  "owner": "evan"
 }

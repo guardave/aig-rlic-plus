@@ -1,15 +1,10 @@
 {
   "pair_id": "hy_ig_spy_v3_retro",
-  "generated_at": "2026-05-09T08:27:36Z",
-  "split_design": "three_period",
-  "evidence_status": "CONDITIONAL_PASS",
-  "conditions_passed": 7,
-  "conditions_total": 10,
-  "holdout_sharpe": 1.6116,
-  "holdout_ann_return": 0.145873,
-  "holdout_mdd": -0.058973,
-  "dsr": 0.9419,
-  "boot_ci_lo": -0.3455,
-  "boot_pct_positive": 0.9441,
-  "narrative": "7/10 conditions met but key robustness gates (DSR/CI) may be borderline."
+  "schema_version": "1.0.0",
+  "status": "needs_final_exam",
+  "updated_at": "2026-05-09T08:27:36Z",
+  "plain_english": "EXPERIMENT FORK: Winner (S6_hmm_stress/P2) inherited via retro-apply. Holdout Sharpe 1.61 — confirmation holdout run but independent re-selection not performed per ECON-OOS4 retro-apply constraint.",
+  "technical_note": "7/10 ECON-FE1 conditions met. Retro-apply constraint: winner was not re-selected blind on shortened validation window. Needs fresh blind re-selection before final exam status can be granted.",
+  "next_step": "Run blind re-selection on validation window ending 2023-12-31, then confirm on 2024-01-01 to 2024-12-31 holdout.",
+  "owner": "evan"
 }

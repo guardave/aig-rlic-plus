@@ -236,8 +236,9 @@ for i in range(0, len(pairs), cols_per_row):
                         unsafe_allow_html=True,
                     )
 
+                card_title = p.get("display_name") or f"{p['indicator']} → {p['target']}"
                 st.markdown(
-                    f"**{p['indicator']} → {p['target']}**{warn_html}",
+                    f"**{card_title}**{warn_html}",
                     unsafe_allow_html=True,
                 )
                 st.markdown(dir_html, unsafe_allow_html=True)

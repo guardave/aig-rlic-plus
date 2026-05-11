@@ -181,14 +181,15 @@ def load_pair_registry():
                     # Fallback: infer from strategy rows
                     _all_dd = tdf["max_drawdown"].dropna()
                     _dd_scale = 100.0 if (len(_all_dd) > 0 and abs(_all_dd.iloc[0]) < 2.0) else 1.0
+                sharpe_col = "oos_sharpe" if "oos_sharpe" in tdf.columns else "val_sharpe"
                 valid_strats = tdf[tdf["valid"] & (tdf["signal"] != "BENCHMARK")]
                 if len(valid_strats) > 0:
-                    best_row = valid_strats.loc[valid_strats["oos_sharpe"].idxmax()]
-                    best_sharpe = round(float(best_row["oos_sharpe"]), 2)
+                    best_row = valid_strats.loc[valid_strats[sharpe_col].idxmax()]
+                    best_sharpe = round(float(best_row[sharpe_col]), 2)
                     max_dd = round(float(best_row["max_drawdown"]) * _dd_scale, 1)
                 bh = tdf[tdf["signal"] == "BENCHMARK"]
                 if len(bh) > 0:
-                    bh_sharpe = round(float(bh.iloc[0]["oos_sharpe"]), 2)
+                    bh_sharpe = round(float(bh.iloc[0][sharpe_col]), 2)
                     bh_dd = round(float(bh.iloc[0]["max_drawdown"]) * _dd_scale, 1)
             except Exception:
                 pass
