@@ -35,7 +35,7 @@ st.caption(
     f"Winner: {winner_summary['winner_signal']} / {winner_summary['winner_threshold']} / "
     f"{winner_summary['winner_strategy']} / L{winner_summary['lead_days']}  |  "
     f"Validation Sharpe: {winner_summary['val_sharpe']:.4f}  |  "
-    f"Winner unchanged vs. original: {winner_summary['winner_changed_vs_original']}"
+    f"Winner changed vs. original: {'Yes' if winner_summary['winner_changed_vs_original'] else 'No'}"
 )
 
 st.divider()

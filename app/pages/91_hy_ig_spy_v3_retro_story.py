@@ -20,6 +20,13 @@ st.warning(
 
 # ── BREADCRUMB NAV ──────────────────────────────────────────────────────────
 st.markdown(
+    "**Pages:** "
+    "📄 Story · "
+    "[Evidence](91_hy_ig_spy_v3_retro_evidence) · "
+    "[Strategy](91_hy_ig_spy_v3_retro_strategy) · "
+    "[Methodology](91_hy_ig_spy_v3_retro_methodology)"
+)
+st.markdown(
     "**Pair comparison:** "
     "[← Clean Rerun fork (page 90)](90_hy_ig_spy_v3_rerun_story) "
     "· "
@@ -178,6 +185,13 @@ st.caption(
 st.divider()
 
 # ── BREADCRUMB NAV (BOTTOM) ──────────────────────────────────────────────────
+st.markdown(
+    "**Pages:** "
+    "📄 Story · "
+    "[Evidence](91_hy_ig_spy_v3_retro_evidence) · "
+    "[Strategy](91_hy_ig_spy_v3_retro_strategy) · "
+    "[Methodology](91_hy_ig_spy_v3_retro_methodology)"
+)
 st.markdown(
     "**Pair comparison:** "
     "[← Clean Rerun fork (page 90)](90_hy_ig_spy_v3_rerun_story) "

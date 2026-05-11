@@ -53,8 +53,8 @@ st.divider()
 st.info(
     "**ECON-OOS4 retro-apply caveat:** the winner S6_hmm_stress / T4_hmm_0.5 / P2 "
     "was inherited from the original hy_ig_spy pipeline — not re-selected blind on "
-    "the corrected data. Winner unchanged vs. original: "
-    f"{winner_summary['winner_changed_vs_original']}. "
+    "the corrected data. Winner changed vs. original: "
+    f"{'Yes' if winner_summary['winner_changed_vs_original'] else 'No'}. "
     "This fork tests whether retro-apply introduces additional selection bias; "
     "results show it does not in this instance, but the design is methodologically "
     "weaker than a prospectively blind re-run."

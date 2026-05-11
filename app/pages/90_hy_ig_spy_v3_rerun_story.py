@@ -20,6 +20,13 @@ st.warning(
 
 # ── BREADCRUMB NAV ──────────────────────────────────────────────────────────
 st.markdown(
+    "**Pages:** "
+    "📄 Story · "
+    "[Evidence](90_hy_ig_spy_v3_rerun_evidence) · "
+    "[Strategy](90_hy_ig_spy_v3_rerun_strategy) · "
+    "[Methodology](90_hy_ig_spy_v3_rerun_methodology)"
+)
+st.markdown(
     "**Pair comparison:** "
     "📄 You are here: `hy_ig_spy_v3_rerun` (Clean Rerun, page 90) "
     "· "
@@ -175,6 +182,13 @@ m7.metric("N Holdout Trades", "16")
 st.divider()
 
 # ── BREADCRUMB NAV (BOTTOM) ──────────────────────────────────────────────────
+st.markdown(
+    "**Pages:** "
+    "📄 Story · "
+    "[Evidence](90_hy_ig_spy_v3_rerun_evidence) · "
+    "[Strategy](90_hy_ig_spy_v3_rerun_strategy) · "
+    "[Methodology](90_hy_ig_spy_v3_rerun_methodology)"
+)
 st.markdown(
     "**Pair comparison:** "
     "📄 You are here: `hy_ig_spy_v3_rerun` (Clean Rerun, page 90) "
