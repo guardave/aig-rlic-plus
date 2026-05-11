@@ -53,7 +53,7 @@ from playwright.sync_api import sync_playwright  # type: ignore
 # Configuration
 # ---------------------------------------------------------------------------
 
-DEFAULT_BASE = "https://aig-rlic-plus.streamlit.app"
+DEFAULT_BASE = "https://aig-rlic-plus-dev.streamlit.app"
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # Wave 10I.A: expanded from 4 to 10 pairs. Ace-A migrated 4 legacy pairs
 # (indpro_spy, permit_spy, vix_vix3m_spy, umcsent_xlv) to APP-PT1 thin
