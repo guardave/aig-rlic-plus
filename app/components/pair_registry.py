@@ -229,7 +229,7 @@ def load_pair_registry():
             display_name = "Sample (Reference Implementation)"
         else:
             display_indicator = indicator
-            display_name = None
+            display_name = interp.get("display_name", None)
 
         pair = {
             "pair_id": pair_dir,

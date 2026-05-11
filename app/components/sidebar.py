@@ -19,6 +19,8 @@ def _finding_label(pair: dict) -> str:
     """Return a compact selector label from registry metadata."""
     if pair.get("is_sample"):
         return "Sample: HY-IG × SPY"
+    if pair.get("display_name"):
+        return pair["display_name"]
     indicator = pair.get("indicator") or pair.get("indicator_id") or pair["pair_id"]
     target = pair.get("target_ticker") or pair.get("target") or ""
     return f"{indicator} → {target}".strip()

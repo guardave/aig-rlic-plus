@@ -1,5 +1,6 @@
 {
   "pair_id": "hy_ig_spy_v3_retro",
+  "display_name": "⚗️ HY-IG × SPY v3 Retro (HMM/P2)",
   "schema_version": "1.0.0",
   "indicator": "hy_ig_spread_pct",
   "indicator_id": "hy_ig_spread_pct",
