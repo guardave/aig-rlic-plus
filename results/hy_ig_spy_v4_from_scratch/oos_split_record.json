@@ -1,0 +1,19 @@
+{
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "owner": "evan",
+  "split_policy_id": "v1_max36_25pct_cap120",
+  "oos_status": "insufficient_sample",
+  "in_sample_end": "2025-05-31",
+  "oos_start": "2025-06-30",
+  "oos_end": "2025-12-31",
+  "holdout_start": "2026-01-31",
+  "holdout_end": "2026-04-30",
+  "holdout_n_obs": 4,
+  "oos_n_obs": 7,
+  "sample_size_months": 35,
+  "oos_span_months_formula": 36,
+  "oos_year_count": 1,
+  "split_design": "two_period_data_constrained",
+  "justification": "Total sample: 35 months (2023-06-30 to 2026-04-30). ECON-OOS2 requires >= 48 months; this pair has 35. oos_status=insufficient_sample is BLOCKING per ECON-OOS2. Pipeline proceeds with a pragmatic split: IS through 2025-05-31, validation OOS 2025-06-30-2025-12-31 (7 months), holdout 2026-01-31-2026-04-30 (4 months). These windows are too short for reliable Sharpe inference. Three-period design requires >= 84 months (ECON-OOS4); not met. This pair is permanently capped at failed_final_exam due to structural data constraint. Escalation to Lesandro required.",
+  "generated_at": "2026-05-12T10:00:11Z"
+}

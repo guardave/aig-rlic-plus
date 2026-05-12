@@ -1,0 +1,11 @@
+{
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "test": "CUSUM-OLS",
+  "statistic": NaN,
+  "p_value": NaN,
+  "critical_value_5pct": NaN,
+  "break_detected": null,
+  "break_date_approx": null,
+  "note": "Structural break test failed: name 'sm' is not defined",
+  "generated_at": "2026-05-12T10:00:12Z"
+}

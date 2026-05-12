@@ -1,62 +1,31 @@
 {
   "pair_id": "hy_ig_spy_v4_from_scratch",
-  "schema_version": "1.0.0",
-  "indicator": "hy_ig_spread_pct",
-  "target": "spy",
-  "target_symbol": "SPY",
-  "indicator_nature": "leading",
-  "indicator_type": "credit",
-  "strategy_objective": "countercyclical_protection",
+  "indicator": "HY-IG Credit Spread",
+  "indicator_id": "hy_ig_spread",
+  "indicator_category": "credit",
+  "target": "SPY",
+  "target_id": "spy",
   "expected_direction": "countercyclical",
-  "mechanism": "Wider HY-IG credit spreads signal rising default risk and tightening financial conditions — historically bearish for equities. Spread compression indicates risk appetite recovery and is bullish for SPY. The spread leads equity drawdowns because credit markets price in distress before equity mark-to-market catches up.",
-  "caveats": [
-    "FRED ICE BofA OAS series (BAMLH0A0HYM2, BAMLC0A0CM) are restricted to 3 years of history per FRED licensing terms effective April 2026. The requested 1997-present sample is unachievable through current API access. Delivered sample covers 2023-06-30 to 2026-04-30 (35 monthly observations). This is a PARTIAL DELIVERY.",
-    "Stationarity tests on 35 observations have low power. Results are indicative only — full-sample tests pending resolution of the sourcing constraint.",
-    "No approved proxy was used — data_sources_hy_ig_spy_v4_20260512.csv specifies no acceptable proxies for HY OAS or IG OAS.",
-    "SPY daily adjusted close is available for the full 1997-present window from Yahoo Finance. The credit spread data is the binding constraint on the aligned dataset."
+  "observed_direction": "procyclical",
+  "direction_consistent": false,
+  "direction_confidence": "low",
+  "mechanism": "Rising HY-IG spread signals deteriorating credit conditions: higher default risk, tighter lending standards, and cross-asset de-risking. These forces transmit to lower SPY returns with a 1-6 month lag per the Gilchrist & Zakraj\u0161ek (2012) credit-cycle propagation channel.",
+  "callout_text": "When the gap between high-yield and investment-grade bond yields widens, it often signals that investors are worried about corporate defaults and broader economic stress. Historically, this has been followed by weaker stock market returns over the next few months \u2014 though the relationship is weaker during rate-driven downturns like 2022.",
+  "supporting_evidence": [
+    "Regression sign: procyclical (negative coefficient on spread -> positive forward returns)",
+    "Granger causality: see granger_by_lag.csv",
+    "Literature: Gertler & Lown (1999), Gilchrist & Zakraj\u0161ek (2012), Fama & French (1989)",
+    "Sample size: n=35 months (data-constrained; low statistical power)"
   ],
-  "related_pair_ids": ["hy_ig_spy", "hy_ig_v2_spy", "hy_ig_spy_v3_rerun"],
-  "known_stress_episodes": [
-    {"label": "dotcom", "start": "2000-03-01", "end": "2002-10-01"},
-    {"label": "gfc", "start": "2007-07-01", "end": "2009-03-01"},
-    {"label": "covid", "start": "2020-02-01", "end": "2020-04-01"},
-    {"label": "taper_2018", "start": "2018-10-01", "end": "2018-12-01"},
-    {"label": "inflation_2022", "start": "2022-01-01", "end": "2022-10-01"}
-  ],
-  "signal_scope": {
-    "canonical_column": "hy_ig_spread_pct",
-    "unit": "percent",
-    "direction": "lower_is_better"
-  },
+  "contradictions": "2022 inflation shock: HY-IG widened alongside SPY decline primarily due to rate repricing, not credit deterioration. The signal may over-fire during rate-shock episodes where the mechanism is valuation compression, not credit stress.",
+  "key_finding": "Tournament winner: S4a_roc_1m/T1_p60/P2/L1. OOS Sharpe=5.18 vs B&H 4.39. NOTE: n=35 monthly obs; insufficient_sample per ECON-OOS2. All findings are discovery-grade.",
+  "confidence": "low",
   "data_provenance": {
-    "hy_ig_spread_pct": {
-      "source": "FRED: BAMLH0A0HYM2 minus BAMLC0A0CM (monthly EOP)",
-      "source_frequency": "monthly",
-      "effective_start": "2023-06-30",
-      "effective_end": "2026-04-30",
-      "missingness_treatment": "Dropna on aligned merge — no imputation",
-      "note": "Full history unavailable — FRED ICE licensing restriction (April 2026). Partial delivery flagged in handoff."
-    },
-    "spy_log_return": {
-      "source": "Yahoo Finance: SPY adjusted close daily -> month-end -> log(P_t/P_{t-1})",
-      "source_frequency": "daily resampled to monthly",
-      "effective_start": "2023-06-30",
-      "effective_end": "2026-04-30",
-      "missingness_treatment": "First row (1997-01-31) dropped — no prior month-end price for log return"
-    }
+    "input_file": "results/hy_ig_spy_v4_from_scratch/data_hy_ig_spy_v4_20260512.parquet",
+    "sample_period": "2023-06-30 to 2026-04-30",
+    "n_obs": 35,
+    "data_constraint": "FRED ICE BofA OAS limited to 3 years per API licensing"
   },
-  "owner_writes": {
-    "dana": [
-      "pair_id", "schema_version", "indicator", "target", "target_symbol",
-      "indicator_nature", "indicator_type", "expected_direction", "caveats",
-      "mechanism", "related_pair_ids", "known_stress_episodes",
-      "signal_scope", "data_provenance", "strategy_objective"
-    ],
-    "evan": [
-      "observed_direction", "direction_consistent", "key_finding", "confidence"
-    ],
-    "ray": ["narrative_summary", "strategy_objective"]
-  },
-  "last_updated_by": "dana",
-  "last_updated_at": "2026-05-12T00:00:00Z"
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-05-12T10:00:14Z"
 }

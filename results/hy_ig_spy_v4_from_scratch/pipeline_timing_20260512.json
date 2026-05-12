@@ -1,0 +1,16 @@
+{
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "date_tag": "20260512",
+  "total_seconds": 3.2,
+  "stage_times": {
+    "1_data_load": 0.0,
+    "2_features": 0.0,
+    "3_signals": 0.0,
+    "4_core_models": 1.0,
+    "5_exploratory": 0.1,
+    "6_tournament": 1.9,
+    "7_winner_outputs": 0.0,
+    "8_final_exam": 0.1
+  },
+  "generated_at": "2026-05-12T10:00:14Z"
+}

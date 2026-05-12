@@ -1,0 +1,29 @@
+{
+  "file": "correlations.csv",
+  "generated_at": "2026-05-12T10:00:11Z",
+  "columns": {
+    "pair_name": "Pair identifier",
+    "horizon_days": "Monthly forward horizon (1m=1 month, etc.)",
+    "metric": "Correlation type: pearson/spearman/kendall/distance",
+    "value": "Correlation coefficient. Negative = countercyclical (wider spread -> lower return).",
+    "p_value": "Two-tailed p-value. NaN for distance correlation.",
+    "n_obs": "Number of paired observations"
+  },
+  "sign_convention": "Negative value = HY-IG spread negatively correlated with SPY forward return (countercyclical). Expected sign per hypothesis.",
+  "units": "Dimensionless correlation coefficient [-1, 1]",
+  "assertions": [
+    {
+      "description": "Pearson 1m should be negative (countercyclical hypothesis)",
+      "check": "pearson 1m value < 0"
+    },
+    {
+      "description": "All n_obs >= 8",
+      "check": "min(n_obs) >= 8"
+    },
+    {
+      "description": "All |values| <= 1",
+      "check": "max(abs(value)) <= 1.0"
+    }
+  ],
+  "sample_size_warning": "Only 35 monthly observations. Low statistical power."
+}

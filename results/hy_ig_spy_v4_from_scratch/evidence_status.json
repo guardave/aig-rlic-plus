@@ -1,0 +1,41 @@
+{
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "schema_version": "1.2.0",
+  "status": "failed_final_exam",
+  "updated_at": "2026-05-12T10:00:14Z",
+  "confirmation_test": "ECON-FE1 frozen-rule holdout exam",
+  "confirmation_window": {
+    "start": "2026-01-31",
+    "end": "2026-04-30"
+  },
+  "technical_note": "FE1 run on holdout window 2026-01-31 to 2026-04-30 (4 monthly obs). Confirmation Sharpe=0.740 vs floor=0.5. Primary failure: data structural constraint \u2014 only 35 monthly observations available (FRED ICE BofA OAS 3-year window). Full sample (1997-present, ~341 months) is required for a passing FE1 result. Two-period design permanently caps this pair at failed_final_exam per ECON-FE1 condition 2 and ECON-OOS4.",
+  "plain_english": "This strategy's final performance test did not pass. The main reason is a data availability constraint: we only have 3 years of historical credit spread data instead of the 25+ years needed for a reliable test. The relationship between credit spreads and stock returns is well-documented in academic literature, but we cannot confirm it statistically on this limited dataset. Results are shown for informational purposes only.",
+  "failure_reasons": [
+    "FE1-Condition-2 FAILED: Three-period split is required for passed_final_exam. This pair used a two-period design (data-constrained). n=35 months total, ECON-OOS4 requires >= 84 months. A two-period pair is permanently capped at needs_final_exam or failed_final_exam and cannot be promoted.",
+    "FE1-Condition-3 FAILED: Minimum confirmation sample is 24 months for a credit-equity pair. Actual holdout n=4 months. The holdout window (2026-01-31 to 2026-04-30) is too short for reliable Sharpe estimation. This is a structural data constraint.",
+    "FE1-Condition-5 FAILED: Excess annualized return -0.0800 is negative (strategy underperforms buy-and-hold on holdout).",
+    "FE1-Condition-7 FAILED: Bootstrap 95% CI lower bound (-5.615 if available) does not exclude zero. n=4 months; block_length=2. Sharpe estimate is not statistically distinguishable from zero.",
+    "FE1-Condition-8 FAILED: Multiple-testing adjustment. n_trials_raw=816, n_trials_effective=163. After Bonferroni-style deflation, Sharpe 5.176 on n=7 OOS months does not survive at p<0.10 significance level."
+  ],
+  "next_step": "Resolve FRED ICE BofA OAS licensing constraint to obtain full 1997-present sample. Then re-run pipeline from scratch as a fresh three-period design. Escalation to Lesandro logged.",
+  "owner": "evan",
+  "final_exam": {
+    "frozen_rule_id": "S4a_roc_1m/T1_p60/P2/L1",
+    "frozen_at": "2026-05-12T10:00:14Z",
+    "search_window": {
+      "start": "2025-06-30",
+      "end": "2025-12-31"
+    },
+    "confirmation_window": {
+      "start": "2026-01-31",
+      "end": "2026-04-30",
+      "n_obs": 4
+    },
+    "n_trials_raw": 816,
+    "n_trials_effective": 163,
+    "primary_metric": "delta_sharpe",
+    "thresholds_version": "econ-fe1-v1-credit",
+    "result_artifact": "results/hy_ig_spy_v4_from_scratch/final_exam_results_20260512.json",
+    "qa_status": "qa_passed"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-05-12T10:00:14Z",
+  "indicator_axis": {
+    "canonical_column": "hy_ig_spread_pct",
+    "display_name": "HY-IG Credit Spread (pp)",
+    "derivatives": [
+      {
+        "name": "hy_ig_spread_pct",
+        "definition": "HY OAS minus IG OAS in percentage points. Wider = more credit stress.",
+        "role": "raw"
+      },
+      {
+        "name": "hy_ig_zscore_12m",
+        "definition": "12-month rolling z-score of HY-IG spread.",
+        "role": "threshold_input"
+      },
+      {
+        "name": "hy_ig_zscore_24m",
+        "definition": "24-month rolling z-score of HY-IG spread.",
+        "role": "threshold_input"
+      },
+      {
+        "name": "hy_ig_pctrank_12m",
+        "definition": "12-month percentile rank of HY-IG spread.",
+        "role": "threshold_input"
+      },
+      {
+        "name": "hy_ig_pctrank_24m",
+        "definition": "24-month percentile rank of HY-IG spread.",
+        "role": "threshold_input"
+      },
+      {
+        "name": "hy_ig_roc_1m",
+        "definition": "1-month percent rate of change.",
+        "role": "derivative"
+      },
+      {
+        "name": "hy_ig_roc_3m",
+        "definition": "3-month percent rate of change.",
+        "role": "derivative"
+      },
+      {
+        "name": "hy_ig_roc_6m",
+        "definition": "6-month percent rate of change.",
+        "role": "derivative"
+      },
+      {
+        "name": "hy_ig_mom_1m",
+        "definition": "1-month absolute change (pp).",
+        "role": "derivative"
+      },
+      {
+        "name": "hy_ig_mom_3m",
+        "definition": "3-month absolute change (pp).",
+        "role": "derivative"
+      },
+      {
+        "name": "hy_ig_mom_6m",
+        "definition": "6-month absolute change (pp).",
+        "role": "derivative"
+      },
+      {
+        "name": "hy_ig_acceleration",
+        "definition": "Change in 1m rate-of-change \u2014 second difference proxy.",
+        "role": "derivative"
+      },
+      {
+        "name": "hmm_2state_prob_stress",
+        "definition": "HMM 2-state model probability of stress regime.",
+        "role": "regime_state"
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy_log_return",
+    "display_name": "SPY Monthly Log Return",
+    "derivatives": [
+      {
+        "name": "spy_log_return",
+        "definition": "SPY monthly log return (month-end to month-end).",
+        "role": "raw"
+      },
+      {
+        "name": "spy_fwd_1m",
+        "definition": "1-month forward log return.",
+        "role": "derivative"
+      },
+      {
+        "name": "spy_fwd_3m",
+        "definition": "3-month forward log return.",
+        "role": "derivative"
+      },
+      {
+        "name": "spy_fwd_6m",
+        "definition": "6-month forward log return.",
+        "role": "derivative"
+      }
+    ]
+  },
+  "data_frequency": "monthly",
+  "sample_period": "2023-06-30 to 2026-04-30",
+  "n_obs": 35,
+  "notes": "Monthly-frequency pair. Data constrained to 35 months (2023-06 to 2026-04) due to FRED ICE BofA OAS licensing restriction. Full 1997-present sample pending."
+}

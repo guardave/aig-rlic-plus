@@ -1,0 +1,55 @@
+{
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "generated_at": "2026-05-12T10:00:11Z",
+  "mandatory_methods": [
+    {
+      "method": "correlations",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_spy_v4_from_scratch/core_models_20260512/correlations.csv",
+      "producer_assertions_passed": true
+    },
+    {
+      "method": "ccf_prewhitened",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_spy_v4_from_scratch/core_models_20260512/ccf_prewhitened.csv",
+      "producer_assertions_passed": true
+    },
+    {
+      "method": "granger_toda_yamamoto",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_spy_v4_from_scratch/core_models_20260512/granger_causality.csv",
+      "producer_assertions_passed": true
+    },
+    {
+      "method": "transfer_entropy",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_spy_v4_from_scratch/core_models_20260512/transfer_entropy.csv",
+      "producer_assertions_passed": true
+    },
+    {
+      "method": "local_projections",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_spy_v4_from_scratch/core_models_20260512/local_projections.csv",
+      "producer_assertions_passed": true
+    },
+    {
+      "method": "quantile_regression",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_spy_v4_from_scratch/core_models_20260512/quantile_regression.csv",
+      "producer_assertions_passed": true
+    },
+    {
+      "method": "hmm_regime_detection",
+      "status": "produced",
+      "artifact_path": "results/hy_ig_spy_v4_from_scratch/core_models_20260512/hmm_states.parquet",
+      "producer_assertions_passed": true
+    }
+  ],
+  "inference_robustness": {
+    "method": "HAC-Newey-West",
+    "lag_or_block_length": 3,
+    "headline_survives": true,
+    "note": "n=35 monthly obs. HAC lags = max(1, floor(0.75*n^(1/3))). Power is low at this sample size; headlines are indicative."
+  },
+  "sample_size_warning": "n=35 monthly observations. All methods have reduced power. Results are discovery-grade pending full sample acquisition."
+}

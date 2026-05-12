@@ -1,0 +1,65 @@
+{
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-05-12T10:00:14Z",
+  "frozen_rule": {
+    "signal_code": "S4a_roc_1m",
+    "signal_column": "hy_ig_roc_1m",
+    "threshold_rule": "lt",
+    "threshold_value": 1.5072,
+    "strategy_family": "P2",
+    "lead_months": 1
+  },
+  "frozen_at": "2026-05-12T10:00:14Z",
+  "search_window": {
+    "start": "2025-06-30",
+    "end": "2025-12-31"
+  },
+  "confirmation_window": {
+    "start": "2026-01-31",
+    "end": "2026-04-30",
+    "n_obs": 4
+  },
+  "sample": {
+    "class_floor": 24,
+    "minimum_confirmation_n_obs": 24,
+    "actual_confirmation_n_obs": 4,
+    "n_obs_check_passes": false
+  },
+  "confirm_sharpe": 0.7401,
+  "confirm_ann_return": 0.085637,
+  "confirm_max_drawdown": -0.033193,
+  "confirm_excess_ann_return": -0.079973,
+  "confirm_delta_sharpe": -0.0136,
+  "confirm_benchmark_sharpe": 0.7537,
+  "confirm_benchmark_ann_return": 0.16561,
+  "confirm_benchmark_max_drawdown": -0.05888,
+  "sharpe_floor": 0.5,
+  "sharpe_passes": true,
+  "uncertainty": {
+    "bootstrap_method": "stationary_block_bootstrap",
+    "block_length": 2,
+    "n_bootstrap": 1000,
+    "bootstrap_sharpe_mean": 0.3286,
+    "bootstrap_ci_lower": -5.6154,
+    "bootstrap_ci_upper": 3.6267
+  },
+  "multiple_testing": {
+    "n_trials_raw": 816,
+    "n_trials_effective": 163,
+    "adjustment_method": "Bonferroni_deflation_approx",
+    "psr_pvalue_pre_deflation": 0.9999,
+    "deflated_p_value": 1.0,
+    "passes_at_p10": false
+  },
+  "fe1_conditions_passed": false,
+  "failure_count": 5,
+  "failure_reasons": [
+    "FE1-Condition-2 FAILED: Three-period split is required for passed_final_exam. This pair used a two-period design (data-constrained). n=35 months total, ECON-OOS4 requires >= 84 months. A two-period pair is permanently capped at needs_final_exam or failed_final_exam and cannot be promoted.",
+    "FE1-Condition-3 FAILED: Minimum confirmation sample is 24 months for a credit-equity pair. Actual holdout n=4 months. The holdout window (2026-01-31 to 2026-04-30) is too short for reliable Sharpe estimation. This is a structural data constraint.",
+    "FE1-Condition-5 FAILED: Excess annualized return -0.0800 is negative (strategy underperforms buy-and-hold on holdout).",
+    "FE1-Condition-7 FAILED: Bootstrap 95% CI lower bound (-5.615 if available) does not exclude zero. n=4 months; block_length=2. Sharpe estimate is not statistically distinguishable from zero.",
+    "FE1-Condition-8 FAILED: Multiple-testing adjustment. n_trials_raw=816, n_trials_effective=163. After Bonferroni-style deflation, Sharpe 5.176 on n=7 OOS months does not survive at p<0.10 significance level."
+  ],
+  "structural_constraint": "Primary failure driver is structural data constraint: only 35 monthly observations available (FRED ICE BofA OAS 3-year window). Full sample (1997-present) is required. This pair cannot pass FE1 until the data constraint is resolved."
+}

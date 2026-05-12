@@ -1,0 +1,27 @@
+{
+  "file": "granger_causality.csv",
+  "generated_at": "2026-05-12T10:00:11Z",
+  "method": "Toda-Yamamoto (approximated via augmented Granger, d_max=1)",
+  "columns": {
+    "direction": "indicator_to_target = HY-IG spread Granger-causes SPY returns",
+    "lag": "Number of lags in the VAR",
+    "f_statistic": "F-statistic for Granger causality",
+    "p_value": "p-value (significance < 0.10 flagged)",
+    "significant": "True if p < 0.10"
+  },
+  "assertions": [
+    {
+      "description": "Both directions tested",
+      "check": "2 unique direction values"
+    },
+    {
+      "description": "Lag >= 1",
+      "check": "min(lag) >= 1"
+    },
+    {
+      "description": "F-statistics >= 0",
+      "check": "min(f_statistic) >= 0"
+    }
+  ],
+  "sample_size_warning": "n=35. Granger tests have very low power. Results are indicative only."
+}
