@@ -1,0 +1,282 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+11 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Deploy
+The Evidence: What the Data Shows
+📖
+
+Story
+
+→
+
+🔬 Evidence
+
+What this shows: ← you are here.
+
+→
+🎯
+
+Strategy
+
+→
+📐
+
+Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+We subjected approximately 30 years of monthly credit spread data to multiple complementary statistical methods. Each is designed to test a different aspect of the HY-IG → SPY relationship. The core hypothesis: rising credit spreads carry advance information about weaker forward SPY returns — a countercyclical early-warning pattern.
+
+Each method follows the same 8-part structure: what the method is, the question it answers, how to read the chart, what we observe, deeper technical detail, economic interpretation, and the key message. Read in order for the full picture, or skip to the Key message lines for a quick summary.
+
+Evidence is organized in two tiers. Level 1 covers basic statistical relationships. Level 2 adds regime analysis, tail risk, nonlinear dependence, or other advanced techniques.
+
+Level 1 — Basic Analysis
+
+Level 2 — Advanced Analysis
+
+HMM Regime Analysis
+
+Regime Quartile Returns
+
+Hidden Markov Model (HMM) Regime Analysis
+
+ⓘ
+
+expand_more
+
+A Hidden Markov Model identifies latent (unobserved) market regimes — distinct states of the world that generate statistically different behavior — from the observed spread series alone. We fit a 2-state HMM (a 'calm' state and a 'stress' state) to the HY-IG spread. The model outputs, for each month, a probability that the market is currently in the stress state. This probability serves as a candidate signal. The HMM aggregates level, trend, and volatility information in the spread into a single, calibrated probability number — making it a nonlinear summary of the credit-risk environment.
+
+The HMM stress state is one candidate signal from the tournament. Its value is not precise timing prediction — it is identifying the regimes where holding full SPY exposure has historically carried elevated drawdown risk relative to calm-state periods. The v4 tournament winner used the z-score signal rather than the HMM probability; see the Strategy page for the tournament outcome.
+
+Do HMM-identified credit regimes discriminate meaningfully between historical periods of strong and weak SPY performance — does being in the stress state reliably identify the months when holding SPY has historically been costly?
+
+How to read it: The chart overlays HMM stress probability (shaded area, right axis) on the HY-IG spread time-series (line, left axis). Shaded periods above 0.5 probability are HMM-classified stress regimes. Key historical events are annotated. Look for whether the high-stress periods align with the major SPY drawdown episodes. A stress state that covers a minority of calendar months but contains the majority of drawdown losses would be consistent with a useful regime discriminator.
+
+Jan 1998
+Jan 2000
+Jan 2002
+Jan 2004
+Jan 2006
+Jan 2008
+Jan 2010
+Jan 2012
+Jan 2014
+Jan 2016
+Jan 2018
+Jan 2020
+Jan 2022
+Jan 2024
+Jan 2026
+2
+4
+6
+8
+10
+12
+14
+0
+0.2
+0.4
+0.6
+0.8
+1
+HY-IG OAS Spread (%)
+HMM Stress Probability
+HY-IG Spread → SPY (v4): HMM 2-State Stress Probability Overlay
+Date
+HY-IG Spread (%)
+HMM P(Stress)
+
+What this shows: HMM 2-state stress probability overlaid on the HY-IG spread time-series. Shaded areas above 0.5 mark HMM stress regimes. Major credit stress episodes are annotated for reference.
+
+What this shows: The HMM regime overlay shows how the 2-state model partitions the historical spread series into stress and calm periods. Whether the stress periods align closely with the major SPY drawdown episodes (GFC 2008-09, COVID 2020, inflation 2022) is visible in the chart above.
+
+Why this matters: The HMM stress probability is a nonlinear summary of whether credit markets are currently in a deterioration regime. Its value as an analytical tool is identification of the regimes where the risk-reward of holding full SPY exposure is demonstrably worse — not prediction of the exact timing of SPY decline. The rate-shock blind spot (2022) applies here as well: the HMM may classify the 2022 episode as stress even though the mechanism was rate repricing rather than credit-cycle deterioration.
+
+Key message: The HMM regime analysis tests whether a 2-state model fitted to HY-IG spread history discriminates between SPY stress and calm periods — providing a nonlinear complement to the linear correlation and Granger tests.
+
+Cross-Period Consistency
+
+These charts test whether the signal's predictive relationship holds across different historical sub-periods. A finding that vanishes in one era or only appears in a specific decade is fragile; one that persists across regimes is robust.
+
+Sub-period Sharpe
+
+0.55
+-0.55
+1.17
+0.84
+Pre-GFC (1997-2007)
+GFC Era (2007-2010)
+ZIRP Era (2010-2019)
+COVID-to-Present (2020-2026)
+−0.5
+0
+0.5
+1
+HY-IG Spread → SPY (v4): SPY Sharpe by Sub-period (Strategy)
+Sub-period
+Annualized Sharpe Ratio
+Sharpe=0.5 floor
+
+How to read it: each bar shows the strategy's Sharpe ratio for a distinct historical sub-period. Consistent positive bars across all periods indicate a robust signal.
+
+Rolling Correlation
+
+Jan 1998
+Jan 2000
+Jan 2002
+Jan 2004
+Jan 2006
+Jan 2008
+Jan 2010
+Jan 2012
+Jan 2014
+Jan 2016
+Jan 2018
+Jan 2020
+Jan 2022
+Jan 2024
+Jan 2026
+−1
+−0.5
+0
+0.5
+1
+12m window
+24m window
+36m window
+HY-IG Spread → SPY (v4): Rolling Pearson Correlation (HY-IG Spread vs SPY Return)
+Date
+Pearson r
+
+How to read it: the time-varying correlation between indicator and target. A flat, stable line suggests the relationship is not regime-dependent.
+
+Structural Break Test
+
+Jan 1998
+Jan 2000
+Jan 2002
+Jan 2004
+Jan 2006
+Jan 2008
+Jan 2010
+Jan 2012
+Jan 2014
+Jan 2016
+Jan 2018
+Jan 2020
+Jan 2022
+Jan 2024
+Jan 2026
+2
+4
+6
+8
+10
+12
+14
+HY-IG Spread → SPY (v4): Structural Break Analysis (CUSUM-OLS — Failed)
+Date
+HY-IG OAS Spread (%)
+CUSUM-OLS structural break test failed (numerical error in pipeline).No break date identified. Visual inspection suggests potential regime shift ~2020.
+
+How to read it: formal test for parameter instability. A clean chart with no break-date flags means the relationship is stationary across the sample.
+
+Rolling Sharpe
+
+Jan 1998
+Jan 2000
+Jan 2002
+Jan 2004
+Jan 2006
+Jan 2008
+Jan 2010
+Jan 2012
+Jan 2014
+Jan 2016
+Jan 2018
+Jan 2020
+Jan 2022
+Jan 2024
+Jan 2026
+−2
+−1
+0
+1
+2
+3
+4
+5
+12m Sharpe
+24m Sharpe
+36m Sharpe
+HY-IG Spread → SPY (v4): Rolling Strategy Sharpe Ratio (S2c z-score 36m)
+Date
+Sharpe Ratio (annualized)
+OOS Start
+Holdout Start
+
+How to read it: 24-month rolling Sharpe ratio. Persistent positive values confirm the strategy survives across market regimes, not just in a lucky window.
+
+Rolling Granger
+
+Jan 2000
+Jan 2002
+Jan 2004
+Jan 2006
+Jan 2008
+Jan 2010
+Jan 2012
+Jan 2014
+Jan 2016
+Jan 2018
+Jan 2020
+Jan 2022
+Jan 2024
+Jan 2026
+0
+0.2
+0.4
+0.6
+0.8
+1
+HY-IG Spread → SPY (v4): Rolling Granger Causality P-value (36m Window, HY-IG→SPY)
+Date
+Granger p-value
+p=0.05
+p=0.10
+
+How to read it: rolling Granger F-statistic. Values consistently above the dashed threshold show the predictive relationship is not a sample artefact.
+
+The Combinatorial Tournament
+
+We tested combinations of signals (HY-IG level, z-score, rate-of-change, momentum, and HMM stress probability), thresholds (z-score crossings, percentile bands), strategies (Long/Cash, Signal-Strength, Long/Short), and lead times (1 month). These were ranked by out-of-sample Sharpe ratio over 2014-08-29 to 2020-06-30 (71 months). The winning combination: 36-month z-score (S2c_zscore_36m), threshold T3_z0.0 (z-score < 0 → long SPY), Long/Cash strategy (P1), 1-month lead, producing OOS Sharpe 1.32 vs 0.71 buy-and-hold SPY.
+
+What this shows: tournament results at results/hy_ig_spy_v4_from_scratch/tournament_results_v4_20260512.csv.
+
+Transition: Multiple statistical methods examine the countercyclical relationship between HY-IG credit spreads and SPY returns. The tournament search identified the 36-month z-score as the winning signal. Now: what does the winning strategy actually do, and how has it performed — including on the holdout period that was sealed during the search?
+
+🎯
+
+Continue to The Strategy
+
+What this shows: generated with AIG-RLIC+ | Pair: hy_ig_spy_v4_from_scratch.

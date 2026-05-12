@@ -1,0 +1,270 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+11 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Deploy
+The Evidence: What the Data Shows
+📖
+
+Story
+
+→
+
+🔬 Evidence
+
+What this shows: ← you are here.
+
+→
+🎯
+
+Strategy
+
+→
+📐
+
+Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+We subjected approximately 30 years of monthly credit spread data to multiple complementary statistical methods. Each is designed to test a different aspect of the HY-IG → SPY relationship. The core hypothesis: rising credit spreads carry advance information about weaker forward SPY returns — a countercyclical early-warning pattern.
+
+Each method follows the same 8-part structure: what the method is, the question it answers, how to read the chart, what we observe, deeper technical detail, economic interpretation, and the key message. Read in order for the full picture, or skip to the Key message lines for a quick summary.
+
+Evidence is organized in two tiers. Level 1 covers basic statistical relationships. Level 2 adds regime analysis, tail risk, nonlinear dependence, or other advanced techniques.
+
+Level 1 — Basic Analysis
+
+Level 2 — Advanced Analysis
+
+Correlation
+
+Granger Causality
+
+Pre-Whitened CCF
+
+Correlation Analysis
+
+A Pearson correlation (a measure of linear co-movement ranging from -1 to +1) computed between the HY-IG spread and forward SPY monthly returns at multiple horizons (1M, 3M, 6M, 12M). Rolling correlations — computed over a moving window of 12 or 36 months — show how the relationship has evolved through different market regimes rather than collapsing the full history into a single number. Multiple signal variants (level, z-score, rate of change) are tested simultaneously.
+
+Is there a statistically meaningful negative linear relationship between the HY-IG spread and subsequent SPY returns — and which signal variant and forward horizon shows the most consistent association?
+
+How to read it: The rolling correlation chart shows 12-month and 36-month Pearson correlations between the HY-IG spread and SPY forward monthly returns. Values below zero (below the horizontal zero line) are consistent with the countercyclical hypothesis: wider spreads associated with weaker forward returns. The dashed vertical line marks the start of the out-of-sample evaluation period. A persistent negative correlation band suggests a durable relationship; a correlation that oscillates around zero suggests regime-dependence.
+
+Jan 1998
+Jan 2000
+Jan 2002
+Jan 2004
+Jan 2006
+Jan 2008
+Jan 2010
+Jan 2012
+Jan 2014
+Jan 2016
+Jan 2018
+Jan 2020
+Jan 2022
+Jan 2024
+Jan 2026
+−1
+−0.5
+0
+0.5
+1
+12m window
+24m window
+36m window
+HY-IG Spread → SPY (v4): Rolling Pearson Correlation (HY-IG Spread vs SPY Return)
+Date
+Pearson r
+
+What this shows: rolling Pearson correlation between the HY-IG spread and SPY forward monthly return. Negative values support the countercyclical pattern — wider credit spreads are associated with weaker subsequent SPY performance. The relationship strengthens during credit-cycle stress periods.
+
+What this shows: Rolling correlations for the HY-IG spread against SPY forward returns are predominantly negative across the full sample, particularly at 3-month and 6-month forward horizons. The relationship is strongest during stress regimes and weakest during the compressed-spread period. See the chart for the full time-varying pattern.
+
+Why this matters: Correlation analysis is consistent with a countercyclical link between HY-IG spread levels and SPY forward returns. The relationship is most pronounced at the 3-6 month forward horizon and for normalized signal variants (z-score). The rolling view shows the relationship is regime-dependent — it strengthens during credit cycles and weakens during rate-driven or idiosyncratic market episodes.
+
+Key message: The HY-IG spread shows a predominantly negative rolling correlation with SPY forward returns at 3-6 month horizons: wider credit spreads are associated with weaker subsequent SPY performance — consistent with the countercyclical early-warning pattern.
+
+Cross-Period Consistency
+
+These charts test whether the signal's predictive relationship holds across different historical sub-periods. A finding that vanishes in one era or only appears in a specific decade is fragile; one that persists across regimes is robust.
+
+Sub-period Sharpe
+
+0.55
+-0.55
+1.17
+0.84
+Pre-GFC (1997-2007)
+GFC Era (2007-2010)
+ZIRP Era (2010-2019)
+COVID-to-Present (2020-2026)
+−0.5
+0
+0.5
+1
+HY-IG Spread → SPY (v4): SPY Sharpe by Sub-period (Strategy)
+Sub-period
+Annualized Sharpe Ratio
+Sharpe=0.5 floor
+
+How to read it: each bar shows the strategy's Sharpe ratio for a distinct historical sub-period. Consistent positive bars across all periods indicate a robust signal.
+
+Rolling Correlation
+
+Jan 1998
+Jan 2000
+Jan 2002
+Jan 2004
+Jan 2006
+Jan 2008
+Jan 2010
+Jan 2012
+Jan 2014
+Jan 2016
+Jan 2018
+Jan 2020
+Jan 2022
+Jan 2024
+Jan 2026
+−1
+−0.5
+0
+0.5
+1
+12m window
+24m window
+36m window
+HY-IG Spread → SPY (v4): Rolling Pearson Correlation (HY-IG Spread vs SPY Return)
+Date
+Pearson r
+
+How to read it: the time-varying correlation between indicator and target. A flat, stable line suggests the relationship is not regime-dependent.
+
+Structural Break Test
+
+Jan 1998
+Jan 2000
+Jan 2002
+Jan 2004
+Jan 2006
+Jan 2008
+Jan 2010
+Jan 2012
+Jan 2014
+Jan 2016
+Jan 2018
+Jan 2020
+Jan 2022
+Jan 2024
+Jan 2026
+2
+4
+6
+8
+10
+12
+14
+HY-IG Spread → SPY (v4): Structural Break Analysis (CUSUM-OLS — Failed)
+Date
+HY-IG OAS Spread (%)
+CUSUM-OLS structural break test failed (numerical error in pipeline).No break date identified. Visual inspection suggests potential regime shift ~2020.
+
+How to read it: formal test for parameter instability. A clean chart with no break-date flags means the relationship is stationary across the sample.
+
+Rolling Sharpe
+
+Jan 1998
+Jan 2000
+Jan 2002
+Jan 2004
+Jan 2006
+Jan 2008
+Jan 2010
+Jan 2012
+Jan 2014
+Jan 2016
+Jan 2018
+Jan 2020
+Jan 2022
+Jan 2024
+Jan 2026
+−2
+−1
+0
+1
+2
+3
+4
+5
+12m Sharpe
+24m Sharpe
+36m Sharpe
+HY-IG Spread → SPY (v4): Rolling Strategy Sharpe Ratio (S2c z-score 36m)
+Date
+Sharpe Ratio (annualized)
+OOS Start
+Holdout Start
+
+How to read it: 24-month rolling Sharpe ratio. Persistent positive values confirm the strategy survives across market regimes, not just in a lucky window.
+
+Rolling Granger
+
+Jan 2000
+Jan 2002
+Jan 2004
+Jan 2006
+Jan 2008
+Jan 2010
+Jan 2012
+Jan 2014
+Jan 2016
+Jan 2018
+Jan 2020
+Jan 2022
+Jan 2024
+Jan 2026
+0
+0.2
+0.4
+0.6
+0.8
+1
+HY-IG Spread → SPY (v4): Rolling Granger Causality P-value (36m Window, HY-IG→SPY)
+Date
+Granger p-value
+p=0.05
+p=0.10
+
+How to read it: rolling Granger F-statistic. Values consistently above the dashed threshold show the predictive relationship is not a sample artefact.
+
+The Combinatorial Tournament
+
+We tested combinations of signals (HY-IG level, z-score, rate-of-change, momentum, and HMM stress probability), thresholds (z-score crossings, percentile bands), strategies (Long/Cash, Signal-Strength, Long/Short), and lead times (1 month). These were ranked by out-of-sample Sharpe ratio over 2014-08-29 to 2020-06-30 (71 months). The winning combination: 36-month z-score (S2c_zscore_36m), threshold T3_z0.0 (z-score < 0 → long SPY), Long/Cash strategy (P1), 1-month lead, producing OOS Sharpe 1.32 vs 0.71 buy-and-hold SPY.
+
+What this shows: tournament results at results/hy_ig_spy_v4_from_scratch/tournament_results_v4_20260512.csv.
+
+Transition: Multiple statistical methods examine the countercyclical relationship between HY-IG credit spreads and SPY returns. The tournament search identified the 36-month z-score as the winning signal. Now: what does the winning strategy actually do, and how has it performed — including on the holdout period that was sealed during the search?
+
+🎯
+
+Continue to The Strategy
+
+What this shows: generated with AIG-RLIC+ | Pair: hy_ig_spy_v4_from_scratch.

@@ -182,3 +182,51 @@ Lesandro sign-off: ✓
 - **GATE-RW1 result:** FAIL
 
 Quincy sign-off: ✓
+
+---
+
+## GATE-RW1 Re-Verification — hy_ig_spy_v4_from_scratch — 2026-05-12 (Quincy)
+
+**Reader persona:** Portfolio manager, knows bonds, unfamiliar with quant methods.
+
+**Streamlit server:** restarted fresh on port 8501 (`app/app.py`). All 4 pages verified at 1280px via Playwright. DOM text and screenshots saved to `temp/260512_gate_rw1_rv2/`.
+
+### Story page
+- **Strategy claim (one sentence, as reader would state it):** When the high-yield credit spread rises above its 36-month average — signalling deteriorating credit conditions — the strategy moves to cash and returns to SPY when conditions normalise, because bond markets tend to process default risk before equity prices fully reflect it.
+- **Information hierarchy (headline → KPI → chart → narrative):** FAIL (unchanged from prior walk, not a target fix) — key metric bullets appear early, but "Where This Fits in the Portal" prose block still precedes the KPI tile cards and the first chart. The two-paragraph context block before the tile row remains the dominant hierarchy problem. Not a regression from the prior walk.
+- **Chart titles state findings (not labels):** PASS with reservation (unchanged) — episode-zoom titles carry quantified findings. Full-history overview ("Full History (1997–2026)") and quartile bar chart ("SPY Annualized Return by HY-IG Spread Quartile") remain label-only. Not a target fix in this wave.
+- **Axis labels legible at default zoom:** PASS — "Jan YYYY" ticks confirmed in DOM; 1280px screenshot shows no overlap.
+- **Episode narratives are pair-specific (not generic):** PASS — specific spread levels, drawdown percentages, and dated triggers confirmed in DOM.
+
+### Evidence page
+- **Key message boxes state pair-specific findings:** PASS for visible content (unchanged).
+- **First-use jargon explained or info-icon'd:** PASS — BF-RW1 resolved. Playwright DOM confirms `ⓘ` popover buttons appear next to method headings on every tab that has a glossary match: "Granger Causality (Toda-Yamamoto)" → ⓘ (matches "Granger causality"); "Hidden Markov Model (HMM) Regime Analysis" → ⓘ (matches "Hidden Markov Model (HMM)"); "Regime Quartile Returns Analysis" → ⓘ (matches "Regime"). Bidirectional substring matching confirmed working in `glossary_inline.py` line 65: `if needle in kl or kl in needle`. Residual unexplained terms: "Correlation Analysis" and "Pre-Whitened Cross-Correlation Function (CCF)" have no glossary key match in either direction — this is a glossary coverage gap, not a code regression. No new raw notation added by these fixes; no regressions found.
+- **Level 1 → Level 2 builds an argument:** PASS with observation (unchanged).
+
+### Strategy page
+- **Trading rule stated first, in plain English:** PASS (unchanged) — "Strategy Rule in Plain English" box is the first substantive content after the page title.
+- **Disclosure banner impression:** A portfolio manager reading the banner encounters four failure conditions all stated in plain prose: (1) Sharpe ratio 0.31 below 0.50 floor with economic context (COVID recovery, rate-hiking cycle); (2) negative annualised excess return of -13%; (3) bootstrap simulation shows return could be zero or negative by chance; (4) multiple-testing adjustment explains the cherry-picking concept in plain English ("the more combinations you test, the higher the bar the winner must clear"). No raw notation `deflated_p=0.2643` or `FE1-Condition-8 FAILED` in DOM. The reader would conclude: this signal did not hold up in the most recent five years, and after adjusting for the large number of strategies tested, the result cannot be distinguished from luck.
+
+### Methodology page
+- **OOS window stated with dates:** PASS — "2014-08 to 2020-06" metric card plus full three-period breakdown in descriptive text. Unchanged.
+- **Multiple-testing context explained:** PASS — BF-RW2 resolved. DOM confirms the `st.caption()` block appears immediately after the Tournament Design table (Methodology DOM line 134): "Testing many combinations **inflates** the chance that the best-looking result is a statistical accident... The **Deflated Sharpe Ratio** (DSR) corrects for this by scaling down the winning strategy's score based on how many alternatives were tested. A strategy that passes DSR has cleared a much higher bar than one that is simply the best of a large search." Keywords "inflates", "Deflated Sharpe Ratio", and cherry-picking analogy all confirmed present.
+
+### Cross-page arc
+- **Story → Evidence → Strategy coherence:** Coherent and consistent with the prior walk — credit-leads-equity hypothesis (Story) → z-score wins tournament (Evidence) → z-score rule operationalised (Strategy) → holdout test with improved DSR explanation (Methodology).
+
+### BF resolution
+- **BF-RW1 (jargon icons on Evidence):** CONFIRMED RESOLVED — ⓘ buttons confirmed in DOM on Granger Causality, HMM Regime Analysis, and Regime Quartile Returns tabs. Code inspection confirms bidirectional substring matching in `glossary_inline.py` line 65 (`if needle in kl or kl in needle`). Methods without glossary entries (Correlation Analysis, Pre-Whitened CCF) correctly produce no icon per DPS-II1 silent-no-op contract. Playwright popover count = 3 on a single tab load, consistent with template wiring.
+- **BF-RW2 (multiple-testing context on Methodology):** CONFIRMED RESOLVED — plain-English caption block confirmed in Methodology DOM immediately after Tournament Design table. Keywords "inflates" and "Deflated Sharpe Ratio" present. `st.caption()` wired in `page_templates.py` lines 1754–1763.
+- **RW-N3 (disclosure banner plain English):** IMPROVED — all 4 `failure_reasons` are now plain prose. No raw statistical codes (`FE1-Condition-8`, `deflated_p=0.2643`) in Strategy DOM. Multiple-testing condition (4th reason) explains cherry-picking in a sentence a non-quant reader can follow.
+
+### Non-blocking observations (status from prior walk)
+- **RW-N1 (Story information hierarchy):** UNCHANGED — "Where This Fits" prose block still precedes KPI tile cards. Not a target fix; persists as non-blocking.
+- **RW-N2 (chart titles label not finding):** UNCHANGED — full-history and quartile bar chart titles remain labels. Not a target fix; persists as non-blocking.
+- **RW-N4 (Level 2 collapsed by default):** UNCHANGED — Level 2 sub-tabs (HMM, Regime Quartile) remain visible in the tab bar as peer tabs. Not addressed in this wave.
+
+### Verdict
+- **Blocking findings:** none
+- **Non-blocking observations:** RW-N1 (Story hierarchy), RW-N2 (two label-only chart titles), RW-N4 (Level 2 content requires tab click) — all carried from prior walk, all unchanged, all non-blocking.
+- **GATE-RW1 result:** PASS
+
+Quincy sign-off: ✓

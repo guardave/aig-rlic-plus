@@ -1,0 +1,387 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+11 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Deploy
+The Story: When Credit Markets Warn, Equity Investors Should Listen
+
+📖 Story
+
+What this shows: ← you are here.
+
+→
+🔬
+
+Evidence
+
+→
+🎯
+
+Strategy
+
+→
+📐
+
+Methodology
+
+keyboard_arrow_right
+
+Plain English
+
+Does the high-yield credit spread carry an early signal for SPY investors?
+
+Credit stress as an early-warning signal for SPY — what the evidence so far suggests
+
+Key metrics (out-of-sample 2014-08–2020-06):
+
+Sharpe ratio: 1.32 (vs 0.71 buy-and-hold SPY)
+Annualized return: +6.6% with risk-adjusted exposure
+Max drawdown: -6.4% (vs N/A buy-and-hold SPY)
+Where This Fits in the Portal
+
+This is a single indicator-target analysis: does the HY-IG credit spread carry advance information about SPY returns? The portal contains multiple such pair studies, each examining a different predictor of US equity performance. Here the lens is on corporate credit stress — specifically, the option-adjusted yield premium that high-yield (rated BB and below) corporate borrowers pay relative to investment-grade (rated BBB and above) borrowers — as a candidate leading indicator for SPY.
+
+How to navigate the four pages. The Story page explains the economic mechanism: why corporate bond yields and equity prices might be related at all. The Evidence page presents the statistical tests. The Strategy page describes what a signal-based rule would have looked like historically. The Methodology page is the technical appendix for readers who want to understand or replicate the analysis.
+
+This is v4, a clean rebuild from first principles. Prior versions (v1–v3) of the HY-IG × SPY pair have been retired. This version uses updated data through the present and a fresh analytical framework aligned to the current Dashboard Page Standard. All prior performance numbers are not carried forward — they are replaced by v4 exam outputs.
+
+How to read the rest of this page pack. You'll read the Story first (the economic logic), then the Evidence (statistical proofs), then the Strategy (the actual trading rule), then the Methodology (technical appendix). Each page stands alone.
+
+One-Sentence Thesis
+
+The HY-IG credit spread — the yield premium demanded by lenders to high-yield corporate borrowers relative to safer peers — is consistent with theory as a leading indicator of broad US equity stress, because the corporate bond market may process aggregate default risk before that risk is fully absorbed by equity prices.
+
+OOS Sharpe
+
+1.32
+
+vs 0.71 B&H
+
+OOS Return
+
++6.6%
+
+annualized
+
+Max Drawdown
+
+-6.4%
+
+Signal
+
+S2c_zscore_36m
+
+N/A
+
+OOS Period
+
+5.8 yrs
+
+2014-08–2020-06
+
+ⓘ
+
+expand_more
+
+ⓘ
+
+expand_more
+
+ⓘ
+
+expand_more
+
+What this shows: The tournament winner uses the 36-month z-score of the HY-IG spread as the signal (S2c_zscore_36m), applying a long/cash binary rule: fully invested when the z-score is below zero (spread below its 36-month mean), moved to cash when it rises above. The countercyclical orientation means exposure falls when credit markets signal deterioration — the defensive positioning trade.
+
+Why SPY Investors Might Watch Corporate Bond Spreads
+
+Corporate bond markets and equity markets look at the same companies through fundamentally different lenses. Equity holders own a call option on company value — they benefit from upside and can be patient through temporary weakness. Bondholders are creditors: they care primarily about whether they will be repaid. When institutional credit analysts — who spend their careers pricing default risk — begin demanding higher yields, they are making a specific quantitative judgment that the probability of widespread corporate distress has increased. That judgment may travel into equity prices with a delay, because equity investors tend to attribute early spread widening to technical factors or market microstructure noise until the evidence is unambiguous.
+
+Academic research is consistent with this intuition. Gertler and Lown (1999) document that the high-yield spread carries non-redundant information about future real economic activity, above and beyond what the yield curve already predicts. Gilchrist and Zakrajšek (2012) find that their GZ credit spread — and particularly its "excess bond premium" component, which strips out expected default losses — suggests predictive content for US output and equity returns at monthly horizons. The theoretical channel they identify runs through financial intermediary risk appetite: when banks and institutional lenders face balance sheet constraints, they tighten lending terms economy-wide, compressing corporate investment and earnings growth across the S&P 500 universe. Fama and French (1989) document a related pattern going back to the 1920s using the yield premium between low-grade and high-grade bonds as a predictor of stock and bond excess returns.
+
+The HY-IG spread — the difference in option-adjusted spreads between the ICE BofA US High Yield Index (FRED: BAMLH0A0HYM2) and the ICE BofA US Investment Grade Corporate Index (FRED: BAMLC0A0CM) — is one accessible, real-time summary of this aggregate credit condition. The option-adjusted construction controls for embedded call options in corporate bonds, making the spread comparisons cleaner across the two index components. The HY component captures the most default-vulnerable segment of the corporate universe; the IG component provides the risk-free-adjacent baseline. Their difference isolates the pure credit-cycle risk premium, stripped of duration effects (since both are measured as spreads over comparable Treasuries).
+
+Three Hypothesized Channels
+
+The theoretical pathway from HY-IG spread widening to SPY weakness may run through at least three reinforcing channels, operating at different speeds:
+
+Channel 1 — Credit-Cycle Tightening (3-12 months). Rising spreads are historically consistent with tightening bank lending standards. When spreads widen, institutional lenders simultaneously tighten credit terms — raising hurdle rates, reducing revolving credit lines, adding covenant restrictions. This tightening reduces corporate capital expenditure, slows hiring, and — with a lag — compresses earnings expectations across the S&P 500. SPY, as an index of 500 large-cap US companies, is sensitive to this aggregate earnings trajectory.
+
+Channel 2 — Portfolio Risk Appetite (days to weeks). Large institutional portfolios are cross-asset allocators. When credit teams signal that high-yield risk-reward has deteriorated, the same risk committee that reduces HY exposure may simultaneously trim equity risk. This portfolio-level de-risking can create correlated selling across credit and equities that appears near-simultaneous at weekly resolution but is consistent with credit being the initiating signal.
+
+Channel 3 — Financial Conditions Transmission (1-6 months). Composite financial conditions indexes — such as the Chicago Fed's NFCI — incorporate credit spreads among their largest components. When spreads widen materially, financial conditions tighten in a way that research suggests is forward-looking for economic growth and, therefore, for SPY earnings and valuations.
+
+These channels collectively suggest a countercyclical hypothesis: rising HY-IG spreads → deteriorating financial conditions → weaker forward SPY returns. This is a hypothesis to be tested — not a result to be assumed.
+
+30 Years of HY-IG Credit Stress vs. SPY Equity Performance
+5
+10
+Jan 1998
+Jan 2000
+Jan 2002
+Jan 2004
+Jan 2006
+Jan 2008
+Jan 2010
+Jan 2012
+Jan 2014
+Jan 2016
+Jan 2018
+Jan 2020
+Jan 2022
+Jan 2024
+Jan 2026
+−0.1
+0
+0.1
+HY-IG OAS Spread (%)
+SPY Log Return
+HY-IG Spread → SPY (v4): Full History (1997–2026)
+Date
+Spread (%)
+Log Return
+HY-IG OAS Spread (%)
+SPY Monthly Log Return
+OOS Start2014-08-29
+Holdout Start2020-07-31
+
+How to read it: dual-panel view — top panel shows HY-IG spread (left axis, red) with HMM stress-regime shading; bottom panel shows SPY monthly returns (blue). OOS and Holdout split lines are annotated. Notice how spread spikes typically precede or coincide with SPY drawdown episodes — the credit-leads-equity pattern.
+
+What History Shows: SPY Returns by HY-IG Spread Quartile
+23.4%
+13.6%
+7.1%
+-6.3%
+Q1 (1.52–2.52%)
+Q2 (2.52–3.20%)
+Q3 (3.21–4.40%)
+Q4 (4.42–13.36%)
+−30
+−20
+−10
+0
+10
+20
+30
+HY-IG Spread → SPY (v4): SPY Annualized Return by HY-IG Spread Quartile
+HY-IG Spread Quartile (Q1=Tightest)
+Annualized SPY Return (%)
+Q4 = widest spread(highest stress)
+
+What this shows: annualized SPY return by HY-IG spread quartile (Q1 = tightest spreads / least stress, Q4 = widest spreads / most stress). A monotonically declining pattern from left to right is consistent with the countercyclical hypothesis: wider credit spreads are associated with weaker forward SPY returns.
+
+How the Signal Performed in Past Crises
+The Dot-Com Bust (2000-2003)
+
+The Dot-Com bust began as an equity-sector phenomenon concentrated in technology and telecommunications, but the corporate credit market caught the underlying stress early. Telecom companies had issued enormous volumes of high-yield debt to finance network buildouts through 1999-2000. As capital market conditions shifted and revenue projections for 'new economy' firms collapsed, high-yield bond prices began repricing — and HY-IG spreads widened — before the worst of the SPY equity damage accumulated. By late 2000, spread widening was already underway, suggesting the credit market was pricing in a genuine deterioration in corporate fundamentals ahead of the equity market's full recognition. This episode is historically consistent with the credit-leads-equity hypothesis: bond investors, focused on downside scenarios, appear to have incorporated the coming recession earlier than equity investors primed for continued gains. SPY declined approximately 49% from March 2000 to October 2002. The credit early-warning window, if it operated as the theory suggests, would have given an investor tracking HY-IG spreads an advance signal — though the precise lead time requires the formal statistical test on the Evidence page to characterize rigorously.
+
+Jul 2000
+Jan 2001
+Jul 2001
+Jan 2002
+Jul 2002
+4
+5
+6
+7
+8
+Jul 2000
+Jan 2001
+Jul 2001
+Jan 2002
+Jul 2002
+−40
+−30
+−20
+−10
+0
+HY-IG OAS Spread (%)
+SPY Cumul. Return (indexed)
+HY-IG Spread → SPY (v4) — Dot-com Bust: HY-IG Spread Widened 400+ bps; SPY -47%
+Date (monthly)
+HY-IG OAS Spread (%)
+SPY Cumul. Return (%, indexed)
+NBER Recession
+Strategy correctly moved to cash as HY-IG z-score rose above 36m mean from late 2000.
+
+HY-IG spread widening in late 2000 preceded the worst of SPY's 2001-2002 decline — consistent with the credit-leads-equity hypothesis, though the lead time and statistical significance are questions for the Evidence page rather than this summary.
+
+The Global Financial Crisis (2007-2009)
+
+The Global Financial Crisis is frequently cited as the clearest historical demonstration of the HY-IG spread's potential leading-indicator properties for equity. The spread began widening measurably in the summer of 2007 — several months before SPY reached what proved to be its October 2007 peak. The initial widening reflected stress in subprime mortgage-linked corporate credit structures, then expanded across the broader high-yield universe as lending conditions tightened. SPY subsequently declined approximately 57% to its March 2009 trough, while the HY-IG spread ultimately reached levels that had not been seen since the early 1990s. The GFC episode is important for another reason as well: it illustrates the severity-signaling potential of the spread. A very wide spread does not merely suggest 'some weakness ahead' — during 2008-09, the extreme spread levels were consistent with a genuine systemic crisis. Whether these spread levels provide usable signals at the specific thresholds tested on the Strategy page is an empirical question the exam must answer. What is clear historically is that the directionality and approximate timing of the relationship were present during the GFC.
+
+Jan 2008
+Jul 2008
+Jan 2009
+Jul 2009
+Jan 2010
+Jul 2010
+4
+6
+8
+10
+12
+Jan 2008
+Apr 2008
+Jul 2008
+Oct 2008
+Jan 2009
+Apr 2009
+−50
+−40
+−30
+−20
+−10
+0
+HY-IG OAS Spread (%)
+SPY Cumul. Return (indexed)
+HY-IG Spread → SPY (v4) — GFC: Spread Peaked ~13%; SPY -55%
+Date (monthly)
+HY-IG OAS Spread (%)
+SPY Cumul. Return (%, indexed)
+NBER Recession
+Textbook credit-cycle signal. Spread > 36m mean from mid-2007 → strategy in cash through trough.
+
+HY-IG spreads began widening months before SPY's October 2007 peak — historically the clearest episode supporting the credit-leads-equity timing hypothesis. GFC dominates full-sample regression leverage; subsample results excluding 2007-09 are reported separately on the Evidence page.
+
+The COVID-19 Shock (2020)
+
+The COVID-19 episode illustrates both a potential limit and a potential feature of the HY-IG → SPY relationship. The initial SPY collapse in February-March 2020 was extraordinarily rapid — approximately 34% in about 33 calendar days — and HY-IG spreads widened in rough simultaneity with the equity decline rather than providing the multi-month lead seen in 2007. The speed of the shock compressed the leading-indicator window to near-zero: by the time any monthly-frequency signal could be observed, the worst of the equity damage had already occurred. This is consistent with the literature finding that pandemic shocks can overwhelm the credit-cycle transmission mechanism. However, the subsequent behavior is also illustrative: the Federal Reserve's March 23, 2020 announcement of corporate bond purchase programs (PMCCF and SMCCF) produced a rapid compression of HY-IG spreads even as the fundamental macroeconomic damage was still unfolding. Spreads retraced from approximately 1,100 bps to 500 bps within weeks of the announcement, while SPY began its recovery. The COVID episode suggests that the Fed's capacity to intervene directly in the corporate bond market can compress — and potentially reverse — the spread signal on a timeline that makes mechanical signal interpretation difficult during acute policy-action periods.
+
+Mar 2020
+May 2020
+Jul 2020
+Sep 2020
+Nov 2020
+3
+3.5
+4
+4.5
+5
+5.5
+Mar 2020
+May 2020
+Jul 2020
+Sep 2020
+Nov 2020
+−10
+0
+10
+20
+HY-IG OAS Spread (%)
+SPY Cumul. Return (indexed)
+HY-IG Spread → SPY (v4) — COVID-19: Spread +6pp in 6 Weeks; SPY -30% then V-shaped Recovery
+Date (monthly)
+HY-IG OAS Spread (%)
+SPY Cumul. Return (%, indexed)
+NBER Recession
+Monthly frequency means only 1-2 data points fall in the acute March 2020 crisis. Chart shows broader window including V-shaped recovery.
+
+COVID spread widening was largely coincident with the SPY collapse in Feb-Mar 2020, not leading — the fastest modern bear market gave little time for any early-warning mechanism. Fed corporate bond facility announcement in March 2020 reversed spreads sharply within weeks.
+
+The 2018 Fed Tightening and Q4 Selloff
+
+The 2018 episode provides a useful non-recessionary stress test for the HY-IG → SPY relationship. The Federal Reserve's post-GFC tightening cycle began in late 2015 and accelerated in 2018; Chair Powell's October 2018 remarks that the Fed funds rate was 'a long way from neutral' triggered a sharp risk-off episode. HY-IG spreads widened from approximately 330 bps to 540 bps through Q4 2018, the widest non-recessionary print of that cycle. SPY declined approximately 20% from its September 2018 peak to the December 24 Christmas Eve low. Critically, the spread widening and equity weakness were compressed into roughly the same 3-month window, with limited evidence of the multi-month leading gap seen in 2007. The subsequent recovery was rapid: Chair Powell's January 2019 'patient' pivot remarks at the AEA panel initiated a rapid spread tightening and equity recovery. The 2018 episode is relevant because it shows the signal can register non-recessionary stress but may do so with a shorter lead — more as a coincident or short-horizon indicator than a 3-6 month advance warning during non-crisis tightening cycles.
+
+Apr 2018
+Jul 2018
+Oct 2018
+Jan 2019
+Apr 2019
+2.5
+3
+3.5
+Mar 2018
+May 2018
+Jul 2018
+Sep 2018
+Nov 2018
+Jan 2019
+−10
+−8
+−6
+−4
+−2
+0
+2
+4
+HY-IG OAS Spread (%)
+SPY Cumul. Return (indexed)
+HY-IG Spread → SPY (v4) — 2018 Rate Hike Cycle: Modest Spread Widening; SPY Flat
+Date (monthly)
+HY-IG OAS Spread (%)
+SPY Cumul. Return (%, indexed)
+Fed rate hike cycle 2018. Modest spread widening +1pp. Signal correctly reduced equity exposure.
+
+HY-IG spread widening in Q4 2018 was largely concurrent with the SPY selloff — useful as a non-recessionary stress episode that tests whether the lead time collapses outside formal recessions. The Powell pivot in January 2019 reversed both spread and equity almost simultaneously.
+
+The 2022 Inflation and Rate-Shock Drawdown
+
+The 2022 episode is the most important recent test case for the HY-IG → SPY hypothesis — and it highlights the signal's most significant known limitation. The Federal Reserve's fastest rate-hiking cycle since the early 1980s drove a roughly 25% SPY decline in 2022. HY-IG spreads did widen — from approximately 310 bps at the January SPY peak to a maximum of roughly 580 bps around the October SPY trough — but this widening was modest by historical standards relative to the magnitude of the equity decline. The reason is theoretically clear: the 2022 drawdown was primarily a valuation and duration repricing event (equities became less valuable as discount rates rose sharply) rather than a credit-cycle deterioration event (companies did not begin defaulting at elevated rates). When the mechanism is rate-repricing rather than default-repricing, the HY-IG spread — which is calibrated to measure credit-cycle risk — may give only a partial signal. The 2022 episode should be examined carefully in the Evidence page's regime-conditional results and in any strategy evaluation: it is the clearest real-world demonstration that the HY-IG signal has a rate-shock blind spot. An investor relying solely on HY-IG as an equity risk signal would have reduced exposure but not avoided the bulk of the 2022 drawdown.
+
+Mar 2022
+May 2022
+Jul 2022
+Sep 2022
+Nov 2022
+2.5
+3
+3.5
+4
+Mar 2022
+May 2022
+Jul 2022
+Sep 2022
+Nov 2022
+−20
+−15
+−10
+−5
+0
+HY-IG OAS Spread (%)
+SPY Cumul. Return (indexed)
+HY-IG Spread → SPY (v4) — 2022 Inflation Shock: Spread +2pp; SPY -20% (Rate Repricing, Not Credit Risk)
+Date (monthly)
+HY-IG OAS Spread (%)
+SPY Cumul. Return (%, indexed)
+NOTE: Mechanism was rate repricing, not credit cycle default risk. Strategy moved to cash on spread signal but miss-classified the driver. HY-IG spread widened due to rate sensitivity, not default risk.
+
+The 2022 SPY drawdown (-25%) was driven primarily by rate repricing, not credit-cycle deterioration. HY-IG spreads widened only modestly (310 to 580 bps) relative to the equity decline — the clearest real-world illustration of the signal's rate-shock blind spot.
+
+Honest Limits of the Hypothesis
+
+The HY-IG → SPY hypothesis is theoretically grounded and empirically consistent with the literature, but it carries known limitations that anyone using this analysis should understand.
+
+The rate-shock blind spot. The credit-cycle hypothesis describes default-risk- driven bear markets. When equity declines are driven primarily by interest rate repricing rather than by rising default probabilities — as the 2022 drawdown appears to have been — the HY-IG spread may give only partial warning. In 2022, the Federal Reserve's fastest rate-hiking cycle in 40 years drove a roughly 25% SPY decline. HY-IG spreads did widen (from roughly 310 bps to 580 bps), but the widening was moderate relative to the magnitude of the equity decline, because the equity drawdown was primarily a duration/valuation repricing story, not a corporate-default story. An investor relying solely on the HY-IG signal as an SPY early-warning gauge would have received a partial signal, not a full one.
+
+Short-horizon noise. HY-IG spreads are measured daily, but the literature's consistent message is that predictive content for equity is most reliable at 1-6 month forward horizons. Day-to-day spread moves are heavily influenced by ETF fund flows, index rebalancing, and market microstructure effects that do not transmit to fundamental SPY repricing.
+
+The compressed-spread era. The post-GFC period of near-zero interest rates (approximately 2010-2021) held HY-IG spreads at historically tight levels for extended periods. During this era, there was less cross-sectional variation in spread levels for any model to exploit, which may have blunted the signal's discriminatory power. Regime-conditional evidence on the Evidence page should be examined for subsample performance.
+
+Fed backstop risk. The COVID episode (2020) illustrates that extraordinary monetary policy interventions — specifically the Federal Reserve's corporate bond purchase facilities announced in March 2020 — can reverse spread widening on a timeline of weeks. This compressed what might otherwise have been a multi-month leading signal into a near-simultaneous relationship.
+
+This is v4 evidence. Statistical findings on this portal for the v4 pair are based on a clean rebuild from first principles. The formal out-of-sample exam has been run; see the Strategy page for results and the disclosure banner regarding the holdout outcome.
+
+Scope note. This page pack analyzes only the HY-IG credit spread → SPY relationship. SPY also responds to interest-rate cycles, earnings momentum, valuation multiples, and macro surprises. Each of those has its own separate analysis in the portal. Here the lens stays fixed on corporate credit spreads as the single predictor. The portal's Yield Curve × SPY analysis covers the rate-cycle dynamics identified as the 2022 blind spot above.
+
+Theory and academic literature are both consistent with the HY-IG spread carrying early information about SPY weakness. The Evidence page presents the statistical tests that examine whether that theoretical prediction holds in the data — and at which lags, under which conditions, and with what degree of reliability.
+🔬
+
+Continue to The Evidence
+
+What this shows: generated with AIG-RLIC+ | Pair: hy_ig_spy_v4_from_scratch.

@@ -1,0 +1,203 @@
+AIG-RLIC+
+
+Indicator-Target Analysis Portal
+
+🏠
+
+Dashboard
+
+Select finding
+
+Choose a finding...
+
+Data through 2025-12-31
+11 of 73 priority pairs analyzed
+
+keyboard_arrow_right
+
+Glossary
+
+Deploy
+The Strategy: Translating Credit Signals into SPY Positioning
+📖
+
+Story
+
+→
+🔬
+
+Evidence
+
+→
+
+🎯 Strategy
+
+What this shows: ← you are here.
+
+→
+📐
+
+Methodology
+
+What this shows: direction check — two independent project records agree this signal is counter-cyclical.
+
+keyboard_arrow_right
+
+Plain English
+
+We tested 1,900+ strategy combinations to find the most robust way to time SPY exposure using the HY-IG credit spread z-score signal.
+
+Tournament Winner: S2c_zscore_36m / P1_long_cash / L0 (no additional lead)
+
+Strategy Rule in Plain English: Monitor the 36-month rolling z-score of the HY-IG credit spread. When the z-score falls below zero (spread is below its 36-month mean — credit conditions are benign), hold SPY long at full exposure. When the z-score rises at or above zero (spread is above its 36-month mean — credit conditions are deteriorating), move to cash. Positions are rebalanced monthly with a 1-month execution lead.
+
+Evidence status: Failed final exam
+This strategy was tested on a final holdout period (2020-07 to 2026-05) that was completely sealed during the search phase. The holdout covers the COVID recovery, 2022 rate shock, and 2023-2026 bull market — all genuine out-of-sample periods. Result: FAIL. One or more confirmation criteria were not met. See failure_reasons.
+
+keyboard_arrow_right
+
+Technical detail
+
+Final Exam Result: Did Not Pass
+
+This strategy was subjected to a rigorous final holdout test after the winning rule was selected. The test did not pass all required conditions. This does not necessarily mean the strategy is worthless — some failures reflect structural constraints (short holdout window, multiple-testing penalty, unusual market conditions) rather than model failure. The full findings are documented below so you can judge them in context.
+
+Conditions that did not pass:
+
+Return quality in the holdout period was insufficient: the strategy's risk-adjusted return (Sharpe ratio 0.31) fell well below the minimum required for a credit spread strategy (0.50). The holdout covered 2020-2026, a period dominated by the COVID recovery and a sharp rate-hiking cycle — conditions that compressed the strategy's historical edge.
+The strategy lost money in the holdout on a net basis: annualised excess return was -13%, meaning it underperformed a passive position over the 2020-2026 test window.
+Statistical confidence is insufficient: a bootstrap simulation shows the holdout return could plausibly be zero or negative by chance, so we cannot rule out that the result reflects luck rather than a genuine edge.
+Multiple-testing check did not pass: after adjusting for the 381 independent combinations tested in the search phase, the winning strategy's result is not statistically distinguishable from chance at the required confidence level. This is the same correction used to prevent cherry-picking — the more combinations you test, the higher the bar the winner must clear.
+How the Signal is Generated
+
+Each month, the HY-IG spread (difference between ICE BofA HY OAS and IG OAS) is computed from FRED series BAMLH0A0HYM2 and BAMLC0A0CM. The 36-month rolling z-score is computed as: (current spread − 36-month mean) / 36-month standard deviation. When this z-score is negative, the spread is below its recent average — a benign credit environment. When it is positive, the spread is elevated relative to recent history — a warning signal. The strategy holds SPY when z-score < 0 and moves to cash when z-score ≥ 0. Monthly positions are rebalanced at each month-end based on the prior month's z-score value (1-month lead to avoid look-ahead bias).
+
+OOS Sharpe
+
+1.32
+
+vs 0.71 B&H
+
+OOS Return
+
++6.6%
+
+annualized
+
+Max Drawdown
+
+-6.4%
+
+Turnover
+
+~1.1/yr
+
+Win Rate
+
+N/A
+
+ⓘ
+
+expand_more
+
+ⓘ
+
+expand_more
+
+Execute
+
+Performance
+
+Confidence
+
+Strategy Summary
+
+Signal code: S2c_zscore_36m
+
+Signal column: hy_ig_zscore_36m
+
+Threshold: lt 0.0
+
+Strategy family: P1_long_cash
+
+Direction: countercyclical
+
+Lead time: LN/A
+
+Probability Engine Panel
+
+What this shows: how the winning signal evolves over time and where the decision threshold sits.
+
+2000
+2005
+2010
+2015
+2020
+2025
+−2
+0
+2
+4
+Date
+S2C Zscore 36M
+threshold = 0
+
+Why this matters: The signal (S2C Zscore 36M) drives the strategy; position changes are triggered when the value crosses 0. P1 Long/Cash: any crossing flips exposure between 100% and 0%.
+
+Position Adjustment Panel
+
+What this shows: how the signal translates into equity exposure — the trading decision in one visual.
+
+2000
+2005
+2010
+2015
+2020
+2025
+0
+20
+40
+60
+80
+100
+Date
+SPY Exposure (%)
+
+Why this matters: SPY exposure flips between 100% and 0% at the threshold crossing — no partial positions.
+
+How to Use the Signal — Trigger Scenarios
+
+What this shows: Strategy family P1 () · threshold loaded from winner_summary.json = 0 · direction: countercyclical.
+
+REDUCE
+
+When S2C Zscore 36M crosses above 0 → switch to 100% cash.
+
+HOLD
+
+While S2C Zscore 36M hovers near 0 → keep current position; wait for a decisive crossing.
+
+BUY
+
+When S2C Zscore 36M crosses below 0 → return to 100% SPY.
+
+How to read it: sparklines are drawn from real history (signals_v4_20260512.parquet column hy_ig_zscore_36m) — 2/3 scenarios located; thresholds match the runtime rule. The dashed horizontal line is the decision threshold at which the action in each card fires.
+
+How to Use This Indicator Manually
+
+To monitor this signal as a research indicator:
+
+Pull HY and IG OAS from FRED (BAMLH0A0HYM2 and BAMLC0A0CM) at month-end.
+Compute the spread: HY OAS minus IG OAS in basis points.
+Compute the 36-month rolling z-score: (current spread − 36-month mean) / 36-month standard deviation.
+Read the z-score: negative means below average (hold SPY); zero or above means elevated (move to cash).
+Apply the rule with 1-month lead: if this month's z-score < 0, hold SPY next month; if ≥ 0, move to cash next month.
+Monthly rebalancing — z-score is updated each month as new spread data arrives. No model refitting required.
+
+For readers who want to understand exactly how we reached these conclusions — or who want to replicate and extend the analysis — the methodology section provides full details on data, methods, and diagnostics.
+
+📐
+
+Continue to Methodology
+
+What this shows: generated with AIG-RLIC+ | Pair: hy_ig_spy_v4_from_scratch.
