@@ -11,72 +11,100 @@
       {
         "name": "hy_ig_spread_pct",
         "definition": "HY OAS minus IG OAS in percentage points.",
-        "role": "raw"
+        "formula": "raw column — BAMLH0A0HYM2EY minus BAMLC0A0CMEY (FRED series, monthly)",
+        "role": "raw",
+        "appears_in_charts": ["hero", "rolling_correlation", "rolling_granger", "structural_break"]
       },
       {
         "name": "hy_ig_zscore_12m",
-        "definition": "12-month rolling z-score.",
-        "role": "threshold_input"
+        "definition": "12-month rolling z-score of the HY-IG spread.",
+        "formula": "(hy_ig_spread_pct - mean(hy_ig_spread_pct, window=12)) / std(hy_ig_spread_pct, window=12)",
+        "role": "threshold_input",
+        "appears_in_charts": []
       },
       {
         "name": "hy_ig_zscore_24m",
-        "definition": "24-month rolling z-score.",
-        "role": "threshold_input"
+        "definition": "24-month rolling z-score of the HY-IG spread.",
+        "formula": "(hy_ig_spread_pct - mean(hy_ig_spread_pct, window=24)) / std(hy_ig_spread_pct, window=24)",
+        "role": "threshold_input",
+        "appears_in_charts": []
       },
       {
         "name": "hy_ig_zscore_36m",
-        "definition": "36-month rolling z-score.",
-        "role": "threshold_input"
+        "definition": "36-month rolling z-score of the HY-IG spread.",
+        "formula": "(hy_ig_spread_pct - mean(hy_ig_spread_pct, window=36)) / std(hy_ig_spread_pct, window=36)",
+        "role": "threshold_input",
+        "appears_in_charts": ["tournament_scatter", "walk_forward", "rolling_sharpe"]
       },
       {
         "name": "hy_ig_pctrank_12m",
-        "definition": "12-month percentile rank.",
-        "role": "threshold_input"
+        "definition": "12-month percentile rank of the HY-IG spread.",
+        "formula": "rank(hy_ig_spread_pct, window=12) / 12",
+        "role": "threshold_input",
+        "appears_in_charts": []
       },
       {
         "name": "hy_ig_pctrank_24m",
-        "definition": "24-month percentile rank.",
-        "role": "threshold_input"
+        "definition": "24-month percentile rank of the HY-IG spread.",
+        "formula": "rank(hy_ig_spread_pct, window=24) / 24",
+        "role": "threshold_input",
+        "appears_in_charts": []
       },
       {
         "name": "hy_ig_pctrank_36m",
-        "definition": "36-month percentile rank.",
-        "role": "threshold_input"
+        "definition": "36-month percentile rank of the HY-IG spread.",
+        "formula": "rank(hy_ig_spread_pct, window=36) / 36",
+        "role": "threshold_input",
+        "appears_in_charts": []
       },
       {
         "name": "hy_ig_roc_1m",
-        "definition": "1-month percent rate of change.",
-        "role": "derivative"
+        "definition": "1-month percent rate of change of the HY-IG spread.",
+        "formula": "(hy_ig_spread_pct_t - hy_ig_spread_pct_{t-1}) / hy_ig_spread_pct_{t-1}",
+        "role": "derivative",
+        "appears_in_charts": []
       },
       {
         "name": "hy_ig_roc_3m",
-        "definition": "3-month percent rate of change.",
-        "role": "derivative"
+        "definition": "3-month percent rate of change of the HY-IG spread.",
+        "formula": "(hy_ig_spread_pct_t - hy_ig_spread_pct_{t-3}) / hy_ig_spread_pct_{t-3}",
+        "role": "derivative",
+        "appears_in_charts": []
       },
       {
         "name": "hy_ig_roc_6m",
-        "definition": "6-month percent rate of change.",
-        "role": "derivative"
+        "definition": "6-month percent rate of change of the HY-IG spread.",
+        "formula": "(hy_ig_spread_pct_t - hy_ig_spread_pct_{t-6}) / hy_ig_spread_pct_{t-6}",
+        "role": "derivative",
+        "appears_in_charts": []
       },
       {
         "name": "hy_ig_mom_1m",
-        "definition": "1-month absolute change (pp).",
-        "role": "derivative"
+        "definition": "1-month absolute change of the HY-IG spread in percentage points.",
+        "formula": "hy_ig_spread_pct_t - hy_ig_spread_pct_{t-1}",
+        "role": "derivative",
+        "appears_in_charts": []
       },
       {
         "name": "hy_ig_mom_3m",
-        "definition": "3-month absolute change (pp).",
-        "role": "derivative"
+        "definition": "3-month absolute change of the HY-IG spread in percentage points.",
+        "formula": "hy_ig_spread_pct_t - hy_ig_spread_pct_{t-3}",
+        "role": "derivative",
+        "appears_in_charts": []
       },
       {
         "name": "hy_ig_acceleration",
-        "definition": "Change in 1m rate-of-change.",
-        "role": "derivative"
+        "definition": "Change in the 1-month rate-of-change of the HY-IG spread.",
+        "formula": "hy_ig_roc_1m_t - hy_ig_roc_1m_{t-1}",
+        "role": "derivative",
+        "appears_in_charts": []
       },
       {
         "name": "hmm_2state_prob_stress",
-        "definition": "HMM 2-state stress regime probability.",
-        "role": "regime_state"
+        "definition": "HMM 2-state stress regime probability; posterior probability that the current month is in the high-spread stress state.",
+        "formula": "HMM 2-state model fitted on hy_ig_spread_pct; P(state=stress | observations_1:t)",
+        "role": "regime_state",
+        "appears_in_charts": ["hmm_regime_overlay", "hmm_summary", "regime_stats"]
       }
     ]
   },
@@ -86,28 +114,36 @@
     "derivatives": [
       {
         "name": "spy_log_return",
-        "definition": "SPY monthly log return (EOM to EOM).",
-        "role": "raw"
+        "definition": "SPY monthly log return computed from end-of-month close prices.",
+        "formula": "ln(spy_close_t) - ln(spy_close_{t-1})",
+        "role": "raw",
+        "appears_in_charts": ["hero", "rolling_correlation", "ccf_prewhitened"]
       },
       {
         "name": "spy_fwd_1m",
-        "definition": "1-month forward log return.",
-        "role": "derivative"
+        "definition": "1-month forward log return of SPY.",
+        "formula": "ln(spy_close_{t+1}) - ln(spy_close_t)",
+        "role": "derivative",
+        "appears_in_charts": ["predictive_regressions", "local_projections", "quantile_regression"]
       },
       {
         "name": "spy_fwd_3m",
-        "definition": "3-month forward log return.",
-        "role": "derivative"
+        "definition": "3-month forward log return of SPY.",
+        "formula": "ln(spy_close_{t+3}) - ln(spy_close_t)",
+        "role": "derivative",
+        "appears_in_charts": []
       },
       {
         "name": "spy_fwd_6m",
-        "definition": "6-month forward log return.",
-        "role": "derivative"
+        "definition": "6-month forward log return of SPY.",
+        "formula": "ln(spy_close_{t+6}) - ln(spy_close_t)",
+        "role": "derivative",
+        "appears_in_charts": []
       }
     ]
   },
   "data_frequency": "monthly",
   "sample_period": "1996-12-31 to 2026-05-29",
   "n_obs": 354,
-  "notes": "Full-history dataset 1996-12-31 to 2026-05-29 (354 months). Prior v4 run constrained to 35 obs \u2014 resolved."
+  "notes": "Full-history dataset 1996-12-31 to 2026-05-29 (354 months). Prior v4 run constrained to 35 obs — resolved."
 }
