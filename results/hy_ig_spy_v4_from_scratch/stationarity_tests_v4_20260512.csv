@@ -1,7 +1,7 @@
-variable,test,null_hypothesis,statistic,p_value,lags,conclusion
-hy_ig_spread_pct (level),ADF,unit root (I(1)),-2.6191,0.0891,1,Stationary at 10% (I(0))
-hy_ig_spread_pct (level),KPSS,stationary (I(0)),0.5171,0.0361,3,Reject stationarity — consistent with I(1)
-hy_ig_spread_pct (first diff),ADF,unit root (I(1)),-5.7131,0.0,1,Stationary at 1% (I(0))
-hy_ig_spread_pct (first diff),KPSS,stationary (I(0)),0.2026,0.2629,10,Fail to reject stationarity — consistent with I(0)
-spy_log_return,ADF,unit root (I(1)),-5.3714,0.0,0,Stationary at 1% (I(0))
-spy_log_return,KPSS,stationary (I(0)),0.098,0.5957,5,Fail to reject stationarity — consistent with I(0)
+variable,test,statistic,p_value,lags,conclusion
+hy_ig_spread_pct level,ADF,-3.3943,0.0112,15,Stationary at 5%
+hy_ig_spread_pct level,KPSS,0.539,0.0318,11,Non-stationary (reject null of stationarity)
+hy_ig_spread_pct first diff,ADF,-8.5435,0.0,6,Stationary at 5%
+hy_ig_spread_pct first diff,KPSS,0.0396,0.9353,4,Fail to reject stationarity
+spy_log_return,ADF,-10.1835,0.0,2,Stationary at 5%
+spy_log_return,KPSS,0.213,0.2441,3,Fail to reject stationarity

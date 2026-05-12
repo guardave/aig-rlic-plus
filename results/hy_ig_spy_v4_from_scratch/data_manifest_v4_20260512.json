@@ -1,41 +1,60 @@
 {
-  "pair_id": "hy_ig_spy_v4_from_scratch",
-  "generated_at": "2026-05-12T09:50:23Z",
-  "parquet_file": "results/hy_ig_spy_v4_from_scratch/data_hy_ig_spy_v4_20260512.parquet",
-  "sourcing_constraint": "FRED ICE BofA OAS series (BAMLH0A0HYM2, BAMLC0A0CM) are restricted to 3 years of history as of April 2026 per ICE licensing terms. Full 1997-present sample is unavailable through FRED MCP or fredapi with the current API key. No approved proxy exists per data_sources_hy_ig_spy_v4_20260512.csv. Delivered sample: 2023-05-31 to 2026-04-30. This is a PARTIAL DELIVERY. Evan and Ray: see handoff note for implications.",
-  "requested_sample": {
-    "start": "1997-01-01",
-    "end": "2026-05-12"
+  "version": "v4_from_scratch",
+  "generated_at": "2026-05-12",
+  "pair": "hy_ig_spy",
+  "source_hy_oas": {
+    "primary": "data/Data Master.xlsx / sheet OASHY_IG / col B (BAMLH0A0HYM2)",
+    "xlsx_start": "1996-12-31",
+    "xlsx_end": "2025-10-01",
+    "splice_1_source": "data/hy_ig_spy_daily_latest.parquet / col hy_oas",
+    "splice_1_dates": "2025-10-02 to 2025-12-31",
+    "splice_1_seam_check": "2025-10-01 diff=0.0 (exact match)",
+    "splice_2_source": "FRED BAMLH0A0HYM2 via FRED MCP",
+    "splice_2_dates": "2026-01-02 to 2026-05-11",
+    "splice_2_seam_note": "2025-12-31 parquet=2.81, 2026-01-02 FRED=2.83 \u2014 business day boundary, consistent"
   },
-  "delivered_sample": {
-    "start": "2023-06-30",
-    "end": "2026-04-30",
-    "n_obs": 35
+  "source_ig_oas": {
+    "primary": "data/Data Master.xlsx / sheet OASHY_IG / col C (BAMLC0A0CM)",
+    "xlsx_start": "1996-12-31",
+    "xlsx_end": "2025-10-01",
+    "splice_1_source": "data/hy_ig_spy_daily_latest.parquet / col ig_oas",
+    "splice_1_dates": "2025-10-02 to 2025-12-31",
+    "splice_2_source": "FRED BAMLC0A0CM via FRED MCP",
+    "splice_2_dates": "2026-01-02 to 2026-05-11"
   },
-  "columns": {
-    "hy_ig_spread_pct": {
-      "source": "FRED: BAMLH0A0HYM2 - BAMLC0A0CM (monthly EOP)",
-      "unit": "percentage points (e.g. 3.15 = 3.15%). Named _pct per v1 convention for backward compat with Evan S6.",
-      "frequency": "monthly (month-end)",
-      "nan_in_pre_merge": 0,
-      "effective_start": "2023-06-30"
-    },
-    "spy_log_return": {
-      "source": "Yahoo Finance: SPY adjusted close (daily -> month-end -> log return)",
-      "unit": "log return (e.g. 0.0166 approx 1.67% simple return)",
-      "frequency": "monthly (month-end)",
-      "nan_in_pre_merge": 1,
-      "effective_start": "2023-06-30"
-    }
+  "source_spy": {
+    "primary": "yfinance SPY daily close (auto_adjust=True)",
+    "start": "1993-01-29",
+    "end": "2026-05-11",
+    "note": "Full yfinance history used; no parquet needed for SPY"
   },
-  "qc": {
-    "nan_rows_in_aligned": 0,
+  "computation": {
+    "hy_ig_spread_raw": "hy_oas (col B) - ig_oas (col C) \u2014 col D NOT used",
+    "resampling_spreads": "BME last",
+    "spy_monthly_close": "BME last",
+    "spy_log_return": "log(EOM_close / prev_EOM_close)"
+  },
+  "final_dataset": {
+    "path": "results/hy_ig_spy_v4_from_scratch/data_hy_ig_spy_v4_20260512.parquet",
+    "columns": [
+      "hy_ig_spread_pct",
+      "spy_log_return"
+    ],
+    "shape": [
+      354,
+      2
+    ],
+    "date_first": "1996-12-31",
+    "date_last": "2026-05-29",
+    "frequency": "monthly (business month end)",
+    "nulls": 0
+  },
+  "quality_gates": {
+    "shape_ge_330": true,
+    "first_row_le_1997-01-31": true,
+    "last_row_ge_2026-04-30": true,
+    "zero_nan": "True",
     "spread_always_positive": true,
-    "spy_log_return_max_abs": 0.099893,
-    "spy_months_exceed_0_50": 0,
-    "date_index_type": "month-end (ME freq)",
-    "large_return_flags": []
-  },
-  "stationarity_file": "results/hy_ig_spy_v4_from_scratch/stationarity_tests_v4_20260512.csv",
-  "stationarity_caution": "With only ~34 monthly observations, ADF and KPSS have very low power. Results should be treated as indicative only. Full-sample tests are pending resolution of the FRED ICE licensing constraint."
+    "no_spy_return_gt_0.50": true
+  }
 }
