@@ -101,9 +101,9 @@ PAGE_ROUTING = {
     "ted_spliced_spy": "pages/12_ted_spliced_spy",
     "indpro_xlp": "pages/14_indpro_xlp",
     "hy_ig_spy": "pages/15_hy_ig_spy",
-    # Experiment forks (rerun vs retro comparison, 2026-05-09)
-    "hy_ig_spy_v3_rerun": "pages/90_hy_ig_spy_v3_rerun",
-    "hy_ig_spy_v3_retro": "pages/91_hy_ig_spy_v3_retro",
+    "hy_ig_spy_v4_from_scratch": "pages/16_hy_ig_spy_v4_from_scratch",
+    # Experiment fork routing entries preserved for reference; pages are in
+    # app/_pages_hidden/ and not surfaced (hidden 2026-05-12, experiment stopped).
 }
 
 
@@ -142,6 +142,10 @@ def load_pair_registry():
             continue
         if pair_dir.endswith("_v1") or pair_dir.endswith("_archived"):
             continue  # Archived pairs are not surfaced on the dashboard (Wave 10G.1)
+        # Experiment forks hidden 2026-05-12 (user decision — experiment stopped,
+        # pages do not meet production quality bar for comparison purposes).
+        if pair_dir in ("hy_ig_spy_v3_rerun", "hy_ig_spy_v3_retro"):
+            continue
 
         interp_path = os.path.join(pair_path, "interpretation_metadata.json")
         if not os.path.exists(interp_path):
@@ -205,6 +209,7 @@ def load_pair_registry():
             "ted_spliced_spy": "Spliced TED Spread",
             "hy_ig_v2_spy": "HY-IG Credit Spread",
             "hy_ig_spy": "HY-IG Credit Spread",
+            "hy_ig_spy_v4_from_scratch": "HY-IG Credit Spread",
             "umcsent_xlv": "Michigan Consumer Sentiment",
         }
         target_names = {
