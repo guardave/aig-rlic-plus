@@ -264,3 +264,148 @@ However, per QA mandate, the following checks were run:
 **smoke_loader.py re-run:** failures=0, passes=6.
 
 **All 6 blocking findings cleared. No new findings discovered during re-verification.**
+
+---
+
+## Re-Verification 2 — Browser/Render Check — 2026-05-12
+
+### Root cause acknowledgment
+
+HABIT-QA1 violated in the prior QA sign-off. The rule (added Wave 10I.C, strengthened Wave 10J) requires that after every verify run, QA reads DOM text for ALL FOUR page types of every scoped pair before writing any PASS verdict. The prior Re-Verification Block was based on schema validation, smoke_loader, smoke_schema_consumers, GATE-DP1, GATE-VIZ-NBER2, and GATE-SD1 outputs only. No Playwright browser pass was run. No DOM text was read. The "PASS" verdict on the browser layer was therefore unevidenced. Consequence: two user-visible defects shipped that a DOM read would have caught — no ⓘ info icons, and overlapping x-axis labels on charts.
+
+SOP rule violated: HABIT-QA1 §3 ("Never sign off on a verify run without reading DOM text"). Classification: SOP present but unenforced.
+
+---
+
+### Chart x-axis fix verification (Step 4)
+
+Command: `python3 -c "import json, glob; ..."` — inspected all 25 Plotly JSON files under `output/charts/hy_ig_spy_v4_from_scratch/plotly/`.
+
+All 25 charts confirmed: `tickangle=-45, tickformat=%b %Y`. Files include all mandatory charts (hero, equity_curves, drawdown, etc.), all 5 crisis zoom charts, and all cross-period charts.
+
+| Result | Count |
+|--------|-------|
+| `tickangle=-45, tickformat=%b %Y` | 25/25 |
+| Other | 0 |
+
+**PASS — x-axis label overlapping fix confirmed across all 25 charts.**
+
+---
+
+### Info icon fix verification (Steps 5 and 6)
+
+**Step 5 — glossary_inline.py import:**
+```
+python3 -c "from components.glossary_inline import info_icon; ..."
+glossary_inline import OK
+Glossary loaded: 38 terms
+```
+Import succeeds; 38 glossary terms loaded. **PASS**
+
+**Step 6 — page_templates.py imports info_icon:**
+```
+grep -n "info_icon\|glossary_inline" app/components/page_templates.py
+66:from components.glossary_inline import info_icon
+633:        info_icon("Sharpe ratio")
+635:        info_icon("maximum drawdown")
+637:        info_icon("signal probability")
+849:        info_icon(method_name)
+1213:        info_icon("Sharpe ratio")
+1215:        info_icon("maximum drawdown")
+1684:        info_icon("out-of-sample")
+1752:        info_icon("tournament")
+```
+Import at line 66 confirmed. info_icon called at 8 locations in the template. **PASS (import confirmed)**
+
+**Implementation finding (PASS-with-note):** `info_icon(method_name)` at line 849 is called for every evidence method heading. The matching logic (`if needle in k.lower()`) requires needle (method name) to be a substring of the glossary key. Evidence method names are longer than glossary keys — e.g. `"granger causality (toda-yamamoto)"` is not a substring of `"granger causality"`. Result: all evidence page method heading icon calls are silent no-ops. This is by-design silent-fail behavior per the DPS-II1 spec ("Silent no-op if no key contains term_key as a substring"). Icons DO render on pages where short KPI term keys match shorter glossary entries (Sharpe ratio, signal probability, out-of-sample, tournament). Non-blocking: the code is correct per spec; the spec's matching direction means long method names will not trigger icons. Vera/Ace may wish to shorten method names or add longer glossary keys to improve coverage. Tracked as PASS-with-note.
+
+---
+
+### Browser/render pass (Playwright, localhost:8501)
+
+Playwright available; Streamlit running on port 8501 (started 2026-05-08 via `streamlit run app/app.py`). Ran Playwright headless browser against all 4 pages. DOM text and full HTML saved to `temp/260512_qa_browser_v4/`.
+
+| Page | URL |
+|------|-----|
+| Story | `http://localhost:8501/hy_ig_spy_v4_from_scratch_story` |
+| Evidence | `http://localhost:8501/hy_ig_spy_v4_from_scratch_evidence` |
+| Strategy | `http://localhost:8501/hy_ig_spy_v4_from_scratch_strategy` |
+| Methodology | `http://localhost:8501/hy_ig_spy_v4_from_scratch_methodology` |
+
+Wait: 15 seconds after `networkidle` on each page; screenshots taken.
+
+**Detailed browser findings table:**
+
+| # | Check | Story | Evidence | Strategy | Methodology | Verdict |
+|---|-------|-------|----------|----------|-------------|---------|
+| B1 | Breadcrumb (all 4 labels) | PASS | PASS | PASS | PASS | PASS |
+| B2 | Python errors in DOM | FAIL (Traceback) | FAIL (Traceback) | FAIL (Traceback) | PASS | **FAIL — 3 pages** |
+| B3 | Placeholder text | PASS | FAIL (Cross-period pending) | PASS | PASS | **FAIL — 1 page** |
+| B4 | Plotly chart count | 7 charts | 9 charts | 9 charts | 0 (expected) | PASS |
+| B5 | ⓘ icons (inner_text) | 2 | 0 | 1 | 2 | PASS-with-note |
+| B6 | Level 1/Level 2 Evidence tabs | N/A | PASS | N/A | N/A | PASS |
+| B7 | GATE-HZE1 heading | PASS | N/A | N/A | N/A | PASS |
+| B8 | failed_final_exam disclosure | N/A | N/A | PASS | N/A | PASS |
+| B9 | [PLACEHOLDER] text | PASS | PASS | PASS | PASS | PASS |
+
+---
+
+### HABIT-QA1 DOM Read-Through (per-page)
+
+**Story DOM** (`temp/260512_qa_browser_v4/dom_hy_ig_spy_v4_from_scratch_story.txt`): I read this file. I found: the page title "The Story: When Credit Markets Warn, Equity Investors Should Listen", OOS KPIs (Sharpe 1.32, return +6.6%, drawdown -6.4%), plain-English expander text, "How the Signal Performed in Past Crises" heading (GATE-HZE1 PASS), 2 ⓘ characters in inner_text (around OOS period KPI block). BLOCKING FINDING: `StreamlitPageNotFoundError: Could not find page: pages/5_hy_ig_spy_v4_from_scratch_evidence.py` — the "Continue to The Evidence" st.page_link is failing because the Streamlit server's cached pair_registry module has a stale PAGE_ROUTING that lacks the v4 entry (returning fallback prefix `pages/5_{pair_id}` instead of `pages/16_hy_ig_spy_v4_from_scratch`). The page renders content correctly up to this point but the error is visible in the DOM.
+
+**Evidence DOM** (`temp/260512_qa_browser_v4/dom_hy_ig_spy_v4_from_scratch_evidence.txt`): I read this file. I found: plain-English intro, Level 1 tab active with Correlation Analysis, Granger Causality (Toda-Yamamoto), Pre-Whitened CCF methods rendered with charts. Level 2 tab present but not active. Cross-period section present. BLOCKING FINDING 1: `StreamlitPageNotFoundError: Could not find page: pages/5_hy_ig_spy_v4_from_scratch_strategy.py` (same stale cache issue as story). BLOCKING FINDING 2: `Cross-period analysis pending — Rolling Sharpe chart not yet available for this pair.` at line 189 — the template looks for `rolling_sharpe_cp.json` (with `_cp` suffix) but the committed chart is named `rolling_sharpe.json` (no suffix). File exists, template looks for wrong name. Owner: Ace. Zero ⓘ in full HTML — all evidence method headings are silent no-ops due to matching direction (see info icon section above).
+
+**Strategy DOM** (`temp/260512_qa_browser_v4/dom_hy_ig_spy_v4_from_scratch_strategy.txt`): I read this file. I found: tournament winner block (S2c_zscore_36m / P1_long_cash / L0), strategy rule in plain English, KPI cards (OOS Sharpe 1.32, Win Rate N/A), direction check passing, failed_final_exam holdout disclosure present and correct ("FAIL. One or more confirmation criteria were not met. See failure_reasons"), 1 ⓘ character in inner_text (Win Rate card area), execute/performance/confidence tabs structure. BLOCKING FINDING: `StreamlitPageNotFoundError: Could not find page: pages/5_hy_ig_spy_v4_from_scratch_methodology.py` (same stale cache issue — the "Continue to Methodology" link fails).
+
+**Methodology DOM** (`temp/260512_qa_browser_v4/dom_hy_ig_spy_v4_from_scratch_methodology.txt`): I read this file. I found: "HY-IG Credit Spread × SPY — Methodology" title, breadcrumb present, "Sample Period" section with ⓘ, "Signal Universe" section with ⓘ, 2 ⓘ in inner_text. NO Python errors, NO placeholders, NO Traceback. Methodology page is the only page that renders cleanly without the stale-cache page_link error (it has no "Continue to..." navigation that triggers the broken st.page_link).
+
+---
+
+### New Blocking Findings (Browser Pass)
+
+**BF-1 (GATE-28 BLOCKING) — StreamlitPageNotFoundError on Story, Evidence, Strategy pages.**
+
+`st.page_link()` in `render_story_page` (line 743), `render_evidence_page` (line 1074), and `render_strategy_page` (line 1353) of `page_templates.py` call `get_page_prefix(pair_id)` which should return `pages/16_hy_ig_spy_v4_from_scratch`. However, the running Streamlit process (started 2026-05-08) has a cached `pair_registry` module that pre-dates commit `a6856fe` (2026-05-12 15:53:33), which first added `hy_ig_spy_v4_from_scratch` to `PAGE_ROUTING`. The cached module returns the fallback `pages/5_hy_ig_spy_v4_from_scratch` (no such file exists), causing a `StreamlitPageNotFoundError` that renders as a user-visible traceback on 3 of 4 pages. Python test with the current code confirms `get_page_prefix("hy_ig_spy_v4_from_scratch")` returns `pages/16_hy_ig_spy_v4_from_scratch` correctly — the bug is server-side module cache, not code. Owner: **Ace** — restart the Streamlit server to clear the stale module cache. The fix does not require a code change.
+
+**BF-2 (GATE-28 BLOCKING) — "Cross-period analysis pending" placeholder on Evidence page.**
+
+`page_templates.py` line 1034 looks for `rolling_sharpe_cp.json` in the cross-period conditional section:
+```python
+("rolling_sharpe_cp", "Rolling Sharpe", "How to read it: ...")
+```
+The committed chart artifact is named `rolling_sharpe.json` (no `_cp` suffix). The file exists at `output/charts/hy_ig_spy_v4_from_scratch/plotly/rolling_sharpe.json` (confirmed). The mismatch causes `st.info("Cross-period analysis pending — Rolling Sharpe chart not yet available for this pair.")` to render, which is a GATE-28 user-facing placeholder FAIL. Owner: **Ace** — fix chart name in `_cp_conditional` list to match the committed artifact name (`rolling_sharpe` not `rolling_sharpe_cp`), OR Vera produces a chart named `rolling_sharpe_cp.json`.
+
+---
+
+### Import check (Step 3)
+
+All 4 page module imports succeed with no errors:
+```
+Import OK: app/pages/16_hy_ig_spy_v4_from_scratch_story.py
+Import OK: app/pages/16_hy_ig_spy_v4_from_scratch_evidence.py
+Import OK: app/pages/16_hy_ig_spy_v4_from_scratch_strategy.py
+Import OK: app/pages/16_hy_ig_spy_v4_from_scratch_methodology.py
+```
+
+---
+
+### Verdict
+
+**FAIL — 2 new blocking findings (BF-1, BF-2).**
+
+The prior CONDITIONAL-PASS verdict is **superseded**. Acceptance.md requires update to reflect new blocking findings. The original 6 blocking findings remain cleared. The two new findings are browser-layer defects invisible to smoke_loader, schema validation, and static import checks — exactly the class of defect HABIT-QA1 is designed to catch.
+
+| Finding | Severity | Owner | Fix |
+|---------|----------|-------|-----|
+| BF-1: StreamlitPageNotFoundError on Story/Evidence/Strategy (stale server cache) | BLOCKING | Ace | Restart Streamlit server |
+| BF-2: `rolling_sharpe_cp` name mismatch → Cross-period placeholder on Evidence | BLOCKING | Ace | Fix chart name reference in `_cp_conditional` |
+
+**Non-blocking observations from browser pass:**
+
+| Observation | Disposition |
+|-------------|------------|
+| Evidence method heading ⓘ icons are all silent no-ops (method names longer than glossary keys, matching direction prevents hit) | PASS-with-note — by-design behavior per DPS-II1 spec; Ace/Ray may wish to add shorter term aliases to glossary for common method names |
+| `maximum drawdown` info_icon call (line 635) has no glossary match — "Drawdown" key exists but "maximum drawdown" as needle fails because "drawdown" is the key, and "maximum drawdown" is not a substring of "drawdown" | PASS-with-note — icon silently absent for max drawdown KPI |
+
+*QA re-verification of BF-1 and BF-2 required before acceptance can be restored.*

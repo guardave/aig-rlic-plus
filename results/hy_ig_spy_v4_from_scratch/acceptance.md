@@ -56,6 +56,24 @@ Quincy sign-off: ✓
 
 ---
 
+## QA Re-Verification 2 — Browser Pass — 2026-05-12 (Quincy)
+
+**Verdict: FAIL — 2 new blocking findings**
+
+Prior CONDITIONAL-PASS superseded. HABIT-QA1 violation in Re-Verification 1: no DOM text was read, no browser pass was run. Two user-visible defects discovered via Playwright browser pass:
+
+| # | Finding | Owner | Severity |
+|---|---------|-------|---------|
+| BF-1 | `StreamlitPageNotFoundError` on Story, Evidence, Strategy pages — Streamlit server running stale pair_registry module (started 2026-05-08, pair added to PAGE_ROUTING 2026-05-12); `st.page_link` receives fallback path `pages/5_hy_ig_spy_v4_from_scratch_{page}.py` which does not exist; traceback visible in DOM | Ace | BLOCKING |
+| BF-2 | "Cross-period analysis pending — Rolling Sharpe chart not yet available for this pair." on Evidence page — template `_cp_conditional` looks for `rolling_sharpe_cp.json` but committed artifact is `rolling_sharpe.json`; GATE-28 user-facing placeholder FAIL | Ace | BLOCKING |
+
+**Acceptance blocked until BF-1 and BF-2 are resolved and re-verified.**
+
+**Evidence:** `temp/260512_qa_browser_v4/` — DOM text files, screenshots, results.json  
+**Full findings:** `results/hy_ig_spy_v4_from_scratch/qa_verification_v4_20260512.md` § Re-Verification 2
+
+---
+
 ## Lead Acceptance Sign-off (Lesandro) — 2026-05-12
 
 **Verdict: ACCEPTED**

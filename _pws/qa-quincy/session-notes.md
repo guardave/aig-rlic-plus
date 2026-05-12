@@ -104,6 +104,26 @@
 
 ---
 
+## 2026-05-12 — hy_ig_spy_v4_from_scratch Browser Re-Verification (HABIT-QA1 catch-up)
+
+**Dispatch:** User identified that QA's prior GATE-31 sign-off on v4 was based on schema validation and smoke_loader only — no browser pass was run, no DOM text was read. HABIT-QA1 violation. Assignment: run a proper browser verification pass on all 4 pages.
+
+**SOD context:** Role: qa-quincy. Branch: 260430. Streamlit running on port 8501 (started 2026-05-08). Playwright available. Read QA SOP HABIT-QA1 and cloud_verify sections before starting.
+
+**HABIT-QA1:** I read DOM text for `temp/260512_qa_browser_v4/dom_hy_ig_spy_v4_from_scratch_story.txt` (Story). I found: correct page title, OOS KPIs (Sharpe 1.32, return +6.6%, drawdown -6.4%), 2 ⓘ icons present, GATE-HZE1 heading present, breadcrumb all 4 labels. BLOCKING: StreamlitPageNotFoundError on st.page_link to Evidence page — server has stale pair_registry module cache returning fallback prefix `pages/5_` instead of `pages/16_`.
+
+**HABIT-QA1:** I read DOM text for `temp/260512_qa_browser_v4/dom_hy_ig_spy_v4_from_scratch_evidence.txt` (Evidence). I found: Level 1/Level 2 tab structure, Correlation/Granger/CCF method blocks rendered, breadcrumb all 4 labels. BLOCKING: StreamlitPageNotFoundError on st.page_link to Strategy page (same stale cache). BLOCKING: "Cross-period analysis pending — Rolling Sharpe chart not yet available for this pair." — template looks for `rolling_sharpe_cp.json`; committed file is `rolling_sharpe.json`. Zero ⓘ icons on evidence method headings (silent no-ops due to matching direction — method names longer than glossary keys; by-design per spec).
+
+**HABIT-QA1:** I read DOM text for `temp/260512_qa_browser_v4/dom_hy_ig_spy_v4_from_scratch_strategy.txt` (Strategy). I found: tournament winner, strategy rule, KPIs, failed_final_exam holdout disclosure present ("FAIL. One or more confirmation criteria were not met"), 1 ⓘ icon, direction check passing, Execute/Performance/Confidence tabs. BLOCKING: StreamlitPageNotFoundError on st.page_link to Methodology page (same stale cache).
+
+**HABIT-QA1:** I read DOM text for `temp/260512_qa_browser_v4/dom_hy_ig_spy_v4_from_scratch_methodology.txt` (Methodology). I found: full technical appendix, Sample Period section, Signal Universe, 2 ⓘ icons, breadcrumb. NO errors, NO placeholders, NO Traceback. Methodology is the only clean page (no outbound st.page_link calls that would hit the stale cache).
+
+**Verdict:** FAIL — 2 new blocking findings (BF-1: stale Streamlit server cache; BF-2: rolling_sharpe_cp vs rolling_sharpe name mismatch). Prior CONDITIONAL-PASS superseded.
+
+**Files changed:** `results/hy_ig_spy_v4_from_scratch/qa_verification_v4_20260512.md` (Re-Verification 2 block appended), `results/hy_ig_spy_v4_from_scratch/acceptance.md` (blocking findings added, prior sign-off superseded), `_pws/qa-quincy/session-notes.md` (this entry). Committed per META-CPD.
+
+---
+
 ## 2026-04-24 — Wave 10I.C Final Verify (post-Ace fb101e5 + Ray f8fa75d)
 
 **Run:** `scripts/cloud_verify.py` — 41-page full sweep  
