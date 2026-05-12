@@ -236,3 +236,31 @@ However, per QA mandate, the following checks were run:
 *QA sign-off is WITHHELD until all 6 blocking findings are resolved and re-verified.*
 
 *Next step: Producers fix blocking findings. QA re-verifies the narrow set of changed artifacts only.*
+
+---
+
+## Re-Verification Block — 2026-05-12 (after producer fixes)
+
+**Commits verified:** 9c0b644 (Vera), df77391 (Evan), d744bf5 (Evan/Dana), 8c74388 (Evan), 37071e2 (Evan)
+
+| # | Original Finding | Re-verification command | Result |
+|---|-----------------|------------------------|--------|
+| 1 | GATE-DP1: bottom-panel xaxis="x" on all 5 zoom charts | Custom GATE-DP1 check: all 10 traces inspected | **PASS** — all 5 charts: trace[1] (yaxis=y2) now has xaxis=x2 confirmed |
+| 2 | final_exam_results schema invalid (v1.0.0, missing fields) | `python3 scripts/validate_schema.py --schema docs/schemas/final_exam_results.schema.json --instance results/.../final_exam_results_20260512.json` | **PASS** — exit 0, conforms to v1.1.0 |
+| 3 | interpretation_metadata: missing schema_version, owner_writes; confidence enum | `python3 scripts/validate_schema.py --schema docs/schemas/interpretation_metadata.schema.json --instance results/.../interpretation_metadata.json` | **PASS** — exit 0, all fields present, confidence="medium" |
+| 4 | signal_scope: 18 derivatives missing formula + appears_in_charts | `python3 scripts/validate_schema.py --schema docs/schemas/signal_scope.schema.json --instance results/.../signal_scope.json` | **PASS** — exit 0, all derivatives conform |
+| 5 | smoke_schema_consumers failures=3 | `python3 app/_smoke_tests/smoke_schema_consumers.py --pair-id hy_ig_spy_v4_from_scratch` | **PASS** — failures=0; all 6 checks pass including APP-DIR1 |
+| 6 | oos_n_trades=33 mislabeled (full-sample) | Inspect winner_summary.json fields | **PASS** — oos_n_trades=5 (OOS-only), total_n_trades=33 added; field disambiguation complete |
+
+**QA-CL2 re-run (with corrected oos_n_trades=5):**
+- T1 Sharpe-Return-Vol: Sharpe=1.3238, return=6.57%, implied_vol=4.20% → PASS (in 1–15% range)
+- T2 MDD-Vol: MDD=6.38%, vol=4.20%, ratio=1.52 → PASS (in [1,6])
+- T3 Turnover-Trade: oos_n_trades=5, years=5.92, trades/yr=0.85, turnover×2=2.24, deviation=0.38× → PASS (<2×)
+
+**GATE-VIZ-NBER2 re-check:** dotcom, gfc, covid all have `fillcolor=rgba(150,120,120,0.22)` — canonical VIZ-NBER1 color confirmed. PASS.
+
+**GATE-DPS1 re-run:** 0 FAIL, 1 WARN (DPS-PRE1 pre-exam disclosure, expected), 126 PASS.
+
+**smoke_loader.py re-run:** failures=0, passes=6.
+
+**All 6 blocking findings cleared. No new findings discovered during re-verification.**
