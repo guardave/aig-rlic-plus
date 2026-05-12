@@ -540,3 +540,55 @@ Loader pair-prefix fallback at `charts.py:106-113` **removed** after all three p
 - Chart scripts: `scripts/generate_charts_{pair_id}.py` (per-pair)
 - Browser verification: `temp/inspect_portal.py` (Playwright, gitignored)
 - Memory: file-based (`~/.claude/projects/.../memory/`) + AutoMem MCP
+
+---
+
+## 2026-05-12 — `hy_ig_spy_v4_from_scratch` Reference Wave + GATE-RW1 — **COMPLETE**
+
+**Branch:** 260430 | **Final acceptance:** Lead Lesandro `dbc1e5d`
+
+### What shipped
+
+**`hy_ig_spy_v4_from_scratch` — first pair built against full DPS standard**
+- Data: `data/Data Master.xlsx / OASHY_IG` (ICE BofA HY + IG OAS, 1996-present) spliced with FRED tail. FRED API restricted to 3-year rolling window since April 2026; xlsx is confirmed identical to FRED on 626-day overlap.
+- Winner: S2c_zscore_36m / T3_z0.0 / P1 / L1. OOS Sharpe 1.32, B&H 0.71, OOS trades: 5.
+- Final exam result: `failed_final_exam` — genuine regime underperformance in 2020-2026 holdout (Sharpe 0.31 vs floor 0.50; negative excess return; bootstrap CI includes zero). Ships with full disclosure banner on Strategy page.
+- GATE-DPS1: 0 FAIL, 1 WARN (expected for `failed_final_exam`).
+
+**New gate: GATE-RW1 — Reader Walk (QA SOP + AppDev SOP)**
+- Mandatory structured walk of all 4 pages as a first-time reader (portfolio manager persona).
+- Produces a filled template — no blank fields permitted — appended to `acceptance.md`.
+- Wired into QA-CL1 as a blocking checklist item.
+- Companion: APP-RW1 — Ace runs the same walk before handoff to QA.
+- Motivation: all prior gates checked artifact existence and error absence. None checked whether the page communicates clearly to a reader. GATE-RW1 closes that gap.
+
+**Fixes from GATE-RW1 first run**
+- `glossary_inline.py`: bidirectional substring matching — method names longer than glossary keys now match correctly (e.g. "Hidden Markov Model (HMM) Stress Regime Detection" → "Hidden Markov Model (HMM)").
+- `page_templates.py`: plain-English multiple-testing context added after every Tournament Design table, automatically, for all pairs.
+- `evidence_status.json` (v4): all 4 `failure_reasons` rewritten from raw statistical codes (`FE1-Condition-8 FAILED: deflated_p=0.2643`) to reader-accessible prose.
+
+**Other fixes in this session**
+- Episode chart x-axis overlap: `nticks=12` on 11-13 month windows caused label collision at -45°. Corrected to `nticks=6` on all 5 history_zoom episode charts.
+- BF-1: Stale Streamlit server (started 2026-05-08) caused `StreamlitPageNotFoundError` on new pair pages. Server restarted.
+- BF-2: `_cp_conditional` template looked for `rolling_sharpe_cp.json`; artifact is `rolling_sharpe.json`. Corrected.
+
+**Process failures documented**
+- HABIT-QA1 violated in Re-Verification 1: no browser pass, no DOM read. User caught x-axis overlap and missing info icons that browser verification would have found. Root cause: agents optimise for completion signals (script exits 0) rather than sustained judgment against green signals. GATE-RW1 is the structural response.
+
+### Commits (chronological, this session)
+- `33700c7` BF-2: fix rolling_sharpe_cp → rolling_sharpe in _cp_conditional
+- `f5aa03f` Lead final acceptance: hy_ig_spy_v4_from_scratch — ACCEPTED FINAL
+- `7d31e0f` QA Re-Verification 3: browser pass — BF-1 BF-2 verified resolved
+- `d88edc6` Fix x-axis label overlap on history_zoom episode charts: nticks=6
+- `f1ff996` Add GATE-RW1 Reader Walk to QA and AppDev SOPs
+- `2a4814d` GATE-RW1: Reader Walk — hy_ig_spy_v4_from_scratch
+- `8f5ee14` GATE-RW1 fixes: jargon icons, multiple-testing context, plain-English failure reasons
+- `2d77683` GATE-RW1 re-verification: BF-RW1 BF-RW2 resolved — PASS
+- `dbc1e5d` Lead acceptance: GATE-RW1 closed — wave closed
+
+### Outstanding / deferred
+- RW-N1: Story page information hierarchy (prose before KPIs) — backlog
+- RW-N2: Two chart titles are labels not findings (full-history overview, quartile bar) — backlog
+- RW-N4: Level 2 Evidence blocks collapsed by default — backlog
+- Glossary coverage gap: "Correlation Analysis" and "Pre-Whitened CCF" have no glossary entries — Evan/Ray to add
+- Existing pairs retroactive GATE-RW1 walk — deferred; v4 is the template

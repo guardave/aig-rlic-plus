@@ -1429,3 +1429,26 @@ Phase 3 cross-review: 25 findings (12 FAIL, 13 WARN), file: `_pws/econ-evan/sop_
 - Next priority pair: US10Y-US3M → SPY
 
 **Branch:** 260430 | All pushed.
+
+---
+
+## 2026-05-12 — Lead Lesandro (hy_ig_spy_v4_from_scratch + GATE-RW1 — CLOSED ✅)
+
+**Status:** Wave complete. All gates passed. Branch 260430 pushed.
+
+**What landed:**
+- `hy_ig_spy_v4_from_scratch` — reference DPS implementation, `failed_final_exam` with disclosure. Final acceptance `dbc1e5d`.
+- **GATE-RW1 Reader Walk** — new mandatory blocking gate in QA SOP + AppDev SOP. First execution found 2 blockers (jargon, multiple-testing context) and 1 significant NB (raw notation in disclosure). All fixed.
+- `glossary_inline.py` bidirectional matching — method heading info icons now work on Evidence page.
+- Plain-English multiple-testing context added to all Methodology pages via template.
+- `evidence_status.json` failure_reasons rewritten from statistical codes to reader prose.
+- Episode chart x-axis: nticks=6 on all history_zoom charts (was 12, causing label overlap on 11-13 month windows).
+- BF-1 (stale Streamlit server), BF-2 (rolling_sharpe_cp filename) resolved.
+
+**Process failure documented:** HABIT-QA1 violated in Re-Verification 1. Neither Ace nor Quincy opened a browser. User caught both visual defects. Root cause: agents substitute completion signals for judgment. GATE-RW1 is the structural response — cannot be substituted with a script result.
+
+**Outstanding for next session:**
+- RW-N1, RW-N2, RW-N4 (Story hierarchy, label-only chart titles, Level 2 collapse) — backlog
+- Glossary coverage: "Correlation Analysis", "Pre-Whitened CCF" need entries
+- Existing pairs retroactive GATE-RW1 walk
+- Existing pairs retroactive GATE-DPS1 uplift
