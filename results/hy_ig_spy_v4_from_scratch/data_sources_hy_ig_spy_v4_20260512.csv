@@ -1,0 +1,9 @@
+variable,concept,series_id,mcp_server,frequency,sa,availability
+HY OAS,ICE BofA US High Yield Index Option-Adjusted Spread,BAMLH0A0HYM2,fred,M,N,Confirmed
+IG OAS,ICE BofA US Investment Grade Corp Option-Adjusted Spread,BAMLC0A0CM,fred,M,N,Confirmed
+HY-IG spread,Constructed: BAMLH0A0HYM2 minus BAMLC0A0CM (bps),Derived,fred (from components),M,N,Confirmed
+SPY daily close,SPDR S&P 500 ETF Trust dividend-adjusted close,SPY,yahoo-finance,D->M,N/A,Confirmed
+VIX,CBOE Volatility Index,VIXCLS,fred,M,N,Confirmed
+10yr Treasury yield,US 10-Year Treasury Constant Maturity,GS10,fred,M,N,Confirmed
+NBER recession dates,US Business Cycle binary indicator,USREC,fred,M,N,Confirmed
+GZ Excess Bond Premium,Idiosyncratic credit risk premium (Gilchrist & Zakrajsek),EBP,fred (research page - unconfirmed),M,N,Unconfirmed -- Dana to verify; fallback: omit IV spec
