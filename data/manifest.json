@@ -3,6 +3,15 @@
   "generated_at": "2026-05-08T00:00:00Z",
   "artifacts": [
     {
+      "path": "results/hy_ig_spy_v4_from_scratch/data_hy_ig_spy_v4_20260512.parquet",
+      "source": "derived:hy_ig_spread_pct = FRED:BAMLH0A0HYM2 - FRED:BAMLC0A0CM (monthly EOP, 3yr window per ICE licensing); spy_log_return = yahoo:SPY log monthly return",
+      "refresh_ttl_days": 30,
+      "schema_ref": "data/hy_ig_spy_v4_monthly_schema.json",
+      "last_updated": "2026-05-12",
+      "pairs": ["hy_ig_spy_v4_from_scratch"],
+      "mixed_freq_ttl_note": "Both series are monthly; TTL=30 days. SOURCING CONSTRAINT: FRED ICE BofA series restricted to 3-year window as of April 2026 — partial delivery 2023-06 to 2026-04."
+    },
+    {
       "path": "data/hy_ig_spy_daily_20000101_20251231.parquet",
       "source": "derived:hy_ig_spread_pct = FRED:BAMLH0A0HYM2 - FRED:BAMLC0A0CM; target=yahoo:SPY (HY-IG v1 master; DATA-D12 suffix remediation applied 2026-05-08)",
       "refresh_ttl_days": 1,

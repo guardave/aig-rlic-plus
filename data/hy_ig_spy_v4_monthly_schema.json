@@ -1,0 +1,26 @@
+{
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "parquet_path": "results/hy_ig_spy_v4_from_scratch/data_hy_ig_spy_v4_20260512.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-05-12T00:00:00Z",
+  "columns": {
+    "hy_ig_spread_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "HY-IG Credit Spread (%)",
+      "direction": "lower_is_better",
+      "description": "ICE BofA US High Yield OAS minus ICE BofA US Corporate (IG) OAS, in percentage points (e.g. 2.99 = 2.99%). Monthly end-of-period values. Column named _pct per DATA-D12 and backward-compat with Evan S6 signal code. SOURCING CONSTRAINT: FRED ICE licensing restricts history to 3 years as of April 2026; delivered sample 2023-06-30 to 2026-04-30.",
+      "source_reference": "FRED: BAMLH0A0HYM2 - BAMLC0A0CM",
+      "refresh_ttl_days": 30
+    },
+    "spy_log_return": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Monthly Log Return",
+      "direction": "higher_is_better",
+      "description": "SPDR S&P 500 ETF (SPY) monthly log return: log(adjusted_close_end_of_month / adjusted_close_prev_end_of_month). Dimensionless log return (e.g. 0.0166 ≈ 1.67% simple return). Computed from Yahoo Finance daily adjusted close.",
+      "source_reference": "Yahoo Finance: SPY adjusted close (daily -> month-end -> log return)",
+      "refresh_ttl_days": 30
+    }
+  }
+}

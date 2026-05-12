@@ -1,0 +1,41 @@
+{
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "generated_at": "2026-05-12T09:50:23Z",
+  "parquet_file": "results/hy_ig_spy_v4_from_scratch/data_hy_ig_spy_v4_20260512.parquet",
+  "sourcing_constraint": "FRED ICE BofA OAS series (BAMLH0A0HYM2, BAMLC0A0CM) are restricted to 3 years of history as of April 2026 per ICE licensing terms. Full 1997-present sample is unavailable through FRED MCP or fredapi with the current API key. No approved proxy exists per data_sources_hy_ig_spy_v4_20260512.csv. Delivered sample: 2023-05-31 to 2026-04-30. This is a PARTIAL DELIVERY. Evan and Ray: see handoff note for implications.",
+  "requested_sample": {
+    "start": "1997-01-01",
+    "end": "2026-05-12"
+  },
+  "delivered_sample": {
+    "start": "2023-06-30",
+    "end": "2026-04-30",
+    "n_obs": 35
+  },
+  "columns": {
+    "hy_ig_spread_pct": {
+      "source": "FRED: BAMLH0A0HYM2 - BAMLC0A0CM (monthly EOP)",
+      "unit": "percentage points (e.g. 3.15 = 3.15%). Named _pct per v1 convention for backward compat with Evan S6.",
+      "frequency": "monthly (month-end)",
+      "nan_in_pre_merge": 0,
+      "effective_start": "2023-06-30"
+    },
+    "spy_log_return": {
+      "source": "Yahoo Finance: SPY adjusted close (daily -> month-end -> log return)",
+      "unit": "log return (e.g. 0.0166 approx 1.67% simple return)",
+      "frequency": "monthly (month-end)",
+      "nan_in_pre_merge": 1,
+      "effective_start": "2023-06-30"
+    }
+  },
+  "qc": {
+    "nan_rows_in_aligned": 0,
+    "spread_always_positive": true,
+    "spy_log_return_max_abs": 0.099893,
+    "spy_months_exceed_0_50": 0,
+    "date_index_type": "month-end (ME freq)",
+    "large_return_flags": []
+  },
+  "stationarity_file": "results/hy_ig_spy_v4_from_scratch/stationarity_tests_v4_20260512.csv",
+  "stationarity_caution": "With only ~34 monthly observations, ADF and KPSS have very low power. Results should be treated as indicative only. Full-sample tests are pending resolution of the FRED ICE licensing constraint."
+}

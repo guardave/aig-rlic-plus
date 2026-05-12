@@ -50,3 +50,4 @@ spy_fwd_21d,SPY 21-Day Forward Return,decimal_return,21d Fwd Return
 spy_fwd_63d,SPY 63-Day Forward Return,decimal_return,63d Fwd Return
 spy_fwd_126d,SPY 126-Day Forward Return,decimal_return,126d Fwd Return
 spy_fwd_252d,SPY 252-Day Forward Return,decimal_return,252d Fwd Return
+spy_log_return,SPY Monthly Log Return,decimal_return,Log Return
