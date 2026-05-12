@@ -1031,8 +1031,8 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
             st.info(f"Cross-period analysis pending — {_label} chart not yet available for this pair.")
 
     _cp_conditional = [
-        ("rolling_sharpe_cp", "Rolling Sharpe",   "How to read it: 24-month rolling Sharpe ratio. Persistent positive values confirm the strategy survives across market regimes, not just in a lucky window."),
-        ("rolling_granger",   "Rolling Granger",  "How to read it: rolling Granger F-statistic. Values consistently above the dashed threshold show the predictive relationship is not a sample artefact."),
+        ("rolling_sharpe", "Rolling Sharpe",   "How to read it: 24-month rolling Sharpe ratio. Persistent positive values confirm the strategy survives across market regimes, not just in a lucky window."),
+        ("rolling_granger", "Rolling Granger",  "How to read it: rolling Granger F-statistic. Values consistently above the dashed threshold show the predictive relationship is not a sample artefact."),
     ]
     for _chart_name, _label, _caption in _cp_conditional:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
