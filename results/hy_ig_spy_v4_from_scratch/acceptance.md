@@ -62,7 +62,7 @@ Quincy sign-off: ✓
 
 QA CONDITIONAL-PASS accepted. Condition satisfied — disclosure banner confirmed wired via `render_evidence_status_note` in `render_strategy_page`.
 
-**Non-blocking N1 disposition:** Methodology data provenance note to be added by Ace in a follow-on pass. Not a production blocker.
+**Non-blocking N1 disposition:** CLOSED — no action required. The xlsx data is FRED data downloaded before the April 2026 ICE licensing restriction. Methodology page citing "FRED" as source is accurate.
 
 **Wave outcome:** `hy_ig_spy_v4_from_scratch` is the reference implementation — first pair built against the full Dashboard Page Standard and GATE-DPS1. Evidence status `failed_final_exam` is the honest result of a genuine regime effect in the 2020-2026 holdout. The pair ships with full disclosure.
 
