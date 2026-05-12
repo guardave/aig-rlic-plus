@@ -1,5 +1,37 @@
 # Team Status Board
 
+## 2026-05-12 — Lead Lesandro (DPS standard + v4 reference pair wave — CLOSED ✅)
+
+**Status:** Wave complete. `hy_ig_spy_v4_from_scratch` accepted (QA CONDITIONAL-PASS). All committed and pushed to branch `260430`.
+
+**What landed:**
+- **APP-TT1:** `st.title(display_name)` enforced as first call in all 4 `page_templates.py` render functions — fixes systematic violation across all production pairs simultaneously.
+- **APP-NAV1:** Cross-page navigation must use `st.page_link()` — bare markdown links silently 404. Codified in AppDev SOP.
+- **DPS-PRE1 / `failed_final_exam`:** New status fully wired — `evidence_status.schema.json` v1.2.0, `evidence_status.py` disclosure banner, `validate_pair_completeness.py` WARN gate.
+- **`docs/dashboard-page-standard.md` v1.0.0:** Authoritative mandatory/optional section spec for all 4 dashboard pages. DPS-EP1 (4 canonical episodes + credit class gets 5), DPS-II1 (info icons).
+- **`scripts/validate_pair_completeness.py` (GATE-DPS1):** Pre-render completeness validator. 0 WARNs across all existing pairs after glossary substring fix + 5 new glossary entries.
+- **v3 forks hidden:** `_pages_hidden/` — preserved but excluded from registry and landing page.
+- **`hy_ig_spy_v4_from_scratch` — reference implementation:** First pair built against full DPS standard.
+  - Data: `Data Master.xlsx / OASHY_IG` (ICE BofA HY + IG OAS, 1996-present) + FRED tail splice.
+  - Winner: S2c_zscore_36m, OOS Sharpe 1.32 vs B&H 0.71.
+  - Final exam: `failed_final_exam` (genuine — post-COVID bull market regime underperformance in holdout). Disclosure banner wired.
+  - GATE-DPS1: 0 FAIL, 1 WARN (expected). QA: CONDITIONAL-PASS. Lead: ACCEPTED.
+- **Data Master.xlsx precedent:** `data/Data Master.xlsx / OASHY_IG` is the canonical source for ICE BofA credit spread series. FRED API restricted to 3-year rolling window as of April 2026 — xlsx covers 1996-present and is confirmed identical to FRED on 626-day overlap.
+
+**Key new rules established:**
+- GATE-DPS1: mandatory pre-render gate before Ace handoff and QA.
+- DPS-PRE1: final exam must be RUN (not necessarily passed) for production eligibility.
+- `failed_final_exam` is production-eligible with mandatory L2 disclosure banner.
+- Credit pair class requires 5 crisis episodes (dotcom, gfc, covid, taper_2018, inflation_2022).
+
+**Outstanding / deferred:**
+- N1: Methodology page data provenance note (Data Master.xlsx source) — Ace follow-on pass.
+- Existing pairs retroactive GATE-DPS1 uplift (inflation_2022 episode, evidence_status upgrades) — deferred; v4 is the template.
+- `glossary_inline.py` component (DPS-II1 `info_icon()`) — not yet built.
+- `_validate_config()` runtime enforcement in `page_templates.py` — not yet implemented.
+
+---
+
 ## 2026-05-08 — Lead Lesandro (BL-SOP-NORMALIZE wave — CLOSED ✅)
 
 **Status:** All 8 NORM items PASS at Lead closing audit (NORM-008). Zero re-dispatches needed.
