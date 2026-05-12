@@ -1,5 +1,11 @@
 {
   "pair_id": "hy_ig_spy_v4_from_scratch",
+  "schema_version": "1.0.0",
+  "owner_writes": {
+    "dana": ["indicator_nature", "indicator_type", "known_stress_episodes", "data_provenance"],
+    "evan": ["observed_direction", "direction_consistent", "key_finding", "confidence"],
+    "ray": ["strategy_objective", "narrative_summary", "expected_direction", "mechanism", "caveats"]
+  },
   "indicator": "HY-IG Credit Spread",
   "indicator_id": "hy_ig_spread",
   "indicator_category": "credit",
@@ -22,7 +28,7 @@
   ],
   "contradictions": "2022 inflation shock: HY-IG widened alongside SPY decline primarily due to rate repricing, not credit deterioration. Signal may over-fire during rate-shock episodes where mechanism is valuation compression, not credit stress.",
   "key_finding": "Tournament winner: S2c_zscore_36m/T3_z0.0/P1/L1. OOS Sharpe=1.32 vs B&H 0.71. OOS period 2014-08-29 to 2020-06-30 (71 months). Full 354-month dataset. Three-period design.",
-  "confidence": "moderate",
+  "confidence": "medium",
   "data_provenance": {
     "input_file": "results/hy_ig_spy_v4_from_scratch/data_hy_ig_spy_v4_20260512.parquet",
     "sample_period": "1996-12-31 to 2026-05-29",
