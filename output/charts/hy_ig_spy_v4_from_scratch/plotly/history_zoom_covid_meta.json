@@ -1,0 +1,24 @@
+{
+  "chart_name": "history_zoom_covid",
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V2"
+  ],
+  "disposition": "consumed",
+  "created_at": "2026-05-12T00:00:00Z",
+  "source": "results/hy_ig_spy_v4_from_scratch/",
+  "source_sample_period": "1996-12-31 to 2026-05-29",
+  "exploratory": false,
+  "title": "COVID-19: Spread +6pp in 6 Weeks; SPY -30% then V-shaped Recovery",
+  "narrative_alignment_note": "Monthly frequency means only 1-2 data points fall in the acute March 2020 crisis. Chart shows broader window including V-shaped recovery.",
+  "econ_rule_id": "DPS-EP1",
+  "result_file": "data_hy_ig_spy_v4_20260512.parquet",
+  "episode_window": "2020-02-01 to 2020-12-31",
+  "episode_slug": "covid"
+}

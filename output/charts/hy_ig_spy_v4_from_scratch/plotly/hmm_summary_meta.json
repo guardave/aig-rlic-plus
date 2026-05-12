@@ -1,0 +1,21 @@
+{
+  "chart_name": "hmm_summary",
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V2"
+  ],
+  "disposition": "suggested",
+  "created_at": "2026-05-12T00:00:00Z",
+  "source": "results/hy_ig_spy_v4_from_scratch/",
+  "source_sample_period": "1996-12-31 to 2026-05-29",
+  "exploratory": false,
+  "title": "HMM Regime Summary: Calm vs Stress State",
+  "econ_rule_id": "ECON-H4",
+  "result_file": "core_models_20260512/hmm_states.parquet"
+}

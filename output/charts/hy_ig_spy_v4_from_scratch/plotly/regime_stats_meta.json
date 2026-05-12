@@ -1,0 +1,22 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V2"
+  ],
+  "disposition": "consumed",
+  "created_at": "2026-05-12T00:00:00Z",
+  "source": "results/hy_ig_spy_v4_from_scratch/",
+  "source_sample_period": "1996-12-31 to 2026-05-29",
+  "exploratory": false,
+  "title": "SPY Return by HY-IG Spread Quartile",
+  "narrative_alignment_note": "Q1 (tightest spreads) \u2192 highest SPY returns (22.4% ann). Q4 \u2192 negative returns. Monotonic decline confirms countercyclical channel.",
+  "econ_rule_id": "ECON-H4",
+  "result_file": "regime_quartile_returns.csv"
+}

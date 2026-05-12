@@ -1,0 +1,24 @@
+{
+  "chart_name": "history_zoom_inflation_2022",
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V2"
+  ],
+  "disposition": "consumed",
+  "created_at": "2026-05-12T00:00:00Z",
+  "source": "results/hy_ig_spy_v4_from_scratch/",
+  "source_sample_period": "1996-12-31 to 2026-05-29",
+  "exploratory": false,
+  "title": "2022 Inflation Shock: Spread +2pp; SPY -20% (Rate Repricing, Not Credit Risk)",
+  "narrative_alignment_note": "NOTE: Mechanism was rate repricing, not credit cycle default risk. Strategy moved to cash on spread signal but miss-classified the driver. HY-IG spread widened due to rate sensitivity, not default risk.",
+  "econ_rule_id": "DPS-EP1",
+  "result_file": "data_hy_ig_spy_v4_20260512.parquet",
+  "episode_window": "2022-01-01 to 2022-12-31",
+  "episode_slug": "inflation_2022"
+}

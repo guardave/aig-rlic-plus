@@ -1,0 +1,24 @@
+{
+  "chart_name": "history_zoom_dotcom",
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V2"
+  ],
+  "disposition": "consumed",
+  "created_at": "2026-05-12T00:00:00Z",
+  "source": "results/hy_ig_spy_v4_from_scratch/",
+  "source_sample_period": "1996-12-31 to 2026-05-29",
+  "exploratory": false,
+  "title": "Dot-com Bust: HY-IG Spread Widened 400+ bps; SPY -47%",
+  "narrative_alignment_note": "Strategy correctly moved to cash as HY-IG z-score rose above 36m mean from late 2000.",
+  "econ_rule_id": "DPS-EP1",
+  "result_file": "data_hy_ig_spy_v4_20260512.parquet",
+  "episode_window": "2000-03-01 to 2002-10-31",
+  "episode_slug": "dotcom"
+}

@@ -1,0 +1,22 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V2"
+  ],
+  "disposition": "suggested",
+  "created_at": "2026-05-12T00:00:00Z",
+  "source": "results/hy_ig_spy_v4_from_scratch/",
+  "source_sample_period": "1996-12-31 to 2026-05-29",
+  "exploratory": false,
+  "title": "Structural Break: CUSUM-OLS (Test Failed \u2014 Numerical Error)",
+  "econ_rule_id": "ECON-H4",
+  "result_file": "structural_break_hy_ig_spy_v4.json",
+  "note": "CUSUM test failed in Evan pipeline. No break date. Chart shows spread history for visual inspection."
+}

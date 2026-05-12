@@ -1,0 +1,24 @@
+{
+  "chart_name": "history_zoom_gfc",
+  "pair_id": "hy_ig_spy_v4_from_scratch",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V8",
+    "VIZ-V11",
+    "VIZ-NM1",
+    "VIZ-IC1",
+    "VIZ-O1",
+    "VIZ-V2"
+  ],
+  "disposition": "consumed",
+  "created_at": "2026-05-12T00:00:00Z",
+  "source": "results/hy_ig_spy_v4_from_scratch/",
+  "source_sample_period": "1996-12-31 to 2026-05-29",
+  "exploratory": false,
+  "title": "GFC: Spread Peaked ~13%; SPY -55%",
+  "narrative_alignment_note": "Textbook credit-cycle signal. Spread > 36m mean from mid-2007 \u2192 strategy in cash through trough.",
+  "econ_rule_id": "DPS-EP1",
+  "result_file": "data_hy_ig_spy_v4_20260512.parquet",
+  "episode_window": "2007-10-01 to 2009-06-30",
+  "episode_slug": "gfc"
+}
