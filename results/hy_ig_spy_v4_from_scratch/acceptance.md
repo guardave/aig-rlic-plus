@@ -230,3 +230,21 @@ Quincy sign-off: ✓
 - **GATE-RW1 result:** PASS
 
 Quincy sign-off: ✓
+
+---
+
+## Lead Acceptance — GATE-RW1 Closed (Lesandro) — 2026-05-12
+
+**Verdict: ACCEPTED — FINAL (updated)**
+
+GATE-RW1 Re-Verification PASS accepted. Both blocking findings resolved:
+
+- **BF-RW1:** Info icons now present on Evidence page method headings — bidirectional substring matching confirmed working. Residual glossary coverage gap (Correlation Analysis, Pre-Whitened CCF) is a backlog item, not a blocker.
+- **BF-RW2:** Plain-English multiple-testing context present on Methodology page for every pair via template — not pair-specific config.
+- **RW-N3:** Disclosure banner failure reasons fully rewritten in reader-accessible prose. A portfolio manager reading the Strategy page will now understand what failed and why it matters before acting.
+
+**Non-blocking carried forward (RW-N1, RW-N2, RW-N4):** Noted. Story information hierarchy, label-only chart titles, and Level 2 default collapse state are backlog items for the next wave iteration, not blockers for this reference pair.
+
+**This wave is closed.** `hy_ig_spy_v4_from_scratch` ships as the reference DPS implementation, with GATE-RW1 as a new mandatory gate now codified in both QA and AppDev SOPs.
+
+Lesandro sign-off: ✓
