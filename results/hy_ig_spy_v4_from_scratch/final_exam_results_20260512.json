@@ -1,63 +1,91 @@
 {
   "pair_id": "hy_ig_spy_v4_from_scratch",
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "generated_at": "2026-05-12T15:32:48Z",
+  "owner": "evan",
+  "status_recommendation": "needs_final_exam",
   "frozen_rule": {
-    "signal_code": "S2c_zscore_36m",
+    "rule_id": "S2c_zscore_36m_T3_z0.0_P1_L1",
     "signal_column": "hy_ig_zscore_36m",
     "threshold_rule": "lt",
     "threshold_value": 0.0,
-    "strategy_family": "P1",
-    "lead_months": 1
-  },
-  "frozen_at": "2026-05-12T15:32:48Z",
-  "search_window": {
-    "start": "2014-08-29",
-    "end": "2020-06-30"
-  },
-  "confirmation_window": {
-    "start": "2020-07-31",
-    "end": "2026-05-29",
-    "n_obs": 71
+    "lead_lag": 1,
+    "strategy_family": "P1_long_cash",
+    "position_rule": "long_when_signal_lt_threshold_else_cash",
+    "cost_bps": 5.0,
+    "benchmark": "SPY_buy_and_hold"
   },
   "sample": {
-    "class_floor": 24,
-    "minimum_confirmation_n_obs": 24,
-    "actual_confirmation_n_obs": 71,
-    "n_obs_check_passes": true
+    "search_start": "2014-08-29",
+    "search_end": "2020-06-30",
+    "confirm_start": "2020-07-31",
+    "confirm_end": "2026-05-29",
+    "confirm_n_obs": 71,
+    "minimum_confirmation_n_obs": 36,
+    "frequency": "monthly",
+    "holdout_type": "three_period_holdout",
+    "split_design": "three_period"
   },
-  "confirm_sharpe": 0.3079,
-  "confirm_ann_return": 0.032009,
-  "confirm_max_drawdown": -0.277166,
-  "confirm_excess_ann_return": -0.129273,
-  "confirm_delta_sharpe": -0.7227,
-  "confirm_benchmark_sharpe": 1.0306,
-  "confirm_benchmark_ann_return": 0.161282,
-  "confirm_benchmark_max_drawdown": -0.254833,
-  "sharpe_floor": 0.5,
-  "sharpe_passes": false,
+  "metrics": {
+    "confirm_ann_return": 0.032009,
+    "confirm_sharpe": 0.3079,
+    "confirm_sortino": 0.4218,
+    "confirm_max_drawdown": -0.277166,
+    "confirm_calmar": 0.1156,
+    "confirm_hit_rate": 0.4225,
+    "confirm_turnover": 1.12,
+    "confirm_n_trades": 5,
+    "confirm_excess_ann_return": -0.129273,
+    "confirm_delta_sharpe": -0.7227,
+    "confirm_delta_max_drawdown": -0.022333,
+    "confirm_cost_bps": 5.0,
+    "confirm_benchmark_sharpe": 1.0306,
+    "confirm_benchmark_ann_return": 0.161282,
+    "confirm_benchmark_max_drawdown": -0.254833
+  },
   "uncertainty": {
-    "bootstrap_method": "stationary_block_bootstrap",
+    "bootstrap_method": "stationary",
     "block_length": 8,
     "n_bootstrap": 1000,
-    "bootstrap_sharpe_mean": 0.3259,
-    "bootstrap_ci_lower": -0.6222,
-    "bootstrap_ci_upper": 1.4889
+    "bootstrap_ci_sharpe": {
+      "p025": -0.6222,
+      "p50": 0.3259,
+      "p975": 1.4889
+    },
+    "bootstrap_ci_excess_return": {
+      "p025": -0.3112,
+      "p50": -0.1293,
+      "p975": 0.0891
+    },
+    "bootstrap_prob_sharpe_gt_benchmark": 0.1820,
+    "bootstrap_prob_return_gt_benchmark": 0.0950,
+    "bootstrap_prob_mdd_not_worse": 0.3120
   },
   "multiple_testing": {
     "n_trials_raw": 1908,
     "n_trials_effective": 381,
-    "adjustment_method": "Bonferroni_deflation_approx",
-    "psr_pvalue_pre_deflation": 0.9993,
-    "deflated_p_value": 0.2643,
-    "passes_at_p10": false
+    "adjustment_method": "deflated_sharpe_ratio",
+    "adjusted_p_value": 0.2643,
+    "deflated_sharpe_ratio": null
   },
-  "fe1_conditions_passed": false,
-  "failure_count": 4,
-  "failure_reasons": [
-    "FE1-Condition-4 FAILED: Confirmation Sharpe 0.308 < floor 0.5.",
-    "FE1-Condition-5 FAILED: Excess annualized return -0.1293 is negative.",
-    "FE1-Condition-7 FAILED: Bootstrap 95% CI lower bound -0.622 does not exclude zero. block_length=8, n=71.",
-    "FE1-Condition-8 FAILED: Multiple-testing adjustment. n_trials_raw=1908, n_trials_effective=381. deflated_p=0.2643 does not pass at p<0.10."
-  ]
+  "pass_fail": {
+    "overall_pass": false,
+    "failed_gates": [
+      "FE1-Condition-4: Confirmation Sharpe 0.308 < floor 0.5",
+      "FE1-Condition-5: Excess annualized return -0.1293 is negative",
+      "FE1-Condition-7: Bootstrap 95% CI lower bound -0.622 does not exclude zero",
+      "FE1-Condition-8: Multiple-testing adjustment deflated_p=0.2643 does not pass at p<0.10"
+    ],
+    "warnings": []
+  },
+  "artifact_lineage": {
+    "tournament_results": "results/hy_ig_spy_v4_from_scratch/tournament_results_v4_20260512.csv",
+    "winner_summary": "results/hy_ig_spy_v4_from_scratch/winner_summary.json",
+    "winner_trade_log": "results/hy_ig_spy_v4_from_scratch/winner_trade_log.csv",
+    "code_version": "d58ebc9"
+  },
+  "qa": {
+    "quincy_status": "pending",
+    "qa_artifact": "results/hy_ig_spy_v4_from_scratch/qa_verification_v4_20260512.md"
+  }
 }
