@@ -122,3 +122,21 @@ Evidence page DOM contains "Rolling Sharpe" heading and full chart text (12m/24m
 **No new blocking findings.**
 
 Quincy sign-off: ✓
+
+---
+
+## Lead Final Acceptance Sign-off (Lesandro) — 2026-05-12
+
+**Verdict: ACCEPTED — FINAL**
+
+Prior Lead acceptance (2026-05-12, first issuance) was superseded by QA Re-Verification 2 FAIL. QA Re-Verification 3 has returned a clean PASS with full DOM verification per HABIT-QA1. This sign-off reinstates and finalises acceptance.
+
+**BF-1 disposition:** RESOLVED — Streamlit server restarted, fresh `pair_registry.py` loaded, `StreamlitPageNotFoundError` confirmed absent on all 4 pages.
+
+**BF-2 disposition:** RESOLVED — `_cp_conditional` corrected (commit `33700c7`); Rolling Sharpe chart renders on Evidence page; placeholder text absent.
+
+**Process note:** HABIT-QA1 was violated in Re-Verification 1 (no browser pass, no DOM read). The user caught two user-visible defects that browser verification would have found. The SOP explicitly requires DOM text verification — script exit codes are necessary but not sufficient. This is a confirmed process failure, not a first-time oversight; the SOP was already in place. AppDev and QA agents are expected to adhere without exception going forward.
+
+**Wave outcome (reaffirmed):** `hy_ig_spy_v4_from_scratch` ships as the reference DPS implementation. Evidence status `failed_final_exam` reflects an honest holdout result. All 4 pages are production-eligible with the `failed_final_exam` disclosure banner on Strategy.
+
+Lesandro sign-off: ✓
