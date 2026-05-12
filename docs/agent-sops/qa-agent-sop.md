@@ -264,6 +264,104 @@ Result codes:
 
 **Enforcement.** Lead may spot-check compliance by reading `session-notes.md`. Any PASS verdict in session-notes that lacks the HABIT-QA1 sentence (covering all four page types) is evidence of non-compliance. On first occurrence: PASS-with-note. On recurrence: the wave is re-opened.
 
+## GATE-RW1 — Reader Walk (binding, every wave, every scoped pair)
+
+> **The question GATE-28 cannot answer: "Would a reader trust and understand this page?"**
+
+### Why this gate exists
+
+Every other gate asks whether something is present, correct, or error-free. None ask whether the page communicates. A portal that loads cleanly, passes all schema checks, and contains no placeholder strings can still be professionally embarrassing — wrong information hierarchy, jargon without explanation, chart titles that label rather than find, episode narratives that say nothing, disclosure banners a reader skims past without registering the failure. This is the class of defect the user catches and the agents do not, because agents check artifacts while users read pages.
+
+GATE-RW1 is the gate that closes that gap. It requires Quincy to walk every scoped pair's pages as a first-time reader — a portfolio manager who knows bonds but not quant methods — and produce a structured report that can only be filled in by actually reading the pages.
+
+### What "first-time reader" means
+
+Concretely: you have never seen this pair before. You do not know the winner rule, the holdout Sharpe, or the episode narratives. You open the Story page and ask: *"What does this strategy claim to do, and should I pay attention to it?"* You proceed to Evidence and ask: *"Does the evidence support that claim?"* You proceed to Strategy and ask: *"How would I act on this, and what are the caveats?"* You do not give credit for content that exists but is hard to find, hard to read, or unexplained.
+
+### Execution — per pair, all 4 pages
+
+Run GATE-RW1 **after** GATE-28 (browser DOM pass). The screenshots from GATE-28 are your starting point, but you must navigate the live pages — screenshots do not show scroll depth, expander content, or label legibility at default zoom.
+
+**Story page**
+
+1. Write one sentence — what does this strategy claim, as a first-time reader would state it after reading the page? If you cannot write this sentence without consulting the config or acceptance.md, the page fails.
+2. Check information hierarchy: is the sequence headline → KPIs → chart → narrative → caveats? Or does prose come before numbers?
+3. Check chart titles: do they state a finding ("Spread widened 6pp in 6 weeks; SPY -30% then V-shaped recovery") or merely label ("COVID episode")?
+4. Check axis legibility at default browser zoom: are x-axis labels non-overlapping and in a recognisable date format?
+5. Check episode narratives: does each one say something specific about what happened in that episode for this pair, or is it generic boilerplate that could apply to any credit pair?
+
+**Evidence page**
+
+6. For each method block: does the "Key message" box state a specific finding for this pair, or a generic description of what the method does?
+7. Check that jargon terms (Granger causality, HMM, z-score, OAS, regime) are either explained inline or accompanied by an info icon. Record any unexplained first-use jargon.
+8. Check that Level 1 → Level 2 builds an argument — do the blocks connect, or are they independent fragments?
+
+**Strategy page**
+
+9. Is the trading rule stated in plain English as the first thing you read, before thresholds or mechanics?
+10. For `failed_final_exam` pairs: write what a reader would take away from the disclosure banner — not what it says verbatim, but the impression it creates. Would they understand *what* failed and *why it matters before acting*?
+
+**Methodology page**
+
+11. Is the out-of-sample window clearly stated, with dates?
+12. Is the multiple-testing context explained (how many recipes were tested before this one was chosen)?
+
+**Cross-page arc**
+
+13. One sentence: does Story → Evidence → Strategy form a coherent argument? Or does a concept appear on Strategy that was never set up by Story or Evidence?
+
+### Structured output (mandatory — no free-form verdict permitted)
+
+Quincy writes the following template, filled in, for every scoped pair. Blank fields are visible failures — they cannot be mistaken for a genuine pass. The template is appended to `acceptance.md`.
+
+```markdown
+## GATE-RW1 Reader Walk — <pair_id> — <date> (Quincy)
+
+**Reader persona:** Portfolio manager, knows bonds, unfamiliar with quant methods.
+
+### Story page
+- **Strategy claim (one sentence, as reader would state it):** <fill in — cannot be left blank>
+- **Information hierarchy (headline → KPI → chart → narrative):** PASS / FAIL — <observation>
+- **Chart titles state findings (not labels):** PASS / FAIL — <observation>
+- **Axis labels legible at default zoom:** PASS / FAIL — <observation>
+- **Episode narratives are pair-specific (not generic):** PASS / FAIL — <observation>
+
+### Evidence page
+- **Key message boxes state pair-specific findings:** PASS / FAIL — <observation>
+- **First-use jargon explained or info-icon'd:** PASS / FAIL — unexplained terms: <list or "none">
+- **Level 1 → Level 2 builds an argument:** PASS / FAIL — <observation>
+
+### Strategy page
+- **Trading rule stated first, in plain English:** PASS / FAIL — <observation>
+- **Disclosure banner impression (for failed_final_exam; else N/A):** <what a reader would take away>
+
+### Methodology page
+- **OOS window stated with dates:** PASS / FAIL — <observation>
+- **Multiple-testing context explained:** PASS / FAIL — <observation>
+
+### Cross-page arc
+- **Story → Evidence → Strategy coherence (one sentence):** <fill in>
+
+### Verdict
+- **Blocking findings:** <list, or "none">
+- **Non-blocking observations:** <list, or "none">
+- **GATE-RW1 result:** PASS / FAIL
+```
+
+### Severity
+
+Any FAIL in the structured output is a **blocking finding** under GATE-31. Quincy does not sign off; the finding routes to Ace (layout, copy) or the relevant producer (chart titles → Vera, episode narratives → Ray). Re-verification covers only the pages and items that changed.
+
+Non-blocking observations are carried to Lead's attention and may become backlog items per META-BL.
+
+### Relationship to other gates
+
+GATE-RW1 does not replace GATE-28 or HABIT-QA1. It extends them. GATE-28 answers "did it break?" HABIT-QA1 answers "did Quincy read the DOM?" GATE-RW1 answers "does it communicate?" All three are required.
+
+**Cross-references:** HABIT-QA1 (DOM read — prerequisite), GATE-28 (structural correctness — prerequisite), APP-RW1 (Ace's pre-handoff reader walk — producer-side companion), QA-CL1 (GATE-RW1 is a required item in the wave checklist).
+
+---
+
 ## Anti-Patterns (what QA must NOT do)
 
 - **Never modify producers' artifacts.** Scope separation is core; QA finds, producer fixes. Mixing roles destroys the second-line-of-defense property.
@@ -319,6 +417,7 @@ Result codes:
   keys used by the pair
 - [ ] Direction triangulation passes (APP-DIR1)
 - [ ] All new stakeholder items addressed in spirit (not just letter)
+- [ ] **GATE-RW1** — Reader Walk completed for every scoped pair: structured template filled in, appended to `acceptance.md`, no blank fields, all blocking findings resolved. This is the communication-quality gate — it cannot be skipped, abbreviated, or substituted with a script result.
 - [ ] META-XVC cross-version diff: undeclared drift count = 0
 - [ ] META-ELI5: all user-facing `st.error` / `st.warning` / `st.info` carry a plain-English block
 - [ ] Deflection audit (GATE-30): every deflection target exists and contains the claimed content

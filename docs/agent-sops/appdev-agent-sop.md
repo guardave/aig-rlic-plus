@@ -730,6 +730,36 @@ For cross-pair comparison pages (leaderboards, heatmaps), use a pre-aggregated `
 
 ### 7. Review and Polish
 
+#### APP-RW1 — Pre-Handoff Reader Walk (binding, every pair)
+
+Before declaring handoff-ready, Ace walks every scoped pair's pages as a first-time reader. This is the producer-side companion to GATE-RW1 (Quincy's independent Reader Walk). Running it before handoff means defects are caught by the producer, not discovered by QA — which is cheaper and faster.
+
+**The test:** open the live Streamlit server (not the source code) and ask the following questions for each pair, all 4 pages. Record answers in the handoff note. Blank answers are not permitted.
+
+**Story**
+- Can you state the strategy's claim in one sentence after reading the page, without consulting the config?
+- Is the sequence: headline → KPIs → chart → narrative → caveats? (Not: prose, then numbers buried below the fold)
+- Do chart titles state a finding or merely label? ("Spread widened 6pp; SPY -30%" vs "COVID episode")
+- At default browser zoom, are x-axis tick labels non-overlapping?
+- Do episode narratives say something pair-specific, or could they describe any credit pair?
+
+**Evidence**
+- Does each "Key message" box state a finding for *this* pair, or a generic method description?
+- Is every jargon term (Granger, HMM, z-score, OAS, regime) either explained inline or accompanied by an info icon on first use?
+
+**Strategy**
+- Is the trading rule the first thing you read, before thresholds or mechanics?
+- For `failed_final_exam`: would a reader understand what failed and why it matters before they act on the strategy?
+
+**Cross-page**
+- Does Story set up what Evidence tests, and does Evidence set up what Strategy acts on? Or does a concept appear on Strategy without prior introduction?
+
+**Standard:** if Ace would be professionally embarrassed to have a client open any of these pages right now, the pair is not handoff-ready. Fix first, then hand off.
+
+**Output:** Ace appends a brief `APP-RW1 Pre-Handoff Reader Walk` block to the handoff note documenting answers to the above. This is the evidence QA uses to confirm the producer walk happened. Missing block = handoff incomplete.
+
+---
+
 Before delivery:
 
 - Does every page load in under 3 seconds?
