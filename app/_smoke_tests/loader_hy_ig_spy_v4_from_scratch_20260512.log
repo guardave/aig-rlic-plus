@@ -1,0 +1,19 @@
+# Loader smoke test  pair_id=hy_ig_spy_v4_from_scratch  timestamp=2026-05-12T15:53:23
+# Pages scanned: 4
+#   app/pages/16_hy_ig_spy_v4_from_scratch_evidence.py
+#   app/pages/16_hy_ig_spy_v4_from_scratch_methodology.py
+#   app/pages/16_hy_ig_spy_v4_from_scratch_story.py
+#   app/pages/16_hy_ig_spy_v4_from_scratch_strategy.py
+
+
+# Dynamic charts (Evidence render_method_block helper)
+
+# APP-PT1 template + pair_config chart scans
+PASS  app/pair_configs/hy_ig_spy_v4_from_scratch_config.py:86  chart=hero  traces=2  title='HY-IG Spread → SPY (v4): Full History (1997–2026)'
+PASS  app/pair_configs/hy_ig_spy_v4_from_scratch_config.py:95  chart=regime_stats  traces=1  title='HY-IG Spread → SPY (v4): SPY Annualized Return by HY-IG Spread Quartile'
+PASS  app/pair_configs/hy_ig_spy_v4_from_scratch_config.py:763  chart=equity_curves  traces=2  title='HY-IG Spread → SPY (v4): Cumulative Returns — Strategy vs Buy & Hold (1997–2026)'
+PASS  app/pair_configs/hy_ig_spy_v4_from_scratch_config.py:764  chart=drawdown  traces=2  title='HY-IG Spread → SPY (v4): Drawdown — Strategy vs Buy & Hold'
+PASS  app/pair_configs/hy_ig_spy_v4_from_scratch_config.py:765  chart=walk_forward  traces=2  title='HY-IG Spread → SPY (v4): Walk-Forward Equity Curve (OOS Period 2014–2020)'
+PASS  app/pair_configs/hy_ig_spy_v4_from_scratch_config.py:766  chart=tournament_scatter  traces=2  title='HY-IG Spread → SPY (v4): Tournament OOS Sharpe vs Annualized Return (n=1,612)'
+
+# RESULT  passes=6  failures=0
