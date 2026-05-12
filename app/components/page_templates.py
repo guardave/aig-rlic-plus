@@ -63,6 +63,7 @@ from components.narrative import (
 )
 from components.position_adjustment_panel import render_position_adjustment_panel
 from components.probability_engine_panel import render_probability_engine_panel
+from components.glossary_inline import info_icon
 from components.pair_registry import get_page_prefix
 from components.sidebar import render_sidebar
 from components.signal_universe_table import render_signal_universe
@@ -626,6 +627,14 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
             "delta": oos_range_label,
         },
     ])
+    # DPS-II1: info icons beside KPI metric labels (Sharpe, Drawdown, Signal)
+    _kpi_icon_cols = st.columns(5)
+    with _kpi_icon_cols[0]:
+        info_icon("Sharpe ratio")
+    with _kpi_icon_cols[2]:
+        info_icon("maximum drawdown")
+    with _kpi_icon_cols[3]:
+        info_icon("signal probability")
 
     kpi_caption = getattr(config, "KPI_CAPTION", None)
     if kpi_caption:
@@ -832,7 +841,12 @@ def _render_method_block(content: dict, pair_id: str) -> None:
     if why:
         st.markdown(f"**Why this matters:** {why}")
 
-    st.markdown(f"### {method_name}")
+    # DPS-II1: info icon beside method heading for known technical terms
+    _mh_col1, _mh_col2 = st.columns([15, 1])
+    with _mh_col1:
+        st.markdown(f"### {method_name}")
+    with _mh_col2:
+        info_icon(method_name)
     st.markdown(content["method_theory"])
 
     # Optional regime_context callout (Wave 10G.3). When present, renders an
@@ -1193,6 +1207,12 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
          "value": f"{float(winner.get('oos_win_rate', 0)):.0%}"
                    if winner.get('oos_win_rate') is not None else "N/A"},
     ])
+    # DPS-II1: info icons beside strategy KPI metric labels
+    _strat_icon_cols = st.columns(5)
+    with _strat_icon_cols[0]:
+        info_icon("Sharpe ratio")
+    with _strat_icon_cols[2]:
+        info_icon("maximum drawdown")
     st.markdown("---")
 
     # ------ 9. Execute / Performance / Confidence tabs ------
@@ -1656,7 +1676,12 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
         start = (winner.get("oos_period_start") or "")[:7]
         end = (winner.get("oos_period_end") or "")[:7]
         oos_n = winner.get("oos_n", "N/A")
-        st.markdown("### Sample Period")
+        # DPS-II1: info icon beside "Sample Period" / out-of-sample heading
+        _sp_col1, _sp_col2 = st.columns([15, 1])
+        with _sp_col1:
+            st.markdown("### Sample Period")
+        with _sp_col2:
+            info_icon("out-of-sample")
         col1, col2 = st.columns(2)
         with col1:
             st.metric(
@@ -1719,7 +1744,12 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
     st.markdown("---")
 
     # ------ 12. Tournament design ------
-    st.markdown("### Tournament Design")
+    # DPS-II1: info icon beside "Tournament Design" heading
+    _td_col1, _td_col2 = st.columns([15, 1])
+    with _td_col1:
+        st.markdown("### Tournament Design")
+    with _td_col2:
+        info_icon("tournament")
     st.markdown(config.tournament_design_md)
     st.markdown("---")
 
