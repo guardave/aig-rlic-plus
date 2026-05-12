@@ -53,3 +53,19 @@ Conditional on the `failed_final_exam` disclosure banner rendering correctly on 
 | Signals parquet committed (GATE-29) | PASS — git ls-files confirms signals_v4_20260512.parquet |
 
 Quincy sign-off: ✓
+
+---
+
+## Lead Acceptance Sign-off (Lesandro) — 2026-05-12
+
+**Verdict: ACCEPTED**
+
+QA CONDITIONAL-PASS accepted. Condition satisfied — disclosure banner confirmed wired via `render_evidence_status_note` in `render_strategy_page`.
+
+**Non-blocking N1 disposition:** Methodology data provenance note to be added by Ace in a follow-on pass. Not a production blocker.
+
+**Wave outcome:** `hy_ig_spy_v4_from_scratch` is the reference implementation — first pair built against the full Dashboard Page Standard and GATE-DPS1. Evidence status `failed_final_exam` is the honest result of a genuine regime effect in the 2020-2026 holdout. The pair ships with full disclosure.
+
+**Data source precedent:** `data/Data Master.xlsx / OASHY_IG` is now the canonical source for ICE BofA HY and IG OAS series going back to 1996, supplemented by FRED MCP for the rolling tail. This pattern applies to all future credit pairs.
+
+Lesandro sign-off: ✓
