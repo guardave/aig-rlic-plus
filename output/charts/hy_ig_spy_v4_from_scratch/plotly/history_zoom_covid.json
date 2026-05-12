@@ -861,7 +861,10 @@
       ],
       "title": {
         "text": "Date (monthly)"
-      }
+      },
+      "tickangle": -45,
+      "tickformat": "%b %Y",
+      "nticks": 12
     },
     "yaxis": {
       "anchor": "x",
