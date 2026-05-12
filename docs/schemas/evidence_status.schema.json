@@ -22,18 +22,20 @@
       "type": "string",
       "enum": [
         "1.0.0",
-        "1.1.0"
+        "1.1.0",
+        "1.2.0"
       ],
-      "description": "Instance schema version. Version 1.1.0 adds the optional `final_exam` lineage block."
+      "description": "Instance schema version. 1.1.0 adds the optional `final_exam` lineage block. 1.2.0 adds `failed_final_exam` status and `failure_reasons` array."
     },
     "status": {
       "type": "string",
       "enum": [
         "found_in_search",
         "needs_final_exam",
-        "passed_final_exam"
+        "passed_final_exam",
+        "failed_final_exam"
       ],
-      "description": "`found_in_search` means the winner is the best rule selected from the tournament search. `needs_final_exam` means confirmation is planned or partially prepared but not yet passed. `passed_final_exam` means a fresh holdout or equivalent confirmation test was run after selection and passed."
+      "description": "`found_in_search` — winner selected from tournament, no confirmation test run. `needs_final_exam` — confirmation planned but not yet run. `passed_final_exam` — holdout/confirmation test run and passed. `failed_final_exam` — holdout/confirmation test was run but did not pass; exam results are documented and displayed to users as informational disclosure."
     },
     "updated_at": {
       "type": "string",
@@ -73,6 +75,12 @@
     "owner": {
       "type": "string",
       "description": "Agent or human who made the evidence-status decision."
+    },
+    "failure_reasons": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Required when status is `failed_final_exam`. One entry per failed ECON-FE1 condition, in plain English. Displayed verbatim as a disclosure banner to portal users."
     },
     "final_exam": {
       "type": "object",
@@ -183,14 +191,8 @@
   "allOf": [
     {
       "if": {
-        "properties": {
-          "status": {
-            "const": "passed_final_exam"
-          }
-        },
-        "required": [
-          "status"
-        ]
+        "properties": { "status": { "const": "passed_final_exam" } },
+        "required": [ "status" ]
       },
       "then": {
         "required": [
@@ -202,14 +204,34 @@
         ],
         "properties": {
           "final_exam": {
-            "properties": {
-              "qa_status": {
-                "const": "qa_passed"
-              }
-            },
-            "required": [
-              "qa_status"
-            ]
+            "properties": { "qa_status": { "const": "qa_passed" } },
+            "required": [ "qa_status" ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "status": { "const": "failed_final_exam" } },
+        "required": [ "status" ]
+      },
+      "then": {
+        "required": [
+          "confirmation_test",
+          "confirmation_window",
+          "technical_note",
+          "plain_english",
+          "failure_reasons",
+          "owner",
+          "final_exam"
+        ],
+        "properties": {
+          "failure_reasons": {
+            "minItems": 1
+          },
+          "final_exam": {
+            "properties": { "qa_status": { "const": "qa_passed" } },
+            "required": [ "qa_status" ]
           }
         }
       }

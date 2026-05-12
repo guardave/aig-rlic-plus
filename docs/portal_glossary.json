@@ -1,8 +1,8 @@
 {
   "_status_vocabulary": {
-    "_note": "Canonical status vocabulary for the portal (Rule RES-10 + RES-VS + RES-22). Narrative and captions may only use labels from this list. New labels must be added here in the same handoff cycle. Key canonicalized to `_status_vocabulary` in Ray's Wave 5C retro-apply (2026-04-19) to match the narrative_frontmatter.schema.json cross-reference and the META-ELI5 rule 3 pointer (previously the key was `status_labels` — see regression_note_20260419.md Ray's Wave 5C block).",
+    "_note": "Canonical status vocabulary for the portal (Rule RES-10 + RES-VS + RES-22). Narrative and captions may only use labels from this list. New labels must be added here in the same handoff cycle. Key canonicalized to `_status_vocabulary` in Ray's Wave 5C retro-apply (2026-04-19) to match the narrative_frontmatter.schema.json cross-reference and the META-ELI5 rule 3 pointer (previously the key was `status_labels` \u2014 see regression_note_20260419.md Ray's Wave 5C block).",
     "Available": {
-      "eli5": "The chart, data file, or signal is produced and live on the portal — you can read it now.",
+      "eli5": "The chart, data file, or signal is produced and live on the portal \u2014 you can read it now.",
       "technical": "The artifact has been produced and validated. No schema has been authored for it yet (see RES-22 decision table row 3), or a schema exists and validation passes."
     },
     "Pending": {
@@ -10,24 +10,24 @@
       "technical": "The artifact is scheduled for production (named in a manifest or handoff) but not yet produced; rendered as a placeholder on the portal with an explicit pending caption per RES-22 rule 4 / META-UNK."
     },
     "Validated": {
-      "eli5": "The chart has been double-checked — first by the person who made it, then by the person who uses it — and is safe to rely on.",
+      "eli5": "The chart has been double-checked \u2014 first by the person who made it, then by the person who uses it \u2014 and is safe to rely on.",
       "technical": "The artifact has passed producer self-check (Defense 1) and consumer reconciliation (Defense 2); validates against its schema; last modified within 60 days."
     },
     "Stale": {
-      "eli5": "The chart or data was valid once but the source has been updated since — treat as out-of-date until someone refreshes it.",
+      "eli5": "The chart or data was valid once but the source has been updated since \u2014 treat as out-of-date until someone refreshes it.",
       "technical": "Artifact exists on disk and validates against its schema, but last modified more than 60 days ago per RES-22 decision table row 2."
     },
     "Draft": {
-      "eli5": "The chart is in progress — the person making it shared it for comments but hasn't finished yet.",
+      "eli5": "The chart is in progress \u2014 the person making it shared it for comments but hasn't finished yet.",
       "technical": "In-progress artifact shared internally for review but not yet validated for portal display. Producer explicitly marks work-in-progress per RES-22 rule 1."
     },
     "Mature": {
-      "eli5": "The chart has been around and unchanged for a while — it's a reference standard you can trust.",
+      "eli5": "The chart has been around and unchanged for a while \u2014 it's a reference standard you can trust.",
       "technical": "Artifact has persisted across 3+ acceptance cycles with no schema, validation, or content changes. Used as a cross-pair reference standard per META-RPD."
     },
     "Unknown": {
-      "eli5": "Something is wrong — we can't tell whether the chart is trustworthy. Refresh the page and contact the pair owner before relying on it.",
-      "technical": "Artifact state cannot be determined (file present but schema validation raises unexpected error, or producer ownership is unclear). BLOCKING per META-UNK — must be resolved before acceptance, never shipped as a display state."
+      "eli5": "Something is wrong \u2014 we can't tell whether the chart is trustworthy. Refresh the page and contact the pair owner before relying on it.",
+      "technical": "Artifact state cannot be determined (file present but schema validation raises unexpected error, or producer ownership is unclear). BLOCKING per META-UNK \u2014 must be resolved before acceptance, never shipped as a display state."
     }
   },
   "terms": {
@@ -41,13 +41,13 @@
       "plain_english": "The difference in yield between a risky bond and a safer benchmark bond; the extra return investors demand to lend to riskier borrowers.",
       "why_it_matters": "Widening spreads signal rising perceived default risk and typically precede equity drawdowns, so the spread serves as an early-warning indicator for stock investors.",
       "example": "If a BB-rated high-yield bond yields 8% and an AAA-rated investment-grade bond yields 4%, the credit spread is 400 bps (4 percentage points).",
-      "when_it_fails": "Spreads can widen for non-credit reasons (liquidity shocks, rates repricing) — the 2022 episode widened HY-IG spreads ~200bps without a credit crisis. A pure rate-shock drawdown can bypass this signal."
+      "when_it_fails": "Spreads can widen for non-credit reasons (liquidity shocks, rates repricing) \u2014 the 2022 episode widened HY-IG spreads ~200bps without a credit crisis. A pure rate-shock drawdown can bypass this signal."
     },
     "HMM stress probability": {
       "plain_english": "The probability (between 0 and 1) that a Hidden Markov Model assigns to the 'stressed' market state on a given day, based on credit-spread and VIX behaviour.",
-      "why_it_matters": "It is the continuous, data-driven regime indicator that drives the winning strategy's position sizing — higher values mean a higher weight in cash, lower values mean higher equity exposure.",
+      "why_it_matters": "It is the continuous, data-driven regime indicator that drives the winning strategy's position sizing \u2014 higher values mean a higher weight in cash, lower values mean higher equity exposure.",
       "example": "When the probability jumped from 0.086 on 2020-02-21 to 1.000 on 2020-02-24, the strategy moved from 98.4% equity to 0% (all cash) over two days.",
-      "when_it_fails": "False alarms (brief spikes that revert within days — see 2020-01-27 COVID false-alarm in the execution log) get absorbed by the P2 Signal Strength smoothing; a pure-threshold on/off rule would whipsaw on these."
+      "when_it_fails": "False alarms (brief spikes that revert within days \u2014 see 2020-01-27 COVID false-alarm in the execution log) get absorbed by the P2 Signal Strength smoothing; a pure-threshold on/off rule would whipsaw on these."
     },
     "Buy-and-hold": {
       "plain_english": "An investment strategy where you purchase an asset and hold it regardless of market conditions.",
@@ -57,93 +57,93 @@
     },
     "Counter-cyclical": {
       "plain_english": "Moving opposite to the business or market cycle.",
-      "why_it_matters": "A counter-cyclical indicator rises when markets fall and vice versa — ideal as a warning signal rather than a momentum tracker.",
+      "why_it_matters": "A counter-cyclical indicator rises when markets fall and vice versa \u2014 ideal as a warning signal rather than a momentum tracker.",
       "example": "Credit spreads are counter-cyclical to SPY: widening spreads coincide with (or precede) equity declines. The empirical direction recorded in winner_summary.json and validated against Vera's chart line-styles per APP-DIR1 is `countercyclical`.",
       "when_it_fails": "The relationship can flip in pure rate-shock regimes (2022) where credit and equity both fell for the same reason rather than in opposition."
     },
     "Credit rating": {
       "plain_english": "A grade assigned to a company's debt by rating agencies (S&P, Moody's, Fitch).",
-      "why_it_matters": "Investment grade (AAA to BBB-) means lower default risk; high yield (BB+ and below) means higher default risk — the cut between them is the foundation of the HY-IG spread.",
+      "why_it_matters": "Investment grade (AAA to BBB-) means lower default risk; high yield (BB+ and below) means higher default risk \u2014 the cut between them is the foundation of the HY-IG spread.",
       "example": "Apple is rated AA+ (investment grade); a leveraged-buyout issuer might be rated B+ (high yield).",
-      "when_it_fails": "Ratings change slowly and lag market stress — bond prices often move long before rating agencies adjust."
+      "when_it_fails": "Ratings change slowly and lag market stress \u2014 bond prices often move long before rating agencies adjust."
     },
     "Drawdown": {
       "plain_english": "The peak-to-trough decline in the value of a portfolio or index.",
-      "why_it_matters": "Risk-averse investors care about drawdowns at least as much as averages — a -50% drawdown requires a +100% gain to recover.",
+      "why_it_matters": "Risk-averse investors care about drawdowns at least as much as averages \u2014 a -50% drawdown requires a +100% gain to recover.",
       "example": "SPY's buy-and-hold drawdown over 2007-2009 was roughly -34%. The credit-signal strategy's OOS max drawdown is -10.2%, roughly one-third of buy-and-hold pain.",
       "when_it_fails": "Drawdown numbers depend on the sample window; a short OOS that misses the worst episode can understate tail risk."
     },
     "Excess bond premium (EBP)": {
-      "plain_english": "The component of credit spreads that cannot be explained by expected default risk — it captures investor sentiment and risk appetite.",
+      "plain_english": "The component of credit spreads that cannot be explained by expected default risk \u2014 it captures investor sentiment and risk appetite.",
       "why_it_matters": "Proposed by Gilchrist & Zakrajsek (2012) as the 'cleaner' credit signal; isolates risk-aversion from fundamentals.",
       "example": "When EBP rises while default probabilities are flat, investors are pricing in risk appetite changes rather than actual default news.",
-      "when_it_fails": "Estimation is model-dependent — different default-probability models yield different EBP decompositions."
+      "when_it_fails": "Estimation is model-dependent \u2014 different default-probability models yield different EBP decompositions."
     },
     "Forward return": {
       "plain_english": "The return over a future period from today's reference point.",
-      "why_it_matters": "Predictive regressions need a forward horizon — we ask 'does today's spread predict returns over the next N days?' rather than 'does today's spread match today's return.'",
+      "why_it_matters": "Predictive regressions need a forward horizon \u2014 we ask 'does today's spread predict returns over the next N days?' rather than 'does today's spread match today's return.'",
       "example": "A 21-day forward return is the percentage change in price over the next 21 trading days (~1 month).",
-      "when_it_fails": "Overlapping windows (a 63-day forward return today shares 62 days with tomorrow's) require HAC/HC3 standard errors — otherwise confidence is overstated."
+      "when_it_fails": "Overlapping windows (a 63-day forward return today shares 62 days with tomorrow's) require HAC/HC3 standard errors \u2014 otherwise confidence is overstated."
     },
     "Granger causality": {
       "plain_english": "A statistical test that determines whether past values of one series help predict another series.",
-      "why_it_matters": "Gives a directional hint at which series leads — 'X Granger-causes Y' means X has predictive information about Y beyond Y's own past.",
+      "why_it_matters": "Gives a directional hint at which series leads \u2014 'X Granger-causes Y' means X has predictive information about Y beyond Y's own past.",
       "example": "At 3-5 day lags, HY-IG spread Granger-causes SPY returns (F ~3.0, p ~0.01); at lag 1, SPY Granger-causes HY-IG more strongly (F = 331).",
-      "when_it_fails": "Does not prove real causation — only conditional predictability. Bidirectional results (as here) are common and need structural interpretation (Merton model)."
+      "when_it_fails": "Does not prove real causation \u2014 only conditional predictability. Bidirectional results (as here) are common and need structural interpretation (Merton model)."
     },
     "Hidden Markov Model (HMM)": {
-      "plain_english": "A statistical model that assumes the market is in one of several unobservable ('hidden') states — such as 'calm' or 'stressed' — each with different statistical properties.",
+      "plain_english": "A statistical model that assumes the market is in one of several unobservable ('hidden') states \u2014 such as 'calm' or 'stressed' \u2014 each with different statistical properties.",
       "why_it_matters": "Lets the data find the regime boundary rather than imposing an arbitrary threshold; the continuous stress probability it outputs drives the winning strategy's position sizing.",
       "example": "This pair fits a 2-state Gaussian HMM on HY-IG changes + VIX; the Viterbi algorithm recovers the most-likely state sequence, and the resulting stress probability is used as the trade signal.",
-      "when_it_fails": "HMMs are as good as the fit — out-of-sample classification can lag by a week when a new regime onsets (acceptable here because credit signals run at weeks-to-months horizons)."
+      "when_it_fails": "HMMs are as good as the fit \u2014 out-of-sample classification can lag by a week when a new regime onsets (acceptable here because credit signals run at weeks-to-months horizons)."
     },
     "High-yield bonds (junk bonds)": {
       "plain_english": "Bonds from companies with credit ratings below investment grade (BB+ or lower).",
-      "why_it_matters": "They offer higher yields as compensation for higher default risk — the yield on these bonds minus the yield on investment-grade bonds is the HY-IG spread.",
+      "why_it_matters": "They offer higher yields as compensation for higher default risk \u2014 the yield on these bonds minus the yield on investment-grade bonds is the HY-IG spread.",
       "example": "A BB-rated bond might yield 6% when a AA-rated bond yields 4%; the gap widens when investors grow fearful.",
-      "when_it_fails": "The high-yield universe itself is heterogeneous — BB-rated issues behave very differently from CCC-rated issues (see 'Quality spread')."
+      "when_it_fails": "The high-yield universe itself is heterogeneous \u2014 BB-rated issues behave very differently from CCC-rated issues (see 'Quality spread')."
     },
     "HY-IG spread": {
       "plain_english": "The difference between the option-adjusted spread on high-yield bonds and the option-adjusted spread on investment-grade bonds.",
-      "why_it_matters": "Our primary signal variable. When it widens, investors are demanding more compensation to hold risky corporate debt — a classic rising-stress indicator.",
+      "why_it_matters": "Our primary signal variable. When it widens, investors are demanding more compensation to hold risky corporate debt \u2014 a classic rising-stress indicator.",
       "example": "BAMLH0A0HYM2 minus BAMLC0A0CM from FRED, measured in basis points. In calm periods it sits around 300 bps; in the GFC it peaked above 2,000 bps.",
-      "when_it_fails": "During pure rate-shock drawdowns (2022), HY-IG widened only modestly (300 → 500 bps) while SPY fell -25% — the failure case that motivates the RES-20 triad."
+      "when_it_fails": "During pure rate-shock drawdowns (2022), HY-IG widened only modestly (300 \u2192 500 bps) while SPY fell -25% \u2014 the failure case that motivates the RES-20 triad."
     },
     "Impulse response": {
       "plain_english": "A measure of how one variable responds over time to a one-time shock in another variable.",
-      "why_it_matters": "Shows whether effects are immediate, delayed, persistent, or transient — the shape tells a richer story than a single coefficient.",
+      "why_it_matters": "Shows whether effects are immediate, delayed, persistent, or transient \u2014 the shape tells a richer story than a single coefficient.",
       "example": "A 1-unit shock to HY-IG today drags cumulative SPY return -0.85% at the 63-day horizon, with an accelerating (drip-feed) shape visible on the local-projections chart.",
       "when_it_fails": "Model-dependent: VAR-based IRFs require correct system specification; local projections trade efficiency for robustness and are preferred here."
     },
     "In-sample / Out-of-sample": {
       "plain_english": "In-sample data is used to build and fit models. Out-of-sample data is held back and used only to test whether the model works on data it has never seen.",
-      "why_it_matters": "The gold standard for model validation — without OOS testing, apparent 'edge' may be curve-fitting.",
+      "why_it_matters": "The gold standard for model validation \u2014 without OOS testing, apparent 'edge' may be curve-fitting.",
       "example": "This pair's in-sample window is 2000-01 through 2017-12 (18 years); the OOS window is 2018-01 through 2025-12 (8 years). The 1.27 Sharpe is the OOS value.",
-      "when_it_fails": "Short OOS windows (<5 years) inflate Sharpe estimates — the 8-year OOS here is considered generous."
+      "when_it_fails": "Short OOS windows (<5 years) inflate Sharpe estimates \u2014 the 8-year OOS here is considered generous."
     },
     "Investment-grade bonds": {
       "plain_english": "Bonds from companies with credit ratings of BBB- or above.",
-      "why_it_matters": "Considered safer, with lower yields — the benchmark against which high-yield bonds are compared to compute the HY-IG spread.",
+      "why_it_matters": "Considered safer, with lower yields \u2014 the benchmark against which high-yield bonds are compared to compute the HY-IG spread.",
       "example": "Johnson & Johnson (AAA) and Apple (AA+) issue investment-grade debt; their OAS is tracked by BAMLC0A0CM.",
-      "when_it_fails": "Even IG bonds widen in crisis (BBB-rated issues widened ~200bps during the GFC) — the 'safe' label is relative."
+      "when_it_fails": "Even IG bonds widen in crisis (BBB-rated issues widened ~200bps during the GFC) \u2014 the 'safe' label is relative."
     },
     "Local projection": {
       "plain_english": "A method for estimating impulse responses by running separate regressions at each forecast horizon, rather than specifying the entire system at once.",
-      "why_it_matters": "More robust to misspecification than VAR-based IRFs — critical when the underlying relationship is regime-dependent (as credit-equity is).",
+      "why_it_matters": "More robust to misspecification than VAR-based IRFs \u2014 critical when the underlying relationship is regime-dependent (as credit-equity is).",
       "example": "Developed by Jorda (2005); applied here at horizons h = 5, 21, 63 days with HC3 robust standard errors for overlapping windows.",
       "when_it_fails": "Less efficient than a correctly-specified VAR (standard errors are wider). The trade-off is accepted here because the system is known to be regime-dependent."
     },
     "Markov-switching model": {
       "plain_english": "A regression where the coefficients change depending on which regime is active.",
-      "why_it_matters": "Captures the regime-conditional nature of credit-equity dynamics — 'different rules in different weather.'",
+      "why_it_matters": "Captures the regime-conditional nature of credit-equity dynamics \u2014 'different rules in different weather.'",
       "example": "In the calm regime, HY-IG explains a modest share of equity variance; in stress, the same coefficient becomes 2-3x larger. Developed by Hamilton (1989).",
       "when_it_fails": "With only 2 regimes, boundary behaviour can be rough; 3-state variants add flexibility at the cost of parsimony."
     },
     "Merton model": {
       "plain_english": "A structural model of credit risk that treats a company's equity as a call option on its assets.",
-      "why_it_matters": "Explains WHY credit and equity co-move — both are claims on the same underlying firm value. Motivates the Granger-bidirectional finding.",
-      "example": "When asset value falls toward the debt level, equity (the residual claim) declines faster than proportion, and credit spreads widen — both move for the same reason. Developed by Merton (1974).",
-      "when_it_fails": "Assumes continuous trading, a single debt maturity, and lognormal asset dynamics — all violated in practice. Still the canonical framework for understanding the credit-equity link."
+      "why_it_matters": "Explains WHY credit and equity co-move \u2014 both are claims on the same underlying firm value. Motivates the Granger-bidirectional finding.",
+      "example": "When asset value falls toward the debt level, equity (the residual claim) declines faster than proportion, and credit spreads widen \u2014 both move for the same reason. Developed by Merton (1974).",
+      "when_it_fails": "Assumes continuous trading, a single debt maturity, and lognormal asset dynamics \u2014 all violated in practice. Still the canonical framework for understanding the credit-equity link."
     },
     "NFCI": {
       "plain_english": "National Financial Conditions Index, published weekly by the Chicago Federal Reserve.",
@@ -155,79 +155,109 @@
       "plain_english": "A credit spread that accounts for any embedded options (like call provisions) in the bond.",
       "why_it_matters": "Strips out non-credit factors, providing a cleaner measure of pure credit risk than raw yield spreads.",
       "example": "ICE BofA publishes OAS indices for HY (BAMLH0A0HYM2) and IG (BAMLC0A0CM); we subtract to get the HY-IG spread used throughout this pair.",
-      "when_it_fails": "OAS is model-dependent (it relies on a stochastic interest-rate model to strip option values) — different vendors report slightly different OAS for the same bond."
+      "when_it_fails": "OAS is model-dependent (it relies on a stochastic interest-rate model to strip option values) \u2014 different vendors report slightly different OAS for the same bond."
     },
     "Quality spread": {
       "plain_english": "The spread between the lowest-rated high-yield bonds (CCC) and the highest-rated high-yield bonds (BB).",
-      "why_it_matters": "Captures stress within the riskiest corner of the credit market — the 'canary in the coal mine' that often widens before the broader HY-IG spread.",
+      "why_it_matters": "Captures stress within the riskiest corner of the credit market \u2014 the 'canary in the coal mine' that often widens before the broader HY-IG spread.",
       "example": "During the GFC, the CCC-BB spread widened months before the overall HY-IG spread reached crisis levels; during COVID, CCC yields spiked above 20% while BB stayed contained.",
-      "when_it_fails": "CCC universe is small and illiquid — bid-ask noise can produce spurious CCC-BB moves that do not signal genuine stress."
+      "when_it_fails": "CCC universe is small and illiquid \u2014 bid-ask noise can produce spurious CCC-BB moves that do not signal genuine stress."
     },
     "Quantile regression": {
       "plain_english": "A statistical method that estimates the effect of a variable on different parts of the outcome distribution (not just the average).",
-      "why_it_matters": "Particularly useful for understanding tail risks — the worst possible outcomes — which is where credit signals earn their keep.",
-      "example": "For this pair, the 5th-percentile coefficient is -0.0117 (strongly negative) while the median coefficient is ~0 — HY-IG is a tail-risk signal, not a mean-return signal. Developed by Koenker & Bassett (1978).",
+      "why_it_matters": "Particularly useful for understanding tail risks \u2014 the worst possible outcomes \u2014 which is where credit signals earn their keep.",
+      "example": "For this pair, the 5th-percentile coefficient is -0.0117 (strongly negative) while the median coefficient is ~0 \u2014 HY-IG is a tail-risk signal, not a mean-return signal. Developed by Koenker & Bassett (1978).",
       "when_it_fails": "Quantile coefficients are noisier than mean coefficients; we report bootstrapped confidence intervals (1,000 resamples) to guard against overconfidence."
     },
     "Regime": {
       "plain_english": "A distinct state of the market characterized by its own statistical properties (mean returns, volatility, correlations).",
-      "why_it_matters": "Markets switch between regimes over time — think of calm weather versus storms. Rules that work in one regime may fail in another.",
+      "why_it_matters": "Markets switch between regimes over time \u2014 think of calm weather versus storms. Rules that work in one regime may fail in another.",
       "example": "In this pair's 2-state HMM, 'calm' and 'stressed' regimes have different credit-equity correlation structures; the strategy acts only when the stress probability exceeds 50%.",
-      "when_it_fails": "Regime boundaries are model-dependent — a 2-state HMM may miss a third regime (e.g., 'crisis' vs 'normal-stress'). 3-state variants were tested and rejected on BIC parsimony grounds."
+      "when_it_fails": "Regime boundaries are model-dependent \u2014 a 2-state HMM may miss a third regime (e.g., 'crisis' vs 'normal-stress'). 3-state variants were tested and rejected on BIC parsimony grounds."
     },
     "Sharpe ratio": {
       "plain_english": "A measure of risk-adjusted return: (return minus risk-free rate) divided by volatility.",
-      "why_it_matters": "Higher is better — Sharpe 1.0 is generally considered good for a long-only equity strategy; above 1.2 is strong.",
+      "why_it_matters": "Higher is better \u2014 Sharpe 1.0 is generally considered good for a long-only equity strategy; above 1.2 is strong.",
       "example": "This pair's OOS Sharpe is 1.27, versus 0.77 for buy-and-hold SPY over the same 8-year window (2018-2025). Ratio read from winner_summary.json.oos_sharpe.",
-      "when_it_fails": "Sharpe assumes normal returns — skewed or fat-tailed distributions (as credit data has) make Sharpe overstate the true risk-adjusted edge. Sortino or max-drawdown ratios complement it."
+      "when_it_fails": "Sharpe assumes normal returns \u2014 skewed or fat-tailed distributions (as credit data has) make Sharpe overstate the true risk-adjusted edge. Sortino or max-drawdown ratios complement it."
     },
     "Transfer entropy": {
       "plain_english": "An information-theoretic measure of directed information flow between time series.",
-      "why_it_matters": "Unlike Granger causality, it captures nonlinear relationships — cases where the connection between variables strengthens or weakens depending on conditions.",
-      "example": "For this pair, TE from credit to equity is 0.042 nats (p=0.004); TE from equity to credit is 0.0055 nats — a ~7.6x asymmetry that linear Granger tests miss.",
+      "why_it_matters": "Unlike Granger causality, it captures nonlinear relationships \u2014 cases where the connection between variables strengthens or weakens depending on conditions.",
+      "example": "For this pair, TE from credit to equity is 0.042 nats (p=0.004); TE from equity to credit is 0.0055 nats \u2014 a ~7.6x asymmetry that linear Granger tests miss.",
       "when_it_fails": "TE is sensitive to bin count and lag choice; results here use 6 equal-frequency bins and lag 1 day, with 500 permutation significance tests."
     },
     "VIX": {
       "plain_english": "The CBOE Volatility Index, often called the 'fear gauge.'",
       "why_it_matters": "Measures the market's expectation of 30-day volatility in the S&P 500, derived from option prices. Higher VIX = more expected turbulence.",
       "example": "VIX jumped from ~15 to above 80 during the 2020 COVID shock; the HMM used VIX + HY-IG as its joint observation vector.",
-      "when_it_fails": "VIX is a forward-looking estimate — it can under-respond to slow-building stress (e.g., spread widening in 2007 pre-GFC, when VIX was still suppressed)."
+      "when_it_fails": "VIX is a forward-looking estimate \u2014 it can under-respond to slow-building stress (e.g., spread widening in 2007 pre-GFC, when VIX was still suppressed)."
     },
     "VIX term structure": {
       "plain_english": "The difference between longer-dated (VIX3M, 3-month) and shorter-dated (VIX, 1-month) implied volatility.",
       "why_it_matters": "When VIX3M > VIX (contango), markets are calm. When VIX > VIX3M (backwardation), near-term fear exceeds medium-term expectations.",
-      "example": "The VIX-VIX3M spread is a separate pair in the portal (Pair #11) — here it is referenced as a complementary regime discriminator.",
+      "example": "The VIX-VIX3M spread is a separate pair in the portal (Pair #11) \u2014 here it is referenced as a complementary regime discriminator.",
       "when_it_fails": "The signal is noisy at calm-to-stress transitions; best used in combination with slower indicators like credit spreads."
     },
     "Walk-forward validation": {
       "plain_english": "A backtesting method that simulates real-time trading by training on past data, testing on the next window, then rolling the window forward.",
-      "why_it_matters": "Prevents lookahead bias — the most common source of false strategy performance.",
+      "why_it_matters": "Prevents lookahead bias \u2014 the most common source of false strategy performance.",
       "example": "This pair's tournament uses walk-forward with 1-year test windows; Random Forest + SHAP uses the same protocol to rank signal-transformation importance.",
-      "when_it_fails": "Walk-forward assumes stationarity within each training window — regime shifts within a window can degrade performance."
+      "when_it_fails": "Walk-forward assumes stationarity within each training window \u2014 regime shifts within a window can degrade performance."
     },
     "Z-score": {
       "plain_english": "A measure of how many standard deviations a value is from its recent average.",
-      "why_it_matters": "Converts raw levels into 'how unusual is this' — a 2-sigma HY-IG spread in 2010 and a 2-sigma spread in 2020 are both rare, even though the raw bps differ.",
+      "why_it_matters": "Converts raw levels into 'how unusual is this' \u2014 a 2-sigma HY-IG spread in 2010 and a 2-sigma spread in 2020 are both rare, even though the raw bps differ.",
       "example": "This pair uses 252-day and 504-day rolling z-scores of the HY-IG spread as candidate signals; z-scored series outperform raw levels in the correlation table.",
       "when_it_fails": "Short lookback windows (<252 days) are too sensitive to recent regime; long lookbacks (>1260 days) lose adaptivity. We use 252 and 504 as complementary middle grounds."
     },
     "Tournament": {
       "plain_english": "A systematic horse-race of signal-threshold-strategy combinations, ranked by out-of-sample Sharpe.",
-      "why_it_matters": "Removes cherry-picking — every combination faces the same OOS test, so winners are not just the ones the analyst liked on first sight.",
+      "why_it_matters": "Removes cherry-picking \u2014 every combination faces the same OOS test, so winners are not just the ones the analyst liked on first sight.",
       "example": "This pair tested ~1,000+ combinations; the top 5 were stress-tested with walk-forward, bootstrap significance, and transaction-cost sensitivity. See results/hy_ig_v2_spy/tournament_results_20260410.csv.",
-      "when_it_fails": "Multiple-comparison bias — with 1,000 combinations tested, the best OOS Sharpe is upward-biased. Walk-forward validation and Deflated Sharpe Ratio mitigate but do not eliminate this."
+      "when_it_fails": "Multiple-comparison bias \u2014 with 1,000 combinations tested, the best OOS Sharpe is upward-biased. Walk-forward validation and Deflated Sharpe Ratio mitigate but do not eliminate this."
     },
     "Stress regime": {
-      "plain_english": "A market state identified by the HMM as statistically distinct from calm — characterized by higher volatility, wider credit spreads, and different cross-asset correlations.",
+      "plain_english": "A market state identified by the HMM as statistically distinct from calm \u2014 characterized by higher volatility, wider credit spreads, and different cross-asset correlations.",
       "why_it_matters": "The strategy acts only when the HMM puts high probability on this regime; calm-regime days are held at full equity exposure with no trading.",
       "example": "The stress regime dominated late-2001 through 2002 (Dot-Com), mid-2007 through mid-2009 (GFC), early 2020 (COVID), and parts of 2022.",
       "when_it_fails": "The HMM can briefly misclassify transition days (see 2020-01-27 COVID false-alarm, resolved within 2 days by the P2 Signal Strength smoothing)."
     },
     "Signal probability": {
       "plain_english": "The continuous 0-to-1 output of the HMM telling us how confident the model is that the stress regime is active today.",
-      "why_it_matters": "Used directly to size positions — at 50% probability the strategy holds 50% equity, at 100% probability it holds 0% (all cash). This avoids the whipsaw of hard on/off rules.",
+      "why_it_matters": "Used directly to size positions \u2014 at 50% probability the strategy holds 50% equity, at 100% probability it holds 0% (all cash). This avoids the whipsaw of hard on/off rules.",
       "example": "On 2020-02-21, the HMM stress probability was 0.086 (calm); on 2020-02-24 it jumped to 1.000 (full stress), driving the position from 91.4% to 0% over two trading days.",
-      "when_it_fails": "Daily noise around the 50% threshold can cause small position adjustments that add transaction cost without economic value — mitigated but not eliminated by the scaling rule."
+      "when_it_fails": "Daily noise around the 50% threshold can cause small position adjustments that add transaction cost without economic value \u2014 mitigated but not eliminated by the scaling rule."
+    },
+    "Cointegration": {
+      "plain_english": "Two series are cointegrated if they tend to move together over the long run even if they diverge short-term \u2014 like a dog and its owner on a long leash. It means there is a stable, long-run relationship between them.",
+      "why_it_matters": "Cointegration is a stronger claim than correlation: it says the relationship is structural and mean-reverting, not coincidental. If the indicator and target are cointegrated, deviations from the long-run trend are predictable.",
+      "example": "If HY-IG spreads and SPY volatility are cointegrated, a spike in spreads that is not matched by a rise in volatility signals a future correction \u2014 the two series will reconverge.",
+      "when_it_fails": "Structural breaks (regime changes, policy shifts) can destroy cointegration. A relationship that held for 20 years can break permanently after a major market event."
+    },
+    "Local projections": {
+      "plain_english": "A statistical method that estimates how one variable responds to a shock in another variable over multiple future time horizons \u2014 like asking 'if credit spreads widen today, how much does SPY fall in 1 month, 3 months, 6 months?'",
+      "why_it_matters": "Unlike a single regression, local projections give you the full path of the response over time, making it easy to see whether the indicator's predictive power is immediate or builds gradually.",
+      "example": "A local projection chart showing the SPY response to a 100bp HY-IG spread widening would plot a line descending over 6 months, then recovering \u2014 showing the peak impact comes 2\u20133 months after the widening.",
+      "when_it_fails": "Local projections require many observations to estimate reliably at long horizons. With monthly data and a 20-year sample, estimates at 12+ month horizons have wide confidence intervals."
+    },
+    "DSR (Deflated Sharpe Ratio)": {
+      "plain_english": "A version of the Sharpe ratio adjusted for the fact that when you test many strategies and pick the best one, the winner looks better than it really is. The DSR penalises the Sharpe ratio based on how many strategies were tested.",
+      "why_it_matters": "If you test 1,000 strategies and pick the one with the highest Sharpe ratio, some of that outperformance is pure luck. The DSR corrects for this so you can judge whether the winner is genuinely skilled or just the luckiest of a large cohort.",
+      "example": "A strategy with raw Sharpe 1.2 tested among 150 effective trials might have DSR p-value of 0.07 \u2014 meaning 7% of the time a strategy this good would appear by chance alone, even with no real edge.",
+      "when_it_fails": "The DSR assumes the strategies tested are somewhat independent. If the 150 trials are highly correlated variants of the same idea, the penalty is too harsh; if they are genuinely diverse, the penalty may be too lenient."
+    },
+    "Deflated Sharpe Ratio": {
+      "plain_english": "See DSR (Deflated Sharpe Ratio) \u2014 the same concept under its full name.",
+      "why_it_matters": "Identical to DSR entry.",
+      "example": "Identical to DSR entry.",
+      "when_it_fails": "Identical to DSR entry."
+    },
+    "Bootstrap confidence interval": {
+      "plain_english": "A range of plausible values for a statistic (like the Sharpe ratio) computed by re-sampling the historical data thousands of times with replacement. It answers: 'given the noise in this dataset, how certain are we about this number?'",
+      "why_it_matters": "A Sharpe ratio of 0.8 computed from 50 observations is far less reliable than one from 500 observations. The bootstrap CI makes that uncertainty explicit \u2014 a wide interval means the true value could be much lower.",
+      "example": "A bootstrap 95% CI of [0.2, 1.4] for a Sharpe ratio means: if we re-ran history with similar noise, 95% of the time the Sharpe would fall in that range. The lower bound of 0.2 is what matters for a conservative investor.",
+      "when_it_fails": "Bootstrap CIs assume the historical data is representative of the future. In markets with structural breaks, the past distribution may not resemble future returns."
     }
   }
 }

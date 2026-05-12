@@ -1169,6 +1169,8 @@ Artifact-existence checks (the prior Defense-2 protocol, META-ZI loader-contract
 
 ### Rule APP-PT1 — Page Template Abstraction (Thin Page Wrappers + Centralised Templates)
 
+**Section content specification:** `docs/dashboard-page-standard.md` is the authoritative human-readable spec for which sections are mandatory vs optional on each page, the 4-episode crisis-zoom requirement (DPS-EP1), and the info-icon convention (DPS-II1). APP-PT1 governs HOW the template enforces that spec. If the two documents disagree, `dashboard-page-standard.md` wins — file a bug against `page_templates.py`.
+
 **Added 2026-04-20 (Wave 10D+ post-Evidence-layout drift).** Closes the class of bugs whose canonical example is the Wave-10D indpro_xlp Evidence-tab layout mismatch: each pair's four page files were written from scratch or copy-pasted from the reference pair, causing structural drift (breadcrumb missing, Evidence tabs flat instead of Level-1 / Level-2, Signal Universe empty, direction-check skipped). Any structural fix had to be manually retro-applied to N page files — an error-prone, N-touch protocol that does not scale past 10 pairs.
 
 - **Binding:** every new pair's four page files (`app/pages/{n}_{pair_id}_story.py`, `_evidence.py`, `_strategy.py`, `_methodology.py`) MUST be thin wrappers that call the corresponding template function from `app/components/page_templates.py`. Pair-specific content lives in `app/pair_configs/{pair_id}_config.py`. Page structure (section order, tab layout, component invocation, fallback behavior) is the template's responsibility; the page file's only job is to route the template at the correct pair_id.
@@ -1511,6 +1513,30 @@ st.subheader("Evidence")        # page-type label, if applicable (omit on Story)
 **Gate:** Ace self-checks APP-TT1 compliance before handoff. Quincy verifies at QA time: the first `st.*` call after `st.set_page_config()` in every page file must be `st.title(...)`.
 
 **Cross-references:** APP-PT1 (page template abstraction), LEAD-QF1 (Lead catches silent omission across pages).
+
+---
+
+### Rule APP-NAV1 — Cross-Page Navigation Must Use `st.page_link` (binding, all pages)
+
+**Added 2026-05-11 (Wave v3-EXP-RERUN post-mortem).** Resolves a class of silent 404s where breadcrumb and bottom-nav links were rendered with bare markdown syntax and did not route.
+
+**The rule:** All cross-page navigation links — breadcrumbs, bottom "Continue to…" links, and any inline link to another portal page — MUST use `st.page_link("pages/filename.py", label="Label")`. Bare markdown link syntax (`st.markdown("[Label](page_name)")`) does **NOT** route in Streamlit multi-page apps; it silently 404s.
+
+**Correct pattern:**
+```python
+st.page_link("pages/90_hy_ig_spy_v3_rerun_evidence.py", label="Evidence", icon="🔬")
+```
+
+**Anti-pattern (causes silent 404):**
+```python
+st.markdown("[Evidence](90_hy_ig_spy_v3_rerun_evidence)")  # WRONG — does not route
+```
+
+**Why this is non-obvious:** `st.markdown` accepts ordinary HTTP links and renders them as anchor tags. Portal page names look like valid link targets. Streamlit resolves them as filesystem paths via `st.page_link`, not as markdown href attributes — so the bare-markdown form silently fails to navigate. Local testing may mask this because the dev server URL structure differs from the cloud path.
+
+**Gate:** Ace self-checks every navigation link before handoff. The acceptance command for this pattern is: `grep -rn "st.markdown.*\[.*\](" app/pages/ | grep -v "http"` — any non-HTTP markdown link in a page file is a violation. `st.page_link` calls require no special grep because they are always correct.
+
+**Cross-references:** APP-TT1 (pair title positioning), APP-PT1 (page templates — use `get_page_prefix()` for path construction), APP-URL1 (slug pinning contract).
 
 ---
 

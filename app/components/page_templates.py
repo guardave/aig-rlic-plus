@@ -498,6 +498,10 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
 
     _apply_page_config(f"{pair_display} Story | AIG-RLIC+", "📖")
 
+    # ------ APP-TT1: pair title first ------
+    page_title_early = getattr(config, "PAGE_TITLE", None) or pair_display
+    st.title(page_title_early)
+
     # ------ 3. Sidebar + glossary ------
     render_sidebar()
     render_glossary_sidebar()
@@ -522,10 +526,9 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     if winner is None:
         return  # APP-SEV1 L1 short-circuit
 
-    # ------ 5. Page title + headline H2 ------
+    # ------ 5. Headline H2 (title already rendered at top per APP-TT1) ------
     page_title = getattr(config, "PAGE_TITLE", None)
     if page_title:
-        st.title(page_title)
         page_subtitle = getattr(config, "PAGE_SUBTITLE", "")
         if page_subtitle:
             st.markdown(f"*{page_subtitle}*")
@@ -908,6 +911,10 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     _, target, pair_display = _indicator_target_display(pair_id, interp)
 
     _apply_page_config(f"{pair_display} Evidence | AIG-RLIC+", "🔬")
+
+    # ------ APP-TT1: pair title first ------
+    st.title(method_blocks.get("title", f"{pair_display} — The Evidence"))
+
     render_sidebar()
     render_glossary_sidebar()
     render_breadcrumb("Evidence", pair_id)
@@ -922,7 +929,7 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     with st.expander("Plain English"):
         st.markdown(plain_english)
 
-    st.title(method_blocks.get("title", "The Evidence: What the Data Shows"))
+    # Title already rendered at top per APP-TT1; show overview only.
     overview = method_blocks.get(
         "overview",
         "*We subjected the data to multiple complementary statistical methods. "
@@ -1093,6 +1100,16 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     _, target, pair_display = _indicator_target_display(pair_id, interp)
 
     _apply_page_config(f"{pair_display} Strategy | AIG-RLIC+", "🎯")
+
+    # ------ APP-TT1: pair title first ------
+    st.title(
+        getattr(
+            config,
+            "PAGE_TITLE",
+            f"The Strategy: Translating {pair_display} into Trading Rules",
+        )
+    )
+
     render_sidebar()
     render_glossary_sidebar()
     render_breadcrumb("Strategy", pair_id)
@@ -1118,14 +1135,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     if winner is None:
         return
 
-    # ------ 6. Page title ------
-    st.title(
-        getattr(
-            config,
-            "PAGE_TITLE",
-            f"The Strategy: Translating {pair_display} into Trading Rules",
-        )
-    )
+    # ------ 6. Subtitle (title already rendered at top per APP-TT1) ------
     st.markdown(
         f"*{getattr(config, 'PAGE_SUBTITLE', 'We tested many combinations to find the most robust timing rule.')}*"
     )
@@ -1612,6 +1622,10 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
     _, _, pair_display = _indicator_target_display(pair_id, interp)
 
     _apply_page_config(f"{pair_display} Methodology | AIG-RLIC+", "📐")
+
+    # ------ APP-TT1: pair title first ------
+    st.title(f"{pair_display} — Methodology")
+
     render_sidebar()
     render_glossary_sidebar()
     render_breadcrumb("Methodology", pair_id)
@@ -1627,7 +1641,7 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
             )
         )
 
-    st.title("Methodology: Technical Appendix")
+    # Title already rendered at top per APP-TT1.
     st.markdown(
         "*For the skeptical reader: this section provides the full "
         "methodological detail needed to replicate, challenge, or extend our "

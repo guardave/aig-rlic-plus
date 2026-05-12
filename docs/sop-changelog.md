@@ -8,6 +8,57 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-12 — DPS-PRE1: Final Exam Hard Gate + failed_final_exam status (new rule + schema v1.2.0)
+
+**Trigger.** The final exam was not codified as a hard gate — pairs could sit at `found_in_search` indefinitely without being blocked from production. A failed exam should still be visible to stakeholders as informational disclosure rather than hidden.
+
+**Changes:**
+
+- **DPS-PRE1** (`dashboard-page-standard.md`) — Hard gate: `found_in_search` and `needs_final_exam` block production registration. `passed_final_exam` and `failed_final_exam` are both production-eligible. The gate is whether the exam was run, not the outcome.
+- **`evidence_status.schema.json` v1.2.0** — Added `failed_final_exam` to the status enum. Added `failure_reasons` array field (required for `failed_final_exam`). New allOf constraint requires `confirmation_test`, `technical_note`, `plain_english`, `failure_reasons`, `owner`, and `final_exam` block when status is `failed_final_exam`.
+- **`validate_pair_completeness.py`** — New "Prerequisites — Final Exam" check group runs first. FAIL if status is `found_in_search`/`needs_final_exam`. WARN (not FAIL) if `failed_final_exam`, with note that disclosure banner is required.
+- **`app/components/evidence_status.py`** — Added `failed_final_exam` to `_STATUS_COPY`. `render_evidence_status_note()` now emits an APP-SEV1 L2 `st.warning` disclosure banner for `failed_final_exam` pairs, surfacing `failure_reasons` verbatim and a "Technical detail" expander for `technical_note`.
+
+---
+
+## 2026-05-12 — GATE-DPS1: Pair Completeness Validation Script (new gate)
+
+**Trigger.** Dashboard Page Standard v1.0.0 defines mandatory sections but had no automated way to verify compliance before render time. Gaps were only discoverable by a stakeholder opening the page.
+
+**Gate added:** `scripts/validate_pair_completeness.py`
+
+- Validates artifacts, config attributes, method block counts, episode slugs, and glossary coverage for any registered pair
+- Exit code 0 = PASS, 1 = any FAIL — usable in CI and by Quincy as part of GATE-31
+- Ace must run and show clean PASS before META-SRV handoff; Quincy runs independently at GATE-31
+- First run against `hy_ig_spy` found 4 real FAILs: `evidence_status` not `passed_final_exam`, `inflation_2022` episode missing from config and chart artifacts
+
+---
+
+## 2026-05-12 — dashboard-page-standard.md: Dashboard Page Standard v1.0.0 (new document)
+
+**Trigger.** V3 experiment forks were accepted at ~17% of production quality because no document explicitly defined which sections are mandatory vs optional. Ace produced what the template would accept without error, not what production quality requires.
+
+**Document created:** `docs/dashboard-page-standard.md` (v1.0.0)
+
+- All page sections declared **mandatory** with the following exceptions: scope note (Story), rolling Sharpe CP / rolling Granger (Evidence cross-period), exploratory insights (Methodology), Dana evaluation radar artifacts
+- **DPS-EP1:** Crisis-episode zoom charts — minimum 4 canonical episodes (Dotcom 2000–2002, GFC 2008–2009, COVID 2020, Inflation 2022); all mandatory; pair configs may add more
+- **DPS-II1:** Info icon convention — `st.popover("ⓘ")` beside every defined technical term in headings, labels, and KPI cards; implemented via `info_icon(term_key)` in `app/components/glossary_inline.py`; terms sourced from `docs/portal_glossary.json`
+- **SOP cross-reference:** APP-PT1 in `appdev-agent-sop.md` now points to this document as the authoritative section spec
+
+---
+
+## 2026-05-12 — APP-NAV1: Cross-Page Navigation Must Use `st.page_link` (new rule)
+
+**Trigger.** Wave v3-EXP-RERUN post-mortem: Ace used `st.markdown("[Label](page_name)")` for breadcrumb and bottom-nav links. These silently 404'd in production — bare markdown hrefs do not route in Streamlit multi-page apps.
+
+**Rule added:**
+
+- **APP-NAV1** (`appdev-agent-sop.md`) — All cross-page navigation MUST use `st.page_link("pages/filename.py", label="Label")`. Bare markdown link syntax for portal pages is prohibited. Gate command: `grep -rn "st.markdown.*\[.*\](" app/pages/ | grep -v "http"` — any non-HTTP markdown link is a violation.
+
+**Template fix:** APP-TT1 compliance now implemented in `page_templates.py` (all four render functions), making it automatically enforced for all pairs that use the template — eliminating the need for per-pair compliance audits.
+
+---
+
 ## 2026-05-11 — APP-TT1: Pair Title at Page Top (new rule)
 
 **Trigger.** User observed that navigating to a non-story page provided no immediate visual anchor for which pair was being viewed — banners and breadcrumbs appeared before the pair name.

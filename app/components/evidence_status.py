@@ -50,6 +50,18 @@ _STATUS_COPY: dict[str, dict[str, str]] = {
         "background": "#d1e7dd",
         "color": "#0f5132",
     },
+    "failed_final_exam": {
+        "label": "Failed final exam",
+        "short": "Holdout test was run but did not pass — see disclosure below.",
+        "plain": (
+            "This rule was subjected to a final holdout test after selection, "
+            "but did not pass all required conditions. The exam results are "
+            "documented below. This information is provided for transparency — "
+            "you can judge the findings in context."
+        ),
+        "background": "#f8d7da",
+        "color": "#842029",
+    },
 }
 
 
@@ -108,11 +120,40 @@ def evidence_status_badge_html(pair_id: str) -> str:
 
 
 def render_evidence_status_note(pair_id: str) -> None:
-    """Render the evidence-status note near strategy/tournament claims."""
+    """Render the evidence-status note near strategy/tournament claims.
+
+    For `failed_final_exam` pairs, renders an APP-SEV1 L2 disclosure banner
+    surfacing the failure reasons from evidence_status.json verbatim (DPS-PRE1).
+    """
     status, errors = load_evidence_status(pair_id)
     if errors:
         st.warning(
             f"Evidence status for `{pair_id}` could not be validated; "
             "showing the conservative default of search-grade evidence."
         )
+
+    status_key = status.get("status", "found_in_search")
     st.info(f"**Evidence status: {status['label']}**  \n{status['plain_english']}")
+
+    # DPS-PRE1 — disclosure banner for failed_final_exam
+    if status_key == "failed_final_exam":
+        failure_reasons = status.get("failure_reasons") or []
+        technical_note = status.get("technical_note", "")
+
+        reasons_md = "\n".join(f"- {r}" for r in failure_reasons) if failure_reasons else ""
+        banner_body = (
+            "**Final Exam Result: Did Not Pass**\n\n"
+            "This strategy was subjected to a rigorous final holdout test after the winning "
+            "rule was selected. The test did not pass all required conditions. "
+            "This does not necessarily mean the strategy is worthless — some failures "
+            "reflect structural constraints (short holdout window, multiple-testing "
+            "penalty, unusual market conditions) rather than model failure. "
+            "The full findings are documented below so you can judge them in context.\n\n"
+        )
+        if reasons_md:
+            banner_body += f"**Conditions that did not pass:**\n{reasons_md}\n\n"
+        if technical_note:
+            with st.expander("Technical detail"):
+                st.markdown(technical_note)
+
+        st.warning(banner_body)
