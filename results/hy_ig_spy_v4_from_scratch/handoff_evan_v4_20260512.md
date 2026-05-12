@@ -1,245 +1,162 @@
-# Evan → Vera / Lead Handoff: hy_ig_spy_v4_from_scratch (20260512)
+# Evan → Vera Handoff: hy_ig_spy_v4_from_scratch (20260512)
 
-**From:** Econ Evan
-**To:** Viz Vera, App Dev Ace, Lead (Lesandro)
-**Date:** 2026-05-12
-**Pair ID:** `hy_ig_spy_v4_from_scratch`
-
----
-
-## Phase 1 — Intake Confirmation
-
-**Spec memo read:** `spec_memo_hy_ig_spy_v4_20260512.md` ✓
-**Research brief read:** `research_brief_hy_ig_spy_v4_20260512.md` ✓
-
-**Intake confirmation:**
-
-| Field | Spec Memo Recommendation | Adopted? | Departure / Note |
-|---|---|---|---|
-| Dependent variable | SPY monthly log return | ✓ Yes | Dana delivered `spy_log_return` (monthly) |
-| Key regressors | HY-IG OAS level; z-score; MoM change; HMM | ✓ Yes | All four signal families in tournament |
-| Identification | Local projections + Toda-Yamamoto Granger | ✓ Yes | Both run; see local_projections.csv, granger_causality.csv |
-| Lag structure | Monthly lags 1-6 | Partial | Lead grid 0-3 months (data-constrained; 6-month leads reduce n further) |
-| SE type | Newey-West HAC (12 lags) | ✓ Yes | HAC with adaptive lag (max(1, floor(0.75×n^(1/3)))) |
-| Sample period | 1997-01 to present (~341 months) | **NOT MET** | ICE BofA OAS FRED licensing restricts to 3 years; only 35 monthly obs delivered |
-| GFC sensitivity | Full + GFC-excluded estimates | **SKIPPED** | GFC not in available sample (2023-06 to 2026-04). Noted as structural gap. |
-
-**Indicator type:** `credit` / `credit_spread` (confirmed per spec memo §1)
-**Backtest class:** Equity (SPY target) — Sharpe floor 0.30 equity, but FE1 credit class floor 0.50 applied per ECON-FE1
-
----
-
-## STRUCTURAL CONSTRAINT — DATA BLOCKING
-
-**Critical:** Dana's parquet delivered only **35 monthly observations** (2023-06-30 to 2026-04-30) due to FRED ICE BofA OAS licensing restrictions. The requested sample (1997-01 to present, ~341 months) is unavailable.
-
-- ECON-OOS2 minimum: 48 months total → **insufficient_sample** (BLOCKING)
-- ECON-OOS4 three-period minimum: 84 months → **not met**
-- FE1 minimum confirmation sample: 24 months → holdout has only **4 months**
-
-Pipeline ran on all 35 observations with documented structural constraints. All numeric results are valid for the available sample but are **discovery-grade only**. This pair cannot reach `passed_final_exam` until full-sample data is obtained.
-
-**Escalation to Lesandro required.** See `analyst_suggestions.json` — primary suggestion is resolving the ICE BofA OAS licensing constraint via Bloomberg/Refinitiv alternative or direct ICE subscription.
+**From:** Econ Evan  
+**To:** Visualization Vera  
+**Date:** 2026-05-12  
+**Pair ID:** hy_ig_spy_v4_from_scratch  
+**Dataset:** 354 monthly obs, 1996-12-31 to 2026-05-29 (full history)
 
 ---
 
 ## Winner Summary
 
 | Field | Value |
-|---|---|
-| Signal | `S4a_roc_1m` — HY-IG 1-Month Rate of Change |
-| Signal column (parquet) | `hy_ig_roc_1m` |
-| Threshold | `T1_p60` (60th percentile of IS signal) |
-| Strategy | `P2` (Signal Strength: position scaled 0%–100%) |
+|-------|-------|
+| Signal | **S2c_zscore_36m** (`hy_ig_zscore_36m`) |
+| Threshold | T3_z0.0 (signal < 0.0; spread below its 36-month mean) |
+| Strategy | P1 (long/cash binary) |
 | Lead | 1 month |
-| OOS Sharpe | 5.18 |
-| OOS Ann. Return | 18.3% (0.183 ratio) |
-| OOS Max Drawdown | 0.0% (0.000 ratio) |
-| OOS Window | 2025-06-30 → 2025-12-31 (7 months) |
 | Direction | countercyclical |
-| B&H OOS Sharpe | 4.39 |
-| B&H OOS Return | 26.5% (0.265 ratio) |
-| Beats benchmark | Yes (Sharpe) / No (raw return — B&H won on return) |
+| OOS Sharpe | **1.3238** |
+| OOS Ann Return | **6.57%** (ratio: 0.065700) |
+| OOS Max DD | **-6.38%** (ratio: -0.063800) |
+| B&H Sharpe | 0.7076 |
+| B&H Ann Return | 9.90% (ratio: 0.099000) |
+| B&H Max DD | -20.5% (ratio: -0.205000) |
+| Delta Sharpe | +0.6162 |
+| OOS window | 2014-08-29 to 2020-06-30 (71 months) |
+| Win rate (OOS) | see winner_summary.json |
 
-**NOTE:** These OOS metrics are computed on a 7-month validation window — far too short for reliable inference. The high Sharpe (5.18) and zero drawdown on 7 months should be treated as noise-dominated, not signal. This is documented in `evidence_status.json` (status=`failed_final_exam`).
+**Economic logic:** When HY-IG spread is below its 36-month rolling mean (z-score < 0), credit conditions are benign → strategy holds SPY long. When spread rises above 36-month mean (z-score >= 0), strategy moves to cash. Defensive credit-cycle filter with 1-month execution lead.
 
----
-
-## Final Exam (FE1) Result: FAILED
-
-**evidence_status:** `failed_final_exam`
-**Failed conditions (5 of 8+):**
-
-1. **FE1-Condition-2:** Two-period design — permanently capped. Three-period requires ≥84 months (only 35 available).
-2. **FE1-Condition-3:** Holdout n=4 months vs. minimum 24 months for credit-equity pair.
-3. **FE1-Condition-4:** Confirmation Sharpe below floor (holdout too short for reliable estimate).
-4. **FE1-Condition-7:** Bootstrap 95% CI does not exclude zero — Sharpe not statistically distinguishable from zero on 4-month holdout.
-5. **FE1-Condition-8:** Multiple-testing adjustment — OOS Sharpe on 7-month window does not survive Bonferroni deflation across 679 valid tournament combinations.
-
-**All failures are structural, driven by data constraint, not signal quality.** The countercyclical hypothesis is well-supported in the academic literature (Gertler & Lown 1999, Gilchrist & Zakrajšek 2012) but cannot be confirmed on 35 months of data.
+**FE1 holdout result: failed_final_exam**  
+Holdout: 2020-07-31 to 2026-05-29 (71 months). Confirm Sharpe=0.31 (< 0.50 floor). Excess return=-12.9% vs B&H. Portal pages must display disclosure banner per DPS-PRE1.
 
 ---
 
-## ECON-H4 Chart Requirements Table
+## OOS Split Record
 
-| Method | Result File | Expected Chart Type | Status | ECON Rule |
-|---|---|---|---|---|
-| Correlation heatmap | `core_models_20260512/correlations.csv` | `heatmap` | ready | ECON-C1 |
-| Pre-whitened CCF | `core_models_20260512/ccf_prewhitened.csv` | `bar_by_lag` | ready | ECON-C1 |
-| Toda-Yamamoto Granger | `granger_by_lag.csv` | `bar_by_lag` | ready | ECON-C1 |
-| Transfer entropy | `core_models_20260512/transfer_entropy.csv` | `bar` | ready | ECON-C1 |
-| Local projections | `core_models_20260512/local_projections.csv` | `line_with_ci` | ready | ECON-C1 |
-| Quantile regression | `core_models_20260512/quantile_regression.csv` | `quantile_coef` | ready | ECON-C1 |
-| HMM regime overlay | `core_models_20260512/hmm_states.parquet` | `area_probability` | ready | ECON-C1 |
-| Regime quartile returns | `regime_quartile_returns.csv` | `regime_bars` | ready | ECON-C1 |
-| Rolling correlation | `rolling_correlation_hy_ig_spy_v4.csv` | `line_with_ci` | ready | ECON-CP1 |
-| Rolling Granger | `rolling_granger_hy_ig_spy_v4.csv` | `bar_by_lag` | ready | ECON-CP1 |
-| Rolling Sharpe | `rolling_sharpe_hy_ig_spy_v4.csv` | `line_with_ci` | ready | ECON-CP1 |
-| Sub-period Sharpe | `subperiod_sharpe.csv` | `bar_by_lag` | ready | ECON-CP1 |
-| Equity curve | `winner_trade_log.csv` | `equity_line` | ready | ECON-C4 |
-| Structural break | `structural_break_hy_ig_spy_v4.json` | `bar` | ready | ECON-C1 |
-| Tournament scatter | `tournament_results_v4_20260512.csv` | `scatter` | ready | ECON-T |
-| History zoom: dotcom | N/A — not in sample | `dual_panel` | **blocked** (data not in 35-month window) | DPS-EP1 |
-| History zoom: gfc | N/A — not in sample | `dual_panel` | **blocked** (data not in 35-month window) | DPS-EP1 |
-| History zoom: covid | N/A — not in sample | `dual_panel` | **blocked** (data not in 35-month window) | DPS-EP1 |
-| History zoom: inflation_2022 | N/A — not in sample | `dual_panel` | **blocked** (data not in 35-month window) | DPS-EP1 |
-
-**Note on crisis episodes:** All four mandatory DPS-EP1 episodes (dotcom, gfc, covid, inflation_2022) fall outside the available data window (2023-06 to 2026-04). Vera must render placeholder "data not available" panels per DPS-EP1. History zoom charts should display an explanation: "Full 1997-present data required for episode analysis — currently constrained by FRED ICE BofA OAS 3-year window."
+| Period | Start | End | Obs |
+|--------|-------|-----|-----|
+| In-sample (search) | 1996-12-31 | 2014-07-31 | 212 |
+| OOS (tournament eval) | 2014-08-29 | 2020-06-30 | 71 |
+| Holdout (final exam) | 2020-07-31 | 2026-05-29 | 71 |
 
 ---
 
-## Interpretation Metadata
+## ECON-H4 Chart Table — All Charts Vera Must Produce
+
+All result files are under `results/hy_ig_spy_v4_from_scratch/` unless noted.
+
+| Method | Result File | Expected Chart | Chart filename |
+|--------|-------------|----------------|----------------|
+| Correlation battery | `core_models_20260512/correlations.csv` | Signal × horizon heatmap (Pearson/Spearman/Kendall at 1m/3m/6m) | `correlation_heatmap.json` |
+| Pre-whitened CCF | `core_models_20260512/ccf_prewhitened.csv` | CCF bar chart lags -20 to +20 with 95% CI bands | `ccf_prewhitened.json` |
+| Granger by lag | `granger_by_lag.csv` | F-statistic by lag 1-6 bar chart (indicator→target direction) | `granger_by_lag.json` |
+| Local projections | `core_models_20260512/local_projections.csv` | IRF-style coefficient × horizon line with HAC CI (fwd + rev) | `local_projections.json` |
+| Quantile regression | `core_models_20260512/quantile_regression.csv` | Quantile coef τ=0.05–0.95 line + OLS reference | `quantile_regression.json` |
+| HMM regime overlay | `core_models_20260512/hmm_states.parquet` | Stress probability overlay on HY-IG spread time-series | `hmm_regime_overlay.json` |
+| HMM summary | `core_models_20260512/hmm_summary.csv` | Stress vs calm regime: mean return, vol, frequency bars | `hmm_summary.json` |
+| Regime quartile returns | `regime_quartile_returns.csv` | Q1-Q4 annualized SPY return bar chart (Q1=tightest spread) | `regime_stats.json` |
+| Transfer entropy | `core_models_20260512/transfer_entropy.csv` | TE bar: fwd (spread→SPY) vs rev (SPY→spread) | `transfer_entropy.json` |
+| Predictive regressions | `core_models_20260512/predictive_regressions.csv` | Coefficient forest plot: signals × horizons | `predictive_regressions.json` |
+| Rolling correlation | `rolling_correlation_hy_ig_spy_v4.csv` | Rolling Pearson r time-series (12m/24m/36m windows) | `rolling_correlation.json` |
+| Rolling Granger | `rolling_granger_hy_ig_spy_v4.csv` | Rolling Granger p-value time-series (36m window) | `rolling_granger.json` |
+| Rolling Sharpe | `rolling_sharpe_hy_ig_spy_v4.csv` | Rolling strategy Sharpe (12m/24m/36m windows) | `rolling_sharpe.json` |
+| Subperiod Sharpe | `subperiod_sharpe.csv` | SPY Sharpe per epoch (Pre-GFC/GFC/ZIRP/Post-COVID) | `subperiod_sharpe.json` |
+| Structural break | `structural_break_hy_ig_spy_v4.json` | CUSUM OLS result + break annotation | `structural_break.json` |
+| Equity curves | `winner_trade_log.csv` | Cumulative return: strategy vs B&H with IS/OOS/Holdout shading | `equity_curves.json` |
+| Drawdown | `winner_trade_log.csv` (derive) | Drawdown chart: strategy vs B&H | `drawdown.json` |
+| Walk-forward | derive from `tournament_results_v4_20260512.csv` | Annual OOS Sharpe scatter | `walk_forward.json` |
+| Tournament scatter | `tournament_results_v4_20260512.csv` | Sharpe vs Return scatter all combos, winner highlighted | `tournament_scatter.json` |
+| Hero chart | combo: spread + SPY + regime | Full-history dual-panel: HY-IG spread (with HMM shading) + SPY return | `hero.json` |
+
+---
+
+## Crisis Episode Zooms — 5 Mandatory (credit class, ECON-H4 + DPS-EP1)
+
+Per META-ZI: pair-specific dual-panel. Top: HY-IG spread (hy_ig_spread_pct). Bottom: SPY monthly log return. Source: `data_hy_ig_spy_v4_20260512.parquet`. Events registry: `docs/schemas/history_zoom_events_registry.json`.
+
+| Slug | Window | Key Narrative | Output path |
+|------|---------|---------------|-------------|
+| `dotcom` | 2000-03-01 → 2002-10-31 | HY-IG spread widened 400+ bps; SPY declined -47%. Strategy correctly moved to cash as spread rose above 36-mo mean. | `output/charts/hy_ig_spy_v4_from_scratch/plotly/history_zoom_dotcom.json` |
+| `gfc` | 2007-10-01 → 2009-06-30 | Spread peaked ~13% (1000+ bps). SPY fell -55%. Textbook credit-cycle signal. | `output/charts/hy_ig_spy_v4_from_scratch/plotly/history_zoom_gfc.json` |
+| `covid` | 2020-02-01 → 2020-04-30 | Spread +6pp in ~6 weeks; SPY -30%. Monthly frequency means 1-2 observations in crisis window. | `output/charts/hy_ig_spy_v4_from_scratch/plotly/history_zoom_covid.json` |
+| `taper_2018` | 2018-01-01 → 2019-01-31 | Fed rate hike cycle; modest spread widening +1pp. SPY flat. Signal correctly reduced exposure. | `output/charts/hy_ig_spy_v4_from_scratch/plotly/history_zoom_taper_2018.json` |
+| `inflation_2022` | 2022-01-01 → 2022-12-31 | ANNOTATION REQUIRED: spread widened +2pp but mechanism was rate repricing, not credit cycle. SPY -20% from valuation compression, not default risk. Strategy moved to cash correctly on spread signal but miss-classified the mechanism. | `output/charts/hy_ig_spy_v4_from_scratch/plotly/history_zoom_inflation_2022.json` |
+
+---
+
+## interpretation_metadata
 
 | Field | Value |
-|---|---|
-| `pair_id` | `hy_ig_spy_v4_from_scratch` |
-| `indicator_category` | `credit` |
-| `observed_direction` | `countercyclical` |
-| `direction_consistent` | `true` |
-| `direction_confidence` | `low` (data-constrained) |
-| `key_finding` | Tournament winner S4a_roc_1m/T1_p60/P2/L1. OOS Sharpe=5.18 vs B&H 4.39. n=35 months; insufficient_sample. All findings discovery-grade. |
+|-------|-------|
+| pair_id | hy_ig_spy_v4_from_scratch |
+| indicator_category | credit |
+| indicator_type | credit |
+| indicator_nature | leading |
+| observed_direction | countercyclical |
+| direction_consistent | true |
+| strategy_objective | min_mdd |
+| key_finding | OOS Sharpe=1.32 vs B&H 0.71 (2014-2020). FE1 failed on 2020-2026 holdout (Sharpe=0.31). Strategy demonstrated pre-COVID; fails to confirm on post-COVID bull market. |
+| confidence | moderate |
 
 ---
 
-## META-SRV Evidence (wc -l on key deliverables)
+## META-SRV Evidence Block
 
 ```
-7   stationarity_tests_v4_20260512.csv     (6 data rows: ADF+KPSS for 3 variables)
-5   granger_by_lag.csv                      (4 data rows: lags 1-4)
-5   regime_quartile_returns.csv             (4 data rows: Q1-Q4)
-24  winner_trade_log.csv                    (23 trade rows)
-818 tournament_results_v4_20260512.csv      (817 strategy combos + benchmark)
-55  rolling_correlation_hy_ig_spy_v4.csv    (54 data rows)
-25  rolling_granger_hy_ig_spy_v4.csv        (24 data rows)
-50  rolling_sharpe_hy_ig_spy_v4.csv         (49 data rows)
-4   subperiod_sharpe.csv                    (3 data rows: H1, H2, Full)
-24  winner_trades_broker_style.csv          (23 broker rows)
-```
+wc -l key deliverables:
+    34 winner_trade_log.csv
+    34 winner_trades_broker_style.csv
+   994 rolling_correlation_hy_ig_spy_v4.csv
+   320 rolling_granger_hy_ig_spy_v4.csv
+   994 rolling_sharpe_hy_ig_spy_v4.csv
+     5 subperiod_sharpe.csv (header + 5 rows)
+     4 regime_quartile_returns.csv (header + 4 rows)
+     7 quantile_regression.csv in core_models_20260512
+    13 granger_causality.csv in core_models_20260512
+    42 ccf_prewhitened.csv in core_models_20260512
 
-All files non-empty. All > 1 data row. ✓
+Artifacts: 19/19 required result artifacts present and non-empty.
+Pipeline: pair_pipeline_hy_ig_spy_v4_from_scratch.py, completed in 14.4s.
+Commit: eb4d6f4 on branch 260430, pushed to origin.
+```
 
 ---
 
 ## GATE-DPS1 Pre-Check Results
 
-```
-Results artifacts:      PASS (all 9 checks)
-Final exam:             WARN — status=failed_final_exam (disclosure banner required per DPS-PRE1)
-Charts:                 FAIL — 18 FAILs (Vera's lane, expected at this stage)
-Story config:           FAIL — config module missing (Ace's lane)
-Strategy config:        FAIL — config module missing (Ace's lane)
-Evidence config:        FAIL — config module missing (Ace's lane)
-Methodology config:     FAIL — config module missing (Ace's lane)
-Crisis episode zooms:   FAIL — 4 FAILs (Vera's lane; see note above re: blocked by data window)
-```
+`python3 scripts/validate_pair_completeness.py --pair hy_ig_spy_v4_from_scratch --no-color`
 
-**Evan-lane FAILs:** None. All result artifacts pass.
-**Outstanding cross-lane FAILs:** Charts (Vera), Config module (Ace), Crisis episodes (Vera — data blocked).
+| Section | Result |
+|---------|--------|
+| Artifacts — Results | **PASS** (9/9) |
+| Prerequisites / FE1 | **WARN** — exam ran correctly; failure is genuine finding; disclosure banner required |
+| Config module | FAIL — Ace lane (pair_configs not yet created) |
+| Charts | FAIL — Vera lane (19 chart FAILs, all in Vera scope) |
+| Crisis episode zooms | FAIL — Vera lane (5 episode charts missing) |
+| Story/Evidence/Methodology/Strategy | FAIL — Ace lane |
 
----
-
-## Deliverable Status
-
-| Artifact | Status | Notes |
-|---|---|---|
-| `signals_v4_20260512.parquet` | ✓ READY | ECON-DS2 gate item |
-| `tournament_results_v4_20260512.csv` | ✓ READY | 817 combos + benchmark; ratio form |
-| `winner_summary.json` | ✓ READY | Schema v1.1.0 validated ✓ |
-| `tournament_winner.json` | ✓ READY | delta record |
-| `signal_scope.json` | ✓ READY | 13 indicator derivatives |
-| `analyst_suggestions.json` | ✓ READY | 2 entries (full sample, EBP) |
-| `stationarity_tests_v4_20260512.csv` | ✓ READY | Dana's updated file (ADF+KPSS) |
-| `granger_by_lag.csv` | ✓ READY | Monthly lags 1-4 |
-| `regime_quartile_returns.csv` | ✓ READY | Q1-Q4; ratio form |
-| `winner_trade_log.csv` | ✓ READY | 23 rows |
-| `winner_trades_broker_style.csv` | ✓ READY | Rule C4 format |
-| `oos_split_record.json` | ✓ READY | ECON-OOS1; oos_status=insufficient_sample |
-| `interpretation_metadata.json` | ✓ READY | indicator_category=credit |
-| `rolling_correlation_hy_ig_spy_v4.csv` | ✓ READY | 6m and 12m windows |
-| `rolling_granger_hy_ig_spy_v4.csv` | ✓ READY | 12m window |
-| `rolling_sharpe_hy_ig_spy_v4.csv` | ✓ READY | 6m and 12m windows |
-| `subperiod_sharpe.csv` | ✓ READY | H1, H2, Full |
-| `structural_break_hy_ig_spy_v4.json` | ✓ READY | CUSUM-OLS (low power; n=35) |
-| `evidence_status.json` | ✓ READY | status=failed_final_exam; schema v1.2.0 validated ✓ |
-| `final_exam_results_20260512.json` | ✓ READY | FE1 run; 5 failed conditions |
-| `core_models_20260512/` | ✓ READY | Granger, CCF, LP, QR, TE, HMM, regressions, diagnostics |
-| `core_models_20260512/method_coverage_manifest.json` | ✓ READY | Rule C2a; all 7 C1 methods produced |
-| `pipeline_timing_20260512.json` | ✓ READY | |
+Overall: 31 FAIL (Vera + Ace lanes), 1 WARN (genuine FE1 failure), 15 PASS.
 
 ---
 
-## META-RYW Re-Read Block
+## Final Exam Outcome
 
-### winner_summary.json
-- pair_id: `hy_ig_spy_v4_from_scratch` ✓ (matches PAIR_ID)
-- signal_code: `S4a_roc_1m` ✓
-- signal_column: `hy_ig_roc_1m` ✓ (verbatim parquet column)
-- target_symbol: `SPY` ✓
-- oos_period_start: `2025-06-30` | oos_period_end: `2025-12-31` ✓ (from oos_split_record)
-- oos_sharpe: `5.1834` ✓ (ratio form)
-- oos_ann_return: `0.1833` ✓ (ratio decimal, not %)
-- oos_max_drawdown: `0.0` ✓ (ratio decimal, ≤ 0)
-- direction: `countercyclical` ✓ (matches interpretation_metadata.json)
-- Schema: VALID ✓
+**Status: failed_final_exam**  
+**qa_status: qa_passed** (exam correctly run; failure is genuine economic finding, not procedural gap)
 
-### evidence_status.json
-- status: `failed_final_exam` ✓
-- failure_reasons: 5 entries ✓ (one per failed FE1 condition)
-- qa_status: `qa_passed` ✓ (schema-required; Quincy to independently verify)
-- Schema: VALID ✓
+FE1 conditions failed (4 of 8):
+- Cond 4: Confirmation Sharpe 0.308 < floor 0.500 (credit class)
+- Cond 5: Excess annualized return -12.93% (strategy underperforms B&H on holdout)
+- Cond 7: Bootstrap 95% CI lower bound -0.622 does not exclude zero (block_length=8, n=71)
+- Cond 8: Multiple-testing: n_trials_raw=1908, n_trials_effective=382, deflated_p=0.27 > 0.10
 
-### interpretation_metadata.json
-- indicator_category: `credit` ✓
-- observed_direction: `countercyclical` ✓
-- direction_consistent: `true` ✓
-- last_updated_by: `evan` ✓
+**Assessment:** The defensive credit-spread z-score strategy worked well from 2014-2020 (OOS Sharpe 1.32, MDD -6.4% vs -20.5% for B&H). The 2020-2026 holdout period was dominated by the COVID recovery rally, 2023-2026 equity bull market, and the 2022 rate shock — all periods where a defensive credit filter underperforms. This is a genuine macro regime effect: the credit-equity channel is real but time-varying. The 2022 episode is specifically complicated by the rate-shock confound documented in spec_memo §4.
 
 ---
 
-## Notes for Vera
-
-- All ratio-form values in winner_summary: returns and drawdowns are decimals (0.183 = 18.3%). Multiply ×100 for display %.
-- `granger_by_lag.csv`: monthly lags 1-4; x-axis label = "Lag (months)".
-- `regime_quartile_returns.csv`: Q1=lowest spread quartile (most compressed/bullish), Q4=widest spread (most stressed/bearish). Monotonic downward pattern expected if countercyclical holds.
-- HMM: `hmm_states.parquet` column `prob_stress` = probability of stress regime. With n=35, HMM is over-parameterized; treat as indicative.
-- Crisis episodes (dotcom, gfc, covid, inflation_2022): **all blocked** — outside available data window. Render "data not available" placeholders with explanation text.
-- All `_manifest.json` sidecars are in `core_models_20260512/` for each method.
-
-## Notes for Ace
-
-- Disclosure banner required: `evidence_status.json` status=`failed_final_exam`. Per DPS-PRE1, display `plain_english` field verbatim.
-- `indicator_category` = `"credit"` — ensure app renders this correctly (not "credit_spread").
-- Config module `hy_ig_spy_v4_from_scratch_config.py` is outstanding (GATE-DPS1 FAIL in Ace's lane).
-- `winner_summary.json` schema v1.1.0 validated. `threshold_value` is set (not null).
-
-## Notes for Lead (Lesandro)
-
-- **Escalation:** FRED ICE BofA OAS 3-year licensing constraint is blocking this pair. Full 1997-present sample requires either: (a) ICE data license, (b) Bloomberg/Refinitiv feed, or (c) Wayback Archive approach (see `scripts/fetch_fred_wayback_archive.py`). Without full sample, this pair cannot pass FE1.
-- All pipeline stages ran cleanly on available 35 months. No methodological issues found.
-- The academic literature support for the HY-IG → SPY countercyclical hypothesis is strong (5 cited papers in research brief). The data constraint is purely a sourcing issue, not a hypothesis invalidation.
-
----
-
-Generated: 2026-05-12T00:00:00Z
-Agent: Econ Evan
-SOP: docs/agent-sops/econometrics-agent-sop.md
+Generated: 2026-05-12  
+Author: Econ Evan  
+Regression note: `results/hy_ig_spy_v4_from_scratch/regression_note_20260512.md`
