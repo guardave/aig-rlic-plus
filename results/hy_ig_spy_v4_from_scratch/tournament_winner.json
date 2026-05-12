@@ -1,23 +1,31 @@
 {
   "pair_id": "hy_ig_spy_v4_from_scratch",
-  "generated_at": "2026-05-12T10:00:14Z",
-  "winner_label": "S4a_roc_1m / T1_p60 / P2",
-  "winner_signal": "S4a_roc_1m",
-  "winner_threshold": "T1_p60",
-  "winner_strategy": "P2",
+  "generated_at": "2026-05-12T15:32:48Z",
+  "winner": {
+    "signal": "S2c_zscore_36m",
+    "threshold": "T3_z0.0",
+    "strategy": "P1",
+    "oos_sharpe": 1.3238,
+    "oos_ann_return": 0.065655,
+    "max_drawdown": -0.063802,
+    "annual_turnover": 1.12
+  },
+  "benchmark": {
+    "name": "Buy & Hold",
+    "oos_sharpe": 0.7076,
+    "oos_ann_return": 0.099217,
+    "max_drawdown": -0.20518
+  },
+  "deltas": {
+    "delta_sharpe": 0.6162,
+    "delta_return": -0.033562,
+    "delta_max_drawdown": 0.141378
+  },
+  "suggested_strategy_objective": "min_mdd",
+  "winner_signal": "S2c_zscore_36m",
+  "winner_threshold": "T3_z0.0",
+  "winner_strategy": "P1",
   "lead_days": 1,
-  "winner_oos_sharpe": 5.1756,
-  "winner_max_drawdown": 0.0,
-  "winner_oos_ann_return": 0.183444,
-  "bh_oos_sharpe": 4.3939,
-  "bh_max_drawdown": 0.0,
-  "bh_oos_ann_return": 0.264849,
-  "delta_sharpe": 0.7817,
-  "delta_max_drawdown": 0.0,
-  "delta_ann_return": -0.081405,
-  "beats_benchmark": true,
-  "strategy_objective": "max_sharpe",
-  "oos_period_start": "2025-06-30",
-  "oos_period_end": "2025-12-31",
-  "data_constraint_note": "n=35 monthly obs total; oos_status=insufficient_sample per ECON-OOS2. Results are discovery-grade and subject to data availability constraint."
+  "oos_period_start": "2014-08-29",
+  "oos_period_end": "2020-06-30"
 }

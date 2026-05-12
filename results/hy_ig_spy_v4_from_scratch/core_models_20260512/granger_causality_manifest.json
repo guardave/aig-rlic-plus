@@ -1,12 +1,12 @@
 {
   "file": "granger_causality.csv",
-  "generated_at": "2026-05-12T10:00:11Z",
-  "method": "Toda-Yamamoto (approximated via augmented Granger, d_max=1)",
+  "generated_at": "2026-05-12T15:32:34Z",
+  "method": "Toda-Yamamoto (augmented Granger, d_max=1 for near-I(1) spread)",
   "columns": {
-    "direction": "indicator_to_target = HY-IG spread Granger-causes SPY returns",
-    "lag": "Number of lags in the VAR",
-    "f_statistic": "F-statistic for Granger causality",
-    "p_value": "p-value (significance < 0.10 flagged)",
+    "direction": "indicator_to_target = HY-IG Granger-causes SPY; target_to_indicator = reverse",
+    "lag": "VAR lag order",
+    "f_statistic": "F-stat",
+    "p_value": "p-value",
     "significant": "True if p < 0.10"
   },
   "assertions": [
@@ -19,9 +19,8 @@
       "check": "min(lag) >= 1"
     },
     {
-      "description": "F-statistics >= 0",
+      "description": "F-stats >= 0",
       "check": "min(f_statistic) >= 0"
     }
-  ],
-  "sample_size_warning": "n=35. Granger tests have very low power. Results are indicative only."
+  ]
 }

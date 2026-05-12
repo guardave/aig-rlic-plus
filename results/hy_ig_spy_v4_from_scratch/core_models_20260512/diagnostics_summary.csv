@@ -1,3 +1,3 @@
 test,statistic,p_value,interpretation
-Jarque-Bera,0.5391,0.7637,Normal residuals
-Durbin-Watson,1.7946,,No autocorrelation
+Jarque-Bera,37.9167,0.0,Non-normal residuals
+Durbin-Watson,2.0012,,No autocorrelation

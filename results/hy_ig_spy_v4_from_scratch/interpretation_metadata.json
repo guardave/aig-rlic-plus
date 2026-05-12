@@ -3,29 +3,31 @@
   "indicator": "HY-IG Credit Spread",
   "indicator_id": "hy_ig_spread",
   "indicator_category": "credit",
+  "indicator_type": "credit",
+  "indicator_nature": "leading",
   "target": "SPY",
   "target_id": "spy",
   "expected_direction": "countercyclical",
-  "observed_direction": "procyclical",
-  "direction_consistent": false,
-  "direction_confidence": "low",
+  "observed_direction": "countercyclical",
+  "direction_consistent": true,
+  "direction_confidence": "moderate",
+  "strategy_objective": "min_mdd",
   "mechanism": "Rising HY-IG spread signals deteriorating credit conditions: higher default risk, tighter lending standards, and cross-asset de-risking. These forces transmit to lower SPY returns with a 1-6 month lag per the Gilchrist & Zakraj\u0161ek (2012) credit-cycle propagation channel.",
   "callout_text": "When the gap between high-yield and investment-grade bond yields widens, it often signals that investors are worried about corporate defaults and broader economic stress. Historically, this has been followed by weaker stock market returns over the next few months \u2014 though the relationship is weaker during rate-driven downturns like 2022.",
   "supporting_evidence": [
-    "Regression sign: procyclical (negative coefficient on spread -> positive forward returns)",
+    "Regression sign: countercyclical (negative coefficient on spread \u2192 positive forward returns when spread falls)",
     "Granger causality: see granger_by_lag.csv",
     "Literature: Gertler & Lown (1999), Gilchrist & Zakraj\u0161ek (2012), Fama & French (1989)",
-    "Sample size: n=35 months (data-constrained; low statistical power)"
+    "Full 354-month sample (1997-2026). GFC, COVID, taper_2018, inflation_2022 all in sample."
   ],
-  "contradictions": "2022 inflation shock: HY-IG widened alongside SPY decline primarily due to rate repricing, not credit deterioration. The signal may over-fire during rate-shock episodes where the mechanism is valuation compression, not credit stress.",
-  "key_finding": "Tournament winner: S4a_roc_1m/T1_p60/P2/L1. OOS Sharpe=5.18 vs B&H 4.39. NOTE: n=35 monthly obs; insufficient_sample per ECON-OOS2. All findings are discovery-grade.",
-  "confidence": "low",
+  "contradictions": "2022 inflation shock: HY-IG widened alongside SPY decline primarily due to rate repricing, not credit deterioration. Signal may over-fire during rate-shock episodes where mechanism is valuation compression, not credit stress.",
+  "key_finding": "Tournament winner: S2c_zscore_36m/T3_z0.0/P1/L1. OOS Sharpe=1.32 vs B&H 0.71. OOS period 2014-08-29 to 2020-06-30 (71 months). Full 354-month dataset. Three-period design.",
+  "confidence": "moderate",
   "data_provenance": {
     "input_file": "results/hy_ig_spy_v4_from_scratch/data_hy_ig_spy_v4_20260512.parquet",
-    "sample_period": "2023-06-30 to 2026-04-30",
-    "n_obs": 35,
-    "data_constraint": "FRED ICE BofA OAS limited to 3 years per API licensing"
+    "sample_period": "1996-12-31 to 2026-05-29",
+    "n_obs": 354
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-05-12T10:00:14Z"
+  "last_updated_at": "2026-05-12T15:32:48Z"
 }

@@ -1,30 +1,30 @@
 {
   "pair_id": "hy_ig_spy_v4_from_scratch",
   "schema_version": "1.0.0",
-  "generated_at": "2026-05-12T10:00:14Z",
-  "last_updated_at": "2026-05-12T10:00:14Z",
+  "generated_at": "2026-05-12T15:32:48Z",
+  "last_updated_at": "2026-05-12T15:32:48Z",
   "suggestions": [
-    {
-      "signal_name": "Full 1997-present ICE BofA OAS series",
-      "proposed_by": "evan",
-      "source": "FRED: BAMLH0A0HYM2, BAMLC0A0CM",
-      "observation": "Only 35 months available via current FRED API. Full series (341 months) is required for production-grade analysis.",
-      "rationale": "ECON-OOS2 minimum is 48 months. Full sample enables three-period design (ECON-OOS4), FE1 confirmation, and a valid tournament winner.",
-      "possible_use_case": "Re-run v4 pipeline on full sample once ICE licensing is resolved",
-      "caveats": "Requires ICE data licensing agreement or alternative data source (Bloomberg, Refinitiv).",
-      "date_filed": "20260512",
-      "notes": "Blocking constraint for passed_final_exam promotion."
-    },
     {
       "signal_name": "GZ Excess Bond Premium (EBP)",
       "proposed_by": "evan",
       "source": "Fed research page: Gilchrist & Zakraj\u0161ek (2012)",
-      "observation": "Not confirmed via FRED MCP per data manifest. Would provide cleaner identification (idiosyncratic credit supply channel).",
-      "rationale": "EBP has stronger predictive content than raw HY-IG per Gilchrist & Zakraj\u0161ek (2012).",
+      "observation": "EBP isolates idiosyncratic credit supply channel, cleaner IV than raw HY-IG spread.",
+      "rationale": "EBP has stronger predictive content per Gilchrist & Zakraj\u0161ek (2012).",
       "possible_use_case": "IV specification or alternative signal family",
-      "caveats": "Requires bond-level data or direct download from Fed research page. Monthly frequency.",
+      "caveats": "Requires bond-level data or direct download from Fed research page.",
       "date_filed": "20260512",
-      "notes": "Noted in spec memo as preferred IV candidate if confirmed."
+      "notes": "Noted in spec memo as preferred IV candidate."
+    },
+    {
+      "signal_name": "Rate-shock control variable (10yr Treasury yield change)",
+      "proposed_by": "evan",
+      "source": "FRED: DGS10",
+      "observation": "2022 inflation episode confounds HY-IG signal (rate-driven, not credit-cycle). Adding yield change as control could improve signal specificity.",
+      "rationale": "Spec memo \u00a74 flags rate-shock confounding as key pitfall.",
+      "possible_use_case": "Bivariate regression / conditional signal",
+      "caveats": "Increases complexity; may overfit on 354-month sample.",
+      "date_filed": "20260512",
+      "notes": "Robustness check priority."
     }
   ]
 }

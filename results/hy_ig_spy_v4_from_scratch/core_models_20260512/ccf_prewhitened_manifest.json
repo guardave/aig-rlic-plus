@@ -1,14 +1,14 @@
 {
   "file": "ccf_prewhitened.csv",
-  "generated_at": "2026-05-12T10:00:11Z",
+  "generated_at": "2026-05-12T15:32:34Z",
   "columns": {
     "lag": "Lag in months. Negative = spread leads SPY. Positive = SPY leads spread.",
     "ccf": "Cross-correlation of AR-prewhitened residuals",
     "lower_ci": "95% CI lower bound (-1.96/sqrt(n))",
     "upper_ci": "95% CI upper bound (+1.96/sqrt(n))",
     "significant": "True if |ccf| > upper_ci",
-    "arima_order": "ARIMA order used to pre-whiten spread series",
-    "n_obs": "Observations available at this lag"
+    "arima_order": "ARIMA order to pre-whiten spread",
+    "n_obs": "Observations at this lag"
   },
   "sign_convention": "Negative ccf at negative lags = spread leads SPY returns negatively (countercyclical).",
   "assertions": [
@@ -17,13 +17,12 @@
       "check": "lag==0 present"
     },
     {
-      "description": "CI bounds are symmetric",
+      "description": "CI bounds symmetric",
       "check": "abs(lower_ci) == abs(upper_ci)"
     },
     {
       "description": "n_obs > 0 for all rows",
       "check": "min(n_obs) > 0"
     }
-  ],
-  "sample_size_warning": "Only 35 obs. Max lag limited to 10."
+  ]
 }

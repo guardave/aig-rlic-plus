@@ -1,16 +1,16 @@
 {
   "pair_id": "hy_ig_spy_v4_from_scratch",
   "date_tag": "20260512",
-  "total_seconds": 3.2,
+  "total_seconds": 14.4,
   "stage_times": {
     "1_data_load": 0.0,
-    "2_features": 0.0,
+    "2_features": 0.1,
     "3_signals": 0.0,
-    "4_core_models": 1.0,
-    "5_exploratory": 0.1,
-    "6_tournament": 1.9,
-    "7_winner_outputs": 0.0,
+    "4_core_models": 6.8,
+    "5_exploratory": 2.5,
+    "6_tournament": 4.6,
+    "7_winner_outputs": 0.4,
     "8_final_exam": 0.1
   },
-  "generated_at": "2026-05-12T10:00:14Z"
+  "generated_at": "2026-05-12T15:32:48Z"
 }
