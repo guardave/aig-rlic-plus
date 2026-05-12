@@ -1751,6 +1751,16 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
     with _td_col2:
         info_icon("tournament")
     st.markdown(config.tournament_design_md)
+    st.caption(
+        "**Why the number of combinations matters:** Testing many combinations "
+        "inflates the chance that the best-looking result is a statistical "
+        "accident rather than a genuine pattern — the same way flipping a coin "
+        "enough times will eventually produce a long streak. The Deflated Sharpe "
+        "Ratio (DSR) corrects for this by scaling down the winning strategy's "
+        "score based on how many alternatives were tested. A strategy that passes "
+        "DSR has cleared a much higher bar than one that is simply the best of a "
+        "large search."
+    )
     st.markdown("---")
 
     # ------ 13. Analyst suggestions ------

@@ -11,10 +11,10 @@
   "technical_note": "FE1 run on holdout window 2020-07-31 to 2026-05-29 (71 monthly obs). Confirmation Sharpe=0.308 vs floor=0.5. Three-period design. Full 354-month dataset (1996-12-31 to 2026-05-29). Prior run failed due to 35-obs data constraint \u2014 resolved.",
   "plain_english": "This strategy was tested on a final holdout period (2020-07 to 2026-05) that was completely sealed during the search phase. The holdout covers the COVID recovery, 2022 rate shock, and 2023-2026 bull market \u2014 all genuine out-of-sample periods. Result: FAIL. One or more confirmation criteria were not met. See failure_reasons.",
   "failure_reasons": [
-    "FE1-Condition-4 FAILED: Confirmation Sharpe 0.308 < floor 0.5.",
-    "FE1-Condition-5 FAILED: Excess annualized return -0.1293 is negative.",
-    "FE1-Condition-7 FAILED: Bootstrap 95% CI lower bound -0.622 does not exclude zero. block_length=8, n=71.",
-    "FE1-Condition-8 FAILED: Multiple-testing adjustment. n_trials_raw=1908, n_trials_effective=381. deflated_p=0.2643 does not pass at p<0.10."
+    "Return quality in the holdout period was insufficient: the strategy's risk-adjusted return (Sharpe ratio 0.31) fell well below the minimum required for a credit spread strategy (0.50). The holdout covered 2020-2026, a period dominated by the COVID recovery and a sharp rate-hiking cycle — conditions that compressed the strategy's historical edge.",
+    "The strategy lost money in the holdout on a net basis: annualised excess return was -13%, meaning it underperformed a passive position over the 2020-2026 test window.",
+    "Statistical confidence is insufficient: a bootstrap simulation shows the holdout return could plausibly be zero or negative by chance, so we cannot rule out that the result reflects luck rather than a genuine edge.",
+    "Multiple-testing check did not pass: after adjusting for the 381 independent combinations tested in the search phase, the winning strategy's result is not statistically distinguishable from chance at the required confidence level. This is the same correction used to prevent cherry-picking — the more combinations you test, the higher the bar the winner must clear."
   ],
   "next_step": "Review failure_reasons. Consider signal refinement or subperiod analysis.",
   "owner": "evan",

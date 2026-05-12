@@ -62,7 +62,8 @@ def info_icon(term_key: str) -> None:
         match_key: str | None = None
         match_val: dict | None = None
         for k, v in glossary.items():
-            if needle in k.lower():
+            kl = k.lower()
+            if needle in kl or kl in needle:
                 match_key = k
                 match_val = v
                 break
