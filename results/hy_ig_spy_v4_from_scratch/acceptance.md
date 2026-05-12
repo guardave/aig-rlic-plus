@@ -87,3 +87,38 @@ QA CONDITIONAL-PASS accepted. Condition satisfied — disclosure banner confirme
 **Data source precedent:** `data/Data Master.xlsx / OASHY_IG` is now the canonical source for ICE BofA HY and IG OAS series going back to 1996, supplemented by FRED MCP for the rolling tail. This pattern applies to all future credit pairs.
 
 Lesandro sign-off: ✓
+
+---
+
+## QA Re-Verification 3 — Browser Pass — 2026-05-12 (Quincy)
+
+**Verdict: PASS**
+
+Full Playwright browser pass on all 4 pages. DOM text read for every page per HABIT-QA1 (mandatory). No blocking findings. BF-1 and BF-2 both confirmed resolved.
+
+**BF-1 resolution: CONFIRMED RESOLVED**
+Zero instances of `StreamlitPageNotFoundError` or `Traceback` on any page. All 4 pages returned substantive DOM content (story: 22,461 chars; evidence: 7,868 chars; strategy: 5,724 chars; methodology: 8,456 chars). The updated `pair_registry.py` is confirmed loaded by the fresh server.
+
+**BF-2 resolution: CONFIRMED RESOLVED**
+Evidence page DOM contains "Rolling Sharpe" heading and full chart text (12m/24m/36m Sharpe series, OOS Start and Holdout Start annotations). Zero instances of "Cross-period analysis pending". The `_cp_conditional` fix in commit `33700c7` is confirmed effective.
+
+**Acceptance criteria — full check:**
+
+| Criterion | Page(s) | Result | Evidence |
+|-----------|---------|--------|----------|
+| No `StreamlitPageNotFoundError` | All 4 | PASS | DOM text clean |
+| No `Traceback` | All 4 | PASS | DOM text clean |
+| No `[PLACEHOLDER]` | All 4 | PASS | DOM text clean |
+| No `not yet available` | All 4 | PASS | DOM text clean |
+| APP-TT1: pair display name in title | All 4 | PASS | "HY-IG Spread → SPY (v4)" in chart titles; page headings confirmed |
+| APP-NAV1: no bare markdown nav links | All 4 | PASS | No `](http` or `](/hy_ig` patterns in DOM |
+| DPS-II1: ⓘ buttons present | Story (2), Strategy (1), Methodology (2) | PASS | Confirmed present |
+| DPS-II1: evidence page ⓘ absent | Evidence | PASS-with-note (carried) | Pre-existing by-design silent-no-op per DPS-II1 spec — method names longer than glossary keys; documented in prior QA |
+| BF-2: Rolling Sharpe rendered | Evidence | PASS | "Rolling Sharpe" heading + 12m/24m/36m series text in DOM |
+| Strategy: `Evidence status:` text | Strategy | PASS | Line: "Evidence status: Failed final exam" |
+| Strategy: "Failed" in disclosure | Strategy | PASS | "FE1-Condition-4 FAILED", "FE1-Condition-5 FAILED" etc. confirmed in DOM |
+| No new blockers | All 4 | PASS | None identified |
+
+**No new blocking findings.**
+
+Quincy sign-off: ✓
