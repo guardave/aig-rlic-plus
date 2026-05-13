@@ -1,20 +1,14 @@
 # Viz Vera — Outstanding Work
 
-**Last updated:** 2026-04-24 (Wave 10J/10K checkpoint)
+**Last updated:** 2026-05-13 (OW-1 closed — perceptual PNGs verified)
 
 ---
 
 ## Pending Items
 
-### P1 — Perceptual PNGs (kaleido renders) for 9 pairs [WARN, Lead decision pending]
+### P1 — Perceptual PNGs (kaleido renders) for 9 pairs [CLOSED 2026-05-13]
 
-**Status:** Blocked — awaiting Lead assignment decision.
-
-**Detail:** `hy_ig_v2_spy` is the only pair with kaleido-rendered perceptual PNGs committed to disk. All 9 other pairs (`hy_ig_spy`, `indpro_spy`, `indpro_xlp`, `permit_spy`, `sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy`, `vix_vix3m_spy`, `umcsent_xlv`) are at WARN on Quincy's perceptual gate. Quincy flagged this at the Wave 10J close; Lead has not yet assigned a wave target for backfill.
-
-**What is needed:** Run kaleido render for every chart in each pair's `output/charts/{pair_id}/plotly/` directory and commit the PNGs as sidecars. Estimated scope: ~22 charts × 9 pairs = ~198 PNG renders.
-
-**Dependency:** Lead dispatch.
+**Status:** CLOSED. Verified on 2026-05-13: all 197 chart JSONs across the 9 pairs (`hy_ig_spy`, `indpro_spy`, `indpro_xlp`, `permit_spy`, `sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy`, `vix_vix3m_spy`, `umcsent_xlv`) already have `_perceptual_check_*.png` sidecars on disk AND tracked in git (258 PNGs total across `output/charts/*/plotly/`, zero untracked). Batch render script confirmed idempotent: 0 generated, 197 skipped, 0 failures. Spot-checked one hero PNG per pair — all render correctly (titles, axes, legends, NBER bands visible). No new commit required; VIZ-CV1 perceptual mandate is satisfied. Quincy's WARN flag is stale.
 
 ---
 
