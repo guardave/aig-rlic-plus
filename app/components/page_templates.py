@@ -1162,14 +1162,25 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     _strategy_family = winner.get("strategy_family", "N/A")
     _direction = winner.get("direction", "N/A")
     _lead = winner.get("lead_months", winner.get("lead_days", "N/A"))
-    # WARN-03 fix: "LN/A" is not stakeholder-facing language. Map to a readable form.
     if _lead in (None, "N/A", ""):
-        _lead_label = "L0 (no additional lead)"
+        _lead_label = "no additional lead"
     else:
-        _lead_label = f"L{_lead}"
+        _lead_label = f"{_lead}-month lead"
+
+    # Reader-friendly family label
+    _family_labels = {
+        "P1_long_cash": "Long / Cash Switch",
+        "P2_long_short": "Long / Short Switch",
+        "P3_long_short_c": "Long / Short (capped)",
+        "P4_scaled": "Scaled Exposure",
+    }
+    _family_label = _family_labels.get(_strategy_family, _strategy_family)
+
+    _signal_display = winner.get("signal_display_name", winner.get("signal_code", "N/A"))
+    _direction_label = _direction.capitalize() if _direction not in (None, "N/A") else "N/A"
+
     st.markdown(
-        f"### Tournament Winner: {winner.get('signal_code', 'N/A')} / "
-        f"{_strategy_family} / {_lead_label}"
+        f"### Best Strategy Found: {_signal_display} — {_family_label}, {_direction_label}"
     )
 
     signal_rule = getattr(config, "SIGNAL_RULE_MD", None) or (
