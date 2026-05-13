@@ -85,10 +85,10 @@ Agent teams are enabled for multi-agent workflows. Use them for tasks that benef
 
 Reusable knowledge from past sessions is stored in `.claude/memory/`:
 
-- `lessons-learned.md` — hard-won SOPs and pitfalls (MCP naming, devcontainer, idempotency, etc.)
+- `lessons-learned.md` — hard-won SOPs and pitfalls (MCP naming, devcontainer, idempotency, Plotly dual-axis charts, etc.)
 - `setup-details.md` — correct MCP package names, transports, API key flows, and execution order
 
-Consult these before modifying infrastructure or adding MCP servers.
+**MANDATORY:** Read `.claude/memory/lessons-learned.md` at the start of every session and before any visualization, infrastructure, or chart work. These are lessons learned from repeated mistakes — not reading them means repeating them.
 
 ## Context Budget
 
