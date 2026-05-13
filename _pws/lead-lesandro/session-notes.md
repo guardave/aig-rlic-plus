@@ -61,3 +61,27 @@ Lead verified live via fresh Playwright screenshots before committing — bundle
 ## Process Note
 
 The Plotly dual-axis issue surfaced twice because the lesson wasn't recorded in a place agents reliably consult. The fix is structural: lesson in `.claude/memory/lessons-learned.md` (read at SOD per CLAUDE.md), rule in `visualization-agent-sop.md` (read by Vera per role SOP), cross-reference from `dashboard-page-standard.md` (read by anyone touching Story page). Three orthogonal entry points so the lesson can't slip through.
+
+---
+
+## Late-Evening Backlog Clearance Wave (2026-05-13 EOD continuation)
+
+Lead surveyed all 7 role PWS outstanding-work files and dispatched 3 agents to close immediately-actionable items:
+
+### Closed
+- **Ace** — Committed 3 smoke-test loader logs (v3_rerun, v3_retro, v4_from_scratch) (`5870151`). Ran **VIZ-TS1 retroactive audit** across all `history_zoom_*.json` files: **104/104 PASS** across 11 pairs (`6e28bfb`). Today's reader-walk fixes brought the codebase into universal compliance with the new rule on first day.
+- **Quincy** — Verified the 3 smoke logs against current `app/pages/` (`8205394`). Flagged v3_rerun + v3_retro logs as WARN — they reference `90_*` and `91_*` page files retired during v4 cutover. Logs preserved as historical audit trail. Closed **OW-2: GATE-VIZ-NBER1 WARN → FAIL severity flip** in `scripts/cloud_verify.py` (`1dd65e3`).
+- **Vera** — Closed **OW-1 P1 perceptual-PNG backlog**: 197 sidecars already on disk across all 9 legacy pairs from prior waves. The OW item was stale. Spot-checked renders are clean. Updated PWS (`f9e6aaa`).
+
+### Lead disposition decisions
+- **v3 smoke logs (WARN)**: leave in place as historical artifacts. Audit trail is complete via Quincy's verification note + git history. No rename needed — adding metadata would just be noise.
+- **Quincy's WARN flag for legacy perceptual PNGs**: stale per Vera's audit. Quincy can re-run her perceptual gate to clear it on next QA cycle.
+
+### Items deferred (not dispatched tonight — bigger windows needed)
+- Ace P0: GATE-HZE1 implementation in `cloud_verify.py` (needs Quincy pseudocode review coordination)
+- Ace P1: APP-PT1 retro-apply for `hy_ig_v2_spy` (last reference pair)
+- Dana P1: BL-D12-LINTER + BL-D13-MANIFEST (batch with Wave 10H.2/10I hygiene wave)
+- Evan P1: BL-LEGACY-WINNER-SUMMARY-SHAPE (waiting on FE1 contract arbitration)
+- Ray: Pair #4 dispatch + RES-OD1 fix (next priority pair wave)
+
+5 agent commits + 1 Lead update pushed to origin in this clearance wave.
