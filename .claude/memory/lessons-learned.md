@@ -142,3 +142,20 @@ More MCP servers = more tools = more context consumed per request. Past ~80 tool
 5. Restart Claude Code session to activate MCP servers
 6. Verify: `claude mcp list` shows 9 servers, Python imports all pass
 7. Start working — Alex persona loads from CLAUDE.md
+
+---
+
+## Lesson 13: Plotly dual-axis charts — use separate domains, never `overlaying`
+
+**What happened (twice):** Episode zoom charts had HY-IG OAS Spread on `yaxis` and SPY on `yaxis2` with `overlaying: "y"`. The HY-IG line was completely invisible in the browser. Root cause: `overlaying` forces Plotly to align the zero lines of both axes, which pushed the HY-IG data (all positive, 3–13%) outside the visible plot area dominated by SPY's range.
+
+**Fix:** Use separate vertical `domain` slices instead:
+```json
+"yaxis":  { "domain": [0.43, 1.0] }   // top panel — indicator
+"yaxis2": { "domain": [0.0,  0.38] }  // bottom panel — target
+```
+Remove `"overlaying": "y"` from yaxis2. Both axes share `"anchor": "x"`.
+
+For shapes spanning both panels, use `"yref": "paper"` with `y0=0, y1=1` instead of `"yref": "y domain"`.
+
+**SOP:** Never use `overlaying` for indicator-target dual-axis charts. Always use separate domain slices matching the reference sample (`hy_ig_spy`). Confirm both lines are visible by screenshotting the `.js-plotly-plot` element directly via Playwright before shipping.
