@@ -143,7 +143,7 @@ CROSS_PERIOD_STUB_IS_FAIL = False  # flip to True after Wave 10J retro-apply con
 # F-06 (Phase 4): controls GATE-VIZ-NBER1 severity (Evidence-page NBER shading DOM check).
 # Parallel to CROSS_PERIOD_STUB_IS_FAIL. Flip to True once Vera confirms VIZ-NBER1
 # retro-apply is complete across all active pairs. See QA-CL1 checklist trigger item.
-NBER1_WARN_IS_FAIL = False  # flip to True after VIZ-NBER1 retro-apply confirmed (Vera handoff)
+NBER1_WARN_IS_FAIL = True  # OW-2 closed 2026-05-13: NBER shading confirmed in DOM across all 10 pairs per Wave 10J verify; gate flipped to FAIL per Lead confirmation
 
 # Wave 10J NBER shading spot-check patterns.
 # Rolling-correlation and rolling-sharpe Evidence page charts should carry NBER
