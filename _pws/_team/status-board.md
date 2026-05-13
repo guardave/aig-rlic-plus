@@ -1452,3 +1452,34 @@ Phase 3 cross-review: 25 findings (12 FAIL, 13 WARN), file: `_pws/econ-evan/sop_
 - Glossary coverage: "Correlation Analysis", "Pre-Whitened CCF" need entries
 - Existing pairs retroactive GATE-RW1 walk
 - Existing pairs retroactive GATE-DPS1 uplift
+
+---
+
+## 2026-05-13 — Lead Lesandro (v4 reader-facing fixes + VIZ-TS1 standard — CLOSED ✅)
+
+**Status:** Reader-walk polish wave complete. 10 commits on `260430`. Branch pushed.
+
+**What landed:**
+- **DPS-PI1** — pair caption (`Pair: HY-IG Credit Spread × SPY`) on all 4 pages, unconditional.
+- **Strategy heading** — raw signal code → reader-friendly: `Best Strategy Found: S2C Zscore 36M — Long / Cash Switch, Countercyclical`.
+- **Dynamic glossary search** — sidebar text input + relevance-ranked results replaces static expander.
+- **Info bubbles removed** — glossary search covers the need.
+- **Episode charts (5 JSONs)** rebuilt through 4 iterations: explicit ranges → separate vertical domains → two-xaxis matched design → caption/shading polish.
+- **VIZ-TS1** — new BLOCKING rule in `visualization-agent-sop.md` mandating shared time-axis for all multi-panel time-series charts. Cross-referenced from `dashboard-page-standard.md`. Codifies canonical layout, forbidden patterns, cross-panel shape duplication, verification script.
+- **Lessons Lesson 13** + CLAUDE.md mandatory-read directive — Plotly dual-axis rule recorded in three orthogonal entry points (lessons file, role SOP, page standard).
+- **Multi-agent dispatch** — Vera + Ace ran 11-finding fix in parallel. Lead Playwright-verified before commit.
+
+**Key discoveries:**
+- `@st.cache_resource` on chart JSON loader does NOT watch file mtime — server restart required after every chart JSON edit.
+- `overlaying: "y"` aligns zero lines of both axes, clipping data when ranges differ wildly (e.g. HY-IG 3–13% vs SPY -55% to 0). Use separate domain slices.
+- Single `xaxis` anchored to `y` (top panel) renders date labels at y=0.43 — inside the chart, overlapping bottom panel. Use two synchronised xaxes, top hidden.
+- Streamlit iframe makes `page.evaluate("window.scrollTo()")` unreliable. Screenshot `.js-plotly-plot` elements directly via `scroll_into_view_if_needed`.
+- The lesson re-occurred because it was never recorded anywhere a future agent would read. Fix: project-tracked `.claude/memory/lessons-learned.md` + role SOP rule + cross-reference from page standard.
+
+**Outstanding for next session:**
+- F6 (rolling correlation), F7 (rolling Granger interpretation overlay), F9/F10 (cosmetic) — Evidence-page polish backlog.
+- Retroactive VIZ-TS1 audit across all `history_zoom_*.json` files in the repo.
+- Retroactive GATE-RW1 walk on existing pairs.
+- Retroactive GATE-DPS1 uplift on existing pairs.
+
+**Branch:** 260430 | Pushed.

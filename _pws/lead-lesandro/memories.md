@@ -36,3 +36,17 @@
 15. HY-IG (#20) counts in the priority pair total.
 
 Phase 5 fix-up: PHASE5-F1 + PHASE5-F2 closed.
+
+## Plotly + Streamlit Hard-Won Rules (2026-05-13)
+
+10. **`@st.cache_resource` doesn't watch file mtime.** Editing a chart JSON without restarting Streamlit means the old cached figure is served. Kill + restart the server after every chart JSON change. Took two iterations of user reporting "no change" to internalize.
+
+11. **`overlaying: "y"` is a trap.** When two series have very different ranges (e.g. credit spread 3-13% vs SPY return -55% to 0), Plotly aligns zero lines and clips one series out of the visible plot area entirely. Always use separate vertical `domain` slices for indicator-target pairs.
+
+12. **Single xaxis on a stacked chart puts date labels in the middle.** Plotly renders tick labels at the anchored y-axis position. yaxis with domain [0.43, 1.0] → labels at y=0.43 → inside the chart. Use two synchronised xaxes (`xaxis.matches="x2"`, top hidden). Codified in VIZ-TS1.
+
+13. **Cross-panel shapes must be duplicated.** A shape with `yref="paper"` works only if you literally want it spanning the full paper. For panel-bounded shapes (NBER recession, peak stress), write two: one with `xref="x", yref="y domain"` and one with `xref="x2", yref="y2 domain"`.
+
+14. **Lessons-learned only helps if it gets read.** Auto-memory `MEMORY.md` is truncated at 200 lines. The Plotly dual-axis rule had been hit twice before but wasn't anywhere a future agent would consult. Fix: project file in git + CLAUDE.md mandatory-read directive + role SOP rule + cross-reference from page standard. Three orthogonal entry points.
+
+15. **Lead self-verifies via Playwright.** Don't delegate browser verification post-fact to a subagent that already declared completion. Screenshot the actual `.js-plotly-plot` elements directly using `scroll_into_view_if_needed` — `window.scrollTo` doesn't work reliably through the Streamlit iframe.
