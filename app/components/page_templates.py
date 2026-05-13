@@ -502,9 +502,8 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     # ------ APP-TT1: pair title first ------
     page_title_early = getattr(config, "PAGE_TITLE", None) or pair_display
     st.title(page_title_early)
-    # DPS-PI1: pair identity always visible below narrative title
-    if getattr(config, "PAGE_TITLE", None):
-        st.caption(f"**Pair:** {pair_display}")
+    # DPS-PI1: pair identity always visible below page title
+    st.caption(f"**Pair:** {pair_display}")
 
     # ------ 3. Sidebar + glossary ------
     render_sidebar()
@@ -933,6 +932,8 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
 
     # ------ APP-TT1: pair title first ------
     st.title(method_blocks.get("title", f"{pair_display} — The Evidence"))
+    # DPS-PI1: pair identity always visible below page title
+    st.caption(f"**Pair:** {pair_display}")
 
     render_sidebar()
     render_glossary_sidebar()
@@ -1123,9 +1124,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     # ------ APP-TT1: pair title first ------
     _strat_page_title = getattr(config, "PAGE_TITLE", f"The Strategy: Translating {pair_display} into Trading Rules")
     st.title(_strat_page_title)
-    # DPS-PI1: pair identity always visible below narrative title
-    if getattr(config, "PAGE_TITLE", None):
-        st.caption(f"**Pair:** {pair_display}")
+    # DPS-PI1: pair identity always visible below page title
+    st.caption(f"**Pair:** {pair_display}")
 
     render_sidebar()
     render_glossary_sidebar()
@@ -1650,6 +1650,8 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
 
     # ------ APP-TT1: pair title first ------
     st.title(f"{pair_display} — Methodology")
+    # DPS-PI1: pair identity always visible below page title
+    st.caption(f"**Pair:** {pair_display}")
 
     render_sidebar()
     render_glossary_sidebar()
