@@ -502,6 +502,9 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     # ------ APP-TT1: pair title first ------
     page_title_early = getattr(config, "PAGE_TITLE", None) or pair_display
     st.title(page_title_early)
+    # DPS-PI1: pair identity always visible below narrative title
+    if getattr(config, "PAGE_TITLE", None):
+        st.caption(f"**Pair:** {pair_display}")
 
     # ------ 3. Sidebar + glossary ------
     render_sidebar()
@@ -627,7 +630,7 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
             "delta": oos_range_label,
         },
     ])
-    # DPS-II1: info icons beside KPI metric labels (Sharpe, Drawdown, Signal)
+    # DPS-II1: info icons beside KPI metric labels
     _kpi_icon_cols = st.columns(5)
     with _kpi_icon_cols[0]:
         info_icon("Sharpe ratio")
@@ -635,6 +638,8 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
         info_icon("maximum drawdown")
     with _kpi_icon_cols[3]:
         info_icon("signal probability")
+    with _kpi_icon_cols[4]:
+        info_icon("In-sample / Out-of-sample")
 
     kpi_caption = getattr(config, "KPI_CAPTION", None)
     if kpi_caption:
@@ -1116,13 +1121,11 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     _apply_page_config(f"{pair_display} Strategy | AIG-RLIC+", "🎯")
 
     # ------ APP-TT1: pair title first ------
-    st.title(
-        getattr(
-            config,
-            "PAGE_TITLE",
-            f"The Strategy: Translating {pair_display} into Trading Rules",
-        )
-    )
+    _strat_page_title = getattr(config, "PAGE_TITLE", f"The Strategy: Translating {pair_display} into Trading Rules")
+    st.title(_strat_page_title)
+    # DPS-PI1: pair identity always visible below narrative title
+    if getattr(config, "PAGE_TITLE", None):
+        st.caption(f"**Pair:** {pair_display}")
 
     render_sidebar()
     render_glossary_sidebar()
@@ -1211,6 +1214,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     _strat_icon_cols = st.columns(5)
     with _strat_icon_cols[0]:
         info_icon("Sharpe ratio")
+    with _strat_icon_cols[1]:
+        info_icon("In-sample / Out-of-sample")
     with _strat_icon_cols[2]:
         info_icon("maximum drawdown")
     st.markdown("---")
