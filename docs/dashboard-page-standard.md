@@ -231,6 +231,8 @@ Chart artifacts live at `output/charts/{pair_id}/plotly/history_zoom_{slug}.json
 
 Perceptual PNG sidecars (`_perceptual_check_history_zoom_{slug}.png`) are required per VIZ-CV1.
 
+**Chart layout standard (mandatory):** All `history_zoom_{slug}.json` charts — and any other multi-panel chart whose horizontal dimension is time (e.g. hero dual-panel, equity-curves with stacked indicator panel) — MUST follow Rule **VIZ-TS1** (Shared Time Axis for Multi-Panel Time-Series Charts) in `docs/agent-sops/visualization-agent-sop.md`. Exactly one set of date tick labels is rendered below the bottom panel; the two panels share a synchronised time range via `xaxis.matches = "x2"`. Violations are a BLOCKING handoff gate.
+
 ---
 
 ## Info Icon Convention

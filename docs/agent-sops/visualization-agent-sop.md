@@ -904,7 +904,124 @@ The perceptual PNG is committed to git alongside the chart JSON (see VIZ-CV1 ext
 2. The kaleido perceptual render for every `history_zoom` chart has been visually inspected and confirmed (both panels non-blank, NBER shading visible, event markers present in both panels).
 3. Gate results are pasted verbatim into the handoff note.
 
-**Cross-reference:** VIZ-V1 (dual-panel zoom chart production spec), VIZ-CV1 (chart rendering validation — kaleido render mandate extended here to history_zoom charts), VIZ-HZE1 (zoom chart completeness gate — VIZ-DP1 is a companion gate for axis-assignment correctness), VIZ-NBER1 (NBER shading per-panel coverage — also requires both panels).
+**Cross-reference:** VIZ-V1 (dual-panel zoom chart production spec), VIZ-CV1 (chart rendering validation — kaleido render mandate extended here to history_zoom charts), VIZ-HZE1 (zoom chart completeness gate — VIZ-DP1 is a companion gate for axis-assignment correctness), VIZ-NBER1 (NBER shading per-panel coverage — also requires both panels), VIZ-TS1 (shared time-axis mandate for multi-panel time-series charts).
+
+---
+
+#### Rule VIZ-TS1 — Shared Time Axis for Multi-Panel Time-Series Charts (added 2026-05-13)
+
+**Problem addressed:** Episode zoom charts on `hy_ig_spy_v4_from_scratch` were produced with a single `xaxis` shared by both panels via the `anchor: "y"` setting. Plotly renders x-axis tick labels at the anchored y-axis's position — yaxis (top panel) had `domain: [0.43, 1.0]`, so date labels rendered at y=0.43 (inside the chart area), overlapping the bottom panel content. The chart had two y-axes but the time axis was rendered in the middle of the plot, making it visually unreadable. This is a distinct failure class from VIZ-DP1 (assignment correctness) — here both axes were assigned correctly but the *layout* design itself was wrong.
+
+**Mandate — applies to ALL multi-panel time-series charts (history_zoom, hero dual-panel, equity-curves with stacked indicator panel, any future stacked time-series design):**
+
+A multi-panel chart whose horizontal dimension is time MUST present **exactly one set of date tick labels**, rendered below the bottom panel only. The two panels MUST share an identical, synchronised time range.
+
+**Canonical layout pattern (matches reference sample `output/charts/hy_ig_spy/plotly/history_zoom_*.json`):**
+
+```json
+{
+  "layout": {
+    "xaxis":  {
+      "anchor": "y",
+      "domain": [0.0, 0.94],
+      "matches": "x2",
+      "showticklabels": false
+    },
+    "xaxis2": {
+      "anchor": "y2",
+      "domain": [0.0, 0.94],
+      "title": {"text": "Date (monthly)"},
+      "tickangle": -45,
+      "tickformat": "%b %Y",
+      "nticks": 6
+    },
+    "yaxis":  { "anchor": "x",  "domain": [0.43, 1.0] },
+    "yaxis2": { "anchor": "x2", "domain": [0.0, 0.38] }
+  },
+  "data": [
+    { "name": "Indicator", "xaxis": "x",  "yaxis": "y",  ... },
+    { "name": "Target",    "xaxis": "x2", "yaxis": "y2", ... }
+  ]
+}
+```
+
+Key elements:
+
+| Element | Requirement |
+|---------|-------------|
+| Top x-axis (`xaxis`) | `showticklabels: false`, `matches: "x2"` — synchronises range with bottom panel, hides duplicate labels |
+| Bottom x-axis (`xaxis2`) | Visible tick labels, date format, `anchor: "y2"` — the only time-axis label set in the chart |
+| y-axis anchors | yaxis→`x`, yaxis2→`x2` (not both anchored to `x`) |
+| Trace axis assignment | Top trace `xaxis: "x"`, bottom trace `xaxis: "x2"` |
+
+**Forbidden patterns:**
+
+- ❌ Single `xaxis` anchored to `y` with `yaxis2` also anchored to `x` (date labels render between panels)
+- ❌ Two unsynchronised x-axes (no `matches` declaration) — the two panels can drift to different time windows
+- ❌ Both x-axes showing tick labels (visual clutter, redundant information)
+- ❌ Using `overlaying: "y"` on yaxis2 to share a single panel (see Lesson 13 / VIZ-DP1 fallout)
+
+**Cross-panel shapes (NBER recession, peak-stress windows, event markers):**
+
+Shapes that span both panels MUST be duplicated — Plotly does not auto-extend a shape across separate y-domains:
+
+```json
+{ "xref": "x",  "yref": "y domain",  "y0": 0, "y1": 1, ... }   // top panel
+{ "xref": "x2", "yref": "y2 domain", "y0": 0, "y1": 1, ... }   // bottom panel
+```
+
+This is the same pattern as VIZ-NBER1 per-panel coverage; VIZ-TS1 makes the duplication mandatory for ANY full-height cross-panel shape, not just NBER shading.
+
+**VIZ-TS1 mandatory verification procedure:**
+
+```python
+import json, pathlib
+
+def check_shared_time_axis(json_path: str) -> dict:
+    """
+    Verify that a multi-panel time-series chart has a single shared
+    time-axis tick-label set rendered below the bottom panel only.
+    """
+    fig = json.loads(pathlib.Path(json_path).read_text())
+    layout = fig.get("layout", {})
+
+    if "yaxis2" not in layout:
+        return {"pass": True, "violations": [], "note": "Single-panel chart — skip."}
+
+    violations = []
+    xaxis = layout.get("xaxis", {})
+    xaxis2 = layout.get("xaxis2")
+
+    if xaxis2 is None:
+        violations.append("Multi-panel chart has only one xaxis. Add xaxis2 anchored to y2.")
+        return {"pass": False, "violations": violations}
+
+    # Top xaxis must hide tick labels AND match x2
+    if xaxis.get("showticklabels", True) is not False:
+        violations.append("xaxis.showticklabels must be false (top panel must not show date labels).")
+    if xaxis.get("matches") != "x2":
+        violations.append("xaxis.matches must be 'x2' to synchronise time ranges across panels.")
+
+    # yaxis/yaxis2 anchors
+    if layout.get("yaxis", {}).get("anchor", "x") != "x":
+        violations.append("yaxis.anchor must be 'x'.")
+    if layout.get("yaxis2", {}).get("anchor") != "x2":
+        violations.append("yaxis2.anchor must be 'x2' (not 'x').")
+
+    # Trace axis assignment sanity
+    for i, trace in enumerate(fig.get("data", [])):
+        name = trace.get("name", f"trace[{i}]")
+        if trace.get("yaxis", "y") == "y2" and trace.get("xaxis") != "x2":
+            violations.append(
+                f"Bottom-panel trace '{name}' must declare xaxis='x2'."
+            )
+
+    return {"pass": len(violations) == 0, "violations": violations}
+```
+
+**VIZ-TS1 compliance is a BLOCKING pre-handoff gate** for every chart whose horizontal dimension is time and that has more than one stacked panel. Paste verification output into the handoff note alongside VIZ-DP1.
+
+**Cross-reference:** VIZ-V1 (dual-panel zoom spec — VIZ-TS1 codifies the time-axis design implicit in V1), VIZ-DP1 (axis-assignment correctness — VIZ-TS1 is the layout-design companion), VIZ-NBER1 (per-panel shading coverage — VIZ-TS1 generalises shape duplication to all cross-panel shapes), Lessons-Learned Lesson 13 (root-cause incident report).
 
 ---
 
