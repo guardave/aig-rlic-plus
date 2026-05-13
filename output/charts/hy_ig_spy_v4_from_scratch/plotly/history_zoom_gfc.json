@@ -980,9 +980,10 @@
         "showarrow": false,
         "text": "Textbook credit-cycle signal. Spread > 36m mean from mid-2007 \u2192 strategy in cash through trough.",
         "x": "2008-05-30",
-        "xanchor": "left",
-        "y": 0.05,
-        "yref": "paper"
+        "xanchor": "center",
+        "y": 0.405,
+        "yref": "paper",
+        "yanchor": "middle"
       }
     ],
     "title": {

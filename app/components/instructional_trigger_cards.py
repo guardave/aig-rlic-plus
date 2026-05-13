@@ -147,6 +147,7 @@ def _mini_sparkline(
       down — signal falls below threshold (risk-off → risk-on transition)
       flat — signal stays near threshold (no-change zone)
     """
+    date_range_label: str | None = None
     if real_slice is not None and len(real_slice) > 3:
         y = real_slice.values.astype(float)
         x = np.arange(len(y))
@@ -156,6 +157,14 @@ def _mini_sparkline(
             color = "#009E73"
         else:
             color = "#888888"
+        # Derive date-range subtitle from the real slice index if possible.
+        try:
+            idx = real_slice.index
+            start = pd.Timestamp(idx[0]).strftime("%b %Y")
+            end = pd.Timestamp(idx[-1]).strftime("%b %Y")
+            date_range_label = f"{start} – {end}" if start != end else start
+        except Exception:
+            date_range_label = None
     else:
         x = np.arange(30)
         base_low, base_high = threshold - 0.35, threshold + 0.35
@@ -185,14 +194,37 @@ def _mini_sparkline(
     fig.add_trace(
         go.Scatter(x=x, y=y, mode="lines", line=dict(color=color, width=2))
     )
-    fig.add_hline(y=threshold, line_dash="dash", line_color="#444", line_width=1)
+    fig.add_hline(
+        y=threshold,
+        line_dash="dash",
+        line_color="#444",
+        line_width=1,
+        annotation_text=f"threshold = {threshold:g}",
+        annotation_position="top right",
+        annotation_font_size=9,
+        annotation_font_color="#444",
+    )
+    # Title: scenario label + (if known) date range subtitle.
+    if date_range_label:
+        title_text = (
+            f"<span style='font-size:11px'><b>{title}</b></span>"
+            f"<br><span style='font-size:9px;color:#666'>{date_range_label}</span>"
+        )
+        top_margin = 32
+    else:
+        title_text = (
+            f"<span style='font-size:11px'><b>{title}</b></span>"
+            f"<br><span style='font-size:9px;color:#666'>illustrative (no real crossing found)</span>"
+        )
+        top_margin = 32
     fig.update_layout(
-        height=100,
-        margin=dict(l=5, r=5, t=5, b=5),
+        height=120,
+        margin=dict(l=5, r=5, t=top_margin, b=5),
         showlegend=False,
         xaxis=dict(visible=False),
         yaxis=dict(visible=False),
         plot_bgcolor="white",
+        title=dict(text=title_text, x=0.02, xanchor="left", y=0.95, yanchor="top"),
     )
     st.plotly_chart(
         fig,

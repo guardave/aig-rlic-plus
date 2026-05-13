@@ -940,9 +940,10 @@
         "showarrow": false,
         "text": "Monthly frequency means only 1-2 data points fall in the acute March 2020 crisis. Chart shows broader window including V-shaped recovery.",
         "x": "2020-05-29",
-        "xanchor": "left",
-        "y": 0.05,
-        "yref": "paper"
+        "xanchor": "center",
+        "y": 0.405,
+        "yref": "paper",
+        "yanchor": "middle"
       }
     ],
     "title": {

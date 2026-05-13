@@ -1024,9 +1024,10 @@
         "showarrow": false,
         "text": "Strategy correctly moved to cash as HY-IG z-score rose above 36m mean from late 2000.",
         "x": "2001-01-31",
-        "xanchor": "left",
-        "y": 0.05,
-        "yref": "paper"
+        "xanchor": "center",
+        "y": 0.405,
+        "yref": "paper",
+        "yanchor": "middle"
       }
     ],
     "title": {

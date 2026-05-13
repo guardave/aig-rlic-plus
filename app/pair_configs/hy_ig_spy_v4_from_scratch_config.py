@@ -711,8 +711,9 @@ class StrategyConfig:
 
     PAGE_TITLE = "The Strategy: Translating Credit Signals into SPY Positioning"
     PAGE_SUBTITLE = (
-        "We tested 1,900+ strategy combinations to find the most robust way "
-        "to time SPY exposure using the HY-IG credit spread z-score signal."
+        "We searched 1,900+ rule combinations. The best one is shown below. "
+        "⚠️ Note: it did not pass the sealed holdout test — see the disclosure "
+        "note below."
     )
 
     PLAIN_ENGLISH = (

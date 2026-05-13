@@ -125,9 +125,25 @@ def _render_chart(
     else:
         fig.update_yaxes(range=[-5, 105])
 
+    # Derive sample-period label from the exposure index for the subtitle.
+    try:
+        start_year = pd.Timestamp(exposure.index[0]).year
+        end_year = pd.Timestamp(exposure.index[-1]).year
+        period_label = f"{start_year}–{end_year}"
+    except Exception:
+        period_label = "full sample"
     fig.update_layout(
-        height=300,
-        margin=dict(l=50, r=30, t=20, b=60),
+        height=340,
+        margin=dict(l=50, r=30, t=60, b=60),
+        title=dict(
+            text=(
+                f"Historical {target_symbol} Exposure under Winning Strategy "
+                f"({period_label})"
+            ),
+            x=0.02,
+            xanchor="left",
+            font=dict(size=14),
+        ),
         xaxis_title="Date",
         yaxis_title=f"{target_symbol} Exposure (%)",
         showlegend=False,

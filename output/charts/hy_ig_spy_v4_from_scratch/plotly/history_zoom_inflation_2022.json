@@ -918,9 +918,10 @@
         "showarrow": false,
         "text": "NOTE: Mechanism was rate repricing, not credit cycle default risk. Strategy moved to cash on spread signal but miss-classified the driver. HY-IG spread widened due to rate sensitivity, not default risk.",
         "x": "2022-05-31",
-        "xanchor": "left",
-        "y": 0.05,
-        "yref": "paper"
+        "xanchor": "center",
+        "y": 0.405,
+        "yref": "paper",
+        "yanchor": "middle"
       },
       {
         "x": "2022-06-30",
@@ -977,20 +978,6 @@
         "x1": "2022-10-31",
         "y0": 0,
         "y1": 1,
-        "fillcolor": "rgba(200,160,80,0.18)",
-        "line": {
-          "width": 0
-        },
-        "layer": "below"
-      },
-      {
-        "type": "rect",
-        "xref": "x2",
-        "yref": "paper",
-        "x0": "2022-06-30",
-        "x1": "2022-10-31",
-        "y0": 0.0,
-        "y1": 0.4,
         "fillcolor": "rgba(200,160,80,0.18)",
         "line": {
           "width": 0

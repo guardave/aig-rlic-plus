@@ -922,9 +922,10 @@
         "showarrow": false,
         "text": "Fed rate hike cycle 2018. Modest spread widening +1pp. Signal correctly reduced equity exposure.",
         "x": "2018-05-31",
-        "xanchor": "left",
-        "y": 0.05,
-        "yref": "paper"
+        "xanchor": "center",
+        "y": 0.405,
+        "yref": "paper",
+        "yanchor": "middle"
       },
       {
         "x": "2018-10-31",
@@ -981,20 +982,6 @@
         "x1": "2018-12-31",
         "y0": 0,
         "y1": 1,
-        "fillcolor": "rgba(200,160,80,0.18)",
-        "line": {
-          "width": 0
-        },
-        "layer": "below"
-      },
-      {
-        "type": "rect",
-        "xref": "x2",
-        "yref": "paper",
-        "x0": "2018-10-31",
-        "x1": "2018-12-31",
-        "y0": 0.0,
-        "y1": 0.4,
         "fillcolor": "rgba(200,160,80,0.18)",
         "line": {
           "width": 0
