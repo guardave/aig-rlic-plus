@@ -1,0 +1,17 @@
+# Loader smoke test  pair_id=hy_ig_spy_v3_rerun  timestamp=2026-05-11T17:27:39
+# Pages scanned: 4
+#   app/pages/90_hy_ig_spy_v3_rerun_evidence.py
+#   app/pages/90_hy_ig_spy_v3_rerun_methodology.py
+#   app/pages/90_hy_ig_spy_v3_rerun_story.py
+#   app/pages/90_hy_ig_spy_v3_rerun_strategy.py
+
+PASS  app/pages/90_hy_ig_spy_v3_rerun_evidence.py:51  chart=signal_distribution  traces=1  title='hy_ig_spy_v3_rerun — Signal Distribution (In-Sample 2000–2018)'
+PASS  app/pages/90_hy_ig_spy_v3_rerun_strategy.py:60  chart=equity_curves_holdout  traces=2  title='hy_ig_spy_v3_rerun — Equity Curves (Holdout)'
+PASS  app/pages/90_hy_ig_spy_v3_rerun_strategy.py:75  chart=equity_curves_validation  traces=2  title='hy_ig_spy_v3_rerun — Equity Curves (Validation)'
+PASS  app/pages/90_hy_ig_spy_v3_rerun_strategy.py:89  chart=drawdown_comparison  traces=2  title='hy_ig_spy_v3_rerun — Drawdown Comparison (Holdout)'
+
+# Dynamic charts (Evidence render_method_block helper)
+
+# APP-PT1 template + pair_config chart scans
+
+# RESULT  passes=4  failures=0
