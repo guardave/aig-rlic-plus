@@ -953,31 +953,25 @@
     "yaxis": {
       "anchor": "x",
       "domain": [
-        0.0,
+        0.43,
         1.0
       ],
       "title": {
         "text": "HY-IG OAS Spread (%)"
       },
-      "color": "#D55E00",
-      "range": [
-        -2.48,
-        8.83
-      ]
+      "color": "#D55E00"
     },
     "yaxis2": {
       "anchor": "x",
-      "overlaying": "y",
       "side": "right",
       "title": {
         "text": "SPY Cumul. Return (%, indexed)"
       },
       "color": "#0072B2",
-      "range": [
-        -51.04,
-        53.52
-      ],
-      "showgrid": false
+      "domain": [
+        0.0,
+        0.38
+      ]
     },
     "shapes": [
       {
@@ -990,9 +984,9 @@
         "x0": "2001-03-01",
         "x1": "2001-11-30",
         "xref": "x",
-        "y0": 0,
-        "y1": 1,
-        "yref": "y domain"
+        "y0": 0.0,
+        "y1": 1.0,
+        "yref": "paper"
       }
     ],
     "annotations": [
