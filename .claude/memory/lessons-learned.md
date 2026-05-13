@@ -156,6 +156,19 @@ More MCP servers = more tools = more context consumed per request. Past ~80 tool
 ```
 Remove `"overlaying": "y"` from yaxis2. Both axes share `"anchor": "x"`.
 
-For shapes spanning both panels, use `"yref": "paper"` with `y0=0, y1=1` instead of `"yref": "y domain"`.
+**X-axis design (critical companion rule):** With two stacked panels you need TWO x-axes, not one. Single-xaxis design puts date labels in the *middle* of the chart, overlapping the bottom panel:
+```json
+"xaxis":  { "anchor": "y",  "domain": [0,0.94], "matches": "x2", "showticklabels": false }
+"xaxis2": { "anchor": "y2", "domain": [0,0.94], "title": {"text": "Date"}, "tickformat": "%b %Y" }
+"yaxis":  { "anchor": "x",  "domain": [0.43,1.0] }
+"yaxis2": { "anchor": "x2", "domain": [0.0,0.38] }
+```
+Top trace uses `"xaxis": "x"`, bottom trace uses `"xaxis": "x2"`. `matches: x2` keeps both panels' time ranges in sync.
 
-**SOP:** Never use `overlaying` for indicator-target dual-axis charts. Always use separate domain slices matching the reference sample (`hy_ig_spy`). Confirm both lines are visible by screenshotting the `.js-plotly-plot` element directly via Playwright before shipping.
+**Shapes spanning both panels:** must be duplicated — one per panel:
+```json
+{ "xref": "x",  "yref": "y domain",  "y0": 0, "y1": 1, ... }  // top
+{ "xref": "x2", "yref": "y2 domain", "y0": 0, "y1": 1, ... }  // bottom
+```
+
+**SOP:** Never use `overlaying` for indicator-target dual-axis charts. Always use separate domain slices AND a two-xaxis design matching the reference sample (`output/charts/hy_ig_spy/plotly/history_zoom_*.json`). Confirm both lines are visible AND date labels appear only below the bottom panel by screenshotting the `.js-plotly-plot` element directly via Playwright before shipping.

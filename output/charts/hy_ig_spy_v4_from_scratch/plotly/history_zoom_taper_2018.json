@@ -884,12 +884,8 @@
         0.0,
         0.94
       ],
-      "title": {
-        "text": "Date (monthly)"
-      },
-      "tickangle": -45,
-      "tickformat": "%b %Y",
-      "nticks": 6
+      "matches": "x2",
+      "showticklabels": false
     },
     "yaxis": {
       "anchor": "x",
@@ -903,7 +899,7 @@
       "color": "#D55E00"
     },
     "yaxis2": {
-      "anchor": "x",
+      "anchor": "x2",
       "side": "right",
       "title": {
         "text": "SPY Cumul. Return (%, indexed)"
@@ -966,11 +962,25 @@
       {
         "type": "rect",
         "xref": "x",
-        "yref": "paper",
+        "yref": "y domain",
         "x0": "2018-10-31",
         "x1": "2018-12-31",
-        "y0": 0.45,
-        "y1": 1.0,
+        "y0": 0,
+        "y1": 1,
+        "fillcolor": "rgba(200,160,80,0.18)",
+        "line": {
+          "width": 0
+        },
+        "layer": "below"
+      },
+      {
+        "type": "rect",
+        "xref": "x2",
+        "yref": "y2 domain",
+        "x0": "2018-10-31",
+        "x1": "2018-12-31",
+        "y0": 0,
+        "y1": 1,
         "fillcolor": "rgba(200,160,80,0.18)",
         "line": {
           "width": 0
@@ -991,6 +1001,19 @@
         },
         "layer": "below"
       }
-    ]
+    ],
+    "xaxis2": {
+      "anchor": "y2",
+      "domain": [
+        0.0,
+        0.94
+      ],
+      "title": {
+        "text": "Date (monthly)"
+      },
+      "tickangle": -45,
+      "tickformat": "%b %Y",
+      "nticks": 6
+    }
   }
 }

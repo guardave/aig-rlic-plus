@@ -859,12 +859,8 @@
         0.0,
         0.94
       ],
-      "title": {
-        "text": "Date (monthly)"
-      },
-      "tickangle": -45,
-      "tickformat": "%b %Y",
-      "nticks": 6
+      "matches": "x2",
+      "showticklabels": false
     },
     "yaxis": {
       "anchor": "x",
@@ -878,7 +874,7 @@
       "color": "#D55E00"
     },
     "yaxis2": {
-      "anchor": "x",
+      "anchor": "x2",
       "side": "right",
       "title": {
         "text": "SPY Cumul. Return (%, indexed)"
@@ -900,9 +896,23 @@
         "x0": "2020-02-01",
         "x1": "2020-04-30",
         "xref": "x",
-        "y0": 0.0,
-        "y1": 1.0,
-        "yref": "paper"
+        "y0": 0,
+        "y1": 1,
+        "yref": "y domain"
+      },
+      {
+        "fillcolor": "rgba(150,120,120,0.22)",
+        "layer": "below",
+        "line": {
+          "width": 0
+        },
+        "type": "rect",
+        "x0": "2020-02-01",
+        "x1": "2020-04-30",
+        "xref": "x2",
+        "y0": 0,
+        "y1": 1,
+        "yref": "y2 domain"
       }
     ],
     "annotations": [
@@ -952,6 +962,19 @@
       "borderwidth": 1
     },
     "height": 460,
-    "hovermode": "x unified"
+    "hovermode": "x unified",
+    "xaxis2": {
+      "anchor": "y2",
+      "domain": [
+        0.0,
+        0.94
+      ],
+      "title": {
+        "text": "Date (monthly)"
+      },
+      "tickangle": -45,
+      "tickformat": "%b %Y",
+      "nticks": 6
+    }
   }
 }
