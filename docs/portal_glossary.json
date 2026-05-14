@@ -228,6 +228,54 @@
       "why_it_matters": "Used directly to size positions — at 50% probability the strategy holds 50% equity, at 100% probability it holds 0% (all cash). This avoids the whipsaw of hard on/off rules.",
       "example": "On 2020-02-21, the HMM stress probability was 0.086 (calm); on 2020-02-24 it jumped to 1.000 (full stress), driving the position from 91.4% to 0% over two trading days.",
       "when_it_fails": "Daily noise around the 50% threshold can cause small position adjustments that add transaction cost without economic value — mitigated but not eliminated by the scaling rule."
+    },
+    "Cointegration": {
+      "plain_english": "Two series are cointegrated if they tend to move together over the long run even if they diverge short-term — like a dog and its owner on a long leash. It means there is a stable, long-run relationship between them.",
+      "why_it_matters": "Cointegration is a stronger claim than correlation: it says the relationship is structural and mean-reverting, not coincidental. If the indicator and target are cointegrated, deviations from the long-run trend are predictable.",
+      "example": "If HY-IG spreads and SPY volatility are cointegrated, a spike in spreads that is not matched by a rise in volatility signals a future correction — the two series will reconverge.",
+      "when_it_fails": "Structural breaks (regime changes, policy shifts) can destroy cointegration. A relationship that held for 20 years can break permanently after a major market event."
+    },
+    "Local projections": {
+      "plain_english": "A statistical method that estimates how one variable responds to a shock in another variable over multiple future time horizons — like asking 'if credit spreads widen today, how much does SPY fall in 1 month, 3 months, 6 months?'",
+      "why_it_matters": "Unlike a single regression, local projections give you the full path of the response over time, making it easy to see whether the indicator's predictive power is immediate or builds gradually.",
+      "example": "A local projection chart showing the SPY response to a 100bp HY-IG spread widening would plot a line descending over 6 months, then recovering — showing the peak impact comes 2–3 months after the widening.",
+      "when_it_fails": "Local projections require many observations to estimate reliably at long horizons. With monthly data and a 20-year sample, estimates at 12+ month horizons have wide confidence intervals."
+    },
+    "DSR (Deflated Sharpe Ratio)": {
+      "plain_english": "A version of the Sharpe ratio adjusted for the fact that when you test many strategies and pick the best one, the winner looks better than it really is. The DSR penalises the Sharpe ratio based on how many strategies were tested.",
+      "why_it_matters": "If you test 1,000 strategies and pick the one with the highest Sharpe ratio, some of that outperformance is pure luck. The DSR corrects for this so you can judge whether the winner is genuinely skilled or just the luckiest of a large cohort.",
+      "example": "A strategy with raw Sharpe 1.2 tested among 150 effective trials might have DSR p-value of 0.07 — meaning 7% of the time a strategy this good would appear by chance alone, even with no real edge.",
+      "when_it_fails": "The DSR assumes the strategies tested are somewhat independent. If the 150 trials are highly correlated variants of the same idea, the penalty is too harsh; if they are genuinely diverse, the penalty may be too lenient."
+    },
+    "Deflated Sharpe Ratio": {
+      "plain_english": "See DSR (Deflated Sharpe Ratio) — the same concept under its full name.",
+      "why_it_matters": "Identical to DSR entry.",
+      "example": "Identical to DSR entry.",
+      "when_it_fails": "Identical to DSR entry."
+    },
+    "Bootstrap confidence interval": {
+      "plain_english": "A range of plausible values for a statistic (like the Sharpe ratio) computed by re-sampling the historical data thousands of times with replacement. It answers: 'given the noise in this dataset, how certain are we about this number?'",
+      "why_it_matters": "A Sharpe ratio of 0.8 computed from 50 observations is far less reliable than one from 500 observations. The bootstrap CI makes that uncertainty explicit — a wide interval means the true value could be much lower.",
+      "example": "A bootstrap 95% CI of [0.2, 1.4] for a Sharpe ratio means: if we re-ran history with similar noise, 95% of the time the Sharpe would fall in that range. The lower bound of 0.2 is what matters for a conservative investor.",
+      "when_it_fails": "Bootstrap CIs assume the historical data is representative of the future. In markets with structural breaks, the past distribution may not resemble future returns."
+    },
+    "Holdout": {
+      "plain_english": "A sealed data window — completely set aside during signal search and model selection — that is used exactly once at the end of the process to test whether the strategy actually works on data the search never touched.",
+      "why_it_matters": "Tournament out-of-sample (OOS) testing is good, but the tournament still sees the OOS data while picking the winner. The holdout never participates in selection, so it is the only window where the result genuinely cannot have been curve-fit. A failure on the holdout means the winning rule did not generalise — it caught a pattern in the search/OOS period that no longer worked once a fresh period was tested.",
+      "example": "This portal uses a three-period design: in-sample 1996-12 to 2014-07 (signal search), OOS 2014-08 to 2020-06 (tournament evaluation), holdout 2020-07 to 2026-05 (sealed final exam). The v4/v5 HY-IG strategy posted OOS Sharpe 1.32 but holdout Sharpe 0.31 — below the 0.50 floor — and so was marked failed_final_exam.",
+      "when_it_fails": "A holdout that runs through a single market regime (e.g. only a bull market) can still mislead. The 2020-2026 holdout used here spans the COVID recovery, the 2022 rate shock, and the 2023-2026 bull run — multiple regimes, which is what makes it a meaningful test."
+    },
+    "IS": {
+      "plain_english": "Abbreviation for 'In-sample' — the data window used to BUILD and FIT models. See 'In-sample / Out-of-sample' for the full definition.",
+      "why_it_matters": "Performance reported on IS data is not evidence the strategy works — it is evidence the model was fit to that window. Treat any IS-only metric with skepticism.",
+      "example": "On this pair, IS = 1996-12 to 2014-07 (212 monthly observations). The tournament searched signals against this window. The winner's IS Sharpe is not reported as a headline metric — only the OOS and holdout Sharpes are.",
+      "when_it_fails": "A reader who mistakes an IS-only Sharpe for a validated result will substantially over-estimate the strategy's true edge."
+    },
+    "OOS": {
+      "plain_english": "Abbreviation for 'Out-of-sample' — the data window used to TEST a model that was fit on a different (in-sample) window. See 'In-sample / Out-of-sample' for the full definition.",
+      "why_it_matters": "OOS is the first honest test of a strategy. However, in tournament designs the OOS window is still used to PICK the winner — so a tournament-OOS Sharpe is not the same as a holdout Sharpe. For pairs that ran a final exam, the holdout result is the dispositive metric, not the OOS result.",
+      "example": "This pair's OOS window is 2014-08 to 2020-06 (71 monthly observations). The tournament-OOS Sharpe is 1.32. The separate holdout test (2020-07 onward) returned 0.31, which is the dispositive verdict.",
+      "when_it_fails": "Treating tournament-OOS Sharpe as a validated result without a separate holdout test inflates apparent edge by the size of the search-phase data-mining bias."
     }
   }
 }
