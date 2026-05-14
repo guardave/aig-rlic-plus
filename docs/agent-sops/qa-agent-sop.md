@@ -201,6 +201,55 @@ QA runs all six checks per wave:
   chart sidecar is a VIZ-O1 finding; it becomes a GATE-28 placeholder finding
   only when unresolved chart text is visible on a delivered page.
 - **Cross-version diff (META-XVC):** undeclared method drift between prior version and current version = 0.
+- **Caption quantitative-claim audit (QA-CAP1):** every chart caption (in `chart_captions.json` AND in `_meta.json` sidecars AND in Ray's narrative-softened Story prose) that names a number must reference a value that appears in `winner_summary.json` or `final_exam_results.json` with the same value and same window. See QA-CAP1 below.
+
+### Rule QA-CAP1 — Caption Quantitative-Claim Audit (added 2026-05-13)
+
+**Problem addressed:** Captions can drift from the numbers they claim to summarise — through template-boilerplate reuse, through Ray's narrative softening, or through stale captions left in place after a re-run. The v4 reference case: a "Consistent positive bars indicate a robust signal" caption shipped on a chart with a visibly negative GFC sub-period bar.
+
+**The rule:** Quincy verifies caption claims at **two gates**, once per producer step:
+
+**Gate 1 — Step 3 (Evan's chart_captions.json):** before Vera can begin rendering.
+
+```python
+# Pseudocode — Quincy reads each entry and confirms every numeric claim
+import json, re, pathlib
+
+captions = json.loads(pathlib.Path("results/{pair_id}/chart_captions.json").read_text())
+winner = json.loads(pathlib.Path("results/{pair_id}/winner_summary.json").read_text())
+final_exam = json.loads(pathlib.Path("results/{pair_id}/final_exam_results_*.json").read_text())
+
+allowed_numbers = set()
+for v in {**winner, **final_exam}.values():
+    if isinstance(v, (int, float)):
+        allowed_numbers.add(round(float(v), 4))
+
+violations = []
+for chart_name, caption in captions.items():
+    finding = caption.get("finding", "")
+    for num_str in re.findall(r"-?\d+\.?\d*", finding):
+        num = round(float(num_str), 4)
+        # Allow rounded variants (1.32 matches 1.3238, 0.55 matches 0.5511, etc.)
+        if not any(abs(num - n) < 0.01 or abs(num - round(n, 2)) < 0.005 for n in allowed_numbers):
+            violations.append(f"{chart_name}: caption claims {num} but not found in winner_summary or final_exam")
+
+assert not violations, violations
+```
+
+**Gate 2 — Step 4 (Vera's `_meta.json` sidecars):** verify that every sidecar's `caption.finding` and `caption.how_to_read` match the corresponding entry in `chart_captions.json` **verbatim** (no Vera paraphrasing). One-line diff per chart; any non-verbatim copy is a blocking finding.
+
+**Gate 3 — Step 5 (Ray's narrative Story prose):** any sentence in Ray's narrative that references a number must reference a number from `winner_summary.json` or `final_exam_results.json`. Ray may soften Evan's voice ("credit-cycle dislocation" → "the 2008 crisis broke the signal") but cannot change the quantitative claim — the softened sentence must still be supported by the same number.
+
+**Findings format:** per-violation entry in `regression_note_{date}.md` and `acceptance.md`:
+
+```
+QA-CAP1 Gate {1|2|3} finding ({chart_name|page_section}): caption claims "{quoted-number-or-claim}" but {what's wrong — number not in artefacts / sidecar non-verbatim / narrative changed claim}.
+Disposition: BLOCK / WARN / PASS-WITH-NOTE.
+```
+
+Gate 1 blocks Vera from starting Step 4. Gate 2 blocks Ray from starting Step 5. Gate 3 blocks Lesandro from running GATE-RW1.
+
+**Cross-reference:** econometrics-agent-sop.md Rule ECON-CAP1 (Evan's authoring contract); visualization-agent-sop.md Rule VIZ-CAP1 (Vera's passthrough contract); team-coordination.md Standard Task Flow Steps 3/4/5 (per-step gates).
 
 ## Findings Format
 

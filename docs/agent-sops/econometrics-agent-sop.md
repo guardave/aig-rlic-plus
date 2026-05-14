@@ -482,9 +482,47 @@ Bottom rows contain model-level statistics and key diagnostics. Column 1 is alwa
 - **Narrative:** 2-3 paragraph economic interpretation of the results
 - Save model objects (pickle) for downstream use by visualization agent
 - **Acknowledge upstream contributions:** In the narrative, cite Dana's dataset and Ray's brief by file path. Example: "Using the dataset prepared by Dana (see data dictionary at `data/data_dictionary.md`). Model specification follows Ray's research brief (see `docs/research_brief_*.md`), with the following departures: ..."
-- **Hand off to Vera** using the Chart Request Template below
+- **Author `chart_captions.json`** per **Rule ECON-CAP1** below — mandatory same-step deliverable. Vera cannot begin chart rendering until this file is committed.
+- **Hand off to Vera** using the Chart Request Template below — handoff note includes the `chart_captions.json` path as a required input.
 - **Hand off to Ace** using the App Dev Handoff Template below (when portal assembly is in scope)
 - **Send acknowledgment to Dana and Ray** confirming what you used from their deliverables
+
+### Rule ECON-CAP1 — Chart Caption Ownership (added 2026-05-13)
+
+**Problem addressed:** Interpretive captions on quantitative charts make claims about the data ("Consistent positive bars indicate a robust signal"). When Vera authors these captions, she is making a claim about results she did not compute — leading to template-boilerplate captions that can directly contradict the visible chart (v4 reference case: a "robust signal" caption on a chart with a clearly-negative GFC sub-period bar).
+
+**The rule:** Evan owns every chart caption that makes a quantitative or interpretive claim about the data. These captions are authored at **Step 3 of the Standard Task Flow** (analysis), not delegated downstream.
+
+**Deliverable:** `results/{pair_id}/chart_captions.json` — committed in the same wave-step as `winner_summary.json` and `evidence_status.json`, before Vera begins rendering.
+
+**Schema:**
+
+```json
+{
+  "{chart_name}": {
+    "how_to_read": "One-sentence reader-orienting instruction. Plain English. No claim about findings.",
+    "finding": "One-to-three-sentence interpretive claim about THIS pair's result. Every quantitative reference must be verifiable against winner_summary.json or final_exam_results.json. Cites specific values where they make the claim concrete.",
+    "caption_owner": "evan"
+  }
+}
+```
+
+**Caption coverage:** every chart in the standard chart set per the pair's `chart_type_registry.json` binding. Pair-specific extras (e.g. crisis-episode zoom charts with pair-specific narrative beats) also require captions; for those, the chart_name is the canonical filename (e.g. `history_zoom_dotcom`).
+
+**What goes where:**
+
+| Caption field | Owner | Contents | Example |
+|---|---|---|---|
+| `how_to_read` | Evan (ECON-CAP1) | Reader-orienting instruction. No data-specific claim. Reusable across pairs. | "24-month rolling Sharpe ratio of the strategy." |
+| `finding` | Evan (ECON-CAP1) | Pair-specific interpretation grounded in committed numbers. | "Rolling Sharpe averaged 0.8 during the 2014-2020 search window but collapsed below 0.5 from 2020 onward, foreshadowing the failed final exam." |
+| `what_this_shows` | Vera (provenance) | Data source line. Where the chart came from. | "Generated with AIG-RLIC+ pipeline from `results/{pair}/tournament_results_*.csv`." |
+| Story prose around the chart | Ray | Editorial framing for the reader. Cites Evan's findings without paraphrasing the quantitative claim. | "The strategy worked through 2019 but the regime changed — see the chart below." |
+
+**Quantitative-claim invariant:** any caption (Evan's or Ray's softened version) that names a number must use a number that appears in `winner_summary.json` or `final_exam_results.json` with the same value and same window. Quincy verifies this at the per-step gate.
+
+**Pre-pair-3 backward compatibility:** existing pairs whose captions live in chart sidecars or template defaults are grandfathered. Any caption modification after 2026-05-13 must follow ECON-CAP1 — the modified caption is authored by Evan and lands in a `chart_captions.json` artefact for the pair. New pairs (Pair #4 onward) use the rule end-to-end.
+
+**Cross-reference:** team-coordination.md Standard Task Flow Step 3 (caption authoring is part of analysis, not a separate step); visualization-agent-sop.md VIZ-CAP1 (Vera passthrough contract); qa-agent-sop.md QA-CAP1 (Quincy verifies caption quantitative claims at Step 3 gate and again at Step 4 Vera-sidecar gate).
 
 ## Chart Request Template
 

@@ -235,6 +235,43 @@ Perceptual PNG sidecars (`_perceptual_check_history_zoom_{slug}.png`) are requir
 
 ---
 
+## Failed-Final-Exam KPI Routing
+
+**Rule DPS-FE2** — When `evidence_status.status == "failed_final_exam"`, the Story page and Strategy page top-of-page KPI row MUST display the **holdout** Sharpe / annualised return / max drawdown from `final_exam_results.json` as the **primary** headline metric. The tournament-OOS numbers from `winner_summary.json` may appear as a secondary "Search Phase" sub-row with an explicit qualifier caption.
+
+### Why this rule exists
+
+The v4 reference case shipped with this defect: `evidence_status.status` was `failed_final_exam` but the Story KPI row headlined "OOS Sharpe 1.32" — the tournament-OOS number from `winner_summary.json`. A reader landing on the Story page saw a strong-looking Sharpe as the headline, then had to read the Strategy page disclosure banner to discover the holdout actually returned -13%. The two pages cited different windows for the same "OOS" label, and the reader had no way to know which one was the verdict.
+
+The rule eliminates the failure mode by binding KPI routing to `evidence_status.status` at the template level, not at the producer's discretion.
+
+### KPI routing matrix (template-level, owned by Ace per APP-PLB1)
+
+| `evidence_status.status` | Headline KPI source | Optional secondary row | Headline KPI label |
+|---|---|---|---|
+| `passed_final_exam` | `final_exam_results.holdout_*` | `winner_summary.oos_*` as "Search Phase" sub-row (optional) | "Holdout Sharpe" |
+| `failed_final_exam` | `final_exam_results.holdout_*` | `winner_summary.oos_*` as "Search Phase (did not generalise)" sub-row (recommended for context) | "Holdout Sharpe (failed)" |
+| `found_in_search` | `winner_summary.oos_*` | None | "Search-phase OOS Sharpe (no holdout test yet)" |
+| `pending_final_exam` | `winner_summary.oos_*` | None | "Search-phase OOS Sharpe (holdout pending)" |
+| `inconclusive` | `winner_summary.oos_*` | `final_exam_results.holdout_*` if computed | "Search-phase OOS Sharpe (holdout inconclusive — see disclosure)" |
+
+### Window labelling rule
+
+Any KPI cited on a page MUST be labelled with its window in the KPI row, not just in body prose. A reader scanning the KPI row must be able to tell which window each number is over without reading further.
+
+- ✅ `OOS Sharpe 1.32 (search 2014-08–2020-06)` + `Holdout Sharpe 0.31 (test 2020-07–2026-05)`
+- ❌ `OOS Sharpe 1.32` alone with the window explained in a caption two sections below
+
+### Cross-reference
+
+- **APP-PLB1** (Ace owns the template wiring that routes by status; this is plumbing, not content)
+- **ECON-CAP1** (Evan owns `final_exam_results.json` and the `evidence_status.plain_english` framing the template displays)
+- **LEAD-FR1 Checkpoint 2** (Lead reviews framing at Step 3 — confirms `evidence_status.status` and the framing language match)
+- **RES-CAP1** (Ray's narrative cannot headline tournament-OOS numbers on a `failed_final_exam` pair)
+- **GATE-RW1** (Reader walk catches any escaped KPI-routing defect at Step 5)
+
+---
+
 ## Info Icon Convention
 
 **Rule DPS-II1** — Every defined technical term appearing in a page heading, label, KPI card, or method block heading must be accompanied by an inline info icon that surfaces its plain-English definition on click.

@@ -1218,7 +1218,52 @@ Artifact-existence checks (the prior Defense-2 protocol, META-ZI loader-contract
   grep -rL "render_methodology_page\|render_story_page\|render_evidence_page\|render_strategy_page" app/pages/
   ```
   This enumerates every page file that does NOT call a template function (i.e., every bypass page). For each bypass page identified, Ace MUST either: (a) add a defensive direct call to the new feature within the bypass page in the same commit, OR (b) file a blocker in `_pws/_team/status-board.md` before closing the wave. Proceeding to wave closure without doing one of (a) or (b) is a gate failure. Canonical lesson: Wave 10H.1 — `_render_exploratory_insights` shipped in the template but `9_hy_ig_v2_spy_methodology.py` (bypass page) did not receive it; caught by Quincy's cloud verify, requiring an unplanned follow-up commit.
-- **Cross-references:** APP-CC1 (caption-prefix registry — templates author per registry), APP-EX1 (expander-title registry — templates author per registry), APP-SEV1 (severity policy), APP-SS1 (Signal Universe reader — template owns it), APP-WS1 (winner_summary schema load — template owns it), APP-DIR1 (direction-check call site — template owns it), META-CF, META-ELI5, META-NMF (no ad-hoc fix — fix lives in template, not in page).
+- **Cross-references:** APP-CC1 (caption-prefix registry — templates author per registry), APP-EX1 (expander-title registry — templates author per registry), APP-SEV1 (severity policy), APP-SS1 (Signal Universe reader — template owns it), APP-WS1 (winner_summary schema load — template owns it), APP-DIR1 (direction-check call site — template owns it), APP-PLB1 (plumbing-only role — Ace makes no content decisions), META-CF, META-ELI5, META-NMF (no ad-hoc fix — fix lives in template, not in page).
+
+### Rule APP-PLB1 — Plumbing-Only Role (added 2026-05-13, supersedes ad-hoc Ace content authoring)
+
+**Problem addressed:** Under the prior workflow, Ace silently made content decisions — which KPIs to put on the Story page top row, what to call the headline metric, when to omit a fallback caption, whether the Strategy subtitle reflected a failed final exam. These decisions accumulated without an owner: Ray didn't write them (not narrative), Evan didn't write them (not analysis), Vera didn't write them (not visualization). Result: `failed_final_exam` pairs shipped with tournament-OOS Sharpe as the headline KPI because that's what the template wired up by default.
+
+**The rule:** Ace makes **no content decisions** at portal-assembly time. Ace's role is to route producer artefacts through templates. Every reader-facing string, number, and display selection traces back to a committed artefact owned by a producer role.
+
+**Content-routing contract — what Ace plumbs, who owns the source:**
+
+| Reader-facing element | Source artefact | Owner |
+|---|---|---|
+| Page title | `pair_config.PAGE_TITLE` (Story narrative title) or template default | Ray (Story) / template (Evidence, Strategy, Methodology) |
+| Pair caption (`Pair: ...`) | `interpretation_metadata.indicator_display`, `interpretation_metadata.target_display` | Dana |
+| Headline KPI row source — when `evidence_status.status == "passed_final_exam"` | `winner_summary.oos_*` fields | Evan |
+| Headline KPI row source — when `evidence_status.status == "failed_final_exam"` | `final_exam_results.holdout_*` fields (NOT `winner_summary.oos_*`) | Evan — per DPS-FE2 |
+| Headline KPI row source — when `evidence_status.status == "found_in_search"` | `winner_summary.oos_*` fields with "Search Phase" qualifier caption | Evan |
+| Headline metric labels ("OOS Sharpe", "Holdout Sharpe") | Template constants routed by `evidence_status.status` | Template |
+| Strategy rule plain-English block | `pair_config.SIGNAL_RULE_MD` | Evan (claim) + Ray (voice) |
+| Chart "how to read it" caption | `chart_captions.json[chart_name].how_to_read` via Vera's `_meta.json` passthrough | Evan |
+| Chart "finding" caption | `chart_captions.json[chart_name].finding` via Vera's `_meta.json` passthrough | Evan |
+| Chart "what this shows" provenance | Vera's `_meta.json` `caption.what_this_shows` | Vera |
+| Story page subtitle | `pair_config.PAGE_SUBTITLE` | Ray (after seeing `evidence_status.status`) |
+| Failed-exam disclosure banner | `evidence_status.plain_english` + `evidence_status.failure_reasons[]` | Evan |
+| Tournament Winner heading | Template constants + `winner_summary.signal_display_name` + family label map | Template + Evan |
+| Episode chart narrative captions | `pair_config.HISTORY_ZOOM_EPISODES[].narrative` | Ray |
+| Glossary search content | `docs/portal_glossary.json` | Ray (terms) + Lead (curation) |
+
+**Forbidden patterns:**
+
+- ❌ Ace selecting which `winner_summary` field to display as the headline KPI based on which field happens to be populated — selection must be routed by `evidence_status.status` per the table above
+- ❌ Ace inventing labels, captions, or subtitles when the source artefact is missing — escalate to the owner as a blocking handoff defect
+- ❌ Ace softening a producer's wording for "voice" — that's Ray's job at Step 5
+- ❌ Ace choosing display formatting that changes the quantitative claim (e.g. rendering `-0.13` as `+13% loss` rather than `-13%` excess return) — match the artefact's sign and convention
+- ❌ Ace writing fallback strings ("Strategy details pending", "Coming soon") in delivered code — APP-SEV1 governs missing-artefact behaviour, not Ace's improvisation
+
+**Allowed:**
+
+- ✅ Ace authoring the template logic that routes `evidence_status.status` → which KPI source to read
+- ✅ Ace authoring family label maps and display-format constants in the template (e.g. `P1_long_cash` → `Long / Cash Switch`) — these are structural rendering decisions, not content
+- ✅ Ace pushing back on a producer when the artefact is incomplete (e.g. `chart_captions.json` missing the `finding` for a chart that the template wants to display) — escalate as a blocking handoff defect to the owner
+- ✅ Ace writing the *display logic* that says "if status==failed, show holdout numbers as primary KPIs" — Ace owns the template wiring, Evan owns the numbers
+
+**Failed-final-exam routing (DPS-FE2 reference):** when `evidence_status.status == "failed_final_exam"`, the Story and Strategy KPI row must display **holdout** Sharpe / annualised return / max drawdown from `final_exam_results.json`, with tournament-OOS as an optional "Search Phase" sub-row. The current default of displaying `winner_summary.oos_sharpe` as the headline is non-compliant for failed-exam pairs. See `docs/dashboard-page-standard.md` Rule DPS-FE2.
+
+**Cross-reference:** econometrics-agent-sop.md ECON-CAP1 (Evan owns caption strings Ace plumbs); visualization-agent-sop.md VIZ-CAP1 (Vera passthrough — Ace reads Vera's sidecar verbatim); research-agent-sop.md RES-CAP1 (Ray's narrative coherence — Ace cannot rewrite Ray's softened phrasing); qa-agent-sop.md QA-CAP1 (Quincy verifies every reader-facing number traces to an artefact); team-coordination.md Step 6 (Ace's portal-assembly phase explicitly named as plumbing-only); dashboard-page-standard.md DPS-FE2 (failed-exam KPI routing rule).
 
 **APP-PT1 Supplement — Narrative Authorship Contract (added 2026-04-20).**
 

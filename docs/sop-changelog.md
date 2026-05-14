@@ -8,6 +8,45 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-13 — Sequential wave model: ECON-CAP1, VIZ-CAP1, RES-CAP1, APP-PLB1, QA-CAP1, LEAD-FR1, DPS-FE2 (cross-SOP coordinated change)
+
+**Trigger.** The v4 reference dashboard surfaced a class of defect that the prior parallel-with-Lead-review workflow could not catch: cross-page reconciliation failures where each producer's domain-local output was internally consistent but the assembled portal made contradictory claims. Canonical case: `evidence_status.status = failed_final_exam` with `final_exam_results.holdout_sharpe = 0.31`, but the Story page headlined `OOS Sharpe 1.32` (the tournament-OOS number from `winner_summary.json`) — because no rule said "for failed-exam pairs, holdout numbers are the headline" and no checkpoint forced framing review before Ray and Ace had already wired the wrong number through.
+
+**Diagnosis:** three structural gaps in the prior workflow:
+
+1. Vera owned interpretive chart captions despite not owning the numbers, producing template-boilerplate captions that contradicted visible data ("Consistent positive bars indicate a robust signal" on a chart with a clearly-negative GFC bar).
+2. Ray drafted narrative against `analysis_brief` rather than committed `winner_summary` + `evidence_status` + chart outputs, producing prose that framed the wrong window as the headline.
+3. Ace silently made content decisions about KPI source selection because no rule routed `evidence_status.status` to a KPI source.
+
+**Changes — sequential wave model with per-step verifier gates (team-coordination.md Standard Task Flow rewritten):**
+
+- **Standard Task Flow rewritten** (`team-coordination.md`) — old 15-step model with single-pass parallel producers + Lead META-CDR at step 10 replaced with **7-step sequential model**: Step 0 Lesandro frames → Step 1 Evan designs tournament → Step 2 Dana collects to spec → Step 3 Evan crunches + writes captions → Step 4 Vera renders → Step 5 Ray narrates → Step 6 Ace plumbs → Step 7 Lesandro META-CDR. Each step produces a named prerequisite artefact; downstream producers cannot begin until upstream artefact is committed and its verifier gate has passed.
+
+**Changes — caption ownership (Evan-owned, with Vera passthrough and Ray voice softening):**
+
+- **ECON-CAP1** (`econometrics-agent-sop.md`) — Evan owns every chart caption that makes a quantitative or interpretive claim. Authored at Step 3 in `results/{pair_id}/chart_captions.json` alongside `winner_summary.json` and `evidence_status.json`. Schema: `{chart_name: {how_to_read, finding, caption_owner: "evan"}}`. Every quantitative reference in a `finding` must be verifiable against `winner_summary.json` or `final_exam_results.json`.
+- **VIZ-CAP1** (`visualization-agent-sop.md`) — Vera passthrough contract supersedes Rule A5 for new pairs. Vera copies `chart_captions.json` entries verbatim into `_meta.json` sidecars; cannot paraphrase. Vera authors `caption.what_this_shows` only (provenance). Pre-render check: halt rendering if `chart_captions.json` is missing or incomplete.
+- **RES-CAP1** (`research-agent-sop.md`) — Ray's narrative phase begins only after Step 4 commits. Ray may soften Evan's clinical captions for reader voice in Story prose but cannot change quantitative claims. Failed-exam framing rule: when `evidence_status.status == "failed_final_exam"`, Story headline KPIs and lede sentence must reference the holdout result, not the tournament-OOS result.
+
+**Changes — Ace plumbing-only role:**
+
+- **APP-PLB1** (`appdev-agent-sop.md`) — Ace makes no content decisions at portal assembly. Every reader-facing string, number, and display selection traces back to a producer-owned artefact. Content-routing contract names which artefact owns each reader-facing element. Forbidden: Ace selecting KPI source based on which field happens to be populated; Ace softening producer wording; Ace writing fallback strings. Failed-exam KPI routing per DPS-FE2 is the canonical worked example.
+
+**Changes — verifier gates per step:**
+
+- **QA-CAP1** (`qa-agent-sop.md`) — Quincy verifies caption claims at three gates: Gate 1 (Step 3) reads every numeric reference in `chart_captions.json` and confirms it appears in `winner_summary.json` or `final_exam_results.json`; Gate 2 (Step 4) confirms Vera's sidecar copies match `chart_captions.json` verbatim; Gate 3 (Step 5) confirms Ray's narrative-softened phrasing still supports the same quantitative claim. Each gate is blocking for the next producer step.
+- **LEAD-FR1** (`lead-agent-sop.md`) — Lead framing review at three checkpoints, not one: Checkpoint 1 (Step 1 tournament design review), Checkpoint 2 (Step 3 framing review — the highest-leverage Lead intervention; verifies `evidence_status.status` is honest and `chart_captions.json` framing matches), Checkpoint 3 (Step 5 GATE-RW1 reader walk). Old META-CDR review at Step 7 becomes safety net, not primary catch.
+
+**Changes — dashboard standard:**
+
+- **DPS-FE2** (`dashboard-page-standard.md`) — Failed-final-exam KPI routing rule. When `evidence_status.status == "failed_final_exam"`, Story and Strategy headline KPIs must show holdout numbers, not tournament-OOS. Includes routing matrix for all 5 status values and window-labelling rule (every KPI labelled with its window in the row, not in body prose).
+
+**Backward compatibility.** Pairs 1-11 are grandfathered — no retroactive caption migration required. Any caption modification after 2026-05-13 must follow the new ownership rules; the modified caption is authored by Evan and lands in `chart_captions.json`. New pairs (Pair #4 — `t10y3m_spy` — onward) use the full 7-step sequence end-to-end.
+
+**Open items for next session:** v4 hot-fix against DPS-FE2 (currently shipping with tournament-OOS Sharpe headlined despite `failed_final_exam` status). Filed the rule first; hot-fix dispatched as separate wave.
+
+---
+
 ## 2026-05-12 — DPS-PRE1: Final Exam Hard Gate + failed_final_exam status (new rule + schema v1.2.0)
 
 **Trigger.** The final exam was not codified as a hard gate — pairs could sit at `found_in_search` indefinitely without being blocked from production. A failed exam should still be visible to stakeholders as informational disclosure rather than hidden.

@@ -528,16 +528,42 @@ When a pair genuinely needs a non-standard chart, **add a new method entry to `d
 
 **Silent chart differences between reruns are a completeness gate failure (gate item 22).** If the change was unintentional, revert to the canonical spec in Rule A3 instead of writing a regression note. The regression note exists to document *deliberate* deviations, not to rubber-stamp accidental ones.
 
-#### Rule A5 — Caption Ownership (Ray owns display, Vera owns audit)
+#### Rule A5 — Caption Ownership (SUPERSEDED 2026-05-13 by VIZ-CAP1)
 
-Chart captions appear in two places, owned by two agents. Do not duplicate or cross-wire them:
+**Status: superseded** for any caption authored or modified after 2026-05-13. See **Rule VIZ-CAP1** below. Rule A5's display/audit split is retained for grandfathered pairs (Pair #1 through Pair #11 as of 2026-05-13) where retroactive migration is not required.
 
-| Field | Owner | Location | Purpose |
-|-------|-------|----------|---------|
-| **Display caption** (what the portal reader sees beneath the chart) | Ray | Narrative content dict, field `caption`, consumed by Ace via `load_plotly_chart(..., caption=content.get("caption"))` | Plain-English one-liner aligned with the surrounding story |
-| **Technical caption** (audit / metadata) | Vera | `{chart_name}_meta.json`, field `caption` | Machine-readable one-line description of what the chart literally shows — used for reconciliation, chart registry browsing, and as a FALLBACK if Ray's narrative dict is missing a caption for a given chart |
+#### Rule VIZ-CAP1 — Caption Passthrough Contract (added 2026-05-13, supersedes A5)
 
-**Rule:** Vera MUST populate `caption` in every `_meta.json` sidecar (mandatory per the metadata schema below). Ace MUST use Ray's narrative caption as the primary display text. If Ray's content dict omits `caption` for a given chart_type, Ace falls back to Vera's `_meta.json` caption — but Ray and Vera should not silently produce conflicting captions. If Vera notices during QA that Ray's caption contradicts the chart's actual data, flag it to Ray; do not rewrite Ray's narrative.
+**Problem addressed:** Under Rule A5, Vera owned the audit caption and Ray owned the display caption — but interpretive captions ("Consistent positive bars indicate a robust signal") were authored by whichever agent reached the field first, sometimes ending up in Vera's `_meta.json` sidecar as template boilerplate. When the boilerplate contradicted the chart's actual data, neither owner caught it because neither owned both the numbers and the words.
+
+**The new ownership model (per ECON-CAP1):** Evan owns every caption that makes a quantitative or interpretive claim. Vera owns provenance-only captions. Ray softens Evan's captions for reader voice in Story prose but cannot change the quantitative claim.
+
+**Vera's passthrough contract:**
+
+| `_meta.json` field | Owner | Vera's responsibility |
+|---|---|---|
+| `caption.how_to_read` | Evan (`chart_captions.json`) | **Passthrough.** Copy verbatim from `results/{pair_id}/chart_captions.json[chart_name]["how_to_read"]`. Do not paraphrase. Do not edit. |
+| `caption.finding` | Evan (`chart_captions.json`) | **Passthrough.** Copy verbatim from `results/{pair_id}/chart_captions.json[chart_name]["finding"]`. Do not paraphrase. Do not edit. |
+| `caption.what_this_shows` | **Vera** | Author yourself. One-line provenance statement: source file, chart construction method, sample window. No interpretive claim. Example: `"Generated with AIG-RLIC+ pipeline from results/{pair}/tournament_results_v4_20260512.csv."` |
+| `caption_owner` (chart-level field) | **Vera** | Set to `"evan"` for `finding` and `how_to_read`, `"vera"` for `what_this_shows`. This field is read by Quincy at the Step 4 chart-validation gate. |
+
+**Pre-render check (mandatory at Step 4 entry):** before rendering any chart, Vera must confirm `results/{pair_id}/chart_captions.json` exists and contains an entry for every chart in the pair's standard chart set per `chart_type_registry.json`. If any entry is missing, halt — return the gap to Evan as a blocking handoff defect. Do not render with placeholder captions.
+
+**Forbidden patterns:**
+
+- ❌ Vera authoring interpretive captions ("indicates a robust signal", "consistent with the hypothesis") in `_meta.json` sidecars
+- ❌ Vera paraphrasing Evan's `chart_captions.json` strings rather than copying verbatim
+- ❌ Vera rendering charts when `chart_captions.json` does not yet exist or is incomplete
+- ❌ Template-boilerplate captions reused across pairs without pair-specific verification
+
+**Allowed:**
+
+- ✅ Vera flagging a caption to Evan that contradicts what she sees in the chart (e.g. caption says "positive Sharpe in all sub-periods" but the chart visibly has a negative bar). Return to Evan as a blocking handoff defect; do not edit the caption yourself.
+- ✅ Vera authoring `caption.what_this_shows` with full provenance (file path, function name, sample window). This is Vera's territory.
+
+**Cross-reference:** econometrics-agent-sop.md Rule ECON-CAP1 (Evan's authoring contract — the source of every caption Vera ships); team-coordination.md Standard Task Flow Step 4 (Vera's render step explicitly named as caption passthrough, not authoring); qa-agent-sop.md QA-CAP1 (Quincy's two-stage caption verification at Step 3 and Step 4 gates).
+
+**Backward compatibility:** Rule A5's display/audit split remains in effect for pairs 1-11. For those pairs, captions in chart sidecars or Ray's narrative dicts continue as-is. Any caption modification after 2026-05-13 must migrate the affected caption to Evan's `chart_captions.json` and Vera's sidecar updated to the passthrough contract.
 
 #### Rule V1 — Annotated Historical-Episode Zoom-In (addresses SL-4, SL-5; enables S18-12; rev 2026-04-19 Wave 6B per META-AL)
 

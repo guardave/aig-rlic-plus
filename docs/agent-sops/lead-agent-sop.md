@@ -112,7 +112,56 @@ This division is not just a workload split — it is a structural principle. If 
 
 **The test.** When Lead spots an agent-domain quality issue (e.g., a chart with wrong colors), the correct action is: dispatch the agent with the finding and the SOP rule that covers it. The incorrect action is: fix it directly. The distinction is not about speed — it is about where accountability lives.
 
-**Cross-reference:** LEAD-DL1 (delegation discipline — Lead does not write to agent-owned files), LEAD-DL1 Exceptions (narrow overrides for true emergencies only), META-CDR (cross-domain review — the structured mechanism by which Lead exercises big-picture quality between producer self-verify and QA).
+**Cross-reference:** LEAD-DL1 (delegation discipline — Lead does not write to agent-owned files), LEAD-DL1 Exceptions (narrow overrides for true emergencies only), LEAD-FR1 (framing review at three checkpoints), META-CDR (cross-domain review — the structured mechanism by which Lead exercises big-picture quality between producer self-verify and QA).
+
+---
+
+## Rule LEAD-FR1 — Framing Review at Three Checkpoints (added 2026-05-13, binding)
+
+**Problem addressed:** Under the prior workflow, Lead's only structured framing review happened at META-CDR (Step 10 of the old flow) — after Ray's narrative and Ace's portal assembly were already committed. By that point, framing decisions ("Sharpe 1.32 is the headline", "this pair passed in spirit even though the holdout failed") had compounded through 5+ producer steps. Reversing them required re-doing analysis, charts, and prose. The v4 reference case: `evidence_status.status = "failed_final_exam"` was authored at Step 3 but the Story page shipped with tournament-OOS Sharpe 1.32 as the headline KPI because no rule said "for failed-exam pairs, holdout numbers are the headline" — and Lead never reviewed the framing until Step 10.
+
+**The rule:** Lead conducts framing review at **three checkpoints** in the Standard Task Flow, not one. Each is a blocking gate.
+
+### Checkpoint 1 — Step 1 design review (Evan's `tournament_design.json`)
+
+**Trigger:** Evan commits `results/{pair_id}/tournament_design.json`.
+
+**Questions Lead answers:**
+- Are the tournament universe choices (signals, thresholds, strategies, windows) appropriate for this pair's indicator class?
+- Is the IS/OOS/holdout split honest? (e.g. holdout is not a continuation of OOS; windows are non-overlapping)
+- Is the dispositive Sharpe floor reasonable given the pair's a-priori expected difficulty?
+- Are there pair-specific constraints (frequency, FRED data window, regime structure) that the design ignored?
+
+**Deliverable:** `acceptance.md` Step 1 block — Lead sign-off or blocking objections. Dana cannot start data collection until Lead signs off.
+
+### Checkpoint 2 — Step 3 framing review (Evan's `evidence_status.json` + `chart_captions.json`)
+
+**Trigger:** Evan commits all three Step-3 artefacts (`winner_summary.json`, `evidence_status.json`, `chart_captions.json`).
+
+**Questions Lead answers:**
+- Does `evidence_status.status` honestly reflect what the numbers say? In particular: a pair whose holdout Sharpe falls below the dispositive floor cannot ship as `passed_final_exam`, regardless of how strong the search-phase numbers look.
+- Does `evidence_status.plain_english` framing match the status? A `failed_final_exam` plain-English block must lead with the failure, not the search-phase win.
+- Do Evan's chart captions (`chart_captions.json[*]["finding"]`) frame each chart's result in line with the overall status? A "robust signal" finding caption on a pair whose holdout failed is a framing inconsistency, even if the individual chart's numbers are positive.
+- For `failed_final_exam` pairs: are the `failure_reasons[]` written in reader-grade plain English, not statistical codes?
+
+**Deliverable:** `acceptance.md` Step 3 block — Lead sign-off or blocking objections. Vera cannot start chart rendering until Lead signs off. **This checkpoint is the single highest-leverage Lead intervention in the wave** — framing errors caught here cost minutes; framing errors caught at Step 7 cost a wave.
+
+### Checkpoint 3 — Step 5 reader walk (GATE-RW1 on Ray's narrative + the rendered pages)
+
+**Trigger:** Ray commits `portal_narrative_{pair_id}_{date}.md` and Ace commits the page wrappers.
+
+**Questions Lead answers:** all GATE-RW1 questions per `qa-agent-sop.md` (first-time reader walk, all 4 pages, structured findings format). Specifically:
+- Does the Story headline match the framing approved at Checkpoint 2?
+- Does Ray's narrative-softened voice still support the same quantitative claims as Evan's clinical captions?
+- Does any reader-facing number on any page contradict a number on a different page?
+
+**Deliverable:** `acceptance.md` Step 5 block — GATE-RW1 findings. Findings are blocking; producers fix before Step 7 acceptance.
+
+### What this changes
+
+The old META-CDR review at Step 10 (now Step 7) becomes the **safety net**, not the primary catch. By the time Lead runs Step 7 META-CDR, framing has been reviewed twice and the reader walk has been done. META-CDR at Step 7 looks for cross-agent seams that the per-step gates missed — schema mismatches, silently-dropped deliverables, naming drift. It is no longer the place where Lead first encounters a `failed_final_exam` pair headlined by tournament-OOS Sharpe.
+
+**Cross-reference:** team-coordination.md Standard Task Flow Steps 1 / 3 / 5 (the three framing checkpoints are named verifier gates); econometrics-agent-sop.md ECON-CAP1 (Evan's authoring contract — Lead reviews the captions Evan writes at Checkpoint 2); research-agent-sop.md RES-CAP1 (Ray's narrative coherence — Lead's Checkpoint 3 reader walk verifies Ray's softening preserved the framing approved at Checkpoint 2); qa-agent-sop.md GATE-RW1 (the structured reader walk Lead executes at Checkpoint 3); LEAD-QF1 (Lead's quality focus is big-picture and inter-agent seams — three-checkpoint framing review operationalises that focus).
 
 ---
 

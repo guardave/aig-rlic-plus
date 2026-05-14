@@ -39,36 +39,78 @@ This document defines how agents on the AIG-RLIC+ team coordinate work, hand off
 
 ## Standard Task Flow
 
-A typical analysis follows this sequence:
+Pair waves follow a **strict sequential dependency chain** with per-step verifier gates. Each step produces a named prerequisite artefact that the next step consumes; downstream producers cannot begin until the upstream artefact is committed and its verifier gate has passed.
+
+The chain is:
 
 ```
-1. Lesandro frames the question and creates tasks
-2. Research agent gathers literature and context    ──┐
-3. Data agent sources and cleans datasets            ──┤ (parallel)
-4. Econometrics agent specifies and estimates models  ←┘ (after 2 & 3)
-5. Visualization agent produces charts and tables     ← (after 4)
-6. App dev assembles portal with narrative + visuals  ← (after 5, with input from 2 & 3)
-7. Each producer self-verifies per META-SRV           ← (each producer at handoff)
-8. Browser verification (headless inspect + fix)      ← (after 6)
-9. Deliverables completeness gate                     ← (after 8)
-10. Lead cross-domain review per META-CDR             ← (after 9, before QA)
-11. QA (Quincy) runs independent verification         ← (after 10, per GATE-31)
-12. Lesandro signs off on rule-compliance in acceptance.md
-13. MRA: Measure, Review, Adjust                      ← (after 12)
-14. Stakeholder review (final gate per META-RPT)
-15. Lesandro tags the pair reference and delivers
+Step 0 — Lesandro frames the question (Analysis Brief)
+            │
+            ▼
+Step 1 — Evan: Tournament Design                  ────► Lesandro design review
+            │ (tournament_design.json committed)
+            ▼
+Step 2 — Dana: Data Collection to Spec            ────► Quincy schema gate
+            │ (data parquet + manifest.json committed)
+            ▼
+Step 3 — Evan: Analysis + Chart Captions          ────► Quincy replay gate
+            │  (winner_summary.json +                   Lesandro framing review
+            │   evidence_status.json +
+            │   chart_captions.json committed)
+            ▼
+Step 4 — Vera: Chart Rendering                    ────► Quincy chart-validation gate
+            │ (output/charts/{pair}/plotly/*.json +
+            │  _meta.json sidecars committed)
+            ▼
+Step 5 — Ray: Narrative                           ────► Quincy narrative-coherence gate
+            │ (portal_narrative_{pair}_{date}.md         Lesandro GATE-RW1 reader walk
+            │  committed)
+            ▼
+Step 6 — Ace: Portal Assembly (plumbing only)     ────► Quincy DOM + APP-PT1 + smoke gate
+            │ (app/pages/{n}_{pair}_*.py committed)
+            ▼
+Step 7 — Lesandro: META-CDR + Final Acceptance    ────► acceptance.md sign-off
 ```
 
-Steps 2 and 3 run in parallel. Steps 4, 5, and 6 are sequential dependencies.
-Ace can begin scaffolding the portal structure during steps 2-4 while waiting for final outputs.
+**No skipping of verifier gates.** Quincy runs once per producer step, not as a final-stage gate. Lesandro's framing review at step 3 is mandatory for any pair whose `evidence_status.status` differs from `passed_final_exam` — `failed_final_exam` framing must be approved before Vera renders charts or Ray writes narrative around the wrong headline number.
 
-**Producer → Lead CDR → QA → Lead acceptance → Stakeholder pipeline (summary).**
+### Step-by-step contract
 
-1. Producer agents (Dana / Evan / Vera / Ray / Ace) complete their work and each files a regression-note section with META-SRV evidence blocks (first line of defense).
-2. **Lead runs cross-domain review per META-CDR** — challenges cross-agent seams, flags issues that no single producer can see (schema inconsistencies, narrative/chart mismatches, silently-skipped tasks). Producers fix any blockers before QA is invoked.
-3. **QA (Quincy) runs independent verification (third line, per `docs/agent-sops/qa-agent-sop.md`)** — re-runs every verification command, audits cross-agent seams, runs Cloud smoke on reference pairs, files findings in regression-note and acceptance.md.
-4. `acceptance.md` sign-off requires QA sign-off per GATE-31. Lead cannot sign without QA's findings block in place.
-5. Stakeholder review is the final gate (per META-RPT) and gates the promotion of `<pair_id>-reference-candidate` to `<pair_id>-reference`.
+**Step 0 — Lesandro frames the question.** Analysis Brief authored at `docs/analysis_brief_{pair_id}_{date}.md`. Names target_symbol, indicator, hypothesised direction, search/holdout windows, dispositive metrics, and any pair-specific risk flags (e.g. monthly-frequency limitations, FRED API window restrictions).
+
+**Step 1 — Evan: Tournament Design.** Evan reads the brief and commits `results/{pair_id}/tournament_design.json` with: signal universe (S-codes), threshold rules (T-codes), strategy families (P-codes), lead range (L-codes), IS/OOS/holdout window split, multiple-testing correction method, dispositive Sharpe floor. **Gate:** Lesandro reviews design against pair brief and prior pairs for this indicator class — challenges any unusual choices (e.g. a non-standard window, a missing strategy family). Lesandro signs off in `acceptance.md` Step 1 block before Dana begins.
+
+**Step 2 — Dana: Data Collection to Spec.** Dana collects data per Evan's tournament_design.json windows and frequency, applies DATA-D12 column-suffix canon, commits parquet + manifest. **Gate:** Quincy verifies schema matches the spec (columns, units, frequency, sample period); flags any deviation. No advancement to step 3 until Quincy signs off.
+
+**Step 3 — Evan: Analysis + Chart Captions (merged).** Evan runs the tournament, runs the final exam, computes all canonical metrics. **In the same step**, Evan writes `results/{pair_id}/chart_captions.json` containing the `how_to_read` and `finding` strings for every chart in the standard set, bound to the actual numbers he just computed. Any quantitative claim in a caption (e.g. "positive Sharpe in 3 of 4 sub-periods") must be verifiable against `winner_summary.json` or `final_exam_results.json`. **Gates:**
+- **Quincy replay gate:** re-runs the tournament producer, confirms `oos_sharpe` / `holdout_sharpe` reproduce within tolerance; reads every quantitative caption and confirms the claim is supported by the committed JSON.
+- **Lesandro framing review:** for any `evidence_status.status` other than `passed_final_exam`, Lesandro reviews whether the captions and `evidence_status.plain_english` honestly frame the result. Tournament-OOS numbers cannot be the headline for a `failed_final_exam` pair. Signs off in `acceptance.md` Step 3 block.
+
+**Step 4 — Vera: Chart Rendering.** Vera reads Evan's three artefacts (winner_summary, evidence_status, chart_captions) and renders the standard chart set. Captions from `chart_captions.json` are dropped verbatim into the `_meta.json` sidecar's `caption.finding` and `caption.how_to_read` fields — **Vera does not write or paraphrase interpretive captions**. Vera owns the `_meta.json` `caption.what_this_shows` field (data-provenance one-liner only). **Gate:** Quincy runs VIZ-CV1 / VIZ-DP1 / VIZ-TS1 / VIZ-NBER1 / perceptual PNG audit, plus verifies every `caption.finding` in every sidecar matches the corresponding entry in `chart_captions.json` verbatim.
+
+**Step 5 — Ray: Narrative.** Ray writes Story prose, transitions, and episode commentary after seeing steps 1-4. Ray may soften Evan's captions for reader voice in the Story page (e.g. "credit-cycle dislocation" → "the 2008 crisis broke the signal") **but cannot change the quantitative claim**. RES-NR1 instrument-name check and signal-scope check apply. **Gates:**
+- **Quincy narrative coherence gate:** reads every Story paragraph that cites a number; confirms the number appears in `winner_summary.json` or `final_exam_results.json` with the same value and same window. RES-NR1 check. Caption-narrative coherence check (Ray's softened version still supports the same quantitative claim).
+- **Lesandro GATE-RW1 reader walk:** structured walk of all 4 pages as a first-time reader. Blocking. Findings filed in `acceptance.md` Step 5 block.
+
+**Step 6 — Ace: Portal Assembly (plumbing only).** Ace renders the 4 page files as thin wrappers around the page templates per APP-PT1. **Ace makes no content decisions**: KPI selection routes through the template per `evidence_status.status`; subtitle wording is sourced from `chart_captions.json` or `portal_narrative_*.md`; signal-name display comes from `winner_summary.signal_display_name`. **Gate:** Quincy runs DOM honesty check, APP-PT1 compliance check, smoke loader, and confirms every reader-facing number on every page traces back to a committed JSON artefact.
+
+**Step 7 — Lesandro: META-CDR + Final Acceptance.** Lesandro runs the final cross-domain review and signs `acceptance.md`. By construction, this step finds only escaped seams — most cross-agent issues are caught at the per-step verifier gates.
+
+### Why this sequence
+
+Producers optimise for their own scope and cannot reliably catch cross-domain seams. Three patterns produced the v4 reconciliation gaps:
+
+1. **Vera writing interpretive captions** ("Consistent positive bars indicate a robust signal") on charts whose data she does not own — leading to captions that contradicted the visible bars.
+2. **Ray drafting narrative against `analysis_brief`** rather than against committed `winner_summary` + `evidence_status` — leading to a Story page that headlined "Sharpe 1.32" on a pair whose final exam failed.
+3. **Ace selecting which KPIs to display** based on what the template happened to wire up — leading to tournament-OOS numbers shown as headline KPIs on a `failed_final_exam` pair.
+
+The merged step 3 (Evan owns captions) eliminates pattern 1. Sequential Ray-after-Vera (step 5) eliminates pattern 2. Plumbing-only Ace (step 6) eliminates pattern 3. Per-step verifier gates catch any individual escape; META-CDR remains the safety net for what slips through.
+
+### Backward compatibility
+
+Pairs migrated before this rule (pairs 1-11) are not required to retroactively produce `tournament_design.json` or `chart_captions.json`. For those pairs, captions remain in their current location (chart sidecars or template defaults) and any caption modification must follow the new ownership rule going forward — i.e. interpretive captions added or changed after this date must be authored by Evan and committed to a `chart_captions.json` artefact for the pair.
+
+New pairs (Pair #4 onward) must use the full 7-step sequence.
 
 ## Commit-Push Discipline (Meta-Rule META-CPD) — binding on all agents
 

@@ -511,6 +511,39 @@ RES-NR1 whitelist: gate_nr_comparison_whitelist = ["S&P 500", "VIX"]
 ```
 - **Cross-references:** APP-PT1 (Ace renders, Ray authors), GATE-NR (QA enforcement of this rule at DOM level), RES-17 (narrative frontmatter), APP-DIR1 (direction triangulation — direction accuracy is the companion rule to instrument accuracy).
 
+### Rule RES-CAP1 — Narrative Quantitative-Claim Coherence (added 2026-05-13, Blocking)
+
+**Problem addressed:** Ray's narrative phase (Step 5 of the Standard Task Flow) historically ran in parallel with Evan/Vera or against an early draft of `analysis_brief`. Result: Story prose could headline numbers (Sharpe, return, drawdown) that did not match the final `winner_summary.json` or `final_exam_results.json`, or could frame the wrong window as the headline (v4 case: "Sharpe 1.32" headlined a `failed_final_exam` pair whose holdout Sharpe was 0.31).
+
+**The rule (binding for Pair #4 onward; grandfathered for Pairs 1-11):**
+
+1. **Sequencing.** Ray's narrative phase begins only after Step 4 (Vera's chart rendering) is committed and Quincy's chart-validation gate has passed. Ray reads:
+   - `results/{pair_id}/winner_summary.json`
+   - `results/{pair_id}/evidence_status.json`
+   - `results/{pair_id}/final_exam_results_*.json` (when `evidence_status.status` reports a final-exam outcome)
+   - `results/{pair_id}/chart_captions.json` (Evan's interpretive captions — Ray may soften but cannot change the quantitative claim)
+   - `output/charts/{pair_id}/plotly/*.json` + `_meta.json` sidecars
+2. **Voice-softening allowance.** Ray may rewrite Evan's clinical captions for reader voice in Story prose (e.g. "credit-cycle dislocation during 2008-2010" → "the 2008 financial crisis broke the signal"). The softened sentence must still be **directly supported by the same number** in Evan's artefacts. Voice softening cannot change which number is cited, the window the number is over, or whether the claim is positive or negative.
+3. **Quantitative-claim invariant.** Every Story sentence that names a number must cite a value present in `winner_summary.json` or `final_exam_results.json` with the same value and the same window. Ray must not derive numbers (e.g. "annualised excess return was -13%" must come from `final_exam_results.json`, not Ray's mental arithmetic).
+4. **Failed-exam framing rule.** When `evidence_status.status` is `failed_final_exam`, Story headline KPIs and the lede sentence must reference the **holdout** result, not the tournament-OOS result. The tournament-OOS numbers may appear as a "Search Phase" sub-row but cannot be the headline. Lesandro reviews this at the Step 5 framing review and at GATE-RW1.
+
+**Self-check at handoff:**
+
+```
+RES-CAP1 check: 
+  - Read winner_summary.json / evidence_status.json / final_exam_results_*.json
+  - For every numeric reference in portal_narrative_<pair>_<date>.md:
+      Source artefact: <which JSON file>
+      Field: <which key in that file>
+      Value cited: <number in narrative> matches <value in artefact>: YES/NO
+  - If evidence_status.status != "passed_final_exam":
+      Headline cites holdout numbers, not tournament-OOS: YES/NO
+```
+
+Log the self-check output in the Ray→Ace handoff note. Quincy verifies at the QA-CAP1 Gate 3 (Step 5 gate).
+
+**Cross-reference:** econometrics-agent-sop.md ECON-CAP1 (Evan's authoring contract — every number Ray cites must trace to an Evan artefact); visualization-agent-sop.md VIZ-CAP1 (Vera's passthrough contract — Ray reads `chart_captions.json` not paraphrased Vera captions); qa-agent-sop.md QA-CAP1 (Quincy's Gate-3 verification of every numeric reference in Ray's narrative); team-coordination.md Step 5 (Ray's narrative phase explicitly named as post-Vera).
+
 ### Rule RES-CPC1 — CONFIG-PARSE-CHECK After Every Config Rewrite (Blocking)
 
 **Added 2026-04-24 (Wave 10J Round 1 unanimous convergence — smoke test taxonomy rename).** The informal practice of "run the config file to make sure it doesn't crash" is now formally named **CONFIG-PARSE-CHECK** per the shared team taxonomy in `team-coordination.md`. The term "smoke test" is retired from Ray's SOP for this check class.
