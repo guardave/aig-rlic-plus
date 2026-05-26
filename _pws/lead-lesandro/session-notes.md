@@ -416,3 +416,28 @@ Two-day multi-agent intensive running from SOP hardening Part F through Wave 9 c
 - Token cost for Phase 1 alone is meaningful; reaffirms the Path-1 decision to stage maker phases across sessions.
 
 **Next session pickup:** Phase 2 (Ray hat) — portal narrative + HZE1 episode narratives (4 episodes per the new commodity_ratio entry).
+
+---
+
+## 2026-05-26 (cont.) — Mode 2 gold_copper_xli — Phase 2 (Ray hat) Complete
+
+**Output:** `docs/portal_narrative_gold_copper_xli_20260526.md` (~220 lines).
+
+**Content structure:**
+- YAML frontmatter (RES-17 / APP-DIR1 compliant): direction_asserted=countercyclical, indicator_category=commodity_ratio, full chart_refs list (21 charts), 19 glossary terms, page-section map.
+- ELI5 mechanism paragraph (gold = fear metal, copper = Doctor Copper, ratio = real-asset risk-off).
+- Four HZE1 episode narratives — gfc (long-lead risk-off), china_2015 (mid-cycle, no US recession), covid (transient regime), rates_2022 (failure case where supply tightness decoupled the signal). Each names what to look for in the zoom chart.
+- Evidence page reading guide (8 method blocks).
+- Caveats: DXY co-movement, geography basis, supply-shock decoupling, bounded-below transform, CPER inception.
+- 7 ELI5 prose blocks earmarked for Ace's pair config in Phase 5 (story_md_intro, story_md_mechanism, evidence_eli5_correlation/regime/quartiles, strategy_eli5_winner, methodology_eli5).
+- Handoff stub for Evan listing inputs and expected outputs.
+
+**Ray-hat decisions documented:**
+- Direction asserted = countercyclical (matches Dana's provisional -0.044 correlation; mechanism narrative aligns).
+- Triad property explicitly named per episode (long-lead / mid-cycle / failure-case).
+- Failure-case narrative (2022) explicitly written, not whitewashed — the rates_2022 episode is the cautionary tale, and the narrative says so.
+- Strategy ELI5 block deliberately deferred ("filled by Phase 3") rather than fabricated — Evan owns the winner.
+
+**Mode 2 observation:** writing this immediately after Dana's pipeline meant the mechanism narrative referenced the actual provisional correlation (-0.044) without a handoff. In Mode 1, Ray would have either waited for Dana's handoff note or asserted the correlation hypothetically. Concrete cross-stage context preservation.
+
+**Next pickup:** Phase 3 (Evan hat). Tournament + signal_scope + all econometric artifacts. Likely the heaviest single phase.

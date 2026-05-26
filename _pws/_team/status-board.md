@@ -1005,3 +1005,27 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 **Blockers:** None. Next session resumes at Phase 2 (Ray hat).
 
 **Next steps:** Phase 2 — portal narrative + HZE1 episode narratives (4 episodes from the new commodity_ratio registry entry) + ELI5 prose destined for Ace's pair config in Phase 5.
+
+---
+
+## 2026-05-26 (cont.) — Lead — Mode 2 gold_copper_xli Phase 2 Complete
+
+**Status:** In progress — Ray phase complete; Evan/Vera/Ace deferred.
+
+**What was accomplished (Lead wearing Ray hat):**
+- `docs/portal_narrative_gold_copper_xli_20260526.md` (~220 lines, substantive content):
+  - YAML frontmatter complete (RES-17 / APP-DIR1): direction=countercyclical, indicator_category=commodity_ratio, chart_refs, glossary, page map.
+  - Mechanism ELI5 (gold/copper as real-asset risk-off proxy).
+  - 4 HZE1 episode narratives satisfying the long-lead/mid-cycle/failure-case triad.
+  - 7 ELI5 prose blocks for Ace's pair_config (Phase 5).
+  - Caveats covering DXY co-movement, geography basis, supply-shock decoupling.
+  - Handoff stub for Evan with inputs + expected outputs.
+
+**Discoveries / insights:**
+- Mode 2 cross-stage context preservation paid off again — narrative cites Dana's provisional correlation (-0.044) without a handoff document; Mode 1 would have either fabricated it or waited.
+- ELI5 blocks pre-written in narrative doc rather than directly in pair_config means Phase 5 (Ace hat) becomes mechanical wiring, not authoring.
+- Failure-case narrative (2022) is the most valuable part of the HZE1 set — narrating the failure mode honestly is the SOP intent of the triad requirement.
+
+**Blockers:** None.
+
+**Next steps:** Phase 3 (Evan hat) — stationarity tests + tournament + winner_summary + signal_scope + regime/granger artifacts. Heaviest single phase.
