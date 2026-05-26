@@ -2,65 +2,155 @@
   "pair_id": "gold_copper_xli",
   "schema_version": "1.0.0",
   "owner": "evan",
-  "last_updated_by": "lead-as-evan (Mode 2 Phase 3)",
-  "last_updated_at": "2026-05-26T13:40:54Z",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-05-26T16:16:10Z",
+  "notes": "Generated under LEAD-WM1 Mode 2 (Lead-as-Evan).",
   "indicator_axis": {
     "canonical_column": "gold_copper_ratio",
     "display_name": "Gold/Copper Ratio (real-asset risk-off proxy)",
     "derivatives": [
       {
         "name": "gold_copper_ratio",
-        "definition": "Raw ratio of gold ($/oz) to copper ($/lb).",
+        "definition": "Raw ratio of gold price ($/oz) to copper price ($/lb). Higher = risk-off.",
         "formula": "gold[t] / copper[t]",
-        "role": "raw"
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "spread_history_annotated",
+          "history_zoom_gfc",
+          "history_zoom_china_2015",
+          "history_zoom_covid",
+          "history_zoom_rates_2022"
+        ]
       },
       {
         "name": "gold_copper_logratio",
-        "definition": "Natural log of the ratio. Better-distributed.",
+        "definition": "Natural log of the gold/copper ratio. Better-distributed than the raw ratio for stationarity-sensitive analyses.",
         "formula": "log(gold_copper_ratio)",
-        "role": "transform"
+        "role": "derivative",
+        "appears_in_charts": []
       },
       {
         "name": "gold_copper_zscore_252d",
-        "definition": "252d rolling z-score.",
-        "formula": "(ratio - rollmean_252) / rollstd_252",
-        "role": "threshold_input"
+        "definition": "252-day rolling z-score of the gold/copper ratio.",
+        "formula": "(gold_copper_ratio - rollmean_252(gold_copper_ratio)) / rollstd_252(gold_copper_ratio)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "signal_timeseries",
+          "ccf_prewhitened",
+          "rolling_correlation",
+          "hmm_regime_probs"
+        ]
       },
       {
         "name": "gold_copper_zscore_126d",
-        "definition": "126d rolling z-score.",
-        "formula": "(ratio - rollmean_126) / rollstd_126",
-        "role": "threshold_input"
+        "definition": "126-day rolling z-score of the gold/copper ratio. The tournament-winning signal.",
+        "formula": "(gold_copper_ratio - rollmean_126(gold_copper_ratio)) / rollstd_126(gold_copper_ratio)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "signal_timeseries"
+        ]
       },
       {
         "name": "gold_copper_pctrank_504d",
-        "definition": "504d percentile rank.",
-        "formula": "rank(ratio, 504) / 504",
-        "role": "threshold_input"
+        "definition": "Percentile rank (0-1) of the ratio within its trailing 504-day window.",
+        "formula": "rank(gold_copper_ratio, window=504) / 504",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
       },
       {
         "name": "gold_copper_roc_63d",
-        "definition": "63d rate-of-change of ratio.",
-        "formula": "(ratio[t]/ratio[t-63] - 1) * 100",
-        "role": "threshold_input"
+        "definition": "63-trading-day (~3-month) rate-of-change of the gold/copper ratio (percent).",
+        "formula": "(gold_copper_ratio[t] / gold_copper_ratio[t-63] - 1) * 100",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
       },
       {
         "name": "gold_copper_roc_126d",
-        "definition": "126d rate-of-change.",
-        "formula": "(ratio[t]/ratio[t-126] - 1) * 100",
-        "role": "threshold_input"
+        "definition": "126-trading-day (~6-month) rate-of-change of the gold/copper ratio (percent).",
+        "formula": "(gold_copper_ratio[t] / gold_copper_ratio[t-126] - 1) * 100",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
       }
     ]
   },
-  "target": {
-    "symbol": "XLI",
-    "primary_return_col": "xli_ret",
-    "forward_horizons": [
-      "xli_fwd_5d",
-      "xli_fwd_21d",
-      "xli_fwd_63d",
-      "xli_fwd_126d"
+  "target_axis": {
+    "canonical_column": "xli",
+    "display_name": "Industrial Select Sector SPDR (XLI) Total Return",
+    "derivatives": [
+      {
+        "name": "xli",
+        "definition": "Raw XLI adjusted close price ($).",
+        "formula": "raw column",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "history_zoom_gfc",
+          "history_zoom_china_2015",
+          "history_zoom_covid",
+          "history_zoom_rates_2022"
+        ]
+      },
+      {
+        "name": "xli_ret",
+        "definition": "Daily simple return of XLI as a decimal.",
+        "formula": "xli[t] / xli[t-1] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "returns_by_regime",
+          "transfer_entropy",
+          "ccf_prewhitened",
+          "rolling_granger"
+        ]
+      },
+      {
+        "name": "xli_fwd_5d",
+        "definition": "5-trading-day (~1-week) forward total return of XLI.",
+        "formula": "xli[t+5] / xli[t] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "xli_fwd_21d",
+        "definition": "21-trading-day (~1-month) forward total return of XLI.",
+        "formula": "xli[t+21] / xli[t] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "xli_fwd_63d",
+        "definition": "63-trading-day (~3-month) forward total return of XLI \u2014 primary forward horizon.",
+        "formula": "xli[t+63] / xli[t] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "quartile_returns",
+          "regime_quartile_returns",
+          "quantile_regression",
+          "rolling_correlation"
+        ]
+      },
+      {
+        "name": "xli_fwd_126d",
+        "definition": "126-trading-day (~6-month) forward total return of XLI.",
+        "formula": "xli[t+126] / xli[t] - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      }
     ]
-  },
-  "direction_asserted": "countercyclical"
+  }
 }

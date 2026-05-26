@@ -6,7 +6,7 @@
   "threshold_code": "T2_p50",
   "threshold_display_name": "T2 p50",
   "threshold_value": -0.0334,
-  "threshold_rule": "le",
+  "threshold_rule": "lte",
   "strategy_code": "P1",
   "strategy_display_name": "Long/Cash",
   "strategy_description": "Long XLI when the signal is below its IS-calibrated threshold (ratio low = risk-on regime); otherwise cash.",
@@ -26,6 +26,6 @@
   "oos_period_end": "2025-12-31",
   "target_symbol": "XLI",
   "schema_version": "1.1.0",
-  "generated_at": "2026-05-26T13:40:54Z",
+  "generated_at": "2026-05-26T16:16:10Z",
   "notes": "Mode 2 Phase 3 (Evan hat). Tournament: 5 signals x 3 thresholds x 2 strategies x 3 leads = 90 combos, 90 fit, 60 valid. Winner selected by OOS Sharpe."
 }

@@ -1,28 +1,38 @@
 {
   "pair_id": "gold_copper_xli",
   "schema_version": "1.0.0",
+  "last_updated_at": "2026-05-26T16:16:10Z",
+  "notes": "Generated under LEAD-WM1 Mode 2 (Lead-as-Evan).",
   "suggestions": [
     {
-      "slug": "log_ratio_signals",
-      "owner": "evan",
-      "priority": "medium",
-      "title": "Log-ratio (gold_copper_logratio) as tournament input",
-      "rationale": "Raw ratio is right-skewed; log-ratio is better-distributed and may yield cleaner z-score thresholds."
+      "signal_name": "Gold/Copper Log-Ratio (gold_copper_logratio)",
+      "proposed_by": "evan",
+      "source": "constructed",
+      "observation": "The raw gold/copper ratio is right-skewed; the natural log transform is closer to normal. The log_ratio column exists in the daily parquet but was not entered into the tournament \u2014 only the raw-ratio z-scores were.",
+      "rationale": "Better-distributed signals tend to yield cleaner z-score thresholds and more stable rolling statistics. Worth re-running the tournament with log_ratio variants alongside raw-ratio variants.",
+      "possible_use_case": "variant family",
+      "caveats": "If log-ratio winner has materially different Sharpe vs raw-ratio winner, both should be reported with a regression note. Keep IS/OOS discipline intact \u2014 risk of look-ahead if window parameters are tuned after seeing OOS performance.",
+      "date_filed": "2026-05-26"
     },
     {
-      "slug": "dxy_conditional_signal",
-      "owner": "evan",
-      "priority": "medium",
-      "title": "Condition signal strength on DXY regime",
-      "rationale": "Both legs USD-priced. When DXY moves dominate, ratio signal may be noise; conditional model would gate the signal on |DXY z-score|."
+      "signal_name": "DXY-Conditional Gold/Copper Signal",
+      "proposed_by": "evan",
+      "source": "constructed",
+      "observation": "Both legs of the gold/copper ratio are USD-priced, so a large DXY move pushes them in the same direction and mutes the ratio's signal. DXY z-score variance is comparable to gold_copper z-score variance over the sample.",
+      "rationale": "A conditional model that gates the ratio signal when |DXY z-score| > threshold would suppress noise from currency-driven moves and concentrate trading exposure on regimes where the real-asset risk-off mechanism is dominant.",
+      "possible_use_case": "regime overlay",
+      "caveats": "Adding a second gating variable risks overfitting if the gate threshold is tuned on OOS data. Calibrate gate threshold IS-only; report OOS Sharpe of gated vs ungated. Effective sample size shrinks.",
+      "date_filed": "2026-05-26"
     },
     {
-      "slug": "supply_decoupling_check",
-      "owner": "evan",
-      "priority": "low",
-      "title": "Detect supply-driven decoupling (2022 failure case)",
-      "rationale": "Add a structural-break flag when ratio direction contradicts copper-vs-history percentile (supply tightness regime)."
+      "signal_name": "Supply-Decoupling Detector for Copper Leg",
+      "proposed_by": "evan",
+      "source": "constructed",
+      "observation": "The 2022 rates_2022 episode is the documented failure case: gold/copper z-score moved into Q4 but the move was driven by Chilean copper supply tightness, not a demand-side risk-off. The pair has no structural-break flag for supply-driven episodes.",
+      "rationale": "A structural-break flag firing when copper's own percentile-rank vs history contradicts the ratio's percentile-rank would warn the consumer that the signal is in an ambiguous regime. Operationalises the caveat that is currently only narrated.",
+      "possible_use_case": "regime overlay",
+      "caveats": "Defining 'supply-driven' from price data alone is hard. Best implemented as a probabilistic regime classifier (extend the HMM to 3 states: calm / demand-stress / supply-stress) rather than a hard threshold. Risk of false positives during demand-driven episodes that briefly look supply-shaped.",
+      "date_filed": "2026-05-26"
     }
-  ],
-  "exploratory_charts": []
+  ]
 }

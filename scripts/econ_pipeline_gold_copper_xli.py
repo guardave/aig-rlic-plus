@@ -213,7 +213,7 @@ def stage_winner(df, df_t):
         "threshold_code": w["threshold"],
         "threshold_display_name": w["threshold"].replace("_", " "),
         "threshold_value": float(w["threshold_value"]),
-        "threshold_rule": "le",  # long when signal <= threshold
+        "threshold_rule": "lte",  # long when signal <= threshold (schema enum: gt/lt/gte/lte/crosses_up/crosses_down)
         "strategy_code": w["strategy"].split("_")[0],
         "strategy_display_name": w["strategy"].replace("P1_long_cash", "Long/Cash").replace("P2_long_short", "Long/Short"),
         "strategy_description": (
@@ -255,36 +255,106 @@ def stage_winner(df, df_t):
 
 
 def stage_signal_scope():
+    """Schema: docs/schemas/signal_scope.schema.json
+
+    REQUIRED top-level: pair_id, schema_version, owner, last_updated_by,
+    last_updated_at, indicator_axis, target_axis.
+    REQUIRED per-derivative: name, definition, formula, role, appears_in_charts.
+    role enum: raw, derivative, threshold_input, regime_state, diagnostic.
+    last_updated_by enum: dana, evan, vera, ray, ace, quincy.
+    """
     log("Stage 6: signal_scope.json")
     scope = {
         "pair_id": PAIR_ID,
         "schema_version": "1.0.0",
         "owner": "evan",
-        "last_updated_by": "lead-as-evan (Mode 2 Phase 3)",
+        "last_updated_by": "evan",
         "last_updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "notes": "Generated under LEAD-WM1 Mode 2 (Lead-as-Evan).",
         "indicator_axis": {
             "canonical_column": "gold_copper_ratio",
             "display_name": "Gold/Copper Ratio (real-asset risk-off proxy)",
             "derivatives": [
-                {"name": "gold_copper_ratio", "definition": "Raw ratio of gold ($/oz) to copper ($/lb).",
-                 "formula": "gold[t] / copper[t]", "role": "raw"},
-                {"name": "gold_copper_logratio", "definition": "Natural log of the ratio. Better-distributed.",
-                 "formula": "log(gold_copper_ratio)", "role": "transform"},
-                {"name": "gold_copper_zscore_252d", "definition": "252d rolling z-score.",
-                 "formula": "(ratio - rollmean_252) / rollstd_252", "role": "threshold_input"},
-                {"name": "gold_copper_zscore_126d", "definition": "126d rolling z-score.",
-                 "formula": "(ratio - rollmean_126) / rollstd_126", "role": "threshold_input"},
-                {"name": "gold_copper_pctrank_504d", "definition": "504d percentile rank.",
-                 "formula": "rank(ratio, 504) / 504", "role": "threshold_input"},
-                {"name": "gold_copper_roc_63d", "definition": "63d rate-of-change of ratio.",
-                 "formula": "(ratio[t]/ratio[t-63] - 1) * 100", "role": "threshold_input"},
-                {"name": "gold_copper_roc_126d", "definition": "126d rate-of-change.",
-                 "formula": "(ratio[t]/ratio[t-126] - 1) * 100", "role": "threshold_input"},
+                {"name": "gold_copper_ratio",
+                 "definition": "Raw ratio of gold price ($/oz) to copper price ($/lb). Higher = risk-off.",
+                 "formula": "gold[t] / copper[t]",
+                 "role": "raw",
+                 "appears_in_charts": ["hero", "spread_history_annotated",
+                                        "history_zoom_gfc", "history_zoom_china_2015",
+                                        "history_zoom_covid", "history_zoom_rates_2022"]},
+                {"name": "gold_copper_logratio",
+                 "definition": "Natural log of the gold/copper ratio. Better-distributed than the raw ratio for stationarity-sensitive analyses.",
+                 "formula": "log(gold_copper_ratio)",
+                 "role": "derivative",
+                 "appears_in_charts": []},
+                {"name": "gold_copper_zscore_252d",
+                 "definition": "252-day rolling z-score of the gold/copper ratio.",
+                 "formula": "(gold_copper_ratio - rollmean_252(gold_copper_ratio)) / rollstd_252(gold_copper_ratio)",
+                 "role": "threshold_input",
+                 "appears_in_charts": ["correlation_heatmap", "signal_timeseries",
+                                        "ccf_prewhitened", "rolling_correlation",
+                                        "hmm_regime_probs"]},
+                {"name": "gold_copper_zscore_126d",
+                 "definition": "126-day rolling z-score of the gold/copper ratio. The tournament-winning signal.",
+                 "formula": "(gold_copper_ratio - rollmean_126(gold_copper_ratio)) / rollstd_126(gold_copper_ratio)",
+                 "role": "threshold_input",
+                 "appears_in_charts": ["correlation_heatmap", "signal_timeseries"]},
+                {"name": "gold_copper_pctrank_504d",
+                 "definition": "Percentile rank (0-1) of the ratio within its trailing 504-day window.",
+                 "formula": "rank(gold_copper_ratio, window=504) / 504",
+                 "role": "threshold_input",
+                 "appears_in_charts": ["correlation_heatmap"]},
+                {"name": "gold_copper_roc_63d",
+                 "definition": "63-trading-day (~3-month) rate-of-change of the gold/copper ratio (percent).",
+                 "formula": "(gold_copper_ratio[t] / gold_copper_ratio[t-63] - 1) * 100",
+                 "role": "threshold_input",
+                 "appears_in_charts": ["correlation_heatmap"]},
+                {"name": "gold_copper_roc_126d",
+                 "definition": "126-trading-day (~6-month) rate-of-change of the gold/copper ratio (percent).",
+                 "formula": "(gold_copper_ratio[t] / gold_copper_ratio[t-126] - 1) * 100",
+                 "role": "threshold_input",
+                 "appears_in_charts": ["correlation_heatmap"]},
             ],
         },
-        "target": {"symbol": "XLI", "primary_return_col": "xli_ret",
-                   "forward_horizons": ["xli_fwd_5d", "xli_fwd_21d", "xli_fwd_63d", "xli_fwd_126d"]},
-        "direction_asserted": "countercyclical",
+        "target_axis": {
+            "canonical_column": "xli",
+            "display_name": "Industrial Select Sector SPDR (XLI) Total Return",
+            "derivatives": [
+                {"name": "xli", "definition": "Raw XLI adjusted close price ($).",
+                 "formula": "raw column", "role": "raw",
+                 "appears_in_charts": ["hero", "history_zoom_gfc",
+                                        "history_zoom_china_2015",
+                                        "history_zoom_covid", "history_zoom_rates_2022"]},
+                {"name": "xli_ret",
+                 "definition": "Daily simple return of XLI as a decimal.",
+                 "formula": "xli[t] / xli[t-1] - 1",
+                 "role": "derivative",
+                 "appears_in_charts": ["returns_by_regime", "transfer_entropy",
+                                        "ccf_prewhitened", "rolling_granger"]},
+                {"name": "xli_fwd_5d",
+                 "definition": "5-trading-day (~1-week) forward total return of XLI.",
+                 "formula": "xli[t+5] / xli[t] - 1",
+                 "role": "derivative",
+                 "appears_in_charts": ["correlation_heatmap"]},
+                {"name": "xli_fwd_21d",
+                 "definition": "21-trading-day (~1-month) forward total return of XLI.",
+                 "formula": "xli[t+21] / xli[t] - 1",
+                 "role": "derivative",
+                 "appears_in_charts": ["correlation_heatmap"]},
+                {"name": "xli_fwd_63d",
+                 "definition": "63-trading-day (~3-month) forward total return of XLI — primary forward horizon.",
+                 "formula": "xli[t+63] / xli[t] - 1",
+                 "role": "derivative",
+                 "appears_in_charts": ["correlation_heatmap", "quartile_returns",
+                                        "regime_quartile_returns",
+                                        "quantile_regression", "rolling_correlation"]},
+                {"name": "xli_fwd_126d",
+                 "definition": "126-trading-day (~6-month) forward total return of XLI.",
+                 "formula": "xli[t+126] / xli[t] - 1",
+                 "role": "derivative",
+                 "appears_in_charts": ["correlation_heatmap"]},
+            ],
+        },
     }
     out = os.path.join(RESULTS_DIR, "signal_scope.json")
     with open(out, "w") as f:
@@ -309,23 +379,54 @@ def stage_quartile_returns(df):
 
 
 def stage_analyst_suggestions():
-    log("Stage 8: analyst_suggestions.json (Evan key only)")
+    """Schema: docs/schemas/analyst_suggestions.schema.json
+
+    REQUIRED top-level: pair_id, schema_version, suggestions, last_updated_at.
+    REQUIRED per-suggestion: signal_name, proposed_by, source, observation,
+    rationale, possible_use_case, caveats, date_filed.
+    additionalProperties: false (no slug / owner / priority / title fields).
+    proposed_by enum: dana, evan, vera, ray, ace, quincy.
+    """
+    log("Stage 8: analyst_suggestions.json")
     out = os.path.join(RESULTS_DIR, "analyst_suggestions.json")
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     payload = {
         "pair_id": PAIR_ID,
         "schema_version": "1.0.0",
+        "last_updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "notes": "Generated under LEAD-WM1 Mode 2 (Lead-as-Evan).",
         "suggestions": [
-            {"slug": "log_ratio_signals", "owner": "evan", "priority": "medium",
-             "title": "Log-ratio (gold_copper_logratio) as tournament input",
-             "rationale": "Raw ratio is right-skewed; log-ratio is better-distributed and may yield cleaner z-score thresholds."},
-            {"slug": "dxy_conditional_signal", "owner": "evan", "priority": "medium",
-             "title": "Condition signal strength on DXY regime",
-             "rationale": "Both legs USD-priced. When DXY moves dominate, ratio signal may be noise; conditional model would gate the signal on |DXY z-score|."},
-            {"slug": "supply_decoupling_check", "owner": "evan", "priority": "low",
-             "title": "Detect supply-driven decoupling (2022 failure case)",
-             "rationale": "Add a structural-break flag when ratio direction contradicts copper-vs-history percentile (supply tightness regime)."},
+            {
+                "signal_name": "Gold/Copper Log-Ratio (gold_copper_logratio)",
+                "proposed_by": "evan",
+                "source": "constructed",
+                "observation": "The raw gold/copper ratio is right-skewed; the natural log transform is closer to normal. The log_ratio column exists in the daily parquet but was not entered into the tournament — only the raw-ratio z-scores were.",
+                "rationale": "Better-distributed signals tend to yield cleaner z-score thresholds and more stable rolling statistics. Worth re-running the tournament with log_ratio variants alongside raw-ratio variants.",
+                "possible_use_case": "variant family",
+                "caveats": "If log-ratio winner has materially different Sharpe vs raw-ratio winner, both should be reported with a regression note. Keep IS/OOS discipline intact — risk of look-ahead if window parameters are tuned after seeing OOS performance.",
+                "date_filed": today,
+            },
+            {
+                "signal_name": "DXY-Conditional Gold/Copper Signal",
+                "proposed_by": "evan",
+                "source": "constructed",
+                "observation": "Both legs of the gold/copper ratio are USD-priced, so a large DXY move pushes them in the same direction and mutes the ratio's signal. DXY z-score variance is comparable to gold_copper z-score variance over the sample.",
+                "rationale": "A conditional model that gates the ratio signal when |DXY z-score| > threshold would suppress noise from currency-driven moves and concentrate trading exposure on regimes where the real-asset risk-off mechanism is dominant.",
+                "possible_use_case": "regime overlay",
+                "caveats": "Adding a second gating variable risks overfitting if the gate threshold is tuned on OOS data. Calibrate gate threshold IS-only; report OOS Sharpe of gated vs ungated. Effective sample size shrinks.",
+                "date_filed": today,
+            },
+            {
+                "signal_name": "Supply-Decoupling Detector for Copper Leg",
+                "proposed_by": "evan",
+                "source": "constructed",
+                "observation": "The 2022 rates_2022 episode is the documented failure case: gold/copper z-score moved into Q4 but the move was driven by Chilean copper supply tightness, not a demand-side risk-off. The pair has no structural-break flag for supply-driven episodes.",
+                "rationale": "A structural-break flag firing when copper's own percentile-rank vs history contradicts the ratio's percentile-rank would warn the consumer that the signal is in an ambiguous regime. Operationalises the caveat that is currently only narrated.",
+                "possible_use_case": "regime overlay",
+                "caveats": "Defining 'supply-driven' from price data alone is hard. Best implemented as a probabilistic regime classifier (extend the HMM to 3 states: calm / demand-stress / supply-stress) rather than a hard threshold. Risk of false positives during demand-driven episodes that briefly look supply-shaped.",
+                "date_filed": today,
+            },
         ],
-        "exploratory_charts": [],
     }
     with open(out, "w") as f:
         json.dump(payload, f, indent=2)
@@ -351,6 +452,39 @@ def stage_update_interp(summary):
     log(f"  observed_direction={direction}  consistent={interp['direction_consistent']}  confidence={interp['confidence']}")
 
 
+def stage_validate_schemas():
+    """Producer-side schema validation. Fail fast if any artifact diverges
+    from its schema — exactly the class of bug the gold_copper_xli review
+    surfaced. Validates winner_summary / signal_scope / analyst_suggestions
+    against docs/schemas/*.schema.json. Raises on failure."""
+    log("Stage 10: producer-side schema validation")
+    import jsonschema
+    pairs = [
+        ("winner_summary.json", "winner_summary.schema.json"),
+        ("signal_scope.json", "signal_scope.schema.json"),
+        ("analyst_suggestions.json", "analyst_suggestions.schema.json"),
+    ]
+    schema_dir = os.path.join(BASE_DIR, "docs", "schemas")
+    failed = False
+    for fname, sname in pairs:
+        inst = json.load(open(os.path.join(RESULTS_DIR, fname)))
+        sch = json.load(open(os.path.join(schema_dir, sname)))
+        errs = list(jsonschema.Draft202012Validator(sch).iter_errors(inst))
+        if errs:
+            failed = True
+            log(f"  FAIL {fname} ({len(errs)} errors)")
+            for e in errs[:8]:
+                path = "/".join(map(str, e.absolute_path))
+                log(f"    - [{path}] {e.message[:140]}")
+        else:
+            log(f"  PASS {fname}")
+    if failed:
+        raise SystemExit(
+            "Schema validation failed — fix producer code or schemas before "
+            "committing. Do not paper over with manual edits."
+        )
+
+
 def main():
     t0 = time.time()
     df = stage_load()
@@ -362,6 +496,7 @@ def main():
     stage_quartile_returns(df)
     stage_analyst_suggestions()
     stage_update_interp(summary)
+    stage_validate_schemas()
     timing = {"elapsed_seconds": round(time.time() - t0, 1),
               "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
     with open(os.path.join(RESULTS_DIR, "pipeline_timing.json"), "w") as f:
