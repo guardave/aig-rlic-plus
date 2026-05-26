@@ -522,6 +522,8 @@ After any wave that adds new mandatory Evidence (or other) sections — e.g., EC
 
 **Do not carry forward WARN→FAIL transitions.** A STUB_PATS entry that remains in WARN mode across multiple waves after retro-apply is complete is a silent quality regression — new pairs could ship with the placeholder visible without triggering a FAIL. GATE-32 is the gate that prevents this.
 
+**Incident — gold_copper_xli (2026-05-26).** The exact failure mode GATE-32 was written to prevent happened in practice: the `CROSS_PERIOD_STUB_IS_FAIL` flag was left at `False` after Wave 10J closure, and a new pair (`gold_copper_xli`) shipped Mode-2 with all 5 VIZ-CP1 charts missing. The Evidence template degraded gracefully to 5 visible "Cross-period analysis pending — ..." placeholders, GATE-CL6 passed (no `st.error`), and only a manual stakeholder eyeball spotted the problem. **Lesson: the WARN→FAIL flip is not a wave-closure nicety, it is the load-bearing gate.** It is now flipped to `True` in `scripts/cloud_verify.py`. Producer-side mirror gate VIZ-CP1-G was also added (see visualization-agent-sop.md) — both sides must be active to prevent recurrence.
+
 **Verification command:**
 ```bash
 grep "CROSS_PERIOD_STUB_IS_FAIL" scripts/cloud_verify.py  # must be True after retro

@@ -8,6 +8,23 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-26 — gold_copper_xli Review Follow-Up: Cross-Period Charts Gate (VIZ-CP1-G + GATE-32 activation)
+
+**Trigger.** User review of `gold_copper_xli` Evidence page surfaced 5 visible "Cross-period analysis pending — ... chart not yet available for this pair" placeholders in the Cross-Period Consistency section. Root cause: VIZ-CP1's 5 mandatory charts (`subperiod_sharpe`, `rolling_correlation`, `structural_break`, `rolling_sharpe_cp`, `rolling_granger`) were missing for the new pair, AND `CROSS_PERIOD_STUB_IS_FAIL` was still `False` (WARN) in `scripts/cloud_verify.py` after Wave 10J — the WARN→FAIL flip mandated by GATE-32 was never executed.
+
+**Scope.** `docs/agent-sops/visualization-agent-sop.md` (+VIZ-CP1-G), `docs/agent-sops/qa-agent-sop.md` (GATE-32 incident annotation), `scripts/cloud_verify.py` (CROSS_PERIOD_STUB_IS_FAIL → True). Also: 5 CP charts generated for gold_copper_xli to clear the immediate placeholder render.
+
+**New rule:**
+- **VIZ-CP1-G — Cross-Period Charts Pre-Handoff Gate (binding, Vera-owned).** Before commit, Vera's chart bundle must include the 5 VIZ-CP1 files at `output/charts/{pair_id}/plotly/{subperiod_sharpe, rolling_correlation, structural_break, rolling_sharpe_cp, rolling_granger}.json` (each with `_meta.json` sidecar + perceptual PNG). Skip protocol: a `chart_skip_<chart_name>.json` sidecar with non-empty `reason` field converts a missing chart to a deliberate audited absence. The rule is the producer-side mirror of GATE-32 — both must be active to keep "pending" placeholders out of production.
+
+**Rule activations / amendments:**
+- **GATE-32 (Quincy) — CROSS_PERIOD_STUB_IS_FAIL flipped True.** Wave 10J's retro-apply closure required this flip; it never happened. Now `True`. Annotated GATE-32 in qa-agent-sop.md with the gold_copper_xli incident as a load-bearing example.
+- **`scripts/cloud_verify.py`** — `CROSS_PERIOD_STUB_IS_FAIL = True`. Cross-period stub hits now FAIL on cloud verify (previously WARN).
+
+**Motivation.** The template was correctly designed to degrade gracefully (graceful is good when there's a real reason to be patient), but graceful degradation + a permissive verify flag = silent shipping of placeholder content as if it were the analysis. The producer gate (VIZ-CP1-G) catches the omission at commit time; the consumer gate (GATE-32 with the flag flipped) catches it at cloud-verify time. Both layers are needed because each catches a different failure mode: VIZ-CP1-G catches "Vera forgot to make the charts"; GATE-32 catches "the charts were made but never reached production" (e.g., stale cloud sync, missed commit-push).
+
+---
+
 ## 2026-05-26 — Wave 10K Prelude: Dual Work Modes (LEAD-WM1)
 
 **Scope:** `docs/agent-sops/lead-agent-sop.md` only. No agent SOP changes; mode selection is a Lead-owned protocol.

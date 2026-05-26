@@ -1,0 +1,12 @@
+{
+  "chart_name": "subperiod_sharpe",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "bar_v1",
+  "rules_applied": [
+    "VIZ-CP1",
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Strategy Sharpe in 5 sub-periods. Consistent positive bars across all periods = robust signal; vanishing in one era = fragile.",
+  "generated_at": "2026-05-26T15:58:32Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat \u2014 Cross-Period)"
+}

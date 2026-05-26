@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_sharpe_cp",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "dual_v1",
+  "rules_applied": [
+    "VIZ-CP1",
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "2-year rolling Sharpe. Strategy line consistently above zero (and above B&H) = strategy persists across regimes.",
+  "generated_at": "2026-05-26T15:58:38Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat \u2014 Cross-Period)"
+}

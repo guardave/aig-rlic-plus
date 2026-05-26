@@ -130,8 +130,12 @@ STUB_PATS = [
 # Wave 10J: controls whether the cross-period-consistency stub triggers a FAIL
 # or is downgraded to a WARN (PASS-with-note in summary) during the retro-apply
 # transition window. Set to True once all pairs have been retro-applied.
-# WARN during 10J retro, FAIL after.
-CROSS_PERIOD_STUB_IS_FAIL = False  # flip to True after Wave 10J retro-apply complete
+# Flipped True 2026-05-26 after gold_copper_xli surfaced that the silent WARN
+# state had allowed a new pair to ship without any of the 5 CP charts. The
+# flag should have been flipped at Wave 10J closure per GATE-32; the missed
+# flip is exactly the failure mode GATE-32 was written to prevent. See
+# visualization-agent-sop.md VIZ-CP1-G for the producer-side mirror gate.
+CROSS_PERIOD_STUB_IS_FAIL = True
 
 # Wave 10J NBER shading spot-check patterns.
 # Rolling-correlation and rolling-sharpe Evidence page charts should carry NBER

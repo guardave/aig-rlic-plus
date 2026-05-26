@@ -938,6 +938,37 @@ The perceptual PNG is committed to git alongside the chart JSON (see VIZ-CV1 ext
 
 **VIZ-IC1 lint applies:** All CP charts undergo the standard intra-chart consistency check before save.
 
+#### Rule VIZ-CP1-G — Cross-Period Charts Pre-Handoff Gate (added 2026-05-26, gold_copper_xli incident)
+
+**Why this rule exists.** Wave 10J established VIZ-CP1 defining the 5 mandatory cross-period charts (`subperiod_sharpe`, `rolling_correlation`, `structural_break`, `rolling_sharpe_cp`, `rolling_granger`) and GATE-32 mandating that the placeholder text flip from WARN→FAIL once all active pairs are retro-applied. Both rules existed but were toothless against a new pair that simply omitted the 5 charts: the Evidence template degrades to `st.info("Cross-period analysis pending — ...")` placeholders (graceful), the cloud-verify `CROSS_PERIOD_STUB_IS_FAIL` flag was never flipped after Wave 10J closure (silent regression), and no producer-side gate verified that Vera's commit included the 5 files. The `gold_copper_xli` pair shipped Mode-2 with all 5 CP charts missing — and only a manual stakeholder eyeball spotted it.
+
+**The rule.** Before Vera commits any pair's chart bundle, run a pre-handoff gate that asserts the following 5 files exist:
+
+```
+output/charts/{pair_id}/plotly/subperiod_sharpe.json
+output/charts/{pair_id}/plotly/rolling_correlation.json
+output/charts/{pair_id}/plotly/structural_break.json
+output/charts/{pair_id}/plotly/rolling_sharpe_cp.json
+output/charts/{pair_id}/plotly/rolling_granger.json
+```
+
+Each must have its `_meta.json` sidecar and a perceptual PNG. Missing any one is a FAIL — block the commit.
+
+**Skip protocol (narrow exception).** If a specific CP chart genuinely cannot be produced for a pair (e.g., insufficient sample for sub-period decomposition), Vera writes a `chart_skip_<chart_name>.json` sidecar at the same path with a non-empty `reason` field. The pre-handoff gate then treats the skip as a deliberate, audited absence rather than a silent omission. Skip sidecars must be reviewed at wave closure.
+
+**Verification command (mechanical):**
+```bash
+for c in subperiod_sharpe rolling_correlation structural_break rolling_sharpe_cp rolling_granger; do
+  test -f "output/charts/{pair_id}/plotly/${c}.json" || \
+  test -f "output/charts/{pair_id}/plotly/chart_skip_${c}.json" || \
+  echo "FAIL: ${c} missing for {pair_id}"
+done
+```
+
+**Cross-references:** VIZ-CP1 (the chart definitions); GATE-32 (Quincy's consumer-side WARN→FAIL gate on the placeholders); GATE-CL6 (the Evidence section render gate). VIZ-CP1-G is the producer mirror of GATE-32 — both must be active for the placeholder to never appear in production.
+
+**Forward-compatible note.** The same gate pattern applies to any future template-mandated chart set. When a new template-section adds a hard-coded chart-name dependency, add a corresponding `VIZ-{prefix}-G` rule listing the filenames the template expects.
+
 **Cross-reference:** ECON-CP1 (subperiod Sharpe method), ECON-CP2 (rolling Sharpe, rolling Granger, structural break methods), VIZ-NBER1 (mandatory NBER shading for rolling charts), VIZ-A3 (canonical filenames), VIZ-IC1 (pre-save lint), VIZ-V5 (chart rendering validation — VIZ-CV1), VIZ-O1 (disposition mandate — all CP charts must have disposition in `_meta.json`).
 
 ---

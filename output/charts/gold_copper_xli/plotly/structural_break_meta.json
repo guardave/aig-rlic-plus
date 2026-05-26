@@ -1,0 +1,12 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "single_v1",
+  "rules_applied": [
+    "VIZ-CP1",
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Sup-F break scan with Andrews 1993 critical value. Clean = parameter-stable relationship.",
+  "generated_at": "2026-05-26T15:58:36Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat \u2014 Cross-Period)"
+}
