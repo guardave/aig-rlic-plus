@@ -87,10 +87,16 @@ Agent teams are enabled for multi-agent workflows. Use them for tasks that benef
 - **Branch tracked:** `main` (auto-redeploys on push, with occasional file-sync lag — see `META-FRD` in `docs/agent-sops/team-coordination.md`).
 - **Per-page URLs** follow the pattern `https://aig-rlic-plus.streamlit.app/{n}_{pair_id}_{section}` where `{n}` is the page-numeric prefix and `{section}` ∈ {`story`, `evidence`, `strategy`, `methodology`}. Example: `https://aig-rlic-plus.streamlit.app/16_gold_copper_xli_strategy`.
 - **Reboot triggers** required to clear cached state after file-tree changes (file-sync lag is a known META-FRD class — `git push` alone is not always sufficient). Use *Manage app → Reboot app* on Streamlit Cloud, not browser refresh.
-- **Access mode:** the app is set to public on Streamlit Community Cloud, **but** the deployed shell uses a session-cookie redirect dance that **stops simple HTTP clients** (`curl`, `WebFetch`) at a 303 even when authenticated. Headless Chromium via Playwright follows the redirect chain but the Streamlit websocket runtime fails to bootstrap inside headless (the `_stcore/health` endpoint returns 404, the app iframe never mounts). Net effect: programmatic cloud-render inspection from this environment is **not reliable today**. Workable verification paths:
-  1. **Raw artifact validation via GitHub raw** — fetch `https://raw.githubusercontent.com/guardave/aig-rlic-plus/main/results/{pair_id}/{artifact}.json` and validate against `docs/schemas/{artifact}.schema.json` with `jsonschema`. If the file on `main` passes, the cloud render will pass *after* Streamlit Cloud syncs the commit. This catches schema-class issues directly.
-  2. **User screenshots** for anything that depends on rendered DOM (chart presence, layout, ELI5 readability).
-  3. **Cloud-sync gate.** Before declaring a cloud-rendered fix verified, check that `git log --oneline origin/main -1` matches the commit Streamlit Cloud shows as "Last deploy" on Manage app. Cloud reboot pulls latest `main`; without that step a push alone is not enough.
+- **Access mode:** the app is public on Streamlit Community Cloud. Simple HTTP clients (`curl`, `WebFetch`) hit a session-cookie redirect chain and stop at a 303 — they can't inspect the rendered DOM. **Headless Playwright works** when you use the right pattern (it's what `scripts/cloud_verify.py` does and has been doing since Wave 10H.1):
+  - **URL slug:** `{base}/{pair_id}_{page}` (no numeric file prefix). The per-page wrapper file is `app/pages/16_gold_copper_xli_strategy.py` but the cloud URL is `https://aig-rlic-plus.streamlit.app/gold_copper_xli_strategy`. The numeric prefix is for sidebar ordering only.
+  - **The app lives in an iframe** with selector `iframe[title="streamlitApp"]`. `document.body.innerText` on the *outer* page is empty; you must resolve the iframe via `page.wait_for_selector(...).content_frame()` and read `frame.inner_text("body")`.
+  - **Hydration is polled** — `inner_text` returns short while Streamlit lazy-renders. Poll up to ~45s for body text > 200 chars, then settle ~5–10s for charts.
+  - **Canonical implementation:** `scripts/cloud_verify.py::get_dom()`. Copy that pattern; do not reinvent.
+- **Verification workflow.** Three layers:
+  1. **Local schema validation** (fast, deterministic). `jsonschema` against `docs/schemas/{artifact}.schema.json`. Catches schema-class bugs at producer time before a push is wasted.
+  2. **Direct cloud DOM render** via the Playwright pattern above. Catches consumer-side render failures (e.g. `validate_or_die` mismatch, missing parquet column, missing file). Mandatory after any commit that touches a render-affecting artifact.
+  3. **User screenshots** for visual/layout/ELI5 concerns that DOM grep can't see.
+- **Cloud-sync gate.** Before declaring a cloud-rendered fix verified, check that `git log --oneline origin/main -1` matches the commit Streamlit Cloud shows as "Last deploy" on Manage app. Cloud reboot (Manage app → Reboot app) pulls latest `main`; without that step a `git push` alone may not be sufficient (file-sync lag is a META-FRD class).
 
 ## Project Memory
 
