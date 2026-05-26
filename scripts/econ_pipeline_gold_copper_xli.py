@@ -193,8 +193,15 @@ def stage_winner(df, df_t):
     strat_ret = pos * ret
     equity = (1 + strat_ret).cumprod()
     bh_equity = (1 + ret).cumprod()
+    # APP-WS1 contract: signals parquet MUST contain a column whose name
+    # matches winner_summary.signal_column. The Probability Engine panel
+    # reads `pd.read_parquet(signals_path)[winner.signal_column]` and
+    # falls back to an L1 error if the named column is absent.
+    # We expose both the generic alias `signal_raw` (legacy compatibility)
+    # AND the named column per the winner_summary.
     signals = pd.DataFrame({
-        "signal_raw": sig,
+        sig_col: sig,          # APP-WS1: named column matching winner_summary.signal_column
+        "signal_raw": sig,     # legacy alias for older consumers
         "position": pos,
         "strategy_return": strat_ret,
         "equity_curve": equity,
