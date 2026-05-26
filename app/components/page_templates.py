@@ -1006,6 +1006,11 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
         "persists across regimes is robust."
     )
 
+    # fix260526 #104: the "How to read it" caption was rendered AS
+    # st.caption() BELOW each chart (small + grey). User asked for it to
+    # appear ABOVE the chart, bold/larger so it's easier to see.
+    # Caption is now passed as a markdown line ABOVE load_plotly_chart, and
+    # the chart's own caption= argument is None.
     _cp_always = [
         ("subperiod_sharpe",      "Sub-period Sharpe",      "How to read it: each bar shows the strategy's Sharpe ratio for a distinct historical sub-period. Consistent positive bars across all periods indicate a robust signal."),
         ("rolling_correlation",   "Rolling Correlation",    "How to read it: the time-varying correlation between indicator and target. A flat, stable line suggests the relationship is not regime-dependent."),
@@ -1015,7 +1020,8 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
         if _path.exists():
             st.markdown(f"**{_label}**")
-            load_plotly_chart(_chart_name, pair_id=pair_id, caption=_caption)
+            st.markdown(f"**{_caption}**")
+            load_plotly_chart(_chart_name, pair_id=pair_id, caption=None)
         else:
             st.info(f"Cross-period analysis pending — {_label} chart not yet available for this pair.")
 
@@ -1027,7 +1033,8 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
         if _path.exists():
             st.markdown(f"**{_label}**")
-            load_plotly_chart(_chart_name, pair_id=pair_id, caption=_caption)
+            st.markdown(f"**{_caption}**")
+            load_plotly_chart(_chart_name, pair_id=pair_id, caption=None)
         else:
             st.info(f"Cross-period analysis pending — {_label} chart not yet available for this pair.")
 

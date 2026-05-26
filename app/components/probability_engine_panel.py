@@ -245,12 +245,6 @@ def render_probability_engine_panel(pair_id: str) -> None:
     Adjustment Panel) can gate their own rendering per the Wave 1.5
     "derived from APP-SE1" contract.
     """
-    st.markdown("### Probability Engine Panel")
-    st.caption(
-        "What this shows: how the winning signal evolves over time and "
-        "where the decision threshold sits."
-    )
-
     pair_dir = _REPO_ROOT / "results" / pair_id
 
     # ---- Load + schema-validate winner_summary (APP-WS1 / ECON-H5 / META-CF) ----
@@ -260,6 +254,8 @@ def render_probability_engine_panel(pair_id: str) -> None:
         winner = validate_or_die(winner_path, "winner_summary")
     except SchemaValidationError as exc:
         # validate_or_die already rendered st.error with the full error list.
+        # Header still needs to render before the error so the page reads coherently.
+        st.markdown("### Probability Engine Panel")
         st.session_state[f"se1_validation_{pair_id}"] = {
             "ok": False,
             "reason": f"winner_summary schema violation: {exc.errors}",
@@ -269,6 +265,29 @@ def render_probability_engine_panel(pair_id: str) -> None:
     # Schema guarantees signal_column is present and non-empty.
     column: str = winner["signal_column"]
     display_name: str = winner.get("signal_display_name", column)
+
+    # ---- Panel header (per-pair adaptive title — fix260526 #34) ----
+    # "Probability Engine Panel" is accurate only when the underlying signal
+    # is a true probability in [0, 1] (HMM stress probability, Markov-switch
+    # probability, etc.). For pairs whose winning signal is a level / z-score
+    # / rate-of-change (e.g. indpro_accel, gold_copper_zscore_126d), call it
+    # "Signal Monitoring Panel" instead — what the chart actually shows is
+    # the signal value vs threshold, not a probability.
+    is_probability_signal = column.startswith(_PROBABILITY_PREFIXES)
+    panel_title = (
+        "Probability Engine Panel"
+        if is_probability_signal
+        else "Signal Monitoring Panel"
+    )
+    panel_caption = (
+        "What this shows: how the winning signal probability evolves over "
+        "time and where the decision threshold sits."
+        if is_probability_signal
+        else "What this shows: how the winning signal value evolves over "
+             "time and where the decision threshold sits."
+    )
+    st.markdown(f"### {panel_title}")
+    st.caption(panel_caption)
 
     # ---- Load signals parquet ----
     signals_path = _latest_signals_file(pair_dir)

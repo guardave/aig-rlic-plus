@@ -15,6 +15,8 @@ element), consistent with APP-RP1 (no nested HTML for layout).
 
 import streamlit as st
 
+from components.pair_registry import get_page_prefix
+
 STEPS = ["Story", "Evidence", "Strategy", "Methodology"]
 ICONS = {
     "Story": "📖",
@@ -53,10 +55,17 @@ def render_breadcrumb(current_page: str, pair_id: str) -> None:
     # 7 columns: 4 step columns interleaved with 3 arrow separators.
     cols = st.columns([1, 0.1, 1, 0.1, 1, 0.1, 1])
 
+    # Resolve the correct page filename via pair_registry's routing map
+    # (previously hardcoded to ``pages/9_{pair_id}_{step}.py`` which only
+    # worked for hy_ig_v2_spy and silently triggered the markdown fallback
+    # for every other pair — Streamlit then rendered the fallback markdown
+    # links with target=_blank, opening new tabs. Fix per fix260526 #23.)
+    page_prefix = get_page_prefix(pair_id)
+
     for i, step in enumerate(STEPS):
         col_idx = i * 2  # 0, 2, 4, 6
         with cols[col_idx]:
-            page_path = f"pages/9_{pair_id}_{step.lower()}.py"
+            page_path = f"{page_prefix}_{step.lower()}.py"
             is_current = (step == current_page)
             if is_current:
                 st.markdown(f"**{ICONS[step]} {step}**")
@@ -65,8 +74,16 @@ def render_breadcrumb(current_page: str, pair_id: str) -> None:
                 try:
                     st.page_link(page_path, label=step, icon=ICONS[step])
                 except Exception:
+                    # Fallback: explicit same-tab anchor (markdown link
+                    # default behaviour can be target=_blank for unresolved
+                    # internal links — fix260526 #23).
                     url_name = f"{pair_id}_{step.lower()}"
-                    st.markdown(f"{ICONS[step]} [{step}](/{url_name})")
+                    st.markdown(
+                        f'<a href="/{url_name}" target="_self" '
+                        f'style="text-decoration:none;color:inherit;">'
+                        f"{ICONS[step]} {step}</a>",
+                        unsafe_allow_html=True,
+                    )
 
         if i < len(STEPS) - 1:
             with cols[col_idx + 1]:
