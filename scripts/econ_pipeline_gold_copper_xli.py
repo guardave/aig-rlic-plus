@@ -447,7 +447,11 @@ def stage_update_interp(summary):
         f"{summary['oos_ann_return']*100:.1f}%, max DD "
         f"{summary['oos_max_drawdown']*100:.1f}%."
     )
-    interp["generated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    # Schema requires last_updated_by + last_updated_at (NOT generated_at).
+    interp["last_updated_by"] = "evan"
+    interp["last_updated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    interp.pop("generated_at", None)
+    interp.pop("generated_by", None)
     with open(INTERP, "w") as f: json.dump(interp, f, indent=2)
     log(f"  observed_direction={direction}  consistent={interp['direction_consistent']}  confidence={interp['confidence']}")
 
@@ -463,6 +467,7 @@ def stage_validate_schemas():
         ("winner_summary.json", "winner_summary.schema.json"),
         ("signal_scope.json", "signal_scope.schema.json"),
         ("analyst_suggestions.json", "analyst_suggestions.schema.json"),
+        ("interpretation_metadata.json", "interpretation_metadata.schema.json"),
     ]
     schema_dir = os.path.join(BASE_DIR, "docs", "schemas")
     failed = False

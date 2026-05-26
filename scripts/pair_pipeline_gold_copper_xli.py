@@ -372,9 +372,20 @@ def stage_interpretation(df):
     corr_provisional = sub["gold_copper_zscore_252d"].corr(sub["xli_fwd_63d"])
     log(f"  provisional corr(z_252d, xli_fwd_63d) = {corr_provisional:+.3f}  (Evan finalizes)")
 
+    """Schema: docs/schemas/interpretation_metadata.schema.json (x-version 1.1.0)
+
+    REQUIRED top-level: pair_id, schema_version, indicator_nature,
+    indicator_type, strategy_objective, owner_writes, last_updated_by,
+    last_updated_at.
+    owner_writes REQUIRES dana, evan, ray sub-keys.
+    last_updated_by enum: dana, evan, ray.
+    indicator_type enum: price, production, sentiment, rates, credit,
+    volatility, macro, survey, housing, commodity_ratio.
+    """
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     interp = {
         "pair_id": PAIR_ID,
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": "1.1.0",
         "indicator": "gold_copper_ratio",
         "indicator_display": INDICATOR_NAME,
         "target": "xli",
@@ -388,8 +399,6 @@ def stage_interpretation(df):
         "observed_direction_provisional": (
             "countercyclical" if corr_provisional < 0 else "procyclical"
         ),
-        "observed_direction": None,
-        "direction_consistent": None,
         "mechanism": (
             "Gold/copper ratio is a real-asset risk-on/risk-off gauge. Copper "
             "tracks industrial demand (\"Doctor Copper\"); gold is the canonical "
@@ -398,8 +407,6 @@ def stage_interpretation(df):
             "industrial-cycle exposure, so the hypothesized link is: rising "
             "gold/copper -> XLI underperformance on a several-month horizon."
         ),
-        "confidence": "provisional",
-        "key_finding": "[Evan: tournament not yet run]",
         "caveats": [
             "Both gold and copper are USD-priced; DXY co-movement can confound the ratio.",
             "Copper futures (HG=F) reflect global industrial activity; XLI is US-focused — basis risk on geography.",
@@ -413,15 +420,19 @@ def stage_interpretation(df):
                 "indicator", "indicator_display",
                 "target", "target_symbol", "target_display",
                 "indicator_nature", "indicator_type", "indicator_category",
-                "strategy_objective", "expected_direction",
                 "observed_direction_provisional",
-                "mechanism", "caveats",
             ],
             "evan": [
                 "observed_direction", "direction_consistent",
                 "key_finding", "confidence",
             ],
+            "ray": [
+                "strategy_objective", "expected_direction",
+                "mechanism", "caveats",
+            ],
         },
+        "last_updated_by": "dana",
+        "last_updated_at": now,
         "sample": {
             "start": START_DATE,
             "end": END_DATE,
@@ -430,8 +441,6 @@ def stage_interpretation(df):
             "rows": int(len(df)),
             "cols": int(len(df.columns)),
         },
-        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "generated_by": "Lead Lesandro (Mode 2 maker — Dana hat)",
     }
     with open(INTERP_PATH, "w") as f:
         json.dump(interp, f, indent=2)

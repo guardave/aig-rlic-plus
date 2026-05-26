@@ -1,6 +1,6 @@
 {
   "pair_id": "gold_copper_xli",
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "indicator": "gold_copper_ratio",
   "indicator_display": "Gold/Copper Ratio",
   "target": "xli",
@@ -12,11 +12,7 @@
   "strategy_objective": "max_sharpe",
   "expected_direction": "countercyclical",
   "observed_direction_provisional": "countercyclical",
-  "observed_direction": "countercyclical",
-  "direction_consistent": true,
   "mechanism": "Gold/copper ratio is a real-asset risk-on/risk-off gauge. Copper tracks industrial demand (\"Doctor Copper\"); gold is the canonical flight asset. A rising ratio signals growth fears plus safe-haven demand. Industrials (XLI) are the most direct equity expression of industrial-cycle exposure, so the hypothesized link is: rising gold/copper -> XLI underperformance on a several-month horizon.",
-  "confidence": "medium",
-  "key_finding": "gold_copper_zscore_126d <= -0.033 (strategy Long/Cash, lead 0d) yields OOS Sharpe 1.27, ann.return 13.4%, max DD -8.2%.",
   "caveats": [
     "Both gold and copper are USD-priced; DXY co-movement can confound the ratio.",
     "Copper futures (HG=F) reflect global industrial activity; XLI is US-focused \u2014 basis risk on geography.",
@@ -36,19 +32,23 @@
       "indicator_nature",
       "indicator_type",
       "indicator_category",
-      "strategy_objective",
-      "expected_direction",
-      "observed_direction_provisional",
-      "mechanism",
-      "caveats"
+      "observed_direction_provisional"
     ],
     "evan": [
       "observed_direction",
       "direction_consistent",
       "key_finding",
       "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats"
     ]
   },
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-05-26T16:35:03Z",
   "sample": {
     "start": "2000-01-01",
     "end": "2025-12-31",
@@ -57,6 +57,8 @@
     "rows": 6783,
     "cols": 39
   },
-  "generated_at": "2026-05-26T16:16:10Z",
-  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Dana hat)"
+  "observed_direction": "countercyclical",
+  "direction_consistent": true,
+  "confidence": "medium",
+  "key_finding": "gold_copper_zscore_126d <= -0.033 (strategy Long/Cash, lead 0d) yields OOS Sharpe 1.27, ann.return 13.4%, max DD -8.2%."
 }

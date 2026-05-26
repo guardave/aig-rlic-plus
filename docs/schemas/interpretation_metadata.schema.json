@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aig-rlic-plus.local/schemas/interpretation_metadata.schema.json",
   "x-owner": "dana",
-  "x-version": "1.0.0",
+  "x-version": "1.1.0",
   "title": "Interpretation Metadata Schema (Versioned Pair Classification)",
   "description": "Canonical contract for `results/{pair_id}/interpretation_metadata.json` — the pair-level classification record read by Ace's landing-page loader, Ray's narrative generator, Evan's method routing (Rule C1), and Vera's chart encoding. Governed by DATA-D6 (producer rule) and META-CF (Contract File Standard). Closes two distinct bug classes: (1) the ad-hoc-field-addition pattern (Wave 3 expansion — indicator_nature, indicator_type, strategy_objective each added in separate waves with no versioned shape); (2) the multi-writer race condition (ECON-CFO-1 — three agents write to the same JSON with no ordering protocol), closed here by the `owner_writes` explicit mapping. Adding a new field to this taxonomy requires a schema bump, not a one-off ad-hoc field. Cross-references: DATA-D3 (classification decision procedure), DATA-DD4 (classification ownership), META-CFO (classification field ownership), GATE-19 / GATE-20 / GATE-21, META-IA (interpretation annotations), APP-LP5 / APP-LP6 (landing-card chips), RES-IT1 (Ray's strategy-objective ownership).",
   "type": "object",
@@ -34,8 +34,8 @@
     },
     "indicator_type": {
       "type": "string",
-      "enum": ["price", "production", "sentiment", "rates", "credit", "volatility", "macro", "survey", "housing"],
-      "description": "Dana-owned. Controlled vocabulary shared with Evan's Rule C1 category routing. Canonical 7 values from GATE-20 (`price`, `production`, `sentiment`, `rates`, `credit`, `volatility`, `macro`) plus two extensions from the data-series-catalog (`survey`, `housing`). Near-synonyms (`activity`, `output`, `vol`, `fx`) are REJECTED — map to canonical at source. GATE-20 blocker if missing/empty/`unknown`."
+      "enum": ["price", "production", "sentiment", "rates", "credit", "volatility", "macro", "survey", "housing", "commodity_ratio"],
+      "description": "Dana-owned. Controlled vocabulary shared with Evan's Rule C1 category routing. Canonical 7 values from GATE-20 (`price`, `production`, `sentiment`, `rates`, `credit`, `volatility`, `macro`); two extensions from the data-series-catalog (`survey`, `housing`); `commodity_ratio` added 2026-05-26 with the gold/copper × XLI pair as the first instance — represents real-asset risk-on/risk-off proxies built from a ratio of two commodity prices. Near-synonyms (`activity`, `output`, `vol`, `fx`) are REJECTED — map to canonical at source. New types require both this enum extension AND a matching entry in `docs/schemas/episode_registry.json`. GATE-20 blocker if missing/empty/`unknown`."
     },
     "strategy_objective": {
       "type": "string",

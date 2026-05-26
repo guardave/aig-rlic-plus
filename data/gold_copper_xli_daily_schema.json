@@ -2,7 +2,7 @@
   "pair_id": "gold_copper_xli",
   "parquet_path": "data/gold_copper_xli_daily_20260526.parquet",
   "schema_version": "1.0.0",
-  "generated_at": "2026-05-26T12:17:00Z",
+  "generated_at": "2026-05-26T16:34:49Z",
   "columns": {
     "date": {
       "dtype": "datetime64[ns]",
