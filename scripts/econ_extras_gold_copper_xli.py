@@ -56,13 +56,19 @@ def run_hmm(df):
     }).set_index("date")
     probs["viterbi_state"] = (probs["p_state1"] > 0.5).astype(int)
 
-    # Identify which state is "stress" — the one with higher mean signal
+    # Identify which state is "stress" — the higher-VARIANCE state.
+    # With switching_variance=True the regimes are discriminated primarily
+    # by variance, not mean. Stress regimes carry the wider distribution.
     state_means = [
         sig[probs["viterbi_state"].values == s].mean() for s in (0, 1)
     ]
-    stress_state = int(np.argmax(state_means))
-    log(f"  state means: s0={state_means[0]:.3f}, s1={state_means[1]:.3f}; "
-        f"stress = state {stress_state}")
+    state_vars = [
+        sig[probs["viterbi_state"].values == s].var() for s in (0, 1)
+    ]
+    stress_state = int(np.argmax(state_vars))
+    log(f"  state means: s0={state_means[0]:.3f}, s1={state_means[1]:.3f}")
+    log(f"  state vars : s0={state_vars[0]:.3f}, s1={state_vars[1]:.3f}")
+    log(f"  stress = state {stress_state} (higher variance)")
     probs["p_stress"] = probs[f"p_state{stress_state}"]
 
     out_csv = os.path.join(RESULTS, "hmm_regime_probs.csv")
@@ -78,7 +84,9 @@ def run_hmm(df):
         "switching_variance": True,
         "log_likelihood": float(res.llf),
         "state_means": {f"state{i}": float(state_means[i]) for i in (0, 1)},
+        "state_variances": {f"state{i}": float(state_vars[i]) for i in (0, 1)},
         "stress_state": stress_state,
+        "stress_state_identification": "higher_variance",
         "transition_matrix_2x2": trans,
         "n_obs": int(len(sig)),
         "is_end": str(IS_END.date()),

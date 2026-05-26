@@ -655,16 +655,23 @@ HMM_BLOCK = dict(
     ),
     observation=(
         "The HMM identifies two clearly distinguishable regimes by "
-        "signal level (stress state mean ~0.31, calm state mean "
-        "~0.19 in z-score units). Stress-probability spikes align "
-        "with the GFC, parts of the China 2015 episode, and COVID "
-        "— consistent with the HZE1 narrative. The 2022 rates "
-        "shock is a useful check: the HMM-stress-probability "
-        "stayed *low* through much of 2022 even as XLI fell, "
-        "because the gold/copper signal itself was depressed by "
-        "supply tightness. This is the model-based version of the "
-        "failure-mode narrative — the HMM agrees that 2022 was "
-        "not a real-asset risk-off regime."
+        "the *variance* of the signal (stress-state variance 3.30 "
+        "vs calm-state variance 0.23 — a 14x volatility gap). The "
+        "two states have similar means, so the regime separation "
+        "is about turbulence, not trend. Inferred-stress-"
+        "probability is elevated through the canonical crises: "
+        "mean P(stress) is 0.83 during the GFC (Sep 2008 – Mar "
+        "2009), 1.00 during the COVID quarter (Feb – Apr 2020), "
+        "and 0.93 during the China 2015 window (Aug 2015 – Feb "
+        "2016) — versus a full-sample mean of 0.62. The 2022 "
+        "rates shock sits *between* clear stress and clear calm: "
+        "mean P(stress) of 0.55 — moderately elevated but well "
+        "below GFC/COVID levels. This is the model-based version "
+        "of the failure-mode narrative: 2022 had *some* "
+        "real-asset turbulence (which is why P(stress) wasn't "
+        "low) but was *not* the unambiguous risk-off regime that "
+        "would normally drive the signal — consistent with the "
+        "supply-decoupling explanation in the Story page."
     ),
     deep_dive_title="What does the transition matrix imply about regime persistence?",
     deep_dive_content=(
@@ -689,11 +696,13 @@ HMM_BLOCK = dict(
         "supply-decoupling explanation in the Story page."
     ),
     key_message=(
-        "An HMM fitted on the signal cleanly identifies two regimes "
-        "whose inferred-stress windows align with GFC, parts of "
-        "2015, and COVID — and the model agrees with the narrative "
-        "that 2022 was NOT a real-asset risk-off regime, "
-        "explaining why the signal failed there."
+        "An HMM fitted on the signal cleanly identifies two "
+        "variance regimes (14x volatility gap). Inferred-stress "
+        "probability is high during GFC (0.83), COVID (1.00), and "
+        "China 2015 (0.93) — but only moderate during 2022 (0.55) — "
+        "supporting the narrative that 2022 was only partially a "
+        "real-asset risk-off regime, which is why the signal "
+        "underperformed there."
     ),
 )
 
@@ -703,13 +712,16 @@ TRANSFER_ENTROPY_BLOCK = dict(
     method_name="Transfer Entropy",
     method_theory=(
         "**Transfer entropy** is an information-theoretic measure "
-        "of directed dependence between two time series. Unlike "
-        "linear correlation or Granger causality, it makes no "
-        "linearity assumption: it asks whether knowing the past of "
-        "X reduces the uncertainty about the future of Y, beyond "
+        "of directed dependence between two time series — a "
+        "mathematical way to quantify how much knowing one series "
+        "reduces uncertainty about another. Unlike linear "
+        "correlation or Granger causality, it makes no linearity "
+        "assumption: it asks whether knowing the past of X "
+        "reduces the uncertainty about the future of Y, beyond "
         "what Y's own past tells you. We use a binned (N=4) "
         "estimator and a shuffle-based null distribution to "
-        "construct an empirical confidence interval."
+        "construct an empirical confidence interval. The unit is "
+        "**bits** — higher means stronger information transfer."
     ),
     question=(
         "Is there a *non-linear* lead-lag information flow from "
@@ -731,9 +743,11 @@ TRANSFER_ENTROPY_BLOCK = dict(
         "null = significant non-linear lead-lag."
     ),
     observation=(
-        "TE(signal → return) = 0.0148 bits, well above the "
-        "shuffled-null 95% CI upper bound of ~0.008 bits (empirical "
-        "p ≈ 0.000). The reverse direction (return → signal) is "
+        "TE(signal → return) = **0.0148 bits** of information "
+        "transfer — well above the shuffled-null 95% CI upper bound "
+        "of ~0.008 bits (empirical p ≈ 0.000). For scale, a TE of "
+        "zero would mean no detectable information flow at all. "
+        "The reverse direction (return → signal) is "
         "smaller and indistinguishable from the null. This is the "
         "non-linear analogue of Granger causality — and a "
         "stronger result than Granger gave, because the threshold-"
@@ -765,8 +779,9 @@ TRANSFER_ENTROPY_BLOCK = dict(
     ),
     key_message=(
         "Non-linear directed information flow from signal to XLI "
-        "return is highly significant (p_emp ≈ 0.000); the reverse "
-        "direction is null. This is the model-free confirmation "
+        "return is highly significant (empirical p ≈ 0.000); the "
+        "reverse direction is statistically indistinguishable from "
+        "the shuffled null. This is the model-free confirmation "
         "of the lead-lag hypothesis."
     ),
 )

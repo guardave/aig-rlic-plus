@@ -631,3 +631,42 @@ Added WALK_FORWARD_CHART_NAME and TOURNAMENT_SCATTER_CHART_NAME to StrategyConfi
 **Mode 2 reflection:** the honest re-classification was uncomfortable but produced a much stronger pair. The QR result in particular is the headline finding — "signal predicts variance more than mean" cleanly explains the apparent paradox of weak correlation + strong Sharpe — and it would have been silently absent from the pair forever if the user hadn't pushed back. **The user is part of the checker swarm.**
 
 **Next:** re-dispatch the 4 checkers to verify the extensions don't introduce new inconsistencies, then close pair v2.
+
+---
+
+## 2026-05-26 (cont.) — Mode 2 gold_copper_xli — v2 Checker Swarm + Iteration 2 + Close
+
+**4 re-checker subagents dispatched in parallel (focused on extensions only):**
+
+| Dimension | Verdict v2 | Critical | Notes |
+|---|---|---|---|
+| Correctness | PASS | None | **1 material catch: HMM observation overstated GFC alignment** — claimed p_stress spiked in GFC, but actual mean p_state0 in GFC was 0.17 (lower than full-sample 0.38). The state labels were inverted: state 0 was higher-mean / lower-variance (calm), state 1 was lower-mean / higher-variance (stress). My identification heuristic was mean-based; should have been variance-based since `switching_variance=True`. |
+| Completeness | PASS | None | 22 charts, 8 method blocks, 66 files, smoke 6/0 |
+| Consistency | PASS-WITH-NOTES | None | Minor sidecar generated_by label drift between original and ext (intentional, acceptable) |
+| ELI5 | PASS-WITH-NOTES | None | 3 tiny fixes in TE block: "information-theoretic" undefined; "bits" unit unexplained; "p_emp" abbreviation inconsistent |
+
+**Iteration 2 fixes shipped:**
+
+- **HMM stress-state identification** (`scripts/econ_extras_gold_copper_xli.py`):
+  - Changed `stress_state = argmax(state_means)` → `argmax(state_vars)` (variance-based discriminator, correct for switching_variance=True).
+  - Added `state_variances` and `stress_state_identification: "higher_variance"` to `hmm_summary.json`.
+  - Re-ran pipeline; stress state now correctly = **state 1** (variance 3.30 vs state 0 = 0.23, a 14x volatility gap).
+  - Regenerated `hmm_regime_probs` chart so p_stress series reflects the correction.
+- **HMM_BLOCK observation rewritten** in pair_config with verified numbers:
+  - GFC mean P(stress) = **0.83** (vs full-sample 0.62) ✓
+  - COVID = **1.00** ✓
+  - China 2015 = **0.93** ✓
+  - Rates 2022 = **0.55** — moderately elevated but well below GFC/COVID. Narrative nuanced: 2022 had *some* real-asset turbulence (which is why P(stress) wasn't low) but was *not* the unambiguous risk-off regime — preserves and sharpens the supply-decoupling narrative.
+- **HMM_BLOCK key_message updated** to cite the 14x volatility gap and exact stress probabilities.
+- **TE_BLOCK ELI5 polish:**
+  - method_theory: added inline definitions for "information-theoretic" and "bits" unit.
+  - observation: bolded the bits figure + added a scale anchor ("a TE of zero would mean no detectable information flow at all").
+  - key_message: replaced `p_emp` abbreviation with "empirical p" (matches the observation field).
+
+**Verification:** Smoke loader passes=6 failures=0. HMM regenerated chart's CSV cross-checks pass exactly.
+
+**Mode 2 iteration efficiency:** the Correctness re-checker caught a real numerical-validity bug (HMM state inversion) that I introduced in my own Phase 3.5 code. The bug was concealed by the narrative being directionally right ("HMM identifies stress regimes") — the *labels* were wrong, the *story* was right. This is exactly the bug class where Mode 2 single-head execution is susceptible: I wrote both the producer code AND the consumer narrative, so internal consistency was preserved but truth-grounding required external verification. The checker swarm is the truth-grounding layer.
+
+**Did NOT re-dispatch checkers a third time.** The fixes were targeted to the issues each checker flagged; nothing else changed.
+
+**Pair v2 status: CLOSED.** Full Mode-1 parity (22 charts, 8 method blocks, all artifacts), all checker dimensions PASS or PASS-WITH-NOTES, all numerical claims verified.

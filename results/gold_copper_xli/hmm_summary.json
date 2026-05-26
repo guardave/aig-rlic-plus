@@ -8,7 +8,12 @@
     "state0": 0.3123095795029553,
     "state1": 0.18461542249361898
   },
-  "stress_state": 0,
+  "state_variances": {
+    "state0": 0.2250669253376846,
+    "state1": 3.298328456444404
+  },
+  "stress_state": 1,
+  "stress_state_identification": "higher_variance",
   "transition_matrix_2x2": [
     [
       0.9828527923738215,
@@ -21,5 +26,5 @@
   ],
   "n_obs": 6411,
   "is_end": "2019-12-31",
-  "generated_at": "2026-05-26T14:09:07Z"
+  "generated_at": "2026-05-26T14:19:58Z"
 }

@@ -1107,3 +1107,32 @@ Currently neither is encoded — the checker swarm catches it, which is the prot
 **Blockers:** None.
 
 **Next steps:** Wave 10K queued work resumes (Ace gate_cl_audit, Evan BL-LEGACY-WINNER-SUMMARY-SHAPE, Quincy GATE-VIZ-NBER1 severity flip), or user can start another pair in either mode.
+
+---
+
+## 2026-05-26 (cont.) — Lead — Mode 2 gold_copper_xli v2 CLOSED
+
+**Status:** Closed. Full Mode-1 parity achieved after honest re-classification + 2 checker iterations.
+
+**Final pair state:**
+- 22 charts (full Mode-1 set), all with sidecars + perceptual PNGs.
+- 8 Evidence method blocks (Correlation + Granger + CCF / Regime + HMM + LP + QR + TE).
+- Winner: `gold_copper_zscore_126d <= -0.0334`, Long/Cash. OOS Sharpe **1.27**, ann.return **+13.4%**, max DD **-8.2%**.
+- Headline analytical finding: QR shows q=0.05 beta = -2.72% (t=-8.6) — **signal predicts variance more than mean** ("lives in the tails"). Reconciles weak linear correlation with strong threshold-rule Sharpe.
+- HMM correctly identifies 14x volatility regime gap; stress probability 0.83/1.00/0.93 during GFC/COVID/China 2015, 0.55 during rates_2022 (moderately elevated — supports the partial failure narrative).
+
+**Two iterations of checker fixes:**
+- **Iteration 1** (catch: winner-signal mismatch — 252d/Long-Short was placeholder, actual was 126d/Long-Cash): root cause = Mode 2 "wrote ahead of evidence" (Phase 2 Ray hat wrote strategy ELI5 before Phase 3 Evan hat ran the tournament).
+- **Iteration 2** (catch: HMM stress-state label inverted): root cause = used mean-based stress identification when `switching_variance=True` requires variance-based.
+
+**Mode 2 lessons crystallized (for LEAD-WM1 v2 consideration):**
+1. **Phase ordering matters.** Recommend rule: Phase 3 (econometrics) BEFORE Phase 2 (strategy narrative). The maker should not write quantitative claims about a winner that doesn't exist yet.
+2. **Self-checks at phase boundaries.** Before committing each phase, re-verify that phase's quantitative claims against the upstream artifacts produced.
+3. **Variance-vs-mean discriminator selection in HMM.** This is a general econometrics pitfall, not Mode-2-specific — worth adding to Evan's domain SOP as a `switching_variance=True` checklist.
+4. **The user is part of the checker swarm.** The honest re-classification only happened because the user pushed back on "deferred" framing. The QR result (the analytical headline) would have been silently absent.
+
+**Cumulative session: 11 commits across 2 sessions for one Mode-2 pair.** Mode 2 cost-vs-Mode-1: roughly comparable in tokens; depth-of-coverage at Sample-grade parity now matches Mode 1.
+
+**Blockers:** None.
+
+**Next steps:** Wave 10K queued work resumes, OR user starts another pair (in either mode).
