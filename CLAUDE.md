@@ -81,6 +81,14 @@ Agent teams are enabled for multi-agent workflows. Use them for tasks that benef
 - Charts: Always label axes, include titles, use colorblind-friendly palettes
 - Reports: Lead with the conclusion, then supporting evidence, then methodology details
 
+## Deployment
+
+- **Streamlit Cloud URL:** `https://aig-rlic-plus.streamlit.app/`
+- **Branch tracked:** `main` (auto-redeploys on push, with occasional file-sync lag — see `META-FRD` in `docs/agent-sops/team-coordination.md`).
+- **Per-page URLs** follow the pattern `https://aig-rlic-plus.streamlit.app/{n}_{pair_id}_{section}` where `{n}` is the page-numeric prefix and `{section}` ∈ {`story`, `evidence`, `strategy`, `methodology`}. Example: `https://aig-rlic-plus.streamlit.app/16_gold_copper_xli_strategy`.
+- **Reboot triggers** required to clear cached state after file-tree changes (file-sync lag is a known META-FRD class — `git push` alone is not always sufficient). Use *Manage app → Reboot app* on Streamlit Cloud, not browser refresh.
+- **Access mode:** the app is currently behind Streamlit Community Cloud sign-in (private). Programmatic fetches (`curl`, `WebFetch`) hit the auth wall and cannot inspect the rendered page; user must supply screenshots for cloud-render verification, or app must be made public.
+
 ## Project Memory
 
 Reusable knowledge from past sessions is stored in `.claude/memory/`:
