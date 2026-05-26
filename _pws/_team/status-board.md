@@ -1079,3 +1079,31 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 2. Completeness — mandatory deliverables, 15-item gate, chart subset, all 4 pages
 3. Consistency — naming, slug vocab, instrument references, SOP cross-refs
 4. ELI5 — layperson friendliness across narrative, captions, methodology
+
+---
+
+## 2026-05-26 (cont.) — Lead — Mode 2 gold_copper_xli COMPLETE
+
+**Status:** Closed. First production Mode 2 pair shipped.
+
+**Maker (5 phases over 2 sessions) + Checker swarm (4 parallel agents) + 1 fix iteration.**
+
+**Final winner:** `gold_copper_zscore_126d <= -0.0334`, Long/Cash, no lead. OOS Sharpe **1.27**, ann.return **+13.4%**, max DD **-8.2%** (2020-2025).
+
+**Direction:** countercyclical, consistent with hypothesis.
+
+**Checker outcomes:** Correctness PASS (1 material catch fixed), Completeness PASS (15/15), Consistency PASS, ELI5 PASS-WITH-NOTES (parentheticals partially applied; visual polish deferred).
+
+**Bug class caught:** "wrote ahead of evidence" — Phase 2 Ray hat ELI5 cited placeholder winner spec; Phase 5 carried it through unchanged; Correctness checker caught the divergence from Phase 3 winner_summary. Iteration 1 fix resolved across pair_config + narrative + caveats + trade-log.
+
+**Key insight for SOP evolution:** Mode 2 has a structural risk that Mode 1 doesn't — writing strategy narrative before tournament results exist. Two possible mitigations worth considering for LEAD-WM1 v2:
+1. *Phase ordering constraint:* require Phase 3 (Evan) before Phase 2 (Ray's strategy section).
+2. *Maker-phase self-check rule:* before committing each phase, re-verify that phase's claims against the latest upstream artifacts.
+
+Currently neither is encoded — the checker swarm catches it, which is the protocol's designed safety net.
+
+**Cumulative session commits today:** 8 (maker phases + checker fix + close).
+
+**Blockers:** None.
+
+**Next steps:** Wave 10K queued work resumes (Ace gate_cl_audit, Evan BL-LEGACY-WINNER-SUMMARY-SHAPE, Quincy GATE-VIZ-NBER1 severity flip), or user can start another pair in either mode.

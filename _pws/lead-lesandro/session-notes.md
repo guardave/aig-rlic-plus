@@ -560,3 +560,37 @@ After Phase 5, the 4-checker swarm runs.
 **Maker phase COMPLETE.** All 5 phases (Dana → Ray → Evan → Vera → Ace) shipped.
 
 **Next: 4 checker subagents in parallel.**
+
+---
+
+## 2026-05-26 (cont.) — Mode 2 gold_copper_xli — Checker Swarm + Iteration 1
+
+**4 checker subagents dispatched in parallel (Explore type, 600-700-word reports):**
+
+| Dimension | Verdict | Critical Findings |
+|---|---|---|
+| Correctness | PASS | One material note: narrative + pair_config cite winner as `gold_copper_zscore_252d` with threshold `-0.6675` and strategy `Long/Short`, but **actual winner is `gold_copper_zscore_126d`, threshold `-0.0334`, Long/Cash** |
+| Completeness | PASS | 15/15 gate. Deferred items (11 charts + 5 method blocks) properly documented |
+| Consistency | PASS | Missed the winner mismatch (Correctness caught it) |
+| ELI5 | PASS-WITH-NOTES | Z-score / Sharpe / 252-day / 63-day need parentheticals on first use; ONE_SENTENCE_THESIS should reframe Sharpe as excess return |
+
+**The Mode 2 design hope vs. risk validated in one iteration:**
+- Hope confirmed: cross-stage failure-case threading (rates_2022) worked end-to-end without coordination overhead.
+- Risk surfaced: I wrote the strategy ELI5 in Phase 2 (Ray hat) *before* running the tournament in Phase 3 (Evan hat), then carried the placeholder numbers through Phase 5 (Ace hat) without re-verifying against the actual winner. **This is exactly the bug class the checker swarm exists to catch — and the Correctness checker caught it.**
+
+**Iteration 1 fixes shipped:**
+- `app/pair_configs/gold_copper_xli_config.py`:
+  - ONE_SENTENCE_THESIS: 252-day → 126-day, framed Sharpe 1.27 as "≈ twice buy-and-hold" + added +13.4% annualized excess return (per ELI5 checker)
+  - KPI_CAPTION: corrected window + added z-score parenthetical
+  - tournament_intro: corrected winner spec (126d / IS-median ≈ -0.03 / Long/Cash / no lead)
+  - StrategyConfig.PLAIN_ENGLISH / SIGNAL_RULE_MD / HOW_SIGNAL_IS_GENERATED_MD / MANUAL_USE_MD: all updated to 126-day, threshold ≈ -0.03, Long/Cash (no short-selling)
+  - CAVEATS_MD: replaced "short-selling implementation" caveat with "Long/Cash, no short-selling" note since the winner needs no margin
+  - TRADE_LOG_EXAMPLE_MD: corrected 126d, added context numbers
+- `docs/portal_narrative_gold_copper_xli_20260526.md`:
+  - strategy_eli5_winner: replaced the deferred "expect something in the family of" placeholder with the actual winner spec
+
+**Verification:** `grep` for stale references (0.6675 / wrong "Long/Short.*winner" / wrong "252-day.*winner") returns zero. Smoke loader re-run: passes=4 failures=0.
+
+**Did NOT re-dispatch checkers.** The non-Correctness checkers all returned PASS, and Iteration 1 only touched prose fields and field values that don't affect Completeness or Consistency in any way other than corrected. The ELI5 notes were lower-priority "nice-to-have" — partially addressed in this iteration (parentheticals for z-score added on first use), some remain (e.g. visual callouts) and are noted as post-launch polish in pair_execution_history.
+
+**Pair status: Mode 2 maker + 1 checker iteration COMPLETE. Ready for close.**

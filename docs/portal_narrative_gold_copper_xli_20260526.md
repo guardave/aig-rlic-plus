@@ -171,7 +171,7 @@ The following blocks are destined for `app/pair_configs/gold_copper_xli_config.p
 
 ### strategy_eli5_winner
 
-> The tournament-winning rule will be filled in by Phase 3 (Evan hat). Expect something in the family of: *"when the 252-day z-score crosses a threshold, reduce industrial exposure; when it crosses back, restore it."* The walk-forward report tells you whether the rule held up in the OOS years (2020–2025) — the years that matter, because they're the ones the rule could not have memorized.
+> Tournament result (Phase 3): the winning rule uses the **126-day** (6-month) rolling z-score of the gold/copper ratio. When that z-score is **below** the in-sample median (≈ -0.03), hold XLI long; when above, move to cash. Long/Cash, no short-selling required, no lead. OOS Sharpe 1.27 over 2020–2025, annualized return +13.4%, max drawdown -8.2%. The 2020–2025 window is what matters because the threshold was locked in on pre-2020 data — the rule could not have memorized the years it was tested on.
 
 ### methodology_eli5
 

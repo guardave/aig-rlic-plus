@@ -382,3 +382,38 @@ confirm → delete old), or (b) per-pair-subdir-only pattern avoiding moves.
 - **Rationale for the override:** exercising the Mode 2 protocol on a non-trivial pair is itself a meta-goal — shaping the checker-dispatch artifact organically per the LEAD-WM1 design note.
 
 Outcome (checker iteration count, issues per dimension, final clean wave) to be appended on completion.
+
+### 2026-05-26 — Pair gold_copper_xli — Mode 2 COMPLETE
+
+**Mode:** 2 (single maker, multiple checkers). Recommendation vs. choice: Lead recommended Mode 1; user overrode to exercise the protocol on a non-trivial pair.
+
+**Maker phase (Lead wearing 5 role hats sequentially across 2 sessions):**
+- Phase 1 Dana: 4.7s pipeline, 6783×39 parquet + schema + dictionary + interpretation_metadata + new `commodity_ratio` episode registry category.
+- Phase 2 Ray: substantive ~220-line narrative + 4 HZE1 episode narratives (triad satisfied: gfc=long-lead, china_2015=mid-cycle, rates_2022=failure-case).
+- Phase 3 Evan: 10.8s, 90-combo tournament. Winner = `gold_copper_zscore_126d <= -0.0334`, Long/Cash, no lead. **OOS Sharpe 1.27, ann return 13.4%, max DD -8.2%**. Direction countercyclical, consistent.
+- Phase 4 Vera: 19.8s, essential 11-chart subset (33 files inc. perceptual PNGs + sidecars). VIZ-DP1 and GATE-VIZ-NBER2 verified by construction.
+- Phase 5 Ace: pair_config + 4 page wrappers + registry edits. smoke_loader passes=4 failures=0.
+
+**Checker swarm (4 parallel Explore agents):**
+- Correctness: **PASS**, with one material catch — winner-signal mismatch (narrative+config cited 252d/Long-Short; actual winner is 126d/Long-Cash). This was a Mode-2-specific bug introduced when Ray hat (Phase 2) wrote strategy ELI5 before Evan hat (Phase 3) ran the tournament.
+- Completeness: **PASS** (15/15 gate; deferred items properly documented).
+- Consistency: **PASS** (missed the winner mismatch — Correctness owned it).
+- ELI5: **PASS-WITH-NOTES** (z-score / Sharpe / 252d / 63d parentheticals; ONE_SENTENCE_THESIS reframe).
+
+**Iteration 1 fixes:** corrected all winner-signal references throughout pair_config + narrative + caveats + trade-log example. Added ELI5 parentheticals on first use of z-score / Sharpe. Smoke loader re-passed (4/0).
+
+**Iteration count:** 1 (single round of fixes; no second dispatch needed since non-Correctness checkers were already PASS).
+
+**Mode 2 observations:**
+- *Hope confirmed:* one-head execution preserved cross-stage context (Dana's provisional correlation → Ray's mechanism narrative → Evan's quartile result → Vera's NBER2-aware shading → Ace's caveats) without handoff overhead.
+- *Risk validated:* writing strategy ELI5 in Phase 2 before running Phase 3 produced a placeholder-vs-reality mismatch that propagated through Phase 5. The checker swarm caught it — the protocol's safety net worked as designed.
+- *Cost vs. Mode 1:* roughly comparable in tokens. Single-session impossible for a non-trivial pair (took 2 sessions); per-phase staging is the right cadence.
+- *Best Mode 2 fit:* recurring pairs in familiar categories where the playbook is established and the checker swarm catches the few "wrote ahead of evidence" slips. Worst fit: novel categories where domain depth from agent reflection matters (Lead correctly recommended Mode 1 here; user chose Mode 2 as a protocol-exercise meta-goal).
+
+**Final artifacts:** all under `results/gold_copper_xli/`, `output/charts/gold_copper_xli/`, `app/pair_configs/gold_copper_xli_config.py`, `app/pages/16_gold_copper_xli_*.py`, `docs/portal_narrative_gold_copper_xli_20260526.md`, `scripts/{pair_pipeline,econ_pipeline,generate_charts}_gold_copper_xli.py`.
+
+**Deferred for post-launch follow-up:**
+- 11 chart types out of the 22 Mode-1 standard set (granger_f_by_lag, hmm_regime_probs, local_projections, quantile_regression, transfer_entropy, returns_by_regime, drawdown_comparison, walk_forward, tournament_sharpe_dist, ccf_prewhitened, spread_history_annotated).
+- 5 Evidence method blocks (HMM, local projections, quantile, transfer entropy, CCF) corresponding to the missing charts.
+- ELI5 nice-to-haves: visual callouts around 2022 failure case; tighten one long sentence in EVIDENCE overview.
+- Evan's analyst_suggestions.json: log-ratio signals, DXY-conditional gating, supply-decoupling detector.

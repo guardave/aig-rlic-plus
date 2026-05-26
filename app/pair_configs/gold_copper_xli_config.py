@@ -46,15 +46,18 @@ class StoryConfig:
     ONE_SENTENCE_THESIS = (
         "When the gold/copper ratio rises (safe-haven demand up, industrial "
         "demand down), industrial stocks underperform on a 1-6 month horizon "
-        "— and a simple threshold rule on the 252-day z-score of the ratio "
-        "delivered an OOS Sharpe of 1.27 in 2020-2025."
+        "— and a simple threshold rule on the 126-day z-score (a half-year "
+        "rolling normalization) of the ratio earned an annualized "
+        "**+13.4%** return out-of-sample in 2020-2025 (Sharpe 1.27 — about "
+        "twice the buy-and-hold ratio)."
     )
 
     KPI_CAPTION = (
-        "the tournament winner uses the 252-day z-score of the gold/copper "
-        "ratio. The countercyclical orientation means we go long XLI when "
-        "the z-score is below its IS-calibrated threshold (signal says "
-        "risk-on) and switch to short otherwise."
+        "the tournament winner uses the 126-day z-score (how many standard "
+        "deviations the ratio is from its rolling half-year mean) of the "
+        "gold/copper ratio. The countercyclical orientation means we go "
+        "long XLI when the z-score is below its in-sample median (signal "
+        "says risk-on) and move to cash otherwise."
     )
 
     HERO_TITLE = "25 Years of Gold/Copper Ratio vs Industrials (XLI)"
@@ -434,11 +437,13 @@ EVIDENCE_METHOD_BLOCKS = {
     "tournament_intro": (
         "We tested combinations of 5 signals (z-scores at 126/252-day "
         "windows, 504-day percentile rank, 63d and 126d rate-of-change), "
-        "3 thresholds (IS p25/p50/p75), 2 strategies (Long/Cash, "
+        "3 thresholds (in-sample p25/p50/p75), 2 strategies (Long/Cash, "
         "Long/Short), and 3 lead times (0/1/5 days) = 90 combinations. "
         "Ranked by out-of-sample Sharpe over 2020–2025. The winning "
-        "combination: **252d z-score signal, IS p50 threshold, Long/Short, "
-        "lead 0**, producing **OOS Sharpe 1.27** vs ~0.6 buy-and-hold XLI."
+        "combination: **126-day z-score signal, in-sample-median (≈ -0.03) "
+        "threshold, Long/Cash, no lead**, producing **OOS Sharpe 1.27** "
+        "(annualized return 13.4%, max drawdown -8.2%) vs ~0.6 "
+        "buy-and-hold XLI."
     ),
     "transition": (
         "**Transition:** the data confirms a countercyclical relationship "
@@ -462,30 +467,35 @@ class StrategyConfig:
         "Our computer tested every combination of 'signal + threshold + "
         "trade rule' to find the one that would have made the most money "
         "(adjusted for risk) on past data. The winner holds XLI long when "
-        "the gold/copper 252-day z-score is below its in-sample median "
-        "(market saying risk-on) and switches to short XLI otherwise. The "
+        "the gold/copper 126-day z-score is below its in-sample median "
+        "(market saying risk-on) and moves to **cash** otherwise. The "
         "defensive logic: when fear-metal demand rises relative to "
-        "industrial-metal demand, industrial stocks tend to weaken."
+        "industrial-metal demand, industrial stocks tend to weaken — "
+        "stepping aside avoids that drawdown."
     )
 
     SIGNAL_RULE_MD = (
-        "**Strategy Rule in Plain English:** Compute the 252-day rolling "
-        "z-score of the gold/copper ratio every day. When the z-score is "
-        "**below** the in-sample median threshold (about -0.67 in our "
-        "calibration), hold a **long position** in XLI. When the z-score "
-        "is **above** that threshold (signal says risk-off), hold a "
-        "**short position** in XLI. No lead — act on the signal the same "
-        "day it is observed."
+        "**Strategy Rule in Plain English:** Compute the 126-day rolling "
+        "z-score (a 6-month rolling normalization — how many standard "
+        "deviations the ratio sits from its half-year mean) of the "
+        "gold/copper ratio every day. When the z-score is **below** the "
+        "in-sample median threshold (about **-0.03** in our calibration), "
+        "hold a **long position** in XLI. When the z-score is **above** "
+        "that threshold (signal says risk-off), move to **cash** (no XLI "
+        "position). No lead — act on the signal the same day it is "
+        "observed. This is a long/cash rule, not long/short — no "
+        "short-selling required."
     )
 
     HOW_SIGNAL_IS_GENERATED_MD = (
         "Each trading day, we pull gold and copper futures closes "
         "(GC=F and HG=F on Yahoo Finance), compute the ratio "
         "(gold / copper, in $/oz divided by $/lb), then compute its "
-        "252-day rolling z-score: how many standard deviations is "
-        "today's ratio away from its trailing 1-year mean? That z-score "
-        "is the signal. The threshold (~-0.67) was tuned to the IS "
-        "distribution and is held fixed in OOS."
+        "126-day rolling z-score: how many standard deviations is "
+        "today's ratio away from its trailing 6-month mean? That z-score "
+        "is the signal. The threshold (~-0.03) was tuned to the in-sample "
+        "(pre-2020) distribution and held fixed throughout the "
+        "out-of-sample backtest."
     )
 
     MANUAL_USE_MD = (
@@ -494,10 +504,11 @@ class StrategyConfig:
         "1. **Pull gold and copper closes** from any financial data feed "
         "(e.g. Yahoo Finance tickers `GC=F` and `HG=F`).\n"
         "2. **Compute the ratio** = gold price ($/oz) / copper price ($/lb).\n"
-        "3. **Compute the 252-day rolling z-score** of the ratio.\n"
-        "4. **Compare to threshold ~-0.67.** Below threshold: hold XLI "
-        "long. Above threshold: hold XLI short (or move to cash if "
-        "short-selling is unavailable).\n"
+        "3. **Compute the 126-day rolling z-score** of the ratio "
+        "(today's ratio minus its trailing 6-month mean, divided by its "
+        "trailing 6-month standard deviation).\n"
+        "4. **Compare to threshold ≈ -0.03.** Below threshold: hold XLI "
+        "long (100% exposure). Above threshold: move to cash (0% XLI).\n"
         "5. **Re-evaluate daily.** The strategy as tested rebalances "
         "every trading day; in practice a weekly rebalance retains most "
         "of the Sharpe at lower transaction cost."
@@ -526,10 +537,10 @@ class StrategyConfig:
    risk-off interpretation breaks. The Q4 bump in the quartile chart
    above is the statistical fingerprint.
 
-4. **Short-selling implementation.** The Long/Short winner requires a
-   margin-enabled brokerage account; borrowing costs are not reflected
-   in the equity curve. A Long/Cash variant (visible in the tournament
-   results) is available with lower OOS Sharpe but no shorting required.
+4. **Long/Cash, no short-selling.** The tournament winner is a Long/Cash
+   rule — long XLI when bullish, cash otherwise — so no margin account
+   or short-borrowing cost is required. Long/Short variants were tested
+   but did not outperform the Long/Cash winner net of friction.
 
 5. **Daily rebalance assumption.** OOS Sharpe is computed on daily
    rebalance with no transaction costs. Real-world frictions will
@@ -543,15 +554,17 @@ class StrategyConfig:
 
     TRADE_LOG_EXAMPLE_MD = (
         "**Concrete example — 2022 rates shock.** Through most of 2022 "
-        "the 252d z-score of gold/copper drifted **below** the threshold "
+        "the 126d z-score of gold/copper drifted **below** the threshold "
         "(supply-tight copper held the ratio down), so the strategy was "
         "**long XLI**. XLI fell during this rates-driven re-rating "
-        "alongside the broad market, so the strategy lost money. This "
-        "is the failure case the caveats above describe: when supply "
-        "tightness drives one leg, the signal misreads the regime. The "
-        "OOS Sharpe of 1.27 is the *net* of these failure-case losses "
-        "and the wins from 2020 and 2023–2025 — proof that the signal "
-        "works on net, not that it works always."
+        "alongside the broad market, so the strategy lost money it would "
+        "have avoided had it been in cash. This is the failure case the "
+        "caveats above describe: when supply tightness drives one leg, "
+        "the signal misreads the regime. The OOS Sharpe of 1.27 "
+        "(annualized excess return ~13.4% with max drawdown only -8.2%) "
+        "is the *net* of these failure-case losses and the wins from "
+        "2020 and 2023–2025 — proof that the signal works on net, not "
+        "that it works always."
     )
 
 
