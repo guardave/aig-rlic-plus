@@ -1,0 +1,66 @@
+{
+  "pair_id": "gold_copper_xli",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "lead-as-evan (Mode 2 Phase 3)",
+  "last_updated_at": "2026-05-26T13:40:54Z",
+  "indicator_axis": {
+    "canonical_column": "gold_copper_ratio",
+    "display_name": "Gold/Copper Ratio (real-asset risk-off proxy)",
+    "derivatives": [
+      {
+        "name": "gold_copper_ratio",
+        "definition": "Raw ratio of gold ($/oz) to copper ($/lb).",
+        "formula": "gold[t] / copper[t]",
+        "role": "raw"
+      },
+      {
+        "name": "gold_copper_logratio",
+        "definition": "Natural log of the ratio. Better-distributed.",
+        "formula": "log(gold_copper_ratio)",
+        "role": "transform"
+      },
+      {
+        "name": "gold_copper_zscore_252d",
+        "definition": "252d rolling z-score.",
+        "formula": "(ratio - rollmean_252) / rollstd_252",
+        "role": "threshold_input"
+      },
+      {
+        "name": "gold_copper_zscore_126d",
+        "definition": "126d rolling z-score.",
+        "formula": "(ratio - rollmean_126) / rollstd_126",
+        "role": "threshold_input"
+      },
+      {
+        "name": "gold_copper_pctrank_504d",
+        "definition": "504d percentile rank.",
+        "formula": "rank(ratio, 504) / 504",
+        "role": "threshold_input"
+      },
+      {
+        "name": "gold_copper_roc_63d",
+        "definition": "63d rate-of-change of ratio.",
+        "formula": "(ratio[t]/ratio[t-63] - 1) * 100",
+        "role": "threshold_input"
+      },
+      {
+        "name": "gold_copper_roc_126d",
+        "definition": "126d rate-of-change.",
+        "formula": "(ratio[t]/ratio[t-126] - 1) * 100",
+        "role": "threshold_input"
+      }
+    ]
+  },
+  "target": {
+    "symbol": "XLI",
+    "primary_return_col": "xli_ret",
+    "forward_horizons": [
+      "xli_fwd_5d",
+      "xli_fwd_21d",
+      "xli_fwd_63d",
+      "xli_fwd_126d"
+    ]
+  },
+  "direction_asserted": "countercyclical"
+}

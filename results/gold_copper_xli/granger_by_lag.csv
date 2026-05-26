@@ -1,0 +1,6 @@
+lag,f_stat,p_value,significant_5pct
+1,1.6259,0.2023,False
+5,1.8932,0.0921,False
+10,1.7069,0.0732,False
+21,1.5607,0.0493,True
+63,1.6978,0.0005,True

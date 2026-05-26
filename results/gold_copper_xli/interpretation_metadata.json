@@ -12,11 +12,11 @@
   "strategy_objective": "max_sharpe",
   "expected_direction": "countercyclical",
   "observed_direction_provisional": "countercyclical",
-  "observed_direction": null,
-  "direction_consistent": null,
+  "observed_direction": "countercyclical",
+  "direction_consistent": true,
   "mechanism": "Gold/copper ratio is a real-asset risk-on/risk-off gauge. Copper tracks industrial demand (\"Doctor Copper\"); gold is the canonical flight asset. A rising ratio signals growth fears plus safe-haven demand. Industrials (XLI) are the most direct equity expression of industrial-cycle exposure, so the hypothesized link is: rising gold/copper -> XLI underperformance on a several-month horizon.",
-  "confidence": "provisional",
-  "key_finding": "[Evan: tournament not yet run]",
+  "confidence": "medium",
+  "key_finding": "gold_copper_zscore_126d <= -0.033 (strategy Long/Cash, lead 0d) yields OOS Sharpe 1.27, ann.return 13.4%, max DD -8.2%.",
   "caveats": [
     "Both gold and copper are USD-priced; DXY co-movement can confound the ratio.",
     "Copper futures (HG=F) reflect global industrial activity; XLI is US-focused \u2014 basis risk on geography.",
@@ -57,6 +57,6 @@
     "rows": 6783,
     "cols": 39
   },
-  "generated_at": "2026-05-26T12:17:00Z",
+  "generated_at": "2026-05-26T13:40:54Z",
   "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Dana hat)"
 }

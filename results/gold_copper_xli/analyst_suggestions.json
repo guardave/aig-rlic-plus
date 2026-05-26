@@ -1,0 +1,28 @@
+{
+  "pair_id": "gold_copper_xli",
+  "schema_version": "1.0.0",
+  "suggestions": [
+    {
+      "slug": "log_ratio_signals",
+      "owner": "evan",
+      "priority": "medium",
+      "title": "Log-ratio (gold_copper_logratio) as tournament input",
+      "rationale": "Raw ratio is right-skewed; log-ratio is better-distributed and may yield cleaner z-score thresholds."
+    },
+    {
+      "slug": "dxy_conditional_signal",
+      "owner": "evan",
+      "priority": "medium",
+      "title": "Condition signal strength on DXY regime",
+      "rationale": "Both legs USD-priced. When DXY moves dominate, ratio signal may be noise; conditional model would gate the signal on |DXY z-score|."
+    },
+    {
+      "slug": "supply_decoupling_check",
+      "owner": "evan",
+      "priority": "low",
+      "title": "Detect supply-driven decoupling (2022 failure case)",
+      "rationale": "Add a structural-break flag when ratio direction contradicts copper-vs-history percentile (supply tightness regime)."
+    }
+  ],
+  "exploratory_charts": []
+}

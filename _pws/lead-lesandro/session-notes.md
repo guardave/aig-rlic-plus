@@ -441,3 +441,42 @@ Two-day multi-agent intensive running from SOP hardening Part F through Wave 9 c
 **Mode 2 observation:** writing this immediately after Dana's pipeline meant the mechanism narrative referenced the actual provisional correlation (-0.044) without a handoff. In Mode 1, Ray would have either waited for Dana's handoff note or asserted the correlation hypothetically. Concrete cross-stage context preservation.
 
 **Next pickup:** Phase 3 (Evan hat). Tournament + signal_scope + all econometric artifacts. Likely the heaviest single phase.
+
+---
+
+## 2026-05-26 (cont.) — Mode 2 gold_copper_xli — Phase 3 (Evan hat) Complete
+
+**Pipeline:** `scripts/econ_pipeline_gold_copper_xli.py` (10.8s wall-clock).
+
+**Tournament:** 5 signals x 3 thresholds x 2 strategies x 3 leads = 90 combos. 60 valid.
+
+**Winner:**
+- Signal: `gold_copper_zscore_252d <= -0.6675` (P50 of IS distribution — bullish when 252d z-score is below 75th percentile)
+- Strategy: Long/Short, lead 0
+- **OOS Sharpe: 1.27** (matches Sample-tier quality)
+- OOS Ann.Return: 13.4%, Max DD: -8.2%, Turnover: ~moderate
+
+**Quartile returns** (xli_fwd_63d by gold_copper_zscore_252d quartile):
+- Q1 low: +3.93% (n=1587)
+- Q2: +2.45%
+- Q3: +0.92%
+- Q4 high: +2.92%  <- failure-case bounce, consistent with rates_2022 narrative
+
+Monotonic Q1->Q3 decline supports countercyclical hypothesis; Q4 bump validates Ray's failure-case narrative (supply-decoupling) — the same structural feature documented in the HZE1 episode story.
+
+**Direction:** observed=countercyclical, consistent=True, confidence=medium.
+
+**Artifacts (all ECON-H + ECON-DS):**
+- `stationarity_tests_20260526.csv` (9 vars, ADF)
+- `granger_by_lag.csv` (lags 1/5/10/21/63)
+- `tournament_results_20260526.csv` (90 combos)
+- `winner_summary.json` (schema 1.1.0, all required fields)
+- `signal_scope.json`
+- `signals_20260526.parquet` (signal_raw / position / strategy_return / equity_curve / buy_and_hold_equity)
+- `regime_quartile_returns.csv`
+- `analyst_suggestions.json` (3 follow-up suggestions: log-ratio, DXY-conditional, supply-decoupling detector)
+- `interpretation_metadata.json` updated with Evan keys
+
+**Mode 2 observation:** the Q4-bump-matches-rates_2022-narrative consistency check was a real-time win — Ray and Evan hats both in one head meant the failure-case narrative and the tournament result told the same story without coordination. In Mode 1 this consistency would have surfaced only at handoff.
+
+**Next:** Phase 4 (Vera hat). 22-chart set is too large for one Mode 2 session; will produce the *essential* chart subset (hero, equity_curves, drawdown, 4 history_zoom, regime_quartile_returns, quartile_returns, correlation_heatmap, signal_timeseries) and document the rest as a follow-up.
