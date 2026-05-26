@@ -1,0 +1,13 @@
+{
+  "chart_name": "history_zoom_gfc",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "dual_panel_v1",
+  "rules_applied": [
+    "VIZ-DP1",
+    "VIZ-IC1",
+    "GATE-VIZ-NBER2"
+  ],
+  "narrative_alignment_note": "HZE1 episode 'gfc'. NBER overlay applied (recession overlap). Aligned with Story page episode narrative.",
+  "generated_at": "2026-05-26T13:43:17Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
+}

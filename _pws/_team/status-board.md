@@ -1029,3 +1029,26 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 **Blockers:** None.
 
 **Next steps:** Phase 3 (Evan hat) — stationarity tests + tournament + winner_summary + signal_scope + regime/granger artifacts. Heaviest single phase.
+
+---
+
+## 2026-05-26 (cont.) — Lead — Mode 2 gold_copper_xli Phase 4 Complete
+
+**Status:** In progress — Vera essential subset complete; Ace + checkers next session.
+
+**What was accomplished (Lead wearing Vera hat):**
+- `scripts/generate_charts_gold_copper_xli.py` (~250 lines).
+- 11 essential charts shipped: hero, signal_timeseries, equity_curves, drawdown, quartile_returns, regime_quartile_returns, correlation_heatmap, history_zoom_{gfc,china_2015,covid,rates_2022}.
+- Each chart: Plotly JSON + sidecar `_meta.json` (palette/rules/narrative_alignment) + perceptual PNG via kaleido per VIZ-CV1.
+- VIZ-DP1 verified on all 4 dual-panel history_zoom charts: top (x,y)+(x,y2), bottom (x2,y3), no blank-bottom-panel bug.
+- GATE-VIZ-NBER2 verified: NBER overlay on gfc + covid (recession-overlap); absent on china_2015 + rates_2022 (no overlap).
+
+**Scope decision:** essential 11-chart subset (not full 22). Remaining types documented as post-checker follow-up: granger_f_by_lag, hmm_regime_probs, local_projections, quantile_regression, transfer_entropy, returns_by_regime, drawdown_comparison, walk_forward, tournament_sharpe_dist, ccf_prewhitened, spread_history_annotated.
+
+**Discoveries / insights:**
+- Embedding VIZ-DP1 + GATE-VIZ-NBER2 in chart-construction logic (rather than relying on verify scripts) means the gates are enforced by construction. This is the SOP-first ideal mode.
+- Single-head execution let me cite Ray's narrative phrasing ("Q4 bump matches rates_2022 failure case") directly in chart sidecar `narrative_alignment_note`. In Mode 1 this cross-reference would have required handoff parsing.
+
+**Blockers:** None.
+
+**Next steps:** Phase 5 (Ace hat) next session — wire all artifacts into pair_config + 4 page wrappers + smoke_loader. Then 4-checker swarm.

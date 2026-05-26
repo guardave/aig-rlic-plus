@@ -1,0 +1,11 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "diverging_v1",
+  "rules_applied": [
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Pearson correlation: each signal transform x each forward return horizon. Negative = countercyclical.",
+  "generated_at": "2026-05-26T13:43:16Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
+}

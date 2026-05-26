@@ -1,0 +1,12 @@
+{
+  "chart_name": "hero",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "dual_asset_v1",
+  "rules_applied": [
+    "VIZ-NBER1",
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Hero chart: ratio (left axis) vs XLI (right axis), NBER recessions shaded. Aligned with Story page mechanism section.",
+  "generated_at": "2026-05-26T13:43:04Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
+}

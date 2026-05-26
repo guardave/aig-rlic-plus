@@ -1,0 +1,11 @@
+{
+  "chart_name": "drawdown",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "dd_v1",
+  "rules_applied": [
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Strategy drawdown from peak equity. Used on Strategy page Performance tab.",
+  "generated_at": "2026-05-26T13:43:11Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
+}

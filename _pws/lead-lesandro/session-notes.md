@@ -480,3 +480,48 @@ Monotonic Q1->Q3 decline supports countercyclical hypothesis; Q4 bump validates 
 **Mode 2 observation:** the Q4-bump-matches-rates_2022-narrative consistency check was a real-time win — Ray and Evan hats both in one head meant the failure-case narrative and the tournament result told the same story without coordination. In Mode 1 this consistency would have surfaced only at handoff.
 
 **Next:** Phase 4 (Vera hat). 22-chart set is too large for one Mode 2 session; will produce the *essential* chart subset (hero, equity_curves, drawdown, 4 history_zoom, regime_quartile_returns, quartile_returns, correlation_heatmap, signal_timeseries) and document the rest as a follow-up.
+
+---
+
+## 2026-05-26 (cont.) — Mode 2 gold_copper_xli — Phase 4 (Vera hat) Essential Subset
+
+**Scope decision:** instead of the full 22-chart Mode 1 set, ship the **essential 11-chart subset** that lets the portal render meaningfully + tells the full story. Remaining chart types (granger_f_by_lag, hmm_regime_probs, local_projections, quantile_regression, transfer_entropy, returns_by_regime, drawdown_comparison, walk_forward, tournament_sharpe_dist, ccf_prewhitened, spread_history_annotated) are documented as the post-checker follow-up.
+
+**11 charts shipped:**
+1. hero (G/C ratio vs XLI, NBER overlay)
+2. signal_timeseries (winner signal + threshold)
+3. equity_curves (strategy vs B&H)
+4. drawdown (strategy DD)
+5. quartile_returns (XLI fwd-63d by signal quartile)
+6. regime_quartile_returns (mean vs median by quartile)
+7. correlation_heatmap (signals x forward horizons)
+8. history_zoom_gfc (NBER overlay)
+9. history_zoom_china_2015 (no NBER overlay)
+10. history_zoom_covid (NBER overlay)
+11. history_zoom_rates_2022 (no NBER overlay)
+
+**Each chart has:**
+- `<name>.json` (Plotly figure)
+- `<name>_meta.json` (palette_id, rules_applied, narrative_alignment_note)
+- `_perceptual_check_<name>.png` (kaleido render per VIZ-CV1)
+
+**VIZ-DP1 sanity verified** on all 4 history_zoom charts: top panel traces use (x,y) and (x,y2); bottom panel uses (x2,y3). Axes anchored properly — no blank-bottom-panel bug.
+
+**GATE-VIZ-NBER2 sanity verified:** NBER shading present on gfc + covid; absent on china_2015 + rates_2022. Matches episode-window-aware policy.
+
+**Total size:** 33 files, 2.5MB.
+
+**Vera-hat decisions:**
+- Pipeline embeds VIZ-DP1 (dual-panel axis assignment) and GATE-VIZ-NBER2 (recession-aware shading) directly in the chart-construction logic, rather than relying on post-hoc verify scripts. SOP-first by construction.
+- Perceptual PNG generation is in-line per chart (no separate retro pass needed).
+- Each chart's `narrative_alignment_note` cites which Story/Evidence/Strategy section it supports — checker swarm can verify alignment.
+
+**Phase 5 (Ace hat) deferred to next session.** Pair config + 4 page wrappers + smoke_loader is mechanical wiring of:
+- Dana parquet + schema
+- Ray narrative + ELI5 blocks
+- Evan winner_summary + signals parquet + signal_scope
+- Vera 11 charts + sidecars
+
+After Phase 5, the 4-checker swarm runs.
+
+**Cumulative Mode 2 token spend so far:** ~4 phases (Dana, Ray, Evan, Vera) in this session. Phase 5 (Ace) + checkers fit cleanly in a fresh session.
