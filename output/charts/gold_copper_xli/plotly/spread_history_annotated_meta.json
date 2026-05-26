@@ -1,0 +1,11 @@
+{
+  "chart_name": "spread_history_annotated",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "annotated_v1",
+  "rules_applied": [
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Ratio time series with 4 HZE1 episodes overlaid \u2014 orientation chart.",
+  "generated_at": "2026-05-26T14:11:05Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)"
+}

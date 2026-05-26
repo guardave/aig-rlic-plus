@@ -1,0 +1,11 @@
+{
+  "chart_name": "returns_by_regime",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "box_v1",
+  "rules_applied": [
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Box of XLI daily returns split by HMM Viterbi state \u2014 does stress regime have wider/lower returns?",
+  "generated_at": "2026-05-26T14:11:04Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)"
+}

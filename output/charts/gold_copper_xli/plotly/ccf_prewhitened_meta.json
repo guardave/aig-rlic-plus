@@ -1,0 +1,11 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "ccf_v1",
+  "rules_applied": [
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "AR(1) pre-whitened CCF, IS only (2000-2019). Red bars exceed \u00b10.028 95% CI. Positive lag = signal leads return.",
+  "generated_at": "2026-05-26T14:11:14Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)"
+}

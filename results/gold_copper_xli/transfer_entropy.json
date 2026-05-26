@@ -1,0 +1,16 @@
+{
+  "method": "binned transfer entropy (numpy, N_bins=4, lag=1)",
+  "signal": "gold_copper_zscore_252d",
+  "target": "xli_ret",
+  "te_signal_to_return": 0.01478,
+  "te_return_to_signal": 0.0035,
+  "null_ci_95_via_shuffle": [
+    0.00329,
+    0.00797
+  ],
+  "p_value_empirical": 0.0,
+  "n_obs": 4845,
+  "n_bootstrap": 200,
+  "is_end": "2019-12-31",
+  "generated_at": "2026-05-26T14:09:09Z"
+}

@@ -412,8 +412,16 @@ Outcome (checker iteration count, issues per dimension, final clean wave) to be 
 
 **Final artifacts:** all under `results/gold_copper_xli/`, `output/charts/gold_copper_xli/`, `app/pair_configs/gold_copper_xli_config.py`, `app/pages/16_gold_copper_xli_*.py`, `docs/portal_narrative_gold_copper_xli_20260526.md`, `scripts/{pair_pipeline,econ_pipeline,generate_charts}_gold_copper_xli.py`.
 
-**Deferred for post-launch follow-up:**
-- 11 chart types out of the 22 Mode-1 standard set (granger_f_by_lag, hmm_regime_probs, local_projections, quantile_regression, transfer_entropy, returns_by_regime, drawdown_comparison, walk_forward, tournament_sharpe_dist, ccf_prewhitened, spread_history_annotated).
-- 5 Evidence method blocks (HMM, local projections, quantile, transfer entropy, CCF) corresponding to the missing charts.
-- ELI5 nice-to-haves: visual callouts around 2022 failure case; tighten one long sentence in EVIDENCE overview.
-- Evan's analyst_suggestions.json: log-ratio signals, DXY-conditional gating, supply-decoupling detector.
+**Honest re-classification of "deferred" items** (added 2026-05-26 after user challenged the framing):
+
+The initial close lumped four very different categories under one "deferred" bucket. Re-classifying:
+
+1. **Trivially completable from existing artifacts (was budget cut, not principled scope).** Charts: `granger_f_by_lag` (data already in granger_by_lag.csv), `walk_forward`, `drawdown_comparison`, `tournament_sharpe_dist`, `ccf_prewhitened`, `returns_by_regime`, `spread_history_annotated`. Estimated cost: one Vera-hat dispatch (~20 min wall-clock for 6-7 plotly figures + sidecars + perceptual PNGs). **Honest cause:** Phase 4 token-budget caution, not analytic principle. Calling these "scoped out" was a polite framing.
+
+2. **Genuinely new econometric work (real scope cut from Phase 3).** HMM 2-state regime probabilities (`hmm_regime_probs` + REGIME-HMM evidence block); local projections / Jordà impulse responses (`local_projections` + LP evidence block); quantile regression at lower tail (`quantile_regression` + QR evidence block); transfer entropy non-linear lead-lag (`transfer_entropy` + TE evidence block). **Honest cause:** Phase 3 Evan hat shipped only correlation/Granger/quartile — the other 4 methods were not run. These are genuine analytical gaps, not chart-rendering gaps. HMM in particular would let the Evidence page validate the rates_2022 failure case as a distinct inferred regime, which is interpretively powerful.
+
+3. **ELI5 polish (nice-to-have).** Visual callouts around 2022 failure case; split one long sentence in EVIDENCE_METHOD_BLOCKS overview; 63-day window parenthetical (252-day was added in iteration 1).
+
+4. **Evan's analyst_suggestions.json** — genuinely future ideas, not gaps: log-ratio signals, DXY-conditional gating, supply-decoupling detector. Forward-looking suggestions, not deferred deliverables.
+
+**Decision (2026-05-26, user):** complete categories 1 + 2 + 3 in this session (Phases 3.5, 4.5, 5.5 + ELI5 polish). Category 4 (Evan suggestions) discussed later.

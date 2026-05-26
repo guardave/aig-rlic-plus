@@ -1,0 +1,11 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "bar_v1",
+  "rules_applied": [
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Bar chart of Granger F by lag; green = significant at 5%. Companion to granger_by_lag.csv.",
+  "generated_at": "2026-05-26T14:10:56Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)"
+}

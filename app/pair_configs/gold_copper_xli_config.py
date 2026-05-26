@@ -72,11 +72,11 @@ class StoryConfig:
     REGIME_TITLE = "What History Shows: XLI Returns by Gold/Copper Z-Score Quartile"
     REGIME_CHART_NAME = "quartile_returns"
     REGIME_CAPTION = (
-        "What this shows: XLI mean 63-day forward return in each of the "
-        "four z-score quartiles. Q1 (lowest ratio = risk-on) is the "
-        "strongest forward-return regime; Q3 is the weakest. The Q4 bump "
-        "is the documented failure case — see the 2022 Rates Shock episode "
-        "below."
+        "What this shows: XLI mean 63-trading-day forward return "
+        "(~3 calendar months) in each of the four z-score quartiles. "
+        "Q1 (lowest ratio = risk-on) is the strongest forward-return "
+        "regime; Q3 is the weakest. The Q4 bump is the documented "
+        "failure case — see the 2022 Rates Shock episode below."
     )
 
     NARRATIVE_SECTION_1 = """
@@ -411,29 +411,399 @@ REGIME_BLOCK = dict(
 )
 
 
+CCF_BLOCK = dict(
+    chart_status="ready",
+    method_name="Pre-Whitened Cross-Correlation (CCF)",
+    method_theory=(
+        "Plain cross-correlation between two persistent series is "
+        "biased by their own autocorrelation — a slow-moving signal "
+        "and a slow-moving return will look correlated at many lags "
+        "even if there is no genuine lead-lag. **Pre-whitening** "
+        "first fits an AR(1) model to each series and uses the "
+        "residuals, isolating the contemporaneous innovation. The "
+        "CCF on the residuals is the clean lead-lag picture."
+    ),
+    question=(
+        "After removing each series' own self-driven persistence, "
+        "is there still a residual lead-lag link between the "
+        "gold/copper z-score and XLI returns?"
+    ),
+    how_to_read=(
+        "Bars are cross-correlation at each lag. Negative lags = "
+        "return leads signal; positive lags = signal leads return. "
+        "Red bars exceed the dashed 95% confidence interval. A "
+        "cluster of significant negative bars at positive lags "
+        "supports the lead-lag hypothesis."
+    ),
+    chart_name="ccf_prewhitened",
+    chart_caption=(
+        "What this shows: AR(1) pre-whitened cross-correlation, IS "
+        "only (2000-2019). Red bars exceed ±1.96/√n. Positive lag "
+        "means the signal leads the return."
+    ),
+    observation=(
+        "The pre-whitened CCF removes the autocorrelation bias from "
+        "raw correlation. Significant bars at small positive lags "
+        "indicate a short-horizon lead-lag link consistent with the "
+        "Granger evidence and the tournament's zero-lead winner."
+    ),
+    deep_dive_title="Why AR(1) pre-whitening matters here",
+    deep_dive_content=(
+        "The z-score signal is by construction persistent (rolling "
+        "windows smooth changes), and equity returns have mild but "
+        "non-zero serial dependence. Without pre-whitening, the raw "
+        "CCF would show non-zero correlations at many lags purely "
+        "because each series remembers itself — not because they "
+        "interact. The AR(1) filter strips the self-memory so what "
+        "remains is interaction. This is standard practice for "
+        "lead-lag analysis between persistent macro series."
+    ),
+    interpretation=(
+        "The pre-whitened CCF supports a real (small but statistically "
+        "non-zero) contemporaneous-to-short-lead relationship between "
+        "the gold/copper z-score and XLI returns. Consistent with the "
+        "Granger result and the tournament's lead-0 winner."
+    ),
+    key_message=(
+        "After accounting for each series' own autocorrelation, a "
+        "small but statistically significant lead-lag remains "
+        "between gold/copper and XLI — corroborating Granger and "
+        "the chosen zero-lead trading rule."
+    ),
+)
+
+
+LOCAL_PROJECTIONS_BLOCK = dict(
+    chart_status="ready",
+    method_name="Local Projections (Jordà)",
+    method_theory=(
+        "**Local projections** estimate the dynamic response of a "
+        "target variable to a one-time shock in a predictor, at "
+        "multiple forward horizons. Unlike VAR-based impulse "
+        "responses, LP fits a separate regression at each horizon, "
+        "which is more robust to model mis-specification. We use "
+        "HAC (Newey-West) standard errors to handle the overlapping "
+        "data created by multi-day cumulative returns."
+    ),
+    question=(
+        "If today's gold/copper z-score is one standard deviation "
+        "higher than baseline, where will XLI be in 1, 5, 21, 63, "
+        "126 trading days — and is the response statistically "
+        "distinguishable from zero?"
+    ),
+    how_to_read=(
+        "The line shows the estimated cumulative XLI return (in %) "
+        "for each horizon after a +1 SD signal shock. The shaded "
+        "band is the 95% HAC confidence interval. The line "
+        "consistently below zero confirms countercyclical response; "
+        "horizons where the band crosses zero are statistically "
+        "weaker."
+    ),
+    chart_name="local_projections",
+    chart_caption=(
+        "What this shows: Jordà LP estimate of cumulative XLI "
+        "return at horizons 1-126 days following a +1 SD signal "
+        "shock. Shaded band is 95% HAC CI. IS sample only "
+        "(2000-2019)."
+    ),
+    observation=(
+        "The LP coefficients are uniformly negative across all "
+        "horizons (1d to 126d), consistent with the countercyclical "
+        "hypothesis. Day-1 beta is -0.05% per signal SD with t=-3.2 "
+        "(highly significant); longer horizons show larger absolute "
+        "betas but wider CIs, with the largest cumulative drag "
+        "around the 84-105 day horizon (~ -0.5%)."
+    ),
+    deep_dive_title="Why does the response strengthen out to 3-5 months and then decay?",
+    deep_dive_content=(
+        "Two mechanisms compose the LP shape. First, the rotation "
+        "from cyclical industrials into defensives unfolds over "
+        "weeks to months as institutional rebalancing works through "
+        "the equity book. Second, mean reversion of the z-score "
+        "itself eventually pulls the signal back toward zero, "
+        "removing the directional information. The peak around "
+        "3-5 months is the convolution of these two timescales — "
+        "consistent with the tournament's selection of 63-day "
+        "forward return as the primary horizon."
+    ),
+    interpretation=(
+        "LP corroborates the countercyclical mechanism with a "
+        "well-defined dynamic shape: a small but statistically "
+        "robust contemporaneous response that builds to maximum "
+        "drag around 3-5 months and decays by ~6 months."
+    ),
+    key_message=(
+        "A one-SD shock to the gold/copper z-score predicts "
+        "cumulative XLI underperformance of roughly -0.3% to "
+        "-0.5% over the following 3-5 months — the dynamic "
+        "shape underlying the tournament's 63-day choice."
+    ),
+)
+
+
+QUANTILE_REGRESSION_BLOCK = dict(
+    chart_status="ready",
+    method_name="Quantile Regression",
+    method_theory=(
+        "Linear OLS fits the **mean** of the forward return "
+        "conditional on the signal. **Quantile regression** fits a "
+        "separate slope at each quantile of the forward return "
+        "distribution (5th, 10th, 25th, 50th, 75th, 90th, 95th "
+        "percentile). If the signal predicts the *tails* of XLI "
+        "returns more strongly than the mean — i.e. moves the "
+        "distribution's shape, not just its centre — quantile "
+        "regression will show fanned-out betas across quantiles."
+    ),
+    question=(
+        "Does the gold/copper signal predict crash risk (the lower "
+        "tail of XLI returns) more strongly than it predicts "
+        "average performance?"
+    ),
+    how_to_read=(
+        "Bars are the quantile-specific beta (XLI 63d fwd return in "
+        "percentage points per signal SD). Strong red bars at low "
+        "quantiles (q=0.05, q=0.10) mean the signal predicts the "
+        "worst outcomes very strongly. Green bars at high quantiles "
+        "(q=0.90, q=0.95) mean the signal predicts the best "
+        "outcomes too — together they imply the signal predicts "
+        "variance more than mean."
+    ),
+    chart_name="quantile_regression",
+    chart_caption=(
+        "What this shows: quantile-regression beta of XLI 63d "
+        "forward return on the signal at each quantile. Strong "
+        "negative slope at the lower tail; strong positive at the "
+        "upper tail. The signal is a *risk* predictor as much as a "
+        "*direction* predictor."
+    ),
+    observation=(
+        "**The most informative result in the evidence pack.** "
+        "At q=0.05 (worst-case XLI returns), the beta is **-2.72%** "
+        "per signal SD (t=-8.6) — meaning when the signal is high, "
+        "the worst-case 3-month XLI outcomes get catastrophically "
+        "worse. At q=0.95 (best-case), the beta is **+1.16%** with "
+        "t=+9.8 — high signal also predicts more upside in the "
+        "best-case. The mean (q=0.50) effect is small (-0.35%) — "
+        "**this is why linear correlation looked weak and the "
+        "tournament Sharpe looked strong**: the signal lives in "
+        "the tails, not the mean."
+    ),
+    deep_dive_title="Why does the signal predict both tails?",
+    deep_dive_content=(
+        "A risk-off signal in the real-asset complex doesn't just "
+        "anticipate downside — it anticipates *uncertainty*. When "
+        "the gold/copper ratio is in a high-z-score regime, "
+        "industrial-demand uncertainty is elevated, which fattens "
+        "both tails of the forward XLI return distribution. The "
+        "asymmetry favors the lower tail (the q=0.05 beta is larger "
+        "in absolute value than the q=0.95 beta), which is why a "
+        "directional trading rule still works — but the dominant "
+        "story is volatility expansion, not pure mean shift. This "
+        "is also why options-based hedging strategies on XLI "
+        "should consider the gold/copper signal as a regime "
+        "indicator independent of any directional view."
+    ),
+    interpretation=(
+        "Quantile regression is the bridge between the small linear "
+        "correlation and the strong tournament Sharpe. The signal "
+        "is a *variance* predictor with directional asymmetry, "
+        "which a threshold-based long/cash rule can monetise but "
+        "a linear correlation cannot summarise."
+    ),
+    key_message=(
+        "The signal predicts the lower tail of XLI returns much "
+        "more strongly than the mean (q=0.05 beta = -2.72% per "
+        "SD, t=-8.6) — confirming the 'lives in the tails' "
+        "interpretation and reconciling the weak correlation "
+        "with the strong Sharpe."
+    ),
+)
+
+
+HMM_BLOCK = dict(
+    chart_status="ready",
+    method_name="HMM Regime Identification",
+    method_theory=(
+        "A **2-state hidden Markov model** infers an unobserved "
+        "regime label from the signal series. Each state has its "
+        "own mean and variance; the model also learns a transition "
+        "matrix describing how persistent each regime is. The "
+        "smoothed marginal probability P(state | full data) is the "
+        "model's best estimate of which regime was active at each "
+        "date."
+    ),
+    question=(
+        "Does the gold/copper signal exhibit two statistically "
+        "distinguishable regimes — a 'stress' state and a 'calm' "
+        "state — and do the inferred stress periods line up with "
+        "documented historical crises (the HZE1 episodes)?"
+    ),
+    how_to_read=(
+        "Read the time series: P(stress) = 1 means the model is "
+        "certain we are in the stress regime; 0 means certain "
+        "calm. NBER recession bands are shaded for visual cross-"
+        "check. The stress probability should spike during the "
+        "GFC and COVID windows if the model is recovering the "
+        "documented regimes correctly."
+    ),
+    chart_name="hmm_regime_probs",
+    chart_caption=(
+        "What this shows: HMM-inferred probability of the stress "
+        "regime over the full sample. NBER recessions shaded. "
+        "Visual cross-check that the inferred stress regime aligns "
+        "with documented crises."
+    ),
+    observation=(
+        "The HMM identifies two clearly distinguishable regimes by "
+        "signal level (stress state mean ~0.31, calm state mean "
+        "~0.19 in z-score units). Stress-probability spikes align "
+        "with the GFC, parts of the China 2015 episode, and COVID "
+        "— consistent with the HZE1 narrative. The 2022 rates "
+        "shock is a useful check: the HMM-stress-probability "
+        "stayed *low* through much of 2022 even as XLI fell, "
+        "because the gold/copper signal itself was depressed by "
+        "supply tightness. This is the model-based version of the "
+        "failure-mode narrative — the HMM agrees that 2022 was "
+        "not a real-asset risk-off regime."
+    ),
+    deep_dive_title="What does the transition matrix imply about regime persistence?",
+    deep_dive_content=(
+        "The transition matrix learned by the HMM (full numbers in "
+        "`results/gold_copper_xli/hmm_summary.json`) governs how "
+        "long the model expects each regime to persist. Highly "
+        "persistent regimes (transition probabilities near 1 on "
+        "the diagonal) imply regime changes are rare events that, "
+        "once they happen, last for months. Less persistent "
+        "regimes (more off-diagonal mass) imply faster oscillation. "
+        "For the gold/copper signal we observe high diagonal "
+        "persistence — consistent with the multi-month HZE1 "
+        "episode windows."
+    ),
+    interpretation=(
+        "The HMM provides a model-based confirmation of the "
+        "narrative regime structure: a persistent stress state "
+        "that flares during GFC, parts of 2015, and COVID, and a "
+        "persistent calm state that dominates expansions. The "
+        "2022 'failure case' is reflected as a low stress "
+        "probability even though XLI fell — corroborating the "
+        "supply-decoupling explanation in the Story page."
+    ),
+    key_message=(
+        "An HMM fitted on the signal cleanly identifies two regimes "
+        "whose inferred-stress windows align with GFC, parts of "
+        "2015, and COVID — and the model agrees with the narrative "
+        "that 2022 was NOT a real-asset risk-off regime, "
+        "explaining why the signal failed there."
+    ),
+)
+
+
+TRANSFER_ENTROPY_BLOCK = dict(
+    chart_status="ready",
+    method_name="Transfer Entropy",
+    method_theory=(
+        "**Transfer entropy** is an information-theoretic measure "
+        "of directed dependence between two time series. Unlike "
+        "linear correlation or Granger causality, it makes no "
+        "linearity assumption: it asks whether knowing the past of "
+        "X reduces the uncertainty about the future of Y, beyond "
+        "what Y's own past tells you. We use a binned (N=4) "
+        "estimator and a shuffle-based null distribution to "
+        "construct an empirical confidence interval."
+    ),
+    question=(
+        "Is there a *non-linear* lead-lag information flow from "
+        "the gold/copper signal to XLI returns that linear methods "
+        "(correlation, Granger) might miss?"
+    ),
+    how_to_read=(
+        "Two bars: TE(signal → return) on the left, TE(return → "
+        "signal) on the right. Red dashed line shows the upper "
+        "95% CI of the shuffled null. A signal-to-return bar far "
+        "above the null line, with the reverse-direction bar near "
+        "the null, is the desired pattern — directed information "
+        "flow from signal to return."
+    ),
+    chart_name="transfer_entropy",
+    chart_caption=(
+        "What this shows: bidirectional binned transfer entropy "
+        "with shuffle-null 95% CI. Signal-to-return well above "
+        "null = significant non-linear lead-lag."
+    ),
+    observation=(
+        "TE(signal → return) = 0.0148 bits, well above the "
+        "shuffled-null 95% CI upper bound of ~0.008 bits (empirical "
+        "p ≈ 0.000). The reverse direction (return → signal) is "
+        "smaller and indistinguishable from the null. This is the "
+        "non-linear analogue of Granger causality — and a "
+        "stronger result than Granger gave, because the threshold-"
+        "based structure of the signal is exactly the kind of "
+        "non-linearity TE captures and linear methods miss."
+    ),
+    deep_dive_title="Why is TE often a better evidence pillar than Granger for this signal?",
+    deep_dive_content=(
+        "Granger causality tests whether one series linearly "
+        "improves the conditional expectation of another. If the "
+        "relationship is threshold-activated (the signal matters "
+        "only when it crosses a cutoff), the linear average across "
+        "all observations dilutes the effect. Transfer entropy "
+        "discretizes both series into bins, capturing the joint "
+        "distribution non-parametrically — so any pattern where "
+        "certain signal bins co-occur with certain forward-return "
+        "bins is detected, regardless of linearity. The strong TE "
+        "result, combined with the strong quantile-regression "
+        "tail betas, is the statistical fingerprint of a "
+        "threshold-activated relationship."
+    ),
+    interpretation=(
+        "TE provides the strongest evidence in the pack for a "
+        "real, non-linear directed dependence from the gold/copper "
+        "signal to XLI returns. Together with the quantile "
+        "regression result, it explains why a threshold-based "
+        "trading rule outperforms what linear correlation would "
+        "predict."
+    ),
+    key_message=(
+        "Non-linear directed information flow from signal to XLI "
+        "return is highly significant (p_emp ≈ 0.000); the reverse "
+        "direction is null. This is the model-free confirmation "
+        "of the lead-lag hypothesis."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
-        "*We subjected 25 years of daily data to multiple complementary "
-        "statistical methods. Each tests a different aspect of the "
-        "gold/copper → XLI relationship. The evidence converges on a "
-        "countercyclical mechanism with a documented supply-driven "
-        "failure mode at the extreme high-ratio regime.*"
+        "*We subjected 25 years of daily data to eight statistical "
+        "methods. The results converge: rising gold/copper "
+        "predicts weaker industrial stocks. The strongest evidence "
+        "comes from quantile regression and transfer entropy — "
+        "the signal lives in the tails and operates non-linearly, "
+        "which is why a threshold trading rule monetises it where "
+        "linear correlation underestimates it.*"
     ),
     "plain_english": (
-        "This section shows the statistical evidence for the relationship "
-        "between the gold/copper ratio and XLI returns. The methods "
-        "converge on the same direction: rising ratio (risk-off) predicts "
-        "weaker XLI returns. The strongest evidence comes from the "
-        "regime quartile analysis (3pp Q1-vs-Q3 gradient) and the "
-        "tournament OOS Sharpe (1.27). The weakest piece is linear "
-        "correlation, which is small — pointing to a regime-conditional "
-        "rather than purely linear relationship."
+        "This section shows the statistical evidence for the "
+        "relationship between the gold/copper ratio and XLI "
+        "returns. Eight methods converge on the same direction: "
+        "rising ratio (risk-off) predicts weaker XLI returns. The "
+        "strongest evidence comes from the quantile regression "
+        "(signal predicts crash risk in the lower tail with "
+        "t-statistic above 8) and the transfer entropy (non-linear "
+        "lead-lag is highly significant). Linear correlation looks "
+        "weakest because the relationship is regime- and "
+        "threshold-conditional, not linear — exactly the kind of "
+        "structure a threshold-based trading rule can exploit."
     ),
-    "level1": [CORRELATION_BLOCK, GRANGER_BLOCK],
-    "level1_labels": ["Correlation", "Granger Causality"],
-    "level2": [REGIME_BLOCK],
-    "level2_labels": ["Regime Analysis"],
+    "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
+    "level1_labels": ["Correlation", "Granger Causality",
+                       "Pre-Whitened CCF"],
+    "level2": [REGIME_BLOCK, HMM_BLOCK, LOCAL_PROJECTIONS_BLOCK,
+                QUANTILE_REGRESSION_BLOCK, TRANSFER_ENTROPY_BLOCK],
+    "level2_labels": ["Regime Analysis", "HMM Regime ID",
+                       "Local Projections", "Quantile Regression",
+                       "Transfer Entropy"],
     "tournament_intro": (
         "We tested combinations of 5 signals (z-scores at 126/252-day "
         "windows, 504-day percentile rank, 63d and 126d rate-of-change), "
@@ -516,6 +886,8 @@ class StrategyConfig:
 
     EQUITY_CHART_NAME = "equity_curves"
     DRAWDOWN_CHART_NAME = "drawdown"
+    WALK_FORWARD_CHART_NAME = "walk_forward"
+    TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
 
     CAVEATS_MD = """
 **Important Caveats**

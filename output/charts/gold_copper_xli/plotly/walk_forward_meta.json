@@ -1,0 +1,11 @@
+{
+  "chart_name": "walk_forward",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "walk_v1",
+  "rules_applied": [
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Rolling 1y Sharpe over OOS to inspect stability of the 1.27 headline number.",
+  "generated_at": "2026-05-26T14:10:59Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)"
+}

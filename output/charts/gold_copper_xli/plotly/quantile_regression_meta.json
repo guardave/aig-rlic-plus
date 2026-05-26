@@ -1,0 +1,11 @@
+{
+  "chart_name": "quantile_regression",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "qr_v1",
+  "rules_applied": [
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "QR betas by quantile. Strong negative at lower tail (q=0.05/0.10) = signal predicts crash risk. Strong positive at upper tail = signal also predicts upside variance \u2014 classic asymmetric risk/'lives in the tails'.",
+  "generated_at": "2026-05-26T14:11:10Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)"
+}

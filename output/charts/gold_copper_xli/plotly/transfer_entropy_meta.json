@@ -1,0 +1,11 @@
+{
+  "chart_name": "transfer_entropy",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "te_v1",
+  "rules_applied": [
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Bidirectional TE bars with shuffle null CI overlay. Signal-to-return well above null = significant non-linear lead-lag.",
+  "generated_at": "2026-05-26T14:11:12Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)"
+}

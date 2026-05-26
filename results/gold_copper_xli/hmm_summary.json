@@ -1,0 +1,25 @@
+{
+  "method": "MarkovRegression (statsmodels)",
+  "signal_series": "gold_copper_zscore_252d",
+  "k_regimes": 2,
+  "switching_variance": true,
+  "log_likelihood": -9934.313033064403,
+  "state_means": {
+    "state0": 0.3123095795029553,
+    "state1": 0.18461542249361898
+  },
+  "stress_state": 0,
+  "transition_matrix_2x2": [
+    [
+      0.9828527923738215,
+      0.010481571650112393
+    ],
+    [
+      0.017147207626178496,
+      0.9895184283498876
+    ]
+  ],
+  "n_obs": 6411,
+  "is_end": "2019-12-31",
+  "generated_at": "2026-05-26T14:09:07Z"
+}

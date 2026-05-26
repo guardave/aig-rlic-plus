@@ -1,0 +1,11 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "gold_copper_xli",
+  "palette_id": "hist_v1",
+  "rules_applied": [
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament combos; winner marked.",
+  "generated_at": "2026-05-26T14:11:02Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)"
+}
