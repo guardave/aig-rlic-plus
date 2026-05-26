@@ -87,7 +87,10 @@ Agent teams are enabled for multi-agent workflows. Use them for tasks that benef
 - **Branch tracked:** `main` (auto-redeploys on push, with occasional file-sync lag — see `META-FRD` in `docs/agent-sops/team-coordination.md`).
 - **Per-page URLs** follow the pattern `https://aig-rlic-plus.streamlit.app/{n}_{pair_id}_{section}` where `{n}` is the page-numeric prefix and `{section}` ∈ {`story`, `evidence`, `strategy`, `methodology`}. Example: `https://aig-rlic-plus.streamlit.app/16_gold_copper_xli_strategy`.
 - **Reboot triggers** required to clear cached state after file-tree changes (file-sync lag is a known META-FRD class — `git push` alone is not always sufficient). Use *Manage app → Reboot app* on Streamlit Cloud, not browser refresh.
-- **Access mode:** the app is currently behind Streamlit Community Cloud sign-in (private). Programmatic fetches (`curl`, `WebFetch`) hit the auth wall and cannot inspect the rendered page; user must supply screenshots for cloud-render verification, or app must be made public.
+- **Access mode:** the app is set to public on Streamlit Community Cloud, **but** the deployed shell uses a session-cookie redirect dance that **stops simple HTTP clients** (`curl`, `WebFetch`) at a 303 even when authenticated. Headless Chromium via Playwright follows the redirect chain but the Streamlit websocket runtime fails to bootstrap inside headless (the `_stcore/health` endpoint returns 404, the app iframe never mounts). Net effect: programmatic cloud-render inspection from this environment is **not reliable today**. Workable verification paths:
+  1. **Raw artifact validation via GitHub raw** — fetch `https://raw.githubusercontent.com/guardave/aig-rlic-plus/main/results/{pair_id}/{artifact}.json` and validate against `docs/schemas/{artifact}.schema.json` with `jsonschema`. If the file on `main` passes, the cloud render will pass *after* Streamlit Cloud syncs the commit. This catches schema-class issues directly.
+  2. **User screenshots** for anything that depends on rendered DOM (chart presence, layout, ELI5 readability).
+  3. **Cloud-sync gate.** Before declaring a cloud-rendered fix verified, check that `git log --oneline origin/main -1` matches the commit Streamlit Cloud shows as "Last deploy" on Manage app. Cloud reboot pulls latest `main`; without that step a push alone is not enough.
 
 ## Project Memory
 
