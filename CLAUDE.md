@@ -83,8 +83,9 @@ Agent teams are enabled for multi-agent workflows. Use them for tasks that benef
 
 ## Deployment
 
-- **Streamlit Cloud URL:** `https://aig-rlic-plus.streamlit.app/`
-- **Branch tracked:** `main` (auto-redeploys on push, with occasional file-sync lag — see `META-FRD` in `docs/agent-sops/team-coordination.md`).
+- **Streamlit Cloud URL (main):** `https://aig-rlic-plus.streamlit.app/`
+- **Streamlit Cloud URL (fix260526 branch):** `https://aig-rlic-plus-fix260526.streamlit.app/` — temporary preview app tracking branch `fix260526`. Use this URL for cloud-render verification while that branch is in flight; main URL still tracks `main`.
+- **Branch tracked:** `main` (auto-redeploys on push, with occasional file-sync lag — see `META-FRD` in `docs/agent-sops/team-coordination.md`). The preview app tracks `fix260526` similarly.
 - **Per-page URLs** follow the pattern `https://aig-rlic-plus.streamlit.app/{n}_{pair_id}_{section}` where `{n}` is the page-numeric prefix and `{section}` ∈ {`story`, `evidence`, `strategy`, `methodology`}. Example: `https://aig-rlic-plus.streamlit.app/16_gold_copper_xli_strategy`.
 - **Reboot triggers** required to clear cached state after file-tree changes (file-sync lag is a known META-FRD class — `git push` alone is not always sufficient). Use *Manage app → Reboot app* on Streamlit Cloud, not browser refresh.
 - **Access mode:** the app is public on Streamlit Community Cloud. Simple HTTP clients (`curl`, `WebFetch`) hit a session-cookie redirect chain and stop at a 303 — they can't inspect the rendered DOM. **Headless Playwright works** when you use the right pattern (it's what `scripts/cloud_verify.py` does and has been doing since Wave 10H.1):
