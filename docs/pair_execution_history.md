@@ -367,3 +367,18 @@ trigger Cloud's change-detection for non-`app/` paths.
 
 Future pair work should consider: (a) dual-step moves (land new → wait → 
 confirm → delete old), or (b) per-pair-subdir-only pattern avoiding moves.
+
+---
+
+### 2026-05-26 — Pair (TBD) Gold/Copper Ratio → XLI — Work Mode Selection
+
+**Per LEAD-WM1.**
+
+- **Lead recommendation:** Mode 1 (multiple makers, single checker). Reasoning:
+  - Gold/copper ratio is a new indicator category (not in existing rates / credit / production / sentiment / volatility buckets). Likely needs a new episode_registry.json slug family.
+  - Medium-to-high SOP-rule risk: symbol selection (GC=F vs GLD vs LBMA; HG=F vs CPER), ratio transform (level / log / RoC / quantile rank), and "gold/copper stress" episode definitions are candidate rule sources where agent-authored reflection produces more authentic SOP additions than retro-fitting.
+  - XLI target is clean; depth lives on the indicator side, where Dana's symbol judgment and Evan's specification judgment carry weight.
+- **User decision:** Mode 2 (single maker, multiple checkers). Lead executes as maker; four checker subagents fan out post-flow.
+- **Rationale for the override:** exercising the Mode 2 protocol on a non-trivial pair is itself a meta-goal — shaping the checker-dispatch artifact organically per the LEAD-WM1 design note.
+
+Outcome (checker iteration count, issues per dimension, final clean wave) to be appended on completion.

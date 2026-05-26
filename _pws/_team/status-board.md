@@ -981,3 +981,27 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 **Blockers:** None.
 
 **Next steps:** Commit + push. Wave 10K Mode 1 work items (Ace gate_cl_audit, Evan BL-LEGACY-WINNER-SUMMARY-SHAPE, Quincy GATE-VIZ-NBER1 severity flip) remain queued and unaffected. First Mode 2 pair will produce the checker-dispatch artifact organically.
+
+---
+
+## 2026-05-26 (cont.) — Lead — Mode 2 Pair gold_copper_xli Phase 1 Complete
+
+**Status:** In progress — Dana phase complete, Ray/Evan/Vera/Ace deferred to next session.
+
+**Context:** First production use of LEAD-WM1 Mode 2. User chose Mode 2 over Lead's Mode-1 recommendation to exercise the protocol.
+
+**What was accomplished (Mode 2 maker phase — Lead wearing Dana hat):**
+- New indicator category `commodity_ratio` registered in `docs/schemas/episode_registry.json` with 4 episodes (gfc / china_2015 / covid / rates_2022).
+- `scripts/pair_pipeline_gold_copper_xli.py` — 5-stage Dana pipeline.
+- Data layer complete: parquet (6783x39, 2.1MB) + schema JSON + dictionary CSV + missing-value report + summary stats.
+- `results/gold_copper_xli/interpretation_metadata.json` — Dana keys filled; Evan keys deferred to Phase 3.
+- Provisional directional check: corr(zscore_252d, xli_fwd_63d) = -0.044 (weakly countercyclical, hypothesis-consistent).
+
+**Discoveries / insights:**
+- Mode 2 maker phase preserves cross-stage context (symbols -> schema -> mechanism narrative) better than Mode 1 handoffs do — first concrete validation of the protocol's value.
+- LEAD-DL1 suspension under Mode 2 is the load-bearing carve-out; without it Lead would not be able to write Dana-owned files at all.
+- Single-session full-pair Mode 2 build is unrealistic for non-trivial pairs (token budget). Per-phase staging across sessions is the right cadence — matches Path 1 decision.
+
+**Blockers:** None. Next session resumes at Phase 2 (Ray hat).
+
+**Next steps:** Phase 2 — portal narrative + HZE1 episode narratives (4 episodes from the new commodity_ratio registry entry) + ELI5 prose destined for Ace's pair config in Phase 5.

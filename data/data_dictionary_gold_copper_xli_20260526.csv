@@ -1,0 +1,41 @@
+column,dtype,unit,display_name,direction,source,description
+date,datetime64[ns],date,Date,neutral,derived,Daily trading-date index (parquet index column). NYSE business calendar; spans 2000-01-03 through 2025-12-31.
+gold,float64,price,Gold Futures ($/oz),neutral,yahoo:GC=F,"CME Gold continuous front-month futures close, USD per troy ounce."
+copper,float64,price,Copper Futures ($/lb),higher_is_better,yahoo:HG=F,"CME Copper continuous front-month futures close, USD per pound. Higher = stronger industrial demand."
+gold_etf,float64,price,GLD Close ($),neutral,yahoo:GLD,SPDR Gold Trust adjusted close — ETF cross-check for gold price.
+copper_etf,float64,price,CPER Close ($),higher_is_better,yahoo:CPER,US Copper Index Fund adjusted close — ETF cross-check for copper. Limited pre-2011 history.
+xli,float64,price,XLI Close ($),higher_is_better,yahoo:XLI,Industrial Select Sector SPDR ETF adjusted close. Target asset.
+spy,float64,price,SPY Close ($),higher_is_better,yahoo:SPY,"SPDR S&P 500 ETF adjusted close, cross-check target."
+vix,float64,index,VIX Index Level,lower_is_better,yahoo:^VIX,"CBOE Volatility Index, regime overlay."
+dxy,float64,index,DXY Dollar Index,neutral,yahoo:DX-Y.NYB,ICE US Dollar Index — USD vs basket of 6 currencies. Strong USD typically pressures both gold and copper prices.
+gold_copper_ratio,float64,ratio,Gold/Copper Ratio,lower_is_better,derived: gold / copper,Primary indicator. gold ($/oz) / copper ($/lb). Higher = risk-off (gold up vs copper down). Dimensionless after the unit cancellation by ratio convention.
+gold_copper_ratio_etf,float64,ratio,Gold/Copper Ratio (ETF),lower_is_better,derived: gold_etf / copper_etf,ETF cross-check: GLD/CPER. Useful for post-2011 consistency check against futures-based ratio.
+gold_copper_logratio,float64,ratio,Gold/Copper Log-Ratio,lower_is_better,derived: log(gold_copper_ratio),Natural log of gold_copper_ratio. Better-distributed for stationarity and modeling.
+gold_copper_zscore_126d,float64,ratio,G/C Z-Score (126d),lower_is_better,derived: (ratio - rollmean_126) / rollstd_126,Standardized gold_copper_ratio vs trailing 126-day rolling mean/std. Higher z = ratio elevated vs recent history = risk-off.
+gold_copper_zscore_252d,float64,ratio,G/C Z-Score (252d),lower_is_better,derived: (ratio - rollmean_252) / rollstd_252,Standardized gold_copper_ratio vs trailing 252-day rolling mean/std. Higher z = ratio elevated vs recent history = risk-off.
+gold_copper_zscore_504d,float64,ratio,G/C Z-Score (504d),lower_is_better,derived: (ratio - rollmean_504) / rollstd_504,Standardized gold_copper_ratio vs trailing 504-day rolling mean/std. Higher z = ratio elevated vs recent history = risk-off.
+gold_copper_pctrank_504d,float64,ratio,G/C %-Rank (504d),lower_is_better,"derived: percentile_rank(ratio, window=504)",Percentile rank (0-1) of ratio within trailing 504-day window.
+gold_copper_pctrank_1260d,float64,ratio,G/C %-Rank (1260d),lower_is_better,"derived: percentile_rank(ratio, window=1260)",Percentile rank (0-1) of ratio within trailing 1260-day window.
+gold_copper_roc_5d,float64,percent,G/C 5d Rate-of-Change (%),lower_is_better,derived: (ratio[t] / ratio[t-5] - 1) * 100,5-trading-day percent-change of gold_copper_ratio. Positive = ratio rising = increasing risk-off.
+gold_copper_roc_21d,float64,percent,G/C 21d Rate-of-Change (%),lower_is_better,derived: (ratio[t] / ratio[t-21] - 1) * 100,21-trading-day percent-change of gold_copper_ratio. Positive = ratio rising = increasing risk-off.
+gold_copper_roc_63d,float64,percent,G/C 63d Rate-of-Change (%),lower_is_better,derived: (ratio[t] / ratio[t-63] - 1) * 100,63-trading-day percent-change of gold_copper_ratio. Positive = ratio rising = increasing risk-off.
+gold_copper_roc_126d,float64,percent,G/C 126d Rate-of-Change (%),lower_is_better,derived: (ratio[t] / ratio[t-126] - 1) * 100,126-trading-day percent-change of gold_copper_ratio. Positive = ratio rising = increasing risk-off.
+gold_copper_mom_21d,float64,ratio,G/C 21d Momentum (level diff),lower_is_better,derived: ratio[t] - ratio[t-21],21-trading-day level difference of gold_copper_ratio.
+gold_copper_mom_63d,float64,ratio,G/C 63d Momentum (level diff),lower_is_better,derived: ratio[t] - ratio[t-63],63-trading-day level difference of gold_copper_ratio.
+gold_copper_mom_252d,float64,ratio,G/C 252d Momentum (level diff),lower_is_better,derived: ratio[t] - ratio[t-252],252-trading-day level difference of gold_copper_ratio.
+gold_copper_acceleration,float64,percent,G/C Acceleration,lower_is_better,derived: roc_21d[t] - roc_21d[t-21],Change in 21d rate-of-change (second-difference proxy). Captures inflection in the ratio trajectory.
+gold_copper_realized_vol_21d,float64,ratio,"G/C Realized Vol (21d, ann.)",lower_is_better,"derived: std(pct_change(ratio), 21) * sqrt(252)",21-day annualized realized vol of daily ratio percent-changes. Decimal (0.30 = 30% annualized).
+xli_ret,float64,decimal_return,XLI Daily Return,higher_is_better,derived: xli[t] / xli[t-1] - 1,1-day percent return of XLI as decimal.
+xli_fwd_1d,float64,decimal_return,XLI 1d Forward Return,higher_is_better,derived: xli[t+1] / xli[t] - 1,Forward 1-trading-day total return of XLI (decimal).
+xli_fwd_5d,float64,decimal_return,XLI 5d Forward Return,higher_is_better,derived: xli[t+5] / xli[t] - 1,Forward 5-trading-day total return of XLI (decimal).
+xli_fwd_21d,float64,decimal_return,XLI 21d Forward Return,higher_is_better,derived: xli[t+21] / xli[t] - 1,Forward 21-trading-day total return of XLI (decimal).
+xli_fwd_63d,float64,decimal_return,XLI 63d Forward Return,higher_is_better,derived: xli[t+63] / xli[t] - 1,Forward 63-trading-day total return of XLI (decimal).
+xli_fwd_126d,float64,decimal_return,XLI 126d Forward Return,higher_is_better,derived: xli[t+126] / xli[t] - 1,Forward 126-trading-day total return of XLI (decimal).
+xli_fwd_252d,float64,decimal_return,XLI 252d Forward Return,higher_is_better,derived: xli[t+252] / xli[t] - 1,Forward 252-trading-day total return of XLI (decimal).
+spy_ret,float64,decimal_return,SPY Daily Return,higher_is_better,derived: spy[t] / spy[t-1] - 1,1-day percent return of SPY as decimal.
+spy_fwd_1d,float64,decimal_return,SPY 1d Forward Return,higher_is_better,derived: spy[t+1] / spy[t] - 1,Forward 1-trading-day total return of SPY (decimal).
+spy_fwd_5d,float64,decimal_return,SPY 5d Forward Return,higher_is_better,derived: spy[t+5] / spy[t] - 1,Forward 5-trading-day total return of SPY (decimal).
+spy_fwd_21d,float64,decimal_return,SPY 21d Forward Return,higher_is_better,derived: spy[t+21] / spy[t] - 1,Forward 21-trading-day total return of SPY (decimal).
+spy_fwd_63d,float64,decimal_return,SPY 63d Forward Return,higher_is_better,derived: spy[t+63] / spy[t] - 1,Forward 63-trading-day total return of SPY (decimal).
+spy_fwd_126d,float64,decimal_return,SPY 126d Forward Return,higher_is_better,derived: spy[t+126] / spy[t] - 1,Forward 126-trading-day total return of SPY (decimal).
+spy_fwd_252d,float64,decimal_return,SPY 252d Forward Return,higher_is_better,derived: spy[t+252] / spy[t] - 1,Forward 252-trading-day total return of SPY (decimal).

@@ -1,0 +1,366 @@
+{
+  "pair_id": "gold_copper_xli",
+  "parquet_path": "data/gold_copper_xli_daily_20260526.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-05-26T12:17:00Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Daily trading-date index (parquet index column). NYSE business calendar; spans 2000-01-03 through 2025-12-31."
+    },
+    "gold": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "Gold Futures ($/oz)",
+      "direction": "neutral",
+      "description": "CME Gold continuous front-month futures close, USD per troy ounce.",
+      "source_reference": "yahoo:GC=F",
+      "refresh_ttl_days": 1
+    },
+    "copper": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "Copper Futures ($/lb)",
+      "direction": "higher_is_better",
+      "description": "CME Copper continuous front-month futures close, USD per pound. Higher = stronger industrial demand.",
+      "source_reference": "yahoo:HG=F",
+      "refresh_ttl_days": 1
+    },
+    "gold_etf": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "GLD Close ($)",
+      "direction": "neutral",
+      "description": "SPDR Gold Trust adjusted close \u2014 ETF cross-check for gold price.",
+      "source_reference": "yahoo:GLD",
+      "refresh_ttl_days": 1
+    },
+    "copper_etf": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "CPER Close ($)",
+      "direction": "higher_is_better",
+      "description": "US Copper Index Fund adjusted close \u2014 ETF cross-check for copper. Limited pre-2011 history.",
+      "source_reference": "yahoo:CPER",
+      "refresh_ttl_days": 1
+    },
+    "xli": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "XLI Close ($)",
+      "direction": "higher_is_better",
+      "description": "Industrial Select Sector SPDR ETF adjusted close. Target asset.",
+      "source_reference": "yahoo:XLI",
+      "refresh_ttl_days": 1
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "higher_is_better",
+      "description": "SPDR S&P 500 ETF adjusted close, cross-check target.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "vix": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "VIX Index Level",
+      "direction": "lower_is_better",
+      "description": "CBOE Volatility Index, regime overlay.",
+      "source_reference": "yahoo:^VIX",
+      "refresh_ttl_days": 1
+    },
+    "dxy": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "DXY Dollar Index",
+      "direction": "neutral",
+      "description": "ICE US Dollar Index \u2014 USD vs basket of 6 currencies. Strong USD typically pressures both gold and copper prices.",
+      "source_reference": "yahoo:DX-Y.NYB",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_ratio": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "Gold/Copper Ratio",
+      "direction": "lower_is_better",
+      "description": "Primary indicator. gold ($/oz) / copper ($/lb). Higher = risk-off (gold up vs copper down). Dimensionless after the unit cancellation by ratio convention.",
+      "source_reference": "derived: gold / copper",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_ratio_etf": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "Gold/Copper Ratio (ETF)",
+      "direction": "lower_is_better",
+      "description": "ETF cross-check: GLD/CPER. Useful for post-2011 consistency check against futures-based ratio.",
+      "source_reference": "derived: gold_etf / copper_etf",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_logratio": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "Gold/Copper Log-Ratio",
+      "direction": "lower_is_better",
+      "description": "Natural log of gold_copper_ratio. Better-distributed for stationarity and modeling.",
+      "source_reference": "derived: log(gold_copper_ratio)",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_zscore_126d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "G/C Z-Score (126d)",
+      "direction": "lower_is_better",
+      "description": "Standardized gold_copper_ratio vs trailing 126-day rolling mean/std. Higher z = ratio elevated vs recent history = risk-off.",
+      "source_reference": "derived: (ratio - rollmean_126) / rollstd_126",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_zscore_252d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "G/C Z-Score (252d)",
+      "direction": "lower_is_better",
+      "description": "Standardized gold_copper_ratio vs trailing 252-day rolling mean/std. Higher z = ratio elevated vs recent history = risk-off.",
+      "source_reference": "derived: (ratio - rollmean_252) / rollstd_252",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_zscore_504d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "G/C Z-Score (504d)",
+      "direction": "lower_is_better",
+      "description": "Standardized gold_copper_ratio vs trailing 504-day rolling mean/std. Higher z = ratio elevated vs recent history = risk-off.",
+      "source_reference": "derived: (ratio - rollmean_504) / rollstd_504",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_pctrank_504d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "G/C %-Rank (504d)",
+      "direction": "lower_is_better",
+      "description": "Percentile rank (0-1) of ratio within trailing 504-day window.",
+      "source_reference": "derived: percentile_rank(ratio, window=504)",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_pctrank_1260d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "G/C %-Rank (1260d)",
+      "direction": "lower_is_better",
+      "description": "Percentile rank (0-1) of ratio within trailing 1260-day window.",
+      "source_reference": "derived: percentile_rank(ratio, window=1260)",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_roc_5d": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "G/C 5d Rate-of-Change (%)",
+      "direction": "lower_is_better",
+      "description": "5-trading-day percent-change of gold_copper_ratio. Positive = ratio rising = increasing risk-off.",
+      "source_reference": "derived: (ratio[t] / ratio[t-5] - 1) * 100",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_roc_21d": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "G/C 21d Rate-of-Change (%)",
+      "direction": "lower_is_better",
+      "description": "21-trading-day percent-change of gold_copper_ratio. Positive = ratio rising = increasing risk-off.",
+      "source_reference": "derived: (ratio[t] / ratio[t-21] - 1) * 100",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_roc_63d": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "G/C 63d Rate-of-Change (%)",
+      "direction": "lower_is_better",
+      "description": "63-trading-day percent-change of gold_copper_ratio. Positive = ratio rising = increasing risk-off.",
+      "source_reference": "derived: (ratio[t] / ratio[t-63] - 1) * 100",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_roc_126d": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "G/C 126d Rate-of-Change (%)",
+      "direction": "lower_is_better",
+      "description": "126-trading-day percent-change of gold_copper_ratio. Positive = ratio rising = increasing risk-off.",
+      "source_reference": "derived: (ratio[t] / ratio[t-126] - 1) * 100",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_mom_21d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "G/C 21d Momentum (level diff)",
+      "direction": "lower_is_better",
+      "description": "21-trading-day level difference of gold_copper_ratio.",
+      "source_reference": "derived: ratio[t] - ratio[t-21]",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_mom_63d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "G/C 63d Momentum (level diff)",
+      "direction": "lower_is_better",
+      "description": "63-trading-day level difference of gold_copper_ratio.",
+      "source_reference": "derived: ratio[t] - ratio[t-63]",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_mom_252d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "G/C 252d Momentum (level diff)",
+      "direction": "lower_is_better",
+      "description": "252-trading-day level difference of gold_copper_ratio.",
+      "source_reference": "derived: ratio[t] - ratio[t-252]",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_acceleration": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "G/C Acceleration",
+      "direction": "lower_is_better",
+      "description": "Change in 21d rate-of-change (second-difference proxy). Captures inflection in the ratio trajectory.",
+      "source_reference": "derived: roc_21d[t] - roc_21d[t-21]",
+      "refresh_ttl_days": 1
+    },
+    "gold_copper_realized_vol_21d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "G/C Realized Vol (21d, ann.)",
+      "direction": "lower_is_better",
+      "description": "21-day annualized realized vol of daily ratio percent-changes. Decimal (0.30 = 30% annualized).",
+      "source_reference": "derived: std(pct_change(ratio), 21) * sqrt(252)",
+      "refresh_ttl_days": 1
+    },
+    "xli_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "XLI Daily Return",
+      "direction": "higher_is_better",
+      "description": "1-day percent return of XLI as decimal.",
+      "source_reference": "derived: xli[t] / xli[t-1] - 1",
+      "refresh_ttl_days": 1
+    },
+    "xli_fwd_1d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "XLI 1d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 1-trading-day total return of XLI (decimal).",
+      "source_reference": "derived: xli[t+1] / xli[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "xli_fwd_5d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "XLI 5d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 5-trading-day total return of XLI (decimal).",
+      "source_reference": "derived: xli[t+5] / xli[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "xli_fwd_21d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "XLI 21d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 21-trading-day total return of XLI (decimal).",
+      "source_reference": "derived: xli[t+21] / xli[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "xli_fwd_63d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "XLI 63d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 63-trading-day total return of XLI (decimal).",
+      "source_reference": "derived: xli[t+63] / xli[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "xli_fwd_126d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "XLI 126d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 126-trading-day total return of XLI (decimal).",
+      "source_reference": "derived: xli[t+126] / xli[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "xli_fwd_252d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "XLI 252d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 252-trading-day total return of XLI (decimal).",
+      "source_reference": "derived: xli[t+252] / xli[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Daily Return",
+      "direction": "higher_is_better",
+      "description": "1-day percent return of SPY as decimal.",
+      "source_reference": "derived: spy[t] / spy[t-1] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_1d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 1d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 1-trading-day total return of SPY (decimal).",
+      "source_reference": "derived: spy[t+1] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_5d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 5d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 5-trading-day total return of SPY (decimal).",
+      "source_reference": "derived: spy[t+5] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_21d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 21d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 21-trading-day total return of SPY (decimal).",
+      "source_reference": "derived: spy[t+21] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_63d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 63d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 63-trading-day total return of SPY (decimal).",
+      "source_reference": "derived: spy[t+63] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_126d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 126d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 126-trading-day total return of SPY (decimal).",
+      "source_reference": "derived: spy[t+126] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_252d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 252d Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 252-trading-day total return of SPY (decimal).",
+      "source_reference": "derived: spy[t+252] / spy[t] - 1",
+      "refresh_ttl_days": 1
+    }
+  }
+}

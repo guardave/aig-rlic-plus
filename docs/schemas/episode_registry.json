@@ -39,6 +39,12 @@
     {"slug": "covid",      "label": "COVID Shock",         "start": "2020-02-01", "end": "2020-12-31", "rationale": "Rapid sentiment collapse and recovery; tests signal speed of adaptation"},
     {"slug": "rates_2022", "label": "2022 Rates Shock",    "start": "2022-01-01", "end": "2022-12-31", "rationale": "Persistent pessimism under inflation + rate pressure; sustained signal test"}
   ],
+  "commodity_ratio": [
+    {"slug": "gfc",         "label": "GFC",                  "start": "2007-12-01", "end": "2009-06-30", "rationale": "Gold/copper ratio spiked as industrial demand collapsed and gold became flight asset — canonical commodity-ratio risk-off test"},
+    {"slug": "china_2015",  "label": "China/EM Shock",        "start": "2015-06-01", "end": "2016-02-29", "rationale": "Copper crashed on China growth fears while gold held — classic mid-cycle commodity-ratio divergence, no US recession"},
+    {"slug": "covid",       "label": "COVID Shock",           "start": "2020-02-01", "end": "2020-12-31", "rationale": "Ratio spiked then mean-reverted rapidly as industrial demand collapsed and rebounded — tests signal speed in fast-recovery regime"},
+    {"slug": "rates_2022",  "label": "2022 Rates Shock",      "start": "2022-01-01", "end": "2022-12-31", "rationale": "Rising real rates pressured gold while copper held on supply tightness — failure-case test where ratio's signal can decouple from equity risk-off"}
+  ],
   "_fallback": [
     {"slug": "dot_com",    "label": "Dot-Com Crash",      "start": "2000-03-01", "end": "2002-10-31", "rationale": "Standard episode"},
     {"slug": "gfc",        "label": "GFC",                 "start": "2007-12-01", "end": "2009-06-30", "rationale": "Standard episode"},

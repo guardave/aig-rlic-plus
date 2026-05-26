@@ -385,3 +385,34 @@ Two-day multi-agent intensive running from SOP hardening Part F through Wave 9 c
 **Why no agent SOP touched.** Mode selection is Lead-owned protocol. Agents execute identical domain rules in both modes — the only difference is *who* invokes them.
 
 **Why no checker-dispatch template pre-built.** First Mode 2 pair will produce the artifact organically; premature templating would lock in the wrong shape.
+
+---
+
+## 2026-05-26 (cont.) — Mode 2 Pair: gold_copper_xli — Phase 1 (Dana hat) Complete
+
+**First production use of LEAD-WM1 Mode 2.** User overrode my Mode-1 recommendation explicitly to exercise the new protocol on a non-trivial pair. Recommendation + override logged in `docs/pair_execution_history.md`.
+
+**Phase 1 outputs (all under Dana's ownership; Lead wrote them per Mode 2 maker phase):**
+- `scripts/pair_pipeline_gold_copper_xli.py` — 5-stage pipeline (ingest / align+derive / persist / metadata / interpretation)
+- `data/gold_copper_xli_daily_20260526.parquet` — 6,783 rows × 39 cols, 2.1 MB
+- `data/gold_copper_xli_daily_schema.json` — full DATA-D-series schema
+- `data/data_dictionary_gold_copper_xli_20260526.csv`
+- `data/missing_value_report_gold_copper_xli_20260526.md`
+- `data/summary_stats_gold_copper_xli_20260526.csv`
+- `results/gold_copper_xli/interpretation_metadata.json` — Dana keys filled, Evan keys deferred
+- `docs/schemas/episode_registry.json` — new `commodity_ratio` category with 4 episodes (gfc / china_2015 / covid / rates_2022)
+
+**Key Dana-hat decisions documented in pipeline docstring:**
+- Primary indicator: futures (GC=F, HG=F) for full 2000+ history; ETFs (GLD, CPER) as cross-check columns.
+- XLI target (inception 1998-12) anchors sample start to 2000-01-01.
+- New indicator category `commodity_ratio` registered in episode_registry; episode set chosen for the triad property (gfc=long-lead risk-off, china_2015=mid-cycle without recession, rates_2022=failure-case where supply tightness decoupled copper).
+- Log-ratio column added because the ratio is bounded below by zero — better-distributed transform for downstream modeling.
+
+**Provisional directional check:** corr(zscore_252d, xli_fwd_63d) = **-0.044** — weakly countercyclical, consistent with hypothesis. Evan will finalize with stationarity tests + tournament next session.
+
+**Mode 2 observations so far:**
+- One-head execution preserved full context across symbol selection -> schema -> interpretation in a way that would have required 3-4 handoffs in Mode 1.
+- LEAD-DL1 suspension worked cleanly — no rule-violation guilt; the SOP carve-out is what makes Mode 2 viable.
+- Token cost for Phase 1 alone is meaningful; reaffirms the Path-1 decision to stage maker phases across sessions.
+
+**Next session pickup:** Phase 2 (Ray hat) — portal narrative + HZE1 episode narratives (4 episodes per the new commodity_ratio entry).
