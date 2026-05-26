@@ -101,6 +101,7 @@ PAGE_ROUTING = {
     "ted_spliced_spy": "pages/12_ted_spliced_spy",
     "indpro_xlp": "pages/14_indpro_xlp",
     "hy_ig_spy": "pages/15_hy_ig_spy",
+    "gold_copper_xli": "pages/16_gold_copper_xli",
 }
 
 
@@ -202,11 +203,13 @@ def load_pair_registry():
             "hy_ig_v2_spy": "HY-IG Credit Spread",
             "hy_ig_spy": "HY-IG Credit Spread",
             "umcsent_xlv": "Michigan Consumer Sentiment",
+            "gold_copper_xli": "Gold/Copper Ratio",
         }
         target_names = {
             "spy": "S&P 500",
             "xlv": "Health Care Select Sector (XLV)",
             "xlp": "Consumer Staples Select Sector (XLP)",
+            "xli": "Industrial Select Sector (XLI)",
         }
 
         indicator = indicator_names.get(pair_dir, indicator_names.get(

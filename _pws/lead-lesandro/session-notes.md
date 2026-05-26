@@ -525,3 +525,38 @@ Monotonic Q1->Q3 decline supports countercyclical hypothesis; Q4 bump validates 
 After Phase 5, the 4-checker swarm runs.
 
 **Cumulative Mode 2 token spend so far:** ~4 phases (Dana, Ray, Evan, Vera) in this session. Phase 5 (Ace) + checkers fit cleanly in a fresh session.
+
+---
+
+## 2026-05-26 (cont.) — Mode 2 gold_copper_xli — Phase 5 (Ace hat) Complete
+
+**Files created:**
+- `app/pair_configs/gold_copper_xli_config.py` (~430 lines)
+  - StoryConfig: page title, plain-English, hero/regime captions, two narrative sections, 4 HISTORY_ZOOM_EPISODES (gfc/china_2015/covid/rates_2022, slugs match Vera's chart filenames + episode_registry.json)
+  - EVIDENCE_METHOD_BLOCKS: CORRELATION_BLOCK + GRANGER_BLOCK (level 1), REGIME_BLOCK (level 2), tournament intro citing OOS Sharpe 1.27
+  - StrategyConfig: plain-English, signal rule, manual-use recipe, caveats (DXY co-movement, geography basis, supply decoupling, short-selling cost, daily rebalance, OOS window), 2022-failure-case trade-log example
+  - MethodologyConfig: data sources table, indicator construction, methods, tournament design, references
+
+- `app/pages/16_gold_copper_xli_story.py` (15 lines)
+- `app/pages/16_gold_copper_xli_evidence.py`
+- `app/pages/16_gold_copper_xli_strategy.py`
+- `app/pages/16_gold_copper_xli_methodology.py`
+
+**Registry edits (`app/components/pair_registry.py`):**
+- PAGE_ROUTING += "gold_copper_xli": "pages/16_gold_copper_xli"
+- indicator_names += "gold_copper_xli": "Gold/Copper Ratio"
+- target_names += "xli": "Industrial Select Sector (XLI)"
+
+**Smoke loader result:** **passes=4, failures=0**. All 4 template-resolved charts (hero, quartile_returns, equity_curves, drawdown) loaded with correct trace counts.
+
+**ELI5 prose source:** all narrative content traces back to Ray's `docs/portal_narrative_gold_copper_xli_20260526.md`. Phase 5 was mechanical wiring as designed.
+
+**Ace-hat decisions:**
+- Page number 16 (next after 15_hy_ig_spy).
+- 3 method blocks (correlation, granger, regime) instead of full 8 — matches what Vera's chart subset can render. Remaining 5 blocks (HMM, local projections, quantile regression, transfer entropy, CCF) deferred per the Mode 2 essential-subset scope.
+- Caveats section explicitly names the 2022 failure case — directly cross-referenced from Ray's narrative.
+- Trade-log example narrates a losing 2022 trade, not a winning one — honesty over polish, matches the failure-case framing throughout the pair.
+
+**Maker phase COMPLETE.** All 5 phases (Dana → Ray → Evan → Vera → Ace) shipped.
+
+**Next: 4 checker subagents in parallel.**

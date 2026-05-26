@@ -1052,3 +1052,30 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 **Blockers:** None.
 
 **Next steps:** Phase 5 (Ace hat) next session — wire all artifacts into pair_config + 4 page wrappers + smoke_loader. Then 4-checker swarm.
+
+---
+
+## 2026-05-26 (cont.) — Lead — Mode 2 gold_copper_xli Maker Phase COMPLETE
+
+**Status:** Maker phase complete — checker swarm next.
+
+**Phase 5 (Ace hat) shipped:**
+- `app/pair_configs/gold_copper_xli_config.py` — full StoryConfig + EVIDENCE_METHOD_BLOCKS + StrategyConfig + MethodologyConfig. ELI5 prose sourced from Ray's narrative doc.
+- 4 page wrappers (`app/pages/16_gold_copper_xli_{story,evidence,strategy,methodology}.py`).
+- `app/components/pair_registry.py` — PAGE_ROUTING, indicator_names, target_names updated.
+
+**Smoke loader: passes=4 failures=0.** All 4 template-resolved charts load with correct trace counts.
+
+**Maker-phase total:** 5 commits + Phase 5 about to be committed. ~5 phases (Dana → Ray → Evan → Vera → Ace) in 2 sessions. Token cost is substantial but bounded.
+
+**Insights:**
+- Phase 5 was the cheapest phase (mostly wiring) — confirms the Mode 2 design hope that pre-authored Ray ELI5 blocks would make Ace mechanical.
+- Cross-stage failure-case threading worked end-to-end: Ray's 2022 rates_2022 narrative → Evan's Q4-quartile bump → Vera's NBER2-aware no-shading on rates_2022 chart → Ace's caveats section + trade-log example all tell the same story without coordination overhead.
+
+**Blockers:** None.
+
+**Next steps:** dispatch 4 checker subagents in parallel:
+1. Correctness — econometric soundness, signal logic, handoff field validity
+2. Completeness — mandatory deliverables, 15-item gate, chart subset, all 4 pages
+3. Consistency — naming, slug vocab, instrument references, SOP cross-refs
+4. ELI5 — layperson friendliness across narrative, captions, methodology
