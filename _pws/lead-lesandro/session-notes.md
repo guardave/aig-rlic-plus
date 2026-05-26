@@ -670,3 +670,73 @@ Added WALK_FORWARD_CHART_NAME and TOURNAMENT_SCATTER_CHART_NAME to StrategyConfi
 **Did NOT re-dispatch checkers a third time.** The fixes were targeted to the issues each checker flagged; nothing else changed.
 
 **Pair v2 status: CLOSED.** Full Mode-1 parity (22 charts, 8 method blocks, all artifacts), all checker dimensions PASS or PASS-WITH-NOTES, all numerical claims verified.
+
+---
+
+## 2026-05-26 (cont.) — User Review Loop + Cloud Inspection Learnings
+
+**Context.** User reviewed gold_copper_xli on the cloud and surfaced a chain of issues across 4 rounds. This entry consolidates the lessons.
+
+### What the user found (in order)
+
+1. **Home tile shows "gold_copper_ratio → xli"** (cryptic).
+2. **Home tile links open in new tab** (pattern violation).
+3. **GFC not in glossary.**
+4. **Unhandled error block after TRANSITION_TEXT on Story page.**
+5. **Cross-Period Consistency section: 5 visible "pending" placeholders.**
+6. **5 schema errors on Strategy page** — winner_summary, signal_scope, analyst_suggestions, plus implicit knock-on for Probability Engine + Position Adjustment + Trade History.
+7. **interpretation_metadata.json** 4 schema errors (last_updated_by/at required; commodity_ratio not in enum; owner_writes.ray required).
+8. **After all my "fixes" the user re-tested — Strategy page still broken.** Probability Engine: "Signal column gold_copper_zscore_126d missing from signals parquet."
+
+### My pattern of failure across the loop
+
+- **Stopped at local validation** without confirming cloud render. Treated "local jsonschema PASS" as proof.
+- **Reinvented the cloud-inspection wheel** instead of reading `scripts/cloud_verify.py`. Wrong URL slug (used `16_*` instead of bare `pair_id_page`), wrong DOM target (`document.body` instead of iframe content_frame), no hydration polling.
+- **Mode 2 producer code authored against my mental model** of the schemas, not the actual files. Each producer artifact (winner_summary / signal_scope / analyst_suggestions / interpretation_metadata) had its own field-shape errors, none caught.
+- **APP-WS1 contract missed entirely** — wrote signals parquet with generic alias `signal_raw` instead of the named column the Probability Engine consumer requires.
+
+### What I shipped to close each round
+
+- LEAD-DL1 → LEAD-WM1 (work mode selection rule, prior session).
+- Phase 5+ retro: full Mode-1 parity (Phases 3.5/4.5/5.5) — HMM/LP/QR/TE + 11 charts + 5 evidence blocks.
+- 4 issue fixes (ELI5 registration gate in pair_registry; same-tab nav fallback; GFC glossary; try/except around `st.page_link`).
+- 5 cross-period charts shipped + VIZ-CP1-G producer gate + GATE-32 flag flip activated.
+- 3 schema-conformant JSON rewrites + producer-side stage_validate_schemas (jsonschema gate at end of pipeline).
+- interpretation_metadata schema v1.0.0→1.1.0 (added `commodity_ratio` enum value) + JSON conformant + producer fixed.
+- Trade logs shipped (`winner_trades_broker_style.csv` + `winner_trade_log.csv`, 345 rows).
+- APP-WS1 fix: signals parquet now includes named signal column.
+- CLAUDE.md: documented cloud URL, per-page URL pattern, iframe headless-Playwright pattern.
+
+### Cloud inspection — the working recipe (now in CLAUDE.md)
+
+```python
+from playwright.sync_api import sync_playwright
+URL = "https://aig-rlic-plus.streamlit.app/gold_copper_xli_strategy"  # NO 16_ prefix
+with sync_playwright() as pw:
+    browser = pw.chromium.launch(headless=True, args=["--no-sandbox"])
+    page = browser.new_context(viewport={"width": 1440, "height": 2400}).new_page()
+    page.goto(URL, wait_until="domcontentloaded")
+    handle = page.wait_for_selector('iframe[title="streamlitApp"]', timeout=60000)
+    frame = handle.content_frame()
+    # Poll inner_text on the IFRAME body for hydration (up to 45s)
+    text = ""
+    import time; t0 = time.time()
+    while time.time() - t0 < 45:
+        text = frame.inner_text("body")
+        if len(text) > 200: break
+        time.sleep(2)
+    page.wait_for_timeout(8000)  # chart settle
+    text = frame.inner_text("body")
+```
+
+### Lessons that should harden into SOP next session
+
+1. **META-VS1 (Producer-side Schema Validation, Evan-owned).** Every Evan pipeline must end with `jsonschema.Draft202012Validator(schema).iter_errors(...)` against `docs/schemas/*.schema.json` for all produced JSONs. Fail the pipeline on any error. This is the producer-side mirror of the consumer's `validate_or_die`.
+2. **META-CR1 (Cloud Render Gate).** Before declaring any render-affecting commit done, run the headless Playwright recipe against the cloud URL and grep for known error markers. Local tests are necessary but not sufficient.
+3. **APP-WS1 explicit enforcement.** The signals parquet must contain a column matching `winner_summary.signal_column`. Add to producer + add a smoke test.
+4. **Stop reinventing.** Before writing infrastructure, grep the repo for prior implementations. `cloud_verify.py` had the iframe pattern; I missed it.
+
+### Cumulative this session arc (gold_copper_xli)
+
+- ~17 commits across 2 sessions to take one Mode 2 pair from inception to fully clean cloud render.
+- Confirms Mode 2 is achievable but the producer-side bug surface is real and the checker swarm (whether agent or human) is load-bearing. The user found at least 4 classes of bug my checkers missed.

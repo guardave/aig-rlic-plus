@@ -1136,3 +1136,37 @@ Currently neither is encoded — the checker swarm catches it, which is the prot
 **Blockers:** None.
 
 **Next steps:** Wave 10K queued work resumes, OR user starts another pair (in either mode).
+
+---
+
+## 2026-05-26 (cont.) — Lead — gold_copper_xli Review Loop CLOSED (pending final cloud verify after reboot)
+
+**Status:** All known issues fixed and pushed (last commit 4777f02). Waiting on user Cloud reboot + my direct cloud-DOM verification.
+
+**Final issue chain resolved this turn:**
+1. Cryptic home-tile + same-tab nav + GFC glossary + uncaught `st.page_link` error (4-issue fix bundle: 2a3b94f).
+2. Five Cross-Period "pending" placeholders → 5 CP charts shipped + VIZ-CP1-G producer gate + GATE-32 flag activation (f66363b).
+3. Three schema-error blocks (winner_summary / signal_scope / analyst_suggestions) + missing trade logs → schema-aligned + trade logs shipped + producer-side `stage_validate_schemas` jsonschema gate (6b751f9).
+4. interpretation_metadata schema error → schema v1.0.0→1.1.0 added `commodity_ratio` to enum + JSON aligned + producer fixed (f0f9d16).
+5. Probability Engine + Position Adjustment "data problem" → signals parquet now exposes named signal column (`gold_copper_zscore_126d`) per APP-WS1 contract (f4c214b).
+6. Streamlit Cloud inspection: figured out the headless Playwright pattern from `scripts/cloud_verify.py` (right URL slug, iframe content_frame, hydration polling) and documented in CLAUDE.md (7c9103a, 4777f02).
+
+**Hardest lesson:** I should have read `scripts/cloud_verify.py` first instead of reinventing cloud inspection from scratch. Two rounds of false "CLEAN" reports because I was inspecting the wrong DOM. The user had to push back twice before I corrected.
+
+**Discoveries / insights:**
+- Mode 2 producer-side bugs are real and frequent. Four schema-class failures shipped before being caught — all would have been caught by a `jsonschema` validation gate at producer exit.
+- The cloud-render gate is a separate consumer-side defense that catches what local schema validation can't (e.g., the APP-WS1 named-column violation — JSONs all schema-passed but the parquet column was wrong).
+- User-as-checker found 4 bug classes my 4-agent checker swarm did not. The checker swarm has blind spots; human stakeholder review remains load-bearing.
+- Cloud inspection via headless Playwright **works fine** and is what `cloud_verify.py` does — no excuses for skipping it after a render-affecting commit.
+
+**SOP candidates for next session (post-stakeholder discussion):**
+- META-VS1: producer-side schema validation at end of every pipeline (jsonschema FAIL = pipeline FAIL).
+- META-CR1: Cloud Render Gate — headless Playwright pass against cloud URL + zero error markers, mandatory before any "done" claim on render-affecting commits.
+
+**Blockers:** Awaiting user Cloud reboot + final cloud verification.
+
+**Next steps:**
+1. User reboots Streamlit Cloud.
+2. Lead re-inspects via Playwright + reports rendered state.
+3. If clean: close pair v3 in pair_execution_history.
+4. If still broken: continue iterating, no celebration until cloud-DOM is verified clean.
