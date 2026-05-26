@@ -1,0 +1,11 @@
+{
+  "chart_name": "walk_forward",
+  "pair_id": "vix_vix3m_spy",
+  "palette_id": "v1",
+  "rules_applied": [
+    "VIZ-IC1"
+  ],
+  "narrative_alignment_note": "Rolling Sharpe over OOS \u2014 Strategy Confidence tab.",
+  "generated_at": "2026-05-26T22:53:42.400994+00:00",
+  "generated_by": "fix260526 W0.5 (Lead-as-Vera)"
+}

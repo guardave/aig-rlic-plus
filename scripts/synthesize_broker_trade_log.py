@@ -272,11 +272,18 @@ def synthesize(
     parts = pair_id.split("_")
     instrument = parts[-1].upper() if parts else "SPY"
 
-    sig_col = SIGNAL_COL_MAP.get(sig_name)
-    if sig_col is None:
+    # APP-WS1 (post-Wave 4D-2): winner_summary.signal_column is the
+    # schema-required canonical column name. Prefer it when present;
+    # fall back to the legacy SIGNAL_COL_MAP for older HY-IG-family
+    # summaries that were written before signal_column became required.
+    sig_col = summary.get("signal_column") or SIGNAL_COL_MAP.get(sig_name)
+    if not sig_col:
         raise KeyError(
-            f"Unknown signal_code '{sig_name}'. Extend SIGNAL_COL_MAP in "
-            f"{Path(__file__).name}."
+            f"Could not resolve signal column: winner_summary has no "
+            f"`signal_column` field and signal_code '{sig_name}' is not in "
+            f"SIGNAL_COL_MAP. Either populate signal_column in "
+            f"results/{pair_id}/winner_summary.json (APP-WS1) or extend "
+            f"SIGNAL_COL_MAP in {Path(__file__).name}."
         )
 
     # ── Load price data + signal ─────────────────────────────────────────
