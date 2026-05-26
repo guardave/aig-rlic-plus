@@ -216,6 +216,36 @@ def load_pair_registry():
             interp.get("indicator", ""), interp.get("indicator", pair_dir)))
         target = target_names.get(interp.get("target", ""), interp.get("target", ""))
 
+        # ELI5 gate (added 2026-05-26 after gold_copper_xli surfaced "cryptic
+        # title on home tile" issue): a cryptic title — i.e. a raw column
+        # name like ``gold_copper_ratio`` or a bare ticker like ``xli`` —
+        # appears when a new pair_id is not registered in indicator_names /
+        # target_names. Flag this as an integrity issue so it is visible at
+        # next wave closure. The fallback display still works, but the
+        # warning makes the registration gap auditable rather than silent.
+        if pair_dir not in indicator_names:
+            _integrity_issues.append({
+                "pair_id": pair_dir,
+                "missing_fields": ["display_indicator_unregistered"],
+                "note": (
+                    f"pair_id '{pair_dir}' not in indicator_names dict — "
+                    f"home-tile title will fall back to raw column name "
+                    f"'{interp.get('indicator', pair_dir)}'. Register a "
+                    f"layperson-friendly label in pair_registry.indicator_names."
+                ),
+            })
+        target_key = interp.get("target", "")
+        if target_key and target_key not in target_names:
+            _integrity_issues.append({
+                "pair_id": pair_dir,
+                "missing_fields": ["display_target_unregistered"],
+                "note": (
+                    f"target '{target_key}' not in target_names dict — "
+                    f"home-tile target label will fall back to raw ticker. "
+                    f"Register a layperson-friendly label."
+                ),
+            })
+
         # APP-RL1: single source of truth via get_page_prefix()
         page_prefix = get_page_prefix(pair_dir)
 

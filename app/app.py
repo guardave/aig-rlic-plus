@@ -329,10 +329,19 @@ for i in range(0, len(pairs), cols_per_row):
                     try:
                         slot.page_link(page_path, label=label, icon=icon)
                     except Exception:
-                        # Fallback: derive URL from page filename
+                        # Fallback: derive URL from page filename. Force
+                        # same-tab navigation with explicit target="_self"
+                        # (Streamlit's default for unresolved internal links
+                        # can be _blank, which violates the home-tile UX
+                        # pattern of in-place navigation).
                         url_name = os.path.splitext(os.path.basename(page_path))[0]
                         url_name = "_".join(url_name.split("_")[1:])  # strip numeric prefix
-                        slot.markdown(f"{icon} [{label}](/{url_name})")
+                        slot.markdown(
+                            f'<a href="/{url_name}" target="_self" '
+                            f'style="text-decoration:none;color:inherit;">'
+                            f"{icon} {label}</a>",
+                            unsafe_allow_html=True,
+                        )
 
 # --- Footer ---
 st.markdown("---")

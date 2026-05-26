@@ -31,6 +31,12 @@
     }
   },
   "terms": {
+    "GFC (Global Financial Crisis)": {
+      "plain_english": "The 2007-2009 financial crisis that began with US subprime mortgage losses and spread into a global banking and credit crunch, triggering a severe recession.",
+      "why_it_matters": "It is the most extreme stress test most modern risk indicators are evaluated against — equity drawdowns of ~55%, credit spreads at multi-decade wides, and a Fed balance-sheet expansion that reshaped monetary policy. Most pair backtests carve out a GFC episode specifically because a strategy that fails in the GFC fails the test that matters most.",
+      "example": "In the gold/copper × XLI pair, the GFC episode (2007-12 to 2009-06) is the long-lead canonical case: the ratio rose ~2x as copper crashed on collapsing industrial demand while gold surged on flight-to-safety, leading XLI's worst drawdown by 3-6 months.",
+      "when_it_fails": "GFC is one episode in one currency regime. A strategy that works in the GFC does not automatically work in mid-cycle slowdowns (2015-2016 China shock), fast regimes (2020 COVID), or rates-driven re-ratings (2022) — each has its own dynamics."
+    },
     "Basis point (bp)": {
       "plain_english": "One hundredth of a percentage point (0.01%). 100 basis points = 1%.",
       "why_it_matters": "Yields, spreads, and fees in fixed income move in fractions of a percent, so rounding to whole percentages loses meaningful information.",

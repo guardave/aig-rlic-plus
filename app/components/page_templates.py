@@ -725,13 +725,24 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     # Thin wrapper sets its own filename prefix; build the page_link target
     # from the pair_id + a prefix guess. Page files are named
     # ``{n}_{pair_id}_evidence.py``; the prefix lookup comes from
-    # pair_registry's routing map.
+    # pair_registry's routing map. Wrapped in try/except because on cloud
+    # the multipage manifest can lag the file deploy for new pairs, and
+    # st.page_link raises an uncaught StreamlitAPIException in that window.
     page_prefix = get_page_prefix(pair_id)
-    st.page_link(
-        f"{page_prefix}_evidence.py",
-        label="Continue to The Evidence",
-        icon="🔬",
-    )
+    try:
+        st.page_link(
+            f"{page_prefix}_evidence.py",
+            label="Continue to The Evidence",
+            icon="🔬",
+        )
+    except Exception:
+        url_name = f"{page_prefix.split('/')[-1].split('_', 1)[1]}_evidence"
+        st.markdown(
+            f'<a href="/{url_name}" target="_self" '
+            f'style="text-decoration:none;color:inherit;">'
+            f"🔬 Continue to The Evidence</a>",
+            unsafe_allow_html=True,
+        )
 
     # ------ Footer ------
     st.markdown("---")
@@ -1049,11 +1060,20 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     st.markdown(transition)
 
     page_prefix = get_page_prefix(pair_id)
-    st.page_link(
-        f"{page_prefix}_strategy.py",
-        label="Continue to The Strategy",
-        icon="🎯",
-    )
+    try:
+        st.page_link(
+            f"{page_prefix}_strategy.py",
+            label="Continue to The Strategy",
+            icon="🎯",
+        )
+    except Exception:
+        url_name = f"{page_prefix.split('/')[-1].split('_', 1)[1]}_strategy"
+        st.markdown(
+            f'<a href="/{url_name}" target="_self" '
+            f'style="text-decoration:none;color:inherit;">'
+            f"🎯 Continue to The Strategy</a>",
+            unsafe_allow_html=True,
+        )
 
     st.markdown("---")
     st.caption(
@@ -1318,11 +1338,20 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         "and diagnostics."
     )
     page_prefix = get_page_prefix(pair_id)
-    st.page_link(
-        f"{page_prefix}_methodology.py",
-        label="Continue to Methodology",
-        icon="📐",
-    )
+    try:
+        st.page_link(
+            f"{page_prefix}_methodology.py",
+            label="Continue to Methodology",
+            icon="📐",
+        )
+    except Exception:
+        url_name = f"{page_prefix.split('/')[-1].split('_', 1)[1]}_methodology"
+        st.markdown(
+            f'<a href="/{url_name}" target="_self" '
+            f'style="text-decoration:none;color:inherit;">'
+            f"📐 Continue to Methodology</a>",
+            unsafe_allow_html=True,
+        )
 
     st.markdown("---")
     st.caption(
