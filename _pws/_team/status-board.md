@@ -958,3 +958,26 @@ Shared helper untouched — `hy_ig_spy/winner_trade_log.csv` ships in trade-pair
 3. OW-3: GATE-HZE1 in `scripts/cloud_verify.py` — Ace to implement per pseudocode in SOP.
 
 **Blockers:** None on Quincy's side. Three items are Lead/Ace/Vera-dependent.
+
+---
+
+## 2026-05-26 — Lead — LEAD-WM1 Dual Work Modes Drafted
+
+**Status:** Completed (pending commit).
+
+**What was accomplished:**
+- Added LEAD-WM1 to `docs/agent-sops/lead-agent-sop.md` defining two per-pair work modes:
+  - Mode 1 — Multiple makers, single checker (default; canonical multi-agent flow).
+  - Mode 2 — Single maker, multiple checkers (Lead wears role hats, then 4 checker subagents fan out on correctness / completeness / consistency / ELI5).
+- LEAD-DL1 now mode-conditional (binding under Mode 1; suspended for Mode 2 maker phase, restored in checker phase). LEAD-QF1 and META-CPD bind under both modes.
+- SOD conversation is mandatory: Lead must offer a reasoned mode recommendation; user decides; both logged in pair execution history.
+- Registered in `docs/sop-changelog.md` as Wave 10K Prelude.
+
+**Discoveries / insights:**
+- Mode selection is Lead-owned protocol — no agent SOP needs touching. Agents' domain rules fire identically in both modes; the difference is who invokes them.
+- Per-pair selection (not global) lets the team match mode to pair difficulty. Routine recurring pairs likely favor Mode 2; novel categories and benchmarks stay Mode 1.
+- Mode-1 safeguards (new indicator category / SOP-rule risk / benchmark status) preserve quality even if user reflexively requests Mode 2.
+
+**Blockers:** None.
+
+**Next steps:** Commit + push. Wave 10K Mode 1 work items (Ace gate_cl_audit, Evan BL-LEGACY-WINNER-SUMMARY-SHAPE, Quincy GATE-VIZ-NBER1 severity flip) remain queued and unaffected. First Mode 2 pair will produce the checker-dispatch artifact organically.

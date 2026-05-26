@@ -6,7 +6,55 @@
 
 ---
 
-## Rule LEAD-DL1 — Delegation Discipline (binding)
+## Rule LEAD-WM1 — Work Mode Selection (binding, per-pair)
+
+The team operates in one of two work modes. The mode is chosen **per pair** at SOD, through an explicit conversation between Lead and the user. Mode governs which other rules in this SOP are active for the duration of the pair build.
+
+### The two modes
+
+**Mode 1 — Multiple makers, single checker (default).** Role agents are the makers, each executing within their ownership; Lead is the single checker, coordinating the seams and ratifying the wave. LEAD-DL1, LEAD-QF1, META-NMF, META-CPD, and all per-agent *-HZE1 handoff rules are fully binding. This is the canonical multi-agent flow described throughout this SOP.
+
+**Mode 2 — Single maker, multiple checkers.** Lead is the single maker, wearing role hats sequentially and producing the full dashboard in one continuous flow, following each role's domain SOPs (DATA-D*, ECON-H*, VIZ-*, RES-*, APP-PT*, etc.). LEAD-DL1 is **suspended for the maker phase only**. LEAD-QF1 still binds — Lead self-checks correctness, completeness, consistency, and ELI5 friendliness at every flow checkpoint. META-CPD still binds (commit-push discipline is mode-independent). At flow completion, Lead dispatches four checker subagents in parallel — one per dimension — to inspect the pair and file issue reports. Lead fixes issues; checkers re-run until all four report clean. **During the checker phase LEAD-DL1 restores**: if a checker finding requires a domain fix that falls under an agent's ownership and is non-trivial, dispatch the agent rather than self-patching. Self-patches by Lead in the checker phase are limited to clear, mechanical, single-file fixes.
+
+### The SOD conversation (mandatory)
+
+At the start of every new pair, Lead **must** open a mode-selection discussion with the user. Lead's responsibility is not to ask "which mode?" passively — it is to read the pair brief and offer a reasoned recommendation. Lead has a voice; the user makes the final call.
+
+The recommendation must address:
+
+- **Novelty.** Is this a familiar indicator category (rates, credit, production, sentiment, volatility) with established playbooks, or a new category that needs domain agents thinking hard about method selection?
+- **SOP-rule risk.** Does this pair plausibly surface new SOP rules? If yes, lean Mode 1 — agent reflection is how rules get written authentically.
+- **Throughput vs depth tradeoff.** Mode 2 is faster end-to-end and preserves full context in one head; Mode 1 produces deeper, more diverse work and better cross-agent reps.
+- **Benchmark status.** Sample/reference pairs and anything user-flagged as quality-benchmark should default to Mode 1.
+
+After the user decides, log both the recommendation and the actual choice in `docs/pair_execution_history.md` for that pair. Over time the recommendation-vs-outcome record lets us calibrate whether Lead's instincts track reality.
+
+### Mode 2 exit criteria
+
+The pair is not closeable in Mode 2 until all four checker subagents have returned a clean report in the same iteration. Checker iteration count is recorded in the pair-execution-history entry as a quality signal.
+
+### The four checker dimensions
+
+1. **Correctness** — econometric soundness, data lineage, chart accuracy, signal logic, handoff-field validity. Cross-references domain SOPs.
+2. **Completeness** — all mandatory deliverables shipped (15-item gate, full 22-chart set, all 4 portal pages, Signal Universe, Analyst Suggestions, historical zoom episodes per RES-HZE1, etc.).
+3. **Consistency** — naming, slug vocabularies, instrument references (RES-NR1), cross-page narrative alignment, SOP-rule names cross-referenced correctly.
+4. **ELI5** — layperson reader friendliness across narrative, chart captions, Evidence ELI5 fields, methodology page. Tone, jargon density, accessibility.
+
+Each checker is a separate Agent dispatch with a tightly scoped prompt and structured issue-report format.
+
+### Mode-1-only safeguards
+
+Even when the user requests Mode 2, Lead should push back (and recommend Mode 1) when:
+
+- The pair introduces a new indicator category not previously executed.
+- Lead's SOD read of the pair brief surfaces ambiguity that an agent's domain depth would resolve better than Lead's generalist read.
+- The user has flagged the pair as a benchmark or external-stakeholder deliverable.
+
+Pushback is advisory, not a veto. If the user confirms Mode 2 after Lead's reasoning, proceed.
+
+---
+
+## Rule LEAD-DL1 — Delegation Discipline (binding under Mode 1; suspended for maker phase under Mode 2)
 
 **Lead never writes to files owned by role agents.** "Writes" includes: creating new files in the agent's domain, editing existing files there, running scripts that materially change artifacts under the agent's ownership.
 
@@ -82,7 +130,10 @@ Lead's commits, week-over-week, should look like SOP additions + meta-doc update
 
 ---
 
-## Rule LEAD-QF1 — Quality Focus Hierarchy (binding)
+## Rule LEAD-QF1 — Quality Focus Hierarchy (binding under both modes)
+
+**Mode applicability.** LEAD-QF1 binds under both Mode 1 and Mode 2 (per LEAD-WM1). Under Mode 1 it shapes how Lead coordinates agents; under Mode 2 it shapes how Lead self-checks the maker output at every flow checkpoint and structures the four checker-subagent dispatches.
+
 
 **Lead's prime quality responsibility is the big picture and inter-agent seams. Each agent is responsible for the quality of their own domain.**
 

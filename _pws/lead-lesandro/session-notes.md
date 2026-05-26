@@ -364,3 +364,24 @@ Two-day multi-agent intensive running from SOP hardening Part F through Wave 9 c
 - Wave 4D-1 schema migration passed every mechanical check but shipped a user-visible bug → led to META-UC, but ideally should have been caught producer-side
 - Three force-redeploy incidents — infrastructure-level investigation required, workaround is not a fix
 - Agent memory files stayed static for 8 waves — SOPs absorbed the wisdom, agents did not → led to META-AM
+
+---
+
+## 2026-05-26 — LEAD-WM1 Work Mode Selection Drafted
+
+**Context.** User proposed a second work mode where Lead is the single maker (wearing role hats sequentially) and a fan-out of checker subagents inspects the result across four dimensions (correctness / completeness / consistency / ELI5). Existing flow becomes Mode 1 by default.
+
+**Resolved.**
+- Mode selection is per-pair, decided at SOD via mandatory Lead-recommendation → user-decides conversation.
+- LEAD-DL1 is mode-conditional: fully binding under Mode 1; suspended for the maker phase only under Mode 2 (restored in the checker phase for domain-significant fixes).
+- LEAD-QF1 and META-CPD bind under both modes.
+- Naming kept descriptive per user preference: "Multiple makers, single checker" and "Single maker, multiple checkers."
+- Recommendation + actual choice logged in `docs/pair_execution_history.md` for calibration over time.
+
+**Files modified.**
+- `docs/agent-sops/lead-agent-sop.md` — new LEAD-WM1 section; LEAD-DL1 and LEAD-QF1 headers amended for mode applicability.
+- `docs/sop-changelog.md` — Wave 10K Prelude entry registering LEAD-WM1.
+
+**Why no agent SOP touched.** Mode selection is Lead-owned protocol. Agents execute identical domain rules in both modes — the only difference is *who* invokes them.
+
+**Why no checker-dispatch template pre-built.** First Mode 2 pair will produce the artifact organically; premature templating would lock in the wrong shape.

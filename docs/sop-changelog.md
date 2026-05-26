@@ -8,6 +8,23 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-26 — Wave 10K Prelude: Dual Work Modes (LEAD-WM1)
+
+**Scope:** `docs/agent-sops/lead-agent-sop.md` only. No agent SOP changes; mode selection is a Lead-owned protocol.
+
+**New rule:**
+
+- **LEAD-WM1 — Work Mode Selection (per-pair, binding).** Every new pair begins with an explicit SOD conversation between Lead and the user to choose a work mode. Lead must offer a reasoned recommendation (covering novelty, SOP-rule risk, depth-vs-throughput, benchmark status); the user makes the final call. Both recommendation and choice are logged in `docs/pair_execution_history.md`.
+  - **Mode 1 — Multiple makers, single checker (default).** Canonical multi-agent flow: role agents are makers within their ownership, Lead is the single checker. LEAD-DL1, LEAD-QF1, META-NMF, META-CPD, and all per-agent *-HZE1 handoff rules fully binding.
+  - **Mode 2 — Single maker, multiple checkers.** Lead is the single maker, wearing role hats sequentially and produces the full dashboard in one flow, following each role's domain SOPs. LEAD-DL1 suspended for the maker phase only. LEAD-QF1 and META-CPD remain binding. At flow completion, four checker subagents (correctness / completeness / consistency / ELI5) are dispatched in parallel; Lead iterates fixes until all four return clean. Domain-significant fixes during the checker phase restore LEAD-DL1 and dispatch the owning agent.
+  - **Mode-1 safeguards.** Lead recommends Mode 1 (and pushes back on Mode 2 requests) for new indicator categories, pairs likely to surface new SOP rules, and benchmark/external-stakeholder pairs.
+
+**LEAD-DL1 / LEAD-QF1 amendments:** headers updated to note mode applicability. LEAD-QF1 binds under both modes; LEAD-DL1 binds under Mode 1 and is mode-conditional under Mode 2 (suspended in maker phase, restored in checker phase).
+
+**Motivation:** Mode 1 (multiple makers, single checker) is optimal for novel or benchmark work but pays a coordination tax on routine pairs where one head holding full context produces a faster, more coherent result. Mode 2 preserves the independent-eyes property via the post-hoc checker swarm while removing the dispatch overhead from the maker phase. Per-pair selection lets the team match mode to pair difficulty rather than committing globally.
+
+---
+
 ## 2026-04-23 — Wave 10I.C Closure: Quality Gate Overhaul + 6 New SOP Rules
 
 **Final verify (commit `0cedde6`):** 41/41 PASS. 10 visible-error failure classes eliminated. Quality gate rebuilt from structural-marker checking to adversarial DOM content inspection.
