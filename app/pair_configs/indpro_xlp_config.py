@@ -86,16 +86,19 @@ class StoryConfig:
     REGIME_CHART_NAME = "regime_stats"
     # fix260526 W1 #27: extended caption with explicit "best vs worst regime"
     # takeaway, intuitive labelling (weakest/strongest growth), and a one-
-    # line bridge to the strategy rule. Bumps the explanation from "what is
-    # this chart" to "what should I do with it".
+    # line bridge to the strategy rule. Data-grounded against
+    # regime_descriptive_stats.csv: Q1=0.36, Q2=0.80, Q3=0.77, Q4=0.40.
     REGIME_CAPTION = (
         "What this shows: XLP annualized Sharpe ratio in each of four IP "
-        "growth quartile regimes. Labels read left-to-right: Q1 (Weakest IP "
-        "growth) → Q4 (Strongest IP growth). **Takeaway:** XLP earns its "
-        "best risk-adjusted returns in the middle quartiles (Q2/Q3) and "
-        "weakest in Q4 (industrial booms — investors rotate INTO cyclicals, "
-        "OUT of defensives). The strategy below exploits this by going short "
-        "or to cash when IP acceleration enters Q4 territory."
+        "YoY-growth quartile regimes. Labels read left-to-right: Q1 (Weakest "
+        "IP growth) → Q4 (Strongest IP growth). **Takeaway:** XLP earns its "
+        "best risk-adjusted returns in the middle quartiles — Q2 (0.80) and "
+        "Q3 (0.77) — and noticeably weaker returns at both tails: Q1 "
+        "(weakest IP growth, deep contractions, often crisis years; Sharpe "
+        "0.36) and Q4 (strongest IP growth, investors rotating INTO "
+        "cyclicals OUT of defensives; Sharpe 0.40). The U-shape across "
+        "regimes is what the **acceleration** signal exploits — it captures "
+        "the inflection between regimes rather than the level."
     )
 
     NARRATIVE_SECTION_1 = """
