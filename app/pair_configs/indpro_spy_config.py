@@ -83,33 +83,34 @@ class StoryConfig:
 
     NARRATIVE_SECTION_1 = (
         "### Why Should Stock Investors Care About Factory Output?\n\n"
-        "Industrial Production measures the real output of the manufacturing, "
-        "mining, and utility sectors. It is one of the four components of the "
-        "Conference Board's Coincident Economic Index and has been tracked by "
-        "the Federal Reserve Board since 1919. The index is published monthly, "
-        "about six weeks after the reference month, seasonally adjusted, and "
-        "indexed to 100 in the base year 2017.\n\n"
-        "For stock investors, IP matters because it directly connects to "
+        "**INDPRO** (Industrial Production, the FRED-published US "
+        "manufacturing-mining-utility output index) measures the real output "
+        "of the manufacturing, mining, and utility sectors. It is one of the "
+        "four components of the Conference Board's Coincident Economic Index "
+        "and has been tracked by the Federal Reserve Board since 1919. The "
+        "index is published monthly, about six weeks after the reference "
+        "month, seasonally adjusted, and indexed to 100 in the base year 2017.\n\n"
+        "For stock investors, INDPRO matters because it directly connects to "
         "**corporate earnings**. When factories are running at full capacity, "
         "companies are selling more goods, hiring more workers, and generating "
         "higher profits. When production contracts, earnings fall — and so do "
         "stock prices, usually with a lag.\n\n"
-        "### The IP–Equity Connection\n\n"
-        "Rising IP signals expanding manufacturing activity, higher capacity "
-        "utilisation, and growing corporate earnings — bullish for stocks. "
-        "Falling IP signals contraction, lower utilisation, and earnings "
-        "pressure — bearish. The signal operates with a publication lag of "
-        "about six weeks, and markets typically need additional time to price "
-        "the information fully. This is what economists call a **pro-cyclical** "
-        "relationship: the indicator and the stock market move in the same "
-        "direction over the business cycle."
+        "### The INDPRO–Equity Connection\n\n"
+        "Rising INDPRO signals expanding manufacturing activity, higher "
+        "capacity utilisation, and growing corporate earnings — bullish for "
+        "stocks. Falling INDPRO signals contraction, lower utilisation, and "
+        "earnings pressure — bearish. The signal operates with a publication "
+        "lag of about six weeks, and markets typically need additional time "
+        "to price the information fully. This is what economists call a "
+        "**pro-cyclical** relationship: the indicator and the stock market "
+        "move in the same direction over the business cycle."
     )
 
     NARRATIVE_SECTION_2 = (
         "### The Surprise: A Peak-Cycle Warning\n\n"
-        "While the overall relationship is pro-cyclical, the IP **z-score** "
-        "(how far IP is from its long-term trend) shows a *negative* "
-        "relationship with 12-month forward returns. When IP is well above "
+        "While the overall relationship is pro-cyclical, the INDPRO **z-score** "
+        "(how far INDPRO is from its long-term trend) shows a *negative* "
+        "relationship with 12-month forward returns. When INDPRO is well above "
         "its 5-year trend, future returns tend to be *lower*.\n\n"
         "**Interpretation.** This is a **peak-cycle effect**. At cycle highs "
         "growth is unsustainable and mean-reverts; investors who buy at the "
@@ -177,44 +178,62 @@ CORRELATION_BLOCK = dict(
     method_name="Correlation Analysis",
     method_theory=(
         "Pearson correlations measure the linear co-movement between eight "
-        "INDPRO signal variants (level, YoY, MoM, z-score, 3M/6M momentum, "
-        "acceleration, contraction dummy) and SPY forward returns at 1M, 3M, "
-        "6M and 12M horizons. Spearman rank correlations are run as a "
-        "robustness check."
+        "INDPRO signal variants (YoY, MoM, deviation from trend, z-score (60M), "
+        "3M momentum, 6M momentum, acceleration, contraction dummy) and SPY "
+        "forward returns at 1M, 3M, 6M and 12M horizons. Spearman rank "
+        "correlations are run as a robustness check."
     ),
     question=(
         "Which INDPRO transforms correlate most strongly with forward SPY "
         "returns, and at which horizon?"
     ),
     how_to_read=(
-        "Rows are IP signal variants; columns are forward SPY return horizons. "
-        "Warm colours = positive (pro-cyclical); cool colours = negative. "
-        "Stars mark conventional significance levels."
+        "Rows are INDPRO signal variants; columns are forward SPY return "
+        "horizons (1M, 3M, 6M, 12M). Warm colours = positive (pro-cyclical); "
+        "cool colours = negative. Stars mark conventional significance "
+        "levels (* p<0.05, ** p<0.01)."
     ),
     chart_name="indpro_spy_correlations",
     chart_caption=(
-        "Pearson correlations between 8 IP signal variants and 4 forward "
-        "return horizons. Warm colours = positive (pro-cyclical), cool colours "
-        "= negative. Note the z-score's negative correlation at 12M — the "
-        "peak-cycle effect."
+        "Pearson correlations between INDPRO signal variants and 4 forward "
+        "SPY return horizons. Warm colours = positive (pro-cyclical), cool "
+        "colours = negative. The strongest single Pearson correlation is the "
+        "**z-score's −0.144 at the 12M horizon (p = 0.005)** — the "
+        "peak-cycle effect highlighted in the Story page."
     ),
+    # fix260526 W2 #65: previous observation claimed momentum transforms
+    # showed "strongest positive correlations at 3-6 month forward horizons"
+    # — Pearson data DOES NOT show this. Most Pearson r are tiny (|r|<0.1)
+    # and not significant. Only the z-score shows clear, significant
+    # negative Pearson correlations at 6M (-0.108, p=0.04) and 12M (-0.144,
+    # p=0.005). Rewriting observation to match what the table actually shows.
     observation=(
-        "Momentum transforms (3M, 6M, MoM) show the strongest positive "
-        "correlations at 3-6 month forward horizons. The z-score flips sign "
-        "at the 12-month horizon — the peak-cycle effect surfaced in the "
-        "Story page. Raw levels correlate weakly because INDPRO is "
-        "non-stationary."
+        "Most Pearson correlations on this table are small in absolute "
+        "magnitude (|r| < 0.1) and not statistically significant at p < 0.05 "
+        "— a reminder that INDPRO's link to forward equity returns is not a "
+        "naive linear signal. The clear exception is the **60-month z-score**, "
+        "which is significantly NEGATIVELY correlated with SPY's 6M forward "
+        "return (r = −0.108, p = 0.04) and especially its 12M forward return "
+        "(r = −0.144, p = 0.005). The Spearman variant of the 3M and 6M "
+        "momentum transforms also reaches p < 0.05 at 3M / 6M horizons "
+        "(r ≈ +0.10–0.13), indicating the momentum signal is real but "
+        "nonlinear/rank-based rather than linear."
     ),
     interpretation=(
-        "The dominant signal is **direction of change**, not level. The "
-        "z-score's 12-month sign flip is a warning that stationary-looking "
-        "transforms can still carry counter-intuitive information at longer "
-        "horizons — a reminder that blind automation of 'higher is better' "
-        "heuristics can destroy alpha."
+        "Two readings emerge. First, **linear correlation is the wrong lens "
+        "for INDPRO momentum** — the tournament winner uses a threshold rule, "
+        "not a linear scaling. Second, the **z-score's NEGATIVE long-horizon "
+        "correlation** is the peak-cycle effect: when INDPRO is far above its "
+        "trend, future returns lean lower, consistent with mean-reversion at "
+        "cycle peaks. The trading rule below avoids the trap of 'higher is "
+        "always better' by triggering on momentum rather than level."
     ),
     key_message=(
-        "Momentum is the winning transform; levels and z-scores can mislead "
-        "at longer horizons. The tournament will formalise this."
+        "Pearson correlations are mostly small and insignificant — except the "
+        "INDPRO 60M z-score, which is significantly NEGATIVE at the 6M "
+        "(r = −0.108) and 12M (r = −0.144) horizons. The momentum signal "
+        "the tournament selects is nonlinear (Spearman-significant only); "
+        "the tournament threshold rule exploits this."
     ),
 )
 
@@ -224,40 +243,55 @@ CCF_BLOCK = dict(
     method_name="Cross-Correlation Function (CCF)",
     method_theory=(
         "The cross-correlation function measures the correlation between "
-        "INDPRO YoY and SPY monthly returns at lags -12 to +12 months. "
-        "Negative lags correspond to IP leading SPY; positive lags to SPY "
-        "leading IP. Significance bands are ±1.96/√N."
+        "INDPRO YoY and SPY monthly returns at lags −12 to +12 months. "
+        "Negative lags correspond to INDPRO leading SPY (today's INDPRO "
+        "correlated with SPY's return |lag| months ago); positive lags "
+        "correspond to SPY leading INDPRO. Significance bands are ±1.96/√N."
     ),
     question=(
-        "Does IP lead SPY, or does SPY lead IP? Is there a sharp peak "
-        "predictive lag, or is the relationship diffuse?"
+        "Does INDPRO lead SPY, or does SPY lead INDPRO? Is there a sharp "
+        "peak predictive lag, or is the relationship diffuse?"
     ),
     how_to_read=(
-        "X-axis: lag in months (negative = IP leads). Y-axis: correlation. "
-        "Bars crossing the dashed confidence band are statistically significant."
+        "X-axis: lag in months (negative = INDPRO leads SPY). Y-axis: "
+        "correlation. Bars crossing the dashed ±1.96/√N confidence bands "
+        "are statistically significant at the 5% level."
     ),
     chart_name="indpro_spy_ccf",
     chart_caption=(
-        "CCF at lags -12 to +12 months. Red bars are statistically "
-        "significant. Negative lags indicate IP leading SPY."
+        "CCF at lags −12 to +12 months. Bars crossing the ±1.96/√N "
+        "confidence band are statistically significant at 5%. **11 of 25 "
+        "lags are significant in this pair, all at NEGATIVE lags** — "
+        "INDPRO leads SPY."
     ),
+    # fix260526 W2 #67: previous observation claimed the significant
+    # correlations are at "small POSITIVE lags (SPY leading IP)". The
+    # CCF data shows the OPPOSITE: 11 significant lags, all NEGATIVE
+    # (INDPRO leads SPY). Max correlation is at lag −12 (r=0.234) and the
+    # significance pattern persists out to lag −2. Text now matches data.
     observation=(
-        "The CCF shows modest but statistically significant correlations at "
-        "small positive lags (SPY leading IP by 1-3 months), reflecting IP's "
-        "status as a coincident/slightly-lagging indicator once publication "
-        "delay is accounted for. Correlations at negative lags (IP leading "
-        "SPY) are smaller."
+        "The CCF shows a clear lead-lag pattern: **11 of 25 lags are "
+        "significant at p < 0.05, and ALL 11 are at negative lags** "
+        "(INDPRO leading SPY). The correlation peaks around lag −9 to "
+        "−12 (r ≈ 0.20–0.23), indicating INDPRO YoY values from "
+        "roughly a year prior correlate with today's SPY monthly return. "
+        "At positive lags (SPY leading INDPRO) no correlations cross the "
+        "significance band — the direction of information flow is "
+        "asymmetric: INDPRO → SPY, not the other way around."
     ),
     interpretation=(
-        "IP is more coincident than leading once you strip away the "
-        "publication lag. The tradable edge comes from the publication lag "
-        "(six weeks) plus the persistence of IP momentum, not from IP truly "
-        "leading the market."
+        "INDPRO is a **leading indicator** for SPY at the multi-month "
+        "horizon, not a coincident one. This is consistent with the "
+        "tournament winner using a 6-month lead — the producer's lead "
+        "parameter captures the centre of the significant-lag cluster. "
+        "Combined with INDPRO's ~6-week publication lag, the effective "
+        "tradable horizon is several months."
     ),
     key_message=(
-        "IP is a near-coincident indicator; the 6-month lead in the trading "
-        "rule exploits publication delay and momentum persistence rather "
-        "than genuine forecasting power."
+        "INDPRO leads SPY at multi-month horizons; 11 of 25 CCF lags are "
+        "significant and ALL are at negative lags. The 6-month lead "
+        "parameter in the trading rule sits in the heart of the "
+        "significant-lag cluster."
     ),
 )
 

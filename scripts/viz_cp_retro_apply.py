@@ -100,28 +100,67 @@ def save_chart(fig, out_dir: Path, chart_name: str, pair_id: str, chart_type: st
 # ── Chart builders ─────────────────────────────────────────────────────────────
 
 def build_subperiod_sharpe(df: pd.DataFrame, pair_id: str) -> go.Figure:
-    """Horizontal bar chart of Sharpe by market episode."""
-    # Build display labels: append (IS) for in-sample periods
-    labels = []
-    for _, row in df.iterrows():
-        label = row["period_name"]
-        if not row["is_oos"]:
-            label += " (IS)"
-        labels.append(label)
+    """Horizontal bar chart of Sharpe by market episode.
 
-    sharpes = df["sharpe"].tolist()
-    colors = ["rgba(0,158,115,0.85)" if s > 0 else "rgba(213,94,0,0.85)" for s in sharpes]
+    fix260526 W0.5 #N7 + W2: previous renderer drew zero-sharpe bars
+    identically to real bars, hiding two distinct states:
+      - 'in cash'  (n_obs >= 3 AND ann_return==0 AND ann_vol==0 → the
+                    strategy was 100% cash for the entire window —
+                    common for P1_long_cash pairs through GFC etc.)
+      - 'no data'  (n_obs < 3 OR sharpe is NaN → episode is outside
+                    the pair's data coverage)
+    Both render as zero-height grey bars with explicit labels so the
+    reader can tell which state each represents.
+    """
+    import numpy as np
+    # Build display labels + 3-state colour/text classification
+    labels: list[str] = []
+    values: list[float] = []
+    colors: list[str] = []
+    texts: list[str] = []
+    for _, row in df.iterrows():
+        base = row["period_name"]
+        if not row["is_oos"]:
+            base += " (IS)"
+        else:
+            base += " (OOS)"
+        sharpe = row.get("sharpe")
+        n_obs = row.get("n_obs", 0)
+        ann_ret = row.get("ann_return", 0)
+        ann_vol = row.get("ann_vol", 0)
+        is_nan = isinstance(sharpe, float) and np.isnan(sharpe)
+        if is_nan or n_obs is None or n_obs < 3:
+            labels.append(f"{base} — no data")
+            values.append(0.0)
+            colors.append("rgba(200,200,200,0.55)")
+            texts.append("no data")
+        elif (
+            abs(float(sharpe)) < 1e-9
+            and abs(float(ann_ret or 0)) < 1e-9
+            and abs(float(ann_vol or 0)) < 1e-9
+        ):
+            labels.append(f"{base} — in cash")
+            values.append(0.0)
+            colors.append("rgba(180,180,180,0.55)")
+            texts.append("in cash")
+        else:
+            labels.append(base)
+            values.append(float(sharpe))
+            colors.append(
+                "rgba(0,158,115,0.85)" if float(sharpe) >= 0
+                else "rgba(213,94,0,0.85)"
+            )
+            texts.append(f"{float(sharpe):.2f}")
 
     fig = go.Figure()
-
     fig.add_trace(
         go.Bar(
-            x=sharpes,
+            x=values,
             y=labels,
             orientation="h",
             marker_color=colors,
             name="Sharpe Ratio",
-            text=[f"{s:.2f}" for s in sharpes],
+            text=texts,
             textposition="outside",
         )
     )
@@ -134,13 +173,16 @@ def build_subperiod_sharpe(df: pd.DataFrame, pair_id: str) -> go.Figure:
         xaxis_title="Sharpe Ratio",
         yaxis_title="",
         width=700,
-        height=450,
-        margin=dict(l=160, r=80, t=60, b=80),
+        height=470,
+        margin=dict(l=200, r=80, t=60, b=80),
         annotations=[
             dict(
                 text=(
-                    "Sharpe ratios computed using simplified sign(signal)×return strategy. "
-                    "IS = In-Sample period."
+                    "Sharpe ratios computed from the winner strategy's actual return series. "
+                    "<b>'no data'</b> = episode outside the pair's data coverage. "
+                    "<b>'in cash'</b> = strategy was 100% cash through the episode "
+                    "(common for long-cash strategies through deep contractions). "
+                    "IS = In-Sample period; OOS = Out-of-Sample."
                 ),
                 xref="paper",
                 yref="paper",
@@ -388,37 +430,89 @@ def build_rolling_sharpe_cp(df: pd.DataFrame, pair_id: str) -> go.Figure:
     return fig
 
 
+def _signal_target_labels(pair_id: str) -> tuple[str, str]:
+    """Resolve human-readable (signal_short, target_short) labels for the
+    Granger direction caption (fix260526 W2 #68 — reviewer asked "which
+    line/index is leading"). Defaults that work across pairs:
+       indpro_* -> "INDPRO"
+       hy_ig_*  -> "HY-IG"
+       sofr_*   -> "SOFR-TED"  / etc.
+    Target inferred from pair_id suffix.
+    """
+    p = pair_id.lower()
+    if p.startswith("indpro_"):
+        sig = "INDPRO"
+    elif p.startswith("hy_ig_"):
+        sig = "HY-IG spread"
+    elif p.startswith("sofr_"):
+        sig = "SOFR-TED"
+    elif p.startswith("dff_"):
+        sig = "DFF-TED"
+    elif p.startswith("ted_"):
+        sig = "TED"
+    elif p.startswith("vix_"):
+        sig = "VIX/VIX3M"
+    elif p.startswith("permit_"):
+        sig = "Permits"
+    elif p.startswith("umcsent_"):
+        sig = "UMCSENT"
+    elif p.startswith("gold_copper_"):
+        sig = "G/C ratio"
+    else:
+        sig = pair_id.split("_")[0].upper()
+    target = p.rsplit("_", 1)[-1].upper()
+    return sig, target
+
+
 def build_rolling_granger(df: pd.DataFrame, pair_id: str) -> go.Figure:
-    """Rolling 24M Granger F-stat with significance threshold and p-value on right axis."""
+    """Rolling 24M Granger F-stat with significance threshold and p-value on right axis.
+
+    fix260526 W2 #66 + #68:
+      - #66: previous chart had the F=3.84 critical line via add_hline()
+        with annotation_text=..., but the annotation often did NOT render
+        in saved JSON (Plotly behaviour quirk on secondary_y subplot). Add
+        the critical line as an explicit Scatter trace so it appears in
+        the LEGEND (legend = canonical reader-facing description).
+      - #68: trace name was "Granger F-stat (24M)" — ambiguous about
+        direction. Now spells out "F ({signal}→{target}, 24M)" so the
+        reader can tell which series is leading. Also tightens colour:
+        crisper blue for the F-stat (primary trace) instead of muddy
+        orange; grey kept for p-value (clearly secondary).
+    """
     df["date"] = pd.to_datetime(df["date"])
     df = df.sort_values("date").dropna(subset=["granger_f_24m"])
     x_min, x_max = df["date"].min(), df["date"].max()
+
+    sig_name, target_name = _signal_target_labels(pair_id)
 
     has_pval = "p_value_24m" in df.columns
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
-    # Main F-stat trace
+    # Main F-stat trace (#68: direction now explicit in legend)
     fig.add_trace(
         go.Scatter(
             x=df["date"],
             y=df["granger_f_24m"],
             mode="lines",
-            line=dict(color="rgba(230,159,0,0.85)", width=2),
-            name="Granger F-stat (24M)",
+            line=dict(color="rgba(31,119,180,0.95)", width=2),
+            name=f"Granger F ({sig_name}→{target_name}, 24M)",
         ),
         secondary_y=False,
     )
 
-    # Significance threshold line at F=3.84
-    fig.add_hline(
-        y=3.84,
-        line_dash="dash",
-        line_color="rgba(204,0,0,0.75)",
-        line_width=1.5,
-        annotation_text="5% significance (F=3.84)",
-        annotation_position="top left",
-        annotation_font=dict(size=10, color="rgba(204,0,0,0.9)"),
+    # #66: F-critical reference line — render as a 2-point dashed trace
+    # so it shows in the legend with a clear label (not just a bare hline
+    # that may or may not carry a visible annotation).
+    fig.add_trace(
+        go.Scatter(
+            x=[x_min, x_max],
+            y=[3.84, 3.84],
+            mode="lines",
+            line=dict(color="rgba(204,0,0,0.85)", width=1.5, dash="dash"),
+            name="F = 3.84 (5% significance)",
+            hoverinfo="skip",
+        ),
         secondary_y=False,
     )
 
@@ -439,7 +533,7 @@ def build_rolling_granger(df: pd.DataFrame, pair_id: str) -> go.Figure:
 
     fig.update_layout(
         title=dict(
-            text="Rolling Granger Causality: Signal → Forward Return",
+            text=f"Rolling Granger Causality: {sig_name} → {target_name} (24M window)",
             font=dict(size=15),
         ),
         width=900,
@@ -448,8 +542,9 @@ def build_rolling_granger(df: pd.DataFrame, pair_id: str) -> go.Figure:
         annotations=[
             dict(
                 text=(
-                    "Rolling 24-month Granger F-statistic. "
-                    "Dashed line = 5% significance threshold."
+                    f"Rolling 24-month Granger F-statistic of {sig_name} → {target_name}. "
+                    "F > 3.84 = signal Granger-causes target at 5% level. "
+                    "NBER recessions shaded."
                 ),
                 xref="paper",
                 yref="paper",

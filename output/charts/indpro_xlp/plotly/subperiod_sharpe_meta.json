@@ -1,12 +1,8 @@
 {
-  "chart_name": "subperiod_sharpe",
   "pair_id": "indpro_xlp",
-  "palette_id": "v1",
+  "chart_type": "horizontal_bar",
   "rules_applied": [
-    "VIZ-CP1.1",
-    "VIZ-IC1"
+    "VIZ-CP1"
   ],
-  "narrative_alignment_note": "Sub-period Sharpe with explicit 'no data' (no coverage) vs 'cash' (long-cash strategy was in cash through the episode) labels \u2014 distinguishes the two zero-bar cases the reviewer flagged as ambiguous.",
-  "generated_at": "2026-05-26T23:56:46.282265+00:00",
-  "generated_by": "fix260526 W0.5 (Lead-as-Vera)"
+  "generated_at": "2026-04-24"
 }
