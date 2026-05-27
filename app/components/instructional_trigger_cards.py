@@ -380,7 +380,23 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     with open(winner_path) as fh:
         winner = json.load(fh)
 
-    strategy = winner.get("strategy_code", "P2")
+    # fix260526 W1 #35: legacy winner_summary files (e.g. indpro_xlp) have
+    # strategy_code=None — the previous default "P2" produced P2-style
+    # "scale exposure proportionally" cards for what is actually a binary
+    # P3_long_short strategy. Now derive from strategy_family when
+    # strategy_code is missing.
+    strategy_raw = winner.get("strategy_code")
+    if not strategy_raw:
+        fam = (winner.get("strategy_family") or "").upper()
+        if fam.startswith("P1") or "LONG_CASH" in fam:
+            strategy_raw = "P1"
+        elif fam.startswith("P3") or "LONG_SHORT" in fam:
+            strategy_raw = "P3"
+        elif fam.startswith("P2") or "SIGNAL_STRENGTH" in fam:
+            strategy_raw = "P2"
+        else:
+            strategy_raw = "P2"  # last-resort default preserved
+    strategy = strategy_raw
     direction = winner.get("direction", "countercyclical")
     # Wave 10I.A defensive coerce: legacy pairs may carry `threshold_value` as a
     # non-numeric string (e.g. an expression like "hmm_prob > 0.5"). The `.get`

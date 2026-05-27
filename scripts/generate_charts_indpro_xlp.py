@@ -49,9 +49,19 @@ C_EXPANSION = "rgba(44, 160, 44, 0.08)"
 
 
 def save_chart(fig, name):
-    path = os.path.join(CHART_DIR, f"{name}.json")
+    # fix260526 W1: Save under BARE name (no `indpro_xlp_` prefix), matching
+    # the canonical VIZ-NM1 / VIZ-A3 convention used by newer pairs. The
+    # cloud renders e.g. `drawdown.json`, not `indpro_xlp_drawdown.json`;
+    # the previous behaviour of writing prefixed filenames caused the
+    # cloud-served charts (bare-name) and the producer's output (prefixed)
+    # to drift apart. Strip the leading `{pair}_` prefix when present.
+    bare = name
+    prefix = "indpro_xlp_"
+    if bare.startswith(prefix):
+        bare = bare[len(prefix):]
+    path = os.path.join(CHART_DIR, f"{bare}.json")
     fig.write_json(path)
-    print(f"  Saved: {name}.json")
+    print(f"  Saved: {bare}.json  (call name={name!r})")
 
 
 def load_monthly():
@@ -71,6 +81,17 @@ def load_winner():
 # Chart 1: Hero — INDPRO YoY vs XLP price (dual-axis)
 # =============================================================================
 def chart_hero():
+    """fix260526 W1 (#24, #25-1):
+    - #24: x-axis was showing duplicate '2000' / '2010' ticks from default
+           auto-ticking; force monthly-multiple `dtick` so ticks are spaced
+           every 36 months (3 years) — clean year labels, no duplicates.
+    - #25-1: IP YoY (red) line was reported as invisible. Confirmed
+            both traces are present with valid y-data on disk, but the
+            autoscale gives IP YoY (range ~-15..+15) a near-flat
+            footprint relative to XLP price ($25..$80). Set explicit
+            y-axis ranges on BOTH axes so the IP line has its own
+            visual envelope.
+    """
     df = load_monthly()
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -97,15 +118,35 @@ def chart_hero():
 
     fig.add_hline(y=0, line_dash="dash", line_color="gray", line_width=0.5, secondary_y=False)
 
+    # #25-1: explicit y-ranges so IP YoY isn't squashed by XLP scale
+    ip_vals = df["indpro_yoy"].dropna()
+    if len(ip_vals):
+        ip_min, ip_max = float(ip_vals.min()), float(ip_vals.max())
+        pad = max(abs(ip_min), abs(ip_max)) * 0.15
+        ip_range = [ip_min - pad, ip_max + pad]
+    else:
+        ip_range = [-20, 20]
+    xlp_vals = df["xlp"].dropna()
+    if len(xlp_vals):
+        xlp_range = [float(xlp_vals.min()) * 0.95, float(xlp_vals.max()) * 1.05]
+    else:
+        xlp_range = None
+
     fig.update_layout(
         title="Industrial Production Growth vs Consumer Staples ETF (XLP, 1998-2025)",
         template="plotly_white",
         hovermode="x unified",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         height=500,
+        xaxis=dict(
+            tickmode="linear",
+            dtick="M36",          # #24: explicit 3-year ticks; eliminates dup
+            tickformat="%Y",
+            ticks="outside",
+        ),
     )
-    fig.update_yaxes(title_text="IP YoY Growth (%)", secondary_y=False)
-    fig.update_yaxes(title_text="XLP Price ($)", secondary_y=True)
+    fig.update_yaxes(title_text="IP YoY Growth (%)", secondary_y=False, range=ip_range)
+    fig.update_yaxes(title_text="XLP Price ($)", secondary_y=True, range=xlp_range)
 
     save_chart(fig, "indpro_xlp_hero")
 
@@ -162,12 +203,34 @@ def chart_regime_stats():
         print("  Skipping regime chart — file not found")
         return
 
+    """fix260526 W1 #27: quartile labels Q1-Q4 were not intuitive for
+    non-technical readers. Now explicit "Q1 (Weak Growth)" etc., plus
+    a takeaway annotation above the chart."""
     regime_df = pd.read_csv(regime_path)
     colors = [C_INDICATOR, C_BENCHMARK, C_EQUITY, C_STRATEGY]
 
+    # #27: descriptive x-axis labels mapped from machine codes
+    label_map = {
+        "Q1_low":   "Q1\n(Weakest IP growth)",
+        "Q2":       "Q2\n(Below-median growth)",
+        "Q3":       "Q3\n(Above-median growth)",
+        "Q4_high":  "Q4\n(Strongest IP growth)",
+    }
+    x_labels = [label_map.get(r, r) for r in regime_df["regime"]]
+
+    # #27: determine takeaway: best vs worst by Sharpe
+    best_idx = regime_df["sharpe"].idxmax()
+    worst_idx = regime_df["sharpe"].idxmin()
+    takeaway = (
+        f"XLP performs best in {label_map.get(regime_df.loc[best_idx, 'regime'], '?')} "
+        f"(Sharpe {regime_df.loc[best_idx, 'sharpe']:.2f}) and worst in "
+        f"{label_map.get(regime_df.loc[worst_idx, 'regime'], '?')} "
+        f"(Sharpe {regime_df.loc[worst_idx, 'sharpe']:.2f})."
+    ).replace("\n", " ")
+
     fig = go.Figure()
     fig.add_trace(go.Bar(
-        x=regime_df["regime"],
+        x=x_labels,
         y=regime_df["sharpe"],
         name="Annualized Sharpe",
         marker_color=colors[:len(regime_df)],
@@ -177,11 +240,17 @@ def chart_regime_stats():
 
     fig.update_layout(
         title="XLP Sharpe Ratio by INDPRO YoY Growth Quartile",
-        xaxis_title="IP Growth Quartile (Q1=Lowest, Q4=Highest)",
+        xaxis_title="IP Growth Regime",
         yaxis_title="Annualized Sharpe Ratio",
         template="plotly_white",
-        height=400,
+        height=420,
         showlegend=False,
+        annotations=[dict(
+            text=f"<b>Key:</b> {takeaway}",
+            xref="paper", yref="paper", x=0, y=1.10, showarrow=False,
+            xanchor="left", yanchor="bottom", font=dict(size=11),
+        )],
+        margin=dict(t=90),
     )
 
     save_chart(fig, "indpro_xlp_regime_stats")
@@ -196,27 +265,55 @@ def chart_ccf():
         print("  Skipping CCF chart — file not found")
         return
 
+    """fix260526 W1 #26: explanation said 'red bars at significance + 95% CI
+    bands' but reader saw no red bars (and missed that none are significant)
+    + the CI lines were grey and easily missed. Make the CI band visually
+    prominent (red dashed labelled "95% CI") and add an explicit annotation
+    when zero lags exceed the CI."""
     ccf_df = pd.read_csv(ccf_path)
-    colors = [C_INDICATOR if sig else C_EQUITY for sig in ccf_df["significant"]]
+    # #26: red bars where significant, mid-grey where not
+    colors = [C_INDICATOR if sig else "#7f7f7f" for sig in ccf_df["significant"]]
 
     fig = go.Figure()
     fig.add_trace(go.Bar(
         x=ccf_df["lag"], y=ccf_df["ccf"],
         marker_color=colors,
-        name="CCF",
+        name="CCF (red = significant)",
     ))
+
+    n_sig = int(ccf_df["significant"].sum())
 
     if len(ccf_df) > 0:
         se = ccf_df["se"].iloc[0]
-        fig.add_hline(y=1.96 * se, line_dash="dash", line_color="gray", line_width=0.5)
-        fig.add_hline(y=-1.96 * se, line_dash="dash", line_color="gray", line_width=0.5)
+        ci = 1.96 * se
+        fig.add_hline(y=ci, line_dash="dash", line_color=C_INDICATOR, line_width=1.2,
+                       annotation_text=f"+95% CI ≈ +{ci:.3f}",
+                       annotation_position="top right")
+        fig.add_hline(y=-ci, line_dash="dash", line_color=C_INDICATOR, line_width=1.2,
+                       annotation_text=f"−95% CI ≈ −{ci:.3f}",
+                       annotation_position="bottom right")
+
+    # Explicit annotation if no lags are significant
+    annotations = []
+    if n_sig == 0:
+        annotations.append(dict(
+            text=("<b>0 of {n} lags exceed the 95% CI.</b> No lead-lag "
+                   "structure is statistically distinguishable at this "
+                   "horizon — the deeper Granger and local-projections "
+                   "results remain the primary evidence pillars.").format(n=len(ccf_df)),
+            xref="paper", yref="paper", x=0.5, y=1.10, showarrow=False,
+            xanchor="center", yanchor="bottom",
+            font=dict(size=11, color="#666"),
+        ))
 
     fig.update_layout(
         title="Cross-Correlation: INDPRO YoY Growth vs XLP Monthly Return",
         xaxis_title="Lag (months, negative = IP leads XLP)",
         yaxis_title="Cross-Correlation",
         template="plotly_white",
-        height=400,
+        height=420,
+        annotations=annotations,
+        margin=dict(t=90 if annotations else 60),
     )
 
     save_chart(fig, "indpro_xlp_ccf")
@@ -365,6 +462,11 @@ def chart_drawdown():
     ))
 
     # Winner strategy drawdown
+    # fix260526 W1 #36: previous code took `valid_strats.iloc[0]` (first row
+    # by CSV file order) which was 'S1_level/T1_fixed_p25' — NOT the
+    # tournament winner. Read the canonical winner from winner_summary.json
+    # (APP-WS1 single-source-of-truth), and use a STANDARDISED winner-label
+    # format: {signal_code}/{threshold_code}/{strategy_code}/L{lead}.
     valid_strats = tourn_df[(tourn_df["valid"]) & (tourn_df["signal"] != "BENCHMARK")]
     if len(valid_strats) > 0:
         sig_col_map = {
@@ -378,12 +480,34 @@ def chart_drawdown():
             "S8_accel": "indpro_accel",
             "S9_contraction": "indpro_contraction",
         }
-        best = valid_strats.iloc[0]
-        sig_col = sig_col_map.get(str(best["signal"]))
+        ws = load_winner()
+        winner_sig = ws.get("signal_code")
+        winner_thr = ws.get("threshold_code")
+        winner_strat = ws.get("strategy_code") or ws.get("strategy_family", "")
+        winner_lead = int(ws.get("lead_value", 0) or 0)
+        # Try to find that exact row in tournament_results; fall back to
+        # nlargest oos_sharpe if the named winner can't be matched.
+        match = valid_strats[(valid_strats["signal"] == winner_sig)
+                              & (valid_strats["threshold"] == winner_thr)
+                              & (valid_strats["strategy"] == winner_strat)]
+        if len(match) == 0:
+            print(f"  [chart_drawdown] winner row not found in tournament_results; "
+                  f"falling back to nlargest oos_sharpe")
+            best = valid_strats.nlargest(1, "oos_sharpe").iloc[0]
+            winner_sig = best["signal"]
+            winner_thr = best["threshold"]
+            winner_strat = best["strategy"]
+            winner_lead = int(best["lead_months"])
+        else:
+            best = match.iloc[0]
+        sig_col = (ws.get("signal_column")
+                    or sig_col_map.get(str(winner_sig)))
 
         if sig_col and sig_col in df.columns:
-            signal = df[sig_col].shift(int(best["lead_months"]))
-            thresh_name = str(best["threshold"])
+            # Use the canonical winner spec resolved above (winner_sig /
+            # winner_thr / winner_strat / winner_lead) — NOT best['...'].
+            signal = df[sig_col].shift(int(winner_lead))
+            thresh_name = str(winner_thr)
             is_data = df[df.index < OOS_START]
 
             try:
@@ -401,7 +525,7 @@ def chart_drawdown():
                 else:
                     above = signal > thresh
 
-                orientation = "counter" if "_counter" in str(best["strategy"]) else "pro"
+                orientation = "counter" if "_counter" in str(winner_strat) else "pro"
                 position = (~above).astype(float) if orientation == "counter" else above.astype(float)
 
                 strat_ret = position.shift(1) * df["xlp_ret"]
@@ -409,9 +533,13 @@ def chart_drawdown():
                 strat_cum = (1 + oos_strat.fillna(0)).cumprod()
                 strat_dd = (strat_cum - strat_cum.cummax()) / strat_cum.cummax()
 
+                # fix260526 W1 #36: standardised winner label format
+                winner_label = (
+                    f"Winner: {winner_sig}/{winner_thr}/{winner_strat}/L{winner_lead}"
+                )
                 fig.add_trace(go.Scatter(
                     x=strat_dd.index, y=strat_dd.values * 100,
-                    name=f"Winner: {best['signal']}/{best['threshold']}",
+                    name=winner_label,
                     line=dict(color=C_STRATEGY, width=2),
                     fill="tozeroy",
                     fillcolor="rgba(44,160,44,0.15)",
@@ -497,7 +625,15 @@ def chart_tournament_scatter():
                 size=6,
                 color=valid["max_drawdown"],
                 colorscale="RdYlGn",
-                colorbar=dict(title="Max DD (%)"),
+                # fix260526 W1 #37: colorbar labels were overlapping the
+                # plot area. Constrain length + add padding + smaller tick
+                # font so labels sit cleanly in their own space.
+                colorbar=dict(
+                    title=dict(text="Max DD (%)", font=dict(size=11)),
+                    len=0.6,
+                    xpad=30,
+                    tickfont=dict(size=9),
+                ),
                 opacity=0.7,
             ),
             text=[f"{r['signal']}/{r['threshold']}/{r['strategy']}" for _, r in valid.iterrows()],
@@ -595,8 +731,8 @@ def chart_walk_forward():
         print("  Skipping walk-forward — no valid strategies")
         return
 
-    best = valid_strats.iloc[0]
-
+    # fix260526 W1 #36: read canonical winner from winner_summary.json
+    # (was using valid_strats.iloc[0] which picks first row by file order)
     sig_col_map = {
         "S1_level": "indpro",
         "S2_yoy": "indpro_yoy",
@@ -608,19 +744,36 @@ def chart_walk_forward():
         "S8_accel": "indpro_accel",
         "S9_contraction": "indpro_contraction",
     }
-    sig_col = sig_col_map.get(str(best["signal"]))
+    ws = load_winner()
+    winner_sig = ws.get("signal_code")
+    winner_thr = ws.get("threshold_code")
+    winner_strat = ws.get("strategy_code") or ws.get("strategy_family", "")
+    winner_lead = int(ws.get("lead_value", 0) or 0)
+    match = valid_strats[(valid_strats["signal"] == winner_sig)
+                          & (valid_strats["threshold"] == winner_thr)
+                          & (valid_strats["strategy"] == winner_strat)]
+    if len(match) == 0:
+        print(f"  [chart_walk_forward] winner row not found; nlargest fallback")
+        best = valid_strats.nlargest(1, "oos_sharpe").iloc[0]
+        winner_sig = best["signal"]
+        winner_thr = best["threshold"]
+        winner_strat = best["strategy"]
+        winner_lead = int(best["lead_months"])
+    else:
+        best = match.iloc[0]
+    sig_col = ws.get("signal_column") or sig_col_map.get(str(winner_sig))
     if sig_col is None or sig_col not in df.columns:
-        print(f"  Skipping walk-forward — signal column '{sig_col}' not found (winner: {best['signal']})")
-        # Fall back to indpro_mom
-        sig_col = "indpro_mom"
-        if sig_col not in df.columns:
-            return
+        print(f"  Skipping walk-forward — signal column '{sig_col}' not found (winner: {winner_sig})")
+        return
 
     if "xlp_ret" not in df.columns and "xlp" in df.columns:
         df["xlp_ret"] = df["xlp"].pct_change()
 
-    signal = df[sig_col].shift(int(best["lead_months"]))
-    thresh_name = str(best["threshold"])
+    # fix260526 W1 #36: use the canonical winner_* values resolved above
+    # (NOT best['...'] — best was a tournament_results row that may not
+    # match winner_summary in the legacy producer's iloc[0] behaviour).
+    signal = df[sig_col].shift(int(winner_lead))
+    thresh_name = str(winner_thr)
 
     sharpe_series = {}
 
@@ -646,7 +799,7 @@ def chart_walk_forward():
         else:
             above = signal > thresh
 
-        orientation = "counter" if "_counter" in str(best["strategy"]) else "pro"
+        orientation = "counter" if "_counter" in str(winner_strat) else "pro"
         position = (~above).astype(float) if orientation == "counter" else above.astype(float)
 
         strat_ret = position.shift(1) * df["xlp_ret"]
@@ -663,7 +816,9 @@ def chart_walk_forward():
         fig = go.Figure()
         fig.add_trace(go.Scatter(
             x=roll_sharpe.index, y=roll_sharpe.values,
-            name=f"Winner Strategy (24M Rolling Sharpe)",
+            # fix260526 W1 #36: include the winner spec in the legend so
+            # the reader can cross-check against the Tournament Winner table.
+            name=f"Winner {winner_sig}/{winner_thr}/{winner_strat}/L{winner_lead} (24M Rolling Sharpe)",
             line=dict(color=C_STRATEGY, width=2),
         ))
         fig.add_trace(go.Scatter(
@@ -704,18 +859,12 @@ if __name__ == "__main__":
     chart_signal_dist()
     chart_walk_forward()
     print(f"\nDone. 10 charts saved to {CHART_DIR}")
-    # Verify all 10 exist
+    # fix260526 W1: expected names are BARE (no `indpro_xlp_` prefix)
+    # — matches save_chart() and the canonical VIZ-NM1 convention.
     expected = [
-        "indpro_xlp_hero",
-        "indpro_xlp_correlations",
-        "indpro_xlp_regime_stats",
-        "indpro_xlp_ccf",
-        "indpro_xlp_equity_curves",
-        "indpro_xlp_drawdown",
-        "indpro_xlp_rolling_sharpe",
-        "indpro_xlp_tournament_scatter",
-        "indpro_xlp_signal_dist",
-        "indpro_xlp_walk_forward",
+        "hero", "correlations", "regime_stats", "ccf",
+        "equity_curves", "drawdown", "rolling_sharpe",
+        "tournament_scatter", "signal_dist", "walk_forward",
     ]
     missing = [c for c in expected if not os.path.exists(os.path.join(CHART_DIR, f"{c}.json"))]
     if missing:

@@ -84,11 +84,18 @@ class StoryConfig:
 
     REGIME_TITLE = "What History Shows: XLP Returns by IP Growth Regime"
     REGIME_CHART_NAME = "regime_stats"
+    # fix260526 W1 #27: extended caption with explicit "best vs worst regime"
+    # takeaway, intuitive labelling (weakest/strongest growth), and a one-
+    # line bridge to the strategy rule. Bumps the explanation from "what is
+    # this chart" to "what should I do with it".
     REGIME_CAPTION = (
-        "What this shows: XLP annualized Sharpe ratio in each of the four "
-        "IP growth quartile regimes. Q1 (lowest IP growth) and Q2 tend to "
-        "be where XLP earns its keep; Q3 and Q4 (highest IP growth) are "
-        "less favorable for this defensive ETF."
+        "What this shows: XLP annualized Sharpe ratio in each of four IP "
+        "growth quartile regimes. Labels read left-to-right: Q1 (Weakest IP "
+        "growth) → Q4 (Strongest IP growth). **Takeaway:** XLP earns its "
+        "best risk-adjusted returns in the middle quartiles (Q2/Q3) and "
+        "weakest in Q4 (industrial booms — investors rotate INTO cyclicals, "
+        "OUT of defensives). The strategy below exploits this by going short "
+        "or to cash when IP acceleration enters Q4 territory."
     )
 
     NARRATIVE_SECTION_1 = """

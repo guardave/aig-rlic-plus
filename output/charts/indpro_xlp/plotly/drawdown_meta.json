@@ -1,14 +1,11 @@
 {
   "chart_name": "drawdown",
   "pair_id": "indpro_xlp",
-  "palette_id": "okabe_ito_2026",
+  "palette_id": "v1",
   "rules_applied": [
-    "VIZ-V8",
-    "VIZ-V11",
-    "VIZ-NM1",
     "VIZ-IC1"
   ],
-  "narrative_alignment_note": "Chart shows Drawdown Comparison: Winner Strategy vs Buy-and-Hold XLP (OOS); verified intra-chart consistent per VIZ-IC1 on 2026-04-22.",
-  "created_at": "2026-04-22T08:28:57Z",
-  "disposition": "consumed"
+  "narrative_alignment_note": "Strategy vs Buy-and-Hold drawdown for Strategy Performance tab.",
+  "generated_at": "2026-05-26T23:56:42.794646+00:00",
+  "generated_by": "fix260526 W0.5 (Lead-as-Vera)"
 }
