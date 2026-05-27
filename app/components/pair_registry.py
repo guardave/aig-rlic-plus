@@ -194,6 +194,7 @@ def load_pair_registry():
         # Map indicator/target to display names
         indicator_names = {
             "indpro": "Industrial Production",
+            "indpro_spy": "Industrial Production",
             "indpro_xlp": "Industrial Production",
             "permit_spy": "Building Permits",
             "vix_vix3m_spy": "VIX/VIX3M Ratio",
