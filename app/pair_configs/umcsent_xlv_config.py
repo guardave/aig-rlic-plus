@@ -26,47 +26,44 @@ class StoryConfig:
     PAGE_TITLE = "The Story: Consumer Sentiment and the Healthcare Sector"
     PAGE_SUBTITLE = (
         "Does University of Michigan consumer sentiment predict returns in "
-        "the defensive healthcare sector (XLV)?"
+        "the defensive Health Care Select Sector SPDR Fund (XLV)?"
     )
 
     HEADLINE_H2 = (
-        "## UMCSENT as a directional signal for XLV — OOS Sharpe vs buy-and-hold"
+        "## University of Michigan Consumer Sentiment as a directional signal "
+        "for Health Care Select Sector SPDR Fund (XLV)"
     )
 
     PLAIN_ENGLISH = (
-        "The University of Michigan Consumer Sentiment survey asks 500 "
-        "households how confident they feel about the economy. This page "
+        "The University of Michigan Consumer Sentiment survey asks roughly "
+        "900-1,000 respondents under its newer web-interview process how "
+        "confident they feel about the economy. This page "
         "asks whether those survey results — a number published monthly "
         "and free to download — can help time exposure to the Health Care "
-        "Select Sector ETF (XLV). Healthcare is a defensive sector: "
+        "Select Sector SPDR Fund (XLV). Health care is a defensive sector: "
         "people visit doctors whether the economy is booming or not. The "
-        "twist in this pair is that the textbook direction turned out to "
-        "be **wrong** — and the data-driven direction made money."
+        "working hypothesis is straightforward: higher or improving "
+        "consumer sentiment should coincide with better XLV performance."
     )
 
-    WHERE_THIS_FITS = (
-        "This pair sits in the **Sentiment / Flow** family of the portal. "
-        "Unlike the SPY-targeting pairs (INDPRO, Permits, VIX, TED), the "
-        "target here is the XLV healthcare sector rather than broad-market "
-        "equity. It is the first pair in the catalogue whose empirical "
-        "direction contradicts its textbook prior — a useful reminder that "
-        "priors must be audited against data, not assumed."
-    )
+    WHERE_THIS_FITS = ""
 
     ONE_SENTENCE_THESIS = (
         "*When consumer sentiment trends upward — measured by a year-over-"
-        "year gain, with a 6-month lead — XLV healthcare stocks have "
-        "historically outperformed, contradicting the defensive-rotation "
-        "hypothesis and suggesting that sentiment captures broad risk "
-        "appetite that lifts even defensive sectors during bull markets.*"
+        "year gain, with a 6-month lead — Health Care Select Sector SPDR "
+        "Fund (XLV) has historically performed better, supporting the "
+        "hypothesis that broad consumer confidence can lift even defensive "
+        "sectors during stronger market regimes.*"
     )
 
     KPI_CAPTION = (
-        "The winning rule uses UMCSENT year-over-year change with a 6-month "
+        "The winning rule uses University of Michigan Consumer Sentiment "
+        "(UMCSENT) year-over-year change with a 6-month "
         "lead. When the 12-month change is positive (sentiment trending up), "
         "the strategy holds XLV; when negative, it moves to cash. The "
         "6-month lead suggests sentiment anticipates sector rotation well "
-        "in advance rather than coinciding with it. OOS Sharpe is 1.02 vs "
+        "in advance rather than coinciding with it. Out-of-sample (OOS) "
+        "Sharpe is 1.02 vs "
         "0.72 for buy-and-hold XLV — ~42% more return per unit of risk — "
         "with max drawdown reduced from -15.6% to -10.9%."
     )
@@ -74,7 +71,8 @@ class StoryConfig:
     HERO_TITLE = "Consumer Sentiment vs. Healthcare Sector (XLV)"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
-        "UMCSENT year-over-year % change (red line, left axis) vs XLV "
+        "University of Michigan Consumer Sentiment year-over-year percent "
+        "change (red line, left axis) vs XLV "
         "adjusted price (blue line, right axis). Shaded bands mark periods "
         "when sentiment was falling year-over-year. Notice that XLV often "
         "continues rising even during modest sentiment declines — which is "
@@ -84,10 +82,12 @@ class StoryConfig:
     REGIME_TITLE = "What History Shows: XLV Returns by Consumer-Sentiment Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "Annualised XLV Sharpe ratio by quartile of UMCSENT year-over-year "
-        "change. Q1 = lowest (most negative) YoY change; Q4 = highest "
-        "(most positive). The non-monotonic pattern (Q2 ~1.09 > Q4 ~0.93 > "
-        "Q3 ~0.56 > Q1 ~0.23) confirms the procyclical direction — "
+        "Annualised XLV Sharpe ratio by quartile of University of Michigan "
+        "Consumer Sentiment year-over-year change. Quartile 1 = lowest "
+        "(most negative) year-over-year change; Quartile 4 = highest "
+        "(most positive). The non-monotonic pattern (Quartile 2 ~1.09 > "
+        "Quartile 4 ~0.93 > Quartile 3 ~0.56 > Quartile 1 ~0.23) confirms "
+        "the procyclical direction — "
         "falling sentiment coincides with the worst XLV regime — while "
         "suggesting that the peak of optimism is itself a late-cycle "
         "warning sign."
@@ -96,32 +96,40 @@ class StoryConfig:
     NARRATIVE_SECTION_1 = (
         "### Why Consumer Sentiment and Health Care?\n\n"
         "The University of Michigan Consumer Sentiment Index has been "
-        "published monthly since 1978. Each month, 500 households are "
-        "asked about their financial situation, their outlook for the "
+        "published monthly since 1978. The current survey reaches roughly "
+        "900-1,000 respondents under the newer web-interview process. "
+        "Participants are asked about their financial situation, their outlook for the "
         "broader economy in the next 12 months, and their views on "
         "conditions five years out. The index is one of the most watched "
         "leading indicators in the world — central banks, equity analysts, "
         "and economists all track it because it has historically turned "
         "before consumer spending does.\n\n"
-        "### The Defensive-Healthcare Hypothesis (and Why It Fails)\n\n"
-        "The standard economic story about healthcare stocks is that they "
-        "are **defensive**: people consume healthcare regardless of the "
-        "cycle, so healthcare companies generate stable cash flows in "
+        "### The Defensive-Healthcare Hypothesis\n\n"
+        "The standard economic story about health care stocks is that they "
+        "are **defensive**: people consume health care regardless of the "
+        "cycle, so health care companies generate stable cash flows in "
         "both good times and bad. The theory predicts that when consumers "
         "feel confident, they rotate money *out* of defensive sectors "
-        "like healthcare and *into* cyclical growth sectors (technology, "
+        "like health care and *into* cyclical growth sectors (technology, "
         "industrials, discretionary). When confidence falls, money flows "
         "back into defensives.\n\n"
-        "If this theory were correct, we would expect high sentiment → XLV "
-        "underperforms (risk-on rotation out of defensives), and low "
-        "sentiment → XLV outperforms (flight to defensives).\n\n"
-        "**Our data shows the opposite.** Periods of rising consumer "
-        "sentiment (positive year-over-year change) have been associated "
-        "with XLV *outperformance*, not underperformance. The most likely "
-        "explanations:\n\n"
+        "That defensive-rotation story is plausible, but it is not the "
+        "hypothesis supported by this pair. Here the tested hypothesis is "
+        "that higher or improving sentiment goes with better XLV "
+        "performance. Higher sentiment is often associated with stronger "
+        "risk appetite and a lower required risk premium, but that is a "
+        "market-regime relationship rather than a mechanical identity. The "
+        "lower risk premium can lift broad equity valuations, including "
+        "health care, even though health care remains less cyclical than "
+        "technology, industrials, or consumer discretionary stocks.\n\n"
+        "**The data supports the higher-sentiment hypothesis.** Periods of "
+        "rising consumer sentiment (positive year-over-year change) have "
+        "been associated with XLV *outperformance*. The most likely "
+        "explanations are:\n\n"
         "1. **Bull markets lift everything.** In sustained bull markets, "
         "investor optimism drives all sectors higher. The defensive "
-        "characteristic of healthcare reduces its beta relative to SPY, "
+        "characteristic of health care reduces its beta relative to the "
+        "S&P 500 ETF Trust (SPY), "
         "but XLV still participates in the upside when broad sentiment "
         "is strong.\n"
         "2. **Healthcare spending grows during booms.** When consumers "
@@ -130,12 +138,13 @@ class StoryConfig:
         "revenue impact is captured in XLV earnings during high-sentiment "
         "periods.\n"
         "3. **Sentiment captures risk appetite broadly.** High consumer "
-        "confidence is associated with low risk premiums across all asset "
-        "classes — including healthcare."
+        "confidence is often associated with lower required risk premiums "
+        "across risky assets — including health care equities — although "
+        "the relationship can vary by market regime."
     )
 
     NARRATIVE_SECTION_2 = (
-        "### Nuance and Limits\n\n"
+        "### Key Findings\n\n"
         "Two facts about this pair deserve special emphasis:\n\n"
         "**The year-over-year change, not the level, is the key signal.** "
         "Raw sentiment levels are non-stationary and reflect long secular "
@@ -151,17 +160,20 @@ class StoryConfig:
         "indicators feeding through to sector returns, and it means the "
         "rule is not a short-term timing tool.\n\n"
         "The main limits are sample length (XLV starts 1998-12, so the "
-        "full sample is 325 monthly observations and the OOS window is "
-        "only about 6 years) and the sector-specific nature of the target "
-        "(ACA, drug-pricing policy, COVID, and demographics all affect "
+        "full sample is 325 monthly observations and the out-of-sample "
+        "window is only about 6 years) and the sector-specific nature of "
+        "the target (Affordable Care Act policy, drug-pricing policy, "
+        "COVID, and demographics all affect "
         "XLV independently of consumer sentiment)."
     )
 
     SCOPE_NOTE = (
-        "*Scope discipline (ECON-SD).* Only UMCSENT derivatives and XLV "
-        "derivatives are in-scope primary signals. UNRATE, DGS10, and VIX "
-        "are used only as regression controls, not as trading signals. "
-        "SPY appears as a benchmark comparison, not as a tradable target "
+        "*Scope discipline (ECON-SD).* Only University of Michigan Consumer "
+        "Sentiment and XLV derivatives are in-scope primary signals. "
+        "The unemployment rate, 10-year Treasury yield, and CBOE Volatility "
+        "Index (VIX) are used only as regression controls, not as trading "
+        "signals. S&P 500 ETF Trust (SPY) appears as a benchmark comparison, "
+        "not as a tradable target "
         "for this pair."
     )
 
@@ -176,26 +188,26 @@ class StoryConfig:
         {
             "slug": "dot_com",
             "title": "Dot-Com Bust (2000–2002)",
-            "narrative": "Consumer sentiment deteriorated sharply through 2001 as the economy contracted and unemployment rose. XLV, as a defensive healthcare holding, held up relatively well. But the year-over-year sentiment signal turned negative — and the strategy correctly moved to cash. This is a long-lead success case where the signal anticipated XLV's underperformance relative to its defensive reputation.",
-            "caption": "2001 sentiment decline: UMCSENT YoY turned negative; XLV held up but signal correctly reduced exposure",
+            "narrative": "Consumer sentiment deteriorated sharply through 2001 as the economy contracted and unemployment rose. XLV, as a defensive health care holding, held up relatively well. But the year-over-year sentiment signal turned negative — and the strategy correctly moved to cash. This is a long-lead success case where the signal anticipated XLV's underperformance relative to its defensive reputation.",
+            "caption": "2001 sentiment decline: University of Michigan Consumer Sentiment year-over-year change turned negative; XLV held up but signal correctly reduced exposure",
         },
         {
             "slug": "gfc",
             "title": "Global Financial Crisis (2007–2009)",
-            "narrative": "Sentiment collapsed through 2008–2009 as unemployment surged and household wealth evaporated. XLV declined meaningfully, though less than SPY. The UMCSENT YoY signal turned sharply negative in late 2007, moving the strategy to cash ahead of most of the healthcare drawdown. A clean long-lead case: sentiment fell before the equity trough, and the long-cash strategy avoided the worst of the decline.",
-            "caption": "GFC: UMCSENT YoY signal moved to cash late 2007; XLV declined -30% peak-to-trough but strategy avoided bulk of it",
+            "narrative": "Sentiment collapsed through 2008-2009 as unemployment surged and household wealth evaporated. XLV declined meaningfully, though less than S&P 500 ETF Trust (SPY). The University of Michigan Consumer Sentiment year-over-year signal turned sharply negative in late 2007, moving the strategy to cash ahead of most of the health care drawdown. A clean long-lead case: sentiment fell before the equity trough, and the long-cash strategy avoided the worst of the decline.",
+            "caption": "Global Financial Crisis: University of Michigan Consumer Sentiment year-over-year signal moved to cash late 2007; XLV declined -30% peak-to-trough but strategy avoided bulk of it",
         },
         {
             "slug": "covid",
             "title": "COVID Crash (2020)",
-            "narrative": "Sentiment plunged to near-record lows in April 2020. XLV experienced a moderate drawdown before recovering sharply — healthcare stocks benefited from vaccine and treatment demand. The UMCSENT signal went negative, and the 6-month lead meant the strategy was positioned cautiously. However, XLV's rapid recovery created a signal lag problem: the strategy sat in cash during some of the healthcare upswing. A mixed coincident case.",
-            "caption": "COVID: UMCSENT collapsed April 2020; XLV recovered fast on healthcare demand — 6-month lead caused cash lag into recovery",
+            "narrative": "Sentiment plunged to near-record lows in April 2020. XLV experienced a moderate drawdown before recovering sharply — health care stocks benefited from vaccine and treatment demand. The University of Michigan Consumer Sentiment signal went negative, and the 6-month lead meant the strategy was positioned cautiously. However, XLV's rapid recovery created a signal lag problem: the strategy sat in cash during some of the health care upswing. A mixed coincident case.",
+            "caption": "COVID: University of Michigan Consumer Sentiment collapsed April 2020; XLV recovered fast on health care demand — 6-month lead caused cash lag into recovery",
         },
         {
             "slug": "rates_2022",
             "title": "Fed Hiking Cycle (2022)",
-            "narrative": "Consumer sentiment hit multi-decade lows in June 2022 (University of Michigan index at 50) driven by inflation and rising rates. XLV outperformed SPY during this period — a partial vindication of the defensive thesis. But the UMCSENT YoY signal had already turned negative, keeping the strategy in cash. This is a failure case: the signal was bearish, but XLV actually held up, so the strategy missed the relative outperformance.",
-            "caption": "June 2022 sentiment hit 50-year low; XLV outperformed SPY but UMCSENT signal was bearish — missed defensive rally",
+            "narrative": "Consumer sentiment hit multi-decade lows in June 2022 (University of Michigan index at 50) driven by inflation and rising rates. XLV outperformed S&P 500 ETF Trust (SPY) during this period — a partial vindication of the defensive thesis. But the University of Michigan Consumer Sentiment year-over-year signal had already turned negative, keeping the strategy in cash. This is a failure case: the signal was bearish, but XLV actually held up, so the strategy missed the relative outperformance.",
+            "caption": "June 2022 sentiment hit 50-year low; XLV outperformed S&P 500 ETF Trust (SPY) but the University of Michigan Consumer Sentiment signal was bearish — missed defensive rally",
         },
     ]
 
@@ -211,25 +223,29 @@ CORRELATION_BLOCK = dict(
     method_name="Correlation Analysis",
     method_theory=(
         "Pearson correlations measure the linear relationship between two "
-        "variables on a scale from −1 to +1. We test six UMCSENT-derived "
-        "signals (level, YoY, MoM, z-score, 3M MA, direction, deviation) "
-        "against XLV forward returns at 1M, 3M, 6M and 12M horizons. "
+        "variables on a scale from −1 to +1. We test six University of "
+        "Michigan Consumer Sentiment-derived signals (level, year-over-year "
+        "change, month-over-month change, z-score, 3-month moving average, "
+        "direction, deviation) against XLV forward returns at 1-month, "
+        "3-month, 6-month and 12-month horizons. "
         "Spearman rank correlations are run in parallel as a robustness "
         "check against outliers."
     ),
     question=(
-        "Do any UMCSENT-derived signals show a statistically meaningful "
+        "Do any University of Michigan Consumer Sentiment-derived signals show a statistically meaningful "
         "linear relationship with future XLV returns — and in which "
         "direction?"
     ),
     how_to_read=(
-        "Rows: UMCSENT signals. Columns: forward XLV return horizons. "
+        "Rows: University of Michigan Consumer Sentiment signals. Columns: "
+        "forward XLV return horizons. "
         "Blue = positive correlation (higher sentiment → higher XLV); "
         "Red = negative. Stars: * p<0.05, ** p<0.01."
     ),
     chart_name="correlations",
     chart_caption=(
-        "Pearson correlation heatmap between UMCSENT signals and XLV "
+        "Pearson correlation heatmap between University of Michigan Consumer "
+        "Sentiment signals and XLV "
         "forward returns. Blue cells indicate procyclical relationships "
         "(high sentiment → XLV outperforms). Stars mark statistical "
         "significance."
@@ -237,7 +253,7 @@ CORRELATION_BLOCK = dict(
     observation=(
         "The 3-month moving-average signal shows the strongest negative "
         "correlation with 12-month forward XLV returns (r = -0.198, "
-        "p = 0.0004) — a long-horizon mean-reversion effect. The YoY "
+        "p = 0.0004) — a long-horizon mean-reversion effect. The year-over-year "
         "change — the winning tournament signal — shows a modest positive "
         "correlation with shorter horizons, consistent with the procyclical "
         "observed direction. Sixteen of 48 correlations clear the 5% "
@@ -245,17 +261,19 @@ CORRELATION_BLOCK = dict(
         "statistical artefact."
     ),
     interpretation=(
-        "Different UMCSENT transforms capture different aspects of the "
-        "sentiment cycle. The raw level and 3M moving average capture the "
-        "*state* of sentiment (high vs. low), while the YoY change captures "
+        "Different University of Michigan Consumer Sentiment transforms "
+        "capture different aspects of the sentiment cycle. The raw level "
+        "and 3-month moving average capture the *state* of sentiment "
+        "(high vs. low), while the year-over-year change captures "
         "*momentum* (improving vs. deteriorating). The tournament winner "
-        "(YoY change) is a momentum signal that picks up improving/"
-        "worsening trends, not absolute states. The negative 3M MA "
-        "correlation at 12M horizons may reflect mean-reversion — sustained "
+        "(year-over-year change) is a momentum signal that picks up improving/"
+        "worsening trends, not absolute states. The negative 3-month moving "
+        "average correlation at 12-month horizons may reflect mean-reversion — sustained "
         "high sentiment is followed by normalisation."
     ),
     key_message=(
-        "UMCSENT momentum (YoY change) shows a procyclical correlation "
+        "University of Michigan Consumer Sentiment momentum "
+        "(year-over-year change) shows a procyclical correlation "
         "with XLV forward returns: improving sentiment is associated with "
         "XLV outperformance, contradicting the defensive-rotation "
         "hypothesis."
@@ -267,35 +285,38 @@ GRANGER_BLOCK = dict(
     chart_status="ready",
     method_name="Granger Causality",
     method_theory=(
-        "Granger causality asks whether past UMCSENT values improve "
+        "Granger causality asks whether past University of Michigan Consumer Sentiment values improve "
         "forecasts of future XLV returns beyond what XLV's own recent "
-        "history already provides. We test both directions (UMCSENT → XLV "
-        "and XLV → UMCSENT) at lags 1-6 months using F-tests on augmented "
-        "VAR regressions with HC3 robust standard errors."
+        "history already provides. We test both directions (consumer "
+        "sentiment to XLV and XLV to consumer sentiment) at lags 1-6 months "
+        "using F-tests on augmented vector autoregression regressions with "
+        "HC3 robust standard errors."
     ),
     question=(
-        "Does consumer sentiment carry information about future healthcare "
+        "Does consumer sentiment carry information about future health care "
         "equity returns that is not already priced into XLV itself?"
     ),
     how_to_read=(
         "The CCF chart below serves as the combined visual for lead-lag "
         "structure. Bars below the 95% confidence bands at negative lags "
-        "(UMCSENT leads) indicate statistically significant predictive "
-        "content from sentiment to healthcare returns."
+        "(consumer sentiment leads) indicate statistically significant predictive "
+        "content from sentiment to health care returns."
     ),
     chart_name="ccf",
     chart_caption=(
-        "Cross-correlation function between UMCSENT YoY change and XLV "
+        "Cross-correlation function between University of Michigan Consumer "
+        "Sentiment year-over-year change and XLV "
         "monthly return at lags −12 to +12 months. Red bars are "
         "statistically significant at 95% confidence."
     ),
     observation=(
         "The CCF shows that the strongest predictive lags are at negative "
-        "lags (UMCSENT leading XLV), consistent with sentiment as a "
+        "lags (consumer sentiment leading XLV), consistent with sentiment as a "
         "leading indicator. Several lags between -3 and -8 months clear "
         "the 95% significance threshold. Formal Granger tests confirm: "
-        "UMCSENT YoY Granger-causes XLV returns at lags 3-6 (p < 0.05) "
-        "but not at lags 1-2. The reverse direction (XLV → UMCSENT) is "
+        "University of Michigan Consumer Sentiment year-over-year change "
+        "Granger-causes XLV returns at lags 3-6 (p < 0.05) but not at "
+        "lags 1-2. The reverse direction (XLV to consumer sentiment) is "
         "not significant at any lag tested."
     ),
     interpretation=(
@@ -304,13 +325,13 @@ GRANGER_BLOCK = dict(
         "The one-directional result here reflects the nature of consumer "
         "surveys: households form opinions based on their actual economic "
         "experience (jobs, wages, prices), not from watching XLV price "
-        "ticks. This independence means UMCSENT carries genuine new "
+        "ticks. This independence means consumer sentiment carries genuine new "
         "information about future sector dynamics that is not yet in "
-        "healthcare stock prices at the time of the survey."
+        "health care stock prices at the time of the survey."
     ),
     key_message=(
-        "Sentiment leads healthcare equity at 3-6 months — a directionally "
-        "clean, one-way Granger causality that supports using UMCSENT as "
+        "Sentiment leads health care equity at 3-6 months — a directionally "
+        "clean, one-way Granger causality that supports using consumer sentiment as "
         "an actionable leading indicator for XLV timing."
     ),
 )
@@ -332,37 +353,40 @@ REGIME_BLOCK = dict(
         "falling', how would that strategy have performed historically?"
     ),
     how_to_read=(
-        "Left panel: annualised Sharpe ratio in each UMCSENT YoY quartile. "
-        "Right panel: annualised return. Q1 = lowest (most negative) YoY "
-        "change; Q4 = highest (most positive). Look for a monotonic "
+        "Left panel: annualised Sharpe ratio in each University of Michigan "
+        "Consumer Sentiment year-over-year quartile. Right panel: annualised "
+        "return. Quartile 1 = lowest (most negative) year-over-year "
+        "change; Quartile 4 = highest (most positive). Look for a monotonic "
         "pattern to confirm the regime-return relationship."
     ),
     chart_name="regime_stats",
     chart_caption=(
-        "Annualised XLV Sharpe ratio and return by quartile of UMCSENT "
-        "year-over-year change. Q1 = most negative sentiment trend; "
-        "Q4 = most positive. The gradient reveals the procyclical "
+        "Annualised XLV Sharpe ratio and return by quartile of University "
+        "of Michigan Consumer Sentiment year-over-year change. Quartile 1 "
+        "= most negative sentiment trend; Quartile 4 = most positive. "
+        "The gradient reveals the procyclical "
         "relationship."
     ),
     observation=(
-        "The pattern is directional but non-monotonic. Q1 (lowest YoY): "
-        "Sharpe 0.23. Q2: 1.09. Q3: 0.56. Q4 (highest YoY): 0.93. The "
-        "highest Sharpe is in Q2, not Q4 — suggesting that *moderate* "
+        "The pattern is directional but non-monotonic. Quartile 1 (lowest "
+        "year-over-year change): Sharpe 0.23. Quartile 2: 1.09. Quartile "
+        "3: 0.56. Quartile 4 (highest year-over-year change): 0.93. The "
+        "highest Sharpe is in Quartile 2, not Quartile 4 — suggesting that *moderate* "
         "positive sentiment momentum is the strongest XLV regime, not "
-        "extreme optimism. Q1 (most negative) is the worst regime."
+        "extreme optimism. Quartile 1 (most negative) is the worst regime."
     ),
     interpretation=(
-        "The Q2 > Q4 pattern is consistent with a well-documented "
+        "The Quartile 2 > Quartile 4 pattern is consistent with a well-documented "
         "phenomenon: extreme optimism can itself become a warning signal. "
-        "When sentiment is at its most positive extreme (Q4), it may be "
+        "When sentiment is at its most positive extreme (Quartile 4), it may be "
         "capturing late-cycle euphoria that historically precedes "
         "corrections. The highest predictive content is in the **direction "
         "of change** — positive but not extreme — which is exactly what "
-        "the tournament-winning YoY zero-crossing rule captures."
+        "the tournament-winning year-over-year zero-crossing rule captures."
     ),
     key_message=(
-        "Falling consumer sentiment (Q1) is the worst regime for XLV "
-        "returns. Rising sentiment (Q2-Q4) is better, with the strongest "
+        "Falling consumer sentiment (Quartile 1) is the worst regime for XLV "
+        "returns. Rising sentiment (Quartiles 2-4) is better, with the strongest "
         "signal being the direction of change, not the absolute level."
     ),
 )
@@ -373,7 +397,8 @@ SIGNAL_DIST_BLOCK = dict(
     method_name="Signal Distribution Analysis",
     method_theory=(
         "We examine how XLV 3-month forward returns are distributed when "
-        "the UMCSENT direction signal is rising (+1) vs. falling (-1). "
+        "the University of Michigan Consumer Sentiment direction signal is "
+        "rising (+1) vs. falling (-1). "
         "This reveals whether the sentiment effect is concentrated in the "
         "tails (extreme outcomes) or is a shift in the median return — "
         "information that guides strategy design."
@@ -384,20 +409,25 @@ SIGNAL_DIST_BLOCK = dict(
         "tail (worst outcomes) or boosting the right tail (best outcomes)?"
     ),
     how_to_read=(
-        "Left panel: histogram of the UMCSENT YoY-change distribution "
+        "Left panel: histogram of the University of Michigan Consumer "
+        "Sentiment year-over-year-change distribution "
         "(how often sentiment improves vs. worsens). Right panel: box "
         "plots of XLV 3-month forward returns split by whether sentiment "
-        "is rising or falling."
+        "is rising or falling. Points beyond the whiskers are extreme "
+        "observations under the box-plot rule; they are not treated as "
+        "data errors unless a separate data-quality check identifies them "
+        "as invalid."
     ),
     chart_name="signal_dist",
     chart_caption=(
-        "Left: distribution of UMCSENT YoY changes (roughly symmetric, "
+        "Left: distribution of University of Michigan Consumer Sentiment "
+        "year-over-year changes (roughly symmetric, "
         "centred near zero). Right: XLV 3-month forward returns when "
         "sentiment is rising vs. falling. The box plots reveal whether "
         "the effect is median-shifting or tail-driven."
     ),
     observation=(
-        "The YoY change distribution is roughly symmetric with slightly "
+        "The year-over-year change distribution is roughly symmetric with slightly "
         "more months in negative territory. The return box plots show "
         "that XLV forward returns are slightly higher when sentiment is "
         "rising (median ~+3% vs +2% over 3 months), but the distributions "
@@ -418,7 +448,7 @@ SIGNAL_DIST_BLOCK = dict(
         "The sentiment signal is a risk-management tool: it primarily "
         "avoids the worst XLV drawdown months rather than generating "
         "dramatically higher returns during positive months — consistent "
-        "with healthcare's defensive role in a diversified portfolio."
+        "with health care's defensive role in a diversified portfolio."
     ),
 )
 
@@ -428,7 +458,7 @@ EVIDENCE_METHOD_BLOCKS = {
     "overview": (
         "We subjected 27 years of monthly data to four complementary "
         "statistical methods. Each is designed to test a different aspect "
-        "of the sentiment-healthcare relationship. All four converge on "
+        "of the sentiment-health care relationship. All four converge on "
         "the same direction: procyclical, not countercyclical — the "
         "direction surprise flagged on the Story page."
     ),
@@ -453,8 +483,8 @@ EVIDENCE_METHOD_BLOCKS = {
     ),
     "transition": (
         "Four statistical methods converge on the same conclusion: "
-        "consumer sentiment momentum (YoY change) is a procyclical "
-        "leading indicator for XLV healthcare returns. Now: what does "
+        "consumer sentiment momentum (year-over-year change) is a procyclical "
+        "leading indicator for XLV health care returns. Now: what does "
         "the winning strategy actually do, and how has it performed?"
     ),
 }
@@ -467,7 +497,8 @@ class StrategyConfig:
     PAGE_TITLE = "The Strategy: Translating Consumer Sentiment Signals into XLV Positioning"
     PAGE_SUBTITLE = (
         "We tested over 1,300 strategy combinations to find the most robust "
-        "way to time healthcare sector (XLV) exposure using consumer sentiment."
+        "way to time Health Care Select Sector SPDR Fund (XLV) exposure "
+        "using consumer sentiment."
     )
 
     PLAIN_ENGLISH = (
@@ -480,43 +511,55 @@ class StrategyConfig:
     )
 
     SIGNAL_RULE_MD = (
-        "**Tournament winner:** Signal UMCSENT YoY change / Threshold "
+        "**Tournament winner:** Signal University of Michigan Consumer "
+        "Sentiment (UMCSENT) year-over-year change / Threshold "
         "zero-crossing (crosses-up) / Strategy P1 Long/Cash / Lead 6 months.\n\n"
         "Each month, look at the current UMCSENT reading versus 12 months "
         "ago and compute the percentage change. Apply this to what the "
         "12-month change was 6 months ago (the lead). If the 6-month-ago "
-        "YoY change was positive (sentiment improving) → hold XLV fully. "
+        "year-over-year change was positive (sentiment improving) → hold XLV fully. "
         "If zero or negative → move to cash. No leverage, no shorting."
     )
 
     HOW_SIGNAL_IS_GENERATED_MD = (
-        "The winning strategy uses **UMCSENT Year-over-Year Change** with "
+        "The winning strategy uses **University of Michigan Consumer "
+        "Sentiment (UMCSENT) Year-over-Year Change** with "
         "a **6-month lead**:\n\n"
         "1. Each month, look at the current UMCSENT reading versus 12 "
         "months ago; compute the percentage change.\n"
-        "2. Check what this YoY change was **6 months ago** (the lead).\n"
-        "3. If the 6-month-ago YoY change was **positive** (sentiment "
+        "2. Check what this year-over-year change was **6 months ago** "
+        "(the lead).\n"
+        "3. If the 6-month-ago year-over-year change was **positive** (sentiment "
         "improving): hold XLV (Long/Cash position = 1).\n"
-        "4. If the 6-month-ago YoY change was **zero or negative** "
+        "4. If the 6-month-ago year-over-year change was **zero or negative** "
         "(sentiment flat or deteriorating): move to cash (Long/Cash "
         "position = 0).\n"
         "5. Update the position at the start of each month.\n\n"
         "The 6-month lead means you are acting on information that is 6 "
         "months stale — and the strategy still works. This confirms that "
-        "sentiment anticipates sector dynamics well in advance."
+        "sentiment anticipates sector dynamics well in advance.\n\n"
+        "**Metric definitions.** Out-of-sample (OOS) Sharpe measures return "
+        "per unit of volatility in the test period that was not used to "
+        "select the rule. OOS Return is the annualised return in that test "
+        "period. Max Drawdown is the worst peak-to-trough loss. Turnover "
+        "shows how often the strategy changes position each year. Win Rate "
+        "is the share of tested periods or trades with a positive return."
     )
 
     MANUAL_USE_MD = (
         "You do not need software to implement this signal:\n\n"
-        "**1. Retrieve the UMCSENT reading.** FRED series: `UMCSENT`. "
-        "Published mid-month for the current month. Free at fred.stlouisfed.org.\n\n"
-        "**2. Compute the YoY change.** Divide today's reading by the "
-        "reading from 12 months ago and subtract 1. E.g. UMCSENT = 72.0, "
-        "12M ago = 68.0 → YoY = +5.9%.\n\n"
-        "**3. Check what this YoY reading was 6 months ago.** Pull the "
+        "**1. Retrieve the University of Michigan Consumer Sentiment "
+        "(UMCSENT) reading.** Federal Reserve Economic Data (FRED) series: "
+        "`UMCSENT`. Published mid-month for the current month. Free at "
+        "fred.stlouisfed.org.\n\n"
+        "**2. Compute the year-over-year change.** Divide today's reading "
+        "by the reading from 12 months ago and subtract 1. Example: UMCSENT "
+        "= 72.0, 12 months ago = 68.0 → year-over-year = +5.9%.\n\n"
+        "**3. Check what this year-over-year reading was 6 months ago.** Pull the "
         "UMCSENT reading from 18 months ago and 6 months ago, compute "
-        "the YoY for 6 months back: (6M ago / 18M ago − 1).\n\n"
-        "**4. Apply the rule.** If that 6M-ago YoY change was positive → "
+        "the year-over-year change for 6 months back: (6 months ago / "
+        "18 months ago − 1).\n\n"
+        "**4. Apply the rule.** If that 6-month-ago year-over-year change was positive → "
         "hold XLV. If zero or negative → hold cash or short-duration bonds.\n\n"
         "**5. Rebalance monthly.** The signal changes once a month at "
         "most. Turnover averages ~2.4 round-trips per year — negligible "
@@ -536,10 +579,13 @@ class StrategyConfig:
         "2. **6-month lag limits responsiveness.** The strategy cannot "
         "avoid fast crashes (COVID, flash crashes). It works best for "
         "slow-moving sentiment cycles.\n\n"
-        "3. **OOS period covers only ~6 years.** Shorter than the 8-year "
-        "OOS for the HY-IG pair or the INDPRO pair. Short OOS windows "
+        "3. **Out-of-sample period covers only ~6 years.** Shorter than "
+        "the 8-year out-of-sample period for the high-yield minus "
+        "investment-grade credit spread pair or the industrial production "
+        "pair. Short out-of-sample windows "
         "can produce inflated Sharpe estimates.\n\n"
-        "4. **Healthcare sector dynamics change.** ACA, drug-pricing "
+        "4. **Health care sector dynamics change.** The Affordable Care "
+        "Act (ACA), drug-pricing "
         "regulation, COVID policy, and demographic shifts all affect "
         "XLV. The historical sentiment-XLV relationship may shift if "
         "sector fundamentals change structurally.\n\n"
@@ -555,26 +601,30 @@ class StrategyConfig:
         "- **2020-02-29 — BUY XLV, 100% long, price $83.70.** The trade "
         "log records a full-exposure entry into XLV on 29-Feb-2020 (the "
         "last business day before the COVID crash began in earnest on "
-        "02-Mar). The signal rationale: 6-month-lagged UMCSENT YoY = "
+        "02-Mar). The signal rationale: 6-month-lagged UMCSENT "
+        "year-over-year change = "
         "**+7.676%** — sentiment had been strongly improving through "
         "mid-2019, and the 6-month-lead rule translated that into a "
         "full long position in February 2020.\n"
-        "- **Cumulative P&L at entry: +14.25%.** The prior long holding "
-        "had already compounded meaningfully since the strategy's OOS "
-        "start (2019-04-30 at UMCSENT YoY −1.619, initial entry), so "
+        "- **Cumulative profit and loss (P&L) at entry: +14.25%.** The prior long holding "
+        "had already compounded meaningfully since the strategy's "
+        "out-of-sample start (2019-04-30 at University of Michigan "
+        "Consumer Sentiment year-over-year change −1.619, initial entry), so "
         "the February 2020 buy added to an already-profitable book.\n"
         "- **Economic narrative.** This is the case study that defines "
         "the rule's limits. The 6-month lag is a feature against "
         "short-term noise, but it is also the reason the rule could not "
         "avoid the March 2020 drawdown. The trade was correct given its "
-        "information set — UMCSENT in August 2019 said 'procyclical, "
+        "information set — University of Michigan Consumer Sentiment in "
+        "August 2019 said 'procyclical, "
         "hold XLV' — but a once-in-a-century pandemic overran any "
         "monthly-frequency sentiment signal. The rule reduced XLV drawdown "
-        "from -15.6% (buy-and-hold) to -10.9% over the full OOS window; "
+        "from -15.6% (buy-and-hold) to -10.9% over the full out-of-sample window; "
         "it did not eliminate the March 2020 pain.\n"
         "- **Honest caveat.** Users who need crash protection should "
-        "pair this rule with a faster signal (the VIX × VIX3M pair in "
-        "this portal). UMCSENT × XLV is a medium-frequency regime filter, "
+        "pair this rule with a faster signal (the CBOE Volatility Index "
+        "divided by the 3-month CBOE Volatility Index pair in this portal). "
+        "University of Michigan Consumer Sentiment × XLV is a medium-frequency regime filter, "
         "not a crash hedge."
     )
 
@@ -588,21 +638,25 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = """
 | Category | Source | Series | Frequency |
 |:---------|:-------|:-------|:----------|
-| **UMich Consumer Sentiment** | FRED | UMCSENT | Monthly |
-| **Healthcare Sector ETF** | Yahoo Finance | XLV | Daily → Monthly |
-| **S&P 500 (benchmark)** | Yahoo Finance | SPY | Daily → Monthly |
-| **NBER Recession Dates** | FRED / NBER | USREC | Monthly |
+| **University of Michigan Consumer Sentiment** | Federal Reserve Economic Data (FRED) | UMCSENT | Monthly |
+| **Health Care Select Sector SPDR Fund** | Yahoo Finance | XLV | Daily → Monthly |
+| **S&P 500 ETF Trust benchmark** | Yahoo Finance | SPY | Daily → Monthly |
+| **National Bureau of Economic Research (NBER) Recession Dates** | Federal Reserve Economic Data / NBER | USREC | Monthly |
 | **Fed Funds Rate** | FRED | DFF | Daily → Monthly |
 | **Unemployment** | FRED | UNRATE | Monthly |
 
-*Scope discipline (ECON-SD).* Only UMCSENT and XLV are in-scope primary signals.
+*Scope discipline (ECON-SD).* Only University of Michigan Consumer Sentiment
+(UMCSENT) and Health Care Select Sector SPDR Fund (XLV) are in-scope primary
+signals.
 """
 
 _INDICATOR_CONSTRUCTION_MD = (
-    "**Michigan Consumer Sentiment (UMCSENT).** FRED series: monthly index "
+    "**Michigan Consumer Sentiment (UMCSENT).** Federal Reserve Economic "
+    "Data (FRED) series: monthly index "
     "of consumer confidence published by the University of Michigan Survey "
     "of Consumers. Index baseline = 100 (November 1966). Released mid-month "
-    "for the current survey month. Approximately 500 households surveyed. "
+    "for the current survey month. The newer web-interview process reaches "
+    "roughly 900-1,000 respondents per month. "
     "Not seasonally adjusted (the survey methodology removes most "
     "seasonality at source).\n\n"
     "Derived signals entered into the tournament:\n\n"
@@ -615,7 +669,7 @@ _INDICATOR_CONSTRUCTION_MD = (
     "| `umcsent_3m_ma` | 3-month moving average | non-stationary (regime indicator) |\n"
     "| `umcsent_direction` | sign(umcsent_mom) | stationary by construction |\n"
     "| `umcsent_dev_ma` | level − 3M MA | approximately stationary |\n\n"
-    "**XLV target.** Daily adjusted closing prices (Yahoo Finance, "
+    "**Health Care Select Sector SPDR Fund (XLV) target.** Daily adjusted closing prices (Yahoo Finance, "
     "`auto_adjust=True`) resampled to monthly last close. Forward return "
     "series computed as `xlv.shift(-h) / xlv - 1` for h = 1, 3, 6, 12 "
     "months."
@@ -624,7 +678,7 @@ _INDICATOR_CONSTRUCTION_MD = (
 _METHODS_TABLE_MD = """
 | Method | Question It Answers | Why We Chose It |
 |:-------|:--------------------|:----------------|
-| Pearson / Rolling Correlation | Linear co-movement at multiple horizons | Baseline UMCSENT-XLV test |
+| Pearson / Rolling Correlation | Linear co-movement at multiple horizons | Baseline University of Michigan Consumer Sentiment-XLV test |
 | Granger Causality | One-directional predictive content | Tests sentiment → XLV asymmetry |
 | Regime Quartile Returns | Model-free gradient across sentiment distribution | Assumption-light regime check |
 | Signal Distribution Analysis | Full empirical distribution of the signal | Diagnostic for threshold choice |
@@ -640,12 +694,13 @@ _TOURNAMENT_DESIGN_MD = """
 | **Direction** | Procyclical applied (empirically observed direction) |
 
 Ranked by out-of-sample Sharpe. **1,305 total combinations tested; 1,196
-valid** (OOS Sharpe > 0, turnover ≤ 24/yr, OOS n ≥ 12). Winner (per
+valid** (out-of-sample Sharpe > 0, turnover ≤ 24/year, out-of-sample n ≥ 12). Winner (per
 `results/umcsent_xlv/winner_summary.json`, authoritative): **umcsent_yoy /
-zero-crossing (crosses-up) / P1_long_cash / Lead 6M → OOS Sharpe 1.0202,
-OOS annualised return +11.93%, max drawdown −10.87%, OOS volatility 11.7%,
-Sortino 2.01, Calmar 1.10, 81 OOS trades, win rate 37.0%, annual
-turnover 2.4. Buy-and-hold XLV benchmark: Sharpe 0.7164, max DD −15.6%.**
+zero-crossing (crosses-up) / P1_long_cash / Lead 6 months → out-of-sample
+Sharpe 1.0202, out-of-sample annualised return +11.93%, max drawdown
+−10.87%, out-of-sample volatility 11.7%, Sortino 2.01, Calmar 1.10, 81
+out-of-sample trades, win rate 37.0%, annual turnover 2.4. Buy-and-hold
+XLV benchmark: Sharpe 0.7164, max drawdown −15.6%.**
 """
 
 _REFERENCES_MD = """
@@ -664,12 +719,14 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     references_md=_REFERENCES_MD,
     sample_period_note=(
         "Full sample: 1998-12 to 2025-12 (325 monthly observations). "
-        "The IS/OOS cut is computed dynamically using ECON-OOS2: "
-        "OOS_months = min(max(36, round(N × 0.25)), 120). With N = 325, "
-        "OOS = 81 months. In-sample: 1998-12 to 2019-03 (~243 observations). "
+        "The in-sample/out-of-sample cut is computed dynamically using "
+        "ECON-OOS2: OOS_months = min(max(36, round(N × 0.25)), 120). "
+        "With N = 325, out-of-sample = 81 months. In-sample: 1998-12 "
+        "to 2019-03 (~243 observations). "
         "Out-of-sample: 2019-04-30 to 2025-12 (~81 observations, ~6.75 years). "
-        "XLV data starts 1998-12 (the ETF's inception); UMCSENT is available "
-        "from 1978 but is aligned to the XLV sample for this pair."
+        "XLV data starts 1998-12 (the exchange-traded fund's inception); "
+        "University of Michigan Consumer Sentiment is available from 1978 "
+        "but is aligned to the XLV sample for this pair."
     ),
     plain_english=(
         "This section explains exactly how we did the analysis: which "

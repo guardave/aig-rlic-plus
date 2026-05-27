@@ -23,6 +23,7 @@ Date: 2026-04-20
 import os
 import json
 import warnings
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -30,7 +31,7 @@ from plotly.subplots import make_subplots
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = str(Path(__file__).resolve().parents[1])
 PAIR_ID = "umcsent_xlv"
 DATE_TAG = "20260420"
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
@@ -571,9 +572,14 @@ def chart_signal_dist():
     is_end = winner_data["is_end"]
     oos_start = winner_data["oos_start"]
 
-    fig = make_subplots(rows=1, cols=2,
-                        subplot_titles=["UMCSENT YoY Distribution",
-                                        "XLV Returns: YoY Rising vs Falling Sentiment"])
+    fig = make_subplots(
+        rows=1,
+        cols=2,
+        subplot_titles=[
+            "Consumer Sentiment Year-over-Year Distribution",
+            "XLV Returns: Rising vs Falling Sentiment",
+        ],
+    )
 
     yoy = df["umcsent_yoy"].dropna()
 
@@ -581,7 +587,7 @@ def chart_signal_dist():
     fig.add_trace(go.Histogram(
         x=yoy.values,
         nbinsx=40,
-        name="UMCSENT YoY",
+        name="Consumer Sentiment Year-over-Year",
         marker_color=C_INDICATOR,
         opacity=0.7,
     ), row=1, col=1)
@@ -597,12 +603,22 @@ def chart_signal_dist():
         name=f"Rising Sentiment (n={len(rising)})",
         marker_color=C_SPY,
         boxmean=True,
+        boxpoints=False,
+        hovertemplate=(
+            "Rising sentiment<br>"
+            "3-month forward return: %{y:.2f}%<extra></extra>"
+        ),
     ), row=1, col=2)
     fig.add_trace(go.Box(
         y=falling.values,
         name=f"Falling Sentiment (n={len(falling)})",
         marker_color=C_INDICATOR,
         boxmean=True,
+        boxpoints=False,
+        hovertemplate=(
+            "Falling sentiment<br>"
+            "3-month forward return: %{y:.2f}%<extra></extra>"
+        ),
     ), row=1, col=2)
 
     fig.update_layout(
@@ -611,10 +627,24 @@ def chart_signal_dist():
         showlegend=True,
         legend=dict(orientation="h", yanchor="bottom", y=1.02),
     )
-    fig.update_xaxes(title_text="UMCSENT YoY (%)", row=1, col=1)
+    fig.update_xaxes(title_text="Consumer Sentiment Year-over-Year (%)", row=1, col=1)
     fig.update_yaxes(title_text="Count", row=1, col=1)
-    fig.update_yaxes(title_text="XLV 3M Forward Return (%)", row=1, col=2)
-    save_chart(fig, f"{PAIR_ID}_signal_dist")
+    fig.update_yaxes(title_text="XLV 3-Month Forward Return (%)", row=1, col=2)
+    fig.add_annotation(
+        text=(
+            "Box edges mark the first quartile and third quartile; whiskers "
+            "show the standard box-plot range. Points beyond the whiskers "
+            "are extreme observations, not confirmed data errors."
+        ),
+        xref="paper",
+        yref="paper",
+        x=0.5,
+        y=-0.22,
+        showarrow=False,
+        align="center",
+        font=dict(size=11, color="#555"),
+    )
+    save_chart(fig, "signal_dist")
 
 
 # ===================================================================
