@@ -28,3 +28,19 @@
 13. Update SOPs immediately when lessons are learned.
 14. TED variants = 1 priority pair, not 3.
 15. HY-IG (#20) counts in the priority pair total.
+
+---
+
+## fix260526 (2026-05-26 / 2026-05-27) — process lessons crystallised
+
+1. **The deep_inspect canonical "wave clean" gate.** Narrow-marker checks (e.g. "did these 3 fixes land?") are a *fix-confirmation* test, not a *wave-clean* test. For wave-clean, walk every page × every tab × wide error-marker grep. Recipe lives at `temp/fix260526/deep_inspect.py`; the iframe + URL-slug + hydration-polling pattern follows `scripts/cloud_verify.py::get_dom()`. Adopt for any future wave that touches user-rendered surfaces.
+
+2. **"Pre-existing" doesn't change reader impact.** A defect is a defect if it fails any of correctness / completeness / consistency / ELI5. Provenance is for blame-tracking, not scope. When tempted to defer something because "it predates this work" — apply the 4-dim test instead.
+
+3. **Text-vs-data drift is the durable Mode 2 risk.** Three confirmed instances now (gold_copper_xli winner mismatch; indpro_spy Pearson observation; indpro_spy CCF observation backwards). The pattern: narrative authored ahead of or independently of data verification → silent drift. Cure: prose with explicit numeric citations from the source CSV, validated by grep at commit time.
+
+4. **Read existing helpers before writing new ones.** Repeated wins this session: `scripts/cloud_verify.py` (iframe Playwright pattern), `scripts/viz_cp_retro_apply.py` (single place to land Granger/sub-period cross-pair fixes), `scripts/synthesize_broker_trade_log.py` (existing broker-log generator). The team's existing code is usually the right starting point.
+
+5. **Producer reads canonical contracts, not file-order heuristics.** Several chart producers use `valid_strats.iloc[0]` (first row of CSV) to pick the "winner" — incorrect when CSV row order ≠ Sharpe order. The right pattern: read `winner_summary.json` (APP-WS1) with a fallback to `nlargest(1, "oos_sharpe")` if exact match fails (legacy null-fields case). Confirmed broken on indpro_xlp; likely also affects other pairs — schedule audit.
+
+6. **Per-pair component overrides via signal-type discriminators.** When a generic component (`Probability Engine Panel`) is wrong for some pairs, the per-pair config-override route is heavier than discriminating by signal-type semantics (e.g. `_PROBABILITY_PREFIXES` tuple in `probability_engine_panel.py`). The latter scales automatically with new pairs without per-pair edits.

@@ -740,3 +740,70 @@ with sync_playwright() as pw:
 
 - ~17 commits across 2 sessions to take one Mode 2 pair from inception to fully clean cloud render.
 - Confirms Mode 2 is achievable but the producer-side bug surface is real and the checker swarm (whether agent or human) is load-bearing. The user found at least 4 classes of bug my checkers missed.
+
+---
+
+## 2026-05-27 — EOD: fix260526 branch — W0/W0.5/W1/W2 complete (3 of 4 waves done)
+
+**Branch:** `fix260526` (separate Streamlit Cloud preview at `https://aig-rlic-plus-fix260526.streamlit.app/`)
+**Mode:** LEAD-WM1 Mode 2 (single maker, deep_inspect post-flow cloud verification)
+
+### Session arc
+
+Branched off `main` after `gold_copper_xli` triage to address the Step C Dashboard Comment Log — 104 issues across 9 pairs. User scoped to 3 pairs first: `indpro_spy` (7), `indpro_xlp` (11), `vix_vix3m_spy` (5). My initial 3-wave plan got refactored to 4 waves on user request: pull cross-pair items into a leading W0, then per-pair waves.
+
+### Waves shipped
+
+**W0 — cross-pair template (3 fixes, all 11 active pairs).** Commit `33f78fc`.
+- #23 breadcrumb anchors now same-tab via `get_page_prefix()` resolution + explicit `<a target="_self">` fallback.
+- #34 Probability Engine Panel header adapts: HMM/probability signals (Sample + hy_ig_spy) keep "Probability Engine Panel"; level/z-score/ratio signals (9 pairs) get "Signal Monitoring Panel" via `_PROBABILITY_PREFIXES` discriminator.
+- #104 cross-period "How to read it" caption now bold above chart (was small grey below).
+- 33/33 cloud checks PASS across 11 pairs.
+
+**W0.5 — missing artefacts caught by user sampling (7 items).** Commit `a19e7f2`.
+- User sample-checked `indpro_spy_strategy` and reported "broken with missing charts and data". My narrow 3-marker W0 check had passed but missed it. Deep inspection (every page × every tab × wide error markers) found 6 missing files (drawdown / walk_forward chart + broker trade log for each of indpro_spy + vix_vix3m_spy) plus a misleading "no data" rendering on subperiod_sharpe (different problem class than missing files).
+- User pushback: *"issue is issue, whether predated or not does not matter most. What matters most is whether it truly impacts the correctness/completeness/consistency/layperson reader friendliness."* — Recalibrated my classification (was deflecting via "pre-existing"); all 7 fail all 4 dimensions → in scope.
+- New generic generator `scripts/w0p5_generate_missing_strategy_artefacts.py` derives strategy position series from `winner_summary` + threshold-code semantics + `signals_*.parquet`.
+- `scripts/synthesize_broker_trade_log.py` patched to prefer `winner_summary.signal_column` (APP-WS1 schema field) over the legacy hardcoded `SIGNAL_COL_MAP`.
+
+**W1 — `indpro_xlp` 8 issues + bonus.** Commits `24aa35f`, `a9ad54e`.
+- Most-material fix: **#36 wrong winner on drawdown chart** — producer used `valid_strats.iloc[0]` (first CSV row by file order) instead of reading `winner_summary.json`. Cited "S1_level/T1_fixed_p25" — wrong; actual winner is `S8_accel/T2_roll_p75/P3_long_short_counter/L3`. Fix reads canonical winner; standardised label format `{signal}/{threshold}/{strategy}/L{lead}`.
+- Hidden cross-pair fix #35: `instructional_trigger_cards.py` defaulted to "P2" when `strategy_code=None` (legacy schema) → rendered P2-style "scale exposure proportionally" cards on a P3-binary winner. Now falls back to `strategy_family` discriminator.
+- Producer save-name change: `save_chart()` strips `indpro_xlp_` prefix to emit canonical bare names — eliminates producer-vs-cloud filename drift that had required manual rename steps.
+- Plus #24 ticks, #25-1 axes, #25-2 legends, #26 CCF significance bars, #27 quartile labels + REGIME_CAPTION (data-grounded), #28 sub-period 3-state, #37 scatter colorbar.
+
+**W2 — `indpro_spy` 6 issues + bonus.** Commit `3718fc9`.
+- Two material text-vs-data contradictions: **#65 Pearson observation** understated significance + missed that 60M z-score is the only Pearson-significant signal; **#67 CCF observation directionally backwards** — said SPY leads INDPRO at positive lags; actual data shows INDPRO leads SPY at all 11 significant lags (negative). Both rewritten with verified numbers (-0.108, -0.144, lag −9 to −12 peak r≈0.20–0.23).
+- #66 (Granger F-critical line undescribed) + #68 (Granger direction ambiguous) shipped as cross-pair updates to `viz_cp_retro_apply.py` — affects all 10 active pairs' `rolling_granger.json`.
+- `build_subperiod_sharpe()` extended with 3-state framing (real / "in cash" / "no data") — promotes the W0.5 fix from 2-pair patch to all 10 pairs.
+
+### Lessons crystallised this session
+
+1. **Narrow-marker checks ≠ wave-clean checks.** My W0 closure used only 3 markers (breadcrumb, panel title, caption) — passed 33/33 but the dashboard was visibly broken (Strategy Performance tab). The user found it immediately. New canonical "before declaring a wave done" gate: `temp/fix260526/deep_inspect.py` — every page × every tab × wide error-marker grep.
+
+2. **"Pre-existing" is a deflection.** Issues fail the 4-dim test (correctness/completeness/consistency/ELI5) or they don't. When/why they originated doesn't change the impact on the reader. I leaned on "pre-existing" framing twice; user shut both down. Now framed as: confirm via headless render → classify by reader impact → fix.
+
+3. **Two text-vs-data contradictions in `indpro_spy` are the same bug class as `gold_copper_xli`'s W2 wrong-winner.** When narrative is authored before / independently of data verification, prose drifts away from reality. The Mode 2 single-maker workflow is susceptible; data-grounded prose with explicit numeric citations is the only durable defence.
+
+4. **Stop reinventing → re-confirmed.** The big debug productivity gain this session came from reading `scripts/cloud_verify.py` for the iframe Playwright pattern (carried over from gold_copper_xli) and `scripts/viz_cp_retro_apply.py` to find the right place to fix cross-pair Granger/sub-period charts. The team's existing helpers are usually the right starting point.
+
+### Outstanding work for next session
+
+- **W3** — `vix_vix3m_spy` (4 issues + N4–N6 already shipped in W0.5):
+  - #60 add VIX term-structure explanation
+  - #61 add "short-term vs medium-term panic" framing
+  - #62 inline footnotes for contango/backwardation/etc
+  - #103 extend Correlation Analysis explanation
+- **Final cross-pair regression** on all 11 pairs to confirm W0/W0.5/W1/W2 cross-cutting changes didn't regress non-target pairs (most important: the cross-pair Granger label + sub-period 3-state on 8 pairs we didn't directly target).
+- **Branch close: merge `fix260526` → `main`** + delete preview app or repoint.
+- Pending review by user: cloud rendering of indpro_xlp + indpro_spy after Streamlit Cloud picks up commits.
+
+### Files in `temp/fix260526/` (the canonical working state of this branch)
+
+- `issue_table.md` — confirmation table for all 23 + N1–N7 issues.
+- `wave_plan.md` — W0/W0.5/W1/W2/W3 plan (W3 still pending).
+- `relnote.md` — running release notes (W0/W0.5/W1/W2 sections all marked ✅).
+- `deep_inspect.py` — canonical post-wave cloud verification script.
+- `confirmation_findings.json`, `w0_regression_findings.json` — raw inspection data.
+- `dom/`, `png/` — baseline + post-fix DOM dumps + screenshots.
+- `w0_regression_dom/`, `deep_dom/`, `deep_png/` — incremental cloud render captures.

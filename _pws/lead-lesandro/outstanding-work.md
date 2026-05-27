@@ -1,56 +1,37 @@
-# Outstanding Work — Lead Lesandro
+# Outstanding work — Lead Lesandro
 
-## Wave 10H.2/10I Hygiene Wave (bundleable)
+Last updated: 2026-05-27 EOD.
 
-Four backlog items, all closely related, best shipped together:
-- **BL-VIZ-O1-LEGACY** — create minimal `_meta.json` sidecars for 35 legacy-pair chart JSONs (6 legacy pairs)
-- **BL-VIZ-SIDECAR-HELPER** — consolidate 4 bypass generators into `scripts/_chart_sidecar.py` shared helper
-- **BL-APP-PR1** — new rule for path-resolution discipline (`_REPO_ROOT` anchors mandatory, bare relatives prohibited)
-- **BL-APP-PT1-LEGACY** — migrate 5 hand-written Methodology pages to template wrappers (Sample, indpro_spy, permit_spy, vix_vix3m_spy, ted variants, umcsent_xlv)
+## Active branch: `fix260526`
 
-Scope estimate: ~1 full agent-wave (Ace-heavy, Vera light support, Quincy verify). Blocks: none — framework is live on active pairs; legacy gap is hygiene.
+Preview app: `https://aig-rlic-plus-fix260526.streamlit.app/`
 
-## Next Priority Pair
-- **Pair #4: US10Y-US3M → SPY** (yield curve slope, daily, Yield Curve/Rates type)
-- This is a well-studied indicator with strong literature (Estrella & Hardouvelis 1991)
-- Expected: counter-cyclical (inverted curve → recession → equity weakness)
+### Done this session (W0 → W2 of 4 waves)
 
-## Remaining Pairs (68 of 73)
-- 5 completed: #1 INDPRO, #2 SOFR/TED (3 variants), #3 Permits, #11 VIX/VIX3M, #20 HY-IG (sample + v2)
-- Next SPY pairs: #4 T10Y3M, #5 UMCSENT, #6 HSN1F, #7 ISM_MFG_PMI, ...
-- Full list in `docs/priority-combinations-catalog.md`
+| Wave | Pair / Scope | Issues | Commits | Cloud verified |
+|---|---|---|---|---|
+| W0 | template (all 11 pairs) | #23 #34 #104 | `33f78fc` | ✅ 33/33 PASS |
+| W0.5 | indpro_spy + vix_vix3m_spy | N1–N7 (missing artefacts) | `a19e7f2` | ✅ |
+| W1 | indpro_xlp | #24 #25-1 #25-2 #26 #27 #28 #35 #36 #37 | `24aa35f`, `a9ad54e` | ✅ 0 errors |
+| W2 | indpro_spy + cross-pair Granger/sub-period | #63 #64 #65 #66 #67 #68 + bonus | `3718fc9` | ✅ 0 errors |
 
-## Pipeline Template Fixes Needed
-- [ ] Add `bool()` cast for numpy bool in JSON serialization (pair_pipeline_permit_spy.py has the fix)
-- [ ] Standardize L6 as default lead for monthly indicators in tournament grid
-- [ ] Consider creating a truly generic `pair_pipeline_generic.py` that reads config from Analysis Brief
+### Pending next session
 
-## SOP Improvements To Consider
-- [x] Add audience-friendliness rules to Research + AppDev SOPs (done 2026-04-10)
-- [x] Add 8-element Evidence template to SOPs (done 2026-04-11, Part D)
-- [x] Add classification metadata schema + gate items 19-21 (done 2026-04-11, Part D)
-- [x] SOP hardening from stakeholder bug review (done 2026-04-11, Part E — 34 new rules)
-- [x] Add chart naming convention (done 2026-04-11, Viz Rule A3 canonical path)
-- [x] Add trade log UX rules: Econometrics C4, AppDev §3.8 #5, Research "How to Read" (done 2026-04-11)
-- [ ] Codify "variant family" pattern formally in team-coordination SOP
-- [ ] Add short-OOS auto-flag (< 5 years) to econometrics SOP
-- [ ] Update Relevance Matrix with RoC signal preference note
+1. **W3 — `vix_vix3m_spy` (4 narrative additions):**
+   - #60 VIX term-structure explanation
+   - #61 "short-term vs medium-term panic" framing
+   - #62 inline footnotes for contango / backwardation / hedging demand / put demand / option pricing theory
+   - #103 extend Correlation Analysis explanation
+2. **Final cross-pair regression** — deep_inspect on all 11 active pairs to confirm W0 + W2 cross-cutting changes didn't regress the 8 pairs not directly targeted.
+3. **Cross-pair audit (post-W1 finding)** — grep all pair chart producers for `valid_strats.iloc[0]` / similar `iloc[0]` winner picks; replace with `winner_summary.json` reads (APP-WS1).
+4. **Branch close:** merge `fix260526` → `main`; promote `temp/fix260526/relnote.md` to a non-gitignored path; decide whether to keep or delete the preview app.
 
-## Architecture Items Surfaced But Not Yet Done
-- [ ] Glossary architecture migration: Ray owns `docs/portal_glossary.json`, Ace migrates `glossary.py` to read from it. Currently Ray is editing glossary.py directly as a workaround.
-- [ ] Chart filename dedup: both canonical short names (`hero.json`) and legacy prefixed names (`hy_ig_v2_spy_hero.json`) coexist during migration. Cleanup when loader fallback is removed.
-- [ ] tournament_winner.json schema defined in team-coordination but not yet produced by all prior pairs — Evan needs to backfill.
+### Open user-facing questions for next session
 
-## Trade Log UX — Cross-Pair Rollout Needed
-The three-layer fix (Evan broker-style CSV + Ace column legend + Ray narrative) is live on HY-IG v2. The 5 other completed pairs still use the old bare-CSV download pattern:
-- [ ] hy_ig_spy (sample)
-- [ ] indpro_spy
-- [ ] sofr_ted_spy / dff_ted_spy / ted_spliced_spy (shared pages)
-- [ ] permit_spy
-- [ ] vix_vix3m_spy
-Reusable script `scripts/synthesize_broker_trade_log.py` is ready; just needs per-pair dispatch of Evan → Ray → Ace.
+- After Cloud picks up tomorrow's commits, user may want to spot-check W1/W2 pair pages personally before final regression.
+- Confirm W3 should ship as text-only (no chart producer changes for `vix_vix3m_spy`).
+- Decide treatment of `indpro_spy` issue #69 (content request: "who are the team members") — currently marked OUT OF SCOPE; user may want to address separately.
 
-## Portal Improvements To Consider
-- [ ] Auto-generate sidebar FINDINGS list from pair_registry instead of hardcoding
-- [ ] Add cross-pair comparison page when 10+ pairs completed
-- [ ] Consider template-based pages instead of per-pair files (per appdev SOP guidance for 10+ pairs)
+### Broader cross-project tracking
+
+- `scripts/w0p5_generate_missing_strategy_artefacts.py` and the deep_inspect pattern in `temp/fix260526/deep_inspect.py` are good candidates for promotion to project-level tooling (`scripts/` or `app/_smoke_tests/`) at branch close. Currently they live as fix-branch artefacts.

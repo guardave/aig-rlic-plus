@@ -1170,3 +1170,29 @@ Currently neither is encoded — the checker swarm catches it, which is the prot
 2. Lead re-inspects via Playwright + reports rendered state.
 3. If clean: close pair v3 in pair_execution_history.
 4. If still broken: continue iterating, no celebration until cloud-DOM is verified clean.
+
+---
+
+## 2026-05-27 — Lead — EOD: fix260526 branch W0/W0.5/W1/W2 closed (W3 + merge tomorrow)
+
+**Status:** Handover for next session. fix260526 branch has 3 of 4 waves done; all 22 in-scope issues addressed via 6 pushed commits.
+
+**What was accomplished today:**
+- W0 (3 cross-pair template fixes, all 11 pairs): 33/33 cloud PASS — `33f78fc`.
+- W0.5 (7 missing artefacts on indpro_spy + vix_vix3m_spy Strategy page): user-caught via sampling, all shipped — `a19e7f2`.
+- W1 (8 pair-local fixes on indpro_xlp incl. wrong-winner drawdown bug): cloud verified clean — `24aa35f`, `a9ad54e`.
+- W2 (6 fixes on indpro_spy incl. 2 text-vs-data contradictions; cross-pair bonus on Granger + sub-period charts): cloud verified clean — `3718fc9`.
+
+**Discoveries / insights:**
+- **deep_inspect = canonical post-wave gate.** Narrow marker checks are appropriate for confirming named fixes; for "wave clean" you need every-tab × wide-marker. Lesson learned at W0/W0.5 boundary (user sampling caught what my narrow check missed).
+- **Text-vs-data drift is the durable Mode 2 risk.** Two pairs (gold_copper_xli W2, indpro_spy W2) had narrative claims contradicted by the source CSVs. Cure: data-grounded prose with explicit numeric citations.
+- **Producer reads of canonical contracts > `iloc[0]` heuristics.** `indpro_xlp_drawdown` showed wrong winner because producer picked `valid_strats.iloc[0]` instead of reading `winner_summary.json`. Same fix pattern likely applies to other pairs — worth a cross-pair audit (after W3 / before merge).
+- **Cross-pair producer fixes deliver leverage.** W2's #66 + #68 + bonus sub-period 3-state are template-level (`viz_cp_retro_apply.py`) — one fix benefits all 10 pairs.
+
+**Blockers:** None. fix260526 preview app is current with all pushed work.
+
+**Next steps:**
+1. W3 — `vix_vix3m_spy` 4 narrative additions (terms / framing / footnotes / extended Correlation explanation).
+2. Final cross-pair regression: deep_inspect on all 11 active pairs to confirm no regression on the 8 not directly targeted (W0 + W2 cross-pair changes affect them).
+3. Cross-pair audit of `iloc[0]` chart-winner picks (W1 #36 root cause) in producers for indpro_spy / vix_vix3m_spy / sofr_ted_spy etc.
+4. Merge `fix260526` → `main`; promote `temp/fix260526/relnote.md` to a non-gitignored location at merge time.
