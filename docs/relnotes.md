@@ -1,5 +1,38 @@
 # Release Notes
 
+## 2026-05-27 — fix260526: Step C Dashboard Comment-Log Triage (3 pairs) — **COMPLETE**
+
+**Final cross-pair regression: 44/44 PASS** (11 pairs × 4 pages). Branch `fix260526` is ready for merge to `main`.
+
+**Scope:** Address 22 of 23 actionable issues from `temp/Step C - Dashboard Comment log.xlsx` for `indpro_spy`, `indpro_xlp`, `vix_vix3m_spy`, plus 7 N-issues caught mid-stream when user sampling exposed pre-existing gaps. One issue (#69, content request on indpro_spy methodology team-members) intentionally OUT OF SCOPE.
+
+**Waves (all cloud-DOM verified):**
+
+| Wave | Scope | Issues | Commits |
+|---|---|---|---|
+| W0 | Template-level (all 11 active pairs) | #23 breadcrumb same-tab, #34 adaptive panel title, #104 cross-period caption styling | `33f78fc` |
+| W0.5 | indpro_spy + vix_vix3m_spy strategy artefacts | N1–N7 (missing drawdown/walk_forward/broker logs + sub-period 3-state) | `a19e7f2` |
+| W1 | indpro_xlp pair-local | #24, #25-1, #25-2, #26, #27, #28, #35, #36, #37 | `24aa35f`, `a9ad54e` |
+| W2 | indpro_spy pair-local + cross-pair Granger/sub-period | #63, #64, #65, #66, #67, #68 | `3718fc9` |
+| W3 | vix_vix3m_spy narrative additions | #60, #61, #62, #103 | `8d2cccb` |
+
+**Cross-pair leverage delivered alongside per-pair work:**
+- W0 #23 / #34 / #104: template fixes deployed on all 11 active pairs.
+- W2 #66 / #68 (Granger label + direction-aware trace) + sub-period 3-state framing: deployed on all 10 pairs that have those charts.
+- ~45 cross-pair benefit instances delivered on top of the 22 per-pair issues.
+
+**Key process learnings (in `_pws/lead-lesandro/memories.md`):**
+1. Narrow-marker checks confirm specific fixes; **deep_inspect** (every page × every tab × wide error markers) is the canonical wave-clean gate. User sampling caught a defect my narrow W0 check missed; introduced `temp/fix260526/deep_inspect.py` as the corrective.
+2. "Pre-existing" doesn't change reader impact. The 4-dim correctness/completeness/consistency/ELI5 test applies regardless of provenance.
+3. **Text-vs-data drift is the durable Mode 2 risk** — three confirmed instances this branch (gold_copper_xli winner mismatch from prior session, indpro_spy Pearson + CCF, vix_vix3m_spy Correlation). Cure: prose with explicit numeric citations verified at commit.
+4. **Read existing helpers before reinventing** — `scripts/cloud_verify.py` (iframe Playwright pattern), `scripts/viz_cp_retro_apply.py` (cross-pair Granger/sub-period landing zone), `scripts/synthesize_broker_trade_log.py`.
+5. **Producers should read `winner_summary.json` (APP-WS1)**, not `iloc[0]` heuristics on tournament CSVs. Audit completed — only one bug instance (indpro_xlp #36); now fixed.
+6. **Signal-type discriminators** (e.g. `_PROBABILITY_PREFIXES` tuple) scale better than per-pair config overrides for component customisation.
+
+**Full per-wave details:** `docs/relnote_fix260526.md`.
+
+---
+
 ## 2026-04-24 — Wave 10J/10K: META-CPD Discipline + Self-Reflection Round — **COMPLETE**
 
 **Final verify: 60/60 PASS** (Quincy `3086bb7`). Wave 10J closes with all agents having completed a structured self-reflection round and the META-CPD (Commit-Push Discipline) rule propagated to all five agent SOPs.
