@@ -8,6 +8,23 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-05-28 — LEAD-WM1 Cross-Team Registration
+
+**Trigger.** SOD audit (2026-05-28): LEAD-WM1 (Work Mode Selection) was correctly authored in `docs/agent-sops/lead-agent-sop.md` at original ratification (2026-05-26) and registered in `sop-changelog.md`, but two cross-doc steps were missed:
+1. Not entered into the canonical team-standards index (`docs/team-standards.md`) per the changelog protocol ("New rules are entered here first, then registered in `docs/standards.md` and/or `docs/team-standards.md`").
+2. Not cross-referenced in any of the six other SOPs (data, econometrics, research, visualization, appdev, qa, team-coordination), meaning role agents had no in-SOP notice that Mode 2 may invoke their domain rules with Lead as maker.
+
+This entry closes both gaps. **No new rule** — LEAD-WM1 unchanged. Pure SOP-hygiene cross-referencing.
+
+**Scope.**
+- `docs/team-standards.md` — added §5.5 *Work Mode Selection (LEAD-WM1)* with the full mode definitions, the SOD selection-conversation protocol, and what every agent must internalize about Mode 2.
+- `docs/agent-sops/team-coordination.md` — added a *Work Mode Selection (LEAD-WM1)* section right after META-CPD, pointing agents to the registration and summarizing the 4 binding implications.
+- `docs/agent-sops/{data,econometrics,research,visualization,appdev,qa}-agent-sop.md` — each now opens with a short "Work Mode Awareness (LEAD-WM1 — read at SOD)" stub block right after the identity header. Same text in all six SOPs to preserve cross-agent vocabulary.
+
+**Why it matters.** Under Mode 2, Lead wears each role's hat sequentially. Without cross-doc registration, an agent reading their own SOP at SOD has no signal that Mode 2 may be live for the current pair, that their domain rules still bind even when Lead is the maker, or that they may be dispatched during the checker phase. The cross-references close that gap without changing the rule.
+
+---
+
 ## 2026-05-26 — gold_copper_xli Review Follow-Up: Cross-Period Charts Gate (VIZ-CP1-G + GATE-32 activation)
 
 **Trigger.** User review of `gold_copper_xli` Evidence page surfaced 5 visible "Cross-period analysis pending — ... chart not yet available for this pair" placeholders in the Cross-Period Consistency section. Root cause: VIZ-CP1's 5 mandatory charts (`subperiod_sharpe`, `rolling_correlation`, `structural_break`, `rolling_sharpe_cp`, `rolling_granger`) were missing for the new pair, AND `CROSS_PERIOD_STUB_IS_FAIL` was still `False` (WARN) in `scripts/cloud_verify.py` after Wave 10J — the WARN→FAIL flip mandated by GATE-32 was never executed.

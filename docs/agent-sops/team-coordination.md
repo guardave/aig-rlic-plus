@@ -102,6 +102,28 @@ Both lines must show the same commit hash. If they differ, push immediately.
 
 ---
 
+## Work Mode Selection (LEAD-WM1) — binding on every pair
+
+**Rule lives at:** `docs/agent-sops/lead-agent-sop.md` §LEAD-WM1.
+**Full registration:** `docs/team-standards.md` §5.5.
+**This section is the pointer agents reach during the SOD read order.**
+
+The team operates in one of two modes, chosen per pair at SOD via an explicit Lead-recommendation → user-decides conversation:
+
+- **Mode 1 — Multiple makers, single checker (default).** Role agents are the makers within their ownership; Lead is the single checker post-handoff.
+- **Mode 2 — Single maker, multiple checkers.** Lead wears role hats sequentially producing the full pair in one flow; four checker subagents (correctness / completeness / consistency / ELI5) inspect post-flow in parallel.
+
+**What every agent must know:**
+
+1. Your domain SOP rules bind regardless of who runs them. Lead-as-your-role in Mode 2 is bound to your rules the same way you are.
+2. Handoff schema contracts (winner_summary, signal_scope, analyst_suggestions, interpretation_metadata) are mode-independent.
+3. LEAD-DL1 is suspended during the Mode-2 maker phase and restored during the checker phase — if a checker surfaces domain-significant findings under your ownership, you may receive a dispatch request even though you did not do the original build.
+4. LEAD-QF1 and META-CPD bind under both modes.
+
+**At pair start:** Lead opens the mode-selection conversation. Both the recommendation and the user decision are logged in `docs/pair_execution_history.md`. Reference back to that log when evaluating prior pair builds.
+
+---
+
 ## Deliverables Completeness Gate (Step 8)
 
 After browser verification confirms rendering quality, verify that **all deliverables exist** by reconciling against the Analysis Brief Section 9 checklist.
