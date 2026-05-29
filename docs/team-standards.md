@@ -121,32 +121,18 @@ GATE-29 (QA) verifies this list exists in clean checkout.
 
 ---
 
-## 5.5 Work Mode Selection (LEAD-WM1 — binding, per-pair)
+## 5.5 Work Mode Selection (LEAD-WM1)
 
-**Owner:** Lead (rule lives at `docs/agent-sops/lead-agent-sop.md` §LEAD-WM1; this section is the cross-team registration mandated by §SOP cross-doc protocol).
+**Owner:** Lead.  **Full rule:** `docs/agent-sops/lead-agent-sop.md` §LEAD-WM1.  This section is the canonical cross-team registration per the sop-changelog protocol.
 
-**The team operates in one of two work modes, chosen per pair at SOD via an explicit Lead-recommendation → user-decides conversation:**
+Per-pair the team operates in one of:
 
-| Mode | Maker | Checker | LEAD-DL1 status |
-|------|-------|---------|-----------------|
-| **Mode 1 — Multiple makers, single checker** *(default)* | Role agents (Dana / Evan / Ray / Vera / Ace), each within ownership | Lead (single, post-handoff) | Fully binding |
-| **Mode 2 — Single maker, multiple checkers** | Lead, wearing role hats sequentially | Four checker subagents (correctness / completeness / consistency / ELI5), parallel, post-flow | **Suspended for maker phase only**; restored in checker phase |
+| Mode | Maker | Checker | LEAD-DL1 |
+|------|-------|---------|----------|
+| **Mode 1 — Multiple makers, single checker** *(default)* | Role agents within ownership | Lead, post-handoff | Binding |
+| **Mode 2 — Single maker, multiple checkers** | Lead, wearing role hats sequentially | Four checker subagents (correctness / completeness / consistency / ELI5), parallel post-flow | Suspended in maker phase; restored in checker phase |
 
-**Mode-2 implications every agent must internalize:**
-
-1. **Your domain SOP rules remain binding regardless of who runs them.** When Lead is wearing your hat in Mode 2, DATA-D*, ECON-H*, VIZ-*, RES-*, APP-PT* etc. all still apply. Lead is bound to your rules the same way you are.
-2. **Your hand-off contract still applies even if Lead is doing the hand-off internally.** Schema-bound artefacts (winner_summary, signal_scope, analyst_suggestions, interpretation_metadata) and their producer-side validation are mode-independent.
-3. **LEAD-QF1 and META-CPD bind under both modes.** Quality-focus discipline and commit-push discipline are not mode-conditional.
-4. **The checker phase may dispatch you.** If a Mode-2 checker subagent surfaces a domain-significant finding under your ownership, Lead restores LEAD-DL1 and dispatches you. You should expect occasional dispatch requests during Mode-2 stabilization passes, even though you didn't do the original build.
-5. **Pair-execution-history records the mode.** `docs/pair_execution_history.md` logs the mode recommendation, user decision, and checker iteration count for every pair. Use this for calibration when reviewing past pair builds.
-
-**Mode selection conversation (mandatory at SOD for every new pair):** Lead reads the pair brief, offers a reasoned mode recommendation covering novelty / SOP-rule risk / depth-vs-throughput / benchmark status, the user makes the final call, and both recommendation and decision are logged in pair-execution-history.
-
-**Mode-1 safeguards:** even when the user requests Mode 2, Lead recommends Mode 1 (advisorily) for new indicator categories, pairs likely to surface new SOP rules, and benchmark/external-stakeholder pairs.
-
-**Mode-2 exit criteria:** the pair is not closeable until all four checker subagents return a clean report in the same iteration.
-
-**Cross-references:** `docs/agent-sops/lead-agent-sop.md` §LEAD-WM1 (full rule text), §LEAD-DL1 (mode-conditional delegation), §LEAD-QF1 (mode-independent quality focus); `docs/sop-changelog.md` (registration entry); `docs/pair_execution_history.md` (mode-by-pair log).
+Mode is selected at SOD via Lead-recommendation → user-decides conversation and logged in `docs/pair_execution_history.md`. Domain SOP rules and handoff schemas bind under both modes. LEAD-QF1 and META-CPD are mode-independent.
 
 ---
 

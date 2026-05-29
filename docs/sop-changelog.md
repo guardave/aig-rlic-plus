@@ -8,20 +8,20 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
-## 2026-05-28 — LEAD-WM1 Cross-Team Registration
+## 2026-05-28 — LEAD-WM1 Cross-Team Registration (minimal footprint)
 
-**Trigger.** SOD audit (2026-05-28): LEAD-WM1 (Work Mode Selection) was correctly authored in `docs/agent-sops/lead-agent-sop.md` at original ratification (2026-05-26) and registered in `sop-changelog.md`, but two cross-doc steps were missed:
-1. Not entered into the canonical team-standards index (`docs/team-standards.md`) per the changelog protocol ("New rules are entered here first, then registered in `docs/standards.md` and/or `docs/team-standards.md`").
-2. Not cross-referenced in any of the six other SOPs (data, econometrics, research, visualization, appdev, qa, team-coordination), meaning role agents had no in-SOP notice that Mode 2 may invoke their domain rules with Lead as maker.
+**Trigger.** SOD audit (2026-05-28): LEAD-WM1 (Work Mode Selection) was correctly authored in `docs/agent-sops/lead-agent-sop.md` at ratification (2026-05-26) but not entered into the canonical team-standards index per the changelog protocol ("New rules are entered here first, then registered in `docs/standards.md` and/or `docs/team-standards.md`").
 
-This entry closes both gaps. **No new rule** — LEAD-WM1 unchanged. Pure SOP-hygiene cross-referencing.
+This entry closes that registration gap. **No new rule** — LEAD-WM1 unchanged.
 
-**Scope.**
-- `docs/team-standards.md` — added §5.5 *Work Mode Selection (LEAD-WM1)* with the full mode definitions, the SOD selection-conversation protocol, and what every agent must internalize about Mode 2.
-- `docs/agent-sops/team-coordination.md` — added a *Work Mode Selection (LEAD-WM1)* section right after META-CPD, pointing agents to the registration and summarizing the 4 binding implications.
-- `docs/agent-sops/{data,econometrics,research,visualization,appdev,qa}-agent-sop.md` — each now opens with a short "Work Mode Awareness (LEAD-WM1 — read at SOD)" stub block right after the identity header. Same text in all six SOPs to preserve cross-agent vocabulary.
+**Scope (minimal footprint by design — keep agent SOPs token-tight; do not duplicate Lead's rule into theirs):**
+- `docs/team-standards.md` — added §5.5 *Work Mode Selection (LEAD-WM1)*: a brief canonical-registration entry (~12 lines) covering mode names, maker/checker shape, LEAD-DL1 mode-conditionality, and the SOD selection protocol. Pointer to the full rule in lead-agent-sop.md.
+- `docs/agent-sops/team-coordination.md` — added a short ~5-line pointer right after META-CPD telling role agents that mode choice exists, is logged in pair_execution_history.md, and their dispatch brief will tell them what's expected.
 
-**Why it matters.** Under Mode 2, Lead wears each role's hat sequentially. Without cross-doc registration, an agent reading their own SOP at SOD has no signal that Mode 2 may be live for the current pair, that their domain rules still bind even when Lead is the maker, or that they may be dispatched during the checker phase. The cross-references close that gap without changing the rule.
+**Explicitly NOT added** (initial 2026-05-28 attempt added these, then was reverted the same day as unnecessary token bloat):
+- Per-agent "Work Mode Awareness" stub blocks at the top of the 6 role SOPs. Role agents do not need to know Mode 2 exists; if Lead wears their hat, the dispatch brief tells them what they need to know. Their domain rules and handoff schemas bind unconditionally either way. Keeping mode awareness out of role-SOP context windows preserves ~100 lines per SOD read across the team.
+
+**Why it matters.** Cross-team registration in team-standards is the canonical "this rule exists" pointer per the changelog protocol. Beyond that, role agents work the same way under either mode — so their SOPs stay focused on their own domain.
 
 ---
 
