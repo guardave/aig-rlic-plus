@@ -174,7 +174,11 @@ def build_subperiod_sharpe(df: pd.DataFrame, pair_id: str) -> go.Figure:
         yaxis_title="",
         width=700,
         height=470,
-        margin=dict(l=200, r=80, t=60, b=80),
+        # b=130: room for the x-axis title (~25 px below plot) AND the
+        # multi-line grey caption note (~50 px tall) with a comfortable
+        # gap between them. Previously b=80 with caption at y=-0.18 put
+        # the caption on top of the x-axis title.
+        margin=dict(l=200, r=80, t=60, b=130),
         annotations=[
             dict(
                 text=(
@@ -187,7 +191,7 @@ def build_subperiod_sharpe(df: pd.DataFrame, pair_id: str) -> go.Figure:
                 xref="paper",
                 yref="paper",
                 x=0,
-                y=-0.18,
+                y=-0.32,
                 showarrow=False,
                 font=dict(size=10, color="grey"),
                 align="left",
