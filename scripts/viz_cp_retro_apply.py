@@ -246,7 +246,7 @@ def build_rolling_correlation(df: pd.DataFrame, pair_id: str) -> go.Figure:
         yaxis_title="Pearson Correlation",
         width=900,
         height=400,
-        margin=dict(l=70, r=40, t=60, b=80),
+        margin=dict(l=70, r=40, t=60, b=140),
         annotations=[
             dict(
                 text=(
@@ -264,7 +264,7 @@ def build_rolling_correlation(df: pd.DataFrame, pair_id: str) -> go.Figure:
         ],
         plot_bgcolor="white",
         paper_bgcolor="white",
-        legend=dict(orientation="h", y=-0.35),
+        legend=dict(orientation="h", y=-0.50),
     )
     fig.update_xaxes(gridcolor="rgba(200,200,200,0.4)")
     fig.update_yaxes(gridcolor="rgba(200,200,200,0.4)")
@@ -408,7 +408,7 @@ def build_rolling_sharpe_cp(df: pd.DataFrame, pair_id: str) -> go.Figure:
         yaxis_title="Sharpe Ratio (annualized)",
         width=900,
         height=400,
-        margin=dict(l=70, r=40, t=60, b=80),
+        margin=dict(l=70, r=40, t=60, b=140),
         annotations=[
             dict(
                 text="Rolling annualized Sharpe ratio of the winner strategy.",
@@ -538,7 +538,7 @@ def build_rolling_granger(df: pd.DataFrame, pair_id: str) -> go.Figure:
         ),
         width=900,
         height=400,
-        margin=dict(l=70, r=80, t=60, b=80),
+        margin=dict(l=70, r=80, t=60, b=140),
         annotations=[
             dict(
                 text=(
@@ -557,7 +557,7 @@ def build_rolling_granger(df: pd.DataFrame, pair_id: str) -> go.Figure:
         ],
         plot_bgcolor="white",
         paper_bgcolor="white",
-        legend=dict(orientation="h", y=-0.35),
+        legend=dict(orientation="h", y=-0.50),
     )
     fig.update_xaxes(title_text="Date", gridcolor="rgba(200,200,200,0.4)")
     fig.update_yaxes(

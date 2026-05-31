@@ -12,7 +12,20 @@
 | #64 | Story (and Evidence) | `Industrial Production`, `INDPRO`, `IP YoY Growth`, `IP Growth Quartile`, `IP momentum`, `IP signals` all coexist for the same indicator | No naming standard for indicator references in titles/axes/legends/prose. W2 normalised some prose but missed chart titles, axes, captions, and "IP X" body patterns. | Standardised on canonical short form `INDPRO` for all chart titles, axes, legends, captions, and body references. Long-form `Industrial Production (INDPRO)` kept only at the FRED-definition first-mention. Regenerated all 10 INDPRO×SPY chart JSONs. | `50c68b8` |
 | #68 | Evidence | Granger chart legend has both directions in red; chart doesn't explain which line is "leading" | `scripts/generate_charts_indpro_spy.py:416`: `"INDPRO" in direction` is True for both `"INDPRO->SPY"` AND `"SPY->INDPRO"` (substring search), so both lines got `C_INDICATOR` red. Plus no in-chart "how to read which direction leads" annotation. | Switched to `cause = direction.split("->")[0]` then `cause == "INDPRO" -> red, else blue`. Added in-chart annotation explaining the colour key + "line below dashed p=0.05 = that direction leads". Strengthened `GRANGER_BLOCK.how_to_read` and `.chart_caption` in `indpro_spy_config.py` with matching prose. | `50c68b8` |
 
-**SOP backlog (hybrid path per Lesandro):** three SOP-class root causes deferred to a dedicated SOP-hardening branch — `BL-APP-NUM1` (Numeric Format Single Source), `BL-VIZ-NS1` (Indicator Naming Standard), `BL-VIZ-DC1` (Bidirectional Chart Colour Discipline). See `docs/backlog.md` for full proposals, retro-apply scope, and trigger conditions.
+**Mid-flight extension — cross-pair legend/caption layout fix.** User reported (with screenshot of the Dot-Com Crash history-zoom on `indpro_spy`) that the horizontal legend overlaps the bottom source-note caption, flagged as a general layout issue ("just an example"). Cross-pair audit found **60 charts across all 10 active pairs** with the same overlap class — two distinct generator patterns:
+
+| Pattern | Generator | Before | After |
+|---|---|---|---|
+| **history_zoom_*** (38 charts) | `temp/generate_history_zoom_charts.py` (untracked one-shot) | legend.y=-0.05, caption.y=-0.12, margin.b=60 (7px paper-gap) | legend.y=-0.18, caption.y=-0.32, margin.b=120 |
+| **rolling_correlation / rolling_granger** (22 charts) | `scripts/viz_cp_retro_apply.py` | legend.y=-0.35, caption.y=-0.22, margin.b=80 (legend rendered inside margin) | legend.y=-0.50, caption.y=-0.22 (unchanged), margin.b=140 |
+
+Tactical fix (committed this branch):
+- `scripts/patch_legend_caption_layout.py` — new idempotent JSON patcher; rewrites all 60 affected chart JSONs in place. Re-run safe.
+- `scripts/viz_cp_retro_apply.py` — generator source patched so re-runs stay correct.
+- `scripts/generate_history_zoom_charts.py` — promoted from untracked `temp/` location into git with corrected constants and history block in the docstring (institutional-knowledge rescue).
+- Local PNG render of patched `history_zoom_dot_com.json` confirms ~70px vertical separation between legend and caption row (previously overlapping at ~10px).
+
+**SOP backlog (hybrid path per Lesandro):** four SOP-class root causes deferred to a dedicated SOP-hardening branch — `BL-APP-NUM1` (Numeric Format Single Source), `BL-VIZ-NS1` (Indicator Naming Standard), `BL-VIZ-DC1` (Bidirectional Chart Colour Discipline), `BL-VIZ-LO1` (Legend / Caption Vertical Separation). See `docs/backlog.md` for full proposals, retro-apply scope, and trigger conditions.
 
 **Why fix260526 declared these closed despite not actually fixing them:** classic META-CMP completeness-drift — W2 commit message listed `#63, #64, #65, #66, #67, #68` but the diff only addressed `#64, #65, #66, #67`. The commit-vs-claim gap was the bug META-CMP is designed to catch. This re-triage is itself evidence for the META-CMP forcing-function proposal in GH issue #7.
 
