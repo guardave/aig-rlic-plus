@@ -1,5 +1,27 @@
 # Release Notes
 
+## 2026-05-31 — fix260531: Comment-Log Re-Triage (#63, #64, #68) — IN FLIGHT
+
+**Scope:** User-flagged that fix260526's W2 commit (`3718fc9`) closed `indpro_spy` comments #63, #64, #68 in the log but did not actually fix all three. Re-verified each on cloud-rendered `aig-rlic-plus.streamlit.app/indpro_spy_story|evidence` and confirmed user is correct — only #64 was partly addressed; #63 and #68 were never touched in W2.
+
+**Triage outcome:**
+
+| # | Section | Bug | Root cause | This-branch fix | Commit |
+|---|---|---|---|---|---|
+| #63 | Story | KPI card `+7.6%` vs body prose `+7.7%` (and `+7.65%`) for OOS annualised return | `_format_ratio_pct(0.0765)` uses Python's banker's rounding → `+7.6%`; prose was hand-typed at standard rounding → `+7.7%`. Same source value, two display strings. | Aligned 3 hand-typed strings in `indpro_spy_config.py` to `+7.6%` | `50c68b8` |
+| #64 | Story (and Evidence) | `Industrial Production`, `INDPRO`, `IP YoY Growth`, `IP Growth Quartile`, `IP momentum`, `IP signals` all coexist for the same indicator | No naming standard for indicator references in titles/axes/legends/prose. W2 normalised some prose but missed chart titles, axes, captions, and "IP X" body patterns. | Standardised on canonical short form `INDPRO` for all chart titles, axes, legends, captions, and body references. Long-form `Industrial Production (INDPRO)` kept only at the FRED-definition first-mention. Regenerated all 10 INDPRO×SPY chart JSONs. | `50c68b8` |
+| #68 | Evidence | Granger chart legend has both directions in red; chart doesn't explain which line is "leading" | `scripts/generate_charts_indpro_spy.py:416`: `"INDPRO" in direction` is True for both `"INDPRO->SPY"` AND `"SPY->INDPRO"` (substring search), so both lines got `C_INDICATOR` red. Plus no in-chart "how to read which direction leads" annotation. | Switched to `cause = direction.split("->")[0]` then `cause == "INDPRO" -> red, else blue`. Added in-chart annotation explaining the colour key + "line below dashed p=0.05 = that direction leads". Strengthened `GRANGER_BLOCK.how_to_read` and `.chart_caption` in `indpro_spy_config.py` with matching prose. | `50c68b8` |
+
+**SOP backlog (hybrid path per Lesandro):** three SOP-class root causes deferred to a dedicated SOP-hardening branch — `BL-APP-NUM1` (Numeric Format Single Source), `BL-VIZ-NS1` (Indicator Naming Standard), `BL-VIZ-DC1` (Bidirectional Chart Colour Discipline). See `docs/backlog.md` for full proposals, retro-apply scope, and trigger conditions.
+
+**Why fix260526 declared these closed despite not actually fixing them:** classic META-CMP completeness-drift — W2 commit message listed `#63, #64, #65, #66, #67, #68` but the diff only addressed `#64, #65, #66, #67`. The commit-vs-claim gap was the bug META-CMP is designed to catch. This re-triage is itself evidence for the META-CMP forcing-function proposal in GH issue #7.
+
+**Cloud verification status:** pending. Preview app `aig-rlic-plus-fix260526.streamlit.app` is still pointed at `fix260526`, not `fix260531`. Options: (a) repoint preview to `fix260531`, (b) merge to main and verify on production app, (c) skip and trust the local DOM + JSON spot checks. Awaiting Lead decision.
+
+**Out of scope this branch:** the corresponding SOP rules (would change all 10 active pairs); cross-pair audit for analogous drift on other pairs.
+
+---
+
 ## 2026-05-27 — fix260526: Step C Dashboard Comment-Log Triage (3 pairs) — **COMPLETE**
 
 **Final cross-pair regression: 44/44 PASS** (11 pairs × 4 pages). Branch `fix260526` is ready for merge to `main`.
