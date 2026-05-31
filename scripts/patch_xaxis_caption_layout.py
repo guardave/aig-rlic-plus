@@ -60,16 +60,23 @@ from _chart_layout import (  # noqa: E402
 def _is_target_caption(anno: dict) -> bool:
     """Return True iff the annotation is the small grey source-note caption.
 
-    Heuristics: paper-anchored, y < 0, and either small grey font or one of
-    the known caption substrings.
+    Heuristics: paper-anchored AND (small grey font OR a known caption
+    keyword in the text). Accepts both legacy paper-y captions (y<0) and
+    new pixel-shifted captions (y=0 with yshift).
+
+    Disqualifiers: y > 0 (those are titles/labels at top of plot); arrow
+    annotations (event labels — they have showarrow=True or refer to data
+    coordinates).
     """
     if anno.get("yref") != "paper":
+        return False
+    if anno.get("showarrow") is True:
         return False
     try:
         ay = float(anno.get("y"))
     except Exception:
         return False
-    if ay >= 0:
+    if ay > 0:                   # captions sit at y=0 (pixel-shifted) or y<0 (legacy)
         return False
     text = str(anno.get("text", ""))
     font = anno.get("font") or {}
@@ -114,21 +121,27 @@ def _patch_layout(doc: dict) -> bool:
     changed = False
 
     # 3. Re-anchor caption to plot-area bottom-left + pixel shifts.
-    #    Previously the caption used pure paper-y (y=-0.58) which scaled
-    #    with plot-area height — captions on tall charts landed in a
-    #    different absolute position than captions on short charts.
-    #    Pixel xshift/yshift removes the dependency.
+    #    xshift = -margin.l lands the caption at the chart container's
+    #    left edge regardless of how wide the left margin is. yshift is
+    #    a fixed pixel distance below the plot. Paper-y (legacy) is
+    #    cleared because mixing paper-y with yshift double-counts the
+    #    vertical offset.
+    try:
+        margin_l = int((margin.get("l") if margin else None) or 80)
+    except Exception:
+        margin_l = 80
+    target_xshift = -margin_l
     if (
         caption.get("x") != 0
         or caption.get("y") != 0
-        or caption.get("xshift") != TARGET_CAPTION_X_SHIFT_PX
+        or caption.get("xshift") != target_xshift
         or caption.get("yshift") != TARGET_CAPTION_Y_SHIFT_PX
         or caption.get("xanchor") != "left"
         or caption.get("yanchor") != "top"
     ):
         caption["x"] = 0
         caption["y"] = 0
-        caption["xshift"] = TARGET_CAPTION_X_SHIFT_PX
+        caption["xshift"] = target_xshift
         caption["yshift"] = TARGET_CAPTION_Y_SHIFT_PX
         caption["xanchor"] = "left"
         caption["yanchor"] = "top"

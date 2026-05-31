@@ -91,12 +91,18 @@ def apply_caption_layout(fig, caption_text: str) -> None:
     """Apply the canonical X-axis title + caption layout to ``fig``.
 
     The caption is positioned by PIXEL OFFSET from the bottom-left of the
-    plot area (``xref="paper"`` with ``xshift``/``yshift``). This gives
-    consistent visual placement across chart types — independent of
-    ``margin.l`` (wide left margins for episode labels) and ``height``
-    (different plot-area heights). Previously the caption used pure paper
-    coords (``x=0, y=-0.58``) which scaled with the plot area and produced
-    visually divergent placement.
+    plot area (``xref="paper"`` with ``xshift``/``yshift``). To get
+    consistent horizontal placement across chart types, ``xshift`` is
+    computed as ``-margin.l`` so the caption always lands at the chart
+    container's left edge — regardless of how wide the left margin is
+    (subperiod_sharpe uses l=200 for long episode labels; rolling charts
+    use l=70). Without the margin-aware xshift, a fixed pixel offset
+    would make captions on wide-margin charts appear shifted right.
+
+    ``yshift`` is fixed at CAPTION_Y_SHIFT_PX so the caption always sits
+    at the same pixel distance below the plot area's bottom edge — making
+    the gap between axis title and caption consistent regardless of plot
+    height.
 
     Idempotent: re-applying produces the same layout.
 
@@ -110,13 +116,22 @@ def apply_caption_layout(fig, caption_text: str) -> None:
     """
     fig.update_xaxes(title_standoff=XAXIS_STANDOFF)
 
+    # Resolve margin.l so the caption lands at chart-container left edge,
+    # not plot-area left edge. Default to 80 if margin.l is unset (matches
+    # Plotly's auto-margin behaviour roughly).
+    margin = (fig.layout.margin or {}) if hasattr(fig.layout, "margin") else {}
+    try:
+        margin_l = int(margin.l) if margin.l is not None else 80
+    except Exception:
+        margin_l = 80
+
     fig.add_annotation(
         text=caption_text,
         xref="paper",
         yref="paper",
         x=0,
-        y=0,                       # anchor to bottom-left of plot area
-        xshift=CAPTION_X_SHIFT_PX, # then shift by absolute pixels
+        y=0,                          # anchor to bottom-left of plot area
+        xshift=-margin_l,             # shift left to chart-container edge
         yshift=CAPTION_Y_SHIFT_PX,
         xanchor="left",
         yanchor="top",
@@ -126,7 +141,6 @@ def apply_caption_layout(fig, caption_text: str) -> None:
     )
 
     # Bottom-margin floor.
-    margin = (fig.layout.margin or {}) if hasattr(fig.layout, "margin") else {}
     try:
         cur_b = int(margin.b) if margin.b is not None else 0
     except Exception:
