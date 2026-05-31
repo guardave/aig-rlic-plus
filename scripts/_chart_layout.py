@@ -42,25 +42,19 @@ from typing import Iterable
 
 # ─── Constants (canonical) ────────────────────────────────────────────────
 #
-# The caption is CENTERED across the chart container width at a fixed
-# pixel distance below the plot area. This produces visually consistent
-# placement across chart types regardless of:
-#   - margin.l (subperiod_sharpe l=200 for episode labels, rolling l=70)
-#   - margin.r (varies)
-#   - height (subperiod_sharpe 470, rolling 400)
-#   - width (subperiod 700, rolling 900) — caption auto-centers within
-#     each chart's container
+# The caption is LEFT-ALIGNED to the chart container's left edge at a
+# fixed pixel distance below the plot area. To land on the container
+# edge (not the plot-area edge), the helper sets xshift = -margin.l
+# per chart — Plotly's paper-x=0 is plot-area left, which sits
+# margin.l pixels in from the chart container's left.
 #
-# Positioning recipe:
-#   x = 0.5, xanchor = "center", xref = "paper"
-#       → centered relative to the PLOT AREA. But the plot area's
-#         centerline IS the chart container's centerline when margin.l
-#         and margin.r are not extremely asymmetric. For the small skew
-#         that does exist (l=200, r=80 on subperiod), the eye barely
-#         notices.
-#   y = 0, yanchor = "top", yshift = CAPTION_Y_SHIFT_PX, yref = "paper"
-#       → anchored to plot-area bottom, then fixed pixel offset down.
-#         Independent of plot-area height.
+# Note on cross-chart alignment: charts with different widths (e.g.
+# subperiod_sharpe w=700 vs rolling w=900) and centered in a Streamlit
+# column will show captions starting at different page-x positions
+# because the containers themselves don't align at the page level.
+# Captions ARE flush-left within each chart container — that's the
+# per-chart guarantee. Cross-chart visual alignment would require
+# standardising chart widths (out of scope here).
 #
 # CAPTION_Y_SHIFT_PX leaves room for tick labels + axis title + gap.
 
@@ -83,16 +77,14 @@ CAPTION_FONT: dict = {"size": 10, "color": "grey"}
 def apply_caption_layout(fig, caption_text: str) -> None:
     """Apply the canonical X-axis title + caption layout to ``fig``.
 
-    The caption is CENTERED across the plot-area width at a fixed pixel
-    distance below the plot bottom. This sidesteps the margin.l / chart-
-    width inconsistency the previous left-aligned recipes ran into —
-    centered text auto-balances within each chart's container, so all
-    captions appear visually consistent regardless of chart dimensions.
+    The caption is left-aligned to the chart container's left edge at a
+    fixed pixel distance below the plot bottom.
 
     Recipe:
-      x=0.5, xanchor="center"   → centered on plot-area (≈ chart center)
+      x=0, xanchor="left"           → anchor at plot-area left edge
+      xshift = -margin.l            → shift left to chart-container edge
       y=0, yshift=CAPTION_Y_SHIFT_PX, yanchor="top"
-                                → fixed pixel distance below plot bottom
+                                    → fixed pixel below plot bottom
 
     Idempotent: re-applying produces the same layout.
 
@@ -106,23 +98,30 @@ def apply_caption_layout(fig, caption_text: str) -> None:
     """
     fig.update_xaxes(title_standoff=XAXIS_STANDOFF)
 
+    # Resolve margin.l so the caption lands at chart-container left edge,
+    # not plot-area left edge. Default to 80 if margin.l is unset.
+    margin = (fig.layout.margin or {}) if hasattr(fig.layout, "margin") else {}
+    try:
+        margin_l = int(margin.l) if margin.l is not None else 80
+    except Exception:
+        margin_l = 80
+
     fig.add_annotation(
         text=caption_text,
         xref="paper",
         yref="paper",
-        x=0.5,
+        x=0,
         y=0,
-        xshift=0,
+        xshift=-margin_l,
         yshift=CAPTION_Y_SHIFT_PX,
-        xanchor="center",
+        xanchor="left",
         yanchor="top",
         showarrow=False,
         font=CAPTION_FONT,
-        align="center",
+        align="left",
     )
 
     # Bottom-margin floor.
-    margin = (fig.layout.margin or {}) if hasattr(fig.layout, "margin") else {}
     try:
         cur_b = int(margin.b) if margin.b is not None else 0
     except Exception:

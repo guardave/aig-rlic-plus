@@ -119,25 +119,30 @@ def _patch_layout(doc: dict) -> bool:
 
     changed = False
 
-    # 3. Re-anchor caption: centered across plot-area + fixed pixel
-    #    yshift below plot bottom. This sidesteps the margin.l and
-    #    chart-width inconsistencies that plagued left-aligned recipes.
+    # 3. Re-anchor caption: left-aligned at chart-container left edge +
+    #    fixed pixel yshift below plot bottom. xshift = -margin.l shifts
+    #    the annotation left from plot-area edge to chart-container edge.
+    try:
+        margin_l = int((margin.get("l") if margin else None) or 80)
+    except Exception:
+        margin_l = 80
+    target_xshift = -margin_l
     if (
-        caption.get("x") != 0.5
+        caption.get("x") != 0
         or caption.get("y") != 0
-        or caption.get("xshift") != 0
+        or caption.get("xshift") != target_xshift
         or caption.get("yshift") != TARGET_CAPTION_Y_SHIFT_PX
-        or caption.get("xanchor") != "center"
+        or caption.get("xanchor") != "left"
         or caption.get("yanchor") != "top"
-        or caption.get("align") != "center"
+        or caption.get("align") != "left"
     ):
-        caption["x"] = 0.5
+        caption["x"] = 0
         caption["y"] = 0
-        caption["xshift"] = 0
+        caption["xshift"] = target_xshift
         caption["yshift"] = TARGET_CAPTION_Y_SHIFT_PX
-        caption["xanchor"] = "center"
+        caption["xanchor"] = "left"
         caption["yanchor"] = "top"
-        caption["align"] = "center"
+        caption["align"] = "left"
         changed = True
 
     # 4. Set xaxis_title standoff so title hugs the tick labels.
