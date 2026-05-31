@@ -94,7 +94,7 @@ def make_hero(df):
         yaxis=dict(title="Gold/Copper Ratio", side="left"),
         yaxis2=dict(title="XLI ($)", side="right", overlaying="y"),
         hovermode="x unified", template="plotly_white", height=520,
-        legend=dict(orientation="h", y=-0.15),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
     save_chart(fig, "hero", palette_id="dual_asset_v1",
                rules_applied=["VIZ-NBER1", "VIZ-IC1"],
@@ -127,7 +127,7 @@ def make_equity_curves(signals_df):
     fig.update_layout(title="Equity curves: strategy vs buy-and-hold (XLI)",
                       xaxis=dict(title="Date"), yaxis=dict(title="Cumulative growth"),
                       template="plotly_white", height=460,
-                      legend=dict(orientation="h", y=-0.15))
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
     save_chart(fig, "equity_curves", palette_id="strategy_vs_bh_v1",
                rules_applied=["VIZ-IC1"],
                alignment_note="Strategy vs buy-and-hold full sample. Strategy is from signals parquet.")
@@ -176,7 +176,7 @@ def make_regime_quartile_returns():
                       xaxis=dict(title="Signal quartile"),
                       yaxis=dict(title="XLI 63d fwd return (%)"),
                       barmode="group", template="plotly_white", height=420,
-                      legend=dict(orientation="h", y=-0.15))
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
     save_chart(fig, "regime_quartile_returns", palette_id="quartile_v1",
                rules_applied=["VIZ-IC1"],
                alignment_note="Mean vs median by quartile — robustness check on quartile_returns chart.")
@@ -242,7 +242,7 @@ def make_history_zoom(df, slug):
         xaxis2=dict(domain=[0, 1], anchor="y3", title="Date"),
         yaxis3=dict(domain=[0, 0.42], title="252d Z-Score", anchor="x2"),
         template="plotly_white", height=520,
-        legend=dict(orientation="h", y=-0.15),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         showlegend=True,
     )
     save_chart(fig, f"history_zoom_{slug}", palette_id="dual_panel_v1",

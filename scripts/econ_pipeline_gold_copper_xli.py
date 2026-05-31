@@ -169,19 +169,43 @@ def stage_tournament(df):
                     except Exception as e:
                         log(f"  combo FAIL {sig_col}/{t_code}/{s_code}/L{lead}: {e}")
     df_t = pd.DataFrame(rows).sort_values("oos_sharpe", ascending=False)
+
+    # DUP-11: emit the canonical BENCHMARK row (buy-and-hold of the target
+    # asset over the OOS window). pair_registry.py and the dashboard cards
+    # use this row to compute the "vs Buy & Hold" comparison. Pipelines
+    # that skip this row produce dashboard cards with "—" instead of B&H
+    # numbers — exactly what gold_copper_xli was doing before this fix.
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from tournament import emit_benchmark_row
+    bm_row = emit_benchmark_row(
+        df[TARGET_RET], str(OOS_START.date()), str(OOS_END.date()),
+        columns_template=df_t.columns,
+    )
+    df_t = pd.concat([df_t, pd.DataFrame([bm_row])], ignore_index=True)
+
     out = os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv")
     df_t.to_csv(out, index=False)
-    log(f"  wrote {out}  ({len(df_t)} combos, {df_t['valid'].sum()} valid)")
+    log(f"  wrote {out}  ({len(df_t)} rows incl. BENCHMARK, "
+        f"{int(df_t['valid'].sum())} valid)")
     return df_t
 
 
 def stage_winner(df, df_t):
     log("Stage 5: winner_summary + signals parquet")
-    valid = df_t[df_t["valid"]].copy()
-    if len(valid) == 0:
+    # DUP-11: use the shared select_winner / B&H helpers so winner picking
+    # and B&H computation are guaranteed consistent with the dashboard
+    # consumer (pair_registry.py).
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from tournament import select_winner, compute_buy_and_hold_stats
+    try:
+        w = select_winner(df_t, score="oos_sharpe", exclude_benchmark=True, valid_only=True)
+    except ValueError:
         log("  WARN: no valid winner; using best by sharpe regardless")
-        valid = df_t.head(1)
-    w = valid.iloc[0]
+        non_bm = df_t[df_t["signal"] != "BENCHMARK"]
+        w = non_bm.sort_values("oos_sharpe", ascending=False).iloc[0]
+    bh = compute_buy_and_hold_stats(
+        df[TARGET_RET], str(OOS_START.date()), str(OOS_END.date()),
+    )
 
     # Recompute winner series for signals parquet
     sig_col = w["signal"]
@@ -238,6 +262,11 @@ def stage_winner(df, df_t):
         "oos_ann_return": float(w["oos_ann_return"]) / 100.0,
         "max_drawdown": float(w["oos_max_drawdown"]),
         "oos_max_drawdown": float(w["oos_max_drawdown"]) / 100.0,
+        # DUP-11: B&H reference, populated by compute_buy_and_hold_stats
+        # above. Dashboard cards read these as the "vs Buy & Hold" column.
+        "bh_sharpe": bh["bh_sharpe"],
+        "bh_ann_return": bh["bh_ann_return"],
+        "bh_max_drawdown": bh["bh_max_drawdown"],
         "annual_turnover": float(w["annual_turnover"]),
         "win_rate": float((strat_ret.loc[OOS_START:OOS_END] > 0).mean()),
         "oos_n_trades": int(pos.diff().abs().loc[OOS_START:OOS_END].sum()),

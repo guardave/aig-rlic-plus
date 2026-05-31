@@ -111,38 +111,121 @@ def render_transition(text: str):
     st.markdown(f'<div class="transition-text">{text}</div>', unsafe_allow_html=True)
 
 
+def _glossary_clear() -> None:
+    """Reset the glossary search field. Used as the on_click callback for
+    the clear button so the input re-renders empty on the next pass."""
+    st.session_state["glossary_search"] = ""
+
+
+# CSS that turns Streamlit's default pill button into a small borderless
+# icon button — visually attached to the search input on its right, like a
+# native search-box clear-X.
+#
+# Scoped to our button via Streamlit's `st-key-<key>` class on the element
+# container (Streamlit adds this whenever a widget has a `key=`). This is
+# stable across Streamlit minor versions and doesn't depend on aria-label,
+# title, or internal css class names.
+_GLOSSARY_CLEAR_CSS = """
+<style>
+/* Tighten the column gap so the clear icon hugs the text input */
+section[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"]:has(.st-key-glossary_clear) {
+    gap: 0.2rem;
+}
+/* The clear button itself: kill pill chrome and focus ring */
+.st-key-glossary_clear button {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #888 !important;
+    padding: 0 !important;
+    min-height: 38px;   /* matches Streamlit's stTextInput default height */
+    height: 38px;
+    width: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+.st-key-glossary_clear button:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.06) !important;
+    color: #333 !important;
+}
+.st-key-glossary_clear button:disabled {
+    color: #ccc !important;
+    background: transparent !important;
+    cursor: default !important;
+}
+/* Material icon size */
+.st-key-glossary_clear button span[data-testid="stIconMaterial"] {
+    font-size: 20px !important;
+    line-height: 1 !important;
+}
+</style>
+"""
+
+
 def render_glossary_sidebar():
     """Render the glossary in the sidebar as a dynamic search field.
 
-    Replaces the old static expander with a text_input that filters and ranks
-    terms by relevance in real time. Results show plain_english definition
-    plus optional why_it_matters and example fields from portal_glossary.json.
+    Uses ``st.text_input`` so the user can search across term names AND
+    definition text (the previous selectbox-only experiment lost this
+    deep-text match — e.g. typing "annualized" no longer surfaced "OOS
+    Sharpe" via its definition). Adds a small Material Symbols "close"
+    icon button to the right of the input so the user can wipe the field
+    with one click. CSS strips Streamlit's default pill chrome so the
+    button looks like a native search-box clear-X.
+
+    Results are ranked by relevance via ``_rank_results`` — exact match
+    first, then prefix, then term substring, then plain_english substring,
+    then auxiliary fields (why_it_matters / example).
     """
     corpus = _build_glossary_corpus()
 
     with st.sidebar:
         st.markdown("#### Glossary")
-        query = st.text_input(
-            "Search terms",
-            placeholder="e.g. Sharpe, drawdown, OAS…",
-            label_visibility="collapsed",
-            key="glossary_search",
-        )
+        # Inject the icon-button CSS once per render. (Streamlit dedupes
+        # repeated markdown blocks via diffing, so re-injecting is cheap.)
+        st.markdown(_GLOSSARY_CLEAR_CSS, unsafe_allow_html=True)
 
-        if query.strip():
-            results = _rank_results(query, corpus)
-            if not results:
-                st.caption("No matching terms.")
-            else:
-                for term, plain, extra in results[:8]:
-                    with st.expander(term):
-                        if plain:
-                            st.markdown(plain)
-                        why = extra.get("why_it_matters", "")
-                        if why:
-                            st.caption(f"**Why it matters:** {why}")
-                        example = extra.get("example", "")
-                        if example:
-                            st.caption(f"*Example: {example}*")
-        else:
+        # Two-column layout: wide input + narrow icon button.
+        col_input, col_clear = st.columns([6, 1], gap="small")
+        with col_input:
+            query = st.text_input(
+                "Search terms",
+                placeholder="Type to search definitions…",
+                label_visibility="collapsed",
+                key="glossary_search",
+            )
+        with col_clear:
+            # Material Symbols "close" icon (Streamlit ≥1.36). Disabled
+            # state mutes the icon when the field is empty.
+            st.button(
+                "",
+                icon=":material/close:",
+                key="glossary_clear",
+                on_click=_glossary_clear,
+                disabled=not (query or "").strip(),
+                help="Clear search",
+                use_container_width=True,
+            )
+
+        if not (query or "").strip():
             st.caption("Type to search definitions.")
+            return
+
+        results = _rank_results(query, corpus)
+        if not results:
+            st.caption("No matching terms.")
+            return
+
+        for term, plain, extra in results[:8]:
+            with st.expander(term):
+                if plain:
+                    st.markdown(plain)
+                why = extra.get("why_it_matters", "")
+                if why:
+                    st.caption(f"**Why it matters:** {why}")
+                example = extra.get("example", "")
+                if example:
+                    st.caption(f"*Example: {example}*")

@@ -6,6 +6,7 @@ Rules applied: VIZ-CP1
 
 import json
 import os
+import sys
 import warnings
 from datetime import datetime
 from pathlib import Path
@@ -13,6 +14,9 @@ from pathlib import Path
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _chart_layout import apply_caption_layout  # noqa: E402
 
 warnings.filterwarnings("ignore")
 
@@ -53,32 +57,10 @@ PAIRS = [
     "vix_vix3m_spy",
 ]
 
-# NBER recessions
-NBER_SHADING = "rgba(150,120,120,0.22)"
-RECESSIONS = [
-    ("2001-03-01", "2001-11-01"),
-    ("2007-12-01", "2009-06-01"),
-    ("2020-02-01", "2020-04-01"),
-]
-
-
-def add_nber_shading(fig, x_min, x_max, xref="x"):
-    for s, e in RECESSIONS:
-        s_dt, e_dt = pd.Timestamp(s), pd.Timestamp(e)
-        if e_dt < x_min or s_dt > x_max:
-            continue
-        fig.add_shape(
-            type="rect",
-            x0=max(s_dt, x_min).isoformat(),
-            x1=min(e_dt, x_max).isoformat(),
-            y0=0,
-            y1=1,
-            xref=xref,
-            yref="paper",
-            fillcolor=NBER_SHADING,
-            layer="below",
-            line_width=0,
-        )
+# NBER recessions sourced from the canonical _nber module
+# (DUP-4 consolidation, fix260531). Previously a local 3-tuple list that
+# disagreed with the 4-tuple list in generate_history_zoom_charts.py.
+from _nber import add_nber_shading  # noqa: E402
 
 
 def save_chart(fig, out_dir: Path, chart_name: str, pair_id: str, chart_type: str):
@@ -174,30 +156,20 @@ def build_subperiod_sharpe(df: pd.DataFrame, pair_id: str) -> go.Figure:
         yaxis_title="",
         width=700,
         height=470,
-        margin=dict(l=200, r=80, t=60, b=80),
-        annotations=[
-            dict(
-                text=(
-                    "Sharpe ratios computed from the winner strategy's actual return series. "
-                    "<b>'no data'</b> = episode outside the pair's data coverage. "
-                    "<b>'in cash'</b> = strategy was 100% cash through the episode "
-                    "(common for long-cash strategies through deep contractions). "
-                    "IS = In-Sample period; OOS = Out-of-Sample."
-                ),
-                xref="paper",
-                yref="paper",
-                x=0,
-                y=-0.18,
-                showarrow=False,
-                font=dict(size=10, color="grey"),
-                align="left",
-            )
-        ],
+        margin=dict(l=200, r=80, t=60, b=80),  # apply_caption_layout will widen to MARGIN_B_WITH_CAPTION
         plot_bgcolor="white",
         paper_bgcolor="white",
     )
     fig.update_xaxes(zeroline=False, gridcolor="rgba(200,200,200,0.4)")
     fig.update_yaxes(autorange="reversed")
+    apply_caption_layout(
+        fig,
+        "Sharpe ratios computed from the winner strategy's actual return series. "
+        "<b>'no data'</b> = episode outside the pair's data coverage. "
+        "<b>'in cash'</b> = strategy was 100% cash through the episode "
+        "(common for long-cash strategies through deep contractions). "
+        "IS = In-Sample period; OOS = Out-of-Sample.",
+    )
 
     return fig
 
@@ -246,28 +218,18 @@ def build_rolling_correlation(df: pd.DataFrame, pair_id: str) -> go.Figure:
         yaxis_title="Pearson Correlation",
         width=900,
         height=400,
-        margin=dict(l=70, r=40, t=60, b=80),
-        annotations=[
-            dict(
-                text=(
-                    "Pearson correlation between signal and forward return. "
-                    "Positive = signal leads returns in expected direction."
-                ),
-                xref="paper",
-                yref="paper",
-                x=0,
-                y=-0.22,
-                showarrow=False,
-                font=dict(size=10, color="grey"),
-                align="left",
-            )
-        ],
+        margin=dict(l=70, r=40, t=60, b=80),  # apply_caption_layout widens b
         plot_bgcolor="white",
         paper_bgcolor="white",
-        legend=dict(orientation="h", y=-0.35),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
     fig.update_xaxes(gridcolor="rgba(200,200,200,0.4)")
     fig.update_yaxes(gridcolor="rgba(200,200,200,0.4)")
+    apply_caption_layout(
+        fig,
+        "Pearson correlation between signal and forward return. "
+        "Positive = signal leads returns in expected direction.",
+    )
 
     return fig
 
@@ -327,24 +289,17 @@ def build_structural_break(
         yaxis_title="Rolling 24M Correlation",
         width=900,
         height=400,
-        margin=dict(l=70, r=40, t=60, b=100),
-        annotations=[
-            dict(
-                text=annot_text,
-                xref="paper",
-                yref="paper",
-                x=0,
-                y=-0.22,
-                showarrow=False,
-                font=dict(size=10, color="rgba(213,94,0,1)"),
-                align="left",
-            )
-        ],
+        margin=dict(l=70, r=40, t=60, b=80),  # apply_caption_layout widens b
         plot_bgcolor="white",
         paper_bgcolor="white",
     )
     fig.update_xaxes(gridcolor="rgba(200,200,200,0.4)")
     fig.update_yaxes(gridcolor="rgba(200,200,200,0.4)")
+    # Caption is the Quandt-Andrews test result (orange, semantic — not the
+    # generic grey source-note). Use apply_caption_layout for positioning
+    # then patch the colour back to the structural-break orange.
+    apply_caption_layout(fig, annot_text)
+    fig.layout.annotations[-1].font = dict(size=10, color="rgba(213,94,0,1)")
 
     return fig
 
@@ -409,23 +364,12 @@ def build_rolling_sharpe_cp(df: pd.DataFrame, pair_id: str) -> go.Figure:
         width=900,
         height=400,
         margin=dict(l=70, r=40, t=60, b=80),
-        annotations=[
-            dict(
-                text="Rolling annualized Sharpe ratio of the winner strategy.",
-                xref="paper",
-                yref="paper",
-                x=0,
-                y=-0.22,
-                showarrow=False,
-                font=dict(size=10, color="grey"),
-                align="left",
-            )
-        ],
         plot_bgcolor="white",
         paper_bgcolor="white",
     )
     fig.update_xaxes(gridcolor="rgba(200,200,200,0.4)")
     fig.update_yaxes(gridcolor="rgba(200,200,200,0.4)")
+    apply_caption_layout(fig, "Rolling annualized Sharpe ratio of the winner strategy.")
 
     return fig
 
@@ -539,25 +483,9 @@ def build_rolling_granger(df: pd.DataFrame, pair_id: str) -> go.Figure:
         width=900,
         height=400,
         margin=dict(l=70, r=80, t=60, b=80),
-        annotations=[
-            dict(
-                text=(
-                    f"Rolling 24-month Granger F-statistic of {sig_name} → {target_name}. "
-                    "F > 3.84 = signal Granger-causes target at 5% level. "
-                    "NBER recessions shaded."
-                ),
-                xref="paper",
-                yref="paper",
-                x=0,
-                y=-0.22,
-                showarrow=False,
-                font=dict(size=10, color="grey"),
-                align="left",
-            )
-        ],
         plot_bgcolor="white",
         paper_bgcolor="white",
-        legend=dict(orientation="h", y=-0.35),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
     fig.update_xaxes(title_text="Date", gridcolor="rgba(200,200,200,0.4)")
     fig.update_yaxes(
@@ -572,6 +500,12 @@ def build_rolling_granger(df: pd.DataFrame, pair_id: str) -> go.Figure:
             range=[0, 1],
             gridcolor="rgba(0,0,0,0)",
         )
+    apply_caption_layout(
+        fig,
+        f"Rolling 24-month Granger F-statistic of {sig_name} → {target_name}. "
+        "F > 3.84 = signal Granger-causes target at 5% level. "
+        "NBER recessions shaded.",
+    )
 
     return fig
 

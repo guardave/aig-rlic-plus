@@ -136,7 +136,7 @@ def chart_hero():
         title="Industrial Production Growth vs Consumer Staples ETF (XLP, 1998-2025)",
         template="plotly_white",
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         height=500,
         xaxis=dict(
             tickmode="linear",
@@ -188,7 +188,7 @@ def chart_correlations():
         yaxis_title="Pearson Correlation",
         template="plotly_white",
         height=420,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
 
     save_chart(fig, "indpro_xlp_correlations")
@@ -250,7 +250,7 @@ def chart_regime_stats():
             xref="paper", yref="paper", x=0, y=1.10, showarrow=False,
             xanchor="left", yanchor="bottom", font=dict(size=11),
         )],
-        margin=dict(t=90),
+        margin=dict(r=180, t=90),
     )
 
     save_chart(fig, "indpro_xlp_regime_stats")
@@ -313,7 +313,7 @@ def chart_ccf():
         template="plotly_white",
         height=420,
         annotations=annotations,
-        margin=dict(t=90 if annotations else 60),
+        margin=dict(r=180, t=90 if annotations else 60),
     )
 
     save_chart(fig, "indpro_xlp_ccf")
@@ -428,7 +428,7 @@ def chart_equity_curves():
         yaxis_title="Cumulative Return ($1 invested)",
         template="plotly_white",
         height=500,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
 
     save_chart(fig, "indpro_xlp_equity_curves")
@@ -553,7 +553,7 @@ def chart_drawdown():
         yaxis_title="Drawdown (%)",
         template="plotly_white",
         height=420,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
 
     save_chart(fig, "indpro_xlp_drawdown")
@@ -712,7 +712,7 @@ def chart_signal_dist():
         template="plotly_white",
         barmode="overlay",
         height=400,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
 
     save_chart(fig, "indpro_xlp_signal_dist")
@@ -834,7 +834,7 @@ def chart_walk_forward():
             yaxis_title="Annualized Sharpe Ratio (24M window)",
             template="plotly_white",
             height=420,
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         )
 
         save_chart(fig, "indpro_xlp_walk_forward")

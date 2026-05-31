@@ -28,7 +28,7 @@ def gen_hero(pair_id, label):
     fig.add_trace(go.Scatter(x=df.index, y=df["spy"], name="SPY", line=dict(color=C_EQ, width=1.5)), secondary_y=True)
     fig.add_hline(y=0, line_dash="dash", line_color="gray", line_width=0.5, secondary_y=False)
     fig.update_layout(title=f"{label} vs S&P 500", template="plotly_white", height=450,
-                      hovermode="x unified", legend=dict(orientation="h", y=1.02, x=1, xanchor="right"))
+                      hovermode="x unified", legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
     fig.update_yaxes(title_text="Spread (%)", secondary_y=False)
     fig.update_yaxes(title_text="SPY ($)", secondary_y=True)
     save(fig, pair_id, "hero")

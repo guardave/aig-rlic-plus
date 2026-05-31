@@ -1,89 +1,69 @@
-"""Global sidebar navigation with finding selector."""
+"""Global sidebar navigation with finding selector.
+
+The finding list is built dynamically from `pair_registry.load_pair_registry()`
+so every auto-discovered pair appears in the dropdown — there is no
+hand-maintained list. The previous hand-list lagged behind the landing page
+(7 pairs in sidebar vs 11 auto-discovered as of 2026-05-31).
+
+Display labels follow the convention:
+    "<INDICATOR-SHORT> → <TARGET-TICKER>"
+e.g. "INDPRO → SPY", "VIX/VIX3M → SPY", "HY-IG Spread → SPY".
+
+The short-name is derived from `pair_id` by stripping the trailing
+`_<target_ticker>` suffix and consulting a small overrides table for pairs
+whose short form is not a clean transliteration (HY-IG, Gold/Copper, …).
+Any new pair without an override falls back to the uppercased `pair_id`
+prefix — graceful, not pretty.
+"""
+
+from __future__ import annotations
+
+import os
 
 import streamlit as st
 
+from components.pair_registry import load_pair_registry
+from components.display_names import resolve_short_indicator
 
-# Registry of all findings with their pages.
-# Wave 10G.1 (2026-04-22): v1 hy_ig_spy entry removed — pair archived to
-# results/hy_ig_spy_v1/ and pages moved to app/pages_archive/. The Sample
-# (canonical reference) is now hy_ig_v2_spy, surfaced via pair_registry.py
-# auto-discovery and rendered with the is_sample badge on the landing page.
-FINDINGS = [
-    {
-        "id": "indpro_spy",
-        "label": "INDPRO → SPY",
-        "pages": {
-            "Story": "pages/5_indpro_spy_story.py",
-            "Evidence": "pages/5_indpro_spy_evidence.py",
-            "Strategy": "pages/5_indpro_spy_strategy.py",
-            "Methodology": "pages/5_indpro_spy_methodology.py",
-        },
-    },
-    {
-        "id": "sofr_ted_spy",
-        "label": "SOFR-TED → SPY",
-        "pages": {
-            "Story": "pages/6_sofr_ted_spy_story.py",
-            "Evidence": "pages/6_sofr_ted_spy_evidence.py",
-            "Strategy": "pages/6_sofr_ted_spy_strategy.py",
-            "Methodology": "pages/6_sofr_ted_spy_methodology.py",
-        },
-    },
-    {
-        "id": "dff_ted_spy",
-        "label": "DFF-TED → SPY",
-        "pages": {
-            "Story": "pages/11_dff_ted_spy_story.py",
-            "Evidence": "pages/11_dff_ted_spy_evidence.py",
-            "Strategy": "pages/11_dff_ted_spy_strategy.py",
-            "Methodology": "pages/11_dff_ted_spy_methodology.py",
-        },
-    },
-    {
-        "id": "ted_spliced_spy",
-        "label": "Spliced TED → SPY",
-        "pages": {
-            "Story": "pages/12_ted_spliced_spy_story.py",
-            "Evidence": "pages/12_ted_spliced_spy_evidence.py",
-            "Strategy": "pages/12_ted_spliced_spy_strategy.py",
-            "Methodology": "pages/12_ted_spliced_spy_methodology.py",
-        },
-    },
-    {
-        "id": "vix_vix3m_spy",
-        "label": "VIX/VIX3M → SPY",
-        "pages": {
-            "Story": "pages/8_vix_vix3m_spy_story.py",
-            "Evidence": "pages/8_vix_vix3m_spy_evidence.py",
-            "Strategy": "pages/8_vix_vix3m_spy_strategy.py",
-            "Methodology": "pages/8_vix_vix3m_spy_methodology.py",
-        },
-    },
-    {
-        "id": "permit_spy",
-        "label": "Building Permits → SPY",
-        "pages": {
-            "Story": "pages/7_permit_spy_story.py",
-            "Evidence": "pages/7_permit_spy_evidence.py",
-            "Strategy": "pages/7_permit_spy_strategy.py",
-            "Methodology": "pages/7_permit_spy_methodology.py",
-        },
-    },
-    {
-        "id": "hy_ig_v2_spy",
-        "label": "HY-IG Spread × SPY",
-        "pages": {
-            "Story": "pages/9_hy_ig_v2_spy_story.py",
-            "Evidence": "pages/9_hy_ig_v2_spy_evidence.py",
-            "Strategy": "pages/9_hy_ig_v2_spy_strategy.py",
-            "Methodology": "pages/9_hy_ig_v2_spy_methodology.py",
-        },
-    },
-]
+
+# Pairs whose Sample/legacy distinction matters in the dropdown.
+_LABEL_SUFFIX = {
+    "hy_ig_v2_spy": " (Sample)",
+}
+
+
+def _build_findings() -> list[dict]:
+    """Dynamically build the finding list from the auto-discovery registry."""
+    pairs = load_pair_registry()
+    findings = []
+    for p in pairs:
+        pair_id = p.get("pair_id")
+        if not pair_id:
+            continue
+        target_ticker = p.get("target_ticker") or ""
+        label = (
+            f"{resolve_short_indicator(pair_id, target_ticker)} → {target_ticker or '?'}"
+            + _LABEL_SUFFIX.get(pair_id, "")
+        )
+        findings.append({
+            "id": pair_id,
+            "label": label,
+            "pages": {
+                "Story": p.get("story_page"),
+                "Evidence": p.get("evidence_page"),
+                "Strategy": p.get("strategy_page"),
+                "Methodology": p.get("methodology_page"),
+            },
+        })
+    # Stable display order: Sample first, then alphabetical by label.
+    findings.sort(key=lambda f: (0 if "(Sample)" in f["label"] else 1, f["label"]))
+    return findings
 
 
 def render_sidebar():
     """Render the sidebar with dashboard link and finding selector."""
+    findings = _build_findings()
+
     with st.sidebar:
         st.markdown("## AIG-RLIC+")
         st.markdown("*Indicator-Target Analysis Portal*")
@@ -94,8 +74,8 @@ def render_sidebar():
 
         st.markdown("---")
 
-        # Finding selector
-        finding_labels = [f["label"] for f in FINDINGS]
+        # Finding selector (dynamic from pair_registry)
+        finding_labels = [f["label"] for f in findings]
         selected = st.selectbox(
             "Select finding",
             finding_labels,
@@ -104,13 +84,14 @@ def render_sidebar():
         )
 
         if selected:
-            finding = next(f for f in FINDINGS if f["label"] == selected)
+            finding = next(f for f in findings if f["label"] == selected)
             icons = {"Story": "📖", "Evidence": "🔬", "Strategy": "🎯", "Methodology": "📐"}
             for page_label, page_path in finding["pages"].items():
+                if not page_path:
+                    continue
                 try:
                     st.page_link(page_path, label=page_label, icon=icons.get(page_label, "📄"))
                 except Exception:
-                    import os
                     url_name = os.path.splitext(os.path.basename(page_path))[0]
                     url_name = "_".join(url_name.split("_")[1:])
                     icon = icons.get(page_label, "📄")
@@ -119,9 +100,9 @@ def render_sidebar():
         st.markdown("---")
 
         st.markdown(
-            '<p style="font-size: 0.8rem; color: #999;">'
-            "Data through 2025-12-31<br>"
-            "10 of 73 priority pairs analyzed"
-            "</p>",
+            f'<p style="font-size: 0.8rem; color: #999;">'
+            f"Data through 2025-12-31<br>"
+            f"{len(findings)} of 73 priority pairs analyzed"
+            f"</p>",
             unsafe_allow_html=True,
         )

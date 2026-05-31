@@ -41,7 +41,7 @@ def chart_hero():
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
     fig.add_trace(
-        go.Scatter(x=df.index, y=df["indpro_yoy"], name="IP YoY Growth (%)",
+        go.Scatter(x=df.index, y=df["indpro_yoy"], name="INDPRO YoY Growth (%)",
                    line=dict(color=C_INDICATOR, width=2)),
         secondary_y=False,
     )
@@ -66,13 +66,13 @@ def chart_hero():
                   secondary_y=False)
 
     fig.update_layout(
-        title="Industrial Production Growth vs S&P 500 (1990-2025)",
+        title="INDPRO YoY Growth vs S&P 500 (1990-2025)",
         template="plotly_white",
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         height=500,
     )
-    fig.update_yaxes(title_text="IP YoY Growth (%)", secondary_y=False)
+    fig.update_yaxes(title_text="INDPRO YoY Growth (%)", secondary_y=False)
     fig.update_yaxes(title_text="SPY Price ($)", secondary_y=True)
 
     save_chart(fig, "indpro_spy_hero")
@@ -94,7 +94,7 @@ def chart_regime_stats():
 
     fig.update_layout(
         title="SPY Sharpe Ratio by INDPRO YoY Growth Quartile",
-        xaxis_title="IP Growth Quartile (Q1=Lowest, Q4=Highest)",
+        xaxis_title="INDPRO YoY Growth Quartile (Q1=Lowest, Q4=Highest)",
         yaxis_title="Annualized Sharpe Ratio",
         template="plotly_white",
         height=400,
@@ -120,7 +120,7 @@ def chart_correlations():
     fig = go.Figure(data=go.Heatmap(
         z=pivot.values,
         x=[c.replace("spy_fwd_", "").upper() for c in pivot.columns],
-        y=[s.replace("indpro_", "IP ") for s in pivot.index],
+        y=[s.replace("indpro_", "INDPRO ") for s in pivot.index],
         colorscale="RdBu_r",
         zmid=0,
         zmin=-0.2, zmax=0.2,
@@ -130,7 +130,7 @@ def chart_correlations():
     ))
 
     fig.update_layout(
-        title="Pearson Correlation: IP Signals → SPY Forward Returns",
+        title="Pearson Correlation: INDPRO Signals → SPY Forward Returns",
         xaxis_title="Forward Return Horizon",
         yaxis_title="Signal",
         template="plotly_white",
@@ -160,7 +160,7 @@ def chart_ccf():
         fig.add_hline(y=-1.96*se, line_dash="dash", line_color="gray", line_width=0.5)
 
     fig.update_layout(
-        title="Cross-Correlation: IP YoY Growth vs SPY Monthly Return",
+        title="Cross-Correlation: INDPRO YoY Growth vs SPY Monthly Return",
         xaxis_title="Lag (months, negative = IP leads)",
         yaxis_title="Cross-Correlation",
         template="plotly_white",
@@ -207,7 +207,7 @@ def chart_local_projections():
         ))
 
     fig.update_layout(
-        title="Local Projection: IP YoY Growth → SPY Forward Returns",
+        title="Local Projection: INDPRO YoY Growth → SPY Forward Returns",
         xaxis_title="Forecast Horizon (months)",
         yaxis_title="Coefficient (HAC-robust)",
         template="plotly_white",
@@ -243,7 +243,7 @@ def chart_quantile_regression():
     fig.add_hline(y=0, line_dash="dash", line_color="gray", line_width=0.5)
 
     fig.update_layout(
-        title="Quantile Regression: IP YoY → 3M Forward SPY Return",
+        title="Quantile Regression: INDPRO YoY → 3M Forward SPY Return",
         xaxis_title="Quantile (0.05 = worst outcomes, 0.95 = best)",
         yaxis_title="Coefficient",
         template="plotly_white",
@@ -399,7 +399,7 @@ def chart_equity_curves():
         yaxis_title="Cumulative Return ($1 invested)",
         template="plotly_white",
         height=500,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
 
     save_chart(fig, "indpro_spy_equity_curves")
@@ -413,7 +413,11 @@ def chart_granger():
 
     for direction in gc_df["direction"].unique():
         sub = gc_df[gc_df["direction"] == direction]
-        color = C_INDICATOR if "INDPRO" in direction else C_EQUITY
+        # Colour by which series is the cause (the LHS of "X->Y").
+        # Substring "INDPRO" appears in both "INDPRO->SPY" and "SPY->INDPRO",
+        # so we split on "->" and check the cause side.
+        cause = str(direction).split("->")[0].strip()
+        color = C_INDICATOR if cause == "INDPRO" else C_EQUITY
         fig.add_trace(go.Scatter(
             x=sub["lag"], y=sub["p_value"],
             mode="lines+markers",
@@ -431,7 +435,22 @@ def chart_granger():
         yaxis_title="P-Value",
         template="plotly_white",
         height=400,
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
+    # Annotation: which colour = which direction, and how to read "leading".
+    fig.add_annotation(
+        text=(
+            "Red = INDPRO → SPY (does INDPRO lead SPY?). "
+            "Blue = SPY → INDPRO (reverse check). "
+            "A line below the dashed p=0.05 means that direction is Granger-significant."
+        ),
+        xref="paper", yref="paper",
+        x=0.5, y=-0.30, xanchor="center", yanchor="top",
+        showarrow=False,
+        font=dict(size=10, color="#444"),
+        align="center",
+    )
+    fig.update_layout(margin=dict(r=180, b=110))
 
     save_chart(fig, "indpro_spy_granger")
 

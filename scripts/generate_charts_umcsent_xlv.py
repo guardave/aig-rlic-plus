@@ -112,7 +112,7 @@ def chart_hero():
         title="Michigan Consumer Sentiment YoY Change vs XLV Price (1999-2025)",
         template="plotly_white",
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         height=500,
     )
     fig.update_yaxes(title_text="UMCSENT YoY Change (%)", secondary_y=False)
@@ -335,7 +335,7 @@ def chart_equity_curves():
         yaxis_title="Cumulative Return ($1 invested)",
         template="plotly_white",
         height=500,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
     save_chart(fig, f"{PAIR_ID}_equity_curves")
 
@@ -415,7 +415,7 @@ def chart_drawdown():
         yaxis_title="Drawdown (%)",
         template="plotly_white",
         height=400,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
     save_chart(fig, f"{PAIR_ID}_drawdown")
 
@@ -493,7 +493,7 @@ def chart_rolling_sharpe():
         yaxis_title="Rolling Sharpe (12M)",
         template="plotly_white",
         height=400,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
     save_chart(fig, f"{PAIR_ID}_rolling_sharpe")
 
@@ -625,7 +625,7 @@ def chart_signal_dist():
         template="plotly_white",
         height=450,
         showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
     fig.update_xaxes(title_text="Consumer Sentiment Year-over-Year (%)", row=1, col=1)
     fig.update_yaxes(title_text="Count", row=1, col=1)
@@ -733,7 +733,7 @@ def chart_wf_sharpe():
         yaxis_title="Annualized Sharpe Ratio",
         template="plotly_white",
         height=430,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         barmode="group",
     )
     save_chart(fig, f"{PAIR_ID}_wf_sharpe")

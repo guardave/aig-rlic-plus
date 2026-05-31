@@ -1,5 +1,56 @@
 # Release Notes
 
+## 2026-05-31 — fix260531: Comment-Log Re-Triage (#63, #64, #68) — IN FLIGHT
+
+**Scope:** User-flagged that fix260526's W2 commit (`3718fc9`) closed `indpro_spy` comments #63, #64, #68 in the log but did not actually fix all three. Re-verified each on cloud-rendered `aig-rlic-plus.streamlit.app/indpro_spy_story|evidence` and confirmed user is correct — only #64 was partly addressed; #63 and #68 were never touched in W2.
+
+**Triage outcome:**
+
+| # | Section | Bug | Root cause | This-branch fix | Commit |
+|---|---|---|---|---|---|
+| #63 | Story | KPI card `+7.6%` vs body prose `+7.7%` (and `+7.65%`) for OOS annualised return | `_format_ratio_pct(0.0765)` uses Python's banker's rounding → `+7.6%`; prose was hand-typed at standard rounding → `+7.7%`. Same source value, two display strings. | Aligned 3 hand-typed strings in `indpro_spy_config.py` to `+7.6%` | `50c68b8` |
+| #64 | Story (and Evidence) | `Industrial Production`, `INDPRO`, `IP YoY Growth`, `IP Growth Quartile`, `IP momentum`, `IP signals` all coexist for the same indicator | No naming standard for indicator references in titles/axes/legends/prose. W2 normalised some prose but missed chart titles, axes, captions, and "IP X" body patterns. | Standardised on canonical short form `INDPRO` for all chart titles, axes, legends, captions, and body references. Long-form `Industrial Production (INDPRO)` kept only at the FRED-definition first-mention. Regenerated all 10 INDPRO×SPY chart JSONs. | `50c68b8` |
+| #68 | Evidence | Granger chart legend has both directions in red; chart doesn't explain which line is "leading" | `scripts/generate_charts_indpro_spy.py:416`: `"INDPRO" in direction` is True for both `"INDPRO->SPY"` AND `"SPY->INDPRO"` (substring search), so both lines got `C_INDICATOR` red. Plus no in-chart "how to read which direction leads" annotation. | Switched to `cause = direction.split("->")[0]` then `cause == "INDPRO" -> red, else blue`. Added in-chart annotation explaining the colour key + "line below dashed p=0.05 = that direction leads". Strengthened `GRANGER_BLOCK.how_to_read` and `.chart_caption` in `indpro_spy_config.py` with matching prose. | `50c68b8` |
+
+**Mid-flight extension — cross-pair legend/caption layout fix.** User reported (with screenshot of the Dot-Com Crash history-zoom on `indpro_spy`) that the horizontal legend overlaps the bottom source-note caption, flagged as a general layout issue ("just an example"). Cross-pair audit found **60 charts across all 10 active pairs** with the same overlap class — two distinct generator patterns:
+
+| Pattern | Generator | Before | After |
+|---|---|---|---|
+| **history_zoom_*** (38 charts) | `temp/generate_history_zoom_charts.py` (untracked one-shot) | legend.y=-0.05, caption.y=-0.12, margin.b=60 (7px paper-gap) | legend.y=-0.18, caption.y=-0.32, margin.b=120 |
+| **rolling_correlation / rolling_granger** (22 charts) | `scripts/viz_cp_retro_apply.py` | legend.y=-0.35, caption.y=-0.22, margin.b=80 (legend rendered inside margin) | legend.y=-0.50, caption.y=-0.22 (unchanged), margin.b=140 |
+
+Tactical fix (committed this branch):
+- `scripts/patch_legend_caption_layout.py` — new idempotent JSON patcher; rewrites all 60 affected chart JSONs in place. Re-run safe.
+- `scripts/viz_cp_retro_apply.py` — generator source patched so re-runs stay correct.
+- `scripts/generate_history_zoom_charts.py` — promoted from untracked `temp/` location into git with corrected constants and history block in the docstring (institutional-knowledge rescue).
+- Local PNG render of patched `history_zoom_dot_com.json` confirms ~70px vertical separation between legend and caption row (previously overlapping at ~10px).
+
+**Mid-flight extension #2 — right-side vertical legend (indpro_spy pilot).** User asked for legend placement to be standardised on the right side of every chart (Bloomberg / FRED / TradingView convention) so the bottom strip is freed for the source-note caption and there is no overlap class possible. Pilot applied to indpro_spy (13 charts patched via `scripts/patch_legend_right_side.py`): `legend.orientation="v"`, `x=1.02`, `xanchor="left"`, `y=1.0`, `yanchor="top"`, `margin.r≥160`. For charts whose legend had been pushed below the plot, `margin.b` is reclaimed to 80 and the caption pulled up to `y=-0.15`. Four representative PNG previews (hero, history_zoom_dot_com, granger, rolling_correlation) confirm clean right-side placement. Portfolio-wide rollout (remaining 9 pairs, ~90 charts) gated on cloud-verify of the pilot.
+
+**Mid-flight extension #5 — DUP-11 partial: tournament helper + gold_copper migration.** Following user direction "Go with B" on the DUP-11 mitigation options, shipped `scripts/tournament.py` with three canonical primitives — `select_winner(tdf, *, score, exclude_benchmark, valid_only)`, `compute_buy_and_hold_stats(target_returns, oos_start, oos_end)`, `emit_benchmark_row(target_returns, oos_start, oos_end, *, columns_template)`. Migrated `econ_pipeline_gold_copper_xli.py` to use all three. Re-ran the pipeline's stages 4+5 only (tournament + winner_summary). Validation: 90 strategy rows unchanged (zero numeric drift on `oos_sharpe`/`oos_ann_return`/`oos_max_drawdown`); one new BENCHMARK row appended; `winner_summary.json` now carries `bh_sharpe=0.6558`, `bh_ann_return=0.1281`, `bh_max_drawdown=-0.4233`. The 8 other pipelines still use inline code — full DUP-11 migration deferred to a dedicated wave with per-pair before/after numeric-diff gates (risk: tie-break ordering could cause silent drift). BL-GC-BH closed; BL-DUP-11 updated with partial-progress note. Dashboard `gold_copper_xli` card now shows real numbers: Sharpe 1.27 / 0.66, Max DD -8.2% / -42.3%, Valid 61 / 91.
+
+**Mid-flight extension #4 — DUP-class audit + 3 mechanical consolidations.** Per Lesandro's request, ran a 3-agent parallel code-review audit and found 17 distinct duplication/divergence classes across viz, app, and pipeline layers. All 17 logged in `docs/backlog.md` as `BL-DUP-1..17`. The 3 smallest (zero-risk mechanical consolidation) shipped in this branch:
+
+| BL- | Class | Result |
+|---|---|---|
+| `BL-DUP-1` | **Display-name dicts** — 3 divergent copies of indicator/target maps (pair_registry, page_templates missing 4 entries, sidebar with different scheme) | New `app/components/display_names.py` with `INDICATOR_NAMES`, `TARGET_NAMES`, `SHORT_INDICATOR_LABELS` + resolvers. pair_registry, page_templates, sidebar all migrated. |
+| `BL-DUP-4` | **NBER recession lists** — 6 hardcoded copies, 2 sets of dates (1990 included? 2020-04-01 vs 04-30?) | New `scripts/_nber.py` with canonical `RECESSIONS` + `add_nber_shading(fig, x_min, x_max, ...)`. viz_cp_retro_apply.py + generate_history_zoom_charts.py migrated. Pilot — 4 remaining generators will migrate in chart-pipeline consolidation wave. |
+| `BL-DUP-15` | **`datetime.utcnow()` deprecation** — mixed `utcnow()` (Py3.12-deprecated) and `now(timezone.utc)` across 5 scripts | New `scripts/_stamp.py::iso_utc_now()`. All 5 `utcnow()` call sites migrated; zero `utcnow()` left in scripts/. |
+
+Refactor pattern these three exemplify: each duplication class collapses to a small canonical module (~30-50 LOC) + a one-line import at every call site. Future drift is impossible because the constants exist in exactly one file. The remaining 14 BL-DUP entries follow the same pattern at varying scales — `BL-DUP-5` (pair pipeline consolidation, 9,548 LOC → ~500) is the biggest single lever.
+
+**Mid-flight extension #3 — dynamic sidebar dropdown.** User reported "the dropdown in the navbar does not cover pointers to every pair. It seems the list is manually maintained instead of a dynamic build-up." Confirmed: `app/components/sidebar.py` had a hand-maintained `FINDINGS = [...]` with 7 entries while `pair_registry.load_pair_registry()` auto-discovers 11. Missing from the dropdown: `indpro_xlp`, `umcsent_xlv`, `gold_copper_xli`, `hy_ig_spy`. Replaced the hand-list with a `_build_findings()` function that calls the registry at render time and derives labels from a small `_INDICATOR_LABEL_OVERRIDES` dict + safe fallback. Footer pair count now also reads from the registry (was hardcoded "10 of 73", now "11 of 73" or whatever the registry returns). Logged BL-APP-DR1 for the corresponding SOP rule.
+
+**SOP backlog (hybrid path per Lesandro):** five SOP-class root causes deferred to a dedicated SOP-hardening branch — `BL-APP-NUM1` (Numeric Format Single Source), `BL-VIZ-NS1` (Indicator Naming Standard), `BL-VIZ-DC1` (Bidirectional Chart Colour Discipline), `BL-VIZ-LO1` (Legend / Caption Vertical Separation), `BL-APP-DR1` (Dynamic Registry Discipline — pair-list consumers must source from the registry, never hand-typed). See `docs/backlog.md` for full proposals, retro-apply scope, and trigger conditions.
+
+**Why fix260526 declared these closed despite not actually fixing them:** classic META-CMP completeness-drift — W2 commit message listed `#63, #64, #65, #66, #67, #68` but the diff only addressed `#64, #65, #66, #67`. The commit-vs-claim gap was the bug META-CMP is designed to catch. This re-triage is itself evidence for the META-CMP forcing-function proposal in GH issue #7.
+
+**Cloud verification status:** pending. Preview app `aig-rlic-plus-fix260526.streamlit.app` is still pointed at `fix260526`, not `fix260531`. Options: (a) repoint preview to `fix260531`, (b) merge to main and verify on production app, (c) skip and trust the local DOM + JSON spot checks. Awaiting Lead decision.
+
+**Out of scope this branch:** the corresponding SOP rules (would change all 10 active pairs); cross-pair audit for analogous drift on other pairs.
+
+---
+
 ## 2026-05-27 — fix260526: Step C Dashboard Comment-Log Triage (3 pairs) — **COMPLETE**
 
 **Final cross-pair regression: 44/44 PASS** (11 pairs × 4 pages). Branch `fix260526` is ready for merge to `main`.
