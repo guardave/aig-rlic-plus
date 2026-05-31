@@ -1196,3 +1196,51 @@ Currently neither is encoded — the checker swarm catches it, which is the prot
 2. Final cross-pair regression: deep_inspect on all 11 active pairs to confirm no regression on the 8 not directly targeted (W0 + W2 cross-pair changes affect them).
 3. Cross-pair audit of `iloc[0]` chart-winner picks (W1 #36 root cause) in producers for indpro_spy / vix_vix3m_spy / sofr_ted_spy etc.
 4. Merge `fix260526` → `main`; promote `temp/fix260526/relnote.md` to a non-gitignored location at merge time.
+
+---
+
+## 2026-05-31 — Lead — EOD: fix260531 merged to main + deleted
+
+**Status:** COMPLETED. Branch merged at `aed4ce8` (non-FF, full 22-commit summary in merge message); production cloud-verified after user reboot; branch deleted local + remote.
+
+**What was accomplished:**
+- **Comment-log re-triage** of indpro_spy items #63/#64/#68 that fix260526 falsely closed (META-CMP root cause: W2 commit message listed 6 IDs but diff only touched 4). All three properly fixed this branch.
+- **Cross-pair viz hygiene** rolled out across all 10 pairs:
+  - Legend/caption overlap fix (60 charts)
+  - Right-side vertical legend portfolio rollout (123 charts + 10 generators)
+  - X-axis title vs caption layout via `_chart_layout::apply_caption_layout` helper (48 charts)
+  - subperiod_sharpe axis-vs-caption fix (11 pairs)
+  - Caption position via margin-aware `xshift = -margin.l` (6 visual iterations to land here)
+  - Font standardisation (title/axis/tick/legend/caption sizes, 209 charts)
+- **App-layer fixes**:
+  - Sidebar dropdown dynamic from `pair_registry` (7→11 pairs)
+  - Glossary `text_input` + Material `close` clear-X icon with `st-key-` CSS scope
+  - gold_copper_xli dashboard card populated (was showing "—" because of column-name drift hidden by `except: pass`)
+- **3-agent parallel code-review audit** found 17 DUP/divergence classes. All logged as `BL-DUP-1..17` plus 5 SOP rule proposals (`BL-APP-NUM1`, `BL-VIZ-NS1`, `BL-VIZ-DC1`, `BL-VIZ-LO1`, `BL-APP-DR1`).
+- **5 single-source-of-truth helper modules created** (DUP-1/4/15 mechanical consolidations + DUP-11 partial):
+  - `scripts/_chart_layout.py` (caption + axis + font constants)
+  - `scripts/_nber.py` (canonical recession list)
+  - `scripts/_stamp.py` (`iso_utc_now()` — Py3.12 `utcnow()` deprecation)
+  - `app/components/display_names.py` (indicator/target name maps + resolvers)
+  - `scripts/tournament.py` (`select_winner`, `compute_buy_and_hold_stats`, `emit_benchmark_row`)
+- **Tournament helper validated** with 0-numeric-drift gate: gold_copper_xli pipeline migrated, 90 strategy rows compared column-by-column to old CSV, all `max abs diff = 0.000000` before declaring safe.
+
+**Discoveries / insights:**
+- **Plotly paper coords ≠ chart container coords.** Paper `x=0` is plot-area left, sits `margin.l` pixels in from the chart container. Margin-aware `xshift = -margin.l` is the correct primitive for cross-chart-consistent caption placement. Fixed-value xshift breaks on wide-margin charts.
+- **`except Exception: pass` is META-CMP class bug masking.** The gold_copper dashboard "—" was a column-name KeyError silently swallowed by a blanket except. Replaced with integrity-issue logging so future drift surfaces at next wave closure.
+- **Producer/consumer schema-validation asymmetry confirmed.** Consumers call `validate_or_die` on every render; producers write `winner_summary.json` with zero `jsonschema` calls. This is BL-DUP-6 / GH #7 META-CMP material.
+- **The "helper module + selective consumer migration" pattern scales.** 5 helpers shipped this session, each with 2-3 pilot consumers migrated and remaining ones left alone. Resolves DUP classes incrementally without bulk-migration risk.
+- **Streamlit Cloud production reboot required for `.py` changes.** Auto-redeploy on `git push` reliable for static assets, unreliable for module reloads. Hit twice this session (mid-branch `narrative.py` reload + post-merge production redeploy). Both needed manual Manage app → Reboot app.
+
+**SOP candidates for future sessions:**
+- 5 SOP rules already in backlog from this session (`BL-APP-NUM1`, `BL-VIZ-NS1/DC1/LO1`, `BL-APP-DR1`)
+- META-CMP forcing functions (GH #7) — Tier 1 + Tier 2 of the 4-tier proposal
+- Producer-side `jsonschema` gate (`META-VS1` candidate from fix260526 EOD, reinforced this session)
+
+**Blockers:** None.
+
+**Next steps:**
+1. Stakeholder review of GH #4 (verdict comment posted earlier, awaiting close).
+2. Observation period for `fix260526` artifacts (GH #8).
+3. When next pair is built — adopt `scripts/tournament.py` from day one (proves the helper pattern + closes one more DUP-11 site).
+4. SOP-hardening branch when appetite returns — Tier 1 META-CMP + bulk migration of remaining 14 BL-DUP entries with per-pair numeric-diff gates.

@@ -1,5 +1,71 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-05-31 (fix260531 — comment-log re-triage + cross-pair viz hygiene + DUP audit)
+
+### Summary
+22-commit branch merged to `main` at `aed4ce8`; production cloud-verified after user reboot; branch deleted. Spanned five distinct workstreams in one session: (1) user-flagged tactical fixes on indpro_spy comment-log items #63/#64/#68 that fix260526 falsely closed; (2) cross-pair visualisation hygiene (legend overlap, right-side legend rollout, X-axis/caption layout, font standardisation); (3) app-layer fixes (dynamic sidebar, glossary icon button, gold_copper dashboard card); (4) 3-agent parallel code-review audit producing 17 BL-DUP entries; (5) DUP-1/4/15 mechanical consolidation pilots + DUP-11 partial via tournament helper.
+
+### Lead commits (this session)
+All 22 commits in branch are Lead-authored. Major themes:
+- **Tactical user-facing fixes:** `50c68b8` `9cb63e1` `13a313e` `2546e69`
+- **Single-source-of-truth helper modules:** `_chart_layout.py` (`6cb6545`), `_nber.py` + `_stamp.py` + `display_names.py` (`60e36d8`), `tournament.py` (`2546e69`), `patch_chart_fonts.py` + `apply_default_fonts` (`ca985ae`)
+- **Cross-pair patcher rollouts:** legend right-side (`544b77a`, 123 charts), caption layout (multiple iterations), font standardisation (`ca985ae`, 209 charts)
+- **Audit + backlog:** `60e36d8` adds BL-DUP-1..17 + 5 SOP rules + relnote entries
+- **Merge:** `aed4ce8` non-FF merge to main with full commit-message summary
+
+### Pattern discoveries
+**Plotly paper coords ≠ chart container coords.** The biggest visual-fix iteration cycle this session (`436af45`→`bdff83f`→`7798977`→`23541ad`) was driven by the realisation that Plotly's `xref="paper", x=0` anchors to the **plot area** left edge, not the **chart container** left edge. The gap between them is `margin.l`, which varies per chart (rolling charts l=70, subperiod_sharpe l=200 for episode labels). Lessons:
+- Fixed-value xshift compensates for one chart's margin but breaks others
+- Margin-aware `xshift = -margin.l` (read at runtime from the figure) is the correct primitive
+- Centered captions sidestep the issue entirely (`x=0.5, xanchor="center"`) but user didn't like the visual
+- `yshift` from a fixed paper anchor (`y=0`) gives consistent vertical placement independent of plot-area height
+
+**Silent except: pass = META-CMP class bug.** The gold_copper dashboard "—" was caused by a column-name drift (`oos_max_drawdown` vs `max_drawdown`) hitting `tdf["max_drawdown"]` → KeyError → silently swallowed by a blanket `except Exception: pass` → loader returned None for all metrics. Fix: replace the bare except with integrity-issue logging so future drift surfaces at next wave closure instead of hiding.
+
+**Producer/consumer schema-validation asymmetry.** Consumers (app/components) call `validate_or_die` against `winner_summary.schema.json` on every render; producers (`pair_pipeline_*.py`) write the file with **zero** `jsonschema` calls. Result: producer drift caught at cloud-render time, not at commit time. This is BL-DUP-6 / GH #7 META-CMP material.
+
+**Refactor pattern that worked: helper module + selective consumer migration.** Each of the 5 helper modules (`_chart_layout`, `_nber`, `_stamp`, `display_names`, `tournament`) followed the same recipe:
+1. Create the helper with canonical constants/functions (~30-200 LOC each)
+2. Migrate the obvious 2-3 consumers as a pilot
+3. Verify pilot consumers still work (numeric-diff for tournament, visual diff for chart layout)
+4. Leave remaining consumers alone — they migrate when next touched
+5. Log a backlog entry for the bulk migration with trigger conditions
+
+This pattern resolves DUP classes incrementally without the risk of bulk migration breaking working pairs.
+
+**The 0-numeric-drift gate.** For DUP-11/tournament.py migration on gold_copper:
+- Stashed old tournament_results CSV before re-run
+- Compared 90 strategy rows column-by-column: `(old[col] - new[col]).abs().max()`
+- Verified `max abs diff = 0.000000` on all stat columns before accepting the migration
+- This is the template for any future pipeline-refactor work — same gate applied to other pairs would let bulk DUP-11 migration ship safely
+
+### Verification cadence
+- Cloud-verify after every commit (preview app at `aig-rlic-plus-fix260531.streamlit.app`, repointed by user mid-session)
+- Local PNG renders via `kaleido` for chart-layout iterations (cheaper than cloud roundtrip for visual confirmation)
+- Module-level sanity-import for app-layer changes
+- Per-pair JSON spot-checks for patcher idempotency
+
+### User-driven iterations
+Several visual decisions iterated based on user feedback rather than pre-planned:
+- Caption position: bottom-overlap → paper-y → pixel-shift → margin-aware xshift → centered (rejected) → revert to margin-aware left-align
+- Glossary button: text "✕" → Material icon with pill chrome → CSS-stripped chrome with `st-key-` selector
+- Cross-chart-alignment was probed (centered captions) and explicitly rejected — left-alignment-within-chart-container is the final convention
+
+### Cloud Streamlit file-sync META-FRD
+Hit twice this session: (1) glossary widget showed selectbox chrome 5+ minutes after `90e4b76` push because `narrative.py` module reload didn't trigger automatically; (2) production app at `aig-rlic-plus.streamlit.app` still showed "10 of 73" after merge `aed4ce8` was pushed. Both required user-side manual reboot via Manage app → Reboot app. Chart JSON changes (static binary assets) DO redeploy without reboot; Python module changes are unreliable. Documented as a recurring pattern — every `.py`-touching merge should be assumed to need a production reboot.
+
+### Self-audit (LEAD-WM1 mode)
+This session was effectively Mode 2 (Lead-as-maker) throughout — single-context tactical fixes, no agent dispatches. The work matched the mode well: high iteration count, fast cloud-verify loop, no parallelizable subtasks. User explicitly approved "Go with B" / option-selection prompts before larger refactors (DUP-11 partial migration), preserving the "ask before big risk" discipline.
+
+### Lessons for next session
+1. When user reports a visible bug ("card shows —"), grep for `except Exception` first — silent swallows are how META-CMP bugs hide
+2. Read `_chart_layout.py` design before iterating on chart-layout fixes — the pattern is established, follow it
+3. Production cloud reboot is required for any `.py` change; cloud auto-redeploy is unreliable
+4. The "audit → backlog → ship smallest 3 → defer rest" pattern (Option B for any DUP class) scales well — apply to other refactor opportunities
+5. `temp/fix260531/*.png` working files are gitignored but useful for cross-iteration visual comparison — keep cropping with `PIL.Image` for zoomed inspection
+
+---
+
 ## Session: 2026-04-22/23 (Wave 10H + 10H.1 — Chart governance framework + LEAD-DL1)
 
 ### Summary
