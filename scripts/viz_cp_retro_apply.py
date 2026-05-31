@@ -250,7 +250,7 @@ def build_rolling_correlation(df: pd.DataFrame, pair_id: str) -> go.Figure:
         yaxis_title="Pearson Correlation",
         width=900,
         height=400,
-        margin=dict(l=70, r=40, t=60, b=140),
+        margin=dict(l=70, r=40, t=60, b=160),
         annotations=[
             dict(
                 text=(
@@ -260,7 +260,7 @@ def build_rolling_correlation(df: pd.DataFrame, pair_id: str) -> go.Figure:
                 xref="paper",
                 yref="paper",
                 x=0,
-                y=-0.42,
+                y=-0.58,
                 showarrow=False,
                 font=dict(size=10, color="grey"),
                 align="left",
@@ -338,7 +338,7 @@ def build_structural_break(
                 xref="paper",
                 yref="paper",
                 x=0,
-                y=-0.42,
+                y=-0.58,
                 showarrow=False,
                 font=dict(size=10, color="rgba(213,94,0,1)"),
                 align="left",
@@ -412,14 +412,14 @@ def build_rolling_sharpe_cp(df: pd.DataFrame, pair_id: str) -> go.Figure:
         yaxis_title="Sharpe Ratio (annualized)",
         width=900,
         height=400,
-        margin=dict(l=70, r=40, t=60, b=140),
+        margin=dict(l=70, r=40, t=60, b=160),
         annotations=[
             dict(
                 text="Rolling annualized Sharpe ratio of the winner strategy.",
                 xref="paper",
                 yref="paper",
                 x=0,
-                y=-0.42,
+                y=-0.58,
                 showarrow=False,
                 font=dict(size=10, color="grey"),
                 align="left",
@@ -542,7 +542,7 @@ def build_rolling_granger(df: pd.DataFrame, pair_id: str) -> go.Figure:
         ),
         width=900,
         height=400,
-        margin=dict(l=70, r=80, t=60, b=140),
+        margin=dict(l=70, r=80, t=60, b=160),
         annotations=[
             dict(
                 text=(
@@ -553,7 +553,7 @@ def build_rolling_granger(df: pd.DataFrame, pair_id: str) -> go.Figure:
                 xref="paper",
                 yref="paper",
                 x=0,
-                y=-0.42,
+                y=-0.58,
                 showarrow=False,
                 font=dict(size=10, color="grey"),
                 align="left",
