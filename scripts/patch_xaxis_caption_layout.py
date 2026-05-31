@@ -43,7 +43,8 @@ CHARTS_ROOT = REPO_ROOT / "output" / "charts"
 # the same constants post-hoc on already-shipped JSONs.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _chart_layout import (  # noqa: E402
-    CAPTION_Y as TARGET_CAPTION_Y,
+    CAPTION_X_SHIFT_PX as TARGET_CAPTION_X_SHIFT_PX,
+    CAPTION_Y_SHIFT_PX as TARGET_CAPTION_Y_SHIFT_PX,
     XAXIS_STANDOFF as TARGET_XAXIS_STANDOFF,
     MARGIN_B_WITH_CAPTION as MIN_MARGIN_B,
 )
@@ -112,13 +113,25 @@ def _patch_layout(doc: dict) -> bool:
 
     changed = False
 
-    # 3. Push caption to standard y.
-    try:
-        cur_caption_y = float(caption.get("y"))
-    except Exception:
-        cur_caption_y = None
-    if cur_caption_y != TARGET_CAPTION_Y:
-        caption["y"] = TARGET_CAPTION_Y
+    # 3. Re-anchor caption to plot-area bottom-left + pixel shifts.
+    #    Previously the caption used pure paper-y (y=-0.58) which scaled
+    #    with plot-area height — captions on tall charts landed in a
+    #    different absolute position than captions on short charts.
+    #    Pixel xshift/yshift removes the dependency.
+    if (
+        caption.get("x") != 0
+        or caption.get("y") != 0
+        or caption.get("xshift") != TARGET_CAPTION_X_SHIFT_PX
+        or caption.get("yshift") != TARGET_CAPTION_Y_SHIFT_PX
+        or caption.get("xanchor") != "left"
+        or caption.get("yanchor") != "top"
+    ):
+        caption["x"] = 0
+        caption["y"] = 0
+        caption["xshift"] = TARGET_CAPTION_X_SHIFT_PX
+        caption["yshift"] = TARGET_CAPTION_Y_SHIFT_PX
+        caption["xanchor"] = "left"
+        caption["yanchor"] = "top"
         changed = True
 
     # 4. Set xaxis_title standoff so title hugs the tick labels.
