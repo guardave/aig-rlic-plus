@@ -27,5 +27,8 @@
   "target_symbol": "XLI",
   "schema_version": "1.1.0",
   "generated_at": "2026-05-26T17:35:16Z",
-  "notes": "Mode 2 Phase 3 (Evan hat). Tournament: 5 signals x 3 thresholds x 2 strategies x 3 leads = 90 combos, 90 fit, 60 valid. Winner selected by OOS Sharpe."
+  "notes": "Mode 2 Phase 3 (Evan hat). Tournament: 5 signals x 3 thresholds x 2 strategies x 3 leads = 90 combos, 90 fit, 60 valid. Winner selected by OOS Sharpe.",
+  "bh_sharpe": 0.66,
+  "bh_ann_return": 0.145,
+  "bh_max_drawdown": -0.4233
 }

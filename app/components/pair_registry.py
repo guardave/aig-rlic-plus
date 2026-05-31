@@ -164,32 +164,70 @@ def load_pair_registry():
                 tdf = pd.read_csv(tourn_path)
                 total_count = len(tdf)
                 valid_count = int(tdf["valid"].sum())
+                # Resolve column-name drift: some pipelines emit
+                # `max_drawdown`, newer ones emit `oos_max_drawdown`.
+                # The dashboard card formula is the same; resolve to a
+                # single working column. (Documented in BL-DUP-12.)
+                if "max_drawdown" in tdf.columns:
+                    dd_col = "max_drawdown"
+                elif "oos_max_drawdown" in tdf.columns:
+                    dd_col = "oos_max_drawdown"
+                else:
+                    dd_col = None
                 # META-UC (Wave 8B-2 / Wave 10I.C fix): Detect ratio vs
                 # percent form by inspecting the benchmark drawdown value.
-                # Ratio form: abs(max_drawdown) < 2 (e.g. -0.337).
-                # Percent form: abs(max_drawdown) >= 2 (e.g. -33.7).
-                # hy_ig_v2_spy was the first ratio-form pair; subsequent
-                # pairs (hy_ig_spy, umcsent_xlv) also use ratio form.
-                # Hardcoding pair names is fragile — auto-detect instead.
-                _bh_sample = tdf[tdf["signal"] == "BENCHMARK"]
-                if len(_bh_sample) > 0:
-                    _sample_dd = abs(float(_bh_sample.iloc[0]["max_drawdown"]))
+                # Ratio form: abs(dd) < 2 (e.g. -0.337).
+                # Percent form: abs(dd) >= 2 (e.g. -33.7).
+                _bh_sample = tdf[tdf["signal"] == "BENCHMARK"] if "signal" in tdf.columns else tdf.iloc[0:0]
+                if dd_col is None:
+                    _dd_scale = 1.0
+                elif len(_bh_sample) > 0:
+                    _sample_dd = abs(float(_bh_sample.iloc[0][dd_col]))
                     _dd_scale = 100.0 if _sample_dd < 2.0 else 1.0
                 else:
-                    # Fallback: infer from strategy rows
-                    _all_dd = tdf["max_drawdown"].dropna()
+                    _all_dd = tdf[dd_col].dropna()
                     _dd_scale = 100.0 if (len(_all_dd) > 0 and abs(_all_dd.iloc[0]) < 2.0) else 1.0
                 valid_strats = tdf[tdf["valid"] & (tdf["signal"] != "BENCHMARK")]
                 if len(valid_strats) > 0:
                     best_row = valid_strats.loc[valid_strats["oos_sharpe"].idxmax()]
                     best_sharpe = round(float(best_row["oos_sharpe"]), 2)
-                    max_dd = round(float(best_row["max_drawdown"]) * _dd_scale, 1)
-                bh = tdf[tdf["signal"] == "BENCHMARK"]
+                    if dd_col is not None:
+                        max_dd = round(float(best_row[dd_col]) * _dd_scale, 1)
+                bh = tdf[tdf["signal"] == "BENCHMARK"] if "signal" in tdf.columns else tdf.iloc[0:0]
                 if len(bh) > 0:
                     bh_sharpe = round(float(bh.iloc[0]["oos_sharpe"]), 2)
-                    bh_dd = round(float(bh.iloc[0]["max_drawdown"]) * _dd_scale, 1)
-            except Exception:
-                pass
+                    if dd_col is not None:
+                        bh_dd = round(float(bh.iloc[0][dd_col]) * _dd_scale, 1)
+                else:
+                    # No BENCHMARK row in tournament (e.g. gold_copper_xli's
+                    # pipeline didn't emit one). Fall back to winner_summary
+                    # bh fields when present. Tracked as BL-DUP-11/DUP-6.
+                    ws_path = os.path.join(pair_path, "winner_summary.json")
+                    if os.path.exists(ws_path):
+                        with open(ws_path) as _wsf:
+                            _ws = json.load(_wsf)
+                        if _ws.get("bh_sharpe") is not None:
+                            bh_sharpe = round(float(_ws["bh_sharpe"]), 2)
+                        _ws_bh_dd = _ws.get("bh_max_drawdown")
+                        if _ws_bh_dd is not None:
+                            _ws_bh_dd_f = float(_ws_bh_dd)
+                            _scale = 100.0 if abs(_ws_bh_dd_f) < 2.0 else 1.0
+                            bh_dd = round(_ws_bh_dd_f * _scale, 1)
+            except Exception as e:
+                # Silent failure caused the gold_copper_xli dashboard
+                # card to render as "—" because a KeyError on the
+                # column-name drift was swallowed. Now we log and
+                # surface to integrity-issues so future drift is
+                # visible at next wave closure.
+                _integrity_issues.append({
+                    "pair_id": pair_dir,
+                    "missing_fields": ["tournament_load_error"],
+                    "note": (
+                        f"tournament_results CSV could not be parsed for "
+                        f"card display: {type(e).__name__}: {e}. Dashboard "
+                        f"card will show '—' for affected metrics."
+                    ),
+                })
 
         # Display names sourced from the canonical display_names module
         # (DUP-1 consolidation, fix260531). Previously this dict was
