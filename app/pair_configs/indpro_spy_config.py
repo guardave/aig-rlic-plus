@@ -25,7 +25,7 @@ class StoryConfig:
     )
 
     HEADLINE_H2 = (
-        "## Industrial Production as a pro-cyclical equity timing signal — "
+        "## INDPRO as a pro-cyclical equity timing signal — "
         "OOS Sharpe vs SPY buy-and-hold"
     )
 
@@ -55,25 +55,25 @@ class StoryConfig:
 
     KPI_CAPTION = (
         "The edge comes primarily from drawdown avoidance, not from higher "
-        "returns. OOS annualised return is +7.7% versus +14.8% for buy-and-hold, "
+        "returns. OOS annualised return is +7.6% versus +14.8% for buy-and-hold, "
         "but the strategy spends roughly two-thirds of its time in cash — "
         "translating into a much smoother ride. A pragmatic use case is as a "
         "risk-management overlay rather than as a stand-alone alpha engine."
     )
 
-    HERO_TITLE = "35 Years of Industrial Production vs. S&P 500"
+    HERO_TITLE = "35 Years of INDPRO vs. S&P 500"
     HERO_CHART_NAME = "indpro_spy_hero"
     HERO_CAPTION = (
-        "Dual-axis view: IP YoY growth (left, red) and SPY price (right, blue). "
-        "Red shaded bands mark industrial contraction periods (YoY growth < 0). "
+        "Dual-axis view: INDPRO YoY growth (left, red) and SPY price (right, blue). "
+        "Red shaded bands mark INDPRO contraction periods (YoY growth < 0). "
         "Notice how contractions tend to overlap with, or precede, equity "
         "declines — most visibly in 2001, 2008-09 and 2020."
     )
 
-    REGIME_TITLE = "What History Shows: Returns by IP Growth Regime"
+    REGIME_TITLE = "What History Shows: Returns by INDPRO Growth Regime"
     REGIME_CHART_NAME = "indpro_spy_regime_stats"
     REGIME_CAPTION = (
-        "Equity performance differs sharply across IP growth regimes. "
+        "Equity performance differs sharply across INDPRO growth regimes. "
         "Stocks perform best during moderate growth (Q2, Sharpe ~1.09) and "
         "high growth (Q4, ~1.15), and worst during deep contractions "
         "(Q1, ~0.31). Q3 sits in between at ~0.69. The pattern is "
@@ -306,25 +306,31 @@ GRANGER_BLOCK = dict(
         "through 6 months, in both directions."
     ),
     question=(
-        "Does IP growth carry predictive content for SPY returns that is not "
+        "Does INDPRO YoY growth carry predictive content for SPY returns that is not "
         "already in SPY's own history?"
     ),
     how_to_read=(
-        "Bars show p-values by lag order. Below the dashed line (p=0.05) "
-        "indicates statistically significant Granger causality."
+        "Two lines, one per direction. **Red = INDPRO → SPY** (does past INDPRO "
+        "help forecast SPY?). **Blue = SPY → INDPRO** (the reverse check). "
+        "The X-axis is the lag order in months. The Y-axis is the F-test "
+        "p-value. A line **below the dashed p=0.05 line** at a given lag means "
+        "that direction is Granger-significant at that lag — i.e. that series "
+        "is the leading indicator. Both lines staying above 0.05 means neither "
+        "series leads the other in a strict statistical sense."
     ),
     chart_name="indpro_spy_granger",
     chart_caption=(
-        "Granger causality tests in both directions. Below the dashed line "
-        "(p=0.05) indicates statistically significant causality."
+        "Granger causality in both directions. Red = INDPRO → SPY, Blue = SPY "
+        "→ INDPRO. Points **below the dashed p=0.05 line** indicate the cause "
+        "side leads the target side at that lag."
     ),
     observation=(
-        "Results are mixed. IP growth does not strongly Granger-cause SPY "
-        "returns at conventional lag orders. The reverse direction (SPY → IP) "
-        "is also weak. This is consistent with IP being a coincident indicator "
-        "rather than a true leading indicator — the predictive power comes "
-        "from the publication lag and momentum effects, not from IP leading "
-        "the economy per se."
+        "Results are mixed. INDPRO YoY growth does not strongly Granger-cause "
+        "SPY returns at conventional lag orders. The reverse direction "
+        "(SPY → INDPRO) is also weak. This is consistent with INDPRO being a "
+        "coincident indicator rather than a true leading indicator — the "
+        "predictive power comes from the publication lag and momentum "
+        "effects, not from INDPRO leading the economy per se."
     ),
     interpretation=(
         "Absence of Granger causality does not mean absence of tradable edge. "
@@ -333,9 +339,9 @@ GRANGER_BLOCK = dict(
         "meaningful signal, as the tournament confirms."
     ),
     key_message=(
-        "The IP signal is coincident, not leading. The 6-month lead is a "
+        "The INDPRO signal is coincident, not leading. The 6-month lead is a "
         "design choice that leverages publication delay and momentum "
-        "persistence — not a claim that IP literally forecasts SPY."
+        "persistence — not a claim that INDPRO literally forecasts SPY."
     ),
 )
 
@@ -361,7 +367,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     chart_caption=(
         "Jordà (2005) local projections with HAC (Newey-West) standard "
         "errors. Stars indicate significance at p<0.05. The coefficient "
-        "shows the marginal effect of a 1pp increase in IP YoY growth on "
+        "shows the marginal effect of a 1pp increase in INDPRO YoY growth on "
         "forward SPY returns."
     ),
     observation=(
@@ -389,24 +395,24 @@ QUANTILE_BLOCK = dict(
     method_name="Quantile Regression",
     method_theory=(
         "Quantile regression (Koenker & Bassett 1978) estimates the effect of "
-        "IP growth on different percentiles of the SPY return distribution, "
+        "INDPRO YoY growth on different percentiles of the SPY return distribution, "
         "not just the conditional mean. This reveals whether the signal "
         "affects the tails more than the body."
     ),
     question=(
-        "Does IP growth protect against extreme losses (left-tail "
+        "Does INDPRO YoY growth protect against extreme losses (left-tail "
         "protection) or mostly shift the median return?"
     ),
     how_to_read=(
         "X-axis: quantile (0.05 through 0.95). Y-axis: coefficient. A "
-        "positive coefficient means higher IP growth shifts that quantile "
+        "positive coefficient means higher INDPRO YoY growth shifts that quantile "
         "of forward SPY returns upward."
     ),
     chart_name="indpro_spy_quantile_regression",
     chart_caption=(
-        "The effect of IP growth varies across the return distribution. "
+        "The effect of INDPRO YoY growth varies across the return distribution. "
         "At the left tail (worst outcomes), the coefficient tends to be "
-        "positive — higher IP growth protects against extreme losses."
+        "positive — higher INDPRO YoY growth protects against extreme losses."
     ),
     observation=(
         "Coefficients are positive across most of the distribution, with "
@@ -435,10 +441,10 @@ RF_BLOCK = dict(
         "A Random Forest classifier (200 trees, max_depth=5) is walk-forward-"
         "validated across 20 train/test windows (10-year training / 3-year "
         "testing). Feature importances are averaged across windows to rank "
-        "the most informative IP transforms."
+        "the most informative INDPRO transforms."
     ),
     question=(
-        "When we let a machine-learning model decide which IP transforms "
+        "When we let a machine-learning model decide which INDPRO transforms "
         "matter most, which rise to the top?"
     ),
     how_to_read=(
@@ -453,7 +459,7 @@ RF_BLOCK = dict(
     ),
     observation=(
         "Walk-forward classification accuracy is **61.4%**, modestly "
-        "above the 50% baseline. IP momentum transforms and the yield "
+        "above the 50% baseline. INDPRO momentum transforms and the yield "
         "spread dominate the importance ranking; raw levels rank low."
     ),
     interpretation=(
@@ -503,7 +509,7 @@ EVIDENCE_METHOD_BLOCKS = {
     "transition": (
         "The statistical evidence confirms a real but nuanced IP-equity "
         "relationship. The practical question is whether investors can use "
-        "IP signals to improve risk-adjusted outcomes — the next page shows "
+        "INDPRO signals to improve risk-adjusted outcomes — the next page shows "
         "the winning rule and its full performance profile."
     ),
 }
@@ -513,7 +519,7 @@ EVIDENCE_METHOD_BLOCKS = {
 # STRATEGY PAGE CONFIG
 # =========================================================================
 class StrategyConfig:
-    PAGE_TITLE = "The Strategy: Translating IP Signals into SPY Positioning"
+    PAGE_TITLE = "The Strategy: Translating INDPRO Signals into SPY Positioning"
     PAGE_SUBTITLE = (
         "We tested hundreds of strategy combinations to find the most robust way "
         "to time SPY exposure using the Industrial Production signal."
@@ -528,7 +534,7 @@ class StrategyConfig:
     )
 
     SIGNAL_RULE_MD = (
-        "**Tournament winner:** Signal `S6_mom3m` (3-month IP momentum) / "
+        "**Tournament winner:** Signal `S6_mom3m` (3-month INDPRO momentum) / "
         "Threshold `T1_fixed_p75` (75th percentile, fixed in-sample) / "
         "Strategy `P1_long_cash` (Long/Cash binary toggle) / Lead 6 months.\n\n"
         "When the 3-month change in Industrial Production is above its "
@@ -571,7 +577,7 @@ class StrategyConfig:
         "1. **Publication lag matters.** IP data is released ~6 weeks after "
         "the reference month. The 6-month lead in the winning strategy "
         "accounts for this delay and is not a theoretical forecast horizon.\n\n"
-        "2. **Monthly frequency limits responsiveness.** IP signals update "
+        "2. **Monthly frequency limits responsiveness.** INDPRO signals update "
         "monthly; fast-moving markets (COVID in March 2020, flash crashes) "
         "can gap before the next data point.\n\n"
         "3. **COVID outlier.** The April 2020 IP drop (-12.7% MoM) is "
@@ -579,7 +585,7 @@ class StrategyConfig:
         "through much of 2019-2021 which protected capital but also missed "
         "the V-shaped recovery.\n\n"
         "4. **This is a risk-management overlay, not an alpha engine.** The "
-        "strategy's annualised OOS return (+7.7%) is below buy-and-hold "
+        "strategy's annualised OOS return (+7.6%) is below buy-and-hold "
         "(+14.8%). Its edge is Sharpe (1.10 vs. 0.90) and drawdown (-8% vs. "
         "-24%) — useful for investors with tight drawdown budgets, less "
         "useful as a pure return-maximiser."
@@ -589,7 +595,7 @@ class StrategyConfig:
         "**Crisis anchor — 2020 COVID crash.** From "
         "`results/indpro_spy/winner_trade_log.csv`:\n\n"
         "- **2019-03-31 → 2021-01-31 (Cash, 672 days).** Going into 2019, the "
-        "6-month-lagged 3-month IP momentum had been decelerating below the "
+        "6-month-lagged 3-month INDPRO momentum had been decelerating below the "
         "in-sample 75th-percentile threshold. The rule moved to cash at the "
         "end of March 2019 and remained in cash for **22 months straight**, "
         "crossing through the entire COVID crash.\n"
@@ -597,11 +603,11 @@ class StrategyConfig:
         "with its 6-month lead, had been flagging weak factory trends through "
         "late 2018 (trade war, auto slowdown). The strategy sat in cash while "
         "SPY dropped 34% between 20-Feb-2020 and 23-Mar-2020, then stayed in "
-        "cash through the recovery as IP momentum took time to rebuild above "
+        "cash through the recovery as INDPRO momentum took time to rebuild above "
         "the threshold.\n"
         "- **Cost of caution.** The same 22 months of cash meant the rule "
         "also missed most of the post-COVID rally, which is why OOS "
-        "annualised return (+7.65%) trails buy-and-hold (+14.8%). The "
+        "annualised return (+7.6%) trails buy-and-hold (+14.8%). The "
         "payoff is entirely in drawdown: -8.1% for the rule versus -23.9% "
         "for buy-and-hold.\n"
         "- **Broker-style artefact not yet generated.** Per APP-TL1, the "
