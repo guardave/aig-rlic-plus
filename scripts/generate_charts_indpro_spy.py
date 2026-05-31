@@ -66,7 +66,7 @@ def chart_hero():
                   secondary_y=False)
 
     fig.update_layout(
-        title="Industrial Production Growth vs S&P 500 (1990-2025)",
+        title="INDPRO YoY Growth vs S&P 500 (1990-2025)",
         template="plotly_white",
         hovermode="x unified",
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
