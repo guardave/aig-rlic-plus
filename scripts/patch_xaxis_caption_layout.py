@@ -43,7 +43,6 @@ CHARTS_ROOT = REPO_ROOT / "output" / "charts"
 # the same constants post-hoc on already-shipped JSONs.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _chart_layout import (  # noqa: E402
-    CAPTION_X_SHIFT_PX as TARGET_CAPTION_X_SHIFT_PX,
     CAPTION_Y_SHIFT_PX as TARGET_CAPTION_Y_SHIFT_PX,
     XAXIS_STANDOFF as TARGET_XAXIS_STANDOFF,
     MARGIN_B_WITH_CAPTION as MIN_MARGIN_B,
@@ -120,31 +119,25 @@ def _patch_layout(doc: dict) -> bool:
 
     changed = False
 
-    # 3. Re-anchor caption to plot-area bottom-left + pixel shifts.
-    #    xshift = -margin.l lands the caption at the chart container's
-    #    left edge regardless of how wide the left margin is. yshift is
-    #    a fixed pixel distance below the plot. Paper-y (legacy) is
-    #    cleared because mixing paper-y with yshift double-counts the
-    #    vertical offset.
-    try:
-        margin_l = int((margin.get("l") if margin else None) or 80)
-    except Exception:
-        margin_l = 80
-    target_xshift = -margin_l
+    # 3. Re-anchor caption: centered across plot-area + fixed pixel
+    #    yshift below plot bottom. This sidesteps the margin.l and
+    #    chart-width inconsistencies that plagued left-aligned recipes.
     if (
-        caption.get("x") != 0
+        caption.get("x") != 0.5
         or caption.get("y") != 0
-        or caption.get("xshift") != target_xshift
+        or caption.get("xshift") != 0
         or caption.get("yshift") != TARGET_CAPTION_Y_SHIFT_PX
-        or caption.get("xanchor") != "left"
+        or caption.get("xanchor") != "center"
         or caption.get("yanchor") != "top"
+        or caption.get("align") != "center"
     ):
-        caption["x"] = 0
+        caption["x"] = 0.5
         caption["y"] = 0
-        caption["xshift"] = target_xshift
+        caption["xshift"] = 0
         caption["yshift"] = TARGET_CAPTION_Y_SHIFT_PX
-        caption["xanchor"] = "left"
+        caption["xanchor"] = "center"
         caption["yanchor"] = "top"
+        caption["align"] = "center"
         changed = True
 
     # 4. Set xaxis_title standoff so title hugs the tick labels.
