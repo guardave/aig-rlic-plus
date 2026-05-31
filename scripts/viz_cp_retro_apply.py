@@ -246,7 +246,7 @@ def build_rolling_correlation(df: pd.DataFrame, pair_id: str) -> go.Figure:
 
     fig.update_layout(
         title=dict(text="Rolling 24-Month Signal–Return Correlation", font=dict(size=15)),
-        xaxis_title="Date",
+        xaxis_title=dict(text="Date", standoff=12),
         yaxis_title="Pearson Correlation",
         width=900,
         height=400,
@@ -260,7 +260,7 @@ def build_rolling_correlation(df: pd.DataFrame, pair_id: str) -> go.Figure:
                 xref="paper",
                 yref="paper",
                 x=0,
-                y=-0.22,
+                y=-0.28,
                 showarrow=False,
                 font=dict(size=10, color="grey"),
                 align="left",
@@ -327,7 +327,7 @@ def build_structural_break(
         title=dict(
             text=f"Structural Break Analysis — {pair_id}", font=dict(size=15)
         ),
-        xaxis_title="Date",
+        xaxis_title=dict(text="Date", standoff=12),
         yaxis_title="Rolling 24M Correlation",
         width=900,
         height=400,
@@ -338,7 +338,7 @@ def build_structural_break(
                 xref="paper",
                 yref="paper",
                 x=0,
-                y=-0.22,
+                y=-0.28,
                 showarrow=False,
                 font=dict(size=10, color="rgba(213,94,0,1)"),
                 align="left",
@@ -408,7 +408,7 @@ def build_rolling_sharpe_cp(df: pd.DataFrame, pair_id: str) -> go.Figure:
 
     fig.update_layout(
         title=dict(text="Rolling 24-Month Strategy Sharpe Ratio", font=dict(size=15)),
-        xaxis_title="Date",
+        xaxis_title=dict(text="Date", standoff=12),
         yaxis_title="Sharpe Ratio (annualized)",
         width=900,
         height=400,
@@ -419,7 +419,7 @@ def build_rolling_sharpe_cp(df: pd.DataFrame, pair_id: str) -> go.Figure:
                 xref="paper",
                 yref="paper",
                 x=0,
-                y=-0.22,
+                y=-0.28,
                 showarrow=False,
                 font=dict(size=10, color="grey"),
                 align="left",
@@ -553,7 +553,7 @@ def build_rolling_granger(df: pd.DataFrame, pair_id: str) -> go.Figure:
                 xref="paper",
                 yref="paper",
                 x=0,
-                y=-0.22,
+                y=-0.28,
                 showarrow=False,
                 font=dict(size=10, color="grey"),
                 align="left",
