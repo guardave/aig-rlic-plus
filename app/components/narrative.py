@@ -119,24 +119,26 @@ def _glossary_clear() -> None:
 
 # CSS that turns Streamlit's default pill button into a small borderless
 # icon button — visually attached to the search input on its right, like a
-# native search-box clear-X. Targets the glossary-clear button by its
-# stButton wrapper class plus an attribute selector on the underlying
-# button's aria-label (which Streamlit derives from the `help=` text).
+# native search-box clear-X.
+#
+# Scoped to our button via Streamlit's `st-key-<key>` class on the element
+# container (Streamlit adds this whenever a widget has a `key=`). This is
+# stable across Streamlit minor versions and doesn't depend on aria-label,
+# title, or internal css class names.
 _GLOSSARY_CLEAR_CSS = """
 <style>
 /* Tighten the column gap so the clear icon hugs the text input */
-section[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"]:has(div[data-testid="stTextInput"]) {
+section[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"]:has(.st-key-glossary_clear) {
     gap: 0.2rem;
 }
-/* The clear button: kill the pill chrome and the focus ring */
-section[data-testid="stSidebar"] button[aria-label="Clear search"],
-section[data-testid="stSidebar"] button[title="Clear search"] {
+/* The clear button itself: kill pill chrome and focus ring */
+.st-key-glossary_clear button {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     color: #888 !important;
     padding: 0 !important;
-    min-height: 38px;   /* match Streamlit's stTextInput default height */
+    min-height: 38px;   /* matches Streamlit's stTextInput default height */
     height: 38px;
     width: 38px;
     display: inline-flex;
@@ -145,20 +147,17 @@ section[data-testid="stSidebar"] button[title="Clear search"] {
     border-radius: 50%;
     transition: background-color 120ms ease, color 120ms ease;
 }
-section[data-testid="stSidebar"] button[aria-label="Clear search"]:hover,
-section[data-testid="stSidebar"] button[title="Clear search"]:hover {
+.st-key-glossary_clear button:hover:not(:disabled) {
     background: rgba(0, 0, 0, 0.06) !important;
     color: #333 !important;
 }
-section[data-testid="stSidebar"] button[aria-label="Clear search"]:disabled,
-section[data-testid="stSidebar"] button[title="Clear search"]:disabled {
+.st-key-glossary_clear button:disabled {
     color: #ccc !important;
     background: transparent !important;
-    cursor: default;
+    cursor: default !important;
 }
-/* Make the Material icon span sit at the right size */
-section[data-testid="stSidebar"] button[aria-label="Clear search"] span[data-testid="stIconMaterial"],
-section[data-testid="stSidebar"] button[title="Clear search"] span[data-testid="stIconMaterial"] {
+/* Material icon size */
+.st-key-glossary_clear button span[data-testid="stIconMaterial"] {
     font-size: 20px !important;
     line-height: 1 !important;
 }

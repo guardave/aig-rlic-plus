@@ -38,9 +38,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CHARTS_ROOT = REPO_ROOT / "output" / "charts"
 
-TARGET_CAPTION_Y = -0.28
-TARGET_XAXIS_STANDOFF = 12
-MIN_MARGIN_B = 110
+TARGET_CAPTION_Y = -0.42        # below the X-axis title (which sits at ~ -0.25)
+TARGET_XAXIS_STANDOFF = 12      # pulls "Date" title up against tick labels
+MIN_MARGIN_B = 140              # room for both with comfortable gap
 
 # Filename prefixes covered. Add new chart families here as needed.
 TIMESERIES_PREFIXES = (
