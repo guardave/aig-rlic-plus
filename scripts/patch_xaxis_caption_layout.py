@@ -38,19 +38,22 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CHARTS_ROOT = REPO_ROOT / "output" / "charts"
 
-TARGET_CAPTION_Y = -0.58        # well below the X-axis title (which lands ~ -0.40
-                                # on 400-px-tall charts even with standoff=12)
-TARGET_XAXIS_STANDOFF = 12      # pulls "Date" title up against tick labels
-MIN_MARGIN_B = 160              # room for tick labels + axis title + caption + gap
-
-# Filename prefixes covered. Add new chart families here as needed.
-TIMESERIES_PREFIXES = (
-    "rolling_",
-    "walk_forward",
-    "drawdown",
-    "equity_curves",
-    "structural_break",
+# Single source of truth shared with chart generators (scripts/_chart_layout.py).
+# Generators call apply_caption_layout() at render time; this patcher enforces
+# the same constants post-hoc on already-shipped JSONs.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _chart_layout import (  # noqa: E402
+    CAPTION_Y as TARGET_CAPTION_Y,
+    XAXIS_STANDOFF as TARGET_XAXIS_STANDOFF,
+    MARGIN_B_WITH_CAPTION as MIN_MARGIN_B,
 )
+
+# The patcher does NOT filter by filename — every chart that has both an
+# x-axis title and a paper-anchored grey caption is in scope. The rule is
+# about the geometric class (axis title vs caption), not about specific
+# chart families. Adding a new chart type to the codebase needs nothing
+# here; the patcher picks it up automatically as long as it follows the
+# common (xaxis_title, paper-anchored caption) shape.
 
 
 def _is_target_caption(anno: dict) -> bool:
@@ -141,11 +144,6 @@ def _patch_layout(doc: dict) -> bool:
     return changed
 
 
-def _is_target_chart(path: Path) -> bool:
-    name = path.name
-    return any(name.startswith(p) for p in TIMESERIES_PREFIXES)
-
-
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--dry-run", action="store_true")
@@ -157,7 +155,7 @@ def main() -> int:
     else:
         glob_pat = str(CHARTS_ROOT / "*" / "plotly" / "*.json")
     paths = sorted(Path(p) for p in glob.glob(glob_pat))
-    paths = [p for p in paths if not p.name.endswith("_meta.json") and _is_target_chart(p)]
+    paths = [p for p in paths if not p.name.endswith("_meta.json")]
 
     n_patched = 0
     for path in paths:
