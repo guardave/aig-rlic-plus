@@ -40,13 +40,15 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CHARTS_ROOT = REPO_ROOT / "output" / "charts"
 
-LEGEND_X = 1.02
+LEGEND_X = 1.08  # bumped from 1.02 so right-axis tick labels are not
+                 # occluded by the legend on dual-axis charts (the right
+                 # y-axis ticks render around x=1.0).
 LEGEND_XANCHOR = "left"
 LEGEND_Y = 1.0
 LEGEND_YANCHOR = "top"
 LEGEND_ORIENTATION = "v"
 
-MIN_MARGIN_R_WITH_LEGEND = 160
+MIN_MARGIN_R_WITH_LEGEND = 180  # widened from 160 to absorb the new x=1.08
 RECLAIMED_MARGIN_B = 80
 RECLAIMED_CAPTION_Y = -0.15
 

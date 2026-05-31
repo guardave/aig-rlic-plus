@@ -268,7 +268,7 @@ def build_rolling_correlation(df: pd.DataFrame, pair_id: str) -> go.Figure:
         ],
         plot_bgcolor="white",
         paper_bgcolor="white",
-        legend=dict(orientation="h", y=-0.50),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
     fig.update_xaxes(gridcolor="rgba(200,200,200,0.4)")
     fig.update_yaxes(gridcolor="rgba(200,200,200,0.4)")
@@ -561,7 +561,7 @@ def build_rolling_granger(df: pd.DataFrame, pair_id: str) -> go.Figure:
         ],
         plot_bgcolor="white",
         paper_bgcolor="white",
-        legend=dict(orientation="h", y=-0.50),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
     fig.update_xaxes(title_text="Date", gridcolor="rgba(200,200,200,0.4)")
     fig.update_yaxes(

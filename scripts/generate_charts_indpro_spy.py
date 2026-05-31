@@ -69,7 +69,7 @@ def chart_hero():
         title="Industrial Production Growth vs S&P 500 (1990-2025)",
         template="plotly_white",
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         height=500,
     )
     fig.update_yaxes(title_text="INDPRO YoY Growth (%)", secondary_y=False)
@@ -399,7 +399,7 @@ def chart_equity_curves():
         yaxis_title="Cumulative Return ($1 invested)",
         template="plotly_white",
         height=500,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
 
     save_chart(fig, "indpro_spy_equity_curves")
@@ -435,7 +435,7 @@ def chart_granger():
         yaxis_title="P-Value",
         template="plotly_white",
         height=400,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
     # Annotation: which colour = which direction, and how to read "leading".
     fig.add_annotation(
@@ -450,7 +450,7 @@ def chart_granger():
         font=dict(size=10, color="#444"),
         align="center",
     )
-    fig.update_layout(margin=dict(b=110))
+    fig.update_layout(margin=dict(r=180, b=110))
 
     save_chart(fig, "indpro_spy_granger")
 

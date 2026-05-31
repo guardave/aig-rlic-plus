@@ -128,7 +128,7 @@ def make_drawdown_comparison():
                       xaxis=dict(title="Date"),
                       yaxis=dict(title="Drawdown (%)"),
                       template="plotly_white", height=420,
-                      legend=dict(orientation="h", y=-0.15))
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
     save_chart(fig, "drawdown_comparison", palette_id="dd_compare_v1",
                rules_applied=["VIZ-IC1"],
                alignment_note="Strategy vs B&H drawdown — visualizes the -8.2% strategy max DD vs deeper B&H drawdowns.")
@@ -168,7 +168,7 @@ def make_returns_by_regime():
     fig.update_layout(title="XLI daily returns by HMM regime",
                       yaxis=dict(title="Daily return (%)"),
                       template="plotly_white", height=420,
-                      legend=dict(orientation="h", y=-0.15))
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
     save_chart(fig, "returns_by_regime", palette_id="box_v1",
                rules_applied=["VIZ-IC1"],
                alignment_note="Box of XLI daily returns split by HMM Viterbi state — does stress regime have wider/lower returns?")
@@ -243,7 +243,7 @@ def make_local_projections():
                       xaxis=dict(title="Horizon (trading days)"),
                       yaxis=dict(title="Cumulative XLI return (%)"),
                       template="plotly_white", height=420,
-                      legend=dict(orientation="h", y=-0.18))
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
     save_chart(fig, "local_projections", palette_id="lp_v1",
                rules_applied=["VIZ-IC1"],
                alignment_note="Jordà local projections with HAC standard errors. Negative beta = countercyclical response. CI from local_projections.csv.")

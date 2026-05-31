@@ -228,8 +228,8 @@ def chart_hero():
     fig.update_layout(
         title=dict(text="Credit Stress Predicts Equity Drawdowns: 25 Years of HY-IG vs SPY"),
         template=TEMPLATE, hovermode="x unified", height=520,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     fig.update_yaxes(title_text="HY-IG OAS Spread (%)", secondary_y=False, autorange="reversed")
     fig.update_yaxes(title_text="SPY Price ($)", secondary_y=True)
@@ -284,7 +284,7 @@ def chart_regime_stats():
         title=dict(text="HMM Regime Discrimination: Calm = Strong SPY Returns, Stress = Negative"),
         xaxis_title="HMM Regime",
         yaxis_title="Annualized SPY Return (%)",
-        template=TEMPLATE, height=450, showlegend=False, margin=dict(b=80),
+        template=TEMPLATE, height=450, showlegend=False, margin=dict(r=180, b=80),
     )
     _note(fig, "HMM 2-state model identifies calm vs stress regimes from HY-IG spread dynamics. Sharpe shown on bars.")
     _save_chart(fig, "regime_stats",
@@ -349,8 +349,8 @@ def _chart_history_zoom(name, start_str, end_str, title, episode_label):
     fig.update_layout(
         title=dict(text=title),
         template=TEMPLATE, height=520, hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     fig.update_yaxes(title_text="HY-IG Spread (%)", row=1, col=1)
     fig.update_yaxes(title_text="SPY Price ($)", row=2, col=1)
@@ -413,7 +413,7 @@ def chart_correlations():
         title=dict(text="HY-IG Spread Negatively Correlated with SPY Returns — Persistently Since 2008"),
         xaxis_title="Date",
         yaxis_title="Rolling 252-Day Correlation",
-        template=TEMPLATE, height=450, margin=dict(b=80),
+        template=TEMPLATE, height=450, margin=dict(r=180, b=80),
     )
     _note(fig, "252-day rolling Pearson r between HY-IG spread (bps) and SPY daily returns. Gray = NBER recessions.")
     _save_chart(fig, "correlations",
@@ -467,7 +467,7 @@ def chart_ccf():
         title=dict(text="Negative Contemporaneous Cross-Correlation: Spread Widening Hits SPY Same Day"),
         xaxis_title="Lag (days, negative = spread leads SPY)",
         yaxis_title="Cross-Correlation",
-        template=TEMPLATE, height=450, showlegend=False, margin=dict(b=80),
+        template=TEMPLATE, height=450, showlegend=False, margin=dict(r=180, b=80),
     )
     _note(fig, "Pre-whitened CCF (first-difference both series). Dashed lines = ±95% significance bands.")
     _save_chart(fig, "ccf",
@@ -502,7 +502,7 @@ def chart_granger_f_by_lag():
         title=dict(text="Granger Causality: HY-IG Spread Predicts SPY (Monthly, Lags 1-12)"),
         xaxis_title="Lag (months)",
         yaxis_title="Granger F-Statistic",
-        template=TEMPLATE, height=450, showlegend=False, margin=dict(b=80),
+        template=TEMPLATE, height=450, showlegend=False, margin=dict(r=180, b=80),
     )
     _note(fig, "Granger causality test: HY-IG spread → SPY monthly returns. Vermillion bars = significant at p<0.05.")
     _save_chart(fig, "granger_f_by_lag",
@@ -564,8 +564,8 @@ def chart_hmm_regime_probs():
     fig.update_layout(
         title=dict(text="HMM Stress Probability > 0.5 Correctly Flags Every Major Drawdown"),
         template=TEMPLATE, hovermode="x unified", height=500,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     fig.update_yaxes(title_text="P(Stress State)", range=[0, 1.05], secondary_y=False)
     fig.update_yaxes(title_text="SPY Price ($)", secondary_y=True)
@@ -602,7 +602,7 @@ def chart_regime_quartile_returns():
         title=dict(text="Spread Quartile Anatomy: Q1 (Tight) = +18.7% Ann.; Q4 (Wide) = -10.2%"),
         xaxis_title="HY-IG Spread Quartile (Q1 = Tight/Calm, Q4 = Wide/Stress)",
         yaxis_title="Annualized SPY Return (%)",
-        template=TEMPLATE, height=450, showlegend=False, margin=dict(b=80),
+        template=TEMPLATE, height=450, showlegend=False, margin=dict(r=180, b=80),
     )
     _note(fig, "Q1=tightest spreads (bullish); Q4=widest spreads (bearish). Monthly data. Sharpe shown on bars.")
     _save_chart(fig, "regime_quartile_returns",
@@ -681,8 +681,8 @@ def chart_transfer_entropy():
         xaxis_title="Date",
         yaxis_title="Transfer Entropy Proxy (rolling 504d)",
         template=TEMPLATE, height=450,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     _note(fig, "Proxy TE via conditional correlation difference. Higher = more directional information flow.")
     _save_chart(fig, "transfer_entropy",
@@ -731,7 +731,7 @@ def chart_local_projections():
         title=dict(text="Credit Spread Impact on SPY Builds Over Weeks: Significant at 63 Days"),
         xaxis_title="Forecast Horizon (trading days)",
         yaxis_title="Coefficient (HAC-robust SE)",
-        template=TEMPLATE, height=450, margin=dict(b=80),
+        template=TEMPLATE, height=450, margin=dict(r=180, b=80),
     )
     _note(fig, "Local projections: HY-IG spread → SPY forward returns. Newey-West HAC SE. Stars = p<0.05.")
     _save_chart(fig, "local_projections",
@@ -782,7 +782,7 @@ def chart_quantile_regression():
         title=dict(text="Credit Spreads Hit Worst Outcomes Hardest: V-Shape Quantile Pattern"),
         xaxis_title="Return Quantile (0.05 = worst drawdowns, 0.95 = best rallies)",
         yaxis_title="QR Coefficient (% return per % spread)",
-        template=TEMPLATE, height=450, margin=dict(b=80),
+        template=TEMPLATE, height=450, margin=dict(r=180, b=80),
     )
     _note(fig, "Quantile regression of HY-IG spread on SPY 63d forward return. Diamonds = tail quantiles.")
     _save_chart(fig, "quantile_regression",
@@ -823,8 +823,8 @@ def chart_equity_curves():
         xaxis_title="Date",
         yaxis_title="Growth of $1",
         template=TEMPLATE, height=480,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     _note(fig, "OOS period 2019-10-01 to 2026-04-22. Signal: hmm_2state_prob_stress. Strategy: P2 (signal strength). 5bps cost assumed.")
     _save_chart(fig, "equity_curves",
@@ -863,7 +863,7 @@ def chart_drawdown():
         title=dict(text=f"Winner Strategy Max Drawdown: {strat_dd.min():.1f}% (OOS, HMM-P2)"),
         xaxis_title="Date",
         yaxis_title="Drawdown from Peak (%)",
-        template=TEMPLATE, height=400, showlegend=True, margin=dict(b=80),
+        template=TEMPLATE, height=400, showlegend=True, margin=dict(r=180, b=80),
     )
     _note(fig, "OOS drawdown for HMM stress probability P2 strategy. Fill = drawdown_fill palette role.")
     _save_chart(fig, "drawdown",
@@ -915,8 +915,8 @@ def chart_drawdown_comparison():
         xaxis_title="Date",
         yaxis_title="Drawdown from Peak (%)",
         template=TEMPLATE, height=450,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     _note(fig, "OOS period 2019-10-01 → 2026-04-22. B&H in benchmark_trace (#6C7A89). Strategy in tertiary (#009E73).")
     _save_chart(fig, "drawdown_comparison",
@@ -954,7 +954,7 @@ def chart_walk_forward():
         title=dict(text="Walk-Forward OOS Sharpe: Positive in 14/17 Years; Strategy Robust"),
         xaxis_title="Test Year",
         yaxis_title="OOS Sharpe Ratio",
-        template=TEMPLATE, height=480, showlegend=False, margin=dict(b=80),
+        template=TEMPLATE, height=480, showlegend=False, margin=dict(r=180, b=80),
     )
     _note(fig, "Walk-forward: train on prior years, test each calendar year OOS. Green = beats B&H Sharpe.")
     _save_chart(fig, "walk_forward",
@@ -1006,8 +1006,8 @@ def chart_tournament_scatter():
         xaxis_title="OOS Annualized Return (%)",
         yaxis_title="OOS Sharpe Ratio",
         template=TEMPLATE, height=500,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     _note(fig, "5D tournament. Each point = one signal/threshold/strategy/lead combo. Star = winner.")
     _save_chart(fig, "tournament_scatter",
@@ -1050,7 +1050,7 @@ def chart_tournament_sharpe_dist():
         title=dict(text=f"Winner Is Top {n_at_or_above} of {len(valid)} Valid Strategies ({pct_above:.1f}% at or above)"),
         xaxis_title="Out-of-Sample Sharpe Ratio",
         yaxis_title="Count",
-        template=TEMPLATE, height=450, barmode="overlay", margin=dict(b=80),
+        template=TEMPLATE, height=450, barmode="overlay", margin=dict(r=180, b=80),
     )
     _note(fig, f"5D tournament: {len(tdf)} total combos, {len(valid)} pass validity filters. B&H dashed line = benchmark_trace.")
     _save_chart(fig, "tournament_sharpe_dist",
@@ -1112,8 +1112,8 @@ def chart_spread_history_annotated():
     fig.update_layout(
         title=dict(text="25-Year HY-IG Credit Spread History: Every Crisis Visible in the Spread"),
         template=TEMPLATE, hovermode="x unified", height=540,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     fig.update_yaxes(title_text="HY-IG OAS Spread (%)", secondary_y=False, autorange="reversed")
     fig.update_yaxes(title_text="SPY Price ($)", secondary_y=True)
@@ -1159,8 +1159,8 @@ def chart_quartile_returns():
         yaxis=dict(title="Annualized Return (%)", side="left"),
         yaxis2=dict(title="Annualized Vol (%)", side="right", overlaying="y"),
         template=TEMPLATE, height=450,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     _note(fig, "Q1=tightest spread; Q4=widest. Returns bars (left axis), Vol scatter (right axis, dashed).")
     _save_chart(fig, "quartile_returns",
@@ -1204,8 +1204,8 @@ def chart_returns_by_regime():
         xaxis_title="HMM Regime",
         yaxis_title="Daily SPY Return (%)",
         template=TEMPLATE, height=480, violinmode="group",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     _note(fig, "Violin plots: daily SPY returns split by HMM stress probability. Wider distribution in stress regime.")
     _save_chart(fig, "returns_by_regime",
@@ -1242,7 +1242,7 @@ def chart_correlation_heatmap():
         title=dict(text="Signal × Horizon Correlation Heatmap: Red = Spread Widening Predicts Lower Returns"),
         xaxis_title="SPY Forward Return Horizon",
         yaxis_title="HY-IG Derived Signal",
-        template=TEMPLATE, height=650, margin=dict(l=200, b=80),
+        template=TEMPLATE, height=650, margin=dict(r=180, l=200, b=80),
     )
     _note(fig, "Pearson correlations (daily data 2000-2026). Red = negative (spread up → returns down).")
     _save_chart(fig, "correlation_heatmap",

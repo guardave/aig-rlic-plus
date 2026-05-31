@@ -182,8 +182,8 @@ def chart_spread_history_annotated():
     fig.update_layout(
         title="Wider Credit Spreads Foreshadow Equity Drawdowns (2000-2025)",
         template=TEMPLATE, hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        height=520, margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        height=520, margin=dict(r=180, b=80),
     )
     fig.update_yaxes(title_text="HY-IG OAS Spread (%)", autorange="reversed",
                      secondary_y=False)
@@ -221,7 +221,7 @@ def chart_returns_by_regime():
         xaxis_title="HY-IG Spread Quartile (Q1 = Tight/Calm, Q4 = Wide/Stress)",
         yaxis_title="Annualized Return (%)",
         template=TEMPLATE, height=450, showlegend=False,
-        margin=dict(b=80),
+        margin=dict(r=180, b=80),
     )
     _note(fig, "Counter-cyclical: Q1 (tight spreads) delivers 16.9% ann. return; "
           "Q4 (wide spreads) is negative.")
@@ -260,7 +260,7 @@ def chart_correlation_heatmap():
         title="Credit Signals Strengthen at Longer Horizons (Red = Negative)",
         xaxis_title="SPY Forward Return Horizon",
         yaxis_title="Credit Spread Signal",
-        template=TEMPLATE, height=650, margin=dict(l=200, b=80),
+        template=TEMPLATE, height=650, margin=dict(r=180, l=200, b=80),
     )
     _note(fig, "Source: Pearson correlations on daily data (2000-2025). "
           "Red = spread widening predicts lower returns.")
@@ -331,8 +331,8 @@ def chart_hmm_regime_probs():
     fig.update_layout(
         title="HMM Detects Every Major Stress Episode (Prob > 0.5 = Reduce Exposure)",
         template=TEMPLATE, hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        height=500, margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        height=500, margin=dict(r=180, b=80),
     )
     fig.update_yaxes(title_text="P(Stress State)", range=[0, 1.05], secondary_y=False)
     fig.update_yaxes(title_text="SPY Price ($)", secondary_y=True)
@@ -387,7 +387,7 @@ def chart_local_projections():
         title="Credit Spread Impact Builds Over Quarters (Significant at 63 Days)",
         xaxis_title="Forecast Horizon (trading days)",
         yaxis_title="Coefficient (HAC-robust SE)",
-        template=TEMPLATE, height=450, margin=dict(b=80),
+        template=TEMPLATE, height=450, margin=dict(r=180, b=80),
     )
     _note(fig, "Source: Local projections of HY-IG spread on SPY forward returns, "
           "Newey-West HAC standard errors. Stars = p < 0.05.")
@@ -445,7 +445,7 @@ def chart_quantile_regression():
         title="Credit Spreads Hit Hardest in the Tails: Symmetric V-Shape",
         xaxis_title="Return Quantile (0.05 = worst outcomes, 0.95 = best)",
         yaxis_title="Coefficient",
-        template=TEMPLATE, height=450, margin=dict(b=80),
+        template=TEMPLATE, height=450, margin=dict(r=180, b=80),
     )
     _note(fig, "Source: Quantile regression of HY-IG spread on SPY 63-day forward return. "
           "Negative at left tail = wider spreads worsen drawdowns.")
@@ -498,7 +498,7 @@ def chart_tournament_sharpe_dist():
         xaxis_title="Out-of-Sample Sharpe Ratio",
         yaxis_title="Count",
         template=TEMPLATE, height=450, barmode="overlay",
-        margin=dict(b=80),
+        margin=dict(r=180, b=80),
     )
     _note(fig, f"Source: 5D tournament, {len(tdf)} total combinations, "
           f"{len(valid)} pass validity filters.")
@@ -633,8 +633,8 @@ def chart_equity_curves():
     fig.update_layout(
         title=f"Top Strategies Outperform Buy-and-Hold (OOS from {oos_start})",
         template=TEMPLATE, height=620, hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     fig.update_yaxes(title_text="Growth of $1", row=1, col=1)
     fig.update_yaxes(title_text="Drawdown (%)", row=2, col=1)
@@ -677,7 +677,7 @@ def chart_returns_by_regime_grouped():
         xaxis_title="HY-IG Spread Quartile",
         yaxis_title="Value (%, Sharpe scaled x10)",
         template=TEMPLATE, height=480, barmode="group",
-        margin=dict(b=80),
+        margin=dict(r=180, b=80),
     )
     _note(fig, "Q4 (widest spreads): highest volatility (28.7%), negative returns, "
           "Sharpe near zero. Sharpe values shown on bars (scaled x10 on y-axis).")
@@ -740,8 +740,8 @@ def chart_drawdown_comparison():
         xaxis_title="Date",
         yaxis_title="Drawdown (%)",
         template=TEMPLATE, height=450,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=180, b=80),
     )
     _note(fig, "Source: Drawdown from peak equity. Winner = HMM stress probability, "
           "signal-strength position sizing (P2).")
