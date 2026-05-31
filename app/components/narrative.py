@@ -111,43 +111,67 @@ def render_transition(text: str):
     st.markdown(f'<div class="transition-text">{text}</div>', unsafe_allow_html=True)
 
 
-def render_glossary_sidebar():
-    """Render the glossary in the sidebar as a searchable selector.
+def _glossary_clear() -> None:
+    """Reset the glossary search field. Used as the on_click callback for
+    the clear button so the input re-renders empty on the next pass."""
+    st.session_state["glossary_search"] = ""
 
-    Uses ``st.selectbox`` with the full glossary as options so the user gets
-    the same chrome as the "Select finding" picker — placeholder text when
-    empty, type-to-filter, and a built-in clear-X to reset the field. After
-    a term is picked, its plain_english definition plus optional
-    why_it_matters / example fields render below.
+
+def render_glossary_sidebar():
+    """Render the glossary in the sidebar as a dynamic search field.
+
+    Uses ``st.text_input`` so the user can search across term names AND
+    definition text (the previous selectbox-only experiment lost this
+    deep-text match — e.g. typing "annualized" no longer surfaced "OOS
+    Sharpe" via its definition). Adds a small clear button to the right
+    of the input so the user can wipe the field with one click without
+    having to select-all-delete.
+
+    Results are ranked by relevance via ``_rank_results`` — exact match
+    first, then prefix, then term substring, then plain_english substring,
+    then auxiliary fields (why_it_matters / example).
     """
     corpus = _build_glossary_corpus()
-    # Sort alphabetically by term for stable, scannable dropdown order.
-    corpus_sorted = sorted(corpus, key=lambda r: r[0].lower())
-    term_to_entry = {term: (plain, extra) for term, plain, extra in corpus_sorted}
-    term_list = list(term_to_entry.keys())
 
     with st.sidebar:
         st.markdown("#### Glossary")
-        selected = st.selectbox(
-            "Search terms",
-            term_list,
-            index=None,
-            placeholder="Type to search definitions…",
-            label_visibility="collapsed",
-            key="glossary_search",
-        )
+        # Two-column layout: wide input + narrow clear button.
+        col_input, col_clear = st.columns([6, 1], gap="small")
+        with col_input:
+            query = st.text_input(
+                "Search terms",
+                placeholder="Type to search definitions…",
+                label_visibility="collapsed",
+                key="glossary_search",
+            )
+        with col_clear:
+            # The button is disabled (and visually muted) when the field
+            # is already empty so it doesn't draw the eye unnecessarily.
+            st.button(
+                "✕",
+                key="glossary_clear",
+                on_click=_glossary_clear,
+                disabled=not (query or "").strip(),
+                help="Clear search",
+                use_container_width=True,
+            )
 
-        if not selected:
+        if not (query or "").strip():
             st.caption("Type to search definitions.")
             return
 
-        plain, extra = term_to_entry[selected]
-        with st.expander(selected, expanded=True):
-            if plain:
-                st.markdown(plain)
-            why = extra.get("why_it_matters", "")
-            if why:
-                st.caption(f"**Why it matters:** {why}")
-            example = extra.get("example", "")
-            if example:
-                st.caption(f"*Example: {example}*")
+        results = _rank_results(query, corpus)
+        if not results:
+            st.caption("No matching terms.")
+            return
+
+        for term, plain, extra in results[:8]:
+            with st.expander(term):
+                if plain:
+                    st.markdown(plain)
+                why = extra.get("why_it_matters", "")
+                if why:
+                    st.caption(f"**Why it matters:** {why}")
+                example = extra.get("example", "")
+                if example:
+                    st.caption(f"*Example: {example}*")
