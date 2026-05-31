@@ -67,8 +67,22 @@ XAXIS_STANDOFF: int = 12
 # Bottom margin large enough for: tick labels + axis title + caption + gap.
 MARGIN_B_WITH_CAPTION: int = 120
 
-# Caption font.
-CAPTION_FONT: dict = {"size": 10, "color": "grey"}
+# ─── Canonical font sizes ─────────────────────────────────────────────────
+#
+# Standardised across all chart types (DUP-FONT consolidation,
+# fix260531). Generators that set their own font sizes per-chart were
+# producing inconsistent visual weight across pages (story / strategy /
+# methodology charts looked subtly different).
+
+FONT_SIZE_TITLE: int = 15        # chart title (top of chart)
+FONT_SIZE_AXIS_TITLE: int = 12   # X / Y axis title (e.g. "Date", "Sharpe Ratio")
+FONT_SIZE_TICK: int = 11         # tick labels (axis numbers / dates)
+FONT_SIZE_LEGEND: int = 11       # legend trace names
+FONT_SIZE_CAPTION: int = 10      # grey source-note caption
+FONT_SIZE_ANNOTATION: int = 9    # event markers and other minor annotations
+
+# Caption font. Wired to FONT_SIZE_CAPTION so all consumers stay in sync.
+CAPTION_FONT: dict = {"size": FONT_SIZE_CAPTION, "color": "grey"}
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────
@@ -130,8 +144,53 @@ def apply_caption_layout(fig, caption_text: str) -> None:
         fig.update_layout(margin=dict(b=MARGIN_B_WITH_CAPTION))
 
 
+def apply_default_fonts(fig) -> None:
+    """Apply canonical font sizes to ``fig``.
+
+    Idempotent. Call once per chart, ideally right before save_chart.
+    Sets:
+      - chart title font   → FONT_SIZE_TITLE
+      - X/Y axis title     → FONT_SIZE_AXIS_TITLE
+      - X/Y tick labels    → FONT_SIZE_TICK
+      - legend text        → FONT_SIZE_LEGEND
+
+    Does NOT touch:
+      - per-annotation fonts (event markers etc.) — those have their
+        own size convention (FONT_SIZE_ANNOTATION) and are set by the
+        annotation author.
+      - chart-internal bar text / scatter marker text — typically
+        chart-specific.
+      - the caption added by apply_caption_layout — that is already on
+        FONT_SIZE_CAPTION via CAPTION_FONT.
+    """
+    # Title font
+    title = fig.layout.title
+    if title is not None and title.text:
+        fig.update_layout(title=dict(font=dict(size=FONT_SIZE_TITLE)))
+
+    # Axis fonts (all subplots)
+    fig.update_xaxes(
+        title_font=dict(size=FONT_SIZE_AXIS_TITLE),
+        tickfont=dict(size=FONT_SIZE_TICK),
+    )
+    fig.update_yaxes(
+        title_font=dict(size=FONT_SIZE_AXIS_TITLE),
+        tickfont=dict(size=FONT_SIZE_TICK),
+    )
+
+    # Legend font
+    fig.update_layout(legend=dict(font=dict(size=FONT_SIZE_LEGEND)))
+
+
 __all__: Iterable[str] = (
-    "CAPTION_Y",
+    "FONT_SIZE_TITLE",
+    "FONT_SIZE_AXIS_TITLE",
+    "FONT_SIZE_TICK",
+    "FONT_SIZE_LEGEND",
+    "FONT_SIZE_CAPTION",
+    "FONT_SIZE_ANNOTATION",
+    "apply_default_fonts",
+    "CAPTION_Y_SHIFT_PX",
     "XAXIS_STANDOFF",
     "MARGIN_B_WITH_CAPTION",
     "CAPTION_FONT",
