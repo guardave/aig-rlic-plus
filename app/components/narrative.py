@@ -112,37 +112,42 @@ def render_transition(text: str):
 
 
 def render_glossary_sidebar():
-    """Render the glossary in the sidebar as a dynamic search field.
+    """Render the glossary in the sidebar as a searchable selector.
 
-    Replaces the old static expander with a text_input that filters and ranks
-    terms by relevance in real time. Results show plain_english definition
-    plus optional why_it_matters and example fields from portal_glossary.json.
+    Uses ``st.selectbox`` with the full glossary as options so the user gets
+    the same chrome as the "Select finding" picker — placeholder text when
+    empty, type-to-filter, and a built-in clear-X to reset the field. After
+    a term is picked, its plain_english definition plus optional
+    why_it_matters / example fields render below.
     """
     corpus = _build_glossary_corpus()
+    # Sort alphabetically by term for stable, scannable dropdown order.
+    corpus_sorted = sorted(corpus, key=lambda r: r[0].lower())
+    term_to_entry = {term: (plain, extra) for term, plain, extra in corpus_sorted}
+    term_list = list(term_to_entry.keys())
 
     with st.sidebar:
         st.markdown("#### Glossary")
-        query = st.text_input(
+        selected = st.selectbox(
             "Search terms",
-            placeholder="e.g. Sharpe, drawdown, OAS…",
+            term_list,
+            index=None,
+            placeholder="Type to search definitions…",
             label_visibility="collapsed",
             key="glossary_search",
         )
 
-        if query.strip():
-            results = _rank_results(query, corpus)
-            if not results:
-                st.caption("No matching terms.")
-            else:
-                for term, plain, extra in results[:8]:
-                    with st.expander(term):
-                        if plain:
-                            st.markdown(plain)
-                        why = extra.get("why_it_matters", "")
-                        if why:
-                            st.caption(f"**Why it matters:** {why}")
-                        example = extra.get("example", "")
-                        if example:
-                            st.caption(f"*Example: {example}*")
-        else:
+        if not selected:
             st.caption("Type to search definitions.")
+            return
+
+        plain, extra = term_to_entry[selected]
+        with st.expander(selected, expanded=True):
+            if plain:
+                st.markdown(plain)
+            why = extra.get("why_it_matters", "")
+            if why:
+                st.caption(f"**Why it matters:** {why}")
+            example = extra.get("example", "")
+            if example:
+                st.caption(f"*Example: {example}*")
