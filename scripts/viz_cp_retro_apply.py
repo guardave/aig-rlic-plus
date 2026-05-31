@@ -57,32 +57,10 @@ PAIRS = [
     "vix_vix3m_spy",
 ]
 
-# NBER recessions
-NBER_SHADING = "rgba(150,120,120,0.22)"
-RECESSIONS = [
-    ("2001-03-01", "2001-11-01"),
-    ("2007-12-01", "2009-06-01"),
-    ("2020-02-01", "2020-04-01"),
-]
-
-
-def add_nber_shading(fig, x_min, x_max, xref="x"):
-    for s, e in RECESSIONS:
-        s_dt, e_dt = pd.Timestamp(s), pd.Timestamp(e)
-        if e_dt < x_min or s_dt > x_max:
-            continue
-        fig.add_shape(
-            type="rect",
-            x0=max(s_dt, x_min).isoformat(),
-            x1=min(e_dt, x_max).isoformat(),
-            y0=0,
-            y1=1,
-            xref=xref,
-            yref="paper",
-            fillcolor=NBER_SHADING,
-            layer="below",
-            line_width=0,
-        )
+# NBER recessions sourced from the canonical _nber module
+# (DUP-4 consolidation, fix260531). Previously a local 3-tuple list that
+# disagreed with the 4-tuple list in generate_history_zoom_charts.py.
+from _nber import add_nber_shading  # noqa: E402
 
 
 def save_chart(fig, out_dir: Path, chart_name: str, pair_id: str, chart_type: str):

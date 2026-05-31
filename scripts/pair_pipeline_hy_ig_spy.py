@@ -50,6 +50,11 @@ SOP    : docs/agent-sops/econometrics-agent-sop.md Wave 10G
 """
 
 import os, sys, json, warnings, time, datetime, itertools
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _stamp import iso_utc_now  # noqa: E402
+
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -1212,7 +1217,7 @@ def _generate_all_winner_artifacts(tourn_df, work, signal_col_map):
             pos_c = c_w[c_w["net_sharpe_approx"]>0]
             breakeven_bps = float(pos_c["tx_cost_bps"].max()) if len(pos_c)>0 else 0.0
 
-    now_iso = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    now_iso = iso_utc_now()
 
     # Observed direction from regression
     direction_obs = meta.get("observed_direction") or "countercyclical"
@@ -1732,7 +1737,7 @@ def main():
         "date_tag":    DATE_TAG,
         "total_seconds": round(elapsed,1),
         "stage_times": {k:round(v,1) for k,v in STAGE_TIMES.items()},
-        "generated_at": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_at": iso_utc_now(),
     }
     with open(os.path.join(RESULTS_DIR,f"pipeline_timing_{DATE_TAG}.json"),"w") as f:
         json.dump(timing, f, indent=2)

@@ -18,17 +18,19 @@ import json
 import os
 import sys
 from datetime import datetime, timedelta
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _stamp import iso_utc_now  # noqa: E402
 from dateutil.relativedelta import relativedelta
 import pandas as pd
 import numpy as np
 
-# ── NBER recession periods (start, end) ──────────────────────────────────────
-NBER_RECESSIONS = [
-    ("1990-07-01", "1991-03-01"),
-    ("2001-03-01", "2001-11-01"),
-    ("2007-12-01", "2009-06-01"),
-    ("2020-02-01", "2020-04-30"),
-]
+# NBER recession periods sourced from canonical _nber module
+# (DUP-4 consolidation, fix260531). Previously local 4-tuple list — agreed
+# with the canonical list except for end-of-quarter date conventions.
+from _nber import RECESSIONS as NBER_RECESSIONS  # noqa: E402
 
 # ── Palette (Okabe-Ito 2026) ─────────────────────────────────────────────────
 PALETTE = {
@@ -355,7 +357,7 @@ def build_chart(pair_id: str, slug: str, cfg: dict, df: pd.DataFrame,
 
 def build_meta(pair_id: str, slug: str, skipped: bool = False,
                skip_reason: str = None) -> dict:
-    now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    now = iso_utc_now()
     if skipped:
         return {
             "chart_name": f"history_zoom_{slug}",

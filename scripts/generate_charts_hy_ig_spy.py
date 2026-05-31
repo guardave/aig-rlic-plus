@@ -17,8 +17,14 @@ Date:   2026-04-22
 """
 
 import os
+import sys
 import json
-import datetime
+import datetime  # noqa: F401  (kept for backward compat with downstream imports)
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _stamp import iso_utc_now  # noqa: E402
+
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -170,7 +176,7 @@ def _save_chart(fig, name, narrative_note, method_name=None, expected_chart_type
         "rules_applied": RULES_APPLIED + ["VIZ-O1"],
         "disposition": "consumed",
         "narrative_alignment_note": narrative_note,
-        "created_at": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_at": iso_utc_now(),
         "method_name": method_name or name,
         "expected_chart_type": expected_chart_type,
     }

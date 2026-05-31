@@ -191,31 +191,18 @@ def load_pair_registry():
             except Exception:
                 pass
 
-        # Map indicator/target to display names
-        indicator_names = {
-            "indpro": "Industrial Production",
-            "indpro_spy": "Industrial Production",
-            "indpro_xlp": "Industrial Production",
-            "permit_spy": "Building Permits",
-            "vix_vix3m_spy": "VIX/VIX3M Ratio",
-            "sofr_ted_spy": "SOFR - DTB3 (TED)",
-            "dff_ted_spy": "DFF - DTB3 (Fed Funds TED)",
-            "ted_spliced_spy": "Spliced TED Spread",
-            "hy_ig_v2_spy": "HY-IG Credit Spread",
-            "hy_ig_spy": "HY-IG Credit Spread",
-            "umcsent_xlv": "Michigan Consumer Sentiment",
-            "gold_copper_xli": "Gold/Copper Ratio",
-        }
-        target_names = {
-            "spy": "S&P 500",
-            "xlv": "Health Care Select Sector (XLV)",
-            "xlp": "Consumer Staples Select Sector (XLP)",
-            "xli": "Industrial Select Sector (XLI)",
-        }
+        # Display names sourced from the canonical display_names module
+        # (DUP-1 consolidation, fix260531). Previously this dict was
+        # duplicated in page_templates.py and sidebar.py with drift.
+        from .display_names import (
+            INDICATOR_NAMES as indicator_names,
+            TARGET_NAMES as target_names,
+            resolve_indicator,
+            resolve_target,
+        )
 
-        indicator = indicator_names.get(pair_dir, indicator_names.get(
-            interp.get("indicator", ""), interp.get("indicator", pair_dir)))
-        target = target_names.get(interp.get("target", ""), interp.get("target", ""))
+        indicator = resolve_indicator(pair_dir, interp.get("indicator", ""))
+        target = resolve_target(interp.get("target", ""))
 
         # ELI5 gate (added 2026-05-26 after gold_copper_xli surfaced "cryptic
         # title on home tile" issue): a cryptic title — i.e. a raw column

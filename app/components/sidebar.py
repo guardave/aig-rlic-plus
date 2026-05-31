@@ -23,41 +23,13 @@ import os
 import streamlit as st
 
 from components.pair_registry import load_pair_registry
+from components.display_names import resolve_short_indicator
 
-
-# Pairs whose canonical short-name doesn't transliterate cleanly from
-# pair_id. Add a key here when a new pair needs a specific label.
-_INDICATOR_LABEL_OVERRIDES = {
-    "indpro_spy": "INDPRO",
-    "indpro_xlp": "INDPRO",
-    "permit_spy": "Building Permits",
-    "vix_vix3m_spy": "VIX/VIX3M",
-    "sofr_ted_spy": "SOFR-TED",
-    "dff_ted_spy": "DFF-TED",
-    "ted_spliced_spy": "Spliced TED",
-    "hy_ig_v2_spy": "HY-IG Spread",
-    "hy_ig_spy": "HY-IG Spread (v1)",
-    "umcsent_xlv": "UMCSENT",
-    "gold_copper_xli": "Gold/Copper",
-}
 
 # Pairs whose Sample/legacy distinction matters in the dropdown.
 _LABEL_SUFFIX = {
     "hy_ig_v2_spy": " (Sample)",
 }
-
-
-def _indicator_short(pair_id: str, target_ticker: str | None) -> str:
-    """Best-effort short label for the indicator side of a pair.
-
-    Falls back to uppercased pair_id prefix when no override is registered.
-    """
-    if pair_id in _INDICATOR_LABEL_OVERRIDES:
-        return _INDICATOR_LABEL_OVERRIDES[pair_id]
-    # Strip trailing _<target_ticker_lower> if present
-    suffix = f"_{(target_ticker or '').lower()}"
-    base = pair_id[: -len(suffix)] if suffix and pair_id.endswith(suffix) else pair_id
-    return base.upper().replace("_", "-")
 
 
 def _build_findings() -> list[dict]:
@@ -70,7 +42,7 @@ def _build_findings() -> list[dict]:
             continue
         target_ticker = p.get("target_ticker") or ""
         label = (
-            f"{_indicator_short(pair_id, target_ticker)} → {target_ticker or '?'}"
+            f"{resolve_short_indicator(pair_id, target_ticker)} → {target_ticker or '?'}"
             + _LABEL_SUFFIX.get(pair_id, "")
         )
         findings.append({

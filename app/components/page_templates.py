@@ -415,22 +415,12 @@ def _indicator_target_display(pair_id: str, interp: dict[str, Any]) -> tuple[str
     """
     # Mirror the maps in pair_registry.load_pair_registry() to avoid a
     # cyclic import. When a new pair is added, both places need the entry.
-    indicator_names = {
-        "indpro": "Industrial Production",
-        "indpro_xlp": "Industrial Production",
-        "permit_spy": "Building Permits",
-        "vix_vix3m_spy": "VIX/VIX3M Ratio",
-        "sofr_ted_spy": "SOFR - DTB3 (TED)",
-        "dff_ted_spy": "DFF - DTB3 (Fed Funds TED)",
-        "ted_spliced_spy": "Spliced TED Spread",
-        "hy_ig_v2_spy": "HY-IG Credit Spread",
-        "umcsent_xlv": "Michigan Consumer Sentiment",
-    }
-    target_names = {
-        "spy": "S&P 500",
-        "xlv": "Health Care Select Sector (XLV)",
-        "xlp": "Consumer Staples Select Sector (XLP)",
-    }
+    # Display names sourced from the canonical display_names module
+    # (DUP-1 consolidation, fix260531). Previously this dict was a
+    # local copy that had drifted (missing indpro_spy, hy_ig_spy,
+    # gold_copper_xli, xli).
+    from .display_names import INDICATOR_NAMES as indicator_names
+    from .display_names import TARGET_NAMES as target_names
     indicator = indicator_names.get(pair_id) or indicator_names.get(
         interp.get("indicator", ""), interp.get("indicator", pair_id)
     )
