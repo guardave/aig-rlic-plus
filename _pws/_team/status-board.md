@@ -1244,3 +1244,18 @@ Currently neither is encoded — the checker swarm catches it, which is the prot
 2. Observation period for `fix260526` artifacts (GH #8).
 3. When next pair is built — adopt `scripts/tournament.py` from day one (proves the helper pattern + closes one more DUP-11 site).
 4. SOP-hardening branch when appetite returns — Tier 1 META-CMP + bulk migration of remaining 14 BL-DUP entries with per-pair numeric-diff gates.
+
+---
+
+## 2026-06-01 — Lead — fix260526 decommissioned
+
+**Status:** COMPLETED. fix260526 stabilization observation period closed clean (5 days, no regressions, fix260531 merged on top without issue).
+
+**Actions:**
+- GH #8 closed with decommissioning summary cross-referencing fix260531's META-CMP root-cause finding.
+- Branch `fix260526` deleted local + remote.
+- Preview Streamlit Cloud app `aig-rlic-plus-fix260526.streamlit.app` deleted by user.
+
+**State preserved:** All fix260526 commits remain in `main` history via `af6edd3` ancestry. `docs/relnote_fix260526.md` stays in tree. Backlog entries opened during fix260526 (BL-META-CMP, BL-VIZ-O1-LEGACY, etc.) remain active in `docs/backlog.md`.
+
+**Open issues now:** GH #4 (verdict comment posted, awaiting stakeholder close), GH #7 (META-CMP forcing functions queued for SOP-hardening branch). No blockers.

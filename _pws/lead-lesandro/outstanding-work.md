@@ -1,6 +1,6 @@
 # Outstanding work — Lead Lesandro
 
-Last updated: 2026-05-31 EOD.
+Last updated: 2026-06-01 SOD (fix260526 decommissioned + GH #8 closed).
 
 ## Branch state
 
@@ -53,9 +53,9 @@ fix260526's W2 commit `3718fc9` listed `#63, #64, #65, #66, #67, #68` in the com
 ## Active questions / pending decisions (carried forward)
 
 - **GH #4 close decision** — stakeholder hasn't said yet whether to close or add "Investment Clock" cross-reference.
-- **GH #7 META-CMP** — Tier 1+2 forcing functions queued for dedicated SOP-hardening branch (post-stabilization).
-- **GH #8 stabilization** — fix260526 observation period; no regression seen this session.
-- **Indpro_spy #69** — closed on the stakeholder side per the latest Excel log (Date Closed: 2026-05-30, "Confirmed they are the name of AI"). Remove from outstanding.
+- **GH #7 META-CMP** — Tier 1+2 forcing functions queued for dedicated SOP-hardening branch. Reinforced by fix260531's discovery that fix260526's W2 commit claimed to close 6 IDs but the diff only touched 4 (#63 / #68 left untouched). META-CMP is the forcing-function class designed to catch that.
+- ~~**GH #8 stabilization**~~ — **CLOSED 2026-06-01.** Observation period concluded clean. Branch `fix260526` deleted (local + remote). Preview Streamlit Cloud app `aig-rlic-plus-fix260526.streamlit.app` deleted by user 2026-06-01.
+- ~~Indpro_spy #69~~ — closed stakeholder-side 2026-05-30.
 
 ## Backlog awaiting a future branch (newly logged this session)
 
