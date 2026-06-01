@@ -1,0 +1,38 @@
+2026-06-01 12:36:32.322 WARNING streamlit.runtime.caching.cache_data_api: No runtime found, using MemoryCacheStorageManager
+2026-06-01 12:36:32.323 WARNING streamlit.runtime.caching.cache_data_api: No runtime found, using MemoryCacheStorageManager
+2026-06-01 12:36:32.323 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-06-01 12:36:32.324 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-06-01 12:36:32.326 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-06-01 12:36:32.326 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-06-01 12:36:32.397 
+  [33m[1mWarning:[0m to view this Streamlit app on a browser, run it with the following
+  command:
+
+    streamlit run _pws/lead-lesandro/regression_260601/run_component_tests.py [ARGUMENTS]
+2026-06-01 12:36:32.397 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-06-01 12:36:32.397 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-06-01 12:36:32.397 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-06-01 12:36:32.398 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-06-01 12:36:32.398 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-06-01 12:36:32.398 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-06-01 12:36:32.398 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-06-01 12:36:32.398 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+========================================================================
+fix260601_rescue — Track C component-level tests
+========================================================================
+  ✓ PASS  existing-module imports + registry counts  — pairs=11, findings=11
+  ✓ PASS  data_quality.load_data_quality_warnings (empty)  — got 0 entries
+  ✓ PASS  data_quality.load_data_quality_warnings (2-entry payload)  — got 2 entries (sorted by filename — newest wins)
+  ✓ PASS  evidence_status._STATUS_COPY (4 statuses × 5 fields)
+  ✓ PASS  glossary_inline._load_glossary  — loaded 42 terms
+  ✓ PASS  glossary_inline.info_icon (unknown term)  — no exception
+  ✓ PASS  schema roundtrip — evidence_status.schema.json
+  ✓ PASS  schema roundtrip — final_exam_results.schema.json
+  ✓ PASS  validate_pair_completeness --pair indpro_spy  — [FAIL]  16 FAIL  0 WARN  110 PASS
+  ✓ PASS  validate_pair_completeness --pair hy_ig_v2_spy  — [FAIL]  11 FAIL  0 WARN  30 PASS
+  ✓ PASS  validate_pair_completeness --pair gold_copper_xli  — [FAIL]  12 FAIL  0 WARN  130 PASS
+  ✓ PASS  validate_pair_completeness --json (parseable)  — emitted JSON with 1 report(s)
+
+========================================================================
+Overall: PASS  (9 pass, 0 fail of 9)
+========================================================================
