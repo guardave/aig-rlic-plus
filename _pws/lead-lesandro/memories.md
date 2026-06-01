@@ -8,6 +8,22 @@
 
 **Self-audit at wave closure:** `git log --author="Lead Lesandro" --since=<wave-start> --name-only` — every path must be in the Ownership Map's Lead category. Wave 10H.1 final audit: 6 Lead commits, all compliant.
 
+## Mode 2 hat-wearing discipline (LEAD-WM1 reminder)
+
+Before authoring an artifact that falls in a role's lane, open the relevant role SOP and scan for the directly-relevant rule. This is a **targeted read at hat-wearing time**, NOT a preemptive load of every role SOP at SOD (which would waste 50,000+ tokens per session before any work starts).
+
+Role-to-SOP mapping:
+- Econometric output / tournament / B&H computation → `docs/agent-sops/econometrics-agent-sop.md` (Evan)
+- Chart layout / palette / sidecar → `docs/agent-sops/visualization-agent-sop.md` (Vera)
+- Page wiring / config / KPI formatting → `docs/agent-sops/appdev-agent-sop.md` (Ace)
+- Data ingest / schema / parquet → `docs/agent-sops/data-agent-sop.md` (Dana)
+- Narrative / glossary / framing → `docs/agent-sops/research-agent-sop.md` (Ray)
+- Cloud verify / QA reports → `docs/agent-sops/qa-agent-sop.md` (Quincy)
+
+**Incident that crystallised this (2026-06-01, fix260601_chart_hygiene Wave 2 scoping).** I was about to back-generate `equity_curves` / `drawdown` / `walk_forward` charts for 4 SPY-targeted pairs and asked the user "should the benchmark be SPY?". The rule was already documented in `econometrics-agent-sop.md:847` ("benchmark = buy-and-hold of the target"). I asked because I was authoring an econometric artifact without putting Evan's hat on first. The user's reaction: *"If you ask me this, does it mean there is no such knowledge in the context?"* — correctly identifying that this is a procedural gap, not a documentation gap.
+
+The rule has since been tightened to a single sentence (ECON-BM1): *"The pair's target is the buy-and-hold benchmark. No special cases by asset class."*
+
 ## Confirmed Patterns (high confidence, 3+ pairs)
 1. **RoC/momentum signals beat level signals** — every pair (INDPRO, TED, Permits) won with rate-of-change. Stationary transforms predict better.
 2. **6-month lead for monthly indicators** — publication lag + economic transmission time. L6 should be default.
