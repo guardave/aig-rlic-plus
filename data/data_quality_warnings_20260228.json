@@ -1,0 +1,6 @@
+{
+  "_schema_version": "1.0.0",
+  "_note": "Template/placeholder. The original ICE/BofA OAS truncation warning (2026-04-30) was resolved by commit 43354f8 adding `Data Master.xlsx` as the canonical OAS source. Future data-quality issues should be appended to `warnings[]` here (or via a new dated file matching `data_quality_warnings_*.json`).",
+  "generated_at": "2026-06-01T00:00:00Z",
+  "warnings": []
+}
