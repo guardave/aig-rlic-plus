@@ -1,0 +1,10 @@
+{
+  "pair_id": "hy_ig_v2_spy",
+  "schema_version": "1.0.0",
+  "status": "found_in_search",
+  "updated_at": "2026-04-30T00:00:00Z",
+  "plain_english": "This is the best rule found while testing many combinations. Treat it as a promising research lead, not a confirmed prediction.",
+  "technical_note": "Tournament winner selected from a broad recipe search; no post-selection confirmation holdout has been recorded yet.",
+  "next_step": "Run a final-exam confirmation test before upgrading this status.",
+  "owner": "evan"
+}
