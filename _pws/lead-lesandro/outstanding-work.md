@@ -1,10 +1,17 @@
 # Outstanding work — Lead Lesandro
 
-Last updated: 2026-06-01 SOD (fix260526 decommissioned + GH #8 closed).
+Last updated: 2026-06-01 (fix260526 decommissioned + GH #8 closed; target260501 + 260430 rescued into fix260601_rescue + deleted).
 
 ## Branch state
 
-**`main`** is the active branch. Tip: `aed4ce8` (merge of `fix260531`, 22 commits). `fix260531` branch deleted (local + remote) after production cloud-verify pass.
+**`main`** is the active branch. Tip: `485e577` (fix260526 decommissioning). `fix260531` deleted post-merge (2026-05-31). `fix260526` deleted post-decommissioning (2026-06-01).
+
+**Active feature branch:** `fix260601_rescue` (3 commits, +9 files), rescued from the now-deleted `target260501` + `260430` branches before they were removed. Branch contains:
+1. `a3073ca` — data-quality disclosure infrastructure (helper + warnings JSON + Wayback script)
+2. `5770d1d` — `scripts/validate_pair_completeness.py` (767 LOC META-CMP forcing function as working script)
+3. `22d2b3f` — `evidence_status` + `glossary_inline` components + 2 schemas + 2 examples + `docs/glossary.md` + `docs/dashboard-page-standard.md`
+
+Branch tested clean (all imports load, both schemas validate against examples, validator runs end-to-end producing 110 PASS / 16 FAIL on indpro_spy surfacing real codebase gaps). Not merged to main yet — needs deliberate decision on (a) where to wire `evidence_status` and `data_quality` banners, (b) whether to schedule the codebase hardening to clear the validator's 16 FAILs before promoting it to a CI gate.
 
 ## Recent closed work (this session — fix260531)
 

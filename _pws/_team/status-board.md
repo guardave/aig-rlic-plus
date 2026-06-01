@@ -1259,3 +1259,65 @@ Currently neither is encoded — the checker swarm catches it, which is the prot
 **State preserved:** All fix260526 commits remain in `main` history via `af6edd3` ancestry. `docs/relnote_fix260526.md` stays in tree. Backlog entries opened during fix260526 (BL-META-CMP, BL-VIZ-O1-LEGACY, etc.) remain active in `docs/backlog.md`.
 
 **Open issues now:** GH #4 (verdict comment posted, awaiting stakeholder close), GH #7 (META-CMP forcing functions queued for SOP-hardening branch). No blockers.
+
+---
+
+## 2026-06-01 — Lead — target260501 + 260430 rescued + decommissioned
+
+**Status:** COMPLETED rescue, sources deleted. Rescue branch `fix260601_rescue` is in observation pending wiring decisions.
+
+**Background:** After fix260526 decommissioning, user agreed both `target260501` (1 orphaned commit) and `260430` (130 commits, mostly scratch / parallel-track work) should be removed. Per user direction: discard all pair-specific work, rescue durable infrastructure.
+
+**What was rescued (`fix260601_rescue`):**
+
+1. **Data-quality disclosure** (`a3073ca`)
+   - `app/components/data_quality.py` (rewrote with glob-resolution + severity dispatch)
+   - `data/data_quality_warnings_20260228.json` (template; original ICE/BofA warning stale per 43354f8 Data Master.xlsx)
+   - `scripts/fetch_fred_wayback_archive.py` (Wayback fetcher with `--accept-ice-terms` gate)
+
+2. **META-CMP forcing function as working script** (`5770d1d`)
+   - `scripts/validate_pair_completeness.py` (767 LOC)
+   - GATE-DPS1 validator — checks mandatory chart artifacts, result artifacts, page configs, evidence method blocks, glossary coverage
+   - Smoke-runs cleanly: indpro_spy = 110 PASS / 16 FAIL, hy_ig_v2_spy = 30 PASS / 11 FAIL
+   - FAILs are real codebase gaps the validator was designed to surface — this is exactly the META-CMP (GH #7 / BL-DUP-6) forcing-function pattern
+
+3. **Evidence-status + dashboard standard + inline glossary** (`22d2b3f`)
+   - `app/components/evidence_status.py` (4-state honesty badge: found_in_search / needs_final_exam / passed_final_exam / failed_final_exam)
+   - `app/components/glossary_inline.py` (DPS-II1 just-in-time info icon)
+   - `docs/schemas/evidence_status.schema.json` v1.1.0 + example (validated clean)
+   - `docs/schemas/final_exam_results.schema.json` v1.1.0 + example (validated clean after split_design field added to example)
+   - `docs/glossary.md` (cross-SOP glossary, ~330 LOC)
+   - `docs/dashboard-page-standard.md` (~600 LOC — the rule document the validator implements)
+
+**What was NOT rescued:** HSN1F pair build, HY-IG v3/v4/v5/v6 experiments, 5-week-old SOP modifications, Tier-2 chart-generator changes (overlap with fix260531 refactor risks losing recent work).
+
+**Deletions completed:**
+- `origin/target260501` deleted
+- `origin/260430` deleted
+- Local clones cleaned up
+
+**Discoveries / insights:**
+- **The META-CMP forcing function exists in working form.** `validate_pair_completeness.py` is essentially what GH #7 / BL-DUP-6 propose, already authored. Saved weeks of work designing the SOP gate from scratch.
+- **Rescue-by-copy beats cherry-pick on diverged branches.** 260430 diverged 5 weeks ago + had 1140 files in its delta vs main. Cherry-picking 130 commits would have been a conflict nightmare. `git show <branch>:<path> > <path>` per-file is surgical and lets you improve the rescued code (added severity dispatch + glob resolution to `data_quality.py` during rescue).
+- **Schema/example validation at rescue time is cheap insurance.** Caught the 1.0.1 → 1.1.0 schema_version drift + missing split_design field in the final_exam_results example.
+
+**SOP candidates that the rescued material enables:**
+- GATE-DPS1 — wire `validate_pair_completeness.py` as a producer-side gate (closes GH #7 META-CMP Tier 1)
+- DPS-PRE1 — require `evidence_status.json` per pair (validator already enforces, just needs SOP citation)
+- DPS-EP1 — codify the 4 canonical crisis-episode zooms (dotcom, gfc, covid, inflation_2022)
+- DPS-II1 — inline-glossary convention for technical terms in narrative copy
+
+**Blockers:** None.
+
+**Next steps (when appetite returns):**
+1. Decide where `data_quality` and `evidence_status` banners surface (landing? per-pair? both?)
+2. Schedule a codebase-hardening wave to clear the validator's 16 FAILs on indpro_spy (mostly: missing `evidence_status.json` + chart-filename normalisation + perceptual-PNG sidecars)
+3. After (1)+(2), promote `validate_pair_completeness.py` to a pre-commit / CI gate (closes BL-DUP-6 + GH #7)
+4. Merge `fix260601_rescue` to main
+
+**Remaining stale branches:**
+- `origin/feature/hy_ig_execution_panel`
+- `origin/feature/indicator-evaluation-sop`
+- `origin/rescue-my-work`
+
+All are pre-fix260526. Worth a follow-up audit using the same "what's durable vs scratch" pattern when appetite returns.
