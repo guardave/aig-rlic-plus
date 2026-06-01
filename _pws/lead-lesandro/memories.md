@@ -47,6 +47,26 @@ The rule has since been tightened to a single sentence (ECON-BM1): *"The pair's 
 
 ---
 
+## fix260601 (2026-06-01) — rescue + chart-hygiene branch + scope-creep stop
+
+**Incidents:**
+
+- **Two abandoned branches rescued before deletion.** `target260501` (1 orphaned commit) + `260430` (130 commits, mostly scratch). Per user "discard pair-specific scratch; rescue durable infrastructure," I extracted 9 files into `fix260601_rescue` as 3 commits + regression harness. Cleanly merged after 3-track regression (45+9+45 PASS). **Lesson:** `git show <branch>:<path> > <path>` per-file is surgical and lets you improve at extraction time; cherry-pick on 1440-file diffs would have been a conflict nightmare.
+
+- **The META-CMP forcing function already exists as a 767-LOC script.** `scripts/validate_pair_completeness.py` (rescued from 260430) is essentially what GH #7 / BL-DUP-6 propose, already authored. The SOP-hardening branch can now start from this validator. Saved weeks of design work. Documented in backlog as 🟢 SCAFFOLDED.
+
+- **"Placeholders shown to users are not acceptable quality" (user-confirmed standard).** During Wave 2 of fix260601_chart_hygiene, I started offering option 2a "codify the gap" — i.e. teach the validator to skip the missing charts. User pushed back: *"placeholders are no different to saying 'this is incomplete'. When you put something incomplete in front of the user, it is not acceptable quality standard."* My 2a recommendation would have **hidden the failure** by teaching the validator to look the other way — opposite of what META-CMP exists for. The right standard: a defect is a defect if it fails any of correctness / completeness / consistency / ELI5. Either ship it complete or don't ship that page section.
+
+- **Mode 2 hat-wearing failure → ECON-BM1 tightening.** Asked user "should the benchmark be SPY for these SPY-targeted pairs?" — the rule was already documented at `econometrics-agent-sop.md:847`. I asked because I was authoring an econometric artifact (chart back-generation) without putting Evan's hat on. User's reaction: *"If you ask me this, does it mean there is no such knowledge in the context?"* — correctly diagnosed the procedural gap. **Followup work:** tightened the SOP to a single sentence (ECON-BM1: "the pair's target is the buy-and-hold benchmark, no special cases"), avoiding the previous 5-case if-table. User feedback: *"The logic is too clumsy. The target is taken as the buy-and-hold target. That's it."* — SOP rules can be clumsy without being wrong; tightness matters.
+
+- **Don't propose preemptive SOP loading at SOD.** I first proposed updating `/sod` to read every role SOP. User pushed back: *"Token consumption is unnecessarily large."* Right answer: targeted role-SOP read at hat-wearing time, NOT preemptive at SOD. ~50k+ tokens saved per session. Memorialised in "Mode 2 hat-wearing discipline" section above.
+
+- **Scope-creep caught mid-flight (Wave 2 trade-returns discovery).** 4 legacy pairs have `trade_return_pct = 0` in their winner_trade_log.csv. The "chart hygiene" framing was misleading; the real work is pipeline rehabilitation. Stopping before authoring fake charts or hiding the gap is the right call. **Pattern:** when a chart depends on data that doesn't exist in usable form, the answer isn't to fabricate the chart — it's to either generate the data properly (separate workstream) or honestly remove the broken section. Don't placeholder. Don't hide.
+
+**Wave closure self-audit:** All commits Lead-authored. Three rescue commits (a3073ca/5770d1d/22d2b3f) and one Wave-1 commit (d7971a0) touched role-agent-owned files. Rescue commits justified by external-import context. Wave-1 was mechanical rename only. For Wave 2 onwards, will dispatch the relevant agent (Ace for config edits, Vera for chart regeneration).
+
+---
+
 ## fix260531 (2026-05-31) — refactor pattern + Plotly paper-coord gotcha + META-CMP confirmation
 
 7. **Plotly paper coords are plot-area-relative, NOT chart-container-relative.** This caused 6 iterations of caption-layout fixes before settling. Recipe that works: `xref="paper", x=0, xanchor="left", xshift=-margin.l, yshift=CAPTION_Y_SHIFT_PX`. The `xshift = -margin.l` reads each figure's margin and shifts left to chart-container edge. Fixed-pixel xshift breaks on wide-margin charts (subperiod_sharpe l=200 vs rolling l=70). Centering (`x=0.5, xanchor="center"`) sidesteps the issue but was visually rejected by user.
