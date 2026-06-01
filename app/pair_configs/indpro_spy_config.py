@@ -62,7 +62,7 @@ class StoryConfig:
     )
 
     HERO_TITLE = "35 Years of INDPRO vs. S&P 500"
-    HERO_CHART_NAME = "indpro_spy_hero"
+    HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
         "Dual-axis view: INDPRO YoY growth (left, red) and SPY price (right, blue). "
         "Red shaded bands mark INDPRO contraction periods (YoY growth < 0). "
@@ -71,7 +71,7 @@ class StoryConfig:
     )
 
     REGIME_TITLE = "What History Shows: Returns by INDPRO Growth Regime"
-    REGIME_CHART_NAME = "indpro_spy_regime_stats"
+    REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
         "Equity performance differs sharply across INDPRO growth regimes. "
         "Stocks perform best during moderate growth (Q2, Sharpe ~1.09) and "
@@ -193,7 +193,7 @@ CORRELATION_BLOCK = dict(
         "cool colours = negative. Stars mark conventional significance "
         "levels (* p<0.05, ** p<0.01)."
     ),
-    chart_name="indpro_spy_correlations",
+    chart_name="correlations",
     chart_caption=(
         "Pearson correlations between INDPRO signal variants and 4 forward "
         "SPY return horizons. Warm colours = positive (pro-cyclical), cool "
@@ -257,7 +257,7 @@ CCF_BLOCK = dict(
         "correlation. Bars crossing the dashed ±1.96/√N confidence bands "
         "are statistically significant at the 5% level."
     ),
-    chart_name="indpro_spy_ccf",
+    chart_name="ccf",
     chart_caption=(
         "CCF at lags −12 to +12 months. Bars crossing the ±1.96/√N "
         "confidence band are statistically significant at 5%. **11 of 25 "
@@ -318,7 +318,7 @@ GRANGER_BLOCK = dict(
         "is the leading indicator. Both lines staying above 0.05 means neither "
         "series leads the other in a strict statistical sense."
     ),
-    chart_name="indpro_spy_granger",
+    chart_name="granger",
     chart_caption=(
         "Granger causality in both directions. Red = INDPRO → SPY, Blue = SPY "
         "→ INDPRO. Points **below the dashed p=0.05 line** indicate the cause "
@@ -363,7 +363,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         "Point estimate of the cumulative response at each horizon; shaded "
         "area is the 95% HAC confidence band. Stars mark p<0.05."
     ),
-    chart_name="indpro_spy_local_projections",
+    chart_name="local_projections",
     chart_caption=(
         "Jordà (2005) local projections with HAC (Newey-West) standard "
         "errors. Stars indicate significance at p<0.05. The coefficient "
@@ -408,7 +408,7 @@ QUANTILE_BLOCK = dict(
         "positive coefficient means higher INDPRO YoY growth shifts that quantile "
         "of forward SPY returns upward."
     ),
-    chart_name="indpro_spy_quantile_regression",
+    chart_name="quantile_regression",
     chart_caption=(
         "The effect of INDPRO YoY growth varies across the return distribution. "
         "At the left tail (worst outcomes), the coefficient tends to be "
@@ -451,7 +451,7 @@ RF_BLOCK = dict(
         "Bars show mean feature importance across 20 walk-forward windows. "
         "Longer bars = more informative."
     ),
-    chart_name="indpro_spy_rf_importance",
+    chart_name="rf_importance",
     chart_caption=(
         "Top features for predicting positive 3M SPY returns. "
         "Yield spread and IP z-score are the most important features, "
@@ -568,10 +568,10 @@ class StrategyConfig:
         "— essentially negligible execution cost."
     )
 
-    EQUITY_CHART_NAME = "indpro_spy_equity_curves"
+    EQUITY_CHART_NAME = "equity_curves"
     # DRAWDOWN_CHART_NAME intentionally omitted — no drawdown chart on disk.
     # WALK_FORWARD_CHART_NAME intentionally omitted — no walk_forward chart.
-    TOURNAMENT_SCATTER_CHART_NAME = "indpro_spy_tournament_scatter"
+    TOURNAMENT_SCATTER_CHART_NAME = "tournament_scatter"
 
     CAVEATS_MD = (
         "1. **Publication lag matters.** IP data is released ~6 weeks after "
