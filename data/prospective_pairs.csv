@@ -1,0 +1,116 @@
+indicator_id,display_name,category,target,pair_id,status,primary_csv_ticker,aliases,contributing_csv_ticker,source_csv_rows
+crude_oil,Crude Oil Price,energy,XLE,crude_oil_xle,not_started,En - Crude Oil $,,En - Crude Oil $,39
+wttstus1,Crude Oil Inventory (WTTSTUS1),energy,SPY,wttstus1_spy,not_started,WTTSTUS1,,WTTSTUS1,40
+ism_services_price,ISM Services PMI − Price Component,sentiment,XLI,ism_services_price_xli,not_started,"G - ISM Services PMI, price",,"G - ISM Services PMI, price",45
+wells_fargo_housing,Wells Fargo Housing Index,real_estate,XLE,wells_fargo_housing_xle,not_started,RE - Wells Fargo H Indx,,RE - Wells Fargo H Indx,48
+wells_fargo_housing,Wells Fargo Housing Index,real_estate,XLY,wells_fargo_housing_xly,not_started,RE - Wells Fargo H Indx,,RE - Wells Fargo H Indx,48
+wells_fargo_housing,Wells Fargo Housing Index,real_estate,XLK,wells_fargo_housing_xlk,not_started,RE - Wells Fargo H Indx,,RE - Wells Fargo H Indx,48
+wells_fargo_housing,Wells Fargo Housing Index,real_estate,XLF,wells_fargo_housing_xlf,not_started,RE - Wells Fargo H Indx,,RE - Wells Fargo H Indx,48
+elec_cpi_yoy,Electricity Price − CPI YoY,utilities,XLE,elec_cpi_yoy_xle,not_started,Elect Price - CPI (YoY),,Elect Price - CPI (YoY),49
+ism_services,ISM Services PMI,sentiment,SPY,ism_services_spy,not_started,"CDis, CSta - ISM Services PMI",,"CDis, CSta - ISM Services PMI",56
+ism_services,ISM Services PMI,sentiment,XLP,ism_services_xlp,not_started,"CDis, CSta - ISM Services PMI",,"CDis, CSta - ISM Services PMI",56
+ism_services,ISM Services PMI,sentiment,XLE,ism_services_xle,not_started,"CDis, CSta - ISM Services PMI",,"CDis, CSta - ISM Services PMI",56
+ism_services,ISM Services PMI,sentiment,XLI,ism_services_xli,not_started,"CDis, CSta - ISM Services PMI",,"CDis, CSta - ISM Services PMI",56
+ism_services,ISM Services PMI,sentiment,XLY,ism_services_xly,not_started,"CDis, CSta - ISM Services PMI",,"CDis, CSta - ISM Services PMI",56
+ism_services,ISM Services PMI,sentiment,XLK,ism_services_xlk,not_started,"CDis, CSta - ISM Services PMI",,"CDis, CSta - ISM Services PMI",56
+ism_services,ISM Services PMI,sentiment,XLF,ism_services_xlf,not_started,"CDis, CSta - ISM Services PMI",,"CDis, CSta - ISM Services PMI",56
+umcsent,UMCSENT (Michigan Consumer Sentiment),sentiment,SPY,umcsent_spy,not_started,UMCSENT,,UMCSENT,58
+umcsent,UMCSENT (Michigan Consumer Sentiment),sentiment,XLP,umcsent_xlp,not_started,UMCSENT,,UMCSENT,58
+umcsent,UMCSENT (Michigan Consumer Sentiment),sentiment,XLE,umcsent_xle,not_started,UMCSENT,,UMCSENT,58
+umcsent,UMCSENT (Michigan Consumer Sentiment),sentiment,XLY,umcsent_xly,not_started,UMCSENT,,UMCSENT,58
+umcsent,UMCSENT (Michigan Consumer Sentiment),sentiment,XLK,umcsent_xlk,not_started,UMCSENT,,UMCSENT,58
+umcsent,UMCSENT (Michigan Consumer Sentiment),sentiment,XLF,umcsent_xlf,not_started,UMCSENT,,UMCSENT,58
+umcsent,UMCSENT (Michigan Consumer Sentiment),sentiment,XLV,umcsent_xlv,not_started,UMCSENT,,UMCSENT,58
+sofr_us3m,SOFR − DTB3 (TED-style),credit,SPY,sofr_us3m_spy,archived_deprecated,SOFR-US3M,,SOFR-US3M,61
+sofr_us3m,SOFR − DTB3 (TED-style),credit,XLP,sofr_us3m_xlp,archived_deprecated,SOFR-US3M,,SOFR-US3M,61
+tedrate,TEDRATE (FRED legacy),credit,SPY,tedrate_spy,archived_deprecated,TEDRATE,,TEDRATE,62
+tedrate,TEDRATE (FRED legacy),credit,XLP,tedrate_xlp,archived_deprecated,TEDRATE,,TEDRATE,62
+us10y_us3m,10Y−3M Treasury Spread,rates,SPY,us10y_us3m_spy,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+us10y_us3m,10Y−3M Treasury Spread,rates,XLP,us10y_us3m_xlp,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+us10y_us3m,10Y−3M Treasury Spread,rates,XLE,us10y_us3m_xle,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+us10y_us3m,10Y−3M Treasury Spread,rates,XLI,us10y_us3m_xli,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+us10y_us3m,10Y−3M Treasury Spread,rates,XLY,us10y_us3m_xly,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+us10y_us3m,10Y−3M Treasury Spread,rates,XLK,us10y_us3m_xlk,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+us10y_us3m,10Y−3M Treasury Spread,rates,XLF,us10y_us3m_xlf,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+us10y_us3m,10Y−3M Treasury Spread,rates,XLV,us10y_us3m_xlv,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+vix_vix3m,VIX 1M / 3M Ratio,volatility,SPY,vix_vix3m_spy,not_started,G - (VIX1M/VIX3M),,G - (VIX1M/VIX3M),64
+vix_vix3m,VIX 1M / 3M Ratio,volatility,XLP,vix_vix3m_xlp,not_started,G - (VIX1M/VIX3M),,G - (VIX1M/VIX3M),64
+vix_vix3m,VIX 1M / 3M Ratio,volatility,XLE,vix_vix3m_xle,not_started,G - (VIX1M/VIX3M),,G - (VIX1M/VIX3M),64
+vix_vix3m,VIX 1M / 3M Ratio,volatility,XLI,vix_vix3m_xli,not_started,G - (VIX1M/VIX3M),,G - (VIX1M/VIX3M),64
+vix_vix3m,VIX 1M / 3M Ratio,volatility,XLY,vix_vix3m_xly,not_started,G - (VIX1M/VIX3M),,G - (VIX1M/VIX3M),64
+vix_vix3m,VIX 1M / 3M Ratio,volatility,XLK,vix_vix3m_xlk,not_started,G - (VIX1M/VIX3M),,G - (VIX1M/VIX3M),64
+vix_vix3m,VIX 1M / 3M Ratio,volatility,XLF,vix_vix3m_xlf,not_started,G - (VIX1M/VIX3M),,G - (VIX1M/VIX3M),64
+ism_mfg,ISM Manufacturing PMI,production,SPY,ism_mfg_spy,not_started,Ind - ISM Manufacturing PMI,,Ind - ISM Manufacturing PMI,66
+ism_mfg,ISM Manufacturing PMI,production,XLP,ism_mfg_xlp,not_started,Ind - ISM Manufacturing PMI,,Ind - ISM Manufacturing PMI,66
+ism_mfg,ISM Manufacturing PMI,production,XLE,ism_mfg_xle,not_started,Ind - ISM Manufacturing PMI,,Ind - ISM Manufacturing PMI,66
+ism_mfg,ISM Manufacturing PMI,production,XLI,ism_mfg_xli,not_started,Ind - ISM Manufacturing PMI,,Ind - ISM Manufacturing PMI,66
+ism_mfg,ISM Manufacturing PMI,production,XLY,ism_mfg_xly,not_started,Ind - ISM Manufacturing PMI,,Ind - ISM Manufacturing PMI,66
+ism_mfg,ISM Manufacturing PMI,production,XLK,ism_mfg_xlk,not_started,Ind - ISM Manufacturing PMI,,Ind - ISM Manufacturing PMI,66
+ism_mfg,ISM Manufacturing PMI,production,XLF,ism_mfg_xlf,not_started,Ind - ISM Manufacturing PMI,,Ind - ISM Manufacturing PMI,66
+ism_mfg,ISM Manufacturing PMI,production,XLV,ism_mfg_xlv,not_started,Ind - ISM Manufacturing PMI,,Ind - ISM Manufacturing PMI,66
+gold_copper,Gold / Copper Ratio,materials,XLI,gold_copper_xli,not_started,AU/CU,,AU/CU,67
+indpro_1919,INDPRO (1919=100 rebase),production,XLY,indpro_1919_xly,not_started,INDPRO1919,,INDPRO1919,69
+indpro_1919,INDPRO (1919=100 rebase),production,XLK,indpro_1919_xlk,not_started,INDPRO1919,,INDPRO1919,69
+indpro_1919,INDPRO (1919=100 rebase),production,XLF,indpro_1919_xlf,not_started,INDPRO1919,,INDPRO1919,69
+indpro_1919,INDPRO (1919=100 rebase),production,XLV,indpro_1919_xlv,not_started,INDPRO1919,,INDPRO1919,69
+indpro,INDPRO (2017=100),production,SPY,indpro_spy,not_started,INDPRO2017,,INDPRO2017,70
+indpro,INDPRO (2017=100),production,XLP,indpro_xlp,not_started,INDPRO2017,,INDPRO2017,70
+indpro,INDPRO (2017=100),production,XLI,indpro_xli,not_started,INDPRO2017,,INDPRO2017,70
+indpro,INDPRO (2017=100),production,XLY,indpro_xly,not_started,INDPRO2017,,INDPRO2017,70
+indpro,INDPRO (2017=100),production,XLK,indpro_xlk,not_started,INDPRO2017,,INDPRO2017,70
+indpro,INDPRO (2017=100),production,XLF,indpro_xlf,not_started,INDPRO2017,,INDPRO2017,70
+indpro,INDPRO (2017=100),production,XLV,indpro_xlv,not_started,INDPRO2017,,INDPRO2017,70
+indpro_yoy,INDPRO YoY,production,XLY,indpro_yoy_xly,not_started,INDPRO_YOY,,INDPRO_YOY,71
+indpro_yoy,INDPRO YoY,production,XLK,indpro_yoy_xlk,not_started,INDPRO_YOY,,INDPRO_YOY,71
+indpro_yoy,INDPRO YoY,production,XLF,indpro_yoy_xlf,not_started,INDPRO_YOY,,INDPRO_YOY,71
+indpro_yoy,INDPRO YoY,production,XLV,indpro_yoy_xlv,not_started,INDPRO_YOY,,INDPRO_YOY,71
+phlxsox,PHLX Semiconductor Index,technology,SPY,phlxsox_spy,not_started,PHLXSOX,,PHLXSOX,72
+phlxsox,PHLX Semiconductor Index,technology,XLE,phlxsox_xle,not_started,PHLXSOX,,PHLXSOX,72
+phlxsox,PHLX Semiconductor Index,technology,XLY,phlxsox_xly,not_started,PHLXSOX,,PHLXSOX,72
+phlxsox,PHLX Semiconductor Index,technology,XLF,phlxsox_xlf,not_started,PHLXSOX,,PHLXSOX,72
+phlxsox,PHLX Semiconductor Index,technology,XLV,phlxsox_xlv,not_started,PHLXSOX,,PHLXSOX,72
+portland_cement,Portland Cement Shipments,materials,SPY,portland_cement_spy,not_started,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
+portland_cement,Portland Cement Shipments,materials,XLP,portland_cement_xlp,not_started,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
+permit,Building Permits,real_estate,SPY,permit_spy,not_started,BP,,BP,77
+permit,Building Permits,real_estate,XLP,permit_xlp,not_started,BP,,BP,77
+rsxfs,Advance Retail Sales (RSXFS),sentiment,SPY,rsxfs_spy,not_started,RSXFS,,RSXFS,81
+eci_total_comp,Employment Cost Index (total compensation),macro,SPY,eci_total_comp_spy,not_started,"G - Employmt $ Indx, total compenstn",,"G - Employmt $ Indx, total compenstn",92
+import_price_idx,Import Price Index,macro,SPY,import_price_idx_spy,not_started,G - Import $ Indx,,G - Import $ Indx,94
+import_price_idx,Import Price Index,macro,XLE,import_price_idx_xle,not_started,G - Import $ Indx,,G - Import $ Indx,94
+import_price_idx,Import Price Index,macro,XLI,import_price_idx_xli,not_started,G - Import $ Indx,,G - Import $ Indx,94
+jolts,Job Openings (JOLTS),macro,XLE,jolts_xle,not_started,G - Job Openings,,G - Job Openings,96
+jolts,Job Openings (JOLTS),macro,XLI,jolts_xli,not_started,G - Job Openings,,G - Job Openings,96
+jolts,Job Openings (JOLTS),macro,XLY,jolts_xly,not_started,G - Job Openings,,G - Job Openings,96
+jolts,Job Openings (JOLTS),macro,XLK,jolts_xlk,not_started,G - Job Openings,,G - Job Openings,96
+jolts,Job Openings (JOLTS),macro,XLF,jolts_xlf,not_started,G - Job Openings,,G - Job Openings,96
+m2sl_yoy,M2 Money Supply YoY,macro,SPY,m2sl_yoy_spy,not_started,M2SL_YOY,,M2SL_YOY,98
+unrate,Unemployment Rate,macro,SPY,unrate_spy,not_started,G - UNRATE,,G - UNRATE,100
+mfg_new_orders,Manufacturers' New Orders,production,XLE,mfg_new_orders_xle,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
+mfg_new_orders,Manufacturers' New Orders,production,XLI,mfg_new_orders_xli,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
+mfg_new_orders,Manufacturers' New Orders,production,XLY,mfg_new_orders_xly,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
+mfg_new_orders,Manufacturers' New Orders,production,XLK,mfg_new_orders_xlk,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
+mfg_new_orders,Manufacturers' New Orders,production,XLF,mfg_new_orders_xlf,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
+mfg_new_orders_yoy,Manufacturers' New Orders YoY,production,XLI,mfg_new_orders_yoy_xli,not_started,"Ind, Mat - Manufturs' New Orders, YoY",,"Ind, Mat - Manufturs' New Orders, YoY",103
+permit_yoy,Building Permits YoY,real_estate,SPY,permit_yoy_spy,not_started,RE - H Permit,H Permit YoY,RE - H Permit,104
+permit_yoy,Building Permits YoY,real_estate,XLE,permit_yoy_xle,not_started,RE - H Permit,H Permit YoY,RE - H Permit,104
+permit_yoy,Building Permits YoY,real_estate,XLF,permit_yoy_xlf,not_started,RE - H Permit,H Permit YoY,H Permit YoY,105
+housing_starts,Housing Starts,real_estate,XLE,housing_starts_xle,not_started,RE - H Started,,RE - H Started,106
+nh_sold_saar,New Home Sales (SAAR),real_estate,XLY,nh_sold_saar_xly,not_started,RE - NH Sold,,RE - NH Sold,108
+hy_ig,HY − IG Credit Spread,credit,SPY,hy_ig_spy,not_started,HY - IG spread,,HY - IG spread,116
+hy_ig,HY − IG Credit Spread,credit,XLP,hy_ig_xlp,not_started,HY - IG spread,,HY - IG spread,116
+ci_loan,Commercial & Industrial Loans,credit,SPY,ci_loan_spy,not_started,C&I Loan,,C&I Loan,117
+ci_loan,Commercial & Industrial Loans,credit,XLP,ci_loan_xlp,not_started,C&I Loan,,C&I Loan,117
+cass_freight,Cass Freight Index (shipments),production,SPY,cass_freight_spy,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122
+cass_freight,Cass Freight Index (shipments),production,XLP,cass_freight_xlp,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122
+cass_freight,Cass Freight Index (shipments),production,XLE,cass_freight_xle,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122
+cass_freight,Cass Freight Index (shipments),production,XLY,cass_freight_xly,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122
+cass_freight,Cass Freight Index (shipments),production,XLK,cass_freight_xlk,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122
+cass_freight,Cass Freight Index (shipments),production,XLF,cass_freight_xlf,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122
+cass_freight,Cass Freight Index (shipments),production,XLV,cass_freight_xlv,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122
+abi,Architecture Billings Index,real_estate,XLE,abi_xle,not_started,RE - Arch Billing Indx,,RE - Arch Billing Indx,124
+abi,Architecture Billings Index,real_estate,XLK,abi_xlk,not_started,RE - Arch Billing Indx,,RE - Arch Billing Indx,124
+abi,Architecture Billings Index,real_estate,XLF,abi_xlf,not_started,RE - Arch Billing Indx,,RE - Arch Billing Indx,124
+abi,Architecture Billings Index,real_estate,XLV,abi_xlv,not_started,RE - Arch Billing Indx,,RE - Arch Billing Indx,124
+nhs,New Home Sales (NHS),real_estate,SPY,nhs_spy,not_started,NHS,,NHS,126
+nhs,New Home Sales (NHS),real_estate,XLY,nhs_xly,not_started,NHS,,NHS,126
+nhs,New Home Sales (NHS),real_estate,XLF,nhs_xlf,not_started,NHS,,NHS,126
