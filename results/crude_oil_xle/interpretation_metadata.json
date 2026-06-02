@@ -1,0 +1,16 @@
+{
+  "pair_id": "crude_oil_xle",
+  "indicator": "wti_crude_oil_price",
+  "indicator_display": "WTI Crude Oil Price",
+  "indicator_id": "I_WTI",
+  "target": "xle",
+  "target_display": "Energy Select Sector SPDR (XLE)",
+  "indicator_nature": "coincident",
+  "indicator_type": "price",
+  "expected_direction": "pro_cyclical",
+  "observed_direction": "pro_cyclical",
+  "direction_consistent": true,
+  "strategy_objective": "max_sharpe",
+  "key_finding": "Best OOS Sharpe 0.47 via wti_high_vol_long vs buy-and-hold 0.04. Contemporaneous Pearson(WTI ret, XLE ret) = 0.26.",
+  "generated_at": "2026-06-02T22:17:34Z"
+}

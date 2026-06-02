@@ -1,0 +1,9 @@
+{
+  "pair_id": "crude_oil_xle",
+  "chart_name": "history_zoom_covid",
+  "description": "Side-by-side WTI and XLE during COVID-19 shock.",
+  "page": "evidence",
+  "generated_at": "2026-06-02T22:11:51Z",
+  "disposition": "consumed",
+  "palette_id": "okabe_ito_2026"
+}

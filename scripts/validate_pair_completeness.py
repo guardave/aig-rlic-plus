@@ -816,8 +816,11 @@ def _check_backlog_hygiene(pair_id: str, config_mod: Any | None) -> PageReport:
                     path=str(rel),
                 ))
 
-            # BL-DUP-15: no datetime.utcnow() (deprecated in Py 3.12+)
-            if re.search(r"\butcnow\s*\(", text):
+            # BL-DUP-15: no datetime.utcnow() (deprecated in Py 3.12+).
+            # Look only for the qualified call (datetime.utcnow() / dt.utcnow())
+            # to avoid false positives on docstrings or comments that mention
+            # the word "utcnow" as guidance.
+            if re.search(r"(?:datetime|dt)\.utcnow\s*\(", text):
                 report.checks.append(CheckResult(
                     f"BL-DUP-15: no deprecated utcnow() in {rel.name}",
                     "FAIL",

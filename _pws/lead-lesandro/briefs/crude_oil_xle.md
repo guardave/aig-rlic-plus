@@ -56,9 +56,10 @@ Per LEAD-WM1, mode is decided in the SOD conversation with the user. Recorded he
 
 | Field | Value |
 |---|---|
-| **Mode** | _TBD — to be filled at SOD_ |
-| **Recorded by** | _TBD_ |
-| **Date** | _TBD_ |
+| **Mode** | Mode 2 (single maker, multiple checkers) |
+| **Recorded by** | Lead Lesandro |
+| **Date** | 2026-06-02 |
+| **User decision** | Mode 2 selected to validate fix260602_pair4_prep changes (LEAD-NPB1 + GATE-CMP1 + prospective_pairs.csv-as-SSoT) end-to-end on a real build. Mode 2 also exercises the LEAD-DL1 suspension-and-restoration cycle. |
 
 ---
 

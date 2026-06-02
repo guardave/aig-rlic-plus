@@ -1,0 +1,9 @@
+{
+  "pair_id": "crude_oil_xle",
+  "chart_name": "walk_forward",
+  "description": "Rolling one-year Sharpe of the strategy across the OOS window.",
+  "page": "strategy",
+  "generated_at": "2026-06-02T22:11:50Z",
+  "disposition": "consumed",
+  "palette_id": "okabe_ito_2026"
+}
