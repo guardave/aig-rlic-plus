@@ -1,0 +1,41 @@
+BASE: https://aig-rlic-plus.streamlit.app
+
+Page                                     Status     Len Markers
+LANDING (NEW)                            ✓   OK    3342 
+indpro_spy/story                         ✓   OK    9822 
+indpro_spy/evidence                      ✓   OK    7563 
+indpro_spy/strategy                      ✓   OK    5123 
+indpro_spy/methodology                   ✓   OK    6637 
+indpro_xlp/story                         ✓   OK   12109 
+indpro_xlp/evidence                      ✓   OK    7265 
+indpro_xlp/strategy                      ✓   OK    5142 
+indpro_xlp/methodology                   ✓   OK    7230 
+umcsent_xlv/story                        ✓   OK   12714 
+umcsent_xlv/evidence                     ✓   OK    7441 
+umcsent_xlv/strategy                     ✓   OK    6074 
+umcsent_xlv/methodology                  ✓   OK    7419 
+hy_ig_v2_spy/story                       ✓   OK   17059 
+hy_ig_v2_spy/evidence                    ✓   OK    6480 
+hy_ig_v2_spy/strategy                    ✓   OK   12011 
+hy_ig_v2_spy/methodology                 ✓   OK   17394 
+hy_ig_spy/story                          ✓   OK   14222 
+hy_ig_spy/evidence                       ✓   OK    7391 
+hy_ig_spy/strategy                       ✓   OK    5469 
+hy_ig_spy/methodology                    ✓   OK    7528 
+permit_spy/story                         ✓   OK   10263 
+permit_spy/evidence                      ✓   OK    6762 
+permit_spy/strategy                      ✓   OK    5254 
+permit_spy/methodology                   ✓   OK    5729 
+vix_vix3m_spy/story                      ✓   OK   11550 
+vix_vix3m_spy/evidence                   ✓   OK    9096 
+vix_vix3m_spy/strategy                   ✓   OK    5336 
+vix_vix3m_spy/methodology                ✓   OK    6091 
+gold_copper_xli/story                    ✓   OK   10280 
+gold_copper_xli/evidence                 ✓   OK    7295 
+gold_copper_xli/strategy                 ✓   OK    5333 
+gold_copper_xli/methodology              ✓   OK    6139 
+archive-check sofr_ted_spy_story         ✓   OK    3443 
+archive-check dff_ted_spy_story          ✓   OK    3443 
+archive-check ted_spliced_spy_story      ✓   OK    3443 
+
+PASS: 36  FAIL: 0  TOTAL: 36
