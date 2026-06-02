@@ -1321,3 +1321,45 @@ Currently neither is encoded — the checker swarm catches it, which is the prot
 - `origin/rescue-my-work`
 
 All are pre-fix260526. Worth a follow-up audit using the same "what's durable vs scratch" pattern when appetite returns.
+
+---
+
+## 2026-06-01 — Lead — EOD: rescue merged + chart-hygiene Wave 1 done (handover pending Wave 2 decision)
+
+**Status:** HANDOVER. fix260601_rescue merged + decommissioned cleanly. fix260601_chart_hygiene Wave 1 done + pushed; Wave 2 paused at scope-creep discovery awaiting user decision.
+
+**Work shipped to main:**
+- `41545cb` fix260601_rescue merge (data_quality + validate_pair_completeness.py 767-LOC scaffold + evidence_status + 2 schemas + dashboard-page-standard.md + glossary.md + glossary_inline). Production verified clean (45/45 PASS post-reboot).
+- `68eb176` decommission ops (fix260526 branch deleted + GH #8 closed + preview app deleted user-side).
+- `c4615c9` backlog status snapshot at top of docs/backlog.md (🟡 PARTIAL on BL-DUP-1/4/8/11/15; 🟢 SCAFFOLDED on BL-META-CMP/BL-DUP-6).
+
+**Work on `fix260601_chart_hygiene` branch (pushed, not yet merged):**
+- Wave 1 (`d7971a0`) — BL-VIZ-CHART-PREFIX-LEGACY: 40 file renames + 3 config updates. Validator: 184 FAIL → 164 FAIL. 45/45 page rendering identical pre/post (zero byte drift).
+- ECON-BM1 SOP tightening (`0c82281`) — replaced 5-case benchmark-if-table with single sentence. Plus Mode 2 hat-wearing discipline memorialised in `_pws/lead-lesandro/memories.md`.
+
+**Discoveries / insights:**
+- **The META-CMP validator already exists as a working script.** `scripts/validate_pair_completeness.py` is what GH #7 / BL-DUP-6 propose, ready to be wired. Saved weeks of design work.
+- **"Placeholders shown to users are not acceptable quality."** New user-confirmed standard. Don't ship placeholder/coming-soon sections; either complete or remove the section.
+- **Mode 2 hat-wearing discipline:** before authoring an artifact in a role's lane, open that role's SOP. Targeted read at hat-wearing time, NOT preemptive load at SOD (would burn 50k+ tokens).
+- **SOP rules can be clumsy without being wrong.** ECON-BM1's prior 5-case if-table was correct but verbose. Tightening to single rule reduces future "what if target is unusual" questions.
+- **Rescue-by-copy beats cherry-pick on diverged branches.** Lets you improve code at extraction time and avoids 1440-file conflict messes.
+
+**Wave 2 paused — handover for next session:**
+4 legacy pairs (`permit_spy`, `sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy`) lack equity_curves/drawdown/walk_forward charts AND have `trade_return_pct = 0` in their winner_trade_log.csv. Reconstructing strategy returns requires re-deriving positions from `winner_summary.json` + applying to daily target returns + emitting broker-style APP-TL1 CSV + populating bh_*. That's pipeline rehab, not chart hygiene. Three options pending user decision:
+- **2c:** Drop the 3 chart slots from configs + add planned-rebuild note (in-branch, 30 min)
+- **2b':** Open separate branch `fix260601_legacy_pipeline_rehab` (new branch, 1-2 sessions)
+- **2d:** Block 4 pages from rendering with rebuild banner (20 min)
+
+**SOP candidates from this session:**
+- ECON-BM1 (already shipped — benchmark = target rule)
+- Considered: SOD systematic role-SOP scan rule. Rejected by user (token cost). Adopted instead: targeted hat-wearing read pattern as Lead-discipline memory.
+
+**Blockers:** Wave 2 decision (2c / 2b' / 2d).
+
+**Next session sequence:**
+1. Lead receives 2c/2b'/2d answer
+2. Execute chosen Wave 2 option
+3. Execute Wave 3 (BL-VIZ-O1-LEGACY sidecar backfill, ~30 min regardless of Wave 2 choice)
+4. Full local sweep + cloud preview + merge `fix260601_chart_hygiene` to main
+
+**Branches remaining to audit later:** `origin/feature/hy_ig_execution_panel`, `origin/feature/indicator-evaluation-sop`, `origin/rescue-my-work` — all pre-fix260526, worth same "what's durable" audit pattern when appetite returns.

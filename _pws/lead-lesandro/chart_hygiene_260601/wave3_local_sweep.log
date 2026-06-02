@@ -1,0 +1,39 @@
+Page                                     Status     Len Markers
+LANDING                                  ✓   OK    3344 
+indpro_spy/story                         ✓   OK    9840 
+indpro_spy/evidence                      ✓   OK    7565 
+indpro_spy/strategy                      ✓   OK    5095 
+indpro_spy/methodology                   ✓   OK    6639 
+indpro_xlp/story                         ✓   OK   12111 
+indpro_xlp/evidence                      ✓   OK    7267 
+indpro_xlp/strategy                      ✓   OK    5118 
+indpro_xlp/methodology                   ✓   OK    7232 
+umcsent_xlv/story                        ✓   OK   12721 
+umcsent_xlv/evidence                     ✓   OK    7443 
+umcsent_xlv/strategy                     ✓   OK    6046 
+umcsent_xlv/methodology                  ✓   OK    7421 
+hy_ig_v2_spy/story                       ✓   OK   17061 
+hy_ig_v2_spy/evidence                    ✓   OK    6482 
+hy_ig_v2_spy/strategy                    ✓   OK   11987 
+hy_ig_v2_spy/methodology                 ✓   OK   17396 
+hy_ig_spy/story                          ✓   OK   14225 
+hy_ig_spy/evidence                       ✓   OK    7393 
+hy_ig_spy/strategy                       ✓   OK    5445 
+hy_ig_spy/methodology                    ✓   OK    7530 
+permit_spy/story                         ✓   OK   10265 
+permit_spy/evidence                      ✓   OK    6764 
+permit_spy/strategy                      ✓   OK    5226 
+permit_spy/methodology                   ✓   OK    5731 
+vix_vix3m_spy/story                      ✓   OK   11559 
+vix_vix3m_spy/evidence                   ✓   OK    9098 
+vix_vix3m_spy/strategy                   ✓   OK    5312 
+vix_vix3m_spy/methodology                ✓   OK    6093 
+gold_copper_xli/story                    ✓   OK   10282 
+gold_copper_xli/evidence                 ✓   OK    7295 
+gold_copper_xli/strategy                 ✓   OK    5309 
+gold_copper_xli/methodology              ✓   OK    6141 
+archive-check sofr_ted_spy_story         ✓   OK    3445 
+archive-check dff_ted_spy_story          ✓   OK    3445 
+archive-check ted_spliced_spy_story      ✓   OK    3445 
+
+PASS: 36  FAIL: 0  TOTAL: 36

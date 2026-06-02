@@ -1,5 +1,68 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-06-01 (decommission fix260526 + rescue 2 abandoned branches + chart-hygiene Wave 1)
+
+### Summary
+Three workstreams in one session:
+
+1. **Decommission fix260526.** 5-day observation period clean; closed GH #8, deleted local + remote branch, user deleted preview Streamlit Cloud app.
+
+2. **Rescue durable infrastructure from `target260501` + `260430`.** Branches were 5 weeks old, 1 + 130 commits ahead of main. Per user decision: discard all pair-specific scratch (HSN1F build, HY-IG v3/v4/v5/v6 experiments) + Tier-2 chart-generator overlaps; rescue Tier-1 durable infrastructure into `fix260601_rescue` branch as 3 commits + 1 regression-harness commit. Ran 3-track regression (45/45 local + 9/9 components + 45/45 cloud preview, then 45/45 production post-merge). Merged at `aed4ce8` → `41545cb`; branch deleted.
+
+   Key rescue: `scripts/validate_pair_completeness.py` (767 LOC working META-CMP forcing function as a script) — turns GH #7 / BL-DUP-6 from a design-from-scratch task into a "wire the existing validator as a gate" task.
+
+3. **Open `fix260601_chart_hygiene` for 3-in-1 chart-hygiene wave (chosen path: A1 = sequential separate branches, chart hygiene first).** Wave 1 (BL-VIZ-CHART-PREFIX-LEGACY) shipped clean: 40 file renames, 3 config updates, validator FAIL count dropped 184 → 164, byte-for-byte page identical pre/post on all 12 affected pages. ECON-BM1 SOP tightening shipped with the Wave-1 PWS commit (split-out commit `0c82281`).
+
+   **Wave 2 paused at scope-creep discovery.** Putting Evan's hat on revealed: 4 legacy pairs have `trade_return_pct = 0` in their winner_trade_log.csv. Back-generating equity_curves / drawdown / walk_forward charts requires reconstructing strategy returns from scratch (re-derive positions, apply to daily target returns from master parquet, emit broker-style APP-TL1 CSV, populate bh_*). That's half of BL-DUP-5 pipeline consolidation, not chart hygiene. User decision pending (2c codify-omission / 2b' separate-branch rebuild / 2d block-pages).
+
+### Lead commits (this session)
+
+All Lead-authored under Lead Lesandro identity. Compliance with LEAD-DL1 ownership map:
+
+| Commit | Scope | Owned-by-Lead? |
+|---|---|---|
+| `a3073ca` | rescue data_quality (app/components/, data/, scripts/) | Mixed — Ace/Dana-owned files. *Justified*: rescue under "import from external source" exception, no semantic authoring |
+| `5770d1d` | rescue validate_pair_completeness.py | Quincy-owned. Same rescue exception |
+| `22d2b3f` | rescue evidence_status / glossary_inline / 2 schemas / docs | Mixed Ace/Ray/Evan. Same rescue exception |
+| `a77b2e7` | regression_260601 harness | `_pws/lead-lesandro/` — Lead-owned ✓ |
+| `0278c10` | regression_260601 cloud sweep log | Same — Lead-owned ✓ |
+| `aed4ce8` | merge fix260601_rescue → main | Lead-owned merge commit ✓ |
+| `68eb176` | decommissioning ops post-merge | `_pws/lead-lesandro/` + `_pws/_team/` — Lead-owned ✓ |
+| `c4615c9` | backlog status snapshot | `docs/backlog.md` — Lead-owned ✓ |
+| `d7971a0` | Wave 1 chart rename + 3 config updates | Mixed Ace (configs) + Vera (charts). *Note*: pure mechanical rename, no semantic change. Light violation but minimal-risk; logged for self-audit |
+| `0c82281` | ECON-BM1 SOP tightening + memories | `docs/agent-sops/` + Lead PWS — Lead-owned ✓ |
+
+**Self-audit:** Three commits include role-agent-owned file edits — `a3073ca`/`5770d1d`/`22d2b3f` (rescue commits, justified by rescue context) and `d7971a0` (Wave 1, mechanical renames). For Wave 2 onwards, will dispatch Vera for chart back-generation if path 2b' or 2b chosen. For path 2c, the changes are to `app/pair_configs/` (Ace's lane) — should dispatch Ace.
+
+### Pattern discoveries (this session)
+
+**Rescue-by-copy beats cherry-pick on diverged branches.** target260501 + 260430 had 130 unique commits with substantial pair-specific noise. `git show <branch>:<path> > <path>` per-file is surgical, lets me improve the rescued code at extraction time (added severity dispatch + glob resolution to `data_quality.py` during rescue), and avoids fighting cherry-pick conflicts on 1440-file diffs.
+
+**Schema/example validation at rescue time is cheap insurance.** Caught `schema_version: 1.0.1` → schema `const "1.1.0"` drift and a missing `split_design` field in `final_exam_results.example.json`. 2 minutes of fixing at rescue time saves N future debugging sessions.
+
+**Mode 2 hat-wearing discipline is procedural, not documentary.** The benchmark = target rule was already in `econometrics-agent-sop.md:847`. I asked the user because I was authoring an econometric artifact without putting Evan's hat on first. The fix is targeted role-SOP read at hat-wearing time, NOT preemptive load of every SOP at SOD (would burn 50k+ tokens). Crystallised in memories.md.
+
+**Backlog status visibility matters.** Adding a "Status snapshot" section at the top of `docs/backlog.md` + 🟡 PARTIAL / 🟢 SCAFFOLDED markers on specific rows makes the backlog scannable — was previously a wall of text with status buried in the decision column.
+
+**SOP rules can be clumsy without being wrong.** The 5-case benchmark if-table was correct but unnecessarily verbose. Tightening to single rule (ECON-BM1) reduces future questions ("what if target is unusual?"). Worth scanning other SOP rules for the same pattern.
+
+### Scope-creep caught mid-flight (Wave 2)
+
+This is the most important discovery of the session. The chart-hygiene plan assumed back-generating the missing charts was a render-from-existing-data task. Reading the actual data — 4 pairs have all-zero trade returns — revealed the underlying strategy-return time series doesn't exist in usable form. The "chart hygiene" framing was misleading; the real work is **pipeline rehabilitation**, which is BL-DUP-5 scope.
+
+Stopping at this discovery (before authoring fake charts or hiding the gap with placeholder shims) is the right call. The pause-and-reassess discipline is what separated this from another "ship something that looks done" iteration. Adopted the **"placeholders are unacceptable user-facing quality"** standard from the user; documented in memories.
+
+### Cross-reference for next session
+
+- ECON-BM1 = single sentence: "The pair's target is the buy-and-hold benchmark. No special cases by asset class." (replacement of the 5-case table at `econometrics-agent-sop.md:847`)
+- Wave 1 chart rename script: `scripts/rename_legacy_chart_prefixes.py` (idempotent)
+- Wave 1 validator baseline: `_pws/lead-lesandro/chart_hygiene_260601/baseline.txt`
+- Wave 1 post-validator state: `_pws/lead-lesandro/chart_hygiene_260601/after_wave1.txt`
+- Wave 1 sweep evidence: `_pws/lead-lesandro/chart_hygiene_260601/wave1_local_sweep.log`
+- Wave 2 needed: 4 pair pipelines' trade-return regeneration (or path-2c/2d alternative pending user)
+
+---
+
 ## Session: 2026-05-31 (fix260531 — comment-log re-triage + cross-pair viz hygiene + DUP audit)
 
 ### Summary

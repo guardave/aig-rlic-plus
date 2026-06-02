@@ -4,9 +4,12 @@
   "palette_id": "dual_v1",
   "rules_applied": [
     "VIZ-CP1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-BF1"
   ],
   "narrative_alignment_note": "2-year rolling Sharpe. Strategy line consistently above zero (and above B&H) = strategy persists across regimes.",
   "generated_at": "2026-05-26T15:58:38Z",
-  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat \u2014 Cross-Period)"
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat \u2014 Cross-Period)",
+  "disposition": "consumed",
+  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
 }

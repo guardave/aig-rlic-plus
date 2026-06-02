@@ -66,7 +66,7 @@ class StoryConfig:
     )
 
     HERO_TITLE = "VIX Term Structure (VIX / VIX3M) vs. S&P 500"
-    HERO_CHART_NAME = "vix_vix3m_spy_hero"
+    HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
         "Dual-axis view: VIX/VIX3M ratio (left) and SPY price (right). The "
         "dashed line at ratio = 1.0 marks the backwardation boundary. Every "
@@ -77,7 +77,7 @@ class StoryConfig:
     )
 
     REGIME_TITLE = "What History Shows: SPY Returns by VIX/VIX3M Quartile"
-    REGIME_CHART_NAME = "vix_vix3m_spy_regime_stats"
+    REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
         "Equity performance across VIX/VIX3M ratio regimes. Q1 (low ratio, "
         "deep contango) delivers a Sharpe of **6.53**; Q4 (high ratio, "
@@ -257,7 +257,7 @@ CORRELATION_BLOCK = dict(
         "intensities, and treat this view as a sanity check on direction "
         "rather than an effect-size estimate."
     ),
-    chart_name="vix_vix3m_spy_correlations",
+    chart_name="correlations",
     chart_caption=(
         "Pearson correlations between 11 VIX/VIX3M signal variants and 4 "
         "forward SPY return horizons. **Most correlations are tiny** (44 "
@@ -330,7 +330,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         "to a 1-σ VIX/VIX3M z-score shock. Shaded area = 95% HAC confidence "
         "band."
     ),
-    chart_name="vix_vix3m_spy_local_projections",
+    chart_name="local_projections",
     chart_caption=(
         "Jordà (2005) local projections with HAC (Newey-West) standard "
         "errors. Stars indicate significance at p<0.05. The coefficient "
@@ -456,7 +456,7 @@ class StrategyConfig:
 
     # No equity_curves / drawdown / walk_forward charts on disk — same
     # data gap as permit_spy. Template renders "chart pending" for those.
-    TOURNAMENT_SCATTER_CHART_NAME = "vix_vix3m_spy_tournament_scatter"
+    TOURNAMENT_SCATTER_CHART_NAME = "tournament_scatter"
 
     CAVEATS_MD = (
         "1. **VIX3M only available since 2007.** The sample is 18 years — "

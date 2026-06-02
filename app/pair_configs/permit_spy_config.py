@@ -59,7 +59,7 @@ class StoryConfig:
     )
 
     HERO_TITLE = "Building Permits vs. S&P 500 Over the Business Cycle"
-    HERO_CHART_NAME = "permit_spy_hero"
+    HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
         "Dual-axis view: Building Permits (left, red) and SPY price (right, blue). "
         "Permits peaked before the 2001 and 2008 recessions and collapsed during "
@@ -69,7 +69,7 @@ class StoryConfig:
     )
 
     REGIME_TITLE = "What History Shows: SPY Returns by Building-Permit Regime"
-    REGIME_CHART_NAME = "permit_spy_regime_stats"
+    REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
         "SPY Sharpe by Building Permits growth quartile. The high-growth regime "
         "(Q4) delivers a Sharpe near 0.95; the deep-contraction regime (Q1) falls "
@@ -192,7 +192,7 @@ CORRELATION_BLOCK = dict(
         "cool colours (red) indicate negative. Stars mark conventional significance "
         "levels (* p<0.05, ** p<0.01)."
     ),
-    chart_name="permit_spy_correlations",
+    chart_name="correlations",
     chart_caption=(
         "Pearson correlations between Building Permits signal variants and forward "
         "return horizons. Warm colours = positive (pro-cyclical). Permits YoY "
@@ -240,7 +240,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         "1-standard-deviation permit-growth shock. Shaded area = 95% HAC confidence "
         "band. Stars mark significance at p<0.05."
     ),
-    chart_name="permit_spy_local_projections",
+    chart_name="local_projections",
     chart_caption=(
         "Jordà (2005) local projections with HAC (Newey-West) standard errors. "
         "Stars indicate significance at p<0.05. The coefficient shows the marginal "
@@ -362,7 +362,7 @@ class StrategyConfig:
     # No equity_curves / drawdown / walk_forward charts exist for permit_spy
     # on disk (as of Wave 10I.A). Template falls back to "chart pending" for
     # those surfaces — pre-existing data gap, not a regression.
-    TOURNAMENT_SCATTER_CHART_NAME = "permit_spy_tournament_scatter"
+    TOURNAMENT_SCATTER_CHART_NAME = "tournament_scatter"
 
     CAVEATS_MD = (
         "1. **Housing-bubble distortion (2003-2007).** Permits reached "

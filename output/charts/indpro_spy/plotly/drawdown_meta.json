@@ -3,9 +3,12 @@
   "pair_id": "indpro_spy",
   "palette_id": "v1",
   "rules_applied": [
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-BF1"
   ],
   "narrative_alignment_note": "Strategy vs Buy-and-Hold drawdown for Strategy Performance tab.",
   "generated_at": "2026-05-26T22:53:35.705933+00:00",
-  "generated_by": "fix260526 W0.5 (Lead-as-Vera)"
+  "generated_by": "fix260526 W0.5 (Lead-as-Vera)",
+  "disposition": "consumed",
+  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
 }

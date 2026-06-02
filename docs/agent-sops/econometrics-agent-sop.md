@@ -844,12 +844,9 @@ Different target asset classes require different backtest assumptions. These are
 | Vol range (annualized) | 15-35% | 2-18% | 12-30% | 50-80% |
 | Sharpe validity threshold | > 0.3 | > 0.5 (lower vol = higher bar) | > 0.3 | > 0.2 (higher vol = lower bar) |
 
-**Benchmark selection logic:**
-1. If target IS SPY → benchmark is buy-and-hold SPY
-2. If target is a sector ETF → benchmark is buy-and-hold of that sector ETF (relative analysis uses SPY as secondary benchmark)
-3. If target is fixed income → benchmark is buy-and-hold of AGG or duration-matched bond ETF
-4. If target is a commodity → benchmark is buy-and-hold of that commodity
-5. If target is crypto → benchmark is buy-and-hold of that crypto asset
+**Benchmark rule (ECON-BM1).** The pair's target is the buy-and-hold benchmark. Every Strategy-page chart, KPI card, and tournament row that displays a "vs Buy & Hold" comparison resolves the benchmark as: hold the target asset over the OOS window with no entry/exit. No special cases by asset class.
+
+Optional secondary comparisons (e.g. SPY as a secondary benchmark for a sector-ETF pair) are *additional* presentations, not substitutes — they don't change what `bh_*` fields in `winner_summary.json` mean.
 
 **Calendar handling:**
 - For 24/7 assets (crypto): daily returns = close-to-close using UTC midnight

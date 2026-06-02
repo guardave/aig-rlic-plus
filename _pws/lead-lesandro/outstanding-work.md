@@ -1,88 +1,81 @@
 # Outstanding work — Lead Lesandro
 
-Last updated: 2026-06-01 (fix260526 decommissioned + GH #8 closed; target260501 + 260430 rescued into fix260601_rescue + deleted).
+Last updated: 2026-06-01 EOD (chart-hygiene branch: Wave 1 done; Wave 2 paused at scope-creep discovery; Wave 3 pending).
 
 ## Branch state
 
-**`main`** is the active branch. Tip: `485e577` (fix260526 decommissioning). `fix260531` deleted post-merge (2026-05-31). `fix260526` deleted post-decommissioning (2026-06-01).
+**`main`** at `c4615c9` (backlog status snapshot, post-fix260601_rescue merge).
 
-**Active feature branch:** `fix260601_rescue` (3 commits, +9 files), rescued from the now-deleted `target260501` + `260430` branches before they were removed. Branch contains:
-1. `a3073ca` — data-quality disclosure infrastructure (helper + warnings JSON + Wayback script)
-2. `5770d1d` — `scripts/validate_pair_completeness.py` (767 LOC META-CMP forcing function as working script)
-3. `22d2b3f` — `evidence_status` + `glossary_inline` components + 2 schemas + 2 examples + `docs/glossary.md` + `docs/dashboard-page-standard.md`
+**Active feature branch:** `fix260601_chart_hygiene` at `0c82281`, 2 commits ahead of main, pushed to `origin/fix260601_chart_hygiene`:
+1. `d7971a0` — **Wave 1 done.** BL-VIZ-CHART-PREFIX-LEGACY: renamed 20 chart JSONs + 20 perceptual_check PNGs across `indpro_spy` / `permit_spy` / `vix_vix3m_spy` from pair-id-prefixed to canonical bare names; updated 3 pair_config.py files. Validator delta: 934 PASS / 184 FAIL → 954 PASS / 164 FAIL (−20 FAILs cleared, exactly matching the per-pair chart-name mismatches). Local Streamlit sweep: 45/45 PASS, **zero byte drift on rendered DOM** vs fix260601_rescue baseline. Renames invisible to users.
+2. `0c82281` — ECON-BM1 SOP tightening (replaces 5-case if-table with single rule: "the pair's target is the buy-and-hold benchmark, no special cases") + `_pws/lead-lesandro/memories.md` "Mode 2 hat-wearing discipline" entry.
 
-Branch tested clean (all imports load, both schemas validate against examples, validator runs end-to-end producing 110 PASS / 16 FAIL on indpro_spy surfacing real codebase gaps). Not merged to main yet — needs deliberate decision on (a) where to wire `evidence_status` and `data_quality` banners, (b) whether to schedule the codebase hardening to clear the validator's 16 FAILs before promoting it to a CI gate.
+## Wave 2 paused — scope creep discovery (handover detail)
 
-## Recent closed work (this session — fix260531)
+**Original Wave 2 plan:** BL-CHART-GAPS-LEGACY back-generation. 4 pairs (`permit_spy`, `sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy`) lack `equity_curves.json` / `drawdown.json` / `walk_forward.json`. The plan was: render the 3 charts × 4 pairs from existing strategy-return time series using `scripts/tournament.py::compute_buy_and_hold_stats` + chart layout helpers.
 
-### Comment-log triage (user re-raised after fix260526 falsely closed them)
-| # | Result | Commit |
+**Discovery (Evan hat):** The 4 pairs' `winner_trade_log.csv` files have **`trade_return_pct = 0` for every trade row**. So the strategy-return time series **doesn't exist** in usable form. To render the 3 charts properly, would need to:
+1. Re-derive strategy positions from `winner_summary.json` (signal_column + threshold + lead + strategy_family)
+2. Apply positions to daily target returns (the signals parquet has *forward* returns at given horizons, not daily raw returns — needs the master parquet)
+3. Compute strategy returns + cumulative equity + drawdowns + per-year Sharpe
+4. Emit broker-style APP-TL1 CSVs (these pairs also lack `winner_trades_broker_style.csv`)
+5. Populate `bh_sharpe` / `bh_max_drawdown` (same gap as the gold_copper_xli case that closed BL-GC-BH via `scripts/tournament.py` migration)
+
+**This is half of BL-DUP-5 pipeline consolidation, not chart hygiene.** Closer to a separate `fix260601_legacy_pipeline_rehab` branch than a sub-wave of chart hygiene.
+
+**Three options surfaced to user (still awaiting decision):**
+
+| Option | Scope | Effort |
 |---|---|---|
-| #63 indpro_spy KPI rounding mismatch (+7.6% vs +7.7%) | Aligned all 3 hand-typed strings to +7.6% (matches `_format_ratio_pct` output) | `50c68b8` |
-| #64 indpro_spy INDPRO naming | Canonical `INDPRO` in chart titles/axes/legends/prose; cloud-verify caught one leftover hero title (`9cb63e1`) | `50c68b8`, `9cb63e1` |
-| #68 indpro_spy Granger colour + leading-direction | `cause = direction.split("->")[0]` fix; new how-to-read annotation | `50c68b8` |
+| **2c** Drop the 3 chart slots from the 4 pair configs entirely; add a Strategy-page section note "Performance charts coming with pipeline rebuild — see backlog" | In-branch hygiene close | 30 min |
+| **2b'** Open separate branch `fix260601_legacy_pipeline_rehab` to rebuild 4 pipelines properly (DUP-5 partial) | New branch, 1–2 sessions | bigger |
+| **2d** Block the 4 pages from rendering at all (page-level "this pair is being rebuilt" banner) | Pulls 4 pages from prod | 20 min |
 
-### Cross-pair viz hygiene
-| Class | Scope | Commit |
-|---|---|---|
-| Legend/caption overlap | 60 charts, 10 pairs | `6084999` |
-| Right-side vertical legend rollout | 123 charts + 10 generators | `544b77a` |
-| X-axis title vs caption layout | 48 charts via `_chart_layout::apply_caption_layout` | `6cb6545`, `97a3456`, `d1be5d7`, `bdff83f`, `7798977`→`23541ad` (reverted center→left), `436af45` |
-| subperiod_sharpe axis vs caption | 11 charts | `4a251ec` |
-| Caption position via xshift=-margin.l | All captioned charts | `bdff83f`, `23541ad` |
-| Font standardisation (title/axis/tick/legend/caption) | 209 charts | `ca985ae` |
+**User has not yet picked.** EOD called before answer received.
 
-### App-layer
-| What | Commit |
-|---|---|
-| Sidebar dynamic (7→11 pairs via `pair_registry`) | `ec59104` |
-| Glossary text_input + Material `close` clear-X + CSS via `st-key-glossary_clear` | `90e4b76`, `29290a5`, `792062b` |
-| gold_copper_xli dashboard card (was showing "—") | `13a313e`, `2546e69` |
+## Wave 3 pending — BL-VIZ-O1-LEGACY
 
-### Refactor — single-source-of-truth modules created
-| Module | DUP | Consumers migrated |
-|---|---|---|
-| `scripts/_chart_layout.py` | X-axis/caption + font sizes | `viz_cp_retro_apply.py` (5 builders) |
-| `app/components/display_names.py` | DUP-1 (indicator/target names) | pair_registry, page_templates, sidebar |
-| `scripts/_nber.py` | DUP-4 (recession lists) | viz_cp_retro_apply, generate_history_zoom_charts |
-| `scripts/_stamp.py` | DUP-15 (utcnow deprecation) | 5 sites (`generate_charts_hy_ig_spy.py`, `pair_pipeline_hy_ig_spy.py` ×2, `generate_history_zoom_charts.py`) |
-| `scripts/tournament.py` | DUP-11 (select_winner + bh stats + benchmark row) | `econ_pipeline_gold_copper_xli.py` (closes BL-GC-BH) |
+35 chart JSONs across 6 legacy pair directories (`dff_ted_spy`, `indpro_spy`, `permit_spy`, `sofr_ted_spy`, `ted_spliced_spy`, `vix_vix3m_spy`) lack matching `_meta.json` sidecars per VIZ-O1 (Disposition Mandate). Programmatic backfill: for each chart JSON without a sidecar, create the `_meta.json` with `{"disposition": "consumed", "rules_applied": [...], "generated_at": iso_utc_now()}` + narrative_alignment_note derived from chart title.
 
-### Audit + backlog
-- 3-agent code-review found 17 DUP/divergence classes. All logged as `BL-DUP-1..17` in `docs/backlog.md`.
-- 5 SOP rule proposals logged: `BL-APP-NUM1`, `BL-VIZ-NS1`, `BL-VIZ-DC1`, `BL-VIZ-LO1`, `BL-APP-DR1`.
-- `BL-GC-BH` opened then closed in same session (proper pipeline-side fix shipped).
-- `BL-DUP-11` updated with partial-progress note + 8 remaining pipelines flagged for bulk migration with per-pair numeric-diff gates.
-
-### META-CMP root cause documented
-fix260526's W2 commit `3718fc9` listed `#63, #64, #65, #66, #67, #68` in the commit message but the diff only touched `#64, #65, #66, #67`. The commit-vs-claim drift was the bug META-CMP (GH #7) is designed to catch. Documented in `docs/relnotes.md` fix260531 entry.
+Estimated ~30 min. **Not started.**
 
 ## Active questions / pending decisions (carried forward)
 
-- **GH #4 close decision** — stakeholder hasn't said yet whether to close or add "Investment Clock" cross-reference.
-- **GH #7 META-CMP** — Tier 1+2 forcing functions queued for dedicated SOP-hardening branch. Reinforced by fix260531's discovery that fix260526's W2 commit claimed to close 6 IDs but the diff only touched 4 (#63 / #68 left untouched). META-CMP is the forcing-function class designed to catch that.
-- ~~**GH #8 stabilization**~~ — **CLOSED 2026-06-01.** Observation period concluded clean. Branch `fix260526` deleted (local + remote). Preview Streamlit Cloud app `aig-rlic-plus-fix260526.streamlit.app` deleted by user 2026-06-01.
-- ~~Indpro_spy #69~~ — closed stakeholder-side 2026-05-30.
+- **Wave 2 option choice** (2c / 2b' / 2d) — see above
+- **GH #4 close decision** — verdict comment posted, awaiting stakeholder
+- **GH #7 META-CMP** — Tier 1+2 forcing functions queued for dedicated SOP-hardening branch (now has working scaffold from fix260601_rescue: `scripts/validate_pair_completeness.py` + `docs/dashboard-page-standard.md`)
 
-## Backlog awaiting a future branch (newly logged this session)
+## Recently closed this session (2026-06-01)
 
-| ID | Class |
+| Item | Result |
 |---|---|
-| BL-APP-NUM1 | Numeric Format Single Source (helper-injected percent strings) |
-| BL-VIZ-NS1 | Indicator Naming Standard (signal_scope-driven display_names) |
-| BL-VIZ-DC1 | Bidirectional Chart Colour Discipline |
-| BL-VIZ-LO1 | Legend / Caption Vertical Separation |
-| BL-APP-DR1 | Dynamic Registry Discipline (forbid hand-list pair_ids) |
-| BL-DUP-1..17 | 17 duplication/divergence classes from code-review audit |
+| `target260501` | Rescued into fix260601_rescue + deleted from remote |
+| `260430` | Tier-1 durable infra rescued into fix260601_rescue + deleted from remote (HSN1F pair + HY-IG v3/v4/v5/v6 experiments + Tier-2 chart-generator changes all discarded per user decision) |
+| `fix260601_rescue` | Merged to main at `41545cb` (3-track regression: 45/45 local + 9/9 components + 45/45 cloud); branch deleted post-verify |
+| `docs/backlog.md` Status snapshot | Added — marks BL-DUP-1/4/8/11/15 as 🟡 PARTIAL and BL-META-CMP/BL-DUP-6 as 🟢 SCAFFOLDED |
 
-3 of the 17 DUP entries partially shipped (DUP-1 / DUP-4 / DUP-15) with the helper modules; the remaining 14 await dedicated branches.
+## Repeated lesson this session (worth crystallising in memories.md)
+
+**Mode 2 hat-wearing discipline.** When authoring artifacts that fall in a role's lane, open the relevant role SOP and scan for the directly-relevant rule. NOT a preemptive load of every role SOP at SOD (~50k+ tokens of waste). Crystallised by: asked user "should the benchmark be SPY?" — rule was already in `econometrics-agent-sop.md:847` ("benchmark = buy-and-hold of the target"). Asked because I was authoring an econometric artifact (chart back-generation) without putting Evan's hat on. User's reaction: *"If you ask me this, does it mean there is no such knowledge in the context?"* — correctly identifying the procedural gap.
+
+## Backlog state (snapshot)
+
+- 40 active deferrals, 3 closed (BL-PERM-SUBAGENT, BL-APP-PR1 promoted, BL-GC-BH)
+- 4 🟡 PARTIAL (BL-DUP-1/4/11/15; BL-DUP-8 also partial via DUP-4 helper)
+- 2 🟢 SCAFFOLDED (BL-META-CMP / BL-DUP-6 — validator scaffold in tree)
+- No new BL-* rows added this session
 
 ## Untracked working state
 
-- `_pws/qa-queenie/` exists as untracked. Belongs to another agent (Quincy / QA); not mine to commit.
-- Many `temp/fix260531/*.png` working screenshots — gitignored, not for commit.
+- `_pws/qa-queenie/` exists as untracked. Belongs to QA agent.
+- Many `_pws/lead-lesandro/chart_hygiene_260601/*.txt` working logs from Wave 1 (baseline + after-Wave-1 validator counts).
+- `temp/*` working files (gitignored).
 
-## Broader cross-project tracking
+## Sequenced plan for next session (continuing from here)
 
-- The "single-source-of-truth helper + migrate consumers" pattern proved high-leverage this session — 5 helper modules shipped, replacing duplicated logic that had drifted across files. Continue applying this pattern.
-- Per-pair numeric-diff gate validated on gold_copper_xli (0 drift on 90 strategy rows after migration). Use this template for any future pipeline-refactor work — diff each column max-abs before declaring migration safe.
+1. **Lead receives Wave 2 decision** (2c / 2b' / 2d) — short user message.
+2. If 2c: drop 3 chart slots from 4 configs + add planned-rebuild note to Strategy page; ~30 min + verify.
+3. If 2b': open new branch `fix260601_legacy_pipeline_rehab`, leave `fix260601_chart_hygiene` to ship without Wave 2.
+4. If 2d: block 4 pages with banner + add planned-rebuild backlog entry.
+5. Execute Wave 3 (VIZ-O1 sidecar backfill, ~30 min) regardless of 2c/2b'/2d choice.
+6. Full local sweep + cloud preview + merge `fix260601_chart_hygiene` to main.

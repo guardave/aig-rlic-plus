@@ -1,0 +1,17 @@
+# Validator after Wave 1 (chart rename complete)
+
+PAIR                     PASS     WARN     FAIL
+----                     ----     ----     ----
+indpro_spy                118        0        8
+indpro_xlp                 92        0       10
+umcsent_xlv                99        0       11
+hy_ig_v2_spy               30        0       11
+hy_ig_spy                 134        0        5
+permit_spy                 77        0       17
+vix_vix3m_spy              79        0       12
+sofr_ted_spy               56        0       29
+dff_ted_spy                68        0       26
+ted_spliced_spy            71        0       23
+gold_copper_xli           130        0       12
+----                     ----     ----     ----
+TOTAL                     954               164

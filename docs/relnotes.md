@@ -1,5 +1,35 @@
 # Release Notes
 
+## 2026-06-01 — Daily ops: fix260526 decommission + fix260601_rescue + fix260601_chart_hygiene W1
+
+**Three workstreams shipped to main today:**
+
+1. **fix260526 decommissioning.** 5-day observation period closed clean. GH issue #8 closed with full summary. Branch `fix260526` deleted (local + remote, was at `af6edd3`, fully merged into main via prior FF merge). Preview Streamlit Cloud app `aig-rlic-plus-fix260526.streamlit.app` deleted user-side.
+
+2. **fix260601_rescue merge (`41545cb`).** Rescued 9 durable files from now-deleted `target260501` (1 commit) + `260430` (130 commits, mostly scratch). All HSN1F + HY-IG v3/v4/v5/v6 experiments discarded per user decision. Rescued:
+   - **Data-quality disclosure infrastructure** — `app/components/data_quality.py` (with improvements at rescue: glob resolution + severity dispatch) + warning JSON template + `scripts/fetch_fred_wayback_archive.py` (companion remediation)
+   - **`scripts/validate_pair_completeness.py`** (767 LOC, GATE-DPS1) — this is the **META-CMP forcing function as a working script**. Validates every mandatory chart artifact, result artifact, page config, evidence method block, and glossary coverage entry. Runs end-to-end. Currently surfaces 184 real codebase gaps across 11 pairs. Closes the design-from-scratch gap for the META-CMP SOP-hardening branch.
+   - **`app/components/evidence_status.py`** — 4-state honesty badge (found_in_search / needs_final_exam / passed_final_exam / failed_final_exam) reading `results/{pair_id}/evidence_status.json` with graceful default
+   - **`app/components/glossary_inline.py`** — DPS-II1 just-in-time info icon
+   - **2 schemas + examples** — `evidence_status.schema.json` + `final_exam_results.schema.json`, both validate clean
+   - **`docs/dashboard-page-standard.md`** (~600 LOC) — the rule document the validator implements
+   - **`docs/glossary.md`** — cross-SOP single-source glossary
+   - 3-track regression: 45/45 local + 9/9 components + 45/45 cloud preview + 45/45 production post-merge. Branch deleted post-verify.
+   - Backlog updated with Status Snapshot section at top + 🟡 PARTIAL / 🟢 SCAFFOLDED markers (`c4615c9`).
+
+3. **`fix260601_chart_hygiene` Wave 1 shipped (`d7971a0`, pushed to branch, not yet merged).** BL-VIZ-CHART-PREFIX-LEGACY: renamed 20 chart JSONs + 20 perceptual PNG sidecars from pair-id-prefixed (`indpro_spy_hero.json`) to canonical bare names (`hero.json`) on 3 pairs (`indpro_spy`, `permit_spy`, `vix_vix3m_spy`). Updated 3 pair_config.py files to drop the prefix from chart-name string literals. Validator delta: 934 PASS / 184 FAIL → 954 PASS / 164 FAIL (cleared 20 FAILs corresponding to the 20 renamed charts). Local Streamlit sweep 45/45 PASS; byte-for-byte page identical pre/post on all 12 affected pages (renames invisible to users). Helper script `scripts/rename_legacy_chart_prefixes.py` (idempotent) kept in tree. ECON-BM1 SOP tightening also shipped on this branch (`0c82281`): single-sentence rule "the pair's target is the buy-and-hold benchmark, no special cases" replaces a previous 5-case if-table at `econometrics-agent-sop.md:847`.
+
+**Wave 2 paused — scope-creep discovery.** BL-CHART-GAPS-LEGACY back-generation plan revealed 4 legacy pairs (`permit_spy`, `sofr_ted_spy`, `dff_ted_spy`, `ted_spliced_spy`) have `trade_return_pct = 0` in winner_trade_log.csv. Reconstructing strategy returns is pipeline rehab, not chart hygiene. User decision pending: in-branch hygiene close (2c) / separate-branch rebuild (2b') / page-block banner (2d).
+
+**Standard adopted (user-confirmed):** Placeholders shown to users are NOT acceptable quality. A "chart pending" placeholder fails completeness + consistency + ELI5. Either ship complete or remove the section.
+
+**Process discoveries:**
+- **Mode 2 hat-wearing discipline.** Before authoring an artifact in a role's lane, open the relevant role SOP. Targeted read at hat-wearing time, NOT preemptive load of every SOP at SOD (~50k+ token waste).
+- **Rescue-by-copy beats cherry-pick on diverged branches.** `git show <branch>:<path> > <path>` per-file is surgical and lets you improve the rescued code at extraction time.
+- **Schema/example validation at rescue time is cheap insurance.** Caught a `1.0.1` → `1.1.0` schema-version drift and a missing `split_design` field in a final_exam_results example. 2 minutes of fixing saves future debugging.
+
+---
+
 ## 2026-05-31 — fix260531: Comment-Log Re-Triage (#63, #64, #68) — IN FLIGHT
 
 **Scope:** User-flagged that fix260526's W2 commit (`3718fc9`) closed `indpro_spy` comments #63, #64, #68 in the log but did not actually fix all three. Re-verified each on cloud-rendered `aig-rlic-plus.streamlit.app/indpro_spy_story|evidence` and confirmed user is correct — only #64 was partly addressed; #63 and #68 were never touched in W2.

@@ -3,9 +3,12 @@
   "pair_id": "gold_copper_xli",
   "palette_id": "single_v1",
   "rules_applied": [
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-BF1"
   ],
   "narrative_alignment_note": "Signal time series with winner threshold dashed. Long when below the line.",
   "generated_at": "2026-05-26T13:43:07Z",
-  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)",
+  "disposition": "consumed",
+  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
 }

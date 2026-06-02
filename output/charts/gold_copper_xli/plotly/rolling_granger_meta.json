@@ -4,9 +4,12 @@
   "palette_id": "single_v1",
   "rules_applied": [
     "VIZ-CP1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-BF1"
   ],
   "narrative_alignment_note": "Rolling Granger F. Persistent values above the 5% critical = predictive content is not a sample artefact.",
   "generated_at": "2026-05-26T15:58:42Z",
-  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat \u2014 Cross-Period)"
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat \u2014 Cross-Period)",
+  "disposition": "consumed",
+  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
 }
