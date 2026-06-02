@@ -1,5 +1,16 @@
 # Key Memories — Lead Lesandro
 
+## WIP preview slot (re-read at every SOD)
+
+**`https://aig-rlic-plus-dawodev.streamlit.app/`** is the standing branch-WIP Streamlit preview slot. User repoints it to whichever branch needs cloud verification — I don't create new preview apps per branch. Discipline:
+
+- Before running cloud Track B, **signal the user to repoint** the slot to the current branch (`Please repoint aig-rlic-plus-dawodev.streamlit.app to <branch>`)
+- Wait for confirmation before running the sweep (Streamlit Cloud redeploy takes ~60–90s after repoint)
+- Production (`aig-rlic-plus.streamlit.app`) always tracks `main` — use that for post-merge verification
+- After merge, the WIP slot still points at the merged branch until next repoint; that's fine, but use production for post-merge verify, not the WIP slot
+
+**Crystallised:** 2026-06-02 fix260601_chart_hygiene Wave 3 verify. User: *"Use https://aig-rlic-plus-dawodev.streamlit.app/ from now on for all branch wip and signal me to repoint at times"*
+
 ## Lead Discipline (most important — re-read at every SOD)
 
 **LEAD-DL1: Lead never writes to files owned by role agents.** Wave 10H.1 self-correction: I drifted into agent work ("it's faster", "I have the context"); user caught it, reverted 70+ files, asked me to build a durable mechanism. The mechanism is `docs/agent-sops/lead-agent-sop.md` + `lead_delegation_discipline.md` auto-memory. Pre-edit gate on every write: *who owns this file?* If not Lead → dispatch. Exceptions are narrow (emergency, user override, self-revert). "Pragmatic" / "faster" / "small edit" are not exceptions — they are the drift tells.
