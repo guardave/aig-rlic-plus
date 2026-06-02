@@ -1,0 +1,248 @@
+# Indicator map — single source of truth for indicator naming
+# ============================================================
+#
+# Used by:
+#   scripts/build_prospective_pairs.py — reads docs/Indicator x Target.csv +
+#     this map → emits data/prospective_pairs.csv
+#   app/components/prospective_pairs.py — reads data/prospective_pairs.csv
+#     for the Status tab on the landing page
+#
+# Rules:
+#   1. The KEY is the raw ticker as it appears in column A of
+#      docs/Indicator x Target.csv (preserves traceability).
+#   2. The VALUE is the canonical `indicator_id` — lowercase, snake_case,
+#      no special characters. This is the unambiguous join key used in
+#      pair_id construction: <indicator_id>_<target_lower> (e.g. "umcsent_xlv").
+#   3. When a CSV ticker is a clean FRED-style ticker (UMCSENT, INDPRO2017),
+#      lowercase it as-is.
+#   4. When the CSV ticker is a long descriptive name with a sector prefix
+#      (e.g. "G - ISM Services PMI, price"), strip the prefix and snake_case
+#      the remainder using a meaningful short form.
+#   5. Same conceptual indicator appearing under multiple CSV tickers MUST
+#      map to the same indicator_id (the build script will dedupe on
+#      (indicator_id, target) downstream).
+#   6. Each entry also carries `display_name` (human-readable form used in
+#      the UI matrix) and `category` (the sector-prefix tag from the CSV
+#      name, for sorting).
+#
+# When in doubt about a mapping, mark `indicator_id: TODO_review` and the
+# build script will halt with a list of TODO entries for Lead to resolve.
+
+indicators:
+
+  # ── FRED-style clean tickers ───────────────────────────────────────────
+  UMCSENT:
+    indicator_id: umcsent
+    display_name: UMCSENT (Michigan Consumer Sentiment)
+    category: sentiment
+
+  INDPRO2017:
+    indicator_id: indpro
+    display_name: INDPRO (2017=100)
+    category: production
+
+  INDPRO1919:
+    indicator_id: indpro_1919
+    display_name: INDPRO (1919=100 rebase)
+    category: production
+
+  INDPRO_YOY:
+    indicator_id: indpro_yoy
+    display_name: INDPRO YoY
+    category: production
+
+  SOFR-US3M:
+    indicator_id: sofr_us3m
+    display_name: SOFR − DTB3 (TED-style)
+    category: credit
+
+  TEDRATE:
+    indicator_id: tedrate
+    display_name: TEDRATE (FRED legacy)
+    category: credit
+
+  RSXFS:
+    indicator_id: rsxfs
+    display_name: Advance Retail Sales (RSXFS)
+    category: sentiment
+
+  M2SL_YOY:
+    indicator_id: m2sl_yoy
+    display_name: M2 Money Supply YoY
+    category: macro
+
+  NHS:
+    indicator_id: nhs
+    display_name: New Home Sales (NHS)
+    category: real_estate
+
+  BP:
+    indicator_id: permit
+    display_name: Building Permits
+    category: real_estate
+
+  WTTSTUS1:
+    indicator_id: wttstus1
+    display_name: Crude Oil Inventory (WTTSTUS1)
+    category: energy
+
+  PHLXSOX:
+    indicator_id: phlxsox
+    display_name: PHLX Semiconductor Index
+    category: technology
+
+  FRGSHPUSM649NCIS:
+    indicator_id: cass_freight
+    display_name: Cass Freight Index (shipments)
+    category: production
+
+  AU/CU:
+    indicator_id: gold_copper
+    display_name: Gold / Copper Ratio
+    category: materials
+
+  "C&I Loan":
+    indicator_id: ci_loan
+    display_name: Commercial & Industrial Loans
+    category: credit
+
+  "H Permit YoY":
+    indicator_id: permit_yoy
+    display_name: Building Permits YoY
+    category: real_estate
+
+  # ── Long descriptive names — strip prefix, snake_case ─────────────────
+  "G - (US10Y-US3M)":
+    indicator_id: us10y_us3m
+    display_name: 10Y−3M Treasury Spread
+    category: rates
+
+  "G - (VIX1M/VIX3M)":
+    indicator_id: vix_vix3m
+    display_name: VIX 1M / 3M Ratio
+    category: volatility
+
+  "G - ISM Services PMI, price":
+    indicator_id: ism_services_price
+    display_name: ISM Services PMI − Price Component
+    category: sentiment
+
+  "G - Employmt $ Indx, total compenstn":
+    indicator_id: eci_total_comp
+    display_name: Employment Cost Index (total compensation)
+    category: macro
+
+  "G - Import $ Indx":
+    indicator_id: import_price_idx
+    display_name: Import Price Index
+    category: macro
+
+  "G - Job Openings":
+    indicator_id: jolts
+    display_name: Job Openings (JOLTS)
+    category: macro
+
+  "G - UNRATE":
+    indicator_id: unrate
+    display_name: Unemployment Rate
+    category: macro
+
+  "Ind - ISM Manufacturing PMI":
+    indicator_id: ism_mfg
+    display_name: ISM Manufacturing PMI
+    category: production
+
+  "CDis, CSta - ISM Services PMI":
+    indicator_id: ism_services
+    display_name: ISM Services PMI
+    category: sentiment
+
+  "Ind, Mat - Manufturs' New Orders":
+    indicator_id: mfg_new_orders
+    display_name: Manufacturers' New Orders
+    category: production
+
+  "Ind, Mat - Manufturs' New Orders, YoY":
+    indicator_id: mfg_new_orders_yoy
+    display_name: Manufacturers' New Orders YoY
+    category: production
+
+  "Mat - Portland Cment Shipmts":
+    indicator_id: portland_cement
+    display_name: Portland Cement Shipments
+    category: materials
+
+  "HY - IG spread":
+    indicator_id: hy_ig
+    display_name: HY − IG Credit Spread
+    category: credit
+
+  "En - Crude Oil $":
+    indicator_id: crude_oil
+    display_name: Crude Oil Price
+    category: energy
+
+  "Elect Price - CPI (YoY)":
+    indicator_id: elec_cpi_yoy
+    display_name: Electricity Price − CPI YoY
+    category: utilities
+
+  "RE - Wells Fargo H Indx":
+    indicator_id: wells_fargo_housing
+    display_name: Wells Fargo Housing Index
+    category: real_estate
+
+  "RE - Arch Billing Indx":
+    indicator_id: abi
+    display_name: Architecture Billings Index
+    category: real_estate
+
+  # ── Housing family — transformations differ between CSV tickers ───────
+  # Verified against data/Data Master.xlsx → Pre-master row 2 (2026-06-02).
+  # BP / RE - H Started are level (thousands, SAAR).
+  # RE - H Permit and H Permit YoY are both YoY% (SAAR) — merged.
+  # NHS (level, NSA) vs RE - NH Sold (level, SAAR) — kept distinct: same
+  # concept but different SA convention; collapsing them would mix series.
+  "RE - H Permit":
+    indicator_id: permit_yoy      # YoY%, same as H Permit YoY
+    display_name: Building Permits YoY
+    category: real_estate
+
+  "RE - NH Sold":
+    indicator_id: nh_sold_saar    # level SAAR; NHS is level NSA — kept separate
+    display_name: New Home Sales (SAAR)
+    category: real_estate
+
+  "RE - H Started":
+    indicator_id: housing_starts
+    display_name: Housing Starts
+    category: real_estate
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Target canonicalisation — fixed, never edited unless the source CSV's
+# target columns change.
+# ─────────────────────────────────────────────────────────────────────────
+targets:
+  SPY: spy
+  XLP: xlp
+  XLE: xle
+  XLI: xli
+  XLC: xlc
+  XLY: xly
+  XLK: xlk
+  XLF: xlf
+  XLV: xlv
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Deprecation overlay — pair_ids the team has explicitly removed from
+# the active universe. The build script will mark these as
+# status="archived_deprecated" so they appear on the Status tab with a
+# clear "deprecated" badge instead of being hidden.
+# ─────────────────────────────────────────────────────────────────────────
+deprecated_pair_ids:
+  - sofr_us3m_spy        # was sofr_ted_spy; archived 2026-06-02 (trade_return_pct=0)
+  - sofr_us3m_xlp        # same
+  - tedrate_spy          # was ted_spliced_spy / dff_ted_spy; archived 2026-06-02
+  - tedrate_xlp          # same
