@@ -161,6 +161,24 @@ This division is not just a workload split — it is a structural principle. If 
 
 ---
 
+## Rule LEAD-DV1 — Data-Source Verification (binding, all indicator-mapping work)
+
+**Before any decision that merges, splits, or canonicalises indicators — including but not limited to authoring `config/indicator_map.yaml`, registering display names in `pair_registry`, or writing analysis briefs — Lead MUST verify the indicator's units, frequency, and SA convention against `data/Data Master.xlsx` → Pre-master sheet, row 2.**
+
+Pre-master row 2 carries the full description (FRED ticker, units, frequency, SA convention, source agency) for every column. Two CSV tickers that look like duplicates by name (e.g. `BP` vs `RE - H Permit`) may be different transformations of the same underlying series — merging them silently mixes time series and corrupts every downstream pair.
+
+**Required steps:**
+1. Open Pre-master in `data/Data Master.xlsx`.
+2. For each CSV ticker under decision, locate the matching column (search row 1 for the source sub-sheet name, row 3 for the column letter inside it).
+3. Read row 2 in full. Note the units string (e.g. "Thousands of Units, SAAR" vs "YoY%, SAAR" vs "Index 2017=100").
+4. Two tickers may be merged ONLY when row 2 units **and** SA convention match. If they differ, keep distinct indicator_ids.
+
+**The slip this rule prevents.** 2026-06-02, fix260602_prospective_pairs: I proposed merging `BP` and `RE - H Permit` to `indicator_id: permit` based on a table I'd built from memory. User flagged the contradiction. Pre-master row 2 confirmed `BP` = level (thousands SAAR), `RE - H Permit` = YoY% — silent merge would have collapsed two different transformations of the housing-permit series into one. The fix reassigned `RE - H Permit` → `permit_yoy`. The whole episode was avoidable: a Pre-master scan before the first map draft would have caught it instantly.
+
+**Cross-reference:** `[[reference_pre_master_row2]]` in auto-memory points at this same sheet; LEAD-QF1 (quality focus) — silent unit drift is exactly the kind of correctness regression QF1 targets.
+
+---
+
 ## Enforcement
 
 **Self-audit at every wave closure.** Before running the closure commit sequence, Lead runs:

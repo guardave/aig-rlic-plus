@@ -1,0 +1,126 @@
+Ticker,Name,Date Upload to Dashboard,Remark,Step B SPY Progress,Step B XLP Progress,Step B XLE Progress,Step B XLI Progress,Step B XLC Progress,Step B XLY Progress,Step B XLK Progress,Step B XLF Progress,Step B XLV Progress,Step B PIC
+SPY,SPDR S&P 500 ETF Trust,,,,,,,,,,,,
+QQQ,Invesco QQQ Trust Series I,,,,,,,,,,,,
+XLK,Technology Select Sector SPDR Fund,,,,,,,,,,,,
+XLF,Financial Select Sector SPDR Fund,,,,,,,,,,,,
+XLV,Health Care Select Sector SPDR Fund,,,,,,,,,,,,
+XLE,Energy Select Sector SPDR Fund,,,,,,,,,,,,
+XLC,Communication Services Select Sector SPDR Fund,,,,,,,,,,,,
+XLY,Consumer Discretionary Select Sector SPDR Fund,,,,,,,,,,,,
+XLI,Industrial Select Sector SPDR Fund,,,,,,,,,,,,
+XLU,Utilities Select Sector SPDR Fund,,,,,,,,,,,,
+XLP,Consumer Staples Select Sector SPDR Fund,,,,,,,,,,,,
+XBI,SPDR S&P BIOTECH ETF,,,,,,,,,,,,
+XLB,Materials Select Sector SPDR Fund,,,,,,,,,,,,
+XAR,SPDR S&P Aerospace & Defense ETF,,,,,,,,,,,,
+KRE,SPDR S&P Regional Banking ETF,,,,,,,,,,,,
+XME,SPDR S&P Metals & Mining ETF,,,,,,,,,,,,
+XOP,SPDR S&P Oil & Gas Exploration & Production ETF,,,,,,,,,,,,
+XHB,SPDR S&P Homebuilders ETF,,,,,,,,,,,,
+XSD,SPDR S&P Semiconductor ETF,,,,,,,,,,,,
+KBE,SPDR S&P Bank ETF,,,,,,,,,,,,
+XNTK,SPDR NYSE Technology ETF,,,,,,,,,,,,
+KIE,SPDR S&P Insurance ETF,,,,,,,,,,,,
+KCE,SPDR S&P Capital Markets ETF,,,,,,,,,,,,
+XSW,SPDR S&P Software & Services ETF,,,,,,,,,,,,
+XRT,SPDR S&P Retail ETF,,,,,,,,,,,,
+XES,SPDR S&P Oil & Gas Equipment & Services ETF,,,,,,,,,,,,
+XPH,SPDR S&P Pharmaceuticals ETF,,,,,,,,,,,,
+XTL,SPDR S&P Telecom ETF,,,,,,,,,,,,
+XTN,SPDR S&P Transportation ETF,,,,,,,,,,,,
+XHE,SPDR S&P Health Care Equipment ETF,,,,,,,,,,,,
+FITE,SPDR S&P Kensho Future Security ETF,,,,,,,,,,,,
+XITK,SPDR FactSet Innovative Technology ETF,,,,,,,,,,,,
+XHS,SPDR S&P Health Care Services ETF,,,,,,,,,,,,
+ROKT,SPDR S&P Kensho Final Frontiers ETF,,,,,,,,,,,,
+SIMS,SPDR S&P Kensho Intelligent Structures ETF,,,,,,,,,,,,
+NZUS,SPDR MSCI USA Climate Paris Aligned ETF,,,,,,,,,,,,
+PCE-Communication,"CSer - PCE, commnicatn",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Alex_UK
+En - Crude Oil $,En - Crude Oil $,21 Nov 2025,,Done - N,Done - N,Done - Y,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+WTTSTUS1,"En - Inventory, petroleum",Oct 2025,Rename existing indicator name,Done - Y,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+MOPUEUS2,En - Refinery Utilizatn & Capacity,Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+Total Primary Energy Consumption,"En, U - En Consumptn",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+PCE-Financial services and insurance,"Fin - PCE, finacil servs & insur",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+G - Core PCE,G - Core PCE,21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+"G - ISM Services PMI, price","G - ISM Services PMI, price",21 Nov 2025,,Done - N,Done - N,Done - N,Done - Y,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+HC - H Expditur $ Indx,HC - H Expditur $ Indx,7 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+HC - Pharm & Medi Prodts Expditur $ Indx,HC - Pharm & Medi Prodts Expditur $ Indx,7 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+RE - Wells Fargo H Indx,RE - Wells Fargo H Indx,21 Nov 2025,,Done - N,Done - N,Done - Y,Done - N,,Done - Y,Done - Y,Done - Y,Done - N,Alex_UK
+Elect Price - CPI (YoY),U - (Elect $-CPI) YoY,Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - Y,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+U - Avg Elect $ to Custmr,U - Avg Elect $ to Custmr,21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+Avg Elect Price (YoY),"U - Avg Elect $ to Custmr, YoY",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+U - Avg Elect $/KWhr,U - Avg Elect $/KWhr,21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+Avg Price Elect (YoY),"U - Avg Elect $/KWhr, YoY",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+"Electricity End Use, Total",U - Elect End Use,Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+Electricity Net Generation Total,U - Elect Generatn,Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+"CDis, CSta - ISM Services PMI","CDis, CSta - ISM Services PMI",21 Nov 2025,,Done - Y,Done - Y,Done - Y,Done - Y,,Done - Y,Done - Y,Done - Y,Done - N,Hajke
+PCU517517,"CSer - PPI, telecom",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Hajke
+UMCSENT,CSta - UoM Con Sentimt,Oct 2025,Rename existing indicator name,Done - Y,Done - Y,Done - Y,Done - N,,Done - Y,Done - Y,Done - Y,Done - Y,Hajke
+VIX,"CSta, U - VIX",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Hajke
+US10Y-2Y,Fin - (US10Y-2Y),Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Hajke
+SOFR-US3M,"Fin, Info - (SOFR-US3M)",Oct 2025,Rename existing indicator name,Done - Y,Done - Y,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Hajke
+TEDRATE,"Fin, Info - TEDRATE",Oct 2025,Rename existing indicator name,Done - Y,Done - Y,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Hajke
+G - (US10Y-US3M),G - (US10Y-US3M),21 Nov 2025,,Done - Y,Done - Y,Done - Y,Done - Y,,Done - Y,Done - Y,Done - Y,Done - Y,Hajke
+G - (VIX1M/VIX3M),G - (VIX1M/VIX3M),21 Nov 2025,,Done - Y,Done - Y,Done - Y,Done - Y,,Done - Y,Done - Y,Done - Y,Done - N,Hajke
+HC - FAD Drug Approvals,HC - FAD Drug Approvals,21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Hajke
+Ind - ISM Manufacturing PMI,Ind - ISM Manufacturing PMI,7 Nov 2025,,Done - Y,Done - Y,Done - Y,Done - Y,,Done - Y,Done - Y,Done - Y,Done - Y,Hajke
+AU/CU,"Ind, Info, Mat - (Gold/Copper)",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - Y,,Done - N,Done - N,Done - N,Done - N,Hajke
+AU/AG,"Ind, Info, Mat - (Gold/Silver)",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Hajke
+INDPRO1919,"Ind, Mat - Ind Pro Indx, 1919=100",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - Y,Done - Y,Done - Y,Done - Y,Hajke
+INDPRO2017,"Ind, Mat - Ind Pro Indx, 2017=100",Oct 2025,Rename existing indicator name,Done - Y,Done - Y,Done - N,Done - Y,,Done - Y,Done - Y,Done - Y,Done - Y,Hajke
+INDPRO_YOY,"Ind, Mat - Ind Pro Indx, 2017=100, YoY",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - Y,Done - Y,Done - Y,Done - Y,Hajke
+PHLXSOX,Info - PHLXSOX,Oct 2025,Rename existing indicator name,Done - Y,Done - N,Done - Y,Done - N,,Done - Y,Done - N,Done - Y,Done - Y,Hajke
+PMII_COM,"Info - PPI, Elec Computer",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Hajke
+PMIC_SERV,"Info - PPI, Prof Services, IT",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Hajke
+PMII_SEMI,"Info - PPI, Semiconductor, 1984=100",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Hajke
+Mat - Portland Cment Shipmts,Mat - Portland Cment Shipmts,21 Nov 2025,,Done - Y,Done - Y,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Hajke
+BP,"RE - BP, units",Oct 2025,Rename existing indicator name,Done - Y,Done - Y,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Hajke
+"CDis, CSta - % of 90+D Delinquent, cc","CDis, CSta - % of 90+D Delinquent, cc",21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Rex
+"CDis, CSta - Flow into 90+D Delinquent, cc","CDis, CSta - Flow into 90+D Delinquent, cc",21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"CDis, CSta - Retailers, (inventories/sales)","CDis, CSta - Retailers, (inventories/sales)",7 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+RSXFS,"CSta - Adv Retails Sales, trade",Oct 2025,Rename existing indicator name,Done - Y,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"En - PPI, oil&gas machinry&eqpmt mnufturing","En - PPI, oil&gas machinry&eqpmt mnufturing",7 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"Fin - % of 90+D Delinquent, all","Fin - % of 90+D Delinquent, all",21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+TOTLL,Fin - Bank Loans & Leases,Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"Fin - CC Loans, delinquency rate","Fin - CC Loans, delinquency rate",21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"Fin - Flow into 90+D Delinquent, all","Fin - Flow into 90+D Delinquent, all",21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"G - ChgBusinesConditn, better","G - ChgBusinesConditn, better",7 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"G - ChgBusinesConditn, relative","G - ChgBusinesConditn, relative",7 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"G - ChgBusinesConditn, same","G - ChgBusinesConditn, same",7 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"G - ChgBusinesConditn, worse","G - ChgBusinesConditn, worse",7 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+G - Continu Jobless Claims,G - Continu Jobless Claims,21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"G - Employmt $ Indx, total compenstn","G - Employmt $ Indx, total compenstn",21 Nov 2025,,Done - Y,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"G - Employmt $ Indx, wages & salaries","G - Employmt $ Indx, wages & salaries",21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+G - Import $ Indx,G - Import $ Indx,7 Nov 2025,,Done - Y,Done - N,Done - Y,Done - Y,,Done - N,Done - N,Done - N,,Rex
+G - Initial Jobless Claims,G - Initial Jobless Claims,21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+G - Job Openings,G - Job Openings,21 Nov 2025,,Done - N,Done - N,Done - Y,Done - Y,,Done - Y,Done - Y,Done - Y,,Rex
+M2SL,G - M2 Money,Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+M2SL_YOY,"G - M2 Money, YoY",Oct 2025,Rename existing indicator name,Done - Y,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"G - PPI, (demand-fd&en)","G - PPI, (demand-fd&en)",7 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+G - UNRATE,G - UNRATE,7 Nov 2025,,Done - Y,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"G - UNRATE, YoY","G - UNRATE, YoY",7 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+"Ind, Mat - Manufturs' New Orders","Ind, Mat - Manufturs' New Orders",7 Nov 2025,,Done - N,Done - N,Done - Y,Done - Y,,Done - Y,Done - Y,Done - Y,,Rex
+"Ind, Mat - Manufturs' New Orders, YoY","Ind, Mat - Manufturs' New Orders, YoY",7 Nov 2025,,Done - N,Done - N,Done - N,Done - Y,,Done - N,Done - N,Done - N,,Rex
+RE - H Permit,RE - H Permit,21 Nov 2025,,Done - Y,Done - N,Done - Y,Done - N,,Done - N,Done - N,Done - N,,Rex
+H Permit YoY,"RE - H Permit, YoY",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - Y,,Rex
+RE - H Started,RE - H Started,21 Nov 2025,,Done - N,Done - N,Done - Y,Done - N,,Done - N,Done - N,Done - N,,Rex
+H Started YoY,"RE - H Started, YoY",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+RE - NH Sold,RE - NH Sold,21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - Y,Done - N,Done - N,,Rex
+H Sold YoY,"RE - NH Sold, YoY",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+PCE-Nondurable goods,"CDis - PCE, nondurable gds",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Hajke
+CSer - Disposable Personal Income,CSer - Disposable Personal Income,21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Hajke
+ITXTCIM133S,"CSer - Exports, telecom, computers & info ser",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Hajke
+"CSer - PCE, services","CSer - PCE, services",7 Nov 2025,,Done - N,Done - N,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Hajke
+U.S. Natural Gas Exports (MMcf),En - N Gas Exports,Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Hajke
+U.S. Natural Gas Imports (MMcf),En - N Gas Imports,Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Hajke
+HY - IG spread,Fin - (HY-IG),Oct 2025,Rename existing indicator name,Done - Y,Done - Y,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+C&I Loan,Fin - Com & Ind Loans,Oct 2025,Rename existing indicator name,Done - Y,Done - Y,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+G - ADP Emplomt Chg,G - ADP Emplomt Chg,21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+G - PCE,G - PCE,21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+G - Phila Mnufturing Indx,G - Phila Mnufturing Indx,21 Nov 2025,,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,,Rex
+PCE-Health care,"HC - PCE, healthcare",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+FRGSHPUSM649NCIS,"Ind - Cass Freight Indx, shipmnt",Oct 2025,Rename existing indicator name,Done - Y,Done - Y,Done - Y,Done - N,,Done - Y,Done - Y,Done - Y,Done - Y,Alex_UK
+Employment (in thousands),"Ind - Employmnt, trans & warehouse, thds",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+RE - Arch Billing Indx,RE - Arch Billing Indx,21 Nov 2025,,Done - N,Done - N,Done - Y,Done - N,,Done - N,Done - Y,Done - Y,Done - Y,Alex_UK
+PCE-Housing,"RE - PCE, housing",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+NHS,"RE - NH Sold, units",Oct 2025,Rename existing indicator name,Done - Y,Done - N,Done - N,Done - N,,Done - Y,Done - N,Done - Y,Done - N,Alex_UK

@@ -24,6 +24,10 @@ import streamlit as st
 
 from components.pair_registry import load_pair_registry
 from components.display_names import resolve_short_indicator
+from components.prospective_pairs import (
+    n_universe as prospective_n_universe,
+    n_completed as prospective_n_completed,
+)
 
 
 # Pairs whose Sample/legacy distinction matters in the dropdown.
@@ -99,10 +103,13 @@ def render_sidebar():
 
         st.markdown("---")
 
+        completed_ids = {f["id"] for f in findings}
+        n_total = prospective_n_universe()
+        n_done = prospective_n_completed(completed_ids)
         st.markdown(
             f'<p style="font-size: 0.8rem; color: #999;">'
             f"Data through 2025-12-31<br>"
-            f"{len(findings)} of 73 priority pairs analyzed"
+            f"{n_done} of {n_total} priority pairs analyzed"
             f"</p>",
             unsafe_allow_html=True,
         )
