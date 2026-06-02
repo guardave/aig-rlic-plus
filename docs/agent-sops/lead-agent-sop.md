@@ -181,7 +181,9 @@ Pre-master row 2 carries the full description (FRED ticker, units, frequency, SA
 
 ## Rule LEAD-NPB1 — New-Pair Brief Discipline (binding, every new pair at Phase 0)
 
-**Before dispatching any agent for a new pair's first phase of work, Lead MUST author a per-pair brief file at `_pws/lead-lesandro/briefs/<pair_id>.md` that explicitly lists every deferred backlog item whose reactivation trigger references "next pair" / "Pair #N start" / "new pair start".** These items have been waiting for exactly this moment. Not threading them into the dispatch brief is how they keep getting deferred indefinitely.
+**Before dispatching any agent for a new pair's first phase of work, Lead MUST author a per-pair brief file at `_pws/lead-lesandro/briefs/<pair_id>.md` that explicitly lists every deferred backlog item whose reactivation trigger references "next pair" / "new pair start" / "new pair build".** These items have been waiting for exactly this moment. Not threading them into the dispatch brief is how they keep getting deferred indefinitely.
+
+**Naming convention.** Refer to pairs by their `pair_id` (`crude_oil_xle`) or by indicator-target description (`Crude Oil Price → XLE`) — NOT by ordinal "Pair #N" numbering. Ordinal numbering is ambiguous (per-target vs global vs build-order) and the priority sequence lives in `data/prospective_pairs.csv`, not in a stable numeric index.
 
 **The brief must include, at minimum:**
 
@@ -198,7 +200,7 @@ Pre-master row 2 carries the full description (FRED ticker, units, frequency, SA
 
 **The brief is the per-pair contract.** Each agent dispatch for that pair must quote the brief's BL-* line items in the dispatch prompt so the agent inherits the discipline from line 1 of their work, not as a retroactive fix.
 
-**Why this rule exists.** As of 2026-06-02 the backlog has 36 active deferrals, and a non-trivial fraction of them carry reactivation triggers like "Pair #4 start" / "next pair". Each new pair that ships without threading these items adds another row to the legacy debt that future hygiene waves must retro-apply. The brief is the forcing function that converts "we'll get to it when the next pair comes" into actual delivery.
+**Why this rule exists.** As of 2026-06-02 the backlog has 36 active deferrals, and a non-trivial fraction of them carry reactivation triggers like "next pair start" / "new pair build". Each new pair that ships without threading these items adds another row to the legacy debt that future hygiene waves must retro-apply. The brief is the forcing function that converts "we'll get to it when the next pair comes" into actual delivery.
 
 **Cross-reference:** LEAD-DV1 (Pre-master row 2 verification — step 1 of the brief), `docs/backlog.md` (the "Active Deferrals" table is the source of items to thread), `scripts/gate_pair_completeness.py` (GATE-CMP1 acceptance gate).
 
