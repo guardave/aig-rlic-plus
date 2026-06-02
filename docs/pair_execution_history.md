@@ -28,7 +28,7 @@ Tracks time, token usage, and results for each priority combination analysis run
 
 | Field | Value |
 |-------|-------|
-| **Pair #** | 1 (from priority-combinations-catalog.md) |
+| **Pair #** | 1 (build order; for universe membership see `data/prospective_pairs.csv`) |
 | **Indicator** | Industrial Production (2017=100) |
 | **Indicator ID** | I1 / INDPRO |
 | **Target** | S&P 500 (SPY) |
