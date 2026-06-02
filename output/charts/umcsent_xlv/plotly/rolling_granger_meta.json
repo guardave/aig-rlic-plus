@@ -2,7 +2,10 @@
   "pair_id": "umcsent_xlv",
   "chart_type": "time_series_dual_axis",
   "rules_applied": [
-    "VIZ-CP1"
+    "VIZ-CP1",
+    "VIZ-BF1"
   ],
-  "generated_at": "2026-04-24"
+  "generated_at": "2026-04-24",
+  "disposition": "consumed",
+  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
 }

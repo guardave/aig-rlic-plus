@@ -1,0 +1,15 @@
+{
+  "chart_name": "rf_importance",
+  "pair_id": "indpro_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-O1",
+    "VIZ-BF1"
+  ],
+  "narrative_alignment_note": "Random Forest feature importance ranking the indicator's contribution vs controls.",
+  "created_at": "2026-06-02T08:44:33Z",
+  "method_name": "rf_importance",
+  "expected_chart_type": "bar",
+  "disposition": "consumed",
+  "backfilled_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+}
