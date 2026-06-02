@@ -179,6 +179,31 @@ Pre-master row 2 carries the full description (FRED ticker, units, frequency, SA
 
 ---
 
+## Rule LEAD-NPB1 — New-Pair Brief Discipline (binding, every new pair at Phase 0)
+
+**Before dispatching any agent for a new pair's first phase of work, Lead MUST author a per-pair brief file at `_pws/lead-lesandro/briefs/<pair_id>.md` that explicitly lists every deferred backlog item whose reactivation trigger references "next pair" / "Pair #N start" / "new pair start".** These items have been waiting for exactly this moment. Not threading them into the dispatch brief is how they keep getting deferred indefinitely.
+
+**The brief must include, at minimum:**
+
+1. **Pair identity** — `pair_id`, indicator → target, source CSV row in `data/prospective_pairs.csv`, expected pipeline category (rates / credit / production / etc.), and the indicator's authoritative units and SA convention from `data/Data Master.xlsx` → Pre-master row 2 (LEAD-DV1 satisfied here).
+2. **Active backlog items that bind this pair** — copy the BL-ID + one-line description for every entry in `docs/backlog.md` whose "reactivation_trigger" mentions a new-pair start. Examples currently in scope:
+   - `BL-002` — emit `signal_scope.json` (ECON-UD universe disclosure)
+   - `BL-003` — emit `analyst_suggestions.json` (placeholder if no suggestions)
+   - `BL-004` — APP-NP1 page prose sourcing discipline (no hardcoded `st.markdown()` in pages)
+   - `BL-801` — winner_summary key discipline (`oos_max_drawdown` not `max_drawdown` with coincidental fallback)
+   - `BL-APP-PT1-LEGACY` — new pair uses APP-PT1 thin-wrapper pages, not the legacy hand-written path
+   - `BL-DUP-11` — pipeline uses `scripts/tournament.py::select_winner` instead of inline `idxmax`
+3. **Acceptance gate** — the pair must pass `scripts/gate_pair_completeness.py <pair_id>` (GATE-CMP1) before Lead ratifies the pair. Any exceptions require an `--allow-partial --partial-reason '<BL-id and justification>'` invocation and a matching `BL-*-EXCEPTION` row in `docs/backlog.md`.
+4. **Mode selection** (per LEAD-WM1) — recommendation + reasoning.
+
+**The brief is the per-pair contract.** Each agent dispatch for that pair must quote the brief's BL-* line items in the dispatch prompt so the agent inherits the discipline from line 1 of their work, not as a retroactive fix.
+
+**Why this rule exists.** As of 2026-06-02 the backlog has 36 active deferrals, and a non-trivial fraction of them carry reactivation triggers like "Pair #4 start" / "next pair". Each new pair that ships without threading these items adds another row to the legacy debt that future hygiene waves must retro-apply. The brief is the forcing function that converts "we'll get to it when the next pair comes" into actual delivery.
+
+**Cross-reference:** LEAD-DV1 (Pre-master row 2 verification — step 1 of the brief), `docs/backlog.md` (the "Active Deferrals" table is the source of items to thread), `scripts/gate_pair_completeness.py` (GATE-CMP1 acceptance gate).
+
+---
+
 ## Enforcement
 
 **Self-audit at every wave closure.** Before running the closure commit sequence, Lead runs:
