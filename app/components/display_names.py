@@ -26,13 +26,15 @@ INDICATOR_NAMES: dict[str, str] = {
     "indpro_xlp": "Industrial Production",
     "permit_spy": "Building Permits",
     "vix_vix3m_spy": "VIX/VIX3M Ratio",
-    "sofr_ted_spy": "SOFR - DTB3 (TED)",
-    "dff_ted_spy": "DFF - DTB3 (Fed Funds TED)",
-    "ted_spliced_spy": "Spliced TED Spread",
     "hy_ig_v2_spy": "HY-IG Credit Spread",
     "hy_ig_spy": "HY-IG Credit Spread",
     "umcsent_xlv": "Michigan Consumer Sentiment",
     "gold_copper_xli": "Gold/Copper Ratio",
+    # fix260601_chart_hygiene Wave 2 (2026-06-02): TED variants archived
+    # — see app/pair_configs_archive/. If un-archived, restore:
+    #   "sofr_ted_spy": "SOFR - DTB3 (TED)",
+    #   "dff_ted_spy": "DFF - DTB3 (Fed Funds TED)",
+    #   "ted_spliced_spy": "Spliced TED Spread",
 }
 
 TARGET_NAMES: dict[str, str] = {
@@ -55,13 +57,14 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "indpro_xlp": "INDPRO",
     "permit_spy": "Building Permits",
     "vix_vix3m_spy": "VIX/VIX3M",
-    "sofr_ted_spy": "SOFR-TED",
-    "dff_ted_spy": "DFF-TED",
-    "ted_spliced_spy": "Spliced TED",
     "hy_ig_v2_spy": "HY-IG Spread",
     "hy_ig_spy": "HY-IG Spread (v1)",
     "umcsent_xlv": "UMCSENT",
     "gold_copper_xli": "Gold/Copper",
+    # fix260601_chart_hygiene Wave 2 (2026-06-02): TED variants archived
+    # — see app/pair_configs_archive/. If un-archived, restore:
+    #   "sofr_ted_spy": "SOFR-TED", "dff_ted_spy": "DFF-TED",
+    #   "ted_spliced_spy": "Spliced TED",
 }
 
 

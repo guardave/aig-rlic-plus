@@ -85,20 +85,24 @@ def get_integrity_issues() -> list:
 #
 # Wave 10I.A Part 2 (2026-04-23): the three TED variants were previously
 # multiplexed into a single composite `pages/6_ted_variants_*` surface via
-# `st.tabs`. That composite has been exploded into three separate
-# one-pair-per-page thin-wrapper surfaces — see
-# `app/pair_configs/{sofr_ted_spy,dff_ted_spy,ted_spliced_spy}_config.py`.
-# The `_TED_VARIANTS` branch in `get_page_prefix` is therefore removed and
-# each variant is a regular entry in `PAGE_ROUTING`.
+# `st.tabs`. That composite was exploded into three separate one-pair-per-page
+# thin-wrapper surfaces — see archived configs at
+# `app/pair_configs_archive/{sofr_ted_spy,dff_ted_spy,ted_spliced_spy}_config.py`.
+#
+# fix260601_chart_hygiene Wave 2 (2026-06-02): the three TED variants are
+# **archived** because their `winner_trade_log.csv` files have all-zero
+# trade returns (the underlying strategy-return time series doesn't exist
+# in usable form). Per user decision, they are removed from the portal
+# until pipeline rehab. Pages moved to `app/pages_archive/`; configs moved
+# to `app/pair_configs_archive/`; `results/` dirs renamed with `_archived`
+# suffix (which the auto-discovery loop below filters out). Charts in
+# `output/charts/<pair>/` left in place — no longer referenced.
 PAGE_ROUTING = {
     "indpro_spy": "pages/5_indpro_spy",
-    "sofr_ted_spy": "pages/6_sofr_ted_spy",
     "permit_spy": "pages/7_permit_spy",
     "vix_vix3m_spy": "pages/8_vix_vix3m_spy",
     "hy_ig_v2_spy": "pages/9_hy_ig_v2_spy",
     "umcsent_xlv": "pages/10_umcsent_xlv",
-    "dff_ted_spy": "pages/11_dff_ted_spy",
-    "ted_spliced_spy": "pages/12_ted_spliced_spy",
     "indpro_xlp": "pages/14_indpro_xlp",
     "hy_ig_spy": "pages/15_hy_ig_spy",
     "gold_copper_xli": "pages/16_gold_copper_xli",
