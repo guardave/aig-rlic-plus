@@ -90,7 +90,8 @@ def build_status_pivot(completed_pair_ids: set[str] | None = None) -> pd.DataFra
 
     Each cell shows a status badge. Indicator label is formatted inline as
     "display_name (also: alias1, alias2)" when aliases is non-empty.
-    Rows sorted by category then display_name.
+    Rows sorted ascending by Indicator (column 1) — the rendered label
+    including any "(also: …)" suffix.
     """
     df = load_prospective_pairs(completed_pair_ids)
     if df.empty:
@@ -109,7 +110,7 @@ def build_status_pivot(completed_pair_ids: set[str] | None = None) -> pd.DataFra
         return name
 
     indicators["row_label"] = indicators.apply(_row_label, axis=1)
-    indicators = indicators.sort_values(["category", "display_name"]).reset_index(drop=True)
+    indicators = indicators.sort_values("row_label", key=lambda s: s.str.lower()).reset_index(drop=True)
 
     status_lookup = {(r["indicator_id"], r["target"]): r["status"] for _, r in df.iterrows()}
 

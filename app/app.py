@@ -355,7 +355,7 @@ with status_tab:
     if pivot.empty:
         st.info("No prospective pairs found — check `data/prospective_pairs.csv`.")
     else:
-        st.dataframe(pivot, hide_index=True, use_container_width=True)
+        st.table(pivot)
 
 # --- Footer ---
 st.markdown("---")
