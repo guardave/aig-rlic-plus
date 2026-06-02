@@ -1,5 +1,46 @@
 # Key Memories — Lead Lesandro
 
+## Prose-authoring discipline (added 2026-06-02 — direct lesson from crude_oil_xle Mode 2)
+
+**Every numeric assertion in user-facing prose MUST be re-read from the source artifact at the moment of authoring, not from memory.** The crude_oil_xle Mode 2 build shipped Pearson "≈ 0.55" in four prose locations (StoryConfig, narrative, Evidence overview, Evidence block) while the underlying `exploratory_results.json` and `interpretation_metadata.json` both said 0.26. I wrote 0.55 from memory of what "crude-XLE correlation should be," then never went back to verify against the JSON I had just emitted.
+
+This is the same failure-mode class as LEAD-DV1 (Pre-master row 2), but one layer downstream — instead of inventing facts about indicators, I invented stats about results. Consistency checker caught it; Correctness checker missed it because the JSON was correct.
+
+**Discipline:** when authoring a config file or narrative markdown that quotes a number from a results artifact, open the JSON/CSV in the same edit pass and verify the value before typing. Don't trust prior-message memory or "what it should be." If the number is round (0.5, 0.55, 1.0, etc.) and matches a plausible heuristic, that's a red flag — likely a hallucination.
+
+**Forcing function candidate.** A future GATE-CMP1 extension could grep the pair_config + narrative md for numeric tokens (`r"\d+\.\d+"`) and cross-check each against the source artifacts. Not trivial (false positives on prose numbers like "five years" → 5.0), but the targeted case "this pair_config quotes a Pearson value that doesn't match exploratory_results.json" is tractable.
+
+## Cloud cold-start triage (added 2026-06-02)
+
+When a user reports "the cloud app ran into an infinite loop" after a branch repoint / Manage app reboot on Streamlit Community Cloud, **first hypothesis is cold-start transient, not a runtime infinite loop**.
+
+Free-tier cold-start takes 30-90s (dep install + module imports + cache warm). The central spinner is unbranded — the user can't tell if it's a deploy or a hang.
+
+Triage order:
+1. Wait + ask user to refresh, OR
+2. Playwright probe that polls `frame.inner_text("body")` for up to 60s
+3. ONLY if probe also fails after 60s should you investigate code
+
+Saved as auto-memory `reference_cloud_cold_start.md`. Crystallised when user reported infinite loop on dawodev after repointing to fix260602_pair4_prep; probe showed steady state at t+3s with correct content.
+
+## LEAD-NPB1 thin-brief discipline (added 2026-06-02 — direct lesson from user feedback)
+
+My first draft of LEAD-NPB1 had Lead authoring per-pair briefs with domain notes, expected directions, method preselections, and a list of "which BL items apply." User flagged all four:
+
+> 1. Quite a lot of prejudice are injected and may cause bias to the agents when exploring.
+> 2. I am not buying in that regime-based analysis is judged to be not applicable. The data could tell outside "common sense."
+> 3. Whether a backlog item is applicable should be told by the problem nature but not a prejudice on it.
+> 4. Can the backlog items be first put into forcing functions so that the guardrails are mechanical instead of judgmental?
+
+The corrected design (commit `433c937`):
+- **Brief = identity + acceptance gate.** No domain notes, no expected directions, no method preselections, no BL-item list.
+- **Gate = mechanical enforcement.** 8 BL items converted to schema/presence checks in `_check_backlog_hygiene` (user's Q2: "cut in the middle, schema/presence + mandatory items exist").
+- **Agent = exploration.** Arrives with the question and the data, not the answer.
+
+Validated on crude_oil_xle: data picked vol-regime as winner, not momentum (which my old brief draft had implicitly favoured by listing it first). The discipline works.
+
+**The general principle:** when the human's job involves writing a "brief" for an autonomous agent, lean toward thinner than your instinct says. Every load-bearing assertion should be either a verifiable fact (Pre-master row 2 units, source CSV row) or a mechanical gate. Anything that requires Lead judgment is prejudice.
+
 ## WIP preview slot (re-read at every SOD)
 
 **`https://aig-rlic-plus-dawodev.streamlit.app/`** is the standing branch-WIP Streamlit preview slot. User repoints it to whichever branch needs cloud verification — I don't create new preview apps per branch. Discipline:
