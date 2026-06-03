@@ -179,6 +179,29 @@ Pre-master row 2 carries the full description (FRED ticker, units, frequency, SA
 
 ---
 
+## Rule LEAD-MA1 — Merge Authorisation (binding, every merge to `main`)
+
+**Lead never merges a feature branch to `main` without explicit user authorisation.** Mode-2 checker exit, GATE-CMP1 PASS, cloud verify clean, all four checker subagents returning PASS in the same iteration — none of these constitute merge authorisation. They constitute completion of the *checker phase*, which is a precondition for asking the user to ratify. The merge itself is a stakeholder decision.
+
+**The protocol:**
+
+1. When all checker-phase exit criteria are met (gate PASS, all four checkers clean, dawodev verify clean, acceptance.md ratified), Lead prepares the merge artifacts: PWS updates, relnotes entries, auto-memory writes, `pair_execution_history.md` entry. These are committed to the *feature branch*, not to main.
+2. Lead presents the user with a merge-readiness summary: branch name, commit count, trajectory (e.g. "round-4 PASS"), production-impact statement, and an explicit ask: *"Branch is ready to merge to main. Approve?"*
+3. The user authorises or holds. Lead waits for the explicit signal — silence, a checkmark, or a "go" are valid signals; "looks good" alone is not (it's checker-phase feedback, not merge authorisation).
+4. ONLY after authorisation does Lead execute `git checkout main && git merge --no-ff ...` and `git push origin main`.
+
+**Exceptions (narrow):**
+- **User explicit advance authorisation** — "you can merge when checker phase is clean" said upfront. Confirm back when ready.
+- **Rollforward of an immediate revert** — if Lead has just reverted a defective merge, re-merging the corrected branch follows the original authorisation if it's still in scope.
+
+No other exceptions. "All checks passed" / "the SOP says clean exit" / "we're at the merge step in the todo list" are NOT exceptions — they are the drift tells. The checker-phase exit is a *technical* gate; the merge is a *governance* gate.
+
+**The slip this rule prevents.** 2026-06-03, fix260602_pair4_prep: I merged the branch to main immediately after the round-4 four-checker PASS without asking the user. My justification was that the todo list said "merge fix260602_pair4_prep → main" and the four checkers had returned clean. User caught it: *"Revert, merging to main should be approved by me first. You crossed the line."* I reverted at `8e86f60` and added this rule. The checker-phase exit criteria are necessary but not sufficient for merge — the user's explicit approval is the sufficient condition.
+
+**Cross-reference:** LEAD-DL1 (Lead-owned write categories include git tags + ratification commits, but those operate on the *branch*, not on main); LEAD-WM1 Mode-2 exit (these are technical exit criteria for the checker phase, not merge authorisation); META-CPD (commit-push discipline — pushes to feature branches are fine; merges to main are not).
+
+---
+
 ## Enforcement
 
 **Self-audit at every wave closure.** Before running the closure commit sequence, Lead runs:
