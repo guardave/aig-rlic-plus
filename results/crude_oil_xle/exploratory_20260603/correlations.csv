@@ -1,0 +1,6 @@
+x,y,method,value,lag_weeks,n
+wti_logret_1w,xle_logret_1w,pearson,0.2556,0,1398
+wti_logret_1w,xle_logret_1w,spearman,0.4027,0,1398
+wti_logret_1w,xle_logret_1w,pearson_rolling52w_min,-0.059,0,1347
+wti_logret_1w,xle_logret_1w,pearson_rolling52w_median,0.4244,0,1347
+wti_logret_1w,xle_logret_1w,pearson_rolling52w_max,0.8669,0,1347

@@ -1,0 +1,110 @@
+{
+  "pair_id": "crude_oil_xle",
+  "generated_at": "2026-06-03T08:43:25Z",
+  "universe_basis": "All strategy families enumerated below were considered; the winner was selected by OOS Sharpe via scripts.tournament.select_winner.",
+  "candidate_strategies": [
+    {
+      "strategy_family": "wti_momentum_4w_long",
+      "signal": "wti_logret_4w",
+      "threshold_rule": "gt_zero",
+      "threshold_value": 0.0,
+      "direction": "long_only_when_positive_momentum",
+      "in_winner_pool": true
+    },
+    {
+      "strategy_family": "wti_momentum_13w_long",
+      "signal": "wti_logret_13w",
+      "threshold_rule": "gt_zero",
+      "threshold_value": 0.0,
+      "direction": "long_only_when_positive_momentum",
+      "in_winner_pool": true
+    },
+    {
+      "strategy_family": "wti_momentum_26w_long",
+      "signal": "wti_logret_26w",
+      "threshold_rule": "gt_zero",
+      "threshold_value": 0.0,
+      "direction": "long_only_when_positive_momentum",
+      "in_winner_pool": true
+    },
+    {
+      "strategy_family": "wti_z_52w_long_top",
+      "signal": "wti_z_52w",
+      "threshold_rule": "gt",
+      "threshold_value": 0.5,
+      "direction": "long_when_above_mean_z_5",
+      "in_winner_pool": true
+    },
+    {
+      "strategy_family": "wti_z_52w_long_bottom",
+      "signal": "wti_z_52w",
+      "threshold_rule": "lt",
+      "threshold_value": -0.5,
+      "direction": "long_when_below_mean_z_5",
+      "in_winner_pool": true
+    },
+    {
+      "strategy_family": "wti_z_104w_long_top",
+      "signal": "wti_z_104w",
+      "threshold_rule": "gt",
+      "threshold_value": 0.5,
+      "direction": "long_when_above_mean_z_5",
+      "in_winner_pool": true
+    },
+    {
+      "strategy_family": "wti_z_104w_long_bottom",
+      "signal": "wti_z_104w",
+      "threshold_rule": "lt",
+      "threshold_value": -0.5,
+      "direction": "long_when_below_mean_z_5",
+      "in_winner_pool": true
+    },
+    {
+      "strategy_family": "wti_low_vol_long",
+      "signal": "wti_vol_q_13w",
+      "threshold_rule": "lt",
+      "threshold_value": 0.5,
+      "direction": "long_when_low_vol_regime",
+      "in_winner_pool": true
+    },
+    {
+      "strategy_family": "wti_high_vol_long",
+      "signal": "wti_vol_q_13w",
+      "threshold_rule": "gt",
+      "threshold_value": 0.75,
+      "direction": "long_when_high_vol_regime",
+      "in_winner_pool": true
+    },
+    {
+      "strategy_family": "wti_momentum_4w_long_short",
+      "signal": "wti_logret_4w",
+      "threshold_rule": "gt_zero",
+      "threshold_value": 0.0,
+      "direction": "long_short_sign",
+      "in_winner_pool": true
+    },
+    {
+      "strategy_family": "wti_momentum_13w_long_short",
+      "signal": "wti_logret_13w",
+      "threshold_rule": "gt_zero",
+      "threshold_value": 0.0,
+      "direction": "long_short_sign",
+      "in_winner_pool": true
+    },
+    {
+      "strategy_family": "wti_z_52w_long_short",
+      "signal": "wti_z_52w",
+      "threshold_rule": "gt_zero",
+      "threshold_value": 0.0,
+      "direction": "long_short_sign",
+      "in_winner_pool": true
+    }
+  ],
+  "exclusions": [],
+  "frequency": "weekly (W-FRI close)",
+  "is_period_start": "1999-01-01",
+  "is_period_end": "2015-01-16",
+  "oos_period_start": "2015-01-23",
+  "oos_period_end": "2025-10-10",
+  "commission_bps": 5.0
+}

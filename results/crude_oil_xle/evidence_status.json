@@ -1,0 +1,12 @@
+{
+  "pair_id": "crude_oil_xle",
+  "schema_version": "1.0.0",
+  "status": "passed_final_exam",
+  "updated_at": "2026-06-03T08:43:25Z",
+  "generated_at": "2026-06-03T08:43:25Z",
+  "stationarity_block": true,
+  "exploratory_block": true,
+  "tournament_block": true,
+  "lead_lag_block": true,
+  "regime_block": true
+}

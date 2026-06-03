@@ -30,6 +30,7 @@ INDICATOR_NAMES: dict[str, str] = {
     "hy_ig_spy": "HY-IG Credit Spread",
     "umcsent_xlv": "Michigan Consumer Sentiment",
     "gold_copper_xli": "Gold/Copper Ratio",
+    "crude_oil_xle": "WTI Crude Oil Price",
     # fix260601_chart_hygiene Wave 2 (2026-06-02): TED variants archived
     # — see app/pair_configs_archive/. If un-archived, restore:
     #   "sofr_ted_spy": "SOFR - DTB3 (TED)",
@@ -42,6 +43,7 @@ TARGET_NAMES: dict[str, str] = {
     "xlv": "Health Care Select Sector (XLV)",
     "xlp": "Consumer Staples Select Sector (XLP)",
     "xli": "Industrial Select Sector (XLI)",
+    "xle": "Energy Select Sector (XLE)",
 }
 
 
@@ -61,6 +63,7 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "hy_ig_spy": "HY-IG Spread (v1)",
     "umcsent_xlv": "UMCSENT",
     "gold_copper_xli": "Gold/Copper",
+    "crude_oil_xle": "WTI Crude",
     # fix260601_chart_hygiene Wave 2 (2026-06-02): TED variants archived
     # — see app/pair_configs_archive/. If un-archived, restore:
     #   "sofr_ted_spy": "SOFR-TED", "dff_ted_spy": "DFF-TED",

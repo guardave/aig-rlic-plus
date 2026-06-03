@@ -1,0 +1,9 @@
+{
+  "pair_id": "crude_oil_xle",
+  "chart_name": "regime_stats",
+  "description": "Mean 13-week forward XLE return conditioned on WTI's 13-week realized-vol quartile.",
+  "page": "evidence",
+  "generated_at": "2026-06-03T08:43:53Z",
+  "disposition": "consumed",
+  "palette_id": "okabe_ito_2026"
+}

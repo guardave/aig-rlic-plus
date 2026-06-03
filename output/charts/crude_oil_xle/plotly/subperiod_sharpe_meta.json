@@ -1,0 +1,9 @@
+{
+  "pair_id": "crude_oil_xle",
+  "chart_name": "subperiod_sharpe",
+  "description": "Per-calendar-year Sharpe for the strategy vs buy-and-hold.",
+  "page": "evidence",
+  "generated_at": "2026-06-03T08:43:52Z",
+  "disposition": "consumed",
+  "palette_id": "okabe_ito_2026"
+}
