@@ -301,7 +301,7 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     indicator_construction_md=_INDICATOR_CONSTRUCTION_MD,
     references_md=_REFERENCES_MD,
-    sample_period_note="Joint sample 1998-12-22 to 2025-10-10. IS: first 60% (≈ 1998-12 to 2014-12). OOS: last 40% (2015-01 to 2025-10).",
+    sample_period_note="Joint sample 1998-12-25 to 2025-10-10 (1,399 obs; 1,398 with usable returns). IS: 1999-01-01 to 2015-01-16 (838 obs). OOS: 2015-01-23 to 2025-10-10 (560 obs).",
 )
 
 
@@ -379,9 +379,10 @@ EVIDENCE_METHOD_BLOCKS = {
                 "mean WTI leads XLE; in practice all the bars are short."
             ),
             "observation": (
-                "All R² values are small: peak at lag 0 (R² ≈ 0.07, p = 0.18 — not "
-                "significant), with statistically significant but tiny coefficients "
-                "at lags 2, 3 and 6 (R² between 0.004 and 0.014)."
+                "All the bars are short: the same-week bar (lag 0) explains only "
+                "about 7% of next week's XLE moves, and even that is within coin-flip "
+                "range. A few later-week bars (lags 2, 3 and 6) are statistically "
+                "detectable but explain less than 1.5% of XLE — too small to act on."
             ),
             "interpretation": (
                 "Linear lead-lag predictability is weak. The bulk of the WTI→XLE "
@@ -445,9 +446,9 @@ EVIDENCE_METHOD_BLOCKS = {
                 "does it shift in regime?"
             ),
             "how_to_read": (
-                "Departures of the CUSUM line from zero are evidence of regime "
-                "instability. The 95% bounds (not plotted) would be exceeded at "
-                "p = 0.05."
+                "If the line drifts well away from zero and stays there, the "
+                "relationship has changed. Brief excursions are normal noise; "
+                "long sustained moves are real shifts."
             ),
             "observation": (
                 "CUSUM departs from zero around 2008-2009 and 2014-2016, consistent "
@@ -476,9 +477,10 @@ EVIDENCE_METHOD_BLOCKS = {
                 "current realized-volatility quartile?"
             ),
             "how_to_read": (
-                "Bar height = mean 13-week forward return in each bucket. Error bars "
-                "show standard error of the mean. Look for monotonic or extreme-tail "
-                "patterns."
+                "Bar height = average XLE return over the next 13 weeks in each "
+                "bucket. The thin vertical lines show how reliable each average is "
+                "— short = trustworthy, tall = noisier. Look for a steady climb "
+                "across buckets, or one bucket that stands out at the extreme."
             ),
             "observation": (
                 "Mean forward XLE return is highest in Q4 (top vol quartile) and "
@@ -538,8 +540,9 @@ EVIDENCE_METHOD_BLOCKS = {
                 "return-following."
             ),
             "key_message": (
-                "A regime-conditional timing rule beats the passive XLE benchmark by "
-                "a meaningful risk-adjusted margin out-of-sample."
+                "A regime-conditional timing rule beats the passive XLE benchmark "
+                "on return-per-unit-of-risk (Sharpe) out-of-sample by a meaningful "
+                "margin."
             ),
             "chart_name": "tournament_scatter",
         },

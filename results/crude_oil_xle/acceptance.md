@@ -11,7 +11,7 @@
 | Mode | Mode 2 (single maker, multiple checkers) |
 | Winner | `wti_high_vol_long` (long XLE when WTI 13-week realized vol percentile > 0.75 in trailing 5-year rolling window) |
 | OOS Sharpe | 0.47 vs XLE buy-and-hold 0.04 |
-| OOS max drawdown | −26.3% vs XLE buy-and-hold −74.1% |
+| OOS max drawdown | −24.5% vs XLE buy-and-hold −68.8% |
 | OOS annual turnover | 3.7 |
 | OOS trades | 20 (over 2015-01 to 2025-10, ~10.7 years) |
 | Commission basis | 5 bps per unit of \|Δposition\| |
