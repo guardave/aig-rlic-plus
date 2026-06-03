@@ -19,6 +19,7 @@ Tracks time, token usage, and results for each priority combination analysis run
 | 2c | Spliced TED → SPY | Completed | (shared) | (shared) | 1.19 | 0.77 | 598 / 991 | TEDRATE + affine-adjusted DFF-TED |
 | 3 | Building Permits → SPY | Completed | 7.0 | ~150K | 1.45 | 0.90 | 675 / 856 | Pro-cyclical confirmed; MoM+L6+P3 |
 | 11 | VIX/VIX3M → SPY | Completed | 8.0 | ~150K | 1.13 | 0.77 | 332 / 916 | Strongest regime: Q1 6.53 vs Q4 -2.38. P/C proxy. |
+| — | WTI Crude → XLE (`crude_oil_xle`) | Completed | ~6 | ~300K (Mode-2 incl. 4 checker rounds) | 0.47 | 0.04 | 12 / 12 | First Mode-2 + LEAD-NPB1 + GATE-CMP1 build. Winner: vol-regime (high-vol percentile > 0.75) — beat momentum families. OOS max DD -24.5% vs B&H -68.8%. 4 checker rounds to clean. See `[[lessons_crude_oil_xle]]`. |
 
 ---
 
