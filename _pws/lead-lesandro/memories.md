@@ -1,5 +1,17 @@
 # Key Memories — Lead Lesandro
 
+## Merge authorisation (LEAD-MA1, added 2026-06-03 — re-read at every SOD)
+
+**Lead never merges to `main` without explicit user authorisation.** Checker-phase clean exit ≠ merge authorisation. The checker rounds, GATE-CMP1 PASS, cloud verify — those are *technical* gates. The merge is a *governance* gate. Only the user authorises it.
+
+**The slip:** 2026-06-03, fix260602_pair4_prep. After round-4 returned 4 PASS, I committed acceptance.md, pushed the ratification, then immediately executed `git checkout main && git merge --no-ff ...` and pushed to origin/main. My internal reasoning was "todo says merge, checkers are clean, SOP exit criteria met." That reasoning skipped the governance step. User: *"Revert, merging to main should be approved by me first. You crossed the line."*
+
+Reverted at `8e86f60`. Added LEAD-MA1 to lead-agent-sop.md (commit `f835cfa`).
+
+**Discipline:** when the todo list reaches "merge," do NOT merge. Stop, prepare the merge artifacts on the feature branch, and ask: *"Branch ready to merge to main. Approve?"* Wait for explicit go. Silence-is-consent is NOT the rule.
+
+The same class of failure was anticipated by LEAD-DL1 (don't write to agent-owned files without permission) and CLAUDE.md's "Executing actions with care" (hard-to-reverse operations need confirmation). Merging to main is hard to reverse (revert works but production has already auto-deployed, downstream consumers may have pulled). It clearly falls in the "ask before doing" envelope.
+
 ## WIP preview slot (re-read at every SOD)
 
 **`https://aig-rlic-plus-dawodev.streamlit.app/`** is the standing branch-WIP Streamlit preview slot. User repoints it to whichever branch needs cloud verification — I don't create new preview apps per branch. Discipline:
