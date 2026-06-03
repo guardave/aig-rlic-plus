@@ -3,12 +3,9 @@
   "pair_id": "gold_copper_xli",
   "palette_id": "quartile_v1",
   "rules_applied": [
-    "VIZ-IC1",
-    "VIZ-BF1"
+    "VIZ-IC1"
   ],
-  "narrative_alignment_note": "Quartile bar chart matches Evidence-page quartile method block. Q4 bump = rates_2022 failure case (per narrative).",
-  "generated_at": "2026-05-26T13:43:12Z",
-  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)",
-  "disposition": "consumed",
-  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "narrative_alignment_note": "Quartile bar chart matches Evidence-page quartile method block. KS-108 (2026-06-03): switched to Sharpe for parity with indpro_xlp regime_stats convention.",
+  "generated_at": "2026-06-03T12:28:25Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
 }

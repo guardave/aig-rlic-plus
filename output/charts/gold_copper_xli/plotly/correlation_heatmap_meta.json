@@ -3,12 +3,9 @@
   "pair_id": "gold_copper_xli",
   "palette_id": "diverging_v1",
   "rules_applied": [
-    "VIZ-IC1",
-    "VIZ-BF1"
+    "VIZ-IC1"
   ],
   "narrative_alignment_note": "Pearson correlation: each signal transform x each forward return horizon. Negative = countercyclical.",
-  "generated_at": "2026-05-26T13:43:16Z",
-  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)",
-  "disposition": "consumed",
-  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "generated_at": "2026-06-03T12:28:28Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
 }

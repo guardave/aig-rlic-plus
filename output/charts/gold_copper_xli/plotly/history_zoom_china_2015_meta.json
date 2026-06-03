@@ -4,12 +4,9 @@
   "palette_id": "dual_panel_v1",
   "rules_applied": [
     "VIZ-DP1",
-    "VIZ-IC1",
-    "VIZ-BF1"
+    "VIZ-IC1"
   ],
   "narrative_alignment_note": "HZE1 episode 'china_2015'. No NBER overlay (episode does not overlap NBER recession). Aligned with Story page episode narrative.",
-  "generated_at": "2026-05-26T13:43:19Z",
-  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)",
-  "disposition": "consumed",
-  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "generated_at": "2026-06-03T12:28:31Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
 }

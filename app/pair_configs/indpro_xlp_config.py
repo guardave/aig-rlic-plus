@@ -290,15 +290,20 @@ GRANGER_BLOCK = dict(
     ),
     how_to_read=(
         "The CCF chart shows bars at lags -12 to +12 months. Negative lags mean "
-        "INDPRO leads XLP (IP first, then XLP reacts). Bars outside the dashed "
-        "95% confidence bands are statistically significant. A cluster of significant "
-        "negative bars would confirm IP as a leading indicator for XLP."
+        "INDPRO leads XLP (IP first, then XLP reacts). The dashed bands mark the "
+        "95% confidence interval; any bar that crosses outside the bands would be "
+        "rendered in red and flagged as statistically significant. The chart "
+        "summary line ('N of 25 lags exceed the 95% CI') is the authoritative "
+        "count — if it reads zero, no bar crosses the bands and no red appears."
     ),
     chart_name="ccf",
     chart_caption=(
         "What this shows: cross-correlation function between INDPRO YoY growth "
-        "and XLP monthly return at lags -12 to +12 months. Red bars are statistically "
-        "significant at 95% confidence. Bars at negative lags indicate IP leading XLP."
+        "and XLP monthly return at lags -12 to +12 months. The dashed bands are "
+        "the 95% confidence interval. In the current sample, 0 of 25 lags exceed "
+        "the band, so no bars are red — the linear cross-correlation is uniformly "
+        "weak. The economic mechanism (IP leading XLP) shows up more clearly in "
+        "the formal Granger F-tests at lags 1-3 months than in raw CCF magnitudes."
     ),
     observation=(
         "The CCF confirms that INDPRO carries predictive content for XLP at negative "
@@ -352,52 +357,63 @@ REGIME_BLOCK = dict(
         "that strategy have performed across historical regimes?"
     ),
     how_to_read=(
-        "The chart shows annualized Sharpe ratio and return for XLP in each quartile "
-        "of the INDPRO signal. Q1 = lowest signal values (IP decelerating most). "
-        "Q4 = highest signal values (IP accelerating most). A clear gradient from "
-        "Q1 (highest XLP Sharpe) to Q4 (lowest) would confirm the countercyclical "
-        "defensive rotation hypothesis."
+        "The chart shows annualized Sharpe ratio for XLP in each quartile of the "
+        "INDPRO YoY-growth signal. Q1 = weakest IP growth (deep contractions). "
+        "Q4 = strongest IP growth (peak expansions). A strict countercyclical "
+        "model would predict Q1 best and Q4 worst — the actual chart shows a "
+        "U-shape (Q2 and Q3 highest, Q1 and Q4 lowest), which is the empirical "
+        "fingerprint the acceleration-based tournament winner exploits."
     ),
     chart_name="regime_stats",
     chart_caption=(
-        "What this shows: annualized XLP Sharpe ratio and return by quartile "
-        "of the INDPRO acceleration signal. Q1 = IP decelerating most (best XLP "
-        "regime), Q4 = IP accelerating most (worst XLP regime). The gradient "
-        "reveals the countercyclical relationship."
+        "What this shows: annualized XLP Sharpe ratio by quartile of the INDPRO "
+        "YoY-growth signal. Empirically Q2 = 0.80 and Q3 = 0.77 are the strongest "
+        "regimes; Q1 = 0.36 and Q4 = 0.40 are noticeably weaker. The U-shape "
+        "(rather than a strict monotonic gradient) is the regime fingerprint the "
+        "acceleration-signal tournament winner targets — going to cash only at "
+        "the Q4 extreme, not across all 'IP positive' regimes."
     ),
     observation=(
-        "The regime statistics show a clear gradient confirming the countercyclical "
-        "hypothesis: XLP earns its highest risk-adjusted returns in Q1 and Q2 (low "
-        "or negative IP acceleration), while Q3 and Q4 (strong IP acceleration) "
-        "are associated with the weakest XLP Sharpe ratios. The OOS strategy "
-        "(Sharpe 1.1147, annualized return 14.1%, max drawdown -13.5% over 84 months) "
-        "exploits precisely this regime differential by holding XLP only when the "
-        "INDPRO acceleration signal is below the 0.75 threshold (upper quartile rule)."
+        "The regime statistics show a U-shape, not a strict monotonic gradient: "
+        "Q2 (Sharpe 0.80) and Q3 (Sharpe 0.77) are the strongest XLP regimes, "
+        "while Q1 (Sharpe 0.36) and Q4 (Sharpe 0.40) are noticeably weaker. The "
+        "U-shape combines two effects — Q1 (deep IP contractions) coincides with "
+        "broad market stress that hurts even defensive sectors, while Q4 (peak "
+        "IP expansions) coincides with rotation INTO cyclicals and OUT of "
+        "defensives. The OOS strategy (Sharpe 1.1147, ann. return 14.1%, max "
+        "drawdown -13.5% over 84 months) exploits this asymmetry by exiting XLP "
+        "only at the Q4 extreme, where the defensive rotation argument applies "
+        "most cleanly — Q1's separate weakness (crisis-driven) is not targetable "
+        "by the same IP-acceleration signal."
     ),
     deep_dive_title="Why does the 0.75 threshold outperform a simple median split?",
     deep_dive_content=(
         "The tournament tested 7 threshold methods including percentile splits at "
         "0.25, 0.50, and 0.75 (upper quartile). The 0.75 upper quartile threshold "
-        "won because XLP's defensive properties are most consistently present across "
-        "a broad range of IP conditions — the asset class is defensive even in mild "
-        "expansions. The signal is most useful for identifying the *extreme* IP "
-        "acceleration regime (top quartile) when the rotation away from defensives "
-        "is strongest and most sustained. A median split generates too many false "
-        "exits from XLP during normal expansionary months where the defensive "
-        "benefit is still available."
+        "won because XLP's defensive properties are usefully present in Q2 and Q3 "
+        "(Sharpe 0.80, 0.77) and only meaningfully drop in Q4. A median split "
+        "would force exits at the Q3 boundary, sacrificing one of XLP's two best "
+        "regimes. The signal is most useful for identifying the *extreme* IP "
+        "acceleration regime (top quartile) when rotation away from defensives "
+        "is strongest. Q1's separate weakness (crisis-driven contractions) "
+        "is not targetable by IP-acceleration alone — that's a regime an HMM or "
+        "credit-spread overlay would handle."
     ),
     interpretation=(
-        "The regime analysis confirms the countercyclical direction: Q1 (IP "
-        "decelerating) is the best regime for XLP on a risk-adjusted basis, while "
-        "Q4 (IP strongly accelerating) is the worst. The strategy captures this "
-        "by using an upper-quartile threshold (0.75) to identify only the most "
-        "adverse regime for XLP, staying invested otherwise."
+        "The regime analysis shows a U-shape: Q2 and Q3 are XLP's strongest "
+        "regimes (Sharpe 0.80, 0.77); Q1 and Q4 are weaker (0.36, 0.40). The "
+        "strategy targets only the Q4 weakness — moving to cash when IP "
+        "acceleration crosses the 75th-percentile threshold — because that's the "
+        "weakness the IP-acceleration signal cleanly identifies. Q1's weakness "
+        "comes from a different driver (broad-market crisis) that would need a "
+        "separate signal to time."
     ),
     key_message=(
-        "IP acceleration above the 75th percentile (Q4) is the worst regime for "
-        "XLP returns. The tournament winner exploits this by moving to cash only "
-        "in the top IP quartile — holding XLP through all other conditions and "
-        "achieving OOS Sharpe of 1.1147 vs 0.9 buy-and-hold."
+        "Quartile Sharpe ratios are Q1=0.36, Q2=0.80, Q3=0.77, Q4=0.40 — a "
+        "U-shape, not a strict gradient. The tournament winner targets only "
+        "the Q4 extreme (IP acceleration > 75th percentile), moving to cash "
+        "in that regime and holding XLP through all others. OOS Sharpe 1.1147 "
+        "vs 0.9 buy-and-hold."
     ),
 )
 
