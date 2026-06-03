@@ -1,6 +1,6 @@
 {
   "pair_id": "crude_oil_xle",
-  "generated_at": "2026-06-02T22:17:34Z",
+  "generated_at": "2026-06-03T08:43:25Z",
   "universe_basis": "All strategy families enumerated below were considered; the winner was selected by OOS Sharpe via scripts.tournament.select_winner.",
   "candidate_strategies": [
     {

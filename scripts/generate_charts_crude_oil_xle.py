@@ -83,8 +83,16 @@ def chart_hero(df: pd.DataFrame, winner: dict):
     _save(fig, "hero", description="WTI crude and XLE side by side over the full sample.", page="story")
 
 
+COMMISSION_BPS = 5.0  # must match pipeline's COMMISSION_BPS
+
+
 def _equity_from_position(df: pd.DataFrame, winner: dict) -> tuple[pd.Series, pd.Series]:
-    """Reconstruct strategy equity + buy-and-hold equity over OOS window."""
+    """Reconstruct NET-OF-COST strategy equity + buy-and-hold equity over OOS.
+
+    Returns equity series from exp(cumsum) of log returns. Drawdown computed
+    from these is a true price-path drawdown. Strategy equity includes the
+    commission charge per |Δposition| matching `_strategy_stats` in the pipeline.
+    """
     sig_col = winner["signal_column"]
     rule = winner["threshold_rule"]
     thr = float(winner["threshold_value"])
@@ -104,14 +112,18 @@ def _equity_from_position(df: pd.DataFrame, winner: dict) -> tuple[pd.Series, pd
         pos = fire.astype(float)
     pos = pos.shift(1).fillna(0)
     ret = df["xle_logret_1w"]
-    strat = (pos * ret).dropna()
+    # Apply commission net-of-cost so equity matches reported OOS Sharpe / DD.
+    turnover = pos.diff().abs().fillna(0)
+    cost = turnover * (COMMISSION_BPS / 10000)
+    strat = (pos * ret - cost).dropna()
     bh = ret.dropna()
     # Slice OOS
     start = winner["oos_period_start"]
     end = winner["oos_period_end"]
     strat = strat.loc[start:end]
     bh = bh.loc[start:end]
-    return (1 + strat).cumprod(), (1 + bh).cumprod()
+    # Equity = exp(cumsum of log returns), consistent with the pipeline.
+    return np.exp(strat.cumsum()), np.exp(bh.cumsum())
 
 
 def chart_equity_curves(df: pd.DataFrame, winner: dict):

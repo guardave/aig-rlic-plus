@@ -34,8 +34,9 @@ class StoryConfig:
         "crude prices and asked which one, if any, beat the obvious alternative of "
         "buying-and-holding XLE. The data picked a rule that surprised us: invest in "
         "XLE when oil prices have been unusually volatile for the past quarter, sit "
-        "out otherwise. Out of sample (2015–2025), that rule earned a Sharpe of about "
-        "0.47, while just holding XLE earned around 0.04."
+        "out otherwise. Out of sample (2015–2025), that rule earned a Sharpe ratio "
+        "of about 0.47 (a measure of return per unit of risk — higher is better; "
+        "0.5 is decent, 1.0 is very good), while just holding XLE earned around 0.04."
     )
 
     WHERE_THIS_FITS = (
@@ -47,10 +48,10 @@ class StoryConfig:
     )
 
     ONE_SENTENCE_THESIS = (
-        "When WTI realized volatility sits in the top quartile of its 5-year "
-        "history, XLE's risk-adjusted return tends to be elevated — and a simple "
-        "rule that switches between long-XLE and cash on that signal beats "
-        "buy-and-hold out-of-sample."
+        "When crude oil has been unusually choppy over the past three months "
+        "(top 25% of the last five years), energy stocks tend to deliver better "
+        "return-per-unit-of-risk — and a simple rule that buys XLE in those "
+        "weeks and otherwise holds cash beats just owning XLE."
     )
 
     KPI_CAPTION = (
@@ -62,11 +63,11 @@ class StoryConfig:
     HERO_TITLE = "WTI Crude vs XLE — full sample (weekly, 1998–2025)"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
-        "How to read it: dual-axis view — WTI crude price (left axis, vermillion) "
-        "and XLE share price (right axis, blue) on a common time axis. NBER "
-        "recession bands shaded. Notice the close co-movement at low frequency "
-        "and the volatility clustering around the 2008 / 2014–2016 / 2020 / 2022 "
-        "episodes."
+        "How to read it: two lines on a common time axis — WTI crude price "
+        "(left axis, vermillion) and XLE share price (right axis, blue). Grey "
+        "shaded periods are official US recessions. Notice the two lines rise "
+        "and fall together, and notice how both go quiet in calm years and "
+        "wild in stressed years (2008, 2014–16, 2020, 2022)."
     )
 
     REGIME_TITLE = "What History Shows: XLE Forward Returns by WTI Volatility Quartile"
@@ -134,7 +135,7 @@ class StoryConfig:
         "Energy stocks and crude oil prices move together at high frequency because "
         "XLE constituents earn revenue in barrels. The contemporaneous Pearson "
         "correlation between WTI weekly log returns and XLE weekly log returns is "
-        "approximately 0.55 across the 1998-2025 sample. This study does not try to "
+        "approximately 0.26 across the 1998-2025 sample (Spearman 0.40). This study does not try to "
         "beat that contemporaneous link — it asks whether the RECENT behaviour of "
         "WTI (its volatility, momentum, position in cycle) carries enough information "
         "to time XLE one week ahead in a way that beats simple buy-and-hold."
@@ -167,14 +168,15 @@ class StrategyConfig:
         "(top quartile of the past five years), hold XLE for the coming week. "
         "Otherwise, sit in cash. Out-of-sample (2015-2025) this rule earned a "
         "Sharpe ratio of about 0.47 versus 0.04 for simply holding XLE the whole "
-        "time — and with smaller drawdowns. It fires about four times per year."
+        "time — and with smaller drawdowns (a drawdown is how far the strategy "
+        "fell from its previous peak — smaller is better). It fires about four "
+        "times per year."
     )
 
     SIGNAL_RULE_MD = (
         "**Each Friday close:** compute WTI's 13-week realized volatility and "
-        "rank it within its trailing 5-year history (260-week percentile rank, "
-        "minimum 52 weeks of history). If the rank is **above the 75th percentile**, "
-        "hold XLE for the coming week. Otherwise, hold cash."
+        "rank it within its trailing 5-year history. If the rank is **above the "
+        "75th percentile**, hold XLE for the coming week. Otherwise, hold cash."
     )
 
     HOW_SIGNAL_IS_GENERATED_MD = (
@@ -200,13 +202,14 @@ class StrategyConfig:
     WALK_FORWARD_CHART_NAME = "walk_forward"
 
     CAVEATS_MD = (
-        "- The rule was selected by maximum OOS Sharpe across 12 candidates. "
-        "Multiple-comparisons risk is real; treat 0.47 as an upper bound on "
-        "out-of-sample expectation.\n"
-        "- Annual turnover ≈ 3.7. Costs above ~25 bps per leg would meaningfully "
-        "erode the edge.\n"
-        "- Not tested on pre-1998 crude regimes (XLE didn't exist) or on the "
-        "energy-transition regime that may emerge post-2025.\n"
+        "- We tested 12 rules and kept the best one. When you pick the winner "
+        "from a contest, the winner usually looks better than it will be in real "
+        "life — so treat the 0.47 number as an optimistic ceiling, not a forecast.\n"
+        "- The rule trades about four times a year, so transaction costs matter. "
+        "Costs above ~25 basis points per round trip (one basis point is 0.01%) "
+        "would meaningfully erode the edge.\n"
+        "- We did not test it on crude markets before 1998 (XLE didn't exist) or "
+        "on the energy-transition regime that may emerge post-2025.\n"
         "- The rule has no theoretical basis stronger than 'this is what the data "
         "showed in this window.' Treat it accordingly."
     )
@@ -299,15 +302,15 @@ EVIDENCE_METHOD_BLOCKS = {
         "in WTI's recent past predicts XLE's near future.*"
     ),
     "plain_english": (
-        "This section shows the statistical evidence behind the strategy. Correlation "
-        "tests confirm that WTI and XLE move together at high frequency — about 0.55 "
-        "Pearson on weekly returns. Lead-lag regressions show most of the relationship "
-        "is contemporaneous (lag 0) with modest predictive power at lags 1-2 weeks. "
-        "The structural-break test (CUSUM) shows the relationship is not constant "
-        "across the sample — there are real regime shifts around 2008 and 2014. "
-        "The regime-buckets test, conditioning on WTI's realized-volatility quartile, "
-        "shows the cleanest pattern — high-vol regimes coincide with elevated XLE "
-        "forward returns. This is the conditioning the winning strategy exploits."
+        "This section shows the statistical evidence behind the strategy. WTI and "
+        "XLE move together at high frequency, but not as strongly as you might "
+        "expect — roughly 26% co-movement on a week-to-week basis. The same-week "
+        "link is the dominant one; weeks of past WTI moves barely help predict "
+        "next week's XLE move on their own. We also checked whether the link is "
+        "stable over time — it isn't; there are real shifts around 2008 and 2014. "
+        "Finally, we sorted history by how choppy oil was: the choppiest quarters "
+        "were followed by the strongest energy-stock returns — and that's the "
+        "conditioning the winning strategy exploits."
     ),
     "level1": [
         {
@@ -327,8 +330,8 @@ EVIDENCE_METHOD_BLOCKS = {
                 "inverse. Compare the rolling 52-week ρ chart against the long-run mean."
             ),
             "observation": (
-                "Pearson ρ ≈ 0.55 across the full 1998-2025 sample. The rolling "
-                "52-week ρ ranges from ~0.30 in calm regimes to ~0.85 in shock periods."
+                "Pearson ρ = 0.26 across the full 1998-2025 sample (Spearman ρ = 0.40). "
+                "Rolling 52-week ρ ranges from −0.06 to +0.87 with median 0.42."
             ),
             "interpretation": (
                 "The mechanical link is strong and stable in sign. XLE constituents' "
@@ -355,22 +358,25 @@ EVIDENCE_METHOD_BLOCKS = {
                 "k = 0..8?"
             ),
             "how_to_read": (
-                "Look for non-trivial R² at lags > 0 with p-values < 0.05. R² at "
-                "lag 0 just confirms contemporaneous correlation; R² at lag 1+ is "
-                "the predictive content."
+                "Each bar shows how much of next week's XLE move we can explain "
+                "using WTI's move from k weeks earlier. Tall bars at k > 0 would "
+                "mean WTI leads XLE; in practice all the bars are short."
             ),
             "observation": (
-                "Maximum R² at lag 0 (~0.30). R² decays smoothly with increasing lag. "
-                "Coefficients significant at lags 0-2; insignificant beyond lag 4."
+                "All R² values are small: peak at lag 0 (R² ≈ 0.07, p = 0.18 — not "
+                "significant), with statistically significant but tiny coefficients "
+                "at lags 2, 3 and 6 (R² between 0.004 and 0.014)."
             ),
             "interpretation": (
-                "Most of the WTI→XLE information is contemporaneous. There is modest "
-                "predictive power at short lags but not enough on its own to drive "
-                "a robust trading rule."
+                "Linear lead-lag predictability is weak. The bulk of the WTI→XLE "
+                "link is contemporaneous, and even that lag-0 coefficient is not "
+                "individually significant once HC3 robust standard errors are used. "
+                "No simple lagged regression will beat buy-and-hold."
             ),
             "key_message": (
-                "Simple lagged regression won't beat buy-and-hold. The tournament tests "
-                "richer signal constructions to find what does."
+                "Simple linear lead-lag is not the signal. The tournament tests "
+                "richer signal constructions (momentum, z-score, vol-regime) to "
+                "find what does."
             ),
             "chart_name": "rolling_correlation",
         },

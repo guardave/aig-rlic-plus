@@ -11,6 +11,6 @@
   "observed_direction": "pro_cyclical",
   "direction_consistent": true,
   "strategy_objective": "max_sharpe",
-  "key_finding": "Best OOS Sharpe 0.47 via wti_high_vol_long vs buy-and-hold 0.04. Contemporaneous Pearson(WTI ret, XLE ret) = 0.26.",
-  "generated_at": "2026-06-02T22:17:34Z"
+  "key_finding": "Best OOS Sharpe 0.47 via WTI vol-regime conditioning (long XLE when 13-week realized vol percentile > 0.75 in trailing 5-year window) vs buy-and-hold 0.04. Note: winner is a regime-conditional rule, not a simple pro-cyclical exposure. Contemporaneous Pearson(WTI ret, XLE ret) = 0.26.",
+  "generated_at": "2026-06-03T08:43:25Z"
 }

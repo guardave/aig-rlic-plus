@@ -43,10 +43,10 @@ return is more than ten times the passive benchmark.
 
 ## story_findings
 
-Twelve strategies were considered: four pure-momentum variants (4w, 13w,
+Twelve strategies were considered: three pure-momentum variants (4w, 13w,
 26w lookback), four z-score variants (52w and 104w windows, both
 "above-mean" and "below-mean" entries), two volatility-regime variants
-(low vol and high vol entries), and two long-short sign variants.
+(low vol and high vol entries), and three long-short sign variants.
 
 In the out-of-sample window (2015-01-23 to 2025-10-10, 52 weekly
 observations per year), the strategies sort as follows by OOS Sharpe:
@@ -65,9 +65,11 @@ had negative OOS Sharpe, meaning they were actively harmful versus passive
 holding.
 
 Contemporaneous correlation between WTI weekly log returns and XLE
-weekly log returns is high (Pearson ≈ 0.55 over the sample), as expected.
-The lead-lag regressions at lags 0..8 weeks confirm the strongest
-relationship at lag 0 with R² decaying smoothly.
+weekly log returns is positive but modest (Pearson ≈ 0.26, Spearman ≈ 0.40
+over the sample). The lead-lag regressions at lags 0..8 weeks confirm the
+strongest relationship at lag 0 but with small R² (~0.07) — most of the
+WTI–XLE link is statistical noise, with a regime conditioning needed to
+extract usable signal.
 
 ## story_takeaway
 

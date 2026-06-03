@@ -1,6 +1,6 @@
 # Execution Notes — crude_oil_xle
 
-Generated: 2026-06-02T22:17:34Z
+Generated: 2026-06-03T08:43:25Z
 
 ## Strategy
 - **Signal:** `wti_vol_q_13w`
@@ -17,8 +17,8 @@ Generated: 2026-06-02T22:17:34Z
 ## OOS Performance
 - Sharpe: 0.47 (vs 0.04 buy-and-hold)
 - Annual return: 8.77%
-- Max drawdown: -26.26%
-- Trades: 41
+- Max drawdown: -24.51%
+- Trades: 20
 - Annual turnover: 3.7
 
 ## Sample period
