@@ -618,6 +618,14 @@ def _check_backlog_hygiene(pair_id: str, config_mod: Any | None) -> PageReport:
       BL-DUP-4              — chart generator imports scripts._nber if it exists
       BL-COMMISSION-BASIS   — winner_summary.json has commission_bps key
 
+    Extended 2026-06-03 (per Completeness-checker findings on crude_oil_xle):
+      DPS-AB1               — docs/analysis_brief_{pair_id}*.md exists
+      DPS-MD1               — master joined dataset at data/{pair_id}*.parquet
+      DPS-EX1               — exploratory_{date}/correlations.csv exists
+      DPS-CM1               — core_models_{date}/ dir with ≥3 CSVs
+      DPS-AC1               — results/{pair_id}/acceptance.md exists
+      DPS-TW1               — results/{pair_id}/tournament_winner.json exists
+
     BL-002 (signal_scope.json presence) is covered by MANDATORY_RESULT_ARTIFACTS.
     """
     import re
@@ -876,6 +884,143 @@ def _check_backlog_hygiene(pair_id: str, config_mod: Any | None) -> PageReport:
                     "Generator does not reference RECESSIONS (no shading needed).",
                     path=str(rel),
                 ))
+
+    # ── DPS-AB1: docs/analysis_brief_{pair_id}*.md exists ──
+    brief_matches = sorted(_REPO_ROOT.glob(f"docs/analysis_brief_{pair_id}*.md"))
+    if brief_matches:
+        report.checks.append(CheckResult(
+            "DPS-AB1: analysis brief present", "PASS",
+            f"Found {brief_matches[-1].relative_to(_REPO_ROOT)}",
+            path=str(brief_matches[-1].relative_to(_REPO_ROOT)),
+        ))
+    else:
+        report.checks.append(CheckResult(
+            "DPS-AB1: analysis brief present", "FAIL",
+            f"Missing docs/analysis_brief_{pair_id}*.md — author per docs/analysis_brief_template.md (DPS-AB1 / team-coordination row 1).",
+        ))
+
+    # ── DPS-MD1: master joined dataset at data/{pair_id}*.parquet ──
+    master_matches = sorted((_REPO_ROOT / "data").glob(f"{pair_id}*.parquet"))
+    if master_matches:
+        report.checks.append(CheckResult(
+            "DPS-MD1: master parquet present", "PASS",
+            f"Found {master_matches[-1].relative_to(_REPO_ROOT)}",
+            path=str(master_matches[-1].relative_to(_REPO_ROOT)),
+        ))
+    else:
+        report.checks.append(CheckResult(
+            "DPS-MD1: master parquet present", "FAIL",
+            f"Missing data/{pair_id}*.parquet (joined indicator + target dataset). "
+            f"Persist the aligned dataset to data/ at pipeline runtime (DPS-MD1 / team-coordination row 2).",
+        ))
+
+    # ── DPS-EX1: exploratory_{date}/correlations.csv ──
+    expl_dirs = sorted((_RESULTS_DIR / pair_id).glob("exploratory_*"))
+    expl_correlations = None
+    for d in expl_dirs:
+        if d.is_dir():
+            corr = d / "correlations.csv"
+            if corr.exists():
+                expl_correlations = corr
+                break
+    if expl_correlations:
+        report.checks.append(CheckResult(
+            "DPS-EX1: exploratory correlations.csv present", "PASS",
+            f"Found {expl_correlations.relative_to(_REPO_ROOT)}",
+            path=str(expl_correlations.relative_to(_REPO_ROOT)),
+        ))
+    else:
+        report.checks.append(CheckResult(
+            "DPS-EX1: exploratory correlations.csv present", "FAIL",
+            f"Missing results/{pair_id}/exploratory_*/correlations.csv. "
+            f"Pair emits exploratory_results.json but the CSV variant required by team-coordination row 5 is absent (DPS-EX1).",
+        ))
+
+    # ── DPS-CM1: core_models_{date}/ dir with ≥3 CSVs ──
+    cm_dirs = sorted((_RESULTS_DIR / pair_id).glob("core_models_*"))
+    cm_dir_used = None
+    cm_csv_count = 0
+    for d in cm_dirs:
+        if d.is_dir():
+            cm_dir_used = d
+            cm_csv_count = len(list(d.glob("*.csv")))
+            break
+    if cm_dir_used and cm_csv_count >= 3:
+        report.checks.append(CheckResult(
+            "DPS-CM1: core_models dir ≥3 CSVs", "PASS",
+            f"Found {cm_dir_used.relative_to(_REPO_ROOT)} with {cm_csv_count} CSV(s)",
+            path=str(cm_dir_used.relative_to(_REPO_ROOT)),
+        ))
+    elif cm_dir_used:
+        report.checks.append(CheckResult(
+            "DPS-CM1: core_models dir ≥3 CSVs", "FAIL",
+            f"{cm_dir_used.relative_to(_REPO_ROOT)} has only {cm_csv_count} CSV(s); ≥3 required (DPS-CM1 / team-coordination row 6).",
+            path=str(cm_dir_used.relative_to(_REPO_ROOT)),
+        ))
+    else:
+        report.checks.append(CheckResult(
+            "DPS-CM1: core_models dir ≥3 CSVs", "FAIL",
+            f"Missing results/{pair_id}/core_models_*/ directory entirely (DPS-CM1 / team-coordination row 6).",
+        ))
+
+    # ── DPS-AC1: results/{pair_id}/acceptance.md ──
+    acc_path = _RESULTS_DIR / pair_id / "acceptance.md"
+    if acc_path.exists():
+        try:
+            size = acc_path.stat().st_size
+        except OSError:
+            size = 0
+        if size > 200:
+            report.checks.append(CheckResult(
+                "DPS-AC1: acceptance.md present + populated", "PASS",
+                f"acceptance.md is {size} bytes",
+                path=str(acc_path.relative_to(_REPO_ROOT)),
+            ))
+        else:
+            report.checks.append(CheckResult(
+                "DPS-AC1: acceptance.md present + populated", "FAIL",
+                f"acceptance.md exists but is too small ({size} bytes < 200). "
+                f"Populate with Portal-Wide Quality Checklist + reference-pair comparison + Lead sign-off (GATE-23 / DPS-AC1).",
+                path=str(acc_path.relative_to(_REPO_ROOT)),
+            ))
+    else:
+        report.checks.append(CheckResult(
+            "DPS-AC1: acceptance.md present + populated", "FAIL",
+            f"Missing results/{pair_id}/acceptance.md (GATE-23 / DPS-AC1). "
+            f"Lead authors after maker phase + checker phase resolve clean.",
+        ))
+
+    # ── DPS-TW1: results/{pair_id}/tournament_winner.json ──
+    tw_path = _RESULTS_DIR / pair_id / "tournament_winner.json"
+    if tw_path.exists():
+        tw_obj, tw_err = _load_json(tw_path)
+        if tw_err:
+            report.checks.append(CheckResult(
+                "DPS-TW1: tournament_winner.json parses", "FAIL", tw_err,
+                path=str(tw_path.relative_to(_REPO_ROOT)),
+            ))
+        else:
+            missing = [k for k in ("winner", "benchmark", "deltas") if k not in tw_obj]
+            if missing:
+                report.checks.append(CheckResult(
+                    "DPS-TW1: tournament_winner.json shape", "FAIL",
+                    f"tournament_winner.json missing required keys: {missing}. "
+                    f"Schema requires winner / benchmark / deltas blocks (team-coordination 'Tournament Winner JSON Schema').",
+                    path=str(tw_path.relative_to(_REPO_ROOT)),
+                ))
+            else:
+                report.checks.append(CheckResult(
+                    "DPS-TW1: tournament_winner.json shape", "PASS",
+                    "winner / benchmark / deltas all present.",
+                    path=str(tw_path.relative_to(_REPO_ROOT)),
+                ))
+    else:
+        report.checks.append(CheckResult(
+            "DPS-TW1: tournament_winner.json present", "FAIL",
+            f"Missing results/{pair_id}/tournament_winner.json. "
+            f"This is the schema-canonical winner artifact (separate from winner_summary.json), "
+            f"required by team-coordination 'Tournament Winner JSON Schema' (DPS-TW1).",
+        ))
 
     return report
 
