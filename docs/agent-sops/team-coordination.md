@@ -141,7 +141,7 @@ Every completed pair must have **all** of the following. Missing any one blocks 
 | 12 | Portal: Methodology page | `app/pages/*_{id}_methodology.py` or shared page exists |
 | 13 | Sidebar navigation | Finding appears in sidebar dropdown |
 | 14 | Landing card | Pair appears in dashboard card grid |
-| 15 | Universe presence | Pair (indicator_id, target) appears in `data/prospective_pairs.csv` — completion state is auto-derived by `app/components/prospective_pairs.py` from the live registry, no manual update required |
+| 15 | Catalog status | `docs/priority-combinations-catalog.md` updated to "Completed" |
 | 16 | Winner summary | `results/{id}/winner_summary.json` exists, all required fields populated (signal, threshold, strategy display names, OOS metrics) |
 | 17 | Winner trade log | `results/{id}/winner_trade_log.csv` exists, rows > 0, columns: `entry_date`, `exit_date`, `direction`, `holding_days`, `trade_return_pct` |
 | 18 | Execution notes | `results/{id}/execution_notes.md` exists, non-empty, includes step-by-step execution guidance |

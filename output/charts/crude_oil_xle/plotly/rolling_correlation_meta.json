@@ -1,9 +1,0 @@
-{
-  "pair_id": "crude_oil_xle",
-  "chart_name": "rolling_correlation",
-  "description": "Rolling Pearson correlation between WTI and XLE weekly returns.",
-  "page": "evidence",
-  "generated_at": "2026-06-03T08:43:52Z",
-  "disposition": "consumed",
-  "palette_id": "okabe_ito_2026"
-}

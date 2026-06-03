@@ -299,7 +299,7 @@ Dana owns `indicator_nature` and `indicator_type` (data-stage classifications). 
 - Check for retracted or superseded papers
 - Flag if findings are based on a single study or a small literature
 - Note publication date — old findings may not hold in current regime
-- For pairs in the live priority universe (`data/prospective_pairs.csv`), explicitly note whether academic literature supports the indicator-target relationship (established / emerging / exploratory). This metadata informs Evan's interpretation confidence.
+- For pairs in the Priority Combinations Catalog (`docs/priority-combinations-catalog.md`), explicitly note whether academic literature supports the indicator-target relationship (established / emerging / exploratory). This metadata informs Evan's interpretation confidence.
 
 ### 8. Deliver
 
@@ -1044,7 +1044,7 @@ Before handing off:
 - [ ] Portal narrative delivered to Ace (when portal is in scope) with layperson prose, glossary, and page-aligned structure
 - [ ] Event timeline sent to both Vera and Ace
 - [ ] If Analysis Brief specifies `expected_direction`, the brief validates or flags any contradiction between theoretical expectation and available empirical evidence
-- [ ] For priority pairs (see `data/prospective_pairs.csv`), noted whether the indicator-target relationship has established academic support or is exploratory
+- [ ] For priority pairs (see `docs/priority-combinations-catalog.md`), noted whether the indicator-target relationship has established academic support or is exploratory
 - [ ] Indicator type classification documented with rationale (including decision tree step for borderline cases)
 - [ ] Category recommendation rationale cites specific evidence (# of papers, key findings), not just relevance scores
 - [ ] For indicators with non-MCP sources, Data Availability Risk Matrix included with fallback/proxy recommendations

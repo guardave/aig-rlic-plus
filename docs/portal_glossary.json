@@ -282,24 +282,6 @@
       "why_it_matters": "OOS is the first honest test of a strategy. However, in tournament designs the OOS window is still used to PICK the winner — so a tournament-OOS Sharpe is not the same as a holdout Sharpe. For pairs that ran a final exam, the holdout result is the dispositive metric, not the OOS result.",
       "example": "This pair's OOS window is 2014-08 to 2020-06 (71 monthly observations). The tournament-OOS Sharpe is 1.32. The separate holdout test (2020-07 onward) returned 0.31, which is the dispositive verdict.",
       "when_it_fails": "Treating tournament-OOS Sharpe as a validated result without a separate holdout test inflates apparent edge by the size of the search-phase data-mining bias."
-    },
-    "Realized volatility": {
-      "plain_english": "The actual observed wiggle of a return series over a window — i.e. the standard deviation of returns in that window, usually scaled to an annual figure for ease of comparison. 'Realized' contrasts with 'implied' volatility (which is derived from option prices and represents the market's forward-looking guess at future wiggle).",
-      "why_it_matters": "Realized vol is a backward-looking but model-free measure of how turbulent a market has been. It's the natural input for regime-conditioning rules: if the past three months have been unusually choppy, that fact itself can carry information about the next few weeks.",
-      "example": "For the crude_oil_xle pair: 'WTI 13-week realized volatility' is the annualised standard deviation of WTI's weekly log returns over the trailing 13 weeks. When that number is in the top 25% of its 5-year history, the rule fires.",
-      "when_it_fails": "Realized vol is noisy at short windows; a 4-week realized vol is dominated by individual extreme weeks. Long windows (13w+) smooth out idiosyncratic spikes but lag regime changes."
-    },
-    "Quartile rank": {
-      "plain_english": "A way to express where a current value sits within a recent history, on a 0-to-1 scale. A rank of 0.75 means: 'higher than 75% of values in the trailing window.' Quartiles split the trailing distribution into four equal-sized buckets (Q1 = bottom 25%, Q4 = top 25%).",
-      "why_it_matters": "Quartile rank is regime-aware: it tells you whether the current reading is unusual or routine RELATIVE TO THE RECENT PAST, not relative to all of history. That makes it robust to long-term level shifts (which crude oil has many of).",
-      "example": "For the crude_oil_xle pair: each week, we compute WTI's 13-week realized vol, then ask 'where does this sit within the trailing 260 weeks (5 years) of vol values?'. A rank of 0.80 means choppier than 80% of the last 5 years. The rule fires when rank > 0.75.",
-      "when_it_fails": "Quartile rank requires a stable trailing window. If the trailing 5 years all happen to be unusually calm, the 75th percentile fires on what would otherwise be 'normal' choppiness."
-    },
-    "Vol regime": {
-      "plain_english": "A label for the current state of market turbulence — 'high-vol' or 'low-vol' or 'normal-vol'. Vol-regime trading rules condition on which state we're in NOW, rather than on whether prices are up or down. The intuition: returns behave differently in different vol environments.",
-      "why_it_matters": "Vol-regime conditioning often works when return-based timing fails. For some assets, high-vol periods coincide with higher expected returns (risk premium harvesting); for others, the opposite. The empirical question is which environment matters for the specific asset.",
-      "example": "For the crude_oil_xle pair: the 'high-vol' regime is when WTI's 13-week realized vol is in the top 25% of its trailing 5 years. The rule holds XLE only in that regime; otherwise it sits in cash.",
-      "when_it_fails": "Vol regimes can persist for years. A rule that 'works' on a window where the high-vol regime was active 40% of the time may fail in a future window where the regime is active only 10% of the time — there isn't enough trading opportunity to harvest the edge."
     }
   }
 }

@@ -1,45 +1,5 @@
 # Release Notes
 
-## 2026-06-02 — Prospective-pair universe SSoT + LEAD-NPB1/GATE-CMP1 SOP infrastructure + first Mode-2 verification build
-
-**Two branches landed on main today; one branch held pending checker resolution.**
-
-### Shipped to main (merge `2510ba0`, fix260602_prospective_pairs)
-
-- `docs/Indicator x Target.csv` — user-curated source of truth for the priority pair universe (115 Done-Y pairs across 8 sector ETFs).
-- `scripts/build_prospective_pairs.py` — idempotent generator that reads the CSV + `config/indicator_map.yaml` and emits `data/prospective_pairs.csv` (canonical pair_id rows). Halts on any unmapped CSV ticker.
-- `config/indicator_map.yaml` — hand-curated CSV-ticker → indicator_id mapping, ground-truthed against `data/Data Master.xlsx` → Pre-master row 2 per LEAD-DV1.
-- `data/prospective_pairs.csv` — the live universe (35 distinct indicators × 8 sectors = 115 prospective pairs as of 2026-06-02).
-- Landing page Reports + Status tabs (Status uses `st.table`, sorted ascending by Indicator name, inline alias format `Name (also: alias)`).
-- Dynamic denominator everywhere — sidebar + footer drop the hardcoded 73 and read live from the CSV (115).
-- Retired `docs/priority-combinations-catalog.md` (no code or UI consumed it; 5 referencing docs updated to point at the CSV).
-- **New SOP rule LEAD-DV1** — Lead must verify indicator units / SA convention against Pre-master row 2 before merging or canonicalising indicators.
-
-### Held on `fix260602_pair4_prep` (6 commits ahead of main, dawodev pointed, NOT merged)
-
-- `scripts/gate_pair_completeness.py` — GATE-CMP1 producer-side wrapper around the validator from fix260601_rescue. Raises `CompletenessError` on FAIL; `--allow-partial --partial-reason '<text>'` for documented exception carve-outs only.
-- **New SOP rule LEAD-NPB1** — every new pair gets a thin neutral Phase-0 brief at `_pws/lead-lesandro/briefs/<pair_id>.md`. Identity + acceptance gate + work-mode slot + scope note only. No domain notes, expected directions, BL-item bullets, or method preselections.
-- **GATE-CMP1 mechanical backlog hygiene** — 8 BL items converted from brief-checklist items to schema/presence checks in `_check_backlog_hygiene` (BL-003, BL-004, BL-801, BL-APP-PT1-LEGACY, BL-DUP-4, BL-DUP-11, BL-DUP-15, BL-COMMISSION-BASIS).
-- **First Mode-2 build attempted**: `crude_oil_xle` (WTI crude → XLE). Tournament winner: `wti_high_vol_long` (long XLE when WTI 13-week realized vol percentile > 0.75 in trailing 5-year window). OOS Sharpe 0.47 vs B&H 0.04 (2015-2025). GATE-CMP1 PASS.
-
-### Mode 2 checker phase exposed real issues — branch held
-
-Four checker subagents dispatched; three returned FAIL/FAIL_WITH_WARNINGS. Three categories:
-
-- **A — Real bugs** (9 items). Biggest: Pearson 0.55 in prose vs 0.26 actual across 4 prose locations — Lead-side hallucination during the maker phase. Also: trade-log P&L attribution off-by-one; equity charts gross-of-cost while headline stats net-of-cost; lead-lag R² claim "~0.30" vs actual ~0.07; 4-vs-3 momentum count narrative drift; broker CSV pnl_pct mismatch; log-vs-simple drawdown treatment.
-- **B — GATE-CMP1 gap items** (5). Missing analysis_brief, master `data/` parquet, exploratory subdir shape, core_models dir, acceptance.md; plus tournament_winner.json (vs winner_summary.json) and portal_glossary entries. User to decide: fill / extend gate / document as known debrief outcomes.
-- **C — ELI5 polish** (5-6). "Sharpe" undefined on first mention; ONE_SENTENCE_THESIS too jargon-dense; CAVEATS_MD reads as expert checklist; Evidence `how_to_read` assumes R²/p-value literacy.
-
-### Lessons (this session)
-
-1. **LEAD-NPB1's thin-brief discipline works** — agents got no domain pre-judgment; data picked vol-regime as winner (not momentum, which my old draft implicitly favoured).
-2. **GATE-CMP1 is the floor, not the ceiling** — caught structural typos and missing fields. Completeness human checker still found 5 gate items the script lets through.
-3. **Prose-authoring hallucination is the new failure mode.** Discipline rule added: every numeric assertion in user-facing prose must be re-read from source at authoring time.
-4. **Streamlit Cloud cold-start triage** — first request after branch repoint can spin 30-90s. Probe first, diagnose second.
-5. **"Pair #N" numbering is ambiguous** — dropped from SOP language. Refer by `pair_id` or indicator-target description.
-
----
-
 ## 2026-06-01 — Daily ops: fix260526 decommission + fix260601_rescue + fix260601_chart_hygiene W1
 
 **Three workstreams shipped to main today:**

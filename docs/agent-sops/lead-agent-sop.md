@@ -179,31 +179,6 @@ Pre-master row 2 carries the full description (FRED ticker, units, frequency, SA
 
 ---
 
-## Rule LEAD-NPB1 — New-Pair Brief Discipline (binding, every new pair at Phase 0)
-
-**Before dispatching any agent for a new pair's first phase of work, Lead MUST author a per-pair brief file at `_pws/lead-lesandro/briefs/<pair_id>.md`.** The brief is a thin, neutral contract: it states the unambiguous identity facts of the pair and names the mechanical acceptance gate. It does not editorialise on which methods will work, which backlog items "apply," or what direction the result should take. Those are answers the data and the agents produce after exploration — not assertions Lead should pre-load into the dispatch.
-
-**Naming convention.** Refer to pairs by their `pair_id` (`crude_oil_xle`) or by indicator-target description (`Crude Oil Price → XLE`) — NOT by ordinal "Pair #N" numbering. Ordinal numbering is ambiguous (per-target vs global vs build-order) and the priority sequence lives in `data/prospective_pairs.csv`, not a stable numeric index.
-
-**The brief contains exactly four sections.** No more.
-
-1. **Pair identity (facts only).** `pair_id`, indicator → target, source CSV row in `data/prospective_pairs.csv`, the indicator's authoritative units / frequency / SA convention from `data/Data Master.xlsx` → Pre-master row 2 (LEAD-DV1 satisfied here), and unambiguous disambiguation against any same-name distinct series (e.g. WTI price vs crude inventory). No domain notes, no expected directions, no "pitfalls to watch for," no method recommendations.
-2. **Acceptance gate.** The pair must pass `scripts/gate_pair_completeness.py <pair_id>` (GATE-CMP1) with exit 0 before Lead ratifies. Any exception requires `--allow-partial --partial-reason '<BL-id and justification>'` AND a matching `BL-*-EXCEPTION` row in `docs/backlog.md`.
-3. **Work-mode slot.** Per LEAD-WM1, the mode is decided in the SOD conversation with the user. The brief carries the decision after it is made, not a Lead pre-recommendation that biases the conversation.
-4. **Scope note.** Single target vs sector family, and any same-indicator pair already in the catalog that this pair must not conflate with.
-
-**No backlog-item list in the brief.** Backlog hygiene is enforced mechanically by GATE-CMP1's `_check_backlog_hygiene` group. The checks inspect artifacts on disk (`analyst_suggestions.json` presence and shape, page files free of `st.markdown()`, pipeline imports `scripts.tournament`, etc.) and return clean PASS/FAIL verdicts. Lead does NOT judge which BL items "apply" — the gate runs them all and the data tells. If a check fails, the artifact must be fixed (or a documented exception filed); the brief does not need to mention any BL-ID.
-
-**The brief is dispatched verbatim.** Agent dispatch prompts quote the brief's identity facts and the acceptance gate. Lead does NOT inject domain expectations, method preferences, or pitfall warnings into the dispatch prompt. The agent's domain SOP already encodes their methodology; the brief tells them WHICH pair to work on, not HOW to think about it.
-
-**Sample carve-out.** `hy_ig_v2_spy` (Sample / Reference Implementation) is frozen by user direction (`[[feedback_sample_frozen]]`) and will fail GATE-CMP1's backlog-hygiene group by design. Do NOT run the gate against Sample in normal workflow; LEAD-NPB1 binds new builds only. Template catches up to Sample, not vice versa.
-
-**Why this rule exists.** The first draft of LEAD-NPB1 (commit `1338900`) required the brief to enumerate active backlog items and weave domain notes / expected directions / pitfall warnings into the dispatch. User flagged that this injects prejudice that biases agents before they look at data, and that backlog applicability is a property of the artifacts, not of Lead's pre-judgment. This rewrite separates concerns: **brief = identity + acceptance gate; gate = mechanical enforcement; agent = exploration**. Lead's prejudice is removed from every layer except the SOD work-mode conversation, where the user makes the call.
-
-**Cross-reference:** LEAD-DV1 (Pre-master row 2 verification — the only Lead-side fact-gathering step), `scripts/gate_pair_completeness.py` (the mechanical acceptance gate), `[[feedback_sample_frozen]]` (Sample carve-out), `docs/backlog.md` (audit trail for the BL-IDs that the gate enforces).
-
----
-
 ## Enforcement
 
 **Self-audit at every wave closure.** Before running the closure commit sequence, Lead runs:
