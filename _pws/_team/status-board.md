@@ -1363,3 +1363,51 @@ All are pre-fix260526. Worth a follow-up audit using the same "what's durable vs
 4. Full local sweep + cloud preview + merge `fix260601_chart_hygiene` to main
 
 **Branches remaining to audit later:** `origin/feature/hy_ig_execution_panel`, `origin/feature/indicator-evaluation-sop`, `origin/rescue-my-work` — all pre-fix260526, worth same "what's durable" audit pattern when appetite returns.
+
+---
+
+## 2026-06-03 — Lead — EOD: LEAD-MA1 + LEAD-DOM1 SOP additions; KS/YYY production fixes shipped; fix260602_pair4_prep SUSPENDED with documented schema-violations
+
+**Status:** SHIPPED + HANDOVER (2 streams). Production fixes merged + verified clean. `fix260602_pair4_prep` held with a defects-to-fix list before resume.
+
+**Work shipped to main (in order):**
+
+1. `aa5a404` (REVERTED at `8e86f60`) — unauthorised merge of `fix260602_pair4_prep`. Caught by user-side DOM probe surfacing multiple schema-error banners + chart-attribution bugs + placeholder banners the round-4 four-checker PASS had missed.
+2. `f835cfa` — **LEAD-MA1 SOP rule**: Lead never merges to main without explicit user authorisation. Checker-phase clean exit ≠ merge authorisation. 4-step protocol (ratify → prepare artifacts → ASK → wait for explicit go → merge). Two narrow exceptions: advance user authorisation; revert rollforward.
+3. `879d937` — LEAD-MA1 lesson into memories.md for SOD load.
+4. `3d74372` — **LEAD-DOM1 SOP rule**: no artifact/page/pair is "complete" until headless-browser DOM inspection passes the explicit assertion checklist (zero schema-error banners; zero "cannot be derived" / "pending" placeholders; distinct chart per Evidence Level-1 block; zero alert elements; zero console errors). Subagent checkers + GATE-CMP1 do NOT substitute. LEAD-WM1 Mode-2 exit criteria updated to require DOM verify as the FINAL gate. Each checker dimension is now SCORED ON THE DOM, not on producer files. Lesson into memories.md for SOD load.
+5. `95e159b` (merge of `fix260603_prod_dawo`) — KS + YYY dashboard comment-log fixes:
+   - KS-105 Landing chip "Unknown" → "Commodity Ratio" (transferable: future commodity_ratio pairs auto-label)
+   - KS-106 auto-resolved with KS-109
+   - KS-107 New "How to Read the Signal Today" static card on GC×XLI Story
+   - KS-108 quartile chart y-axis Mean fwd return → Annualized Sharpe (parity with indpro_xlp)
+   - KS-109 episode-zoom z-score trace 252d → 126d (matches winner.signal_column); 3 Evidence prose drifts also fixed
+   - YYY-26 Granger CCF caption rewrote to acknowledge "0 of 25 lags exceed band, no bars are red"
+   - YYY-27 Regime narrative U-shape alignment (Q1=0.36, Q2=0.80, Q3=0.77, Q4=0.40); explained why strategy targets only Q4
+   - SOFR-TED items #38-51 NOT touched per user instruction (user-owned disposition)
+   - 3 SOP-hardening BL entries: BL-SCHEMA-GATE, BL-CHART-CONTRACT, BL-PROSE-DATA-GREP
+
+**Discoveries / insights:**
+
+1. **Subagent checkers reading files are NOT substitute for DOM inspection.** The crude_oil_xle round-4 four-checker PASS was a false exit signal. Consumer-side `validate_or_die` runs at render time against `docs/schemas/*.schema.json` — schemas GATE-CMP1's `_check_backlog_hygiene` doesn't load. Multiple artefacts passed mechanical checks while violating consumer-side schema contracts. LEAD-DOM1 codifies the new exit primitive.
+2. **Merge authorisation is governance, not technique.** The clean exit criteria are necessary but not sufficient. The user authorises the merge; silence-is-consent is not the rule. LEAD-MA1 codifies the 4-step protocol.
+3. **Comment-log triage by `Status` column saves agent budget.** Pivoting issues by Requester + reading Status distribution identifies real action items vs already-closed-with-residuals vs blank-no-triage-needed. YYY: 14 Closed + 2 Re-open + 1 deferred. KS: 19 blank. Different action shapes.
+4. **Branch hygiene through revert + new-branch + merge cycle:** `fix260602_pair4_prep` remains intact on origin at `0f9293b`; the revert removed the unauthorised merge from main but left every commit on the branch.
+
+**Outstanding work for next session:**
+
+- **`fix260602_pair4_prep` SUSPENDED** with a documented defects-to-fix list in `_pws/lead-lesandro/outstanding-work.md`. Major class: 3 producer JSONs violate their sibling schemas (winner_summary missing `signal_code`; `direction` + `strategy_family` enum violations; signal_scope missing 6 required fields; analyst_suggestions missing 2 required fields). Plus Evidence 3 Level-1 blocks share a chart slug; Strategy/Evidence "pending" placeholder banners; 7 console 404s. **Plan to resume is DOM-first per LEAD-DOM1 + schema-conformance per BL-SCHEMA-GATE direction.**
+- **SOFR-TED items #38-51 in the comment log** are owned by user (waiting for others' comments before shipping a new log version).
+- BL-SCHEMA-GATE / BL-CHART-CONTRACT / BL-PROSE-DATA-GREP — three SOP-hardening backlog items waiting for reactivation triggers (next pair build, next chart-quantity mismatch, next META-CMP SOP-hardening branch).
+
+**Branch state at session end:**
+
+| Branch | State | Tip |
+|---|---|---|
+| `main` | clean, deployed, verified | `95e159b` |
+| `fix260603_prod_dawo` | merged + safe to delete | `078ce14` |
+| `fix260602_pair4_prep` | **SUSPENDED — DO NOT MERGE** until defects fixed | `0f9293b` |
+
+dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whichever branch resumes.
+
+🤖 Agent: Lead Lesandro

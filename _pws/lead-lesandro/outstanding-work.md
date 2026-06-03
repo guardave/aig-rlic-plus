@@ -1,5 +1,61 @@
 # Outstanding work — Lead Lesandro
 
+Last updated: 2026-06-03 EOD.
+
+---
+
+## TOP — `fix260602_pair4_prep` SUSPENDED — schema-violations to fix before resuming
+
+**Branch state.** `fix260602_pair4_prep` at `0f9293b` on origin. 12 commits ahead of `main` at session end. **NOT merged.** Earlier attempt to merge was reverted (`aa5a404` → `8e86f60`) after user-side DOM probe surfaced multiple production-breaking defects that the round-4 four-checker PASS had missed.
+
+**Why the round-4 PASS was a false positive.** My checker subagent prompts asked agents to read producer files (JSON, configs, scripts) and verify self-consistency. None of the prompts asked agents to drive Playwright against the rendered DOM. The consumer-side `validate_or_die` in `app/components/schema_check.py` runs at render time against `docs/schemas/*.schema.json` — schemas that GATE-CMP1's `_check_backlog_hygiene` doesn't load. Multiple producer artefacts that I emitted PASSED my mechanical checks while VIOLATING the consumer-side schema contract.
+
+**Defects to fix before resume:**
+
+| Surface | Defect | Root cause | Schema or evidence |
+|---|---|---|---|
+| Strategy | 3 red error panels: "winner_summary.json does not conform to winner_summary.schema.json" | (a) missing `signal_code` required field; (b) `direction: "long_when_high_vol_regime"` not in enum `["procyclical","countercyclical","mixed"]`; (c) `strategy_family: "wti_high_vol_long"` not in enum `["P1_long_cash","P2_signal_strength","P3_long_short"]` | `docs/schemas/winner_summary.schema.json:11-25` |
+| Strategy | "Position exposure cannot be derived without valid signal values" (yellow panel) | Cascade from missing `signal_code` (the panel can't look up the parquet column) | same |
+| Methodology | "signal_scope.json does not conform" — 6 required fields missing (`schema_version`, `indicator_axis`, `target_axis`, `last_updated_by`, `last_updated_at`, `owner`) | I emitted a free-form JSON without consulting the schema | `docs/schemas/signal_scope.schema.json` |
+| Methodology | "analyst_suggestions.json does not conform" — 2 required fields missing (`schema_version`, `last_updated_at`) | same | `docs/schemas/analyst_suggestions.schema.json` |
+| Evidence | 3 Level-1 method blocks (Correlation, Lead-lag, Stationarity) all render the SAME `rolling_correlation` chart — I gave each block the same `chart_name` | Each block must point at a distinct chart slug | — |
+| Strategy / Evidence | "Cross-period analysis pending — Rolling Sharpe chart not yet available" placeholder | Pair lacks `rolling_sharpe` + `rolling_granger` charts | Either generate or codify omission per user-confirmed standard "placeholders not acceptable quality" |
+| All pages | 7 console 404s | Likely missing asset paths (PNG or page-resource) | Diagnose with browser devtools/playwright |
+
+**Plan to resume (DOM-first, per LEAD-DOM1):**
+
+1. Read `docs/schemas/winner_summary.schema.json`, `signal_scope.schema.json`, `analyst_suggestions.schema.json`, `signal_code_registry.json` in full. Identify the canonical enum values, required fields, and signal_code conventions for a vol-regime strategy. Likely choices: `direction: "procyclical"` (vol-regime signal is positive-cyclical for energy), `strategy_family: "P1_long_cash"` (binary long/cash), `signal_code: "S_vol_pctile"` (new entry — registry is append-only).
+2. Update `scripts/pair_pipeline_crude_oil_xle.py` to emit the three artefacts in their schema-conformant shape. Re-run the pipeline.
+3. Update `EVIDENCE_METHOD_BLOCKS` so each Level-1 block has a distinct `chart_name`.
+4. Decide disposition for the Cross-period placeholders: (a) generate the charts (likely needs new chart-generation code), or (b) codify omission in pair_config so the section doesn't render. User standard says placeholders are not acceptable.
+5. Investigate the 7 console 404s.
+6. **Drive Playwright against the rendered DOM** for every page; LEAD-DOM1 assertion checklist must pass. Iterate the producer until clean.
+7. Ask user for explicit merge authorisation per LEAD-MA1.
+
+Branch is on origin awaiting resume. Do NOT merge anything from this branch until the above is done.
+
+---
+
+## Branch state at session end
+
+| Branch | State | Tip | Notes |
+|---|---|---|---|
+| `main` | clean, deployed, verified | `95e159b` | Carries fix260603_prod_dawo + LEAD-MA1 + LEAD-DOM1 SOP additions |
+| `fix260603_prod_dawo` | merged + safe to delete | `078ce14` | 7 KS/YYY issues closed; production-verified clean |
+| `fix260602_pair4_prep` | **SUSPENDED — DO NOT MERGE** | `0f9293b` | See defects above |
+
+**dawodev** currently pointed at `fix260603_prod_dawo` (now merged). Repoint to whichever branch is in flight when resumed.
+
+---
+
+## SOFR-TED comment-log items #38-51 (user-owned)
+
+User explicitly opted to handle the 14 SOFR-TED items' disposition in the original Excel, not in the temp/ copy I have access to. They want to wait for others' comments to land before shipping a new version of the comment log. **I do not touch `temp/Step C - Dashboard Comment log (2606031212BST).xlsx`.**
+
+---
+
+## PRIOR ENTRY (kept for reference)
+
 Last updated: 2026-06-01 EOD (chart-hygiene branch: Wave 1 done; Wave 2 paused at scope-creep discovery; Wave 3 pending).
 
 ## Branch state

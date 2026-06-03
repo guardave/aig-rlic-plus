@@ -1,5 +1,23 @@
 # Key Memories — Lead Lesandro
 
+## Prose-authoring discipline — numeric assertions (added 2026-06-03 — re-read at every SOD)
+
+**Every numeric assertion in user-facing prose must be re-read from the source artifact at authoring time. Not from memory.** This rule was first crystallised during the crude_oil_xle Mode-2 build (2026-06-02) when I authored "Pearson ≈ 0.55" in four prose locations while the underlying `exploratory_results.json` said 0.26. The discipline reverted with the unauthorised merge revert on 2026-06-03; saving it back here so it loads at SOD.
+
+If the number is round (0.5, 0.55, 1.0) and matches a plausible heuristic, that's a red flag — most empirical correlations are not round. Read the JSON, not your memory of what it "should" be.
+
+Cross-checks LEAD-DV1 (verify indicator units against Pre-master row 2 before merging) and BL-PROSE-DATA-GREP (the proposed mechanical forcing function — grep prose for numeric tokens and cross-check against source artefacts).
+
+## Comment-log triage pattern (added 2026-06-03)
+
+When asked to "handle issues from Requesters X and Y" (or similar bucket-by-requester instructions), the FIRST move is to pivot the source log by Requester and read the `Status` column per-requester. Different status distributions imply different action shapes:
+
+- Requester with mostly `Closed` + a few `Re-open` → user perceives prior resolutions but is flagging residuals. Read the re-open comment for "remaining inconsistency" — those are the action items.
+- Requester with ALL blank Status → no prior triage; every item is unattended from their perspective. Treat as fresh inbound.
+- Requester with `Pending; No action point` → explicit scope-out; preserve the disposition, do not re-action.
+
+Crystallised on the 2026-06-03 Dashboard Comment Log: YYY had 14 Closed + 2 Re-open + 1 deferred (so only 2 items needed actual work); KS had 19 blank (all 19 needed triage). Saved me from treating them symmetrically and burning agent budget on YYY items already closed.
+
 ## Rendered-DOM verification (LEAD-DOM1, added 2026-06-03 — re-read at every SOD)
 
 **The end product is what the user sees, not what producers emit.** File-level checks (GATE-CMP1, subagent dispatch, JSON-shape inspection) are necessary but never sufficient. Before declaring ANY pair, page, or component change complete, drive headless Playwright against the live URL and verify the DOM is clean.
