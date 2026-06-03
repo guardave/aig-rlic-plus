@@ -53,7 +53,7 @@ observations per year), the strategies sort as follows by OOS Sharpe:
 
 1. **`wti_high_vol_long`** — long XLE when WTI 13-week realized vol is
    in the top 25% of its 5-year history. **Winner.** OOS Sharpe ≈ 0.47.
-   Max drawdown ≈ -26%. ~4 trades per year.
+   Max drawdown ≈ -24.5%. ~4 trades per year.
 2. `wti_z_104w_long_top` — long XLE when WTI 2-year z-score is above
    +0.5. OOS Sharpe ≈ 0.24.
 3. `wti_momentum_26w_long` — long XLE when WTI 26-week log return is

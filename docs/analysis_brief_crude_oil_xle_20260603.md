@@ -67,10 +67,10 @@ used here, and WTTSTUS1 (inventory) which maps to a separate pair_id
 
 ## 4. Sample & Alignment
 
-- **Joint sample** (after alignment): 1998-12-25 to 2025-10-10, 1,399 weekly observations.
+- **Joint sample** (after alignment): 1998-12-25 to 2025-10-10, 1,399 weekly observations. The first observation has no usable XLE weekly return, so the estimation sample is 1,398 observations from 1999-01-01.
 - **Frequency alignment policy:** XLE resampled DOWN to weekly Friday close (last-observation-of-week). WTI kept at its native weekly frequency.
-- **IS/OOS split:** 60/40 calendar split.
-  - IS: 1998-12-25 to 2014-12-19 (839 obs)
+- **IS/OOS split:** 60/40 calendar split of the 1,398-observation estimation sample.
+  - IS: 1999-01-01 to 2015-01-16 (838 obs)
   - OOS: 2015-01-23 to 2025-10-10 (560 obs)
 - **No look-ahead:** signal computed at Friday close week t; position taken at Friday close week t+1 (one-week lag built into `_build_position`).
 
@@ -120,7 +120,7 @@ All families share the same translation primitive: signal True → position +1 (
 |---|---|---|---|
 | OOS Sharpe | 0.47 | 0.04 | +0.43 ✓ |
 | OOS ann. return | 8.8% | 1.2% | +7.6 pp |
-| OOS max drawdown | −26.3% | −74.1% | +47.8 pp ✓ |
+| OOS max drawdown | −24.5% | −68.8% | +44.3 pp ✓ |
 | OOS annual turnover | 3.7 | 0 | within budget ✓ |
 | OOS trades | 20 | — | within budget ✓ |
 

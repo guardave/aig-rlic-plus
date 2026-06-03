@@ -76,7 +76,8 @@ class StoryConfig:
         "What this shows: mean 13-week forward XLE return conditioned on WTI's "
         "13-week realized-volatility quartile. The right tail (Q4 — high vol) shows "
         "the most elevated mean forward return — the regime the winning rule "
-        "exploits. Error bars show standard error of the mean within each bucket."
+        "exploits. The thin vertical lines on each bar show how reliable each "
+        "average is — short lines = trustworthy, tall lines = noisier."
     )
 
     HISTORY_ZOOM_EPISODES = [
@@ -88,7 +89,10 @@ class StoryConfig:
             "narrative": (
                 "The 2001 dot-com bust did not strongly impair WTI or XLE because oil "
                 "fundamentals were not the centre of the shock — equity exuberance was. "
-                "WTI traded sideways through 2001; XLE was relatively flat."
+                "WTI traded sideways through 2001; XLE was relatively flat. The "
+                "vol-regime rule was in the IS (training) window during this episode "
+                "and was active in roughly 38% of weeks — choppiness was moderate "
+                "but not at the historical extreme."
             ),
         },
         {
@@ -100,7 +104,10 @@ class StoryConfig:
                 "The 2008 GFC broke both series violently. WTI ran from ~$60 to $145 "
                 "in mid-2008, then collapsed to $35 by year-end. XLE tracked the collapse "
                 "closely. This is the canonical co-crash and the largest single drawdown "
-                "in the sample."
+                "in the sample. The vol-regime rule was active in roughly 39% of weeks "
+                "across the 2007-2009 window — the late-2008 vol spike triggered active "
+                "weeks, but the rule still spent the majority of the window in cash, "
+                "limiting downside exposure."
             ),
         },
         {
@@ -112,7 +119,10 @@ class StoryConfig:
                 "March-April 2020 saw the most extreme single episode in the sample: "
                 "WTI futures briefly traded negative on 2020-04-20 (storage capacity "
                 "shock), and XLE fell roughly 50% peak-to-trough. The series recovered "
-                "unevenly through 2020 H2; XLE lagged WTI's recovery."
+                "unevenly through 2020 H2; XLE lagged WTI's recovery. The vol-regime "
+                "rule was active in roughly 56% of weeks — the sustained post-shock "
+                "volatility kept the high-vol percentile elevated for most of the year, "
+                "and the rule captured the second-half recovery."
             ),
         },
         {
@@ -123,33 +133,34 @@ class StoryConfig:
             "narrative": (
                 "The 2022 inflation cycle and Russia's invasion of Ukraine pushed WTI "
                 "back above $120/bbl in early 2022. XLE rallied strongly through "
-                "mid-2022 then drifted as crude retraced. This episode is the clearest "
-                "example in the sample of WTI volatility correlating with elevated XLE "
-                "risk-adjusted return — and is one of the periods in which the winning "
-                "rule was active."
+                "mid-2022 then drifted as crude retraced. The vol-regime rule was "
+                "active in roughly 63% of weeks across this window — the highest of "
+                "the four episodes — and captured the bulk of the XLE rally. This is "
+                "the clearest in-sample example of the conditioning the rule exploits."
             ),
         },
     ]
 
     NARRATIVE_SECTION_1 = (
-        "Energy stocks and crude oil prices move together at high frequency because "
-        "XLE constituents earn revenue in barrels. The contemporaneous Pearson "
-        "correlation between WTI weekly log returns and XLE weekly log returns is "
-        "approximately 0.26 across the 1998-2025 sample (Spearman 0.40). This study does not try to "
-        "beat that contemporaneous link — it asks whether the RECENT behaviour of "
-        "WTI (its volatility, momentum, position in cycle) carries enough information "
+        "Energy stocks and crude oil prices move together because XLE constituents "
+        "earn revenue in barrels. But across the 1998-2025 sample, WTI and XLE "
+        "moved in the same direction only about 26% of the time on a week-by-week "
+        "basis — a meaningful link, but far from perfect. This study does not try "
+        "to beat that same-week link. It asks whether the RECENT behaviour of WTI "
+        "(its volatility, momentum, position in cycle) carries enough information "
         "to time XLE one week ahead in a way that beats simple buy-and-hold."
     )
 
     NARRATIVE_SECTION_2 = (
-        "The winning rule's mechanism is NOT 'more vol = more upside.' It is: the "
-        "rule selects out periods when XLE's risk-adjusted return is more likely to "
-        "be elevated, conditional on what's been happening in the underlying "
-        "commodity. The selection criterion is regime-based, not return-based."
+        "The winning rule's mechanism is NOT 'more volatility means more upside.' "
+        "It is: the rule selects out periods when XLE's return-per-unit-of-risk "
+        "(the Sharpe idea from above) is more likely to be elevated, conditional "
+        "on what's been happening in the underlying commodity. The selection "
+        "criterion is regime-based, not return-based."
     )
 
     SCOPE_NOTE = (
-        "Sample 1998-12-22 to 2025-10-10. Weekly frequency (Friday close). "
+        "Sample 1998-12-25 to 2025-10-10. Weekly frequency (Friday close). "
         "WTI from FRED `WCOILWTICO`, XLE from `etf_prices` sheet. 60/40 IS/OOS "
         "split."
     )
@@ -176,7 +187,8 @@ class StrategyConfig:
     SIGNAL_RULE_MD = (
         "**Each Friday close:** compute WTI's 13-week realized volatility and "
         "rank it within its trailing 5-year history. If the rank is **above the "
-        "75th percentile**, hold XLE for the coming week. Otherwise, hold cash."
+        "75th percentile** (choppier than three of every four weeks in the last "
+        "five years), hold XLE for the coming week. Otherwise, hold cash."
     )
 
     HOW_SIGNAL_IS_GENERATED_MD = (
@@ -184,10 +196,13 @@ class StrategyConfig:
         "deviation. Annualise by √52.\n"
         "2. For each week, compute the percentile rank of the current vol against "
         "the trailing 260 weeks (5 years) of vol.\n"
-        "3. The signal is `rank > 0.75`.\n"
-        "4. Position translation: signal True → +1 (long XLE); signal False → 0 "
-        "(cash). Position is shifted by one week to avoid look-ahead.\n"
-        "5. Costs: 5 basis points per unit of |Δposition|."
+        "3. The signal is true when the rank is above 0.75 — i.e. choppier than "
+        "three out of four weeks in the recent 5-year history.\n"
+        "4. Position: when the signal is true, hold XLE; when false, hold cash. "
+        "We use last week's signal to drive this week's position — that prevents "
+        "accidentally peeking at information we wouldn't have had in real time.\n"
+        "5. Costs: 5 basis points per unit of position change (one basis point is "
+        "0.01%)."
     )
 
     MANUAL_USE_MD = (
@@ -232,7 +247,7 @@ _DATA_SOURCES_MD = """
 | XLE total return | `data/Data Master.xlsx` sheet `etf_prices` col XLE | Daily | USD | 1998-12-22 → 2025-10-23 |
 
 XLE was resampled to weekly-Friday close to align with WTI's native frequency.
-Joint sample 1998-12-22 to 2025-10-10 (1,400 weekly observations).
+Joint sample 1998-12-25 to 2025-10-10 (1,399 weekly observations; 1,398 with usable returns).
 """
 
 _METHODS_TABLE_MD = """
@@ -334,9 +349,10 @@ EVIDENCE_METHOD_BLOCKS = {
                 "Rolling 52-week ρ ranges from −0.06 to +0.87 with median 0.42."
             ),
             "interpretation": (
-                "The mechanical link is strong and stable in sign. XLE constituents' "
-                "revenue is denominated in oil; same-week returns share most of their "
-                "variance."
+                "The link is positive and stable in sign but modest in magnitude — "
+                "XLE constituents' revenue is denominated in oil, but XLE also "
+                "carries broad-equity beta and idiosyncratic firm factors that "
+                "dilute the contemporaneous oil link."
             ),
             "key_message": (
                 "Same-week prediction is not the goal of this study. The interesting "
@@ -389,13 +405,14 @@ EVIDENCE_METHOD_BLOCKS = {
                 "robust verdict than either alone."
             ),
             "question": (
-                "Are the constructed signal features stationary, i.e. safe to use in "
-                "regression and rule-based strategies?"
+                "Are the constructed signal features well-behaved enough (don't drift "
+                "indefinitely, don't accumulate trend) to feed into a rule?"
             ),
             "how_to_read": (
-                "ADF p < 0.05 rejects unit-root (good). KPSS p > 0.05 fails to reject "
-                "stationarity (good). When the two agree on stationarity, the feature "
-                "is usable as-is."
+                "Both tests should agree the series is 'well-behaved' — that the past "
+                "is informative about the present. When they agree, the feature is "
+                "safe to feed into a rule. When they disagree, more work is needed "
+                "before using the feature."
             ),
             "observation": (
                 "Levels (WTI, XLE) are non-stationary as expected. All derived signals "
