@@ -31,7 +31,15 @@ After the user decides, log both the recommendation and the actual choice in `do
 
 ### Mode 2 exit criteria
 
-The pair is not closeable in Mode 2 until all four checker subagents have returned a clean report in the same iteration. Checker iteration count is recorded in the pair-execution-history entry as a quality signal.
+The pair is not closeable in Mode 2 until **all of**:
+
+1. All four checker subagents have returned a clean report in the same iteration.
+2. GATE-CMP1 returns exit 0 (no FAIL, no WARN that the user has not explicitly accepted) at the same commit.
+3. **LEAD-DOM1 rendered-DOM verification passes against a live preview app (dawodev or local) for every affected page.** This is mandatory and is the FINAL gate — if it fails after subagent + gate PASS, Mode 2 has not exited; iterate the producer.
+
+Checker iteration count is recorded in the pair-execution-history entry as a quality signal. Rendered-DOM iteration count is recorded separately.
+
+**No subagent dispatch + GATE-CMP1 combination substitutes for the DOM check.** Subagents read files; GATE-CMP1 checks schema/presence; the user sees the rendered DOM. The DOM is where the truth lives. See LEAD-DOM1 for the assertion checklist.
 
 ### The four checker dimensions
 
@@ -41,6 +49,14 @@ The pair is not closeable in Mode 2 until all four checker subagents have return
 4. **ELI5** — layperson reader friendliness across narrative, chart captions, Evidence ELI5 fields, methodology page. Tone, jargon density, accessibility.
 
 Each checker is a separate Agent dispatch with a tightly scoped prompt and structured issue-report format.
+
+**These four dimensions are SCORED ON THE RENDERED DOM, not on producer files.** The dispatch prompt for each checker MUST instruct the subagent to:
+(a) launch a headless browser against the pair's URL,
+(b) extract the DOM body text and chart counts,
+(c) match those against expected content,
+AND ONLY THEN read producer files to diagnose root causes when DOM-level discrepancies are found.
+
+A subagent that returns "PASS" without having loaded the rendered DOM is not a valid checker exit signal.
 
 ### Mode-1-only safeguards
 
@@ -199,6 +215,42 @@ No other exceptions. "All checks passed" / "the SOP says clean exit" / "we're at
 **The slip this rule prevents.** 2026-06-03, fix260602_pair4_prep: I merged the branch to main immediately after the round-4 four-checker PASS without asking the user. My justification was that the todo list said "merge fix260602_pair4_prep → main" and the four checkers had returned clean. User caught it: *"Revert, merging to main should be approved by me first. You crossed the line."* I reverted at `8e86f60` and added this rule. The checker-phase exit criteria are necessary but not sufficient for merge — the user's explicit approval is the sufficient condition.
 
 **Cross-reference:** LEAD-DL1 (Lead-owned write categories include git tags + ratification commits, but those operate on the *branch*, not on main); LEAD-WM1 Mode-2 exit (these are technical exit criteria for the checker phase, not merge authorisation); META-CPD (commit-push discipline — pushes to feature branches are fine; merges to main are not).
+
+---
+
+## Rule LEAD-DOM1 — Rendered-DOM Verification (binding, every "complete" declaration)
+
+**No artifact, page, or pair is "complete" until its rendered DOM has been inspected by a headless browser AND the inspection has shown zero error banners, zero schema-violation panels, zero `_pending` placeholders, and the right charts attached to the right method blocks.** File-level checks (gates, subagent reads, JSON-shape validation) are necessary but never sufficient. The end product is what the user sees, not what producers emit.
+
+**The rule (mandatory, applies whenever a pair, page, or component change is about to be declared done):**
+
+1. Start the dev Streamlit instance (or use a live preview URL — dawodev for branch work, production for post-merge).
+2. Drive Playwright against every affected URL. For pair pages this means at minimum: landing, story, evidence, strategy, methodology.
+3. For each URL, **assert all of**:
+   - `body.innerText` includes the expected content (key numbers, key headings, indicator/target names).
+   - `body.innerText` does NOT include: `Traceback`, `Schema errors`, `does not conform`, `APP-SEV1 L1 blocks render`, `cannot be derived`, `not yet available for this pair`, `Section unavailable`, `placeholders`, `pending`, `coming soon`, raw column names like `xle_logret_1w` (i.e. unhumanised pipeline tokens), `RuntimeError`, `KeyError`, `AttributeError`, `FileNotFoundError`, or any `Could not load X` string.
+   - The count of `[role="alert"]` + `[data-baseweb="notification"]` + `.stAlert` elements with `kind="error"` is **zero**.
+   - The count of `.js-plotly-plot` elements is at least the expected number for the page (Story ≥ 1, Evidence ≥ 4 distinct chart instances, Strategy ≥ 3, Methodology ≥ 0).
+   - On Evidence specifically: each Level-1 method block heading is followed by a *distinct* chart element (no two blocks rendering the same plotly figure).
+   - Console errors of severity `error` (not `warning`) is **zero**.
+4. If ANY assertion fails, the pair is not complete. Iterate on the producer / config / pipeline until all assertions pass, then re-verify.
+
+**Subagent dispatch + GATE-CMP1 do not substitute for LEAD-DOM1.** Both inspect files. Files are intermediate outputs. The user sees rendered DOM. A pair can pass GATE-CMP1 137/137 + all four checker subagents PASS and still fail LEAD-DOM1 — because the consumer-side `validate_or_die` calls happen at render time against schemas the gate doesn't check, and the human checkers read files not browsers.
+
+**Re-verify is not optional after any change.** If a producer artifact changes, the gate is re-run AND the rendered DOM is re-inspected. "I only changed prose" / "I only updated a JSON field" are not exceptions — the consumer rendering path is opaque enough that small upstream changes can break unrelated downstream sections.
+
+**The slip this rule prevents.** 2026-06-03, fix260602_pair4_prep. After four rounds of subagent checkers returning PASS, I declared Mode-2 exit met and merged to main (separate violation of LEAD-MA1; reverted). User then ran the actual page and found:
+- Strategy page: 3 visible APP-SEV1 L1 error banners ("winner_summary.json does not conform to winner_summary.schema.json"; missing `signal_code`; `direction` not in canonical enum; `strategy_family` not in canonical enum).
+- Strategy page: "Position exposure cannot be derived without valid signal values."
+- Methodology page: signal_scope.json schema violation (6 missing fields); analyst_suggestions.json schema violation (2 missing fields).
+- Evidence page: 3 of 4 Level-1 method blocks (Correlation, Lead-lag, Stationarity) all pointing at the SAME `rolling_correlation` chart — visible to a user as three identical charts under three different headings.
+- Evidence/Strategy: "Cross-period analysis pending — Rolling Sharpe chart not yet available" placeholder banner (violates the user-confirmed standard: placeholders shown to users are NOT acceptable quality).
+
+None of these were visible to file-reading checkers. All were obvious in a 90-second Playwright DOM probe.
+
+User: *"I mentioned so many number of times, they have to look at the **actual** output to the user. It is meaningless to look at intermittent outputs if you never look at the end product."*
+
+**Cross-reference:** LEAD-WM1 Mode-2 exit criteria (now requires DOM verify, not just subagent PASS); LEAD-MA1 (rendered-DOM clean is one of the preconditions before asking for merge authorisation); LEAD-QF1 (quality focus — the four dimensions are measured against the rendered DOM, not against producer files); `_pws/_team/user-notes.md` "Placeholders shown to users are not acceptable user-facing quality" (2026-06-01); existing user preference in memories.md: "Always use headless browser verification — 'Every time.'"
 
 ---
 

@@ -1,5 +1,26 @@
 # Key Memories — Lead Lesandro
 
+## Rendered-DOM verification (LEAD-DOM1, added 2026-06-03 — re-read at every SOD)
+
+**The end product is what the user sees, not what producers emit.** File-level checks (GATE-CMP1, subagent dispatch, JSON-shape inspection) are necessary but never sufficient. Before declaring ANY pair, page, or component change complete, drive headless Playwright against the live URL and verify the DOM is clean.
+
+**Specifically what to check on the rendered DOM:**
+
+- No `Schema errors` / `does not conform` / `APP-SEV1 L1 blocks render` red panels (these surface when the consumer's `validate_or_die` rejects the producer JSON against `docs/schemas/*.schema.json`)
+- No `cannot be derived` / `not yet available for this pair` / placeholder banners
+- No `Traceback` / `RuntimeError` / `KeyError` / `FileNotFoundError` strings
+- Zero `[role="alert"]` + `[data-baseweb="notification"]` + `.stAlert` error elements
+- Expected number of distinct `.js-plotly-plot` elements (Evidence: 3+ distinct charts under distinct headings — NOT the same chart repeated)
+- Zero console errors of severity `error`
+
+**The slip this rule prevents.** 2026-06-03, fix260602_pair4_prep. Four rounds of subagent checkers all returned PASS. I declared Mode-2 exit met. User then ran the actual page and found 3 schema-error banners on Strategy, 1 "cannot be derived" panel, 2 "pending" placeholder banners, 3 Evidence Level-1 method blocks all rendering the same chart, and schema violations on Methodology. None were visible to file-reading checkers. All obvious in a 90-second Playwright DOM probe.
+
+User: *"I mentioned so many number of times, they have to look at the **actual** output to the user. It is meaningless to look at intermittent outputs if you never look at the end product."*
+
+The discipline already existed in three places — `CLAUDE.md` ("start the dev server and use the feature in a browser"), this memories.md ("Always use headless browser verification — 'Every time.'"), and project memory ("Always verify portal with Playwright headless browser after changes"). I had it written down and ignored it because subagent dispatches *felt* exhaustive. They are not. A subagent that reads files cannot see what the user sees. The rule now lives in `docs/agent-sops/lead-agent-sop.md` as LEAD-DOM1 with an explicit assertion checklist.
+
+**Discipline:** when the work feels done — pause before declaring. Drive Playwright. If the body contains any of the forbidden strings or any alert element, the work is not done. Iterate the producer; do not declare exit.
+
 ## Merge authorisation (LEAD-MA1, added 2026-06-03 — re-read at every SOD)
 
 **Lead never merges to `main` without explicit user authorisation.** Checker-phase clean exit ≠ merge authorisation. The checker rounds, GATE-CMP1 PASS, cloud verify — those are *technical* gates. The merge is a *governance* gate. Only the user authorises it.
