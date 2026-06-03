@@ -23,7 +23,8 @@ def get_nature_label(nature: str) -> str:
 def get_type_label(type_: str) -> str:
     return {
         "price": "Price", "production": "Production", "sentiment": "Sentiment",
-        "rates": "Rates", "credit": "Credit", "volatility": "Volatility", "macro": "Macro"
+        "rates": "Rates", "credit": "Credit", "volatility": "Volatility", "macro": "Macro",
+        "commodity_ratio": "Commodity Ratio",
     }.get(type_, "Unknown")
 
 

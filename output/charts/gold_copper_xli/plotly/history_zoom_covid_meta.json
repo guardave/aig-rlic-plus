@@ -5,12 +5,9 @@
   "rules_applied": [
     "VIZ-DP1",
     "VIZ-IC1",
-    "GATE-VIZ-NBER2",
-    "VIZ-BF1"
+    "GATE-VIZ-NBER2"
   ],
   "narrative_alignment_note": "HZE1 episode 'covid'. NBER overlay applied (recession overlap). Aligned with Story page episode narrative.",
-  "generated_at": "2026-05-26T13:43:20Z",
-  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)",
-  "disposition": "consumed",
-  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "generated_at": "2026-06-03T12:28:33Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
 }

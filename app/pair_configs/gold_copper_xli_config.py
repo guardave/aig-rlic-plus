@@ -69,14 +69,14 @@ class StoryConfig:
         "down) cluster around the 2008 and 2020 crises, when XLI was weakest."
     )
 
-    REGIME_TITLE = "What History Shows: XLI Returns by Gold/Copper Z-Score Quartile"
+    REGIME_TITLE = "What History Shows: XLI Sharpe by Gold/Copper Z-Score Quartile"
     REGIME_CHART_NAME = "quartile_returns"
     REGIME_CAPTION = (
-        "What this shows: XLI mean 63-trading-day forward return "
-        "(~3 calendar months) in each of the four z-score quartiles. "
-        "Q1 (lowest ratio = risk-on) is the strongest forward-return "
-        "regime; Q3 is the weakest. The Q4 bump is the documented "
-        "failure case — see the 2022 Rates Shock episode below."
+        "What this shows: XLI annualized Sharpe ratio in each of the four "
+        "126-day z-score quartiles (annualization from 63-day forward returns). "
+        "Q1 (lowest ratio = risk-on regime) is the strongest Sharpe quartile; "
+        "Q3 is the weakest. The Q4 partial rebound is the documented failure "
+        "case — see the 2022 Rates Shock episode below."
     )
 
     NARRATIVE_SECTION_1 = """
@@ -113,6 +113,22 @@ The signal is not infallible. The 2022 Rates Shock episode is the documented fai
 In this episode the signal said "risk-on" while equities were clearly risk-off. The mechanism broke because one leg of the ratio was dominated by its own supply/macro driver, not by industrial-demand dynamics. The Q4 bump in the quartile chart above is the statistical fingerprint of this kind of episode.
 
 The practical implication: **the signal should be used with regime awareness**. When DXY moves are unusually large (the dataset's diagnostic column), or when copper inventories suggest supply-driven moves, the signal's confidence is reduced. The Evidence page's HMM regime analysis is the model-based version of this awareness.
+
+### How to Read the Signal Today
+
+The exact rule that produced the 1.27 Sharpe is simple enough to apply by hand. The Strategy page has the full implementation detail and a worked daily example; this card is the at-a-glance version.
+
+| Step | What | How |
+|---|---|---|
+| 1. Pull two prices | Gold and copper futures closes | Yahoo Finance tickers `GC=F` and `HG=F`, or any equivalent feed |
+| 2. Compute the ratio | gold ($/oz) ÷ copper ($/lb) | Today's value vs its trailing 6-month mean is the comparison that matters |
+| 3. Compute the 126-day z-score | (today's ratio − 6-month mean) ÷ 6-month standard deviation | Tells you how unusual today is in 6-month context |
+| 4. Compare to threshold | **≈ −0.03** (in-sample-median calibration) | Below threshold = risk-on regime; above = risk-off |
+| 5. Take a position | Below threshold → **long XLI 100%**; above → **cash (0% XLI)** | No short side; no leverage; no lead |
+
+The threshold value (-0.03) is fixed — it was tuned on in-sample data (pre-2020) and held constant through the out-of-sample window (2020–2025). You do not re-tune it. If you want to see what value the signal would take today, pull the two futures closes and run steps 2–3; the threshold comparison in step 4 is mechanical.
+
+**A worked example** — see the *Strategy → Manual Use* page for a full step-by-step including what to do on a rebalancing day vs an in-between day.
 """
 
     SCOPE_NOTE = (
@@ -249,7 +265,7 @@ CORRELATION_BLOCK = dict(
         "(say, 2 standard deviations above its 1-year average), are XLI "
         "returns over the next 3 months systematically lower? The "
         "static correlation at the primary horizon is small in magnitude "
-        "(around -0.04 for the 252d z-score vs 63d forward return) but "
+        "(around -0.04 for the 126d z-score vs 63d forward return) but "
         "**directionally consistent** with the mechanism. Importantly, "
         "the small magnitude does not preclude a profitable strategy — "
         "the tournament finds OOS Sharpe 1.27 by exploiting the "
@@ -309,7 +325,7 @@ GRANGER_BLOCK = dict(
     ),
     chart_name="signal_timeseries",
     chart_caption=(
-        "What this shows: the winning signal (252d z-score) with the "
+        "What this shows: the winning signal (126d z-score) with the "
         "tournament-tuned threshold marked as a dashed horizontal line. "
         "Long XLI when the signal is below the line; switch position "
         "otherwise. NBER recessions are shaded."
@@ -348,7 +364,7 @@ REGIME_BLOCK = dict(
     method_name="Regime Analysis (Quartile Returns)",
     method_theory=(
         "We sort all daily observations into four quartiles based on the "
-        "gold/copper 252d z-score and compute mean XLI forward 63d returns "
+        "gold/copper 126d z-score and compute mean XLI forward 63d returns "
         "in each quartile. This is the simplest possible regime test: "
         "does XLI performance differ systematically across z-score "
         "regimes, without any model-imposed structure?"

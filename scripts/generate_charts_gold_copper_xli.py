@@ -148,20 +148,27 @@ def make_drawdown(signals_df):
 
 
 def make_quartile_returns():
+    """KS-108 fix (2026-06-03): swap y-axis from mean fwd 63d return → annualized
+    Sharpe to match the convention used by indpro_xlp and other production pairs.
+    Annualization factor for 63-day non-overlapping returns: sqrt(252/63) = 2.
+    """
     df = pd.read_csv(os.path.join(RESULTS, "regime_quartile_returns.csv"))
+    import numpy as np
+    ann_factor = np.sqrt(252.0 / 63.0)  # = 2.0 exactly
+    sharpe = (df["mean"] / df["std"]) * ann_factor
     fig = go.Figure()
     colors = ["#2ca02c", "#7eb86b", "#e8a345", "#d62728"]
-    fig.add_trace(go.Bar(x=df["quartile"], y=df["mean_pct"],
+    fig.add_trace(go.Bar(x=df["quartile"], y=sharpe,
                          marker_color=colors,
-                         text=[f"{v:+.2f}%" for v in df["mean_pct"]],
+                         text=[f"{v:.2f}" for v in sharpe],
                          textposition="outside"))
-    fig.update_layout(title="XLI 63d forward return by gold/copper z-score quartile",
+    fig.update_layout(title="XLI annualized Sharpe by gold/copper z-score quartile",
                       xaxis=dict(title="Z-Score quartile (Q1=low ratio, Q4=high ratio)"),
-                      yaxis=dict(title="Mean fwd 63d return (%)"),
+                      yaxis=dict(title="Annualized Sharpe ratio"),
                       template="plotly_white", height=420)
     save_chart(fig, "quartile_returns", palette_id="quartile_v1",
                rules_applied=["VIZ-IC1"],
-               alignment_note="Quartile bar chart matches Evidence-page quartile method block. Q4 bump = rates_2022 failure case (per narrative).")
+               alignment_note="Quartile bar chart matches Evidence-page quartile method block. KS-108 (2026-06-03): switched to Sharpe for parity with indpro_xlp regime_stats convention.")
 
 
 def make_regime_quartile_returns():
@@ -215,9 +222,10 @@ def make_history_zoom(df, slug):
     fig.add_trace(go.Scatter(x=sub.index, y=sub["xli"],
                              name="XLI ($)", xaxis="x", yaxis="y2",
                              line=dict(color="#1f77b4", width=1.4)))
-    # Bottom panel
-    fig.add_trace(go.Scatter(x=sub.index, y=sub["gold_copper_zscore_252d"],
-                             name="252d Z-Score", xaxis="x2", yaxis="y3",
+    # Bottom panel — 126d z-score is the tournament winner's signal column
+    # (per winner_summary.signal_column). KS-109 fix (2026-06-03): was 252d.
+    fig.add_trace(go.Scatter(x=sub.index, y=sub["gold_copper_zscore_126d"],
+                             name="126d Z-Score", xaxis="x2", yaxis="y3",
                              line=dict(color="#7f4a2e", width=1.2)))
     fig.add_hline(y=0, line=dict(color="#888", width=0.8, dash="dot"), xref="x2", yref="y3")
 
@@ -240,7 +248,7 @@ def make_history_zoom(df, slug):
         yaxis2=dict(domain=[0.45, 1.0], title="XLI ($)", anchor="x",
                     overlaying="y", side="right"),
         xaxis2=dict(domain=[0, 1], anchor="y3", title="Date"),
-        yaxis3=dict(domain=[0, 0.42], title="252d Z-Score", anchor="x2"),
+        yaxis3=dict(domain=[0, 0.42], title="126d Z-Score", anchor="x2"),
         template="plotly_white", height=520,
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         showlegend=True,
