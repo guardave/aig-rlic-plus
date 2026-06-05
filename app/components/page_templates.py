@@ -931,6 +931,37 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
         "it, the story is fragile. If they converge, we have real evidence.*"
     )
     st.markdown(overview)
+
+    downloads = method_blocks.get("downloads") or []
+    if downloads:
+        with st.expander("Download archived CSVs", expanded=False):
+            st.caption(
+                "Files served from local disk. MIME `text/csv`. Missing files "
+                "render an inline note instead of a button — no page break."
+            )
+            for item in downloads:
+                rel_path = item.get("path", "")
+                label = item.get("label") or rel_path.rsplit("/", 1)[-1]
+                abs_path = _REPO_ROOT / rel_path
+                if not abs_path.exists():
+                    st.info(
+                        f"`{rel_path}` not on disk — re-run the pair pipeline "
+                        "to regenerate it."
+                    )
+                    continue
+                try:
+                    payload = abs_path.read_bytes()
+                except Exception as exc:  # pragma: no cover — defensive
+                    st.warning(f"Could not read `{rel_path}`: {exc}")
+                    continue
+                st.download_button(
+                    label=f"⬇ {label}",
+                    data=payload,
+                    file_name=abs_path.name,
+                    mime="text/csv",
+                    key=f"dl_{pair_id}_{abs_path.name}",
+                )
+
     st.markdown("---")
 
     st.markdown(
@@ -1233,6 +1264,17 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
             st.markdown("### How to Use This Indicator Manually")
             st.markdown(manual_use)
 
+        # APP-SE4 — Future: Live Execution lives inside the Execute tab
+        # so it scopes to the tab the user is reading. Previously rendered
+        # at parent indentation below all three tabs, which the user
+        # perceived as a duplicated section on Performance + Confidence.
+        st.markdown("---")
+        try:
+            render_live_execution_placeholder(pair_id)
+        except Exception:
+            # Tolerant placeholder; do not block the page on dependency load.
+            pass
+
     # --- Performance tab ---
     with tab_performance:
         st.markdown("### Equity Curves vs. Buy-and-Hold")
@@ -1319,14 +1361,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
             st.warning(caveats)
 
     # ------ 10. Transition ------
-    st.markdown("---")
-    try:
-        render_live_execution_placeholder(pair_id)
-    except Exception:
-        # Live execution is a tolerant placeholder; do not block the page
-        # if its dependencies fail to load.
-        pass
-
+    # (Live Execution placeholder moved into the Execute tab — see APP-SE4
+    # note above. Do not re-render here.)
     st.markdown("---")
     st.markdown(
         "For readers who want to understand exactly how we reached these "

@@ -11,5 +11,7 @@
   "method_name": "correlations",
   "expected_chart_type": "heatmap",
   "disposition": "consumed",
-  "backfilled_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "backfilled_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)",
+  "last_patch": "fix260605 W3-80 significance stars",
+  "last_patch_at": "2026-06-05T03:08:10Z"
 }

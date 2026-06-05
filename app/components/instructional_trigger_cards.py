@@ -317,27 +317,53 @@ def _card_specs_for_strategy(
         ]
 
     if strategy == "P3":
-        # Long/Short
-        return [
-            dict(
-                title="SHORT",
-                sparkline_direction="up",
-                action_text=(
-                    f"When **{signal_display}** crosses **above {threshold:g}** "
-                    f"→ flip to 100% short {target_symbol}."
+        # Long/Short. Direction matters: counter-cyclical pairs flip SHORT
+        # when the signal crosses ABOVE threshold (high signal = bearish
+        # target); pro-cyclical pairs do the opposite (high signal =
+        # bullish target → LONG above, SHORT below).
+        if is_counter:
+            return [
+                dict(
+                    title="SHORT",
+                    sparkline_direction="up",
+                    action_text=(
+                        f"When **{signal_display}** crosses **above {threshold:g}** "
+                        f"→ flip to 100% short {target_symbol}."
+                    ),
+                    key_suffix="short",
                 ),
-                key_suffix="short",
-            ),
-            dict(
-                title="LONG",
-                sparkline_direction="down",
-                action_text=(
-                    f"When **{signal_display}** crosses **below {threshold:g}** "
-                    f"→ flip to 100% long {target_symbol}."
+                dict(
+                    title="LONG",
+                    sparkline_direction="down",
+                    action_text=(
+                        f"When **{signal_display}** crosses **below {threshold:g}** "
+                        f"→ flip to 100% long {target_symbol}."
+                    ),
+                    key_suffix="long",
                 ),
-                key_suffix="long",
-            ),
-        ]
+            ]
+        else:
+            # Pro-cyclical: high signal → long, low signal → short.
+            return [
+                dict(
+                    title="LONG",
+                    sparkline_direction="up",
+                    action_text=(
+                        f"When **{signal_display}** crosses **above {threshold:g}** "
+                        f"→ flip to 100% long {target_symbol}."
+                    ),
+                    key_suffix="long",
+                ),
+                dict(
+                    title="SHORT",
+                    sparkline_direction="down",
+                    action_text=(
+                        f"When **{signal_display}** crosses **below {threshold:g}** "
+                        f"→ flip to 100% short {target_symbol}."
+                    ),
+                    key_suffix="short",
+                ),
+            ]
 
     # Fallback single card
     return [

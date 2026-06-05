@@ -1,0 +1,16 @@
+{
+  "chart_name": "drawdown",
+  "pair_id": "permit_spy",
+  "palette_id": "mqr_default_2026",
+  "rules_applied": [
+    "VIZ-O1",
+    "VIZ-BF1"
+  ],
+  "narrative_alignment_note": "Strategy max DD -40.2% vs B&H -50.8%. Full-sample underwater plot with OOS boundary marked.",
+  "created_at": "2026-06-05T03:08:08Z",
+  "source": "scripts/generate_charts_permit_performance.py",
+  "data_sources": [
+    "results/permit_spy/winner_trade_log.csv",
+    "data/permit_spy_monthly_*.parquet"
+  ]
+}

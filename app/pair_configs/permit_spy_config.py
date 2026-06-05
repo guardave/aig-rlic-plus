@@ -34,34 +34,45 @@ class StoryConfig:
         "pull permits unless they believe houses will sell, so the count is an "
         "early read on where the economy is headed. This page asks a simple "
         "question: when permits are rising, do stocks tend to rise too — and "
-        "can you actually trade on it?"
+        "can you actually trade on it?\n\n"
+        "**The traded signal on this page is `permit_mom1m` — the 1-month "
+        "percentage change (month-over-month, MoM) in the seasonally-adjusted "
+        "PERMIT level.** The hero chart below plots a smoother 12-month "
+        "(year-over-year, YoY) view because annual change is easier to read "
+        "across a 36-year span; the strategy itself uses the noisier 1-month "
+        "version because that turned out to be the tournament winner. Keep the "
+        "distinction in mind: **YoY for the eye, MoM for the trade.**"
     )
 
     WHERE_THIS_FITS = (
         "This pair sits in the **Activity / Survey** indicator family of the "
         "portal. Building Permits has been part of the Conference Board's "
         "Leading Economic Index since 1959, so it is one of the oldest and "
-        "best-pedigreed leading indicators in the catalogue. It complements "
-        "the Industrial Production pair (a coincident activity measure) and "
-        "the UMCSENT consumer-sentiment pair (a survey measure)."
+        "best-pedigreed leading indicators in the catalogue."
     )
 
     ONE_SENTENCE_THESIS = (
         "*Monthly Building Permits growth (MoM change, 6-month lead) is a "
         "pro-cyclical signal that historically delivered an out-of-sample "
-        "Sharpe of 1.45 on SPY versus 0.90 for buy-and-hold.*"
+        "(OOS) Sharpe of 1.45 on SPY versus 0.90 for buy-and-hold. "
+        "Plain-English definitions for OOS, in-sample, Sharpe ratio and other "
+        "technical terms are available in the sidebar glossary on the left.*"
     )
 
     KPI_CAPTION = (
-        "The OOS period runs 2018-01 to 2025-12. The winning Long/Short strategy "
-        "doubles gross exposure versus the Long/Cash benchmark, which explains "
-        "part of the return premium but also the tighter max-drawdown profile."
+        "The out-of-sample (OOS) period runs 2018-01 to 2025-12. The winning "
+        "Long/Short strategy doubles gross exposure versus the Long/Cash "
+        "benchmark, which explains part of the return premium but also the "
+        "tighter max-drawdown profile."
     )
 
     HERO_TITLE = "Building Permits vs. S&P 500 Over the Business Cycle"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
-        "Dual-axis view: Building Permits (left, red) and SPY price (right, blue). "
+        "Dual-axis view: **Permits YoY % growth** (left axis, red — used here for "
+        "visual smoothness only) and SPY price (right axis, blue). The traded "
+        "signal is the 1-month-momentum (MoM) version of the same series, not "
+        "the YoY shown here — see the Methodology page for the exact definition. "
         "Permits peaked before the 2001 and 2008 recessions and collapsed during "
         "the housing crisis, providing an early warning signal for equity declines. "
         "The 2020 COVID dip was shorter and V-shaped, and permits led the recovery "
@@ -73,8 +84,7 @@ class StoryConfig:
     REGIME_CAPTION = (
         "SPY Sharpe by Building Permits growth quartile. The high-growth regime "
         "(Q4) delivers a Sharpe near 0.95; the deep-contraction regime (Q1) falls "
-        "to roughly 0.75. The spread is narrower than for VIX/VIX3M (9 Sharpe "
-        "points) or credit spreads (3 points), suggesting permits work best as a "
+        "to roughly 0.75. The narrow spread suggests permits work best as a "
         "directional signal rather than as a stand-alone regime-timing tool."
     )
 
@@ -149,20 +159,20 @@ class StoryConfig:
         {
             "slug": "gfc",
             "title": "Global Financial Crisis (2007–2009)",
-            "narrative": "Permits peaked in January 2006 and fell for nearly four years — one of the longest and deepest collapses in the series history. The 1-month momentum signal turned bearish in 2006, well before the equity market peaked in October 2007. This is the strongest long-lead case in the series: permits led the equity top by ~18 months. The Long/Short strategy would have been short SPY during most of the crash.",
+            "narrative": "Permits peaked in January 2006 and fell for nearly four years — one of the longest and deepest collapses in the series history. The 1-month momentum signal turned bearish in 2006, well before the equity market peaked in October 2007. This is the strongest long-lead case in the series: permits led the equity top by ~18 months.",
             "caption": "Permits peaked Jan 2006, fell 4 years — the GFC's earliest macro warning, leading equity top by 18 months",
         },
         {
             "slug": "covid",
             "title": "COVID Crash (2020)",
-            "narrative": "Permits collapsed briefly in April 2020 but recovered sharply by June 2020 on a wave of pandemic-era housing demand. The 1-month momentum signal fired bearish, then turned bullish almost immediately — a fast coincident case. The signal correctly called the turn but the trade window was extremely short, and the strategy's 6-month lead would have carried stale bearish positioning well into the recovery.",
-            "caption": "COVID permits: brief April 2020 collapse, then V-shaped recovery — 6-month lead lag caused stale bearish carry",
+            "narrative": "Permits collapsed briefly in April 2020 but recovered sharply by June 2020 on a wave of pandemic-era housing demand. The 1-month momentum signal fired bearish, then turned bullish almost immediately — a fast coincident case. The signal correctly identified the turn but the window was extremely short, illustrating that permits work best for slow business-cycle turns rather than sharp event-driven shocks.",
+            "caption": "COVID permits: brief April 2020 collapse, then V-shaped recovery — signal called the turn but the window was extremely short",
         },
         {
             "slug": "china_2015",
             "title": "China Slowdown / EM Stress (2015–2016)",
-            "narrative": "US permits grew steadily through 2015–2016 despite global headwinds, reflecting strong domestic housing demand and low mortgage rates. The momentum signal stayed positive. SPY was volatile but did not crash. A success case for the signal's \"stay long\" reading, though the narrow equity upside limited realized outperformance.",
-            "caption": "2015-16: US permits continued rising despite EM stress — signal correctly stayed long SPY through the volatility",
+            "narrative": "US permits grew steadily through 2015–2016 despite global headwinds, reflecting strong domestic housing demand and low mortgage rates. The momentum signal stayed positive. SPY was volatile but did not crash — a success case for the signal's \"stay long\" reading.",
+            "caption": "2015-16: US permits continued rising despite EM stress — signal stayed positive through the volatility",
         },
     ]
 
@@ -189,34 +199,49 @@ CORRELATION_BLOCK = dict(
     how_to_read=(
         "Rows are permit signal variants; columns are forward SPY return horizons. "
         "Warm colours (blue→green) indicate positive (pro-cyclical) correlation; "
-        "cool colours (red) indicate negative. Stars mark conventional significance "
-        "levels (* p<0.05, ** p<0.01)."
+        "cool colours (red) indicate negative. **Stars mark statistical "
+        "significance — `*` for p<0.05, `**` for p<0.01.** For the precise "
+        "definition of each signal variant (`mom`, `yoy`, `zscore_60m`, "
+        "`dev_trend`, etc.) see the **Methodology → Indicator Construction** "
+        "and **Signal Universe** sections."
     ),
     chart_name="correlations",
     chart_caption=(
-        "Pearson correlations between Building Permits signal variants and forward "
-        "return horizons. Warm colours = positive (pro-cyclical). Permits YoY "
-        "growth and momentum signals show the strongest positive correlations with "
-        "3-6 month forward returns."
+        "Pearson correlations between Building Permits signal variants (rows) and "
+        "forward SPY return horizons (1, 3, 6, 12 months). Warm colours = positive "
+        "(pro-cyclical). The strongest cell on the chart is **`zscore_60m` at 12 "
+        "months (+0.217)**, followed by `yoy` at 12 months (+0.178). Magnitudes "
+        "are modest in absolute terms — none exceeds 0.25."
     ),
     observation=(
-        "The correlation heatmap is consistently positive across signal variants "
-        "and forward horizons, with the strongest correlations appearing on the "
-        "momentum transforms (MoM and 3M momentum) at 3-6 month forward windows. "
-        "Level-based signals are weaker — consistent with the non-stationary "
-        "nature of the raw permit series."
+        "Reading the chart directly: correlations are positive almost everywhere, "
+        "but most cells are small (≤0.10) and only **6 of the 32 cells are "
+        "statistically significant at the 5% level** — all of them in the "
+        "6-month and 12-month columns on smoothed transforms. The relationship "
+        "strengthens with forward horizon, not weakens — the **largest "
+        "correlations sit in the 12-month column** (zscore_60m +0.217**, yoy "
+        "+0.178**, dev_trend +0.144**, mom_6m +0.110*, contraction −0.119*). "
+        "The traded signal `mom` (1-month momentum) is the weakest of the "
+        "transforms tested — peaking only mildly at the 3-month horizon "
+        "(+0.075, **not significant at 5%**) and falling back to +0.040 at "
+        "12 months. Not a single `mom` cell carries a star."
     ),
     interpretation=(
-        "The structure confirms the pro-cyclical relationship that economic "
-        "theory predicts. Unlike Industrial Production (where the z-score showed "
-        "a counter-intuitive peak-cycle effect), permits correlations are "
-        "consistently positive across signal types and horizons. Permits signal "
-        "direction, and the direction is consistent."
+        "Two honest takeaways. First, the relationship is real and "
+        "pro-cyclical — every transform-by-horizon cell except a single "
+        "`contraction × 12m` cell is non-negative. Second, the chart does NOT "
+        "support a 3-6 month \"peak horizon\" claim: the heatmap peaks at 12 "
+        "months, and the smoothed transforms (`zscore_60m`, `yoy`) carry more "
+        "linear information than the noisier 1-month momentum that the "
+        "tournament eventually picked. The tournament's choice of `mom` reflects "
+        "trade-frequency and threshold dynamics, not raw correlation strength — "
+        "see Local Projections and the Strategy page for the full picture."
     ),
     key_message=(
-        "Rising permits correlate with better forward SPY returns across "
-        "multiple signal definitions and horizons — a clean, directionally "
-        "consistent pro-cyclical relationship."
+        "Permit signals are pro-cyclically correlated with forward SPY returns, "
+        "but the linear correlation is modest (≤0.22) and is **strongest at 12 "
+        "months on smoothed transforms (z-score, YoY)** — not at 3-6 months on "
+        "the noisy 1-month momentum that the tournament selected."
     ),
 )
 
@@ -236,34 +261,47 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         "over the next 12 months, and at which horizon does it peak?"
     ),
     how_to_read=(
-        "X-axis: forecast horizon in months. Y-axis: cumulative SPY response to a "
-        "1-standard-deviation permit-growth shock. Shaded area = 95% HAC confidence "
-        "band. Stars mark significance at p<0.05."
+        "X-axis: forecast horizon in months (1, 3, 6, 12). Y-axis: cumulative SPY "
+        "return response to a 1-standard-deviation permit-growth shock, in "
+        "decimal form (0.0025 = 0.25%). The shaded band is the 95% HAC "
+        "(Newey-West) confidence interval. **Wherever the shaded band touches "
+        "or crosses the zero line, the response at that horizon is not "
+        "statistically distinguishable from zero.**"
     ),
     chart_name="local_projections",
     chart_caption=(
         "Jordà (2005) local projections with HAC (Newey-West) standard errors. "
-        "Stars indicate significance at p<0.05. The coefficient shows the marginal "
-        "effect of a 1pp increase in Permits YoY growth on forward SPY returns."
+        "The blue line shows cumulative SPY response to a 1-σ shock to Permits "
+        "YoY growth; the shaded area is the 95% confidence band. Note that the "
+        "lower band sits below zero at every plotted horizon."
     ),
     observation=(
-        "The impulse response is positive, rising through the 3-6 month horizon, "
-        "and remains significant out to about 9 months before confidence bands "
-        "widen. A one-standard-deviation increase in permit growth is associated "
-        "with meaningfully higher cumulative SPY returns over the subsequent 6 "
-        "months."
+        "Reading the chart directly: the central response is positive and "
+        "monotonically rising — h=1: +0.020%, h=3: +0.051%, h=6: +0.119%, "
+        "**h=12: +0.255%** (the peak). The rise is not a hump that fades by 6 "
+        "months; it is still climbing at the right edge of the chart. The "
+        "shaded 95% confidence band, however, dips below zero at every plotted "
+        "horizon, including h=12, so the response is not statistically "
+        "distinguishable from zero on the strict CI test at the points "
+        "evaluated."
     ),
     interpretation=(
-        "The LP result aligns precisely with permits' role as a leading indicator: "
-        "the effect is economically meaningful, statistically significant, and "
-        "peaks at the horizon (3-6 months) that economic theory would predict. "
-        "This is the empirical foundation for choosing a 6-month lead in the "
-        "trading rule."
+        "Two qualifications relative to a standard \"permits lead the cycle\" "
+        "story. First, the **point estimate peaks at 12 months, not 3-6** — "
+        "consistent with the correlation heatmap, not with the earlier prose "
+        "claim of a 3-6 month peak. Second, the **economic magnitude is small** "
+        "(a 1-σ permit shock moves cumulative SPY by ~0.25 percentage points "
+        "over a year), which is enough to inform a directional bias but is not "
+        "by itself a license for size. The 6-month lead in the strategy is a "
+        "tournament outcome on out-of-sample Sharpe, not something the LP chart "
+        "endorses on its own."
     ),
     key_message=(
-        "SPY responds positively and significantly to permit shocks, with the "
-        "peak effect at 3-6 months — direct support for the 6-month lead in the "
-        "winning strategy."
+        "The LP says permits and SPY co-move pro-cyclically, with the "
+        "**point-estimate peak at 12 months and economic magnitude near 0.25%** "
+        "per 1-σ permit shock. Confidence bands cross zero at every plotted "
+        "horizon, so the LP supports the *direction* of the trade more than its "
+        "*size* or its precise timing horizon."
     ),
 )
 
@@ -272,33 +310,116 @@ EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
         "We tested the permits-equity relationship with complementary econometric "
-        "methods across 35 years of monthly data. Two method blocks are reported "
-        "here — correlations (for breadth across signal variants and horizons) "
-        "and local projections (for the dynamic impulse-response path). The full "
-        "battery is archived in `results/permit_spy/core_models_20260314/`."
+        "methods across 35 years of monthly data. **Two method blocks are "
+        "rendered on this page** — Correlation (Level 1, breadth across signal "
+        "variants and horizons) and Local Projections (Level 2, the dynamic "
+        "impulse-response path).\n\n"
+        "**Five additional core-model tests were also run but are not displayed "
+        "as charts on this page.** Their CSV outputs sit on disk for "
+        "auditability and inform the prose summary below; they are not "
+        "rendered inline because each is a small numeric table that adds little "
+        "without the chart layer that Correlation and LP already give you. The "
+        "headline read on each:\n\n"
+        "- **Granger causality** (12 lag-direction rows). Permits→SPY is *not* "
+        "Granger-causal at any of lags 1–6 (lowest p-value 0.36). The reverse "
+        "direction, SPY→Permits, is highly significant at every lag (p<0.002 "
+        "throughout). Honest read: at the monthly frequency on the full "
+        "sample, equities lead permits more cleanly than permits lead equities.\n"
+        "- **Predictive regressions** (3 signals × 4 horizons). The strongest "
+        "single cell is `permit_zscore_60m → spy_fwd_12m` (t=3.32, p=0.0009, "
+        "R²≈0.05), reinforcing the Correlation heatmap's reading that the "
+        "12-month horizon on smoothed transforms carries more linear "
+        "information than the noisier short-horizon signals.\n"
+        "- **Quantile regression** (7 quantiles of forward SPY return). The "
+        "permit-MoM coefficient is positive in the lower tail (q=0.05, q=0.10, "
+        "q=0.25) and *negative and statistically significant in the upper "
+        "tail* (q=0.90 p=0.014, q=0.95 p=0.029). Permits help more when SPY "
+        "is going badly than when it is going extremely well.\n"
+        "- **Local Projections (full table)** — 4 forecast horizons. Same data "
+        "the chart renders; CSV adds explicit p-values: h=1 p=0.35, h=3 "
+        "p=0.37, h=6 p=0.23, **h=12 p=0.077**. Marginally significant at 12 "
+        "months only.\n"
+        "- **Diagnostics.** Jarque-Bera p<0.001 (residuals are non-normal — "
+        "expected for monthly equity returns) and Durbin-Watson 0.64 "
+        "(positive serial correlation in residuals → HAC standard errors are "
+        "needed, which the LP chart already uses).\n\n"
+        "**Audit trail.** The five CSVs from "
+        "`results/permit_spy/core_models_20260314/` are available as direct "
+        "downloads via the *Download archived CSVs* expander immediately below."
     ),
+    "downloads": [
+        {"label": "Granger causality (12 lag-direction rows)",
+         "path": "results/permit_spy/core_models_20260314/granger_causality.csv"},
+        {"label": "Predictive regressions (3 signals × 4 horizons)",
+         "path": "results/permit_spy/core_models_20260314/predictive_regressions.csv"},
+        {"label": "Quantile regression (7 quantiles of forward SPY)",
+         "path": "results/permit_spy/core_models_20260314/quantile_regression.csv"},
+        {"label": "Local projections — full table (4 horizons)",
+         "path": "results/permit_spy/core_models_20260314/local_projections.csv"},
+        {"label": "Diagnostics summary (Jarque-Bera, Durbin-Watson)",
+         "path": "results/permit_spy/core_models_20260314/diagnostics_summary.csv"},
+    ],
     "plain_english": (
         "Correlations ask 'do they move together?'. Local projections ask 'if "
         "permits jump today, what happens to SPY over the next 12 months?'. Both "
-        "tests agree: the relationship is real, pro-cyclical, and strongest at a "
-        "3-6 month lead."
+        "tests agree the relationship is real and pro-cyclical; the chart-vs-"
+        "narrative summary at the bottom of this page gives the calibrated read "
+        "on at which horizon it is strongest.\n\n"
+        "**Raw vs derived — what is being compared?** The hero chart on the "
+        "Story page plots a *raw* macro series (Building Permits, smoothed to "
+        "YoY) against the *raw* SPY price for visual context. The heatmap and "
+        "models on this page do something different: they compare "
+        "**transformations** of the permit series — momentum, z-score, YoY "
+        "growth, deviation-from-trend — against **forward SPY returns**, not "
+        "the price level. The Signal Universe shown in the heatmap is the short "
+        "list of transforms the tournament considered worth testing; less "
+        "informative variants are filtered out before the heatmap is drawn."
     ),
     "level1": [CORRELATION_BLOCK],
     "level1_labels": ["Correlation"],
     "level2": [LOCAL_PROJECTIONS_BLOCK],
     "level2_labels": ["Local Projections"],
     "tournament_intro": (
-        "With the econometric case established, we then swept a 5-dimensional "
-        "tournament over signal transforms, threshold methods, strategy families, "
-        "lead times, and lookback windows. The leaderboard lives on the Strategy "
-        "page; the key headline is a winning OOS Sharpe of 1.45 versus 0.90 for "
-        "SPY buy-and-hold."
+        "With the in-sample econometric case established, we then swept a "
+        "5-dimensional tournament over signal transforms, threshold methods, "
+        "strategy families, lead times, and lookback windows. The leaderboard "
+        "lives on the Strategy page; the headline is a winning OOS Sharpe of "
+        "1.45 versus 0.90 for SPY buy-and-hold over the 2018–2025 OOS window."
     ),
     "transition": (
-        "The statistical evidence confirms a genuine pro-cyclical relationship "
-        "between building permits and equity returns, with permits leading by 3-6 "
-        "months. The practical question is whether investors can translate this "
-        "into a profitable, execution-ready strategy."
+        "**Honest read on the cross-period charts above.** The relationship "
+        "between Building Permits and SPY is real and pro-cyclical, but it is "
+        "not steady across history:\n\n"
+        "- **Sub-period Sharpe.** The strategy is *negative* in three of the "
+        "four labelled crisis sub-periods (Dot-Com −0.38, GFC −0.36, China/EM "
+        "−1.20) and roughly flat through COVID (−0.07). The full-OOS bar "
+        "(+1.41) carries the headline; the crisis bars do not.\n"
+        "- **Rolling 24M correlation.** The line ranges from about −0.36 to "
+        "+0.42 with a mean near zero. Only ~54% of 24-month windows are "
+        "positive. The relationship is regime-dependent, not stationary.\n"
+        "- **Rolling Granger F.** Average F is 3.16 — just below the 3.84 "
+        "critical value at 5% — and the rolling p-value averages 0.20. "
+        "Granger-causality is *not* persistently significant across windows; "
+        "it appears in pockets.\n"
+        "- **Rolling 24M Sharpe.** Range −2.0 to +2.0, mean ~0.0. The "
+        "strategy's edge is concentrated in specific regimes, not earned "
+        "evenly through time.\n"
+        "- **Structural break.** The QLR-proxy p-value is 0.27 — *not* "
+        "statistically significant at the 5% level. The chart now reflects "
+        "this with the break-date flag suppressed and the test annotation "
+        "marked as not-significant. The recession-shaded rectangles remain "
+        "for context, but the relationship is treated as stationary across "
+        "the sample for tournament purposes.\n\n"
+        "**Putting it together.** The Evidence page supports a genuine "
+        "pro-cyclical relationship between Building Permits and equity "
+        "returns, with the strongest *linear* co-movement at a 12-month "
+        "horizon on smoothed transforms. The 6-month lead and 1-month-"
+        "momentum signal that won the tournament reflect out-of-sample "
+        "Sharpe optimisation — not a direct claim that 6 months is the only "
+        "horizon where the relationship exists, and not a guarantee that the "
+        "edge will persist evenly across regimes. With those qualifications "
+        "in place, the practical question is whether an investor can turn "
+        "this into an execution-ready strategy."
     ),
 }
 
@@ -318,18 +439,87 @@ class StrategyConfig:
         "month's permit count was meaningfully higher than recent history, hold "
         "SPY long; if it collapsed, go short. Apply the signal with a 6-month "
         "delay because permits lead the economy by about half a year. Update the "
-        "position once a month, using publicly available FRED data."
+        "position once a month, using publicly available FRED data.\n\n"
+        "**Vocabulary for this page:**\n"
+        "- **Tournament** = the same thing as **Strategy** — every \"combo\" "
+        "scored below *is* a strategy candidate. We exhaustively enumerated "
+        "combinations of (signal transform × threshold rule × strategy family × "
+        "lead time × lookback) and ranked them on out-of-sample Sharpe. The "
+        "*winner* is the row at the top of that ranking; we call it \"the "
+        "strategy\" elsewhere on the page.\n"
+        "- **Combo** = one specific (signal, threshold, strategy, lead, lookback) "
+        "tuple. For permit_spy the full sweep is **856 combos**, of which "
+        "**675 are *valid*** and **181 are excluded**. A combo is excluded "
+        "when the threshold rule cannot be evaluated on the in-sample window "
+        "(too few crossings, divide-by-zero on a rolling z-score, or the "
+        "signal series doesn't exist for the requested lookback).\n"
+        "- **Tournament Scatter axes.** The X-axis is **OOS annualised return** "
+        "(percent, range ~0.3–17%). The Y-axis is **OOS Sharpe ratio** (range "
+        "~0.0–1.5). Each dot is one valid combo plotted at its (return, Sharpe) "
+        "outcome on the OOS window. Top-right = high return *and* high "
+        "risk-adjusted return. The diamond marker is buy-and-hold SPY (the "
+        "benchmark anchor). The star markers are the top 5 combos by Sharpe.\n"
+        "- **Why the leaderboard shows 10 rows but the scatter shows hundreds.** "
+        "The scatter plots every valid combo as a dot so you can see the full "
+        "performance cloud. The leaderboard truncates to the top 10 by OOS "
+        "Sharpe — the only rows you would ever consider trading.\n"
+        "- **Why the leaderboard's benchmark Max Drawdown reads −23.93%, not "
+        "−50%.** The tournament is scored on the **out-of-sample window only "
+        "(2018-01 to 2025-12, 96 monthly observations)**. SPY's worst "
+        "drawdown in that window is the COVID crash and the 2022 bear market "
+        "(both around −24%); the −50% Great Financial Crisis drawdown in "
+        "2008–2009 is *in-sample* and is therefore not visible in any column "
+        "of the leaderboard. The same is true for every strategy's MaxDD "
+        "column — those are OOS-window worst drawdowns. The full-sample "
+        "drawdown (including 2008) is shown on the Drawdown chart on the "
+        "**Performance** tab below, where the strategy's worst drawdown is "
+        "−40.2% (2003-02, dot-com era) versus B&H's worst of −50.8% "
+        "(2009-02, GFC).\n"
+        "- **About repeated −19.4% values in the leaderboard.** Multiple "
+        "tournament rows share the same Max Drawdown because they share the "
+        "same *position regime* over the OOS window — small variations in "
+        "the threshold parameter (e.g. T1_p25 vs T1_p20) often produce the "
+        "exact same trade timing on a sparse monthly grid, and therefore the "
+        "exact same drawdown. It is not a bug in the table; it reflects the "
+        "discrete-trade nature of the strategy on monthly data.\n\n"
+        "**Data-vintage note.** The trade log on this page combines a "
+        "vintage-pinned signal column (FRED PERMIT as of April 2026, the same "
+        "vintage the tournament was scored on) with current-vintage SPY prices. "
+        "Why the split — and why it does not change any of the leaderboard "
+        "numbers — is documented in "
+        "`docs/data_vintage_note_permit_spy.md`."
     )
 
     SIGNAL_RULE_MD = (
-        "**Tournament winner:** Signal `S3_mom` (1-month momentum) / Threshold "
-        "`T1_p25` (25th percentile, fixed in-sample) / Strategy `P3_long_short` "
-        "(Long/Short) / Lead 6 months.\n\n"
-        "When the month-over-month change in Building Permits is above its "
-        "historical 25th percentile (i.e., not deeply negative), go long SPY. "
-        "When permits momentum falls below the 25th percentile (sharp decline), "
-        "go short. Apply the signal with a 6-month lead to exploit permits' role "
-        "as a leading indicator."
+        "**Tournament winner — code key.** The header above reads "
+        "`S3_mom / P3_long_short / L6`. Decoded:\n\n"
+        "- **`S3_mom` — Signal.** The S-prefix denotes a *signal transform*. "
+        "`S3_mom` = the 1-month-momentum (MoM) transform of the raw PERMIT "
+        "series, i.e. `permit_t / permit_{t-1} - 1`. The \"3\" is just a "
+        "tournament index, not a 3-month window — momentum here is computed "
+        "over **one month**.\n"
+        "- **`T1_p25` — Threshold.** T-prefix denotes a *threshold rule*. "
+        "`T1_p25` = the 25th percentile of MoM momentum, **fixed once on the "
+        "in-sample period (1990–2017) and held constant out-of-sample**. The "
+        "numeric value is **−2.73%** (computed on the April-2026 vintage of "
+        "FRED PERMIT — the same vintage the tournament was scored on).\n"
+        "- **`P3_long_short` — Strategy family.** P-prefix denotes a "
+        "*positioning rule*. `P3` = Long/Short (the alternatives are P1 "
+        "Long/Cash and P2 Signal-Strength).\n"
+        "- **`L6` — Lead.** The position applied today uses the signal value "
+        "from **6 months ago**. This is independent of the 1-month signal "
+        "computation: every month we re-compute MoM, but we don't act on it "
+        "for 6 months.\n\n"
+        "**Two windows, not one.** Readers sometimes confuse the *signal "
+        "window* (1 month — how the indicator is computed) with the *lead* "
+        "(6 months — how long we wait before acting). They are separate "
+        "dimensions of the strategy and can take independent values; the "
+        "tournament happened to land on 1 month for the first and 6 months "
+        "for the second.\n\n"
+        "**Behavioural rule.** When the month-over-month change in Building "
+        "Permits 6 months ago was above the **−2.73%** threshold (i.e. not "
+        "deeply negative), hold SPY long. When that lagged MoM was below "
+        "−2.73% (sharp decline), go short. Rebalance monthly."
     )
 
     HOW_SIGNAL_IS_GENERATED_MD = (
@@ -351,12 +541,11 @@ class StrategyConfig:
         "1. Download the latest `PERMIT` CSV from FRED.\n"
         "2. Compute the month-over-month percentage change for the reading six "
         "months ago.\n"
-        "3. Compare that number to -2.1% (the fixed in-sample 25th percentile; "
-        "exact value is regenerated in the pipeline notebook).\n"
-        "4. If the number is above -2.1% → hold SPY long. Below → short.\n"
-        "5. Revisit next month.\n\n"
-        "Turnover averages about 9 round-trips per year — well inside any "
-        "retail-friendly execution envelope."
+        "3. Compare that number to **−2.73%** (the fixed in-sample 25th "
+        "percentile of MoM permit growth over 1990–2017; the exact value is "
+        "shown in every row of the trade log under `threshold_value`).\n"
+        "4. If the number is above −2.73% → hold SPY long. Below → short.\n"
+        "5. Revisit next month."
     )
 
     # No equity_curves / drawdown / walk_forward charts exist for permit_spy
@@ -383,27 +572,37 @@ class StrategyConfig:
     )
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**Crisis anchor — 2008 Great Financial Crisis.** From "
+        "**Crisis anchor — 2008–2009 Great Financial Crisis.** From "
         "`results/permit_spy/winner_trade_log.csv`:\n\n"
         "- **2008-06-30 → 2008-10-31 (Short, 123 days, +26.65%).** Building "
         "permits had been collapsing since mid-2006. By June 2008 the 6-month-"
         "lagged MoM signal (reflecting December 2007 permit data) had been "
-        "deeply negative for more than a year, pushing the rule into a short "
-        "SPY position. The short was held through the Lehman bankruptcy and the "
-        "October 2008 market trough, returning +26.65% over 123 calendar days.\n"
-        "- **2008-10-31 → 2009-01-31 (Long, 92 days, -13.76%).** The rule "
-        "flipped long too early. Permits MoM (6 months prior = April 2008) "
-        "briefly clawed above the fixed 25th-percentile threshold, but equities "
-        "continued falling into the March 2009 low. This is the kind of whipsaw "
-        "the caveats above warn about — a pro-cyclical 6-month-lead rule cannot "
-        "perfectly time a credit-driven crash.\n"
-        "- **Net take-away.** Even with the January 2009 whipsaw, the 2008 "
-        "regime contributed a large portion of the strategy's full-sample alpha. "
-        "The short capture during the core crash dominated the subsequent "
-        "drawdown. The broker-style CSV (APP-TL1 artefact) is not yet generated "
-        "for permit_spy — this example is reconstructed from the raw "
-        "`winner_trade_log.csv`. Flag for Vera/Ace: promote permit_spy to the "
-        "broker-style artefact set in a future wave."
+        "deeply negative for more than a year (signal value ≈ −6.13%, well "
+        "below the −2.73% threshold), pushing the rule into a short SPY "
+        "position. The short was held through the Lehman bankruptcy and the "
+        "October 2008 market trough.\n"
+        "- **2008-10-31 → 2009-01-31 (Long, 92 days, −13.76%).** The rule "
+        "flipped long too early. Permits MoM 6 months prior (April 2008) "
+        "briefly clawed above the threshold (signal value +4.24%), but "
+        "equities continued falling into the March 2009 low.\n"
+        "- **2009-01-31 → 2009-07-31 (Short, 181 days, −20.28%).** The "
+        "*catastrophic whipsaw*. The signal pushed back into deeply-negative "
+        "territory (lagged July 2008 MoM ≈ −21.95%, the most negative reading "
+        "in modern data) and the rule went short — but March 2009 was the "
+        "actual market low, and SPY rallied 40%+ over the next six months. "
+        "The strategy held the short through the entire trough-to-rebound move "
+        "and lost more than 20% on this single position. This trade is not "
+        "small print: it is the largest single-trade loss in the entire "
+        "150-trade backtest and a worked example of how a 6-month-lead "
+        "pro-cyclical rule fails when the recovery is faster than the "
+        "indicator's lead. Read the Caveats section before sizing.\n"
+        "- **Net take-away.** The 2008 short captured the core crash; the "
+        "2009 long entry whipsawed for −13.76%; the 2009 short missed the "
+        "March turn for −20.28%. Across the three trades the strategy was "
+        "net negative through 2008–2009 — the OOS Sharpe headline (1.45) is "
+        "earned in calmer years, not in the crisis itself. The Caveats panel "
+        "and the Cross-Period Consistency section on the Evidence page already "
+        "flag this regime sensitivity."
     )
 
 
@@ -439,7 +638,30 @@ _INDICATOR_CONSTRUCTION_MD = (
     "| `permit_mom6m` | 6-month momentum | lowest-frequency momentum |\n\n"
     "SPY daily adjusted closes (Yahoo Finance, `auto_adjust=True`) are resampled "
     "to monthly last close; forward returns are computed as "
-    "`spy.shift(-h) / spy - 1` for h = 1, 3, 6, 12 months."
+    "`spy.shift(-h) / spy - 1` for h = 1, 3, 6, 12 months.\n\n"
+    "#### Why MoM? — connecting the Stationarity Tests below to the signal choice\n\n"
+    "**What stationarity tests do.** A series is *stationary* if its mean and "
+    "variance are stable through time. Most econometric tools (correlations, "
+    "regressions, Granger causality, local projections) assume stationarity; "
+    "running them on a non-stationary series produces unreliable t-statistics "
+    "and spurious correlations. The stationarity-test table below reports two "
+    "complementary checks for each candidate signal: **ADF** (Augmented "
+    "Dickey-Fuller — null hypothesis: the series has a unit root, i.e. is "
+    "non-stationary; *low p-value rejects → stationary*) and **KPSS** "
+    "(Kwiatkowski-Phillips-Schmidt-Shin — null hypothesis: the series is "
+    "stationary; *high p-value fails to reject → stationary*). When ADF and "
+    "KPSS agree we have strong evidence one way or the other; when they "
+    "disagree the verdict is borderline.\n\n"
+    "**What the table tells us about each signal.** The raw `permit` level is "
+    "non-stationary on ADF (p≈0.56) but flagged stationary on KPSS (p≈0.14) — "
+    "an ambiguous reading that disqualifies it from clean linear modelling. "
+    "`permit_yoy` is borderline on ADF (p≈0.06) and stationary on KPSS — "
+    "usable but not ideal. **`permit_mom` (MoM momentum) is unambiguously "
+    "stationary: ADF p<0.001, KPSS p≈0.38**. This is the only transform where "
+    "both tests agree decisively, which is part of why the tournament's "
+    "winner is the MoM signal — its statistical properties make all the "
+    "downstream tests (Pearson, Granger, LP) interpretable. The table is the "
+    "evidence; the choice of MoM is the consequence."
 )
 
 _METHODS_TABLE_MD = """

@@ -7,5 +7,7 @@
   ],
   "generated_at": "2026-04-24",
   "disposition": "consumed",
-  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)",
+  "last_patch": "fix260605 W3-82 suppress non-significant break flag",
+  "last_patch_at": "2026-06-05T03:08:10Z"
 }
