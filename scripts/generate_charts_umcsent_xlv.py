@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Chart Generation: Michigan Consumer Sentiment (UMCSENT) × XLV
+Chart Generation: University of Michigan Consumer Sentiment (UMCSENT) × XLV
 =============================================================
 Produces the standard 10-chart Plotly JSON set for the Streamlit portal.
 
@@ -15,6 +15,7 @@ Charts:
   8. umcsent_xlv_tournament_scatter -- Sharpe vs MDD scatter
   9. umcsent_xlv_signal_dist    -- Signal distribution / direction breakdown
   10. umcsent_xlv_wf_sharpe     -- Walk-forward OOS rolling Sharpe
+  11. correlation_scatter        -- UMCSENT YoY vs XLV 6M forward return cloud
 
 Author: Econ Evan (Econometrics Agent)
 Date: 2026-04-20
@@ -48,6 +49,11 @@ C_STRATEGY = "#2ca02c"     # Green for strategy
 C_BENCHMARK = "#7f7f7f"    # Gray for benchmark
 C_SPY = "#ff7f0e"          # Orange for SPY
 C_CONTRACTION = "rgba(214, 39, 40, 0.12)"
+NBER_RECESSIONS = [
+    ("2001-03-01", "2001-11-30"),
+    ("2007-12-01", "2009-06-30"),
+    ("2020-02-01", "2020-04-30"),
+]
 
 
 def save_chart(fig, name):
@@ -69,6 +75,28 @@ def load_tournament():
 def load_winner():
     with open(os.path.join(RESULTS_DIR, "winner_summary.json")) as f:
         return json.load(f)
+
+
+def add_nber_bands(fig, name="NBER recession period"):
+    """Add NBER recession shading plus one legend entry."""
+    for start, end in NBER_RECESSIONS:
+        fig.add_vrect(
+            x0=start,
+            x1=end,
+            fillcolor="rgba(120,120,120,0.18)",
+            layer="below",
+            line_width=0,
+        )
+    fig.add_trace(
+        go.Scatter(
+            x=[None],
+            y=[None],
+            mode="markers",
+            marker=dict(size=12, color="rgba(120,120,120,0.35)", symbol="square"),
+            name=name,
+            hoverinfo="skip",
+        )
+    )
 
 
 # ===================================================================
@@ -104,12 +132,22 @@ def chart_hero():
         for s, e in zip(starts, ends):
             fig.add_vrect(x0=s, x1=e, fillcolor=C_CONTRACTION,
                           layer="below", line_width=0)
+        fig.add_trace(
+            go.Scatter(
+                x=[None],
+                y=[None],
+                mode="markers",
+                marker=dict(size=12, color=C_CONTRACTION, symbol="square"),
+                name="Falling UMCSENT YoY period",
+                hoverinfo="skip",
+            )
+        )
 
     fig.add_hline(y=0, line_dash="dash", line_color="gray", line_width=0.5,
                   secondary_y=False)
 
     fig.update_layout(
-        title="Michigan Consumer Sentiment YoY Change vs XLV Price (1999-2025)",
+        title="UMCSENT YoY Change vs XLV Price (1999-2025)",
         template="plotly_white",
         hovermode="x unified",
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
@@ -118,6 +156,70 @@ def chart_hero():
     fig.update_yaxes(title_text="UMCSENT YoY Change (%)", secondary_y=False)
     fig.update_yaxes(title_text="XLV Price ($)", secondary_y=True)
     save_chart(fig, f"{PAIR_ID}_hero")
+
+
+# ===================================================================
+# CHART 1b: Correlation scatter cloud
+# ===================================================================
+def chart_correlation_scatter():
+    df = load_monthly()
+    valid = df[["umcsent_yoy", "xlv_fwd_6m"]].dropna()
+    x = valid["umcsent_yoy"].astype(float)
+    y = valid["xlv_fwd_6m"].astype(float) * 100
+
+    slope, intercept = np.polyfit(x, y, 1)
+    xs = np.linspace(float(x.min()), float(x.max()), 100)
+    ys = slope * xs + intercept
+    corr = float(np.corrcoef(x, y)[0, 1])
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=x,
+            y=y,
+            mode="markers",
+            name="Monthly observations",
+            marker=dict(color=C_EQUITY, size=7, opacity=0.55),
+            hovertemplate=(
+                "UMCSENT YoY: %{x:.2f}%<br>"
+                "XLV 6-month forward return: %{y:.2f}%<extra></extra>"
+            ),
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=xs,
+            y=ys,
+            mode="lines",
+            name=f"Linear fit (r={corr:.2f})",
+            line=dict(color=C_INDICATOR, width=2),
+            hoverinfo="skip",
+        )
+    )
+    fig.add_vline(x=0, line_dash="dash", line_color="#444", line_width=1)
+    fig.add_hline(y=0, line_dash="dash", line_color="#444", line_width=1)
+    fig.update_layout(
+        title="UMCSENT YoY vs XLV 6-Month Forward Returns",
+        xaxis_title="UMCSENT YoY Change (%)",
+        yaxis_title="XLV 6-Month Forward Return (%)",
+        template="plotly_white",
+        height=470,
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+    )
+    fig.add_annotation(
+        text=(
+            "The cloud slopes upward but remains wide, so linear correlation "
+            "is useful as a summary but not sufficient as the only model."
+        ),
+        xref="paper",
+        yref="paper",
+        x=0,
+        y=-0.2,
+        showarrow=False,
+        align="left",
+        font=dict(size=11, color="#555"),
+    )
+    save_chart(fig, "correlation_scatter")
 
 
 # ===================================================================
@@ -238,6 +340,70 @@ def chart_ccf():
         height=400,
     )
     save_chart(fig, f"{PAIR_ID}_ccf")
+
+
+# ===================================================================
+# Supplemental chart: Rolling Granger p-value + F-statistic
+# ===================================================================
+def chart_rolling_granger():
+    rg = pd.read_csv(os.path.join(RESULTS_DIR, "rolling_granger_umcsent_xlv.csv"))
+    rg["date"] = pd.to_datetime(rg["date"])
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    fig.add_trace(
+        go.Scatter(
+            x=rg["date"],
+            y=rg["p_value_24m"],
+            name="Rolling p-value",
+            mode="lines",
+            line=dict(color=C_INDICATOR, width=2),
+            hovertemplate="%{x|%Y-%m-%d}<br>p-value: %{y:.3f}<extra></extra>",
+        ),
+        secondary_y=False,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=rg["date"],
+            y=rg["granger_f_24m"],
+            name="Rolling F-statistic",
+            mode="lines",
+            line=dict(color=C_EQUITY, width=1.5, dash="dash"),
+            hovertemplate="%{x|%Y-%m-%d}<br>F-statistic: %{y:.2f}<extra></extra>",
+        ),
+        secondary_y=True,
+    )
+    fig.add_hline(
+        y=0.05,
+        line_dash="dot",
+        line_color="red",
+        line_width=1.2,
+        annotation_text="p = 0.05 significance line",
+        annotation_position="bottom right",
+        secondary_y=False,
+    )
+    add_nber_bands(fig)
+    fig.update_layout(
+        title="Rolling Granger Test: p-value and F-statistic",
+        template="plotly_white",
+        height=420,
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
+    )
+    fig.update_xaxes(title_text="Date")
+    fig.update_yaxes(title_text="p-value (lower is stronger evidence)", secondary_y=False)
+    fig.update_yaxes(title_text="F-statistic", secondary_y=True)
+    fig.add_annotation(
+        text=(
+            "The p-value is below 0.05 only in selected windows, not "
+            "consistently across the sample."
+        ),
+        xref="paper",
+        yref="paper",
+        x=0,
+        y=-0.22,
+        showarrow=False,
+        align="left",
+        font=dict(size=11, color="#555"),
+    )
+    save_chart(fig, "rolling_granger")
 
 
 # ===================================================================
@@ -576,7 +742,7 @@ def chart_signal_dist():
         rows=1,
         cols=2,
         subplot_titles=[
-            "Consumer Sentiment Year-over-Year Distribution",
+            "UMCSENT Year-over-Year Distribution",
             "XLV Returns: Rising vs Falling Sentiment",
         ],
     )
@@ -587,7 +753,7 @@ def chart_signal_dist():
     fig.add_trace(go.Histogram(
         x=yoy.values,
         nbinsx=40,
-        name="Consumer Sentiment Year-over-Year",
+        name="UMCSENT Year-over-Year",
         marker_color=C_INDICATOR,
         opacity=0.7,
     ), row=1, col=1)
@@ -627,7 +793,7 @@ def chart_signal_dist():
         showlegend=True,
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
-    fig.update_xaxes(title_text="Consumer Sentiment Year-over-Year (%)", row=1, col=1)
+    fig.update_xaxes(title_text="UMCSENT Year-over-Year (%)", row=1, col=1)
     fig.update_yaxes(title_text="Count", row=1, col=1)
     fig.update_yaxes(title_text="XLV 3-Month Forward Return (%)", row=1, col=2)
     fig.add_annotation(
@@ -745,6 +911,7 @@ def chart_wf_sharpe():
 if __name__ == "__main__":
     print(f"Generating charts for {PAIR_ID}...")
     chart_hero()
+    chart_correlation_scatter()
     chart_correlations()
     chart_regime_stats()
     chart_ccf()
@@ -754,6 +921,7 @@ if __name__ == "__main__":
     chart_tournament_scatter()
     chart_signal_dist()
     chart_wf_sharpe()
+    chart_rolling_granger()
     print(f"\nDone. Charts saved to {CHART_DIR}")
     charts = os.listdir(CHART_DIR)
     print(f"Total charts: {len(charts)}")

@@ -26,9 +26,12 @@ Data sources (read-only):
 from __future__ import annotations
 
 import glob
+import base64
+import json
 import re
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -41,6 +44,36 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Default column-type bounds per Rule APP-SE1 "Numeric + bounds" check.
 _PROBABILITY_PREFIXES = ("hmm_", "ms_", "prob_", "stress_prob")
+
+
+def _decode_plotly_array(value):
+    """Decode Plotly typed-array payloads when a chart JSON uses them."""
+    if isinstance(value, dict) and "bdata" in value:
+        dtype = np.dtype(value.get("dtype", "f8"))
+        return np.frombuffer(base64.b64decode(value["bdata"]), dtype=dtype)
+    return value
+
+
+def _load_target_price_overlay(pair_id: str, target_symbol: str) -> pd.Series | None:
+    """Best-effort target price overlay from the pair's hero chart artifact."""
+    hero_path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / "hero.json"
+    if not hero_path.exists():
+        return None
+    try:
+        with open(hero_path) as f:
+            hero = json.load(f)
+        target_upper = target_symbol.upper()
+        for trace in hero.get("data", []):
+            name = str(trace.get("name", "")).upper()
+            if target_upper not in name or "PRICE" not in name:
+                continue
+            x = pd.to_datetime(trace.get("x", []))
+            y = _decode_plotly_array(trace.get("y", []))
+            if len(x) == len(y) and len(x) > 0:
+                return pd.Series(y, index=x).dropna()
+    except Exception:
+        return None
+    return None
 
 
 def _latest_signals_file(pair_dir: Path) -> Path | None:
@@ -177,12 +210,15 @@ def _render_chart(
 
     # Threshold decoration: horizontal line at discrete threshold (or epsilon
     # band for continuous signals where thresholds are soft).
-    fig.add_hline(
-        y=threshold,
-        line_dash="dash",
-        line_color="#444444",
-        annotation_text=f"threshold = {threshold:g}",
-        annotation_position="top left",
+    fig.add_trace(
+        go.Scatter(
+            x=[series.index.min(), series.index.max()],
+            y=[threshold, threshold],
+            mode="lines",
+            name=f"Decision threshold ({threshold:g})",
+            line=dict(color="#444444", width=1.2, dash="dash"),
+            hoverinfo="skip",
+        )
     )
     if not is_probability:
         # Epsilon band for continuous/z-score signals: ±0.25 around threshold.
@@ -193,6 +229,36 @@ def _render_chart(
             opacity=0.15,
             line_width=0,
         )
+        fig.add_trace(
+            go.Scatter(
+                x=[None],
+                y=[None],
+                mode="markers",
+                marker=dict(size=12, color="rgba(187,187,187,0.35)", symbol="square"),
+                name="Grey zone: near threshold",
+                hoverinfo="skip",
+            )
+        )
+
+    target_price = _load_target_price_overlay(pair_id, "XLV")
+    if target_price is not None:
+        aligned = target_price.loc[
+            (target_price.index >= series.index.min())
+            & (target_price.index <= series.index.max())
+        ]
+        if len(aligned) > 1:
+            indexed = aligned / aligned.iloc[0] * 100.0
+            fig.add_trace(
+                go.Scatter(
+                    x=indexed.index,
+                    y=indexed.values,
+                    mode="lines",
+                    name="XLV price performance (indexed)",
+                    line=dict(color="#1f77b4", width=1.2, dash="dot"),
+                    yaxis="y2",
+                    hovertemplate="%{x|%Y-%m-%d}: %{y:.1f}<extra></extra>",
+                )
+            )
 
     # NBER recession shading when span > 5 years (APP-SE1 acceptance)
     span_years = (series.index.max() - series.index.min()).days / 365.25
@@ -210,13 +276,30 @@ def _render_chart(
                 opacity=0.18,
                 line_width=0,
             )
+        fig.add_trace(
+            go.Scatter(
+                x=[None],
+                y=[None],
+                mode="markers",
+                marker=dict(size=12, color="rgba(153,153,153,0.35)", symbol="square"),
+                name="NBER recession period",
+                hoverinfo="skip",
+            )
+        )
 
     fig.update_layout(
         height=340,
         margin=dict(l=50, r=30, t=30, b=60),
         xaxis_title="Date",
         yaxis_title=display_name,
-        showlegend=False,
+        yaxis2=dict(
+            title="XLV indexed price",
+            overlaying="y",
+            side="right",
+            showgrid=False,
+        ),
+        showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
         plot_bgcolor="white",
     )
     fig.update_xaxes(showgrid=True, gridcolor="#EEEEEE")
@@ -284,7 +367,9 @@ def render_probability_engine_panel(pair_id: str) -> None:
         "time and where the decision threshold sits."
         if is_probability_signal
         else "What this shows: how the winning signal value evolves over "
-             "time and where the decision threshold sits."
+             "time and where each decision threshold sits. The grey zone "
+             "means the signal hovers near 0, so small month-to-month moves "
+             "can flip the rule between long XLV and cash."
     )
     st.markdown(f"### {panel_title}")
     st.caption(panel_caption)

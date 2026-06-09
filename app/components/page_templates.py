@@ -1048,7 +1048,7 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
 
     _cp_conditional = [
         ("rolling_sharpe_cp", "Rolling Sharpe",   "How to read it: 24-month rolling Sharpe ratio. Persistent positive values confirm the strategy survives across market regimes, not just in a lucky window."),
-        ("rolling_granger",   "Rolling Granger",  "How to read it: rolling Granger F-statistic. Values consistently above the dashed threshold show the predictive relationship is not a sample artefact."),
+        ("rolling_granger",   "Rolling Granger",  "How to read it: rolling Granger p-value and F-statistic over time. Periods below the p = 0.05 line indicate stronger evidence; intermittent crossings mean the relationship is regime-dependent rather than consistently significant."),
     ]
     for _chart_name, _label, _caption in _cp_conditional:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
@@ -1746,8 +1746,15 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
             stat_df = pd.read_csv(stat_path)
             st.dataframe(stat_df, use_container_width=True, hide_index=True)
             st.caption(
-                "How to read it: ADF — reject null = stationary. "
-                "KPSS — fail to reject null = stationary."
+                "How to read it: stationarity means a series has a stable "
+                "statistical pattern over time, rather than drifting because "
+                "of a trend. The ADF test starts from the assumption that a "
+                "series is non-stationary; a low p_value means we reject that "
+                "assumption and treat the series as stationary. The KPSS test "
+                "starts from the opposite assumption that a series is "
+                "stationary; a high p_value means we do not reject "
+                "stationarity. The statistic is the test score; p_value is "
+                "the probability measure used for the decision."
             )
         except Exception as exc:
             st.warning(f"Failed to read stationarity CSV: {exc}")

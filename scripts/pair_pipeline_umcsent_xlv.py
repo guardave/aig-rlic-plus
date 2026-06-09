@@ -991,7 +991,9 @@ def stage_tournament(df_monthly, df_daily):
             print("  ERROR: No XLV data for tournament")
             return pd.DataFrame()
 
-    lead_times = [0, 1, 2, 3, 6]
+    # Include 4M and 5M per stakeholder review so the 2-5M
+    # cross-correlation window is explicitly covered in the tournament.
+    lead_times = [0, 1, 2, 3, 4, 5, 6]
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 
     results = []
