@@ -79,26 +79,23 @@ def chart_hero():
 
 
 def chart_regime_stats():
-    """Regime descriptive stats bar chart."""
+    """Regime quartile chart — VIZ-QR1 dual-panel (Sharpe + Ann Return).
+
+    2026-06-10 (fix260610_xpair_general): delegates to the shared
+    scripts/_quartile_chart.py helper so all pairs share one layout.
+    """
+    import sys as _sys
+    _sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from scripts._quartile_chart import make_dual_panel_regime_chart
+
     regime_df = pd.read_csv(os.path.join(RESULTS_DIR, "exploratory_20260314", "regime_descriptive_stats.csv"))
 
-    fig = go.Figure()
-
-    fig.add_trace(go.Bar(
-        x=regime_df["regime"], y=regime_df["sharpe"],
-        name="Annualized Sharpe",
-        marker_color=[C_INDICATOR, C_BENCHMARK, C_EQUITY, C_STRATEGY],
-        text=[f"{v:.2f}" for v in regime_df["sharpe"]],
-        textposition="outside",
-    ))
-
-    fig.update_layout(
-        title="SPY Sharpe Ratio by INDPRO YoY Growth Quartile",
-        xaxis_title="INDPRO YoY Growth Quartile (Q1=Lowest, Q4=Highest)",
-        yaxis_title="Annualized Sharpe Ratio",
-        template="plotly_white",
-        height=400,
-        showlegend=False,
+    fig = make_dual_panel_regime_chart(
+        quartile_labels=regime_df["regime"].tolist(),
+        sharpe=regime_df["sharpe"].round(2).tolist(),
+        ann_return_pct=regime_df["ann_return_pct"].round(1).tolist(),
+        signal_label="INDPRO YoY",
+        x_axis_title="IP YoY Growth Quartile (Q1=Weakest, Q4=Strongest)",
     )
 
     save_chart(fig, "indpro_spy_regime_stats")

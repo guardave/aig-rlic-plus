@@ -204,53 +204,32 @@ def chart_regime_stats():
         return
 
     """fix260526 W1 #27: quartile labels Q1-Q4 were not intuitive for
-    non-technical readers. Now explicit "Q1 (Weak Growth)" etc., plus
-    a takeaway annotation above the chart."""
+    non-technical readers — explicit "Q1 (Weakest IP growth)" etc., plus a
+    takeaway annotation above the chart (both preserved).
+
+    VIZ-QR1 (2026-06-10, fix260610_xpair_general): dual-panel Sharpe +
+    Annualized Return side-by-side via the shared helper."""
+    import sys as _sys
+    _sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from scripts._quartile_chart import make_dual_panel_regime_chart
+
     regime_df = pd.read_csv(regime_path)
-    colors = [C_INDICATOR, C_BENCHMARK, C_EQUITY, C_STRATEGY]
 
     # #27: descriptive x-axis labels mapped from machine codes
     label_map = {
-        "Q1_low":   "Q1\n(Weakest IP growth)",
-        "Q2":       "Q2\n(Below-median growth)",
-        "Q3":       "Q3\n(Above-median growth)",
-        "Q4_high":  "Q4\n(Strongest IP growth)",
+        "Q1_low":   "Q1<br>(Weakest IP growth)",
+        "Q2":       "Q2<br>(Below-median growth)",
+        "Q3":       "Q3<br>(Above-median growth)",
+        "Q4_high":  "Q4<br>(Strongest IP growth)",
     }
     x_labels = [label_map.get(r, r) for r in regime_df["regime"]]
 
-    # #27: determine takeaway: best vs worst by Sharpe
-    best_idx = regime_df["sharpe"].idxmax()
-    worst_idx = regime_df["sharpe"].idxmin()
-    takeaway = (
-        f"XLP performs best in {label_map.get(regime_df.loc[best_idx, 'regime'], '?')} "
-        f"(Sharpe {regime_df.loc[best_idx, 'sharpe']:.2f}) and worst in "
-        f"{label_map.get(regime_df.loc[worst_idx, 'regime'], '?')} "
-        f"(Sharpe {regime_df.loc[worst_idx, 'sharpe']:.2f})."
-    ).replace("\n", " ")
-
-    fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=x_labels,
-        y=regime_df["sharpe"],
-        name="Annualized Sharpe",
-        marker_color=colors[:len(regime_df)],
-        text=[f"{v:.2f}" for v in regime_df["sharpe"]],
-        textposition="outside",
-    ))
-
-    fig.update_layout(
-        title="XLP Sharpe Ratio by INDPRO YoY Growth Quartile",
-        xaxis_title="IP Growth Regime",
-        yaxis_title="Annualized Sharpe Ratio",
-        template="plotly_white",
-        height=420,
-        showlegend=False,
-        annotations=[dict(
-            text=f"<b>Key:</b> {takeaway}",
-            xref="paper", yref="paper", x=0, y=1.10, showarrow=False,
-            xanchor="left", yanchor="bottom", font=dict(size=11),
-        )],
-        margin=dict(r=180, t=90),
+    fig = make_dual_panel_regime_chart(
+        quartile_labels=x_labels,
+        sharpe=regime_df["sharpe"].round(2).tolist(),
+        ann_return_pct=regime_df["ann_return_pct"].round(1).tolist(),
+        signal_label="INDPRO YoY",
+        x_axis_title="IP Growth Regime",
     )
 
     save_chart(fig, "indpro_xlp_regime_stats")

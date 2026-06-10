@@ -82,15 +82,16 @@ class StoryConfig:
     REGIME_TITLE = "What History Shows: XLV Returns by Consumer-Sentiment Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "Annualised XLV Sharpe ratio by quartile of University of Michigan "
-        "Consumer Sentiment year-over-year change. Quartile 1 = lowest "
-        "(most negative) year-over-year change; Quartile 4 = highest "
-        "(most positive). The non-monotonic pattern (Quartile 2 ~1.09 > "
-        "Quartile 4 ~0.93 > Quartile 3 ~0.56 > Quartile 1 ~0.23) confirms "
-        "the procyclical direction — "
-        "falling sentiment coincides with the worst XLV regime — while "
-        "suggesting that the peak of optimism is itself a late-cycle "
-        "warning sign."
+        "XLV performance by quartile of University of Michigan Consumer "
+        "Sentiment year-over-year change — annualised Sharpe (left panel) "
+        "and annualised return (right panel). Quartile 1 = lowest (most "
+        "negative) year-over-year change; Quartile 4 = highest (most "
+        "positive). The non-monotonic pattern (Quartile 2 ~1.09 / 13.8% > "
+        "Quartile 4 ~0.93 / 10.6% > Quartile 3 ~0.56 / 7.7% > Quartile 1 "
+        "~0.23 / 4.2%) is identical in both panels and confirms the "
+        "procyclical direction — falling sentiment coincides with the worst "
+        "XLV regime — while suggesting that the peak of optimism is itself "
+        "a late-cycle warning sign."
     )
 
     NARRATIVE_SECTION_1 = (

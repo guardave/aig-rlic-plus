@@ -6,11 +6,12 @@
     "VIZ-V8",
     "VIZ-V11",
     "VIZ-NM1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-O1"
   ],
-  "narrative_alignment_note": "Winner signal (HMM stress prob > 0.5) divides regimes with strong return differential, validating the trading strategy.",
-  "created_at": "2026-04-22T10:50:44Z",
+  "disposition": "consumed",
+  "narrative_alignment_note": "Winner signal (HMM stress prob > 0.5) divides regimes with strong return + Sharpe differential, validating the trading strategy. VIZ-QR1 dual-panel.",
+  "created_at": "2026-06-10T17:24:02Z",
   "method_name": "HMM 2-State",
-  "expected_chart_type": "bar",
-  "disposition": "consumed"
+  "expected_chart_type": "bar"
 }

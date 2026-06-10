@@ -79,12 +79,16 @@ class StoryConfig:
     REGIME_TITLE = "What History Shows: SPY Returns by VIX/VIX3M Quartile"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "Equity performance across VIX/VIX3M ratio regimes. Q1 (low ratio, "
-        "deep contango) delivers a Sharpe of **6.53**; Q4 (high ratio, "
-        "backwardation / panic) delivers **-2.38**. This nearly 9-point "
+        "Equity performance across VIX/VIX3M ratio regimes — annualized "
+        "Sharpe (left panel) and annualized return (right panel). Q1 (low "
+        "ratio, deep contango) delivers a Sharpe of **6.53** on a 52.9% "
+        "annualized return; Q4 (high ratio, backwardation / panic) delivers "
+        "**-2.38** on a -76.0% annualized return. This nearly 9-point Sharpe "
         "spread is the largest regime differential observed across any pair "
         "in the portal — more than three times wider than credit spreads "
-        "(~3 points) and dwarfing the IP or permits spreads."
+        "(~3 points) and dwarfing the IP or permits spreads. (Reminder: "
+        "these are annualized rates conditional on being in the regime, not "
+        "buy-and-hold returns — Q4 episodes are short, violent windows.)"
     )
 
     NARRATIVE_SECTION_1 = (

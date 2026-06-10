@@ -69,14 +69,16 @@ class StoryConfig:
         "down) cluster around the 2008 and 2020 crises, when XLI was weakest."
     )
 
-    REGIME_TITLE = "What History Shows: XLI Sharpe by Gold/Copper Z-Score Quartile"
+    REGIME_TITLE = "What History Shows: XLI Performance by Gold/Copper Z-Score Quartile"
     REGIME_CHART_NAME = "quartile_returns"
     REGIME_CAPTION = (
-        "What this shows: XLI annualized Sharpe ratio in each of the four "
-        "126-day z-score quartiles (annualization from 63-day forward returns). "
-        "Q1 (lowest ratio = risk-on regime) is the strongest Sharpe quartile; "
-        "Q3 is the weakest. The Q4 partial rebound is the documented failure "
-        "case — see the 2022 Rates Shock episode below."
+        "What this shows: XLI performance in each of the four 126-day "
+        "z-score quartiles — annualized Sharpe (left panel) and annualized "
+        "return (right panel), both annualized from 63-day forward returns. "
+        "Q1 (lowest ratio = risk-on regime) is the strongest quartile on "
+        "both measures (Sharpe 1.46 / 15.7% return); Q3 is the weakest "
+        "(0.18 / 3.7%). The Q4 partial rebound (0.57 / 11.7%) is the "
+        "documented failure case — see the 2022 Rates Shock episode below."
     )
 
     NARRATIVE_SECTION_1 = """

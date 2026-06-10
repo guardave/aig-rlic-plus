@@ -148,27 +148,38 @@ def make_drawdown(signals_df):
 
 
 def make_quartile_returns():
-    """KS-108 fix (2026-06-03): swap y-axis from mean fwd 63d return → annualized
-    Sharpe to match the convention used by indpro_xlp and other production pairs.
-    Annualization factor for 63-day non-overlapping returns: sqrt(252/63) = 2.
+    """VIZ-QR1 (2026-06-10): dual-panel — Annualized Sharpe (left) +
+    Annualized Return % (right) by quartile, via the shared helper.
+    Derivations from 63d forward-return stats (matches the KS-108 fix
+    convention): sharpe = mean/std * sqrt(252/63); ann_return = mean * 4.
     """
-    df = pd.read_csv(os.path.join(RESULTS, "regime_quartile_returns.csv"))
+    import sys as _sys
+    _sys.path.insert(0, BASE)
+    from scripts._quartile_chart import make_dual_panel_regime_chart
     import numpy as np
-    ann_factor = np.sqrt(252.0 / 63.0)  # = 2.0 exactly
-    sharpe = (df["mean"] / df["std"]) * ann_factor
-    fig = go.Figure()
-    colors = ["#2ca02c", "#7eb86b", "#e8a345", "#d62728"]
-    fig.add_trace(go.Bar(x=df["quartile"], y=sharpe,
-                         marker_color=colors,
-                         text=[f"{v:.2f}" for v in sharpe],
-                         textposition="outside"))
-    fig.update_layout(title="XLI annualized Sharpe by gold/copper z-score quartile",
-                      xaxis=dict(title="Z-Score quartile (Q1=low ratio, Q4=high ratio)"),
-                      yaxis=dict(title="Annualized Sharpe ratio"),
-                      template="plotly_white", height=420)
+
+    df = pd.read_csv(os.path.join(RESULTS, "regime_quartile_returns.csv"))
+    ann_factor = 252.0 / 63.0  # = 4
+    sharpe = ((df["mean"] / df["std"]) * np.sqrt(ann_factor)).round(2).tolist()
+    ann_return_pct = (df["mean"] * ann_factor * 100).round(1).tolist()
+    label_map = {
+        "Q1_low": "Q1<br>(Low ratio — risk-on)",
+        "Q2": "Q2",
+        "Q3": "Q3",
+        "Q4_high": "Q4<br>(High ratio — risk-off)",
+    }
+    labels = [label_map.get(q, q) for q in df["quartile"]]
+
+    fig = make_dual_panel_regime_chart(
+        quartile_labels=labels,
+        sharpe=sharpe,
+        ann_return_pct=ann_return_pct,
+        signal_label="Gold/Copper Z-Score",
+        x_axis_title="Z-Score Quartile",
+    )
     save_chart(fig, "quartile_returns", palette_id="quartile_v1",
-               rules_applied=["VIZ-IC1"],
-               alignment_note="Quartile bar chart matches Evidence-page quartile method block. KS-108 (2026-06-03): switched to Sharpe for parity with indpro_xlp regime_stats convention.")
+               rules_applied=["VIZ-QR1", "VIZ-IC1"],
+               alignment_note="VIZ-QR1 dual-panel (Sharpe + Ann Return) by z-score quartile via scripts/_quartile_chart.py. Derived from 63d fwd-return stats: sharpe=mean/std*2, ann_return=mean*4.")
 
 
 def make_regime_quartile_returns():
