@@ -522,8 +522,11 @@ EVIDENCE_METHOD_BLOCKS = {
         "With the econometric case established, we swept a 5-dimensional "
         "tournament over 9 signal transforms, 6 threshold methods, 3 strategy "
         "families, 5 lead times, and 3 lookback windows — ~8,100 raw "
-        "specifications pruned to 1,666 valid combinations. The winning "
-        "specification is on the Strategy page."
+        "specifications, of which 1,665 were run and 1,149 passed validity "
+        "filters. The headline OOS Sharpe of 1.10 is the **best of those "
+        "1,149 valid combinations** — the maximum of the search, not a "
+        "typical result: the median valid combination scored 0.77. The "
+        "winning specification is on the Strategy page."
     ),
     "transition": (
         "The statistical evidence confirms a real but nuanced IP-equity "

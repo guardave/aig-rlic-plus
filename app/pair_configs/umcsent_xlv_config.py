@@ -466,7 +466,10 @@ EVIDENCE_METHOD_BLOCKS = {
         "With the econometric case established, we swept a 5-dimensional "
         "tournament over 7 signal transforms, 7 threshold methods, 3 "
         "strategy families, and 5 lead times — 1,305 raw combinations "
-        "pruned to 1,196 valid. The top 5 strategies were validated with "
+        "pruned to 1,195 valid. The winner posts OOS Sharpe 1.02 — the "
+        "**best of those 1,195 valid combinations**: the maximum of the "
+        "search, not a typical result. The median valid combination "
+        "scored 0.63. The top 5 strategies were validated with "
         "bootstrap significance testing and transaction-cost sensitivity. "
         "The winning specification is on the Strategy page."
     ),
@@ -688,8 +691,9 @@ _TOURNAMENT_DESIGN_MD = """
 | **Lead times queued for next rerun** | 4 and 5 months added to `scripts/pair_pipeline_umcsent_xlv.py` so the tournament covers 0-6 months continuously |
 | **Direction** | Procyclical applied (empirically observed direction) |
 
-Ranked by out-of-sample Sharpe. **1,305 total combinations tested; 1,196
-valid** (out-of-sample Sharpe > 0, turnover ≤ 24/year, out-of-sample n ≥ 12). Winner (per
+Ranked by out-of-sample Sharpe. **1,305 total combinations tested; 1,195
+valid** (out-of-sample Sharpe > 0, turnover ≤ 24/year, out-of-sample n ≥ 12; the
+buy-and-hold benchmark row is a reference, not a combination). Winner (per
 `results/umcsent_xlv/winner_summary.json`, authoritative): **umcsent_yoy /
 zero-crossing (crosses-up) / P1_long_cash / Lead 6 months → out-of-sample
 Sharpe 1.0202, out-of-sample annualised return +11.93%, max drawdown

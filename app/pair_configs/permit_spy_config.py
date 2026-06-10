@@ -386,9 +386,13 @@ EVIDENCE_METHOD_BLOCKS = {
     "tournament_intro": (
         "With the in-sample econometric case established, we then swept a "
         "5-dimensional tournament over signal transforms, threshold methods, "
-        "strategy families, lead times, and lookback windows. The leaderboard "
-        "lives on the Strategy page; the headline is a winning OOS Sharpe of "
-        "1.45 versus 0.90 for SPY buy-and-hold over the 2018–2025 OOS window."
+        "strategy families, lead times, and lookback windows — 855 "
+        "specifications run, of which 674 passed validity filters. The "
+        "leaderboard lives on the Strategy page; the headline is a winning "
+        "OOS Sharpe of 1.45 versus 0.90 for SPY buy-and-hold over the "
+        "2018–2025 OOS window. That 1.45 is the **best of the 674 valid "
+        "combinations** — the maximum of the search, not a typical result: "
+        "the median valid combination scored 0.68."
     ),
     "transition": (
         "**Honest read on the cross-period charts above.** The relationship "

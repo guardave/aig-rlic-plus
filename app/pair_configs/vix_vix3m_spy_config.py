@@ -402,9 +402,12 @@ EVIDENCE_METHOD_BLOCKS = {
         "With the statistical case firmly established, we swept a "
         "5-dimensional tournament over signal transforms, threshold "
         "methods, strategy families, lead times (in trading days, since "
-        "this is a daily pair), and lookback windows — 916 raw "
-        "specifications pruned to 332 valid combinations. The winner is "
-        "detailed on the Strategy page."
+        "this is a daily pair), and lookback windows — 915 raw "
+        "specifications pruned to 331 valid combinations. The winner — "
+        "detailed on the Strategy page — posts OOS Sharpe 1.13, the "
+        "**best of those 331 valid combinations**: the maximum of the "
+        "search, not a typical result. The median valid combination "
+        "scored 0.80."
     ),
     "transition": (
         "The statistical evidence confirms a powerful counter-cyclical "

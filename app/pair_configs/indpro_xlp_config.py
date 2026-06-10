@@ -464,10 +464,13 @@ EVIDENCE_METHOD_BLOCKS = {
         "We tested combinations of signals (IP level, YoY, MoM, z-score, "
         "acceleration), thresholds (7 methods including percentile cuts), "
         "strategies (Long/Cash, Long/Short), and lead times (0-6 months). "
-        "These were ranked by out-of-sample Sharpe ratio over 2019-2025. "
+        "These were ranked by out-of-sample Sharpe ratio over 2019-2025 — "
+        "3,330 specifications run, of which 2,691 passed validity filters. "
         "The winning combination: **IP acceleration signal, 0.75 percentile "
         "threshold, Long/Cash, L3 lead**, producing OOS Sharpe 1.1147 vs 0.90 "
-        "buy-and-hold XLP."
+        "buy-and-hold XLP. That 1.1147 is the **best of the 2,691 valid "
+        "combinations** — the maximum of the search, not a typical result: "
+        "the median valid combination scored 0.63."
     ),
     "transition": (
         "**Transition:** Multiple statistical methods confirm the countercyclical "

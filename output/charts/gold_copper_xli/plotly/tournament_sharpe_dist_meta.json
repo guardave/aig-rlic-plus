@@ -4,11 +4,9 @@
   "palette_id": "hist_v1",
   "rules_applied": [
     "VIZ-IC1",
-    "VIZ-BF1"
+    "VIZ-SCD1"
   ],
-  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament combos; winner marked.",
-  "generated_at": "2026-05-26T14:11:02Z",
-  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)",
-  "disposition": "consumed",
-  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "narrative_alignment_note": "Distribution of OOS Sharpe across valid strategy combos; winner annotated with its position (max of N, median) per VIZ-SCD1.",
+  "generated_at": "2026-06-10T22:13:25Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)"
 }

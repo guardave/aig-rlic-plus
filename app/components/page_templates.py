@@ -1372,9 +1372,11 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
                 f"Tournament scatter pending — expected at "
                 f"output/charts/{pair_id}/plotly/{scatter_chart}.json"
             ),
-            caption=(
+            caption=getattr(
+                config,
+                "TOURNAMENT_SCATTER_CAPTION",
                 "What this shows: each point is one strategy combination. "
-                "Stars mark the top 5; diamond is buy-and-hold."
+                "Stars mark the top 5; diamond is buy-and-hold.",
             ),
         )
         st.markdown("---")
