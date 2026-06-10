@@ -84,7 +84,7 @@ The Story page is the layperson entry point. It must be readable by a non-techni
 | KPI caption ("What this shows") | **Yes** | Must be pair-specific; no generic fallback |
 | Narrative section 1 | **Yes** | Ray-authored; minimum 2 paragraphs |
 | Hero chart | **Yes** | `output/charts/{pair_id}/plotly/hero.json` — L1 error if missing |
-| Regime chart | **Yes** | `output/charts/{pair_id}/plotly/regime_stats.json` — L1 error if missing |
+| Regime chart | **Yes** | `output/charts/{pair_id}/plotly/regime_stats.json` — L1 error if missing. **Format standard (VIZ-QR1, 2026-06-10):** dual-panel side-by-side — Annualized Sharpe (left) + Annualized Return % (right) per quartile, same quartile x-axis and per-quartile colors in both panels, value labels outside bars. Reference implementation: `scripts/generate_charts_umcsent_xlv.py::chart_regime_stats`. Single-metric quartile charts are a gate failure for new pairs and a retro-apply item for existing ones. |
 | Crisis-episode zoom charts | **Yes** | See § Crisis-Episode Zoom Requirement below |
 | Narrative section 2 | **Yes** | Ray-authored; minimum 1 paragraph |
 | Transition → Evidence | **Yes** | `render_transition` + `st.page_link` |
@@ -106,19 +106,14 @@ The Evidence page is the statistical proof layer. Every method block must follow
 | Tier explainer (Level 1 / Level 2 rationale) | **Yes** | Standard text; template provides canonical version |
 | Level 1 tab — minimum 3 method blocks | **Yes** | Fewer than 3 is a gate failure |
 | Level 2 tab — minimum 2 method blocks | **Yes** | Fewer than 2 is a gate failure |
-| Cross-Period Consistency section | **Yes** | See sub-items below |
 | Tournament pointer | **Yes** | Links to Strategy page leaderboard |
 | Transition → Strategy | **Yes** | `st.page_link` |
 
-### Cross-Period Consistency sub-sections
-
-| Chart | Mandatory | Notes |
-|---|---|---|
-| Sub-period Sharpe | **Yes** | L1 error if artifact missing |
-| Rolling Correlation | **Yes** | L1 error if artifact missing |
-| Structural Break | **Yes** | L1 error if artifact missing |
-| Rolling Sharpe (CP) | Optional | Renders if artifact exists |
-| Rolling Granger | Optional | Renders if artifact exists |
+> **Moved 2026-06-10 (fix260610_xpair_general):** the Cross-Period Consistency
+> section previously lived on the Evidence page. Per stakeholder direction it
+> now lives on the **Strategy page, Confidence tab** (see below) — its content
+> answers "does the strategy's edge persist across regimes?", which is a
+> deployment-confidence question, not a statistical-proof question.
 
 ### Each method block — 8-element structure (RES-EP1)
 
@@ -184,9 +179,25 @@ The Strategy page answers "how do I use this?" It must be executable — a reade
 | Element | Mandatory | Notes |
 |---|---|---|
 | Walk-forward rolling Sharpe chart | **Yes** | `walk_forward.json` — L1 if missing |
+| Cross-Period Consistency section | **Yes** | Moved here from Evidence page 2026-06-10. See sub-items below. |
 | Tournament scatter chart | **Yes** | `tournament_scatter.json` — L1 if missing |
 | Tournament leaderboard (top 10 + benchmark row) | **Yes** | Derived from `tournament_results_{date}.csv` |
 | Caveats | **Yes** | Must be pair-specific; documents known limitations and failure modes |
+
+### Cross-Period Consistency sub-sections (Confidence tab)
+
+| Chart | Mandatory | Notes |
+|---|---|---|
+| Sub-period Sharpe | **Yes** | L1 error if artifact missing |
+| Rolling Correlation | **Yes** | L1 error if artifact missing |
+| Structural Break | **Yes** | L1 error if artifact missing |
+| Rolling Sharpe (CP) | Optional | Renders if artifact exists |
+| Rolling Granger | Optional | Renders if artifact exists |
+
+Placement within the tab: after Walk-Forward Rolling Sharpe, before Tournament
+Scatter. Rationale: walk-forward and cross-period both answer "does the edge
+persist over time?"; scatter and leaderboard answer "how was the winner
+selected?". Grouping by question keeps the tab narrative coherent.
 
 ---
 
@@ -269,6 +280,22 @@ Any KPI cited on a page MUST be labelled with its window in the KPI row, not jus
 - **LEAD-FR1 Checkpoint 2** (Lead reviews framing at Step 3 — confirms `evidence_status.status` and the framing language match)
 - **RES-CAP1** (Ray's narrative cannot headline tournament-OOS numbers on a `failed_final_exam` pair)
 - **GATE-RW1** (Reader walk catches any escaped KPI-routing defect at Step 5)
+
+---
+
+## Term Naming Convention
+
+**Rule DPS-LF1 (added 2026-06-10, fix260610_xpair_general)** — Every technical term, ticker, or abbreviation appearing on a dashboard surface must be written in **long form first with the abbreviation in brackets** on its first mention per page. Subsequent mentions on the same page may use the short form.
+
+Examples:
+- "Industrial Production (INDPRO)" — then "INDPRO" thereafter
+- "Energy Select Sector SPDR (XLE)" — then "XLE" thereafter
+- "Michigan Consumer Sentiment (UMCSENT)" — then "UMCSENT" thereafter
+- "Hidden Markov Model (HMM) stress probability" — then "HMM" thereafter
+
+Scope: page titles, KPI captions, chart titles + axis labels on first chart of a page, narrative prose, landing-page cards, sidebar finding labels. Raw pipeline tokens (e.g. `gold_copper_zscore_126d`) must NEVER appear on a user surface — humanise via `display_names.py` helpers.
+
+The canonical long-form/short-form pairs live in `app/components/display_names.py` (`INDICATOR_NAMES` = long form, `SHORT_INDICATOR_LABELS` = abbreviation). A helper `long_form_with_abbrev(pair_id)` returns the combined "Long Form (ABBREV)" string for first-mention use. Cross-references BL-VIZ-NS1 (now promoted to live rule VIZ-NS1 in the Visualization SOP).
 
 ---
 
