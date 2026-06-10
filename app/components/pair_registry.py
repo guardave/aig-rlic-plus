@@ -240,11 +240,13 @@ def load_pair_registry():
         from .display_names import (
             INDICATOR_NAMES as indicator_names,
             TARGET_NAMES as target_names,
-            resolve_indicator,
+            long_form_with_abbrev,
             resolve_target,
         )
 
-        indicator = resolve_indicator(pair_dir, interp.get("indicator", ""))
+        # DPS-LF1 (2026-06-10): dashboard surfaces use the first-mention
+        # form "Long Form (ABBREV)" — e.g. "Industrial Production (INDPRO)".
+        indicator = long_form_with_abbrev(pair_dir, interp.get("indicator", ""))
         target = resolve_target(interp.get("target", ""))
 
         # ELI5 gate (added 2026-05-26 after gold_copper_xli surfaced "cryptic

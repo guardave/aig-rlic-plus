@@ -38,10 +38,26 @@ INDICATOR_NAMES: dict[str, str] = {
 }
 
 TARGET_NAMES: dict[str, str] = {
-    "spy": "S&P 500",
+    # DPS-LF1 (2026-06-10): long form + (abbreviation) on dashboard surfaces.
+    "spy": "S&P 500 (SPY)",
     "xlv": "Health Care Select Sector (XLV)",
     "xlp": "Consumer Staples Select Sector (XLP)",
     "xli": "Industrial Select Sector (XLI)",
+}
+
+
+# ─── DPS-LF1 / VIZ-NS1: ticker-style abbreviations for first-mention form ──
+#
+# Only pairs whose indicator has a TRUE ticker/abbreviation distinct from its
+# long-form name. Pairs whose long form already embeds the short form
+# ("VIX/VIX3M Ratio", "HY-IG Credit Spread", "Gold/Copper Ratio",
+# "Building Permits") are intentionally absent — appending a bracket there
+# would produce redundant noise ("Building Permits (Building Permits)").
+INDICATOR_ABBREV: dict[str, str] = {
+    "indpro": "INDPRO",
+    "indpro_spy": "INDPRO",
+    "indpro_xlp": "INDPRO",
+    "umcsent_xlv": "UMCSENT",
 }
 
 
@@ -83,6 +99,23 @@ def resolve_indicator(pair_id: str, interp_indicator: str = "") -> str:
         or INDICATOR_NAMES.get(interp_indicator, interp_indicator)
         or pair_id
     )
+
+
+def long_form_with_abbrev(pair_id: str, interp_indicator: str = "") -> str:
+    """DPS-LF1 / VIZ-NS1 first-mention form: "Long Form (ABBREV)".
+
+    Composes the long-form indicator name with its ticker abbreviation in
+    brackets — e.g. ``"Industrial Production (INDPRO)"``. Pairs without a
+    distinct ticker abbreviation (or whose long form already contains the
+    short form) return just the long form. Use this on dashboard surfaces
+    and on the first mention per page; subsequent mentions may use
+    ``SHORT_INDICATOR_LABELS``.
+    """
+    long = resolve_indicator(pair_id, interp_indicator)
+    abbrev = INDICATOR_ABBREV.get(pair_id)
+    if abbrev and abbrev.lower() not in long.lower():
+        return f"{long} ({abbrev})"
+    return long
 
 
 def resolve_target(interp_target: str) -> str:
