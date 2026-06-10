@@ -13,10 +13,10 @@
   "direction": "counter_cyclical",
   "oos_sharpe": 1.1717,
   "oos_ann_return": 0.11,
-  "max_drawdown": -0.12,
   "annual_turnover": 4.83,
   "win_rate": null,
   "threshold_value": 0.7,
   "max_acceptable_delay_days": 5,
-  "breakeven_cost_bps": 50.0
+  "breakeven_cost_bps": 50.0,
+  "oos_max_drawdown": -0.12
 }

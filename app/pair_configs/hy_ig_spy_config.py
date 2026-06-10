@@ -731,10 +731,15 @@ EVIDENCE_METHOD_BLOCKS = {
         "We tested combinations of signals (HY-IG level, z-score, rate-of-change, "
         "momentum, and HMM stress probability), thresholds (including HMM 0.5 cutoff), "
         "strategies (Signal-Strength, Long/Cash, Long/Short), and lead times (L0). "
-        "These were ranked by out-of-sample Sharpe ratio over 2019-2026. "
+        "These were ranked by out-of-sample Sharpe ratio over 2019-2026 — "
+        "2,166 specifications run, of which 2,036 passed validity filters. "
         "The winning combination: **HMM stress probability (S6_hmm_stress), "
         "threshold T4_hmm_0.5, Signal-Strength strategy (P2), L0 lead**, "
-        "producing OOS Sharpe 1.41 vs 0.81 buy-and-hold SPY."
+        "producing OOS Sharpe 1.41 vs 0.81 buy-and-hold SPY. That 1.41 is "
+        "the **maximum of the 2,036 valid combinations** (one other "
+        "combination ties it exactly; the deterministic tie-break cascade "
+        "selected this one) — not a typical result: the median valid "
+        "combination scored 0.72."
     ),
     "transition": (
         "**Transition:** Multiple statistical methods confirm the countercyclical "

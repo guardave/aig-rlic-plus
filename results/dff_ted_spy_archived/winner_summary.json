@@ -13,7 +13,6 @@
   "direction": "countercyclical",
   "oos_sharpe": 0.9661,
   "oos_ann_return": 0.1104,
-  "max_drawdown": -14.71,
   "annual_turnover": 9.97,
   "win_rate": null,
   "threshold_value": null,

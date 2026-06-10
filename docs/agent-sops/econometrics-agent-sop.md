@@ -598,6 +598,7 @@ and block on failure. A validator exit code of 1 means the file is non-conforman
 - `threshold_rule` (required) is one of `gt`, `lt`, `gte`, `lte`, `crosses_up`, `crosses_down` — machine-readable operator paired with `threshold_value`.
 - `direction` (required) vocabulary is `procyclical` | `countercyclical` | `mixed` (note: single-word spelling — legacy `counter_cyclical` is deprecated).
 - OOS metrics (`oos_sharpe`, `oos_ann_return`, `oos_max_drawdown`) use ratio units (0.113 = 11.3%). `oos_max_drawdown` MUST be ≤ 0.
+- **`oos_max_drawdown` is the ONLY drawdown field (added 2026-06-10, GH #11).** Emitting a sibling `max_drawdown` key — in any unit — is a contract violation. The DRY principle applies: one fact, one field, one unit (ratio). Percent formatting happens at display time only. Independent audit GH #11 found the same drawdown stored twice in different units (`-8.25` percent and `-0.0825` ratio) across 7 results dirs — a latent silent-drift class (values agree today; a partial regeneration desynchronises them with no validator able to notice).
 - OOS window (`oos_period_start`, `oos_period_end`) uses ISO 8601 dates.
 
 **Cross-references:** APP-WS1 (Ace's consumer-side pre-render validation), META-TWJ (companion `tournament_winner.json`), META-CF (schema-layer governance).
@@ -760,6 +761,21 @@ The cascade MUST be implemented explicitly in the tournament script (not delegat
 **Validation.** Tournament script asserts the cascade produced exactly one winner before writing `winner_summary.json`. The `signal_code` written to `winner_summary.json` MUST be from the `docs/schemas/signal_code_registry.json` registry per ECON-DS3.
 
 **Closes gap:** §1.1 + §1.7 of `docs/validation-audit-20260419-evan.md`.
+
+### ECON-T4 — Tournament Benchmark-Row Semantics (Blocking; added 2026-06-10, GH #10)
+
+**Motivation.** Every `tournament_results_{date}.csv` includes one buy-and-hold benchmark row (`signal == "BENCHMARK"`). Historically that row carried `valid=True`, making every naive `df[df["valid"]]` count off-by-one versus the strategy population: independent audit GH #10 flagged gold_copper_xli's chart title (60) against the CSV's `valid` count (61) — the chart was right; the flag was wrong. All app consumers had grown defensive `& (signal != "BENCHMARK")` clauses to compensate.
+
+**Rule (blocking).**
+
+1. The benchmark row is identified by `signal == "BENCHMARK"` — that is its selector. Consumers MUST select it by signal, never via `valid`.
+2. The benchmark row carries **`valid = False`**. The `valid` column means "valid strategy combination"; the benchmark is not a strategy combination.
+3. Any count of "valid combos" disclosed on a user surface (chart title, prose, landing card) refers to valid **strategy** combinations — benchmark excluded.
+4. Producer scripts assert exactly one `signal == "BENCHMARK"` row per tournament CSV at write time.
+
+**Sample exemption.** The frozen Sample (`hy_ig_v2_spy`) keeps its historical CSV unchanged per the Sample-frozen mandate; its page already filters benchmark explicitly.
+
+**Cross-reference:** DPS-SCD1 (position disclosure uses the strategy-only population); ECON-H5 (winner metrics); GH #10 (originating audit finding).
 
 ### ECON-OOS1 — OOS Window Ownership
 

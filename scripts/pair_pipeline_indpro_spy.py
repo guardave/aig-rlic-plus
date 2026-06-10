@@ -1173,7 +1173,7 @@ def stage_tournament(df_monthly, df_daily):
             "annual_turnover": 0,
             "is_n": len(bh_ret[is_mask].dropna()),
             "oos_n": len(bh_oos),
-            "valid": True,
+            "valid": False,
         })
 
     results_df = pd.DataFrame(results)

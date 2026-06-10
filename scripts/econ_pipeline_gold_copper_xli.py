@@ -260,7 +260,9 @@ def stage_winner(df, df_t):
         "direction": direction,
         "oos_sharpe": float(w["oos_sharpe"]),
         "oos_ann_return": float(w["oos_ann_return"]) / 100.0,
-        "max_drawdown": float(w["oos_max_drawdown"]),
+        # ECON-H5 (GH #11): single canonical drawdown field, ratio units.
+        # (The CSV column is percent; the duplicate percent-unit
+        # "max_drawdown" key this script used to emit is prohibited.)
         "oos_max_drawdown": float(w["oos_max_drawdown"]) / 100.0,
         # DUP-11: B&H reference, populated by compute_buy_and_hold_stats
         # above. Dashboard cards read these as the "vs Buy & Hold" column.

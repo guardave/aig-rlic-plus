@@ -13,7 +13,6 @@
   "direction": "procyclical",
   "oos_sharpe": 1.1036,
   "oos_ann_return": 0.0765,
-  "max_drawdown": -8.07,
   "annual_turnover": 2.22,
   "win_rate": 0.1979,
   "threshold_value": null,

@@ -853,12 +853,16 @@ EVIDENCE_METHOD_BLOCKS = {
         "We tested combinations of 5 signals (z-scores at 126/252-day "
         "windows, 504-day percentile rank, 63d and 126d rate-of-change), "
         "3 thresholds (in-sample p25/p50/p75), 2 strategies (Long/Cash, "
-        "Long/Short), and 3 lead times (0/1/5 days) = 90 combinations. "
+        "Long/Short), and 3 lead times (0/1/5 days) = 90 combinations, "
+        "of which 60 passed validity filters. "
         "Ranked by out-of-sample Sharpe over 2020–2025. The winning "
         "combination: **126-day z-score signal, in-sample-median (≈ -0.03) "
         "threshold, Long/Cash, no lead**, producing **OOS Sharpe 1.27** "
         "(annualized return 13.4%, max drawdown -8.2%) vs ~0.6 "
-        "buy-and-hold XLI."
+        "buy-and-hold XLI. That 1.27 is the **best of the 60 valid "
+        "combinations** — the maximum of the search, not a typical result: "
+        "the median valid combination scored 0.54. The distribution chart "
+        "on the Strategy page (Confidence tab) shows where the winner sits."
     ),
     "transition": (
         "**Transition:** the data confirms a countercyclical relationship "
@@ -933,6 +937,13 @@ class StrategyConfig:
     DRAWDOWN_CHART_NAME = "drawdown"
     WALK_FORWARD_CHART_NAME = "walk_forward"
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
+    # This pair shows a histogram, not a scatter — the generic
+    # stars/diamond caption would describe elements that don't exist.
+    TOURNAMENT_SCATTER_CAPTION = (
+        "What this shows: the OOS Sharpe of all 60 valid strategy "
+        "combinations. The vertical line marks the winner (1.27) — the "
+        "maximum of the distribution; the median combination scored 0.54."
+    )
 
     CAVEATS_MD = """
 **Important Caveats**

@@ -168,7 +168,13 @@ def load_pair_registry():
             try:
                 tdf = pd.read_csv(tourn_path)
                 total_count = len(tdf)
-                valid_count = int(tdf["valid"].sum())
+                # ECON-T4: count valid STRATEGY combos. New CSVs carry
+                # valid=False on the BENCHMARK row; the signal filter also
+                # covers legacy CSVs (frozen Sample) where it was True.
+                if "signal" in tdf.columns:
+                    valid_count = int((tdf["valid"] & (tdf["signal"] != "BENCHMARK")).sum())
+                else:
+                    valid_count = int(tdf["valid"].sum())
                 # Resolve column-name drift: some pipelines emit
                 # `max_drawdown`, newer ones emit `oos_max_drawdown`.
                 # The dashboard card formula is the same; resolve to a

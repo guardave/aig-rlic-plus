@@ -136,20 +136,26 @@ def make_drawdown_comparison():
 
 def make_tournament_sharpe_dist():
     t = pd.read_csv(os.path.join(RESULTS, f"tournament_results_{DATE_TAG}.csv"))
-    valid = t[t["valid"]]
+    # ECON-T4: valid strategy combos only; benchmark selected via signal.
+    valid = t[t["valid"] & (t["signal"] != "BENCHMARK")]
+    n = len(valid)
+    winner = float(valid["oos_sharpe"].max())
+    median = float(valid["oos_sharpe"].median())
     fig = go.Figure()
     fig.add_trace(go.Histogram(x=valid["oos_sharpe"], nbinsx=20,
                                marker_color="#b87333",
                                name="Valid combos"))
-    fig.add_vline(x=1.273, line=dict(color="#2ca02c", dash="dash"),
-                  annotation_text="Winner = 1.27")
-    fig.update_layout(title="Tournament OOS Sharpe distribution (60 valid combos)",
+    # VIZ-SCD1: the annotation states the winner's POSITION in the valid
+    # population, never a bare value; numbers computed from the CSV.
+    fig.add_vline(x=winner, line=dict(color="#2ca02c", dash="dash"),
+                  annotation_text=f"Winner {winner:.2f} = max of {n} (median {median:.2f})")
+    fig.update_layout(title=f"Tournament OOS Sharpe distribution ({n} valid combos)",
                       xaxis=dict(title="OOS Sharpe"),
                       yaxis=dict(title="Count"),
                       template="plotly_white", height=380)
     save_chart(fig, "tournament_sharpe_dist", palette_id="hist_v1",
-               rules_applied=["VIZ-IC1"],
-               alignment_note="Distribution of OOS Sharpe across valid tournament combos; winner marked.")
+               rules_applied=["VIZ-IC1", "VIZ-SCD1"],
+               alignment_note="Distribution of OOS Sharpe across valid strategy combos; winner annotated with its position (max of N, median) per VIZ-SCD1.")
 
 
 def make_returns_by_regime():

@@ -89,4 +89,4 @@ gold_copper_zscore_252d,T1_p25,-0.9767,P2_long_short,5,-0.5486,-13.58,-74.06,9.0
 gold_copper_pctrank_504d,T2_p50,0.5268,P2_long_short,1,-0.5865,-14.3,-75.38,8.37,1566,False
 gold_copper_pctrank_504d,T1_p25,0.1605,P2_long_short,1,-0.6046,-14.64,-75.98,16.74,1566,False
 gold_copper_pctrank_504d,T2_p50,0.5268,P2_long_short,5,-0.6836,-16.12,-78.45,8.37,1566,False
-BENCHMARK,,,,,0.6558,12.81,-42.33,0.0,1566,True
+BENCHMARK,,,,,0.6558,12.81,-42.33,0.0,1566,False
