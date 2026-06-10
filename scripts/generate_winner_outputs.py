@@ -207,7 +207,12 @@ def generate_winner_summary(pair_id: str, winner: pd.Series, metadata: dict,
         "direction": metadata.get("expected_direction", "unknown"),
         "oos_sharpe": round(float(winner["oos_sharpe"]), 4),
         "oos_ann_return": round(float(winner.get("oos_ann_return", 0)), 2),
-        "max_drawdown": round(float(winner["max_drawdown"]), 2),
+        # ECON-H5 (GH #11): oos_max_drawdown is the ONLY drawdown field,
+        # ratio units. Tournament CSVs carry percent (META-UC: abs >= 2
+        # implies percent form); normalise here, never emit max_drawdown.
+        "oos_max_drawdown": (lambda _dd: round(_dd / 100.0, 4) if abs(_dd) >= 2.0 else round(_dd, 4))(
+            float(winner["oos_max_drawdown" if "oos_max_drawdown" in winner.index else "max_drawdown"])
+        ),
         "annual_turnover": round(float(winner.get("annual_turnover", 0)), 2),
         "win_rate": round(float(winner.get("win_rate", 0)), 4)
             if "win_rate" in winner.index else None,

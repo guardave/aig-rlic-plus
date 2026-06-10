@@ -533,9 +533,9 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     oos_sharpe = _format_scalar(winner.get("oos_sharpe"))
     bh_sharpe = _format_scalar(winner.get("bh_sharpe"))
     oos_return = _format_ratio_pct(winner.get("oos_ann_return"), signed=True)
-    # Some pairs use "max_drawdown", others "oos_max_drawdown". Schema
-    # guarantees one of them; prefer the OOS-scoped field.
-    max_dd_val = winner.get("oos_max_drawdown", winner.get("max_drawdown"))
+    # ECON-H5 (GH #11): oos_max_drawdown is the single canonical drawdown
+    # field (ratio units); the legacy "max_drawdown" sibling is prohibited.
+    max_dd_val = winner.get("oos_max_drawdown")
     max_dd = _format_ratio_pct(max_dd_val)
     bh_dd = _format_ratio_pct(winner.get("bh_max_drawdown"))
 
@@ -1235,7 +1235,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     oos_sharpe = _format_scalar(winner.get("oos_sharpe"))
     bh_sharpe = _format_scalar(winner.get("bh_sharpe"))
     oos_return = _format_ratio_pct(winner.get("oos_ann_return"), signed=True)
-    max_dd_val = winner.get("oos_max_drawdown", winner.get("max_drawdown"))
+    # ECON-H5 (GH #11): single canonical drawdown field.
+    max_dd_val = winner.get("oos_max_drawdown")
     max_dd = _format_ratio_pct(max_dd_val)
     bh_dd = _format_ratio_pct(winner.get("bh_max_drawdown"))
     turnover = winner.get("oos_annual_turnover", winner.get("annual_turnover"))

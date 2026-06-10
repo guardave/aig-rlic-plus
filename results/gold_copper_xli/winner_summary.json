@@ -17,7 +17,6 @@
   "direction": "countercyclical",
   "oos_sharpe": 1.273,
   "oos_ann_return": 0.13449999999999998,
-  "max_drawdown": -8.25,
   "oos_max_drawdown": -0.0825,
   "bh_sharpe": 0.6558,
   "bh_ann_return": 0.1281,
