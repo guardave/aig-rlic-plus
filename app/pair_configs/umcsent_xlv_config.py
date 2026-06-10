@@ -435,6 +435,22 @@ EVIDENCE_METHOD_BLOCKS = {
         "the same direction: procyclical, not countercyclical — the "
         "direction surprise flagged on the Story page."
     ),
+    "downloads": [
+        {"label": "Granger causality (12 lag-direction rows)",
+         "path": "results/umcsent_xlv/core_models_20260420/granger_causality.csv"},
+        {"label": "Predictive regressions (12 signal-horizon rows)",
+         "path": "results/umcsent_xlv/core_models_20260420/predictive_regressions.csv"},
+        {"label": "Quantile regression (7 quantiles of forward XLV)",
+         "path": "results/umcsent_xlv/core_models_20260420/quantile_regression.csv"},
+        {"label": "Local projections (4 horizons)",
+         "path": "results/umcsent_xlv/core_models_20260420/local_projections.csv"},
+        {"label": "Diagnostics summary (Jarque-Bera, Durbin-Watson; 4 rows)",
+         "path": "results/umcsent_xlv/core_models_20260420/diagnostics_summary.csv"},
+        {"label": "Cointegration tests (Engle-Granger + Johansen; 2 rows)",
+         "path": "results/umcsent_xlv/core_models_20260420/cointegration.csv"},
+        {"label": "Markov-switching 2-state parameters (10 rows)",
+         "path": "results/umcsent_xlv/core_models_20260420/markov_switching_2state.csv"},
+    ],
     "plain_english": (
         "Four methods all point to the same direction: when sentiment "
         "trends upward year-over-year, XLV tends to do better over the "

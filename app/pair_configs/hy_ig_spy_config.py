@@ -690,6 +690,20 @@ EVIDENCE_METHOD_BLOCKS = {
         "HY-IG → SPY relationship. All converge on the same direction: countercyclical "
         "— rising credit spreads are bearish for SPY, tightening spreads are bullish.*"
     ),
+    "downloads": [
+        {"label": "Granger causality (5 lag-direction rows)",
+         "path": "results/hy_ig_spy/core_models_20260422/granger_causality.csv"},
+        {"label": "Predictive regressions (60 signal-horizon rows)",
+         "path": "results/hy_ig_spy/core_models_20260422/predictive_regressions.csv"},
+        {"label": "Quantile regression (7 quantiles of forward SPY)",
+         "path": "results/hy_ig_spy/core_models_20260422/quantile_regression.csv"},
+        {"label": "Local projections (3 horizons)",
+         "path": "results/hy_ig_spy/core_models_20260422/local_projections.csv"},
+        {"label": "Diagnostics summary (2 rows)",
+         "path": "results/hy_ig_spy/core_models_20260422/diagnostics_summary.csv"},
+        {"label": "HMM 2-state summary (regime parameters; 15 rows)",
+         "path": "results/hy_ig_spy/core_models_20260422/hmm_summary.csv"},
+    ],
     "plain_english": (
         "This section presents eight statistical tests of the same core question: does "
         "the HY-IG credit spread carry useful information about future SPY returns? The "
