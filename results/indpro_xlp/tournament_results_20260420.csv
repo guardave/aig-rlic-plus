@@ -3329,4 +3329,4 @@ S9_contraction,T3_zscore_neg_2.0,P2_signal_strength_pro,6,0.1561,0.5316,0.6461,0
 S9_contraction,T3_zscore_neg_2.0,P2_signal_strength_counter,6,0.6998,0.508,0.68,0.3655,4.69,9.24,-12.84,0.2619,0.66,205,84,True
 S9_contraction,T3_zscore_neg_2.0,P3_long_short_pro,6,-0.5073,-0.7437,-1.1858,-0.1886,-9.68,13.02,-51.35,0.4167,0.0,240,84,False
 S9_contraction,T3_zscore_neg_2.0,P3_long_short_counter,6,0.5073,0.7437,1.3397,0.7285,9.68,13.02,-13.29,0.5833,0.0,240,84,True
-BENCHMARK,BUY_HOLD,BUY_HOLD,0,0.5073,0.7437,1.3397,0.7285,9.68,13.02,-13.29,0.5833,0.0,240,84,True
+BENCHMARK,BUY_HOLD,BUY_HOLD,0,0.5073,0.7437,1.3397,0.7285,9.68,13.02,-13.29,0.5833,0.0,240,84,False

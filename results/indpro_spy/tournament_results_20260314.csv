@@ -1664,4 +1664,4 @@ S9_contraction,T3_zscore_2.0,P3_long_short,6,-0.6646,-0.8998,-1.613,-0.2016,-14.
 S9_contraction,T3_zscore_neg_2.0,P1_long_cash,6,0.0,0.0,0.0,0.0,0.0,99900.0,0.0,0.0,0.0,299,96,False
 S9_contraction,T3_zscore_neg_2.0,P2_signal_strength,6,0.1971,0.8479,0.8822,0.5116,9.95,11.73,-19.45,0.3125,0.57,239,96,True
 S9_contraction,T3_zscore_neg_2.0,P3_long_short,6,-0.7188,-0.8998,-1.613,-0.2016,-14.8,16.45,-73.44,0.3229,0.0,299,96,False
-BENCHMARK,BUY_HOLD,BUY_HOLD,0,0.7188,0.8998,1.3886,0.6186,14.8,16.45,-23.93,0.6771,0.0,299,96,True
+BENCHMARK,BUY_HOLD,BUY_HOLD,0,0.7188,0.8998,1.3886,0.6186,14.8,16.45,-23.93,0.6771,0.0,299,96,False

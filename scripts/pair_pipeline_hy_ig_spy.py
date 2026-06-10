@@ -889,7 +889,7 @@ def stage_tournament(df: pd.DataFrame) -> pd.DataFrame:
             "lead_days":0, "oos_sharpe":round(bh_s,4),
             "oos_ann_return":round(bh.mean()*252,6), "max_drawdown":round(float(bh_dd),6),
             "win_rate":round((bh>0).mean(),4), "n_trades":1,
-            "annual_turnover":0.0, "valid":True, "oos_n":len(bh),
+            "annual_turnover":0.0, "valid": False, "oos_n":len(bh),
         })
 
     rdf = pd.DataFrame(results)

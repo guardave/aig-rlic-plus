@@ -989,4 +989,4 @@ spread_level,T2_rp50,P3,21,-1.0257,-15.45,-50.0,29.91,783,False
 spread_level,T2_rp75,P1,21,0.6685,7.87,-18.76,19.44,783,True
 spread_level,T2_rp75,P2,21,0.8452,8.1,-16.38,9.27,783,True
 spread_level,T2_rp75,P3,21,-0.3651,-5.51,-42.96,38.88,783,False
-BENCHMARK,BUY_HOLD,BH,0,1.414,21.25,-18.76,0.0,783,True
+BENCHMARK,BUY_HOLD,BH,0,1.414,21.25,-18.76,0.0,783,False

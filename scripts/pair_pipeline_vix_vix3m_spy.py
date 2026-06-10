@@ -393,7 +393,7 @@ def stage_tournament(df):
             "lead_days": 0, "oos_sharpe": round(bh_s, 4),
             "oos_ann_return": round(bh.mean() * 252 * 100, 2),
             "max_drawdown": round(bh_dd * 100, 2), "annual_turnover": 0,
-            "oos_n": len(bh), "valid": True})
+            "oos_n": len(bh), "valid": False})
 
     rdf = pd.DataFrame(results)
     rdf.to_csv(os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv"), index=False)

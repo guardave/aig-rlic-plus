@@ -213,7 +213,10 @@ def emit_benchmark_row(
         ),
         "annual_turnover": 0.0,        # B&H has no turnover
         "oos_n": bh["bh_oos_n"],
-        "valid": True,
+        # ECON-T4: `valid` means "valid strategy combination" — the
+        # benchmark is a reference, not a combination. Consumers select
+        # this row via signal == "BENCHMARK", never via `valid`.
+        "valid": False,
     }
     cols = list(columns_template) if columns_template is not None else []
     if cols:
