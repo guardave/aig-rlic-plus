@@ -1,5 +1,36 @@
 # Release Notes
 
+## 2026-06-10 (later session) — Independent-audit fixes GH #9-11: spec-curve disclosure + benchmark valid semantics + canonical drawdown
+
+**Branch `fix260610_audit_q` merged at `53c1e73`** (user-authorised per LEAD-MA1; local → dawodev → production DOM sweeps ALL PASS per LEAD-DOM1; issues #9/#10/#11 closed; branch deleted post-merge with explicit owner consent per LEAD-BD1).
+
+Source: three findings filed by independent auditor Queenie against `gold_copper_xli`; Lead triage verified all three against artifacts and found all three were **cross-pair classes**, fixed SOP-first per META-NMF.
+
+### GH #9 — Specification-curve position disclosure (Sev B)
+
+- New **DPS-SCD1** (dashboard-page-standard) + **VIZ-SCD1** (viz SOP): every pair's `tournament_intro` must state the headline's position — best of N valid strategy combinations + the population median — with numbers re-read from the tournament CSV at authoring time; tournament-distribution chart annotations state the position, never a bare value.
+- All 7 active pairs' intros updated with verified numbers. hy_ig_spy's prose discloses its genuine **2-way tie at the max** (1.4083) — its chart's pre-existing "Top 2 of 2036" was accurate.
+- gold_copper `tournament_sharpe_dist` regenerated via generator: annotation "Winner 1.27 = max of 60 (median 0.54)" computed from CSV. New `TOURNAMENT_SCATTER_CAPTION` config override fixed the generic stars/diamond caption rendering under gold_copper's histogram.
+- The pass surfaced and fixed three stale valid-counts in existing prose (indpro_spy "1,666 valid"→1,149; vix 332→331; umcsent 1,196→1,195 ×2).
+
+### GH #10 — Benchmark row `valid` semantics (Sev C, reframed)
+
+- Triage root-cause: the chart plotted 60 strategy combos correctly; the CSV's BENCHMARK row was flagged `valid=True`, making naive `df[df.valid]` consumers off-by-one. Systemic: all 11 tournament CSVs shared the convention.
+- New **ECON-T4**: `valid` means "valid strategy combination"; benchmark rows carry `valid=False` and are selected via `signal == "BENCHMARK"`, never via `valid`. Frozen-Sample exemption documented.
+- 10 CSVs patched (frozen Sample's untouched), 7 producer scripts conform (shared `tournament.py::emit_benchmark_row` + 6 pipelines), `pair_registry` valid_count now strategy-only — landing cards finally agree with chart titles.
+
+### GH #11 — Dual drawdown field, DRY (Sev C latent)
+
+- **ECON-H5 amendment**: `oos_max_drawdown` (ratio) is the only drawdown field in winner_summary; a sibling `max_drawdown` in any unit is a contract violation.
+- 7 artifacts stripped of the duplicate key (equality verified before deletion); `hy_ig_spy_v1` renamed to canonical. Producers fixed: `generate_winner_outputs.py` (the legacy backfiller that seeded the strays) + `econ_pipeline_gold_copper_xli.py`. Both `page_templates` fallback readers now canonical-only; sweep confirms zero remaining winner_summary `max_drawdown` readers.
+- Backlog: BL-WS-DD-DRY struck (fixed); BL-DUP-13's winner_summary side resolved (residual tournament-CSV column-naming scope stays bundled with BL-801).
+
+### Lessons
+
+1. **Verify the auditor's numbers too.** Triage re-derivation against artifacts reframed #10 (the "wrong" chart was right; the data flag was wrong) and surfaced the hy_ig tie that made naive "best of N" prose would-be-inaccurate. Disposition quality depends on re-computing, not trusting, the finding.
+2. **Bundling fixes that share a verification cycle beats deferring them.** #11 was initially backlogged as a "designed migration"; the stakeholder's challenge exposed that the expensive part (full cross-pair DOM sweep + merge governance) was already being paid by #9+#10 — the migration itself was ~10 mechanical files. Deferral criteria should weigh shared verification cost, not just fix size.
+3. **Disclosure standards force prose-vs-data reconciliation.** Requiring re-read-from-CSV numbers in DPS-SCD1 prose immediately caught three stale counts nobody had flagged.
+
 ## 2026-06-10 — 3 cross-pair standards + Downloads expander on all pairs; LEAD-BD1 governance rule
 
 **Two branches merged to main (both user-authorised per LEAD-MA1, both production-verified per LEAD-DOM1).**

@@ -1445,3 +1445,33 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Branch state at EOD:** `main` = `f1acc27` (production-verified). Remote: main, fix260602_pair4_prep (SUSPENDED), feature/hy_ig_execution_panel (YYY), feature/indicator-evaluation-sop (YYY), rescue-my-work (Rex) — last three restored.
 
 🤖 Agent: Lead Lesandro
+
+---
+
+## 2026-06-10 evening — Lead Lesandro — COMPLETED (EOD)
+
+**Status:** Completed. GH #9-11 independent-audit findings: triaged, verified, fixed in `fix260610_audit_q`, merged at `53c1e73`, production-verified, issues closed, branch deleted (owner consent).
+
+**Accomplished:**
+
+- **Triage with artifact re-derivation:** #9 Sev B confirmed (headline = unique max of 60, undisclosed); #10 Sev C REFRAMED (chart was right; CSV BENCHMARK row wrongly `valid=True` — systemic across all 11 tournament CSVs); #11 Sev C confirmed with worse scope (7 dual-field + 5 inconsistent-singleton winner_summary files).
+- **3 new standards (SOP-first per META-NMF):** ECON-T4 (benchmark `valid=False`; `valid` = valid strategy combination; select benchmark via signal), ECON-H5 amendment (`oos_max_drawdown` ratio is the ONLY drawdown field), DPS-SCD1 + VIZ-SCD1 (headline Sharpe disclosed as best-of-N + median, numbers re-read from CSV; chart annotations state position).
+- **Fixes:** 10 CSVs + 7 producers (#10); 8 winner_summary artifacts + 2 producers + 2 consumer sites (#11); 7 tournament_intro disclosures + gold_copper chart regen + TOURNAMENT_SCATTER_CAPTION override + 3 stale-count corrections (#9). Frozen Sample untouched throughout.
+- **Verification:** local DOM sweep ALL PASS → dawodev ALL PASS → user merge approval → production reboot → production ALL PASS (23 checks).
+- Backlog: BL-WS-DD-DRY struck (fixed); BL-DUP-13 winner_summary side resolved.
+
+**Discoveries / insights:**
+
+1. **Re-derive audit findings before disposition** — #10's defect was in the data flag, not the chart; hy_ig_spy has a genuine 2-way tie at its max (1.4083) which the prose now discloses. Findings are inputs, not verdicts.
+2. **Bundle fixes that share a verification cycle** — #11's "designed migration" was ~10 mechanical files once #9/#10's DOM-sweep + merge cycle was already being paid. Stakeholder's bundling challenge was right.
+3. **Landing cards were silently off-by-one on every pair's valid count** (benchmark in `valid.sum()`) — now consistent with chart titles everywhere.
+
+**Outstanding for next session:**
+
+- `fix260602_pair4_prep` resume scope now includes BOTH yesterday's 3 cross-pair standards AND the 3 audit_q standards (see outstanding-work.md).
+- BL-801/BL-DUP-13 residue: tournament-CSV column naming variance only.
+- Open GH issues: #4, #7 (pre-existing).
+
+**Branch state at EOD:** `main` = `53c1e73` + this EOD commit, production-verified. Remote: main, fix260602_pair4_prep (SUSPENDED), feature/hy_ig_execution_panel (YYY), feature/indicator-evaluation-sop (YYY), rescue-my-work (Rex).
+
+🤖 Agent: Lead Lesandro

@@ -1,6 +1,15 @@
 # Outstanding work — Lead Lesandro
 
-Last updated: 2026-06-10 EOD.
+Last updated: 2026-06-10 evening EOD.
+
+---
+
+## Items added/updated 2026-06-10 evening (post fix260610_audit_q)
+
+- **GH #9-11 CLOSED** — fixed in `fix260610_audit_q`, merged at `53c1e73`, production-verified. Branch deleted (owner consent given).
+- **`fix260602_pair4_prep` resume scope expanded AGAIN:** crude_oil_xle on resume must also satisfy the three audit_q standards — ECON-T4 (benchmark row `valid=False` in its tournament CSV), ECON-H5 (canonical `oos_max_drawdown` only — note its winner_summary defect list already includes schema violations), DPS-SCD1/VIZ-SCD1 (tournament_intro position disclosure + dist-chart annotation).
+- **BL-801 / BL-DUP-13 residue** — tournament-CSV *column* naming variance (`max_drawdown` percent vs `oos_max_drawdown`; META-UC scale detection in pair_registry) is the remaining drawdown-related scope, still bundled with BL-801. winner_summary side fully resolved.
+- Open GH issues remaining: #4 (storytelling architecture review), #7 (META-CMP forcing functions) — both pre-existing.
 
 ---
 

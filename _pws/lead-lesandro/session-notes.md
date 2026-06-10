@@ -1,5 +1,32 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-06-10 evening (GH #9-11 audit triage + fix260610_audit_q shipped)
+
+### Summary
+
+Independent auditor Queenie filed 3 findings against `gold_copper_xli` (GH #9-11). Full cycle in one session: triage → verify → SOP-first fix branch → merge → production verify → issues closed.
+
+1. **Triage (all 3 verified against artifacts before disposition):**
+   - **#9 Sev B confirmed** — headline OOS Sharpe 1.273 = unique max of 60 strategy combos, no position disclosure anywhere. Cross-pair class (every pair's headline is by construction the tournament max).
+   - **#10 Sev C reframed** — the chart was RIGHT (plots 60); the CSV's BENCHMARK row carried `valid=True` (off-by-one for every naive `df[df.valid]` reader, including the auditor's script). Systemic: all 11 tournament CSVs.
+   - **#11 Sev C confirmed, scope worse** — 7 of 12 winner_summary files carried both drawdown fields; 5 carried inconsistent singletons. Initially backlogged (BL-WS-DD-DRY); user challenged the deferral — bundling analysis showed the expensive verification cycle was shared with #9/#10, so all three went into one branch.
+   - Triage comments posted to all 3 issues (permission gate required explicit user "Post the comments" for publishing under their identity).
+2. **`fix260610_audit_q` shipped (merged `53c1e73`, 5 commits, 44 files):**
+   - Phase 0: ECON-T4 (benchmark valid semantics) + ECON-H5 amendment (canonical drawdown only) + DPS-SCD1/VIZ-SCD1 (position disclosure standard).
+   - Phase 1 (#10): 10 CSVs benchmark `valid=False` (text-level edit, no pandas round-trip; frozen Sample's CSV untouched); 7 producers conform; pair_registry valid_count strategy-only (covers frozen Sample's legacy CSV via signal filter).
+   - Phase 2 (#11): 7 artifacts stripped of duplicate key (equality asserted pre-deletion), hy_ig_spy_v1 renamed to canonical; `generate_winner_outputs.py` (root producer of the strays) + gold_copper pipeline fixed; both page_templates fallback sites canonical-only; all non-archived winner_summary files schema-validate.
+   - Phase 3 (#9): position disclosure on all 7 intros with CSV-verified numbers (hy_ig_spy discloses its genuine 2-way tie at 1.4083 — chart's "Top 2 of 2036" was accurate); gold_copper dist chart regenerated, annotation computed from CSV; TOURNAMENT_SCATTER_CAPTION override for the histogram-vs-scatter caption mismatch; 3 stale valid-counts fixed.
+   - Phase 4: BL-WS-DD-DRY struck, BL-DUP-13 annotated; local sweep ALL PASS → dawodev ALL PASS → user "Approve" → merge → production reboot → production ALL PASS → issues #9/#10/#11 closed → branch deleted with explicit owner consent (LEAD-BD1 honoured).
+
+### Lessons (this session)
+
+1. **Verify the auditor's numbers before disposition.** Re-derivation reframed #10 (chart right, data flag wrong) and caught the hy_ig 2-way tie that would have made naive "best of N" prose subtly wrong. Audit findings are inputs to verification, not verdicts.
+2. **Deferral criteria must weigh shared verification cost.** #11 looked like a standalone "designed migration"; bundled with #9/#10 it added ~10 mechanical files to an already-paid DOM-sweep + merge-governance cycle. The stakeholder's "why not bundle?" challenge was correct.
+3. **DPS-SCD1's re-read-from-CSV requirement is a prose-vs-data forcing function** — it caught 3 stale valid-counts in passing.
+4. **GitHub publishing needs explicit authorization** — the permission gate blocked issue comments under the user's identity mid-triage; "triage" ≠ "publish". Got explicit "Post the comments" before proceeding.
+
+---
+
 ## Session: 2026-06-10 (3 cross-pair standards + downloads-all-pairs shipped; branch cleanup + LEAD-BD1)
 
 ### Summary

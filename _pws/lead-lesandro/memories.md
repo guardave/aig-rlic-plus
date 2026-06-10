@@ -1,5 +1,16 @@
 # Key Memories — Lead Lesandro
 
+## Audit-triage discipline — re-derive the finding's own numbers (added 2026-06-10 — re-read at every SOD)
+
+When triaging an external/independent audit finding, **re-compute the finding's numbers from the artifacts before assigning severity or disposition**. Two crystallising cases from GH #9-11 (Queenie, gold_copper_xli):
+
+- #10 claimed "chart says 60, CSV has 61 — chart off-by-one". Re-derivation showed the chart plotted exactly 60 correct points; the 61st `valid==True` row was the BENCHMARK flagged wrong in the data. The fix target flipped from consumer (chart) to producer (CSV semantics, → ECON-T4).
+- #9's distribution stats included the benchmark row; and hy_ig_spy has a genuine 2-way tie at the max — both invisible unless you re-run the numbers yourself. Naive "best of N" prose copied from the finding would have been subtly wrong.
+
+The auditor finds the smoke; Lead locates the fire. Findings are verification inputs, not verdicts.
+
+**Deferral corollary:** when dispositioning multiple findings, weigh SHARED VERIFICATION COST, not just per-fix size. A "designed migration" that adds ~10 mechanical files to a branch already paying the full DOM-sweep + merge-governance cycle should bundle, not defer (user challenge on #11 was correct; BL-WS-DD-DRY lived 3 hours).
+
 ## LEAD-BD1 — Branch deletion requires OWNER consent (added 2026-06-10 — re-read at every SOD)
 
 Deleted 3 collaborator branches (`feature/hy_ig_execution_panel`, `feature/indicator-evaluation-sop` — tips authored yyycom18; `rescue-my-work` — tip authored rekkusuri) under the stakeholder's blanket "clean the old branches too". Stakeholder then flagged they were not his work; restored same day at exact SHAs.
