@@ -430,6 +430,22 @@ EVIDENCE_METHOD_BLOCKS = {
         "countercyclical — rising IP is bearish for XLP, falling IP is "
         "bullish for XLP.*"
     ),
+    "downloads": [
+        {"label": "Granger causality (12 lag-direction rows)",
+         "path": "results/indpro_xlp/core_models_20260420/granger_causality.csv"},
+        {"label": "Predictive regressions (12 signal-horizon rows)",
+         "path": "results/indpro_xlp/core_models_20260420/predictive_regressions.csv"},
+        {"label": "Quantile regression (7 quantiles of forward XLP)",
+         "path": "results/indpro_xlp/core_models_20260420/quantile_regression.csv"},
+        {"label": "Local projections (4 horizons)",
+         "path": "results/indpro_xlp/core_models_20260420/local_projections.csv"},
+        {"label": "Diagnostics summary (Jarque-Bera, Durbin-Watson; 4 rows)",
+         "path": "results/indpro_xlp/core_models_20260420/diagnostics_summary.csv"},
+        {"label": "Cointegration tests (Engle-Granger + Johansen; 2 rows)",
+         "path": "results/indpro_xlp/core_models_20260420/cointegration.csv"},
+        {"label": "Markov-switching 2-state parameters (10 rows)",
+         "path": "results/indpro_xlp/core_models_20260420/markov_switching_2state.csv"},
+    ],
     "plain_english": (
         "This section shows the statistical evidence for the relationship between "
         "industrial production (INDPRO) and consumer staples ETF (XLP) returns. "

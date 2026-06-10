@@ -489,6 +489,22 @@ EVIDENCE_METHOD_BLOCKS = {
         "cointegration and PELT change-point results are archived in "
         "`results/indpro_spy/core_models_20260314/`."
     ),
+    "downloads": [
+        {"label": "Granger causality (12 lag-direction rows)",
+         "path": "results/indpro_spy/core_models_20260314/granger_causality.csv"},
+        {"label": "Predictive regressions (12 signal-horizon rows)",
+         "path": "results/indpro_spy/core_models_20260314/predictive_regressions.csv"},
+        {"label": "Quantile regression (7 quantiles of forward SPY)",
+         "path": "results/indpro_spy/core_models_20260314/quantile_regression.csv"},
+        {"label": "Local projections (4 horizons)",
+         "path": "results/indpro_spy/core_models_20260314/local_projections.csv"},
+        {"label": "Diagnostics summary (Jarque-Bera, Durbin-Watson; 4 rows)",
+         "path": "results/indpro_spy/core_models_20260314/diagnostics_summary.csv"},
+        {"label": "Cointegration tests (Engle-Granger + Johansen; 2 rows)",
+         "path": "results/indpro_spy/core_models_20260314/cointegration.csv"},
+        {"label": "Markov-switching 2-state parameters (10 rows)",
+         "path": "results/indpro_spy/core_models_20260314/markov_switching_2state.csv"},
+    ],
     "plain_english": (
         "Six different statistical lenses tell a consistent story: the IP "
         "signal is real, it is strongest in momentum transforms (not levels), "

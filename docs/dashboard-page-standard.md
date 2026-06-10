@@ -104,6 +104,7 @@ The Evidence page is the statistical proof layer. Every method block must follow
 | Overview text | **Yes** | Motivates the multi-method approach |
 | Structure explainer (8-part method description) | **Yes** | Standard text; template provides canonical version |
 | Tier explainer (Level 1 / Level 2 rationale) | **Yes** | Standard text; template provides canonical version |
+| Download archived CSVs expander | **Yes** | `downloads` list in `EVIDENCE_METHOD_BLOCKS` — each entry `{label, path}` pointing at the pair's statistical result CSVs (core-models tables or equivalent). Labels must state what the file contains with row counts verified against the file at authoring time. Missing files render an inline note, not an error. Introduced by vichua4b's building-permit-spy-fix (3c8b10d); extended to all pairs 2026-06-10 per stakeholder direction (fix260610_downloads_all_pairs). |
 | Level 1 tab — minimum 3 method blocks | **Yes** | Fewer than 3 is a gate failure |
 | Level 2 tab — minimum 2 method blocks | **Yes** | Fewer than 2 is a gate failure |
 | Tournament pointer | **Yes** | Links to Strategy page leaderboard |

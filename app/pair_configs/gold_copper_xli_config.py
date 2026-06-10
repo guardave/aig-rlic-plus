@@ -816,6 +816,18 @@ EVIDENCE_METHOD_BLOCKS = {
         "which is why a threshold trading rule monetises it where "
         "linear correlation underestimates it.*"
     ),
+    "downloads": [
+        {"label": "Granger causality by lag (5 lags)",
+         "path": "results/gold_copper_xli/granger_by_lag.csv"},
+        {"label": "Local projections (9 horizons)",
+         "path": "results/gold_copper_xli/local_projections.csv"},
+        {"label": "Quantile regression (7 quantiles of forward XLI)",
+         "path": "results/gold_copper_xli/quantile_regression.csv"},
+        {"label": "Regime quartile returns (4 quartiles)",
+         "path": "results/gold_copper_xli/regime_quartile_returns.csv"},
+        {"label": "Sub-period Sharpe (5 episodes)",
+         "path": "results/gold_copper_xli/subperiod_sharpe.csv"},
+    ],
     "plain_english": (
         "This section shows the statistical evidence for the "
         "relationship between the gold/copper ratio and XLI "

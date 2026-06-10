@@ -376,6 +376,18 @@ EVIDENCE_METHOD_BLOCKS = {
         "RF walk-forward) is archived in "
         "`results/vix_vix3m_spy/core_models_20260314/`."
     ),
+    "downloads": [
+        {"label": "Granger causality (10 lag-direction rows)",
+         "path": "results/vix_vix3m_spy/core_models_20260314/granger_causality.csv"},
+        {"label": "Predictive regressions (20 signal-horizon rows)",
+         "path": "results/vix_vix3m_spy/core_models_20260314/predictive_regressions.csv"},
+        {"label": "Quantile regression (7 quantiles of forward SPY)",
+         "path": "results/vix_vix3m_spy/core_models_20260314/quantile_regression.csv"},
+        {"label": "Local projections (3 horizons)",
+         "path": "results/vix_vix3m_spy/core_models_20260314/local_projections.csv"},
+        {"label": "Diagnostics summary (2 rows)",
+         "path": "results/vix_vix3m_spy/core_models_20260314/diagnostics_summary.csv"},
+    ],
     "plain_english": (
         "Both statistical lenses agree: the direction is unambiguously "
         "counter-cyclical, the effect is strongest at 1-5 trading days, "
