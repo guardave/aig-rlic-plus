@@ -82,10 +82,14 @@ class StoryConfig:
     REGIME_TITLE = "What History Shows: SPY Returns by Building-Permit Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "SPY Sharpe by Building Permits growth quartile. The high-growth regime "
-        "(Q4) delivers a Sharpe near 0.95; the deep-contraction regime (Q1) falls "
-        "to roughly 0.75. The narrow spread suggests permits work best as a "
-        "directional signal rather than as a stand-alone regime-timing tool."
+        "SPY performance by Building Permits growth quartile — annualized "
+        "Sharpe (left panel) and annualized return (right panel). The "
+        "high-growth regime (Q4) is strongest on both measures (Sharpe 0.95 "
+        "/ 13.2% return); the weakest quartile is actually Q2 (0.57 / 8.7%), "
+        "not the deep-contraction Q1 (0.75 / 12.2%) — the regime pattern is "
+        "non-monotonic. The narrow overall spread suggests permits work best "
+        "as a directional signal rather than as a stand-alone "
+        "regime-timing tool."
     )
 
     NARRATIVE_SECTION_1 = (

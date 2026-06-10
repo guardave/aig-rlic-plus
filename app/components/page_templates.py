@@ -876,6 +876,68 @@ def _render_method_block(content: dict, pair_id: str) -> None:
     st.info(f"**Key message:** {content['key_message']}")
 
 
+def _render_cross_period_section(pair_id: str) -> None:
+    """Cross-Period Consistency charts (ECON-CP1/CP2 + VIZ-CP1).
+
+    Relocated 2026-06-10 (fix260610_xpair_general, stakeholder direction):
+    previously rendered on the Evidence page; now rendered inside
+    ``render_strategy_page``'s Confidence tab (after Walk-Forward Rolling
+    Sharpe, before Tournament Scatter). The content answers "does the
+    strategy's edge persist across regimes?" — a deployment-confidence
+    question, not a statistical-proof question.
+
+    Rule GATE-CL6: this section must render without st.error for all active
+    pairs. Missing chart files show st.info("Cross-period analysis pending")
+    — not an error — so pairs that have not yet been retro-applied degrade
+    gracefully.
+    """
+    st.markdown("---")
+    st.markdown("### Cross-Period Consistency")
+    st.markdown(
+        "These charts test whether the signal's predictive relationship holds "
+        "across different historical sub-periods. A finding that vanishes in "
+        "one era or only appears in a specific decade is fragile; one that "
+        "persists across regimes is robust."
+    )
+
+    # fix260526 #104: the "How to read it" caption was rendered AS
+    # st.caption() BELOW each chart (small + grey). User asked for it to
+    # appear ABOVE the chart, bold/larger so it's easier to see.
+    # Caption is now passed as a markdown line ABOVE load_plotly_chart, and
+    # the chart's own caption= argument is None.
+    _cp_always = [
+        ("subperiod_sharpe",      "Sub-period Sharpe",      "How to read it: each bar shows the strategy's Sharpe ratio for a distinct historical sub-period. Consistent positive bars across all periods indicate a robust signal."),
+        ("rolling_correlation",   "Rolling Correlation",    "How to read it: the time-varying correlation between indicator and target. A flat, stable line suggests the relationship is not regime-dependent."),
+        ("structural_break",      "Structural Break Test",  "How to read it: formal test for parameter instability. A clean chart with no break-date flags means the relationship is stationary across the sample."),
+    ]
+    for _chart_name, _label, _caption in _cp_always:
+        _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
+        if _path.exists():
+            st.markdown(f"**{_label}**")
+            st.markdown(f"**{_caption}**")
+            load_plotly_chart(_chart_name, pair_id=pair_id, caption=None)
+        else:
+            st.info(f"Cross-period analysis pending — {_label} chart not yet available for this pair.")
+
+    _cp_conditional = [
+        ("rolling_sharpe_cp", "Rolling Sharpe",   "How to read it: 24-month rolling Sharpe ratio. Persistent positive values confirm the strategy survives across market regimes, not just in a lucky window."),
+        # Granger caption per rekkusuri's michigan-XLV-fix (bc0012f).
+        ("rolling_granger",   "Rolling Granger",  "How to read it: rolling Granger p-value and F-statistic over time. Periods below the p = 0.05 line indicate stronger evidence; intermittent crossings mean the relationship is regime-dependent rather than consistently significant."),
+    ]
+    for _chart_name, _label, _caption in _cp_conditional:
+        _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
+        if _path.exists():
+            st.markdown(f"**{_label}**")
+            st.markdown(f"**{_caption}**")
+            load_plotly_chart(_chart_name, pair_id=pair_id, caption=None)
+        # NOTE (2026-06-10): conditional charts no longer render a "pending"
+        # st.info when absent. Per the user-confirmed standard "placeholders
+        # shown to users are NOT acceptable quality", optional artifacts
+        # simply don't render when missing. The three _cp_always charts above
+        # retain their pending-info because they are MANDATORY artifacts whose
+        # absence must stay visible until retro-applied (GATE-CL6).
+
+
 def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     """Render the canonical Evidence page for ``pair_id``.
 
@@ -1013,51 +1075,13 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
                 with sub:
                     _render_method_block(block, pair_id)
 
-    # ------ Cross-Period Consistency (ECON-CP1/CP2 + VIZ-CP1) ------
-    # Rule GATE-CL6: this section must render without st.error for all active
-    # pairs. Missing chart files show st.info("Cross-period analysis pending")
-    # — not an error — so pairs that have not yet been retro-applied degrade
-    # gracefully.
-    st.markdown("---")
-    st.markdown("### Cross-Period Consistency")
-    st.markdown(
-        "These charts test whether the signal's predictive relationship holds "
-        "across different historical sub-periods. A finding that vanishes in "
-        "one era or only appears in a specific decade is fragile; one that "
-        "persists across regimes is robust."
-    )
-
-    # fix260526 #104: the "How to read it" caption was rendered AS
-    # st.caption() BELOW each chart (small + grey). User asked for it to
-    # appear ABOVE the chart, bold/larger so it's easier to see.
-    # Caption is now passed as a markdown line ABOVE load_plotly_chart, and
-    # the chart's own caption= argument is None.
-    _cp_always = [
-        ("subperiod_sharpe",      "Sub-period Sharpe",      "How to read it: each bar shows the strategy's Sharpe ratio for a distinct historical sub-period. Consistent positive bars across all periods indicate a robust signal."),
-        ("rolling_correlation",   "Rolling Correlation",    "How to read it: the time-varying correlation between indicator and target. A flat, stable line suggests the relationship is not regime-dependent."),
-        ("structural_break",      "Structural Break Test",  "How to read it: formal test for parameter instability. A clean chart with no break-date flags means the relationship is stationary across the sample."),
-    ]
-    for _chart_name, _label, _caption in _cp_always:
-        _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
-        if _path.exists():
-            st.markdown(f"**{_label}**")
-            st.markdown(f"**{_caption}**")
-            load_plotly_chart(_chart_name, pair_id=pair_id, caption=None)
-        else:
-            st.info(f"Cross-period analysis pending — {_label} chart not yet available for this pair.")
-
-    _cp_conditional = [
-        ("rolling_sharpe_cp", "Rolling Sharpe",   "How to read it: 24-month rolling Sharpe ratio. Persistent positive values confirm the strategy survives across market regimes, not just in a lucky window."),
-        ("rolling_granger",   "Rolling Granger",  "How to read it: rolling Granger p-value and F-statistic over time. Periods below the p = 0.05 line indicate stronger evidence; intermittent crossings mean the relationship is regime-dependent rather than consistently significant."),
-    ]
-    for _chart_name, _label, _caption in _cp_conditional:
-        _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
-        if _path.exists():
-            st.markdown(f"**{_label}**")
-            st.markdown(f"**{_caption}**")
-            load_plotly_chart(_chart_name, pair_id=pair_id, caption=None)
-        else:
-            st.info(f"Cross-period analysis pending — {_label} chart not yet available for this pair.")
+    # ------ Cross-Period Consistency: RELOCATED (2026-06-10) ------
+    # The Cross-Period Consistency section moved to render_strategy_page's
+    # Confidence tab per stakeholder direction (fix260610_xpair_general).
+    # See _render_cross_period_section() and DPS standard "Confidence tab".
+    # Merge note: rekkusuri's michigan-XLV-fix (bc0012f) improved the
+    # Rolling Granger caption in the pre-relocation block; that caption is
+    # carried into _render_cross_period_section.
 
     # ------ Tournament pointer ------
     st.markdown("---")
@@ -1328,6 +1352,13 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
                 "confirm persistent edge."
             ),
         )
+
+        # Cross-Period Consistency — relocated here from the Evidence page
+        # (2026-06-10, fix260610_xpair_general). Walk-forward and cross-period
+        # both answer "does the edge persist over time?"; the scatter and
+        # leaderboard below answer "how was the winner selected?".
+        _render_cross_period_section(pair_id)
+
         st.markdown("---")
         st.markdown("### Tournament Scatter")
         scatter_chart = getattr(

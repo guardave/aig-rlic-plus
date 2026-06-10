@@ -3,9 +3,11 @@
   "pair_id": "gold_copper_xli",
   "palette_id": "quartile_v1",
   "rules_applied": [
+    "VIZ-QR1",
     "VIZ-IC1"
   ],
-  "narrative_alignment_note": "Quartile bar chart matches Evidence-page quartile method block. KS-108 (2026-06-03): switched to Sharpe for parity with indpro_xlp regime_stats convention.",
-  "generated_at": "2026-06-03T12:28:25Z",
-  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
+  "narrative_alignment_note": "VIZ-QR1 dual-panel retro-apply (2026-06-10T17:24:02Z): Annualized Sharpe + Annualized Return % side-by-side per quartile, sourced from results/gold_copper_xli/regime_quartile_returns.csv. Values: sharpe=[1.46, 0.54, 0.18, 0.57], ann_return_pct=[15.7, 9.8, 3.7, 11.7].",
+  "generated_at": "2026-06-10T17:24:02Z",
+  "generated_by": "Lead Lesandro (fix260610_xpair_general, VIZ-QR1 retro-apply)",
+  "disposition": "consumed"
 }

@@ -1483,6 +1483,42 @@ Vera's chart-save pipeline calls a `validate_intra_chart_consistency(fig, pair_i
 
 **Cross-references:** VIZ-V11 (color palette registry — the canonical color source), VIZ-V12 (events registry — annotation date source), VIZ-V8 (chart type registry — filename + expected chart type), META-RYW (team-level self-review — VIZ-IC1 is its chart-specific instance), QA-CL6/GATE-NC (QA cross-checks narrative claims against chart data at acceptance).
 
+## Rule VIZ-QR1 — Quartile Regime Chart Standard (Dual-Panel Sharpe + Return)
+
+**Added 2026-06-10 (fix260610_xpair_general, stakeholder direction).** Every pair's quartile regime chart (`regime_stats.json` or equivalent) MUST be a dual-panel side-by-side layout:
+
+- **Left panel:** Annualized Sharpe ratio per signal quartile
+- **Right panel:** Annualized Return (%) per signal quartile
+- Identical quartile x-axis (Q1 → Q4 with intuitive low/high labels) and identical per-quartile bar colors in both panels
+- Value labels outside bars (Sharpe: 2 decimal places; Return: 1 decimal place + `%`)
+- `make_subplots(rows=1, cols=2, subplot_titles=[...])` with subplot titles naming the metric AND the signal (e.g. "Annualized Sharpe by UMCSENT YoY Quartile")
+
+**Reference implementation:** `scripts/generate_charts_umcsent_xlv.py::chart_regime_stats`. Copy that pattern; do not reinvent.
+
+**Why both metrics.** Sharpe alone hides whether a quartile's risk-adjusted edge comes from return or from low volatility; return alone hides risk. Showing them side-by-side lets a layperson see at a glance when the two rankings agree (robust regime) or diverge (volatility-driven artefact). The KS-108 comment-log episode (one pair showed mean return where another showed Sharpe for the same chart slug) is the drift this standard eliminates.
+
+**Retro-apply:** all active pairs. Sample (`hy_ig_v2_spy`) is FROZEN per standing user direction — excluded until the freeze is lifted.
+
+**Caption discipline:** the chart caption must describe BOTH panels and must quote values re-read from the source CSV at authoring time (prose-vs-data discipline; cross-ref BL-PROSE-DATA-GREP).
+
+**Cross-references:** VIZ-IC1 (title ↔ axis coherence applies per panel), DPS standard "Regime chart" row (format requirement), BL-CHART-CONTRACT (this rule is the manual instance of the chart-contract registry that backlog item proposes to mechanise).
+
+## Rule VIZ-NS1 — Indicator Naming Standard (Long Form + Abbreviation)
+
+**Promoted from backlog BL-VIZ-NS1 on 2026-06-10 (fix260610_xpair_general, stakeholder direction).** Originally proposed during fix260531 after indpro_spy used ≥4 different references to the same indicator on one page.
+
+**The rule:** every technical term, ticker, or abbreviation on a user-facing surface is written **long form first with the abbreviation in brackets** on its first mention per page; the short form may be used thereafter.
+
+- "Industrial Production (INDPRO)" → then "INDPRO"
+- "Energy Select Sector SPDR (XLE)" → then "XLE"
+- "Gold/Copper Ratio (G/C)" → then "G/C" or "gold/copper"
+
+**Canonical source:** `app/components/display_names.py` — `INDICATOR_NAMES` (long form), `SHORT_INDICATOR_LABELS` (abbreviation), and the `long_form_with_abbrev(pair_id)` helper that composes "Long Form (ABBREV)". Chart titles and axis labels on the FIRST chart of a page use the composed form; subsequent charts may use the short form.
+
+**Prohibited:** raw pipeline tokens (`gold_copper_zscore_126d`, `xle_logret_1w`) on any user surface — humanise via display_names helpers or the APP-RL1 `humanize_column_tokens` path.
+
+**Cross-references:** DPS-LF1 (the dashboard-page-standard twin of this rule), BL-VIZ-NS1 (backlog origin — now closed by promotion), VIZ-IC1 item 1 (title coherence).
+
 ## Quality Gates
 
 Before handing off:

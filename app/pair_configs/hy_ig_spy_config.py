@@ -83,10 +83,13 @@ practitioners who want to reproduce or challenge the work.
     REGIME_TITLE = "What History Shows: SPY Returns by HMM Credit Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "What this shows: SPY annualized return in the HMM-identified calm and "
-        "stress regimes. Calm periods (low credit stress) generate the bulk of "
-        "SPY's long-run returns; stress periods concentrate drawdown risk. The "
-        "gap between regimes is the statistical foundation for the winning signal."
+        "What this shows: SPY performance in the HMM-identified calm and "
+        "stress regimes — annualized Sharpe (left panel) and annualized "
+        "return (right panel). Calm periods (low credit stress) generate the "
+        "bulk of SPY's long-run performance (Sharpe 1.68 / 18.1% return); "
+        "stress periods concentrate drawdown risk (-0.19 / -5.2%). The gap "
+        "between regimes — on both measures — is the statistical foundation "
+        "for the winning signal."
     )
 
     NARRATIVE_SECTION_1 = """

@@ -89,16 +89,19 @@ class StoryConfig:
     # line bridge to the strategy rule. Data-grounded against
     # regime_descriptive_stats.csv: Q1=0.36, Q2=0.80, Q3=0.77, Q4=0.40.
     REGIME_CAPTION = (
-        "What this shows: XLP annualized Sharpe ratio in each of four IP "
-        "YoY-growth quartile regimes. Labels read left-to-right: Q1 (Weakest "
+        "What this shows: XLP performance in each of four IP YoY-growth "
+        "quartile regimes — annualized Sharpe (left panel) and annualized "
+        "return (right panel). Labels read left-to-right: Q1 (Weakest "
         "IP growth) → Q4 (Strongest IP growth). **Takeaway:** XLP earns its "
-        "best risk-adjusted returns in the middle quartiles — Q2 (0.80) and "
-        "Q3 (0.77) — and noticeably weaker returns at both tails: Q1 "
-        "(weakest IP growth, deep contractions, often crisis years; Sharpe "
-        "0.36) and Q4 (strongest IP growth, investors rotating INTO "
-        "cyclicals OUT of defensives; Sharpe 0.40). The U-shape across "
-        "regimes is what the **acceleration** signal exploits — it captures "
-        "the inflection between regimes rather than the level."
+        "best risk-adjusted returns in the middle quartiles — Q2 (Sharpe "
+        "0.80 / 9.4% return) and Q3 (0.77 / 9.0%) — and noticeably weaker "
+        "returns at both tails: Q1 (weakest IP growth, deep contractions, "
+        "often crisis years; 0.36 / 4.7%) and Q4 (strongest IP growth, "
+        "investors rotating INTO cyclicals OUT of defensives; 0.40 / 5.1%). "
+        "Both panels show the same U-shape — the pattern is return-driven, "
+        "not a volatility artefact — and that U-shape is what the "
+        "**acceleration** signal exploits: it captures the inflection "
+        "between regimes rather than the level."
     )
 
     NARRATIVE_SECTION_1 = """

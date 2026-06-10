@@ -275,26 +275,29 @@ def chart_regime_stats():
         ann_vols.append(av)
         sharpes.append(sr)
 
-    colors = [C_TERTIARY, C_INDICATOR]
+    # VIZ-QR1 (2026-06-10, fix260610_xpair_general): dual-panel Sharpe +
+    # Return side-by-side on the pair's native regime axis (HMM Calm/Stress
+    # here — this pair's regime conditioning is HMM-state-based, not
+    # quartile-based). Shared helper keeps the layout consistent with the
+    # quartile pairs.
+    import sys as _sys
+    _sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from scripts._quartile_chart import make_dual_panel_regime_chart
 
-    fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=regimes, y=ann_rets,
-        marker_color=colors,
-        text=[f"{v:.1f}%<br>Sharpe {s:.2f}" for v, s in zip(ann_rets, sharpes)],
-        textposition="outside", textfont=dict(size=11),
-        name="Ann. Return (%)",
-    ))
-
-    fig.update_layout(
-        title=dict(text="HMM Regime Discrimination: Calm = Strong SPY Returns, Stress = Negative"),
-        xaxis_title="HMM Regime",
-        yaxis_title="Annualized SPY Return (%)",
-        template=TEMPLATE, height=450, showlegend=False, margin=dict(r=180, b=80),
+    fig = make_dual_panel_regime_chart(
+        quartile_labels=regimes,
+        sharpe=[round(s, 2) for s in sharpes],
+        ann_return_pct=[round(r, 1) for r in ann_rets],
+        signal_label="HMM Credit Regime",
+        x_axis_title="HMM-Identified Regime (stress probability threshold 0.5)",
+        axis_noun="",
     )
-    _note(fig, "HMM 2-state model identifies calm vs stress regimes from HY-IG spread dynamics. Sharpe shown on bars.")
+    fig.update_layout(title=dict(
+        text="HMM Regime Discrimination: SPY Sharpe + Return by Credit Regime"))
+
+    _note(fig, "HMM 2-state model identifies calm vs stress regimes from HY-IG spread dynamics. Left panel: annualized Sharpe per regime; right panel: annualized return.")
     _save_chart(fig, "regime_stats",
-                narrative_note="Winner signal (HMM stress prob > 0.5) divides regimes with strong return differential, validating the trading strategy.",
+                narrative_note="Winner signal (HMM stress prob > 0.5) divides regimes with strong return + Sharpe differential, validating the trading strategy. VIZ-QR1 dual-panel.",
                 method_name="HMM 2-State",
                 expected_chart_type="bar")
 

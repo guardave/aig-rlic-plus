@@ -73,12 +73,15 @@ class StoryConfig:
     REGIME_TITLE = "What History Shows: Returns by INDPRO Growth Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "Equity performance differs sharply across INDPRO growth regimes. "
-        "Stocks perform best during moderate growth (Q2, Sharpe ~1.09) and "
-        "high growth (Q4, ~1.15), and worst during deep contractions "
-        "(Q1, ~0.31). Q3 sits in between at ~0.69. The pattern is "
-        "non-linear — moderate is nearly as good as strong, but weak is "
-        "very costly."
+        "Equity performance differs sharply across INDPRO growth regimes, "
+        "shown two ways: annualized Sharpe (left panel) and annualized "
+        "return (right panel). Stocks perform best during moderate growth "
+        "(Q2, Sharpe ~1.09 / 14.5% return) and high growth (Q4, ~1.15 / "
+        "16.3%), and worst during deep contractions (Q1, ~0.31 / 5.5%). "
+        "Q3 sits in between at ~0.69 / 8.8%. The two panels agree on the "
+        "ranking — the pattern is return-driven, not a low-volatility "
+        "artefact. Moderate growth is nearly as good as strong, but weak "
+        "is very costly."
     )
 
     NARRATIVE_SECTION_1 = (
