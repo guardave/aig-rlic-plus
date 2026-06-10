@@ -1411,3 +1411,37 @@ All are pre-fix260526. Worth a follow-up audit using the same "what's durable vs
 dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whichever branch resumes.
 
 🤖 Agent: Lead Lesandro
+
+---
+
+## 2026-06-10 — Lead Lesandro — COMPLETED (EOD)
+
+**Status:** Completed. Two stakeholder branches shipped to main and production-verified; branch cleanup done with one ownership miss recovered same-day.
+
+**Accomplished:**
+
+- **`fix260610_xpair_general` merged at `c8acf95`** — 3 cross-pair standards (SOP-first per META-NMF):
+  - Cross-Period Consistency relocated Evidence → Strategy/Confidence tab (after Walk-Forward, before Tournament Scatter); GATE-CL6 relocated in appdev SOP
+  - **VIZ-QR1** dual-panel regime charts: Annualized Sharpe + Annualized Return side-by-side per regime bucket, all active pairs. Shared helper `scripts/_quartile_chart.py`; retro-runner `scripts/retro_apply_viz_qr1.py` with per-pair label maps; hy_ig_spy applied on its NATIVE HMM Calm/Stress axis inside its own generator (excluded from quartile runner)
+  - **DPS-LF1/VIZ-NS1** long-form + (abbreviation) naming on all dashboard surfaces (`display_names.long_form_with_abbrev`); BL-VIZ-NS1 promoted from backlog
+  - Merge conflicts with vichua4b `3c8b10d` + rekkusuri `bc0012f` resolved keeping ALL collaborator changes; full DOM sweep re-run post-resolution before push
+- **`fix260610_downloads_all_pairs` merged at `f1acc27`** — vichua's Download-archived-CSVs Evidence expander extended from permit_spy to all 6 remaining active pairs; labels carry row counts verified from the CSVs; mandatory row added to dashboard-page-standard
+- **Verification trail both branches:** local 22-check DOM sweep → dawodev sweep → explicit user "Approve" (LEAD-MA1) → push → user production reboot → production sweep ALL PASS
+- **Branch cleanup:** deleted fix260610 ×2 + fix260602_prospective_pairs + fix260603_prod_dawo (user-owned, merged). Also deleted 3 collaborator branches under blanket instruction — user flagged; **restored at exact SHAs** via GitHub activity-log `before` SHAs. New governance rule **LEAD-BD1** in Lead memories: tip-author ownership check + per-branch owner consent before any deletion.
+
+**Discoveries / insights:**
+
+1. Retro-apply runners must preserve pair-specific curation: per-pair label maps (fix260526-#27 wording) + explicit exclusions for pairs with non-quartile regime axes (hy_ig_spy HMM).
+2. Post-conflict re-verification is mandatory — the merged state is a new untested artefact even when both sides individually passed.
+3. GitHub activity log retains `before` SHAs for deleted refs — bit-identical branch restoration is always possible via push-by-SHA.
+4. vichua's permit charts (equity_curves/drawdown/walk_forward) likely close BL-PERMIT-CHARTS-EXCEPTION — **vichua please confirm** before we strike the backlog row.
+
+**Outstanding for next session:**
+
+- `fix260602_pair4_prep` still SUSPENDED at `0f9293b`; resume scope now ALSO includes the 3 new cross-pair standards + downloads expander (see `_pws/lead-lesandro/outstanding-work.md`)
+- SOFR-TED #38-51 user-owned, untouched
+- BL-PERMIT-CHARTS-EXCEPTION pending vichua confirmation
+
+**Branch state at EOD:** `main` = `f1acc27` (production-verified). Remote: main, fix260602_pair4_prep (SUSPENDED), feature/hy_ig_execution_panel (YYY), feature/indicator-evaluation-sop (YYY), rescue-my-work (Rex) — last three restored.
+
+🤖 Agent: Lead Lesandro

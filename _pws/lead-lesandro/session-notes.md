@@ -1,5 +1,41 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-06-10 (3 cross-pair standards + downloads-all-pairs shipped; branch cleanup + LEAD-BD1)
+
+### Summary
+
+Two stakeholder branches shipped end-to-end (full LEAD-DOM1 + LEAD-MA1 trail each), one branch-cleanup operation with a governance miss and same-day recovery.
+
+1. **`fix260610_xpair_general` shipped (merged at `c8acf95`).** Three cross-pair standards from voice-dictated stakeholder direction, SOP-first per META-NMF:
+   - **Cross-Period Consistency relocation** — section moved from Evidence to Strategy/Confidence tab (after Walk-Forward, before Tournament Scatter) via `_render_cross_period_section()` helper in `page_templates.py`. GATE-CL6 relocated in appdev SOP.
+   - **VIZ-QR1 dual-panel regime charts** — Annualized Sharpe (left) + Annualized Return % (right) per regime bucket, shared x/colors, outside labels, auto "Key:" takeaway. Shared helper `scripts/_quartile_chart.py::make_dual_panel_regime_chart`; retro-applied to all active pairs via `scripts/retro_apply_viz_qr1.py` with per-pair adapters + intuitive label maps. Canonical reference: umcsent_xlv screenshot supplied by user.
+   - **DPS-LF1 / VIZ-NS1 long-form naming** — "Long Form (ABBREV)" on first mention per dashboard surface; `display_names.long_form_with_abbrev()`; raw pipeline tokens prohibited on user surfaces. BL-VIZ-NS1 promoted from backlog.
+   - Merge hit conflicts with 2 collaborator commits on origin/main (vichua4b `3c8b10d` permit downloads expander + charts; rekkusuri `bc0012f` michigan-XLV-fix). Aborted, inspected their diffs, re-merged keeping ALL collaborator changes, carried their improved Rolling Granger caption into my relocated helper, re-ran the full 22-check local DOM sweep BEFORE pushing.
+2. **`fix260610_downloads_all_pairs` shipped (merged at `f1acc27`).** vichua's Download-archived-CSVs Evidence expander extended from permit_spy to all 6 remaining active pairs (`"downloads"` lists in EVIDENCE_METHOD_BLOCKS; labels carry row counts verified by reading each CSV; umcsent change_points.csv excluded for parse error; gold_copper root-level paths). Mandatory row added to dashboard-page-standard.
+3. **Both branches verified at every layer:** local DOM sweep ALL PASS → dawodev sweep ALL PASS → explicit user "Approve" → push → user production reboot → production sweep ALL PASS (22 checks: landing naming, CP-gone-from-Evidence, CP-on-Confidence-in-order, dual-panel-on-Story, forbidden raw tokens, downloads expander + button counts).
+4. **Branch cleanup + LEAD-BD1 incident.** On user instruction deleted the two merged fix260610 branches, then "clean the old branches too" → deleted 5 more after auditing 0-commits-not-in-main for each. User then flagged 3 of them as NOT his work: `feature/hy_ig_execution_panel` + `feature/indicator-evaluation-sop` (tips authored yyycom18) and `rescue-my-work` (tip authored rekkusuri). **Restored all three at exact pre-deletion SHAs** recovered from `gh api repos/<o>/<r>/activity?activity_type=branch_deletion` (`before` field) → `git push origin <sha>:refs/heads/<branch>`. No data was ever at risk (all tips fully merged into main) but the refs were not mine to delete. Codified as **LEAD-BD1** in memories.md: branch deletion requires an OWNERSHIP check (tip author), not just an unmerged-commits audit; per-branch owner consent for collaborator-authored tips even under a blanket cleanup instruction.
+
+### Lead commits (this session)
+
+| Commit | Branch | Scope |
+|---|---|---|
+| `7f3f083` | fix260610_xpair_general | Phase 0 — SOP/standard updates for the 3 standards |
+| `77ac6f4` | fix260610_xpair_general | Phase 1 — CP relocation |
+| `0f73b80` | fix260610_xpair_general | Phase 2 — VIZ-QR1 dual-panel charts |
+| `1bd2657` | fix260610_xpair_general | Phase 3 — DPS-LF1 naming |
+| `c8acf95` | main (merge) | xpair_general merge (authorised), conflict-resolved with collaborator work |
+| `db6f852` | fix260610_downloads_all_pairs | Downloads expander all pairs |
+| `f1acc27` | main (merge) | downloads merge (authorised) |
+
+### Lessons (this session)
+
+1. **LEAD-BD1 — branch deletion requires owner consent.** Tip-author check (`git log -1 --format=%an origin/<b>`) before any deletion; 0-unmerged-commits is a safety check, not an ownership check. Recovery recipe: GitHub activity log keeps the `before` SHA of every ref deletion → push-by-SHA restores bit-identically.
+2. **Retro-apply runners must preserve pair-specific curation.** First runner pass reverted fix260526-#27 intuitive quartile labels on indpro_xlp (raw "Q1_low" reached the user surface) and wrongly overwrote hy_ig_spy's NATIVE HMM Calm/Stress regime chart with quartiles (breaking its caption — prose-vs-data class). Fix: per-pair label maps in the runner + explicit exclusion list with reasons; pairs with non-quartile regime axes apply the standard inside their own generator.
+3. **Post-conflict re-verification is mandatory.** After resolving merge conflicts with collaborator commits, the full local DOM sweep re-ran BEFORE push — the merged state is a new, untested artefact even when both sides individually passed.
+4. **Collaborator-integration bonus:** vichua's permit charts (equity_curves/drawdown/walk_forward) likely close BL-PERMIT-CHARTS-EXCEPTION — confirm with them before closing the backlog row.
+
+---
+
 ## Session: 2026-06-03 (LEAD-MA1 + LEAD-DOM1 SOP additions; KS/YYY production fixes shipped)
 
 ### Summary

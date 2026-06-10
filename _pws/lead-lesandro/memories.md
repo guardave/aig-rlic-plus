@@ -1,5 +1,13 @@
 # Key Memories — Lead Lesandro
 
+## LEAD-BD1 — Branch deletion requires OWNER consent (added 2026-06-10 — re-read at every SOD)
+
+Deleted 3 collaborator branches (`feature/hy_ig_execution_panel`, `feature/indicator-evaluation-sop` — tips authored yyycom18; `rescue-my-work` — tip authored rekkusuri) under the stakeholder's blanket "clean the old branches too". Stakeholder then flagged they were not his work; restored same day at exact SHAs.
+
+**Rule:** before deleting ANY branch, check the tip author (`git log -1 --format=%an origin/<b>`). If the tip author is not the requester (or me), name the owner and obtain explicit per-branch consent. The 0-unmerged-commits audit is a *safety* check, not an *ownership* check — necessary but not sufficient. Same governance class as LEAD-MA1: a blanket instruction does not transfer authority the instructing party doesn't hold.
+
+**Recovery recipe:** GitHub keeps the `before` SHA of every ref deletion — `gh api "repos/<owner>/<repo>/activity?activity_type=branch_deletion"` → `git push origin <sha>:refs/heads/<branch>` restores bit-identically. Merge-commit second parents (`git rev-parse <merge>^2`) are an offline fallback for merged branches.
+
 ## Prose-authoring discipline — numeric assertions (added 2026-06-03 — re-read at every SOD)
 
 **Every numeric assertion in user-facing prose must be re-read from the source artifact at authoring time. Not from memory.** This rule was first crystallised during the crude_oil_xle Mode-2 build (2026-06-02) when I authored "Pearson ≈ 0.55" in four prose locations while the underlying `exploratory_results.json` said 0.26. The discipline reverted with the unauthorised merge revert on 2026-06-03; saving it back here so it loads at SOD.

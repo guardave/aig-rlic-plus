@@ -1,6 +1,15 @@
 # Outstanding work — Lead Lesandro
 
-Last updated: 2026-06-03 EOD.
+Last updated: 2026-06-10 EOD.
+
+---
+
+## Items added/updated 2026-06-10
+
+- **`fix260602_pair4_prep` resume scope EXPANDED.** On resume, crude_oil_xle additionally needs the three cross-pair standards shipped 2026-06-10: CP section on Strategy/Confidence (not Evidence), VIZ-QR1 dual-panel regime chart (use `scripts/_quartile_chart.py` helper; its regime axis is vol-regime, NOT quartiles — apply on the native axis like hy_ig_spy did with HMM, do not force quartiles), DPS-LF1 long-form naming, and the Downloads expander on Evidence. Original schema-defect list below still stands.
+- **BL-PERMIT-CHARTS-EXCEPTION — likely closable.** vichua4b's `3c8b10d` landed equity_curves/drawdown/walk_forward charts for permit_spy. Confirm with vichua before striking the backlog row.
+- **Branch state at 2026-06-10 EOD:** `main` at `f1acc27` (both fix260610 branches merged, production-verified). Remote branches: `main`, `fix260602_pair4_prep` (SUSPENDED, preserved), `feature/hy_ig_execution_panel` + `feature/indicator-evaluation-sop` (YYY's — restored after LEAD-BD1 incident), `rescue-my-work` (Rex's — restored). Deleted for good: both fix260610 branches, `fix260602_prospective_pairs`, `fix260603_prod_dawo`.
+- **LEAD-BD1** recorded in memories.md — branch deletion requires tip-author ownership check + per-branch owner consent.
 
 ---
 

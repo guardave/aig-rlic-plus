@@ -1,5 +1,32 @@
 # Release Notes
 
+## 2026-06-10 — 3 cross-pair standards + Downloads expander on all pairs; LEAD-BD1 governance rule
+
+**Two branches merged to main (both user-authorised per LEAD-MA1, both production-verified per LEAD-DOM1).**
+
+### `fix260610_xpair_general` (merged `c8acf95`) — 3 cross-pair standards
+
+- **Cross-Period Consistency relocation.** Section moved from Evidence to Strategy/Confidence tab (after Walk-Forward, before Tournament Scatter) on every active pair, via `_render_cross_period_section()` in `app/components/page_templates.py`. GATE-CL6 verification relocated accordingly in the appdev SOP; `docs/dashboard-page-standard.md` updated with placement rationale.
+- **VIZ-QR1 — dual-panel regime charts.** Every regime chart now shows Annualized Sharpe (left) and Annualized Return % (right) side-by-side per regime bucket, with shared x-axis/colors, outside value labels, and an auto "Key: best vs worst" takeaway. Shared helper `scripts/_quartile_chart.py::make_dual_panel_regime_chart`; retro-applied to all active pairs via `scripts/retro_apply_viz_qr1.py` (per-pair intuitive label maps preserved). `hy_ig_spy` applies the format on its native HMM Calm/Stress axis inside its own generator. Canonical reference layout: umcsent_xlv (user-supplied screenshot).
+- **DPS-LF1 / VIZ-NS1 — long-form naming.** Dashboard terms render as "Long Form (ABBREV)" on first mention per page — e.g. "Industrial Production (INDPRO)", "S&P 500 (SPY)" — via `app/components/display_names.long_form_with_abbrev()`. Raw pipeline tokens prohibited on user surfaces. BL-VIZ-NS1 promoted from backlog.
+- Merge resolved conflicts with two collaborator commits (vichua4b `3c8b10d` permit downloads expander + charts; rekkusuri `bc0012f` michigan-XLV-fix) — all collaborator changes kept; full 22-check DOM sweep re-run post-resolution before push.
+
+### `fix260610_downloads_all_pairs` (merged `f1acc27`)
+
+- vichua's Download-archived-CSVs Evidence expander extended from `permit_spy` to all 6 remaining active pairs (`indpro_spy`, `vix_vix3m_spy`, `indpro_xlp`, `hy_ig_spy`, `umcsent_xlv`, `gold_copper_xli`). Download labels carry row counts verified by reading each CSV at authoring time (prose-vs-data discipline). `umcsent` `change_points.csv` excluded (parse error — noted in expander). Mandatory Evidence-page row added to `docs/dashboard-page-standard.md`.
+
+### Branch cleanup + LEAD-BD1
+
+- Deleted (user-authorised, merged/stale, user-owned): `fix260610_xpair_general`, `fix260610_downloads_all_pairs`, `fix260602_prospective_pairs`, `fix260603_prod_dawo`.
+- **Incident:** 3 collaborator branches (`feature/hy_ig_execution_panel`, `feature/indicator-evaluation-sop` — yyycom18; `rescue-my-work` — rekkusuri) were deleted under a blanket cleanup instruction, then flagged by the stakeholder as not his work. **Restored same day at exact pre-deletion SHAs** via the GitHub activity log (`before` field of branch-deletion events). No commits were ever unreachable (all tips fully merged into main).
+- **Lesson — LEAD-BD1** (Lead memories): branch deletion requires a tip-author ownership check and per-branch owner consent; the 0-unmerged-commits audit is a safety check, not an ownership check.
+
+### Lessons learnt
+
+1. Retro-apply runners must carry per-pair curation (intuitive label maps, native-regime-axis exclusions) or they silently revert previously praised fixes.
+2. After resolving merge conflicts with collaborator commits, re-run the full rendered-DOM sweep before pushing — the merged state is a new untested artefact.
+3. GitHub's activity API retains `before` SHAs for deleted refs; `git push origin <sha>:refs/heads/<branch>` restores bit-identically.
+
 ## 2026-06-03 — LEAD-MA1 + LEAD-DOM1 SOP additions; KS/YYY production fixes shipped
 
 **Two SOP commits + one merge landed on main. One earlier merge was reverted as unauthorised.**
