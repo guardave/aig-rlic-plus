@@ -1519,6 +1519,12 @@ Vera's chart-save pipeline calls a `validate_intra_chart_consistency(fig, pair_i
 
 **Cross-references:** DPS-LF1 (the dashboard-page-standard twin of this rule), BL-VIZ-NS1 (backlog origin — now closed by promotion), VIZ-IC1 item 1 (title coherence).
 
+## Rule VIZ-SCD1 — Tournament Winner Annotation States Position (added 2026-06-10, GH #9)
+
+On any tournament-distribution chart, the winner annotation must state the winner's **position within the valid strategy population**, not a bare value: `"Winner = max of 60 (median 0.54)"`, never `"Winner = 1.27"`. The valid count excludes the benchmark row per ECON-T4. Numbers are re-read from the tournament CSV at chart-generation time, never hard-coded from memory.
+
+This is the chart-side half of **DPS-SCD1** (specification-curve position disclosure, `docs/dashboard-page-standard.md`) — see there for the full rationale and the prose-side requirement. Reference implementation: `hy_ig_spy` tournament_sharpe_dist title ("Winner Is Top 2 of 2036 Valid Strategies").
+
 ## Quality Gates
 
 Before handing off:

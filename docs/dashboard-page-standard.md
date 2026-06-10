@@ -107,8 +107,26 @@ The Evidence page is the statistical proof layer. Every method block must follow
 | Download archived CSVs expander | **Yes** | `downloads` list in `EVIDENCE_METHOD_BLOCKS` — each entry `{label, path}` pointing at the pair's statistical result CSVs (core-models tables or equivalent). Labels must state what the file contains with row counts verified against the file at authoring time. Missing files render an inline note, not an error. Introduced by vichua4b's building-permit-spy-fix (3c8b10d); extended to all pairs 2026-06-10 per stakeholder direction (fix260610_downloads_all_pairs). |
 | Level 1 tab — minimum 3 method blocks | **Yes** | Fewer than 3 is a gate failure |
 | Level 2 tab — minimum 2 method blocks | **Yes** | Fewer than 2 is a gate failure |
-| Tournament pointer | **Yes** | Links to Strategy page leaderboard |
+| Tournament pointer | **Yes** | Links to Strategy page leaderboard. `tournament_intro` content governed by DPS-SCD1 below |
 | Transition → Strategy | **Yes** | `st.page_link` |
+
+### DPS-SCD1 — Specification-Curve Position Disclosure (added 2026-06-10, GH #9)
+
+Every pair's headline OOS Sharpe is, by construction, the **maximum** of its tournament's valid strategy combinations. A reader who sees only the prose receives it as a point estimate. Per specification-curve practice (Simonsohn, Simmons & Nelson 2020; Gelman & Loken 2013), the headline and its position in the search distribution must be reported together.
+
+**Rule (mandatory, all pairs):**
+
+1. **`tournament_intro` prose** must state, with numbers re-read from the tournament CSV at authoring time (prose-vs-data discipline):
+   - the total grid size tested,
+   - the count of **valid strategy combinations** (benchmark excluded, per ECON-T4),
+   - the winner's position explicitly — that the headline is the **best of N** —
+   - and the **median OOS Sharpe** of the valid population, so the reader can gauge the gap between the chosen specification and the typical one.
+2. **Tournament distribution chart** (where the pair has one): the winner annotation must state the position, not a bare value — e.g. `"Winner = max of 60 (median 0.54)"`, not `"Winner = 1.27"`. Scatter-only pairs carry the disclosure in prose.
+3. The disclosure is honest framing, not hedging: pairing the max with the median and N is what distinguishes an openly-searched tournament from a cherry-pick.
+
+**Reference implementations:** `hy_ig_spy` tournament_sharpe_dist ("Winner Is Top 2 of 2036 Valid Strategies") predates this rule and is the in-house precedent.
+
+**Cross-reference:** ECON-T4 (valid-count semantics), VIZ-SCD1 pointer in the visualization SOP, GH #9 (originating audit finding).
 
 > **Moved 2026-06-10 (fix260610_xpair_general):** the Cross-Period Consistency
 > section previously lived on the Evidence page. Per stakeholder direction it
