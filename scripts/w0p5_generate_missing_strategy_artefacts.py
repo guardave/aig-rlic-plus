@@ -76,7 +76,15 @@ def load_winner_with_threshold(pair: str) -> dict:
 
 
 def parse_threshold_code(code: str) -> tuple[str, float] | None:
-    """Parse 'T1_fixed_p25' -> ('fixed_pct', 0.25). Returns None on unknown."""
+    """Parse 'T1_fixed_p25' -> ('fixed_pct', 0.25). Returns None on unknown.
+
+    ECON-SR1 repair (2026-06-11): the original version did not recognise the
+    compact rolling-percentile form 'T2_rp75' (it only matched 'roll'+'_p'),
+    returned None, and the caller silently fell back to an IS-median
+    threshold — one of the two bugs behind the defective W0.5 strategy
+    series for vix_vix3m_spy / indpro_spy / indpro_xlp."""
+    import re
+
     if not code:
         return None
     c = code.lower()
@@ -89,6 +97,10 @@ def parse_threshold_code(code: str) -> tuple[str, float] | None:
             return ("fixed_pct", pct / 100.0)
         except ValueError:
             return None
+    # Rolling percentile: long form 'roll_p75' / 'rolling_p75' or compact 'rp75'
+    m = re.fullmatch(r"(?:roll(?:ing)?_?p|rp)(\d{1,2})", c)
+    if m:
+        return ("roll_pct", int(m.group(1)) / 100.0)
     if "roll" in c and "_p" in c:
         try:
             pct = int(c.split("_p")[-1])
@@ -110,7 +122,23 @@ def derive_position(signal: pd.Series, threshold_code: str, threshold_rule: str,
                      direction: str, strategy_family: str,
                      is_end: pd.Timestamp) -> pd.Series:
     """Derive position series. Uses IS portion of signal to compute the
-    numeric threshold via percentile, then applies the strategy rule."""
+    numeric threshold via percentile, then applies the strategy rule.
+
+    ECON-SR1 NOTE (2026-06-11, econometrics-agent-sop.md): this function is
+    a FALLBACK reconstruction path. The canonical strategy series for a pair
+    is `results/{pair}/strategy_returns_{date}.csv` (trade-log replay,
+    reconciled to winner_summary) — consumers must read that artifact, not
+    re-run this derivation. Two historical bugs repaired here:
+      1. `parse_threshold_code` failed on compact codes like 'T2_rp75',
+         silently falling back to an IS-median threshold.
+      2. Double direction-inversion: `threshold_rule` in winner_summary is
+         ALREADY direction-adjusted (e.g. vix 'lt' was inferred from
+         T2_rp75 + countercyclical at the Wave 10I.A backfill), so applying
+         a countercyclical flip on top inverted the strategy (long during
+         panic -> -96% equity). The flip is removed; `threshold_rule` is the
+         single source of direction for thresholded strategies.
+    Any series produced here must pass the ECON-SR1 reconciliation gate
+    (see `reconcile_or_die`) before artifacts are emitted."""
     is_sig = signal.loc[:is_end].dropna()
     if is_sig.empty:
         return pd.Series(0.0, index=signal.index)
@@ -121,9 +149,13 @@ def derive_position(signal: pd.Series, threshold_code: str, threshold_rule: str,
     elif parsed[0] in {"fixed_pct"}:
         thr = float(is_sig.quantile(parsed[1]))
     elif parsed[0] == "roll_pct":
-        # Use trailing 1-year rolling percentile (252 daily / 12 monthly)
-        win = 252 if isinstance(signal.index, pd.DatetimeIndex) and len(signal) > 1000 else 12
-        thr_series = signal.rolling(win, min_periods=max(20, win // 5)).quantile(parsed[1])
+        # Match the tournament pipelines exactly (ECON-SR1 repair):
+        # daily pairs: rolling(252, min_periods=200); monthly: rolling(60, min_periods=36)
+        if isinstance(signal.index, pd.DatetimeIndex) and len(signal) > 1000:
+            win, minp = 252, 200
+        else:
+            win, minp = 60, 36
+        thr_series = signal.rolling(win, min_periods=minp).quantile(parsed[1])
         thr = thr_series  # vector threshold
     elif parsed[0] == "zscore":
         # threshold is in z-score units; convert to signal units via IS stats
@@ -140,9 +172,9 @@ def derive_position(signal: pd.Series, threshold_code: str, threshold_rule: str,
     else:
         bull = signal > thr  # fallback
 
-    # Direction
-    if (direction or "").lower().startswith("counter"):
-        bull = ~bull
+    # Direction: intentionally NOT applied here. `threshold_rule` is already
+    # direction-adjusted in winner_summary (ECON-SR1 repair — applying the
+    # countercyclical flip again was bug #2; see docstring).
 
     # Strategy translation
     fam = (strategy_family or "").upper()
@@ -198,14 +230,26 @@ def make_strategy_returns(pair: str, w: dict) -> tuple[pd.DataFrame, dict]:
         sig_full.index = pd.to_datetime(sig_full.index)
     sig_on_data = sig_full.reindex(data_df.index, method="ffill")
 
+    # Lead: lag the SIGNAL before thresholding (the pipelines' order —
+    # thresholds, incl. IS quantiles, are computed on the lagged signal).
+    # Legacy summaries store the lead as lead_value (+lead_unit) or
+    # lead_months (ECON-SR1 repair: the original `w.get("lead_value", 0)`
+    # returned 0 for indpro_xlp, which only has lead_months, and shifted
+    # POSITIONS after thresholding, moving the IS-quantile sample window).
+    lead = int(w.get("lead_value") or w.get("lead_months") or 0)
+    if lead:
+        sig_on_data = sig_on_data.shift(lead)
+
     pos = derive_position(sig_on_data, w.get("threshold_code", ""),
                            w.get("threshold_rule", "gt"),
                            w.get("direction", "procyclical"),
                            w.get("strategy_family", "P1_long_cash"),
                            is_end)
-    lead = int(w.get("lead_value", 0) or 0)
-    if lead:
-        pos = pos.shift(lead).fillna(0)
+
+    # Execution lag: position decided at t earns the (t+1) return — the
+    # `position.shift(1)` convention used by every tournament pipeline.
+    # (ECON-SR1 repair: the original applied no execution lag -> lookahead.)
+    pos = pos.shift(1).fillna(0)
 
     ret = data_df[target_ret_col].fillna(0).astype(float)
     strat_ret = pos * ret
@@ -510,11 +554,41 @@ def make_subperiod_sharpe(pair: str, df: pd.DataFrame, w: dict):
                            "the reviewer flagged as ambiguous."))
 
 
+def reconcile_or_die(pair: str, df: pd.DataFrame, w: dict) -> None:
+    """ECON-SR1 blocking gate: the reconstructed series must reconcile to
+    winner_summary headline metrics (Sharpe ±0.01, MDD ±0.5pp, ann return
+    ±0.5pp) over the OOS window before ANY artifact is emitted from it."""
+    oos_start = pd.Timestamp(w["oos_period_start"])
+    oos_end = pd.Timestamp(w.get("oos_period_end", df.index.max()))
+    sr = df["strategy_return"].loc[oos_start:oos_end].dropna()
+    ann = 252 if len(sr) > 800 else 12
+    sharpe = sr.mean() / sr.std() * np.sqrt(ann) if sr.std() > 0 else 0.0
+    eq = (1 + sr).cumprod()
+    mdd = float(((eq / eq.cummax()) - 1).min())
+    ann_ret = float(sr.mean() * ann)
+    checks = [("oos_sharpe", float(sharpe), 0.01),
+              ("oos_max_drawdown", mdd, 0.005),
+              ("oos_ann_return", ann_ret, 0.005)]
+    fails = []
+    for key, computed, tol in checks:
+        reported = float(w[key])
+        verdict = "PASS" if abs(computed - reported) <= tol else "FAIL"
+        print(f"  ECON-SR1 {key}: computed {computed:+.4f} vs reported {reported:+.4f} -> {verdict}")
+        if verdict == "FAIL":
+            fails.append(key)
+    if fails:
+        raise SystemExit(
+            f"ECON-SR1 reconciliation FAILED for {pair} on {fails} — no artifacts "
+            f"emitted. Use results/{pair}/strategy_returns_*.csv (trade-log replay) "
+            f"or fix the derivation before re-running.")
+
+
 def run(pair: str):
     print(f"\n=== {pair} ===")
     w = load_winner_with_threshold(pair)
     df, meta = make_strategy_returns(pair, w)
     print(f"  signal+position derived: shape={df.shape}  position transitions={int((df['position'].diff().abs() > 0).sum())}")
+    reconcile_or_die(pair, df, w)
     make_drawdown(pair, df, w)
     make_walk_forward(pair, df, w)
     make_broker_trade_log(pair, df, w, meta)

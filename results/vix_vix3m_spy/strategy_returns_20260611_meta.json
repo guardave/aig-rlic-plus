@@ -1,0 +1,40 @@
+{
+  "pair_id": "vix_vix3m_spy",
+  "artifact": "strategy_returns_20260611.csv",
+  "produced_by": "scripts/econ_sr1_build_strategy_returns.py",
+  "rule": "ECON-SR1",
+  "source": "trade_log_span_replay",
+  "source_file": "results/vix_vix3m_spy/winner_trade_log.csv",
+  "returns_file": "data/vix_vix3m_spy_daily_20260314.parquet",
+  "coverage_start": "2007-01-03",
+  "coverage_end": "2025-12-31",
+  "frequency": "daily",
+  "oos_start": "2020-01-01",
+  "oos_end": "2025-12-31",
+  "position_semantics": "position on row t is the return-accrual weight for period t (execution lag already applied); strategy_return = position * bh_return row-wise",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.129475,
+      "reported_winner_summary": 1.1295,
+      "diff": -2.5e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.211456,
+      "reported_winner_summary": -0.2115,
+      "diff": 4.4e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.153139,
+      "reported_winner_summary": 0.1531,
+      "diff": 3.9e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-11",
+  "generated_by": "Econ Evan (fix260611_meta_cmp)"
+}

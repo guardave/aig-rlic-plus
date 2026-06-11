@@ -1,0 +1,40 @@
+{
+  "pair_id": "indpro_spy",
+  "artifact": "strategy_returns_20260611.csv",
+  "produced_by": "scripts/econ_sr1_build_strategy_returns.py",
+  "rule": "ECON-SR1",
+  "source": "trade_log_span_replay",
+  "source_file": "results/indpro_spy/winner_trade_log.csv",
+  "returns_file": "data/indpro_spy_monthly_19900101_20251231.parquet",
+  "coverage_start": "1990-01-31",
+  "coverage_end": "2025-12-31",
+  "frequency": "monthly",
+  "oos_start": "2018-01-01",
+  "oos_end": "2025-12-31",
+  "position_semantics": "position on row t is the return-accrual weight for period t (execution lag already applied); strategy_return = position * bh_return row-wise",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.103559,
+      "reported_winner_summary": 1.1036,
+      "diff": -4.1e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.080701,
+      "reported_winner_summary": -0.0807,
+      "diff": -1e-06,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.07654,
+      "reported_winner_summary": 0.0765,
+      "diff": 4e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-11",
+  "generated_by": "Econ Evan (fix260611_meta_cmp)"
+}

@@ -591,3 +591,60 @@ Wave 10J/10K focused on two structural gaps:
 3. `docs/schemas/winner_summary.schema.json`
 4. `docs/backlog.md` — BL-LEGACY-WINNER-SUMMARY-SHAPE in my lane
 5. Next pair: Pair #4 US10Y-US3M → SPY
+
+---
+
+## 2026-06-11 — ECON-SR1 first execution: reconciled strategy series × 3 pairs (fix260611_meta_cmp)
+
+**Dispatch:** Lead, post-Vera STOP. Repair the W0.5 strategy-series defect class for vix_vix3m_spy / indpro_spy / indpro_xlp.
+
+### Canonical artifacts shipped (ECON-SR1 §3)
+
+| Pair | Source | Coverage | OOS window | Reconciliation (computed vs winner_summary) |
+|------|--------|----------|------------|---------------------------------------------|
+| vix_vix3m_spy | trade-log span replay (`winner_trade_log.csv`, Vera's convention A) | 2007-01-03..2025-12-31 daily (4,956 rows) | 2020-01-01..2025-12-31, n=1566 | Sharpe 1.1295/1.1295, MDD −0.2115/−0.2115, ann 0.1531/0.1531 — EXACT |
+| indpro_spy | trade-log span replay | 1990-01-31..2025-12-31 monthly (432 rows) | 2018-01-01..2025-12-31, n=96 | 1.1036/1.1036, −0.0807/−0.0807, 0.0765/0.0765 — EXACT |
+| indpro_xlp | **repaired signal re-derivation** (trade log on disk is NOT the winner combo — see below) | 1998-01-31..2025-12-31 monthly (336 rows) | 2019-01-31..2025-12-31, n=84 | 1.1147/1.1147, −0.1353/−0.1353, 0.1413/0.1413 — EXACT |
+
+Artifacts: `results/{pair}/strategy_returns_20260611.csv` + `_meta.json` sidecar (source, coverage, position semantics, reconciliation table). Producer: `scripts/econ_sr1_build_strategy_returns.py`. Position semantics: row-t position is the return-accrual weight for period t (execution lag pre-applied); `strategy_return = position × bh_return` row-wise.
+
+### indpro_xlp trade-log finding (NEW defect, flagged to Lead)
+
+`results/indpro_xlp/winner_trade_log.csv` is a {0,1} long/cash monthly series (84 OOS rows) whose replay gives Sharpe 0.6352 / MDD −0.1175 / ann 0.0711 — NOT the tournament winner `S8_accel / T2_roll_p75 / P3_long_short_counter / L3` (1.1147 / −0.1353 / 0.1413, tournament_results_20260420.csv row 2849). Fallback per ECON-SR1 §2: exact re-derivation mirroring `pair_pipeline_indpro_xlp.py::stage_tournament` (signal shift(3) → rolling(60,36) p75 → ~above → ×2−1 → pos.shift(1)×xlp_ret), reconciles EXACT. Early-sample NaN-artifact positions masked to 0 (IS-only effect, documented in script + meta). Consequence: `winner_trades_broker_style.csv` (built from that trade log, Wave 10H.2) and the Strategy-page trade-log display are showing a non-winner series.
+
+### w0p5 script repair (`scripts/w0p5_generate_missing_strategy_artefacts.py`)
+
+Four fixes, all docstring-cited to ECON-SR1:
+1. `parse_threshold_code` now parses compact `T2_rp75` (regex for `roll_p`/`rolling_p`/`rp` forms).
+2. Double direction-inversion removed — `threshold_rule` is the single direction source (it is already direction-adjusted in winner_summary).
+3. Execution lag `pos.shift(1)` added (was missing → lookahead); rolling-threshold params now match pipelines (daily 252/200, monthly 60/36); lead now lags the SIGNAL before thresholding and resolves `lead_value` OR `lead_months`.
+4. NEW blocking gate `reconcile_or_die()` in `run()` — no artifact emission without ECON-SR1 reconciliation.
+Validation: repaired derivation now reconciles EXACT for vix + indpro_spy and matches the trade-log replay position-for-position over OOS (0 mismatches, |ret diff| < 5e-11). indpro_xlp derivation correctly BLOCKED by gate (legacy winner_summary lacks `threshold_code`; `threshold_rule: gt` is not direction-adjusted there — generic derivation cannot express P3_long_short_counter; canonical CSV is the consumable).
+
+### OOS-date audit (deliverable 4)
+
+| Pair | Field | Was | Now | Authority |
+|------|-------|-----|-----|-----------|
+| vix_vix3m_spy | oos_period_start | 2015-01-01 | **2020-01-01** | `pair_pipeline_vix_vix3m_spy.py:24 OOS_START`; oos_n_trades=1566 = daily count 2020-01..2025-12; Methodology prose |
+| indpro_spy | (both) | 2018-01-01 / 2025-12-31 | unchanged — CORRECT | `pair_pipeline_indpro_spy.py:44`; config prose "2018-01 to 2025-12" |
+| indpro_xlp | oos_period_end | 2026-01-31 | **2025-12-31** | formula split oos_n=84 from 2019-01-31; monthly data + trade log end 2025-12-31 (was start+84mo off-by-one) |
+
+Both edited winner_summary.json files schema-validate OK against `docs/schemas/winner_summary.schema.json`; corrections documented in `notes`.
+
+### Downstream non-chart damage list (deliverable 5 — Lead to scope regeneration)
+
+| Artifact | Status | Why |
+|----------|--------|-----|
+| `results/vix_vix3m_spy/winner_trades_broker_style.csv` | DEFECTIVE | W0.5 (a19e7f2), built from buggy series |
+| `results/vix_vix3m_spy/subperiod_sharpe.csv` | DEFECTIVE | W0.5; Full-OOS row Sharpe −0.8814 vs true 1.1295; window also wrong (2015 start) |
+| `results/indpro_spy/winner_trades_broker_style.csv` | DEFECTIVE | W0.5 (a19e7f2) |
+| `results/indpro_spy/subperiod_sharpe.csv` | DEFECTIVE | W0.5; Full-OOS 0.2543 vs 1.1036 |
+| `results/indpro_xlp/winner_trades_broker_style.csv` | DEFECTIVE | Wave 10H.2 (2c11046) but sourced from the non-winner trade log |
+| `results/indpro_xlp/subperiod_sharpe.csv` | DEFECTIVE | W1 rerun (24aa35f) on W0.5-style reconstruction; Full-OOS 0.1379 vs 1.1147; end date 2026-01-31 |
+| `results/indpro_xlp/winner_trade_log.csv` | DEFECTIVE (wrong combo) | displayed by execution_panel.py on Strategy page |
+| vix + indpro_spy `winner_trade_log.csv` | OK | replay reconciles exact |
+Charts (drawdown/walk_forward/equity_curves/subperiod_sharpe JSONs) — Vera's lane, she consumes my CSVs next.
+
+### Outstanding items carried forward
+- (prior items unchanged)
+- **NEW:** indpro_xlp winner_summary legacy shape — missing `threshold_code`, `threshold_value: 0.75` is actually the T2_roll_p75 percentile, `threshold_rule` not direction-adjusted, `strategy_family` says P3 but trade log was P1-style. Needs BL entry + regeneration of trade log via `generate_winner_outputs.py` with correct combo.

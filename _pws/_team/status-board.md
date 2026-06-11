@@ -1510,3 +1510,17 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Lead disposition needed:** fix producer series (trade-log-based or derive_position repair), regen drawdown/walk_forward/broker-csv/subperiod × 3 pairs, then equity_curves is a 20-line producer addition. Detail in `_pws/viz-vera/session-notes.md` (2026-06-11 entry).
 
 🤖 Agent: Viz Vera
+
+## 2026-06-11 — Econ Evan — ECON-SR1 reconciled strategy series SHIPPED (3 pairs) — Vera UNBLOCKED
+
+**Status:** DONE. All three pairs reconcile to winner_summary EXACTLY (diff ≈ 0 on Sharpe/MDD/ann return).
+
+**For Vera (consume these, do not re-derive):** `results/{pair}/strategy_returns_20260611.csv`, columns `date, position, strategy_return, bh_return`; row-t position is the return-accrual weight for period t (execution lag pre-applied), so `strategy_return = position × bh_return` row-wise and equity = cumprod(1+strategy_return). Coverage: vix daily 2007-01-03.., indpro_spy monthly 1990-01-31.., indpro_xlp monthly 1998-01-31.. (all end 2025-12-31). `_meta.json` sidecar per pair carries OOS window + reconciliation evidence.
+
+**OOS dates fixed in winner_summary (schema-validated):** vix start 2015-01-01→**2020-01-01**; indpro_xlp end 2026-01-31→**2025-12-31**; indpro_spy already correct.
+
+**w0p5 script repaired:** rp-threshold parse + double-inversion removed + execution lag added + blocking `reconcile_or_die()` gate — repaired derivation independently matches trade-log replay 1:1 for vix + indpro_spy.
+
+**NEW defect found:** `results/indpro_xlp/winner_trade_log.csv` is NOT the tournament winner (long/cash 0.64 Sharpe vs P3_long_short_counter 1.11) → its broker CSV + Strategy-page trade-log display are wrong-combo; canonical series for xlp is repaired re-derivation. Lead to scope: regen of broker CSVs + subperiod CSVs (×3) + xlp trade log.
+
+🤖 Agent: Econ Evan
