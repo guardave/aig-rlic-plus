@@ -1498,3 +1498,15 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 3. Until fixed, hook blocks all commits (T2 always-on) → emergency bypass `--no-verify` documented; my delivery commit used it, declared in message.
 
 🤖 Agent: QA Quincy
+
+## 2026-06-11 — Viz Vera — STOPPED + ESCALATED (vix equity_curves, META-CMP T2)
+
+**Status:** STOP per SOP reconciliation gate. No chart shipped; T2 still FAILs on vix_vix3m_spy (expected).
+
+**Finding:** The W0.5 backfill (`scripts/w0p5_generate_missing_strategy_artefacts.py`, 2026-05-26) that produced drawdown.json + walk_forward.json for vix_vix3m_spy / indpro_spy / indpro_xlp reconstructs the winner strategy series WRONG (two bugs in `derive_position`: "rp75" threshold-code unparsed → IS-median fallback; double countercyclical inversion on an already direction-adjusted `threshold_rule`). vix reconstruction loses −96.4% full-sample vs winner_summary Sharpe 1.13 / MDD −21.15%. I reproduced the shipped drawdown.json bit-for-bit (diff = 0.0) — the siblings themselves are defective and user-visible wrong (live drawdown chart −96.9% under caption claiming −21.15%). indpro_spy (recon Sharpe 0.25 vs 1.10) and indpro_xlp (0.14 vs 1.11) affected too.
+
+**Correct series recovered:** positions from `winner_trade_log.csv` (accrue day after entry, OOS 2020-01-01) reconcile to winner_summary within rounding (1.13 / −21.1% / 15.5%). Also: winner_summary `oos_period_start: 2015-01-01` is a wrong Wave 10I.A backfill; true OOS = 2020-01-01.
+
+**Lead disposition needed:** fix producer series (trade-log-based or derive_position repair), regen drawdown/walk_forward/broker-csv/subperiod × 3 pairs, then equity_curves is a 20-line producer addition. Detail in `_pws/viz-vera/session-notes.md` (2026-06-11 entry).
+
+🤖 Agent: Viz Vera
