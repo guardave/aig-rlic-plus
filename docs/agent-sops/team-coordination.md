@@ -1317,6 +1317,28 @@ The following terms are reserved and must not be used interchangeably:
 - Handoff notes without a META-RYW block are returned as META-SRV violations and do not reach QA.
 - Quincy spot-audits META-RYW blocks at acceptance: randomly sample 2 claims per agent per wave and verify the re-read actually found what it said it found.
 
+## META-CMP — Completeness Forcing Functions (Tier 1+2, added 2026-06-11, GH #7)
+
+**The recurring bug classes this rule mechanises away** (4+ confirmed instances each across fix260526 / gold_copper_xli / crude_oil_xle): producer-vs-template drift (chart file name ≠ template expectation → silent "pending"), producer-vs-schema drift (artifact violates sibling schema → APP-SEV1 render banner), and the filename-prefix shadow-file class (VIZ-NM1 violations).
+
+### The gates (all in-tree, wired into a pre-commit hook)
+
+| Gate | Script | Catches |
+|---|---|---|
+| **T1.1 Schema** | `scripts/validate_all_schemas.py` | Every registered pair's canonical results JSONs (`winner_summary`, `signal_scope`, `analyst_suggestions`, `interpretation_metadata`) validate against `docs/schemas/`. File present but non-conformant = FAIL. Presence checks remain GATE-DPS1's job. |
+| **T1.2 Smoke** | `app/_smoke_tests/smoke_loader.py --all` | Chart-name resolution failures across every registered pair. |
+| **T1.3 Filename lint** | `scripts/lint_filename_convention.py` | Legacy `<pair_id>_`-prefixed chart JSONs under registered pairs' chart dirs (VIZ-NM1 / team-standards §2.1). |
+| **T2 Chart manifest** | `scripts/lint_chart_completeness.py` | Every chart referenced by a pair_config exists on disk (reuses GATE-DPS1's chart-artifact internals; do not duplicate). |
+
+### Semantics
+
+1. **Scope = registered pairs** (pair_registry discovery). Archived results dirs (`*_archived`, superseded `*_v1`) are exempt. The frozen Sample (`hy_ig_v2_spy`) is validated but its artifacts are NEVER auto-fixed by any gate.
+2. **Pre-commit hook** (`scripts/hooks/pre-commit`, installed via `git config core.hooksPath scripts/hooks`) runs T1.1 + T1.3 + T2 on every commit; T1.2 runs when staged paths touch `app/`, `app/pair_configs/`, or `output/charts/`. Bypass via `--no-verify` is for true emergencies and leaves the commit visibly unguarded — say so in the commit message.
+3. **A gate FAIL is a producer bug or a gate-scope bug — never a reason to hand-edit the artifact.** Fix the producer (META-NMF), or escalate to Lead if the gate itself is wrong.
+4. Gates are Quincy-owned (`qa-agent-sop.md`); rule registration is Lead-owned.
+
+**Origin:** GH #7 (META-CMP proposal, Tier 1+2). Tier 3 (text-vs-data citation lint) and Tier 4 (cloud-render CI) are explicitly out of scope of this rule — see the issue for their specs. BL-SCHEMA-GATE closed by T1.1.
+
 ## META-NMF — No Manual Fix (Inviolable Lead Rule)
 
 **Added 2026-04-20. This rule is inviolable and overrides any pressure to "just fix it quickly."**

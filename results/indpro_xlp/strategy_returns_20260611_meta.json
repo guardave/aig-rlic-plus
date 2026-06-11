@@ -1,0 +1,40 @@
+{
+  "pair_id": "indpro_xlp",
+  "artifact": "strategy_returns_20260611.csv",
+  "produced_by": "scripts/econ_sr1_build_strategy_returns.py",
+  "rule": "ECON-SR1",
+  "source": "repaired_signal_rederivation",
+  "source_file": "scripts/pair_pipeline_indpro_xlp.py::stage_tournament (exact re-derivation; trade log on disk is not the winner combo)",
+  "returns_file": "data/indpro_xlp_monthly_19980101_20251231.parquet",
+  "coverage_start": "1998-01-31",
+  "coverage_end": "2025-12-31",
+  "frequency": "monthly",
+  "oos_start": "2019-01-31",
+  "oos_end": "2025-12-31",
+  "position_semantics": "position on row t is the return-accrual weight for period t (execution lag already applied); strategy_return = position * bh_return row-wise",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.114726,
+      "reported_winner_summary": 1.1147,
+      "diff": 2.6e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.135301,
+      "reported_winner_summary": -0.1353,
+      "diff": -1e-06,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.141273,
+      "reported_winner_summary": 0.1413,
+      "diff": -2.7e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-11",
+  "generated_by": "Econ Evan (fix260611_meta_cmp)"
+}

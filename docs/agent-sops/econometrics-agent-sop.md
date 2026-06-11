@@ -777,6 +777,19 @@ The cascade MUST be implemented explicitly in the tournament script (not delegat
 
 **Cross-reference:** DPS-SCD1 (position disclosure uses the strategy-only population); ECON-H5 (winner metrics); GH #10 (originating audit finding).
 
+### ECON-SR1 — Strategy-Series Reconstruction Reconciliation (Blocking; added 2026-06-11, fix260611_meta_cmp)
+
+**Motivation.** fix260526 W0.5 back-generated drawdown/walk-forward artifacts for 3 pairs by re-deriving positions from `winner_summary.json` via `derive_position()`. The derivation had two silent bugs (threshold-code parse failure → wrong fallback threshold; double direction-inversion) and produced a strategy series losing 96% — which shipped to production charts under captions quoting the correct −21% drawdown, because no reconciliation step existed between "series re-derived" and "artifacts emitted". Caught 2026-06-11 by Vera's reconciliation gate during META-CMP adoption.
+
+**Rule (blocking).**
+
+1. Any re-derived or reconstructed strategy position/return series — whatever the source (signal re-derivation, trade-log replay, pipeline re-run) — MUST reconcile to the pair's `winner_summary.json` headline metrics (`oos_sharpe`, `oos_max_drawdown`, `oos_ann_return`) within rounding tolerance (±0.01 Sharpe, ±0.5pp drawdown/return) BEFORE any downstream artifact (chart input, broker CSV, subperiod table) is emitted from it.
+2. **Preferred reconstruction source is `winner_trade_log.csv`** (replay of recorded positions), not re-derivation from signal + threshold logic — replay has no parameterisation to get wrong. Re-derivation is a fallback for pairs with unusable trade logs, and its reconciliation check is then mandatory evidence in the handoff.
+3. The reconciled series is **persisted as a results artifact** (`results/{pair_id}/strategy_returns_{date}.csv` — date-stamped, columns: date, position, strategy_return, bh_return) so chart producers consume data, never re-run derivation code. One series, many consumers (DRY — same class as ECON-H5's single-drawdown rule).
+4. The reconciliation result (computed vs winner_summary, per metric) is stated in the producing script's output and in the handoff note.
+
+**Cross-reference:** Vera's Numerical Reconciliation gate (visualization SOP) is the consumer-side twin; META-CMP Tier 3 (deferred) is the eventual mechanical enforcement; GH #7 adoption-run findings 2026-06-11.
+
 ### ECON-OOS1 — OOS Window Ownership
 
 **Rule.** The out-of-sample (OOS) window is owned by Evan exclusively. Every pair persists the window decision in a single canonical record at `results/{pair_id}/oos_split_record.json` with the following fields:

@@ -748,3 +748,44 @@ Cross-reference to META-CPD rule added to AppDev, Econometrics, Research, Data, 
 I read DOM text for all 10 Strategy pages this session. I found: zoom heading absent on 9/10 pairs (WARN — no `history_zoom_*.json` on disk for those 9); NBER shading present in HTML on all 10 (PASS); no stub text; no tracebacks; no "vs N/A" placeholders in key slots.
 
 *Last updated: 2026-04-24 (Wave 10J/10K self-reflection + GATE-HZE1 + 60/60 verify).*
+
+---
+
+## 2026-06-11 — META-CMP Tier 1+2 gate build (GH #7, branch fix260611_meta_cmp)
+
+### What I built
+
+1. **T1.1 `scripts/validate_all_schemas.py`** — schema gate across all registered pairs (registry-scoped via new `scripts/_pair_discovery.py`, which wraps `load_pair_registry()` — the portal's own discovery; no raw results/ globbing). Validates the 4 canonical JSONs against `docs/schemas/`; reuses `validate_schema.validate_json` (META-CF internals). Present+non-conformant = FAIL; absent = SKIP (presence is GATE-DPS1's job). Exit 0/1/2. Runtime ~2s.
+2. **T1.2 `app/_smoke_tests/smoke_loader.py --all`** — runs the existing per-pair smoke over every registered pair; exits 1 if any pair has failures>0. Single-pair behavior and log convention unchanged (one `loader_{pair}_{date}.log` per pair). `pair_id` and `--all` mutually exclusive via parser.error. Runtime ~2s for 8 pairs.
+3. **T1.3 `scripts/lint_filename_convention.py`** — VIZ-NM1 lint: no `<pair_id>_`-prefixed chart JSON under registered pairs' plotly dirs. 349 JSONs checked, 0 violations. Archived dirs out of scope by registry construction. Runtime ~0.5s.
+4. **T2 `scripts/lint_chart_completeness.py`** — every chart a pair_config references must exist on disk. Reuses GATE-DPS1 internals: added `collect_config_chart_refs()` to `scripts/validate_pair_completeness.py` (minimal refactor; existing CLI untouched). ALSO covers APP-PT1 template getattr defaults (`getattr(config, "EQUITY_CHART_NAME", "equity_curves")` etc., AST-scanned from page_templates.py) — a config that omits the attr still loads the default chart on the live page. Runtime ~2-3s.
+5. **T1.4 `scripts/hooks/pre-commit`** — runs T1.1/T1.3/T2 always; T1.2 only when staged paths match `^(app/|output/charts/)`. One-line summary per gate; META-NMF fix-the-producer message on block. Installed via `git config core.hooksPath scripts/hooks` (done in this repo). Full hook ~6s; always-on set ~4s — well under the 30s budget.
+
+### Verification evidence (META-SRV)
+
+- Each gate run standalone on the clean tree (outputs above in shell history; logs `app/_smoke_tests/loader_*_20260611.log` committed).
+- Hook exercised end-to-end via TWO real `git commit` attempts (not simulation): (a) non-app staged path → T1.2 correctly SKIPped, commit blocked by T2; (b) app/ staged path → T1.2 fired and failed, commit blocked. Test staging reset afterward.
+
+### Pre-existing defects found on the clean tree (NOT fixed — META-NMF; Lead disposition needed)
+
+1. **T1.2 FAIL × 5 pairs** — `gold_copper_xli` (quartile_returns), `indpro_spy`/`indpro_xlp`/`permit_spy`/`vix_vix3m_spy` (regime_stats): `fig.layout.title.text` empty. Root cause: commit `0f73b80` (VIZ-QR1 dual-panel regime charts, 2026-06-10) emits subplot_titles annotations but no `layout.title` — violates APP-ST1 smoke criterion #3. Either Vera adds a layout.title to `scripts/_quartile_chart.py::make_dual_panel_regime_chart()` or Lead amends the APP-ST1 criterion for the dual-panel design. I did not weaken the criterion (would change existing single-pair behavior, explicitly out of my brief).
+2. **T2 FAIL × 1** — `vix_vix3m_spy` has NO equity-curve chart under any name; the live Strategy page Performance tab renders "Equity curves pending — expected at output/charts/vix_vix3m_spy/plotly/equity_curves.json" (template getattr default, config does not override). Exactly the W0.5 bug class T2 was commissioned to catch. Owner: Vera.
+3. Both block hook-clean commits until fixed → my own commit shipped with `--no-verify`, declared in the commit message per META-CMP §2.
+
+### Verified assumptions
+
+- `results/hy_ig_spy_v1/winner_summary.json` (missing `generated_at`) is naturally excluded: registry skips `*_v1` dirs. Confirmed not in gate scope.
+- Frozen Sample `hy_ig_v2_spy`: validated by T1.1 (4/4 PASS) and T1.2 (15 passes, 0 failures); SKIPped by T2 (no pair_config — bespoke pages, covered by smoke AST). No Sample artifact touched.
+
+### Lessons
+
+- Template getattr defaults are invisible to config-only introspection; "what the config declares" ≠ "what the page loads". AST-scan the template for defaults.
+- A new gate run on a "clean" tree is itself an audit: 2 distinct producer-defect classes surfaced on day one.
+
+🤖 Agent: QA Quincy
+
+### Addendum 2026-06-11 (same session) — APP-ST1 criterion #3 amendment implemented
+
+Lead dispositioned the T1.2 finding as a rule amendment (1b14ccc), not a chart fix. Implemented in `smoke_loader.py::_check`: self-titled = `layout.title.text` non-empty OR ≥1 non-empty `layout.annotations` text (subplot-title mechanism; annotation path only consulted when title empty). Negative paths verified in-process: anonymous chart still FAILs; whitespace-only annotation does not satisfy. `--all` rerun: 8/8 pairs PASS, total_failures=0 (5 previously-failing dual-panel pairs now PASS via subplot titles). Single-pair regression: hy_ig_v2_spy 15/15. vix T2 equity_curves gap still open (Vera in flight) — commit again via --no-verify, declared.
+
+🤖 Agent: QA Quincy

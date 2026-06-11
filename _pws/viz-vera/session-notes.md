@@ -212,3 +212,67 @@ Produce Sample-parity 22-chart suite for fresh `hy_ig_spy` pair (bare pair_id, W
 
 ### wc -l evidence
 - memories.md: ~119 lines (before 94 → after ~119)
+
+---
+
+## 2026-06-11 — vix_vix3m_spy equity_curves.json (META-CMP T2 gap) — STOPPED, escalated to Lead
+
+### Dispatch
+Produce missing `output/charts/vix_vix3m_spy/plotly/equity_curves.json` consistent with sibling `drawdown.json`/`walk_forward.json`. Branch `fix260611_meta_cmp`.
+
+### Provenance found
+Siblings generated 2026-05-26 by `scripts/w0p5_generate_missing_strategy_artefacts.py` ("fix260526 W0.5 (Lead-as-Vera)" in `_meta.json`). That script reconstructs the winner strategy series from winner_summary + signals parquet and already computes `equity_curve`/`buy_and_hold_equity` columns — it simply has no equity-curves chart producer.
+
+### Consistency check — exact reproduction, but the series is WRONG
+- Re-ran `make_strategy_returns("vix_vix3m_spy")` from the W0.5 script: implied drawdown matches shipped `drawdown.json` traces **bit-for-bit (max abs diff = 0.0, both traces, 4,956 points)**.
+- BUT the reconstructed series shows strategy full-sample equity $1 → $0.036 (−96.4%), min drawdown **−96.9%**, OOS MDD −83.2% — vs winner_summary OOS Sharpe 1.1295 / MDD −21.15% and the live page caption "strategy limits drawdown to -21.15%". SOP "Data Ingestion Validation #4" + mandatory Numerical Reconciliation gate → DO NOT PROCEED.
+
+### Root cause (two producer bugs in `derive_position`, w0p5 script)
+1. `parse_threshold_code("T2_rp75")` returns **None** — parser looks for substring "roll" but the code is "rp75" → falls back to IS-median threshold instead of rolling 75th percentile.
+2. **Double direction inversion** — winner_summary's `threshold_rule: "lt"` was already direction-adjusted at Wave 10I.A backfill ("inferred from T2_rp75 + direction=countercyclical"), but `derive_position` applies the countercyclical flip AGAIN → long during panic, cash otherwise → −96%.
+
+### Authoritative series recovered (validation, not shipped)
+Daily positions rebuilt from `results/vix_vix3m_spy/winner_trade_log.csv` (459 rows, original pipeline) with convention "return accrues day after entry through exit", OOS from **2020-01-01**, reconcile to winner_summary within rounding: Sharpe 1.13 (rep. 1.1295), MDD −21.1% (rep. −21.15%), ann. return 15.5% (rep. 15.31%).
+→ Side-finding: winner_summary `oos_period_start: "2015-01-01"` (Wave 10I.A backfill) is wrong; true OOS start = 2020-01-01 (matches Methodology page prose).
+
+### Blast radius (all from same W0.5 reconstruction)
+- `vix_vix3m_spy`: drawdown.json, walk_forward.json (user-visible wrong: drawdown chart shows −96.9% under caption claiming −21.15%), winner_trades_broker_style.csv, subperiod_sharpe.{csv,json}
+- `indpro_spy`: same artifact set — reconstructed OOS Sharpe 0.25 vs reported 1.10
+- `indpro_xlp`: same artifact set — reconstructed OOS Sharpe 0.14 / MDD −36.4% vs reported 1.11 / −13.5%
+
+### Why STOPPED
+Shipping equity_curves consistent with siblings = chart showing −96% under prose claiming +15.3%/yr (prose-vs-data, blocked by SOP reconciliation gate). Shipping the correct (trade-log) curve = contradicts sibling drawdown.json on the same Performance tab (blocked by dispatch brief). Only SOP-compliant action: STOP + escalate. Recommended fix: rebuild the strategy series in the producer from `winner_trade_log.csv` (or fix `derive_position` + OOS dates), regenerate all 4 artifacts × 3 pairs, THEN add the equity_curves producer (trivial once series is right).
+
+### Evidence
+`temp/260611_vix_equity_consistency/` — check_consistency.py, diagnose.py, tradelog_check.py, xlp_check.py (temp/, gitignored; outputs reproduced in this note).
+
+### Config check (dispatch item 5)
+Confirmed: `app/pair_configs/vix_vix3m_spy_config.py` declares no `EQUITY_CHART_NAME`; `page_templates.py:1306` getattr default resolves to "equity_curves" — no config change needed once the file exists. Stale comment at config lines 476-478 ("No equity_curves / drawdown / walk_forward charts on disk") is outdated (Ray/Ace-owned; flagged, not edited).
+
+---
+
+## 2026-06-11 (part 2) — ECON-SR1 chart regeneration ×3 pairs + vix equity_curves (T2 gap closed)
+
+### Dispatch
+Lead, post-STOP disposition. Consume Evan's reconciled canonical series (`results/{pair}/strategy_returns_20260611.csv`, commit 108b091) and regenerate the defective strategy-performance charts for vix_vix3m_spy / indpro_spy / indpro_xlp.
+
+### Shipped
+New producer `scripts/generate_strategy_perf_charts.py` (ECON-SR1 consumer; never re-derives positions — META-NMF). Per pair: `equity_curves.json`, `drawdown.json`, `walk_forward.json`, `subperiod_sharpe.json` + `_meta.json` sidecars (palette_id okabe_ito_2026, disposition consumed, per-chart reconciliation block, Rule-A5 caption) + perceptual PNGs. 12 charts total. Rule A4 regression notes ×3 at `results/{pair}/regression_note_20260611.md`.
+
+### Gates (all PASS)
+- ECON-SR1 reconciliation (blocking, in-producer): 9/9 metrics PASS (Sharpe/MDD/annret ×3 pairs); vix 1.1295/−0.2115/0.1548 vs reported 1.1295/−0.2115/0.1531.
+- Per-chart: drawdown min == oos_max_drawdown ×3 EXACT; equity implied DD == oos_max_drawdown ×3 EXACT.
+- VIZ-IC1 in-producer (palette/legend/unit/title) 12/12; VIZ-NBER1 shapes present on all 9 calendar-time charts (subperiod categorical = exempt).
+- T2 lint_chart_completeness: 98 refs / 0 failures (vix now PASS — placeholder gone).
+- smoke_loader --all: 8/8 pairs, 0 failures. Loader harness via charts.py::_load_plotly_json: 12/12 Figures with traces.
+- Perceptual (VIZ-CV1): PNGs eyeballed — caught and fixed a real defect: paired "$" in Plotly titles triggers MathJax ("$1 into $2.43" rendered as garbled math). Rule of thumb recorded: max ONE literal $ per Plotly/Streamlit text element.
+
+### Provenance verdicts (dispatch item 2)
+- indpro_spy equity_curves: PREDATES W0.5 (original tournament-era chart) but winner trace did NOT reconcile — endpoint 1.519 vs canonical 1.711 (11.2% off), implied Sharpe 0.90 vs reported 1.1036. B&H trace was exact. REGENERATED.
+- indpro_xlp equity_curves: PREDATES W0.5 (2026-04-22) but winner trace 13.6% off endpoint (2.187 vs 2.531), implied Sharpe 0.97 vs 1.1147. REGENERATED.
+- Content change: old equity charts showed top-3 strategies; new show winner vs B&H (canonical artifact covers winner only; template caption already promises "tournament winner compared to buy-and-hold"). Documented in regression notes, flagged to Lead. If top-3 view wanted back, Evan must first produce reconciled series for combos #2/#3.
+
+### Other
+- indpro_xlp legacy winner_summary lacks *_display_name → added humanised code-label fallback in producer + assert against raw-token leakage (VIZ-NS1).
+- subperiod charts built from Evan's round-2 CSVs (landed 03efc78 mid-dispatch).
+- Ray's parallel b99b432 prose fixes reviewed — complementary, no chart conflicts.

@@ -1,0 +1,17 @@
+# Loader smoke test  pair_id=indpro_spy  timestamp=2026-06-11T17:52:28
+# Pages scanned: 4
+#   app/pages/5_indpro_spy_evidence.py
+#   app/pages/5_indpro_spy_methodology.py
+#   app/pages/5_indpro_spy_story.py
+#   app/pages/5_indpro_spy_strategy.py
+
+
+# Dynamic charts (Evidence render_method_block helper)
+
+# APP-PT1 template + pair_config chart scans
+PASS  app/pair_configs/indpro_spy_config.py:65  chart=hero  traces=2  title='INDPRO YoY Growth vs S&P 500 (1990-2025)'
+PASS  app/pair_configs/indpro_spy_config.py:74  chart=regime_stats  traces=2  subplot_titles=['Annualized Sharpe by INDPRO YoY Quartile', 'Annualized Return by INDPRO YoY Quartile', '<b>Key:</b> Best regime by Sharpe: Q4 (Strongest growth) (1.15); worst: Q1 (Weakest growth) (0.31).']
+PASS  app/pair_configs/indpro_spy_config.py:593  chart=equity_curves  traces=4  title='Equity Curves: Top Strategies vs Buy-and-Hold (OOS 2018-2025)'
+PASS  app/pair_configs/indpro_spy_config.py:596  chart=tournament_scatter  traces=4  title='Tournament Results: 1666 Combinations (1149 Valid)'
+
+# RESULT  passes=4  failures=0

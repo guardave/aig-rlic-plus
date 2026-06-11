@@ -17,7 +17,7 @@
   "oos_max_drawdown": -0.1353,
   "oos_n_trades": 84,
   "oos_period_start": "2019-01-31",
-  "oos_period_end": "2026-01-31",
+  "oos_period_end": "2025-12-31",
   "oos_n": 84,
   "oos_win_rate": 0.631,
   "oos_annual_turnover": 10.14,
@@ -25,5 +25,6 @@
   "bh_ann_return": 0.0968,
   "bh_max_drawdown": -0.1329,
   "total_combos": 3331,
-  "valid_combos": 2692
+  "valid_combos": 2692,
+  "notes": "oos_period_end CORRECTED 2026-06-11 (ECON-SR1 audit, fix260611_meta_cmp): was 2026-01-31 (start + 84 months, off-by-one); true end is 2025-12-31 \u2014 the 84-month formula OOS window 2019-01-31..2025-12-31 inclusive (pair_pipeline_indpro_xlp.py formula split, monthly data ends 2025-12-31). Known open issue flagged to Lead: winner_trade_log.csv on disk is a {0,1} long/cash series and is NOT the P3_long_short_counter winner; canonical series is strategy_returns_20260611.csv (repaired re-derivation, reconciles exactly)."
 }

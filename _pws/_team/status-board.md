@@ -1475,3 +1475,80 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Branch state at EOD:** `main` = `53c1e73` + this EOD commit, production-verified. Remote: main, fix260602_pair4_prep (SUSPENDED), feature/hy_ig_execution_panel (YYY), feature/indicator-evaluation-sop (YYY), rescue-my-work (Rex).
 
 🤖 Agent: Lead Lesandro
+
+---
+
+## 2026-06-11 — QA Quincy — COMPLETED (META-CMP Tier 1+2, GH #7)
+
+**Status:** Completed on `fix260611_meta_cmp`. All 4 gates + pre-commit hook built, tested standalone and via real `git commit` end-to-end.
+
+**Accomplished:**
+
+- T1.1 `scripts/validate_all_schemas.py` (PASS on clean tree: 29 PASS / 0 FAIL / 3 SKIP-absent)
+- T1.2 `smoke_loader.py --all` (single-pair behavior + log convention unchanged)
+- T1.3 `scripts/lint_filename_convention.py` (clean: 349 JSONs, 0 violations)
+- T2 `scripts/lint_chart_completeness.py` (reuses new `collect_config_chart_refs()` extracted into validate_pair_completeness.py; also covers APP-PT1 template getattr defaults)
+- T1.4 `scripts/hooks/pre-commit` installed (`git config core.hooksPath scripts/hooks`); always-on set ~4s, full ~6s
+- Shared discovery helper `scripts/_pair_discovery.py` (registry-scoped; archived dirs excluded by construction)
+
+**Pre-existing defects surfaced (Lead disposition needed; NOT fixed per META-NMF):**
+
+1. **VIZ-QR1 regime charts (commit 0f73b80) have no `layout.title`** → T1.2 smoke FAILs on 5 pairs (gold_copper_xli, indpro_spy, indpro_xlp, permit_spy, vix_vix3m_spy). Owner: Vera (add title in `scripts/_quartile_chart.py`) or Lead amends APP-ST1 criterion.
+2. **vix_vix3m_spy missing equity_curves.json** → live Strategy page shows "Equity curves pending". Owner: Vera. T2 FAIL.
+3. Until fixed, hook blocks all commits (T2 always-on) → emergency bypass `--no-verify` documented; my delivery commit used it, declared in message.
+
+🤖 Agent: QA Quincy
+
+## 2026-06-11 — Viz Vera — STOPPED + ESCALATED (vix equity_curves, META-CMP T2)
+
+**Status:** STOP per SOP reconciliation gate. No chart shipped; T2 still FAILs on vix_vix3m_spy (expected).
+
+**Finding:** The W0.5 backfill (`scripts/w0p5_generate_missing_strategy_artefacts.py`, 2026-05-26) that produced drawdown.json + walk_forward.json for vix_vix3m_spy / indpro_spy / indpro_xlp reconstructs the winner strategy series WRONG (two bugs in `derive_position`: "rp75" threshold-code unparsed → IS-median fallback; double countercyclical inversion on an already direction-adjusted `threshold_rule`). vix reconstruction loses −96.4% full-sample vs winner_summary Sharpe 1.13 / MDD −21.15%. I reproduced the shipped drawdown.json bit-for-bit (diff = 0.0) — the siblings themselves are defective and user-visible wrong (live drawdown chart −96.9% under caption claiming −21.15%). indpro_spy (recon Sharpe 0.25 vs 1.10) and indpro_xlp (0.14 vs 1.11) affected too.
+
+**Correct series recovered:** positions from `winner_trade_log.csv` (accrue day after entry, OOS 2020-01-01) reconcile to winner_summary within rounding (1.13 / −21.1% / 15.5%). Also: winner_summary `oos_period_start: 2015-01-01` is a wrong Wave 10I.A backfill; true OOS = 2020-01-01.
+
+**Lead disposition needed:** fix producer series (trade-log-based or derive_position repair), regen drawdown/walk_forward/broker-csv/subperiod × 3 pairs, then equity_curves is a 20-line producer addition. Detail in `_pws/viz-vera/session-notes.md` (2026-06-11 entry).
+
+🤖 Agent: Viz Vera
+
+## 2026-06-11 — Econ Evan — ECON-SR1 reconciled strategy series SHIPPED (3 pairs) — Vera UNBLOCKED
+
+**Status:** DONE. All three pairs reconcile to winner_summary EXACTLY (diff ≈ 0 on Sharpe/MDD/ann return).
+
+**For Vera (consume these, do not re-derive):** `results/{pair}/strategy_returns_20260611.csv`, columns `date, position, strategy_return, bh_return`; row-t position is the return-accrual weight for period t (execution lag pre-applied), so `strategy_return = position × bh_return` row-wise and equity = cumprod(1+strategy_return). Coverage: vix daily 2007-01-03.., indpro_spy monthly 1990-01-31.., indpro_xlp monthly 1998-01-31.. (all end 2025-12-31). `_meta.json` sidecar per pair carries OOS window + reconciliation evidence.
+
+**OOS dates fixed in winner_summary (schema-validated):** vix start 2015-01-01→**2020-01-01**; indpro_xlp end 2026-01-31→**2025-12-31**; indpro_spy already correct.
+
+**w0p5 script repaired:** rp-threshold parse + double-inversion removed + execution lag added + blocking `reconcile_or_die()` gate — repaired derivation independently matches trade-log replay 1:1 for vix + indpro_spy.
+
+**NEW defect found:** `results/indpro_xlp/winner_trade_log.csv` is NOT the tournament winner (long/cash 0.64 Sharpe vs P3_long_short_counter 1.11) → its broker CSV + Strategy-page trade-log display are wrong-combo; canonical series for xlp is repaired re-derivation. Lead to scope: regen of broker CSVs + subperiod CSVs (×3) + xlp trade log.
+
+🤖 Agent: Econ Evan
+
+## 2026-06-11 — Econ Evan — ROUND 2 DONE: downstream non-chart artifacts regenerated (3 pairs)
+
+**Shipped (03efc78):** subperiod_sharpe.csv ×3 (Full-OOS rows now match winner_summary to 4dp; vix window corrected to 2020 start), winner_trades_broker_style.csv ×3 (APP-TL1, sourced from canonical strategy_returns_20260611.csv), indpro_xlp winner_trade_log.csv regenerated as the TRUE P3 long/short winner in span shape (wrong-combo log preserved as winner_trade_log_superseded_20260611.csv). Producer: `scripts/econ_sr1_regen_downstream.py`.
+
+**For Ray/Ace (Lead to dispatch):** 4 prose drifts in pair configs — indpro_xlp config says "Long/Cash" winner (it's Long/Short) + narrates broker rows that no longer exist (~lines 470, 387-390, 583-598); vix + indpro_spy configs claim no broker CSV exists for them (stale). Details in `_pws/econ-evan/session-notes.md` round-2 entry. I did not edit configs (not my lane).
+
+🤖 Agent: Econ Evan
+
+## 2026-06-11 — Research Ray — ECON-SR1 prose drifts FIXED (4 drifts, 3 configs) — b99b432
+
+**Status:** DONE, pushed to `fix260611_meta_cmp`. All META-CMP pre-commit gates PASS (no bypass needed).
+
+**Fixed:** (1) indpro_xlp tournament_intro Long/Cash→Long/Short + B&H Sharpe 0.90→0.74 (artifact bh_sharpe=0.7437; 0.90 was SPY copy-drift); (2) all "exit to cash" claims in REGIME_BLOCK + PLAIN_ENGLISH → shorts/bets against XLP (same defect class, page now internally consistent with line ~562); (3) COVID broker-log walkthrough rewritten against REAL regenerated rows (2020-01-31 BUY @53.58 → 2020-03-31 SELL short @46.46 → 2020-04-30 BUY @49.69 → 2020-06-30 SELL short @50.41; accruals verified vs canonical series incl. honest Feb −8.2% long hit) with 3-month-lead causality caveat; (4) vix + indpro_spy stale "broker CSV doesn't exist / future wave" bullets → available + download pointer. DPS-SCD1 disclosure sentences kept intact (re-verified: `valid` col sums 2,691).
+
+**Checks:** AST ×3 OK; smoke_loader --all pairs=8 failures=0.
+
+**For Lead (not edited, outside scope):** indpro_xlp "3,330 specifications" vs total_combos 3331 (inside DPS-SCD1 text I was told to keep); MANUAL_USE_MD retail guidance still says "toward cash or underweight" (hedged practical advice vs −100% short backtest) — disposition needed.
+
+🤖 Agent: Research Ray
+
+## 2026-06-11 — Viz Vera — COMPLETED (ECON-SR1 chart regeneration ×3 + vix equity_curves T2 gap)
+
+**Status:** Done on `fix260611_meta_cmp`. 12 charts regenerated/created from Evan's canonical series via new producer `scripts/generate_strategy_perf_charts.py`. T2 lint 98/0, smoke_loader 8/8, ECON-SR1 per-chart reconciliation all EXACT (drawdown min == oos_max_drawdown ×3). vix "Equity curves pending" placeholder eliminated.
+
+**Notables:** (1) Both indpro equity_curves predated W0.5 but did NOT reconcile (winner traces 11–14% off) — regenerated as winner-vs-B&H per template caption; top-3 comparison dropped (needs Evan series for non-winner combos if wanted back) — Rule A4 notes in `results/{pair}/regression_note_20260611.md`. (2) Plotly MathJax gotcha: two "$" in a title enters math mode — caught by perceptual check; producers should carry at most one literal $ per text element.
+
+🤖 Agent: Viz Vera
