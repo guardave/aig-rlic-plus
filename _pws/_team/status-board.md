@@ -1524,3 +1524,11 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **NEW defect found:** `results/indpro_xlp/winner_trade_log.csv` is NOT the tournament winner (long/cash 0.64 Sharpe vs P3_long_short_counter 1.11) → its broker CSV + Strategy-page trade-log display are wrong-combo; canonical series for xlp is repaired re-derivation. Lead to scope: regen of broker CSVs + subperiod CSVs (×3) + xlp trade log.
 
 🤖 Agent: Econ Evan
+
+## 2026-06-11 — Econ Evan — ROUND 2 DONE: downstream non-chart artifacts regenerated (3 pairs)
+
+**Shipped (03efc78):** subperiod_sharpe.csv ×3 (Full-OOS rows now match winner_summary to 4dp; vix window corrected to 2020 start), winner_trades_broker_style.csv ×3 (APP-TL1, sourced from canonical strategy_returns_20260611.csv), indpro_xlp winner_trade_log.csv regenerated as the TRUE P3 long/short winner in span shape (wrong-combo log preserved as winner_trade_log_superseded_20260611.csv). Producer: `scripts/econ_sr1_regen_downstream.py`.
+
+**For Ray/Ace (Lead to dispatch):** 4 prose drifts in pair configs — indpro_xlp config says "Long/Cash" winner (it's Long/Short) + narrates broker rows that no longer exist (~lines 470, 387-390, 583-598); vix + indpro_spy configs claim no broker CSV exists for them (stale). Details in `_pws/econ-evan/session-notes.md` round-2 entry. I did not edit configs (not my lane).
+
+🤖 Agent: Econ Evan
