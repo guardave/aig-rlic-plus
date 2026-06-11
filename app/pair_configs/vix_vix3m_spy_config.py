@@ -520,10 +520,10 @@ class StrategyConfig:
         "obvious. The rule's same-day (L0) design is what made capture "
         "possible — any lead > 0 would have missed both the exit and the "
         "re-entry.\n"
-        "- **Broker-style artefact not yet generated.** Per APP-TL1, the "
-        "canonical `winner_trades_broker_style.csv` exists only for "
-        "`umcsent_xlv`. Flag for Vera/Ace: promote `vix_vix3m_spy` to the "
-        "broker-style artefact set in a future wave."
+        "- **Broker-style log available.** Per APP-TL1, the canonical "
+        "`winner_trades_broker_style.csv` is now generated for this pair "
+        "from the reconciled strategy series, alongside the position log. "
+        "Both are downloadable below under *Download Trading History*."
     )
 
 

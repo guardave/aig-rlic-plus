@@ -632,10 +632,10 @@ class StrategyConfig:
         "annualised return (+7.6%) trails buy-and-hold (+14.8%). The "
         "payoff is entirely in drawdown: -8.1% for the rule versus -23.9% "
         "for buy-and-hold.\n"
-        "- **Broker-style artefact not yet generated.** Per APP-TL1, the "
-        "canonical `winner_trades_broker_style.csv` exists only for "
-        "`umcsent_xlv` as of Wave 10H.2. Flag for Vera/Ace: promote "
-        "`indpro_spy` to the broker-style artefact set in a future wave."
+        "- **Broker-style log available.** Per APP-TL1, the canonical "
+        "`winner_trades_broker_style.csv` is now generated for this pair "
+        "from the reconciled strategy series, alongside the position log. "
+        "Both are downloadable below under *Download Trading History*."
     )
 
 
