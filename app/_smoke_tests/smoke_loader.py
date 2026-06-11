@@ -6,7 +6,13 @@ a Streamlit-mock context to verify:
 
     1. The loader returns a non-None plotly.graph_objs.Figure
     2. ``len(fig.data) > 0`` (at least one trace)
-    3. ``fig.layout.title.text`` is a non-empty string
+    3. The figure is self-titled (APP-ST1 criterion #3, amended 2026-06-11,
+       fix260611_meta_cmp / commit 1b14ccc): ``fig.layout.title.text`` is a
+       non-empty string, OR — multi-panel case — at least one non-empty
+       subplot-title annotation is present
+       (``make_subplots(subplot_titles=...)`` emits these as
+       ``layout.annotations``). Intent: "no anonymous charts", not
+       "exactly one title field".
 
 For call sites where ``chart_name`` is a variable (not a literal), we
 supplement the static AST list with an explicit mapping of the dynamic
@@ -194,17 +200,35 @@ def run_smoke_test(pair_id: str) -> tuple[int, int, list[str]]:
                 f"FAIL  {source_ref}  chart={chart_name}  fig.data empty (0 traces)"
             )
             return
+        # Criterion #3 — self-titled (APP-ST1, amended 2026-06-11 / 1b14ccc):
+        # overall layout.title.text non-empty, OR at least one non-empty
+        # subplot-title annotation (multi-panel figures built via
+        # make_subplots(subplot_titles=...) carry titles as annotations).
         title = getattr(getattr(fig.layout, "title", None), "text", None)
-        if not title or not str(title).strip():
+        has_title = bool(title and str(title).strip())
+        subplot_titles = []
+        if not has_title:
+            subplot_titles = [
+                str(a.text).strip()
+                for a in (fig.layout.annotations or ())
+                if getattr(a, "text", None) and str(a.text).strip()
+            ]
+        if not has_title and not subplot_titles:
             failures += 1
             log.append(
-                f"FAIL  {source_ref}  chart={chart_name}  fig.layout.title.text empty"
+                f"FAIL  {source_ref}  chart={chart_name}  not self-titled: "
+                f"fig.layout.title.text empty AND no non-empty subplot-title "
+                f"annotation (APP-ST1 #3, amended 1b14ccc)"
             )
             return
         passes += 1
+        title_note = (
+            f"title={title!r}" if has_title
+            else f"subplot_titles={subplot_titles!r}"
+        )
         log.append(
             f"PASS  {source_ref}  chart={chart_name}  traces={len(fig.data)}  "
-            f"title={title!r}"
+            f"{title_note}"
         )
 
     log.append(f"# Loader smoke test  pair_id={pair_id}  "

@@ -783,3 +783,9 @@ I read DOM text for all 10 Strategy pages this session. I found: zoom heading ab
 - A new gate run on a "clean" tree is itself an audit: 2 distinct producer-defect classes surfaced on day one.
 
 🤖 Agent: QA Quincy
+
+### Addendum 2026-06-11 (same session) — APP-ST1 criterion #3 amendment implemented
+
+Lead dispositioned the T1.2 finding as a rule amendment (1b14ccc), not a chart fix. Implemented in `smoke_loader.py::_check`: self-titled = `layout.title.text` non-empty OR ≥1 non-empty `layout.annotations` text (subplot-title mechanism; annotation path only consulted when title empty). Negative paths verified in-process: anonymous chart still FAILs; whitespace-only annotation does not satisfy. `--all` rerun: 8/8 pairs PASS, total_failures=0 (5 previously-failing dual-panel pairs now PASS via subplot titles). Single-pair regression: hy_ig_v2_spy 15/15. vix T2 equity_curves gap still open (Vera in flight) — commit again via --no-verify, declared.
+
+🤖 Agent: QA Quincy
