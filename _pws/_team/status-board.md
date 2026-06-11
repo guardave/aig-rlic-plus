@@ -1532,3 +1532,15 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **For Ray/Ace (Lead to dispatch):** 4 prose drifts in pair configs — indpro_xlp config says "Long/Cash" winner (it's Long/Short) + narrates broker rows that no longer exist (~lines 470, 387-390, 583-598); vix + indpro_spy configs claim no broker CSV exists for them (stale). Details in `_pws/econ-evan/session-notes.md` round-2 entry. I did not edit configs (not my lane).
 
 🤖 Agent: Econ Evan
+
+## 2026-06-11 — Research Ray — ECON-SR1 prose drifts FIXED (4 drifts, 3 configs) — b99b432
+
+**Status:** DONE, pushed to `fix260611_meta_cmp`. All META-CMP pre-commit gates PASS (no bypass needed).
+
+**Fixed:** (1) indpro_xlp tournament_intro Long/Cash→Long/Short + B&H Sharpe 0.90→0.74 (artifact bh_sharpe=0.7437; 0.90 was SPY copy-drift); (2) all "exit to cash" claims in REGIME_BLOCK + PLAIN_ENGLISH → shorts/bets against XLP (same defect class, page now internally consistent with line ~562); (3) COVID broker-log walkthrough rewritten against REAL regenerated rows (2020-01-31 BUY @53.58 → 2020-03-31 SELL short @46.46 → 2020-04-30 BUY @49.69 → 2020-06-30 SELL short @50.41; accruals verified vs canonical series incl. honest Feb −8.2% long hit) with 3-month-lead causality caveat; (4) vix + indpro_spy stale "broker CSV doesn't exist / future wave" bullets → available + download pointer. DPS-SCD1 disclosure sentences kept intact (re-verified: `valid` col sums 2,691).
+
+**Checks:** AST ×3 OK; smoke_loader --all pairs=8 failures=0.
+
+**For Lead (not edited, outside scope):** indpro_xlp "3,330 specifications" vs total_combos 3331 (inside DPS-SCD1 text I was told to keep); MANUAL_USE_MD retail guidance still says "toward cash or underweight" (hedged practical advice vs −100% short backtest) — disposition needed.
+
+🤖 Agent: Research Ray

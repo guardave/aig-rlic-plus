@@ -264,3 +264,25 @@ Handoff: `results/_cross_agent/handoff_ray_hze1_retro_20260424.md`
 
 ---
 *Last updated: 2026-04-24 — Wave 10J/10K checkpoint*
+
+## Session: 2026-06-11 — ECON-SR1 prose-drift fixes (fix260611_meta_cmp)
+
+**Dispatch:** Lead, post-Evan round 2. Fix 4 narrative drifts in pair configs left behind by the W0.5 chart-backfill repair (indpro_xlp's old trade log was the WRONG strategy combo — Long/Cash instead of the true Long/Short winner `S8_accel / T2_roll_p75 / P3_long_short_counter / L3`).
+
+**Commit:** `b99b432` (Author: Research Ray), pushed to `fix260611_meta_cmp`. All META-CMP pre-commit gates PASSED (no `--no-verify` needed — Vera's equity_curves had landed in working tree).
+
+### Fixes (every number re-read from current artifacts)
+
+1. **indpro_xlp tournament_intro (~line 470):** "Long/Cash" → "Long/Short" (winner_summary `strategy_family: P3_long_short`). ALSO corrected B&H Sharpe 0.90 → 0.74 in the same sentence and in key_message (`bh_sharpe: 0.7437` — the 0.90 was a copy-drift from indpro_spy/SPY). DPS-SCD1 sentences (best of 2,691 valid — verified `valid` col sums 2691; median 0.63) untouched per dispatch.
+2. **indpro_xlp REGIME_BLOCK (~387-390) + same-class instances:** "exiting XLP at Q4 extreme" → shorts/bets against XLP. Fixed all 5 same-class instances in the block (chart_caption, observation, deep_dive "force exits", interpretation, key_message) + Strategy-page PLAIN_ENGLISH ("moves to cash (or short)" — no cash state exists). Declared as same-defect-class scope extension for internal consistency (dispatch's own requirement).
+3. **indpro_xlp TRADE_LOG_EXAMPLE_MD:** COVID walkthrough rewritten against regenerated `winner_trades_broker_style.csv` real rows: 2020-01-31 BUY +100% @53.5836 → 2020-03-31 SELL −100% @46.4612 (S8_accel −4.248) → 2020-04-30 BUY +100% @49.6939 → 2020-06-30 SELL −100% @50.4078 (S8_accel +4.899). Accruals verified vs `strategy_returns_20260611.csv`: Feb 2020 long −8.2% (honest hit), Mar short +5.5%, Apr/May long +7.0%/+1.7%, Jun short +0.2%. Added causality caveat: 3-month lead means each flip is driven by readings ~a quarter earlier; row signal values are same-month context, not triggers.
+4. **vix_vix3m_spy (~524-526) + indpro_spy (~636-638):** stale "broker-style artefact not yet generated / future wave" bullets → "available, downloadable below under Download Trading History" (verified both CSVs exist, sourced from canonical series; `render_` in page_templates.py:1530+ auto-renders the download button when present). vix quoted trade spans (2020-01-24→04-03 Cash 70d; 04-03→10-06 Long 186d +36.09%) re-verified against winner_trade_log.csv rows 317-318 — no drift, untouched.
+
+### Checks
+- AST parse OK ×3 configs; `smoke_loader.py --all` pairs=8 total_failures=0; pre-commit T1.1/T1.2/T1.3/T2 all PASS.
+
+### Observations left for Lead (NOT edited — outside dispatch scope)
+- indpro_xlp tournament_intro says "3,330 specifications run" vs tournament CSV 3,331 rows / winner_summary `total_combos: 3331` (3,330 = 1,665×2 framing; off-by-one, part of recent DPS-SCD1 text I was told to keep).
+- indpro_xlp MANUAL_USE_MD step 3 still advises "move XLP exposure toward cash or an underweight" — practical retail guidance (hedged), but a purist read says the backtest goes −100% short; Lead to rule whether deliberate softening stays.
+
+*Last updated: 2026-06-11 — ECON-SR1 prose-drift session*
