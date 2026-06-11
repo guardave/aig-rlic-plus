@@ -1519,6 +1519,10 @@ Vera's chart-save pipeline calls a `validate_intra_chart_consistency(fig, pair_i
 
 **Cross-references:** DPS-LF1 (the dashboard-page-standard twin of this rule), BL-VIZ-NS1 (backlog origin — now closed by promotion), VIZ-IC1 item 1 (title coherence).
 
+## Rule VIZ-TX1 — At Most One Literal `$` Per Plotly Text Element (added 2026-06-11, fix260611_meta_cmp)
+
+Plotly renders text through MathJax: a PAIRED `$...$` in any title, annotation, axis label, or legend entry silently enters math mode and garbles the enclosed text ("$1 into $2.43" renders broken). Any text element carrying currency MUST contain at most one literal `$` — rephrase ("grew 1 dollar into $2.43", "from 1.00 to 2.43×") or escape. The perceptual-check PNG eyeball is the catching net (this rule was caught exactly there, on the regenerated equity-curve titles); the constraint is enforced in producers.
+
 ## Rule VIZ-SCD1 — Tournament Winner Annotation States Position (added 2026-06-10, GH #9)
 
 On any tournament-distribution chart, the winner annotation must state the winner's **position within the valid strategy population**, not a bare value: `"Winner = max of 60 (median 0.54)"`, never `"Winner = 1.27"`. The valid count excludes the benchmark row per ECON-T4. Numbers are re-read from the tournament CSV at chart-generation time, never hard-coded from memory.

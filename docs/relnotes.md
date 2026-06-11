@@ -1,5 +1,42 @@
 # Release Notes
 
+## 2026-06-11 — META-CMP Completeness Forcing Functions, Tier 1+2 (GH #7)
+
+**Branch `fix260611_meta_cmp`** — first Mode-1 wave since LEAD-DL1: Lead registered the rule; Quincy built the gates; Vera fixed what the gates caught.
+
+### Shipped
+
+- **§META-CMP** (team-coordination.md, full rule; team-standards §5.6 registration; sop-changelog entry): four in-tree completeness gates wired into a pre-commit hook (`git config core.hooksPath scripts/hooks`).
+  - **T1.1** `scripts/validate_all_schemas.py` — every registered pair's canonical results JSONs validate against `docs/schemas/`. Closes **BL-SCHEMA-GATE**.
+  - **T1.2** `app/_smoke_tests/smoke_loader.py --all` — portal-lint over every registered pair.
+  - **T1.3** `scripts/lint_filename_convention.py` — no `<pair_id>_`-prefixed chart JSONs (VIZ-NM1).
+  - **T2** `scripts/lint_chart_completeness.py` — every config-referenced chart exists on disk; reuses GATE-DPS1 internals; additionally AST-scans template `getattr` defaults so charts the template loads regardless of config silence are covered.
+  - Hook: always-on T1.1+T1.3+T2 (~4s); T1.2 fires when staged paths touch `app/` or `output/charts/`.
+- Scope: registered pairs only; archived dirs exempt; frozen Sample validated but never auto-fixed; gate FAIL = fix the producer (META-NMF). Tier 3 (text-vs-data citations) and Tier 4 (cloud-render CI) deferred per the issue's own recommendation.
+
+### The gates immediately caught two real defects (adoption-run findings)
+
+1. **5 dual-panel regime charts had empty `layout.title`** (VIZ-QR1 helper, Lead-authored 2026-06-10). Disposition: **APP-ST1 criterion #3 amended** — multi-panel figures are self-titled via subplot-title annotations; the title-less layout is the user-approved canonical visual. Charts unchanged; criterion updated by Quincy.
+2. **`vix_vix3m_spy` had no equity-curves chart** — a live "Equity curves pending" placeholder on the production Strategy page (exactly the W0.5 class T2 was commissioned for; visible only because T2 checks template defaults, not just config declarations). Vera's dispatch to fill the gap **stopped at her reconciliation gate and uncovered a deeper defect**:
+
+### Adoption finding 3 — the W0.5 backfilled strategy series was wrong on 3 pairs (escalated)
+
+`scripts/w0p5_generate_missing_strategy_artefacts.py::derive_position` (fix260526 W0.5, Lead-as-Vera) had two bugs — threshold-code parse failure on `T2_rp75` (wrong fallback threshold) and a double direction-inversion — producing a reconstruction that loses 96% over the sample. That defective series is what the shipped drawdown/walk_forward charts plot for `vix_vix3m_spy`, `indpro_spy`, `indpro_xlp`: production showed a −96.9% drawdown trace under a caption quoting the correct −21.15%. Headline winner_summary metrics are unaffected (trade-log replay reconciles to them within rounding — Vera verified for vix). Side-finding: vix winner_summary's backfilled `oos_period_start` was wrong (2015 vs true 2020).
+
+Disposition (stakeholder-approved scope expansion) — executed in full, Mode 1:
+
+- **ECON-SR1** authored: any reconstructed strategy series must reconcile to winner_summary (±0.01 Sharpe, ±0.5pp DD/return) before artifacts are emitted; trade-log replay preferred over re-derivation; the reconciled series persists as `results/{pair}/strategy_returns_{date}.csv` so charts consume data, never code.
+- **Evan** (`108b091`, `03efc78`): reconciled series ×3 pairs (all exact to 4dp); `derive_position` repaired — **5 bugs**, the 2 dispatched plus 3 latent found in validation (missing execution lag = pure lookahead; wrong rolling-threshold params; signal lagged after thresholding) — plus a blocking `reconcile_or_die()` gate; OOS dates corrected (vix start 2015→2020, indpro_xlp end off-by-one); subperiod CSVs ×3 regenerated (vix COVID row: Sharpe −0.47 → **+2.45** — the strategy navigated COVID, the defective series had it sinking); broker CSVs ×3; indpro_xlp's trade log was for the **wrong combination entirely** (a Long/Cash series; true winner is Long/Short) — regenerated, old log preserved as superseded.
+- **Vera** (`c7dbfbf`): 12 charts regenerated from the canonical series via new `scripts/generate_strategy_perf_charts.py` (in-producer `reconcile_or_die`; reconciliation block embedded in every `_meta.json`); all reconcile EXACTLY. **Additional finding:** the indpro pairs' original equity-curve charts (predating W0.5) never reconciled either (implied Sharpe 0.90/0.97 vs true 1.10/1.11) — regenerated as winner-vs-B&H per the template caption's promise (top-3 view retired pending reconciled non-winner series; documented in regression notes). Bonus: caught and fixed a MathJax paired-`$` garbling bug → promoted to **VIZ-TX1**.
+- **Ray** (`b99b432`): 4 prose-drift fixes grounded in the regenerated artifacts — indpro_xlp's "Long/Cash" misstatement (winner is Long/Short, wrongly described across 7 fields incl. a COVID broker-log walkthrough narrating trades that never existed — rewritten against real rows, including the honest −8.2% February 2020 hit), plus a 0.90-vs-0.74 B&H copy-drift, plus stale "broker CSV doesn't exist" claims on 2 pairs.
+
+### Lessons
+
+1. A gate's adoption run on a "clean" tree is itself an audit — the findings were live user-visible or rule-violating states nobody had flagged.
+2. Gate findings get dispositioned per META-NMF, never hand-patched: one became a rule amendment, two became producer rules + dispatches.
+3. An agent STOPPING at its reconciliation gate (shipping nothing) is a success mode — Vera shipping "consistent with siblings" would have propagated the defect; shipping "correct but contradicting siblings" would have created a visible prose-vs-data clash. The stop surfaced the real bug.
+4. DOM sweeps verify rendering, not numeric chart-vs-caption agreement — this defect class is META-CMP Tier 3's (deferred) territory and survived every sweep since fix260526.
+
 ## 2026-06-10 (later session) — Independent-audit fixes GH #9-11: spec-curve disclosure + benchmark valid semantics + canonical drawdown
 
 **Branch `fix260610_audit_q` merged at `53c1e73`** (user-authorised per LEAD-MA1; local → dawodev → production DOM sweeps ALL PASS per LEAD-DOM1; issues #9/#10/#11 closed; branch deleted post-merge with explicit owner consent per LEAD-BD1).
