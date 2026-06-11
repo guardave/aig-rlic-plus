@@ -1,14 +1,44 @@
 {
   "chart_name": "walk_forward",
   "pair_id": "indpro_spy",
-  "palette_id": "v1",
+  "palette_id": "okabe_ito_2026",
   "rules_applied": [
+    "ECON-SR1",
     "VIZ-IC1",
-    "VIZ-BF1"
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
   ],
-  "narrative_alignment_note": "Rolling Sharpe over OOS \u2014 Strategy Confidence tab.",
-  "generated_at": "2026-05-26T22:53:37.462303+00:00",
-  "generated_by": "fix260526 W0.5 (Lead-as-Vera)",
+  "caption": "Rolling 12-month annualized Sharpe of the winner strategy vs buy-and-hold SPY over the out-of-sample window; dashed reference line at the reported OOS Sharpe (1.10, winner_summary). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Rolling-Sharpe walk-forward view for the Strategy page Confidence tab, built from the ECON-SR1 canonical series.",
   "disposition": "consumed",
-  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "source_artifacts": [
+    "results/indpro_spy/strategy_returns_20260611.csv",
+    "results/indpro_spy/winner_summary.json"
+  ],
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.103559,
+      "reported_winner_summary": 1.1036,
+      "diff": -4.1e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.080701,
+      "reported_winner_summary": -0.0807,
+      "diff": -1e-06,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.076809,
+      "reported_winner_summary": 0.0765,
+      "diff": 0.000309,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-11T19:21:51.686016+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_strategy_perf_charts.py (fix260611_meta_cmp, ECON-SR1 consumer)"
 }

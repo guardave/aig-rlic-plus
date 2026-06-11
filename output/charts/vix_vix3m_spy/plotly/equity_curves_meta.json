@@ -1,21 +1,20 @@
 {
-  "chart_name": "subperiod_sharpe",
+  "chart_name": "equity_curves",
   "pair_id": "vix_vix3m_spy",
   "palette_id": "okabe_ito_2026",
   "rules_applied": [
     "ECON-SR1",
-    "ECON-CP1",
     "VIZ-IC1",
+    "VIZ-NBER1",
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Annualized Sharpe of the winner strategy within each historical episode; full OOS 1.13 (per results/vix_vix3m_spy/subperiod_sharpe.csv, ECON-SR1 reconciled). 'No data' = episode outside indicator coverage; 'cash' = the long/cash rule held no position through the episode.",
-  "narrative_alignment_note": "Sub-period Sharpe bars distinguish 'no data' (no coverage) from 'in cash' (strategy flat) from real performance \u2014 values re-read from Evan's regenerated CSV at generation time.",
+  "caption": "Out-of-sample cumulative growth per dollar invested: winner strategy ends at 2.45 vs 2.33 for buy-and-hold SPY (2020-01-01 to 2025-12-31). Series: reconciled canonical strategy returns (ECON-SR1). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Winner-vs-buy-and-hold cumulative growth for the Strategy page Performance tab; endpoints re-read from the canonical series at generation time.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/vix_vix3m_spy/strategy_returns_20260611.csv",
-    "results/vix_vix3m_spy/winner_summary.json",
-    "results/vix_vix3m_spy/subperiod_sharpe.csv"
+    "results/vix_vix3m_spy/winner_summary.json"
   ],
   "reconciliation": {
     "oos_sharpe": {
@@ -40,6 +39,6 @@
       "verdict": "PASS"
     }
   },
-  "generated_at": "2026-06-11T19:21:46.596606+00:00",
+  "generated_at": "2026-06-11T19:21:41.280141+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_strategy_perf_charts.py (fix260611_meta_cmp, ECON-SR1 consumer)"
 }

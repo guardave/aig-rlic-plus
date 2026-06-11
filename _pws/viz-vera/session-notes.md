@@ -248,3 +248,31 @@ Shipping equity_curves consistent with siblings = chart showing −96% under pro
 
 ### Config check (dispatch item 5)
 Confirmed: `app/pair_configs/vix_vix3m_spy_config.py` declares no `EQUITY_CHART_NAME`; `page_templates.py:1306` getattr default resolves to "equity_curves" — no config change needed once the file exists. Stale comment at config lines 476-478 ("No equity_curves / drawdown / walk_forward charts on disk") is outdated (Ray/Ace-owned; flagged, not edited).
+
+---
+
+## 2026-06-11 (part 2) — ECON-SR1 chart regeneration ×3 pairs + vix equity_curves (T2 gap closed)
+
+### Dispatch
+Lead, post-STOP disposition. Consume Evan's reconciled canonical series (`results/{pair}/strategy_returns_20260611.csv`, commit 108b091) and regenerate the defective strategy-performance charts for vix_vix3m_spy / indpro_spy / indpro_xlp.
+
+### Shipped
+New producer `scripts/generate_strategy_perf_charts.py` (ECON-SR1 consumer; never re-derives positions — META-NMF). Per pair: `equity_curves.json`, `drawdown.json`, `walk_forward.json`, `subperiod_sharpe.json` + `_meta.json` sidecars (palette_id okabe_ito_2026, disposition consumed, per-chart reconciliation block, Rule-A5 caption) + perceptual PNGs. 12 charts total. Rule A4 regression notes ×3 at `results/{pair}/regression_note_20260611.md`.
+
+### Gates (all PASS)
+- ECON-SR1 reconciliation (blocking, in-producer): 9/9 metrics PASS (Sharpe/MDD/annret ×3 pairs); vix 1.1295/−0.2115/0.1548 vs reported 1.1295/−0.2115/0.1531.
+- Per-chart: drawdown min == oos_max_drawdown ×3 EXACT; equity implied DD == oos_max_drawdown ×3 EXACT.
+- VIZ-IC1 in-producer (palette/legend/unit/title) 12/12; VIZ-NBER1 shapes present on all 9 calendar-time charts (subperiod categorical = exempt).
+- T2 lint_chart_completeness: 98 refs / 0 failures (vix now PASS — placeholder gone).
+- smoke_loader --all: 8/8 pairs, 0 failures. Loader harness via charts.py::_load_plotly_json: 12/12 Figures with traces.
+- Perceptual (VIZ-CV1): PNGs eyeballed — caught and fixed a real defect: paired "$" in Plotly titles triggers MathJax ("$1 into $2.43" rendered as garbled math). Rule of thumb recorded: max ONE literal $ per Plotly/Streamlit text element.
+
+### Provenance verdicts (dispatch item 2)
+- indpro_spy equity_curves: PREDATES W0.5 (original tournament-era chart) but winner trace did NOT reconcile — endpoint 1.519 vs canonical 1.711 (11.2% off), implied Sharpe 0.90 vs reported 1.1036. B&H trace was exact. REGENERATED.
+- indpro_xlp equity_curves: PREDATES W0.5 (2026-04-22) but winner trace 13.6% off endpoint (2.187 vs 2.531), implied Sharpe 0.97 vs 1.1147. REGENERATED.
+- Content change: old equity charts showed top-3 strategies; new show winner vs B&H (canonical artifact covers winner only; template caption already promises "tournament winner compared to buy-and-hold"). Documented in regression notes, flagged to Lead. If top-3 view wanted back, Evan must first produce reconciled series for combos #2/#3.
+
+### Other
+- indpro_xlp legacy winner_summary lacks *_display_name → added humanised code-label fallback in producer + assert against raw-token leakage (VIZ-NS1).
+- subperiod charts built from Evan's round-2 CSVs (landed 03efc78 mid-dispatch).
+- Ray's parallel b99b432 prose fixes reviewed — complementary, no chart conflicts.

@@ -1544,3 +1544,11 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **For Lead (not edited, outside scope):** indpro_xlp "3,330 specifications" vs total_combos 3331 (inside DPS-SCD1 text I was told to keep); MANUAL_USE_MD retail guidance still says "toward cash or underweight" (hedged practical advice vs −100% short backtest) — disposition needed.
 
 🤖 Agent: Research Ray
+
+## 2026-06-11 — Viz Vera — COMPLETED (ECON-SR1 chart regeneration ×3 + vix equity_curves T2 gap)
+
+**Status:** Done on `fix260611_meta_cmp`. 12 charts regenerated/created from Evan's canonical series via new producer `scripts/generate_strategy_perf_charts.py`. T2 lint 98/0, smoke_loader 8/8, ECON-SR1 per-chart reconciliation all EXACT (drawdown min == oos_max_drawdown ×3). vix "Equity curves pending" placeholder eliminated.
+
+**Notables:** (1) Both indpro equity_curves predated W0.5 but did NOT reconcile (winner traces 11–14% off) — regenerated as winner-vs-B&H per template caption; top-3 comparison dropped (needs Evan series for non-winner combos if wanted back) — Rule A4 notes in `results/{pair}/regression_note_20260611.md`. (2) Plotly MathJax gotcha: two "$" in a title enters math mode — caught by perceptual check; producers should carry at most one literal $ per text element.
+
+🤖 Agent: Viz Vera
