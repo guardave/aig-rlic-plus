@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# =============================================================================
+# META-CMP pre-commit gate (GH #7, Tier 1+2) — owned by QA Quincy
+#
+# INSTALLATION (one-time, per clone):
+#     git config core.hooksPath scripts/hooks
+#
+# Gates run on EVERY commit (always-on set):
+#     T1.1  scripts/validate_all_schemas.py      — producer-vs-schema drift
+#     T1.3  scripts/lint_filename_convention.py  — VIZ-NM1 pair-prefix shadow files
+#     T2    scripts/lint_chart_completeness.py   — config-referenced charts on disk
+#
+# Gate run ONLY when staged paths touch app/ or output/charts/:
+#     T1.2  app/_smoke_tests/smoke_loader.py --all — chart-name resolution
+#
+# A gate FAIL means: fix the PRODUCER, never the artifact (META-NMF).
+# Bypass only in true emergencies via `git commit --no-verify` — that leaves
+# the commit visibly unguarded; say so in the commit message (META-CMP §2).
+# =============================================================================
+set -u
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT" || exit 2
+
+OVERALL_RC=0
+FAILED_GATES=()
+
+run_gate() {
+    local label="$1"; shift
+    local start end out rc
+    start=$(date +%s)
+    out=$("$@" 2>&1)
+    rc=$?
+    end=$(date +%s)
+    if [ $rc -eq 0 ]; then
+        echo "[PASS] ${label} ($((end - start))s)"
+    else
+        echo "[FAIL] ${label} ($((end - start))s, exit=${rc})"
+        echo "${out}" | sed 's/^/       /'
+        OVERALL_RC=1
+        FAILED_GATES+=("${label}")
+    fi
+}
+
+echo "META-CMP pre-commit gates (bypass: --no-verify, emergencies only)"
+
+# --- Always-on set ----------------------------------------------------------
+run_gate "T1.1 schema gate (validate_all_schemas)"        python3 scripts/validate_all_schemas.py
+run_gate "T1.3 filename lint (lint_filename_convention)"  python3 scripts/lint_filename_convention.py
+run_gate "T2   chart completeness (lint_chart_completeness)" python3 scripts/lint_chart_completeness.py
+
+# --- Conditional: T1.2 smoke when staged paths touch app/ or output/charts/ --
+STAGED=$(git diff --cached --name-only)
+if echo "${STAGED}" | grep -qE '^(app/|output/charts/)'; then
+    run_gate "T1.2 loader smoke --all (smoke_loader)"     python3 app/_smoke_tests/smoke_loader.py --all
+else
+    echo "[SKIP] T1.2 loader smoke --all (no staged paths under app/ or output/charts/)"
+fi
+
+# --- Verdict ----------------------------------------------------------------
+if [ $OVERALL_RC -ne 0 ]; then
+    echo ""
+    IFS='; '
+    echo "COMMIT BLOCKED by META-CMP gate(s): ${FAILED_GATES[*]}"
+    echo "Fix the producer, never the artifact (META-NMF)."
+    echo "Bypass only in true emergencies via: git commit --no-verify"
+    echo "(and say so in the commit message — the commit ships unguarded)."
+fi
+exit $OVERALL_RC

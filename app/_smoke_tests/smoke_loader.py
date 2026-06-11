@@ -15,9 +15,15 @@ chart_names used by the Evidence page's ``render_method_block`` helper.
 Run from repo root::
 
     python3 app/_smoke_tests/smoke_loader.py hy_ig_v2_spy
+    python3 app/_smoke_tests/smoke_loader.py --all
 
 Exits 0 when all call sites pass; exits 1 on any failure. Writes a per-run
 log at ``app/_smoke_tests/loader_{pair_id}_{yyyymmdd}.log``.
+
+``--all`` (META-CMP T1.2, GH #7) runs the same per-pair smoke over every
+REGISTERED pair (discovered via ``components.pair_registry``, the portal's
+own discovery) and exits non-zero if ANY pair reports failures > 0. The
+per-pair log-file convention is unchanged — one log per pair per run.
 
 Defense-2 extension rule: APP-ST1 (Loader End-to-End Smoke Test).
 """
@@ -283,9 +289,39 @@ def run_smoke_test(pair_id: str) -> tuple[int, int, list[str]]:
     return passes, failures, log
 
 
+def _registered_pair_ids() -> list[str]:
+    """Registered pairs via the portal's own discovery (META-CMP scope rule)."""
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    app_dir = os.path.join(repo_root, "app")
+    if app_dir not in sys.path:
+        sys.path.insert(0, app_dir)
+    from components.pair_registry import load_pair_registry
+
+    return sorted(p["pair_id"] for p in load_pair_registry())
+
+
+def _run_and_log(pair_id: str, log_dir: str) -> int:
+    """Run the smoke for one pair, write its log, print output. Returns failures."""
+    passes, failures, log = run_smoke_test(pair_id)
+    date_tag = _dt.datetime.now().strftime("%Y%m%d")
+    log_path = os.path.join(log_dir, f"loader_{pair_id}_{date_tag}.log")
+    with open(log_path, "w") as f:
+        f.write("\n".join(log) + "\n")
+
+    print("\n".join(log))
+    print(f"\nLog written: {log_path}")
+    return failures
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("pair_id", help="e.g. hy_ig_v2_spy")
+    parser.add_argument("pair_id", nargs="?", default=None, help="e.g. hy_ig_v2_spy")
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Run the smoke over every registered pair (META-CMP T1.2); "
+        "exit non-zero if any pair reports failures > 0",
+    )
     parser.add_argument(
         "--log-dir",
         default=os.path.dirname(os.path.abspath(__file__)),
@@ -293,15 +329,27 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    passes, failures, log = run_smoke_test(args.pair_id)
-    date_tag = _dt.datetime.now().strftime("%Y%m%d")
-    log_path = os.path.join(args.log_dir, f"loader_{args.pair_id}_{date_tag}.log")
-    with open(log_path, "w") as f:
-        f.write("\n".join(log) + "\n")
+    if args.all == bool(args.pair_id):
+        parser.error("provide exactly one of: pair_id, --all")
 
-    print("\n".join(log))
-    print(f"\nLog written: {log_path}")
-    return 0 if failures == 0 else 1
+    if not args.all:
+        failures = _run_and_log(args.pair_id, args.log_dir)
+        return 0 if failures == 0 else 1
+
+    # --all mode: iterate every registered pair, aggregate exit status.
+    pair_ids = _registered_pair_ids()
+    summary: list[tuple[str, int]] = []
+    for pair_id in pair_ids:
+        print(f"\n{'=' * 60}\n=== {pair_id}\n{'=' * 60}")
+        failures = _run_and_log(pair_id, args.log_dir)
+        summary.append((pair_id, failures))
+
+    total_failures = sum(f for _, f in summary)
+    print(f"\n{'=' * 60}")
+    print(f"# ALL-PAIRS SUMMARY  pairs={len(summary)}  total_failures={total_failures}")
+    for pair_id, failures in summary:
+        print(f"#   {'PASS' if failures == 0 else 'FAIL'}  {pair_id}  failures={failures}")
+    return 0 if total_failures == 0 else 1
 
 
 if __name__ == "__main__":

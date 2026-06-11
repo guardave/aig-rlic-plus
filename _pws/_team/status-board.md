@@ -1475,3 +1475,26 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Branch state at EOD:** `main` = `53c1e73` + this EOD commit, production-verified. Remote: main, fix260602_pair4_prep (SUSPENDED), feature/hy_ig_execution_panel (YYY), feature/indicator-evaluation-sop (YYY), rescue-my-work (Rex).
 
 🤖 Agent: Lead Lesandro
+
+---
+
+## 2026-06-11 — QA Quincy — COMPLETED (META-CMP Tier 1+2, GH #7)
+
+**Status:** Completed on `fix260611_meta_cmp`. All 4 gates + pre-commit hook built, tested standalone and via real `git commit` end-to-end.
+
+**Accomplished:**
+
+- T1.1 `scripts/validate_all_schemas.py` (PASS on clean tree: 29 PASS / 0 FAIL / 3 SKIP-absent)
+- T1.2 `smoke_loader.py --all` (single-pair behavior + log convention unchanged)
+- T1.3 `scripts/lint_filename_convention.py` (clean: 349 JSONs, 0 violations)
+- T2 `scripts/lint_chart_completeness.py` (reuses new `collect_config_chart_refs()` extracted into validate_pair_completeness.py; also covers APP-PT1 template getattr defaults)
+- T1.4 `scripts/hooks/pre-commit` installed (`git config core.hooksPath scripts/hooks`); always-on set ~4s, full ~6s
+- Shared discovery helper `scripts/_pair_discovery.py` (registry-scoped; archived dirs excluded by construction)
+
+**Pre-existing defects surfaced (Lead disposition needed; NOT fixed per META-NMF):**
+
+1. **VIZ-QR1 regime charts (commit 0f73b80) have no `layout.title`** → T1.2 smoke FAILs on 5 pairs (gold_copper_xli, indpro_spy, indpro_xlp, permit_spy, vix_vix3m_spy). Owner: Vera (add title in `scripts/_quartile_chart.py`) or Lead amends APP-ST1 criterion.
+2. **vix_vix3m_spy missing equity_curves.json** → live Strategy page shows "Equity curves pending". Owner: Vera. T2 FAIL.
+3. Until fixed, hook blocks all commits (T2 always-on) → emergency bypass `--no-verify` documented; my delivery commit used it, declared in message.
+
+🤖 Agent: QA Quincy

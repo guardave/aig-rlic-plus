@@ -221,6 +221,62 @@ def _load_glossary_terms() -> set[str]:
     return set(data.get("terms", {}).keys())
 
 
+def collect_config_chart_refs(pair_id: str, config_mod: Any) -> list[tuple[str, str]]:
+    """Collect every chart name a pair config references (META-CMP T2, GH #7).
+
+    Shared config-introspection used by scripts/lint_chart_completeness.py —
+    extracted here so GATE-DPS1's introspection conventions stay the single
+    source of truth (DRY). Mirrors the per-check logic in _check_episode_zooms
+    and _check_evidence_blocks without their non-chart field checks.
+
+    Returns deduplicated (chart_name, source) tuples, where source describes
+    where in the config the reference lives. Chart names map to
+    output/charts/{pair_id}/plotly/{chart_name}.json.
+    """
+    refs: list[tuple[str, str]] = []
+    seen: set[str] = set()
+
+    def _add(name: str, source: str) -> None:
+        name = name.strip()
+        if name and name not in seen:
+            seen.add(name)
+            refs.append((name, source))
+
+    story_cfg = getattr(config_mod, "STORY_CONFIG", None) or config_mod
+    strat_cfg = getattr(config_mod, "STRATEGY_CONFIG", None) or config_mod
+
+    # 1. *_CHART_NAME attributes (HERO_CHART_NAME, REGIME_CHART_NAME,
+    #    EQUITY_CHART_NAME, DRAWDOWN_CHART_NAME, ...)
+    for label, owner in (("STORY_CONFIG", story_cfg),
+                         ("STRATEGY_CONFIG", strat_cfg),
+                         ("module", config_mod)):
+        for attr in dir(owner):
+            if attr.endswith("_CHART_NAME"):
+                val = getattr(owner, attr, None)
+                if isinstance(val, str):
+                    _add(val, f"{label}.{attr}")
+
+    # 2. Crisis-episode zoom slugs → history_zoom_{slug}.json (DPS-EP1)
+    for ep in (getattr(story_cfg, "HISTORY_ZOOM_EPISODES", None) or []):
+        slug = ep.get("slug", "") if isinstance(ep, dict) else ""
+        if slug:
+            _add(f"history_zoom_{slug}", f"HISTORY_ZOOM_EPISODES[slug='{slug}']")
+
+    # 3. Evidence method-block charts with chart_status == "ready"
+    #    (same default-"ready" semantics as _check_evidence_blocks)
+    blocks_dict = getattr(config_mod, "EVIDENCE_METHOD_BLOCKS", None) or {}
+    for level in ("level1", "level2"):
+        for i, block in enumerate(blocks_dict.get(level, [])):
+            if not isinstance(block, dict):
+                continue
+            if block.get("chart_status", "ready") == "ready" and block.get("chart_name"):
+                _add(block["chart_name"],
+                     f"EVIDENCE_METHOD_BLOCKS['{level}'][{i}] "
+                     f"'{block.get('method_name', '<unnamed>')}'")
+
+    return refs
+
+
 # ---------------------------------------------------------------------------
 # Check groups
 # ---------------------------------------------------------------------------
