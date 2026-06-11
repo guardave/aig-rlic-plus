@@ -8,6 +8,16 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-06-11 — META-CMP Completeness Forcing Functions (Tier 1+2, GH #7)
+
+**Trigger.** Stakeholder picked up GH #7 (Lead's META-CMP proposal from fix260526 triage). Three recurring completeness bug classes — producer-vs-template drift, producer-vs-schema drift, filename-prefix shadow files — each hit 4+ times across fix260526 / gold_copper_xli / crude_oil_xle and were caught only by manual or cloud-render inspection.
+
+**Scope:**
+- `docs/agent-sops/team-coordination.md` — new §META-CMP (full rule): four in-tree gates (`validate_all_schemas.py`, `smoke_loader.py --all`, `lint_filename_convention.py`, `lint_chart_completeness.py`) wired into a pre-commit hook via `core.hooksPath`. Registered-pairs scope; archived exempt; frozen Sample validated but never auto-fixed; gate FAIL = fix the producer per META-NMF.
+- `docs/team-standards.md` §5.6 — canonical cross-team registration pointer (minimal footprint per the 2026-05-28 LEAD-WM1 precedent).
+- Gate implementation dispatched to Quincy (Mode 1) on branch `fix260611_meta_cmp`; acceptance criteria tracked on GH #7.
+- Tier 3 (text-vs-data citation lint) and Tier 4 (cloud-render CI) explicitly deferred — separate issues when T1+T2 prove out. BL-SCHEMA-GATE closes with T1.1.
+
 ## 2026-05-28 — LEAD-WM1 Cross-Team Registration (minimal footprint)
 
 **Trigger.** SOD audit (2026-05-28): LEAD-WM1 (Work Mode Selection) was correctly authored in `docs/agent-sops/lead-agent-sop.md` at ratification (2026-05-26) but not entered into the canonical team-standards index per the changelog protocol ("New rules are entered here first, then registered in `docs/standards.md` and/or `docs/team-standards.md`").

@@ -136,6 +136,14 @@ Mode is selected at SOD via Lead-recommendation → user-decides conversation an
 
 ---
 
+## 5.6 Completeness Forcing Functions (META-CMP)
+
+**Owner:** Quincy (gates), Lead (rule).  **Full rule:** `docs/agent-sops/team-coordination.md` §META-CMP.  Canonical cross-team registration per the sop-changelog protocol.
+
+Producer-vs-schema, producer-vs-template, and filename-prefix drift are guarded by four in-tree gates wired into the repo pre-commit hook (`git config core.hooksPath scripts/hooks`): `validate_all_schemas.py`, `smoke_loader.py --all`, `lint_filename_convention.py`, `lint_chart_completeness.py`. Scope is registered pairs; archived dirs exempt; the frozen Sample is validated, never auto-fixed. A gate FAIL means fix the producer (META-NMF), never the artifact. Origin: GH #7 (Tier 1+2; Tiers 3-4 deferred).
+
+---
+
 ## 6. Global Agent Profile Files
 
 Per agent at `~/.claude/agents/<role>-<name>/`:
