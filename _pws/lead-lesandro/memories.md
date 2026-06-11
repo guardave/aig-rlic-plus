@@ -1,5 +1,15 @@
 # Key Memories — Lead Lesandro
 
+## Mode-2 hat-wearing includes the role's GATES, not just its conventions (added 2026-06-11 — re-read at every SOD)
+
+The W0.5 backfill (fix260526, Lead-as-Vera) followed Vera's chart conventions (naming, sidecars, palette) but skipped her **reconciliation gate** — and shipped a −96% phantom strategy series to production charts on 3 pairs, undetected for two weeks until real-Vera's STOP during the META-CMP wave. The existing "Mode 2 hat-wearing discipline" memory says *scan the role SOP for the directly-relevant rule*; that is necessary but not sufficient. **When wearing a role's hat, RUN that role's quality gates on your output** — reconciliation checks, VIZ-IC1, schema validation, whatever the role's SOP makes blocking. Conventions make work look right; gates make it BE right.
+
+Corollary for prose: **verify WORDS against artifacts, not just numerals.** "Long/Cash" sat directly beside CSV-verified numbers through a full prose-vs-data pass (DPS-SCD1, 2026-06-10) because the discipline greps numbers. Strategy-family words, direction words, mechanism claims ("exits to cash") need the same grounding. META-CMP Tier 3 is the mechanical fix; until then, checker prompts must name word-claims explicitly.
+
+## Gate adoption runs are audits — budget for the findings (added 2026-06-11)
+
+Switching on a new completeness gate over an existing tree WILL surface real defects (this wave: a live placeholder, a defective 3-pair chart series, a wrong-combination trade log, 7 prose drifts). Plan the wave with disposition capacity, get stakeholder sign-off for scope expansion, and fix per META-NMF (rule first, owner dispatch) — never trim the gate to make the tree pass.
+
 ## Audit-triage discipline — re-derive the finding's own numbers (added 2026-06-10 — re-read at every SOD)
 
 When triaging an external/independent audit finding, **re-compute the finding's numbers from the artifacts before assigning severity or disposition**. Two crystallising cases from GH #9-11 (Queenie, gold_copper_xli):

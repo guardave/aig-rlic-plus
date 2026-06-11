@@ -1,6 +1,19 @@
 # Outstanding work — Lead Lesandro
 
-Last updated: 2026-06-10 evening EOD.
+Last updated: 2026-06-11 EOD.
+
+---
+
+## Items added/updated 2026-06-11 (post fix260611_meta_cmp / GH #7)
+
+- **GH #7 CLOSED** — META-CMP Tier 1+2 + ECON-SR1 rehab merged at `6301e13`, production-verified. Only GH #4 remains open.
+- **Pre-commit hook now ACTIVE in this clone** (`core.hooksPath scripts/hooks`). Every future commit runs T1.1/T1.3/T2 (+T1.2 on app/charts staging). New clones must run `git config core.hooksPath scripts/hooks` — documented in team-standards §5.6.
+- **`fix260602_pair4_prep` resume scope grows again:** crude_oil_xle must now ALSO pass the four META-CMP gates (its results dir will be schema-validated by T1.1 once registered — its known schema violations will be caught mechanically, which is helpful) and follow ECON-SR1 if any series reconstruction happens. Running total of retrofit standards: 6 from 2026-06-10 + META-CMP compliance + ECON-SR1.
+- **META-CMP Tier 3** (text-vs-data citation lint) — deferred; trigger tracked via BL-PROSE-DATA-GREP. This session's "Long/Cash beside verified numbers" miss strengthens the case; propose as its own issue when the next prose-drift surfaces or when a SOP-hardening slot opens.
+- **BL-XLP-WS-LEGACY** — indpro_xlp winner_summary legacy shape (missing threshold_code, ambiguous threshold_value, non-direction-adjusted threshold_rule). Triggers: xlp threshold display misbehaves / next winner_summary schema wave / pair4_prep resume.
+- **Stale code comments** flagged by Vera (indpro_spy config ~594-595, vix config ~476 — "no charts on disk" now false): trivial, not user-facing; fold into Ace's next config touch.
+
+---
 
 ---
 

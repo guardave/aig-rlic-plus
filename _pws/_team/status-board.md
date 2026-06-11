@@ -1552,3 +1552,35 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Notables:** (1) Both indpro equity_curves predated W0.5 but did NOT reconcile (winner traces 11–14% off) — regenerated as winner-vs-B&H per template caption; top-3 comparison dropped (needs Evan series for non-winner combos if wanted back) — Rule A4 notes in `results/{pair}/regression_note_20260611.md`. (2) Plotly MathJax gotcha: two "$" in a title enters math mode — caught by perceptual check; producers should carry at most one literal $ per text element.
 
 🤖 Agent: Viz Vera
+
+---
+
+## 2026-06-11 — Lead Lesandro — COMPLETED (EOD)
+
+**Status:** Completed. GH #7 (META-CMP Tier 1+2) shipped via `fix260611_meta_cmp`, merged `6301e13`, production 21/21, issue closed, branch deleted (consented). **First full Mode-1 wave under LEAD-DL1** — five authors, every fix in its owner's lane.
+
+**Accomplished (wave roll-up; per-agent detail in each agent's own entries above):**
+
+- **Rules:** META-CMP (4 gates + pre-commit hook, registered in team-coordination/team-standards/sop-changelog), ECON-SR1 (reconstruction must reconcile to winner_summary), APP-ST1 #3 amendment (subplot titles satisfy self-titling), VIZ-TX1 (one literal $ per Plotly text element).
+- **Quincy:** gates + hook (`core.hooksPath`), T2 extended to template getattr defaults — the design choice that caught the real bug.
+- **Evan:** reconciled canonical series ×3 pairs (exact); derive_position 5-bug repair (incl. lookahead) + reconcile_or_die; OOS dates fixed; subperiod/broker CSVs + true indpro_xlp trade log regenerated.
+- **Vera:** reconciliation STOP that exposed the W0.5 defect (the win of the day); then 12 charts regenerated, all exact; found pre-W0.5 equity charts also never reconciled; MathJax $-pairing catch → VIZ-TX1.
+- **Ray:** 7-field "Long/Cash / exits-to-cash" misnarration fixed against real artifacts; fictional COVID walkthrough rewritten (honest Feb-2020 −8.2%); B&H 0.90→0.74 copy-drift; stale broker-CSV claims ×2.
+- **Verification:** gate suite clean → hook live-tested on real commits incl. the merge itself → local DOM 21/21 → dawodev 21/21 → production 21/21.
+
+**Discoveries / insights:**
+
+1. Mode 1 produced verification depth Mode 2 cannot: agents' own discipline gates found 5+ bugs beyond their dispatches. The root defect was Lead-as-Vera Mode-2 work that skipped Vera's reconciliation gate — wear a hat, run that role's GATES.
+2. A new gate's adoption run is an audit; budget disposition capacity and expand scope with stakeholder sign-off rather than trimming the gate.
+3. Prose-vs-data verification must ground WORDS (strategy family, direction, mechanism), not just numerals — "Long/Cash" survived a numbers-only pass. Tier 3 is the mechanical answer.
+
+**Outstanding:**
+
+- GH #4 (storytelling architecture) — only open issue.
+- `fix260602_pair4_prep` resume: now also needs META-CMP gate compliance + ECON-SR1 (running retrofit total: 6 standards + 2 disciplines).
+- META-CMP Tier 3/4 deferred (BL-PROSE-DATA-GREP tracks Tier 3); BL-XLP-WS-LEGACY new; stale config comments → Ace's next touch.
+- **All clones:** run `git config core.hooksPath scripts/hooks` to activate the META-CMP hook.
+
+**Branch state at EOD:** `main` = `6301e13` + EOD commit, production-verified. Remote: main, fix260602_pair4_prep (SUSPENDED), feature/hy_ig_execution_panel (YYY), feature/indicator-evaluation-sop (YYY), rescue-my-work (Rex).
+
+🤖 Agent: Lead Lesandro

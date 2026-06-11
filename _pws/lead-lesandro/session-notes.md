@@ -1,5 +1,31 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-06-11 (GH #7 META-CMP Tier 1+2 + ECON-SR1 rehab — first full Mode-1 wave)
+
+### Summary
+
+User picked GH #7 (my META-CMP proposal). Shipped as `fix260611_meta_cmp`, merged `6301e13`, production-verified 21/21, issue closed, branch deleted with consent. **First full Mode-1 wave under LEAD-DL1**: Lead authored rules and coordinated; Quincy/Evan/Vera/Ray executed in their lanes. The wave 4x'd in scope because the gates' adoption run was itself an audit.
+
+1. **Phase 0 (Lead):** META-CMP registered (team-coordination full rule + team-standards §5.6 + sop-changelog, minimal-footprint per the LEAD-WM1 precedent).
+2. **Quincy:** 4 gates + pre-commit hook (`core.hooksPath`), ~4s always-on, live-tested via real blocked commits. His T2 design choice — AST-scanning template `getattr` defaults, not just config declarations — is what caught the vix gap.
+3. **Adoption findings → dispositions (META-NMF, no hand-patches):**
+   - 5 dual-panel charts failed APP-ST1 #3 (my VIZ-QR1 helper emits no overall title) → **rule amended** (subplot titles satisfy; user-approved visual preserved), Quincy implemented.
+   - vix "Equity curves pending" placeholder live on production → Vera dispatch → **her reconciliation STOP** exposed the real bug: W0.5 `derive_position` (Lead-as-Vera, fix260526) produced a −96% phantom series behind the shipped drawdown/walk_forward charts on 3 pairs. Production showed −96.9% DD under a −21.15% caption.
+4. **ECON-SR1 authored** (reconstruction must reconcile to winner_summary; trade-log replay preferred; series persisted as artifact). **Evan ×2 rounds:** reconciled series ×3 (exact), `derive_position` repaired — **5 bugs** (2 dispatched + 3 latent he found: missing execution lag/lookahead, wrong rolling params, lag-after-threshold) + `reconcile_or_die` gate; OOS dates fixed (vix 2015→2020 start; xlp end off-by-one); subperiod CSVs (vix COVID row −0.47→+2.45), broker CSVs, and indpro_xlp's trade log — which was for the **wrong combination entirely** (Long/Cash artifact vs true Long/Short winner).
+5. **Vera:** 12 charts regenerated via new `generate_strategy_perf_charts.py` (in-producer reconcile gate; recon block in every sidecar), all exact. Found the indpro pairs' ORIGINAL equity charts (pre-W0.5) never reconciled either (implied Sharpe 0.90/0.97 vs true 1.10/1.11) — regenerated. Caught MathJax paired-`$` garbling → **VIZ-TX1**.
+6. **Ray:** 4 prose drifts + declared scope extension (the false "exits to cash" claim across 7 fields; fictional COVID broker walkthrough rewritten against real rows incl. the honest Feb-2020 −8.2%; the 0.90-vs-0.74 B&H copy-drift; stale "no broker CSV" claims ×2 pairs). His commit passed all gates with no bypass.
+7. **Close:** backlog (BL-SCHEMA-GATE struck; BL-XLP-WS-LEGACY added), relnotes, gate suite + hook live-test + local DOM 21/21 → dawodev 21/21 → "Go" → merge (hook ran clean on the merge itself) → production reboot → 21/21 → GH #7 closed with checklist → branch deleted (LEAD-BD1 ask honoured).
+
+### Lessons (this session)
+
+1. **Mode 1 produced verification depth Mode 2 cannot.** Two agents' own discipline gates found 5+ bugs beyond their dispatches (Vera's reconciliation STOP; Evan's validation). The root defect being MY Mode-2 hat-wearing work (W0.5 skipped Vera's reconciliation gate) is the cleanest evidence for LEAD-DL1 yet.
+2. **Mode-2 hat-wearing must include the role's GATES, not just its conventions.** W0.5 followed Vera's chart conventions but skipped her reconciliation discipline. If wearing a hat, run that role's quality gates. (Memories entry added.)
+3. **A new gate's adoption run is an audit — budget for it.** This wave grew from "build 5 scripts" to a 3-pair data rehab. Correct response was scope expansion with stakeholder sign-off, not deferring the findings the gate was built to catch.
+4. **Prose-vs-data must verify WORDS, not just numerals.** "Long/Cash" sat beside CSV-verified numbers through yesterday's DPS-SCD1 pass. Strategy-family words, direction words, and mechanism claims ("exits to cash") need the same artifact grounding as numbers. Tier 3 is the mechanical answer; until then, checker prompts must ask.
+5. **Agent reports are inputs too** — Quincy's "chart is fine, criterion amendment OR title fix — your call" and Vera's STOP both required Lead disposition against user-approved visuals and standards. The ownership map worked: every fix landed in its owner's lane.
+
+---
+
 ## Session: 2026-06-10 evening (GH #9-11 audit triage + fix260610_audit_q shipped)
 
 ### Summary
