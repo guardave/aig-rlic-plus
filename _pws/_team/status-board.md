@@ -1606,3 +1606,17 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 ## Team Insights — 2026-06-12 (Evan)
 
 - Evan: signal_scope.json has a STRICT schema (indicator_axis/target_axis/owner + per-derivative formula/appears_in_charts) — older pair files (indpro_xlp style "in_scope" shape) are NOT a safe template; copy gold_copper_xli's shape or read the schema first.
+
+## 2026-06-12 — Ray: busloans_spy narrative layer complete
+
+- `busloans_spy` narrative DONE on `fix260612_busloans_spy` (commits fc315b2, a7203ef, pushed; META-CMP gates PASS).
+- **Deliverable:** `docs/portal_narrative_busloans_spy_20260612.md` — RES-17 frontmatter schema-valid; RES-11/RES-18 Template A headline; DPS-FE2 found_in_search labelling ("Search-phase OOS Sharpe (no holdout test yet)") + windows on every cited KPI; DPS-SCD1 disclosure (best of 4,396, median 0.74 < B&H 0.89, rank 1 no ties); 7×8-element method blocks; HISTORY_ZOOM_EPISODES + all config prose blocks for Ace.
+- **interpretation_metadata finalised (Ray fields):** expected_direction=countercyclical, strategy_objective=min_mdd (confirmed Evan's suggestion — DD −1.0%, exposure 0.25, return below B&H = min-drawdown profile), mechanism/caveats[8]/narrative_summary written; direction_consistent recomputed=true; RES-OD1/OD1b PASS; schema-valid.
+- **evidence_status confirmed read:** status=found_in_search — binding framing authority; narrative framed accordingly ("found in search, not yet validated out of search").
+- **RES-20 deviation (Lead sign-off requested):** NO long_lead episode asserted — none exists; indicator is confirmed lagging. Triad: covid=coincident, gfc+inflation_2022=failure_case, dotcom=confirmer.
+- **A2A candidate (Lead):** episode slug vocabulary inconsistency — `episode_registry.json` credit category uses `dot_com`/`rates_2022`; META-ZI/DPS-EP1/frontmatter-schema + Vera's charts use `dotcom`/`inflation_2022`; Evan's subperiod_sharpe.csv uses the former. I aligned to chart filenames; registries need reconciliation.
+- **Ace:** config prose blocks at the bottom of the narrative (story_md_intro, story_md_mechanism, strategy_eli5_winner, methodology_eli5, HISTORY_ZOOM_EPISODES). Glossary +6 terms (Lagging indicator, Bootstrap p-value, C&I loans, Credit-line drawdown, Specification curve, Exposure). RES-NR1 check: target_symbol=SPY; references verified: "S&P 500 (SPY)", "Commercial & Industrial Loans (C&I Loans)", BUSLOANS.
+
+## Team Insights — 2026-06-12 (Ray)
+
+- Ray: RES-20's triad assumes a leading indicator — for a confirmed-lagging pair the honest mapping has no long_lead slot. Propose a RES-20 amendment: allow `confirmer`-for-`long_lead` substitution when the pair's lead-lag verdict is reverse-only, with mandatory deviation note.
