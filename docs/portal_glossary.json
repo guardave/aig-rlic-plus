@@ -282,6 +282,42 @@
       "why_it_matters": "OOS is the first honest test of a strategy. However, in tournament designs the OOS window is still used to PICK the winner — so a tournament-OOS Sharpe is not the same as a holdout Sharpe. For pairs that ran a final exam, the holdout result is the dispositive metric, not the OOS result.",
       "example": "This pair's OOS window is 2014-08 to 2020-06 (71 monthly observations). The tournament-OOS Sharpe is 1.32. The separate holdout test (2020-07 onward) returned 0.31, which is the dispositive verdict.",
       "when_it_fails": "Treating tournament-OOS Sharpe as a validated result without a separate holdout test inflates apparent edge by the size of the search-phase data-mining bias."
+    },
+    "Lagging indicator": {
+      "plain_english": "An economic series that moves AFTER the broader economy or the stock market has already turned, confirming what happened rather than predicting what comes next.",
+      "why_it_matters": "Knowing which signals lag prevents the most expensive mistake in indicator-watching: treating a rear-view mirror as a windshield. Lagging series are useful for dating cycles in hindsight, not for forecasting.",
+      "example": "C&I loans (BUSLOANS) are an official component of the Conference Board's Lagging Economic Index: after the GFC, loan growth bottomed in February 2010 — eleven months after stocks had already turned up.",
+      "when_it_fails": "The lead/lag classification itself can shift across regimes; a series that lagged historically could behave differently under a structural change in the credit system."
+    },
+    "Bootstrap p-value": {
+      "plain_english": "The probability, estimated by re-shuffling the data thousands of times, that a result as good as the one observed could arise by pure chance.",
+      "why_it_matters": "Backtests over short windows can look great by luck. The bootstrap p-value asks: if there were no real edge, how often would random resampling produce a Sharpe this high? Convention requires under 5% before calling a result statistically significant.",
+      "example": "The busloans_spy winner's bootstrap p-value is 0.066 — a result this good would arise by chance about 6.6% of the time, just above the 5% bar, so it is NOT statistically significant.",
+      "when_it_fails": "Bootstrap tests assume the resampling scheme preserves the data's relevant structure; strong autocorrelation or regime concentration can make the p-value too optimistic."
+    },
+    "Commercial & Industrial loans (C&I loans)": {
+      "plain_english": "The total amount US commercial banks have lent directly to businesses for operations, inventory, and equipment — tallied by the Federal Reserve's H.8 release (FRED series BUSLOANS).",
+      "why_it_matters": "It is the broadest direct gauge of bank credit flowing to corporate America. Because much of it is drawn from pre-arranged credit lines, the balance can RISE precisely when the economy turns down.",
+      "example": "In May 2020, C&I loans were growing +30% year-over-year — a record — while the stock market was crashing, because firms were drawing emergency credit lines.",
+      "when_it_fails": "The series measures quantity of credit, not willingness to lend; bank lending standards (SLOOS survey) move earlier and tell a different, more forward-looking story."
+    },
+    "Credit-line drawdown": {
+      "plain_english": "When a company taps a pre-arranged borrowing facility (a 'revolver') to pull cash from its bank — like maxing out an emergency credit card.",
+      "why_it_matters": "Drawdowns surge in crises as firms stockpile cash, which makes measured loan balances jump at the worst moments — the mechanism that makes loan growth a lagging/inverse-coincident indicator rather than a health gauge.",
+      "example": "In March–May 2020, mass revolver drawdowns pushed C&I loan growth above +30% year-over-year while SPY fell ~34% peak-to-trough.",
+      "when_it_fails": "Not every loan spike is distress — late-cycle expansions also produce strong genuine borrowing, so the level alone cannot distinguish confidence from panic."
+    },
+    "Specification curve": {
+      "plain_english": "The full distribution of results across EVERY reasonable way an analysis could have been run — not just the version that looked best.",
+      "why_it_matters": "A headline strategy is, by construction, the maximum of a large search. Reporting where it sits in the whole distribution (best of N, versus the median) is what separates honest search from cherry-picking.",
+      "example": "For busloans_spy, the winner is the best of 4,396 valid combinations, while the MEDIAN combination scored OOS Sharpe 0.74 — below buy-and-hold's 0.89.",
+      "when_it_fails": "The curve only covers specifications actually searched; choices made before the search (data, sample, transforms) are outside it."
+    },
+    "Exposure": {
+      "plain_english": "The fraction of time (or capital) a strategy actually spends invested in the market rather than sitting in cash.",
+      "why_it_matters": "A low-exposure strategy can post a high Sharpe ratio mostly by avoiding volatility, not by picking winners — so exposure tells you HOW a strategy earned its risk-adjusted score.",
+      "example": "The busloans_spy winner's mean OOS exposure is 0.25: it was in the market only a quarter of the time, which is why its drawdown was just −1% but its total return trailed buy-and-hold.",
+      "when_it_fails": "Mean exposure hides timing concentration — a strategy 25% exposed could owe all its results to a single lucky stretch of being in."
     }
   }
 }
