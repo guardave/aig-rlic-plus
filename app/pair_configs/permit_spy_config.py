@@ -249,6 +249,156 @@ CORRELATION_BLOCK = dict(
     ),
 )
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "The Correlation block above varies the **forward return horizon** "
+        "(1m / 3m / 6m / 12m) while holding the signal lag fixed at zero - "
+        "answering 'over what cumulative horizon does today's permits reading "
+        "predict SPY?'. That is the natural question for an economist, but it "
+        "is not the question a *monthly-rebalanced strategy* needs answered.\n\n"
+        "A monthly strategy rebalances against the next 1-month return. The "
+        "decision it has to make is: **how stale should the signal be allowed "
+        "to get before we trade on it?** That is a *lead* question, not a "
+        "*horizon* question. This block answers it directly: for each permit "
+        "transorm, we compute Pearson correlations between the signal lagged "
+        "L - 0...12 months and the SPY 1-month forward return, then read off "
+        "which lead value maximises predictive content."
+    ),
+    question=(
+        "If we trade against next month's SPY return, how many months should "
+        "we lag the permits signal before forming a position - and does the "
+        "tournament's choice of L=6 line up with the data?"
+    ),
+    how_to_read=(
+        "Rows are permit signal variants; columns are signal lead in months. "
+        "(L0 = comtemporaneous, L12 = signal from 12 months ago). The forward "
+        "return horizon is fixed at 1 month throughout. Cell shading is "
+        "Pearson r against `spy_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01. "
+        "**The 'best lead' for each row is the column with the largest "
+        "absolute r in that row.**"
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between **signal lagged L months** (columns, "
+        "L = 0...12) and **SPY 1-month forward return** (held fixed). Eight "
+        "permit transforms on the rows. The peak correlations cluster in the "
+        "**L=8-9 columns**, not the L=6 column the tournament selected: the "
+        "tournament's traded signal `mom` peaks at **L=9 (r=+0.149*)**, and "
+        "five other transforms peak at **L=9** with r in the 0.09-0.13 range."
+    ),
+    observation=(
+        "Reading the chart directly: at L=6 (the tournament's choice) most "
+        "rows are weak - `mom` r=+0.022 (not significant), `yoy` r=+0.067, "
+        "`zscore_60m` r=+0.068, `dev_trend` r=+0.046. The only row carrying "
+        "a start at L=6 is `accel` (+0.105*).\n\n"
+        "At **L=8**, six of the eight transforms peak or near-peak. At **L=9**, "
+        "`mom` peaks. Beyond L=10 most rows decay back toward zero. The "
+        "diagonal pattern of significance running from upper-right to "
+        "lower-left across L=7...10 is the visual signature of an L=8-9 "
+        "lead-lag effect, not an L=6 one."
+    ),
+    interpretation=(
+        "Two implications. First, **the natural lead implied is 8-9 months, not 6**. "
+        "This is the monthly-strategy analogue of the horizon-12m peak we see in the "
+        "Correlation block above: the deepest predictability is further out "
+        "than the tournament's L=6 winner, on both the 1m-rebalance view "
+        "(this chart) and the cumulative-horizon view (the Correlation block above).\n\n"
+        "Second, **the L=6 tournament Sharpe is therefore a "
+        "threshold/strategy-combo artefact, not a 'natural' lead "
+        "selection**. A re-run of the tournament on a finer lead grid {0,1,...,12} "
+        "confirms this: L=6 produces the single highest Sharpe but "
+        "only via the specific `S3_mom x T1_p25 x P3_long_short` combination; "
+        "a broad L8-10 plateau exists where multiple "
+        "signal/threshold combinations all reach Sharpe 1.0-1.26 with "
+        "materially lower drawdown. The L=10 best (S3_mom / T2_rp75 / P1) "
+        "lands at Sharpe 1.26 with max DD only -4%, versus -19.4% for the L=6 winner. "
+        "** The L=6 strategy is the single peak; the L8-10 region is the robust ridge.**"
+    ),
+    key_message=(
+        "Switching from a horizon-view to a lead-view confirms the "
+        "Correlation block's read: the data favours **lead = 8-9 months** "
+        "for monthly trading, not lead = 6. The tournament's L=6 winner is "
+        "a single high-Sharpe combination on a single grid point, not a "
+        "natural lead selection - the broader more robust ridge sits at L=8-10."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "The Lead Analysis block above shows what the *correlations* prefer; "
+        "this block shows what the *tournament* prefers when you sweep lead "
+        "exhaustively. We re-ran the full Phase-1 tournament — every "
+        "(signal × threshold × strategy) combination — on a complete monthly "
+        "lead grid L = 0..12 (the original tournament only tested "
+        "{0,1,2,3,6}). The chart plots, at each lead, **the single best OOS "
+        "Sharpe attained at that lead** (blue bar) overlaid against **all "
+        "valid combos** at that lead (grey strip). The dashed orange line is "
+        "SPY buy-and-hold."
+    ),
+    question=(
+        "Is the L=6 winner a tall single peak, or part of a robust ridge of "
+        "leads where many strategies clear buy-and-hold?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each lead. Strip dots: every valid "
+        "(signal × threshold × strategy) combination at that lead — width of "
+        "the cloud at a given lead shows how broadly that lead works. **A "
+        "tall thin spike is a single lucky combo; a flat-but-wide cloud is a "
+        "robust regime.**"
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per lead (blue bars) and the full distribution of "
+        "valid combinations at each lead (grey strip). L=6 produces the "
+        "single highest Sharpe (1.37) but the surrounding combinations are "
+        "broadly distributed; L=8, L=9, L=10 all yield maxima above 1.0 with "
+        "tighter clouds, indicating a more robust ridge of working "
+        "configurations. L=4 and L=5 dip below buy-and-hold (0.89)."
+    ),
+    observation=(
+        "Reading the bars directly: peaks at L=6 (1.37), L=10 (1.26), L=7 "
+        "(1.10), L=9 (1.09), L=8 (1.04). Every other lead from L=0 through "
+        "L=12 sits in the 0.90–1.04 range. The L=6 spike is **0.27 Sharpe "
+        "taller than its immediate neighbours** (L=5: 0.91, L=7: 1.10) — a "
+        "discontinuity that is hard to explain economically and easy to "
+        "explain as a threshold/strategy-combo artefact.\n\n"
+        "Reading the strip dots: at L=6 the cloud is wide and many combos "
+        "sit between 0.5 and 0.9 — only the long/short P3 + p25 quantile + "
+        "S3_mom combination reaches 1.37. At L=8–10 the clouds are more "
+        "concentrated at higher Sharpes — multiple combinations reach the "
+        "1.0–1.2 band concurrently, including conservative long-only P1 "
+        "strategies with much smaller drawdowns (the L=10 winner is "
+        "S3_mom × T2_rp75 × P1 with max DD only −4.0%, versus −19.4% for "
+        "the L=6 winner)."
+    ),
+    interpretation=(
+        "Two implications. First, **L=6's leading-Sharpe status is not "
+        "robust to small perturbations** in lead. If the true latency of the "
+        "permits-equity transmission were genuinely 6 months, we would "
+        "expect L=5 and L=7 to be close behind — they are not.\n\n"
+        "Second, the **L=8–10 ridge agrees with the lead-correlation "
+        "diagnostic** (left tab) which placed peak corr(signal_{t−L}, "
+        "fwd_1m) at L=8–9. Two independent tests now point to the same lead "
+        "region. The L=6 winner is a real out-of-sample result — the trades "
+        "happened, the Sharpe is computed correctly — but it is a **single "
+        "grid-point peak**, not the natural lead the permits series "
+        "implies. A sensible production strategy would either (a) trade at "
+        "L=10 with the long-only variant for materially lower drawdown at "
+        "the cost of ~0.1 Sharpe, or (b) ensemble across L=6, L=9, L=10 "
+        "rather than concentrating on one lead."
+    ),
+    key_message=(
+        "L=6 wins on raw Sharpe but is a thin spike, not a ridge. The "
+        "robust regime lives at L=8–10 where multiple signals and "
+        "strategies clear Sharpe 1.0+ concurrently — and one of them "
+        "(L=10, S3_mom × T2_rp75 × P1) trades at 1.26 Sharpe with max DD "
+        "of just −4%."
+    ),
+)
 
 LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
@@ -379,8 +529,8 @@ EVIDENCE_METHOD_BLOCKS = {
         "list of transforms the tournament considered worth testing; less "
         "informative variants are filtered out before the heatmap is drawn."
     ),
-    "level1": [CORRELATION_BLOCK],
-    "level1_labels": ["Correlation"],
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament"],
     "level2": [LOCAL_PROJECTIONS_BLOCK],
     "level2_labels": ["Local Projections"],
     "tournament_intro": (
