@@ -425,3 +425,15 @@ The initial close lumped four very different categories under one "deferred" buc
 4. **Evan's analyst_suggestions.json** — genuinely future ideas, not gaps: log-ratio signals, DXY-conditional gating, supply-decoupling detector. Forward-looking suggestions, not deferred deliverables.
 
 **Decision (2026-05-26, user):** complete categories 1 + 2 + 3 in this session (Phases 3.5, 4.5, 5.5 + ELI5 polish). Category 4 (Evan suggestions) discussed later.
+
+### 2026-06-12 — Pair busloans_spy (Commercial & Industrial Loans → SPY) — Work Mode Selection
+
+**Pair:** `busloans_spy` — priority combination #19 (I20 = FRED BUSLOANS, monthly, $bn, SA) × SPY. Branch `fix260612_busloans_spy`.
+
+**LEAD-DV1 finding at SOD:** the Data Master's "C&I Loan" sheet is NOT loan volumes — Pre-master row 2 identifies it as the SLOOS Net % of Banks Tightening Standards (C&I, small firms; percent, quarterly, NSA). The `indicator_map.yaml` "C&I Loan" → `ci_loan` entry mislabels that survey as "Commercial & Industrial Loans"; `prospective_pairs.csv` ci_loan rows inherit the mislabel. Resolution: this pair uses NEW indicator_id `busloans` (FRED fetch by Dana); the `ci_loan` mislabel is corrected in the same wave (Dana's lane). Two distinct series stay distinct ids per LEAD-DV1.
+
+**Lead recommendation: Mode 1.** Reasons: (a) new sub-category — bank-credit QUANTITY aggregate vs the existing credit-SPREAD pair (hy_ig); (b) genuine method-selection depth needed — C&I loans are famously lagging/coincident (credit lines drawn into downturns; loan growth peaks after recessions start), so direction may surprise (INDPRO z-score precedent) and trend-dominated levels demand careful transform choice; (c) first NEW pair under the full current standards stack (META-CMP gates, ECON-SR1, ECON-T4, DPS-SCD1/VIZ-SCD1, VIZ-QR1, DPS-LF1, downloads, CP-on-Confidence) — SOP-friction findings likely, and Mode-1 agent reflection is how rules get written authentically; (d) precedent — crude_oil_xle (Mode 2, new category) produced the W0.5 defect class; the 2026-06-11 Mode-1 wave produced 5-bugs-beyond-dispatch verification depth.
+
+**User decision: Mode 1** ("Go", 2026-06-12).
+
+**Pipeline plan:** Dana (BUSLOANS fetch + validation + ci_loan mislabel fix) → Evan (econometrics + tournament per ECON-SR1/T3/T4) → Vera + Ray (charts + narrative) → Ace (portal assembly) → Quincy (GATE-DPS1 + cloud verify). All under the active pre-commit hook.
