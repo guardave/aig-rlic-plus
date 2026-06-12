@@ -733,8 +733,12 @@ No formulas — three steps:
     # §winner-overview / §signal-generation and the Methodology data table
     # (no new claims) — pending Ray review.
     MANUAL_USE_MD = (
-        "If you want to track this signal yourself — no code required — "
-        "the monthly routine is:\n\n"
+        "First, the framing: what follows describes how the backtested "
+        "rule works so you can replicate and audit it — it is **not** a "
+        "recommendation to trade it. This rule is a search-phase finding "
+        "(best of 4,396 tried; no holdout test yet; bootstrap p = 0.066, "
+        "not significant at 5%). With that understood, the monthly "
+        "routine — no code required — is:\n\n"
         "1. **Pull the loan series** — FRED series `BUSLOANS` (C&I loans "
         "outstanding, all commercial banks, seasonally adjusted; the H.8 "
         "release publishes with a ~2–3 week lag).\n"
