@@ -1,6 +1,20 @@
 # Outstanding work — Lead Lesandro
 
-Last updated: 2026-06-11 EOD.
+Last updated: 2026-06-12 EOD.
+
+---
+
+## ⚠ FIRST ITEM NEXT SESSION — production verify of c8f73a6
+
+`busloans_spy` merged to main at `c8f73a6` and pushed, but the **production reboot + post-merge production sweep did NOT happen** before EOD (user invoked /eod at the reboot-request step). Next session: confirm user rebooted production → run the busloans cloud sweep against `https://aig-rlic-plus.streamlit.app` (script pattern at /tmp/busloans_cloud.py — note its 2 Evidence checks must probe frame HTML, not visible text) → also verifies vichua's `f70d29b` permit lead-correlation (was already awaiting deploy). Until then, production trails main by the whole wave.
+
+## Items added/updated 2026-06-12
+
+- **busloans_spy shipped** (Pair #19, 9th portal pair, first full Mode-1 pair pipeline). DPS-PRE1 waiver recorded in pair_execution_history; **ECON-FE1 final exam = the pair's next milestone** (documented in `results/busloans_spy/evidence_status.json` next_step) — natural trigger: enough post-search data or a holdout protocol decision.
+- **`fix260612_busloans_spy` branch:** merged, NOT yet deleted — ask user per LEAD-BD1 next session.
+- **META-A2A live** (team-coordination §META-A2A, standards §5.7).
+- Backlog +3: BL-EPISODE-SLUGS (slug vocabulary reconciliation wave), BL-PLOTLY-TITLE-WRAP (cosmetic), BL-CARD-DENOM (cosmetic). Dana's note: `scripts/build_prospective_pairs.py` may reintroduce the ci_loan mislabel on regeneration — fold a generator-side fix into the next data-infra touch (not yet a BL row; add if the generator is touched first).
+- Vera flagged her `_LOCAL_INDICATOR_LABELS` fallback in the SR1 chart script as removable now display_names has busloans entries — fold into her next touch.
 
 ---
 

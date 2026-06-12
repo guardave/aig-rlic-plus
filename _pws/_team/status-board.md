@@ -1667,3 +1667,22 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 - Report updated with closure block: `results/busloans_spy/qa_verification_20260612.md`. **Verdict: READY** for Lead merge-readiness review.
 
 🤖 Agent: QA Quincy
+
+---
+
+## 2026-06-12 — Lead Lesandro — COMPLETED (EOD) — ⚠ production verify pending
+
+**Status:** busloans_spy (Pair #19) merged to main at `c8f73a6` (authorised). **Production reboot + post-merge sweep NOT yet run — first item next session.** First full Mode-1 PAIR pipeline; META-A2A codified mid-wave.
+
+**Wave roll-up (per-agent detail in agents' own entries):**
+- LEAD-DV1 pre-fetch catch: Data Master "C&I Loan" = SLOOS survey, not loan volumes; ci_loan corrected, busloans registered distinct.
+- Evan: BUSLOANS LAGS SPY (reverse-only Granger); winner = defensive counter overlay, search-phase 1.50 vs 0.89 B&H with unsoftened fragility (p=0.066 n.s., median 0.74 < B&H); first-ever evidence_status.json (found_in_search).
+- Vera 21 charts (SR1-reconciled) ∥ Ray narrative (lagging verdict headline; RES-20 lagging-pair variant codified) → Ace (first live DPS-FE2 routing, byte-identical legacy proof) → Quincy (QA-1 blocking found: manifest-sidecar glob collision → blank landing card; Ace 2-line fix; re-verified READY).
+- DPS-PRE1 waived this wave (compensating control: found_in_search routing + disclosure; ECON-FE1 next milestone).
+- dawodev sweep ALL PASS (2 false FAILs in Lead's sweep were visible-text-vs-expander artifacts — probe frame HTML for content presence).
+
+**Insights:** dormant standards found their case (DPS-FE2/RES-CAP1 first activation); new artifact classes break old globs (grep consumers when introducing a file class); good handoffs pre-empt the A2A channel — its value is the escalation discipline.
+
+**Outstanding:** production reboot+sweep (FIRST); branch deletion ask (LEAD-BD1); ECON-FE1 final exam for busloans; GH #4; pair4_prep resume (retrofit debt keeps growing); backlog 42 active.
+
+🤖 Agent: Lead Lesandro

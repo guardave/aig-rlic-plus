@@ -1,5 +1,28 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-06-12 (busloans_spy — first full Mode-1 PAIR pipeline; META-A2A codified)
+
+### Summary
+
+New pair `busloans_spy` (C&I Loans → SPY, priority #19) built end-to-end in one session by the full Mode-1 pipeline and merged at `c8f73a6` (user-authorised). **⚠ Production reboot + post-merge production sweep NOT yet done at EOD — first item next session.** Also codified META-A2A mid-wave (stakeholder question → rule same day).
+
+1. **LEAD-DV1 pre-fetch catch:** Data Master's "C&I Loan" sheet = SLOOS tightening survey, NOT loan volumes. `ci_loan` mislabel corrected (Dana); `busloans` registered distinct, fetched fresh from FRED. The rule paid for itself before any work was wasted.
+2. **META-A2A codified** (`e65d8d5`): direct producer↔consumer semantics Q&A; artifact/rule/scope changes still via Lead; verification triangulates against the authority, never iterate-until-match. First wave: zero relay round-trips needed; 2 A2A-candidate escalations (episode slugs → BL-EPISODE-SLUGS).
+3. **Pipeline:** Dana (952m BUSLOANS, COVID-spike sanity PASS) → Evan (6,100-combo tournament; **reverse-only Granger — BUSLOANS LAGS SPY**; winner = defensive counter overlay 1.50 Sharpe with fragility block: bootstrap p=0.066 n.s., IS 0.35, median 0.74 < B&H 0.89; ECON-SR1 reconciled ×3; first-ever `evidence_status.json` = `found_in_search`) → Vera (21 charts, 14/14 H4, SR1-reconciled, perceptual eyeball caught 3 render defects) ∥ Ray (narrative leading with the lagging verdict; RES-20 lagging-pair deviation → Lead signed off + codified the variant) → Ace (config + wrappers + **first live DPS-FE2 routing** with byte-identical regression proof; MANUAL_USE_MD assembled → Ray author-review added front-loaded non-recommendation) → Quincy (GATE-DPS1 ex-waiver clean, GATE-29 clean-checkout PASS, DOM sweep → **QA-1 blocking**: registry glob swallowed the pair's META-CMP manifest sidecar → blank landing card; Ace fixed 2 lines with legacy byte-identity; re-verified READY).
+4. **Governance:** DPS-PRE1 waived this wave (found_in_search routing + plain_english disclosure = compensating control; ECON-FE1 next milestone, documented in evidence_status.next_step). Mode-1 recommendation logged + validated in pair_execution_history.
+5. **Cloud sweep on dawodev:** ALL PASS (2 initial Evidence FAILs were MY sweep artifacts — visible inner_text doesn't traverse collapsed expanders; full-HTML probe confirmed 20 download-button elements + Granger needles present).
+6. Backlog +3: BL-EPISODE-SLUGS, BL-PLOTLY-TITLE-WRAP, BL-CARD-DENOM.
+
+### Lessons (this session)
+
+1. **Dormant standards find their case.** DPS-FE2/evidence_status/RES-CAP1 sat unused since authoring; the first genuinely fragile pair activated all three. Writing rules for hypothetical failure modes is not waste — it means when the case arrives, the honest framing is mechanical, not a debate.
+2. **New artifact classes break old globs.** QA-1: first pair carrying META-CMP manifest sidecars broke `startswith("tournament_results")`. When a wave introduces a new file class, grep consumers for loose globs in the same namespace.
+3. **DOM-sweep assertion craft:** visible `inner_text` misses expander/lazy content — assert content-PRESENCE against frame HTML, placement against visible text. My sweep produced 2 false FAILs that Quincy's HTML-based method avoided. (Matches the documented cloud_verify get_dom design: it returns BOTH text and html for exactly this reason — I should have copied the canonical pattern fully.)
+4. **Good handoff docs pre-empt the A2A channel** — zero clarification round-trips because producers' sidecars/manifests answered everything. The channel's real value is its escalation discipline (two findings routed correctly).
+5. **The honest-verdict pair is a portal asset, not a failure** — "leading-indicator catalogue documents a lagging indicator, search's best is statistically insignificant" exercised exactly the disclosure machinery the stakeholder's rigor standards demand.
+
+---
+
 ## Session: 2026-06-11 (GH #7 META-CMP Tier 1+2 + ECON-SR1 rehab — first full Mode-1 wave)
 
 ### Summary
