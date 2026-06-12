@@ -1,5 +1,26 @@
 # Release Notes
 
+## 2026-06-12 — New pair: busloans_spy (Commercial & Industrial Loans → SPY), Mode 1
+
+**Branch `fix260612_busloans_spy`** — priority combination #19; first new pair built under the full current standards stack, and the first full Mode-1 pair pipeline (Dana → Evan → Vera ∥ Ray → Ace → Quincy).
+
+### The pair's honest verdict
+
+- **BUSLOANS lags SPY** — reverse-only Granger at every lag (forward min p=0.257; reverse max p=0.0115), corroborated by local projections, transfer entropy, CCF. A leading-indicator catalogue honestly documenting a Conference Board *Lagging* Index component; the COVID credit-line-drawdown spike (+30% YoY while SPY crashed) is the signature episode.
+- Tournament winner: defensive counter overlay (long SPY only when lagged MoM loan growth sits in the bottom quartile of its trailing 36m range) — search-phase OOS Sharpe 1.50 vs 0.89 B&H, max DD −1.0%, rank 1 of 4,396, no ties — shipped with unsoftened fragility disclosure: bootstrap p=0.066 (n.s.), IS 0.35 vs OOS 1.50, episode-concentrated, median valid strategy (0.74) BELOW buy-and-hold.
+
+### Firsts exercised by this wave
+
+- **DPS-FE2 KPI routing live** for the first time: Evan emitted the first `evidence_status.json` (`found_in_search`); Ace wired the routing matrix template-level ("Search-phase OOS Sharpe (no holdout test yet)" labels + plain-English disclosure box) with a byte-identical regression proof for pairs without the file. **DPS-PRE1 waived this wave** (Lead): no holdout exists by design; the routing + disclosure is the compensating control; ECON-FE1 final exam documented as the pair's next milestone.
+- **META-A2A's first wave:** zero relay round-trips needed; two A2A-candidate escalations handled (episode-slug vocabulary → BL-EPISODE-SLUGS).
+- **LEAD-DV1 catch before any data moved:** the Data Master's "C&I Loan" sheet is the SLOOS tightening survey, not loan volumes — `ci_loan` display corrected, `busloans` registered as a distinct indicator fetched fresh from FRED.
+- **RES-20 lagging-pair variant** codified (a reverse-only-causal pair cannot have a `long_lead` episode).
+- QA found one blocking defect (QA-1: the registry's tournament-file glob swallowed the pair's META-CMP manifest sidecar → blank landing card — first pair to carry such sidecars); Ace fixed with legacy byte-identical proof; Quincy re-verified READY. Checker iterations: 1.
+
+### Backlog deltas
+
++BL-EPISODE-SLUGS (slug vocabulary clash), +BL-PLOTLY-TITLE-WRAP (cosmetic nested bold, portal-wide, pre-existing), +BL-CARD-DENOM (card denominator includes benchmark row).
+
 ## 2026-06-11 — META-CMP Completeness Forcing Functions, Tier 1+2 (GH #7)
 
 **Branch `fix260611_meta_cmp`** — first Mode-1 wave since LEAD-DL1: Lead registered the rule; Quincy built the gates; Vera fixed what the gates caught.
