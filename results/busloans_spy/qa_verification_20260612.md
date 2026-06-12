@@ -76,6 +76,22 @@ Minor notes (non-blocking):
 
 ## Verdict
 
-**NOT READY** for Lead's dawodev request until QA-1 is fixed by Ace. Re-verify scope after fix: landing page DOM + `load_pair_registry()` unit reproduction only — all pair-page, gate, and triangulation results stand.
+~~**NOT READY** for Lead's dawodev request until QA-1 is fixed by Ace. Re-verify scope after fix: landing page DOM + `load_pair_registry()` unit reproduction only — all pair-page, gate, and triangulation results stand.~~ **Superseded — see QA-1 closure below.**
+
+## QA-1 Closure — Re-verify (2026-06-12, Quincy, post-`d8d656b`)
+
+Ace's fix `d8d656b` (`pair_registry.py` tournament glob restricted to `.csv`, latest-dated selection). Re-verify scope as stated: landing page only. Evidence: `temp/260612_qa_busloans/reverify/` (landing.txt + landing.png).
+
+| Check | Result |
+|---|---|
+| Unit reproduction: `load_pair_registry()` busloans entry | **PASS** — `{best_oos_sharpe: 1.5, bh_sharpe: 0.89, valid_combos: 4396, max_drawdown: -1.0, bh_drawdown: -23.9, nature: lagging, type: credit, objective: min_mdd}`; integrity issues for busloans: **empty** |
+| Landing DOM: busloans card KPIs | **PASS** — Sharpe 1.50 / 0.89, Max DD −1.0% / −23.9%, Valid 4,396 / 6,101, chips Lagging · Credit · Min MDD |
+| Other 8 cards vs captured baseline (`dom_text/landing.txt`) | **PASS** — unified diff shows ONLY the busloans KPI rows changed; additionally the "1 pair(s) have incomplete classification metadata" integrity banner disappeared (it was a QA-1 symptom — correct removal) |
+| Error banners / "0 / 0" / tracebacks | **PASS** — zero |
+| Console errors | **PASS** — zero (the previously-noted 2×404 static-asset hit did not recur this run) |
+
+Note: card denominator shows 6,101 (= tournament CSV rows incl. the valid=False BENCHMARK row) vs winner_summary `total_combos` 6,100 — same display convention as all existing cards (e.g. hy_ig "2,036 / 2,167"); the dispatch-required valid numerator 4,396 is correct. Non-blocking, pre-existing convention.
+
+**QA-1: CLOSED. Updated verdict: READY** for Lead's merge-readiness review / dawodev request.
 
 🤖 Agent: QA Quincy

@@ -1660,3 +1660,10 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 
 - **QA-1 FIXED**, commit `d8d656b` (pushed, hook gates PASS). Root cause confirmed as Quincy diagnosed: pair_registry's `startswith("tournament_results")` listdir filter picked busloans' `_manifest.json` sidecar → ParserError → blank card. Fix: `.csv`-only filter + `sorted(...)[-1]` (latest dated). Verified: registry unit (1.5/0.89, −1.0/−23.9, 4,396/6,101; legacy 8 pairs unchanged) + landing DOM render + smoke --all 9/9. **Quincy:** narrow re-verify (landing only) ready.
 - **N-1 (nested `<b><b>` plotly titles): NOT Vera's, NOT mine** — pre-existing portal-wide Streamlit plotly-theme title double-wrap (gold_copper strategy shows 9 identical hits; chart JSONs contain zero `<b>`). Visually harmless. Left untouched — suggest backlog row (platform-level, all pairs).
+
+## 2026-06-12 — Quincy: QA-1 closed — busloans_spy READY
+
+- Re-verified Ace's `d8d656b` (landing only, per stated scope): unit reproduction PASS; busloans card Sharpe 1.50/0.89, DD −1.0%/−23.9%, Valid 4,396/6,101, chips Lagging·Credit·Min MDD; other 8 cards byte-identical vs baseline; integrity banner correctly gone; zero errors/console errors.
+- Report updated with closure block: `results/busloans_spy/qa_verification_20260612.md`. **Verdict: READY** for Lead merge-readiness review.
+
+🤖 Agent: QA Quincy

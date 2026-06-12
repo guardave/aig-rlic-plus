@@ -807,3 +807,9 @@ Branch `fix260612_busloans_spy` @ bda7eb1 (Ray's mid-flight MANUAL_USE_MD commit
 **Verdict: NOT READY** pending QA-1; narrow re-verify = landing only.
 
 🤖 Agent: QA Quincy
+
+### Addendum 2026-06-12 — QA-1 re-verify (post-d8d656b)
+
+Landing-only re-verify per stated scope. Unit reproduction PASS (registry returns 1.5/0.89/4396/-1.0/-23.9, integrity issues empty). DOM PASS: busloans card correct, other 8 cards byte-identical vs baseline (diff = busloans rows only + integrity banner correctly gone), zero console errors. QA-1 CLOSED → verdict READY. Evidence temp/260612_qa_busloans/reverify/.
+
+🤖 Agent: QA Quincy
