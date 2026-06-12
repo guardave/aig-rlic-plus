@@ -155,7 +155,16 @@ def load_pair_registry():
             interp = json.load(f)
 
         # Find tournament results
-        tourn_files = [f for f in os.listdir(pair_path) if f.startswith("tournament_results")]
+        # QA-1 fix (2026-06-12, fix260612_busloans_spy): restrict to .csv —
+        # META-CMP sidecars like tournament_results_{date}_manifest.json
+        # share the prefix; os.listdir order is arbitrary, so the manifest
+        # could be selected, fail pd.read_csv (ParserError), and blank the
+        # card. sorted() + [-1] prefers the latest dated CSV if several
+        # exist (matches _latest_dated_file's intent in page_templates).
+        tourn_files = sorted(
+            f for f in os.listdir(pair_path)
+            if f.startswith("tournament_results") and f.endswith(".csv")
+        )
         best_sharpe = None
         bh_sharpe = None
         valid_count = 0
@@ -165,7 +174,7 @@ def load_pair_registry():
 
         if tourn_files:
             import pandas as pd
-            tourn_path = os.path.join(pair_path, tourn_files[0])
+            tourn_path = os.path.join(pair_path, tourn_files[-1])
             try:
                 tdf = pd.read_csv(tourn_path)
                 total_count = len(tdf)
