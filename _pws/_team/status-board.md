@@ -1584,3 +1584,13 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Branch state at EOD:** `main` = `6301e13` + EOD commit, production-verified. Remote: main, fix260602_pair4_prep (SUSPENDED), feature/hy_ig_execution_panel (YYY), feature/indicator-evaluation-sop (YYY), rescue-my-work (Rex).
 
 🤖 Agent: Lead Lesandro
+
+## 2026-06-12 — Dana: busloans_spy data stage complete
+
+- `busloans_spy` (Pair #19, Mode 1) data stage DONE on `fix260612_busloans_spy`. Parquet 953×21 (1947-01→2026-05, month-end), all DATA-D5/D6/D13 validators exit 0. COVID drawdown-spike sanity PASS (+30.1% peak YoY).
+- **Evan:** handoff at `results/_cross_agent/handoff_evan_busloans_spy_20260612.md`. Direction prior is AMBIGUOUS-TO-LAGGING (Conference Board lagging component; loans spike INTO downturns) — do not assume procyclical. Lag floor L1–L2 (H.8 publication lag).
+- ci_loan mislabel fixed (LEAD-DV1): Data Master "C&I Loan" = SLOOS tightening survey, relabeled in indicator_map.yaml + prospective_pairs.csv; `busloans` registered as distinct indicator.
+
+## Team Insights — 2026-06-12
+
+- Dana: sidecar/display-name generation must READ `display_name_registry.csv` before writing — shared canonical columns (dgs10, spy, vix…) already have registry names that win verbatim (DATA-D13).

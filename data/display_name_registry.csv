@@ -50,3 +50,20 @@ spy_fwd_21d,SPY 21-Day Forward Return,decimal_return,21d Fwd Return
 spy_fwd_63d,SPY 63-Day Forward Return,decimal_return,63d Fwd Return
 spy_fwd_126d,SPY 126-Day Forward Return,decimal_return,126d Fwd Return
 spy_fwd_252d,SPY 252-Day Forward Return,decimal_return,252d Fwd Return
+busloans_usd,C&I Loans Outstanding ($bn),usd,C&I Loans ($bn)
+unrate,Unemployment Rate (%),pct,Unemployment (%)
+fed_funds,Fed Funds Rate (%),pct,Fed Funds (%)
+busloans_pct_yoy,C&I Loans YoY (%),pct,C&I Loans YoY (%)
+busloans_pct_mom,C&I Loans MoM (%),pct,C&I Loans MoM (%)
+busloans_3m_pct,C&I Loans 3M Change (%),pct,C&I Loans 3M (%)
+busloans_6m_pct,C&I Loans 6M Change (%),pct,C&I Loans 6M (%)
+busloans_ma12_usd,C&I Loans 12M MA ($bn),usd,C&I Loans 12M MA ($bn)
+busloans_dev_trend_pct,C&I Loans Deviation from 12M Trend (%),pct,Dev. from 12M MA (%)
+busloans_zscore_60m,C&I Loans 60M Z-Score,none,Z-score (60M)
+busloans_yoy_zscore_60m,C&I Loan Growth 60M Z-Score,none,YoY z-score (60M)
+busloans_accel_pct,C&I Loan Growth Acceleration (pp),pct,MoM accel. (pp)
+busloans_contraction,C&I Loan Contraction Flag,none,Contraction (0/1)
+spy_fwd_1m,SPY Forward 1M Return,decimal_return,SPY fwd 1M
+spy_fwd_3m,SPY Forward 3M Return,decimal_return,SPY fwd 3M
+spy_fwd_6m,SPY Forward 6M Return,decimal_return,SPY fwd 6M
+spy_fwd_12m,SPY Forward 12M Return,decimal_return,SPY fwd 12M

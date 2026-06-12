@@ -1,0 +1,19 @@
+variable,test,statistic,p_value,lags,conclusion
+busloans_usd,ADF,2.3566,0.999,4,Non-stationary
+busloans_usd,KPSS,4.1274,0.0001,19,Reject stationarity at 5%
+busloans_pct_yoy,ADF,-4.5316,0.0002,12,Stationary at 5%
+busloans_pct_yoy,KPSS,0.6442,0.0176,18,Reject stationarity at 5%
+busloans_pct_mom,ADF,-7.0022,0.0,12,Stationary at 5%
+busloans_pct_mom,KPSS,0.6055,0.0218,15,Reject stationarity at 5%
+busloans_3m_pct,ADF,-7.0985,0.0,12,Stationary at 5%
+busloans_3m_pct,KPSS,0.5966,0.0229,16,Reject stationarity at 5%
+busloans_6m_pct,ADF,-5.8314,0.0,12,Stationary at 5%
+busloans_6m_pct,KPSS,0.601,0.0224,18,Reject stationarity at 5%
+busloans_zscore_60m,ADF,-5.8939,0.0,10,Stationary at 5%
+busloans_zscore_60m,KPSS,0.7281,0.011,18,Reject stationarity at 5%
+busloans_yoy_zscore_60m,ADF,-3.9597,0.0016,12,Stationary at 5%
+busloans_yoy_zscore_60m,KPSS,0.1116,0.5311,18,Fail to reject stationarity
+busloans_dev_trend_pct,ADF,-6.9897,0.0,12,Stationary at 5%
+busloans_dev_trend_pct,KPSS,0.6068,0.0216,18,Reject stationarity at 5%
+spy_ret,ADF,-10.8875,0.0,2,Stationary at 5%
+spy_ret,KPSS,0.1585,0.3654,3,Fail to reject stationarity
