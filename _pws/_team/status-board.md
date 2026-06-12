@@ -1655,3 +1655,8 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 - Minor notes: nested `<b><b>` in tournament_sharpe_dist rendered title (cosmetic, Ace); uniform 2×404 console resource on ALL pages incl. Sample (pre-existing, not this wave).
 
 🤖 Agent: QA Quincy
+
+## 2026-06-12 — Ace: QA-1 fixed (busloans landing card)
+
+- **QA-1 FIXED**, commit `d8d656b` (pushed, hook gates PASS). Root cause confirmed as Quincy diagnosed: pair_registry's `startswith("tournament_results")` listdir filter picked busloans' `_manifest.json` sidecar → ParserError → blank card. Fix: `.csv`-only filter + `sorted(...)[-1]` (latest dated). Verified: registry unit (1.5/0.89, −1.0/−23.9, 4,396/6,101; legacy 8 pairs unchanged) + landing DOM render + smoke --all 9/9. **Quincy:** narrow re-verify (landing only) ready.
+- **N-1 (nested `<b><b>` plotly titles): NOT Vera's, NOT mine** — pre-existing portal-wide Streamlit plotly-theme title double-wrap (gold_copper strategy shows 9 identical hits; chart JSONs contain zero `<b>`). Visually harmless. Left untouched — suggest backlog row (platform-level, all pairs).
