@@ -296,3 +296,4 @@ loan-spike paradox; (2) DPS-FE2 found_in_search labels on every KPI; (3) fragili
 (4) strategy_objective=min_mdd confirmed; expected_direction finalised countercyclical (traded transform).
 RES-20 deviation: no long_lead episode (honest). Slug vocabulary clash between episode_registry.json and
 META-ZI canonical list discovered and escalated; aligned to Vera's chart filenames.
+- 2026-06-12 (A2A review, Lead-dispatched): reviewed Ace's config 0008aa3 — verbatim ports clean, ONE_SENTENCE_THESIS carries lagging verdict + search-phase qualifier (no naked 1.50), MANUAL_USE_MD artifact-true but RES-CAP1 framing strengthened (non-recommendation disclosure front-loaded); single prose edit, CONFIG-PARSE-CHECK OK, committed+pushed.
