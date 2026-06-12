@@ -1,0 +1,44 @@
+{
+  "chart_name": "equity_curves",
+  "pair_id": "busloans_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-SR1",
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Out-of-sample cumulative growth per dollar invested: winner strategy ends at 2.38 vs 3.05 for buy-and-hold SPY (2018-02-28 to 2026-05-31). Series: reconciled canonical strategy returns (ECON-SR1). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Winner-vs-buy-and-hold cumulative growth for the Strategy page Performance tab; endpoints re-read from the canonical series at generation time.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/busloans_spy/strategy_returns_20260612.csv",
+    "results/busloans_spy/winner_summary.json"
+  ],
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.499893,
+      "reported_winner_summary": 1.4999,
+      "diff": -7e-06,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.01019,
+      "reported_winner_summary": -0.0102,
+      "diff": 1e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.109397,
+      "reported_winner_summary": 0.1067,
+      "diff": 0.002697,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-12T09:10:28.491257+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_strategy_perf_charts.py (fix260611_meta_cmp, ECON-SR1 consumer)"
+}

@@ -1,0 +1,21 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "busloans_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-V3",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Toda-Yamamoto Granger F-statistics at lags 1\u201312, both directions. SPY \u2192 C&I Loans (vermillion) clears the 5% critical line at every lag (max p = 0.0115); C&I Loans \u2192 SPY (pale blue) clears it at none (min p = 0.257). The reverse-only profile is the textbook signature of a lagging indicator.",
+  "narrative_alignment_note": "Reverse direction rendered as the visually primary series per Lead dispatch \u2014 the reverse-only result IS the finding.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/busloans_spy/core_models_20260612/granger_causality.csv",
+    "results/busloans_spy/granger_by_lag.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-12T09:14:03.283446+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)"
+}

@@ -1,0 +1,31 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "busloans_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.3",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "C&I Loans YoY growth over the test sample (1993-08\u20132026-05, n = 394) with the Quandt-Andrews candidate break date (2002-10). The test does NOT flag a break (sup-F 3.60, residual-bootstrap p = 0.30) \u2014 parameter instability shows up in the rolling correlation's sign, not as a one-time break. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Annotation-only chart per ECON-H4 ('not flagged'); values from JSON.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/busloans_spy/structural_break_busloans_spy.json",
+    "data/busloans_spy_monthly_19470131_20260531.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-12T09:12:47.107357+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)",
+  "break_date": "2002-10-31",
+  "annotation_strategy_id": "manual_override",
+  "annotation_overrides": [
+    {
+      "annotation_idx": 0,
+      "y_offset": "paper 0.95",
+      "rationale": "single break-label placed per VIZ-CP1.3 spec (y=0.95, yref=paper)"
+    }
+  ]
+}

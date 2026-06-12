@@ -57,6 +57,17 @@ sys.path.insert(0, str(REPO / "app"))
 from _nber import add_nber_shading  # noqa: E402
 from components.display_names import SHORT_INDICATOR_LABELS  # noqa: E402
 
+# VIZ-NS1 fallback labels for pairs not yet registered in Ace's
+# display_names.py (raw pair_id tokens are prohibited on user surfaces).
+# Flagged to Ace in the per-pair handoff; remove once the registry entry lands.
+_LOCAL_INDICATOR_LABELS = {
+    "busloans_spy": "C&I Loans",
+}
+
+
+def indicator_label(pair: str) -> str:
+    return SHORT_INDICATOR_LABELS.get(pair) or _LOCAL_INDICATOR_LABELS.get(pair, pair)
+
 # ── Palette (docs/schemas/color_palette_registry.json :: okabe_ito_2026) ──
 PALETTE_ID = "okabe_ito_2026"
 _REG = json.loads((REPO / "docs/schemas/color_palette_registry.json").read_text())
@@ -246,7 +257,7 @@ def strategy_label(w: dict) -> str:
 def make_equity_curves(pair: str, oos: pd.DataFrame, w: dict, meta: dict,
                        ann: int, recon: dict, sources: list[str]) -> None:
     target = (w.get("target_symbol") or pair.split("_")[-1]).upper()
-    ind = SHORT_INDICATOR_LABELS.get(pair, pair)
+    ind = indicator_label(pair)
     eq = (1 + oos["strategy_return"].astype(float)).cumprod()
     bh = (1 + oos["bh_return"].astype(float)).cumprod()
     y0, y1 = meta["oos_start"][:4], meta["oos_end"][:4]
@@ -375,7 +386,7 @@ def make_subperiod_sharpe(pair: str, can: pd.DataFrame, w: dict, meta: dict,
     csv_path = REPO / "results" / pair / "subperiod_sharpe.csv"
     rows = pd.read_csv(csv_path)
     target = (w.get("target_symbol") or pair.split("_")[-1]).upper()
-    ind = SHORT_INDICATOR_LABELS.get(pair, pair)
+    ind = indicator_label(pair)
 
     labels, values, colors, texts = [], [], [], []
     for _, r in rows.iterrows():
@@ -444,7 +455,13 @@ def run(pair: str, include_subperiod: bool = True) -> None:
 
 
 if __name__ == "__main__":
-    pairs = sys.argv[1:] or ["vix_vix3m_spy", "indpro_spy", "indpro_xlp"]
+    args = sys.argv[1:]
+    # --no-subperiod: skip make_subperiod_sharpe (e.g. busloans_spy, whose
+    # subperiod CSV uses the episode/ann_sharpe/data_status schema and is
+    # charted by the pair generator instead).
+    include_sub = "--no-subperiod" not in args
+    pairs = [a for a in args if not a.startswith("--")] or [
+        "vix_vix3m_spy", "indpro_spy", "indpro_xlp"]
     for p in pairs:
-        run(p)
+        run(p, include_subperiod=include_sub)
     print("\nAll pairs done.")

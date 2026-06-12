@@ -1,0 +1,44 @@
+{
+  "chart_name": "walk_forward",
+  "pair_id": "busloans_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-SR1",
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Rolling 12-month annualized Sharpe of the winner strategy vs buy-and-hold SPY over the out-of-sample window; dashed reference line at the reported OOS Sharpe (1.50, winner_summary). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Rolling-Sharpe walk-forward view for the Strategy page Confidence tab, built from the ECON-SR1 canonical series.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/busloans_spy/strategy_returns_20260612.csv",
+    "results/busloans_spy/winner_summary.json"
+  ],
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.499893,
+      "reported_winner_summary": 1.4999,
+      "diff": -7e-06,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.01019,
+      "reported_winner_summary": -0.0102,
+      "diff": 1e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.109397,
+      "reported_winner_summary": 0.1067,
+      "diff": 0.002697,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-12T09:10:31.964611+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_strategy_perf_charts.py (fix260611_meta_cmp, ECON-SR1 consumer)"
+}

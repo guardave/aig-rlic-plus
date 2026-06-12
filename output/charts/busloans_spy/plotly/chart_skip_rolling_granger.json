@@ -1,0 +1,8 @@
+{
+  "chart_name": "rolling_granger",
+  "pair_id": "busloans_spy",
+  "skipped_by": "VIZ-CP1-G",
+  "reason": "ECON-CP2 artifacts intentionally absent for this pair: regime_story=false in results/busloans_spy/signal_scope.json (Evan handoff \u00a75 units note). No upstream result file exists to chart.",
+  "generated_at": "2026-06-12T09:12:57.653276+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)"
+}

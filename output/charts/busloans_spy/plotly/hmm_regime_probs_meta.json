@@ -1,0 +1,27 @@
+{
+  "chart_name": "hmm_regime_probs",
+  "pair_id": "busloans_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Probability that C&I Loans YoY growth is in its high-variance regime (2-state HMM). The high-variance state covers ~73% of the 1948\u20132026 sample and pins to 1.0 through the COVID credit-line episode (verified against the manifest assertion at generation time). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Labels follow hmm_states_manifest.json semantics ('stress' = high-variance YoY-growth regime), relabelled in plain English to avoid implying equity stress.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/busloans_spy/core_models_20260612/hmm_states.parquet",
+    "results/busloans_spy/core_models_20260612/hmm_summary.csv"
+  ],
+  "reconciliation": {
+    "covid_prob_stress_mean": {
+      "computed": 1.0,
+      "manifest_expected": 1.0,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-12T09:12:39.613643+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)"
+}

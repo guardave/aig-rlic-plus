@@ -1,5 +1,5 @@
 {
-  "x-version": "1.0.0",
+  "x-version": "1.1.0",
   "x-owner": "vera",
   "x-generated": "2026-04-19",
   "notes": "Initial canonical instance seeded from the HY-IG v2 reference pair (per META-RPD) after Wave 4B cross-review exposed the method-to-chart mapping living in three SOPs (Evan ECON-H4, Vera VIZ-A3, Ace render_method_block). Populated from handoff_to_vera_20260419.md, VIZ-A3 Standard Chart Set, META-ZI episode slugs, and the Strategy-page chart inventory. Producer (Vera) validates a chart's basename against canonical_filename_pattern before save; consumer (Ace) uses method_name to resolve both the chart JSON and the upstream CSV. Evan's ECON-H4 handoff is the INPUT that feeds this registry; this registry is the authoritative OUTPUT (VIZ-V8).",
@@ -20,7 +20,7 @@
       "viz_rule_id": "VIZ-V3",
       "econ_rule_id": "ECON-E1",
       "consumer_page": "evidence",
-      "notes": "S18-11: standalone F-statistic-by-lag bar chart with α=0.05 F-critical line. MUST NOT fall back to local_projections.json — that was the Wave 1.5 silent-fallback bug this registry exists to prevent."
+      "notes": "S18-11: standalone F-statistic-by-lag bar chart with \u03b1=0.05 F-critical line. MUST NOT fall back to local_projections.json \u2014 that was the Wave 1.5 silent-fallback bug this registry exists to prevent."
     },
     "ccf": {
       "expected_chart_type": "bar_by_lag",
@@ -38,7 +38,7 @@
       "viz_rule_id": "VIZ-A3",
       "econ_rule_id": "ECON-C2",
       "consumer_page": "evidence",
-      "notes": "Jordà IRF coefficient plot (h=0..24), shaded CI band, significance stars. DISTINCT from granger — do not conflate."
+      "notes": "Jord\u00e0 IRF coefficient plot (h=0..24), shaded CI band, significance stars. DISTINCT from granger \u2014 do not conflate."
     },
     "regime": {
       "expected_chart_type": "area_probability",
@@ -56,7 +56,7 @@
       "viz_rule_id": "VIZ-V4",
       "econ_rule_id": "ECON-C2",
       "consumer_page": "evidence",
-      "notes": "Quantile coefficient plot across τ ∈ {0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95} with shaded CI and zero line."
+      "notes": "Quantile coefficient plot across \u03c4 \u2208 {0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95} with shaded CI and zero line."
     },
     "transfer_entropy": {
       "expected_chart_type": "bar",
@@ -65,7 +65,7 @@
       "viz_rule_id": "VIZ-V4",
       "econ_rule_id": "ECON-C2",
       "consumer_page": "evidence",
-      "notes": "Directional TE bars (indicator→target vs reverse) with permutation p-values annotated."
+      "notes": "Directional TE bars (indicator\u2192target vs reverse) with permutation p-values annotated."
     },
     "quartile_returns": {
       "expected_chart_type": "regime_bars",
@@ -74,7 +74,7 @@
       "viz_rule_id": "VIZ-V4",
       "econ_rule_id": "ECON-E2",
       "consumer_page": "evidence",
-      "notes": "S18-8: Q1–Q4 annualized return bars colored by sign with diverging palette; companion to CCF and regime blocks. Do not drop silently on reruns."
+      "notes": "S18-8: Q1\u2013Q4 annualized return bars colored by sign with diverging palette; companion to CCF and regime blocks. Do not drop silently on reruns."
     },
     "history_zoom_dotcom": {
       "expected_chart_type": "dual_panel",
@@ -84,7 +84,7 @@
       "econ_rule_id": "ECON-C2",
       "override_supported": false,
       "consumer_page": "story",
-      "notes": "META-ZI (refined Wave 6B 2026-04-19 per META-AL): per-pair dual-panel rendered chart at output/charts/{pair_id}/plotly/history_zoom_dotcom.json. Canonical layer is metadata only — docs/schemas/history_zoom_events_registry.json (VIZ-V12) carries events/dates/citations. No output/_comparison/ fallback; missing chart → GATE-25 placeholder. SCHEMA-REQUEST: override_supported semantics now refer to the *legacy* META-ZI model — Vera to revisit field meaning in next schema version."
+      "notes": "META-ZI (refined Wave 6B 2026-04-19 per META-AL): per-pair dual-panel rendered chart at output/charts/{pair_id}/plotly/history_zoom_dotcom.json. Canonical layer is metadata only \u2014 docs/schemas/history_zoom_events_registry.json (VIZ-V12) carries events/dates/citations. No output/_comparison/ fallback; missing chart \u2192 GATE-25 placeholder. SCHEMA-REQUEST: override_supported semantics now refer to the *legacy* META-ZI model \u2014 Vera to revisit field meaning in next schema version."
     },
     "history_zoom_gfc": {
       "expected_chart_type": "dual_panel",
@@ -197,6 +197,15 @@
       "econ_rule_id": "ECON-C2",
       "consumer_page": "story",
       "notes": "APP-CH1 non-method entry (added Wave 5B-2). Story-page hero-chart companion showing HMM stress/calm regime bands as a full-width backdrop (distinct from the probabilistic hmm_regime_probs chart on Evidence which uses an area-probability encoding). Exists to give the Story hero a simple regime backdrop without re-deriving HMM state labels at render-time."
+    },
+    "tournament_distribution": {
+      "expected_chart_type": "histogram",
+      "canonical_filename_pattern": "tournament_sharpe_dist.json",
+      "required_result_file": "tournament_results_{date}.csv",
+      "viz_rule_id": "VIZ-SCD1",
+      "econ_rule_id": "ECON-T4",
+      "consumer_page": "strategy",
+      "notes": "OOS Sharpe distribution across valid combos (benchmark excluded per ECON-T4). Winner annotation states position: 'Winner = max of N (median X)' per VIZ-SCD1; B&H benchmark vline marked. Precedent: hy_ig_spy, gold_copper_xli tournament_sharpe_dist."
     }
   }
 }
