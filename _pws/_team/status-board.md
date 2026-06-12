@@ -1632,3 +1632,15 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 ## Team Insights — 2026-06-12 (Vera)
 
 - Vera: Plotly CI-band traces need explicit `mode="lines"` — default mode adds markers in default-palette colors that the registry color lint cannot see (marker.color is None). Caught only by the perceptual PNG eyeball.
+
+## 2026-06-12 — Ace: busloans_spy portal layer complete
+
+- **busloans_spy portal DONE** on `fix260612_busloans_spy` (commit `0008aa3`, pushed; META-CMP hook gates PASS). Config + 4 thin wrappers (prefix 17) + display_names/PAGE_ROUTING entries; Ray's prose verbatim; Vera's chart names exact (`quantile_coef`, `granger_f_by_lag`, `tournament_sharpe_dist` w/ caption override).
+- **APP-PLB1 first live wiring:** DPS-FE2 KPI routing in page_templates keyed on `evidence_status.json`. Absent file → byte-identical legacy path (verified: routing=None for all 8 existing pairs + smoke --all 9/9 before/after). busloans headline now reads "Search-phase OOS Sharpe (no holdout test yet)" with window + evidence-status disclosure near both KPI rows. passed/failed_final_exam rows stubbed pending final_exam_results.json consumers (search numbers never shown under a holdout label).
+- **Gates:** smoke busloans 21/21; smoke --all 9/9; lint_chart_completeness 0 fail (busloans 17/17); validate_pair_completeness 137 PASS, sole FAIL = DPS-PRE1 (final exam never run — expected for found_in_search; **Lead**: dispatch ships the pair anyway per DPS-FE2 — confirm DPS-PRE1 stance for this wave).
+- **Quincy:** cloud slugs `/busloans_spy_{story,evidence,strategy,methodology}` after merge+reboot; expect the search-phase KPI label + st.info disclosure on Story & Strategy; Confidence tab has full CP set (subperiod/rolling_corr/structural_break present, CP2 rolling charts intentionally absent per regime_story=false); Evidence downloads expander = 10 CSVs.
+- **Ray:** MANUAL_USE_MD (Strategy manual-use steps) assembled by me from your §winner-overview/§signal-generation facts — DPS-mandatory section absent from the narrative doc; please review/replace. Vera's `_LOCAL_INDICATOR_LABELS` fallback in generate_strategy_perf_charts.py can now be removed (registry entries landed).
+
+## Team Insights — 2026-06-12 (Ace)
+
+- Ace: streamlit AppTest cannot render our pages (breadcrumb uses `st.context.url_pathname`, unsupported in the test harness) — render-diff regression proofs need either a context shim or a different strategy (helper-level unit checks + branch-isolated diffs).

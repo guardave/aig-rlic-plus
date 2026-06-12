@@ -503,3 +503,21 @@ Smoke: both pairs failures=0. CWD-independence regression test added at `temp/26
 **Handoff:** `results/_cross_agent/handoff_ace_wave10i_partB_20260423.md`.
 
 **LEAD-DL1 compliance:** touched only Ace-owned files (pages, pair_configs, navigation components) + handoff + PWS. Zero narrative prose. Zero template changes. Zero `results/*` or `scripts/*` edits.
+
+## 2026-06-12 — busloans_spy portal layer (Pair #19, Mode 1) + APP-PLB1 first live wiring
+
+**Dispatch:** Lead — stage 4 of fix260612_busloans_spy (Dana→Evan→Vera→Ray→ME→Quincy). Commit `0008aa3` (pushed; META-CMP hook gates T1.1/T1.2/T1.3/T2 all PASS).
+
+**Shipped:**
+- `app/pair_configs/busloans_spy_config.py` (~950 lines): Ray's prose verbatim from `docs/portal_narrative_busloans_spy_20260612.md`; 4 zoom episodes (dotcom/gfc/covid/inflation_2022); 7 evidence blocks, distinct charts (`quantile_coef` not `quantile_regression`; granger=`granger_f_by_lag`; tournament slot=`tournament_sharpe_dist` + histogram caption override); downloads row 10 CSVs with row counts read from disk at authoring time.
+- `app/pages/17_busloans_spy_{story,evidence,strategy,methodology}.py` thin wrappers (prefix 17).
+- `display_names.py`: busloans/busloans_spy → "Commercial & Industrial Loans"; abbrev + short "C&I Loans" (long_form_with_abbrev → "Commercial & Industrial Loans (C&I Loans)"). `pair_registry.PAGE_ROUTING` += busloans_spy. `get_type_label("credit")` already covered.
+- **APP-PLB1 (page_templates.py):** `_evidence_status_kpi_routing()` + `_render_kpi_routing_disclosure()`; Story + Strategy headline KPI label routed by `evidence_status.status` per DPS-FE2. Absent file → None → legacy literals untouched (hard regression constraint). found_in_search → "Search-phase OOS Sharpe (no holdout test yet)" + window in row + `render_evidence_status_note` (plain_english info box) near KPI row. passed/failed rows STUBBED: no final_exam_results.json consumer exists; label overridden to "Search-phase OOS Sharpe (see final-exam disclosure)" + L2 warning so search numbers are NEVER shown under a holdout label.
+
+**Regression proof (absent-file pairs):** (1) `_evidence_status_kpi_routing` returns None for all 8 existing pairs (unit-checked); (2) diff isolated to `if routing is None: <original literals>` branches; (3) smoke `--all` 9/9 pairs 0 failures before AND after. AppTest render-diff attempted but breadcrumb's `st.context.url_pathname` is unsupported in AppTest — noted for future harness work.
+
+**Gates:** smoke busloans_spy 21/21 PASS (log committed); smoke --all 9/9; lint_chart_completeness 117 refs 0 fail (busloans 17/17 PASS); AST-parse all touched files OK; validate_pair_completeness 137 PASS / sole FAIL = DPS-PRE1 (final exam never run — inherent to found_in_search; Lead call, see handoff).
+
+**Deviations flagged:** (a) MANUAL_USE_MD — Ray's doc has no manual-use section (DPS mandatory, no generic fallback); steps assembled strictly from Ray's §winner-overview/§signal-generation facts, pending Ray review. (b) ONE_SENTENCE_THESIS / PAGE_TITLEs are structural rearrangements of Ray's headline wording. (c) DPS-PRE1 vs dispatch: found_in_search pairs are nominally production-blocked; Lead's brief explicitly ships this pair with DPS-FE2 labelling — noted for Lead/Quincy.
+
+**Lesson:** declaring evidence chart names as module-level `*_CHART_NAME` constants (not inline dict literals) makes smoke_loader's AST scan cover every evidence chart for free.
