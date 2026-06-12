@@ -30,6 +30,8 @@ INDICATOR_NAMES: dict[str, str] = {
     "hy_ig_spy": "HY-IG Credit Spread",
     "umcsent_xlv": "Michigan Consumer Sentiment",
     "gold_copper_xli": "Gold/Copper Ratio",
+    "busloans": "Commercial & Industrial Loans",
+    "busloans_spy": "Commercial & Industrial Loans",
     # fix260601_chart_hygiene Wave 2 (2026-06-02): TED variants archived
     # — see app/pair_configs_archive/. If un-archived, restore:
     #   "sofr_ted_spy": "SOFR - DTB3 (TED)",
@@ -58,6 +60,11 @@ INDICATOR_ABBREV: dict[str, str] = {
     "indpro_spy": "INDPRO",
     "indpro_xlp": "INDPRO",
     "umcsent_xlv": "UMCSENT",
+    # DPS-LF1 first-mention: "Commercial & Industrial Loans (C&I Loans)".
+    # "C&I Loans" is the conventional abbreviation (FRED ticker BUSLOANS is
+    # a pipeline token, not a reader-facing abbreviation).
+    "busloans": "C&I Loans",
+    "busloans_spy": "C&I Loans",
 }
 
 
@@ -77,6 +84,7 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "hy_ig_spy": "HY-IG Spread (v1)",
     "umcsent_xlv": "UMCSENT",
     "gold_copper_xli": "Gold/Copper",
+    "busloans_spy": "C&I Loans",
     # fix260601_chart_hygiene Wave 2 (2026-06-02): TED variants archived
     # — see app/pair_configs_archive/. If un-archived, restore:
     #   "sofr_ted_spy": "SOFR-TED", "dff_ted_spy": "DFF-TED",

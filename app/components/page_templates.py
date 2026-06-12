@@ -307,6 +307,100 @@ def _load_winner_summary(pair_id: str) -> dict[str, Any] | None:
     return data
 
 
+# ---------------------------------------------------------------------------
+# APP-PLB1 — DPS-FE2 KPI routing matrix (template-level plumbing, Ace lane).
+# Routes the Story / Strategy headline-KPI label by `evidence_status.status`.
+# See docs/dashboard-page-standard.md § Failed-Final-Exam KPI Routing.
+#
+# REGRESSION CONSTRAINT (hard): when `results/{pair_id}/evidence_status.json`
+# is ABSENT on disk, `_evidence_status_kpi_routing` returns None and callers
+# MUST take the pre-APP-PLB1 code path unchanged (labels "OOS Sharpe" etc.).
+# This keeps behavior byte-identical for every pair without the artifact.
+# ---------------------------------------------------------------------------
+_KPI_HEADLINE_LABELS: dict[str, str] = {
+    "passed_final_exam": "Holdout Sharpe",
+    "failed_final_exam": "Holdout Sharpe (failed)",
+    "found_in_search": "Search-phase OOS Sharpe (no holdout test yet)",
+    "pending_final_exam": "Search-phase OOS Sharpe (holdout pending)",
+    # `needs_final_exam` is in the evidence_status schema but not in the
+    # DPS-FE2 matrix; route it to the honest search-phase row.
+    "needs_final_exam": "Search-phase OOS Sharpe (no holdout test yet)",
+    "inconclusive": (
+        "Search-phase OOS Sharpe (holdout inconclusive — see disclosure)"
+    ),
+}
+
+# Statuses whose headline KPI source is `final_exam_results.holdout_*` per
+# DPS-FE2. STUBBED (APP-PLB1 first-land, 2026-06-12): no pair has a
+# `final_exam_results.json` yet and no consumer/schema exists for it. Until
+# the ECON-CAP1 producer ships, these statuses keep winner_summary values
+# but the template surfaces an L2 warning so search numbers are never
+# silently presented under a holdout label. Wire the holdout loader here
+# when `final_exam_results.json` lands.
+_HOLDOUT_SOURCED_STATUSES = {"passed_final_exam", "failed_final_exam"}
+
+
+def _evidence_status_kpi_routing(pair_id: str) -> dict[str, Any] | None:
+    """Resolve DPS-FE2 KPI routing for ``pair_id``.
+
+    Returns ``None`` when ``results/{pair_id}/evidence_status.json`` does
+    not exist — callers must then preserve legacy behavior exactly.
+    Otherwise returns a dict with keys ``status``, ``headline_label``,
+    ``holdout_sourced``, ``plain_english``, ``label``.
+    """
+    path = _REPO_ROOT / "results" / pair_id / "evidence_status.json"
+    if not path.exists():
+        return None
+    from components.evidence_status import load_evidence_status
+
+    status, _errors = load_evidence_status(pair_id)
+    key = status.get("status", "found_in_search")
+    headline_label = _KPI_HEADLINE_LABELS.get(
+        key, _KPI_HEADLINE_LABELS["found_in_search"]
+    )
+    holdout_sourced = key in _HOLDOUT_SOURCED_STATUSES
+    if holdout_sourced:
+        # STUB override (APP-PLB1 first-land): until the
+        # final_exam_results.json consumer exists, the values rendered are
+        # search-phase — the label must say so. Never render search numbers
+        # under a "Holdout" label. Remove this override when the holdout
+        # loader is wired.
+        headline_label = (
+            "Search-phase OOS Sharpe (see final-exam disclosure)"
+        )
+    return {
+        "status": key,
+        "headline_label": headline_label,
+        "holdout_sourced": holdout_sourced,
+        "plain_english": status.get("plain_english", ""),
+        "label": status.get("label", ""),
+    }
+
+
+def _render_kpi_routing_disclosure(pair_id: str, routing: dict[str, Any]) -> None:
+    """Surface the evidence-status disclosure near a KPI row (APP-PLB1).
+
+    Renders the standard evidence-status note (info box with
+    ``evidence_status.plain_english``; failed_final_exam additionally gets
+    its DPS-PRE1 disclosure banner) plus the holdout-source stub warning
+    where applicable (APP-SEV1 L2 — never present search numbers under a
+    holdout label silently).
+    """
+    from components.evidence_status import render_evidence_status_note
+
+    render_evidence_status_note(pair_id)
+    if routing["holdout_sourced"]:
+        # STUB (see _HOLDOUT_SOURCED_STATUSES): final_exam_results.json
+        # consumer not yet implemented; values below remain search-phase.
+        st.warning(
+            "Holdout KPI routing is not yet wired for this status "
+            f"(`{routing['status']}`): `final_exam_results.json` consumers "
+            "do not exist yet (APP-PLB1 stub). The figures shown below are "
+            "SEARCH-PHASE values from `winner_summary.json`, labelled as "
+            "such — not holdout results."
+        )
+
+
 def _load_interpretation_metadata(pair_id: str) -> dict[str, Any]:
     """Load ``interpretation_metadata.json`` (soft load).
 
@@ -543,8 +637,19 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     oos_end = (winner.get("oos_period_end") or "")[:7]
     oos_range_label = f"{oos_start}–{oos_end}" if oos_start and oos_end else "OOS window"
 
+    # APP-PLB1 / DPS-FE2: route the headline-KPI label by evidence_status.
+    # routing is None when the artifact is absent → legacy path, unchanged.
+    _kpi_routing = _evidence_status_kpi_routing(pair_id)
+    if _kpi_routing is None:
+        _key_metrics_header = f"**Key metrics (out-of-sample {oos_range_label}):**"
+    else:
+        # Window-labelling rule (DPS-FE2): the window rides with the label.
+        _key_metrics_header = (
+            f"**Key metrics — {_kpi_routing['headline_label']} "
+            f"(window {oos_range_label}):**"
+        )
     st.markdown(
-        f"**Key metrics (out-of-sample {oos_range_label}):**\n\n"
+        f"{_key_metrics_header}\n\n"
         f"- **Sharpe ratio: {oos_sharpe}** (vs {bh_sharpe} buy-and-hold {target})\n"
         f"- **Annualized return: {oos_return}** with risk-adjusted exposure\n"
         f"- **Max drawdown: {max_dd}** (vs {bh_dd} buy-and-hold {target})"
@@ -584,9 +689,17 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     lead_label = f"L{lead_months}" if isinstance(lead_months, (int, float)) else str(lead_months)
     oos_years = _story_kpi_oos_years(winner)
 
+    # APP-PLB1 / DPS-FE2: status-routed headline label + prominent
+    # disclosure near the KPI row. Absent artifact → legacy literal label.
+    if _kpi_routing is None:
+        _headline_sharpe_label = "OOS Sharpe"
+    else:
+        _headline_sharpe_label = _kpi_routing["headline_label"]
+        _render_kpi_routing_disclosure(pair_id, _kpi_routing)
+
     kpi_row([
         {
-            "label": "OOS Sharpe",
+            "label": _headline_sharpe_label,
             "value": oos_sharpe,
             "delta": f"vs {bh_sharpe} B&H" if bh_sharpe != "N/A" else None,
         },
@@ -1241,9 +1354,30 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     bh_dd = _format_ratio_pct(winner.get("bh_max_drawdown"))
     turnover = winner.get("oos_annual_turnover", winner.get("annual_turnover"))
 
+    # APP-PLB1 / DPS-FE2: status-routed headline label + disclosure near
+    # the KPI row. Absent artifact → legacy literal label + delta (the
+    # hard regression constraint for pairs without evidence_status.json).
+    _kpi_routing = _evidence_status_kpi_routing(pair_id)
+    if _kpi_routing is None:
+        _headline_sharpe_label = "OOS Sharpe"
+        _headline_sharpe_delta = (
+            f"vs {bh_sharpe} B&H" if bh_sharpe != "N/A" else None
+        )
+    else:
+        _headline_sharpe_label = _kpi_routing["headline_label"]
+        # Window-labelling rule: the Strategy KPI row carries no period
+        # card, so the window rides in the headline delta.
+        _oos_start = (winner.get("oos_period_start") or "")[:7]
+        _oos_end = (winner.get("oos_period_end") or "")[:7]
+        _window = f"{_oos_start}–{_oos_end}" if _oos_start and _oos_end else "OOS window"
+        _headline_sharpe_delta = (
+            f"vs {bh_sharpe} B&H · {_window}" if bh_sharpe != "N/A" else _window
+        )
+        _render_kpi_routing_disclosure(pair_id, _kpi_routing)
+
     kpi_row([
-        {"label": "OOS Sharpe", "value": oos_sharpe,
-         "delta": f"vs {bh_sharpe} B&H" if bh_sharpe != "N/A" else None},
+        {"label": _headline_sharpe_label, "value": oos_sharpe,
+         "delta": _headline_sharpe_delta},
         {"label": "OOS Return", "value": oos_return, "delta": "annualized"},
         {"label": "Max Drawdown", "value": max_dd,
          "delta": f"vs {bh_dd} B&H" if bh_dd != "N/A" else None,

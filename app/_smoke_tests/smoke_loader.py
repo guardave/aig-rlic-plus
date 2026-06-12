@@ -108,6 +108,23 @@ EVIDENCE_DYNAMIC_CHARTS: dict[str, list[str]] = {
 # is a variable — AST cannot resolve these. For those, we look up the
 # literal chart names assigned in the pair config class attributes.
 PAIR_TEMPLATE_CHARTS: dict[str, list[str]] = {
+    "busloans_spy": [
+        # Charts the template loads via variables/f-strings that AST cannot
+        # resolve from the config: history zooms (f-string slug) and the
+        # Cross-Period Consistency set (_cp_always tuples). Config
+        # *_CHART_NAME constants cover the rest via the AST scan.
+        "history_zoom_dotcom",
+        "history_zoom_gfc",
+        "history_zoom_covid",
+        "history_zoom_inflation_2022",
+        "subperiod_sharpe",
+        "rolling_correlation",
+        "structural_break",
+        # Confidence-tab scatter sibling (config routes the slot to
+        # tournament_sharpe_dist; the scatter also ships and is referenced
+        # by the registry).
+        "tournament_scatter",
+    ],
     "indpro_xlp": [
         # Story
         "hero",
