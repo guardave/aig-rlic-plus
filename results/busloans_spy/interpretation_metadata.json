@@ -56,6 +56,10 @@
       "narrative_summary"
     ]
   },
-  "last_updated_by": "dana",
-  "last_updated_at": "2026-06-12T08:30:18Z"
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-06-12T08:53:39Z",
+  "observed_direction": "countercyclical",
+  "direction_consistent": true,
+  "key_finding": "Lead-lag verdict: BUSLOANS LAGS SPY. Toda-Yamamoto Granger BUSLOANS->SPY is not significant at any lag 1-12, while SPY->BUSLOANS is significant at every lag \u2014 confirming the Conference Board lagging-indicator classification. The tournament winner (mom/T2_roll_p25/P1_long_cash counter/L6/LB36) is countercyclical (long SPY only when MoM loan growth is in the bottom quartile of its trailing 36m range): OOS Sharpe 1.50 vs B&H 0.89, max DD -1.0% vs -23.9%, but bootstrap p=0.066 (n.s. at 5%) and durability is episode-concentrated \u2014 treat as a defensive/confirmatory overlay, not a standalone alpha signal.",
+  "confidence": "low"
 }

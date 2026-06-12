@@ -1,0 +1,16 @@
+{
+  "pair_id": "busloans_spy",
+  "test": "Quandt-Andrews unknown breakpoint (sup-F, residual-bootstrap p, 300 reps)",
+  "sample_start": "1993-08-31",
+  "sample_end": "2026-05-31",
+  "n_obs": 394,
+  "trimming_pct": 0.15,
+  "break_date": "2002-10-31",
+  "f_stat": 3.6021,
+  "p_value": 0.3,
+  "flagged": false,
+  "flag_message": null,
+  "rolling_corr_sign_stability": 0.4189,
+  "rolling_corr_stability_verdict": "sign_unstable",
+  "cp2_note": "CP2 skipped \u2014 regime_story not set in signal_scope.json"
+}

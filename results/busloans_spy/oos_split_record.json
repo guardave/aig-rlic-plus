@@ -1,0 +1,9 @@
+{
+  "owner": "evan",
+  "split_policy_id": "v1_max36_25pct_cap120",
+  "in_sample_end": "2018-01-31",
+  "oos_start": "2018-02-28",
+  "oos_end": "2026-05-31",
+  "sample_size_months": 400,
+  "justification": "Policy v1_max36_25pct_cap120 on the SPY-availability-bound sample (400 months, 1993-02 onward; BUSLOANS history extends to 1947 but the tournament requires target returns). min(max(36, round(400*0.25)), 120) = 100 months. No structural-break exclusion applied; H.8 definitional breaks pre-1973 are outside the SPY-bound sample entirely."
+}

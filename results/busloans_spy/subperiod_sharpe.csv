@@ -1,0 +1,5 @@
+episode,start_date,end_date,n_trading_days,ann_sharpe,win_rate,max_drawdown,data_status,durability_verdict
+dot_com,2000-03-01,2002-10-31,0,,,,insufficient_data,
+gfc,2007-12-01,2009-06-30,0,,,,insufficient_data,
+covid,2020-02-29,2020-12-31,231,2.7543,0.5455,0.0,validated,
+rates_2022,2022-01-31,2022-12-31,252,0.0,0.0,0.0,validated,episode_concentrated

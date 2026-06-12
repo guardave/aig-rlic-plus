@@ -1,0 +1,21 @@
+{
+  "pair_id": "busloans_spy",
+  "date": "20260612",
+  "pipeline_seconds": 36.3,
+  "stage_times": {
+    "1_load_verify": 0.1,
+    "2_signals": 1.2,
+    "3_exploratory_correlations": 0.3,
+    "4_core_models": 3.2,
+    "5_regime_quartiles": 0.0,
+    "6_tournament": 12.2,
+    "7_winner_artifacts": 0.0,
+    "8_cross_period": 18.1,
+    "9_validation": 0.2
+  },
+  "tournament_strategy_rows": 6100,
+  "valid_strategies": 4396,
+  "oos_n_months": 100,
+  "oos_start": "2018-02-28",
+  "oos_end": "2026-05-31"
+}

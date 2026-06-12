@@ -1,0 +1,39 @@
+{
+  "pair_id": "busloans_spy",
+  "artifact": "strategy_returns_20260612.csv",
+  "produced_by": "scripts/pair_pipeline_busloans_spy.py",
+  "rule": "ECON-SR1",
+  "source": "pipeline_native_derivation (same code path as tournament evaluation \u2014 not a re-derivation)",
+  "returns_file": "/workspaces/aig-rlic-plus/data/busloans_spy_monthly_19470131_20260531.parquet",
+  "coverage_start": "1993-02-28",
+  "coverage_end": "2026-05-31",
+  "frequency": "monthly",
+  "oos_start": "2018-02-28",
+  "oos_end": "2026-05-31",
+  "position_semantics": "position on row t is the return-accrual weight for month t; the signal is lagged 6 month(s) (execution/publication lag already applied); strategy_return = position * bh_return row-wise",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.499893,
+      "reported_winner_summary": 1.4999,
+      "diff": -7e-06,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.01019,
+      "reported_winner_summary": -0.0102,
+      "diff": 1e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.106654,
+      "reported_winner_summary": 0.1067,
+      "diff": -4.6e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-12T08:53:39Z",
+  "generated_by": "Econ Evan (fix260612_busloans_spy)"
+}
