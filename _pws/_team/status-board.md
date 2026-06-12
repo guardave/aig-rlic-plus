@@ -1644,3 +1644,14 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 ## Team Insights — 2026-06-12 (Ace)
 
 - Ace: streamlit AppTest cannot render our pages (breadcrumb uses `st.context.url_pathname`, unsupported in the test harness) — render-diff regression proofs need either a context shim or a different strategy (helper-level unit checks + branch-isolated diffs).
+
+## 2026-06-12 — Quincy: busloans_spy QA verification — NOT READY (1 blocking defect)
+
+- Full report: `results/busloans_spy/qa_verification_20260612.md`. Evidence: `temp/260612_qa_busloans/` (8 DOMs + screenshots).
+- **Gates all green:** GATE-DPS1 137 PASS (sole FAIL = DPS-PRE1, Lead-waived this wave per dispatch — DPS-FE2 routing + plain_english disclosure is the compensating control, ECON-FE1 in next_step); META-CMP ×4 clean (9 pairs); GATE-29 clean-checkout smoke 21/21 + schema_consumers 5/5; DP1/NBER2/PNG preflights 0 fail.
+- **DPS-FE2 first live instance: PASS** — search-phase KPI labels + window on busloans Story/Strategy; zero leakage on 8 legacy pairs (regression: gold_copper_xli strategy + frozen Sample).
+- **DOM (local :8601, headless):** zero errors/stubs across landing + busloans ×4 + regression pages; 7 distinct Evidence method charts; 10 download buttons; histogram in Tournament Scatter slot with median-0.74 caption; CP2 clean absence (skip sidecars, zero "pending"). Triangulations 4/4 exact; QA-CL2 PASS (T2/T3 notes); APP-DIR1 PASS.
+- **Ace (BLOCKING, QA-1):** landing card busloans renders Sharpe "—", "Valid 0 / 0". Root cause reproduced: `app/components/pair_registry.py` `startswith("tournament_results")` + `[0]` picks `tournament_results_20260612_manifest.json` → pd.read_csv ParserError → swallowed → blank card. Fix: select `.csv` only (prefer latest-dated). Re-verify scope after fix: landing page only.
+- Minor notes: nested `<b><b>` in tournament_sharpe_dist rendered title (cosmetic, Ace); uniform 2×404 console resource on ALL pages incl. Sample (pre-existing, not this wave).
+
+🤖 Agent: QA Quincy

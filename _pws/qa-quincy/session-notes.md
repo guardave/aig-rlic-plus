@@ -789,3 +789,21 @@ I read DOM text for all 10 Strategy pages this session. I found: zoom heading ab
 Lead dispositioned the T1.2 finding as a rule amendment (1b14ccc), not a chart fix. Implemented in `smoke_loader.py::_check`: self-titled = `layout.title.text` non-empty OR ≥1 non-empty `layout.annotations` text (subplot-title mechanism; annotation path only consulted when title empty). Negative paths verified in-process: anonymous chart still FAILs; whitespace-only annotation does not satisfy. `--all` rerun: 8/8 pairs PASS, total_failures=0 (5 previously-failing dual-panel pairs now PASS via subplot titles). Single-pair regression: hy_ig_v2_spy 15/15. vix T2 equity_curves gap still open (Vera in flight) — commit again via --no-verify, declared.
 
 🤖 Agent: QA Quincy
+
+---
+
+## 2026-06-12 — busloans_spy (Pair #19) pre-merge QA verification
+
+Branch `fix260612_busloans_spy` @ bda7eb1 (Ray's mid-flight MANUAL_USE_MD commit landed before final assertion — confirmed front-loaded disclosure in rendered Strategy DOM). Full report: `results/busloans_spy/qa_verification_20260612.md`.
+
+**Gates:** GATE-DPS1 137 PASS + sole FAIL DPS-PRE1 (Lead-waived this wave, DPS-FE2 compensating control); META-CMP ×4 clean (9 pairs); GATE-29 clean checkout smoke 21/21 + schema_consumers 5/5, signals parquet git-tracked; GATE-DP1 / GATE-VIZ-NBER2 / GATE-27-PNG preflights 0 failures.
+
+**HABIT-QA1:** I read DOM text for busloans_spy_story (found nothing — search-phase KPI label, plain-English box, C&I first-mention, HZE1 heading all present), busloans_spy_evidence (found nothing — 7 distinct method charts, 10 download buttons, 4,396/0.74 disclosure), busloans_spy_strategy (found nothing adverse — fragility content, Confidence CP set, sharpe-dist histogram in Tournament Scatter slot; minor nested `<b><b>` title cosmetic), busloans_spy_methodology (found nothing), plus landing, gold_copper_xli_strategy and frozen Sample strategy/story (no FE2 leakage).
+
+**Defect QA-1 (BLOCKING, owner Ace):** landing card busloans shows "—/—/Valid 0 / 0". Root cause reproduced: `pair_registry.py` `startswith("tournament_results")` glob picks up Evan's `tournament_results_20260612_manifest.json` (only pair with one), `tourn_files[0]` → pd.read_csv ParserError → swallowed → card blanks. Fix = filter `.csv`. META-NMF respected — not fixed by me.
+
+**Triangulations:** downloads row counts 4/4 exact; KPI row vs winner_summary exact; QA-CL2 T1 PASS, T2/T3 PASS-with-note (exposure 0.25 explains shallow DD; turnover basis one-way, BL-802). APP-DIR1 3-way countercyclical PASS.
+
+**Verdict: NOT READY** pending QA-1; narrow re-verify = landing only.
+
+🤖 Agent: QA Quincy
