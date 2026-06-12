@@ -1620,3 +1620,15 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 ## Team Insights — 2026-06-12 (Ray)
 
 - Ray: RES-20's triad assumes a leading indicator — for a confirmed-lagging pair the honest mapping has no long_lead slot. Propose a RES-20 amendment: allow `confirmer`-for-`long_lead` substitution when the pair's lead-lag verdict is reverse-only, with mandatory deviation note.
+
+## 2026-06-12 — Vera: busloans_spy viz stage complete
+
+- **busloans_spy charts DONE** on `fix260612_busloans_spy` (commit 949a113, pushed; META-CMP hook PASS). 21 charts + sidecars + perceptual PNGs + 2 CP2 chart_skips at `output/charts/busloans_spy/plotly/`. ECON-H4 coverage 14/14; SR1 reconcile-or-die PASS ×3; VIZ-CV1 21/21; VIZ-HZE1 4/4 zoom slugs (dotcom/gfc/covid/inflation_2022 — matches Ray's narrative blocks).
+- **Handoff:** `results/_cross_agent/handoff_lead_busloans_spy_20260612_vera.md` (chart inventory, gate records, Ace config names incl. `quantile_coef` registry-canonical name, display_names gap).
+- **Registry:** chart_type_registry v1.1.0 — `tournament_distribution` → tournament_sharpe_dist.json registered (was shipping unregistered on 2 pairs).
+- **Ace:** display_names.py lacks busloans_spy ("Commercial & Industrial Loans" / "C&I Loans" proposed); temp fallback lives in generate_strategy_perf_charts.py — remove on registry landing.
+- **Lead (echo of Ray's flag):** episode slug split dot_com/rates_2022 (episode_registry, Evan's subperiod CSV) vs dotcom/inflation_2022 (events registry, DPS-EP1, charts, narrative). Needs one-time reconciliation.
+
+## Team Insights — 2026-06-12 (Vera)
+
+- Vera: Plotly CI-band traces need explicit `mode="lines"` — default mode adds markers in default-palette colors that the registry color lint cannot see (marker.color is None). Caught only by the perceptual PNG eyeball.
