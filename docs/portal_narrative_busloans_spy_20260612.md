@@ -22,10 +22,10 @@ chart_refs:
   - equity_drawdown
   - tournament_scatter
   - trade_log_preview
-  - history_zoom_dot_com
+  - history_zoom_dotcom
   - history_zoom_gfc
   - history_zoom_covid
-  - history_zoom_rates_2022
+  - history_zoom_inflation_2022
 glossary_terms:
   - Buy-and-hold
   - Counter-cyclical
@@ -49,7 +49,7 @@ glossary_terms:
   - Specification curve
   - Exposure
 historical_episodes_referenced:
-  - episode_slug: dot_com
+  - episode_slug: dotcom
     override_needed: true
     override_reason: "Story §How the signal behaved in past crises — prose ties loan-growth peak (Jun-2000, after the SPY top) to the pair's own indicator series; pair-specific dual-panel overlay required."
     selection_rationale: confirmer
@@ -64,7 +64,7 @@ historical_episodes_referenced:
     override_reason: "Story §How the signal behaved in past crises — prose cites the pair's indicator spike (+30.1% YoY May-2020) against the SPY crash; pair-specific overlay required."
     selection_rationale: coincident
     prose_ref: "Story — COVID paragraph"
-  - episode_slug: rates_2022
+  - episode_slug: inflation_2022
     override_needed: true
     override_reason: "Story §How the signal behaved in past crises — prose cites the pair's indicator path (YoY rising to +14.6% Nov-2022 through the equity drawdown); pair-specific overlay required."
     selection_rationale: failure_case
@@ -402,7 +402,7 @@ Ace ports these verbatim; structural config is Ace's lane.
 ```python
 HISTORY_ZOOM_EPISODES = [
     {
-        "slug": "dot_com",
+        "slug": "dotcom",
         "title": "Dot-Com Crash (2000–2002)",
         "narrative": "Loan growth peaked three months AFTER the equity top (Jun-2000) and bottomed two and a half years later, right at the equity trough — textbook lagging behavior. A reader waiting for loan weakness as a warning was warned only once the bear market was nearly over.",
         "caption": "Loan growth peaked after the SPY top — confirmation in arrears, no warning",
@@ -420,7 +420,7 @@ HISTORY_ZOOM_EPISODES = [
         "caption": "Coincident-inverse — record loan spike during the equity crash (credit-line drawdowns)",
     },
     {
-        "slug": "rates_2022",
+        "slug": "inflation_2022",
         "title": "2022 Rates Shock",
         "narrative": "Loan growth rose through the entire Fed-driven equity drawdown, giving no warning and no echo. The strategy sat in cash all year by construction (flat, not a loss) — spared the bear market without the indicator deserving any predictive credit.",
         "caption": "Failure case — loan growth rose while SPY fell ~24%; strategy was in cash throughout",
