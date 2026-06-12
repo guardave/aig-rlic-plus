@@ -1594,3 +1594,15 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 ## Team Insights — 2026-06-12
 
 - Dana: sidecar/display-name generation must READ `display_name_registry.csv` before writing — shared canonical columns (dgs10, spy, vix…) already have registry names that win verbatim (DATA-D13).
+
+## 2026-06-12 — Evan: busloans_spy econometrics stage complete
+
+- `busloans_spy` econ stage DONE on `fix260612_busloans_spy` (commit 168a0d0, pushed; META-CMP T1.1/T1.3/T2 PASS — T1.1 caught my first signal_scope shape, producer fixed per META-NMF).
+- **Lead-lag verdict: BUSLOANS LAGS SPY.** TY-Granger forward n.s. all lags 1–12; reverse significant at EVERY lag. Reverse-only flag escalated to Lead — frame as confirmatory indicator + defensive overlay, NOT a forecasting signal.
+- Tournament: 6,100 combos, 4,396 valid, OOS 2018-02→2026-05 (100m). Winner busloans_mom/T2_roll_p25/P1_long_cash counter/L6/LB36: OOS Sharpe 1.50 vs 0.89 B&H, DD −1.0% vs −23.9%. Caveats prominent: bootstrap p=0.066 (n.s.), IS Sharpe 0.35, episode_concentrated, sign_unstable, mean exposure 0.25 → confidence LOW, suggested objective min_mdd.
+- **Vera/Ray:** handoff at `results/_cross_agent/handoff_vera_ray_busloans_spy_20260612.md` (ECON-H4 table, DPS-SCD1 numbers, SR1 reconciliation PASS×3). All 14 chart inputs status=ready. tournament CSV units are RATIOS (see manifest). CP2 intentionally absent (regime_story=false).
+- signal_code_registry: appended `busloans_mom` (append-only, DS3).
+
+## Team Insights — 2026-06-12 (Evan)
+
+- Evan: signal_scope.json has a STRICT schema (indicator_axis/target_axis/owner + per-derivative formula/appears_in_charts) — older pair files (indpro_xlp style "in_scope" shape) are NOT a safe template; copy gold_copper_xli's shape or read the schema first.

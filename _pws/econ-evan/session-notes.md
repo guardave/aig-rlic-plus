@@ -667,3 +667,19 @@ Producer: `scripts/econ_sr1_regen_downstream.py` — consumes ONLY `strategy_ret
 3. `indpro_xlp_config.py:~583-598` — broker-log walkthrough quotes rows that no longer exist: "2020-02-29 SELL to cash at $49.18", "2020-03-31 BUY back to 100% at $46.46", "2020-05-31 exit". Regenerated CSV: 2020-01-31 BUY +100% @53.5836, 2020-03-31 SELL to **−100% short** @46.4612, 2020-04-30 BUY +100% @49.6939, 2020-06-30 SELL −100% @50.4078 (no cash states, no 2020-02-29 row).
 4. `vix_vix3m_spy_config.py:524-526` and `indpro_spy_config.py:636-638` — both claim "canonical winner_trades_broker_style.csv exists only for [other pairs]… future wave" — stale; the artifact now exists for both, regenerated from the canonical series.
 5. NO drift: vix config quoted trades (2020-01-24→2020-04-03 Cash 70d; 2020-04-03→2020-10-06 Long 186d +36.09%) match the unchanged vix trade log. No config quotes old defective subperiod values or wrong OOS dates.
+
+---
+
+## 2026-06-12 — busloans_spy (Pair #19, Mode 1) econ stage
+
+**Branch:** fix260612_busloans_spy · **Commit:** 168a0d0 (pushed)
+
+- Consumer checks on Dana's parquet PASS (COVID +25.4/+30.1% YoY, 2009-10 −20.2%, z recompute exact). Stationarity confirmed from her CSV, not re-run.
+- Full credit-equity Rule C1 battery + E1/E2 + CP1 A/B/C + 5-D tournament (6,100 combos / 4,396 valid) in `scripts/pair_pipeline_busloans_spy.py` (single deterministic script, seeds fixed).
+- HEADLINE: lagging hypothesis CONFIRMED — forward Granger dead (min p 0.257), reverse significant at all 12 lags; TE inconclusive; QR no tail channel. Reverse-only → escalated to Lead.
+- Winner (ECON-T3, resolved step 1, no ties): busloans_mom counter L6 LB36, Sharpe 1.50/DD −1.0% vs B&H 0.89/−23.9%; fragile (bootstrap p .066, IS .35) — caveats embedded in winner_summary.notes, interpretation confidence=low.
+- ECON-SR1: strategy_returns_20260612.csv from the pipeline-native code path, reconciliation PASS×3 (diffs ≤ 5e-5).
+- Gates: winner_summary schema PASS pre-save; DS3 registry assert PASS (busloans_mom appended); ECON-DIR1 PASS; META-CMP hook caught signal_scope shape on first commit attempt — fixed producer, recommitted.
+- Handoff: results/_cross_agent/handoff_vera_ray_busloans_spy_20260612.md. Nothing blocking Vera/Ray.
+
+**Lesson:** when the winner is statistically fragile, put the caveats INSIDE winner_summary.notes (rendered verbatim by Ace) so they cannot be dropped downstream.
