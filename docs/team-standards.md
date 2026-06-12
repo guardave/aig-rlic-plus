@@ -144,6 +144,14 @@ Producer-vs-schema, producer-vs-template, and filename-prefix drift are guarded 
 
 ---
 
+## 5.7 Direct Agent-to-Agent Clarification Channel (META-A2A)
+
+**Owner:** Lead (rule).  **Full rule:** `docs/agent-sops/team-coordination.md` §META-A2A.  Canonical cross-team registration.
+
+Within a wave, consumers may query producers DIRECTLY for artifact semantics and contract clarifications (no Lead relay; outcome logged one-line in both sides' notes). Anything changing an artifact, rule, or scope still routes through Lead per META-NMF. Verification always triangulates against the authoritative source artifact — never against a peer's sibling outputs, never by iterating with the producer "until it matches". If a clarification reveals the artifact is wrong, the channel closes and Lead is reported to. Origin: stakeholder question after the 2026-06-11 wave; the Vera-STOP precedent is the load-bearing case.
+
+---
+
 ## 6. Global Agent Profile Files
 
 Per agent at `~/.claude/agents/<role>-<name>/`:
