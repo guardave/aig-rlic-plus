@@ -234,3 +234,19 @@ Mixed. Retained and applied: DATA-D5/D6/D11 gates, FRED OAS truncation, DATA-D6b
 - `indicator_type: "production"` enum gap on `indpro_spy` — latent correctness risk.
 
 *Dana — Wave 10J/10K checkpoint, 2026-04-24*
+
+## 2026-06-12 — busloans_spy data stage (Pair #19, Mode 1, branch fix260612_busloans_spy)
+
+**Scope:** Stage-1 data delivery for `busloans_spy` (FRED BUSLOANS → SPY) + ci_loan mislabel fix (LEAD-DV1).
+
+**Delivered:**
+1. `scripts/pair_data_busloans_spy.py` — fetch (FRED direct API; fredapi rejected key in this env, fredgraph 504'd), align, transforms, validation, sidecar, metadata, registry/manifest updates. Reproducible, seeded.
+2. `data/busloans_spy_monthly_19470131_20260531.parquet` (953×21) + `_latest` alias + DATA-D5 sidecar (validates OK) + dictionary + summary stats + missing-value/lag report.
+3. `results/busloans_spy/stationarity_tests_20260612.csv`, `interpretation_metadata.json` (validates OK; nature=lagging, type=credit, expected_direction=mixed seeded for Ray).
+4. Sanity checks PASS: COVID credit-line drawdown peak +30.1% YoY (Apr–May 2020); GFC min YoY −20.2% (2009–10); level $2,874bn (2026-04).
+5. ci_loan mislabel fixed in `config/indicator_map.yaml` + `data/prospective_pairs.csv` (SLOOS tightening survey, not loan volumes); `busloans` row added (`in_progress`).
+6. Handoff: `results/_cross_agent/handoff_evan_busloans_spy_20260612.md`.
+
+**Gotchas:** display-name registry already held `dgs10`/`spy`/`vix`/`spy_ret` etc. with prior names — sidecar must adopt registry names verbatim (DATA-D13 cross-validation), so script loads registry BEFORE sidecar generation. `data_subject` schema `direction` enum is only higher_is_better/lower_is_better/neutral — economic direction nuance goes in description, not enum.
+
+*Dana — 2026-06-12*

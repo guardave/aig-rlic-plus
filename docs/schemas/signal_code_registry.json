@@ -31,6 +31,16 @@
       "source_method": "markov_switching",
       "added_at": "2026-04-19",
       "notes": "Distinct from hmm_stress: Markov-switching fits a regression (with covariates) rather than a marginal Gaussian mixture. Regime labeling follows the same variance-ranking convention as hmm_stress."
+    },
+    {
+      "signal_code": "busloans_mom",
+      "display_name": "BUSLOANS 1-month % change (MoM loan growth)",
+      "parquet_column_pattern": "busloans_pct_mom",
+      "description": "One-month percent change in C&I loans outstanding (FRED BUSLOANS, $bn SA). Used countercyclically by the busloans_spy tournament winner: long the target only when MoM loan growth is in the bottom quartile of its trailing rolling window.",
+      "source_method": "roc",
+      "added_at": "2026-06-12",
+      "first_pair": "busloans_spy",
+      "notes": "BUSLOANS is a Conference Board LAGGING index component; this rate-of-change transform is a countercyclical/defensive trigger, not a forward-causal signal (Toda-Yamamoto forward direction n.s. at all lags)."
     }
   ]
 }

@@ -8,6 +8,23 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-06-12 — Chart Type Registry v1.1.0: `tournament_distribution` method entry
+
+**Trigger.** busloans_spy (Pair #19, fix260612) Lead dispatch mandated a tournament-distribution chart with VIZ-SCD1 winner-position annotation and a B&H benchmark line (the pair's median valid strategy, 0.74, sits BELOW B&H 0.89 — the disclosure is the point). `tournament_sharpe_dist.json` had shipped on hy_ig_spy and gold_copper_xli without a registry entry, leaving the method unregistered against VIZ-V8 ("do not ship a chart whose method_name is not in the registry").
+
+**Scope:**
+- `docs/schemas/chart_type_registry.json` — added `tournament_distribution` → `tournament_sharpe_dist.json` (required_result_file `tournament_results_{date}.csv`, viz_rule_id VIZ-SCD1, econ_rule_id ECON-T4); `x-version` bumped 1.0.0 → 1.1.0 (additive). Owner: Vera per META-CF.
+- No SOP text change — VIZ-SCD1 already defines the annotation contract.
+
+## 2026-06-12 — META-A2A Direct Agent-to-Agent Clarification Channel
+
+**Trigger.** Stakeholder question after the 2026-06-11 META-CMP wave: could subagents talking directly resolve issues themselves, instead of Lead/Quincy flagging them first? Lead analysis: yes for seam semantics (cheap, low-risk), no for defect disposition / rule changes / scope (the wave's decisive catch worked BECAUSE Vera triangulated against winner_summary instead of negotiating with the producer's sibling artifacts — two-party iteration converges on agreement, and the defective charts had agreed with each other for two weeks). Stakeholder: "Agree with your call. Codify it."
+
+**Scope:**
+- `docs/agent-sops/team-coordination.md` §META-A2A (full rule): (1) direct producer↔consumer Q&A for artifact semantics/contract clarifications, logged one-line both sides; (2) artifact/rule/scope changes still route through Lead per META-NMF; (3) verification triangulates against the authoritative source, never a peer's siblings, never iterate-until-match — disagreement with the authority = STOP and report (Vera precedent); (4) a clarification that reveals a wrong artifact closes the channel and escalates.
+- `docs/team-standards.md` §5.7 — registration pointer.
+- First live seam: Dana → Evan in the `busloans_spy` wave (fix260612_busloans_spy).
+
 ## 2026-06-11 — META-CMP Completeness Forcing Functions (Tier 1+2, GH #7)
 
 **Trigger.** Stakeholder picked up GH #7 (Lead's META-CMP proposal from fix260526 triage). Three recurring completeness bug classes — producer-vs-template drift, producer-vs-schema drift, filename-prefix shadow files — each hit 4+ times across fix260526 / gold_copper_xli / crude_oil_xle and were caught only by manual or cloud-render inspection.

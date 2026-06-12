@@ -425,3 +425,27 @@ The initial close lumped four very different categories under one "deferred" buc
 4. **Evan's analyst_suggestions.json** — genuinely future ideas, not gaps: log-ratio signals, DXY-conditional gating, supply-decoupling detector. Forward-looking suggestions, not deferred deliverables.
 
 **Decision (2026-05-26, user):** complete categories 1 + 2 + 3 in this session (Phases 3.5, 4.5, 5.5 + ELI5 polish). Category 4 (Evan suggestions) discussed later.
+
+### 2026-06-12 — Pair busloans_spy (Commercial & Industrial Loans → SPY) — Work Mode Selection
+
+**Pair:** `busloans_spy` — priority combination #19 (I20 = FRED BUSLOANS, monthly, $bn, SA) × SPY. Branch `fix260612_busloans_spy`.
+
+**LEAD-DV1 finding at SOD:** the Data Master's "C&I Loan" sheet is NOT loan volumes — Pre-master row 2 identifies it as the SLOOS Net % of Banks Tightening Standards (C&I, small firms; percent, quarterly, NSA). The `indicator_map.yaml` "C&I Loan" → `ci_loan` entry mislabels that survey as "Commercial & Industrial Loans"; `prospective_pairs.csv` ci_loan rows inherit the mislabel. Resolution: this pair uses NEW indicator_id `busloans` (FRED fetch by Dana); the `ci_loan` mislabel is corrected in the same wave (Dana's lane). Two distinct series stay distinct ids per LEAD-DV1.
+
+**Lead recommendation: Mode 1.** Reasons: (a) new sub-category — bank-credit QUANTITY aggregate vs the existing credit-SPREAD pair (hy_ig); (b) genuine method-selection depth needed — C&I loans are famously lagging/coincident (credit lines drawn into downturns; loan growth peaks after recessions start), so direction may surprise (INDPRO z-score precedent) and trend-dominated levels demand careful transform choice; (c) first NEW pair under the full current standards stack (META-CMP gates, ECON-SR1, ECON-T4, DPS-SCD1/VIZ-SCD1, VIZ-QR1, DPS-LF1, downloads, CP-on-Confidence) — SOP-friction findings likely, and Mode-1 agent reflection is how rules get written authentically; (d) precedent — crude_oil_xle (Mode 2, new category) produced the W0.5 defect class; the 2026-06-11 Mode-1 wave produced 5-bugs-beyond-dispatch verification depth.
+
+**User decision: Mode 1** ("Go", 2026-06-12).
+
+**Pipeline plan:** Dana (BUSLOANS fetch + validation + ci_loan mislabel fix) → Evan (econometrics + tournament per ECON-SR1/T3/T4) → Vera + Ray (charts + narrative) → Ace (portal assembly) → Quincy (GATE-DPS1 + cloud verify). All under the active pre-commit hook.
+
+### 2026-06-12 — Pair busloans_spy — Mode 1 COMPLETE (pending merge)
+
+**Pipeline:** Dana (`0994310`) → Evan (`168a0d0`, `cf9e314` evidence_status) → Vera (`949a113`) ∥ Ray (`fc315b2`+) → Ace (`0008aa3`, QA-1 fix `d8d656b`) → Quincy (`beea4c1`, re-verify `1d43768` READY). Lead: rules (META-A2A first live wave; RES-20 lagging-pair variant), dispositions, waiver below.
+
+**Verdict shipped:** BUSLOANS LAGS SPY (reverse-only Granger, all methods corroborate). Winner = defensive counter overlay (long SPY only in bottom-quartile lagged MoM loan growth, L6): search-phase OOS Sharpe 1.50 vs 0.89 B&H, DD −1.0%, rank 1/4,396, no ties — with non-negotiable fragility disclosure (bootstrap p=0.066 n.s.; IS 0.35; episode-concentrated; median 0.74 < B&H 0.89). **First live instance of DPS-FE2 routing** (`evidence_status.json` = `found_in_search`; "Search-phase OOS Sharpe (no holdout test yet)" labels; plain_english disclosure box).
+
+**DPS-PRE1 waiver (Lead, this wave):** sole GATE-DPS1 FAIL is the final-exam prerequisite — waived because no holdout has been run BY DESIGN (found_in_search status + prominent disclosure is the compensating control). ECON-FE1 final-exam path documented in `evidence_status.next_step` as the pair's next milestone.
+
+**Process notes:** LEAD-DV1 caught the Data-Master "C&I Loan" mislabel (SLOOS survey, not loan volumes) before any data was fetched — `ci_loan` corrected, `busloans` registered distinct. META-A2A's first wave: zero relay round-trips needed (producer artifacts self-documented); 2 A2A-candidate escalations (episode-slug vocabulary → BL-EPISODE-SLUGS; both handled by Lead). One blocking QA defect (QA-1 manifest-sidecar glob collision — first pair carrying META-CMP manifest sidecars) found by Quincy's DOM sweep, fixed by Ace with byte-identical legacy regression proof, re-verified READY. Checker iteration count: 1.
+
+**Mode-1 recommendation vs outcome:** recommended Mode 1 for novelty + lagging-direction depth + first-pair-under-new-stack; outcome validates — Evan's reverse-only verdict reshaped the entire narrative frame (a Mode-2 single head with a bullish prior might have buried it), and the honest-framing chain (evidence_status → RES-CAP1 → DPS-FE2 routing) exercised three dormant standards for the first time.

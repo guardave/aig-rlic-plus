@@ -1,0 +1,21 @@
+{
+  "chart_name": "hero",
+  "pair_id": "busloans_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "Commercial & Industrial Loans (C&I Loans) year-over-year growth (vermillion, left axis) against the SPY price (blue, right axis), 1993\u20132026. Loan growth turns AFTER the market: in May 2020 loans spiked to ~+30% YoY (firms drawing credit lines) even as equities crashed. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Hero shows the lagging/inverse character Evan's Granger verdict establishes; COVID annotation value re-read from the dataset at generation time.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/busloans_spy_monthly_19470131_20260531.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-12T09:12:25.608430+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)"
+}

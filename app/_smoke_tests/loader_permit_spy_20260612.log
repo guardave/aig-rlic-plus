@@ -1,0 +1,16 @@
+# Loader smoke test  pair_id=permit_spy  timestamp=2026-06-12T09:39:35
+# Pages scanned: 4
+#   app/pages/7_permit_spy_evidence.py
+#   app/pages/7_permit_spy_methodology.py
+#   app/pages/7_permit_spy_story.py
+#   app/pages/7_permit_spy_strategy.py
+
+
+# Dynamic charts (Evidence render_method_block helper)
+
+# APP-PT1 template + pair_config chart scans
+PASS  app/pair_configs/permit_spy_config.py:70  chart=hero  traces=2  title='Building Permits YoY Growth vs S&P 500'
+PASS  app/pair_configs/permit_spy_config.py:83  chart=regime_stats  traces=2  subplot_titles=['Annualized Sharpe by Building Permits YoY Quartile', 'Annualized Return by Building Permits YoY Quartile', '<b>Key:</b> Best regime by Sharpe: Q4 (Strongest growth) (0.95); worst: Q2 (Below-median growth) (0.57).']
+PASS  app/pair_configs/permit_spy_config.py:712  chart=tournament_scatter  traces=3  title='Tournament: 856 Combos (674 Valid)'
+
+# RESULT  passes=3  failures=0

@@ -538,6 +538,8 @@ RES-8 governs the presence of a zoom-in chart for each referenced historical epi
 
 **Optional 4th confirmer.** Authors may add a fourth well-known episode for additional context (e.g. Dot-Com on a credit pair where the triad is already GFC / COVID / 2022). The confirmer is secondary, not required.
 
+**Lagging-pair variant (amended 2026-06-12, busloans_spy precedent, Lead sign-off).** When the pair's econometric verdict is reverse-only causality (the indicator LAGS the target — e.g. C&I loans, a Conference Board Lagging Index component), a `long_lead` episode is structurally impossible and MUST NOT be invented. The triad becomes: ONE `coincident`, TWO `failure_case`-or-`confirmer` episodes chosen to teach the lagging character honestly (the canonical busloans_spy set: COVID=coincident — loans spiked WITH the crash via credit-line drawdowns; GFC + 2022=failure_case; Dot-Com=confirmer). The deviation and its causal justification are documented in the narrative frontmatter header, citing the Granger/lead-lag artifact that establishes reverse-only causality. A `long_lead` claim on a reverse-only pair is a prose-vs-data violation.
+
 **Rules:**
 
 1. **Selection rationale recorded in frontmatter.** Per-episode `selection_rationale` field added to each `historical_episodes_referenced[i]` entry. Enum: `long_lead` / `coincident` / `failure_case` / `confirmer`. Pre-handoff `validate_schema.py` confirms the triad is represented.

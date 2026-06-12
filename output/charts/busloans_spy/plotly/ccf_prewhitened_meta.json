@@ -1,0 +1,19 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "busloans_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cross-correlation between AR(12) pre-whitened C&I Loans growth and SPY returns at lags -20..+20 months. Only 1 cell (lag +17, ccf 0.119) crosses the 95% band \u2014 a stray cell on the lag side, treated as noise per the econometrics handoff. No leading relationship.",
+  "narrative_alignment_note": "CCF chart mirrors Evan's 'one stray significant lag (+17)' note.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/busloans_spy/core_models_20260612/ccf_prewhitened.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-12T09:12:31.045235+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)"
+}

@@ -1,0 +1,153 @@
+{
+  "pair_id": "busloans_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-06-12T08:53:39Z",
+  "indicator_axis": {
+    "canonical_column": "busloans_usd",
+    "display_name": "C&I Loans Outstanding (BUSLOANS)",
+    "derivatives": [
+      {
+        "name": "busloans_usd",
+        "definition": "C&I loans outstanding, all commercial banks, $bn SA",
+        "formula": "FRED BUSLOANS",
+        "role": "raw",
+        "appears_in_charts": []
+      },
+      {
+        "name": "busloans_pct_yoy",
+        "definition": "12-month % change in loans (cycle signal)",
+        "formula": "100*(L_t/L_{t-12}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "busloans_pct_mom",
+        "definition": "1-month % change in loans",
+        "formula": "100*(L_t/L_{t-1}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "busloans_3m_pct",
+        "definition": "3-month % change (momentum)",
+        "formula": "100*(L_t/L_{t-3}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "busloans_6m_pct",
+        "definition": "6-month % change (momentum)",
+        "formula": "100*(L_t/L_{t-6}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "busloans_ma12_usd",
+        "definition": "12-month moving average of the level",
+        "formula": "rolling mean(12)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "busloans_dev_trend_pct",
+        "definition": "% deviation of the level from its 12m MA",
+        "formula": "100*(L_t/MA12-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "busloans_zscore_60m",
+        "definition": "rolling 60m z-score of the LEVEL (trends positive \u2014 see Dana note)",
+        "formula": "(L_t-mean60)/sd60",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "busloans_yoy_zscore_60m",
+        "definition": "rolling 60m z-score of YoY growth (preferred cycle signal)",
+        "formula": "(yoy_t-mean60)/sd60",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "busloans_accel_pct",
+        "definition": "month-on-month change in MoM growth (acceleration, pp)",
+        "formula": "mom_t - mom_{t-1}",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "busloans_contraction",
+        "definition": "1 when YoY loan growth < 0",
+        "formula": "indicator(yoy<0)",
+        "role": "regime_state",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hmm_2state_prob_stress",
+        "definition": "P(high-variance regime) from 2-state HMM on YoY growth",
+        "formula": "GaussianHMM(yoy)",
+        "role": "regime_state",
+        "appears_in_charts": []
+      },
+      {
+        "name": "markov_regime_2state",
+        "definition": "P(high-variance regime) from Markov-switching regression spy_ret~yoy",
+        "formula": "MarkovRegression",
+        "role": "regime_state",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy",
+    "display_name": "SPY (S&P 500 ETF)",
+    "derivatives": [
+      {
+        "name": "spy",
+        "definition": "SPY adjusted month-end close",
+        "formula": "Yahoo Finance",
+        "role": "raw",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_ret",
+        "definition": "SPY monthly return (decimal; registry name retained \u2014 see Dana quirk note)",
+        "formula": "P_t/P_{t-1}-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_1m",
+        "definition": "1-month forward SPY return",
+        "formula": "P_{t+1}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_3m",
+        "definition": "3-month forward SPY return",
+        "formula": "P_{t+3}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_6m",
+        "definition": "6-month forward SPY return",
+        "formula": "P_{t+6}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_12m",
+        "definition": "12-month forward SPY return",
+        "formula": "P_{t+12}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "notes": "ECON-SD: only BUSLOANS derivatives and SPY derivatives are in scope. Controls in the parquet (UNRATE, DGS10, DFF, VIX) are context columns and are NOT used as signals or rendered on the pair page. regime_story: false (CP2 skipped)."
+}

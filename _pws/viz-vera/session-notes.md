@@ -276,3 +276,26 @@ New producer `scripts/generate_strategy_perf_charts.py` (ECON-SR1 consumer; neve
 - indpro_xlp legacy winner_summary lacks *_display_name → added humanised code-label fallback in producer + assert against raw-token leakage (VIZ-NS1).
 - subperiod charts built from Evan's round-2 CSVs (landed 03efc78 mid-dispatch).
 - Ray's parallel b99b432 prose fixes reviewed — complementary, no chart conflicts.
+
+---
+
+## 2026-06-12 — busloans_spy full standard chart set (Pair #19, Mode 1, stage 3a)
+
+### Dispatch
+Lead: full standard set + ECON-H4 table (14 rows) for busloans_spy on `fix260612_busloans_spy`. Binding framing: lagging/reverse-only Granger; tournament fragility disclosed.
+
+### Delivered (commit 949a113, pushed)
+- New producer `scripts/generate_charts_busloans_spy.py` — 18 charts (incl. 4 history zooms + 2 CP2 chart_skip sidecars). In-process gates: VIZ-IC1 (+VIZ-TX1 one-$ lint), VIZ-NBER1, VIZ-DP1, perceptual PNG per chart.
+- SR1 charts (equity_curves/drawdown/walk_forward) via `generate_strategy_perf_charts.py` — reconcile-or-die PASS ×3; script extended with `--no-subperiod` + `_LOCAL_INDICATOR_LABELS` VIZ-NS1 fallback (busloans_spy → "C&I Loans").
+- chart_type_registry → v1.1.0 (`tournament_distribution` entry, VIZ-V8 compliance) + sop-changelog.
+- VIZ-CV1 21/21 PASS; VIZ-HZE1 PASS (4/4 slugs); lint_chart_completeness SKIP for busloans_spy (no pair_config yet — expected), smoke_loader 0 pages (expected).
+- Handoff: `results/_cross_agent/handoff_lead_busloans_spy_20260612_vera.md`.
+
+### Perceptual-eyeball catches (the step keeps paying)
+1. Legend↔title collision on granger_f_by_lag + tournament_scatter (horizontal top legend vs long subtitle) → legends moved below plot.
+2. CI-band traces without `mode="lines"` render stray default-palette markers at band vertices (local_projections, quantile_coef) — invisible to the color lint because marker.color is None (Plotly default). Added to lint awareness.
+3. VIZ-QR1 helper emits no `layout.title` (only subplot titles) → fails VIZ-CV1 title check; caller must add the main title.
+
+### Open / for others
+- Ace: display_names.py needs busloans_spy entries (proposed in handoff §5); config chart names listed there (quantile_coef, granger_f_by_lag, ccf_prewhitened, walk_forward).
+- Lead: episode slug vocabulary split (dot_com/rates_2022 vs dotcom/inflation_2022) — echoed Ray's A2A flag.

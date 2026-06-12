@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "pair_id": "busloans_spy",
+  "rule": "ECON-AS",
+  "suggestions": [
+    {
+      "signal_name": "SLOOS C&I lending standards (tightening %)",
+      "proposed_by": "evan",
+      "source": "FRED/Data Master (ci_loan \u2014 distinct series, see LEAD-DV1)",
+      "observation": "BUSLOANS quantity lags the cycle; SLOOS standards are the LEADING twin of the same credit channel.",
+      "rationale": "Literature (Lown-Morgan 2006) finds standards lead loan quantities and output by 2-4 quarters.",
+      "possible_use_case": "new pair",
+      "caveats": "Quarterly frequency; survey-based; shorter history (1990+).",
+      "date_filed": "2026-06-12"
+    }
+  ],
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-06-12T08:53:39Z"
+}

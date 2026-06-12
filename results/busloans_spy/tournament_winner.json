@@ -1,0 +1,16 @@
+{
+  "pair_id": "busloans_spy",
+  "winner_label": "mom / T2_roll_p25 / P1_long_cash (counter) / L6 / LB36",
+  "winner_oos_sharpe": 1.4999,
+  "winner_max_drawdown": -0.0102,
+  "winner_oos_ann_return": 0.1067,
+  "bh_oos_sharpe": 0.8935,
+  "bh_max_drawdown": -0.2393,
+  "bh_oos_ann_return": 0.1482,
+  "delta_sharpe": 0.6064,
+  "delta_max_drawdown": 0.2291,
+  "delta_ann_return": -0.0415,
+  "beats_benchmark": true,
+  "suggested_strategy_objective": "min_mdd",
+  "generated_at": "2026-06-12T08:53:39Z"
+}

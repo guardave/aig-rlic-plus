@@ -286,3 +286,14 @@ Handoff: `results/_cross_agent/handoff_ray_hze1_retro_20260424.md`
 - indpro_xlp MANUAL_USE_MD step 3 still advises "move XLP exposure toward cash or an underweight" — practical retail guidance (hedged), but a purist read says the backtest goes −100% short; Lead to rule whether deliberate softening stays.
 
 *Last updated: 2026-06-11 — ECON-SR1 prose-drift session*
+
+## 2026-06-12 — busloans_spy narrative (Mode 1, Pair #19)
+
+Authored full narrative layer for busloans_spy on fix260612_busloans_spy (fc315b2, a7203ef).
+Framing decisions: (1) lagging-indicator verdict is the headline intellectual content — hook is the COVID
+loan-spike paradox; (2) DPS-FE2 found_in_search labels on every KPI; (3) fragility block unsoftened
+(p=0.066, IS/OOS inversion, episode concentration, sign instability, exposure 0.25, median<B&H);
+(4) strategy_objective=min_mdd confirmed; expected_direction finalised countercyclical (traded transform).
+RES-20 deviation: no long_lead episode (honest). Slug vocabulary clash between episode_registry.json and
+META-ZI canonical list discovered and escalated; aligned to Vera's chart filenames.
+- 2026-06-12 (A2A review, Lead-dispatched): reviewed Ace's config 0008aa3 — verbatim ports clean, ONE_SENTENCE_THESIS carries lagging verdict + search-phase qualifier (no naked 1.50), MANUAL_USE_MD artifact-true but RES-CAP1 framing strengthened (non-recommendation disclosure front-loaded); single prose edit, CONFIG-PARSE-CHECK OK, committed+pushed.

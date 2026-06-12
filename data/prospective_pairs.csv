@@ -98,8 +98,9 @@ housing_starts,Housing Starts,real_estate,XLE,housing_starts_xle,not_started,RE 
 nh_sold_saar,New Home Sales (SAAR),real_estate,XLY,nh_sold_saar_xly,not_started,RE - NH Sold,,RE - NH Sold,108
 hy_ig,HY − IG Credit Spread,credit,SPY,hy_ig_spy,not_started,HY - IG spread,,HY - IG spread,116
 hy_ig,HY − IG Credit Spread,credit,XLP,hy_ig_xlp,not_started,HY - IG spread,,HY - IG spread,116
-ci_loan,Commercial & Industrial Loans,credit,SPY,ci_loan_spy,not_started,C&I Loan,,C&I Loan,117
-ci_loan,Commercial & Industrial Loans,credit,XLP,ci_loan_xlp,not_started,C&I Loan,,C&I Loan,117
+ci_loan,SLOOS C&I Lending Standards — Net % Tightening (Small Firms),credit,SPY,ci_loan_spy,not_started,C&I Loan,,C&I Loan,117
+ci_loan,SLOOS C&I Lending Standards — Net % Tightening (Small Firms),credit,XLP,ci_loan_xlp,not_started,C&I Loan,,C&I Loan,117
+busloans,Commercial & Industrial Loans,credit,SPY,busloans_spy,in_progress,,,,
 cass_freight,Cass Freight Index (shipments),production,SPY,cass_freight_spy,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122
 cass_freight,Cass Freight Index (shipments),production,XLP,cass_freight_xlp,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122
 cass_freight,Cass Freight Index (shipments),production,XLE,cass_freight_xle,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122

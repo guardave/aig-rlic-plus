@@ -1,0 +1,22 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "busloans_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.2",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "24-month rolling correlation between C&I Loans YoY growth and SPY monthly returns, 1995\u20132026. The sign agrees with its full-sample value only 42% of the time (sign-unstable) \u2014 the relationship is not stable enough to lean on. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Stability verdict quoted from structural_break JSON, not hard-coded.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/busloans_spy/rolling_correlation_busloans_spy.csv",
+    "results/busloans_spy/structural_break_busloans_spy.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-12T09:12:45.317974+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)"
+}

@@ -1,0 +1,22 @@
+ccf_prewhitened.json: PASS
+correlation_heatmap.json: PASS
+drawdown.json: PASS
+equity_curves.json: PASS
+granger_f_by_lag.json: PASS
+hero.json: PASS
+history_zoom_covid.json: PASS
+history_zoom_dotcom.json: PASS
+history_zoom_gfc.json: PASS
+history_zoom_inflation_2022.json: PASS
+hmm_regime_probs.json: PASS
+local_projections.json: PASS
+quantile_coef.json: PASS
+regime_stats.json: PASS
+rolling_correlation.json: PASS
+structural_break.json: PASS
+subperiod_sharpe.json: PASS
+tournament_scatter.json: PASS
+tournament_sharpe_dist.json: PASS
+transfer_entropy.json: PASS
+walk_forward.json: PASS
+Total: 21 charts, 21 pass, 0 fail

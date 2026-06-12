@@ -1,0 +1,77 @@
+{
+  "pair_id": "busloans_spy",
+  "schema_version": "1.1.0",
+  "indicator": "busloans",
+  "target": "spy",
+  "indicator_nature": "lagging",
+  "indicator_type": "credit",
+  "strategy_objective": "min_mdd",
+  "expected_direction": "countercyclical",
+  "data_provenance": {
+    "source": "FRED (H.8 Assets and Liabilities of Commercial Banks)",
+    "series_id": "BUSLOANS",
+    "accessed_at": "2026-06-12T08:30:18Z"
+  },
+  "known_stress_episodes": [
+    {
+      "label": "GFC post-recession C&I contraction",
+      "start": "2009-01-01",
+      "end": "2010-12-31",
+      "note": "YoY loan growth bottomed deeply negative AFTER the recession ended — textbook lagging behavior."
+    },
+    {
+      "label": "COVID credit-line drawdown spike",
+      "start": "2020-03-01",
+      "end": "2020-06-30",
+      "note": "C&I loans spiked ~+25-30% YoY as firms drew revolvers INTO the downturn; rising loans coincided with crashing equities."
+    }
+  ],
+  "related_pair_ids": [
+    "hy_ig_spy",
+    "indpro_spy"
+  ],
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "indicator_nature",
+      "indicator_type",
+      "data_provenance",
+      "known_stress_episodes",
+      "related_pair_ids"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats",
+      "narrative_summary"
+    ]
+  },
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-06-12T09:09:47Z",
+  "observed_direction": "countercyclical",
+  "direction_consistent": true,
+  "key_finding": "Lead-lag verdict: BUSLOANS LAGS SPY. Toda-Yamamoto Granger BUSLOANS->SPY is not significant at any lag 1-12, while SPY->BUSLOANS is significant at every lag — confirming the Conference Board lagging-indicator classification. The tournament winner (mom/T2_roll_p25/P1_long_cash counter/L6/LB36) is countercyclical (long SPY only when MoM loan growth is in the bottom quartile of its trailing 36m range): OOS Sharpe 1.50 vs B&H 0.89, max DD -1.0% vs -23.9%, but bootstrap p=0.066 (n.s. at 5%) and durability is episode-concentrated — treat as a defensive/confirmatory overlay, not a standalone alpha signal.",
+  "confidence": "low",
+  "mechanism": "Credit-line drawdown / lagging-credit mechanism: firms draw pre-arranged bank credit lines INTO downturns (loan balances rise as equities fall) and repay/de-lever long after recoveries begin, so C&I loan growth lags the equity cycle (Conference Board Lagging Index component). The traded transform is countercyclical: deeply weak MoM loan growth (bottom quartile of trailing 36m) marks the post-stress/repair phase of the cycle, historically coinciding with calmer, recovering equity markets — a state description, not a forward-causal signal (Granger forward n.s. at all lags 1-12; reverse significant at every lag).",
+  "caveats": [
+    "found_in_search only — no holdout test has been run; selection and evaluation share the same OOS window (2018-02..2026-05).",
+    "Best of 4,396 valid combos; the MEDIAN valid combo (OOS Sharpe 0.74) underperforms buy-and-hold (0.89).",
+    "Bootstrap p=0.066 vs resampled B&H — not significant at 5%.",
+    "IS Sharpe 0.35 vs OOS 1.50 — IS/OOS inversion suggests a favorable OOS draw, not a stable edge.",
+    "Durability episode_concentrated: edge lives in the COVID-recovery sub-period (Sharpe 2.75); 2022 spent entirely in cash (flat).",
+    "Rolling 24m correlation sign-unstable (sign agreement 0.42).",
+    "Mean OOS exposure 0.25 — most of the drawdown advantage is being in cash; strategy gives up 4.2pp annual return vs B&H.",
+    "Returns gross of costs; 5 bps at 2.88 turnover/yr is a negligible haircut."
+  ],
+  "narrative_summary": "BUSLOANS does not predict SPY — SPY predicts BUSLOANS (reverse-only Granger; corroborated by local projections, pre-whitened CCF, transfer entropy). The page honestly documents a LAGGING indicator; what survives the tournament is a defensive Long/Cash overlay (long SPY only when 6m-lagged MoM loan growth is in the bottom quartile of its trailing 36m range): search-phase OOS Sharpe 1.50 vs 0.89 B&H, max DD -1.0% vs -23.9%, at the cost of 4.2pp annual return and 25% exposure. Strategy objective: min_mdd. Framed per evidence_status as found-in-search, not validated."
+}

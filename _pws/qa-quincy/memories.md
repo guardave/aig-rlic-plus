@@ -24,3 +24,8 @@
 **Sandbox note (meta):** Attempted global `Edit` on `~/.claude/agents/qa-quincy/memories.md` denied. Mirrored here per META-AM fallback protocol (same path Ace and Vera took this wave). Lead dispatch doc acknowledges this as a recurring issue.
 
 *Wave 10H.1 added. Production runs: 13.*
+
+## 2026-06-12 — busloans_spy QA
+- Sidecar-manifest trap: any `tournament_results_*` glob in consumers breaks the day a producer adds `*_manifest.json` (META-CMP made manifests standard). Audit all loose `startswith` file-globs in app/components when a new artifact-sidecar convention lands.
+- Local Streamlit (no iframe) → page.inner_text works directly; cloud needs the iframe pattern. Streamlit URL drops numeric page prefix locally too.
+- st.tabs renders all panels into DOM — hidden-tab markers findable via page.content(), not inner_text (Pattern 23 confirmed again).

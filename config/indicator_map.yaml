@@ -101,9 +101,12 @@ indicators:
     display_name: Gold / Copper Ratio
     category: materials
 
+  # LEAD-DV1 (2026-06-12): this Data Master column is the SLOOS tightening
+  # survey (percent, quarterly, NSA), NOT loan volumes. The stock of C&I loans
+  # outstanding is FRED:BUSLOANS, indicator_id `busloans` (catalog I20).
   "C&I Loan":
     indicator_id: ci_loan
-    display_name: Commercial & Industrial Loans
+    display_name: "SLOOS C&I Lending Standards — Net % Tightening (Small Firms)"
     category: credit
 
   "H Permit YoY":

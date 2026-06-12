@@ -1339,6 +1339,19 @@ The following terms are reserved and must not be used interchangeably:
 
 **Origin:** GH #7 (META-CMP proposal, Tier 1+2). Tier 3 (text-vs-data citation lint) and Tier 4 (cloud-render CI) are explicitly out of scope of this rule — see the issue for their specs. BL-SCHEMA-GATE closed by T1.1.
 
+## META-A2A — Direct Agent-to-Agent Clarification Channel (added 2026-06-12)
+
+**Motivation.** The 2026-06-11 META-CMP wave showed both sides of the seam question. Lead-relayed handoffs added latency for pure semantics questions (Vera needed Evan's column conventions; Lead pre-wrote them into the brief). But the wave's decisive catch — Vera's reconciliation STOP on the W0.5 phantom series — succeeded precisely because she did NOT negotiate with the producer's sibling artifacts: she triangulated against the authoritative source. Two-party iteration optimises for *agreement*; the defective charts had agreed with each other for two weeks. This rule opens the cheap channel and fences the dangerous one.
+
+### The rule
+
+1. **Allowed, direct, no Lead relay:** within a wave, a consumer agent MAY query its producer directly for **artifact semantics and contract clarifications** — column meanings, unit/frequency conventions, selector semantics, file-shape questions ("your CSV has a column your spec doesn't mention"). Producers answer directly. Both sides record the exchange's outcome in their handoff/session notes (one line each suffices).
+2. **Routed through Lead, always:** anything that would **change an artifact, a rule, or scope** — defect reports, fix requests, contract *changes* (not clarifications), schema evolution, "please regenerate X", scope expansion. These follow META-NMF (rule first, owner dispatch) and, where production-affecting, LEAD-MA1 governance.
+3. **Verification triangulates, never negotiates (load-bearing clause).** An agent verifying its output reconciles against the **authoritative source artifact** (winner_summary, schema, registry, Pre-master) — NEVER against the counterparty's sibling outputs and never by iterating with the producer "until it matches". If your output disagrees with the authority, STOP and report to Lead (the Vera precedent). Consistency with a peer is not evidence of correctness; it is the signature failure mode this rule exists to prevent.
+4. **Escalation test:** if a clarification answer reveals the artifact is *wrong* (not just under-documented), the exchange has crossed into category 2 — stop the direct channel and report to Lead.
+
+**Cross-reference:** LEAD-QF1 (Lead owns seam quality — clarification exchanges are logged so Lead can audit seams), META-NMF, ECON-SR1 §1 (reconcile against winner_summary), META-RYW.
+
 ## META-NMF — No Manual Fix (Inviolable Lead Rule)
 
 **Added 2026-04-20. This rule is inviolable and overrides any pressure to "just fix it quickly."**

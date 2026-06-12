@@ -1,0 +1,183 @@
+{
+  "pair_id": "busloans_spy",
+  "parquet_path": "data/busloans_spy_monthly_19470131_20260531.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-12T08:30:18Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Month-end date index (parquet index column); spans 1947-01-31 through 2026-05-31."
+    },
+    "busloans_usd": {
+      "dtype": "float64",
+      "unit": "usd",
+      "display_name": "C&I Loans Outstanding ($bn)",
+      "direction": "neutral",
+      "description": "FRED BUSLOANS: Commercial & Industrial loans, all commercial banks. Monthly average of weekly H.8 data, billions of USD, seasonally adjusted. Level series, strongly trending.",
+      "source_reference": "FRED:BUSLOANS"
+    },
+    "unrate": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Unemployment Rate (%)",
+      "direction": "lower_is_better",
+      "description": "FRED UNRATE: civilian unemployment rate, monthly, SA. Control series.",
+      "source_reference": "see description"
+    },
+    "dgs10": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "US 10Y Treasury Yield (%)",
+      "direction": "neutral",
+      "description": "FRED DGS10: 10-year constant-maturity Treasury yield, month-end value. Control.",
+      "source_reference": "see description"
+    },
+    "fed_funds": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Fed Funds Rate (%)",
+      "direction": "neutral",
+      "description": "FRED DFF: effective federal funds rate, month-end value. Control.",
+      "source_reference": "see description"
+    },
+    "vix": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "VIX Index Level",
+      "direction": "lower_is_better",
+      "description": "CBOE VIX index, month-end close (Yahoo ^VIX). Control / regime variable.",
+      "source_reference": "see description"
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "neutral",
+      "description": "SPY adjusted close, month-end (Yahoo, auto-adjusted). Target asset. Starts 1993-01; NaN before inception.",
+      "source_reference": "yahoo:SPY"
+    },
+    "busloans_pct_yoy": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "C&I Loans YoY (%)",
+      "direction": "neutral",
+      "description": "12-month percent change in busloans_usd. Effective start = series start + 12m.",
+      "source_reference": "FRED:BUSLOANS"
+    },
+    "busloans_pct_mom": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "C&I Loans MoM (%)",
+      "direction": "neutral",
+      "description": "1-month percent change in busloans_usd.",
+      "source_reference": "FRED:BUSLOANS"
+    },
+    "busloans_3m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "C&I Loans 3M Change (%)",
+      "direction": "neutral",
+      "description": "3-month percent change (momentum) in busloans_usd.",
+      "source_reference": "FRED:BUSLOANS"
+    },
+    "busloans_6m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "C&I Loans 6M Change (%)",
+      "direction": "neutral",
+      "description": "6-month percent change (momentum) in busloans_usd.",
+      "source_reference": "FRED:BUSLOANS"
+    },
+    "busloans_ma12_usd": {
+      "dtype": "float64",
+      "unit": "usd",
+      "display_name": "C&I Loans 12M MA ($bn)",
+      "direction": "neutral",
+      "description": "12-month rolling mean of busloans_usd (min 10 obs).",
+      "source_reference": "FRED:BUSLOANS"
+    },
+    "busloans_dev_trend_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "C&I Loans Deviation from 12M Trend (%)",
+      "direction": "neutral",
+      "description": "Percent deviation of busloans_usd from its 12-month moving average.",
+      "source_reference": "FRED:BUSLOANS"
+    },
+    "busloans_zscore_60m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "C&I Loans 60M Z-Score",
+      "direction": "neutral",
+      "description": "Rolling 60-month z-score of the LEVEL (min 36 obs). Trending level means this is persistently positive; prefer YoY z-score for cycle signal.",
+      "source_reference": "FRED:BUSLOANS"
+    },
+    "busloans_yoy_zscore_60m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "C&I Loan Growth 60M Z-Score",
+      "direction": "neutral",
+      "description": "Rolling 60-month z-score of busloans_pct_yoy (min 36 obs). Cycle-relevant standardization of loan growth.",
+      "source_reference": "FRED:BUSLOANS"
+    },
+    "busloans_accel_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "C&I Loan Growth Acceleration (pp)",
+      "direction": "neutral",
+      "description": "First difference of busloans_pct_mom (percentage points).",
+      "source_reference": "FRED:BUSLOANS"
+    },
+    "busloans_contraction": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "C&I Loan Contraction Flag",
+      "direction": "lower_is_better",
+      "description": "1.0 when busloans_pct_yoy < 0, else 0.0. Note: contractions occur AFTER recessions (lagging) \u2014 e.g. 2009-2010, 2021.",
+      "source_reference": "FRED:BUSLOANS"
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Daily Return (decimal)",
+      "direction": "neutral",
+      "description": "SPY 1-month simple return (decimal).",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_1m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 1M Return",
+      "direction": "neutral",
+      "description": "Forward 1-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_3m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 3M Return",
+      "direction": "neutral",
+      "description": "Forward 3-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_6m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 6M Return",
+      "direction": "neutral",
+      "description": "Forward 6-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_12m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 12M Return",
+      "direction": "neutral",
+      "description": "Forward 12-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    }
+  }
+}
