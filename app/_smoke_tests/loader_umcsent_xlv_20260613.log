@@ -1,0 +1,31 @@
+# Loader smoke test  pair_id=umcsent_xlv  timestamp=2026-06-13T16:36:33
+# Pages scanned: 4
+#   app/pages/10_umcsent_xlv_evidence.py
+#   app/pages/10_umcsent_xlv_methodology.py
+#   app/pages/10_umcsent_xlv_story.py
+#   app/pages/10_umcsent_xlv_strategy.py
+
+
+# Dynamic charts (Evidence render_method_block helper)
+
+# APP-PT1 template + pair_config chart scans
+PASS  app/pair_configs/umcsent_xlv_config.py:74  chart=hero  traces=3  title='UMCSENT YoY Change vs XLV Price (1999-2025)'
+PASS  app/pair_configs/umcsent_xlv_config.py:85  chart=regime_stats  traces=2  title='XLV Returns by University of Michigan Consumer Sentiment Quartile'
+PASS  app/pair_configs/umcsent_xlv_config.py:559  chart=equity_curves  traces=4  title='Equity Curves: Top Strategies vs Buy-and-Hold (OOS 2019-04 – 2025-12)'
+PASS  app/pair_configs/umcsent_xlv_config.py:560  chart=drawdown  traces=2  title='Drawdown Comparison: Winner Strategy vs Buy-and-Hold XLV'
+PASS  app/pair_configs/umcsent_xlv_config.py:562  chart=wf_sharpe  traces=2  title='Walk-Forward Annual Sharpe Ratio (OOS Period by Year)'
+PASS  app/pair_configs/umcsent_xlv_config.py:563  chart=tournament_scatter  traces=4  title='Tournament Results: 1,306 Combinations (1,195 Valid)'
+PASS  umcsent_xlv/template-registry  chart=history_zoom_dot_com  traces=3  title='Dot-Com Crash (2000–2002): UMCSENT vs XLV (2000–2002)'
+PASS  umcsent_xlv/template-registry  chart=history_zoom_gfc  traces=3  title='Global Financial Crisis (2007–2009): UMCSENT vs XLV (2007–2009)'
+PASS  umcsent_xlv/template-registry  chart=history_zoom_covid  traces=3  title='COVID-19 Shock (2020): UMCSENT vs XLV (2020–2020)'
+PASS  umcsent_xlv/template-registry  chart=history_zoom_rates_2022  traces=3  title='2022 Rates Shock: UMCSENT vs XLV (2022–2022)'
+PASS  umcsent_xlv/template-registry  chart=correlation_scatter  traces=2  title='UMCSENT YoY vs XLV 6-Month Forward Returns'
+PASS  umcsent_xlv/template-registry  chart=ccf  traces=1  title='Cross-Correlation: UMCSENT YoY Change vs XLV Monthly Return<br><sup>Red bars = statistically significant at 95%</sup>'
+PASS  umcsent_xlv/template-registry  chart=signal_dist  traces=3  subplot_titles=['UMCSENT Year-over-Year Distribution', 'XLV Returns: Rising vs Falling Sentiment', 'Box edges mark the first quartile and third quartile; whiskers show the standard box-plot range. Points beyond the whiskers are extreme observations, not confirmed data errors.']
+PASS  umcsent_xlv/template-registry  chart=subperiod_sharpe  traces=1  title='Strategy Performance Across Market Episodes'
+PASS  umcsent_xlv/template-registry  chart=rolling_correlation  traces=2  title='Rolling 24-Month Signal–Return Correlation'
+PASS  umcsent_xlv/template-registry  chart=structural_break  traces=1  title='Structural Break Analysis — umcsent_xlv'
+PASS  umcsent_xlv/template-registry  chart=rolling_sharpe_cp  traces=3  title='Rolling 24-Month Strategy Sharpe Ratio'
+PASS  umcsent_xlv/template-registry  chart=rolling_granger  traces=4  title='Rolling Granger Test: p-value and F-statistic'
+
+# RESULT  passes=18  failures=0

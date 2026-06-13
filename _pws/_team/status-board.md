@@ -1748,3 +1748,15 @@ Lead Analysis + Lead Tournament (L=0..12 months, ECON-LL1) produced for all 9 ac
 - NOT touched: 4 RE-RUN pairs (Track B), frozen Sample.
 - Gates: smoke --all 9/9, lint_chart_completeness 0 failures, AST OK x5. Hook T2+T1.2 PASS on commit.
 - For Quincy: full DOM verify of the 3 pairs' Evidence pages (2 new Level-1 tabs each render charts) + permit_spy Strategy Confidence tab (CP narrative now appears above the cross-period charts; Evidence page no longer references "charts above").
+
+### QA Quincy — 2026-06-13 (fix260613_lead_horizon, Track A) — VERDICT: READY
+- Report: `results/_cross_agent/qa_track_a_lead_horizon_20260613.md`. Evidence: `temp/20260613_163811_qa_track_a/` (36 DOM captures + screenshots).
+- **Gate suite (9 pairs):** validate_all_schemas / lint_filename / lint_chart_completeness / smoke_loader --all — ALL CLEAN. 3 wired pairs reference both new charts.
+- **GATE-DPS1:** busloans 1 FAIL (known DPS-PRE1 waiver), hy_ig 5 FAIL, vix 9 FAIL — ALL pre-existing / Track B (evidence_status absent, history_zoom missing, vix Level-2=1). Proved non-regression: 58de67d touched only 5 config files; vix wiring REDUCED FAILs 10→9. **No NEW Track-A defect.**
+- **LEAD-DOM1:** Lead Analysis + Lead Tournament render on all 3 wired Evidence pages as Level-1 blocks with DISTINCT charts (LA=correlations_lead_view heatmap, LT=lead_sharpe_distribution bar). 8-element + breadcrumb intact. Zero error/stub strings across 36 DOM files.
+- **permit_spy:** Evidence transition = clean one-line bridge, NO orphan "charts above"; CP narrative present in Strategy→Confidence tab above the charts (renderer L1018-24). Only permit sets CROSS_PERIOD_NARRATIVE_MD (no-op elsewhere).
+- **Regression:** 4 RE-RUN pairs + Sample = 0 lead-block hits, intentionally unwired (charts on disk, 0 config refs), render clean.
+- **Triangulation (hy_ig_spy):** 3 heatmap cells exact vs lead_correlation CSV; max sharpe bar 1.4389 = CSV best_oos_sharpe max exact.
+- **Handoff to Lead:** READY for Track A merge. Out-of-scope defects logged (P1 busloans DPS-PRE1 waiver; P2-P4 Track B, owners Dana/Evan/Vera/Ace).
+
+🤖 Agent: QA Quincy

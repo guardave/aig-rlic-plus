@@ -813,3 +813,25 @@ Branch `fix260612_busloans_spy` @ bda7eb1 (Ray's mid-flight MANUAL_USE_MD commit
 Landing-only re-verify per stated scope. Unit reproduction PASS (registry returns 1.5/0.89/4396/-1.0/-23.9, integrity issues empty). DOM PASS: busloans card correct, other 8 cards byte-identical vs baseline (diff = busloans rows only + integrity banner correctly gone), zero console errors. QA-1 CLOSED → verdict READY. Evidence temp/260612_qa_busloans/reverify/.
 
 🤖 Agent: QA Quincy
+
+---
+
+## 2026-06-13 — Track A verify (fix260613_lead_horizon, Mode 1)
+
+Lead-horizon Track A: lead blocks wired on vix_vix3m_spy / hy_ig_spy / busloans_spy; permit CP-prose relocation; optional `CROSS_PERIOD_NARRATIVE_MD` slot. RE-RUN pairs = Track B (not under test). Report: `results/_cross_agent/qa_track_a_lead_horizon_20260613.md`.
+
+**Gates:** validate_all_schemas (33 PASS/0 FAIL), lint_filename (0 viol/427), lint_chart_completeness (123 refs/0 fail), smoke_loader --all (9/9, 0 fail) — all clean. The 3 wired pairs reference both new charts; JSON+PNG artifacts present.
+
+**GATE-DPS1:** busloans 1 FAIL (known DPS-PRE1 waiver), hy_ig 5 FAIL, vix 9 FAIL — all PRE-EXISTING / Track B (evidence_status absent, history_zoom dotcom/inflation_2022 missing, vix Level-2 count=1). Proved non-regression: commit 58de67d touched only 5 config files; vix was 10 FAIL on 58de67d~1, wiring reduced it to 9.
+
+**LEAD-DOM1 (local Streamlit + Playwright, 36 captures):** Lead Analysis + Lead Tournament render on all 3 wired Evidence pages as Level-1 blocks with DISTINCT charts — LA→correlations_lead_view (heatmap), LT→lead_sharpe_distribution (bar+scatter), confirmed at config-binding and JSON-type level. 8-element structure + breadcrumb intact. Zero error/stub strings across all 36 DOM files.
+
+**HABIT-QA1:** I read DOM text for vix_vix3m_spy_evidence (found nothing — both Lead headings L64/L66, Level-1/2 tabs, breadcrumb), busloans_spy_methodology + vix_vix3m_spy_story (found nothing), permit_spy_evidence (found nothing — clean one-line bridge, NO orphan "charts above"), permit_spy_strategy (found nothing — CP narrative "Honest read..." present in Confidence-tab HTML above charts). All four page types covered across wired + permit + regression pairs.
+
+**Regression:** indpro_spy/indpro_xlp/umcsent_xlv/gold_copper_xli + Sample = 0 lead-block hits on Evidence; lead charts on disk (6 each) but 0 config refs = intentionally unwired Track B. Render clean.
+
+**Triangulation (hy_ig_spy):** heatmap z[0][0]=-0.05, z[1][1]=-0.011, z[9][12]=-0.01 all exact vs lead_correlation_20260613.csv; lead_sharpe_distribution max bar 1.4389 = CSV best_oos_sharpe max 1.4389 exact.
+
+**Verdict: READY for Track A merge.** No NEW defects; 4 pre-existing/out-of-scope items logged (owners Lead/Dana/Evan/Vera/Ace, all Track B). Evidence: temp/20260613_163811_qa_track_a/.
+
+🤖 Agent: QA Quincy
