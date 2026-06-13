@@ -1719,3 +1719,9 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 
 ### 2026-06-13 — Econ Evan: Lead-Horizon gate COMPLETE (fix260613_lead_horizon)
 Lead Analysis + Lead Tournament (L=0..12 months, ECON-LL1) produced for all 9 active pairs. Gate: 4 RE-RUN candidates (indpro_spy, indpro_xlp, umcsent_xlv, gold_copper_xli), 5 CHARTS-ONLY (incl. permit_spy reproducing vichua's L6 finding, and frozen Sample read-only). NO winner changes this dispatch — re-runs are a separate Lead-checkpointed dispatch. Decision table in docs/pair_execution_history.md; Vera chart-input handoff ready. Awaiting Lead checkpoint to authorise the 4 re-runs.
+
+### Research Ray — 2026-06-13 (fix260613_lead_horizon)
+- DONE: `docs/portal_narrative_lead_blocks_20260613.md` (commit 2e6d80b, pushed). Lead Analysis + Lead Tournament 8-element prose for 7 non-frozen pairs (permit_spy ref untouched) + DPS-CPX1 CP-relocation spec.
+- For Ace: A.1-A.7 → port into `EVIDENCE_METHOD_BLOCKS.level1`. B.1/B.2 → permit_spy Confidence-tab CP narrative + new Evidence transition (needs a per-pair CP-narrative slot in `_render_cross_period_consistency`).
+- PENDING RE-RUN (refresh lead-tournament numbers post Track-B): indpro_spy(L12), indpro_xlp(L8), umcsent_xlv(L11), gold_copper_xli(L10).
+- A2A: null `target_symbol` in interpretation_metadata for indpro_xlp/umcsent_xlv/busloans_spy → Dana/Lead.

@@ -297,3 +297,17 @@ loan-spike paradox; (2) DPS-FE2 found_in_search labels on every KPI; (3) fragili
 RES-20 deviation: no long_lead episode (honest). Slug vocabulary clash between episode_registry.json and
 META-ZI canonical list discovered and escalated; aligned to Vera's chart filenames.
 - 2026-06-12 (A2A review, Lead-dispatched): reviewed Ace's config 0008aa3 — verbatim ports clean, ONE_SENTENCE_THESIS carries lagging verdict + search-phase qualifier (no naked 1.50), MANUAL_USE_MD artifact-true but RES-CAP1 framing strengthened (non-recommendation disclosure front-loaded); single prose edit, CONFIG-PARSE-CHECK OK, committed+pushed.
+
+---
+## 2026-06-13 — fix260613_lead_horizon (Track A, Mode 1)
+Dispatched by Lead Lesandro. Delivered `docs/portal_narrative_lead_blocks_20260613.md` (commit 2e6d80b).
+
+**1. Lead Analysis + Lead Tournament prose (7 pairs; permit_spy ref left as-is).**
+- Grounded every number + categorical claim in `results/{pair}/lead_correlation_20260613.csv` + `lead_tournament_20260613.csv` + `lead_horizon_gate_20260613.csv`.
+- 4 RE-RUN (L*∈7..12): indpro_spy L12, indpro_xlp L8, umcsent_xlv L11, gold_copper_xli L10 — tagged [NUMBERS PENDING RE-RUN], must refresh post Track-B.
+- 4 charts-only (L*≤6): vix L3, hy_ig_spy L1, busloans L5 (+permit ref L6) — FINAL now.
+- ECON-LA1 honest-finding stated per pair: corr-vs-tournament divergence is explicit. gold_copper interesting: corr AGREES with published L0, tournament forces re-run on L10 Sharpe — flagged the tension. busloans lagging-pair: near-empty corr grid, edge is drawdown-avoidance not predictive lead.
+
+**2. DPS-CPX1 CP relocation.** Whole-fleet scan: ONLY permit_spy carries orphan CP prose (Evidence transition "cross-period charts above" + "Putting it together"). Other 7 clean (busloans built fresh post-2026-06-10). B.1 = moved prose for Confidence tab; B.2 = new 1-line Evidence bridge. Flagged: renderer `_render_cross_period_consistency` has no per-pair narrative slot — Ace needs to add one (suggested `StrategyConfig.CROSS_PERIOD_NARRATIVE_MD`).
+
+**A2A flag:** indpro_xlp / umcsent_xlv / busloans_spy have null `target_symbol` in interpretation_metadata.json — metadata-completeness gap, raised to Lead/Dana. Targets sourced from pair-id + config titles for now.
