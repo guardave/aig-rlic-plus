@@ -8,6 +8,20 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-06-13 — Lead-horizon standards: Lead Analysis + Lead Tournament mandatory, monthly lead granularity, analysis-gated re-run, narrative-travels-with-section
+
+**Trigger.** Stakeholder direction after reviewing vichua4b's permit_spy Lead Analysis / Lead Tournament blocks (`f70d29b`): make them mandatory Evidence components for all pairs; extend the lead horizon 6→12 months "in all analysis"; and fix orphan Cross-Period narrative left on the Evidence page by the 2026-06-10 chart relocation. Branch `fix260613_lead_horizon`.
+
+**New rules (Phase 0):**
+- **ECON-LL1** (econometrics SOP) — Universal Monthly Lead-Granularity: lead analysed in MONTHS (L=0..12) for every pair incl. daily (daily pairs: 1 month ≈ 21 trading days). Physical lead is set by data availability + reporting lag + market reaction, not sampling frequency. Applies to all current + future pairs.
+- **ECON-LA1** — Lead Analysis mandatory: Pearson r of each transform lagged L0..12 vs target 1-month forward return; emit `lead_correlation_{date}.csv` + `correlations_lead_view` chart; report best lead per transform; disclose divergence from the published winner's lead.
+- **ECON-LT1** — Lead Tournament + analysis-gated conditional re-run: re-run tournament on full L=0..12 grid; emit best-Sharpe-per-lead distribution + `lead_sharpe_distribution` chart. **Gate:** if best-Sharpe lead L\* ∈ {7..12} → re-run/adopt the extended winner (full downstream cascade); if L\* ∈ {0..6} → keep winner, publish charts only. Per-pair decision logged in pair_execution_history.
+- **DPS-LEAD1** (dashboard-page-standard) — Lead Analysis + Lead Tournament are mandatory Level-1 Evidence blocks, all pairs.
+- **DPS-CPX1** — Narrative travels with its section: relocated sections take their prose with them; the 2026-06-10 CP chart move left orphan "honest read"/"putting it together" prose on Evidence pages — retro-fixed this wave. The Evidence→Strategy transition is a one-line bridge only.
+- **VIZ-LEAD1** (visualization SOP) — the two chart standards + chart_type_registry entries (closing vichua's unregistered-chart gap).
+
+**Execution:** Phase 0 = rules (this entry). Then Evan gating analysis across 9 pairs → conditional re-runs → Vera/Ray/Ace retrofit + CP-prose relocation → Quincy verify. Reference implementation: permit_spy (vichua), whose extended-grid max Sharpe stays at L=6 (no re-run; L8-10 is a lower-DD ridge).
+
 ## 2026-06-12 — Chart Type Registry v1.1.0: `tournament_distribution` method entry
 
 **Trigger.** busloans_spy (Pair #19, fix260612) Lead dispatch mandated a tournament-distribution chart with VIZ-SCD1 winner-position annotation and a B&H benchmark line (the pair's median valid strategy, 0.74, sits BELOW B&H 0.89 — the disclosure is the point). `tournament_sharpe_dist.json` had shipped on hy_ig_spy and gold_copper_xli without a registry entry, leaving the method unregistered against VIZ-V8 ("do not ship a chart whose method_name is not in the registry").
