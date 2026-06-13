@@ -1,5 +1,5 @@
 {
-  "x-version": "1.1.0",
+  "x-version": "1.2.0",
   "x-owner": "vera",
   "x-generated": "2026-04-19",
   "notes": "Initial canonical instance seeded from the HY-IG v2 reference pair (per META-RPD) after Wave 4B cross-review exposed the method-to-chart mapping living in three SOPs (Evan ECON-H4, Vera VIZ-A3, Ace render_method_block). Populated from handoff_to_vera_20260419.md, VIZ-A3 Standard Chart Set, META-ZI episode slugs, and the Strategy-page chart inventory. Producer (Vera) validates a chart's basename against canonical_filename_pattern before save; consumer (Ace) uses method_name to resolve both the chart JSON and the upstream CSV. Evan's ECON-H4 handoff is the INPUT that feeds this registry; this registry is the authoritative OUTPUT (VIZ-V8).",
@@ -206,6 +206,25 @@
       "econ_rule_id": "ECON-T4",
       "consumer_page": "strategy",
       "notes": "OOS Sharpe distribution across valid combos (benchmark excluded per ECON-T4). Winner annotation states position: 'Winner = max of N (median X)' per VIZ-SCD1; B&H benchmark vline marked. Precedent: hy_ig_spy, gold_copper_xli tournament_sharpe_dist."
+    },
+    "lead_analysis": {
+      "expected_chart_type": "heatmap",
+      "canonical_filename_pattern": "correlations_lead_view.json",
+      "required_result_file": "lead_correlation_{date}.csv",
+      "viz_rule_id": "VIZ-LEAD1",
+      "econ_rule_id": "ECON-LA1",
+      "consumer_page": "evidence",
+      "notes": "Lead-lag heatmap: rows = signal transforms, cols = lead months L0..L12, cell = Pearson r of lagged signal vs target 1-month forward return; significance stars */**; diverging RdBu_r centred at 0; caption names best-lead column. Universal monthly lead axis per ECON-LL1 (all pairs incl. daily). Precedent: permit_spy (vichua)."
+    },
+    "lead_tournament": {
+      "expected_chart_type": "bar",
+      "canonical_filename_pattern": "lead_sharpe_distribution.json",
+      "required_result_file": "lead_tournament_{date}.csv",
+      "viz_rule_id": "VIZ-LEAD1",
+      "econ_rule_id": "ECON-LT1",
+      "consumer_page": "evidence",
+      "notes": "Per lead L0..L12: bar = best OOS Sharpe at that lead, overlaid with p25-p75 band + median strip of valid combos; dashed buy-and-hold reference line; max-lead annotation; caption states spike-vs-ridge character per ECON-LT1 gate finding. required_result_file may also be lead_tournament_{date}.csv. Precedent: permit_spy (vichua)."
     }
-  }
+  },
+  "x-revised": "2026-06-13"
 }

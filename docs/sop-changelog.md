@@ -8,6 +8,19 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-06-13 — VIZ-LEAD1 registry binding + production (chart_type_registry x-version 1.1.0 → 1.2.0)
+
+**Scope.** Visualization (Vera), branch `fix260613_lead_horizon`. Closes vichua's unregistered-chart gap.
+
+- Added two method bindings to `docs/schemas/chart_type_registry.json`:
+  - `lead_analysis` → `correlations_lead_view.json` (heatmap; required_result_file `lead_correlation_{date}.csv`; viz_rule_id `VIZ-LEAD1`; econ_rule_id `ECON-LA1`; consumer_page evidence).
+  - `lead_tournament` → `lead_sharpe_distribution.json` (bar; required_result_file `lead_tournament_{date}.csv`; viz_rule_id `VIZ-LEAD1`; econ_rule_id `ECON-LT1`; consumer_page evidence).
+- Bumped registry `x-version` 1.1.0 → 1.2.0, `x-revised` 2026-06-13.
+- Produced both VIZ-LEAD1 charts for the 8 non-frozen pairs (frozen Sample `hy_ig_v2_spy` excluded per Sample-frozen mandate); `_meta.json` sidecars (disposition consumed, palette okabe_ito_2026) + perceptual PNGs. Numbers re-read from Evan's CSVs at generation time; all 16 reconcile to source.
+- Pre-existing schema defect flagged (not introduced this wave): `tournament_distribution.expected_chart_type` = `histogram` is not in the schema enum (committed 949a113).
+
+---
+
 ## 2026-06-13 — Lead-horizon standards: Lead Analysis + Lead Tournament mandatory, monthly lead granularity, analysis-gated re-run, narrative-travels-with-section
 
 **Trigger.** Stakeholder direction after reviewing vichua4b's permit_spy Lead Analysis / Lead Tournament blocks (`f70d29b`): make them mandatory Evidence components for all pairs; extend the lead horizon 6→12 months "in all analysis"; and fix orphan Cross-Period narrative left on the Evidence page by the 2026-06-10 chart relocation. Branch `fix260613_lead_horizon`.
