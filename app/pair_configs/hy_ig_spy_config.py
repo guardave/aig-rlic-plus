@@ -693,11 +693,25 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
         "credit-spread signal get before trading SPY? For each transform we "
         "compute Pearson r between the signal lagged L months and SPY's "
         "1-month forward return. The expected sign is counter-cyclical — wider "
-        "HY-IG spreads precede equity weakness."
+        "HY-IG spreads precede equity weakness. "
+        "Cross-pair framing note: the HY-IG spread is a daily real-time "
+        "signal — corporate bond yields are priced every trading day with "
+        "zero publication lag. Unlike monthly macro indicators such as "
+        "Industrial Production or Building Permits (which are published 2-6 "
+        "weeks after the reference month, creating a genuine puzzle about the "
+        "optimal signal staleness), today's credit spread is on your screen "
+        "right now. You would not check last year's spread to decide what to "
+        "do today when today's number is freely available. So if L0 dominates, "
+        "that is the expected result for a zero-lag signal, not a discovery — "
+        "these charts serve cross-pair comparability, letting the reader see "
+        "that permits have a real lead-selection puzzle and credit spreads do "
+        "not."
     ),
     question=(
         "How many months should we lag the credit-spread signal — and does "
-        "the published same-day (L=0) lead match the data?"
+        "the published same-day (L=0) lead match the data? For a zero-lag "
+        "daily signal, near-term lead dominance is the economically expected "
+        "result."
     ),
     how_to_read=(
         "Rows are HY-IG spread transforms; columns are signal lead in months. "
@@ -780,7 +794,11 @@ LEAD_TOURNAMENT_BLOCK = dict(
         "fire and no re-run is required. The 0.019 Sharpe gap between L0 and L1 "
         "is well inside noise; the published same-day winner is sound. Honest "
         "read: this is the cleanest of the eight pairs — the published lead was "
-        "already at (or one month from) the optimum. **Charts-only.**"
+        "already at (or one month from) the optimum. As a daily real-time "
+        "signal with zero publication lag, L0 dominance is the structural "
+        "expectation — contrast with monthly macro indicators like Building "
+        "Permits (optimal lead L8-9) where the lead puzzle is genuine. "
+        "**Charts-only.**"
     ),
     key_message=(
         "Best Sharpe across L=0..12 is **L=1 (1.44)**, statistically tied with "

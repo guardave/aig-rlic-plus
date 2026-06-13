@@ -375,12 +375,25 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
         "monthly *lead* question (ECON-LL1: one month of lead ≈ 21 trading "
         "days, so the daily ratio is shifted by L×21 days). For each VIX-term-"
         "structure transform we compute Pearson r between the signal lagged "
-        "L=0..12 months and SPY's 1-month forward return."
+        "L=0..12 months and SPY's 1-month forward return. "
+        "A key framing note for cross-pair comparison: the VIX/VIX3M ratio is "
+        "a daily real-time signal — both VIX and VIX3M are published every "
+        "trading day with zero lag. Unlike monthly macro indicators such as "
+        "Industrial Production or Building Permits (which arrive 2-6 weeks "
+        "after the reference month, creating a genuine puzzle about how stale "
+        "the signal should be), today's VIX term-structure reading is right "
+        "there on your screen. You would not check last year's VIX ratio to "
+        "decide what to do today when today's number is freely available. So "
+        "if the Lead Analysis shows L0 as the strongest lead, that is the "
+        "expected result for a zero-lag signal, not a discovery — these charts "
+        "serve cross-pair comparability, letting the reader see that permits "
+        "have a real lead-selection puzzle and VIX term-structure does not."
     ),
     question=(
         "How stale may the VIX/VIX3M signal get before it stops predicting "
         "next month's SPY return — and does the data support the published "
-        "same-day (L=0) lead?"
+        "same-day (L=0) lead? For a zero-lag daily signal, L0 dominance is "
+        "the economically expected result."
     ),
     how_to_read=(
         "Rows are VIX term-structure transforms; columns are signal lead in "
@@ -469,7 +482,10 @@ LEAD_TOURNAMENT_BLOCK = dict(
         "stress predicts equities over the next one-to-six months, with the "
         "risk-adjusted sweet spot around a quarter (L=3) and a robust ridge at "
         "L=5-6. The published same-day winner is conservative within that "
-        "region. **Charts-only.**"
+        "region. As a daily real-time signal with zero publication lag, the "
+        "near-term lead region is the structural expectation — contrast with "
+        "monthly macro indicators like Building Permits (optimal lead L8-9) "
+        "where the lead puzzle is genuine. **Charts-only.**"
     ),
     key_message=(
         "Best Sharpe across L=0..12 is **L=3 (1.87)**, with a robust L=5-6 "
