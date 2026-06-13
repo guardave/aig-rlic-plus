@@ -8,6 +8,30 @@
 
 ## Session timeline (Wave-by-wave)
 
+### fix260613_lead_horizon — Track A lead-block wiring + DPS-CPX1 (2026-06-13)
+
+Dispatch from Lead Lesandro. Mode 1, Track A — FINAL-numbers pairs only.
+
+**Done:**
+- Wired `CORRELATION_LEAD_VIEW_BLOCK` (Lead Analysis) + `LEAD_TOURNAMENT_BLOCK`
+  (Lead Tournament) into 3 configs: vix_vix3m_spy, hy_ig_spy, busloans_spy.
+  Prose verbatim from Ray §A.2/A.4/A.7. Inserted into level1 after Correlation,
+  matching level1_labels, mirroring permit_spy. Charts distinct:
+  correlations_lead_view + lead_sharpe_distribution.
+- DPS-CPX1: added optional `StrategyConfig.CROSS_PERIOD_NARRATIVE_MD` slot.
+  `_render_cross_period_section(pair_id, narrative_md=None)` renders it under
+  the "### Cross-Period Consistency" heading when set; no-op when None.
+  Call site passes `getattr(config,"CROSS_PERIOD_NARRATIVE_MD",None)`.
+- permit_spy: moved orphan CP prose (Ray B.1) from Evidence `transition` into
+  CROSS_PERIOD_NARRATIVE_MD; replaced transition with Ray B.2 one-line bridge.
+- DID NOT touch the 4 RE-RUN pairs (Track B) or frozen Sample.
+
+**Verify:** smoke --all 9/9 before AND after (regression no-op proven via
+git stash); lint_chart_completeness 0 failures; AST OK on all 5 files;
+functional check: CP slot present only on permit, None for the other 3.
+
+**Commit:** 58de67d (pushed). Next: Quincy owns full DOM verify.
+
 ### Wave 10I.C Adversarial DOM Audit Self-Review (2026-04-23)
 
 **Failures owned by Ace and fixed in this session:**

@@ -1741,3 +1741,10 @@ Lead Analysis + Lead Tournament (L=0..12 months, ECON-LL1) produced for all 9 ac
 - For Ace: A.1-A.7 → port into `EVIDENCE_METHOD_BLOCKS.level1`. B.1/B.2 → permit_spy Confidence-tab CP narrative + new Evidence transition (needs a per-pair CP-narrative slot in `_render_cross_period_consistency`).
 - PENDING RE-RUN (refresh lead-tournament numbers post Track-B): indpro_spy(L12), indpro_xlp(L8), umcsent_xlv(L11), gold_copper_xli(L10).
 - A2A: null `target_symbol` in interpretation_metadata for indpro_xlp/umcsent_xlv/busloans_spy → Dana/Lead.
+
+### AppDev Ace — 2026-06-13 (fix260613_lead_horizon, Track A)
+- DONE (commit 58de67d, pushed): wired Lead Analysis + Lead Tournament blocks into vix_vix3m_spy, hy_ig_spy, busloans_spy (Ray §A.2/A.4/A.7 verbatim; level1 after Correlation; charts correlations_lead_view + lead_sharpe_distribution, distinct).
+- DPS-CPX1: added optional StrategyConfig.CROSS_PERIOD_NARRATIVE_MD slot in _render_cross_period_section (no-op when unset — regression proven 9/9 smoke before+after via stash). permit_spy CP prose moved Evidence transition→CROSS_PERIOD_NARRATIVE_MD (B.1); transition replaced with B.2 one-liner.
+- NOT touched: 4 RE-RUN pairs (Track B), frozen Sample.
+- Gates: smoke --all 9/9, lint_chart_completeness 0 failures, AST OK x5. Hook T2+T1.2 PASS on commit.
+- For Quincy: full DOM verify of the 3 pairs' Evidence pages (2 new Level-1 tabs each render charts) + permit_spy Strategy Confidence tab (CP narrative now appears above the cross-period charts; Evidence page no longer references "charts above").
