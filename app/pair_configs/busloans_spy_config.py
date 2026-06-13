@@ -589,6 +589,130 @@ REGIME_BLOCK = dict(
 )
 
 
+# --- Lead blocks (fix260613_lead_horizon, Ray §A.7 — CHARTS-ONLY/FINAL;
+#     lagging-pair, reverse-only causality) ---
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "The Correlation block above fixes signal lag at zero and varies the "
+        "forward horizon. The monthly-strategy *lead* question: how stale may "
+        "the loan-growth signal get before trading SPY? For each transform we "
+        "compute Pearson r between the signal lagged L=0..12 months and SPY's "
+        "1-month forward return. Read this in light of the pair's reverse-only "
+        "causality verdict — loans lag the market, so any 'lead' here is a "
+        "property of a lagging indicator, not a forecasting signal."
+    ),
+    question=(
+        "If we trade against next month's SPY return, how many months should "
+        "we lag the loan-growth signal — and does the published L=6 lead "
+        "reflect any real predictive content, given loans are a lagging "
+        "series?"
+    ),
+    how_to_read=(
+        "Rows are C&I loan-growth transforms; columns are signal lead in "
+        "months. Forward horizon fixed at 1 month against `spy_fwd_1m`. "
+        "Stars: `*` p<0.05, `**` p<0.01."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson r between loan-growth signal lagged L months and SPY 1-month "
+        "forward return. The grid is almost entirely insignificant — "
+        "consistent with a lagging series. The single significant cell is "
+        "`busloans_accel_pct` at **L5 (−0.135**)**; every other transform "
+        "stays within |r| < 0.08 at every lead. The published L=6 column is "
+        "uniformly near-zero."
+    ),
+    observation=(
+        "Reading directly: this is the weakest lead-correlation grid of the "
+        "eight pairs — exactly what reverse-only causality predicts. Only one "
+        "cell clears significance (`busloans_accel_pct` at L5, −0.135**), and "
+        "it is isolated. At the published **L6**, all transforms are "
+        "essentially zero (`busloans_pct_mom` +0.039, `busloans_6m_pct` "
+        "+0.032, `busloans_zscore_60m` +0.011). There is no meaningful linear "
+        "lead."
+    ),
+    interpretation=(
+        "The lead-correlation view confirms the pair's character: loan growth "
+        "carries **almost no linear predictive content** for forward SPY at "
+        "any lead — as expected for a Conference Board *lagging*-index "
+        "component. The published L=6 lead is not endorsed by correlation (nor "
+        "is any other lead), but this is not a divergence that triggers a "
+        "re-run: the tournament (next block) finds its best Sharpe at **L=5**, "
+        "inside the published lead's region (L* ≤ 6). The honest read is that "
+        "the strategy does not ride a predictive correlation — it rides a "
+        "*descriptive* regime regularity (weak loan growth marks late-stage, "
+        "post-stress states). **Charts-only.**"
+    ),
+    key_message=(
+        "The lead-correlation grid is near-empty (one significant cell, "
+        "`busloans_accel_pct` L5 −0.135**) — exactly as a lagging series "
+        "should be. No real predictive lead exists; the strategy is "
+        "descriptive, not predictive. Tournament best lead (L=5) stays "
+        "in-region. **Charts-only, no re-run.**"
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "We re-ran the full tournament across L=0..12. The chart plots best "
+        "OOS Sharpe per lead over the combo cloud, with SPY buy-and-hold "
+        "(0.89) dashed. For a lagging series, a high tournament Sharpe reflects "
+        "regime-conditional drawdown avoidance, not predictive lead — read the "
+        "bars with that caveat."
+    ),
+    question=(
+        "Does any lead beat the published L=6 winner — and is the edge a "
+        "predictive lead or a regime artefact?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe per lead. Strip: all valid combos. Tall-thin = "
+        "single combo; flat-wide = robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per lead. The maximum is **L=5 (1.500, "
+        "`busloans_pct_mom` / Trp25_lo / P1)** — the published winner — with "
+        "**L=4 close behind (1.424)**. A secondary far cluster sits at L=9 "
+        "(1.319) and L=11 (1.271). The published L=6 (1.125) is, notably, "
+        "*not* the grid peak; the L=5 winner edges it. All leads clear "
+        "buy-and-hold (0.89)."
+    ),
+    observation=(
+        "Reading the bars: the peak is **L=5 (1.500)**, flanked by a strong "
+        "L=4 (1.424); the published L=6 (1.125) sits a step below its own "
+        "near-neighbours. A second, lower cluster appears far out at L9-L11. "
+        "The L=5 spike is tall but its neighbour L=4 is close, so the "
+        "near-term region is a small ridge rather than a single isolated "
+        "point. Reading the strip: medians are high and rise with lead (0.64 "
+        "at L0 → 0.74 at L10), but for a lagging series this reflects the "
+        "broad availability of defensive (mostly-cash) combos, not predictive "
+        "content."
+    ),
+    interpretation=(
+        "The extended grid's best Sharpe is **L=5 (1.500)**, inside the "
+        "published lead region (L* ≤ 6), so the gate does **not** fire — "
+        "**charts-only**. A subtlety worth stating: the published "
+        "configuration sits at L=6 (1.125) while the grid peak is one month "
+        "shorter at L=5; both are in-region, so no re-run, but the chart "
+        "honestly shows the near-term ridge centred at L4-L5 rather than "
+        "exactly at the published L6. Crucially, this Sharpe is a "
+        "**drawdown-avoidance artefact of a lagging series** — the strategy "
+        "sits in cash ~75% of the time and fails the bootstrap significance "
+        "test (p=0.066, per `winner_summary.json`). The high Sharpe is real "
+        "but it is not evidence of a predictive lead. **Charts-only.**"
+    ),
+    key_message=(
+        "Best Sharpe across L=0..12 is **L=5 (1.50)**, with L=4 close behind — "
+        "inside the published lead region, so **charts-only, no re-run**. The "
+        "edge is regime-conditional drawdown avoidance on a lagging series "
+        "(75% cash, bootstrap p=0.066), not a predictive lead."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     # Ray's Evidence headline (verbatim).
     "title": "Five independent tests agree: the stock market moves first, loan books respond",
@@ -638,8 +762,8 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Rolling 24-month correlation (370 rows)",
          "path": "results/busloans_spy/rolling_correlation_busloans_spy.csv"},
     ],
-    "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Correlation", "Granger Causality", "Pre-Whitened CCF"],
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Granger Causality", "Pre-Whitened CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, TRANSFER_ENTROPY_BLOCK,
                QUANTILE_BLOCK, REGIME_BLOCK],
     "level2_labels": ["Local Projections", "Transfer Entropy",

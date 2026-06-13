@@ -989,7 +989,7 @@ def _render_method_block(content: dict, pair_id: str) -> None:
     st.info(f"**Key message:** {content['key_message']}")
 
 
-def _render_cross_period_section(pair_id: str) -> None:
+def _render_cross_period_section(pair_id: str, narrative_md: str | None = None) -> None:
     """Cross-Period Consistency charts (ECON-CP1/CP2 + VIZ-CP1).
 
     Relocated 2026-06-10 (fix260610_xpair_general, stakeholder direction):
@@ -1015,6 +1015,14 @@ def _render_cross_period_section(pair_id: str) -> None:
         "one era or only appears in a specific decade is fragile; one that "
         "persists across regimes is robust."
     )
+
+    # DPS-CPX1 (fix260613_lead_horizon): optional per-pair Cross-Period
+    # narrative slot. Rendered immediately under the heading, above the
+    # first chart, ONLY when the pair's StrategyConfig sets
+    # CROSS_PERIOD_NARRATIVE_MD. No-op (nothing rendered) when absent — a
+    # hard regression constraint for every pair that doesn't set it.
+    if narrative_md:
+        st.markdown(narrative_md)
 
     # fix260526 #104: the "How to read it" caption was rendered AS
     # st.caption() BELOW each chart (small + grey). User asked for it to
@@ -1495,7 +1503,10 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         # (2026-06-10, fix260610_xpair_general). Walk-forward and cross-period
         # both answer "does the edge persist over time?"; the scatter and
         # leaderboard below answer "how was the winner selected?".
-        _render_cross_period_section(pair_id)
+        _render_cross_period_section(
+            pair_id,
+            narrative_md=getattr(config, "CROSS_PERIOD_NARRATIVE_MD", None),
+        )
 
         st.markdown("---")
         st.markdown("### Tournament Scatter")

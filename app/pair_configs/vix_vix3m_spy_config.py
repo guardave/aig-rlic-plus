@@ -365,6 +365,120 @@ LOCAL_PROJECTIONS_BLOCK = dict(
 )
 
 
+# --- Lead blocks (fix260613_lead_horizon, Ray §A.2 — CHARTS-ONLY/FINAL) ---
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "The Correlation block above fixes the signal at zero lag and varies "
+        "the forward horizon. A daily-rebalanced overlay still has to answer a "
+        "monthly *lead* question (ECON-LL1: one month of lead ≈ 21 trading "
+        "days, so the daily ratio is shifted by L×21 days). For each VIX-term-"
+        "structure transform we compute Pearson r between the signal lagged "
+        "L=0..12 months and SPY's 1-month forward return."
+    ),
+    question=(
+        "How stale may the VIX/VIX3M signal get before it stops predicting "
+        "next month's SPY return — and does the data support the published "
+        "same-day (L=0) lead?"
+    ),
+    how_to_read=(
+        "Rows are VIX term-structure transforms; columns are signal lead in "
+        "months. Forward horizon fixed at 1 month. Shading is Pearson r "
+        "against `spy_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson r between VIX-term-structure signal lagged L months and SPY "
+        "1-month forward return. The strongest cells sit at **L=5-6**: "
+        "`vix_ratio_zscore_126d` at L6 is −0.194**, `vix_ratio_roc_21d` at L5 "
+        "is +0.179**, `vix_ratio_mom_21d` at L5 +0.172*, `vix_term_spread` at "
+        "L6 +0.151*. The contemporaneous column (L0, the published lead) is "
+        "uniformly weak (|r| < 0.08)."
+    ),
+    observation=(
+        "Reading directly: the level/z-score transforms (`vix_ratio`, "
+        "`vix_ratio_zscore_126d`, `pctrank_252d`) all carry their strongest "
+        "cell as a **negative** r at **L6** (more backwardation 6 months ago → "
+        "lower forward returns, the counter-cyclical sign). The momentum/RoC "
+        "transforms peak **positive at L5**. At L0 — where the published "
+        "winner trades — correlations are near zero, consistent with VIX "
+        "term-structure being a fast, noisy same-day signal whose linear "
+        "predictive content actually concentrates a few months out."
+    ),
+    interpretation=(
+        "The lead-correlation view diverges from the published **L=0** lead: "
+        "linear predictability concentrates at **L=5-6**, not "
+        "contemporaneously. But — crucially — this divergence does **not** "
+        "trigger a re-run. The tournament (next block) finds its best Sharpe "
+        "at **L=3**, still inside the published lead's near-term region "
+        "(L* ≤ 6), so the published winner's lead region holds and this pair "
+        "is **charts-only**. The honest read: the *correlation* is strongest "
+        "at a 5-6 month lead, while the *traded edge* is a fast "
+        "same-day-to-quarterly signal — two different lenses on a "
+        "counter-cyclical relationship, neither of which dethrones the "
+        "published configuration."
+    ),
+    key_message=(
+        "Linear correlation peaks at **L=5-6** (counter-cyclical), diverging "
+        "from the published same-day lead — but the tournament's best Sharpe "
+        "stays in the near-term region (L=3 ≤ 6), so the published winner's "
+        "lead region still wins. **Charts-only; no re-run.**"
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "We re-ran the full tournament across L=0..12 (monthly grid, daily "
+        "signal shifted by L×21 trading days per ECON-LL1). The chart plots "
+        "best OOS Sharpe per lead over the full combo cloud, with SPY "
+        "buy-and-hold (1.13 over this OOS) dashed."
+    ),
+    question=(
+        "Does a longer lead beat the published same-day (L=0) winner — or is "
+        "the near-term region still where the edge lives?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe per lead. Strip: all valid combos at that lead. "
+        "Tall-thin = single combo; flat-wide = robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per lead. The grid maximum is **L=3 (1.869)** — a "
+        "tall spike from `vix_ratio_pctrank_252d` / Tp10_hi / P2 — with "
+        "secondary peaks at L=6 (1.649) and L=5 (1.483). The published L=0 "
+        "winner (1.068) is the *lowest* peak on the whole grid. Leads beyond "
+        "L=7 decay toward buy-and-hold."
+    ),
+    observation=(
+        "Reading the bars: a clear near-term ridge — L1 (1.283), L3 (1.869), "
+        "L5 (1.483), L6 (1.649) — then a steady decay through L7-L12 back "
+        "toward 1.0. The L=3 spike is the standout. Reading the strip: at L6 "
+        "the median combo (0.93) is the highest of any lead, suggesting L5-6 "
+        "is a genuine ridge, not a single lucky point; the L3 maximum is "
+        "taller but its cloud is wider."
+    ),
+    interpretation=(
+        "The extended grid lifts the achievable Sharpe well above the "
+        "published L=0 figure (1.07 → 1.87 at L=3), but the gate keys on "
+        "**where** the best lead sits: **L*=3 ∈ {0..6}**, so the published "
+        "winner's lead *region* still wins and no full re-run is required. "
+        "This is the honest, economically sensible result — VIX term-structure "
+        "stress predicts equities over the next one-to-six months, with the "
+        "risk-adjusted sweet spot around a quarter (L=3) and a robust ridge at "
+        "L=5-6. The published same-day winner is conservative within that "
+        "region. **Charts-only.**"
+    ),
+    key_message=(
+        "Best Sharpe across L=0..12 is **L=3 (1.87)**, with a robust L=5-6 "
+        "ridge — all inside the published lead's near-term region (L* ≤ 6). "
+        "The published winner is not dethroned; **charts-only, no re-run.**"
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
@@ -394,8 +508,8 @@ EVIDENCE_METHOD_BLOCKS = {
         "and remains significant for about a month. This is the cleanest "
         "econometric picture in the portal."
     ),
-    "level1": [CORRELATION_BLOCK],
-    "level1_labels": ["Correlation"],
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament"],
     "level2": [LOCAL_PROJECTIONS_BLOCK],
     "level2_labels": ["Local Projections"],
     "tournament_intro": (

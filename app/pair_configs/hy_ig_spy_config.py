@@ -682,6 +682,114 @@ QUANTILE_BLOCK = dict(
 )
 
 
+# --- Lead blocks (fix260613_lead_horizon, Ray §A.4 — CHARTS-ONLY/FINAL) ---
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "The Correlation block above fixes signal lag at zero and varies the "
+        "forward horizon. The monthly-strategy *lead* question (daily signal "
+        "resampled to a monthly L=0..12 grid per ECON-LL1): how stale may the "
+        "credit-spread signal get before trading SPY? For each transform we "
+        "compute Pearson r between the signal lagged L months and SPY's "
+        "1-month forward return. The expected sign is counter-cyclical — wider "
+        "HY-IG spreads precede equity weakness."
+    ),
+    question=(
+        "How many months should we lag the credit-spread signal — and does "
+        "the published same-day (L=0) lead match the data?"
+    ),
+    how_to_read=(
+        "Rows are HY-IG spread transforms; columns are signal lead in months. "
+        "Forward horizon fixed at 1 month. Stars: `*` p<0.05, `**` p<0.01."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson r between HY-IG spread signal lagged L months and SPY 1-month "
+        "forward return. The strongest cells are short-lead and "
+        "counter-cyclical: `hy_ig_mom_21d` at **L2 (−0.222**)**, "
+        "`hy_ig_mom_63d` at **L1 (−0.160**)** and L0 (−0.117*), "
+        "`hy_ig_roc_21d` at L2 (−0.126*). The HMM stress probability peaks at "
+        "L6 (−0.137*). The published L=0 lead is significant on "
+        "`hy_ig_mom_63d` (−0.117*)."
+    ),
+    observation=(
+        "Reading directly: the predictive content is concentrated at **very "
+        "short leads (L1-2)** with the correct counter-cyclical negative sign "
+        "— a momentum/RoC spike (recent spread widening) one-to-two months ago "
+        "precedes lower forward SPY returns. `hy_ig_mom_21d` at L2 (−0.222**) "
+        "is the single strongest cell in the grid. Longer leads (L7-12) are "
+        "mostly noise."
+    ),
+    interpretation=(
+        "The lead-correlation view broadly agrees with the published **L=0** "
+        "lead — the signal is genuinely fast. The strongest *linear* cell sits "
+        "one-to-two months out (L1-2), a mild divergence from exactly-zero, "
+        "but the tournament (next block) confirms the near-term region wins: "
+        "best Sharpe at **L=1**. Because L*=1 ∈ {0..6}, no re-run is required. "
+        "Honest read: credit spreads are a short-horizon early-warning signal; "
+        "the published same-day winner sits at the fast end of a "
+        "one-to-two-month predictive window — close enough that the published "
+        "lead region holds. **Charts-only.**"
+    ),
+    key_message=(
+        "Linear predictability is short-lead and counter-cyclical, peaking at "
+        "**L=1-2** (strongest cell `hy_ig_mom_21d` L2, −0.222**) — essentially "
+        "agreeing with the published same-day lead. The tournament's best "
+        "Sharpe at L=1 stays in-region. **Charts-only, no re-run.**"
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "We re-ran the full tournament across L=0..12 (daily signal resampled "
+        "to the monthly grid). The chart plots best OOS Sharpe per lead over "
+        "the combo cloud, with SPY buy-and-hold dashed."
+    ),
+    question=(
+        "Does any lead beat the published same-day (L=0) winner — or is the "
+        "fast near-term region still the edge?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe per lead. Strip: all valid combos. Tall-thin = "
+        "single combo; flat-wide = robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per lead. The maximum is **L=1 (1.439, "
+        "`hy_ig_roc_21d` / Tp10_hi / P2)**, fractionally above the published "
+        "L=0 (1.420). The two are effectively tied at the top; L=11 (1.362) "
+        "and L=9 (1.304) form a weaker far cluster. Every lead clears "
+        "buy-and-hold comfortably (most combos sit 0.7-0.9 median)."
+    ),
+    observation=(
+        "Reading the bars: L=0 (1.420) and L=1 (1.439) are a near-tie at the "
+        "peak, with a gentle decay through the mid-grid and a small far-out "
+        "bump at L=11. The published L=0 is essentially the winner — it is "
+        "beaten only by L=1, and only by 0.019 Sharpe. Reading the strip: "
+        "clouds are tight and uniformly high (medians 0.69-0.78), indicating "
+        "credit spreads are a broadly robust signal across leads, not a single "
+        "lucky grid point."
+    ),
+    interpretation=(
+        "The extended grid confirms rather than overturns the published "
+        "result: the best lead is **L=1 (1.439)**, a hair above the published "
+        "**L=0 (1.420)** — both in the {0..6} region, so the gate does **not** "
+        "fire and no re-run is required. The 0.019 Sharpe gap between L0 and L1 "
+        "is well inside noise; the published same-day winner is sound. Honest "
+        "read: this is the cleanest of the eight pairs — the published lead was "
+        "already at (or one month from) the optimum. **Charts-only.**"
+    ),
+    key_message=(
+        "Best Sharpe across L=0..12 is **L=1 (1.44)**, statistically tied with "
+        "the published **L=0 (1.42)** — the published winner's lead region "
+        "wins handily. **Charts-only, no re-run.**"
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
@@ -711,8 +819,8 @@ EVIDENCE_METHOD_BLOCKS = {
         "single test is definitive, but their convergence builds a rigorous, multi-angle "
         "case."
     ),
-    "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Correlation", "Granger Causality", "Pre-Whitened CCF"],
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Granger Causality", "Pre-Whitened CCF"],
     "level2": [
         HMM_BLOCK,
         REGIME_QUARTILE_BLOCK,

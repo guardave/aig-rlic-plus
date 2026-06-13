@@ -544,40 +544,17 @@ EVIDENCE_METHOD_BLOCKS = {
         "combinations** — the maximum of the search, not a typical result: "
         "the median valid combination scored 0.68."
     ),
+    # DPS-CPX1 (fix260613_lead_horizon): orphan cross-period prose RELOCATED
+    # to StrategyConfig.CROSS_PERIOD_NARRATIVE_MD (Confidence-tab Cross-Period
+    # section, where the charts now live since fix260610). This is now the
+    # clean one-line Evidence→Strategy bridge (Ray §B.2), matching the other
+    # 7 pairs' transition pattern — no longer references absent charts.
     "transition": (
-        "**Honest read on the cross-period charts above.** The relationship "
-        "between Building Permits and SPY is real and pro-cyclical, but it is "
-        "not steady across history:\n\n"
-        "- **Sub-period Sharpe.** The strategy is *negative* in three of the "
-        "four labelled crisis sub-periods (Dot-Com −0.38, GFC −0.36, China/EM "
-        "−1.20) and roughly flat through COVID (−0.07). The full-OOS bar "
-        "(+1.41) carries the headline; the crisis bars do not.\n"
-        "- **Rolling 24M correlation.** The line ranges from about −0.36 to "
-        "+0.42 with a mean near zero. Only ~54% of 24-month windows are "
-        "positive. The relationship is regime-dependent, not stationary.\n"
-        "- **Rolling Granger F.** Average F is 3.16 — just below the 3.84 "
-        "critical value at 5% — and the rolling p-value averages 0.20. "
-        "Granger-causality is *not* persistently significant across windows; "
-        "it appears in pockets.\n"
-        "- **Rolling 24M Sharpe.** Range −2.0 to +2.0, mean ~0.0. The "
-        "strategy's edge is concentrated in specific regimes, not earned "
-        "evenly through time.\n"
-        "- **Structural break.** The QLR-proxy p-value is 0.27 — *not* "
-        "statistically significant at the 5% level. The chart now reflects "
-        "this with the break-date flag suppressed and the test annotation "
-        "marked as not-significant. The recession-shaded rectangles remain "
-        "for context, but the relationship is treated as stationary across "
-        "the sample for tournament purposes.\n\n"
-        "**Putting it together.** The Evidence page supports a genuine "
-        "pro-cyclical relationship between Building Permits and equity "
-        "returns, with the strongest *linear* co-movement at a 12-month "
-        "horizon on smoothed transforms. The 6-month lead and 1-month-"
-        "momentum signal that won the tournament reflect out-of-sample "
-        "Sharpe optimisation — not a direct claim that 6 months is the only "
-        "horizon where the relationship exists, and not a guarantee that the "
-        "edge will persist evenly across regimes. With those qualifications "
-        "in place, the practical question is whether an investor can turn "
-        "this into an execution-ready strategy."
+        "The in-sample econometric case for a pro-cyclical permits-equity "
+        "relationship is established. The practical question is whether an "
+        "investor can turn it into an execution-ready strategy — and how "
+        "robust that edge is across regimes, which the next page's Confidence "
+        "tab examines directly."
     ),
 }
 
@@ -590,6 +567,45 @@ class StrategyConfig:
     PAGE_SUBTITLE = (
         "We tested hundreds of strategy combinations to find the most robust way "
         "to time SPY exposure using Building Permits."
+    )
+
+    # DPS-CPX1 (fix260613_lead_horizon): per-pair Cross-Period narrative,
+    # relocated from EVIDENCE_METHOD_BLOCKS["transition"] (the orphan
+    # "cross-period charts above" block) into the Confidence-tab
+    # Cross-Period Consistency section where the charts now live.
+    # Prose verbatim from Ray's docs/portal_narrative_lead_blocks_20260613.md §B.1.
+    CROSS_PERIOD_NARRATIVE_MD = (
+        "**Honest read on the cross-period charts on this tab.** The "
+        "relationship between Building Permits and SPY is real and "
+        "pro-cyclical, but it is not steady across history:\n\n"
+        "- **Sub-period Sharpe.** The strategy is *negative* in three of the "
+        "four labelled crisis sub-periods (Dot-Com −0.38, GFC −0.36, China/EM "
+        "−1.20) and roughly flat through COVID (−0.07). The full-OOS bar "
+        "(+1.41) carries the headline; the crisis bars do not.\n"
+        "- **Rolling 24-month correlation.** The line ranges from about −0.36 "
+        "to +0.42 with a mean near zero. Only ~54% of 24-month windows are "
+        "positive. The relationship is regime-dependent, not stationary.\n"
+        "- **Rolling Granger F.** Average F is 3.16 — just below the 3.84 "
+        "critical value at 5% — and the rolling p-value averages 0.20. "
+        "Granger-causality is *not* persistently significant across windows; "
+        "it appears in pockets.\n"
+        "- **Rolling 24-month Sharpe.** Range −2.0 to +2.0, mean ~0.0. The "
+        "strategy's edge is concentrated in specific regimes, not earned "
+        "evenly through time.\n"
+        "- **Structural break.** The QLR-proxy p-value is 0.27 — *not* "
+        "significant at the 5% level — so the relationship is treated as "
+        "stationary across the sample for tournament purposes; the break-date "
+        "flag is suppressed and the test annotation is marked not-significant. "
+        "Recession-shaded rectangles remain for context.\n\n"
+        "**Putting it together.** These cross-period diagnostics support a "
+        "genuine pro-cyclical relationship between Building Permits and equity "
+        "returns, with the strongest *linear* co-movement at a 12-month "
+        "horizon on smoothed transforms — but they also show the edge is "
+        "regime-dependent, not a stationary law. The 6-month lead and "
+        "1-month-momentum signal that won the tournament reflect out-of-sample "
+        "Sharpe optimisation, not a claim that the relationship is uniform "
+        "across regimes or guaranteed to persist evenly. Read the strategy's "
+        "headline Sharpe with these caveats in mind."
     )
 
     PLAIN_ENGLISH = (
