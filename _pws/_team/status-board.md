@@ -1,5 +1,19 @@
 # Team Status Board
 
+## 2026-06-13 — Data Dana (Petroleum Inventory × SPY registry reconciliation)
+
+**Status:** COMPLETED. Branch `fix260613_petroleum_matrix`, commit `db75fce` (pushed). Registration only — no build.
+
+- `data/prospective_pairs.csv` row 3 → canonical `petrol_inv` / `petrol_inv_spy` / "Petroleum Inventory (Crude Oil & Products)" (was `wttstus1` / "Crude Oil Inventory"). Source ticker WTTSTUS1 + row 40 preserved; status not_started.
+- `config/indicator_map.yaml` WTTSTUS1 entry corrected so `build_prospective_pairs.py` regeneration reproduces the canonical identity (the regeneration-reintroduction risk is now closed at source). Verified by dry-run.
+- XLE (#34 petrol_inv_xle) NOT added — matrix row 40 Step B XLE = Done-N, not prospective-eligible; would drift on regen.
+- No schema/manifest/registry artifact carried the stale identity.
+- Gates: META-CMP PASS.
+
+**⚠ Flagged to Lead (out of registration scope, NOT fixed):** `build_prospective_pairs.py` regeneration DROPS the hand-maintained `busloans_spy` `in_progress` row (not matrix-Done-Y / not map-derived). Confirmed concrete instance of the busloans-wave regen risk. I applied a surgical CSV edit rather than commit the regenerated file. Generator needs a preserve/overlay for hand-maintained in-progress rows before any safe full regen.
+
+🤖 Agent: Data Dana
+
 ## 2026-04-24 — QA Quincy (GATE-VIZ-NBER2 — Episode-Window-Aware NBER Shading Check)
 
 **Status:** Complete. New gate authored, wired, experience entry added.

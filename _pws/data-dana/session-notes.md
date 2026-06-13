@@ -250,3 +250,23 @@ Mixed. Retained and applied: DATA-D5/D6/D11 gates, FRED OAS truncation, DATA-D6b
 **Gotchas:** display-name registry already held `dgs10`/`spy`/`vix`/`spy_ret` etc. with prior names — sidecar must adopt registry names verbatim (DATA-D13 cross-validation), so script loads registry BEFORE sidecar generation. `data_subject` schema `direction` enum is only higher_is_better/lower_is_better/neutral — economic direction nuance goes in description, not enum.
 
 *Dana — 2026-06-12*
+
+---
+
+## 2026-06-13 — Petroleum Inventory × SPY identity reconciliation (registration only, branch fix260613_petroleum_matrix)
+
+**Scope:** Data-registry lane of LEAD-DV1 reconciliation. NOT a build. Reconcile fragmented `wttstus1`/"Crude Oil Inventory" identity to canonical `petrol_inv` / "Petroleum Inventory (Crude Oil & Products)" (Pre-master col 39: WTTSTUS1 = EIA Weekly U.S. Ending Stocks of Crude Oil AND Petroleum Products).
+
+**Delivered (commit db75fce, pushed):**
+1. `data/prospective_pairs.csv` row 3 surgical edit → `petrol_inv,Petroleum Inventory (Crude Oil & Products),energy,SPY,petrol_inv_spy,not_started,WTTSTUS1,,WTTSTUS1,40`. Source ticker + row 40 unchanged. status stays not_started.
+2. `config/indicator_map.yaml` WTTSTUS1 entry: indicator_id `wttstus1`→`petrol_inv`, display_name corrected. This is the SOURCE the generator reads — fixing it makes regeneration reproduce canonical identity (the busloans-wave regeneration-reintroduction risk). Verified by dry-run regen: row emits petrol_inv_spy.
+3. XLE (priority #34, petrol_inv_xle): NOT added. Matrix row 40 Step B XLE = Done-N, so not prospective-eligible; a manual row would be deleted on next regen (drift). Reported to Lead.
+4. No schema sidecar / manifest / display-name-registry carried the old identity (petrol_inv never built — no per-pair artifacts). Clean.
+
+**Gotchas / findings:**
+- **DATA-D1 regression in the generator (flagged to Lead, NOT fixed here — out of scope):** `build_prospective_pairs.py` regeneration DROPS the hand-maintained `busloans_spy` (`in_progress`) row because busloans is not matrix-Done-Y / not map-derived. Any full regen silently deletes it. That is why I applied a surgical CSV edit instead of committing the regenerated file. The generator needs a preserve/overlay mechanism for hand-maintained in-progress rows before it can be safely re-run. This is the same class of risk I flagged in the busloans wave — now confirmed concrete.
+- Generator derives id/display_name/category from indicator_map.yaml keyed on CSV ticker; canonical identity MUST live in the YAML, not just the CSV, or it won't survive regen.
+
+**Gates:** META-CMP pre-commit PASS (T1.1 schema, T1.3 filename, T2 chart completeness; T1.2 loader skipped — no app/output paths staged).
+
+*Dana — 2026-06-13*
