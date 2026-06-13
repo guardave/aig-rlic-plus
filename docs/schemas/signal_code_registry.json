@@ -2,7 +2,7 @@
   "x-version": "1.0.0",
   "x-owner": "evan",
   "x-generated": "2026-04-19",
-  "notes": "Bootstrap instance seeded by Evan Wave 5B-2 (2026-04-19) from the HY-IG v2 reference pair and the Tournament Design Parameters signal enumeration. Closes §1.2 of docs/validation-audit-20260419-evan.md (signal-code naming drift). Append-only: later waves extend this list as new pairs introduce new signals. Never reorder or delete existing entries.",
+  "notes": "Bootstrap instance seeded by Evan Wave 5B-2 (2026-04-19) from the HY-IG v2 reference pair and the Tournament Design Parameters signal enumeration. Closes \u00a71.2 of docs/validation-audit-20260419-evan.md (signal-code naming drift). Append-only: later waves extend this list as new pairs introduce new signals. Never reorder or delete existing entries.",
   "signals": [
     {
       "signal_code": "hmm_stress",
@@ -41,6 +41,16 @@
       "added_at": "2026-06-12",
       "first_pair": "busloans_spy",
       "notes": "BUSLOANS is a Conference Board LAGGING index component; this rate-of-change transform is a countercyclical/defensive trigger, not a forward-causal signal (Toda-Yamamoto forward direction n.s. at all lags)."
+    },
+    {
+      "signal_code": "S_roc_5d",
+      "display_name": "Gold/Copper 5-day rate of change",
+      "parquet_column_pattern": "gold_copper_roc_5d",
+      "description": "5-trading-day rate-of-change of the gold/copper ratio. High-frequency momentum signal; positive = ratio rising (risk-off momentum). Tournament winner for gold_copper_xli at L0 with P3 long/short.",
+      "source_method": "roc",
+      "added_at": "2026-06-13",
+      "first_pair": "gold_copper_xli",
+      "notes": "Very short lookback (1 week). High turnover (~89/yr). Countercyclical: long when ratio momentum is low (risk-on). Fragility flag: signal is noisy; conditionally durable (COVID+2022 only testable in OOS)."
     }
   ]
 }

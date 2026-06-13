@@ -1,6 +1,6 @@
-period,sharpe,n
-2000-2004,0.868,1305
-2005-2009,0.815,1304
-2010-2014,1.736,1304
-2015-2019,0.756,1304
-2020-2025,1.273,1566
+episode,start_date,end_date,n_trading_days,ann_sharpe,win_rate,max_drawdown,data_status,durability_verdict
+gfc,2020-01-01,2009-06-30,0,,,,insufficient_data,
+china_2015,2020-01-01,2016-02-29,0,,,,insufficient_data,
+covid,2020-02-01,2020-12-31,239,0.8855,0.5607,-0.227,validated,
+rates_2022,2022-01-01,2022-12-31,260,1.8238,0.5231,-0.143,validated,
+Full-OOS,2020-01-01,2025-12-31,1566,1.5101,0.5338,-0.227,validated,conditionally_durable
