@@ -4,9 +4,9 @@ Last updated: 2026-06-12 EOD.
 
 ---
 
-## ⚠ FIRST ITEM NEXT SESSION — production verify of c8f73a6
+## ✅ CLOSED 2026-06-13 — production verify of c8f73a6
 
-`busloans_spy` merged to main at `c8f73a6` and pushed, but the **production reboot + post-merge production sweep did NOT happen** before EOD (user invoked /eod at the reboot-request step). Next session: confirm user rebooted production → run the busloans cloud sweep against `https://aig-rlic-plus.streamlit.app` (script pattern at /tmp/busloans_cloud.py — note its 2 Evidence checks must probe frame HTML, not visible text) → also verifies vichua's `f70d29b` permit lead-correlation (was already awaiting deploy). Until then, production trails main by the whole wave.
+`busloans_spy` production sweep ran 2026-06-13 11:30 UTC against `https://aig-rlic-plus.streamlit.app`: **ALL PASS (30/30)** — landing card (1.50 / −1.0% / 4,396, Lagging chip), all 4 pages, DPS-FE2 search-phase routing live with zero leakage to other pairs, regression pairs + frozen Sample clean. Evidence content-presence checks corrected to probe frame HTML (collapsed-expander lesson). Production was already current (auto-deploy/reboot caught up post-EOD). Evidence script: /tmp/busloans_prod.py.
 
 ## Items added/updated 2026-06-12
 
