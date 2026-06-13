@@ -82,8 +82,8 @@ indicators:
     category: real_estate
 
   WTTSTUS1:
-    indicator_id: wttstus1
-    display_name: Crude Oil Inventory (WTTSTUS1)
+    indicator_id: petrol_inv
+    display_name: Petroleum Inventory (Crude Oil & Products)
     category: energy
 
   PHLXSOX:
