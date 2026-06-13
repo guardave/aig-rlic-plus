@@ -27,6 +27,35 @@ Output:
                                      line numbers for traceability)
 
 Halts on any CSV ticker missing from indicator_map.yaml.
+
+Status preservation / derivation contract (BL-PROSPECTIVE-REGEN, DATA-D1):
+  `status` is DERIVED + PRESERVED, never hand-set in this generator. The
+  matrix only knows whether a cell is Done-Y; it does not know real build
+  progress. So for every row this generator emits, status is resolved by
+  precedence:
+
+    1. PRESERVE — the pair's existing status in the current
+       prospective_pairs.csv, if that status is NON-DEFAULT
+       (i.e. not in {not_started, archived_deprecated}). This keeps
+       in_progress (and any future hand-maintained progress states)
+       as ground truth — reality, not the matrix.
+    2. DERIVE  — else `archived_deprecated` if the pair_id is in the
+       deprecated overlay, else `not_started`.
+
+  Note on `completed`: the catalog deliberately does NOT bake `completed`
+  into this CSV from results/. `completed` is a RENDER-TIME overlay applied
+  by app/components/prospective_pairs.py::load_prospective_pairs(), which
+  upgrades any row whose pair_id is in the live-discovered completed set.
+  Built pairs (results/<id>/winner_summary.json present) therefore display
+  as completed without their stored base status being mutated — so a built
+  pair correctly stays `not_started`/`in_progress` at rest in this file.
+
+  Carry-over (no silent deletion — DATA-D1): a pair can exist on disk with a
+  non-default status yet NOT be reproduced by the matrix × map derivation
+  (e.g. busloans_spy, built ad-hoc from a FRED fetch, never matrix-Done-Y).
+  Any such existing row is carried over VERBATIM into the output so a regen
+  never drops a built/in-progress pair. Carried-over rows are appended after
+  the derived rows and listed in the run summary for auditability.
 """
 
 from __future__ import annotations
@@ -54,6 +83,29 @@ def _norm_cell(v: str | None) -> str:
 
 def _is_done_y(v: str | None) -> bool:
     return _norm_cell(v) == DONE_TOKEN
+
+
+# Statuses the generator may assign itself; anything else in an existing row is
+# treated as hand-maintained ground truth and preserved / carried over.
+DEFAULT_STATUSES = {"not_started", "archived_deprecated"}
+
+
+def _load_existing(out_path: Path) -> "OrderedDict[str, dict]":
+    """Read the current prospective_pairs.csv into {pair_id: row_dict}.
+
+    Returns an empty mapping if the file is absent (first build). Used to
+    (a) preserve non-default status onto reproduced rows and (b) carry over
+    orphan rows the matrix×map derivation does not reproduce.
+    """
+    existing: "OrderedDict[str, dict]" = OrderedDict()
+    if not out_path.exists():
+        return existing
+    with out_path.open(encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            pid = (row.get("pair_id") or "").strip()
+            if pid:
+                existing[pid] = row
+    return existing
 
 
 def main() -> int:
@@ -103,6 +155,13 @@ def main() -> int:
         if ticker not in indicator_tickers[iid]:
             indicator_tickers[iid].append(ticker)
 
+    # Existing on-disk catalog = ground truth for hand-maintained status and
+    # for orphan carry-over (BL-PROSPECTIVE-REGEN / DATA-D1).
+    existing = _load_existing(OUT)
+    existing_status = {
+        pid: (row.get("status") or "").strip() for pid, row in existing.items()
+    }
+
     accum: dict[tuple[str, str], dict] = OrderedDict()
     missing: list[tuple[int, str]] = []
     todo_review: list[tuple[int, str]] = []
@@ -134,7 +193,13 @@ def main() -> int:
         for target_tkr, target_lc in done_targets:
             key = (indicator_id, target_lc)
             pair_id = f"{indicator_id}_{target_lc}"
-            status = "archived_deprecated" if pair_id in deprecated else "not_started"
+            # Status precedence: preserve a non-default existing status
+            # (in_progress etc. = ground truth); else derive.
+            prior = existing_status.get(pair_id, "")
+            if prior and prior not in DEFAULT_STATUSES:
+                status = prior
+            else:
+                status = "archived_deprecated" if pair_id in deprecated else "not_started"
 
             if key in accum:
                 bucket = accum[key]
@@ -185,36 +250,65 @@ def main() -> int:
         "contributing_csv_ticker",
         "source_csv_rows",
     ]
-    with OUT.open("w", newline="") as f:
-        w = csv.writer(f)
-        w.writerow(cols)
-        for bucket in accum.values():
-            iid = bucket["indicator_id"]
-            all_tickers = indicator_tickers.get(iid, bucket["csv_tickers"])
-            primary = all_tickers[0] if all_tickers else ""
-            aliases = ",".join(t for t in all_tickers if t != primary)
-            contributing = bucket["csv_tickers"][0]
-            rows_joined = ";".join(str(n) for n in bucket["source_csv_rows"])
-            w.writerow(
-                [
-                    iid,
-                    bucket["display_name"],
-                    bucket["category"],
-                    bucket["target"],
-                    bucket["pair_id"],
-                    bucket["status"],
-                    primary,
-                    aliases,
-                    contributing,
-                    rows_joined,
-                ]
-            )
+    # Build the derived-row records keyed by pair_id (deterministic CSV order).
+    derived_rows: "OrderedDict[str, list]" = OrderedDict()
+    for bucket in accum.values():
+        iid = bucket["indicator_id"]
+        all_tickers = indicator_tickers.get(iid, bucket["csv_tickers"])
+        primary = all_tickers[0] if all_tickers else ""
+        aliases = ",".join(t for t in all_tickers if t != primary)
+        contributing = bucket["csv_tickers"][0]
+        rows_joined = ";".join(str(n) for n in bucket["source_csv_rows"])
+        derived_rows[bucket["pair_id"]] = [
+            iid,
+            bucket["display_name"],
+            bucket["category"],
+            bucket["target"],
+            bucket["pair_id"],
+            bucket["status"],
+            primary,
+            aliases,
+            contributing,
+            rows_joined,
+        ]
 
-    n_total = len(accum)
+    # Carry-over orphans: existing rows with a non-default status that the
+    # derivation did NOT reproduce (e.g. busloans_spy — built ad-hoc, never
+    # matrix-Done-Y). Never silently dropped (DATA-D1). Emitted verbatim.
+    carried_over: list[dict] = [
+        existing[pid]
+        for pid, st in existing_status.items()
+        if pid not in derived_rows and st and st not in DEFAULT_STATUSES
+    ]
+    carried_rows: "OrderedDict[str, list]" = OrderedDict(
+        (row.get("pair_id"), [row.get(c, "") for c in cols]) for row in carried_over
+    )
+
+    # Output ordering: preserve the EXISTING file's row order for any pair_id
+    # it already contained (so carried-over orphans like busloans_spy keep
+    # their original position — true row-for-row idempotence), then append any
+    # genuinely-new derived rows in derivation order.
+    ordered_ids = [pid for pid in existing if pid in derived_rows or pid in carried_rows]
+    seen = set(ordered_ids)
+    ordered_ids += [pid for pid in derived_rows if pid not in seen]
+
+    with OUT.open("w", newline="") as f:
+        # LF line endings to match the existing on-disk file (csv default is
+        # \r\n); keeps the regen byte-identical / diff-clean.
+        w = csv.writer(f, lineterminator="\n")
+        w.writerow(cols)
+        for pid in ordered_ids:
+            w.writerow(derived_rows.get(pid) or carried_rows[pid])
+
+    n_total = len(accum) + len(carried_over)
     n_dep = sum(1 for b in accum.values() if b["status"] == "archived_deprecated")
     indicators_with_aliases = sum(1 for iid, ts in indicator_tickers.items() if len(ts) > 1)
     print(f"OK: wrote {OUT.relative_to(ROOT)}")
-    print(f"  rows: {n_total}")
+    print(f"  rows: {n_total} ({len(accum)} derived + {len(carried_over)} carried-over)")
+    if carried_over:
+        for row in carried_over:
+            print(f"  carried-over (non-default status, not matrix-derived): "
+                  f"{row.get('pair_id')} [{row.get('status')}]")
     print(f"  archived_deprecated: {n_dep}")
     print(f"  indicators with aliases (>=2 CSV tickers ever map here): {indicators_with_aliases}")
     return 0
