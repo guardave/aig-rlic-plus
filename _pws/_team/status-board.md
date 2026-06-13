@@ -1700,3 +1700,19 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Outstanding:** production reboot+sweep (FIRST); branch deletion ask (LEAD-BD1); ECON-FE1 final exam for busloans; GH #4; pair4_prep resume (retrofit debt keeps growing); backlog 42 active.
 
 🤖 Agent: Lead Lesandro
+
+---
+
+## 2026-06-13 — Data Dana — COMPLETED — BL-PROSPECTIVE-REGEN closed (branch fix260613_prospective_regen)
+
+**Done (commit 9816ddb, pushed):** Made `scripts/build_prospective_pairs.py` idempotent + non-destructive. Generator now reads the existing CSV, PRESERVES non-default status (in_progress = ground truth) onto reproduced rows, and CARRIES OVER verbatim any non-default-status row the matrix×map derivation doesn't reproduce (busloans_spy) — no more silent deletion (DATA-D1). Existing row order preserved; LF line endings.
+
+**Acceptance:** regen of the current correct CSV = ROW-FOR-ROW BYTE IDENTICAL (empty diff), double-run idempotent. petrol_inv_spy=not_started, busloans_spy=in_progress (preserved, not dropped/reset). Zero identity + zero status changes; pair_id set unchanged.
+
+**Key finding for Lead:** brief's precedence rule 1 (bake status=completed from results/winner_summary.json) was NOT implemented — `completed` is a RENDER-TIME overlay in app/components/prospective_pairs.py, not a stored CSV value. ~8 built pairs sit at not_started/in_progress in the CSV by design; baking completed in would have flipped busloans→completed and broken the acceptance test. Reconciled by keeping preserve+carry-over only. Generator is now safe to re-run.
+
+**Gates:** META-CMP PASS (T1.1, T1.3, T2; T1.2 SKIP). Dana-lane only; indicator_map.yaml/matrix untouched.
+
+**Handoff:** Lead may verify and strike BL-PROSPECTIVE-REGEN.
+
+🤖 Agent: Data Dana

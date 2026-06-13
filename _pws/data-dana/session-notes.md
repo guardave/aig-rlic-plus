@@ -270,3 +270,25 @@ Mixed. Retained and applied: DATA-D5/D6/D11 gates, FRED OAS truncation, DATA-D6b
 **Gates:** META-CMP pre-commit PASS (T1.1 schema, T1.3 filename, T2 chart completeness; T1.2 loader skipped — no app/output paths staged).
 
 *Dana — 2026-06-13*
+
+---
+
+## 2026-06-13 (PM) — BL-PROSPECTIVE-REGEN closure: generator idempotent + non-destructive (branch fix260613_prospective_regen)
+
+**Scope:** Harden `scripts/build_prospective_pairs.py` so a full regen never loses a built/in-progress pair and hand-editing the derived CSV is no longer needed. On-disk CSV was already correct (petrol_inv_spy not_started + busloans_spy in_progress); fix REPRODUCES it, does not change it.
+
+**Fix design (commit 9816ddb, pushed):**
+1. `_load_existing()` reads current prospective_pairs.csv into {pair_id: row} before writing.
+2. Status precedence per emitted row: PRESERVE existing non-default status (not in {not_started, archived_deprecated}) = ground truth (in_progress etc.); else DERIVE (archived_deprecated if deprecated set, else not_started).
+3. Carry-over orphans: existing rows with non-default status NOT reproduced by matrix×map (busloans_spy) emitted verbatim, never dropped (DATA-D1), and listed in run summary.
+4. Output ordering preserves the existing file's row order for known pair_ids (busloans keeps line 103); new derived rows appended.
+5. `lineterminator="\n"` — csv default is CRLF; on-disk file is LF. Without this the regen differed only by line endings.
+6. Module docstring documents the derived+preserved contract.
+
+**Key architecture finding:** `completed` is NOT a stored CSV status — it is a RENDER-TIME overlay in `app/components/prospective_pairs.py::load_prospective_pairs()` (upgrades any pair_id in the live-discovered completed set, deprecation excepted). So the brief's precedence rule 1 ("set status=completed if results/<id>/winner_summary.json exists") was NOT implemented as written: ~8 pairs (indpro_spy, permit_spy, hy_ig_spy, vix_vix3m_spy, gold_copper_xli, umcsent_xlv, indpro_xlp, busloans_spy) have winner_summary.json yet sit at not_started/in_progress in the CSV by design. Baking completed in would have flipped busloans in_progress→completed and broken the acceptance test. Reconciled by dropping the results/-baking and keeping preserve+carry-over only. Flagged to Lead.
+
+**Acceptance test:** regen vs pre-run CSV = ROW-FOR-ROW BYTE IDENTICAL (empty diff). Double-run identical (idempotent). petrol_inv_spy=not_started, busloans_spy=in_progress (preserved). Zero identity-field changes, zero status changes, pair_id set unchanged (verified programmatically).
+
+**Gates:** META-CMP PASS (T1.1 schema, T1.3 filename, T2 chart completeness; T1.2 loader SKIP — no app/output staged).
+
+*Dana — 2026-06-13*
