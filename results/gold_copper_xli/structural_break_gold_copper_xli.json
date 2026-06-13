@@ -1,15 +1,11 @@
 {
-  "pair_id": "gold_copper_xli",
-  "test": "Quandt-Andrews unknown breakpoint",
-  "sample_start": "2000-09-30",
-  "sample_end": "2025-12-31",
-  "n_obs": 304,
-  "trimming_pct": 0.15,
-  "break_date": "2009-03-31",
-  "f_stat": 4.3442,
-  "p_value": 0.0138,
-  "flagged": true,
-  "flag_message": "Structural break detected \u2014 interpret cross-period results with caution.",
-  "rolling_corr_sign_stability": 0.5464,
-  "rolling_corr_stability_verdict": "moderately_stable"
+  "method": "Quandt-Andrews sup-F (linear slope, 15% trim)",
+  "n_obs": 6348,
+  "trim_lo": 952,
+  "trim_hi": 5395,
+  "critical_value_5pct": 8.85,
+  "sup_f_stat": 252.89128274823395,
+  "sup_f_date": "2009-01-19",
+  "break_significant_5pct": true,
+  "generated_at": "2026-05-26T15:58:36Z"
 }

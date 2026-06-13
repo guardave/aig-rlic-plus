@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-06-13T17:16:12Z",
+  "last_updated_at": "2026-05-26T17:35:16Z",
   "notes": "Generated under LEAD-WM1 Mode 2 (Lead-as-Evan).",
   "indicator_axis": {
     "canonical_column": "gold_copper_ratio",
@@ -45,7 +45,7 @@
       },
       {
         "name": "gold_copper_zscore_126d",
-        "definition": "126-day rolling z-score of the gold/copper ratio. Prior tournament winner (L0, superseded 2026-06-13).",
+        "definition": "126-day rolling z-score of the gold/copper ratio. The tournament-winning signal.",
         "formula": "(gold_copper_ratio - rollmean_126(gold_copper_ratio)) / rollstd_126(gold_copper_ratio)",
         "role": "threshold_input",
         "appears_in_charts": [
@@ -78,16 +78,6 @@
         "role": "threshold_input",
         "appears_in_charts": [
           "correlation_heatmap"
-        ]
-      },
-      {
-        "name": "gold_copper_roc_5d",
-        "definition": "5-trading-day rate-of-change of the gold/copper ratio. The ECON-LT1 extended tournament winner (2026-06-13).",
-        "formula": "(gold_copper_ratio[t] / gold_copper_ratio[t-5] - 1) * 100",
-        "role": "threshold_input",
-        "appears_in_charts": [
-          "correlation_heatmap",
-          "signal_timeseries"
         ]
       }
     ]

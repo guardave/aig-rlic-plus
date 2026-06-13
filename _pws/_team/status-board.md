@@ -1,26 +1,5 @@
 # Team Status Board
 
-## 2026-06-13 — Econ Evan (ECON-LT1 re-run: gold_copper_xli, Track B pilot)
-
-**Status:** COMPLETED. Branch `fix260613_lead_horizon`. Mode 1, Track B pilot.
-
-- Extended tournament: 13 signals × ~14 thresholds × 2 strategies × 13 leads (L0..12mo) = 4,732 combos, 2,996 valid.
-- **New winner:** S_roc_5d / Tp75_lo / P3_long_short / L0 → OOS Sharpe 1.5101 (was 1.273).
-- Old winner superseded (S_zscore_126d / T2_p50 / P1_long_cash / L0).
-- All cascade artifacts produced: winner_summary, signals parquet, strategy_returns, trade logs, subperiod, CP analyses.
-- ECON-SR1 reconciliation: PASS. Schema validation: PASS.
-- Signal code S_roc_5d appended to registry.
-
-**Fragility flag:** roc_5d is a 5-day ROC signal with 89/yr turnover, P3 long/short, -22.7% max DD (was -8.3%). Conditionally durable (2 of 4 episodes testable). Lead discretion: the old winner had a far better drawdown profile.
-
-**For Vera (ECON-H4):** strategy-performance charts need regeneration (equity curves, drawdown, walk-forward, tournament dist). Lead charts from Track A may or may not need updating (native tournament L10 best Sharpe = 1.226 vs gating sweep 1.370 — different because daily vs monthly; flag to Lead). Rolling correlation, rolling Sharpe, rolling Granger all updated (signal-dependent on roc_5d now vs zscore_126d prior).
-
-**For Ray:** DPS-SCD1: N valid = 2,996 (benchmark excluded), median OOS Sharpe = 0.4641, winner rank = 1/2996, ties = 0.
-
-**For Ace:** winner_summary.json updated; signals_20260613.parquet has new signal_column = gold_copper_roc_5d.
-
-🤖 Agent: Econ Evan
-
 ## 2026-06-13 — Viz Vera (VIZ-LEAD1 lead-analysis chart pair, 8 non-frozen pairs)
 
 **Status:** COMPLETED. Branch `fix260613_lead_horizon`, commit `08f5b7f` (pushed). Mode 1, Track A.
