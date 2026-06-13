@@ -37,7 +37,7 @@ SIMS,SPDR S&P Kensho Intelligent Structures ETF,,,,,,,,,,,,
 NZUS,SPDR MSCI USA Climate Paris Aligned ETF,,,,,,,,,,,,
 PCE-Communication,"CSer - PCE, commnicatn",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,Done,Done - N,Done - N,Done - N,Done - N,Alex_UK
 En - Crude Oil $,En - Crude Oil $,21 Nov 2025,,Done - N,Done - N,Done - Y,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
-WTTSTUS1,"En - Inventory, petroleum",Oct 2025,Rename existing indicator name,Done - Y,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
+WTTSTUS1,"Petroleum Inventory (Crude Oil & Products)",Oct 2025,"canonical id petrol_inv / pair_id petrol_inv_spy; registered 2026-06-13",Done - Y,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
 MOPUEUS2,En - Refinery Utilizatn & Capacity,Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
 Total Primary Energy Consumption,"En, U - En Consumptn",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK
 PCE-Financial services and insurance,"Fin - PCE, finacil servs & insur",Oct 2025,Rename existing indicator name,Done - N,Done - N,Done - N,Done - N,,Done - N,Done - N,Done - N,Done - N,Alex_UK

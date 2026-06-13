@@ -181,7 +181,7 @@ This section catalogs the 31 indicators used in the multi-indicator analysis fra
 
 | ID | Indicator | Canonical Name | Source | Freq | Notes |
 |----|-----------|---------------|--------|------|-------|
-| I27 | Petroleum Inventory | `petrol_inv` | EIA weekly data | Weekly | Thousands of barrels |
+| I27 | Petroleum Inventory | `petrol_inv` | EIA: WTTSTUS1 | Weekly | Thousand barrels; US ending stocks of crude oil + petroleum products (Data Master sheet WTTSTUS1, Pre-master col 39). Weekly→monthly per §frequency-alignment for analysis. |
 | I28 | Crude Oil Price (WTI) | `cl_f` | Yahoo: CL=F | Daily | USD/barrel; front-month futures |
 | I29 | (Electricity Price - CPI) YoY | `elec_cpi_yoy` | Derived: BLS electricity CPI component | Monthly | Percent; real electricity cost proxy |
 

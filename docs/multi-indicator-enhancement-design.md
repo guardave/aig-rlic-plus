@@ -172,7 +172,7 @@ The design must also generalize ~10 HY-IG-hardcoded references across SOPs so th
 
 | ID | Indicator | Canonical Name | Source | Freq |
 |----|-----------|---------------|--------|------|
-| I27 | Petroleum Inventory | PETROL_INV | EIA weekly data | Weekly |
+| I27 | Petroleum Inventory | PETROL_INV | EIA: WTTSTUS1 | Weekly |
 | I28 | Crude Oil Price (WTI) | CL_F | Yahoo: CL=F | Daily |
 | I29 | (Electricity Price - CPI) YoY | ELEC_CPI_YOY | Derived: BLS electricity CPI component | Monthly |
 
