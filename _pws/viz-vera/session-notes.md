@@ -1,5 +1,24 @@
 # Viz Vera — Session Notes
 
+## 2026-06-13 — VIZ-LEAD1 lead-analysis chart pair (8 non-frozen pairs)
+
+**Branch** `fix260613_lead_horizon`, commit `08f5b7f` (pushed). Mode 1, Track A.
+
+- 16 charts = 2 × 8 pairs (indpro_spy, permit_spy, vix_vix3m_spy, indpro_xlp, hy_ig_spy, umcsent_xlv, gold_copper_xli, busloans_spy). Frozen Sample hy_ig_v2_spy EXCLUDED (untouched).
+- `correlations_lead_view` (heatmap, signed-r cells + */** stars, RdBu_r zmid=0, best-lead caption) + `lead_sharpe_distribution` (best-per-lead bars, p25-p75 band, median strip, dashed B&H, max annotation, spike/ridge caption). Reusable producer `scripts/generate_lead_charts.py`.
+- Numbers re-read from Evan's lead_correlation/lead_tournament_20260613.csv at gen time; all 16 reconcile (sharpe bars + corr cells) to source. Perceptual PNGs eyeballed — clean.
+- RE-RUN-flagged peaks visible in L7-12: indpro_spy L12 (1.37), indpro_xlp L8 (1.42), umcsent_xlv L11 (1.19, ridge), gold_copper_xli L10 (1.37).
+- Registry: added lead_analysis + lead_tournament to chart_type_registry.json; x-version 1.1.0→1.2.0; sop-changelog entry. Closes vichua's unregistered-chart gap.
+- permit_spy regenerated (old bars stale vs current tournament CSV) + missing _meta sidecar; regression_note_20260613.md written.
+
+**B&H resolution.** SPY pairs lacked a B&H key in winner_summary; used canonical SPY OOS B&H 0.8935 (busloans winner_summary bh_sharpe; permit chart 0.8939 corroborates). XLP=0.7437, XLV=0.7164, XLI=0.6558, hy_ig_spy=0.8129 from each pair's winner_summary.
+
+**A2A / flags.**
+- Pre-existing schema defect (NOT mine): chart_type_registry `tournament_distribution.expected_chart_type=histogram` not in schema enum (committed 949a113). Needs Vera follow-up or schema enum extension.
+- New charts not yet in any pair_config — lint_chart_completeness SKIP/PASS expected pre-Ace. chart_name list for Ace: `correlations_lead_view`, `lead_sharpe_distribution` (Evidence page, all 8).
+
+---
+
 **Project:** AIG-RLIC+
 **Session window:** 48-hour continuous run, 2026-04-18 → 2026-04-20
 **Agent identity:** Vera (Viz specialist)

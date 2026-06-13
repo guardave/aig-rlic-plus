@@ -1,5 +1,21 @@
 # Team Status Board
 
+## 2026-06-13 — Viz Vera (VIZ-LEAD1 lead-analysis chart pair, 8 non-frozen pairs)
+
+**Status:** COMPLETED. Branch `fix260613_lead_horizon`, commit `08f5b7f` (pushed). Mode 1, Track A.
+
+- 16 charts (2 × 8 pairs): `correlations_lead_view` (heatmap + */** stars, RdBu_r zmid=0) + `lead_sharpe_distribution` (best-per-lead bars + p25-p75 band + median strip + dashed B&H). Producer: `scripts/generate_lead_charts.py`. Numbers re-read from Evan's CSVs at gen time; all 16 reconcile to source; perceptual PNGs eyeballed.
+- Registry (VIZ-V8): added `lead_analysis` + `lead_tournament` to chart_type_registry.json; x-version 1.1.0 → 1.2.0; sop-changelog entry. Closes vichua's unregistered-chart gap.
+- permit_spy regenerated for consistency (old bars stale vs current tournament CSV) + missing sidecar; `results/permit_spy/regression_note_20260613.md`.
+- Frozen Sample `hy_ig_v2_spy` EXCLUDED (verified untouched).
+- RE-RUN-flagged L7-12 peaks visible: indpro_spy L12, indpro_xlp L8, umcsent_xlv L11, gold_copper_xli L10.
+
+**For Ace:** wire `correlations_lead_view` + `lead_sharpe_distribution` into each pair's Evidence pair_config (8 pairs). lint_chart_completeness SKIP/PASS until wired (expected pre-Ace).
+
+**⚠ Flagged to Lead (pre-existing, NOT introduced this wave):** chart_type_registry `tournament_distribution.expected_chart_type = histogram` is not in the schema enum (committed 949a113) — schema validation fails on that one entry. Needs enum extension or entry fix.
+
+🤖 Agent: Viz Vera
+
 ## 2026-06-13 — Data Dana (Petroleum Inventory × SPY registry reconciliation)
 
 **Status:** COMPLETED. Branch `fix260613_petroleum_matrix`, commit `db75fce` (pushed). Registration only — no build.
