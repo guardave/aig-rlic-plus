@@ -4,7 +4,30 @@ Last updated: 2026-06-12 EOD.
 
 ---
 
-## ✅ CLOSED 2026-06-13 — production verify of c8f73a6
+## ✅ CLOSED — production verify of c8f73a6 (2026-06-13)
+
+## Branch `fix260613_lead_horizon` — BLOCKED on stakeholder decision
+
+**Decision memo:** `docs/spec_memo_lead_horizon_granularity_20260613.md` (3 questions for stakeholders — daily-pair lead granularity, monthly re-run go-ahead, timing). Branch has substantial completed Track A work that's verified but NOT yet merged.
+
+**What's ready to merge (Track A, verified READY by Quincy):**
+- 6 SOP rules (ECON-LL1/LA1/LT1, DPS-LEAD1/CPX1, VIZ-LEAD1)
+- 16 lead charts + registry v1.2.0 (8 non-frozen pairs)
+- Lead blocks wired for 4 final pairs (vix, hy_ig, busloans + permit already done)
+- ELI5 daily-pair "no lag" concept across 3 daily pairs
+- Permit CP-prose relocation (DPS-CPX1) + CROSS_PERIOD_NARRATIVE_MD template slot
+- Gold_copper lead blocks finalized (old winner retained, re-run reverted)
+- 2 backlog rows (BL-TARGETSYM-NULL, BL-REGISTRY-ENUM)
+
+**What's ready to execute but awaiting the spec-memo decision:**
+- 3 monthly RE-RUN pairs (indpro_spy L12, indpro_xlp L8, umcsent_xlv L11) — no methodology gap, genuine findings, full cascade per pair. Stakeholder could green-light these independently of the daily-pair question.
+- Gold_copper's lead blocks need Ace wiring (finalized FINAL prose by Ray, not yet in config).
+
+**What's blocked on the spec-memo decision:**
+- Daily-pair weekly lead analysis (52 weeks ×3 pairs — Option B/D in the memo)
+- Daily-pair tournament re-runs (vix L3, gold_copper L10 — only actionable with weekly granularity)
+- ECON-LT1 gate amendment (second criterion for sweep-vs-published gap)
+- Comprehensive verify + merge of the full branch
 
 `busloans_spy` production sweep ran 2026-06-13 11:30 UTC against `https://aig-rlic-plus.streamlit.app`: **ALL PASS (30/30)** — landing card (1.50 / −1.0% / 4,396, Lagging chip), all 4 pages, DPS-FE2 search-phase routing live with zero leakage to other pairs, regression pairs + frozen Sample clean. Evidence content-presence checks corrected to probe frame HTML (collapsed-expander lesson). Production was already current (auto-deploy/reboot caught up post-EOD). Evidence script: /tmp/busloans_prod.py.
 

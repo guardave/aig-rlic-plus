@@ -1,5 +1,56 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-06-13 (lead-horizon wave + petroleum registration + generator cleanup + busloans production verify)
+
+### Summary
+
+Massive session spanning 4 workstreams, culminating in a stakeholder-facing decision memo. Three branches merged (petroleum + generator), one in flight (lead-horizon, blocked on decision).
+
+1. **busloans_spy production verify** (carried from 2026-06-12): production auto-deployed; sweep ALL PASS 30/30. Closed.
+2. **`fix260613_petroleum_matrix` merged (`272346f`):** Petroleum Inventory × SPY was already registered fragmented under 3 inconsistent identities — LEAD-DV1 reconciled them to one canonical (`petrol_inv` / WTTSTUS1 / "Petroleum Inventory (Crude Oil & Products)"). Registration only, not a build. Dana fixed the generator source (indicator_map.yaml) so regens produce the canonical identity.
+3. **`fix260613_prospective_regen` merged (`068b357`):** the generator cleanup the user requested ("something trivial, no need to hang it around"). Dana hardened `build_prospective_pairs.py` to idempotent + non-destructive — status preserved, orphans carried over, hand-edits no longer needed. Dana's smart deviation: `completed` status is a render-time overlay (NOT baked into CSV), verified vs app code. BL-PROSPECTIVE-REGEN struck. Generator is clean infrastructure now.
+4. **`fix260613_lead_horizon` (in flight, blocked on decision):**
+   - **Phase 0:** 6 SOP rules authored (ECON-LL1/LA1/LT1, DPS-LEAD1/CPX1, VIZ-LEAD1).
+   - **Gating analysis:** Evan swept all 9 pairs on L=0..12 monthly grid → 4 RE-RUN (indpro_spy L12, indpro_xlp L8, umcsent_xlv L11, gold_copper L10) + 5 charts-only.
+   - **Track A (shipped on branch):** Vera 16 charts + registry v1.2.0; Ray lead-block prose ×7 + CP-relocation spec (only permit had orphan prose); Ace wired 3 final pairs + CROSS_PERIOD_NARRATIVE_MD slot + permit CP-prose move; Quincy READY.
+   - **Track B pilot (gold_copper — reverted `66c8967`):** native daily tournament found a completely different winner (roc_5d L0 P3, Sharpe 1.51, DD -22.7%) than the gating sweep predicted (pctrank_504d L10, 1.37 monthly-resampled). Root cause: monthly resampling creates artifacts for daily data. The native winner was economically dubious (5-day signal, 89 turnover). Reverted to old winner.
+   - **User's question on daily-pair granularity** surfaced a deeper design issue: should daily pairs get weekly (1-52 weeks) and/or daily (1-30 days) lead analysis instead of/alongside monthly? Vix shows a 65% untapped improvement at L3 (gate design false-negative: L*≤6 but massive gap vs published). User requested a spec memo instead of execution.
+   - **Spec memo authored** (`docs/spec_memo_lead_horizon_granularity_20260613.md`, `aa36b73`): full journey, 4 granularity options with comparison matrix, 3 decisions for stakeholders.
+   - **ELI5 "daily data = no lag" framing** embedded across 3 daily pairs' lead blocks (Ray `7a94ce1`).
+   - **Gold_copper lead blocks finalized** as FINAL (no longer pending re-run; old winner retained).
+   - Backlogged: BL-TARGETSYM-NULL, BL-REGISTRY-ENUM.
+   - Branch NOT yet merged — blocked on stakeholder decision on daily-pair granularity. The 3 monthly RE-RUN pairs are ready to proceed independently of that decision.
+
+### Lead commits (this session, across all 3+1 branches)
+
+| Commit | Branch | Scope |
+|---|---|---|
+| `32c1548` | petroleum_matrix | Catalog reconciliation |
+| `3da1ad2` | petroleum_matrix | BL-PROSPECTIVE-REGEN backlog |
+| `272346f` | main (merge) | petroleum merged |
+| `99bcf18` | prospective_regen | BL-PROSPECTIVE-REGEN struck |
+| `068b357` | main (merge) | generator merged |
+| `dbb56ad` | main | Dana's preserved EOD notes |
+| `dc69097` | main | busloans production verify closed |
+| `818f624` | lead_horizon | busloans_spy mode selection |
+| `e65d8d5` | lead_horizon | META-A2A codified |
+| `f372a2a` | lead_horizon | Phase 0 SOP foundation |
+| `c38d323` | lead_horizon | RES-20 lagging-pair + BL-EPISODE-SLUGS |
+| `29d63ec` | lead_horizon | BL-TARGETSYM-NULL |
+| `eaa392c` | lead_horizon | BL-REGISTRY-ENUM |
+| `66c8967` | lead_horizon | Revert gold_copper re-run |
+| `aa36b73` | lead_horizon | Spec memo for stakeholders |
+
+### Lessons (this session)
+
+1. **Monthly resampling of daily data creates lead-analysis artifacts.** The gating sweep predicted gold_copper's best lead at L10 (monthly-resampled); the native daily tournament found a completely different winner at L0. For monthly pairs this gap doesn't exist. This is a genuine methodology finding, not a bug — it means daily pairs need their own lead granularity.
+2. **A pilot's purpose is to reveal gaps, not to produce a result.** The gold_copper pilot "failed" (reverted) but succeeded in its real job: proving the approach works for monthly pairs and identifying where it doesn't before we committed to 4 cascades.
+3. **Gate design must cover gap-within-region, not just extended-region.** The L7-12 trigger missed vix's 65% improvement at L3 because L3 is "within {0..6}." A second criterion (sweep-vs-published Sharpe gap >10%) closes the false-negative.
+4. **When scope grows past what execution can validate, pause and write a decision memo.** The user's instinct was right — daily-pair lead granularity is a design decision with real tradeoffs (resolution vs overfitting vs interpretability vs cost), not something to decide mid-dispatch.
+5. **The "trivial" generator cleanup was genuinely trivial AND genuinely important.** It took one Dana dispatch (~4 min wallclock), proved idempotent with a byte-identical test, and removed a foot-gun that would have bitten the next pair registration. The user's instinct to do it first ("no need to hang it around") was correct — small infrastructure debts compound.
+
+---
+
 ## Session: 2026-06-12 (busloans_spy — first full Mode-1 PAIR pipeline; META-A2A codified)
 
 ### Summary
