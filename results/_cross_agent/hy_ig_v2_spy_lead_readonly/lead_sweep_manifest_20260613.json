@@ -1,0 +1,28 @@
+{
+  "pair": "hy_ig_v2_spy",
+  "run_date": "20260613",
+  "frozen": true,
+  "granularity": "months L0..12 (ECON-LL1)",
+  "freq_native": "D",
+  "design_note": "Daily pair resampled to month-end (signal=last obs of month; target fwd_1m = month-end-to-month-end). 1 month = ~21 trading days. Lead grid is months for all pairs.",
+  "oos_start": "2018-01-01",
+  "is_end": "2017-12-31",
+  "input_file": "data/hy_ig_v2_spy_daily_20260410.parquet",
+  "input_sha256": "sha256:01204d158942b493",
+  "lead_correlation_file": "_cross_agent/hy_ig_v2_spy_lead_readonly/lead_correlation_20260613.csv",
+  "lead_tournament_file": "_cross_agent/hy_ig_v2_spy_lead_readonly/lead_tournament_20260613.csv",
+  "published_winner": {
+    "signal": "hmm_2state_prob_stress",
+    "lead": 0,
+    "oos_sharpe": 1.274
+  },
+  "L_star": 2,
+  "best_oos_sharpe_at_grid": 1.5457,
+  "gate_decision": "CHARTS-ONLY",
+  "winner_signal_best_corr_lead": "L6",
+  "assertions": [
+    "lead grid is exactly L0..12",
+    "best_oos_sharpe is the max over the extended grid",
+    "decision RE-RUN iff L*\u22087..12 AND best>1.274"
+  ]
+}

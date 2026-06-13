@@ -1,0 +1,28 @@
+{
+  "pair": "umcsent_xlv",
+  "run_date": "20260613",
+  "frozen": false,
+  "granularity": "months L0..12 (ECON-LL1)",
+  "freq_native": "M",
+  "design_note": "Native monthly; lead L = calendar-month shift on month-end signals.",
+  "oos_start": "2019-04-30",
+  "is_end": "2019-04-29",
+  "input_file": "data/umcsent_xlv_monthly_19980101_20251231.parquet",
+  "input_sha256": "sha256:80f697516f7949fd",
+  "lead_correlation_file": "umcsent_xlv/lead_correlation_20260613.csv",
+  "lead_tournament_file": "umcsent_xlv/lead_tournament_20260613.csv",
+  "published_winner": {
+    "signal": "umcsent_yoy",
+    "lead": 6,
+    "oos_sharpe": 1.0202
+  },
+  "L_star": 11,
+  "best_oos_sharpe_at_grid": 1.1878,
+  "gate_decision": "RE-RUN",
+  "winner_signal_best_corr_lead": "L1",
+  "assertions": [
+    "lead grid is exactly L0..12",
+    "best_oos_sharpe is the max over the extended grid",
+    "decision RE-RUN iff L*\u22087..12 AND best>1.0202"
+  ]
+}

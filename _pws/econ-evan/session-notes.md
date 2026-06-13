@@ -683,3 +683,28 @@ Producer: `scripts/econ_sr1_regen_downstream.py` — consumes ONLY `strategy_ret
 - Handoff: results/_cross_agent/handoff_vera_ray_busloans_spy_20260612.md. Nothing blocking Vera/Ray.
 
 **Lesson:** when the winner is statistically fragile, put the caveats INSIDE winner_summary.notes (rendered verbatim by Ace) so they cannot be dropped downstream.
+
+---
+
+## 2026-06-13 — Lead-Horizon gate (fix260613_lead_horizon), all 9 pairs
+
+ECON-LL1/LA1/LT1 GATING dispatch. Built generic, reproducible harness
+`scripts/lead_horizon_sweep.py` (seed=42): per-pair Lead Analysis (Pearson r of
+signal lagged L=0..12 months vs target 1m-fwd return, sig stars) + Lead Tournament
+(canonical threshold×strategy grid re-run at each monthly lead, best OOS Sharpe +
+valid-combo distribution per lead). Daily pairs resampled to month-end (ECON-LL1).
+
+Artifacts per pair: lead_correlation_20260613.csv, lead_tournament_20260613.csv,
+lead_sweep_manifest_20260613.json. Frozen Sample (hy_ig_v2_spy) routed to
+results/_cross_agent/hy_ig_v2_spy_lead_readonly/ — its results dir UNTOUCHED.
+
+**Gate:** 4 RE-RUN candidates (indpro_spy L*=12, indpro_xlp L*=8, umcsent_xlv L*=11,
+gold_copper_xli L*=10 — all beat published winner), 5 CHARTS-ONLY (permit_spy,
+vix_vix3m_spy, hy_ig_spy, busloans_spy, hy_ig_v2_spy). permit_spy reproduces
+vichua's L6/1.4454 winner + L8-9 corr peak exactly — strong harness validation.
+NO re-runs performed (separate Lead-checkpointed dispatch). Decisions logged in
+docs/pair_execution_history.md; ECON-H4 Vera handoff in
+results/_cross_agent/econ_to_vera_lead_charts_20260613.md.
+
+Caveat flagged to Lead: best-Sharpe-at-L* for RE-RUN pairs is from the generic
+lead comparator; reconcile against native tournament machinery at re-run (ECON-SR1).

@@ -1,0 +1,28 @@
+{
+  "pair": "vix_vix3m_spy",
+  "run_date": "20260613",
+  "frozen": false,
+  "granularity": "months L0..12 (ECON-LL1)",
+  "freq_native": "D",
+  "design_note": "Daily pair resampled to month-end (signal=last obs of month; target fwd_1m = month-end-to-month-end). 1 month = ~21 trading days. Lead grid is months for all pairs.",
+  "oos_start": "2020-01-01",
+  "is_end": "2019-12-31",
+  "input_file": "data/vix_vix3m_spy_daily_20260314.parquet",
+  "input_sha256": "sha256:70db18652e70ee2c",
+  "lead_correlation_file": "vix_vix3m_spy/lead_correlation_20260613.csv",
+  "lead_tournament_file": "vix_vix3m_spy/lead_tournament_20260613.csv",
+  "published_winner": {
+    "signal": "vix_ratio_zscore_126d",
+    "lead": 0,
+    "oos_sharpe": 1.1295
+  },
+  "L_star": 3,
+  "best_oos_sharpe_at_grid": 1.8689,
+  "gate_decision": "CHARTS-ONLY",
+  "winner_signal_best_corr_lead": "L6",
+  "assertions": [
+    "lead grid is exactly L0..12",
+    "best_oos_sharpe is the max over the extended grid",
+    "decision RE-RUN iff L*\u22087..12 AND best>1.1295"
+  ]
+}

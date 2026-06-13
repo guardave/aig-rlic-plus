@@ -1716,3 +1716,6 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Handoff:** Lead may verify and strike BL-PROSPECTIVE-REGEN.
 
 🤖 Agent: Data Dana
+
+### 2026-06-13 — Econ Evan: Lead-Horizon gate COMPLETE (fix260613_lead_horizon)
+Lead Analysis + Lead Tournament (L=0..12 months, ECON-LL1) produced for all 9 active pairs. Gate: 4 RE-RUN candidates (indpro_spy, indpro_xlp, umcsent_xlv, gold_copper_xli), 5 CHARTS-ONLY (incl. permit_spy reproducing vichua's L6 finding, and frozen Sample read-only). NO winner changes this dispatch — re-runs are a separate Lead-checkpointed dispatch. Decision table in docs/pair_execution_history.md; Vera chart-input handoff ready. Awaiting Lead checkpoint to authorise the 4 re-runs.
