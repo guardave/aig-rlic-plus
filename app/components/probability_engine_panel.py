@@ -215,7 +215,7 @@ def _render_chart(
             x=[series.index.min(), series.index.max()],
             y=[threshold, threshold],
             mode="lines",
-            name=f"Decision threshold ({threshold:g})",
+            name=f"Decision threshold ({threshold:g}): long above, cash at/below",
             line=dict(color="#444444", width=1.2, dash="dash"),
             hoverinfo="skip",
         )
@@ -455,7 +455,7 @@ def render_probability_engine_panel(pair_id: str) -> None:
     _render_chart(signals_df, column, display_name, threshold, is_probability, pair_id)
 
     # APP-SE5 universal takeaway caption
-    strategy = winner.get("strategy_code", "")
+    strategy = winner.get("strategy_code") or winner.get("strategy_family", "")
     if is_probability:
         takeaway = (
             f"The {display_name.lower()} is the live stress meter; the strategy "
@@ -467,10 +467,10 @@ def render_probability_engine_panel(pair_id: str) -> None:
             f"The signal ({display_name}) drives the strategy; position changes "
             f"are triggered when the value crosses {threshold:g}."
         )
-    if strategy == "P1":
+    if str(strategy).startswith("P1"):
         takeaway += " P1 Long/Cash: any crossing flips exposure between 100% and 0%."
-    elif strategy == "P2":
+    elif str(strategy).startswith("P2"):
         takeaway += " P2 Signal Strength: exposure scales continuously with the signal."
-    elif strategy == "P3":
+    elif str(strategy).startswith("P3"):
         takeaway += " P3 Long/Short: signal polarity determines long vs short tilt."
     st.caption(f"Why this matters: {takeaway}")

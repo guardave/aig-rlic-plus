@@ -1,10 +1,13 @@
 """Plotly JSON chart loader and helper functions."""
 
+import base64
 import json
 import logging
 import os
 import uuid
 
+import numpy as np
+import plotly.graph_objects as go
 import plotly.io as pio
 import streamlit as st
 
@@ -17,6 +20,23 @@ METADATA_DIR = os.path.join(_APP_DIR, "..", "output", "charts", "metadata")
 _LOGGER = logging.getLogger("app.components.charts")
 
 
+def _decode_plotly_typed_arrays(value):
+    """Decode Plotly JSON typed-array payloads for older Plotly runtimes."""
+    if isinstance(value, dict):
+        if "bdata" in value and "dtype" in value:
+            arr = np.frombuffer(base64.b64decode(value["bdata"]), dtype=np.dtype(value["dtype"]))
+            shape = value.get("shape")
+            if shape:
+                dims = tuple(int(part.strip()) for part in str(shape).split(",") if part.strip())
+                if dims:
+                    arr = arr.reshape(dims)
+            return arr.tolist()
+        return {k: _decode_plotly_typed_arrays(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_decode_plotly_typed_arrays(v) for v in value]
+    return value
+
+
 @st.cache_resource
 def _load_plotly_json(json_path: str):
     """Load and parse a Plotly JSON file (cached).
@@ -26,7 +46,15 @@ def _load_plotly_json(json_path: str):
     the smoke test observe real parse errors instead of seeing a placeholder.
     """
     with open(json_path) as f:
-        return pio.from_json(f.read())
+        raw = f.read()
+    try:
+        return pio.from_json(raw)
+    except ValueError:
+        decoded = _decode_plotly_typed_arrays(json.loads(raw))
+        if isinstance(decoded, dict):
+            decoded.get("layout", {}).pop("template", None)
+        return go.Figure(decoded)
+
 
 
 def _resolve_history_zoom_paths(chart_name: str, pair_id: str | None) -> list[str]:

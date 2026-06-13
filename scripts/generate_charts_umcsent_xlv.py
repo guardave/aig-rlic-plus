@@ -380,6 +380,17 @@ def chart_rolling_granger():
         annotation_position="bottom right",
         secondary_y=False,
     )
+    fig.add_trace(
+        go.Scatter(
+            x=[rg["date"].min(), rg["date"].max()],
+            y=[0.05, 0.05],
+            name="p = 0.05 threshold",
+            mode="lines",
+            line=dict(color="red", width=1.2, dash="dot"),
+            hoverinfo="skip",
+        ),
+        secondary_y=False,
+    )
     add_nber_bands(fig)
     fig.update_layout(
         title="Rolling Granger Test: p-value and F-statistic",

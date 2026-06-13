@@ -107,24 +107,17 @@ class StoryConfig:
         "and economists all track it because it has historically turned "
         "before consumer spending does.\n\n"
         "### The Defensive-Healthcare Hypothesis\n\n"
-        "XLV is a defensive sector fund. That means health care companies "
-        "usually depend less on the economic cycle than banks, factories, "
-        "or retailers. People still need medicine, hospitals, insurance, "
-        "and medical services when the economy is weak.\n\n"
-        "The simple hypothesis is therefore two-sided. When UMCSENT is high "
-        "or improving, households feel better about the economy, the broad "
-        "stock market usually has more support, and XLV can participate in "
-        "that upside. When UMCSENT is low or falling, the broad market can "
-        "struggle, but XLV should often perform better than the market "
-        "because health care demand is more stable.\n\n"
-        "The evidence is consistent with that plain version of the story. "
-        "Rising UMCSENT is associated with better forward XLV returns. Low "
-        "or falling sentiment is the weaker regime for absolute XLV returns, "
-        "but crisis episodes show why XLV is still called defensive: it can "
-        "hold up better than the S&P 500 Index (SPX) even when the strategy "
-        "moves to cash. In short, high sentiment helps XLV; low sentiment "
-        "does not automatically make XLV rise, but it can make XLV relatively "
-        "less fragile than the broad market."
+        "UMCSENT indicator shows consumer sentiment in different periods, "
+        "and this sentiment can serve as a leading indicator for the Health "
+        "Care sector. When confidence is high, households are more willing "
+        "to spend on discretionary health services and wellness products, "
+        "driving stronger sector performance. In contrast, during low "
+        "sentiment phases, reduced consumer optimism limits spending and "
+        "growth opportunities, resulting in sector losses. Despite health "
+        "care's defensive nature, the forward-looking aspect of UMCSENT "
+        "provides valuable predictive insight, with high sentiment "
+        "consistently signaling stronger returns compared to periods of low "
+        "sentiment."
     )
 
     NARRATIVE_SECTION_2 = (
@@ -141,7 +134,7 @@ class StoryConfig:
         "is mixed.** The tournament winner uses the 6-month-lagged UMCSENT "
         "year-over-year signal. The cross-correlation evidence is strongest "
         "at 2-4 months, with statistically significant UMCSENT-leading "
-        "correlations from 1-5 months. Formal Granger causality does not "
+        "correlations from 1-5 months only. Formal Granger causality does not "
         "confirm UMCSENT as a statistically significant predictor at lags "
         "1-6; in fact, the reverse direction from XLV to UMCSENT is stronger "
         "in that test. Treat the lead time as a strategy-selection result, "
@@ -335,7 +328,7 @@ REGIME_BLOCK = dict(
     chart_name="regime_stats",
     chart_caption=(
         "Annualised XLV Sharpe ratio and return by quartile of University "
-        "of UMCSENT year-over-year change. Quartile 1 "
+        "of University of Michigan Consumer Sentiment year-over-year change. Quartile 1 "
         "= most negative sentiment trend; Quartile 4 = most positive. "
         "The gradient reveals the procyclical "
         "relationship."
@@ -692,7 +685,7 @@ _TOURNAMENT_DESIGN_MD = """
 | **Direction** | Procyclical applied (empirically observed direction) |
 
 Ranked by out-of-sample Sharpe. **1,305 total combinations tested; 1,195
-valid** (out-of-sample Sharpe > 0, turnover ≤ 24/year, out-of-sample n ≥ 12; the
+valid** in the current published run (out-of-sample Sharpe > 0, turnover ≤ 24/year, out-of-sample n ≥ 12; the
 buy-and-hold benchmark row is a reference, not a combination). Winner (per
 `results/umcsent_xlv/winner_summary.json`, authoritative): **umcsent_yoy /
 zero-crossing (crosses-up) / P1_long_cash / Lead 6 months → out-of-sample
@@ -701,10 +694,11 @@ Sharpe 1.0202, out-of-sample annualised return +11.93%, max drawdown
 out-of-sample trades, win rate 37.0%, annual turnover 2.4. Buy-and-hold
 XLV benchmark: Sharpe 0.7164, max drawdown −15.6%.**
 
-**Pending rerun note.** The current published tournament results do not yet
-include 4-month or 5-month lead times. The pipeline has been updated to test
-them on the next full rerun, but new winner metrics should not be reported
-until the source data and tournament pipeline are rerun end-to-end.
+**Important limitation.** The current published tournament results do not yet
+include 4-month or 5-month lead times, so the dashboard must not claim those
+lead times have been run. The pipeline has been updated to test them on the
+next full rerun, but this checkout does not include the raw monthly source
+parquet needed to recompute and publish the optimized result.
 """
 
 _REFERENCES_MD = """

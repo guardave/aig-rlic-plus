@@ -1004,6 +1004,9 @@ def _render_cross_period_section(pair_id: str) -> None:
     — not an error — so pairs that have not yet been retro-applied degrade
     gracefully.
     """
+    interp = _load_interpretation_metadata(pair_id)
+    indicator, target, _pair_display = _indicator_target_display(pair_id, interp)
+
     st.markdown("---")
     st.markdown("### Cross-Period Consistency")
     st.markdown(
@@ -1020,8 +1023,8 @@ def _render_cross_period_section(pair_id: str) -> None:
     # the chart's own caption= argument is None.
     _cp_always = [
         ("subperiod_sharpe",      "Sub-period Sharpe",      "How to read it: each bar shows the strategy's Sharpe ratio for a distinct historical sub-period. Consistent positive bars across all periods indicate a robust signal."),
-        ("rolling_correlation",   "Rolling Correlation",    "How to read it: the time-varying correlation between indicator and target. A flat, stable line suggests the relationship is not regime-dependent."),
-        ("structural_break",      "Structural Break Test",  "How to read it: formal test for parameter instability. A clean chart with no break-date flags means the relationship is stationary across the sample."),
+        ("rolling_correlation",   "Rolling Correlation",    f"How to read it: the indicator is {indicator}; the target is {target}. The chart shows the rolling correlation between the indicator signal and target returns. A flat, stable line suggests the relationship is not regime-dependent; sharp moves or sign flips mean the signal-target relationship changes across market regimes."),
+        ("structural_break",      "Structural Break Test",  "How to read it: this test asks whether the relationship changes suddenly at a point in the sample. A structural break means the same model no longer fits before and after that date. The F statistic measures how large the before-versus-after change is; the p-value measures whether that change is statistically meaningful. Lower p-values indicate stronger evidence of a break. If p-values stay above 0.05, the chart does not support a clear structural-break conclusion."),
     ]
     for _chart_name, _label, _caption in _cp_always:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
@@ -1035,7 +1038,7 @@ def _render_cross_period_section(pair_id: str) -> None:
     _cp_conditional = [
         ("rolling_sharpe_cp", "Rolling Sharpe",   "How to read it: 24-month rolling Sharpe ratio. Persistent positive values confirm the strategy survives across market regimes, not just in a lucky window."),
         # Granger caption per rekkusuri's michigan-XLV-fix (bc0012f).
-        ("rolling_granger",   "Rolling Granger",  "How to read it: rolling Granger p-value and F-statistic over time. Periods below the p = 0.05 line indicate stronger evidence; intermittent crossings mean the relationship is regime-dependent rather than consistently significant."),
+        ("rolling_granger",   "Rolling Granger",  "How to read it: the rolling Granger test checks whether past indicator values improve forecasts of the target within each rolling window. The p-value is the primary decision line; periods below p = 0.05 indicate stronger evidence. The F statistic is supporting context, not the main call. For this pair the p-value is not consistently below the dashed threshold, so the result is intermittent rather than consistently significant."),
     ]
     for _chart_name, _label, _caption in _cp_conditional:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"

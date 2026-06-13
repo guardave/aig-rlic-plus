@@ -28,7 +28,7 @@ INDICATOR_NAMES: dict[str, str] = {
     "vix_vix3m_spy": "VIX/VIX3M Ratio",
     "hy_ig_v2_spy": "HY-IG Credit Spread",
     "hy_ig_spy": "HY-IG Credit Spread",
-    "umcsent_xlv": "Michigan Consumer Sentiment",
+    "umcsent_xlv": "University of Michigan Consumer Sentiment",
     "gold_copper_xli": "Gold/Copper Ratio",
     "busloans": "Commercial & Industrial Loans",
     "busloans_spy": "Commercial & Industrial Loans",

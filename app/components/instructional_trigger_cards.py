@@ -233,8 +233,9 @@ def _card_specs_for_strategy(
                     sparkline_direction="flat",
                     action_text=(
                         f"While **{signal_display}** hovers near "
-                        f"{threshold:g} → keep current position; "
-                        f"wait for a decisive crossing."
+                        f"{threshold:g}, it is close to the decision line "
+                        f"between {target_symbol} and cash → keep current "
+                        f"position; wait for a decisive crossing."
                     ),
                     key_suffix="hold",
                 ),
@@ -264,8 +265,9 @@ def _card_specs_for_strategy(
                     sparkline_direction="flat",
                     action_text=(
                         f"While **{signal_display}** hovers near "
-                        f"{threshold:g} → keep current position; "
-                        f"wait for a decisive crossing."
+                        f"{threshold:g}, it is close to the decision line "
+                        f"between {target_symbol} and cash → keep current "
+                        f"position; wait for a decisive crossing."
                     ),
                     key_suffix="hold",
                 ),

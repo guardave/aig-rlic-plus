@@ -1,6 +1,6 @@
 {
   "pair_id": "umcsent_xlv",
-  "indicator": "Michigan Consumer Sentiment",
+  "indicator": "University of Michigan Consumer Sentiment",
   "target": "Health Care Select Sector (XLV)",
   "date": "20260420",
   "pipeline_seconds": 14.1,

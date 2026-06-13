@@ -139,6 +139,29 @@ PAIR_TEMPLATE_CHARTS: dict[str, list[str]] = {
         "correlations",
         "ccf",
     ],
+    "umcsent_xlv": [
+        # Story
+        "hero",
+        "regime_stats",
+        "history_zoom_dot_com",
+        "history_zoom_gfc",
+        "history_zoom_covid",
+        "history_zoom_rates_2022",
+        # Evidence method blocks
+        "correlation_scatter",
+        "ccf",
+        "signal_dist",
+        # Strategy performance and confidence tabs
+        "equity_curves",
+        "drawdown",
+        "wf_sharpe",
+        "subperiod_sharpe",
+        "rolling_correlation",
+        "structural_break",
+        "rolling_sharpe_cp",
+        "rolling_granger",
+        "tournament_scatter",
+    ],
 }
 
 
