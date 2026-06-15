@@ -1,5 +1,5 @@
-# Missing Value Report: Michigan Consumer Sentiment → Health Care Select Sector (XLV)
-**Generated:** 2026-04-20 11:29
+# Missing Value Report: University of Michigan Consumer Sentiment → Health Care Select Sector (XLV)
+**Generated:** 2026-06-15 12:11
 **Monthly dataset:** 325 rows × 22 columns
 
 ## Monthly Dataset
