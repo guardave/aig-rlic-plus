@@ -35,6 +35,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 BASE_DIR = str(Path(__file__).resolve().parents[1])
 PAIR_ID = "umcsent_xlv"
 DATE_TAG = "20260420"
+EXPECTED_DIRECTION = "procyclical"
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
 MODELS_DIR = os.path.join(RESULTS_DIR, f"core_models_{DATE_TAG}")
@@ -54,6 +55,15 @@ NBER_RECESSIONS = [
     ("2007-12-01", "2009-06-30"),
     ("2020-02-01", "2020-04-30"),
 ]
+
+
+def bullish_condition(signal, threshold):
+    """Return the XLV-bullish condition implied by EXPECTED_DIRECTION."""
+    if EXPECTED_DIRECTION == "procyclical":
+        return signal > threshold
+    if EXPECTED_DIRECTION in {"countercyclical", "counter_cyclical"}:
+        return signal < threshold
+    raise ValueError(f"Unsupported EXPECTED_DIRECTION: {EXPECTED_DIRECTION}")
 
 
 def save_chart(fig, name):
@@ -489,10 +499,7 @@ def chart_equity_curves():
                 else:
                     continue
 
-                if isinstance(thresh, (int, float)):
-                    position = (signal < thresh).astype(float)  # countercyclical
-                else:
-                    position = (signal < thresh).astype(float)
+                position = bullish_condition(signal, thresh).astype(float)
 
                 strat_ret = position.shift(1) * oos["xlv_ret"]
                 strat_cum = (1 + strat_ret.fillna(0)).cumprod()
@@ -571,7 +578,7 @@ def chart_drawdown():
                 else:
                     thresh = 0
 
-                position = (signal < thresh).astype(float)
+                position = bullish_condition(signal, thresh).astype(float)
                 strat_ret = position.shift(1) * oos["xlv_ret"]
                 strat_cum = (1 + strat_ret.fillna(0)).cumprod()
                 strat_dd = (strat_cum / strat_cum.cummax() - 1)
@@ -649,7 +656,7 @@ def chart_rolling_sharpe():
                 else:
                     thresh = 0
 
-                position = (signal < thresh).astype(float)
+                position = bullish_condition(signal, thresh).astype(float)
                 strat_ret = position.shift(1) * oos["xlv_ret"]
                 strat_roll = strat_ret.rolling(12, min_periods=8)
                 strat_sharpe = (strat_roll.mean() / strat_roll.std()) * np.sqrt(12)
@@ -868,7 +875,7 @@ def chart_wf_sharpe():
                 else:
                     thresh = 0
 
-                position = (signal < thresh).astype(float)
+                position = bullish_condition(signal, thresh).astype(float)
                 strat_ret = position.shift(1) * oos["xlv_ret"]
 
                 # Annual Sharpe by calendar year

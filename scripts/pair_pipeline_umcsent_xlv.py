@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Full Analysis Pipeline: Michigan Consumer Sentiment (UMCSENT) × XLV
+Full Analysis Pipeline: University of Michigan Consumer Sentiment (UMCSENT) × XLV
 =====================================================================
 Priority pair: sentiment indicator vs defensive health care ETF.
 
-Expected direction: countercyclical — high consumer sentiment -> risk-on
-rotation away from defensive health care -> XLV underperforms; low sentiment
--> flight to defensive healthcare -> XLV outperforms.
+Expected direction: procyclical — high or improving consumer sentiment should
+support stronger XLV returns, while weak or falling sentiment should reduce
+XLV exposure.
 
 Stages:
   1. Data sourcing (FRED + Yahoo) + calendar alignment
@@ -28,6 +28,7 @@ import json
 import warnings
 import time
 from datetime import datetime
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -40,13 +41,14 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 # Configuration
 # ---------------------------------------------------------------------------
 PAIR_ID = "umcsent_xlv"
-INDICATOR_NAME = "Michigan Consumer Sentiment"
+INDICATOR_NAME = "University of Michigan Consumer Sentiment"
 TARGET_NAME = "Health Care Select Sector (XLV)"
 START_DATE = "1998-01-01"
 END_DATE = "2025-12-31"
 DATE_TAG = "20260420"
+EXPECTED_DIRECTION = "procyclical"
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = str(Path(__file__).resolve().parents[1])
 DATA_DIR = os.path.join(BASE_DIR, "data")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
@@ -62,6 +64,66 @@ IS_END = None   # set in stage 2
 OOS_START = None  # set in stage 2
 
 STAGE_TIMES = {}
+
+SIGNAL_COLUMN_MAP = {
+    "S1_level": "umcsent",
+    "S2_yoy": "umcsent_yoy",
+    "S3_mom": "umcsent_mom",
+    "S4_zscore": "umcsent_zscore",
+    "S5_3m_ma": "umcsent_3m_ma",
+    "S6_direction": "umcsent_direction",
+    "S7_dev_ma": "umcsent_dev_ma",
+}
+
+
+def bullish_condition(signal, threshold):
+    """Return the XLV-bullish condition implied by EXPECTED_DIRECTION."""
+    if EXPECTED_DIRECTION == "procyclical":
+        return signal > threshold
+    if EXPECTED_DIRECTION in {"countercyclical", "counter_cyclical"}:
+        return signal < threshold
+    raise ValueError(f"Unsupported EXPECTED_DIRECTION: {EXPECTED_DIRECTION}")
+
+
+def signal_strength_position(signal):
+    """Scale signal to [0, 1] with direction-aware exposure."""
+    sig_min = signal.rolling(60, min_periods=36).min()
+    sig_max = signal.rolling(60, min_periods=36).max()
+    sig_range = (sig_max - sig_min).replace(0, np.nan)
+    scaled = ((signal - sig_min) / sig_range).clip(0, 1)
+    if EXPECTED_DIRECTION == "procyclical":
+        return scaled
+    return 1 - scaled
+
+
+def build_threshold(signal, work, sig_col, is_mask, threshold_name):
+    """Return the threshold object used by the tournament winner."""
+    note = threshold_name
+    if "T1_fixed" in threshold_name:
+        pct = int(threshold_name.split("p")[1])
+        threshold = work.loc[is_mask, sig_col].quantile(pct / 100)
+        value = float(threshold)
+        note = f"fixed in-sample p{pct}"
+    elif "T2_roll" in threshold_name:
+        pct = int(threshold_name.split("p")[1])
+        threshold = signal.rolling(60, min_periods=36).quantile(pct / 100)
+        value = float(threshold.dropna().iloc[-1]) if threshold.dropna().shape[0] else None
+        note = f"rolling 60-month p{pct}; threshold_value is latest available threshold"
+    elif "T3_zscore_neg" in threshold_name:
+        k = float(threshold_name.split("_")[-1])
+        threshold = signal.rolling(60, min_periods=36).mean() - k * signal.rolling(60, min_periods=36).std()
+        value = float(threshold.dropna().iloc[-1]) if threshold.dropna().shape[0] else None
+        note = f"rolling 60-month mean minus {k:g} standard deviation; threshold_value is latest available threshold"
+    elif "T3_zscore" in threshold_name:
+        k = float(threshold_name.split("_")[-1])
+        threshold = signal.rolling(60, min_periods=36).mean() + k * signal.rolling(60, min_periods=36).std()
+        value = float(threshold.dropna().iloc[-1]) if threshold.dropna().shape[0] else None
+        note = f"rolling 60-month mean plus {k:g} standard deviation; threshold_value is latest available threshold"
+    else:
+        threshold = 0.0
+        value = 0.0
+        note = "zero threshold"
+    return threshold, value, note
 
 
 def log_stage(name):
@@ -908,8 +970,8 @@ def stage_core_models(df_monthly):
     print(f"    {len(diag_df)} diagnostic tests saved")
 
     # --- Observed direction from regression results ---
-    observed_direction = "countercyclical"  # default per hypothesis
-    direction_consistent = True
+    observed_direction = "unknown"
+    direction_consistent = False
     key_finding = "UMCSENT YoY change predicts XLV forward returns"
 
     if len(reg_df) > 0:
@@ -919,10 +981,8 @@ def stage_core_models(df_monthly):
             f"(coef={best_reg['coef']:.4f}, t={best_reg['t_stat']:.2f}, "
             f"p={best_reg['p_value']:.4f}, R²={best_reg['r_squared']:.3f})"
         )
-        # Countercyclical: higher sentiment -> lower XLV returns (negative coef)
-        if best_reg["coef"] > 0:
-            observed_direction = "procyclical"
-            direction_consistent = False
+        observed_direction = "procyclical" if best_reg["coef"] > 0 else "countercyclical"
+        direction_consistent = observed_direction == EXPECTED_DIRECTION
 
     # Save interpretation metadata
     interpretation = {
@@ -933,7 +993,7 @@ def stage_core_models(df_monthly):
         "indicator_nature": "leading",
         "indicator_type": "sentiment",
         "strategy_objective": "min_mdd",
-        "expected_direction": "countercyclical",
+        "expected_direction": EXPECTED_DIRECTION,
         "observed_direction": observed_direction,
         "direction_consistent": direction_consistent,
         "key_finding": key_finding,
@@ -1031,35 +1091,14 @@ def stage_tournament(df_monthly, df_daily):
                     combo_count += 1
 
                     try:
-                        # Countercyclical: HIGH sentiment -> BELOW threshold -> bearish XLV
-                        # The signal is countercyclical, so:
-                        #   "above" means HIGH sentiment -> risk-on -> XLV underperforms -> bearish
-                        #   "below" means LOW sentiment -> risk-off -> XLV outperforms -> bullish
-                        # So position = 1 when signal is BELOW threshold (low sentiment = bullish XLV)
-                        if isinstance(thresh_val, (int, float)):
-                            if "neg_" in thresh_name:
-                                above = signal_lagged > thresh_val
-                            else:
-                                # Countercyclical: below threshold = bullish XLV
-                                above = signal_lagged < thresh_val
-                        else:
-                            if "neg_" in thresh_name:
-                                above = signal_lagged > thresh_val
-                            else:
-                                above = signal_lagged < thresh_val
+                        bullish = bullish_condition(signal_lagged, thresh_val)
 
                         if strat == "P1_long_cash":
-                            position = above.astype(float)
+                            position = bullish.astype(float)
                         elif strat == "P2_signal_strength":
-                            # Low sentiment -> high position (inverted)
-                            sig_min = signal_lagged.rolling(60, min_periods=36).min()
-                            sig_max = signal_lagged.rolling(60, min_periods=36).max()
-                            sig_range = sig_max - sig_min
-                            sig_range = sig_range.replace(0, np.nan)
-                            # Invert for countercyclical: 1 - normalized
-                            position = 1 - ((signal_lagged - sig_min) / sig_range).clip(0, 1)
+                            position = signal_strength_position(signal_lagged)
                         elif strat == "P3_long_short":
-                            position = above.astype(float) * 2 - 1
+                            position = bullish.astype(float) * 2 - 1
                         else:
                             continue
 
@@ -1321,8 +1360,50 @@ def main():
 
         if len(valid_strats) > 0:
             best = valid_strats.loc[valid_strats["oos_sharpe"].idxmax()]
+            work_for_summary = df_monthly.dropna(subset=["umcsent"])
+            is_mask_summary = work_for_summary.index <= IS_END
+            oos_mask_summary = work_for_summary.index >= OOS_START
+            signal_column = SIGNAL_COLUMN_MAP.get(best["signal"])
+            threshold_value = None
+            threshold_note = str(best["threshold"])
+            oos_n_trades = 0
+            oos_period_start = OOS_START.strftime("%Y-%m-%d")
+            oos_period_end = work_for_summary.loc[oos_mask_summary].index.max().strftime("%Y-%m-%d")
+
+            if signal_column and signal_column in work_for_summary.columns:
+                raw_signal = work_for_summary[signal_column].copy()
+                lead = int(best["lead_months"])
+                signal_for_rule = raw_signal.shift(lead) if lead > 0 else raw_signal
+                threshold_obj, threshold_value, threshold_note = build_threshold(
+                    signal_for_rule,
+                    work_for_summary,
+                    signal_column,
+                    is_mask_summary,
+                    str(best["threshold"]),
+                )
+
+                if best["strategy"] == "P1_long_cash":
+                    position = bullish_condition(signal_for_rule, threshold_obj).astype(float)
+                elif best["strategy"] == "P2_signal_strength":
+                    position = signal_strength_position(signal_for_rule)
+                elif best["strategy"] == "P3_long_short":
+                    position = bullish_condition(signal_for_rule, threshold_obj).astype(float) * 2 - 1
+                else:
+                    position = pd.Series(0.0, index=work_for_summary.index)
+
+                oos_position = position.loc[oos_mask_summary].dropna()
+                oos_n_trades = int(oos_position.diff().abs().fillna(0).gt(0).sum())
+
             winner_summary = {
                 "pair_id": PAIR_ID,
+                "generated_at": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+                "signal_column": signal_column,
+                "signal_code": best["signal"],
+                "target_symbol": "XLV",
+                "threshold_value": round(float(threshold_value), 6) if threshold_value is not None else None,
+                "threshold_rule": "gt" if EXPECTED_DIRECTION == "procyclical" else "lt",
+                "strategy_family": best["strategy"],
+                "direction": EXPECTED_DIRECTION,
                 "signal": best["signal"],
                 "threshold": best["threshold"],
                 "strategy": best["strategy"],
@@ -1332,15 +1413,27 @@ def main():
                 "oos_ann_vol": round(float(best["oos_ann_vol"]), 6),
                 "oos_sortino": round(float(best["oos_sortino"]), 4),
                 "oos_calmar": round(float(best["oos_calmar"]), 4),
+                "oos_max_drawdown": round(float(best["max_drawdown"]), 6),  # ratio form (META-UC)
+                "oos_n_trades": oos_n_trades,
+                "oos_period_start": oos_period_start,
+                "oos_period_end": oos_period_end,
                 "max_drawdown": round(float(best["max_drawdown"]), 6),  # ratio form (META-UC)
                 "win_rate": round(float(best["win_rate"]), 4),
                 "annual_turnover": round(float(best["annual_turnover"]), 2),
+                "cost_assumption_bps": 5,
                 "is_n": int(best["is_n"]),
                 "oos_n": int(best["oos_n"]),
                 "bh_oos_sharpe": round(float(bh.iloc[0]["oos_sharpe"]), 4) if len(bh) > 0 else None,
+                "bh_sharpe": round(float(bh.iloc[0]["oos_sharpe"]), 4) if len(bh) > 0 else None,
+                "bh_ann_return": round(float(bh.iloc[0]["oos_ann_return"]), 6) if len(bh) > 0 else None,
                 "bh_max_drawdown": round(float(bh.iloc[0]["max_drawdown"]), 6) if len(bh) > 0 else None,
                 "oos_start": OOS_START.strftime("%Y-%m-%d"),
                 "is_end": IS_END.strftime("%Y-%m-%d"),
+                "notes": (
+                    f"Expected relationship is {EXPECTED_DIRECTION}. "
+                    f"Winning threshold uses {threshold_note}. "
+                    f"Signal is lagged by {int(best['lead_months'])} months before the rule is applied."
+                ),
             }
 
         winner_path = os.path.join(RESULTS_DIR, "winner_summary.json")
@@ -1354,34 +1447,15 @@ def main():
             work = df_monthly.dropna(subset=["umcsent"])
             oos_mask = work.index >= OOS_START
 
-            sig_col_map = {
-                "S1_level":     "umcsent",
-                "S2_yoy":       "umcsent_yoy",
-                "S3_mom":       "umcsent_mom",
-                "S4_zscore":    "umcsent_zscore",
-                "S5_3m_ma":     "umcsent_3m_ma",
-                "S6_direction": "umcsent_direction",
-                "S7_dev_ma":    "umcsent_dev_ma",
-            }
-            sig_col = sig_col_map.get(winner_summary["signal"])
+            sig_col = SIGNAL_COLUMN_MAP.get(winner_summary["signal"])
             lead = winner_summary["lead_months"]
             thresh_name = winner_summary["threshold"]
 
             if sig_col and sig_col in work.columns:
                 signal = work[sig_col].shift(lead) if lead > 0 else work[sig_col]
                 is_mask = work.index <= IS_END
-
-                if "T1_fixed" in thresh_name:
-                    pct = int(thresh_name.split("p")[1])
-                    thresh_val = work.loc[is_mask, sig_col].quantile(pct / 100)
-                    position = (signal < thresh_val).astype(float)
-                elif "T2_roll" in thresh_name:
-                    pct = int(thresh_name.split("p")[1])
-                    thresh_val = signal.rolling(60, min_periods=36).quantile(pct / 100)
-                    position = (signal < thresh_val).astype(float)
-                else:
-                    thresh_val = 0
-                    position = (signal < thresh_val).astype(float)
+                thresh_val, _, _ = build_threshold(signal, work, sig_col, is_mask, thresh_name)
+                position = bullish_condition(signal, thresh_val).astype(float)
 
                 strat_ret = position.shift(1) * work["xlv_ret"]
                 oos_data = work[oos_mask].copy()
