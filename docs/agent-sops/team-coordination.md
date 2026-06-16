@@ -104,9 +104,17 @@ Both lines must show the same commit hash. If they differ, push immediately.
 
 ## Work Mode Selection (LEAD-WM1)
 
-The team operates in **Mode 1 (multiple makers, single checker — default)** or **Mode 2 (single maker, multiple checkers)** per pair, chosen at SOD by the user on Lead's recommendation. Mode choice is logged in `docs/pair_execution_history.md`. Rule lives at `docs/agent-sops/lead-agent-sop.md` §LEAD-WM1; cross-team registration at `docs/team-standards.md` §5.5.
+The team operates in one of **five** work modes per pair, chosen at SOD by the user on Lead's recommendation. A mode is defined by **topology** (maker/checker shape) × **model family** (Claude / Codex) per role:
 
-**For role agents:** the only operational signal is the dispatch brief — Lead will say what mode is live and what's expected. Your domain rules and handoff schemas bind unconditionally either way.
+- **Mode 1** (default) — multiple makers, single checker; all Claude.
+- **Mode 2** — single maker, multiple checkers; all Claude.
+- **Mode 3** — Mode-1 shape; **Claude manages, Codex makes**, checker = manager family (Claude).
+- **Mode 4** — Mode-1 shape; **Codex manages, Opus makes**, checker = manager family (Codex).
+- **Mode 5** — Mode-2 shape; **Opus makes, Codex checks** (cross-family adversarial verification).
+
+In Modes 3 & 4 the checker is the **same family as the manager**; Mode 5 deliberately splits maker and checker families. Codex dispatch is **tmux multi-pane (primary)** with `codex exec` / `claude -p` subprocess as fallback. Mode choice is logged in `docs/pair_execution_history.md`. Rule lives at `docs/agent-sops/lead-agent-sop.md` §LEAD-WM1; cross-team registration at `docs/team-standards.md` §5.5.
+
+**For role agents:** the only operational signal is the dispatch brief — Lead (or the Codex manager in Mode 4) will say what mode is live and what's expected. Your domain rules and handoff schemas bind unconditionally regardless of mode, model family, or dispatch mechanism.
 
 ---
 
