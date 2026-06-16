@@ -76,6 +76,35 @@ else
 fi
 
 # --------------------------------------------------------------------------
+# 1c. Codex global instructions pointer — a pointer-only AGENTS.md under
+#     $CODEX_HOME (default ~/.codex) so Codex always loads the canonical
+#     cross-project protocol. Lives outside the repo, so it must be
+#     (re)created on every rebuild. Static content → unconditional overwrite.
+# --------------------------------------------------------------------------
+echo ""
+echo "[1c/5] Writing Codex global instructions pointer..."
+
+CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+mkdir -p "$CODEX_HOME"
+cat > "$CODEX_HOME/AGENTS.md" <<'CODEX_AGENTS_EOF'
+# Global Codex instructions (pointer only)
+
+> Carries no protocol text. Points to the canonical cross-project protocol so it
+> can never drift from it.
+
+Before acting on any project, read **`~/.claude/CLAUDE.md`** — the cross-project agent
+identity protocol, general rules, documentation requirements, and memory rules that
+govern every project. Then read the project's own `CLAUDE.md` and `AGENTS.md` for
+project-specific persona, conventions, and the work-mode definitions.
+
+Derive your agent identity from the dispatch brief's `[Role Name]` tag and load the
+matching persona profile under `~/.claude/agents/<role>-<name>/`.
+
+If this file and `~/.claude/CLAUDE.md` ever disagree, `~/.claude/CLAUDE.md` wins.
+CODEX_AGENTS_EOF
+echo "  -> Codex global pointer written to $CODEX_HOME/AGENTS.md"
+
+# --------------------------------------------------------------------------
 # 2. Python packages
 # --------------------------------------------------------------------------
 echo ""
