@@ -74,7 +74,8 @@ class StoryConfig:
     REGIME_CAPTION = (
         "What this shows: XLI performance in each of the four 126-day "
         "z-score quartiles — annualized Sharpe (left panel) and annualized "
-        "return (right panel), both annualized from 63-day forward returns. "
+        "return (right panel), annualized on a simple x4 basis from "
+        "raw 63-day forward returns. "
         "Q1 (lowest ratio = risk-on regime) is the strongest quartile on "
         "both measures (Sharpe 1.46 / 15.7% return); Q3 is the weakest "
         "(0.18 / 3.7%). The Q4 partial rebound (0.57 / 11.7%) is the "
@@ -124,11 +125,11 @@ The exact rule that produced the 1.27 Sharpe is simple enough to apply by hand. 
 |---|---|---|
 | 1. Pull two prices | Gold and copper futures closes | Yahoo Finance tickers `GC=F` and `HG=F`, or any equivalent feed |
 | 2. Compute the ratio | gold ($/oz) ÷ copper ($/lb) | Today's value vs its trailing 6-month mean is the comparison that matters |
-| 3. Compute the 126-day z-score | (today's ratio − 6-month mean) ÷ 6-month standard deviation | Tells you how unusual today is in 6-month context |
-| 4. Compare to threshold | **≈ −0.03** (in-sample-median calibration) | Below threshold = risk-on regime; above = risk-off |
+| 3. Compute the 126-day z-score | (today's ratio − 6-month mean) ÷ 6-month standard deviation | Tells you whether the ratio is unusually high or low versus its own 6-month history |
+| 4. Compare to threshold | **≈ −0.03** (in-sample-median calibration) | High z-score = gold is rich versus copper = bearish for XLI; below threshold = risk-on, above = risk-off |
 | 5. Take a position | Below threshold → **long XLI 100%**; above → **cash (0% XLI)** | No short side; no leverage; no lead |
 
-The threshold value (-0.03) is fixed — it was tuned on in-sample data (pre-2020) and held constant through the out-of-sample window (2020–2025). You do not re-tune it. If you want to see what value the signal would take today, pull the two futures closes and run steps 2–3; the threshold comparison in step 4 is mechanical.
+The z-score is just the gold/copper ratio translated into "how unusual is it versus the last 126 trading days?" A high z-score means gold is expensive relative to copper, which is the bearish XLI setup in this analysis. The threshold value (-0.03) is fixed — it was tuned on in-sample data (pre-2020) and held constant through the out-of-sample window (2020–2025). You do not re-tune it. If you want to see what value the signal would take today, pull the two futures closes and run steps 2–3; the threshold comparison in step 4 is mechanical.
 
 **A worked example** — see the *Strategy → Manual Use* page for a full step-by-step including what to do on a rebalancing day vs an in-between day.
 """
@@ -385,17 +386,21 @@ REGIME_BLOCK = dict(
     ),
     chart_name="quartile_returns",
     chart_caption=(
-        "What this shows: mean XLI 63d forward return by gold/copper "
-        "z-score quartile. Q1 (lowest ratio, most risk-on) earns the "
+        "What this shows: raw, non-annualized mean XLI 63d forward "
+        "return by gold/copper z-score quartile. Q1 (lowest ratio, "
+        "most risk-on) earns the "
         "best forward returns; Q3 the worst. The Q4 partial rebound is "
         "the rates_2022 failure-case fingerprint."
     ),
     observation=(
-        "The quartile results show a clear gradient from Q1 (+3.93%) "
-        "through Q2 (+2.45%) to Q3 (+0.92%) — directly confirming the "
-        "countercyclical hypothesis across most of the distribution. "
+        "The raw 63-day quartile results show a clear gradient from "
+        "Q1 (+3.93%) through Q2 (+2.45%) to Q3 (+0.92%) — the same "
+        "means shown annualized in the chart as +15.7%, +9.8%, and "
+        "+3.7%. This directly confirms the countercyclical hypothesis "
+        "across most of the distribution. "
         "Q4 partially rebounds to +2.92%, which is the **statistical "
-        "fingerprint of the 2022 rates-shock failure case**: when supply "
+        "(+11.7% annualized) fingerprint of the 2022 rates-shock failure "
+        "case**: when supply "
         "tightness or rates dominate, the high-z-score regime stops "
         "being reliably bearish. This is the documented limitation, "
         "not noise."
@@ -420,9 +425,11 @@ REGIME_BLOCK = dict(
         "interpretable and both inform how the signal should be used."
     ),
     key_message=(
-        "Quartile Q1 yields +3.93% mean XLI forward 63d return; Q3 "
-        "yields +0.92% — a 3pp gradient that supports the countercyclical "
-        "mechanism. Q4 partially rebounds (+2.92%) due to supply/rates-"
+        "Quartile Q1 yields +3.93% raw mean XLI forward 63d return "
+        "(+15.7% simple annualized); Q3 yields +0.92% raw (+3.7% "
+        "annualized) — a 3pp raw 63d gradient that supports the "
+        "countercyclical mechanism. Q4 partially rebounds (+2.92% raw, "
+        "+11.7% annualized) due to supply/rates-"
         "driven episodes (2022) that contaminate the extreme bucket. "
         "Use with regime awareness."
     ),
@@ -433,13 +440,13 @@ CCF_BLOCK = dict(
     chart_status="ready",
     method_name="Pre-Whitened Cross-Correlation (CCF)",
     method_theory=(
-        "Plain cross-correlation between two persistent series is "
-        "biased by their own autocorrelation — a slow-moving signal "
-        "and a slow-moving return will look correlated at many lags "
-        "even if there is no genuine lead-lag. **Pre-whitening** "
-        "first fits an AR(1) model to each series and uses the "
-        "residuals, isolating the contemporaneous innovation. The "
-        "CCF on the residuals is the clean lead-lag picture."
+        "This is a lead-lag test after first removing each series' "
+        "habit of moving like its own recent past. A slow-moving signal "
+        "and a slow-moving return can look related at many lags even "
+        "when they are only echoing themselves. **Pre-whitening** "
+        "uses an AR(1) model to strip out that self-memory from each "
+        "series; the CCF on what remains gives the cleaner lead-lag "
+        "picture."
     ),
     question=(
         "After removing each series' own self-driven persistence, "
@@ -495,13 +502,13 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
     method_name="Local Projections (Jordà)",
     method_theory=(
-        "**Local projections** estimate the dynamic response of a "
-        "target variable to a one-time shock in a predictor, at "
-        "multiple forward horizons. Unlike VAR-based impulse "
-        "responses, LP fits a separate regression at each horizon, "
-        "which is more robust to model mis-specification. We use "
-        "HAC (Newey-West) standard errors to handle the overlapping "
-        "data created by multi-day cumulative returns."
+        "This asks a simple shock question: after the gold/copper "
+        "signal jumps today, what tends to happen to XLI over the "
+        "next day, week, month, quarter, and half-year? **Local "
+        "projections** estimate that path one horizon at a time, "
+        "instead of forcing one big model to describe every horizon. "
+        "We use HAC (Newey-West) standard errors to handle the "
+        "overlapping data created by multi-day cumulative returns."
     ),
     question=(
         "If today's gold/copper z-score is one standard deviation "
@@ -642,19 +649,19 @@ HMM_BLOCK = dict(
     chart_status="ready",
     method_name="HMM Regime Identification",
     method_theory=(
-        "A **2-state hidden Markov model** infers an unobserved "
-        "regime label from the signal series. Each state has its "
-        "own mean and variance; the model also learns a transition "
-        "matrix describing how persistent each regime is. The "
-        "smoothed marginal probability P(state | full data) is the "
-        "model's best estimate of which regime was active at each "
-        "date."
+        "This lets the data sort each day into one of two hidden "
+        "market moods: calm or stressed. A **2-state hidden Markov "
+        "model** learns what each mood looks like from the signal's "
+        "mean and variance, and it also learns how sticky each mood "
+        "tends to be. The smoothed marginal probability P(state | "
+        "full data) is the model's best estimate of which regime was "
+        "active at each date."
     ),
     question=(
         "Does the gold/copper signal exhibit two statistically "
         "distinguishable regimes — a 'stress' state and a 'calm' "
         "state — and do the inferred stress periods line up with "
-        "documented historical crises (the HZE1 episodes)?"
+        "highlighted historical crisis windows?"
     ),
     how_to_read=(
         "Read the time series: P(stress) = 1 means the model is "
@@ -701,8 +708,8 @@ HMM_BLOCK = dict(
         "once they happen, last for months. Less persistent "
         "regimes (more off-diagonal mass) imply faster oscillation. "
         "For the gold/copper signal we observe high diagonal "
-        "persistence — consistent with the multi-month HZE1 "
-        "episode windows."
+        "persistence — consistent with the highlighted multi-month "
+        "historical episode windows."
     ),
     interpretation=(
         "The HMM provides a model-based confirmation of the "
@@ -729,16 +736,14 @@ TRANSFER_ENTROPY_BLOCK = dict(
     chart_status="ready",
     method_name="Transfer Entropy",
     method_theory=(
-        "**Transfer entropy** is an information-theoretic measure "
-        "of directed dependence between two time series — a "
-        "mathematical way to quantify how much knowing one series "
-        "reduces uncertainty about another. Unlike linear "
-        "correlation or Granger causality, it makes no linearity "
-        "assumption: it asks whether knowing the past of X "
-        "reduces the uncertainty about the future of Y, beyond "
-        "what Y's own past tells you. We use a binned (N=4) "
-        "estimator and a shuffle-based null distribution to "
-        "construct an empirical confidence interval. The unit is "
+        "This asks whether the signal tells us something useful about "
+        "future XLI returns that XLI's own history did not already "
+        "tell us. **Transfer entropy** measures directed information "
+        "flow without requiring a straight-line relationship: it asks "
+        "whether knowing the past of X reduces uncertainty about the "
+        "future of Y, beyond what Y's own past tells you. We use a "
+        "binned (N=4) estimator and a shuffle-based null distribution "
+        "to construct an empirical confidence interval. The unit is "
         "**bits** — higher means stronger information transfer."
     ),
     question=(
@@ -1014,10 +1019,10 @@ _DATA_SOURCES_MD = """
 | **Volatility** | Yahoo Finance | ^VIX | Daily |
 | **Dollar Index** | Yahoo Finance | DX-Y.NYB | Daily |
 
-*Scope discipline (ECON-SD).* Only the gold/copper ratio and its
-transformations are in-scope primary signals. VIX and DXY are diagnostic
-regime indicators — used in regression controls and caveats, not as
-trading signals.
+*Scope discipline.* This analysis keeps the trading signal narrow: only
+the gold/copper ratio and its transformations are in-scope primary signals.
+VIX and DXY are diagnostic regime indicators — used in regression controls
+and caveats, not as trading signals.
 """
 
 
@@ -1040,7 +1045,7 @@ _METHODS_TABLE_MD = """
 | Granger causality | Linear predictive relationship | Lags 1, 5, 10, 21, 63 |
 | Regime quartile analysis | Non-parametric regime check | 4 quartiles, mean + median forward return |
 | Pearson correlation heatmap | Linear association across horizons | 5 signals × 4 forward horizons |
-| Threshold tournament | Trading-rule selection on OOS Sharpe | 90 combinations |
+| Threshold tournament | Trading-rule selection on OOS Sharpe | 90 tested combinations; 60 valid after filters |
 """
 
 
@@ -1051,7 +1056,7 @@ _TOURNAMENT_DESIGN_MD = """
 | **Thresholds (3)** | IS p25, IS p50, IS p75 (static, calibrated on pre-2020 distribution) |
 | **Strategies (2)** | Long/Cash, Long/Short (counter-cyclical orientation only) |
 | **Lead times (3)** | 0, 1, 5 business days |
-| **Total combos** | 5 × 3 × 2 × 3 = 90 |
+| **Total combos** | 5 × 3 × 2 × 3 = 90 tested; 60 valid after filters |
 
 Because gold/copper is hypothesized as a counter-cyclical signal (high
 ratio = bearish for XLI), all strategies are tested in the counter-
