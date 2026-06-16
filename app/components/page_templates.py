@@ -1637,7 +1637,7 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str) -> None:
         },
     )
     st.caption(
-        f"**{len(tdf):,} combinations tested** | "
+        f"**{((tdf['signal'] != 'BENCHMARK').sum() if 'signal' in tdf.columns else len(tdf)):,} combinations tested** | "
         f"**{len(valid):,} valid** (OOS Sharpe > 0)."
     )
 
