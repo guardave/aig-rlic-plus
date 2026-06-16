@@ -223,20 +223,18 @@ def make_history_zoom(df, slug):
     start, end, label, has_nber = EPISODES[slug]
     sub = df.loc[start:end]
 
-    # Dual-panel layout: top = ratio + xli, bottom = z-score
-    # Per VIZ-DP1: top traces use xaxis=x/yaxis=y and yaxis=y2 (overlay).
-    # Bottom panel traces use xaxis=x2/yaxis=y3.
+    # VIZ-DP1 contract is y-axis driven: y/y3 traces bind to x, y2 binds to x2.
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=sub.index, y=sub["gold_copper_ratio"],
                              name="G/C Ratio", xaxis="x", yaxis="y",
                              line=dict(color="#b87333", width=1.4)))
     fig.add_trace(go.Scatter(x=sub.index, y=sub["xli"],
-                             name="XLI ($)", xaxis="x", yaxis="y2",
+                             name="XLI ($)", xaxis="x2", yaxis="y2",
                              line=dict(color="#1f77b4", width=1.4)))
     # Bottom panel — 126d z-score is the tournament winner's signal column
     # (per winner_summary.signal_column). KS-109 fix (2026-06-03): was 252d.
     fig.add_trace(go.Scatter(x=sub.index, y=sub["gold_copper_zscore_126d"],
-                             name="126d Z-Score", xaxis="x2", yaxis="y3",
+                             name="126d Z-Score", xaxis="x", yaxis="y3",
                              line=dict(color="#7f4a2e", width=1.2)))
     fig.add_hline(y=0, line=dict(color="#888", width=0.8, dash="dot"), xref="x2", yref="y3")
 
