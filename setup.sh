@@ -55,6 +55,27 @@ else
 fi
 
 # --------------------------------------------------------------------------
+# 1b. Codex CLI (OpenAI) — installed globally via npm (Node guaranteed above).
+#     Codex VS Code extension is provisioned separately via devcontainer.json
+#     customizations (openai.chatgpt). tmux is provisioned via the apt-packages
+#     devcontainer feature.
+# --------------------------------------------------------------------------
+echo ""
+echo "[1b/5] Installing Codex CLI..."
+
+if command -v codex &>/dev/null; then
+  echo "  -> Codex CLI $(codex --version 2>/dev/null || echo '?') already present."
+elif command -v npm &>/dev/null; then
+  if npm install -g @openai/codex 2>&1; then
+    echo "  -> Codex CLI installed ($(codex --version 2>/dev/null || echo 'version unknown'))."
+  else
+    echo "  -> FAIL Codex CLI install (npm install -g @openai/codex) — see error above."
+  fi
+else
+  echo "  -> SKIP Codex CLI (npm not available)."
+fi
+
+# --------------------------------------------------------------------------
 # 2. Python packages
 # --------------------------------------------------------------------------
 echo ""
@@ -190,6 +211,12 @@ if command -v node &>/dev/null; then
 else
   echo "  FAIL node not found"
 fi
+
+echo ""
+echo "  CLIs:"
+command -v claude &>/dev/null && echo "  OK  claude $(claude --version 2>/dev/null)" || echo "  FAIL claude not found"
+command -v codex  &>/dev/null && echo "  OK  codex  $(codex --version 2>/dev/null)"  || echo "  FAIL codex not found"
+command -v tmux   &>/dev/null && echo "  OK  $(tmux -V)"                              || echo "  FAIL tmux not found"
 
 echo ""
 echo "  Python packages:"

@@ -4,7 +4,8 @@
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/devcontainers/features/node:1": { "version": "lts" },
-		"ghcr.io/stu-bell/devcontainer-features/claude-code:0": {}
+		"ghcr.io/stu-bell/devcontainer-features/claude-code:0": {},
+		"ghcr.io/rocker-org/devcontainer-features/apt-packages:1": { "packages": "tmux" }
 	},
 
 	// Ensure host ~/.claude/, ~/.claude.json, and ~/.codex/ exist before bind-mounting.
