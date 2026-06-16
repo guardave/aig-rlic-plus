@@ -1,5 +1,28 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-06-16 (MCP repair + Codex work-modes SOP)
+
+### Summary
+
+1. **MCP repair (/doctor):** Fixed 3 broken MCP servers in `~/.claude.json` — `yahoo-finance` (wrong pkg → `yahoo-finance-mcp`), `fetch` (dead pkg → removed), `memory` (hardcoded `/home/david/...` path → `npx @verygoodplugins/mcp-automem`). Scoped `memory` to aig-rlic-plus only. Pointed it at host AutoMem `http://172.17.0.1:8001` (docker bridge gateway), key `local-dev-token`. Health + recall verified; **WRITES fail with `fetch failed`** — AutoMem store-path issue to diagnose. Plugin marketplace cache-miss left for user (`/plugin marketplace update`).
+2. **Suspended `fix260613_lead_horizon`** pending stakeholder comments on the lead-horizon spec memo. Clean suspend point pushed.
+3. **`fix260616_codex_sop` (pushed, NOT merged):** Brought Codex into the team model.
+   - **LEAD-WM1 expanded 2→5 modes** (topology × model family): M3 Claude-mgr/Codex-makers, M4 Codex-wears-Lesandro-hat/Opus-makers, M5 Opus-makes/Codex-checks (cross-family adversarial). M3/M4 checker = manager family; M5 splits on purpose.
+   - **Codex dispatch:** tmux multi-pane PRIMARY, `codex exec`/`claude -p` subprocess FALLBACK.
+   - **Persona referencing (the real design problem):** POINTER-ONLY bridge, zero duplication. Repo `AGENTS.md` = generic role-resolver (derives role from `[Role Name]` dispatch tag → loads SOP + `~/.claude/agents/<role>-<name>/`); `~/.codex/AGENTS.md` = global pointer to `~/.claude/CLAUDE.md`; `~/.codex/config.toml` = runtime only. Single source of truth stays Claude-side.
+   - **Smoke-tested OK** on Codex 0.140.0/gpt-5.5: resolved `[Lead Lesandro]` + canonical paths.
+   - Cherry-picked `c9cae07`→`2193ddc` (Codex+tmux install, was stranded on lead_horizon, not on main). ops-otis added `setup.sh [1c/5]` to recreate the global pointer on rebuild.
+   - Commits: `2193ddc` (cherry-pick), `d03d3df` (Lead SOP+AGENTS.md), `67da56b` (ops setup.sh).
+   - **Pending:** merge authorization (LEAD-MA1); full Mode 3/4/5 operational dry-run (real tmux wave) not yet done; bubblewrap not on PATH (Codex sandbox prereq, minor).
+
+### Lessons (this session)
+
+1. **Pointer-only beats copy for cross-tool config.** User caught my step-2 flaw (putting global protocol into `~/.codex/config.toml` would drift). Correct design: every Codex config file is a pointer to the canonical Claude-side source; runtime config and persona/protocol strictly separated.
+2. **Slow down and converse on multi-dimensional design.** User rejected an early 3-question block as rushing; the modes needed conceptual alignment before drafting. Reflecting the spec back as a matrix and confirming pinned ambiguities cheaply.
+3. **Stranded ops commits.** The Codex install was committed on whatever branch was active (lead_horizon), not where it belonged. Cherry-pick onto the task branch keeps enablement together en route to main.
+
+---
+
 ## Session: 2026-06-12 (busloans_spy — first full Mode-1 PAIR pipeline; META-A2A codified)
 
 ### Summary
