@@ -311,3 +311,20 @@ Dispatched by Lead Lesandro. Delivered `docs/portal_narrative_lead_blocks_202606
 **2. DPS-CPX1 CP relocation.** Whole-fleet scan: ONLY permit_spy carries orphan CP prose (Evidence transition "cross-period charts above" + "Putting it together"). Other 7 clean (busloans built fresh post-2026-06-10). B.1 = moved prose for Confidence tab; B.2 = new 1-line Evidence bridge. Flagged: renderer `_render_cross_period_consistency` has no per-pair narrative slot — Ace needs to add one (suggested `StrategyConfig.CROSS_PERIOD_NARRATIVE_MD`).
 
 **A2A flag:** indpro_xlp / umcsent_xlv / busloans_spy have null `target_symbol` in interpretation_metadata.json — metadata-completeness gap, raised to Lead/Dana. Targets sourced from pair-id + config titles for now.
+
+## 2026-06-13 — fix260613_lead_horizon ELI5 no-lag + gold_copper A.6 FINAL (Track A cont.)
+
+**Dispatch:** Lead Lesandro. gold_copper re-run REVERTED; embed ELI5 "no-lag" concept in all 3 daily pairs.
+
+**Deliverables (commit 7a94ce1, pushed):**
+1. **gold_copper A.6 — rewritten FINAL** (was [NUMBERS PENDING RE-RUN]). Now CHARTS-ONLY with old winner retained (zscore_126d L0 P1 Sharpe 1.273). ELI5 "no-lag" concept is the primary framing: daily real-time signals have zero publication lag, so L0 is the structural default. Tournament numbers grounded in `lead_tournament_20260613.csv`: 1,581 valid combos, median 0.605, L10 best 1.370. Gate table updated (~~RE-RUN~~ → CHARTS-ONLY reverted).
+2. **vix_vix3m_spy config** — added ELI5 "no-lag" concept to `CORRELATION_LEAD_VIEW_BLOCK.method_theory` (extended paragraph contrasting with monthly macro pairs) and `question` (added "L0 dominance is expected" qualifier), and `LEAD_TOURNAMENT_BLOCK.interpretation` (cross-pair contrast sentence). AST-parse OK.
+3. **hy_ig_spy config** — same pattern: `CORRELATION_LEAD_VIEW_BLOCK.method_theory` + `question` extended, `LEAD_TOURNAMENT_BLOCK.interpretation` extended. AST-parse OK.
+4. **Monthly pairs confirmed untouched** — busloans, indpro_spy, permit, indpro_xlp, umcsent: no edits. They have a genuine lead puzzle and should NOT carry the "L0 is obviously best" framing.
+
+**Fields edited (prose only, per ownership map):**
+- vix config: CORRELATION_LEAD_VIEW_BLOCK `method_theory`, `question`; LEAD_TOURNAMENT_BLOCK `interpretation`
+- hy_ig config: CORRELATION_LEAD_VIEW_BLOCK `method_theory`, `question`; LEAD_TOURNAMENT_BLOCK `interpretation`
+- gold_copper narrative doc A.6: full rewrite (both blocks + header + ELI5 callout box)
+
+**Stopped on:** nothing — all 3 deliverables complete.

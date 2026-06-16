@@ -1,5 +1,18 @@
 # Team Status Board
 
+## 2026-06-13 — Research Ray (ELI5 no-lag concept + gold_copper A.6 FINAL)
+
+**Status:** COMPLETED. Branch `fix260613_lead_horizon`, commit `7a94ce1` (pushed). Mode 1, Track A.
+
+- gold_copper A.6 rewritten as CHARTS-ONLY/FINAL (re-run reverted, old winner zscore_126d L0 Sharpe 1.273 retained). ELI5 "no-lag" concept is the primary framing. Numbers grounded: 1,581 valid combos, median 0.605, L10 best 1.370.
+- VIX + HY-IG configs: ELI5 "no-lag" concept surgically added to Lead Analysis `method_theory`+`question` and Lead Tournament `interpretation`. AST-parse OK both configs.
+- Monthly pairs (busloans, indpro_spy, permit, indpro_xlp, umcsent) confirmed untouched — they have genuine lead puzzles.
+- Frozen Sample `hy_ig_v2_spy` EXCLUDED (verified untouched).
+
+**For Ace:** wire gold_copper A.6 blocks from `docs/portal_narrative_lead_blocks_20260613.md` §A.6 into `app/pair_configs/gold_copper_xli_config.py` Evidence level1 list.
+
+Agent: Research Ray
+
 ## 2026-06-13 — Viz Vera (VIZ-LEAD1 lead-analysis chart pair, 8 non-frozen pairs)
 
 **Status:** COMPLETED. Branch `fix260613_lead_horizon`, commit `08f5b7f` (pushed). Mode 1, Track A.
@@ -1760,3 +1773,40 @@ Lead Analysis + Lead Tournament (L=0..12 months, ECON-LL1) produced for all 9 ac
 - **Handoff to Lead:** READY for Track A merge. Out-of-scope defects logged (P1 busloans DPS-PRE1 waiver; P2-P4 Track B, owners Dana/Evan/Vera/Ace).
 
 🤖 Agent: QA Quincy
+
+---
+
+## 2026-06-13 — Lead Lesandro — COMPLETED (EOD) — lead-horizon blocked on decision; 2 branches merged
+
+**Status:** 3 branches managed (2 merged+deleted, 1 in flight blocked on stakeholder decision). Spec memo authored. busloans production verify closed.
+
+**Accomplished:**
+- **Production verify** of busloans_spy (`c8f73a6`): sweep ALL PASS 30/30 (carried from 2026-06-12). Closed.
+- **Petroleum matrix reconciliation** merged (`272346f`): 3 fragmented identities → one canonical `petrol_inv` across 6 artifacts. Registration only.
+- **Generator hardening** merged (`068b357`): `build_prospective_pairs.py` now idempotent + non-destructive; BL-PROSPECTIVE-REGEN struck. Dana's finding: `completed` is a render-time overlay, not a CSV value — correctly preserved.
+- **Lead-horizon wave (in flight):**
+  - Phase 0: 6 SOP rules (ECON-LL1/LA1/LT1, DPS-LEAD1/CPX1, VIZ-LEAD1).
+  - Gating: 9-pair L0-12 monthly sweep → 4 RE-RUN / 5 charts-only.
+  - Track A: 16 lead charts, 4 pairs wired, CP-prose relocated, ELI5 framing — Quincy READY.
+  - Track B pilot (gold_copper): REVERTED — monthly-resampled gating sweep and native daily tournament produce different winners; the native "winner" (roc_5d L0 P3) was economically dubious. Old winner restored.
+  - **Spec memo authored** for stakeholders: 4 lead-granularity options (daily/weekly/monthly/combined) with pros-cons matrix, 3 decisions. Daily-pair execution blocked pending decision; 3 monthly re-runs ready independently.
+  - Backlog +2: BL-TARGETSYM-NULL, BL-REGISTRY-ENUM.
+- **META-A2A codified** (direct agent-to-agent semantics Q&A; changes via Lead; triangulate against authority).
+- **RES-20 lagging-pair variant** codified (busloans precedent carried forward).
+
+**Discoveries:**
+1. Monthly resampling of daily data creates lead-analysis artifacts (the pilot's key finding — genuine methodology contribution, not a bug).
+2. The gating sweep's L7-12 trigger has a false-negative gap: vix's 65% improvement at L3 isn't caught because L3 ∈ {0..6}. Second criterion needed (sweep-vs-published gap >10%).
+3. A pilot that "fails" (reverted) succeeds if it reveals the gap before committing to 4 cascades.
+4. When scope grows past what execution can validate, pause and write a decision memo.
+
+**Outstanding:**
+- Spec memo decisions (3 items; stakeholders reviewing).
+- 3 monthly RE-RUN pairs ready to execute (independent of daily-pair decision).
+- Gold_copper lead blocks need Ace wiring (prose finalized by Ray).
+- Branch merge after decisions + execution.
+- GH #4 (only open issue).
+- `fix260602_pair4_prep` still suspended (retrofit debt keeps accumulating).
+- Backlog: 44 active.
+
+🤖 Agent: Lead Lesandro
