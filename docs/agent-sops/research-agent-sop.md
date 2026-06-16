@@ -705,6 +705,10 @@ Subsequent occurrences within the same section can drop one form. Apply the same
 
 **Anti-pattern:** A sentence like "The spread moved from 0.04 to 0.08" is ambiguous — is that 4 bps or 400 bps? Always anchor the scale.
 
+### Rule RES-JFU — Jargon First-Use Expansion
+
+On the first user-facing appearance of any technical term, notation, or abbreviation in Story, Evidence, Strategy, or Methodology prose, write the full long form immediately followed by the short form in parentheses, plus a brief plain-English gloss of what it means. Later uses on the same page may use the short form. Example forms: "autoregressive order-one (AR(1)) — a series compared with its own immediately preceding value"; "heteroskedasticity- and autocorrelation-consistent (HAC, also called Newey-West) standard errors — error bars that stay honest when data is noisy and clustered." Cross-reference: META-ELI5 / project ELI5 standard.
+
 #### Rule 5 — Regression Prevention on Reruns
 
 When rewriting the narrative for a pair that has been analyzed before, the new narrative must cover **all** methods and findings from the prior version unless explicitly justified. Silent regressions are a completeness gate failure.

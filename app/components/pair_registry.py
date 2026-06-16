@@ -177,7 +177,10 @@ def load_pair_registry():
             tourn_path = os.path.join(pair_path, tourn_files[-1])
             try:
                 tdf = pd.read_csv(tourn_path)
-                total_count = len(tdf)
+                if "signal" in tdf.columns:
+                    total_count = int((tdf["signal"] != "BENCHMARK").sum())
+                else:
+                    total_count = len(tdf)
                 # ECON-T4: count valid STRATEGY combos. New CSVs carry
                 # valid=False on the BENCHMARK row; the signal filter also
                 # covers legacy CSVs (frozen Sample) where it was True.

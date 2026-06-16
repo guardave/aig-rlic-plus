@@ -255,7 +255,7 @@ def _load_winner_summary(pair_id: str) -> dict[str, Any] | None:
     path = _REPO_ROOT / "results" / pair_id / "winner_summary.json"
     if not path.exists():
         st.error(
-            f"**winner_summary.json missing for `{pair_id}`** (APP-SEV1 L1).\n\n"
+            f"**winner_summary.json missing for `{pair_id}`**.\n\n"
             "Plain English: this page's headline metrics, signal description, "
             "and strategy rule all come from `winner_summary.json`. Without "
             "that file the page cannot responsibly render — re-run the "
@@ -268,7 +268,7 @@ def _load_winner_summary(pair_id: str) -> dict[str, Any] | None:
     except json.JSONDecodeError as exc:
         st.error(
             f"**winner_summary.json for `{pair_id}` is not valid JSON** "
-            f"(APP-SEV1 L1): {exc}\n\n"
+            f"({exc})\n\n"
             "Plain English: the JSON file was found on disk but its contents "
             "could not be parsed. This is a producer-side bug — re-generate "
             "it via the tournament pipeline to fix."
@@ -395,7 +395,7 @@ def _render_kpi_routing_disclosure(pair_id: str, routing: dict[str, Any]) -> Non
         st.warning(
             "Holdout KPI routing is not yet wired for this status "
             f"(`{routing['status']}`): `final_exam_results.json` consumers "
-            "do not exist yet (APP-PLB1 stub). The figures shown below are "
+            "do not exist yet. The figures shown below are "
             "SEARCH-PHASE values from `winner_summary.json`, labelled as "
             "such — not holdout results."
         )
@@ -1637,7 +1637,7 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str) -> None:
         },
     )
     st.caption(
-        f"**{len(tdf):,} combinations tested** | "
+        f"**{((tdf['signal'] != 'BENCHMARK').sum() if 'signal' in tdf.columns else len(tdf)):,} combinations tested** | "
         f"**{len(valid):,} valid** (OOS Sharpe > 0)."
     )
 
@@ -1676,7 +1676,7 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
             f"Trade logs missing for `{pair_id}` — expected both "
             f"`results/{pair_id}/winner_trades_broker_style.csv` and "
             f"`results/{pair_id}/winner_trade_log.csv`. "
-            "Re-run the pair pipeline to produce them (APP-TL1 / APP-SEV1 L1)."
+            "Re-run the pair pipeline to produce them."
         )
         return
 
@@ -1719,7 +1719,7 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
         st.caption(
             f"Pair-specific trade-log example missing for `{pair_id}`. "
             "Add `TRADE_LOG_EXAMPLE_MD` to the pair config "
-            f"(`app/pair_configs/{pair_id}_config.py`) per APP-TL1 step 5."
+            f"(`app/pair_configs/{pair_id}_config.py`)."
         )
 
     # ---- Step 6: sub-heading ----
@@ -1757,14 +1757,14 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
             # L2 — malformed broker-style CSV
             st.warning(
                 f"Broker-style log unreadable for `{pair_id}` ({broker_err}). "
-                "Position log still available on the right (APP-SEV1 L2)."
+                "Position log still available on the right."
             )
         else:
             # L2 — missing broker-style CSV (position log present)
             st.info(
                 f"Broker-style log missing for `{pair_id}` — expected at "
                 f"`results/{pair_id}/winner_trades_broker_style.csv`. "
-                "Re-run the pair pipeline to produce it (APP-SEV1 L2)."
+                "Re-run the pair pipeline to produce it."
             )
 
     with right:
@@ -1781,13 +1781,13 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
         elif pos_err is not None:
             st.warning(
                 f"Position log unreadable for `{pair_id}` ({pos_err}). "
-                "Broker-style log still available on the left (APP-SEV1 L2)."
+                "Broker-style log still available on the left."
             )
         else:
             st.info(
                 f"Position log missing for `{pair_id}` — expected at "
                 f"`results/{pair_id}/winner_trade_log.csv`. "
-                "Re-run the pair pipeline to produce it (APP-SEV1 L2)."
+                "Re-run the pair pipeline to produce it."
             )
 
     # ---- Step 9: always-visible 10-row preview of broker-style log ----
