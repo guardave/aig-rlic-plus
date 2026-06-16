@@ -84,12 +84,6 @@ def get_integrity_issues() -> list:
 # APP-RL1 (Wave 10G.5-fix): single source of truth for page-link routing.
 # Consume this helper everywhere — do NOT inline a local page_routing dict.
 #
-# Wave 10I.A Part 2 (2026-04-23): the three TED variants were previously
-# multiplexed into a single composite `pages/6_ted_variants_*` surface via
-# `st.tabs`. That composite was exploded into three separate one-pair-per-page
-# thin-wrapper surfaces — see archived configs at
-# `app/pair_configs_archive/{sofr_ted_spy,dff_ted_spy,ted_spliced_spy}_config.py`.
-#
 # fix260601_chart_hygiene Wave 2 (2026-06-02): the three TED variants are
 # **archived** because their `winner_trade_log.csv` files have all-zero
 # trade returns (the underlying strategy-return time series doesn't exist

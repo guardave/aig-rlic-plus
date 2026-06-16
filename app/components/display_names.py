@@ -32,11 +32,6 @@ INDICATOR_NAMES: dict[str, str] = {
     "gold_copper_xli": "Gold/Copper Ratio",
     "busloans": "Commercial & Industrial Loans",
     "busloans_spy": "Commercial & Industrial Loans",
-    # fix260601_chart_hygiene Wave 2 (2026-06-02): TED variants archived
-    # — see app/pair_configs_archive/. If un-archived, restore:
-    #   "sofr_ted_spy": "SOFR - DTB3 (TED)",
-    #   "dff_ted_spy": "DFF - DTB3 (Fed Funds TED)",
-    #   "ted_spliced_spy": "Spliced TED Spread",
 }
 
 TARGET_NAMES: dict[str, str] = {
@@ -85,10 +80,6 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "umcsent_xlv": "UMCSENT",
     "gold_copper_xli": "Gold/Copper",
     "busloans_spy": "C&I Loans",
-    # fix260601_chart_hygiene Wave 2 (2026-06-02): TED variants archived
-    # — see app/pair_configs_archive/. If un-archived, restore:
-    #   "sofr_ted_spy": "SOFR-TED", "dff_ted_spy": "DFF-TED",
-    #   "ted_spliced_spy": "Spliced TED",
 }
 
 
