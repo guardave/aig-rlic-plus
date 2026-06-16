@@ -53,15 +53,12 @@ from playwright.sync_api import sync_playwright  # type: ignore
 # ---------------------------------------------------------------------------
 
 DEFAULT_BASE = "https://aig-rlic-plus.streamlit.app"
-# Wave 10I.A: expanded from 4 to 10 pairs. Ace-A migrated 4 legacy pairs
-# (indpro_spy, permit_spy, vix_vix3m_spy, umcsent_xlv) to APP-PT1 thin
-# wrappers; Ace-B exploded the TED composite into 3 variants
-# (sofr_ted_spy, dff_ted_spy, ted_spliced_spy). All 10 are now active
-# pair_ids with 4 pages each.
+# Active deployed pairs with four pages each. Archived pairs are intentionally
+# absent from this list so Cloud sweeps do not resolve retired routes.
 FOCUS_PAIRS = [
     "hy_ig_v2_spy", "hy_ig_spy", "indpro_xlp", "umcsent_xlv",
     "indpro_spy", "permit_spy", "vix_vix3m_spy",
-    "sofr_ted_spy", "dff_ted_spy", "ted_spliced_spy",
+    "gold_copper_xli", "busloans_spy",
 ]
 PAGES = ["story", "evidence", "strategy", "methodology"]
 
@@ -89,9 +86,8 @@ ERR_PATS = [
 # because ERR_PATS is for Python exception class names that appear in tracebacks.
 # A page can pass every ERR_PATS check and still show a user-visible red banner.
 #
-# Root cause of the Wave 10I.A false-PASS on dff_ted_spy_strategy:
-#   DOM text contained: "Probability engine panel cannot render: No signals_*.parquet
-#   under /mount/src/aig-rlic-plus/results/dff_ted_spy"
+# Root cause of the Wave 10I.A false-PASS on an archived TED strategy page:
+#   DOM text contained a Probability Engine Panel missing-parquet diagnostic.
 #   ERR_PATS missed it entirely — "cannot render" is not a Python exception name.
 #   GATE-29 parquet pre-flight was never run — signals_*.parquet was absent from git.
 APP_SEV1_PATS = [
