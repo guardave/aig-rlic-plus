@@ -52,7 +52,7 @@ def _load_ray_direction(pair_id: str) -> tuple[str | None, str | None]:
     if not matches:
         return None, (
             f"Ray leg missing — no docs/portal_narrative_{pair_id}_*.md found. "
-            "Ray must create a narrative frontmatter file (RES-17)."
+            "Ray must create a narrative frontmatter file with direction_asserted."
         )
 
     latest = matches[-1]
@@ -64,7 +64,7 @@ def _load_ray_direction(pair_id: str) -> tuple[str | None, str | None]:
     if not content.startswith("---"):
         return None, (
             f"Ray leg malformed — {Path(latest).name} has no YAML frontmatter "
-            "opening delimiter. RES-17 requires frontmatter starting with '---'."
+            "opening delimiter. The frontmatter must start with '---'."
         )
 
     try:
@@ -85,7 +85,7 @@ def _load_ray_direction(pair_id: str) -> tuple[str | None, str | None]:
     if direction is None:
         return None, (
             f"Ray leg incomplete — {Path(latest).name} frontmatter lacks "
-            "'direction_asserted'. RES-17 requires this field."
+            "'direction_asserted'. This field is required for the narrative direction check."
         )
 
     return direction, None
@@ -190,7 +190,7 @@ def check_direction_agreement(pair_id: str) -> dict:
         # One leg missing — cannot triangulate. Raise a loud warning, not
         # an error (agreement check is moot until both legs exist).
         st.warning(
-            "**Direction triangulation incomplete** (APP-DIR1). "
+            "**Direction triangulation incomplete**. "
             f"Evan (winner_summary.direction) = `{evan}`; "
             f"Dana (observed_direction) = `{dana}`. "
             "At least one leg missing — cannot assert agreement.\n\n"
@@ -206,11 +206,11 @@ def check_direction_agreement(pair_id: str) -> dict:
 
     if evan != dana:
         st.error(
-            f"**Direction disagreement detected** (APP-DIR1, APP-SEV1 L1). "
+            f"**Direction disagreement detected**. "
             f"Evan says `{evan}` in `winner_summary.json.direction`; "
             f"Dana says `{dana}` in "
             f"`interpretation_metadata.json.observed_direction`. "
-            f"These must match. Escalate to Lead for reconciliation per META-IA."
+            f"These must match. Escalate to Lead for reconciliation."
             "\n\nPlain English: our econometrician and our data analyst "
             "disagree on whether this indicator moves with the market or "
             "against it. That is a serious inconsistency — trading-rule "
@@ -224,7 +224,7 @@ def check_direction_agreement(pair_id: str) -> dict:
     ray = report["ray"]
     if ray is not None and ray != evan:
         st.warning(
-            f"**Direction partial mismatch** (APP-DIR1, 3-way). "
+            f"**Direction partial mismatch across three sources**. "
             f"Evan/Dana agree on `{evan}` but Ray's narrative frontmatter "
             f"asserts `{ray}` (from `docs/portal_narrative_{pair_id}_*.md`). "
             "Ray must update `direction_asserted` to match. Escalate to Lead.\n\n"
@@ -264,10 +264,10 @@ def render_direction_check(pair_id: str) -> dict:
         ray_status = (
             f"Ray agrees on `{ray}`"
             if ray is not None
-            else "Ray leg: no narrative file found (RES-17 stub expected)"
+            else "Ray leg: no narrative direction file found yet"
         )
         st.caption(
-            f"What this shows: direction triangulation (APP-DIR1, 3-way) "
+            f"What this shows: direction triangulation across three independent sources "
             f"— Evan and Dana agree on `{report['evan']}`. {ray_status}."
         )
     return report

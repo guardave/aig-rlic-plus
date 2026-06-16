@@ -123,7 +123,8 @@ def render_signal_universe(pair_id: str) -> None:
     st.caption(
         f"Takeaway: {ind_n} indicator-axis derivative{'s' if ind_n != 1 else ''} "
         "disclosed. Every derivative is a mathematical transform of the single "
-        f"canonical column `{ind_canonical}` (ECON-SD scope discipline)."
+        f"canonical column `{ind_canonical}` (scope discipline: only this "
+        "column and its mathematical derivatives are in scope)."
     )
 
     st.markdown("")
@@ -146,5 +147,6 @@ def render_signal_universe(pair_id: str) -> None:
     st.caption(
         f"Takeaway: {tgt_n} target-axis derivative{'s' if tgt_n != 1 else ''} "
         "disclosed. All derived from the single canonical column "
-        f"`{tgt_canonical}` (ECON-SD scope discipline)."
+        f"`{tgt_canonical}` (scope discipline: only this column and its "
+        "mathematical derivatives are in scope)."
     )
