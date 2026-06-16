@@ -125,14 +125,17 @@ GATE-29 (QA) verifies this list exists in clean checkout.
 
 **Owner:** Lead.  **Full rule:** `docs/agent-sops/lead-agent-sop.md` §LEAD-WM1.  This section is the canonical cross-team registration per the sop-changelog protocol.
 
-Per-pair the team operates in one of:
+Per-pair the team operates in one of **five** modes, defined by topology (maker/checker shape) × model family (Claude / Codex):
 
-| Mode | Maker | Checker | LEAD-DL1 |
-|------|-------|---------|----------|
-| **Mode 1 — Multiple makers, single checker** *(default)* | Role agents within ownership | Lead, post-handoff | Binding |
-| **Mode 2 — Single maker, multiple checkers** | Lead, wearing role hats sequentially | Four checker subagents (correctness / completeness / consistency / ELI5), parallel post-flow | Suspended in maker phase; restored in checker phase |
+| Mode | Topology | Manager | Maker(s) | Checker(s) | LEAD-DL1 |
+|------|----------|---------|----------|------------|----------|
+| **Mode 1** *(default)* | multi-maker + single-checker | Claude (Lead) | Role agents within ownership | Lead, post-handoff | Binding |
+| **Mode 2** | single-maker + multi-checker | Claude (Lead) | Lead, role hats sequentially | Four checker subagents (correctness / completeness / consistency / ELI5), parallel post-flow | Suspended in maker phase; restored in checker phase |
+| **Mode 3** | multi-maker + single-checker | **Claude** | **Codex** ×N | Claude (= manager family) | Binding |
+| **Mode 4** | multi-maker + single-checker | **Codex** | **Opus** ×N | Codex (= manager family) | Binding (Codex manager); human holds LEAD-MA1 |
+| **Mode 5** | single-maker + multi-checker | Claude (Lead) | **Opus** ×1 (role hats) | **Codex** ×4 (four dimensions) | Suspended in maker phase; restored in checker phase |
 
-Mode is selected at SOD via Lead-recommendation → user-decides conversation and logged in `docs/pair_execution_history.md`. Domain SOP rules and handoff schemas bind under both modes. LEAD-QF1 and META-CPD are mode-independent.
+Checker-family rule: in Modes 3 & 4 the checker shares the manager's family. Mode 5 deliberately splits maker/checker families for cross-family adversarial verification. Codex dispatch: **tmux multi-pane primary**, `codex exec` / `claude -p` subprocess fallback. Mode is selected at SOD via Lead-recommendation → user-decides conversation and logged in `docs/pair_execution_history.md`. Domain SOP rules, handoff schemas, completeness gates, and LEAD-DOM1 bind under **all** modes, model families, and dispatch mechanisms. LEAD-QF1 and META-CPD are mode-independent.
 
 ---
 

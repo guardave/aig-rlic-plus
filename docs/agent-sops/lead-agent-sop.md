@@ -8,13 +8,62 @@
 
 ## Rule LEAD-WM1 — Work Mode Selection (binding, per-pair)
 
-The team operates in one of two work modes. The mode is chosen **per pair** at SOD, through an explicit conversation between Lead and the user. Mode governs which other rules in this SOP are active for the duration of the pair build.
+The team operates in one of **five** work modes. The mode is chosen **per pair** at SOD, through an explicit conversation between Lead and the user. Mode governs which other rules in this SOP are active for the duration of the pair build.
 
-### The two modes
+A work mode is defined along **two independent dimensions**:
+
+1. **Topology** — the maker/checker shape. Two topologies exist: *multi-maker + single-checker* (the Mode-1 shape) and *single-maker + multi-checker* (the Mode-2 shape).
+2. **Model family** — which model family fills each role. Two families participate: **Claude** (Opus, dispatched via the Agent tool / `claude` CLI) and **Codex** (OpenAI Codex CLI, `codex` 0.140.0+). Either family can play manager, maker, or checker.
+
+Modes 1–2 are single-family (all Claude). Modes 3–5 are **cross-family** — they introduce Codex into the team and deliberately mix families across the manager/maker/checker roles.
+
+### The mode matrix
+
+| Mode | Topology | Manager | Maker(s) | Checker(s) | Purpose |
+|---|---|---|---|---|---|
+| **1** (default) | multi-maker + single-checker | Claude (Lead) | Claude ×N (role agents) | Claude ×1 (Lead) | Canonical multi-agent flow; deepest cross-agent reps. |
+| **2** | single-maker + multi-checker | Claude (Lead) | Claude ×1 (Lead, role hats) | Claude ×4 (dimension subagents) | Fast single-head build; full context in one head. |
+| **3** | multi-maker + single-checker | **Claude** | **Codex ×N** | **Claude ×1** (= manager family) | Claude orchestrates Codex makers; Claude ratifies its own delegated work. |
+| **4** | multi-maker + single-checker | **Codex** | **Opus ×N** | **Codex ×1** (= manager family) | Inverse of Mode 3; Codex orchestrates Opus makers and ratifies them. |
+| **5** | single-maker + multi-checker | Claude (Lead) | **Opus ×1** | **Codex ×N** | Opus builds; Codex independently checks — cross-family adversarial verification. |
+
+**The checker-family rule (Modes 3 & 4).** In the cross-family multi-maker modes, **the checker is the same family as the manager**. The manager delegates to the *other* family's makers and then ratifies their output itself. This keeps a single accountable ratifier per wave and isolates the cross-family seam to the maker boundary.
+
+**The cross-family-check rule (Mode 5).** Mode 5 inverts the intent: the maker and checkers are *different* families on purpose. Opus makes; Codex checks. Because correlated blind spots are largely model-family-specific, a different-family checker catches classes of error a same-family checker would wave through. This is the strongest verification topology in the matrix and is the recommended mode for benchmark or external-stakeholder deliverables once Codex integration is proven.
 
 **Mode 1 — Multiple makers, single checker (default).** Role agents are the makers, each executing within their ownership; Lead is the single checker, coordinating the seams and ratifying the wave. LEAD-DL1, LEAD-QF1, META-NMF, META-CPD, and all per-agent *-HZE1 handoff rules are fully binding. This is the canonical multi-agent flow described throughout this SOP.
 
 **Mode 2 — Single maker, multiple checkers.** Lead is the single maker, wearing role hats sequentially and producing the full dashboard in one continuous flow, following each role's domain SOPs (DATA-D*, ECON-H*, VIZ-*, RES-*, APP-PT*, etc.). LEAD-DL1 is **suspended for the maker phase only**. LEAD-QF1 still binds — Lead self-checks correctness, completeness, consistency, and ELI5 friendliness at every flow checkpoint. META-CPD still binds (commit-push discipline is mode-independent). At flow completion, Lead dispatches four checker subagents in parallel — one per dimension — to inspect the pair and file issue reports. Lead fixes issues; checkers re-run until all four report clean. **During the checker phase LEAD-DL1 restores**: if a checker finding requires a domain fix that falls under an agent's ownership and is non-trivial, dispatch the agent rather than self-patching. Self-patches by Lead in the checker phase are limited to clear, mechanical, single-file fixes.
+
+**Mode 3 — Claude manages, Codex makes (multi-maker + single-checker).** Lead (Claude) is the manager and the single checker. The makers are Codex panes, each scoped to one role's ownership exactly as a Claude role agent would be. Lead writes the dispatch brief (domain SOP excerpts + handoff schema), hands it to each Codex maker, collects the artifacts, and checks them itself. LEAD-DL1 binds — Lead does not do maker work, it dispatches to Codex. The handoff schemas (*-HZE1) bind unconditionally: a Codex maker's output must satisfy the same handoff contract a Claude maker's would.
+
+**Mode 4 — Codex manages, Opus makes (multi-maker + single-checker).** The inverse of Mode 3. **Codex wears the Lesandro (Lead) hat** — it *is* the Lead for this wave, simply with a different model behind the persona. Opus instances are the makers; Codex is the manager and single checker. Every Lead rule binds on the persona regardless of which model fills it: LEAD-DL1 (Codex-as-Lead dispatches, does not do maker work), LEAD-QF1, LEAD-MA1 (Codex-as-Lead does not merge to `main` without explicit user authorisation), META-CPD. The only Mode-4-specific concern is **persona referencing** — Codex must load the Lesandro persona and the binding SOPs from their canonical locations, which differ from where the `claude` CLI auto-loads them (see "Persona referencing across CLIs" below).
+
+**Mode 5 — Opus makes, Codex checks (single-maker + multi-checker).** Topologically the Mode-2 shape with a cross-family twist. A single Opus maker (Lead wearing role hats, exactly as Mode 2) produces the full dashboard; at flow completion the four dimension checkers are **Codex** subagents rather than Claude. Each Codex checker is dispatched against one dimension (Correctness / Completeness / Consistency / ELI5), reads the rendered DOM first per the checker-dimension protocol below, and files structured issue reports. Lead fixes; Codex checkers re-run until all four report clean. The Mode-2 exit criteria below apply unchanged.
+
+### Codex integration mechanics
+
+Codex participates through one of two dispatch mechanisms, in priority order:
+
+1. **tmux multi-pane (PRIMARY).** Each agent — Codex maker/checker or Opus maker — runs in its own tmux pane within a shared session, so the manager (and the human operator) can watch all agents work concurrently and relay artifacts/findings between panes. tmux is installed in the devcontainer (commit `c9cae07`) specifically to support this. The pane layout, the per-pane dispatch brief, and the relay points are set up at the start of the wave. This is the default operating procedure for all cross-family modes (3, 4, 5).
+2. **Subprocess (`codex exec` / `claude -p`) (FALLBACK).** When a tmux layout is impractical (headless/cron runs, single-task dispatches, automated pipelines), the manager invokes the other family non-interactively: `codex exec "<brief>"` for a Codex maker/checker, `claude -p "<brief>"` for an Opus maker. Output is captured as the handoff artifact. Use this only when the interactive tmux layout cannot be used.
+
+**Family-agnostic contracts.** Regardless of family or mechanism, all domain SOP rules, handoff schemas (*-HZE1), completeness gates (GATE-CMP1 / META-CMP), and LEAD-DOM1 rendered-DOM verification bind identically. A Codex maker is held to the same handoff contract as a Claude maker; a Codex checker must load the rendered DOM before returning PASS, exactly as a Claude checker must (see "The four checker dimensions" below).
+
+### Persona referencing across CLIs
+
+Codex and Claude load their persona and protocol from **different locations**. The `claude` CLI auto-loads `CLAUDE.md` (project), `~/.claude/CLAUDE.md` (global protocol), and the agent profile under `~/.claude/agents/<role>-<name>/`. Codex auto-loads none of those — by its documented convention it merges `AGENTS.md` files: `$CODEX_HOME/AGENTS.md` (global, `CODEX_HOME=~/.codex`) + the repo-root `AGENTS.md` + any per-directory `AGENTS.md`, plus runtime settings from `~/.codex/config.toml`.
+
+**The bridge is pointer-only — never a copy.** To keep a single source of truth and zero drift, the persona/protocol text is **never duplicated** into any Codex file. Two thin pointer files tell Codex where to read the canonical Claude-side files:
+
+1. **`~/.codex/AGENTS.md`** (global) → points to `~/.claude/CLAUDE.md`.
+2. **`AGENTS.md`** (repo root) → points to project `CLAUDE.md`, the role SOP under `docs/agent-sops/`, and the persona profile under `~/.claude/agents/<role>-<name>/`. It is a **generic role-resolver**: Codex derives its role from the dispatch brief's `[Role Name]` identity tag and loads the matching SOP + profile, so one file serves any persona Codex is asked to wear (Lead in Mode 4, makers/checkers in Modes 3/5).
+
+**`~/.codex/config.toml` holds Codex runtime config only** (model, approval policy, sandbox, named profiles via `--profile`). No persona, no protocol — so there is nothing in it that can drift from `CLAUDE.md`.
+
+The day a persona profile, a SOP, or the global protocol changes, Codex picks it up on its next run because the pointers resolve to the canonical files, not to copies. When wearing the Lead hat (Mode 4), Codex is bound by every Lead rule on the persona — LEAD-DL1, LEAD-QF1, LEAD-MA1, META-CPD — exactly as Lesandro-on-Claude is.
+
+**Validation.** Smoke-tested 2026-06-16 on Codex 0.140.0 (`gpt-5.5`): dispatched as `[Lead Lesandro]`, `codex exec` correctly resolved the role and reported reading the canonical files (`~/.claude/CLAUDE.md`, `./CLAUDE.md`, `docs/agent-sops/lead-agent-sop.md`, the persona profile under `~/.claude/agents/lead-lesandro/`). The pointer mechanism is confirmed working. Re-run this check (`codex exec "State your role identity and the files you loaded."`) after any change to the `AGENTS.md` pointers or `CODEX_HOME`.
 
 ### The SOD conversation (mandatory)
 
@@ -25,13 +74,14 @@ The recommendation must address:
 - **Novelty.** Is this a familiar indicator category (rates, credit, production, sentiment, volatility) with established playbooks, or a new category that needs domain agents thinking hard about method selection?
 - **SOP-rule risk.** Does this pair plausibly surface new SOP rules? If yes, lean Mode 1 — agent reflection is how rules get written authentically.
 - **Throughput vs depth tradeoff.** Mode 2 is faster end-to-end and preserves full context in one head; Mode 1 produces deeper, more diverse work and better cross-agent reps.
-- **Benchmark status.** Sample/reference pairs and anything user-flagged as quality-benchmark should default to Mode 1.
+- **Benchmark status.** Sample/reference pairs and anything user-flagged as quality-benchmark should default to Mode 1 — or, once Codex integration is proven, **Mode 5** (Opus makes, Codex checks) for the strongest cross-family verification.
+- **Model-family fit (Modes 3–5).** Recommend a cross-family mode when the work benefits from a second model family: Mode 3/4 to exercise Codex as makers under a single-family ratifier, or Mode 5 when independent cross-family checking is worth more than throughput. Cross-family modes carry setup overhead (tmux layout, brief translation) — weigh that against the verification or capacity gain. Modes 3–5 are opt-in per pair; Mode 1 remains the default until the user directs otherwise.
 
 After the user decides, log both the recommendation and the actual choice in `docs/pair_execution_history.md` for that pair. Over time the recommendation-vs-outcome record lets us calibrate whether Lead's instincts track reality.
 
-### Mode 2 exit criteria
+### Mode 2 / Mode 5 exit criteria
 
-The pair is not closeable in Mode 2 until **all of**:
+These criteria apply to both single-maker + multi-checker modes — Mode 2 (Claude checkers) and Mode 5 (Codex checkers). The pair is not closeable until **all of**:
 
 1. All four checker subagents have returned a clean report in the same iteration.
 2. GATE-CMP1 returns exit 0 (no FAIL, no WARN that the user has not explicitly accepted) at the same commit.
