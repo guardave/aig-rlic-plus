@@ -386,9 +386,9 @@ REGIME_BLOCK = dict(
     ),
     chart_name="quartile_returns",
     chart_caption=(
-        "What this shows: raw, non-annualized mean XLI 63d forward "
-        "return by gold/copper z-score quartile. Q1 (lowest ratio, "
-        "most risk-on) earns the "
+        "What this shows: annualized mean XLI 63d forward return by "
+        "gold/copper z-score quartile, using a simple x4 scaling of "
+        "the raw 63-day means. Q1 (lowest ratio, most risk-on) earns the "
         "best forward returns; Q3 the worst. The Q4 partial rebound is "
         "the rates_2022 failure-case fingerprint."
     ),
@@ -444,9 +444,11 @@ CCF_BLOCK = dict(
         "habit of moving like its own recent past. A slow-moving signal "
         "and a slow-moving return can look related at many lags even "
         "when they are only echoing themselves. **Pre-whitening** "
-        "uses an AR(1) model to strip out that self-memory from each "
-        "series; the CCF on what remains gives the cleaner lead-lag "
-        "picture."
+        "(removing each series' own echo of its recent past) uses an "
+        "autoregressive order-one (AR(1)) model — a comparison of a "
+        "series with its immediately preceding value — to strip out "
+        "that self-memory; the CCF on what remains gives the cleaner "
+        "lead-lag picture."
     ),
     question=(
         "After removing each series' own self-driven persistence, "
@@ -507,8 +509,11 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         "next day, week, month, quarter, and half-year? **Local "
         "projections** estimate that path one horizon at a time, "
         "instead of forcing one big model to describe every horizon. "
-        "We use HAC (Newey-West) standard errors to handle the "
-        "overlapping data created by multi-day cumulative returns."
+        "We use heteroskedasticity- and autocorrelation-consistent "
+        "(HAC, also called Newey-West) standard errors — error bars "
+        "that stay reliable when multi-day returns overlap and model "
+        "noise is uneven — to handle the overlapping data created by "
+        "multi-day cumulative returns."
     ),
     question=(
         "If today's gold/copper z-score is one standard deviation "
@@ -653,9 +658,10 @@ HMM_BLOCK = dict(
         "market moods: calm or stressed. A **2-state hidden Markov "
         "model** learns what each mood looks like from the signal's "
         "mean and variance, and it also learns how sticky each mood "
-        "tends to be. The smoothed marginal probability P(state | "
-        "full data) is the model's best estimate of which regime was "
-        "active at each date."
+        "tends to be. The smoothed marginal probability (P(state | "
+        "full data)) — the model's after-the-fact best estimate using "
+        "the whole sample — tells us which regime was active at each "
+        "date."
     ),
     question=(
         "Does the gold/copper signal exhibit two statistically "
@@ -742,8 +748,11 @@ TRANSFER_ENTROPY_BLOCK = dict(
         "flow without requiring a straight-line relationship: it asks "
         "whether knowing the past of X reduces uncertainty about the "
         "future of Y, beyond what Y's own past tells you. We use a "
-        "binned (N=4) estimator and a shuffle-based null distribution "
-        "to construct an empirical confidence interval. The unit is "
+        "binned four-bucket (N=4) estimator — a calculator that groups "
+        "continuous values into four ranges — and a shuffle-based null "
+        "distribution — a baseline made by randomly reordering the data "
+        "to show what chance alone would produce — to construct an "
+        "empirical confidence interval. The unit is "
         "**bits** — higher means stronger information transfer."
     ),
     question=(
