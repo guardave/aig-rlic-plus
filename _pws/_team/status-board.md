@@ -1726,3 +1726,22 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Handoff:** Lead may verify and strike BL-PROSPECTIVE-REGEN.
 
 🤖 Agent: Data Dana
+
+---
+
+### 2026-06-17 — Lead Lesandro — petrol_inv_spy SHIPPED (Codex Mode-3, tmux dispatch)
+
+**Status:** COMPLETED + merged to main (`3044742`) + branch deleted. Pair #21.
+
+**Accomplished:** Full new pair Petroleum Inventory (WTTSTUS1) → SPY built end-to-end via Codex Mode-3 through a persistent tmux session (Dana→Evan→Vera+Ray→Ace makers; Lead sole checker). Verdict: inventories LEAD SPY, procyclical (overturns counter-cyclical prior, corroborated by quartile gradient), winner Long-Cash/L12 OOS Sharpe 1.48 vs 0.93, shipped found_in_search/low-confidence (p=0.099).
+
+**Key discoveries:**
+- WTTSTUS1 is EIA-only, NOT on public FRED API → Data Master.xlsx fallback (vintage Oct 2025). LEAD-DV1 Phase-0 catch.
+- First wave run fully through tmux multi-pane (user mandated over subprocess fallback). Mechanism held across all 5 stages. Line-anchored completion markers required (un-anchored matches echoed brief text).
+- Direction/lag reconciliation routed to Ray's narrative lane (not an Evan re-run) — kept LEAD-DL1 clean.
+
+**Verification:** schema + local DOM + cloud DOM (dawodev → main) all PASS (5/0/6, GATE-27/DP1 0, sample leak=False).
+
+**Outstanding:** dawodev still points at deleted branch (user to repoint). tmux `petrol` session idle (can kill). Tooling debt: cloud_verify nested-tab screenshot timeouts (non-blocking). Suspended: `fix260613_lead_horizon`.
+
+🤖 Agent: Lead Lesandro

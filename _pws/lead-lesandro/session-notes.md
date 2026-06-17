@@ -1163,3 +1163,25 @@ Branched off `main` after `gold_copper_xli` triage to address the Step C Dashboa
 - `confirmation_findings.json`, `w0_regression_findings.json` — raw inspection data.
 - `dom/`, `png/` — baseline + post-fix DOM dumps + screenshots.
 - `w0_regression_dom/`, `deep_dom/`, `deep_png/` — incremental cloud render captures.
+
+---
+
+## 2026-06-17 — Pair petrol_inv_spy (Petroleum Inventory → SPY) — Codex Mode-3, FIRST full tmux-dispatch build
+
+**Branch:** `pair260617_petrol_inv_spy` (built, merged `3044742`, branch deleted). Pair #21 (registry id `petrol_inv`, WTTSTUS1).
+
+**Work mode:** Mode 3 (Codex makers, Lead Lesandro sole checker) — user-directed, and user **insisted tmux multi-pane be used, not the subprocess fallback** ("I do not approve this attitude" re: my prior `nohup codex exec &` habit). This was the first wave dispatched fully through a persistent tmux session.
+
+**Dispatch mechanics that worked:** `tmux new-session -d -s petrol`; 4 tiled panes (Dana/Evan/Vera+Ray/Ace). Per pane: `tmux send-keys ... "codex exec --dangerously-bypass-approvals-and-sandbox '<read brief @ path; resolve persona via ./AGENTS.md>' 2>&1 | tee <pane>.log"`. Brief written to a file; codex told to read it (avoids shell-quoting hell). Completion detected with a **line-anchored** marker grep (`^DANA DONE`) — un-anchored grep gave a FALSE POSITIVE off the echoed brief text. Each pane returning to the bash prompt = that maker finished (user read idle panes as "stuck" — clarified: Codex panes ≠ FleetView teammates, watch via `tmux attach -t petrol`).
+
+**Pipeline:** Dana (data `f29e7e8`) → Evan (econ `e59a289`) → Vera+Ray (charts+narrative `a678691`) → Ace (portal `fc3dd46`). Each maker committed+pushed its own lane; Lead committed Dana's data layer (Evan had left it uncommitted) and ran the 4-dim check + 3-layer verify between stages.
+
+**Result:** Petroleum inventories **LEAD** SPY (forward Granger sig lags 6–8, reverse none) — opposite of busloans' lagging case. Winner `petrol_inv_3m_pct` / Long-Cash / L12, search-phase OOS Sharpe 1.48 vs 0.93 B&H, max DD −6.3% vs −23.9%. Direction = **procyclical** (overturns counter-cyclical prior), corroborated by monotonic quartile gradient (Q1 0.37 → Q4 1.25). Shipped `found_in_search` / confidence=low (bootstrap p=0.099).
+
+**Lead checker findings (genuine, not rubber-stamp):**
+1. **Phase-0 data catch:** WTTSTUS1 is an EIA id NOT on the public FRED API (FRED rejected it). Dana correctly fell back to Data Master.xlsx sheet (vintage ends Oct 2025) and documented it in `data_provenance` — exactly the LEAD-DV1 behavior.
+2. **Direction/lag reconciliation mandate:** winner is procyclical-at-L12 but Granger peaks at 6–8 and the natural prior is counter-cyclical. I required Ray (owner of mechanism/caveats) to (a) cite the quartile gradient as corroboration, (b) offer a credible procyclical mechanism as hypothesis, (c) honestly flag L12-vs-6–8 lag imprecision as a 6–12mo band, (d) keep p=0.099 fragility prominent. Routed to Ray's lane, not an Evan re-run — kept LEAD-DL1 clean and avoided a wasted Codex round-trip. Ray delivered all four.
+
+**Verification:** local schema (pre-commit gates) + local DOM (Playwright, my own independent traversal) + cloud DOM via dawodev preview (user repointed) → then merged → production main re-swept. All PASS (5/0/6, GATE-27/DP1 clean, frozen-sample badge intact + leak=False).
+
+**Tooling debt reconfirmed:** cloud_verify + my local DOM checker both time out (30s) clicking hidden/nested sub-tab handles ("element is not visible"). These are screenshot/click false-negatives, NOT content defects (DOM content check still PASS). Candidate fix: skip non-visible tab handles.

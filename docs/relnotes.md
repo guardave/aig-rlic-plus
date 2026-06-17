@@ -1,6 +1,16 @@
 # Release Notes
 
-## 2026-06-16/17 — KS gold_copper fixes + cloud-sweep production fixes (Codex Mode 3)
+## 2026-06-17 — New pair: Petroleum Inventory → SPY (`petrol_inv_spy`, Codex Mode-3, tmux dispatch)
+
+**Merged to `main` (`3044742`); production verified 5 PASS / 0 FAIL / 6 (GATE-27 + GATE-DP1 0; frozen-sample leak=False).** Pair #21. Branch `pair260617_petrol_inv_spy` merged + deleted.
+
+**What it is:** Total petroleum stocks (EIA `WTTSTUS1`, weekly) vs SPY — the project's first weekly-native indicator (weekly→monthly analysis + weekly→daily LVCF with a `days_since_release` feature). Full method battery (Toda-Yamamoto Granger both directions, pre-whitened CCF, local projections, quantile regression, transfer entropy, HMM, quartile, structural break) + 5,123-of-7,392-valid tournament + 20 charts + 4 portal pages (prefix 18).
+
+**Verdict (honest framing):** petroleum inventories **LEAD** SPY (forward Granger significant at lags 6–8 months; no reverse signal) and the tradable direction is **procyclical** — overturning the natural counter-cyclical prior, corroborated by a monotonic quartile gradient (Q1 lowest 3-month inventory change → Sharpe 0.37 / 6.0%; Q4 highest → 1.25 / 17.5%). Winner: `petrol_inv_3m_pct` / Long-Cash / 12-month lead — search-phase OOS Sharpe 1.48 vs 0.93 B&H, max DD −6.3% vs −23.9%. Shipped `found_in_search` / confidence=low (bootstrap p=0.099; exact lead pinned only to a 6–12 month band, not 12 precisely).
+
+**Process discoveries:** (1) `WTTSTUS1` is an EIA series NOT on the public FRED API — sourced from `data/Data Master.xlsx` (vintage Oct 2025), documented in `data_provenance` (LEAD-DV1 Phase-0 catch). (2) First wave dispatched fully through a persistent **tmux multi-pane** session (Codex makers Dana/Evan/Vera+Ray/Ace; Lead sole checker) rather than the subprocess fallback — mechanism held across all five stages; completion detection needs **line-anchored** markers (un-anchored grep false-positives on the echoed brief). (3) The procyclical-at-L12-vs-Granger-6–8 direction/lag tension was reconciled in Ray's narrative lane (mechanism + caveat owner), not by re-running Evan — keeping LEAD-DL1 clean.
+
+
 
 **Merged to `main` (`422cec7` + `223c489`); production re-sweep 37 PASS / 0 FAIL / 40 (GATE-DP1 0).** Two branches (`fix260616_ks_gold_copper`, `fix260616_cloud_findings`) merged + deleted.
 
