@@ -32,6 +32,8 @@ INDICATOR_NAMES: dict[str, str] = {
     "gold_copper_xli": "Gold/Copper Ratio",
     "busloans": "Commercial & Industrial Loans",
     "busloans_spy": "Commercial & Industrial Loans",
+    "petrol_inv": "Petroleum Inventories",
+    "petrol_inv_spy": "Petroleum Inventories",
 }
 
 TARGET_NAMES: dict[str, str] = {
@@ -60,6 +62,8 @@ INDICATOR_ABBREV: dict[str, str] = {
     # a pipeline token, not a reader-facing abbreviation).
     "busloans": "C&I Loans",
     "busloans_spy": "C&I Loans",
+    "petrol_inv": "PETROL",
+    "petrol_inv_spy": "PETROL",
 }
 
 
@@ -80,6 +84,7 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "umcsent_xlv": "UMCSENT",
     "gold_copper_xli": "Gold/Copper",
     "busloans_spy": "C&I Loans",
+    "petrol_inv_spy": "Petroleum Inventories",
 }
 
 

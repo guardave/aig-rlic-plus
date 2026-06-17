@@ -685,7 +685,7 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
 
     # ------ 6. KPI cards (5-column row) ------
     signal_code = winner.get("signal_code") or winner.get("signal_column") or "N/A"
-    lead_months = winner.get("lead_months", winner.get("lead_days", "N/A"))
+    lead_months = winner.get("lead_months", winner.get("lead_value", winner.get("lead_days", "N/A")))
     lead_label = f"L{lead_months}" if isinstance(lead_months, (int, float)) else str(lead_months)
     oos_years = _story_kpi_oos_years(winner)
 
@@ -1321,7 +1321,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     # ------ 7. Tournament Winner spotlight ------
     _strategy_family = winner.get("strategy_family", "N/A")
     _direction = winner.get("direction", "N/A")
-    _lead = winner.get("lead_months", winner.get("lead_days", "N/A"))
+    _lead = winner.get("lead_months", winner.get("lead_value", winner.get("lead_days", "N/A")))
     # WARN-03 fix: "LN/A" is not stakeholder-facing language. Map to a readable form.
     if _lead in (None, "N/A", ""):
         _lead_label = "L0 (no additional lead)"
@@ -1408,7 +1408,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         with _col2:
             st.markdown(f"**Strategy family:** `{_strategy_family}`")
             st.markdown(f"**Direction:** `{_direction}`")
-            st.markdown(f"**Lead time:** L{_lead}")
+            st.markdown(f"**Lead time:** {_lead_label}")
 
         st.markdown("---")
         # APP-SE1 — Probability Engine Panel
@@ -1475,7 +1475,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
 
     # --- Confidence tab ---
     with tab_confidence:
-        st.markdown("### Walk-Forward Rolling Sharpe")
+        st.markdown(f"### {getattr(config, 'WALK_FORWARD_TITLE', 'Walk-Forward Rolling Sharpe')}")
         wf_chart = getattr(config, "WALK_FORWARD_CHART_NAME", "walk_forward")
         load_plotly_chart(
             wf_chart,
@@ -1484,7 +1484,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
                 f"Walk-forward chart pending — expected at "
                 f"output/charts/{pair_id}/plotly/{wf_chart}.json"
             ),
-            caption=(
+            caption=getattr(config, "WALK_FORWARD_CAPTION", None) or (
                 "What this shows: rolling risk-adjusted performance. "
                 "Periods where the winner strategy exceeds the benchmark "
                 "confirm persistent edge."

@@ -257,6 +257,16 @@ Added cross-reference to META-CPD in AppDev SOP deployment rules section.
 - APP-PT1 retro-apply -- migrate HY-IG v2, umcsent_xlv, indpro_spy, permit_spy, vix_vix3m_spy, ted_variants, hy_ig_spy legacy pages to thin wrappers in subsequent waves. Each migration is pure restructure: lift narrative text to config, leave template untouched. Net LoC per pair: -400 to -700 page lines, +300 config lines.
 - APP-PT1 v1.1 -- if a pair needs a genuinely different Story structure (different section order, alternate hero layout), promote it as `render_story_page_variant_a` in `page_templates.py` — do NOT allow per-page overrides.
 
+## 2026-06-17 -- Mode-3 petrol_inv_spy portal assembly
+
+**What I did:** Created `petrol_inv_spy` APP-PT1 config plus four thin wrapper pages with prefix 18; registered routing/display names; added smoke-loader dynamic chart coverage; patched shared consumers for `winner_summary.lead_value` and target-specific probability-panel copy/overlay. Handoff: `_pws/lead-lesandro/mode3_petrol_inv/ace_handoff.md`.
+
+**What I learned:** Newer winner summaries may carry `lead_value` rather than `lead_months`; consumer code must read the schema's current field instead of silently printing `LN/A`. Local DOM probes must inspect each Streamlit tab separately because `inner_text` only exposes the active tab.
+
+**What I'd tell my next instance:** For new APP-PT1 pairs, run a focused rendered probe after loader smoke. It catches stale hardcodes like `long XLV` and active-tab-only content gaps that static smoke cannot see.
+
+**Evidence:** `python app/_smoke_tests/smoke_loader.py petrol_inv_spy` -> 20/0; `python app/_smoke_tests/smoke_schema_consumers.py --pair-id petrol_inv_spy` -> 5/0; `python app/_smoke_tests/smoke_loader.py --all` -> 10 pairs / total_failures=0; focused Playwright local DOM probe -> landing + 4 pages + Strategy tabs PASS.
+
 ## 2026-04-20 Wave 10F Cross-Review (Ace)
 
 **Task:** Read all SOPs + team-standards.md + inspect page_templates.py + indpro_xlp_config.py. Produce findings at `_pws/_team/cross-review-20260420-appdev-ace.md` with sections 1–7 (Conflicts / Redundancies / Rules for team-standards / Silent Weakening / Ace-specific / Vera Q&A / Priority Top-5).

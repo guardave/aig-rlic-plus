@@ -125,6 +125,16 @@ PAIR_TEMPLATE_CHARTS: dict[str, list[str]] = {
         # by the registry).
         "tournament_scatter",
     ],
+    "petrol_inv_spy": [
+        "history_zoom_dotcom",
+        "history_zoom_gfc",
+        "history_zoom_covid",
+        "history_zoom_inflation_2022",
+        "subperiod_sharpe",
+        "rolling_correlation",
+        "structural_break",
+        "tournament_scatter",
+    ],
     "indpro_xlp": [
         # Story
         "hero",
