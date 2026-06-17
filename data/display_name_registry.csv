@@ -67,3 +67,16 @@ spy_fwd_1m,SPY Forward 1M Return,decimal_return,SPY fwd 1M
 spy_fwd_3m,SPY Forward 3M Return,decimal_return,SPY fwd 3M
 spy_fwd_6m,SPY Forward 6M Return,decimal_return,SPY fwd 6M
 spy_fwd_12m,SPY Forward 12M Return,decimal_return,SPY fwd 12M
+petrol_inv_kb,Petroleum Product Stocks (kb),count,Petroleum Product Stocks (kb)
+petrol_inv_pct_yoy,Petroleum Stocks YoY (%),pct,Petroleum Stocks YoY (%)
+petrol_inv_pct_chg,Petroleum Stocks Short Change (%),pct,Petroleum Stocks Short Change (%)
+petrol_inv_3m_pct,Petroleum Stocks 3M Change (%),pct,Petroleum Stocks 3M Change (%)
+petrol_inv_6m_pct,Petroleum Stocks 6M Change (%),pct,Petroleum Stocks 6M Change (%)
+petrol_inv_ma12_kb,Petroleum Stocks 12M MA (kb),count,Petroleum Stocks 12M MA (kb)
+petrol_inv_dev_trend_pct,Petroleum Stocks vs Trend (%),pct,Petroleum Stocks vs Trend (%)
+petrol_inv_zscore_60m,Petroleum Stocks 5Y Z-Score,none,Petroleum Stocks 5Y Z-Score
+petrol_inv_yoy_zscore_60m,Petroleum Stocks YoY 5Y Z-Score,none,Petroleum Stocks YoY 5Y Z-Score
+petrol_inv_accel_pct,Petroleum Stocks Acceleration (pp),pct,Petroleum Stocks Acceleration (pp)
+report_week_end,WTTSTUS1 Report Week End,date,WTTSTUS1 Report Week End
+release_date,WTTSTUS1 Release Date,date,WTTSTUS1 Release Date
+days_since_release,Days Since Petroleum Release,count,Days Since Petroleum Release
