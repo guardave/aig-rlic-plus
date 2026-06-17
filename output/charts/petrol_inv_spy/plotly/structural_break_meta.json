@@ -1,0 +1,31 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "petrol_inv_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.3",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Petroleum Stocks 3-month change over the test sample (1994-02\u20132025-09, n = 380) with the Quandt-Andrews candidate break date (2020-04). The test does NOT flag a break (sup-F 2.08, residual-bootstrap p = 0.64) \u2014 parameter instability shows up in the rolling correlation's sign, not as a one-time break. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Annotation-only chart per ECON-H4 ('not flagged'); values from JSON.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/petrol_inv_spy/structural_break_petrol_inv_spy.json",
+    "data/petrol_inv_spy_monthly_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-17T15:05:59.809088+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)",
+  "break_date": "2020-04-30",
+  "annotation_strategy_id": "manual_override",
+  "annotation_overrides": [
+    {
+      "annotation_idx": 0,
+      "y_offset": "paper 0.95",
+      "rationale": "single break-label placed per VIZ-CP1.3 spec (y=0.95, yref=paper)"
+    }
+  ]
+}

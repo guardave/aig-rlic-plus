@@ -1,0 +1,6 @@
+signal,threshold,strategy,lead_months,lookback,oos_sharpe,bootstrap_p_value,significant_at_5pct
+petrol_3m,T1_fixed_p50,P1_long_cash_pro,12,LB_NA,1.4779,0.099,False
+petrol_level_z60,T2_roll_p25,P1_long_cash_pro,3,LB60,1.4539,0.1083,False
+petrol_accel,T2_roll_p75,P1_long_cash_pro,12,LB36,1.4447,0.112,False
+petrol_3m,T2_roll_p75,P1_long_cash_pro,12,LB36,1.433,0.119,False
+petrol_3m,T2_roll_p75,P1_long_cash_pro,12,LB60,1.4062,0.1323,False

@@ -1,0 +1,27 @@
+{
+  "file": "granger_causality.csv",
+  "pair_id": "petrol_inv_spy",
+  "produced_by": "scripts/pair_pipeline_petrol_inv_spy.py",
+  "generated_at": "2026-06-17T14:48:48Z",
+  "columns": {
+    "direction": "indicator_to_target/target_to_indicator",
+    "lag": "TY lag",
+    "f_statistic": "Wald F",
+    "p_value": "p-value",
+    "significant": "p<0.05"
+  },
+  "assertions": [
+    {
+      "description": "both directions tested",
+      "check": "two direction values"
+    },
+    {
+      "description": "lags 1-12",
+      "check": "lag range"
+    },
+    {
+      "description": "TY augmentation dmax=1",
+      "check": "documented in design_note"
+    }
+  ]
+}

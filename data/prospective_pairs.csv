@@ -1,6 +1,6 @@
 indicator_id,display_name,category,target,pair_id,status,primary_csv_ticker,aliases,contributing_csv_ticker,source_csv_rows
 crude_oil,Crude Oil Price,energy,XLE,crude_oil_xle,not_started,En - Crude Oil $,,En - Crude Oil $,39
-petrol_inv,Petroleum Inventory (Crude Oil & Products),energy,SPY,petrol_inv_spy,not_started,WTTSTUS1,,WTTSTUS1,40
+petrol_inv,Petroleum Inventory (Crude Oil & Products),energy,SPY,petrol_inv_spy,in_progress,WTTSTUS1,,WTTSTUS1,40
 ism_services_price,ISM Services PMI − Price Component,sentiment,XLI,ism_services_price_xli,not_started,"G - ISM Services PMI, price",,"G - ISM Services PMI, price",45
 wells_fargo_housing,Wells Fargo Housing Index,real_estate,XLE,wells_fargo_housing_xle,not_started,RE - Wells Fargo H Indx,,RE - Wells Fargo H Indx,48
 wells_fargo_housing,Wells Fargo Housing Index,real_estate,XLY,wells_fargo_housing_xly,not_started,RE - Wells Fargo H Indx,,RE - Wells Fargo H Indx,48

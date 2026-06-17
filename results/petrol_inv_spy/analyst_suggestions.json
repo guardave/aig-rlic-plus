@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "pair_id": "petrol_inv_spy",
+  "suggestions": [
+    {
+      "signal_name": "Petroleum inventory surprise vs refinery utilization",
+      "proposed_by": "evan",
+      "source": "EIA / Data Master candidate extension",
+      "observation": "Inventory levels alone mix demand weakness and supply/refinery effects; utilization-adjusted surprises may better separate the mechanisms.",
+      "rationale": "A build caused by demand weakness should carry a different equity interpretation than a build caused by refinery outages or supply shocks.",
+      "possible_use_case": "variant family / regime overlay",
+      "caveats": "Requires additional EIA series and a fresh Dana data pass; not in current pair scope.",
+      "date_filed": "2026-06-17"
+    }
+  ],
+  "last_updated_at": "2026-06-17T14:48:48Z"
+}

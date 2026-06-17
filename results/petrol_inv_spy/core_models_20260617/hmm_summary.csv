@@ -1,0 +1,3 @@
+state_label,mean_return,vol,duration_days,frequency_pct,mean_yoy_zscore
+stress,0.011714,0.042221,5418,67.54,0.59
+calm,0.004748,0.044758,2604,32.46,-1.315

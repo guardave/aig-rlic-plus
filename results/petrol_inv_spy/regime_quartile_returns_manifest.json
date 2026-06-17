@@ -1,0 +1,28 @@
+{
+  "file": "regime_quartile_returns.csv",
+  "pair_id": "petrol_inv_spy",
+  "produced_by": "scripts/pair_pipeline_petrol_inv_spy.py",
+  "generated_at": "2026-06-17T14:48:48Z",
+  "columns": {
+    "quartile": "Q1 lowest petroleum YoY z-score, Q4 highest",
+    "n_months": "observations",
+    "ann_return": "annualized SPY return ratio",
+    "ann_vol": "annualized volatility ratio",
+    "sharpe": "return/vol",
+    "max_drawdown": "negative drawdown ratio"
+  },
+  "assertions": [
+    {
+      "description": "four quartiles",
+      "check": "len==4"
+    },
+    {
+      "description": "Q4 is high-inventory-growth state",
+      "check": "qcut order"
+    },
+    {
+      "description": "descriptive not causal",
+      "check": "documented"
+    }
+  ]
+}

@@ -8,6 +8,16 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-06-17 — Signal Code Registry Additive Entry: `petrol_3m`
+
+**Trigger.** Mode-3 `petrol_inv_spy` econometrics tournament selected the three-month petroleum inventory percent-change signal. ECON-DS3 requires any new winner `signal_code` to be present in the append-only registry before `winner_summary.json` is handed off.
+
+**Scope:**
+- `docs/schemas/signal_code_registry.json` — appended `petrol_3m` with parquet column pattern `petrol_inv_3m_pct`, source method `roc`, first pair `petrol_inv_spy`.
+- No SOP text change; this is an additive registry instance update under existing ECON-DS3.
+
+---
+
 ## 2026-06-12 — Chart Type Registry v1.1.0: `tournament_distribution` method entry
 
 **Trigger.** busloans_spy (Pair #19, fix260612) Lead dispatch mandated a tournament-distribution chart with VIZ-SCD1 winner-position annotation and a B&H benchmark line (the pair's median valid strategy, 0.74, sits BELOW B&H 0.89 — the disclosure is the point). `tournament_sharpe_dist.json` had shipped on hy_ig_spy and gold_copper_xli without a registry entry, leaving the method unregistered against VIZ-V8 ("do not ship a chart whose method_name is not in the registry").

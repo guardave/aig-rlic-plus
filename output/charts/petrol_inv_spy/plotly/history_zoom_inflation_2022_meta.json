@@ -1,0 +1,30 @@
+{
+  "chart_name": "history_zoom_inflation_2022",
+  "pair_id": "petrol_inv_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V1",
+    "VIZ-V2",
+    "VIZ-V12",
+    "VIZ-V13",
+    "VIZ-TS1",
+    "VIZ-DP1",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Petroleum Stocks 3-month change (top) and SPY price (bottom) through the 2022 Inflation Shock window (2021-09 to 2023-06), with registry event markers. No NBER recession falls in this window.",
+  "narrative_alignment_note": "Dual-panel episode zoom per VIZ-V1/VIZ-ZOOM1; events from history_zoom_events_registry v1.0.0.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/petrol_inv_spy_monthly_latest.parquet",
+    "docs/schemas/history_zoom_events_registry.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-17T15:06:09.320968+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)",
+  "annotation_strategy_id": "descending_stair",
+  "events_registry_version": "1.0.0",
+  "episode_slug": "inflation_2022"
+}

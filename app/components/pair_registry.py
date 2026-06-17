@@ -102,6 +102,7 @@ PAGE_ROUTING = {
     "hy_ig_spy": "pages/15_hy_ig_spy",
     "gold_copper_xli": "pages/16_gold_copper_xli",
     "busloans_spy": "pages/17_busloans_spy",
+    "petrol_inv_spy": "pages/18_petrol_inv_spy",
 }
 
 

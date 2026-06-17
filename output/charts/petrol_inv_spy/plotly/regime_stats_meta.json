@@ -1,0 +1,20 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "petrol_inv_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-QR1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "SPY performance by Petroleum Stocks 3-month-change quartile: Sharpe (left) and annualized return (right). The gradient is monotonic in Sharpe from Q1 0.37 / 6.0% annualized return to Q4 1.25 / 17.5%. This descriptive chart corroborates the procyclical winner but is not a separate tradable rule.",
+  "narrative_alignment_note": "VIZ-QR1 dual-panel from regime_quartile_returns.csv; values re-read from CSV at generation time; best/worst quartile in auto takeaway.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/petrol_inv_spy/regime_quartile_returns.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-17T15:05:37.123622+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
+}

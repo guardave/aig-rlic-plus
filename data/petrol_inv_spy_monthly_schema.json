@@ -1,0 +1,177 @@
+{
+  "pair_id": "petrol_inv_spy",
+  "parquet_path": "data/petrol_inv_spy_monthly_19900131_20250930.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-17T14:38:05Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Monthly date index; spans 1990-01-31 through 2025-09-30."
+    },
+    "petrol_inv_kb": {
+      "dtype": "float64",
+      "unit": "count",
+      "display_name": "Petroleum Product Stocks (kb)",
+      "direction": "neutral",
+      "description": "EIA WTTSTUS1: Weekly U.S. ending stocks of crude oil and petroleum products, thousand barrels. Monthly panel uses calendar-month mean; daily panel is release-lagged LVCF.",
+      "source_reference": "Data Master.xlsx:WTTSTUS1 / EIA",
+      "refresh_ttl_days": 7
+    },
+    "petrol_inv_pct_yoy": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Petroleum Stocks YoY (%)",
+      "direction": "neutral",
+      "description": "Percent change from one year earlier. Recommended stationary signal; captures inventory-cycle pressure while reducing secular trend.",
+      "source_reference": "Data Master.xlsx:WTTSTUS1 / EIA",
+      "refresh_ttl_days": 7
+    },
+    "petrol_inv_pct_chg": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Petroleum Stocks Short Change (%)",
+      "direction": "neutral",
+      "description": "Short-horizon percent change: monthly MoM in monthly panel; 4-week change in daily LVCF panel.",
+      "source_reference": "Data Master.xlsx:WTTSTUS1 / EIA",
+      "refresh_ttl_days": 7
+    },
+    "petrol_inv_3m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Petroleum Stocks 3M Change (%)",
+      "direction": "neutral",
+      "description": "Three-month/13-week percent change in petroleum stocks.",
+      "source_reference": "Data Master.xlsx:WTTSTUS1 / EIA",
+      "refresh_ttl_days": 7
+    },
+    "petrol_inv_6m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Petroleum Stocks 6M Change (%)",
+      "direction": "neutral",
+      "description": "Six-month/26-week percent change in petroleum stocks.",
+      "source_reference": "Data Master.xlsx:WTTSTUS1 / EIA",
+      "refresh_ttl_days": 7
+    },
+    "petrol_inv_ma12_kb": {
+      "dtype": "float64",
+      "unit": "count",
+      "display_name": "Petroleum Stocks 12M MA (kb)",
+      "direction": "neutral",
+      "description": "Rolling 12-month / 52-week average inventory level, thousand barrels.",
+      "source_reference": "Data Master.xlsx:WTTSTUS1 / EIA",
+      "refresh_ttl_days": 7
+    },
+    "petrol_inv_dev_trend_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Petroleum Stocks vs Trend (%)",
+      "direction": "neutral",
+      "description": "Percent deviation of petroleum stocks from 12-month / 52-week moving average.",
+      "source_reference": "Data Master.xlsx:WTTSTUS1 / EIA",
+      "refresh_ttl_days": 7
+    },
+    "petrol_inv_zscore_60m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "Petroleum Stocks 5Y Z-Score",
+      "direction": "neutral",
+      "description": "Rolling five-year z-score of inventory level. Seasonal and secular-trend contamination remains; prefer YoY or deviation-from-trend for stationary modeling.",
+      "source_reference": "Data Master.xlsx:WTTSTUS1 / EIA",
+      "refresh_ttl_days": 7
+    },
+    "petrol_inv_yoy_zscore_60m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "Petroleum Stocks YoY 5Y Z-Score",
+      "direction": "neutral",
+      "description": "Rolling five-year z-score of YoY percent change. Recommended stationary standardized transform.",
+      "source_reference": "Data Master.xlsx:WTTSTUS1 / EIA",
+      "refresh_ttl_days": 7
+    },
+    "petrol_inv_accel_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Petroleum Stocks Acceleration (pp)",
+      "direction": "neutral",
+      "description": "First difference of short-horizon percent change, in percentage points.",
+      "source_reference": "Data Master.xlsx:WTTSTUS1 / EIA",
+      "refresh_ttl_days": 7
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "neutral",
+      "description": "SPY adjusted close from Yahoo Finance.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "vix": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "VIX Index Level",
+      "direction": "lower_is_better",
+      "description": "CBOE VIX close from Yahoo Finance.",
+      "source_reference": "yahoo:^VIX",
+      "refresh_ttl_days": 1
+    },
+    "dgs10": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "US 10Y Treasury Yield (%)",
+      "direction": "neutral",
+      "description": "FRED DGS10, percent; daily panel forward-filled over market holidays.",
+      "source_reference": "FRED:DGS10",
+      "refresh_ttl_days": 1
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Monthly Return",
+      "direction": "neutral",
+      "description": "Simple SPY return over the panel frequency.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_1m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 1M Return",
+      "direction": "neutral",
+      "description": "Forward one-month SPY return, decimal.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_3m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 3M Return",
+      "direction": "neutral",
+      "description": "Forward three-month SPY return, decimal.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_6m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 6M Return",
+      "direction": "neutral",
+      "description": "Forward six-month SPY return, decimal.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_12m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 12M Return",
+      "direction": "neutral",
+      "description": "Forward twelve-month SPY return, decimal.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "chart_name": "subperiod_sharpe",
+  "pair_id": "petrol_inv_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-CP1",
+    "VIZ-CP1.1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Winner-strategy annualized Sharpe within each canonical stress episode. COVID 2020 contributes (Sharpe 2.52); the 2022 rates shock was spent entirely in cash (0.00 = flat, not a loss), GFC is marked insufficient_data, and the post-COVID expansion is conditionally durable.",
+  "narrative_alignment_note": "Three-state encoding (no data / in cash / value) per the established subperiod convention; states derived from data_status and zero-Sharpe + handoff caveat #3.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/petrol_inv_spy/subperiod_sharpe.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-17T15:06:01.543815+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
+}

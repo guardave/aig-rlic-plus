@@ -192,6 +192,7 @@ def _render_chart(
     threshold: float,
     is_probability: bool,
     pair_id: str,
+    target_symbol: str,
 ):
     """Render the probability-engine time-series (APP-SE1 acceptance)."""
     series = signals_df[column].dropna()
@@ -240,7 +241,7 @@ def _render_chart(
             )
         )
 
-    target_price = _load_target_price_overlay(pair_id, "XLV")
+    target_price = _load_target_price_overlay(pair_id, target_symbol)
     if target_price is not None:
         aligned = target_price.loc[
             (target_price.index >= series.index.min())
@@ -253,7 +254,7 @@ def _render_chart(
                     x=indexed.index,
                     y=indexed.values,
                     mode="lines",
-                    name="XLV price performance (indexed)",
+                    name=f"{target_symbol} price performance (indexed)",
                     line=dict(color="#1f77b4", width=1.2, dash="dot"),
                     yaxis="y2",
                     hovertemplate="%{x|%Y-%m-%d}: %{y:.1f}<extra></extra>",
@@ -293,7 +294,7 @@ def _render_chart(
         xaxis_title="Date",
         yaxis_title=display_name,
         yaxis2=dict(
-            title="XLV indexed price",
+            title=f"{target_symbol} indexed price",
             overlaying="y",
             side="right",
             showgrid=False,
@@ -369,7 +370,8 @@ def render_probability_engine_panel(pair_id: str) -> None:
         else "What this shows: how the winning signal value evolves over "
              "time and where each decision threshold sits. The grey zone "
              "means the signal hovers near 0, so small month-to-month moves "
-             "can flip the rule between long XLV and cash."
+             "can flip the rule between long "
+             f"{winner.get('target_symbol', 'SPY')} and cash."
     )
     st.markdown(f"### {panel_title}")
     st.caption(panel_caption)
@@ -452,7 +454,16 @@ def render_probability_engine_panel(pair_id: str) -> None:
         "signals_path": str(signals_path),
     }
 
-    _render_chart(signals_df, column, display_name, threshold, is_probability, pair_id)
+    target_symbol = winner.get("target_symbol", "SPY")
+    _render_chart(
+        signals_df,
+        column,
+        display_name,
+        threshold,
+        is_probability,
+        pair_id,
+        target_symbol,
+    )
 
     # APP-SE5 universal takeaway caption
     strategy = winner.get("strategy_code") or winner.get("strategy_family", "")
