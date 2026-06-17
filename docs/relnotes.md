@@ -1,5 +1,22 @@
 # Release Notes
 
+## 2026-06-16/17 — KS gold_copper fixes + cloud-sweep production fixes (Codex Mode 3)
+
+**Merged to `main` (`422cec7` + `223c489`); production re-sweep 37 PASS / 0 FAIL / 40 (GATE-DP1 0).** Two branches (`fix260616_ks_gold_copper`, `fix260616_cloud_findings`) merged + deleted.
+
+**Stakeholder (KS) issues — gold_copper_xli (11 resolved):** removed internal rule codes (ECON-SD/HZE1/APP-DIR1/RES-17 and APP-SEV1/APP-PLB1/APP-TL1/META-IA) from user-facing text (config + shared components page_templates/direction_check/signal_universe_table); reconciled combination count to 90-tested/60-valid everywhere incl. landing card and Strategy Confidence-tab leaderboard (BENCHMARK row was inflating denominators to 91); aligned the 126-day z-score Story explanation; relabeled the annualized quartile chart caption; applied plain-English + jargon first-use expansion to Evidence method blocks.
+
+**Cloud-sweep production fixes:** umcsent_xlv Strategy APP-SEV1 (probability panel) — added the winner's named signal column `umcsent_mom` (= `S3_mom`) to the signals parquet (was stale, carrying `umcsent_yoy` from a prior winner); gold_copper history-zoom GATE-DP1 axis assignment corrected (XLI→x2, Z-Score→x); removed 3 archived TED pairs (`sofr_ted_spy`/`dff_ted_spy`/`ted_spliced_spy`) from active `pair_registry`/`display_names` refs; refreshed `cloud_verify.py` FOCUS_PAIRS to the 9 live pairs.
+
+**New rule:** **RES-JFU** (Jargon First-Use Expansion, research-agent-sop.md) — first user-facing use of any technical term/abbreviation must give the long form + abbreviation in brackets + a plain gloss.
+
+**Process notes / discoveries:**
+- First operational **Codex Mode-3** wave (Codex makers, Claude checker) + an **independent Codex review** that caught 3 defects a same-family check missed (one maker-introduced) — validates the cross-family review pass.
+- DOM verification must traverse **tabs and expanders**; a flat `inner_text` pass missed the Confidence-tab "91" and a collapsed-component ECON-SD.
+- `cloud_verify.py` does both cloud-DOM and local-file preflight — run sweeps from the branch checkout; run a narrow gold_copper sync-gate first. Screenshot helper is pathologically slow on hidden nested tabs (~40-min sweeps) — tooling debt.
+
+**Backlog added:** BL-ECON-SD-PORTAL (portal-wide ECON-SD jargon cleanup in other pairs' configs; frozen `hy_ig_v2_spy` EXEMPT).
+
 ## 2026-06-12 — New pair: busloans_spy (Commercial & Industrial Loans → SPY), Mode 1
 
 **Branch `fix260612_busloans_spy`** — priority combination #19; first new pair built under the full current standards stack, and the first full Mode-1 pair pipeline (Dana → Evan → Vera ∥ Ray → Ace → Quincy).

@@ -1,5 +1,15 @@
 # Team Status Board
 
+## 2026-06-16/17 — Lead Lesandro (Codex Mode-3 KS wave + cloud sweep + production fixes)
+
+**Status:** COMPLETED. main at `223c489`; production re-sweep 37 PASS / 0 FAIL / 40 (DP1 0). Two branches merged + deleted.
+
+- **First operational Codex Mode-3 run** (Claude manages+checks, Codex makes) end-to-end: 11 KS gold_copper issues fixed by Codex makers (Evan/Ray/Ace) → **independent Codex review (QA Quincy)** caught 3 real defects the same-family check missed (incl. one Evan *introduced*) → round-2 fixes + RES-JFU rule authored.
+- **Codex-executed cloud sweep** found 2 live production defects: umcsent_xlv SEV1 (stale signals parquet missing `umcsent_mom`) + gold_copper 8× GATE-DP1 axis mismatch. Both fixed (Evan/Vera) + archived-TED cleanup (Ace) + FOCUS_PAIRS refresh.
+- **Verification chain:** dawodev pre-merge sweep (36/1, the 1 = umcsent on other branch) → merge both → user rebooted prod → post-merge sweep CLEAN.
+- **For all agents:** new rule **RES-JFU** (jargon first-use expansion) in research-agent-sop.md now binds on all user-facing prose. Backlog **BL-ECON-SD-PORTAL** open (ECON-SD jargon in other pairs' configs; frozen hy_ig_v2 EXEMPT).
+- **Tooling debt flagged:** `cloud_verify.py` screenshot helper times out on hidden nested tabs → ~40-min sweeps; candidate to skip non-visible tab handles. DOM checks must traverse tabs/expanders (a flat inner_text pass missed defects).
+
 ## 2026-06-13 — Data Dana (Petroleum Inventory × SPY registry reconciliation)
 
 **Status:** COMPLETED. Branch `fix260613_petroleum_matrix`, commit `db75fce` (pushed). Registration only — no build.

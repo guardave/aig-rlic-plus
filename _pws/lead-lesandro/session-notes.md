@@ -1,5 +1,31 @@
 # Session Notes — Lead Lesandro
 
+## Session: 2026-06-16/17 (Codex Mode-3 KS wave + cloud sweep + production fixes)
+
+### Summary
+
+First end-to-end operational run of the new Codex Mode-3 flow (Claude manages + checks, Codex makes), with an independent Codex review, a Codex-run cloud sweep, fixes, re-sweep, merge, and production verification — all clean.
+
+1. **KS-issue wave (gold_copper_xli), branch `fix260616_ks_gold_copper` (merged `422cec7`, deleted):**
+   - Triaged the "Step C Dashboard Comment log" xlsx → 11 KS-originated open/reopened issues, all on gold_copper. (14 "Not handle" SOFR items excluded — pair archived 2026-06-02.)
+   - 3 Codex makers (Evan numeric-consistency #145/#152; Ray jargon-codes #137-140 + plain-English #141-144 + z-score #106; Ace shared-component code-leak root-cause). Lead checked + DOM-verified.
+   - **Independent Codex review (QA Quincy)** returned 3 FAIL + 1 CONCERN — caught defects the same-family check missed: residual "91" on the Strategy **Confidence tab** (page_templates len(tdf) incl BENCHMARK), the #152 chart_caption Evan's own edit MISLABELED as "raw, non-annualized" on the annualized chart, and #141-144 still jargon-heavy. Round 2 fixed all: page_templates count, caption, RES-JFU jargon-first-use rule authored + applied. Defect 3 (ECON-SD in other pairs) backlogged BL-ECON-SD-PORTAL.
+2. **Cloud sweep (Codex-executed) of production main:** found 2 live defects + archived-pair noise. (1) umcsent_xlv Strategy APP-SEV1 "panel cannot render / no signals parquet — umcsent_mom missing": winner.signal_column='umcsent_mom' but parquet had S3_mom + stale umcsent_yoy. (2) gold_copper history_zoom 8× GATE-DP1 axis mismatch.
+3. **3-step fix (recommended + approved), branch `fix260616_cloud_findings` (merged `223c489`, deleted):**
+   - Vera (Codex): gold_copper DP1 axis fix (folded into KS branch). Evan (Codex): added umcsent_mom=S3_mom column to parquet. Ace (Codex): removed 3 archived TED pairs from pair_registry/display_names + refreshed cloud_verify FOCUS_PAIRS to the 9 live pairs.
+4. **Pre-merge cloud sweep on dawodev preview (KS branch):** 36/1/40, the 1 fail = umcsent (fix on other branch). gold_copper 4/4 + DP1 0; no shared-component regressions.
+5. **Merged both branches → main → user rebooted production → post-merge re-sweep: 37 PASS / 0 FAIL / 40, DP1 0.** umcsent SEV1 gone, gold_copper DP1 clean. Branches deleted.
+
+### Lessons (this session)
+
+1. **DOM verification MUST traverse tabs and expanders.** My flat inner_text pass declared gold_copper clean, but the independent reviewer's tab-clicking found the residual "91" on the Confidence tab and the methodology ECON-SD in a collapsed component. Add tab/expander traversal to the LEAD-DOM1 checker protocol.
+2. **Cross-family review delivers — including catching maker-introduced defects.** The Codex reviewer found a defect Evan (Codex) had *introduced* (the mislabeled caption). Mode-5 value proven; strong argument for an independent-review pass before merge.
+3. **`cloud_verify.py` does BOTH cloud-DOM and local-file preflight (GATE-DP1/29/27).** To verify a branch's chart fixes via the sweep, run it FROM that branch's checkout so local files match. Run sync-gate (narrow gold_copper probe) first to confirm the cloud serves the branch before the slow full sweep.
+4. **Stale named-column in signals parquet = SEV1.** The producer must regenerate the signals parquet (with the winner's named column) whenever the winner signal changes; a stale parquet silently breaks the probability panel. Contract confirmed vs indpro_xlp (carries indpro_accel).
+5. **Codex mechanics:** bwrap sandbox fails in this nested devcontainer → makers must run `--dangerously-bypass-approvals-and-sandbox` (container IS the external sandbox). tmux not used; programmatic dispatch correctly fell to `codex exec` subprocess (documented fallback). Cloud sweep ran ~40 min, pathologically slow due to the screenshot helper timing out on hidden nested tabs — tooling-improvement opportunity (skip non-visible tab handles).
+
+---
+
 ## Session: 2026-06-16 (MCP repair + Codex work-modes SOP)
 
 ### Summary
