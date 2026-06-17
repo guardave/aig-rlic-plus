@@ -1,0 +1,19 @@
+{
+  "chart_name": "transfer_entropy",
+  "pair_id": "petrol_inv_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Transfer entropy between Petroleum Stocks growth and SPY returns (tercile bins, 500 permutations). Neither direction is significant (Petroleum Stocks \u2192 SPY p = 0.58; reverse p = 0.41) \u2014 the nonlinear channel is as empty as the linear one.",
+  "narrative_alignment_note": "Two-bar TE comparison per ECON-H4.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/petrol_inv_spy/core_models_20260617/transfer_entropy.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-17T15:05:45.652143+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
+}

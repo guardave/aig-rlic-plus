@@ -6,7 +6,7 @@
   "indicator_nature": "coincident",
   "indicator_type": "macro",
   "strategy_objective": "max_sharpe",
-  "expected_direction": "mixed",
+  "expected_direction": "procyclical",
   "data_provenance": {
     "source": "EIA weekly petroleum stocks via project Data Master.xlsx (sheet WTTSTUS1); FRED public API rejected WTTSTUS1 on 2026-06-17",
     "series_id": "WTTSTUS1",
@@ -56,8 +56,16 @@
       "narrative_summary"
     ]
   },
-  "last_updated_by": "evan",
-  "last_updated_at": "2026-06-17T14:48:48Z",
+  "mechanism": "Hypothesis, not established fact: when petroleum inventories build alongside stable or expanding production rather than pure demand collapse, the build can signal robust supply availability and softer energy-price pressure. That combination may support consumer spending and corporate margins over the following 6-12 months, which is consistent with the procyclical quartile gradient and the searched Long/Cash winner.",
+  "caveats": [
+    "Fragile evidence: the selected rule was found in a broad search, not confirmed by a final holdout exam.",
+    "Bootstrap p=0.099 is not significant at the 5% level; confidence is low.",
+    "Granger significance clusters at 6-8 months while the tournament-selected rule uses L12, so the lead range is imprecise.",
+    "The overlay lowers drawdown but gives up annualized return versus buy-and-hold."
+  ],
+  "narrative_summary": "Total petroleum stocks overturn the natural counter-cyclical prior in this sample: Q1 lowest 3-month inventory growth has Sharpe 0.37 and 6.0% annualized return, while Q4 highest has Sharpe 1.25 and 17.5%, and the winner is procyclical Long/Cash at L12. Treat the result as a low-confidence defensive overlay within a 6-12 month lead band.",
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-06-17T00:00:00Z",
   "observed_direction": "procyclical",
   "direction_consistent": true,
   "key_finding": "Petroleum inventories provide a weak, empirically mixed equity signal. Winner is petrol_3m / T1_fixed_p50 / P1_long_cash (pro) / L12 / LB_NA with OOS Sharpe 1.48 vs buy-and-hold 0.93; max drawdown -6.3% vs -23.9%. Toda-Yamamoto Granger indicator->SPY significant lags: [6, 7, 8]; SPY->indicator significant lags: none. Treat as a searched defensive overlay, not established causal alpha.",

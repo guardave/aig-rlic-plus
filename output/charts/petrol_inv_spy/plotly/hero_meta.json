@@ -1,0 +1,21 @@
+{
+  "chart_name": "hero",
+  "pair_id": "petrol_inv_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "Total Petroleum Stocks 3-month change (vermillion, left axis) against the SPY price (blue, right axis), 1993\u20132025. The selected Long/Cash rule buys when the lagged 3-month change is above 0.323%, even though COVID shows why the natural inventory prior can be counter-cyclical. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Hero shows the actual winning signal and threshold; COVID annotation flags the prior-vs-evidence tension.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/petrol_inv_spy_monthly_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-17T15:05:35.247614+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
+}
