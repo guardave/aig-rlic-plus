@@ -1,0 +1,51 @@
+{
+  "file": "tournament_results_20260617.csv",
+  "pair_id": "petrol_inv_spy",
+  "grid": {
+    "signals": [
+      "petrol_yoy",
+      "petrol_pct_chg",
+      "petrol_3m",
+      "petrol_6m",
+      "petrol_dev_trend",
+      "petrol_level_z60",
+      "petrol_yoy_z60",
+      "petrol_accel",
+      "hmm_stress",
+      "markov_regime"
+    ],
+    "thresholds": "T1 fixed percentiles, T2 rolling percentiles, T3 rolling z-score, T4 zero",
+    "strategies": [
+      "P1_long_cash_{pro,counter}",
+      "P2_signal_strength_{pro,counter}",
+      "P3_long_short_{pro,counter}"
+    ],
+    "leads_months": [
+      0,
+      1,
+      2,
+      3,
+      6,
+      12
+    ],
+    "lookbacks": [
+      "LB36",
+      "LB60",
+      "LB120",
+      "LB_NA"
+    ]
+  },
+  "units": "returns and drawdowns are ratios, not percent",
+  "total_strategy_rows": 7392,
+  "valid_strategy_rows": 5123,
+  "sampling": "exhaustive",
+  "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
+  "execution_lag": "monthly L0 permitted by release-lag convention; L1/L2/L3/L6/L12 also tested",
+  "cost_note": "gross returns; 5 bps sensitivity in validation folder",
+  "assertions": [
+    "exactly one BENCHMARK row",
+    "BENCHMARK valid=False",
+    "all valid counts exclude benchmark"
+  ],
+  "generated_at": "2026-06-17T14:48:48Z"
+}

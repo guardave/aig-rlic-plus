@@ -1,0 +1,16 @@
+{
+  "pair_id": "petrol_inv_spy",
+  "winner_label": "petrol_3m / T1_fixed_p50 / P1_long_cash (pro) / L12 / LB_NA",
+  "winner_oos_sharpe": 1.4779,
+  "winner_max_drawdown": -0.0628,
+  "winner_oos_ann_return": 0.0981,
+  "bh_oos_sharpe": 0.9315,
+  "bh_max_drawdown": -0.2393,
+  "bh_oos_ann_return": 0.1518,
+  "delta_sharpe": 0.5464,
+  "delta_max_drawdown": 0.1765,
+  "delta_ann_return": -0.0537,
+  "beats_benchmark": true,
+  "suggested_strategy_objective": "max_sharpe",
+  "generated_at": "2026-06-17T14:48:48Z"
+}

@@ -1,0 +1,139 @@
+{
+  "pair_id": "petrol_inv_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-06-17T14:48:48Z",
+  "indicator_axis": {
+    "canonical_column": "petrol_inv_kb",
+    "display_name": "U.S. petroleum product stocks",
+    "derivatives": [
+      {
+        "name": "petrol_inv_kb",
+        "definition": "Weekly U.S. ending stocks of crude oil and petroleum products, monthly average in thousand barrels.",
+        "formula": "Data Master.xlsx:WTTSTUS1 / EIA",
+        "role": "raw",
+        "appears_in_charts": []
+      },
+      {
+        "name": "petrol_inv_pct_yoy",
+        "definition": "Year-over-year percent change in petroleum stocks.",
+        "formula": "100*(x_t/x_t-12-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "petrol_inv_pct_chg",
+        "definition": "Short-horizon percent change in petroleum stocks.",
+        "formula": "monthly MoM in monthly panel; 4-week change in daily LVCF",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "petrol_inv_3m_pct",
+        "definition": "Three-month petroleum stock momentum.",
+        "formula": "100*(x_t/x_t-3-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "petrol_inv_6m_pct",
+        "definition": "Six-month petroleum stock momentum.",
+        "formula": "100*(x_t/x_t-6-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "petrol_inv_dev_trend_pct",
+        "definition": "Percent deviation from 12-month trend.",
+        "formula": "100*(x_t/ma12_t-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "petrol_inv_zscore_60m",
+        "definition": "Five-year z-score of petroleum stock level.",
+        "formula": "(x_t-mean60)/sd60",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "petrol_inv_yoy_zscore_60m",
+        "definition": "Five-year z-score of petroleum stock YoY growth.",
+        "formula": "(yoy_t-mean60)/sd60",
+        "role": "threshold_input",
+        "appears_in_charts": []
+      },
+      {
+        "name": "petrol_inv_accel_pct",
+        "definition": "Change in short-horizon petroleum stock growth.",
+        "formula": "pct_chg_t - pct_chg_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hmm_2state_prob_stress",
+        "definition": "Probability of high-inventory-growth HMM state.",
+        "formula": "GaussianHMM(yoy_zscore)",
+        "role": "regime_state",
+        "appears_in_charts": []
+      },
+      {
+        "name": "markov_regime_2state",
+        "definition": "Smoothed high-inventory stress proxy.",
+        "formula": "rolling mean of HMM stress probability",
+        "role": "regime_state",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy",
+    "display_name": "SPY (S&P 500 ETF)",
+    "derivatives": [
+      {
+        "name": "spy",
+        "definition": "SPY adjusted month-end close.",
+        "formula": "Yahoo Finance",
+        "role": "raw",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_ret",
+        "definition": "SPY monthly return.",
+        "formula": "P_t/P_t-1-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_1m",
+        "definition": "One-month forward SPY return.",
+        "formula": "P_t+1/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_3m",
+        "definition": "Three-month forward SPY return.",
+        "formula": "P_t+3/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_6m",
+        "definition": "Six-month forward SPY return.",
+        "formula": "P_t+6/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_12m",
+        "definition": "Twelve-month forward SPY return.",
+        "formula": "P_t+12/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "notes": "ECON-SD: only WTTSTUS1 petroleum inventory derivatives and SPY derivatives are in scope. VIX and DGS10 in the parquet are context columns, not rendered pair signals."
+}

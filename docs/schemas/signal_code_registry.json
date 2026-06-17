@@ -41,6 +41,16 @@
       "added_at": "2026-06-12",
       "first_pair": "busloans_spy",
       "notes": "BUSLOANS is a Conference Board LAGGING index component; this rate-of-change transform is a countercyclical/defensive trigger, not a forward-causal signal (Toda-Yamamoto forward direction n.s. at all lags)."
+    },
+    {
+      "signal_code": "petrol_3m",
+      "display_name": "Petroleum stocks 3-month percent change",
+      "parquet_column_pattern": "petrol_inv_3m_pct",
+      "description": "Three-month percent change in EIA WTTSTUS1 petroleum stocks. Used for petrol_inv_spy as a stationary inventory-cycle momentum signal; higher values mean faster inventory builds.",
+      "source_method": "roc",
+      "added_at": "2026-06-17",
+      "first_pair": "petrol_inv_spy",
+      "notes": "WTTSTUS1 is sourced from project Data Master.xlsx sheet WTTSTUS1 because the public FRED API rejected the series on 2026-06-17. Direction is empirical/mixed; petroleum stock builds can reflect weak demand or supply shocks."
     }
   ]
 }

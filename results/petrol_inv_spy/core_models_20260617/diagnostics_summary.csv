@@ -1,0 +1,5 @@
+test,statistic,p_value,interpretation
+Jarque-Bera,57.051,0.0,Non-normal residuals; robust inference used
+Breusch-Pagan,0.141,0.7076,No heteroskedasticity rejection
+Breusch-Godfrey (12),231.493,0.0,Serial correlation; HAC used
+RESET,2.352,0.0966,Linear form adequate

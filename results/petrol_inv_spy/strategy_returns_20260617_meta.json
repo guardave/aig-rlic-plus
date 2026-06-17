@@ -1,0 +1,32 @@
+{
+  "pair_id": "petrol_inv_spy",
+  "artifact": "strategy_returns_20260617.csv",
+  "rule": "ECON-SR1",
+  "frequency": "monthly",
+  "oos_start": "2017-08-31",
+  "oos_end": "2025-09-30",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.477857,
+      "reported": 1.4779,
+      "tolerance": 0.01,
+      "diff": -4.3e-05,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.062774,
+      "reported": -0.0628,
+      "tolerance": 0.005,
+      "diff": 2.6e-05,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.098051,
+      "reported": 0.0981,
+      "tolerance": 0.005,
+      "diff": -4.9e-05,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-17T14:48:48Z"
+}

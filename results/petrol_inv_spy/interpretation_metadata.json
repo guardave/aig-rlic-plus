@@ -1,0 +1,65 @@
+{
+  "pair_id": "petrol_inv_spy",
+  "schema_version": "1.1.0",
+  "indicator": "petrol_inv",
+  "target": "spy",
+  "indicator_nature": "coincident",
+  "indicator_type": "macro",
+  "strategy_objective": "max_sharpe",
+  "expected_direction": "mixed",
+  "data_provenance": {
+    "source": "EIA weekly petroleum stocks via project Data Master.xlsx (sheet WTTSTUS1); FRED public API rejected WTTSTUS1 on 2026-06-17",
+    "series_id": "WTTSTUS1",
+    "accessed_at": "2026-06-17T14:38:05Z"
+  },
+  "known_stress_episodes": [
+    {
+      "label": "GFC oil-demand collapse",
+      "start": "2008-09-01",
+      "end": "2009-06-30",
+      "note": "Petroleum stocks rose sharply as demand weakened into recession."
+    },
+    {
+      "label": "COVID demand shock",
+      "start": "2020-03-01",
+      "end": "2020-06-30",
+      "note": "Inventories rose during the abrupt collapse in mobility and fuel demand."
+    }
+  ],
+  "related_pair_ids": [
+    "crude_oil_xle",
+    "gold_copper_xli"
+  ],
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "indicator_nature",
+      "indicator_type",
+      "data_provenance",
+      "known_stress_episodes",
+      "related_pair_ids"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats",
+      "narrative_summary"
+    ]
+  },
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-06-17T14:48:48Z",
+  "observed_direction": "procyclical",
+  "direction_consistent": true,
+  "key_finding": "Petroleum inventories provide a weak, empirically mixed equity signal. Winner is petrol_3m / T1_fixed_p50 / P1_long_cash (pro) / L12 / LB_NA with OOS Sharpe 1.48 vs buy-and-hold 0.93; max drawdown -6.3% vs -23.9%. Toda-Yamamoto Granger indicator->SPY significant lags: [6, 7, 8]; SPY->indicator significant lags: none. Treat as a searched defensive overlay, not established causal alpha.",
+  "confidence": "low"
+}

@@ -1,0 +1,15 @@
+{
+  "pair_id": "petrol_inv_spy",
+  "test": "Quandt-Andrews unknown breakpoint (sup-F, residual-bootstrap p, 300 reps)",
+  "sample_start": "1994-02-28",
+  "sample_end": "2025-09-30",
+  "n_obs": 380,
+  "trimming_pct": 0.15,
+  "break_date": "2020-04-30",
+  "f_stat": 2.0812,
+  "p_value": 0.64,
+  "flagged": false,
+  "flag_message": null,
+  "rolling_corr_sign_stability": 0.559,
+  "rolling_corr_stability_verdict": "moderately_stable"
+}

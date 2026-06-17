@@ -1,0 +1,25 @@
+variable,test,statistic,p_value,lags,conclusion
+monthly_level,ADF,-2.6166,0.0896,12,Non-stationary
+monthly_level,KPSS,1.7736,0.0001,12,Reject stationarity at 5%
+monthly_delta,ADF,-4.0346,0.0012,12,Stationary at 5%
+monthly_delta,KPSS,0.0838,0.6708,8,Fail to reject stationarity
+monthly_pct_chg,ADF,-3.9809,0.0015,12,Stationary at 5%
+monthly_pct_chg,KPSS,0.0809,0.6874,8,Fail to reject stationarity
+monthly_yoy,ADF,-3.5787,0.0062,12,Stationary at 5%
+monthly_yoy,KPSS,0.1415,0.4172,11,Fail to reject stationarity
+monthly_zscore,ADF,-4.0199,0.0013,12,Stationary at 5%
+monthly_zscore,KPSS,0.3726,0.0856,11,Fail to reject stationarity
+monthly_yoy_zscore,ADF,-3.3789,0.0117,12,Stationary at 5%
+monthly_yoy_zscore,KPSS,0.0473,0.8933,11,Fail to reject stationarity
+daily_spy_ret,ADF,-10.7821,0.0,2,Stationary at 5%
+daily_spy_ret,KPSS,0.1427,0.4132,3,Fail to reject stationarity
+weekly_level,ADF,-2.5858,0.096,52,Non-stationary
+weekly_level,KPSS,3.4588,0.0001,27,Reject stationarity at 5%
+weekly_delta,ADF,-3.78,0.0031,51,Stationary at 5%
+weekly_delta,KPSS,0.0719,0.7408,20,Fail to reject stationarity
+weekly_pct_chg_4w,ADF,-4.0291,0.0013,51,Stationary at 5%
+weekly_pct_chg_4w,KPSS,0.0682,0.7636,23,Fail to reject stationarity
+weekly_yoy,ADF,-3.2512,0.0172,52,Stationary at 5%
+weekly_yoy,KPSS,0.2231,0.2271,27,Fail to reject stationarity
+weekly_zscore_5y,ADF,-4.0953,0.001,52,Stationary at 5%
+weekly_zscore_5y,KPSS,0.6382,0.0182,26,Reject stationarity at 5%
