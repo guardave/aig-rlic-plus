@@ -1,0 +1,19 @@
+{
+  "chart_name": "transfer_entropy",
+  "pair_id": "ism_services_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Transfer entropy between ISM Services PMI and SPY returns (tercile bins, 500 permutations). Forward flow is marginal (ISM Services PMI \u2192 SPY p = 0.064); reverse flow is significant (SPY \u2192 ISM Services PMI p = 0.002).",
+  "narrative_alignment_note": "Two-bar TE comparison per ECON-H4.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/ism_services_spy/core_models_20260618/transfer_entropy.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-18T10:57:16.997971+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
+}

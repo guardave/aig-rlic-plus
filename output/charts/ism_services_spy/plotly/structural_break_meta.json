@@ -1,0 +1,31 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "ism_services_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.3",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "ISM Services PMI over the test sample (1997-11\u20132025-10, n = 336) with the Quandt-Andrews candidate break date (2009-03). The test flags a break (sup-F 12.77, residual-bootstrap p = 0.000); cross-period results should be read as regime-dependent rather than stable law. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Annotation-only structural-break chart per ECON-H4; values from JSON.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/ism_services_spy/structural_break_ism_services_spy.json",
+    "data/ism_services_spy_monthly_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-18T10:57:27.174782+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)",
+  "break_date": "2009-03-31",
+  "annotation_strategy_id": "manual_override",
+  "annotation_overrides": [
+    {
+      "annotation_idx": 0,
+      "y_offset": "paper 0.95",
+      "rationale": "single break-label placed per VIZ-CP1.3 spec (y=0.95, yref=paper)"
+    }
+  ]
+}

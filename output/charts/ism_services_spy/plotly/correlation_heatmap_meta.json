@@ -1,0 +1,19 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "ism_services_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Pearson correlations between ISM Services PMI signals and SPY forward returns at 1/3/6/12-month horizons. The strongest cell is only r = -0.175 (hmm_stress vs spy_fwd_12m) \u2014 weak evidence relative to the stronger reverse-causality diagnostics.",
+  "narrative_alignment_note": "Heatmap supports the 'weak forward channel' finding; best cell is re-read from correlations.csv at generation time.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/ism_services_spy/core_models_20260618/correlations.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-18T10:57:10.292057+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
+}

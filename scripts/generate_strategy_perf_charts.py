@@ -62,6 +62,7 @@ from components.display_names import SHORT_INDICATOR_LABELS  # noqa: E402
 # Flagged to Ace in the per-pair handoff; remove once the registry entry lands.
 _LOCAL_INDICATOR_LABELS = {
     "busloans_spy": "C&I Loans",
+    "ism_services_spy": "ISM Services PMI",
 }
 
 
@@ -245,6 +246,7 @@ def strategy_label(w: dict) -> str:
     sig = (w.get("signal_display_name")
            or _SIGNAL_CODE_LABELS.get(w.get("signal_code", ""))
            or "Tournament Winner")
+    sig = sig.replace("gap_50", "gap to 50").replace("_", " ")
     strat = (w.get("strategy_display_name")
              or _STRATEGY_FAMILY_LABELS.get(w.get("strategy_family", ""))
              or "")

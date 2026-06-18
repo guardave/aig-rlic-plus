@@ -5,7 +5,7 @@
   "target": "spy",
   "indicator_nature": "leading",
   "indicator_type": "sentiment",
-  "strategy_objective": "max_sharpe",
+  "strategy_objective": "min_mdd",
   "expected_direction": "procyclical",
   "data_provenance": {
     "source": "Project Data Master.xlsx sheet ISM PMI, column CDis, CSta - ISM Services PMI; FRED intentionally not used because ISM PMI series are no longer on FRED",
@@ -61,10 +61,20 @@
       "narrative_summary"
     ]
   },
-  "last_updated_by": "evan",
-  "last_updated_at": "2026-06-18T10:46:37Z",
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-06-18T00:00:00Z",
   "observed_direction": "countercyclical",
   "direction_consistent": false,
   "key_finding": "Lead-lag verdict: ISM Services PMI does not lead SPY at monthly frequency. Toda-Yamamoto Granger ISM Services->SPY is not significant at any lag 1-12, while SPY->ISM Services is significant at every lag, consistent with a sentiment/coincident survey already reflected in equities. The tournament winner (gap_50/T3_zscore_neg_1.0/P1_long_cash pro/L3/LB120) is countercyclical (long SPY only when lagged PMI gap-to-50 is unusually weak versus its rolling window): OOS Sharpe 1.54 vs B&H 0.88, max DD -3.8% vs -23.9%, but it gives up return (9.8% vs 15.1%), bootstrap p=0.073 (n.s. at 5%), and a structural break is flagged at 2009-03-31 \u2014 treat as a drawdown-control search result, not validated standalone alpha.",
-  "confidence": "low"
+  "confidence": "low",
+  "mechanism": "Natural prior is procyclical: an ISM Services PMI above 50 signals services expansion and should usually align with risk-on equity conditions. The searched winner is the opposite: it buys SPY after unusually weak services sentiment, which is best treated as a fragile maximum-pessimism or mean-reversion hypothesis rather than proof that PMI leads equities.",
+  "caveats": [
+    "Toda-Yamamoto Granger causality is reverse-dominant: SPY predicts ISM Services PMI at lags 1-12, while ISM Services PMI predicts SPY at no tested lag.",
+    "In-sample Sharpe is negative (-0.11) while OOS Sharpe is 1.54, an inversion that points to fragility rather than stability.",
+    "OOS performance is episode_concentrated and likely rides specific episodes, especially the COVID services collapse and recovery.",
+    "Bootstrap p-value is 0.073, so the winner is not significant at the 5% level.",
+    "Evidence status is found_in_search, not a fresh final exam; confidence remains low.",
+    "Structural break flagged at 2009-03 and the overlay gives up annual return versus buy-and-hold (9.8% vs 15.1%) in exchange for lower drawdown."
+  ],
+  "narrative_summary": "ISM Services PMI is economically procyclical, but the searched SPY rule is contrarian: it buys after services sentiment is unusually weak. The result is interesting as a drawdown-management overlay, not as evidence that the survey leads the S&P 500."
 }

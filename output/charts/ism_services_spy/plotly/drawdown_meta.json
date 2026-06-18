@@ -1,0 +1,44 @@
+{
+  "chart_name": "drawdown",
+  "pair_id": "ism_services_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-SR1",
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Peak-to-trough drawdown over the out-of-sample window: winner max -3.8% vs -23.9% buy-and-hold SPY. Strategy minimum equals winner_summary oos_max_drawdown (-3.76%) by construction (ECON-SR1 reconciled series). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Strategy-vs-buy-and-hold drawdown for the Strategy page Performance tab; chart minimum reconciles with the winner_summary KPI quoted in the page caption.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/ism_services_spy/strategy_returns_20260618.csv",
+    "results/ism_services_spy/winner_summary.json"
+  ],
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.53772,
+      "reported_winner_summary": 1.5377,
+      "diff": 2e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.037608,
+      "reported_winner_summary": -0.0376,
+      "diff": -8e-06,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.100818,
+      "reported_winner_summary": 0.0984,
+      "diff": 0.002418,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-18T10:58:18.497237+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_strategy_perf_charts.py (fix260611_meta_cmp, ECON-SR1 consumer)"
+}
