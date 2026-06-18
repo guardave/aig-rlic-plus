@@ -1,0 +1,33 @@
+{
+  "file": "hmm_states.parquet",
+  "pair_id": "ism_services_spy",
+  "produced_by": "scripts/pair_pipeline_ism_services_spy.py",
+  "generated_at": "2026-06-18T10:46:37Z",
+  "columns": {
+    "hmm_state": "integer state; stress = lower-PMI contraction regime",
+    "prob_stress": "P(stress regime); higher = lower-activity services regime",
+    "prob_calm": "1 - prob_stress"
+  },
+  "assertions": [
+    {
+      "description": "probabilities in [0,1]",
+      "check": "prob_stress between 0 and 1"
+    },
+    {
+      "description": "GFC contraction is stress",
+      "filter": "2008-11 to 2009-06",
+      "column": "prob_stress",
+      "check": "mean = 1.00 (computed at fit time)"
+    },
+    {
+      "description": "COVID contraction is stress",
+      "filter": "2020-04 to 2020-06",
+      "column": "prob_stress",
+      "check": "mean = 0.75 (computed at fit time)"
+    },
+    {
+      "description": "states sum to 1",
+      "check": "prob_stress + prob_calm == 1"
+    }
+  ]
+}

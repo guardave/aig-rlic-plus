@@ -51,6 +51,76 @@
       "added_at": "2026-06-17",
       "first_pair": "petrol_inv_spy",
       "notes": "WTTSTUS1 is sourced from project Data Master.xlsx sheet WTTSTUS1 because the public FRED API rejected the series on 2026-06-17. Direction is empirical/mixed; petroleum stock builds can reflect weak demand or supply shocks."
+    },
+    {
+      "signal_code": "ism_services_level",
+      "display_name": "ISM Services PMI level",
+      "parquet_column_pattern": "ism_services_pmi",
+      "description": "Headline ISM Services PMI diffusion index level from the project Data Master workbook. Values above 50 indicate services expansion; lower values indicate slower activity or contraction.",
+      "source_method": "level",
+      "added_at": "2026-06-18",
+      "first_pair": "ism_services_spy",
+      "notes": "ISM Services PMI is not available through public FRED as of 2026-06-18; source is Data Master.xlsx sheet ISM PMI, column CDis, CSta - ISM Services PMI."
+    },
+    {
+      "signal_code": "ism_services_gap_50",
+      "display_name": "ISM Services PMI gap to 50",
+      "parquet_column_pattern": "ism_services_gap_50",
+      "description": "ISM Services PMI minus the 50 expansion/contraction threshold. Positive values indicate expansion; negative values indicate contraction.",
+      "source_method": "threshold_gap",
+      "added_at": "2026-06-18",
+      "first_pair": "ism_services_spy",
+      "notes": "Designed to preserve the economically meaningful 50 threshold in strategy tests."
+    },
+    {
+      "signal_code": "ism_services_delta",
+      "display_name": "ISM Services PMI 1-month change",
+      "parquet_column_pattern": "ism_services_delta",
+      "description": "One-month change in ISM Services PMI, in index points. Higher values indicate improving services momentum.",
+      "source_method": "difference",
+      "added_at": "2026-06-18",
+      "first_pair": "ism_services_spy",
+      "notes": "Stationary momentum transform supplied by Dana."
+    },
+    {
+      "signal_code": "ism_services_change_3m",
+      "display_name": "ISM Services PMI 3-month change",
+      "parquet_column_pattern": "ism_services_3m_change",
+      "description": "Three-month change in ISM Services PMI, in index points. Higher values indicate improving services momentum over a quarter.",
+      "source_method": "difference",
+      "added_at": "2026-06-18",
+      "first_pair": "ism_services_spy",
+      "notes": "Included explicitly because the brief flagged level-versus-momentum distinctions as economically important."
+    },
+    {
+      "signal_code": "ism_services_change_6m",
+      "display_name": "ISM Services PMI 6-month change",
+      "parquet_column_pattern": "ism_services_6m_change",
+      "description": "Six-month change in ISM Services PMI, in index points. Higher values indicate improving services momentum over two quarters.",
+      "source_method": "difference",
+      "added_at": "2026-06-18",
+      "first_pair": "ism_services_spy",
+      "notes": "Longer-horizon momentum transform supplied by Dana."
+    },
+    {
+      "signal_code": "ism_services_level_zscore_60m",
+      "display_name": "ISM Services PMI 60-month z-score",
+      "parquet_column_pattern": "ism_services_zscore_60m",
+      "description": "Rolling 60-month z-score of ISM Services PMI level. Higher values indicate the PMI is elevated relative to its own recent history.",
+      "source_method": "zscore",
+      "added_at": "2026-06-18",
+      "first_pair": "ism_services_spy",
+      "notes": "Lookback-based normalization for the bounded diffusion index."
+    },
+    {
+      "signal_code": "ism_services_above_50",
+      "display_name": "ISM Services PMI above-50 flag",
+      "parquet_column_pattern": "ism_services_above_50",
+      "description": "Binary flag equal to 1 when ISM Services PMI is above 50 and 0 otherwise.",
+      "source_method": "threshold_flag",
+      "added_at": "2026-06-18",
+      "first_pair": "ism_services_spy",
+      "notes": "Direct encoding of the expansion/contraction threshold."
     }
   ]
 }

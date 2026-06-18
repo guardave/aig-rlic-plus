@@ -1,0 +1,28 @@
+{
+  "file": "correlations.csv",
+  "pair_id": "ism_services_spy",
+  "produced_by": "scripts/pair_pipeline_ism_services_spy.py",
+  "generated_at": "2026-06-18T10:46:37Z",
+  "columns": {
+    "pair_name": "signal_code__forward-return-column",
+    "horizon_days": "forward horizon in trading days (monthly*21)",
+    "metric": "pearson/spearman/kendall/distance",
+    "value": "correlation coefficient",
+    "p_value": "two-sided p (NaN for distance corr)",
+    "n_obs": "obs"
+  },
+  "assertions": [
+    {
+      "description": "values bounded",
+      "check": "abs(value) <= 1"
+    },
+    {
+      "description": "monthly pair: horizons are 21/63/126/252 day equivalents",
+      "check": "horizon_days in {21,63,126,252}"
+    },
+    {
+      "description": "n_obs >= 60 enforced at producer",
+      "check": "min(n_obs) >= 60"
+    }
+  ]
+}

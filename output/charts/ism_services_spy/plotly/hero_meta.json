@@ -1,0 +1,21 @@
+{
+  "chart_name": "hero",
+  "pair_id": "ism_services_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "ISM Services PMI diffusion index (vermillion, left axis) against SPY price (blue, right axis), 1997\u20132025. The 50 line marks services expansion versus contraction; green markers show months when the winner's rolling z-score weakness trigger fires. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Hero makes the countercyclical rule visually legible: buy when services sentiment is unusually weak, while the caption discloses that Granger evidence is reverse-only.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/ism_services_spy_monthly_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-18T10:57:05.090078+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
+}

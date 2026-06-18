@@ -1,0 +1,9 @@
+{
+  "owner": "evan",
+  "split_policy_id": "v1_max36_25pct_cap120",
+  "in_sample_end": "2018-09-30",
+  "oos_start": "2018-10-31",
+  "oos_end": "2025-10-31",
+  "sample_size_months": 339,
+  "justification": "Policy v1_max36_25pct_cap120 on the SPY-availability-bound sample (339 months, 1993-02 onward; ISM Services history extends to 1947 but the tournament requires target returns). min(max(36, round(339*0.25)), 120) = 85 months. No structural-break exclusion applied; ISM Services PMI vintage ends Oct 2025."
+}

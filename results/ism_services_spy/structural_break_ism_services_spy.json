@@ -1,0 +1,16 @@
+{
+  "pair_id": "ism_services_spy",
+  "test": "Quandt-Andrews unknown breakpoint (sup-F, residual-bootstrap p, 300 reps)",
+  "sample_start": "1997-11-30",
+  "sample_end": "2025-10-31",
+  "n_obs": 336,
+  "trimming_pct": 0.15,
+  "break_date": "2009-03-31",
+  "f_stat": 12.7685,
+  "p_value": 0.0,
+  "flagged": true,
+  "flag_message": "Structural break detected \u2014 interpret cross-period results with caution.",
+  "rolling_corr_sign_stability": 0.6667,
+  "rolling_corr_stability_verdict": "moderately_stable",
+  "cp2_note": "CP2 skipped \u2014 regime_story not set in signal_scope.json"
+}

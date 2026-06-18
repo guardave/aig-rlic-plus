@@ -1,0 +1,39 @@
+{
+  "pair_id": "ism_services_spy",
+  "artifact": "strategy_returns_20260618.csv",
+  "produced_by": "scripts/pair_pipeline_ism_services_spy.py",
+  "rule": "ECON-SR1",
+  "source": "pipeline_native_derivation (same code path as tournament evaluation \u2014 not a re-derivation)",
+  "returns_file": "/workspaces/aig-rlic-plus/data/ism_services_spy_monthly_latest.parquet",
+  "coverage_start": "1997-08-31",
+  "coverage_end": "2025-10-31",
+  "frequency": "monthly",
+  "oos_start": "2018-10-31",
+  "oos_end": "2025-10-31",
+  "position_semantics": "position on row t is the return-accrual weight for month t; the signal is lagged 3 month(s) (execution/publication lag already applied); strategy_return = position * bh_return row-wise",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.53772,
+      "reported_winner_summary": 1.5377,
+      "diff": 2e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.037608,
+      "reported_winner_summary": -0.0376,
+      "diff": -8e-06,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.098403,
+      "reported_winner_summary": 0.0984,
+      "diff": 3e-06,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-18T10:46:37Z",
+  "generated_by": "Econ Evan (feat_ism_services_spy)"
+}

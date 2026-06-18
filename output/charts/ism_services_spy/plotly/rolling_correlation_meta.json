@@ -1,0 +1,22 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "ism_services_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.2",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "24-month rolling correlation between ISM Services PMI YoY growth and SPY monthly returns, 1995\u20132026. The sign agrees with its full-sample value only 67% of the time (sign-unstable) \u2014 the relationship is not stable enough to lean on. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Stability verdict quoted from structural_break JSON, not hard-coded.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/ism_services_spy/rolling_correlation_ism_services_spy.csv",
+    "results/ism_services_spy/structural_break_ism_services_spy.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-18T10:57:25.548685+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
+}

@@ -1,0 +1,8 @@
+{
+  "chart_name": "rolling_sharpe_cp",
+  "pair_id": "ism_services_spy",
+  "skipped_by": "VIZ-CP1-G",
+  "reason": "ECON-CP2 artifacts intentionally absent for this pair: regime_story=false in results/ism_services_spy/signal_scope.json. No rolling Sharpe / rolling Granger upstream result file exists to chart.",
+  "generated_at": "2026-06-18T10:57:37.173228+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
+}

@@ -1,0 +1,27 @@
+{
+  "chart_name": "hmm_regime_probs",
+  "pair_id": "ism_services_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Probability that ISM Services PMI is in its low-PMI stress regime (2-state HMM). The stress state has mean PMI 51.5 and covers 32.1% of months. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Labels follow hmm_summary.csv semantics: stress is the lower-PMI regime, not proof of an equity-leading state.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/ism_services_spy/core_models_20260618/hmm_states.parquet",
+    "results/ism_services_spy/core_models_20260618/hmm_summary.csv"
+  ],
+  "reconciliation": {
+    "gfc_prob_stress_mean": {
+      "computed": 1.0,
+      "manifest_expected": 1.0,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-18T10:57:20.250023+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
+}

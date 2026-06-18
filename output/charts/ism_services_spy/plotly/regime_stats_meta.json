@@ -1,0 +1,20 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "ism_services_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-QR1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "SPY performance by concurrent ISM Services PMI level quartile: Sharpe (left) and annualized return (right). Q1 (lowest PMI) is weakest (Sharpe 0.21, max drawdown -60.2%); Q3/Q4 are stronger (Sharpe 1.00/0.86). This supports the natural procyclical prior, not a stable leading signal.",
+  "narrative_alignment_note": "VIZ-QR1 dual-panel from regime_quartile_returns.csv; values re-read from CSV at generation time; best/worst quartile in auto takeaway.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/ism_services_spy/regime_quartile_returns.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-18T10:57:06.939168+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
+}

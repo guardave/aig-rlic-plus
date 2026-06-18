@@ -79,4 +79,12 @@ petrol_inv_yoy_zscore_60m,Petroleum Stocks YoY 5Y Z-Score,none,Petroleum Stocks 
 petrol_inv_accel_pct,Petroleum Stocks Acceleration (pp),pct,Petroleum Stocks Acceleration (pp)
 report_week_end,WTTSTUS1 Report Week End,date,WTTSTUS1 Report Week End
 release_date,WTTSTUS1 Release Date,date,WTTSTUS1 Release Date
-days_since_release,Days Since Petroleum Release,count,Days Since Petroleum Release
+days_since_release,Days Since Release,count,Days Since Release
+ism_services_pmi,ISM Services PMI,index,PMI
+ism_services_gap_50,ISM Services PMI Gap to 50,index,PMI - 50
+ism_services_delta,ISM Services PMI Monthly Change,index,PMI Change
+ism_services_3m_change,ISM Services PMI 3M Change,index,3M Change
+ism_services_6m_change,ISM Services PMI 6M Change,index,6M Change
+ism_services_zscore_60m,ISM Services PMI 60M Z-Score,none,Z-score (60M)
+ism_services_above_50,ISM Services PMI Above 50 Flag,none,Above 50 (0/1)
+reference_month_end,ISM Services Reference Month End,date,ISM Services Reference Month End

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-04-19T00:00:00Z",
+  "generated_at": "2026-06-18T10:36:55Z",
   "columns": [
     {
       "column_name": "date",
@@ -307,6 +307,54 @@
       "display_name": "SPY 252-Day Forward Return",
       "unit": "decimal_return",
       "axis_label": "252d Fwd Return"
+    },
+    {
+      "column_name": "ism_services_pmi",
+      "display_name": "ISM Services PMI",
+      "unit": "index",
+      "axis_label": "PMI"
+    },
+    {
+      "column_name": "ism_services_gap_50",
+      "display_name": "ISM Services PMI Gap to 50",
+      "unit": "index",
+      "axis_label": "PMI - 50"
+    },
+    {
+      "column_name": "ism_services_delta",
+      "display_name": "ISM Services PMI Monthly Change",
+      "unit": "index",
+      "axis_label": "PMI Change"
+    },
+    {
+      "column_name": "ism_services_3m_change",
+      "display_name": "ISM Services PMI 3M Change",
+      "unit": "index",
+      "axis_label": "3M Change"
+    },
+    {
+      "column_name": "ism_services_6m_change",
+      "display_name": "ISM Services PMI 6M Change",
+      "unit": "index",
+      "axis_label": "6M Change"
+    },
+    {
+      "column_name": "ism_services_zscore_60m",
+      "display_name": "ISM Services PMI 60M Z-Score",
+      "unit": "none",
+      "axis_label": "Z-score (60M)"
+    },
+    {
+      "column_name": "ism_services_above_50",
+      "display_name": "ISM Services PMI Above 50 Flag",
+      "unit": "none",
+      "axis_label": "Above 50 (0/1)"
+    },
+    {
+      "column_name": "reference_month_end",
+      "display_name": "ISM Services Reference Month End",
+      "unit": "date",
+      "axis_label": "ISM Services Reference Month End"
     }
   ]
 }

@@ -307,6 +307,30 @@
       "example": "In March–May 2020, mass revolver drawdowns pushed C&I loan growth above +30% year-over-year while SPY fell ~34% peak-to-trough.",
       "when_it_fails": "Not every loan spike is distress — late-cycle expansions also produce strong genuine borrowing, so the level alone cannot distinguish confidence from panic."
     },
+    "Diffusion index": {
+      "plain_english": "A survey score that measures how widespread expansion is across respondents. For ISM PMI surveys, 50 is the neutral line: above 50 means expansion is more common than contraction.",
+      "why_it_matters": "A diffusion index is about breadth, not dollars of output. That makes it useful for cycle timing, but it can lag markets that price changing conditions before survey respondents report them.",
+      "example": "An ISM Services PMI reading of 54 means more services firms reported expansion than contraction; a reading of 45 means contraction was more common.",
+      "when_it_fails": "The index can rebound sharply after a shock without proving that equities were predictable beforehand; it may simply confirm what markets already priced."
+    },
+    "Out-of-sample": {
+      "plain_english": "A test window that was not used to fit the initial model. It is often abbreviated OOS.",
+      "why_it_matters": "Out-of-sample testing is more honest than in-sample fitting, but a tournament can still search over the OOS window while choosing a winner. A separate holdout is stronger evidence.",
+      "example": "For ism_services_spy, OOS runs from 2018-10-31 to 2025-10-31 and contains 85 monthly observations.",
+      "when_it_fails": "If the OOS window is used to select the best rule from thousands of candidates, the best-looking result can still be a search artifact."
+    },
+    "Maximum drawdown": {
+      "plain_english": "The worst peak-to-trough loss during a period. It answers: how far did the portfolio fall before recovering?",
+      "why_it_matters": "A strategy can have a lower return but still be useful if it sharply reduces the worst drawdown investors had to tolerate.",
+      "example": "In ism_services_spy, the winner's OOS maximum drawdown was about -3.8%, versus about -23.9% for buy-and-hold SPY.",
+      "when_it_fails": "Maximum drawdown is one path-dependent episode statistic. A strategy can have a small historical drawdown because it avoided one past episode by luck."
+    },
+    "Structural break": {
+      "plain_english": "A point where the statistical relationship changes enough that one stable model may no longer describe the whole sample.",
+      "why_it_matters": "Structural breaks warn readers not to treat a backtest as one timeless law. The same indicator may behave differently before and after the break.",
+      "example": "The ism_services_spy structural-break test flags March 2009, near the end of the Global Financial Crisis.",
+      "when_it_fails": "A break test can identify an unstable window without explaining the economic cause; it is a warning label, not a full diagnosis."
+    },
     "Specification curve": {
       "plain_english": "The full distribution of results across EVERY reasonable way an analysis could have been run — not just the version that looked best.",
       "why_it_matters": "A headline strategy is, by construction, the maximum of a large search. Reporting where it sits in the whole distribution (best of N, versus the median) is what separates honest search from cherry-picking.",
