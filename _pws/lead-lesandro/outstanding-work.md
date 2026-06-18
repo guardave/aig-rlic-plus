@@ -2,9 +2,10 @@
 
 ## Current open items (as of 2026-06-18, post pair #22 ism_services_spy)
 
-**User-decision pending:**
-- **Branch `feat_ism_services_spy`** — fully merged to main (`4e6f329`). Awaiting delete consent (LEAD-BD1).
-- **dawodev preview app** — currently tracks `feat_ism_services_spy`. Repoint to `main` or hold for the next pair (user-side Streamlit Cloud action).
+**User-side action pending:**
+- **dawodev preview app** — still tracks the now-DELETED `feat_ism_services_spy` branch, so it will error until repointed (to `main`, or hold for the next pair). User-side Streamlit Cloud action.
+
+**Done since:** branch `feat_ism_services_spy` deleted local + remote (merged at `13839e4`). Codex dispatch skill installed + committed (`0548b80`); dispatch policy + tmux relaxation captured to memory.
 
 **Housekeeping (no user input needed):**
 - tmux `ism` session idle (panes returned to prompt) — can be killed.

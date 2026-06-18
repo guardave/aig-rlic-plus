@@ -1766,3 +1766,21 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Outstanding (user-decision):** branch `feat_ism_services_spy` fully merged — awaiting delete consent (LEAD-BD1). dawodev still tracks the branch (user to repoint to main or hold for next pair). tmux `ism` session idle (can kill). Tooling debt: cloud_verify nested-tab screenshot timeouts (non-blocking, recurring).
 
 🤖 Agent: Lead Lesandro
+
+---
+
+### 2026-06-18 (cont.) — Lead Lesandro — Codex dispatch skill installed (infra)
+
+**Status:** COMPLETED + pushed (`0548b80`). Not a pair — tooling/infra.
+
+**Accomplished:** Inspected the user-supplied Codex-worker cookbook for readiness + SOP conflicts, then installed an ADAPTED, **project-scoped** skill at `.claude/skills/codex/` (SKILL.md + reference/monitor-script.sh).
+
+**Key discoveries / decisions:**
+- Verbatim install would have failed: missing monitor script (user supplied) + bare codex calls with no `--dangerously-bypass-approvals-and-sandbox` (dead-pane on bwrap in our nested devcontainer; `trust_level="trusted"` does NOT fix the sandbox).
+- Installed project-scoped, NOT `~/.claude` — global would leak Mode 1-5 / AGENTS.md / _pws context into projects that lack it (user caught this).
+- Kept our line-anchored markers as PRIMARY completion signal; skill's idle-monitor demoted to backstop. monitor-script.sh parameterized (env-overridable thresholds) for long stages.
+- **Dispatch policy set (memory):** confirm mode → auto-execute the wave; never start unprompted; `/codex` optional. **tmux-first mandate RELAXED** → follow the skill mode-picker (one-shot vs session) by judgment.
+
+**Outstanding (user-side):** dawodev preview still tracks deleted `feat_ism_services_spy` — repoint to main or hold. temp/ skill originals gitignored (leave/delete at will).
+
+🤖 Agent: Lead Lesandro

@@ -1,5 +1,17 @@
 # Release Notes
 
+## 2026-06-18 — Tooling: project-scoped Codex dispatch skill (`.claude/skills/codex/`)
+
+**Committed `0548b80`.** Installed an adapted, version-controlled Codex worker-dispatch skill so Mode-3/4/5 maker waves run from a single documented recipe.
+
+**What it is:** `.claude/skills/codex/SKILL.md` + `reference/monitor-script.sh`, invocable as `/codex` or auto-surfaced to Claude. Encodes the tmux/`codex exec` dispatch recipe, completion detection, and the project's checker discipline.
+
+**Adapted from the supplied cookbook (key reconciliations):** (1) every `codex`/`codex exec` call carries `--dangerously-bypass-approvals-and-sandbox` — bare calls dead-pane on `bwrap` in the nested devcontainer (`trust_level="trusted"` relaxes approvals only, not the sandbox). (2) Line-anchored sentinel markers (`^ROLE DONE`) are the **primary** completion signal; the idle-watching `monitor-script.sh` is a backstop only ("idle" ≠ "succeeded"). (3) Gate the next maker on **pane-return-to-bash-prompt**, not just the marker (it can print while Codex is still committing). (4) Logs under `temp/`/`_pws/`, briefs resolve persona via `./AGENTS.md`, Lead stays sole checker. `monitor-script.sh` keeps the user's logic, parameterized (`IDLE_TICKS`/`MAX_TICKS`/`TICK_SECS`) so long tournament/chart stages don't trip the default 10-min cap.
+
+**Scope decision:** installed **project-scoped**, not in `~/.claude` — global scope would leak project-specific context (Mode 1-5, `./AGENTS.md`, `_pws/` paths, the sandbox fact) into unrelated projects.
+
+**Dispatch policy (recorded to memory):** *confirm mode, then auto-execute* — the user picks the work mode (or says "delegate to Codex"); Claude then runs the whole wave through the skill autonomously (no `/codex` needed) and never starts a wave unprompted. The earlier blanket *tmux-first* mandate is **relaxed** — follow the skill's mode-picker by judgment (one-shot `codex exec` for a single self-contained prompt; tmux session for multi-turn/persistent work), without cramming multi-turn work into a one-shot to dodge tmux.
+
 ## 2026-06-18 — New pair: ISM Services PMI → SPY (`ism_services_spy`, Codex Mode-3, tmux dispatch)
 
 **Merged to `main` (`4e6f329`); production verified 5 PASS / 0 FAIL / 6 (GATE-27 + GATE-DP1 0).** Pair #22. Branch `feat_ism_services_spy` (merged; awaiting delete consent).

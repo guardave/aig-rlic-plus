@@ -1215,3 +1215,23 @@ Branched off `main` after `gold_copper_xli` triage to address the Step C Dashboa
 **Verification:** META-CMP gates PASS ×2 commits; local DOM 4/4; cloud DOM on **dawodev** 5/0/6 (GATE-27/DP1 0); merged; **production re-swept 5/0/6 clean** (Streamlit Cloud synced immediately, no reboot needed this time).
 
 **Lesson reinforced:** gate dispatch on **pane-return-to-bash-prompt**, not just the marker line. Keyed Evan while Dana's Codex was still committing post-DONE → command buffered behind the running process (resolved itself when Dana exited, but the marker fired before the prompt returned).
+
+---
+
+## 2026-06-18 (cont.) — Codex dispatch skill installed + dispatch policy set
+
+**Context:** user supplied `temp/Codex Skill.md` (a generic Codex-worker cookbook) and asked to inspect readiness + SOP conflicts before installing.
+
+**Inspection verdict (not ready verbatim):**
+- 2 hard blockers: (a) the mandated `monitor-script.sh` companion was missing everywhere (the .md is only the cookbook half) — user then supplied it; (b) no `~/.claude/skills/` dir existed.
+- 🔴 Biggest SOP conflict: recipes used bare `codex`/`codex exec` with NO `--dangerously-bypass-approvals-and-sandbox` — would dead-pane on bwrap in our nested devcontainer. `~/.codex/config.toml` only has `trust_level="trusted"` (relaxes approvals, NOT sandbox).
+- 🟡 Completion detection: skill mandated idle-watching (monitor); our SOP uses line-anchored markers (stricter — "idle" ≠ "succeeded"). Kept markers PRIMARY, monitor as backstop.
+- 🟢 Compatible/additive: file-brief (Recipe C), tmux session model, + a genuinely new capability (interactive REPL for persistent multi-turn context vs our one-shot `codex exec` panes).
+
+**Install:** adapted, **project-scoped** at `.claude/skills/codex/` (SKILL.md + reference/monitor-script.sh). NOT `~/.claude` — user correctly flagged that global scope would leak project-specific context (Mode 1-5, ./AGENTS.md, _pws/ paths) into projects that have none. Folded in: bypass flag on every call (8×), markers-primary + pane-return-to-prompt gating, temp//_pws/ paths, AGENTS.md persona line, LEAD-DL1 checker framing, quota-fallback note. monitor-script.sh = user's exact logic, parameterized (IDLE_TICKS/MAX_TICKS/TICK_SECS env-overridable) so long tournament/chart stages don't trip the 10-min cap. Committed `0548b80`.
+
+**Two policy decisions captured to memory:**
+1. `feedback_codex_dispatch_policy` — **confirm mode, then auto-execute.** User picks the work mode (or says "delegate to Codex"); I then run the whole wave via the skill autonomously, no `/codex` needed, never start a wave unprompted. Rationale: whether/which-mode = user's (quota/commits/external workers); the how = mechanics I don't need to ask about.
+2. `reference_codex_tmux_dispatch` updated — **tmux-first mandate RELAXED.** Follow the skill's mode-picker by judgment: one-shot `codex exec` for a single self-contained prompt, session/tmux for multi-turn/persistent. Original anti-laziness intent preserved (don't cram multi-turn work into a one-shot to dodge tmux).
+
+**Branch cleanup:** `feat_ism_services_spy` (pair #22, merged at `13839e4`) deleted local + remote. dawodev preview still tracks the deleted branch — user-side repoint pending.
