@@ -1,0 +1,66 @@
+{
+  "pair_id": "ism_services_spy",
+  "schema_version": "1.1.0",
+  "indicator": "ism_services",
+  "target": "spy",
+  "indicator_nature": "leading",
+  "indicator_type": "sentiment",
+  "strategy_objective": "max_sharpe",
+  "expected_direction": "procyclical",
+  "data_provenance": {
+    "source": "Project Data Master.xlsx sheet ISM PMI, column CDis, CSta - ISM Services PMI; FRED intentionally not used because ISM PMI series are no longer on FRED",
+    "series_id": "CDis, CSta - ISM Services PMI",
+    "accessed_at": "2026-06-18T10:36:55Z"
+  },
+  "known_stress_episodes": [
+    {
+      "label": "GFC services contraction",
+      "start": "2008-11-01",
+      "end": "2009-06-30",
+      "note": "ISM Services PMI fell below 40 in November 2008."
+    },
+    {
+      "label": "COVID services shock",
+      "start": "2020-03-01",
+      "end": "2020-06-30",
+      "note": "Services activity contracted sharply during the initial pandemic shock."
+    }
+  ],
+  "related_pair_ids": [
+    "ism_services_xlp",
+    "ism_services_xle",
+    "ism_services_xli",
+    "ism_services_xly",
+    "ism_services_xlk",
+    "ism_services_xlf",
+    "ism_services_price_xli"
+  ],
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "indicator_nature",
+      "indicator_type",
+      "data_provenance",
+      "known_stress_episodes",
+      "related_pair_ids"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats",
+      "narrative_summary"
+    ]
+  },
+  "last_updated_by": "dana",
+  "last_updated_at": "2026-06-18T10:36:55Z"
+}

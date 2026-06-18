@@ -1,0 +1,177 @@
+{
+  "pair_id": "ism_services_spy",
+  "parquet_path": "data/ism_services_spy_daily_19970805_20251105.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-18T10:36:55Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Daily date index; spans 1997-08-05 through 2025-11-05."
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "neutral",
+      "description": "SPY adjusted close from Yahoo Finance.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "reference_month_end": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "ISM Services Reference Month End",
+      "direction": "neutral",
+      "description": "Reference-period month end for the carried ISM Services PMI observation.",
+      "source_reference": "Data Master.xlsx:ISM PMI!B / ISM",
+      "refresh_ttl_days": 30
+    },
+    "release_date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "ISM Services Release Date",
+      "direction": "neutral",
+      "description": "Assumed market availability date: third business day of the following month for the prior-month reference period.",
+      "source_reference": "Data Master.xlsx:ISM PMI!B / ISM",
+      "refresh_ttl_days": 30
+    },
+    "ism_services_pmi": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "ISM Services PMI",
+      "direction": "higher_is_better",
+      "description": "ISM Services headline PMI diffusion index. Values above 50 indicate services-sector expansion; values below 50 indicate contraction.",
+      "source_reference": "Data Master.xlsx:ISM PMI!B / ISM",
+      "refresh_ttl_days": 30
+    },
+    "days_since_release": {
+      "dtype": "float64",
+      "unit": "count",
+      "display_name": "Days Since Release",
+      "direction": "neutral",
+      "description": "Calendar days since the most recent ISM Services PMI release available to the market.",
+      "source_reference": "Data Master.xlsx:ISM PMI!B / ISM",
+      "refresh_ttl_days": 30
+    },
+    "ism_services_gap_50": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "ISM Services PMI Gap to 50",
+      "direction": "higher_is_better",
+      "description": "ISM Services PMI minus the 50 expansion/contraction threshold.",
+      "source_reference": "Data Master.xlsx:ISM PMI!B / ISM",
+      "refresh_ttl_days": 30
+    },
+    "ism_services_delta": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "ISM Services PMI Monthly Change",
+      "direction": "higher_is_better",
+      "description": "One-month change in the ISM Services PMI level, in index points.",
+      "source_reference": "Data Master.xlsx:ISM PMI!B / ISM",
+      "refresh_ttl_days": 30
+    },
+    "ism_services_3m_change": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "ISM Services PMI 3M Change",
+      "direction": "higher_is_better",
+      "description": "Three-month change in the ISM Services PMI level, in index points.",
+      "source_reference": "Data Master.xlsx:ISM PMI!B / ISM",
+      "refresh_ttl_days": 30
+    },
+    "ism_services_6m_change": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "ISM Services PMI 6M Change",
+      "direction": "higher_is_better",
+      "description": "Six-month change in the ISM Services PMI level, in index points.",
+      "source_reference": "Data Master.xlsx:ISM PMI!B / ISM",
+      "refresh_ttl_days": 30
+    },
+    "ism_services_zscore_60m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "ISM Services PMI 60M Z-Score",
+      "direction": "higher_is_better",
+      "description": "Rolling 60-month z-score of the ISM Services PMI level, minimum 36 observations.",
+      "source_reference": "Data Master.xlsx:ISM PMI!B / ISM",
+      "refresh_ttl_days": 30
+    },
+    "ism_services_above_50": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "ISM Services PMI Above 50 Flag",
+      "direction": "higher_is_better",
+      "description": "1.0 when ISM Services PMI is above 50, else 0.0.",
+      "source_reference": "Data Master.xlsx:ISM PMI!B / ISM",
+      "refresh_ttl_days": 30
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Daily Return (decimal)",
+      "direction": "neutral",
+      "description": "Simple SPY return over the daily panel frequency.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_1d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 1D Forward Return",
+      "direction": "neutral",
+      "description": "Forward 1-trading-day SPY return, decimal.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_5d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 5D Forward Return",
+      "direction": "neutral",
+      "description": "Forward 5-trading-day SPY return, decimal.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_21d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 21D Forward Return",
+      "direction": "neutral",
+      "description": "Forward 21-trading-day SPY return, decimal.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_63d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 63D Forward Return",
+      "direction": "neutral",
+      "description": "Forward 63-trading-day SPY return, decimal.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_126d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 126D Forward Return",
+      "direction": "neutral",
+      "description": "Forward 126-trading-day SPY return, decimal.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_252d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 252D Forward Return",
+      "direction": "neutral",
+      "description": "Forward 252-trading-day SPY return, decimal.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    }
+  }
+}
