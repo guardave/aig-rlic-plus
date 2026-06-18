@@ -1,6 +1,16 @@
 # Release Notes
 
-## 2026-06-17 — New pair: Petroleum Inventory → SPY (`petrol_inv_spy`, Codex Mode-3, tmux dispatch)
+## 2026-06-18 — New pair: ISM Services PMI → SPY (`ism_services_spy`, Codex Mode-3, tmux dispatch)
+
+**Merged to `main` (`4e6f329`); production verified 5 PASS / 0 FAIL / 6 (GATE-27 + GATE-DP1 0).** Pair #22. Branch `feat_ism_services_spy` (merged; awaiting delete consent).
+
+**What it is:** ISM Services PMI (monthly survey diffusion index) vs SPY. The relevant ISM series is **not on the public FRED API** (ISM forced its PMI series off FRED ~2023 over licensing) — sourced from `data/Data Master.xlsx` sheet `ISM PMI`, column `CDis, CSta - ISM Services PMI` (1997-07→2025-10, ~340 obs). Headline-only scope; the price sub-index is reserved for the separate `ism_services_price_xli` pair. Full method battery (Toda-Yamamoto Granger both directions, pre-whitened CCF, local projections, quantile regression, transfer entropy, HMM, quartile, structural break) + 3,385-of-4,880-valid tournament + 22 charts + 4 portal pages (prefix 19).
+
+**Verdict (honest framing — the lowest-confidence winner in the series):** ISM Services PMI does **NOT lead** SPY. Toda-Yamamoto Granger runs in **reverse** — SPY predicts the survey at lags 1–12; survey→SPY significant at none. Local projections and transfer entropy are also reverse-heavy. The survey behaves as a coincident/lagging reflection of conditions equities already price. The tournament winner is **countercyclical** (`ism_services_gap_50` rolling-z < −1.0, L3, LB120, Long/Cash — "buy weak services sentiment"): search-phase OOS Sharpe 1.54 vs 0.88 B&H, max DD −3.8% vs −23.9%, but gives up return (9.8% vs 15.1%). **Red flag:** in-sample Sharpe is negative (−0.11) while OOS is 1.54 → episode-concentrated (COVID), not a stable effect. Quartile sort is non-monotonic (does not cleanly support the contrarian rule). Shipped `found_in_search` / confidence=low (bootstrap p=0.073; structural break 2009-03). Portal headline: **"contrarian drawdown overlay, not a leading SPY signal."**
+
+**Process discoveries / lessons:** (1) **Codex usage-quota blocker** hit at the Ace (portal) stage after the first three maker stages completed and committed; user authorized Lead to assemble the portal directly **for that one stage** (Mode-3 deviation, recorded in commit `6fdc49f`). The config drives all prose from Ray's narrative, not by copying the prior pair's template. (2) **Completeness-gate fix:** the landing-page integrity banner flagged `display_indicator_unregistered` — a new `pair_id` missing from `INDICATOR_NAMES` falls back to the raw column name on the home tile. Registering a friendly label clears it (`13839e4`); skip `INDICATOR_ABBREV` when the label already embeds the abbreviation. (3) **Honest-divergence handling:** where the descriptive quartile evidence and the tournament winner disagree (procyclical quartiles vs countercyclical winner) and where a strong OOS sits atop a negative in-sample, the portal leads with the contradiction and labels fragility rather than smoothing it — the inverse of petrol's clean-gradient corroboration. (4) **Dispatch gate:** wait for the pane to return to the bash prompt before keying the next maker — the completion marker can print while Codex is still committing post-DONE.
+
+
 
 **Merged to `main` (`3044742`); production verified 5 PASS / 0 FAIL / 6 (GATE-27 + GATE-DP1 0; frozen-sample leak=False).** Pair #21. Branch `pair260617_petrol_inv_spy` merged + deleted.
 

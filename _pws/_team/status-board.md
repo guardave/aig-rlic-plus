@@ -1745,3 +1745,24 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Outstanding:** dawodev still points at deleted branch (user to repoint). tmux `petrol` session idle (can kill). Tooling debt: cloud_verify nested-tab screenshot timeouts (non-blocking). Suspended: `fix260613_lead_horizon`.
 
 🤖 Agent: Lead Lesandro
+
+---
+
+### 2026-06-18 — Lead Lesandro — ism_services_spy SHIPPED (Codex Mode-3 tmux; Lead-assembled portal)
+
+**Status:** COMPLETED + merged to main (`4e6f329`) + production verified. Pair #22.
+
+**Accomplished:** ISM Services PMI → SPY built via Codex Mode-3 tmux (Dana→Evan→Vera+Ray makers; Lead sole checker + portal-assembler). Lowest-confidence winner in the series, shipped with honest framing throughout: "contrarian drawdown overlay, not a leading SPY signal."
+
+**Key discoveries:**
+- **ISM is off FRED** (~2023 licensing) — `fred_search` 0 hits. Source = Data Master.xlsx `ISM PMI` sheet. LEAD-DV1 Phase-0 catch (same class as petrol's WTTSTUS1).
+- **Direction surprise = countercyclical** (buy weak services sentiment), but **reverse causality dominates**: SPY Granger-predicts the survey at all lags 1–12; forward none. Survey is coincident/lagging, NOT leading. Negative in-sample Sharpe (−0.11) vs OOS 1.54 = episode-concentrated (COVID) → flagged as fragility.
+- **Quartile sort non-monotonic** — wired as a caution flag, NOT corroboration (opposite of petrol's clean gradient). Honest divergence handled.
+- **Codex quota blocker** at Ace stage → user authorized Lead to assemble portal for that one stage (recorded in commit `6fdc49f`). Mode-3 deviation, one stage only.
+- Completeness-gate fix: registered "ISM Services PMI" in INDICATOR_NAMES (`13839e4`).
+
+**Verification:** META-CMP gates PASS, local DOM 4/4, cloud DOM dawodev 5/0/6, production re-swept 5/0/6 (GATE-27/DP1 0). Cloud synced immediately, no reboot needed.
+
+**Outstanding (user-decision):** branch `feat_ism_services_spy` fully merged — awaiting delete consent (LEAD-BD1). dawodev still tracks the branch (user to repoint to main or hold for next pair). tmux `ism` session idle (can kill). Tooling debt: cloud_verify nested-tab screenshot timeouts (non-blocking, recurring).
+
+🤖 Agent: Lead Lesandro

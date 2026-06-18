@@ -1185,3 +1185,33 @@ Branched off `main` after `gold_copper_xli` triage to address the Step C Dashboa
 **Verification:** local schema (pre-commit gates) + local DOM (Playwright, my own independent traversal) + cloud DOM via dawodev preview (user repointed) → then merged → production main re-swept. All PASS (5/0/6, GATE-27/DP1 clean, frozen-sample badge intact + leak=False).
 
 **Tooling debt reconfirmed:** cloud_verify + my local DOM checker both time out (30s) clicking hidden/nested sub-tab handles ("element is not visible"). These are screenshot/click false-negatives, NOT content defects (DOM content check still PASS). Candidate fix: skip non-visible tab handles.
+
+---
+
+## 2026-06-18 — Pair #22 ISM Services PMI → SPY (Codex Mode-3 tmux; Lead-assembled portal)
+
+**Work mode:** Mode 3 via tmux session `ism` (Dana→Evan→Vera+Ray as Codex makers; Lead sole checker). Same dispatch recipe as petrol, now in the dispatch memory `reference_codex_tmux_dispatch`.
+
+**Phase-0 (LEAD-DV1):** ISM forced its PMI series **off FRED** (~2023 licensing) — `fred_search` returned 0 hits for ISM Services. Authoritative source = `data/Data Master.xlsx` sheet **`ISM PMI`**, column `CDis, CSta - ISM Services PMI` (monthly, 1997-07→2025-10, ~340 obs). Headline-only scope (price sub-index belongs to the separate `ism_services_price_xli` pair).
+
+**Pipeline & commits:** Dana data `d9d5653` → Evan econ `fa6be34` → Vera+Ray charts+narrative `7e156a0` → **portal `6fdc49f` (Lead-assembled)** → completeness-gate label fix `13839e4` → merge `4e6f329`.
+
+**Direction surprise (verified, not artifact):** winner is **countercyclical** — `ism_services_gap_50` rolling-z < −1.0, L3, LB120, P1 Long/Cash. "Buy weak services sentiment." OOS Sharpe 1.54 vs 0.88 B&H, max DD −3.8% vs −23.9%, but gives up return (9.8% vs 15.1%).
+
+**This is the lowest-confidence winner in the series — and the honesty mandate was the binding constraint:**
+- **Reverse causality dominates:** Toda-Yamamoto Granger — SPY predicts the survey at lags 1–12; survey→SPY significant at NONE. Local projections + transfer entropy both reverse-heavy. ISM Services is coincident/lagging equities, NOT a leading indicator.
+- **IS/OOS inversion red flag:** in-sample Sharpe −0.11 vs OOS 1.54 → episode-concentrated (COVID). Flagged plainly as fragility, not strength.
+- **Quartile sort is non-monotonic** (Q1 weakest-services worst at 0.21 / −60% DD; Q3 best 1.00) — does NOT cleanly support the contrarian winner; wired as a caution flag, not as corroboration (contrast petrol's clean gradient).
+- bootstrap p=0.073 (not sig), structural break 2009-03, found_in_search. Portal headline: "contrarian drawdown overlay, not a leading SPY signal."
+
+**Lead checker findings (genuine):**
+1. Confirmed winner_summary key set is identical to petrol (false alarm on "null" fields — I'd queried wrong key names; real fields are `oos_period_start/end`, bootstrap lives in evidence_status by design).
+2. Ray's narrative executed all four mandate points (reverse-causality lead, IS/OOS red flag, non-monotonic quartile honesty, fragility caveats) — verified by section grep + render.
+
+**Blocker handled:** Codex hit usage quota at the Ace stage ("try again at 3:23 PM", ~4h). User authorized Lead to assemble the portal directly **for that one stage** (Mode-3 deviation, recorded in `6fdc49f` commit body). Built config (driving prose from Ray's narrative, not petrol's), 4 thin page wrappers (prefix 19), registry entry.
+
+**Completeness-gate fix:** landing banner flagged `display_indicator_unregistered` — `ism_services_spy` missing from `INDICATOR_NAMES`. Added "ISM Services PMI" (both `ism_services` + `ism_services_spy` keys); skipped `INDICATOR_ABBREV` (label already embeds "ISM" → no-redundant-bracket convention). `get_integrity_issues()` clean.
+
+**Verification:** META-CMP gates PASS ×2 commits; local DOM 4/4; cloud DOM on **dawodev** 5/0/6 (GATE-27/DP1 0); merged; **production re-swept 5/0/6 clean** (Streamlit Cloud synced immediately, no reboot needed this time).
+
+**Lesson reinforced:** gate dispatch on **pane-return-to-bash-prompt**, not just the marker line. Keyed Evan while Dana's Codex was still committing post-DONE → command buffered behind the running process (resolved itself when Dana exited, but the marker fired before the prompt returned).

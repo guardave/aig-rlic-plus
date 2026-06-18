@@ -1,3 +1,27 @@
+# Lead Lesandro — Outstanding Work
+
+## Current open items (as of 2026-06-18, post pair #22 ism_services_spy)
+
+**User-decision pending:**
+- **Branch `feat_ism_services_spy`** — fully merged to main (`4e6f329`). Awaiting delete consent (LEAD-BD1).
+- **dawodev preview app** — currently tracks `feat_ism_services_spy`. Repoint to `main` or hold for the next pair (user-side Streamlit Cloud action).
+
+**Housekeeping (no user input needed):**
+- tmux `ism` session idle (panes returned to prompt) — can be killed.
+- Untracked scratch: `_pws/lead-lesandro/mode3_ism_services/*pane.log`, `streamlit_local.log`, `app/_smoke_tests/loader_*_20260618.log`. Briefs committed at checkpoint.
+
+**Recurring tooling debt (non-blocking):**
+- `cloud_verify.py` + local DOM checker time out (30s, "element is not visible") clicking hidden/nested sub-tab handles. Screenshot/click false-negatives only — DOM content checks PASS. Candidate fix: skip non-visible tab handles before click.
+
+**Standing / suspended:**
+- `fix260613_lead_horizon` spec-memo (suspended).
+- BL-ECON-SD-PORTAL backlog.
+- Next prospective pair: see `data/prospective_pairs.csv` (priority order).
+
+---
+
+## Archived: fix260601_chart_hygiene plan (superseded)
+
 # Outstanding work — Lead Lesandro
 
 Last updated: 2026-06-12 EOD.
