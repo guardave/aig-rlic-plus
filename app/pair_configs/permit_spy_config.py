@@ -141,7 +141,7 @@ class StoryConfig:
     )
 
     SCOPE_NOTE = (
-        "*Scope discipline (ECON-SD).* Only PERMIT and SPY are in-scope primary "
+        "*Scope discipline.* Only PERMIT and SPY are in-scope primary "
         "signals for this pair. UNRATE, DGS10, DFF, and VIX are retained only as "
         "regression controls in the Methodology section and are not traded."
     )
@@ -779,7 +779,7 @@ _DATA_SOURCES_MD = """
 | **Fed Funds Rate** | FRED | DFF | Daily → Monthly |
 | **Treasury yields** | FRED | DGS10 | Daily → Monthly |
 
-*Scope discipline (ECON-SD).* Only PERMIT and SPY are in-scope primary signals.
+*Scope discipline.* Only PERMIT and SPY are in-scope primary signals.
 """
 
 _INDICATOR_CONSTRUCTION_MD = (

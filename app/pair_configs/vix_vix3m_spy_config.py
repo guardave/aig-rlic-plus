@@ -181,7 +181,7 @@ class StoryConfig:
     )
 
     SCOPE_NOTE = (
-        "*Scope discipline (ECON-SD).* Only the VIX/VIX3M ratio and SPY are "
+        "*Scope discipline.* Only the VIX/VIX3M ratio and SPY are "
         "in-scope primary signals for this pair. The VIX3M series begins "
         "2007-12, which defines the sample start. DFF and USREC are used "
         "only as regression controls, not as trading signals."
@@ -542,7 +542,7 @@ _DATA_SOURCES_MD = """
 | **NBER Recession Dates** | FRED / NBER | USREC | Monthly |
 | **Fed Funds Rate** | FRED | DFF | Daily → Monthly |
 
-*Scope discipline (ECON-SD).* Only the VIX/VIX3M ratio and SPY are in-scope
+*Scope discipline.* Only the VIX/VIX3M ratio and SPY are in-scope
 primary signals. VIX3M series begins 2007-12, defining the sample start.
 """
 

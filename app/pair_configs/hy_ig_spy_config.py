@@ -876,7 +876,7 @@ _DATA_SOURCES_MD = """
 | **Fed Funds Rate** | FRED | DFF | Daily → Monthly |
 | **VIX** | Yahoo Finance | ^VIX | Daily → Monthly |
 
-*Scope discipline (ECON-SD).* Only the HY-IG spread and SPY are in-scope primary signals.
+*Scope discipline.* Only the HY-IG spread and SPY are in-scope primary signals.
 Controls (VIX, DFF, UNRATE) are used only in regression controls, not as trading signals.
 """
 

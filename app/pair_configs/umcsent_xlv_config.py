@@ -148,7 +148,7 @@ class StoryConfig:
     )
 
     SCOPE_NOTE = (
-        "*Scope discipline (ECON-SD).* Only University of Michigan Consumer "
+        "*Scope discipline.* Only University of Michigan Consumer "
         "Sentiment and XLV derivatives are in-scope primary signals. "
         "The unemployment rate, 10-year Treasury yield, and CBOE Volatility "
         "Index (VIX) are used only as regression controls, not as trading "
@@ -635,7 +635,7 @@ _DATA_SOURCES_MD = """
 | **Fed Funds Rate** | FRED | DFF | Daily → Monthly |
 | **Unemployment** | FRED | UNRATE | Monthly |
 
-*Scope discipline (ECON-SD).* Only University of Michigan Consumer Sentiment
+*Scope discipline.* Only University of Michigan Consumer Sentiment
 (UMCSENT) and Health Care Select Sector SPDR Fund (XLV) are in-scope primary
 signals.
 """

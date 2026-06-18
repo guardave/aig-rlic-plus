@@ -623,7 +623,7 @@ _DATA_SOURCES_MD = """
 | **Unemployment** | FRED | UNRATE | Monthly |
 | **Capacity Utilization** | FRED | TCU | Monthly |
 
-*Scope discipline (ECON-SD).* Only INDPRO and XLP are in-scope primary signals.
+*Scope discipline.* Only INDPRO and XLP are in-scope primary signals.
 Controls (VIX, yield spread, UNRATE, CAPUT) are used only in regression
 controls, not as trading signals. Any predictive value observed in the
 controls is logged under Analyst Suggestions below — not added to this

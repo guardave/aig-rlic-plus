@@ -128,7 +128,7 @@ class StoryConfig:
     )
 
     SCOPE_NOTE = (
-        "*Scope discipline (ECON-SD).* Only INDPRO and SPY are in-scope "
+        "*Scope discipline.* Only INDPRO and SPY are in-scope "
         "primary signals. Controls (VIX, yield spread, UNRATE, capacity "
         "utilisation) are used only in regression controls — not as trading "
         "signals."
@@ -657,7 +657,7 @@ _DATA_SOURCES_MD = """
 | **Capacity Utilization** | FRED | TCU | Monthly |
 | **VIX** | Yahoo Finance | ^VIX | Daily → Monthly |
 
-*Scope discipline (ECON-SD).* Only INDPRO and SPY are in-scope primary signals.
+*Scope discipline.* Only INDPRO and SPY are in-scope primary signals.
 Controls (VIX, yield spread, UNRATE, CAPUT) are used only in regression
 controls, not as trading signals.
 """
