@@ -5,7 +5,7 @@ Chart Generation: University of Michigan Consumer Sentiment (UMCSENT) × XLV
 Produces the standard 10-chart Plotly JSON set for the Streamlit portal.
 
 Charts:
-  1. umcsent_xlv_hero           -- UMCSENT YoY vs XLV price (dual-axis)
+  1. hero                       -- UMCSENT YoY vs XLV price (dual-axis)
   2. umcsent_xlv_correlations   -- Pearson correlation heatmap
   3. umcsent_xlv_regime_stats   -- XLV returns by UMCSENT quartile
   4. umcsent_xlv_ccf            -- Cross-correlation function
@@ -165,7 +165,7 @@ def chart_hero():
     )
     fig.update_yaxes(title_text="UMCSENT YoY Change (%)", secondary_y=False)
     fig.update_yaxes(title_text="XLV Price ($)", secondary_y=True)
-    save_chart(fig, f"{PAIR_ID}_hero")
+    save_chart(fig, "hero")
 
 
 # ===================================================================

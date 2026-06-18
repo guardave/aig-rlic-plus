@@ -136,7 +136,7 @@ class StoryConfig:
         "at 2-4 months, with statistically significant UMCSENT-leading "
         "correlations from 1-5 months only. Formal Granger causality does not "
         "confirm UMCSENT as a statistically significant predictor at lags "
-        "1-6; in fact, the reverse direction from XLV to UMCSENT is stronger "
+        "1-5; in fact, the reverse direction from XLV to UMCSENT is stronger "
         "in that test. Treat the lead time as a strategy-selection result, "
         "not as proof that sentiment mechanically leads prices by 6 months.\n\n"
         "The main limits are sample length (XLV starts 1998-12, so the "
@@ -258,7 +258,7 @@ GRANGER_BLOCK = dict(
         "Granger causality asks whether past UMCSENT values improve "
         "forecasts of future XLV returns beyond what XLV's own recent "
         "history already provides. We test both directions (consumer "
-        "sentiment to XLV and XLV to consumer sentiment) at lags 1-6 months "
+        "sentiment to XLV and XLV to consumer sentiment) at lags 1-5 months "
         "using F-tests on augmented vector autoregression regressions with "
         "HC3 robust standard errors."
     ),
@@ -283,9 +283,9 @@ GRANGER_BLOCK = dict(
         "The cross-correlation result is strongest when UMCSENT leads XLV "
         "by 2 months, with significant positive correlations from 1 to 5 "
         "months. However, the formal Granger table is more conservative: "
-        "UMCSENT does not Granger-cause XLV at lags 1-6 because all p-values "
+        "UMCSENT does not Granger-cause XLV at lags 1-5 because all p-values "
         "are above 0.05. The reverse direction is stronger in that formal "
-        "test: XLV Granger-causes UMCSENT at lags 1-6."
+        "test: XLV Granger-causes UMCSENT at lags 1-5."
     ),
     interpretation=(
         "This means the lead-lag story should be stated carefully. "
