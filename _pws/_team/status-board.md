@@ -1784,3 +1784,22 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Outstanding (user-side):** dawodev preview still tracks deleted `feat_ism_services_spy` — repoint to main or hold. temp/ skill originals gitignored (leave/delete at will).
 
 🤖 Agent: Lead Lesandro
+
+---
+
+### 2026-06-18 EOD — Lead Lesandro — Wave A shipped; Wave D paused at a real finding
+
+**Status:** Wave A COMPLETE (on main). Wave D IN FLIGHT (paused by EOD). One production defect surfaced, decision pending.
+
+**Accomplished today (full session):**
+- Pair #22 ism_services_spy shipped + merged (`4e6f329`), branch deleted, production verified.
+- Codex dispatch skill installed project-scoped (`0548b80`); dispatch policy (confirm-mode→auto-execute) + tmux-first relaxation captured to memory.
+- Backlog Wave A: BL-ECON-SD-PORTAL fixed via first Codex one-shot dispatch (`b890718`); BL-CARD-DENOM closed (no-op); BL-PLOTLY-TITLE-WRAP annotated (not source-addressable).
+
+**🔴 KEY DISCOVERY — umcsent_xlv stale narrative (production-affecting):** The Wave-D Tier-3 prose-vs-data lint design caught it. winner_summary.json (regen 2026-06-15) + tournament CSV agree the winner is S3_mom/T3_zscore_1.0/Sharpe 1.16/+7.95%/no-lead; the config narrative is stale (6-mo lead / Sharpe 1.02 / +11.93%). Production shows the wrong strategy. **For Evan/Ray/Ace:** umcsent_xlv needs a narrative+config regeneration to match winner_summary (ground truth confirmed against tournament CSV). Pending user sequencing decision.
+
+**Insights:** (1) Tier-3 prose-vs-data linting works and is worth landing — first run found a real production drift. (2) Lint must focus on OOS Sharpe (numerically quoted everywhere); B&H Sharpe is qualitative in some pairs. (3) Wave-A one-shot Codex dispatch validated the new skill end-to-end.
+
+**Outstanding for next session:** (1) umcsent_xlv fix (top item). (2) Resume Wave D D-1 (lint design validated, fresh branch needed). (3) dawodev repoint (user-side).
+
+🤖 Agent: Lead Lesandro

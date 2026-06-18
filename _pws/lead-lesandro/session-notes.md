@@ -1235,3 +1235,27 @@ Branched off `main` after `gold_copper_xli` triage to address the Step C Dashboa
 2. `reference_codex_tmux_dispatch` updated — **tmux-first mandate RELAXED.** Follow the skill's mode-picker by judgment: one-shot `codex exec` for a single self-contained prompt, session/tmux for multi-turn/persistent. Original anti-laziness intent preserved (don't cram multi-turn work into a one-shot to dodge tmux).
 
 **Branch cleanup:** `feat_ism_services_spy` (pair #22, merged at `13839e4`) deleted local + remote. dawodev preview still tracks the deleted branch — user-side repoint pending.
+
+---
+
+## 2026-06-18 (cont.) — Backlog Wave A shipped; Wave D started (paused at a real finding)
+
+**Wave A — DONE (on main):**
+- BL-ECON-SD-PORTAL: stripped internal `(ECON-SD)` code from 10 spots across 6 active configs via **Codex one-shot dispatch** (first use of the new skill + confirm-mode→auto-execute policy; one-shot, no tmux per relaxed mandate). Committed `b890718` (author Ace). Verified: configs 0 ECON-SD, frozen hy_ig_v2 intact, prose preserved, gates pass.
+- BL-CARD-DENOM: closed as verified no-op — `pair_registry.py:177` already excludes BENCHMARK (busloans 6100/vix 915/petrol 7392). 
+- BL-PLOTLY-TITLE-WRAP: annotated, stays deferred — NOT source-addressable (render-time Streamlit plotly-theme double-wrap; zero `<b><b>` in JSON/components).
+- Backlog grooming committed `f4b27be`.
+
+**Wave D (META-CMP Tier-3 SOP-hardening) — STARTED, then paused by /eod. Branch was created empty and deleted (no code written yet). RESUME next session.**
+
+Phase-0 sizing reframed Wave D as design-heavy, not a quick dispatch:
+- BL-PROSE-DATA-GREP: 670 numeric tokens in configs (needs scoping to load-bearing metrics).
+- BL-APP-NUM1: 179 hand-typed `%` strings (mostly legit narrative — too noisy for blanket lint; DEFER).
+- BL-APP-DR1: only 2 hits (cloud_verify.FOCUS_PAIRS is the real one) — tractable.
+- BL-VIZ-DC1: 0 substring-match hits — likely already fixed; verify-and-close.
+- Gate runner = `scripts/hooks/pre-commit` (Quincy-owned; T1.1/T1.3/T2 always, T1.2 conditional). New lints register here as T-gates.
+
+**VALIDATED LINT DESIGN (for resume — don't re-derive):** prose-vs-data lint scoped to the **OOS Sharpe** (the one metric every config quotes numerically), checking the winner's `oos_sharpe` (2dp, or 1dp) appears in the config text. B&H Sharpe is often stated QUALITATIVELY ("about twice the buy-and-hold ratio" — gold_copper), so do NOT require its literal value (that was the only false positive across 10 pairs). Legacy pairs with `bh_sharpe: null` (indpro_spy, permit_spy, vix_vix3m_spy) skip cleanly. A new pre-commit gate that FAILS on an existing bug can't be wired blocking until the bug is fixed — sequence: fix umcsent → green → wire blocking.
+
+**🔴 REAL FINDING — umcsent_xlv stale narrative (PRODUCTION-AFFECTING, decision pending):**
+The Tier-3 lint design caught it on first run. `results/umcsent_xlv/winner_summary.json` (regenerated 2026-06-15, the umcsent_mom/S3_mom column fix) AND `tournament_results_20260420.csv` AGREE the current winner is **S3_mom / T3_zscore_1.0 / oos_sharpe=1.1586 / +7.95% / DD −0.7% / no lead**. But the umcsent_xlv **config narrative is STALE** — it describes the OLD winner: **6-month lead / OOS Sharpe 1.02 (even "1.0202") / +11.93% / DD −10.87%**. Production umcsent_xlv pages show the wrong strategy + wrong headline numbers. Ground truth = winner_summary (matches tournament CSV row 777). Fix = narrative+config regeneration (Evan confirm spec → Ray rewrite → Ace config), NOT a number strip. I asked the user how to sequence (fix-first / report-only lint / backlog umcsent) — interrupted by /eod before answer. **This is the top resume item.**

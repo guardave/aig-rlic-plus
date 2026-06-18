@@ -1,5 +1,14 @@
 # Release Notes
 
+## 2026-06-18 — Backlog Wave A (jargon + cosmetic) + Wave D discovery
+
+**Wave A shipped to `main`:**
+- **BL-ECON-SD-PORTAL** (`b890718`): stripped the internal `(ECON-SD)` code from user-facing "Scope discipline" prose across 6 active configs (indpro_spy, indpro_xlp, permit_spy, umcsent_xlv, vix_vix3m_spy, hy_ig_spy). Frozen `hy_ig_v2` EXEMPT (kept its text). Executed via the new Codex skill's **one-shot dispatch** (first real use of the confirm-mode→auto-execute policy; no tmux, per the relaxed mandate). 10 one-for-one token strips, gates pass, prose preserved.
+- **BL-CARD-DENOM** closed as verified no-op — `pair_registry.py` already excludes the BENCHMARK row from `total_combos` (busloans 6100, vix 915, petrol 7392).
+- **BL-PLOTLY-TITLE-WRAP** annotated and kept deferred — confirmed not source-addressable (render-time Streamlit plotly-theme double-wrap; zero `<b><b>` in our JSON/components).
+
+**Wave D (META-CMP Tier-3 SOP-hardening) — started, paused at a real finding (not yet landed):** A scoped prose-vs-data lint (BL-PROSE-DATA-GREP, focused on OOS Sharpe) was designed and validated against all 10 pairs. On first run it caught a **production data-integrity defect: `umcsent_xlv`'s portal narrative is stale** — it describes a superseded winner (6-month lead, OOS Sharpe 1.02, +11.93%) while `winner_summary.json` (regenerated 2026-06-15) and `tournament_results_20260420.csv` agree the current winner is `S3_mom / T3_zscore_1.0`, OOS Sharpe **1.16**, +7.95%, no lead. Ground truth = winner_summary. Fix is a narrative+config regeneration (Evan→Ray→Ace), tracked as the top resume item. **Lesson:** Tier-3 prose-vs-data linting earns its keep — its very first run surfaced a live wrong-numbers-on-production bug; and the lint must key on OOS Sharpe (quoted numerically everywhere) since B&H Sharpe is stated qualitatively in some pairs.
+
 ## 2026-06-18 — Tooling: project-scoped Codex dispatch skill (`.claude/skills/codex/`)
 
 **Committed `0548b80`.** Installed an adapted, version-controlled Codex worker-dispatch skill so Mode-3/4/5 maker waves run from a single documented recipe.

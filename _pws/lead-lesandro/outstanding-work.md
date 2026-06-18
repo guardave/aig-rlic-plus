@@ -1,11 +1,19 @@
 # Lead Lesandro — Outstanding Work
 
-## Current open items (as of 2026-06-18, post pair #22 ism_services_spy)
+## Current open items (as of 2026-06-18 EOD)
+
+**🔴 TOP RESUME ITEM — umcsent_xlv stale narrative (PRODUCTION DEFECT, decision pending):**
+- `results/umcsent_xlv/winner_summary.json` (regen 2026-06-15) + `tournament_results_20260420.csv` agree the winner is **S3_mom / T3_zscore_1.0 / oos_sharpe=1.1586 / +7.95% / DD −0.7% / no lead**. The config narrative is STALE — describes the old winner: **6-month lead / Sharpe 1.02 / +11.93% / DD −10.87%**. Production pages show the wrong strategy. Ground truth = winner_summary. Fix = narrative+config regeneration (Evan→Ray→Ace), NOT a number strip. **Surfaced by the Wave-D Tier-3 lint design (its first real catch).** I asked user how to sequence (fix-first / report-only lint / backlog) — interrupted by /eod before answer. **Resume here.**
+
+**Wave D (META-CMP Tier-3 SOP-hardening) — IN FLIGHT, paused:**
+- Scope chosen: focused D-1 = scoped BL-PROSE-DATA-GREP + BL-APP-DR1 + verify/close BL-VIZ-DC1. Mode: Mode-1 Lead direct. Needs a fresh branch (`fix260618_meta_cmp_tier3` was created empty + deleted at EOD — nothing written yet).
+- **Validated lint design (don't re-derive):** prose-vs-data lint scoped to OOS Sharpe only (every config quotes it numerically); check winner `oos_sharpe` (2dp or 1dp) appears in config text. B&H Sharpe stated qualitatively in some pairs (gold_copper "about twice the buy-and-hold ratio") → do NOT require its literal value. Legacy `bh_sharpe: null` pairs skip. New gate can't go blocking until umcsent is fixed (else blocks all commits).
+- DEFER to D-2: BL-APP-NUM1 (179-hit noisy surface), BL-VIZ-LO1, BL-CHART-CONTRACT (Vera-owned chart introspection).
 
 **User-side action pending:**
-- **dawodev preview app** — still tracks the now-DELETED `feat_ism_services_spy` branch, so it will error until repointed (to `main`, or hold for the next pair). User-side Streamlit Cloud action.
+- **dawodev preview app** — still tracks the now-DELETED `feat_ism_services_spy` branch; errors until repointed (to `main`, or hold for next pair). User-side Streamlit Cloud action.
 
-**Done since:** branch `feat_ism_services_spy` deleted local + remote (merged at `13839e4`). Codex dispatch skill installed + committed (`0548b80`); dispatch policy + tmux relaxation captured to memory.
+**Done this session:** pair #22 ism_services_spy shipped+merged (`4e6f329`); branch deleted. Codex dispatch skill installed (`0548b80`); dispatch policy + tmux relaxation to memory. Backlog Wave A shipped (BL-ECON-SD-PORTAL `b890718`; BL-CARD-DENOM closed; BL-PLOTLY-TITLE-WRAP annotated).
 
 **Housekeeping (no user input needed):**
 - tmux `ism` session idle (panes returned to prompt) — can be killed.
