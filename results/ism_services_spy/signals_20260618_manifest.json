@@ -1,0 +1,41 @@
+{
+  "file": "signals_20260618.parquet",
+  "pair_id": "ism_services_spy",
+  "produced_by": "scripts/pair_pipeline_ism_services_spy.py",
+  "generated_at": "2026-06-18T10:46:37Z",
+  "columns": {
+    "ism_services_pmi": "tournament-eligible signal derived solely from ISM Services (ism_services_pmi)",
+    "ism_services_gap_50": "tournament-eligible signal derived solely from ISM Services (ism_services_gap_50)",
+    "ism_services_delta": "tournament-eligible signal derived solely from ISM Services (ism_services_delta)",
+    "ism_services_3m_change": "tournament-eligible signal derived solely from ISM Services (ism_services_3m_change)",
+    "ism_services_6m_change": "tournament-eligible signal derived solely from ISM Services (ism_services_6m_change)",
+    "ism_services_zscore_60m": "tournament-eligible signal derived solely from ISM Services (ism_services_zscore_60m)",
+    "ism_services_above_50": "tournament-eligible signal derived solely from ISM Services (ism_services_above_50)",
+    "hmm_2state_prob_stress": "tournament-eligible signal derived solely from ISM Services (hmm_2state_prob_stress)",
+    "markov_regime_2state": "tournament-eligible signal derived solely from ISM Services (markov_regime_2state)"
+  },
+  "assertions": [
+    {
+      "description": "PMI bounded diffusion index",
+      "column": "ism_services_pmi",
+      "check": "values between 30 and 75"
+    },
+    {
+      "description": "GFC services contraction",
+      "filter": "2008-11..2009-06",
+      "column": "ism_services_pmi",
+      "check": "min < 45"
+    },
+    {
+      "description": "COVID services contraction",
+      "filter": "2020-04..2020-06",
+      "column": "ism_services_pmi",
+      "check": "min < 45"
+    },
+    {
+      "description": "HMM prob bounded",
+      "column": "hmm_2state_prob_stress",
+      "check": "values in [0,1]"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "pair_id": "ism_services_spy",
+  "winner_label": "gap_50 / T3_zscore_neg_1.0 / P1_long_cash (pro) / L3 / LB120",
+  "winner_oos_sharpe": 1.5377,
+  "winner_max_drawdown": -0.0376,
+  "winner_oos_ann_return": 0.0984,
+  "bh_oos_sharpe": 0.8796,
+  "bh_max_drawdown": -0.2393,
+  "bh_oos_ann_return": 0.1512,
+  "delta_sharpe": 0.6581,
+  "delta_max_drawdown": 0.2017,
+  "delta_ann_return": -0.0528,
+  "beats_benchmark": true,
+  "suggested_strategy_objective": "min_mdd",
+  "generated_at": "2026-06-18T10:46:37Z"
+}

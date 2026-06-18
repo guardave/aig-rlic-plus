@@ -1,0 +1,49 @@
+{
+  "file": "tournament_results_20260618.csv",
+  "pair_id": "ism_services_spy",
+  "grid": {
+    "signals": [
+      "level",
+      "gap_50",
+      "delta",
+      "change_3m",
+      "change_6m",
+      "level_zscore_60m",
+      "above_50",
+      "hmm_stress",
+      "markov_regime"
+    ],
+    "thresholds": "T1_fixed_p{25,50,75}, T2_roll_p{25,75}, T3_zscore_{\u00b11.0,\u00b11.5}, T4_zero (gap/change signals)",
+    "strategies": [
+      "P1_long_cash_{pro,counter}",
+      "P2_signal_strength_{pro,counter}",
+      "P3_long_short_{pro,counter}"
+    ],
+    "leads_months": [
+      1,
+      2,
+      3,
+      6,
+      12
+    ],
+    "lookbacks": [
+      "LB36",
+      "LB60",
+      "LB120",
+      "LB_NA"
+    ]
+  },
+  "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
+  "total_strategy_rows": 4880,
+  "valid_strategy_rows": 3385,
+  "sampling": "exhaustive (no stratified sampling; grid within budget)",
+  "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
+  "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 (L1 real-time floor per Dana lag doc)",
+  "cost_note": "returns are gross of costs; 5bps sensitivity in tournament_validation",
+  "assertions": [
+    "top strategy oos_sharpe > bottom strategy oos_sharpe",
+    "all oos_sharpe finite",
+    "exactly one BENCHMARK row, valid=False"
+  ],
+  "generated_at": "2026-06-18T10:46:37Z"
+}

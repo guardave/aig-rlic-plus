@@ -61,6 +61,10 @@
       "narrative_summary"
     ]
   },
-  "last_updated_by": "dana",
-  "last_updated_at": "2026-06-18T10:36:55Z"
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-06-18T10:46:37Z",
+  "observed_direction": "countercyclical",
+  "direction_consistent": false,
+  "key_finding": "Lead-lag verdict: ISM Services PMI does not lead SPY at monthly frequency. Toda-Yamamoto Granger ISM Services->SPY is not significant at any lag 1-12, while SPY->ISM Services is significant at every lag, consistent with a sentiment/coincident survey already reflected in equities. The tournament winner (gap_50/T3_zscore_neg_1.0/P1_long_cash pro/L3/LB120) is countercyclical (long SPY only when lagged PMI gap-to-50 is unusually weak versus its rolling window): OOS Sharpe 1.54 vs B&H 0.88, max DD -3.8% vs -23.9%, but it gives up return (9.8% vs 15.1%), bootstrap p=0.073 (n.s. at 5%), and a structural break is flagged at 2009-03-31 \u2014 treat as a drawdown-control search result, not validated standalone alpha.",
+  "confidence": "low"
 }
