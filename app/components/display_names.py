@@ -34,6 +34,8 @@ INDICATOR_NAMES: dict[str, str] = {
     "busloans_spy": "Commercial & Industrial Loans",
     "petrol_inv": "Petroleum Inventories",
     "petrol_inv_spy": "Petroleum Inventories",
+    "ism_services": "ISM Services PMI",
+    "ism_services_spy": "ISM Services PMI",
 }
 
 TARGET_NAMES: dict[str, str] = {
