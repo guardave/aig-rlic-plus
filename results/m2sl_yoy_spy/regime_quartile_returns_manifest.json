@@ -1,0 +1,28 @@
+{
+  "file": "regime_quartile_returns.csv",
+  "pair_id": "m2sl_yoy_spy",
+  "produced_by": "scripts/pair_pipeline_m2sl_yoy_spy.py",
+  "generated_at": "2026-06-19T10:46:57Z",
+  "columns": {
+    "quartile": "M2SL YoY growth quartile (Q1 lowest growth)",
+    "n_months": "obs",
+    "ann_return": "annualized SPY return in quartile (ratio)",
+    "ann_vol": "annualized vol (ratio)",
+    "sharpe": "ann_return/ann_vol",
+    "max_drawdown": "max DD within quartile months (negative ratio)"
+  },
+  "assertions": [
+    {
+      "description": "4 quartiles",
+      "check": "len == 4"
+    },
+    {
+      "description": "returns plausible",
+      "check": "abs(ann_return) < 0.5"
+    },
+    {
+      "description": "concurrent (NOT lagged) relationship \u2014 descriptive only",
+      "check": "informational"
+    }
+  ]
+}

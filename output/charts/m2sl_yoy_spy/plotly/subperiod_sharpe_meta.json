@@ -1,0 +1,21 @@
+{
+  "chart_name": "subperiod_sharpe",
+  "pair_id": "m2sl_yoy_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-CP1",
+    "VIZ-CP1.1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Winner-strategy annualized Sharpe within each canonical stress episode. Only COVID 2020 falls inside the 2018+ OOS window (Sharpe 2.41); Dot-Com, GFC and China 2015 are marked insufficient_data because they predate the OOS split. This is why durability is only 'conditionally_durable' \u2014 a single evaluable episode.",
+  "narrative_alignment_note": "Three-state encoding (no data / in cash / value); states derived from data_status. Single-episode evaluability ties to the conditionally_durable verdict.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/m2sl_yoy_spy/subperiod_sharpe.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T10:55:58.457966+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
+}

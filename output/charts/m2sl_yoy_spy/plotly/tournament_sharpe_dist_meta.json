@@ -1,0 +1,26 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "m2sl_yoy_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-SCD1",
+    "ECON-T4",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Distribution of OOS Sharpe across the 3,369 valid strategy combos. The winner (Sharpe 1.69) is the max of 3,369 with median 0.71; the median sits ABOVE Buy & Hold SPY (0.90). Winner selection is a tail draw from a large search; bootstrap p = 0.025 (significant at 5% but search-selected, no final exam).",
+  "narrative_alignment_note": "VIZ-SCD1 position disclosure + B&H benchmark line; all numbers re-read from the tournament CSV at generation time.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/m2sl_yoy_spy/tournament_results_20260619.csv"
+  ],
+  "reconciliation": {
+    "valid_count": 3369,
+    "median_oos_sharpe": 0.7129,
+    "winner_oos_sharpe": 1.6882,
+    "bh_oos_sharpe": 0.8956
+  },
+  "generated_at": "2026-06-19T10:55:53.545116+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
+}

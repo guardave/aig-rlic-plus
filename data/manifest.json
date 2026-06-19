@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-06-18T10:36:55Z",
+  "generated_at": "2026-06-19T10:26:03Z",
   "artifacts": [
     {
       "path": "data/hy_ig_v2_spy_daily_20260410.parquet",
@@ -146,6 +146,52 @@
       "path": "data/ism_services_spy_daily_latest.parquet",
       "schema_ref": "data/ism_services_spy_daily_schema.json",
       "source_master": "data/ism_services_spy_daily_19970805_20251105.parquet"
+    },
+    {
+      "source": "FRED:M2SL (monthly SA money stock, $bn) + yahoo:SPY",
+      "refresh_ttl_days": 30,
+      "last_updated": "2026-06-19",
+      "pairs": [
+        "m2sl_yoy_spy"
+      ],
+      "mixed_freq_ttl_note": "Monthly analysis panel; TTL=30 because both signal rows and target snapshots are month-end.",
+      "path": "data/m2sl_yoy_spy_monthly_19930131_20260430.parquet",
+      "schema_ref": "data/m2sl_yoy_spy_monthly_schema.json"
+    },
+    {
+      "source": "alias_of:data/m2sl_yoy_spy_monthly_19930131_20260430.parquet",
+      "refresh_ttl_days": 30,
+      "last_updated": "2026-06-19",
+      "pairs": [
+        "m2sl_yoy_spy"
+      ],
+      "mixed_freq_ttl_note": "Monthly analysis panel alias; TTL=30 because both signal rows and target snapshots are month-end.",
+      "path": "data/m2sl_yoy_spy_monthly_latest.parquet",
+      "schema_ref": "data/m2sl_yoy_spy_monthly_schema.json",
+      "source_master": "data/m2sl_yoy_spy_monthly_19930131_20260430.parquet"
+    },
+    {
+      "source": "FRED:M2SL (monthly SA money stock, $bn) + yahoo:SPY",
+      "refresh_ttl_days": 1,
+      "last_updated": "2026-06-19",
+      "pairs": [
+        "m2sl_yoy_spy"
+      ],
+      "mixed_freq_ttl_note": "Monthly M2SL indicator plus daily SPY market data; TTL=1 per fastest-refreshing component. The indicator itself changes monthly after the H.6 release.",
+      "path": "data/m2sl_yoy_spy_daily_19930129_20260617.parquet",
+      "schema_ref": "data/m2sl_yoy_spy_daily_schema.json"
+    },
+    {
+      "source": "alias_of:data/m2sl_yoy_spy_daily_19930129_20260617.parquet",
+      "refresh_ttl_days": 1,
+      "last_updated": "2026-06-19",
+      "pairs": [
+        "m2sl_yoy_spy"
+      ],
+      "mixed_freq_ttl_note": "Monthly M2SL indicator plus daily SPY market data; TTL=1 per fastest-refreshing component. The indicator itself changes monthly after the H.6 release.",
+      "path": "data/m2sl_yoy_spy_daily_latest.parquet",
+      "schema_ref": "data/m2sl_yoy_spy_daily_schema.json",
+      "source_master": "data/m2sl_yoy_spy_daily_19930129_20260617.parquet"
     }
   ]
 }

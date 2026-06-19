@@ -1,0 +1,20 @@
+{
+  "chart_name": "tournament_scatter",
+  "pair_id": "m2sl_yoy_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "ECON-T4",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "All 4,720 tournament combinations (OOS Sharpe vs annual turnover; color = max drawdown). 3,369 pass validity; the Buy & Hold SPY diamond sits at Sharpe 0.90. Winner identified by the ECON-T3 cascade; see the distribution chart for position disclosure.",
+  "narrative_alignment_note": "Standard tournament scatter; benchmark via signal=='BENCHMARK' (ECON-T4).",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/m2sl_yoy_spy/tournament_results_20260619.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T10:55:51.494637+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
+}

@@ -1,0 +1,141 @@
+{
+  "pair_id": "m2sl_yoy_spy",
+  "parquet_path": "data/m2sl_yoy_spy_monthly_19930131_20260430.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-19T10:26:03Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Monthly date index; spans 1993-01-31 through 2026-04-30."
+    },
+    "m2sl_usd": {
+      "dtype": "float64",
+      "unit": "usd",
+      "display_name": "M2 Money Stock ($bn)",
+      "direction": "neutral",
+      "description": "FRED M2SL level, billions of dollars, seasonally adjusted. Included for provenance only; strongly trending and not recommended as a signal.",
+      "source_reference": "FRED:M2SL",
+      "refresh_ttl_days": 30
+    },
+    "m2sl_pct_yoy": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "M2 Money Supply YoY (%)",
+      "direction": "higher_is_better",
+      "description": "Year-over-year percent change of FRED M2SL; primary canonical indicator signal.",
+      "source_reference": "derived:FRED:M2SL pct_change(12)*100",
+      "refresh_ttl_days": 30
+    },
+    "m2sl_pct_mom": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "M2 Money Supply MoM (%)",
+      "direction": "higher_is_better",
+      "description": "Month-over-month percent change of FRED M2SL.",
+      "source_reference": "derived:FRED:M2SL pct_change(1)*100",
+      "refresh_ttl_days": 30
+    },
+    "m2sl_3m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "M2 Money Supply 3M Change (%)",
+      "direction": "higher_is_better",
+      "description": "Three-month percent change of FRED M2SL.",
+      "source_reference": "derived:FRED:M2SL pct_change(3)*100",
+      "refresh_ttl_days": 30
+    },
+    "m2sl_6m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "M2 Money Supply 6M Change (%)",
+      "direction": "higher_is_better",
+      "description": "Six-month percent change of FRED M2SL.",
+      "source_reference": "derived:FRED:M2SL pct_change(6)*100",
+      "refresh_ttl_days": 30
+    },
+    "m2sl_yoy_accel_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "M2 YoY Acceleration (pp)",
+      "direction": "higher_is_better",
+      "description": "One-month change in M2 YoY growth, in percentage points.",
+      "source_reference": "derived:diff(m2sl_pct_yoy)",
+      "refresh_ttl_days": 30
+    },
+    "m2sl_yoy_zscore_120m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "M2 YoY 120M Z-Score",
+      "direction": "higher_is_better",
+      "description": "Rolling 120-month z-score of M2 YoY growth, minimum 60 observations.",
+      "source_reference": "derived:rolling_zscore(m2sl_pct_yoy)",
+      "refresh_ttl_days": 30
+    },
+    "m2sl_contraction_flag": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "M2 YoY Contraction Flag",
+      "direction": "lower_is_better",
+      "description": "1.0 when M2 YoY growth is below 0%, marking money-supply contraction.",
+      "source_reference": "derived:m2sl_pct_yoy<0",
+      "refresh_ttl_days": 30
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "neutral",
+      "description": "SPY adjusted close from Yahoo Finance.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Daily Return (decimal)",
+      "direction": "neutral",
+      "description": "Simple SPY return over the monthly panel frequency.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_1m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 1M Return",
+      "direction": "neutral",
+      "description": "Forward 1-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_3m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 3M Return",
+      "direction": "neutral",
+      "description": "Forward 3-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_6m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 6M Return",
+      "direction": "neutral",
+      "description": "Forward 6-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_12m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 12M Return",
+      "direction": "neutral",
+      "description": "Forward 12-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    }
+  }
+}

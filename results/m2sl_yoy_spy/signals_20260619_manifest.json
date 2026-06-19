@@ -1,0 +1,36 @@
+{
+  "file": "signals_20260619.parquet",
+  "pair_id": "m2sl_yoy_spy",
+  "produced_by": "scripts/pair_pipeline_m2sl_yoy_spy.py",
+  "generated_at": "2026-06-19T10:46:57Z",
+  "columns": {
+    "m2sl_pct_yoy": "tournament-eligible signal derived solely from M2SL (m2sl_pct_yoy)",
+    "m2sl_pct_mom": "tournament-eligible signal derived solely from M2SL (m2sl_pct_mom)",
+    "m2sl_3m_pct": "tournament-eligible signal derived solely from M2SL (m2sl_3m_pct)",
+    "m2sl_6m_pct": "tournament-eligible signal derived solely from M2SL (m2sl_6m_pct)",
+    "m2sl_yoy_accel_pct": "tournament-eligible signal derived solely from M2SL (m2sl_yoy_accel_pct)",
+    "m2sl_yoy_zscore_120m": "tournament-eligible signal derived solely from M2SL (m2sl_yoy_zscore_120m)",
+    "m2sl_contraction_flag": "tournament-eligible signal derived solely from M2SL (m2sl_contraction_flag)",
+    "hmm_2state_prob_stress": "tournament-eligible signal derived solely from M2SL (hmm_2state_prob_stress)",
+    "markov_regime_2state": "tournament-eligible signal derived solely from M2SL (markov_regime_2state)"
+  },
+  "assertions": [
+    {
+      "description": "COVID YoY surge present",
+      "filter": "2020-01..2021-12",
+      "column": "m2sl_pct_yoy",
+      "check": "max > 26"
+    },
+    {
+      "description": "2022-23 first modern contraction",
+      "filter": "2022-01..2023-12",
+      "column": "m2sl_pct_yoy",
+      "check": "min < 0"
+    },
+    {
+      "description": "HMM prob bounded",
+      "column": "hmm_2state_prob_stress",
+      "check": "values in [0,1]"
+    }
+  ]
+}

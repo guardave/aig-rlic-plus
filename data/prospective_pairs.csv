@@ -83,7 +83,7 @@ jolts,Job Openings (JOLTS),macro,XLI,jolts_xli,not_started,G - Job Openings,,G -
 jolts,Job Openings (JOLTS),macro,XLY,jolts_xly,not_started,G - Job Openings,,G - Job Openings,96
 jolts,Job Openings (JOLTS),macro,XLK,jolts_xlk,not_started,G - Job Openings,,G - Job Openings,96
 jolts,Job Openings (JOLTS),macro,XLF,jolts_xlf,not_started,G - Job Openings,,G - Job Openings,96
-m2sl_yoy,M2 Money Supply YoY,macro,SPY,m2sl_yoy_spy,not_started,M2SL_YOY,,M2SL_YOY,98
+m2sl_yoy,M2 Money Supply YoY,macro,SPY,m2sl_yoy_spy,in_progress,M2SL_YOY,,M2SL_YOY,98
 unrate,Unemployment Rate,macro,SPY,unrate_spy,not_started,G - UNRATE,,G - UNRATE,100
 mfg_new_orders,Manufacturers' New Orders,production,XLE,mfg_new_orders_xle,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
 mfg_new_orders,Manufacturers' New Orders,production,XLI,mfg_new_orders_xli,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
