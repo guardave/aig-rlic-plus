@@ -104,6 +104,7 @@ PAGE_ROUTING = {
     "busloans_spy": "pages/17_busloans_spy",
     "petrol_inv_spy": "pages/18_petrol_inv_spy",
     "ism_services_spy": "pages/19_ism_services_spy",
+    "m2sl_yoy_spy": "pages/20_m2sl_yoy_spy",
 }
 
 
