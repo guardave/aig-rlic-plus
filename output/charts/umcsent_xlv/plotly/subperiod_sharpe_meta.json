@@ -1,11 +1,21 @@
 {
+  "chart_name": "subperiod_sharpe",
   "pair_id": "umcsent_xlv",
-  "chart_type": "horizontal_bar",
+  "palette_id": "okabe_ito_2026",
   "rules_applied": [
-    "VIZ-CP1",
-    "VIZ-BF1"
+    "ECON-SR1",
+    "ECON-CP1",
+    "VIZ-O1",
+    "VIZ-V5"
   ],
-  "generated_at": "2026-04-24",
+  "caption": "Sharpe by historical episode recomputed from corrected strategy_returns; full OOS Sharpe is 1.16.",
+  "narrative_alignment_note": "Winner-specific subperiod chart rebuilt from corrected strategy returns.",
   "disposition": "consumed",
-  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "source_artifacts": [
+    "results/umcsent_xlv/strategy_returns_20260420.csv",
+    "results/umcsent_xlv/subperiod_sharpe.csv",
+    "results/umcsent_xlv/winner_summary.json"
+  ],
+  "generated_at": "2026-06-19T09:11:26.862794+00:00",
+  "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
 }
