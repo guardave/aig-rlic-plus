@@ -9,9 +9,9 @@ present (shipped Wave 10H.2, commit 2c11046). `TRADE_LOG_EXAMPLE_MD`
 is authored directly from that file.
 
 Pair ID: umcsent_xlv  (richest hand-written pair — 1,563 legacy lines)
-Winner (winner_summary.json, authoritative): UMCSENT YoY / zero-crossing /
-P1_long_cash / 6-month lead — OOS Sharpe 1.02, OOS return +11.93%,
-Max DD -10.87%, 81 trades, win rate 37%.
+Winner (winner_summary.json, authoritative): UMCSENT 3-month momentum /
+rolling z-score > +1.0 / P1_long_cash / 6-month lead — OOS Sharpe 1.16,
+OOS return +7.95%, Max DD -0.7%, Calmar 11.3, win rate 16%.
 """
 
 from __future__ import annotations
@@ -50,24 +50,21 @@ class StoryConfig:
     WHERE_THIS_FITS = ""
 
     ONE_SENTENCE_THESIS = (
-        "*When UMCSENT trends upward — measured by a year-over-year gain, "
-        "with a 6-month lead — Health Care Select Sector SPDR Fund (XLV) "
-        "has historically performed better. The hypothesis is that XLV is "
-        "defensive but still benefits from better sentiment: when sentiment "
-        "is high, XLV can rise with the market; when sentiment is low, XLV "
-        "should usually lose less than the broad market represented by the "
-        "S&P 500 Index (SPX).*"
+        "*When UMCSENT 3-month momentum improves enough to clear a rolling "
+        "z-score > +1.0 trigger, with a 6-month lead, Health Care Select "
+        "Sector SPDR Fund (XLV) has historically performed better. The "
+        "hypothesis is that improving household confidence and risk appetite "
+        "can support XLV over the next several months, even though health "
+        "care is partly defensive.*"
     )
 
     KPI_CAPTION = (
-        "The winning rule uses UMCSENT year-over-year change with a 6-month "
-        "lead. When the 12-month change is positive (sentiment trending up), "
-        "the strategy holds XLV; when negative, it moves to cash. The "
-        "6-month lead suggests sentiment anticipates sector rotation well "
-        "in advance rather than coinciding with it. Out-of-sample (OOS) "
-        "Sharpe is 1.02 vs "
-        "0.72 for buy-and-hold XLV — ~42% more return per unit of risk — "
-        "with max drawdown reduced from -15.6% to -10.9%."
+        "The winning rule uses UMCSENT 3-month momentum with a 6-month "
+        "lead and a rolling z-score > +1.0 trigger. When the 6-month-lagged "
+        "momentum clears that threshold, the strategy holds XLV; otherwise, "
+        "it moves to cash. Out-of-sample (OOS) Sharpe is 1.16 vs 0.72 for "
+        "buy-and-hold XLV, with max drawdown reduced from -15.6% to -0.7% "
+        "and Calmar rising to 11.3."
     )
 
     HERO_TITLE = "UMCSENT Year-over-Year Change vs. Health Care Select Sector SPDR Fund (XLV)"
@@ -123,16 +120,14 @@ class StoryConfig:
     NARRATIVE_SECTION_2 = (
         "### Key Findings\n\n"
         "Two facts about this pair deserve special emphasis:\n\n"
-        "**The year-over-year change, not the level, is the key signal.** "
-        "Raw sentiment levels are non-stationary and reflect long secular "
-        "trends. The year-over-year change captures whether sentiment is "
-        "improving or deteriorating relative to a year ago — which is what "
-        "correlates with forward XLV returns. A sentiment reading of 70 "
-        "(below long-run average of ~85) still generates a bullish signal "
-        "if it has risen from 65 a year ago.\n\n"
+        "**The corrected winner uses 3-month momentum, not the sentiment "
+        "level or year-over-year change.** Raw sentiment levels are "
+        "non-stationary and reflect long secular trends. The winning "
+        "signal asks whether sentiment has improved enough over the prior "
+        "three months to clear a rolling z-score > +1.0 trigger.\n\n"
         "**The trading rule uses a 6-month lead, but the lead-lag evidence "
-        "is mixed.** The tournament winner uses the 6-month-lagged UMCSENT "
-        "year-over-year signal. The cross-correlation evidence is strongest "
+        "is mixed.** The tournament winner uses 6-month-lagged UMCSENT "
+        "3-month momentum. The cross-correlation evidence is strongest "
         "at 2-4 months, with statistically significant UMCSENT-leading "
         "correlations from 1-5 months only. Formal Granger causality does not "
         "confirm UMCSENT as a statistically significant predictor at lags "
@@ -168,26 +163,26 @@ class StoryConfig:
         {
             "slug": "dot_com",
             "title": "Dot-Com Bust (2000–2002)",
-            "narrative": "Consumer sentiment deteriorated sharply through 2001 as the economy contracted and unemployment rose. XLV, as a defensive health care holding, held up relatively well. But the year-over-year sentiment signal turned negative — and the strategy correctly moved to cash. This is a long-lead success case where the signal anticipated XLV's underperformance relative to its defensive reputation.",
-            "caption": "2001 sentiment decline: UMCSENT year-over-year change turned negative; XLV held up but signal correctly reduced exposure. NBER recession shading marks the official recession window.",
+            "narrative": "Consumer sentiment deteriorated sharply through 2001 as the economy contracted and unemployment rose. XLV, as a defensive health care holding, held up relatively well. This is useful context for a sentiment-momentum timing rule: monthly confidence data can flag deteriorating conditions, but the corrected winner should be read through its 3-month momentum and rolling z-score trigger.",
+            "caption": "2001 sentiment decline: UMCSENT deteriorated while XLV held up defensively. NBER recession shading marks the official recession window.",
         },
         {
             "slug": "gfc",
             "title": "Global Financial Crisis (2007–2009)",
-            "narrative": "Sentiment collapsed through 2008-2009 as unemployment surged and household wealth evaporated. XLV declined meaningfully, though less than S&P 500 Index (SPX). The UMCSENT year-over-year signal turned sharply negative in late 2007, moving the strategy to cash ahead of most of the health care drawdown. A clean long-lead case: sentiment fell before the equity trough, and the long-cash strategy avoided the worst of the decline.",
-            "caption": "Global Financial Crisis: UMCSENT year-over-year signal moved to cash late 2007; XLV declined -30% peak-to-trough but strategy avoided bulk of it. NBER recession shading marks the official recession window.",
+            "narrative": "Sentiment collapsed through 2008-2009 as unemployment surged and household wealth evaporated. XLV declined meaningfully, though less than S&P 500 Index (SPX). A long-lead sentiment rule is economically plausible in this setting because household confidence deteriorated before the equity trough, but the corrected winner remains the 3-month momentum / rolling z-score rule.",
+            "caption": "Global Financial Crisis: UMCSENT weakened sharply while XLV declined less than SPX. NBER recession shading marks the official recession window.",
         },
         {
             "slug": "covid",
             "title": "COVID Crash (2020)",
-            "narrative": "Sentiment plunged to near-record lows in April 2020. XLV experienced a moderate drawdown before recovering sharply — health care stocks benefited from vaccine and treatment demand. The UMCSENT signal went negative, and the 6-month lead meant the strategy was positioned cautiously. However, XLV's rapid recovery created a signal lag problem: the strategy sat in cash during some of the health care upswing. This is the clearest example where the indicator lagged behind XLV price: the market recovered before the monthly sentiment signal fully caught up.",
-            "caption": "COVID: UMCSENT collapsed April 2020; XLV recovered fast on health care demand — 6-month lead caused cash lag into recovery. NBER recession shading marks the official recession window.",
+            "narrative": "Sentiment plunged to near-record lows in April 2020. XLV experienced a moderate drawdown before recovering sharply — health care stocks benefited from vaccine and treatment demand. This is the clearest example of the rule's practical limitation: monthly sentiment data can lag fast market recoveries, especially with a 6-month lead.",
+            "caption": "COVID: UMCSENT collapsed April 2020; XLV recovered fast on health care demand. NBER recession shading marks the official recession window.",
         },
         {
             "slug": "rates_2022",
             "title": "Fed Hiking Cycle (2022)",
-            "narrative": "Consumer sentiment hit multi-decade lows in June 2022 (University of Michigan index at 50) driven by inflation and rising rates. XLV outperformed S&P 500 Index (SPX) during this period — a partial vindication of the defensive thesis. But the UMCSENT year-over-year signal had already turned negative, keeping the strategy in cash. This is a failure case: the signal was bearish, but XLV actually held up, so the strategy missed the relative outperformance.",
-            "caption": "June 2022 sentiment hit 50-year low; XLV outperformed S&P 500 Index (SPX) but the UMCSENT signal was bearish — missed defensive rally.",
+            "narrative": "Consumer sentiment hit multi-decade lows in June 2022 (University of Michigan index at 50) driven by inflation and rising rates. XLV outperformed S&P 500 Index (SPX) during this period — a partial vindication of the defensive thesis. This is a caveat for any sentiment-momentum timing rule: a bearish sentiment backdrop can coexist with defensive-sector relative strength.",
+            "caption": "June 2022 sentiment hit 50-year low while XLV outperformed S&P 500 Index (SPX) defensively.",
         },
     ]
 
@@ -347,8 +342,8 @@ REGIME_BLOCK = dict(
         "When sentiment is at its most positive extreme (Quartile 4), it may be "
         "capturing late-cycle euphoria that historically precedes "
         "corrections. The highest predictive content is in the **direction "
-        "of change** — positive but not extreme — which is exactly what "
-        "the tournament-winning year-over-year zero-crossing rule captures."
+        "of change** — positive but not extreme — which is consistent with "
+        "the corrected winner's emphasis on sentiment momentum."
     ),
     key_message=(
         "Falling UMCSENT (Quartile 1) is the worst regime for XLV returns. "
@@ -413,8 +408,9 @@ SIGNAL_DIST_BLOCK = dict(
     ),
     key_message=(
         "UMCSENT year-over-year changes are approximately bell-shaped. "
-        "The strategy uses the zero line: positive year-over-year change "
-        "means hold XLV, while zero or negative change means move to cash."
+        "This diagnostic supports sentiment-improvement intuition, while "
+        "the corrected strategy rule uses 3-month momentum above a rolling "
+        "z-score > +1.0 threshold."
     ),
 )
 
@@ -459,7 +455,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "With the econometric case established, we swept a 5-dimensional "
         "tournament over 7 signal transforms, 7 threshold methods, 3 "
         "strategy families, and 5 lead times — 1,305 raw combinations "
-        "pruned to 1,195 valid. The winner posts OOS Sharpe 1.02 — the "
+        "pruned to 1,195 valid. The corrected winner posts OOS Sharpe 1.16 — the "
         "**best of those 1,195 valid combinations**: the maximum of the "
         "search, not a typical result. The median valid combination "
         "scored 0.63. The top 5 strategies were validated with "
@@ -468,7 +464,7 @@ EVIDENCE_METHOD_BLOCKS = {
     ),
     "transition": (
         "Four statistical methods converge on the same conclusion: "
-        "UMCSENT momentum (year-over-year change) is a useful but noisy "
+        "UMCSENT 3-month momentum is a useful but noisy "
         "indicator for XLV health care returns. Now: what does "
         "the winning strategy actually do, and how has it performed?"
     ),
@@ -488,39 +484,41 @@ class StrategyConfig:
 
     PLAIN_ENGLISH = (
         "We tested over 1,300 combinations of rules for using consumer "
-        "sentiment to time XLV exposure. The winner is simple: hold XLV "
-        "when consumer sentiment has risen year-over-year (measured six "
-        "months ago), and move to cash when it has fallen. This rule "
-        "out-performed buy-and-hold on a risk-adjusted basis over 6 years "
-        "of out-of-sample data."
+        "sentiment to time XLV exposure. The corrected winner is specific: "
+        "hold XLV when 6-month-lagged UMCSENT 3-month momentum is above "
+        "its rolling z-score +1.0 threshold, and move to cash otherwise. "
+        "This rule out-performed buy-and-hold on drawdown control and "
+        "risk-adjusted return over the 2019-04-30 to 2025-12-31 "
+        "out-of-sample window."
     )
 
     SIGNAL_RULE_MD = (
         "**Tournament winner:** Signal University of Michigan Consumer "
-        "Sentiment (UMCSENT) year-over-year change / Threshold "
-        "zero-crossing (crosses-up) / Strategy P1 Long/Cash / Lead 6 months.\n\n"
-        "Each month, look at the current UMCSENT reading versus 12 months "
-        "ago and compute the percentage change. Apply this to what the "
-        "12-month change was 6 months ago (the lead). If the 6-month-ago "
-        "year-over-year change was positive (sentiment improving) → hold XLV fully. "
-        "If zero or negative → move to cash. No leverage, no shorting."
+        "Sentiment (UMCSENT) 3-month momentum (`S3_mom` / `umcsent_mom`) / "
+        "Threshold rolling z-score > +1.0 / Strategy P1 Long/Cash / Lead "
+        "6 months.\n\n"
+        "Each month, compute UMCSENT 3-month momentum and compare the "
+        "6-month-lagged value with its rolling z-score +1.0 threshold. If "
+        "the lagged momentum is above the threshold, hold XLV fully. "
+        "Otherwise, move to cash. No leverage, no shorting."
     )
 
     HOW_SIGNAL_IS_GENERATED_MD = (
         "The winning strategy uses **University of Michigan Consumer "
-        "Sentiment (UMCSENT) Year-over-Year Change** with "
-        "a **6-month lead**:\n\n"
-        "1. Each month, look at the current UMCSENT reading versus 12 "
-        "months ago; compute the percentage change.\n"
-        "2. Check what this year-over-year change was **6 months ago** "
+        "Sentiment (UMCSENT) 3-month momentum** with a **rolling z-score "
+        "> +1.0 trigger** and a **6-month lead**:\n\n"
+        "1. Each month, compute the change in UMCSENT over the prior three "
+        "months.\n"
+        "2. Check what this 3-month momentum value was **6 months ago** "
         "(the lead).\n"
-        "3. If the 6-month-ago year-over-year change was **positive** (sentiment "
-        "improving): hold XLV (Long/Cash position = 1).\n"
-        "4. If the 6-month-ago year-over-year change was **zero or negative** "
-        "(sentiment flat or deteriorating): move to cash (Long/Cash "
-        "position = 0).\n"
-        "5. Update the position at the start of each month.\n\n"
-        "When the signal hovers near 0, it is close to the decision line. "
+        "3. Compare that lagged momentum with its rolling threshold: the "
+        "recent rolling mean plus one standard deviation.\n"
+        "4. If the 6-month-lagged momentum is **above** that threshold: "
+        "hold XLV (Long/Cash position = 1).\n"
+        "5. If it is **at or below** that threshold: move to cash "
+        "(Long/Cash position = 0).\n"
+        "6. Update the position at the start of each month.\n\n"
+        "When the signal hovers near its rolling threshold, it is close to the decision line. "
         "That does not mean the signal is broken; it means the economy is "
         "near the boundary between improving and deteriorating sentiment. "
         "Small monthly changes can flip the strategy from long XLV to cash "
@@ -542,18 +540,18 @@ class StrategyConfig:
         "(UMCSENT) reading.** Federal Reserve Economic Data (FRED) series: "
         "`UMCSENT`. Published mid-month for the current month. Free at "
         "fred.stlouisfed.org.\n\n"
-        "**2. Compute the year-over-year change.** Divide today's reading "
-        "by the reading from 12 months ago and subtract 1. Example: UMCSENT "
-        "= 72.0, 12 months ago = 68.0 → year-over-year = +5.9%.\n\n"
-        "**3. Check what this year-over-year reading was 6 months ago.** Pull the "
-        "UMCSENT reading from 18 months ago and 6 months ago, compute "
-        "the year-over-year change for 6 months back: (6 months ago / "
-        "18 months ago − 1).\n\n"
-        "**4. Apply the rule.** If that 6-month-ago year-over-year change was positive → "
-        "hold XLV. If zero or negative → hold cash or short-duration bonds.\n\n"
+        "**2. Compute 3-month momentum.** Compare today's reading with the "
+        "reading three months earlier to measure whether sentiment is "
+        "improving quickly.\n\n"
+        "**3. Build the rolling z-score threshold.** For each month, compare "
+        "the 6-month-lagged 3-month momentum value with its rolling mean "
+        "plus one standard deviation.\n\n"
+        "**4. Apply the rule.** If that 6-month-lagged momentum is above "
+        "the rolling z-score +1.0 threshold, hold XLV. If not, hold cash "
+        "or short-duration bonds.\n\n"
         "**5. Rebalance monthly.** The signal changes once a month at "
-        "most. Turnover averages ~2.4 round-trips per year — negligible "
-        "transaction costs."
+        "most. Annual turnover is 3.29 under the corrected winner — modest, "
+        "but still relevant for implementation costs."
     )
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -579,38 +577,33 @@ class StrategyConfig:
         "regulation, COVID policy, and demographic shifts all affect "
         "XLV. The historical sentiment-XLV relationship may shift if "
         "sector fundamentals change structurally.\n\n"
-        "5. **This is not portfolio insurance.** The strategy reduces "
-        "but does not eliminate drawdowns. A -10.9% max drawdown still "
-        "represents meaningful portfolio pain."
+        "5. **This is not return maximization.** The corrected winner's "
+        "+7.95% OOS annual return trails XLV buy-and-hold, but it reduces "
+        "OOS max drawdown from -15.6% to -0.7%. This is mainly a "
+        "drawdown-control story, with Calmar 11.3."
     )
 
     TRADE_LOG_EXAMPLE_MD = (
         "**Crisis anchor — February 2020 COVID entry.** From "
         "`results/umcsent_xlv/winner_trades_broker_style.csv` (the "
         "canonical APP-TL1 artefact shipped Wave 10H.2):\n\n"
-        "- **2020-02-29 — BUY XLV, 100% long, price $83.70.** The trade "
-        "log records a full-exposure entry into XLV on 29-Feb-2020 (the "
-        "last business day before the COVID crash began in earnest on "
-        "02-Mar). The signal rationale: 6-month-lagged UMCSENT "
-        "year-over-year change = "
-        "**+7.676%** — sentiment had been strongly improving through "
-        "mid-2019, and the 6-month-lead rule translated that into a "
-        "full long position in February 2020.\n"
-        "- **Cumulative profit and loss (P&L) at entry: +14.25%.** The prior long holding "
-        "had already compounded meaningfully since the strategy's "
-        "out-of-sample start (2019-04-30 at University of Michigan "
-        "UMCSENT year-over-year change −1.619, initial entry), so "
-        "the February 2020 buy added to an already-profitable book.\n"
+        "- **2020-03-31 — BUY XLV, 100% long, price $80.45.** The trade "
+        "log records a full-exposure entry into XLV on 31-Mar-2020. The "
+        "signal rationale: 6-month-lagged UMCSENT 3-month momentum = "
+        "**+3.786** — lagged sentiment momentum was above the rolling "
+        "z-score trigger, so the rule moved back into XLV.\n"
+        "- **Cumulative profit and loss (P&L) at entry: +2.27%.** The "
+        "book had been in cash immediately before the entry, so the "
+        "March 2020 buy restarted XLV exposure after the initial COVID "
+        "shock.\n"
         "- **Economic narrative.** This is the case study that defines "
         "the rule's limits. The 6-month lag is a feature against "
-        "short-term noise, but it is also the reason the rule could not "
-        "avoid the March 2020 drawdown. The trade was correct given its "
-        "information set — UMCSENT in "
-        "August 2019 said 'procyclical, "
-        "hold XLV' — but a once-in-a-century pandemic overran any "
-        "monthly-frequency sentiment signal. The rule reduced XLV drawdown "
-        "from -15.6% (buy-and-hold) to -10.9% over the full out-of-sample window; "
-        "it did not eliminate the March 2020 pain.\n"
+        "short-term noise, but it makes the rule slow by design. The "
+        "corrected winner reduced XLV OOS drawdown from -15.6% "
+        "(buy-and-hold) to -0.7% over the 2019-04-30 to 2025-12-31 "
+        "out-of-sample window, but it should still be read as a "
+        "monthly-frequency regime filter rather than fast crash "
+        "protection.\n"
         "- **Honest caveat.** Users who need crash protection should "
         "pair this rule with a faster signal (the CBOE Volatility Index "
         "divided by the 3-month CBOE Volatility Index pair in this portal). "
@@ -653,8 +646,8 @@ _INDICATOR_CONSTRUCTION_MD = (
     "| Signal | Formula | Stationarity |\n"
     "|:-------|:--------|:-------------|\n"
     "| `umcsent` | raw level | non-stationary (use transformed) |\n"
-    "| `umcsent_yoy` | (umcsent / umcsent.shift(12) − 1) × 100 | **winner** — approximately stationary |\n"
-    "| `umcsent_mom` | 1-month change | approximately stationary |\n"
+    "| `umcsent_yoy` | (umcsent / umcsent.shift(12) − 1) × 100 | approximately stationary |\n"
+    "| `umcsent_mom` | 3-month momentum | **winner** — approximately stationary |\n"
     "| `umcsent_zscore` | 36M rolling z-score | stationary by construction |\n"
     "| `umcsent_3m_ma` | 3-month moving average | non-stationary (regime indicator) |\n"
     "| `umcsent_direction` | sign(umcsent_mom) | stationary by construction |\n"
@@ -687,11 +680,11 @@ _TOURNAMENT_DESIGN_MD = """
 Ranked by out-of-sample Sharpe. **1,305 total combinations tested; 1,195
 valid** in the current published run (out-of-sample Sharpe > 0, turnover ≤ 24/year, out-of-sample n ≥ 12; the
 buy-and-hold benchmark row is a reference, not a combination). Winner (per
-`results/umcsent_xlv/winner_summary.json`, authoritative): **umcsent_yoy /
-zero-crossing (crosses-up) / P1_long_cash / Lead 6 months → out-of-sample
-Sharpe 1.0202, out-of-sample annualised return +11.93%, max drawdown
-−10.87%, out-of-sample volatility 11.7%, Sortino 2.01, Calmar 1.10, 81
-out-of-sample trades, win rate 37.0%, annual turnover 2.4. Buy-and-hold
+`results/umcsent_xlv/winner_summary.json`, authoritative): **umcsent_mom /
+rolling z-score > +1.0 / P1_long_cash / Lead 6 months → out-of-sample
+Sharpe 1.1586, out-of-sample annualised return +7.9494%, max drawdown
+−0.7007%, out-of-sample volatility 6.8615%, Sortino 1.6121, Calmar 11.3449,
+25 out-of-sample trades, win rate 16.05%, annual turnover 3.29. Buy-and-hold
 XLV benchmark: Sharpe 0.7164, max drawdown −15.6%.**
 
 **Important limitation.** The current published tournament results do not yet
