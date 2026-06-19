@@ -1,0 +1,21 @@
+{
+  "chart_name": "drawdown",
+  "pair_id": "m2sl_yoy_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Drawdown path for the M2-acceleration Long/Cash rule and buy-and-hold SPY. In OOS the strategy's max drawdown is -4.0% versus -23.9% for buy-and-hold. The win is real but episode-shaped \u2014 the OOS window is dominated by the 2020/2022 monetary regime.",
+  "narrative_alignment_note": "Drawdown computed directly from Evan's saved monthly return series.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/m2sl_yoy_spy/strategy_returns_20260619.csv",
+    "results/m2sl_yoy_spy/winner_summary.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T10:55:49.768197+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
+}

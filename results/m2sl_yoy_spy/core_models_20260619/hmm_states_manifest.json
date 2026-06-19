@@ -1,0 +1,27 @@
+{
+  "file": "hmm_states.parquet",
+  "pair_id": "m2sl_yoy_spy",
+  "produced_by": "scripts/pair_pipeline_m2sl_yoy_spy.py",
+  "generated_at": "2026-06-19T10:46:57Z",
+  "columns": {
+    "hmm_state": "integer state; stress = high-variance M2-YoY-growth regime",
+    "prob_stress": "P(stress regime); higher = M2 growth in high-variance regime",
+    "prob_calm": "1 - prob_stress"
+  },
+  "assertions": [
+    {
+      "description": "probabilities in [0,1]",
+      "check": "prob_stress between 0 and 1"
+    },
+    {
+      "description": "COVID money surge era is high-variance",
+      "filter": "2020-04 to 2021-06",
+      "column": "prob_stress",
+      "check": "mean = 1.00 (computed at fit time)"
+    },
+    {
+      "description": "states sum to 1",
+      "check": "prob_stress + prob_calm == 1"
+    }
+  ]
+}

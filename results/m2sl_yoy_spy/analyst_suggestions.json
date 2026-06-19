@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "pair_id": "m2sl_yoy_spy",
+  "rule": "ECON-AS",
+  "suggestions": [
+    {
+      "signal_name": "Real M2 YoY (M2 deflated by CPI)",
+      "proposed_by": "evan",
+      "source": "FRED M2SL / CPIAUCSL",
+      "observation": "Nominal M2 YoY conflates the inflation and liquidity channels (H1 vs H1b). Real M2 growth isolates the liquidity impulse net of the inflation that drives the Fed-tightening headwind.",
+      "rationale": "Monetarist literature treats real balances as the transmission variable; deflating may sharpen the procyclical signal and resolve the level-vs-accel ambiguity.",
+      "possible_use_case": "new pair / variant",
+      "caveats": "Adds a second revised series (CPI); both are revised, compounding vintage risk.",
+      "date_filed": "2026-06-19"
+    }
+  ],
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-06-19T10:46:57Z"
+}

@@ -1,0 +1,27 @@
+{
+  "file": "hmm_states.parquet",
+  "pair_id": "phlxsox_spy",
+  "produced_by": "scripts/pair_pipeline_phlxsox_spy.py",
+  "generated_at": "2026-06-19T12:57:10Z",
+  "columns": {
+    "hmm_state": "integer state; stress = high-variance SOX-return regime",
+    "prob_stress": "P(stress regime); higher = SOX returns in high-variance regime",
+    "prob_calm": "1 - prob_stress"
+  },
+  "assertions": [
+    {
+      "description": "probabilities in [0,1]",
+      "check": "prob_stress between 0 and 1"
+    },
+    {
+      "description": "GFC era is high-variance",
+      "filter": "2008-09 to 2009-03",
+      "column": "prob_stress",
+      "check": "mean = 0.99"
+    },
+    {
+      "description": "states sum to 1",
+      "check": "prob_stress + prob_calm == 1"
+    }
+  ]
+}

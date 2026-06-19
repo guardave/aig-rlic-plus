@@ -1,0 +1,19 @@
+{
+  "chart_name": "transfer_entropy",
+  "pair_id": "m2sl_yoy_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Transfer entropy between M2 YoY growth and SPY returns (tercile bins, 500 permutations). The forward direction (M2 YoY growth \u2192 SPY) is NOT significant (p = 0.20); only the reverse (SPY \u2192 M2 YoY growth, p = 0.03) is \u2014 the same reverse-leading pattern the Granger test shows, now in a nonlinear information-flow check.",
+  "narrative_alignment_note": "Two-bar TE comparison; reverse-only significance reinforces the Granger verdict.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/m2sl_yoy_spy/core_models_20260619/transfer_entropy.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T10:55:43.078036+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
+}

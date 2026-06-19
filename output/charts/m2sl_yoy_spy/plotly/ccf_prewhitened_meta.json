@@ -1,0 +1,19 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "m2sl_yoy_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cross-correlation between AR(12) pre-whitened M2 YoY growth and SPY returns across lags. 0 of 41 lags clear the 95% band; there is no clean forward lead from money growth to equities, consistent with the reverse-only Granger verdict.",
+  "narrative_alignment_note": "CCF mirrors the absence of a forward lead.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/m2sl_yoy_spy/core_models_20260619/ccf_prewhitened.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T10:55:38.158969+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
+}

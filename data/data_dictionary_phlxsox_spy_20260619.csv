@@ -1,0 +1,33 @@
+column,dtype,unit,display_name,direction,source,description
+date,datetime64[ns],date,Date,neutral,derived,Daily trading-date index (parquet index column).
+sox,float64,index,PHLX Semiconductor Index,higher_is_better,yahoo:^SOX,PHLX Semiconductor Index (^SOX) close level. High-beta early-cycle equity index.
+spy,float64,price,SPY Close ($),higher_is_better,yahoo:SPY,SPDR S&P 500 ETF auto-adjusted close. Target asset.
+sox_ret,float64,decimal_return,SOX Daily Return,higher_is_better,derived: sox[t]/sox[t-1]-1,1-day percent return of ^SOX as decimal.
+spy_ret,float64,decimal_return,SPY Daily Return (decimal),higher_is_better,derived: spy[t]/spy[t-1]-1,1-day percent return of SPY as decimal.
+sox_mom_1m_pct,float64,percent,SOX 1m Momentum (%),higher_is_better,derived: (sox[t]/sox[t-21]-1)*100,1m percent-change of ^SOX. Positive = semis rising.
+sox_mom_3m_pct,float64,percent,SOX 3m Momentum (%),higher_is_better,derived: (sox[t]/sox[t-63]-1)*100,3m percent-change of ^SOX. Positive = semis rising.
+sox_mom_6m_pct,float64,percent,SOX 6m Momentum (%),higher_is_better,derived: (sox[t]/sox[t-126]-1)*100,6m percent-change of ^SOX. Positive = semis rising.
+sox_mom_12m_pct,float64,percent,SOX 12m Momentum (%),higher_is_better,derived: (sox[t]/sox[t-252]-1)*100,12m percent-change of ^SOX. Positive = semis rising.
+sox_spy_ratio,float64,ratio,SOX/SPY Relative Strength,higher_is_better,derived: sox / spy,SOX level / SPY level. Higher = semis outperforming broad market (risk-on). Non-stationary (trending).
+sox_spy_logratio,float64,ratio,SOX/SPY Log-Ratio,higher_is_better,derived: log(sox/spy),Natural log of SOX/SPY ratio. Non-stationary; use momentum/zscore transforms.
+sox_spy_ratio_mom_1m_pct,float64,percent,SOX/SPY 1m Rel-Strength Mom (%),higher_is_better,derived: (ratio[t]/ratio[t-21]-1)*100,1m percent-change of SOX/SPY ratio. Positive = semis gaining on SPY.
+sox_spy_ratio_mom_3m_pct,float64,percent,SOX/SPY 3m Rel-Strength Mom (%),higher_is_better,derived: (ratio[t]/ratio[t-63]-1)*100,3m percent-change of SOX/SPY ratio. Positive = semis gaining on SPY.
+sox_spy_ratio_mom_6m_pct,float64,percent,SOX/SPY 6m Rel-Strength Mom (%),higher_is_better,derived: (ratio[t]/ratio[t-126]-1)*100,6m percent-change of SOX/SPY ratio. Positive = semis gaining on SPY.
+sox_spy_ratio_mom_12m_pct,float64,percent,SOX/SPY 12m Rel-Strength Mom (%),higher_is_better,derived: (ratio[t]/ratio[t-252]-1)*100,12m percent-change of SOX/SPY ratio. Positive = semis gaining on SPY.
+sox_spy_ratio_zscore_126d,float64,ratio,SOX/SPY Z-Score (126d),higher_is_better,derived: (ratio - rollmean_126d) / rollstd_126d,Standardized SOX/SPY ratio vs trailing 126d mean/std. High = semis stretched-strong vs SPY.
+sox_spy_ratio_zscore_252d,float64,ratio,SOX/SPY Z-Score (252d),higher_is_better,derived: (ratio - rollmean_252d) / rollstd_252d,Standardized SOX/SPY ratio vs trailing 252d mean/std. High = semis stretched-strong vs SPY.
+sox_realized_vol_21d_ann_pct,float64,vol_ann_pct,"SOX Realized Vol (21d, ann. %)",lower_is_better,"derived: std(sox_ret,21)*sqrt(252)*100","21-day annualized realized vol of SOX daily returns, percent."
+spy_fwd_1d,float64,decimal_return,SPY 1-Day Forward Return,higher_is_better,derived: spy[t+1d]/spy[t]-1,Forward 1d total return of SPY (decimal). Prediction target.
+spy_fwd_5d,float64,decimal_return,SPY 5-Day Forward Return,higher_is_better,derived: spy[t+5d]/spy[t]-1,Forward 5d total return of SPY (decimal). Prediction target.
+spy_fwd_21d,float64,decimal_return,SPY 21-Day Forward Return,higher_is_better,derived: spy[t+21d]/spy[t]-1,Forward 21d total return of SPY (decimal). Prediction target.
+spy_fwd_63d,float64,decimal_return,SPY 63-Day Forward Return,higher_is_better,derived: spy[t+63d]/spy[t]-1,Forward 63d total return of SPY (decimal). Prediction target.
+spy_fwd_126d,float64,decimal_return,SPY 126-Day Forward Return,higher_is_better,derived: spy[t+126d]/spy[t]-1,Forward 126d total return of SPY (decimal). Prediction target.
+spy_fwd_252d,float64,decimal_return,SPY 252-Day Forward Return,higher_is_better,derived: spy[t+252d]/spy[t]-1,Forward 252d total return of SPY (decimal). Prediction target.
+days_since_release,int64,count,Days Since Release,neutral,derived,"Constant 0: ^SOX is a continuously-quoted market index with NO publication lag (contrast macro pairs where this tracks monthly releases). Native-daily, no LVCF step function."
+sox_ret_1m,float64,decimal_return,SOX Monthly Return,higher_is_better,derived: sox[t]/sox[t-1]-1,1-month percent return of ^SOX (month-end).
+spy_ret_1m,float64,decimal_return,SPY Monthly Return,higher_is_better,derived: spy[t]/spy[t-1]-1,1-month percent return of SPY (month-end).
+sox_spy_ratio_zscore_12m,float64,ratio,SOX/SPY Z-Score (12m),higher_is_better,derived: (ratio - rollmean_12m) / rollstd_12m,Standardized SOX/SPY ratio vs trailing 12m mean/std. High = semis stretched-strong vs SPY.
+spy_fwd_1m,float64,decimal_return,SPY Forward 1M Return,higher_is_better,derived: spy[t+1m]/spy[t]-1,Forward 1m total return of SPY (decimal). Prediction target.
+spy_fwd_3m,float64,decimal_return,SPY Forward 3M Return,higher_is_better,derived: spy[t+3m]/spy[t]-1,Forward 3m total return of SPY (decimal). Prediction target.
+spy_fwd_6m,float64,decimal_return,SPY Forward 6M Return,higher_is_better,derived: spy[t+6m]/spy[t]-1,Forward 6m total return of SPY (decimal). Prediction target.
+spy_fwd_12m,float64,decimal_return,SPY Forward 12M Return,higher_is_better,derived: spy[t+12m]/spy[t]-1,Forward 12m total return of SPY (decimal). Prediction target.

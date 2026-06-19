@@ -1,0 +1,21 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-V3",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Toda-Yamamoto Granger F-statistics by lag, both directions. SOX \u2192 SPY (vermillion) AND SPY \u2192 SOX (blue) BOTH clear the 5% critical line at every tested lag (1, 2, 3, 5, 10, 21). The reverse direction is in fact the stronger of the two at short lags. This is bidirectional feedback between two high-beta equity indices \u2014 explicitly NOT evidence that semiconductors cleanly lead the market.",
+  "narrative_alignment_note": "BOTH directions rendered side by side as co-equal series; title and caption state 'feedback, not clean lead' per the binding reconciliation mandate.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/phlxsox_spy/core_models_20260619/granger_causality.csv",
+    "results/phlxsox_spy/granger_by_lag.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T13:09:28.401243+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

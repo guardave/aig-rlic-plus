@@ -1,0 +1,8 @@
+{
+  "chart_name": "rolling_granger",
+  "pair_id": "phlxsox_spy",
+  "skipped_by": "VIZ-CP1-G",
+  "reason": "ECON-CP2 (durability) artifacts intentionally absent for this pair: structural_break_phlxsox_spy.json carries cp2_note 'CP2 skipped \u2014 regime_story not set in signal_scope.json'. No upstream rolling-Sharpe or rolling-Granger result file exists to chart.",
+  "generated_at": "2026-06-19T13:09:57.489735+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

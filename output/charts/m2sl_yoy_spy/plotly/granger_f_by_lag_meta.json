@@ -1,0 +1,32 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "m2sl_yoy_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-V3",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Toda-Yamamoto Granger F-statistics at lags 1\u201312, both directions. SPY \u2192 M2 YoY growth (blue, the REVERSE direction) clears the 5% critical line at lags [1, 2, 3, 4, 5, 8]; M2 YoY growth \u2192 SPY (pale blue, the forward direction) clears it at NONE (all p > 0.43). The market leads the money aggregate, not the other way around \u2014 M2 is coincident/lagging, so this is NOT a forward forecasting signal.",
+  "narrative_alignment_note": "REVERSE direction rendered as the visually primary series per the binding honesty mandate; forward is shown but n.s. at every lag. This is the headline reconciliation point.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/m2sl_yoy_spy/core_models_20260619/granger_causality.csv",
+    "results/m2sl_yoy_spy/granger_by_lag.csv"
+  ],
+  "reconciliation": {
+    "forward_significant_lags": [],
+    "reverse_significant_lags": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      8
+    ],
+    "verdict": "reverse_only"
+  },
+  "generated_at": "2026-06-19T10:55:39.766389+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
+}

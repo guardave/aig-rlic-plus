@@ -1,0 +1,21 @@
+{
+  "chart_name": "hero",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "The SOX/SPY relative strength ratio (vermillion, left axis) \u2014 SOX divided by SPY \u2014 against the SPY price (blue, right axis), 1994\u20132026. Because SOX and SPY are both equity indices that co-move about 71% day-to-day, the analysis trades the RATIO, which strips out the shared market beta and isolates any genuine semiconductor leadership. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Hero shows the relative-strength ratio that the winner actually uses, not raw SOX \u2014 the co-movement-vs-edge point.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/phlxsox_spy_daily_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T13:09:21.120106+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

@@ -151,6 +151,18 @@
       "example": "When asset value falls toward the debt level, equity (the residual claim) declines faster than proportion, and credit spreads widen — both move for the same reason. Developed by Merton (1974).",
       "when_it_fails": "Assumes continuous trading, a single debt maturity, and lognormal asset dynamics — all violated in practice. Still the canonical framework for understanding the credit-equity link."
     },
+    "Money supply (M2)": {
+      "plain_english": "A broad measure of the money in the economy — cash, checking and savings deposits, and other near-money. The Federal Reserve series is called M2SL.",
+      "why_it_matters": "When money is growing fast, credit and liquidity tend to be easy, which can support risk assets; when it shrinks, the opposite. M2 is a backdrop variable for the whole economy.",
+      "example": "During 2020-21 pandemic support, M2 year-over-year growth surged near 27%; in 2022-23 it fell below 0% for the first time in the modern record.",
+      "when_it_fails": "M2 is heavily revised and is a coincident/lagging series for equities — for this pair the stock market moves first and money responds, so M2 is not a forward predictor of SPY."
+    },
+    "Money-growth acceleration": {
+      "plain_english": "Whether money growth is speeding up or slowing down — the month-to-month CHANGE in M2's year-over-year growth rate, not the level of that growth.",
+      "why_it_matters": "This 'second-derivative' transform is what carries the tradable edge in this pair: 'is the money tide rising faster or slower?' beat 'is the money tide high or low?' in the strategy search.",
+      "example": "M2 YoY growth slowing from +5% to +3% is negative acceleration even though growth is still positive; the rule reads the change, not the level.",
+      "when_it_fails": "The edge was found in a large search with no fresh final exam, and is concentrated in the 2020/2022 monetary regime — treat as a search-found timing overlay, not a validated forecaster."
+    },
     "NFCI": {
       "plain_english": "National Financial Conditions Index, published weekly by the Chicago Federal Reserve.",
       "why_it_matters": "Aggregates ~100 risk/liquidity/leverage indicators into one index; positive values indicate tighter-than-average financial conditions.",
@@ -168,6 +180,12 @@
       "why_it_matters": "Captures stress within the riskiest corner of the credit market — the 'canary in the coal mine' that often widens before the broader HY-IG spread.",
       "example": "During the GFC, the CCC-BB spread widened months before the overall HY-IG spread reached crisis levels; during COVID, CCC yields spiked above 20% while BB stayed contained.",
       "when_it_fails": "CCC universe is small and illiquid — bid-ask noise can produce spurious CCC-BB moves that do not signal genuine stress."
+    },
+    "Pro-cyclical": {
+      "plain_english": "Moving with the business or market cycle — rising when markets rise and falling when they fall.",
+      "why_it_matters": "A pro-cyclical signal acts like a momentum/risk-on tracker rather than a warning signal. For this pair the winning rule is pro-cyclical: accelerating money growth is read as a risk-on tailwind.",
+      "example": "The M2-acceleration rule holds SPY when money growth is speeding up (above its historical median) and steps to cash otherwise. The empirical direction recorded in winner_summary.json is `procyclical`.",
+      "when_it_fails": "Pro-cyclical timing can whipsaw at turning points, and here the direction is supported by a search-found pattern rather than a forward-causal test."
     },
     "Quantile regression": {
       "plain_english": "A statistical method that estimates the effect of a variable on different parts of the outcome distribution (not just the average).",
@@ -342,6 +360,42 @@
       "why_it_matters": "A low-exposure strategy can post a high Sharpe ratio mostly by avoiding volatility, not by picking winners — so exposure tells you HOW a strategy earned its risk-adjusted score.",
       "example": "The busloans_spy winner's mean OOS exposure is 0.25: it was in the market only a quarter of the time, which is why its drawdown was just −1% but its total return trailed buy-and-hold.",
       "when_it_fails": "Mean exposure hides timing concentration — a strategy 25% exposed could owe all its results to a single lucky stretch of being in."
+    },
+    "Relative strength": {
+      "plain_english": "One asset's price divided by another's, here the PHLX Semiconductor Index (SOX) divided by SPY. It rises when semiconductors outperform the broad market and falls when they lag.",
+      "why_it_matters": "Because SOX and SPY are both equity indices that move together most of the time, the ratio strips out the shared market move and isolates whether chips are leading or lagging — the only part of the SOX signal with any forecast content here."
+    },
+    "Co-movement": {
+      "plain_english": "When two assets move up and down together day to day. SOX and SPY co-move about 71% of the time because both are stocks driven by the same market forces.",
+      "why_it_matters": "High co-movement is shared market risk (beta), not a forecast. Mistaking it for a leading signal is the central trap this analysis avoids by trading the relative-strength ratio instead of raw SOX."
+    },
+    "Market beta": {
+      "plain_english": "How much an asset moves when the overall stock market moves. A high-beta asset like semiconductors swings more than the market in both directions.",
+      "why_it_matters": "Most of SOX's apparent link to SPY is just shared beta — both rise and fall with the market — so it must be partialled out before judging whether chips genuinely lead."
+    },
+    "Momentum": {
+      "plain_english": "The tendency of a recent trend to continue: an asset that has been rising tends to keep rising for a while. Here, 6-month relative-strength momentum measures whether semiconductors have been outpacing the market lately.",
+      "why_it_matters": "The winning rule is a momentum rule — it buys SPY when semiconductors have recently been strong relative to the market."
+    },
+    "Cross-correlation function (CCF)": {
+      "plain_english": "A measure of how two series line up at different time offsets (lags) — whether one tends to move before, with, or after the other.",
+      "why_it_matters": "After removing each series' own trend (pre-whitening), the CCF here shows significant links on BOTH the lead and lag sides, the visual signature of two-way feedback rather than a clean one-way lead."
+    },
+    "Toda-Yamamoto Granger test": {
+      "plain_english": "A version of the Granger causality test that stays valid even when the series have trends or unit roots. It checks whether past values of one series help forecast another.",
+      "why_it_matters": "Here it is significant in BOTH directions (SOX helps forecast SPY and SPY helps forecast SOX), confirming bidirectional feedback, not a clean semiconductor lead."
+    },
+    "Procyclical": {
+      "plain_english": "Moving in the same direction as the broad economy or market — strong when the cycle is strong, weak when it is weak.",
+      "why_it_matters": "The winning rule is procyclical: it holds stocks when semiconductor relative strength has recently been strong."
+    },
+    "Overfitting": {
+      "plain_english": "Finding a rule that looks great on the data used to build it but fails on fresh data, because it was tuned to noise rather than a real pattern.",
+      "why_it_matters": "This winner shows overfitting warning signs: an in-sample Sharpe of just 0.10 versus 1.57 out-of-sample, and most searched rules underperformed buy-and-hold — so the result is treated as found-in-search, not validated."
+    },
+    "Feedback (bidirectional causality)": {
+      "plain_english": "When two series each influence the other, rather than one cleanly leading the other.",
+      "why_it_matters": "SOX and SPY push each other in both directions, so calling semiconductors a one-way early-warning indicator for the market would overstate the evidence."
     }
   }
 }

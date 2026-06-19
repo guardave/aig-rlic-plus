@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-06-18T10:36:55Z",
+  "generated_at": "2026-06-19T10:26:03Z",
   "columns": [
     {
       "column_name": "date",
@@ -309,6 +309,186 @@
       "axis_label": "252d Fwd Return"
     },
     {
+      "column_name": "busloans_usd",
+      "display_name": "C&I Loans Outstanding ($bn)",
+      "unit": "usd",
+      "axis_label": "C&I Loans ($bn)"
+    },
+    {
+      "column_name": "unrate",
+      "display_name": "Unemployment Rate (%)",
+      "unit": "pct",
+      "axis_label": "Unemployment (%)"
+    },
+    {
+      "column_name": "fed_funds",
+      "display_name": "Fed Funds Rate (%)",
+      "unit": "pct",
+      "axis_label": "Fed Funds (%)"
+    },
+    {
+      "column_name": "busloans_pct_yoy",
+      "display_name": "C&I Loans YoY (%)",
+      "unit": "pct",
+      "axis_label": "C&I Loans YoY (%)"
+    },
+    {
+      "column_name": "busloans_pct_mom",
+      "display_name": "C&I Loans MoM (%)",
+      "unit": "pct",
+      "axis_label": "C&I Loans MoM (%)"
+    },
+    {
+      "column_name": "busloans_3m_pct",
+      "display_name": "C&I Loans 3M Change (%)",
+      "unit": "pct",
+      "axis_label": "C&I Loans 3M (%)"
+    },
+    {
+      "column_name": "busloans_6m_pct",
+      "display_name": "C&I Loans 6M Change (%)",
+      "unit": "pct",
+      "axis_label": "C&I Loans 6M (%)"
+    },
+    {
+      "column_name": "busloans_ma12_usd",
+      "display_name": "C&I Loans 12M MA ($bn)",
+      "unit": "usd",
+      "axis_label": "C&I Loans 12M MA ($bn)"
+    },
+    {
+      "column_name": "busloans_dev_trend_pct",
+      "display_name": "C&I Loans Deviation from 12M Trend (%)",
+      "unit": "pct",
+      "axis_label": "Dev. from 12M MA (%)"
+    },
+    {
+      "column_name": "busloans_zscore_60m",
+      "display_name": "C&I Loans 60M Z-Score",
+      "unit": "none",
+      "axis_label": "Z-score (60M)"
+    },
+    {
+      "column_name": "busloans_yoy_zscore_60m",
+      "display_name": "C&I Loan Growth 60M Z-Score",
+      "unit": "none",
+      "axis_label": "YoY z-score (60M)"
+    },
+    {
+      "column_name": "busloans_accel_pct",
+      "display_name": "C&I Loan Growth Acceleration (pp)",
+      "unit": "pct",
+      "axis_label": "MoM accel. (pp)"
+    },
+    {
+      "column_name": "busloans_contraction",
+      "display_name": "C&I Loan Contraction Flag",
+      "unit": "none",
+      "axis_label": "Contraction (0/1)"
+    },
+    {
+      "column_name": "spy_fwd_1m",
+      "display_name": "SPY Forward 1M Return",
+      "unit": "decimal_return",
+      "axis_label": "SPY fwd 1M"
+    },
+    {
+      "column_name": "spy_fwd_3m",
+      "display_name": "SPY Forward 3M Return",
+      "unit": "decimal_return",
+      "axis_label": "SPY fwd 3M"
+    },
+    {
+      "column_name": "spy_fwd_6m",
+      "display_name": "SPY Forward 6M Return",
+      "unit": "decimal_return",
+      "axis_label": "SPY fwd 6M"
+    },
+    {
+      "column_name": "spy_fwd_12m",
+      "display_name": "SPY Forward 12M Return",
+      "unit": "decimal_return",
+      "axis_label": "SPY fwd 12M"
+    },
+    {
+      "column_name": "petrol_inv_kb",
+      "display_name": "Petroleum Product Stocks (kb)",
+      "unit": "count",
+      "axis_label": "Petroleum Product Stocks (kb)"
+    },
+    {
+      "column_name": "petrol_inv_pct_yoy",
+      "display_name": "Petroleum Stocks YoY (%)",
+      "unit": "pct",
+      "axis_label": "Petroleum Stocks YoY (%)"
+    },
+    {
+      "column_name": "petrol_inv_pct_chg",
+      "display_name": "Petroleum Stocks Short Change (%)",
+      "unit": "pct",
+      "axis_label": "Petroleum Stocks Short Change (%)"
+    },
+    {
+      "column_name": "petrol_inv_3m_pct",
+      "display_name": "Petroleum Stocks 3M Change (%)",
+      "unit": "pct",
+      "axis_label": "Petroleum Stocks 3M Change (%)"
+    },
+    {
+      "column_name": "petrol_inv_6m_pct",
+      "display_name": "Petroleum Stocks 6M Change (%)",
+      "unit": "pct",
+      "axis_label": "Petroleum Stocks 6M Change (%)"
+    },
+    {
+      "column_name": "petrol_inv_ma12_kb",
+      "display_name": "Petroleum Stocks 12M MA (kb)",
+      "unit": "count",
+      "axis_label": "Petroleum Stocks 12M MA (kb)"
+    },
+    {
+      "column_name": "petrol_inv_dev_trend_pct",
+      "display_name": "Petroleum Stocks vs Trend (%)",
+      "unit": "pct",
+      "axis_label": "Petroleum Stocks vs Trend (%)"
+    },
+    {
+      "column_name": "petrol_inv_zscore_60m",
+      "display_name": "Petroleum Stocks 5Y Z-Score",
+      "unit": "none",
+      "axis_label": "Petroleum Stocks 5Y Z-Score"
+    },
+    {
+      "column_name": "petrol_inv_yoy_zscore_60m",
+      "display_name": "Petroleum Stocks YoY 5Y Z-Score",
+      "unit": "none",
+      "axis_label": "Petroleum Stocks YoY 5Y Z-Score"
+    },
+    {
+      "column_name": "petrol_inv_accel_pct",
+      "display_name": "Petroleum Stocks Acceleration (pp)",
+      "unit": "pct",
+      "axis_label": "Petroleum Stocks Acceleration (pp)"
+    },
+    {
+      "column_name": "report_week_end",
+      "display_name": "WTTSTUS1 Report Week End",
+      "unit": "date",
+      "axis_label": "WTTSTUS1 Report Week End"
+    },
+    {
+      "column_name": "release_date",
+      "display_name": "Release Date",
+      "unit": "date",
+      "axis_label": "Release Date"
+    },
+    {
+      "column_name": "days_since_release",
+      "display_name": "Days Since Release",
+      "unit": "count",
+      "axis_label": "Days Since Release"
+    },
+    {
       "column_name": "ism_services_pmi",
       "display_name": "ISM Services PMI",
       "unit": "index",
@@ -352,9 +532,57 @@
     },
     {
       "column_name": "reference_month_end",
-      "display_name": "ISM Services Reference Month End",
+      "display_name": "Reference Month End",
       "unit": "date",
-      "axis_label": "ISM Services Reference Month End"
+      "axis_label": "Reference Month End"
+    },
+    {
+      "column_name": "m2sl_usd",
+      "display_name": "M2 Money Stock ($bn)",
+      "unit": "usd",
+      "axis_label": "M2 ($bn)"
+    },
+    {
+      "column_name": "m2sl_pct_yoy",
+      "display_name": "M2 Money Supply YoY (%)",
+      "unit": "pct",
+      "axis_label": "M2 YoY (%)"
+    },
+    {
+      "column_name": "m2sl_pct_mom",
+      "display_name": "M2 Money Supply MoM (%)",
+      "unit": "pct",
+      "axis_label": "M2 MoM (%)"
+    },
+    {
+      "column_name": "m2sl_3m_pct",
+      "display_name": "M2 Money Supply 3M Change (%)",
+      "unit": "pct",
+      "axis_label": "3M Change (%)"
+    },
+    {
+      "column_name": "m2sl_6m_pct",
+      "display_name": "M2 Money Supply 6M Change (%)",
+      "unit": "pct",
+      "axis_label": "6M Change (%)"
+    },
+    {
+      "column_name": "m2sl_yoy_accel_pct",
+      "display_name": "M2 YoY Acceleration (pp)",
+      "unit": "pct",
+      "axis_label": "YoY Acceleration (pp)"
+    },
+    {
+      "column_name": "m2sl_yoy_zscore_120m",
+      "display_name": "M2 YoY 120M Z-Score",
+      "unit": "none",
+      "axis_label": "Z-Score"
+    },
+    {
+      "column_name": "m2sl_contraction_flag",
+      "display_name": "M2 YoY Contraction Flag",
+      "unit": "none",
+      "axis_label": "Contraction (0/1)"
     }
   ]
 }

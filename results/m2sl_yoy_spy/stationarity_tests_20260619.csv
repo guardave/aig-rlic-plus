@@ -1,0 +1,17 @@
+variable,test,statistic,p_value,lags,n_obs,conclusion
+m2sl_usd,ADF,1.043,0.9947,8,400,Non-stationary
+m2sl_usd,KPSS,2.9423,0.0001,12,400,Reject stationarity at 5%
+m2sl_pct_yoy,ADF,-3.2683,0.0164,12,388,Stationary at 5%
+m2sl_pct_yoy,KPSS,0.106,0.5567,11,388,Fail to reject stationarity
+m2sl_pct_mom,ADF,-4.1577,0.0008,8,399,Stationary at 5%
+m2sl_pct_mom,KPSS,0.1186,0.5016,9,399,Fail to reject stationarity
+m2sl_3m_pct,ADF,-4.2374,0.0006,10,397,Stationary at 5%
+m2sl_3m_pct,KPSS,0.1089,0.5438,10,397,Fail to reject stationarity
+m2sl_6m_pct,ADF,-4.068,0.0011,7,394,Stationary at 5%
+m2sl_6m_pct,KPSS,0.1033,0.5697,11,394,Fail to reject stationarity
+m2sl_yoy_accel_pct,ADF,-5.3974,0.0,12,387,Stationary at 5%
+m2sl_yoy_accel_pct,KPSS,0.0376,0.945,8,387,Fail to reject stationarity
+m2sl_yoy_zscore_120m,ADF,-3.2138,0.0192,12,329,Stationary at 5%
+m2sl_yoy_zscore_120m,KPSS,0.1205,0.4942,11,329,Fail to reject stationarity
+spy_ret,ADF,-10.8996,0.0,2,399,Stationary at 5%
+spy_ret,KPSS,0.1459,0.403,3,399,Fail to reject stationarity

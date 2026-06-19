@@ -1,0 +1,21 @@
+{
+  "chart_name": "hero",
+  "pair_id": "m2sl_yoy_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "M2 Money Supply (YoY growth) (vermillion, left axis) against the SPY price (blue, right axis), 1993\u20132026. The 2020-21 surge near 27% and the first-ever year-over-year contraction in 2022-23 are the vivid but regime-concentrated episodes. The tradable rule actually trades on the month-to-month CHANGE in this YoY rate (money-growth acceleration), not the level shown here. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Hero shows the vivid M2 YoY history with the 0% line and the surge/contraction episodes; caption clarifies the winner trades the acceleration transform, not this level.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/m2sl_yoy_spy_monthly_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T10:55:32.956514+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
+}

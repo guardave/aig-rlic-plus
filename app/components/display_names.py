@@ -36,6 +36,10 @@ INDICATOR_NAMES: dict[str, str] = {
     "petrol_inv_spy": "Petroleum Inventories",
     "ism_services": "ISM Services PMI",
     "ism_services_spy": "ISM Services PMI",
+    "m2sl_yoy": "M2 Money Supply (YoY)",
+    "m2sl_yoy_spy": "M2 Money Supply (YoY)",
+    "phlxsox": "PHLX Semiconductor Index",
+    "phlxsox_spy": "PHLX Semiconductor Index",
 }
 
 TARGET_NAMES: dict[str, str] = {
@@ -66,6 +70,11 @@ INDICATOR_ABBREV: dict[str, str] = {
     "busloans_spy": "C&I Loans",
     "petrol_inv": "PETROL",
     "petrol_inv_spy": "PETROL",
+    # "SOX" is the conventional ticker abbreviation for the PHLX Semiconductor
+    # Index; the long form does not embed it, so first-mention renders
+    # "PHLX Semiconductor Index (SOX)".
+    "phlxsox": "SOX",
+    "phlxsox_spy": "SOX",
 }
 
 

@@ -1,0 +1,20 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "m2sl_yoy_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-QR1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "SPY performance by M2 YoY growth LEVEL quartile (concurrent, descriptive): Sharpe (left) and annualized return (right). Sharpe FALLS from Q1 1.06 / 14.4% to Q4 0.53 / 10.0%, and Q4's max drawdown is -47%. The high-money-growth regime is the riskiest concurrently \u2014 this LEVEL story is separate from, and not the same as, the acceleration winner.",
+  "narrative_alignment_note": "VIZ-QR1 dual-panel from regime_quartile_returns.csv; values re-read at generation time. Per Evan handoff \u00a7quartiles: the high-money-growth Q4 is the riskiest concurrent regime (H1b inflation/tightening counter-channel). LEVEL vs acceleration are deliberately separate stories.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/m2sl_yoy_spy/regime_quartile_returns.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T10:55:34.839745+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
+}

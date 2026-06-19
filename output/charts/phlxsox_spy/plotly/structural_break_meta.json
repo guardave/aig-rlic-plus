@@ -1,0 +1,24 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.3",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "SOX/SPY relative strength 6-month momentum over the test sample (1995-02\u20132026-06, n = 7896) with the Quandt-Andrews candidate break date (2020-03). The test does NOT flag a break (sup-F 2.12, residual-bootstrap p = 0.67); the instability shows up in the rolling correlation's sign, not as a one-time break. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Annotation-only chart per ECON-H4; values from JSON.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/phlxsox_spy/structural_break_phlxsox_spy.json",
+    "data/phlxsox_spy_daily_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T13:09:46.940476+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)",
+  "break_date": "2020-03-17",
+  "annotation_strategy_id": "manual_override"
+}

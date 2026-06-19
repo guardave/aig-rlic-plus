@@ -1,0 +1,8 @@
+{
+  "chart_name": "rolling_sharpe_cp",
+  "pair_id": "m2sl_yoy_spy",
+  "skipped_by": "VIZ-CP1-G",
+  "reason": "ECON-CP2 artifacts intentionally absent for this pair: regime_story=false in results/m2sl_yoy_spy/signal_scope.json (Evan handoff). No upstream result file exists to chart.",
+  "generated_at": "2026-06-19T10:56:06.855259+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
+}
