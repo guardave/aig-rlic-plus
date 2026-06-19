@@ -108,22 +108,52 @@ def build_threshold(signal, work, sig_col, is_mask, threshold_name):
         pct = int(threshold_name.split("p")[1])
         threshold = signal.rolling(60, min_periods=36).quantile(pct / 100)
         value = float(threshold.dropna().iloc[-1]) if threshold.dropna().shape[0] else None
-        note = f"rolling 60-month p{pct}; threshold_value is latest available threshold"
+        note = f"threshold is rolling (60-month p{pct}); threshold_value is the latest rolling value"
     elif "T3_zscore_neg" in threshold_name:
         k = float(threshold_name.split("_")[-1])
         threshold = signal.rolling(60, min_periods=36).mean() - k * signal.rolling(60, min_periods=36).std()
         value = float(threshold.dropna().iloc[-1]) if threshold.dropna().shape[0] else None
-        note = f"rolling 60-month mean minus {k:g} standard deviation; threshold_value is latest available threshold"
+        note = f"threshold is rolling (60-month mean minus {k:g} standard deviation); threshold_value is the latest rolling value"
     elif "T3_zscore" in threshold_name:
         k = float(threshold_name.split("_")[-1])
         threshold = signal.rolling(60, min_periods=36).mean() + k * signal.rolling(60, min_periods=36).std()
         value = float(threshold.dropna().iloc[-1]) if threshold.dropna().shape[0] else None
-        note = f"rolling 60-month mean plus {k:g} standard deviation; threshold_value is latest available threshold"
+        note = f"threshold is rolling (60-month mean plus {k:g} standard deviation); threshold_value is the latest rolling value"
     else:
         threshold = 0.0
         value = 0.0
         note = "zero threshold"
     return threshold, value, note
+
+
+def derive_winner_series(work, winner):
+    """Derive the exact position and return series used for the tournament winner."""
+    signal_column = SIGNAL_COLUMN_MAP.get(winner["signal"])
+    if signal_column is None or signal_column not in work.columns:
+        raise KeyError(f"Unknown winner signal column for {winner['signal']}")
+
+    lead = int(winner["lead_months"])
+    raw_signal = work[signal_column].copy()
+    signal_for_rule = raw_signal.shift(lead) if lead > 0 else raw_signal
+    threshold, threshold_value, threshold_note = build_threshold(
+        signal_for_rule,
+        work,
+        signal_column,
+        work.index <= IS_END,
+        str(winner["threshold"]),
+    )
+
+    if winner["strategy"] == "P1_long_cash":
+        position = bullish_condition(signal_for_rule, threshold).astype(float)
+    elif winner["strategy"] == "P2_signal_strength":
+        position = signal_strength_position(signal_for_rule)
+    elif winner["strategy"] == "P3_long_short":
+        position = bullish_condition(signal_for_rule, threshold).astype(float) * 2 - 1
+    else:
+        raise ValueError(f"Unsupported strategy: {winner['strategy']}")
+
+    strategy_return = position.shift(1) * work["xlv_ret"]
+    return position, strategy_return, signal_for_rule, threshold, threshold_value, threshold_note
 
 
 def log_stage(name):
@@ -1361,53 +1391,55 @@ def main():
         if len(valid_strats) > 0:
             best = valid_strats.loc[valid_strats["oos_sharpe"].idxmax()]
             work_for_summary = df_monthly.dropna(subset=["umcsent"])
-            is_mask_summary = work_for_summary.index <= IS_END
             oos_mask_summary = work_for_summary.index >= OOS_START
             signal_column = SIGNAL_COLUMN_MAP.get(best["signal"])
-            threshold_value = None
-            threshold_note = str(best["threshold"])
-            oos_n_trades = 0
             oos_period_start = OOS_START.strftime("%Y-%m-%d")
             oos_period_end = work_for_summary.loc[oos_mask_summary].index.max().strftime("%Y-%m-%d")
 
-            if signal_column and signal_column in work_for_summary.columns:
-                raw_signal = work_for_summary[signal_column].copy()
-                lead = int(best["lead_months"])
-                signal_for_rule = raw_signal.shift(lead) if lead > 0 else raw_signal
-                threshold_obj, threshold_value, threshold_note = build_threshold(
-                    signal_for_rule,
-                    work_for_summary,
-                    signal_column,
-                    is_mask_summary,
-                    str(best["threshold"]),
-                )
-
-                if best["strategy"] == "P1_long_cash":
-                    position = bullish_condition(signal_for_rule, threshold_obj).astype(float)
-                elif best["strategy"] == "P2_signal_strength":
-                    position = signal_strength_position(signal_for_rule)
-                elif best["strategy"] == "P3_long_short":
-                    position = bullish_condition(signal_for_rule, threshold_obj).astype(float) * 2 - 1
-                else:
-                    position = pd.Series(0.0, index=work_for_summary.index)
-
-                oos_position = position.loc[oos_mask_summary].dropna()
-                oos_n_trades = int(oos_position.diff().abs().fillna(0).gt(0).sum())
+            position, strategy_return, signal_for_rule, threshold_obj, threshold_value, threshold_note = derive_winner_series(
+                work_for_summary,
+                best,
+            )
+            oos_position = position.loc[oos_mask_summary].dropna()
+            oos_n_trades = int(oos_position.diff().abs().fillna(0).gt(0).sum())
+            threshold_is_rolling = isinstance(threshold_obj, pd.Series)
+            threshold_note_contract = (
+                f"{threshold_note} - see winner_trade_log.csv for the full threshold path"
+                if threshold_is_rolling else threshold_note
+            )
+            threshold_rule = "gt" if EXPECTED_DIRECTION == "procyclical" else "lt"
+            strategy_display = {
+                "P1_long_cash": "Long/Cash",
+                "P2_signal_strength": "Signal-strength sizing",
+                "P3_long_short": "Long/Short",
+            }.get(best["strategy"], str(best["strategy"]))
 
             winner_summary = {
                 "pair_id": PAIR_ID,
                 "generated_at": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
                 "signal_column": signal_column,
                 "signal_code": best["signal"],
+                "signal_display_name": "UMCSENT 3-month momentum" if best["signal"] == "S3_mom" else best["signal"],
                 "target_symbol": "XLV",
+                "threshold_code": best["threshold"],
                 "threshold_value": round(float(threshold_value), 6) if threshold_value is not None else None,
-                "threshold_rule": "gt" if EXPECTED_DIRECTION == "procyclical" else "lt",
+                "threshold_rule": threshold_rule,
+                "threshold_note": threshold_note_contract,
                 "strategy_family": best["strategy"],
+                "strategy_code": str(best["strategy"]).split("_")[0],
+                "strategy_display_name": strategy_display,
+                "strategy_description": (
+                    f"Long XLV when the {int(best['lead_months'])}-month-lagged UMCSENT 3-month momentum "
+                    f"is {threshold_rule} its rolling threshold; otherwise cash."
+                ),
                 "direction": EXPECTED_DIRECTION,
                 "signal": best["signal"],
                 "threshold": best["threshold"],
                 "strategy": best["strategy"],
                 "lead_months": int(best["lead_months"]),
+                "lead_value": int(best["lead_months"]),
+                "lead_unit": "months",
+                "lead_description": f"Signal lead = {int(best['lead_months'])} month(s) before the rule is applied",
                 "oos_sharpe": round(float(best["oos_sharpe"]), 4),
                 "oos_ann_return": round(float(best["oos_ann_return"]), 6),  # ratio form (META-UC)
                 "oos_ann_vol": round(float(best["oos_ann_vol"]), 6),
@@ -1429,12 +1461,29 @@ def main():
                 "bh_max_drawdown": round(float(bh.iloc[0]["max_drawdown"]), 6) if len(bh) > 0 else None,
                 "oos_start": OOS_START.strftime("%Y-%m-%d"),
                 "is_end": IS_END.strftime("%Y-%m-%d"),
+                "schema_version": "1.1.0",
                 "notes": (
                     f"Expected relationship is {EXPECTED_DIRECTION}. "
-                    f"Winning threshold uses {threshold_note}. "
+                    f"Winning threshold uses {threshold_note_contract}. "
                     f"Signal is lagged by {int(best['lead_months'])} months before the rule is applied."
                 ),
             }
+
+            sr = pd.DataFrame({
+                "date": work_for_summary.index.strftime("%Y-%m-%d"),
+                "signal_value": signal_for_rule.reindex(work_for_summary.index).values,
+                "threshold_value": (
+                    threshold_obj.reindex(work_for_summary.index).values
+                    if isinstance(threshold_obj, pd.Series)
+                    else np.repeat(float(threshold_obj), len(work_for_summary.index))
+                ),
+                "position": position.reindex(work_for_summary.index).fillna(0.0).values,
+                "strategy_return": strategy_return.reindex(work_for_summary.index).fillna(0.0).values,
+                "bh_return": work_for_summary["xlv_ret"].values,
+            })
+            sr_path = os.path.join(RESULTS_DIR, f"strategy_returns_{DATE_TAG}.csv")
+            sr.to_csv(sr_path, index=False)
+            print(f"  Strategy returns -> {sr_path}")
 
         winner_path = os.path.join(RESULTS_DIR, "winner_summary.json")
         with open(winner_path, "w") as f:
@@ -1447,27 +1496,46 @@ def main():
             work = df_monthly.dropna(subset=["umcsent"])
             oos_mask = work.index >= OOS_START
 
-            sig_col = SIGNAL_COLUMN_MAP.get(winner_summary["signal"])
-            lead = winner_summary["lead_months"]
-            thresh_name = winner_summary["threshold"]
+            position, strategy_return, signal_for_rule, threshold_obj, _, _ = derive_winner_series(
+                work,
+                {
+                    "signal": winner_summary["signal"],
+                    "threshold": winner_summary["threshold"],
+                    "strategy": winner_summary["strategy"],
+                    "lead_months": winner_summary["lead_months"],
+                },
+            )
+            oos_data = work[oos_mask].copy()
+            oos_data["signal_value"] = signal_for_rule[oos_mask]
+            oos_data["threshold"] = (
+                threshold_obj[oos_mask]
+                if isinstance(threshold_obj, pd.Series)
+                else float(threshold_obj)
+            )
+            oos_data["position"] = position[oos_mask].fillna(0.0)
+            oos_data["strat_ret"] = strategy_return[oos_mask].fillna(0.0)
+            oos_data["strategy_return"] = oos_data["strat_ret"]
+            oos_data["xlv_return"] = oos_data["xlv_ret"]
+            oos_data["cum_return"] = (1 + oos_data["strat_ret"]).cumprod()
+            oos_data["cumulative_return"] = oos_data["cum_return"] - 1
 
-            if sig_col and sig_col in work.columns:
-                signal = work[sig_col].shift(lead) if lead > 0 else work[sig_col]
-                is_mask = work.index <= IS_END
-                thresh_val, _, _ = build_threshold(signal, work, sig_col, is_mask, thresh_name)
-                position = bullish_condition(signal, thresh_val).astype(float)
-
-                strat_ret = position.shift(1) * work["xlv_ret"]
-                oos_data = work[oos_mask].copy()
-                oos_data["position"] = position[oos_mask]
-                oos_data["strat_ret"] = strat_ret[oos_mask]
-                oos_data["cum_return"] = (1 + oos_data["strat_ret"].fillna(0)).cumprod()
-
-                trade_log = oos_data[["position", "strat_ret", "cum_return", "xlv"]].copy()
-                trade_log.index.name = "date"
-                trade_log_path = os.path.join(RESULTS_DIR, "winner_trade_log.csv")
-                trade_log.to_csv(trade_log_path)
-                print(f"  Winner trade log -> {trade_log_path}")
+            trade_log = oos_data[
+                [
+                    "signal_value",
+                    "threshold",
+                    "position",
+                    "xlv_return",
+                    "strat_ret",
+                    "strategy_return",
+                    "cum_return",
+                    "cumulative_return",
+                    "xlv",
+                ]
+            ].copy()
+            trade_log.index.name = "date"
+            trade_log_path = os.path.join(RESULTS_DIR, "winner_trade_log.csv")
+            trade_log.to_csv(trade_log_path)
+            print(f"  Winner trade log -> {trade_log_path}")
         except Exception as e:
             print(f"  Trade log generation failed: {e}")
 
