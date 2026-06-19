@@ -1822,3 +1822,22 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Outstanding:** (1) umcsent reconciled branch needs re-verification (gates/DOM) — paused for checkpoint; then awaits stakeholder approval to merge. (2) Legacy signal_code_registry non-conforming entries (triple-confirmed) — cleanup wave candidate. (3) New-pair queue exhausted (M2✓ SOX✓). (4) Wave D prose-vs-data lint still pending.
 
 🤖 Agent: Lead Lesandro
+
+---
+
+### 2026-06-19 (cont.) — Lead Lesandro — umcsent shipped; fleet sweep clean; GH-issues policy
+
+**Status:** umcsent live on production. Full fleet verified healthy. New documentation policy adopted.
+
+**Accomplished:**
+- umcsent winner-refresh MERGED + production-verified (`7b0a1f2`) — corrected winner (1.16) now live; the stale-1.02 production defect resolved.
+- Full-fleet production sweep (post-reboot): **53 PASS / 0 FAIL / 60**, GATE-27/DP1 0. All 13 pairs + frozen Sample clean.
+- One non-blocking finding → GH issue **#12** (GATE-VIZ-NBER2 dotcom shading, Vera-owned, hy_ig_v2 EXEMPT).
+
+**Policy change (binding):** new findings/deferred work → **GitHub issues** (`gh issue create`), NOT docs/backlog.md. backlog.md is now historical-only. (memory: feedback_gh_issues_over_backlog)
+
+**For Vera:** GH #12 — reconcile dot-com history_zoom NBER shading across 6 non-frozen pairs (widen window to cover 2001 recession OR drop spurious bands). Leave hy_ig_v2 untouched.
+
+**Outstanding:** (1) #12 (Vera). (2) Candidate issues not yet filed: signal_code_registry legacy entries (triple-confirmed), Wave D prose-vs-data lint. (3) New-pair queue exhausted.
+
+🤖 Agent: Lead Lesandro

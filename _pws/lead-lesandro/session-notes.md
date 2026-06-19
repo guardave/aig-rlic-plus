@@ -1277,3 +1277,17 @@ The Tier-3 lint design caught it on first run. `results/umcsent_xlv/winner_summa
 **Branch cleanup:** pair260619_m2sl_yoy_spy + pair260619_phlxsox_spy both deleted (merged, consent given).
 
 **Recurring backlog (now triple-confirmed):** legacy `signal_code_registry.json` non-conforming entries (`ism_services_above_50` etc., non-enum source_method) — flagged independently by the umcsent, M2, and SOX Evan stages. Worth a small cleanup wave.
+
+---
+
+## 2026-06-19 (cont.) — umcsent shipped; full-fleet sweep clean; GH-issues policy
+
+**umcsent winner-refresh MERGED to production** (`7b0a1f2`, stakeholder-approved). Reconciliation merge to main hit one conflict (PWS `outstanding-work.md` only — resolved --ours; all umcsent code/results merged clean). Production DOM confirmed: 1.16 PRESENT, stale 1.02/11.93 absent. The live production defect (umcsent showing the wrong winner) is RESOLVED. Branch `fix260619_umcsent_winner_refresh` KEPT (per user, not deleted).
+
+**Full-fleet production cloud sweep (post-reboot, authoritative):** 13 pairs × 4 pages = **53 PASS / 0 FAIL / 60 TOTAL**, GATE-27-PNG 0, GATE-DP1 0. No errs/SEV1/stubs/missing-charts. The 3 just-shipped pairs (m2sl_yoy_spy, phlxsox_spy, umcsent_xlv) + frozen Sample (sample_badge=True, leak=False) all clean.
+- **One non-blocking finding:** GATE-VIZ-NBER2 WARN on 7 pairs' `history_zoom_dotcom` (spurious/borderline NBER shading; 2001 recession at the dot-com window edge). Pre-existing template behavior (spans old + new pairs), NOT a regression. Vera-owned, hy_ig_v2 EXEMPT.
+- **Process note:** I jumped early and ran the sweep BEFORE the user's reboot (read-only, no harm) — user caught it; killed + reran post-reboot. Lesson: when the user says "reboot THEN verify," wait for the reboot (pre-reboot sweep can carry file-sync-lag false signals).
+
+**NEW POLICY (user, 2026-06-19): document new findings/deferred work as GitHub issues, NOT docs/backlog.md rows.** backlog.md = historical record only. Saved to memory `feedback_gh_issues_over_backlog`. First issue under policy: **#12** (GATE-VIZ-NBER2 dotcom shading). Pre-existing: #4 (storytelling).
+
+**Still-open (candidates for GH issues if/when user wants):** (1) signal_code_registry legacy non-conforming entries (triple-confirmed umcsent/M2/SOX); (2) Wave D prose-vs-data lint (validated design, can land blocking now umcsent is fixed). Offered to file both; awaiting user word.

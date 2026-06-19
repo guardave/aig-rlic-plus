@@ -1,5 +1,13 @@
 # Release Notes
 
+## 2026-06-19 — umcsent winner-refresh shipped; full-fleet sweep clean; GH-issues policy
+
+**umcsent_xlv winner-refresh merged to production (`7b0a1f2`, stakeholder-approved).** The corrupted `winner_summary.json` (mis-encoded threshold/lead → recomputed to 0.116) is corrected to the true tournament winner (S3_mom / rolling z>1.0 / 6-month lead / Sharpe 1.16), with the producer bug fixed at the root. Production DOM confirmed serving 1.16 (stale 1.02 gone). Reconciled with the intervening direct-to-main `2f011ae` hero/Granger fix before merge.
+
+**Full-fleet production cloud sweep (post-reboot): 53 PASS / 0 FAIL / 60 TOTAL**, GATE-27-PNG 0, GATE-DP1 0. All 13 pairs × 4 pages healthy; the 3 recently-shipped pairs (m2sl_yoy_spy, phlxsox_spy, umcsent_xlv) and frozen Sample (`sample_badge=True, leak=False`) all clean. One non-blocking finding: GATE-VIZ-NBER2 WARN on 7 pairs' `history_zoom_dotcom` charts (spurious/borderline NBER shading; pre-existing template behavior, not a regression) — tracked in **GH issue #12** (Vera-owned; `hy_ig_v2_spy` exempt).
+
+**Process: new findings/deferred work are now documented as GitHub issues, not `docs/backlog.md` rows** (user directive 2026-06-19). `backlog.md` remains the historical record; no new rows are added to it. First issue under the policy: #12.
+
 ## 2026-06-19 — Two new pairs shipped (#23 M2 YoY, #24 PHLX SOX) — both built in Mode 1
 
 **`m2sl_yoy_spy` (#23) — M2 Money Supply YoY → SPY.** Merged `9808b56`, production-verified 5/0. Winner = M2 money-growth **acceleration** (gt p50, L2, procyclical), OOS Sharpe 1.69 vs 0.90 B&H, max DD −4.0%. Source FRED `M2SL` live (the FRED-vs-DataMaster gap was adjudicated as benign M2 seasonal-adjustment revision drift — FRED is ground truth). Honest verdict: NOT a leading indicator — Granger runs reverse (market leads money); the edge is a found-in-search acceleration pattern, confidence LOW, bootstrap p=0.025.
