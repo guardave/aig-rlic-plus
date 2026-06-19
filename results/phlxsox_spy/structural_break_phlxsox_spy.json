@@ -1,0 +1,16 @@
+{
+  "pair_id": "phlxsox_spy",
+  "test": "Quandt-Andrews unknown breakpoint (sup-F, residual-bootstrap p, 200 reps)",
+  "sample_start": "1995-02-01",
+  "sample_end": "2026-06-17",
+  "n_obs": 7896,
+  "trimming_pct": 0.15,
+  "break_date": "2020-03-17",
+  "f_stat": 2.1154,
+  "p_value": 0.665,
+  "flagged": false,
+  "flag_message": null,
+  "rolling_corr_sign_stability": 0.4205,
+  "rolling_corr_stability_verdict": "sign_unstable",
+  "cp2_note": "CP2 skipped \u2014 regime_story not set in signal_scope.json"
+}

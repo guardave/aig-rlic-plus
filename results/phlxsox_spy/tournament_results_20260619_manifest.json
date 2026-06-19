@@ -1,0 +1,52 @@
+{
+  "file": "tournament_results_20260619.csv",
+  "pair_id": "phlxsox_spy",
+  "grid": {
+    "signals": [
+      "rs_mom1m",
+      "rs_mom3m",
+      "rs_mom6m",
+      "rs_mom12m",
+      "rs_zscore126",
+      "rs_zscore252",
+      "sox_mom1m",
+      "sox_mom3m",
+      "sox_mom6m",
+      "sox_mom12m",
+      "hmm_stress"
+    ],
+    "thresholds": "T1_fixed_p{25,50,75}, T2_roll_p{25,75}, T3_zscore_{\u00b11.0,\u00b11.5}, T4_zero (momentum signals)",
+    "strategies": [
+      "P1_long_cash_{pro,counter}",
+      "P2_signal_strength_{pro,counter}",
+      "P3_long_short_{pro,counter}"
+    ],
+    "leads_days": [
+      1,
+      5,
+      10,
+      21,
+      63
+    ],
+    "lookbacks": [
+      "LB63",
+      "LB126",
+      "LB252",
+      "LB_NA"
+    ]
+  },
+  "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
+  "total_strategy_rows": 6760,
+  "valid_strategy_rows": 4607,
+  "sampling": "exhaustive (grid within budget)",
+  "benchmark_rows": "signal==BENCHMARK (buy&hold) is the ECON-T4 benchmark, valid=False, excluded from combo counts; signal==SPY_OWN_MOMENTUM is an ADDITIONAL trivial-trend benchmark (the central honesty challenge: a high-beta SOX rule must beat SPY's own momentum, not just buy&hold), also valid=False and excluded from combo counts.",
+  "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 (NO L0 \u2014 contemporaneous = co-movement)",
+  "cost_note": "returns gross of costs; 5bps sensitivity in tournament_validation",
+  "assertions": [
+    "top strategy oos_sharpe > bottom strategy oos_sharpe",
+    "all oos_sharpe finite",
+    "exactly one BENCHMARK (buy&hold) row, valid=False",
+    "leads all >= 1"
+  ],
+  "generated_at": "2026-06-19T12:57:10Z"
+}

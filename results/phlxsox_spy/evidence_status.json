@@ -1,0 +1,10 @@
+{
+  "pair_id": "phlxsox_spy",
+  "schema_version": "1.2.0",
+  "status": "found_in_search",
+  "updated_at": "2026-06-19T12:57:10Z",
+  "owner": "evan",
+  "plain_english": "What you see is the best rule found by searching 4607 valid strategy combinations on data the model had not seen \u2014 not a rule that passed an independent final exam. The crucial honesty point for this pair: semiconductors (SOX) and the broad market (SPY) move together about 71% of the time on the same day, but that is shared market exposure, NOT proof that semis predict the market. To test a real lead we required the signal to act at least one day AHEAD and to beat a trivial 'follow SPY's own trend' rule. It did edge SPYs own momentum on Sharpe, but the win is fragile: the rule looked WORSE than buy-and-hold in its training years, only shone in a single strong-semis stretch (2021-2026), lost money in every past crisis (Dot-Com, GFC, COVID), and most rules we tried scored below buy-and-hold. So this is a search-found pattern, not a confirmed edge. Lead-lag statistics: Bidirectional Granger (both directions significant) \u2014 feedback, not clean lead \u2014 note the relationship runs BOTH ways (semis and the market push each other), so it is feedback, not a one-way lead.",
+  "technical_note": "Daily, tournament-OOS only (2021-06-11..2026-06-17, 1260 td). Winner phlxsox_rs_mom6m/T2_roll_p75/P1_long_cash pro/L63/LB63: OOS Sharpe 1.57 vs B&H 0.8185 (beats=True) vs SPY-own-momentum 0.8261 (beats=True); bootstrap p=0.041; IS Sharpe 0.104. Contemporaneous corr 0.709. TY Granger SOX->SPY sig lags [1, 2, 3, 5, 10, 21], SPY->SOX [1, 2, 3, 5, 10, 21]; pre-whitened CCF SOX-leads sig [4, 6, 8, 12, 15, 16]. Incremental edge over SPY-own-momentum (HAC LP) at some horizon = True. CP1=conditionally_durable, rolling-corr=sign_unstable. No holdout/final exam run.",
+  "next_step": "Run ECON-FE1 final exam: freeze the winning rule and test once on a confirmation window the search never touched. Given the SPY-own-momentum comparison (tentative edge), calibrate expectation accordingly."
+}
