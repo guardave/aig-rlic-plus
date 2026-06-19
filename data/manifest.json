@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-06-19T10:26:03Z",
+  "generated_at": "2026-06-19T12:43:56Z",
   "artifacts": [
     {
       "path": "data/hy_ig_v2_spy_daily_20260410.parquet",
@@ -192,6 +192,50 @@
       "path": "data/m2sl_yoy_spy_daily_latest.parquet",
       "schema_ref": "data/m2sl_yoy_spy_daily_schema.json",
       "source_master": "data/m2sl_yoy_spy_daily_19930129_20260617.parquet"
+    },
+    {
+      "path": "data/phlxsox_spy_daily_19940504_20260617.parquet",
+      "source": "yahoo:^SOX + yahoo:SPY (native-daily intermarket pair; SOX/SPY relative strength)",
+      "refresh_ttl_days": 1,
+      "schema_ref": "data/phlxsox_spy_daily_schema.json",
+      "last_updated": "2026-06-19",
+      "pairs": [
+        "phlxsox_spy"
+      ],
+      "mixed_freq_ttl_note": "Two native-daily equity series; TTL=1 (daily market data)."
+    },
+    {
+      "path": "data/phlxsox_spy_daily_latest.parquet",
+      "source": "alias_of:data/phlxsox_spy_daily_19940504_20260617.parquet",
+      "refresh_ttl_days": 1,
+      "schema_ref": "data/phlxsox_spy_daily_schema.json",
+      "last_updated": "2026-06-19",
+      "pairs": [
+        "phlxsox_spy"
+      ],
+      "source_master": "data/phlxsox_spy_daily_19940504_20260617.parquet"
+    },
+    {
+      "path": "data/phlxsox_spy_monthly_19940531_20260630.parquet",
+      "source": "yahoo:^SOX + yahoo:SPY (native-daily intermarket pair; SOX/SPY relative strength)",
+      "refresh_ttl_days": 30,
+      "schema_ref": "data/phlxsox_spy_monthly_schema.json",
+      "last_updated": "2026-06-19",
+      "pairs": [
+        "phlxsox_spy"
+      ],
+      "mixed_freq_ttl_note": "Month-end resampled lens; TTL=30 (monthly analysis cadence)."
+    },
+    {
+      "path": "data/phlxsox_spy_monthly_latest.parquet",
+      "source": "alias_of:data/phlxsox_spy_monthly_19940531_20260630.parquet",
+      "refresh_ttl_days": 30,
+      "schema_ref": "data/phlxsox_spy_monthly_schema.json",
+      "last_updated": "2026-06-19",
+      "pairs": [
+        "phlxsox_spy"
+      ],
+      "source_master": "data/phlxsox_spy_monthly_19940531_20260630.parquet"
     }
   ]
 }

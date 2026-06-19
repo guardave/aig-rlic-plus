@@ -1,0 +1,13 @@
+direction,lag,f_statistic,p_value,significant
+indicator_to_target,1,24.3331,1e-06,True
+target_to_indicator,1,39.8722,0.0,True
+indicator_to_target,2,13.487,1e-06,True
+target_to_indicator,2,19.7497,0.0,True
+indicator_to_target,3,8.8496,7e-06,True
+target_to_indicator,3,13.0803,0.0,True
+indicator_to_target,5,5.5775,3.9e-05,True
+target_to_indicator,5,8.1658,0.0,True
+indicator_to_target,10,3.0592,0.000696,True
+target_to_indicator,10,5.2371,0.0,True
+indicator_to_target,21,2.0998,0.002319,True
+target_to_indicator,21,3.339,0.0,True

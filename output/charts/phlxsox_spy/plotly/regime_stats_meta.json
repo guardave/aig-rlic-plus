@@ -1,0 +1,20 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-QR1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "SPY performance sorted by lagged SOX/SPY relative strength 6-month-momentum quartile: Sharpe (left) and annualized return (right). The pattern is hump-shaped, NOT monotonic \u2014 Q2 (Sharpe 1.22) and Q3 (1.06) are strongest while the extreme-weak Q1 is negative (-0.05). This is descriptive context, not the tradable rule, and it does not by itself validate a clean procyclical gradient.",
+  "narrative_alignment_note": "VIZ-QR1 dual-panel from regime_quartile_returns.csv; hump shape narrated honestly (not a clean monotone gradient).",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/phlxsox_spy/regime_quartile_returns.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T13:09:23.145604+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

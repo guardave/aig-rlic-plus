@@ -1,0 +1,9 @@
+{
+  "owner": "evan",
+  "split_policy_id": "v1_max252_25pct_cap1260",
+  "in_sample_end": "2021-06-10",
+  "oos_start": "2021-06-11",
+  "oos_end": "2026-06-17",
+  "sample_size_days": 8084,
+  "justification": "Daily policy on the full SOX/SPY sample (8084 trading days, 1994-05 onward). min(max(252, round(8084*0.25)), 1260) = 1260 days (~5y cap). Lead grid starts at L1: a contemporaneous signal is co-movement, not a forecast (central honesty challenge for this pair)."
+}

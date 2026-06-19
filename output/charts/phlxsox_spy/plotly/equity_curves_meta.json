@@ -1,0 +1,27 @@
+{
+  "chart_name": "equity_curves",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cumulative growth of 1.00 for three strategies: the SOX/SPY relative strength Long/Cash winner (vermillion), Buy & Hold SPY (grey dash), and a SPY-own-momentum benchmark (blue dot). Out-of-sample (2021-06 onward) the winner's Sharpe (1.57) beats both Buy & Hold (0.82) and SPY-own-momentum (0.83) \u2014 but that OOS window was a strong semiconductor bull, the in-sample Sharpe was just 0.10, and the rule lost in every prior crisis. The SPY-own-momentum line shows how thin the genuine edge is.",
+  "narrative_alignment_note": "3-LINE equity curve per binding brief requirement; SPY-own-momentum reconstructed from saved SPY returns and verified against winner_summary (Sharpe 0.83).",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/phlxsox_spy/strategy_returns_20260619.csv",
+    "results/phlxsox_spy/winner_summary.json"
+  ],
+  "reconciliation": {
+    "spy_own_momentum": {
+      "reconstructed_spy_mom_oos_sharpe": 0.8261,
+      "winner_summary_value": 0.8261,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-19T13:10:17.962564+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

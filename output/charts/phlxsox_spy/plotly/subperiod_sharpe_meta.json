@@ -1,0 +1,21 @@
+{
+  "chart_name": "subperiod_sharpe",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-CP1",
+    "VIZ-CP1.1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Winner-strategy Sharpe (vermillion/green) versus Buy & Hold SPY (grey) within each canonical crisis. The winner is deeply negative in Dot-Com (-1.16), GFC (-1.06) and COVID (-0.95) and only positive in the 2022 rates shock (+0.36) \u2014 a blunt reminder that the headline OOS Sharpe rests on the benign 2021\u201326 semiconductor bull, not on crisis resilience.",
+  "narrative_alignment_note": "Crisis Sharpe from stress_tests.csv; the pre-OOS losses are the central fragility evidence (honesty mandate #4).",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/phlxsox_spy/tournament_validation_20260619/stress_tests.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T13:09:48.678122+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

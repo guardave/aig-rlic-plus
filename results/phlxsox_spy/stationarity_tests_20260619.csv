@@ -1,0 +1,25 @@
+variable,test,statistic,p_value,lags,conclusion
+sox_level,ADF,5.6026,1.0,36,Non-stationary
+sox_level,KPSS,7.8043,0.0001,55,Reject stationarity at 5%
+sox_ret,ADF,-15.2522,0.0,36,Stationary at 5%
+sox_ret,KPSS,0.1992,0.2697,19,Fail to reject stationarity
+spy_ret,ADF,-16.9425,0.0,33,Stationary at 5%
+spy_ret,KPSS,0.1259,0.4728,24,Fail to reject stationarity
+sox_mom_1m_pct,ADF,-11.7901,0.0,23,Stationary at 5%
+sox_mom_1m_pct,KPSS,0.2199,0.2325,52,Fail to reject stationarity
+sox_mom_3m_pct,ADF,-8.1805,0.0,34,Stationary at 5%
+sox_mom_3m_pct,KPSS,0.235,0.209,54,Fail to reject stationarity
+sox_mom_6m_pct,ADF,-5.4254,0.0,19,Stationary at 5%
+sox_mom_6m_pct,KPSS,0.3133,0.1245,54,Fail to reject stationarity
+sox_mom_12m_pct,ADF,-4.1685,0.0007,35,Stationary at 5%
+sox_mom_12m_pct,KPSS,0.4615,0.05,54,Reject stationarity at 5%
+sox_spy_ratio,ADF,0.482,0.9843,35,Non-stationary
+sox_spy_ratio,KPSS,2.6107,0.0001,55,Reject stationarity at 5%
+sox_spy_logratio,ADF,-0.7931,0.8211,32,Non-stationary
+sox_spy_logratio,KPSS,2.638,0.0001,55,Reject stationarity at 5%
+sox_spy_ratio_mom_3m_pct,ADF,-8.2123,0.0,36,Stationary at 5%
+sox_spy_ratio_mom_3m_pct,KPSS,0.1742,0.324,54,Fail to reject stationarity
+sox_spy_ratio_mom_6m_pct,ADF,-5.2193,0.0,32,Stationary at 5%
+sox_spy_ratio_mom_6m_pct,KPSS,0.2236,0.2263,54,Fail to reject stationarity
+sox_spy_ratio_zscore_252d,ADF,-5.586,0.0,8,Stationary at 5%
+sox_spy_ratio_zscore_252d,KPSS,0.9366,0.0035,54,Reject stationarity at 5%

@@ -1,0 +1,85 @@
+{
+  "pair_id": "phlxsox_spy",
+  "schema_version": "1.1.0",
+  "indicator": "phlxsox",
+  "target": "spy",
+  "indicator_nature": "leading",
+  "indicator_type": "price",
+  "strategy_objective": "max_sharpe",
+  "expected_direction": "procyclical",
+  "data_provenance": {
+    "source": "Yahoo Finance (PHLX Semiconductor Index, live daily)",
+    "series_id": "^SOX",
+    "accessed_at": "2026-06-19T12:43:56Z"
+  },
+  "known_stress_episodes": [
+    {
+      "label": "Dot-com semiconductor bust",
+      "start": "2000-03-01",
+      "end": "2002-10-31",
+      "note": "SOX led the broad market lower; semis are high-beta and turned first."
+    },
+    {
+      "label": "COVID crash + recovery",
+      "start": "2020-02-19",
+      "end": "2020-12-31",
+      "note": "SOX recovered faster than SPY; relative-strength inflected early."
+    },
+    {
+      "label": "2022 rate-shock semiconductor drawdown",
+      "start": "2022-01-01",
+      "end": "2022-10-31",
+      "note": "SOX fell ~35% intra-year, leading the SPY de-rating; rel-strength weakened ahead."
+    }
+  ],
+  "related_pair_ids": [
+    "phlxsox_xly",
+    "phlxsox_xlf",
+    "phlxsox_xlv",
+    "phlxsox_xle"
+  ],
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "indicator_nature",
+      "indicator_type",
+      "data_provenance",
+      "known_stress_episodes",
+      "related_pair_ids"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats",
+      "narrative_summary"
+    ]
+  },
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-06-19T13:13:25Z",
+  "observed_direction": "procyclical",
+  "direction_consistent": true,
+  "key_finding": "Lead-vs-co-movement verdict: contemporaneous daily corr(SOX,SPY)=0.71 is shared beta, NOT a forecast. Bidirectional Granger (both directions significant) \u2014 feedback, not clean lead. Toda-Yamamoto SOX->SPY sig lags [1, 2, 3, 5, 10, 21], reverse [1, 2, 3, 5, 10, 21]. Relative-strength incremental edge over SPY-own-momentum at some horizon = True. Winner (rs_mom6m/P1_long_cash pro/L63/LB63): OOS Sharpe 1.57 vs B&H 0.82 (beats=True) and vs SPY-own-momentum 0.83 (beats=True). Winner beats SPY-own-momentum but with a strong overfit signature (IS Sharpe 0.10 vs OOS 1.57; median valid combo 0.67 below B&H; loses in all pre-OOS crises). Granger is bidirectional (feedback), not a clean lead. bootstrap p=0.041, durability 'conditionally_durable', rolling-corr 'sign_unstable'.",
+  "confidence": "low",
+  "mechanism": "Semiconductors (SOX) and SPY are both high-beta equity indices that co-move ~71% daily \u2014 shared market beta, not a forecast. The tradable signal is SOX/SPY relative-strength 6-month momentum, which partials out the common beta and asks whether chips are leading or lagging. Causality is bidirectional feedback (Toda-Yamamoto significant SOX->SPY and SPY->SOX at all lags), not a clean semiconductor lead. The weak forward edge (R\u00b2~1%) adds over SPY's own momentum only marginally and horizon-dependently (21d p=0.033; not 63d p=0.075). Winner: long SPY when lagged rel-strength momentum is above its rolling 75th percentile, else cash; procyclical.",
+  "caveats": [
+    "FRAGILE / found_in_search / confidence LOW.",
+    "IS Sharpe 0.10 vs OOS 1.57 \u2014 the 2021-06 to 2026-06 OOS window was a favorable semiconductor bull, not a representative draw.",
+    "Median valid tournament combo (0.67) underperforms buy&hold (0.82): the search mostly found losers; the winner is plausibly the luckiest of 4,607 tries. Win-rate 0.20.",
+    "The rule LOST in every pre-OOS crisis: Dot-Com Sharpe -1.16, GFC -1.06, COVID -0.95.",
+    "Bootstrap p=0.041 (marginal). Rolling-corr sign stability 0.42 (sign_unstable). No structural break (sup-F p=0.665). No final exam yet.",
+    "Edge over SPY-own-momentum is marginal and horizon-dependent: adds at 21d (p=0.033), not at 63d (p=0.075); incremental R\u00b2 ~1%.",
+    "Causality is bidirectional feedback, not a clean SOX->SPY lead. The 0.709 daily corr is co-movement (shared beta), not a forecast.",
+    "Drawdown improvement (-9.7% vs -24.5%) is real but regime-shaped, not a tested all-weather property."
+  ],
+  "narrative_summary": "SOX/SPY relative-strength momentum beat both buy&hold and a SPY-own-momentum benchmark on OOS Sharpe (1.57 vs 0.82 and 0.83), but the win rests on a benign semis-bull window and shows a strong overfit signature. The honest story is co-movement (not a lead), bidirectional feedback (not causation), and a thin, horizon-dependent edge \u2014 a fragile hypothesis pending a frozen final exam."
+}

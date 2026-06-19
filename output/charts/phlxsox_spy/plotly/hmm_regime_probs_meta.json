@@ -1,0 +1,20 @@
+{
+  "chart_name": "hmm_regime_probs",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Probability that SOX/SPY relative strength is in its high-variance regime (2-state HMM). The high-variance state clusters around the Dot-Com bust, the GFC, and the 2020/2022 drawdowns. This is a regime backdrop, not the winning signal, and does not rescue the strategy's statistical fragility. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Labels follow hmm_states_manifest semantics; relabelled in plain English to avoid implying equity stress.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/phlxsox_spy/core_models_20260619/hmm_states.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T13:09:35.443967+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

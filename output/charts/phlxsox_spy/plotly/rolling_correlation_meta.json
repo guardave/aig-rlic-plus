@@ -1,0 +1,22 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.2",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Rolling correlation between the SOX/SPY relative strength momentum signal and SPY returns. The sign agrees with its full-sample value only 42% of the time (sign-unstable) \u2014 the relationship flips too often to lean on. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Stability verdict quoted from structural_break JSON, not hard-coded.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/phlxsox_spy/rolling_correlation_phlxsox_spy.csv",
+    "results/phlxsox_spy/structural_break_phlxsox_spy.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T13:09:45.221476+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

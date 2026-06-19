@@ -1,0 +1,19 @@
+{
+  "chart_name": "incremental_edge",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "How much the lagged SOX/SPY relative strength signal adds OVER SPY's own 63-day momentum, in a HAC local-projection regression. Green bars mark horizons where it adds significantly: at 21 days (p=0.033) it does; at 63 days (p=0.075) it does not. The incremental R\u00b2 is about 1 percentage point at both horizons \u2014 a thin, horizon-dependent edge, not a robust one.",
+  "narrative_alignment_note": "Directly visualizes honesty mandate #3: marginal, horizon-dependent edge over SPY-own-momentum; values from CSV.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/phlxsox_spy/core_models_20260619/incremental_edge_vs_spy_momentum.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T13:09:30.121853+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

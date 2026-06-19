@@ -1,0 +1,19 @@
+{
+  "chart_name": "local_projections",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Local-projection impulse responses with HAC standard errors at 1/5/21/63/126-day horizons, both directions. The forward direction (SOX/SPY relative strength \u2192 SPY, left) has positive point estimates that grow with horizon but never reach 5% significance (min p = 0.10); the reverse panel shows a significant NEGATIVE 1-day coefficient \u2014 the market's own moves feed back into relative strength.",
+  "narrative_alignment_note": "Dual-panel LP per ECON-H4; forward weak, reverse fed-back.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/phlxsox_spy/core_models_20260619/local_projections.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T13:09:31.882826+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

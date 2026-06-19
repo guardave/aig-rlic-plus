@@ -131,6 +131,16 @@
       "added_at": "2026-06-19",
       "first_pair": "m2sl_yoy_spy",
       "notes": "Money-supply growth transform; tested both procyclical and countercyclical in the tournament."
+    },
+    {
+      "signal_code": "phlxsox_rs_mom6m",
+      "display_name": "SOX/SPY relative-strength 6-month momentum",
+      "parquet_column_pattern": "sox_spy_ratio_mom_6m_pct",
+      "description": "6-month (126 trading day) percent momentum of the SOX/SPY price ratio. Relative-strength transform that partials out common market beta; higher = semiconductors outperforming the broad market over the trailing 6 months.",
+      "source_method": "roc",
+      "added_at": "2026-06-19",
+      "first_pair": "phlxsox_spy",
+      "notes": "Procyclical orientation for SPY. Used as the winning intermarket signal for phlxsox_spy (L63, long/cash). Stationary per Dana 20260619 tests; the raw sox_spy_ratio level is NON-stationary and excluded as a signal."
     }
   ]
 }

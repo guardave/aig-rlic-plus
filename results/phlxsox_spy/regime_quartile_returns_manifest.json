@@ -1,0 +1,28 @@
+{
+  "file": "regime_quartile_returns.csv",
+  "pair_id": "phlxsox_spy",
+  "produced_by": "scripts/pair_pipeline_phlxsox_spy.py",
+  "generated_at": "2026-06-19T12:57:10Z",
+  "columns": {
+    "quartile": "Quartile of LAGGED (t-1) SOX/SPY relative-strength 3m momentum (Q1 lowest)",
+    "n_days": "obs",
+    "ann_return": "annualized NEXT-day SPY return in quartile (ratio)",
+    "ann_vol": "annualized vol (ratio)",
+    "sharpe": "ann_return/ann_vol",
+    "max_drawdown": "max DD within quartile days (negative ratio)"
+  },
+  "assertions": [
+    {
+      "description": "4 quartiles",
+      "check": "len == 4"
+    },
+    {
+      "description": "forward (lagged-signal) relationship \u2014 predictive, not contemporaneous",
+      "check": "informational"
+    },
+    {
+      "description": "returns plausible",
+      "check": "abs(ann_return) < 1.0"
+    }
+  ]
+}

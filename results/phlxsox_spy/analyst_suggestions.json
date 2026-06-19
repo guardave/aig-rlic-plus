@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "pair_id": "phlxsox_spy",
+  "rule": "ECON-AS",
+  "suggestions": [
+    {
+      "signal_name": "SOX vs SPY relative-strength breadth (semis advance/decline)",
+      "proposed_by": "evan",
+      "source": "constructible from constituent data",
+      "observation": "Single-index SOX/SPY ratio conflates a few mega-cap semis with the sector; breadth may lead more cleanly.",
+      "rationale": "Breadth deterioration often precedes price; could sharpen the intermarket lead test.",
+      "possible_use_case": "new signal",
+      "caveats": "Requires constituent panel; survivorship care.",
+      "date_filed": "2026-06-19"
+    }
+  ],
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-06-19T12:57:10Z"
+}
