@@ -1,5 +1,10 @@
 # Lead Lesandro — Outstanding Work
 
+## New pair queue (registered 2026-06-19, START AFTER umcsent wave + cleanup)
+1. **M2 Money Supply YoY → SPY** (indicator = M2 money supply, year-over-year change; target SPY).
+2. **PHLX Semiconductor Index (SOX) → SPY** (indicator = PHLX Semiconductor Index; target SPY).
+- Sequence: do NOT start until the umcsent winner-refresh wave is merged + cleaned up. Then run as standard pair builds (Phase-0 source check first — confirm series availability/source before dispatch).
+
 ## Current open items (as of 2026-06-18 EOD)
 
 **🔴 TOP RESUME ITEM — umcsent_xlv stale narrative (PRODUCTION DEFECT, decision pending):**
