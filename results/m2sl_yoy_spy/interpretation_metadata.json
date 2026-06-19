@@ -1,0 +1,62 @@
+{
+  "pair_id": "m2sl_yoy_spy",
+  "schema_version": "1.1.0",
+  "indicator": "m2sl_yoy",
+  "target": "spy",
+  "indicator_nature": "leading",
+  "indicator_type": "macro",
+  "strategy_objective": "max_sharpe",
+  "expected_direction": "procyclical",
+  "data_provenance": {
+    "source": "FRED M2SL live API; Data Master.xlsx sheet M2SL used as overlap cross-check through 2025-08",
+    "series_id": "M2SL",
+    "accessed_at": "2026-06-19T10:26:03Z"
+  },
+  "known_stress_episodes": [
+    {
+      "label": "COVID money surge",
+      "start": "2020-03-01",
+      "end": "2021-03-31",
+      "note": "M2 YoY growth surged to roughly 27% during pandemic liquidity support."
+    },
+    {
+      "label": "First modern M2 YoY contraction",
+      "start": "2022-12-01",
+      "end": "2023-12-31",
+      "note": "M2 YoY growth fell below 0%, an economically meaningful contraction threshold."
+    }
+  ],
+  "related_pair_ids": [
+    "busloans_spy",
+    "hy_ig_spy",
+    "dff_ted_spy"
+  ],
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "indicator_nature",
+      "indicator_type",
+      "data_provenance",
+      "known_stress_episodes",
+      "related_pair_ids"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats",
+      "narrative_summary"
+    ]
+  },
+  "last_updated_by": "dana",
+  "last_updated_at": "2026-06-19T10:26:03Z"
+}
