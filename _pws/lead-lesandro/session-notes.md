@@ -1291,3 +1291,21 @@ The Tier-3 lint design caught it on first run. `results/umcsent_xlv/winner_summa
 **NEW POLICY (user, 2026-06-19): document new findings/deferred work as GitHub issues, NOT docs/backlog.md rows.** backlog.md = historical record only. Saved to memory `feedback_gh_issues_over_backlog`. First issue under policy: **#12** (GATE-VIZ-NBER2 dotcom shading). Pre-existing: #4 (storytelling).
 
 **Still-open (candidates for GH issues if/when user wants):** (1) signal_code_registry legacy non-conforming entries (triple-confirmed umcsent/M2/SOX); (2) Wave D prose-vs-data lint (validated design, can land blocking now umcsent is fixed). Offered to file both; awaiting user word.
+
+---
+
+## 2026-06-19 EOD — Pair Pre-Screening exploration (stakeholder paper)
+
+**Branch cleanup earlier:** deleted merged `fix260602_pair4_prep` (= the "Pair #4 prep" / crude_oil_xle Mode-2 build branch — its SOP infra LEAD-NPB1/GATE-CMP1 + lessons are in main; the crude_oil_xle PAIR itself was never shipped, results/ holds only raw parquets, prospective status back to not_started) and merged `fix260619_umcsent_winner_refresh`. Only `fix260613_lead_horizon` + main remained before the prescreen branch.
+
+**Pair Pre-Screening exploration (branch `explore_pair_prescreen`, pushed, NOT merged — a discussion artifact):**
+- Stakeholder (2026-06-19, Cantonese thread) proposed a lightweight Pair Screening layer BEFORE full dashboard build, on 4 dimensions: Strategy Performance, Operational Practicality, Crisis Validation, Durability. (Also leans Option D = Weekly+Monthly granularity from the Lead-Horizon memo; fine to proceed with D meanwhile.)
+- **Key insight:** all 4 dimensions map onto artifacts the Data(Dana)+Econ(Evan) stages ALREADY emit → a screen can gate AFTER Econ, BEFORE charts/narrative/portal/deep-QC (≈half the build cost saved on rejects). It's a gate, not a new producer.
+- **Deliverables (3 commits):** `docs/pair-prescreen-proposal.md` (technical design), `scripts/pair_prescreen.py` (working POC scorecard), `docs/pair-prescreen-analysis-and-proposal.md` (+ .pdf — the distilled stakeholder paper).
+- **POC validated on all 13 live pairs.** Verdicts matched my own qualitative reads: ism_services DEFER (IS Sharpe −0.11 vs OOS 1.54 = regime-lucky); phlxsox/gold_copper/vix DEFER (turnover 16–23×/yr); busloans strongest CONDITIONAL.
+- **TWO SYSTEMIC FINDINGS (bigger than any verdict):** (1) NO pair reaches PROCEED — all `found_in_search`; a true PROCEED needs the **ECON-FE1 holdout final-exam step that doesn't exist in the pipeline** (the most consequential gap surfaced). (2) Every pair shows a large IS→OOS Sharpe gap (tournament selects on OOS → upward-biased); durability must be judged on the GAP, not the OOS level.
+- **Calibration lesson:** first threshold set was too harsh (dropped busloans, a strong pair) — D4 wrongly penalized "median combo < B&H" (normal) and over-penalized found_in_search. Plumbing sound; thresholds = stakeholder/judgement work. Validates the stakeholder's "criteria not mature" caveat.
+
+**Lessons:** (a) most "is this pair worth building?" signal already exists pre-dashboard — screening is cheap. (b) A screen's biggest value can be the systemic gap it exposes (here: the whole portfolio is search-phase). (c) When building a scoring gate, sanity-check thresholds against known-good cases first (dropping busloans caught the mis-calibration immediately).
+
+**Open / next:** stakeholder discussion of the paper. Candidate GH issue (per new policy): the missing ECON-FE1 holdout final-exam step — but it's under stakeholder discussion, so NOT filed yet. Offered the user a Chinese exec-summary addendum for the paper (awaiting word).

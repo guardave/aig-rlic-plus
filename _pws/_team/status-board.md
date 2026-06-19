@@ -1841,3 +1841,23 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Outstanding:** (1) #12 (Vera). (2) Candidate issues not yet filed: signal_code_registry legacy entries (triple-confirmed), Wave D prose-vs-data lint. (3) New-pair queue exhausted.
 
 🤖 Agent: Lead Lesandro
+
+---
+
+### 2026-06-19 EOD — Lead Lesandro — Pair Pre-Screening exploration (stakeholder paper)
+
+**Status:** HANDOVER — exploration delivered as a discussion artifact; awaiting stakeholder input.
+
+**Accomplished today (full session):**
+- Pairs #23 m2sl_yoy_spy + #24 phlxsox_spy shipped to production (both Mode 1). umcsent winner-refresh shipped (corrected 1.16). Full-fleet sweep 53/0. GH-issues documentation policy adopted (#12 filed).
+- Deleted merged branches: fix260602_pair4_prep, fix260619_umcsent_winner_refresh, pair260619_m2sl/phlxsox.
+- **Pair Pre-Screening exploration** (branch `explore_pair_prescreen`, pushed): design doc + working POC scorecard + distilled stakeholder paper (md+pdf). POC run on all 13 pairs separates strong from marginal, matching expert judgement.
+
+**Key discoveries (from the screening exercise):**
+1. Most "is this pair worth a full build?" signal already exists in Data+Econ outputs → a pre-screen gate is cheap.
+2. NO pair is true-PROCEED — entire portfolio is `found_in_search`; needs a holdout final-exam step that doesn't exist yet. **This is the highest-value structural gap surfaced.**
+3. Tournament selects on OOS → IS→OOS Sharpe gap is the real durability signal, not the OOS headline.
+
+**Outstanding for next session:** (1) Stakeholder discussion of the prescreen paper. (2) Candidate GH issue: missing ECON-FE1 holdout final-exam (under discussion, not filed). (3) GH #12 (Vera dotcom shading). (4) Candidate issues: signal_code_registry cleanup, Wave D lint. (5) Optional Chinese exec-summary for the paper.
+
+🤖 Agent: Lead Lesandro

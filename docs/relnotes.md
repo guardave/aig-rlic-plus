@@ -1,5 +1,15 @@
 # Release Notes
 
+## 2026-06-19 — Exploration: Pair Pre-Screening (analysis & proposal for stakeholders)
+
+Responding to a stakeholder proposal, explored adding a **lightweight Pair Screening layer before full dashboard development** — scoring pairs on Strategy Performance, Operational Practicality, Crisis Validation, and Durability. Branch `explore_pair_prescreen` (pushed, NOT merged — a discussion artifact): `docs/pair-prescreen-proposal.md` (technical design), `scripts/pair_prescreen.py` (working POC scorecard), and `docs/pair-prescreen-analysis-and-proposal.md` (+pdf, the distilled stakeholder paper).
+
+**Key result:** all four screening dimensions map onto artifacts the Data+Econ stages already emit, so a screen can gate after Econometrics — before the expensive charts/narrative/portal/deep-QC stages — at near-zero added cost. The POC, run on all 13 live pairs, separated strong from marginal in line with expert judgement (ism_services deferred on a negative in-sample Sharpe; high-turnover pairs deferred on operational practicality; busloans strongest).
+
+**Two structural findings (more valuable than the verdicts):** (1) **no pair qualifies as true-PROCEED** — the entire portfolio is `found_in_search`, and a real verdict needs a **holdout final-exam step that does not yet exist** in the pipeline; (2) every pair shows a large in-sample→out-of-sample Sharpe gap (the tournament selects on out-of-sample), so durability must be judged on the *gap*, not the headline. Threshold calibration is deferred to stakeholders (a first rough set was too strict — it would have dropped a strong pair).
+
+# Release Notes
+
 ## 2026-06-19 — umcsent winner-refresh shipped; full-fleet sweep clean; GH-issues policy
 
 **umcsent_xlv winner-refresh merged to production (`7b0a1f2`, stakeholder-approved).** The corrupted `winner_summary.json` (mis-encoded threshold/lead → recomputed to 0.116) is corrected to the true tournament winner (S3_mom / rolling z>1.0 / 6-month lead / Sharpe 1.16), with the producer bug fixed at the root. Production DOM confirmed serving 1.16 (stale 1.02 gone). Reconciled with the intervening direct-to-main `2f011ae` hero/Granger fix before merge.

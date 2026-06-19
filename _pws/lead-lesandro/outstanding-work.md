@@ -2,6 +2,8 @@
 
 ## Current open items (as of 2026-06-19 checkpoint)
 
+**🟣 Pair Pre-Screening exploration (branch `explore_pair_prescreen`, pushed, NOT merged — discussion artifact):** stakeholder paper `docs/pair-prescreen-analysis-and-proposal.md` (+pdf) + design doc + `scripts/pair_prescreen.py` POC. Awaiting stakeholder discussion. **Systemic finding to escalate:** no pair is true-PROCEED — the whole portfolio is `found_in_search`; a real verdict needs an **ECON-FE1 holdout final-exam step that doesn't exist** (candidate GH issue, held pending the stakeholder discussion). Also offered the user a Chinese exec-summary addendum.
+
 **Shipped this session (all live on production, full-fleet sweep 53 PASS/0 FAIL):** pairs #23 `m2sl_yoy_spy` (`9808b56`) + #24 `phlxsox_spy` (`345dbc9`) — both Mode 1 — and **umcsent winner-refresh** (`7b0a1f2`, stakeholder-approved; corrected 1.16 winner now live, stale-1.02 defect resolved). New-pair queue EXHAUSTED. umcsent branch `fix260619_umcsent_winner_refresh` KEPT (per user, not deleted).
 
 **📋 NEW POLICY (2026-06-19): document new findings/deferred work as GitHub ISSUES, not docs/backlog.md rows.** backlog.md = historical only. (memory: feedback_gh_issues_over_backlog)
