@@ -151,6 +151,18 @@
       "example": "When asset value falls toward the debt level, equity (the residual claim) declines faster than proportion, and credit spreads widen — both move for the same reason. Developed by Merton (1974).",
       "when_it_fails": "Assumes continuous trading, a single debt maturity, and lognormal asset dynamics — all violated in practice. Still the canonical framework for understanding the credit-equity link."
     },
+    "Money supply (M2)": {
+      "plain_english": "A broad measure of the money in the economy — cash, checking and savings deposits, and other near-money. The Federal Reserve series is called M2SL.",
+      "why_it_matters": "When money is growing fast, credit and liquidity tend to be easy, which can support risk assets; when it shrinks, the opposite. M2 is a backdrop variable for the whole economy.",
+      "example": "During 2020-21 pandemic support, M2 year-over-year growth surged near 27%; in 2022-23 it fell below 0% for the first time in the modern record.",
+      "when_it_fails": "M2 is heavily revised and is a coincident/lagging series for equities — for this pair the stock market moves first and money responds, so M2 is not a forward predictor of SPY."
+    },
+    "Money-growth acceleration": {
+      "plain_english": "Whether money growth is speeding up or slowing down — the month-to-month CHANGE in M2's year-over-year growth rate, not the level of that growth.",
+      "why_it_matters": "This 'second-derivative' transform is what carries the tradable edge in this pair: 'is the money tide rising faster or slower?' beat 'is the money tide high or low?' in the strategy search.",
+      "example": "M2 YoY growth slowing from +5% to +3% is negative acceleration even though growth is still positive; the rule reads the change, not the level.",
+      "when_it_fails": "The edge was found in a large search with no fresh final exam, and is concentrated in the 2020/2022 monetary regime — treat as a search-found timing overlay, not a validated forecaster."
+    },
     "NFCI": {
       "plain_english": "National Financial Conditions Index, published weekly by the Chicago Federal Reserve.",
       "why_it_matters": "Aggregates ~100 risk/liquidity/leverage indicators into one index; positive values indicate tighter-than-average financial conditions.",
@@ -168,6 +180,12 @@
       "why_it_matters": "Captures stress within the riskiest corner of the credit market — the 'canary in the coal mine' that often widens before the broader HY-IG spread.",
       "example": "During the GFC, the CCC-BB spread widened months before the overall HY-IG spread reached crisis levels; during COVID, CCC yields spiked above 20% while BB stayed contained.",
       "when_it_fails": "CCC universe is small and illiquid — bid-ask noise can produce spurious CCC-BB moves that do not signal genuine stress."
+    },
+    "Pro-cyclical": {
+      "plain_english": "Moving with the business or market cycle — rising when markets rise and falling when they fall.",
+      "why_it_matters": "A pro-cyclical signal acts like a momentum/risk-on tracker rather than a warning signal. For this pair the winning rule is pro-cyclical: accelerating money growth is read as a risk-on tailwind.",
+      "example": "The M2-acceleration rule holds SPY when money growth is speeding up (above its historical median) and steps to cash otherwise. The empirical direction recorded in winner_summary.json is `procyclical`.",
+      "when_it_fails": "Pro-cyclical timing can whipsaw at turning points, and here the direction is supported by a search-found pattern rather than a forward-causal test."
     },
     "Quantile regression": {
       "plain_english": "A statistical method that estimates the effect of a variable on different parts of the outcome distribution (not just the average).",

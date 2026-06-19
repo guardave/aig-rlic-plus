@@ -1,0 +1,24 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "m2sl_yoy_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.3",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "M2 YoY growth over the test sample (1994-04\u20132026-04, n = 385) with the Quandt-Andrews candidate break date (2011-10). The test does NOT flag a break (sup-F 3.46, residual-bootstrap p = 0.28) \u2014 instability shows up in the rolling correlation's sign, not as a one-time break. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Annotation-only chart per ECON-H4 ('not flagged'); values from JSON.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/m2sl_yoy_spy/structural_break_m2sl_yoy_spy.json",
+    "data/m2sl_yoy_spy_monthly_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T10:55:56.822631+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)",
+  "break_date": "2011-10-31",
+  "annotation_strategy_id": "manual_override"
+}

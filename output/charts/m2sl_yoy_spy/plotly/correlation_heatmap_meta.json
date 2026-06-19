@@ -1,0 +1,19 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "m2sl_yoy_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Pearson correlations between M2 signals and SPY forward returns at 1/3/6/12-month horizons. The strongest cell is only r = 0.184 (contraction vs spy_fwd_12m). Pairwise correlations are weak and do not by themselves validate the trading rule.",
+  "narrative_alignment_note": "Weak linear evidence; best cell re-read from correlations.csv.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/m2sl_yoy_spy/core_models_20260619/correlations.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T10:55:36.484175+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
+}

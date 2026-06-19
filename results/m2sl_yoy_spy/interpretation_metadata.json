@@ -57,8 +57,20 @@
       "narrative_summary"
     ]
   },
-  "last_updated_by": "evan",
-  "last_updated_at": "2026-06-19T10:46:57Z",
+  "mechanism": "HYPOTHESIS (not established): when M2 money-growth ACCELERATION (the MoM change in YoY growth) is above its historical median, liquidity/credit conditions are easing, plausibly a risk-on tailwind for SPY over the next ~2 months. This is a search-found timing overlay, NOT a forward-causal forecast: Toda-Yamamoto Granger shows M2 YoY does NOT cause SPY at any lag 1-12, while SPY causes M2 at lags 1-5,8 (reverse-only). The market moves first; the money aggregate responds. Separately, the money-growth LEVEL is counter-signal: the highest-money-growth quartile is the riskiest concurrent regime (Q4 Sharpe 0.53, -47% DD).",
+  "caveats": [
+    "Causality is reverse-only: Toda-Yamamoto Granger shows M2 YoY does NOT cause SPY at any lag 1-12, while SPY causes M2 at lags 1-5,8. This is NOT evidence that M2 leads equities — the market moves first.",
+    "Confidence LOW; evidence_status found_in_search — the rule is the best of a large search and has not been confirmed on an untouched final-exam window.",
+    "Bootstrap p=0.025 clears the 5% bar but is search-conditioned, not a fresh confirmation.",
+    "OOS 2018-2026 (100mo) is dominated by the 2020 money surge and 2022 contraction — a single unusual monetary regime; COVID is the only evaluable stress episode, so durability is only conditionally_durable.",
+    "Rolling-correlation sign stability is 0.50 (moderately_stable) — the relationship is not steady enough to lean on.",
+    "The -4.0% vs -23.9% drawdown win is real but episode-shaped (leans on stepping aside during 2022).",
+    "M2 is heavily revised (FRED ground truth vs ~0.5% stale Data Master snapshot); the M2 level is non-stationary and excluded from the signal set.",
+    "The tradable signal is money-growth ACCELERATION (MoM change in YoY growth), not the level; the level quartiles show the highest-money-growth regime is the riskiest concurrent regime (Q4 Sharpe 0.53, -47% DD)."
+  ],
+  "narrative_summary": "A Long/Cash overlay on M2 money-growth ACCELERATION (is money growth speeding up or slowing down?) earns OOS Sharpe 1.69 vs 0.90 B&H with max DD -4.0% vs -23.9%. But the honest headline is that causality runs in REVERSE — the stock market leads the money aggregate, not vice versa — so the edge is a search-found timing pattern, not a forecasting signal. Confidence is low and the result is concentrated in the 2020/2022 monetary regime.",
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-06-19T00:00:00Z",
   "observed_direction": "procyclical",
   "direction_consistent": true,
   "key_finding": "Lead-lag: M2SL YoY does NOT Granger-cause SPY at any lag 1-12; reverse SPY->M2SL significant at lags [1, 2, 3, 4, 5, 8]. The tournament winner (accel/T1_fixed_p50/P1_long_cash pro/L2/LB_NA) is procyclical: OOS Sharpe 1.69 vs B&H 0.90, max DD -4.0% vs -23.9%. Bootstrap p=0.025; durability 'conditionally_durable'; rolling-corr 'moderately_stable'.",
