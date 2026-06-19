@@ -1,0 +1,21 @@
+{
+  "pair_id": "m2sl_yoy_spy",
+  "date": "20260619",
+  "pipeline_seconds": 30.6,
+  "stage_times": {
+    "1_load_verify": 0.0,
+    "2_signals": 1.1,
+    "3_exploratory_correlations": 0.2,
+    "4_core_models": 2.9,
+    "5_regime_quartiles": 0.0,
+    "6_tournament": 8.4,
+    "7_winner_artifacts": 0.0,
+    "8_cross_period": 16.8,
+    "9_validation": 0.1
+  },
+  "tournament_strategy_rows": 4720,
+  "valid_strategies": 3369,
+  "oos_n_months": 100,
+  "oos_start": "2018-01-31",
+  "oos_end": "2026-04-30"
+}

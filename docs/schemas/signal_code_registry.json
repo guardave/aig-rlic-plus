@@ -2,7 +2,7 @@
   "x-version": "1.0.0",
   "x-owner": "evan",
   "x-generated": "2026-04-19",
-  "notes": "Bootstrap instance seeded by Evan Wave 5B-2 (2026-04-19) from the HY-IG v2 reference pair and the Tournament Design Parameters signal enumeration. Closes §1.2 of docs/validation-audit-20260419-evan.md (signal-code naming drift). Append-only: later waves extend this list as new pairs introduce new signals. Never reorder or delete existing entries.",
+  "notes": "Bootstrap instance seeded by Evan Wave 5B-2 (2026-04-19) from the HY-IG v2 reference pair and the Tournament Design Parameters signal enumeration. Closes \u00a71.2 of docs/validation-audit-20260419-evan.md (signal-code naming drift). Append-only: later waves extend this list as new pairs introduce new signals. Never reorder or delete existing entries.",
   "signals": [
     {
       "signal_code": "hmm_stress",
@@ -121,6 +121,16 @@
       "added_at": "2026-06-18",
       "first_pair": "ism_services_spy",
       "notes": "Direct encoding of the expansion/contraction threshold."
+    },
+    {
+      "signal_code": "m2sl_accel",
+      "display_name": "M2 accel (M2 Money Supply YoY (M2SL))",
+      "parquet_column_pattern": "m2sl_yoy_accel_pct",
+      "description": "Month-on-month change in M2 YoY growth (acceleration, pp).",
+      "source_method": "roc",
+      "added_at": "2026-06-19",
+      "first_pair": "m2sl_yoy_spy",
+      "notes": "Money-supply growth transform; tested both procyclical and countercyclical in the tournament."
     }
   ]
 }

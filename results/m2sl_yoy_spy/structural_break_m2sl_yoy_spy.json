@@ -1,0 +1,16 @@
+{
+  "pair_id": "m2sl_yoy_spy",
+  "test": "Quandt-Andrews unknown breakpoint (sup-F, residual-bootstrap p, 300 reps)",
+  "sample_start": "1994-04-30",
+  "sample_end": "2026-04-30",
+  "n_obs": 385,
+  "trimming_pct": 0.15,
+  "break_date": "2011-10-31",
+  "f_stat": 3.4627,
+  "p_value": 0.2833,
+  "flagged": false,
+  "flag_message": null,
+  "rolling_corr_sign_stability": 0.5042,
+  "rolling_corr_stability_verdict": "moderately_stable",
+  "cp2_note": "CP2 skipped \u2014 regime_story not set in signal_scope.json"
+}
