@@ -53,7 +53,7 @@ First user-facing technical-term uses now include long-form plus plain-English g
 
 - `python scripts/validate_schema.py --schema docs/schemas/interpretation_metadata.schema.json --instance results/umcsent_xlv/interpretation_metadata.json` - exit 0.
 - `python scripts/validate_schema.py --schema docs/schemas/narrative_frontmatter.schema.json --instance temp/2606190930_umcsent_ray/frontmatter_umcsent_xlv.json` - exit 0.
-- `rg -n "1\\.02|1\\.0202|11\\.93|10\\.9|10\\.87|year-over-year / zero|zero-crossing|umcsent_yoy|YoY" docs/portal_narrative_umcsent_xlv_20260423.md results/umcsent_xlv/interpretation_metadata.json` - no matches.
+- Stale-winner grep over the Ray narrative and interpretation metadata - no matches.
 
 ## Ace Wiring Note
 
