@@ -1,0 +1,8 @@
+VIZ-CV1 chart rendering validation — umcsent_xlv — 2026-06-19T09:12:04.963786+00:00
+PASS equity_curves: traces=3; title=yes; meta=True; perceptual_png=True size=62809
+PASS drawdown: traces=3; title=yes; meta=True; perceptual_png=True size=81931
+PASS rolling_sharpe: traces=3; title=yes; meta=True; perceptual_png=True size=76075
+PASS wf_sharpe: traces=2; title=yes; meta=True; perceptual_png=True size=56634
+PASS subperiod_sharpe: traces=1; title=yes; meta=True; perceptual_png=True size=45793
+PASS rolling_sharpe_cp: traces=2; title=yes; meta=True; perceptual_png=True size=81363
+Total: 6 charts, 6 pass, 0 fail

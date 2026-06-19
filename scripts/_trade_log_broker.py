@@ -131,7 +131,12 @@ def synthesize_from_position_log(
     if price_col not in master.columns:
         raise KeyError(f"price_col={price_col!r} not in monthly parquet. Have: {list(master.columns)[:15]}…")
     prices = master[price_col].reindex(pos_df.index).ffill()
-    sig_series = master[signal_col].reindex(pos_df.index) if signal_col else None
+    if "signal_value" in pos_df.columns:
+        sig_series = pos_df["signal_value"]
+    elif signal_col:
+        sig_series = master[signal_col].reindex(pos_df.index)
+    else:
+        sig_series = None
 
     # ── Emit broker events on position change ────────────────────────────
     rows = []
