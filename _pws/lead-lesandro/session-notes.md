@@ -1259,3 +1259,21 @@ Phase-0 sizing reframed Wave D as design-heavy, not a quick dispatch:
 
 **🔴 REAL FINDING — umcsent_xlv stale narrative (PRODUCTION-AFFECTING, decision pending):**
 The Tier-3 lint design caught it on first run. `results/umcsent_xlv/winner_summary.json` (regenerated 2026-06-15, the umcsent_mom/S3_mom column fix) AND `tournament_results_20260420.csv` AGREE the current winner is **S3_mom / T3_zscore_1.0 / oos_sharpe=1.1586 / +7.95% / DD −0.7% / no lead**. But the umcsent_xlv **config narrative is STALE** — it describes the OLD winner: **6-month lead / OOS Sharpe 1.02 (even "1.0202") / +11.93% / DD −10.87%**. Production umcsent_xlv pages show the wrong strategy + wrong headline numbers. Ground truth = winner_summary (matches tournament CSV row 777). Fix = narrative+config regeneration (Evan confirm spec → Ray rewrite → Ace config), NOT a number strip. I asked the user how to sequence (fix-first / report-only lint / backlog umcsent) — interrupted by /eod before answer. **This is the top resume item.**
+
+---
+
+## 2026-06-19 (cont.) — Two pairs shipped via Mode 1; umcsent reconciled (held)
+
+**Pairs #23 + #24 SHIPPED to production (both built ENTIRELY in Mode 1 — Claude agent makers via the Agent tool, NOT Codex):**
+- **#23 m2sl_yoy_spy** (M2 Money Supply YoY → SPY) — merged `9808b56`, production-verified 5/0. Winner = money-growth ACCELERATION (gt p50, L2, procyclical), OOS Sharpe 1.69 vs 0.90, max DD -4.0%. Honest: reverse causality (M2 lags SPY), found_in_search, low conf, p=0.025. Source FRED M2SL live (Dana correctly blocked on FRED-vs-DataMaster gap; Lead adjudicated = benign M2 revision drift).
+- **#24 phlxsox_spy** (PHLX Semiconductor Index ^SOX → SPY) — merged `345dbc9`, production-verified 5/0. Daily intermarket pair. Winner = SOX/SPY RELATIVE-STRENGTH 6m momentum (gt rolling-p75, L63, procyclical), OOS Sharpe 1.57 beats B&H 0.82 AND SPY-own-momentum 0.83. Most skeptical pair yet: bidirectional Granger feedback (not a clean semis lead), marginal/horizon-dependent edge (21d p=0.033, 63d p=0.075, R²~1%), IS Sharpe 0.10 vs OOS 1.57 (2021-26 semis-bull draw), median valid combo < B&H, lost every pre-OOS crisis, p=0.041 → found_in_search, low conf.
+
+**KEY CAPABILITY PROVEN — Mode 1 fallback when Codex quota dies:** Codex hit its usage quota mid-M2 (at the Evan stage). Rather than wait ~3h, switched to **Mode 1 (Claude role-agent makers via the Agent tool)** — Evan/Vera+Ray/Ace dispatched as `general-purpose` Claude subagents with the same briefs (persona via ./AGENTS.md). Worked cleanly for BOTH pairs, no Codex. Mode 1 keeps LEAD-DL1 clean (specialized Claude agents do maker work; Lead stays sole checker). The umcsent winner_summary recompute-guardrail (added to every Evan brief after the umcsent bug) HELD on both (recompute = headline exactly).
+
+**umcsent reconciliation (held, decision pending stakeholder approval):**
+- A direct-to-main commit `2f011ae "Fix UMCSENT XLV hero chart and Granger wording"` landed on main (user-side, between M2 and SOX merges) — touched umcsent config/hero.json/generate_charts on the STALE 1.02 context. main's umcsent is therefore still the STALE 1.02 winner + this wording fix; the winner-refresh (→ 1.16) remains held on `fix260619_umcsent_winner_refresh`.
+- Per user, RECONCILED the held branch onto main: `git merge main` → clean auto-merge (no conflicts; branch never touched hero.json so 2f011ae merged in). VERIFIED the merge preserved the 1.16 correction (config 1.16/7.95%/-0.7% throughout, zero stale 1.02; winner_summary 1.1586/lead-6) AND absorbed 2f011ae's hero/Granger fix. Merge `0df1c6d`, pushed. **STILL HELD — not merged to main.** Re-verification (gates/local DOM/cloud) of the reconciled branch is PENDING (paused for this checkpoint).
+
+**Branch cleanup:** pair260619_m2sl_yoy_spy + pair260619_phlxsox_spy both deleted (merged, consent given).
+
+**Recurring backlog (now triple-confirmed):** legacy `signal_code_registry.json` non-conforming entries (`ism_services_above_50` etc., non-enum source_method) — flagged independently by the umcsent, M2, and SOX Evan stages. Worth a small cleanup wave.

@@ -1,5 +1,15 @@
 # Release Notes
 
+## 2026-06-19 — Two new pairs shipped (#23 M2 YoY, #24 PHLX SOX) — both built in Mode 1
+
+**`m2sl_yoy_spy` (#23) — M2 Money Supply YoY → SPY.** Merged `9808b56`, production-verified 5/0. Winner = M2 money-growth **acceleration** (gt p50, L2, procyclical), OOS Sharpe 1.69 vs 0.90 B&H, max DD −4.0%. Source FRED `M2SL` live (the FRED-vs-DataMaster gap was adjudicated as benign M2 seasonal-adjustment revision drift — FRED is ground truth). Honest verdict: NOT a leading indicator — Granger runs reverse (market leads money); the edge is a found-in-search acceleration pattern, confidence LOW, bootstrap p=0.025.
+
+**`phlxsox_spy` (#24) — PHLX Semiconductor Index (`^SOX`) → SPY.** Merged `345dbc9`, production-verified 5/0. Daily intermarket pair. Winner = SOX/SPY **relative-strength** 6-month momentum (gt rolling-p75, L63, procyclical), OOS Sharpe 1.57 — beats B&H 0.82 **and** a SPY-own-momentum benchmark 0.83. Most skeptical pair to date: because both legs are equities (0.709 daily return correlation), the analysis used the *ratio* to partial out shared beta; Toda-Yamamoto Granger is **bidirectional feedback** (not a clean semiconductor lead); the incremental edge over SPY-own-momentum is marginal/horizon-dependent (21d p=0.033, 63d p=0.075, R²~1%); IS Sharpe 0.10 vs OOS 1.57 on a favorable 2021-26 semis-bull window; the median valid tournament combo underperforms buy&hold; the rule lost in every pre-OOS crisis; bootstrap p=0.041 → found_in_search, confidence LOW.
+
+**Process milestone — Mode 1 as a Codex-outage fallback.** Codex hit its usage quota mid-build (M2 econ stage). Rather than wait for reset, both pairs were completed **entirely in Mode 1 — Claude role-agent makers dispatched via the Agent tool** (Dana/Evan/Vera+Ray/Ace as `general-purpose` Claude subagents, same briefs, persona resolved via `./AGENTS.md`, Lead sole checker). LEAD-DL1 stays clean (specialized agents do maker work). The winner_summary recompute-guardrail (added to every Evan brief after the umcsent corruption) held on both pairs (recompute = headline exactly). Lesson: the maker/checker pipeline is model-family-agnostic; Mode 1 is a proven path when Codex is unavailable.
+
+**umcsent winner-refresh — reconciled, still held.** A direct-to-main fix `2f011ae` (umcsent hero chart + Granger wording) landed on main while the winner-refresh branch was held for stakeholder approval, diverging the two. The held branch was reconciled onto main (`git merge main` → clean; the 1.16 winner correction preserved, `2f011ae` absorbed; merge `0df1c6d`) and remains held pending approval — production still shows the stale 1.02 winner until then.
+
 ## 2026-06-18 — Backlog Wave A (jargon + cosmetic) + Wave D discovery
 
 **Wave A shipped to `main`:**

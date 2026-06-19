@@ -1803,3 +1803,22 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Outstanding for next session:** (1) umcsent_xlv fix (top item). (2) Resume Wave D D-1 (lint design validated, fresh branch needed). (3) dawodev repoint (user-side).
 
 🤖 Agent: Lead Lesandro
+
+---
+
+### 2026-06-19 (cont.) — Lead Lesandro — Pairs #23+#24 shipped (Mode 1); umcsent reconciled (held)
+
+**Status:** 2 pairs SHIPPED to production. umcsent reconciled + held pending stakeholder approval. Checkpoint.
+
+**Accomplished:**
+- **m2sl_yoy_spy (#23)** merged `9808b56`, prod-verified — M2 money-growth acceleration, OOS Sharpe 1.69; honest reverse-causality/found_in_search.
+- **phlxsox_spy (#24)** merged `345dbc9`, prod-verified — SOX/SPY relative-strength momentum, OOS Sharpe 1.57 (beats SPY-own-momentum benchmark); honest bidirectional-feedback/fragile/found_in_search.
+- Both built ENTIRELY in **Mode 1 (Claude agent makers)** after Codex quota died mid-M2 — proven fallback, LEAD-DL1 clean, recompute-guardrail held both times.
+- umcsent winner-refresh reconciled onto main (absorbed direct-to-main `2f011ae`), 1.16 correction preserved, pushed `0df1c6d`, STILL HELD.
+- Deleted merged branches (M2, SOX).
+
+**For all agents:** Mode 1 (Claude Agent-tool makers) is a validated path when Codex is unavailable — same briefs, persona via ./AGENTS.md, Lead sole checker.
+
+**Outstanding:** (1) umcsent reconciled branch needs re-verification (gates/DOM) — paused for checkpoint; then awaits stakeholder approval to merge. (2) Legacy signal_code_registry non-conforming entries (triple-confirmed) — cleanup wave candidate. (3) New-pair queue exhausted (M2✓ SOX✓). (4) Wave D prose-vs-data lint still pending.
+
+🤖 Agent: Lead Lesandro
