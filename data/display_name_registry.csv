@@ -96,3 +96,21 @@ m2sl_6m_pct,M2 Money Supply 6M Change (%),pct,6M Change (%)
 m2sl_yoy_accel_pct,M2 YoY Acceleration (pp),pct,YoY Acceleration (pp)
 m2sl_yoy_zscore_120m,M2 YoY 120M Z-Score,none,Z-Score
 m2sl_contraction_flag,M2 YoY Contraction Flag,none,Contraction (0/1)
+sox,PHLX Semiconductor Index,index,PHLX Semiconductor Index
+sox_ret,SOX Daily Return,decimal_return,SOX Daily Return
+sox_ret_1m,SOX Monthly Return,decimal_return,SOX Monthly Return
+spy_ret_1m,SPY Monthly Return,decimal_return,SPY Monthly Return
+sox_spy_ratio,SOX/SPY Relative Strength,ratio,SOX/SPY Relative Strength
+sox_spy_logratio,SOX/SPY Log-Ratio,ratio,SOX/SPY Log-Ratio
+sox_realized_vol_21d_ann_pct,"SOX Realized Vol (21d, ann. %)",vol_ann_pct,"SOX Realized Vol (21d, ann. %)"
+sox_mom_1m_pct,SOX 1m Momentum (%),percent,SOX 1m Momentum (%)
+sox_mom_3m_pct,SOX 3m Momentum (%),percent,SOX 3m Momentum (%)
+sox_mom_6m_pct,SOX 6m Momentum (%),percent,SOX 6m Momentum (%)
+sox_mom_12m_pct,SOX 12m Momentum (%),percent,SOX 12m Momentum (%)
+sox_spy_ratio_mom_1m_pct,SOX/SPY 1m Rel-Strength Mom (%),percent,SOX/SPY 1m Rel-Strength Mom (%)
+sox_spy_ratio_mom_3m_pct,SOX/SPY 3m Rel-Strength Mom (%),percent,SOX/SPY 3m Rel-Strength Mom (%)
+sox_spy_ratio_mom_6m_pct,SOX/SPY 6m Rel-Strength Mom (%),percent,SOX/SPY 6m Rel-Strength Mom (%)
+sox_spy_ratio_mom_12m_pct,SOX/SPY 12m Rel-Strength Mom (%),percent,SOX/SPY 12m Rel-Strength Mom (%)
+sox_spy_ratio_zscore_126d,SOX/SPY Z-Score (126d),ratio,SOX/SPY Z-Score (126d)
+sox_spy_ratio_zscore_252d,SOX/SPY Z-Score (252d),ratio,SOX/SPY Z-Score (252d)
+sox_spy_ratio_zscore_12m,SOX/SPY Z-Score (12m),ratio,SOX/SPY Z-Score (12m)

@@ -1,0 +1,69 @@
+{
+  "pair_id": "phlxsox_spy",
+  "schema_version": "1.1.0",
+  "indicator": "phlxsox",
+  "target": "spy",
+  "indicator_nature": "leading",
+  "indicator_type": "price",
+  "strategy_objective": "procyclical_capture",
+  "expected_direction": "procyclical",
+  "data_provenance": {
+    "source": "Yahoo Finance (PHLX Semiconductor Index, live daily)",
+    "series_id": "^SOX",
+    "accessed_at": "2026-06-19T12:43:56Z"
+  },
+  "known_stress_episodes": [
+    {
+      "label": "Dot-com semiconductor bust",
+      "start": "2000-03-01",
+      "end": "2002-10-31",
+      "note": "SOX led the broad market lower; semis are high-beta and turned first."
+    },
+    {
+      "label": "COVID crash + recovery",
+      "start": "2020-02-19",
+      "end": "2020-12-31",
+      "note": "SOX recovered faster than SPY; relative-strength inflected early."
+    },
+    {
+      "label": "2022 rate-shock semiconductor drawdown",
+      "start": "2022-01-01",
+      "end": "2022-10-31",
+      "note": "SOX fell ~35% intra-year, leading the SPY de-rating; rel-strength weakened ahead."
+    }
+  ],
+  "related_pair_ids": [
+    "phlxsox_xly",
+    "phlxsox_xlf",
+    "phlxsox_xlv",
+    "phlxsox_xle"
+  ],
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "indicator_nature",
+      "indicator_type",
+      "data_provenance",
+      "known_stress_episodes",
+      "related_pair_ids"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats",
+      "narrative_summary"
+    ]
+  },
+  "last_updated_by": "dana",
+  "last_updated_at": "2026-06-19T12:43:56Z"
+}
