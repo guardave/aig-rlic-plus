@@ -1,6 +1,30 @@
 # Lead Lesandro — Outstanding Work
 
-## Current open items (as of 2026-06-19 checkpoint)
+## Current open items (as of 2026-06-20 EOD)
+
+### Shipped to production today (main, all reboot+cloud-DOM-verified)
+- **Low-risk cleanup** (`fix260620_lowrisk_cleanup` → merged): GH #12 GATE-VIZ-NBER2 false-positive fix (gate-slug bug, not a chart bug — closed #12); smoke-log `.gitignore` housekeeping; permit_spy stale "Honest read on the cross-period charts above" transition trimmed. Prod-verified.
+- **Sample pair RETIRED + archived** (`fix260620_archive_sample` → merged `c6af190`, +`b2a42af`): `hy_ig_v2_spy` moved to `_archive/`; removed from portal/registry/gates; APP-PT2 positive half retired (negative half kept); memory rule `feedback_sample_frozen` SUPERSEDED. Prod-verified (landing "12 of 116", `/hy_ig_v2_spy_story` falls back to dashboard). **Caught + fixed a self-bug:** `947f04e` had committed log deletions but not the `.gitignore` rule (forgot `git add .gitignore`).
+
+### 🟡 IN-FLIGHT — lead-horizon wave, branch `fix260620_lead_horizon` (5 commits, NOT pushed at EOD-write time → push in step 8; NOT merged)
+Resumed the suspended 2026-06-13 lead-horizon wave on a fresh branch off main (stakeholder decisions: Option D weekly+monthly for daily pairs; monthly re-runs proceed; fresh branch). **Done + committed:**
+- **Phase 0** — restored ECON-LL1/LA1/LT1 + VIZ-LEAD1 + DPS-LEAD1/CPX1 SOP rules onto main; updated sweep script (drop archived Sample, add 4 missing pairs); fresh 12-pair monthly gate table.
+- **Independent audit** — dispatched **Ivy** (`audit-ivy`, new standing Codex-backed independent QA persona, PWS `_pws/audit-ivy/`) via a detached Codex session. Re-derived all from primary data: **6/6 team claims CONFIRM**, 12/12 production winners legit, no corruption remains, sweep proven unsafe as a gate. Report: `_pws/lead-lesandro/lead_horizon_qa/codex_qa_report.md`.
+- **ECON-T5 Phase A** — winner-selection provenance SOP rule + **CSV-immutability fix** (`scripts/_tournament_io.py`; root cause = hardcoded date tags letting re-runs overwrite publish-time CSVs in place) + optional/non-breaking `selection` schema v1.2.0 (incl. Ivy's raw-row-key fix).
+- **ECON-T5 Phase B** — the 2 real re-runs under ECON-T5: `indpro_xlp` L3→**L11** (1.115→1.328) and `indpro_spy` L6→**L4** (1.104→1.230). Guardrails exact; both beat BH; full provenance blocks; published coarse CSVs immutable.
+
+**NEXT (was mid-AskUserQuestion when /eod called — user picks):**
+1. **Downstream for the 2 re-run pairs** — Vera (charts) → Ray (narrative) → Ace (portal). REQUIRED before xlp/spy render the new winners. *Not started.*
+2. **Phase 2** — Option D weekly sweep (daily pairs: vix, gold_copper, hy_ig, phlxsox) + native re-validation of `petrol_inv` (sweep-flagged RE-RUN, +3.3%, suspect like the phantoms).
+3. **Phase 3** — mandatory Lead Analysis/Tournament Evidence blocks across all pairs (incl. new ism/m2sl/phlxsox).
+4. **ECON-T5 retro-apply** — backfill `selection` onto the other 10 winners, then flip schema `selection` to REQUIRED (do NOT flip before all 12 backfilled — would break render).
+
+**KEY METHODOLOGY FINDINGS (this wave):**
+- The cheap "gating sweep" has a **polarity-mirror false-positive mode** — it reads |Sharpe|, so it flags the negative of an invalid native combo as a phantom winner (indpro_spy L12=1.374 = |−1.374|; real native L12=1.04). **Native tournament is the only safe gate; sweep is exploratory-only.** 2 of 3 "confirmed" monthly re-runs were phantoms.
+- The original tournaments used **varying lead grids** — some coarse `[0,1,2,3,6]` (indpro_spy/xlp/permit), some `[0..6]` (umcsent), some `[0,1,2,3,6,12]`. The "extend 6→12" premise only holds for coarse-grid pairs.
+- indpro_spy L4 wins raw Sharpe by only 0.0001 over S9_contraction/L11 but dominates risk-adjusted (Calmar 3.76 vs 1.57, DD −2.7% vs −8.1%) → robust, corroborated, not noise.
+
+## Prior open items (as of 2026-06-19 checkpoint)
 
 **🟣 Pair Pre-Screening exploration (branch `explore_pair_prescreen`, pushed, NOT merged — discussion artifact):** stakeholder paper `docs/pair-prescreen-analysis-and-proposal.md` (+pdf) + design doc + `scripts/pair_prescreen.py` POC. Awaiting stakeholder discussion. **Systemic finding to escalate:** no pair is true-PROCEED — the whole portfolio is `found_in_search`; a real verdict needs an **ECON-FE1 holdout final-exam step that doesn't exist** (candidate GH issue, held pending the stakeholder discussion). Also offered the user a Chinese exec-summary addendum.
 

@@ -1,5 +1,15 @@
 # Release Notes
 
+## 2026-06-20 — Sample retirement, low-risk cleanup (shipped) + lead-horizon wave resumed (in flight)
+
+**Shipped to production:** (1) GH #12 GATE-VIZ-NBER2 false-positive fix — a **gate-side slug bug** (`dot_com` vs `dotcom`), not a chart bug; the dot-com charts correctly shade the real 2001 recession. (2) Smoke-log `.gitignore` housekeeping. (3) permit_spy's stale Evidence "Honest read on the cross-period charts above" transition trimmed (that section relocated to the Strategy Confidence tab in June). (4) **Sample pair `hy_ig_v2_spy` RETIRED + archived** to `_archive/` — removed from portal/registry/gates; the "frozen and visible" rule is superseded.
+
+**Lead-horizon wave resumed** (branch `fix260620_lead_horizon`, unmerged). Key discoveries:
+- The lightweight "lead gating sweep" has a **polarity-mirror false-positive mode** (reads |Sharpe|, surfacing the negative of an invalid native combo as a phantom winner). **Native tournament is the only safe promotion gate.** 2 of 3 sweep-"confirmed" monthly re-runs were phantoms.
+- Independent **Codex-backed QA auditor "Ivy"** (`audit-ivy`, a standing persona distinct from the Claude team) re-derived everything from primary data: 12/12 production winners legitimate, no corruption, sweep unsafe — re-establishing stakeholder trust.
+- **ECON-T5** (winner-selection provenance + tournament-CSV immutability): producers wrote `tournament_results_{DATE}.csv` with hardcoded date tags, so re-runs could overwrite/append publish-time CSVs in place — now blocked by `scripts/_tournament_io.py`.
+- Two real, audited upgrades cascaded under ECON-T5: `indpro_xlp` L11 (1.328) and `indpro_spy` L4 (1.230). Downstream charts/portal + Phase 2/3 pending.
+
 ## 2026-06-19 — Exploration: Pair Pre-Screening (analysis & proposal for stakeholders)
 
 Responding to a stakeholder proposal, explored adding a **lightweight Pair Screening layer before full dashboard development** — scoring pairs on Strategy Performance, Operational Practicality, Crisis Validation, and Durability. Branch `explore_pair_prescreen` (pushed, NOT merged — a discussion artifact): `docs/pair-prescreen-proposal.md` (technical design), `scripts/pair_prescreen.py` (working POC scorecard), and `docs/pair-prescreen-analysis-and-proposal.md` (+pdf, the distilled stakeholder paper).

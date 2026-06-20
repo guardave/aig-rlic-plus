@@ -1861,3 +1861,23 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Outstanding for next session:** (1) Stakeholder discussion of the prescreen paper. (2) Candidate GH issue: missing ECON-FE1 holdout final-exam (under discussion, not filed). (3) GH #12 (Vera dotcom shading). (4) Candidate issues: signal_code_registry cleanup, Wave D lint. (5) Optional Chinese exec-summary for the paper.
 
 🤖 Agent: Lead Lesandro
+
+---
+
+## 2026-06-20 EOD — Lead Lesandro — HANDOVER (lead-horizon wave mid-flight)
+
+**Status:** Shipped 4 items to production (verified); lead-horizon wave Phase 0 + audit + ECON-T5 (A+B) committed on branch `fix260620_lead_horizon` (unmerged, paused mid-wave at `/eod`).
+
+**Shipped to prod (main, reboot+DOM-verified):** GH #12 NBER gate-slug fix (closed #12); smoke-log gitignore; permit_spy stale transition trim; **Sample `hy_ig_v2_spy` retired+archived** to `_archive/`.
+
+**Lead-horizon wave (branch, NOT merged):**
+- Phase 0: lead SOP rules restored + sweep script + fresh gate table.
+- **Independent audit by Ivy** (new standing Codex-backed QA persona, `_pws/audit-ivy/`): 6/6 claims CONFIRM, 12/12 winners legit, no corruption, sweep unsafe as gate.
+- **ECON-T5 (A):** provenance rule + CSV-immutability fix (`scripts/_tournament_io.py`) + non-breaking selection schema v1.2.0.
+- **ECON-T5 (B):** indpro_xlp→L11 (1.328) + indpro_spy→L4 (1.230), guardrails exact, full provenance.
+
+**Key discoveries:** (1) gating sweep has a polarity-mirror false-positive mode → native tournament is the only safe gate (2 of 3 monthly re-runs were phantoms). (2) Original tournaments used varying lead grids; "extend 6→12" only applies to coarse-grid pairs. (3) Root-caused the in-place CSV corruption to hardcoded date tags.
+
+**Outstanding (paused mid-AskUserQuestion — user picks next):** (1) Downstream Vera/Ray/Ace for xlp+spy. (2) Phase 2: Option D weekly sweep for daily pairs + petrol_inv native check. (3) Phase 3: mandatory lead blocks all pairs. (4) ECON-T5 retro-apply onto 10 winners + flip schema to required. (5) Carried: prescreen-paper stakeholder discussion.
+
+🤖 Agent: Lead Lesandro
