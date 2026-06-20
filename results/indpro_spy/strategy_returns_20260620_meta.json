@@ -1,0 +1,8 @@
+{
+  "pair_id": "indpro_spy",
+  "date_tag": "20260620",
+  "ann": 12,
+  "winner_combo": "S3_mom/T2_roll_p75/P1_long_cash/L4",
+  "source": "cascade_spy.py ECON-LT1 RE-RUN extended grid L0..12",
+  "oos_sharpe": 1.2301
+}
