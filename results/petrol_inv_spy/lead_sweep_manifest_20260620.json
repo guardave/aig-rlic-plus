@@ -1,0 +1,28 @@
+{
+  "pair": "petrol_inv_spy",
+  "run_date": "20260620",
+  "frozen": false,
+  "granularity": "months L0..12 (ECON-LL1)",
+  "freq_native": "M",
+  "design_note": "Native monthly; lead L = calendar-month shift on month-end signals.",
+  "oos_start": "2017-08-31",
+  "is_end": "2017-08-30",
+  "input_file": "data/petrol_inv_spy_monthly_19900131_20250930.parquet",
+  "input_sha256": "sha256:d387f74742efec4e",
+  "lead_correlation_file": "petrol_inv_spy/lead_correlation_20260620.csv",
+  "lead_tournament_file": "petrol_inv_spy/lead_tournament_20260620.csv",
+  "published_winner": {
+    "signal": "petrol_inv_3m_pct",
+    "lead": 12,
+    "oos_sharpe": 1.4779
+  },
+  "L_star": 10,
+  "best_oos_sharpe_at_grid": 1.5273,
+  "gate_decision": "RE-RUN",
+  "winner_signal_best_corr_lead": "L3",
+  "assertions": [
+    "lead grid is exactly L0..12",
+    "best_oos_sharpe is the max over the extended grid",
+    "decision RE-RUN iff L*\u22087..12 AND best>1.4779"
+  ]
+}

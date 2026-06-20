@@ -1,0 +1,13 @@
+pair,published_lead,L_star,best_sharpe_at_Lstar,published_sharpe,decision,winner_corr_best_lead
+indpro_spy,6,12,1.3744,1.1036,RE-RUN,L4
+permit_spy,6,6,1.4454,1.4454,CHARTS-ONLY,L9
+vix_vix3m_spy,0,3,1.8689,1.1295,CHARTS-ONLY,L6
+indpro_xlp,3,8,1.4234,1.1147,RE-RUN,L3
+hy_ig_spy,0,1,1.4389,1.4083,CHARTS-ONLY,L6
+umcsent_xlv,6,11,1.1878,1.0202,RE-RUN,L1
+gold_copper_xli,0,10,1.3696,1.273,RE-RUN,L5
+busloans_spy,6,5,1.4999,1.4999,CHARTS-ONLY,L5
+ism_services_spy,3,9,1.4616,1.5377,CHARTS-ONLY,L5
+m2sl_yoy_spy,2,1,1.6517,1.6882,CHARTS-ONLY,L2
+phlxsox_spy,3,0,1.4304,1.57,CHARTS-ONLY,L0
+petrol_inv_spy,12,10,1.5273,1.4779,RE-RUN,L3

@@ -1,0 +1,14 @@
+lead_months,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+0,156,1.0676,0.7173,0.5515,0.8884,vix_ratio_roc_21d,Tp10_hi,P2,-0.1942
+1,155,1.2826,0.758,0.5842,1.0051,vix_ratio_roc_5d,Tp75_lo,P1,-0.134
+2,153,1.0939,0.6666,0.5416,0.7962,vix_ratio_zscore_252d,Trp25_hi,P1,-0.226
+3,159,1.8689,0.7675,0.5558,0.8917,vix_ratio_pctrank_252d,Tp10_hi,P2,-0.1295
+4,160,1.2715,0.7816,0.5128,0.9485,vix_ratio_roc_21d,Tp25_hi,P1,-0.2374
+5,163,1.4833,0.6581,0.4888,0.8352,vix_ratio_roc_21d,Tp25_hi,P1,-0.0813
+6,138,1.6491,0.9304,0.7311,1.1231,vix_ratio_pctrank_252d,Tfix05_lo,P1,-0.0807
+7,158,1.3222,0.7112,0.5735,0.8795,vix_ratio_roc_21d,Trp75_lo,P1,-0.2342
+8,170,1.128,0.6555,0.4689,0.7894,vix_ratio_roc_5d,Tp25_lo,P1,-0.0813
+9,165,1.1921,0.6981,0.5105,0.8524,vix_ratio_zscore_126d,Tp25_hi,P1,-0.1249
+10,164,1.2003,0.6718,0.5549,0.8012,vix_ratio,Trp75_hi,P1,-0.0466
+11,173,1.1649,0.6395,0.522,0.7869,vix_term_spread,Tp90_lo,P1,-0.1942
+12,180,1.0382,0.6535,0.5099,0.7647,vix_ratio_roc_21d,Tp10_lo,P1,0.0

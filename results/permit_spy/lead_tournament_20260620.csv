@@ -1,0 +1,14 @@
+lead_months,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+0,114,1.0274,0.722,0.4809,0.8604,permit_mom_3m,Tp10_hi,P1,-0.1945
+1,115,1.2094,0.6448,0.5226,0.759,permit_zscore_60m,Tp25_lo,P1,-0.0758
+2,110,1.2809,0.7029,0.4957,0.858,permit_yoy,Tp25_lo,P1,-0.0833
+3,105,1.1029,0.7086,0.5993,0.843,permit_mom_6m,Tp75_lo,P1,-0.1353
+4,109,1.1626,0.7241,0.5293,0.8981,permit_mom_6m,Tp90_lo,P1,-0.1353
+5,106,1.2173,0.6771,0.5884,0.8675,permit_mom_3m,Tp75_lo,P1,-0.2085
+6,111,1.4454,0.6603,0.4712,0.851,permit_mom,Tp25_hi,P2,-0.1942
+7,110,1.3919,0.7097,0.4879,0.9368,permit_accel,Tp75_lo,P2,-0.1886
+8,116,1.115,0.6534,0.5116,0.7558,permit_mom,Trp25_hi,P1,-0.2009
+9,111,1.238,0.6426,0.474,0.8091,permit_mom,Trp75_hi,P1,-0.0543
+10,115,1.2467,0.6668,0.5238,0.7553,permit_mom,Trp75_hi,P1,-0.0403
+11,116,1.1279,0.6481,0.5201,0.791,permit_yoy,Tp90_lo,P2,-0.1945
+12,112,1.1645,0.6583,0.506,0.8148,permit_yoy,Tp90_lo,P2,-0.2096

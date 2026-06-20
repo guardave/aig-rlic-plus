@@ -1,0 +1,14 @@
+lead_months,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+0,177,1.4198,0.7085,0.5105,0.8629,hy_ig_acceleration,Tp75_lo,P1,-0.2172
+1,171,1.4389,0.7084,0.5315,0.8772,hy_ig_roc_21d,Tp10_hi,P2,-0.1611
+2,173,1.3208,0.7454,0.5376,0.8891,hmm_2state_prob_stress,Tp10_hi,P2,-0.2393
+3,180,1.0886,0.6864,0.543,0.8119,hy_ig_pctrank_504d,Tp25_hi,P1,-0.1945
+4,186,1.2134,0.6635,0.5332,0.8042,hy_ig_zscore_252d,Trp75_lo,P1,-0.0833
+5,171,1.2702,0.7177,0.5862,0.8696,hy_ig_spread_pct,Trp25_hi,P1,-0.1945
+6,181,1.1704,0.6969,0.5428,0.8434,hmm_2state_prob_stress,Tz1_lo,P1,-0.1945
+7,180,1.1196,0.7382,0.5154,0.8873,hy_ig_pctrank_504d,Tp25_hi,P1,-0.1945
+8,171,1.2825,0.7305,0.5948,0.8746,hmm_2state_prob_stress,Tp75_hi,P1,-0.0485
+9,176,1.3038,0.7783,0.5517,0.9051,hmm_2state_prob_stress,Trp25_hi,P1,-0.1252
+10,177,1.2598,0.6873,0.5343,0.8246,hy_ig_roc_21d,Tp25_lo,P1,-0.0474
+11,167,1.3618,0.7714,0.559,0.9689,hy_ig_mom_63d,Trp75_hi,P1,-0.0576
+12,180,1.1444,0.7092,0.555,0.8475,hy_ig_pctrank_504d,Tfix05_hi,P1,-0.1945

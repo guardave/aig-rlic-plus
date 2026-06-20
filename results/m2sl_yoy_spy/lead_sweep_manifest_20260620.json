@@ -1,0 +1,28 @@
+{
+  "pair": "m2sl_yoy_spy",
+  "run_date": "20260620",
+  "frozen": false,
+  "granularity": "months L0..12 (ECON-LL1)",
+  "freq_native": "M",
+  "design_note": "Native monthly; lead L = calendar-month shift on month-end signals.",
+  "oos_start": "2018-01-31",
+  "is_end": "2018-01-30",
+  "input_file": "data/m2sl_yoy_spy_monthly_19930131_20260430.parquet",
+  "input_sha256": "sha256:19fdf2b6b8f79d23",
+  "lead_correlation_file": "m2sl_yoy_spy/lead_correlation_20260620.csv",
+  "lead_tournament_file": "m2sl_yoy_spy/lead_tournament_20260620.csv",
+  "published_winner": {
+    "signal": "m2sl_yoy_accel_pct",
+    "lead": 2,
+    "oos_sharpe": 1.6882
+  },
+  "L_star": 1,
+  "best_oos_sharpe_at_grid": 1.6517,
+  "gate_decision": "CHARTS-ONLY",
+  "winner_signal_best_corr_lead": "L2",
+  "assertions": [
+    "lead grid is exactly L0..12",
+    "best_oos_sharpe is the max over the extended grid",
+    "decision RE-RUN iff L*\u22087..12 AND best>1.6882"
+  ]
+}

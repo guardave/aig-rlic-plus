@@ -1,0 +1,14 @@
+lead_months,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+0,74,0.9562,0.6463,0.5108,0.7297,umcsent_mom,Tp25_lo,P1,-0.1059
+1,78,0.8778,0.5564,0.435,0.6735,umcsent_direction,Tz1_lo,P2,-0.1306
+2,81,0.8883,0.5582,0.4605,0.6693,umcsent_direction,Tp10_hi,P1,-0.1537
+3,81,0.9343,0.5461,0.4188,0.7145,umcsent_mom,Tz1_lo,P2,-0.1562
+4,84,0.7859,0.5217,0.4136,0.609,umcsent_mom,Tp90_hi,P1,-0.0433
+5,82,1.0447,0.5798,0.4533,0.8074,umcsent_dev_ma,Trp25_hi,P2,-0.2085
+6,74,1.1066,0.6471,0.4445,0.7868,umcsent_mom,Tp90_hi,P1,-0.007
+7,82,1.1757,0.6218,0.4447,0.764,umcsent_dev_ma,Trp25_lo,P1,-0.0686
+8,82,1.1489,0.5707,0.4226,0.7308,umcsent_mom,Tp75_lo,P2,-0.1692
+9,83,0.8863,0.5582,0.4725,0.6492,umcsent_direction,Tz1_lo,P2,-0.1306
+10,85,1.033,0.5479,0.4257,0.6402,umcsent_dev_ma,Tp25_hi,P1,-0.1262
+11,77,1.1878,0.6417,0.4941,0.7151,umcsent_zscore,Tp10_lo,P1,0.0
+12,76,0.9605,0.5968,0.4651,0.7058,umcsent_zscore,Tp75_lo,P2,-0.1306

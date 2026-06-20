@@ -17,10 +17,9 @@ month-end (signal = last obs of month; target forward return = next-month
 month-end-to-month-end return) so the lead axis is months for everyone.
 
 Analysis artifacts ONLY. This script NEVER writes winner_summary / strategy_returns
-/ charts / configs and NEVER touches any pair's published winner. The frozen
-Sample (hy_ig_v2_spy) is produced READ-ONLY into its own dir with no other file
-touched (lead_correlation + lead_tournament + manifest only); if that is not
-acceptable under the Sample-frozen mandate the caller must drop it.
+/ charts / configs and NEVER touches any pair's published winner. (The frozen
+Sample hy_ig_v2_spy was retired/archived 2026-06-20 and is no longer in the pair
+set.) Pair list = the 12 registered pairs from app/components/pair_registry.py.
 
 Author: Econ Evan
 """
@@ -34,8 +33,17 @@ from scipy import stats
 np.random.seed(42)
 
 ROOT = "/workspaces/aig-rlic-plus"
-RUN_DATE = "20260613"
+RUN_DATE = "20260620"
 LEADS = list(range(0, 13))  # L = 0..12 months (ECON-LL1)
+
+# Option D (stakeholder choice): daily pairs also get a Weekly+Monthly sweep.
+# Phase 1 (THIS run) is MONTHLY ONLY. A weekly code path (L=1..52 weeks, resample
+# signal+target to W-FRI) is Phase 2 — NOT executed here. TODO(Phase 2): add a
+# `--weekly` flag that builds a weekly frame in to_monthly()'s sibling and runs
+# the same lead_analysis/lead_tournament over LEADS_WEEKLY = range(1, 53). The
+# tournament metrics() annualisation factor would switch 12 -> 52 and sqrt(12) ->
+# sqrt(52). Left as a clean extension point; do not run weekly until gated.
+LEADS_WEEKLY = list(range(1, 53))  # Phase 2 only — unused in Phase 1
 
 # ── Per-pair configuration ────────────────────────────────────────────────
 # data_file: raw data parquet (has target price + signal transforms)
@@ -110,17 +118,38 @@ PAIRS = {
                  "busloans_accel_pct","busloans_contraction"],
         winner_signal="busloans_pct_mom", winner_lead=6, winner_sharpe=1.4999,
         oos_start="2018-02-28"),
-    "hy_ig_v2_spy": dict(  # FROZEN SAMPLE — read-only; outputs go to _cross_agent, NOT its dir
-        data_file="data/hy_ig_v2_spy_daily_20260410.parquet",
-        extra_signal_file="results/hy_ig_v2_spy/signals_20260410.parquet",
-        extra_signal_cols=["hmm_2state_prob_stress","ms_2state_stress_prob"],
-        target_price="spy", freq="D", frozen=True,
-        signals=["hy_ig_spread","hy_ig_zscore_252d","hy_ig_zscore_504d",
-                 "hy_ig_pctrank_504d","hy_ig_roc_21d","hy_ig_roc_63d",
-                 "hy_ig_mom_21d","hy_ig_mom_63d","hy_ig_acceleration",
-                 "hmm_2state_prob_stress"],
-        winner_signal="hmm_2state_prob_stress", winner_lead=0, winner_sharpe=1.274,
-        oos_start="2018-01-01"),
+    # ── Post-suspend pairs (added 2026-06-20, resumed lead-horizon wave) ──────
+    "ism_services_spy": dict(  # monthly
+        data_file="data/ism_services_spy_monthly_19970731_20251031.parquet",
+        target_price="spy", freq="M",
+        signals=["ism_services_gap_50","ism_services_delta","ism_services_3m_change",
+                 "ism_services_6m_change","ism_services_zscore_60m",
+                 "ism_services_above_50"],
+        winner_signal="ism_services_gap_50", winner_lead=3, winner_sharpe=1.5377,
+        oos_start="2018-10-31"),
+    "m2sl_yoy_spy": dict(  # monthly
+        data_file="data/m2sl_yoy_spy_monthly_19930131_20260430.parquet",
+        target_price="spy", freq="M",
+        signals=["m2sl_pct_yoy","m2sl_pct_mom","m2sl_3m_pct","m2sl_6m_pct",
+                 "m2sl_yoy_accel_pct","m2sl_yoy_zscore_120m","m2sl_contraction_flag"],
+        winner_signal="m2sl_yoy_accel_pct", winner_lead=2, winner_sharpe=1.6882,
+        oos_start="2018-01-31"),
+    "phlxsox_spy": dict(  # daily (^SOX/SPY ratio) — resampled to month-end per ECON-LL1
+        data_file="data/phlxsox_spy_daily_19940504_20260617.parquet",
+        target_price="spy", freq="D",
+        signals=["sox_spy_ratio","sox_spy_logratio","sox_spy_ratio_mom_3m_pct",
+                 "sox_spy_ratio_mom_6m_pct","sox_spy_ratio_mom_12m_pct",
+                 "sox_spy_ratio_zscore_12m"],
+        winner_signal="sox_spy_ratio_mom_6m_pct", winner_lead=3, winner_sharpe=1.57,
+        oos_start="2021-06-11"),  # published lead 63d ≈ 3 months (ECON-LL1)
+    "petrol_inv_spy": dict(  # monthly
+        data_file="data/petrol_inv_spy_monthly_19900131_20250930.parquet",
+        target_price="spy", freq="M",
+        signals=["petrol_inv_pct_yoy","petrol_inv_pct_chg","petrol_inv_3m_pct",
+                 "petrol_inv_6m_pct","petrol_inv_dev_trend_pct","petrol_inv_zscore_60m",
+                 "petrol_inv_yoy_zscore_60m","petrol_inv_accel_pct"],
+        winner_signal="petrol_inv_3m_pct", winner_lead=12, winner_sharpe=1.4779,
+        oos_start="2017-08-31"),
 }
 
 TRADING_DAYS_PER_MONTH = 21  # documented ECON-LL1 conversion for design_note
