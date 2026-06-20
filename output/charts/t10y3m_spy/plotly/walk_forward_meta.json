@@ -1,0 +1,12 @@
+{
+  "chart_name": "walk_forward",
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:33.336930+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_spy.py",
+  "caption": "Alias for the dashboard's standard walk-forward chart slot.",
+  "narrative_alignment_note": "Alias for the dashboard's standard walk-forward chart slot.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/t10y3m_spy/subperiod_sharpe.csv"
+  ]
+}

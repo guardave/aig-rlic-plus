@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:33.308390+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_spy.py",
+  "caption": "Rolling 60-month correlation between the yield spread and SPY monthly returns.",
+  "narrative_alignment_note": "Rolling 60-month correlation between the yield spread and SPY monthly returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/t10y3m_spy/rolling_correlation_t10y3m_spy.csv"
+  ]
+}

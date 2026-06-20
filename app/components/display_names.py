@@ -38,6 +38,8 @@ INDICATOR_NAMES: dict[str, str] = {
     "ism_services_spy": "ISM Services PMI",
     "m2sl_yoy": "M2 Money Supply (YoY)",
     "m2sl_yoy_spy": "M2 Money Supply (YoY)",
+    "t10y3m": "10Y-3M Treasury Spread",
+    "t10y3m_spy": "10Y-3M Treasury Spread",
 }
 
 TARGET_NAMES: dict[str, str] = {
@@ -89,6 +91,7 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "gold_copper_xli": "Gold/Copper",
     "busloans_spy": "C&I Loans",
     "petrol_inv_spy": "Petroleum Inventories",
+    "t10y3m_spy": "10Y-3M Spread",
 }
 
 

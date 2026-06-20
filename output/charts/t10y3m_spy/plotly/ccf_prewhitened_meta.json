@@ -1,0 +1,12 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:33.204747+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_spy.py",
+  "caption": "Cross-correlation after differencing the spread; negative lags indicate the curve moves before SPY.",
+  "narrative_alignment_note": "Cross-correlation after differencing the spread; negative lags indicate the curve moves before SPY.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/t10y3m_spy/core_models_20260620/ccf_prewhitened.csv"
+  ]
+}

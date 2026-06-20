@@ -1,0 +1,15 @@
+variable,test,statistic,p_value,lags,conclusion
+t10y3m,ADF,-2.6538,0.0824,3,unit_root_not_rejected
+t10y3m,KPSS,0.5796,0.0251,11,nonstationary
+t10y3m_mom,ADF,-10.3648,0.0,2,stationary
+t10y3m_mom,KPSS,0.0519,0.8651,4,stationary_not_rejected
+t10y3m_3m_chg,ADF,-5.0535,0.0,17,stationary
+t10y3m_3m_chg,KPSS,0.0453,0.9046,8,stationary_not_rejected
+t10y3m_6m_chg,ADF,-4.8592,0.0,14,stationary
+t10y3m_6m_chg,KPSS,0.0435,0.9152,11,stationary_not_rejected
+t10y3m_12m_chg,ADF,-3.7307,0.0037,12,stationary
+t10y3m_12m_chg,KPSS,0.0488,0.8841,11,stationary_not_rejected
+t10y3m_zscore_60m,ADF,-3.6247,0.0053,5,stationary
+t10y3m_zscore_60m,KPSS,0.2568,0.18,11,stationary_not_rejected
+spy_ret,ADF,-10.8166,0.0,2,stationary
+spy_ret,KPSS,0.1439,0.4093,3,stationary_not_rejected

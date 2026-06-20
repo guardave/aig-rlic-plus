@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_covid",
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:33.393146+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_spy.py",
+  "caption": "COVID Shock: A Brief Pre-Shock Inversion",
+  "narrative_alignment_note": "COVID Shock: A Brief Pre-Shock Inversion",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/t10y3m_spy_monthly_latest.parquet"
+  ]
+}

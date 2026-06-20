@@ -1,0 +1,12 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:33.326413+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_spy.py",
+  "caption": "Proxy check for large changes in the spread-SPY relationship.",
+  "narrative_alignment_note": "Proxy check for large changes in the spread-SPY relationship.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/t10y3m_spy/structural_break_t10y3m_spy.json"
+  ]
+}
