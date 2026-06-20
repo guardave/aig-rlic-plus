@@ -692,7 +692,11 @@ def gate_viz_nber2_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     from datetime import date
 
     # Slugs that overlap at least one NBER recession window.
-    RECESSION_SLUGS = {"dot_com", "gfc", "covid"}
+    # Slug is the literal filename token (history_zoom_{slug}.json), so both
+    # spellings must be listed: older pairs emit "dot_com", newer pairs emit
+    # "dotcom" (no underscore). The dot-com zoom window covers the 2001 NBER
+    # recession, so either spelling legitimately carries an NBER band.
+    RECESSION_SLUGS = {"dot_com", "dotcom", "gfc", "covid"}
 
     # Vera's canonical NBER shading color (VIZ-NBER1): rgba(150,120,120,0.22)
     # A shape qualifies when fillcolor starts with "rgba(150" OR equals the exact value.
