@@ -1,10 +1,15 @@
 """Schema-consumer smoke test (APP-WS1 + APP-DIR1 coverage).
 
-Exercises every `validate_or_die` call that the HY-IG v2 Strategy page
-consumer components (`probability_engine_panel`, `position_adjustment_panel`,
-`direction_check`) make against real artifacts under
-`results/hy_ig_v2_spy/`. A regression on any of these = producer contract
-violation and acceptance blocker per APP-SEV1 L1.
+Exercises every `validate_or_die` call that the Strategy page consumer
+components (`probability_engine_panel`, `position_adjustment_panel`,
+`direction_check`) make against real artifacts under `results/<pair_id>/`.
+A regression on any of these = producer contract violation and acceptance
+blocker per APP-SEV1 L1.
+
+Default pair was `hy_ig_v2_spy` (the Sample); it was retired/archived on
+branch fix260620_archive_sample, so the default now points at the surviving
+`hy_ig_spy` pair (same HY-IG consumer schema family). Pass `--pair-id` to
+target any other registered pair.
 
 Runs with Streamlit stubbed out (no real runtime required).
 
@@ -135,7 +140,9 @@ def run_smoke(pair_id: str) -> tuple[int, int, list[str]]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--pair-id", default="hy_ig_v2_spy")
+    # Default repointed from the retired/archived Sample (hy_ig_v2_spy) to the
+    # surviving hy_ig_spy on branch fix260620_archive_sample.
+    parser.add_argument("--pair-id", default="hy_ig_spy")
     parser.add_argument(
         "--log-dir", default=os.path.dirname(os.path.abspath(__file__))
     )
