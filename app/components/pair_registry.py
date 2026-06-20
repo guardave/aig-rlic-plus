@@ -96,7 +96,6 @@ PAGE_ROUTING = {
     "indpro_spy": "pages/5_indpro_spy",
     "permit_spy": "pages/7_permit_spy",
     "vix_vix3m_spy": "pages/8_vix_vix3m_spy",
-    "hy_ig_v2_spy": "pages/9_hy_ig_v2_spy",
     "umcsent_xlv": "pages/10_umcsent_xlv",
     "indpro_xlp": "pages/14_indpro_xlp",
     "hy_ig_spy": "pages/15_hy_ig_spy",
@@ -299,17 +298,13 @@ def load_pair_registry():
         # APP-RL1: single source of truth via get_page_prefix()
         page_prefix = get_page_prefix(pair_dir)
 
-        # Wave 10G.2 (2026-04-22): Sample ratification. hy_ig_v2_spy is the
-        # canonical quality benchmark — display it with a distinct label and
-        # an is_sample flag so the landing page can render a Reference
-        # Implementation badge/section. Other pairs unaffected.
-        is_sample = pair_dir == "hy_ig_v2_spy"
-        if is_sample:
-            display_indicator = "Sample: HY-IG Credit Spread × S&P 500"
-            display_name = "Sample (Reference Implementation)"
-        else:
-            display_indicator = indicator
-            display_name = None
+        # fix260620_archive_sample (2026-06-20): the Sample pair hy_ig_v2_spy
+        # was retired and archived to _archive/hy_ig_v2_spy/. Its results dir
+        # no longer exists under results/, so it is not discovered here. The
+        # former is_sample / Reference-Implementation special-casing has been
+        # removed; all surfaced pairs are now uniform.
+        display_indicator = indicator
+        display_name = None
 
         pair = {
             "pair_id": pair_dir,
@@ -335,7 +330,7 @@ def load_pair_registry():
             "evidence_page": f"{page_prefix}_evidence.py",
             "strategy_page": f"{page_prefix}_strategy.py",
             "methodology_page": f"{page_prefix}_methodology.py",
-            "is_sample": is_sample,
+            "is_sample": False,
             "display_name": display_name,
         }
         _check_integrity(pair)

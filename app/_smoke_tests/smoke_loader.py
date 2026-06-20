@@ -80,16 +80,8 @@ class _MockSt:
 # Pairs whose block dicts use literal strings are already covered by AST — leave
 # them out of this dict (or map to an empty list).
 EVIDENCE_DYNAMIC_CHARTS: dict[str, list[str]] = {
-    "hy_ig_v2_spy": [
-        "correlation_heatmap",
-        "granger_f_by_lag",
-        "local_projections",
-        "hmm_regime_probs",
-        "quantile_regression",
-        "ccf_prewhitened",
-        "transfer_entropy",
-        "regime_quartile_returns",
-    ],
+    # hy_ig_v2_spy (Sample) retired/archived on branch fix260620_archive_sample
+    # — its dynamic-chart entry removed.
     # umcsent_xlv block dict uses literal chart names in the page file →
     # fully covered by AST parsing.
     # indpro_xlp uses APP-PT1 page templates — charts live in

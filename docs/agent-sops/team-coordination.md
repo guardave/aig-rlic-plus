@@ -1340,7 +1340,7 @@ The following terms are reserved and must not be used interchangeably:
 
 ### Semantics
 
-1. **Scope = registered pairs** (pair_registry discovery). Archived results dirs (`*_archived`, superseded `*_v1`) are exempt. The frozen Sample (`hy_ig_v2_spy`) is validated but its artifacts are NEVER auto-fixed by any gate.
+1. **Scope = registered pairs** (pair_registry discovery). Archived results dirs (`*_archived`, superseded `*_v1`) and the `_archive/` tree are exempt. (Historical: the former frozen Sample `hy_ig_v2_spy` was a validated-but-never-auto-fixed pair; it was **RETIRED and archived 2026-06-20** to `_archive/hy_ig_v2_spy/` and is no longer discovered, displayed, or gated.)
 2. **Pre-commit hook** (`scripts/hooks/pre-commit`, installed via `git config core.hooksPath scripts/hooks`) runs T1.1 + T1.3 + T2 on every commit; T1.2 runs when staged paths touch `app/`, `app/pair_configs/`, or `output/charts/`. Bypass via `--no-verify` is for true emergencies and leaves the commit visibly unguarded — say so in the commit message.
 3. **A gate FAIL is a producer bug or a gate-scope bug — never a reason to hand-edit the artifact.** Fix the producer (META-NMF), or escalate to Lead if the gate itself is wrong.
 4. Gates are Quincy-owned (`qa-agent-sop.md`); rule registration is Lead-owned.

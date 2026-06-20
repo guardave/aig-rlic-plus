@@ -31,9 +31,10 @@ from components.prospective_pairs import (
 
 
 # Pairs whose Sample/legacy distinction matters in the dropdown.
-_LABEL_SUFFIX = {
-    "hy_ig_v2_spy": " (Sample)",
-}
+# fix260620_archive_sample: the only entry (hy_ig_v2_spy "(Sample)") was
+# removed when the Sample pair was retired/archived. Kept as an extension
+# point for any future per-pair label suffixes.
+_LABEL_SUFFIX: dict[str, str] = {}
 
 
 def _build_findings() -> list[dict]:
