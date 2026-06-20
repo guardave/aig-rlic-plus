@@ -893,7 +893,9 @@ def stage_tournament(df: pd.DataFrame) -> pd.DataFrame:
         })
 
     rdf = pd.DataFrame(results)
-    rdf.to_csv(os.path.join(RESULTS_DIR,f"tournament_results_{DATE_TAG}.csv"), index=False)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _tournament_io import write_tournament  # ECON-T5 §4 immutability guard
+    write_tournament(rdf, os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv"))
 
     total   = len(rdf) - 1   # exclude benchmark row
     valid_n = rdf["valid"].sum() - 1

@@ -135,7 +135,13 @@ def regen_subperiod(pair: str, df: pd.DataFrame, w: dict, ann: int) -> None:
 # ── 2. winner_trades_broker_style.csv ───────────────────────────────────────
 
 def _signal_series(pair: str, w: dict, index: pd.DatetimeIndex):
-    """Best-effort signal values for reason annotation (NaN if unresolvable)."""
+    """Best-effort signal values for reason annotation (NaN if unresolvable).
+
+    ECON-T5 §4 (read-only): this helper opens only signals_*.parquet and the
+    master parquet, strictly READ-ONLY (pd.read_parquet), and NEVER writes or
+    appends to any tournament_results_*.csv. It does not touch the publish-time
+    tournament grid. Confirmed non-mutating by the 2026-06-20 provenance audit.
+    """
     sig_col = w.get("signal_column")
     if not sig_col:
         return None

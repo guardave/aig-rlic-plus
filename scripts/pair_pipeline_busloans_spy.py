@@ -42,6 +42,7 @@ Date: 2026-06-12
 """
 
 import os
+import sys
 import json
 import time
 import warnings
@@ -700,7 +701,9 @@ def stage_tournament(df):
     tdf = pd.DataFrame(results)
     assert (tdf["signal"] == "BENCHMARK").sum() == 1, "exactly one benchmark row required (ECON-T4)"
     tpath = os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv")
-    tdf.to_csv(tpath, index=False)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _tournament_io import write_tournament  # ECON-T5 §4 immutability guard
+    write_tournament(tdf, tpath)
 
     strat_pop = tdf[tdf.signal != "BENCHMARK"]
     n_valid = int(strat_pop["valid"].sum())

@@ -8,6 +8,20 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-06-20 — ECON-T5 Winner-Selection Provenance & Auditability + tournament-CSV immutability guard
+
+**Trigger.** `indpro_spy` idempotency challenge → 2026-06-20 independent audit (Ivy). All 12 published winners confirmed legitimate (raw max OOS Sharpe over committed grid); no corruption remains. Root cause of the earlier confusion: a regen path reused the publish-time date tag and appended L0..12 rows into the committed `tournament_results_20260314.csv` **in place**, plus the absence of any winner-selection provenance in the artifacts.
+
+**Added (`econometrics-agent-sop.md`, after ECON-T4):**
+- **ECON-T5 — Winner-Selection Provenance & Auditability (Blocking).** Deterministic objective (default `max_oos_sharpe`); `selection` provenance object on `winner_summary.json` (objective + formula, exact grid scanned with explicit lead list, tie-break step, runner-up, **raw tournament-row identity** + source filename/row index); raw-max divergence disclosure clause; **grid-expansion = re-run, published `tournament_results_*.csv` immutable, reads read-only**; selection-time validation asserts. Cross-refs ECON-T3/T4/LT1/SR1/H5. `selection` is schema-OPTIONAL pending the Lead-scheduled retro-apply backfill of all 12 pairs, then flips to required.
+
+**Code (safety-critical, prevents recurrence):**
+- New `scripts/_tournament_io.py` — `write_tournament()` raises `TournamentImmutabilityError` on an existing path (grid expansion must use a fresh date-stamped file); `read_tournament()` is the single read-only entry point. Wired into all 12 tournament-CSV producers (`pair_pipeline_*`, `tournament_backtest.py`). `econ_sr1_regen_downstream._signal_series` confirmed/annotated read-only (reads only parquet; never touches tournament CSVs).
+
+**Schema (`winner_summary.schema.json` → v1.2.0):** additive, NON-BREAKING `selection` object (incl. raw-row-key fields) defined and validated when present; NOT added to `required` (10 existing files lack it; `validate_or_die` runs at render time).
+
+---
+
 ## 2026-06-20 — Lead-horizon wave RESUMED: ECON-LL1/LA1/LT1 + VIZ-LEAD1 + DPS-LEAD1/CPX1 restored onto main
 
 **Trigger.** The 2026-06-13 lead-horizon wave (`fix260613_lead_horizon`), suspended pending a stakeholder granularity decision, was resumed on a fresh branch `fix260620_lead_horizon` off current main. Stakeholder decisions (memo §11): daily-pair granularity = **Option D (Weekly + Monthly)**; the 3 monthly RE-RUN pairs proceed now; reconcile via fresh branch.
