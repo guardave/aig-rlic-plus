@@ -47,3 +47,6 @@ temp/
 # Claude Code scheduled-tasks transient lock
 .claude/scheduled_tasks.lock
 .claude/settings.json
+
+# Smoke-test run logs (regenerable output of app/_smoke_tests/*.py)
+app/_smoke_tests/*.log
