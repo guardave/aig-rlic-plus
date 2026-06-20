@@ -1529,6 +1529,15 @@ On any tournament-distribution chart, the winner annotation must state the winne
 
 This is the chart-side half of **DPS-SCD1** (specification-curve position disclosure, `docs/dashboard-page-standard.md`) — see there for the full rationale and the prose-side requirement. Reference implementation: `hy_ig_spy` tournament_sharpe_dist title ("Winner Is Top 2 of 2036 Valid Strategies").
 
+## Rule VIZ-LEAD1 — Lead-Analysis Chart Pair (Mandatory, all pairs; added 2026-06-13)
+
+Two new mandatory Evidence charts back the Lead Analysis (ECON-LA1) and Lead Tournament (ECON-LT1) blocks. Both use the universal monthly lead axis L=0..12 (ECON-LL1), all pairs incl. daily.
+
+1. **`correlations_lead_view`** — heatmap, rows = signal transforms, columns = lead months L0..L12, cell = Pearson r of the lagged signal vs the target's **1-month forward return**; significance stars (`*`/`**`); diverging colorblind-safe scale centred at 0. Annotate/caption the best-lead column per the data (numbers re-read from `lead_correlation_{date}.csv` at generation time). Title names the target's 1-month forward return so the held-fixed horizon is unambiguous.
+2. **`lead_sharpe_distribution`** — per lead L0..L12: a bar = the **best OOS Sharpe at that lead**, overlaid with a strip/cloud of all valid combos at that lead; a dashed line marks buy-and-hold. Caption states where the max sits and whether it's a single spike vs a broad ridge (per ECON-LT1's gate finding). A tall-thin spike vs flat-wide cloud must be visually legible.
+
+**Registry (VIZ-V8):** add both `method_name`s (`Lead Analysis` → `correlations_lead_view`, `Lead Tournament` → `lead_sharpe_distribution`) to `docs/schemas/chart_type_registry.json` with `required_result_file` (`lead_correlation_{date}.csv`, `tournament_results_{date}.csv`) and `viz_rule_id: VIZ-LEAD1` / `econ_rule_id: ECON-LA1`|`ECON-LT1` BEFORE shipping; bump `x-version`; changelog entry. vichua's permit_spy charts shipped without registry entries — close that gap in this wave. VIZ-IC1 + VIZ-TX1 + perceptual-PNG apply.
+
 ## Quality Gates
 
 Before handing off:

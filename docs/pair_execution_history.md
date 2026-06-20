@@ -449,3 +449,25 @@ The initial close lumped four very different categories under one "deferred" buc
 **Process notes:** LEAD-DV1 caught the Data-Master "C&I Loan" mislabel (SLOOS survey, not loan volumes) before any data was fetched — `ci_loan` corrected, `busloans` registered distinct. META-A2A's first wave: zero relay round-trips needed (producer artifacts self-documented); 2 A2A-candidate escalations (episode-slug vocabulary → BL-EPISODE-SLUGS; both handled by Lead). One blocking QA defect (QA-1 manifest-sidecar glob collision — first pair carrying META-CMP manifest sidecars) found by Quincy's DOM sweep, fixed by Ace with byte-identical legacy regression proof, re-verified READY. Checker iteration count: 1.
 
 **Mode-1 recommendation vs outcome:** recommended Mode 1 for novelty + lagging-direction depth + first-pair-under-new-stack; outcome validates — Evan's reverse-only verdict reshaped the entire narrative frame (a Mode-2 single head with a bullish prior might have buried it), and the honest-framing chain (evidence_status → RES-CAP1 → DPS-FE2 routing) exercised three dormant standards for the first time.
+
+---
+
+## Lead-Horizon Wave (fix260613_lead_horizon) — ECON-LL1/LA1/LT1 gate, all 9 active pairs
+
+**Dispatch:** Lead Analysis + Lead Tournament on the universal monthly lead grid L=0..12 (ECON-LL1) for every active pair; per-pair conditional-re-run gate decision (ECON-LT1). Analysis + decision only — NO re-runs / winner changes this dispatch. Producer: `scripts/lead_horizon_sweep.py` (seed=42; daily pairs resampled to month-end). Artifacts per pair: `results/{pair}/lead_correlation_20260613.csv`, `lead_tournament_20260613.csv`, `lead_sweep_manifest_20260613.json` (frozen Sample routed to `results/_cross_agent/hy_ig_v2_spy_lead_readonly/` — its own dir untouched).
+
+| pair | published winner lead | L* (best-Sharpe lead, L0..12) | best Sharpe @ L* | published Sharpe | decision | rationale |
+|------|:--:|:--:|:--:|:--:|:--|:--|
+| indpro_spy | 6 | 12 | 1.374 | 1.104 | **RE-RUN** | L*∈{7..12} and 1.374 > 1.104 — extended grid finds a better long-lead winner the legacy {0,1,2,3,6} grid missed |
+| permit_spy | 6 | 6 | 1.445 | 1.445 | CHARTS-ONLY | max Sharpe stays L=6 (reproduces vichua); L8-10 is a lower-Sharpe, lower-DD ridge, not a higher-Sharpe winner |
+| vix_vix3m_spy | 0 | 3 | 1.869 | 1.130 | CHARTS-ONLY | L*=3 ∈ {0..6}; published winner's lead region still wins, no re-run |
+| indpro_xlp | 3 | 8 | 1.423 | 1.115 | **RE-RUN** | L*∈{7..12} and 1.423 > 1.115 |
+| hy_ig_spy | 0 | 1 | 1.439 | 1.408 | CHARTS-ONLY | L*=1 ∈ {0..6}; near-tie with published, winner region unaffected |
+| umcsent_xlv | 6 | 11 | 1.188 | 1.020 | **RE-RUN** | L*∈{7..12} and 1.188 > 1.020 |
+| gold_copper_xli | 0 | 10 | 1.370 | 1.273 | **RE-RUN** | L*∈{7..12} and 1.370 > 1.273 |
+| busloans_spy | 6 | 5 | 1.500 | 1.500 | CHARTS-ONLY | L*=5 ∈ {0..6}; best @ L5 ties published L6 winner family, winner region unaffected |
+| hy_ig_v2_spy (FROZEN Sample) | 0 | 2 | 1.546 | 1.274 | CHARTS-ONLY | L*=2 ∈ {0..6}; analysis read-only, decision recorded, NO write to its dir, NO re-run regardless |
+
+**Summary:** 4 RE-RUN candidates (indpro_spy, indpro_xlp, umcsent_xlv, gold_copper_xli — all L*∈{7..12} beating the published winner), 5 CHARTS-ONLY. Re-runs are a SEPARATE Lead-checkpointed dispatch; none performed here. permit_spy confirms vichua's published finding (max Sharpe L=6 → CHARTS-ONLY). Frozen Sample handled read-only.
+
+**Caveat (Lead to weigh before authorising re-runs):** the lead grid uses a *generic standardised* (threshold × strategy) backtest harness — fixed/rolling percentile + rolling-z thresholds, P1 long/cash + P2 long/short, both signal polarities, 1-month execution shift — re-run identically at every lead. It is the correct *apples-to-apples* lead comparator (only the lead axis varies), and it reproduces permit_spy's published winner (L6, 1.4454) and busloans (L6, 1.4999) from raw data. But the absolute best-Sharpe at L* for a RE-RUN pair must be re-confirmed against that pair's *native* tournament machinery (which may carry pair-specific signals/thresholds/lookbacks not in the generic grid) before any winner is cascaded. The gate decision (which lead region wins) is robust; the headline Sharpe at L* is harness-comparator, to be reconciled at re-run time per ECON-SR1.

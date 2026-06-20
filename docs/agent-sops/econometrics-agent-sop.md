@@ -735,6 +735,40 @@ Ray owns `strategy_objective` (team-coordination.md §21) but cannot classify wi
 3. **Send a structured handoff message to Ray** immediately after tournament completion (not bundled with the general results handoff). Content: path to `tournament_summary.csv`, path to `tournament_winner.json`, and a one-line suggestion of the likely `strategy_objective` bucket for Ray to confirm or override. Ray retains final authority; Evan is a supplier of pre-computed deltas.
 4. If the winner fails to beat the benchmark on any dimension, flag this explicitly in `tournament_winner.json` (`beats_benchmark: false`) and escalate to Lesandro before closing the pair. Do not silently classify a losing strategy.
 
+### ECON-LL1 — Universal Monthly Lead-Granularity Standard (Blocking, all pairs incl. daily; added 2026-06-13, stakeholder direction)
+
+**Lead time is analysed in MONTHS for every pair — including daily-data pairs.** A signal's usable physical lead is governed by data availability, reporting/publication lag, and market reaction time, not by data sampling frequency. Expressing lead in trading days over-fits to noise and produces lead selections with no practical meaning (a "3-day lead" is not actionable for a monthly-rebalanced macro overlay). Therefore:
+
+- The lead grid for Lead Analysis (ECON-LA1) and the Lead Tournament (ECON-LT1) is **L = 0, 1, 2, …, 12 months**, universally.
+- For daily-data pairs (e.g. vix_vix3m_spy, gold_copper_xli, hy_ig_spy), one month of lead = ~21 trading days; shift the daily signal by `L × 21` trading days (or resample to month-end) so the lead axis is months for everyone.
+- This applies to all current pairs and **all future pairs**.
+
+**Cross-reference:** ECON-LA1, ECON-LT1, ECON-OOS2 (windowing unchanged).
+
+### ECON-LA1 — Lead Analysis (Mandatory Evidence Component, all pairs; added 2026-06-13)
+
+**Every pair must publish a Lead Analysis.** The Correlation block answers "over what cumulative forward horizon does today's signal predict the target?" — the economist's question. Lead Analysis answers the *monthly-strategy* question: "how stale may the signal be before we trade on it?" — i.e. which signal **lead** maximises predictive content against the **1-month forward return**.
+
+**Method (mandatory):** for each signal transform, compute Pearson r between the signal lagged L = 0..12 months (ECON-LL1 granularity) and the target's 1-month forward return; mark significance (`*` p<0.05, `**` p<0.01). Emit `results/{pair}/lead_correlation_{date}.csv` (rows = transforms, cols = L0..L12, values = r with significance) and hand the chart `correlations_lead_view` to Vera (VIZ rule below). Report, per transform, the lead with the largest |r| ("best lead").
+
+**Honest-finding mandate:** if the best lead differs from the published tournament winner's lead, say so plainly (vichua's permit_spy block is the reference: it disclosed the data favours L=8-9 while the winner sits at L=6). A divergence is publishable content, not something to suppress.
+
+### ECON-LT1 — Lead Tournament + Analysis-Gated Conditional Re-Run (Blocking; added 2026-06-13, stakeholder direction)
+
+**Every pair must publish a Lead Tournament:** re-run the full (signal × threshold × strategy × lookback) tournament across the complete monthly lead grid L=0..12 (most legacy pairs tested only a coarse subset, e.g. {0,1,2,3,6}). Emit, per lead, the **best OOS Sharpe at that lead** plus the distribution of all valid combos at that lead; hand the chart `lead_sharpe_distribution` to Vera. This distinguishes a tall single-grid-point peak from a robust ridge of working leads.
+
+**The conditional re-run gate (economical — analysis first, re-run only if it matters):**
+
+1. Run Lead Analysis + Lead Tournament (cheap relative to a full pair rebuild).
+2. Identify the lead L\* of the **best OOS Sharpe across the extended L=0..12 grid**.
+3. **If L\* ∈ {7..12}** (the extended grid produces a better winner the published one missed): the published winner is stale → **re-run/adopt the extended-grid winner** as the pair's winner, cascading through `winner_summary.json`, ECON-SR1 `strategy_returns`, fragility, charts, narrative, DPS-SCD1 disclosure (a full downstream refresh for that pair).
+4. **If L\* ∈ {0..6}** (the published winner's lead region still wins): the report is **unaffected** — keep the existing winner; publish the two analysis blocks only. This is the common case (permit_spy: extended-grid max Sharpe stays at L=6; the L8-10 region is a lower-Sharpe, lower-drawdown ridge, not a higher-Sharpe winner — so no re-run, charts only).
+5. Record the gate decision (L\*, re-run yes/no, rationale) in `docs/pair_execution_history.md` for every pair.
+
+**Note on robustness vs peak.** A lower-drawdown ridge at L7-12 that does NOT beat the L≤6 winner on Sharpe does NOT trigger a re-run under this gate (the gate keys on the Sharpe winner's lead). Surface the ridge as honest Lead-Tournament narrative; a tie-break/robustness-objective change is out of scope of this rule (would be a separate ECON-T3 amendment).
+
+**Cross-reference:** ECON-LL1 (granularity), ECON-LA1 (the correlation-side analysis), ECON-T3 (winner selection if a re-run fires), ECON-SR1 (reconciled series on re-run), DPS-SCD1 (re-disclose best-of-N on re-run).
+
 ### ECON-T3 — Tournament Tie-Break Cascade (Blocking)
 
 **Motivation.** In the HY-IG v2 tournament, two strategies with identical `oos_sharpe` (1.274) differed only in `threshold_value` (0.5 vs 0.7). The winner was selected by pandas' stable-sort order — silent non-determinism. A second Evan re-running the same pipeline with a different pre-sort order would ship a different `threshold_value`, a different broker trade log, and a different portal caption, without any audit trail. ECON-T3 mechanizes the tie-break so another Evan, given identical inputs, produces an identical winner.

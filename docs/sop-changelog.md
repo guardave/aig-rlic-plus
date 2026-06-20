@@ -8,6 +8,20 @@ Entries are listed newest-first. Each entry cites the commit hash (when availabl
 
 ---
 
+## 2026-06-20 — Lead-horizon wave RESUMED: ECON-LL1/LA1/LT1 + VIZ-LEAD1 + DPS-LEAD1/CPX1 restored onto main
+
+**Trigger.** The 2026-06-13 lead-horizon wave (`fix260613_lead_horizon`), suspended pending a stakeholder granularity decision, was resumed on a fresh branch `fix260620_lead_horizon` off current main. Stakeholder decisions (memo §11): daily-pair granularity = **Option D (Weekly + Monthly)**; the 3 monthly RE-RUN pairs proceed now; reconcile via fresh branch.
+
+**Restored verbatim (no main drift on these SOP files since the 2026-06-13 merge-base):**
+- **ECON-LL1 / ECON-LA1 / ECON-LT1** (`econometrics-agent-sop.md`) — monthly lead granularity, mandatory Lead Analysis, Lead Tournament + analysis-gated conditional re-run.
+- **VIZ-LEAD1** (`visualization-agent-sop.md`) — `lead_analysis`/`lead_tournament` chart standards.
+- **DPS-LEAD1 / DPS-CPX1** (`dashboard-page-standard.md`) — mandatory lead Evidence blocks; narrative-travels-with-section.
+- The two 2026-06-13 changelog entries below (VIZ-LEAD1 registry binding; lead-horizon standards) document the original authoring.
+
+**Resume deltas vs 2026-06-13:** Sample `hy_ig_v2_spy` is now RETIRED/archived (dropped from lead scope); 3 pairs shipped post-suspend (ism_services, m2sl_yoy = monthly; phlxsox = daily, Option D) are folded into this wave; chart_type_registry v1.2.0 lead bindings + the sweep/chart scripts are being re-applied on today's code by Evan/Vera.
+
+---
+
 ## 2026-06-17 — Signal Code Registry Additive Entry: `petrol_3m`
 
 **Trigger.** Mode-3 `petrol_inv_spy` econometrics tournament selected the three-month petroleum inventory percent-change signal. ECON-DS3 requires any new winner `signal_code` to be present in the append-only registry before `winner_summary.json` is handed off.
