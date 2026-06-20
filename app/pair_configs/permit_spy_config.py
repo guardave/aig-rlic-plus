@@ -202,8 +202,8 @@ CORRELATION_BLOCK = dict(
     ),
     how_to_read=(
         "Rows are permit signal variants; columns are forward SPY return horizons. "
-        "Warm colours (blue→green) indicate positive (pro-cyclical) correlation; "
-        "cool colours (red) indicate negative. **Stars mark statistical "
+        "Warm colours indicate positive (pro-cyclical) correlation; "
+        "cool colours indicate negative. **Stars mark statistical "
         "significance — `*` for p<0.05, `**` for p<0.01.** For the precise "
         "definition of each signal variant (`mom`, `yoy`, `zscore_60m`, "
         "`dev_trend`, etc.) see the **Methodology → Indicator Construction** "
@@ -441,9 +441,9 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     ),
     interpretation=(
         "Two qualifications relative to a standard \"permits lead the cycle\" "
-        "story. First, the **point estimate peaks at 12 months, not 3-6** — "
-        "consistent with the correlation heatmap, not with the earlier prose "
-        "claim of a 3-6 month peak. Second, the **economic magnitude is small** "
+        "story. First, the **point estimate peaks at 12 months** — "
+        "consistent with the correlation heatmap. "
+        "Second, the **economic magnitude is small** "
         "(a 1-σ permit shock moves cumulative SPY by ~0.25 percentage points "
         "over a year), which is enough to inform a directional bias but is not "
         "by itself a license for size. The 6-month lead in the strategy is a "
