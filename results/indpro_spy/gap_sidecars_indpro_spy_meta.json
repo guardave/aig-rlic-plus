@@ -1,0 +1,49 @@
+{
+  "pair_id": "indpro_spy",
+  "rule": "ECON-SR1 (gap extension, pending ECON-CP2 ratification)",
+  "generated_at": "2026-06-20",
+  "generated_by": "Econ Evan (fix260620_lead_horizon Phase B)",
+  "winner_combo": "S3_mom/T2_roll_p75/P1/L4",
+  "winner_signal_column": "indpro_mom",
+  "canonical_series": "strategy_returns_20260620.csv",
+  "sidecars": {
+    "rolling_sharpe": {
+      "file": "rolling_sharpe_indpro_spy.csv",
+      "source": "strategy_returns_20260620.csv strategy_return (no re-sim)",
+      "window_months": 24,
+      "min_periods": 18,
+      "reconciliation": {
+        "oos_sharpe_from_series": 1.230068,
+        "winner_summary_oos_sharpe": 1.2301,
+        "diff": -3.2e-05,
+        "tol": 0.01,
+        "verdict": "PASS"
+      }
+    },
+    "signal_dist": {
+      "file": "signal_dist_indpro_spy.csv",
+      "signal_column": "indpro_mom",
+      "signal_display_name": "INDPRO 1-month momentum",
+      "lead_months": 4,
+      "threshold_code": "T2_roll_p75",
+      "threshold_kind": "rolling60_p75",
+      "is_n": 336,
+      "oos_n": 96,
+      "supersedes_defect": "old chart histogrammed indpro_accel (Acceleration) \u2014 wrong column"
+    },
+    "tournament_scatter": {
+      "file": "tournament_scatter_indpro_spy.csv",
+      "coarse_source": "tournament_results_20260314.csv",
+      "coarse_source_immutable": true,
+      "coarse_population": 1666,
+      "coarse_valid": 1149,
+      "winner_overlay": {
+        "combo": "S3_mom/T2_roll_p75/P1/L4",
+        "oos_sharpe": 1.2301,
+        "annual_turnover": 4.5,
+        "in_coarse_grid": false,
+        "note": "extended-grid winner; coarse grid did not scan this lead \u2014 overlay, not a coarse row"
+      }
+    }
+  }
+}

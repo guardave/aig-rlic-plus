@@ -840,6 +840,20 @@ The cascade MUST be implemented explicitly in the tournament script (not delegat
 
 **Cross-reference:** Vera's Numerical Reconciliation gate (visualization SOP) is the consumer-side twin; META-CMP Tier 3 (deferred) is the eventual mechanical enforcement; GH #7 adoption-run findings 2026-06-11.
 
+### ECON-SR3 — Winner-Dependent Chart Inputs Are Canonical-Series Sidecars (Blocking; added 2026-06-20, fix260620_lead_horizon)
+
+**Motivation.** ECON-SR1 §3 made the strategy-return series a single persisted artifact for the equity/drawdown/walk-forward/subperiod consumers, but three other winner-dependent charts were never wired to it. They were rendered by per-pair generators that re-simulated the winner from signal+threshold heuristics — `np.sign(signal.shift(lead)) * target` in `scripts/econ_cp_retro_apply.py::compute_strat_ret` (feeding `rolling_sharpe_cp`), and a hardcoded `df["indpro_accel"]` in `scripts/generate_charts_indpro_xlp.py::chart_signal_dist`. This is the exact bug class ECON-SR1 exists to kill. On the fix260620 lead-horizon winner change (indpro_xlp → L11, indpro_spy → L4) these silently shipped the OLD winner: the xlp `signal_dist` chart histogrammed "INDPRO Acceleration" while the new winner signal is `indpro_mom` (1-month momentum) — a user-visible correctness defect. Caught 2026-06-20 during the Phase B re-run cascade.
+
+**Rule (blocking).** Extends ECON-SR1 §3 ("one series, many consumers"). The inputs to the three winner-dependent charts `rolling_sharpe_cp`, `signal_dist`, and `tournament_scatter` MUST be persisted `results/{pair_id}/` sidecars produced by Evan and reconciled to `winner_summary.json`; chart generators CONSUME them and never re-derive positions or re-simulate the winner:
+
+1. **`rolling_sharpe_cp`** ← `results/{pair_id}/rolling_sharpe_{pair_id}.csv` (columns: `date`, `rolling_sharpe_24m`). The rolling Sharpe is computed DIRECTLY off the canonical `strategy_returns_{date}.csv` `strategy_return` series (24-month window monthly / 504-day daily), never from a re-simulated position series. The full-OOS Sharpe of that underlying series reconciles to `winner_summary.json.oos_sharpe` within ±0.01.
+2. **`signal_dist`** ← `results/{pair_id}/signal_dist_{pair_id}.csv` keyed on `winner_summary.json.signal_column` (NOT a hardcoded column), carrying the contemporaneous signal value, the lead-shifted value the rule tests, an IS/OOS `sample` split, and the winner's own threshold (scalar for fixed thresholds, a per-row series for rolling thresholds).
+3. **`tournament_scatter`** ← `results/{pair_id}/tournament_scatter_{pair_id}.csv`: the **IMMUTABLE published coarse tournament CSV** (e.g. `tournament_results_20260314.csv`) is the scatter population, so the scatter agrees with the portal Methodology tournament table. The selected winner is added as a single distinct `extended_grid_winner` overlay row (coordinates from `winner_summary.json`), NOT read from a coarse-grid row and NEVER written into the coarse CSV. When the winner's lead lies outside the coarse grid (the ECON-LT1 case — the whole reason the extended sweep fired), the winner is by definition not a coarse-grid member and MUST be rendered as an overlay; switching the scatter population to the extended grid is prohibited because it desyncs the scatter from the Methodology table.
+
+Each sidecar carries a `_meta.json` (or a shared `gap_sidecars_{pair_id}_meta.json`) recording provenance and the reconciliation result, per ECON-SR1 §4.
+
+**Cross-reference:** ECON-SR1 (parent — reconciled canonical series); ECON-T5 (immutable published tournament CSV — read-only; the extended-grid winner is never folded into it); ECON-LT1 (grid-expansion gate — the winner-lead-outside-coarse-grid condition that forces the overlay treatment); a VIZ consumer-side twin in the visualization SOP is needed (Vera renders, never re-derives) — to be added by Vera when she wires the consumers.
+
 ### ECON-OOS1 — OOS Window Ownership
 
 **Rule.** The out-of-sample (OOS) window is owned by Evan exclusively. Every pair persists the window decision in a single canonical record at `results/{pair_id}/oos_split_record.json` with the following fields:

@@ -973,6 +973,54 @@ done
 
 ---
 
+#### Rule VIZ-SR3T — Sidecar Consumer-Side Twin (added 2026-06-21, fix260620_lead_horizon)
+
+**Mirror of ECON-SR3.** When Econ emits a canonical *gap sidecar* for a chart
+(`results/{pair}/{chart}_{pair}.csv` plus a `gap_sidecars_{pair}_meta.json`
+provenance file), Vera renders that chart **strictly by consuming the sidecar** —
+she NEVER re-derives the underlying quantity from raw signals, the tournament CSV,
+or the strategy positions. The three charts placed under this contract by ECON-SR3
+are `rolling_sharpe_cp`, `signal_dist`, and `tournament_scatter`; the contract
+extends to any future sidecar Econ registers.
+
+Specifically:
+- **rolling_sharpe_cp** reads `rolling_sharpe_{pair}.csv` (`date, rolling_sharpe_24m`)
+  — the canonical builder already does this; no re-simulation.
+- **signal_dist** reads `signal_dist_{pair}.csv` (`date, signal_value, signal_lagged,
+  sample, threshold`). Histogram `signal_value` (the actual winner signal column);
+  do NOT hardcode a signal name. The pre-ECON-SR3 defect was histogramming a stale
+  hardcoded column (`indpro_accel`) after the winner signal changed to `indpro_mom`.
+- **tournament_scatter** reads `tournament_scatter_{pair}.csv` with a `point_role`
+  column ∈ {invalid, valid, benchmark, coarse_top5, extended_grid_winner}. The
+  scatter population is the **immutable coarse published grid** (so it agrees with
+  the Methodology winner table); the single `extended_grid_winner` row is rendered
+  as a **distinct labeled overlay marker** (read it, never re-derive). The coarse
+  grid and the extended-grid winner are different populations — never merge them.
+
+**Why this rule exists.** ECON-SR1 eliminated chart-side re-simulation for the
+strategy-performance charts; the lead-horizon wave exposed three more winner-dependent
+charts that still re-derived (or hardcoded) their inputs and so silently encoded the
+displaced winner after a winner change. VIZ-SR3T closes that gap: the sidecar is the
+single source of truth, exactly as ECON-SR3 makes it on the producer side.
+
+**Disposition note.** `signal_dist` is not referenced by the methodology page template
+nor by the indpro pair_configs — it is an orphan and therefore `disposition: "suggested"`
++ `exploratory: true` (VIZ-O1 / VIZ-E1), not `consumed`. Routing it into the Methodology
+Exploratory section (`analyst_suggestions.json` `exploratory_charts`) is an Ace-side
+render-pathway change; flag it, do not silently rewire.
+
+**Caution — unguarded module imports.** `scripts/viz_cp_retro_apply.py` runs its
+retro-apply main loop at *import* time (no `if __name__ == "__main__"` guard).
+Importing `build_rolling_sharpe_cp` from it re-renders all 10 pairs' CP charts as a
+side-effect (collateral overwrite, thin metas, no perceptual PNGs). Copy the builder
+or guard the import; never `import` that module for a single-pair render.
+
+**Cross-reference:** ECON-SR3 (producer-side sidecar contract), ECON-SR1 (no chart-side
+re-simulation of strategy series), VIZ-CP1 (rolling_sharpe_cp builder), VIZ-O1 / VIZ-E1
+(disposition + exploratory sidecar), VIZ-NBER1 (NBER shading on rolling_sharpe_cp).
+
+---
+
 #### Rule V3 — Per-Chart Ownership: No Silent Fallbacks (addresses S18-11)
 
 Every chart referenced by a portal page must have its own canonical artifact. If a statistical method doesn't yet have a dedicated chart (e.g. Granger Causality), Vera must produce one — falling back to a different chart (e.g. rendering Local Projections under a Granger heading) is **prohibited**. S18-11 flagged this exact pattern: "Granger chart 同 Local Projections 個 chart 睇落一樣" — the same file was served under two headings, breaking per-method ownership.

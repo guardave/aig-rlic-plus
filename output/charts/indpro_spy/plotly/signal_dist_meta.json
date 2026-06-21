@@ -1,6 +1,6 @@
 {
   "chart_name": "signal_dist",
-  "pair_id": "indpro_xlp",
+  "pair_id": "indpro_spy",
   "palette_id": "okabe_ito_2026",
   "rules_applied": [
     "ECON-SR3",
@@ -14,10 +14,10 @@
   "narrative_alignment_note": "Plain-English: this shows how often the industrial-production momentum signal took different values, comparing the period we tuned the strategy on (in-sample) with the period we tested it on (out-of-sample). The dashed line is the cutoff above which the strategy buys. It helps confirm the test period was not wildly different from the tuning period.",
   "disposition": "suggested",
   "source_artifacts": [
-    "results/indpro_xlp/signal_dist_indpro_xlp.csv",
-    "results/indpro_xlp/gap_sidecars_indpro_xlp_meta.json"
+    "results/indpro_spy/signal_dist_indpro_spy.csv",
+    "results/indpro_spy/gap_sidecars_indpro_spy_meta.json"
   ],
-  "generated_at": "2026-06-21T12:05:28.902680+00:00",
+  "generated_at": "2026-06-21T12:05:34.266269+00:00",
   "generated_by": "Viz Vera \u2014 temp/260621_systemic3/regen_systemic3.py (ECON-SR3 consumer-side twin)",
   "exploratory": true,
   "vera_rationale": "Winner-signal IS/OOS distribution diagnostic; fixed from the displaced indpro_accel column to the actual winner column indpro_mom.",

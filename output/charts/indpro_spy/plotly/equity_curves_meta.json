@@ -9,36 +9,36 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Out-of-sample cumulative growth per dollar invested: winner strategy ends at 1.81 vs 2.92 for buy-and-hold SPY (2018-01-01 to 2025-12-31). Series: reconciled canonical strategy returns (ECON-SR1). Shaded bands mark NBER recessions.",
+  "caption": "Out-of-sample cumulative growth per dollar invested: winner strategy ends at 2.22 vs 2.92 for buy-and-hold SPY (2018-01-01 to 2025-12-31). Series: reconciled canonical strategy returns (ECON-SR1). Shaded bands mark NBER recessions.",
   "narrative_alignment_note": "Winner-vs-buy-and-hold cumulative growth for the Strategy page Performance tab; endpoints re-read from the canonical series at generation time.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/indpro_spy/strategy_returns_20260611.csv",
+    "results/indpro_spy/strategy_returns_20260620.csv",
     "results/indpro_spy/winner_summary.json"
   ],
   "reconciliation": {
     "oos_sharpe": {
-      "computed": 1.103559,
-      "reported_winner_summary": 1.1036,
-      "diff": -4.1e-05,
+      "computed": 1.230068,
+      "reported_winner_summary": 1.2301,
+      "diff": -3.2e-05,
       "tolerance": 0.01,
       "verdict": "PASS"
     },
     "oos_max_drawdown": {
-      "computed": -0.080701,
-      "reported_winner_summary": -0.0807,
-      "diff": -1e-06,
+      "computed": -0.027411,
+      "reported_winner_summary": -0.027411,
+      "diff": 0.0,
       "tolerance": 0.005,
       "verdict": "PASS"
     },
     "oos_ann_return": {
-      "computed": 0.076809,
-      "reported_winner_summary": 0.0765,
-      "diff": 0.000309,
+      "computed": 0.104593,
+      "reported_winner_summary": 0.103199,
+      "diff": 0.001394,
       "tolerance": 0.005,
       "verdict": "PASS"
     }
   },
-  "generated_at": "2026-06-11T19:21:48.261859+00:00",
+  "generated_at": "2026-06-21T12:02:29.117817+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_strategy_perf_charts.py (fix260611_meta_cmp, ECON-SR1 consumer)"
 }

@@ -2,7 +2,7 @@
 pair_id: indpro_xlp
 narrative_version: 1.0.0
 generated_at: "2026-04-23T00:00:00Z"
-direction_asserted: countercyclical
+direction_asserted: procyclical
 chart_refs: []
 glossary_terms: []
 pages:
@@ -30,4 +30,4 @@ pages:
 > required to complete the APP-DIR1 3-way direction-triangulation check (Ray leg).
 > Full narrative prose is pending the next pair deep-dive pass.
 
-direction_asserted: countercyclical
+direction_asserted: procyclical

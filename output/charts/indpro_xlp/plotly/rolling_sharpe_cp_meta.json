@@ -1,11 +1,22 @@
 {
+  "chart_name": "rolling_sharpe_cp",
   "pair_id": "indpro_xlp",
-  "chart_type": "time_series_line",
+  "palette_id": "okabe_ito_2026",
   "rules_applied": [
     "VIZ-CP1",
-    "VIZ-BF1"
+    "ECON-SR1",
+    "ECON-SR3",
+    "VIZ-SR3T",
+    "VIZ-NBER1",
+    "VIZ-O1"
   ],
-  "generated_at": "2026-04-24",
+  "caption": "Rolling 24-month annualized Sharpe of the winner strategy, computed off the canonical ECON-SR1 strategy_return series (no re-simulation). Green fill above zero, orange below. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Rolling-Sharpe stability view for the Strategy page; values re-read from Evan's regenerated canonical rolling_sharpe series.",
   "disposition": "consumed",
-  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "source_artifacts": [
+    "results/indpro_xlp/rolling_sharpe_indpro_xlp.csv",
+    "results/indpro_xlp/gap_sidecars_indpro_xlp_meta.json"
+  ],
+  "generated_at": "2026-06-21T12:05:26.932173+00:00",
+  "generated_by": "Viz Vera \u2014 temp/260621_systemic3/regen_systemic3.py (ECON-SR3 consumer-side twin)"
 }

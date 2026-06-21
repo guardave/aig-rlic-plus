@@ -3,13 +3,19 @@
   "pair_id": "indpro_spy",
   "palette_id": "okabe_ito_2026",
   "rules_applied": [
-    "VIZ-O1",
-    "VIZ-BF1"
+    "ECON-SR3",
+    "VIZ-SR3T",
+    "VIZ-V8",
+    "VIZ-IC1",
+    "VIZ-O1"
   ],
-  "narrative_alignment_note": "Tournament combos scattered by OOS Sharpe vs annual return; winner highlighted.",
-  "created_at": "2026-06-02T08:44:33Z",
-  "method_name": "tournament_scatter",
-  "expected_chart_type": "scatter",
+  "caption": "OOS Sharpe vs annual turnover across the 1,666 combinations of the immutable coarse published tournament grid (1,149 valid); coarse top-5 as stars. The diamond-star overlay is the extended-grid winner (not a coarse row \u2014 the coarse grid never scanned that lead).",
+  "narrative_alignment_note": "Tournament landscape for the Methodology page. Population is the immutable coarse published grid (agrees with the Methodology winner table); the extended-grid winner is a distinct labeled overlay, read from Evan's sidecar.",
   "disposition": "consumed",
-  "backfilled_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "source_artifacts": [
+    "results/indpro_spy/tournament_scatter_indpro_spy.csv",
+    "results/indpro_spy/gap_sidecars_indpro_spy_meta.json"
+  ],
+  "generated_at": "2026-06-21T12:05:35.953998+00:00",
+  "generated_by": "Viz Vera \u2014 temp/260621_systemic3/regen_systemic3.py (ECON-SR3 consumer-side twin)"
 }

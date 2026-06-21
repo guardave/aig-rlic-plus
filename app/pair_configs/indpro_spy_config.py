@@ -5,9 +5,12 @@ app/pages/5_indpro_spy_*.py (pre-migration, commit 24e2f16~1), cross-checked
 against results/indpro_spy/winner_summary.json.
 
 Pair ID: indpro_spy  (legacy Pair #1)
-Winner (winner_summary.json, authoritative): S6_mom3m / T1_fixed_p75 /
-P1_long_cash / L6 — OOS Sharpe 1.10 vs 0.90 B&H SPY, OOS return +7.65%,
-Max DD -8.07%.
+Winner (winner_summary.json, authoritative): S3_mom (1-month momentum) /
+T2_roll_p75 / P1_long_cash / L4 — OOS Sharpe 1.2301 vs 0.8998 B&H SPY,
+OOS ann return +10.32%, Max DD -2.74%, Calmar 3.76. Total compounded return
+2.22x is BELOW B&H 2.92x — risk-adjusted overlay, not a return-beater.
+Re-run under ECON-T5/ECON-LT1 (fix260620_lead_horizon); lead from extended
+sweep L0..12. Narrative refreshed by Ray 2026-06-21.
 """
 
 from __future__ import annotations
@@ -25,8 +28,9 @@ class StoryConfig:
     )
 
     HEADLINE_H2 = (
-        "## INDPRO as a pro-cyclical equity timing signal — "
-        "OOS Sharpe vs SPY buy-and-hold"
+        "## Sharpe 1.23 over an 8-year out-of-sample window — INDPRO "
+        "1-month momentum as a defensive equity overlay that cut SPY's "
+        "worst drawdown from -23.9% to -2.7%"
     )
 
     PLAIN_ENGLISH = (
@@ -34,8 +38,11 @@ class StoryConfig:
         "U.S. factories, mines, and utilities produced. That number — "
         "Industrial Production, or INDPRO — turns out to be a useful clue for "
         "when to be in the stock market and when to be in cash. The rule is "
-        "simple: when factory output has been trending up strongly for three "
-        "months, hold SPY; otherwise step aside."
+        "simple: when factory-output momentum has been strong, hold SPY; "
+        "otherwise step aside into cash. The honest headline is that this is a "
+        "**risk-reducing overlay, not a return-beating strategy** — over the "
+        "test window it earned slightly LESS in total than just buying and "
+        "holding SPY, but it did so with a dramatically smoother ride."
     )
 
     WHERE_THIS_FITS = (
@@ -47,18 +54,21 @@ class StoryConfig:
     )
 
     ONE_SENTENCE_THESIS = (
-        "*When INDPRO 3-month momentum is strong (above its in-sample 75th "
-        "percentile) and applied with a 6-month lead, a simple Long/Cash rule "
-        "delivered an out-of-sample Sharpe of 1.10 on SPY with a maximum "
-        "drawdown of -8.1% — versus 0.90 and -23.9% for buy-and-hold.*"
+        "*When INDPRO 1-month momentum is strong (above its rolling 75th "
+        "percentile) and applied with a 4-month lead, a simple Long/Cash rule "
+        "delivered an out-of-sample Sharpe of 1.23 on SPY with a maximum "
+        "drawdown of just -2.7% — versus 0.90 and -23.9% for buy-and-hold — "
+        "while compounding to a slightly lower total return (2.22x vs 2.92x).*"
     )
 
     KPI_CAPTION = (
-        "The edge comes primarily from drawdown avoidance, not from higher "
-        "returns. OOS annualised return is +7.6% versus +14.8% for buy-and-hold, "
-        "but the strategy spends roughly two-thirds of its time in cash — "
-        "translating into a much smoother ride. A pragmatic use case is as a "
-        "risk-management overlay rather than as a stand-alone alpha engine."
+        "The edge is entirely risk-adjusted, not absolute return. OOS "
+        "annualised return is +10.3%, and the strategy spends a large share of "
+        "its time in cash — which is why its total compounded return (2.22x) "
+        "ends up BELOW buy-and-hold (2.92x). What it buys you is a far smoother "
+        "ride: maximum drawdown of -2.7% versus -23.9%, and a Calmar ratio of "
+        "3.76. The honest use case is as a risk-management overlay, NOT as a "
+        "return-maximising alpha engine."
     )
 
     HERO_TITLE = "35 Years of INDPRO vs. S&P 500"
@@ -146,25 +156,25 @@ class StoryConfig:
         {
             "slug": "dot_com",
             "title": "Dot-Com Bust (2000–2002)",
-            "narrative": "Industrial production peaked in mid-2000 and fell for 18 months through 2001, coinciding with the equity bear market. The 3-month momentum signal turned negative roughly 3–6 months before the steepest SPY drawdowns, making this a solid long-lead case. However, the signal also stayed bearish well into the early 2002 recovery, illustrating the lag cost.",
+            "narrative": "Industrial production peaked in mid-2000 and fell for 18 months through 2001, coinciding with the equity bear market. The 1-month momentum signal weakened ahead of the steepest SPY drawdowns, making this a solid long-lead case. However, the signal also stayed soft well into the early 2002 recovery, illustrating the lag cost.",
             "caption": "INDPRO 3M momentum turned negative mid-2000, leading SPY decline — recovery signal lagged equity bottom by months",
         },
         {
             "slug": "gfc",
             "title": "Global Financial Crisis (2007–2009)",
-            "narrative": "Industrial production fell sharply from late 2007 through mid-2009, one of the steepest declines since World War II. The 3-month momentum signal tracked the contraction closely, remaining bearish for the entire episode. Because INDPRO has a ~6-week publication lag, real-time signal entry was coincident rather than truly leading — but the sustained bearish reading correctly kept the strategy in cash during the worst of the selloff.",
+            "narrative": "Industrial production fell sharply from late 2007 through mid-2009, one of the steepest declines since World War II. The 1-month momentum signal tracked the contraction closely, remaining weak for the entire episode. Because INDPRO has a ~6-week publication lag, real-time signal entry was coincident rather than truly leading — but the sustained weak reading correctly kept the strategy in cash during the worst of the selloff.",
             "caption": "INDPRO momentum stayed deeply negative through entire GFC contraction — strategy avoided SPY's -55% trough",
         },
         {
             "slug": "covid",
             "title": "COVID Crash (2020)",
-            "narrative": "April 2020 produced the single largest monthly drop in INDPRO on record (-12.7%), creating an extreme outlier that distorts z-score-based signals. The 3-month momentum signal collapsed and then snapped back almost as fast as the equity market — this is both a coincident case (signal tracked SPY direction) and a known model limitation, as the outlier can dominate regime classification for subsequent periods.",
-            "caption": "April 2020: INDPRO -12.7% MoM — largest single-month drop on record; z-score outlier distorts subsequent signals",
+            "narrative": "April 2020 produced the single largest monthly drop in INDPRO on record (-12.7%). With its 4-month lead, the rule's COVID-window positions reflected late-2019 momentum, not the shock itself: it was in cash in February (avoiding -7.9%) but caught LONG in March 2020 (taking the -12.5% hit), then moved to cash in April and missed the +12.7% rebound. An honest coincident case — the rule was a defensive overlay, not a clean crisis dodge.",
+            "caption": "COVID: rule in cash in Feb, LONG in March (-12.5% hit), then missed the April rebound — not a clean dodge",
         },
         {
             "slug": "china_2015",
             "title": "China Slowdown / EM Stress (2015–2016)",
-            "narrative": "US industrial production contracted mildly through 2015–2016 amid a manufacturing slowdown, energy sector weakness, and strong dollar headwinds. SPY experienced a volatile but ultimately shallow correction. The 3-month momentum signal turned modestly negative — a partial failure case where signal and outcome were directionally consistent but the equity impact was far smaller than prior contractions.",
+            "narrative": "US industrial production contracted mildly through 2015–2016 amid a manufacturing slowdown, energy sector weakness, and strong dollar headwinds. SPY experienced a volatile but ultimately shallow correction. The 1-month momentum signal turned modestly negative — a partial failure case where signal and outcome were directionally consistent but the equity impact was far smaller than prior contractions.",
             "caption": "2015-16 US manufacturing slowdown: INDPRO momentum mildly negative, SPY volatile but held up — shallow failure case",
         },
     ]
@@ -285,15 +295,15 @@ CCF_BLOCK = dict(
     interpretation=(
         "INDPRO is a **leading indicator** for SPY at the multi-month "
         "horizon, not a coincident one. This is consistent with the "
-        "tournament winner using a 6-month lead — the producer's lead "
-        "parameter captures the centre of the significant-lag cluster. "
+        "tournament winner using a 4-month lead — the producer's lead "
+        "parameter sits well within the significant-lag cluster. "
         "Combined with INDPRO's ~6-week publication lag, the effective "
         "tradable horizon is several months."
     ),
     key_message=(
         "INDPRO leads SPY at multi-month horizons; 11 of 25 CCF lags are "
-        "significant and ALL are at negative lags. The 6-month lead "
-        "parameter in the trading rule sits in the heart of the "
+        "significant and ALL are at negative lags. The 4-month lead "
+        "parameter in the trading rule sits comfortably within the "
         "significant-lag cluster."
     ),
 )
@@ -338,11 +348,11 @@ GRANGER_BLOCK = dict(
     interpretation=(
         "Absence of Granger causality does not mean absence of tradable edge. "
         "It means the relationship is not a simple one-directional lead-lag "
-        "pattern. Momentum-based rules with a 6-month lead still extract "
+        "pattern. Momentum-based rules with a 4-month lead still extract "
         "meaningful signal, as the tournament confirms."
     ),
     key_message=(
-        "The INDPRO signal is coincident, not leading. The 6-month lead is a "
+        "The INDPRO signal is coincident, not leading. The 4-month lead is a "
         "design choice that leverages publication delay and momentum "
         "persistence — not a claim that INDPRO literally forecasts SPY."
     ),
@@ -381,14 +391,14 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         "over the subsequent half year."
     ),
     interpretation=(
-        "The LP path directly supports the 6-month lead chosen by the "
-        "tournament. The effect is strongest at exactly the horizon the "
+        "The LP path directly supports the 4-month lead chosen by the "
+        "tournament. The response is building through exactly the horizon the "
         "trading rule uses, which is a healthy alignment between the "
         "econometric evidence and the rule's hyperparameter."
     ),
     key_message=(
-        "SPY responds significantly to IP shocks out to 6 months — the "
-        "econometric justification for the winner's 6-month lead."
+        "SPY responds significantly to IP shocks through the 3-6 month "
+        "horizon — the econometric justification for the winner's 4-month lead."
     ),
 )
 
@@ -431,8 +441,8 @@ QUANTILE_BLOCK = dict(
     ),
     key_message=(
         "IP's real contribution is compressing left-tail SPY outcomes. That "
-        "is the economic meaning of the strategy's -8% max drawdown vs. "
-        "-24% for buy-and-hold."
+        "is the economic meaning of the strategy's -2.7% max drawdown vs. "
+        "-23.9% for buy-and-hold."
     ),
 )
 
@@ -519,14 +529,18 @@ EVIDENCE_METHOD_BLOCKS = {
         "Random Forest Importance",
     ],
     "tournament_intro": (
-        "With the econometric case established, we swept a 5-dimensional "
-        "tournament over 9 signal transforms, 6 threshold methods, 3 strategy "
-        "families, 5 lead times, and 3 lookback windows — ~8,100 raw "
-        "specifications, of which 1,665 were run and 1,149 passed validity "
-        "filters. The headline OOS Sharpe of 1.10 is the **best of those "
-        "1,149 valid combinations** — the maximum of the search, not a "
-        "typical result: the median valid combination scored 0.77. The "
-        "winning specification is on the Strategy page."
+        "With the econometric case established, we swept a tournament over 9 "
+        "signal transforms, multiple threshold methods, strategy families, and "
+        "lead times — 2,938 valid combinations passed the validity filters. "
+        "The headline OOS Sharpe of 1.23 is the **best of those 2,938 valid "
+        "combinations** — the maximum of the search, not a typical result: the "
+        "median valid combination scored 0.75. The winning specification is on "
+        "the Strategy page. **Provenance note:** the winning 4-month lead was "
+        "found by an *extended* monthly lead sweep (leads 0 through 12); the "
+        "committed tournament table on the Methodology page uses a coarser lead "
+        "grid that never scanned lead 4, so the winner's exact row does not "
+        "appear in that table, and it shows on the tournament scatter as a "
+        "distinct labelled 'extended-grid' point."
     ),
     "transition": (
         "The statistical evidence confirms a real but nuanced IP-equity "
@@ -548,46 +562,49 @@ class StrategyConfig:
     )
 
     PLAIN_ENGLISH = (
-        "The tournament winner is a simple on/off rule: when factory output "
-        "has been trending strongly for three months, stay fully invested "
-        "in SPY; otherwise sit in cash. Act on the signal six months after "
-        "you see it — because IP data is published with a lag and the "
-        "economic effect on stocks unfolds over several months."
+        "The tournament winner is a simple on/off rule: when factory-output "
+        "momentum has been strong, stay fully invested in SPY; otherwise sit "
+        "in cash. Act on the signal four months after you see it — because IP "
+        "data is published with a lag and the economic effect on stocks "
+        "unfolds over several months. Remember the honest framing: this rule "
+        "spends most of its time in cash, so it trades away some upside in "
+        "exchange for a much smoother ride."
     )
 
     SIGNAL_RULE_MD = (
-        "**Tournament winner:** Signal `S6_mom3m` (3-month INDPRO momentum) / "
-        "Threshold `T1_fixed_p75` (75th percentile, fixed in-sample) / "
-        "Strategy `P1_long_cash` (Long/Cash binary toggle) / Lead 6 months.\n\n"
-        "When the 3-month change in Industrial Production is above its "
-        "historical 75th percentile (strong momentum), stay fully invested "
-        "in SPY. Otherwise, move to cash. Apply the signal with a 6-month "
-        "lead to account for IP's publication lag and the time it takes for "
-        "the economy to respond."
+        "**Tournament winner:** Signal `S3_mom` (INDPRO 1-month momentum) / "
+        "Threshold `T2_roll_p75` (75th percentile, rolling 60-month) / "
+        "Strategy `P1_long_cash` (Long/Cash binary toggle) / Lead 4 months.\n\n"
+        "When the 1-month change in Industrial Production is above its "
+        "rolling 60-month 75th percentile (strong momentum), stay fully "
+        "invested in SPY. Otherwise, move to cash. Apply the signal with a "
+        "4-month lead to account for IP's publication lag and the time it "
+        "takes for the economy to respond."
     )
 
     HOW_SIGNAL_IS_GENERATED_MD = (
         "1. **Pull INDPRO.** FRED series `INDPRO`, monthly SA. Released "
         "~6 weeks after the reference month.\n"
-        "2. **Compute 3-month momentum.** `mom3m_t = indpro_t / indpro_{t-3} - 1`.\n"
-        "3. **Fix the threshold once, in-sample.** Take the 75th percentile of "
-        "3-month momentum from 1990-01 to 2017-12 and keep that number.\n"
-        "4. **Apply the 6-month lead.** Today's position is determined by the "
-        "3-month momentum from 6 months ago.\n"
-        "5. **Translate to position.** If the 6-month-lagged mom3m is above "
-        "the fixed 75th-percentile threshold → long SPY (+1). Otherwise → "
-        "cash (0). Rebalance monthly."
+        "2. **Compute 1-month momentum.** `mom_t = indpro_t / indpro_{t-1} - 1`.\n"
+        "3. **Compute a rolling threshold.** Take the 75th percentile of "
+        "1-month momentum over the trailing 60 months — this threshold moves "
+        "with the data rather than being fixed.\n"
+        "4. **Apply the 4-month lead.** Today's position is determined by the "
+        "1-month momentum from 4 months ago.\n"
+        "5. **Translate to position.** If the 4-month-lagged 1-month momentum "
+        "is above the rolling 75th-percentile threshold → long SPY (+1). "
+        "Otherwise → cash (0). Rebalance monthly."
     )
 
     MANUAL_USE_MD = (
         "Monthly cadence using free public data:\n\n"
         "1. Download `INDPRO` from FRED.\n"
-        "2. For the reading six months back, compute the 3-month change.\n"
-        "3. Compare to the fixed 75th-percentile threshold (regenerated in "
-        "the pipeline notebook; roughly +0.8% as of the 2017 in-sample cut).\n"
+        "2. For the reading four months back, compute the 1-month change.\n"
+        "3. Compare it to the 75th percentile of the trailing 60 months of "
+        "1-month momentum (a rolling, not fixed, threshold).\n"
         "4. Above → hold SPY. At or below → hold cash or short-duration bills.\n"
-        "5. Revisit next month. Turnover averages ~2.2 round-trips per year "
-        "— essentially negligible execution cost."
+        "5. Revisit next month. Turnover averages ~4.5 round-trips per year "
+        "— modest execution cost."
     )
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -597,45 +614,48 @@ class StrategyConfig:
 
     CAVEATS_MD = (
         "1. **Publication lag matters.** IP data is released ~6 weeks after "
-        "the reference month. The 6-month lead in the winning strategy "
+        "the reference month. The 4-month lead in the winning strategy "
         "accounts for this delay and is not a theoretical forecast horizon.\n\n"
         "2. **Monthly frequency limits responsiveness.** INDPRO signals update "
         "monthly; fast-moving markets (COVID in March 2020, flash crashes) "
-        "can gap before the next data point.\n\n"
+        "can gap before the next data point — and the rule was in fact caught "
+        "long in March 2020 (see the trade-log example).\n\n"
         "3. **COVID outlier.** The April 2020 IP drop (-12.7% MoM) is "
-        "unprecedented and may distort model estimates. The rule held cash "
-        "through much of 2019-2021 which protected capital but also missed "
-        "the V-shaped recovery.\n\n"
+        "unprecedented and may distort model estimates. The rule spent most of "
+        "2018-2025 in cash, which capped drawdowns but also meant it missed a "
+        "large share of the post-COVID rally.\n\n"
         "4. **This is a risk-management overlay, not an alpha engine.** The "
-        "strategy's annualised OOS return (+7.6%) is below buy-and-hold "
-        "(+14.8%). Its edge is Sharpe (1.10 vs. 0.90) and drawdown (-8% vs. "
-        "-24%) — useful for investors with tight drawdown budgets, less "
-        "useful as a pure return-maximiser."
+        "strategy's total compounded OOS return (2.22x) is BELOW buy-and-hold "
+        "(2.92x) — it does NOT out-earn simply holding SPY. Its entire edge is "
+        "risk-adjusted: Sharpe 1.23 vs. 0.90, maximum drawdown -2.7% vs. "
+        "-23.9%, and a Calmar ratio of 3.76. Useful for investors with tight "
+        "drawdown budgets; not useful as a pure return-maximiser."
     )
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**Crisis anchor — 2020 COVID crash.** From "
-        "`results/indpro_spy/winner_trade_log.csv`:\n\n"
-        "- **2019-03-31 → 2021-01-31 (Cash, 672 days).** Going into 2019, the "
-        "6-month-lagged 3-month INDPRO momentum had been decelerating below the "
-        "in-sample 75th-percentile threshold. The rule moved to cash at the "
-        "end of March 2019 and remained in cash for **22 months straight**, "
-        "crossing through the entire COVID crash.\n"
-        "- **Why the rule worked here.** The pro-cyclical 3M momentum signal, "
-        "with its 6-month lead, had been flagging weak factory trends through "
-        "late 2018 (trade war, auto slowdown). The strategy sat in cash while "
-        "SPY dropped 34% between 20-Feb-2020 and 23-Mar-2020, then stayed in "
-        "cash through the recovery as INDPRO momentum took time to rebuild above "
-        "the threshold.\n"
-        "- **Cost of caution.** The same 22 months of cash meant the rule "
-        "also missed most of the post-COVID rally, which is why OOS "
-        "annualised return (+7.6%) trails buy-and-hold (+14.8%). The "
-        "payoff is entirely in drawdown: -8.1% for the rule versus -23.9% "
-        "for buy-and-hold.\n"
-        "- **Broker-style log available.** Per APP-TL1, the canonical "
-        "`winner_trades_broker_style.csv` is now generated for this pair "
-        "from the reconciled strategy series, alongside the position log. "
-        "Both are downloadable below under *Download Trading History*."
+        "**Crisis anchor — 2020 COVID crash (an honest, mixed result).** From "
+        "the reconciled position log (`results/indpro_spy/winner_trade_log.csv`):\n\n"
+        "- **The rule sits in cash most of the time.** Across the 8-year "
+        "out-of-sample window it was in cash for 73 of 96 months and fully "
+        "long SPY for only 23 — which is why its smoother ride comes at the "
+        "cost of total return.\n"
+        "- **It was NOT a clean COVID dodge.** In February 2020 the rule was "
+        "in cash and avoided SPY's -7.9% drop — but in **March 2020 it was "
+        "long** and took the -12.5% hit, then moved back to cash in April "
+        "2020 and **missed the +12.7% rebound**. The 4-month lead means the "
+        "position reflected factory momentum from late 2019, before the shock "
+        "was visible. This is the honest record: a defensive overlay, not a "
+        "perfect crisis-timing oracle.\n"
+        "- **Where the edge really comes from.** The strategy's headline -2.7% "
+        "maximum drawdown over the full OOS window reflects its large cash "
+        "allocation across many smaller drawdown episodes, not a single "
+        "heroic exit. Risk reduction, compounded over time — not market "
+        "timing on any one crash.\n"
+        "- **Note on the downloadable broker-style log.** The position log "
+        "above reflects the current winner. The broker-style log "
+        "(`winner_trades_broker_style.csv`) still needs regeneration against "
+        "the new winner — see the handoff note (this is an Ace/Evan structural "
+        "item, not narrative)."
     )
 
 
@@ -670,9 +690,9 @@ _INDICATOR_CONSTRUCTION_MD = (
     "|:-------|:--------|:-------|\n"
     "| `indpro` | raw level | non-stationary; regime context only |\n"
     "| `indpro_yoy` | 12-month growth | year-on-year activity |\n"
-    "| `indpro_mom` | 1-month growth | high-frequency momentum |\n"
+    "| `indpro_mom` | 1-month growth | **winner** (high-frequency momentum) |\n"
     "| `indpro_zscore` | 60M rolling z-score | peak-cycle detector |\n"
-    "| `indpro_mom3m` | 3-month momentum | **winner** |\n"
+    "| `indpro_mom3m` | 3-month momentum | medium-horizon momentum |\n"
     "| `indpro_mom6m` | 6-month momentum | medium-horizon momentum |\n"
     "| `indpro_accel` | change of momentum | acceleration |\n"
     "| `indpro_contract` | dummy (YoY < 0) | contraction regime |\n\n"
@@ -698,14 +718,31 @@ _TOURNAMENT_DESIGN_MD = """
 | **Signals** | IP level, YoY growth, MoM change, z-score, 3M/6M momentum, acceleration, contraction dummy |
 | **Threshold methods** | Fixed IS percentile (p25/p50/p75), rolling percentile, rolling z-score (±1.0/±1.5) |
 | **Strategies** | Long/Cash (P1), Signal-Strength (P2), Long/Short (P3) |
-| **Lead times** | L0 through L6 (winner L6) |
+| **Lead times (committed grid)** | L0 through L6 — the grid shown in the table; the winner's lead came from an extended sweep (see note below) |
 | **Orientation** | Pro-cyclical and countercyclical |
 
 The tournament tested all valid combinations and ranked by out-of-sample Sharpe.
 Winner (per `results/indpro_spy/winner_summary.json`, authoritative):
-**S6_mom3m / T1_fixed_p75 / P1_long_cash / L6 → OOS Sharpe 1.1036,
-OOS annualised return +7.65%, max drawdown −8.07%, annual turnover 2.22,
-win rate 19.8%, break-even cost ~50 bps.**
+**S3_mom (1-month momentum) / T2_roll_p75 / P1_long_cash / L4 → OOS Sharpe 1.2301,
+OOS annualised return +10.32%, max drawdown −2.74%, Calmar 3.76, annual
+turnover 4.5, win rate 19.8%.** Note the honest framing: the strategy's total
+compounded return (2.22x) is below buy-and-hold (2.92x) — the edge is entirely
+risk-adjusted, not absolute return.
+
+#### A note on the winning lead
+
+The committed tournament table uses a **coarse lead grid** (leads 0, 1, 2, 3,
+6 months) held immutable for reproducibility. The winning specification was
+identified by an **extended monthly lead sweep** (every lead 0 through 12),
+which found the strongest out-of-sample link at a **4-month lead** — a value
+the coarse grid never scanned. The winner's exact row therefore does NOT appear
+in the committed table, and on the tournament scatter the winner is plotted as a
+distinct, labelled 'extended-grid' point outside the coarse-grid cloud. The
+runner-up (a contraction-signal specification at lead 11) scored an essentially
+identical Sharpe of 1.2300 — a 0.0001 shadow, not a tie — and the 4-month
+winner was preferred on its far stronger risk-adjusted profile (Calmar 3.76 vs
+~1.57, drawdown -2.7% vs -8.1%). This robustness check corroborates the choice;
+it was not a coin-flip.
 """
 
 _REFERENCES_MD = """

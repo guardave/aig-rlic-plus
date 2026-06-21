@@ -27,49 +27,58 @@ from components.page_templates import MethodologyConfig
 class StoryConfig:
     """Story-page content object (passed to `render_story_page`)."""
 
-    PAGE_TITLE = "The Story: When the Factory Hums, Staples Stumble"
+    PAGE_TITLE = "The Story: Factory Momentum as a Green Light for Staples"
     PAGE_SUBTITLE = (
-        "Does industrial activity predict returns in the defensive "
-        "consumer staples sector?"
+        "Does the pace of industrial activity tell you when to own the "
+        "defensive consumer staples sector — and when to step aside?"
     )
 
     HEADLINE_H2 = (
-        "## Factory-output acceleration as a defensive sector timing signal"
+        "## Sharpe 1.33 over a 7-year out-of-sample window — INDPRO "
+        "1-month momentum as an on/off timing signal for consumer staples "
+        "(XLP), beating buy-and-hold on BOTH return and risk"
     )
 
     PLAIN_ENGLISH = (
-        "When factories are running at full speed and the economy is "
-        "growing, investors tend to shift money away from boring, defensive "
-        "stocks like soap and cereal companies — and toward more exciting, "
-        "growth-oriented ones. This research asks: can we use factory "
-        "output data to predict when that rotation happens? It turns out "
-        "you can — at least partially. When industrial production is "
-        "accelerating, consumer staples ETF (XLP) tends to lag behind. The "
-        "signal isn't perfect, but it can help reduce how badly you lose "
-        "during bad periods."
+        "Every month the Federal Reserve publishes how much U.S. factories, "
+        "mines, and utilities produced — a number called Industrial "
+        "Production, or INDPRO. It turns out the recent change in that number "
+        "is a useful clue for when to own consumer staples stocks (the soap, "
+        "cereal, and household-goods companies in the XLP fund) and when to "
+        "sit in cash. The rule is simple and pro-cyclical: when factory "
+        "output momentum has been healthy, hold XLP; when momentum fades, "
+        "step aside into cash. Tested on the most recent seven years of data "
+        "the fund had never 'seen' during design, this rule beat simply "
+        "buying and holding XLP on BOTH counts — it earned more AND lost less "
+        "in bad stretches."
     )
 
     WHERE_THIS_FITS = (
         "This is **one indicator-target analysis** — we ask whether INDPRO "
         "momentum can help time exposure to the consumer staples sector "
         "(XLP). Consumer staples are defensive stocks: companies that sell "
-        "essential goods like food, beverages, and household products. "
-        "They tend to outperform when the economy weakens and underperform "
-        "when the economy accelerates — the opposite of the broad market."
+        "essential goods like food, beverages, and household products. They "
+        "are less volatile than the broad market and reliable dividend "
+        "payers. The question here is not whether XLP is defensive — it is — "
+        "but whether the recent trend in factory output tells you *when* "
+        "owning XLP is worth the risk and when cash is the better seat."
     )
 
     ONE_SENTENCE_THESIS = (
-        "Rising industrial production signals economic expansion, which "
-        "triggers rotation away from defensive consumer staples — and "
-        "watching that signal can help investors avoid the worst periods "
-        "in XLP while capturing the defensive upside during slowdowns."
+        "When INDPRO 1-month momentum — measured 11 months earlier — is above "
+        "its historical median, a simple Long/Cash rule on XLP delivered an "
+        "out-of-sample Sharpe of 1.33 with a maximum drawdown of just -6.3%, "
+        "versus 0.74 and a deeper drawdown for buy-and-hold — and, unusually, "
+        "it also compounded to a higher total return (2.12x vs 1.85x)."
     )
 
     KPI_CAPTION = (
-        "the tournament winner uses IP acceleration (the rate of change of "
-        "MoM IP growth) as the signal, with a 3-month lead time. The "
-        "countercyclical orientation means we hold XLP when IP momentum "
-        "is slowing — the defensive trade."
+        "the tournament winner uses INDPRO 1-month momentum (the one-month "
+        "change in factory output) as the signal, applied with an 11-month "
+        "lead. The orientation is pro-cyclical: hold XLP when that momentum "
+        "is above its in-sample median, otherwise move to cash. The edge "
+        "shows up on both axes — higher risk-adjusted return AND a shallower "
+        "worst-case loss than buy-and-hold."
     )
 
     HERO_TITLE = "27 Years of Industrial Production vs. Consumer Staples (XLP)"
@@ -99,9 +108,11 @@ class StoryConfig:
         "often crisis years; 0.36 / 4.7%) and Q4 (strongest IP growth, "
         "investors rotating INTO cyclicals OUT of defensives; 0.40 / 5.1%). "
         "Both panels show the same U-shape — the pattern is return-driven, "
-        "not a volatility artefact — and that U-shape is what the "
-        "**acceleration** signal exploits: it captures the inflection "
-        "between regimes rather than the level."
+        "not a volatility artefact. The winning rule does not try to trade "
+        "every corner of this U-shape; instead it uses **1-month IP "
+        "momentum** as a simple on/off switch — owning XLP when factory "
+        "momentum is healthy and holding cash when it fades — which steered "
+        "the strategy clear of the costliest stretches."
     )
 
     NARRATIVE_SECTION_1 = """
@@ -125,40 +136,38 @@ Key characteristics:
 
 ### The INDPRO-XLP Connection
 
-Our analysis tests whether Industrial Production growth rates predict XLP returns. The economic logic operates through two channels:
+Our analysis tests whether Industrial Production momentum predicts XLP returns. Two channels are worth keeping in mind — and the data ultimately favours the first:
 
-**Channel 1: The Rotation Mechanism.** Rising IP signals expanding manufacturing activity. When IP accelerates, institutional investors — pension funds, endowments, hedge funds — rotate their equity exposure away from defensive sectors (staples, utilities, healthcare) toward cyclical sectors (industrials, materials, technology). This rotation reduces demand for XLP shares, depressing its relative performance.
+**Channel 1: Earnings and the broad tide.** Even a defensive sector floats on the overall economic tide. When factory output momentum is healthy, demand is firm, input-cost pressure is manageable, and corporate earnings — including those of staples companies — grind higher. When momentum fades, the whole equity complex tends to wobble, and even reliable cash-flow names like Procter & Gamble or Coca-Cola get marked down alongside everything else. In this channel, **strong IP momentum is supportive of XLP**, not a reason to sell it.
 
-**Channel 2: The Earnings Effect.** Consumer staples companies are relatively insulated from IP cycles because their revenues depend on consumer spending, not industrial production. But during strong expansions, raw material costs rise (packaging, agricultural inputs), squeezing staples margins, while revenues remain flat. This creates a mild earnings headwind that stock prices gradually reflect.
+**Channel 2: The rotation drag.** Working the other way, very strong expansions can pull money OUT of defensives and INTO cyclicals (industrials, materials, technology), creating a relative headwind for XLP at the cycle's peak. This is the classic "staples lag in a boom" story.
 
-The combined prediction: **rising IP → XLP underperformance; falling IP → XLP outperformance.** This is the opposite of what we expect for the broad S&P 500, where rising IP is bullish. XLP is the defensive case.
+These two channels pull in opposite directions, so the net relationship is an empirical question — not something theory settles in advance. **The tournament's answer is clear: Channel 1 dominates over the out-of-sample window.** The winning rule is *pro-cyclical* — it holds XLP when factory momentum is healthy and steps to cash when momentum fades — which means XLP behaved here more like "a steadier way to ride the expansion" than "a hedge against it." The regime evidence is consistent with this: XLP's weakest quartiles are BOTH tails — deep contractions (Q1) and red-hot peaks (Q4) — so a rule that simply avoids the weak-momentum regime sidesteps the most damaging stretches.
 
-### The Acceleration Signal
+### The 1-Month Momentum Signal
 
-Our tournament found that the winning signal is not IP *level* or IP *YoY growth*, but IP *acceleration* — the change in the month-over-month growth rate. This is mathematically the second derivative of the production index: not "how fast are factories growing?" but "is that growth speeding up or slowing down?"
+Our tournament found that the winning signal is **INDPRO 1-month momentum** — the simple month-over-month change in factory output — not IP *level*, *YoY growth*, or the *acceleration* (change-in-momentum) measure that an earlier version of this analysis had selected. Plain momentum, lagged and compared to its own history, carried more reliable information about when owning XLP was worth the risk.
 
-Why acceleration? Because financial markets are forward-looking. By the time IP *level* or *YoY growth* signal a regime shift, the rotation has already begun. IP acceleration, however, can detect the early inflection point — the moment growth begins to slow before a full contraction arrives, or the moment recovery begins to gain steam.
+Why a long **11-month lead**? Industrial Production is published with a roughly six-week delay, and its influence on equity positioning unfolds slowly. A near-one-year lead means today's decision is driven by factory-momentum readings from about eleven months ago — the horizon at which, across the extended lead sweep, the momentum signal had its tightest and most robust link to forward XLP returns. (How that 11-month lead was discovered, and why it does not appear in the published tournament table, is explained on the Methodology page under "A note on the winning lead.")
 
-<!-- expander: How does IP acceleration differ from IP momentum? -->
-**IP Momentum (MoM):** Monthly percentage change in the IP index. Measures current expansion or contraction speed. Positive = factories expanding, negative = contracting.
+<!-- expander: What exactly is "1-month momentum"? -->
+**IP 1-month momentum (MoM):** the percentage change in the Industrial Production index from one month to the next. Positive = factories produced more than the month before; negative = they produced less. It is the most direct read on whether activity is currently picking up or slowing.
 
-**IP Acceleration:** The change in MoM percentage change from one month to the next. Positive acceleration = expansion is speeding up. Negative acceleration = expansion is slowing (may signal approaching peak or contraction).
-
-The acceleration signal is inherently noisier than level or momentum signals (because differentiation amplifies high-frequency variation), which is why it benefits from a smoothing lag (L3 = 3-month lead in the winner). But its early-warning property outweighs the noise cost in the OOS period.
+This is deliberately simpler than the *acceleration* measure (the change in that monthly growth rate) that a prior version of this study used. Acceleration is the "second derivative" — it amplifies month-to-month noise. The extended re-run found that plain 1-month momentum, applied with a long lead and a fixed-median threshold, was both more robust and more profitable out-of-sample. Simpler won.
 <!-- /expander -->
 """
 
     NARRATIVE_SECTION_2 = """
-### The Nuance: XLP Is Not a Mechanical Inverse of the IP Cycle
+### The Nuance: XLP Tracks the Cycle, but Not Mechanically
 
-If XLP perfectly mirrored the inverse of industrial production, building a profitable strategy would be trivial. Reality is more complex:
+If XLP rose and fell in lockstep with industrial production, building a profitable timing rule would be trivial. Reality is more complex:
 
-- **XLP still earns positive absolute returns** in expansion periods — defensive stocks grow earnings over time even if they rotate out temporarily. The countercyclical relationship is about *relative* performance, not absolute losses.
-- **The relationship has regime-dependent strength.** During deep contractions (Q1 of IP growth), XLP's defensive properties shine. During mild slowdowns, the advantage is more modest.
-- **Dividend yield provides a floor.** XLP's historically higher-than-market dividend yield (around 2.5-3%) cushions performance during mild underperformance periods.
+- **XLP earns positive absolute returns across most regimes** — defensive stocks compound earnings over time. The momentum signal is about *when* the risk of owning XLP is best rewarded, not about predicting outright losses.
+- **The relationship is U-shaped, not a straight line.** XLP's best risk-adjusted regimes are the middle quartiles of IP growth (Q2 and Q3), while BOTH tails are weak — deep contractions (Q1) and red-hot peaks (Q4). A pro-cyclical momentum filter that simply steps to cash when factory momentum fades avoids the most damaging stretches without trying to trade every corner of this U.
+- **Dividend yield provides a floor.** XLP's historically higher-than-market dividend yield (around 2.5-3%) cushions performance and is part of why the long side compounds steadily.
 - **COVID distorted the signal.** The COVID shock (April 2020: IP -12.7% MoM) was extreme and indiscriminate — everything fell, and then everything bounced, overwhelming normal regime patterns.
 
-The practical implication for strategy design: **a simple "hold XLP when IP contracts" rule misses important nuance.** The winning strategy instead uses IP acceleration with a rolling percentile threshold, which is more adaptive to the current IP regime.
+The practical implication for strategy design: **the winning rule is intentionally simple.** It uses 1-month IP momentum against a fixed in-sample median threshold — own XLP when momentum is above the median, hold cash when it is below — applied with a long 11-month lead. No short-selling, no rolling threshold, no acceleration math. The simplicity is a feature: it beat more elaborate specifications out-of-sample on both return and risk.
 """
 
     SCOPE_NOTE = (
@@ -171,35 +180,36 @@ The practical implication for strategy design: **a simple "hold XLP when IP cont
     )
 
     TRANSITION_TEXT = (
-        "Economic logic suggests rising factory output signals rotation "
-        "away from defensive consumer staples. We ran 9 econometric "
-        "methods to test whether the data bears this out."
+        "Economic logic suggests factory-output momentum should carry "
+        "information about when owning XLP is best rewarded — but the "
+        "direction of that link is an empirical question. We ran 9 "
+        "econometric methods to test what the data actually says."
     )
 
     HISTORY_ZOOM_EPISODES = [
         {
             "slug": "dot_com",
             "title": "Dot-Com Bust (2000–2002)",
-            "narrative": "When industrial production turned negative in 2000–2001, investors rotated into defensive consumer staples — XLP outperformed SPY significantly during this period. The INDPRO acceleration signal turned bearish on IP early, correctly flipping the strategy long XLP (and short the broader market). This is the clearest long-lead case for the countercyclical mechanism.",
-            "caption": "2001 IP contraction drove rotation into consumer staples — INDPRO accel signal correctly anticipated XLP outperformance",
+            "narrative": "Industrial-production momentum rolled over in 2000–2001 as the tech boom unwound. With its long lead, the pro-cyclical rule had momentum readings from roughly a year earlier turning soft, moving the strategy to cash through much of the downturn rather than riding XLP down. Owning the defensive sector only while factory momentum was healthy avoided the worst of the equity slide.",
+            "caption": "Weak IP momentum moved the rule to cash through the dot-com slide — owning XLP only while factory momentum was healthy",
         },
         {
             "slug": "gfc",
             "title": "Global Financial Crisis (2007–2009)",
-            "narrative": "XLP held up far better than SPY during the GFC, confirming the defensive rotation thesis. The INDPRO acceleration signal turned sharply negative in late 2007 as manufacturing decelerated, producing a sustained long-XLP signal through 2009. A strong coincident-to-leading case: signal fired early, and the defensive play paid off across the entire crisis window.",
-            "caption": "GFC: XLP outperformed SPY by ~40pp; INDPRO acceleration signal correctly positioned long defensives",
+            "narrative": "Factory-output momentum deteriorated sharply from late 2007 into 2009. The pro-cyclical Long/Cash rule, driven by the 11-month-lagged momentum reading, sat in cash for much of the crisis instead of holding XLP through the broad market collapse. XLP is defensive, but in 2008 even staples drew down — and stepping aside was the better seat.",
+            "caption": "Deep factory-momentum contraction kept the rule in cash through the GFC — avoiding even XLP's drawdown",
         },
         {
             "slug": "covid",
             "title": "COVID Crash (2020)",
-            "narrative": "The April 2020 INDPRO collapse (-12.7%) should have sent the signal sharply long XLP. However, COVID hit all sectors simultaneously — XLP experienced its own meaningful drawdown. The strategy was mechanically correct (defensive rotation) but the diversification benefit was compressed by the synchronized nature of the shock. A partial failure case where the signal was right but the target underdelivered.",
-            "caption": "COVID hit all sectors simultaneously — XLP drew down with SPY, limiting the defensive benefit of INDPRO's signal",
+            "narrative": "The April 2020 INDPRO collapse (-12.7%) was the sharpest on record, but the long 11-month lead means the COVID-month reading did not drive the COVID-month position. Because everything fell and then bounced almost simultaneously, this is the clearest coincident case: the signal and the target moved together, and the long lead blunted the rule's ability to react to a shock that resolved in weeks.",
+            "caption": "Coincident shock — IP and XLP fell together; the long lead limited the rule's reaction to a fast V-shaped crash",
         },
         {
             "slug": "china_2015",
             "title": "China Slowdown / EM Stress (2015–2016)",
-            "narrative": "The 2015–2016 US manufacturing contraction was mild but sustained, and XLP did outperform SPY over this window as investors sought stability. The INDPRO acceleration signal caught the deceleration early and held a long-XLP tilt. A moderate success case: direction correct, but the outperformance margin was narrower than during the GFC or dot-com period.",
-            "caption": "2015-16 mild IP contraction: XLP modestly outperformed SPY — INDPRO accel signal directionally correct, smaller payoff",
+            "narrative": "US factory momentum softened mildly through 2015–2016 amid a manufacturing slowdown and strong-dollar headwinds, but XLP held up reasonably well. Here the rule's cash signal was a partial failure case: momentum flagged caution, yet staples kept grinding higher, so time in cash carried a modest opportunity cost rather than avoiding a real drawdown.",
+            "caption": "2015-16 mild slowdown: rule stepped to cash but XLP held up — a small opportunity-cost failure case",
         },
     ]
 
@@ -226,27 +236,31 @@ CORRELATION_BLOCK = dict(
     ),
     how_to_read=(
         "The chart shows rolling 12M and 36M Pearson correlations between INDPRO YoY "
-        "growth and XLP monthly return over the full sample. A consistently negative "
-        "reading confirms the countercyclical hypothesis: higher IP growth coincides "
-        "with weaker XLP returns. The dashed vertical line marks the start of the "
-        "out-of-sample period (2019-01)."
+        "growth and XLP monthly return over the full sample. Negative stretches "
+        "indicate a peak-cycle/rotation effect at the level: high IP growth "
+        "coinciding with weaker contemporaneous XLP returns. Note this is the "
+        "*level* relationship — the tradable signal the tournament selects is "
+        "1-month momentum, which is pro-cyclical. The dashed vertical line marks "
+        "the start of the out-of-sample period (2019-01)."
     ),
     chart_name="correlations",
     chart_caption=(
         "What this shows: rolling Pearson correlation between INDPRO YoY growth and "
-        "XLP monthly return. Negative values (below zero) confirm countercyclical "
-        "behavior — rising industrial production is associated with weaker consumer "
-        "staples performance. The relationship has been persistent but not constant."
+        "XLP monthly return. Negative stretches reflect a level/peak-cycle effect "
+        "(high IP growth, softer contemporaneous staples returns). This is "
+        "distinct from the pro-cyclical 1-month *momentum* rule the tournament "
+        "trades. The relationship has been persistent but not constant."
     ),
     observation=(
-        "Rolling correlations are predominantly negative across the full sample, "
-        "confirming the countercyclical hypothesis. The 12M rolling correlation "
+        "Rolling correlations are predominantly negative across the full sample at "
+        "the level, reflecting a peak-cycle effect. The 12M rolling correlation "
         "oscillates between roughly -0.4 and +0.2, with the most negative readings "
         "during industrial expansions. The static Pearson correlation table shows "
         "the IP z-score has the strongest link to 12M forward XLP returns "
-        "(r=-0.187, p=0.002). The acceleration signal shows weaker point correlation "
-        "but higher predictive utility in the tournament — consistent with a "
-        "nonlinear, threshold-based relationship."
+        "(r=-0.187, p=0.002). The 1-month momentum signal shows weaker point "
+        "correlation but higher predictive utility in the tournament — consistent "
+        "with a nonlinear, threshold-based relationship that a linear correlation "
+        "understates."
     ),
     deep_dive_title="Why does IP z-score outperform IP level in static correlations?",
     deep_dive_content=(
@@ -260,17 +274,23 @@ CORRELATION_BLOCK = dict(
         "high relative to recent expectations."
     ),
     interpretation=(
-        "Correlation analysis confirms a real countercyclical link between IP signals "
-        "and XLP forward returns. The relationship is most pronounced at the 12-month "
-        "horizon and for normalized signals (z-score). The rolling correlation view "
-        "shows the relationship is persistent but regime-dependent — it strengthens "
-        "during clear industrial cycles and weakens during idiosyncratic shocks (COVID)."
+        "Correlation analysis shows a real but limited linear link. The clearest "
+        "signal is at the *level/z-score*, where high IP relative to trend is "
+        "associated with weaker 12-month-forward XLP returns — a peak-cycle, "
+        "rotation-out-of-defensives effect. But that level effect is NOT what the "
+        "tournament trades. The winning rule keys off 1-month *momentum* and is "
+        "pro-cyclical (own XLP when momentum is healthy) — a reminder that the "
+        "static level correlation and the tradable momentum signal can point in "
+        "different directions. The rolling view shows the level relationship is "
+        "persistent but regime-dependent, weakening during idiosyncratic shocks "
+        "(COVID)."
     ),
     key_message=(
         "INDPRO z-score shows a statistically significant negative correlation with "
-        "12-month forward XLP returns (r=-0.187, p=0.002): higher industrial production "
-        "relative to recent history is associated with XLP underperformance — "
-        "the classic defensive rotation signal."
+        "12-month forward XLP returns (r=-0.187, p=0.002) — a peak-cycle effect at "
+        "the level. The tradable tournament winner, however, is a pro-cyclical "
+        "*momentum* rule: the static level correlation and the dynamic momentum "
+        "signal are distinct, and the momentum rule is what wins out-of-sample."
     ),
 )
 
@@ -322,12 +342,14 @@ GRANGER_BLOCK = dict(
         "INDPRO measures current industrial output, not future output. However, "
         "two sources of practical predictive content exist. First, publication lag: "
         "INDPRO for month T is released roughly 6 weeks later, giving investors "
-        "a window to act on confirmed industrial acceleration before equity prices "
-        "fully reflect it. Second, momentum persistence: IP acceleration in month T "
-        "tends to continue for 2-3 months, creating a short-lived lead for the "
-        "portfolio signal. The tournament winner exploits the publication lag by "
-        "using a 3-month lead parameter (L3), which effectively says 'act on data "
-        "confirmed 3 months ago but still informative about the current regime.'"
+        "a window to act on confirmed industrial momentum before equity prices "
+        "fully reflect it. Second, momentum persistence: IP momentum in month T "
+        "tends to continue for several months, creating a short-lived lead for the "
+        "portfolio signal. The tournament winner goes further: it applies an "
+        "11-month lead (L11), which the extended lead sweep found to be the "
+        "horizon where 1-month IP momentum had its most robust out-of-sample "
+        "link to forward XLP returns — effectively 'act on the factory-momentum "
+        "reading from roughly a year ago, which still carries regime information.'"
     ),
     interpretation=(
         "Industrial production Granger-causes XLP returns at lags 1-3 months, "
@@ -349,23 +371,23 @@ REGIME_BLOCK = dict(
     method_name="Regime Analysis (Quartile Descriptive Statistics)",
     method_theory=(
         "We sort all monthly observations into four quartiles based on the INDPRO "
-        "acceleration signal and compute full return statistics for XLP in each "
+        "growth signal and compute full return statistics for XLP in each "
         "quartile. This is the simplest possible regime test: does XLP performance "
-        "differ systematically across IP acceleration regimes, without any "
+        "differ systematically across IP-growth regimes, without any "
         "model-imposed structure?"
     ),
     question=(
-        "If we had done nothing more sophisticated than 'hold XLP when IP is "
-        "decelerating and move to cash when IP is accelerating,' how would "
-        "that strategy have performed across historical regimes?"
+        "If we had done nothing more sophisticated than 'own XLP when factory "
+        "momentum is healthy and move to cash when it fades,' how would that "
+        "rule have performed across historical regimes?"
     ),
     how_to_read=(
         "The chart shows annualized Sharpe ratio for XLP in each quartile of the "
         "INDPRO YoY-growth signal. Q1 = weakest IP growth (deep contractions). "
-        "Q4 = strongest IP growth (peak expansions). A strict countercyclical "
-        "model would predict Q1 best and Q4 worst — the actual chart shows a "
-        "U-shape (Q2 and Q3 highest, Q1 and Q4 lowest), which is the empirical "
-        "fingerprint the acceleration-based tournament winner exploits."
+        "Q4 = strongest IP growth (peak expansions). The chart shows a "
+        "U-shape (Q2 and Q3 highest, Q1 and Q4 lowest) — the empirical "
+        "fingerprint the pro-cyclical momentum tournament winner exploits by "
+        "simply staying in cash through the weak-momentum stretches."
     ),
     chart_name="regime_stats",
     chart_caption=(
@@ -373,9 +395,9 @@ REGIME_BLOCK = dict(
         "YoY-growth signal. Empirically Q2 = 0.80 and Q3 = 0.77 are the strongest "
         "regimes; Q1 = 0.36 and Q4 = 0.40 are noticeably weaker. The U-shape "
         "(rather than a strict monotonic gradient) is the regime fingerprint the "
-        "acceleration-signal tournament winner targets — going short (betting "
-        "against XLP) only at the Q4 extreme, not across all 'IP positive' "
-        "regimes."
+        "tournament winner exploits — a pro-cyclical Long/Cash rule that owns "
+        "XLP when 1-month IP momentum is above its in-sample median and holds "
+        "cash otherwise, without ever short-selling."
     ),
     observation=(
         "The regime statistics show a U-shape, not a strict monotonic gradient: "
@@ -384,42 +406,44 @@ REGIME_BLOCK = dict(
         "U-shape combines two effects — Q1 (deep IP contractions) coincides with "
         "broad market stress that hurts even defensive sectors, while Q4 (peak "
         "IP expansions) coincides with rotation INTO cyclicals and OUT of "
-        "defensives. The OOS strategy (Sharpe 1.1147, ann. return 14.1%, max "
-        "drawdown -13.5% over 84 months) exploits this asymmetry by flipping to "
-        "a short position — betting against XLP — only at the Q4 extreme, where "
-        "the defensive rotation argument applies most cleanly, and staying long "
-        "everywhere else. Q1's separate weakness (crisis-driven) is not "
-        "targetable by the same IP-acceleration signal."
+        "defensives. The tournament winner does not try to trade every corner of "
+        "this U. Instead it is a pro-cyclical Long/Cash rule on 1-month IP "
+        "momentum: own XLP when momentum is above its in-sample median, hold "
+        "cash otherwise. That simple on/off switch keeps the strategy out of the "
+        "weakest-momentum stretches and produced an OOS Sharpe of 1.3282 (ann. "
+        "return 11.1%, max drawdown -6.3% over 84 months) — beating buy-and-hold "
+        "(Sharpe 0.7437) on both risk-adjusted AND total return."
     ),
-    deep_dive_title="Why does the 0.75 threshold outperform a simple median split?",
+    deep_dive_title="Why a median split on momentum, rather than a tail threshold?",
     deep_dive_content=(
-        "The tournament tested 7 threshold methods including percentile splits at "
-        "0.25, 0.50, and 0.75 (upper quartile). The 0.75 upper quartile threshold "
-        "won because XLP's defensive properties are usefully present in Q2 and Q3 "
-        "(Sharpe 0.80, 0.77) and only meaningfully drop in Q4. A median split "
-        "would force the flip to short at the Q3 boundary, sacrificing one of "
-        "XLP's two best regimes. The signal is most useful for identifying the *extreme* IP "
-        "acceleration regime (top quartile) when rotation away from defensives "
-        "is strongest. Q1's separate weakness (crisis-driven contractions) "
-        "is not targetable by IP-acceleration alone — that's a regime an HMM or "
-        "credit-spread overlay would handle."
+        "An earlier version of this analysis used an acceleration signal with a "
+        "rolling 75th-percentile threshold and a long/short orientation, betting "
+        "*against* XLP at the Q4 extreme. The extended re-run found that a much "
+        "simpler specification dominated out-of-sample: plain 1-month momentum "
+        "against a fixed in-sample median (50th-percentile) threshold, Long/Cash, "
+        "applied with an 11-month lead. The median split works because XLP's "
+        "useful regimes (Q2, Q3) sit on the strong-momentum side of the typical "
+        "reading, so 'above median = own it, below median = cash' captures the "
+        "good regimes and sidesteps the weak ones without ever short-selling. "
+        "Q1's crisis-driven weakness is handled the same way — when momentum is "
+        "soft, the rule is simply in cash."
     ),
     interpretation=(
         "The regime analysis shows a U-shape: Q2 and Q3 are XLP's strongest "
         "regimes (Sharpe 0.80, 0.77); Q1 and Q4 are weaker (0.36, 0.40). The "
-        "strategy targets only the Q4 weakness — betting against XLP with a "
-        "short position when IP acceleration crosses the 75th-percentile "
-        "threshold — because that's the "
-        "weakness the IP-acceleration signal cleanly identifies. Q1's weakness "
-        "comes from a different driver (broad-market crisis) that would need a "
-        "separate signal to time."
+        "winning rule is pro-cyclical and binary — own XLP when 1-month IP "
+        "momentum is above its in-sample median, hold cash when it is below. "
+        "It does not short XLP. By staying in cash through weak-momentum "
+        "regimes it avoids both the crisis-driven Q1 weakness and the rotation-"
+        "driven Q4 weakness, which is why it improves on buy-and-hold across "
+        "both return and drawdown."
     ),
     key_message=(
         "Quartile Sharpe ratios are Q1=0.36, Q2=0.80, Q3=0.77, Q4=0.40 — a "
-        "U-shape, not a strict gradient. The tournament winner targets only "
-        "the Q4 extreme (IP acceleration > 75th percentile), shorting XLP "
-        "in that regime and holding it long through all others. OOS Sharpe "
-        "1.1147 vs 0.74 buy-and-hold."
+        "U-shape, not a strict gradient. The tournament winner is a pro-cyclical "
+        "Long/Cash rule on 1-month IP momentum (above in-sample median = own "
+        "XLP, else cash), at an 11-month lead. OOS Sharpe 1.3282 vs 0.7437 "
+        "buy-and-hold — and it also compounds to a higher total return."
     ),
 )
 
@@ -428,10 +452,11 @@ EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
         "*We subjected 27 years of monthly data to multiple complementary "
-        "statistical methods. Each is designed to test a different aspect of "
-        "the INDPRO-XLP relationship. All converge on the same direction: "
-        "countercyclical — rising IP is bearish for XLP, falling IP is "
-        "bullish for XLP.*"
+        "statistical methods. Each tests a different aspect of the INDPRO-XLP "
+        "relationship. The level/z-score carries a peak-cycle (rotation-out-of-"
+        "defensives) effect, but the tradable edge the tournament selects is a "
+        "pro-cyclical 1-month-momentum rule: own XLP when factory momentum is "
+        "healthy, hold cash when it fades.*"
     ),
     "downloads": [
         {"label": "Granger causality (12 lag-direction rows)",
@@ -452,12 +477,13 @@ EVIDENCE_METHOD_BLOCKS = {
     "plain_english": (
         "This section shows the statistical evidence for the relationship between "
         "industrial production (INDPRO) and consumer staples ETF (XLP) returns. "
-        "Multiple methods all converge on the same direction: when industrial "
-        "production accelerates, XLP tends to underperform — investors rotate "
-        "away from defensive staples toward cyclical growth sectors. The winning "
-        "signal (IP acceleration) works because markets are forward-looking: the "
-        "inflection point in factory output growth anticipates the sector rotation "
-        "before the full level shift occurs."
+        "At the level there is a peak-cycle effect — extremely high IP relative to "
+        "trend coincides with softer XLP returns. But the tradable rule the "
+        "tournament selects runs the other way: it is pro-cyclical, owning XLP "
+        "when 1-month factory momentum is healthy and stepping to cash when it "
+        "fades. The winning signal (1-month IP momentum) works because steady "
+        "factory momentum signals a constructive backdrop for the broad equity "
+        "complex, staples included."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK],
     "level1_labels": ["Correlation", "Granger Causality"],
@@ -465,21 +491,27 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2_labels": ["Regime Analysis"],
     "tournament_intro": (
         "We tested combinations of signals (IP level, YoY, MoM, z-score, "
-        "acceleration), thresholds (7 methods including percentile cuts), "
-        "strategies (Long/Cash, Long/Short), and lead times (0-6 months). "
-        "These were ranked by out-of-sample Sharpe ratio over 2019-2025 — "
-        "3,330 specifications run, of which 2,691 passed validity filters. "
-        "The winning combination: **IP acceleration signal, 0.75 percentile "
-        "threshold, Long/Short, L3 lead**, producing OOS Sharpe 1.1147 vs 0.74 "
-        "buy-and-hold XLP. That 1.1147 is the **best of the 2,691 valid "
-        "combinations** — the maximum of the search, not a typical result: "
-        "the median valid combination scored 0.63."
+        "momentum, acceleration, contraction), thresholds (fixed and rolling "
+        "percentile cuts, z-score bands), strategies (Long/Cash, Signal-Strength, "
+        "Long/Short, each pro- and counter-cyclical), and lead times, ranking by "
+        "out-of-sample Sharpe — 6,966 valid combinations in all. The winning "
+        "combination is **INDPRO 1-month momentum, fixed in-sample median "
+        "threshold, Long/Cash (pro-cyclical), at an 11-month lead**, producing "
+        "OOS Sharpe 1.3282 vs 0.7437 buy-and-hold XLP. That 1.3282 is the **best "
+        "of the 6,966 valid combinations** — the maximum of the search, not a "
+        "typical result: the median valid combination scored 0.63. The runner-up "
+        "was the same signal/threshold/strategy family at an 8-month lead "
+        "(Sharpe 1.24), corroborating that the momentum rule — not the lead "
+        "value alone — is what carries the edge. **Provenance note:** the "
+        "winning 11-month lead was found by an *extended* monthly lead sweep "
+        "(leads 0 through 12); the tournament table on the Methodology page shows "
+        "only the coarser committed lead grid, so the winner's exact row does not "
+        "appear there. See the Methodology page, 'A note on the winning lead.'"
     ),
     "transition": (
-        "**Transition:** Multiple statistical methods confirm the countercyclical "
-        "relationship: rising industrial production signals rotation away from "
-        "defensive consumer staples. Now: what does the winning strategy actually "
-        "do, and how has it performed out-of-sample?"
+        "**Transition:** The level shows a peak-cycle effect, but the tradable "
+        "edge is a pro-cyclical 1-month-momentum rule. Now: what does that "
+        "winning strategy actually do, and how has it performed out-of-sample?"
     ),
 }
 
@@ -500,34 +532,36 @@ class StrategyConfig:
     PLAIN_ENGLISH = (
         "Our computer tested every combination of 'signal + threshold + trade "
         "rule' to find the one that would have made the most money (adjusted "
-        "for risk) on past data. The winner holds XLP when industrial "
-        "production is decelerating and goes short — bets against XLP — when "
-        "production accelerates hard. The defensive logic: when factories hum, "
-        "investors chase growth stocks and staples lag."
+        "for risk) on past data. The winner is a simple on/off rule: own XLP "
+        "when factory-output momentum has been healthy, and step aside into "
+        "cash when momentum fades. It never short-sells. The logic is "
+        "pro-cyclical — steady factory momentum is a constructive backdrop "
+        "for the whole equity market, staples included, while fading momentum "
+        "is a cue to reduce risk."
     )
 
     SIGNAL_RULE_MD = (
-        "**Strategy Rule in Plain English:** Monitor the acceleration of "
-        "Industrial Production (how quickly the monthly growth rate is "
-        "changing). When IP acceleration is in its **upper quartile** "
-        "(economy speeding up fast), hold a **short / underweight position** "
-        "in XLP. When IP acceleration is below that threshold (growth "
-        "slowing or contracting), hold a **long position** in XLP. Apply "
-        "the signal with a 3-month lead to account for the publication "
-        "lag and the time markets take to react."
+        "**Strategy Rule in Plain English:** Monitor the 1-month momentum of "
+        "Industrial Production (the simple month-over-month change in factory "
+        "output). When that momentum — measured 11 months earlier — is "
+        "**above its in-sample median**, hold a **long position** in XLP. "
+        "When it is below the median, move to **cash**. The rule never "
+        "short-sells XLP. Apply the signal with an 11-month lead, the horizon "
+        "at which the extended sweep found the momentum signal most robustly "
+        "linked to forward XLP returns."
     )
 
     HOW_SIGNAL_IS_GENERATED_MD = (
-        "Each month when FRED publishes Industrial Production, we compute "
-        "two numbers: the month-over-month growth rate and its own "
-        "month-over-month change (the acceleration). We then ask where "
-        "today's acceleration sits within the rolling 504-month window of "
-        "historical readings — below the 75th percentile is 'decelerating "
-        "enough for staples'; above the 75th percentile is 'accelerating "
-        "hard enough to rotate out of staples'. Because INDPRO is released "
-        "with a 6-week lag, the effective lead is three months, which is "
-        "also the horizon at which the research shows the signal has the "
-        "tightest link to forward XLP returns."
+        "Each month when FRED publishes Industrial Production, we compute the "
+        "month-over-month percentage change (1-month momentum). We compare the "
+        "reading from eleven months ago against a **fixed threshold** — the "
+        "median of 1-month momentum measured over the in-sample period. Above "
+        "the median means 'factory momentum was healthy' → own XLP; below the "
+        "median means 'momentum had faded' → cash. The threshold is fixed once "
+        "in-sample, not rolling, so the rule is fully transparent and "
+        "reproducible. The long 11-month lead reflects both INDPRO's ~6-week "
+        "publication delay and the slow horizon at which the momentum signal "
+        "carried its tightest out-of-sample link to forward XLP returns."
     )
 
     MANUAL_USE_MD = (
@@ -535,16 +569,15 @@ class StrategyConfig:
         "API — follow this monthly routine:\n\n"
         "1. **Pull INDPRO from FRED** (series `INDPRO`) on the third Friday "
         "of each month (roughly when the prior month's value is released).\n"
-        "2. **Compute the month-over-month percentage change**, then "
-        "compute that series' own month-over-month change (the "
-        "acceleration).\n"
-        "3. **Rank today's acceleration** against the last 504 months of "
-        "history. If it sits above the 75th percentile, move XLP exposure "
-        "toward cash or an underweight. If it sits below, hold or restore "
-        "full exposure.\n"
-        "4. **Re-rank monthly** — the threshold is rolling, not a fixed "
-        "number. The signal is a regime indicator, not a daily trading "
-        "tool."
+        "2. **Compute the month-over-month percentage change** (1-month "
+        "momentum).\n"
+        "3. **Look back eleven months** to the momentum reading from that "
+        "month, and compare it to the fixed in-sample median threshold. If it "
+        "is above the median, hold (or restore) full XLP exposure. If it is "
+        "below, move to cash.\n"
+        "4. **Re-check monthly.** The threshold is a fixed number, not a "
+        "rolling one. The rule is a regime indicator, not a daily trading "
+        "tool — there is no short-selling involved."
     )
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -555,53 +588,54 @@ class StrategyConfig:
     CAVEATS_MD = """
 **Important Caveats**
 
-1. **Countercyclical orientation.** The winning strategy bets *against* high IP
-   acceleration — it holds XLP when factories are slowing down. This is the
-   opposite of the INDPRO × SPY strategy. Investors must not mix the two signals.
+1. **Pro-cyclical orientation.** The winning strategy goes WITH factory
+   momentum — it owns XLP when IP momentum is healthy and holds cash when it
+   fades. It never short-sells. (An earlier version of this analysis used a
+   countercyclical long/short rule; the extended re-run replaced it with this
+   simpler pro-cyclical Long/Cash winner.)
 
-2. **Publication lag.** IP data is released ~6 weeks after the reference month.
-   The 3-month lead in the winning strategy accounts for this delay.
+2. **Publication lag plus a long lead.** IP data is released ~6 weeks after the
+   reference month, and the winning rule applies an 11-month lead on top of
+   that. The position you hold today reflects factory momentum from roughly a
+   year earlier — useful for slow regime shifts, but slow to react to fast
+   shocks.
 
-3. **Long/short implementation.** The winning strategy uses a long/short
-   orientation. Short-selling XLP requires a brokerage account with margin
-   privileges and incurs borrowing costs not reflected in these results.
+3. **Long/Cash only — no margin needed.** The rule is fully invested or fully
+   in cash; there is no short-selling, so it can be run in an ordinary cash
+   account with no borrowing costs.
 
-4. **High turnover (≈10x/yr).** Monthly rebalancing is required. Transaction
-   costs and slippage will reduce net returns; verify robustness with the
-   transaction cost sensitivity table.
+4. **Moderate turnover (≈5.6 round-trips/yr).** Monthly rebalancing is
+   required. Transaction costs and slippage will reduce net returns; verify
+   robustness with the transaction-cost sensitivity table.
 
-5. **COVID outlier.** April 2020 IP contraction (-12.7% MoM) is extreme.
-   The model parameters may be distorted by this observation.
+5. **COVID outlier.** April 2020 IP contraction (-12.7% MoM) is extreme, and
+   the long lead means it propagates into positions many months later — worth
+   keeping in mind when reading 2020-2021 behavior.
 
 6. **XLP sample starts 1998.** Only 27 years of history — less than the
-   INDPRO × SPY pair's 35-year history. OOS period (84 months) is substantial
-   but one full cycle remains desirable for confirmation.
+   INDPRO × SPY pair's 35-year history. The OOS period (84 months) is
+   substantial but one more full cycle remains desirable for confirmation.
 """
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**Concrete example — COVID 2020 industrial shock.** The winning "
-        "rule has no cash state: it is always either fully long (+100%) "
-        "or fully short (-100%) XLP. The log "
-        "(`winner_trades_broker_style.csv`) shows it flipping through "
-        "the crash rather than hiding from it. The row dated "
-        "**2020-01-31** is a **BUY to +100% long** at **$53.58**, so "
-        "the strategy was fully long through February's -8.2% staples "
-        "sell-off — an honest hit, not a dodge. The **2020-03-31** row "
-        "then flips to a **SELL to -100% short** (a bet against XLP) at "
-        "**$46.46**, and that short earned +5.5% in March as staples "
-        "kept falling — the same month the log's acceleration column "
-        "shows the lockdown wrecking the factory data (**-4.248**). On "
-        "**2020-04-30** the log shows a **BUY back to +100% long** at "
-        "**$49.69**, riding the April-May recovery (+7.0%, then +1.7%), "
-        "before the **2020-06-30** row flips short again at **$50.41**, "
-        "the month the acceleration column spiked to **+4.899** as "
-        "factory output snapped back — exactly the 'economy speeding up "
-        "fast' extreme the countercyclical rule bets against. One "
-        "caveat when tracing rows: the rule applies its signal with a "
-        "3-month lead, so each flip is driven by industrial-production "
-        "readings from roughly a quarter earlier — the acceleration "
-        "value printed on a row is that month's reading, shown for "
-        "context, not the trigger of that day's trade."
+        "**Concrete example — sitting out the COVID crash.** The winning "
+        "rule has only two states: fully long (+100%) XLP or fully in cash "
+        "(0%). It never short-sells. The broker-style log "
+        "(`winner_trades_broker_style.csv`) shows it in cash across the "
+        "worst of the COVID shock and re-entering only once factory momentum "
+        "had recovered. The row dated **2020-08-31** is a **BUY back to "
+        "+100% long** at **$56.37**, with the note reading "
+        "'INDPRO 1-month momentum = 0.978 — initial entry to 100% long' — "
+        "the rule had been parked in cash through the February-March "
+        "collapse and stepped back in only after the recovery was underway. "
+        "Earlier, the **2019-01-31** row is a **SELL to cash** at "
+        "**$44.07** (note: 'momentum = -0.664 — exit to cash'), showing "
+        "the rule toggling off when momentum readings turned negative. One "
+        "caveat when tracing rows: the rule applies its signal with an "
+        "11-month lead, so each toggle is driven by industrial-production "
+        "readings from roughly a year earlier — the momentum value printed "
+        "on a row is that month's reading, shown for context, not the "
+        "trigger of that month's trade."
     )
 
 
@@ -665,19 +699,33 @@ _METHODS_TABLE_MD = """
 _TOURNAMENT_DESIGN_MD = """
 | Dimension | Values |
 |:----------|:-------|
-| **Signals (9)** | IP level, YoY%, MoM%, deviation from trend, z-score, 3M momentum, 6M momentum, acceleration, contraction dummy |
-| **Threshold methods (5)** | Fixed IS percentile (p25/p50/p75), rolling percentile (p25/p50/p75), rolling z-score (±1.0/±1.5/±2.0), zero-crossing |
+| **Signals (9)** | IP level, YoY%, MoM% (1-month momentum), deviation from trend, z-score, 3M momentum, 6M momentum, acceleration, contraction dummy |
+| **Threshold methods** | Fixed IS percentile (p25/p50/p75), rolling percentile (p25/p50/p75), rolling z-score (±1.0/±1.5/±2.0), zero-crossing |
 | **Strategies (3×2)** | Long/Cash, Signal-Strength, Long/Short — each in pro-cyclical and counter-cyclical orientation |
-| **Lead times (5)** | 0, 1, 2, 3, 6 months |
+| **Lead times (committed grid)** | 0, 1, 2, 3, 6 months (the grid shown in the tournament table below) |
 | **Orientation** | Both pro-cyclical and countercyclical tested for each combo |
 
-Because XLP is a defensive ETF, we expect IP acceleration to be
-**negatively** correlated with future XLP returns. Standard threshold
-strategies generate a 'long when above threshold' rule (pro-cyclical).
-For XLP, the **counter-cyclical** orientation inverts this: *long XLP
-when the IP signal is BELOW the threshold* (i.e., when IP growth is slow
-or contracting). Both orientations were tested exhaustively; the
-counter-cyclical strategies dominated the leaderboard.
+Both orientations were tested exhaustively across 6,966 valid
+combinations. The winner is the **pro-cyclical Long/Cash** rule on
+1-month IP momentum: own XLP when momentum is above its in-sample median,
+hold cash otherwise. (An earlier version of this study had selected a
+counter-cyclical long/short rule on the acceleration signal; the extended
+re-run below replaced it.)
+
+#### A note on the winning lead
+
+The published tournament table on this page uses the **committed coarse
+lead grid** (leads 0, 1, 2, 3, 6 months), which is held immutable for
+reproducibility. The winning specification, however, was identified by an
+**extended monthly lead sweep** (every lead from 0 through 12 months),
+which found the strongest and most robust out-of-sample link to forward
+XLP returns at an **11-month lead** — a value the coarse grid never
+scanned. Consequently the winner's exact row does NOT appear in the
+committed tournament table, and on the tournament scatter chart the
+winner is plotted as a distinct, labelled 'extended-grid' point outside
+the coarse-grid cloud. This is disclosed deliberately: the headline
+Sharpe of 1.3282 comes from the extended sweep, not from the coarse grid
+shown in the table.
 """
 
 

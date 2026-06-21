@@ -9,36 +9,36 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Out-of-sample cumulative growth per dollar invested: winner strategy ends at 2.53 vs 1.85 for buy-and-hold XLP (2019-01-31 to 2025-12-31). Series: reconciled canonical strategy returns (ECON-SR1). Shaded bands mark NBER recessions.",
+  "caption": "Out-of-sample cumulative growth per dollar invested: winner strategy ends at 2.12 vs 1.85 for buy-and-hold XLP (2019-01-31 to 2025-12-31). Series: reconciled canonical strategy returns (ECON-SR1). Shaded bands mark NBER recessions.",
   "narrative_alignment_note": "Winner-vs-buy-and-hold cumulative growth for the Strategy page Performance tab; endpoints re-read from the canonical series at generation time.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/indpro_xlp/strategy_returns_20260611.csv",
+    "results/indpro_xlp/strategy_returns_20260620.csv",
     "results/indpro_xlp/winner_summary.json"
   ],
   "reconciliation": {
     "oos_sharpe": {
-      "computed": 1.114726,
-      "reported_winner_summary": 1.1147,
-      "diff": 2.6e-05,
+      "computed": 1.328199,
+      "reported_winner_summary": 1.3282,
+      "diff": -1e-06,
       "tolerance": 0.01,
       "verdict": "PASS"
     },
     "oos_max_drawdown": {
-      "computed": -0.135301,
-      "reported_winner_summary": -0.1353,
-      "diff": -1e-06,
+      "computed": -0.063343,
+      "reported_winner_summary": -0.063343,
+      "diff": -0.0,
       "tolerance": 0.005,
       "verdict": "PASS"
     },
     "oos_ann_return": {
-      "computed": 0.14188,
-      "reported_winner_summary": 0.1413,
-      "diff": 0.00058,
+      "computed": 0.113231,
+      "reported_winner_summary": 0.111099,
+      "diff": 0.002132,
       "tolerance": 0.005,
       "verdict": "PASS"
     }
   },
-  "generated_at": "2026-06-11T19:24:46.695597+00:00",
+  "generated_at": "2026-06-21T12:02:20.998112+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_strategy_perf_charts.py (fix260611_meta_cmp, ECON-SR1 consumer)"
 }
