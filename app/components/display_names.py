@@ -26,7 +26,6 @@ INDICATOR_NAMES: dict[str, str] = {
     "indpro_xlp": "Industrial Production",
     "permit_spy": "Building Permits",
     "vix_vix3m_spy": "VIX/VIX3M Ratio",
-    "hy_ig_v2_spy": "HY-IG Credit Spread",
     "hy_ig_spy": "HY-IG Credit Spread",
     "umcsent_xlv": "University of Michigan Consumer Sentiment",
     "gold_copper_xli": "Gold/Copper Ratio",
@@ -40,6 +39,8 @@ INDICATOR_NAMES: dict[str, str] = {
     "m2sl_yoy_spy": "M2 Money Supply (YoY)",
     "phlxsox": "PHLX Semiconductor Index",
     "phlxsox_spy": "PHLX Semiconductor Index",
+    "t10y3m": "10Y-3M Treasury Spread",
+    "t10y3m_spy": "10Y-3M Treasury Spread",
 }
 
 TARGET_NAMES: dict[str, str] = {
@@ -90,12 +91,12 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "indpro_xlp": "INDPRO",
     "permit_spy": "Building Permits",
     "vix_vix3m_spy": "VIX/VIX3M",
-    "hy_ig_v2_spy": "HY-IG Spread",
     "hy_ig_spy": "HY-IG Spread (v1)",
     "umcsent_xlv": "UMCSENT",
     "gold_copper_xli": "Gold/Copper",
     "busloans_spy": "C&I Loans",
     "petrol_inv_spy": "Petroleum Inventories",
+    "t10y3m_spy": "10Y-3M Spread",
 }
 
 

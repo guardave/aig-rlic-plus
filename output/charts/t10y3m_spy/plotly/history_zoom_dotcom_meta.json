@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_dotcom",
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:33.355530+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_spy.py",
+  "caption": "Dot-Com Cycle: Inversion Before the 2001 Recession",
+  "narrative_alignment_note": "Dot-Com Cycle: Inversion Before the 2001 Recession",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/t10y3m_spy_monthly_latest.parquet"
+  ]
+}

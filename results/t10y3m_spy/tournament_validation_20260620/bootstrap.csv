@@ -1,0 +1,6 @@
+signal,threshold,strategy,oos_sharpe,bootstrap_p_value,significant_at_5pct
+chg_3m,T2_roll_p75,P1_long_cash,1.3214,0.163,False
+chg_6m,T2_roll_p50,P1_long_cash,1.2178,0.236,False
+mom,T1_fixed_p25,P2_signal_strength,1.196,0.248,False
+mom,T1_fixed_p50,P2_signal_strength,1.196,0.248,False
+mom,T1_fixed_p75,P2_signal_strength,1.196,0.248,False

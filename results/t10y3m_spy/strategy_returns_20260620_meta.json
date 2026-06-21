@@ -1,0 +1,9 @@
+{
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:21Z",
+  "winner_signal": "chg_3m",
+  "threshold": "T2_roll_p75",
+  "strategy": "P1_long_cash",
+  "lead_months": 6,
+  "return_units": "ratio"
+}

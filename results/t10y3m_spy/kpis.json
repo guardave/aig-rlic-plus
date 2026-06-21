@@ -1,0 +1,9 @@
+{
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:21Z",
+  "winner_oos_sharpe": 1.3214,
+  "benchmark_oos_sharpe": 0.9334,
+  "winner_oos_ann_return": 0.107381,
+  "winner_oos_max_drawdown": -0.046605,
+  "valid_combos": 775
+}

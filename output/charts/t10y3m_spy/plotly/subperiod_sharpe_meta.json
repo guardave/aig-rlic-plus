@@ -1,0 +1,12 @@
+{
+  "chart_name": "subperiod_sharpe",
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:33.336027+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_spy.py",
+  "caption": "Buy-and-hold SPY Sharpe during major yield-curve and market-stress episodes.",
+  "narrative_alignment_note": "Buy-and-hold SPY Sharpe during major yield-curve and market-stress episodes.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/t10y3m_spy/subperiod_sharpe.csv"
+  ]
+}

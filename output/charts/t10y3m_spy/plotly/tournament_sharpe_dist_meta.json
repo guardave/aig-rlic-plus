@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:33.291051+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_spy.py",
+  "caption": "Distribution of search-phase OOS Sharpe across valid strategies.",
+  "narrative_alignment_note": "Distribution of search-phase OOS Sharpe across valid strategies.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/t10y3m_spy/tournament_results_20260620.csv"
+  ]
+}
