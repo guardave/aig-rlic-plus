@@ -769,6 +769,22 @@ Ray owns `strategy_objective` (team-coordination.md §21) but cannot classify wi
 
 **Cross-reference:** ECON-LL1 (granularity), ECON-LA1 (the correlation-side analysis), ECON-T3 (winner selection if a re-run fires), ECON-SR1 (reconciled series on re-run), DPS-SCD1 (re-disclose best-of-N on re-run).
 
+### ECON-LT2 — Lead-Sweep Candidates Require Native Confirmation + Durability (Blocking; added 2026-06-21, fix260620_lead_horizon Phase 2)
+
+**Motivation.** The cheap lead-horizon sweep (`scripts/lead_horizon_sweep.py`) ranks candidates on **best |OOS Sharpe|** over a polarity-agnostic P1/P2 + hi/lo grid. That polarity scan has a **polarity-mirror false-positive mode**: it can surface the negative-image of an invalid native combo and flag it as a phantom "winner." In the fix260620 wave, **2 of 3 "confirmed" monthly re-runs and 3 of 3 weekly candidates were phantoms** under native scrutiny. The sweep is a discovery tool, NOT a winner selector — a sweep flag that ships without native confirmation produces a stakeholder-trust failure (a published winner change that the pair's own tournament does not reproduce).
+
+**Rule (blocking).** Any lead-horizon **sweep flag** — monthly `RE-RUN` or weekly `CANDIDATE-WEEKLY` — is **EXPLORATORY ONLY** and MUST clear a NATIVE-tournament confirmation before it counts as a winner or triggers any downstream cascade:
+
+1. **Native re-run.** Re-run the pair's OWN native tournament grid (its native signals, thresholds, strategies, **fixed direction** — do NOT use the sweep's hi/lo polarity scan) at the pair's native granularity, on the frozen data and the published OOS window, with ONLY the lead grid extended. The exploratory sweep's metric/grid is never the gate.
+2. **Margin gate.** The native-extended best must beat the published winner's OOS Sharpe by more than the **±0.03 guardrail band** (a beat inside ±0.03 is noise — keep the published winner).
+3. **Durability gate (the decisive test).** The native edge must be **durable across ≥2 adjacent leads**, not an isolated single-lead spike. Concretely: if every valid combo that beats the published Sharpe is concentrated at **exactly one lead** the published grid never scanned, AND the best combo's Sharpe spikes at that lead and reverts toward (or below) the published level at the neighbouring leads, the candidate is a **lucky-window / overfit artifact — REJECT and keep the published winner.** A genuine horizon edge spreads its out-performing combos across adjacent leads (a ridge, not a spike). Document the per-lead Sharpe profile of the best combo as the evidence.
+4. **Only if (2) AND (3) pass** does the candidate become a confirmed winner, cascading through ECON-LT1's downstream refresh (winner_summary → ECON-SR1 → charts → narrative → DPS-SCD1).
+5. **Persist the verdict** (confirmed or phantom) durably — not in `temp/` — so the negative result ("we checked and it was a phantom, here is the per-lead profile") is auditable stakeholder-trust evidence.
+
+**Granularity-of-gate note.** Confirm at the granularity the pair is **published** at: a monthly-published pair's monthly sweep flag is gated by the monthly native tournament; a daily-published pair's weekly sweep flag is gated by a native weekly tournament. A natively-higher-frequency data source (e.g. weekly EIA petroleum inventories on a monthly-published pair) does NOT change the gate granularity — a reframe to the raw frequency would be a different pair (different signals/OOS/winner), out of scope for confirming an existing pair's sweep suspect.
+
+**Cross-reference:** ECON-LT1 (the sweep + gate this rule confirms — ECON-LT2 is the mandatory confirmation step ECON-LT1's gate decision feeds into); ECON-T3 (tie-break cascade, only engaged once a winner is confirmed); ECON-T5 (immutable published tournament CSVs — native re-runs emit new dated outputs, never overwrite); ECON-CP1 (durability-across-regimes is the spiritual sibling of durability-across-leads).
+
 ### ECON-T3 — Tournament Tie-Break Cascade (Blocking)
 
 **Motivation.** In the HY-IG v2 tournament, two strategies with identical `oos_sharpe` (1.274) differed only in `threshold_value` (0.5 vs 0.7). The winner was selected by pandas' stable-sort order — silent non-determinism. A second Evan re-running the same pipeline with a different pre-sort order would ship a different `threshold_value`, a different broker trade log, and a different portal caption, without any audit trail. ECON-T3 mechanizes the tie-break so another Evan, given identical inputs, produces an identical winner.

@@ -1,0 +1,30 @@
+{
+  "pair": "phlxsox_spy",
+  "run_date": "20260620",
+  "frozen": false,
+  "granularity": "weeks L1..52 (ECON-LL1 weekly extension)",
+  "freq_native": "D",
+  "sweep_kind": "weekly",
+  "annualisation": 52,
+  "design_note": "Daily pair resampled to W-FRI (signal=last obs of week; target fwd_1w = week-end-to-week-end close return). Lead grid is 1..52 weeks. EXPLORATORY ONLY \u2014 native weekly tournament required to confirm any candidate (polarity-mirror guardrail).",
+  "oos_start": "2021-06-11",
+  "is_end": "2021-06-10",
+  "input_file": "data/phlxsox_spy_daily_19940504_20260617.parquet",
+  "input_sha256": "sha256:87c848f6c2e058c3",
+  "lead_correlation_file": "phlxsox_spy/lead_correlation_weekly_20260620.csv",
+  "lead_tournament_file": "phlxsox_spy/lead_tournament_weekly_20260620.csv",
+  "published_winner": {
+    "signal": "sox_spy_ratio_mom_6m_pct",
+    "lead": 3,
+    "oos_sharpe": 1.57
+  },
+  "L_star": 36,
+  "best_oos_sharpe_at_grid": 1.5244,
+  "gate_decision": "NO-WEEKLY-EDGE",
+  "winner_signal_best_corr_lead": "L1",
+  "assertions": [
+    "weekly lead grid is exactly L1..L52",
+    "best_oos_sharpe is the max over the weekly grid",
+    "EXPLORATORY: CANDIDATE-WEEKLY flag requires native weekly tournament confirmation \u2014 sweep never auto-promotes a winner"
+  ]
+}

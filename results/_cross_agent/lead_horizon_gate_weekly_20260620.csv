@@ -1,0 +1,5 @@
+pair,published_lead,L_star,lead_unit,best_sharpe_at_Lstar,published_sharpe,decision,winner_corr_best_lead
+vix_vix3m_spy,0,16,weeks,1.6116,1.1295,CANDIDATE-WEEKLY,L39
+gold_copper_xli,0,17,weeks,1.4589,1.273,CANDIDATE-WEEKLY,L24
+hy_ig_spy,0,50,weeks,1.6459,1.4083,CANDIDATE-WEEKLY,L30
+phlxsox_spy,3,36,weeks,1.5244,1.57,NO-WEEKLY-EDGE,L1

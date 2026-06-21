@@ -37,13 +37,51 @@ RUN_DATE = "20260620"
 LEADS = list(range(0, 13))  # L = 0..12 months (ECON-LL1)
 
 # Option D (stakeholder choice): daily pairs also get a Weekly+Monthly sweep.
-# Phase 1 (THIS run) is MONTHLY ONLY. A weekly code path (L=1..52 weeks, resample
-# signal+target to W-FRI) is Phase 2 — NOT executed here. TODO(Phase 2): add a
-# `--weekly` flag that builds a weekly frame in to_monthly()'s sibling and runs
-# the same lead_analysis/lead_tournament over LEADS_WEEKLY = range(1, 53). The
-# tournament metrics() annualisation factor would switch 12 -> 52 and sqrt(12) ->
-# sqrt(52). Left as a clean extension point; do not run weekly until gated.
-LEADS_WEEKLY = list(range(1, 53))  # Phase 2 only — unused in Phase 1
+# Phase 2 (`--weekly`): build a W-FRI weekly frame (signal = last obs of week;
+# target fwd_1w = next-week-close return), then run the SAME lead_analysis /
+# lead_tournament machinery over LEADS_WEEKLY = 1..52 weeks with annualisation
+# factor 52 (sqrt(52)). The frequency-dependent constants (LEADS, annualisation,
+# rolling-threshold window, forward-return column) are now bundled in a FreqSpec
+# so the monthly and weekly code paths share one implementation. The monthly
+# path is byte-for-byte unchanged when --weekly is absent.
+LEADS_WEEKLY = list(range(1, 53))  # weeks, --weekly
+
+
+class FreqSpec:
+    """Bundles all granularity-dependent constants so lead_analysis /
+    lead_tournament / metrics / thresholds_for are frequency-agnostic.
+
+    MONTHLY (default): month-end resample, lead 0..12 months, ann=12,
+      rolling threshold window = 36 months, IS-min 24 obs.
+    WEEKLY (--weekly): W-FRI resample, lead 1..52 weeks, ann=52,
+      rolling threshold window = 156 weeks (~3yr, matches the 36-month window),
+      IS-min 104 obs (~2yr) so weekly thresholds are as well-conditioned as the
+      monthly 24-obs floor relative to their window.
+    """
+    def __init__(self, weekly: bool):
+        self.weekly = weekly
+        if weekly:
+            self.tag = "weekly"
+            self.resample_rule = "W-FRI"
+            self.leads = LEADS_WEEKLY
+            self.ann = 52
+            self.roll_window = 156      # ~3 years of weeks (monthly 36 → weekly 156)
+            self.roll_minp = 78
+            self.is_min = 104           # ~2 years of weeks
+            self.metrics_min = 26       # ~half-year floor for a scored OOS series
+            self.fwd_col = "target_fwd_1w"
+            self.lead_unit = "weeks"
+        else:
+            self.tag = "monthly"
+            self.resample_rule = "ME"
+            self.leads = LEADS
+            self.ann = 12
+            self.roll_window = 36
+            self.roll_minp = 18
+            self.is_min = 24
+            self.metrics_min = 12
+            self.fwd_col = "target_fwd_1m"
+            self.lead_unit = "months"
 
 # ── Per-pair configuration ────────────────────────────────────────────────
 # data_file: raw data parquet (has target price + signal transforms)
@@ -159,27 +197,36 @@ def star(p):
     return "**" if p < 0.01 else ("*" if p < 0.05 else "")
 
 
-def to_monthly(df, target_price, signals, freq):
-    """Return monthly frame: signal cols (month-end last obs) + target 1m-fwd ret.
+def to_frame(df, target_price, signals, freq, spec):
+    """Return a resampled frame: signal cols (period-end last obs) + target
+    1-period-forward return, at the granularity defined by `spec`.
 
-    For daily pairs we resample signal to month-end last value and the target
-    price to month-end last close, then fwd_1m = price.shift(-1)/price - 1.
-    For monthly pairs the frame is already month-end.
+    For daily pairs we resample signal+price to the period end (month-end for
+    monthly, W-FRI for weekly) and fwd = price.shift(-1)/price - 1.
+    For monthly-native pairs under the monthly spec the frame is already
+    period-end (resample to ME is idempotent on month-end data).
     """
     cols = [c for c in signals if c in df.columns] + [target_price]
     sub = df[cols].copy()
-    if freq == "D":
-        sub = sub.resample("ME").last()
+    # daily → resample to the spec's period; monthly-native + monthly spec is a
+    # no-op resample; weekly spec is only ever applied to daily pairs.
+    if freq == "D" or spec.weekly:
+        sub = sub.resample(spec.resample_rule).last()
     px = sub[target_price]
-    fwd_1m = px.shift(-1) / px - 1.0
+    fwd = px.shift(-1) / px - 1.0
     out = sub[[c for c in signals if c in df.columns]].copy()
-    out["target_fwd_1m"] = fwd_1m
+    out[spec.fwd_col] = fwd
     return out
 
 
-def lead_analysis(mdf, signals):
-    """ECON-LA1: Pearson r(signal lagged L months, target_fwd_1m), L=0..12."""
-    fwd = mdf["target_fwd_1m"]
+def to_monthly(df, target_price, signals, freq):
+    """Back-compat monthly wrapper (unchanged behaviour)."""
+    return to_frame(df, target_price, signals, freq, FreqSpec(weekly=False))
+
+
+def lead_analysis(mdf, signals, spec):
+    """ECON-LA1: Pearson r(signal lagged L periods, target_fwd), over spec.leads."""
+    fwd = mdf[spec.fwd_col]
     rows = []
     best = {}
     for s in signals:
@@ -187,10 +234,10 @@ def lead_analysis(mdf, signals):
             continue
         row = {"transform": s}
         rvals = {}
-        for L in LEADS:
+        for L in spec.leads:
             lagged = mdf[s].shift(L)
             d = pd.concat([lagged, fwd], axis=1).dropna()
-            if len(d) < 24:
+            if len(d) < spec.is_min:
                 row[f"L{L}"] = ""
                 continue
             r, p = stats.pearsonr(d.iloc[:, 0], d.iloc[:, 1])
@@ -202,21 +249,22 @@ def lead_analysis(mdf, signals):
             row["best_r"] = f"{rvals[bL]:+.3f}"
             best[s] = (bL, rvals[bL])
         rows.append(row)
-    cols = ["transform"] + [f"L{L}" for L in LEADS] + ["best_lead", "best_r"]
+    cols = ["transform"] + [f"L{L}" for L in spec.leads] + ["best_lead", "best_r"]
     return pd.DataFrame(rows)[cols], best
 
 
 # Canonical threshold grid (fixed IS-percentile + rolling-percentile + rolling-z),
 # applied per signal. Probability-style signals (HMM/MS, range [0,1]) get fixed
 # absolute thresholds too. Direction handled per-strategy below.
-def thresholds_for(sig_is, sig_full):
+def thresholds_for(sig_is, sig_full, spec):
     out = {}
     for q in (0.10, 0.25, 0.75, 0.90):
         out[f"Tp{int(q*100)}"] = pd.Series(sig_is.quantile(q), index=sig_full.index)
-    out["Trp75"] = sig_full.rolling(36, min_periods=18).quantile(0.75)
-    out["Trp25"] = sig_full.rolling(36, min_periods=18).quantile(0.25)
-    out["Tz1"] = (sig_full.rolling(36, min_periods=18).mean()
-                  + 1.0 * sig_full.rolling(36, min_periods=18).std())
+    rw, rp = spec.roll_window, spec.roll_minp
+    out["Trp75"] = sig_full.rolling(rw, min_periods=rp).quantile(0.75)
+    out["Trp25"] = sig_full.rolling(rw, min_periods=rp).quantile(0.25)
+    out["Tz1"] = (sig_full.rolling(rw, min_periods=rp).mean()
+                  + 1.0 * sig_full.rolling(rw, min_periods=rp).std())
     # probability-style signal in [0,1]
     if sig_full.dropna().between(0, 1).mean() > 0.98:
         out["Tfix05"] = pd.Series(0.5, index=sig_full.index)
@@ -224,12 +272,12 @@ def thresholds_for(sig_is, sig_full):
     return out
 
 
-def metrics(r):
+def metrics(r, spec):
     r = r.dropna()
-    if len(r) < 12:
+    if len(r) < spec.metrics_min:
         return None
-    ann_ret = r.mean() * 12
-    ann_vol = r.std() * np.sqrt(12)
+    ann_ret = r.mean() * spec.ann
+    ann_vol = r.std() * np.sqrt(spec.ann)
     if ann_vol <= 0:
         return None
     sharpe = ann_ret / ann_vol
@@ -239,28 +287,28 @@ def metrics(r):
                 n=len(r), turnover=None)
 
 
-def lead_tournament(mdf, signals, oos_start, is_end):
-    """ECON-LT1: full (signal x threshold x strategy) grid swept across L=0..12.
+def lead_tournament(mdf, signals, oos_start, is_end, spec):
+    """ECON-LT1: full (signal x threshold x strategy) grid swept across spec.leads.
 
-    Monthly returns. position applied with a 1-month execution shift (no lookahead).
-    Strategies: P1 long/cash, P2 long/short, P3 inverse long/cash (covers both
+    Returns at the spec granularity. position applied with a 1-period execution
+    shift (no lookahead). Strategies: P1 long/cash, P2 long/short (covers both
     signal polarities so the lead grid is direction-agnostic and we keep the best).
-    OOS Sharpe computed on [oos_start:].
+    OOS Sharpe computed on [oos_start:] with spec annualisation.
     """
-    fwd = mdf["target_fwd_1m"]
-    # monthly target return realised at t (for position applied at t-1)
-    tgt_ret = fwd.shift(1)  # return earned over month t given fwd_1m known at t-1
-    per_lead = {L: [] for L in LEADS}
+    fwd = mdf[spec.fwd_col]
+    # period target return realised at t (for position applied at t-1)
+    tgt_ret = fwd.shift(1)  # return earned over period t given fwd known at t-1
+    per_lead = {L: [] for L in spec.leads}
     for s in signals:
         if s not in mdf.columns:
             continue
         sraw = mdf[s]
-        for L in LEADS:
+        for L in spec.leads:
             lag = sraw.shift(L)
             sig_is = lag.loc[:is_end].dropna()
-            if len(sig_is) < 24:
+            if len(sig_is) < spec.is_min:
                 continue
-            thr = thresholds_for(sig_is, lag)
+            thr = thresholds_for(sig_is, lag, spec)
             for tname, tser in thr.items():
                 above = (lag > tser)
                 for pol in ("hi", "lo"):  # signal-high-bullish vs signal-low-bullish
@@ -271,10 +319,10 @@ def lead_tournament(mdf, signals, oos_start, is_end):
                             pos = bull.astype(float)
                         else:
                             pos = bull.astype(float) * 2 - 1
-                        # 1-month execution shift to avoid lookahead
+                        # 1-period execution shift to avoid lookahead
                         ret = pos.shift(1) * tgt_ret
                         oos = ret.loc[oos_start:]
-                        m = metrics(oos)
+                        m = metrics(oos, spec)
                         if m is None:
                             continue
                         nchg = int((pos.loc[oos_start:].diff().abs() > 0).sum())
@@ -284,12 +332,15 @@ def lead_tournament(mdf, signals, oos_start, is_end):
                             strategy=strat, oos_sharpe=m["sharpe"],
                             oos_ann_return=m["ann_return"], oos_max_dd=m["max_dd"],
                             n_changes=nchg, valid=valid))
-    # summarise per lead
+    # summarise per lead. Column `lead_months` retains its legacy name as the
+    # lead-index column for both granularities (value = weeks under --weekly);
+    # `lead_unit` disambiguates.
     summ = []
-    for L in LEADS:
+    for L in spec.leads:
         rows = [r for r in per_lead[L] if r["valid"]]
         if not rows:
-            summ.append(dict(lead_months=L, n_valid=0, best_oos_sharpe=np.nan,
+            summ.append(dict(lead_months=L, lead_unit=spec.lead_unit, n_valid=0,
+                             best_oos_sharpe=np.nan,
                              median_oos_sharpe=np.nan, p25_oos_sharpe=np.nan,
                              p75_oos_sharpe=np.nan, best_signal="", best_threshold="",
                              best_strategy="", best_max_dd=np.nan))
@@ -297,7 +348,7 @@ def lead_tournament(mdf, signals, oos_start, is_end):
         rd = pd.DataFrame(rows)
         b = rd.loc[rd["oos_sharpe"].idxmax()]
         summ.append(dict(
-            lead_months=L, n_valid=len(rd),
+            lead_months=L, lead_unit=spec.lead_unit, n_valid=len(rd),
             best_oos_sharpe=round(float(b["oos_sharpe"]), 4),
             median_oos_sharpe=round(float(rd["oos_sharpe"].median()), 4),
             p25_oos_sharpe=round(float(rd["oos_sharpe"].quantile(0.25)), 4),
@@ -308,10 +359,21 @@ def lead_tournament(mdf, signals, oos_start, is_end):
 
 
 def main():
-    only = sys.argv[1:] or list(PAIRS)
+    args = sys.argv[1:]
+    weekly = "--weekly" in args
+    only = [a for a in args if not a.startswith("--")] or list(PAIRS)
+    spec = FreqSpec(weekly=weekly)
+    suffix = "_weekly" if weekly else ""
     gate_rows = []
     for pair in only:
         cfg = PAIRS[pair]
+        # Weekly sweep is ONLY meaningful for daily-native pairs (you cannot
+        # resample a monthly series up to weekly). Guard so a stray monthly pair
+        # under --weekly is skipped rather than producing a degenerate frame.
+        if weekly and cfg["freq"] != "D":
+            print(f"{pair}: SKIP (weekly sweep requires daily-native data; "
+                  f"freq={cfg['freq']})")
+            continue
         df = pd.read_parquet(f"{ROOT}/{cfg['data_file']}")
         df = df[~df.index.duplicated(keep="last")].sort_index()
         if cfg.get("extra_signal_file"):
@@ -320,13 +382,13 @@ def main():
             for c in cfg["extra_signal_cols"]:
                 if c in ex.columns:
                     df[c] = ex[c].reindex(df.index)
-        mdf = to_monthly(df, cfg["target_price"], cfg["signals"], cfg["freq"])
-        # IS end = month before oos_start
+        mdf = to_frame(df, cfg["target_price"], cfg["signals"], cfg["freq"], spec)
+        # IS end = period before oos_start
         oos_start = pd.Timestamp(cfg["oos_start"])
         is_end = (oos_start - pd.Timedelta(days=1))
 
-        la_df, best = lead_analysis(mdf, cfg["signals"])
-        lt_df = lead_tournament(mdf, cfg["signals"], oos_start, is_end)
+        la_df, best = lead_analysis(mdf, cfg["signals"], spec)
+        lt_df = lead_tournament(mdf, cfg["signals"], oos_start, is_end, spec)
 
         # Frozen Sample: NEVER write into its results dir — route to _cross_agent.
         if cfg.get("frozen"):
@@ -334,30 +396,53 @@ def main():
         else:
             out_dir = f"{ROOT}/results/{pair}"
         import os; os.makedirs(out_dir, exist_ok=True)
-        la_path = f"{out_dir}/lead_correlation_{RUN_DATE}.csv"
-        lt_path = f"{out_dir}/lead_tournament_{RUN_DATE}.csv"
+        la_path = f"{out_dir}/lead_correlation{suffix}_{RUN_DATE}.csv"
+        lt_path = f"{out_dir}/lead_tournament{suffix}_{RUN_DATE}.csv"
         la_df.to_csv(la_path, index=False)
         lt_df.to_csv(lt_path, index=False)
 
-        # gate decision
+        # ── gate decision ────────────────────────────────────────────────────
+        # POLARITY-MIRROR GUARDRAIL: this sweep ranks on best OOS Sharpe over a
+        # P1/P2 + hi/lo-polarity grid, which has a false-positive mode (it can
+        # flag the negative-image of an invalid native combo). The sweep is
+        # therefore EXPLORATORY ONLY. The monthly path emits a RE-RUN/CHARTS-ONLY
+        # gate that a NATIVE tournament must confirm (ECON-LT1). The WEEKLY path
+        # is even further from a native winner (different granularity entirely),
+        # so it NEVER emits an actionable RE-RUN — only a CANDIDATE flag for
+        # native weekly confirmation. No weekly upgrade counts until a native
+        # weekly tournament reproduces it.
         valid_lt = lt_df.dropna(subset=["best_oos_sharpe"])
         Lstar = int(valid_lt.loc[valid_lt["best_oos_sharpe"].idxmax(), "lead_months"])
         best_sharpe = float(valid_lt["best_oos_sharpe"].max())
-        decision = "RE-RUN" if (Lstar in range(7, 13) and best_sharpe > cfg["winner_sharpe"]) else "CHARTS-ONLY"
+        if weekly:
+            decision = ("CANDIDATE-WEEKLY" if best_sharpe > cfg["winner_sharpe"]
+                        else "NO-WEEKLY-EDGE")
+        else:
+            decision = ("RE-RUN" if (Lstar in range(7, 13)
+                        and best_sharpe > cfg["winner_sharpe"]) else "CHARTS-ONLY")
         # best lead from correlation for the winner signal
         wbest = best.get(cfg["winner_signal"])
         wbest_lead = f"L{wbest[0]}" if wbest else "n/a"
 
         manifest = dict(
             pair=pair, run_date=RUN_DATE, frozen=cfg.get("frozen", False),
-            granularity="months L0..12 (ECON-LL1)",
+            granularity=(f"{spec.lead_unit} L{spec.leads[0]}..{spec.leads[-1]} "
+                         "(ECON-LL1 weekly extension)" if weekly
+                         else "months L0..12 (ECON-LL1)"),
             freq_native=cfg["freq"],
+            sweep_kind=spec.tag,
+            annualisation=spec.ann,
             design_note=(
-                "Daily pair resampled to month-end (signal=last obs of month; "
-                f"target fwd_1m = month-end-to-month-end). 1 month = ~{TRADING_DAYS_PER_MONTH} "
-                "trading days. Lead grid is months for all pairs."
-                if cfg["freq"] == "D" else
-                "Native monthly; lead L = calendar-month shift on month-end signals."),
+                ("Daily pair resampled to W-FRI (signal=last obs of week; "
+                 "target fwd_1w = week-end-to-week-end close return). Lead grid "
+                 "is 1..52 weeks. EXPLORATORY ONLY — native weekly tournament "
+                 "required to confirm any candidate (polarity-mirror guardrail).")
+                if weekly else
+                ("Daily pair resampled to month-end (signal=last obs of month; "
+                 f"target fwd_1m = month-end-to-month-end). 1 month = ~{TRADING_DAYS_PER_MONTH} "
+                 "trading days. Lead grid is months for all pairs."
+                 if cfg["freq"] == "D" else
+                 "Native monthly; lead L = calendar-month shift on month-end signals.")),
             oos_start=cfg["oos_start"], is_end=str(is_end.date()),
             input_file=cfg["data_file"],
             input_sha256="sha256:" + hashlib.sha256(
@@ -369,28 +454,35 @@ def main():
             L_star=Lstar, best_oos_sharpe_at_grid=best_sharpe,
             gate_decision=decision,
             winner_signal_best_corr_lead=wbest_lead,
-            assertions=[
+            assertions=([
+                f"weekly lead grid is exactly L{spec.leads[0]}..L{spec.leads[-1]}",
+                "best_oos_sharpe is the max over the weekly grid",
+                "EXPLORATORY: CANDIDATE-WEEKLY flag requires native weekly "
+                "tournament confirmation — sweep never auto-promotes a winner",
+            ] if weekly else [
                 "lead grid is exactly L0..12",
                 "best_oos_sharpe is the max over the extended grid",
                 f"decision RE-RUN iff L*∈7..12 AND best>{cfg['winner_sharpe']}",
-            ],
+            ]),
         )
-        with open(f"{out_dir}/lead_sweep_manifest_{RUN_DATE}.json", "w") as f:
+        with open(f"{out_dir}/lead_sweep_manifest{suffix}_{RUN_DATE}.json", "w") as f:
             json.dump(manifest, f, indent=2)
 
         gate_rows.append(dict(
             pair=pair, published_lead=cfg["winner_lead"], L_star=Lstar,
+            lead_unit=spec.lead_unit,
             best_sharpe_at_Lstar=round(best_sharpe, 4),
             published_sharpe=cfg["winner_sharpe"], decision=decision,
             winner_corr_best_lead=wbest_lead))
-        print(f"{pair}: L*={Lstar} best={best_sharpe:.3f} "
+        print(f"{pair}: L*={Lstar}{spec.lead_unit[0]} best={best_sharpe:.3f} "
               f"pub_lead={cfg['winner_lead']} pub_sharpe={cfg['winner_sharpe']} "
               f"-> {decision} (winner-signal corr best lead {wbest_lead})")
 
     gdf = pd.DataFrame(gate_rows)
-    print("\n=== GATE TABLE ===")
+    print(f"\n=== GATE TABLE ({spec.tag}) ===")
     print(gdf.to_string(index=False))
-    gdf.to_csv(f"{ROOT}/results/_cross_agent/lead_horizon_gate_{RUN_DATE}.csv", index=False)
+    gdf.to_csv(f"{ROOT}/results/_cross_agent/lead_horizon_gate{suffix}_{RUN_DATE}.csv",
+               index=False)
 
 
 if __name__ == "__main__":
