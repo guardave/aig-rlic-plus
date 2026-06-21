@@ -1803,3 +1803,61 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 **Outstanding for next session:** (1) umcsent_xlv fix (top item). (2) Resume Wave D D-1 (lint design validated, fresh branch needed). (3) dawodev repoint (user-side).
 
 🤖 Agent: Lead Lesandro
+
+---
+
+### 2026-06-19 (cont.) — Lead Lesandro — Pairs #23+#24 shipped (Mode 1); umcsent reconciled (held)
+
+**Status:** 2 pairs SHIPPED to production. umcsent reconciled + held pending stakeholder approval. Checkpoint.
+
+**Accomplished:**
+- **m2sl_yoy_spy (#23)** merged `9808b56`, prod-verified — M2 money-growth acceleration, OOS Sharpe 1.69; honest reverse-causality/found_in_search.
+- **phlxsox_spy (#24)** merged `345dbc9`, prod-verified — SOX/SPY relative-strength momentum, OOS Sharpe 1.57 (beats SPY-own-momentum benchmark); honest bidirectional-feedback/fragile/found_in_search.
+- Both built ENTIRELY in **Mode 1 (Claude agent makers)** after Codex quota died mid-M2 — proven fallback, LEAD-DL1 clean, recompute-guardrail held both times.
+- umcsent winner-refresh reconciled onto main (absorbed direct-to-main `2f011ae`), 1.16 correction preserved, pushed `0df1c6d`, STILL HELD.
+- Deleted merged branches (M2, SOX).
+
+**For all agents:** Mode 1 (Claude Agent-tool makers) is a validated path when Codex is unavailable — same briefs, persona via ./AGENTS.md, Lead sole checker.
+
+**Outstanding:** (1) umcsent reconciled branch needs re-verification (gates/DOM) — paused for checkpoint; then awaits stakeholder approval to merge. (2) Legacy signal_code_registry non-conforming entries (triple-confirmed) — cleanup wave candidate. (3) New-pair queue exhausted (M2✓ SOX✓). (4) Wave D prose-vs-data lint still pending.
+
+🤖 Agent: Lead Lesandro
+
+---
+
+### 2026-06-19 (cont.) — Lead Lesandro — umcsent shipped; fleet sweep clean; GH-issues policy
+
+**Status:** umcsent live on production. Full fleet verified healthy. New documentation policy adopted.
+
+**Accomplished:**
+- umcsent winner-refresh MERGED + production-verified (`7b0a1f2`) — corrected winner (1.16) now live; the stale-1.02 production defect resolved.
+- Full-fleet production sweep (post-reboot): **53 PASS / 0 FAIL / 60**, GATE-27/DP1 0. All 13 pairs + frozen Sample clean.
+- One non-blocking finding → GH issue **#12** (GATE-VIZ-NBER2 dotcom shading, Vera-owned, hy_ig_v2 EXEMPT).
+
+**Policy change (binding):** new findings/deferred work → **GitHub issues** (`gh issue create`), NOT docs/backlog.md. backlog.md is now historical-only. (memory: feedback_gh_issues_over_backlog)
+
+**For Vera:** GH #12 — reconcile dot-com history_zoom NBER shading across 6 non-frozen pairs (widen window to cover 2001 recession OR drop spurious bands). Leave hy_ig_v2 untouched.
+
+**Outstanding:** (1) #12 (Vera). (2) Candidate issues not yet filed: signal_code_registry legacy entries (triple-confirmed), Wave D prose-vs-data lint. (3) New-pair queue exhausted.
+
+🤖 Agent: Lead Lesandro
+
+---
+
+### 2026-06-19 EOD — Lead Lesandro — Pair Pre-Screening exploration (stakeholder paper)
+
+**Status:** HANDOVER — exploration delivered as a discussion artifact; awaiting stakeholder input.
+
+**Accomplished today (full session):**
+- Pairs #23 m2sl_yoy_spy + #24 phlxsox_spy shipped to production (both Mode 1). umcsent winner-refresh shipped (corrected 1.16). Full-fleet sweep 53/0. GH-issues documentation policy adopted (#12 filed).
+- Deleted merged branches: fix260602_pair4_prep, fix260619_umcsent_winner_refresh, pair260619_m2sl/phlxsox.
+- **Pair Pre-Screening exploration** (branch `explore_pair_prescreen`, pushed): design doc + working POC scorecard + distilled stakeholder paper (md+pdf). POC run on all 13 pairs separates strong from marginal, matching expert judgement.
+
+**Key discoveries (from the screening exercise):**
+1. Most "is this pair worth a full build?" signal already exists in Data+Econ outputs → a pre-screen gate is cheap.
+2. NO pair is true-PROCEED — entire portfolio is `found_in_search`; needs a holdout final-exam step that doesn't exist yet. **This is the highest-value structural gap surfaced.**
+3. Tournament selects on OOS → IS→OOS Sharpe gap is the real durability signal, not the OOS headline.
+
+**Outstanding for next session:** (1) Stakeholder discussion of the prescreen paper. (2) Candidate GH issue: missing ECON-FE1 holdout final-exam (under discussion, not filed). (3) GH #12 (Vera dotcom shading). (4) Candidate issues: signal_code_registry cleanup, Wave D lint. (5) Optional Chinese exec-summary for the paper.
+
+🤖 Agent: Lead Lesandro

@@ -1,0 +1,39 @@
+{
+  "pair_id": "phlxsox_spy",
+  "artifact": "strategy_returns_20260619.csv",
+  "produced_by": "scripts/pair_pipeline_phlxsox_spy.py",
+  "rule": "ECON-SR1",
+  "source": "pipeline_native_derivation (same code path as tournament evaluation)",
+  "returns_file": "/workspaces/aig-rlic-plus/data/phlxsox_spy_daily_latest.parquet",
+  "coverage_start": "1994-05-05",
+  "coverage_end": "2026-06-17",
+  "frequency": "daily",
+  "oos_start": "2021-06-11",
+  "oos_end": "2026-06-17",
+  "position_semantics": "position on row t is the return-accrual weight for day t; the signal is lagged 63 trading day(s) (>=1, no contemporaneous lookahead); strategy_return = position * bh_return row-wise",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.569963,
+      "reported_winner_summary": 1.57,
+      "diff": -3.7e-05,
+      "tolerance": 0.03,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.096628,
+      "reported_winner_summary": -0.0966,
+      "diff": -2.8e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.130367,
+      "reported_winner_summary": 0.1304,
+      "diff": -3.3e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-19T12:57:10Z",
+  "generated_by": "Econ Evan (pair260619_phlxsox_spy)"
+}

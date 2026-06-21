@@ -1,0 +1,32 @@
+{
+  "file": "signals_20260619.parquet",
+  "pair_id": "phlxsox_spy",
+  "produced_by": "scripts/pair_pipeline_phlxsox_spy.py",
+  "generated_at": "2026-06-19T12:57:10Z",
+  "columns": {
+    "sox_spy_ratio_mom_1m_pct": "tournament-eligible signal derived from SOX / SOX-SPY ratio (sox_spy_ratio_mom_1m_pct)",
+    "sox_spy_ratio_mom_3m_pct": "tournament-eligible signal derived from SOX / SOX-SPY ratio (sox_spy_ratio_mom_3m_pct)",
+    "sox_spy_ratio_mom_6m_pct": "tournament-eligible signal derived from SOX / SOX-SPY ratio (sox_spy_ratio_mom_6m_pct)",
+    "sox_spy_ratio_mom_12m_pct": "tournament-eligible signal derived from SOX / SOX-SPY ratio (sox_spy_ratio_mom_12m_pct)",
+    "sox_spy_ratio_zscore_126d": "tournament-eligible signal derived from SOX / SOX-SPY ratio (sox_spy_ratio_zscore_126d)",
+    "sox_spy_ratio_zscore_252d": "tournament-eligible signal derived from SOX / SOX-SPY ratio (sox_spy_ratio_zscore_252d)",
+    "sox_mom_1m_pct": "tournament-eligible signal derived from SOX / SOX-SPY ratio (sox_mom_1m_pct)",
+    "sox_mom_3m_pct": "tournament-eligible signal derived from SOX / SOX-SPY ratio (sox_mom_3m_pct)",
+    "sox_mom_6m_pct": "tournament-eligible signal derived from SOX / SOX-SPY ratio (sox_mom_6m_pct)",
+    "sox_mom_12m_pct": "tournament-eligible signal derived from SOX / SOX-SPY ratio (sox_mom_12m_pct)",
+    "hmm_2state_prob_stress": "tournament-eligible signal derived from SOX / SOX-SPY ratio (hmm_2state_prob_stress)"
+  },
+  "assertions": [
+    {
+      "description": "rel-strength momentum present",
+      "filter": "tail",
+      "column": "sox_spy_ratio_mom_3m_pct",
+      "check": "finite"
+    },
+    {
+      "description": "HMM prob bounded",
+      "column": "hmm_2state_prob_stress",
+      "check": "values in [0,1]"
+    }
+  ]
+}

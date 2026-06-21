@@ -6,10 +6,11 @@ Promoted from `temp/260422_wave10g_full/focused_verify.py` (Wave 10G) with:
   class names never appear in extracted text; prior heuristic falsely returned
   0).
 - Full GATE-28 pair x page grid: all focus pairs, 4 pages each, plus landing.
-- Wave 10H.1 APP-PT2 check: Sample pair (hy_ig_v2_spy) Methodology page must
-  contain an "Exploratory Insights" section with the three orphan charts'
-  ELI5 markers in DOM text. Other pairs' Methodology pages must NOT render
-  the section (regression gate — backward compatibility).
+- Wave 10H.1 APP-PT2 check (negative/regression half only): other pairs'
+  Methodology pages must NOT render an "Exploratory Insights" section
+  (regression gate — backward compatibility). The positive half asserted the
+  Sample pair (hy_ig_v2_spy) DID render the section; the Sample was RETIRED
+  and ARCHIVED on branch fix260620_archive_sample, so that half is removed.
 - Wave 10I.C: APP_SEV1_PATS and STUB_PATS soft-error detection; GATE-29
   parquet pre-flight hard-wired into main flow.
 - Wave 10I.C (screenshot-all-tabs): After each page loads and hydrates,
@@ -55,8 +56,10 @@ from playwright.sync_api import sync_playwright  # type: ignore
 DEFAULT_BASE = "https://aig-rlic-plus.streamlit.app"
 # Active deployed pairs with four pages each. Archived pairs are intentionally
 # absent from this list so Cloud sweeps do not resolve retired routes.
+# Sample (hy_ig_v2_spy) retired/archived on branch fix260620_archive_sample —
+# removed from focus list so Cloud sweeps do not resolve its retired routes.
 FOCUS_PAIRS = [
-    "hy_ig_v2_spy", "hy_ig_spy", "indpro_xlp", "umcsent_xlv",
+    "hy_ig_spy", "indpro_xlp", "umcsent_xlv",
     "indpro_spy", "permit_spy", "vix_vix3m_spy",
     "gold_copper_xli", "busloans_spy",
 ]
@@ -150,20 +153,15 @@ NBER_SHADING_DOM_PATS = [
 NBER_EXPECTED_CHART_TYPES = ["rolling_correlation", "rolling_sharpe"]
 BREADCRUMB = ["Story", "Evidence", "Strategy", "Methodology"]
 PREFIX_PENDING_RE = re.compile(
-    r"(hy_ig_spy_|hy_ig_v2_spy_|indpro_xlp_|umcsent_xlv_|indpro_spy_|permit_spy_|vix_vix3m_spy_)\w+\.json"
+    r"(hy_ig_spy_|indpro_xlp_|umcsent_xlv_|indpro_spy_|permit_spy_|vix_vix3m_spy_)\w+\.json"
 )
 
-# Wave 10H.1 APP-PT2 markers — first ~60 chars of each ELI5 note (Vera's
-# narrative_alignment_note strings from results/hy_ig_v2_spy/analyst_suggestions.json).
-# We look for any three unique markers to confirm all three orphans rendered.
+# Wave 10H.1 APP-PT2 — section marker used by the negative/regression half:
+# no surviving pair's Methodology page should render an "Exploratory Insights"
+# section. The positive half and its ELI5 markers + SAMPLE_PAIR constant were
+# removed when the Sample (hy_ig_v2_spy) was retired/archived on branch
+# fix260620_archive_sample.
 EXPLORATORY_SECTION_MARKER = "Exploratory Insights"
-EXPLORATORY_ELI5_MARKERS = [
-    "how nervous bond investors are about risky companies",  # hero_spread_vs_spy
-    "real historical events labelled directly on the chart",  # spread_history_annotated
-    "tested nearly 2,000 different trading rules",  # tournament_sharpe_dist
-]
-
-SAMPLE_PAIR = "hy_ig_v2_spy"
 
 # Wave 10H.2 APP-TL1 markers — Trade Log Rendering Contract. Applied on the
 # Strategy page for pairs retro-fitted onto the APP-PT1 template in this wave:
@@ -418,24 +416,20 @@ def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
     # Non-methodology pages must have >=1 plotly container.
     chart_ok = is_methodology or plotly_count >= 1
 
-    # Wave 10H.1 APP-PT2 check (Methodology only).
+    # Wave 10H.1 APP-PT2 check (Methodology only) — negative/regression half.
+    # The positive half (Sample pair MUST render an "Exploratory Insights"
+    # section) was retired when the Sample (hy_ig_v2_spy) was archived on
+    # branch fix260620_archive_sample. The regression gate below remains: no
+    # surviving pair's Methodology page should render the section.
     exploratory_section = EXPLORATORY_SECTION_MARKER in text
-    exploratory_markers_hit = sum(1 for m in EXPLORATORY_ELI5_MARKERS if m in text)
 
     if is_methodology:
-        if pair_id == SAMPLE_PAIR:
-            app_pt2_ok = exploratory_section and exploratory_markers_hit == 3
-            app_pt2_note = (
-                f"Sample Methodology: section={exploratory_section} "
-                f"eli5_markers={exploratory_markers_hit}/3"
-            )
-        else:
-            # Regression gate — non-Sample pairs must NOT render the section.
-            app_pt2_ok = not exploratory_section
-            app_pt2_note = (
-                f"Non-Sample Methodology: section={exploratory_section} "
-                f"(expected False)"
-            )
+        # Regression gate — pairs must NOT render the section.
+        app_pt2_ok = not exploratory_section
+        app_pt2_note = (
+            f"Methodology: exploratory_section={exploratory_section} "
+            f"(expected False)"
+        )
     else:
         app_pt2_ok = True
         app_pt2_note = "N/A (non-methodology)"
@@ -692,7 +686,11 @@ def gate_viz_nber2_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     from datetime import date
 
     # Slugs that overlap at least one NBER recession window.
-    RECESSION_SLUGS = {"dot_com", "gfc", "covid"}
+    # Slug is the literal filename token (history_zoom_{slug}.json), so both
+    # spellings must be listed: older pairs emit "dot_com", newer pairs emit
+    # "dotcom" (no underscore). The dot-com zoom window covers the 2001 NBER
+    # recession, so either spelling legitimately carries an NBER band.
+    RECESSION_SLUGS = {"dot_com", "dotcom", "gfc", "covid"}
 
     # Vera's canonical NBER shading color (VIZ-NBER1): rgba(150,120,120,0.22)
     # A shape qualifies when fillcolor starts with "rgba(150" OR equals the exact value.

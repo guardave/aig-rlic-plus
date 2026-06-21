@@ -1,0 +1,20 @@
+{
+  "chart_name": "tournament_scatter",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "ECON-T4",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "All 6,760 tournament combinations (OOS Sharpe vs annual turnover; color = max drawdown). 4,607 pass validity. BOTH benchmark diamonds (Buy & Hold and SPY-own-momentum) sit near Sharpe 0.82\u20130.83; the winner is the best of thousands of tries \u2014 see the distribution chart for how the median combo actually fared.",
+  "narrative_alignment_note": "Tournament scatter with BOTH benchmarks plotted (ECON-T4 rows).",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/phlxsox_spy/tournament_results_20260619.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T13:09:41.233550+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

@@ -1,5 +1,33 @@
 # Release Notes
 
+## 2026-06-19 — Exploration: Pair Pre-Screening (analysis & proposal for stakeholders)
+
+Responding to a stakeholder proposal, explored adding a **lightweight Pair Screening layer before full dashboard development** — scoring pairs on Strategy Performance, Operational Practicality, Crisis Validation, and Durability. Branch `explore_pair_prescreen` (pushed, NOT merged — a discussion artifact): `docs/pair-prescreen-proposal.md` (technical design), `scripts/pair_prescreen.py` (working POC scorecard), and `docs/pair-prescreen-analysis-and-proposal.md` (+pdf, the distilled stakeholder paper).
+
+**Key result:** all four screening dimensions map onto artifacts the Data+Econ stages already emit, so a screen can gate after Econometrics — before the expensive charts/narrative/portal/deep-QC stages — at near-zero added cost. The POC, run on all 13 live pairs, separated strong from marginal in line with expert judgement (ism_services deferred on a negative in-sample Sharpe; high-turnover pairs deferred on operational practicality; busloans strongest).
+
+**Two structural findings (more valuable than the verdicts):** (1) **no pair qualifies as true-PROCEED** — the entire portfolio is `found_in_search`, and a real verdict needs a **holdout final-exam step that does not yet exist** in the pipeline; (2) every pair shows a large in-sample→out-of-sample Sharpe gap (the tournament selects on out-of-sample), so durability must be judged on the *gap*, not the headline. Threshold calibration is deferred to stakeholders (a first rough set was too strict — it would have dropped a strong pair).
+
+# Release Notes
+
+## 2026-06-19 — umcsent winner-refresh shipped; full-fleet sweep clean; GH-issues policy
+
+**umcsent_xlv winner-refresh merged to production (`7b0a1f2`, stakeholder-approved).** The corrupted `winner_summary.json` (mis-encoded threshold/lead → recomputed to 0.116) is corrected to the true tournament winner (S3_mom / rolling z>1.0 / 6-month lead / Sharpe 1.16), with the producer bug fixed at the root. Production DOM confirmed serving 1.16 (stale 1.02 gone). Reconciled with the intervening direct-to-main `2f011ae` hero/Granger fix before merge.
+
+**Full-fleet production cloud sweep (post-reboot): 53 PASS / 0 FAIL / 60 TOTAL**, GATE-27-PNG 0, GATE-DP1 0. All 13 pairs × 4 pages healthy; the 3 recently-shipped pairs (m2sl_yoy_spy, phlxsox_spy, umcsent_xlv) and frozen Sample (`sample_badge=True, leak=False`) all clean. One non-blocking finding: GATE-VIZ-NBER2 WARN on 7 pairs' `history_zoom_dotcom` charts (spurious/borderline NBER shading; pre-existing template behavior, not a regression) — tracked in **GH issue #12** (Vera-owned; `hy_ig_v2_spy` exempt).
+
+**Process: new findings/deferred work are now documented as GitHub issues, not `docs/backlog.md` rows** (user directive 2026-06-19). `backlog.md` remains the historical record; no new rows are added to it. First issue under the policy: #12.
+
+## 2026-06-19 — Two new pairs shipped (#23 M2 YoY, #24 PHLX SOX) — both built in Mode 1
+
+**`m2sl_yoy_spy` (#23) — M2 Money Supply YoY → SPY.** Merged `9808b56`, production-verified 5/0. Winner = M2 money-growth **acceleration** (gt p50, L2, procyclical), OOS Sharpe 1.69 vs 0.90 B&H, max DD −4.0%. Source FRED `M2SL` live (the FRED-vs-DataMaster gap was adjudicated as benign M2 seasonal-adjustment revision drift — FRED is ground truth). Honest verdict: NOT a leading indicator — Granger runs reverse (market leads money); the edge is a found-in-search acceleration pattern, confidence LOW, bootstrap p=0.025.
+
+**`phlxsox_spy` (#24) — PHLX Semiconductor Index (`^SOX`) → SPY.** Merged `345dbc9`, production-verified 5/0. Daily intermarket pair. Winner = SOX/SPY **relative-strength** 6-month momentum (gt rolling-p75, L63, procyclical), OOS Sharpe 1.57 — beats B&H 0.82 **and** a SPY-own-momentum benchmark 0.83. Most skeptical pair to date: because both legs are equities (0.709 daily return correlation), the analysis used the *ratio* to partial out shared beta; Toda-Yamamoto Granger is **bidirectional feedback** (not a clean semiconductor lead); the incremental edge over SPY-own-momentum is marginal/horizon-dependent (21d p=0.033, 63d p=0.075, R²~1%); IS Sharpe 0.10 vs OOS 1.57 on a favorable 2021-26 semis-bull window; the median valid tournament combo underperforms buy&hold; the rule lost in every pre-OOS crisis; bootstrap p=0.041 → found_in_search, confidence LOW.
+
+**Process milestone — Mode 1 as a Codex-outage fallback.** Codex hit its usage quota mid-build (M2 econ stage). Rather than wait for reset, both pairs were completed **entirely in Mode 1 — Claude role-agent makers dispatched via the Agent tool** (Dana/Evan/Vera+Ray/Ace as `general-purpose` Claude subagents, same briefs, persona resolved via `./AGENTS.md`, Lead sole checker). LEAD-DL1 stays clean (specialized agents do maker work). The winner_summary recompute-guardrail (added to every Evan brief after the umcsent corruption) held on both pairs (recompute = headline exactly). Lesson: the maker/checker pipeline is model-family-agnostic; Mode 1 is a proven path when Codex is unavailable.
+
+**umcsent winner-refresh — reconciled, still held.** A direct-to-main fix `2f011ae` (umcsent hero chart + Granger wording) landed on main while the winner-refresh branch was held for stakeholder approval, diverging the two. The held branch was reconciled onto main (`git merge main` → clean; the 1.16 winner correction preserved, `2f011ae` absorbed; merge `0df1c6d`) and remains held pending approval — production still shows the stale 1.02 winner until then.
+
 ## 2026-06-18 — Backlog Wave A (jargon + cosmetic) + Wave D discovery
 
 **Wave A shipped to `main`:**

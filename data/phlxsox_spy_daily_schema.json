@@ -1,0 +1,230 @@
+{
+  "pair_id": "phlxsox_spy",
+  "parquet_path": "data/phlxsox_spy_daily_19940504_20260617.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-19T12:43:56Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Daily trading-date index (parquet index column)."
+    },
+    "sox": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "PHLX Semiconductor Index",
+      "direction": "higher_is_better",
+      "description": "PHLX Semiconductor Index (^SOX) close level. High-beta early-cycle equity index.",
+      "source_reference": "yahoo:^SOX",
+      "refresh_ttl_days": 1
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "higher_is_better",
+      "description": "SPDR S&P 500 ETF auto-adjusted close. Target asset.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "sox_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SOX Daily Return",
+      "direction": "higher_is_better",
+      "description": "1-day percent return of ^SOX as decimal.",
+      "source_reference": "derived: sox[t]/sox[t-1]-1",
+      "refresh_ttl_days": 1
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Daily Return (decimal)",
+      "direction": "higher_is_better",
+      "description": "1-day percent return of SPY as decimal.",
+      "source_reference": "derived: spy[t]/spy[t-1]-1",
+      "refresh_ttl_days": 1
+    },
+    "sox_mom_1m_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "SOX 1m Momentum (%)",
+      "direction": "higher_is_better",
+      "description": "1m percent-change of ^SOX. Positive = semis rising.",
+      "source_reference": "derived: (sox[t]/sox[t-21]-1)*100",
+      "refresh_ttl_days": 1
+    },
+    "sox_mom_3m_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "SOX 3m Momentum (%)",
+      "direction": "higher_is_better",
+      "description": "3m percent-change of ^SOX. Positive = semis rising.",
+      "source_reference": "derived: (sox[t]/sox[t-63]-1)*100",
+      "refresh_ttl_days": 1
+    },
+    "sox_mom_6m_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "SOX 6m Momentum (%)",
+      "direction": "higher_is_better",
+      "description": "6m percent-change of ^SOX. Positive = semis rising.",
+      "source_reference": "derived: (sox[t]/sox[t-126]-1)*100",
+      "refresh_ttl_days": 1
+    },
+    "sox_mom_12m_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "SOX 12m Momentum (%)",
+      "direction": "higher_is_better",
+      "description": "12m percent-change of ^SOX. Positive = semis rising.",
+      "source_reference": "derived: (sox[t]/sox[t-252]-1)*100",
+      "refresh_ttl_days": 1
+    },
+    "sox_spy_ratio": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "SOX/SPY Relative Strength",
+      "direction": "higher_is_better",
+      "description": "SOX level / SPY level. Higher = semis outperforming broad market (risk-on). Non-stationary (trending).",
+      "source_reference": "derived: sox / spy",
+      "refresh_ttl_days": 1
+    },
+    "sox_spy_logratio": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "SOX/SPY Log-Ratio",
+      "direction": "higher_is_better",
+      "description": "Natural log of SOX/SPY ratio. Non-stationary; use momentum/zscore transforms.",
+      "source_reference": "derived: log(sox/spy)",
+      "refresh_ttl_days": 1
+    },
+    "sox_spy_ratio_mom_1m_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "SOX/SPY 1m Rel-Strength Mom (%)",
+      "direction": "higher_is_better",
+      "description": "1m percent-change of SOX/SPY ratio. Positive = semis gaining on SPY.",
+      "source_reference": "derived: (ratio[t]/ratio[t-21]-1)*100",
+      "refresh_ttl_days": 1
+    },
+    "sox_spy_ratio_mom_3m_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "SOX/SPY 3m Rel-Strength Mom (%)",
+      "direction": "higher_is_better",
+      "description": "3m percent-change of SOX/SPY ratio. Positive = semis gaining on SPY.",
+      "source_reference": "derived: (ratio[t]/ratio[t-63]-1)*100",
+      "refresh_ttl_days": 1
+    },
+    "sox_spy_ratio_mom_6m_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "SOX/SPY 6m Rel-Strength Mom (%)",
+      "direction": "higher_is_better",
+      "description": "6m percent-change of SOX/SPY ratio. Positive = semis gaining on SPY.",
+      "source_reference": "derived: (ratio[t]/ratio[t-126]-1)*100",
+      "refresh_ttl_days": 1
+    },
+    "sox_spy_ratio_mom_12m_pct": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "SOX/SPY 12m Rel-Strength Mom (%)",
+      "direction": "higher_is_better",
+      "description": "12m percent-change of SOX/SPY ratio. Positive = semis gaining on SPY.",
+      "source_reference": "derived: (ratio[t]/ratio[t-252]-1)*100",
+      "refresh_ttl_days": 1
+    },
+    "sox_spy_ratio_zscore_126d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "SOX/SPY Z-Score (126d)",
+      "direction": "higher_is_better",
+      "description": "Standardized SOX/SPY ratio vs trailing 126d mean/std. High = semis stretched-strong vs SPY.",
+      "source_reference": "derived: (ratio - rollmean_126d) / rollstd_126d",
+      "refresh_ttl_days": 1
+    },
+    "sox_spy_ratio_zscore_252d": {
+      "dtype": "float64",
+      "unit": "ratio",
+      "display_name": "SOX/SPY Z-Score (252d)",
+      "direction": "higher_is_better",
+      "description": "Standardized SOX/SPY ratio vs trailing 252d mean/std. High = semis stretched-strong vs SPY.",
+      "source_reference": "derived: (ratio - rollmean_252d) / rollstd_252d",
+      "refresh_ttl_days": 1
+    },
+    "sox_realized_vol_21d_ann_pct": {
+      "dtype": "float64",
+      "unit": "vol_ann_pct",
+      "display_name": "SOX Realized Vol (21d, ann. %)",
+      "direction": "lower_is_better",
+      "description": "21-day annualized realized vol of SOX daily returns, percent.",
+      "source_reference": "derived: std(sox_ret,21)*sqrt(252)*100",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_1d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 1-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 1d total return of SPY (decimal). Prediction target.",
+      "source_reference": "derived: spy[t+1d]/spy[t]-1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_5d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 5-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 5d total return of SPY (decimal). Prediction target.",
+      "source_reference": "derived: spy[t+5d]/spy[t]-1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_21d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 21-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 21d total return of SPY (decimal). Prediction target.",
+      "source_reference": "derived: spy[t+21d]/spy[t]-1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_63d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 63-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 63d total return of SPY (decimal). Prediction target.",
+      "source_reference": "derived: spy[t+63d]/spy[t]-1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_126d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 126-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 126d total return of SPY (decimal). Prediction target.",
+      "source_reference": "derived: spy[t+126d]/spy[t]-1",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_252d": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY 252-Day Forward Return",
+      "direction": "higher_is_better",
+      "description": "Forward 252d total return of SPY (decimal). Prediction target.",
+      "source_reference": "derived: spy[t+252d]/spy[t]-1",
+      "refresh_ttl_days": 1
+    },
+    "days_since_release": {
+      "dtype": "int64",
+      "unit": "count",
+      "display_name": "Days Since Release",
+      "direction": "neutral",
+      "description": "Constant 0: ^SOX is a continuously-quoted market index with NO publication lag (contrast macro pairs where this tracks monthly releases). Native-daily, no LVCF step function.",
+      "refresh_ttl_days": 1
+    }
+  }
+}

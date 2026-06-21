@@ -299,3 +299,22 @@ Lead: full standard set + ECON-H4 table (14 rows) for busloans_spy on `fix260612
 ### Open / for others
 - Ace: display_names.py needs busloans_spy entries (proposed in handoff §5); config chart names listed there (quantile_coef, granger_f_by_lag, ccf_prewhitened, walk_forward).
 - Lead: episode slug vocabulary split (dot_com/rates_2022 vs dotcom/inflation_2022) — echoed Ray's A2A flag.
+## 2026-06-19 — umcsent_xlv winner refresh (Mode 3)
+
+Identity: Viz Vera. Manager/checker: Lead Lesandro. Brief: `_pws/lead-lesandro/umcsent_refresh/briefs/vera_brief.md`.
+
+Work completed:
+- Patched `scripts/generate_charts_umcsent_xlv.py` with `--winner-refresh` so winner-specific charts consume corrected `results/umcsent_xlv/strategy_returns_20260420.csv` instead of reconstructing positions from tournament rows.
+- Regenerated `equity_curves`, `drawdown`, `rolling_sharpe`, `wf_sharpe`, `subperiod_sharpe`, and `rolling_sharpe_cp`; refreshed matching sidecars and perceptual PNGs.
+- Refreshed derived CSVs `results/umcsent_xlv/subperiod_sharpe.csv` and `results/umcsent_xlv/rolling_sharpe_umcsent_xlv.csv`.
+- Wrote `results/umcsent_xlv/regression_note_20260619.md` and `_pws/lead-lesandro/umcsent_refresh/vera_handoff.md`.
+
+Verification evidence:
+- `python -m py_compile scripts/generate_charts_umcsent_xlv.py` PASS.
+- `python scripts/generate_charts_umcsent_xlv.py --winner-refresh` PASS.
+- VIZ-CV1 log: `output/charts/umcsent_xlv/plotly/_smoke_test_20260619.log` reports `Total: 6 charts, 6 pass, 0 fail`.
+- Metric reconciliation: OOS Sharpe `1.158553`, annual return `0.079494`, max drawdown `-0.007007`.
+- VIZ-DP1: regenerated chart set has no dual-panel charts, so no axis-assignment violations.
+
+Follow-up flagged:
+- `app/pair_configs/umcsent_xlv_config.py` still contains Ray-owned stale display prose quoting old `1.02` Sharpe, `+11.93%` return, and `-10.9%` max drawdown. Vera notified Ray/Ace in the handoff; chart-owned titles/captions now use corrected `1.16`, `+7.95%`, `-0.7%`.

@@ -1,0 +1,19 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "phlxsox_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cross-correlation between AR(1) pre-whitened SOX and SPY daily returns at lags -20..+20. After removing the dominant lag-0 co-movement (0.71, shaded grey), the residual significant cells fall on BOTH the lead side (6 cells) and the lag side (7 cells). This symmetric mass is the visual signature of bidirectional feedback, not a clean semiconductor lead.",
+  "narrative_alignment_note": "CCF chart conveys bidirectional feedback; lag-0 flagged as co-movement.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/phlxsox_spy/core_models_20260619/ccf_prewhitened.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-06-19T13:09:26.632367+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
+}

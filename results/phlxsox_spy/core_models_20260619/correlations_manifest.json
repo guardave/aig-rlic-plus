@@ -1,0 +1,28 @@
+{
+  "file": "correlations.csv",
+  "pair_id": "phlxsox_spy",
+  "produced_by": "scripts/pair_pipeline_phlxsox_spy.py",
+  "generated_at": "2026-06-19T12:57:10Z",
+  "columns": {
+    "pair_name": "signal_code__forward-return-column",
+    "horizon_days": "forward horizon in trading days",
+    "metric": "pearson/spearman/kendall/distance",
+    "value": "correlation (LAGGED signal vs FORWARD return \u2014 predictive, not co-movement)",
+    "p_value": "two-sided p (NaN for distance corr)",
+    "n_obs": "obs"
+  },
+  "assertions": [
+    {
+      "description": "values bounded",
+      "check": "abs(value) <= 1"
+    },
+    {
+      "description": "these are predictive (forward) correlations, NOT contemporaneous",
+      "check": "informational"
+    },
+    {
+      "description": "n_obs >= 250 enforced",
+      "check": "min(n_obs) >= 250"
+    }
+  ]
+}

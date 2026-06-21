@@ -1259,3 +1259,53 @@ Phase-0 sizing reframed Wave D as design-heavy, not a quick dispatch:
 
 **🔴 REAL FINDING — umcsent_xlv stale narrative (PRODUCTION-AFFECTING, decision pending):**
 The Tier-3 lint design caught it on first run. `results/umcsent_xlv/winner_summary.json` (regenerated 2026-06-15, the umcsent_mom/S3_mom column fix) AND `tournament_results_20260420.csv` AGREE the current winner is **S3_mom / T3_zscore_1.0 / oos_sharpe=1.1586 / +7.95% / DD −0.7% / no lead**. But the umcsent_xlv **config narrative is STALE** — it describes the OLD winner: **6-month lead / OOS Sharpe 1.02 (even "1.0202") / +11.93% / DD −10.87%**. Production umcsent_xlv pages show the wrong strategy + wrong headline numbers. Ground truth = winner_summary (matches tournament CSV row 777). Fix = narrative+config regeneration (Evan confirm spec → Ray rewrite → Ace config), NOT a number strip. I asked the user how to sequence (fix-first / report-only lint / backlog umcsent) — interrupted by /eod before answer. **This is the top resume item.**
+
+---
+
+## 2026-06-19 (cont.) — Two pairs shipped via Mode 1; umcsent reconciled (held)
+
+**Pairs #23 + #24 SHIPPED to production (both built ENTIRELY in Mode 1 — Claude agent makers via the Agent tool, NOT Codex):**
+- **#23 m2sl_yoy_spy** (M2 Money Supply YoY → SPY) — merged `9808b56`, production-verified 5/0. Winner = money-growth ACCELERATION (gt p50, L2, procyclical), OOS Sharpe 1.69 vs 0.90, max DD -4.0%. Honest: reverse causality (M2 lags SPY), found_in_search, low conf, p=0.025. Source FRED M2SL live (Dana correctly blocked on FRED-vs-DataMaster gap; Lead adjudicated = benign M2 revision drift).
+- **#24 phlxsox_spy** (PHLX Semiconductor Index ^SOX → SPY) — merged `345dbc9`, production-verified 5/0. Daily intermarket pair. Winner = SOX/SPY RELATIVE-STRENGTH 6m momentum (gt rolling-p75, L63, procyclical), OOS Sharpe 1.57 beats B&H 0.82 AND SPY-own-momentum 0.83. Most skeptical pair yet: bidirectional Granger feedback (not a clean semis lead), marginal/horizon-dependent edge (21d p=0.033, 63d p=0.075, R²~1%), IS Sharpe 0.10 vs OOS 1.57 (2021-26 semis-bull draw), median valid combo < B&H, lost every pre-OOS crisis, p=0.041 → found_in_search, low conf.
+
+**KEY CAPABILITY PROVEN — Mode 1 fallback when Codex quota dies:** Codex hit its usage quota mid-M2 (at the Evan stage). Rather than wait ~3h, switched to **Mode 1 (Claude role-agent makers via the Agent tool)** — Evan/Vera+Ray/Ace dispatched as `general-purpose` Claude subagents with the same briefs (persona via ./AGENTS.md). Worked cleanly for BOTH pairs, no Codex. Mode 1 keeps LEAD-DL1 clean (specialized Claude agents do maker work; Lead stays sole checker). The umcsent winner_summary recompute-guardrail (added to every Evan brief after the umcsent bug) HELD on both (recompute = headline exactly).
+
+**umcsent reconciliation (held, decision pending stakeholder approval):**
+- A direct-to-main commit `2f011ae "Fix UMCSENT XLV hero chart and Granger wording"` landed on main (user-side, between M2 and SOX merges) — touched umcsent config/hero.json/generate_charts on the STALE 1.02 context. main's umcsent is therefore still the STALE 1.02 winner + this wording fix; the winner-refresh (→ 1.16) remains held on `fix260619_umcsent_winner_refresh`.
+- Per user, RECONCILED the held branch onto main: `git merge main` → clean auto-merge (no conflicts; branch never touched hero.json so 2f011ae merged in). VERIFIED the merge preserved the 1.16 correction (config 1.16/7.95%/-0.7% throughout, zero stale 1.02; winner_summary 1.1586/lead-6) AND absorbed 2f011ae's hero/Granger fix. Merge `0df1c6d`, pushed. **STILL HELD — not merged to main.** Re-verification (gates/local DOM/cloud) of the reconciled branch is PENDING (paused for this checkpoint).
+
+**Branch cleanup:** pair260619_m2sl_yoy_spy + pair260619_phlxsox_spy both deleted (merged, consent given).
+
+**Recurring backlog (now triple-confirmed):** legacy `signal_code_registry.json` non-conforming entries (`ism_services_above_50` etc., non-enum source_method) — flagged independently by the umcsent, M2, and SOX Evan stages. Worth a small cleanup wave.
+
+---
+
+## 2026-06-19 (cont.) — umcsent shipped; full-fleet sweep clean; GH-issues policy
+
+**umcsent winner-refresh MERGED to production** (`7b0a1f2`, stakeholder-approved). Reconciliation merge to main hit one conflict (PWS `outstanding-work.md` only — resolved --ours; all umcsent code/results merged clean). Production DOM confirmed: 1.16 PRESENT, stale 1.02/11.93 absent. The live production defect (umcsent showing the wrong winner) is RESOLVED. Branch `fix260619_umcsent_winner_refresh` KEPT (per user, not deleted).
+
+**Full-fleet production cloud sweep (post-reboot, authoritative):** 13 pairs × 4 pages = **53 PASS / 0 FAIL / 60 TOTAL**, GATE-27-PNG 0, GATE-DP1 0. No errs/SEV1/stubs/missing-charts. The 3 just-shipped pairs (m2sl_yoy_spy, phlxsox_spy, umcsent_xlv) + frozen Sample (sample_badge=True, leak=False) all clean.
+- **One non-blocking finding:** GATE-VIZ-NBER2 WARN on 7 pairs' `history_zoom_dotcom` (spurious/borderline NBER shading; 2001 recession at the dot-com window edge). Pre-existing template behavior (spans old + new pairs), NOT a regression. Vera-owned, hy_ig_v2 EXEMPT.
+- **Process note:** I jumped early and ran the sweep BEFORE the user's reboot (read-only, no harm) — user caught it; killed + reran post-reboot. Lesson: when the user says "reboot THEN verify," wait for the reboot (pre-reboot sweep can carry file-sync-lag false signals).
+
+**NEW POLICY (user, 2026-06-19): document new findings/deferred work as GitHub issues, NOT docs/backlog.md rows.** backlog.md = historical record only. Saved to memory `feedback_gh_issues_over_backlog`. First issue under policy: **#12** (GATE-VIZ-NBER2 dotcom shading). Pre-existing: #4 (storytelling).
+
+**Still-open (candidates for GH issues if/when user wants):** (1) signal_code_registry legacy non-conforming entries (triple-confirmed umcsent/M2/SOX); (2) Wave D prose-vs-data lint (validated design, can land blocking now umcsent is fixed). Offered to file both; awaiting user word.
+
+---
+
+## 2026-06-19 EOD — Pair Pre-Screening exploration (stakeholder paper)
+
+**Branch cleanup earlier:** deleted merged `fix260602_pair4_prep` (= the "Pair #4 prep" / crude_oil_xle Mode-2 build branch — its SOP infra LEAD-NPB1/GATE-CMP1 + lessons are in main; the crude_oil_xle PAIR itself was never shipped, results/ holds only raw parquets, prospective status back to not_started) and merged `fix260619_umcsent_winner_refresh`. Only `fix260613_lead_horizon` + main remained before the prescreen branch.
+
+**Pair Pre-Screening exploration (branch `explore_pair_prescreen`, pushed, NOT merged — a discussion artifact):**
+- Stakeholder (2026-06-19, Cantonese thread) proposed a lightweight Pair Screening layer BEFORE full dashboard build, on 4 dimensions: Strategy Performance, Operational Practicality, Crisis Validation, Durability. (Also leans Option D = Weekly+Monthly granularity from the Lead-Horizon memo; fine to proceed with D meanwhile.)
+- **Key insight:** all 4 dimensions map onto artifacts the Data(Dana)+Econ(Evan) stages ALREADY emit → a screen can gate AFTER Econ, BEFORE charts/narrative/portal/deep-QC (≈half the build cost saved on rejects). It's a gate, not a new producer.
+- **Deliverables (3 commits):** `docs/pair-prescreen-proposal.md` (technical design), `scripts/pair_prescreen.py` (working POC scorecard), `docs/pair-prescreen-analysis-and-proposal.md` (+ .pdf — the distilled stakeholder paper).
+- **POC validated on all 13 live pairs.** Verdicts matched my own qualitative reads: ism_services DEFER (IS Sharpe −0.11 vs OOS 1.54 = regime-lucky); phlxsox/gold_copper/vix DEFER (turnover 16–23×/yr); busloans strongest CONDITIONAL.
+- **TWO SYSTEMIC FINDINGS (bigger than any verdict):** (1) NO pair reaches PROCEED — all `found_in_search`; a true PROCEED needs the **ECON-FE1 holdout final-exam step that doesn't exist in the pipeline** (the most consequential gap surfaced). (2) Every pair shows a large IS→OOS Sharpe gap (tournament selects on OOS → upward-biased); durability must be judged on the GAP, not the OOS level.
+- **Calibration lesson:** first threshold set was too harsh (dropped busloans, a strong pair) — D4 wrongly penalized "median combo < B&H" (normal) and over-penalized found_in_search. Plumbing sound; thresholds = stakeholder/judgement work. Validates the stakeholder's "criteria not mature" caveat.
+
+**Lessons:** (a) most "is this pair worth building?" signal already exists pre-dashboard — screening is cheap. (b) A screen's biggest value can be the systemic gap it exposes (here: the whole portfolio is search-phase). (c) When building a scoring gate, sanity-check thresholds against known-good cases first (dropping busloans caught the mis-calibration immediately).
+
+**Open / next:** stakeholder discussion of the paper. Candidate GH issue (per new policy): the missing ECON-FE1 holdout final-exam step — but it's under stakeholder discussion, so NOT filed yet. Offered the user a Chinese exec-summary addendum for the paper (awaiting word).

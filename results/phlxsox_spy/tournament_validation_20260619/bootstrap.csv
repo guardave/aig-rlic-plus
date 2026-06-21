@@ -1,0 +1,6 @@
+signal,threshold,strategy,lead_days,lookback,oos_sharpe,bootstrap_p_value,significant_at_5pct
+rs_mom6m,T2_roll_p75,P1_long_cash_pro,63,LB63,1.57,0.041,True
+hmm_stress,T2_roll_p25,P2_signal_strength_counter,1,LB252,1.5361,0.048,True
+hmm_stress,T2_roll_p75,P2_signal_strength_counter,1,LB252,1.5361,0.048,True
+hmm_stress,T3_zscore_1.0,P2_signal_strength_counter,1,LB252,1.5361,0.048,True
+hmm_stress,T3_zscore_neg_1.0,P2_signal_strength_counter,1,LB252,1.5361,0.048,True

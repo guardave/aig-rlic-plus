@@ -1,17 +1,27 @@
-# Simulated trade record based on backtest signals. No real trades executed. Starting capital: $10,000. Commission: 5 bps. Pair: umcsent_xlv. Strategy: P1_long_cash (procyclical). Signal: UMCSENT YoY. Source: winner_trade_log.csv.
+# Simulated trade record based on backtest signals. No real trades executed. Starting capital: $10,000. Commission: 5 bps. Pair: umcsent_xlv. Strategy: P1_long_cash (procyclical). Signal: 6-month-lagged UMCSENT 3-month momentum. Source: winner_trade_log.csv.
 trade_date,side,instrument,quantity_pct,price,notional_usd,commission_bps,commission_usd,cum_pnl_pct,reason
-2019-04-30,BUY,XLV,100.0,79.1539,10000.0,5,5.0,0.0,P1_long_cash/procyclical: UMCSENT YoY = -1.619 — initial entry to 100% long
-2019-06-30,SELL,XLV,0.0,82.5017,0.0,5,0.0,4.2295,P1_long_cash/procyclical: UMCSENT YoY = 0.000 — exit to cash
-2019-07-31,BUY,XLV,100.0,81.1659,10000.0,5,5.0,4.2295,P1_long_cash/procyclical: UMCSENT YoY = 0.511 — initial entry to 100% long
-2019-11-30,SELL,XLV,0.0,88.9701,0.0,5,0.0,14.2513,P1_long_cash/procyclical: UMCSENT YoY = -0.718 — exit to cash
-2020-02-29,BUY,XLV,100.0,83.7018,10000.0,5,5.0,14.2513,P1_long_cash/procyclical: UMCSENT YoY = 7.676 — initial entry to 100% long
-2020-06-30,SELL,XLV,0.0,91.2682,0.0,5,0.0,24.5792,P1_long_cash/procyclical: UMCSENT YoY = -20.468 — exit to cash
-2020-09-30,BUY,XLV,100.0,96.5849,10000.0,5,5.0,24.5792,P1_long_cash/procyclical: UMCSENT YoY = -13.734 — initial entry to 100% long
-2021-10-31,SELL,XLV,0.0,124.3858,0.0,5,0.0,60.438,P1_long_cash/procyclical: UMCSENT YoY = -12.347 — exit to cash
-2022-02-28,BUY,XLV,100.0,121.2622,10000.0,5,5.0,60.438,P1_long_cash/procyclical: UMCSENT YoY = -18.229 — initial entry to 100% long
-2023-08-31,SELL,XLV,0.0,127.2396,0.0,5,0.0,68.3466,P1_long_cash/procyclical: UMCSENT YoY = 19.244 — exit to cash
-2023-10-31,BUY,XLV,100.0,119.4461,10000.0,5,5.0,68.3466,P1_long_cash/procyclical: UMCSENT YoY = 6.511 — initial entry to 100% long
-2023-11-30,SELL,XLV,0.0,125.9392,0.0,5,0.0,77.4979,P1_long_cash/procyclical: UMCSENT YoY = 8.113 — exit to cash
-2025-01-31,BUY,XLV,100.0,143.7404,10000.0,5,5.0,77.4979,P1_long_cash/procyclical: UMCSENT YoY = -9.241 — initial entry to 100% long
-2025-03-31,SELL,XLV,0.0,143.4516,0.0,5,0.0,77.1413,P1_long_cash/procyclical: UMCSENT YoY = -28.212 — exit to cash
-2025-07-31,BUY,XLV,100.0,128.7564,10000.0,5,5.0,77.1413,P1_long_cash/procyclical: UMCSENT YoY = -7.078 — initial entry to 100% long
+2019-09-30,BUY,XLV,100.0,80.5998,10000.0,5,5.0,-2.7139,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 4.904 — initial entry to 100% long
+2019-10-31,SELL,XLV,0.0,84.7313,0.0,5,0.0,2.2729,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = -1.220 — exit to cash
+2020-03-31,BUY,XLV,100.0,80.4481,10000.0,5,5.0,2.2729,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 3.786 — initial entry to 100% long
+2020-04-30,SELL,XLV,0.0,90.5744,0.0,5,0.0,15.1464,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 2.468 — exit to cash
+2020-12-31,BUY,XLV,100.0,104.3019,10000.0,5,5.0,15.1464,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 8.022 — initial entry to 100% long
+2021-01-31,SELL,XLV,0.0,105.7638,0.0,5,0.0,16.7603,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = -7.170 — exit to cash
+2021-03-31,BUY,XLV,100.0,107.7086,10000.0,5,5.0,16.7603,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 8.502 — initial entry to 100% long
+2021-04-30,SELL,XLV,0.0,111.9435,0.0,5,0.0,21.3511,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 1.741 — exit to cash
+2021-06-30,BUY,XLV,100.0,116.6596,10000.0,5,5.0,21.3511,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 4.941 — initial entry to 100% long
+2021-07-31,SELL,XLV,0.0,122.4023,0.0,5,0.0,27.3247,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = -2.107 — exit to cash
+2021-09-30,BUY,XLV,100.0,118.3255,10000.0,5,5.0,27.3247,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 10.547 — initial entry to 100% long
+2021-10-31,SELL,XLV,0.0,124.3858,0.0,5,0.0,33.846,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 4.005 — exit to cash
+2022-06-30,BUY,XLV,100.0,120.5373,10000.0,5,5.0,33.846,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 4.748 — initial entry to 100% long
+2022-07-31,SELL,XLV,0.0,124.4474,0.0,5,0.0,38.1878,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = -4.816 — exit to cash
+2022-10-31,BUY,XLV,100.0,125.2737,10000.0,5,5.0,38.1878,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 9.764 — initial entry to 100% long
+2022-11-30,SELL,XLV,0.0,131.1906,0.0,5,0.0,44.7146,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = -10.429 — exit to cash
+2023-02-28,BUY,XLV,100.0,120.5024,10000.0,5,5.0,44.7146,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 13.010 — initial entry to 100% long
+2023-03-31,SELL,XLV,0.0,123.1508,0.0,5,0.0,47.8952,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 0.687 — exit to cash
+2023-07-31,BUY,XLV,100.0,128.1375,10000.0,5,5.0,47.8952,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 8.528 — initial entry to 100% long
+2023-08-31,SELL,XLV,0.0,127.2396,0.0,5,0.0,46.8589,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 3.082 — exit to cash
+2023-12-31,BUY,XLV,100.0,131.3875,10000.0,5,5.0,46.8589,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 8.814 — initial entry to 100% long
+2024-02-29,SELL,XLV,0.0,139.5186,0.0,5,0.0,55.9474,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = -2.937 — exit to cash
+2024-06-30,BUY,XLV,100.0,141.4737,10000.0,5,5.0,55.9474,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 13.703 — initial entry to 100% long
+2024-08-31,SELL,XLV,0.0,152.5878,0.0,5,0.0,68.1985,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = -2.658 — exit to cash
+2025-12-31,BUY,XLV,100.0,155.0426,10000.0,5,5.0,68.1985,P1_long_cash/procyclical: 6-month-lagged UMCSENT 3-month momentum = 16.284 — initial entry to 100% long

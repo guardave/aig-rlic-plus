@@ -1,0 +1,50 @@
+[
+  {
+    "metric": "OOS Sharpe (winner)",
+    "value": "1.57",
+    "unit": "ratio",
+    "delta": "+0.75 vs B&H"
+  },
+  {
+    "metric": "OOS Sharpe (buy & hold)",
+    "value": "0.82",
+    "unit": "ratio",
+    "delta": null
+  },
+  {
+    "metric": "OOS Sharpe (SPY own momentum)",
+    "value": "0.83",
+    "unit": "ratio",
+    "delta": "winner +0.74"
+  },
+  {
+    "metric": "OOS Annual Return (winner)",
+    "value": "13.0%",
+    "unit": "percent",
+    "delta": "-1.0pp vs B&H"
+  },
+  {
+    "metric": "OOS Max Drawdown (winner)",
+    "value": "-9.7%",
+    "unit": "percent",
+    "delta": "+14.8pp vs B&H"
+  },
+  {
+    "metric": "Contemporaneous corr (co-movement)",
+    "value": "0.71",
+    "unit": "ratio",
+    "delta": "shared beta, not edge"
+  },
+  {
+    "metric": "Valid strategy combos",
+    "value": "4607",
+    "unit": "count",
+    "delta": null
+  },
+  {
+    "metric": "OOS window",
+    "value": "2021-06-11 \u2192 2026-06-17",
+    "unit": "dates",
+    "delta": null
+  }
+]

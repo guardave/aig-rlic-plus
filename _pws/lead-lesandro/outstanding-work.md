@@ -1,9 +1,20 @@
 # Lead Lesandro — Outstanding Work
 
-## Current open items (as of 2026-06-18 EOD)
+## Current open items (as of 2026-06-19 checkpoint)
 
-**🔴 TOP RESUME ITEM — umcsent_xlv stale narrative (PRODUCTION DEFECT, decision pending):**
-- `results/umcsent_xlv/winner_summary.json` (regen 2026-06-15) + `tournament_results_20260420.csv` agree the winner is **S3_mom / T3_zscore_1.0 / oos_sharpe=1.1586 / +7.95% / DD −0.7% / no lead**. The config narrative is STALE — describes the old winner: **6-month lead / Sharpe 1.02 / +11.93% / DD −10.87%**. Production pages show the wrong strategy. Ground truth = winner_summary. Fix = narrative+config regeneration (Evan→Ray→Ace), NOT a number strip. **Surfaced by the Wave-D Tier-3 lint design (its first real catch).** I asked user how to sequence (fix-first / report-only lint / backlog) — interrupted by /eod before answer. **Resume here.**
+**🟣 Pair Pre-Screening exploration (branch `explore_pair_prescreen`, pushed, NOT merged — discussion artifact):** stakeholder paper `docs/pair-prescreen-analysis-and-proposal.md` (+pdf) + design doc + `scripts/pair_prescreen.py` POC. Awaiting stakeholder discussion. **Systemic finding to escalate:** no pair is true-PROCEED — the whole portfolio is `found_in_search`; a real verdict needs an **ECON-FE1 holdout final-exam step that doesn't exist** (candidate GH issue, held pending the stakeholder discussion). Also offered the user a Chinese exec-summary addendum.
+
+**Shipped this session (all live on production, full-fleet sweep 53 PASS/0 FAIL):** pairs #23 `m2sl_yoy_spy` (`9808b56`) + #24 `phlxsox_spy` (`345dbc9`) — both Mode 1 — and **umcsent winner-refresh** (`7b0a1f2`, stakeholder-approved; corrected 1.16 winner now live, stale-1.02 defect resolved). New-pair queue EXHAUSTED. umcsent branch `fix260619_umcsent_winner_refresh` KEPT (per user, not deleted).
+
+**📋 NEW POLICY (2026-06-19): document new findings/deferred work as GitHub ISSUES, not docs/backlog.md rows.** backlog.md = historical only. (memory: feedback_gh_issues_over_backlog)
+
+**Open GitHub issues:**
+- **#12** — GATE-VIZ-NBER2 dotcom NBER shading WARN (Vera; 6 fixable pairs + frozen hy_ig_v2 EXEMPT). Non-blocking, from the 2026-06-19 fleet sweep.
+- **#4** — Storytelling architecture review (pre-existing).
+
+**Candidate issues NOT yet filed (offered to user, awaiting word):**
+- Legacy `signal_code_registry` non-conforming entries (`ism_services_above_50` etc., non-enum `source_method`) — triple-confirmed (umcsent + M2 + SOX Evan stages).
+- Wave D prose-vs-data lint (validated design; can land blocking now umcsent is fixed).
 
 **Wave D (META-CMP Tier-3 SOP-hardening) — IN FLIGHT, paused:**
 - Scope chosen: focused D-1 = scoped BL-PROSE-DATA-GREP + BL-APP-DR1 + verify/close BL-VIZ-DC1. Mode: Mode-1 Lead direct. Needs a fresh branch (`fix260618_meta_cmp_tier3` was created empty + deleted at EOD — nothing written yet).

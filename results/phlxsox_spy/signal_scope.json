@@ -1,0 +1,174 @@
+{
+  "pair_id": "phlxsox_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-06-19T12:57:10Z",
+  "indicator_axis": {
+    "canonical_column": "sox",
+    "display_name": "PHLX Semiconductor Index (SOX)",
+    "derivatives": [
+      {
+        "name": "sox",
+        "definition": "PHLX Semiconductor Index level (NON-stationary \u2014 not a signal)",
+        "formula": "Yahoo ^SOX",
+        "role": "raw",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_ret",
+        "definition": "SOX daily return",
+        "formula": "P_t/P_{t-1}-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_mom_1m_pct",
+        "definition": "SOX 1-month (21d) % momentum",
+        "formula": "100*(P_t/P_{t-21}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_mom_3m_pct",
+        "definition": "SOX 3-month (63d) % momentum",
+        "formula": "100*(P_t/P_{t-63}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_mom_6m_pct",
+        "definition": "SOX 6-month % momentum",
+        "formula": "100*(P_t/P_{t-126}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_mom_12m_pct",
+        "definition": "SOX 12-month % momentum",
+        "formula": "100*(P_t/P_{t-252}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_spy_ratio",
+        "definition": "SOX/SPY price ratio (NON-stationary \u2014 not a signal)",
+        "formula": "SOX/SPY",
+        "role": "raw",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_spy_ratio_mom_1m_pct",
+        "definition": "Relative-strength 1m momentum (partials out common beta)",
+        "formula": "100*(R_t/R_{t-21}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_spy_ratio_mom_3m_pct",
+        "definition": "Relative-strength 3m momentum (PREFERRED intermarket signal)",
+        "formula": "100*(R_t/R_{t-63}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_spy_ratio_mom_6m_pct",
+        "definition": "Relative-strength 6m momentum",
+        "formula": "100*(R_t/R_{t-126}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_spy_ratio_mom_12m_pct",
+        "definition": "Relative-strength 12m momentum",
+        "formula": "100*(R_t/R_{t-252}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_spy_ratio_zscore_126d",
+        "definition": "126d z-score of SOX/SPY ratio (regime feature)",
+        "formula": "(R-mean126)/sd126",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "sox_spy_ratio_zscore_252d",
+        "definition": "252d z-score of SOX/SPY ratio",
+        "formula": "(R-mean252)/sd252",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hmm_2state_prob_stress",
+        "definition": "P(high-variance regime) from 2-state HMM on SOX returns",
+        "formula": "GaussianHMM(sox_ret)",
+        "role": "regime_state",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy",
+    "display_name": "SPY (S&P 500 ETF)",
+    "derivatives": [
+      {
+        "name": "spy",
+        "definition": "SPY adjusted close",
+        "formula": "Yahoo Finance",
+        "role": "raw",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_ret",
+        "definition": "SPY daily return",
+        "formula": "P_t/P_{t-1}-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_1d",
+        "definition": "1-day forward SPY return",
+        "formula": "P_{t+1}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_5d",
+        "definition": "5-day forward SPY return",
+        "formula": "P_{t+5}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_21d",
+        "definition": "21-day forward SPY return",
+        "formula": "P_{t+21}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_63d",
+        "definition": "63-day forward SPY return",
+        "formula": "P_{t+63}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_126d",
+        "definition": "126-day forward SPY return",
+        "formula": "P_{t+126}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_252d",
+        "definition": "252-day forward SPY return",
+        "formula": "P_{t+252}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "notes": "ECON-SD: only SOX/relative-strength derivatives and SPY derivatives are in scope. Levels (sox, sox_spy_ratio) are NON-stationary and used for display only, never as signals. regime_story: false (CP2 skipped)."
+}

@@ -1,0 +1,21 @@
+{
+  "pair_id": "phlxsox_spy",
+  "date": "20260619",
+  "pipeline_seconds": 73.6,
+  "stage_times": {
+    "1_load_verify": 0.0,
+    "2_signals": 0.4,
+    "3_exploratory_correlations": 8.4,
+    "4_core_models": 11.7,
+    "5_regime_quartiles": 0.0,
+    "6_tournament": 16.6,
+    "7_winner_artifacts": 0.1,
+    "8_cross_period": 34.1,
+    "9_validation": 0.2
+  },
+  "tournament_strategy_rows": 6760,
+  "valid_strategies": 4607,
+  "oos_n_days": 1260,
+  "oos_start": "2021-06-11",
+  "oos_end": "2026-06-17"
+}
