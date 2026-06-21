@@ -364,6 +364,134 @@ HMM_BLOCK = dict(
     key_message="The HMM explains backdrop; it does not validate the winner by itself.",
 )
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "For a monthly-rebalanced strategy the decision is: how stale should "
+        "the signal be allowed to get before we trade on it? This block "
+        "computes Pearson correlations between the petroleum-inventory signal "
+        "lagged L = 0…12 months and the SPY 1-month forward return, then reads "
+        "off which lead maximises predictive content — and compares that to "
+        "the tournament's traded 12-month lead."
+    ),
+    question=(
+        "Which lead carries the most predictive content for the petroleum-"
+        "inventory signal — and how does that compare to the traded 12-month "
+        "lead?"
+    ),
+    how_to_read=(
+        "Rows are inventory signal variants; columns are signal lead in MONTHS "
+        "(L0 = contemporaneous, L12 = 12 months ago). Forward horizon fixed at "
+        "1 month. Cell shading is Pearson r (linear co-movement, -1 to +1) "
+        "against `spy_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between **signal lagged L months** and **SPY "
+        "1-month forward return**. The traded signal `petrol_inv_3m_pct` "
+        "peaks early at **L3 (r=+0.106, p<0.05)** and L4 (+0.103, p<0.05), "
+        "then fades to near-zero by L12 — so the linear predictive content "
+        "sits at a SHORT lead, NOT the traded 12-month lead. An honest "
+        "divergence, explained in the Lead Tournament tab."
+    ),
+    observation=(
+        "Reading the row directly: the signal's significant cells are at the "
+        "**short end** — L3 (r=+0.106, p<0.05) and L4 (r=+0.103, p<0.05) — "
+        "and it decays to essentially zero at the traded lag (L12 r=−0.027). "
+        "So on the pure linear test, the petroleum-inventory signal's "
+        "predictive content for next-month SPY is concentrated around a "
+        "3–4 month lead, well short of the 12-month lead the tournament "
+        "selected."
+    ),
+    interpretation=(
+        "An honest divergence: **the lead-correlation peak (L3–L4) is far from "
+        "the traded lead (L12)**. The short-lead correlation is the cleaner "
+        "linear read of the inventory→equity channel (inventory swings feed "
+        "through to energy-sector and broad earnings over a quarter or two). "
+        "The 12-month traded lead is a tournament selection on the full "
+        "strategy grid, not where the linear signal is strongest. **In plain "
+        "English:** the data says petroleum inventories carry their best "
+        "next-month-SPY signal about a quarter out, yet the published rule "
+        "reads a full year back — a gap the reader should know about when "
+        "judging the strategy's timing confidence."
+    ),
+    key_message=(
+        "The traded signal peaks at **L3 (r=+0.106, p<0.05)** and L4, fading "
+        "to zero by L12 — so the linear predictive content sits at a SHORT "
+        "lead, not the traded 12-month lead. An honest divergence that flags "
+        "the strategy's timing as a tournament choice, not a correlation-"
+        "endorsed latency."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "This block sweeps the monthly lead grid L = 0…12 and plots the best "
+        "OOS Sharpe at each lead (blue bar) against all valid combos (grey "
+        "strip); the dashed orange line is SPY buy-and-hold (Sharpe 0.93). "
+        "Read it alongside the 'weaker on timing' caveat that runs through "
+        "this pair."
+    ),
+    question=(
+        "Where does the traded 12-month lead sit on the sweep — and is its "
+        "Sharpe a robust ridge or an off-peak point, given the correlation "
+        "peak sits at L3–L4?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each monthly lead. Strip dots: every valid "
+        "combination at that lead. A tall thin spike is a single combo; a "
+        "flat-but-wide cloud is a robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per monthly lead (blue bars) and the full "
+        "distribution (grey strip). The profile peaks at **L10 (1.53)** and "
+        "L11 (1.44); the traded **L12 (1.20)** sits just past the peak on the "
+        "down-slope, while the correlation-favoured short leads (L3 1.30, L5 "
+        "1.33) form a separate cluster. Every lead clears buy-and-hold (0.93)."
+    ),
+    observation=(
+        "Reading the monthly bars: the Sharpe profile rises to a **late-lead "
+        "peak at L10 (1.53)** and L11 (1.44), then the traded **L12 (1.20) "
+        "falls off that peak**. There is also a respectable short-lead cluster "
+        "(L0 1.33, L3 1.30, L5 1.33) near where the lead-correlation content "
+        "concentrates. So the grid has TWO weakly-separated regions of "
+        "interest — a short-lead one (matching the correlation) and a "
+        "late-lead one (around L10–L11) — and the traded L12 sits at the "
+        "trailing edge of the late cluster.\n\n"
+        "The published winner (`petrol_inv_3m_pct / T1_fixed_p50 / "
+        "P1_long_cash`, OOS Sharpe **1.4779**) trades at L12. Its lead is "
+        "neither the correlation peak (L3) nor the Sharpe peak (L10) — it is a "
+        "tournament selection that lands just past the late-lead ridge. "
+        "Consistent with this pair's 'weaker on timing' framing, the lead is "
+        "best described as **plausible but not pinpointed**: the broad late-"
+        "lead region is real, but the exact L12 is not where either diagnostic "
+        "peaks."
+    ),
+    interpretation=(
+        "The honest summary: **the traded L12 sits just past a late-lead "
+        "Sharpe ridge (peak L10 1.53), while the correlation evidence favours "
+        "a short L3–L4 lead** — the two diagnostics point at different parts "
+        "of the grid, and the traded lead matches neither peak exactly. The "
+        "late-lead region is broad enough that L12 is not fragile, but a "
+        "reader should treat the precise 12-month timing as a tournament "
+        "artefact rather than a sharply-identified latency — exactly the "
+        "'supportive on direction, weaker on timing' verdict this page already "
+        "carries."
+    ),
+    key_message=(
+        "The Sharpe profile peaks at **L10 (1.53)** with the traded **L12 "
+        "(1.20)** just past it on the down-slope, while the correlation favours "
+        "a short L3–L4 lead. The two diagnostics disagree and the traded lead "
+        "matches neither peak — plausible but not pinpointed. Winner OOS Sharpe "
+        "1.4779; read the 12-month timing as a tournament choice."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "Evidence is supportive on direction, weaker on timing and statistical certainty",
     "overview": (
@@ -384,8 +512,8 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Rolling 24-month correlation (356 rows)", "path": "results/petrol_inv_spy/rolling_correlation_petrol_inv_spy.csv"},
         {"label": "Stationarity tests (24 rows)", "path": "results/petrol_inv_spy/stationarity_tests_20260617.csv"},
     ],
-    "level1": [QUARTILE_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Quartile Gradient", "Granger Causality", "Pre-Whitened CCF"],
+    "level1": [QUARTILE_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
+    "level1_labels": ["Quartile Gradient", "Lead Analysis", "Lead Tournament", "Granger Causality", "Pre-Whitened CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK, TRANSFER_ENTROPY_BLOCK, HMM_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression", "Transfer Entropy", "HMM Regimes"],
     "tournament_intro": (

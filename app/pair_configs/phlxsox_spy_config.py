@@ -433,6 +433,128 @@ HMM_BLOCK = dict(
     key_message="The HMM explains backdrop; it does not validate the winner.",
 )
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "This pair trades **daily**, but for cross-pair comparability the lead "
+        "grid here is **monthly-resampled**: the SOX/SPY relative-strength "
+        "momentum signal is shifted L = 0…12 calendar months and correlated "
+        "against SPY's 1-month forward return. **State this honestly:** the "
+        "production rule executes daily; this monthly grid is a comparability "
+        "diagnostic. Given this pair's already-thin forecast content (see the "
+        "Co-movement vs Forecast block), the lead view is a check on whether "
+        "any lead carries more signal than the near-contemporaneous reading."
+    ),
+    question=(
+        "On a monthly-resampled grid, does lagging the chip relative-strength "
+        "signal recover any predictive content — or is the thin signal "
+        "concentrated at the front of the grid?"
+    ),
+    how_to_read=(
+        "Rows are SOX/SPY signal variants; columns are signal lead in MONTHS "
+        "(L0 = contemporaneous, L12 = 12 months ago). Forward horizon fixed at "
+        "1 month. Cell shading is Pearson r (linear co-movement, -1 to +1) "
+        "against `spy_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between **signal lagged L months** and **SPY "
+        "1-month forward return**. The traded signal "
+        "`sox_spy_ratio_mom_6m_pct` peaks at **L0 (r=+0.078)** and decays "
+        "monotonically to negative by L12 — consistent with a thin, "
+        "near-contemporaneous signal, not a delayed lead. No lead recovers "
+        "stronger content than the front of the grid."
+    ),
+    observation=(
+        "Reading the row directly: the signal is strongest at **L0 (+0.078)** "
+        "and falls steadily (L1 +0.060, L3 +0.034, L6 +0.001, L12 −0.062). "
+        "There is **no hidden lead** — content is concentrated at the front of "
+        "the grid and decays, and even the peak is small (|r| < 0.08, not "
+        "significant). This is consistent with the rest of this pair's "
+        "evidence: the forward forecast content is thin (about 1% of return "
+        "variation), and lagging the signal does not improve it."
+    ),
+    interpretation=(
+        "The lead view reinforces the candid story told elsewhere on this "
+        "page: **the SOX/SPY signal is near-contemporaneous and thin.** No "
+        "month-scale lead unlocks a stronger relationship; the modest content "
+        "lives at L0 and fades. **In plain English:** chips and the market "
+        "move together more than chips lead the market, so there is no "
+        "reliable 'lag the signal by N months' edge to exploit. The traded "
+        "rule's low lead is appropriate, but the underlying signal is weak — "
+        "read the strategy with that caveat."
+    ),
+    key_message=(
+        "The traded signal peaks at **L0 (r=+0.078)** and decays with lead — "
+        "thin and near-contemporaneous, with no hidden multi-month lead. "
+        "Consistent with this pair's broader finding that the forward forecast "
+        "content is small; lagging the signal does not help."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "This block sweeps the monthly lead grid L = 0…12 and plots the best "
+        "OOS Sharpe at each lead (blue bar) against all valid combos (grey "
+        "strip); the dashed orange line is SPY buy-and-hold (Sharpe 0.82). "
+        "**Honesty note (daily pair):** the lead axis is monthly-resampled for "
+        "comparability even though the pair executes daily; the published "
+        "winner trades at a 3-month lead on its daily series."
+    ),
+    question=(
+        "On the monthly grid, is the winner's lead a robust ridge or an "
+        "isolated point — and does the sweep reinforce the 'thin edge' "
+        "caveat that runs through this pair?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each monthly lead. Strip dots: every valid "
+        "combination at that lead. A tall thin spike is a single combo; a "
+        "flat-but-wide cloud is a robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per monthly lead (blue bars) and the full "
+        "distribution (grey strip). The low-lead region is the strongest: "
+        "L0 (1.43), L3 (1.37) and L9 (1.35) lead, and the traded **L3 sits on "
+        "a broad L0–L4 ridge** above buy-and-hold (0.82). The lead choice is "
+        "robust to perturbation, even though the underlying signal is thin."
+    ),
+    observation=(
+        "Reading the monthly bars: **L0 (1.43) and L3 (1.37) anchor a high, "
+        "broad ridge across L0–L4** (all ≥1.24), with a secondary bump at L9 "
+        "(1.35). The traded winner's lead, **L3 (1.37)**, is well inside that "
+        "ridge — its neighbours L2 (1.26) and L4 (1.32) are close behind, so "
+        "the lead is not a fragile spike.\n\n"
+        "The published winner (`sox_spy_ratio_mom_6m_pct / T2_roll_p75 / "
+        "P1_long_cash`, OOS Sharpe **1.57**) trades at L3. **But durability of "
+        "the lead is not the same as durability of the edge:** as the "
+        "Incremental Edge and sub-period blocks show, much of this pair's OOS "
+        "Sharpe owes to a chip-friendly test window. The lead is robust; the "
+        "alpha is thin. Both statements are true and both are stated here for "
+        "honesty."
+    ),
+    interpretation=(
+        "The honest summary has two parts. First, **the lead is a robust "
+        "ridge, not a spike** — L0–L4 all clear ~1.24+ and the traded L3 sits "
+        "comfortably among them. Second, **a robust lead does not rescue a "
+        "thin signal**: the lead-correlation content is small and "
+        "near-contemporaneous, and the pair's wider evidence flags the edge as "
+        "window-dependent. A reader should take the lead choice as sound and "
+        "the strategy's alpha as low-confidence — exactly the framing the rest "
+        "of this Evidence page carries."
+    ),
+    key_message=(
+        "The traded 3-month lead sits on a broad, robust L0–L4 ridge (all "
+        "≥~1.24; L0 1.43, L3 1.37) — not a fragile spike. The published winner "
+        "scores OOS Sharpe 1.57, but per this pair's other blocks the edge is "
+        "thin and window-dependent: the lead is durable, the alpha is not."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The forecast content is real but thin; the winner's edge is not robust",
     "overview": (
@@ -457,8 +579,8 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Rolling correlation", "path": "results/phlxsox_spy/rolling_correlation_phlxsox_spy.csv"},
         {"label": "Stationarity tests", "path": "results/phlxsox_spy/stationarity_tests_20260619.csv"},
     ],
-    "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Co-movement vs Forecast", "Granger Causality", "Pre-Whitened CCF"],
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
+    "level1_labels": ["Co-movement vs Forecast", "Lead Analysis", "Lead Tournament", "Granger Causality", "Pre-Whitened CCF"],
     "level2": [INCREMENTAL_EDGE_BLOCK, LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK, HMM_BLOCK],
     "level2_labels": ["Incremental Edge", "Local Projections", "Quantile Regression", "HMM Regimes"],
     "tournament_intro": (

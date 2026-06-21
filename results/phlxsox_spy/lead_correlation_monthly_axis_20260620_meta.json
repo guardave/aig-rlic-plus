@@ -1,0 +1,21 @@
+{
+  "pair_id": "phlxsox_spy",
+  "artifact": "lead_correlation_monthly_axis_20260620.csv",
+  "rule": "ECON-LA1 (monthly-axis comparability for VIZ-LEAD1)",
+  "axis": "monthly L0..L12 (calendar-month leads)",
+  "frequency": "MONTHLY-RESAMPLED comparability axis for a DAILY-EXECUTED pair",
+  "honest_caveat": "This pair is DAILY-executed; its native winner and tournament are at daily granularity (the daily lead_correlation L1..L52 is the native execution diagnostic). This file is a MONTHLY-resampled view of the signal-vs-1-month-forward-return correlation, computed solely so the universal VIZ-LEAD1 Lead Analysis chart can place this pair on the same monthly L0..12 axis as the monthly-native pairs. It is a comparability diagnostic, NOT the pair's execution horizon. Ray carries the matching caveat in the narrative.",
+  "produced_by": "scripts/lead_horizon_sweep.py::lead_analysis (month-end resample, ECON-LA1)",
+  "source_file": "lead_correlation_20260620.csv",
+  "winner_signal": "sox_spy_ratio_mom_6m_pct",
+  "winner_summary_signal_column": "sox_spy_ratio_mom_6m_pct",
+  "published_lead_days": 63,
+  "winner_signal_monthly_lead_peak": {
+    "best_lead": "L0",
+    "best_r": 0.078
+  },
+  "sibling_daily_diagnostic": "lead_correlation_20260620.csv (NOT superseded; both retained)",
+  "consume_for_chart": "VIZ-LEAD1 correlations_lead_view MUST read this file by name (lead_correlation_monthly_axis_20260620.csv), NOT the latest lead_correlation_*.csv glob (which resolves to the daily/weekly file).",
+  "generated_by": "Econ Evan (fix260620_lead_horizon Phase 3)",
+  "generated_at": "2026-06-21"
+}

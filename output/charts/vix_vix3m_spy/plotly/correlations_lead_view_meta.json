@@ -1,0 +1,21 @@
+{
+  "chart_name": "correlations_lead_view",
+  "pair_id": "vix_vix3m_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-LEAD1",
+    "VIZ-IC1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "narrative_alignment_note": "Winner signal vix_ratio_zscore_126d peaks at L6 (r=-0.194). NOTE: this is a DAILY-executed pair; the monthly L0..L12 axis is a resampled comparability view (the native diagnostic is daily), not the execution horizon.",
+  "caption": "Winner signal vix_ratio_zscore_126d peaks at L6 (r=-0.194). NOTE: this is a DAILY-executed pair; the monthly L0..L12 axis is a resampled comparability view (the native diagnostic is daily), not the execution horizon.",
+  "created_at": "2026-06-21T21:36:32Z",
+  "method_name": "lead_correlation_view",
+  "expected_chart_type": "heatmap",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/vix_vix3m_spy/lead_correlation_monthly_axis_20260620.csv"
+  ],
+  "generated_by": "Viz Vera \u2014 scripts/generate_lead_charts.py (VIZ-LEAD1)"
+}

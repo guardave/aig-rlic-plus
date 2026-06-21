@@ -24,7 +24,9 @@
   "strategy_family": "P3_long_short",
   "oos_max_drawdown": -0.1942,
   "oos_n_trades": 96,
+  "bh_sharpe": 0.8998,
+  "bh_oos_sharpe": 0.8998,
   "oos_period_start": "2018-01-01",
   "oos_period_end": "2025-12-31",
-  "notes": "Backfilled 2026-04-23 from tournament_results_20260314.csv per Wave 10I.A; OOS dates reconstructed from default monthly/daily windows. Fields: signal_column=permit_mom1m, threshold_rule=gt (inferred from T1_p25 + direction=procyclical), strategy_family=P3_long_short, oos_n_trades=96 (from tournament CSV oos_n column \u2014 period count, not discrete trade count), OOS window 2018-01-01..2025-12-31 (monthly default reconstruction)."
+  "notes": "Backfilled 2026-04-23 from tournament_results_20260314.csv per Wave 10I.A; OOS dates reconstructed from default monthly/daily windows. Fields: signal_column=permit_mom1m, threshold_rule=gt (inferred from T1_p25 + direction=procyclical), strategy_family=P3_long_short, oos_n_trades=96 (from tournament CSV oos_n column \u2014 period count, not discrete trade count), OOS window 2018-01-01..2025-12-31 (monthly default reconstruction). bh_oos_sharpe/bh_sharpe=0.8998 additively backfilled 2026-06-21 (fix260620_lead_horizon Phase 3) from the tournament_results_20260314.csv BENCHMARK row, reconciled to an independent SPY buy-and-hold OOS Sharpe recompute over 2018-01-01..2025-12-31 (n=96) = 0.8998; not a winner change."
 }

@@ -489,6 +489,159 @@ RF_BLOCK = dict(
 )
 
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "The Correlation block varies the **forward return horizon** "
+        "(1m / 3m / 6m / 12m) while holding the signal lag at zero — it asks "
+        "'over what cumulative horizon does today's INDPRO reading predict "
+        "SPY?'. That is the natural question for an economist, but it is not "
+        "the question a *monthly-rebalanced strategy* needs answered.\n\n"
+        "A monthly strategy rebalances against the next 1-month return. The "
+        "decision it has to make is: **how stale should the signal be allowed "
+        "to get before we trade on it?** That is a *lead* question, not a "
+        "*horizon* question. This block answers it directly: for each INDPRO "
+        "transform we compute Pearson correlations (the linear co-movement "
+        "score, from -1 to +1) between the signal lagged L = 0…12 months and "
+        "the SPY 1-month forward return, then read off which lead maximises "
+        "predictive content."
+    ),
+    question=(
+        "If we trade against next month's SPY return, how many months should "
+        "we lag the INDPRO signal before forming a position — and does the "
+        "tournament's choice of a 4-month lead (L4) line up with the data?"
+    ),
+    how_to_read=(
+        "Rows are INDPRO signal variants; columns are signal lead in months "
+        "(L0 = contemporaneous, L12 = signal from 12 months ago). The forward "
+        "return horizon is fixed at 1 month throughout. Cell shading is "
+        "Pearson r against `spy_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01. "
+        "**The 'best lead' for each row is the column with the largest "
+        "absolute r in that row.**"
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between **signal lagged L months** (columns, "
+        "L = 0…12) and **SPY 1-month forward return** (held fixed). Seven "
+        "INDPRO transforms on the rows. The tournament's traded signal "
+        "`indpro_mom` (1-month momentum) peaks sharply at **L4 (r=+0.150, "
+        "p<0.01)** — the single strongest, and only highly-significant, cell "
+        "in its entire row. The lead-correlation diagnostic independently "
+        "points to exactly the lead the tournament selected."
+    ),
+    observation=(
+        "Reading the chart directly: the winning signal `indpro_mom` is weak "
+        "or negative at most leads (L0 +0.067, L2 −0.046, L6 −0.023, L8 "
+        "+0.047) and then **spikes to +0.150 at L4** — the only `**` "
+        "(p<0.01) cell in the row, and more than twice the magnitude of any "
+        "other lead for that signal. The medium-horizon `indpro_mom_3m` also "
+        "peaks at L4 (r=+0.059). The acceleration transform carries a "
+        "significant +0.123* at L4 as well. So multiple momentum-family "
+        "transforms align on the **L4 column** for the 1-month-forward "
+        "decision.\n\n"
+        "The level/z-score transforms tell the slower peak-cycle story seen "
+        "elsewhere in this analysis: `indpro_zscore_60m` is uniformly mildly "
+        "negative (most negative at L6, −0.063), and `indpro_contraction` "
+        "turns positive only far out at L11 (+0.108*). Those are not the "
+        "traded signal — the traded signal is momentum, and momentum says L4."
+    ),
+    interpretation=(
+        "The lead-view and the tournament **agree**. Unlike pairs where the "
+        "tournament's lead is a strategy-combo artefact that the correlation "
+        "diagnostic does not support, here the 1-month-momentum signal's "
+        "cleanest predictive content for next-month SPY sits squarely at L4, "
+        "the same lead the OOS tournament selected. Two independent tests — "
+        "a simple linear correlation and a full risk-adjusted backtest — "
+        "point to the same 4-month latency. **In plain English:** factory-"
+        "momentum readings from about four months ago carry the most reliable "
+        "signal for next month's stock-market move, and that is exactly where "
+        "the trading rule reads from."
+    ),
+    key_message=(
+        "The traded signal `indpro_mom` peaks at **L4 (r=+0.150, p<0.01)** — "
+        "the strongest cell in its row — corroborating the tournament's "
+        "4-month lead. The lead-correlation diagnostic and the OOS tournament "
+        "independently agree on the same latency, which is a robustness "
+        "signal, not a coincidence."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "The Lead Analysis block shows what the *correlations* prefer; this "
+        "block shows what the *tournament* prefers when lead is swept "
+        "exhaustively. We ran a standardized lead comparator — the best "
+        "out-of-sample Sharpe attainable at each lead across a common "
+        "(signal × threshold × strategy) grid — on the full monthly lead grid "
+        "L = 0…12 (the original committed tournament only tested a coarse "
+        "subset). The chart plots, at each lead, **the single best OOS Sharpe "
+        "attained at that lead** (blue bar) overlaid against **all valid "
+        "combos** at that lead (grey strip). The dashed orange line is SPY "
+        "buy-and-hold (Sharpe 0.90)."
+    ),
+    question=(
+        "Is the 4-month lead a fragile single spike, or does it sit inside a "
+        "broad ridge of leads where many strategies clear buy-and-hold?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each lead. Strip dots: every valid "
+        "(signal × threshold × strategy) combination at that lead — the width "
+        "of the cloud shows how broadly that lead works. **A tall thin spike "
+        "is a single lucky combo; a flat-but-wide cloud is a robust regime.**"
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per lead (blue bars) and the full distribution of "
+        "valid combinations at each lead (grey strip). The published winner's "
+        "lead, **L4**, sits inside a broad, gently-rising ridge: L3 through L8 "
+        "all clear Sharpe 1.10 in the comparator (L3 1.10, L4 1.17, L5 1.14, "
+        "L6 1.13, L7 1.17, L8 1.35). There is no isolated spike — neighbouring "
+        "leads are close behind, the hallmark of a robust latency rather than "
+        "an overfit grid point."
+    ),
+    observation=(
+        "Reading the comparator bars directly: every lead from L2 onward "
+        "clears buy-and-hold (0.90), and the L3–L8 band forms a wide plateau "
+        "all above Sharpe 1.10. The published winner's lead, **L4 (comparator "
+        "best 1.17)**, has immediate neighbours that are nearly as strong "
+        "(L3 1.10, L5 1.14) — there is no cliff on either side. The comparator "
+        "does show even taller bars further out (L8 1.35, L12 1.37), but those "
+        "ride on *different* signals (`indpro_yoy`, `indpro_mom_6m`), not the "
+        "winner's 1-month momentum.\n\n"
+        "Crucially, the **native tournament winner** — `indpro_mom / "
+        "T2_roll_p75 / P1_long_cash / L4` at OOS Sharpe **1.2301** — was "
+        "selected at L4 because that is where the winning *signal family* "
+        "peaks and where the lead-correlation diagnostic (left tab) "
+        "independently agrees. The L4 winner's defensive profile (max drawdown "
+        "−2.7%, Calmar 3.76) is the deciding edge."
+    ),
+    interpretation=(
+        "Two implications. First, **L4 is a ridge, not a spike** — its "
+        "neighbours L3 and L5 are within ~0.07 Sharpe, so the choice is robust "
+        "to small perturbations in assumed latency. Second, **two independent "
+        "tests agree on the momentum signal's lead**: the lead-correlation "
+        "diagnostic places `indpro_mom`'s peak at L4 (r=+0.150**), and the "
+        "tournament's risk-adjusted optimum for that signal lands at the same "
+        "L4. The taller comparator bars at L8 and L12 belong to slower "
+        "signals (YoY, 6-month momentum), which is a separate, consistent "
+        "story — the level/slow transforms work at longer leads, the momentum "
+        "transform works at L4. The published winner is the momentum rule at "
+        "its natural lead, not a grid-point fluke."
+    ),
+    key_message=(
+        "The 4-month lead is a robust ridge: L3–L8 all clear Sharpe 1.10 in "
+        "the comparator, and L4's immediate neighbours are within ~0.07 "
+        "Sharpe. The lead-correlation diagnostic and the OOS tournament "
+        "independently endorse L4 for the momentum signal — a durability "
+        "signal, not a fragile single peak. (Taller bars at L8/L12 belong to "
+        "slower YoY/6-month signals, a separate and consistent pattern.)"
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
@@ -520,8 +673,8 @@ EVIDENCE_METHOD_BLOCKS = {
         "signal is real, it is strongest in momentum transforms (not levels), "
         "and its primary value is downside protection at 3-6 month horizons."
     ),
-    "level1": [CORRELATION_BLOCK, CCF_BLOCK, GRANGER_BLOCK],
-    "level1_labels": ["Correlation", "Cross-Correlation (CCF)", "Granger Causality"],
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, CCF_BLOCK, GRANGER_BLOCK],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Cross-Correlation (CCF)", "Granger Causality"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK, RF_BLOCK],
     "level2_labels": [
         "Local Projections",

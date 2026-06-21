@@ -1,17 +1,41 @@
 #!/usr/bin/env python3
-"""Generate VIZ-LEAD1 lead-analysis chart pair for non-frozen pairs.
+"""Generate the two mandatory VIZ-LEAD1 Evidence charts for any pair, fully
+data-driven from Evan's lead-sweep CSVs (ECON-LA1 / ECON-LT1).
 
-Two charts per pair, numbers re-read from Evan's CSVs at generation time:
-  1. correlations_lead_view   <- lead_correlation_{date}.csv
-  2. lead_sharpe_distribution <- lead_tournament_{date}.csv
+Two charts per pair, numbers re-read from the latest dated CSVs at generation
+time (no per-pair hardcoded statistics):
+  1. correlations_lead_view    <- results/{pair}/lead_correlation_{date}.csv  (ECON-LA1)
+  2. lead_sharpe_distribution  <- results/{pair}/lead_tournament_{date}.csv   (ECON-LT1)
 
-Matches permit_spy reference shape (vichua). Adds _meta.json sidecars + perceptual PNGs.
-Rule: VIZ-LEAD1, VIZ-IC1, VIZ-TX1. Palette: okabe_ito_2026.
+Universal monthly lead axis L0..L12 for ALL pairs (incl. daily-target pairs) per
+VIZ-LEAD1. Palette okabe_ito_2026. Rules: VIZ-LEAD1, VIZ-IC1, VIZ-TX1, VIZ-O1.
+Emits {chart}.json + {chart}_meta.json + _perceptual_check_{chart}.png per chart.
 
-NEVER touches the frozen Sample hy_ig_v2_spy.
+Data-driven design (no per-pair hardcoding of statistics):
+  - date tag        -> latest results/{pair}/lead_correlation_*.csv (glob, sorted)
+  - B&H OOS Sharpe  -> winner_summary.json bh_oos_sharpe (fallback bh_sharpe)
+  - indicator/target display names -> winner_summary.json + display_names registry
+  - winner lead/Sharpe (for the winner-vs-sweep annotation) -> winner_summary.json
+
+IMPORTANT — sweep grid vs native winner (VIZ-LEAD1 honesty clause):
+  lead_tournament_*.csv is the STANDARDIZED gating-sweep grid (P1/P2 comparator
+  across L0..12), NOT the native tournament. Its per-lead bar max can sit at a
+  DIFFERENT lead than the published winner (e.g. indpro_spy sweep max L12 vs
+  published winner L4; indpro_xlp sweep max L8 vs published L11). The
+  lead_sharpe_distribution caption therefore states BOTH the sweep-max lead AND
+  the published-winner lead, so a reader never mistakes the sweep landscape's
+  tallest bar for the deployed strategy.
+
+NEVER touches the frozen/retired Sample hy_ig_v2_spy.
+
+Usage:
+    python3 scripts/generate_lead_charts.py [pair_id ...]
+    # default: all non-frozen pairs that have lead_correlation + lead_tournament CSVs
 """
+import csv
 import json
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -19,38 +43,124 @@ import plotly.graph_objects as go
 import plotly.io as pio
 
 ROOT = Path(__file__).resolve().parents[1]
-DATE = "20260613"
+sys.path.insert(0, str(ROOT / "app"))
 CREATED = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-# Okabe-Ito palette (canonical, from color_palette_registry.json okabe_ito_2026)
 PAL = json.loads((ROOT / "docs/schemas/color_palette_registry.json").read_text())["palettes"]["okabe_ito_2026"]
-BENCH = PAL["benchmark_trace"]      # #6C7A89
+BENCH = PAL["benchmark_trace"]       # #6C7A89
 BAR = PAL["primary_data_trace"]      # #D55E00
 DOT = "#999999"
 
-# Pair -> (indicator display, target display, sample range note, B&H OOS Sharpe).
-# B&H values resolved from each pair's winner_summary.json at canonical OOS window;
-# SPY pairs lacking an explicit B&H key use the canonical SPY OOS B&H (0.8935,
-# from busloans_spy winner_summary.json bh_sharpe; corroborated by permit chart 0.8939).
-SPY_BH = 0.8935
-PAIRS = {
-    "indpro_spy":      ("Industrial Production", "SPY", SPY_BH),
-    "permit_spy":      ("Building Permits", "SPY", 0.8939),  # keep vichua's embedded value
-    "vix_vix3m_spy":   ("VIX/VIX3M Term Structure", "SPY", SPY_BH),
-    "indpro_xlp":      ("Industrial Production", "XLP", 0.7437),
-    "hy_ig_spy":       ("HY-IG Credit Spread", "SPY", 0.8129),
-    "umcsent_xlv":     ("UMich Consumer Sentiment", "XLV", 0.7164),
-    "gold_copper_xli": ("Gold/Copper Ratio", "XLI", 0.6558),
-    "busloans_spy":    ("C&I Loans", "SPY", 0.8935),
-}
-# Pairs Evan flagged RE-RUN where the L7-12 peak must be visible.
-RERUN_FLAG = {"indpro_spy", "indpro_xlp", "umcsent_xlv", "gold_copper_xli"}
-
 LEADS = [f"L{i}" for i in range(13)]
+
+FROZEN = {"hy_ig_v2_spy"}  # retired Sample — never regenerate
+
+# Clean indicator labels keyed by pair stem (the part before the target suffix).
+# Backstop only — Ace's SHORT_INDICATOR_LABELS registry (keyed by full pair_id)
+# is consulted FIRST. The winner's signal_display_name is NOT used as the title
+# indicator because it leaks the winning transform token (e.g. "ISM Services
+# gap_50", "M2SL accel", "petrol 3m") — a VIZ-NS1 violation on a user surface.
+_IND_FALLBACK = {
+    "indpro": "Industrial Production",
+    "permit": "Building Permits",
+    "vix_vix3m": "VIX/VIX3M Term Structure",
+    "hy_ig": "HY-IG Credit Spread",
+    "umcsent": "UMich Consumer Sentiment",
+    "gold_copper": "Gold/Copper Ratio",
+    "busloans": "C&I Loans",
+    "ism_services": "ISM Services PMI",
+    "m2sl_yoy": "M2 Money Supply (YoY)",
+    "petrol_inv": "Petroleum Inventories",
+    "phlxsox": "PHLX Semiconductor Index",
+}
+
+try:
+    from components.display_names import SHORT_INDICATOR_LABELS as _ACE_LABELS
+except Exception:
+    _ACE_LABELS = {}
+
+
+# Daily-executed pairs: their native lead_correlation is at DAILY granularity
+# (L1..L52). For the universal monthly VIZ-LEAD1 axis, Evan emits a separate
+# month-end-resampled comparability file that MUST be read BY NAME — the
+# latest-glob would resolve to the daily file and put the wrong axis on the
+# chart (per each monthly_axis _meta.json `consume_for_chart`). Their
+# lead_tournament IS monthly (lead_months 0..12), so the Sharpe chart is normal.
+DAILY_PAIRS = {"vix_vix3m_spy", "gold_copper_xli", "hy_ig_spy", "phlxsox_spy"}
+
+
+def latest_dated(pair, stem):
+    """Newest results/{pair}/{stem}_YYYYMMDD.csv -> (path, date_str).
+
+    Matches ONLY the canonical `{stem}_<8digits>.csv` — an exact-date suffix with
+    no infix. This deliberately excludes sibling variants like
+    `{stem}_weekly_YYYYMMDD.csv` / `{stem}_monthly_axis_YYYYMMDD.csv`, which a
+    naive `{stem}_*.csv` glob would sort AFTER the canonical file ("weekly" > a
+    digit) and wrongly select — putting a daily/weekly lead axis on the chart."""
+    pat = re.compile(rf"^{re.escape(stem)}_(\d{{8}})\.csv$")
+    cand = [(p, pat.match(p.name).group(1)) for p in (ROOT / "results" / pair).glob(f"{stem}_*.csv")
+            if pat.match(p.name)]
+    if not cand:
+        raise FileNotFoundError(f"no canonical {stem}_YYYYMMDD.csv for {pair}")
+    cand.sort(key=lambda t: t[1])
+    return cand[-1]
+
+
+def corr_csv(pair):
+    """Resolve the correlation CSV + date for the monthly L0..L12 heatmap.
+    Daily pairs MUST use the month-end-resampled `lead_correlation_monthly_axis_*`
+    file BY NAME (never the latest-glob, which is the daily-axis file)."""
+    if pair in DAILY_PAIRS:
+        matches = sorted((ROOT / "results" / pair).glob("lead_correlation_monthly_axis_*.csv"))
+        if not matches:
+            raise FileNotFoundError(
+                f"{pair} is daily but has no lead_correlation_monthly_axis_*.csv "
+                f"(Evan ECON-LA1 monthly-resample). Cannot build monthly-axis heatmap.")
+        p = matches[-1]
+        m = re.search(r"_(\d{8})\.csv$", p.name)
+        return p, (m.group(1) if m else ""), True  # is_daily
+    p, date = latest_dated(pair, "lead_correlation")
+    return p, date, False
+
+
+def load_winner(pair):
+    p = ROOT / "results" / pair / "winner_summary.json"
+    return json.loads(p.read_text()) if p.exists() else {}
+
+
+def display_names(pair, w):
+    """(indicator_display, target_display). Indicator label resolves in order:
+    Ace's SHORT_INDICATOR_LABELS registry (canonical, keyed by pair_id) ->
+    _IND_FALLBACK (keyed by stem) -> title-cased stem. The winner's
+    signal_display_name is deliberately NOT used (it leaks the winning transform
+    token, a VIZ-NS1 violation)."""
+    tgt = (w.get("target_symbol") or pair.rsplit("_", 1)[-1]).upper()
+    stem = pair.rsplit("_", 1)[0]
+    ind = (_ACE_LABELS.get(pair)
+           or _IND_FALLBACK.get(stem)
+           or stem.replace("_", " ").title())
+    return ind, tgt
+
+
+# Canonical SPY OOS buy-and-hold Sharpe (busloans_spy winner_summary bh_oos_sharpe,
+# corroborated by permit's prior chart 0.8939). Used ONLY as a documented fallback
+# for *_spy pairs whose winner_summary.json omits a B&H key (e.g. permit_spy).
+# Any pair that hits this fallback is flagged at run time — its winner_summary is
+# missing bh_oos_sharpe and should be fixed upstream.
+_SPY_BH_FALLBACK = 0.8935
+
+
+def bh_sharpe(pair, w):
+    v = w.get("bh_oos_sharpe", w.get("bh_sharpe"))
+    if v is not None:
+        return float(v), False
+    if pair.endswith("_spy"):
+        return _SPY_BH_FALLBACK, True
+    return float("nan"), True
 
 
 def parse_cell(s):
-    """'+0.141**' -> (0.141, '**'). Returns (float, stars_str)."""
+    """'+0.141**' -> (0.141, '**')."""
     s = s.strip()
     m = re.match(r"^([+-]?\d*\.?\d+)(\**)$", s)
     if not m:
@@ -58,26 +168,47 @@ def parse_cell(s):
     return float(m.group(1)), m.group(2)
 
 
-def read_corr(pair):
-    import csv
-    rows = []
-    with open(ROOT / f"results/{pair}/lead_correlation_{DATE}.csv") as f:
-        for r in csv.DictReader(f):
-            rows.append(r)
-    return rows
+def read_rows(path):
+    with open(path) as f:
+        return list(csv.DictReader(f))
 
 
-def read_tourn(pair):
-    import csv
-    rows = []
-    with open(ROOT / f"results/{pair}/lead_tournament_{DATE}.csv") as f:
-        for r in csv.DictReader(f):
-            rows.append(r)
-    return rows
+def winner_transform_row(pair, rows, w, is_daily):
+    """Resolve the correlation-CSV row for the WINNER SIGNAL (the signal the
+    deployed strategy trades), so the corr callout names the winner signal's
+    monthly-lead peak (convention (b), ECON-LA1 — matches Ray's winner-centric
+    narrative + the monthly_axis _meta winner_signal_monthly_lead_peak), NOT the
+    globally strongest transform.
+
+    Resolution: daily pairs -> monthly_axis _meta `winner_signal` (the exact
+    transform name). Monthly pairs -> winner_summary signal_column, exact match
+    then a trailing-token-stripped fallback (e.g. permit_mom1m -> permit_mom).
+    Returns (row, resolved_name, matched_bool); falls back to global-|r| max with
+    matched=False if the winner signal can't be located (flagged at run time)."""
+    by_name = {r["transform"]: r for r in rows}
+    target = None
+    if is_daily:
+        meta_p = ROOT / "results" / pair / "lead_correlation_monthly_axis_20260620_meta.json"
+        if meta_p.exists():
+            target = json.loads(meta_p.read_text()).get("winner_signal")
+    if not target:
+        target = w.get("signal_column")
+    if target and target in by_name:
+        return by_name[target], target, True
+    # trailing-token-stripped fallback (permit_mom1m -> permit_mom, etc.)
+    if target:
+        for cand in (re.sub(r"\d+[a-z]*$", "", target).rstrip("_"),
+                     re.sub(r"(1m|_1m|1month)$", "", target)):
+            if cand and cand in by_name:
+                return by_name[cand], cand, True
+    best = max(rows, key=lambda r: abs(float(r["best_r"])))
+    return best, best["transform"], False
 
 
-def build_corr_chart(pair, ind, tgt):
-    rows = read_corr(pair)
+# ── Chart 1: correlations_lead_view (heatmap) ───────────────────────────────
+def build_corr_chart(pair, ind, tgt, w):
+    path, date, is_daily = corr_csv(pair)
+    rows = read_rows(path)
     transforms = [r["transform"] for r in rows]
     z, text = [], []
     for r in rows:
@@ -88,40 +219,53 @@ def build_corr_chart(pair, ind, tgt):
             tr.append(f"{val:+.3f}{stars}")
         z.append(zr)
         text.append(tr)
-    # best lead per the data (max |best_r| across transforms)
-    best = max(rows, key=lambda r: abs(float(r["best_r"])))
-    best_caption = (f"Strongest lead: {best['transform']} at {best['best_lead']} "
-                    f"(r={float(best['best_r']):+.3f}).")
+    # Convention (b): callout = the WINNER SIGNAL's monthly-lead peak.
+    wrow, wname, matched = winner_transform_row(pair, rows, w, is_daily)
+    if not matched:
+        print(f"  [FLAG] {pair}: winner signal not found in correlation transforms — "
+              f"corr callout fell back to global max {wname}. Check signal_column.")
+    best_caption = (f"Winner signal {wname} peaks at {wrow['best_lead']} "
+                    f"(r={float(wrow['best_r']):+.3f}).")
+    # Daily-pair comparability caveat (matches Ray's narrative + the monthly_axis
+    # _meta honest_caveat): this monthly axis is a resampled comparability view,
+    # NOT the pair's daily execution horizon.
+    daily_caveat = ("" if not is_daily else
+                    " NOTE: this is a DAILY-executed pair; the monthly L0..L12 "
+                    "axis is a resampled comparability view (the native diagnostic "
+                    "is daily), not the execution horizon.")
+    zabs = max(0.2, max(abs(v) for row in z for v in row))
 
     fig = go.Figure(go.Heatmap(
         z=z, x=LEADS, y=transforms, text=text, texttemplate="%{text}",
-        textfont={"size": 9},
-        colorscale="RdBu_r", zmid=0, zmin=-max(0.2, max(abs(v) for row in z for v in row)),
-        zmax=max(0.2, max(abs(v) for row in z for v in row)),
+        textfont={"size": 9}, colorscale="RdBu_r", zmid=0, zmin=-zabs, zmax=zabs,
         colorbar={"title": "Pearson r"},
         hovertemplate="signal=%{y}<br>lead=%{x}<br>r=%{text}<extra></extra>",
     ))
+    axis_note = ("monthly-resampled L0..L12 axis (daily-executed pair)"
+                 if is_daily else "L0..L12")
     title = (f"Lead-Lag Predictability: {ind} Signal (lagged L months) vs "
              f"{tgt} 1-Month Forward Return"
-             f"<br><sub>Pearson correlations across lead horizons L0..L12. "
-             f"* p<0.05, ** p<0.01. {best_caption}</sub>")
+             f"<br><sub>Pearson correlations across lead horizons {axis_note}. "
+             f"* p<0.05, ** p<0.01. {best_caption}{daily_caveat}</sub>")
+    src_note = ("Source: FRED / market data via Evan ECON-LA1 "
+                f"({path.name}). " + best_caption + daily_caveat)
     fig.update_layout(
         title={"text": title, "font": {"size": 14}},
         xaxis={"title": {"text": "Lead (months) applied to signal"}, "side": "bottom"},
         yaxis={"title": {"text": "Signal transform"}, "autorange": "reversed"},
-        template="plotly_white",
-        margin={"l": 140, "r": 80, "t": 90, "b": 60},
+        template="plotly_white", margin={"l": 140, "r": 80, "t": 110 if is_daily else 90, "b": 60},
         annotations=[{
-            "text": "Source: FRED / market data via Evan ECON-LA1. " + best_caption,
-            "showarrow": False, "xref": "paper", "yref": "paper",
-            "x": 0, "y": -0.13, "font": {"size": 10, "color": "#666"}, "align": "left",
+            "text": src_note, "showarrow": False, "xref": "paper", "yref": "paper",
+            "x": 0, "y": -0.15, "font": {"size": 10, "color": "#666"}, "align": "left",
         }],
     )
-    return fig, best_caption
+    return fig, best_caption + daily_caveat, str(path.relative_to(ROOT))
 
 
-def build_sharpe_chart(pair, ind, tgt, bh):
-    rows = read_tourn(pair)
+# ── Chart 2: lead_sharpe_distribution (bar + cloud) ─────────────────────────
+def build_sharpe_chart(pair, ind, tgt, bh, w):
+    path, date = latest_dated(pair, "lead_tournament")
+    rows = read_rows(path)
     leads = [int(r["lead_months"]) for r in rows]
     best = [float(r["best_oos_sharpe"]) for r in rows]
     p25 = [float(r["p25_oos_sharpe"]) for r in rows]
@@ -130,106 +274,140 @@ def build_sharpe_chart(pair, ind, tgt, bh):
     n_valid = [int(r["n_valid"]) for r in rows]
     xlab = [f"L{l}" for l in leads]
 
-    # locate the max
     imax = max(range(len(best)), key=lambda i: best[i])
     max_lead, max_val = leads[imax], best[imax]
     win = rows[imax]
-    # spike vs ridge: how many leads within 0.05 of the max
     near = sum(1 for v in best if abs(v - max_val) <= 0.05)
     shape = "a single spike" if near <= 2 else f"a broad ridge ({near} leads within 0.05)"
-    cap = (f"Best OOS Sharpe {max_val:.2f} at L{max_lead} "
+
+    # Published-winner lead/Sharpe (native tournament) — distinct from sweep max.
+    # For DAILY-executed pairs the winner lead is in trading DAYS and does NOT
+    # sit on the monthly L0..L12 comparability axis — say so explicitly and in
+    # the native unit (do not print a misleading "L{days}" on a monthly chart).
+    win_lead = w.get("lead_value", w.get("lead_months"))
+    win_sharpe = w.get("oos_sharpe")
+    win_unit = (w.get("lead_unit") or "months").rstrip("s")  # "day"/"month"
+    winner_on_axis = (win_lead is not None and win_unit == "month"
+                      and 0 <= int(win_lead) <= 12)
+    winner_note = ""
+    if win_lead is not None and win_sharpe is not None:
+        if win_unit == "month":
+            winner_note = (f" Published winner sits at L{int(win_lead)} "
+                           f"(native tournament, OOS Sharpe {float(win_sharpe):.2f}).")
+        else:
+            winner_note = (f" Published winner is a daily-executed strategy at "
+                           f"{int(win_lead)} {win_unit}(s) lead (OOS Sharpe "
+                           f"{float(win_sharpe):.2f}) — off this monthly comparability "
+                           f"axis; the bars are the monthly-resampled sweep, not the "
+                           f"deployed daily horizon.")
+    cap = (f"Sweep-grid best OOS Sharpe {max_val:.2f} at L{max_lead} "
            f"({win['best_signal']} x {win['best_strategy']}); {shape}. "
-           f"Buy-and-hold {tgt} OOS Sharpe = {bh:.2f}.")
+           f"Buy-and-hold {tgt} OOS Sharpe = {bh:.2f}.{winner_note}")
 
     fig = go.Figure()
-    # p25-p75 cloud strip (band)
     fig.add_trace(go.Scatter(
         x=xlab + xlab[::-1], y=p75 + p25[::-1], fill="toself",
         fillcolor="rgba(153,153,153,0.18)", line={"width": 0},
-        name="p25-p75 of valid combos", hoverinfo="skip",
-    ))
-    # median strip
+        name="p25-p75 of valid combos", hoverinfo="skip"))
     fig.add_trace(go.Scatter(
         x=xlab, y=med, mode="lines+markers", name="Median valid combo",
-        line={"color": DOT, "width": 1.5, "dash": "dot"},
-        marker={"size": 5, "color": DOT},
-        hovertemplate="%{x}<br>median Sharpe=%{y:.3f}<extra></extra>",
-    ))
-    # best-per-lead bars
+        line={"color": DOT, "width": 1.5, "dash": "dot"}, marker={"size": 5, "color": DOT},
+        hovertemplate="%{x}<br>median Sharpe=%{y:.3f}<extra></extra>"))
     fig.add_trace(go.Bar(
-        x=xlab, y=best, name="Best Sharpe per lead",
-        marker={"color": BAR},
+        x=xlab, y=best, name="Best Sharpe per lead", marker={"color": BAR},
         text=[f"{v:.2f}" for v in best], textposition="outside", textfont={"size": 9},
         customdata=n_valid,
-        hovertemplate="%{x}<br>best Sharpe=%{y:.3f}<br>valid combos=%{customdata}<extra></extra>",
-    ))
-    # B&H reference line
+        hovertemplate="%{x}<br>best Sharpe=%{y:.3f}<br>valid combos=%{customdata}<extra></extra>"))
     fig.add_trace(go.Scatter(
-        x=xlab, y=[bh] * len(xlab), mode="lines",
-        name=f"Buy & Hold {tgt} ({bh:.2f})",
-        line={"color": BENCH, "dash": "dash", "width": 2}, hoverinfo="skip",
-    ))
-    fig.add_annotation(x=xlab[imax], y=max_val, text=f"<b>max L{max_lead}</b><br>{max_val:.2f}",
+        x=xlab, y=[bh] * len(xlab), mode="lines", name=f"Buy & Hold {tgt} ({bh:.2f})",
+        line={"color": BENCH, "dash": "dash", "width": 2}, hoverinfo="skip"))
+    fig.add_annotation(x=xlab[imax], y=max_val, text=f"<b>sweep max L{max_lead}</b><br>{max_val:.2f}",
                        showarrow=True, arrowhead=2, ax=0, ay=-30, font={"size": 10})
+    # Mark the published-winner lead with a distinct vertical reference so it is
+    # never conflated with the sweep-grid tallest bar.
+    if winner_on_axis:
+        fig.add_vline(x=int(win_lead), line={"color": "#000", "dash": "dot", "width": 1.2},
+                      annotation_text=f"published winner L{int(win_lead)}",
+                      annotation_position="top left", annotation_font_size=9)
 
-    rr = " (gating-sweep view; L7-12 peak re-run in Track B)" if pair in RERUN_FLAG else ""
-    title = (f"Lead vs OOS Sharpe: {ind} -> {tgt} (L = 0..12){rr}"
-             f"<br><sub>Bars: best OOS Sharpe at each lead. Grey band/dots: "
-             f"p25-p75 & median of valid combos. Dashed: {tgt} buy-and-hold. {cap}</sub>")
+    title = (f"Lead vs OOS Sharpe (standardized sweep grid): {ind} -> {tgt} (L = 0..12)"
+             f"<br><sub>Bars: best OOS Sharpe at each lead in the P1/P2 gating sweep. "
+             f"Grey band/dots: p25-p75 & median of valid combos. Dashed: {tgt} "
+             f"buy-and-hold. {cap}</sub>")
     fig.update_layout(
         title={"text": title, "font": {"size": 14}},
         xaxis={"title": {"text": "Lead (months) applied to signal"}},
         yaxis={"title": {"text": "OOS Sharpe ratio"}, "zeroline": True},
         template="plotly_white", barmode="overlay",
         legend={"orientation": "h", "y": -0.18},
-        margin={"l": 70, "r": 40, "t": 95, "b": 90},
-        annotations=[a for a in []],
-    )
-    fig.add_annotation(text="Source: Evan ECON-LT1 fine-grid lead tournament.",
+        margin={"l": 70, "r": 40, "t": 110, "b": 90})
+    fig.add_annotation(text=f"Source: Evan ECON-LT1 standardized lead sweep ({date}).",
                        showarrow=False, xref="paper", yref="paper",
                        x=0, y=-0.30, font={"size": 10, "color": "#666"}, align="left")
-    return fig, cap
+    return fig, cap, str(path.relative_to(ROOT))
 
 
-def write_meta(pair, chart_name, method_name, expected, caption, rules):
+def write_meta(pair, chart_name, method_name, expected, caption, rules, sources):
     meta = {
-        "chart_name": chart_name,
-        "pair_id": pair,
-        "palette_id": "okabe_ito_2026",
-        "rules_applied": rules,
-        "narrative_alignment_note": caption,
-        "caption": caption,
-        "created_at": CREATED,
-        "method_name": method_name,
-        "expected_chart_type": expected,
-        "disposition": "consumed",
+        "chart_name": chart_name, "pair_id": pair, "palette_id": "okabe_ito_2026",
+        "rules_applied": rules, "narrative_alignment_note": caption, "caption": caption,
+        "created_at": CREATED, "method_name": method_name,
+        "expected_chart_type": expected, "disposition": "consumed",
+        "source_artifacts": sources,
+        "generated_by": "Viz Vera — scripts/generate_lead_charts.py (VIZ-LEAD1)",
     }
-    out = ROOT / f"output/charts/{pair}/plotly/{chart_name}_meta.json"
-    out.write_text(json.dumps(meta, indent=2) + "\n")
+    (ROOT / f"output/charts/{pair}/plotly/{chart_name}_meta.json").write_text(
+        json.dumps(meta, indent=2) + "\n")
+
+
+def discover_pairs():
+    out = []
+    for d in sorted((ROOT / "results").iterdir()):
+        if not d.is_dir() or d.name in FROZEN:
+            continue
+        if list(d.glob("lead_correlation_*.csv")) and list(d.glob("lead_tournament_*.csv")):
+            out.append(d.name)
+    return out
+
+
+def run(pair):
+    w = load_winner(pair)
+    ind, tgt = display_names(pair, w)
+    bh, bh_fallback = bh_sharpe(pair, w)
+    if bh_fallback:
+        print(f"  [FLAG] {pair}: winner_summary.json has no bh_oos_sharpe — "
+              f"used canonical SPY B&H fallback {bh:.4f}. Upstream gap (Evan).")
+    d = ROOT / f"output/charts/{pair}/plotly"
+    d.mkdir(parents=True, exist_ok=True)
+
+    f1, c1, src1 = build_corr_chart(pair, ind, tgt, w)
+    (d / "correlations_lead_view.json").write_text(pio.to_json(f1))
+    write_meta(pair, "correlations_lead_view", "lead_correlation_view", "heatmap", c1,
+               ["VIZ-LEAD1", "VIZ-IC1", "VIZ-TX1", "VIZ-O1"], [src1])
+    f1.write_image(str(d / "_perceptual_check_correlations_lead_view.png"),
+                   width=1100, height=600, scale=2)
+
+    f2, c2, src2 = build_sharpe_chart(pair, ind, tgt, bh, w)
+    (d / "lead_sharpe_distribution.json").write_text(pio.to_json(f2))
+    write_meta(pair, "lead_sharpe_distribution", "lead_sharpe_distribution", "bar", c2,
+               ["VIZ-LEAD1", "VIZ-IC1", "VIZ-TX1", "VIZ-O1"],
+               [src2, f"results/{pair}/winner_summary.json"])
+    f2.write_image(str(d / "_perceptual_check_lead_sharpe_distribution.png"),
+                   width=1100, height=600, scale=2)
+
+    print(f"[{pair}] OK  (B&H={bh:.4f})")
+    print(f"    corr:   {c1}")
+    print(f"    sharpe: {c2}")
 
 
 def main():
-    for pair, (ind, tgt, bh) in PAIRS.items():
-        d = ROOT / f"output/charts/{pair}/plotly"
-        d.mkdir(parents=True, exist_ok=True)
-
-        f1, c1 = build_corr_chart(pair, ind, tgt)
-        (d / "correlations_lead_view.json").write_text(pio.to_json(f1))
-        write_meta(pair, "correlations_lead_view", "Lead Analysis", "heatmap", c1,
-                   ["VIZ-LEAD1", "VIZ-IC1", "VIZ-TX1", "VIZ-O1"])
-        f1.write_image(str(d / "_perceptual_check_correlations_lead_view.png"),
-                       width=1100, height=600, scale=2)
-
-        f2, c2 = build_sharpe_chart(pair, ind, tgt, bh)
-        (d / "lead_sharpe_distribution.json").write_text(pio.to_json(f2))
-        write_meta(pair, "lead_sharpe_distribution", "Lead Tournament", "bar", c2,
-                   ["VIZ-LEAD1", "VIZ-IC1", "VIZ-TX1", "VIZ-O1"])
-        f2.write_image(str(d / "_perceptual_check_lead_sharpe_distribution.png"),
-                       width=1100, height=600, scale=2)
-
-        print(f"[{pair}] OK")
-        print(f"    corr:   {c1}")
-        print(f"    sharpe: {c2}")
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    pairs = args or discover_pairs()
+    for p in pairs:
+        if p in FROZEN:
+            print(f"[{p}] SKIP (frozen)")
+            continue
+        run(p)
 
 
 if __name__ == "__main__":

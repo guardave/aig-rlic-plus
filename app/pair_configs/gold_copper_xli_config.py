@@ -819,6 +819,129 @@ TRANSFER_ENTROPY_BLOCK = dict(
 )
 
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "This pair trades **daily**, but for cross-pair comparability the lead "
+        "grid here is **monthly-resampled**: the gold/copper signal is shifted "
+        "L = 0…12 calendar months and correlated against XLI's 1-month forward "
+        "return. **State this honestly:** the production rule executes daily at "
+        "a same-day (L0) lead; this monthly grid is a comparability diagnostic, "
+        "not the traded latency. It asks: on a monthly view, how far ahead "
+        "does the risk-off ratio lead industrial stocks?"
+    ),
+    question=(
+        "On a monthly-resampled grid, where does the gold/copper signal's "
+        "predictive content for XLI peak — and how does that relate to the "
+        "traded same-day (L0) daily rule?"
+    ),
+    how_to_read=(
+        "Rows are gold/copper signal variants; columns are signal lead in "
+        "MONTHS (L0 = contemporaneous, L12 = 12 months ago). Forward horizon "
+        "fixed at 1 month. Cell shading is Pearson r (linear co-movement, -1 "
+        "to +1) against `xli_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between **signal lagged L months** and **XLI "
+        "1-month forward return**. The traded signal "
+        "`gold_copper_zscore_126d` peaks at **L5 (r=+0.106)** on this monthly "
+        "grid. The traded daily rule itself uses a same-day (L0) lead; the "
+        "linear monthly peak (L5) and the daily traded lead (L0) differ — an "
+        "expected timescale gap explained in the Lead Tournament tab."
+    ),
+    observation=(
+        "On the monthly grid the signal is negative at the lowest leads (L0 "
+        "−0.083, L1 −0.079) and turns to its strongest positive cell at **L5 "
+        "(r=+0.106)**, fading again by L10–L12. The sign flip across leads is "
+        "consistent with a regime-/threshold-conditional relationship rather "
+        "than a clean linear lead-lag — which is exactly why this pair's "
+        "edge lives in a daily threshold rule, not a linear monthly lag. The "
+        "L5 monthly peak is a slow echo, not the fast risk-off reaction the "
+        "daily rule trades."
+    ),
+    interpretation=(
+        "An honest divergence: the monthly linear peak is at L5, the traded "
+        "daily rule reads the signal same-day (L0). They measure different "
+        "clocks and should not be reconciled into one number. **In plain "
+        "English:** when the gold/copper ratio jumps (a risk-off tell), "
+        "industrial stocks tend to weaken quickly (the daily edge); on a "
+        "slower monthly view a fainter footprint appears about five months "
+        "out. The monthly grid is comparability context, not a competing "
+        "lead recommendation."
+    ),
+    key_message=(
+        "On a monthly-resampled grid the signal peaks at **L5 (r=+0.106)**, "
+        "differing from the traded same-day (L0) daily lead. This is a "
+        "comparability diagnostic; the published rule trades DAILY at L0, "
+        "exploiting the fast risk-off reaction the monthly grid cannot see."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "This block sweeps the monthly lead grid L = 0…12 and plots the best "
+        "OOS Sharpe at each lead (blue bar) against all valid combos (grey "
+        "strip); the dashed orange line is XLI buy-and-hold (Sharpe 0.66). "
+        "**Honesty note (daily pair):** the lead axis is monthly-resampled for "
+        "comparability even though the pair executes daily; the published "
+        "winner trades at a same-day (L0) daily lead."
+    ),
+    question=(
+        "On the monthly grid, where does the best Sharpe sit — and why is the "
+        "published winner the same-day (L0) daily rule when the monthly sweep "
+        "peaks elsewhere?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each monthly lead. Strip dots: every valid "
+        "combination at that lead. A tall thin spike is a single combo; a "
+        "flat-but-wide cloud is a robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per monthly lead (blue bars) and the full "
+        "distribution (grey strip). The monthly grid peaks at **L10 (1.37)** "
+        "and L5 (1.31), while the traded rule's monthly-equivalent **L0 (1.02) "
+        "is among the lowest** — an honest DIVERGENCE driven by timescale, "
+        "disclosed and explained below."
+    ),
+    observation=(
+        "Reading the monthly bars: the profile is uneven, peaking at **L10 "
+        "(1.37)** and L5 (1.31), with **L0 (1.02)** — the monthly-equivalent "
+        "of the traded same-day lead — sitting near the bottom of the range. "
+        "On the monthly clock, lagging the signal would have scored higher.\n\n"
+        "Why is the **published winner still the daily L0 rule** "
+        "(`gold_copper_zscore_126d / T2_p50 / P1_long_cash`, OOS Sharpe "
+        "**1.2730**)? Because this pair's edge is the **fast daily risk-off "
+        "reaction** of industrial stocks to a spike in the gold/copper ratio — "
+        "a within-month dynamic that monthly resampling discards. The monthly "
+        "L10/L5 peaks belong to a slower business-cycle relationship traded by "
+        "a different (monthly-rebalanced) strategy, not a better version of "
+        "the daily rule."
+    ),
+    interpretation=(
+        "The honest read: **the monthly lead-tournament and the daily traded "
+        "rule diverge, and that is expected for a daily pair.** The monthly "
+        "grid favours L10/L5; the published rule trades daily at L0. A reader "
+        "should NOT conclude 'switch to L10' — that Sharpe belongs to a "
+        "monthly-rebalanced strategy on resampled data, a different "
+        "instrument. The daily L0 rule remains the published winner on its own "
+        "(daily) terms, monetising a regime-conditional reaction the linear "
+        "monthly view structurally understates."
+    ),
+    key_message=(
+        "On the monthly-resampled grid the best Sharpe is at L10 (1.37), while "
+        "the traded rule's L0-equivalent is among the lowest (1.02) — an honest "
+        "divergence from timescale. The published rule trades DAILY at L0 (OOS "
+        "Sharpe 1.2730), capturing a fast risk-off reaction the monthly grid "
+        "cannot represent; the monthly peaks are a slower, separate pattern."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
@@ -855,8 +978,8 @@ EVIDENCE_METHOD_BLOCKS = {
         "threshold-conditional, not linear — exactly the kind of "
         "structure a threshold-based trading rule can exploit."
     ),
-    "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Correlation", "Granger Causality",
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Granger Causality",
                        "Pre-Whitened CCF"],
     "level2": [REGIME_BLOCK, HMM_BLOCK, LOCAL_PROJECTIONS_BLOCK,
                 QUANTILE_REGRESSION_BLOCK, TRANSFER_ENTROPY_BLOCK],
