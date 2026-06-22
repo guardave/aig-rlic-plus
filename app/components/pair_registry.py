@@ -105,6 +105,7 @@ PAGE_ROUTING = {
     "ism_services_spy": "pages/19_ism_services_spy",
     "m2sl_yoy_spy": "pages/20_m2sl_yoy_spy",
     "phlxsox_spy": "pages/21_phlxsox_spy",
+    "t10y3m_spy": "pages/22_t10y3m_spy",
 }
 
 

@@ -1,0 +1,12 @@
+{
+  "chart_name": "equity_curves",
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:33.255595+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_spy.py",
+  "caption": "Winner strategy equity curve compared with buy-and-hold SPY.",
+  "narrative_alignment_note": "Winner strategy equity curve compared with buy-and-hold SPY.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/t10y3m_spy/strategy_returns_20260620.csv"
+  ]
+}

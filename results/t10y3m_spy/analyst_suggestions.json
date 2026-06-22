@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "pair_id": "t10y3m_spy",
+  "suggestions": [
+    {
+      "signal_name": "10Y-2Y Treasury spread",
+      "proposed_by": "evan",
+      "source": "FRED T10Y2Y",
+      "observation": "10Y-2Y is a widely watched alternate yield-curve slope and may differ from the 10Y-3M signal around policy turning points.",
+      "rationale": "Comparing the two curve slopes can separate policy-rate pressure from intermediate-term growth expectations.",
+      "possible_use_case": "variant family / cross-pair comparison",
+      "caveats": "Highly correlated with 10Y-3M, so it should be treated as a variant rather than a new independent signal.",
+      "date_filed": "2026-06-20"
+    }
+  ],
+  "last_updated_at": "2026-06-19T14:53:21Z"
+}

@@ -1285,7 +1285,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     render_breadcrumb("Strategy", pair_id)
 
     # ------ 4. APP-DIR1 direction triangulation ------
-    render_direction_check(pair_id)
+    # render_direction_check(pair_id)
 
     # ------ 5. Plain English expander ------
     with st.expander("Plain English"):

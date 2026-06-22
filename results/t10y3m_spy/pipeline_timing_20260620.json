@@ -1,0 +1,11 @@
+{
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:21Z",
+  "seconds": 1.62,
+  "stages": [
+    "core_models",
+    "tournament",
+    "validation",
+    "contracts"
+  ]
+}

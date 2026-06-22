@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_scatter",
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:33.281876+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_spy.py",
+  "caption": "Each point is a valid strategy candidate from the tournament.",
+  "narrative_alignment_note": "Each point is a valid strategy candidate from the tournament.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/t10y3m_spy/tournament_results_20260620.csv"
+  ]
+}

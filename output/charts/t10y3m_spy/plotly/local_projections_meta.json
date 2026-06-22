@@ -1,0 +1,12 @@
+{
+  "chart_name": "local_projections",
+  "pair_id": "t10y3m_spy",
+  "generated_at": "2026-06-19T14:53:33.229952+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_spy.py",
+  "caption": "Local projection coefficients for the spread against forward SPY returns.",
+  "narrative_alignment_note": "Local projection coefficients for the spread against forward SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/t10y3m_spy/core_models_20260620/local_projections.csv"
+  ]
+}
