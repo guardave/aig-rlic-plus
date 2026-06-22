@@ -1,5 +1,16 @@
 # Team Status Board
 
+## 2026-06-22 — Lead Lesandro (lead-horizon Phase 4 + t10y3m_spy integration & parity)
+
+**Status:** HANDOVER (blocked on user). Branch `fix260620_lead_horizon` @ `de6155b`, pushed, **16 commits ahead of main, NOT merged.** Gate 13/13, conflict-free, cloud-clean (pre-t10y3m). User invoked `/eod` at a reboot request.
+
+- **Phase 4 (`e5b44d3`)** — ECON-T5 `selection`-provenance backfill on the 10 remaining live winners (Evan) + schema flip to REQUIRED. All 12 then-active winners == raw max-OOS-Sharpe row → **zero divergences** (corroborates Ivy audit). 2 step-5 tie-breaks documented (ism, hy_ig). CLAUDE.md dawodev deployment-note corrected.
+- **Integration find** — a 13th pair `t10y3m_spy` (built by **Rex/rekkusuri**, `c7fd6e1`, 2026-06-20) had landed on main mid-wave WITHOUT a `selection` block; the schema flip made it the lone merge gate-fail. Auto-mode classifier blocked the merge (LEAD-MA1, correct). Pulled main into branch (`c83b949`), Evan backfilled t10y3m selection (`7cae0f2`, row 372, L6/1.3214) → 13/13.
+- **t10y3m Phase-3 parity (`de6155b`)** — user approved patching Rex's pair for lead/lag. Full monthly chain: Evan (lead CSVs) → Vera (2 VIZ-LEAD1 charts) → Ray (Lead Analysis + Lead Tournament config blocks). **Honest ECON-LT2 verdict:** L6 is an isolated single-lead spike (neighbours 0.21–0.34 below; corr peaks L2 not L6; |best_r|≤0.134) — framed as a peak-pick, not a corroborated edge.
+- **Team:** evan-phase4 (3 tasks: 10-pair backfill, t10y3m selection, t10y3m lead CSVs), vera-t10y3m (charts), ray-t10y3m (config) — all clean, each Lead-verified, all deferred git to Lead.
+- **🔴 BLOCKED on user:** (1) **reboot dawodev** — t10y3m lead tabs not syncing after push (META-FRD lag); (2) **merge authorization** — option (a) sequence approved, explicit merge-action go still needed. Next session: re-probe `temp/p4_fast.py t10y3m_spy`, confirm lead tabs, then merge.
+- **Tooling:** `temp/p4_fast.py` = the fast DOM-only cloud probe (no screenshot-click sink); fold into cloud_verify. 6 candidate GH issues still unfiled (t10y3m lead-gap RESOLVED, dropped from list).
+
 ## 2026-06-16/17 — Lead Lesandro (Codex Mode-3 KS wave + cloud sweep + production fixes)
 
 **Status:** COMPLETED. main at `223c489`; production re-sweep 37 PASS / 0 FAIL / 40 (DP1 0). Two branches merged + deleted.

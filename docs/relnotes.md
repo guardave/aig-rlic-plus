@@ -1,5 +1,15 @@
 # Release Notes
 
+## 2026-06-22 — Lead-horizon Phase 4 + t10y3m_spy integration & parity (branch `fix260620_lead_horizon` @ `de6155b`, unmerged)
+
+Completed the wave's transparency phase and resolved an out-of-band integration collision.
+
+- **Phase 4 — ECON-T5 selection-provenance retro-apply.** Backfilled the `selection` block (objective, exact scanned grid, raw winner-row identity, runner-up, honest divergence clause) onto the 10 remaining live winners from their IMMUTABLE published tournament CSVs, then flipped the schema field to REQUIRED. **All 12 then-active winners == the raw max-OOS-Sharpe valid row over their committed grids — zero divergences**, independently corroborating the 2026-06-20 Ivy audit. Two step-5 tie-breaks documented in-rationale (ism_services: gap_50-vs-level lexicographic; hy_ig: T4_hmm_0.5-vs-0.7, byte-identical strategy series → lower threshold / first row).
+- **Integration collision (NEW discovery class).** A pair built out-of-band by another contributor (`t10y3m_spy`, Rex, 2026-06-20) landed on main mid-wave WITHOUT the wave-era `selection` block. Making the schema field REQUIRED turned it into the lone merge gate-failure — caught by the pre-merge T1.1 gate AND the auto-mode classifier (which correctly demanded explicit LEAD-MA1 authorization for the production merge). **Lesson: a schema field promoted to REQUIRED must be reconciled against EVERY registered pair, including ones that bypassed the wave. A registry-walk compliance gate (assert every registered pair carries `selection` + lead blocks) would catch the next out-of-band pair at its own commit, not at a downstream merge.**
+- **t10y3m_spy Phase-3 parity.** Brought the out-of-band pair to fleet parity with the full monthly chain (Evan lead CSVs → Vera VIZ-LEAD1 charts → Ray Lead Analysis/Tournament config blocks). **Honest ECON-LT2 verdict:** its L6 winner (OOS Sharpe 1.321) is an ISOLATED single-lead spike — scanned neighbours L3 (0.977)/L9 (1.106) sit 0.21–0.34 below, lead-correlation peaks at L2 (r=-0.134**) not L6 (~-0.054 n.s.), and linear predictability is uniformly weak (all |best_r|≤0.134). Framed as a peak-pick carrying favorable-draw caution, not a corroborated edge.
+- **Tooling:** the full `cloud_verify.py` sweep times out on its per-tab screenshot-click of hidden handles; a lean DOM-only probe (navigate → iframe → hydrate → read text/html + enumerate `button[role=tab]` WITHOUT clicking, ~13s/page) is the fast substitute and the template for fixing cloud_verify (skip non-visible tab handles).
+- **Status:** branch 16 commits ahead of main, gate 13/13, conflict-free, cloud-clean. BLOCKED on a dawodev reboot (t10y3m lead tabs not syncing post-push — META-FRD lag) + explicit merge authorization.
+
 ## 2026-06-21 — Lead-horizon wave Phases 1–3 complete (branch `fix260620_lead_horizon`, unmerged)
 
 Drove the lead-lag wave through its analytical + transparency phases. **Net winner changes across the entire wave: only the 2 monthly upgrades** (`indpro_xlp` L11/1.328, `indpro_spy` L4/1.230) — every weekly candidate and phantom was correctly rejected. All gate- and cloud-verified.

@@ -1,5 +1,32 @@
 # Lead Lesandro — Outstanding Work
 
+## Current open items (as of 2026-06-22 EOD)
+
+### Lead-horizon wave — branch `fix260620_lead_horizon` @ `de6155b` (16 commits ahead of main, pushed, **NOT merged**)
+Resumed at SOD; user authorized merge-sequencing **option (a)** ("Phase 4 first, then merge the whole wave"). Drove Phase 4 + an integration fix + a full Phase-3 parity mini-wave for a pair that landed mid-wave. Everything gate-verified (T1.1 13/13, T2 224 refs/0 fail). **The wave is merge-ready; only a cloud reboot + the explicit merge go remain.**
+
+- **Phase 4 (done, `e5b44d3`)** — ECON-T5 `selection`-provenance retro-apply to the 10 remaining live winners (Evan), each re-derived from its IMMUTABLE published tournament CSV; `raw_winner_row` spot-verified against 4 CSVs. **All 12 then-active winners == raw max-OOS-Sharpe row → zero divergences (corroborates Ivy audit).** Flipped schema `selection`→REQUIRED. Two step-5 tie-breaks documented (ism_services gap_50-vs-level lexicographic; hy_ig T4_hmm_0.5-vs-0.7 byte-identical series). Also CLAUDE.md deployment-note correction (dawodev) rode this commit.
+- **Integration (`c83b949` + `7cae0f2`)** — a 13th pair **`t10y3m_spy`** (created by **Rex / rekkusuri**, commit `c7fd6e1`, 2026-06-20) had merged to main mid-wave WITHOUT a `selection` block → the schema flip made it the lone gate failure on merge. The auto-mode classifier (correctly) blocked the merge (LEAD-MA1). Resolved cleanly: aborted merge, pulled main into the branch (`c83b949`), Evan backfilled t10y3m's selection (`7cae0f2`, raw row 372, L6/1.3214, divergence null). Gate restored to 13/13.
+- **t10y3m_spy Phase-3 parity (done, `de6155b`)** — user approved ("patch it as well for lead/lag"). Rex's pair also lacked the Phase-3 lead blocks (VIZ-LEAD1 charts + ECON-LA1/LT1 evidence blocks). Ran the full monthly chain: **Evan** (lead_correlation + lead_tournament CSVs; L6 reconciles to winner) → **Vera** (correlations_lead_view + lead_sharpe_distribution charts; bars byte-match CSV) → **Ray** (Lead Analysis + Lead Tournament config blocks + level1_labels). **Honest finding (ECON-LT2):** L6 is an ISOLATED single-lead spike (neighbours L3=0.977, L9=1.106 sit 0.21–0.34 below; lead-correlation peaks at L2 r=-0.134**, NOT L6 ~-0.054 n.s.; all |best_r|≤0.134). Framed as a peak-pick with favorable-draw caution, not a corroborated edge.
+
+**Cloud verify (rebooted dawodev, before the t10y3m parity commit):** 13/13 pairs Strategy+Methodology render clean (0 conform/traceback) → schema→REQUIRED flip is cloud-safe. Phase-3 lead tabs present on 12/13 (all but t10y3m at that time). **Tooling note:** the full `cloud_verify.py` sweep times out (its per-tab screenshot-click on hidden handles is the sink — recurring debt); the lean DOM-only probe `temp/p4_fast.py` (no screenshot clicking, ~13s/page) is the fast substitute — fold this fix into cloud_verify (skip non-visible tab handles before click).
+
+**🔴 BLOCKED — needs user (in this order):**
+1. **Reboot dawodev** — after `de6155b` push, t10y3m's Evidence page still served stale (no lead tabs) after ~4 min; plain push isn't syncing the new chart-tree (META-FRD file-sync lag). Reboot (Manage app → Reboot app) forces clean re-sync. User invoked `/eod` AT this reboot request. **Next session: re-probe `temp/p4_fast.py t10y3m_spy` → confirm `Lead Analysis`+`Lead Tournament` tabs appear → fleet is 14/14 consistent.** (NOTE: registry count was "13 active" pre-t10y3m; t10y3m makes the lead-block-complete fleet 13 registered pairs — the "14" includes the 2 indpro as separate, count carefully: 13 registered pairs all now have lead blocks.)
+2. **Merge authorization (LEAD-MA1).** Option (a) authorized the SEQUENCE, but the explicit merge ACTION still needs a crisp go (the classifier blocks auto-merge to production main). Branch is conflict-free, gate 13/13, cloud-clean. Merge plan: `git checkout main && git pull && git merge --no-ff --no-commit f9... && git commit --author="Lead Lesandro <lead-lesandro@idficient.com>" && git push origin main`. Production (aig-rlic-plus.streamlit.app) auto-deploys → re-verify + flag reboot.
+
+**Candidate GH issues to file (batched, per feedback_gh_issues_over_backlog — STILL NOT FILED):**
+1. ECON-LT1 re-run must regenerate the FULL downstream producer set atomically (wave found stale artifacts piecemeal).
+2. `cloud_verify.py` NameError latent on main (`82164fc`) — fixed on branch; document class + HABIT-QA2.
+3. signal_dist optional surfacing.
+4. Numeric trigger cards for percentile-rule winners (spy `threshold_value=null`).
+5. **NEW:** `cloud_verify.py` per-tab screenshot-click times out on hidden sub-tab handles (skip non-visible handles before click; the `temp/p4_fast.py` DOM-only pattern proves the fix).
+6. **NEW:** ism_services has `tournament_tie_note.md`, hy_ig does not — tie-note consistency gap (both are documented in-selection.rationale, so cosmetic).
+- **RESOLVED (no longer an issue):** t10y3m_spy missing Phase-3 lead blocks — fixed this session (`de6155b`).
+- **PROCESS NOTE for the future:** new pairs shipped to main by others (Rex) can land WITHOUT wave-era SOP compliance (selection block, lead blocks). Consider a registry-walk gate that asserts every registered pair carries `selection` + lead blocks, so the next out-of-band pair is caught at its own commit, not at a downstream merge.
+
+---
+
 ## Current open items (as of 2026-06-21 EOD)
 
 ### Lead-horizon wave — branch `fix260620_lead_horizon` @ `c9d364f` (8 commits ahead of main, pushed, **NOT merged**)
