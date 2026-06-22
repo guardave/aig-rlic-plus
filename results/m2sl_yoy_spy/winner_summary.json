@@ -37,5 +37,44 @@
   "total_combos": 4720,
   "valid_combos": 3369,
   "schema_version": "1.1.0",
+  "selection": {
+    "objective": "max_oos_sharpe",
+    "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
+    "grid_scanned": {
+      "leads": [
+        0,
+        1,
+        2,
+        3,
+        6,
+        12
+      ],
+      "n_signals": 8,
+      "n_thresholds": 10,
+      "n_strategies": 6,
+      "n_valid_combos": 3369,
+      "median_valid_objective": 0.7129
+    },
+    "tie_break_step": 0,
+    "raw_winner_row": {
+      "signal": "accel",
+      "threshold": "T1_fixed_p50",
+      "strategy": "P1_long_cash_pro",
+      "lead_column": "lead_months",
+      "lead_value": 2,
+      "source_tournament_file": "tournament_results_20260619.csv",
+      "source_row_index": 2608,
+      "display_alias": "signal_code=m2sl_accel (raw signal=accel); strategy_family=P1_long_cash (raw strategy=P1_long_cash_pro)"
+    },
+    "runner_up": {
+      "signal": "accel",
+      "threshold": "T2_roll_p75",
+      "strategy": "P1_long_cash_pro",
+      "lead_value": 2,
+      "objective_value": 1.6517
+    },
+    "rationale": "Unique maximiser of OOS Sharpe over the committed coarse monthly grid L{0,1,2,3,6,12} (3,369 valid combos, median OOS Sharpe 0.7129). Winner raw OOS Sharpe 1.6882 at L2; the 2nd-best valid combo (accel/T2_roll_p75/P1_long_cash_pro/L2) sits at 1.6517. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "objective_runner_up_divergence": null
+  },
   "notes": "Mode 3, pair260619_m2sl_yoy_spy. Tournament: 4720 strategy combos (+1 benchmark, valid=False per ECON-T4), 3369 valid. Winner by ECON-T3 cascade (resolved at step 1; 1 tied at step 1). Strategy returns are gross of transaction costs; 5 bps sensitivity in tournament_validation_20260619/. M2 is a revised series (FRED M2SL current vintage; Data Master snapshot is ~0.5% stale). Lead-lag: Toda-Yamamoto Granger M2SL->SPY significant at lags NONE; SPY->M2SL significant at lags [1, 2, 3, 4, 5, 8]. Robustness caveats: winner bootstrap p = 0.025 (vs resampled B&H); in-sample Sharpe 0.36 vs OOS 1.69; CP1 durability verdict 'conditionally_durable'; rolling-correlation stability 'moderately_stable'. OOS mean position 0.48."
 }

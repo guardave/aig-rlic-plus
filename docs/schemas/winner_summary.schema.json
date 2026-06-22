@@ -21,7 +21,8 @@
     "oos_max_drawdown",
     "oos_n_trades",
     "oos_period_start",
-    "oos_period_end"
+    "oos_period_end",
+    "selection"
   ],
   "properties": {
     "pair_id": {
@@ -119,7 +120,7 @@
     },
     "selection": {
       "type": "object",
-      "description": "**ECON-T5 winner-selection provenance (added v1.2.0; OPTIONAL — NON-BREAKING).** Records WHY this combo is the winner: the objective maximised, the EXACT grid scanned at publish time, the tie-break step, the runner-up it beat, and the RAW tournament-row identity it resolves to. Makes winner selection auditable/reproducible from the published files alone and closes the alias-vs-rawcode gap (display fields like `signal_code`/`threshold_value` may use aliases that do not literally match tournament row codes — `selection.raw_*` records the literal codes). **This object is OPTIONAL (NOT in `required`) for now:** the existing 10 winner_summary.json files predate it and `validate_or_die` runs at render time, so requiring it would break production rendering for un-backfilled pairs. It is validated WHEN PRESENT. It flips to `required` only AFTER the Lead-scheduled retro-apply wave backfills all 12 active pairs (see ECON-T5 retro-application clause).",
+      "description": "**ECON-T5 winner-selection provenance (added v1.2.0; REQUIRED as of the 2026-06-22 retro-apply wave).** Records WHY this combo is the winner: the objective maximised, the EXACT grid scanned at publish time, the tie-break step, the runner-up it beat, and the RAW tournament-row identity it resolves to. Makes winner selection auditable/reproducible from the published files alone and closes the alias-vs-rawcode gap (display fields like `signal_code`/`threshold_value` may use aliases that do not literally match tournament row codes — `selection.raw_*` records the literal codes). **This object is now REQUIRED:** the Phase-4 retro-apply wave (2026-06-22, fix260620_lead_horizon) backfilled all 12 active pairs from their immutable published `tournament_results_*.csv`, so every winner_summary.json carries it and `validate_or_die` enforces it at render time.",
       "required": [
         "objective",
         "grid_scanned",
