@@ -1,6 +1,30 @@
 # Lead Lesandro — Outstanding Work
 
-## Current open items (as of 2026-06-20 EOD)
+## Current open items (as of 2026-06-21 EOD)
+
+### Lead-horizon wave — branch `fix260620_lead_horizon` @ `c9d364f` (8 commits ahead of main, pushed, **NOT merged**)
+Resumed and drove the lead-lag wave through Phases 1–3. **Net winner changes across the entire wave: only the 2 monthly upgrades** (indpro_xlp L11/1.328, indpro_spy L4/1.230). Everything gate- AND cloud-verified (dawodev preview, after a reboot cleared a partial file-sync).
+
+- **Phase 1 (done, `75e51ee`)** — downstream render for the 2 re-run winners: Vera charts (incl. ECON-SR3 systemic 3-chart fix: rolling_sharpe_cp/signal_dist/tournament_scatter now canonical-sidecar-driven, no re-sim), Ray narrative (xlp story inversion countercyclical→procyclical; spy risk-adjusted-not-return honesty framing; removed a FALSE "22 months in cash thru COVID" claim), Ace portal. New SOP rules: **ECON-SR3** (winner-dependent chart inputs are canonical sidecars) + **VIZ-SR3T** twin. Fixed a chain of stale producer artifacts the re-run left (meta schema, subperiod, broker log, interpretation_metadata enum, signals parquet missing indpro_mom).
+- **QA tooling (`adfe00b`)** — fixed a `cloud_verify.py` NameError (`exploratory_markers_hit`, dangling ref from the APP-PT2 Sample-retirement edit) that crashed the whole cloud sweep on the first served page. **Latent on main since `82164fc`.** Added **HABIT-QA2** (pyflakes after any harness edit).
+- **Phase 2 (done, `ef66816`)** — Option D **weekly** sweep over the 4 daily pairs + petrol_inv settle. Built the `--weekly` code path (FreqSpec, W-FRI, leads 1..52, ann√52; monthly output byte-identical). **ZERO native-confirmed upgrades — all sweep flags were polarity-mirror / isolated-single-lead-spike phantoms** (vix L8w, hy_ig L39w, petrol L11m). New rule **ECON-LT2** (native confirmation + ±0.03 margin + ≥2-adjacent-lead durability). Durable verdicts: `results/_cross_agent/lead_horizon_phase2_weekly_verdicts.md`.
+- **Phase 3 (done, `c9d364f`)** — Lead Analysis (ECON-LA1) + Lead Tournament (ECON-LT1) evidence blocks + the 2 VIZ-LEAD1 charts for **all 12 pairs** (only permit had them before). Generalized `generate_lead_charts.py`; registry x-version 1.2.0 (+ latent histogram→bar fix). Honest per-pair verdict spread (1 clean corroboration, 2 reverse-causality nulls, 1 fragile spike, several divergences — none dressed up). Evan: monthly-axis lead_correlation for the 4 daily pairs + bh_oos_sharpe backfills (permit 0.8998, vix 0.7707 — vix materially corrected a window-wrong fallback).
+
+**OPEN DECISION (was mid-AskUserQuestion when /eod called — user picks next session):** merge sequencing. Options offered: (a) **Phase 4 first, then merge the whole wave**; (b) merge Phases 0–3 now, Phase 4 later; (c) merge now, defer Phase 4 indefinitely. Merge to main needs explicit user auth (LEAD-MA1). Branch is fully verified and ready whenever.
+
+**Phase 4 (remaining — the only lead-horizon item left):** ECON-T5 `selection`-provenance retro-apply — backfill the `selection` block onto the other 10 winners, then flip the schema field `selection` to REQUIRED (do NOT flip before all 12 backfilled — breaks render). Mechanical, no new analysis. Will also systematically catch the `bh_oos_sharpe` gaps hit piecemeal (permit, vix).
+
+**Candidate GH issues to file (batched, per feedback_gh_issues_over_backlog — not yet filed):**
+1. ECON-LT1 re-run must regenerate the FULL downstream producer set atomically (this wave found 3+ stale artifacts piecemeal: meta/broker/parquet/metadata/bh).
+2. `cloud_verify.py` NameError latent on main (`82164fc`) — fixed on branch; issue documents the class + HABIT-QA2 prevention.
+3. signal_dist optional surfacing (shelved suggested, correct-at-source, not routed to render).
+4. Numeric trigger cards for percentile-rule winners (spy `threshold_value=null` → 0.5-heuristic fallback).
+
+**Deployment-notes correction (for CLAUDE.md / team-coordination):** the **dawodev** preview (`aig-rlic-plus-dawodev.streamlit.app`) now tracks `fix260620_lead_horizon` — it is the CORRECT preview for this branch. The `aig-rlic-plus-fix260620` app tracks a DIFFERENT/older branch (served stale old-winners during verification — cost us a wrong-URL detour). Resolves the prior stale "dawodev tracks deleted feat_ism_services_spy" item.
+
+---
+
+## Prior open items (as of 2026-06-20 EOD)
 
 ### Shipped to production today (main, all reboot+cloud-DOM-verified)
 - **Low-risk cleanup** (`fix260620_lowrisk_cleanup` → merged): GH #12 GATE-VIZ-NBER2 false-positive fix (gate-slug bug, not a chart bug — closed #12); smoke-log `.gitignore` housekeeping; permit_spy stale "Honest read on the cross-period charts above" transition trimmed. Prod-verified.
