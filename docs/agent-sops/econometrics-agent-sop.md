@@ -735,6 +735,56 @@ Ray owns `strategy_objective` (team-coordination.md §21) but cannot classify wi
 3. **Send a structured handoff message to Ray** immediately after tournament completion (not bundled with the general results handoff). Content: path to `tournament_summary.csv`, path to `tournament_winner.json`, and a one-line suggestion of the likely `strategy_objective` bucket for Ray to confirm or override. Ray retains final authority; Evan is a supplier of pre-computed deltas.
 4. If the winner fails to beat the benchmark on any dimension, flag this explicitly in `tournament_winner.json` (`beats_benchmark: false`) and escalate to Lesandro before closing the pair. Do not silently classify a losing strategy.
 
+### ECON-LL1 — Universal Monthly Lead-Granularity Standard (Blocking, all pairs incl. daily; added 2026-06-13, stakeholder direction)
+
+**Lead time is analysed in MONTHS for every pair — including daily-data pairs.** A signal's usable physical lead is governed by data availability, reporting/publication lag, and market reaction time, not by data sampling frequency. Expressing lead in trading days over-fits to noise and produces lead selections with no practical meaning (a "3-day lead" is not actionable for a monthly-rebalanced macro overlay). Therefore:
+
+- The lead grid for Lead Analysis (ECON-LA1) and the Lead Tournament (ECON-LT1) is **L = 0, 1, 2, …, 12 months**, universally.
+- For daily-data pairs (e.g. vix_vix3m_spy, gold_copper_xli, hy_ig_spy), one month of lead = ~21 trading days; shift the daily signal by `L × 21` trading days (or resample to month-end) so the lead axis is months for everyone.
+- This applies to all current pairs and **all future pairs**.
+
+**Cross-reference:** ECON-LA1, ECON-LT1, ECON-OOS2 (windowing unchanged).
+
+### ECON-LA1 — Lead Analysis (Mandatory Evidence Component, all pairs; added 2026-06-13)
+
+**Every pair must publish a Lead Analysis.** The Correlation block answers "over what cumulative forward horizon does today's signal predict the target?" — the economist's question. Lead Analysis answers the *monthly-strategy* question: "how stale may the signal be before we trade on it?" — i.e. which signal **lead** maximises predictive content against the **1-month forward return**.
+
+**Method (mandatory):** for each signal transform, compute Pearson r between the signal lagged L = 0..12 months (ECON-LL1 granularity) and the target's 1-month forward return; mark significance (`*` p<0.05, `**` p<0.01). Emit `results/{pair}/lead_correlation_{date}.csv` (rows = transforms, cols = L0..L12, values = r with significance) and hand the chart `correlations_lead_view` to Vera (VIZ rule below). Report, per transform, the lead with the largest |r| ("best lead").
+
+**Honest-finding mandate:** if the best lead differs from the published tournament winner's lead, say so plainly (vichua's permit_spy block is the reference: it disclosed the data favours L=8-9 while the winner sits at L=6). A divergence is publishable content, not something to suppress.
+
+### ECON-LT1 — Lead Tournament + Analysis-Gated Conditional Re-Run (Blocking; added 2026-06-13, stakeholder direction)
+
+**Every pair must publish a Lead Tournament:** re-run the full (signal × threshold × strategy × lookback) tournament across the complete monthly lead grid L=0..12 (most legacy pairs tested only a coarse subset, e.g. {0,1,2,3,6}). Emit, per lead, the **best OOS Sharpe at that lead** plus the distribution of all valid combos at that lead; hand the chart `lead_sharpe_distribution` to Vera. This distinguishes a tall single-grid-point peak from a robust ridge of working leads.
+
+**The conditional re-run gate (economical — analysis first, re-run only if it matters):**
+
+1. Run Lead Analysis + Lead Tournament (cheap relative to a full pair rebuild).
+2. Identify the lead L\* of the **best OOS Sharpe across the extended L=0..12 grid**.
+3. **If L\* ∈ {7..12}** (the extended grid produces a better winner the published one missed): the published winner is stale → **re-run/adopt the extended-grid winner** as the pair's winner, cascading through `winner_summary.json`, ECON-SR1 `strategy_returns`, fragility, charts, narrative, DPS-SCD1 disclosure (a full downstream refresh for that pair).
+4. **If L\* ∈ {0..6}** (the published winner's lead region still wins): the report is **unaffected** — keep the existing winner; publish the two analysis blocks only. This is the common case (permit_spy: extended-grid max Sharpe stays at L=6; the L8-10 region is a lower-Sharpe, lower-drawdown ridge, not a higher-Sharpe winner — so no re-run, charts only).
+5. Record the gate decision (L\*, re-run yes/no, rationale) in `docs/pair_execution_history.md` for every pair.
+
+**Note on robustness vs peak.** A lower-drawdown ridge at L7-12 that does NOT beat the L≤6 winner on Sharpe does NOT trigger a re-run under this gate (the gate keys on the Sharpe winner's lead). Surface the ridge as honest Lead-Tournament narrative; a tie-break/robustness-objective change is out of scope of this rule (would be a separate ECON-T3 amendment).
+
+**Cross-reference:** ECON-LL1 (granularity), ECON-LA1 (the correlation-side analysis), ECON-T3 (winner selection if a re-run fires), ECON-SR1 (reconciled series on re-run), DPS-SCD1 (re-disclose best-of-N on re-run).
+
+### ECON-LT2 — Lead-Sweep Candidates Require Native Confirmation + Durability (Blocking; added 2026-06-21, fix260620_lead_horizon Phase 2)
+
+**Motivation.** The cheap lead-horizon sweep (`scripts/lead_horizon_sweep.py`) ranks candidates on **best |OOS Sharpe|** over a polarity-agnostic P1/P2 + hi/lo grid. That polarity scan has a **polarity-mirror false-positive mode**: it can surface the negative-image of an invalid native combo and flag it as a phantom "winner." In the fix260620 wave, **2 of 3 "confirmed" monthly re-runs and 3 of 3 weekly candidates were phantoms** under native scrutiny. The sweep is a discovery tool, NOT a winner selector — a sweep flag that ships without native confirmation produces a stakeholder-trust failure (a published winner change that the pair's own tournament does not reproduce).
+
+**Rule (blocking).** Any lead-horizon **sweep flag** — monthly `RE-RUN` or weekly `CANDIDATE-WEEKLY` — is **EXPLORATORY ONLY** and MUST clear a NATIVE-tournament confirmation before it counts as a winner or triggers any downstream cascade:
+
+1. **Native re-run.** Re-run the pair's OWN native tournament grid (its native signals, thresholds, strategies, **fixed direction** — do NOT use the sweep's hi/lo polarity scan) at the pair's native granularity, on the frozen data and the published OOS window, with ONLY the lead grid extended. The exploratory sweep's metric/grid is never the gate.
+2. **Margin gate.** The native-extended best must beat the published winner's OOS Sharpe by more than the **±0.03 guardrail band** (a beat inside ±0.03 is noise — keep the published winner).
+3. **Durability gate (the decisive test).** The native edge must be **durable across ≥2 adjacent leads**, not an isolated single-lead spike. Concretely: if every valid combo that beats the published Sharpe is concentrated at **exactly one lead** the published grid never scanned, AND the best combo's Sharpe spikes at that lead and reverts toward (or below) the published level at the neighbouring leads, the candidate is a **lucky-window / overfit artifact — REJECT and keep the published winner.** A genuine horizon edge spreads its out-performing combos across adjacent leads (a ridge, not a spike). Document the per-lead Sharpe profile of the best combo as the evidence.
+4. **Only if (2) AND (3) pass** does the candidate become a confirmed winner, cascading through ECON-LT1's downstream refresh (winner_summary → ECON-SR1 → charts → narrative → DPS-SCD1).
+5. **Persist the verdict** (confirmed or phantom) durably — not in `temp/` — so the negative result ("we checked and it was a phantom, here is the per-lead profile") is auditable stakeholder-trust evidence.
+
+**Granularity-of-gate note.** Confirm at the granularity the pair is **published** at: a monthly-published pair's monthly sweep flag is gated by the monthly native tournament; a daily-published pair's weekly sweep flag is gated by a native weekly tournament. A natively-higher-frequency data source (e.g. weekly EIA petroleum inventories on a monthly-published pair) does NOT change the gate granularity — a reframe to the raw frequency would be a different pair (different signals/OOS/winner), out of scope for confirming an existing pair's sweep suspect.
+
+**Cross-reference:** ECON-LT1 (the sweep + gate this rule confirms — ECON-LT2 is the mandatory confirmation step ECON-LT1's gate decision feeds into); ECON-T3 (tie-break cascade, only engaged once a winner is confirmed); ECON-T5 (immutable published tournament CSVs — native re-runs emit new dated outputs, never overwrite); ECON-CP1 (durability-across-regimes is the spiritual sibling of durability-across-leads).
+
 ### ECON-T3 — Tournament Tie-Break Cascade (Blocking)
 
 **Motivation.** In the HY-IG v2 tournament, two strategies with identical `oos_sharpe` (1.274) differed only in `threshold_value` (0.5 vs 0.7). The winner was selected by pandas' stable-sort order — silent non-determinism. A second Evan re-running the same pipeline with a different pre-sort order would ship a different `threshold_value`, a different broker trade log, and a different portal caption, without any audit trail. ECON-T3 mechanizes the tie-break so another Evan, given identical inputs, produces an identical winner.
@@ -777,6 +827,22 @@ The cascade MUST be implemented explicitly in the tournament script (not delegat
 
 **Cross-reference:** DPS-SCD1 (position disclosure uses the strategy-only population); ECON-H5 (winner metrics); GH #10 (originating audit finding).
 
+### ECON-T5 — Winner-Selection Provenance & Auditability (Blocking; added 2026-06-20, fix260620_lead_horizon)
+
+**Motivation.** `indpro_spy` was challenged on idempotency: from the published artifacts alone a reader could not tell *why* a given combo is the winner, what grid was searched, what it beat, or whether a non-default objective was used. When a later regeneration silently expanded the on-disk tournament CSV beyond the originally-scanned grid (appending L0..12 rows into the publish-time `tournament_results_20260314.csv` in place), the published L6 winner appeared to lose to an L4 row it never competed against. Auditability — not a wrong number — was the defect; the 2026-06-20 independent audit confirmed all 12 published winners are the legitimate raw max-OOS-Sharpe row over their committed grid.
+
+**Rule (blocking).**
+
+1. **Deterministic objective.** Winner selection maximises a single declared scalar `objective` over the valid strategy population (ECON-T4: `BENCHMARK` excluded), with ties resolved by the ECON-T3 cascade. The default and historical objective is `max_oos_sharpe`. Any non-default objective MUST be declared in `selection.objective` and justified in `selection.rationale`.
+2. **Provenance record.** Every `winner_summary.json` SHOULD carry the `selection` object (winner_summary.schema.json): the objective + formula, the EXACT grid scanned (explicit lead list — never prose like "0..12"; signal/threshold/strategy/valid-combo counts; median objective), the ECON-T3 tie-break step that resolved it, the runner-up combo it was chosen over, **and the raw tournament-row identity** (raw `signal`/`threshold`/`strategy` codes, raw lead column+value, source tournament filename and source row index) so the published winner is traceable to a literal row even when display aliases are used elsewhere. The grid recorded is the grid the selection actually searched at publish time — it is FROZEN with the winner and is NOT updated by any later tournament regeneration (see §4). *(`selection` is schema-optional pending the retro-apply backfill wave; it flips to required once all 12 pairs carry it.)*
+3. **Raw-max divergence disclosure (the honest-finding clause).** If the published winner is NOT the row with the highest raw OOS Sharpe in the scanned grid (e.g. a robustness/turnover/composite objective deliberately overrode raw Sharpe), `selection.objective_runner_up_divergence` MUST state, in one paragraph: the higher-raw-Sharpe row passed over (its combo + Sharpe), the criterion under which the published winner is preferred, and why that criterion is sound. A null value asserts "published winner == raw max-Sharpe row".
+4. **Grid-expansion is a re-run, not a backfill — published CSVs are immutable; reads are read-only.** Expanding the tournament lead/signal/threshold grid beyond what the published winner was selected over is a NEW tournament that triggers the ECON-LT1 gate and, if it fires, a fresh winner selection + full `selection` record citing the new grid. It MUST be written to a NEW date-stamped `tournament_results_{newdate}.csv`. **No process may append to, overwrite, or otherwise mutate a published `tournament_results_*.csv` in place** — this is what masked the `indpro_spy` provenance. Producers write via `scripts/_tournament_io.write_tournament()` (raises `TournamentImmutabilityError` on an existing path); consumers/regen helpers open tournament CSVs strictly **read-only** (`scripts/_tournament_io.read_tournament()`).
+5. **Validation.** The selection script asserts, when a `selection` record is written: (a) the recorded `runner_up` is the 2nd-best valid row on `objective`; (b) `grid_scanned.n_valid_combos` equals the valid strategy count actually scanned; (c) if `objective_runner_up_divergence` is null, the winner's objective value equals the population max (within rounding); (d) the recorded raw-row identity resolves to exactly one row in the cited source tournament CSV. Assertion failure blocks the write.
+
+**Cross-reference:** ECON-T3 (tie-break cascade — the within-objective resolver whose step ECON-T5 records); ECON-T4 (valid population excludes `BENCHMARK`); ECON-LT1 (grid-expansion gate — §4); ECON-SR1 (the reconciled series is a separate downstream consumer — ECON-T5 governs the selection, ECON-SR1 the reconstruction); ECON-H5 (winner_summary contract that carries `selection`).
+
+**Retro-application.** All 12 active pairs were audited 2026-06-20: every published winner equals the raw max-OOS-Sharpe valid row in its committed publish-time grid (objective = `max_oos_sharpe`, divergence = null). Backfilling the `selection` object onto the 12 legacy `winner_summary.json` files (grid read from each committed `tournament_results_*.csv`, runner-up + raw-row identity computed, divergence null) is a mechanical retro-apply — a separate Lead-scheduled wave, NOT part of this diagnosis. `selection` becomes schema-`required` only after that wave completes.
+
 ### ECON-SR1 — Strategy-Series Reconstruction Reconciliation (Blocking; added 2026-06-11, fix260611_meta_cmp)
 
 **Motivation.** fix260526 W0.5 back-generated drawdown/walk-forward artifacts for 3 pairs by re-deriving positions from `winner_summary.json` via `derive_position()`. The derivation had two silent bugs (threshold-code parse failure → wrong fallback threshold; double direction-inversion) and produced a strategy series losing 96% — which shipped to production charts under captions quoting the correct −21% drawdown, because no reconciliation step existed between "series re-derived" and "artifacts emitted". Caught 2026-06-11 by Vera's reconciliation gate during META-CMP adoption.
@@ -789,6 +855,20 @@ The cascade MUST be implemented explicitly in the tournament script (not delegat
 4. The reconciliation result (computed vs winner_summary, per metric) is stated in the producing script's output and in the handoff note.
 
 **Cross-reference:** Vera's Numerical Reconciliation gate (visualization SOP) is the consumer-side twin; META-CMP Tier 3 (deferred) is the eventual mechanical enforcement; GH #7 adoption-run findings 2026-06-11.
+
+### ECON-SR3 — Winner-Dependent Chart Inputs Are Canonical-Series Sidecars (Blocking; added 2026-06-20, fix260620_lead_horizon)
+
+**Motivation.** ECON-SR1 §3 made the strategy-return series a single persisted artifact for the equity/drawdown/walk-forward/subperiod consumers, but three other winner-dependent charts were never wired to it. They were rendered by per-pair generators that re-simulated the winner from signal+threshold heuristics — `np.sign(signal.shift(lead)) * target` in `scripts/econ_cp_retro_apply.py::compute_strat_ret` (feeding `rolling_sharpe_cp`), and a hardcoded `df["indpro_accel"]` in `scripts/generate_charts_indpro_xlp.py::chart_signal_dist`. This is the exact bug class ECON-SR1 exists to kill. On the fix260620 lead-horizon winner change (indpro_xlp → L11, indpro_spy → L4) these silently shipped the OLD winner: the xlp `signal_dist` chart histogrammed "INDPRO Acceleration" while the new winner signal is `indpro_mom` (1-month momentum) — a user-visible correctness defect. Caught 2026-06-20 during the Phase B re-run cascade.
+
+**Rule (blocking).** Extends ECON-SR1 §3 ("one series, many consumers"). The inputs to the three winner-dependent charts `rolling_sharpe_cp`, `signal_dist`, and `tournament_scatter` MUST be persisted `results/{pair_id}/` sidecars produced by Evan and reconciled to `winner_summary.json`; chart generators CONSUME them and never re-derive positions or re-simulate the winner:
+
+1. **`rolling_sharpe_cp`** ← `results/{pair_id}/rolling_sharpe_{pair_id}.csv` (columns: `date`, `rolling_sharpe_24m`). The rolling Sharpe is computed DIRECTLY off the canonical `strategy_returns_{date}.csv` `strategy_return` series (24-month window monthly / 504-day daily), never from a re-simulated position series. The full-OOS Sharpe of that underlying series reconciles to `winner_summary.json.oos_sharpe` within ±0.01.
+2. **`signal_dist`** ← `results/{pair_id}/signal_dist_{pair_id}.csv` keyed on `winner_summary.json.signal_column` (NOT a hardcoded column), carrying the contemporaneous signal value, the lead-shifted value the rule tests, an IS/OOS `sample` split, and the winner's own threshold (scalar for fixed thresholds, a per-row series for rolling thresholds).
+3. **`tournament_scatter`** ← `results/{pair_id}/tournament_scatter_{pair_id}.csv`: the **IMMUTABLE published coarse tournament CSV** (e.g. `tournament_results_20260314.csv`) is the scatter population, so the scatter agrees with the portal Methodology tournament table. The selected winner is added as a single distinct `extended_grid_winner` overlay row (coordinates from `winner_summary.json`), NOT read from a coarse-grid row and NEVER written into the coarse CSV. When the winner's lead lies outside the coarse grid (the ECON-LT1 case — the whole reason the extended sweep fired), the winner is by definition not a coarse-grid member and MUST be rendered as an overlay; switching the scatter population to the extended grid is prohibited because it desyncs the scatter from the Methodology table.
+
+Each sidecar carries a `_meta.json` (or a shared `gap_sidecars_{pair_id}_meta.json`) recording provenance and the reconciliation result, per ECON-SR1 §4.
+
+**Cross-reference:** ECON-SR1 (parent — reconciled canonical series); ECON-T5 (immutable published tournament CSV — read-only; the extended-grid winner is never folded into it); ECON-LT1 (grid-expansion gate — the winner-lead-outside-coarse-grid condition that forces the overlay treatment); a VIZ consumer-side twin in the visualization SOP is needed (Vera renders, never re-derives) — to be added by Vera when she wires the consumers.
 
 ### ECON-OOS1 — OOS Window Ownership
 

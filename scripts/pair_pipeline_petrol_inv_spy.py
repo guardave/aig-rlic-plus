@@ -507,7 +507,10 @@ def tournament(df: pd.DataFrame):
     tdf = pd.DataFrame(rows)
     assert (tdf.signal == "BENCHMARK").sum() == 1
     assert not bool(tdf.loc[tdf.signal == "BENCHMARK", "valid"].iloc[0])
-    tdf.to_csv(RESULTS / f"tournament_results_{DATE_TAG}.csv", index=False)
+    import sys as _sys, os as _os
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    from _tournament_io import write_tournament  # ECON-T5 §4 immutability guard
+    write_tournament(tdf, RESULTS / f"tournament_results_{DATE_TAG}.csv")
     strategy_rows = tdf[tdf.signal != "BENCHMARK"]
     valid_count = int(strategy_rows.valid.sum())
     write_json(

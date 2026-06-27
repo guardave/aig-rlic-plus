@@ -973,6 +973,54 @@ done
 
 ---
 
+#### Rule VIZ-SR3T — Sidecar Consumer-Side Twin (added 2026-06-21, fix260620_lead_horizon)
+
+**Mirror of ECON-SR3.** When Econ emits a canonical *gap sidecar* for a chart
+(`results/{pair}/{chart}_{pair}.csv` plus a `gap_sidecars_{pair}_meta.json`
+provenance file), Vera renders that chart **strictly by consuming the sidecar** —
+she NEVER re-derives the underlying quantity from raw signals, the tournament CSV,
+or the strategy positions. The three charts placed under this contract by ECON-SR3
+are `rolling_sharpe_cp`, `signal_dist`, and `tournament_scatter`; the contract
+extends to any future sidecar Econ registers.
+
+Specifically:
+- **rolling_sharpe_cp** reads `rolling_sharpe_{pair}.csv` (`date, rolling_sharpe_24m`)
+  — the canonical builder already does this; no re-simulation.
+- **signal_dist** reads `signal_dist_{pair}.csv` (`date, signal_value, signal_lagged,
+  sample, threshold`). Histogram `signal_value` (the actual winner signal column);
+  do NOT hardcode a signal name. The pre-ECON-SR3 defect was histogramming a stale
+  hardcoded column (`indpro_accel`) after the winner signal changed to `indpro_mom`.
+- **tournament_scatter** reads `tournament_scatter_{pair}.csv` with a `point_role`
+  column ∈ {invalid, valid, benchmark, coarse_top5, extended_grid_winner}. The
+  scatter population is the **immutable coarse published grid** (so it agrees with
+  the Methodology winner table); the single `extended_grid_winner` row is rendered
+  as a **distinct labeled overlay marker** (read it, never re-derive). The coarse
+  grid and the extended-grid winner are different populations — never merge them.
+
+**Why this rule exists.** ECON-SR1 eliminated chart-side re-simulation for the
+strategy-performance charts; the lead-horizon wave exposed three more winner-dependent
+charts that still re-derived (or hardcoded) their inputs and so silently encoded the
+displaced winner after a winner change. VIZ-SR3T closes that gap: the sidecar is the
+single source of truth, exactly as ECON-SR3 makes it on the producer side.
+
+**Disposition note.** `signal_dist` is not referenced by the methodology page template
+nor by the indpro pair_configs — it is an orphan and therefore `disposition: "suggested"`
++ `exploratory: true` (VIZ-O1 / VIZ-E1), not `consumed`. Routing it into the Methodology
+Exploratory section (`analyst_suggestions.json` `exploratory_charts`) is an Ace-side
+render-pathway change; flag it, do not silently rewire.
+
+**Caution — unguarded module imports.** `scripts/viz_cp_retro_apply.py` runs its
+retro-apply main loop at *import* time (no `if __name__ == "__main__"` guard).
+Importing `build_rolling_sharpe_cp` from it re-renders all 10 pairs' CP charts as a
+side-effect (collateral overwrite, thin metas, no perceptual PNGs). Copy the builder
+or guard the import; never `import` that module for a single-pair render.
+
+**Cross-reference:** ECON-SR3 (producer-side sidecar contract), ECON-SR1 (no chart-side
+re-simulation of strategy series), VIZ-CP1 (rolling_sharpe_cp builder), VIZ-O1 / VIZ-E1
+(disposition + exploratory sidecar), VIZ-NBER1 (NBER shading on rolling_sharpe_cp).
+
+---
+
 #### Rule V3 — Per-Chart Ownership: No Silent Fallbacks (addresses S18-11)
 
 Every chart referenced by a portal page must have its own canonical artifact. If a statistical method doesn't yet have a dedicated chart (e.g. Granger Causality), Vera must produce one — falling back to a different chart (e.g. rendering Local Projections under a Granger heading) is **prohibited**. S18-11 flagged this exact pattern: "Granger chart 同 Local Projections 個 chart 睇落一樣" — the same file was served under two headings, breaking per-method ownership.
@@ -1528,6 +1576,15 @@ Plotly renders text through MathJax: a PAIRED `$...$` in any title, annotation, 
 On any tournament-distribution chart, the winner annotation must state the winner's **position within the valid strategy population**, not a bare value: `"Winner = max of 60 (median 0.54)"`, never `"Winner = 1.27"`. The valid count excludes the benchmark row per ECON-T4. Numbers are re-read from the tournament CSV at chart-generation time, never hard-coded from memory.
 
 This is the chart-side half of **DPS-SCD1** (specification-curve position disclosure, `docs/dashboard-page-standard.md`) — see there for the full rationale and the prose-side requirement. Reference implementation: `hy_ig_spy` tournament_sharpe_dist title ("Winner Is Top 2 of 2036 Valid Strategies").
+
+## Rule VIZ-LEAD1 — Lead-Analysis Chart Pair (Mandatory, all pairs; added 2026-06-13)
+
+Two new mandatory Evidence charts back the Lead Analysis (ECON-LA1) and Lead Tournament (ECON-LT1) blocks. Both use the universal monthly lead axis L=0..12 (ECON-LL1), all pairs incl. daily.
+
+1. **`correlations_lead_view`** — heatmap, rows = signal transforms, columns = lead months L0..L12, cell = Pearson r of the lagged signal vs the target's **1-month forward return**; significance stars (`*`/`**`); diverging colorblind-safe scale centred at 0. Annotate/caption the best-lead column per the data (numbers re-read from `lead_correlation_{date}.csv` at generation time). Title names the target's 1-month forward return so the held-fixed horizon is unambiguous.
+2. **`lead_sharpe_distribution`** — per lead L0..L12: a bar = the **best OOS Sharpe at that lead**, overlaid with a strip/cloud of all valid combos at that lead; a dashed line marks buy-and-hold. Caption states where the max sits and whether it's a single spike vs a broad ridge (per ECON-LT1's gate finding). A tall-thin spike vs flat-wide cloud must be visually legible.
+
+**Registry (VIZ-V8):** add both `method_name`s (`Lead Analysis` → `correlations_lead_view`, `Lead Tournament` → `lead_sharpe_distribution`) to `docs/schemas/chart_type_registry.json` with `required_result_file` (`lead_correlation_{date}.csv`, `tournament_results_{date}.csv`) and `viz_rule_id: VIZ-LEAD1` / `econ_rule_id: ECON-LA1`|`ECON-LT1` BEFORE shipping; bump `x-version`; changelog entry. vichua's permit_spy charts shipped without registry entries — close that gap in this wave. VIZ-IC1 + VIZ-TX1 + perceptual-PNG apply.
 
 ## Quality Gates
 

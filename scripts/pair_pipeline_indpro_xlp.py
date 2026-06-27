@@ -1127,7 +1127,9 @@ def stage_tournament(df_monthly, is_end, oos_start):
 
     results_df = pd.DataFrame(results)
     results_path = os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv")
-    results_df.to_csv(results_path, index=False)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _tournament_io import write_tournament  # ECON-T5 §4 immutability guard
+    write_tournament(results_df, results_path)
 
     valid_count = results_df["valid"].sum() if len(results_df) > 0 else 0
     print(f"\n  Tournament Summary:")

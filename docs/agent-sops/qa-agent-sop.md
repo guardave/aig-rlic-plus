@@ -170,6 +170,20 @@ Result codes:
 
 **Enforcement.** Lead may spot-check compliance by reading `session-notes.md`. Any PASS verdict in session-notes that lacks the HABIT-QA1 sentence (covering all four page types) is evidence of non-compliance. On first occurrence: PASS-with-note. On recurrence: the wave is re-opened.
 
+## HABIT-QA2 — Static Lint Gate After Any Harness Edit (added Wave lead-horizon, 2026-06-21)
+
+> **A QA harness that crashes mid-sweep is worse than no harness — it gives a false sense of coverage while silently aborting. Before declaring any harness script "ready," prove it parses and has no undefined references.**
+
+**Root cause (lead-horizon wave).** An APP-PT2 Sample-retirement edit to `scripts/cloud_verify.py` removed the `EXPLORATORY_ELI5_MARKERS` / `SAMPLE_PAIR` constants and the positive ELI5-marker counting, but left the `check_page()` return-dict key `"exploratory_eli5_markers_hit": exploratory_markers_hit` — a consumer of the removed variable, with no producer. `check_page()` runs on every page, so the first served page raised `NameError` and aborted the entire cloud sweep. The buggy version was committed and shipped to `main` (commit `82164fc`); any cloud_verify run since would crash once the app actually serves a page. It was never caught because the harness was not smoke-run end-to-end (or statically linted) after the edit.
+
+**The binding rule.** After EVERY edit to `scripts/cloud_verify.py` (or any other QA harness/automation script Quincy owns), before declaring it ready or handing it to a producer to run:
+
+1. Run `python -m pyflakes scripts/cloud_verify.py` (substitute the edited script). It must report **zero** undefined-name / unused-import issues attributable to the edit. Pyflakes statically catches dangling references left by refactors — no live app, no cloud session required. This is the cheap gate that would have caught the `NameError` above at producer time.
+2. Confirm `python -c "import ast; ast.parse(open('scripts/cloud_verify.py').read())"` parses clean (pyflakes implies this, but record both when the edit was non-trivial).
+3. When the edit removed a variable/constant, grep the whole file for the removed name to confirm no surviving consumer: `grep -n '<removed_name>' scripts/cloud_verify.py` must return only comments (or nothing).
+
+**Why this is separate from HABIT-QA1.** QA1 guards against a *false-PASS after* the harness runs (judgment layer on captured DOM). QA2 guards against the harness *crashing before* it can run (static integrity of the tool itself). Different failure class, different gate.
+
 ## Anti-Patterns (what QA must NOT do)
 
 - **Never modify producers' artifacts.** Scope separation is core; QA finds, producer fixes. Mixing roles destroys the second-line-of-defense property.
@@ -179,6 +193,7 @@ Result codes:
 - **Never own fixes.** If QA finds a broken chart, the ticket goes to Vera. If QA finds a broken loader, the ticket goes to Ace. QA's contribution is the find, not the fix.
 - **Never sign off on a verify run without reading DOM text (HABIT-QA1).** Script PASS alone is not QA sign-off. The DOM text files are the evidence; reading them is the judgment. Skipping this step is the same failure mode that produced the Wave 10I.A false-PASS.
 - **Never skip re-reading the SOP checklist at the start of a verify run.** Wave 10I.A's GATE-29 omission was not caused by an unclear SOP — GATE-29 was documented. It was caused by not re-reading QA-CL4 before starting. The checklist is an execution checklist, not a reference document. Read it every time.
+- **Never declare a harness script ready without a static lint (HABIT-QA2).** After any edit to `scripts/cloud_verify.py` or another QA automation script, run `python -m pyflakes` on it. A dangling reference left by a refactor (e.g. a return-dict key consuming a removed variable) crashes the sweep on first use — pyflakes catches it in seconds with no app needed.
 - **Never carry a WARN→FAIL stub transition across multiple waves (GATE-32).** Once retro-apply is confirmed for a new mandatory section, flip the severity to FAIL and re-run cloud_verify. A stub that stays in WARN mode indefinitely is a silent quality regression.
 
 ## Standard QA Checklist per Wave

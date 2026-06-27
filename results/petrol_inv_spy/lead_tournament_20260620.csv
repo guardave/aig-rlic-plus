@@ -1,0 +1,14 @@
+lead_months,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+0,123,1.326,0.6742,0.5065,0.8216,petrol_inv_zscore_60m,Trp25_hi,P1,-0.0833
+1,119,1.1412,0.6677,0.5385,0.8764,petrol_inv_zscore_60m,Trp25_hi,P1,-0.088
+2,116,1.246,0.6982,0.5245,0.8454,petrol_inv_zscore_60m,Trp25_hi,P1,-0.0833
+3,114,1.3039,0.7363,0.5546,0.9131,petrol_inv_pct_chg,Tp25_hi,P1,-0.1353
+4,116,1.183,0.685,0.5616,0.8651,petrol_inv_pct_yoy,Trp25_hi,P1,-0.1945
+5,124,1.3291,0.6645,0.5265,0.8071,petrol_inv_yoy_zscore_60m,Tp10_hi,P1,-0.1945
+6,117,1.181,0.7271,0.5468,0.8619,petrol_inv_dev_trend_pct,Tp10_hi,P1,-0.1945
+7,115,1.2709,0.7736,0.5327,0.9478,petrol_inv_yoy_zscore_60m,Tp10_hi,P1,-0.1945
+8,114,1.2704,0.7762,0.5586,0.9193,petrol_inv_accel_pct,Trp25_lo,P1,-0.0408
+9,117,1.268,0.7097,0.5423,0.8401,petrol_inv_6m_pct,Trp75_hi,P1,-0.0639
+10,119,1.5273,0.7297,0.4939,0.9838,petrol_inv_zscore_60m,Trp25_hi,P1,-0.0758
+11,117,1.4447,0.7239,0.532,0.977,petrol_inv_accel_pct,Trp75_hi,P1,-0.0171
+12,128,1.2048,0.6624,0.5334,0.8245,petrol_inv_3m_pct,Tz1_hi,P1,-0.0241

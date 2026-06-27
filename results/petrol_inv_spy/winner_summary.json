@@ -37,5 +37,44 @@
   "total_combos": 7392,
   "valid_combos": 5123,
   "schema_version": "1.1.0",
+  "selection": {
+    "objective": "max_oos_sharpe",
+    "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
+    "grid_scanned": {
+      "leads": [
+        0,
+        1,
+        2,
+        3,
+        6,
+        12
+      ],
+      "n_signals": 10,
+      "n_thresholds": 10,
+      "n_strategies": 6,
+      "n_valid_combos": 5123,
+      "median_valid_objective": 0.7866
+    },
+    "tie_break_step": 0,
+    "raw_winner_row": {
+      "signal": "petrol_3m",
+      "threshold": "T1_fixed_p50",
+      "strategy": "P1_long_cash_pro",
+      "lead_column": "lead_months",
+      "lead_value": 12,
+      "source_tournament_file": "tournament_results_20260617.csv",
+      "source_row_index": 2112,
+      "display_alias": "strategy_family=P1_long_cash (raw strategy=P1_long_cash_pro)"
+    },
+    "runner_up": {
+      "signal": "petrol_level_z60",
+      "threshold": "T2_roll_p25",
+      "strategy": "P1_long_cash_pro",
+      "lead_value": 3,
+      "objective_value": 1.4539
+    },
+    "rationale": "Unique maximiser of OOS Sharpe over the committed coarse monthly grid L{0,1,2,3,6,12} (5,123 valid combos, median OOS Sharpe 0.7866). Winner raw OOS Sharpe 1.4779 at L12; the 2nd-best valid combo (petrol_level_z60/T2_roll_p25/P1_long_cash_pro/L3) sits at 1.4539. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "objective_runner_up_divergence": null
+  },
   "notes": "Mode-3 Codex maker. Tournament: 7392 strategy rows plus one benchmark valid=False; 5123 valid. Winner selected by ECON-T3 at step 1; 1 tied at Sharpe step. Bootstrap p=0.099; CP1 durability=conditionally_durable; rolling correlation=moderately_stable. Petroleum inventories are coincident physical stocks, so reverse-causality evidence is reported rather than suppressed."
 }

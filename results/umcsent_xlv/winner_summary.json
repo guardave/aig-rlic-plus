@@ -44,5 +44,44 @@
   "oos_start": "2019-04-30",
   "is_end": "2019-03-31",
   "schema_version": "1.1.0",
+  "selection": {
+    "objective": "max_oos_sharpe",
+    "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
+    "grid_scanned": {
+      "leads": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "n_signals": 7,
+      "n_thresholds": 13,
+      "n_strategies": 3,
+      "n_valid_combos": 1339,
+      "median_valid_objective": 0.5298
+    },
+    "tie_break_step": 0,
+    "raw_winner_row": {
+      "signal": "S3_mom",
+      "threshold": "T3_zscore_1.0",
+      "strategy": "P1_long_cash",
+      "lead_column": "lead_months",
+      "lead_value": 6,
+      "source_tournament_file": "tournament_results_20260420.csv",
+      "source_row_index": 777
+    },
+    "runner_up": {
+      "signal": "S7_dev_ma",
+      "threshold": "T1_fixed_p50",
+      "strategy": "P1_long_cash",
+      "lead_value": 5,
+      "objective_value": 1.118
+    },
+    "rationale": "Unique maximiser of OOS Sharpe over the committed coarse monthly grid L{0,1,2,3,4,5,6} (1,339 valid combos, median OOS Sharpe 0.5298). Winner raw OOS Sharpe 1.1586 at L6; the 2nd-best valid combo (S7_dev_ma/T1_fixed_p50/P1_long_cash/L5) sits at 1.118. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "objective_runner_up_divergence": null
+  },
   "notes": "Ground truth is tournament row 777. Winning threshold uses threshold is rolling (60-month mean plus 1 standard deviation); threshold_value is the latest rolling value - see winner_trade_log.csv for the full threshold path. Signal is lagged by 6 months before the rule is applied."
 }

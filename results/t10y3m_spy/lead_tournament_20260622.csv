@@ -1,0 +1,8 @@
+lead_months,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+0,120,1.0732,0.7838,0.5036,0.8981,chg_12m,T2_roll_p75,P1_long_cash,-0.0758
+1,113,1.196,0.7239,0.499,0.9113,mom,T1_fixed_p25,P2_signal_strength,-0.0799
+2,98,1.0083,0.5306,0.2673,0.7358,chg_12m,T1_fixed_p75,P1_long_cash,-0.0639
+3,112,0.9772,0.668,0.4424,0.8798,chg_12m,T1_fixed_p25,P2_signal_strength,-0.1512
+6,120,1.3214,0.7853,0.5327,1.1054,chg_3m,T2_roll_p75,P1_long_cash,-0.0466
+9,111,1.106,0.7113,0.4115,0.9091,mom,T1_fixed_p25,P2_signal_strength,-0.0844
+12,101,1.0296,0.4949,0.3715,0.763,chg_3m,T1_fixed_p25,P2_signal_strength,-0.1478

@@ -18,13 +18,52 @@
   "bh_ann_return": 0.160798,
   "annual_turnover": 3.84,
   "cost_assumption_bps": 5.0,
-  "notes": "Fresh hy_ig_spy pair (Wave 10G.4C). OOS window 2019-10-01\u20132026-04-22 per ECON-OOS2 formula (79mo). winner=S6_hmm_stress/T4_hmm_0.5/P2/L0. breakeven_cost=50bps, max_acceptable_delay=5d.",
+  "selection": {
+    "objective": "max_oos_sharpe",
+    "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=252",
+    "grid_scanned": {
+      "leads": [
+        0,
+        1,
+        5,
+        10,
+        21,
+        63
+      ],
+      "n_signals": 14,
+      "n_thresholds": 11,
+      "n_strategies": 3,
+      "n_valid_combos": 2036,
+      "median_valid_objective": 0.7187
+    },
+    "tie_break_step": 5,
+    "raw_winner_row": {
+      "signal": "S6_hmm_stress",
+      "threshold": "T4_hmm_0.5",
+      "strategy": "P2",
+      "lead_column": "lead_days",
+      "lead_value": 0,
+      "source_tournament_file": "tournament_results_20260422.csv",
+      "source_row_index": 1459,
+      "display_alias": "strategy_family=P2_signal_strength (raw strategy=P2)"
+    },
+    "runner_up": {
+      "signal": "S6_hmm_stress",
+      "threshold": "T4_hmm_0.7",
+      "strategy": "P2",
+      "lead_value": 0,
+      "objective_value": 1.4083
+    },
+    "rationale": "Tie at the top of the valid population (the canonical ECON-T3 motivating case): two rows share the raw OOS-Sharpe max 1.4083 and are byte-identical on every metric (oos_ann_return 0.1172, max_drawdown -0.0850, n_trades 387) -- they are the same S6_hmm_stress / P2 / L0 strategy under two HMM probability thresholds (T4_hmm_0.5 vs T4_hmm_0.7) that bind to the same realised positions over this OOS window. ECON-T3 steps 1-4 cannot separate them and step 5 (lexicographic signal_code) is degenerate because the signal_code is identical; the published winner takes the lower threshold T4_hmm_0.5 (the first row in tournament order, ridx 1459 < 1462). Either choice yields the identical strategy series, so the selection is well-defined in outcome. Grid: committed daily L{0,1,5,10,21,63}, 2,036 valid combos, median OOS Sharpe 0.7186.",
+    "objective_runner_up_divergence": null
+  },
+  "notes": "Fresh hy_ig_spy pair (Wave 10G.4C). OOS window 2019-10-01–2026-04-22 per ECON-OOS2 formula (79mo). winner=S6_hmm_stress/T4_hmm_0.5/P2/L0. breakeven_cost=50bps, max_acceptable_delay=5d.",
   "signal_display_name": "HMM Stress Probability",
   "threshold_code": "T4_hmm_0.5",
   "threshold_display_name": "HMM prob > 0.5",
   "strategy_code": "P2",
   "strategy_display_name": "Signal Strength",
-  "strategy_description": "Scale position size proportionally to signal strength (0%\u2013100% invested).",
+  "strategy_description": "Scale position size proportionally to signal strength (0%–100% invested).",
   "lead_value": 0,
   "lead_unit": "days",
   "lead_description": "No lead (same-period)",

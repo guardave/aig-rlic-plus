@@ -9,36 +9,36 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Peak-to-trough drawdown over the out-of-sample window: winner max -13.5% vs -13.3% buy-and-hold XLP. Strategy minimum equals winner_summary oos_max_drawdown (-13.53%) by construction (ECON-SR1 reconciled series). Shaded bands mark NBER recessions.",
+  "caption": "Peak-to-trough drawdown over the out-of-sample window: winner max -6.3% vs -13.3% buy-and-hold XLP. Strategy minimum equals winner_summary oos_max_drawdown (-6.33%) by construction (ECON-SR1 reconciled series). Shaded bands mark NBER recessions.",
   "narrative_alignment_note": "Strategy-vs-buy-and-hold drawdown for the Strategy page Performance tab; chart minimum reconciles with the winner_summary KPI quoted in the page caption.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/indpro_xlp/strategy_returns_20260611.csv",
+    "results/indpro_xlp/strategy_returns_20260620.csv",
     "results/indpro_xlp/winner_summary.json"
   ],
   "reconciliation": {
     "oos_sharpe": {
-      "computed": 1.114726,
-      "reported_winner_summary": 1.1147,
-      "diff": 2.6e-05,
+      "computed": 1.328199,
+      "reported_winner_summary": 1.3282,
+      "diff": -1e-06,
       "tolerance": 0.01,
       "verdict": "PASS"
     },
     "oos_max_drawdown": {
-      "computed": -0.135301,
-      "reported_winner_summary": -0.1353,
-      "diff": -1e-06,
+      "computed": -0.063343,
+      "reported_winner_summary": -0.063343,
+      "diff": -0.0,
       "tolerance": 0.005,
       "verdict": "PASS"
     },
     "oos_ann_return": {
-      "computed": 0.14188,
-      "reported_winner_summary": 0.1413,
-      "diff": 0.00058,
+      "computed": 0.113231,
+      "reported_winner_summary": 0.111099,
+      "diff": 0.002132,
       "tolerance": 0.005,
       "verdict": "PASS"
     }
   },
-  "generated_at": "2026-06-11T19:24:48.863585+00:00",
+  "generated_at": "2026-06-21T12:02:23.204519+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_strategy_perf_charts.py (fix260611_meta_cmp, ECON-SR1 consumer)"
 }

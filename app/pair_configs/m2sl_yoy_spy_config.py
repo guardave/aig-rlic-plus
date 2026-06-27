@@ -396,6 +396,125 @@ HMM_BLOCK = dict(
     key_message="The HMM explains backdrop; it does not validate the winner.",
 )
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "For a monthly-rebalanced strategy the decision is: how stale should "
+        "the signal be allowed to get before we trade on it? This block "
+        "computes Pearson correlations between the M2 money-growth signal "
+        "lagged L = 0…12 months and the SPY 1-month forward return. **Crucial "
+        "caveat for this pair:** the causality tests find NO forward signal "
+        "from M2 to SPY (the market appears to lead the money aggregate). So "
+        "any 'best lead' here must be read as a weak descriptive coincidence, "
+        "not evidence of forward predictive power."
+    ),
+    question=(
+        "Does lagging the M2 growth signal recover real predictive content for "
+        "SPY at any lead — and how strong is the apparent best lead?"
+    ),
+    how_to_read=(
+        "Rows are M2 signal variants; columns are signal lead in MONTHS "
+        "(L0 = contemporaneous, L12 = 12 months ago). Forward horizon fixed at "
+        "1 month. Cell shading is Pearson r (linear co-movement, -1 to +1) "
+        "against `spy_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between **signal lagged L months** and **SPY "
+        "1-month forward return**. The traded signal `m2sl_yoy_accel_pct` has "
+        "its largest cell at **L2 (r=+0.071, NOT significant)** — which "
+        "happens to coincide with the traded 2-month lead, but the magnitude "
+        "is small and clears no significance band. A weak coincidence, not a "
+        "strong corroboration."
+    ),
+    observation=(
+        "Reading the row directly: every lead is small (L0 +0.027, L2 +0.071, "
+        "L6 +0.056, L9 +0.057) and none is statistically significant. The "
+        "'best' lead, L2 (r=+0.071), does line up with the tournament's traded "
+        "2-month lead — but at |r| < 0.08 with no stars, this is a faint "
+        "alignment, not the clean 'two tests agree' result seen in pairs with "
+        "a strong significant peak. It is consistent with the backward-"
+        "causality finding: M2 does not carry robust forward content."
+    ),
+    interpretation=(
+        "Honest framing: **the lead-correlation 'best lead' coincides with the "
+        "traded L2, but the correlation is weak and insignificant**, so this "
+        "is at most a soft corroboration. On a pair where causality runs "
+        "backward (the market leads the money aggregate), the alignment should "
+        "not be oversold. **In plain English:** money-supply growth and stocks "
+        "are loosely related, and the faint two-month alignment is not a "
+        "reliable predictive lead. The strategy's headline Sharpe remains a "
+        "searched, low-confidence result."
+    ),
+    key_message=(
+        "The traded signal's best lead is **L2 (r=+0.071, n.s.)**, which "
+        "coincides with the traded 2-month lead — but the correlation is weak "
+        "and insignificant, so this is a soft coincidence, not a strong "
+        "corroboration. Consistent with the backward-causality finding."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "This block sweeps the monthly lead grid L = 0…12 and plots the best "
+        "OOS Sharpe at each lead (blue bar) against all valid combos (grey "
+        "strip); the dashed orange line is SPY buy-and-hold (Sharpe 0.90). "
+        "Read it alongside the backward-causality caveat: any Sharpe here is a "
+        "searched result, not evidence of forward predictive content."
+    ),
+    question=(
+        "Where does the traded 2-month lead sit on the sweep — and is the "
+        "best-Sharpe lead a robust ridge or an isolated spike?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each monthly lead. Strip dots: every valid "
+        "combination at that lead. A tall thin spike is a single combo; a "
+        "flat-but-wide cloud is a robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per monthly lead (blue bars) and the full "
+        "distribution (grey strip). The profile is dominated by a **single "
+        "sharp spike at L1 (1.65)**; every other lead, including the traded "
+        "L2 (1.07), sits in a flat 1.03–1.25 band. The L1 spike is an isolated "
+        "peak, the hallmark of a fragile single-combo result, not a ridge."
+    ),
+    observation=(
+        "Reading the monthly bars: there is **one tall isolated spike at L1 "
+        "(1.65)** standing ~0.5 Sharpe above its neighbours (L0 1.18, L2 "
+        "1.07), and the rest of the grid is a flat plain in the 1.03–1.25 "
+        "range. The traded **L2 (1.07)** sits in that flat plain, just above "
+        "buy-and-hold (0.90).\n\n"
+        "The published winner (`m2sl_yoy_accel_pct / T1_fixed_p50 / "
+        "P1_long_cash`, OOS Sharpe **1.6882**) is selected on the full "
+        "tournament. **The L1 spike is a textbook fragility warning** — an "
+        "isolated peak that small changes in assumed lead would miss entirely. "
+        "Combined with the weak lead-correlation and the backward-causality "
+        "finding, the durable read is that M2's apparent edge is a searched, "
+        "in-window artefact rather than a robust predictive ridge."
+    ),
+    interpretation=(
+        "The honest summary: **the lead-Sharpe profile is a single isolated "
+        "spike (L1), not a ridge** — and the traded L2 sits on the flat plain "
+        "beside it. With a weak, insignificant lead-correlation and backward "
+        "causality, this pair shows none of the hallmarks of a robust lead "
+        "relationship. A reader should treat the strong OOS Sharpe as a "
+        "searched result that scores well in one window and weight it as "
+        "low-confidence, exactly as the rest of the Evidence page advises."
+    ),
+    key_message=(
+        "The lead-Sharpe profile is a **single isolated spike at L1 (1.65)** "
+        "with every other lead (incl. traded L2, 1.07) on a flat 1.03–1.25 "
+        "plain — a fragility warning, not a ridge. With weak lead-correlation "
+        "and backward causality, the winner's OOS Sharpe 1.6882 is a searched, "
+        "low-confidence result."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "Evidence leads with causality -- and the causality runs backward",
     "overview": (
@@ -419,8 +538,8 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Rolling correlation", "path": "results/m2sl_yoy_spy/rolling_correlation_m2sl_yoy_spy.csv"},
         {"label": "Stationarity tests", "path": "results/m2sl_yoy_spy/stationarity_tests_20260619.csv"},
     ],
-    "level1": [GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Granger Causality", "Level Quartiles", "Pre-Whitened CCF"],
+    "level1": [GRANGER_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
+    "level1_labels": ["Granger Causality", "Lead Analysis", "Lead Tournament", "Level Quartiles", "Pre-Whitened CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK, TRANSFER_ENTROPY_BLOCK, HMM_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression", "Transfer Entropy", "HMM Regimes"],
     "tournament_intro": (

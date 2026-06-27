@@ -9,37 +9,37 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Annualized Sharpe of the winner strategy within each historical episode; full OOS 1.11 (per results/indpro_xlp/subperiod_sharpe.csv, ECON-SR1 reconciled). 'No data' = episode outside indicator coverage; 'cash' = the long/cash rule held no position through the episode.",
+  "caption": "Annualized Sharpe of the winner strategy within each historical episode; full OOS 1.33 (per results/indpro_xlp/subperiod_sharpe.csv, ECON-SR1 reconciled). 'No data' = episode outside indicator coverage; 'cash' = the long/cash rule held no position through the episode.",
   "narrative_alignment_note": "Sub-period Sharpe bars distinguish 'no data' (no coverage) from 'in cash' (strategy flat) from real performance \u2014 values re-read from Evan's regenerated CSV at generation time.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/indpro_xlp/strategy_returns_20260611.csv",
+    "results/indpro_xlp/strategy_returns_20260620.csv",
     "results/indpro_xlp/winner_summary.json",
     "results/indpro_xlp/subperiod_sharpe.csv"
   ],
   "reconciliation": {
     "oos_sharpe": {
-      "computed": 1.114726,
-      "reported_winner_summary": 1.1147,
-      "diff": 2.6e-05,
+      "computed": 1.328199,
+      "reported_winner_summary": 1.3282,
+      "diff": -1e-06,
       "tolerance": 0.01,
       "verdict": "PASS"
     },
     "oos_max_drawdown": {
-      "computed": -0.135301,
-      "reported_winner_summary": -0.1353,
-      "diff": -1e-06,
+      "computed": -0.063343,
+      "reported_winner_summary": -0.063343,
+      "diff": -0.0,
       "tolerance": 0.005,
       "verdict": "PASS"
     },
     "oos_ann_return": {
-      "computed": 0.14188,
-      "reported_winner_summary": 0.1413,
-      "diff": 0.00058,
+      "computed": 0.113231,
+      "reported_winner_summary": 0.111099,
+      "diff": 0.002132,
       "tolerance": 0.005,
       "verdict": "PASS"
     }
   },
-  "generated_at": "2026-06-11T19:24:52.103518+00:00",
+  "generated_at": "2026-06-21T12:02:27.137658+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_strategy_perf_charts.py (fix260611_meta_cmp, ECON-SR1 consumer)"
 }

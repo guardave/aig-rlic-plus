@@ -1,0 +1,28 @@
+{
+  "pair": "indpro_xlp",
+  "run_date": "20260620",
+  "frozen": false,
+  "granularity": "months L0..12 (ECON-LL1)",
+  "freq_native": "M",
+  "design_note": "Native monthly; lead L = calendar-month shift on month-end signals.",
+  "oos_start": "2019-01-31",
+  "is_end": "2019-01-30",
+  "input_file": "data/indpro_xlp_monthly_19980101_20251231.parquet",
+  "input_sha256": "sha256:3a046a67ae17aec7",
+  "lead_correlation_file": "indpro_xlp/lead_correlation_20260620.csv",
+  "lead_tournament_file": "indpro_xlp/lead_tournament_20260620.csv",
+  "published_winner": {
+    "signal": "indpro_accel",
+    "lead": 3,
+    "oos_sharpe": 1.1147
+  },
+  "L_star": 8,
+  "best_oos_sharpe_at_grid": 1.4234,
+  "gate_decision": "RE-RUN",
+  "winner_signal_best_corr_lead": "L3",
+  "assertions": [
+    "lead grid is exactly L0..12",
+    "best_oos_sharpe is the max over the extended grid",
+    "decision RE-RUN iff L*\u22087..12 AND best>1.1147"
+  ]
+}

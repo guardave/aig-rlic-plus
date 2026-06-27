@@ -682,6 +682,132 @@ QUANTILE_BLOCK = dict(
 )
 
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "This pair trades **daily**, but for cross-pair comparability the lead "
+        "grid here is **monthly-resampled**: the signal is shifted L = 0…12 "
+        "calendar months and correlated against SPY's 1-month forward return. "
+        "**State this honestly:** the production rule executes daily at a "
+        "same-day (L0) lead; this monthly grid is a comparability diagnostic, "
+        "not the traded latency. The winning signal is an HMM stress "
+        "probability (a regime classifier), so the question is: on a monthly "
+        "view, how far ahead does credit-stress information lead equities?"
+    ),
+    question=(
+        "On a monthly-resampled grid, where does the HMM stress signal's "
+        "predictive content for SPY peak — and how does that sit beside the "
+        "traded same-day (L0) daily rule?"
+    ),
+    how_to_read=(
+        "Rows are HY-IG signal variants; columns are signal lead in MONTHS "
+        "(L0 = contemporaneous, L12 = 12 months ago). Forward horizon fixed at "
+        "1 month. Cell shading is Pearson r (linear co-movement, -1 to +1) "
+        "against `spy_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between **signal lagged L months** and **SPY "
+        "1-month forward return**. The traded signal "
+        "`hmm_2state_prob_stress` peaks at **L6 (r=−0.137, p<0.05)** on this "
+        "monthly grid — counter-cyclical, as expected (more stress six months "
+        "earlier precedes weaker SPY). The traded daily rule itself uses a "
+        "same-day (L0) lead; see Lead Tournament for why L0 is the winner."
+    ),
+    observation=(
+        "On the monthly grid the HMM stress probability is near-zero at most "
+        "leads (L0 −0.007, L2 +0.021, L5 +0.040) and reaches one significant "
+        "cell at **L6 (r=−0.137, p<0.05)**. This is a slow, monthly echo of "
+        "credit-stress regimes. It does NOT describe the fast mechanism the "
+        "daily rule trades — the HMM flips to its stress state and the rule "
+        "de-risks within days, a same-day dynamic the monthly resampling "
+        "cannot represent."
+    ),
+    interpretation=(
+        "An honest divergence on the correlation diagnostic: the monthly "
+        "lead-correlation places the HMM signal's linear peak at L6, while the "
+        "traded rule reads the signal same-day (L0). The two are not "
+        "competing — they measure different clocks. **In plain English:** when "
+        "the credit market flips into a stress regime, equities tend to fall "
+        "fast (the traded daily edge); on a slower monthly view that same "
+        "stress also leaves a fainter footprint about six months out. The "
+        "monthly L6 result is corroborating context, not a reason to lag the "
+        "daily rule."
+    ),
+    key_message=(
+        "On a monthly-resampled grid the HMM stress signal peaks at **L6 "
+        "(r=−0.137, p<0.05)** — a slow counter-cyclical echo. This is a "
+        "comparability diagnostic; the published rule trades DAILY at a "
+        "same-day (L0) lead, de-risking within days of a regime flip, which "
+        "the monthly grid cannot capture."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "This block sweeps the monthly lead grid L = 0…12 and plots the best "
+        "OOS Sharpe at each lead (blue bar) against all valid combos (grey "
+        "strip); the dashed orange line is SPY buy-and-hold (Sharpe 0.81). "
+        "**Honesty note (daily pair):** the lead axis is monthly-resampled for "
+        "comparability even though the pair executes daily; the published "
+        "winner trades at a same-day (L0) daily lead."
+    ),
+    question=(
+        "On the monthly grid, is the same-day (L0) rule's lead a robust ridge "
+        "or an isolated point — and does the monthly sweep agree with the "
+        "daily L0 winner?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each monthly lead. Strip dots: every valid "
+        "combination at that lead. A tall thin spike is a single combo; a "
+        "flat-but-wide cloud is a robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per monthly lead (blue bars) and the full "
+        "distribution (grey strip). Unlike most daily pairs, the **low-lead "
+        "region is the strongest here**: L0 (1.42) and L1 (1.44) form a high "
+        "plateau, so the traded same-day rule sits on a robust ridge rather "
+        "than off-peak. Sharpe stays above buy-and-hold (0.81) across the "
+        "entire grid."
+    ),
+    observation=(
+        "Reading the monthly bars: **L0 (1.42) and L1 (1.44) are a high, flat "
+        "plateau** — the traded rule's same-day lead is right in the strongest "
+        "region, not a fragile point. Every lead L0–L12 clears buy-and-hold "
+        "(0.81), with a mild second cluster around L8–L11 (1.26–1.36). The "
+        "published winner (`hmm_2state_prob_stress / T4_hmm_0.5 / "
+        "P2_signal_strength`, OOS Sharpe **1.4083**) trades same-day, and the "
+        "monthly grid's L0–L1 plateau corroborates that low-lead is where the "
+        "edge concentrates.\n\n"
+        "So although the lead-correlation tab places the *linear* peak at L6, "
+        "the *risk-adjusted* monthly tournament agrees with the daily rule "
+        "that the action is at the front of the grid — the two diagnostics "
+        "disagree on the slow echo but agree that the tradable edge is "
+        "near-contemporaneous."
+    ),
+    interpretation=(
+        "The honest summary: **the same-day (L0) rule is a robust ridge "
+        "point, not a fragile spike.** On the monthly grid L0–L1 form the "
+        "tallest plateau, the entire grid beats buy-and-hold, and the "
+        "risk-adjusted sweep confirms the edge lives at low leads — consistent "
+        "with the fast credit-stress-to-equity transmission this pair is built "
+        "on. The monthly L6 correlation echo (left tab) is a slower secondary "
+        "pattern, not a competing recommendation."
+    ),
+    key_message=(
+        "The traded same-day (L0) lead sits on a robust ridge: L0 (1.42) and "
+        "L1 (1.44) are the monthly grid's tallest plateau and the whole grid "
+        "beats buy-and-hold (0.81). The published daily winner (OOS Sharpe "
+        "1.4083) is corroborated by the monthly tournament's low-lead "
+        "concentration — a durable, near-contemporaneous edge."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
@@ -711,8 +837,8 @@ EVIDENCE_METHOD_BLOCKS = {
         "single test is definitive, but their convergence builds a rigorous, multi-angle "
         "case."
     ),
-    "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Correlation", "Granger Causality", "Pre-Whitened CCF"],
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Granger Causality", "Pre-Whitened CCF"],
     "level2": [
         HMM_BLOCK,
         REGIME_QUARTILE_BLOCK,

@@ -1,0 +1,30 @@
+{
+  "pair": "hy_ig_spy",
+  "run_date": "20260620",
+  "frozen": false,
+  "granularity": "weeks L1..52 (ECON-LL1 weekly extension)",
+  "freq_native": "D",
+  "sweep_kind": "weekly",
+  "annualisation": 52,
+  "design_note": "Daily pair resampled to W-FRI (signal=last obs of week; target fwd_1w = week-end-to-week-end close return). Lead grid is 1..52 weeks. EXPLORATORY ONLY \u2014 native weekly tournament required to confirm any candidate (polarity-mirror guardrail).",
+  "oos_start": "2019-10-01",
+  "is_end": "2019-09-30",
+  "input_file": "data/hy_ig_spy_daily_20000101_20260422.parquet",
+  "input_sha256": "sha256:d276ba3341fe6e76",
+  "lead_correlation_file": "hy_ig_spy/lead_correlation_weekly_20260620.csv",
+  "lead_tournament_file": "hy_ig_spy/lead_tournament_weekly_20260620.csv",
+  "published_winner": {
+    "signal": "hmm_2state_prob_stress",
+    "lead": 0,
+    "oos_sharpe": 1.4083
+  },
+  "L_star": 50,
+  "best_oos_sharpe_at_grid": 1.6459,
+  "gate_decision": "CANDIDATE-WEEKLY",
+  "winner_signal_best_corr_lead": "L30",
+  "assertions": [
+    "weekly lead grid is exactly L1..L52",
+    "best_oos_sharpe is the max over the weekly grid",
+    "EXPLORATORY: CANDIDATE-WEEKLY flag requires native weekly tournament confirmation \u2014 sweep never auto-promotes a winner"
+  ]
+}

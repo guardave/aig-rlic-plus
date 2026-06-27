@@ -589,6 +589,135 @@ REGIME_BLOCK = dict(
 )
 
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "For a monthly-rebalanced strategy the decision is: how stale should "
+        "the signal be allowed to get before we trade on it? This block "
+        "computes Pearson correlations between the BUSLOANS signal lagged "
+        "L = 0…12 months and the SPY 1-month forward return. **Crucial caveat "
+        "for this pair:** C&I loans are a Conference Board *lagging* indicator, "
+        "and this pair's causality tests find NO forward causality (loans → "
+        "SPY is insignificant at every lag) and STRONG reverse causality "
+        "(SPY → loans). So this lead view is expected to show little genuine "
+        "predictive content at any lead — and that is exactly what honest "
+        "reporting requires us to show, not hide."
+    ),
+    question=(
+        "Does lagging the loan-growth signal by any number of months recover "
+        "real predictive content for SPY — or does the lagging-indicator "
+        "character mean no lead works?"
+    ),
+    how_to_read=(
+        "Rows are BUSLOANS signal variants; columns are signal lead in MONTHS "
+        "(L0 = contemporaneous, L12 = 12 months ago). Forward horizon fixed at "
+        "1 month. Cell shading is Pearson r (linear co-movement, -1 to +1) "
+        "against `spy_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between **signal lagged L months** and **SPY "
+        "1-month forward return**. The traded signal `busloans_pct_mom` is "
+        "weak at every lead — its largest-magnitude cell is **L5 (r=−0.077, "
+        "NOT significant)**, and no lead clears the p<0.05 band. Consistent "
+        "with C&I loans being a lagging indicator with no forward edge."
+    ),
+    observation=(
+        "Reading the row directly: every lead is small and none is "
+        "significant (L0 +0.035, L4 −0.050, L5 −0.077, L6 +0.039, L10 +0.045). "
+        "The 'best' lead (L5, |r|=0.077) is statistically indistinguishable "
+        "from zero. **There is no lead at which loan growth meaningfully "
+        "predicts next-month SPY** — the lead view confirms the lagging-"
+        "indicator verdict from the causality blocks. The signal's value, such "
+        "as it is, is descriptive (weak loan growth marks the late, "
+        "post-stress stage of the cycle), not predictive."
+    ),
+    interpretation=(
+        "This is an **honest null result**, and stating it is the point. "
+        "Unlike pairs where a lead-correlation peak corroborates the traded "
+        "lead, here no lead carries real forward content — the data simply "
+        "does not support a 'natural predictive lead' story. **In plain "
+        "English:** business loans follow the economy and the market rather "
+        "than leading them, so you cannot reliably trade SPY by lagging the "
+        "loan signal. The strategy on the next page works off a descriptive "
+        "late-cycle regularity, and the lead view makes that limitation "
+        "explicit rather than dressing it up."
+    ),
+    key_message=(
+        "No lead works: `busloans_pct_mom` is insignificant at every L = 0…12 "
+        "(best |r| only 0.077 at L5, n.s.). This honest null confirms the "
+        "lagging-indicator finding — loans respond to the cycle, they don't "
+        "lead SPY. The traded lead is mechanical, not a discovered predictive "
+        "latency."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "This block sweeps the monthly lead grid L = 0…12 and plots the best "
+        "OOS Sharpe at each lead (blue bar) against all valid combos (grey "
+        "strip); the dashed orange line is SPY buy-and-hold (Sharpe 0.89). "
+        "Read it alongside the lagging-indicator caveat: any Sharpe here comes "
+        "from a descriptive late-cycle regularity, not from forward causality."
+    ),
+    question=(
+        "Where does the traded 6-month lead sit on the sweep — and is its "
+        "Sharpe a robust ridge or a fragile artefact of a pair with no genuine "
+        "forward edge?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each monthly lead. Strip dots: every valid "
+        "combination at that lead. A tall thin spike is a single combo; a "
+        "flat-but-wide cloud is a robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per monthly lead (blue bars) and the full "
+        "distribution (grey strip). The profile is jagged: peaks at L5 (1.50) "
+        "and L4 (1.42), and the traded **L6 (1.13) actually sits in a local "
+        "dip** between them and L7 (1.25). Combined with the null "
+        "lead-correlation result, this argues the Sharpe is regime-descriptive, "
+        "not a robust predictive ridge."
+    ),
+    observation=(
+        "Reading the monthly bars: the profile is **uneven and jagged** — "
+        "L5 (1.50) and L4 (1.42) are the tallest, L9 (1.32) and L11 (1.27) "
+        "form secondary bumps, and the traded **L6 (1.13) sits in a local dip** "
+        "between L5 (1.50) and L7 (1.25). So the traded lead is neither the "
+        "peak nor a smooth ridge point.\n\n"
+        "The published winner (`busloans_pct_mom / T2_roll_p25 / "
+        "P1_long_cash`, OOS Sharpe **1.4999**) is selected on the full "
+        "tournament rather than by lead-optimization, and its lead lands in "
+        "this dip. Given the lead-correlation null (no significant forward "
+        "content at any lead), the jagged Sharpe profile is best read as **a "
+        "descriptive late-cycle regularity surfacing unevenly across leads**, "
+        "not a stable predictive relationship. This is the honest framing the "
+        "rest of the page already adopts (the stock market moves first)."
+    ),
+    interpretation=(
+        "The honest summary: **the lead Sharpe profile is jagged and the "
+        "traded L6 sits in a local dip, on a pair the causality tests show has "
+        "no forward edge.** That combination is a caution flag, not a "
+        "robustness badge — there is no broad predictive ridge here, and the "
+        "lead-correlation diagnostic finds nothing significant at any lead. A "
+        "reader should treat the strategy's OOS Sharpe as riding a descriptive "
+        "late-cycle pattern that happens to score well in-window, and weight "
+        "it accordingly. Honesty over polish."
+    ),
+    key_message=(
+        "The lead Sharpe profile is jagged (peaks L5 1.50, L4 1.42) and the "
+        "traded **L6 (1.13) sits in a local dip** — not a robust ridge. With "
+        "the lead-correlation null (no significant forward content at any "
+        "lead), the edge is best read as descriptive late-cycle regularity, "
+        "not predictive. The winner's OOS Sharpe 1.4999 should be read with "
+        "that caveat."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     # Ray's Evidence headline (verbatim).
     "title": "Five independent tests agree: the stock market moves first, loan books respond",
@@ -638,8 +767,8 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Rolling 24-month correlation (370 rows)",
          "path": "results/busloans_spy/rolling_correlation_busloans_spy.csv"},
     ],
-    "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Correlation", "Granger Causality", "Pre-Whitened CCF"],
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Granger Causality", "Pre-Whitened CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, TRANSFER_ENTROPY_BLOCK,
                QUANTILE_BLOCK, REGIME_BLOCK],
     "level2_labels": ["Local Projections", "Transfer Entropy",

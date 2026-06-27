@@ -380,6 +380,128 @@ HMM_BLOCK = dict(
     key_message="The HMM explains backdrop; it does not validate the winner.",
 )
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "For a monthly-rebalanced strategy the decision is: how stale should "
+        "the signal be allowed to get before we trade on it? This block "
+        "computes Pearson correlations between the ISM Services signal lagged "
+        "L = 0…12 months and the SPY 1-month forward return. **Crucial caveat "
+        "for this pair:** the causality tests find NO forward signal from ISM "
+        "Services to SPY (the market appears to lead the survey, not vice "
+        "versa). So this lead view is expected to show little genuine forward "
+        "content at any lead — and showing that honestly is the point."
+    ),
+    question=(
+        "Does lagging the ISM Services signal by any number of months recover "
+        "real predictive content for SPY — or does the backward-causality "
+        "finding mean no lead works?"
+    ),
+    how_to_read=(
+        "Rows are ISM Services signal variants; columns are signal lead in "
+        "MONTHS (L0 = contemporaneous, L12 = 12 months ago). Forward horizon "
+        "fixed at 1 month. Cell shading is Pearson r (linear co-movement, -1 "
+        "to +1) against `spy_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between **signal lagged L months** and **SPY "
+        "1-month forward return**. The traded signal `ism_services_gap_50` is "
+        "weak at every lead — its largest-magnitude cell is **L5 (r=−0.053, "
+        "NOT significant)**, and no lead clears the p<0.05 band. Consistent "
+        "with the backward-causality finding (SPY leads the survey)."
+    ),
+    observation=(
+        "Reading the row directly: every lead is small and none is "
+        "significant (L0 −0.029, L3 −0.020, L5 −0.053, L9 −0.031). The 'best' "
+        "lead (L5, |r|=0.053) is statistically indistinguishable from zero. "
+        "**There is no lead at which the ISM Services gap meaningfully "
+        "predicts next-month SPY** — the lead view confirms the "
+        "backward-causality verdict from the Granger block. Whatever the "
+        "strategy monetises, it is not a forward predictive lead."
+    ),
+    interpretation=(
+        "This is an **honest null result**, and stating it matters. Unlike "
+        "pairs where a lead-correlation peak corroborates the traded lead, "
+        "here no lead carries real forward content — the data does not support "
+        "a 'natural predictive lead' story. **In plain English:** the services "
+        "economy and the stock market move together, with the market often "
+        "moving first, so you cannot reliably trade SPY by lagging the survey. "
+        "The strategy's headline Sharpe is a searched, low-confidence result, "
+        "and the lead view makes that limitation explicit."
+    ),
+    key_message=(
+        "No lead works: `ism_services_gap_50` is insignificant at every "
+        "L = 0…12 (best |r| only 0.053 at L5, n.s.). This honest null "
+        "reinforces the backward-causality finding — the market leads the "
+        "survey, not the reverse. The traded lead is not a discovered "
+        "predictive latency."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "This block sweeps the monthly lead grid L = 0…12 and plots the best "
+        "OOS Sharpe at each lead (blue bar) against all valid combos (grey "
+        "strip); the dashed orange line is SPY buy-and-hold (Sharpe 0.88). "
+        "Read it alongside the backward-causality caveat: any Sharpe here is a "
+        "searched result, not evidence of forward predictive content."
+    ),
+    question=(
+        "Where does the traded 3-month lead sit on the sweep — and is its "
+        "Sharpe a robust ridge or a fragile point on a pair with no forward "
+        "edge?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each monthly lead. Strip dots: every valid "
+        "combination at that lead. A tall thin spike is a single combo; a "
+        "flat-but-wide cloud is a robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per monthly lead (blue bars) and the full "
+        "distribution (grey strip). The profile is jagged: the tallest bars "
+        "are L9 (1.46), L7 (1.39) and L2 (1.38), and the traded **L3 (1.13) "
+        "sits in a local dip**. Combined with the null lead-correlation "
+        "result, this indicates the Sharpe is a searched artefact, not a "
+        "robust predictive ridge."
+    ),
+    observation=(
+        "Reading the monthly bars: the profile is **uneven** — L9 (1.46), "
+        "L7 (1.39) and L2 (1.38) are tallest, while the traded **L3 (1.13) "
+        "sits in a local dip** (its neighbour L2 is 1.38). Every lead clears "
+        "buy-and-hold (0.88), but there is no smooth ridge — the bars jump "
+        "around.\n\n"
+        "The published winner (`ism_services_gap_50 / T3_zscore_neg_1.0 / "
+        "P1_long_cash`, OOS Sharpe **1.5377**) is selected on the full "
+        "tournament, not by lead-optimization, and its lead lands in this dip. "
+        "Given the lead-correlation null and the backward-causality finding, "
+        "the jagged Sharpe profile is best read as **a searched in-window "
+        "result**, not a stable predictive relationship — exactly the "
+        "low-confidence framing the rest of this page adopts."
+    ),
+    interpretation=(
+        "The honest summary: **the lead Sharpe profile is jagged, the traded "
+        "L3 sits in a local dip, and the lead-correlation diagnostic finds "
+        "nothing significant at any lead** — on a pair where causality runs "
+        "backward. That is a caution flag, not a robustness badge. A reader "
+        "should treat the strong OOS Sharpe as a searched result that scores "
+        "well in-window and weight it accordingly, rather than as evidence the "
+        "survey predicts the market."
+    ),
+    key_message=(
+        "The lead Sharpe profile is jagged (peaks L9 1.46, L7 1.39) and the "
+        "traded **L3 (1.13) sits in a local dip** — not a robust ridge. With "
+        "the lead-correlation null and backward causality, the winner's OOS "
+        "Sharpe 1.5377 is best read as a searched, low-confidence result, not "
+        "a discovered predictive lead."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "Evidence leads with causality -- and the causality runs backward",
     "overview": (
@@ -401,8 +523,8 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Rolling correlation", "path": "results/ism_services_spy/rolling_correlation_ism_services_spy.csv"},
         {"label": "Stationarity tests (10 rows)", "path": "results/ism_services_spy/stationarity_tests_20260618.csv"},
     ],
-    "level1": [GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Granger Causality", "Quartile Gradient", "Pre-Whitened CCF"],
+    "level1": [GRANGER_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
+    "level1_labels": ["Granger Causality", "Lead Analysis", "Lead Tournament", "Quartile Gradient", "Pre-Whitened CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK, TRANSFER_ENTROPY_BLOCK, HMM_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression", "Transfer Entropy", "HMM Regimes"],
     "tournament_intro": (

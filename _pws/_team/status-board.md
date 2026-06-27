@@ -1,5 +1,16 @@
 # Team Status Board
 
+## 2026-06-22 — Lead Lesandro (lead-horizon Phase 4 + t10y3m_spy integration & parity)
+
+**Status:** HANDOVER (blocked on user). Branch `fix260620_lead_horizon` @ `de6155b`, pushed, **16 commits ahead of main, NOT merged.** Gate 13/13, conflict-free, cloud-clean (pre-t10y3m). User invoked `/eod` at a reboot request.
+
+- **Phase 4 (`e5b44d3`)** — ECON-T5 `selection`-provenance backfill on the 10 remaining live winners (Evan) + schema flip to REQUIRED. All 12 then-active winners == raw max-OOS-Sharpe row → **zero divergences** (corroborates Ivy audit). 2 step-5 tie-breaks documented (ism, hy_ig). CLAUDE.md dawodev deployment-note corrected.
+- **Integration find** — a 13th pair `t10y3m_spy` (built by **Rex/rekkusuri**, `c7fd6e1`, 2026-06-20) had landed on main mid-wave WITHOUT a `selection` block; the schema flip made it the lone merge gate-fail. Auto-mode classifier blocked the merge (LEAD-MA1, correct). Pulled main into branch (`c83b949`), Evan backfilled t10y3m selection (`7cae0f2`, row 372, L6/1.3214) → 13/13.
+- **t10y3m Phase-3 parity (`de6155b`)** — user approved patching Rex's pair for lead/lag. Full monthly chain: Evan (lead CSVs) → Vera (2 VIZ-LEAD1 charts) → Ray (Lead Analysis + Lead Tournament config blocks). **Honest ECON-LT2 verdict:** L6 is an isolated single-lead spike (neighbours 0.21–0.34 below; corr peaks L2 not L6; |best_r|≤0.134) — framed as a peak-pick, not a corroborated edge.
+- **Team:** evan-phase4 (3 tasks: 10-pair backfill, t10y3m selection, t10y3m lead CSVs), vera-t10y3m (charts), ray-t10y3m (config) — all clean, each Lead-verified, all deferred git to Lead.
+- **🔴 BLOCKED on user:** (1) **reboot dawodev** — t10y3m lead tabs not syncing after push (META-FRD lag); (2) **merge authorization** — option (a) sequence approved, explicit merge-action go still needed. Next session: re-probe `temp/p4_fast.py t10y3m_spy`, confirm lead tabs, then merge.
+- **Tooling:** `temp/p4_fast.py` = the fast DOM-only cloud probe (no screenshot-click sink); fold into cloud_verify. 6 candidate GH issues still unfiled (t10y3m lead-gap RESOLVED, dropped from list).
+
 ## 2026-06-16/17 — Lead Lesandro (Codex Mode-3 KS wave + cloud sweep + production fixes)
 
 **Status:** COMPLETED. main at `223c489`; production re-sweep 37 PASS / 0 FAIL / 40 (DP1 0). Two branches merged + deleted.
@@ -1859,5 +1870,43 @@ dawodev currently pointed at `fix260603_prod_dawo` (now merged); repoint to whic
 3. Tournament selects on OOS → IS→OOS Sharpe gap is the real durability signal, not the OOS headline.
 
 **Outstanding for next session:** (1) Stakeholder discussion of the prescreen paper. (2) Candidate GH issue: missing ECON-FE1 holdout final-exam (under discussion, not filed). (3) GH #12 (Vera dotcom shading). (4) Candidate issues: signal_code_registry cleanup, Wave D lint. (5) Optional Chinese exec-summary for the paper.
+
+🤖 Agent: Lead Lesandro
+
+---
+
+## 2026-06-20 EOD — Lead Lesandro — HANDOVER (lead-horizon wave mid-flight)
+
+**Status:** Shipped 4 items to production (verified); lead-horizon wave Phase 0 + audit + ECON-T5 (A+B) committed on branch `fix260620_lead_horizon` (unmerged, paused mid-wave at `/eod`).
+
+**Shipped to prod (main, reboot+DOM-verified):** GH #12 NBER gate-slug fix (closed #12); smoke-log gitignore; permit_spy stale transition trim; **Sample `hy_ig_v2_spy` retired+archived** to `_archive/`.
+
+**Lead-horizon wave (branch, NOT merged):**
+- Phase 0: lead SOP rules restored + sweep script + fresh gate table.
+- **Independent audit by Ivy** (new standing Codex-backed QA persona, `_pws/audit-ivy/`): 6/6 claims CONFIRM, 12/12 winners legit, no corruption, sweep unsafe as gate.
+- **ECON-T5 (A):** provenance rule + CSV-immutability fix (`scripts/_tournament_io.py`) + non-breaking selection schema v1.2.0.
+- **ECON-T5 (B):** indpro_xlp→L11 (1.328) + indpro_spy→L4 (1.230), guardrails exact, full provenance.
+
+**Key discoveries:** (1) gating sweep has a polarity-mirror false-positive mode → native tournament is the only safe gate (2 of 3 monthly re-runs were phantoms). (2) Original tournaments used varying lead grids; "extend 6→12" only applies to coarse-grid pairs. (3) Root-caused the in-place CSV corruption to hardcoded date tags.
+
+**Outstanding (paused mid-AskUserQuestion — user picks next):** (1) Downstream Vera/Ray/Ace for xlp+spy. (2) Phase 2: Option D weekly sweep for daily pairs + petrol_inv native check. (3) Phase 3: mandatory lead blocks all pairs. (4) ECON-T5 retro-apply onto 10 winners + flip schema to required. (5) Carried: prescreen-paper stakeholder discussion.
+
+🤖 Agent: Lead Lesandro
+
+---
+
+## 2026-06-21 EOD — Lead Lesandro — HANDOVER (lead-horizon Phases 1–3 done, unmerged)
+
+**Status:** Drove the lead-lag wave through Phases 1–3 with the full Vera/Ray/Evan/Ace/Quincy team. Branch `fix260620_lead_horizon` @ `c9d364f` (8 commits ahead of main, pushed, **NOT merged** — paused mid merge-sequencing AskUserQuestion at `/eod`). Gate- AND cloud-verified (dawodev). **Net winner changes across the whole wave: only the 2 monthly upgrades** (indpro_xlp L11/1.328, indpro_spy L4/1.230).
+
+**Done this session:**
+- **Phase 1 (`75e51ee`)** — downstream for the 2 re-run winners. New SOP **ECON-SR3** (winner-dependent chart inputs = canonical sidecars, no re-sim) + **VIZ-SR3T** twin. Ray rewrote both narratives incl. spy risk-adjusted-not-return honesty framing + removed a FALSE "22 months in cash thru COVID" claim. Fixed a chain of stale producer artifacts the re-run left behind.
+- **QA (`adfe00b`)** — fixed `cloud_verify.py` NameError (latent on main since `82164fc`) that crashed the cloud sweep; added **HABIT-QA2** (pyflakes after harness edits).
+- **Phase 2 (`ef66816`)** — Option D weekly sweep, 4 daily pairs + petrol settle. Built `--weekly` code path. **ZERO upgrades — every sweep flag was an isolated-single-lead-spike / polarity-mirror phantom.** New rule **ECON-LT2** (native confirm + ±0.03 + ≥2-adjacent-lead durability). Verdicts: `results/_cross_agent/lead_horizon_phase2_weekly_verdicts.md`.
+- **Phase 3 (`c9d364f`)** — Lead Analysis + Lead Tournament evidence blocks + 2 VIZ-LEAD1 charts for all 12 pairs. Honest per-pair verdict spread (1 clean corroboration, 2 reverse-causality nulls, 1 fragile spike). bh_oos_sharpe backfilled (permit 0.8998, vix 0.7707).
+
+**Key discoveries:** (1) **Wrong preview URL** — `aig-rlic-plus-fix260620` tracks a DIFFERENT branch; the correct preview for this branch is **dawodev** (served stale old-winners, cost a detour). (2) Streamlit Cloud can **partial-sync** after a push (some configs new, some stale) — `cloud_verify`'s structural gate misses it because stale pages are internally valid; **direct Evidence tab-label enumeration** is the reliable content-sync check; a **reboot** forces a clean full re-sync. (3) The ECON-LT1 re-run leaves downstream producer artifacts stale piecemeal (meta/broker/parquet/metadata/bh) — needs atomic regen (candidate GH issue).
+
+**Outstanding (next session):** (1) **OPEN: merge sequencing decision** (user picks: Phase-4-first-then-merge / merge-now-Phase-4-later / merge-now-defer-Phase-4). Merge needs LEAD-MA1 auth. (2) **Phase 4** — ECON-T5 selection backfill onto 10 winners + flip schema to required (mechanical). (3) File 4 batched candidate GH issues (see outstanding-work). (4) Update CLAUDE.md deployment notes re: dawodev preview. (5) Carried: prescreen-paper stakeholder discussion; GH #4.
 
 🤖 Agent: Lead Lesandro

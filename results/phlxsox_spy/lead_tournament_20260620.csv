@@ -1,0 +1,14 @@
+lead_months,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+0,60,1.4304,0.6572,0.5102,0.8081,sox_spy_ratio_mom_6m_pct,Trp25_hi,P1,-0.0833
+1,60,1.2397,0.6709,0.4574,0.7854,sox_spy_ratio_mom_12m_pct,Trp25_hi,P1,-0.0833
+2,56,1.2554,0.6978,0.5445,0.8175,sox_spy_ratio_mom_6m_pct,Trp25_hi,P1,-0.0833
+3,57,1.3658,0.6983,0.5545,0.8289,sox_spy_ratio_mom_3m_pct,Trp25_hi,P1,-0.0878
+4,62,1.3156,0.6069,0.4474,0.7547,sox_spy_ratio_mom_12m_pct,Trp75_hi,P1,-0.0205
+5,58,1.1009,0.6706,0.5311,0.7818,sox_spy_ratio_mom_3m_pct,Trp25_hi,P1,-0.1567
+6,65,1.1097,0.6502,0.482,0.8081,sox_spy_ratio_mom_6m_pct,Tp75_hi,P1,-0.0466
+7,65,1.0362,0.6146,0.4205,0.7819,sox_spy_ratio_mom_6m_pct,Tp75_hi,P1,-0.0466
+8,55,1.2809,0.7428,0.5973,0.8333,sox_spy_ratio,Tz1_lo,P1,-0.0833
+9,54,1.3531,0.7667,0.5618,0.8879,sox_spy_ratio,Tz1_lo,P1,-0.0833
+10,51,1.1943,0.7377,0.578,0.8864,sox_spy_ratio_mom_6m_pct,Trp25_hi,P1,-0.1299
+11,54,1.1691,0.7347,0.5644,0.9112,sox_spy_ratio,Tz1_lo,P1,-0.0833
+12,54,1.0897,0.6619,0.5589,0.8593,sox_spy_ratio,Trp75_lo,P1,-0.0833

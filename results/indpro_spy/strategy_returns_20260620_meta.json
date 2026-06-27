@@ -1,0 +1,40 @@
+{
+  "pair_id": "indpro_spy",
+  "artifact": "strategy_returns_20260620.csv",
+  "produced_by": "temp/260620211849_leadrerun/cascade_spy.py (ECON-LT1 re-run, ECON-T5)",
+  "rule": "ECON-SR1",
+  "source": "native_tournament_rederivation",
+  "source_file": "scripts/pair_pipeline_indpro_spy.py::stage_tournament (extended lead grid L0..12; new winner S3_mom/T2_roll_p75/P1_long_cash/L4)",
+  "returns_file": "data/indpro_spy_monthly_19900101_20251231.parquet",
+  "coverage_start": "1990-01-31",
+  "coverage_end": "2025-12-31",
+  "frequency": "monthly",
+  "oos_start": "2018-01-01",
+  "oos_end": "2025-12-31",
+  "position_semantics": "position on row t is the return-accrual weight for period t (execution lag already applied); strategy_return = position * bh_return row-wise",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.230068,
+      "reported_winner_summary": 1.2301,
+      "diff": -3.2e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.027411,
+      "reported_winner_summary": -0.027411,
+      "diff": 0.0,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.103199,
+      "reported_winner_summary": 0.103199,
+      "diff": -0.0,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-06-20",
+  "generated_by": "Econ Evan (fix260620_lead_horizon Phase B)"
+}

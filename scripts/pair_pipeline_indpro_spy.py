@@ -29,6 +29,9 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tournament_io import write_tournament  # noqa: E402  (ECON-T5 §4 immutability guard)
+
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -1178,7 +1181,9 @@ def stage_tournament(df_monthly, df_daily):
 
     results_df = pd.DataFrame(results)
     results_path = os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv")
-    results_df.to_csv(results_path, index=False)
+    # ECON-T5 §4: published tournament CSVs are immutable. A re-run that would
+    # overwrite an existing publish-time file must use a fresh date tag instead.
+    write_tournament(results_df, results_path)
 
     # Summary
     valid_count = results_df["valid"].sum() if len(results_df) > 0 else 0

@@ -490,7 +490,6 @@ def check_page(text, slug, pair_id, page_name, plotly_count, html=""):
         "app_pt2_ok": app_pt2_ok,
         "app_pt2_note": app_pt2_note,
         "exploratory_section_present": exploratory_section,
-        "exploratory_eli5_markers_hit": exploratory_markers_hit,
         "app_tl1_check": app_tl1_check,
         "verdict": verdict,
     }

@@ -802,7 +802,9 @@ def stage_tournament(df):
         })
 
     rdf = pd.DataFrame(results)
-    rdf.to_csv(os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv"), index=False)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _tournament_io import write_tournament  # ECON-T5 §4 immutability guard
+    write_tournament(rdf, os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv"))
 
     valid_count = rdf["valid"].sum() if len(rdf) > 0 else 0
     print(f"  Tournament: {len(rdf)} combos, {valid_count} valid")

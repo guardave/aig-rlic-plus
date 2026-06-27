@@ -1,0 +1,14 @@
+lead_months,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+0,118,0.9918,0.6367,0.4361,0.755,indpro_zscore_60m,Trp75_lo,P1,-0.1945
+1,119,1.0303,0.6316,0.4528,0.7863,indpro_mom_6m,Trp75_hi,P1,-0.0691
+2,112,1.0955,0.6451,0.4825,0.7967,indpro_mom,Tp25_hi,P1,-0.1546
+3,112,1.1023,0.6776,0.4872,0.8591,indpro_accel,Tp90_lo,P1,-0.1457
+4,109,1.1736,0.6606,0.4923,0.7817,indpro_mom_3m,Trp75_hi,P1,-0.0691
+5,112,1.1413,0.6619,0.4596,0.8609,indpro_yoy,Trp75_lo,P1,-0.1945
+6,112,1.1277,0.6368,0.4692,0.8103,indpro_mom_6m,Trp75_hi,P1,-0.0691
+7,110,1.1689,0.645,0.4551,0.8709,indpro_mom_6m,Tp75_lo,P2,-0.1945
+8,102,1.3492,0.7335,0.5305,0.9184,indpro_yoy,Trp75_lo,P1,-0.1945
+9,101,1.2168,0.7105,0.543,0.8805,indpro_yoy,Trp75_lo,P1,-0.1945
+10,99,1.1106,0.7949,0.5831,0.9428,indpro_mom,Trp75_lo,P1,-0.1945
+11,103,1.2649,0.735,0.551,0.9225,indpro_contraction,Tz1_hi,P1,-0.0758
+12,103,1.3744,0.7128,0.5065,0.9694,indpro_mom_6m,Tp75_lo,P2,-0.1945

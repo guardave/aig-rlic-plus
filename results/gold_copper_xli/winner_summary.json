@@ -29,5 +29,41 @@
   "target_symbol": "XLI",
   "schema_version": "1.1.0",
   "generated_at": "2026-05-31T21:47:46Z",
+  "selection": {
+    "objective": "max_oos_sharpe",
+    "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=252",
+    "grid_scanned": {
+      "leads": [
+        0,
+        1,
+        5
+      ],
+      "n_signals": 5,
+      "n_thresholds": 3,
+      "n_strategies": 2,
+      "n_valid_combos": 60,
+      "median_valid_objective": 0.541
+    },
+    "tie_break_step": 0,
+    "raw_winner_row": {
+      "signal": "gold_copper_zscore_126d",
+      "threshold": "T2_p50",
+      "strategy": "P1_long_cash",
+      "lead_column": "lead_days",
+      "lead_value": 0,
+      "source_tournament_file": "tournament_results_20260526.csv",
+      "source_row_index": 0,
+      "display_alias": "signal_code=S_zscore_126d (raw signal=gold_copper_zscore_126d)"
+    },
+    "runner_up": {
+      "signal": "gold_copper_roc_63d",
+      "threshold": "T2_p50",
+      "strategy": "P1_long_cash",
+      "lead_value": 0,
+      "objective_value": 1.2546
+    },
+    "rationale": "Unique maximiser of OOS Sharpe over the committed coarse daily grid L{0,1,5} (60 valid combos, median OOS Sharpe 0.541). Winner raw OOS Sharpe 1.273 at L0; the 2nd-best valid combo (gold_copper_roc_63d/T2_p50/P1_long_cash/L0) sits at 1.2546. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "objective_runner_up_divergence": null
+  },
   "notes": "Mode 2 Phase 3 (Evan hat). Tournament: 5 signals x 3 thresholds x 2 strategies x 3 leads = 90 combos, 91 fit, 61 valid. Winner selected by OOS Sharpe."
 }

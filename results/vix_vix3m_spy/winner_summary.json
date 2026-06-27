@@ -24,7 +24,47 @@
   "strategy_family": "P1_long_cash",
   "oos_max_drawdown": -0.2115,
   "oos_n_trades": 1566,
+  "bh_sharpe": 0.7707,
+  "bh_oos_sharpe": 0.7707,
   "oos_period_start": "2020-01-01",
   "oos_period_end": "2025-12-31",
-  "notes": "Backfilled 2026-04-23 from tournament_results_20260314.csv per Wave 10I.A; OOS dates reconstructed from default monthly/daily windows. Fields: signal_column=vix_vix3m_ratio_z126, threshold_rule=lt (inferred from T2_rp75 + direction=countercyclical), strategy_family=P1_long_cash, oos_n_trades=1566 (from tournament CSV oos_n column \u2014 period count, not discrete trade count). OOS window CORRECTED 2026-06-11 (ECON-SR1 audit, fix260611_meta_cmp): the Wave 10I.A 'daily default reconstruction' start of 2015-01-01 was wrong; true OOS start is 2020-01-01 per pair_pipeline_vix_vix3m_spy.py OOS_START and Methodology prose. oos_n_trades=1566 equals the 2020-01-01..2025-12-31 daily period count, confirming the corrected window. Trade-log replay over the corrected window reconciles exactly (Sharpe 1.1295 / MDD -21.15% / ann 15.31%)."
+  "selection": {
+    "objective": "max_oos_sharpe",
+    "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=252",
+    "grid_scanned": {
+      "leads": [
+        0,
+        1,
+        5,
+        10,
+        21
+      ],
+      "n_signals": 10,
+      "n_thresholds": 7,
+      "n_strategies": 2,
+      "n_valid_combos": 331,
+      "median_valid_objective": 0.804
+    },
+    "tie_break_step": 0,
+    "raw_winner_row": {
+      "signal": "S3_z126",
+      "threshold": "T2_rp75",
+      "strategy": "P1",
+      "lead_column": "lead_days",
+      "lead_value": 0,
+      "source_tournament_file": "tournament_results_20260314.csv",
+      "source_row_index": 210,
+      "display_alias": "strategy_family=P1_long_cash (raw strategy=P1)"
+    },
+    "runner_up": {
+      "signal": "S8_pctrank",
+      "threshold": "T2_rp75",
+      "strategy": "P1",
+      "lead_value": 0,
+      "objective_value": 1.1113
+    },
+    "rationale": "Unique maximiser of OOS Sharpe over the committed coarse daily grid L{0,1,5,10,21} (331 valid combos, median OOS Sharpe 0.804). Winner raw OOS Sharpe 1.1295 at L0; the 2nd-best valid combo (S8_pctrank/T2_rp75/P1/L0) sits at 1.1113. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "objective_runner_up_divergence": null
+  },
+  "notes": "Backfilled 2026-04-23 from tournament_results_20260314.csv per Wave 10I.A; OOS dates reconstructed from default monthly/daily windows. Fields: signal_column=vix_vix3m_ratio_z126, threshold_rule=lt (inferred from T2_rp75 + direction=countercyclical), strategy_family=P1_long_cash, oos_n_trades=1566 (from tournament CSV oos_n column — period count, not discrete trade count). OOS window CORRECTED 2026-06-11 (ECON-SR1 audit, fix260611_meta_cmp): the Wave 10I.A 'daily default reconstruction' start of 2015-01-01 was wrong; true OOS start is 2020-01-01 per pair_pipeline_vix_vix3m_spy.py OOS_START and Methodology prose. oos_n_trades=1566 equals the 2020-01-01..2025-12-31 daily period count, confirming the corrected window. Trade-log replay over the corrected window reconciles exactly (Sharpe 1.1295 / MDD -21.15% / ann 15.31%). bh_oos_sharpe/bh_sharpe=0.7707 additively backfilled 2026-06-21 (fix260620_lead_horizon Phase 3) from the tournament_results_20260314.csv BENCHMARK row, reconciled to an independent SPY buy-and-hold OOS Sharpe recompute over 2020-01-01..2025-12-31 (n=1566, ann=252) = 0.7707; not a winner change."
 }

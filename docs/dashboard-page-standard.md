@@ -106,6 +106,8 @@ The Evidence page is the statistical proof layer. Every method block must follow
 | Tier explainer (Level 1 / Level 2 rationale) | **Yes** | Standard text; template provides canonical version |
 | Download archived CSVs expander | **Yes** | `downloads` list in `EVIDENCE_METHOD_BLOCKS` — each entry `{label, path}` pointing at the pair's statistical result CSVs (core-models tables or equivalent). Labels must state what the file contains with row counts verified against the file at authoring time. Missing files render an inline note, not an error. Introduced by vichua4b's building-permit-spy-fix (3c8b10d); extended to all pairs 2026-06-10 per stakeholder direction (fix260610_downloads_all_pairs). |
 | Level 1 tab — minimum 3 method blocks | **Yes** | Fewer than 3 is a gate failure |
+| **Lead Analysis** method block | **Yes** (DPS-LEAD1) | Mandatory Level-1 block for all pairs. Renders `correlations_lead_view` (signal-transform × lead-month heatmap vs 1-month forward return). Producer: ECON-LA1. Reference: permit_spy. |
+| **Lead Tournament** method block | **Yes** (DPS-LEAD1) | Mandatory Level-1 block for all pairs. Renders `lead_sharpe_distribution` (best OOS Sharpe per lead L0..12 + valid-combo distribution). Producer: ECON-LT1. Reference: permit_spy. |
 | Level 2 tab — minimum 2 method blocks | **Yes** | Fewer than 2 is a gate failure |
 | Tournament pointer | **Yes** | Links to Strategy page leaderboard. `tournament_intro` content governed by DPS-SCD1 below |
 | Transition → Strategy | **Yes** | `st.page_link` |
@@ -133,6 +135,14 @@ Every pair's headline OOS Sharpe is, by construction, the **maximum** of its tou
 > now lives on the **Strategy page, Confidence tab** (see below) — its content
 > answers "does the strategy's edge persist across regimes?", which is a
 > deployment-confidence question, not a statistical-proof question.
+
+### DPS-CPX1 — Narrative Travels With Its Section (added 2026-06-13, stakeholder direction)
+
+When a section's **charts** are relocated between pages, its **prose narrative moves with them.** The 2026-06-10 Cross-Period relocation moved the charts to Strategy→Confidence but left orphan narrative at the end of the Evidence page — e.g. permit_spy's `transition` field still carried the "Honest read on the cross-period charts above" / "Putting it together" passages that describe charts no longer on that page (a reader hits prose about "the cross-period charts above" with no charts above it).
+
+**Rule (mandatory, all pairs):** any Cross-Period narrative — sub-period Sharpe read, rolling-correlation/Sharpe/Granger commentary, structural-break interpretation, "honest read"/"putting it together" synthesis — lives **with the Cross-Period charts on Strategy→Confidence**, authored by Ray, never as residue on the Evidence page. The Evidence→Strategy `transition` field is a one-line bridge only, not a place for cross-period analysis. Retro-applied across all pairs in fix260613_lead_horizon. A reference to "the chart(s) above/below" whose chart is on a different page is a prose-vs-data placement violation.
+
+**Cross-reference:** the 2026-06-10 relocation note above; `_render_cross_period_section()` in page_templates; RES-EP1 (narrative ownership).
 
 ### Each method block — 8-element structure (RES-EP1)
 

@@ -3,12 +3,19 @@
   "pair_id": "indpro_xlp",
   "palette_id": "okabe_ito_2026",
   "rules_applied": [
+    "ECON-SR3",
+    "VIZ-SR3T",
     "VIZ-V8",
-    "VIZ-V11",
-    "VIZ-NM1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-O1"
   ],
-  "narrative_alignment_note": "Chart shows Tournament Results: 3,331 Combinations (2,691 Valid); verified intra-chart consistent per VIZ-IC1 on 2026-04-22.",
-  "created_at": "2026-04-22T08:28:57Z",
-  "disposition": "consumed"
+  "caption": "OOS Sharpe vs annual turnover across the 3,331 combinations of the immutable coarse published tournament grid (2,691 valid); coarse top-5 as stars. The diamond-star overlay is the extended-grid winner (not a coarse row \u2014 the coarse grid never scanned that lead).",
+  "narrative_alignment_note": "Tournament landscape for the Methodology page. Population is the immutable coarse published grid (agrees with the Methodology winner table); the extended-grid winner is a distinct labeled overlay, read from Evan's sidecar.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/indpro_xlp/tournament_scatter_indpro_xlp.csv",
+    "results/indpro_xlp/gap_sidecars_indpro_xlp_meta.json"
+  ],
+  "generated_at": "2026-06-21T12:05:30.635948+00:00",
+  "generated_by": "Viz Vera \u2014 temp/260621_systemic3/regen_systemic3.py (ECON-SR3 consumer-side twin)"
 }

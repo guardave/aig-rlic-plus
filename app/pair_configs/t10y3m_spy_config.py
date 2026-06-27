@@ -317,6 +317,130 @@ QUANTILE_BLOCK = dict(
 )
 
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "A monthly-rebalanced strategy trades against the *next* 1-month SPY "
+        "return, so the relevant question is not 'over what horizon does the "
+        "curve predict equities' but 'how stale should the signal be before we "
+        "act on it?' — a *lead* question. This block fixes the forward return "
+        "at 1 month and, for each 10Y-3M transform, computes Pearson "
+        "correlations between the signal lagged L = 0…12 months and the SPY "
+        "1-month forward return, then reads off which lead carries the most "
+        "linear predictive content."
+    ),
+    question=(
+        "If we trade against next month's SPY return, which lag of the "
+        "10Y-3M signal carries the strongest correlation — and does it line "
+        "up with the tournament's 6-month lead (L6)?"
+    ),
+    how_to_read=(
+        "Rows are 10Y-3M signal variants; columns are signal lead in months "
+        "(L0 = contemporaneous, L12 = signal from 12 months ago). The forward "
+        "return horizon is fixed at 1 month. Cell shading is Pearson r against "
+        "the SPY 1-month forward return. Stars: `*` p<0.05, `**` p<0.01. The "
+        "'best lead' for each row is the column with the largest absolute r."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between the signal lagged L months (columns, "
+        "L = 0…12) and SPY 1-month forward return (held fixed). The linear "
+        "signal is uniformly weak: every transform's best |r| is at or below "
+        "0.134. The winning signal `t10y3m_3m_chg` peaks at **L2 (r=-0.134**)**, "
+        "NOT at the tournament's L6, where its correlation is a negligible "
+        "~-0.054 (n.s.)."
+    ),
+    observation=(
+        "Reading the chart directly: the traded signal `t10y3m_3m_chg` "
+        "(3-month change in the slope) reaches its largest absolute "
+        "correlation at **L2 (r=-0.134, p<0.01)** and fades to roughly -0.054 "
+        "(not significant) by L6 — the very lead the tournament selected. The "
+        "change/momentum transforms are all negative-signed: a steeper or "
+        "rising slope lines up with *weaker* 1-month-forward SPY, a thin "
+        "late-cycle pattern. No transform clears |r| = 0.134 at any lead."
+    ),
+    interpretation=(
+        "The lead-correlation diagnostic and the tournament do **not** localise "
+        "on the same horizon. Linear predictive content for the winning signal "
+        "peaks early (L2) and is essentially gone by L6, so the L6 edge is not "
+        "backed by a contemporaneous lead-correlation peak at that horizon. "
+        "**In plain English:** the curve's straightforward month-to-month "
+        "linear pull on stocks is faint and shows up early; whatever advantage "
+        "the L6 rule has comes from threshold/regime structure, not from a "
+        "clean lead-lag correlation."
+    ),
+    key_message=(
+        "Linear predictability is uniformly weak (all |best_r| ≤ 0.134) and the "
+        "winning signal's correlation peaks at **L2 (r=-0.134**)**, not at the "
+        "tournament's L6 (~-0.054, n.s.). The lead-correlation diagnostic does "
+        "not corroborate the L6 lead — treat the edge as threshold/regime "
+        "driven, not lead-lag."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "The Lead Analysis block shows what the *correlations* prefer; this "
+        "block shows what the *tournament* prefers when lead is swept "
+        "exhaustively. We ran a standardized lead comparator — the best "
+        "out-of-sample Sharpe attainable at each lead across a common "
+        "(signal × threshold × strategy) grid — across the scanned monthly "
+        "leads. The chart plots, at each lead, the single best OOS Sharpe "
+        "attained at that lead against the cloud of valid combos, with SPY "
+        "buy-and-hold (OOS Sharpe 0.93) as the reference line."
+    ),
+    question=(
+        "Is the 6-month lead a broad, durable ridge, or a single isolated "
+        "spike that happens to top the grid?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each lead. Strip dots: every valid "
+        "(signal × threshold × strategy) combination at that lead — a wide "
+        "cloud means the lead works broadly. **A tall thin spike with low "
+        "neighbours is a peak-pick; a flat-but-wide plateau is a robust "
+        "regime.**"
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per lead (bars) and the full distribution of valid "
+        "combinations at each lead (strip). The published winner's lead, "
+        "**L6 (1.321)**, stands ISOLATED: its scanned neighbours sit well "
+        "below it (L3 0.977, L9 1.106), and the second-best lead L1 (1.196) is "
+        "disconnected from L6. There is no contiguous high-Sharpe plateau."
+    ),
+    observation=(
+        "Reading the comparator bars directly, the per-lead best Sharpe is "
+        "L0=1.073, L1=1.196, L2=1.008, L3=0.977, **L6=1.321**, L9=1.106, "
+        "L12=1.030. The winning lead **L6** is a single-lead spike: its nearest "
+        "scanned neighbours L3 (0.977) and L9 (1.106) sit 0.21-0.34 Sharpe "
+        "below it, so there is no shoulder propping it up. The second-strongest "
+        "lead, L1 (1.196), is not adjacent to L6 — the two high points are "
+        "disconnected rather than part of one ridge."
+    ),
+    interpretation=(
+        "L6 is a **peak-pick, not a corroborated edge**. The lead-correlation "
+        "diagnostic (left tab) places the winning signal's linear peak at L2, "
+        "not L6, and the comparator shows no contiguous plateau around L6 — its "
+        "neighbours fall 0.21-0.34 below. That combination means the L6 result "
+        "should be read with the same favorable-draw caution as the other weak "
+        "monthly pairs: the headline Sharpe is plausibly episode-concentrated "
+        "and sensitive to small changes in assumed latency. It is suggestive, "
+        "not robust; treat it as a fragile rates overlay rather than a "
+        "durable, lead-corroborated signal."
+    ),
+    key_message=(
+        "L6 (OOS Sharpe 1.321) is an isolated single-lead spike — neighbours "
+        "L3 (0.977) and L9 (1.106) sit 0.21-0.34 below and the 2nd-best lead "
+        "L1 (1.196) is disconnected. With the correlation peak at L2 (not L6), "
+        "this is a peak-pick carrying favorable-draw / episode-concentration "
+        "caution, not a robust shoulder."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: Yield-Curve Timing Is Useful but Early",
     "overview": (
@@ -336,8 +460,8 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Tournament results", "path": "results/t10y3m_spy/tournament_results_20260620.csv"},
         {"label": "Stationarity tests", "path": "results/t10y3m_spy/stationarity_tests_20260620.csv"},
     ],
-    "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Granger", "Quartiles", "CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (

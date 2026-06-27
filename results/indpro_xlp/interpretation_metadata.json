@@ -5,18 +5,18 @@
   "target": "xlp",
   "indicator_nature": "coincident",
   "indicator_type": "production",
-  "strategy_objective": "min_mdd",
-  "expected_direction": "countercyclical",
-  "observed_direction": "countercyclical",
+  "strategy_objective": "max_sharpe",
+  "expected_direction": "procyclical",
+  "observed_direction": "procyclical",
   "direction_consistent": true,
-  "key_finding": "Best strategy: S8_accel / T2_roll_p75 / P3_long_short_counter / L3. OOS Sharpe 1.11 vs 0.7437 B&H. Max drawdown -13.5% vs -13.3% B&H.",
-  "mechanism": "Rising industrial production signals economic expansion and improved corporate earnings. During expansions, investors rotate away from defensive consumer staples (XLP) toward growth sectors, causing XLP to underperform. During contractions (falling IP), defensive sectors outperform as investors seek capital preservation.",
+  "key_finding": "Best strategy: S3_mom (INDPRO 1-month momentum) / T1_fixed_p50 / P1_long_cash (pro-cyclical) / L11. OOS Sharpe 1.3282 vs 0.7437 B&H. Max drawdown -6.3%. Beats B&H on BOTH return (2.12x vs 1.85x) and risk. NOTE: pro-cyclical Long/Cash winner supersedes the prior countercyclical long/short acceleration winner (ECON-LT1 re-run, fix260620_lead_horizon).",
+  "mechanism": "Rising industrial production signals economic expansion and improving corporate earnings. The winning strategy is pro-cyclical Long/Cash: it holds XLP when the 11-month-lagged INDPRO 1-month momentum is above its in-sample median and moves to cash otherwise. Although consumer staples are classically defensive, over this sample staying long XLP through the early-to-mid phase of IP expansions (and stepping aside when momentum rolls over) captured the sector's compounding while sidestepping the worst contraction drawdowns — beating buy-and-hold on both return and risk.",
   "caveats": [
-    "INDPRO is released with ~6-week publication lag \u2014 real-time trading must account for delay",
+    "INDPRO is released with ~6-week publication lag — real-time trading must account for delay",
     "COVID-19 April 2020 outlier (-12.7% MoM) may distort regime estimates",
-    "Consumer staples are defensive but not perfectly countercyclical \u2014 earnings quality matters",
+    "Consumer staples are defensive but not perfectly countercyclical — earnings quality matters",
     "Monthly frequency limits signal granularity for daily strategies",
-    "XLP sample starts 1998 \u2014 shorter history than INDPRO (1919)"
+    "XLP sample starts 1998 — shorter history than INDPRO (1919)"
   ],
   "owner_writes": {
     "dana": [
@@ -33,6 +33,6 @@
     ]
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-04-20T00:00:00Z",
+  "last_updated_at": "2026-06-20T00:00:00Z",
   "indicator_category": "production"
 }

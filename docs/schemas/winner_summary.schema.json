@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aig-rlic-plus.local/schemas/winner_summary.schema.json",
   "x-owner": "evan",
-  "x-version": "1.1.0",
+  "x-version": "1.2.0",
   "title": "Winner Summary",
   "description": "Canonical contract for `results/{pair_id}/winner_summary.json`. Produced by Econ Evan at tournament completion; consumed by AppDev Ace's Strategy page (probability engine panel, position adjustment panel, instructional trigger cards, execution panel) and by Research Ray for narrative cross-reference. Resolves ECON-H5 (producer mandate) and APP-WS1 (consumer pre-render contract) in a single artifact per META-CF. Companion to `tournament_winner.json` (META-TWJ) — winner_summary is the render-ready strategy descriptor; tournament_winner is the winner-vs-benchmark delta record.",
   "type": "object",
@@ -21,7 +21,8 @@
     "oos_max_drawdown",
     "oos_n_trades",
     "oos_period_start",
-    "oos_period_end"
+    "oos_period_end",
+    "selection"
   ],
   "properties": {
     "pair_id": {
@@ -116,6 +117,88 @@
     "notes": {
       "type": "string",
       "description": "Freeform producer notes (caveats, sample-period warnings, known limitations). Rendered verbatim by Ace in the Strategy-page 'Important Caveats' section when present."
+    },
+    "selection": {
+      "type": "object",
+      "description": "**ECON-T5 winner-selection provenance (added v1.2.0; REQUIRED as of the 2026-06-22 retro-apply wave).** Records WHY this combo is the winner: the objective maximised, the EXACT grid scanned at publish time, the tie-break step, the runner-up it beat, and the RAW tournament-row identity it resolves to. Makes winner selection auditable/reproducible from the published files alone and closes the alias-vs-rawcode gap (display fields like `signal_code`/`threshold_value` may use aliases that do not literally match tournament row codes — `selection.raw_*` records the literal codes). **This object is now REQUIRED:** the Phase-4 retro-apply wave (2026-06-22, fix260620_lead_horizon) backfilled all 12 active pairs from their immutable published `tournament_results_*.csv`, so every winner_summary.json carries it and `validate_or_die` enforces it at render time.",
+      "required": [
+        "objective",
+        "grid_scanned",
+        "raw_winner_row"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "objective": {
+          "type": "string",
+          "enum": ["max_oos_sharpe", "max_oos_sortino", "max_oos_calmar", "robustness_ridge"],
+          "description": "The single scalar maximised over the valid strategy population (ECON-T4: BENCHMARK excluded). Default/historical = `max_oos_sharpe` (all 12 audited pairs). `composite_*` documented objectives are admitted via a separately-versioned schema bump.",
+          "pattern": "^(max_oos_sharpe|max_oos_sortino|max_oos_calmar|robustness_ridge|composite_[a-z0-9_]+)$"
+        },
+        "objective_formula": {
+          "type": "string",
+          "description": "Human-readable formula of the objective, e.g. `oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12`."
+        },
+        "grid_scanned": {
+          "type": "object",
+          "description": "The EXACT tournament space searched at publish time — FROZEN with the winner (ECON-T5 §2/§4). The lead grid MUST be an explicit list, never prose like '0..12'.",
+          "required": ["leads"],
+          "additionalProperties": true,
+          "properties": {
+            "leads": {
+              "type": "array",
+              "items": {"type": "integer", "minimum": 0},
+              "minItems": 1,
+              "description": "Explicit lead grid actually scanned (e.g. [0,1,2,3,6] for a legacy coarse grid, or [0,1,...,12] for an ECON-LL1 fine grid)."
+            },
+            "n_signals": {"type": "integer", "minimum": 1},
+            "n_thresholds": {"type": "integer", "minimum": 1},
+            "n_strategies": {"type": "integer", "minimum": 1},
+            "n_valid_combos": {"type": "integer", "minimum": 1, "description": "Valid strategy combos scanned (ECON-T4: BENCHMARK excluded)."},
+            "median_valid_objective": {"type": "number", "description": "Median objective value across the valid population (context for the winner's edge)."}
+          }
+        },
+        "tie_break_step": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "ECON-T3 cascade level that resolved the winner (0/null = no tie; unique maximiser on `objective`)."
+        },
+        "raw_winner_row": {
+          "type": "object",
+          "description": "**RAW tournament-row identity of the winner (Ivy audit finding).** The literal codes as they appear in the source tournament CSV row — not display aliases. Lets an auditor resolve the published winner to exactly one row in the cited file.",
+          "required": ["signal", "threshold", "strategy", "lead_column", "lead_value", "source_tournament_file", "source_row_index"],
+          "additionalProperties": true,
+          "properties": {
+            "signal": {"type": "string", "minLength": 1, "description": "Raw `signal` cell value from the tournament CSV row."},
+            "threshold": {"type": "string", "minLength": 1, "description": "Raw `threshold` cell value (code/label) from the tournament CSV row."},
+            "strategy": {"type": "string", "minLength": 1, "description": "Raw `strategy` cell value from the tournament CSV row."},
+            "lead_column": {"type": "string", "minLength": 1, "description": "Name of the lead column in the tournament CSV (e.g. `lead_months`)."},
+            "lead_value": {"type": "integer", "minimum": 0, "description": "Raw lead value of the winning row."},
+            "source_tournament_file": {"type": "string", "pattern": "tournament_results_.*\\.csv$", "description": "Filename of the publish-time tournament CSV the winner was selected from (immutable; ECON-T5 §4)."},
+            "source_row_index": {"type": "integer", "minimum": 0, "description": "0-based row index of the winning row within `source_tournament_file`."},
+            "display_alias": {"type": "string", "description": "Optional: the display alias used elsewhere in this file (e.g. `signal_code`/`signal_display_name`) when it differs from the raw `signal` code — documents the alias→rawcode mapping."}
+          }
+        },
+        "runner_up": {
+          "type": "object",
+          "description": "The 2nd-best valid combo on `objective` — what the winner was chosen over.",
+          "additionalProperties": true,
+          "properties": {
+            "signal": {"type": "string"},
+            "threshold": {"type": "string"},
+            "strategy": {"type": "string"},
+            "lead_value": {"type": "integer", "minimum": 0},
+            "objective_value": {"type": "number"}
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "description": "One-paragraph plain-English justification of the selection (the edge over the runner-up; whether the ECON-T3 cascade engaged; grid description)."
+        },
+        "objective_runner_up_divergence": {
+          "type": ["string", "null"],
+          "description": "ECON-T5 §3 honest-finding clause. `null` ASSERTS the published winner == the raw max-`objective` row. Non-null (one paragraph) is MANDATORY when a non-raw-max objective deliberately overrode raw Sharpe: names the higher-raw-Sharpe row passed over, the preference criterion, and why it is sound."
+        }
+      }
     }
   }
 }

@@ -365,6 +365,145 @@ LOCAL_PROJECTIONS_BLOCK = dict(
 )
 
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "This pair trades **daily**, but to compare its signal latency on the "
+        "same footing as the monthly pairs in the portal, the lead grid here "
+        "is **monthly-resampled**: each signal is shifted by L = 0…12 calendar "
+        "months and correlated against the SPY 1-month forward return. **State "
+        "this honestly:** the production rule executes daily at a same-day "
+        "(L0) lead; this monthly lead-grid is a comparability diagnostic, not "
+        "the traded latency. It answers 'if we *had* to lag the VIX "
+        "term-structure signal by whole months, where would predictive "
+        "content peak?' — a robustness check on the same-day rule, not a "
+        "competing recommendation."
+    ),
+    question=(
+        "On a monthly-resampled grid, which lead carries the most predictive "
+        "content for the VIX-term-structure signal — and how does that relate "
+        "to the traded same-day (L0) rule?"
+    ),
+    how_to_read=(
+        "Rows are VIX/VIX3M signal variants; columns are signal lead in "
+        "MONTHS (L0 = contemporaneous, L12 = signal from 12 months ago). The "
+        "forward return horizon is fixed at 1 month. Cell shading is Pearson r "
+        "(linear co-movement, -1 to +1) against `spy_fwd_1m`. Stars: `*` "
+        "p<0.05, `**` p<0.01. The 'best lead' for each row is the column with "
+        "the largest absolute r."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between **signal lagged L months** (columns, "
+        "L = 0…12) and **SPY 1-month forward return**. The traded signal "
+        "`vix_ratio_zscore_126d` peaks at **L6 (r=−0.194, p<0.01)** on this "
+        "monthly grid — strongly counter-cyclical (high term-structure stress "
+        "six months earlier precedes weaker SPY). Note the traded rule itself "
+        "uses a same-day (L0) daily lead, not L6; see the Lead Tournament tab "
+        "for why the daily L0 rule is nonetheless the published winner."
+    ),
+    observation=(
+        "On the monthly-resampled grid the traded signal "
+        "`vix_ratio_zscore_126d` is weak at most leads (L0 +0.030, L2 +0.068, "
+        "L4 +0.030) and shows one strong, highly-significant cell at **L6 "
+        "(r=−0.194, p<0.01)** — the counter-cyclical signature. This L6 "
+        "monthly peak reflects the slow business-cycle echo of term-structure "
+        "stress; it is NOT the mechanism the daily rule trades, which is the "
+        "fast same-day risk-off reaction (documented in the Local Projections "
+        "block, where SPY responds within 1-5 trading days)."
+    ),
+    interpretation=(
+        "Two timescales coexist. The **fast** channel — a same-day term-"
+        "structure spike preceding an immediate equity sell-off — is what the "
+        "daily L0 rule trades and what the daily local-projection evidence "
+        "supports. The **slow** channel surfaced here — a monthly L6 "
+        "correlation — is a separate, longer-horizon echo. The monthly "
+        "lead-grid does not contradict the L0 rule; it simply measures a "
+        "different (monthly) clock. **In plain English:** when fear in the "
+        "options market spikes, stocks tend to fall within days (the traded "
+        "edge); separately, elevated term-structure stress also leaves a "
+        "fainter footprint about six months out on a monthly view."
+    ),
+    key_message=(
+        "On a monthly-resampled grid the signal peaks at **L6 (r=−0.194, "
+        "p<0.01)**, a slow counter-cyclical echo. This is a comparability "
+        "diagnostic only — the published rule trades DAILY at a same-day (L0) "
+        "lead, exploiting the fast risk-off reaction, not the monthly L6 "
+        "footprint."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "This block sweeps the monthly lead grid L = 0…12 and plots the best "
+        "out-of-sample Sharpe attainable at each lead (blue bar) against all "
+        "valid combos at that lead (grey strip). The dashed orange line is SPY "
+        "buy-and-hold. **Honesty note (daily pair):** the lead axis is "
+        "monthly-resampled for cross-pair comparability even though the pair "
+        "executes daily; the published winner trades at a same-day (L0) daily "
+        "lead, and the bars below are a diagnostic on the monthly clock."
+    ),
+    question=(
+        "On the monthly grid, where does the best Sharpe sit — and does it "
+        "agree with or diverge from the published same-day (L0) daily rule?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each monthly lead. Strip dots: every valid "
+        "combination at that lead — cloud width shows how broadly that lead "
+        "works. A tall thin spike is a single combo; a flat-but-wide cloud is "
+        "a robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per monthly lead (blue bars) and the full "
+        "distribution at each lead (grey strip). On the monthly grid the "
+        "tallest bar is **L3 (1.87)**, with secondary peaks at L6 (1.65) and "
+        "L5 (1.48); the published daily rule's monthly-equivalent **L0 sits "
+        "lowest (1.07)**. This is an honest DIVERGENCE — disclosed and "
+        "explained below."
+    ),
+    observation=(
+        "Reading the monthly bars: the profile is uneven, peaking sharply at "
+        "**L3 (1.87)** and L6 (1.65) and dropping to **L0 (1.07)** — the "
+        "monthly-equivalent of the traded same-day lead. So on the monthly "
+        "clock, lagging the signal by 3 months would have scored higher than "
+        "the same-day rule.\n\n"
+        "Why is the **published winner still the daily L0 rule** "
+        "(`vix_ratio_zscore_126d / T2_rp75 / P1_long_cash`, OOS Sharpe "
+        "**1.1295**)? Because this pair's true mechanism is the **fast daily "
+        "risk-off reaction**, which a monthly-resampled grid cannot see — "
+        "monthly resampling discards exactly the within-month dynamics the "
+        "daily rule monetises. The monthly L3 peak reflects a slower, "
+        "business-cycle-scale relationship that is real but operates on a "
+        "different timescale and a different (monthly-rebalanced) strategy."
+    ),
+    interpretation=(
+        "The honest read: **the monthly lead-tournament and the daily traded "
+        "rule diverge, and that divergence is expected, not alarming.** The "
+        "monthly grid favours L3; the published rule trades daily at L0. They "
+        "are not competing on the same clock — the daily rule captures a "
+        "same-day reaction the monthly grid is blind to, and the monthly grid "
+        "surfaces a slower echo the daily rule does not target. A reader "
+        "should NOT conclude 'the rule should switch to L3': that L3 Sharpe "
+        "belongs to a monthly-rebalanced strategy on resampled data, a "
+        "different instrument entirely. The daily L0 rule remains the "
+        "published winner on its own (daily) terms."
+    ),
+    key_message=(
+        "On the monthly-resampled grid the best Sharpe is at L3 (1.87), while "
+        "the traded rule's L0-equivalent is lowest (1.07) — an honest "
+        "divergence. But the divergence is an artefact of timescale: the "
+        "published rule trades DAILY at a same-day lead (OOS Sharpe 1.1295), "
+        "capturing a fast risk-off reaction the monthly grid cannot represent. "
+        "The monthly L3 peak is a slower, separate echo, not a better version "
+        "of the same rule."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
@@ -394,8 +533,8 @@ EVIDENCE_METHOD_BLOCKS = {
         "and remains significant for about a month. This is the cleanest "
         "econometric picture in the portal."
     ),
-    "level1": [CORRELATION_BLOCK],
-    "level1_labels": ["Correlation"],
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament"],
     "level2": [LOCAL_PROJECTIONS_BLOCK],
     "level2_labels": ["Local Projections"],
     "tournament_intro": (

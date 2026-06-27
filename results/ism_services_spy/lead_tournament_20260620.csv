@@ -1,0 +1,14 @@
+lead_months,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+0,92,1.3219,0.6762,0.5384,0.8375,ism_services_zscore_60m,Tp25_lo,P1,-0.0833
+1,90,1.2681,0.6769,0.5549,0.8238,ism_services_zscore_60m,Tp25_lo,P1,-0.0833
+2,91,1.384,0.7276,0.5389,0.8678,ism_services_gap_50,Tp25_lo,P1,-0.0376
+3,89,1.1328,0.7115,0.5493,0.8296,ism_services_delta,Trp25_hi,P1,-0.1424
+4,83,1.1349,0.7121,0.5764,0.8525,ism_services_gap_50,Tp75_lo,P1,-0.1945
+5,90,1.2628,0.7449,0.5466,0.9111,ism_services_zscore_60m,Tp75_lo,P2,-0.1945
+6,96,1.0892,0.6574,0.4494,0.8053,ism_services_gap_50,Trp75_lo,P1,-0.1945
+7,90,1.3863,0.6886,0.5358,0.8523,ism_services_gap_50,Tp90_lo,P2,-0.2362
+8,87,1.3518,0.7157,0.5491,0.9474,ism_services_zscore_60m,Tp75_lo,P2,-0.2244
+9,81,1.4616,0.8607,0.7073,1.0031,ism_services_6m_change,Tp75_lo,P2,-0.1945
+10,87,1.2858,0.747,0.5459,0.9148,ism_services_zscore_60m,Tz1_lo,P2,-0.1945
+11,93,1.2056,0.6628,0.5445,0.783,ism_services_gap_50,Trp25_lo,P1,-0.0833
+12,88,1.3409,0.7928,0.6557,0.9697,ism_services_gap_50,Tp75_lo,P1,-0.0833

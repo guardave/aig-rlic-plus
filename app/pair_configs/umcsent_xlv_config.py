@@ -415,6 +415,128 @@ SIGNAL_DIST_BLOCK = dict(
 )
 
 
+CORRELATION_LEAD_VIEW_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Analysis",
+    method_theory=(
+        "For a monthly-rebalanced strategy the decision is: how stale should "
+        "the signal be allowed to get before we trade on it? This block "
+        "computes Pearson correlations between the UMCSENT momentum signal "
+        "lagged L = 0…12 months and the XLV 1-month forward return, then reads "
+        "off which lead maximises predictive content — and checks it against "
+        "the tournament's traded 6-month lead."
+    ),
+    question=(
+        "Which lead carries the most predictive content for the UMCSENT "
+        "momentum signal — and does it line up with the traded 6-month lead?"
+    ),
+    how_to_read=(
+        "Rows are UMCSENT signal variants; columns are signal lead in MONTHS "
+        "(L0 = contemporaneous, L12 = 12 months ago). Forward horizon fixed at "
+        "1 month. Cell shading is Pearson r (linear co-movement, -1 to +1) "
+        "against `xlv_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01."
+    ),
+    chart_name="correlations_lead_view",
+    chart_caption=(
+        "Pearson correlations between **signal lagged L months** and **XLV "
+        "1-month forward return**. The traded signal `umcsent_mom` peaks at "
+        "**L5 (r=+0.133, p<0.05)** — the only significant cell in its row, and "
+        "one month short of the traded 6-month lead. A near-corroboration: the "
+        "correlation diagnostic endorses a lead adjacent to the tournament's "
+        "choice."
+    ),
+    observation=(
+        "Reading the row directly: the traded signal `umcsent_mom` is weak at "
+        "most leads (L0 −0.015, L3 −0.045, L6 +0.023) and reaches its single "
+        "significant cell at **L5 (r=+0.133, p<0.05)**. That peak sits one "
+        "month short of the tournament's traded L6, so the linear diagnostic "
+        "and the tournament land on adjacent leads rather than the same one. "
+        "The procyclical sign (positive correlation: rising sentiment momentum "
+        "→ stronger forward XLV) matches the direction-surprise finding on the "
+        "Story page."
+    ),
+    interpretation=(
+        "A **near-corroboration**: the lead-correlation peak (L5, significant) "
+        "is one month off the traded lead (L6), which is close enough to treat "
+        "the two as agreeing on the same broad region rather than diverging. "
+        "**In plain English:** consumer-sentiment momentum from about five to "
+        "six months earlier carries the cleanest next-month signal for health-"
+        "care stocks, and the trading rule reads from within that window. The "
+        "one-month offset is minor — not the clean exact match of the "
+        "strongest pairs, but well short of a divergence."
+    ),
+    key_message=(
+        "The traded signal `umcsent_mom` peaks at **L5 (r=+0.133, p<0.05)**, "
+        "one month short of the traded L6 — a near-corroboration. The "
+        "correlation diagnostic and the tournament agree on the same broad "
+        "5–6 month region, with a minor one-month offset."
+    ),
+)
+
+LEAD_TOURNAMENT_BLOCK = dict(
+    chart_status="ready",
+    method_name="Lead Tournament",
+    method_theory=(
+        "This block sweeps the monthly lead grid L = 0…12 and plots the best "
+        "OOS Sharpe at each lead (blue bar) against all valid combos (grey "
+        "strip); the dashed orange line is XLV buy-and-hold (Sharpe 0.72). "
+        "The published winner emerged from this extended sweep (the gate fired "
+        "RE-RUN), so the chart is the direct provenance of the traded lead."
+    ),
+    question=(
+        "Where does the traded 6-month lead sit on the sweep — a robust ridge "
+        "or an isolated point — and does it agree with the L5 correlation "
+        "peak?"
+    ),
+    how_to_read=(
+        "Bars: max OOS Sharpe at each monthly lead. Strip dots: every valid "
+        "combination at that lead. A tall thin spike is a single combo; a "
+        "flat-but-wide cloud is a robust regime."
+    ),
+    chart_name="lead_sharpe_distribution",
+    chart_caption=(
+        "Best OOS Sharpe per monthly lead (blue bars) and the full "
+        "distribution (grey strip). The traded **L6 (1.11)** opens a "
+        "**rising mid-grid ridge** through L7 (1.18) and L8 (1.15), with a "
+        "matching bump at L11 (1.19); the low leads (L0–L4) and L9 sit below "
+        "buy-and-hold-adjacent levels. The traded L6 anchors the front of a "
+        "real ridge, not an isolated spike."
+    ),
+    observation=(
+        "Reading the monthly bars: the grid is weak at the front (L0 0.96, "
+        "L4 0.79) and strengthens into a **mid-grid ridge** — the traded **L6 "
+        "(1.11)** rises through L7 (1.18) and L8 (1.15), with a separate bump "
+        "at L11 (1.19). So the traded L6 sits at the leading edge of a "
+        "coherent L6–L8 ridge rather than on an isolated peak, and the "
+        "adjacent L5 correlation peak (left tab) lands just before it.\n\n"
+        "The published winner (`umcsent_mom / T3_zscore_1.0 / P1_long_cash`, "
+        "OOS Sharpe **1.1586**) was selected from this extended sweep — the "
+        "gate fired RE-RUN against the prior `umcsent_yoy`/L6 winner (1.0202). "
+        "The lead choice is corroborated on two fronts: a significant L5 "
+        "correlation immediately adjacent, and a rising L6–L8 Sharpe ridge "
+        "that the traded lead anchors."
+    ),
+    interpretation=(
+        "The honest summary: **the traded L6 is a ridge point with adjacent "
+        "support, not a fragile spike.** It opens a rising L6–L8 Sharpe ridge "
+        "and sits one month after the significant L5 lead-correlation peak — "
+        "two independent diagnostics pointing at the same 5–8 month region. "
+        "This is among the more robust lead selections in the batch (short of "
+        "an exact correlation match). The result remains a drawdown-control "
+        "story rather than a return-beater — OOS return trails XLV buy-and-"
+        "hold while max drawdown is far smaller — but the *lead* itself is "
+        "well-identified."
+    ),
+    key_message=(
+        "The traded **L6 (1.11)** anchors a rising L6–L8 Sharpe ridge (peak "
+        "L7 1.18) and sits one month after the significant L5 correlation "
+        "peak — a robust, twice-corroborated lead region, not a spike. Winner "
+        "OOS Sharpe 1.1586 (from the RE-RUN extended sweep); the edge is "
+        "drawdown control, but the lead is well-identified."
+    ),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
@@ -447,8 +569,8 @@ EVIDENCE_METHOD_BLOCKS = {
         "that this is the *procyclical* direction, not the defensive/"
         "countercyclical pattern that standard economic theory predicts."
     ),
-    "level1": [CORRELATION_BLOCK, GRANGER_BLOCK],
-    "level1_labels": ["Correlation", "Granger Causality"],
+    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Granger Causality"],
     "level2": [REGIME_BLOCK, SIGNAL_DIST_BLOCK],
     "level2_labels": ["Regime Analysis", "Signal Distribution"],
     "tournament_intro": (

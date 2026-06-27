@@ -1,5 +1,5 @@
 {
-  "x-version": "1.1.0",
+  "x-version": "1.2.0",
   "x-owner": "vera",
   "x-generated": "2026-04-19",
   "notes": "Initial canonical instance seeded from the HY-IG v2 reference pair (per META-RPD) after Wave 4B cross-review exposed the method-to-chart mapping living in three SOPs (Evan ECON-H4, Vera VIZ-A3, Ace render_method_block). Populated from handoff_to_vera_20260419.md, VIZ-A3 Standard Chart Set, META-ZI episode slugs, and the Strategy-page chart inventory. Producer (Vera) validates a chart's basename against canonical_filename_pattern before save; consumer (Ace) uses method_name to resolve both the chart JSON and the upstream CSV. Evan's ECON-H4 handoff is the INPUT that feeds this registry; this registry is the authoritative OUTPUT (VIZ-V8).",
@@ -199,13 +199,31 @@
       "notes": "APP-CH1 non-method entry (added Wave 5B-2). Story-page hero-chart companion showing HMM stress/calm regime bands as a full-width backdrop (distinct from the probabilistic hmm_regime_probs chart on Evidence which uses an area-probability encoding). Exists to give the Story hero a simple regime backdrop without re-deriving HMM state labels at render-time."
     },
     "tournament_distribution": {
-      "expected_chart_type": "histogram",
+      "expected_chart_type": "bar",
       "canonical_filename_pattern": "tournament_sharpe_dist.json",
       "required_result_file": "tournament_results_{date}.csv",
       "viz_rule_id": "VIZ-SCD1",
       "econ_rule_id": "ECON-T4",
       "consumer_page": "strategy",
       "notes": "OOS Sharpe distribution across valid combos (benchmark excluded per ECON-T4). Winner annotation states position: 'Winner = max of N (median X)' per VIZ-SCD1; B&H benchmark vline marked. Precedent: hy_ig_spy, gold_copper_xli tournament_sharpe_dist."
+    },
+    "lead_correlation_view": {
+      "expected_chart_type": "heatmap",
+      "canonical_filename_pattern": "correlations_lead_view.json",
+      "required_result_file": "lead_correlation_{date}.csv",
+      "viz_rule_id": "VIZ-LEAD1",
+      "econ_rule_id": "ECON-LA1",
+      "consumer_page": "evidence",
+      "notes": "Mandatory VIZ-LEAD1 Evidence chart (all pairs). Pearson-r heatmap of signal transforms (rows) vs the universal monthly lead axis L0..L12 (cols); RdBu_r zmid=0, symmetric zmin/zmax = max(0.2, max|r|); significance stars (* p<0.05, ** p<0.01). Subtitle states the strongest (transform, lead, r). Daily-target pairs use the SAME monthly L0..L12 axis. Produced by scripts/generate_lead_charts.py from Evan's ECON-LA1 lead_correlation CSV (latest dated). Precedent: permit_spy."
+    },
+    "lead_sharpe_distribution": {
+      "expected_chart_type": "bar",
+      "canonical_filename_pattern": "lead_sharpe_distribution.json",
+      "required_result_file": "lead_tournament_{date}.csv",
+      "viz_rule_id": "VIZ-LEAD1",
+      "econ_rule_id": "ECON-LT1",
+      "consumer_page": "evidence",
+      "notes": "Mandatory VIZ-LEAD1 Evidence chart (all pairs). Per lead L0..L12: bar = best OOS Sharpe at that lead in the standardized P1/P2 gating sweep, grey p25-p75 cloud + median dots of valid combos, dashed buy-and-hold reference (bh_oos_sharpe from winner_summary.json). Caption states the sweep-max lead AND the published-winner lead (the native-tournament winner can sit at a different lead than the sweep max — e.g. indpro_spy sweep L12 vs winner L4) and whether the sweep max is a single spike or broad ridge (ECON-LT1/LT2 durability). Produced by scripts/generate_lead_charts.py from Evan's ECON-LT1 lead_tournament CSV (latest dated). Precedent: permit_spy."
     }
   }
 }

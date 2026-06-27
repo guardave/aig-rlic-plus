@@ -6,10 +6,16 @@ Author: Evan (Econometrics Agent)
 Date: 2026-02-28
 """
 
+import os
+import sys
+
 import numpy as np
 import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tournament_io import write_tournament  # noqa: E402  (ECON-T5 §4 immutability guard)
 
 # ── Load Data ────────────────────────────────────────────────────────────────
 df = pd.read_parquet('/workspaces/aig-rlic-plus/data/hy_ig_spy_daily_20000101_20251231.parquet')
@@ -294,7 +300,8 @@ results.append({
 
 # ── Save & Summarize ─────────────────────────────────────────────────────────
 results_df = pd.DataFrame(results)
-results_df.to_csv('/workspaces/aig-rlic-plus/results/tournament_results_20260228.csv', index=False)
+# ECON-T5 §4: refuse to overwrite a published tournament CSV in place.
+write_tournament(results_df, '/workspaces/aig-rlic-plus/results/tournament_results_20260228.csv')
 
 print(f"\n=== Tournament Complete ===")
 print(f"Total combinations tested: {n_combos}")

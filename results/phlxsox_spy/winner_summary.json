@@ -8,14 +8,14 @@
   "threshold_code": "T2_roll_p75",
   "threshold_value": 30.6842,
   "threshold_rule": "gt",
-  "threshold_note": "threshold is rolling (window per lookback); threshold_value is the latest rolling value \u2014 see winner_trade_log.csv for the full path",
+  "threshold_note": "threshold is rolling (window per lookback); threshold_value is the latest rolling value — see winner_trade_log.csv for the full path",
   "strategy_family": "P1_long_cash",
   "strategy_code": "P1",
   "strategy_display_name": "Long/Cash",
   "strategy_description": "Long SPY when the lagged SOX/relative-strength signal is above its threshold; otherwise cash.",
   "lead_value": 63,
   "lead_unit": "days",
-  "lead_description": "Signal lead = 63 trading day(s); L1 is the real-time floor (no contemporaneous L0 \u2014 a same-day SOX reading is co-movement, not a forecast).",
+  "lead_description": "Signal lead = 63 trading day(s); L1 is the real-time floor (no contemporaneous L0 — a same-day SOX reading is co-movement, not a forecast).",
   "lookback": "LB63",
   "direction": "procyclical",
   "oos_sharpe": 1.57,
@@ -42,5 +42,44 @@
   "total_combos": 6760,
   "valid_combos": 4607,
   "schema_version": "1.1.0",
-  "notes": "Mode 1 daily, pair260619_phlxsox_spy. CENTRAL FINDING: contemporaneous daily return corr(SOX,SPY)=0.709 is CO-MOVEMENT (shared beta), not predictive edge. Lead-lag verdict: Bidirectional Granger (both directions significant) \u2014 feedback, not clean lead. Toda-Yamamoto SOX->SPY significant lags [1, 2, 3, 5, 10, 21]; SPY->SOX significant lags [1, 2, 3, 5, 10, 21]. Pre-whitened CCF SOX-leads(lag>0) significant [4, 6, 8, 12, 15, 16]. Incremental-edge test: lagged relative-strength adds over SPY's OWN 63d momentum at some forecast horizon = True. Winner rs_mom6m/T2_roll_p75/P1_long_cash pro/L63/LB63: OOS Sharpe 1.57 vs B&H 0.82 (beats=True) AND vs SPY-OWN-MOMENTUM 0.83 (beats=True). Winner bootstrap p=0.041; IS Sharpe 0.10 vs OOS 1.57; CP1 durability 'conditionally_durable'; rolling-corr stability 'sign_unstable'. Tournament: 6760 strategy combos (+2 benchmark rows valid=False per ECON-T4), 4607 valid. The winner beats SPY own-momentum on OOS Sharpe, but read with heavy caution. OVERFITTING FLAGS: winner IS Sharpe 0.10 vs OOS 1.57 (gap +1.47 \u2014 the OOS window 2021-2026 was a strong semis bull, a favorable draw); the MEDIAN valid combo scored 0.67, BELOW B&H 0.82 (search mostly found losers); winner win-rate 0.20 and it LOST in every pre-OOS stress episode (Dot-Com/GFC/COVID). Granger is BIDIRECTIONAL (feedback), not a clean SOX->SPY lead. Treat as search-found, not validated. 5bps cost sensitivity in tournament_validation_20260619/."
+  "selection": {
+    "objective": "max_oos_sharpe",
+    "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=252",
+    "grid_scanned": {
+      "leads": [
+        0,
+        1,
+        5,
+        10,
+        21,
+        63
+      ],
+      "n_signals": 11,
+      "n_thresholds": 10,
+      "n_strategies": 6,
+      "n_valid_combos": 4607,
+      "median_valid_objective": 0.6745
+    },
+    "tie_break_step": 0,
+    "raw_winner_row": {
+      "signal": "rs_mom6m",
+      "threshold": "T2_roll_p75",
+      "strategy": "P1_long_cash_pro",
+      "lead_column": "lead_days",
+      "lead_value": 63,
+      "source_tournament_file": "tournament_results_20260619.csv",
+      "source_row_index": 1758,
+      "display_alias": "signal_code=phlxsox_rs_mom6m (raw signal=rs_mom6m); strategy_family=P1_long_cash (raw strategy=P1_long_cash_pro)"
+    },
+    "runner_up": {
+      "signal": "hmm_stress",
+      "threshold": "T3_zscore_1.5",
+      "strategy": "P2_signal_strength_counter",
+      "lead_value": 1,
+      "objective_value": 1.5361
+    },
+    "rationale": "Unique maximiser of OOS Sharpe over the committed coarse daily grid L{0,1,5,10,21,63} (4,607 valid combos, median OOS Sharpe 0.6745). Winner raw OOS Sharpe 1.57 at L63; the 2nd-best valid combo (hmm_stress/T3_zscore_1.5/P2_signal_strength_counter/L1) sits at 1.5361. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "objective_runner_up_divergence": null
+  },
+  "notes": "Mode 1 daily, pair260619_phlxsox_spy. CENTRAL FINDING: contemporaneous daily return corr(SOX,SPY)=0.709 is CO-MOVEMENT (shared beta), not predictive edge. Lead-lag verdict: Bidirectional Granger (both directions significant) — feedback, not clean lead. Toda-Yamamoto SOX->SPY significant lags [1, 2, 3, 5, 10, 21]; SPY->SOX significant lags [1, 2, 3, 5, 10, 21]. Pre-whitened CCF SOX-leads(lag>0) significant [4, 6, 8, 12, 15, 16]. Incremental-edge test: lagged relative-strength adds over SPY's OWN 63d momentum at some forecast horizon = True. Winner rs_mom6m/T2_roll_p75/P1_long_cash pro/L63/LB63: OOS Sharpe 1.57 vs B&H 0.82 (beats=True) AND vs SPY-OWN-MOMENTUM 0.83 (beats=True). Winner bootstrap p=0.041; IS Sharpe 0.10 vs OOS 1.57; CP1 durability 'conditionally_durable'; rolling-corr stability 'sign_unstable'. Tournament: 6760 strategy combos (+2 benchmark rows valid=False per ECON-T4), 4607 valid. The winner beats SPY own-momentum on OOS Sharpe, but read with heavy caution. OVERFITTING FLAGS: winner IS Sharpe 0.10 vs OOS 1.57 (gap +1.47 — the OOS window 2021-2026 was a strong semis bull, a favorable draw); the MEDIAN valid combo scored 0.67, BELOW B&H 0.82 (search mostly found losers); winner win-rate 0.20 and it LOST in every pre-OOS stress episode (Dot-Com/GFC/COVID). Granger is BIDIRECTIONAL (feedback), not a clean SOX->SPY lead. Treat as search-found, not validated. 5bps cost sensitivity in tournament_validation_20260619/."
 }

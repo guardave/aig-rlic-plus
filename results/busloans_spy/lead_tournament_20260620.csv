@@ -1,0 +1,14 @@
+lead_months,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+0,118,1.1069,0.6363,0.5417,0.7438,busloans_zscore_60m,Tz1_hi,P1,0.0
+1,131,0.953,0.6004,0.4513,0.7267,busloans_pct_yoy,Tp25_hi,P1,-0.1353
+2,122,0.9669,0.6278,0.5159,0.7447,busloans_accel_pct,Tp10_hi,P1,-0.1945
+3,123,1.1962,0.6223,0.5018,0.7337,busloans_3m_pct,Tp25_lo,P1,-0.1249
+4,126,1.4238,0.6792,0.4596,0.817,busloans_3m_pct,Tp25_lo,P1,-0.1762
+5,114,1.4999,0.723,0.5532,0.8932,busloans_pct_mom,Trp25_lo,P1,-0.0102
+6,124,1.1253,0.6574,0.5116,0.8137,busloans_zscore_60m,Trp25_hi,P1,-0.1945
+7,124,1.2454,0.6727,0.5188,0.8007,busloans_6m_pct,Trp25_hi,P1,-0.1295
+8,119,1.2124,0.7724,0.6062,0.892,busloans_pct_yoy,Trp75_hi,P1,-0.0163
+9,121,1.3185,0.7328,0.5918,0.8794,busloans_3m_pct,Tp25_hi,P1,-0.0833
+10,120,1.1755,0.7459,0.6002,0.8608,busloans_dev_trend_pct,Tp10_hi,P2,-0.1945
+11,117,1.2707,0.7435,0.6071,0.9284,busloans_pct_mom,Tp10_hi,P2,-0.1945
+12,119,1.1379,0.7272,0.5358,0.8835,busloans_dev_trend_pct,Tp10_hi,P1,-0.1945

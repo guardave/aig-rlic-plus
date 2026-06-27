@@ -37,5 +37,44 @@
   "total_combos": 1008,
   "valid_combos": 775,
   "schema_version": "1.1.0",
+  "selection": {
+    "objective": "max_oos_sharpe",
+    "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
+    "grid_scanned": {
+      "leads": [
+        0,
+        1,
+        2,
+        3,
+        6,
+        9,
+        12
+      ],
+      "n_signals": 8,
+      "n_thresholds": 8,
+      "n_strategies": 3,
+      "n_valid_combos": 775,
+      "median_valid_objective": 0.6818
+    },
+    "tie_break_step": 0,
+    "raw_winner_row": {
+      "signal": "chg_3m",
+      "threshold": "T2_roll_p75",
+      "strategy": "P1_long_cash",
+      "lead_column": "lead_months",
+      "lead_value": 6,
+      "source_tournament_file": "tournament_results_20260620.csv",
+      "source_row_index": 372
+    },
+    "runner_up": {
+      "signal": "chg_6m",
+      "threshold": "T2_roll_p50",
+      "strategy": "P1_long_cash",
+      "lead_value": 6,
+      "objective_value": 1.2178
+    },
+    "rationale": "Unique maximiser of OOS Sharpe over the committed coarse monthly grid L{0,1,2,3,6,9,12} (775 valid combos, median OOS Sharpe 0.6818). Winner raw OOS Sharpe 1.3214 at L6 (signal chg_3m = T10Y3M 3-month change, T2_roll_p75 / P1_long_cash, procyclical); the 2nd-best valid combo (chg_6m/T2_roll_p50/P1_long_cash/L6) sits at 1.2178. No ECON-T3 tie-break engaged (unique max on oos_sharpe; raw codes equal the display codes, no alias). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "objective_runner_up_divergence": null
+  },
   "notes": "Rates-pair tournament. Winner selected from 775 valid strategy rows; threshold note: rolling 60-month percentile p75; threshold_value is latest."
 }

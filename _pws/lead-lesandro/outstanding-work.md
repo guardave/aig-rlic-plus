@@ -1,6 +1,81 @@
 # Lead Lesandro — Outstanding Work
 
-## Current open items (as of 2026-06-19 checkpoint)
+## Current open items (as of 2026-06-22 EOD)
+
+### Lead-horizon wave — branch `fix260620_lead_horizon` @ `de6155b` (16 commits ahead of main, pushed, **NOT merged**)
+Resumed at SOD; user authorized merge-sequencing **option (a)** ("Phase 4 first, then merge the whole wave"). Drove Phase 4 + an integration fix + a full Phase-3 parity mini-wave for a pair that landed mid-wave. Everything gate-verified (T1.1 13/13, T2 224 refs/0 fail). **The wave is merge-ready; only a cloud reboot + the explicit merge go remain.**
+
+- **Phase 4 (done, `e5b44d3`)** — ECON-T5 `selection`-provenance retro-apply to the 10 remaining live winners (Evan), each re-derived from its IMMUTABLE published tournament CSV; `raw_winner_row` spot-verified against 4 CSVs. **All 12 then-active winners == raw max-OOS-Sharpe row → zero divergences (corroborates Ivy audit).** Flipped schema `selection`→REQUIRED. Two step-5 tie-breaks documented (ism_services gap_50-vs-level lexicographic; hy_ig T4_hmm_0.5-vs-0.7 byte-identical series). Also CLAUDE.md deployment-note correction (dawodev) rode this commit.
+- **Integration (`c83b949` + `7cae0f2`)** — a 13th pair **`t10y3m_spy`** (created by **Rex / rekkusuri**, commit `c7fd6e1`, 2026-06-20) had merged to main mid-wave WITHOUT a `selection` block → the schema flip made it the lone gate failure on merge. The auto-mode classifier (correctly) blocked the merge (LEAD-MA1). Resolved cleanly: aborted merge, pulled main into the branch (`c83b949`), Evan backfilled t10y3m's selection (`7cae0f2`, raw row 372, L6/1.3214, divergence null). Gate restored to 13/13.
+- **t10y3m_spy Phase-3 parity (done, `de6155b`)** — user approved ("patch it as well for lead/lag"). Rex's pair also lacked the Phase-3 lead blocks (VIZ-LEAD1 charts + ECON-LA1/LT1 evidence blocks). Ran the full monthly chain: **Evan** (lead_correlation + lead_tournament CSVs; L6 reconciles to winner) → **Vera** (correlations_lead_view + lead_sharpe_distribution charts; bars byte-match CSV) → **Ray** (Lead Analysis + Lead Tournament config blocks + level1_labels). **Honest finding (ECON-LT2):** L6 is an ISOLATED single-lead spike (neighbours L3=0.977, L9=1.106 sit 0.21–0.34 below; lead-correlation peaks at L2 r=-0.134**, NOT L6 ~-0.054 n.s.; all |best_r|≤0.134). Framed as a peak-pick with favorable-draw caution, not a corroborated edge.
+
+**Cloud verify (rebooted dawodev, before the t10y3m parity commit):** 13/13 pairs Strategy+Methodology render clean (0 conform/traceback) → schema→REQUIRED flip is cloud-safe. Phase-3 lead tabs present on 12/13 (all but t10y3m at that time). **Tooling note:** the full `cloud_verify.py` sweep times out (its per-tab screenshot-click on hidden handles is the sink — recurring debt); the lean DOM-only probe `temp/p4_fast.py` (no screenshot clicking, ~13s/page) is the fast substitute — fold this fix into cloud_verify (skip non-visible tab handles before click).
+
+**🔴 BLOCKED — needs user (in this order):**
+1. **Reboot dawodev** — after `de6155b` push, t10y3m's Evidence page still served stale (no lead tabs) after ~4 min; plain push isn't syncing the new chart-tree (META-FRD file-sync lag). Reboot (Manage app → Reboot app) forces clean re-sync. User invoked `/eod` AT this reboot request. **Next session: re-probe `temp/p4_fast.py t10y3m_spy` → confirm `Lead Analysis`+`Lead Tournament` tabs appear → fleet is 14/14 consistent.** (NOTE: registry count was "13 active" pre-t10y3m; t10y3m makes the lead-block-complete fleet 13 registered pairs — the "14" includes the 2 indpro as separate, count carefully: 13 registered pairs all now have lead blocks.)
+2. **Merge authorization (LEAD-MA1).** Option (a) authorized the SEQUENCE, but the explicit merge ACTION still needs a crisp go (the classifier blocks auto-merge to production main). Branch is conflict-free, gate 13/13, cloud-clean. Merge plan: `git checkout main && git pull && git merge --no-ff --no-commit f9... && git commit --author="Lead Lesandro <lead-lesandro@idficient.com>" && git push origin main`. Production (aig-rlic-plus.streamlit.app) auto-deploys → re-verify + flag reboot.
+
+**Candidate GH issues to file (batched, per feedback_gh_issues_over_backlog — STILL NOT FILED):**
+1. ECON-LT1 re-run must regenerate the FULL downstream producer set atomically (wave found stale artifacts piecemeal).
+2. `cloud_verify.py` NameError latent on main (`82164fc`) — fixed on branch; document class + HABIT-QA2.
+3. signal_dist optional surfacing.
+4. Numeric trigger cards for percentile-rule winners (spy `threshold_value=null`).
+5. **NEW:** `cloud_verify.py` per-tab screenshot-click times out on hidden sub-tab handles (skip non-visible handles before click; the `temp/p4_fast.py` DOM-only pattern proves the fix).
+6. **NEW:** ism_services has `tournament_tie_note.md`, hy_ig does not — tie-note consistency gap (both are documented in-selection.rationale, so cosmetic).
+- **RESOLVED (no longer an issue):** t10y3m_spy missing Phase-3 lead blocks — fixed this session (`de6155b`).
+- **PROCESS NOTE for the future:** new pairs shipped to main by others (Rex) can land WITHOUT wave-era SOP compliance (selection block, lead blocks). Consider a registry-walk gate that asserts every registered pair carries `selection` + lead blocks, so the next out-of-band pair is caught at its own commit, not at a downstream merge.
+
+---
+
+## Current open items (as of 2026-06-21 EOD)
+
+### Lead-horizon wave — branch `fix260620_lead_horizon` @ `c9d364f` (8 commits ahead of main, pushed, **NOT merged**)
+Resumed and drove the lead-lag wave through Phases 1–3. **Net winner changes across the entire wave: only the 2 monthly upgrades** (indpro_xlp L11/1.328, indpro_spy L4/1.230). Everything gate- AND cloud-verified (dawodev preview, after a reboot cleared a partial file-sync).
+
+- **Phase 1 (done, `75e51ee`)** — downstream render for the 2 re-run winners: Vera charts (incl. ECON-SR3 systemic 3-chart fix: rolling_sharpe_cp/signal_dist/tournament_scatter now canonical-sidecar-driven, no re-sim), Ray narrative (xlp story inversion countercyclical→procyclical; spy risk-adjusted-not-return honesty framing; removed a FALSE "22 months in cash thru COVID" claim), Ace portal. New SOP rules: **ECON-SR3** (winner-dependent chart inputs are canonical sidecars) + **VIZ-SR3T** twin. Fixed a chain of stale producer artifacts the re-run left (meta schema, subperiod, broker log, interpretation_metadata enum, signals parquet missing indpro_mom).
+- **QA tooling (`adfe00b`)** — fixed a `cloud_verify.py` NameError (`exploratory_markers_hit`, dangling ref from the APP-PT2 Sample-retirement edit) that crashed the whole cloud sweep on the first served page. **Latent on main since `82164fc`.** Added **HABIT-QA2** (pyflakes after any harness edit).
+- **Phase 2 (done, `ef66816`)** — Option D **weekly** sweep over the 4 daily pairs + petrol_inv settle. Built the `--weekly` code path (FreqSpec, W-FRI, leads 1..52, ann√52; monthly output byte-identical). **ZERO native-confirmed upgrades — all sweep flags were polarity-mirror / isolated-single-lead-spike phantoms** (vix L8w, hy_ig L39w, petrol L11m). New rule **ECON-LT2** (native confirmation + ±0.03 margin + ≥2-adjacent-lead durability). Durable verdicts: `results/_cross_agent/lead_horizon_phase2_weekly_verdicts.md`.
+- **Phase 3 (done, `c9d364f`)** — Lead Analysis (ECON-LA1) + Lead Tournament (ECON-LT1) evidence blocks + the 2 VIZ-LEAD1 charts for **all 12 pairs** (only permit had them before). Generalized `generate_lead_charts.py`; registry x-version 1.2.0 (+ latent histogram→bar fix). Honest per-pair verdict spread (1 clean corroboration, 2 reverse-causality nulls, 1 fragile spike, several divergences — none dressed up). Evan: monthly-axis lead_correlation for the 4 daily pairs + bh_oos_sharpe backfills (permit 0.8998, vix 0.7707 — vix materially corrected a window-wrong fallback).
+
+**OPEN DECISION (was mid-AskUserQuestion when /eod called — user picks next session):** merge sequencing. Options offered: (a) **Phase 4 first, then merge the whole wave**; (b) merge Phases 0–3 now, Phase 4 later; (c) merge now, defer Phase 4 indefinitely. Merge to main needs explicit user auth (LEAD-MA1). Branch is fully verified and ready whenever.
+
+**Phase 4 (remaining — the only lead-horizon item left):** ECON-T5 `selection`-provenance retro-apply — backfill the `selection` block onto the other 10 winners, then flip the schema field `selection` to REQUIRED (do NOT flip before all 12 backfilled — breaks render). Mechanical, no new analysis. Will also systematically catch the `bh_oos_sharpe` gaps hit piecemeal (permit, vix).
+
+**Candidate GH issues to file (batched, per feedback_gh_issues_over_backlog — not yet filed):**
+1. ECON-LT1 re-run must regenerate the FULL downstream producer set atomically (this wave found 3+ stale artifacts piecemeal: meta/broker/parquet/metadata/bh).
+2. `cloud_verify.py` NameError latent on main (`82164fc`) — fixed on branch; issue documents the class + HABIT-QA2 prevention.
+3. signal_dist optional surfacing (shelved suggested, correct-at-source, not routed to render).
+4. Numeric trigger cards for percentile-rule winners (spy `threshold_value=null` → 0.5-heuristic fallback).
+
+**Deployment-notes correction (for CLAUDE.md / team-coordination):** the **dawodev** preview (`aig-rlic-plus-dawodev.streamlit.app`) now tracks `fix260620_lead_horizon` — it is the CORRECT preview for this branch. The `aig-rlic-plus-fix260620` app tracks a DIFFERENT/older branch (served stale old-winners during verification — cost us a wrong-URL detour). Resolves the prior stale "dawodev tracks deleted feat_ism_services_spy" item.
+
+---
+
+## Prior open items (as of 2026-06-20 EOD)
+
+### Shipped to production today (main, all reboot+cloud-DOM-verified)
+- **Low-risk cleanup** (`fix260620_lowrisk_cleanup` → merged): GH #12 GATE-VIZ-NBER2 false-positive fix (gate-slug bug, not a chart bug — closed #12); smoke-log `.gitignore` housekeeping; permit_spy stale "Honest read on the cross-period charts above" transition trimmed. Prod-verified.
+- **Sample pair RETIRED + archived** (`fix260620_archive_sample` → merged `c6af190`, +`b2a42af`): `hy_ig_v2_spy` moved to `_archive/`; removed from portal/registry/gates; APP-PT2 positive half retired (negative half kept); memory rule `feedback_sample_frozen` SUPERSEDED. Prod-verified (landing "12 of 116", `/hy_ig_v2_spy_story` falls back to dashboard). **Caught + fixed a self-bug:** `947f04e` had committed log deletions but not the `.gitignore` rule (forgot `git add .gitignore`).
+
+### 🟡 IN-FLIGHT — lead-horizon wave, branch `fix260620_lead_horizon` (5 commits, NOT pushed at EOD-write time → push in step 8; NOT merged)
+Resumed the suspended 2026-06-13 lead-horizon wave on a fresh branch off main (stakeholder decisions: Option D weekly+monthly for daily pairs; monthly re-runs proceed; fresh branch). **Done + committed:**
+- **Phase 0** — restored ECON-LL1/LA1/LT1 + VIZ-LEAD1 + DPS-LEAD1/CPX1 SOP rules onto main; updated sweep script (drop archived Sample, add 4 missing pairs); fresh 12-pair monthly gate table.
+- **Independent audit** — dispatched **Ivy** (`audit-ivy`, new standing Codex-backed independent QA persona, PWS `_pws/audit-ivy/`) via a detached Codex session. Re-derived all from primary data: **6/6 team claims CONFIRM**, 12/12 production winners legit, no corruption remains, sweep proven unsafe as a gate. Report: `_pws/lead-lesandro/lead_horizon_qa/codex_qa_report.md`.
+- **ECON-T5 Phase A** — winner-selection provenance SOP rule + **CSV-immutability fix** (`scripts/_tournament_io.py`; root cause = hardcoded date tags letting re-runs overwrite publish-time CSVs in place) + optional/non-breaking `selection` schema v1.2.0 (incl. Ivy's raw-row-key fix).
+- **ECON-T5 Phase B** — the 2 real re-runs under ECON-T5: `indpro_xlp` L3→**L11** (1.115→1.328) and `indpro_spy` L6→**L4** (1.104→1.230). Guardrails exact; both beat BH; full provenance blocks; published coarse CSVs immutable.
+
+**NEXT (was mid-AskUserQuestion when /eod called — user picks):**
+1. **Downstream for the 2 re-run pairs** — Vera (charts) → Ray (narrative) → Ace (portal). REQUIRED before xlp/spy render the new winners. *Not started.*
+2. **Phase 2** — Option D weekly sweep (daily pairs: vix, gold_copper, hy_ig, phlxsox) + native re-validation of `petrol_inv` (sweep-flagged RE-RUN, +3.3%, suspect like the phantoms).
+3. **Phase 3** — mandatory Lead Analysis/Tournament Evidence blocks across all pairs (incl. new ism/m2sl/phlxsox).
+4. **ECON-T5 retro-apply** — backfill `selection` onto the other 10 winners, then flip schema `selection` to REQUIRED (do NOT flip before all 12 backfilled — would break render).
+
+**KEY METHODOLOGY FINDINGS (this wave):**
+- The cheap "gating sweep" has a **polarity-mirror false-positive mode** — it reads |Sharpe|, so it flags the negative of an invalid native combo as a phantom winner (indpro_spy L12=1.374 = |−1.374|; real native L12=1.04). **Native tournament is the only safe gate; sweep is exploratory-only.** 2 of 3 "confirmed" monthly re-runs were phantoms.
+- The original tournaments used **varying lead grids** — some coarse `[0,1,2,3,6]` (indpro_spy/xlp/permit), some `[0..6]` (umcsent), some `[0,1,2,3,6,12]`. The "extend 6→12" premise only holds for coarse-grid pairs.
+- indpro_spy L4 wins raw Sharpe by only 0.0001 over S9_contraction/L11 but dominates risk-adjusted (Calmar 3.76 vs 1.57, DD −2.7% vs −8.1%) → robust, corroborated, not noise.
+
+## Prior open items (as of 2026-06-19 checkpoint)
 
 **🟣 Pair Pre-Screening exploration (branch `explore_pair_prescreen`, pushed, NOT merged — discussion artifact):** stakeholder paper `docs/pair-prescreen-analysis-and-proposal.md` (+pdf) + design doc + `scripts/pair_prescreen.py` POC. Awaiting stakeholder discussion. **Systemic finding to escalate:** no pair is true-PROCEED — the whole portfolio is `found_in_search`; a real verdict needs an **ECON-FE1 holdout final-exam step that doesn't exist** (candidate GH issue, held pending the stakeholder discussion). Also offered the user a Chinese exec-summary addendum.
 
