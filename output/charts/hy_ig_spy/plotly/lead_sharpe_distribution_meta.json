@@ -10,7 +10,7 @@
   ],
   "narrative_alignment_note": "Sweep-grid best OOS Sharpe 1.44 at L1 (hy_ig_roc_21d x P2); a single spike. Buy-and-hold SPY OOS Sharpe = 0.81. Published winner is a daily-executed strategy at 0 day(s) lead (OOS Sharpe 1.41) \u2014 off this monthly comparability axis; the bars are the monthly-resampled sweep, not the deployed daily horizon.",
   "caption": "Sweep-grid best OOS Sharpe 1.44 at L1 (hy_ig_roc_21d x P2); a single spike. Buy-and-hold SPY OOS Sharpe = 0.81. Published winner is a daily-executed strategy at 0 day(s) lead (OOS Sharpe 1.41) \u2014 off this monthly comparability axis; the bars are the monthly-resampled sweep, not the deployed daily horizon.",
-  "created_at": "2026-06-21T21:34:07Z",
+  "created_at": "2026-06-27T13:16:29Z",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "disposition": "consumed",
