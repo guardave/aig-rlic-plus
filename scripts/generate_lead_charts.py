@@ -249,14 +249,19 @@ def build_corr_chart(pair, ind, tgt, w):
              f"* p<0.05, ** p<0.01. {best_caption}{daily_caveat}</sub>")
     src_note = ("Source: FRED / market data via Evan ECON-LA1 "
                 f"({path.name}). " + best_caption + daily_caveat)
+    # The heatmap has no legend, but the x-axis title and the source note both
+    # live below the plot. Give the axis title a standoff and drop the source note
+    # to its own band (y=-0.22) under a larger bottom margin so they never overlap
+    # at narrow viewport widths.
     fig.update_layout(
         title={"text": title, "font": {"size": 14}},
-        xaxis={"title": {"text": "Lead (months) applied to signal"}, "side": "bottom"},
+        xaxis={"title": {"text": "Lead (months) applied to signal", "standoff": 16}, "side": "bottom"},
         yaxis={"title": {"text": "Signal transform"}, "autorange": "reversed"},
-        template="plotly_white", margin={"l": 140, "r": 80, "t": 110 if is_daily else 90, "b": 60},
+        template="plotly_white", margin={"l": 140, "r": 80, "t": 110 if is_daily else 90, "b": 95},
         annotations=[{
             "text": src_note, "showarrow": False, "xref": "paper", "yref": "paper",
-            "x": 0, "y": -0.15, "font": {"size": 10, "color": "#666"}, "align": "left",
+            "x": 0, "y": -0.22, "yanchor": "top", "font": {"size": 10, "color": "#666"},
+            "align": "left",
         }],
     )
     return fig, best_caption + daily_caveat, str(path.relative_to(ROOT))
@@ -321,29 +326,45 @@ def build_sharpe_chart(pair, ind, tgt, bh, w):
     fig.add_trace(go.Scatter(
         x=xlab, y=[bh] * len(xlab), mode="lines", name=f"Buy & Hold {tgt} ({bh:.2f})",
         line={"color": BENCH, "dash": "dash", "width": 2}, hoverinfo="skip"))
+    # Sweep-max callout: arrow above the tallest bar.
     fig.add_annotation(x=xlab[imax], y=max_val, text=f"<b>sweep max L{max_lead}</b><br>{max_val:.2f}",
                        showarrow=True, arrowhead=2, ax=0, ay=-30, font={"size": 10})
     # Mark the published-winner lead with a distinct vertical reference so it is
-    # never conflated with the sweep-grid tallest bar.
+    # never conflated with the sweep-grid tallest bar. The vline annotation is
+    # anchored to the BOTTOM of the plot (opposite the sweep-max arrow, which sits
+    # at the top) so the two callouts never collide — including when the two leads
+    # are identical or adjacent (e.g. busloans sweep max L5 vs winner L6). When the
+    # winner lead EQUALS the sweep-max lead, suppress the separate callout text and
+    # fold the fact into the vline label to avoid double-printing the same column.
     if winner_on_axis:
+        same_lead = int(win_lead) == int(max_lead)
+        win_text = ("published winner = sweep max"
+                    if same_lead else f"published winner L{int(win_lead)}")
         fig.add_vline(x=int(win_lead), line={"color": "#000", "dash": "dot", "width": 1.2},
-                      annotation_text=f"published winner L{int(win_lead)}",
-                      annotation_position="top left", annotation_font_size=9)
+                      annotation_text=win_text,
+                      annotation_position="bottom right", annotation_font_size=9,
+                      annotation_yshift=4)
 
     title = (f"Lead vs OOS Sharpe (standardized sweep grid): {ind} -> {tgt} (L = 0..12)"
              f"<br><sub>Bars: best OOS Sharpe at each lead in the P1/P2 gating sweep. "
              f"Grey band/dots: p25-p75 & median of valid combos. Dashed: {tgt} "
              f"buy-and-hold. {cap}</sub>")
+    # Layout band budget (top -> bottom): x-axis ticks, then the x-axis title
+    # (standoff 18), then the horizontal legend (y=-0.34, anchored top so it grows
+    # downward), then the source note (y=-0.52). Each element gets its own band so
+    # the axis title never prints through the legend row. Bottom margin (150) is
+    # sized for the narrowest plausible content column (~700px) where the legend
+    # wraps to two rows.
     fig.update_layout(
         title={"text": title, "font": {"size": 14}},
-        xaxis={"title": {"text": "Lead (months) applied to signal"}},
+        xaxis={"title": {"text": "Lead (months) applied to signal", "standoff": 18}},
         yaxis={"title": {"text": "OOS Sharpe ratio"}, "zeroline": True},
         template="plotly_white", barmode="overlay",
-        legend={"orientation": "h", "y": -0.18},
-        margin={"l": 70, "r": 40, "t": 110, "b": 90})
+        legend={"orientation": "h", "y": -0.34, "yanchor": "top", "x": 0, "xanchor": "left"},
+        margin={"l": 70, "r": 40, "t": 110, "b": 150})
     fig.add_annotation(text=f"Source: Evan ECON-LT1 standardized lead sweep ({date}).",
                        showarrow=False, xref="paper", yref="paper",
-                       x=0, y=-0.30, font={"size": 10, "color": "#666"}, align="left")
+                       x=0, y=-0.52, yanchor="top", font={"size": 10, "color": "#666"}, align="left")
     return fig, cap, str(path.relative_to(ROOT))
 
 
