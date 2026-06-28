@@ -67,7 +67,9 @@ The winning strategy is a **3-month steepening rule**. It looks at the 3-month c
 
 ### The Yield-Curve Hypothesis
 
-The economic idea is straightforward. A steepening yield curve usually means short rates are no longer tight relative to long rates, or markets expect easier policy and better growth ahead. That setting can support equity risk-taking. A flat or inverted curve usually means policy is restrictive and recession risk is higher, which can make future SPY returns more fragile.
+The economic idea is that a steepening yield curve can carry more than one message. In a **bear steepening** episode, long-term US Treasury yields rise quickly while short-term rates rise more slowly or stay flat. That can happen when investors expect stronger future growth and higher inflation. Because inflation reduces the real value of fixed bond payments, investors demand much higher yields to hold long-term debt.
+
+For equities, that message is mixed. Stronger expected growth can support risk-taking and SPY performance, but rising long-term yields and inflation pressure can also weigh on valuations. A flat or inverted curve usually means policy is restrictive and recession risk is higher, which can make future SPY returns more fragile.
 
 The tested result is more nuanced than the textbook story. The winning signal is not the level of the curve. It is the **recent change** in the curve. The rule responds to steepening momentum, not just whether the curve is high, low, or inverted.
 
