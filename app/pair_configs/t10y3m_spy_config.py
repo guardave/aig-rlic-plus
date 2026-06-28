@@ -18,8 +18,8 @@ class StoryConfig:
     )
 
     PLAIN_ENGLISH = (
-        "The 10Y-3M Treasury spread is the 10-year Treasury yield minus the "
-        "3-month Treasury yield. A steeper curve usually means investors see "
+        "The 10Y-3M US Treasury spread is the 10-year US Treasury yield minus the "
+        "3-month US Treasury yield. A steeper curve usually means investors see "
         "less near-term recession risk and easier future conditions. An "
         "inverted curve, where the spread falls below zero, is a common "
         "warning sign. This pair tests whether that rates signal can improve "
