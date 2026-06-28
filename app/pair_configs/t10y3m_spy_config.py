@@ -326,18 +326,34 @@ QUANTILE_BLOCK = dict(
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: coefficient strength varies across the distribution, "
-        "so the relationship is better read as regime-sensitive."
+        "What this shows: the coefficient is negative through most of the "
+        "return distribution and fades toward zero in the strongest-return "
+        "tail. The clearest reading is around the median, while the lower "
+        "quartile is borderline and the upper tail is weak. This means the "
+        "yield-curve signal is not a broad upside accelerator for SPY; it "
+        "behaves more like a state-dependent risk signal."
     ),
     observation=(
-        "The signal's effect is not identical across return quantiles."
+        "The estimated coefficient is about -1.45% at the 5th percentile, "
+        "-1.34% at the 10th percentile, -0.78% at the 25th percentile, "
+        "-0.76% at the median, -0.51% at the 75th percentile, and near zero "
+        "around the 90th percentile. Only the median is clearly significant "
+        "in the generated table; the 25th and 75th percentiles are weaker, "
+        "and the highest-return quantiles do not show a meaningful effect."
     ),
     interpretation=(
-        "This is consistent with a recession-risk overlay: yield-curve "
-        "information may matter most when the market is near transition "
-        "points rather than in normal months."
+        "Quantile regression reinforces the caution from local projections. "
+        "The signal does not produce a clean positive payoff across all SPY "
+        "return states. Instead, it appears more relevant when returns are "
+        "weak to normal, and much less relevant when SPY is already in a "
+        "strong upside regime. That supports using the signal as a timing and "
+        "risk overlay rather than as a simple return booster."
     ),
-    key_message="The signal is regime-sensitive, not a uniform monthly predictor.",
+    key_message=(
+        "Quantile regression shows a state-dependent, mostly negative raw "
+        "relationship; the strategy depends on the specific lagged threshold "
+        "rule, not on a uniformly bullish quantile effect."
+    ),
 )
 
 
