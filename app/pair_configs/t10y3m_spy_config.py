@@ -321,7 +321,12 @@ QUANTILE_BLOCK = dict(
     ),
     question="Does the yield-curve signal behave differently in market tails?",
     how_to_read=(
-        "Compare coefficients across quantiles. A tail-only effect means the "
+        "Compare the spread coefficient across quantiles. The spread "
+        "coefficient is the estimated change in future SPY return associated "
+        "with a one-unit change in the 10Y-3M US Treasury spread signal, "
+        "holding the model setup constant. A negative coefficient means a "
+        "higher spread signal is associated with lower future SPY return at "
+        "that part of the return distribution. A tail-only effect means the "
         "signal mainly matters in unusually weak or strong return states."
     ),
     chart_name="quantile_coef",
