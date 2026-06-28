@@ -333,12 +333,6 @@ EVIDENCE_METHOD_BLOCKS = {
         "but the statistical evidence says to treat it as a risk overlay, not "
         "a guaranteed forecast."
     ),
-    "downloads": [
-        {"label": "Granger causality by lag", "path": "results/t10y3m_spy/granger_by_lag.csv"},
-        {"label": "Regime quartile returns", "path": "results/t10y3m_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/t10y3m_spy/tournament_results_20260620.csv"},
-        {"label": "Stationarity tests", "path": "results/t10y3m_spy/stationarity_tests_20260620.csv"},
-    ],
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
@@ -369,6 +363,13 @@ class StrategyConfig:
         "steepening move can signal improving future conditions, but the lag "
         "keeps the rule from reacting too early."
     )
+
+    DOWNLOADS = [
+        {"label": "Granger causality by lag", "path": "results/t10y3m_spy/granger_by_lag.csv"},
+        {"label": "Regime quartile returns", "path": "results/t10y3m_spy/regime_quartile_returns.csv"},
+        {"label": "Tournament results", "path": "results/t10y3m_spy/tournament_results_20260620.csv"},
+        {"label": "Stationarity tests", "path": "results/t10y3m_spy/stationarity_tests_20260620.csv"},
+    ]
 
     SIGNAL_RULE_MD = """
 **Rule in plain English:** hold SPY when the lagged 3-month change in the 10Y-3M Treasury spread is above its rolling 60-month 75th percentile threshold; otherwise hold cash.

@@ -307,6 +307,39 @@ def _load_winner_summary(pair_id: str) -> dict[str, Any] | None:
     return data
 
 
+def _render_archived_csv_downloads(pair_id: str, downloads: list[dict[str, str]]) -> None:
+    """Render archived CSV download buttons for a page."""
+    if not downloads:
+        return
+    with st.expander("Download archived CSVs", expanded=False):
+        st.caption(
+            "Files served from local disk. MIME `text/csv`. Missing files "
+            "render an inline note instead of a button — no page break."
+        )
+        for item in downloads:
+            rel_path = item.get("path", "")
+            label = item.get("label") or rel_path.rsplit("/", 1)[-1]
+            abs_path = _REPO_ROOT / rel_path
+            if not abs_path.exists():
+                st.info(
+                    f"`{rel_path}` not on disk — re-run the pair pipeline "
+                    "to regenerate it."
+                )
+                continue
+            try:
+                payload = abs_path.read_bytes()
+            except Exception as exc:  # pragma: no cover — defensive
+                st.warning(f"Could not read `{rel_path}`: {exc}")
+                continue
+            st.download_button(
+                label=f"⬇ {label}",
+                data=payload,
+                file_name=abs_path.name,
+                mime="text/csv",
+                key=f"dl_{pair_id}_{abs_path.name}",
+            )
+
+
 # ---------------------------------------------------------------------------
 # APP-PLB1 — DPS-FE2 KPI routing matrix (template-level plumbing, Ace lane).
 # Routes the Story / Strategy headline-KPI label by `evidence_status.status`.
@@ -1110,35 +1143,7 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     )
     st.markdown(overview)
 
-    downloads = method_blocks.get("downloads") or []
-    if downloads:
-        with st.expander("Download archived CSVs", expanded=False):
-            st.caption(
-                "Files served from local disk. MIME `text/csv`. Missing files "
-                "render an inline note instead of a button — no page break."
-            )
-            for item in downloads:
-                rel_path = item.get("path", "")
-                label = item.get("label") or rel_path.rsplit("/", 1)[-1]
-                abs_path = _REPO_ROOT / rel_path
-                if not abs_path.exists():
-                    st.info(
-                        f"`{rel_path}` not on disk — re-run the pair pipeline "
-                        "to regenerate it."
-                    )
-                    continue
-                try:
-                    payload = abs_path.read_bytes()
-                except Exception as exc:  # pragma: no cover — defensive
-                    st.warning(f"Could not read `{rel_path}`: {exc}")
-                    continue
-                st.download_button(
-                    label=f"⬇ {label}",
-                    data=payload,
-                    file_name=abs_path.name,
-                    mime="text/csv",
-                    key=f"dl_{pair_id}_{abs_path.name}",
-                )
+    _render_archived_csv_downloads(pair_id, method_blocks.get("downloads") or [])
 
     st.markdown("---")
 
@@ -1391,6 +1396,11 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
                    if winner.get('oos_win_rate') is not None else "N/A"},
     ])
     st.markdown("---")
+
+    strategy_downloads = getattr(config, "DOWNLOADS", [])
+    _render_archived_csv_downloads(pair_id, strategy_downloads)
+    if strategy_downloads:
+        st.markdown("---")
 
     # ------ 9. Execute / Performance / Confidence tabs ------
     tab_execute, tab_performance, tab_confidence = st.tabs(
