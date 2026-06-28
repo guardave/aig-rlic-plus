@@ -444,9 +444,15 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     WALK_FORWARD_TITLE = "Subperiod Sharpe and Durability"
     WALK_FORWARD_CHART_NAME = "subperiod_sharpe"
     WALK_FORWARD_CAPTION = (
-        "What this shows: strategy Sharpe across stress episodes. Consistent "
-        "positive bars would indicate durable timing; uneven bars mean the "
-        "edge depends on the rates regime."
+        "What this shows: Sharpe is return per unit of volatility; higher is "
+        "better, and negative Sharpe means investors were not compensated for "
+        "the risk taken. This chart shows the buy-and-hold SPY Sharpe during "
+        "major stress windows used to judge durability. Dot-Com (-0.70), the "
+        "Global Financial Crisis (-1.79), COVID (-0.08), and the 2022 rate "
+        "hike shock (-0.19) are all negative, so these were hostile market "
+        "environments. The result says durability should be judged by whether "
+        "the T10Y3M strategy can reduce damage in these periods, not by "
+        "expecting the signal to make every crisis profitable."
     )
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
