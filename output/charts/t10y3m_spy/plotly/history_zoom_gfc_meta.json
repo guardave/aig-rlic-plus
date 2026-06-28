@@ -1,12 +1,13 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "t10y3m_spy",
-  "generated_at": "2026-06-19T14:53:33.373376+00:00",
+  "generated_at": "2026-06-28T17:08:14.365800+00:00",
   "generated_by": "scripts/generate_charts_t10y3m_spy.py",
-  "caption": "Global Financial Crisis: Curve Inversion Before the Drawdown",
-  "narrative_alignment_note": "Global Financial Crisis: Curve Inversion Before the Drawdown",
+  "caption": "Global Financial Crisis: Curve Inversion Before the Drawdown; green bands show months where the winning signal is on and the strategy holds SPY.",
+  "narrative_alignment_note": "Global Financial Crisis: Curve Inversion Before the Drawdown; green bands show months where the winning signal is on and the strategy holds SPY.",
   "disposition": "consumed",
   "source_artifacts": [
-    "data/t10y3m_spy_monthly_latest.parquet"
+    "data/t10y3m_spy_monthly_latest.parquet",
+    "results/t10y3m_spy/strategy_returns_20260620.csv"
   ]
 }
