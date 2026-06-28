@@ -454,6 +454,30 @@ This describes the backtested rule so it can be audited; it is not a trading rec
         "the T10Y3M strategy can reduce damage in these periods, not by "
         "expecting the signal to make every crisis profitable."
     )
+    CROSS_PERIOD_CAPTIONS = {
+        "rolling_correlation": (
+            "How to read it: the indicator is the 10-year minus 3-month "
+            "US Treasury spread signal; the target is SPY returns. The "
+            "rolling correlation tests whether their linear relationship is "
+            "stable through time. For this pair, the line changes sign and "
+            "stays weak on average, with a mean near -0.04 and a latest value "
+            "near -0.20. That means the spread signal should not be read as a "
+            "simple always-positive or always-negative linear relationship "
+            "with SPY; its usefulness depends on regime and on the threshold "
+            "rule used by the strategy."
+        ),
+        "structural_break": (
+            "How to read it: the structural break test asks whether the "
+            "spread-SPY relationship changes enough that one fixed model is "
+            "unlikely to describe the whole sample. A higher break statistic "
+            "points to a larger regime shift. The generated proxy reports a "
+            "maximum absolute z-score of about 2.92, so the chart supports "
+            "the idea that the relationship has changed materially across "
+            "periods. The practical interpretation is that this signal should "
+            "be monitored with rolling thresholds and durability checks, not "
+            "treated as one constant relationship from 1996 to 2025."
+        ),
+    }
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
         "What this shows: OOS Sharpe distribution across valid searched "

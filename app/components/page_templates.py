@@ -1022,7 +1022,7 @@ def _render_method_block(content: dict, pair_id: str) -> None:
     st.info(f"**Key message:** {content['key_message']}")
 
 
-def _render_cross_period_section(pair_id: str) -> None:
+def _render_cross_period_section(pair_id: str, config: Any | None = None) -> None:
     """Cross-Period Consistency charts (ECON-CP1/CP2 + VIZ-CP1).
 
     Relocated 2026-06-10 (fix260610_xpair_general, stakeholder direction):
@@ -1039,6 +1039,7 @@ def _render_cross_period_section(pair_id: str) -> None:
     """
     interp = _load_interpretation_metadata(pair_id)
     indicator, target, _pair_display = _indicator_target_display(pair_id, interp)
+    caption_overrides = getattr(config, "CROSS_PERIOD_CAPTIONS", {}) if config else {}
 
     st.markdown("---")
     st.markdown("### Cross-Period Consistency")
@@ -1063,7 +1064,7 @@ def _render_cross_period_section(pair_id: str) -> None:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
         if _path.exists():
             st.markdown(f"**{_label}**")
-            st.markdown(f"**{_caption}**")
+            st.markdown(f"**{caption_overrides.get(_chart_name, _caption)}**")
             load_plotly_chart(_chart_name, pair_id=pair_id, caption=None)
         else:
             st.info(f"Cross-period analysis pending — {_label} chart not yet available for this pair.")
@@ -1077,7 +1078,7 @@ def _render_cross_period_section(pair_id: str) -> None:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
         if _path.exists():
             st.markdown(f"**{_label}**")
-            st.markdown(f"**{_caption}**")
+            st.markdown(f"**{caption_overrides.get(_chart_name, _caption)}**")
             load_plotly_chart(_chart_name, pair_id=pair_id, caption=None)
         # NOTE (2026-06-10): conditional charts no longer render a "pending"
         # st.info when absent. Per the user-confirmed standard "placeholders
@@ -1505,7 +1506,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         # (2026-06-10, fix260610_xpair_general). Walk-forward and cross-period
         # both answer "does the edge persist over time?"; the scatter and
         # leaderboard below answer "how was the winner selected?".
-        _render_cross_period_section(pair_id)
+        _render_cross_period_section(pair_id, config)
 
         st.markdown("---")
         st.markdown("### Tournament Scatter")
