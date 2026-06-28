@@ -268,12 +268,18 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     method_name="Local Projections",
     method_theory=(
         "Local projections estimate how future SPY returns respond across "
-        "multiple horizons after a change in the yield-curve signal."
+        "multiple horizons after a change in the yield-curve signal. For this "
+        "pair, the signal is the change in the 10Y-3M US Treasury spread: "
+        "how much the 10-year minus 3-month yield gap has steepened or "
+        "flattened over the measurement window."
     ),
     question="How does SPY respond over time after the 10Y-3M signal moves?",
     how_to_read=(
-        "Each point is an estimated response at a forward horizon. Confidence "
-        "bands show uncertainty around the estimate."
+        "Each point is an estimated SPY response at a forward horizon after "
+        "the yield-curve change signal moves. A positive signal means the "
+        "10Y-3M spread widened, or steepened; a negative signal means the "
+        "spread narrowed, or flattened. Confidence bands show uncertainty "
+        "around the estimate."
     ),
     chart_name="local_projections",
     chart_caption=(
