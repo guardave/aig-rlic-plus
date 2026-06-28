@@ -69,6 +69,8 @@ The winning strategy is a **3-month steepening rule**. It looks at the 3-month c
 
 The economic idea is that a steepening yield curve can carry more than one message. In a **bear steepening** episode, long-term US Treasury yields rise quickly while short-term rates rise more slowly or stay flat. That can happen when investors expect stronger future growth and higher inflation. Because inflation reduces the real value of fixed bond payments, investors demand much higher yields to hold long-term debt.
 
+Flattening also has two meanings. In a **bear flattening** episode, short-term rates rise faster than long-term rates. This usually happens when a central bank, such as the Federal Reserve, is raising interest rates to fight inflation or cool an overheating economy. In a **bull flattening** episode, long-term rates fall faster than short-term rates. This can happen when investors rush to buy long-term bonds because they expect inflation to fall significantly or economic growth to cool in the future.
+
 For equities, that message is mixed. Stronger expected growth can support risk-taking and SPY performance, but rising long-term yields and inflation pressure can also weigh on valuations. A flat or inverted curve usually means policy is restrictive and recession risk is higher, which can make future SPY returns more fragile.
 
 The tested result is more nuanced than the textbook story. The winning signal is not the level of the curve. It is the **recent change** in the curve. The rule responds to steepening momentum, not just whether the curve is high, low, or inverted.
