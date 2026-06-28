@@ -102,6 +102,9 @@ def _render_chart(
     target_symbol: str,
     pair_id: str,
     strategy: str,
+    overlay_signal: pd.Series | None = None,
+    overlay_label: str | None = None,
+    show_nber: bool = False,
 ):
     """Render the exposure area chart."""
     fig = go.Figure()
@@ -114,9 +117,50 @@ def _render_chart(
             line=dict(color="#0072B2", width=1.2),
             fill="tozeroy",
             fillcolor="rgba(0, 114, 178, 0.20)",
+            showlegend=bool(overlay_signal is not None or show_nber),
             hovertemplate="%{x|%Y-%m-%d}: %{y:.1f}%<extra></extra>",
         )
     )
+
+    if overlay_signal is not None and overlay_label:
+        aligned_signal = overlay_signal.reindex(exposure.index).dropna().astype(float)
+        if not aligned_signal.empty:
+            fig.add_trace(
+                go.Scatter(
+                    x=aligned_signal.index,
+                    y=aligned_signal.values,
+                    mode="lines",
+                    name=overlay_label,
+                    line=dict(color="#D55E00", width=1.5, dash="dot"),
+                    yaxis="y2",
+                    hovertemplate="%{x|%Y-%m-%d}: %{y:.2f} pp<extra></extra>",
+                )
+            )
+
+    if show_nber:
+        for band_start, band_end in [
+            ("2001-03-01", "2001-11-30"),
+            ("2007-12-01", "2009-06-30"),
+            ("2020-02-01", "2020-04-30"),
+        ]:
+            fig.add_vrect(
+                x0=band_start,
+                x1=band_end,
+                fillcolor="#999999",
+                opacity=0.18,
+                line_width=0,
+                layer="below",
+            )
+        fig.add_trace(
+            go.Scatter(
+                x=[None],
+                y=[None],
+                mode="markers",
+                marker=dict(size=12, color="rgba(153,153,153,0.35)", symbol="square"),
+                name="NBER recession period",
+                hoverinfo="skip",
+            )
+        )
 
     # Zero line (visible especially for P3 long/short).
     fig.add_hline(y=0, line_color="#444", line_width=1)
@@ -125,16 +169,27 @@ def _render_chart(
     else:
         fig.update_yaxes(range=[-5, 105])
 
-    fig.update_layout(
+    layout = dict(
         height=300,
-        margin=dict(l=50, r=30, t=20, b=60),
+        margin=dict(l=50, r=80 if overlay_signal is not None else 30, t=20, b=60),
         xaxis_title="Date",
         yaxis_title=f"{target_symbol} Exposure (%)",
-        showlegend=False,
+        showlegend=bool(overlay_signal is not None or show_nber),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
         plot_bgcolor="white",
     )
+    fig.update_layout(**layout)
     fig.update_xaxes(showgrid=True, gridcolor="#EEEEEE")
     fig.update_yaxes(showgrid=True, gridcolor="#EEEEEE")
+    if overlay_signal is not None:
+        fig.update_layout(
+            yaxis2=dict(
+                title="3-month change in 10Y-3M spread (percentage points)",
+                overlaying="y",
+                side="right",
+                showgrid=False,
+            )
+        )
 
     st.plotly_chart(
         fig,
@@ -193,7 +248,23 @@ def render_position_adjustment_panel(pair_id: str) -> None:
         signals_df[column], strategy, threshold, direction, is_probability
     )
 
-    _render_chart(exposure, target_symbol, pair_id, strategy)
+    overlay_signal = None
+    overlay_label = None
+    show_nber = False
+    if pair_id == "t10y3m_spy" and "t10y3m_3m_chg" in signals_df.columns:
+        overlay_signal = signals_df["t10y3m_3m_chg"]
+        overlay_label = "3-month change in 10Y-3M spread"
+        show_nber = True
+
+    _render_chart(
+        exposure,
+        target_symbol,
+        pair_id,
+        strategy,
+        overlay_signal=overlay_signal,
+        overlay_label=overlay_label,
+        show_nber=show_nber,
+    )
 
     # APP-SE5 universal takeaway caption
     if strategy == "P2_signal_strength":
