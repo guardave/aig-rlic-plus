@@ -283,18 +283,33 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     ),
     chart_name="local_projections",
     chart_caption=(
-        "What this shows: horizon-by-horizon response estimates are mixed, "
-        "which supports a medium-confidence rather than high-confidence label."
+        "What this shows: the estimated SPY response is negative across the "
+        "tested horizons. The 3-month and 6-month horizons are the clearest "
+        "negative readings, while the 1-month and 12-month estimates are "
+        "weaker. This means the local-projection test does not support a "
+        "simple story that a higher or wider 10Y-3M spread always leads to "
+        "stronger SPY returns."
     ),
     observation=(
-        "The response path does not show a uniformly strong positive effect "
-        "at every horizon."
+        "The coefficients are about -0.25% at 1 month, -0.75% at 3 months, "
+        "-1.13% at 6 months, and -1.09% at 12 months. The 3- and 6-month "
+        "readings are statistically meaningful in the generated table, while "
+        "the 12-month reading is only borderline and the 1-month reading is "
+        "not strong."
     ),
     interpretation=(
-        "Local projections support caution: the relationship is economically "
-        "plausible but not statistically clean at all horizons."
+        "Local projections support caution. They show that the raw "
+        "yield-curve response is not a clean bullish effect. This is why the "
+        "dashboard separates the broad economic story from the winning "
+        "strategy rule: the tradable rule uses a lagged 3-month change in the "
+        "spread with a threshold, not a blanket assumption that every wider "
+        "spread is immediately positive for SPY."
     ),
-    key_message="The response is horizon-dependent, not uniformly strong.",
+    key_message=(
+        "Local projections weaken the simple bullish-steepening story; the "
+        "strategy edge comes from the specific lagged threshold rule, not from "
+        "a uniformly positive raw response."
+    ),
 )
 
 QUANTILE_BLOCK = dict(
