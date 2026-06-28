@@ -1508,25 +1508,26 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         # leaderboard below answer "how was the winner selected?".
         _render_cross_period_section(pair_id, config)
 
-        st.markdown("---")
-        st.markdown("### Tournament Scatter")
-        scatter_chart = getattr(
-            config, "TOURNAMENT_SCATTER_CHART_NAME", "tournament_scatter"
-        )
-        load_plotly_chart(
-            scatter_chart,
-            pair_id=pair_id,
-            fallback_text=(
-                f"Tournament scatter pending — expected at "
-                f"output/charts/{pair_id}/plotly/{scatter_chart}.json"
-            ),
-            caption=getattr(
-                config,
-                "TOURNAMENT_SCATTER_CAPTION",
-                "What this shows: each point is one strategy combination. "
-                "Stars mark the top 5; diamond is buy-and-hold.",
-            ),
-        )
+        if getattr(config, "SHOW_TOURNAMENT_SCATTER", True):
+            st.markdown("---")
+            st.markdown("### Tournament Scatter")
+            scatter_chart = getattr(
+                config, "TOURNAMENT_SCATTER_CHART_NAME", "tournament_scatter"
+            )
+            load_plotly_chart(
+                scatter_chart,
+                pair_id=pair_id,
+                fallback_text=(
+                    f"Tournament scatter pending — expected at "
+                    f"output/charts/{pair_id}/plotly/{scatter_chart}.json"
+                ),
+                caption=getattr(
+                    config,
+                    "TOURNAMENT_SCATTER_CAPTION",
+                    "What this shows: each point is one strategy combination. "
+                    "Stars mark the top 5; diamond is buy-and-hold.",
+                ),
+            )
         st.markdown("---")
         st.markdown("### Tournament Leaderboard")
         if tourn_exists := _latest_dated_file(pair_id, "tournament_results"):

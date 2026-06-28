@@ -478,6 +478,7 @@ This describes the backtested rule so it can be audited; it is not a trading rec
             "treated as one constant relationship from 1996 to 2025."
         ),
     }
+    SHOW_TOURNAMENT_SCATTER = False
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
         "What this shows: OOS Sharpe distribution across valid searched "
