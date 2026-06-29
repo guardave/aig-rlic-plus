@@ -18,10 +18,9 @@ class StoryConfig:
     )
 
     PLAIN_ENGLISH = (
-        "The 10Y-3M Treasury spread is the 10-year Treasury yield minus the "
-        "3-month Treasury yield. A steeper curve usually means investors see "
-        "less near-term recession risk and easier future conditions. An "
-        "inverted curve, where the spread falls below zero, is a common "
+        "The 10Y-3M US Treasury spread is the 10-year US Treasury yield minus the "
+        "3-month US Treasury yield. An inverted curve, where the spread falls "
+        "below zero, is a common "
         "warning sign. This pair tests whether that rates signal can improve "
         "SPY timing."
     )
@@ -68,7 +67,11 @@ The winning strategy is a **3-month steepening rule**. It looks at the 3-month c
 
 ### The Yield-Curve Hypothesis
 
-The economic idea is straightforward. A steepening yield curve usually means short rates are no longer tight relative to long rates, or markets expect easier policy and better growth ahead. That setting can support equity risk-taking. A flat or inverted curve usually means policy is restrictive and recession risk is higher, which can make future SPY returns more fragile.
+The economic idea is that a steepening yield curve can carry more than one message. In a **bear steepening** episode, long-term US Treasury yields rise quickly while short-term rates rise more slowly or stay flat. That can happen when investors expect stronger future growth and higher inflation. Because inflation reduces the real value of fixed bond payments, investors demand much higher yields to hold long-term debt.
+
+Flattening also has two meanings. In a **bear flattening** episode, short-term rates rise faster than long-term rates. This usually happens when a central bank, such as the Federal Reserve, is raising interest rates to fight inflation or cool an overheating economy. In a **bull flattening** episode, long-term rates fall faster than short-term rates. This can happen when investors rush to buy long-term bonds because they expect inflation to fall significantly or economic growth to cool in the future.
+
+For equities, that message is mixed. Stronger expected growth can support risk-taking and SPY performance, but rising long-term yields and inflation pressure can also weigh on valuations. A flat or inverted curve usually means policy is restrictive and recession risk is higher, which can make future SPY returns more fragile.
 
 The tested result is more nuanced than the textbook story. The winning signal is not the level of the curve. It is the **recent change** in the curve. The rule responds to steepening momentum, not just whether the curve is high, low, or inverted.
 
@@ -265,27 +268,48 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     method_name="Local Projections",
     method_theory=(
         "Local projections estimate how future SPY returns respond across "
-        "multiple horizons after a change in the yield-curve signal."
+        "multiple horizons after a change in the yield-curve signal. For this "
+        "pair, the signal is the change in the 10Y-3M US Treasury spread: "
+        "how much the 10-year minus 3-month yield gap has steepened or "
+        "flattened over the measurement window."
     ),
     question="How does SPY respond over time after the 10Y-3M signal moves?",
     how_to_read=(
-        "Each point is an estimated response at a forward horizon. Confidence "
-        "bands show uncertainty around the estimate."
+        "Each point is an estimated SPY response at a forward horizon after "
+        "the yield-curve change signal moves. A positive signal means the "
+        "10Y-3M spread widened, or steepened; a negative signal means the "
+        "spread narrowed, or flattened. Confidence bands show uncertainty "
+        "around the estimate."
     ),
     chart_name="local_projections",
     chart_caption=(
-        "What this shows: horizon-by-horizon response estimates are mixed, "
-        "which supports a medium-confidence rather than high-confidence label."
+        "What this shows: the estimated SPY response is negative across the "
+        "tested horizons. The 3-month and 6-month horizons are the clearest "
+        "negative readings, while the 1-month and 12-month estimates are "
+        "weaker. This means the local-projection test does not support a "
+        "simple story that a higher or wider 10Y-3M spread always leads to "
+        "stronger SPY returns."
     ),
     observation=(
-        "The response path does not show a uniformly strong positive effect "
-        "at every horizon."
+        "The coefficients are about -0.25% at 1 month, -0.75% at 3 months, "
+        "-1.13% at 6 months, and -1.09% at 12 months. The 3- and 6-month "
+        "readings are statistically meaningful in the generated table, while "
+        "the 12-month reading is only borderline and the 1-month reading is "
+        "not strong."
     ),
     interpretation=(
-        "Local projections support caution: the relationship is economically "
-        "plausible but not statistically clean at all horizons."
+        "Local projections support caution. They show that the raw "
+        "yield-curve response is not a clean bullish effect. This is why the "
+        "dashboard separates the broad economic story from the winning "
+        "strategy rule: the tradable rule uses a lagged 3-month change in the "
+        "spread with a threshold, not a blanket assumption that every wider "
+        "spread is immediately positive for SPY."
     ),
-    key_message="The response is horizon-dependent, not uniformly strong.",
+    key_message=(
+        "Local projections weaken the simple bullish-steepening story; the "
+        "strategy edge comes from the specific lagged threshold rule, not from "
+        "a uniformly positive raw response."
+    ),
 )
 
 QUANTILE_BLOCK = dict(
@@ -297,23 +321,44 @@ QUANTILE_BLOCK = dict(
     ),
     question="Does the yield-curve signal behave differently in market tails?",
     how_to_read=(
-        "Compare coefficients across quantiles. A tail-only effect means the "
+        "Compare the spread coefficient across quantiles. The spread "
+        "coefficient is the estimated change in future SPY return associated "
+        "with a one-unit change in the 10Y-3M US Treasury spread signal, "
+        "holding the model setup constant. A negative coefficient means a "
+        "higher spread signal is associated with lower future SPY return at "
+        "that part of the return distribution. A tail-only effect means the "
         "signal mainly matters in unusually weak or strong return states."
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: coefficient strength varies across the distribution, "
-        "so the relationship is better read as regime-sensitive."
+        "What this shows: the coefficient is negative through most of the "
+        "return distribution and fades toward zero in the strongest-return "
+        "tail. The clearest reading is around the median, while the lower "
+        "quartile is borderline and the upper tail is weak. This means the "
+        "yield-curve signal is not a broad upside accelerator for SPY; it "
+        "behaves more like a state-dependent risk signal."
     ),
     observation=(
-        "The signal's effect is not identical across return quantiles."
+        "The estimated coefficient is about -1.45% at the 5th percentile, "
+        "-1.34% at the 10th percentile, -0.78% at the 25th percentile, "
+        "-0.76% at the median, -0.51% at the 75th percentile, and near zero "
+        "around the 90th percentile. Only the median is clearly significant "
+        "in the generated table; the 25th and 75th percentiles are weaker, "
+        "and the highest-return quantiles do not show a meaningful effect."
     ),
     interpretation=(
-        "This is consistent with a recession-risk overlay: yield-curve "
-        "information may matter most when the market is near transition "
-        "points rather than in normal months."
+        "Quantile regression reinforces the caution from local projections. "
+        "The signal does not produce a clean positive payoff across all SPY "
+        "return states. Instead, it appears more relevant when returns are "
+        "weak to normal, and much less relevant when SPY is already in a "
+        "strong upside regime. That supports using the signal as a timing and "
+        "risk overlay rather than as a simple return booster."
     ),
-    key_message="The signal is regime-sensitive, not a uniform monthly predictor.",
+    key_message=(
+        "Quantile regression shows a state-dependent, mostly negative raw "
+        "relationship; the strategy depends on the specific lagged threshold "
+        "rule, not on a uniformly bullish quantile effect."
+    ),
 )
 
 
@@ -454,12 +499,6 @@ EVIDENCE_METHOD_BLOCKS = {
         "but the statistical evidence says to treat it as a risk overlay, not "
         "a guaranteed forecast."
     ),
-    "downloads": [
-        {"label": "Granger causality by lag", "path": "results/t10y3m_spy/granger_by_lag.csv"},
-        {"label": "Regime quartile returns", "path": "results/t10y3m_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/t10y3m_spy/tournament_results_20260620.csv"},
-        {"label": "Stationarity tests", "path": "results/t10y3m_spy/stationarity_tests_20260620.csv"},
-    ],
     "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Granger", "Quartiles", "CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
@@ -490,6 +529,13 @@ class StrategyConfig:
         "steepening move can signal improving future conditions, but the lag "
         "keeps the rule from reacting too early."
     )
+
+    DOWNLOADS = [
+        {"label": "Granger causality by lag", "path": "results/t10y3m_spy/granger_by_lag.csv"},
+        {"label": "Regime quartile returns", "path": "results/t10y3m_spy/regime_quartile_returns.csv"},
+        {"label": "Tournament results", "path": "results/t10y3m_spy/tournament_results_20260620.csv"},
+        {"label": "Stationarity tests", "path": "results/t10y3m_spy/stationarity_tests_20260620.csv"},
+    ]
 
     SIGNAL_RULE_MD = """
 **Rule in plain English:** hold SPY when the lagged 3-month change in the 10Y-3M Treasury spread is above its rolling 60-month 75th percentile threshold; otherwise hold cash.
@@ -522,10 +568,41 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     WALK_FORWARD_TITLE = "Subperiod Sharpe and Durability"
     WALK_FORWARD_CHART_NAME = "subperiod_sharpe"
     WALK_FORWARD_CAPTION = (
-        "What this shows: strategy Sharpe across stress episodes. Consistent "
-        "positive bars would indicate durable timing; uneven bars mean the "
-        "edge depends on the rates regime."
+        "What this shows: Sharpe is return per unit of volatility; higher is "
+        "better, and negative Sharpe means investors were not compensated for "
+        "the risk taken. This chart shows the buy-and-hold SPY Sharpe during "
+        "major stress windows used to judge durability. Dot-Com (-0.70), the "
+        "Global Financial Crisis (-1.79), COVID (-0.08), and the 2022 rate "
+        "hike shock (-0.19) are all negative, so these were hostile market "
+        "environments. The result says durability should be judged by whether "
+        "the T10Y3M strategy can reduce damage in these periods, not by "
+        "expecting the signal to make every crisis profitable."
     )
+    CROSS_PERIOD_CAPTIONS = {
+        "rolling_correlation": (
+            "How to read it: the indicator is the 10-year minus 3-month "
+            "US Treasury spread signal; the target is SPY returns. The "
+            "rolling correlation tests whether their linear relationship is "
+            "stable through time. For this pair, the line changes sign and "
+            "stays weak on average, with a mean near -0.04 and a latest value "
+            "near -0.20. That means the spread signal should not be read as a "
+            "simple always-positive or always-negative linear relationship "
+            "with SPY; its usefulness depends on regime and on the threshold "
+            "rule used by the strategy."
+        ),
+        "structural_break": (
+            "How to read it: the structural break test asks whether the "
+            "spread-SPY relationship changes enough that one fixed model is "
+            "unlikely to describe the whole sample. A higher break statistic "
+            "points to a larger regime shift. The generated proxy reports a "
+            "maximum absolute z-score of about 2.92, so the chart supports "
+            "the idea that the relationship has changed materially across "
+            "periods. The practical interpretation is that this signal should "
+            "be monitored with rolling thresholds and durability checks, not "
+            "treated as one constant relationship from 1996 to 2025."
+        ),
+    }
+    SHOW_TOURNAMENT_SCATTER = False
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
         "What this shows: OOS Sharpe distribution across valid searched "

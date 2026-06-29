@@ -1,12 +1,13 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "t10y3m_spy",
-  "generated_at": "2026-06-19T14:53:33.411501+00:00",
+  "generated_at": "2026-06-28T17:08:14.420738+00:00",
   "generated_by": "scripts/generate_charts_t10y3m_spy.py",
-  "caption": "2022-24 Inversion: Early Warning, Long Wait",
-  "narrative_alignment_note": "2022-24 Inversion: Early Warning, Long Wait",
+  "caption": "2022-24 Inversion: Early Warning, Long Wait; green bands show months where the winning signal is on and the strategy holds SPY.",
+  "narrative_alignment_note": "2022-24 Inversion: Early Warning, Long Wait; green bands show months where the winning signal is on and the strategy holds SPY.",
   "disposition": "consumed",
   "source_artifacts": [
-    "data/t10y3m_spy_monthly_latest.parquet"
+    "data/t10y3m_spy_monthly_latest.parquet",
+    "results/t10y3m_spy/strategy_returns_20260620.csv"
   ]
 }

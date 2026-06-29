@@ -60,51 +60,67 @@ def _find_real_crossings(
     if s.empty:
         return {"up": None, "down": None, "flat": None}
 
+    effective_window = window
+    if len(s.index) > 2:
+        spacing_days = pd.Series(s.index).diff().dt.days.median()
+        if pd.notna(spacing_days) and spacing_days >= 25:
+            effective_window = min(window, 7)
+
     above = (s > threshold).astype(int)
     transitions = above.diff().fillna(0)
     up_cross_idx = s.index[transitions == 1]
     down_cross_idx = s.index[transitions == -1]
 
-    half = window // 2
+    half = effective_window // 2
     result: dict[str, pd.Series | None] = {"up": None, "down": None, "flat": None}
 
-    # Up-crossing: pick the largest-magnitude post-crossing spike (most
-    # educational real-history example). Fall back to first if ranking
-    # fails.
-    if len(up_cross_idx) > 0:
-        best_idx = up_cross_idx[0]
-        best_peak = -np.inf
-        for crossing in up_cross_idx:
-            pos = s.index.get_loc(crossing)
-            lo = max(0, pos - half)
-            hi = min(len(s), pos + half + 1)
-            window_slice = s.iloc[lo:hi]
-            peak = window_slice.max()
-            if peak > best_peak:
-                best_peak = peak
-                best_idx = crossing
-        pos = s.index.get_loc(best_idx)
+    def _cross_window(crossing: pd.Timestamp) -> pd.Series:
+        pos = s.index.get_loc(crossing)
         lo = max(0, pos - half)
         hi = min(len(s), pos + half + 1)
-        result["up"] = s.iloc[lo:hi]
+        return s.iloc[lo:hi]
 
-    # Down-crossing: pick the largest-magnitude pre-crossing drop.
+    def _decisive_score(crossing: pd.Timestamp, direction: str) -> float:
+        pos = s.index.get_loc(crossing)
+        pre = s.iloc[max(0, pos - half):pos]
+        post = s.iloc[pos:min(len(s), pos + half + 1)]
+        if pre.empty or post.empty:
+            return -np.inf
+        if direction == "up":
+            clean_bonus = (
+                100.0 if pre.max() < threshold and post.min() > threshold else 0.0
+            )
+            return (
+                clean_bonus
+                + max(0.0, threshold - pre.median())
+                + max(0.0, post.median() - threshold)
+                + max(0.0, post.max() - pre.min())
+            )
+        clean_bonus = (
+            100.0 if pre.min() > threshold and post.max() < threshold else 0.0
+        )
+        return (
+            clean_bonus
+            + max(0.0, pre.median() - threshold)
+            + max(0.0, threshold - post.median())
+            + max(0.0, pre.max() - post.min())
+        )
+
+    # Up-crossing: pick the cleanest before/after threshold break, not just
+    # the highest spike. This keeps the educational sparkline decisive.
+    if len(up_cross_idx) > 0:
+        best_idx = max(
+            up_cross_idx, key=lambda crossing: _decisive_score(crossing, "up")
+        )
+        result["up"] = _cross_window(best_idx)
+
+    # Down-crossing: same logic in reverse, so REDUCE/BUY cards show a
+    # distinct move through the threshold instead of a sideways segment.
     if len(down_cross_idx) > 0:
-        best_idx = down_cross_idx[0]
-        best_prior_peak = -np.inf
-        for crossing in down_cross_idx:
-            pos = s.index.get_loc(crossing)
-            lo = max(0, pos - half)
-            hi = min(len(s), pos + half + 1)
-            window_slice = s.iloc[lo:hi]
-            peak = window_slice.max()
-            if peak > best_prior_peak:
-                best_prior_peak = peak
-                best_idx = crossing
-        pos = s.index.get_loc(best_idx)
-        lo = max(0, pos - half)
-        hi = min(len(s), pos + half + 1)
-        result["down"] = s.iloc[lo:hi]
+        best_idx = max(
+            down_cross_idx, key=lambda crossing: _decisive_score(crossing, "down")
+        )
+        result["down"] = _cross_window(best_idx)
 
     # Flat: find a window where the signal hovers around the threshold
     # band without a decisive crossing. Use rolling std to detect

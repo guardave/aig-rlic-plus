@@ -307,6 +307,39 @@ def _load_winner_summary(pair_id: str) -> dict[str, Any] | None:
     return data
 
 
+def _render_archived_csv_downloads(pair_id: str, downloads: list[dict[str, str]]) -> None:
+    """Render archived CSV download buttons for a page."""
+    if not downloads:
+        return
+    with st.expander("Download archived CSVs", expanded=False):
+        st.caption(
+            "Files served from local disk. MIME `text/csv`. Missing files "
+            "render an inline note instead of a button — no page break."
+        )
+        for item in downloads:
+            rel_path = item.get("path", "")
+            label = item.get("label") or rel_path.rsplit("/", 1)[-1]
+            abs_path = _REPO_ROOT / rel_path
+            if not abs_path.exists():
+                st.info(
+                    f"`{rel_path}` not on disk — re-run the pair pipeline "
+                    "to regenerate it."
+                )
+                continue
+            try:
+                payload = abs_path.read_bytes()
+            except Exception as exc:  # pragma: no cover — defensive
+                st.warning(f"Could not read `{rel_path}`: {exc}")
+                continue
+            st.download_button(
+                label=f"⬇ {label}",
+                data=payload,
+                file_name=abs_path.name,
+                mime="text/csv",
+                key=f"dl_{pair_id}_{abs_path.name}",
+            )
+
+
 # ---------------------------------------------------------------------------
 # APP-PLB1 — DPS-FE2 KPI routing matrix (template-level plumbing, Ace lane).
 # Routes the Story / Strategy headline-KPI label by `evidence_status.status`.
@@ -989,7 +1022,7 @@ def _render_method_block(content: dict, pair_id: str) -> None:
     st.info(f"**Key message:** {content['key_message']}")
 
 
-def _render_cross_period_section(pair_id: str) -> None:
+def _render_cross_period_section(pair_id: str, config: Any | None = None) -> None:
     """Cross-Period Consistency charts (ECON-CP1/CP2 + VIZ-CP1).
 
     Relocated 2026-06-10 (fix260610_xpair_general, stakeholder direction):
@@ -1006,6 +1039,7 @@ def _render_cross_period_section(pair_id: str) -> None:
     """
     interp = _load_interpretation_metadata(pair_id)
     indicator, target, _pair_display = _indicator_target_display(pair_id, interp)
+    caption_overrides = getattr(config, "CROSS_PERIOD_CAPTIONS", {}) if config else {}
 
     st.markdown("---")
     st.markdown("### Cross-Period Consistency")
@@ -1030,7 +1064,7 @@ def _render_cross_period_section(pair_id: str) -> None:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
         if _path.exists():
             st.markdown(f"**{_label}**")
-            st.markdown(f"**{_caption}**")
+            st.markdown(f"**{caption_overrides.get(_chart_name, _caption)}**")
             load_plotly_chart(_chart_name, pair_id=pair_id, caption=None)
         else:
             st.info(f"Cross-period analysis pending — {_label} chart not yet available for this pair.")
@@ -1044,7 +1078,7 @@ def _render_cross_period_section(pair_id: str) -> None:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
         if _path.exists():
             st.markdown(f"**{_label}**")
-            st.markdown(f"**{_caption}**")
+            st.markdown(f"**{caption_overrides.get(_chart_name, _caption)}**")
             load_plotly_chart(_chart_name, pair_id=pair_id, caption=None)
         # NOTE (2026-06-10): conditional charts no longer render a "pending"
         # st.info when absent. Per the user-confirmed standard "placeholders
@@ -1110,35 +1144,7 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     )
     st.markdown(overview)
 
-    downloads = method_blocks.get("downloads") or []
-    if downloads:
-        with st.expander("Download archived CSVs", expanded=False):
-            st.caption(
-                "Files served from local disk. MIME `text/csv`. Missing files "
-                "render an inline note instead of a button — no page break."
-            )
-            for item in downloads:
-                rel_path = item.get("path", "")
-                label = item.get("label") or rel_path.rsplit("/", 1)[-1]
-                abs_path = _REPO_ROOT / rel_path
-                if not abs_path.exists():
-                    st.info(
-                        f"`{rel_path}` not on disk — re-run the pair pipeline "
-                        "to regenerate it."
-                    )
-                    continue
-                try:
-                    payload = abs_path.read_bytes()
-                except Exception as exc:  # pragma: no cover — defensive
-                    st.warning(f"Could not read `{rel_path}`: {exc}")
-                    continue
-                st.download_button(
-                    label=f"⬇ {label}",
-                    data=payload,
-                    file_name=abs_path.name,
-                    mime="text/csv",
-                    key=f"dl_{pair_id}_{abs_path.name}",
-                )
+    _render_archived_csv_downloads(pair_id, method_blocks.get("downloads") or [])
 
     st.markdown("---")
 
@@ -1392,6 +1398,11 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     ])
     st.markdown("---")
 
+    strategy_downloads = getattr(config, "DOWNLOADS", [])
+    _render_archived_csv_downloads(pair_id, strategy_downloads)
+    if strategy_downloads:
+        st.markdown("---")
+
     # ------ 9. Execute / Performance / Confidence tabs ------
     tab_execute, tab_performance, tab_confidence = st.tabs(
         ["Execute", "Performance", "Confidence"]
@@ -1495,27 +1506,28 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         # (2026-06-10, fix260610_xpair_general). Walk-forward and cross-period
         # both answer "does the edge persist over time?"; the scatter and
         # leaderboard below answer "how was the winner selected?".
-        _render_cross_period_section(pair_id)
+        _render_cross_period_section(pair_id, config)
 
-        st.markdown("---")
-        st.markdown("### Tournament Scatter")
-        scatter_chart = getattr(
-            config, "TOURNAMENT_SCATTER_CHART_NAME", "tournament_scatter"
-        )
-        load_plotly_chart(
-            scatter_chart,
-            pair_id=pair_id,
-            fallback_text=(
-                f"Tournament scatter pending — expected at "
-                f"output/charts/{pair_id}/plotly/{scatter_chart}.json"
-            ),
-            caption=getattr(
-                config,
-                "TOURNAMENT_SCATTER_CAPTION",
-                "What this shows: each point is one strategy combination. "
-                "Stars mark the top 5; diamond is buy-and-hold.",
-            ),
-        )
+        if getattr(config, "SHOW_TOURNAMENT_SCATTER", True):
+            st.markdown("---")
+            st.markdown("### Tournament Scatter")
+            scatter_chart = getattr(
+                config, "TOURNAMENT_SCATTER_CHART_NAME", "tournament_scatter"
+            )
+            load_plotly_chart(
+                scatter_chart,
+                pair_id=pair_id,
+                fallback_text=(
+                    f"Tournament scatter pending — expected at "
+                    f"output/charts/{pair_id}/plotly/{scatter_chart}.json"
+                ),
+                caption=getattr(
+                    config,
+                    "TOURNAMENT_SCATTER_CAPTION",
+                    "What this shows: each point is one strategy combination. "
+                    "Stars mark the top 5; diamond is buy-and-hold.",
+                ),
+            )
         st.markdown("---")
         st.markdown("### Tournament Leaderboard")
         if tourn_exists := _latest_dated_file(pair_id, "tournament_results"):
