@@ -41,7 +41,9 @@ INDICATOR_NAMES: dict[str, str] = {
     "phlxsox_spy": "PHLX Semiconductor Index",
     "t10y3m": "10Y-3M Treasury Spread",
     "t10y3m_spy": "10Y-3M Treasury Spread",
-}
+    "nhs": "New Home Sales (NHS)",
+    "nhs_spy": "New Home Sales (NHS)",
+    }
 
 TARGET_NAMES: dict[str, str] = {
     # DPS-LF1 (2026-06-10): long form + (abbreviation) on dashboard surfaces.
@@ -76,6 +78,10 @@ INDICATOR_ABBREV: dict[str, str] = {
     # "PHLX Semiconductor Index (SOX)".
     "phlxsox": "SOX",
     "phlxsox_spy": "SOX",
+    # 'NHS' is the conventional short form; long form "New Home Sales" does not embed it, so first-mention renders
+    # "New Home Sales (NHS)".
+    "nhs": "NHS",
+    "nhs_spy": "NHS",
 }
 
 
@@ -97,6 +103,7 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "busloans_spy": "C&I Loans",
     "petrol_inv_spy": "Petroleum Inventories",
     "t10y3m_spy": "10Y-3M Spread",
+    "nhs_spy": "NHS",
 }
 
 
