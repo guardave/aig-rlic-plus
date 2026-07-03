@@ -787,8 +787,8 @@ def chart_drawdown():
                f"cummax re-based to OOS start. No NBER recession falls in-window.</sup>"),
         xaxis_title="Date",
         yaxis_title="Drawdown (%)",
-        template="plotly_white", height=440,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+        template="plotly_white", height=480, margin=dict(t=130, b=150),
+        legend=dict(orientation="h", yanchor="top", y=-0.22, xanchor="left", x=0))
     save_chart("drawdown", fig,
                nber_required=False,
                caption=(f"Drawdown paths for the winner, Buy & Hold {TGT}, and the "
