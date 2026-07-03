@@ -31,35 +31,57 @@
     }
   },
   "terms": {
-    "GFC (Global Financial Crisis)": {
-      "plain_english": "The 2007-2009 financial crisis that began with US subprime mortgage losses and spread into a global banking and credit crunch, triggering a severe recession.",
-      "why_it_matters": "It is the most extreme stress test most modern risk indicators are evaluated against — equity drawdowns of ~55%, credit spreads at multi-decade wides, and a Fed balance-sheet expansion that reshaped monetary policy. Most pair backtests carve out a GFC episode specifically because a strategy that fails in the GFC fails the test that matters most.",
-      "example": "In the gold/copper × XLI pair, the GFC episode (2007-12 to 2009-06) is the long-lead canonical case: the ratio rose ~2x as copper crashed on collapsing industrial demand while gold surged on flight-to-safety, leading XLI's worst drawdown by 3-6 months.",
-      "when_it_fails": "GFC is one episode in one currency regime. A strategy that works in the GFC does not automatically work in mid-cycle slowdowns (2015-2016 China shock), fast regimes (2020 COVID), or rates-driven re-ratings (2022) — each has its own dynamics."
-    },
     "Basis point (bp)": {
       "plain_english": "One hundredth of a percentage point (0.01%). 100 basis points = 1%.",
       "why_it_matters": "Yields, spreads, and fees in fixed income move in fractions of a percent, so rounding to whole percentages loses meaningful information.",
       "example": "When the HY-IG spread moves from 400 bps to 800 bps it has widened by 400 bps (4 percentage points), doubling the extra yield investors demand for holding risky debt.",
       "when_it_fails": "bps notation is not a substitute for dual-notation (RES-4). Always pair at first mention with the % form so readers do not silently misread '800 bps' as 8 bps."
     },
-    "Credit spread": {
-      "plain_english": "The difference in yield between a risky bond and a safer benchmark bond; the extra return investors demand to lend to riskier borrowers.",
-      "why_it_matters": "Widening spreads signal rising perceived default risk and typically precede equity drawdowns, so the spread serves as an early-warning indicator for stock investors.",
-      "example": "If a BB-rated high-yield bond yields 8% and an AAA-rated investment-grade bond yields 4%, the credit spread is 400 bps (4 percentage points).",
-      "when_it_fails": "Spreads can widen for non-credit reasons (liquidity shocks, rates repricing) — the 2022 episode widened HY-IG spreads ~200bps without a credit crisis. A pure rate-shock drawdown can bypass this signal."
+    "Black-Scholes": {
+      "plain_english": "The Black-Scholes(-Merton) formula — the foundational 1973 equation that prices an option from a handful of inputs: the underlying price, the strike, time to expiry, interest rates, and the volatility of the underlying.",
+      "why_it_matters": "Run the formula in reverse — feed it the option's market price and solve for the one unknown, volatility — and you get *implied volatility*, the raw material of the VIX. The entire fear-gauge idea rests on this back-solve.",
+      "example": "The VIX is built from implied volatilities of S&P 500 options; each of those implied vols is the volatility number that makes an option-pricing model reproduce the option's traded price.",
+      "when_it_fails": "Black-Scholes assumes constant volatility and log-normal returns — assumptions markets routinely violate (fat tails, volatility smiles), which is why the single 'implied vol' number is a simplification, not a law."
     },
-    "HMM stress probability": {
-      "plain_english": "The probability (between 0 and 1) that a Hidden Markov Model assigns to the 'stressed' market state on a given day, based on credit-spread and VIX behaviour.",
-      "why_it_matters": "It is the continuous, data-driven regime indicator that drives the winning strategy's position sizing — higher values mean a higher weight in cash, lower values mean higher equity exposure.",
-      "example": "When the probability jumped from 0.086 on 2020-02-21 to 1.000 on 2020-02-24, the strategy moved from 98.4% equity to 0% (all cash) over two days.",
-      "when_it_fails": "False alarms (brief spikes that revert within days — see 2020-01-27 COVID false-alarm in the execution log) get absorbed by the P2 Signal Strength smoothing; a pure-threshold on/off rule would whipsaw on these."
+    "Bootstrap confidence interval": {
+      "plain_english": "A range of plausible values for a statistic (like the Sharpe ratio) computed by re-sampling the historical data thousands of times with replacement. It answers: 'given the noise in this dataset, how certain are we about this number?'",
+      "why_it_matters": "A Sharpe ratio of 0.8 computed from 50 observations is far less reliable than one from 500 observations. The bootstrap CI makes that uncertainty explicit — a wide interval means the true value could be much lower.",
+      "example": "A bootstrap 95% CI of [0.2, 1.4] for a Sharpe ratio means: if we re-ran history with similar noise, 95% of the time the Sharpe would fall in that range. The lower bound of 0.2 is what matters for a conservative investor.",
+      "when_it_fails": "Bootstrap CIs assume the historical data is representative of the future. In markets with structural breaks, the past distribution may not resemble future returns."
+    },
+    "Bootstrap p-value": {
+      "plain_english": "The probability, estimated by re-shuffling the data thousands of times, that a result as good as the one observed could arise by pure chance.",
+      "why_it_matters": "Backtests over short windows can look great by luck. The bootstrap p-value asks: if there were no real edge, how often would random resampling produce a Sharpe this high? Convention requires under 5% before calling a result statistically significant.",
+      "example": "The busloans_spy winner's bootstrap p-value is 0.066 — a result this good would arise by chance about 6.6% of the time, just above the 5% bar, so it is NOT statistically significant.",
+      "when_it_fails": "Bootstrap tests assume the resampling scheme preserves the data's relevant structure; strong autocorrelation or regime concentration can make the p-value too optimistic."
     },
     "Buy-and-hold": {
       "plain_english": "An investment strategy where you purchase an asset and hold it regardless of market conditions.",
       "why_it_matters": "The simplest possible benchmark for evaluating whether an active strategy adds value after costs.",
       "example": "Buying SPY at $100 on 2000-01-03 and holding through 2025-12-31 is the buy-and-hold benchmark used as the comparison leg for this pair's OOS Sharpe.",
       "when_it_fails": "Works best in upward-trending markets; the -34% drawdown over 2007-2009 is the pain the credit-signal strategy is designed to avoid."
+    },
+    "CBOE": {
+      "plain_english": "The Chicago Board Options Exchange — the U.S. exchange that created and publishes the VIX family of volatility indices (VIX, VIX3M, VIX6M, and others).",
+      "why_it_matters": "Because the CBOE calculates and freely publishes these indices daily, anyone can reconstruct the VIX/VIX3M ratio from public data — no proprietary feed required. That is what makes this strategy reproducible.",
+      "example": "The ^VIX and ^VIX3M series used in this pair are CBOE indices, distributed through data vendors such as Yahoo Finance.",
+      "when_it_fails": "CBOE index methodology has changed over time (e.g., the 2014 VIX calculation update), so very long historical comparisons can straddle methodology breaks."
+    },
+    "Co-movement": {
+      "plain_english": "When two assets move up and down together day to day. SOX and SPY co-move about 71% of the time because both are stocks driven by the same market forces.",
+      "why_it_matters": "High co-movement is shared market risk (beta), not a forecast. Mistaking it for a leading signal is the central trap this analysis avoids by trading the relative-strength ratio instead of raw SOX."
+    },
+    "Cointegration": {
+      "plain_english": "Two series are cointegrated if they tend to move together over the long run even if they diverge short-term — like a dog and its owner on a long leash. It means there is a stable, long-run relationship between them.",
+      "why_it_matters": "Cointegration is a stronger claim than correlation: it says the relationship is structural and mean-reverting, not coincidental. If the indicator and target are cointegrated, deviations from the long-run trend are predictable.",
+      "example": "If HY-IG spreads and SPY volatility are cointegrated, a spike in spreads that is not matched by a rise in volatility signals a future correction — the two series will reconverge.",
+      "when_it_fails": "Structural breaks (regime changes, policy shifts) can destroy cointegration. A relationship that held for 20 years can break permanently after a major market event."
+    },
+    "Commercial & Industrial loans (C&I loans)": {
+      "plain_english": "The total amount US commercial banks have lent directly to businesses for operations, inventory, and equipment — tallied by the Federal Reserve's H.8 release (FRED series BUSLOANS).",
+      "why_it_matters": "It is the broadest direct gauge of bank credit flowing to corporate America. Because much of it is drawn from pre-arranged credit lines, the balance can RISE precisely when the economy turns down.",
+      "example": "In May 2020, C&I loans were growing +30% year-over-year — a record — while the stock market was crashing, because firms were drawing emergency credit lines.",
+      "when_it_fails": "The series measures quantity of credit, not willingness to lend; bank lending standards (SLOOS survey) move earlier and tell a different, more forward-looking story."
     },
     "Counter-cyclical": {
       "plain_english": "Moving opposite to the business or market cycle.",
@@ -73,11 +95,45 @@
       "example": "Apple is rated AA+ (investment grade); a leveraged-buyout issuer might be rated B+ (high yield).",
       "when_it_fails": "Ratings change slowly and lag market stress — bond prices often move long before rating agencies adjust."
     },
+    "Credit spread": {
+      "plain_english": "The difference in yield between a risky bond and a safer benchmark bond; the extra return investors demand to lend to riskier borrowers.",
+      "why_it_matters": "Widening spreads signal rising perceived default risk and typically precede equity drawdowns, so the spread serves as an early-warning indicator for stock investors.",
+      "example": "If a BB-rated high-yield bond yields 8% and an AAA-rated investment-grade bond yields 4%, the credit spread is 400 bps (4 percentage points).",
+      "when_it_fails": "Spreads can widen for non-credit reasons (liquidity shocks, rates repricing) — the 2022 episode widened HY-IG spreads ~200bps without a credit crisis. A pure rate-shock drawdown can bypass this signal."
+    },
+    "Credit-line drawdown": {
+      "plain_english": "When a company taps a pre-arranged borrowing facility (a 'revolver') to pull cash from its bank — like maxing out an emergency credit card.",
+      "why_it_matters": "Drawdowns surge in crises as firms stockpile cash, which makes measured loan balances jump at the worst moments — the mechanism that makes loan growth a lagging/inverse-coincident indicator rather than a health gauge.",
+      "example": "In March–May 2020, mass revolver drawdowns pushed C&I loan growth above +30% year-over-year while SPY fell ~34% peak-to-trough.",
+      "when_it_fails": "Not every loan spike is distress — late-cycle expansions also produce strong genuine borrowing, so the level alone cannot distinguish confidence from panic."
+    },
+    "Cross-correlation function (CCF)": {
+      "plain_english": "A measure of how two series line up at different time offsets (lags) — whether one tends to move before, with, or after the other.",
+      "why_it_matters": "After removing each series' own trend (pre-whitening), the CCF here shows significant links on BOTH the lead and lag sides, the visual signature of two-way feedback rather than a clean one-way lead."
+    },
+    "Deflated Sharpe Ratio": {
+      "plain_english": "See DSR (Deflated Sharpe Ratio) — the same concept under its full name.",
+      "why_it_matters": "Identical to DSR entry.",
+      "example": "Identical to DSR entry.",
+      "when_it_fails": "Identical to DSR entry."
+    },
+    "Diffusion index": {
+      "plain_english": "A survey score that measures how widespread expansion is across respondents. For ISM PMI surveys, 50 is the neutral line: above 50 means expansion is more common than contraction.",
+      "why_it_matters": "A diffusion index is about breadth, not dollars of output. That makes it useful for cycle timing, but it can lag markets that price changing conditions before survey respondents report them.",
+      "example": "An ISM Services PMI reading of 54 means more services firms reported expansion than contraction; a reading of 45 means contraction was more common.",
+      "when_it_fails": "The index can rebound sharply after a shock without proving that equities were predictable beforehand; it may simply confirm what markets already priced."
+    },
     "Drawdown": {
       "plain_english": "The peak-to-trough decline in the value of a portfolio or index.",
       "why_it_matters": "Risk-averse investors care about drawdowns at least as much as averages — a -50% drawdown requires a +100% gain to recover.",
       "example": "SPY's buy-and-hold drawdown over 2007-2009 was roughly -34%. The credit-signal strategy's OOS max drawdown is -10.2%, roughly one-third of buy-and-hold pain.",
       "when_it_fails": "Drawdown numbers depend on the sample window; a short OOS that misses the worst episode can understate tail risk."
+    },
+    "DSR (Deflated Sharpe Ratio)": {
+      "plain_english": "A version of the Sharpe ratio adjusted for the fact that when you test many strategies and pick the best one, the winner looks better than it really is. The DSR penalises the Sharpe ratio based on how many strategies were tested.",
+      "why_it_matters": "If you test 1,000 strategies and pick the one with the highest Sharpe ratio, some of that outperformance is pure luck. The DSR corrects for this so you can judge whether the winner is genuinely skilled or just the luckiest of a large cohort.",
+      "example": "A strategy with raw Sharpe 1.2 tested among 150 effective trials might have DSR p-value of 0.07 — meaning 7% of the time a strategy this good would appear by chance alone, even with no real edge.",
+      "when_it_fails": "The DSR assumes the strategies tested are somewhat independent. If the 150 trials are highly correlated variants of the same idea, the penalty is too harsh; if they are genuinely diverse, the penalty may be too lenient."
     },
     "Excess bond premium (EBP)": {
       "plain_english": "The component of credit spreads that cannot be explained by expected default risk — it captures investor sentiment and risk appetite.",
@@ -85,11 +141,33 @@
       "example": "When EBP rises while default probabilities are flat, investors are pricing in risk appetite changes rather than actual default news.",
       "when_it_fails": "Estimation is model-dependent — different default-probability models yield different EBP decompositions."
     },
+    "Exposure": {
+      "plain_english": "The fraction of time (or capital) a strategy actually spends invested in the market rather than sitting in cash.",
+      "why_it_matters": "A low-exposure strategy can post a high Sharpe ratio mostly by avoiding volatility, not by picking winners — so exposure tells you HOW a strategy earned its risk-adjusted score.",
+      "example": "The busloans_spy winner's mean OOS exposure is 0.25: it was in the market only a quarter of the time, which is why its drawdown was just −1% but its total return trailed buy-and-hold.",
+      "when_it_fails": "Mean exposure hides timing concentration — a strategy 25% exposed could owe all its results to a single lucky stretch of being in."
+    },
+    "Fear gauge": {
+      "plain_english": "A nickname for the VIX — a single number that summarizes how nervous the options market is about the stock market over the next 30 days. A high reading means investors are paying up for protection; a low reading means calm.",
+      "why_it_matters": "It turns a hard-to-observe mood — collective market anxiety — into one tradeable number. When the fear gauge spikes, it often coincides with (and sometimes precedes) sharp equity sell-offs, which is exactly what this pair tries to exploit.",
+      "example": "In March 2020 the fear gauge (VIX) hit 82, its highest close ever, as the COVID crash unfolded — a textbook 'panic' reading.",
+      "when_it_fails": "A high fear gauge tells you volatility is expected, not its direction — markets sometimes rip higher off a fear spike (relief rallies). It is a measure of expected movement, not a guaranteed down-signal."
+    },
+    "Feedback (bidirectional causality)": {
+      "plain_english": "When two series each influence the other, rather than one cleanly leading the other.",
+      "why_it_matters": "SOX and SPY push each other in both directions, so calling semiconductors a one-way early-warning indicator for the market would overstate the evidence."
+    },
     "Forward return": {
       "plain_english": "The return over a future period from today's reference point.",
       "why_it_matters": "Predictive regressions need a forward horizon — we ask 'does today's spread predict returns over the next N days?' rather than 'does today's spread match today's return.'",
       "example": "A 21-day forward return is the percentage change in price over the next 21 trading days (~1 month).",
       "when_it_fails": "Overlapping windows (a 63-day forward return today shares 62 days with tomorrow's) require HAC/HC3 standard errors — otherwise confidence is overstated."
+    },
+    "GFC (Global Financial Crisis)": {
+      "plain_english": "The 2007-2009 financial crisis that began with US subprime mortgage losses and spread into a global banking and credit crunch, triggering a severe recession.",
+      "why_it_matters": "It is the most extreme stress test most modern risk indicators are evaluated against — equity drawdowns of ~55%, credit spreads at multi-decade wides, and a Fed balance-sheet expansion that reshaped monetary policy. Most pair backtests carve out a GFC episode specifically because a strategy that fails in the GFC fails the test that matters most.",
+      "example": "In the gold/copper × XLI pair, the GFC episode (2007-12 to 2009-06) is the long-lead canonical case: the ratio rose ~2x as copper crashed on collapsing industrial demand while gold surged on flight-to-safety, leading XLI's worst drawdown by 3-6 months.",
+      "when_it_fails": "GFC is one episode in one currency regime. A strategy that works in the GFC does not automatically work in mid-cycle slowdowns (2015-2016 China shock), fast regimes (2020 COVID), or rates-driven re-ratings (2022) — each has its own dynamics."
     },
     "Granger causality": {
       "plain_english": "A statistical test that determines whether past values of one series help predict another series.",
@@ -109,6 +187,18 @@
       "example": "A BB-rated bond might yield 6% when a AA-rated bond yields 4%; the gap widens when investors grow fearful.",
       "when_it_fails": "The high-yield universe itself is heterogeneous — BB-rated issues behave very differently from CCC-rated issues (see 'Quality spread')."
     },
+    "HMM stress probability": {
+      "plain_english": "The probability (between 0 and 1) that a Hidden Markov Model assigns to the 'stressed' market state on a given day, based on credit-spread and VIX behaviour.",
+      "why_it_matters": "It is the continuous, data-driven regime indicator that drives the winning strategy's position sizing — higher values mean a higher weight in cash, lower values mean higher equity exposure.",
+      "example": "When the probability jumped from 0.086 on 2020-02-21 to 1.000 on 2020-02-24, the strategy moved from 98.4% equity to 0% (all cash) over two days.",
+      "when_it_fails": "False alarms (brief spikes that revert within days — see 2020-01-27 COVID false-alarm in the execution log) get absorbed by the P2 Signal Strength smoothing; a pure-threshold on/off rule would whipsaw on these."
+    },
+    "Holdout": {
+      "plain_english": "A sealed data window — completely set aside during signal search and model selection — that is used exactly once at the end of the process to test whether the strategy actually works on data the search never touched.",
+      "why_it_matters": "Tournament out-of-sample (OOS) testing is good, but the tournament still sees the OOS data while picking the winner. The holdout never participates in selection, so it is the only window where the result genuinely cannot have been curve-fit. A failure on the holdout means the winning rule did not generalise — it caught a pattern in the search/OOS period that no longer worked once a fresh period was tested.",
+      "example": "This portal uses a three-period design: in-sample 1996-12 to 2014-07 (signal search), OOS 2014-08 to 2020-06 (tournament evaluation), holdout 2020-07 to 2026-05 (sealed final exam). The v4/v5 HY-IG strategy posted OOS Sharpe 1.32 but holdout Sharpe 0.31 — below the 0.50 floor — and so was marked failed_final_exam.",
+      "when_it_fails": "A holdout that runs through a single market regime (e.g. only a bull market) can still mislead. The 2020-2026 holdout used here spans the COVID recovery, the 2022 rate shock, and the 2023-2026 bull run — multiple regimes, which is what makes it a meaningful test."
+    },
     "HY-IG spread": {
       "plain_english": "The difference between the option-adjusted spread on high-yield bonds and the option-adjusted spread on investment-grade bonds.",
       "why_it_matters": "Our primary signal variable. When it widens, investors are demanding more compensation to hold risky corporate debt — a classic rising-stress indicator.",
@@ -127,11 +217,29 @@
       "example": "This pair's in-sample window is 2000-01 through 2017-12 (18 years); the OOS window is 2018-01 through 2025-12 (8 years). The 1.27 Sharpe is the OOS value.",
       "when_it_fails": "Short OOS windows (<5 years) inflate Sharpe estimates — the 8-year OOS here is considered generous."
     },
+    "INDPRO": {
+      "plain_english": "The Industrial Production Index — a monthly measure from the U.S. Federal Reserve of the real output of factories, mines, and utilities. A gauge of how much the physical economy is actually producing.",
+      "why_it_matters": "It is one of the cleanest monthly read-outs of real economic activity and is used elsewhere in this portal (the INDPRO → SPY pair) as a macro signal for equities.",
+      "example": "In the INDPRO → SPY pair, month-over-month changes in industrial production are tested as a leading signal for the S&P 500.",
+      "when_it_fails": "It is a coincident-to-lagging activity measure released with a delay, so it is slower than a daily market signal like the VIX ratio."
+    },
     "Investment-grade bonds": {
       "plain_english": "Bonds from companies with credit ratings of BBB- or above.",
       "why_it_matters": "Considered safer, with lower yields — the benchmark against which high-yield bonds are compared to compute the HY-IG spread.",
       "example": "Johnson & Johnson (AAA) and Apple (AA+) issue investment-grade debt; their OAS is tracked by BAMLC0A0CM.",
       "when_it_fails": "Even IG bonds widen in crisis (BBB-rated issues widened ~200bps during the GFC) — the 'safe' label is relative."
+    },
+    "IS": {
+      "plain_english": "Abbreviation for 'In-sample' — the data window used to BUILD and FIT models. See 'In-sample / Out-of-sample' for the full definition.",
+      "why_it_matters": "Performance reported on IS data is not evidence the strategy works — it is evidence the model was fit to that window. Treat any IS-only metric with skepticism.",
+      "example": "On this pair, IS = 1996-12 to 2014-07 (212 monthly observations). The tournament searched signals against this window. The winner's IS Sharpe is not reported as a headline metric — only the OOS and holdout Sharpes are.",
+      "when_it_fails": "A reader who mistakes an IS-only Sharpe for a validated result will substantially over-estimate the strategy's true edge."
+    },
+    "Lagging indicator": {
+      "plain_english": "An economic series that moves AFTER the broader economy or the stock market has already turned, confirming what happened rather than predicting what comes next.",
+      "why_it_matters": "Knowing which signals lag prevents the most expensive mistake in indicator-watching: treating a rear-view mirror as a windshield. Lagging series are useful for dating cycles in hindsight, not for forecasting.",
+      "example": "C&I loans (BUSLOANS) are an official component of the Conference Board's Lagging Economic Index: after the GFC, loan growth bottomed in February 2010 — eleven months after stocks had already turned up.",
+      "when_it_fails": "The lead/lag classification itself can shift across regimes; a series that lagged historically could behave differently under a structural change in the credit system."
     },
     "Local projection": {
       "plain_english": "A method for estimating impulse responses by running separate regressions at each forecast horizon, rather than specifying the entire system at once.",
@@ -139,17 +247,37 @@
       "example": "Developed by Jorda (2005); applied here at horizons h = 5, 21, 63 days with HC3 robust standard errors for overlapping windows.",
       "when_it_fails": "Less efficient than a correctly-specified VAR (standard errors are wider). The trade-off is accepted here because the system is known to be regime-dependent."
     },
+    "Local projections": {
+      "plain_english": "A statistical method that estimates how one variable responds to a shock in another variable over multiple future time horizons — like asking 'if credit spreads widen today, how much does SPY fall in 1 month, 3 months, 6 months?'",
+      "why_it_matters": "Unlike a single regression, local projections give you the full path of the response over time, making it easy to see whether the indicator's predictive power is immediate or builds gradually.",
+      "example": "A local projection chart showing the SPY response to a 100bp HY-IG spread widening would plot a line descending over 6 months, then recovering — showing the peak impact comes 2–3 months after the widening.",
+      "when_it_fails": "Local projections require many observations to estimate reliably at long horizons. With monthly data and a 20-year sample, estimates at 12+ month horizons have wide confidence intervals."
+    },
+    "Market beta": {
+      "plain_english": "How much an asset moves when the overall stock market moves. A high-beta asset like semiconductors swings more than the market in both directions.",
+      "why_it_matters": "Most of SOX's apparent link to SPY is just shared beta — both rise and fall with the market — so it must be partialled out before judging whether chips genuinely lead."
+    },
     "Markov-switching model": {
       "plain_english": "A regression where the coefficients change depending on which regime is active.",
       "why_it_matters": "Captures the regime-conditional nature of credit-equity dynamics — 'different rules in different weather.'",
       "example": "In the calm regime, HY-IG explains a modest share of equity variance; in stress, the same coefficient becomes 2-3x larger. Developed by Hamilton (1989).",
       "when_it_fails": "With only 2 regimes, boundary behaviour can be rough; 3-state variants add flexibility at the cost of parsimony."
     },
+    "Maximum drawdown": {
+      "plain_english": "The worst peak-to-trough loss during a period. It answers: how far did the portfolio fall before recovering?",
+      "why_it_matters": "A strategy can have a lower return but still be useful if it sharply reduces the worst drawdown investors had to tolerate.",
+      "example": "In ism_services_spy, the winner's OOS maximum drawdown was about -3.8%, versus about -23.9% for buy-and-hold SPY.",
+      "when_it_fails": "Maximum drawdown is one path-dependent episode statistic. A strategy can have a small historical drawdown because it avoided one past episode by luck."
+    },
     "Merton model": {
       "plain_english": "A structural model of credit risk that treats a company's equity as a call option on its assets.",
       "why_it_matters": "Explains WHY credit and equity co-move — both are claims on the same underlying firm value. Motivates the Granger-bidirectional finding.",
       "example": "When asset value falls toward the debt level, equity (the residual claim) declines faster than proportion, and credit spreads widen — both move for the same reason. Developed by Merton (1974).",
       "when_it_fails": "Assumes continuous trading, a single debt maturity, and lognormal asset dynamics — all violated in practice. Still the canonical framework for understanding the credit-equity link."
+    },
+    "Momentum": {
+      "plain_english": "The tendency of a recent trend to continue: an asset that has been rising tends to keep rising for a while. Here, 6-month relative-strength momentum measures whether semiconductors have been outpacing the market lately.",
+      "why_it_matters": "The winning rule is a momentum rule — it buys SPY when semiconductors have recently been strong relative to the market."
     },
     "Money supply (M2)": {
       "plain_english": "A broad measure of the money in the economy — cash, checking and savings deposits, and other near-money. The Federal Reserve series is called M2SL.",
@@ -169,23 +297,49 @@
       "example": "Used as a control variable and cross-check for the HY-IG signal; NFCI and HY-IG spreads typically co-move during stress episodes.",
       "when_it_fails": "Weekly release cadence means NFCI lags daily signals like HY-IG by up to 5 trading days."
     },
+    "OOS": {
+      "plain_english": "Abbreviation for 'Out-of-sample' — the data window used to TEST a model that was fit on a different (in-sample) window. See 'In-sample / Out-of-sample' for the full definition.",
+      "why_it_matters": "OOS is the first honest test of a strategy. However, in tournament designs the OOS window is still used to PICK the winner — so a tournament-OOS Sharpe is not the same as a holdout Sharpe. For pairs that ran a final exam, the holdout result is the dispositive metric, not the OOS result.",
+      "example": "This pair's OOS window is 2014-08 to 2020-06 (71 monthly observations). The tournament-OOS Sharpe is 1.32. The separate holdout test (2020-07 onward) returned 0.31, which is the dispositive verdict.",
+      "when_it_fails": "Treating tournament-OOS Sharpe as a validated result without a separate holdout test inflates apparent edge by the size of the search-phase data-mining bias."
+    },
     "Option-adjusted spread (OAS)": {
       "plain_english": "A credit spread that accounts for any embedded options (like call provisions) in the bond.",
       "why_it_matters": "Strips out non-credit factors, providing a cleaner measure of pure credit risk than raw yield spreads.",
       "example": "ICE BofA publishes OAS indices for HY (BAMLH0A0HYM2) and IG (BAMLC0A0CM); we subtract to get the HY-IG spread used throughout this pair.",
       "when_it_fails": "OAS is model-dependent (it relies on a stochastic interest-rate model to strip option values) — different vendors report slightly different OAS for the same bond."
     },
-    "Quality spread": {
-      "plain_english": "The spread between the lowest-rated high-yield bonds (CCC) and the highest-rated high-yield bonds (BB).",
-      "why_it_matters": "Captures stress within the riskiest corner of the credit market — the 'canary in the coal mine' that often widens before the broader HY-IG spread.",
-      "example": "During the GFC, the CCC-BB spread widened months before the overall HY-IG spread reached crisis levels; during COVID, CCC yields spiked above 20% while BB stayed contained.",
-      "when_it_fails": "CCC universe is small and illiquid — bid-ask noise can produce spurious CCC-BB moves that do not signal genuine stress."
+    "Out-of-sample": {
+      "plain_english": "A test window that was not used to fit the initial model. It is often abbreviated OOS.",
+      "why_it_matters": "Out-of-sample testing is more honest than in-sample fitting, but a tournament can still search over the OOS window while choosing a winner. A separate holdout is stronger evidence.",
+      "example": "For ism_services_spy, OOS runs from 2018-10-31 to 2025-10-31 and contains 85 monthly observations.",
+      "when_it_fails": "If the OOS window is used to select the best rule from thousands of candidates, the best-looking result can still be a search artifact."
+    },
+    "Overfitting": {
+      "plain_english": "Finding a rule that looks great on the data used to build it but fails on fresh data, because it was tuned to noise rather than a real pattern.",
+      "why_it_matters": "This winner shows overfitting warning signs: an in-sample Sharpe of just 0.10 versus 1.57 out-of-sample, and most searched rules underperformed buy-and-hold — so the result is treated as found-in-search, not validated."
+    },
+    "Permits": {
+      "plain_english": "Building permits — a monthly count of new residential construction projects authorized by local governments in the U.S. A permit is filed before ground is broken, so it looks ahead to future building activity.",
+      "why_it_matters": "Because permits precede actual construction, they are a classic *leading* indicator of housing and broader economic momentum, used in this portal's Permits → SPY pair.",
+      "example": "In the Permits → SPY pair, a rise in building permits is tested as an early signal of economic expansion supportive of equities.",
+      "when_it_fails": "Permits are volatile month to month and sensitive to interest rates and weather; a single month's swing can be noise rather than a genuine trend change."
     },
     "Pro-cyclical": {
       "plain_english": "Moving with the business or market cycle — rising when markets rise and falling when they fall.",
       "why_it_matters": "A pro-cyclical signal acts like a momentum/risk-on tracker rather than a warning signal. For this pair the winning rule is pro-cyclical: accelerating money growth is read as a risk-on tailwind.",
       "example": "The M2-acceleration rule holds SPY when money growth is speeding up (above its historical median) and steps to cash otherwise. The empirical direction recorded in winner_summary.json is `procyclical`.",
       "when_it_fails": "Pro-cyclical timing can whipsaw at turning points, and here the direction is supported by a search-found pattern rather than a forward-causal test."
+    },
+    "Procyclical": {
+      "plain_english": "Moving in the same direction as the broad economy or market — strong when the cycle is strong, weak when it is weak.",
+      "why_it_matters": "The winning rule is procyclical: it holds stocks when semiconductor relative strength has recently been strong."
+    },
+    "Quality spread": {
+      "plain_english": "The spread between the lowest-rated high-yield bonds (CCC) and the highest-rated high-yield bonds (BB).",
+      "why_it_matters": "Captures stress within the riskiest corner of the credit market — the 'canary in the coal mine' that often widens before the broader HY-IG spread.",
+      "example": "During the GFC, the CCC-BB spread widened months before the overall HY-IG spread reached crisis levels; during COVID, CCC yields spiked above 20% while BB stayed contained.",
+      "when_it_fails": "CCC universe is small and illiquid — bid-ask noise can produce spurious CCC-BB moves that do not signal genuine stress."
     },
     "Quantile regression": {
       "plain_english": "A statistical method that estimates the effect of a variable on different parts of the outcome distribution (not just the average).",
@@ -199,17 +353,67 @@
       "example": "In this pair's 2-state HMM, 'calm' and 'stressed' regimes have different credit-equity correlation structures; the strategy acts only when the stress probability exceeds 50%.",
       "when_it_fails": "Regime boundaries are model-dependent — a 2-state HMM may miss a third regime (e.g., 'crisis' vs 'normal-stress'). 3-state variants were tested and rejected on BIC parsimony grounds."
     },
+    "Relative strength": {
+      "plain_english": "One asset's price divided by another's, here the PHLX Semiconductor Index (SOX) divided by SPY. It rises when semiconductors outperform the broad market and falls when they lag.",
+      "why_it_matters": "Because SOX and SPY are both equity indices that move together most of the time, the ratio strips out the shared market move and isolates whether chips are leading or lagging — the only part of the SOX signal with any forecast content here."
+    },
     "Sharpe ratio": {
       "plain_english": "A measure of risk-adjusted return: (return minus risk-free rate) divided by volatility.",
       "why_it_matters": "Higher is better — Sharpe 1.0 is generally considered good for a long-only equity strategy; above 1.2 is strong.",
       "example": "This pair's OOS Sharpe is 1.27, versus 0.77 for buy-and-hold SPY over the same 8-year window (2018-2025). Ratio read from winner_summary.json.oos_sharpe.",
       "when_it_fails": "Sharpe assumes normal returns — skewed or fat-tailed distributions (as credit data has) make Sharpe overstate the true risk-adjusted edge. Sortino or max-drawdown ratios complement it."
     },
+    "Signal probability": {
+      "plain_english": "The continuous 0-to-1 output of the HMM telling us how confident the model is that the stress regime is active today.",
+      "why_it_matters": "Used directly to size positions — at 50% probability the strategy holds 50% equity, at 100% probability it holds 0% (all cash). This avoids the whipsaw of hard on/off rules.",
+      "example": "On 2020-02-21, the HMM stress probability was 0.086 (calm); on 2020-02-24 it jumped to 1.000 (full stress), driving the position from 91.4% to 0% over two trading days.",
+      "when_it_fails": "Daily noise around the 50% threshold can cause small position adjustments that add transaction cost without economic value — mitigated but not eliminated by the scaling rule."
+    },
+    "Specification curve": {
+      "plain_english": "The full distribution of results across EVERY reasonable way an analysis could have been run — not just the version that looked best.",
+      "why_it_matters": "A headline strategy is, by construction, the maximum of a large search. Reporting where it sits in the whole distribution (best of N, versus the median) is what separates honest search from cherry-picking.",
+      "example": "For busloans_spy, the winner is the best of 4,396 valid combinations, while the MEDIAN combination scored OOS Sharpe 0.74 — below buy-and-hold's 0.89.",
+      "when_it_fails": "The curve only covers specifications actually searched; choices made before the search (data, sample, transforms) are outside it."
+    },
+    "Story": {
+      "plain_english": "In this portal, 'the Story' is the first, plain-English page of each pair — it lays out the intuition and the headline finding for a general reader before any statistics appear. (The later pages are Evidence, Strategy, and Methodology.)",
+      "why_it_matters": "It lets a non-specialist understand what the indicator is and why it might predict the market in a couple of minutes, without needing to read regression tables.",
+      "example": "This pair's Story page explains the VIX/VIX3M ratio as a fear barometer before the Evidence page shows the econometric tests behind it.",
+      "when_it_fails": "The Story deliberately simplifies; every strong claim it makes is caveated and evidenced on the later pages, which should be read before acting on the idea."
+    },
+    "Stress regime": {
+      "plain_english": "A market state identified by the HMM as statistically distinct from calm — characterized by higher volatility, wider credit spreads, and different cross-asset correlations.",
+      "why_it_matters": "The strategy acts only when the HMM puts high probability on this regime; calm-regime days are held at full equity exposure with no trading.",
+      "example": "The stress regime dominated late-2001 through 2002 (Dot-Com), mid-2007 through mid-2009 (GFC), early 2020 (COVID), and parts of 2022.",
+      "when_it_fails": "The HMM can briefly misclassify transition days (see 2020-01-27 COVID false-alarm, resolved within 2 days by the P2 Signal Strength smoothing)."
+    },
+    "Structural break": {
+      "plain_english": "A point where the statistical relationship changes enough that one stable model may no longer describe the whole sample.",
+      "why_it_matters": "Structural breaks warn readers not to treat a backtest as one timeless law. The same indicator may behave differently before and after the break.",
+      "example": "The ism_services_spy structural-break test flags March 2009, near the end of the Global Financial Crisis.",
+      "when_it_fails": "A break test can identify an unstable window without explaining the economic cause; it is a warning label, not a full diagnosis."
+    },
+    "Toda-Yamamoto Granger test": {
+      "plain_english": "A version of the Granger causality test that stays valid even when the series have trends or unit roots. It checks whether past values of one series help forecast another.",
+      "why_it_matters": "Here it is significant in BOTH directions (SOX helps forecast SPY and SPY helps forecast SOX), confirming bidirectional feedback, not a clean semiconductor lead."
+    },
+    "Tournament": {
+      "plain_english": "A systematic horse-race of signal-threshold-strategy combinations, ranked by out-of-sample Sharpe.",
+      "why_it_matters": "Removes cherry-picking — every combination faces the same OOS test, so winners are not just the ones the analyst liked on first sight.",
+      "example": "This pair tested ~1,000+ combinations; the top 5 were stress-tested with walk-forward, bootstrap significance, and transaction-cost sensitivity. See results/hy_ig_v2_spy/tournament_results_20260410.csv.",
+      "when_it_fails": "Multiple-comparison bias — with 1,000 combinations tested, the best OOS Sharpe is upward-biased. Walk-forward validation and Deflated Sharpe Ratio mitigate but do not eliminate this."
+    },
     "Transfer entropy": {
       "plain_english": "An information-theoretic measure of directed information flow between time series.",
       "why_it_matters": "Unlike Granger causality, it captures nonlinear relationships — cases where the connection between variables strengthens or weakens depending on conditions.",
       "example": "For this pair, TE from credit to equity is 0.042 nats (p=0.004); TE from equity to credit is 0.0055 nats — a ~7.6x asymmetry that linear Granger tests miss.",
       "when_it_fails": "TE is sensitive to bin count and lag choice; results here use 6 equal-frequency bins and lag 1 day, with 500 permutation significance tests."
+    },
+    "UMCSENT": {
+      "plain_english": "The University of Michigan Consumer Sentiment index — a monthly survey measuring how optimistic or pessimistic U.S. households feel about their finances and the economy.",
+      "why_it_matters": "Consumer mood shapes spending, which drives most of the U.S. economy, so sentiment is watched as a soft-data signal for growth and markets (used in this portal's UMCSENT → XLV pair).",
+      "example": "In the UMCSENT → XLV pair, shifts in consumer sentiment are tested against the health-care sector ETF.",
+      "when_it_fails": "Sentiment is a survey of feelings, not actions — it can diverge from what consumers actually spend, and it is prone to being swayed by headline events like gas prices."
     },
     "VIX": {
       "plain_english": "The CBOE Volatility Index, often called the 'fear gauge.'",
@@ -230,172 +434,10 @@
       "when_it_fails": "Walk-forward assumes stationarity within each training window — regime shifts within a window can degrade performance."
     },
     "Z-score": {
-      "plain_english": "A measure of how many standard deviations a value is from its recent average.",
+      "plain_english": "A z-score (also called a standard score) measures how many standard deviations a value sits above or below its historical average. Subtract the recent mean from today's value and divide by the recent standard deviation: a z-score of 0 is exactly average, +2 is two standard deviations above average (an unusually high reading, roughly the top ~2.5% of a normal distribution), and -2 is two below. It converts a raw number into a universal 'how unusual is this right now?' scale.",
       "why_it_matters": "Converts raw levels into 'how unusual is this' — a 2-sigma HY-IG spread in 2010 and a 2-sigma spread in 2020 are both rare, even though the raw bps differ.",
       "example": "This pair uses 252-day and 504-day rolling z-scores of the HY-IG spread as candidate signals; z-scored series outperform raw levels in the correlation table.",
       "when_it_fails": "Short lookback windows (<252 days) are too sensitive to recent regime; long lookbacks (>1260 days) lose adaptivity. We use 252 and 504 as complementary middle grounds."
-    },
-    "Tournament": {
-      "plain_english": "A systematic horse-race of signal-threshold-strategy combinations, ranked by out-of-sample Sharpe.",
-      "why_it_matters": "Removes cherry-picking — every combination faces the same OOS test, so winners are not just the ones the analyst liked on first sight.",
-      "example": "This pair tested ~1,000+ combinations; the top 5 were stress-tested with walk-forward, bootstrap significance, and transaction-cost sensitivity. See results/hy_ig_v2_spy/tournament_results_20260410.csv.",
-      "when_it_fails": "Multiple-comparison bias — with 1,000 combinations tested, the best OOS Sharpe is upward-biased. Walk-forward validation and Deflated Sharpe Ratio mitigate but do not eliminate this."
-    },
-    "Stress regime": {
-      "plain_english": "A market state identified by the HMM as statistically distinct from calm — characterized by higher volatility, wider credit spreads, and different cross-asset correlations.",
-      "why_it_matters": "The strategy acts only when the HMM puts high probability on this regime; calm-regime days are held at full equity exposure with no trading.",
-      "example": "The stress regime dominated late-2001 through 2002 (Dot-Com), mid-2007 through mid-2009 (GFC), early 2020 (COVID), and parts of 2022.",
-      "when_it_fails": "The HMM can briefly misclassify transition days (see 2020-01-27 COVID false-alarm, resolved within 2 days by the P2 Signal Strength smoothing)."
-    },
-    "Signal probability": {
-      "plain_english": "The continuous 0-to-1 output of the HMM telling us how confident the model is that the stress regime is active today.",
-      "why_it_matters": "Used directly to size positions — at 50% probability the strategy holds 50% equity, at 100% probability it holds 0% (all cash). This avoids the whipsaw of hard on/off rules.",
-      "example": "On 2020-02-21, the HMM stress probability was 0.086 (calm); on 2020-02-24 it jumped to 1.000 (full stress), driving the position from 91.4% to 0% over two trading days.",
-      "when_it_fails": "Daily noise around the 50% threshold can cause small position adjustments that add transaction cost without economic value — mitigated but not eliminated by the scaling rule."
-    },
-    "Cointegration": {
-      "plain_english": "Two series are cointegrated if they tend to move together over the long run even if they diverge short-term — like a dog and its owner on a long leash. It means there is a stable, long-run relationship between them.",
-      "why_it_matters": "Cointegration is a stronger claim than correlation: it says the relationship is structural and mean-reverting, not coincidental. If the indicator and target are cointegrated, deviations from the long-run trend are predictable.",
-      "example": "If HY-IG spreads and SPY volatility are cointegrated, a spike in spreads that is not matched by a rise in volatility signals a future correction — the two series will reconverge.",
-      "when_it_fails": "Structural breaks (regime changes, policy shifts) can destroy cointegration. A relationship that held for 20 years can break permanently after a major market event."
-    },
-    "Local projections": {
-      "plain_english": "A statistical method that estimates how one variable responds to a shock in another variable over multiple future time horizons — like asking 'if credit spreads widen today, how much does SPY fall in 1 month, 3 months, 6 months?'",
-      "why_it_matters": "Unlike a single regression, local projections give you the full path of the response over time, making it easy to see whether the indicator's predictive power is immediate or builds gradually.",
-      "example": "A local projection chart showing the SPY response to a 100bp HY-IG spread widening would plot a line descending over 6 months, then recovering — showing the peak impact comes 2–3 months after the widening.",
-      "when_it_fails": "Local projections require many observations to estimate reliably at long horizons. With monthly data and a 20-year sample, estimates at 12+ month horizons have wide confidence intervals."
-    },
-    "DSR (Deflated Sharpe Ratio)": {
-      "plain_english": "A version of the Sharpe ratio adjusted for the fact that when you test many strategies and pick the best one, the winner looks better than it really is. The DSR penalises the Sharpe ratio based on how many strategies were tested.",
-      "why_it_matters": "If you test 1,000 strategies and pick the one with the highest Sharpe ratio, some of that outperformance is pure luck. The DSR corrects for this so you can judge whether the winner is genuinely skilled or just the luckiest of a large cohort.",
-      "example": "A strategy with raw Sharpe 1.2 tested among 150 effective trials might have DSR p-value of 0.07 — meaning 7% of the time a strategy this good would appear by chance alone, even with no real edge.",
-      "when_it_fails": "The DSR assumes the strategies tested are somewhat independent. If the 150 trials are highly correlated variants of the same idea, the penalty is too harsh; if they are genuinely diverse, the penalty may be too lenient."
-    },
-    "Deflated Sharpe Ratio": {
-      "plain_english": "See DSR (Deflated Sharpe Ratio) — the same concept under its full name.",
-      "why_it_matters": "Identical to DSR entry.",
-      "example": "Identical to DSR entry.",
-      "when_it_fails": "Identical to DSR entry."
-    },
-    "Bootstrap confidence interval": {
-      "plain_english": "A range of plausible values for a statistic (like the Sharpe ratio) computed by re-sampling the historical data thousands of times with replacement. It answers: 'given the noise in this dataset, how certain are we about this number?'",
-      "why_it_matters": "A Sharpe ratio of 0.8 computed from 50 observations is far less reliable than one from 500 observations. The bootstrap CI makes that uncertainty explicit — a wide interval means the true value could be much lower.",
-      "example": "A bootstrap 95% CI of [0.2, 1.4] for a Sharpe ratio means: if we re-ran history with similar noise, 95% of the time the Sharpe would fall in that range. The lower bound of 0.2 is what matters for a conservative investor.",
-      "when_it_fails": "Bootstrap CIs assume the historical data is representative of the future. In markets with structural breaks, the past distribution may not resemble future returns."
-    },
-    "Holdout": {
-      "plain_english": "A sealed data window — completely set aside during signal search and model selection — that is used exactly once at the end of the process to test whether the strategy actually works on data the search never touched.",
-      "why_it_matters": "Tournament out-of-sample (OOS) testing is good, but the tournament still sees the OOS data while picking the winner. The holdout never participates in selection, so it is the only window where the result genuinely cannot have been curve-fit. A failure on the holdout means the winning rule did not generalise — it caught a pattern in the search/OOS period that no longer worked once a fresh period was tested.",
-      "example": "This portal uses a three-period design: in-sample 1996-12 to 2014-07 (signal search), OOS 2014-08 to 2020-06 (tournament evaluation), holdout 2020-07 to 2026-05 (sealed final exam). The v4/v5 HY-IG strategy posted OOS Sharpe 1.32 but holdout Sharpe 0.31 — below the 0.50 floor — and so was marked failed_final_exam.",
-      "when_it_fails": "A holdout that runs through a single market regime (e.g. only a bull market) can still mislead. The 2020-2026 holdout used here spans the COVID recovery, the 2022 rate shock, and the 2023-2026 bull run — multiple regimes, which is what makes it a meaningful test."
-    },
-    "IS": {
-      "plain_english": "Abbreviation for 'In-sample' — the data window used to BUILD and FIT models. See 'In-sample / Out-of-sample' for the full definition.",
-      "why_it_matters": "Performance reported on IS data is not evidence the strategy works — it is evidence the model was fit to that window. Treat any IS-only metric with skepticism.",
-      "example": "On this pair, IS = 1996-12 to 2014-07 (212 monthly observations). The tournament searched signals against this window. The winner's IS Sharpe is not reported as a headline metric — only the OOS and holdout Sharpes are.",
-      "when_it_fails": "A reader who mistakes an IS-only Sharpe for a validated result will substantially over-estimate the strategy's true edge."
-    },
-    "OOS": {
-      "plain_english": "Abbreviation for 'Out-of-sample' — the data window used to TEST a model that was fit on a different (in-sample) window. See 'In-sample / Out-of-sample' for the full definition.",
-      "why_it_matters": "OOS is the first honest test of a strategy. However, in tournament designs the OOS window is still used to PICK the winner — so a tournament-OOS Sharpe is not the same as a holdout Sharpe. For pairs that ran a final exam, the holdout result is the dispositive metric, not the OOS result.",
-      "example": "This pair's OOS window is 2014-08 to 2020-06 (71 monthly observations). The tournament-OOS Sharpe is 1.32. The separate holdout test (2020-07 onward) returned 0.31, which is the dispositive verdict.",
-      "when_it_fails": "Treating tournament-OOS Sharpe as a validated result without a separate holdout test inflates apparent edge by the size of the search-phase data-mining bias."
-    },
-    "Lagging indicator": {
-      "plain_english": "An economic series that moves AFTER the broader economy or the stock market has already turned, confirming what happened rather than predicting what comes next.",
-      "why_it_matters": "Knowing which signals lag prevents the most expensive mistake in indicator-watching: treating a rear-view mirror as a windshield. Lagging series are useful for dating cycles in hindsight, not for forecasting.",
-      "example": "C&I loans (BUSLOANS) are an official component of the Conference Board's Lagging Economic Index: after the GFC, loan growth bottomed in February 2010 — eleven months after stocks had already turned up.",
-      "when_it_fails": "The lead/lag classification itself can shift across regimes; a series that lagged historically could behave differently under a structural change in the credit system."
-    },
-    "Bootstrap p-value": {
-      "plain_english": "The probability, estimated by re-shuffling the data thousands of times, that a result as good as the one observed could arise by pure chance.",
-      "why_it_matters": "Backtests over short windows can look great by luck. The bootstrap p-value asks: if there were no real edge, how often would random resampling produce a Sharpe this high? Convention requires under 5% before calling a result statistically significant.",
-      "example": "The busloans_spy winner's bootstrap p-value is 0.066 — a result this good would arise by chance about 6.6% of the time, just above the 5% bar, so it is NOT statistically significant.",
-      "when_it_fails": "Bootstrap tests assume the resampling scheme preserves the data's relevant structure; strong autocorrelation or regime concentration can make the p-value too optimistic."
-    },
-    "Commercial & Industrial loans (C&I loans)": {
-      "plain_english": "The total amount US commercial banks have lent directly to businesses for operations, inventory, and equipment — tallied by the Federal Reserve's H.8 release (FRED series BUSLOANS).",
-      "why_it_matters": "It is the broadest direct gauge of bank credit flowing to corporate America. Because much of it is drawn from pre-arranged credit lines, the balance can RISE precisely when the economy turns down.",
-      "example": "In May 2020, C&I loans were growing +30% year-over-year — a record — while the stock market was crashing, because firms were drawing emergency credit lines.",
-      "when_it_fails": "The series measures quantity of credit, not willingness to lend; bank lending standards (SLOOS survey) move earlier and tell a different, more forward-looking story."
-    },
-    "Credit-line drawdown": {
-      "plain_english": "When a company taps a pre-arranged borrowing facility (a 'revolver') to pull cash from its bank — like maxing out an emergency credit card.",
-      "why_it_matters": "Drawdowns surge in crises as firms stockpile cash, which makes measured loan balances jump at the worst moments — the mechanism that makes loan growth a lagging/inverse-coincident indicator rather than a health gauge.",
-      "example": "In March–May 2020, mass revolver drawdowns pushed C&I loan growth above +30% year-over-year while SPY fell ~34% peak-to-trough.",
-      "when_it_fails": "Not every loan spike is distress — late-cycle expansions also produce strong genuine borrowing, so the level alone cannot distinguish confidence from panic."
-    },
-    "Diffusion index": {
-      "plain_english": "A survey score that measures how widespread expansion is across respondents. For ISM PMI surveys, 50 is the neutral line: above 50 means expansion is more common than contraction.",
-      "why_it_matters": "A diffusion index is about breadth, not dollars of output. That makes it useful for cycle timing, but it can lag markets that price changing conditions before survey respondents report them.",
-      "example": "An ISM Services PMI reading of 54 means more services firms reported expansion than contraction; a reading of 45 means contraction was more common.",
-      "when_it_fails": "The index can rebound sharply after a shock without proving that equities were predictable beforehand; it may simply confirm what markets already priced."
-    },
-    "Out-of-sample": {
-      "plain_english": "A test window that was not used to fit the initial model. It is often abbreviated OOS.",
-      "why_it_matters": "Out-of-sample testing is more honest than in-sample fitting, but a tournament can still search over the OOS window while choosing a winner. A separate holdout is stronger evidence.",
-      "example": "For ism_services_spy, OOS runs from 2018-10-31 to 2025-10-31 and contains 85 monthly observations.",
-      "when_it_fails": "If the OOS window is used to select the best rule from thousands of candidates, the best-looking result can still be a search artifact."
-    },
-    "Maximum drawdown": {
-      "plain_english": "The worst peak-to-trough loss during a period. It answers: how far did the portfolio fall before recovering?",
-      "why_it_matters": "A strategy can have a lower return but still be useful if it sharply reduces the worst drawdown investors had to tolerate.",
-      "example": "In ism_services_spy, the winner's OOS maximum drawdown was about -3.8%, versus about -23.9% for buy-and-hold SPY.",
-      "when_it_fails": "Maximum drawdown is one path-dependent episode statistic. A strategy can have a small historical drawdown because it avoided one past episode by luck."
-    },
-    "Structural break": {
-      "plain_english": "A point where the statistical relationship changes enough that one stable model may no longer describe the whole sample.",
-      "why_it_matters": "Structural breaks warn readers not to treat a backtest as one timeless law. The same indicator may behave differently before and after the break.",
-      "example": "The ism_services_spy structural-break test flags March 2009, near the end of the Global Financial Crisis.",
-      "when_it_fails": "A break test can identify an unstable window without explaining the economic cause; it is a warning label, not a full diagnosis."
-    },
-    "Specification curve": {
-      "plain_english": "The full distribution of results across EVERY reasonable way an analysis could have been run — not just the version that looked best.",
-      "why_it_matters": "A headline strategy is, by construction, the maximum of a large search. Reporting where it sits in the whole distribution (best of N, versus the median) is what separates honest search from cherry-picking.",
-      "example": "For busloans_spy, the winner is the best of 4,396 valid combinations, while the MEDIAN combination scored OOS Sharpe 0.74 — below buy-and-hold's 0.89.",
-      "when_it_fails": "The curve only covers specifications actually searched; choices made before the search (data, sample, transforms) are outside it."
-    },
-    "Exposure": {
-      "plain_english": "The fraction of time (or capital) a strategy actually spends invested in the market rather than sitting in cash.",
-      "why_it_matters": "A low-exposure strategy can post a high Sharpe ratio mostly by avoiding volatility, not by picking winners — so exposure tells you HOW a strategy earned its risk-adjusted score.",
-      "example": "The busloans_spy winner's mean OOS exposure is 0.25: it was in the market only a quarter of the time, which is why its drawdown was just −1% but its total return trailed buy-and-hold.",
-      "when_it_fails": "Mean exposure hides timing concentration — a strategy 25% exposed could owe all its results to a single lucky stretch of being in."
-    },
-    "Relative strength": {
-      "plain_english": "One asset's price divided by another's, here the PHLX Semiconductor Index (SOX) divided by SPY. It rises when semiconductors outperform the broad market and falls when they lag.",
-      "why_it_matters": "Because SOX and SPY are both equity indices that move together most of the time, the ratio strips out the shared market move and isolates whether chips are leading or lagging — the only part of the SOX signal with any forecast content here."
-    },
-    "Co-movement": {
-      "plain_english": "When two assets move up and down together day to day. SOX and SPY co-move about 71% of the time because both are stocks driven by the same market forces.",
-      "why_it_matters": "High co-movement is shared market risk (beta), not a forecast. Mistaking it for a leading signal is the central trap this analysis avoids by trading the relative-strength ratio instead of raw SOX."
-    },
-    "Market beta": {
-      "plain_english": "How much an asset moves when the overall stock market moves. A high-beta asset like semiconductors swings more than the market in both directions.",
-      "why_it_matters": "Most of SOX's apparent link to SPY is just shared beta — both rise and fall with the market — so it must be partialled out before judging whether chips genuinely lead."
-    },
-    "Momentum": {
-      "plain_english": "The tendency of a recent trend to continue: an asset that has been rising tends to keep rising for a while. Here, 6-month relative-strength momentum measures whether semiconductors have been outpacing the market lately.",
-      "why_it_matters": "The winning rule is a momentum rule — it buys SPY when semiconductors have recently been strong relative to the market."
-    },
-    "Cross-correlation function (CCF)": {
-      "plain_english": "A measure of how two series line up at different time offsets (lags) — whether one tends to move before, with, or after the other.",
-      "why_it_matters": "After removing each series' own trend (pre-whitening), the CCF here shows significant links on BOTH the lead and lag sides, the visual signature of two-way feedback rather than a clean one-way lead."
-    },
-    "Toda-Yamamoto Granger test": {
-      "plain_english": "A version of the Granger causality test that stays valid even when the series have trends or unit roots. It checks whether past values of one series help forecast another.",
-      "why_it_matters": "Here it is significant in BOTH directions (SOX helps forecast SPY and SPY helps forecast SOX), confirming bidirectional feedback, not a clean semiconductor lead."
-    },
-    "Procyclical": {
-      "plain_english": "Moving in the same direction as the broad economy or market — strong when the cycle is strong, weak when it is weak.",
-      "why_it_matters": "The winning rule is procyclical: it holds stocks when semiconductor relative strength has recently been strong."
-    },
-    "Overfitting": {
-      "plain_english": "Finding a rule that looks great on the data used to build it but fails on fresh data, because it was tuned to noise rather than a real pattern.",
-      "why_it_matters": "This winner shows overfitting warning signs: an in-sample Sharpe of just 0.10 versus 1.57 out-of-sample, and most searched rules underperformed buy-and-hold — so the result is treated as found-in-search, not validated."
-    },
-    "Feedback (bidirectional causality)": {
-      "plain_english": "When two series each influence the other, rather than one cleanly leading the other.",
-      "why_it_matters": "SOX and SPY push each other in both directions, so calling semiconductors a one-way early-warning indicator for the market would overstate the evidence."
     }
   }
 }

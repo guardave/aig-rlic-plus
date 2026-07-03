@@ -333,20 +333,35 @@ def chart_correlation_heatmap():
         zmin=-0.12, zmax=0.12, text=annot, texttemplate="%{text}",
         textfont={"size": 10}, name="Pearson r", showlegend=False))
     best = p.loc[p["value"].abs().idxmax()]
+    # #177: the 0.709 same-day co-movement is referenced repeatedly in the text but
+    # was invisible on this heatmap (which deliberately shows only FORWARD/predictive
+    # correlations, lag>=1). Readers hunted for a value that wasn't shown. Surface it
+    # as a clearly-labeled contemporaneous banner so text and chart align. Value is
+    # read from the canonical CCF lag-0 (0.7088), not hardcoded.
+    ccf0 = pd.read_csv(CORE / "ccf_prewhitened.csv")
+    same_day = float(ccf0.loc[ccf0["lag"] == 0, "ccf"].iloc[0])
+    fig.add_annotation(
+        xref="paper", yref="paper", x=0.5, y=1.11, showarrow=False,
+        text=(f"Same-day (lag 0) co-movement = {same_day:.3f} — shown separately "
+              f"because it is shared market beta, NOT a forecast. This heatmap shows "
+              f"only PREDICTIVE (forward, lag ≥ 1 day) correlations."),
+        font=dict(size=11, color=C_EVENT), align="center",
+        bgcolor=PAL["event_marker_label_bg"], borderpad=4)
     fig.update_layout(
         title=(f"Forward Correlations Are Tiny (R²~1%): Lagged Signals vs {TGT} "
                f"FUTURE Returns<br><sup>Pearson r; * p&lt;0.05, ** p&lt;0.01. "
-               f"These are PREDICTIVE (forward) correlations, NOT the 0.709 "
-               f"same-day co-movement.</sup>"),
+               f"These are PREDICTIVE (forward) correlations, NOT the {same_day:.3f} "
+               f"same-day co-movement (banner above).</sup>"),
         xaxis_title=f"{TGT} forward return horizon (trading days)",
         yaxis_title="Lagged signal",
-        template="plotly_white", height=520)
+        template="plotly_white", height=560, margin=dict(t=150))
     save_chart("correlation_heatmap", fig,
                caption=(f"Pearson correlations between lagged {IND_SHORT}-based signals "
                         f"and {TGT} FORWARD (future) returns. The largest cell is only "
                         f"r = {best['value']:.3f} — these predictive correlations are "
-                        f"an order of magnitude smaller than the 0.709 same-day "
-                        f"co-movement, which is shared market beta and NOT a forecast. "
+                        f"an order of magnitude smaller than the {same_day:.3f} same-day "
+                        f"co-movement (shown in the banner above the chart), which is "
+                        f"shared market beta and NOT a forecast. "
                         f"Relative-strength rows carry slightly more forward signal "
                         f"than raw-SOX rows."),
                alignment=("Heatmap makes the co-movement-vs-forecast distinction "
@@ -373,12 +388,22 @@ def chart_ccf():
     fig = go.Figure(go.Bar(x=d["lag"], y=d["ccf"], marker_color=colors,
                            name="Pre-whitened CCF"))
     ci = float(d["upper_ci"].iloc[0])
+    lag0 = float(d.loc[d["lag"] == 0, "ccf"].iloc[0])
+    # #179: lag 0 (0.71) dominates and compressed the small lead/lag mass (max ~0.05)
+    # that is the actual evidence of bidirectional feedback. Clip the visible y-axis
+    # to the lead/lag scale so those bars and the CI band are legible; the lag-0 bar
+    # runs off the top and is annotated with its true value (bars are NOT modified —
+    # only the view window is clipped, so plotted values remain faithful).
+    nz_max = float(d.loc[d["lag"] != 0, "ccf"].abs().max())
+    y_top = max(nz_max, ci) * 1.6
     fig.add_hline(y=ci, line_dash="dash", line_color=C_NEUTRAL, line_width=0.8,
                   annotation_text="95% confidence band")
     fig.add_hline(y=-ci, line_dash="dash", line_color=C_NEUTRAL, line_width=0.8)
-    fig.add_annotation(x=0, y=float(d.loc[d["lag"] == 0, "ccf"].iloc[0]),
-                       text="Lag 0 = 0.71 same-day<br>co-movement (shared beta)",
-                       showarrow=True, arrowhead=2, ax=70, ay=-30,
+    # lag-0 runs off the clipped axis: annotate at the top edge with its true value
+    fig.add_annotation(x=0, y=y_top, ax=70, ay=-25,
+                       text=(f"Lag 0 = {lag0:.3f} same-day co-movement<br>"
+                             f"(shared beta — bar runs off the clipped axis)"),
+                       showarrow=True, arrowhead=2,
                        font=dict(size=10, color=C_EVENT),
                        bgcolor=PAL["event_marker_label_bg"])
     lead = int((d[(d["lag"] > 0) & d["significant"]]).shape[0])
@@ -389,12 +414,15 @@ def chart_ccf():
                f"side ({lead}) and the lag side ({lag}) — feedback, not a one-way "
                f"lead.</sup>"),
         xaxis_title=f"Lag (trading days; positive = {IND_SHORT} leads {TGT})",
-        yaxis_title="Cross-correlation",
+        yaxis=dict(title="Cross-correlation (axis clipped; lag 0 off-scale)",
+                   range=[-y_top, y_top]),
         template="plotly_white", height=420, showlegend=False)
     save_chart("ccf_prewhitened", fig,
                caption=(f"Cross-correlation between AR(1) pre-whitened {IND_SHORT} and "
-                        f"{TGT} daily returns at lags -20..+20. After removing the "
-                        f"dominant lag-0 co-movement (0.71, shaded grey), the residual "
+                        f"{TGT} daily returns at lags -20..+20. The y-axis is clipped to "
+                        f"the lead/lag scale so the small significant cells are legible; "
+                        f"the dominant lag-0 co-movement ({lag0:.3f}, shaded grey) runs "
+                        f"off the top and is annotated with its true value. The residual "
                         f"significant cells fall on BOTH the lead side ({lead} cells) "
                         f"and the lag side ({lag} cells). This symmetric mass is the "
                         f"visual signature of bidirectional feedback, not a clean "
@@ -434,7 +462,13 @@ def chart_granger():
                f"{TGT} AND {TGT} → {IND_SHORT} both clear the 5% line at every tested "
                f"lag — two high-beta equity series pushing each other.</sup>"),
         xaxis_title="Lag (trading days)",
-        yaxis_title="F-statistic",
+        # #178: large early-lag F-stats (up to ~40) compressed the later lags (~2-3),
+        # making it hard to read whether each bar clears the 5% critical line. A log
+        # y-axis equalizes the visual span so significance-vs-threshold — the actual
+        # message — reads clearly at every lag. Bars/values are unchanged; only the
+        # axis scale is log. The dashed critical-value line is the significance
+        # reference to compare each bar against.
+        yaxis=dict(title="F-statistic (log scale)", type="log"),
         barmode="group", template="plotly_white", height=480,
         margin=dict(b=140),
         legend=dict(orientation="h", yanchor="top", y=-0.22, xanchor="left", x=0))
@@ -705,41 +739,68 @@ def chart_equity_curves():
 
 
 def chart_drawdown():
+    # #181 (WINDOW BUG, diagnosed by Evan): drawdown was built from the FULL
+    # 1994->2026 equity series, so the troughs read -64.97%@2009 (winner) and
+    # -55.19% (B&H) — contradicting the OOS legend (-9.7% / -24.5%). Slice each
+    # return series to the OOS window and re-base cummax to oos_period_start so
+    # each curve's trough equals the canonical OOS drawdown. (equity_curves is
+    # left full-sample on purpose — the "lost in every prior crisis" narrative.)
     d = _strategy_returns()
     w = load_winner()
+    o_start, o_end = w["oos_period_start"], w["oos_period_end"]
+    dd_df = d.set_index("date")
+
+    def _oos_dd(ret_col):
+        r = dd_df[ret_col].fillna(0).loc[o_start:o_end]
+        eq = (1 + r).cumprod()  # re-based to 1.0 at OOS start
+        return eq / eq.cummax() - 1
+
+    strat_dd = _oos_dd("strategy_return")
+    bh_dd = _oos_dd("bh_return")
+    spymom_dd = _oos_dd("spy_mom_return")
+
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=d["date"], y=d["strategy_drawdown"] * 100, mode="lines",
+        x=strat_dd.index, y=strat_dd * 100, mode="lines",
         name=f"Winner drawdown (OOS max {w['oos_max_drawdown']*100:.1f}%)",
         fill="tozeroy", fillcolor="rgba(213,94,0,0.35)",
         line=dict(color=C_IND, width=1.5)))
     fig.add_trace(go.Scatter(
-        x=d["date"], y=d["bh_drawdown"] * 100, mode="lines",
+        x=bh_dd.index, y=bh_dd * 100, mode="lines",
         name=f"Buy & Hold drawdown (OOS max {w['bh_max_drawdown']*100:.1f}%)",
         line=dict(color=C_BENCH, width=1.5, dash="dash")))
     fig.add_trace(go.Scatter(
-        x=d["date"], y=d["spy_mom_drawdown"] * 100, mode="lines",
+        x=spymom_dd.index, y=spymom_dd * 100, mode="lines",
         name=f"{TGT}-own-momentum drawdown (OOS max {w['spy_own_momentum_max_drawdown']*100:.1f}%)",
         line=dict(color=C_TGT, width=1.3, dash="dot")))
-    fig.add_vline(x=w["oos_period_start"], line=dict(color=C_EVENT, dash="dot", width=1.3))
-    add_nber_shading(fig, x_min=d["date"].min(), x_max=d["date"].max())
-    nber_swatch(fig)
+    # NBER shading is still attempted, but the OOS window (2021-06 -> 2026-06)
+    # contains NO NBER recession (COVID ended 2020-04, before OOS start), so no
+    # shading rects are emitted. VIZ-NBER1's shape-presence assert is therefore
+    # relaxed for this now-OOS-only chart (nber_required=False): there is
+    # genuinely nothing in-window to shade. Before #181 this chart spanned
+    # 1994->2026 and did carry recession shading.
+    add_nber_shading(fig, x_min=strat_dd.index.min(), x_max=strat_dd.index.max())
     fig.update_layout(
         title=(f"Shallower Drawdowns Are the Rule's Real (Regime-Shaped) Benefit: "
-               f"{w['oos_max_drawdown']*100:.1f}% vs {w['bh_max_drawdown']*100:.1f}% OOS"),
+               f"{w['oos_max_drawdown']*100:.1f}% vs {w['bh_max_drawdown']*100:.1f}% OOS"
+               f"<br><sup>Out-of-sample window only ({o_start} to {o_end}); "
+               f"cummax re-based to OOS start. No NBER recession falls in-window.</sup>"),
         xaxis_title="Date",
         yaxis_title="Drawdown (%)",
         template="plotly_white", height=440,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     save_chart("drawdown", fig,
+               nber_required=False,
                caption=(f"Drawdown paths for the winner, Buy & Hold {TGT}, and the "
                         f"{TGT}-own-momentum benchmark. In OOS the winner's max "
                         f"drawdown is {w['oos_max_drawdown']*100:.1f}% versus "
                         f"{w['bh_max_drawdown']*100:.1f}% for Buy & Hold — a real "
                         f"improvement, but one shaped by the benign 2021–26 regime "
                         f"rather than a tested all-weather property."),
-               alignment="Drawdown computed from saved returns + reconstructed SPY-momentum series.",
-               rules=["VIZ-IC1", "VIZ-NBER1", "VIZ-NS1", "VIZ-O1"],
+               alignment=("Drawdown computed on the OOS window only (cummax re-based "
+                          "to oos_period_start) from saved returns + reconstructed "
+                          "SPY-momentum series, so troughs match the OOS legend."),
+               rules=["VIZ-IC1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/strategy_returns_{DATE_TAG}.csv",
                         f"results/{PAIR}/winner_summary.json"])
 

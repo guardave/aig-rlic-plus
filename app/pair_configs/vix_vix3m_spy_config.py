@@ -22,7 +22,7 @@ from components.page_templates import MethodologyConfig
 class StoryConfig:
     PAGE_TITLE = "The Story: The VIX Term Structure as a Fear Barometer for SPY"
     PAGE_SUBTITLE = (
-        "Does the ratio of near-term to medium-term implied volatility predict "
+        "Does the ratio of short-term to intermediate-term implied volatility predict "
         "S&P 500 returns?"
     )
 
@@ -36,9 +36,9 @@ class StoryConfig:
         "cousin. When the short-dated number exceeds the longer-dated one "
         "(ratio above 1.0), it means traders are paying up for immediate "
         "protection faster than they are hedging over longer horizons — a "
-        "signature of panic. When the ratio is below 1.0, markets are calm. "
+        "a sign of panic. When the ratio is below 1.0, markets are calm. "
         "This page asks whether that single ratio, computed daily from "
-        "publicly available CBOE data, can time SPY exposure."
+        "publicly available CBOE data, can time the stock market."
     )
 
     WHERE_THIS_FITS = (
@@ -55,6 +55,35 @@ class StoryConfig:
         "structure backwardation and delivered an out-of-sample Sharpe of "
         "1.13 with a max drawdown of -21% versus -34% for buy-and-hold over "
         "the COVID-inclusive 2020-2025 window.*"
+    )
+
+    # fix260703 #150 — plain-language one-sentence thesis + its footnote.
+    # ATTACHMENT POINT: this footnote attaches to the ONE_SENTENCE_THESIS above
+    # (rendered as a clickable info-icon / superscript beside the thesis line).
+    # ACE UI NEEDED: clickable footnote affordance (icon or superscript marker)
+    # that reveals THESIS_FOOTNOTE on the Story page. Ray supplies copy only.
+    ONE_SENTENCE_THESIS_PLAIN = (
+        "*By tracking how much short-term market anxiety is spiking compared to "
+        "its normal baseline, you can safely dodge stock-market drawdowns "
+        "without giving up much of the upside — sidestepping the worst crashes "
+        "while staying invested the rest of the time.*"
+    )
+
+    THESIS_FOOTNOTE = (
+        "\"Anxiety\" here is measured concretely, not by opinion. We take the "
+        "VIX/VIX3M ratio — the 30-day 'fear gauge' divided by its 3-month "
+        "cousin — and convert it into a 126-day z-score, i.e. how many standard "
+        "deviations today's ratio sits above or below its own recent average. "
+        "When that z-score climbs into the top quartile of its recent range "
+        "(acute term-structure backwardation, where short-dated fear outruns "
+        "longer-dated fear), the rule steps out of SPY and into cash; otherwise "
+        "it stays fully long. \"Safely dodge\" is a backtested claim, not a "
+        "guarantee: over the 2020–2025 out-of-sample window this compressed the "
+        "maximum drawdown from about -34% (buy-and-hold) to about -21%, at "
+        "roughly the same total return (+15.3% vs +15.7% annualised). The "
+        "trade-off is ~23 round-trip switches per year, and the out-of-sample "
+        "record leans heavily on correctly navigating the single March 2020 "
+        "crash — so treat the edge as real but stress-tested on a short sample."
     )
 
     KPI_CAPTION = (
@@ -104,7 +133,12 @@ class StoryConfig:
         "Plot all of them against their maturities on a single chart and you "
         "get the **VIX term structure** — a curve of expected volatility "
         "across horizons (sometimes called the 'volatility term surface').\n\n"
-        "Footnote on the technical terms (#62):\n\n"
+        # fix260703 #62 — plain-English glosses for the jargon used in the
+        # term-structure / fear-gauge discussion. ACE UI (optional): these
+        # five items are footnote-class glosses; if the page supports
+        # info-icon footnotes they can be attached to first-use of each term
+        # in prose rather than listed inline. Rendered inline is acceptable.
+        "**The term-structure jargon, in plain English:**\n\n"
         "- **Implied volatility:** the volatility number that, when plugged "
         "into the Black-Scholes options-pricing formula, produces today's "
         "observed option market price. It is what the market is *pricing in*, "
@@ -127,20 +161,20 @@ class StoryConfig:
         "to sell at a fixed strike). Surging put demand at very short "
         "maturities is the signature of acute fear.\n\n"
         "### The Ratio as a Real-Asset Risk-Off Gauge\n\n"
-        # fix260526 W3 #61 — explicit "short-term vs medium-term panic" framing.
+        # fix260526 W3 #61 — explicit "short-term vs intermediate-term panic" framing.
         "Of all the VIX-pair comparisons we could make, **VIX/VIX3M** is "
         "the most informative because it pits the *front-end* implied-vol "
         "(30-day) against the *belly* (3-month). Plainly: it measures the "
-        "**intensity of short-term panic relative to medium-term panic**. "
-        "When the ratio sits below 1.0, longer-dated fear exceeds near-term "
+        "**intensity of short-term panic relative to intermediate-term panic**. "
+        "When the ratio sits below 1.0, longer-dated fear exceeds short-term "
         "fear — that is the *calm* regime where hedging demand is balanced "
         "and equities tend to grind higher. When the ratio is above 1.0, "
-        "near-term fear exceeds medium-term fear — that is the *stress* "
+        "short-term fear exceeds intermediate-term fear — that is the *stress* "
         "regime where put demand is concentrated at the front end, "
         "signalling acute panic.\n\n"
         "Think of it as a thermometer with a fixed reference point: ratio "
         "high → short-term volatility is particularly high (panic / stress); "
-        "ratio low → short-term volatility is lower than medium-term "
+        "ratio low → short-term volatility is lower than intermediate-term "
         "(market relatively stable). The ratio captures the *urgency of "
         "fear* better than the VIX level alone (which can stay elevated for "
         "extended periods without signalling acute stress).\n\n"
@@ -253,13 +287,40 @@ CORRELATION_BLOCK = dict(
         "lenses?"
     ),
     how_to_read=(
-        "Rows: ratio transforms (signal variants). Columns: forward SPY "
-        "return horizons in trading days. Warm colours = positive "
-        "correlation; cool colours = negative. The CHART legend's "
-        "colour-scale bar gives the precise mapping. Magnitudes are small "
-        "(|r| < 0.08 throughout the table) — read the SIGNS, not the "
-        "intensities, and treat this view as a sanity check on direction "
-        "rather than an effect-size estimate."
+        # fix260703 #103 — expanded, fuller plain-English how-to-read guide.
+        "**What this chart is.** It is a grid (a 'heatmap') that lines up "
+        "every version of our fear-ratio signal against SPY's future return "
+        "over several time horizons, and colours each cell by how tightly "
+        "the two moved together in the past.\n\n"
+        "**How to read it, step by step:**\n\n"
+        "- **Rows** are the different ways we transform the raw VIX/VIX3M "
+        "ratio into a signal — the plain ratio, its 126- and 252-day "
+        "z-scores (how unusual today's reading is), its rolling percentile "
+        "rank, short-window rates of change, and so on. Each row is one "
+        "candidate 'flavour' of the same underlying idea.\n"
+        "- **Columns** are how far into the future we look: SPY's return "
+        "over the next 1, 5, 21, and 63 trading days (roughly the next day, "
+        "week, month, and quarter).\n"
+        "- **Each cell** holds a correlation, a number from -1 to +1. "
+        "**Positive (warm colour)** means: when the signal was high, SPY "
+        "tended to rise afterwards. **Negative (cool colour)** means the "
+        "opposite — high signal, lower SPY afterwards. **Near zero (pale)** "
+        "means little linear relationship either way.\n\n"
+        "**What we EXPECT to see, and why.** If the fear ratio were a clean "
+        "counter-cyclical warning light, the whole grid would glow cool "
+        "(negative): more panic today, weaker stocks tomorrow. **What we "
+        "actually see** is a grid of very pale, mostly slightly-warm cells — "
+        "almost every correlation is tiny (|r| below 0.08). So on this "
+        "simple linear view the warning light barely flickers.\n\n"
+        "**The single most important reading tip:** because every number is "
+        "so small, read the **signs and the pattern**, not the intensities — "
+        "and do NOT treat this as the effect-size of the strategy. Linear "
+        "correlation averages over every single day, but this signal only "
+        "earns its keep on the rare days the ratio crosses into "
+        "backwardation (above 1.0). Those few extreme days are drowned out "
+        "in a full-sample average. Treat this chart as a sanity check on "
+        "direction, and let the regime, Markov-switching, and "
+        "quantile-regression views below carry the real evidence."
     ),
     chart_name="correlations",
     chart_caption=(
@@ -565,7 +626,7 @@ class StrategyConfig:
     PAGE_TITLE = "The Strategy: Translating VIX Term-Structure Signals into SPY Positioning"
     PAGE_SUBTITLE = (
         "We tested hundreds of strategy combinations to find the most robust way "
-        "to time SPY exposure using the VIX/VIX3M ratio."
+        "to time the stock market using the VIX/VIX3M ratio."
     )
 
     PLAIN_ENGLISH = (
@@ -687,7 +748,7 @@ primary signals. VIX3M series begins 2007-12, defining the sample start.
 
 _INDICATOR_CONSTRUCTION_MD = (
     "**VIX/VIX3M ratio.** Computed as `^VIX / ^VIX3M` at daily close. "
-    "Ratio > 1 = backwardation (near-term fear dominates long-term "
+    "Ratio > 1 = backwardation (short-term fear dominates long-term "
     "hedging demand, signalling acute stress). Ratio < 1 = contango "
     "(the normal regime). Derived signals entered into the tournament:\n\n"
     "| Signal | Formula | Intent |\n"

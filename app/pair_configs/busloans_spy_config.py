@@ -207,9 +207,17 @@ Three reasons. First, honesty: a leading-indicator catalogue earns trust by docu
 
     # Ray: Story §what_survives + §takeaway (verbatim).
     NARRATIVE_SECTION_2 = """
+### "Follows, not leads" — so how can there be a timing strategy?
+
+This is the obvious question, and it deserves a straight answer before we show the rule. The Story page said loans **follow** the market rather than lead it, and the Evidence page confirms it: there is no reliable way to use *today's* loan growth to *forecast* tomorrow's stock returns. The strategy on the next page does **not** contradict that — it does not forecast anything.
+
+What it exploits instead is a *state* description, not a prediction. Very weak loan growth is a fingerprint of a particular phase of the cycle: the **late, post-stress stage**, after firms have stopped drawing emergency credit and banks have finished tightening. Historically, that phase has coincided with calmer, more rewarding conditions for owning equities. So the rule is not saying "loans went down, therefore stocks will go up." It is saying "loan growth this weak usually means we are already past the worst — a historically safer time to hold stocks." The information being used is *where we are in the cycle*, read off a lagging gauge, not a leading-edge forecast. That distinction is why every performance number below is wrapped in caveats: a descriptive regularity that held in one search window is a much weaker thing than a genuine predictive signal.
+
 ### What survives: a defensive overlay, honestly labelled
 
 After 6,100 strategy combinations were searched (4,396 passing validity filters), the best rule found was: **be long the S&P 500 (SPY) only when month-over-month loan growth — observed with a 6-month delay — is in the bottom quartile of its trailing 36-month range; otherwise hold cash.** In the search window (2018-02 to 2026-05) that rule produced a Sharpe ratio of 1.50 versus 0.89 for buy-and-hold, with a maximum drawdown of just −1.0% versus −23.9%.
+
+**How this connects to the quartile chart above.** The "SPY Performance by Loan-Growth Quartile" view near the top of this page is the *descriptive* observation: historically, forward equity returns were healthiest when loan growth sat in its **weakest quartile (Q1)** — the late, post-stress stage of the cycle. The winning rule is simply that observation turned into a mechanical trigger: it puts you in the market precisely — and only — when the delayed loan-growth reading falls into that weakest-quartile bucket, and holds cash otherwise. In other words, the chart tells you *which regime was historically safe to own equities in*; the rule *automates standing in that regime and stepping aside from the rest*. The descriptive quartile finding is the hypothesis; the tournament winner is the disciplined implementation of it — with all the search-phase caveats spelled out on the Strategy page.
 
 But this finding comes with non-negotiable context, stated here rather than in a footnote:
 
@@ -286,7 +294,14 @@ CORRELATION_BLOCK = dict(
         "The grid is overwhelmingly pale. The strongest cell is the "
         "60-month z-score of year-over-year growth versus 12-month forward "
         "returns, at r = 0.225 — modest, positive, and only at the longest "
-        "horizon."
+        "horizon. **Why 'modest' still means weak:** a correlation of about "
+        "0.2 explains only its square — roughly 5% (r² ≈ 0.05) — of the "
+        "variation in forward returns, leaving ~95% unexplained. Put "
+        "plainly, this single best cell would let you anticipate only about "
+        "one-twentieth of what the market does next, and even that shows up "
+        "only a full year out. A correlation is not a tradable edge: it "
+        "measures co-movement on average, not a reliable, repeatable signal "
+        "you could position on month to month."
     ),
     deep_dive_title="Why treat the heatmap as triage rather than proof?",
     deep_dive_content=(

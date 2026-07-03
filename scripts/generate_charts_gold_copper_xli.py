@@ -133,18 +133,42 @@ def make_equity_curves(signals_df):
                alignment_note="Strategy vs buy-and-hold full sample. Strategy is from signals parquet.")
 
 
-def make_drawdown(signals_df):
-    eq = signals_df["equity_curve"].dropna()
-    dd = (eq / eq.cummax() - 1) * 100
+def make_drawdown(signals_df, summary):
+    # #159 (WINDOW BUG, diagnosed by Evan): the Strategy page headline/legend are
+    # OOS-scoped (canonical oos_max_drawdown = -8.25%, window oos_period_start ->
+    # oos_period_end), but this chart previously plotted the FULL sample so the
+    # trough read -19.34% @2008-08. Slice each equity series to the OOS window and
+    # re-base cummax to the OOS start so the plotted trough matches the canonical
+    # OOS drawdown.
+    o_start = summary["oos_period_start"]
+    o_end = summary["oos_period_end"]
+    oos_wdd = summary["oos_max_drawdown"] * 100
+    bh_wdd = summary["bh_max_drawdown"] * 100
+
+    def _oos_dd(col):
+        s = signals_df[col].dropna().loc[o_start:o_end]
+        s = s / s.iloc[0]  # re-base to OOS start
+        return (s / s.cummax() - 1) * 100
+
+    dd = _oos_dd("equity_curve")
+    bh = _oos_dd("buy_and_hold_equity")
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=dd.index, y=dd, name="Strategy DD (%)",
-                             fill="tozeroy", line=dict(color="#d62728", width=1.0)))
-    fig.update_layout(title="Strategy drawdown (%)",
+    fig.add_trace(go.Scatter(x=dd.index, y=dd,
+                             name=f"Strategy DD (OOS max {oos_wdd:.1f}%)",
+                             fill="tozeroy", line=dict(color="#d62728", width=1.2)))
+    fig.add_trace(go.Scatter(x=bh.index, y=bh,
+                             name=f"Buy & Hold XLI DD (OOS max {bh_wdd:.1f}%)",
+                             line=dict(color="#888", width=1.2, dash="dot")))
+    fig.update_layout(title=f"Strategy drawdown, out-of-sample ({o_start} to {o_end})",
                       xaxis=dict(title="Date"), yaxis=dict(title="Drawdown (%)"),
-                      template="plotly_white", height=380)
+                      template="plotly_white", height=380,
+                      legend=dict(orientation="h", yanchor="bottom", y=1.02,
+                                  xanchor="right", x=1))
     save_chart(fig, "drawdown", palette_id="dd_v1",
                rules_applied=["VIZ-IC1"],
-               alignment_note="Strategy drawdown from peak equity. Used on Strategy page Performance tab.")
+               alignment_note=("Strategy vs Buy & Hold drawdown, OOS window only, "
+                               "cummax re-based to OOS start so the trough matches "
+                               "the canonical oos_max_drawdown on the Strategy page."))
 
 
 def make_quartile_returns():
@@ -278,7 +302,7 @@ def main():
     make_hero(df)
     make_signal_timeseries(df, summary)
     make_equity_curves(signals)
-    make_drawdown(signals)
+    make_drawdown(signals, summary)
     make_quartile_returns()
     make_regime_quartile_returns()
     make_correlation_heatmap(df)

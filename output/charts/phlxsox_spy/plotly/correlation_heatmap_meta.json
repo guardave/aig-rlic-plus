@@ -7,13 +7,13 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Pearson correlations between lagged SOX-based signals and SPY FORWARD (future) returns. The largest cell is only r = 0.137 \u2014 these predictive correlations are an order of magnitude smaller than the 0.709 same-day co-movement, which is shared market beta and NOT a forecast. Relative-strength rows carry slightly more forward signal than raw-SOX rows.",
+  "caption": "Pearson correlations between lagged SOX-based signals and SPY FORWARD (future) returns. The largest cell is only r = 0.137 \u2014 these predictive correlations are an order of magnitude smaller than the 0.709 same-day co-movement (shown in the banner above the chart), which is shared market beta and NOT a forecast. Relative-strength rows carry slightly more forward signal than raw-SOX rows.",
   "narrative_alignment_note": "Heatmap makes the co-movement-vs-forecast distinction visual: forward corrs are tiny; best cell re-read from CSV.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/phlxsox_spy/core_models_20260619/correlations.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-19T13:09:24.829527+00:00",
+  "generated_at": "2026-07-03T12:03:12.066913+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
 }
