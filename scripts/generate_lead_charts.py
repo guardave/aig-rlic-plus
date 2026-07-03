@@ -292,8 +292,11 @@ def build_sharpe_chart(pair, ind, tgt, bh, w):
     win_lead = w.get("lead_value", w.get("lead_months"))
     win_sharpe = w.get("oos_sharpe")
     win_unit = (w.get("lead_unit") or "months").rstrip("s")  # "day"/"month"
+    # Winner is markable only when it is an ACTUAL grid column. On non-contiguous
+    # sweep grids (e.g. t10y3m leads = [0,1,2,3,6,9,12]) a lead can be within 0..12
+    # yet not be a column — drawing a vline there would land at a phantom position.
     winner_on_axis = (win_lead is not None and win_unit == "month"
-                      and 0 <= int(win_lead) <= 12)
+                      and 0 <= int(win_lead) <= 12 and int(win_lead) in leads)
     winner_note = ""
     if win_lead is not None and win_sharpe is not None:
         if win_unit == "month":
@@ -340,7 +343,20 @@ def build_sharpe_chart(pair, ind, tgt, bh, w):
         same_lead = int(win_lead) == int(max_lead)
         win_text = ("published winner = sweep max"
                     if same_lead else f"published winner L{int(win_lead)}")
-        fig.add_vline(x=int(win_lead), line={"color": "#000", "dash": "dot", "width": 1.2},
+        # Position by CATEGORICAL LABEL (xlab at the winner's grid index), NOT the
+        # raw int. On a categorical x-axis add_vline(x=N) anchors to category INDEX
+        # N, so on a non-contiguous grid the raw lead value lands on the wrong bar
+        # (t10y3m winner L6 is index 4; x=6 would land on L12). Mirrors how the
+        # sweep-max arrow already positions via xlab[imax].
+        # Position by the winner's CATEGORICAL INDEX, not the raw lead value. On a
+        # categorical x-axis Plotly anchors a numeric x to the category INDEX, so
+        # the raw value lands on the wrong bar on a non-contiguous grid (t10y3m
+        # winner L6 is index 4; x=6 would land on L12). For contiguous grids
+        # index == value, so this is a no-op and the JSON is unchanged. Passing an
+        # int (the index) keeps add_vline's annotation helper working — a string
+        # label would make it raise on the numeric x-range average.
+        wxi = leads.index(int(win_lead))
+        fig.add_vline(x=wxi, line={"color": "#000", "dash": "dot", "width": 1.2},
                       annotation_text=win_text,
                       annotation_position="bottom right", annotation_font_size=9,
                       annotation_yshift=4)
