@@ -1,0 +1,57 @@
+# Missing Value Report - nhs_spy (20260703)
+
+Monthly dataset: shape (437, 15), 1990-01-31 to 2026-05-31.
+Daily dataset: shape (8403, 20), 1993-01-29 to 2026-06-17.
+
+## Phase 0 / Cross-Check
+
+PASS: Pre-master maps sheet `HAJKE_Month` column `NHS` to 'New One Family Houses Sold, Thousands of Units, Monthly, Not Seasonally Adjusted, from FRED' (verbatim: `New One Family Houses Sold, Units : Thousands of Units Monthly, Not Seasonally Adjusted, from FRED`). Confirms FRED HSN1FNSA (NSA, thousands). Distinct from HSN1F (SAAR, indicator_id nh_sold_saar) and the YoY% SAAR transform.
+PASS (soft): Data Master NHS (HAJKE_Month) agrees with live FRED HSN1FNSA. Level corr=0.999763; 99.3% of 428 overlapping months within 0.5k; max abs diff 9.0k (benign vintage/revision drift). FRED live is source of truth. Last overlap 2025-08-31: FRED=57k, DataMaster=66k.
+
+## Seasonal Adjustment (NSA series)
+
+HSN1FNSA is NOT seasonally adjusted. The primary signal `nhs_pct_yoy` is a 12-month difference, which cancels the fixed monthly seasonal. A robust STL decomposition (period=12) provides a seasonally-adjusted level `nhs_sa` and its momentum `nhs_sa_pct_mom`. Raw `nhs_nsa` level and raw MoM are intentionally NOT provided as signals — they are seasonal-dominated.
+
+## Real-Time Lag
+
+Daily LVCF uses release dates set to the fourth Tuesday of the month following the reference month, approximating the Census new-home-sales release schedule (~23rd-26th of the following month). No-lookahead floor ~22-28 calendar days after reference month-end.
+
+## Missing Values
+
+| Dataset | Column | NaN count | Note |
+|---|---|---:|---|
+| monthly | `nhs_nsa` | 0 | none |
+| monthly | `nhs_pct_yoy` | 12 | leading transform / forward-return tail |
+| monthly | `nhs_yoy_accel_pct` | 13 | leading transform / forward-return tail |
+| monthly | `nhs_3m_pct_yoy` | 14 | leading transform / forward-return tail |
+| monthly | `nhs_sa` | 0 | none |
+| monthly | `nhs_sa_pct_mom` | 1 | leading transform / forward-return tail |
+| monthly | `nhs_sa_3m_pct` | 3 | leading transform / forward-return tail |
+| monthly | `nhs_yoy_zscore_120m` | 71 | leading transform / forward-return tail |
+| monthly | `nhs_yoy_contraction_flag` | 0 | none |
+| monthly | `spy` | 36 | leading transform / forward-return tail |
+| monthly | `spy_ret` | 37 | leading transform / forward-return tail |
+| monthly | `spy_fwd_1m` | 37 | leading transform / forward-return tail |
+| monthly | `spy_fwd_3m` | 39 | leading transform / forward-return tail |
+| monthly | `spy_fwd_6m` | 42 | leading transform / forward-return tail |
+| monthly | `spy_fwd_12m` | 48 | leading transform / forward-return tail |
+| daily | `spy` | 0 | none |
+| daily | `reference_month_end` | 0 | none |
+| daily | `release_date` | 0 | none |
+| daily | `nhs_nsa` | 0 | none |
+| daily | `nhs_pct_yoy` | 0 | none |
+| daily | `nhs_yoy_accel_pct` | 0 | none |
+| daily | `nhs_3m_pct_yoy` | 0 | none |
+| daily | `nhs_sa` | 0 | none |
+| daily | `nhs_sa_pct_mom` | 0 | none |
+| daily | `nhs_sa_3m_pct` | 0 | none |
+| daily | `nhs_yoy_zscore_120m` | 0 | none |
+| daily | `nhs_yoy_contraction_flag` | 0 | none |
+| daily | `days_since_release` | 0 | none |
+| daily | `spy_ret` | 1 | leading transform / forward-return tail |
+| daily | `spy_fwd_1d` | 1 | leading transform / forward-return tail |
+| daily | `spy_fwd_5d` | 5 | leading transform / forward-return tail |
+| daily | `spy_fwd_21d` | 21 | leading transform / forward-return tail |
+| daily | `spy_fwd_63d` | 63 | leading transform / forward-return tail |
+| daily | `spy_fwd_126d` | 126 | leading transform / forward-return tail |
+| daily | `spy_fwd_252d` | 252 | leading transform / forward-return tail |

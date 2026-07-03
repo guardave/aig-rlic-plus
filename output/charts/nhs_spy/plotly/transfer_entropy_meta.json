@@ -1,0 +1,19 @@
+{
+  "chart_name": "transfer_entropy",
+  "pair_id": "nhs_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Transfer entropy between New Home Sales YoY and SPY returns (tercile bins, 500 permutations). Forward p = 0.47, reverse p = 0.48; neither direction shows strong nonlinear information flow, consistent with the weak linear lead-lag.",
+  "narrative_alignment_note": "Two-bar TE comparison; weak significance both ways.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/nhs_spy/core_models_20260703/transfer_entropy.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-03T03:08:51.166504+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+}

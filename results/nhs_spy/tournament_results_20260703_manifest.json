@@ -1,0 +1,51 @@
+{
+  "file": "tournament_results_20260703.csv",
+  "pair_id": "nhs_spy",
+  "grid": {
+    "signals": [
+      "yoy",
+      "yoy_accel",
+      "yoy_3m",
+      "sa_mom",
+      "sa_3m",
+      "yoy_zscore_120m",
+      "contraction",
+      "hmm_stress",
+      "markov_regime"
+    ],
+    "thresholds": "T1_fixed_p{25,50,75}, T2_roll_p{25,75}, T3_zscore_{\u00b11.0,\u00b11.5}, T4_zero (growth signals)",
+    "strategies": [
+      "P1_long_cash_{pro,counter}",
+      "P2_signal_strength_{pro,counter}",
+      "P3_long_short_{pro,counter}"
+    ],
+    "leads_months": [
+      0,
+      1,
+      2,
+      3,
+      6,
+      9,
+      12
+    ],
+    "lookbacks": [
+      "LB36",
+      "LB60",
+      "LB120",
+      "LB_NA"
+    ]
+  },
+  "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
+  "total_strategy_rows": 7700,
+  "valid_strategy_rows": 5297,
+  "sampling": "exhaustive (no stratified sampling; grid within budget)",
+  "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
+  "execution_lag": "position_t = rule(signal_{t-lead}); L1 real-time floor (Census new-home-sales ~4th-Tue publication lag); L6 centered",
+  "cost_note": "returns are gross of costs; 5bps sensitivity in tournament_validation",
+  "assertions": [
+    "top strategy oos_sharpe > bottom strategy oos_sharpe",
+    "all oos_sharpe finite",
+    "exactly one BENCHMARK row, valid=False"
+  ],
+  "generated_at": "2026-07-03T03:22:26Z"
+}

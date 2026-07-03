@@ -1,0 +1,19 @@
+{
+  "chart_name": "local_projections",
+  "pair_id": "nhs_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Local-projection impulse responses with HAC standard errors at horizons 1/3/6/12 months, both directions. The forward direction (New Home Sales YoY \u2192 SPY) has minimum p = 0.05; the response is weak and imprecisely estimated, matching the weak-forward Granger verdict.",
+  "narrative_alignment_note": "Dual-panel LP; forward weakness supports the search-signal framing.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/nhs_spy/core_models_20260703/local_projections.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-03T03:08:48.296234+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+}

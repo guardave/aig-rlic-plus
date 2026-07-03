@@ -1,0 +1,8 @@
+{
+  "chart_name": "rolling_granger",
+  "pair_id": "nhs_spy",
+  "skipped_by": "VIZ-CP1-G",
+  "reason": "ECON-CP2 artifacts intentionally absent for this pair: regime_story=false in results/nhs_spy/signal_scope.json (Evan handoff). No upstream result file exists to chart.",
+  "generated_at": "2026-07-03T03:09:31.526699+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+}

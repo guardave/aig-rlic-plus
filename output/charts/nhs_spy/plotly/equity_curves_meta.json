@@ -1,0 +1,21 @@
+{
+  "chart_name": "equity_curves",
+  "pair_id": "nhs_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cumulative growth of 1.00 for Evan's saved strategy returns and buy-and-hold. The OOS rule raises Sharpe (1.49 vs 0.89) and cuts drawdown, but the OOS window is short and the bootstrap p-value (0.07) is not significant at 5%. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Strategy series from strategy_returns; metrics from winner_summary; fragility caveat in title.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/nhs_spy/strategy_returns_20260703.csv",
+    "results/nhs_spy/winner_summary.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-03T03:08:59.327512+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+}

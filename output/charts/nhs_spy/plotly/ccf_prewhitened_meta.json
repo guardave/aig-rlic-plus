@@ -1,0 +1,19 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "nhs_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cross-correlation between pre-whitened New Home Sales YoY and SPY returns across lags. 2 of 41 lags clear the 95% band; the forward lead from home-sales growth to equities is weak, consistent with the weak-forward Granger verdict.",
+  "narrative_alignment_note": "CCF mirrors the weak forward lead.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/nhs_spy/core_models_20260703/ccf_prewhitened.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-03T03:08:42.866435+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+}

@@ -1,0 +1,81 @@
+{
+  "pair_id": "nhs_spy",
+  "schema_version": "1.1.0",
+  "indicator": "nhs",
+  "target": "spy",
+  "indicator_nature": "leading",
+  "indicator_type": "housing",
+  "strategy_objective": "max_sharpe",
+  "expected_direction": "procyclical",
+  "data_provenance": {
+    "source": "FRED HSN1FNSA live API; Data Master.xlsx sheet HAJKE_Month column NHS used as overlap cross-check",
+    "series_id": "HSN1FNSA",
+    "accessed_at": "2026-07-03T02:11:51Z"
+  },
+  "known_stress_episodes": [
+    {
+      "label": "Housing bubble peak & GFC collapse",
+      "start": "2005-07-01",
+      "end": "2009-06-30",
+      "note": "New home sales peaked mid-2005 and collapsed ~80% into 2009 \u2014 a classic leading signal ahead of the GFC."
+    },
+    {
+      "label": "COVID spike and reversal",
+      "start": "2020-03-01",
+      "end": "2022-06-30",
+      "note": "Sales surged on low rates then reversed as rates rose."
+    },
+    {
+      "label": "2022-23 rate shock",
+      "start": "2022-07-01",
+      "end": "2023-12-31",
+      "note": "Mortgage-rate shock crushed new home sales; strong recent regime captured in the OOS window."
+    }
+  ],
+  "related_pair_ids": [
+    "permit_spy",
+    "nh_sold_saar_xly",
+    "indpro_spy"
+  ],
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "indicator_nature",
+      "indicator_type",
+      "data_provenance",
+      "known_stress_episodes",
+      "related_pair_ids"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats",
+      "narrative_summary"
+    ]
+  },
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-07-03T03:24:48Z",
+  "observed_direction": "procyclical",
+  "direction_consistent": true,
+  "key_finding": "Lead-lag: New Home Sales YoY Granger-causes SPY at lags [11]; reverse SPY->NHS significant at lags [1, 2]. The tournament winner (NHS hmm_stress, P1_long_cash pro, lead 0m) is procyclical: OOS Sharpe 1.49 vs buy-and-hold 0.89, max drawdown -8.3% vs -23.9%. Bootstrap p=0.071; durability 'conditionally_durable'; rolling-correlation 'sign_unstable'.",
+  "confidence": "low",
+  "mechanism": "New Home Sales is an early-cycle housing-demand indicator: buyers commit before construction, so sales lead starts, permits, and the employment/consumption they drive. Stronger home-sales growth coincides with a healthier cycle and better equities (procyclical). The tradable edge is a 2-state HMM regime probability on deseasonalised YoY growth, timing SPY exposure to the favourable housing regime.",
+  "caveats": [
+    "Forward Granger causality is weak (NHS->SPY significant only at lag 11; reverse SPY->NHS at lags 1-2).",
+    "Winner is the max of 5,297 valid combinations; bootstrap p=0.071 (NOT significant at 5%).",
+    "In-sample Sharpe 0.81 vs OOS 1.49; found_in_search, no holdout final exam yet.",
+    "OOS window (2018+) is short and episode-concentrated; durability only conditionally_durable.",
+    "Indicator is NSA; all signals are YoY/STL-deseasonalised, raw level excluded."
+  ],
+  "narrative_summary": "Procyclical, leading housing-demand signal. HMM regime Long/Cash overlay: OOS Sharpe 1.49 vs 0.89 B&H, max DD -8.3% vs -23.9%. Low confidence: weak forward causality, non-significant bootstrap, short episode-concentrated OOS."
+}

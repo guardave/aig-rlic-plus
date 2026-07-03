@@ -1,0 +1,35 @@
+# Simulated trade record based on backtest signals. No real trades were executed. Starting capital: $10000. Commission: 5 bps (tournament cost parameter). Pair: nhs_spy. Strategy: P1_long_cash_pro on hmm_stress (hmm_2state_prob_stress), threshold T2_roll_p25, lead L0, LB60.
+trade_date,side,instrument,quantity_pct,price,notional_usd,commission_bps,commission_usd,cum_pnl_pct,reason
+1996-01-31,BUY,SPY,100.0,37.6236,10000.0,5,5.0,3.5578,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 0.992 — position 0% → 100%
+1999-05-31,SELL,SPY,0.0,80.9141,10000.0,5,5.0,127.9254,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 100% → 0%
+1999-07-31,BUY,SPY,100.0,82.7459,10000.0,5,5.0,120.8547,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+1999-09-30,SELL,SPY,0.0,80.4786,10000.0,5,5.0,119.711,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 0.999 vs threshold 1.000 — position 100% → 0%
+2000-02-29,BUY,SPY,100.0,86.1199,10000.0,5,5.0,116.3655,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2000-03-31,SELL,SPY,0.0,94.4661,10000.0,5,5.0,116.3655,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 100% → 0%
+2000-09-30,BUY,SPY,100.0,90.6654,10000.0,5,5.0,104.4952,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2001-07-31,SELL,SPY,0.0,77.2649,10000.0,5,5.0,76.0657,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 100% → 0%
+2001-11-30,BUY,SPY,100.0,72.8894,10000.0,5,5.0,89.7949,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2001-12-31,SELL,SPY,0.0,73.3004,10000.0,5,5.0,89.7949,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 100% → 0%
+2002-04-30,BUY,SPY,100.0,69.3687,10000.0,5,5.0,78.7572,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2005-10-31,SELL,SPY,0.0,82.0545,10000.0,5,5.0,116.5697,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 100% → 0%
+2009-05-31,BUY,SPY,100.0,67.976,10000.0,5,5.0,129.229,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 0.000 vs threshold 0.000 — position 0% → 100%
+2010-08-31,SELL,SPY,0.0,79.2922,10000.0,5,5.0,179.9835,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 0.000 vs threshold 0.000 — position 100% → 0%
+2010-09-30,BUY,SPY,100.0,86.3933,10000.0,5,5.0,205.0574,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 0.000 vs threshold 0.000 — position 0% → 100%
+2015-09-30,SELL,SPY,0.0,160.5994,10000.0,5,5.0,481.9304,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 100% → 0%
+2015-10-31,BUY,SPY,100.0,174.26,10000.0,5,5.0,531.4291,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2016-12-31,SELL,SPY,0.0,192.4955,10000.0,5,5.0,583.6469,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 100% → 0%
+2017-01-31,BUY,SPY,100.0,195.9402,10000.0,5,5.0,595.8806,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2017-04-30,SELL,SPY,0.0,205.9174,10000.0,5,5.0,624.127,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 100% → 0%
+2017-05-31,BUY,SPY,100.0,208.8235,10000.0,5,5.0,634.3467,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2017-07-31,SELL,SPY,0.0,214.4743,10000.0,5,5.0,639.028,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 0.998 vs threshold 1.000 — position 100% → 0%
+2017-09-30,BUY,SPY,100.0,219.4342,10000.0,5,5.0,653.9191,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2018-06-30,SELL,SPY,0.0,240.1854,10000.0,5,5.0,720.4962,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 100% → 0%
+2018-07-31,BUY,SPY,100.0,249.0835,10000.0,5,5.0,750.893,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2018-08-31,SELL,SPY,0.0,257.0341,10000.0,5,5.0,750.893,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 0.998 vs threshold 1.000 — position 100% → 0%
+2019-03-31,BUY,SPY,100.0,253.814,10000.0,5,5.0,766.2945,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2019-05-31,SELL,SPY,0.0,247.3357,10000.0,5,5.0,801.6846,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 0.999 vs threshold 1.000 — position 100% → 0%
+2019-06-30,BUY,SPY,100.0,264.5468,10000.0,5,5.0,864.4293,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2020-02-29,SELL,SPY,0.0,270.0468,10000.0,5,5.0,969.1176,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 100% → 0%
+2020-05-31,BUY,SPY,100.0,279.0247,10000.0,5,5.0,1020.0559,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 1.000 vs threshold 1.000 — position 0% → 100%
+2021-05-31,SELL,SPY,0.0,391.3021,10000.0,5,5.0,1460.5111,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 0.927 vs threshold 1.000 — position 100% → 0%
+2023-02-28,BUY,SPY,100.0,378.8975,10000.0,5,5.0,1421.2759,P1_long_cash_pro: hmm_stress (hmm_2state_prob_stress) = 0.021 vs threshold 0.012 — position 0% → 100%

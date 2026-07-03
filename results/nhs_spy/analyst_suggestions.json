@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "pair_id": "nhs_spy",
+  "rule": "ECON-AS",
+  "suggestions": [
+    {
+      "signal_name": "New Home Sales / Building Permits ratio",
+      "proposed_by": "evan",
+      "source": "FRED HSN1FNSA / PERMIT",
+      "observation": "Sales-to-permits ratio captures absorption vs pipeline; a falling ratio (sales lagging permits) can flag demand softening before either level turns.",
+      "rationale": "Combines two housing leading indicators; the ratio may lead SPY more cleanly than either series alone by netting out common rate-driven trends.",
+      "possible_use_case": "new pair / variant",
+      "caveats": "Both series NSA; ratio of two seasonal series needs joint deseasonalisation.",
+      "date_filed": "2026-07-03"
+    },
+    {
+      "signal_name": "Mortgage-rate-conditioned NHS signal",
+      "proposed_by": "evan",
+      "source": "FRED HSN1FNSA / MORTGAGE30US",
+      "observation": "NHS response to the cycle is rate-state dependent (2022-23 shock).",
+      "rationale": "Gating the NHS signal by the mortgage-rate regime may sharpen it.",
+      "possible_use_case": "signal enhancement",
+      "caveats": "Adds a second series; risk of overfitting the small OOS window.",
+      "date_filed": "2026-07-03"
+    }
+  ],
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-07-03T03:22:26Z"
+}

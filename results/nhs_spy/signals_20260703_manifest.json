@@ -1,0 +1,36 @@
+{
+  "file": "signals_20260703.parquet",
+  "pair_id": "nhs_spy",
+  "produced_by": "scripts/pair_pipeline_nhs_spy.py",
+  "generated_at": "2026-07-03T03:22:26Z",
+  "columns": {
+    "nhs_pct_yoy": "tournament-eligible signal derived solely from HSN1FNSA (nhs_pct_yoy)",
+    "nhs_yoy_accel_pct": "tournament-eligible signal derived solely from HSN1FNSA (nhs_yoy_accel_pct)",
+    "nhs_3m_pct_yoy": "tournament-eligible signal derived solely from HSN1FNSA (nhs_3m_pct_yoy)",
+    "nhs_sa_pct_mom": "tournament-eligible signal derived solely from HSN1FNSA (nhs_sa_pct_mom)",
+    "nhs_sa_3m_pct": "tournament-eligible signal derived solely from HSN1FNSA (nhs_sa_3m_pct)",
+    "nhs_yoy_zscore_120m": "tournament-eligible signal derived solely from HSN1FNSA (nhs_yoy_zscore_120m)",
+    "nhs_yoy_contraction_flag": "tournament-eligible signal derived solely from HSN1FNSA (nhs_yoy_contraction_flag)",
+    "hmm_2state_prob_stress": "tournament-eligible signal derived solely from HSN1FNSA (hmm_2state_prob_stress)",
+    "markov_regime_2state": "tournament-eligible signal derived solely from HSN1FNSA (markov_regime_2state)"
+  },
+  "assertions": [
+    {
+      "description": "GFC housing collapse present",
+      "filter": "2008-01..2009-12",
+      "column": "nhs_pct_yoy",
+      "check": "min < -20"
+    },
+    {
+      "description": "2022-23 rate-shock contraction",
+      "filter": "2022-01..2023-12",
+      "column": "nhs_pct_yoy",
+      "check": "min < 0"
+    },
+    {
+      "description": "HMM prob bounded",
+      "column": "hmm_2state_prob_stress",
+      "check": "values in [0,1]"
+    }
+  ]
+}

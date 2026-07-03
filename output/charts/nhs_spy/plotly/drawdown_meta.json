@@ -1,0 +1,21 @@
+{
+  "chart_name": "drawdown",
+  "pair_id": "nhs_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Drawdown path for the NHS regime Long/Cash rule and buy-and-hold SPY. In OOS the strategy's max drawdown is -8.3% versus -23.9% for buy-and-hold \u2014 the rule sits in cash through the worst housing-regime drawdowns.",
+  "narrative_alignment_note": "Drawdown computed directly from Evan's saved monthly return series.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/nhs_spy/strategy_returns_20260703.csv",
+    "results/nhs_spy/winner_summary.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-03T03:09:02.233754+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+}

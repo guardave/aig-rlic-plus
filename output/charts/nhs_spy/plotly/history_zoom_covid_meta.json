@@ -1,0 +1,30 @@
+{
+  "chart_name": "history_zoom_covid",
+  "pair_id": "nhs_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V1",
+    "VIZ-V2",
+    "VIZ-V12",
+    "VIZ-V13",
+    "VIZ-TS1",
+    "VIZ-DP1",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "New Home Sales YoY (top, with 0% line) and SPY price (bottom) through the COVID-19 Shock window (2019-10 to 2021-06), with registry event markers. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Dual-panel episode zoom; events from history_zoom_events_registry v1.0.0.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/nhs_spy_monthly_latest.parquet",
+    "docs/schemas/history_zoom_events_registry.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-03T03:09:26.075330+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)",
+  "annotation_strategy_id": "descending_stair",
+  "events_registry_version": "1.0.0",
+  "episode_slug": "covid"
+}

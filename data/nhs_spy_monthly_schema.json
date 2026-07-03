@@ -1,0 +1,150 @@
+{
+  "pair_id": "nhs_spy",
+  "parquet_path": "data/nhs_spy_monthly_19900131_20260531.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-03T02:11:51Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Monthly date index; spans 1990-01-31 through 2026-05-31."
+    },
+    "nhs_nsa": {
+      "dtype": "float64",
+      "unit": "count",
+      "display_name": "New Home Sales (000s, NSA)",
+      "direction": "neutral",
+      "description": "FRED HSN1FNSA level, thousands of units, NOT seasonally adjusted. Provenance only; strong monthly seasonal makes the raw level unusable as a signal.",
+      "source_reference": "FRED:HSN1FNSA",
+      "refresh_ttl_days": 30
+    },
+    "nhs_pct_yoy": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "New Home Sales YoY (%)",
+      "direction": "higher_is_better",
+      "description": "Year-over-year percent change of FRED HSN1FNSA; PRIMARY deseasonalised signal (12-month difference cancels the fixed seasonal).",
+      "source_reference": "derived:FRED:HSN1FNSA pct_change(12)*100",
+      "refresh_ttl_days": 30
+    },
+    "nhs_yoy_accel_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "New Home Sales YoY Acceleration (pp)",
+      "direction": "higher_is_better",
+      "description": "One-month change in NHS YoY growth, percentage points.",
+      "source_reference": "derived:diff(nhs_pct_yoy)",
+      "refresh_ttl_days": 30
+    },
+    "nhs_3m_pct_yoy": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "New Home Sales 3M-Avg YoY (%)",
+      "direction": "higher_is_better",
+      "description": "YoY percent change of the 3-month moving average of NHS; smooths NSA noise.",
+      "source_reference": "derived:FRED:HSN1FNSA rolling(3).mean() yoy",
+      "refresh_ttl_days": 30
+    },
+    "nhs_sa": {
+      "dtype": "float64",
+      "unit": "count",
+      "display_name": "New Home Sales (000s, SA/STL)",
+      "direction": "neutral",
+      "description": "STL seasonally-adjusted NHS level (trend+resid, period=12, robust). Provenance/level; use its MoM for momentum.",
+      "source_reference": "derived:STL(FRED:HSN1FNSA)",
+      "refresh_ttl_days": 30
+    },
+    "nhs_sa_pct_mom": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "New Home Sales SA MoM (%)",
+      "direction": "higher_is_better",
+      "description": "Month-over-month percent change of the STL seasonally-adjusted NHS level.",
+      "source_reference": "derived:STL then pct_change(1)*100",
+      "refresh_ttl_days": 30
+    },
+    "nhs_sa_3m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "New Home Sales SA 3M Change (%)",
+      "direction": "higher_is_better",
+      "description": "Three-month percent change of the STL seasonally-adjusted NHS level.",
+      "source_reference": "derived:STL then pct_change(3)*100",
+      "refresh_ttl_days": 30
+    },
+    "nhs_yoy_zscore_120m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "New Home Sales YoY 120M Z-Score",
+      "direction": "higher_is_better",
+      "description": "Rolling 120-month z-score of NHS YoY growth, minimum 60 observations.",
+      "source_reference": "derived:rolling_zscore(nhs_pct_yoy)",
+      "refresh_ttl_days": 30
+    },
+    "nhs_yoy_contraction_flag": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "New Home Sales YoY Contraction Flag",
+      "direction": "lower_is_better",
+      "description": "1.0 when NHS YoY growth is below 0%, marking a housing-demand contraction.",
+      "source_reference": "derived:nhs_pct_yoy<0",
+      "refresh_ttl_days": 30
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "neutral",
+      "description": "SPY adjusted close from Yahoo Finance.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Daily Return (decimal)",
+      "direction": "neutral",
+      "description": "Simple SPY return over the monthly panel frequency.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_1m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 1M Return",
+      "direction": "neutral",
+      "description": "Forward 1-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_3m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 3M Return",
+      "direction": "neutral",
+      "description": "Forward 3-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_6m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 6M Return",
+      "direction": "neutral",
+      "description": "Forward 6-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_12m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 12M Return",
+      "direction": "neutral",
+      "description": "Forward 12-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    }
+  }
+}

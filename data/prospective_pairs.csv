@@ -112,6 +112,6 @@ abi,Architecture Billings Index,real_estate,XLE,abi_xle,not_started,RE - Arch Bi
 abi,Architecture Billings Index,real_estate,XLK,abi_xlk,not_started,RE - Arch Billing Indx,,RE - Arch Billing Indx,124
 abi,Architecture Billings Index,real_estate,XLF,abi_xlf,not_started,RE - Arch Billing Indx,,RE - Arch Billing Indx,124
 abi,Architecture Billings Index,real_estate,XLV,abi_xlv,not_started,RE - Arch Billing Indx,,RE - Arch Billing Indx,124
-nhs,New Home Sales (NHS),real_estate,SPY,nhs_spy,not_started,NHS,,NHS,126
+nhs,New Home Sales (NHS),real_estate,SPY,nhs_spy,in_progress,NHS,,NHS,126
 nhs,New Home Sales (NHS),real_estate,XLY,nhs_xly,not_started,NHS,,NHS,126
 nhs,New Home Sales (NHS),real_estate,XLF,nhs_xlf,not_started,NHS,,NHS,126

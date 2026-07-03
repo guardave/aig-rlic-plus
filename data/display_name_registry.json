@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-06-19T10:26:03Z",
+  "generated_at": "2026-07-03T02:11:51Z",
   "columns": [
     {
       "column_name": "date",
@@ -581,6 +581,168 @@
     {
       "column_name": "m2sl_contraction_flag",
       "display_name": "M2 YoY Contraction Flag",
+      "unit": "none",
+      "axis_label": "Contraction (0/1)"
+    },
+    {
+      "column_name": "sox",
+      "display_name": "PHLX Semiconductor Index",
+      "unit": "index",
+      "axis_label": "PHLX Semiconductor Index"
+    },
+    {
+      "column_name": "sox_ret",
+      "display_name": "SOX Daily Return",
+      "unit": "decimal_return",
+      "axis_label": "SOX Daily Return"
+    },
+    {
+      "column_name": "sox_ret_1m",
+      "display_name": "SOX Monthly Return",
+      "unit": "decimal_return",
+      "axis_label": "SOX Monthly Return"
+    },
+    {
+      "column_name": "spy_ret_1m",
+      "display_name": "SPY Monthly Return",
+      "unit": "decimal_return",
+      "axis_label": "SPY Monthly Return"
+    },
+    {
+      "column_name": "sox_spy_ratio",
+      "display_name": "SOX/SPY Relative Strength",
+      "unit": "ratio",
+      "axis_label": "SOX/SPY Relative Strength"
+    },
+    {
+      "column_name": "sox_spy_logratio",
+      "display_name": "SOX/SPY Log-Ratio",
+      "unit": "ratio",
+      "axis_label": "SOX/SPY Log-Ratio"
+    },
+    {
+      "column_name": "sox_realized_vol_21d_ann_pct",
+      "display_name": "SOX Realized Vol (21d, ann. %)",
+      "unit": "vol_ann_pct",
+      "axis_label": "SOX Realized Vol (21d, ann. %)"
+    },
+    {
+      "column_name": "sox_mom_1m_pct",
+      "display_name": "SOX 1m Momentum (%)",
+      "unit": "percent",
+      "axis_label": "SOX 1m Momentum (%)"
+    },
+    {
+      "column_name": "sox_mom_3m_pct",
+      "display_name": "SOX 3m Momentum (%)",
+      "unit": "percent",
+      "axis_label": "SOX 3m Momentum (%)"
+    },
+    {
+      "column_name": "sox_mom_6m_pct",
+      "display_name": "SOX 6m Momentum (%)",
+      "unit": "percent",
+      "axis_label": "SOX 6m Momentum (%)"
+    },
+    {
+      "column_name": "sox_mom_12m_pct",
+      "display_name": "SOX 12m Momentum (%)",
+      "unit": "percent",
+      "axis_label": "SOX 12m Momentum (%)"
+    },
+    {
+      "column_name": "sox_spy_ratio_mom_1m_pct",
+      "display_name": "SOX/SPY 1m Rel-Strength Mom (%)",
+      "unit": "percent",
+      "axis_label": "SOX/SPY 1m Rel-Strength Mom (%)"
+    },
+    {
+      "column_name": "sox_spy_ratio_mom_3m_pct",
+      "display_name": "SOX/SPY 3m Rel-Strength Mom (%)",
+      "unit": "percent",
+      "axis_label": "SOX/SPY 3m Rel-Strength Mom (%)"
+    },
+    {
+      "column_name": "sox_spy_ratio_mom_6m_pct",
+      "display_name": "SOX/SPY 6m Rel-Strength Mom (%)",
+      "unit": "percent",
+      "axis_label": "SOX/SPY 6m Rel-Strength Mom (%)"
+    },
+    {
+      "column_name": "sox_spy_ratio_mom_12m_pct",
+      "display_name": "SOX/SPY 12m Rel-Strength Mom (%)",
+      "unit": "percent",
+      "axis_label": "SOX/SPY 12m Rel-Strength Mom (%)"
+    },
+    {
+      "column_name": "sox_spy_ratio_zscore_126d",
+      "display_name": "SOX/SPY Z-Score (126d)",
+      "unit": "ratio",
+      "axis_label": "SOX/SPY Z-Score (126d)"
+    },
+    {
+      "column_name": "sox_spy_ratio_zscore_252d",
+      "display_name": "SOX/SPY Z-Score (252d)",
+      "unit": "ratio",
+      "axis_label": "SOX/SPY Z-Score (252d)"
+    },
+    {
+      "column_name": "sox_spy_ratio_zscore_12m",
+      "display_name": "SOX/SPY Z-Score (12m)",
+      "unit": "ratio",
+      "axis_label": "SOX/SPY Z-Score (12m)"
+    },
+    {
+      "column_name": "nhs_nsa",
+      "display_name": "New Home Sales (000s, NSA)",
+      "unit": "count",
+      "axis_label": "New Home Sales (000s)"
+    },
+    {
+      "column_name": "nhs_pct_yoy",
+      "display_name": "New Home Sales YoY (%)",
+      "unit": "pct",
+      "axis_label": "NHS YoY (%)"
+    },
+    {
+      "column_name": "nhs_yoy_accel_pct",
+      "display_name": "New Home Sales YoY Acceleration (pp)",
+      "unit": "pct",
+      "axis_label": "YoY Acceleration (pp)"
+    },
+    {
+      "column_name": "nhs_3m_pct_yoy",
+      "display_name": "New Home Sales 3M-Avg YoY (%)",
+      "unit": "pct",
+      "axis_label": "3M-Avg YoY (%)"
+    },
+    {
+      "column_name": "nhs_sa",
+      "display_name": "New Home Sales (000s, SA/STL)",
+      "unit": "count",
+      "axis_label": "New Home Sales SA (000s)"
+    },
+    {
+      "column_name": "nhs_sa_pct_mom",
+      "display_name": "New Home Sales SA MoM (%)",
+      "unit": "pct",
+      "axis_label": "SA MoM (%)"
+    },
+    {
+      "column_name": "nhs_sa_3m_pct",
+      "display_name": "New Home Sales SA 3M Change (%)",
+      "unit": "pct",
+      "axis_label": "SA 3M Change (%)"
+    },
+    {
+      "column_name": "nhs_yoy_zscore_120m",
+      "display_name": "New Home Sales YoY 120M Z-Score",
+      "unit": "none",
+      "axis_label": "Z-Score"
+    },
+    {
+      "column_name": "nhs_yoy_contraction_flag",
+      "display_name": "New Home Sales YoY Contraction Flag",
       "unit": "none",
       "axis_label": "Contraction (0/1)"
     }

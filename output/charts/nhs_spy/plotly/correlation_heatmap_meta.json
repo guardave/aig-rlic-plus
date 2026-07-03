@@ -1,0 +1,19 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "nhs_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Pearson correlations between New Home Sales signals and SPY forward returns at 1/3/6/12-month horizons. The strongest cell is r = 0.345 (yoy_zscore_120m vs spy_fwd_12m). Pairwise correlations are modest and do not by themselves validate the trading rule \u2014 the edge is a regime effect, not a linear one.",
+  "narrative_alignment_note": "Modest linear evidence; best cell re-read from correlations.csv.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/nhs_spy/core_models_20260703/correlations.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-03T03:08:39.996637+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+}

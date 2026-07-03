@@ -114,3 +114,12 @@ sox_spy_ratio_mom_12m_pct,SOX/SPY 12m Rel-Strength Mom (%),percent,SOX/SPY 12m R
 sox_spy_ratio_zscore_126d,SOX/SPY Z-Score (126d),ratio,SOX/SPY Z-Score (126d)
 sox_spy_ratio_zscore_252d,SOX/SPY Z-Score (252d),ratio,SOX/SPY Z-Score (252d)
 sox_spy_ratio_zscore_12m,SOX/SPY Z-Score (12m),ratio,SOX/SPY Z-Score (12m)
+nhs_nsa,"New Home Sales (000s, NSA)",count,New Home Sales (000s)
+nhs_pct_yoy,New Home Sales YoY (%),pct,NHS YoY (%)
+nhs_yoy_accel_pct,New Home Sales YoY Acceleration (pp),pct,YoY Acceleration (pp)
+nhs_3m_pct_yoy,New Home Sales 3M-Avg YoY (%),pct,3M-Avg YoY (%)
+nhs_sa,"New Home Sales (000s, SA/STL)",count,New Home Sales SA (000s)
+nhs_sa_pct_mom,New Home Sales SA MoM (%),pct,SA MoM (%)
+nhs_sa_3m_pct,New Home Sales SA 3M Change (%),pct,SA 3M Change (%)
+nhs_yoy_zscore_120m,New Home Sales YoY 120M Z-Score,none,Z-Score
+nhs_yoy_contraction_flag,New Home Sales YoY Contraction Flag,none,Contraction (0/1)

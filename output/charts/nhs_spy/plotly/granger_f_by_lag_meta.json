@@ -1,0 +1,30 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "nhs_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-V3",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Toda-Yamamoto Granger F-statistics at lags 1\u201312, both directions. New Home Sales YoY \u2192 SPY (vermillion, forward) clears the 5% line only at lag(s) [11]; SPY \u2192 New Home Sales YoY (pale blue, reverse) at [1, 2]. Forward causality is weak and long-horizon \u2014 treat the winning rule as a search-found regime signal, not a validated forward forecaster.",
+  "narrative_alignment_note": "Both directions shown; forward is weak (single long lag), reverse present at short lags \u2014 the honest lead-lag picture.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/nhs_spy/core_models_20260703/granger_causality.csv",
+    "results/nhs_spy/granger_by_lag.csv"
+  ],
+  "reconciliation": {
+    "forward_significant_lags": [
+      11
+    ],
+    "reverse_significant_lags": [
+      1,
+      2
+    ],
+    "verdict": "weak_forward"
+  },
+  "generated_at": "2026-07-03T03:08:45.494664+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+}

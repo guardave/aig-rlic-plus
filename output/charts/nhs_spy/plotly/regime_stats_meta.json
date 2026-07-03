@@ -1,0 +1,20 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "nhs_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-QR1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "SPY performance by New Home Sales YoY quartile (concurrent, descriptive): Sharpe (left) and annualized return (right). Sharpe RISES monotonically from Q1 0.20 / 3.6% to Q4 1.50 / 17.9%, and Q1's max drawdown is -51% vs Q4's -10%. Stronger housing demand coincides with better, calmer equity returns \u2014 the procyclical prior holds.",
+  "narrative_alignment_note": "VIZ-QR1 dual-panel from regime_quartile_returns.csv; the monotonic Q1->Q4 rise is the procyclical confirmation.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/nhs_spy/regime_quartile_returns.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-03T03:08:37.243535+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+}

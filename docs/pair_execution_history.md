@@ -498,3 +498,36 @@ The initial close lumped four very different categories under one "deferred" buc
 **indpro_spy cascade artifacts (NEW, fresh under ECON-T5):** `winner_summary.json` (with `selection`), `strategy_returns_20260620.csv` (+meta; ECON-SR1 reconciled exactly — Sharpe/MDD/ann_return all 0.0000 diff), `winner_trade_log.csv` (96 OOS monthly rows; prior log preserved → `winner_trade_log_superseded_20260620.csv`), `tournament_results_20260620.csv` (extended L0..12 grid, promoted via `_tournament_io.write_tournament`; coarse `20260314` untouched). ECON-H5 canonical: oos_max_drawdown −0.0274 from the OOS equity curve; oos_ann_return 0.1032 from true OOS mean. threshold_value=null (T2 is a rolling time-varying threshold Series).
 
 **Note on adoption scope:** Phase 1 had flagged spy's L4 as outside ECON-LT1's L*∈{7..12} gate; Phase B adopts it per the explicit stakeholder/Lead winner-upgrade decision (it beats the published L6 on Sharpe, Calmar, and drawdown), recorded with full ECON-T5 provenance. Did NOT touch any other pair; not committed (Lead reviews). umcsent_xlv unchanged (Phase 1 NO RE-RUN stands).
+
+---
+
+### 2026-07-03 — Pair nhs_spy (New Home Sales NSA → SPY) — Work Mode Selection
+
+**Per LEAD-WM1.**
+
+- **Pair:** `nhs_spy` — indicator_id `nhs` = FRED `HSN1FNSA` (New One-Family Houses Sold, Thousands, **Not Seasonally Adjusted**) × SPY. Already registered `not_started` in `data/prospective_pairs.csv` (matrix row 126 `NHS`, SPY = Done-Y). Analysis Brief: `docs/analysis_brief_nhs_spy_20260703.md` (Approved 2026-07-03).
+- **LEAD-DV1 finding at SOD:** three distinct New Home Sales series exist in `data/Data Master.xlsx` Pre-master row 2 — `HSN1FNSA` (Thousands, NSA; `nhs`, COL 28), `HSN1F` (Thousands, SAAR; `nh_sold_saar`, COL 94, catalogued I10a→SPY), and a YoY% SAAR transform (COL 18). User initially said "NHS × SPY" (ambiguous), first selected the SAAR/HSN1F series (catalogued combination #6), then revised to **follow the `nhs` id → HSN1FNSA (NSA)**. This pair therefore uses the NSA series and is a NEW, non-catalogued SPY combination (the `nhs` id is catalogued to XLY, not SPY). The distinct series stay distinct per LEAD-DV1.
+- **Lead recommendation: Mode 2** (single maker + 4 checkers). Reasoning: (a) low novelty — `real_estate` category with an established playbook (`permit_spy` completed, Sharpe 1.45; INDPRO monthly template); (b) low-to-moderate SOP-rule risk — the one genuinely new wrinkle is NSA→YoY deseasonalisation, a data/econ specification detail rather than a new SOP class; (c) not flagged as a benchmark/external-stakeholder deliverable; (d) throughput favoured given the established playbook. Cross-family modes (3/4/5) add tmux/setup overhead not warranted here.
+- **User decision: Mode 2** ("ok", 2026-07-03).
+
+**Pipeline plan (Mode 2, Lead wearing role hats sequentially):** Dana (HSN1FNSA fetch + NSA→YoY deseasonalisation + validation + interpretation_metadata) → Ray (narrative/episodes) → Evan (econometrics + tournament, signals on deseasonalised series, L0..12 per ECON-LL1, reverse-causality check) → Vera (charts) → Ace (portal assembly). Exit: 4 parallel dimension checkers on the rendered DOM (LEAD-DOM1) + GATE-CMP1 exit 0, iterate until clean. Merge to main requires explicit user authorisation (LEAD-MA1).
+
+### 2026-07-03 — Pair nhs_spy — Mode 2 COMPLETE (pending DPS-PRE1 waiver + merge auth)
+
+**Mode:** 2 (single maker, multiple checkers). Lead wore all role hats sequentially.
+
+**Winner:** `hmm_stress / T2_roll_p25 / P1_long_cash (pro) / L0 / LB60` — a New-Home-Sales housing-regime Long/Cash overlay. **OOS Sharpe 1.49 vs B&H 0.89; max DD −8.3% vs −23.9%; ann return 15.9% vs 14.8%.** Direction PROCYCLICAL (confirmed by cleanly monotonic quartiles: Q1 weak-growth Sharpe 0.20 → Q4 strong-growth 1.50). 7,700 combos, 5,297 valid.
+
+**Honest framing (found_in_search, low confidence):** forward Granger weak (NHS→SPY significant only at lag 11; reverse SPY→NHS at lags 1-2); bootstrap p=0.071 (NOT significant at 5%); IS Sharpe 0.81 vs OOS 1.49; durability conditionally_durable (COVID the only evaluable episode). Framed throughout as a search-found timing overlay, not a validated forecaster.
+
+**Defining feature — NSA handling:** indicator is FRED HSN1FNSA (New Home Sales, NOT seasonally adjusted). Every signal is deseasonalised — YoY (primary; 12-month difference cancels the fixed seasonal), STL-adjusted level MoM, z-score on YoY. Raw NSA level and STL level are non-stationary (Dana's ADF/KPSS confirm) and excluded from the signal set. Deseasonalisation verified: raw month-of-year swing 18.7k → STL 1.9k.
+
+**Pipeline (Lead-as-maker):** Dana (`pair_data_nhs_spy.py`; FRED cross-check level corr 0.9998; all 5 schemas valid) → Evan (`pair_pipeline_nhs_spy.py`; 9 stages; winner_summary schema PASS, ECON-SR1 reconcile exact, ECON-T5 selection provenance) → Ray (`portal_narrative_nhs_spy_20260703.md` + interpretation_metadata Ray fields) → Vera (`generate_charts_nhs_spy.py`; 21 charts inc. walk_forward, all VIZ-IC1/NBER1/DP1 gates pass, perceptual PNGs) → Ace (`nhs_spy_config.py` + 4 page wrappers `23_nhs_spy_*` + PAGE_ROUTING entry; smoke_loader 13/13).
+
+**Checker phase (Mode-2 exit):** GATE-DPS1 completeness **137 PASS / 1 FAIL** (sole FAIL = DPS-PRE1 final-exam prerequisite, expected for found_in_search — busloans_spy precedent). LEAD-DOM1 rendered-DOM verification on a local Streamlit instance: **ALL 5 PAGES PASS** (landing, story 6 charts, evidence 7, strategy 12, methodology) — zero error banners, zero placeholders, chart counts meet minimums. Iteration count: 1 (one DOM-verify finding — raw column `hmm_2state_prob_stress` in the strategy signal_display_name — fixed by mapping to "New Home Sales housing-regime probability"; the code-formatted "Signal column:" technical line is DATA-D6b-exempt, same as shipped hy_ig_spy).
+
+**Environment fixes (genuine gaps, applied):** rebuilt stale `.venv` (was built under a different home path); added `pyarrow` + `hmmlearn` to `requirements.txt` (used by pipelines but undeclared); added a cached-SPY-close fallback in the data stage for Yahoo rate-limits.
+
+**Pending before merge:** (1) DPS-PRE1 waiver (Lead) — no holdout run BY DESIGN; found_in_search + portal-wide disclosure is the compensating control (mirror busloans_spy DPS-PRE1 waiver). (2) **LEAD-MA1: merge to main requires explicit user authorisation** — not yet requested. (3) Not committed (user manages git).
+
+**Recommendation vs outcome:** recommended Mode 2 for a low-novelty real_estate pair with an established playbook (permit_spy); outcome validates — single-head execution preserved the NSA-handling thread from Dana → Evan → Ray → Vera → Ace without handoff drift, and the one checker finding was a mechanical display-name fix.

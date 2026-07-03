@@ -1,0 +1,21 @@
+{
+  "chart_name": "hero",
+  "pair_id": "nhs_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "New Home Sales (year-over-year growth) (vermillion, left axis; year-over-year change, which strips out the regular spring-vs-winter selling swing since the raw Census series is not seasonally adjusted) against the SPY price (blue, right axis), 1993\u20132026. The 2008-09 collapse (sales led the GFC) and the 2022-23 rate-shock contraction are the vivid episodes. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Hero shows the deseasonalised YoY signal (never the raw NSA level) with the 0% line and the housing episodes.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/nhs_spy_monthly_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-03T03:08:34.247146+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+}

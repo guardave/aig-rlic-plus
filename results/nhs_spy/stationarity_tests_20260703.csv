@@ -1,0 +1,17 @@
+variable,test,statistic,p_value,lags,n_obs,conclusion
+nhs_nsa,ADF,-1.6742,0.4444,12,437,Non-stationary
+nhs_nsa,KPSS,0.5177,0.036,12,437,Reject stationarity at 5%
+nhs_pct_yoy,ADF,-3.3912,0.0113,12,425,Stationary at 5%
+nhs_pct_yoy,KPSS,0.176,0.3194,11,425,Fail to reject stationarity
+nhs_yoy_accel_pct,ADF,-8.9113,0.0,12,424,Stationary at 5%
+nhs_yoy_accel_pct,KPSS,0.0513,0.8687,10,424,Fail to reject stationarity
+nhs_3m_pct_yoy,ADF,-2.4311,0.1332,12,423,Non-stationary
+nhs_3m_pct_yoy,KPSS,0.1853,0.2984,11,423,Fail to reject stationarity
+nhs_sa,ADF,-1.647,0.4586,2,437,Non-stationary
+nhs_sa,KPSS,0.5147,0.0366,12,437,Reject stationarity at 5%
+nhs_sa_pct_mom,ADF,-12.8623,0.0,3,436,Stationary at 5%
+nhs_sa_pct_mom,KPSS,0.1151,0.5167,10,436,Fail to reject stationarity
+nhs_yoy_zscore_120m,ADF,-2.7238,0.07,12,366,Non-stationary
+nhs_yoy_zscore_120m,KPSS,0.1793,0.3119,11,366,Fail to reject stationarity
+spy_ret,ADF,-10.8875,0.0,2,400,Stationary at 5%
+spy_ret,KPSS,0.1585,0.3654,3,400,Fail to reject stationarity

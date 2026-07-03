@@ -1,0 +1,21 @@
+{
+  "chart_name": "hmm_regime_probs",
+  "pair_id": "nhs_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Probability that New Home Sales YoY is in its high-variance regime (2-state HMM). This regime probability IS the winning signal \u2014 the strategy goes long SPY when the housing-growth regime is favourable. The high-variance state covers 80% of months and spikes at housing turning points (GFC, COVID, 2022 rate shock). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Labels follow hmm_states_manifest.json semantics ('stress' = high-variance NHS-YoY-growth regime). This chart is the winner's signal, not just a backdrop.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/nhs_spy/core_models_20260703/hmm_states.parquet",
+    "results/nhs_spy/core_models_20260703/hmm_summary.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-03T03:08:56.604386+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+}
