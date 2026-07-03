@@ -194,6 +194,62 @@ The winning rule was the single best of 4,607 valid searched combinations. When 
 STORY_CONFIG = StoryConfig()
 
 
+# ---------------------------------------------------------------------------
+# fix260703 #180 — Advanced Evidence Summary / Confidence Assessment.
+# Rendered by render_evidence_page AFTER the Level-2 advanced-method sub-tabs
+# (Incremental Edge, Local Projections, Quantile, HMM) as an integrated
+# synthesis of what the four jointly conclude. Ace wires the structure via a
+# config-driven block; the prose here summarises what is already on the page
+# and MUST NOT overstate. Consumed as EVIDENCE_METHOD_BLOCKS["level2_summary"].
+# ---------------------------------------------------------------------------
+ADVANCED_EVIDENCE_SUMMARY = dict(
+    title="Advanced Evidence Summary / Confidence Assessment",
+    body=(
+        "Read as four independent tests, the advanced methods can look like a "
+        "scatter of partial results. Read together, they tell one coherent, "
+        "sobering story: **the incremental predictive power of the SOX/SPY "
+        "signal is real but thin, and the relationship is bidirectional "
+        "feedback rather than a clean semiconductor lead.**\n\n"
+        "- **Incremental Edge** — relative strength adds a statistically "
+        "significant increment over SPY's own momentum at 21 days (p=0.033) "
+        "but NOT at 63 days (p=0.075); the extra explanatory power is about "
+        "one percentage point of R² either way. A genuine but marginal, "
+        "horizon-dependent edge.\n"
+        "- **Local Projections** — forward SPY responses are positive and grow "
+        "with horizon but never reach 5% significance (minimum p ≈ 0.10); "
+        "the reverse one-day coefficient is significantly negative. No clean "
+        "forward lead; the feedback channel reappears.\n"
+        "- **Quantile Regression** — the signal's information is concentrated "
+        "in the lower (downside) return quantiles and fades to zero in the "
+        "upside: downside-management content, not a broad forward predictor.\n"
+        "- **HMM Regimes** — a context map of calm versus high-variance "
+        "periods only; it does not validate the winning rule.\n\n"
+        "**Integrated verdict:** the four advanced methods converge with the "
+        "Level-1 lead-lag tests (bidirectional Granger, two-sided CCF). The "
+        "forward forecast content is small (about 1% of return variation), the "
+        "edge over SPY's own momentum is marginal and horizon-dependent, and "
+        "the signal's usable content is a downside tilt. This is consistent "
+        "with a **low-confidence, search-found candidate** — not evidence "
+        "that semiconductors lead the market."
+    ),
+    key_message=(
+        "Jointly, the four advanced methods show limited incremental "
+        "predictive power and bidirectional feedback — supporting a "
+        "low-confidence candidate, not a clean semiconductor lead."
+    ),
+)
+
+
+# ---------------------------------------------------------------------------
+# fix260703 #183 — Statistical framing banner at the START of the Strategy
+# section. Reintroduces the key statistical conclusion before the winning-rule
+# performance so readers get evidence context first. Rendered by
+# render_strategy_page immediately after the title/subtitle. Three honest
+# framings surfaced up front, consistent with #182/#180. Consumed as
+# StrategyConfig.STATISTICAL_FRAMING_BANNER.
+# ---------------------------------------------------------------------------
+
+
 CORRELATION_CHART_NAME = "correlation_heatmap"
 GRANGER_CHART_NAME = "granger_f_by_lag"
 CCF_CHART_NAME = "ccf_prewhitened"
@@ -583,6 +639,8 @@ EVIDENCE_METHOD_BLOCKS = {
     "level1_labels": ["Co-movement vs Forecast", "Lead Analysis", "Lead Tournament", "Granger Causality", "Pre-Whitened CCF"],
     "level2": [INCREMENTAL_EDGE_BLOCK, LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK, HMM_BLOCK],
     "level2_labels": ["Incremental Edge", "Local Projections", "Quantile Regression", "HMM Regimes"],
+    # fix260703 #180 — integrated synthesis after the four advanced methods.
+    "level2_summary": ADVANCED_EVIDENCE_SUMMARY,
     "tournament_intro": (
         "The tournament tested 6,760 benchmark-excluded strategy combinations, "
         "of which 4,607 passed validity filters. The winning rule is the best "
@@ -615,6 +673,83 @@ class StrategyConfig:
         "benchmarks in the search-phase OOS window, but the lead-lag tests show "
         "feedback rather than a clean lead, the edge over SPY's own momentum is "
         "marginal, and the rule lost in every pre-test crisis."
+    )
+
+    # fix260703 #183 — statistical framing banner rendered at the START of the
+    # Strategy page (before the winning-rule performance). Three honest
+    # framings up front, consistent with the Confidence summary (#182) and the
+    # Advanced Evidence summary (#180). Rendered as an st.warning by the
+    # template so it reads as an honest caveat, not a sales pitch.
+    STATISTICAL_FRAMING_BANNER = (
+        "**Read the evidence before the performance.** Three findings frame "
+        "everything on this page:\n\n"
+        "- **Feedback rather than clean leadership.** Toda-Yamamoto Granger is "
+        "significant in BOTH directions at every lag (the reverse SPY→SOX is "
+        "taller at short lags), and the pre-whitened cross-correlation has mass "
+        "on both sides. The two markets feed back into each other because both "
+        "are high-beta equity indices — chips do not cleanly lead the market.\n"
+        "- **Candidate strategy.** The winner is the single best of 4,607 valid "
+        "searched combinations, marked `found_in_search` — it has not yet faced "
+        "a frozen-rule holdout final exam. Treat it as a candidate to "
+        "investigate, not a validated edge.\n"
+        "- **Low confidence.** In-sample Sharpe was 0.10 versus 1.57 "
+        "out-of-sample; the median valid combo (0.67) lost to buy-and-hold "
+        "(0.82); the rule lost in every pre-OOS crisis; and the bootstrap "
+        "p-value is 0.041, barely under 5%. The strong OOS number rests on a "
+        "favorable 2021-26 semiconductor bull window.\n\n"
+        "The winning-rule performance below is the honest headline — but it "
+        "must be read through these three caveats."
+    )
+
+    # fix260703 #182 — Executive Confidence Summary panel rendered at the TOP
+    # of the Confidence tab, before the detailed supporting charts. Summarises
+    # what is already on the page; does not overstate. Rendered by
+    # render_strategy_page as a bordered container.
+    EXECUTIVE_CONFIDENCE_SUMMARY = dict(
+        # Per this pair's evidence: search-found, low-confidence, no holdout,
+        # but it does beat both benchmarks OOS and the lead is a robust ridge.
+        # The honest verdict is CANDIDATE (worth further study), not Reject.
+        status="Candidate",
+        status_detail=(
+            "A low-confidence, search-found candidate worth further "
+            "investigation — NOT a validated, deployable edge. It has not yet "
+            "faced a frozen-rule holdout final exam (`found_in_search`)."
+        ),
+        strengths=[
+            "Beats both benchmarks out-of-sample: Sharpe 1.57 vs 0.82 "
+            "buy-and-hold and 0.83 SPY-own-momentum, with a shallower max "
+            "drawdown (-9.7% vs -24.5%).",
+            "The 3-month lead sits on a broad, robust L0–L4 ridge (all ≥~1.24) "
+            "rather than a fragile isolated spike — the lead choice is durable.",
+            "There is a genuine, if thin, incremental edge over SPY's own "
+            "momentum at the 21-day horizon (p=0.033), and the signal's content "
+            "is concentrated in downside (risk-management) quantiles.",
+            "The construction is honest by design: it trades the SOX/SPY "
+            "relative-strength ratio (partialling out the 0.709 co-movement), "
+            "not raw chips.",
+        ],
+        risks=[
+            "Causality is bidirectional feedback, not a clean semiconductor "
+            "lead — the reverse SPY→SOX direction is stronger at short lags.",
+            "Severe overfitting flags: in-sample Sharpe 0.10 vs 1.57 OOS; the "
+            "median valid combo (0.67) lost to buy-and-hold; win rate is 20%.",
+            "The rule LOST in every pre-OOS crisis (Dot-Com -1.16, GFC -1.06, "
+            "COVID -0.95); the OOS edge leans on a favorable 2021-26 semis bull.",
+            "Statistical confidence is marginal: bootstrap p=0.041, "
+            "rolling-correlation sign unstable (agrees with the full-sample "
+            "sign only 42% of the time), and no holdout final exam yet.",
+        ],
+        conclusion=(
+            "In one paragraph: the SOX/SPY relative-strength momentum rule is a "
+            "low-confidence, search-found CANDIDATE. It beat both benchmarks "
+            "out-of-sample with a robust lead choice and a genuine but thin "
+            "downside-tilted edge — but its causality is bidirectional feedback "
+            "rather than a clean lead, its in-sample performance was flat "
+            "(Sharpe 0.10), it lost in every prior crisis, and it has not yet "
+            "passed a frozen-rule holdout test. Read it as a promising lead to "
+            "investigate further, not as proof that semiconductors lead the "
+            "S&P 500."
+        ),
     )
 
     SIGNAL_RULE_MD = """

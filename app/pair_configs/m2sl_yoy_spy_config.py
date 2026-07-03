@@ -54,11 +54,12 @@ class StoryConfig:
     )
 
     ONE_SENTENCE_THESIS = (
-        "The winning M2-acceleration rule improves risk-adjusted return and "
-        "drawdown, but it contradicts the direction of causality (SPY leads "
-        "M2), trades a second-derivative transform rather than the level, and "
-        "should be treated as a low-confidence searched candidate awaiting a "
-        "final exam."
+        "A rule that buys stocks when the growth of the money supply is "
+        "speeding up delivered a smoother, higher risk-adjusted return in "
+        "our test — but the cause-and-effect actually runs the other way "
+        "(the stock market moves first, the money supply follows), so treat "
+        "this as a promising pattern we found by searching, not proof that "
+        "watching the money supply can predict stocks."
     )
 
     KPI_CAPTION = (
@@ -162,6 +163,12 @@ The level of money growth and the change in money growth tell different stories.
 ### What History Shows
 
 The pair-specific history zoom charts make the caveats tangible, and they are chosen to teach the lagging character honestly. During COVID-19, M2 YoY growth surged toward 27% while SPY crashed and then recovered -- money and the market moved together, a coincident episode rather than money leading. During the GFC, M2 YoY growth gave no advance warning of the equity bear market -- a failure case for any forward-leading claim. During the 2022 inflation shock, M2 YoY growth fell below 0% for the first time in the modern record while the Fed tightened and equities fell -- a second failure case, and the vivid first-ever contraction. The Dot-Com window is a confirmer for continuity across the portal's standard episode set, not a validation case.
+
+### What "best rule found in the search" means -- and why it comes with a warning
+
+You will see this rule labelled the "best rule found in the search." Here is what that phrase actually means, in plain terms. We did not start with a single theory and test it once. Instead, a computer tried thousands of different trading rules built from the money-supply data -- different signals, different thresholds, different delays -- and scored each one on data the rules were not built on. The number you see on the headline is simply the *single best-scoring rule out of that whole pile* (3,369 valid attempts). It came out on top with a Sharpe of 1.69 versus 0.90 for just buying and holding SPY.
+
+The catch is exactly that it was the *best of many tries*. When you test thousands of rules, some will look excellent by pure luck, the same way that if enough people flip coins, someone will get ten heads in a row without any special skill. Three honesty checks keep us cautious here: the *typical* rule in the search actually scored worse than doing nothing (0.71, below buy-and-hold's 0.90), so the winner sits in the lucky tail rather than the middle; a re-shuffle test says there is about a 2.5% chance a result this good could appear by chance alone; and, most importantly, the formal cause-and-effect test found that money growth does **not** lead the stock market. So "best rule found in the search" is an honest description, not a boast: it is a promising pattern that has cleared a first hurdle but has **not** yet passed a true final exam on fresh, untouched data. Until it does, treat the headline number as a candidate worth watching, not a proven edge to bet on.
 """
 
     TRANSITION_TEXT = (

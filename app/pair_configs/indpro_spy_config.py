@@ -278,7 +278,7 @@ CCF_BLOCK = dict(
         "INDPRO leads SPY."
     ),
     # fix260526 W2 #67: previous observation claimed the significant
-    # correlations are at "small POSITIVE lags (SPY leading IP)". The
+    # correlations are at "small POSITIVE lags (SPY leading INDPRO)". The
     # CCF data shows the OPPOSITE: 11 significant lags, all NEGATIVE
     # (INDPRO leads SPY). Max correlation is at lag −12 (r=0.234) and the
     # significance pattern persists out to lag −2. Text now matches data.
@@ -364,12 +364,12 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     method_name="Local Projections (Jordà)",
     method_theory=(
         "Jordà (2005) local projections trace the cumulative SPY response to "
-        "a 1-standard-deviation IP-growth shock at each horizon separately, "
+        "a 1-standard-deviation INDPRO-growth shock at each horizon separately, "
         "with HAC (Newey-West) standard errors. Unlike a VAR, LPs do not "
         "impose parametric propagation assumptions."
     ),
     question=(
-        "What is the dynamic path of SPY following an IP-growth shock, and "
+        "What is the dynamic path of SPY following an INDPRO-growth shock, and "
         "where does the effect peak?"
     ),
     how_to_read=(
@@ -386,7 +386,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     observation=(
         "The impulse response is positive and rises through the 3-6 month "
         "horizon, then plateaus before confidence bands widen. The peak "
-        "effect is economically meaningful — a one-standard-deviation IP "
+        "effect is economically meaningful — a one-standard-deviation INDPRO "
         "shock translates into a measurable cumulative SPY return differential "
         "over the subsequent half year."
     ),
@@ -397,7 +397,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         "econometric evidence and the rule's hyperparameter."
     ),
     key_message=(
-        "SPY responds significantly to IP shocks through the 3-6 month "
+        "SPY responds significantly to INDPRO shocks through the 3-6 month "
         "horizon — the econometric justification for the winner's 4-month lead."
     ),
 )
@@ -429,7 +429,7 @@ QUANTILE_BLOCK = dict(
     ),
     observation=(
         "Coefficients are positive across most of the distribution, with "
-        "the largest effects in the left tail (q=0.05-0.25). High IP "
+        "the largest effects in the left tail (q=0.05-0.25). High INDPRO "
         "growth materially compresses the worst 3-month-forward SPY "
         "outcomes."
     ),
@@ -440,7 +440,7 @@ QUANTILE_BLOCK = dict(
         "(lower return, much lower drawdown)."
     ),
     key_message=(
-        "IP's real contribution is compressing left-tail SPY outcomes. That "
+        "INDPRO's real contribution is compressing left-tail SPY outcomes. That "
         "is the economic meaning of the strategy's -2.7% max drawdown vs. "
         "-23.9% for buy-and-hold."
     ),
@@ -467,8 +467,8 @@ RF_BLOCK = dict(
     chart_name="rf_importance",
     chart_caption=(
         "Top features for predicting positive 3M SPY returns. "
-        "Yield spread and IP z-score are the most important features, "
-        "suggesting both rate and IP cycle information matter."
+        "Yield spread and INDPRO z-score are the most important features, "
+        "suggesting both rate and INDPRO cycle information matter."
     ),
     observation=(
         "Walk-forward classification accuracy is **61.4%**, modestly "
@@ -476,7 +476,7 @@ RF_BLOCK = dict(
         "spread dominate the importance ranking; raw levels rank low."
     ),
     interpretation=(
-        "The RF confirms what the linear methods already showed: IP "
+        "The RF confirms what the linear methods already showed: INDPRO "
         "provides some information, but simpler momentum-based signals "
         "outperform in the tournament. The ML framing is a useful cross-"
         "check, not a replacement for the econometric pipeline."
@@ -645,7 +645,7 @@ LEAD_TOURNAMENT_BLOCK = dict(
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
-        "We tested the IP-equity relationship with nine econometric methods "
+        "We tested the INDPRO–equity relationship with nine econometric methods "
         "across 35 years of data. Six method blocks are foregrounded here — "
         "correlation, CCF, Granger, local projections, quantile regression, "
         "and a Random Forest importance ranking. Markov-Switching, "
@@ -669,7 +669,7 @@ EVIDENCE_METHOD_BLOCKS = {
          "path": "results/indpro_spy/core_models_20260314/markov_switching_2state.csv"},
     ],
     "plain_english": (
-        "Six different statistical lenses tell a consistent story: the IP "
+        "Six different statistical lenses tell a consistent story: the INDPRO "
         "signal is real, it is strongest in momentum transforms (not levels), "
         "and its primary value is downside protection at 3-6 month horizons."
     ),
@@ -696,7 +696,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "distinct labelled 'extended-grid' point."
     ),
     "transition": (
-        "The statistical evidence confirms a real but nuanced IP-equity "
+        "The statistical evidence confirms a real but nuanced INDPRO–equity "
         "relationship. The practical question is whether investors can use "
         "INDPRO signals to improve risk-adjusted outcomes — the next page shows "
         "the winning rule and its full performance profile."
@@ -717,7 +717,7 @@ class StrategyConfig:
     PLAIN_ENGLISH = (
         "The tournament winner is a simple on/off rule: when factory-output "
         "momentum has been strong, stay fully invested in SPY; otherwise sit "
-        "in cash. Act on the signal four months after you see it — because IP "
+        "in cash. Act on the signal four months after you see it — because INDPRO "
         "data is published with a lag and the economic effect on stocks "
         "unfolds over several months. Remember the honest framing: this rule "
         "spends most of its time in cash, so it trades away some upside in "
@@ -731,7 +731,7 @@ class StrategyConfig:
         "When the 1-month change in Industrial Production is above its "
         "rolling 60-month 75th percentile (strong momentum), stay fully "
         "invested in SPY. Otherwise, move to cash. Apply the signal with a "
-        "4-month lead to account for IP's publication lag and the time it "
+        "4-month lead to account for INDPRO's publication lag and the time it "
         "takes for the economy to respond."
     )
 
@@ -766,14 +766,14 @@ class StrategyConfig:
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_scatter"
 
     CAVEATS_MD = (
-        "1. **Publication lag matters.** IP data is released ~6 weeks after "
+        "1. **Publication lag matters.** INDPRO data is released ~6 weeks after "
         "the reference month. The 4-month lead in the winning strategy "
         "accounts for this delay and is not a theoretical forecast horizon.\n\n"
         "2. **Monthly frequency limits responsiveness.** INDPRO signals update "
         "monthly; fast-moving markets (COVID in March 2020, flash crashes) "
         "can gap before the next data point — and the rule was in fact caught "
         "long in March 2020 (see the trade-log example).\n\n"
-        "3. **COVID outlier.** The April 2020 IP drop (-12.7% MoM) is "
+        "3. **COVID outlier.** The April 2020 INDPRO drop (-12.7% MoM) is "
         "unprecedented and may distort model estimates. The rule spent most of "
         "2018-2025 in cash, which capped drawdowns but also meant it missed a "
         "large share of the post-COVID rally.\n\n"
@@ -856,10 +856,10 @@ _INDICATOR_CONSTRUCTION_MD = (
 _METHODS_TABLE_MD = """
 | Method | Question It Answers | Why We Chose It |
 |:-------|:--------------------|:----------------|
-| Pearson / Rolling Correlation | Linear co-movement at multiple horizons | Baseline test for IP-SPY link |
+| Pearson / Rolling Correlation | Linear co-movement at multiple horizons | Baseline test for INDPRO-SPY link |
 | Cross-Correlation Function (CCF) | Lead-lag timing structure | Identifies peak predictive lag |
-| Granger Causality | One-directional predictive content | Tests IP → SPY vs SPY → IP asymmetry |
-| Local Projections (Jordà) | Full dynamic path of SPY response to IP shock | Robust IRF without VAR restrictions |
+| Granger Causality | One-directional predictive content | Tests INDPRO → SPY vs SPY → INDPRO asymmetry |
+| Local Projections (Jordà) | Full dynamic path of SPY response to INDPRO shock | Robust IRF without VAR restrictions |
 | Quantile Regression | Asymmetric predictive power across return distribution | Tests left-tail (downside) protection |
 | Markov-Switching Regression | 2-state regime identification | NBER-consistent regime dating |
 | Random Forest | Walk-forward feature importance | Nonlinear feature ranking with OOS validation |
@@ -868,7 +868,7 @@ _METHODS_TABLE_MD = """
 _TOURNAMENT_DESIGN_MD = """
 | Dimension | Values |
 |:----------|:-------|
-| **Signals** | IP level, YoY growth, MoM change, z-score, 3M/6M momentum, acceleration, contraction dummy |
+| **Signals** | INDPRO level, YoY growth, MoM change, z-score, 3M/6M momentum, acceleration, contraction dummy |
 | **Threshold methods** | Fixed IS percentile (p25/p50/p75), rolling percentile, rolling z-score (±1.0/±1.5) |
 | **Strategies** | Long/Cash (P1), Signal-Strength (P2), Long/Short (P3) |
 | **Lead times (committed grid)** | L0 through L6 — the grid shown in the table; the winner's lead came from an extended sweep (see note below) |

@@ -4,18 +4,17 @@
   "palette_id": "okabe_ito_2026",
   "rules_applied": [
     "VIZ-IC1",
-    "VIZ-NBER1",
     "VIZ-NS1",
     "VIZ-O1"
   ],
   "caption": "Drawdown paths for the winner, Buy & Hold SPY, and the SPY-own-momentum benchmark. In OOS the winner's max drawdown is -9.7% versus -24.5% for Buy & Hold \u2014 a real improvement, but one shaped by the benign 2021\u201326 regime rather than a tested all-weather property.",
-  "narrative_alignment_note": "Drawdown computed from saved returns + reconstructed SPY-momentum series.",
+  "narrative_alignment_note": "Drawdown computed on the OOS window only (cummax re-based to oos_period_start) from saved returns + reconstructed SPY-momentum series, so troughs match the OOS legend.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/phlxsox_spy/strategy_returns_20260619.csv",
     "results/phlxsox_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-19T13:09:39.237313+00:00",
+  "generated_at": "2026-07-03T13:41:27.524359+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_phlxsox_spy.py (pair260619_phlxsox_spy)"
 }

@@ -5,7 +5,7 @@
   "rules_applied": [
     "VIZ-IC1"
   ],
-  "narrative_alignment_note": "Strategy drawdown from peak equity. Used on Strategy page Performance tab.",
-  "generated_at": "2026-06-03T12:28:23Z",
+  "narrative_alignment_note": "Strategy vs Buy & Hold drawdown, OOS window only, cummax re-based to OOS start so the trough matches the canonical oos_max_drawdown on the Strategy page.",
+  "generated_at": "2026-07-03T12:00:32Z",
   "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
 }

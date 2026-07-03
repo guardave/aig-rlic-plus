@@ -290,17 +290,30 @@ def _load_winner_summary(pair_id: str) -> dict[str, Any] | None:
             or data.get("total_combos") is None
         ):
             tdf = _pd.read_csv(tourn_files[0])
-            bh = tdf[tdf["signal"] == "BENCHMARK"]
+            has_signal = "signal" in tdf.columns
+            bh = tdf[tdf["signal"] == "BENCHMARK"] if has_signal else tdf.iloc[0:0]
+            # Benchmark-derived fields are guarded independently so a schema
+            # difference here (e.g. the drawdown column is named
+            # `oos_max_drawdown` rather than `max_drawdown` in some pipeline
+            # versions) can NOT abort the whole backfill and blank out
+            # total_combos (root cause of the gold_copper_xli "N/A" bug).
             if len(bh) > 0:
-                _bh_dd_raw = float(bh.iloc[0]["max_drawdown"])
-                # Detect ratio vs percent form (ratio: abs < 2)
-                _dd_scale = 100.0 if abs(_bh_dd_raw) < 2.0 else 1.0
-                if data.get("bh_sharpe") is None:
+                if data.get("bh_sharpe") is None and "oos_sharpe" in bh.columns:
                     data["bh_sharpe"] = round(float(bh.iloc[0]["oos_sharpe"]), 2)
                 if data.get("bh_max_drawdown") is None:
-                    data["bh_max_drawdown"] = round(_bh_dd_raw * _dd_scale / 100.0, 4)
+                    _dd_col = next((c for c in ("max_drawdown", "oos_max_drawdown")
+                                    if c in bh.columns), None)
+                    if _dd_col is not None:
+                        _bh_dd_raw = float(bh.iloc[0][_dd_col])
+                        # Detect ratio vs percent form (ratio: abs < 2)
+                        _dd_scale = 100.0 if abs(_bh_dd_raw) < 2.0 else 1.0
+                        data["bh_max_drawdown"] = round(_bh_dd_raw * _dd_scale / 100.0, 4)
             if data.get("total_combos") is None:
-                data["total_combos"] = int(len(tdf))
+                # Canonical count = STRATEGY combos, excluding BENCHMARK rows
+                # (matches the in-JSON convention, e.g. phlxsox_spy 6760).
+                data["total_combos"] = int(
+                    (tdf["signal"] != "BENCHMARK").sum() if has_signal else len(tdf)
+                )
     except Exception:
         pass  # Degraded gracefully — fields remain None, template shows N/A
 
@@ -714,6 +727,21 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     if thesis:
         st.markdown("### One-Sentence Thesis")
         st.markdown(f"*{thesis}*")
+
+        # fix260703 #150 — plain-language thesis + clickable footnote.
+        # When the config supplies ONE_SENTENCE_THESIS_PLAIN, render it as a
+        # layperson restatement and attach THESIS_FOOTNOTE behind an expander
+        # (the portal's existing footnote/disclosure idiom — see the narrative
+        # expander parser and the trade-log column expanders). Absent → no-op,
+        # so pairs without the plain thesis render byte-identically.
+        thesis_plain = getattr(config, "ONE_SENTENCE_THESIS_PLAIN", None)
+        if thesis_plain:
+            st.markdown(f"{thesis_plain} ⓘ")
+            thesis_footnote = getattr(config, "THESIS_FOOTNOTE", None)
+            if thesis_footnote:
+                with st.expander("ⓘ How this plain-language claim is measured"):
+                    st.markdown(thesis_footnote)
+
         st.markdown("---")
 
     # ------ 6. KPI cards (5-column row) ------
@@ -1197,6 +1225,26 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
                 with sub:
                     _render_method_block(block, pair_id)
 
+            # fix260703 #180 — Advanced Evidence Summary / Confidence
+            # Assessment: an integrated synthesis of what the Level-2
+            # advanced methods jointly conclude, rendered AFTER the sub-tabs
+            # so the four blocks no longer read as independent silos. Config-
+            # driven via method_blocks["level2_summary"]; absent → no-op
+            # (byte-identical for pairs that do not supply it).
+            level2_summary = method_blocks.get("level2_summary")
+            if level2_summary:
+                st.markdown("---")
+                with st.container(border=True):
+                    st.markdown(
+                        f"### {level2_summary.get('title', 'Advanced Evidence Summary')}"
+                    )
+                    body = level2_summary.get("body")
+                    if body:
+                        st.markdown(body)
+                    key_message = level2_summary.get("key_message")
+                    if key_message:
+                        st.info(f"**Key message:** {key_message}")
+
     # ------ Cross-Period Consistency: RELOCATED (2026-06-10) ------
     # The Cross-Period Consistency section moved to render_strategy_page's
     # Confidence tab per stakeholder direction (fix260610_xpair_general).
@@ -1324,6 +1372,15 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     )
     st.markdown("---")
 
+    # ------ 6b. Statistical framing banner (fix260703 #183) ------
+    # Reintroduces the key statistical conclusion at the START of the Strategy
+    # section, so readers get evidence context before the winning-rule
+    # performance. Config-driven via STATISTICAL_FRAMING_BANNER; absent → no-op.
+    _framing_banner = getattr(config, "STATISTICAL_FRAMING_BANNER", None)
+    if _framing_banner:
+        st.warning(_framing_banner)
+        st.markdown("---")
+
     # ------ 7. Tournament Winner spotlight ------
     _strategy_family = winner.get("strategy_family", "N/A")
     _direction = winner.get("direction", "N/A")
@@ -1392,9 +1449,16 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
          "delta": f"vs {bh_dd} B&H" if bh_dd != "N/A" else None,
          "delta_color": "inverse"},
         {"label": "Turnover", "value": f"~{float(turnover):.1f}/yr" if turnover else "N/A"},
+        # #158 (KS): column-tolerance fallback — some winner rows carry the
+        # win rate under the sibling key `win_rate` rather than the OOS-specific
+        # `oos_win_rate` (e.g. gold_copper_xli). Prefer oos_win_rate when present
+        # (pairs that have it are unaffected); otherwise surface win_rate so the
+        # metric shows the real value instead of N/A. No fabrication — only the
+        # value already in the winner row is used.
         {"label": "Win Rate",
-         "value": f"{float(winner.get('oos_win_rate', 0)):.0%}"
-                   if winner.get('oos_win_rate') is not None else "N/A"},
+         "value": (lambda _wr: f"{float(_wr):.0%}" if _wr is not None else "N/A")(
+             winner.get('oos_win_rate') if winner.get('oos_win_rate') is not None
+             else winner.get('win_rate'))},
     ])
     st.markdown("---")
 
@@ -1486,6 +1550,17 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
 
     # --- Confidence tab ---
     with tab_confidence:
+        # ------ Executive Confidence Summary (fix260703 #182) ------
+        # Rendered at the TOP of the Confidence tab, before the detailed
+        # supporting charts. Summarises what is already on the page:
+        # candidate status, top strengths, remaining risks, and a one-
+        # paragraph executive conclusion. Config-driven via
+        # EXECUTIVE_CONFIDENCE_SUMMARY; absent → no-op.
+        _exec_conf = getattr(config, "EXECUTIVE_CONFIDENCE_SUMMARY", None)
+        if _exec_conf:
+            _render_executive_confidence_summary(_exec_conf)
+            st.markdown("---")
+
         st.markdown(f"### {getattr(config, 'WALK_FORWARD_TITLE', 'Walk-Forward Rolling Sharpe')}")
         wf_chart = getattr(config, "WALK_FORWARD_CHART_NAME", "walk_forward")
         load_plotly_chart(
@@ -1572,6 +1647,58 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     st.markdown("---")
     st.caption(
         f"What this shows: generated with AIG-RLIC+ | Pair: {pair_id}."
+    )
+
+
+def _render_executive_confidence_summary(summary: dict) -> None:
+    """Render the Executive Confidence Summary panel (fix260703 #182).
+
+    Rendered at the top of the Strategy page's Confidence tab. Summarises the
+    pair's confidence story: a Candidate / Watchlist / Reject status badge,
+    top strengths, remaining risks, and a one-paragraph executive conclusion.
+    All text comes from the pair config (``EXECUTIVE_CONFIDENCE_SUMMARY``);
+    this helper only lays it out. Does not overstate — it restates what the
+    detailed charts below already show.
+    """
+    # Status → color mapping. Candidate = amber (promising, unproven);
+    # Watchlist = amber; Reject = red. Anything else → neutral info.
+    status = str(summary.get("status", "")).strip()
+    status_detail = summary.get("status_detail", "")
+
+    with st.container(border=True):
+        st.markdown("### Executive Confidence Summary")
+
+        _status_lower = status.lower()
+        _badge = f"**Candidate status: {status}**" if status else ""
+        _line = f"{_badge}"
+        if status_detail:
+            _line = f"{_badge} — {status_detail}" if _badge else status_detail
+        if _status_lower in ("reject", "rejected"):
+            st.error(_line)
+        elif _status_lower in ("candidate", "watchlist"):
+            st.warning(_line)
+        elif _line:
+            st.info(_line)
+
+        _col_s, _col_r = st.columns(2)
+        with _col_s:
+            st.markdown("**Top strengths**")
+            for item in summary.get("strengths", []) or []:
+                st.markdown(f"- {item}")
+        with _col_r:
+            st.markdown("**Remaining risks**")
+            for item in summary.get("risks", []) or []:
+                st.markdown(f"- {item}")
+
+        conclusion = summary.get("conclusion")
+        if conclusion:
+            st.markdown("**Executive conclusion**")
+            st.markdown(conclusion)
+
+    st.caption(
+        "What this shows: an at-a-glance confidence verdict for this "
+        "candidate strategy. The detailed charts and tables below are the "
+        "evidence behind it."
     )
 
 

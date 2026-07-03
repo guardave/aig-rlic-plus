@@ -150,25 +150,41 @@ def build_subperiod_sharpe(df: pd.DataFrame, pair_id: str) -> go.Figure:
     # Reference line at x=0
     fig.add_vline(x=0, line_dash="solid", line_color="black", line_width=1.5)
 
+    # #104: the source-note caption for this chart was rendered by the shared
+    # apply_caption_layout helper as small (size 10) grey text BELOW the plot,
+    # which the user found hard to see. Per the comment's remedy ("move it ABOVE
+    # the chart in black + larger"), this chart uses an isolated override: the
+    # note is placed ABOVE the plot (below the title) in black at size 12. This
+    # is a per-chart override so the fleet-wide grey-below convention (shared
+    # helper) is untouched — only subperiod_sharpe changes.
+    caption_text = (
+        "Sharpe ratios computed from the winner strategy's actual return series. "
+        "<b>'no data'</b> = episode outside the pair's data coverage. "
+        "<b>'in cash'</b> = strategy was 100% cash through the episode "
+        "(common for long-cash strategies through deep contractions). "
+        "IS = In-Sample period; OOS = Out-of-Sample."
+    )
     fig.update_layout(
         title=dict(text="Strategy Performance Across Market Episodes", font=dict(size=15)),
         xaxis_title="Sharpe Ratio",
         yaxis_title="",
         width=700,
         height=470,
-        margin=dict(l=200, r=80, t=60, b=80),  # apply_caption_layout will widen to MARGIN_B_WITH_CAPTION
+        # widen top margin to seat the black above-plot source-note under the title
+        margin=dict(l=200, r=80, t=120, b=80),
         plot_bgcolor="white",
         paper_bgcolor="white",
     )
     fig.update_xaxes(zeroline=False, gridcolor="rgba(200,200,200,0.4)")
     fig.update_yaxes(autorange="reversed")
-    apply_caption_layout(
-        fig,
-        "Sharpe ratios computed from the winner strategy's actual return series. "
-        "<b>'no data'</b> = episode outside the pair's data coverage. "
-        "<b>'in cash'</b> = strategy was 100% cash through the episode "
-        "(common for long-cash strategies through deep contractions). "
-        "IS = In-Sample period; OOS = Out-of-Sample.",
+    fig.add_annotation(
+        text=caption_text,
+        xref="paper", yref="paper",
+        x=0, y=1.0, xanchor="left", yanchor="bottom",
+        yshift=10,
+        showarrow=False,
+        font=dict(size=12, color="black"),
+        align="left",
     )
 
     return fig

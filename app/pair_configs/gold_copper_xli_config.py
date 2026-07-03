@@ -575,14 +575,22 @@ QUANTILE_REGRESSION_BLOCK = dict(
     chart_status="ready",
     method_name="Quantile Regression",
     method_theory=(
-        "Linear OLS fits the **mean** of the forward return "
-        "conditional on the signal. **Quantile regression** fits a "
-        "separate slope at each quantile of the forward return "
-        "distribution (5th, 10th, 25th, 50th, 75th, 90th, 95th "
-        "percentile). If the signal predicts the *tails* of XLI "
-        "returns more strongly than the mean — i.e. moves the "
-        "distribution's shape, not just its centre — quantile "
-        "regression will show fanned-out betas across quantiles."
+        "**In plain English:** most statistics ask 'on an *average* "
+        "month, does a high gold/copper ratio drag XLI down?' That "
+        "hides the thing investors care about most — what happens in "
+        "the *bad* months versus the *good* ones. **Quantile "
+        "regression** asks exactly that: it lets the ratio's effect "
+        "on XLI differ across the whole distribution of outcomes, not "
+        "just at the average. Concretely, it fits a separate slope "
+        "for the worst months (the 5th and 10th percentile of XLI "
+        "forward returns), the median month (50th percentile), and "
+        "the best months (90th and 95th percentile). A standard "
+        "average-only regression (OLS) would collapse all of that "
+        "into a single number and miss it. If the ratio bites harder "
+        "in bad months than in typical ones, the slopes will fan "
+        "out — steep and negative in the lower tail, and possibly "
+        "positive in the upper tail — instead of being flat across "
+        "quantiles."
     ),
     question=(
         "Does the gold/copper signal predict crash risk (the lower "
@@ -590,13 +598,20 @@ QUANTILE_REGRESSION_BLOCK = dict(
         "average performance?"
     ),
     how_to_read=(
-        "Bars are the quantile-specific beta (XLI 63d fwd return in "
-        "percentage points per signal SD). Strong red bars at low "
-        "quantiles (q=0.05, q=0.10) mean the signal predicts the "
-        "worst outcomes very strongly. Green bars at high quantiles "
-        "(q=0.90, q=0.95) mean the signal predicts the best "
-        "outcomes too — together they imply the signal predicts "
-        "variance more than mean."
+        "Read left-to-right across the distribution of XLI outcomes. "
+        "Each bar is the ratio's effect (its 'beta') on XLI's 63-day "
+        "forward return, in percentage points per one-standard-"
+        "deviation rise in the signal, measured at a different slice "
+        "of the outcome distribution — the worst months on the left "
+        "(q=0.05, q=0.10), the typical month in the middle (q=0.50), "
+        "the best months on the right (q=0.90, q=0.95). Big negative "
+        "(red) bars on the LEFT mean a high ratio makes the bad "
+        "months *much* worse. A small bar in the MIDDLE means the "
+        "typical month barely moves. Positive (green) bars on the "
+        "RIGHT mean a high ratio also stretches the good months "
+        "higher. Bars that fan out from middle to edges = the signal "
+        "is really about *how wide the range of outcomes gets*, not "
+        "just the average."
     ),
     chart_name="quantile_regression",
     chart_caption=(
@@ -608,15 +623,25 @@ QUANTILE_REGRESSION_BLOCK = dict(
     ),
     observation=(
         "**The most informative result in the evidence pack.** "
-        "At q=0.05 (worst-case XLI returns), the beta is **-2.72%** "
-        "per signal SD (t=-8.6) — meaning when the signal is high, "
-        "the worst-case 3-month XLI outcomes get catastrophically "
-        "worse. At q=0.95 (best-case), the beta is **+1.16%** with "
-        "t=+9.8 — high signal also predicts more upside in the "
-        "best-case. The mean (q=0.50) effect is small (-0.35%) — "
-        "**this is why linear correlation looked weak and the "
-        "tournament Sharpe looked strong**: the signal lives in "
-        "the tails, not the mean."
+        "For this pair the slopes fan out exactly as the theory "
+        "hopes. In the worst months (q=0.05), a one-standard-"
+        "deviation-higher gold/copper ratio is associated with XLI "
+        "returns **-2.72%** lower over the next three months "
+        "(t=-8.6, i.e. statistically very strong) — so when the "
+        "risk-off ratio is high, the *bad* months for industrials "
+        "get dramatically worse. In the best months (q=0.95) the "
+        "effect flips to **+1.16%** (t=+9.8) — a high ratio also "
+        "stretches the *good* months a bit higher. But in a typical "
+        "month (q=0.50) the effect is tiny (**-0.35%**). "
+        "**In plain terms:** the gold/copper ratio barely moves the "
+        "average month, but it strongly widens the gap between good "
+        "and bad months — and it widens the downside more than the "
+        "upside. That asymmetry (a bigger bite on the left) is why a "
+        "simple 'step aside when the ratio is high' rule adds value. "
+        "It also explains the apparent puzzle elsewhere in the "
+        "evidence pack — **why plain correlation looked weak while "
+        "the tournament Sharpe looked strong**: the signal lives in "
+        "the tails of the distribution, not in the average."
     ),
     deep_dive_title="Why does the signal predict both tails?",
     deep_dive_content=(
@@ -635,10 +660,14 @@ QUANTILE_REGRESSION_BLOCK = dict(
     ),
     interpretation=(
         "Quantile regression is the bridge between the small linear "
-        "correlation and the strong tournament Sharpe. The signal "
-        "is a *variance* predictor with directional asymmetry, "
-        "which a threshold-based long/cash rule can monetise but "
-        "a linear correlation cannot summarise."
+        "correlation and the strong tournament Sharpe. **What it "
+        "means for this pair:** the gold/copper ratio is best read "
+        "as a *risk* gauge, not an average-return forecaster. When "
+        "it is high, the range of possible XLI outcomes widens and "
+        "skews to the downside — so the practical value is in "
+        "sidestepping the fat left tail, which a threshold-based "
+        "long/cash rule can capture but a single average-correlation "
+        "number cannot summarise."
     ),
     key_message=(
         "The signal predicts the lower tail of XLI returns much "
