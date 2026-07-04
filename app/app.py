@@ -364,7 +364,7 @@ with methods_tab:
     # Portal-wide Statistical Methods reference, driven by the same shared
     # render function as the standalone sidebar page (single source of truth).
     # No page chrome inside a tab — just the content.
-    render_statistical_methods()
+    render_statistical_methods(key_prefix="tab")
 
 # --- Footer ---
 st.markdown("---")

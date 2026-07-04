@@ -106,6 +106,20 @@ METHODS: list[dict] = [
             "Correlation is association, not causation, and not predictive "
             "precedence -- it says nothing about which series moves first."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "correlation_heatmap",
+            "caption": (
+                "How to read this example: each cell is the correlation "
+                "between one signal transform (row) and one forward-return "
+                "horizon (column) — read the colour's SIGN first (one hue = "
+                "countercyclical, the other = procyclical), its depth second. "
+                "In this example pair most cells are pale, i.e. the linear "
+                "links are weak (r ≈ 0.2 is only ~4% of return variance), so "
+                "treat the map as fixing the direction, not as proof of a "
+                "tradable edge — the tail/threshold tests come next."
+            ),
+        },
     },
     {
         "slug": "lead_correlation",
@@ -140,6 +154,20 @@ METHODS: list[dict] = [
             "the monthly grid peaks elsewhere, because monthly resampling discards "
             "the within-month reaction the daily rule monetises."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "correlations_lead_view",
+            "caption": (
+                "How to read this example: the curve is the correlation with a "
+                "FIXED forward return as the signal is pushed back lead by lead "
+                "(L = 0…12) — look for where it peaks and, more importantly, "
+                "whether the peak is a broad plateau (a robust lead you can rely "
+                "on) or a lone spike (likely noise). A sign flip across leads "
+                "warns the relationship is regime-conditional, not a clean "
+                "linear lead. For a daily pair the monthly grid is a "
+                "comparability diagnostic, not the latency actually traded."
+            ),
+        },
     },
     {
         "slug": "lead_tournament",
@@ -172,6 +200,20 @@ METHODS: list[dict] = [
             "marked `found_in_search` is search-phase OOS, not a fresh holdout "
             "exam."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "lead_sharpe_distribution",
+            "caption": (
+                "How to read this example: each point is the BEST out-of-sample "
+                "Sharpe the grid search could find at that lead, with the "
+                "buy-and-hold line for reference. Trust a flat-but-wide band of "
+                "high scores (a robust regime) far more than a tall thin spike "
+                "at one lead (one lucky combination). Remember every point is "
+                "the max over thousands of combos, so it is search-conditioned "
+                "and optimistically biased — read it as a hypothesis to be "
+                "validated by walk-forward, not as a confirmed edge."
+            ),
+        },
     },
     {
         "slug": "granger_causality",
@@ -207,6 +249,20 @@ METHODS: list[dict] = [
             "moderate Granger evidence alongside strong tournament/transfer-"
             "entropy evidence is the fingerprint of exactly that non-linearity."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "granger_f_by_lag",
+            "caption": (
+                "How to read this example: each bar is the Granger F-statistic "
+                "at one lag — bars poking above the dashed significance line are "
+                "lags where the indicator's past improves the target forecast "
+                "beyond the target's own history (a link that strong would "
+                "appear by chance under 1 time in 20). A CLUSTER of significant "
+                "bars supports a genuine lead; one lone bar is weaker. Read it "
+                "as predictive precedence, NOT economic cause — and because the "
+                "test is linear it can miss real threshold-activated effects."
+            ),
+        },
     },
     {
         "slug": "prewhitened_ccf",
@@ -240,6 +296,20 @@ METHODS: list[dict] = [
             "significant bar confirms a real but modest lead, not a large tradable "
             "effect on its own."
         ),
+        "example": {
+            "pair": "gold_copper_xli",
+            "chart": "ccf_prewhitened",
+            "caption": (
+                "How to read this example: each bar is the cross-correlation at "
+                "one lag AFTER stripping out each series' self-memory — negative "
+                "lags mean the target leads, positive lags mean the signal "
+                "leads. Only bars poking past the ±1.96/√n dashed band are "
+                "unlikely to be chance; a cluster of them at small positive lags "
+                "corroborates a short-horizon indicator→target lead. Even so, a "
+                "small significant bar confirms a real but modest lead on a "
+                "chosen window, not a large tradable effect by itself."
+            ),
+        },
     },
 
     # ------------------------------------------------------------------ #
@@ -275,6 +345,20 @@ METHODS: list[dict] = [
             "standard error unless one is added -- treat the gradient as direction "
             "evidence, not as a calibrated forecast."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "regime_quartile_returns",
+            "caption": (
+                "How to read this example: each bar is the target's average "
+                "forward return when the signal sat in that quartile (Q1 = "
+                "lowest signal, Q4 = highest). A staircase that climbs or falls "
+                "steadily Q1→Q4 is clean, model-free evidence for the "
+                "directional hypothesis; a reversal at an extreme bucket (say Q4 "
+                "rebounding) is usually a real failure-case fingerprint, not "
+                "noise to smooth. These are in-sample bucket means with no error "
+                "bars — read the gradient as direction, not a calibrated forecast."
+            ),
+        },
     },
     {
         "slug": "hmm_regime",
@@ -307,6 +391,20 @@ METHODS: list[dict] = [
             "periodic re-estimation to avoid stale regime definitions; and the "
             "number of states is a modelling choice, not a fact."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "hmm_regime_probs",
+            "caption": (
+                "How to read this example: the line is the model's smoothed "
+                "probability that each date sat in the 'stress' regime — near 1 "
+                "the model is confident it was stress, near 0 calm. Sanity-check "
+                "it by eye: the spikes SHOULD line up with documented crisis "
+                "windows; if they don't, the state labels may be inverted. "
+                "Separation is often by volatility not mean, so 'stress' means "
+                "turbulence, not necessarily lower average returns — and the fit "
+                "is in-sample, so live use needs periodic re-estimation."
+            ),
+        },
     },
     {
         "slug": "local_projections",
@@ -343,6 +441,21 @@ METHODS: list[dict] = [
             "overlapping data, and a significant reverse-direction response is a "
             "feedback / reverse-causality flag, not a bonus signal."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "local_projections",
+            "caption": (
+                "How to read this example: the line traces the target's "
+                "cumulative return at each horizon after the signal jumps one "
+                "standard deviation today; the shaded band is the 95% HAC "
+                "confidence interval. Horizons where the whole band sits on one "
+                "side of zero are a statistically clear response — where it "
+                "straddles zero the evidence is weak. The SHAPE points at the "
+                "horizon to trade (build-then-decay). Wide bands far out are "
+                "genuine uncertainty, and a significant reverse-direction "
+                "response would be a feedback flag, not a bonus signal."
+            ),
+        },
     },
     {
         "slug": "quantile_regression",
@@ -376,6 +489,21 @@ METHODS: list[dict] = [
             "effective observations and so are noisier; and, like the others, this "
             "is predictive association, not proof of a causal channel."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "quantile_regression",
+            "caption": (
+                "How to read this example: each point is the signal's slope "
+                "estimated at a different point of the outcome distribution — "
+                "the bad months (5th/10th pct) on the left, the median in the "
+                "middle, the best months (90th/95th) on the right. Slopes that "
+                "fan out — steep and negative in the lower tail, flat at the "
+                "median — mean the signal governs the WIDTH of outcomes, not the "
+                "average; a bigger tail slope than upper slope is the downside "
+                "asymmetry that justifies a step-aside rule. Tail estimates use "
+                "fewer points, so they are noisier, and it is association not cause."
+            ),
+        },
     },
     {
         "slug": "transfer_entropy",
@@ -413,6 +541,21 @@ METHODS: list[dict] = [
             "with Granger, directed predictive information is not proof of an "
             "economic causal mechanism."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "transfer_entropy",
+            "caption": (
+                "How to read this example: the two bars are the directed "
+                "information flow (in bits) each way — indicator→target and "
+                "target→indicator — against the shaded shuffle-based null band. "
+                "The pattern you want is the forward bar poking clearly ABOVE "
+                "the null (with an empirical p near zero) while the reverse bar "
+                "sits INSIDE it, i.e. information runs one way. This is the "
+                "non-linear cousin of Granger, so it catches threshold effects a "
+                "linear test misses; but the size in bits is not a return, and "
+                "directed information is still not proof of economic causation."
+            ),
+        },
     },
     {
         "slug": "random_forest_importance",
@@ -445,6 +588,21 @@ METHODS: list[dict] = [
             "tradable rule, and a high in-sample accuracy that does not survive "
             "walk-forward is overfitting."
         ),
+        "example": {
+            "pair": "indpro_spy",
+            "chart": "rf_importance",
+            "caption": (
+                "How to read this example: each bar is one indicator transform's "
+                "importance, averaged across the walk-forward windows — the "
+                "longer the bar, the more that feature helped the forest predict "
+                "the target's next-period sign out-of-sample. Read which FAMILY "
+                "(momentum, z-score, level) rises to the top and check it agrees "
+                "with the tournament's winning transform. Judge accuracy against "
+                "the honest 50% coin-flip: modestly above is a real but weak edge. "
+                "Importances can inflate for correlated features and give no "
+                "direction or tradable rule — this is a cross-check, not a signal."
+            ),
+        },
     },
 
     # ------------------------------------------------------------------ #
@@ -478,6 +636,20 @@ METHODS: list[dict] = [
             "costs), and search-phase OOS is still weaker evidence than a fresh, "
             "never-touched holdout exam."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "walk_forward",
+            "caption": (
+                "How to read this example: the curve is the strategy's "
+                "performance ONLY on data it never saw while fitting — each "
+                "segment was scored on a window held out after training on the "
+                "earlier one. This is the figure to lean on, not the in-sample "
+                "backtest: a rule whose edge holds up here survived the search, "
+                "one whose edge collapses was an artefact of it. Weight the "
+                "LONGEST out-of-sample stretch most (short <5yr windows inflate "
+                "Sharpe), and remember all figures are simulated (no market impact)."
+            ),
+        },
     },
     {
         "slug": "bootstrap_significance",
@@ -509,6 +681,25 @@ METHODS: list[dict] = [
             "of them): clearing the 5% bar on a search-selected "
             "winner is necessary, not sufficient."
         ),
+        # No standalone bootstrap-distribution chart is produced for any pair
+        # (the bootstrap p-value is reported inline in Strategy/Confidence text,
+        # not as a JSON figure). Rather than leave ``example`` as None (which the
+        # renderer can't display), we keep the dict shape with null pair/chart so
+        # the page shows a caption-only note and no broken embed.
+        "example": {
+            "pair": None,
+            "chart": None,
+            "caption": (
+                "How to read this example: there is no standalone figure for the "
+                "bootstrap test — its p-value is reported inline on each "
+                "Strategy/Confidence page rather than as a chart. To SEE "
+                "out-of-sample robustness visually, look instead at the "
+                "Walk-Forward example (performance on data never fitted on) and "
+                "the Subperiod example (Sharpe across economic episodes). Note "
+                "the bootstrap p on a search-selected winner is "
+                "search-conditioned: clearing 5% is necessary, not sufficient."
+            ),
+        },
     },
     {
         "slug": "subperiod_durability",
@@ -538,6 +729,20 @@ METHODS: list[dict] = [
             "are individually noisier -- read the pattern across episodes, not any "
             "one cell."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "subperiod_sharpe",
+            "caption": (
+                "How to read this example: each bar is the strategy's Sharpe "
+                "inside one economic episode (GFC, 2010s expansion, COVID, the "
+                "2022 rate shock). Bars that are positive and SIMILAR height "
+                "across most episodes are a durable edge; a single tall bar with "
+                "the rest near zero is a concentration warning — the edge lived "
+                "in one lucky window and should pull the confidence rating down "
+                "however strong the headline number. Each bar is a short, "
+                "individually noisy window, so read the pattern, not any one cell."
+            ),
+        },
     },
     {
         "slug": "structural_break_cointegration",
@@ -577,6 +782,21 @@ METHODS: list[dict] = [
             "series. Treat both as context that qualifies confidence, not as the "
             "trading signal itself."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "structural_break",
+            "caption": (
+                "How to read this example: the series is the indicator→target "
+                "relationship through time with the detected change-point(s) "
+                "marked by a vertical line — those dates flag where the link may "
+                "have STRUCTURALLY shifted, meaning any full-sample statistic "
+                "spanning the break should be read with caution and subsample "
+                "analysis is warranted. Break tests can over-flag on noisy "
+                "series, and the companion cointegration check is a separate, "
+                "conditional question (do the two levels share a long-run "
+                "equilibrium?) — both qualify confidence, they aren't the signal."
+            ),
+        },
     },
 ]
 

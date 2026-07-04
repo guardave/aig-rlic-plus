@@ -48,7 +48,7 @@ def render_page() -> None:
     _apply_page_config()
     render_sidebar()
     render_glossary_sidebar()
-    render_statistical_methods()
+    render_statistical_methods(key_prefix="page")
 
 
 render_page()
