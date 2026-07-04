@@ -15,9 +15,11 @@ Two entry points call ``render_statistical_methods()``:
 Keeping the render in one place means both entry points stay in lock-step.
 """
 
+import os
+
 import streamlit as st
 
-from components.charts import load_plotly_chart
+from components.charts import _REPO_ROOT, _load_plotly_json, load_plotly_chart
 from components.statistical_methods import (
     CATEGORIES,
     METHODS,
@@ -88,22 +90,43 @@ def _render_method_example(method: dict, key_prefix: str = "") -> None:
         )
         return
 
-    # Load + render via the portal's canonical loader. It internally catches
-    # parse/miss failures and renders a placeholder, but we still wrap the whole
-    # call so nothing this method touches can raise into the surrounding page.
     key = f"methods_example_{key_prefix}_{slug}" if key_prefix else f"methods_example_{slug}"
-    try:
-        load_plotly_chart(
-            chart,
-            fallback_text=(
-                "Illustrative chart will appear when the source pair's "
-                "visualization is available."
-            ),
-            pair_id=pair,
-            chart_key=key,
-        )
-    except Exception:  # noqa: BLE001 — render edge: never surface a traceback
-        st.caption("Illustrative chart is temporarily unavailable.")
+
+    # Prefer a bespoke annotated illustration if Vera has built one for this
+    # method's slug at output/charts/_methods/plotly/{slug}.json. This is an
+    # illustrative overlay on real pair data; the "Source pair" line below still
+    # names the real data's origin (example.pair). Path is resolved from the
+    # repo root — the same base the pair-chart loader uses — so the existence
+    # check and the load agree regardless of the page's cwd (it runs from app/).
+    annotated_path = os.path.normpath(
+        os.path.join(_REPO_ROOT, "output", "charts", "_methods", "plotly", f"{slug}.json")
+    )
+    rendered = False
+    if os.path.exists(annotated_path):
+        try:
+            fig = _load_plotly_json(annotated_path)
+            st.plotly_chart(fig, use_container_width=True, key=key)
+            rendered = True
+        except Exception:  # noqa: BLE001 — render edge: fall back to the pair chart
+            rendered = False
+
+    # No annotated figure (or it failed to parse) → keep the existing pair-chart
+    # path exactly as before. The canonical loader internally guards parse/miss
+    # failures with the GATE-25 placeholder; we still wrap it so nothing here can
+    # raise into the surrounding page.
+    if not rendered:
+        try:
+            load_plotly_chart(
+                chart,
+                fallback_text=(
+                    "Illustrative chart will appear when the source pair's "
+                    "visualization is available."
+                ),
+                pair_id=pair,
+                chart_key=key,
+            )
+        except Exception:  # noqa: BLE001 — render edge: never surface a traceback
+            st.caption("Illustrative chart is temporarily unavailable.")
 
     if caption:
         st.caption(caption)
