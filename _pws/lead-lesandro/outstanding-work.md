@@ -1,6 +1,32 @@
 # Lead Lesandro — Outstanding Work
 
-## Current open items (as of 2026-06-22 EOD)
+## ✅ CLOSED 2026-07-03 — big session: lead-horizon merge + 2 viz fixes + Step C batch (all live on main)
+
+Everything below shipped to production `main` and was verified live. Commits: `a4dafe7`+`ea08f5b` (lead-chart overlap, all 13 pairs), `13b3bcc` (t10y3m vline), `d2f0a44` (lead-horizon wave merge — the item carried from 2026-06-27), then the **Step C batch** `7c7da6d`/`705a492`/`f2c6390` merged as `c53dd29`.
+
+- **Lead-horizon wave MERGED** (`d2f0a44`) — the pending item from last EOD. Rebooted-preview verified, gate 13/13, cloud-safe.
+- **Chart text-overlap fix** (`a4dafe7`) — `lead_sharpe_distribution` + `correlations_lead_view` on all 13 pairs: sweep-max vs published-winner callouts + x-axis-title/legend collisions. Generator-only, zero data drift.
+- **t10y3m vline-position fix** (`13b3bcc`) — categorical-axis bug: `add_vline(x=int(win_lead))` positions by INDEX not value; on non-contiguous grid [0,1,2,3,6,9,12] winner L6 drew at L12. Fixed via `leads.index(win_lead)`. Only t10y3m affected.
+- **Step C batch — 26 reviewer comments (YYY/KS/AF/Alex_UK, open+blank) + folded-in vline** — dispatched Evan/Ray/Vera/Ace across 4 waves (journal: `temp/step_c_journal.md`). Highlights: **#159/#181 OOS-vs-full-sample drawdown-window bug** (SOX winner looked −65% through GFC; real OOS −9.7%), #157/#158 loader field-fallbacks, #177 heatmap 0.709, SOX decision-panels #180/#182/#183, VIX glossary/footnote batch. **Independently audited by Ivy (Codex gpt-5.5) → all A1–C10 CONFIRM, 0 issues.** Merged over a **moved main** (+18 commits: out-of-band `nhs_spy` pair + another team's T10Y3M-narrative batch = the #165–174 items I correctly EXCLUDED) — conflict-free, gate-green. Production-verified (t10y3m vline on L6 live).
+- **Branch cleanup done:** `fix260703_step_c_yyy_ks_af_alex`, `fix260627_lead_vline_position`, `fix260627_lead_chart_overlap` deleted.
+
+**🟡 OPEN / carried forward:**
+1. **Candidate GH issues to file** (per feedback_gh_issues_over_backlog — STILL UNFILED): (a) **OOS-vs-full-sample drawdown-window bug is a shared producer pattern** — audit ALL pairs' drawdown charts for the same mismatch (found on 2, likely more); (b) bare `except: pass` in `page_templates._load_winner_summary` silently swallows schema drift — log instead; (c) the 6 older lead-horizon candidates (ECON-LT1 atomic regen, cloud_verify screenshot-click timeout, signal_dist surfacing, numeric trigger cards, tie-note asymmetry).
+2. **Registry-walk compliance gate** — assert every registered pair carries selection + lead blocks, so the next out-of-band pair (nhs_spy is the 3rd now: t10y3m → nhs_spy) is caught at ITS commit, not a downstream merge. Proposal still open.
+3. **Optional branch cleanup:** 3 merged `fix260620_*` local branches remain (archive_sample, lead_horizon, lowrisk_cleanup) — offered, awaiting user OK (LEAD-BD1).
+4. **Mark Step C comments CLOSED** in `temp/Step C - Dashboard Comment log (2607031232BST).xlsx` (26 items) — offered to user, not yet done (user-owned Excel).
+
+---
+
+## ✅ CLOSED 2026-06-27 — lead-horizon wave MERGED to production
+
+Branch `fix260620_lead_horizon` merged to `main` at **`d2f0a44`** (no-ff, Lead authorship) after explicit user merge authorization (LEAD-MA1). Pre-commit gates all PASS (T1.1 49/0, T1.3, T2 224/0, T1.2 loader smoke). Pushed; origin/main in sync. User rebooted dawodev → t10y3m lead tabs confirmed (`Lead Analysis`/`Lead Tournament`) → merged. Production auto-deploy caught up **without** needing a reboot; verified t10y3m + 4-pair spot-check (hy_ig, indpro, vix, permit) all render clean with lead tabs → schema→REQUIRED flip cloud-safe fleet-wide.
+
+**Still open (carried forward, no blocker):** the 6 candidate GH issues below remain UNFILED; registry-walk compliance gate proposal still open.
+
+---
+
+## Current open items (as of 2026-06-22 EOD) — ⬆️ MERGE NOW DONE, see CLOSED block above
 
 ### Lead-horizon wave — branch `fix260620_lead_horizon` @ `de6155b` (16 commits ahead of main, pushed, **NOT merged**)
 Resumed at SOD; user authorized merge-sequencing **option (a)** ("Phase 4 first, then merge the whole wave"). Drove Phase 4 + an integration fix + a full Phase-3 parity mini-wave for a pair that landed mid-wave. Everything gate-verified (T1.1 13/13, T2 224 refs/0 fail). **The wave is merge-ready; only a cloud reboot + the explicit merge go remain.**

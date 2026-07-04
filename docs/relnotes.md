@@ -1,5 +1,20 @@
 # Release Notes
 
+## 2026-07-03 — Lead-horizon merge, chart-overlap + vline fixes, and the Step C reviewer-comment batch (all live, main `c53dd29`)
+
+Shipped the pending lead-horizon wave plus two viz correctness fixes and a 26-item reviewer-comment batch; all independently audited and production-verified.
+
+- **Chart text-overlap fix (all 13 pairs).** `lead_sharpe_distribution` + `correlations_lead_view`: the sweep-max vs published-winner callouts collided on adjacent leads, and the x-axis title overprinted the horizontal legend. Generator-only remedy (bottom-anchored winner callout with identical-lead dedupe; legend pushed below an axis-title standoff). Zero data drift.
+- **t10y3m published-winner vline mispositioned (correctness).** `add_vline(x=int(win_lead))` anchors a numeric x to the CATEGORICAL axis INDEX, not the lead value. On the non-contiguous grid `[0,1,2,3,6,9,12]`, winner L6 (index 4) drew the marker at index 6 = L12. Fixed by positioning via `leads.index(win_lead)` with a guard against phantom markers. Only the one non-contiguous-grid pair was affected; contiguous pairs are byte-identical.
+- **OOS-vs-full-sample drawdown-window bug (trust-critical, #159/#181).** The Strategy drawdown charts for gold_copper_xli and phlxsox_spy plotted the FULL sample while the headlines/legends were OOS-scoped — so SOX's winner appeared to lose ~65% through the GFC when its true OOS max drawdown is −9.7%. Producers now OOS-slice and re-base the cummax; equity_curves intentionally stays full-sample. **This is a shared producer pattern — a fleet audit of all drawdown charts is a candidate GH issue.**
+- **Step C reviewer-comment batch (26 items, requestors YYY/KS/AF/Alex_UK).** Loader field-fallbacks (tournament combos, win rate), heatmap same-day-correlation banner, Granger log-axis / CCF lag-0 clip, SOX decision-centric panels (Executive Confidence, Advanced Evidence Summary, limitations framing), VIX glossary + thesis footnote, plain-English rewrites across VIX/M2/HY-IG/C&I/gold. Every chart's numeric series byte-matches source (zero drift); no CSV rewrites (ECON-T5).
+- **Independent audit + moved-main integration.** Ivy (Codex gpt-5.5) re-derived from primary artifacts — all CONFIRM, zero issues. Merged conflict-free over a main that had advanced +18 commits (a 3rd out-of-band pair, `nhs_spy`, plus another team's T10Y3M-narrative batch).
+
+**Lessons:** (1) On a categorical Plotly axis, always position vlines/markers by category index, never raw value. (2) A drawdown chart's window MUST match the headline it's captioned with — OOS headline ⇒ OOS chart. (3) Out-of-band pairs keep landing on main mid-branch (t10y3m → nhs_spy); a registry-walk compliance gate is increasingly warranted. (4) Codex-backed independent audit (Ivy) with a self-authored verification script is an effective pre-merge trust check.
+
+---
+
+
 ## 2026-06-22 — Lead-horizon Phase 4 + t10y3m_spy integration & parity (branch `fix260620_lead_horizon` @ `de6155b`, unmerged)
 
 Completed the wave's transparency phase and resolved an out-of-band integration collision.

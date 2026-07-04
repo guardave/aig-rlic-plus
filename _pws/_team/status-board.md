@@ -1,5 +1,19 @@
 # Team Status Board
 
+## 2026-07-03 — Lead Lesandro (lead-horizon merge + 2 viz fixes + Step C batch — ALL SHIPPED)
+
+**Status:** COMPLETED. All work live on production `main` @ `c53dd29`, verified. Branches cleaned.
+
+- **Lead-horizon wave MERGED** (`d2f0a44`) — the item blocked at last EOD. Reboot-verified, gate 13/13, cloud-safe.
+- **Chart text-overlap fix** (`a4dafe7`, all 13 pairs) + **t10y3m vline-position fix** (`13b3bcc`) — both found during cloud verification of the lead-horizon merge. Vline bug = categorical-axis `add_vline` positions by INDEX not value (winner L6 drew at L12 on non-contiguous grid). Generator-only, zero data drift.
+- **Step C batch — 26 reviewer comments (YYY/KS/AF/Alex_UK) + folded vline**, merged `c53dd29`. 4 waves, dispatched Evan/Ray/Vera/Ace (journal `temp/step_c_journal.md`). Trust-critical find: **#159/#181 OOS-vs-full-sample drawdown-window bug** — charts plotted full sample while headlines were OOS-scoped (SOX winner looked −65% through GFC; real OOS −9.7% vs B&H −24.5%). Also #157/#158 loader field-fallbacks, #177 heatmap 0.709 banner, SOX decision-panels #180/#182/#183, VIX glossary/footnote batch.
+- **Independent audit:** dispatched **Ivy via Codex (gpt-5.5) in tmux** — she wrote her own verify script, recomputed drawdowns from primary data (0.0 diff), byte-checked all charts, **all A1–C10 CONFIRM, 0 issues**. Report `_pws/audit-ivy/step_c_audit/ivy_report.md`.
+- **Moved-main integration:** main advanced +18 commits mid-session (out-of-band `nhs_spy` pair + another team's T10Y3M-narrative batch = the #165–174 items I correctly EXCLUDED). Merge conflict-free (only page_templates.py overlapped, auto-merged), gate-green with nhs_spy (14 pairs 53/0).
+- **🟡 Carried forward:** file candidate GH issues (drawdown-window fleet audit; bare except:pass; +6 older); registry-walk compliance gate (nhs_spy = 3rd out-of-band pair now); mark Step C log CLOSED (user-owned Excel).
+
+---
+
+
 ## 2026-06-22 — Lead Lesandro (lead-horizon Phase 4 + t10y3m_spy integration & parity)
 
 **Status:** HANDOVER (blocked on user). Branch `fix260620_lead_horizon` @ `de6155b`, pushed, **16 commits ahead of main, NOT merged.** Gate 13/13, conflict-free, cloud-clean (pre-t10y3m). User invoked `/eod` at a reboot request.
