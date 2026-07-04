@@ -18,6 +18,7 @@ from components.pair_registry import (
 )
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
+from components.statistical_methods_render import render_statistical_methods
 from components.prospective_pairs import (
     build_status_pivot,
     n_universe as prospective_n_universe,
@@ -96,7 +97,9 @@ def _mdd_color(val):
 
 
 # --- Top-level tabs: Reports (existing card grid) | Status (prospective-universe matrix) ---
-reports_tab, status_tab = st.tabs(["Reports", "Status"])
+reports_tab, status_tab, methods_tab = st.tabs(
+    ["Reports", "Status", "Statistical Methods"]
+)
 
 with reports_tab:
     # --- Integrity warning banner ---
@@ -356,6 +359,12 @@ with status_tab:
         st.info("No prospective pairs found — check `data/prospective_pairs.csv`.")
     else:
         st.table(pivot)
+
+with methods_tab:
+    # Portal-wide Statistical Methods reference, driven by the same shared
+    # render function as the standalone sidebar page (single source of truth).
+    # No page chrome inside a tab — just the content.
+    render_statistical_methods()
 
 # --- Footer ---
 st.markdown("---")
