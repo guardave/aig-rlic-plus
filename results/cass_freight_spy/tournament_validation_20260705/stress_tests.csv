@@ -1,0 +1,4 @@
+period,start,end,n_months,buy_hold_sharpe,buy_hold_return_pct,winner_sharpe,winner_return_pct
+COVID,2020-01-01,2020-06-30,6,-0.0774,-1.21,-1.4142,-0.04
+Rate_Hike_2022,2022-01-01,2023-06-30,18,-0.0458,-1.43,0.1969,5.74
+Freight_Recession,2022-06-01,2024-06-30,25,0.9014,34.65,0.9886,35.51

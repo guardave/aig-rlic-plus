@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-03T02:11:51Z",
+  "generated_at": "2026-07-05T19:15:33Z",
   "columns": [
     {
       "column_name": "date",
@@ -743,6 +743,72 @@
     {
       "column_name": "nhs_yoy_contraction_flag",
       "display_name": "New Home Sales YoY Contraction Flag",
+      "unit": "none",
+      "axis_label": "Contraction (0/1)"
+    },
+    {
+      "column_name": "cass_freight_idx",
+      "display_name": "Cass Freight Shipments Index",
+      "unit": "index",
+      "axis_label": "Cass Freight Index (Jan1990=1)"
+    },
+    {
+      "column_name": "cass_freight_pct_yoy",
+      "display_name": "Cass Freight YoY (%)",
+      "unit": "pct",
+      "axis_label": "Cass Freight YoY (%)"
+    },
+    {
+      "column_name": "cass_freight_pct_mom",
+      "display_name": "Cass Freight MoM (%)",
+      "unit": "pct",
+      "axis_label": "Cass Freight MoM (%)"
+    },
+    {
+      "column_name": "cass_freight_3m_pct",
+      "display_name": "Cass Freight 3M Change (%)",
+      "unit": "pct",
+      "axis_label": "Cass Freight 3M (%)"
+    },
+    {
+      "column_name": "cass_freight_6m_pct",
+      "display_name": "Cass Freight 6M Change (%)",
+      "unit": "pct",
+      "axis_label": "Cass Freight 6M (%)"
+    },
+    {
+      "column_name": "cass_freight_ma12_idx",
+      "display_name": "Cass Freight 12M MA",
+      "unit": "index",
+      "axis_label": "Cass Freight 12M MA"
+    },
+    {
+      "column_name": "cass_freight_dev_trend_pct",
+      "display_name": "Cass Freight Deviation from 12M Trend (%)",
+      "unit": "pct",
+      "axis_label": "Dev. from 12M MA (%)"
+    },
+    {
+      "column_name": "cass_freight_zscore_60m",
+      "display_name": "Cass Freight 60M Z-Score",
+      "unit": "none",
+      "axis_label": "Z-score (60M)"
+    },
+    {
+      "column_name": "cass_freight_yoy_zscore_60m",
+      "display_name": "Cass Freight Growth 60M Z-Score",
+      "unit": "none",
+      "axis_label": "YoY z-score (60M)"
+    },
+    {
+      "column_name": "cass_freight_accel_pct",
+      "display_name": "Cass Freight Acceleration (pp)",
+      "unit": "pct",
+      "axis_label": "MoM accel. (pp)"
+    },
+    {
+      "column_name": "cass_freight_contraction",
+      "display_name": "Cass Freight Contraction Flag",
       "unit": "none",
       "axis_label": "Contraction (0/1)"
     }

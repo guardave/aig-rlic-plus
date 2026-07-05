@@ -1,0 +1,9 @@
+{
+  "owner": "evan",
+  "split_policy_id": "v1_max36_25pct_cap120",
+  "in_sample_end": "2023-05-31",
+  "oos_start": "2023-06-30",
+  "oos_end": "2026-05-31",
+  "sample_size_months": 124,
+  "justification": "Policy v1_max36_25pct_cap120 on the full Cass history (124 months, 2016-01 onward; SPY covers the entire Cass window). min(max(36, round(124*0.25)), 120) = 36 months. Short-history pair: the 36-month (<5yr) OOS window is below the 5yr reliability floor -> any winner is found-in-search with an inflated/high-variance Sharpe (Dana Phase-0 flag). No structural-break exclusion applied (full sample retained given the already-short span)."
+}

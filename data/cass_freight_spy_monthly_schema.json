@@ -1,0 +1,183 @@
+{
+  "pair_id": "cass_freight_spy",
+  "parquet_path": "data/cass_freight_spy_monthly_20160131_20260531.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-05T19:13:16Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Month-end date index (parquet index column); spans 2016-01-31 through 2026-05-31."
+    },
+    "cass_freight_idx": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "Cass Freight Shipments Index",
+      "direction": "higher_is_better",
+      "description": "FRED FRGSHPUSM649NCIS: Cass Freight Index \u2014 Shipments. Monthly index (Jan 1990 = 1.00), NOT seasonally adjusted. Volume of freight shipments across the Cass client base; a read on the U.S. goods economy.",
+      "source_reference": "FRED:FRGSHPUSM649NCIS"
+    },
+    "unrate": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Unemployment Rate (%)",
+      "direction": "lower_is_better",
+      "description": "FRED UNRATE: civilian unemployment rate, monthly, SA. Control series.",
+      "source_reference": "see description"
+    },
+    "dgs10": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "US 10Y Treasury Yield (%)",
+      "direction": "neutral",
+      "description": "FRED DGS10: 10-year constant-maturity Treasury yield, month-end value. Control.",
+      "source_reference": "see description"
+    },
+    "fed_funds": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Fed Funds Rate (%)",
+      "direction": "neutral",
+      "description": "FRED DFF: effective federal funds rate, month-end value. Control.",
+      "source_reference": "see description"
+    },
+    "vix": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "VIX Index Level",
+      "direction": "lower_is_better",
+      "description": "CBOE VIX index, month-end close (Yahoo ^VIX). Control / regime variable.",
+      "source_reference": "see description"
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "neutral",
+      "description": "SPY adjusted close, month-end (Yahoo, auto-adjusted). Target asset.",
+      "source_reference": "yahoo:SPY"
+    },
+    "cass_freight_pct_yoy": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Cass Freight YoY (%)",
+      "direction": "higher_is_better",
+      "description": "12-month percent change in cass_freight_idx. Seasonality-robust cycle signal (preferred over MoM given the NSA source). Effective start = 2017-01.",
+      "source_reference": "FRED:FRGSHPUSM649NCIS"
+    },
+    "cass_freight_pct_mom": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Cass Freight MoM (%)",
+      "direction": "higher_is_better",
+      "description": "1-month percent change in cass_freight_idx. NSA source => seasonally biased; prefer YoY-family for cycle inference.",
+      "source_reference": "FRED:FRGSHPUSM649NCIS"
+    },
+    "cass_freight_3m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Cass Freight 3M Change (%)",
+      "direction": "higher_is_better",
+      "description": "3-month percent change (momentum) in cass_freight_idx. NSA => seasonally biased.",
+      "source_reference": "FRED:FRGSHPUSM649NCIS"
+    },
+    "cass_freight_6m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Cass Freight 6M Change (%)",
+      "direction": "higher_is_better",
+      "description": "6-month percent change (momentum) in cass_freight_idx. NSA => partially seasonal.",
+      "source_reference": "FRED:FRGSHPUSM649NCIS"
+    },
+    "cass_freight_ma12_idx": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "Cass Freight 12M MA",
+      "direction": "higher_is_better",
+      "description": "12-month rolling mean of cass_freight_idx (min 10 obs). A 12M MA also nets out the NSA seasonal pattern.",
+      "source_reference": "FRED:FRGSHPUSM649NCIS"
+    },
+    "cass_freight_dev_trend_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Cass Freight Deviation from 12M Trend (%)",
+      "direction": "higher_is_better",
+      "description": "Percent deviation of cass_freight_idx from its 12-month moving average.",
+      "source_reference": "FRED:FRGSHPUSM649NCIS"
+    },
+    "cass_freight_zscore_60m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "Cass Freight 60M Z-Score",
+      "direction": "higher_is_better",
+      "description": "Rolling 60-month z-score of the LEVEL (min 36 obs). Effective start ~2018-12; short history limits the rolling window. NSA level => seasonal noise present.",
+      "source_reference": "FRED:FRGSHPUSM649NCIS"
+    },
+    "cass_freight_yoy_zscore_60m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "Cass Freight Growth 60M Z-Score",
+      "direction": "higher_is_better",
+      "description": "Rolling 60-month z-score of cass_freight_pct_yoy (min 36 obs). Effective start ~2019-12; short history limits the rolling window.",
+      "source_reference": "FRED:FRGSHPUSM649NCIS"
+    },
+    "cass_freight_accel_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Cass Freight Acceleration (pp)",
+      "direction": "higher_is_better",
+      "description": "First difference of cass_freight_pct_mom (percentage points). NSA => noisy.",
+      "source_reference": "FRED:FRGSHPUSM649NCIS"
+    },
+    "cass_freight_contraction": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "Cass Freight Contraction Flag",
+      "direction": "lower_is_better",
+      "description": "1.0 when cass_freight_pct_yoy < 0, else 0.0. Marks freight-recession months (e.g. COVID 2020, 2022-2024 goods slowdown).",
+      "source_reference": "FRED:FRGSHPUSM649NCIS"
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Daily Return (decimal)",
+      "direction": "neutral",
+      "description": "SPY 1-month simple return (decimal).",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_1m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 1M Return",
+      "direction": "neutral",
+      "description": "Forward 1-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_3m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 3M Return",
+      "direction": "neutral",
+      "description": "Forward 3-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_6m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 6M Return",
+      "direction": "neutral",
+      "description": "Forward 6-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_12m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 12M Return",
+      "direction": "neutral",
+      "description": "Forward 12-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    }
+  }
+}
