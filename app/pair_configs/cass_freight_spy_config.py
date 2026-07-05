@@ -1,10 +1,10 @@
 """Cass Freight Index (Shipments) × SPY pair configuration (Rule APP-PT1).
 
-New pair, Mode 1, branch feat260705_cass_freight_spy. This file wires the
-pair into the template-expected structure (Ace's lane: structure,
-chart-name constants, downloads list). Prose here is HONEST placeholder
-text pending Research Ray's finished narrative pass — it deliberately does
-NOT oversell.
+New pair, Mode 1, branch feat260705_cass_freight_spy. Structure wired by
+Ace (chart-name constants, downloads list); user-facing narrative across
+Story / Evidence / Strategy / Methodology authored by Research Ray
+(feat260705 finished pass). Honest coincident/candidate framing throughout
+— deliberately does NOT oversell.
 
 HONEST FRAMING (binding). Empirical verdict for this pair is
 **coincident / no confirmed forward edge**:
@@ -27,9 +27,20 @@ kpis.json, evidence_status.json, core_models_20260705/*, structural_break,
 tournament_validation_20260705/bootstrap.csv, lead_correlation_20260705.csv,
 lead_winner_curve_20260705.csv).
 
-GH #13 framing slot: see LEAD_TOURNAMENT_BLOCK["how_to_read"] — the
-clearly-marked [[GH#13 FRAMING SLOT — RAY]] line rendered immediately
-before the lead_sharpe_distribution chart. Ray fills the exact prose.
+GH #13 framing: LEAD_TOURNAMENT_BLOCK["how_to_read"] carries Ray's
+plain-English framing (rendered before the lead_sharpe_distribution chart)
+explaining why the published winner's lead (L3) can sit below the chart's
+tallest bar (an excluded seasonally-contaminated L2 combo).
+
+Winner-rule direction (resolved against winner_trades_broker_style.csv):
+LONG SPY when the 3-month-lagged dev_trend signal is at/above its rolling
+z-score threshold (freight near/above trend = risk-on); CASH when it falls
+below (freight contracting). This is PROCYCLICAL (matches
+winner_summary.direction and interpretation_metadata.expected_direction).
+The raw code `P1_long_cash_counter` / `threshold_rule=lt` encode the base
+Long/Cash family BEFORE the counter inversion; the net economic orientation
+is procyclical, as every row of the broker-style trade log confirms
+(signal below threshold -> position 100%->0%).
 """
 
 from __future__ import annotations
@@ -48,7 +59,7 @@ class StoryConfig:
         "A SHORT-history, NOT-seasonally-adjusted goods-economy gauge."
     )
 
-    # PLACEHOLDER (Ray to finalize) — honest candidate framing.
+    # Ray-authored (feat260705) — honest candidate framing, RES-11/RES-18 Template A.
     HEADLINE_H2 = (
         "## Search-phase OOS Sharpe 2.49 vs 1.67 buy-and-hold on a 36-month "
         "(<5yr) window — but the lead-lag tests find NO forward causality "
@@ -115,7 +126,7 @@ class StoryConfig:
         "on a short sample — not a forecast."
     )
 
-    # PLACEHOLDER narrative (Ray to finalize) — honest, no overselling.
+    # Ray-authored (feat260705) — honest, no overselling.
     NARRATIVE_SECTION_1 = """
 ### Freight as a coincident gauge of the goods economy
 
@@ -188,7 +199,7 @@ every number on the Strategy page is labelled a *candidate* found in search.
         },
     ]
 
-    # PLACEHOLDER narrative (Ray to finalize).
+    # Ray-authored (feat260705).
     NARRATIVE_SECTION_2 = """
 ### "Coincident, not leading" — so how can there be a timing strategy?
 
@@ -210,7 +221,9 @@ predictive edge.
 Across **13,524 strategy combinations** (9,556 passing validity filters, of
 which 4,316 use seasonally-clean signals), the best *seasonally-clean* rule
 was: be long the S&P 500 (SPY) when the 3-month-lagged freight trend-deviation
-signal sits below its rolling z-score threshold; otherwise hold cash. In the
+signal sits at or above its rolling z-score threshold (freight running near or
+above its recent trend); step to cash only when freight has fallen well below
+trend — a procyclical, risk-on-when-freight-is-healthy overlay. In the
 36-month search window it scored an OOS Sharpe of 2.49 versus 1.67 for
 buy-and-hold, with a maximum drawdown of −2.4% versus −8.3%.
 
@@ -401,14 +414,17 @@ LEAD_TOURNAMENT_BLOCK = dict(
         "Bars: max OOS Sharpe at each monthly lead. Strip/cloud: valid "
         "combinations at that lead. A tall thin spike is a single combo; a "
         "flat-but-wide cloud is a more robust regime.\n\n"
-        "[[GH#13 FRAMING SLOT — RAY]] Placeholder framing (Ray to finalize "
-        "the exact prose): this chart shows the best any signal can do at "
-        "each lead; the published strategy is picked for reliability — a "
-        "seasonally-CLEAN signal — not the single highest score, so its lead "
-        "may differ from the tallest bar by design. The very tallest bar "
-        "(around L2) is an EXCLUDED seasonally-contaminated signal (raw OOS "
-        "Sharpe 2.60), which is why the clean published winner sits at L3 "
-        "(2.49) instead."
+        "Why the tallest bar is not the published winner: the bars show the "
+        "best OOS Sharpe *any* signal reached at each lead, while the "
+        "highlighted line is our published strategy's own signal — a "
+        "seasonally-clean freight-trend measure — traced across leads, which "
+        "peaks at its chosen lead L3 (2.49). We pick a strategy for "
+        "reliability, not for the single highest score: the taller bar near "
+        "L2 (2.60) belongs to a momentum signal that is seasonally "
+        "contaminated (the Cass index is not seasonally adjusted), which we "
+        "exclude by design. So the published winner's lead can legitimately "
+        "sit below the tallest bar — that gap is the seasonal filter doing "
+        "its job, not a mistake."
     ),
     chart_name="lead_sharpe_distribution",
     chart_caption=(
@@ -822,8 +838,10 @@ class StrategyConfig:
     PLAIN_ENGLISH = (
         "The best seasonally-clean rule from a 13,524-combination search: "
         "hold the S&P 500 (SPY) when the freight trend-deviation signal — "
-        "viewed with a 3-month delay — sits below its rolling z-score "
-        "threshold; otherwise hold cash. In the 36-month search window "
+        "viewed with a 3-month delay — sits at or above its rolling z-score "
+        "threshold (freight running near or above its recent trend); "
+        "otherwise, when freight has fallen well below trend, hold cash. In "
+        "the 36-month search window "
         "(2023–2026) it scored a Sharpe ratio of 2.49 versus 1.67 for "
         "buy-and-hold, with a −2.4% maximum drawdown versus −8.3%. But the "
         "test window is short, the lead-lag tests find no forward causality, "
@@ -833,15 +851,15 @@ class StrategyConfig:
     )
 
     SIGNAL_RULE_MD = """
-**Rule:** Hold the S&P 500 (SPY) **when the 3-month-lagged Cass Freight trend-deviation signal (`cass_freight_dev_trend_pct`, the % deviation of the shipments index from its 12-month moving average) sits below its rolling z-score threshold. Otherwise hold cash.** (Family: Long/Cash, countercyclical orientation on this transform; signal `cass_freight_dev_trend`, threshold T3 rolling z-score < −1.0, lead L3, lookback LB36 — per `winner_summary.json`.)
+**Rule:** Hold the S&P 500 (SPY) **when the 3-month-lagged Cass Freight trend-deviation signal (`cass_freight_dev_trend_pct`, the % deviation of the shipments index from its 12-month moving average) sits at or above its rolling z-score threshold — i.e. freight is running near or above its recent trend. When freight instead falls well below trend, hold cash.** This is a **procyclical** orientation: expanding freight = risk-on, contracting freight = step aside. (Family: Long/Cash; signal `cass_freight_dev_trend`, rolling z-score threshold T3, lead L3, lookback LB36 — per `winner_summary.json`; `direction: procyclical`. The raw tournament code `P1_long_cash_counter` names the encoding relative to the Long/Cash base family, not an economic countercyclical stance — the net orientation is procyclical, as the trade log confirms.)
 
 If-then form:
-- **IF** the 3-month-old freight trend-deviation reading is below its rolling z-score threshold → **BUY/HOLD SPY (100% invested)**.
-- **ELSE** → **HOLD CASH (0% invested)**.
+- **IF** the 3-month-old freight trend-deviation reading is at or above its rolling z-score threshold → **BUY/HOLD SPY (100% invested)**.
+- **ELSE** (freight well below trend) → **HOLD CASH (0% invested)**.
 
-Search-phase results (2023-06 → 2026-05, 36 months — **short window, no hold-out test yet**): OOS Sharpe 2.49 vs 1.67 buy-and-hold; annualized return 23.2% vs 22.1%; maximum drawdown −2.4% vs −8.3%; 8 trades (turnover 2.67/yr); average exposure ~61% (win rate 61%).
+Search-phase results (2023-06 → 2026-05, 36 months — **short window, no hold-out test yet**): OOS Sharpe 2.49 vs 1.67 buy-and-hold; annualized return 23.2% vs 22.1%; maximum drawdown −2.4% vs −8.3%; 8 trades (turnover 2.67/yr); average exposure ~75% (win rate 61%).
 
-**Read this as a candidate, not a validated edge.** The window is below the five-year floor, the indicator is coincident (no forward causality), and the result is not statistically significant. This pair's `suggested_strategy_objective` is **min_mdd** (the winner's edge is largely drawdown avoidance).
+**Read this as a candidate, not a validated edge.** The window is below the five-year floor, the indicator is coincident (no forward causality), and the result is not statistically significant. This pair's `strategy_objective` (per `interpretation_metadata.json`) is **max_sharpe**: with a return almost identical to buy-and-hold (23.2% vs 22.1%), the winner's entire edge is risk reduction — far lower volatility and a −2.4% drawdown versus −8.3% — achieved by sitting out the deep-contraction months.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = """
@@ -849,9 +867,9 @@ No formulas — three steps:
 
 **What changes in the world:** the physical goods economy speeds up or slows down — factories, retailers, and distributors ship more or less freight. The Cass Freight Index measures that shipment volume each month.
 
-**What the signal measures:** each month, the rule looks at how far the freight index sits above or below its own 12-month moving average (its "trend deviation"), as that reading stood three months ago (the delay reflects both the ~2-week publication lag and, mainly, the tournament's finding that the 3-month-old reading scored best in search). It then asks whether that reading is below its rolling z-score threshold.
+**What the signal measures:** each month, the rule looks at how far the freight index sits above or below its own 12-month moving average (its "trend deviation"), as that reading stood three months ago (the delay reflects both the ~2-week publication lag and, mainly, the tournament's finding that the 3-month-old reading scored best in search). It then asks whether that reading is at or above its rolling z-score threshold.
 
-**What decision it drives:** below-threshold reading → be in the market; otherwise → hold cash. Because the relationship is coincident, this is best understood as a *state* description (where the goods cycle sits right now) rather than a forecast of where stocks are going.
+**What decision it drives:** at-or-above-threshold reading (freight near or above its recent trend) → be in the market; a reading that has dropped well below threshold (freight contracting) → hold cash. Because the relationship is coincident, this is best understood as a *state* description (where the goods cycle sits right now) rather than a forecast of where stocks are going.
 """
 
     MANUAL_USE_MD = (
@@ -870,11 +888,12 @@ No formulas — three steps:
         "3. **Apply the 3-month delay** — the reading the rule acts on this "
         "month is the trend deviation from three months ago.\n"
         "4. **Compare to its rolling threshold** — is that delayed reading "
-        "below its rolling z-score threshold (window per the LB36 lookback)? "
-        "See `winner_trade_log.csv` for the full threshold path.\n"
-        "5. **Take the position** — below-threshold reading → hold SPY (100% "
-        "invested); otherwise → hold cash (0% invested). Re-evaluate once a "
-        "month.\n\n"
+        "at or above its rolling z-score threshold (window per the LB36 "
+        "lookback)? See `winner_trade_log.csv` for the full threshold path.\n"
+        "5. **Take the position** — at-or-above-threshold reading (freight "
+        "near or above trend) → hold SPY (100% invested); a reading well "
+        "below threshold (freight contracting) → hold cash (0% invested). "
+        "Re-evaluate once a month.\n\n"
         "Remember the warning labels: short (36-month) window, coincident "
         "indicator, not statistically significant."
     )
@@ -914,10 +933,11 @@ No formulas — three steps:
     TRADE_LOG_EXAMPLE_MD = (
         "**A concrete example from this pair:** on **2019-02-28** the "
         "broker-style log records a SELL — the 3-month-lagged freight "
-        "trend-deviation reading (−4.336) had fallen relative to its rolling "
-        "threshold (−1.190), moving the position from 100% to 0% (cash). The "
-        "matching BUY appears on **2019-06-30**, when the delayed reading "
-        "(−1.122) came back above its rolling threshold (−2.653) and the "
+        "trend-deviation reading (−4.336) had dropped below its rolling "
+        "threshold (−1.190), signalling freight well under trend and moving "
+        "the position from 100% to 0% (cash). The matching BUY appears on "
+        "**2019-06-30**, when the delayed reading (−1.122) came back above "
+        "its rolling threshold (−2.653) and the "
         "strategy returned to the market. You can find both rows in the "
         "broker-style CSV."
     )
