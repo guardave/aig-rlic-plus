@@ -1,5 +1,23 @@
 # Lead Lesandro — Outstanding Work
 
+## 2026-07-04 — Statistical Methods reference page (SHIPPED) + annotated examples (UNMERGED, awaiting review)
+
+New feature across the day. **Shipped to production `main`:**
+- **Statistical Methods reference page** (`fb75567`) — new portal-wide page `app/pages/1_Statistical_Methods.py` (top of sidebar) + canonical data module `app/components/statistical_methods.py` (15 methods across Level-1/Level-2/Strategy-validation, each with what-for / why-applicable / how-to-interpret + honest caveats + catalog refs). DRYs method prose duplicated across 14 configs. No schema/registry coupling. Built Evan(content)→Ray(plain-English)→Ace(page).
+- **Landing-page tab** (`fc3bbf8`) — "Statistical Methods" as a 3rd top-level tab beside Reports/Status; shared chrome-free `render_statistical_methods()` in `statistical_methods_render.py` drives BOTH the sidebar page (thin wrapper) and the tab (single source of truth). The prior page_link entry-point approach was reverted in favour of the tab per stakeholder.
+
+**🟡 UNMERGED — branch `feat260704_method_examples` @ `bbaa08c` (pushed, awaiting user review + LEAD-MA1):**
+- **Annotated, data-verified illustrative example per method.** Each method now embeds a real example chart with on-figure ①②③ callouts, and the caption walks the same ①②③; ALL FOUR paragraphs cite only numbers present in that chart (no independent examples). 4 pairs switched to charts that SHOW the phenomenon: granger→phlxsox_spy (significant, feedback), transfer_entropy/subperiod/structural_break→gold_copper_xli. CCF kept gold_copper w/ honest contemporaneous framing (no clean forward-lead fleet-wide). Bootstrap = caption-only note (no chart exists).
+- **Process (reusable):** Evan decoded a per-method **fact sheet** (`_pws/lead-lesandro/method_examples_factsheets.md`) from the actual chart JSON = single source of truth → Vera annotated figures at those exact coords (`output/charts/_methods/plotly/{slug}.json`) → Ray wrote coherent prose from it → **Lead data-verification gate** decoded every figure and confirmed each callout + prose number matches. Render prefers the annotated `_methods` figure, else the pair chart (guarded, key_prefix so page+tab don't collide).
+- **Gotcha fixed:** Plotly log-axis annotation y is in log10 units → Granger chips at raw F blew the axis to 10^40; fixed to log10. (memory: reference_viz_log_axis_annotation)
+- **NEXT SESSION:** user to review annotated examples on the local instance → then merge `feat260704_method_examples` to main (LEAD-MA1). Local Streamlit was left running on port 8534 for review.
+
+**Branch cleanup pending (LEAD-BD1, offered):** `feat260704_stat_methods_page` + `feat260704_methods_entrypoint` are MERGED to main → safe to delete. `feat260704_method_examples` stays (unmerged).
+
+**Carried from 2026-07-03 (still open):** file candidate GH issues (drawdown-window fleet audit; bare except:pass; +6 older); registry-walk compliance gate (nhs_spy = 3rd out-of-band pair); mark Step C log CLOSED (user Excel).
+
+---
+
 ## ✅ CLOSED 2026-07-03 — big session: lead-horizon merge + 2 viz fixes + Step C batch (all live on main)
 
 Everything below shipped to production `main` and was verified live. Commits: `a4dafe7`+`ea08f5b` (lead-chart overlap, all 13 pairs), `13b3bcc` (t10y3m vline), `d2f0a44` (lead-horizon wave merge — the item carried from 2026-06-27), then the **Step C batch** `7c7da6d`/`705a492`/`f2c6390` merged as `c53dd29`.
