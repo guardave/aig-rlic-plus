@@ -1,0 +1,21 @@
+{
+  "chart_name": "hero",
+  "pair_id": "cass_freight_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "Cass Freight Index (Shipments) year-over-year shipment growth (vermillion, left axis) against SPY price (blue, right axis), 2016\u20132026. Freight and equities move broadly together \u2014 the freight cycle is coincident, not leading (Granger finds no forward causality in either direction). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Hero frames the coincident/no-lead character established by Evan's Granger + CCF verdict; COVID value re-read at gen time.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/cass_freight_spy_monthly_20160131_20260531.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-05T22:29:47.168508+00:00",
+  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+}

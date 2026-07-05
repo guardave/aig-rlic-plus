@@ -1,0 +1,19 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "cass_freight_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cross-correlation between AR(12) pre-whitened Cass Freight shipment growth and SPY returns. Only 1 lag (lag -2, ccf +0.201) crosses the 95% band \u2014 a lone cell treated as noise per the econometrics handoff. No robust leading relationship; the pair is coincident-or-none.",
+  "narrative_alignment_note": "CCF mirrors Evan's 'one stray significant lag (-2)' note.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cass_freight_spy/core_models_20260705/ccf_prewhitened.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-05T22:29:53.478945+00:00",
+  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+}

@@ -1,0 +1,20 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "cass_freight_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-QR1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "SPY performance by concurrent Cass Freight YoY-growth quartile: Sharpe (left) and annualized return (right). The pattern is procyclical and near-monotonic \u2014 Q4 (strongest freight) carries the best Sharpe (1.39, 18.6% ann.) and Q1 (weakest) the worst (0.80). Descriptive, concurrent quartiles \u2014 not a tradable lagged signal.",
+  "narrative_alignment_note": "VIZ-QR1 dual-panel from regime_quartile_returns.csv; values re-read at gen time; procyclical (Q4 best) framing.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cass_freight_spy/regime_quartile_returns.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-05T22:29:49.908755+00:00",
+  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+}

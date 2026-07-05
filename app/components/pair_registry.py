@@ -107,6 +107,7 @@ PAGE_ROUTING = {
     "phlxsox_spy": "pages/21_phlxsox_spy",
     "t10y3m_spy": "pages/22_t10y3m_spy",
     "nhs_spy": "pages/23_nhs_spy",
+    "cass_freight_spy": "pages/24_cass_freight_spy",
 }
 
 

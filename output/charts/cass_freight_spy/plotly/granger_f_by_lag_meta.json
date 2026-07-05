@@ -1,0 +1,21 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "cass_freight_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-V3",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Toda-Yamamoto Granger F-statistics at lags 1\u201312, both directions. Neither Cass Freight \u2192 SPY (min p = 0.804) nor SPY \u2192 Cass Freight (min p = 0.061) clears the 5% critical line at any lag. The flat, sub-critical profile in both directions is the signature of a coincident (non-forecasting) indicator.",
+  "narrative_alignment_note": "Both directions shown; neither significant \u2014 the null 'coincident_or_none' verdict IS the finding (honest framing).",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cass_freight_spy/core_models_20260705/granger_causality.csv",
+    "results/cass_freight_spy/granger_by_lag.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-05T22:29:55.213467+00:00",
+  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+}

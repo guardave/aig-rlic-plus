@@ -1,0 +1,46 @@
+{
+  "chart_name": "walk_forward",
+  "pair_id": "cass_freight_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-SR1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Rolling 12-month annualized Sharpe of the winner strategy vs buy-and-hold SPY over the out-of-sample window; dashed line at the reported OOS Sharpe (2.49). Only ~2 years of rolling windows exist on the 36-month OOS \u2014 thin evidence, consistent with the found-in-search caveat.",
+  "narrative_alignment_note": "Rolling-Sharpe walk-forward from the ECON-SR1 canonical series.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cass_freight_spy/strategy_returns_20260705.csv",
+    "results/cass_freight_spy/winner_summary.json"
+  ],
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 2.494379,
+      "reported_winner_summary": 2.4944,
+      "diff": -2.1e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS",
+      "convention": "standard"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.02406,
+      "reported_winner_summary": -0.0241,
+      "diff": 4e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS",
+      "convention": "standard"
+    },
+    "oos_ann_return": {
+      "computed": 0.232022,
+      "reported_winner_summary": 0.232,
+      "diff": 2.2e-05,
+      "tolerance": 0.006,
+      "verdict": "PASS",
+      "convention": "arithmetic mean*12"
+    }
+  },
+  "generated_at": "2026-07-05T22:30:21.046372+00:00",
+  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+}

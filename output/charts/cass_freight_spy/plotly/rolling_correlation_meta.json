@@ -1,0 +1,22 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "cass_freight_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.2",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "24-month rolling correlation between Cass Freight YoY growth and SPY monthly returns. The sign agrees with its full-sample value 80% of the time (sign stable); the contemporaneous link is weak and drifts. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Stability verdict quoted from structural_break JSON, not hard-coded.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cass_freight_spy/rolling_correlation_cass_freight_spy.csv",
+    "results/cass_freight_spy/structural_break_cass_freight_spy.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-05T22:30:08.589242+00:00",
+  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+}

@@ -18,10 +18,18 @@
   },
   "L_star": 2,
   "best_oos_sharpe_at_grid": 2.5998,
+  "best_oos_sharpe_at_grid_signal": "mom3m (L2, seasonally-CONTAMINATED)",
+  "best_clean_oos_sharpe_at_grid": 2.4944,
+  "best_clean_oos_sharpe_at_grid_signal": "dev_trend (L3, seasonally-clean = published winner)",
+  "winner_curve_file": "cass_freight_spy/lead_winner_curve_20260705.csv",
+  "clean_envelope_file": "cass_freight_spy/lead_clean_envelope_20260705.csv",
+  "seasonally_contaminated_signals": ["mom", "mom3m", "mom6m", "accel", "level_zscore_60m"],
   "gate_decision": "CHARTS-ONLY",
   "assertions": [
     "tradable lead grid is L1..12 (L0 non-tradable, pub-lag floor)",
-    "main tournament scans the full L1..12 grid -> published winner is the global lead max",
+    "main tournament scans the full L1..12 grid; the published winner (dev_trend/L3, 2.4944) is the global lead max AMONG SEASONALLY-CLEAN signals, NOT the raw global max",
+    "the raw global lead max is L2/mom3m/2.5998, a seasonally-CONTAMINATED combo excluded per the ECON-T5 divergence rule + Dana's binding NSA Phase-0 constraint (Cass series is not seasonally adjusted, so MoM/3M/6M/level-zscore transforms carry a seasonal component)",
+    "the published winner's OWN OOS-Sharpe-by-lead curve (fixed dev_trend/T3_zscore_neg_1.0/P1_long_cash_counter/LB36) peaks at L3 (2.4944) -> see lead_winner_curve_20260705.csv",
     "ECON-LT1 gate: L*=2 -> CHARTS-ONLY"
   ],
   "short_history_caveat": "OOS <5yr -> winner is found-in-search; lead-sweep peaks are high-variance."
