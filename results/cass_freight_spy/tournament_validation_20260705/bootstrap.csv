@@ -1,0 +1,6 @@
+signal,threshold,strategy,lead_months,lookback,oos_sharpe,bootstrap_p_value,significant_at_5pct
+mom3m,T3_zscore_neg_1.5,P3_long_short_counter,2,LB24,2.5998,0.1002,False
+mom3m,T3_zscore_neg_1.5,P3_long_short_counter,2,LB36,2.5998,0.1002,False
+dev_trend,T3_zscore_neg_1.0,P1_long_cash_counter,3,LB36,2.4944,0.1288,False
+mom3m,T3_zscore_neg_1.5,P3_long_short_counter,2,LB60,2.4886,0.1314,False
+mom3m,T3_zscore_1.0,P3_long_short_counter,11,LB24,2.4886,0.1314,False

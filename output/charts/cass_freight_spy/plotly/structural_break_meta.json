@@ -1,0 +1,24 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "cass_freight_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.3",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cass Freight YoY growth over the test sample (2017-01\u20132026-05, n = 113) with the Quandt-Andrews candidate break (2020-04, the COVID shock). The test does NOT flag a significant break (sup-F 1.69, residual-bootstrap p = 0.81). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Annotation-only chart; values from structural_break JSON.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cass_freight_spy/structural_break_cass_freight_spy.json",
+    "data/cass_freight_spy_monthly_20160131_20260531.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-05T22:30:10.331083+00:00",
+  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)",
+  "break_date": "2020-04-30",
+  "annotation_strategy_id": "manual_override"
+}

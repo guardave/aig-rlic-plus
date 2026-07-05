@@ -141,6 +141,96 @@
       "added_at": "2026-06-19",
       "first_pair": "phlxsox_spy",
       "notes": "Procyclical orientation for SPY. Used as the winning intermarket signal for phlxsox_spy (L63, long/cash). Stationary per Dana 20260619 tests; the raw sox_spy_ratio level is NON-stationary and excluded as a signal."
+    },
+    {
+      "signal_code": "cass_freight_yoy",
+      "display_name": "Cass Freight Shipments YoY % change",
+      "parquet_column_pattern": "cass_freight_pct_yoy",
+      "description": "12-month % change in the Cass Freight Index: Shipments (FRED FRGSHPUSM649NCIS, NSA monthly). Seasonality-robust cycle signal \u2014 preferred for direction/lead-lag on this NSA series.",
+      "source_method": "roc",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_mom",
+      "display_name": "Cass Freight Shipments MoM % change",
+      "parquet_column_pattern": "cass_freight_pct_mom",
+      "description": "1-month % change in Cass Freight Shipments. NSA source -> seasonally contaminated; flagged.",
+      "source_method": "roc",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_mom3m",
+      "display_name": "Cass Freight Shipments 3M % change",
+      "parquet_column_pattern": "cass_freight_3m_pct",
+      "description": "3-month momentum of Cass Freight Shipments. NSA -> partial seasonal contamination.",
+      "source_method": "roc",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_mom6m",
+      "display_name": "Cass Freight Shipments 6M % change",
+      "parquet_column_pattern": "cass_freight_6m_pct",
+      "description": "6-month momentum of Cass Freight Shipments. NSA -> partial seasonal contamination.",
+      "source_method": "roc",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_dev_trend",
+      "display_name": "Cass Freight deviation from 12M MA",
+      "parquet_column_pattern": "cass_freight_dev_trend_pct",
+      "description": "Percent deviation of the Cass Shipments level from its 12-month moving average.",
+      "source_method": "detrend",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_level_zscore_60m",
+      "display_name": "Cass Freight 60M level z-score",
+      "parquet_column_pattern": "cass_freight_zscore_60m",
+      "description": "Rolling 60-month z-score of the Cass Shipments LEVEL. Short usable span (from ~2018-12); seasonally contaminated on an NSA level.",
+      "source_method": "zscore",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_yoy_zscore_60m",
+      "display_name": "Cass Freight 60M YoY z-score",
+      "parquet_column_pattern": "cass_freight_yoy_zscore_60m",
+      "description": "Rolling 60-month z-score of Cass Shipments YoY growth. Seasonality-robust; short usable span (~2019-12+).",
+      "source_method": "zscore",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_accel",
+      "display_name": "Cass Freight MoM acceleration",
+      "parquet_column_pattern": "cass_freight_accel_pct",
+      "description": "Month-on-month change in MoM growth (acceleration, pp) of Cass Shipments.",
+      "source_method": "accel",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_contraction",
+      "display_name": "Cass Freight contraction flag",
+      "parquet_column_pattern": "cass_freight_contraction",
+      "description": "Indicator = 1 when Cass Shipments YoY growth < 0 (freight recession state).",
+      "source_method": "regime",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
     }
   ]
 }

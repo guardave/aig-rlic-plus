@@ -1,0 +1,9 @@
+{
+  "chart_name": "history_zoom_gfc",
+  "pair_id": "cass_freight_spy",
+  "skipped_by": "VIZ-HZE1",
+  "episode_slug": "gfc",
+  "reason": "Cass Freight data begins 2016-01; GFC episode ends 2009-12. No coverage.",
+  "generated_at": "2026-07-05T22:30:17.565766+00:00",
+  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+}
