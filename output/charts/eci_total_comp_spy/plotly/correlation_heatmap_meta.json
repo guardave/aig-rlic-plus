@@ -1,0 +1,19 @@
+{
+ "chart_name": "correlation_heatmap",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "Pearson correlations between ECI signal transforms and SPY forward returns at 1Q/2Q/4Q horizons; all weak, mostly negative \u2014 no usable wage-led forward signal.",
+ "narrative_alignment_note": "Concurrent (unlagged) forward-correlation grid; supports the lagging/no-lead framing.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/core_models_20260706/correlations.csv"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

@@ -1,0 +1,19 @@
+{
+ "chart_name": "transfer_entropy",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "Transfer entropy in both directions: forward ECI\u2192SPY p = 0.17 (null); reverse SPY\u2192ECI p = 0.05 (borderline) \u2014 information flows from the market to wages, if anywhere.",
+ "narrative_alignment_note": "TE null forward; the near-significant reverse direction reinforces the lagging framing.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/core_models_20260706/transfer_entropy.csv"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

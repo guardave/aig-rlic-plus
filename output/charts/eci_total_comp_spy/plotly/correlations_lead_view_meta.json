@@ -1,0 +1,20 @@
+{
+ "chart_name": "correlations_lead_view",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-LEAD1",
+  "VIZ-IC1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "Pearson correlation of each ECI transform (lagged L0\u2013L8 quarters) with SPY next-quarter return; all cells weak \u2014 no lead materially improves predictability.",
+ "narrative_alignment_note": "VIZ-LEAD1 companion view; quarterly lead axis labelled L#q (L1q \u2248 3 months) \u2014 first quarterly pair precedent.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/lead_correlation_20260706.csv"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

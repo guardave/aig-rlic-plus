@@ -1,0 +1,32 @@
+{
+ "chart_name": "equity_curves",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-NBER1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "OOS-window equity curves (OOS 2020\u20132026, 25 quarters): the candidate winner grows $1 to 4.04 vs 2.21 for Buy & Hold SPY. Found-in-search; bootstrap p = 0.12. Shaded bands mark NBER recessions.",
+ "narrative_alignment_note": "OOS-scoped per the drawdown/OOS-window rule; cumulated from the canonical strategy_returns CSV.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/strategy_returns_20260706.csv",
+  "results/eci_total_comp_spy/oos_split_record.json"
+ ],
+ "reconciliation": {
+  "winner_oos_sharpe_reported": 1.5952,
+  "winner_oos_sharpe_recomputed": 1.595216,
+  "winner_oos_mdd_reported": -0.0427,
+  "winner_oos_mdd_recomputed": -0.042669,
+  "bh_oos_sharpe": 0.8043,
+  "oos_window": [
+   "2020-03-31",
+   "2026-03-31"
+  ],
+  "oos_n_quarters": 25
+ },
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

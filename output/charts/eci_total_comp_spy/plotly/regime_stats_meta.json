@@ -1,0 +1,19 @@
+{
+ "chart_name": "regime_stats",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "SPY annualized Sharpe (left) and return (right) by concurrent ECI YoY wage-growth quartile; differences are mild and the relationship is concurrent, not a tradable lead.",
+ "narrative_alignment_note": "Manifest marks this as descriptive/concurrent; title says so explicitly.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/regime_quartile_returns.csv"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

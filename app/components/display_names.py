@@ -45,6 +45,8 @@ INDICATOR_NAMES: dict[str, str] = {
     "nhs_spy": "New Home Sales (NHS)",
     "cass_freight": "Cass Freight Index (Shipments)",
     "cass_freight_spy": "Cass Freight Index (Shipments)",
+    "eci_total_comp": "Employment Cost Index (ECI, Total Compensation)",
+    "eci_total_comp_spy": "Employment Cost Index (ECI, Total Compensation)",
     }
 
 TARGET_NAMES: dict[str, str] = {
@@ -89,6 +91,13 @@ INDICATOR_ABBREV: dict[str, str] = {
     # only used where a compact ticker-style label is wanted.
     "cass_freight": "Cass Freight",
     "cass_freight_spy": "Cass Freight",
+    # "ECI" is the conventional BLS abbreviation. The long form
+    # "Employment Cost Index (ECI, Total Compensation)" already embeds it,
+    # so long_form_with_abbrev's substring check suppresses a redundant
+    # second bracket; this abbrev is only used where a compact
+    # ticker-style label is wanted.
+    "eci_total_comp": "ECI",
+    "eci_total_comp_spy": "ECI",
 }
 
 
@@ -112,6 +121,7 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "t10y3m_spy": "10Y-3M Spread",
     "nhs_spy": "NHS",
     "cass_freight_spy": "Cass Freight",
+    "eci_total_comp_spy": "ECI",
 }
 
 

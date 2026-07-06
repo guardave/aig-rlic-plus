@@ -108,6 +108,7 @@ PAGE_ROUTING = {
     "t10y3m_spy": "pages/22_t10y3m_spy",
     "nhs_spy": "pages/23_nhs_spy",
     "cass_freight_spy": "pages/24_cass_freight_spy",
+    "eci_total_comp_spy": "pages/25_eci_total_comp_spy",
 }
 
 

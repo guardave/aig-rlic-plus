@@ -1,0 +1,24 @@
+{
+ "chart_name": "tournament_scatter",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "All 2,337 tournament combos by annual turnover vs OOS Sharpe; published winner (star, 1.60) vs Buy & Hold (diamond, 0.80). Search-conditioned, 25-quarter OOS, bootstrap p = 0.12 \u2014 candidate only.",
+ "narrative_alignment_note": "Search-conditioned disclosure in title, caption and meta per the honesty brief.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/tournament_results_20260706.csv",
+  "results/eci_total_comp_spy/winner_summary.json"
+ ],
+ "reconciliation": {
+  "total_combos": 2337,
+  "valid_combos": 1268,
+  "median_valid_oos_sharpe": 0.7179
+ },
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}
