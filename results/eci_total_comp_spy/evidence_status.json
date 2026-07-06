@@ -1,0 +1,31 @@
+{
+  "pair_id": "eci_total_comp_spy",
+  "generated_at": "2026-07-06T12:57:21Z",
+  "generated_by": "evan",
+  "blocks": {
+    "correlations": "ready",
+    "lead_correlation": "ready",
+    "lead_tournament": "ready",
+    "lead_winner_curve": "ready",
+    "lead_clean_envelope": "ready",
+    "ccf_prewhitened": "ready",
+    "granger_causality": "ready",
+    "transfer_entropy": "ready",
+    "local_projections": "ready",
+    "quantile_regression": "ready",
+    "regime_quartile_returns": "ready",
+    "hmm_states": "ready",
+    "subperiod_sharpe": "ready",
+    "structural_break": "ready",
+    "rolling_correlation": "ready",
+    "tournament": "ready",
+    "winner_summary": "ready"
+  },
+  "caveats": [
+    "OOS = 25 QUARTERS -> winner is a found-in-search CANDIDATE (high-variance Sharpe; STRONGER caveat than monthly pairs)",
+    "FIRST QUARTERLY pair: sqrt(4) annualization; leads/lookbacks in quarters",
+    "growth-family signals borderline-persistent; 20Q z-scores regime-contaminated (KPSS reject)",
+    "transfer entropy low-power at ~97 obs (directional check only)",
+    "empirical lead-lag class: lagging"
+  ]
+}

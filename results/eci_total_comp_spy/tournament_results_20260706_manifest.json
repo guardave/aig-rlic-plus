@@ -1,0 +1,57 @@
+{
+  "file": "tournament_results_20260706.csv",
+  "pair_id": "eci_total_comp_spy",
+  "frequency": "QUARTERLY (first quarterly pair)",
+  "annualization": "Sharpe = mean/std*sqrt(4); ann_return = mean*4; ann_vol = std*sqrt(4)",
+  "grid": {
+    "signals": [
+      "qoq",
+      "growth_2q",
+      "yoy",
+      "dev_trend",
+      "level_zscore_20q",
+      "yoy_zscore_20q",
+      "accel",
+      "yoy_accel",
+      "hmm_stress",
+      "markov_regime"
+    ],
+    "thresholds": "T1_fixed_p{25,50,75}, T4_zero (sign-meaningful: accel/yoy_accel/dev_trend), T3_zscore_{+1.0,-1.0} x {LB12,LB20}",
+    "strategies": [
+      "P1_long_cash_{pro,counter}",
+      "P3_long_short_{pro,counter}"
+    ],
+    "leads_quarters": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "lookbacks": [
+      "LB12",
+      "LB20",
+      "LB_NA"
+    ],
+    "sparse_grid_rationale": "101 quarterly obs \u2014 Dana Phase-0: no dense grids; P2 signal-strength and z-score +/-1.5 variants dropped; zero-cross restricted to sign-meaningful signals (wage growth never negative)"
+  },
+  "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
+  "lead_column_note": "lead_quarters (QUARTERS, not months) \u2014 quarterly adaptation of the ECON-LL1 monthly standard; L1=~3 months, L8=~24 months",
+  "total_strategy_rows": 2336,
+  "valid_strategy_rows": 1268,
+  "sampling": "exhaustive over the full tradable lead grid L1..L8 quarters (no coarse subset)",
+  "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
+  "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 quarter (BLS releases quarter Q ~1 month after quarter end -> Q print first tradable in Q+1)",
+  "small_sample_flag": "OOS window 25 QUARTERS \u2014 few OOS points; winner is found-in-search / CANDIDATE, not validated (stronger caveat than monthly pairs)",
+  "stationarity_flag": "growth family (qoq/2q/yoy/dev_trend) borderline-persistent; 20Q z-scores regime-contaminated (KPSS reject); accel family clean \u2014 per-row stationarity_class column",
+  "cost_note": "returns are gross of costs; cost sensitivity in tournament_validation",
+  "assertions": [
+    "top strategy oos_sharpe > bottom strategy oos_sharpe",
+    "all oos_sharpe finite",
+    "exactly one BENCHMARK row, valid=False"
+  ],
+  "generated_at": "2026-07-06T12:57:21Z"
+}

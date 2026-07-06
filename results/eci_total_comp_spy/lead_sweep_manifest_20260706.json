@@ -1,0 +1,33 @@
+{
+  "pair": "eci_total_comp_spy",
+  "run_date": "20260706",
+  "frozen": false,
+  "granularity": "QUARTERS L1..8 tradable (L0 diagnostic-only in lead_correlation; quarterly adaptation of ECON-LL1)",
+  "freq_native": "Q",
+  "design_note": "FIRST QUARTERLY pair; lead L = quarter shift on quarter-end signals. L0 excluded from the tradable grid (BLS ~1-month publication lag: quarter Q's print is first tradable in Q+1). Grid ceiling L8 (2 years) \u2014 deeper leads on 101 obs destroy effective sample.",
+  "oos_start": "2020-03-31",
+  "is_end": "2019-12-31",
+  "input_file": "/workspaces/aig-rlic-plus/data/eci_total_comp_spy_quarterly_latest.parquet",
+  "input_sha256": "sha256:4c12964544b62383",
+  "lead_correlation_file": "eci_total_comp_spy/lead_correlation_20260706.csv",
+  "lead_tournament_file": "eci_total_comp_spy/lead_tournament_20260706.csv",
+  "lead_winner_curve_file": "eci_total_comp_spy/lead_winner_curve_20260706.csv",
+  "lead_clean_envelope_file": "eci_total_comp_spy/lead_clean_envelope_20260706.csv",
+  "clean_envelope_note": "SA source: all signals admissible -> envelope and clean envelope COINCIDE by construction",
+  "published_winner": {
+    "signal": "eci_total_comp_yoy_zscore_20q",
+    "lead": 6,
+    "lead_unit": "quarters",
+    "oos_sharpe": 1.5952
+  },
+  "winner_curve_peak_lead": 6,
+  "L_star": 6,
+  "best_oos_sharpe_at_grid": 1.5952,
+  "gate_decision": "CHARTS-ONLY (full grid scanned natively)",
+  "assertions": [
+    "tradable lead grid is L1..8 QUARTERS (L0 non-tradable, pub-lag floor)",
+    "main tournament scans the full L1..8 grid -> published winner is the global lead max",
+    "ECON-LT1 gate: L*=6 -> CHARTS-ONLY (full grid scanned natively)"
+  ],
+  "small_sample_caveat": "OOS = 25 quarters -> winner is found-in-search; lead-sweep peaks are high-variance."
+}

@@ -1,0 +1,9 @@
+{
+  "owner": "evan",
+  "split_policy_id": "v1_max36_25pct_cap120",
+  "in_sample_end": "2019-12-31",
+  "oos_start": "2020-03-31",
+  "oos_end": "2026-03-31",
+  "sample_size_months": 300,
+  "justification": "Policy v1_max36_25pct_cap120 applied in native QUARTERLY units on the first quarterly pair: total sample 100 quarters (300 months, 2001-Q1..2026-Q1). span = min(max(12q, round(100*0.25)), 40q) = 25 quarters (= 75 months; the monthly formula min(max(36, round(300*0.25)), 120) = 75 months ~= the same window). OOS 2020-03-31..2026-03-31 spans COVID, the 2021-23 wage-inflation surge and the 2022 tightening bear \u2014 the exact episodes the countercyclical hypothesis is about. CAVEAT: 25 quarterly observations is a SMALL OOS sample; any winner is found-in-search with a high-variance Sharpe (stronger caveat than Cass's 36 monthly OOS points). IS = 75 quarters (z-score transforms usable from 2003-Q4/2004-Q4 within IS). No structural-break exclusion applied."
+}

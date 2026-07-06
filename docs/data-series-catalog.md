@@ -198,6 +198,12 @@ This section catalogs the 31 indicators used in the multi-indicator analysis fra
 | I31 | ISM Mfg PMI / ISM Svc PMI Ratio | `ism_mfg_svc_ratio` | I2 / I3 | `ism_mfg_pmi / ism_svc_pmi`; >1 = manufacturing stronger |
 | I32 | Manufacturers' New Orders YoY | `neworder_yoy` | I26 YoY change | `neworder.pct_change(12) * 100`; percent |
 
+### 7.11 Labor Cost (1 indicator)
+
+| ID | Indicator | Canonical Name | Source | Freq | Notes |
+|----|-----------|---------------|--------|------|-------|
+| I33 | Employment Cost Index (Total Compensation) | `eci_total_comp` | FRED: ECIALLCIV | Quarterly | Index Dec 2005 = 100, SA, All Civilian; 2001-Q1 onward. First QUARTERLY-native pair. BLS releases quarter Q ~1 month after quarter end (end of Jan/Apr/Jul/Oct) → lead grid floors at L1 (quarters). Classification: `indicator_nature = lagging` (labor costs turn after the cycle — The Conference Board includes unit-labor-cost change among its Lagging Economic Index components; wages/ECI are the standard lagging labor-cost read), `indicator_type = macro` (composite labor-cost/inflation measure; not survey, price-of-asset, rate, or credit). Note: Data Master's `ECI` sheet carries the NSA private-industry variants (Dec 2015=100) — a different variant from this SA all-civilian headline series. |
+
 ---
 
 ## 8. Target Universe (35 Targets)

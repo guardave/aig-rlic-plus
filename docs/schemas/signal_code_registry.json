@@ -231,6 +231,86 @@
       "added_at": "2026-07-05",
       "first_pair": "cass_freight_spy",
       "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "eci_total_comp_qoq",
+      "display_name": "ECI Total Compensation QoQ % change",
+      "parquet_column_pattern": "eci_total_comp_pct_qoq",
+      "description": "Quarter-on-quarter % change in the Employment Cost Index: Total Compensation, All Civilian (FRED ECIALLCIV, SA quarterly). Short-horizon wage-inflation momentum.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_2q",
+      "display_name": "ECI Total Compensation 2-quarter % change",
+      "parquet_column_pattern": "eci_total_comp_pct_2q",
+      "description": "2-quarter (~6M) % change in ECI total compensation (SA). Medium-horizon wage-inflation momentum.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_yoy",
+      "display_name": "ECI Total Compensation YoY % change",
+      "parquet_column_pattern": "eci_total_comp_pct_yoy",
+      "description": "4-quarter % change in ECI total compensation (SA). Headline wage-inflation rate; highly persistent (near-I(1)) at quarterly frequency.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_dev_trend",
+      "display_name": "ECI Total Compensation deviation from 8Q trend",
+      "parquet_column_pattern": "eci_total_comp_dev_trend_pct",
+      "description": "% deviation of the ECI level from its 8-quarter moving average. Wage-level cycle position vs ~2yr trend.",
+      "source_method": "dev_trend",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_level_zscore_20q",
+      "display_name": "ECI level 20Q rolling z-score",
+      "parquet_column_pattern": "eci_total_comp_zscore_20q",
+      "description": "Rolling 20-quarter (~5yr) z-score of the ECI level. Regime-contaminated (KPSS rejects stationarity) - usable with caution.",
+      "source_method": "zscore",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_yoy_zscore_20q",
+      "display_name": "ECI YoY 20Q rolling z-score",
+      "parquet_column_pattern": "eci_total_comp_yoy_zscore_20q",
+      "description": "Rolling 20-quarter z-score of ECI YoY growth. Regime-contaminated (KPSS rejects) - usable with caution.",
+      "source_method": "zscore",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_accel",
+      "display_name": "ECI QoQ acceleration",
+      "parquet_column_pattern": "eci_total_comp_accel_pct",
+      "description": "Change in QoQ growth (pp): qoq_t - qoq_{t-1}. Cleanly stationary wage-inflation acceleration.",
+      "source_method": "accel",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_yoy_accel",
+      "display_name": "ECI YoY acceleration",
+      "parquet_column_pattern": "eci_total_comp_yoy_accel_pct",
+      "description": "Change in YoY growth (pp): yoy_t - yoy_{t-1}. Cleanly stationary; captures wage-inflation turning points.",
+      "source_method": "accel",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
     }
   ]
 }

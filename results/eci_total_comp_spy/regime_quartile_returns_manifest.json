@@ -1,0 +1,30 @@
+{
+  "file": "regime_quartile_returns.csv",
+  "pair_id": "eci_total_comp_spy",
+  "produced_by": "scripts/pair_pipeline_eci_total_comp_spy.py",
+  "generated_at": "2026-07-06T12:58:25Z",
+  "frequency": "quarterly",
+  "annualization": "Sharpe = mean/std * sqrt(4); ann_return = mean*4 (quarterly data)",
+  "columns": {
+    "quartile": "ECI YoY wage-growth quartile (Q1 lowest growth)",
+    "n_quarters": "obs (quarters)",
+    "ann_return": "annualized SPY return in quartile (ratio; quarterly mean x4)",
+    "ann_vol": "annualized vol (ratio; quarterly std x sqrt(4))",
+    "sharpe": "quarterly Sharpe, sqrt(4) annualization",
+    "max_drawdown": "max DD within quartile quarters (negative ratio)"
+  },
+  "assertions": [
+    {
+      "description": "4 quartiles",
+      "check": "len == 4"
+    },
+    {
+      "description": "returns plausible",
+      "check": "abs(ann_return) < 0.6"
+    },
+    {
+      "description": "concurrent (NOT lagged) relationship \u2014 descriptive only",
+      "check": "informational"
+    }
+  ]
+}
