@@ -1,0 +1,32 @@
+{
+  "chart_name": "hmm_regime_probs",
+  "pair_id": "wells_fargo_housing_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Probability that NAHB HMI is in its builder-pessimism (low-level) regime, from a 2-state HMM on the sentiment level. The regime split is clean and slow-moving \u2014 pessimism pins to 1.0 through the 2006\u201309 housing bust and 0.0 through the 2004\u201305 boom (both verified against manifest assertions at generation time) \u2014 but it DESCRIBES housing conditions rather than predicting SPY. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Labels follow hmm_states_manifest.json semantics ('stress' = builder-pessimism LEVEL regime, a deliberate level split), relabelled in plain English to avoid implying equity stress.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/wells_fargo_housing_spy/core_models_20260706/hmm_states.parquet",
+    "results/wells_fargo_housing_spy/core_models_20260706/hmm_summary.csv"
+  ],
+  "reconciliation": {
+    "gfc_prob_stress_mean": {
+      "computed": 1.0,
+      "manifest_expected": "> 0.8",
+      "verdict": "PASS"
+    },
+    "boom_2004_05_prob_stress_mean": {
+      "computed": 0.0003,
+      "manifest_expected": "< 0.2",
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-07-06T23:15:01.104348+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
+}

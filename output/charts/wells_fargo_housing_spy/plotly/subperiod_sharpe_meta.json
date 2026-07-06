@@ -1,0 +1,21 @@
+{
+  "chart_name": "subperiod_sharpe",
+  "pair_id": "wells_fargo_housing_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-CP1",
+    "VIZ-CP1.1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Winner-strategy annualized Sharpe within each canonical stress episode. Only COVID 2020 falls inside the OOS window (Sharpe 1.70); dot-com, GFC and the 2015 China shock predate the 2017-09 OOS start, so the strategy's crisis behaviour is evidenced by a single episode. Evan's durability verdict: conditionally_durable.",
+  "narrative_alignment_note": "Three-state encoding (no data / in cash / value) per the established subperiod convention; states derived from data_status; durability verdict quoted from the CSV.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/wells_fargo_housing_spy/subperiod_sharpe.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-06T23:15:11.317151+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
+}

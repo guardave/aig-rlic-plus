@@ -1,0 +1,8 @@
+{
+  "chart_name": "rolling_sharpe_cp",
+  "pair_id": "wells_fargo_housing_spy",
+  "skipped_by": "VIZ-CP1-G",
+  "reason": "ECON-CP2 artifacts intentionally absent for this pair: regime_story=false (CP2 skipped) in results/wells_fargo_housing_spy/signal_scope.json and the structural-break JSON cp2_note. No upstream result file exists to chart.",
+  "generated_at": "2026-07-06T23:15:24.024418+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
+}

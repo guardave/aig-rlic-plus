@@ -1,0 +1,19 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "wells_fargo_housing_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cross-correlation between AR(12) pre-whitened NAHB HMI and SPY returns at lags -24..+24 months. 7 of 49 lags cross the 95% band (-10, -1, +0, +1, +5, +12, +13), scattered on both sides of zero including lag 0 \u2014 a bidirectional, noise-like pattern with no clean ridge on the indicator-leads side. Positive lag = NAHB HMI leads SPY (pair-pipeline convention).",
+  "narrative_alignment_note": "Significant-lag list re-read from the CSV; matches Evan's 'bidirectional' classification. Lag-sign convention verified against the pair pipeline (positive = HMI leads).",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/wells_fargo_housing_spy/core_models_20260706/ccf_prewhitened.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-06T23:14:52.446940+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
+}
