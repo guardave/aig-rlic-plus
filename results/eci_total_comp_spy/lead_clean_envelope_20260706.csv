@@ -1,0 +1,9 @@
+lead_quarters,best_oos_sharpe,best_signal,best_is_clean,best_clean_oos_sharpe,best_clean_signal
+1,1.1962,markov_regime,True,1.1962,markov_regime
+2,1.229,yoy_zscore_20q,True,1.229,yoy_zscore_20q
+3,1.1615,accel,True,1.1615,accel
+4,1.4089,hmm_stress,True,1.4089,hmm_stress
+5,1.3627,hmm_stress,True,1.3627,hmm_stress
+6,1.5952,yoy_zscore_20q,True,1.5952,yoy_zscore_20q
+7,1.4858,level_zscore_20q,True,1.4858,level_zscore_20q
+8,1.3109,qoq,True,1.3109,qoq

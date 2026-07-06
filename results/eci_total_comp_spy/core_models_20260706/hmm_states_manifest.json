@@ -1,0 +1,30 @@
+{
+  "file": "hmm_states.parquet",
+  "pair_id": "eci_total_comp_spy",
+  "produced_by": "scripts/pair_pipeline_eci_total_comp_spy.py",
+  "generated_at": "2026-07-06T12:58:25Z",
+  "frequency": "quarterly",
+  "annualization": "Sharpe = mean/std * sqrt(4); ann_return = mean*4 (quarterly data)",
+  "columns": {
+    "hmm_state": "integer state; stress = HIGH-MEAN wage-inflation regime (level split, not vol split)",
+    "prob_stress": "P(high wage-inflation regime); higher = wage-price-spiral / Fed-pressure regime",
+    "prob_calm": "1 - prob_stress"
+  },
+  "assertions": [
+    {
+      "description": "probabilities in [0,1]",
+      "check": "prob_stress between 0 and 1"
+    },
+    {
+      "description": "2021-23 wage surge = high regime",
+      "filter": "2021-12..2023-06",
+      "column": "prob_stress",
+      "check": "mean = 1.00 (expect > 0.8)"
+    },
+    {
+      "description": "states sum to 1",
+      "check": "prob_stress + prob_calm == 1"
+    }
+  ],
+  "small_sample_caveat": "97 quarterly obs; persistent series -> HMM splits wage-inflation LEVEL regimes; transition matrix weakly identified"
+}

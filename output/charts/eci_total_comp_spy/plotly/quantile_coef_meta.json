@@ -1,0 +1,19 @@
+{
+ "chart_name": "quantile_coef",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "Quantile-regression coefficients of the ECI signal on SPY forward returns across taus 0.05\u20130.95; the zero line sits inside every CI (min p = 0.08) \u2014 no tail-dependent channel.",
+ "narrative_alignment_note": "Completes the null forward battery (Granger/CCF/LP/TE/quantile).",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/core_models_20260706/quantile_regression.csv"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

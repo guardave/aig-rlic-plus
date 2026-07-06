@@ -1,0 +1,19 @@
+{
+ "chart_name": "local_projections",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "Local-projection coefficients of ECI on SPY forward returns (left) and the reverse (right) at 1\u20134 quarter horizons; forward effects all insignificant (min p = 0.25).",
+ "narrative_alignment_note": "Dual-panel fwd/rev mirrors cass; quarterly horizon axis.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/core_models_20260706/local_projections.csv"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

@@ -1,0 +1,30 @@
+{
+  "file": "correlations.csv",
+  "pair_id": "eci_total_comp_spy",
+  "produced_by": "scripts/pair_pipeline_eci_total_comp_spy.py",
+  "generated_at": "2026-07-06T12:58:25Z",
+  "frequency": "quarterly",
+  "annualization": "Sharpe = mean/std * sqrt(4); ann_return = mean*4 (quarterly data)",
+  "columns": {
+    "pair_name": "signal_key__forward-return-column (quarterly: 1q/2q/4q fwd)",
+    "horizon_days": "forward horizon in trading days (quarters*63)",
+    "metric": "pearson/spearman/kendall/distance",
+    "value": "correlation coefficient",
+    "p_value": "two-sided p (NaN for distance corr); NOTE overlapping fwd windows inflate significance",
+    "n_obs": "quarters"
+  },
+  "assertions": [
+    {
+      "description": "values bounded",
+      "check": "abs(value) <= 1"
+    },
+    {
+      "description": "quarterly horizons",
+      "check": "horizon_days in {63,126,252}"
+    },
+    {
+      "description": "small-sample n floor",
+      "check": "min(n_obs) >= 40"
+    }
+  ]
+}

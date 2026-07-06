@@ -1,0 +1,39 @@
+{
+  "file": "signals_20260706.parquet",
+  "pair_id": "eci_total_comp_spy",
+  "produced_by": "scripts/pair_pipeline_eci_total_comp_spy.py",
+  "generated_at": "2026-07-06T12:58:25Z",
+  "frequency": "quarterly",
+  "annualization": "Sharpe = mean/std * sqrt(4); ann_return = mean*4 (quarterly data)",
+  "columns": {
+    "eci_total_comp_pct_qoq": "tournament-eligible signal derived solely from ECI total compensation (eci_total_comp_pct_qoq)",
+    "eci_total_comp_pct_2q": "tournament-eligible signal derived solely from ECI total compensation (eci_total_comp_pct_2q)",
+    "eci_total_comp_pct_yoy": "tournament-eligible signal derived solely from ECI total compensation (eci_total_comp_pct_yoy)",
+    "eci_total_comp_dev_trend_pct": "tournament-eligible signal derived solely from ECI total compensation (eci_total_comp_dev_trend_pct)",
+    "eci_total_comp_zscore_20q": "tournament-eligible signal derived solely from ECI total compensation (eci_total_comp_zscore_20q)",
+    "eci_total_comp_yoy_zscore_20q": "tournament-eligible signal derived solely from ECI total compensation (eci_total_comp_yoy_zscore_20q)",
+    "eci_total_comp_accel_pct": "tournament-eligible signal derived solely from ECI total compensation (eci_total_comp_accel_pct)",
+    "eci_total_comp_yoy_accel_pct": "tournament-eligible signal derived solely from ECI total compensation (eci_total_comp_yoy_accel_pct)",
+    "hmm_2state_prob_stress": "tournament-eligible signal derived solely from ECI total compensation (hmm_2state_prob_stress)",
+    "markov_regime_2state": "tournament-eligible signal derived solely from ECI total compensation (markov_regime_2state)"
+  },
+  "assertions": [
+    {
+      "description": "2021-23 wage surge present",
+      "filter": "2021-06..2023-12",
+      "column": "eci_total_comp_pct_yoy",
+      "check": "max > 4.8"
+    },
+    {
+      "description": "post-GFC deceleration",
+      "filter": "2009-06..2010-12",
+      "column": "eci_total_comp_pct_yoy",
+      "check": "min < 2.0"
+    },
+    {
+      "description": "wage growth never negative (nominal stickiness)",
+      "column": "eci_total_comp_pct_yoy",
+      "check": "min > 0"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# Simulated trade record based on backtest signals. No real trades were executed. Starting capital: $10000. Commission: 5 bps. Pair: eci_total_comp_spy (QUARTERLY rebalance). Strategy: P3_long_short_pro on yoy_zscore_20q (eci_total_comp_yoy_zscore_20q), threshold T1_fixed_p75, lead L6 quarters, LB_NA.
+trade_date,side,instrument,quantity_pct,price,notional_usd,commission_bps,commission_usd,cum_pnl_pct,reason
+2001-06-30,SELL,SPY,100.0,78.0608,10000.0,5,5.0,-5.3635,position change
+2015-06-30,BUY,SPY,100.0,171.6246,20000.0,5,10.0,-71.4353,P3_long_short_pro: yoy_zscore_20q (eci_total_comp_yoy_zscore_20q) = 0.378 vs threshold 0.259 — position -100% -> 100%
+2015-09-30,SELL,SPY,100.0,160.5994,20000.0,5,10.0,-69.6003,P3_long_short_pro: yoy_zscore_20q (eci_total_comp_yoy_zscore_20q) = -0.478 vs threshold 0.259 — position 100% -> -100%
+2015-12-31,BUY,SPY,100.0,171.8743,20000.0,5,10.0,-67.4661,P3_long_short_pro: yoy_zscore_20q (eci_total_comp_yoy_zscore_20q) = 0.768 vs threshold 0.259 — position -100% -> 100%
+2016-12-31,SELL,SPY,100.0,192.4956,20000.0,5,10.0,-66.333,P3_long_short_pro: yoy_zscore_20q (eci_total_comp_yoy_zscore_20q) = -0.145 vs threshold 0.259 — position 100% -> -100%
+2017-12-31,BUY,SPY,100.0,234.2775,20000.0,5,10.0,-68.6697,P3_long_short_pro: yoy_zscore_20q (eci_total_comp_yoy_zscore_20q) = 1.636 vs threshold 0.259 — position -100% -> 100%
+2022-03-31,SELL,SPY,100.0,426.2769,20000.0,5,10.0,-37.4777,P3_long_short_pro: yoy_zscore_20q (eci_total_comp_yoy_zscore_20q) = -0.275 vs threshold 0.259 — position 100% -> -100%
+2022-12-31,BUY,SPY,100.0,365.6734,20000.0,5,10.0,-18.066,P3_long_short_pro: yoy_zscore_20q (eci_total_comp_yoy_zscore_20q) = 0.983 vs threshold 0.259 — position -100% -> 100%
+2026-03-31,SELL,SPY,100.0,648.6689,20000.0,5,10.0,58.6283,P3_long_short_pro: yoy_zscore_20q (eci_total_comp_yoy_zscore_20q) = -0.004 vs threshold 0.259 — position 100% -> -100%

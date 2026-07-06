@@ -1,0 +1,33 @@
+{
+ "chart_name": "lead_sharpe_distribution",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-LEAD1",
+  "VIZ-IC1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "Published winner's own Sharpe-by-lead curve (foreground) peaks at its deployed lead L6q = 1.60 with adjacent support (L5q 0.87 / L7q 1.31) but is NEGATIVE at L1q\u2013L3q \u2014 fragile short-lead behaviour. Grey envelope = best of any signal per lead (SA source, no seasonal exclusions). Buy & Hold SPY OOS Sharpe = 0.80. 25-quarter OOS \u2014 found-in-search candidate, bootstrap p = 0.12 (n.s.).",
+ "narrative_alignment_note": "GH#13 native pattern: winner-curve foreground, envelope as grey context; quarterly lead axis precedent (L#q labels, L1q \u2248 3 months). Star placed by category label (categorical-axis rule).",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/lead_winner_curve_20260706.csv",
+  "results/eci_total_comp_spy/lead_tournament_20260706.csv",
+  "results/eci_total_comp_spy/winner_summary.json"
+ ],
+ "reconciliation": {
+  "winner_lead_quarters": 6,
+  "winner_curve_peak": 1.5952,
+  "envelope_at_L6q": 1.5952,
+  "winner_curve_L1_L3": [
+   -0.3107,
+   -0.5056,
+   -0.2589
+  ],
+  "bh_oos_sharpe": 0.8043,
+  "envelope_equals_winner_at_peak": true
+ },
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}
