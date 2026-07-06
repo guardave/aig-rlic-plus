@@ -3,7 +3,8 @@
 New pair, branch feat260705_eci_spy — the fleet's FIRST QUARTERLY pair.
 Structure wired by Ace (chart-name constants, downloads list, quarterly-unit
 conventions); user-facing narrative across Story / Evidence / Strategy /
-Methodology is HONEST PLACEHOLDER prose pending Research Ray's finished pass.
+Methodology is the FINISHED pass by Research Ray (2026-07-06), every cited
+number verified against the results artifacts listed below.
 Do NOT oversell: the lagging / reverse-causality finding is the headline.
 
 HONEST FRAMING (binding). Empirical verdict for this pair is **LAGGING —
@@ -38,11 +39,12 @@ bootstrap.csv, lead_correlation_20260706.csv, lead_winner_curve_20260706.csv,
 regime_quartile_returns.csv, winner_trades_broker_style.csv,
 tournament_tie_note.md).
 
-GH #13 framing: LEAD_TOURNAMENT_BLOCK["how_to_read"] carries the framing
-slot marked [[GH#13 FRAMING SLOT — RAY]] (rendered before the
-lead_sharpe_distribution chart): the winner's own lead-curve peaks at its
-published L6q; every point on the sweep is search-conditioned; short leads
-(L1..L3 quarters) are NEGATIVE-Sharpe.
+GH #13 framing: LEAD_TOURNAMENT_BLOCK["how_to_read"] carries Ray's
+plain-English framing (rendered before the lead_sharpe_distribution chart):
+the bars are a best-any-signal envelope (search-conditioned at every lead);
+the winner's own lead-curve peaks at its published L6q and is
+NEGATIVE-Sharpe at short leads (L1..L3 quarters); we publish for
+reliability of construction, not the highest score anywhere on the sweep.
 
 Winner-rule direction (resolved against winner_trades_broker_style.csv):
 LONG SPY when the 6-quarter-lagged ECI YoY wage-growth z-score (20-quarter
@@ -69,7 +71,8 @@ class StoryConfig:
         "pair: all leads and windows are in QUARTERS."
     )
 
-    # [PLACEHOLDER — RAY] Honest lagging/reversal framing; do not oversell.
+    # Honest lagging/reversal framing (Ray); metrics read from
+    # winner_summary.json / granger_by_lag.csv, not hand-typed.
     HEADLINE_H2 = (
         "## The causality tests run BACKWARDS: the stock market predicts "
         "wage growth at every tested quarterly lag, while wage growth "
@@ -79,7 +82,6 @@ class StoryConfig:
         "lagging indicator."
     )
 
-    # [PLACEHOLDER — RAY]
     PLAIN_ENGLISH = (
         "The Employment Cost Index (ECI) measures how fast total worker "
         "compensation — wages plus benefits — is growing in the US. The "
@@ -95,7 +97,6 @@ class StoryConfig:
         "present it as a candidate with its warning labels attached."
     )
 
-    # [PLACEHOLDER — RAY]
     WHERE_THIS_FITS = (
         "This page is about a *lagging* indicator — the most honest verdict "
         "in the catalog so far, because the information flows the wrong way "
@@ -106,7 +107,6 @@ class StoryConfig:
         "rather than labor-cost data."
     )
 
-    # [PLACEHOLDER — RAY]
     ONE_SENTENCE_THESIS = (
         "Wage growth (ECI total compensation) LAGS the stock market — "
         "SPY Granger-causes ECI at every tested quarterly lag and ECI "
@@ -148,7 +148,6 @@ class StoryConfig:
         "trades the opposite (procyclical) orientation at a 6-quarter lag."
     )
 
-    # [PLACEHOLDER — RAY] Honest lagging framing throughout.
     NARRATIVE_SECTION_1 = """
 ### Wage growth: a textbook lagging indicator, tested honestly
 
@@ -169,6 +168,14 @@ lagging indicators.
 **What this means:** ECI is a rear-view mirror for equities. It confirms
 what the market has already priced — useful macro context, not an
 early-warning system.
+
+The hero chart on this page shows the clearest recent example. The wage-growth
+line peaks at **5.11% year-over-year in June 2022 (2022-Q2)** — roughly
+two quarters *after* the S&P 500 (SPY) had already peaked and begun its
+2022 drawdown at the start of that year. Anyone waiting for the ECI to
+signal trouble got the news after the bear market was well underway; anyone
+watching the market got an early read on where wage growth was heading.
+That single episode is the whole lagging verdict in one picture.
 
 <!-- expander: What exactly is the Employment Cost Index? -->
 The Employment Cost Index: Total Compensation: All Civilian (FRED series
@@ -198,11 +205,14 @@ on these pages carries a found-in-search candidate label.
             "slug": "gfc",
             "title": "Global Financial Crisis (2007–2009)",
             "narrative": (
-                "[PLACEHOLDER — RAY] Equities collapsed through 2008 while "
-                "ECI wage growth was still decelerating well into 2009–10 "
-                "(YoY falling toward ~1.4%) — the market moved first, wages "
-                "followed with a lag of several quarters. The clearest "
-                "single illustration of the lagging relationship."
+                "SPY peaked in late 2007 and collapsed through 2008, "
+                "bottoming in early 2009 — while ECI wage growth kept "
+                "decelerating long after, not reaching its trough (~1.4% "
+                "YoY) until the end of 2009, quarters after equities had "
+                "already turned back up. The market moved first at the top "
+                "AND at the bottom; wages followed both turns with a lag of "
+                "several quarters — the clearest single illustration of the "
+                "lagging relationship."
             ),
             "caption": (
                 "Wages lagged the crash — SPY fell first, ECI growth "
@@ -213,11 +223,13 @@ on these pages carries a found-in-search candidate label.
             "slug": "covid",
             "title": "COVID Shock and Reopening (2020)",
             "narrative": (
-                "[PLACEHOLDER — RAY] The equity crash and rebound of 2020 "
-                "played out within two quarters; compensation growth barely "
-                "flinched on the way down and only accelerated later as the "
-                "reopening labor shortage built — wages again moved after "
-                "the market."
+                "The equity crash and rebound of 2020 played out within two "
+                "quarters; quarterly compensation growth barely flinched — "
+                "ECI YoY drifted from ~2.9% in 2020-Q1 to ~2.5% by 2020-Q3 "
+                "and back — and only accelerated in 2021 as the reopening "
+                "labor shortage built. A fast market shock moved far too "
+                "quickly for a quarterly wage gauge to register; wages again "
+                "moved after the market."
             ),
             "caption": (
                 "A two-quarter equity round-trip that quarterly wage data "
@@ -228,12 +240,13 @@ on these pages carries a found-in-search candidate label.
             "slug": "inflation_2022",
             "title": "2021–23 Wage-Inflation Surge and the 2022 Bear",
             "narrative": (
-                "[PLACEHOLDER — RAY] ECI YoY surged toward ~5.1% by "
-                "mid-2022 — the wage-price-spiral scare feeding Fed "
-                "tightening — while equities de-rated through 2022 and "
-                "recovered from late 2022. Peak wage growth arrived around "
-                "the equity trough, not before the drawdown: concurrent-to-"
-                "lagging, not leading."
+                "ECI YoY climbed from 2.8% in mid-2021 to its 5.11% peak in "
+                "2022-Q2 — the wage-price-spiral scare feeding Fed "
+                "tightening — but SPY had already peaked and begun falling "
+                "at the start of 2022, two quarters before wage growth "
+                "topped out. Peak wage inflation arrived near the equity "
+                "trough, not before the drawdown: concurrent-to-lagging, "
+                "not leading."
             ),
             "caption": (
                 "Peak wage inflation coincided with the 2022 equity trough "
@@ -242,7 +255,6 @@ on these pages carries a found-in-search candidate label.
         },
     ]
 
-    # [PLACEHOLDER — RAY]
     NARRATIVE_SECTION_2 = """
 ### "Lagging" — so how can there be a timing strategy at all?
 
@@ -349,7 +361,7 @@ CORRELATION_BLOCK = dict(
     ),
     chart_name=CORRELATION_CHART_NAME,
     chart_caption=(
-        "[PLACEHOLDER — RAY] What this shows: correlations between ECI "
+        "What this shows: correlations between ECI "
         "transforms and forward S&P 500 (SPY) returns across quarterly "
         "horizons. The grid is weak throughout; the few standout cells are "
         "regime-state distance correlations (~0.35) and a negative "
@@ -372,7 +384,7 @@ CORRELATION_BLOCK = dict(
         "triage; the formal tests below carry the inferential weight."
     ),
     interpretation=(
-        "[PLACEHOLDER — RAY] The tradeable-horizon cells are weak, and the "
+        "The tradeable-horizon cells are weak, and the "
         "few that stand out are slow regime-state associations — consistent "
         "with a lagging labor-cost gauge, not a forecaster of equity "
         "returns."
@@ -409,7 +421,7 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
     ),
     chart_name="correlations_lead_view",
     chart_caption=(
-        "[PLACEHOLDER — RAY] Pearson correlations between **signal lagged L "
+        "Pearson correlations between **signal lagged L "
         "quarters** and **SPY 1-quarter forward return**. Cells are small at "
         "every lead (|r| < 0.2 throughout); short leads tend mildly "
         "negative, long leads mildly positive — weak and unstable, the "
@@ -425,7 +437,7 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
         "no lead at which wage growth cleanly predicts next-quarter SPY.**"
     ),
     interpretation=(
-        "[PLACEHOLDER — RAY] This is an **honest near-null result**, and "
+        "This is an **honest near-null result**, and "
         "stating it is the point. **In plain English:** wage growth follows "
         "the economy and the market rather than leading them, so you cannot "
         "reliably trade SPY by lagging the wage signal. The strategy on the "
@@ -457,25 +469,30 @@ LEAD_TOURNAMENT_BLOCK = dict(
         "quarterly sample with the causality running backwards?"
     ),
     how_to_read=(
-        "[[GH#13 FRAMING SLOT — RAY]] [PLACEHOLDER — RAY, honest framing] "
         "Bars: max OOS Sharpe at each quarterly lead (L1..L8). Strip/cloud: "
         "valid combinations at that lead. A tall thin spike is a single "
         "combo; a flat-but-wide cloud is a more robust regime.\n\n"
-        "How to read the published winner against this sweep: the winner's "
-        "own signal, traced across leads, peaks at its published L6 "
-        "quarters (Sharpe 1.60) — but every point on that curve is "
-        "search-conditioned (each lead's value is the best the search found "
-        "at that lead, so the whole curve inherits selection bias). At "
-        "short leads the winner's curve is NEGATIVE (L1 −0.31, L2 −0.51, "
-        "L3 −0.26), turning positive only from L5 (0.87) to the L6 peak, "
-        "then fading (L7 1.31, L8 0.75). A rule that only works when the "
-        "signal is a year-and-a-half old, on a lagging indicator, is a "
-        "pattern to be suspicious of — not evidence of a forecasting "
-        "mechanism."
+        "Why the bars all look good and why that impression is misleading: "
+        "the bars are a best-of-search ENVELOPE — at each lead they show "
+        "the single best OOS Sharpe *any* signal achieved (1.16 to 1.60, "
+        "above buy-and-hold's 0.80 at every lead), and a different signal "
+        "wins at almost every lead. That uniform strength is what selection "
+        "bias looks like, not what a real edge looks like. The honest "
+        "comparison is the published winner's OWN signal traced across "
+        "leads: it is NEGATIVE at short leads (L1 −0.31, L2 −0.51, L3 "
+        "−0.26), roughly flat at L4 (0.04), and only turns strongly "
+        "positive from L5 (0.87) into its published L6 peak (1.60), fading "
+        "after (L7 1.31, L8 0.75). We publish L6 because that is where the "
+        "winner's own curve genuinely peaks — the choice is at least "
+        "internally consistent — but every point on both curves is "
+        "search-conditioned, and a rule that only works when the signal is "
+        "a year-and-a-half old, on an indicator the causality tests say is "
+        "LAGGING, is a pattern to be suspicious of — not evidence of a "
+        "forecasting mechanism."
     ),
     chart_name="lead_sharpe_distribution",
     chart_caption=(
-        "[PLACEHOLDER — RAY] Best OOS Sharpe per quarterly lead (bars) with "
+        "Best OOS Sharpe per quarterly lead (bars) with "
         "the full distribution. The published winner sits at L6 quarters "
         "(1.60, ≈18 months); short leads are negative for the winner's own "
         "signal family. On a 25-quarter window with the causality running "
@@ -492,7 +509,7 @@ LEAD_TOURNAMENT_BLOCK = dict(
         "descriptive regularity, not a stable predictive ridge."
     ),
     interpretation=(
-        "[PLACEHOLDER — RAY] The honest summary: on 25 quarterly "
+        "The honest summary: on 25 quarterly "
         "observations, with the causality tests pointing the other way and "
         "short leads scoring negative, the traded L6q Sharpe should be read "
         "as riding a search-conditioned, short-window pattern — weight it "
@@ -525,7 +542,7 @@ GRANGER_BLOCK = dict(
     ),
     chart_name=GRANGER_CHART_NAME,
     chart_caption=(
-        "[PLACEHOLDER — RAY] What this shows: Granger F-statistics by "
+        "What this shows: Granger F-statistics by "
         "quarterly lag, both directions, with the 5% critical line. The "
         "ECI → SPY panel clears the line at NO lag; the SPY → ECI panel "
         "clears it at EVERY lag — the causality runs from the market to "
@@ -549,7 +566,7 @@ GRANGER_BLOCK = dict(
         "adjusts through annual reviews and renegotiations — with a lag."
     ),
     interpretation=(
-        "[PLACEHOLDER — RAY] This is the cleanest reverse-causality result "
+        "This is the cleanest reverse-causality result "
         "in the catalog: the market forecasts wages, wages do not forecast "
         "the market. It is exactly the fingerprint of a LAGGING indicator — "
         "and it is the headline finding of this pair."
@@ -583,7 +600,7 @@ CCF_BLOCK = dict(
     ),
     chart_name=CCF_CHART_NAME,
     chart_caption=(
-        "[PLACEHOLDER — RAY] What this shows: pre-whitened cross-"
+        "What this shows: pre-whitened cross-"
         "correlation at 17 quarterly offsets with 95% confidence bands. The "
         "single significant bar is at offset 0 (r = −0.251) — a "
         "contemporaneous, negative echo. Nothing is significant on either "
@@ -596,7 +613,7 @@ CCF_BLOCK = dict(
         "significant after pre-whitening."
     ),
     interpretation=(
-        "[PLACEHOLDER — RAY] After stripping each series' own memory, "
+        "After stripping each series' own memory, "
         "there is no lead-lag echo at all — only a same-quarter negative "
         "co-movement. Combined with the Granger result (which pools lags "
         "and finds SPY→ECI), the picture is: the market's influence on "
@@ -630,7 +647,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     ),
     chart_name=LOCAL_PROJECTIONS_CHART_NAME,
     chart_caption=(
-        "[PLACEHOLDER — RAY] What this shows: impulse-response panels, "
+        "What this shows: impulse-response panels, "
         "forward and reverse. In the wage-growth → SPY panel the confidence "
         "band straddles zero at every horizon (1, 2, and 4 quarters); the "
         "reverse panel is also insignificant horizon-by-horizon."
@@ -643,7 +660,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         "where the SPY → ECI power shows up)."
     ),
     interpretation=(
-        "[PLACEHOLDER — RAY] At the horizons a quarterly strategy actually "
+        "At the horizons a quarterly strategy actually "
         "trades, a wage-growth surprise tells you nothing statistically "
         "useful about where stocks will be. Nothing here rescues a "
         "forward-looking reading of the indicator."
@@ -675,7 +692,7 @@ TRANSFER_ENTROPY_BLOCK = dict(
     ),
     chart_name=TRANSFER_ENTROPY_CHART_NAME,
     chart_caption=(
-        "[PLACEHOLDER — RAY] What this shows: bidirectional transfer "
+        "What this shows: bidirectional transfer "
         "entropy with permutation p-values. Wages → SPY: p = 0.17 (not "
         "significant). SPY → wages: p = 0.054 (borderline) — once again the "
         "nearly-significant direction is the REVERSE one."
@@ -696,7 +713,7 @@ TRANSFER_ENTROPY_BLOCK = dict(
         "SPY, p = 0.17) shows nothing."
     ),
     interpretation=(
-        "[PLACEHOLDER — RAY] No non-linear channel rescues the indicator: "
+        "No non-linear channel rescues the indicator: "
         "the forward direction is flatly insignificant, and what weak "
         "information flow exists points from the market to wages."
     ),
@@ -728,7 +745,7 @@ QUANTILE_BLOCK = dict(
     ),
     chart_name=QUANTILE_CHART_NAME,
     chart_caption=(
-        "[PLACEHOLDER — RAY] What this shows: quantile-regression "
+        "What this shows: quantile-regression "
         "coefficient by percentile with confidence band. The band straddles "
         "zero at every percentile — no tail-risk channel (the closest is "
         "the 25th percentile at p = 0.075, still short of 5%)."
@@ -740,7 +757,7 @@ QUANTILE_BLOCK = dict(
         "distribution never reach significance."
     ),
     interpretation=(
-        "[PLACEHOLDER — RAY] Many indicators fail at the mean but work at "
+        "Many indicators fail at the mean but work at "
         "the left tail. This one fails at both — wage growth does not flag "
         "elevated crash risk either."
     ),
@@ -772,7 +789,7 @@ REGIME_BLOCK = dict(
     ),
     chart_name=HMM_REGIME_CHART_NAME,
     chart_caption=(
-        "[PLACEHOLDER — RAY] What this shows: HMM-inferred wage-inflation "
+        "What this shows: HMM-inferred wage-inflation "
         "regime probability over time, NBER recessions shaded. The "
         "high-wage-inflation state covers ~47% of the sample (notably the "
         "2021–23 surge); SPY returns have been better in the LOW-wage-"
@@ -799,7 +816,7 @@ REGIME_BLOCK = dict(
         "regime-contaminated (KPSS reject)."
     ),
     interpretation=(
-        "[PLACEHOLDER — RAY] The constructive reading of a lagging series: "
+        "The constructive reading of a lagging series: "
         "wage-inflation states describe distinct macro environments — but "
         "here even the concurrent pattern is sign-unstable with a flagged "
         "2009 break, and it points the opposite way from the strategy the "
@@ -835,7 +852,7 @@ TOURNAMENT_DIST_BLOCK = dict(
     ),
     chart_name=TOURNAMENT_DIST_CHART_NAME,
     chart_caption=(
-        "[PLACEHOLDER — RAY] Distribution of OOS Sharpe across 1,268 valid "
+        "Distribution of OOS Sharpe across 1,268 valid "
         "combos with median (0.72), buy-and-hold (0.80) and the winner "
         "(1.60) marked — the winner is the right tail of a search, not an "
         "out-of-sample forecast."
@@ -848,7 +865,7 @@ TOURNAMENT_DIST_BLOCK = dict(
         "not significant at 5%."
     ),
     interpretation=(
-        "[PLACEHOLDER — RAY] When the median strategy loses to buy-and-hold "
+        "When the median strategy loses to buy-and-hold "
         "and only the search maximum looks good, the correct prior is that "
         "the maximum is selection effect. This is the best-of-N disclosure "
         "rendered as a picture."
@@ -965,7 +982,6 @@ class StrategyConfig:
         "has been run yet."
     )
 
-    # [PLACEHOLDER — RAY]
     PLAIN_ENGLISH = (
         "The best rule from a 2,336-combination quarterly search: hold the "
         "S&P 500 (SPY) when the ECI wage-growth z-score — viewed with a "
@@ -1004,7 +1020,6 @@ No formulas — three steps:
 **What decision it drives:** above the threshold (wage growth running unusually hot 18 months ago) → be LONG the market; below it → be SHORT. Because the causality tests find the market leads wages, this is best understood as a *state* description that happened to sort the 2020–2026 window well — not a forecast of where stocks are going.
 """
 
-    # [PLACEHOLDER — RAY]
     MANUAL_USE_MD = (
         "First, the framing: what follows describes how the backtested rule "
         "works so you can replicate and audit it — it is **not** a "
@@ -1074,7 +1089,6 @@ No formulas — three steps:
 - **Costs.** Returns are gross of costs; at 5 bps per trade and 0.48 trades/yr the haircut is negligible (see `tournament_validation_20260706/transaction_costs.csv`) — cost drag is not this pair's problem; the small sample and reverse causality are.
 """
 
-    # [PLACEHOLDER — RAY]
     TRADE_LOG_EXAMPLE_MD = (
         "**A concrete example from this pair:** on **2022-03-31** the "
         "broker-style log records a SELL — the 6-quarter-lagged wage-growth "
