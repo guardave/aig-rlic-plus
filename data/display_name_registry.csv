@@ -147,3 +147,16 @@ eci_total_comp_yoy_accel_pct,ECI YoY Acceleration (pp),pct,YoY accel. (pp)
 spy_fwd_1q,SPY Forward 1Q Return,decimal_return,SPY fwd 1Q
 spy_fwd_2q,SPY Forward 2Q Return,decimal_return,SPY fwd 2Q
 spy_fwd_4q,SPY Forward 4Q Return,decimal_return,SPY fwd 4Q
+nahb_hmi,NAHB Housing Market Index,index,NAHB HMI (50 = neutral)
+nahb_hmi_pct_yoy,NAHB HMI YoY (%),pct,NAHB HMI YoY (%)
+nahb_hmi_pct_mom,NAHB HMI MoM (%),pct,NAHB HMI MoM (%)
+nahb_hmi_3m_pct,NAHB HMI 3M Change (%),pct,NAHB HMI 3M (%)
+nahb_hmi_6m_pct,NAHB HMI 6M Change (%),pct,NAHB HMI 6M (%)
+nahb_hmi_diff_12m,NAHB HMI 12M Point Change,index,12M change (pts)
+nahb_hmi_diff_3m,NAHB HMI 3M Point Change,index,3M change (pts)
+nahb_hmi_ma12_idx,NAHB HMI 12M MA,index,NAHB HMI 12M MA
+nahb_hmi_dev_trend_pct,NAHB HMI Deviation from 12M Trend (%),pct,Dev. from 12M MA (%)
+nahb_hmi_zscore_60m,NAHB HMI 60M Z-Score,none,Z-score (60M)
+nahb_hmi_diff12_zscore_60m,NAHB HMI Momentum 60M Z-Score,none,12M-chg z-score (60M)
+nahb_hmi_accel_pct,NAHB HMI Acceleration (pp),pct,MoM accel. (pp)
+nahb_hmi_above50,NAHB HMI Above-50 Flag,none,Above 50 (0/1)

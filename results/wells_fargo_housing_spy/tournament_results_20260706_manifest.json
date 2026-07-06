@@ -1,0 +1,66 @@
+{
+  "file": "tournament_results_20260706.csv",
+  "pair_id": "wells_fargo_housing_spy",
+  "frequency": "MONTHLY",
+  "annualization": "Sharpe = mean/std*sqrt(12); ann_return = mean*12; ann_vol = std*sqrt(12)",
+  "grid": {
+    "signals": [
+      "level",
+      "yoy",
+      "mom",
+      "mom3m",
+      "mom6m",
+      "diff_3m",
+      "diff_12m",
+      "dev_trend",
+      "level_zscore_60m",
+      "diff12_zscore_60m",
+      "accel",
+      "above50",
+      "hmm_stress"
+    ],
+    "thresholds": "T1_fixed_p{25,50,75}, T2_roll_p{25,75}, T3_zscore_{\u00b11.0,\u00b11.5}, T4_zero (sign-meaningful), T4_gap50 (level native neutral line), T4_above50 (binary regime flag, sole threshold for above50)",
+    "strategies": [
+      "P1_long_cash_{pro,counter}",
+      "P2_signal_strength_{pro,counter}",
+      "P3_long_short_{pro,counter}"
+    ],
+    "leads_months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "lookbacks": [
+      "LB36",
+      "LB60",
+      "LB120",
+      "LB_NA"
+    ]
+  },
+  "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
+  "lead_column_note": "lead_months per ECON-LL1. Grid floors at L1 by fleet convention; NAHB publishes mid-month FOR the current month (~zero pub lag), so an L0 variant would be defensible \u2014 deliberately NOT scanned (Dana Phase-0 recommendation)",
+  "total_strategy_rows": 17856,
+  "valid_strategy_rows": 12980,
+  "sampling": "exhaustive over the full tradable lead grid L1..L12 months (no coarse subset; GH #13 native)",
+  "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
+  "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 month",
+  "bounded_index_flag": "HMI is a bounded 0-100 diffusion index: %-change transforms (yoy/mom/mom3m/mom6m/accel) are level-dependent (8->16 = '+100%') \u2014 per-row bounded_pct_risk column; a pct-transform winner must be artifact-flagged",
+  "tie_note": "integer-granularity HMI values -> ties common on percentile thresholds; strict '>' comparisons are deterministic; winner ties resolved by ECON-T3 cascade",
+  "seasonality": "SA source (NAHB adjusts) \u2014 all transform families admissible; envelope == clean envelope",
+  "cost_note": "returns are gross of costs; cost sensitivity in tournament_validation",
+  "assertions": [
+    "top strategy oos_sharpe > bottom strategy oos_sharpe",
+    "all oos_sharpe finite",
+    "exactly one BENCHMARK row, valid=False"
+  ],
+  "generated_at": "2026-07-06T22:58:55Z"
+}

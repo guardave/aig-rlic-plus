@@ -1,0 +1,199 @@
+{
+  "pair_id": "wells_fargo_housing_spy",
+  "parquet_path": "data/wells_fargo_housing_spy_monthly_19850131_20251031.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-06T22:45:48Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Month-end date index (parquet index column); spans 1985-01-31 through 2025-10-31."
+    },
+    "nahb_hmi": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "NAHB Housing Market Index",
+      "direction": "higher_is_better",
+      "description": "NAHB/Wells Fargo Housing Market Index: monthly homebuilder-sentiment diffusion index, bounded 0-100, 50 = neutral, seasonally adjusted by NAHB. Sourced from Data Master.xlsx (WFHMI sheet); FRED delisted the series.",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "unrate": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Unemployment Rate (%)",
+      "direction": "lower_is_better",
+      "description": "FRED UNRATE: civilian unemployment rate, monthly, SA. Control series.",
+      "source_reference": "see description"
+    },
+    "dgs10": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "US 10Y Treasury Yield (%)",
+      "direction": "neutral",
+      "description": "FRED DGS10: 10-year constant-maturity Treasury yield, month-end value. Control.",
+      "source_reference": "see description"
+    },
+    "fed_funds": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Fed Funds Rate (%)",
+      "direction": "neutral",
+      "description": "FRED DFF: effective federal funds rate, month-end value. Control.",
+      "source_reference": "see description"
+    },
+    "vix": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "VIX Index Level",
+      "direction": "lower_is_better",
+      "description": "CBOE VIX index, month-end close (Yahoo ^VIX). Control / regime variable. Starts 1990 (leading NaNs before that).",
+      "source_reference": "see description"
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "neutral",
+      "description": "SPY adjusted close, month-end (Yahoo, auto-adjusted). Target asset. Starts 1993-01 (SPY inception).",
+      "source_reference": "yahoo:SPY"
+    },
+    "nahb_hmi_pct_yoy": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "NAHB HMI YoY (%)",
+      "direction": "higher_is_better",
+      "description": "12-month percent change in nahb_hmi. CAUTION: percent change of a bounded 0-100 index is level-dependent (8->16 = +100%); prefer nahb_hmi_diff_12m.",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "nahb_hmi_pct_mom": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "NAHB HMI MoM (%)",
+      "direction": "higher_is_better",
+      "description": "1-month percent change in nahb_hmi. Bounded-index caveat as for YoY.",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "nahb_hmi_3m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "NAHB HMI 3M Change (%)",
+      "direction": "higher_is_better",
+      "description": "3-month percent change (momentum) in nahb_hmi. Bounded-index caveat.",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "nahb_hmi_6m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "NAHB HMI 6M Change (%)",
+      "direction": "higher_is_better",
+      "description": "6-month percent change (momentum) in nahb_hmi. Bounded-index caveat.",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "nahb_hmi_diff_12m": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "NAHB HMI 12M Point Change",
+      "direction": "higher_is_better",
+      "description": "12-month POINT change in nahb_hmi (index points). The bounded-index-native momentum measure; preferred over pct_yoy for cycle inference.",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "nahb_hmi_diff_3m": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "NAHB HMI 3M Point Change",
+      "direction": "higher_is_better",
+      "description": "3-month POINT change in nahb_hmi (index points).",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "nahb_hmi_ma12_idx": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "NAHB HMI 12M MA",
+      "direction": "higher_is_better",
+      "description": "12-month rolling mean of nahb_hmi (min 10 obs).",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "nahb_hmi_dev_trend_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "NAHB HMI Deviation from 12M Trend (%)",
+      "direction": "higher_is_better",
+      "description": "Percent deviation of nahb_hmi from its 12-month moving average.",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "nahb_hmi_zscore_60m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "NAHB HMI 60M Z-Score",
+      "direction": "higher_is_better",
+      "description": "Rolling 60-month z-score of the LEVEL (min 36 obs). Effective start ~1987-12.",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "nahb_hmi_diff12_zscore_60m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "NAHB HMI Momentum 60M Z-Score",
+      "direction": "higher_is_better",
+      "description": "Rolling 60-month z-score of nahb_hmi_diff_12m (min 36 obs). Effective start ~1988-12.",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "nahb_hmi_accel_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "NAHB HMI Acceleration (pp)",
+      "direction": "higher_is_better",
+      "description": "First difference of nahb_hmi_pct_mom (percentage points). Noisy; bounded-index caveat.",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "nahb_hmi_above50": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "NAHB HMI Above-50 Flag",
+      "direction": "higher_is_better",
+      "description": "1.0 when nahb_hmi >= 50 (builders net-optimistic), else 0.0. The natural diffusion-index regime flag (replaces a degenerate YoY<0 contraction flag).",
+      "source_reference": "DataMaster:WFHMI!RE - Wells Fargo H Indx"
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Daily Return (decimal)",
+      "direction": "neutral",
+      "description": "SPY 1-month simple return (decimal).",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_1m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 1M Return",
+      "direction": "neutral",
+      "description": "Forward 1-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_3m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 3M Return",
+      "direction": "neutral",
+      "description": "Forward 3-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_6m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 6M Return",
+      "direction": "neutral",
+      "description": "Forward 6-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_12m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 12M Return",
+      "direction": "neutral",
+      "description": "Forward 12-month SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    }
+  }
+}

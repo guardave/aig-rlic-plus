@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-06T12:43:48Z",
+  "generated_at": "2026-07-06T22:45:48Z",
   "columns": [
     {
       "column_name": "date",
@@ -889,6 +889,84 @@
       "display_name": "SPY Forward 4Q Return",
       "unit": "decimal_return",
       "axis_label": "SPY fwd 4Q"
+    },
+    {
+      "column_name": "nahb_hmi",
+      "display_name": "NAHB Housing Market Index",
+      "unit": "index",
+      "axis_label": "NAHB HMI (50 = neutral)"
+    },
+    {
+      "column_name": "nahb_hmi_pct_yoy",
+      "display_name": "NAHB HMI YoY (%)",
+      "unit": "pct",
+      "axis_label": "NAHB HMI YoY (%)"
+    },
+    {
+      "column_name": "nahb_hmi_pct_mom",
+      "display_name": "NAHB HMI MoM (%)",
+      "unit": "pct",
+      "axis_label": "NAHB HMI MoM (%)"
+    },
+    {
+      "column_name": "nahb_hmi_3m_pct",
+      "display_name": "NAHB HMI 3M Change (%)",
+      "unit": "pct",
+      "axis_label": "NAHB HMI 3M (%)"
+    },
+    {
+      "column_name": "nahb_hmi_6m_pct",
+      "display_name": "NAHB HMI 6M Change (%)",
+      "unit": "pct",
+      "axis_label": "NAHB HMI 6M (%)"
+    },
+    {
+      "column_name": "nahb_hmi_diff_12m",
+      "display_name": "NAHB HMI 12M Point Change",
+      "unit": "index",
+      "axis_label": "12M change (pts)"
+    },
+    {
+      "column_name": "nahb_hmi_diff_3m",
+      "display_name": "NAHB HMI 3M Point Change",
+      "unit": "index",
+      "axis_label": "3M change (pts)"
+    },
+    {
+      "column_name": "nahb_hmi_ma12_idx",
+      "display_name": "NAHB HMI 12M MA",
+      "unit": "index",
+      "axis_label": "NAHB HMI 12M MA"
+    },
+    {
+      "column_name": "nahb_hmi_dev_trend_pct",
+      "display_name": "NAHB HMI Deviation from 12M Trend (%)",
+      "unit": "pct",
+      "axis_label": "Dev. from 12M MA (%)"
+    },
+    {
+      "column_name": "nahb_hmi_zscore_60m",
+      "display_name": "NAHB HMI 60M Z-Score",
+      "unit": "none",
+      "axis_label": "Z-score (60M)"
+    },
+    {
+      "column_name": "nahb_hmi_diff12_zscore_60m",
+      "display_name": "NAHB HMI Momentum 60M Z-Score",
+      "unit": "none",
+      "axis_label": "12M-chg z-score (60M)"
+    },
+    {
+      "column_name": "nahb_hmi_accel_pct",
+      "display_name": "NAHB HMI Acceleration (pp)",
+      "unit": "pct",
+      "axis_label": "MoM accel. (pp)"
+    },
+    {
+      "column_name": "nahb_hmi_above50",
+      "display_name": "NAHB HMI Above-50 Flag",
+      "unit": "none",
+      "axis_label": "Above 50 (0/1)"
     }
   ]
 }

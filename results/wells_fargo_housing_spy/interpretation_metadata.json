@@ -1,0 +1,72 @@
+{
+  "pair_id": "wells_fargo_housing_spy",
+  "schema_version": "1.1.0",
+  "indicator": "wells_fargo_housing",
+  "target": "spy",
+  "indicator_nature": "lagging",
+  "indicator_type": "sentiment",
+  "strategy_objective": "max_sharpe",
+  "expected_direction": "procyclical",
+  "data_provenance": {
+    "source": "data/Data Master.xlsx sheet WFHMI (NAHB/Wells Fargo Housing Market Index; FRED delisted NAHBHMI for licensing)",
+    "series_id": "WFHMI!RE - Wells Fargo H Indx",
+    "accessed_at": "2026-07-06T22:45:48Z"
+  },
+  "known_stress_episodes": [
+    {
+      "label": "Housing bust / GFC",
+      "start": "2006-01-01",
+      "end": "2009-06-30",
+      "note": "HMI slid from ~70s (2005) to record-low 8 in Jan-2009 \u2014 the classic housing-leads-the-cycle episode, turning down ~2 years before the equity market peak."
+    },
+    {
+      "label": "COVID whipsaw",
+      "start": "2020-03-01",
+      "end": "2020-11-30",
+      "note": "HMI crashed to 30 in Apr-2020, then V-recovered to a record 90 by Nov-2020 on the rates-driven housing boom."
+    },
+    {
+      "label": "2022 rate shock",
+      "start": "2022-01-01",
+      "end": "2022-12-31",
+      "note": "HMI collapsed 83 -> 31 over 2022 as mortgage rates doubled; equities de-rated concurrently."
+    }
+  ],
+  "related_pair_ids": [
+    "building_permits_spy",
+    "indpro_spy"
+  ],
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "indicator_nature",
+      "indicator_type",
+      "data_provenance",
+      "known_stress_episodes",
+      "related_pair_ids"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats",
+      "narrative_summary"
+    ]
+  },
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-07-06T22:58:55Z",
+  "indicator_nature_note": "Set by Evan from empirical evidence (was Dana provisional 'leading'): Granger/CCF verdict 'bidirectional' \u2014 reverse-dominant; a weak lag-5 forward blip exists but the dominant causal direction is market->sentiment (SPY->HMI TY-Granger significant at all 12 lags, HMI->SPY at lag 5 only, transfer entropy reverse-only), so the closest schema-valid class is 'lagging' (same asymmetry class as eci_total_comp_spy).",
+  "observed_direction": "procyclical",
+  "direction_consistent": true,
+  "key_finding": "Lead-lag verdict (empirical, MONTHLY): NAHB HMI is 'bidirectional' vs SPY. Toda-Yamamoto Granger HMI->SPY significant lags(m) [5]; SPY->HMI significant lags(m) [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; pre-whitened CCF significant lead(+) lags [1, 5, 12, 13], lag(-) [-10, -1]. Tournament winner (diff_12m/T2_roll_p25/P1_long_cash pro/L7/LB60) is procyclical: OOS Sharpe 1.43 vs B&H 0.94 over a 98-month OOS window (above the 5yr floor). Winner's own lead-curve peaks at L7 (published L7); bootstrap p=0.1272, durability 'conditionally_durable', break flagged: False.",
+  "confidence": "low"
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "pair_id": "wells_fargo_housing_spy",
+  "rule": "ECON-AS",
+  "suggestions": [
+    {
+      "signal_name": "NAHB HMI components (present sales / 6M expectations / buyer traffic)",
+      "proposed_by": "evan",
+      "source": "NAHB (component series exist alongside the composite)",
+      "observation": "The composite blends three sub-questions; the 6-month-expectations component is the purest forward-looking sentiment read.",
+      "rationale": "If the composite leads, the expectations component may lead by more with less noise.",
+      "possible_use_case": "variant family",
+      "caveats": "Component history availability in the Master unknown.",
+      "date_filed": "2026-07-06"
+    },
+    {
+      "signal_name": "HMI minus mortgage-rate composite (sentiment net of rates)",
+      "proposed_by": "evan",
+      "source": "Data Master + FRED (MORTGAGE30US)",
+      "observation": "Post-2020 the HMI is largely a mortgage-rate mirror; a rate-orthogonalized HMI isolates the non-rate sentiment signal.",
+      "rationale": "Separates the Fed channel from the housing-specific channel.",
+      "possible_use_case": "companion signal",
+      "caveats": "Two-series composite \u2014 out of single-indicator scope.",
+      "date_filed": "2026-07-06"
+    },
+    {
+      "signal_name": "HMI -> XHB/ITB (homebuilder ETFs)",
+      "proposed_by": "evan",
+      "source": "Yahoo",
+      "observation": "Builder sentiment should transmit to builder equities more directly than to the broad index.",
+      "rationale": "Sharper identification of the sentiment->equity channel; SPY dilutes it.",
+      "possible_use_case": "new pair",
+      "caveats": "XHB/ITB inception 2006 \u2014 shorter overlap.",
+      "date_filed": "2026-07-06"
+    }
+  ],
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-07-06T22:58:55Z"
+}

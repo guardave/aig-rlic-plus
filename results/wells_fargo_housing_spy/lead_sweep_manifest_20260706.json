@@ -1,0 +1,33 @@
+{
+  "pair": "wells_fargo_housing_spy",
+  "run_date": "20260706",
+  "frozen": false,
+  "granularity": "MONTHS L1..12 tradable (L0 diagnostic-only in lead_correlation; ECON-LL1)",
+  "freq_native": "M",
+  "design_note": "Lead L = month shift on month-end signals. Grid floors at L1 by FLEET CONVENTION, not necessity: NAHB publishes mid-month FOR the current month (~zero publication lag), so an L0 variant would be lookahead-free and defensible \u2014 deliberately not scanned (Dana Phase-0). Grid ceiling L12 per ECON-LL1.",
+  "oos_start": "2017-09-30",
+  "is_end": "2017-08-31",
+  "input_file": "/workspaces/aig-rlic-plus/data/wells_fargo_housing_spy_monthly_latest.parquet",
+  "input_sha256": "sha256:5a98901f454c8e21",
+  "lead_correlation_file": "wells_fargo_housing_spy/lead_correlation_20260706.csv",
+  "lead_tournament_file": "wells_fargo_housing_spy/lead_tournament_20260706.csv",
+  "lead_winner_curve_file": "wells_fargo_housing_spy/lead_winner_curve_20260706.csv",
+  "lead_clean_envelope_file": "wells_fargo_housing_spy/lead_clean_envelope_20260706.csv",
+  "clean_envelope_note": "SA source: all signals admissible -> envelope and clean envelope COINCIDE by construction",
+  "published_winner": {
+    "signal": "nahb_hmi_diff_12m",
+    "lead": 7,
+    "lead_unit": "months",
+    "oos_sharpe": 1.4291
+  },
+  "winner_curve_peak_lead": 7,
+  "winner_adjacent_lead_durability": false,
+  "L_star": 7,
+  "best_oos_sharpe_at_grid": 1.4291,
+  "gate_decision": "CHARTS-ONLY (full L1..L12 grid scanned natively)",
+  "assertions": [
+    "tradable lead grid is L1..12 MONTHS (L0 excluded by fleet convention despite ~zero pub lag)",
+    "main tournament scans the full L1..12 grid -> published winner is the global lead max",
+    "ECON-LT1 gate: L*=7 -> CHARTS-ONLY (full L1..L12 grid scanned natively)"
+  ]
+}
