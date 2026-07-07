@@ -61,7 +61,7 @@
 
 - **New pair = 5 phases**, each Lead-gated: Dana (data/Phase-0) → Evan (tournament/econometrics) → Vera (charts) → Ace (portal config+pages) → Ray (narrative). Freshest **monthly** template: `cass_freight_spy`; **quarterly** template: `eci_total_comp_spy`. Mirror an existing pair's artifact shapes exactly.
 - **GH #13 lead-chart pattern is native for new pairs** (winner's own Sharpe-by-lead curve foregrounded, cross-signal envelope as context) — Evan emits `lead_winner_curve` + `lead_clean_envelope` CSVs; Vera builds the coherent chart.
-- **Deployment:** production `https://aig-rlic-plus.streamlit.app` tracks `main`; the `dawodev` preview tracks the in-flight branch. **A new pair / new page / render-module change needs a REBOOT** (Manage app → Reboot app), not just a push — Streamlit discovers `app/pages/*.py` and imports render modules at process start (META-FRD file-sync lag). Verify via the Playwright iframe pattern in `scripts/cloud_verify.py` (iframe `title="streamlitApp"`, poll hydration ≤45s).
+- **Deployment:** production `https://aig-rlic-plus.streamlit.app` tracks `main`; the preview apps `aig-rlic-plus-dev01` / `aig-rlic-plus-dev02` track the in-flight branch (dawodev retired 2026-07-07; **no repoint** — a new app instance is spun up per branch). **A new pair / new page / render-module change needs a REBOOT** (Manage app → Reboot app), not just a push — Streamlit discovers `app/pages/*.py` and imports render modules at process start (META-FRD file-sync lag). Verify via the Playwright iframe pattern in `scripts/cloud_verify.py` (iframe `title="streamlitApp"`, poll hydration ≤45s).
 
 ## 6. Local state to resolve BEFORE the move (working tree)
 
