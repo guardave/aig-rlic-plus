@@ -267,8 +267,100 @@ def build_corr_chart(pair, ind, tgt, w):
     return fig, best_caption + daily_caveat, str(path.relative_to(ROOT))
 
 
+STAR = "#009E73"  # okabe-ito green — winner marker, distinct from bars/bench
+
+
+def _coherent_artifacts(pair):
+    """Return (winner_curve_path, clean_envelope_path) if the GH#13 native
+    coherent artifacts exist for this pair, else (None, None)."""
+    try:
+        wc, _ = latest_dated(pair, "lead_winner_curve")
+        env, _ = latest_dated(pair, "lead_clean_envelope")
+        return wc, env
+    except (FileNotFoundError, IndexError, ValueError):
+        return None, None
+
+
+# ── Chart 2 (COHERENT): winner's own curve on the native grid ───────────────
+# GH #13. Foregrounds the PUBLISHED winner's own OOS-Sharpe-by-lead curve against
+# the best-of-any-signal envelope on the SAME native tournament grid (envelope >=
+# winner curve by construction). Replaces the exploratory-sweep bars, on which the
+# winner could appear to sit off a taller bar from a different grid.
+def build_coherent_sharpe_chart(pair, ind, tgt, bh, w, wc_path, env_path):
+    wc = read_rows(wc_path)
+    env = read_rows(env_path)
+    date = re.search(r"(\d{8})", wc_path.name).group(1)
+    leads = [int(r["lead_months"]) for r in wc]
+    xlab = [f"L{l}" for l in leads]
+    curve = [float(r["oos_sharpe"]) for r in wc]
+    envv = [float(r["best_oos_sharpe"]) for r in env]
+    win_lead = int(w.get("lead_value", w.get("lead_months")))
+    win_sharpe = float(w.get("oos_sharpe"))
+    curve_peak = leads[max(range(len(curve)), key=lambda i: curve[i])]
+    env_peak = leads[max(range(len(envv)), key=lambda i: envv[i])]
+
+    coincident = (curve_peak == win_lead == env_peak)
+    if coincident:
+        frame = (f"On the tournament's own grid the published winner sits AT the "
+                 f"envelope peak (L{win_lead}): the winner's own curve and the "
+                 f"best-of-any-signal envelope both peak there. Any apparent "
+                 f"off-peak look elsewhere came from a different (exploratory) sweep grid.")
+    else:
+        frame = (f"The grey bars show the best ANY signal can do at each lead; the "
+                 f"published strategy is chosen for reliability, not the single highest "
+                 f"score, so its lead (L{win_lead}) can differ from the tallest bar "
+                 f"(L{env_peak}) — by design. The orange line is the winner's OWN "
+                 f"curve, peaking at L{curve_peak}.")
+    cap = (f"Published winner's own OOS-Sharpe-by-lead curve (foreground, {ind}) peaks "
+           f"at L{curve_peak}; deployed lead L{win_lead} = {win_sharpe:.2f}. "
+           f"Grey bars: best-of-any-signal envelope on the same native grid "
+           f"(envelope >= winner curve at every lead). Buy-and-hold {tgt} = {bh:.2f}. "
+           f"{frame}")
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=xlab, y=envv, name="Best of ANY signal per lead (context)",
+        marker={"color": "rgba(108,122,137,0.42)"},
+        hovertemplate="%{x}<br>envelope Sharpe=%{y:.3f}<extra></extra>"))
+    fig.add_trace(go.Scatter(
+        x=xlab, y=curve, mode="lines+markers", name="Published winner's own curve",
+        line={"color": BAR, "width": 3}, marker={"size": 7, "color": BAR},
+        hovertemplate="%{x}<br>winner Sharpe=%{y:.3f}<extra></extra>"))
+    fig.add_trace(go.Scatter(
+        x=[f"L{win_lead}"], y=[win_sharpe], mode="markers",
+        name=f"Published winner L{win_lead} = {win_sharpe:.2f}",
+        marker={"size": 16, "color": STAR, "symbol": "star",
+                "line": {"width": 1, "color": "#000"}}))
+    fig.add_trace(go.Scatter(
+        x=xlab, y=[bh] * len(xlab), mode="lines", name=f"Buy & Hold {tgt} ({bh:.2f})",
+        line={"color": BENCH, "dash": "dash", "width": 1.5}, hoverinfo="skip"))
+    title = (f"Lead vs OOS Sharpe — winner on the native tournament grid: {ind} -> "
+             f"{tgt} (L1..12)<br><sub>Orange: the PUBLISHED winner's OWN OOS Sharpe by "
+             f"lead. Grey bars: best-of-any-signal envelope, same native grid. "
+             f"Dashed: {tgt} buy-and-hold. {frame}</sub>")
+    fig.update_layout(
+        title={"text": title, "font": {"size": 14}},
+        xaxis={"title": {"text": "Lead (months) applied to signal", "standoff": 18}},
+        yaxis={"title": {"text": "OOS Sharpe ratio"}, "zeroline": True},
+        template="plotly_white", barmode="overlay",
+        legend={"orientation": "h", "y": -0.34, "yanchor": "top", "x": 0, "xanchor": "left"},
+        margin={"l": 70, "r": 40, "t": 110, "b": 150})
+    fig.add_annotation(text=f"Source: GH#13 native lead-coherence artifacts ({date}).",
+                       showarrow=False, xref="paper", yref="paper",
+                       x=0, y=-0.52, yanchor="top", font={"size": 10, "color": "#666"}, align="left")
+    return fig, cap, str(wc_path.relative_to(ROOT))
+
+
 # ── Chart 2: lead_sharpe_distribution (bar + cloud) ─────────────────────────
 def build_sharpe_chart(pair, ind, tgt, bh, w):
+    # GH #13 coherent view: when native winner-curve + clean-envelope artifacts
+    # exist AND the winner is on the monthly comparability axis, foreground the
+    # winner's own curve on the native grid instead of the exploratory sweep bars.
+    wc_path, env_path = _coherent_artifacts(pair)
+    win_unit = (w.get("lead_unit") or "months").rstrip("s")
+    if wc_path is not None and env_path is not None and win_unit == "month":
+        return build_coherent_sharpe_chart(pair, ind, tgt, bh, w, wc_path, env_path)
+
     path, date = latest_dated(pair, "lead_tournament")
     rows = read_rows(path)
     leads = [int(r["lead_months"]) for r in rows]
@@ -407,6 +499,16 @@ def discover_pairs():
     return out
 
 
+def _perceptual_png(fig, path):
+    """Best-effort perceptual-check PNG. Skipped (with a warning) when kaleido is
+    absent — the PNG is a review aid, not a portal artifact, so its absence must
+    never block JSON emission in a minimal environment."""
+    try:
+        fig.write_image(str(path), width=1100, height=600, scale=2)
+    except Exception as e:  # kaleido missing / export engine error
+        print(f"    [skip PNG] {path.name}: {type(e).__name__} (JSON written)")
+
+
 def run(pair):
     w = load_winner(pair)
     ind, tgt = display_names(pair, w)
@@ -421,16 +523,14 @@ def run(pair):
     (d / "correlations_lead_view.json").write_text(pio.to_json(f1))
     write_meta(pair, "correlations_lead_view", "lead_correlation_view", "heatmap", c1,
                ["VIZ-LEAD1", "VIZ-IC1", "VIZ-TX1", "VIZ-O1"], [src1])
-    f1.write_image(str(d / "_perceptual_check_correlations_lead_view.png"),
-                   width=1100, height=600, scale=2)
+    _perceptual_png(f1, d / "_perceptual_check_correlations_lead_view.png")
 
     f2, c2, src2 = build_sharpe_chart(pair, ind, tgt, bh, w)
     (d / "lead_sharpe_distribution.json").write_text(pio.to_json(f2))
     write_meta(pair, "lead_sharpe_distribution", "lead_sharpe_distribution", "bar", c2,
                ["VIZ-LEAD1", "VIZ-IC1", "VIZ-TX1", "VIZ-O1"],
                [src2, f"results/{pair}/winner_summary.json"])
-    f2.write_image(str(d / "_perceptual_check_lead_sharpe_distribution.png"),
-                   width=1100, height=600, scale=2)
+    _perceptual_png(f2, d / "_perceptual_check_lead_sharpe_distribution.png")
 
     print(f"[{pair}] OK  (B&H={bh:.4f})")
     print(f"    corr:   {c1}")
