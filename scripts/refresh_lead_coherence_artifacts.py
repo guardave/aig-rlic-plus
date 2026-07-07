@@ -138,12 +138,17 @@ def score_combo(work: pd.DataFrame, combo: dict, lead: int, split: dict,
 
 
 def parse_signal_cols(pipeline_src: Path) -> dict:
-    """Extract the SIGNAL_COLS {code -> parquet column} map from pipeline source,
-    without importing it (the pipelines pull in scipy/statsmodels at import time)."""
+    """Extract the signal-code -> parquet-column map from pipeline source without
+    importing it (pipelines pull in scipy/statsmodels at import). Pipelines name it
+    SIGNAL_COLS or SIGNAL_COLUMN_MAP; keys/values use single or double quotes."""
     src = pipeline_src.read_text()
-    block = re.search(r"SIGNAL_COLS\s*=\s*\{(.*?)\n\}", src, re.S).group(1)
-    pairs = re.findall(r'"([^"]+)"\s*:\s*"([^"]+)"', block)
-    return dict(pairs)
+    for name in ("SIGNAL_COLS", "SIGNAL_COLUMN_MAP"):
+        m = re.search(rf"{name}\s*=\s*\{{(.*?)\n\}}", src, re.S)
+        if m:
+            pairs = re.findall(r"""['"]([^'"]+)['"]\s*:\s*['"]([^'"]+)['"]""", m.group(1))
+            if pairs:
+                return dict(pairs)
+    return {}  # no map -> col_of falls back to the tournament signal code itself
 
 
 # ── per-pair config ───────────────────────────────────────────────────────────
@@ -156,6 +161,25 @@ ADAPTERS = {
         target_col="spy_ret",
         pipeline="scripts/pair_pipeline_ism_services_spy.py",
     ),
+    # coarse monthly pairs: no target parquet -> build from signals + strategy_returns.bh_return
+    "m2sl_yoy_spy": dict(
+        signals_parquet="results/m2sl_yoy_spy/signals_20260619.parquet",
+        pipeline="scripts/pair_pipeline_m2sl_yoy_spy.py"),
+    "busloans_spy": dict(
+        signals_parquet="results/busloans_spy/signals_20260612.parquet",
+        pipeline="scripts/pair_pipeline_busloans_spy.py"),
+    "petrol_inv_spy": dict(
+        signals_parquet="results/petrol_inv_spy/signals_20260617.parquet",
+        pipeline="scripts/pair_pipeline_petrol_inv_spy.py",
+        signal_map={  # no SIGNAL_COLS in the pipeline; explicit code -> column
+            "petrol_3m": "petrol_inv_3m_pct", "petrol_6m": "petrol_inv_6m_pct",
+            "petrol_accel": "petrol_inv_accel_pct", "petrol_dev_trend": "petrol_inv_dev_trend_pct",
+            "petrol_level_z60": "petrol_inv_zscore_60m", "petrol_pct_chg": "petrol_inv_pct_chg",
+            "petrol_yoy": "petrol_inv_pct_yoy", "petrol_yoy_z60": "petrol_inv_yoy_zscore_60m",
+            "hmm_stress": "hmm_2state_prob_stress", "markov_regime": "markov_regime_2state"}),
+    "umcsent_xlv": dict(
+        signals_parquet="results/umcsent_xlv/signals_20260420.parquet",
+        pipeline="scripts/pair_pipeline_umcsent_xlv.py"),
 }
 
 
@@ -182,20 +206,33 @@ def _winner_row(pair: str, ws: dict) -> pd.Series:
     return pool.sort_values("oos_sharpe", ascending=False).iloc[0]
 
 
-def refresh(pair: str) -> int:
+def refresh(pair: str, screen: bool = False) -> int:
     ad = ADAPTERS[pair]
     results = REPO / "results" / pair
 
     ws = json.load(open(results / "winner_summary.json"))
-    work = pd.read_parquet(REPO / ad["work_parquet"])
-    work = work[~work.index.duplicated(keep="last")].sort_index()
-    if ad.get("signals_parquet"):  # merge in derived signal cols missing from the target parquet
-        sig_df = pd.read_parquet(REPO / ad["signals_parquet"])
-        sig_df = sig_df[~sig_df.index.duplicated(keep="last")].sort_index()
-        for c in sig_df.columns:
-            if c not in work.columns:
-                work[c] = sig_df[c].reindex(work.index)
-    tgt = ad["target_col"]
+    if ad.get("work_parquet"):
+        work = pd.read_parquet(REPO / ad["work_parquet"])
+        work = work[~work.index.duplicated(keep="last")].sort_index()
+        if ad.get("signals_parquet"):  # merge derived signal cols missing from the target parquet
+            sig_df = pd.read_parquet(REPO / ad["signals_parquet"])
+            sig_df = sig_df[~sig_df.index.duplicated(keep="last")].sort_index()
+            for c in sig_df.columns:
+                if c not in work.columns:
+                    work[c] = sig_df[c].reindex(work.index)
+        tgt = ad["target_col"]
+    else:
+        # build work from the signals parquet + the target return taken from
+        # strategy_returns.bh_return (the tournament's own benchmark series), so
+        # the scoring frame matches the native tournament without a monthly parquet.
+        work = pd.read_parquet(REPO / ad["signals_parquet"])
+        work = work[~work.index.duplicated(keep="last")].sort_index()
+        sr_path = sorted(f for f in glob.glob(str(results / "strategy_returns_*.csv"))
+                         if "meta" not in f)[-1]
+        sr = pd.read_csv(sr_path, parse_dates=["date"]).set_index("date")
+        sr = sr[~sr.index.duplicated(keep="last")].sort_index()
+        tgt = "_target_ret"
+        work[tgt] = sr["bh_return"].reindex(work.index)
     # align the scoring frame to the native tournament exactly: it scores on
     # df.dropna(subset=[target]) (target availability bounds the sample), so drop
     # leading target-NaN rows before split/rolling/quantile computation.
@@ -208,12 +245,14 @@ def refresh(pair: str) -> int:
     winner = {"signal": win.signal, "threshold": win.threshold, "strategy": win.strategy,
               "lookback": win.lookback}
     win_lead = int(ws["lead_value"])
-    signal_cols = parse_signal_cols(REPO / ad["pipeline"])
+    signal_cols = {**parse_signal_cols(REPO / ad["pipeline"]), **ad.get("signal_map", {})}
 
     # native combo universe = this pair's OWN tournament grid (already validity- and
     # methodology-defined); re-scored at every lead by the shared native rule.
     tr = pd.read_csv(sorted(glob.glob(str(results / "tournament_results_*.csv")))[-1])
     tr = tr[tr.signal != "BENCHMARK"]
+    if "lookback" not in tr.columns:  # some pipelines don't record a lookback family
+        tr["lookback"] = "LB_NA"
     combos = tr[["signal", "threshold", "strategy", "lookback"]].drop_duplicates().to_dict("records")
     native_leads = sorted(int(x) for x in tr.lead_months.unique() if int(x) >= 1)
 
@@ -290,6 +329,16 @@ def refresh(pair: str) -> int:
                         f"= {r.oos_sharpe:.4f} ({r.lead_source})" for r in rows.itertuples()),
               file=sys.stderr)
         return 3
+
+    # ── triage screen: report the extended-grid outcome without writing anything ──
+    if screen:
+        best = grid[grid.valid].sort_values("oos_sharpe", ascending=False).iloc[0]
+        near = float(gmax) - ref
+        print(f"[{pair}] STABLE — winner L{win_lead}={ref:.4f} holds on the full grid; "
+              f"best valid = {best.signal}/L{int(best.lead_months)}={best.oos_sharpe:.4f} "
+              f"({best.lead_source}), margin {near:+.4f}. No re-selection; patch is presentational.")
+        return 0
+
     grid.to_csv(grid_path, index=False)
 
     # ── view 1: winner curve = the winner combo across leads (from the source) ──
@@ -387,9 +436,10 @@ def refresh(pair: str) -> int:
 
 
 def main() -> int:
+    screen = "--screen" in sys.argv
     pairs = [a for a in sys.argv[1:] if not a.startswith("-")]
     if not pairs:
-        print("usage: refresh_lead_coherence_artifacts.py <pair> [<pair> ...]", file=sys.stderr)
+        print("usage: refresh_lead_coherence_artifacts.py [--screen] <pair> [<pair> ...]", file=sys.stderr)
         return 1
     rc = 0
     for p in pairs:
@@ -397,7 +447,11 @@ def main() -> int:
             print(f"[{p}] no adapter registered — skipping", file=sys.stderr)
             rc = max(rc, 1)
             continue
-        rc = max(rc, refresh(p))
+        try:
+            rc = max(rc, refresh(p, screen=screen))
+        except Exception as e:
+            print(f"[{p}] ERROR — {type(e).__name__}: {e}", file=sys.stderr)
+            rc = max(rc, 2)
     return rc
 
 
