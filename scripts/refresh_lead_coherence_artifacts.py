@@ -181,6 +181,12 @@ ADAPTERS = {
         signals_parquet="results/umcsent_xlv/signals_20260420.parquet",
         pipeline="scripts/pair_pipeline_umcsent_xlv.py"),
 }
+# NOTE — pairs the generic engine CANNOT faithfully reproduce (the reconcile gate
+# blocks them; they need their pipeline's own derive logic, i.e. the maker/native
+# track): umcsent_xlv (different threshold template, no lookback family), indpro_spy
+# (signals parquet lacks the S1_level / S4_dev_trend columns), indpro_xlp (threshold
+# template mismatch — reconcile 0.60 vs 1.33). Engine-validated pairs: ism, m2sl,
+# busloans, petrol (all 100% reconcile).
 
 
 def _winner_row(pair: str, ws: dict) -> pd.Series:
@@ -194,6 +200,8 @@ def _winner_row(pair: str, ws: dict) -> pd.Series:
     """
     tr = sorted(glob.glob(str(REPO / f"results/{pair}/tournament_results_*.csv")))
     df = pd.read_csv(tr[-1])
+    if "lookback" not in df.columns:  # some pipelines don't record a lookback family
+        df["lookback"] = "LB_NA"
     lead = int(ws["lead_value"])
     cand = df[(df.lead_months == lead) & df.get("valid", True)]
     sig_native = ws["signal_code"].replace(f"{pair.rsplit('_', 1)[0]}_", "")
