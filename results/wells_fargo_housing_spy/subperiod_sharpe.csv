@@ -1,0 +1,5 @@
+episode,start_date,end_date,n_trading_days,ann_sharpe,win_rate,max_drawdown,data_status,durability_verdict
+dot_com,2000-03-01,2002-10-31,0,,,,insufficient_data,
+gfc,2007-12-01,2009-06-30,0,,,,insufficient_data,
+covid,2020-02-29,2020-12-31,231,1.699,0.4545,-0.0614,validated,
+china_2015,2015-06-01,2016-02-29,0,,,,insufficient_data,conditionally_durable

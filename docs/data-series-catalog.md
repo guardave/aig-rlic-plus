@@ -136,7 +136,7 @@ This section catalogs the 31 indicators used in the multi-indicator analysis fra
 | I10a | New Home Sales (SA) | `hsn1f` | FRED: HSN1F | Monthly | Thousands, SA |
 | I10b | New Home Sales (NSA) | `hsn1fnsa` | FRED: HSN1FNSA | Monthly | Thousands, NSA — distinct from I10a |
 | I11 | Housing Starts | `houst` | FRED: HOUST | Monthly | Thousands, SA |
-| I12 | NAHB/Wells Fargo Housing Market Index | `nahb_hmi` | FRED: NAHBHMI | Monthly | Diffusion index, 50 = neutral |
+| I12 | NAHB/Wells Fargo Housing Market Index | `nahb_hmi` | Data Master.xlsx `WFHMI` sheet (FRED delisted NAHBHMI for licensing) | Monthly | Diffusion index, bounded 0-100, 50 = neutral, SA by NAHB; Master holds full history Jan-1985 onward. Released mid-month FOR the current month (~zero publication lag; L1 monthly floor conservative). Classification: `indicator_nature = leading` (housing classically leads the cycle — housing permits are a Conference Board LEI component and the HMI leads permits/starts; Leamer 2007 "Housing IS the Business Cycle"), `indicator_type = sentiment` (survey-based builder-sentiment diffusion index, same class as ISM/UMCSENT). |
 | I13 | Architecture Billings Index | `abi` | AIA (subscription/scrape) | Monthly | Diffusion index; availability risk |
 
 ### 7.3 Consumer / Sentiment (3 indicators)

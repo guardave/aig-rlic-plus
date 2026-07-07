@@ -1,0 +1,13 @@
+lead_months,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+1,1054,1.3719,0.8076,0.6442,0.9131,mom,T3_zscore_neg_1.0,P3_long_short_counter,-0.1945
+2,1066,1.3372,0.8006,0.5774,0.9643,mom3m,T3_zscore_1.5,P3_long_short_counter,-0.2393
+3,1059,1.3318,0.7559,0.5905,0.9703,mom,T3_zscore_1.0,P3_long_short_counter,-0.2393
+4,1099,1.2691,0.7747,0.5881,0.8634,hmm_stress,T2_roll_p75,P1_long_cash_pro,-0.0833
+5,1087,1.2877,0.7997,0.626,0.9101,diff12_zscore_60m,T1_fixed_p50,P1_long_cash_pro,-0.0639
+6,1094,1.4218,0.778,0.6034,0.9053,level_zscore_60m,T2_roll_p75,P1_long_cash_pro,0.0
+7,1110,1.4291,0.7643,0.6203,0.9048,diff_12m,T2_roll_p25,P1_long_cash_pro,-0.0807
+8,1101,1.31,0.8062,0.6621,0.9059,mom,T1_fixed_p50,P1_long_cash_pro,-0.1252
+9,1080,1.1853,0.8251,0.6672,0.9348,diff12_zscore_60m,T3_zscore_1.5,P3_long_short_counter,-0.2025
+10,1066,1.2774,0.7905,0.6355,0.9353,level,T2_roll_p25,P1_long_cash_counter,-0.0833
+11,1091,1.2439,0.7716,0.6141,0.9116,level_zscore_60m,T3_zscore_neg_1.0,P1_long_cash_pro,-0.0833
+12,1073,1.4071,0.8003,0.638,0.9448,yoy,T2_roll_p75,P3_long_short_counter,-0.1945

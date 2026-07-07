@@ -1,0 +1,34 @@
+{
+  "file": "regime_quartile_returns.csv",
+  "pair_id": "wells_fargo_housing_spy",
+  "produced_by": "scripts/pair_pipeline_wells_fargo_housing_spy.py",
+  "generated_at": "2026-07-06T22:58:55Z",
+  "frequency": "monthly",
+  "annualization": "Sharpe = mean/std * sqrt(12); ann_return = mean*12 (monthly data)",
+  "columns": {
+    "quartile": "HMI level quartile (Q1 = deepest builder pessimism)",
+    "n_months": "obs (months)",
+    "ann_return": "annualized SPY return in quartile (ratio; monthly mean x12)",
+    "ann_vol": "annualized vol (ratio; monthly std x sqrt(12))",
+    "sharpe": "monthly Sharpe, sqrt(12) annualization",
+    "max_drawdown": "max DD within quartile months (negative ratio)"
+  },
+  "assertions": [
+    {
+      "description": "4 quartiles",
+      "check": "len == 4"
+    },
+    {
+      "description": "returns plausible",
+      "check": "abs(ann_return) < 0.6"
+    },
+    {
+      "description": "integer ties broken by rank(method=first) \u2014 deterministic",
+      "check": "informational"
+    },
+    {
+      "description": "concurrent (NOT lagged) relationship \u2014 descriptive only",
+      "check": "informational"
+    }
+  ]
+}

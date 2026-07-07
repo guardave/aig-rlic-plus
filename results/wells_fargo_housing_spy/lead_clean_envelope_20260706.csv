@@ -1,0 +1,13 @@
+lead_months,best_oos_sharpe,best_signal,best_is_clean,best_clean_oos_sharpe,best_clean_signal
+1,1.3719,mom,True,1.3719,mom
+2,1.3372,mom3m,True,1.3372,mom3m
+3,1.3318,mom,True,1.3318,mom
+4,1.2691,hmm_stress,True,1.2691,hmm_stress
+5,1.2877,diff12_zscore_60m,True,1.2877,diff12_zscore_60m
+6,1.4218,level_zscore_60m,True,1.4218,level_zscore_60m
+7,1.4291,diff_12m,True,1.4291,diff_12m
+8,1.31,mom,True,1.31,mom
+9,1.1853,diff12_zscore_60m,True,1.1853,diff12_zscore_60m
+10,1.2774,level,True,1.2774,level
+11,1.2439,level_zscore_60m,True,1.2439,level_zscore_60m
+12,1.4071,yoy,True,1.4071,yoy

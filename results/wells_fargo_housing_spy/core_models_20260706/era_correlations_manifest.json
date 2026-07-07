@@ -1,0 +1,25 @@
+{
+  "file": "era_correlations.csv",
+  "pair_id": "wells_fargo_housing_spy",
+  "produced_by": "scripts/pair_pipeline_wells_fargo_housing_spy.py",
+  "generated_at": "2026-07-06T22:58:55Z",
+  "frequency": "monthly",
+  "annualization": "Sharpe = mean/std * sqrt(12); ann_return = mean*12 (monthly data)",
+  "columns": {
+    "signal": "level (nahb_hmi) or diff_12m (nahb_hmi_diff_12m)",
+    "era": "sub-period label",
+    "n_months": "obs",
+    "pearson_r": "Pearson r of era-window signal vs 1M-fwd SPY return",
+    "p_value": "two-sided"
+  },
+  "assertions": [
+    {
+      "description": "4 eras x 2 signals",
+      "check": "len == 8 (or fewer if era n<24)"
+    },
+    {
+      "description": "era boundaries: pre-GFC/GFC-bust/QE-era/post-COVID",
+      "check": "informational"
+    }
+  ]
+}

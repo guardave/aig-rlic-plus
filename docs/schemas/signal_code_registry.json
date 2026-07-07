@@ -311,6 +311,126 @@
       "added_at": "2026-07-06",
       "first_pair": "eci_total_comp_spy",
       "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "wells_fargo_housing_level",
+      "display_name": "NAHB HMI level",
+      "parquet_column_pattern": "nahb_hmi",
+      "description": "NAHB/Wells Fargo Housing Market Index level (bounded 0-100 diffusion index; 50 = neutral). Level is first-class for a bounded sentiment index \u2014 distance from 50 = net builder optimism.",
+      "source_method": "level",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_yoy",
+      "display_name": "NAHB HMI YoY % change",
+      "parquet_column_pattern": "nahb_hmi_pct_yoy",
+      "description": "12-month % change of the HMI. CAVEAT: %-change of a bounded index is level-dependent (8->16 = +100%); included for family consistency only.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_mom",
+      "display_name": "NAHB HMI MoM % change",
+      "parquet_column_pattern": "nahb_hmi_pct_mom",
+      "description": "1-month % change of the HMI. Bounded-index %-transform caveat applies.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_mom3m",
+      "display_name": "NAHB HMI 3M % change",
+      "parquet_column_pattern": "nahb_hmi_3m_pct",
+      "description": "3-month % change of the HMI. Bounded-index %-transform caveat applies.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_mom6m",
+      "display_name": "NAHB HMI 6M % change",
+      "parquet_column_pattern": "nahb_hmi_6m_pct",
+      "description": "6-month % change of the HMI. Bounded-index %-transform caveat applies.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_diff_3m",
+      "display_name": "NAHB HMI 3M point change",
+      "parquet_column_pattern": "nahb_hmi_diff_3m",
+      "description": "3-month POINT change (index points) \u2014 the natural momentum metric for a bounded diffusion index.",
+      "source_method": "diff",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_diff_12m",
+      "display_name": "NAHB HMI 12M point change",
+      "parquet_column_pattern": "nahb_hmi_diff_12m",
+      "description": "12-month POINT change (index points) \u2014 level-independent annual momentum of builder sentiment.",
+      "source_method": "diff",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_dev_trend",
+      "display_name": "NAHB HMI deviation from 12M MA",
+      "parquet_column_pattern": "nahb_hmi_dev_trend_pct",
+      "description": "% deviation of the level from its 12-month moving average.",
+      "source_method": "dev_trend",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_level_zscore_60m",
+      "display_name": "NAHB HMI level z-score (60M)",
+      "parquet_column_pattern": "nahb_hmi_zscore_60m",
+      "description": "Rolling 60-month z-score of the level; first-class for a mean-reverting bounded index.",
+      "source_method": "zscore",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_diff12_zscore_60m",
+      "display_name": "NAHB HMI 12M point-change z-score (60M)",
+      "parquet_column_pattern": "nahb_hmi_diff12_zscore_60m",
+      "description": "Rolling 60-month z-score of the 12-month point change.",
+      "source_method": "zscore",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_accel",
+      "display_name": "NAHB HMI acceleration",
+      "parquet_column_pattern": "nahb_hmi_accel_pct",
+      "description": "Month-on-month change of MoM % change (acceleration). Bounded-index %-transform caveat applies to the underlying MoM.",
+      "source_method": "accel",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_above50",
+      "display_name": "NAHB HMI above-50 regime flag",
+      "parquet_column_pattern": "nahb_hmi_above50",
+      "description": "Binary flag: HMI > 50 (net builder optimism) \u2014 the native expansion/contraction line for a diffusion index.",
+      "source_method": "regime_flag",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
     }
   ]
 }

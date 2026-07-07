@@ -1,0 +1,44 @@
+{
+  "file": "signals_20260706.parquet",
+  "pair_id": "wells_fargo_housing_spy",
+  "produced_by": "scripts/pair_pipeline_wells_fargo_housing_spy.py",
+  "generated_at": "2026-07-06T22:58:55Z",
+  "frequency": "monthly",
+  "annualization": "Sharpe = mean/std * sqrt(12); ann_return = mean*12 (monthly data)",
+  "columns": {
+    "nahb_hmi": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi)",
+    "nahb_hmi_pct_yoy": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi_pct_yoy)",
+    "nahb_hmi_pct_mom": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi_pct_mom)",
+    "nahb_hmi_3m_pct": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi_3m_pct)",
+    "nahb_hmi_6m_pct": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi_6m_pct)",
+    "nahb_hmi_diff_3m": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi_diff_3m)",
+    "nahb_hmi_diff_12m": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi_diff_12m)",
+    "nahb_hmi_dev_trend_pct": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi_dev_trend_pct)",
+    "nahb_hmi_zscore_60m": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi_zscore_60m)",
+    "nahb_hmi_diff12_zscore_60m": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi_diff12_zscore_60m)",
+    "nahb_hmi_accel_pct": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi_accel_pct)",
+    "nahb_hmi_above50": "tournament-eligible signal derived solely from the NAHB HMI (nahb_hmi_above50)",
+    "hmm_2state_prob_stress": "tournament-eligible signal derived solely from the NAHB HMI (hmm_2state_prob_stress)",
+    "markov_regime_2state": "tournament-eligible signal derived solely from the NAHB HMI (markov_regime_2state)"
+  },
+  "assertions": [
+    {
+      "description": "HMI bounded",
+      "column": "nahb_hmi",
+      "check": "0 <= value <= 100"
+    },
+    {
+      "description": "GFC record low",
+      "filter": "2008-06..2009-06",
+      "column": "nahb_hmi",
+      "check": "min <= 9"
+    },
+    {
+      "description": "COVID V-recovery",
+      "filter": "2020-09..2021-01",
+      "column": "nahb_hmi",
+      "check": "max >= 83"
+    }
+  ],
+  "bounded_pct_note": "%-change columns (pct_yoy/pct_mom/3m_pct/6m_pct/accel_pct) are LEVEL-DEPENDENT for a bounded index \u2014 artifact risk flagged per tournament row (bounded_pct_risk)"
+}

@@ -1,0 +1,16 @@
+{
+  "pair_id": "wells_fargo_housing_spy",
+  "winner_label": "diff_12m / T2_roll_p25 / P1_long_cash (pro) / L7 / LB60",
+  "winner_oos_sharpe": 1.4291,
+  "winner_max_drawdown": -0.0807,
+  "winner_oos_ann_return": 0.1521,
+  "bh_oos_sharpe": 0.9448,
+  "bh_max_drawdown": -0.2393,
+  "bh_oos_ann_return": 0.1539,
+  "delta_sharpe": 0.4843,
+  "delta_max_drawdown": 0.1586,
+  "delta_ann_return": -0.0018,
+  "beats_benchmark": true,
+  "suggested_strategy_objective": "min_mdd",
+  "generated_at": "2026-07-06T22:58:55Z"
+}

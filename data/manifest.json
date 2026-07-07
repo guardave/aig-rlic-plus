@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-06T12:43:48Z",
+  "generated_at": "2026-07-06T22:45:48Z",
   "artifacts": [
     {
       "path": "data/hy_ig_v2_spy_daily_20260410.parquet",
@@ -323,6 +323,27 @@
       "last_updated": "2026-07-06",
       "pairs": [
         "eci_total_comp_spy"
+      ]
+    },
+    {
+      "path": "data/wells_fargo_housing_spy_monthly_19850131_20251031.parquet",
+      "source": "DataMaster:WFHMI (NAHB/Wells Fargo HMI, monthly diffusion index 0-100, SA) + FRED:UNRATE/DGS10/DFF + yahoo:SPY/^VIX",
+      "refresh_ttl_days": 30,
+      "schema_ref": "data/wells_fargo_housing_spy_monthly_schema.json",
+      "last_updated": "2026-07-06",
+      "pairs": [
+        "wells_fargo_housing_spy"
+      ],
+      "mixed_freq_ttl_note": "Monthly indicator (hand-maintained Data Master, latest 2025-10; no live API \u2014 refresh requires a Master update) + month-end snapshots of daily market data; TTL=30 days nominal."
+    },
+    {
+      "path": "data/wells_fargo_housing_spy_monthly_latest.parquet",
+      "source": "alias_of:data/wells_fargo_housing_spy_monthly_19850131_20251031.parquet",
+      "refresh_ttl_days": 30,
+      "schema_ref": "data/wells_fargo_housing_spy_monthly_schema.json",
+      "last_updated": "2026-07-06",
+      "pairs": [
+        "wells_fargo_housing_spy"
       ]
     }
   ]

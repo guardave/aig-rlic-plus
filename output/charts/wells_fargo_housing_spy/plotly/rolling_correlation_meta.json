@@ -1,0 +1,23 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "wells_fargo_housing_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.2",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "60-month rolling correlation between NAHB HMI and SPY monthly returns. The sign is stable (82% agreement) but the level hugs zero throughout \u2014 and the era battery (pre-GFC, GFC bust, QE era, post-COVID) finds NO significant correlation in ANY era (max |r| = 0.12, min p = 0.31). A stably-null relationship, not a stably-useful one. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Stability verdict quoted from structural_break JSON; era-null message required by Lead dispatch, values re-read from era_correlations.csv at generation time.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/wells_fargo_housing_spy/rolling_correlation_wells_fargo_housing_spy.csv",
+    "results/wells_fargo_housing_spy/structural_break_wells_fargo_housing_spy.json",
+    "results/wells_fargo_housing_spy/core_models_20260706/era_correlations.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-06T23:15:07.821433+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
+}

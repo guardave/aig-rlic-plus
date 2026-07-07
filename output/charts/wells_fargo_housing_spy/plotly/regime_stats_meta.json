@@ -1,0 +1,21 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "wells_fargo_housing_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-QR1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "SPY performance by concurrent NAHB HMI level quartile (Q1 = deepest builder pessimism): Sharpe (left) and annualized return (right). The pattern is NON-MONOTONIC \u2014 Q2 is best (Sharpe 1.47, 18.3% ann.) and Q3 worst (0.27), with the extremes Q1 (0.74) and Q4 (0.70) in between. Descriptive, concurrent quartiles \u2014 not a tradable lagged signal.",
+  "narrative_alignment_note": "VIZ-QR1 dual-panel from regime_quartile_returns.csv; the manifest defines quartiles on the HMI LEVEL (Q1 = deepest pessimism); values re-read from CSV at generation time; non-monotonic = no regime story, consistent with the null era battery.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/wells_fargo_housing_spy/regime_quartile_returns.csv",
+    "results/wells_fargo_housing_spy/regime_quartile_returns_manifest.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-06T23:14:48.621740+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
+}

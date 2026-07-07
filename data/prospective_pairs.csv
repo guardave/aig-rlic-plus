@@ -6,6 +6,7 @@ wells_fargo_housing,Wells Fargo Housing Index,real_estate,XLE,wells_fargo_housin
 wells_fargo_housing,Wells Fargo Housing Index,real_estate,XLY,wells_fargo_housing_xly,not_started,RE - Wells Fargo H Indx,,RE - Wells Fargo H Indx,48
 wells_fargo_housing,Wells Fargo Housing Index,real_estate,XLK,wells_fargo_housing_xlk,not_started,RE - Wells Fargo H Indx,,RE - Wells Fargo H Indx,48
 wells_fargo_housing,Wells Fargo Housing Index,real_estate,XLF,wells_fargo_housing_xlf,not_started,RE - Wells Fargo H Indx,,RE - Wells Fargo H Indx,48
+wells_fargo_housing,Wells Fargo Housing Index,real_estate,SPY,wells_fargo_housing_spy,in_progress,RE - Wells Fargo H Indx,,RE - Wells Fargo H Indx,48
 elec_cpi_yoy,Electricity Price − CPI YoY,utilities,XLE,elec_cpi_yoy_xle,not_started,Elect Price - CPI (YoY),,Elect Price - CPI (YoY),49
 ism_services,ISM Services PMI,sentiment,SPY,ism_services_spy,in_progress,"CDis, CSta - ISM Services PMI",,"CDis, CSta - ISM Services PMI",56
 ism_services,ISM Services PMI,sentiment,XLP,ism_services_xlp,not_started,"CDis, CSta - ISM Services PMI",,"CDis, CSta - ISM Services PMI",56

@@ -1,0 +1,28 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "wells_fargo_housing_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-SCD1",
+    "ECON-T4",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Distribution of OOS Sharpe across the 12,980 valid strategy combos. The winner (Sharpe 1.43) is the max of 12,980 with median 0.79 \u2014 and the median sits BELOW Buy & Hold SPY (0.94). Winner selection is a tail draw from a population that mostly underperforms the benchmark; bootstrap p = 0.127 (not significant at 5%) \u2014 a found-in-search candidate.",
+  "narrative_alignment_note": "VIZ-SCD1 position disclosure + B&H benchmark line; all numbers re-read from the tournament CSV and tournament_validation bootstrap.csv at generation time.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/wells_fargo_housing_spy/tournament_results_20260706.csv",
+    "results/wells_fargo_housing_spy/tournament_validation_20260706/bootstrap.csv"
+  ],
+  "reconciliation": {
+    "valid_count": 12980,
+    "median_oos_sharpe": 0.7901,
+    "winner_oos_sharpe": 1.4291,
+    "bh_oos_sharpe": 0.9448,
+    "bootstrap_p": 0.1272
+  },
+  "generated_at": "2026-07-06T23:15:06.057264+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
+}
