@@ -123,6 +123,10 @@ Divergence magnitude (Class B, for prioritizing narrative care):
 
 ---
 
+## 5a. Hard constraint — no LLM in the pipeline
+
+Build, render, test, and CI paths stay pure Python — **no Claude/LLM call**. Shared repo, not all devs have Claude. Narrative is human-authored (Claude optional, off-repo) and committed as static text; `GATE-VIZ-LEAD` checks that text, never regenerates it.
+
 ## 6. Effort & risk
 
 - **Dominant cost is Phase 0** (the generalized re-scoring tool). After that, per-pair is
