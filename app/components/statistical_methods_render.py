@@ -15,8 +15,11 @@ Two entry points call ``render_statistical_methods()``:
 Keeping the render in one place means both entry points stay in lock-step.
 """
 
+import os
+
 import streamlit as st
 
+from components.charts import _REPO_ROOT, _load_plotly_json, load_plotly_chart
 from components.statistical_methods import (
     CATEGORIES,
     METHODS,
@@ -45,7 +48,92 @@ _TIER_BLURB: dict[str, str] = {
 }
 
 
-def _render_method_block(method: dict) -> None:
+def _render_method_example(method: dict, key_prefix: str = "") -> None:
+    """Render the per-method illustrative example beneath the three text fields.
+
+    The ``example`` field on each method is one of:
+      * ``None`` (or a dict whose ``chart`` is ``None``) — no standalone chart
+        exists for this method (e.g. ``bootstrap_significance``). We render the
+        caption note only, with a graceful "no standalone chart" line if there
+        is not even a caption.
+      * ``{"pair": <pair_id>, "chart": <slug>, "caption": <how-to-read>}`` — we
+        load the pair's rendered Plotly JSON via the portal's canonical loader
+        (``components.charts.load_plotly_chart``) and render Ray's caption under
+        it. The loader already guards a missing/unparseable file with the
+        GATE-25 "chart pending" placeholder rather than a traceback.
+
+    Everything is wrapped so a bad/missing example can never raise into the
+    page: at worst the reader sees the caption note or a graceful placeholder.
+
+    ``key_prefix`` disambiguates Streamlit widget keys so the SAME shared render
+    function can drive both the standalone page and the landing-page tab in one
+    session without duplicate-key collisions on ``st.plotly_chart``.
+    """
+    example = method.get("example")
+    slug = method.get("slug", "unknown")
+
+    # No example dict at all → nothing to show.
+    if not example:
+        return
+
+    caption = example.get("caption")
+    chart = example.get("chart")
+    pair = example.get("pair")
+
+    st.markdown("**Illustrative example**")
+
+    # Methods with no standalone chart (e.g. bootstrap): caption note only.
+    if not chart or not pair:
+        st.caption(
+            caption
+            or "No standalone chart is produced for this method."
+        )
+        return
+
+    key = f"methods_example_{key_prefix}_{slug}" if key_prefix else f"methods_example_{slug}"
+
+    # Prefer a bespoke annotated illustration if Vera has built one for this
+    # method's slug at output/charts/_methods/plotly/{slug}.json. This is an
+    # illustrative overlay on real pair data; the "Source pair" line below still
+    # names the real data's origin (example.pair). Path is resolved from the
+    # repo root — the same base the pair-chart loader uses — so the existence
+    # check and the load agree regardless of the page's cwd (it runs from app/).
+    annotated_path = os.path.normpath(
+        os.path.join(_REPO_ROOT, "output", "charts", "_methods", "plotly", f"{slug}.json")
+    )
+    rendered = False
+    if os.path.exists(annotated_path):
+        try:
+            fig = _load_plotly_json(annotated_path)
+            st.plotly_chart(fig, use_container_width=True, key=key)
+            rendered = True
+        except Exception:  # noqa: BLE001 — render edge: fall back to the pair chart
+            rendered = False
+
+    # No annotated figure (or it failed to parse) → keep the existing pair-chart
+    # path exactly as before. The canonical loader internally guards parse/miss
+    # failures with the GATE-25 placeholder; we still wrap it so nothing here can
+    # raise into the surrounding page.
+    if not rendered:
+        try:
+            load_plotly_chart(
+                chart,
+                fallback_text=(
+                    "Illustrative chart will appear when the source pair's "
+                    "visualization is available."
+                ),
+                pair_id=pair,
+                chart_key=key,
+            )
+        except Exception:  # noqa: BLE001 — render edge: never surface a traceback
+            st.caption("Illustrative chart is temporarily unavailable.")
+
+    if caption:
+        st.caption(caption)
+    st.caption(f"Source pair: `{pair}`.")
+
+
+def _render_method_block(method: dict, key_prefix: str = "") -> None:
     """Render one method as an anchored subsection: name, subtle catalog
     reference, then the three stakeholder fields under bold labels."""
     # Anchored subheader so the top-of-page jump list can target it.
@@ -61,12 +149,21 @@ def _render_method_block(method: dict) -> None:
     st.markdown("**How to interpret the results**")
     st.markdown(method["how_to_interpret"])
 
+    # Real illustrative example chart (or graceful note) under the text fields.
+    _render_method_example(method, key_prefix=key_prefix)
+
     st.markdown("---")
 
 
-def render_statistical_methods() -> None:
+def render_statistical_methods(key_prefix: str = "") -> None:
     """Render the full Statistical Methods reference (title/intro + ToC +
-    per-category/per-method blocks). Chrome-free: no page config, no sidebar."""
+    per-category/per-method blocks). Chrome-free: no page config, no sidebar.
+
+    ``key_prefix`` is threaded through to every embedded example chart's
+    Streamlit widget key. The standalone page passes ``"page"`` and the
+    landing-page tab passes ``"tab"`` so the two instances can co-exist in one
+    session without duplicate ``st.plotly_chart`` key collisions.
+    """
     st.title("Statistical Methods — Reference")
     st.markdown(
         "This page documents every statistical and econometric method used "
@@ -110,7 +207,7 @@ def render_statistical_methods() -> None:
         if blurb:
             st.caption(blurb)
         for method in methods:
-            _render_method_block(method)
+            _render_method_block(method, key_prefix=key_prefix)
 
     st.caption(
         f"{len(METHODS)} methods documented. Source of truth: "

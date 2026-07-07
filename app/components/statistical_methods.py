@@ -97,15 +97,33 @@ METHODS: list[dict] = [
         "how_to_interpret": (
             "Read the sign first, magnitude second. A consistent negative column "
             "confirms a countercyclical link; positive, procyclical. Crucially, "
-            "magnitude is easy to over-read: r ≈ 0.2 means the signal explains "
-            "only r² ≈ 4% of the variation in returns (about 96% is left "
-            "unexplained). A SMALL linear correlation does NOT "
+            "magnitude is easy to over-read: even the strongest cell in the "
+            "example battery, r = −0.37, explains only r² ≈ 14% of the variation "
+            "in returns (about 86% is left unexplained), and 86 of the 120 cells "
+            "sit below |r| = 0.05. A SMALL linear correlation does NOT "
             "rule out a profitable strategy -- if the signal's information lives "
             "in the tails or in a threshold regime, linear correlation "
             "(which weights calm and extreme days equally) will understate it. "
             "Correlation is association, not causation, and not predictive "
             "precedence -- it says nothing about which series moves first."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "correlation_heatmap",
+            "caption": (
+                "How to read this example: each cell is the correlation "
+                "between one signal transform (row) and one forward-return "
+                "horizon (column). ① The deepest-coloured cell is the "
+                "strongest single link (r ≈ −0.37) — and even it is modest, "
+                "explaining only r² ≈ 14% of return variation. ② Most cells "
+                "sit in a broad pale band near zero — 86 of the 120 are below "
+                "|r| = 0.05 — so magnitude is easy to over-read. "
+                "So read ③ the sign before the magnitude: colour encodes "
+                "direction (blue = negative/countercyclical, red = positive/"
+                "procyclical). Treat the map as fixing direction, not as "
+                "proof of a tradable edge — the tail/threshold tests come next."
+            ),
+        },
     },
     {
         "slug": "lead_correlation",
@@ -114,11 +132,13 @@ METHODS: list[dict] = [
         "catalog_ref": "Catalog §1–2 (Correlation; Lead-Lag)",
         "what_for": (
             "Answers the staleness question a rebalanced strategy actually faces: "
-            "how far ahead does the indicator lead the target? The signal is "
-            "shifted by lead L = 0…12 periods and correlated against a FIXED "
-            "short forward return, tracing out at which lead predictive content "
-            "peaks. A rolling-window variant instead recomputes correlation "
-            "through time to expose regime dependence of the relationship."
+            "how far ahead does the indicator lead the target? Each signal "
+            "transform is shifted by lead L = 0…12 periods and correlated against a "
+            "FIXED short forward return, so the output is a heatmap of signals "
+            "(rows) × leads (columns) whose cells reveal at which lead each "
+            "signal's predictive content peaks. A rolling-window variant instead "
+            "recomputes correlation through time to expose regime dependence of "
+            "the relationship."
         ),
         "why_applicable": (
             "A monthly-rebalanced rule does not need the best cumulative horizon; "
@@ -130,16 +150,39 @@ METHODS: list[dict] = [
             "misleading middle."
         ),
         "how_to_interpret": (
-            "On the lead grid, find the lead where correlation is strongest and "
-            "check it is stable across neighbouring leads (a lone spike is likely "
-            "noise; a broad plateau is a robust regime). A sign flip across leads "
-            "signals a regime-/threshold-conditional relationship rather than a "
-            "clean linear lead-lag. Honest caveat for daily pairs: a "
-            "monthly-resampled lead grid is a comparability diagnostic, not the "
-            "traded latency -- a daily rule may execute same-day (L0) even when "
-            "the monthly grid peaks elsewhere, because monthly resampling discards "
-            "the within-month reaction the daily rule monetises."
+            "Read across a row to find the lead where that signal's correlation "
+            "is strongest, and check it is stable across neighbouring leads (a "
+            "lone-cell peak is likely noise; a run of similar cells is a robust "
+            "regime). In the example the strongest single cell across the whole "
+            "map is only −0.222 (the 21-day momentum signal at lead L2), and the "
+            "winner-signal row deepens to just −0.137 at L6 before fading — a "
+            "single-lead peak, not a broad plateau, so treat it with caution. A "
+            "sign flip across leads signals a regime-/threshold-conditional "
+            "relationship rather than a clean linear lead-lag. Honest caveat for "
+            "daily pairs: a monthly-resampled lead grid is a comparability "
+            "diagnostic, not the traded latency -- a daily rule may execute "
+            "same-day (L0) even when the monthly grid peaks elsewhere, because "
+            "monthly resampling discards the within-month reaction the daily rule "
+            "monetises."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "correlations_lead_view",
+            "caption": (
+                "How to read this example: this is a HEATMAP of 10 signals (rows) "
+                "against 13 leads (L = 0…12, columns) — read across a row to see "
+                "where that signal's correlation with a FIXED forward return "
+                "peaks. ① The strongest single cell in the whole map is only "
+                "−0.222 (the 21-day momentum signal at lead L2) — where a "
+                "short-momentum lead is tightest, yet still modest. ② The "
+                "winner-signal row deepens to just −0.137 at L6 then fades — a "
+                "lone single-lead peak, not a broad plateau, so treat it with "
+                "caution. ③ The sign stays negative across most of the winner "
+                "row (a countercyclical lead); for this daily pair the monthly "
+                "grid is a comparability diagnostic, not the latency actually "
+                "traded."
+            ),
+        },
     },
     {
         "slug": "lead_tournament",
@@ -172,6 +215,21 @@ METHODS: list[dict] = [
             "marked `found_in_search` is search-phase OOS, not a fresh holdout "
             "exam."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "lead_sharpe_distribution",
+            "caption": (
+                "How to read this example: each bar is the BEST out-of-sample "
+                "Sharpe the grid search could find at that lead. ① The tallest "
+                "bar is L1 at 1.44 (a single lucky combination). ② The grey "
+                "IQR band and median dots (~0.70–0.78 across leads) sit far below "
+                "the best bars — the typical combo is mediocre, the max is "
+                "optimistic. ③ The dashed buy-and-hold line at 0.81 is cleared "
+                "by the best-at-each-lead everywhere, but every bar is the max "
+                "over thousands of combos, so read it as a search-conditioned "
+                "hypothesis to be validated by walk-forward, not a confirmed edge."
+            ),
+        },
     },
     {
         "slug": "granger_causality",
@@ -195,18 +253,42 @@ METHODS: list[dict] = [
             "market itself."
         ),
         "how_to_interpret": (
-            "A p-value below 0.05 at a lag means the indicator significantly "
-            "improves the forecast at that lag (a result this strong would show "
-            "up by chance less than 1 time in 20 if there were no real link); a "
-            "cluster of significant lags "
-            "supports a genuine lead. The essential caveat is in the name: "
-            "'Granger causality' is PREDICTIVE PRECEDENCE, not economic causation "
-            "-- both series can be driven by a common third factor. It is also a "
-            "linear conditional-mean test, so it can miss threshold-activated or "
-            "regime-conditional relationships that are real but non-linear; "
-            "moderate Granger evidence alongside strong tournament/transfer-"
-            "entropy evidence is the fingerprint of exactly that non-linearity."
+            "An F-statistic that clears the 5% critical line at a lag means the "
+            "indicator significantly improves the forecast at that lag (a result "
+            "this strong would show up by chance less than 1 time in 20 if there "
+            "were no real link); a cluster of significant lags supports a genuine "
+            "lead. In the example the forward F towers over the line at every "
+            "lag — 24.3 at lag 1 against a 3.84 critical value, still 2.10 at lag "
+            "21 — an unusually strong, real lead. But the crucial second reading "
+            "is the reverse direction: here the target Granger-causes the "
+            "indicator too (reverse F 39.9 at lag 1, larger than the forward "
+            "24.3, significant at every lag), so this is a FEEDBACK pair, not a "
+            "one-way lead — predictive precedence runs both ways. The essential "
+            "caveat is in the name: 'Granger causality' is PREDICTIVE PRECEDENCE, "
+            "not economic causation -- both series can be driven by a common "
+            "third factor. It is also a linear conditional-mean test, so it can "
+            "miss threshold-activated or regime-conditional relationships that "
+            "are real but non-linear; moderate Granger evidence alongside strong "
+            "tournament/transfer-entropy evidence is the fingerprint of exactly "
+            "that non-linearity."
         ),
+        "example": {
+            "pair": "phlxsox_spy",
+            "chart": "granger_f_by_lag",
+            "caption": (
+                "How to read this example — this is what a strong, significant "
+                "lead looks like (on a log-scale F axis). ① The lag-1 forward "
+                "bar is F = 24.3, towering over the dashed 5% line at 3.84 — a "
+                "real lead that would occur by chance far less than 1 time in 20. "
+                "② The forward bars clear the per-lag critical line at EVERY "
+                "lag tested (1→21, F falling 24.3 → 2.10 but still above the "
+                "line) — a cluster of significant lags, not a lone spike. "
+                "③ Crucially the reverse bars (target → indicator) also clear "
+                "the line, and by more (F = 39.9 at lag 1 > 24.3), so causality "
+                "runs BOTH ways — this is feedback, i.e. predictive precedence, "
+                "not economic cause."
+            ),
+        },
     },
     {
         "slug": "prewhitened_ccf",
@@ -231,15 +313,36 @@ METHODS: list[dict] = [
         ),
         "how_to_interpret": (
             "Bars are the cross-correlation at each lag; negative lags = target "
-            "leads signal, positive lags = signal leads target. Bars that poke "
-            "past the ±1.96/√n dashed band (the standard rule-of-thumb "
-            "noise threshold) are unlikely to be chance. A cluster of significant "
-            "bars at small positive lags corroborates a short-horizon indicator->"
-            "target lead. Caveat: even a correctly pre-whitened CCF is a bivariate, "
-            "linear measure computed on a chosen (often in-sample) window; a small "
-            "significant bar confirms a real but modest lead, not a large tradable "
-            "effect on its own."
+            "leads signal, positive lags = signal leads target, and the bar AT "
+            "lag 0 is contemporaneous co-movement (the two move together, neither "
+            "ahead). Bars that poke past the ±1.96/√n dashed band (the standard "
+            "rule-of-thumb noise threshold) are unlikely to be chance. Where the "
+            "one bar that clears the band sits — as in the example, a −0.28 spike "
+            "AT lag 0 against a ±0.028 band while every other bar hugs the band — "
+            "the timing is 'together', not a forward lead; a bar away from zero "
+            "on the positive side would be the indicator leading the target. "
+            "Caveat: even a correctly pre-whitened CCF is a bivariate, linear "
+            "measure computed on a chosen (often in-sample) window; a "
+            "contemporaneous spike confirms real coupling, not a tradable forward "
+            "lead on its own."
         ),
+        "example": {
+            "pair": "gold_copper_xli",
+            "chart": "ccf_prewhitened",
+            "caption": (
+                "How to read this example: each bar is the cross-correlation at "
+                "one lag (−30…+30) AFTER stripping out each series' self-memory — "
+                "negative lags mean the target leads, positive lags mean the "
+                "signal leads, lag 0 means they move together. ① One tall bar "
+                "at lag 0, CCF = −0.28, pierces the ±0.028 dashed band — strong "
+                "contemporaneous co-movement. ② Every other bar hugs the band "
+                "(nothing away from zero clears it), so there is no significant "
+                "lead or lag — the timing is 'together', not 'ahead'. ③ A bar "
+                "poking past the band on the positive side WOULD be the indicator "
+                "leading the target; here the magnitude confirms coupling, not a "
+                "tradable forward lead."
+            ),
+        },
     },
 
     # ------------------------------------------------------------------ #
@@ -275,6 +378,22 @@ METHODS: list[dict] = [
             "standard error unless one is added -- treat the gradient as direction "
             "evidence, not as a calibrated forecast."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "regime_quartile_returns",
+            "caption": (
+                "How to read this example: each bar is the target's average "
+                "annualized forward return when the signal sat in that quartile. "
+                "① The Q1 bar is +18.7% (Sharpe 1.71) — the tightest-spread "
+                "regime, strongly positive. ② The bars step down monotonically "
+                "Q1 +18.7 → Q2 +18.3 → Q3 +8.9 → Q4 −10.2 — a clean, model-free "
+                "directional gradient. ③ The Q4 bar is −10.2% (Sharpe −0.49): "
+                "the widest-spread regime flips negative, confirming the "
+                "countercyclical hypothesis with no model. These are in-sample "
+                "bucket means with no error bars — read the ~29-point gradient as "
+                "direction, not a calibrated forecast."
+            ),
+        },
     },
     {
         "slug": "hmm_regime",
@@ -307,6 +426,22 @@ METHODS: list[dict] = [
             "periodic re-estimation to avoid stale regime definitions; and the "
             "number of states is a modelling choice, not a fact."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "hmm_regime_probs",
+            "caption": (
+                "How to read this example: the line is the model's smoothed "
+                "probability that each date sat in the 'stress' regime — near 1 "
+                "confident stress, near 0 calm. ① It is pinned near 1.0 through "
+                "the shaded 2008–09 GFC band — the model confidently flags the "
+                "crisis. ② A second spike to 1.0 in the 2020 COVID band shows "
+                "regimes recur and align with documented episodes — it passes "
+                "the eye-check. ③ The line sits near 0 through calm expansions "
+                "and only ~38% of dates are 'stress', so separation is by "
+                "turbulence, not mean; the fit is in-sample, so live use needs "
+                "periodic re-estimation."
+            ),
+        },
     },
     {
         "slug": "local_projections",
@@ -316,9 +451,9 @@ METHODS: list[dict] = [
         "what_for": (
             "Traces the dynamic path of the target's response to a shock in the "
             "indicator: after the signal jumps by one standard deviation today, "
-            "what is the cumulative target return at horizons 1, 5, 21, 63, 126 "
-            "days? Each horizon is estimated by its own regression rather than by "
-            "extrapolating one big model."
+            "what is the cumulative target return at a set of forward horizons "
+            "(days to a few months out)? Each horizon is estimated by its own "
+            "regression rather than by extrapolating one big model."
         ),
         "why_applicable": (
             "Local projections give robust impulse responses without imposing a "
@@ -343,6 +478,23 @@ METHODS: list[dict] = [
             "overlapping data, and a significant reverse-direction response is a "
             "feedback / reverse-causality flag, not a bonus signal."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "local_projections",
+            "caption": (
+                "How to read this example: the line traces the target's "
+                "cumulative return at each horizon after the signal jumps one "
+                "standard deviation today; the shaded band is the 95% HAC "
+                "confidence interval. ① The response builds monotonically more "
+                "negative with horizon: −0.0008 at 5d → −0.0032 at 21d → −0.0083 "
+                "at 63d. ② At 63 days the whole band [−0.0161, −0.0005] sits "
+                "below zero — a statistically clear (negative) response, the "
+                "horizon to trade. ③ At 5d and 21d the band still straddles "
+                "zero (weak evidence early), so the build-then-significant shape "
+                "points at the ~63-day horizon. A significant reverse-direction "
+                "response would be a feedback flag, not a bonus signal."
+            ),
+        },
     },
     {
         "slug": "quantile_regression",
@@ -376,6 +528,24 @@ METHODS: list[dict] = [
             "effective observations and so are noisier; and, like the others, this "
             "is predictive association, not proof of a causal channel."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "quantile_regression",
+            "caption": (
+                "How to read this example: each point is the signal's slope "
+                "estimated at a different point of the outcome distribution, with "
+                "95% CI bands. ① In the lower tail (τ=0.05) the slope is −0.0117 "
+                "— steeply negative, so in the worst months a spread signal bites "
+                "hardest downward. ② At the median (τ=0.50) the slope is ≈ "
+                "+0.0003, essentially flat — almost no effect on the typical "
+                "month. ③ In the upper tail (τ=0.95) the slope is +0.0118, so "
+                "the slopes fan out near-symmetrically: the signal governs the "
+                "WIDTH of outcomes, not the average — the bridge between a weak "
+                "average correlation and a strong tournament Sharpe. Tail "
+                "estimates use fewer points, so they are noisier, and it is "
+                "association not cause."
+            ),
+        },
     },
     {
         "slug": "transfer_entropy",
@@ -413,6 +583,24 @@ METHODS: list[dict] = [
             "with Granger, directed predictive information is not proof of an "
             "economic causal mechanism."
         ),
+        "example": {
+            "pair": "gold_copper_xli",
+            "chart": "transfer_entropy",
+            "caption": (
+                "How to read this example: the two bars are the directed "
+                "information flow (in bits) each way, against the shuffle-based "
+                "null. ① The forward bar, TE(signal→target) = 0.0148, pokes "
+                "clearly ABOVE the 95% null upper bound of 0.0080 (empirical "
+                "p ≈ 0.000) — significant directed flow, indicator → target. "
+                "② The reverse bar, TE(target→signal) = 0.0035, sits below the "
+                "null band — no reverse flow, so information runs one way (about "
+                "4× stronger forward). ③ The null line at 0.0080 is the 95% "
+                "shuffle bound: only bars above it are non-chance, and the size "
+                "in bits is not a return. This is the non-linear cousin of "
+                "Granger, catching threshold effects a linear test misses, but "
+                "directed information is still not proof of economic causation."
+            ),
+        },
     },
     {
         "slug": "random_forest_importance",
@@ -445,6 +633,23 @@ METHODS: list[dict] = [
             "tradable rule, and a high in-sample accuracy that does not survive "
             "walk-forward is overfitting."
         ),
+        "example": {
+            "pair": "indpro_spy",
+            "chart": "rf_importance",
+            "caption": (
+                "How to read this example: each bar is one indicator transform's "
+                "importance from the last walk-forward window — the longer the "
+                "bar, the more that feature helped the forest predict the "
+                "target's next-period sign. ① The longest bar is the yield-curve "
+                "slope (10y3m) at 0.152 — the single most informative feature. "
+                "② Next is the z-score transform (IP zscore_60m) at 0.134, "
+                "corroborating the tournament's z-score/level winner. ③ The "
+                "shortest bars are momentum transforms (IP accel 0.068) — "
+                "importance ranks relevance only, giving no direction or tradable "
+                "rule, so judge accuracy against the honest 50% coin-flip. This "
+                "is a cross-check, not a signal."
+            ),
+        },
     },
 
     # ------------------------------------------------------------------ #
@@ -478,6 +683,21 @@ METHODS: list[dict] = [
             "costs), and search-phase OOS is still weaker evidence than a fresh, "
             "never-touched holdout exam."
         ),
+        "example": {
+            "pair": "hy_ig_spy",
+            "chart": "walk_forward",
+            "caption": (
+                "How to read this example: each bar is one year's out-of-sample "
+                "Sharpe — performance ONLY on data the rule never saw while "
+                "fitting. ① Most bars are positive: 14 of 17 years — the edge "
+                "persists on data never fitted on. ② The best bar (2017 = +2.91) "
+                "clears the dashed buy-and-hold line at 0.81, as do the large "
+                "majority. ③ The negative bars (2022 = −1.24, and 2020 ≈ 0) are "
+                "real drawdown years — weight the LONGEST out-of-sample stretch "
+                "most (short <5yr windows inflate Sharpe), and remember all "
+                "figures are simulated (no market impact)."
+            ),
+        },
     },
     {
         "slug": "bootstrap_significance",
@@ -509,6 +729,25 @@ METHODS: list[dict] = [
             "of them): clearing the 5% bar on a search-selected "
             "winner is necessary, not sufficient."
         ),
+        # No standalone bootstrap-distribution chart is produced for any pair
+        # (the bootstrap p-value is reported inline in Strategy/Confidence text,
+        # not as a JSON figure). Rather than leave ``example`` as None (which the
+        # renderer can't display), we keep the dict shape with null pair/chart so
+        # the page shows a caption-only note and no broken embed.
+        "example": {
+            "pair": None,
+            "chart": None,
+            "caption": (
+                "How to read this example: there is no standalone figure for the "
+                "bootstrap test — its p-value is reported inline on each "
+                "Strategy/Confidence page rather than as a chart. To SEE "
+                "out-of-sample robustness visually, look instead at the "
+                "Walk-Forward example (performance on data never fitted on) and "
+                "the Subperiod example (Sharpe across economic episodes). Note "
+                "the bootstrap p on a search-selected winner is "
+                "search-conditioned: clearing 5% is necessary, not sufficient."
+            ),
+        },
     },
     {
         "slug": "subperiod_durability",
@@ -538,6 +777,22 @@ METHODS: list[dict] = [
             "are individually noisier -- read the pattern across episodes, not any "
             "one cell."
         ),
+        "example": {
+            "pair": "gold_copper_xli",
+            "chart": "subperiod_sharpe",
+            "caption": (
+                "How to read this example: each bar is the strategy's Sharpe "
+                "inside one historical sub-period (2000–2004, 2005–2009, "
+                "2010–2014, 2015–2019, 2020–2025). ① Every one of the five bars "
+                "is positive, Sharpe 0.76 → 1.74 — the edge shows up in each era, "
+                "not one lucky window, so it is durable. ② The tallest is "
+                "2010–2014 at +1.74 and the shortest 2015–2019 at +0.76 — the "
+                "same order of magnitude, no single bar carrying the result. "
+                "③ The recent 2020–2025 window stays strong at +1.27, so "
+                "durability holds out-of-sample. Each bar is a short, "
+                "individually noisy window, so read the pattern, not any one cell."
+            ),
+        },
     },
     {
         "slug": "structural_break_cointegration",
@@ -577,6 +832,23 @@ METHODS: list[dict] = [
             "series. Treat both as context that qualifies confidence, not as the "
             "trading signal itself."
         ),
+        "example": {
+            "pair": "gold_copper_xli",
+            "chart": "structural_break",
+            "caption": (
+                "How to read this example: the line is the rolling Quandt-Andrews "
+                "sup-F statistic through time, testing for a change-point in the "
+                "indicator→target link. ① It spikes to a peak of max sup-F = "
+                "252.89, far above the 5% critical line at 8.85 — a strongly "
+                "significant structural break. ② The vertical marker sits at "
+                "the estimated break date, 2009-01-19 (post-GFC), where the link "
+                "shifted. ③ Any full-sample statistic spanning that date should "
+                "be read with caution and subsample analysis is warranted; the "
+                "companion cointegration check is a separate, conditional "
+                "question (do the two levels share a long-run equilibrium?) — "
+                "both qualify confidence, they aren't the signal."
+            ),
+        },
     },
 ]
 
