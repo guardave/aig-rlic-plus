@@ -1,0 +1,13 @@
+lead_months,best_oos_sharpe,best_signal,best_is_clean,best_clean_oos_sharpe,best_clean_signal
+1,1.3884,ism_services_pmi,True,1.3884,ism_services_pmi
+2,1.4387,ism_services_pmi,True,1.4387,ism_services_pmi
+3,1.5377,ism_services_pmi,True,1.5377,ism_services_pmi
+4,1.2553,ism_services_delta,True,1.2553,ism_services_delta
+5,1.1648,ism_services_pmi,True,1.1648,ism_services_pmi
+6,1.3552,ism_services_delta,True,1.3552,ism_services_delta
+7,1.1839,ism_services_pmi,True,1.1839,ism_services_pmi
+8,1.4004,ism_services_pmi,True,1.4004,ism_services_pmi
+9,1.3518,ism_services_zscore_60m,True,1.3518,ism_services_zscore_60m
+10,1.4616,ism_services_6m_change,True,1.4616,ism_services_6m_change
+11,1.3193,ism_services_pmi,True,1.3193,ism_services_pmi
+12,1.2153,ism_services_pmi,True,1.2153,ism_services_pmi

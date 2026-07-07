@@ -23,6 +23,14 @@
   "assertions": [
     "lead grid is exactly L0..12",
     "best_oos_sharpe is the max over the extended grid",
-    "decision RE-RUN iff L*\u22087..12 AND best>1.5377"
-  ]
+    "decision RE-RUN iff L*\u22087..12 AND best>1.5377",
+    "[GH#13] published winner (gap_50/T3_zscore_neg_1.0/P1_long_cash_pro/L3, OOS 1.5377) is selected for risk-adjusted robustness, NOT the highest single score; its own OOS-Sharpe-by-lead curve peaks at L3, while the cross-signal envelope peaks at L3 -> lead_winner_curve_20260620.csv (native grid; envelope >= winner curve by construction)."
+  ],
+  "lead_winner_curve_file": "ism_services_spy/lead_winner_curve_20260620.csv",
+  "lead_clean_envelope_file": "ism_services_spy/lead_clean_envelope_20260620.csv",
+  "clean_envelope_note": "No seasonally-contaminated signals for this pair -> clean envelope == raw envelope by construction. Envelope and winner curve are on the NATIVE tournament grid (L1..12), self-consistent (envelope >= winner curve at every lead).",
+  "winner_curve_peak_lead": 3,
+  "coherent_envelope_L_star": 3,
+  "best_clean_oos_sharpe_at_grid": 1.5377,
+  "best_clean_oos_sharpe_at_grid_signal": "ism_services_pmi"
 }
