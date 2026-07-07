@@ -2,6 +2,7 @@
 
 **Purpose:** everything needed to stand up this project's multi-agent Claude Code sessions on a **new server** and continue without losing state.
 **Author:** Lead Lesandro · **Date:** 2026-07-07 · **Repo tip at handoff:** `main` @ `b2da882` (17 pairs).
+**Active work branch (GH #13 rollout):** `feat260707_lead_coherence_rollout` (pushed to origin) — see §7.1 for full resume state. Switch into the devcontainer, `git checkout feat260707_lead_coherence_rollout`, and start at §7.1.
 
 ---
 
@@ -64,7 +65,9 @@
 
 ## 6. Local state to resolve BEFORE the move (working tree)
 
-Working tree is clean of tracked changes and **origin is in sync** (nothing unpushed). `temp/*` is gitignored (probes/screenshots — scratch, correctly not migrating). **Only 3 untracked items are off-GitHub:**
+**As of the GH #13 session (2026-07-07 PM):** active branch `feat260707_lead_coherence_rollout` is pushed and in sync. **DO NOT COMMIT `.venv`** — it is git-tracked (a pre-existing hygiene landmine) and Otis's env setup left ~848 uncommitted `.venv` changes in `git status`; all real commits are file-scoped and never touch it. Recommended (separate hygiene fix, not yet done): gitignore `.venv` + `git rm --cached .venv`. Also `requirements.txt` is missing `pyarrow`, `kaleido`, `playwright` (needed by pipelines/verify). The devcontainer provides these natively, so the env is a non-issue there.
+
+Original migration note (still valid): Working tree is otherwise clean of tracked changes and **origin is in sync** (nothing unpushed). `temp/*` is gitignored (probes/screenshots — scratch, correctly not migrating). **Only 3 untracked items are off-GitHub:**
 1. `docs/spec_memo_lead_horizon_granularity_20260613.pdf` (197 KB, stakeholder spec memo) — **preserve** (committed with this handoff if approved).
 2. `_pws/ops-otis/session-notes.md` (Ops Otis / SRE role PWS) — **preserve**.
 3. `_pws/lead-lesandro/lead_horizon_qa/codex_qaudit.log` (2.2 MB Codex/Ivy audit log) — **scratch**; Ivy's actual report is already committed under `_pws/audit-ivy/`. Recommend: copy manually if wanted, else drop (don't bloat the repo). **← the one open decision.**
@@ -72,8 +75,44 @@ Working tree is clean of tracked changes and **origin is in sync** (nothing unpu
 ## 7. Where to resume (open work)
 
 **Open GitHub issues:**
-- **#13** — lead-tournament peak vs published-winner lead reads as a report inconsistency on ~12/14 pairs. The fix pattern is piloted on the 3 newest pairs; **roll it out to the ~11 older pairs** + codify as an SOP rule. This is the biggest queued item.
+- **#13** — IN PROGRESS on `feat260707_lead_coherence_rollout`. **See §7.1 for the full state, design decisions, triage, and resume steps.** The rollout evolved well beyond the original "apply the pilot to 11 pairs" — it is now a single-source-of-truth refactor with a governed re-selection workflow.
 - **#4** — storytelling architecture review (pre-existing).
+
+### 7.1 GH #13 lead-coherence rollout — resume state (branch `feat260707_lead_coherence_rollout`)
+
+**The core reframe (why this grew).** The `lead_sharpe_distribution` chart drew its bars from the **exploratory sweep** (`lead_horizon_sweep.py`, contiguous L0–12, a DIFFERENT P1/P2 grid) while the **strategy-tournament details** and winner selection come from the pair's **native tournament** (`tournament_results_*.csv`, a COARSE lead set, e.g. ISM `{1,2,3,6,12}`). Two differently-computed sources side by side = a trust break. **Fix = one source of truth per pair:** extend the native tournament to the full grid with an engine that reproduces it exactly, and project BOTH the lead chart and the strategy details from that one table.
+
+**Design decisions locked with the stakeholder (do not re-litigate):**
+- **One SoT per pair at its NATIVE frequency.** Monthly pairs → monthly L0–12. Daily pairs (Class A) → daily-lead axis; **do NOT resample daily→monthly** (that creates a second tournament with a different winner than the deployed daily strategy).
+- **Always L0–12** for monthly; **include L0**, labelled *coincident* (lookahead; real-time floor is usually L1 given publication lag).
+- **Patching missing leads CAN force a winner re-selection** (completing the grid changes the selection universe). This is an **ECON-T5 event**, not a chart fix: if a patched lead beats the frozen winner, re-run natively, adjudicate via the full T3/T5 cascade (durability/bootstrap — may keep or change the winner), **propagate to every downstream artifact + narrative**, then run the consistency scan. Winner selection stays tied to the run's grid; patched leads are provenance-tagged (`pipeline` vs `patched`).
+
+**Tooling built this session (all pure pandas/numpy, NO LLM in the pipeline — portable for non-Claude devs):**
+- `scripts/refresh_lead_coherence_artifacts.py` — extends a pair's native tournament to the full grid; emits `lead_tournament_native_{date}.csv` (the SoT), `lead_winner_curve`, `lead_clean_envelope`; patches the manifest. **4 safety gates:** reconcile (winner Sharpe vs winner_summary), fidelity (per-combo vs tournament_results ≥98%), coherence (envelope ≥ winner), **governance (ECON-T5: blocks silent winner change)**. `--screen` = re-selection triage without writing. Adapters build the work frame from the signals parquet + `strategy_returns.bh_return`.
+- `scripts/generate_lead_charts.py` — shared builder now emits the **coherent chart** (winner's own curve + envelope, solid=pipeline / open=patched markers) when the artifacts exist; falls back to the sweep chart otherwise. PNG export is best-effort (won't block JSON if kaleido absent).
+- `scripts/gate_viz_lead.py` — **GATE-VIZ-LEAD** (coherence + single-source consistency enforcement).
+- `scripts/gate_consistency.py` — **GATE-CONSISTENCY** (cross-artifact winner scanner: winner is the max clean valid combo, kpis/lead-curve/narrative all agree). **Baseline: 0 hard failures / 18 pairs** — current published state is internally consistent.
+- Scope memo: `docs/spec_memo_gh13_lead_coherence_rollout_20260707.md` (original plan; partly superseded by the single-source pivot above).
+
+**Triage verdicts** (100% reconcile where a verdict is given — trustworthy):
+| Pair(s) | Verdict | Action |
+|---|---|---|
+| **ism_services_spy, m2sl_yoy_spy** | STABLE (winner is global max on full grid) | **DONE** — coherent chart + corrected narrative + both gates green (committed) |
+| **busloans_spy** | RE-SELECTS (`contraction/…/L11 = 1.6159 > 1.4999`) | **maker native re-run** + ECON-T5 adjudication + propagate |
+| **petrol_inv_spy** | RE-SELECTS (L11 `1.5273 > 1.4779`) | **maker native re-run** + propagate |
+| **umcsent_xlv** | engine can't reproduce (diff threshold template, no lookback col) | **maker native derive** |
+| **indpro_spy** | engine can't (parquet lacks S1_level/S4_dev_trend cols) | **maker native derive** for the coherent chart (winner already full-grid) |
+| **indpro_xlp** | engine can't (reconcile 0.60 vs 1.33, diff template) | **maker native derive** (winner already full-grid) |
+| **gold_copper_xli, hy_ig_spy, vix_vix3m_spy, phlxsox_spy** | Class A / T3 (daily) | daily-lead-axis presentation, separate track |
+
+**Role & topology (LEAD-DL1).** Lead Lesandro is **manager + checker — NOT the maker.** Stakeholder ruled out Lead-as-maker (⇒ Modes 2 & 5 are out). Intended topology is **Mode 3: Lead dispatches Codex makers; Lead ratifies.** The native re-runs / native-derive are **Codex maker work**; Lead ratifies each with GATE-VIZ-LEAD + GATE-CONSISTENCY + cloud-DOM verify.
+
+**Resume steps in the devcontainer:**
+1. `git checkout feat260707_lead_coherence_rollout` (env is native there — no Otis/venv concerns).
+2. **Checker:** point a preview app (dev01/dev02) at this branch, then cloud-verify the two done pairs: `python scripts/cloud_verify.py --base https://aig-rlic-plus-dev01.streamlit.app --pairs ism_services_spy,m2sl_yoy_spy`.
+3. **Manager:** draft + dispatch the Codex maker brief (via the `codex` skill, Mode 3) for **busloans, petrol** (re-selection) then **umcsent, indpro_spy, indpro_xlp** (native derive). Brief = native re-run at L0–12 → adjudicate ECON-T5 → regenerate ALL downstream + narrative → hand back. **Ratify** each via both gates + DOM before it's "done."
+4. **Class A / T3 daily** pairs: separate design (daily-lead chart + "traded daily / monthly sweep is a diagnostic" framing).
+5. Codify the pattern as an SOP rule (VIZ-LEAD + the single-source-of-truth principle) once the fleet is converted.
 
 **Candidate GH issues not yet filed** (per gh-issues-over-backlog):
 - Annotated Statistical-Methods examples bake numbers from 4 pair snapshots (hy_ig/gold_copper/indpro/phlxsox) → add periodic "example-number vs source-chart" re-verification (drift guard).
