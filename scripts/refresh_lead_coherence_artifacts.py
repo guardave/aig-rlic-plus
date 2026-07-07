@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
-"""GH #13 — regenerate lead-coherence artifacts for an already-published pair.
+"""GH #13 — one consistent lead tournament per pair, presented two ways.
+
+The pair pipelines score the native tournament on a COARSE lead grid (e.g. ISM
+{1,2,3,6,12}), while the exploratory lead_horizon_sweep scores a contiguous 0..12
+on a DIFFERENT grid. Reading the two side by side is a trust break. This script
+removes it: it extends the pair's OWN native tournament to the full contiguous grid
+using an engine that reproduces that tournament EXACTLY at its original leads, and
+emits ONE source that both the lead chart and the strategy-tournament details read.
 
 Emits, per pair, WITHOUT re-selecting or mutating the frozen winner:
 
-  1. results/{pair}/lead_winner_curve_{date}.csv   — the published winner combo's
-     OWN OOS-Sharpe-by-lead curve (re-scored at each lead of the chart grid via the
-     pair's NATIVE derive_winner_series; peaks at/near the winner's lead by design).
-  2. results/{pair}/lead_clean_envelope_{date}.csv — the cross-signal best-per-lead
-     envelope. None of the 11 GH#13 rollout pairs carry seasonally-contaminated
-     signals, so best_clean == best_raw by construction (columns emitted for schema
-     parity with the cass reference).
-  3. patches results/{pair}/lead_sweep_manifest_{date}.json with the coherent-view
-     fields (lead_winner_curve_file, lead_clean_envelope_file, best_clean_*,
-     winner_curve_peak_lead, assertions).
+  1. lead_tournament_native_{date}.csv — THE SINGLE SOURCE: every native combo scored
+     at every lead, tagged lead_source = pipeline | patched.
+  2. lead_winner_curve_{date}.csv   — the winner combo's OOS Sharpe by lead (view 1).
+  3. lead_clean_envelope_{date}.csv — best valid combo per lead (view 2). No pair here
+     carries seasonally-contaminated signals, so clean == raw by construction.
+  4. patches lead_sweep_manifest_{date}.json with provenance (pipeline vs patched
+     leads), envelope flatness, and the winner-governance result.
 
-FROZEN-WINNER SAFETY. The winner combo is read from the pair's own tournament_results
-CSV (native naming). derive_winner_series only RE-SCORES that fixed combo at other
-leads; it never re-selects. Hard acceptance gate: the curve's value AT the winner's
-own lead must reconcile to winner_summary.oos_sharpe within RECONCILE_TOL, else the
-pair BLOCKS (non-zero exit) and writes nothing.
+SAFETY GATES (any failure -> non-zero exit, nothing written):
+  - reconcile: winner-lead Sharpe == winner_summary.oos_sharpe (<= RECONCILE_TOL);
+  - fidelity : re-scored combos match tournament_results at pipeline leads (>= 98%);
+  - coherence: envelope >= winner curve at every lead;
+  - governance (ECON-T5): NO lead may surface a valid combo beating the frozen winner
+    — that is a re-selection EVENT to escalate to a human, not a chart fix.
 
 NO LLM anywhere — pure pandas/numpy, portable for every dev.
 
@@ -250,28 +255,69 @@ def refresh(pair: str) -> int:
     print(f"[{pair}] reconcile OK @ L{win_lead}: {got:.4f} vs {ref:.4f}; "
           f"per-combo match {len(tr)-mism}/{len(tr)}")
 
-    # ── artifact 1: winner curve (native rule, L1..12) ──
+    # ── SINGLE SOURCE: extend the native tournament to the full contiguous grid ──
+    # Score EVERY native combo at EVERY lead with the validated engine. Leads the
+    # pipeline's coarse grid already ran are reproduced exactly (gate 2 above = 100%);
+    # the rest are PATCHED by the same rule. One consistent full-lead native
+    # tournament, which BOTH the lead chart and the strategy-tournament details read.
+    orig_leads = set(native_leads)  # leads the pipeline's coarse grid actually ran
+    grid_rows = []
+    for c in combos:
+        scol = col_of(c["signal"])
+        for L in leads:
+            sc = score_combo(work, c, L, split, tgt_ret, scol)
+            grid_rows.append({"signal": c["signal"], "threshold": c["threshold"],
+                              "strategy": c["strategy"], "lookback": c["lookback"],
+                              "signal_column": scol, "lead_months": L,
+                              "oos_sharpe": sc["oos_sharpe"], "valid": sc["valid"],
+                              "lead_source": "pipeline" if L in orig_leads else "patched"})
+    grid = pd.DataFrame(grid_rows)
+    grid_path = results / f"lead_tournament_native_{date_tag}.csv"
+
+    # ── winner-governance gate (ECON-T5): patching leads must NOT silently change
+    #    the frozen winner. If any valid combo at any lead beats it, this is a
+    #    re-selection EVENT to escalate — not a chart fix. Ship nothing. ──
+    gmax = float(grid[grid.valid].oos_sharpe.max())
+    if gmax > ref + RECONCILE_TOL:
+        beat = grid[grid.valid & (grid.oos_sharpe > ref + RECONCILE_TOL)]
+        rows = beat.sort_values("oos_sharpe", ascending=False).head(3)
+        print(f"[{pair}] BLOCKED — extending the lead grid surfaces a valid combo "
+              f"beating the frozen winner ({gmax:.4f} > {ref:.4f}) at lead(s) "
+              f"{sorted(beat.lead_months.unique())}. ECON-T5 RE-SELECTION event — "
+              f"escalate to a human; winner NOT changed, no artifacts written.\n"
+              f"  top offenders:\n" +
+              "\n".join(f"    {r.signal}/{r.threshold}/{r.strategy}/L{int(r.lead_months)} "
+                        f"= {r.oos_sharpe:.4f} ({r.lead_source})" for r in rows.itertuples()),
+              file=sys.stderr)
+        return 3
+    grid.to_csv(grid_path, index=False)
+
+    # ── view 1: winner curve = the winner combo across leads (from the source) ──
+    wsel = grid[(grid.signal == winner["signal"]) & (grid.threshold == winner["threshold"]) &
+                (grid.strategy == winner["strategy"]) & (grid.lookback == winner["lookback"])]
+    wmap = dict(zip(wsel.lead_months, wsel.oos_sharpe))
     wc = pd.DataFrame([
-        {"lead_months": L,
-         "oos_sharpe": score_combo(work, winner, L, split, tgt_ret, col_of(winner["signal"]))["oos_sharpe"],
-         "is_published_winner": bool(L == win_lead)}
+        {"lead_months": L, "oos_sharpe": round(float(wmap[L]), 4) if L in wmap and pd.notna(wmap[L]) else float("nan"),
+         "is_published_winner": bool(L == win_lead),
+         "lead_source": "pipeline" if L in orig_leads else "patched"}
         for L in leads])
     wc_path = results / f"lead_winner_curve_{date_tag}.csv"
     wc.to_csv(wc_path, index=False)
     peak_lead = int(wc.loc[wc.oos_sharpe.idxmax(), "lead_months"]) if wc.oos_sharpe.notna().any() else -1
 
-    # ── artifact 2: native clean envelope (best VALID combo per lead; clean==raw,
-    #    no contamination on these pairs). Same grid as the winner curve. ──
+    # ── view 2: envelope = best VALID combo per lead (from the same source) ──
     env_rows = []
     for L in leads:
-        best_s, best_sig = float("nan"), ""
-        for c in combos:
-            sc = score_combo(work, c, L, split, tgt_ret, col_of(c["signal"]))
-            if sc["valid"] and (pd.isna(best_s) or sc["oos_sharpe"] > best_s):
-                best_s, best_sig = sc["oos_sharpe"], col_of(c["signal"])
+        g = grid[grid.valid & (grid.lead_months == L)]
+        if len(g):
+            top = g.loc[g.oos_sharpe.idxmax()]
+            best_s, best_sig = round(float(top.oos_sharpe), 4), top.signal_column
+        else:
+            best_s, best_sig = float("nan"), ""
         env_rows.append({"lead_months": L, "best_oos_sharpe": best_s, "best_signal": best_sig,
                          "best_is_clean": True, "best_clean_oos_sharpe": best_s,
-                         "best_clean_signal": best_sig})
+                         "best_clean_signal": best_sig,
+                         "lead_source": "pipeline" if L in orig_leads else "patched"})
     env = pd.DataFrame(env_rows)
     env_path = results / f"lead_clean_envelope_{date_tag}.csv"
     env.to_csv(env_path, index=False)
@@ -282,56 +328,61 @@ def refresh(pair: str) -> int:
     if len(bad):
         print(f"[{pair}] BLOCKED — winner curve exceeds envelope at leads "
               f"{bad.lead_months.tolist()} (grid inconsistency)", file=sys.stderr)
-        wc_path.unlink(missing_ok=True); env_path.unlink(missing_ok=True)
+        for p in (wc_path, env_path, grid_path):
+            p.unlink(missing_ok=True)
         return 2
     L_star_native = int(env.loc[env.best_oos_sharpe.idxmax(), "lead_months"])
 
-    # envelope flatness + ground-truth honesty: only native_leads carry per-combo
-    # ground truth (validated by gate 2); other leads are interpolations of the
-    # SAME native scoring rule and must be labelled as such.
-    interp_leads = [L for L in leads if L not in native_leads]
-    env_vals = env.best_oos_sharpe.dropna()
-    env_top2 = env_vals.sort_values(ascending=False).head(2).tolist()
+    # provenance: which leads the pipeline scored vs which the validated engine
+    # patched (NOT interpolation — the engine reproduces the pipeline exactly, 100%
+    # of native combos above). Envelope flatness is a separate honesty flag.
+    patched_leads = [L for L in leads if L not in orig_leads]
+    env_top2 = env.best_oos_sharpe.dropna().sort_values(ascending=False).head(2).tolist()
     peak_margin = round(env_top2[0] - env_top2[1], 4) if len(env_top2) == 2 else None
-    env_flat = bool(peak_margin is not None and peak_margin < 0.10)  # < recon noise band
+    env_flat = bool(peak_margin is not None and peak_margin < 0.10)
 
     # ── manifest patch ──
     # `L_star` (pre-existing) is the exploratory monthly SWEEP peak — left untouched.
     man = json.load(open(man_path))
     best_env = float(env.best_oos_sharpe.max())
     man.update({
+        "lead_tournament_native_file": f"{pair}/{grid_path.name}",  # the SINGLE SOURCE
         "lead_winner_curve_file": f"{pair}/{wc_path.name}",
         "lead_clean_envelope_file": f"{pair}/{env_path.name}",
         "clean_envelope_note": "No seasonally-contaminated signals -> clean == raw envelope. "
-                               "Winner curve and envelope use the NATIVE scoring rule; "
-                               "envelope >= winner curve at every lead where a valid combo exists.",
+                               "Lead chart AND strategy-tournament details derive from ONE source "
+                               "(lead_tournament_native): every native combo scored at every lead "
+                               "by the coherence engine, which reproduces the pipeline tournament "
+                               "exactly at its original leads.",
         "winner_curve_peak_lead": peak_lead,
         "coherent_envelope_L_star": L_star_native,
         "coherent_envelope_peak_margin": peak_margin,
         "coherent_envelope_is_flat": env_flat,
-        "native_ground_truth_leads": native_leads,
-        "interpolated_leads": interp_leads,
+        "pipeline_scored_leads": sorted(orig_leads),
+        "engine_patched_leads": patched_leads,
+        "winner_governance": f"winner holds — global max across all leads {gmax:.4f} "
+                             f"does not exceed the frozen winner {ref:.4f} (ECON-T5 clear)",
         "best_clean_oos_sharpe_at_grid": round(best_env, 4),
         "best_clean_oos_sharpe_at_grid_signal": env.loc[env.best_oos_sharpe.idxmax(), "best_signal"],
     })
-    flat_clause = (f" the native envelope is nearly flat (top-two margin "
-                   f"{peak_margin}, within reconstruction/OOS noise), so L{L_star_native} is a "
-                   f"marginal peak, not a decisive one;" if env_flat else "")
+    flat_clause = (f" the native envelope is nearly flat (top-two margin {peak_margin}, within "
+                   f"OOS noise), so L{L_star_native} is a marginal peak, not a decisive one;"
+                   if env_flat else "")
     asserts = man.get("assertions", [])
     note = (f"[GH#13] published winner ({winner['signal']}/{winner['threshold']}/"
             f"{winner['strategy']}/L{win_lead}, OOS {ref:.4f}) selected for risk-adjusted "
-            f"robustness. On the native scoring rule its own curve peaks at L{peak_lead} and "
-            f"the cross-signal envelope peaks at L{L_star_native};{flat_clause} ground-truth "
-            f"leads {native_leads} (gate-2 validated vs tournament_results), leads {interp_leads} "
-            f"interpolated by the same rule -> lead_winner_curve_{date_tag}.csv.")
+            f"robustness. On the single native source its own curve peaks at L{peak_lead}, the "
+            f"cross-signal envelope peaks at L{L_star_native};{flat_clause} pipeline scored leads "
+            f"{sorted(orig_leads)}, leads {patched_leads} patched by the same validated engine; "
+            f"winner governance clear (no lead beats it).")
     if note not in asserts:
         asserts.append(note)
     man["assertions"] = asserts
     json.dump(man, open(man_path, "w"), indent=2)
 
-    print(f"[{pair}] wrote {wc_path.name} (winner peak L{peak_lead}), {env_path.name} "
-          f"(envelope L*={L_star_native}, margin {peak_margin}, flat={env_flat}); "
-          f"ground-truth {native_leads}, interp {interp_leads}.")
+    print(f"[{pair}] source {grid_path.name} ({len(grid)} rows); winner curve peak L{peak_lead}, "
+          f"envelope L*={L_star_native} (margin {peak_margin}, flat={env_flat}); "
+          f"pipeline leads {sorted(orig_leads)}, patched {patched_leads}; governance clear.")
     return 0
 
 

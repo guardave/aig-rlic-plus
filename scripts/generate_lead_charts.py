@@ -294,6 +294,13 @@ def build_coherent_sharpe_chart(pair, ind, tgt, bh, w, wc_path, env_path):
     xlab = [f"L{l}" for l in leads]
     curve = [float(r["oos_sharpe"]) for r in wc]
     envv = [float(r["best_oos_sharpe"]) for r in env]
+    # provenance per lead: which the pipeline scored vs which the validated engine
+    # patched, so the reader can see exactly what was originally tested.
+    src = [r.get("lead_source", "pipeline") for r in wc]
+    patched = [f"L{l}" for l, s in zip(leads, src) if s == "patched"]
+    curve_sym = ["circle" if s == "pipeline" else "circle-open" for s in src]
+    env_col = ["rgba(108,122,137,0.42)" if s == "pipeline" else "rgba(108,122,137,0.18)"
+               for s in src]
     win_lead = int(w.get("lead_value", w.get("lead_months")))
     win_sharpe = float(w.get("oos_sharpe"))
     curve_peak = leads[max(range(len(curve)), key=lambda i: curve[i])]
@@ -326,14 +333,19 @@ def build_coherent_sharpe_chart(pair, ind, tgt, bh, w, wc_path, env_path):
            f"(envelope >= winner curve at every lead). Buy-and-hold {tgt} = {bh:.2f}. "
            f"{frame}")
 
+    patched_clause = (f" Open markers = leads the pipeline's coarse grid did not test, "
+                      f"patched here by the same validated tournament rule ({', '.join(patched)})."
+                      if patched else "")
     fig = go.Figure()
     fig.add_trace(go.Bar(
         x=xlab, y=envv, name="Best of ANY signal per lead (context)",
-        marker={"color": "rgba(108,122,137,0.42)"},
+        marker={"color": env_col},
         hovertemplate="%{x}<br>envelope Sharpe=%{y:.3f}<extra></extra>"))
     fig.add_trace(go.Scatter(
         x=xlab, y=curve, mode="lines+markers", name="Published winner's own curve",
-        line={"color": BAR, "width": 3}, marker={"size": 7, "color": BAR},
+        line={"color": BAR, "width": 3},
+        marker={"size": 8, "color": BAR, "symbol": curve_sym,
+                "line": {"width": 1.5, "color": BAR}},
         hovertemplate="%{x}<br>winner Sharpe=%{y:.3f}<extra></extra>"))
     fig.add_trace(go.Scatter(
         x=[f"L{win_lead}"], y=[win_sharpe], mode="markers",
@@ -344,9 +356,9 @@ def build_coherent_sharpe_chart(pair, ind, tgt, bh, w, wc_path, env_path):
         x=xlab, y=[bh] * len(xlab), mode="lines", name=f"Buy & Hold {tgt} ({bh:.2f})",
         line={"color": BENCH, "dash": "dash", "width": 1.5}, hoverinfo="skip"))
     title = (f"Lead vs OOS Sharpe — winner on the native tournament grid: {ind} -> "
-             f"{tgt} (L1..12)<br><sub>Orange: the PUBLISHED winner's OWN OOS Sharpe by "
-             f"lead. Grey bars: best-of-any-signal envelope, same native grid. "
-             f"Dashed: {tgt} buy-and-hold. {frame}</sub>")
+             f"{tgt}<br><sub>Orange: the PUBLISHED winner's OWN OOS Sharpe by lead "
+             f"(solid = pipeline-scored, open = patched). Grey bars: best-of-any-signal "
+             f"envelope, same source. Dashed: {tgt} buy-and-hold. {frame}</sub>")
     fig.update_layout(
         title={"text": title, "font": {"size": 14}},
         xaxis={"title": {"text": "Lead (months) applied to signal", "standoff": 18}},
@@ -354,10 +366,11 @@ def build_coherent_sharpe_chart(pair, ind, tgt, bh, w, wc_path, env_path):
         template="plotly_white", barmode="overlay",
         legend={"orientation": "h", "y": -0.34, "yanchor": "top", "x": 0, "xanchor": "left"},
         margin={"l": 70, "r": 40, "t": 110, "b": 150})
-    fig.add_annotation(text=f"Source: GH#13 native lead-coherence artifacts ({date}).",
-                       showarrow=False, xref="paper", yref="paper",
-                       x=0, y=-0.52, yanchor="top", font={"size": 10, "color": "#666"}, align="left")
-    return fig, cap, str(wc_path.relative_to(ROOT))
+    fig.add_annotation(
+        text=f"Source: single native lead tournament (lead_tournament_native, {date}).{patched_clause}",
+        showarrow=False, xref="paper", yref="paper", x=0, y=-0.52, yanchor="top",
+        font={"size": 10, "color": "#666"}, align="left")
+    return fig, cap + patched_clause, str(wc_path.relative_to(ROOT))
 
 
 # ── Chart 2: lead_sharpe_distribution (bar + cloud) ─────────────────────────
