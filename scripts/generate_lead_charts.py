@@ -298,13 +298,22 @@ def build_coherent_sharpe_chart(pair, ind, tgt, bh, w, wc_path, env_path):
     win_sharpe = float(w.get("oos_sharpe"))
     curve_peak = leads[max(range(len(curve)), key=lambda i: curve[i])]
     env_peak = leads[max(range(len(envv)), key=lambda i: envv[i])]
+    _sorted_env = sorted(envv, reverse=True)
+    env_flat = len(_sorted_env) > 1 and (_sorted_env[0] - _sorted_env[1]) < 0.10
 
-    coincident = (curve_peak == win_lead == env_peak)
-    if coincident:
-        frame = (f"On the tournament's own grid the published winner sits AT the "
-                 f"envelope peak (L{win_lead}): the winner's own curve and the "
-                 f"best-of-any-signal envelope both peak there. Any apparent "
-                 f"off-peak look elsewhere came from a different (exploratory) sweep grid.")
+    if curve_peak == win_lead == env_peak:
+        # winner at the top, but be honest about a flat envelope (verifier caution):
+        # a marginal peak within reconstruction/OOS noise is not a decisive one.
+        if env_flat:
+            frame = (f"On the tournament's own grid the winner's lead L{win_lead} is at the "
+                     f"top of a NEARLY FLAT envelope (leads differ by &lt;0.10 Sharpe) — no lead "
+                     f"is decisively best. It is not the off-peak dip a different (exploratory) "
+                     f"sweep grid suggested, but the flat profile means the lead choice is "
+                     f"weakly identified, consistent with this pair's low-confidence framing.")
+        else:
+            frame = (f"On the tournament's own grid the published winner sits at the envelope "
+                     f"peak (L{win_lead}): its own curve and the best-of-any-signal envelope "
+                     f"both peak there.")
     else:
         frame = (f"The grey bars show the best ANY signal can do at each lead; the "
                  f"published strategy is chosen for reliability, not the single highest "

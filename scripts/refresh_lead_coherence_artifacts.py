@@ -42,9 +42,11 @@ LOOKBACKS = {"LB36": 36, "LB60": 60, "LB120": 120}
 
 
 def _sharpe_monthly(rets: pd.Series) -> float:
+    # mirror native ann_metrics: degenerate (empty or zero-vol) series -> 0.0,
+    # NOT NaN — otherwise degenerate combos become invisible to gate 2.
     r = rets.dropna()
-    if len(r) < 2 or r.std() == 0:
-        return float("nan")
+    if len(r) == 0 or r.std() == 0:
+        return 0.0
     return float(r.mean() / r.std() * np.sqrt(12))
 
 
@@ -153,17 +155,26 @@ ADAPTERS = {
 
 
 def _winner_row(pair: str, ws: dict) -> pd.Series:
-    """The frozen winner row in NATIVE tournament naming (source of the combo spec)."""
+    """The frozen winner row in NATIVE tournament naming (source of the combo spec).
+
+    Identify the published combo by its winner_summary fields (signal_code,
+    threshold_code, strategy_family) rather than blind argmax — the published winner
+    may be a robustness/tie-break pick that is NOT the top-Sharpe row for its
+    signal/lead. Falls back to argmax only if the exact combo is absent, and the
+    caller's reconciliation gate is the backstop either way.
+    """
     tr = sorted(glob.glob(str(REPO / f"results/{pair}/tournament_results_*.csv")))
     df = pd.read_csv(tr[-1])
     lead = int(ws["lead_value"])
     cand = df[(df.lead_months == lead) & df.get("valid", True)]
-    # disambiguate the tie by the published signal code (winner_summary strips the
-    # pair prefix, e.g. "ism_services_gap_50" -> native "gap_50")
     sig_native = ws["signal_code"].replace(f"{pair.rsplit('_', 1)[0]}_", "")
-    hit = cand[cand.signal == sig_native]
-    row = (hit if len(hit) else cand).sort_values("oos_sharpe", ascending=False).iloc[0]
-    return row
+    m = cand[cand.signal == sig_native]
+    if ws.get("threshold_code"):
+        m = m[m.threshold == ws["threshold_code"]]
+    if ws.get("strategy_family"):  # strategy carries an orientation suffix (_pro/_counter)
+        m = m[m.strategy.str.startswith(ws["strategy_family"])]
+    pool = m if len(m) else cand[cand.signal == sig_native] if len(cand[cand.signal == sig_native]) else cand
+    return pool.sort_values("oos_sharpe", ascending=False).iloc[0]
 
 
 def refresh(pair: str) -> int:
@@ -180,6 +191,10 @@ def refresh(pair: str) -> int:
             if c not in work.columns:
                 work[c] = sig_df[c].reindex(work.index)
     tgt = ad["target_col"]
+    # align the scoring frame to the native tournament exactly: it scores on
+    # df.dropna(subset=[target]) (target availability bounds the sample), so drop
+    # leading target-NaN rows before split/rolling/quantile computation.
+    work = work.dropna(subset=[tgt])
     split = _split_from_work(work, tgt)
     tgt_ret = work[tgt]
     signal_col = ws["signal_column"]
@@ -223,7 +238,9 @@ def refresh(pair: str) -> int:
         s = score_combo(work, {"signal": r.signal, "threshold": r.threshold,
                                "strategy": r.strategy, "lookback": r.lookback},
                         int(r.lead_months), split, tgt_ret, col_of(r.signal))["oos_sharpe"]
-        if pd.notna(s) and abs(s - float(r.oos_sharpe)) > 0.02:
+        # count NaN as a mismatch too: a combo that native scored but the
+        # reconstruction cannot must not be silently excused.
+        if pd.isna(s) or abs(s - float(r.oos_sharpe)) > 0.02:
             mism += 1
     rate = mism / len(tr)
     if rate > 0.02:
@@ -269,37 +286,52 @@ def refresh(pair: str) -> int:
         return 2
     L_star_native = int(env.loc[env.best_oos_sharpe.idxmax(), "lead_months"])
 
+    # envelope flatness + ground-truth honesty: only native_leads carry per-combo
+    # ground truth (validated by gate 2); other leads are interpolations of the
+    # SAME native scoring rule and must be labelled as such.
+    interp_leads = [L for L in leads if L not in native_leads]
+    env_vals = env.best_oos_sharpe.dropna()
+    env_top2 = env_vals.sort_values(ascending=False).head(2).tolist()
+    peak_margin = round(env_top2[0] - env_top2[1], 4) if len(env_top2) == 2 else None
+    env_flat = bool(peak_margin is not None and peak_margin < 0.10)  # < recon noise band
+
     # ── manifest patch ──
     # `L_star` (pre-existing) is the exploratory monthly SWEEP peak — left untouched.
-    # The coherent chart uses the NATIVE grid, so record its own peak separately.
     man = json.load(open(man_path))
     best_env = float(env.best_oos_sharpe.max())
     man.update({
         "lead_winner_curve_file": f"{pair}/{wc_path.name}",
         "lead_clean_envelope_file": f"{pair}/{env_path.name}",
-        "clean_envelope_note": "No seasonally-contaminated signals for this pair -> "
-                               "clean envelope == raw envelope by construction. Envelope and "
-                               "winner curve are on the NATIVE tournament grid (L1..12), "
-                               "self-consistent (envelope >= winner curve at every lead).",
+        "clean_envelope_note": "No seasonally-contaminated signals -> clean == raw envelope. "
+                               "Winner curve and envelope use the NATIVE scoring rule; "
+                               "envelope >= winner curve at every lead where a valid combo exists.",
         "winner_curve_peak_lead": peak_lead,
         "coherent_envelope_L_star": L_star_native,
+        "coherent_envelope_peak_margin": peak_margin,
+        "coherent_envelope_is_flat": env_flat,
+        "native_ground_truth_leads": native_leads,
+        "interpolated_leads": interp_leads,
         "best_clean_oos_sharpe_at_grid": round(best_env, 4),
         "best_clean_oos_sharpe_at_grid_signal": env.loc[env.best_oos_sharpe.idxmax(), "best_signal"],
     })
+    flat_clause = (f" the native envelope is nearly flat (top-two margin "
+                   f"{peak_margin}, within reconstruction/OOS noise), so L{L_star_native} is a "
+                   f"marginal peak, not a decisive one;" if env_flat else "")
     asserts = man.get("assertions", [])
     note = (f"[GH#13] published winner ({winner['signal']}/{winner['threshold']}/"
-            f"{winner['strategy']}/L{win_lead}, OOS {ref:.4f}) is selected for "
-            f"risk-adjusted robustness, NOT the highest single score; its own "
-            f"OOS-Sharpe-by-lead curve peaks at L{peak_lead}, while the cross-signal "
-            f"envelope peaks at L{L_star_native} -> lead_winner_curve_{date_tag}.csv "
-            f"(native grid; envelope >= winner curve by construction).")
+            f"{winner['strategy']}/L{win_lead}, OOS {ref:.4f}) selected for risk-adjusted "
+            f"robustness. On the native scoring rule its own curve peaks at L{peak_lead} and "
+            f"the cross-signal envelope peaks at L{L_star_native};{flat_clause} ground-truth "
+            f"leads {native_leads} (gate-2 validated vs tournament_results), leads {interp_leads} "
+            f"interpolated by the same rule -> lead_winner_curve_{date_tag}.csv.")
     if note not in asserts:
         asserts.append(note)
     man["assertions"] = asserts
     json.dump(man, open(man_path, "w"), indent=2)
 
     print(f"[{pair}] wrote {wc_path.name} (winner peak L{peak_lead}), {env_path.name} "
-          f"(envelope L*={L_star_native}); patched {man_path.name}. winner lead L{win_lead}.")
+          f"(envelope L*={L_star_native}, margin {peak_margin}, flat={env_flat}); "
+          f"ground-truth {native_leads}, interp {interp_leads}.")
     return 0
 
 
