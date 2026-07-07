@@ -80,7 +80,25 @@ def check_pair(pair: str) -> tuple[str, list[str]]:
         msgs.append(f"winner-lead Sharpe {wc[win_lead]['oos_sharpe']} != "
                     f"winner_summary {ws['oos_sharpe']} (tol {TOL})")
 
-    # 3. rendered chart carries the coherent trace
+    # 3. single-source consistency: the native lead tournament's pipeline-tagged
+    #    rows MUST match tournament_results (the selection source the strategy-
+    #    tournament details render) — this is what keeps the two views consistent.
+    src_p = _latest(pair, "lead_tournament_native")
+    tr_p = sorted((REPO / "results" / pair).glob("tournament_results_*.csv"))
+    if src_p and tr_p:
+        src = [r for r in _read_csv(src_p) if r.get("lead_source") == "pipeline"]
+        tr = {(r["signal"], r["threshold"], r["strategy"], r.get("lookback", ""),
+               int(float(r["lead_months"]))): float(r["oos_sharpe"])
+              for r in _read_csv(sorted(tr_p)[-1]) if r["signal"] != "BENCHMARK"}
+        mism = sum(1 for r in src
+                   if (k := (r["signal"], r["threshold"], r["strategy"], r.get("lookback", ""),
+                             int(float(r["lead_months"])))) in tr
+                   and abs(float(r["oos_sharpe"]) - tr[k]) > 0.02)
+        if mism:
+            msgs.append(f"single-source drift: {mism} pipeline rows in "
+                        f"lead_tournament_native disagree with tournament_results")
+
+    # 4. rendered chart carries the coherent trace
     cj = REPO / f"output/charts/{pair}/plotly/lead_sharpe_distribution.json"
     if not cj.exists():
         msgs.append("no rendered lead_sharpe_distribution.json")
