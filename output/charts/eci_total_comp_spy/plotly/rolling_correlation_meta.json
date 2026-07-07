@@ -1,0 +1,21 @@
+{
+ "chart_name": "rolling_correlation",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-NBER1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "16-quarter rolling correlation between the ECI signal and SPY returns flips sign repeatedly (sign agreement 0.42, verdict sign_unstable). Shaded bands mark NBER recessions.",
+ "narrative_alignment_note": "Sign instability re-read from the structural-break JSON; supports the do-not-oversell framing.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/rolling_correlation_eci_total_comp_spy.csv",
+  "results/eci_total_comp_spy/structural_break_eci_total_comp_spy.json"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

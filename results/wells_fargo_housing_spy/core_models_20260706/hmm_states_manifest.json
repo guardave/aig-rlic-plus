@@ -1,0 +1,32 @@
+{
+  "file": "hmm_states.parquet",
+  "pair_id": "wells_fargo_housing_spy",
+  "produced_by": "scripts/pair_pipeline_wells_fargo_housing_spy.py",
+  "generated_at": "2026-07-06T22:58:55Z",
+  "frequency": "monthly",
+  "annualization": "Sharpe = mean/std * sqrt(12); ann_return = mean*12 (monthly data)",
+  "columns": {
+    "hmm_state": "integer state; stress = LOW-MEAN sentiment regime (builder pessimism / housing bust)",
+    "prob_stress": "P(builder-pessimism regime); higher = housing-bust conditions",
+    "prob_calm": "1 - prob_stress"
+  },
+  "assertions": [
+    {
+      "description": "probabilities in [0,1]",
+      "check": "prob_stress between 0 and 1"
+    },
+    {
+      "description": "GFC housing bust = pessimism regime",
+      "filter": "2008-01..2009-12",
+      "column": "prob_stress",
+      "check": "mean = 1.00 (expect > 0.8)"
+    },
+    {
+      "description": "2004-05 housing boom = optimism regime",
+      "filter": "2004-01..2005-12",
+      "column": "prob_stress",
+      "check": "mean = 0.00 (expect < 0.2)"
+    }
+  ],
+  "note": "HMM on bounded sentiment LEVEL: splits optimism vs pessimism regimes (level split, deliberate)"
+}

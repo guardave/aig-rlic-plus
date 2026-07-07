@@ -43,6 +43,12 @@ INDICATOR_NAMES: dict[str, str] = {
     "t10y3m_spy": "10Y-3M Treasury Spread",
     "nhs": "New Home Sales (NHS)",
     "nhs_spy": "New Home Sales (NHS)",
+    "cass_freight": "Cass Freight Index (Shipments)",
+    "cass_freight_spy": "Cass Freight Index (Shipments)",
+    "eci_total_comp": "Employment Cost Index (ECI, Total Compensation)",
+    "eci_total_comp_spy": "Employment Cost Index (ECI, Total Compensation)",
+    "wells_fargo_housing": "NAHB/Wells Fargo Housing Market Index (HMI)",
+    "wells_fargo_housing_spy": "NAHB/Wells Fargo Housing Market Index (HMI)",
     }
 
 TARGET_NAMES: dict[str, str] = {
@@ -82,6 +88,25 @@ INDICATOR_ABBREV: dict[str, str] = {
     # "New Home Sales (NHS)".
     "nhs": "NHS",
     "nhs_spy": "NHS",
+    # "Cass Freight" is the conventional short form; the long form
+    # "Cass Freight Index (Shipments)" already embeds it, so this abbrev is
+    # only used where a compact ticker-style label is wanted.
+    "cass_freight": "Cass Freight",
+    "cass_freight_spy": "Cass Freight",
+    # "ECI" is the conventional BLS abbreviation. The long form
+    # "Employment Cost Index (ECI, Total Compensation)" already embeds it,
+    # so long_form_with_abbrev's substring check suppresses a redundant
+    # second bracket; this abbrev is only used where a compact
+    # ticker-style label is wanted.
+    "eci_total_comp": "ECI",
+    "eci_total_comp_spy": "ECI",
+    # wells_fargo_housing / wells_fargo_housing_spy intentionally ABSENT:
+    # the long form "NAHB/Wells Fargo Housing Market Index (HMI)" already
+    # embeds the short form's tokens, but "NAHB HMI" is not a contiguous
+    # substring, so long_form_with_abbrev would render a redundant second
+    # bracket "... (HMI) (NAHB HMI)". Compact surfaces get "NAHB HMI" via
+    # SHORT_INDICATOR_LABELS below (per this dict's intentionally-absent
+    # policy for embeds).
 }
 
 
@@ -104,6 +129,10 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "petrol_inv_spy": "Petroleum Inventories",
     "t10y3m_spy": "10Y-3M Spread",
     "nhs_spy": "NHS",
+    "cass_freight_spy": "Cass Freight",
+    "eci_total_comp_spy": "ECI",
+    "wells_fargo_housing": "NAHB HMI",
+    "wells_fargo_housing_spy": "NAHB HMI",
 }
 
 

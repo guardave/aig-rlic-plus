@@ -1,0 +1,19 @@
+{
+ "chart_name": "subperiod_sharpe",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "Winner strategy Sharpe by canonical stress episode: only COVID (0.63) has usable data \u2014 Dot-Com, GFC and China-2015 predate the signal's 20-quarter burn-in. The headline 1.60 rests on one stress episode.",
+ "narrative_alignment_note": "Insufficient-data episodes rendered as explicit grey placeholders (categorical labels), not fake zeros.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/subperiod_sharpe.csv"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

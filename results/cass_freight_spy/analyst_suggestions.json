@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "pair_id": "cass_freight_spy",
+  "rule": "ECON-AS",
+  "suggestions": [
+    {
+      "signal_name": "Cass Freight Expenditures (FRGEXPUSM649NCIS)",
+      "proposed_by": "evan",
+      "source": "FRED",
+      "observation": "Expenditures = shipments x price/mix; combining volume (shipments) with the expenditures deflator isolates a freight-rate signal distinct from volume.",
+      "rationale": "Freight rates (pricing power) may lead the goods cycle differently than volumes.",
+      "possible_use_case": "new pair / companion signal",
+      "caveats": "Same NSA/short-history limits.",
+      "date_filed": "2026-07-05"
+    },
+    {
+      "signal_name": "ISM Manufacturing New Orders",
+      "proposed_by": "evan",
+      "source": "FRED/ISM",
+      "observation": "A survey-based leading twin of the goods economy with a longer history (1948+) and SA.",
+      "rationale": "If Cass proves coincident/short-history-limited, ISM new orders offers a longer, SA leading read.",
+      "possible_use_case": "new pair",
+      "caveats": "Diffusion index, not a quantity.",
+      "date_filed": "2026-07-05"
+    }
+  ],
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-07-05T19:37:32Z"
+}

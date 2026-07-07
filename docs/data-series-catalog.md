@@ -136,7 +136,7 @@ This section catalogs the 31 indicators used in the multi-indicator analysis fra
 | I10a | New Home Sales (SA) | `hsn1f` | FRED: HSN1F | Monthly | Thousands, SA |
 | I10b | New Home Sales (NSA) | `hsn1fnsa` | FRED: HSN1FNSA | Monthly | Thousands, NSA — distinct from I10a |
 | I11 | Housing Starts | `houst` | FRED: HOUST | Monthly | Thousands, SA |
-| I12 | NAHB/Wells Fargo Housing Market Index | `nahb_hmi` | FRED: NAHBHMI | Monthly | Diffusion index, 50 = neutral |
+| I12 | NAHB/Wells Fargo Housing Market Index | `nahb_hmi` | Data Master.xlsx `WFHMI` sheet (FRED delisted NAHBHMI for licensing) | Monthly | Diffusion index, bounded 0-100, 50 = neutral, SA by NAHB; Master holds full history Jan-1985 onward. Released mid-month FOR the current month (~zero publication lag; L1 monthly floor conservative). Classification: `indicator_nature = leading` (housing classically leads the cycle — housing permits are a Conference Board LEI component and the HMI leads permits/starts; Leamer 2007 "Housing IS the Business Cycle"), `indicator_type = sentiment` (survey-based builder-sentiment diffusion index, same class as ISM/UMCSENT). |
 | I13 | Architecture Billings Index | `abi` | AIA (subscription/scrape) | Monthly | Diffusion index; availability risk |
 
 ### 7.3 Consumer / Sentiment (3 indicators)
@@ -197,6 +197,12 @@ This section catalogs the 31 indicators used in the multi-indicator analysis fra
 |----|-----------|---------------|-------------|-------------|
 | I31 | ISM Mfg PMI / ISM Svc PMI Ratio | `ism_mfg_svc_ratio` | I2 / I3 | `ism_mfg_pmi / ism_svc_pmi`; >1 = manufacturing stronger |
 | I32 | Manufacturers' New Orders YoY | `neworder_yoy` | I26 YoY change | `neworder.pct_change(12) * 100`; percent |
+
+### 7.11 Labor Cost (1 indicator)
+
+| ID | Indicator | Canonical Name | Source | Freq | Notes |
+|----|-----------|---------------|--------|------|-------|
+| I33 | Employment Cost Index (Total Compensation) | `eci_total_comp` | FRED: ECIALLCIV | Quarterly | Index Dec 2005 = 100, SA, All Civilian; 2001-Q1 onward. First QUARTERLY-native pair. BLS releases quarter Q ~1 month after quarter end (end of Jan/Apr/Jul/Oct) → lead grid floors at L1 (quarters). Classification: `indicator_nature = lagging` (labor costs turn after the cycle — The Conference Board includes unit-labor-cost change among its Lagging Economic Index components; wages/ECI are the standard lagging labor-cost read), `indicator_type = macro` (composite labor-cost/inflation measure; not survey, price-of-asset, rate, or credit). Note: Data Master's `ECI` sheet carries the NSA private-industry variants (Dec 2015=100) — a different variant from this SA all-civilian headline series. |
 
 ---
 

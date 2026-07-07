@@ -1,0 +1,25 @@
+{
+ "chart_name": "history_zoom_inflation_2022",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-V1",
+  "VIZ-V2",
+  "VIZ-V12",
+  "VIZ-V13",
+  "VIZ-NBER1",
+  "VIZ-O1"
+ ],
+ "caption": "Dual-panel zoom on the 2022 Inflation Shock: ECI YoY (top) and SPY (bottom), 2021\u20132023, with registry event markers on both panels. Wage growth moves after the market \u2014 the lagging relationship in episode form. No NBER recession was dated inside this window.",
+ "narrative_alignment_note": "VIZ-V1 dual-panel spec; annotation_strategy_id descending_stair; events from VIZ-V12 registry (inflation_2022).",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "data/eci_total_comp_spy_quarterly_latest.parquet",
+  "docs/schemas/history_zoom_events_registry.json"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)",
+ "annotation_strategy_id": "descending_stair",
+ "episode_slug": "inflation_2022"
+}

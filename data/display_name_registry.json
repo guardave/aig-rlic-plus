@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-03T02:11:51Z",
+  "generated_at": "2026-07-06T22:45:48Z",
   "columns": [
     {
       "column_name": "date",
@@ -745,6 +745,228 @@
       "display_name": "New Home Sales YoY Contraction Flag",
       "unit": "none",
       "axis_label": "Contraction (0/1)"
+    },
+    {
+      "column_name": "cass_freight_idx",
+      "display_name": "Cass Freight Shipments Index",
+      "unit": "index",
+      "axis_label": "Cass Freight Index (Jan1990=1)"
+    },
+    {
+      "column_name": "cass_freight_pct_yoy",
+      "display_name": "Cass Freight YoY (%)",
+      "unit": "pct",
+      "axis_label": "Cass Freight YoY (%)"
+    },
+    {
+      "column_name": "cass_freight_pct_mom",
+      "display_name": "Cass Freight MoM (%)",
+      "unit": "pct",
+      "axis_label": "Cass Freight MoM (%)"
+    },
+    {
+      "column_name": "cass_freight_3m_pct",
+      "display_name": "Cass Freight 3M Change (%)",
+      "unit": "pct",
+      "axis_label": "Cass Freight 3M (%)"
+    },
+    {
+      "column_name": "cass_freight_6m_pct",
+      "display_name": "Cass Freight 6M Change (%)",
+      "unit": "pct",
+      "axis_label": "Cass Freight 6M (%)"
+    },
+    {
+      "column_name": "cass_freight_ma12_idx",
+      "display_name": "Cass Freight 12M MA",
+      "unit": "index",
+      "axis_label": "Cass Freight 12M MA"
+    },
+    {
+      "column_name": "cass_freight_dev_trend_pct",
+      "display_name": "Cass Freight Deviation from 12M Trend (%)",
+      "unit": "pct",
+      "axis_label": "Dev. from 12M MA (%)"
+    },
+    {
+      "column_name": "cass_freight_zscore_60m",
+      "display_name": "Cass Freight 60M Z-Score",
+      "unit": "none",
+      "axis_label": "Z-score (60M)"
+    },
+    {
+      "column_name": "cass_freight_yoy_zscore_60m",
+      "display_name": "Cass Freight Growth 60M Z-Score",
+      "unit": "none",
+      "axis_label": "YoY z-score (60M)"
+    },
+    {
+      "column_name": "cass_freight_accel_pct",
+      "display_name": "Cass Freight Acceleration (pp)",
+      "unit": "pct",
+      "axis_label": "MoM accel. (pp)"
+    },
+    {
+      "column_name": "cass_freight_contraction",
+      "display_name": "Cass Freight Contraction Flag",
+      "unit": "none",
+      "axis_label": "Contraction (0/1)"
+    },
+    {
+      "column_name": "eci_total_comp_idx",
+      "display_name": "Employment Cost Index (Total Compensation)",
+      "unit": "index",
+      "axis_label": "ECI Total Comp (Dec2005=100)"
+    },
+    {
+      "column_name": "eci_total_comp_pct_qoq",
+      "display_name": "ECI Total Comp QoQ (%)",
+      "unit": "pct",
+      "axis_label": "ECI QoQ (%)"
+    },
+    {
+      "column_name": "eci_total_comp_pct_2q",
+      "display_name": "ECI Total Comp 2Q Change (%)",
+      "unit": "pct",
+      "axis_label": "ECI 2Q (%)"
+    },
+    {
+      "column_name": "eci_total_comp_pct_yoy",
+      "display_name": "ECI Total Comp YoY (%)",
+      "unit": "pct",
+      "axis_label": "ECI YoY (%)"
+    },
+    {
+      "column_name": "eci_total_comp_ma8q_idx",
+      "display_name": "ECI Total Comp 8Q MA",
+      "unit": "index",
+      "axis_label": "ECI 8Q MA"
+    },
+    {
+      "column_name": "eci_total_comp_dev_trend_pct",
+      "display_name": "ECI Deviation from 8Q Trend (%)",
+      "unit": "pct",
+      "axis_label": "Dev. from 8Q MA (%)"
+    },
+    {
+      "column_name": "eci_total_comp_zscore_20q",
+      "display_name": "ECI Total Comp 20Q Z-Score",
+      "unit": "none",
+      "axis_label": "Z-score (20Q)"
+    },
+    {
+      "column_name": "eci_total_comp_yoy_zscore_20q",
+      "display_name": "ECI Growth 20Q Z-Score",
+      "unit": "none",
+      "axis_label": "YoY z-score (20Q)"
+    },
+    {
+      "column_name": "eci_total_comp_accel_pct",
+      "display_name": "ECI QoQ Acceleration (pp)",
+      "unit": "pct",
+      "axis_label": "QoQ accel. (pp)"
+    },
+    {
+      "column_name": "eci_total_comp_yoy_accel_pct",
+      "display_name": "ECI YoY Acceleration (pp)",
+      "unit": "pct",
+      "axis_label": "YoY accel. (pp)"
+    },
+    {
+      "column_name": "spy_fwd_1q",
+      "display_name": "SPY Forward 1Q Return",
+      "unit": "decimal_return",
+      "axis_label": "SPY fwd 1Q"
+    },
+    {
+      "column_name": "spy_fwd_2q",
+      "display_name": "SPY Forward 2Q Return",
+      "unit": "decimal_return",
+      "axis_label": "SPY fwd 2Q"
+    },
+    {
+      "column_name": "spy_fwd_4q",
+      "display_name": "SPY Forward 4Q Return",
+      "unit": "decimal_return",
+      "axis_label": "SPY fwd 4Q"
+    },
+    {
+      "column_name": "nahb_hmi",
+      "display_name": "NAHB Housing Market Index",
+      "unit": "index",
+      "axis_label": "NAHB HMI (50 = neutral)"
+    },
+    {
+      "column_name": "nahb_hmi_pct_yoy",
+      "display_name": "NAHB HMI YoY (%)",
+      "unit": "pct",
+      "axis_label": "NAHB HMI YoY (%)"
+    },
+    {
+      "column_name": "nahb_hmi_pct_mom",
+      "display_name": "NAHB HMI MoM (%)",
+      "unit": "pct",
+      "axis_label": "NAHB HMI MoM (%)"
+    },
+    {
+      "column_name": "nahb_hmi_3m_pct",
+      "display_name": "NAHB HMI 3M Change (%)",
+      "unit": "pct",
+      "axis_label": "NAHB HMI 3M (%)"
+    },
+    {
+      "column_name": "nahb_hmi_6m_pct",
+      "display_name": "NAHB HMI 6M Change (%)",
+      "unit": "pct",
+      "axis_label": "NAHB HMI 6M (%)"
+    },
+    {
+      "column_name": "nahb_hmi_diff_12m",
+      "display_name": "NAHB HMI 12M Point Change",
+      "unit": "index",
+      "axis_label": "12M change (pts)"
+    },
+    {
+      "column_name": "nahb_hmi_diff_3m",
+      "display_name": "NAHB HMI 3M Point Change",
+      "unit": "index",
+      "axis_label": "3M change (pts)"
+    },
+    {
+      "column_name": "nahb_hmi_ma12_idx",
+      "display_name": "NAHB HMI 12M MA",
+      "unit": "index",
+      "axis_label": "NAHB HMI 12M MA"
+    },
+    {
+      "column_name": "nahb_hmi_dev_trend_pct",
+      "display_name": "NAHB HMI Deviation from 12M Trend (%)",
+      "unit": "pct",
+      "axis_label": "Dev. from 12M MA (%)"
+    },
+    {
+      "column_name": "nahb_hmi_zscore_60m",
+      "display_name": "NAHB HMI 60M Z-Score",
+      "unit": "none",
+      "axis_label": "Z-score (60M)"
+    },
+    {
+      "column_name": "nahb_hmi_diff12_zscore_60m",
+      "display_name": "NAHB HMI Momentum 60M Z-Score",
+      "unit": "none",
+      "axis_label": "12M-chg z-score (60M)"
+    },
+    {
+      "column_name": "nahb_hmi_accel_pct",
+      "display_name": "NAHB HMI Acceleration (pp)",
+      "unit": "pct",
+      "axis_label": "MoM accel. (pp)"
+    },
+    {
+      "column_name": "nahb_hmi_above50",
+      "display_name": "NAHB HMI Above-50 Flag",
+      "unit": "none",
+      "axis_label": "Above 50 (0/1)"
     }
   ]
 }

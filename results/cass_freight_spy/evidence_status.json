@@ -1,0 +1,27 @@
+{
+  "pair_id": "cass_freight_spy",
+  "generated_at": "2026-07-05T19:37:32Z",
+  "generated_by": "evan",
+  "blocks": {
+    "correlations": "ready",
+    "lead_correlation": "ready",
+    "lead_tournament": "ready",
+    "ccf_prewhitened": "ready",
+    "granger_causality": "ready",
+    "transfer_entropy": "ready",
+    "local_projections": "ready",
+    "quantile_regression": "ready",
+    "regime_quartile_returns": "ready",
+    "hmm_states": "ready",
+    "subperiod_sharpe": "ready",
+    "structural_break": "ready",
+    "rolling_correlation": "ready",
+    "tournament": "ready",
+    "winner_summary": "ready"
+  },
+  "caveats": [
+    "OOS <5yr -> winner is a found-in-search CANDIDATE (high-variance Sharpe)",
+    "NSA source -> non-YoY signals seasonally contaminated",
+    "empirical lead-lag class: coincident_or_none"
+  ]
+}

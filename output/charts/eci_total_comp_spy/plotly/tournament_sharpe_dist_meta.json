@@ -1,0 +1,19 @@
+{
+ "chart_name": "tournament_sharpe_dist",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "Distribution of OOS Sharpe across 1,268 valid combos with median (0.72), Buy & Hold (0.80) and the winner (1.60) marked \u2014 the winner is the right tail of a search, not an out-of-sample forecast.",
+ "narrative_alignment_note": "Histogram framing makes the found-in-search point visually.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/tournament_results_20260706.csv"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

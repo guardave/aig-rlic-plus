@@ -1,0 +1,20 @@
+{
+ "chart_name": "hmm_regime_probs",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-NBER1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "2-state HMM probability of the high-variance wage-growth regime, quarterly 2001\u20132026; the 2021\u201323 wage surge dominates the recent regime picture. Shaded bands mark NBER recessions.",
+ "narrative_alignment_note": "Regime context; caption flags the winner's regime_contaminated stationarity class.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/signals_20260706.parquet"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

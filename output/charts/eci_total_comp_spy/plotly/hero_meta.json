@@ -1,0 +1,21 @@
+{
+ "chart_name": "hero",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-NBER1",
+  "VIZ-NS1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "ECI total compensation YoY growth (vermillion, left axis) vs SPY price (blue, right axis), 2001\u20132026, quarterly. Wage growth is a lagging indicator: SPY Granger-causes ECI at every tested lag; the reverse holds at none. Shaded bands mark NBER recessions.",
+ "narrative_alignment_note": "Hero frames the LAGGING verdict from Evan's Granger/CCF/LP/TE battery; peak-wage annotation re-read at gen time.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "data/eci_total_comp_spy_quarterly_latest.parquet"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

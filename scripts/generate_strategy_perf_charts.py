@@ -63,6 +63,7 @@ from components.display_names import SHORT_INDICATOR_LABELS  # noqa: E402
 _LOCAL_INDICATOR_LABELS = {
     "busloans_spy": "C&I Loans",
     "ism_services_spy": "ISM Services PMI",
+    "wells_fargo_housing_spy": "NAHB HMI",
 }
 
 

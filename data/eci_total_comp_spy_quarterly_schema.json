@@ -1,0 +1,167 @@
+{
+  "pair_id": "eci_total_comp_spy",
+  "parquet_path": "data/eci_total_comp_spy_quarterly_20010331_20260331.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-06T12:43:48Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Quarter-end date index (parquet index column; first QUARTERLY pair); spans 2001-03-31 through 2026-03-31."
+    },
+    "eci_total_comp_idx": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "Employment Cost Index (Total Compensation)",
+      "direction": "lower_is_better",
+      "description": "FRED ECIALLCIV: Employment Cost Index \u2014 Total compensation, All Civilian. Quarterly, SA, index Dec 2005 = 100. Measures employer labor costs (wages + benefits); the Fed's preferred wage-inflation gauge. Countercyclical prior: faster comp growth = wage-inflation pressure = risk-off.",
+      "source_reference": "FRED:ECIALLCIV"
+    },
+    "unrate": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Unemployment Rate (%)",
+      "direction": "lower_is_better",
+      "description": "FRED UNRATE: civilian unemployment rate, quarter-end month value. Control series.",
+      "source_reference": "see description"
+    },
+    "dgs10": {
+      "dtype": "float64",
+      "unit": "percent",
+      "display_name": "US 10Y Treasury Yield (%)",
+      "direction": "neutral",
+      "description": "FRED DGS10: 10-year constant-maturity Treasury yield, quarter-end value. Control.",
+      "source_reference": "see description"
+    },
+    "fed_funds": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Fed Funds Rate (%)",
+      "direction": "neutral",
+      "description": "FRED DFF: effective federal funds rate, quarter-end value. Control.",
+      "source_reference": "see description"
+    },
+    "vix": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "VIX Index Level",
+      "direction": "lower_is_better",
+      "description": "CBOE VIX index, quarter-end close (Yahoo ^VIX). Control / regime variable.",
+      "source_reference": "see description"
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "neutral",
+      "description": "SPY adjusted close, quarter-end (Yahoo, auto-adjusted). Target asset.",
+      "source_reference": "yahoo:SPY"
+    },
+    "eci_total_comp_pct_qoq": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "ECI Total Comp QoQ (%)",
+      "direction": "lower_is_better",
+      "description": "1-quarter percent change in eci_total_comp_idx. SA source => seasonally clean. Effective start 2001-Q2.",
+      "source_reference": "FRED:ECIALLCIV"
+    },
+    "eci_total_comp_pct_2q": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "ECI Total Comp 2Q Change (%)",
+      "direction": "lower_is_better",
+      "description": "2-quarter (~6M) percent change in eci_total_comp_idx. Effective start 2001-Q3.",
+      "source_reference": "FRED:ECIALLCIV"
+    },
+    "eci_total_comp_pct_yoy": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "ECI Total Comp YoY (%)",
+      "direction": "lower_is_better",
+      "description": "4-quarter (year-over-year) percent change in eci_total_comp_idx \u2014 the headline wage-inflation read (BLS/Fed convention). Effective start 2002-Q1.",
+      "source_reference": "FRED:ECIALLCIV"
+    },
+    "eci_total_comp_ma8q_idx": {
+      "dtype": "float64",
+      "unit": "index",
+      "display_name": "ECI Total Comp 8Q MA",
+      "direction": "lower_is_better",
+      "description": "8-quarter (~2yr) rolling mean of eci_total_comp_idx (min 6 obs). Trend line for deviation-from-trend.",
+      "source_reference": "FRED:ECIALLCIV"
+    },
+    "eci_total_comp_dev_trend_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "ECI Deviation from 8Q Trend (%)",
+      "direction": "lower_is_better",
+      "description": "Percent deviation of eci_total_comp_idx from its 8-quarter moving average.",
+      "source_reference": "FRED:ECIALLCIV"
+    },
+    "eci_total_comp_zscore_20q": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "ECI Total Comp 20Q Z-Score",
+      "direction": "lower_is_better",
+      "description": "Rolling 20-quarter (~5yr) z-score of the LEVEL (min 12 obs). Quarterly analogue of the monthly pairs' 60M z-score. Effective start ~2003-Q4; consumes ~12 of 101 obs before first value.",
+      "source_reference": "FRED:ECIALLCIV"
+    },
+    "eci_total_comp_yoy_zscore_20q": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "ECI Growth 20Q Z-Score",
+      "direction": "lower_is_better",
+      "description": "Rolling 20-quarter z-score of eci_total_comp_pct_yoy (min 12 obs). Effective start ~2004-Q4 (YoY needs 4q + window needs 12q).",
+      "source_reference": "FRED:ECIALLCIV"
+    },
+    "eci_total_comp_accel_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "ECI QoQ Acceleration (pp)",
+      "direction": "lower_is_better",
+      "description": "First difference of eci_total_comp_pct_qoq (percentage points). Wage-growth acceleration \u2014 the inflation-momentum signal. Effective start 2001-Q3.",
+      "source_reference": "FRED:ECIALLCIV"
+    },
+    "eci_total_comp_yoy_accel_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "ECI YoY Acceleration (pp)",
+      "direction": "lower_is_better",
+      "description": "First difference of eci_total_comp_pct_yoy (percentage points). Smoother acceleration read. Effective start 2002-Q2.",
+      "source_reference": "FRED:ECIALLCIV"
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Daily Return (decimal)",
+      "direction": "neutral",
+      "description": "SPY 1-quarter simple return (decimal).",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_1q": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 1Q Return",
+      "direction": "neutral",
+      "description": "Forward 1-quarter (~3M) SPY return (decimal). Regression/tournament target \u2014 quarterly analogue of the monthly pairs' spy_fwd_3m.",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_2q": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 2Q Return",
+      "direction": "neutral",
+      "description": "Forward 2-quarter (~6M) SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    },
+    "spy_fwd_4q": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 4Q Return",
+      "direction": "neutral",
+      "description": "Forward 4-quarter (~12M) SPY return (decimal). Regression/tournament target.",
+      "source_reference": "yahoo:SPY"
+    }
+  }
+}

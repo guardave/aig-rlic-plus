@@ -1,0 +1,23 @@
+{
+  "chart_name": "correlations_lead_view",
+  "pair_id": "wells_fargo_housing_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-LEAD1",
+    "VIZ-IC1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "Pearson correlation of each NAHB HMI signal transform (lagged L0..L12 months) with the SPY 1-month forward return. The whole grid is weak \u2014 max |r| = 0.12 \u2014 and the winner signal (nahb_hmi_diff_12m) peaks at L4 with r = +0.089, at a different lead than the deployed L7. There is no correlation ridge backing the tournament winner.",
+  "narrative_alignment_note": "Winner signal nahb_hmi_diff_12m peaks at L4 (r=+0.089); values parsed verbatim from lead_correlation CSV incl. significance stars.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/wells_fargo_housing_spy/lead_correlation_20260706.csv",
+    "results/wells_fargo_housing_spy/winner_summary.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-06T23:15:20.431878+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)",
+  "method_name": "lead_correlation_view",
+  "expected_chart_type": "heatmap"
+}

@@ -1,0 +1,30 @@
+{
+  "file": "correlations.csv",
+  "pair_id": "wells_fargo_housing_spy",
+  "produced_by": "scripts/pair_pipeline_wells_fargo_housing_spy.py",
+  "generated_at": "2026-07-06T22:58:55Z",
+  "frequency": "monthly",
+  "annualization": "Sharpe = mean/std * sqrt(12); ann_return = mean*12 (monthly data)",
+  "columns": {
+    "pair_name": "signal_key__forward-return-column (monthly: 1m/3m/6m/12m fwd)",
+    "horizon_days": "forward horizon in trading days (months*21)",
+    "metric": "pearson/spearman/kendall/distance",
+    "value": "correlation coefficient",
+    "p_value": "two-sided p (NaN for distance corr); NOTE overlapping fwd windows inflate significance at 3m+",
+    "n_obs": "months"
+  },
+  "assertions": [
+    {
+      "description": "values bounded",
+      "check": "abs(value) <= 1"
+    },
+    {
+      "description": "monthly horizons",
+      "check": "horizon_days in {21,63,126,252}"
+    },
+    {
+      "description": "n floor",
+      "check": "min(n_obs) >= 60"
+    }
+  ]
+}

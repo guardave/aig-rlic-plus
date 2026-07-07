@@ -1,0 +1,21 @@
+{
+ "chart_name": "structural_break",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-NBER1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "ECI YoY growth with the Quandt-Andrews break date 2009-06 marked (sup-F p = 0.027, flagged): the wage-market relationship shifted after the GFC \u2014 cross-period results need caution.",
+ "narrative_alignment_note": "Break IS flagged for this pair (unlike cass); title says DETECTED.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/structural_break_eci_total_comp_spy.json",
+  "data/eci_total_comp_spy_quarterly_latest.parquet"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

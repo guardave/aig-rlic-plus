@@ -1,5 +1,19 @@
 # Team Status Board
 
+## 2026-07-04 — Lead Lesandro (Statistical Methods reference page + annotated data-verified examples)
+
+**Status:** Page + tab SHIPPED to production; annotated-examples redesign COMPLETE on branch, awaiting user review + merge.
+
+- **Statistical Methods reference page SHIPPED** (`fb75567`) — portal-wide `app/pages/1_Statistical_Methods.py` + canonical `statistical_methods.py` (15 methods, each what-for/why/how-to-interpret + caveats), DRYing prose from 14 configs. Then **landing tab SHIPPED** (`fc3bbf8`) — "Statistical Methods" beside Reports/Status via one shared chrome-free render fn driving both page + tab.
+- **Annotated data-verified examples (branch `feat260704_method_examples` @ `bbaa08c`, UNMERGED):** every method embeds a real example chart with on-figure ①②③ callouts + a caption that walks the same ①②③; ALL paragraphs cite only chart-real numbers. 4 pairs switched to positive-result charts (granger→phlxsox feedback; TE/subperiod/structural-break→gold_copper).
+- **Reusable pattern:** Evan decoded a per-method fact sheet from the actual chart JSON (single source of truth) → Vera annotated at those coords → Ray wrote prose from it → **Lead data-verification gate** confirmed every callout+number matches the decoded chart. This is how to keep text↔chart↔data coherent.
+- **Stakeholder standard captured:** illustrative charts must be text-coupled + annotated, every cited number sourced from THAT chart (all paragraphs), and the example pair must SHOW the phenomenon (not a null). (memory: feedback_data_coupled_illustrations)
+- **Gotcha:** Plotly log-axis annotation y is log10 units → blew Granger axis to 10^40; fixed. Local Streamlit caches figures → restart to see edits. (memory: reference_viz_log_axis_annotation)
+- **🟡 NEXT:** user reviews annotated examples (local instance port 8534) → merge to main (LEAD-MA1). Cleanup: 2 merged feat260704_* branches deletable.
+
+---
+
+
 ## 2026-07-03 — Lead Lesandro (lead-horizon merge + 2 viz fixes + Step C batch — ALL SHIPPED)
 
 **Status:** COMPLETED. All work live on production `main` @ `c53dd29`, verified. Branches cleaned.

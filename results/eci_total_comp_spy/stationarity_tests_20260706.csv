@@ -1,0 +1,21 @@
+variable,test,statistic,p_value,lags,conclusion
+eci_total_comp_idx,ADF,1.94,0.9986,2,Non-stationary
+eci_total_comp_idx,KPSS,1.7236,0.0001,5,Reject stationarity at 5%
+eci_total_comp_pct_qoq,ADF,-2.4621,0.125,1,Non-stationary
+eci_total_comp_pct_qoq,KPSS,0.3865,0.0786,5,Fail to reject stationarity
+eci_total_comp_pct_2q,ADF,-1.8475,0.3571,6,Non-stationary
+eci_total_comp_pct_2q,KPSS,0.3879,0.0779,5,Fail to reject stationarity
+eci_total_comp_pct_yoy,ADF,-1.3563,0.603,8,Non-stationary
+eci_total_comp_pct_yoy,KPSS,0.4008,0.072,5,Fail to reject stationarity
+eci_total_comp_dev_trend_pct,ADF,-2.1788,0.214,2,Non-stationary
+eci_total_comp_dev_trend_pct,KPSS,0.4187,0.0646,5,Fail to reject stationarity
+eci_total_comp_zscore_20q,ADF,-2.6457,0.0839,3,Non-stationary
+eci_total_comp_zscore_20q,KPSS,0.6795,0.0144,5,Reject stationarity at 5%
+eci_total_comp_yoy_zscore_20q,ADF,-1.2114,0.6687,8,Non-stationary
+eci_total_comp_yoy_zscore_20q,KPSS,0.8195,0.0066,5,Reject stationarity at 5%
+eci_total_comp_accel_pct,ADF,-10.8017,0.0,1,Stationary at 5%
+eci_total_comp_accel_pct,KPSS,0.1926,0.2828,18,Fail to reject stationarity
+eci_total_comp_yoy_accel_pct,ADF,-4.313,0.0004,7,Stationary at 5%
+eci_total_comp_yoy_accel_pct,KPSS,0.1476,0.3975,4,Fail to reject stationarity
+spy_ret,ADF,-9.6099,0.0,0,Stationary at 5%
+spy_ret,KPSS,0.2295,0.2173,0,Fail to reject stationarity

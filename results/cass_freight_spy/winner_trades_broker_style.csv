@@ -1,0 +1,19 @@
+# Simulated trade record based on backtest signals. No real trades were executed. Starting capital: $10000. Commission: 5 bps. Pair: cass_freight_spy. Strategy: P1_long_cash_counter on dev_trend (cass_freight_dev_trend_pct), threshold T3_zscore_neg_1.0, lead L3, LB36.
+trade_date,side,instrument,quantity_pct,price,notional_usd,commission_bps,commission_usd,cum_pnl_pct,reason
+2016-02-29,BUY,SPY,100.0,163.1823,10000.0,5,5.0,-0.0826,position change
+2019-02-28,SELL,SPY,0.0,249.3014,10000.0,5,5.0,47.8558,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -4.336 vs threshold -1.190 — position 100% -> 0%
+2019-06-30,BUY,SPY,100.0,264.5469,10000.0,5,5.0,58.1446,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -1.122 vs threshold -2.653 — position 0% -> 100%
+2020-02-29,SELL,SPY,0.0,270.0468,10000.0,5,5.0,75.311,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -4.198 vs threshold -3.012 — position 100% -> 0%
+2020-10-31,BUY,SPY,100.0,301.9191,10000.0,5,5.0,70.9399,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -4.271 vs threshold -7.426 — position 0% -> 100%
+2022-04-30,SELL,SPY,0.0,388.863,10000.0,5,5.0,141.3485,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -9.412 vs threshold -7.305 — position 100% -> 0%
+2022-05-31,BUY,SPY,100.0,389.7408,10000.0,5,5.0,141.8932,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -1.878 vs threshold -7.256 — position 0% -> 100%
+2023-04-30,SELL,SPY,0.0,399.2234,10000.0,5,5.0,143.8826,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -6.625 vs threshold -5.895 — position 100% -> 0%
+2023-05-31,BUY,SPY,100.0,401.0663,10000.0,5,5.0,145.0084,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -3.026 vs threshold -5.765 — position 0% -> 100%
+2023-09-30,SELL,SPY,0.0,413.2863,10000.0,5,5.0,165.0458,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -3.343 vs threshold -3.270 — position 100% -> 0%
+2023-11-30,BUY,SPY,100.0,441.2461,10000.0,5,5.0,189.2561,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -1.994 vs threshold -3.494 — position 0% -> 100%
+2024-02-29,SELL,SPY,0.0,493.2017,10000.0,5,5.0,207.2794,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -4.133 vs threshold -3.961 — position 100% -> 0%
+2024-05-31,BUY,SPY,100.0,513.5175,10000.0,5,5.0,222.8216,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -0.690 vs threshold -4.839 — position 0% -> 100%
+2025-03-31,SELL,SPY,0.0,551.6289,10000.0,5,5.0,267.2427,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -7.388 vs threshold -5.062 — position 100% -> 0%
+2025-05-31,BUY,SPY,100.0,581.2128,10000.0,5,5.0,290.322,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -1.969 vs threshold -5.292 — position 0% -> 100%
+2026-03-31,SELL,SPY,0.0,648.6689,10000.0,5,5.0,358.2514,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -8.716 vs threshold -5.649 — position 100% -> 0%
+2026-05-31,BUY,SPY,100.0,754.5361,10000.0,5,5.0,382.3673,P1_long_cash_counter: dev_trend (cass_freight_dev_trend_pct) = -3.062 vs threshold -6.207 — position 0% -> 100%

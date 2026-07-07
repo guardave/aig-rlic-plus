@@ -1,0 +1,33 @@
+{
+  "chart_name": "lead_sharpe_distribution",
+  "pair_id": "cass_freight_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-LEAD1",
+    "VIZ-IC1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "Published winner's own Sharpe-by-lead curve (foreground) peaks at its deployed lead L3 = 2.49 \u2014 dev_trend, a seasonally CLEAN signal. The faded grey envelope (best-of-any-signal per lead) is taller at L2 (2.60), but that peak is mom3m, a seasonally-CONTAMINATED transform on the NSA Cass series, and is correctly excluded. Buy & Hold SPY OOS Sharpe = 1.67. Short (36-month, <5yr) OOS \u2014 found-in-search candidate.",
+  "narrative_alignment_note": "Published winner's own Sharpe-by-lead curve (foreground) peaks at its deployed lead L3 = 2.49 \u2014 dev_trend, a seasonally CLEAN signal. The faded grey envelope (best-of-any-signal per lead) is taller at L2 (2.60), but that peak is mom3m, a seasonally-CONTAMINATED transform on the NSA Cass series, and is correctly excluded. Buy & Hold SPY OOS Sharpe = 1.67. Short (36-month, <5yr) OOS \u2014 found-in-search candidate.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cass_freight_spy/lead_winner_curve_20260705.csv",
+    "results/cass_freight_spy/lead_tournament_20260705.csv",
+    "results/cass_freight_spy/lead_clean_envelope_20260705.csv",
+    "results/cass_freight_spy/winner_summary.json"
+  ],
+  "reconciliation": {
+    "winner_lead": 3,
+    "winner_curve_peak": 2.4944,
+    "envelope_peak_lead": 2,
+    "envelope_peak": 2.5998,
+    "envelope_peak_signal": "mom3m",
+    "bh_sharpe": 1.666
+  },
+  "generated_at": "2026-07-05T22:35:12.709685+00:00",
+  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)",
+  "method_name": "lead_sharpe_distribution",
+  "expected_chart_type": "bar",
+  "gh_issue": "13"
+}

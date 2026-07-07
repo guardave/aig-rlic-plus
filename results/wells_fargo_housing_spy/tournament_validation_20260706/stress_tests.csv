@@ -1,0 +1,4 @@
+period,start,end,n_months,buy_hold_sharpe,buy_hold_return_pct,winner_sharpe,winner_return_pct
+GFC_Housing_Bust,2007-01-01,2009-06-30,30,-0.6397,-32.34,-0.3494,-13.39
+COVID,2020-01-01,2020-12-31,12,0.7768,20.01,1.6157,25.87
+Rate_Shock_2022,2022-01-01,2023-06-30,18,-0.0458,-1.43,-0.2096,-3.1

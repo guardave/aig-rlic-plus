@@ -1,0 +1,21 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "wells_fargo_housing_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-V3",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Toda-Yamamoto Granger F-statistics at lags 1\u201312, both directions. SPY \u2192 NAHB HMI (vermillion) clears the 5% critical line at EVERY lag (F = 47.2 at lag 1, all p < 0.0001); NAHB HMI \u2192 SPY (pale blue) clears it at 1 lag only (lag 5, p = 0.028) \u2014 an isolated cell against 12-for-12 in reverse. The asymmetry is the signature of a lagging indicator: the market moves builder sentiment, not the other way around.",
+  "narrative_alignment_note": "Reverse direction rendered as the visually primary series per Lead dispatch \u2014 the reverse-causality result IS the finding; all F/p values re-read from CSVs.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/wells_fargo_housing_spy/core_models_20260706/granger_causality.csv",
+    "results/wells_fargo_housing_spy/granger_by_lag.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-06T23:14:54.174184+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
+}

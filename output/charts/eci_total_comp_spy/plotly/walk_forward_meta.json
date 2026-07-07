@@ -1,0 +1,20 @@
+{
+ "chart_name": "walk_forward",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-NBER1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "Rolling 8-quarter (2-year) annualized Sharpe over the OOS window vs the reported headline 1.60; with only 18 rolling points on 25 quarters, the path is noisy by construction.",
+ "narrative_alignment_note": "Quarterly grouping choice: rolling 8q window (2-year), the quarterly analogue of cass's rolling 12-month walk-forward line; keeps a time axis so VIZ-NBER1 applies.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/strategy_returns_20260706.csv"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

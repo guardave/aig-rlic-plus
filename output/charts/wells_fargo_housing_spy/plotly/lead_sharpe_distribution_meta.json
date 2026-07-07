@@ -1,0 +1,39 @@
+{
+  "chart_name": "lead_sharpe_distribution",
+  "pair_id": "wells_fargo_housing_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-LEAD1",
+    "VIZ-IC1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "Published winner's own Sharpe-by-lead curve (foreground) peaks at its deployed lead L7 = 1.43 \u2014 but the peak is a SPIKE, not a ridge: L6 = 1.00 and L8 = 0.93 on either side, failing the adjacent-lead durability standard (ECON-LT2). Bootstrap p = 0.127 (n.s.) \u2014 a search-conditioned candidate. The faded grey envelope (best-of-any-signal per lead) is context; the source is seasonally adjusted, so the envelope and the clean envelope coincide by construction. Buy & Hold SPY OOS Sharpe = 0.94.",
+  "narrative_alignment_note": "GH #13 native: winner's own curve foregrounded with the spike-honesty annotation ON the peak; star placed by category label (VIZ categorical-axis rule); all values re-read from the lead-sweep CSVs and bootstrap.csv.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/wells_fargo_housing_spy/lead_winner_curve_20260706.csv",
+    "results/wells_fargo_housing_spy/lead_tournament_20260706.csv",
+    "results/wells_fargo_housing_spy/lead_clean_envelope_20260706.csv",
+    "results/wells_fargo_housing_spy/winner_summary.json",
+    "results/wells_fargo_housing_spy/tournament_validation_20260706/bootstrap.csv"
+  ],
+  "reconciliation": {
+    "winner_lead": 7,
+    "winner_curve_peak": 1.4291,
+    "l6": 1.0045,
+    "l8": 0.9319,
+    "envelope_peak": 1.4291,
+    "envelope_peak_lead": 7,
+    "bh_sharpe": 0.9448,
+    "bootstrap_p": 0.1272,
+    "clean_envelope_identical": true,
+    "durability_adjacent_lead": false
+  },
+  "generated_at": "2026-07-06T23:16:40.172075+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)",
+  "method_name": "lead_sharpe_distribution",
+  "expected_chart_type": "bar",
+  "gh_issue": "13",
+  "clean_envelope_note": "SA source: all signals admissible -> envelope and clean envelope COINCIDE by construction"
+}

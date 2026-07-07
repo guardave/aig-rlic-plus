@@ -1,0 +1,46 @@
+{
+  "chart_name": "drawdown",
+  "pair_id": "cass_freight_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-SR1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Peak-to-trough drawdown over the out-of-sample window (cummax re-based to the 2023-06-30 OOS start): winner max -2.4% vs -8.3% buy-and-hold SPY. Strategy minimum equals winner_summary oos_max_drawdown (-2.41%) by construction.",
+  "narrative_alignment_note": "OOS-scoped drawdown (cummax re-based to OOS start per the OOS-window drawdown rule); minimum reconciles with the KPI.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cass_freight_spy/strategy_returns_20260705.csv",
+    "results/cass_freight_spy/winner_summary.json"
+  ],
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 2.494379,
+      "reported_winner_summary": 2.4944,
+      "diff": -2.1e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS",
+      "convention": "standard"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.02406,
+      "reported_winner_summary": -0.0241,
+      "diff": 4e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS",
+      "convention": "standard"
+    },
+    "oos_ann_return": {
+      "computed": 0.232022,
+      "reported_winner_summary": 0.232,
+      "diff": 2.2e-05,
+      "tolerance": 0.006,
+      "verdict": "PASS",
+      "convention": "arithmetic mean*12"
+    }
+  },
+  "generated_at": "2026-07-05T22:30:19.299027+00:00",
+  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+}

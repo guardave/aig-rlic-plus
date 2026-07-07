@@ -1,0 +1,20 @@
+{
+ "chart_name": "granger_f_by_lag",
+ "pair_id": "eci_total_comp_spy",
+ "palette_id": "okabe_ito_2026",
+ "rules_applied": [
+  "VIZ-IC1",
+  "VIZ-TX1",
+  "VIZ-O1"
+ ],
+ "caption": "Toda-Yamamoto Granger F-statistics by quarterly lag: SPY\u2192ECI is significant at every lag (1\u20134), ECI\u2192SPY at none \u2014 reverse causality; ECI lags the market.",
+ "narrative_alignment_note": "Titled as the reverse-causality/lagging verdict per the honesty brief.",
+ "disposition": "consumed",
+ "source_artifacts": [
+  "results/eci_total_comp_spy/core_models_20260706/granger_causality.csv",
+  "results/eci_total_comp_spy/granger_by_lag.csv"
+ ],
+ "reconciliation": null,
+ "generated_at": "2026-07-06T13:11:44.584142+00:00",
+ "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+}

@@ -1,0 +1,23 @@
+variable,test,statistic,p_value,lags,conclusion
+nahb_hmi,ADF,-2.3244,0.1642,4,Non-stationary
+nahb_hmi,KPSS,0.2092,0.251,12,Fail to reject stationarity
+nahb_hmi_pct_yoy,ADF,-4.0435,0.0012,12,Stationary at 5%
+nahb_hmi_pct_yoy,KPSS,0.0938,0.6165,12,Fail to reject stationarity
+nahb_hmi_pct_mom,ADF,-11.5911,0.0,3,Stationary at 5%
+nahb_hmi_pct_mom,KPSS,0.0548,0.8471,3,Fail to reject stationarity
+nahb_hmi_3m_pct,ADF,-5.9927,0.0,10,Stationary at 5%
+nahb_hmi_3m_pct,KPSS,0.075,0.7221,7,Fail to reject stationarity
+nahb_hmi_6m_pct,ADF,-5.7836,0.0,7,Stationary at 5%
+nahb_hmi_6m_pct,KPSS,0.0828,0.6761,10,Fail to reject stationarity
+nahb_hmi_diff_12m,ADF,-3.7152,0.0039,12,Stationary at 5%
+nahb_hmi_diff_12m,KPSS,0.078,0.7037,12,Fail to reject stationarity
+nahb_hmi_diff_3m,ADF,-5.2651,0.0,12,Stationary at 5%
+nahb_hmi_diff_3m,KPSS,0.0656,0.7796,7,Fail to reject stationarity
+nahb_hmi_zscore_60m,ADF,-3.3372,0.0133,4,Stationary at 5%
+nahb_hmi_zscore_60m,KPSS,0.2133,0.2436,12,Fail to reject stationarity
+nahb_hmi_diff12_zscore_60m,ADF,-3.6154,0.0055,12,Stationary at 5%
+nahb_hmi_diff12_zscore_60m,KPSS,0.0781,0.7033,11,Fail to reject stationarity
+nahb_hmi_dev_trend_pct,ADF,-7.0844,0.0,3,Stationary at 5%
+nahb_hmi_dev_trend_pct,KPSS,0.0844,0.6674,11,Fail to reject stationarity
+spy_ret,ADF,-10.7936,0.0,2,Stationary at 5%
+spy_ret,KPSS,0.1455,0.4042,3,Fail to reject stationarity

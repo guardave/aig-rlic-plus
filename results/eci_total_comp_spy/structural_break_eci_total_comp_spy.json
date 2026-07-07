@@ -1,0 +1,16 @@
+{
+  "pair_id": "eci_total_comp_spy",
+  "test": "Quandt-Andrews unknown breakpoint (sup-F, residual-bootstrap p, 300 reps; quarterly)",
+  "sample_start": "2006-06-30",
+  "sample_end": "2026-03-31",
+  "n_obs": 80,
+  "trimming_pct": 0.15,
+  "break_date": "2009-06-30",
+  "f_stat": 6.9672,
+  "p_value": 0.0267,
+  "flagged": true,
+  "flag_message": "Structural break detected \u2014 interpret cross-period results with caution.",
+  "rolling_corr_sign_stability": 0.4219,
+  "rolling_corr_stability_verdict": "sign_unstable",
+  "cp2_note": "CP2 skipped \u2014 regime_story not set in signal_scope.json"
+}

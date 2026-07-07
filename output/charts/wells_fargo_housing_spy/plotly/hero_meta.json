@@ -1,0 +1,21 @@
+{
+  "chart_name": "hero",
+  "pair_id": "wells_fargo_housing_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "NAHB/Wells Fargo Housing Market Index (HMI) (vermillion, left axis \u2014 a bounded 0\u2013100 diffusion index with 50 = neutral, dashed line) against the SPY price (blue, right axis), 1985\u20132025. Sentiment swings are dramatic \u2014 record low 8 in Jan-2009, record 90 in Nov-2020 \u2014 but they move WITH or AFTER equities, not ahead of them (SPY\u2192HMI Granger significant at all 12 lags; HMI\u2192SPY at lag 5 only). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Hero shows the bounded-index 50-neutral convention and the reverse-causality framing from Evan's Granger verdict; record-low/record-high values re-read from the dataset at generation time.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/wells_fargo_housing_spy_monthly_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-06T23:14:46.512019+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
+}

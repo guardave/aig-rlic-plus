@@ -1,0 +1,4 @@
+period,start,end,n_quarters,buy_hold_sharpe,buy_hold_return_pct,winner_sharpe,winner_return_pct
+COVID,2020-01-01,2020-12-31,4,0.6336,21.87,0.6336,21.87
+Rate_Hike_2022,2022-01-01,2023-06-30,6,-0.0657,-1.96,3.9373,49.36
+Wage_Surge_2021_23,2021-06-01,2023-12-31,11,0.5489,26.46,2.6627,77.77

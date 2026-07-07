@@ -1,0 +1,19 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "wells_fargo_housing_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Pearson correlations between NAHB/Wells Fargo Housing Market Index (HMI) signals and SPY forward returns at 1/3/6/12-month horizons. The strongest cell is only r = 0.187 (yoy vs spy_fwd_12m); short-horizon cells are near zero throughout \u2014 consistent with a lagging/coincident sentiment gauge, not a forecasting input.",
+  "narrative_alignment_note": "Best cell re-read from correlations.csv at generation time (yoy vs 12m fwd, r=0.187); the weak-forward-channel message matches Evan's verdict.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/wells_fargo_housing_spy/core_models_20260706/correlations.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-07-06T23:14:50.441856+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
+}

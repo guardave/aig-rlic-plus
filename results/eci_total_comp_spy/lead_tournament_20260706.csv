@@ -1,0 +1,9 @@
+lead_quarters,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+1,160,1.1962,0.6498,0.5033,0.8043,markov_regime,T3_zscore_1.0,P1_long_cash_counter,-0.1998
+2,163,1.229,0.6576,0.5092,0.8043,yoy_zscore_20q,T3_zscore_1.0,P3_long_short_counter,-0.0756
+3,157,1.1615,0.7324,0.5313,0.8104,accel,T3_zscore_1.0,P3_long_short_counter,-0.0493
+4,164,1.4089,0.708,0.498,0.8043,hmm_stress,T3_zscore_1.0,P1_long_cash_counter,-0.0437
+5,164,1.3627,0.693,0.512,0.8043,hmm_stress,T3_zscore_1.0,P1_long_cash_counter,-0.0437
+6,151,1.5952,0.7814,0.552,0.8682,yoy_zscore_20q,T1_fixed_p75,P3_long_short_pro,-0.0427
+7,153,1.4858,0.8043,0.5713,0.9762,level_zscore_20q,T3_zscore_neg_1.0,P3_long_short_counter,-0.0427
+8,156,1.3109,0.8043,0.5768,0.8616,qoq,T3_zscore_neg_1.0,P3_long_short_counter,-0.0461

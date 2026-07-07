@@ -1,0 +1,6 @@
+signal,threshold,strategy,lead_quarters,lookback,oos_sharpe,bootstrap_p_value,significant_at_5pct
+yoy_zscore_20q,T1_fixed_p75,P3_long_short_pro,6,LB_NA,1.5952,0.12,False
+yoy_zscore_20q,T3_zscore_neg_1.0,P3_long_short_counter,6,LB20,1.5952,0.12,False
+level_zscore_20q,T3_zscore_neg_1.0,P3_long_short_counter,7,LB12,1.4858,0.156,False
+level_zscore_20q,T1_fixed_p75,P3_long_short_pro,7,LB_NA,1.4495,0.1702,False
+level_zscore_20q,T3_zscore_neg_1.0,P3_long_short_counter,7,LB20,1.4495,0.1702,False

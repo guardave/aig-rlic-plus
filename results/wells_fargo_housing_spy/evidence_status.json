@@ -1,0 +1,33 @@
+{
+  "pair_id": "wells_fargo_housing_spy",
+  "generated_at": "2026-07-06T22:58:55Z",
+  "generated_by": "evan",
+  "blocks": {
+    "correlations": "ready",
+    "lead_correlation": "ready",
+    "lead_tournament": "ready",
+    "lead_winner_curve": "ready",
+    "lead_clean_envelope": "ready",
+    "ccf_prewhitened": "ready",
+    "granger_causality": "ready",
+    "transfer_entropy": "ready",
+    "local_projections": "ready",
+    "quantile_regression": "ready",
+    "regime_quartile_returns": "ready",
+    "era_correlations": "ready",
+    "hmm_states": "ready",
+    "subperiod_sharpe": "ready",
+    "structural_break": "ready",
+    "rolling_correlation": "ready",
+    "tournament": "ready",
+    "winner_summary": "ready"
+  },
+  "caveats": [
+    "OOS = 98 months (~8.2yr) \u2014 ABOVE the 5yr floor; found-in-search caveat applies but is weaker than short-history pairs",
+    "STATIC SOURCE: Data Master ends 2025-10 (~9 months stale at run date); refresh requires a Master update",
+    "bounded 0-100 index: %-change transforms are level-dependent (bounded_pct_risk flag per tournament row)",
+    "integer-granularity values: ties on rank/percentile thresholds handled deterministically",
+    "L0 would be lookahead-free (NAHB mid-month release for current month) but grid floors at L1 by fleet convention",
+    "empirical lead-lag class: bidirectional"
+  ]
+}

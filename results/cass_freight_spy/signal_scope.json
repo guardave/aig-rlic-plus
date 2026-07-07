@@ -1,0 +1,153 @@
+{
+  "pair_id": "cass_freight_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-07-05T19:37:32Z",
+  "indicator_axis": {
+    "canonical_column": "cass_freight_idx",
+    "display_name": "Cass Freight Index (Shipments)",
+    "derivatives": [
+      {
+        "name": "cass_freight_idx",
+        "definition": "Cass Freight Index: Shipments, NSA monthly index (Jan1990=1.0)",
+        "formula": "FRED FRGSHPUSM649NCIS",
+        "role": "raw",
+        "appears_in_charts": []
+      },
+      {
+        "name": "cass_freight_pct_yoy",
+        "definition": "12-month % change (seasonality-robust cycle signal)",
+        "formula": "100*(L_t/L_{t-12}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "cass_freight_pct_mom",
+        "definition": "1-month % change (NSA -> seasonal)",
+        "formula": "100*(L_t/L_{t-1}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "cass_freight_3m_pct",
+        "definition": "3-month % change (momentum; NSA -> partial seasonal)",
+        "formula": "100*(L_t/L_{t-3}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "cass_freight_6m_pct",
+        "definition": "6-month % change (momentum; NSA -> partial seasonal)",
+        "formula": "100*(L_t/L_{t-6}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "cass_freight_ma12_idx",
+        "definition": "12-month moving average of the level",
+        "formula": "rolling mean(12)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "cass_freight_dev_trend_pct",
+        "definition": "% deviation of the level from its 12m MA",
+        "formula": "100*(L_t/MA12-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "cass_freight_zscore_60m",
+        "definition": "rolling 60m z-score of the LEVEL (NSA; short usable span)",
+        "formula": "(L_t-mean60)/sd60",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "cass_freight_yoy_zscore_60m",
+        "definition": "rolling 60m z-score of YoY growth (preferred; short span)",
+        "formula": "(yoy_t-mean60)/sd60",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "cass_freight_accel_pct",
+        "definition": "month-on-month change in MoM growth (acceleration, pp)",
+        "formula": "mom_t - mom_{t-1}",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "cass_freight_contraction",
+        "definition": "1 when YoY freight growth < 0 (freight recession state)",
+        "formula": "indicator(yoy<0)",
+        "role": "regime_state",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hmm_2state_prob_stress",
+        "definition": "P(high-variance regime) from 2-state HMM on YoY growth",
+        "formula": "GaussianHMM(yoy)",
+        "role": "regime_state",
+        "appears_in_charts": []
+      },
+      {
+        "name": "markov_regime_2state",
+        "definition": "P(high-variance regime) from Markov-switching regression spy_ret~yoy",
+        "formula": "MarkovRegression",
+        "role": "regime_state",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy",
+    "display_name": "SPY (S&P 500 ETF)",
+    "derivatives": [
+      {
+        "name": "spy",
+        "definition": "SPY adjusted month-end close",
+        "formula": "Yahoo Finance",
+        "role": "raw",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_ret",
+        "definition": "SPY monthly return (decimal)",
+        "formula": "P_t/P_{t-1}-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_1m",
+        "definition": "1-month forward SPY return",
+        "formula": "P_{t+1}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_3m",
+        "definition": "3-month forward SPY return",
+        "formula": "P_{t+3}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_6m",
+        "definition": "6-month forward SPY return",
+        "formula": "P_{t+6}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_12m",
+        "definition": "12-month forward SPY return",
+        "formula": "P_{t+12}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "notes": "ECON-SD: only Cass Freight derivatives and SPY derivatives are in scope. Controls in the parquet (unrate, dgs10, fed_funds, vix) are context columns, NOT signals. NSA source -> YoY-family preferred (seasonally-robust); MoM/3M/6M/level-zscore are seasonally contaminated. regime_story: false (CP2 skipped)."
+}

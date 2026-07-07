@@ -141,6 +141,296 @@
       "added_at": "2026-06-19",
       "first_pair": "phlxsox_spy",
       "notes": "Procyclical orientation for SPY. Used as the winning intermarket signal for phlxsox_spy (L63, long/cash). Stationary per Dana 20260619 tests; the raw sox_spy_ratio level is NON-stationary and excluded as a signal."
+    },
+    {
+      "signal_code": "cass_freight_yoy",
+      "display_name": "Cass Freight Shipments YoY % change",
+      "parquet_column_pattern": "cass_freight_pct_yoy",
+      "description": "12-month % change in the Cass Freight Index: Shipments (FRED FRGSHPUSM649NCIS, NSA monthly). Seasonality-robust cycle signal \u2014 preferred for direction/lead-lag on this NSA series.",
+      "source_method": "roc",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_mom",
+      "display_name": "Cass Freight Shipments MoM % change",
+      "parquet_column_pattern": "cass_freight_pct_mom",
+      "description": "1-month % change in Cass Freight Shipments. NSA source -> seasonally contaminated; flagged.",
+      "source_method": "roc",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_mom3m",
+      "display_name": "Cass Freight Shipments 3M % change",
+      "parquet_column_pattern": "cass_freight_3m_pct",
+      "description": "3-month momentum of Cass Freight Shipments. NSA -> partial seasonal contamination.",
+      "source_method": "roc",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_mom6m",
+      "display_name": "Cass Freight Shipments 6M % change",
+      "parquet_column_pattern": "cass_freight_6m_pct",
+      "description": "6-month momentum of Cass Freight Shipments. NSA -> partial seasonal contamination.",
+      "source_method": "roc",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_dev_trend",
+      "display_name": "Cass Freight deviation from 12M MA",
+      "parquet_column_pattern": "cass_freight_dev_trend_pct",
+      "description": "Percent deviation of the Cass Shipments level from its 12-month moving average.",
+      "source_method": "detrend",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_level_zscore_60m",
+      "display_name": "Cass Freight 60M level z-score",
+      "parquet_column_pattern": "cass_freight_zscore_60m",
+      "description": "Rolling 60-month z-score of the Cass Shipments LEVEL. Short usable span (from ~2018-12); seasonally contaminated on an NSA level.",
+      "source_method": "zscore",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_yoy_zscore_60m",
+      "display_name": "Cass Freight 60M YoY z-score",
+      "parquet_column_pattern": "cass_freight_yoy_zscore_60m",
+      "description": "Rolling 60-month z-score of Cass Shipments YoY growth. Seasonality-robust; short usable span (~2019-12+).",
+      "source_method": "zscore",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_accel",
+      "display_name": "Cass Freight MoM acceleration",
+      "parquet_column_pattern": "cass_freight_accel_pct",
+      "description": "Month-on-month change in MoM growth (acceleration, pp) of Cass Shipments.",
+      "source_method": "accel",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "cass_freight_contraction",
+      "display_name": "Cass Freight contraction flag",
+      "parquet_column_pattern": "cass_freight_contraction",
+      "description": "Indicator = 1 when Cass Shipments YoY growth < 0 (freight recession state).",
+      "source_method": "regime",
+      "added_at": "2026-07-05",
+      "first_pair": "cass_freight_spy",
+      "notes": "Appended for cass_freight_spy (Evan, feat260705). NSA-source seasonality caveat per Dana Phase-0."
+    },
+    {
+      "signal_code": "eci_total_comp_qoq",
+      "display_name": "ECI Total Compensation QoQ % change",
+      "parquet_column_pattern": "eci_total_comp_pct_qoq",
+      "description": "Quarter-on-quarter % change in the Employment Cost Index: Total Compensation, All Civilian (FRED ECIALLCIV, SA quarterly). Short-horizon wage-inflation momentum.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_2q",
+      "display_name": "ECI Total Compensation 2-quarter % change",
+      "parquet_column_pattern": "eci_total_comp_pct_2q",
+      "description": "2-quarter (~6M) % change in ECI total compensation (SA). Medium-horizon wage-inflation momentum.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_yoy",
+      "display_name": "ECI Total Compensation YoY % change",
+      "parquet_column_pattern": "eci_total_comp_pct_yoy",
+      "description": "4-quarter % change in ECI total compensation (SA). Headline wage-inflation rate; highly persistent (near-I(1)) at quarterly frequency.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_dev_trend",
+      "display_name": "ECI Total Compensation deviation from 8Q trend",
+      "parquet_column_pattern": "eci_total_comp_dev_trend_pct",
+      "description": "% deviation of the ECI level from its 8-quarter moving average. Wage-level cycle position vs ~2yr trend.",
+      "source_method": "dev_trend",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_level_zscore_20q",
+      "display_name": "ECI level 20Q rolling z-score",
+      "parquet_column_pattern": "eci_total_comp_zscore_20q",
+      "description": "Rolling 20-quarter (~5yr) z-score of the ECI level. Regime-contaminated (KPSS rejects stationarity) - usable with caution.",
+      "source_method": "zscore",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_yoy_zscore_20q",
+      "display_name": "ECI YoY 20Q rolling z-score",
+      "parquet_column_pattern": "eci_total_comp_yoy_zscore_20q",
+      "description": "Rolling 20-quarter z-score of ECI YoY growth. Regime-contaminated (KPSS rejects) - usable with caution.",
+      "source_method": "zscore",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_accel",
+      "display_name": "ECI QoQ acceleration",
+      "parquet_column_pattern": "eci_total_comp_accel_pct",
+      "description": "Change in QoQ growth (pp): qoq_t - qoq_{t-1}. Cleanly stationary wage-inflation acceleration.",
+      "source_method": "accel",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "eci_total_comp_yoy_accel",
+      "display_name": "ECI YoY acceleration",
+      "parquet_column_pattern": "eci_total_comp_yoy_accel_pct",
+      "description": "Change in YoY growth (pp): yoy_t - yoy_{t-1}. Cleanly stationary; captures wage-inflation turning points.",
+      "source_method": "accel",
+      "added_at": "2026-07-06",
+      "first_pair": "eci_total_comp_spy",
+      "notes": "Appended for eci_total_comp_spy (Evan, feat260705_eci_spy). FIRST QUARTERLY pair; windows named in quarters (20Q/8Q)."
+    },
+    {
+      "signal_code": "wells_fargo_housing_level",
+      "display_name": "NAHB HMI level",
+      "parquet_column_pattern": "nahb_hmi",
+      "description": "NAHB/Wells Fargo Housing Market Index level (bounded 0-100 diffusion index; 50 = neutral). Level is first-class for a bounded sentiment index \u2014 distance from 50 = net builder optimism.",
+      "source_method": "level",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_yoy",
+      "display_name": "NAHB HMI YoY % change",
+      "parquet_column_pattern": "nahb_hmi_pct_yoy",
+      "description": "12-month % change of the HMI. CAVEAT: %-change of a bounded index is level-dependent (8->16 = +100%); included for family consistency only.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_mom",
+      "display_name": "NAHB HMI MoM % change",
+      "parquet_column_pattern": "nahb_hmi_pct_mom",
+      "description": "1-month % change of the HMI. Bounded-index %-transform caveat applies.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_mom3m",
+      "display_name": "NAHB HMI 3M % change",
+      "parquet_column_pattern": "nahb_hmi_3m_pct",
+      "description": "3-month % change of the HMI. Bounded-index %-transform caveat applies.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_mom6m",
+      "display_name": "NAHB HMI 6M % change",
+      "parquet_column_pattern": "nahb_hmi_6m_pct",
+      "description": "6-month % change of the HMI. Bounded-index %-transform caveat applies.",
+      "source_method": "roc",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_diff_3m",
+      "display_name": "NAHB HMI 3M point change",
+      "parquet_column_pattern": "nahb_hmi_diff_3m",
+      "description": "3-month POINT change (index points) \u2014 the natural momentum metric for a bounded diffusion index.",
+      "source_method": "diff",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_diff_12m",
+      "display_name": "NAHB HMI 12M point change",
+      "parquet_column_pattern": "nahb_hmi_diff_12m",
+      "description": "12-month POINT change (index points) \u2014 level-independent annual momentum of builder sentiment.",
+      "source_method": "diff",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_dev_trend",
+      "display_name": "NAHB HMI deviation from 12M MA",
+      "parquet_column_pattern": "nahb_hmi_dev_trend_pct",
+      "description": "% deviation of the level from its 12-month moving average.",
+      "source_method": "dev_trend",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_level_zscore_60m",
+      "display_name": "NAHB HMI level z-score (60M)",
+      "parquet_column_pattern": "nahb_hmi_zscore_60m",
+      "description": "Rolling 60-month z-score of the level; first-class for a mean-reverting bounded index.",
+      "source_method": "zscore",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_diff12_zscore_60m",
+      "display_name": "NAHB HMI 12M point-change z-score (60M)",
+      "parquet_column_pattern": "nahb_hmi_diff12_zscore_60m",
+      "description": "Rolling 60-month z-score of the 12-month point change.",
+      "source_method": "zscore",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_accel",
+      "display_name": "NAHB HMI acceleration",
+      "parquet_column_pattern": "nahb_hmi_accel_pct",
+      "description": "Month-on-month change of MoM % change (acceleration). Bounded-index %-transform caveat applies to the underlying MoM.",
+      "source_method": "accel",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "wells_fargo_housing_above50",
+      "display_name": "NAHB HMI above-50 regime flag",
+      "parquet_column_pattern": "nahb_hmi_above50",
+      "description": "Binary flag: HMI > 50 (net builder optimism) \u2014 the native expansion/contraction line for a diffusion index.",
+      "source_method": "regime_flag",
+      "added_at": "2026-07-06",
+      "first_pair": "wells_fargo_housing_spy",
+      "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
     }
   ]
 }

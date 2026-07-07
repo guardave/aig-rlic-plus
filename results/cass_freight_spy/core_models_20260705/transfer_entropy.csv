@@ -1,0 +1,3 @@
+direction,te_value,permutation_p_value,n_permutations,bandwidth,bin_method
+indicator_to_target,0.10084,0.06,500,,tercile_qcut
+target_to_indicator,0.04085,0.418,500,,tercile_qcut

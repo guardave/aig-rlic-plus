@@ -1,0 +1,40 @@
+{
+  "pair_id": "eci_total_comp_spy",
+  "artifact": "strategy_returns_20260706.csv",
+  "produced_by": "scripts/pair_pipeline_eci_total_comp_spy.py",
+  "rule": "ECON-SR1",
+  "source": "pipeline_native_derivation (same code path as tournament evaluation)",
+  "returns_file": "/workspaces/aig-rlic-plus/data/eci_total_comp_spy_quarterly_latest.parquet",
+  "coverage_start": "2001-06-30",
+  "coverage_end": "2026-03-31",
+  "frequency": "quarterly",
+  "annualization": "Sharpe sqrt(4); ann_return mean*4",
+  "oos_start": "2020-03-31",
+  "oos_end": "2026-03-31",
+  "position_semantics": "position on row t = return-accrual weight for quarter t; signal lagged 6 quarter(s); strategy_return = position * bh_return",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.595216,
+      "reported_winner_summary": 1.5952,
+      "diff": 1.6e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.042669,
+      "reported_winner_summary": -0.0427,
+      "diff": 3.1e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.241074,
+      "reported_winner_summary": 0.2411,
+      "diff": -2.6e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-07-06T12:57:21Z",
+  "generated_by": "Econ Evan (feat260705_eci_spy)"
+}

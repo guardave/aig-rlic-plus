@@ -1,5 +1,17 @@
 # Release Notes
 
+## 2026-07-04 — Statistical Methods reference page + landing tab (live on main `fc3bbf8`); annotated data-verified examples (branch, pending)
+
+A new portal-wide reference documenting every statistical/econometric method the portal uses.
+
+- **Statistical Methods page + landing tab (SHIPPED).** New top-of-sidebar page and a "Statistical Methods" tab beside Reports/Status, both driven by one shared render function over a canonical `statistical_methods.py` data module: 15 methods (Level-1 basic, Level-2 advanced, Strategy-validation), each with what it is for / why it is applicable / how to interpret the results, honest caveats, and a catalog reference. Consolidates method prose that was duplicated across 14 pair configs into one source of truth. Static reference — no schema/results/registry coupling; gates unaffected.
+- **Annotated, data-verified illustrative examples (branch `feat260704_method_examples`, pending review/merge).** Each method embeds a real example chart with numbered on-figure callouts (①②③) at the meaningful features, and a caption that walks the reader through those same numbers; every concrete number in every paragraph is sourced from that chart's actual data (verified by decoding the chart JSON). Example pairs were chosen to clearly SHOW each method's phenomenon (Granger on a significant-lag/feedback pair; transfer-entropy/subperiod/structural-break on clear positives), with an honest contemporaneous framing for CCF where no clean forward lead exists.
+
+**Lessons:** (1) An illustrative chart must be text-coupled and annotated, and every number the prose cites must be a value actually in that chart — verified against the decoded data, across all paragraphs, not invented. (2) Decode the chart into a per-method fact sheet ONCE and have both the annotations and the prose draw from it — single source of truth prevents drift. (3) On a Plotly log axis, annotation `y` is in log10 units — a raw large value blows the axis range up and hides the data. (4) The local Streamlit server caches figures; restart to see an edited chart JSON.
+
+---
+
+
 ## 2026-07-03 — Lead-horizon merge, chart-overlap + vline fixes, and the Step C reviewer-comment batch (all live, main `c53dd29`)
 
 Shipped the pending lead-horizon wave plus two viz correctness fixes and a 26-item reviewer-comment batch; all independently audited and production-verified.
