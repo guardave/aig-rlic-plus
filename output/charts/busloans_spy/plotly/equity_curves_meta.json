@@ -13,14 +13,14 @@
   "narrative_alignment_note": "Winner-vs-buy-and-hold cumulative growth for the Strategy page Performance tab; endpoints re-read from the canonical series at generation time.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/busloans_spy/strategy_returns_20260612.csv",
+    "results/busloans_spy/strategy_returns_20260708.csv",
     "results/busloans_spy/winner_summary.json"
   ],
   "reconciliation": {
     "oos_sharpe": {
-      "computed": 1.499893,
+      "computed": 1.499892,
       "reported_winner_summary": 1.4999,
-      "diff": -7e-06,
+      "diff": -8e-06,
       "tolerance": 0.01,
       "verdict": "PASS"
     },
@@ -39,6 +39,6 @@
       "verdict": "PASS"
     }
   },
-  "generated_at": "2026-06-12T09:10:28.491257+00:00",
+  "generated_at": "2026-07-08T08:58:34.427719+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_strategy_perf_charts.py (fix260611_meta_cmp, ECON-SR1 consumer)"
 }

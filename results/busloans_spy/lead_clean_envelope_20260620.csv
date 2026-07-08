@@ -1,0 +1,13 @@
+lead_months,best_oos_sharpe,best_signal,best_is_clean,best_clean_oos_sharpe,best_clean_signal,lead_source
+1,1.3471,busloans_3m_pct,True,1.3471,busloans_3m_pct,pipeline
+2,1.098,busloans_3m_pct,True,1.098,busloans_3m_pct,pipeline
+3,1.3856,busloans_pct_mom,True,1.3856,busloans_pct_mom,pipeline
+4,1.1763,busloans_6m_pct,True,1.1763,busloans_6m_pct,pipeline
+5,1.3447,busloans_3m_pct,True,1.3447,busloans_3m_pct,pipeline
+6,1.4999,busloans_pct_mom,True,1.4999,busloans_pct_mom,pipeline
+7,1.2034,busloans_zscore_60m,True,1.2034,busloans_zscore_60m,pipeline
+8,1.2454,busloans_6m_pct,True,1.2454,busloans_6m_pct,pipeline
+9,1.305,busloans_contraction,True,1.305,busloans_contraction,pipeline
+10,1.3214,busloans_pct_yoy,True,1.3214,busloans_pct_yoy,pipeline
+11,1.3264,busloans_yoy_zscore_60m,True,1.3264,busloans_yoy_zscore_60m,pipeline
+12,1.3875,busloans_pct_yoy,True,1.3875,busloans_pct_yoy,pipeline

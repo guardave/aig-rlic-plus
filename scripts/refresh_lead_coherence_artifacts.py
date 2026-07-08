@@ -125,13 +125,19 @@ def score_combo(work: pd.DataFrame, combo: dict, lead: int, split: dict,
     strat = position * tgt_ret
     oos_mask = (strat.index >= split["oos_start"]) & (strat.index <= split["oos_end"])
     is_mask = strat.index <= split["in_sample_end"]
-    is_r, oos_r = strat[is_mask].dropna(), strat[oos_mask].dropna()
+    # ECON-T4 deployable-series scoring (GH#13): OOS undefined position -> cash (0), not dropped,
+    # mirroring the native pipeline scorer. Keeps this engine byte-consistent with the pipeline's
+    # tournament_results (fidelity gate) and prevents a degenerate P2/P3-on-binary combo scored on
+    # only its defined months from spuriously beating the deployable winner (governance gate). IS
+    # stays dropna (reported basis; spans warmup).
+    is_r = strat[is_mask].dropna()
+    oos_r = strat[oos_mask].fillna(0.0)
     if len(is_r) < 60 or len(oos_r) < 24:
         return dict(oos_sharpe=float("nan"), valid=False, oos_n=len(oos_r))
     sharpe = _sharpe_monthly(oos_r)
-    pos_oos = position[oos_mask]
+    pos_oos = position[oos_mask].fillna(0.0)
     n_trades = int((pos_oos.diff().abs() > 1e-9).sum())
-    years = len(pos_oos.dropna()) / 12
+    years = len(pos_oos) / 12
     turnover = n_trades / years if years > 0 else 999
     valid = bool(sharpe > 0.3 and turnover < 24 and len(oos_r) >= 24)
     return dict(oos_sharpe=round(sharpe, 4), valid=valid, oos_n=len(oos_r))

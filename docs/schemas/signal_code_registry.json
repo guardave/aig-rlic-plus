@@ -431,6 +431,16 @@
       "added_at": "2026-07-06",
       "first_pair": "wells_fargo_housing_spy",
       "notes": "Appended for wells_fargo_housing_spy (Evan, feat260706_wells_fargo_housing_spy). Bounded 0-100 SA diffusion index; monthly."
+    },
+    {
+      "signal_code": "busloans_contraction",
+      "display_name": "BUSLOANS contraction flag (YoY loan growth < 0)",
+      "parquet_column_pattern": "busloans_contraction",
+      "description": "Binary regime-state flag = 1 when year-over-year C&I loan growth (FRED BUSLOANS, $bn SA) is negative, else 0. Used countercyclically by the busloans_spy tournament winner (GH#13 full-grid re-selection): a signal-strength (P2) counter-oriented Long/Cash-style overlay that scales exposure by how deep loan growth sits below zero, at a 11-month lead.",
+      "source_method": "regime_flag",
+      "added_at": "2026-07-08",
+      "first_pair": "busloans_spy",
+      "notes": "BUSLOANS is a Conference Board LAGGING index component; this contraction regime flag is a descriptive late-cycle state, not a forward-causal signal (Toda-Yamamoto forward direction n.s. at all lags). Added when the full L1-12 grid re-selection (GH#13) crowned contraction/T2_roll_p25/P2_signal_strength_counter/L11 over the prior busloans_mom/L6 winner."
     }
   ]
 }
