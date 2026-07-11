@@ -39,7 +39,7 @@ np.random.seed(42)
 
 PAIR_ID = "petrol_inv_spy"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20260617"
+DATE_TAG = "20260711"  # GH#13 full-grid re-run; new date per ECON-T5 §4 (tournament CSV immutability). Prior coarse-grid run: 20260617.
 COST_BPS = 5
 
 ROOT = Path("/workspaces/aig-rlic-plus")
@@ -452,7 +452,7 @@ def tournament(df: pd.DataFrame):
     is_mask = work.index <= is_end
     oos_mask = work.index >= oos_start
     lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
-    leads = [0, 1, 2, 3, 6, 12]
+    leads = list(range(0, 13))  # FULL monthly grid L0..L12 (GH#13 lead-coherence rollout); L0 = coincident (release-lag convention)
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
     rows = []
     for code, col in SIGNALS.items():
@@ -493,13 +493,24 @@ def tournament(df: pd.DataFrame):
                         else:
                             pos = pos_bool.astype(float) * 2 - 1
                         strat_ret = pos * work["spy_ret"]
-                        is_r, oos_r = strat_ret[is_mask].dropna(), strat_ret[oos_mask].dropna()
+                        # ECON-T4 deployable-series scoring (GH#13, 2026-07-11). Score OOS on the series a
+                        # trader would ACTUALLY run: an undefined in-window position deploys as CASH (0), it
+                        # is NOT dropped. The OOS window opens ~14yr after every combo's max lead+lookback
+                        # warmup, so any in-window NaN is a degenerate-signal month — e.g. a P2 signal-strength
+                        # (or P3) rule sized off a regime/collapsed-range signal whose rolling range is zero.
+                        # dropna()-scoring credited such combos with an inflated Sharpe over only their defined
+                        # months; the deployable, cash-filled series is what winner_summary + strategy-perf
+                        # charts + gates all use, so scoring on it makes selection basis == deployable basis ==
+                        # chart basis. Non-degenerate combos have no in-window NaN -> fillna is a no-op.
+                        # IS stays dropna (reported only; its window spans warmup). See busloans_spy pilot.
+                        is_r = strat_ret[is_mask].dropna()
+                        oos_r = strat_ret[oos_mask].fillna(0.0)
                         if len(is_r) < 60 or len(oos_r) < 24:
                             continue
                         mi, mo = ann_metrics(is_r), ann_metrics(oos_r)
-                        pos_oos = pos[oos_mask]
+                        pos_oos = pos[oos_mask].fillna(0.0)  # undefined = cash, for turnover/trades
                         trades = int((pos_oos.diff().abs() > 1e-9).sum())
-                        years = len(pos_oos.dropna()) / 12
+                        years = len(pos_oos) / 12
                         turnover = trades / years if years else 999
                         rows.append({"signal": code, "threshold": thr_name, "strategy": f"{strategy}_{orientation}", "lead_months": lead, "lookback": lb_name, "is_sharpe": round(mi["sharpe"], 4), "oos_sharpe": round(mo["sharpe"], 4), "oos_sortino": round(mo["sortino"], 4), "oos_calmar": round(mo["calmar"], 4), "oos_ann_return": round(mo["ann_return"], 4), "oos_ann_vol": round(mo["ann_vol"], 4), "max_drawdown": round(mo["max_dd"], 4), "win_rate": round(mo["win_rate"], 4), "n_trades": trades, "annual_turnover": round(turnover, 2), "oos_n": len(oos_r), "valid": bool(mo["sharpe"] > 0.3 and turnover < 24 and len(oos_r) >= 24)})
     mb, mbi = ann_metrics(work["spy_ret"][oos_mask]), ann_metrics(work["spy_ret"][is_mask])
@@ -772,9 +783,60 @@ def write_final_artifacts(df, daily, tdf, split, winner, resolved, tie_pool, can
         "cost_assumption_bps": COST_BPS,
         "total_combos": int(len(tdf) - 1),
         "valid_combos": int(tdf[(tdf.signal != "BENCHMARK") & tdf.valid].shape[0]),
-        "schema_version": "1.1.0",
+        "schema_version": "1.2.0",
         "notes": f"Mode-3 Codex maker. Tournament: {len(tdf)-1} strategy rows plus one benchmark valid=False; {int(tdf[(tdf.signal!='BENCHMARK') & tdf.valid].shape[0])} valid. Winner selected by ECON-T3 at step {resolved}; {n_tied} tied at Sharpe step. Bootstrap p={boot_p}; CP1 durability={verdict}; rolling correlation={stability}. Petroleum inventories are coincident physical stocks, so reverse-causality evidence is reported rather than suppressed.",
     }
+    # --- ECON-T5 winner-selection provenance (selection block; schema-required v1.2.0) ---
+    valid_pop = tdf[(tdf.signal != "BENCHMARK") & tdf.valid].copy()
+    ranked = valid_pop.sort_values("oos_sharpe", ascending=False)
+    runner = ranked.iloc[1] if len(ranked) > 1 else None
+    scanned_leads = sorted(int(x) for x in tdf.loc[tdf.signal != "BENCHMARK", "lead_months"].unique())
+    raw_strategy = str(winner["strategy"])  # carries the _pro/_counter orientation suffix
+    summary["selection"] = {
+        "objective": "max_oos_sharpe",
+        "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
+        "grid_scanned": {
+            "leads": scanned_leads,
+            "n_signals": int(valid_pop["signal"].nunique()),
+            "n_thresholds": int(valid_pop["threshold"].nunique()),
+            "n_strategies": int(valid_pop["strategy"].nunique()),
+            "n_valid_combos": n_valid,
+            "median_valid_objective": round(float(cand["oos_sharpe"].median()), 4),
+        },
+        "tie_break_step": int(resolved) if n_tied > 1 else 0,
+        "raw_winner_row": {
+            "signal": str(winner["signal"]),
+            "threshold": str(winner["threshold"]),
+            "strategy": raw_strategy,
+            "lead_column": "lead_months",
+            "lead_value": int(winner["lead_months"]),
+            "source_tournament_file": f"tournament_results_{DATE_TAG}.csv",
+            "source_row_index": int(winner.name),
+            "display_alias": f"signal_code={summary['signal_code']}; strategy_family={family} (raw strategy={raw_strategy})",
+        },
+        "runner_up": ({
+            "signal": str(runner["signal"]),
+            "threshold": str(runner["threshold"]),
+            "strategy": str(runner["strategy"]),
+            "lead_value": int(runner["lead_months"]),
+            "objective_value": round(float(runner["oos_sharpe"]), 4),
+        } if runner is not None else None),
+        "rationale": (
+            f"Unique maximiser of OOS Sharpe over the full monthly grid "
+            f"L{{{scanned_leads[0]}..{scanned_leads[-1]}}} ({n_valid} valid combos, median OOS Sharpe "
+            f"{float(cand['oos_sharpe'].median()):.4f}), scored on the deployable cash-filled series "
+            f"(ECON-T4). Winner raw OOS Sharpe {float(winner['oos_sharpe']):.4f} at "
+            f"L{int(winner['lead_months'])}"
+            + (f"; the 2nd-best valid combo ({runner['signal']}/{runner['threshold']}/{runner['strategy']}/"
+               f"L{int(runner['lead_months'])}) sits at {float(runner['oos_sharpe']):.4f}. "
+               if runner is not None else ". ")
+            + (f"No ECON-T3 tie-break engaged (unique max on oos_sharpe). " if n_tied <= 1
+               else f"ECON-T3 cascade resolved a step-1 tie ({n_tied} combos tied on oos_sharpe) at step {resolved}. ")
+            + "Published winner == raw max-OOS-Sharpe valid row -> divergence null."
+        ),
+        "objective_runner_up_divergence": None,
+    }
+
     write_json(RESULTS / "winner_summary.json", summary)
     subprocess.run(["python3", str(ROOT / "scripts/validate_schema.py"), "--schema", str(SCHEMAS / "winner_summary.schema.json"), "--instance", str(RESULTS / "winner_summary.json")], check=True)
 

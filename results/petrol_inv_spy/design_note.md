@@ -1,4 +1,4 @@
-# Design Note — petrol_inv_spy (20260617)
+# Design Note — petrol_inv_spy (20260711)
 
 ## Economic hypotheses
 H1 counter-cyclical demand signal: rising/high petroleum inventories can indicate weak fuel demand and lower forward SPY. H1b supply-glut benign: inventory builds may reflect supply rather than demand. H0: petroleum stocks do not predict SPY.
@@ -16,4 +16,4 @@ Daily LVCF may use L0 because carried values are already public after release. M
 Indicator -> SPY Granger significant lags: [6, 7, 8]. SPY -> indicator Granger significant lags: none. Reverse direction is therefore reported directly for Ray rather than suppressed.
 
 ## Tournament and evidence status
-Benchmark row has `signal == "BENCHMARK"` and `valid == False` per ECON-T4. Winner signal column `petrol_inv_3m_pct` exists in `signals_20260617.parquet`. Evidence status is `found_in_search`; no independent final exam has been run.
+Benchmark row has `signal == "BENCHMARK"` and `valid == False` per ECON-T4. Winner signal column `petrol_inv_zscore_60m` exists in `signals_20260711.parquet`. Evidence status is `found_in_search`; no independent final exam has been run.

@@ -441,6 +441,16 @@
       "added_at": "2026-07-08",
       "first_pair": "busloans_spy",
       "notes": "BUSLOANS is a Conference Board LAGGING index component; this contraction regime flag is a descriptive late-cycle state, not a forward-causal signal (Toda-Yamamoto forward direction n.s. at all lags). Added when the full L1-12 grid re-selection (GH#13) crowned contraction/T2_roll_p25/P2_signal_strength_counter/L11 over the prior busloans_mom/L6 winner."
+    },
+    {
+      "signal_code": "petrol_level_z60",
+      "display_name": "Petroleum stocks 60-month level z-score",
+      "parquet_column_pattern": "petrol_inv_zscore_60m",
+      "description": "Rolling 60-month z-score of the EIA WTTSTUS1 petroleum stock LEVEL (thousand barrels, from project Data Master.xlsx). Standardises where current inventories sit versus their 5-year norm; positive = unusually high stocks. Surfaced as the petrol_inv_spy tournament winner on the GH#13 full L0-12 grid re-selection (P1 long/cash, pro orientation, 11-month lead).",
+      "source_method": "zscore",
+      "added_at": "2026-07-11",
+      "first_pair": "petrol_inv_spy",
+      "notes": "WTTSTUS1 from project Data Master.xlsx (public FRED API rejected the series 2026-06-17). Petroleum stocks are coincident physical inventories; an 11-month lead reads as a stale level-regime descriptor, not forward causality \u2014 carry the reverse/near-zero causality caveat. Registered when the full-grid re-selection crowned petrol_level_z60/T2_roll_p25/P1_long_cash_pro/L11 over the prior petrol_3m/L12 winner."
     }
   ]
 }

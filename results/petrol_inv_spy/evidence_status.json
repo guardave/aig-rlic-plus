@@ -2,9 +2,9 @@
   "pair_id": "petrol_inv_spy",
   "schema_version": "1.2.0",
   "status": "found_in_search",
-  "updated_at": "2026-06-17T14:48:48Z",
+  "updated_at": "2026-07-11T09:35:37Z",
   "owner": "evan",
-  "plain_english": "This is the best petroleum-inventory rule found in a broad search, not a final confirmed trading rule. It beat buy-and-hold on Sharpe in the OOS window, but it was selected from 5123 valid combinations and has not passed a fresh holdout final exam.",
-  "technical_note": "Tournament-OOS only (2017-08-31 to 2025-09-30). Winner bootstrap p=0.099; CP1=conditionally_durable; rolling-correlation=moderately_stable; Granger fwd=[6, 7, 8], reverse=none.",
+  "plain_english": "This is the best petroleum-inventory rule found in a broad search, not a final confirmed trading rule. It beat buy-and-hold on Sharpe in the OOS window, but it was selected from 10991 valid combinations and has not passed a fresh holdout final exam.",
+  "technical_note": "Tournament-OOS only (2017-08-31 to 2025-09-30). Winner bootstrap p=0.0813; CP1=conditionally_durable; rolling-correlation=moderately_stable; Granger fwd=[6, 7, 8], reverse=none.",
   "next_step": "Freeze the selected rule and run ECON-FE1 final exam on a confirmation window not used in search."
 }

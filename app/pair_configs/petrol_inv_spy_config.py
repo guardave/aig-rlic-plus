@@ -22,7 +22,7 @@ class StoryConfig:
     )
 
     HEADLINE_H2 = (
-        "## Sharpe 1.48 search-phase OOS, drawdown -6.3%: petroleum "
+        "## Sharpe 1.53 search-phase OOS, drawdown -7.6%: petroleum "
         "inventories look procyclical, but the evidence is low-confidence"
     )
 
@@ -30,11 +30,14 @@ class StoryConfig:
         "Petroleum inventories have a tricky economic meaning. Inventories "
         "can build because demand is weak, which is usually bad for stocks, "
         "or because supply is strong enough to keep the economy well stocked, "
-        "which can be supportive. In this pair, the statistical evidence "
-        "leans procyclical: higher three-month inventory growth lines up "
-        "with better later SPY performance. The trading rule reduces "
-        "drawdown, but it gives up annual return and has not passed a final "
-        "holdout exam."
+        "which can be supportive. In this pair, the descriptive evidence "
+        "leans procyclical: subsequent SPY performance is best when petroleum "
+        "stocks have grown fastest. The searched winner trades a related but "
+        "distinct signal -- how high the stock LEVEL sits versus its own "
+        "five-year norm -- and holds SPY unless that level is unusually low. "
+        "It reduces drawdown and roughly keeps pace on return, but it was "
+        "found in a large search, sits in a flat cluster of near-tied rules, "
+        "and has not passed a final holdout exam."
     )
 
     WHERE_THIS_FITS = (
@@ -53,8 +56,8 @@ class StoryConfig:
 
     KPI_CAPTION = (
         "the headline Sharpe is search-phase out-of-sample, not a final "
-        "holdout result. The winner was selected from 5,123 valid strategy "
-        "combinations, with bootstrap p=0.099 and low confidence."
+        "holdout result. The winner was selected from 10,991 valid strategy "
+        "combinations, with bootstrap p=0.081 and low confidence."
     )
 
     HERO_TITLE = "Petroleum Inventory Growth vs the S&P 500 (SPY)"
@@ -78,15 +81,19 @@ class StoryConfig:
     NARRATIVE_SECTION_1 = """
 ### Headline Findings
 
-Out-of-sample (OOS) -- tested on data not used to pick the rule -- is the right lens here. The winning petroleum-inventory rule earns a Sharpe ratio -- return per unit of volatility -- of 1.48 versus 0.93 for buy-and-hold (buy-and-hold means staying invested in SPY throughout). Its maximum drawdown -- the largest peak-to-trough loss -- is -6.3% versus -23.9% for buy-and-hold. That sounds useful, but it is not a clean alpha story: annualized return is lower, 9.8% versus 15.2%.
+Out-of-sample (OOS) -- tested on data not used to pick the rule -- is the right lens here. The winning petroleum-inventory rule earns a Sharpe ratio -- return per unit of volatility -- of 1.53 versus 0.93 for buy-and-hold (buy-and-hold means staying invested in SPY throughout). Its maximum drawdown -- the largest peak-to-trough loss -- is -7.6% versus -23.9% for buy-and-hold. Unlike a pure defensive overlay it roughly keeps pace on return: 14.0% annualized versus 15.2% for buy-and-hold. Read that as a risk-control result with modest give-up, not a proven alpha story.
 
-The natural prior is counter-cyclical -- inventories building when demand is weak, which is usually bad for equities. That prior is visible in the Global Financial Crisis (GFC) and coronavirus disease 2019 (COVID-19) windows: petroleum stocks rose as fuel demand weakened. The empirical result overturns that prior for the searched rule. The quartile chart shows Q1, the lowest 3-month petroleum-stock change, at Sharpe 0.37 and 6.0% annualized return; Q4, the highest 3-month change, at Sharpe 1.25 and 17.5%. That monotonic gradient corroborates a procyclical -- moving with the equity cycle -- interpretation.
+The natural prior is counter-cyclical -- inventories building when demand is weak, which is usually bad for equities. That prior is visible in the Global Financial Crisis (GFC) and coronavirus disease 2019 (COVID-19) windows: petroleum stocks rose as fuel demand weakened. The descriptive evidence overturns that prior on average. The quartile chart shows Q1, the lowest inventory-growth bucket, at Sharpe 0.37 and 6.0% annualized return; Q4, the highest, at Sharpe 1.25 and 17.5%. That endpoint gradient (Q1 to Q4) corroborates a procyclical -- moving with the equity cycle -- interpretation.
+
+### What the Winner Actually Trades
+
+One honest wrinkle: the descriptive quartile evidence sorts on inventory *growth*, but the searched winner trades a different transform -- the **60-month z-score of the stock LEVEL** (how high petroleum stocks sit versus their own five-year norm), lagged 11 months, held long unless that level is in the bottom quartile of its recent range. Direction is still procyclical, but the specific winning signal, its 11-month lead, and its threshold are a tournament selection from a flat cluster of near-tied rules -- not a uniquely identified relationship. The runner-up (a different transform at the same L11) is only 0.003 Sharpe behind.
 
 ### Direction Reconciliation
 
-The credible economic mechanism is a hypothesis, not a fact. A petroleum inventory build can mean weak demand, but it can also mean robust supply and production availability. In that second state, softer energy-price pressure can help consumers and corporate margins, creating an equity tailwind over the following year. That is the procyclical mechanism the data appear to favor in this pair.
+The credible economic mechanism is a hypothesis, not a fact. A petroleum inventory build can mean weak demand, but it can also mean robust supply and production availability. In that second state, softer energy-price pressure can help consumers and corporate margins, creating an equity tailwind. That is the procyclical mechanism the data appear to favor in this pair.
 
-Timing is less precise. Granger causality -- a test of whether past values of one series improve forecasts of another -- is significant at 6, 7, and 8 months for petroleum inventories leading SPY, with no reverse SPY-to-inventory signal. The tournament-selected rule uses L12, a 12-month lead. Treat the evidence as a 6-12 month lead band, not as proof that exactly 12 months is the true horizon.
+Timing is the weak point. Granger causality -- a test of whether past values of one series improve forecasts of another -- is significant at 6, 7, and 8 months for petroleum inventories leading SPY, with no reverse SPY-to-inventory signal. So there IS a weak forward signal -- but the tournament-selected rule trades at **L11, not 6-8 months**, and (as the Lead Tournament tab shows) the winning rule's own Sharpe is actually *weakest* around those causal lags. Treat the 11-month lead as a searched choice, not the causally-motivated horizon.
 
 <!-- expander: Why is the inventory direction tricky? -->
 Inventories have two meanings. In a demand collapse, they pile up because consumers and firms are buying less fuel; that is counter-cyclical. In an expansion, they can rise because supply chains and production are strong enough to keep the economy well supplied; that can be procyclical. This pair's charts show both possibilities, which is why the narrative leads with the contradiction rather than hiding it.
@@ -215,16 +222,20 @@ GRANGER_BLOCK = dict(
         "Forward Granger support clusters at 6-8 months, while reverse "
         "SPY-to-inventory support is absent."
     ),
-    deep_dive_title="Why not read this as exactly a 12-month lead?",
+    deep_dive_title="Why doesn't the winner trade the 6-8 month causal lag?",
     deep_dive_content=(
-        "The tournament winner uses L12, but the formal Granger evidence "
-        "clusters at lags 6-8. The honest timing claim is a 6-12 month band."
+        "The formal Granger evidence clusters at lags 6-8, but the tournament "
+        "winner trades at L11 -- and its own Sharpe-by-lead curve is actually "
+        "weakest around 6-8 months. The tradable edge and the causal lag point "
+        "at different horizons, so the 11-month lead is a searched choice, not "
+        "a causally-endorsed one."
     ),
     interpretation=(
-        "There is some medium-horizon lead evidence, but it is not precise "
-        "enough to certify the selected 12-month rule as uniquely correct."
+        "There is a weak medium-horizon forward signal, but it neither "
+        "certifies the winner's 11-month lead nor aligns with it -- the causal "
+        "lags (6-8) are where the winning rule performs worst."
     ),
-    key_message="Lead-lag support exists, but timing is imprecise.",
+    key_message="A weak forward lead exists at 6-8 months, but the winner trades L11 -- timing is not causally identified.",
 )
 
 CCF_BLOCK = dict(
@@ -373,12 +384,12 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
         "computes Pearson correlations between the petroleum-inventory signal "
         "lagged L = 0…12 months and the SPY 1-month forward return, then reads "
         "off which lead maximises predictive content — and compares that to "
-        "the tournament's traded 12-month lead."
+        "the tournament's traded 11-month lead."
     ),
     question=(
-        "Which lead carries the most predictive content for the petroleum-"
-        "inventory signal — and how does that compare to the traded 12-month "
-        "lead?"
+        "Which lead carries the most predictive content for the winning "
+        "level-z-score signal — and how does that compare to the traded "
+        "11-month lead?"
     ),
     how_to_read=(
         "Rows are inventory signal variants; columns are signal lead in MONTHS "
@@ -389,39 +400,36 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
     chart_name="correlations_lead_view",
     chart_caption=(
         "Pearson correlations between **signal lagged L months** and **SPY "
-        "1-month forward return**. The traded signal `petrol_inv_3m_pct` "
-        "peaks early at **L3 (r=+0.106, p<0.05)** and L4 (+0.103, p<0.05), "
-        "then fades to near-zero by L12 — so the linear predictive content "
-        "sits at a SHORT lead, NOT the traded 12-month lead. An honest "
-        "divergence, explained in the Lead Tournament tab."
+        "1-month forward return**. The traded signal `petrol_inv_zscore_60m` "
+        "is weak at every lead — its largest cell is **L3 (r=+0.041, NOT "
+        "significant)** — and it actually turns slightly NEGATIVE by the "
+        "traded **L11 (r=−0.036)**. No lead clears the p<0.05 band. The linear "
+        "read gives no endorsement to the traded 11-month lead."
     ),
     observation=(
-        "Reading the row directly: the signal's significant cells are at the "
-        "**short end** — L3 (r=+0.106, p<0.05) and L4 (r=+0.103, p<0.05) — "
-        "and it decays to essentially zero at the traded lag (L12 r=−0.027). "
-        "So on the pure linear test, the petroleum-inventory signal's "
-        "predictive content for next-month SPY is concentrated around a "
-        "3–4 month lead, well short of the 12-month lead the tournament "
-        "selected."
+        "Reading the row directly: every cell is small and none is "
+        "significant. The largest is L3 (r=+0.041), and the correlation drifts "
+        "to slightly negative at the traded lag (L11 r=−0.036, L12 r=−0.039). "
+        "So on the pure linear test the winning level-z-score signal carries "
+        "**no meaningful next-month-SPY content at any lead**, least of all at "
+        "the 11-month lead the tournament selected."
     ),
     interpretation=(
-        "An honest divergence: **the lead-correlation peak (L3–L4) is far from "
-        "the traded lead (L12)**. The short-lead correlation is the cleaner "
-        "linear read of the inventory→equity channel (inventory swings feed "
-        "through to energy-sector and broad earnings over a quarter or two). "
-        "The 12-month traded lead is a tournament selection on the full "
-        "strategy grid, not where the linear signal is strongest. **In plain "
-        "English:** the data says petroleum inventories carry their best "
-        "next-month-SPY signal about a quarter out, yet the published rule "
-        "reads a full year back — a gap the reader should know about when "
-        "judging the strategy's timing confidence."
+        "An honest null: **the lead-correlation view does not support the "
+        "traded L11** — its best cell (L3, +0.041) is statistically "
+        "indistinguishable from zero and the traded lead is faintly negative. "
+        "Unlike the quartile sort (which leans procyclical on inventory "
+        "growth), this direct linear test of the *level z-score* finds nothing "
+        "at any lead. **In plain English:** the specific signal and lead the "
+        "search crowned are not corroborated by a simple correlation check — "
+        "the edge, such as it is, lives in the full strategy backtest, not in "
+        "a clean predictive latency."
     ),
     key_message=(
-        "The traded signal peaks at **L3 (r=+0.106, p<0.05)** and L4, fading "
-        "to zero by L12 — so the linear predictive content sits at a SHORT "
-        "lead, not the traded 12-month lead. An honest divergence that flags "
-        "the strategy's timing as a tournament choice, not a correlation-"
-        "endorsed latency."
+        "The traded signal `petrol_inv_zscore_60m` is insignificant at every "
+        "lead (best |r|=0.041 at L3, n.s.) and slightly negative at the traded "
+        "**L11** — the correlation view gives the traded lead no endorsement. "
+        "The timing is a tournament choice, not a correlation-endorsed latency."
     ),
 )
 
@@ -429,65 +437,75 @@ LEAD_TOURNAMENT_BLOCK = dict(
     chart_status="ready",
     method_name="Lead Tournament",
     method_theory=(
-        "This block sweeps the monthly lead grid L = 0…12 and plots the best "
-        "OOS Sharpe at each lead (blue bar) against all valid combos (grey "
-        "strip); the dashed orange line is SPY buy-and-hold (Sharpe 0.93). "
-        "Read it alongside the 'weaker on timing' caveat that runs through "
-        "this pair."
+        "This chart is a projection of the pair's ONE native tournament (GH #13 "
+        "single-source): the orange line is the **published winner's own** OOS "
+        "Sharpe at each lead; the grey bars are the best-of-any-signal envelope "
+        "on the SAME grid; the dashed line is SPY buy-and-hold (Sharpe 0.93). "
+        "Every lead L1–L12 was scored directly by the native tournament on the "
+        "**deployable** series, so all markers are solid — nothing patched. "
+        "Read it alongside the 'weaker on timing' caveat that runs through this "
+        "pair."
     ),
     question=(
-        "Where does the traded 12-month lead sit on the sweep — and is its "
-        "Sharpe a robust ridge or an off-peak point, given the correlation "
-        "peak sits at L3–L4?"
+        "On the tournament's own grid, is the winner's L11 a robust ridge or a "
+        "single-lead spike — and does its edge line up with the 6–8 month "
+        "causal lag or the short-lead correlation?"
     ),
     how_to_read=(
-        "Bars: max OOS Sharpe at each monthly lead. Strip dots: every valid "
-        "combination at that lead. A tall thin spike is a single combo; a "
-        "flat-but-wide cloud is a robust regime."
+        "Orange line + green star: the deployed winner's Sharpe by lead, peaking "
+        "at its traded L11. A broad plateau around the traded lead is robust; a "
+        "tall isolated point that collapses one lead either side is fragile. "
+        "Grey bars: the best any signal achieves at each lead (envelope ≥ the "
+        "winner curve by construction)."
     ),
     chart_name="lead_sharpe_distribution",
     chart_caption=(
-        "Best OOS Sharpe per monthly lead (blue bars) and the full "
-        "distribution (grey strip). The profile peaks at **L10 (1.53)** and "
-        "L11 (1.44); the traded **L12 (1.20)** sits just past the peak on the "
-        "down-slope, while the correlation-favoured short leads (L3 1.30, L5 "
-        "1.33) form a separate cluster. Every lead clears buy-and-hold (0.93)."
+        "The winner's own curve is a **sharp spike at its traded L11 (OOS "
+        "Sharpe 1.5273)** that collapses to ~1.2 at L10 and ~0.95 at L12, and "
+        "sags to its WORST (0.77–0.90) at L6–8 — exactly the Granger-causal "
+        "lags. L11 is also the top of the cross-signal envelope, but the "
+        "envelope is **nearly flat** (leads span ~1.29–1.53, top-two margin "
+        "only 0.05), so no lead is decisively best. A flat envelope plus a "
+        "single-lead winner spike is a weakly-identified, searched result."
     ),
     observation=(
-        "Reading the monthly bars: the Sharpe profile rises to a **late-lead "
-        "peak at L10 (1.53)** and L11 (1.44), then the traded **L12 (1.20) "
-        "falls off that peak**. There is also a respectable short-lead cluster "
-        "(L0 1.33, L3 1.30, L5 1.33) near where the lead-correlation content "
-        "concentrates. So the grid has TWO weakly-separated regions of "
-        "interest — a short-lead one (matching the correlation) and a "
-        "late-lead one (around L10–L11) — and the traded L12 sits at the "
-        "trailing edge of the late cluster.\n\n"
-        "The published winner (`petrol_inv_3m_pct / T1_fixed_p50 / "
-        "P1_long_cash`, OOS Sharpe **1.4779**) trades at L12. Its lead is "
-        "neither the correlation peak (L3) nor the Sharpe peak (L10) — it is a "
-        "tournament selection that lands just past the late-lead ridge. "
-        "Consistent with this pair's 'weaker on timing' framing, the lead is "
-        "best described as **plausible but not pinpointed**: the broad late-"
-        "lead region is real, but the exact L12 is not where either diagnostic "
-        "peaks."
+        "On the native tournament grid the published winner "
+        "(`petrol_inv_zscore_60m / T2_roll_p25 / P1_long_cash`, OOS Sharpe "
+        "**1.5273**) sits at the top of the lead profile at its traded L11 — "
+        "its own curve and the cross-signal envelope both peak there. But two "
+        "honesty flags sit right on the chart. First, the winner's own curve is "
+        "a **single-lead spike**: 1.53 at L11, but ~1.25 at L10 and ~0.95 at "
+        "L12, and it is **weakest (0.77–0.90) at L6–8** — the very lags where "
+        "Granger finds the forward signal. The tradable edge and the causal lag "
+        "are in different places. Second, the cross-signal envelope is **nearly "
+        "flat** (best-per-lead ranges ~1.29–1.53; the next-best lead, L12 at "
+        "1.4779, is only 0.05 behind), and within L11 a runner-up combo is just "
+        "0.003 behind — so the winning lead AND combo are weakly separated.\n\n"
+        "(An earlier version of this chart drew its bars from a separate "
+        "exploratory sweep on a different grid; that was a grid artefact. On the "
+        "tournament's own grid — the one that selected the winner, scored on the "
+        "deployable series across the full L1–L12 — L11 is the top, but of a "
+        "flat, near-tied profile.) Combined with the null lead-correlation "
+        "result, the honest read is a searched in-window result, not a robust "
+        "predictive ridge."
     ),
     interpretation=(
-        "The honest summary: **the traded L12 sits just past a late-lead "
-        "Sharpe ridge (peak L10 1.53), while the correlation evidence favours "
-        "a short L3–L4 lead** — the two diagnostics point at different parts "
-        "of the grid, and the traded lead matches neither peak exactly. The "
-        "late-lead region is broad enough that L12 is not fragile, but a "
-        "reader should treat the precise 12-month timing as a tournament "
-        "artefact rather than a sharply-identified latency — exactly the "
-        "'supportive on direction, weaker on timing' verdict this page already "
-        "carries."
+        "The honest summary: **the winner's L11 is the envelope peak but a "
+        "sharp single-lead spike on an otherwise flat profile, and it sits away "
+        "from — indeed at a trough of — the 6–8 month causal lag.** The lead is "
+        "weakly identified, the combo is one of a near-tied L11 cluster, and the "
+        "lead-correlation diagnostic finds nothing significant at any lead. A "
+        "reader should treat the strong OOS Sharpe as a searched result that "
+        "scores well in one window and weight it as low-confidence, exactly as "
+        "the rest of this page advises."
     ),
     key_message=(
-        "The Sharpe profile peaks at **L10 (1.53)** with the traded **L12 "
-        "(1.20)** just past it on the down-slope, while the correlation favours "
-        "a short L3–L4 lead. The two diagnostics disagree and the traded lead "
-        "matches neither peak — plausible but not pinpointed. Winner OOS Sharpe "
-        "1.4779; read the 12-month timing as a tournament choice."
+        "On the native grid the winner's lead L11 (OOS Sharpe 1.5273) is the "
+        "top of a **nearly flat** envelope (top-two margin 0.05) and a sharp "
+        "single-lead spike whose curve is weakest at the 6–8 month causal lags. "
+        "With a null lead-correlation and a near-tied L11 cluster (runner-up "
+        "0.003 behind), that Sharpe is a searched, low-confidence result, not a "
+        "discovered predictive lead."
     ),
 )
 
@@ -509,7 +527,7 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Granger F-statistics by lag (12 rows)", "path": "results/petrol_inv_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns (4 rows)", "path": "results/petrol_inv_spy/regime_quartile_returns.csv"},
         {"label": "Subperiod Sharpe checks (4 rows)", "path": "results/petrol_inv_spy/subperiod_sharpe.csv"},
-        {"label": "Rolling 24-month correlation (356 rows)", "path": "results/petrol_inv_spy/rolling_correlation_petrol_inv_spy.csv"},
+        {"label": "Rolling 24-month correlation (357 rows)", "path": "results/petrol_inv_spy/rolling_correlation_petrol_inv_spy.csv"},
         {"label": "Stationarity tests (24 rows)", "path": "results/petrol_inv_spy/stationarity_tests_20260617.csv"},
     ],
     "level1": [QUARTILE_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
@@ -517,8 +535,8 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK, TRANSFER_ENTROPY_BLOCK, HMM_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression", "Transfer Entropy", "HMM Regimes"],
     "tournament_intro": (
-        "The tournament tested 7,392 benchmark-excluded strategy combinations, "
-        "of which 5,123 passed validity filters. The winning rule is the best "
+        "The tournament tested 16,016 benchmark-excluded strategy combinations, "
+        "of which 10,991 passed validity filters. The winning rule is the best "
         "of that valid searched set, so its Sharpe advantage must be read with "
         "the search-position warning attached."
     ),
@@ -538,38 +556,41 @@ class StrategyConfig:
     )
 
     PLAIN_ENGLISH = (
-        "The rule is simple: if the three-month change in petroleum stocks "
-        "from 12 months ago is above 0.323, hold SPY; otherwise hold cash. "
-        "It reduced drawdown in the search-phase OOS window, but it did so "
-        "by stepping out of the market and giving up annual return."
+        "The rule is a level-regime overlay: it looks at how high petroleum "
+        "stocks sit versus their own five-year norm (a 60-month z-score), "
+        "reads that value from 11 months earlier, and holds SPY unless the "
+        "level is unusually low (in the bottom quartile of its recent range); "
+        "otherwise it holds cash. It reduced drawdown in the search-phase OOS "
+        "window and roughly kept pace with the market on return, but it is a "
+        "searched rule sitting in a flat cluster of near-tied alternatives."
     )
 
     SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the 12-month-lagged three-month petroleum inventory change is greater than 0.323; otherwise hold cash.
+**Rule in plain English:** hold SPY when the 11-month-lagged 60-month z-score of petroleum stocks is above its rolling 25th-percentile threshold (i.e. unless the level is in the bottom quartile of its recent range); otherwise hold cash.
 
 If-then form:
-- **IF** `petrol_inv_3m_pct` from 12 months ago is **above 0.323** -> hold SPY.
+- **IF** `petrol_inv_zscore_60m` from 11 months ago is **above its rolling 25th-percentile threshold** (latest value -2.2581) -> hold SPY.
 - **ELSE** -> hold cash.
 
-Search-phase OOS results (2017-08-31 to 2025-09-30, no holdout final exam yet): Sharpe 1.48 vs 0.93 buy-and-hold; annualized return 9.8% vs 15.2%; maximum drawdown -6.3% vs -23.9%; 19 OOS trades; annual turnover 2.33.
+Search-phase OOS results (2017-08-31 to 2025-09-30, no holdout final exam yet): Sharpe 1.53 vs 0.93 buy-and-hold; annualized return 14.0% vs 15.2%; maximum drawdown -7.6% vs -23.9%; 10 OOS trades; annual turnover 1.22. The threshold is a rolling 25th percentile (36-month window), so it moves over time — see `winner_trade_log.csv` for the full path.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads Energy Information Administration (EIA) petroleum inventory releases and carries the latest public value forward to the monthly decision date. Second, it computes the three-month percentage change, which captures whether stocks have recently built or drawn down. Third, it compares the value from 12 months earlier with the 0.323 threshold and converts that comparison into a SPY-or-cash position.
+First, the data process reads Energy Information Administration (EIA) petroleum inventory releases and carries the latest public value forward to the monthly decision date. Second, it standardizes the stock LEVEL as a rolling 60-month z-score -- how far current inventories sit above or below their own five-year norm. Third, it compares the value from 11 months earlier with a rolling 25th-percentile threshold and converts that comparison into a SPY-or-cash position: long unless the standardized level is in the bottom quartile of its recent range.
 
-This is intentionally simple. It does not forecast oil prices, estimate refinery demand, or model the full energy complex. It asks whether a broad physical-stock measure has historically lined up with a better or worse SPY allocation.
+This is intentionally simple. It does not forecast oil prices, estimate refinery demand, or model the full energy complex. It asks whether a broad physical-stock level measure has historically lined up with a better or worse SPY allocation.
 """
 
     MANUAL_USE_MD = """
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
 1. Pull total petroleum stocks (`WTTSTUS1`) from the EIA source used in the project data bundle.
-2. Compute the three-month percentage change.
-3. Apply the 12-month lag before making the monthly SPY allocation decision.
-4. Compare the lagged value with the fixed threshold `0.323`.
-5. Hold SPY when the lagged signal is greater than the threshold; otherwise hold cash.
+2. Standardize the stock level as a rolling 60-month z-score (`petrol_inv_zscore_60m`).
+3. Apply the 11-month lag before making the monthly SPY allocation decision.
+4. Compare the lagged z-score with its rolling 25th-percentile threshold (36-month window; latest value -2.2581).
+5. Hold SPY when the lagged z-score is above the threshold; otherwise hold cash.
 
-The warning label is central: this is `found_in_search`, not confirmed by a holdout final exam.
+The warning label is central: this is `found_in_search`, not confirmed by a holdout final exam, and the winning combo sits in a flat cluster of near-tied rules.
 """
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -583,38 +604,40 @@ The warning label is central: this is `found_in_search`, not confirmed by a hold
     )
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: the OOS Sharpe distribution across 5,123 valid "
-        "searched combinations. The winner's 1.48 Sharpe is the maximum of "
-        "the search, not a typical result."
+        "What this shows: the OOS Sharpe distribution across 10,991 valid "
+        "searched combinations. The winner's 1.53 Sharpe is the maximum of "
+        "the search, not a typical result -- and it sits only ~0.003 above the "
+        "runner-up."
     )
 
     CAVEATS_MD = """
 **Why confidence is low:**
 
-1. The winner came from 5,123 valid searched combinations, so a strong-looking maximum can occur by chance.
-2. Bootstrap p-value is 0.099, which is suggestive but not significant at the 5% level.
-3. Granger evidence clusters at 6-8 months, while the selected rule uses L12.
-4. The strategy improves drawdown but gives up annualized return versus buy-and-hold.
-5. The mechanism is plausible but not causal; inventories can mean demand weakness or supply availability depending on regime.
+1. The winner came from 10,991 valid searched combinations, so a strong-looking maximum can occur by chance -- and it sits in a **flat cluster of near-tied rules**: the runner-up (a different transform at the same 11-month lead) is only ~0.003 Sharpe behind, and the best-per-lead envelope is nearly flat across the whole grid.
+2. Bootstrap p-value is 0.081, which is suggestive but not significant at the 5% level; durability is only `conditionally_durable`.
+3. Granger evidence clusters at 6-8 months, but the selected rule trades at **L11** -- and the winning rule's own Sharpe is *weakest* around those causal lags. The traded lead is not the causal horizon, and the direct lead-correlation check is insignificant at every lead.
+4. The strategy improves drawdown and roughly matches buy-and-hold on return, but the edge is a searched, in-window result.
+5. The mechanism is plausible but not causal; inventories can mean demand weakness or supply availability depending on regime, and the winner trades the stock *level* z-score, a different transform from the growth measure the quartile evidence sorts on.
 
 **What this means:** use the page as evidence for a candidate defensive overlay, not as proof of a durable petroleum-inventory alpha signal.
 """
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**A concrete example from this pair:** on **1994-06-30** the "
-        "broker-style log records a BUY. The rule saw "
-        "`petrol_3m=3.712`, above the 0.323 threshold, and moved from 0% "
-        "to 100% SPY exposure. On **1994-10-31**, the log records a SELL "
-        "after `petrol_3m=0.019` fell below the threshold, moving back to cash."
+        "**A concrete example from this pair:** on **1995-12-31** the "
+        "broker-style log records a BUY. The rule saw the 11-month-lagged "
+        "level z-score `petrol_level_z60=0.065`, above its rolling threshold "
+        "(-0.654), and moved from 0% to 100% SPY exposure. On **1996-02-29**, "
+        "the log records a SELL after the lagged z-score (-0.741) fell below "
+        "the rolling threshold (-0.712), moving back to cash."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
-        "trade_date": "1994-06-30",
+        "trade_date": "1995-12-31",
         "side": "BUY",
         "instrument": "SPY",
         "quantity_pct": "100.0",
         "commission_bps": "5",
-        "reason": "P1_long_cash_pro: petrol_3m=3.712 threshold=0.323; position 0% to 100%",
+        "reason": "P1_long_cash_pro: petrol_level_z60=0.065 threshold=-0.654; position 0% to 100%",
     }
 
 
@@ -632,7 +655,8 @@ _INDICATOR_CONSTRUCTION_MD = (
     "The raw petroleum-stock level is transformed into year-over-year change, "
     "short-horizon percentage change, 3-month percentage change, 6-month "
     "percentage change, trend deviation, and z-scores. The winning signal is "
-    "`petrol_inv_3m_pct`, a three-month petroleum-stock momentum measure. "
+    "`petrol_inv_zscore_60m`, a rolling 60-month z-score of the petroleum-stock "
+    "LEVEL (how far current inventories sit from their five-year norm). "
     "The daily panel carries the latest public petroleum value forward, so "
     "the strategy does not use future inventory information."
 )
@@ -651,7 +675,7 @@ _METHODS_TABLE_MD = """
 """
 
 _TOURNAMENT_DESIGN_MD = """
-Grid: petroleum inventory transforms x threshold rules x strategy families x orientations x leads x lookbacks. The final tournament file has 7,392 benchmark-excluded strategy combinations plus one BENCHMARK row. Of those, 5,123 strategy combinations pass validity filters and are eligible for winner selection. The winning rule is `petrol_3m / T1_fixed_p50 / P1_long_cash (pro) / L12 / LB_NA`.
+Grid: petroleum inventory transforms x threshold rules x strategy families x orientations x leads x lookbacks. The final tournament file has 16,016 benchmark-excluded strategy combinations plus one BENCHMARK row. Of those, 10,991 strategy combinations pass validity filters and are eligible for winner selection. The winning rule is `petrol_level_z60 / T2_roll_p25 / P1_long_cash (pro) / L11 / LB36`, scored on the deployable cash-filled series across the full L0-12 grid (GH#13). It is the unique OOS-Sharpe maximum but sits in a flat, near-tied L11 cluster.
 
 All headline performance on the portal is search-phase OOS, not a holdout final exam. This distinction is binding for the pair because `results/petrol_inv_spy/evidence_status.json` marks the pair `found_in_search`.
 """
@@ -673,8 +697,8 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     references_md=_REFERENCES_MD,
     sample_period_note=(
         "Out-of-sample window 2017-08-31 to 2025-09-30, 98 monthly "
-        "observations. Total tournament count is 7,392 benchmark-excluded "
-        "strategy combinations; 5,123 are valid. Evidence status: "
+        "observations. Total tournament count is 16,016 benchmark-excluded "
+        "strategy combinations; 10,991 are valid. Evidence status: "
         "found_in_search."
     ),
     plain_english=(

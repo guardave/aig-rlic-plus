@@ -64,10 +64,10 @@
     "The overlay lowers drawdown but gives up annualized return versus buy-and-hold."
   ],
   "narrative_summary": "Total petroleum stocks overturn the natural counter-cyclical prior in this sample: Q1 lowest 3-month inventory growth has Sharpe 0.37 and 6.0% annualized return, while Q4 highest has Sharpe 1.25 and 17.5%, and the winner is procyclical Long/Cash at L12. Treat the result as a low-confidence defensive overlay within a 6-12 month lead band.",
-  "last_updated_by": "ray",
-  "last_updated_at": "2026-06-17T00:00:00Z",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-07-11T09:35:37Z",
   "observed_direction": "procyclical",
   "direction_consistent": true,
-  "key_finding": "Petroleum inventories provide a weak, empirically mixed equity signal. Winner is petrol_3m / T1_fixed_p50 / P1_long_cash (pro) / L12 / LB_NA with OOS Sharpe 1.48 vs buy-and-hold 0.93; max drawdown -6.3% vs -23.9%. Toda-Yamamoto Granger indicator->SPY significant lags: [6, 7, 8]; SPY->indicator significant lags: none. Treat as a searched defensive overlay, not established causal alpha.",
+  "key_finding": "Petroleum inventories provide a weak, empirically mixed equity signal. Winner is petrol_level_z60 / T2_roll_p25 / P1_long_cash (pro) / L11 / LB36 with OOS Sharpe 1.53 vs buy-and-hold 0.93; max drawdown -7.6% vs -23.9%. Toda-Yamamoto Granger indicator->SPY significant lags: [6, 7, 8]; SPY->indicator significant lags: none. Treat as a searched defensive overlay, not established causal alpha.",
   "confidence": "low"
 }

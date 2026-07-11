@@ -1,0 +1,33 @@
+{
+  "file": "signals_20260711.parquet",
+  "pair_id": "petrol_inv_spy",
+  "produced_by": "scripts/pair_pipeline_petrol_inv_spy.py",
+  "generated_at": "2026-07-11T09:35:37Z",
+  "columns": {
+    "petrol_inv_pct_yoy": "petroleum-inventory derivative signal (petrol_inv_pct_yoy)",
+    "petrol_inv_pct_chg": "petroleum-inventory derivative signal (petrol_inv_pct_chg)",
+    "petrol_inv_3m_pct": "petroleum-inventory derivative signal (petrol_inv_3m_pct)",
+    "petrol_inv_6m_pct": "petroleum-inventory derivative signal (petrol_inv_6m_pct)",
+    "petrol_inv_dev_trend_pct": "petroleum-inventory derivative signal (petrol_inv_dev_trend_pct)",
+    "petrol_inv_zscore_60m": "petroleum-inventory derivative signal (petrol_inv_zscore_60m)",
+    "petrol_inv_yoy_zscore_60m": "petroleum-inventory derivative signal (petrol_inv_yoy_zscore_60m)",
+    "petrol_inv_accel_pct": "petroleum-inventory derivative signal (petrol_inv_accel_pct)",
+    "hmm_2state_prob_stress": "petroleum-inventory derivative signal (hmm_2state_prob_stress)",
+    "markov_regime_2state": "petroleum-inventory derivative signal (markov_regime_2state)"
+  },
+  "assertions": [
+    {
+      "description": "winner signal column must be present",
+      "check": "enforced after winner selection"
+    },
+    {
+      "description": "no raw nonstationary level as tournament signal",
+      "check": "petrol_inv_kb excluded"
+    },
+    {
+      "description": "HMM probability bounded",
+      "column": "hmm_2state_prob_stress",
+      "check": "[0,1]"
+    }
+  ]
+}

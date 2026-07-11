@@ -1,0 +1,20 @@
+{
+  "pair_id": "petrol_inv_spy",
+  "date": "20260711",
+  "pipeline_seconds": 83.1,
+  "stage_times": {
+    "load": 0.0,
+    "signals": 0.5,
+    "correlations": 0.3,
+    "core_models": 3.3,
+    "quartiles": 0.0,
+    "tournament": 44.1,
+    "winner_artifacts": 0.0,
+    "cross_period": 28.7,
+    "validation": 0.2
+  },
+  "tournament_strategy_rows": 16016,
+  "valid_strategies": 10991,
+  "oos_start": "2017-08-31",
+  "oos_end": "2025-09-30"
+}

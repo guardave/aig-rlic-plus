@@ -22,7 +22,7 @@
     "docs/schemas/history_zoom_events_registry.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-17T15:06:09.320968+00:00",
+  "generated_at": "2026-07-11T09:45:19.358392+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)",
   "annotation_strategy_id": "descending_stair",
   "events_registry_version": "1.0.0",
