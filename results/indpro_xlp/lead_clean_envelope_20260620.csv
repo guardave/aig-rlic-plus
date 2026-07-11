@@ -1,0 +1,14 @@
+lead_months,best_oos_sharpe,best_signal,best_is_clean,best_clean_oos_sharpe,best_clean_signal,lead_source
+0,0.8822,indpro_zscore_60m,True,0.8822,indpro_zscore_60m,pipeline
+1,0.9065,indpro_mom_3m,True,0.9065,indpro_mom_3m,pipeline
+2,0.9151,indpro_mom,True,0.9151,indpro_mom,pipeline
+3,1.1147,indpro_accel,True,1.1147,indpro_accel,pipeline
+4,1.1114,indpro_accel,True,1.1114,indpro_accel,pipeline
+5,1.0926,indpro_mom_3m,True,1.0926,indpro_mom_3m,pipeline
+6,1.0791,indpro_mom,True,1.0791,indpro_mom,pipeline
+7,1.1,indpro_zscore_60m,True,1.1,indpro_zscore_60m,pipeline
+8,1.2379,indpro_mom,True,1.2379,indpro_mom,pipeline
+9,0.9331,indpro_mom_6m,True,0.9331,indpro_mom_6m,pipeline
+10,1.1334,indpro_accel,True,1.1334,indpro_accel,pipeline
+11,1.3282,indpro_mom,True,1.3282,indpro_mom,pipeline
+12,0.9806,indpro,True,0.9806,indpro,pipeline
