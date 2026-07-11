@@ -609,6 +609,25 @@ This describes the backtested rule so it can be audited; it is not a trading rec
         "strategy combinations, with the selected rule highlighted as the "
         "best search-phase result."
     )
+    TOURNAMENT_BRAINSTORM_MD = """
+The classic New York Fed paper by Arturo Estrella and Mary R. Trubin, *The Yield Curve as a Leading Indicator: Some Practical Issues*, argues that the 10-year minus 3-month Treasury spread is useful because it is forward-looking, should be interpreted on a monthly basis, and is most informative when the spread level inverts or stays low. The paper also warns that changes in the spread are less informative than the level for recession forecasting. Assuming those findings hold, the next tournament should test recession-risk strategies that are closer to the paper's signal design, not only steepening-momentum rules.
+
+Candidate strategy families to add to the tournament:
+
+| Candidate | Signal definition | Rule idea | Why it belongs in the tournament |
+|---|---|---|---|
+| Inversion risk-off | `t10y3m < 0` | Reduce SPY or move to cash after one or more monthly inversions | Tests the paper's simplest historically reliable benchmark |
+| Persistent inversion | Consecutive months with `t10y3m < 0` | Require 2, 3, or 6 months of inversion before reducing risk | Filters out technical or short-lived curve moves |
+| Recession probability | Probit-style probability from spread level | Reduce SPY when estimated 12-month recession probability crosses 20%, 30%, or 40% | Converts spread level into a portfolio decision threshold |
+| Inversion depth | Minimum spread over the last 3, 6, or 12 months | Scale risk down as the inversion becomes deeper | Tests whether more severe inversions justify larger de-risking |
+| Post-inversion recovery | Spread crosses back above zero after inversion | Re-enter SPY after normalization, with 3, 6, or 12 month waiting periods | Tests whether the best trade is after the warning phase ends |
+| Short-rate pressure | 3-month Treasury rate rise over 12 or 18 months plus low spread | Reduce SPY when short rates have risen and the curve is flat or inverted | Reflects the paper's monetary-tightening channel |
+| Defensive allocation | Inversion or high recession probability | Rotate from SPY into cash, Treasury bills, or defensive sectors instead of only long/cash | Tests whether the signal is better as an allocation overlay than a pure SPY timing rule |
+
+Practical tournament design: sweep monthly leads from 0 to 18 months, require persistence filters, compare binary long/cash and proportional exposure rules, and evaluate drawdown reduction separately from Sharpe. The paper's core point is not that inversion times equity exits perfectly; it is that the spread gives early recession-risk information. A good tournament should therefore reward strategies that reduce severe drawdowns without over-penalizing early warnings that arrive months before equity weakness.
+
+Source: Estrella and Trubin, Federal Reserve Bank of New York, *Current Issues in Economics and Finance*, July/August 2006: https://www.newyorkfed.org/medialibrary/media/research/current_issues/ci12-5.pdf
+"""
 
     CAVEATS_MD = """
 **Main caveats:**
