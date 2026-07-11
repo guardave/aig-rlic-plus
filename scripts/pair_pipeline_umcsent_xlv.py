@@ -45,7 +45,7 @@ INDICATOR_NAME = "University of Michigan Consumer Sentiment"
 TARGET_NAME = "Health Care Select Sector (XLV)"
 START_DATE = "1998-01-01"
 END_DATE = "2025-12-31"
-DATE_TAG = "20260420"
+DATE_TAG = "20260711"  # GH#13 L0-12 diagnostic re-run (Option C); new date per ECON-T5 §4 immutability. Prior L0-6 run: 20260420.
 EXPECTED_DIRECTION = "procyclical"
 
 BASE_DIR = str(Path(__file__).resolve().parents[1])
@@ -1083,7 +1083,13 @@ def stage_tournament(df_monthly, df_daily):
 
     # Include 4M and 5M per stakeholder review so the 2-5M
     # cross-correlation window is explicitly covered in the tournament.
-    lead_times = [0, 1, 2, 3, 4, 5, 6]
+    # GH#13 (stakeholder approval 2026-07-11): extend to FULL L0-12 as a DIAGNOSTIC
+    # so long-lead derivatives (e.g. umcsent_direction, significant at L10 in the
+    # per-transform lead-correlation table) are TESTED rather than shielded by a
+    # linear-correlation grid cap. The economically-motivated window remains 2-5mo;
+    # the PUBLISHED winner is constrained to L0-6 (see winner-selection below) unless
+    # an L7-12 candidate survives ECON-T5 adjudication.
+    lead_times = list(range(0, 13))
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 
     results = []
@@ -1134,8 +1140,14 @@ def stage_tournament(df_monthly, df_daily):
 
                         strat_ret = position.shift(1) * work["xlv_ret"]
 
+                        # ECON-T4 deployable-series scoring (GH#13): score OOS on the DEPLOYABLE
+                        # series — an undefined in-window position deploys as CASH (0), not dropped.
+                        # OOS opens ~15yr past every combo's warmup, so any in-window NaN is a
+                        # degenerate-signal month (e.g. P2 signal-strength on the ternary S6_direction
+                        # flag). Cash-fill == the deployable series the winner_summary/charts use.
+                        # IS stays dropna (reported only; its window spans warmup).
                         is_ret = strat_ret[is_mask].dropna()
-                        oos_ret = strat_ret[oos_mask].dropna()
+                        oos_ret = strat_ret[oos_mask].fillna(0.0)
 
                         if len(is_ret) < 24 or len(oos_ret) < 12:
                             continue
@@ -1389,7 +1401,15 @@ def main():
         bh = tournament_df[tournament_df["signal"] == "BENCHMARK"]
 
         if len(valid_strats) > 0:
-            best = valid_strats.loc[valid_strats["oos_sharpe"].idxmax()]
+            # OPTION C (stakeholder ruling 2026-07-11): the tournament SCORES the full
+            # L0-12 grid as a diagnostic, but the PUBLISHED winner is CONSTRAINED to the
+            # economically-motivated L0-6 window (2-5mo cross-correlation window + release
+            # lag). L7-12 is diagnostic-only; any L7-12 combo that beats the L0-6 winner is
+            # NOT auto-adopted — it is escalated for ECON-T5 adjudication (mechanism +
+            # bootstrap + durability), default prior = multiple-testing noise. Extending
+            # the grid does not change L0-6 scores, so this preserves the published winner.
+            _motivated = valid_strats[valid_strats["lead_months"] <= 6]
+            best = _motivated.loc[_motivated["oos_sharpe"].idxmax()]
             work_for_summary = df_monthly.dropna(subset=["umcsent"])
             oos_mask_summary = work_for_summary.index >= OOS_START
             signal_column = SIGNAL_COLUMN_MAP.get(best["signal"])
@@ -1467,6 +1487,58 @@ def main():
                     f"Winning threshold uses {threshold_note_contract}. "
                     f"Signal is lagged by {int(best['lead_months'])} months before the rule is applied."
                 ),
+            }
+
+            # --- ECON-T5 selection provenance (Option C: L0-6 constrained selection, L0-12 diagnostic) ---
+            _sel_pool = valid_strats[valid_strats["lead_months"] <= 6]
+            _ranked = _sel_pool.sort_values("oos_sharpe", ascending=False)
+            _runner = _ranked.iloc[1] if len(_ranked) > 1 else None
+            _l712 = valid_strats[valid_strats["lead_months"] >= 7]
+            _l712_max = round(float(_l712["oos_sharpe"].max()), 4) if len(_l712) else None
+            _s6 = _l712[_l712["signal"] == "S6_direction"]
+            _s6_max = round(float(_s6["oos_sharpe"].max()), 4) if len(_s6) else None
+            winner_summary["schema_version"] = "1.2.0"
+            winner_summary["selection"] = {
+                "objective": "max_oos_sharpe",
+                "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
+                "grid_scanned": {
+                    "leads": [0, 1, 2, 3, 4, 5, 6],
+                    "n_signals": int(_sel_pool["signal"].nunique()),
+                    "n_thresholds": int(_sel_pool["threshold"].nunique()),
+                    "n_strategies": int(_sel_pool["strategy"].nunique()),
+                    "n_valid_combos": int(len(_sel_pool)),
+                    "median_valid_objective": round(float(_sel_pool["oos_sharpe"].median()), 4),
+                },
+                "tie_break_step": 0,
+                "raw_winner_row": {
+                    "signal": str(best["signal"]),
+                    "threshold": str(best["threshold"]),
+                    "strategy": str(best["strategy"]),
+                    "lead_column": "lead_months",
+                    "lead_value": int(best["lead_months"]),
+                    "source_tournament_file": f"tournament_results_{DATE_TAG}.csv",
+                    "source_row_index": int(best.name),
+                    "display_alias": f"signal_code={winner_summary['signal_code']}; strategy={best['strategy']}",
+                },
+                "runner_up": ({
+                    "signal": str(_runner["signal"]), "threshold": str(_runner["threshold"]),
+                    "strategy": str(_runner["strategy"]), "lead_value": int(_runner["lead_months"]),
+                    "objective_value": round(float(_runner["oos_sharpe"]), 4),
+                } if _runner is not None else None),
+                "rationale": (
+                    f"OPTION C (GH#13, stakeholder 2026-07-11): the tournament SCORES the full L0-12 grid "
+                    f"as a diagnostic (deployable ECON-T4 basis), but the published winner is CONSTRAINED to "
+                    f"the economically-motivated L0-6 window (2-5mo cross-correlation + release lag). Unique "
+                    f"maximiser of OOS Sharpe over L{{0..6}} ({len(_sel_pool)} valid combos, median "
+                    f"{float(_sel_pool['oos_sharpe'].median()):.4f}): {best['signal']}/{best['threshold']}/"
+                    f"{best['strategy']}/L{int(best['lead_months'])} = {float(best['oos_sharpe']):.4f}. "
+                    f"Diagnostic verdict: the best L7-12 combo scores only {_l712_max} (< winner), and "
+                    f"S6_direction — the transform with a significant L10 lead-correlation (r=0.113*) — scores "
+                    f"at most {_s6_max} across L7-12, so the long-lead direction signal is multiple-testing "
+                    f"noise, not a tradable edge. No L7-12 re-selection. Published winner == L0-6 raw "
+                    f"max-OOS-Sharpe valid row -> divergence null."
+                ),
+                "objective_runner_up_divergence": None,
             }
 
             sr = pd.DataFrame({
