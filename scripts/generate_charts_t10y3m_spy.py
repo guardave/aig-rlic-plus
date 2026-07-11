@@ -74,22 +74,22 @@ def nber_legend(fig: go.Figure) -> None:
     ))
 
 
-def signal_on_legend(fig: go.Figure) -> None:
+def inversion_legend(fig: go.Figure) -> None:
     fig.add_trace(go.Scatter(
         x=[None], y=[None], mode="markers",
-        marker=dict(size=12, color="rgba(0,158,115,0.22)", symbol="square"),
-        name="Signal on (hold SPY)",
+        marker=dict(size=12, color="rgba(204,121,167,0.35)", symbol="square"),
+        name="Yield-curve inversion",
         hoverinfo="skip",
     ))
 
 
-def add_signal_on_shading(fig: go.Figure, start: str, end: str) -> None:
-    strat = load_strategy_returns().loc[start:end]
-    if strat.empty or "position" not in strat:
+def add_inversion_shading(fig: go.Figure, start: str, end: str) -> None:
+    df = load_monthly().loc[start:end]
+    if df.empty or "t10y3m" not in df:
         return
-    on = strat["position"].fillna(0) > 0.5
-    starts = on.index[on & ~on.shift(1, fill_value=False)]
-    ends = on.index[on & ~on.shift(-1, fill_value=False)]
+    inverted = df["t10y3m"].fillna(0) < 0
+    starts = inverted.index[inverted & ~inverted.shift(1, fill_value=False)]
+    ends = inverted.index[inverted & ~inverted.shift(-1, fill_value=False)]
     for s, e in zip(starts, ends):
         fig.add_shape(
             type="rect",
@@ -99,7 +99,7 @@ def add_signal_on_shading(fig: go.Figure, start: str, end: str) -> None:
             y0=0,
             y1=1,
             yref="paper",
-            fillcolor="rgba(0,158,115,0.16)",
+            fillcolor="rgba(204,121,167,0.18)",
             line=dict(width=0),
             layer="below",
         )
@@ -299,22 +299,21 @@ def chart_history_zoom(slug: str, title: str, start: str, end: str) -> None:
     df = load_monthly().loc[start:end]
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     add_nber_shading(fig, x_min=start, x_max=end)
-    add_signal_on_shading(fig, start, end)
+    add_inversion_shading(fig, start, end)
     fig.add_trace(go.Scatter(x=df.index, y=df["t10y3m"], name="10Y-3M spread", line=dict(color=C_IND)), secondary_y=False)
     fig.add_trace(go.Scatter(x=df.index, y=df["spy"], name="SPY", line=dict(color=C_SPY)), secondary_y=True)
     fig.add_hline(y=0, line_dash="dash", line_color=C_LINE, secondary_y=False)
     nber_legend(fig)
-    signal_on_legend(fig)
+    inversion_legend(fig)
     fig.update_layout(title=title, template="plotly_white", height=430, hovermode="x unified")
     fig.update_yaxes(title_text="Spread (pp)", secondary_y=False)
     fig.update_yaxes(title_text="SPY", secondary_y=True)
     save(
         f"history_zoom_{slug}",
         fig,
-        f"{title}; green bands show months where the winning signal is on and the strategy holds SPY.",
+        f"{title}; pink bands show yield-curve inversion periods and gray bands show NBER recessions.",
         [
             "data/t10y3m_spy_monthly_latest.parquet",
-            f"results/t10y3m_spy/strategy_returns_{DATE_TAG}.csv",
         ],
     )
 
