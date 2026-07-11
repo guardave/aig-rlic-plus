@@ -1,13 +1,12 @@
 {
   "chart_name": "history_zoom_rate_hike_2022",
   "pair_id": "t10y3m_spy",
-  "generated_at": "2026-06-28T17:08:14.448403+00:00",
+  "generated_at": "2026-07-11T03:17:43.799328+00:00",
   "generated_by": "scripts/generate_charts_t10y3m_spy.py",
-  "caption": "2022-24 Inversion: Early Warning, Long Wait; green bands show months where the winning signal is on and the strategy holds SPY.",
-  "narrative_alignment_note": "2022-24 Inversion: Early Warning, Long Wait; green bands show months where the winning signal is on and the strategy holds SPY.",
+  "caption": "2022-24 Inversion: Early Warning, Long Wait; pink bands show yield-curve inversion periods and gray bands show NBER recessions.",
+  "narrative_alignment_note": "2022-24 Inversion: Early Warning, Long Wait; pink bands show yield-curve inversion periods and gray bands show NBER recessions.",
   "disposition": "consumed",
   "source_artifacts": [
-    "data/t10y3m_spy_monthly_latest.parquet",
-    "results/t10y3m_spy/strategy_returns_20260620.csv"
+    "data/t10y3m_spy_monthly_latest.parquet"
   ]
 }

@@ -1583,6 +1583,12 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         # leaderboard below answer "how was the winner selected?".
         _render_cross_period_section(pair_id, config)
 
+        tournament_brainstorm = getattr(config, "TOURNAMENT_BRAINSTORM_MD", None)
+        if tournament_brainstorm:
+            st.markdown("---")
+            st.markdown("### Tournament Strategy Brainstorm")
+            st.markdown(tournament_brainstorm)
+
         if getattr(config, "SHOW_TOURNAMENT_SCATTER", True):
             st.markdown("---")
             st.markdown("### Tournament Scatter")
