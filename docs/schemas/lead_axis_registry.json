@@ -1,0 +1,211 @@
+{
+  "x-version": "1.0.0",
+  "x-owner": "evan",
+  "x-generated": "2026-07-14",
+  "governing_standard": "docs/lead-grid-frequency-standard.md",
+  "notes": "Per-pair frequency record mandated by the Lead-Grid Frequency Standard (adopted 2026-07-14) § 'Enforcement'. For every REGISTERED pair (one entry per app/pair_configs/*_config.py) this records the SIGNAL's native release frequency, its publication lag, the lead axis that frequency implies (Step 1 HARD RULE), and the anchored grid (Step 3). scripts/gate_lead_axis.py asserts each pair's lead artifacts (lead tournament CSV, lead_sharpe_distribution chart, lead_correlation) sit on the axis recorded here. The load-bearing check: a DAILY-signal pair must NOT carry a MONTHLY-axis lead chart (the hy_ig class of error). signal_frequency is the classification of record; observed_winner_lead_unit is the winner_summary.lead_unit at authoring time, kept as an audit cross-check. lead_floor / publication_lag are REFERENCE metadata (Step 2 real-time floor) and are NOT gate-enforced — the gate checks AXIS ONLY, never selection windows/caps/floors. Archived pairs (*_archived) and superseded versions (hy_ig_spy_v1) are intentionally excluded: not registered, not deployed. DEBT FLAG: the 4 daily Class-A pairs currently carry a MONTHLY-axis lead tournament + chart (a monthly L0-12 resample bolted onto a daily-traded winner); they are recorded here as 'daily' and are EXPECTED to FAIL the gate until rebuilt on the daily axis (rollout item 1). t10y3m_spy and petrol_inv_spy derive from higher-frequency native sources but are processed and deployed end-to-end on a monthly axis; they are recorded as 'monthly' (internally coherent) and flagged for the item-3 monthly re-validation.",
+  "axis_unit_map": {
+    "daily": "trading_days",
+    "weekly": "weeks",
+    "monthly": "months",
+    "quarterly": "quarters"
+  },
+  "pairs": {
+    "gold_copper_xli": {
+      "signal_frequency": "daily",
+      "signal_description": "Gold/copper price ratio (daily market data)",
+      "publication_lag": "none (observed at market close)",
+      "real_time": true,
+      "lead_axis": "trading_days",
+      "lead_floor": 0,
+      "lead_grid": [0, 1, 5, 21, 63, 126, 252],
+      "observed_winner_lead_unit": "days",
+      "class": "A_daily",
+      "note": "DEBT: primary lead tournament + lead_sharpe_distribution chart are on a monthly L0-12 resample axis; winner is daily 0-lead. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1)."
+    },
+    "hy_ig_spy": {
+      "signal_frequency": "daily",
+      "signal_description": "HY-IG credit spread differential (daily market data)",
+      "publication_lag": "none (observed at market close)",
+      "real_time": true,
+      "lead_axis": "trading_days",
+      "lead_floor": 0,
+      "lead_grid": [0, 1, 5, 21, 63, 126, 252],
+      "observed_winner_lead_unit": "days",
+      "class": "A_daily",
+      "note": "DEBT: the canonical hy_ig failure — a monthly L0-12 sweep bolted onto a daily-traded 0-day-lead winner. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1, pilot)."
+    },
+    "vix_vix3m_spy": {
+      "signal_frequency": "daily",
+      "signal_description": "VIX/VIX3M volatility term-structure ratio (daily market data)",
+      "publication_lag": "none (observed at market close)",
+      "real_time": true,
+      "lead_axis": "trading_days",
+      "lead_floor": 0,
+      "lead_grid": [0, 1, 5, 21, 63, 126, 252],
+      "observed_winner_lead_unit": "days",
+      "class": "A_daily",
+      "note": "DEBT: primary lead tournament + chart on a monthly L0-12 resample axis; winner is daily 0-lead. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1)."
+    },
+    "phlxsox_spy": {
+      "signal_frequency": "daily",
+      "signal_description": "PHLX Semiconductor (SOX) relative strength (daily market data)",
+      "publication_lag": "none (observed at market close)",
+      "real_time": true,
+      "lead_axis": "trading_days",
+      "lead_floor": 0,
+      "lead_grid": [0, 1, 5, 21, 63, 126, 252],
+      "observed_winner_lead_unit": "days",
+      "class": "A_daily",
+      "note": "DEBT: primary lead tournament + chart on a monthly L0-12 resample axis; winner is daily 63-day lead. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1)."
+    },
+    "eci_total_comp_spy": {
+      "signal_frequency": "quarterly",
+      "signal_description": "Employment Cost Index, total compensation (BLS, quarterly)",
+      "publication_lag": "~4 weeks after quarter end",
+      "real_time": false,
+      "lead_axis": "quarters",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+      "observed_winner_lead_unit": "quarters",
+      "class": "quarterly",
+      "note": "Grid extended to L0-8 (beyond the L0-4 default) with rationale per Step 3; coherent quarters axis end-to-end."
+    },
+    "busloans_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "Commercial & industrial loans, BUSLOANS (FRED, monthly)",
+      "publication_lag": "~2-3 weeks",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly"
+    },
+    "cass_freight_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "Cass Freight Index — shipments (monthly)",
+      "publication_lag": "~2 weeks",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly"
+    },
+    "indpro_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "Industrial Production Index, INDPRO (FRED, monthly)",
+      "publication_lag": "~2-3 weeks",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly"
+    },
+    "indpro_xlp": {
+      "signal_frequency": "monthly",
+      "signal_description": "Industrial Production Index, INDPRO (FRED, monthly)",
+      "publication_lag": "~2-3 weeks",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly"
+    },
+    "ism_services_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "ISM Services PMI (monthly)",
+      "publication_lag": "~1 week (3rd business day)",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly"
+    },
+    "m2sl_yoy_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "M2 money stock YoY, M2SL (FRED, monthly)",
+      "publication_lag": "~4 weeks",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly"
+    },
+    "nhs_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "New Home Sales (Census, monthly)",
+      "publication_lag": "~4 weeks",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly",
+      "note": "Winner deploys at L0 (coincident); flagged per Step 2 as coincident/lookahead, not the real-time-deployable lead. Axis is coherent monthly."
+    },
+    "permit_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "Building Permits (Census, monthly)",
+      "publication_lag": "~2-3 weeks",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly"
+    },
+    "petrol_inv_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "Petroleum & crude inventories (monthly-aligned)",
+      "publication_lag": "~2-3 weeks",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly",
+      "note": "Native EIA source is weekly; the pair is processed and deployed end-to-end on a monthly axis (internally coherent). Flagged for item-3 monthly re-validation to confirm the monthly resample is the right treatment vs a weekly axis."
+    },
+    "t10y3m_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "10Y-3M Treasury term spread, T10Y3M (monthly-aligned)",
+      "publication_lag": "none on the native daily series; monthly-sampled here",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly",
+      "note": "Native Treasury-yield source is daily; the pair is processed and deployed end-to-end on a monthly axis (internally coherent). Flagged for item-3 monthly re-validation to confirm the monthly axis vs a daily-signal treatment."
+    },
+    "umcsent_xlv": {
+      "signal_frequency": "monthly",
+      "signal_description": "U. Michigan Consumer Sentiment, UMCSENT (monthly)",
+      "publication_lag": "~2 weeks (prelim mid-month, final end-of-month)",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly",
+      "note": "Full L0-12 free selection (Option-C cap retired 2026-07-14); winner L6 is the full-grid global max. Coherent monthly axis."
+    },
+    "wells_fargo_housing_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "Wells Fargo / NAHB Housing Market Index (monthly)",
+      "publication_lag": "~mid-month",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly"
+    }
+  }
+}
