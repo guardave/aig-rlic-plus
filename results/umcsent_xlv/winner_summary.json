@@ -55,13 +55,19 @@
         3,
         4,
         5,
-        6
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
       ],
       "n_signals": 7,
       "n_thresholds": 13,
       "n_strategies": 3,
-      "n_valid_combos": 1339,
-      "median_valid_objective": 0.5298
+      "n_valid_combos": 2502,
+      "median_valid_objective": 0.5301
     },
     "tie_break_step": 0,
     "raw_winner_row": {
@@ -81,7 +87,7 @@
       "lead_value": 5,
       "objective_value": 1.118
     },
-    "rationale": "OPTION C (GH#13, stakeholder 2026-07-11): the tournament SCORES the full L0-12 grid as a diagnostic (deployable ECON-T4 basis), but the published winner is CONSTRAINED to the economically-motivated L0-6 window (2-5mo cross-correlation + release lag). Unique maximiser of OOS Sharpe over L{0..6} (1339 valid combos, median 0.5298): S3_mom/T3_zscore_1.0/P1_long_cash/L6 = 1.1586. Diagnostic verdict: the best L7-12 combo scores only 1.033 (< winner), and S6_direction \u2014 the transform with a significant L10 lead-correlation (r=0.113*) \u2014 scores at most 0.9732 across L7-12, so the long-lead direction signal is multiple-testing noise, not a tradable edge. No L7-12 re-selection. Published winner == L0-6 raw max-OOS-Sharpe valid row -> divergence null.",
+    "rationale": "FREE full-grid selection (Lead-Grid Frequency Standard, 2026-07-14): no economic-window cap \u2014 the winner is the global max valid OOS Sharpe over the FULL L0-12 grid (2502 valid combos, median 0.5301): S3_mom/T3_zscore_1.0/P1_long_cash/L6 = 1.1586. The economically-motivated 2-5-month cross-correlation window is REFERENCE context the full-grid math CONFIRMED: the best L7-12 combo scores only 1.033 (< winner), and S6_direction \u2014 the transform with a significant L10 lead-correlation (r=0.113*) \u2014 scores at most 0.9732 across L7-12, so the long-lead direction signal is multiple-testing noise, not a tradable edge. This retires the interim Option-C L0-6 cap; the winner is UNCHANGED (L6 was already the full-grid global max). Low-confidence framing stands: isolated L6 spike on a nearly-flat envelope, backward-Granger caveat, L7-12 = noise. Published winner == full-grid raw max-OOS-Sharpe valid row -> divergence null.",
     "objective_runner_up_divergence": null
   }
 }
