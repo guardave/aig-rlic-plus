@@ -110,4 +110,4 @@ Consult these before modifying infrastructure or adding MCP servers.
 
 ## Context Budget
 
-Keep MCP server count at or below 10 (currently 8) to preserve effective context window. Disable unused servers before adding new ones.
+Keep MCP server count at or below 10 to preserve effective context window. **The budget is currently exhausted — the live count is 10, i.e. at the cap, not under it.** That is the 8 project-scoped servers in the table above **plus 2 account-level claude.ai connectors** (GDELT Cloud, Interactive Brokers) that load in every session regardless of project and are easy to overlook when counting from the table alone. **Adding a server therefore requires disabling one first.**

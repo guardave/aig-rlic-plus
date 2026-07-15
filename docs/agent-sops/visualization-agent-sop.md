@@ -1763,8 +1763,8 @@ For daily data spanning 20+ years with 7+ targets on one chart (35,000+ points),
 2. **Input quality:** Did input quality cause rework? Log it in the Input Quality Log (`docs/agent-sops/viz-input-quality-log.md`)
 3. **Pattern discovery:** Did you discover a visualization pattern worth reusing? Document it in your profile or memories
 4. **Handoff friction:** Did Evan's or Dana's handoff format cause friction? Note for next team review
-5. **Distill 1-2 key lessons** and update your memories file at `~/.claude/agents/viz-vera/memories.md`
-6. **Cross-project lessons:** If a lesson is not specific to this analysis (e.g., a general matplotlib technique, a universal chart design principle), update `~/.claude/agents/viz-vera/experience.md` too
+5. **Distill 1-2 key lessons** and update your memories file at `~/.agents/profiles/viz-vera/memories.md`
+6. **Cross-project lessons:** If a lesson is not specific to this analysis (e.g., a general matplotlib technique, a universal chart design principle), update `~/.agents/profiles/viz-vera/experience.md` too
 
 ### End-of-Task Reflection (EOD-Lightweight)
 
@@ -1772,7 +1772,7 @@ Before returning your task result, complete these three lightweight steps:
 
 1. **Reflect** — In one sentence, name the key insight from this task. Focus on what was non-obvious or surprising (not just "I completed the task").
 
-2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.claude/agents/viz-vera/experience.md`. Use this format:
+2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.agents/profiles/viz-vera/experience.md`. Use this format:
    ```markdown
    ## YYYY-MM-DD — <short insight title>
 

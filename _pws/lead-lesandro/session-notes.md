@@ -1309,3 +1309,31 @@ The Tier-3 lint design caught it on first run. `results/umcsent_xlv/winner_summa
 **Lessons:** (a) most "is this pair worth building?" signal already exists pre-dashboard — screening is cheap. (b) A screen's biggest value can be the systemic gap it exposes (here: the whole portfolio is search-phase). (c) When building a scoring gate, sanity-check thresholds against known-good cases first (dropping busloans caught the mis-calibration immediately).
 
 **Open / next:** stakeholder discussion of the paper. Candidate GH issue (per new policy): the missing ECON-FE1 holdout final-exam step — but it's under stakeholder discussion, so NOT filed yet. Offered the user a Chinese exec-summary addendum for the paper (awaiting word).
+
+## Session: 2026-07-15 (stale-path docs-coherence sweep S4–S7 — dispatched by ops-otis)
+
+### Summary
+
+One-off documentation-coherence packet on `feat260707_lead_coherence_rollout`. The `~/.agents` migration is complete (`~/.claude/agents/` no longer exists) but the repo never followed. Otis fixed the executable half (`88e7330a`); I fixed the SOP/docs half. **13 files changed, docs-only, left UNCOMMITTED in the working tree for Otis to review + commit from inside the devcontainer** (META-CMP gates call bare `python3`; the host python has no pandas, so a host-side commit fails the gates).
+
+1. **S4 — agent-profile path (`~/.claude/agents/` → `~/.agents/profiles/`).** `team-coordination.md` (10 of 11 hits), `qa-agent-sop.md` (4), `visualization`/`econometrics`/`data`/`appdev` (3 each), `research` (2), `lead-agent-sop.md` (2 of 3), `team-standards.md` (2), `standards.md` (2), `sop-changelog.md` (line 7 only). Verified `~/.agents/profiles/` exists (25 personas) before repointing anything.
+   - **Highest-leverage edit: the Mandatory Dispatch Template.** Its SOD block and verbatim EOD block are what every future dispatch is copied from — while they named the dead path, every new dispatch re-propagated it.
+2. **S5 — EOD hook location.** `qa-agent-sop.md:292` + `team-coordination.md:735`: `~/.claude/hooks/check-agent-eod.sh` → `scripts/hooks/check-agent-eod.sh` (what `.claude/settings.json` actually wires). Both were stale against our own relnotes:788 / sop-changelog:326, which already recorded the move.
+3. **S6 — retired `dawodev` preview.** `lead-agent-sop.md` (3: LEAD-DOM1 exit criterion, Mode-2 merge-artifact protocol, LEAD-DOM1 procedure) + `spec_memo_gh13` (2). Both spec_memo hits instructed the reader to *"repoint the dawodev preview"* — **an action that cannot be performed**: dawodev is retired and Streamlit Community Cloud has no repoint function (an app is bound to its branch at creation). Reworded to dev01/dev02 + "confirm which branch it tracks first". CLAUDE.md was already correct → used as source of truth.
+4. **S7 — MCP budget (`CLAUDE.md:113`).** "at or below 10 (currently 8)" → 10, at the cap. **Verified the composition rather than trusting the digit:** the 8 project-scoped servers in the CLAUDE.md table are registered under the *container* workspace key `/workspaces/aig-rlic-plus` in `~/.claude.json` (the host key `/home/david/dev/aig-rlic-plus` has none — which is why a host `claude mcp list` shows only 2), plus 2 account-level claude.ai connectors (GDELT Cloud, IBKR) that load in every session and are invisible when counting from the table. Documented the composition so the next reader doesn't re-derive it.
+5. **Appended a dated `sop-changelog.md` entry** recording all of the above (additive history — explicitly in scope).
+
+### Judgment calls (deliberate leaves)
+
+Applied one rule throughout: **repoint a path when it names a live file; preserve it when the record is about what the path itself said.**
+- `team-coordination.md:709` + `backlog.md:58` — both quote the literal `settings.json` allow-list text from the Wave 10F / BL-PERM-SUBAGENT incident. Repointing would falsify the record. **Left.** (Packet listed backlog.md as an S4 target; I declined with reason.)
+- `lead-agent-sop.md:66` — dated 2026-06-16 Codex smoke test recording which files Codex *reported reading*. **Left**, but flagged: its evidentiary value has expired (the pointers it validated have since moved), so the `codex exec` role-resolution re-check is now due.
+- `docs/SERVER_MIGRATION_HANDOFF.md:37` — describes the old server's broken symlink state; outside packet scope, flagged to Otis.
+
+### Verification (META-SRV)
+
+- `git diff --name-only -- . ':(exclude).venv' | grep -vE '^(docs/|CLAUDE\.md$)'` → empty (docs-only).
+- `git diff --name-only -- scripts/ setup.sh .devcontainer/ app/ '*.py' .claude/settings.json` → empty (constraint 2 honoured).
+- `git grep -n "\.claude/agents" -- docs/` → 5 residual hits, all deliberate leaves listed above.
+- `git grep -n "dawodev" -- docs/agent-sops/ docs/spec_memo_gh13*` → 0. CLAUDE.md's "retired" note intentionally retained.
+- `git diff --stat` → 13 files, +64 / −46.

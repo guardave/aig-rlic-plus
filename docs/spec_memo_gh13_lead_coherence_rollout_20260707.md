@@ -102,9 +102,10 @@ Add a **VIZ-LEAD** rule (chart: winner-curve overlay mandatory when winner lead 
 `docs/agent-sops/visualization-agent-sop.md`, so future pairs comply by construction.
 
 ### Phase 5 — Verify & close
-Per pair: (1) local `jsonschema`; (2) cloud DOM render via `scripts/cloud_verify.py` on the
-dawodev preview (repoint it to this branch first — see CLAUDE.md). Then close GH #13 with the
-per-pair evidence table.
+Per pair: (1) local `jsonschema`; (2) cloud DOM render via `scripts/cloud_verify.py` on whichever
+`dev01`/`dev02` preview app is bound to this branch — confirm which branch it tracks first; there is
+no repoint function, so a preview app is bound to its branch at creation (see CLAUDE.md). Then close
+GH #13 with the per-pair evidence table.
 
 ---
 
@@ -144,5 +145,6 @@ Build, render, test, and CI paths stay pure Python — **no Claude/LLM call**. S
 2. **Rollout-pilot pair** — I recommend `indpro_spy`; confirm or substitute.
 3. **Agent fan-out** — batch Phases 1–3 across the viz/lead agent team (parallel) vs. sequential
    by me. Fan-out is faster; sequential keeps tighter narrative control.
-4. **Preview branch** — OK to repoint the dawodev preview to `feat260707_lead_coherence_rollout`
-   for cloud verification?
+4. **Preview branch** — which preview app (`dev01` / `dev02`) should be bound to
+   `feat260707_lead_coherence_rollout` for cloud verification? (No repoint exists — a free instance
+   is spun up against the branch; see CLAUDE.md.)

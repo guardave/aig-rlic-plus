@@ -765,8 +765,8 @@ When committing data artifacts (parquets, sidecars, manifests, schema files, int
 1. **What went well?** What was harder than expected?
 2. **Did any handoff friction occur?** If so, note it for SOP improvement
 3. **Did you discover a data gotcha?** (Series quirk, API issue, transformation pitfall, base year change, seasonal adjustment methodology change)
-4. **Distill 1-2 key lessons** and update your memories file at `~/.claude/agents/data-dana/memories.md`
-5. If a lesson is **cross-project** (not specific to this analysis), update `~/.claude/agents/data-dana/experience.md` too
+4. **Distill 1-2 key lessons** and update your memories file at `~/.agents/profiles/data-dana/memories.md`
+5. If a lesson is **cross-project** (not specific to this analysis), update `~/.agents/profiles/data-dana/experience.md` too
 
 ### End-of-Task Reflection (EOD-Lightweight)
 
@@ -774,7 +774,7 @@ Before returning your task result, complete these three lightweight steps:
 
 1. **Reflect** — In one sentence, name the key insight from this task. Focus on what was non-obvious or surprising (not just "I completed the task").
 
-2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.claude/agents/data-dana/experience.md`. Use this format:
+2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.agents/profiles/data-dana/experience.md`. Use this format:
    ```markdown
    ## YYYY-MM-DD — <short insight title>
 
