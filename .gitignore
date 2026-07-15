@@ -12,6 +12,11 @@ __pycache__/
 dist/
 build/
 
+# Virtualenv — never portable (bin/ shebangs hardcode an absolute host path),
+# so a committed one churns in git status on every machine. Rebuild from
+# requirements.txt instead. Untracked via `git rm -r --cached .venv`.
+.venv/
+
 # Jupyter
 .ipynb_checkpoints/
 
