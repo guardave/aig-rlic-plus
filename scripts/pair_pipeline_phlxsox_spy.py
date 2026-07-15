@@ -597,7 +597,15 @@ def stage_tournament(df):
     oos_mask = work.index >= oos_start
     spy_ret = work["spy_ret"]
 
-    leads = [1, 5, 10, 21, 63]  # L1 real-time floor (NO L0 — contemporaneous = co-movement)
+    # GH#13 daily Class-A (Lead-Grid Frequency Standard 2026-07-15): anchored DAILY grid
+    # {1,5,21,63,126,252} trading days (was {1,5,10,21,63}) — L1 real-time floor RETAINED
+    # (NO L0: a same-day SOX/SPY reading is co-movement, not a forecast); adds 126/252,
+    # drops idiosyncratic 10. Free full-grid selection, NO cap. The daily lead apparatus +
+    # winner_summary (DATE_TAG 20260715) are produced derive-only by
+    # scripts/refresh_phlxsox_spy_lead_artifacts.py from the restored raw parquet + committed
+    # HMM; winner UNCHANGED (rs_mom6m/T2_roll_p75/P1_long_cash_pro/L63/LB63, reproduces 1.5700 —
+    # a GENUINE ~1-quarter lead that peaks at 63d and clears t>3, HAC t=4.10).
+    leads = [1, 5, 21, 63, 126, 252]
     lookbacks = {"LB63": 63, "LB126": 126, "LB252": 252}
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 
@@ -645,7 +653,9 @@ def stage_tournament(df):
                         else:
                             position = pos_bool.astype(float) * 2 - 1
                         strat_ret = position * spy_ret  # lead >= 1 => no lookahead
-                        is_r, oos_r = strat_ret[is_mask].dropna(), strat_ret[oos_mask].dropna()
+                        # ECON-T4 deployable OOS scoring (GH#13): undefined in-window position
+                        # deploys as CASH (0). IS stays dropna. (No-op for the L63 winner.)
+                        is_r, oos_r = strat_ret[is_mask].dropna(), strat_ret[oos_mask].fillna(0.0)
                         if len(is_r) < 500 or len(oos_r) < 200:
                             continue
                         m_is, m = ann_metrics(is_r), ann_metrics(oos_r)

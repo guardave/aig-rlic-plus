@@ -435,7 +435,7 @@ def build_coherent_sharpe_chart_daily(pair, ind, tgt, bh, w, wc_path, env_path):
         hovertemplate="%{x}<br>winner Sharpe=%{y:.3f}<extra></extra>"))
     fig.add_trace(go.Scatter(
         x=[win_lab], y=[win_sharpe], mode="markers",
-        name=f"Published winner {win_lab} = {win_sharpe:.2f} (same-day)",
+        name=f"Published winner {win_lab} = {win_sharpe:.2f} ({'same-day' if coincident else 'lead'})",
         marker={"size": 16, "color": STAR, "symbol": "star", "line": {"width": 1, "color": "#000"}}))
     fig.add_trace(go.Scatter(
         x=xlab, y=[bh] * len(xlab), mode="lines", name=f"Buy & Hold {tgt} ({bh:.2f})",
