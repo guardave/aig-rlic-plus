@@ -27,7 +27,7 @@ follow the same SOPs a Claude agent would.
    - App Dev → `appdev-agent-sop.md`
    - QA → `qa-agent-sop.md`
    - plus the cross-cutting `docs/agent-sops/team-coordination.md` and `docs/team-standards.md` (note: `team-standards.md` is at `docs/`, not under `docs/agent-sops/`).
-4. **Your persona profile** — `~/.claude/agents/<role>-<name>/` (`profile.md`,
+4. **Your persona profile** — `~/.agents/profiles/<role>-<name>/` (`profile.md`,
    `experience.md`, `memories.md`, and `projects/aig-rlic-plus.md` if present).
 
 ## Binding regardless of model family or dispatch mechanism

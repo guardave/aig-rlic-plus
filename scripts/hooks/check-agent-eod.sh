@@ -41,7 +41,11 @@ if [ -z "$AGENT_ID" ]; then
     exit 0
 fi
 
-AGENTS_DIR="$HOME/.claude/agents"
+# Canonical shared agent context (see ~/.claude/CLAUDE.md). Profiles moved here from
+# ~/.claude/agents/; the old path no longer exists, so pointing at it made check_file's
+# "file does not exist" branch fire on every dispatch — reporting AUDIT FAIL for agents
+# that had in fact updated their profiles.
+AGENTS_DIR="$HOME/.agents/profiles"
 EXPERIENCE_FILE="$AGENTS_DIR/$AGENT_ID/experience.md"
 MEMORIES_FILE="$AGENTS_DIR/$AGENT_ID/memories.md"
 

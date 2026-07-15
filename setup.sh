@@ -98,7 +98,7 @@ govern every project. Then read the project's own `CLAUDE.md` and `AGENTS.md` fo
 project-specific persona, conventions, and the work-mode definitions.
 
 Derive your agent identity from the dispatch brief's `[Role Name]` tag and load the
-matching persona profile under `~/.claude/agents/<role>-<name>/`.
+matching persona profile under `~/.agents/profiles/<role>-<name>/`.
 
 If this file and `~/.claude/CLAUDE.md` ever disagree, `~/.claude/CLAUDE.md` wins.
 CODEX_AGENTS_EOF
