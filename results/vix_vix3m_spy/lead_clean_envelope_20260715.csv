@@ -1,0 +1,8 @@
+lead_days,best_oos_sharpe,best_signal,best_threshold,best_strategy
+0,1.1295,S3_z126,T2_rp75,P1
+1,1.103,S8_pctrank,T2_rp75,P1
+5,0.9791,S1_ratio,T1_p25,P2
+21,0.8464,S2_z252,T2_rp75,P1
+63,0.9701,S10_spread,T1_p75,P1
+126,0.9817,S10_spread,T1_p75,P1
+252,0.8389,S2_z252,T1_p25,P1
