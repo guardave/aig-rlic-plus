@@ -126,6 +126,55 @@ fi
 
 echo "  -> Python packages installed."
 
+# Local-only dev dependencies (streamlit, pyarrow, kaleido, playwright). These are
+# kept out of requirements.txt because that file is the Streamlit Cloud deploy
+# manifest — see requirements-dev.txt for why each is excluded. Without this step
+# the app, the META-CMP pre-commit gates, and cloud_verify.py are all broken in a
+# fresh container.
+if [ -f "$WORKSPACE_DIR/requirements-dev.txt" ]; then
+  if pip install --quiet -r "$WORKSPACE_DIR/requirements-dev.txt"; then
+    echo "  -> Dev packages installed (requirements-dev.txt)."
+  else
+    echo "  -> WARNING: requirements-dev.txt install failed (continuing)."
+  fi
+
+  # Playwright needs TWO things, and the browser download alone is not enough:
+  #   1. browser binaries -> ~/.cache/ms-playwright (NOT a bind mount, so they are
+  #      container-local and must be re-fetched each rebuild)
+  #   2. system libraries  -> apt, via install-deps. Without these the browser is
+  #      present but launch() dies with "Host system is missing dependencies to run
+  #      browsers" — and `playwright install` still exits 0, so this failure is
+  #      invisible unless you actually launch a browser.
+  # cloud_verify.py launches headless chromium and needs both. Guarded so a warm
+  # container skips the ~150 MB download; non-fatal so a network blip cannot break
+  # the whole build.
+  if python3 -c "import playwright" 2>/dev/null; then
+    if [ -d "$HOME/.cache/ms-playwright" ]; then
+      echo "  -> Playwright browsers already present."
+    else
+      echo "  -> Installing Playwright chromium (~150 MB, first build only)..."
+      python3 -m playwright install chromium >/dev/null 2>&1 \
+        && echo "  -> Playwright chromium installed." \
+        || echo "  -> WARNING: playwright install chromium failed (cloud_verify.py will not run)."
+    fi
+
+    # pip installs land in the user site-packages (~/.local/...), which root cannot
+    # import — so a bare `sudo python3 -m playwright` fails with "No module named
+    # playwright". Hand root the user site-packages explicitly. Asking playwright for
+    # its own dep list keeps it version-matched, rather than pinning an apt list here
+    # that silently drifts.
+    if sudo -n true 2>/dev/null; then
+      echo "  -> Installing Playwright system libraries (apt)..."
+      sudo -n env "PYTHONPATH=$(python3 -c 'import site; print(site.getusersitepackages())')" \
+        python3 -m playwright install-deps chromium >/dev/null 2>&1 \
+        && echo "  -> Playwright system libraries installed." \
+        || echo "  -> WARNING: playwright install-deps failed (chromium will not launch)."
+    else
+      echo "  -> SKIP Playwright system libraries (no passwordless sudo)."
+    fi
+  fi
+fi
+
 # --------------------------------------------------------------------------
 # 3. MCP Servers (8 total — budget max 10)
 # --------------------------------------------------------------------------
