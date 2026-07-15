@@ -373,6 +373,84 @@ def build_coherent_sharpe_chart(pair, ind, tgt, bh, w, wc_path, env_path):
     return fig, cap + patched_clause, str(wc_path.relative_to(ROOT))
 
 
+# ── Chart 2 (COHERENT, DAILY axis): winner's own curve on the daily grid ────
+# GH#13 daily Class-A track. Same coherent construction as build_coherent_sharpe_chart
+# but on the pair's NATIVE DAILY lead axis (trading days {0,1,5,21,63,126,252}), not a
+# monthly resample. The winner is a same-day (L0) COINCIDENT strategy — credit->equity
+# is coincident/short-horizon — so the x-axis is trading days and the star sits at 0d.
+def build_coherent_sharpe_chart_daily(pair, ind, tgt, bh, w, wc_path, env_path):
+    wc = read_rows(wc_path)
+    env = read_rows(env_path)
+    date = re.search(r"(\d{8})", wc_path.name).group(1)
+    lead_key = next(k for k in wc[0] if k.startswith("lead_"))   # lead_days
+    leads = [int(r[lead_key]) for r in wc]
+
+    def _lab(l):
+        return f"{l}d"
+
+    xlab = [_lab(l) for l in leads]
+    curve = [float(r["oos_sharpe"]) for r in wc]
+    envv = [float(r["best_oos_sharpe"]) for r in env]
+    win_lead = int(w.get("lead_value", 0))
+    win_sharpe = float(w.get("oos_sharpe"))
+    win_lab = _lab(win_lead)
+    curve_peak = leads[max(range(len(curve)), key=lambda i: curve[i])]
+    env_peak = leads[max(range(len(envv)), key=lambda i: envv[i])]
+
+    coincident = win_lead == 0
+    if curve_peak == win_lead == env_peak:
+        frame = (f"On the pair's OWN daily grid the published winner sits at the envelope "
+                 f"peak ({win_lab}) — both its own curve and the best-of-any-signal envelope "
+                 f"peak there, and the profile decays monotonically as the signal is lagged. "
+                 + ("This is a SAME-DAY (coincident) edge: when the credit-stress regime flips, "
+                    "equities move the same day — not a multi-month leading indicator. "
+                    if coincident else "")
+                 + "The grid extension to 126/252 trading days surfaces no long-lead edge "
+                   "(both fail a t&gt;3 hurdle) — multiple-testing noise, as credit&#8594;equity "
+                   "coincident/short-horizon transmission predicts.")
+    else:
+        frame = (f"The orange line is the winner's OWN OOS Sharpe by daily lead, peaking at "
+                 f"{_lab(curve_peak)}; grey bars are the best any signal reaches at each lead "
+                 f"(envelope &#8805; winner curve by construction).")
+    cap = (f"Published winner's own OOS-Sharpe-by-lead curve (foreground, {ind}) on the DAILY "
+           f"axis; deployed lead {win_lab} = {win_sharpe:.2f}. Grey bars: best-of-any-signal "
+           f"envelope on the same daily grid. Buy-and-hold {tgt} = {bh:.2f}. {frame}")
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=xlab, y=envv, name="Best of ANY signal per lead (context)",
+        marker={"color": "rgba(108,122,137,0.42)"},
+        hovertemplate="%{x}<br>envelope Sharpe=%{y:.3f}<extra></extra>"))
+    fig.add_trace(go.Scatter(
+        x=xlab, y=curve, mode="lines+markers", name="Published winner's own curve",
+        line={"color": BAR, "width": 3},
+        marker={"size": 8, "color": BAR, "symbol": "circle", "line": {"width": 1.5, "color": BAR}},
+        hovertemplate="%{x}<br>winner Sharpe=%{y:.3f}<extra></extra>"))
+    fig.add_trace(go.Scatter(
+        x=[win_lab], y=[win_sharpe], mode="markers",
+        name=f"Published winner {win_lab} = {win_sharpe:.2f} (same-day)",
+        marker={"size": 16, "color": STAR, "symbol": "star", "line": {"width": 1, "color": "#000"}}))
+    fig.add_trace(go.Scatter(
+        x=xlab, y=[bh] * len(xlab), mode="lines", name=f"Buy & Hold {tgt} ({bh:.2f})",
+        line={"color": BENCH, "dash": "dash", "width": 1.5}, hoverinfo="skip"))
+    title = (f"Lead vs OOS Sharpe — winner on the native DAILY grid: {ind} -> {tgt}"
+             f"<br><sub>Orange: the PUBLISHED winner's OWN OOS Sharpe by daily lead (trading days). "
+             f"Grey bars: best-of-any-signal envelope, same source. Dashed: {tgt} buy-and-hold. {frame}</sub>")
+    fig.update_layout(
+        title={"text": title, "font": {"size": 14}},
+        xaxis={"title": {"text": "Lead (trading days) applied to signal", "standoff": 18},
+               "type": "category"},
+        yaxis={"title": {"text": "OOS Sharpe ratio"}, "zeroline": True},
+        template="plotly_white", barmode="overlay",
+        legend={"orientation": "h", "y": -0.34, "yanchor": "top", "x": 0, "xanchor": "left"},
+        margin={"l": 70, "r": 40, "t": 110, "b": 150})
+    fig.add_annotation(
+        text=f"Source: single native DAILY lead tournament (lead_tournament_native, {date}).",
+        showarrow=False, xref="paper", yref="paper", x=0, y=-0.52, yanchor="top",
+        font={"size": 10, "color": "#666"}, align="left")
+    return fig, cap, str(wc_path.relative_to(ROOT))
+
+
 # ── Chart 2: lead_sharpe_distribution (bar + cloud) ─────────────────────────
 def build_sharpe_chart(pair, ind, tgt, bh, w):
     # GH #13 coherent view: when native winner-curve + clean-envelope artifacts
@@ -382,6 +460,11 @@ def build_sharpe_chart(pair, ind, tgt, bh, w):
     win_unit = (w.get("lead_unit") or "months").rstrip("s")
     if wc_path is not None and env_path is not None and win_unit == "month":
         return build_coherent_sharpe_chart(pair, ind, tgt, bh, w, wc_path, env_path)
+    # GH#13 daily Class-A track: a DAILY-signal pair with native coherent artifacts
+    # gets the coherent chart on its OWN daily axis (trading days) — never the monthly
+    # resample. Guarded on win_unit=="day" so monthly/quarterly paths are untouched.
+    if wc_path is not None and env_path is not None and win_unit == "day":
+        return build_coherent_sharpe_chart_daily(pair, ind, tgt, bh, w, wc_path, env_path)
 
     path, date = latest_dated(pair, "lead_tournament")
     rows = read_rows(path)

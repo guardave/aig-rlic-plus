@@ -1,6 +1,6 @@
 {
   "pair_id": "hy_ig_spy",
-  "generated_at": "2026-04-22T10:42:16Z",
+  "generated_at": "2026-07-15T09:24:36Z",
   "signal_column": "hmm_2state_prob_stress",
   "signal_code": "S6_hmm_stress",
   "target_symbol": "SPY",
@@ -11,7 +11,7 @@
   "oos_sharpe": 1.4083,
   "oos_ann_return": 0.117208,
   "oos_max_drawdown": -0.084985,
-  "oos_n_trades": 387,
+  "oos_n_trades": 112,
   "oos_period_start": "2019-10-01",
   "oos_period_end": "2026-04-22",
   "bh_sharpe": 0.8129,
@@ -20,31 +20,32 @@
   "cost_assumption_bps": 5.0,
   "selection": {
     "objective": "max_oos_sharpe",
-    "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=252",
+    "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(252); ECON-T4 deployable (fillna 0) OOS",
     "grid_scanned": {
       "leads": [
         0,
         1,
         5,
-        10,
         21,
-        63
+        63,
+        126,
+        252
       ],
       "n_signals": 14,
       "n_thresholds": 11,
       "n_strategies": 3,
-      "n_valid_combos": 2036,
-      "median_valid_objective": 0.7187
+      "n_valid_combos": 2385,
+      "median_valid_objective": 0.7154
     },
-    "tie_break_step": 5,
+    "tie_break_step": 0,
     "raw_winner_row": {
       "signal": "S6_hmm_stress",
       "threshold": "T4_hmm_0.5",
       "strategy": "P2",
       "lead_column": "lead_days",
       "lead_value": 0,
-      "source_tournament_file": "tournament_results_20260422.csv",
-      "source_row_index": 1459,
+      "source_tournament_file": "tournament_results_20260715.csv",
+      "source_row_index": 1702,
       "display_alias": "strategy_family=P2_signal_strength (raw strategy=P2)"
     },
     "runner_up": {
@@ -54,20 +55,20 @@
       "lead_value": 0,
       "objective_value": 1.4083
     },
-    "rationale": "Tie at the top of the valid population (the canonical ECON-T3 motivating case): two rows share the raw OOS-Sharpe max 1.4083 and are byte-identical on every metric (oos_ann_return 0.1172, max_drawdown -0.0850, n_trades 387) -- they are the same S6_hmm_stress / P2 / L0 strategy under two HMM probability thresholds (T4_hmm_0.5 vs T4_hmm_0.7) that bind to the same realised positions over this OOS window. ECON-T3 steps 1-4 cannot separate them and step 5 (lexicographic signal_code) is degenerate because the signal_code is identical; the published winner takes the lower threshold T4_hmm_0.5 (the first row in tournament order, ridx 1459 < 1462). Either choice yields the identical strategy series, so the selection is well-defined in outcome. Grid: committed daily L{0,1,5,10,21,63}, 2,036 valid combos, median OOS Sharpe 0.7186.",
+    "rationale": "FREE full-grid daily selection (Lead-Grid Frequency Standard, 2026-07-15): NO cap. Winner is the global-max valid OOS Sharpe over the anchored DAILY grid {0,1,5,21,63,126,252} trading days (2385 valid combos, median 0.7154; ECON-T4 deployable scoring): S6_hmm_stress/T4_hmm_0.5/P2/L0 = 1.4083. Winner is at L0 = COINCIDENT / same-day (HMM stress prob observed at close; real-time floor L0). The T4 threshold is VESTIGIAL for P2 on a continuous signal \u2014 T4_hmm_0.5 and T4_hmm_0.7 bind to identical positions (byte-identical metrics). NON-DEGENERATE: deployable(fillna 0) == dropna at oos_n=1712 (positions defined every OOS day; not the busloans binary trap); Newey-West HAC t=3.80 > 3.0 (Harvey-Liu-Zhu) \u2014 genuine edge. NO long-lead edge (L126 best=0.879 (HAC t=2.62); L252 best=0.953 (HAC t=2.91) \u2014 both FAIL t>3), so the grid extension surfaces only multiple-testing noise, exactly as credit->equity coincident/short-horizon transmission predicts. Built from the RESTORED original raw data (data/hy_ig_spy_daily_20000101_20260422.parquet SPY + immutable signals_20260422.parquet HMM, NO re-fit): reproduces the committed headline 1.4083 EXACTLY \u2014 this is a lead-AXIS rebuild (monthly->daily), NOT a re-selection and NOT a data-vintage change.",
     "objective_runner_up_divergence": null
   },
-  "notes": "Fresh hy_ig_spy pair (Wave 10G.4C). OOS window 2019-10-01–2026-04-22 per ECON-OOS2 formula (79mo). winner=S6_hmm_stress/T4_hmm_0.5/P2/L0. breakeven_cost=50bps, max_acceptable_delay=5d.",
+  "notes": "hy_ig_spy DAILY Class-A pilot (GH#13, Lead-Grid Frequency Standard). Coincident same-day (L0) winner S6_hmm_stress/P2 on the DAILY lead axis {0,1,5,21,63,126,252}. OOS 2019-10-01-2026-04-22. Lead-axis rebuild from the restored original data (immutable signals+HMM, no re-fit) \u2014 reproduces committed 1.4083; winner combo UNCHANGED.",
   "signal_display_name": "HMM Stress Probability",
   "threshold_code": "T4_hmm_0.5",
   "threshold_display_name": "HMM prob > 0.5",
   "strategy_code": "P2",
   "strategy_display_name": "Signal Strength",
-  "strategy_description": "Scale position size proportionally to signal strength (0%–100% invested).",
+  "strategy_description": "Scale position size proportionally to signal strength (0%\u2013100% invested).",
   "lead_value": 0,
   "lead_unit": "days",
   "lead_description": "No lead (same-period)",
-  "win_rate": 0.5035,
+  "win_rate": 0.5551,
   "max_acceptable_delay_days": 5,
   "breakeven_cost_bps": 50.0,
   "risk_category": "credit_spread"

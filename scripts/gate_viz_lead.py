@@ -86,13 +86,18 @@ def check_pair(pair: str) -> tuple[str, list[str]]:
     src_p = _latest(pair, "lead_tournament_native")
     tr_p = sorted((REPO / "results" / pair).glob("tournament_results_*.csv"))
     if src_p and tr_p:
-        src = [r for r in _read_csv(src_p) if r.get("lead_source") == "pipeline"]
+        src_rows = _read_csv(src_p)
+        tr_rows = [r for r in _read_csv(sorted(tr_p)[-1]) if r["signal"] != "BENCHMARK"]
+        src = [r for r in src_rows if r.get("lead_source") == "pipeline"]
+        # axis-agnostic: the lead column is lead_months (monthly/quarterly pairs) or
+        # lead_days (daily Class-A pairs) — read it generically from each file's header.
+        src_lk = next((k for k in src_rows[0] if k.startswith("lead_")), "lead_months") if src_rows else "lead_months"
+        tr_lk = next((k for k in tr_rows[0] if k.startswith("lead_")), "lead_months") if tr_rows else "lead_months"
         tr = {(r["signal"], r["threshold"], r["strategy"], r.get("lookback", ""),
-               int(float(r["lead_months"]))): float(r["oos_sharpe"])
-              for r in _read_csv(sorted(tr_p)[-1]) if r["signal"] != "BENCHMARK"}
+               int(float(r[tr_lk]))): float(r["oos_sharpe"]) for r in tr_rows}
         mism = sum(1 for r in src
                    if (k := (r["signal"], r["threshold"], r["strategy"], r.get("lookback", ""),
-                             int(float(r["lead_months"])))) in tr
+                             int(float(r[src_lk])))) in tr
                    and abs(float(r["oos_sharpe"]) - tr[k]) > 0.02)
         if mism:
             msgs.append(f"single-source drift: {mism} pipeline rows in "

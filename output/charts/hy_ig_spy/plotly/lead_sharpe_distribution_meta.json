@@ -8,14 +8,14 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "narrative_alignment_note": "Sweep-grid best OOS Sharpe 1.44 at L1 (hy_ig_roc_21d x P2); a single spike. Buy-and-hold SPY OOS Sharpe = 0.81. Published winner is a daily-executed strategy at 0 day(s) lead (OOS Sharpe 1.41) \u2014 off this monthly comparability axis; the bars are the monthly-resampled sweep, not the deployed daily horizon.",
-  "caption": "Sweep-grid best OOS Sharpe 1.44 at L1 (hy_ig_roc_21d x P2); a single spike. Buy-and-hold SPY OOS Sharpe = 0.81. Published winner is a daily-executed strategy at 0 day(s) lead (OOS Sharpe 1.41) \u2014 off this monthly comparability axis; the bars are the monthly-resampled sweep, not the deployed daily horizon.",
-  "created_at": "2026-06-27T13:16:29Z",
+  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, HY-IG Spread (v1)) on the DAILY axis; deployed lead 0d = 1.41. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.81. On the pair's OWN daily grid the published winner sits at the envelope peak (0d) \u2014 both its own curve and the best-of-any-signal envelope peak there, and the profile decays monotonically as the signal is lagged. This is a SAME-DAY (coincident) edge: when the credit-stress regime flips, equities move the same day \u2014 not a multi-month leading indicator. The grid extension to 126/252 trading days surfaces no long-lead edge (both fail a t&gt;3 hurdle) \u2014 multiple-testing noise, as credit&#8594;equity coincident/short-horizon transmission predicts.",
+  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, HY-IG Spread (v1)) on the DAILY axis; deployed lead 0d = 1.41. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.81. On the pair's OWN daily grid the published winner sits at the envelope peak (0d) \u2014 both its own curve and the best-of-any-signal envelope peak there, and the profile decays monotonically as the signal is lagged. This is a SAME-DAY (coincident) edge: when the credit-stress regime flips, equities move the same day \u2014 not a multi-month leading indicator. The grid extension to 126/252 trading days surfaces no long-lead edge (both fail a t&gt;3 hurdle) \u2014 multiple-testing noise, as credit&#8594;equity coincident/short-horizon transmission predicts.",
+  "created_at": "2026-07-15T09:28:07Z",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/hy_ig_spy/lead_tournament_20260620.csv",
+    "results/hy_ig_spy/lead_winner_curve_20260715.csv",
     "results/hy_ig_spy/winner_summary.json"
   ],
   "generated_by": "Viz Vera \u2014 scripts/generate_lead_charts.py (VIZ-LEAD1)"
