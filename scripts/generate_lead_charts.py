@@ -398,16 +398,23 @@ def build_coherent_sharpe_chart_daily(pair, ind, tgt, bh, w, wc_path, env_path):
     env_peak = leads[max(range(len(envv)), key=lambda i: envv[i])]
 
     coincident = win_lead == 0
-    if curve_peak == win_lead == env_peak:
+    if coincident and curve_peak == win_lead == env_peak:
+        # 0-day winner whose curve + envelope both peak at 0d and decay with lag:
+        # a genuinely SAME-DAY (coincident) edge with no leading content.
         frame = (f"On the pair's OWN daily grid the published winner sits at the envelope "
                  f"peak ({win_lab}) — both its own curve and the best-of-any-signal envelope "
-                 f"peak there, and the profile decays monotonically as the signal is lagged. "
-                 + ("This is a SAME-DAY (coincident) edge: when the credit-stress regime flips, "
-                    "equities move the same day — not a multi-month leading indicator. "
-                    if coincident else "")
-                 + "The grid extension to 126/252 trading days surfaces no long-lead edge "
-                   "(both fail a t&gt;3 hurdle) — multiple-testing noise, as credit&#8594;equity "
-                   "coincident/short-horizon transmission predicts.")
+                 f"peak there, and the profile decays as the signal is lagged. This is a "
+                 f"SAME-DAY (coincident) edge — the signal and target move together the same "
+                 f"day, not a multi-month leading indicator. Extending the grid to 126/252 "
+                 f"trading days surfaces no long-lead edge (long leads fail a t&gt;3 hurdle) "
+                 f"— multiple-testing noise.")
+    elif win_lead == curve_peak:
+        # winner sits at its own curve's peak at a NON-zero lead: a genuine lead.
+        frame = (f"On the pair's OWN daily grid the winner's own curve peaks at its deployed "
+                 f"{win_lab} lead — a genuine ~{win_lead}-trading-day lead, not a same-day "
+                 f"co-move. Grey bars are the best any signal reaches at each lead "
+                 f"(envelope &#8805; winner curve by construction); read the shorter-lead "
+                 f"values to see whether the edge decays or reverses ahead of the deployed lead.")
     else:
         frame = (f"The orange line is the winner's OWN OOS Sharpe by daily lead, peaking at "
                  f"{_lab(curve_peak)}; grey bars are the best any signal reaches at each lead "
