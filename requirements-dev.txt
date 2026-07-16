@@ -28,3 +28,6 @@ streamlit
 pyarrow
 kaleido
 playwright
+# Loads repo-root .env so FRED/data pipelines read the API key from there instead of a
+# hardcoded fallback. Local-only: app/ never calls FRED at runtime (reads pre-built parquet).
+python-dotenv

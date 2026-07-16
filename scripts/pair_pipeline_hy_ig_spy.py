@@ -58,6 +58,7 @@ from _stamp import iso_utc_now  # noqa: E402
 import numpy as np
 import pandas as pd
 from scipy import stats
+from dotenv import load_dotenv
 
 warnings.filterwarnings("ignore")
 
@@ -152,7 +153,10 @@ def stage_data() -> pd.DataFrame:
     import yfinance as yf
     from fredapi import Fred
 
-    api_key = os.environ.get("FRED_API_KEY") or "952aa4d0c4b2057609fbf3ecc6954e58"
+    load_dotenv()  # repo-root .env; hardcoded fallback removed (key rotated after leak)
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        raise SystemExit("FRED_API_KEY not set — copy .env.example to .env, or run setup.sh.")
     fred = Fred(api_key=api_key)
     series: dict = {}
 

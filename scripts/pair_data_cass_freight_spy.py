@@ -72,7 +72,10 @@ def fetch_fred(series_id, col_name, start=START_DATE):
     """Fetch via the official FRED API (JSON). Same key convention as
     pair_data_busloans_spy.py."""
     import urllib.request
-    api_key = os.environ.get("FRED_API_KEY") or "952aa4d0c4b2057609fbf3ecc6954e58"
+    load_dotenv()  # repo-root .env; hardcoded fallback removed (key rotated after leak)
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        raise SystemExit("FRED_API_KEY not set — copy .env.example to .env, or run setup.sh.")
     url = (f"https://api.stlouisfed.org/fred/series/observations?"
            f"series_id={series_id}&api_key={api_key}&file_type=json"
            f"&observation_start={start}&observation_end={END_DATE}")
@@ -218,6 +221,7 @@ print(f"  YoY signal effective start: {yoy_valid.index.min().date()} ({len(yoy_v
 
 # Stationarity tests
 from arch.unitroot import ADF, KPSS
+from dotenv import load_dotenv
 test_cols = ["cass_freight_idx", "cass_freight_pct_yoy", "cass_freight_pct_mom",
              "cass_freight_3m_pct", "cass_freight_6m_pct", "cass_freight_zscore_60m",
              "cass_freight_yoy_zscore_60m", "cass_freight_dev_trend_pct", "spy_ret"]
