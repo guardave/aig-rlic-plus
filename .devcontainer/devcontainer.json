@@ -41,16 +41,25 @@
 	//   ~/.gitconfig        → git identity
 	//   ~/.codex/           → Codex credentials, config, and history
 	//   ~/.agents/          → canonical shared agent context (core, playbooks, profiles)
-	//   ~/.oci/             → OCI CLI config & keys
 	//   ~/.config/gh/       → GitHub CLI auth
 	//   ~/.config/tmux/     → tmux config
+	//
+	// DELIBERATE DEVIATION from genericDevContainer: ~/.oci is NOT mounted here.
+	// The template mounts it because it is a generic workstation template, but this
+	// project uses OCI nowhere (no reference in the tree, no `oci` CLI in the image),
+	// while ~/.oci holds two private API keys (DEFAULT + DAWO-DEV tenancies). It also
+	// matters that Codex runs here WITHOUT its own sandbox — `bwrap` cannot create a
+	// user namespace in an unprivileged container, so the skill mandates
+	// --dangerously-bypass-approvals-and-sandbox and the container itself IS the
+	// security boundary. Least privilege: do not put cloud keys inside a boundary that
+	// an unsandboxed agent loop shares. Re-add the mount only if this project gains a
+	// real OCI dependency.
 	"mounts": [
 		"source=${localEnv:HOME}/.claude,target=/home/david/.claude,type=bind,consistency=cached",
 		"source=${localEnv:HOME}/.claude.json,target=/home/david/.claude.json,type=bind,consistency=cached",
 		"source=${localEnv:HOME}/.gitconfig,target=/home/david/.gitconfig,type=bind,consistency=cached",
 		"source=${localEnv:HOME}/.codex,target=/home/david/.codex,type=bind,consistency=cached",
 		"source=${localEnv:HOME}/.agents,target=/home/david/.agents,type=bind,consistency=cached",
-		"source=${localEnv:HOME}/.oci,target=/home/david/.oci,type=bind,consistency=cached",
 		"source=${localEnv:HOME}/.config/gh,target=/home/david/.config/gh,type=bind,consistency=cached",
 		"source=${localEnv:HOME}/.config/tmux,target=/home/david/.config/tmux,type=bind,consistency=cached"
 	],
