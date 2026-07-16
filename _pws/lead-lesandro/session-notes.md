@@ -1337,3 +1337,49 @@ Applied one rule throughout: **repoint a path when it names a live file; preserv
 - `git grep -n "\.claude/agents" -- docs/` → 5 residual hits, all deliberate leaves listed above.
 - `git grep -n "dawodev" -- docs/agent-sops/ docs/spec_memo_gh13*` → 0. CLAUDE.md's "retired" note intentionally retained.
 - `git diff --stat` → 13 files, +64 / −46.
+
+---
+
+## 2026-07-15 — Static pointer audit, Codex role-resolution chain (ops-otis one-off #2)
+
+**Task.** Statically audit the Codex role-resolution pointer chain and refresh
+`docs/agent-sops/lead-agent-sop.md:66`, whose 2026-06-16 validation I had flagged as expired
+during the S4-S7 sweep (`3f12de45`).
+
+**Hard constraint respected.** No `codex` invocation in any form — David scoped this to a
+static audit because the project's `codex` skill runs with
+`--dangerously-bypass-approvals-and-sandbox`, which was not authorised here. File reads only.
+
+**Chain — all hops resolve (verdict: sound on paper).**
+
+| # | Hop | Path as written | Result |
+|---|-----|-----------------|--------|
+| 1 | Global pointer | `$CODEX_HOME/AGENTS.md`, `CODEX_HOME=/home/david/.codex` | RESOLVES — matches `devcontainer.json` containerEnv + remoteEnv and live container env |
+| 2 | Cross-project protocol | `~/.claude/CLAUDE.md` | RESOLVES — valid adapter; points at `~/.agents/{core,playbooks,profiles,knowledge}`, all present |
+| 3 | Project | `./AGENTS.md`, `./CLAUDE.md` | RESOLVES — `./AGENTS.md` is the only one in-repo; nothing shadows it |
+| 4 | Role SOP | `docs/agent-sops/lead-agent-sop.md` (+6 role SOPs, `team-coordination.md`, `docs/team-standards.md`) | RESOLVES — all 9 |
+| 5 | Persona | `~/.agents/profiles/lead-lesandro/` | RESOLVES — `profile.md`, `experience.md`, `memories.md`, `last_seen`, `projects/aig-rlic-plus.md` |
+
+**Bind-mount claim verified, not trusted.** `otis info` reports `.codex` / `.agents` / `.claude`
+bind-mounted; md5 of `$CODEX_HOME/AGENTS.md`, `~/.claude/CLAUDE.md`, the persona `profile.md`,
+and repo `AGENTS.md` are identical host vs container. Container: user `david`, home
+`/home/david`, workspace `/workspaces/aig-rlic-plus` (both repo paths trusted in `config.toml`).
+
+**Regeneration safe.** `setup.sh:89-104` heredoc reproduces live `~/.codex/AGENTS.md`
+byte-for-byte — a rebuild does not reintroduce the old pointer.
+
+**Headline finding.** The only dead path in the whole chain was **line 66 itself**
+(`~/.claude/agents/lead-lesandro/`). Every live pointer had been migrated correctly by Otis's
+`88e7330a` / `07260532`; only the record describing them was stale.
+
+**Change made (docs only, working tree, NOT committed).** `docs/agent-sops/lead-agent-sop.md:66`
+rewritten: expired entry withdrawn with reasons; hop-by-hop static result recorded; live probe
+kept visibly outstanding (Codex now 0.144.4 vs 0.140.0 when last probed). Labelled "NOT a live
+role-resolution probe" so it cannot be misread as the stronger evidence. Otis commits from
+inside the container (META-CMP gates need its python).
+
+**Nothing for Otis to fix.** No defect found in `setup.sh`, `.devcontainer/`, `~/.codex/AGENTS.md`,
+or `scripts/`.
+
+**Live probe still outstanding** — static resolution is not proof of read, merge order, or
+persona adoption.
