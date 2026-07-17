@@ -110,7 +110,24 @@ def _title_text(chart_json: dict) -> str:
     return ""
 
 
-def _alignment_note(chart_name: str, title: str) -> str:
+def _plotted_window(chart_json: dict) -> str:
+    """Actual date span of the plotted traces, as 'YYYY-MM-DD to YYYY-MM-DD'.
+
+    Returns "" when x data is absent or not date-like. Drawdown-family charts
+    differ per pair in whether they plot the full sample or only the OOS window,
+    so a note must read the span off the data rather than assume one.
+    """
+    stamps = []
+    for trace in chart_json.get("data", []):
+        for x in (trace.get("x") or []):
+            if isinstance(x, str) and len(x) >= 10 and x[4] == "-" and x[7] == "-":
+                stamps.append(x[:10])
+    if not stamps:
+        return ""
+    return f"{min(stamps)} to {max(stamps)}"
+
+
+def _alignment_note(chart_name: str, title: str, chart_json: dict | None = None) -> str:
     """Compose a one-line narrative alignment note.
 
     For canonical chart types we know the analytical purpose; otherwise
@@ -130,13 +147,23 @@ def _alignment_note(chart_name: str, title: str) -> str:
         "tournament_scatter": "Tournament combos scattered by OOS Sharpe vs annual return; winner highlighted.",
         "equity_curves": "Cumulative $1 invested in strategy vs buy-and-hold target over OOS window.",
         "drawdown": "Strategy drawdown timeline (peak-to-trough) over OOS window.",
-        "drawdown_comparison": "Strategy vs target buy-and-hold drawdown overlay over OOS window.",
+        "drawdown_comparison": (
+            "Strategy vs target buy-and-hold drawdown overlay. The plotted window "
+            "varies by pair — some plot the full sample, some OOS only — so where "
+            "this chart's trough is deeper than the OOS max drawdown quoted in the "
+            "Strategy headline, read the window stated below before treating the "
+            "two figures as inconsistent."
+        ),
         "walk_forward": "Rolling per-year OOS Sharpe — walk-forward robustness.",
         "rolling_correlation": "24-month rolling correlation between signal and target forward returns.",
         "rolling_sharpe_cp": "24-month rolling strategy Sharpe over OOS window.",
         "structural_break": "Quandt-Andrews structural break test on the rolling signal-target correlation.",
         "subperiod_sharpe": "Strategy Sharpe across canonical market episodes (DPS-EP1 set).",
     }.get(chart_name, f"Backfill: {base}")
+    if chart_name in ("drawdown", "drawdown_comparison") and chart_json is not None:
+        window = _plotted_window(chart_json)
+        if window:
+            intent += f" Plotted window, read from the chart data: {window}."
     return intent
 
 
@@ -218,7 +245,7 @@ def _emit_sidecar(chart_json_path: Path, pair_id: str, dry_run: bool) -> bool:
         "pair_id": pair_id,
         "palette_id": "okabe_ito_2026",
         "rules_applied": ["VIZ-O1", "VIZ-BF1"],
-        "narrative_alignment_note": _alignment_note(chart_name, title),
+        "narrative_alignment_note": _alignment_note(chart_name, title, chart_doc),
         "created_at": iso_utc_now(),
         "method_name": chart_name,
         "expected_chart_type": _expected_chart_type(chart_name),

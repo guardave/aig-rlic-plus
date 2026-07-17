@@ -34,6 +34,11 @@ NBER = [
 ]
 NBER_FILL = "rgba(150,120,120,0.22)"
 
+# Sourced from the winner summary so OOS-window labelling cannot drift from the
+# headline figures the Strategy page quotes.
+with open(os.path.join(RESULTS, "winner_summary.json")) as _f:
+    OOS_START = json.load(_f)["oos_period_start"]
+
 
 def log(m): print(f"[viz_ext] {m}", flush=True)
 
@@ -114,24 +119,63 @@ def make_walk_forward():
 
 
 def make_drawdown_comparison():
+    """Full-sample drawdown overlay.
+
+    Deliberately NOT sliced to OOS: the pre-2020 span carries the GFC, which the
+    OOS window cannot show. Because the window differs from the headline OOS
+    figure, every label here must name its own window explicitly — a reader who
+    reads -19.3% here and -8.2% on the Strategy page must be able to see that
+    these are two windows, not a contradiction.
+    """
     sig = pd.read_parquet(os.path.join(RESULTS, f"signals_{DATE_TAG}.parquet"))
     eq = sig["equity_curve"].dropna()
     bh = sig["buy_and_hold_equity"].dropna()
     dd_s = ((eq / eq.cummax()) - 1) * 100
     dd_b = ((bh / bh.cummax()) - 1) * 100
+
+    start = min(dd_s.index.min(), dd_b.index.min()).strftime("%Y-%m-%d")
+    end = max(dd_s.index.max(), dd_b.index.max()).strftime("%Y-%m-%d")
+    s_min, s_at = float(dd_s.min()), dd_s.idxmin().strftime("%b %Y")
+    b_min, b_at = float(dd_b.min()), dd_b.idxmin().strftime("%b %Y")
+
+    # OOS max DD, re-based to the OOS start — the figure the Strategy page
+    # headline quotes. Computed here so the annotation can never drift from it.
+    eq_oos = eq.loc[OOS_START:]
+    oos_min = float((((eq_oos / eq_oos.cummax()) - 1) * 100).min())
+
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=dd_s.index, y=dd_s, name="Strategy",
+    fig.add_trace(go.Scatter(x=dd_s.index, y=dd_s,
+                             name=f"Strategy (full-sample max {s_min:.1f}%, {s_at})",
                              line=dict(color="#2ca02c", width=1.2)))
-    fig.add_trace(go.Scatter(x=dd_b.index, y=dd_b, name="Buy & Hold (XLI)",
+    fig.add_trace(go.Scatter(x=dd_b.index, y=dd_b,
+                             name=f"Buy & Hold XLI (full-sample max {b_min:.1f}%, {b_at})",
                              line=dict(color="#888", width=1.2, dash="dot")))
-    fig.update_layout(title="Drawdown comparison: strategy vs buy-and-hold (XLI)",
+    fig.add_vline(x=OOS_START, line=dict(color="#1f77b4", dash="dash", width=1.2),
+                  annotation_text=f"OOS starts {OOS_START} — "
+                                  f"strategy max DD within OOS is {oos_min:.1f}%",
+                  annotation_position="top left",
+                  annotation_font=dict(size=10, color="#1f77b4"))
+    fig.update_layout(title=f"Drawdown comparison, FULL SAMPLE ({start} to {end}): "
+                            f"strategy vs buy-and-hold (XLI)<br>"
+                            f"<sub>Full sample includes the GFC, which precedes the "
+                            f"out-of-sample window. The {oos_min:.1f}% max drawdown "
+                            f"quoted on the Strategy page is OOS-only ({OOS_START} "
+                            f"onward); the deeper {s_min:.1f}% trough here is "
+                            f"{s_at}. Different windows, not conflicting numbers."
+                            f"</sub>",
                       xaxis=dict(title="Date"),
                       yaxis=dict(title="Drawdown (%)"),
-                      template="plotly_white", height=420,
+                      template="plotly_white", height=460,
                       legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
     save_chart(fig, "drawdown_comparison", palette_id="dd_compare_v1",
                rules_applied=["VIZ-IC1"],
-               alignment_note="Strategy vs B&H drawdown — visualizes the -8.2% strategy max DD vs deeper B&H drawdowns.")
+               alignment_note=(
+                   f"Strategy vs B&H drawdown over the FULL SAMPLE ({start} to {end}) — "
+                   f"NOT the OOS window. Strategy full-sample max DD is {s_min:.1f}% "
+                   f"({s_at}, GFC); B&H is {b_min:.1f}% ({b_at}). The {oos_min:.1f}% max DD "
+                   f"quoted in the Strategy headline and shown by the `drawdown` chart is "
+                   f"OOS-only ({OOS_START} onward) and is annotated here for reconciliation. "
+                   f"Both figures are correct; they measure different windows."))
 
 
 def make_tournament_sharpe_dist():
