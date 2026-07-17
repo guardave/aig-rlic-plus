@@ -452,7 +452,7 @@ def tournament(df: pd.DataFrame):
     is_mask = work.index <= is_end
     oos_mask = work.index >= oos_start
     lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
-    leads = list(range(0, 13))  # FULL monthly grid L0..L12 (GH#13 lead-coherence rollout); L0 = coincident (release-lag convention)
+    leads = list(range(0, 13)) + [18, 24, 36]  # PILOT260717: ceiling extension, test slide-53 24-36mo claim
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
     rows = []
     for code, col in SIGNALS.items():
