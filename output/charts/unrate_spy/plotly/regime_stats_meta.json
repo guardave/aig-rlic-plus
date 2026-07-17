@@ -1,0 +1,12 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-07-17T07:59:29.084748+00:00",
+  "generated_by": "scripts/generate_charts_unrate_spy.py",
+  "caption": "SPY performance across unemployment-rate quartiles.",
+  "narrative_alignment_note": "SPY performance across unemployment-rate quartiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/unrate_spy/regime_quartile_returns.csv"
+  ]
+}

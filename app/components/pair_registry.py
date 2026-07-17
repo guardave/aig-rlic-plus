@@ -110,6 +110,7 @@ PAGE_ROUTING = {
     "cass_freight_spy": "pages/24_cass_freight_spy",
     "eci_total_comp_spy": "pages/25_eci_total_comp_spy",
     "wells_fargo_housing_spy": "pages/26_wells_fargo_housing_spy",
+    "unrate_spy": "pages/27_unrate_spy",
 }
 
 

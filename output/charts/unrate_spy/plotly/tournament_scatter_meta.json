@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_scatter",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-07-17T07:59:47.058184+00:00",
+  "generated_by": "scripts/generate_charts_unrate_spy.py",
+  "caption": "Alias for tournament scatter slot.",
+  "narrative_alignment_note": "Alias for tournament scatter slot.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/unrate_spy/tournament_results_20260717.csv"
+  ]
+}
