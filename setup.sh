@@ -10,6 +10,31 @@ set -uo pipefail
 WORKSPACE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MCP_FAILURES=0
 
+# --------------------------------------------------------------------------
+# Secrets: repo-root .env (gitignored) is the single source of truth for API keys.
+#
+# Deliberately NOT sourced from the host environment. `${localEnv:X}` in
+# devcontainer.json reads the *VS Code server process* env, which has neither key
+# (verified) — so remoteEnv passes nothing through and a `~/.bashrc` export on the
+# host would not help either. The repo is bind-mounted, so .env is visible on the
+# host and in the container with no extra mount.
+#
+# Sourced BEFORE the MCP section on purpose: one value then feeds both the MCP
+# server registration (add_mcp -e FRED_API_KEY=...) and the ~/.bashrc persistence
+# that os.environ consumers read. Rotating a key = edit .env, re-run this script.
+#
+# Template: .env.example. Never commit .env (.gitignore lines 2-3).
+# --------------------------------------------------------------------------
+if [ -f "$WORKSPACE_DIR/.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . "$WORKSPACE_DIR/.env"
+  set +a
+  echo "  -> Loaded secrets from .env"
+else
+  echo "  -> No .env found (copy .env.example to .env and fill it in)."
+fi
+
 echo "=========================================="
 echo " AIG-RLIC+ Environment Setup"
 echo "=========================================="
