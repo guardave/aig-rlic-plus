@@ -1,0 +1,12 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-07-17T07:59:35.106082+00:00",
+  "generated_by": "scripts/generate_charts_unrate_spy.py",
+  "caption": "Granger p-values by lag for UNRATE 3-month change predicting SPY returns.",
+  "narrative_alignment_note": "Granger p-values by lag for UNRATE 3-month change predicting SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/unrate_spy/core_models_20260717/granger_causality.csv"
+  ]
+}

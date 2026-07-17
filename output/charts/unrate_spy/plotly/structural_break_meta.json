@@ -1,0 +1,12 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-07-17T07:59:51.087463+00:00",
+  "generated_by": "scripts/generate_charts_unrate_spy.py",
+  "caption": "Proxy check for large changes in the UNRATE-SPY relationship.",
+  "narrative_alignment_note": "Proxy check for large changes in the UNRATE-SPY relationship.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/unrate_spy/structural_break_unrate_spy.json"
+  ]
+}

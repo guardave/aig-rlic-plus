@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-07-17T07:59:49.078515+00:00",
+  "generated_by": "scripts/generate_charts_unrate_spy.py",
+  "caption": "Rolling 60-month correlation between UNRATE 3-month change and SPY returns.",
+  "narrative_alignment_note": "Rolling 60-month correlation between UNRATE 3-month change and SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/unrate_spy/rolling_correlation_unrate_spy.csv"
+  ]
+}

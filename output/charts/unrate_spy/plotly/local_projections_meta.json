@@ -1,0 +1,12 @@
+{
+  "chart_name": "local_projections",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-07-17T07:59:37.141423+00:00",
+  "generated_by": "scripts/generate_charts_unrate_spy.py",
+  "caption": "Estimated SPY response to a 1 percentage point rise in the 3-month UNRATE change.",
+  "narrative_alignment_note": "Estimated SPY response to a 1 percentage point rise in the 3-month UNRATE change.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/unrate_spy/core_models_20260717/local_projections.csv"
+  ]
+}

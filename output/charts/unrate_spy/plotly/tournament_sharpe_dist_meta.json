@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-07-17T07:59:45.069105+00:00",
+  "generated_by": "scripts/generate_charts_unrate_spy.py",
+  "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/unrate_spy/tournament_results_20260717.csv"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "chart_name": "hero",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-07-17T07:59:26.865360+00:00",
+  "generated_by": "scripts/generate_charts_unrate_spy.py",
+  "caption": "UNRATE and SPY with NBER recessions and Sahm-style labor-stress bands.",
+  "narrative_alignment_note": "UNRATE and SPY with NBER recessions and Sahm-style labor-stress bands.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/unrate_spy_monthly_latest.parquet"
+  ]
+}
