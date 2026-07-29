@@ -136,74 +136,98 @@ CORRELATION_BLOCK = dict(
     chart_status="ready",
     method_name="Correlation Analysis",
     method_theory=(
-        "Correlation measures whether UNRATE and future SPY returns move "
-        "together in a roughly linear way."
+        "Mechanism: correlation compares one unemployment signal with future "
+        "SPY returns and asks whether they tend to move in the same direction. "
+        "This is a basic linear test. It does not prove causality; it only "
+        "checks whether higher or lower unemployment readings are associated "
+        "with later SPY performance."
     ),
     question="Does a higher unemployment rate line up with better or worse future SPY returns?",
     how_to_read=(
-        "Read the heatmap by horizon and correlation type. Positive values "
-        "mean higher labor stress lines up with stronger future SPY returns; "
-        "negative values mean the opposite."
+        "Read each cell as a correlation coefficient and P-value pair. The "
+        "correlation coefficient ranges from -1 to +1: positive means the "
+        "unemployment signal and future SPY returns move together; negative "
+        "means they move in opposite directions; values near zero mean the "
+        "linear relationship is weak. The P-value measures how likely it is "
+        "to see a relationship this large if there were no real relationship. "
+        "A P-value below 0.05 is usually treated as statistically meaningful."
     ),
     chart_name="correlation_heatmap",
     chart_caption=(
-        "What this shows: the relationship is not a simple recession-warning "
-        "line. The pair behaves more like a lagged cycle signal."
+        "What this shows: unemployment level has positive and statistically "
+        "meaningful correlations with 3-, 6-, and 12-month forward SPY returns."
     ),
     observation=(
-        "UNRATE is persistent and lagging, so the linear relationship depends "
-        "on horizon and on whether the market is already looking past the "
-        "labor downturn."
+        "The strongest basic result is the unemployment-rate level versus "
+        "12-month forward SPY return: correlation is about 0.21 with P-value "
+        "near 0.00003. The 6-month forward result is also positive at about "
+        "0.17 with P-value near 0.0008. Shorter 1-month results are weak and "
+        "not statistically meaningful."
     ),
     interpretation=(
-        "Correlation alone is not enough to trade the pair. The more relevant "
-        "question is whether a lagged unemployment-change threshold improves "
-        "portfolio behavior."
+        "The result supports a lagging-cycle interpretation. High unemployment "
+        "does not mean SPY must immediately fall; by the time unemployment is "
+        "high, markets may already be pricing policy support or recovery. "
+        "Correlation alone is still insufficient for trading, because it does "
+        "not handle timing, thresholds, or regime changes."
     ),
-    key_message="UNRATE is useful as regime context, not as a simple linear SPY predictor.",
+    key_message="Basic correlation says unemployment is useful as recovery-cycle context, not as a simple immediate SPY warning signal.",
 )
 
 GRANGER_BLOCK = dict(
     chart_status="ready",
     method_name="Granger Causality by Lag",
     method_theory=(
-        "Granger causality tests whether past values of one series improve "
-        "forecasts of another after accounting for its own history."
+        "Mechanism: Granger causality tests whether past unemployment values "
+        "add forecasting information for SPY returns after SPY's own past "
+        "returns are already considered. Despite the name, this is a "
+        "forecasting test, not proof of economic cause and effect."
     ),
     question="Does UNRATE lead SPY returns in a formal lag test?",
     how_to_read=(
-        "Bars show F-statistics by monthly lag. The source CSV p-values show "
-        "whether the relationship is statistically meaningful."
+        "Each bar is an F-statistic for one monthly lag. A larger F-statistic "
+        "means past unemployment added more forecasting power in that test. "
+        "The P-value is the decision metric: P-value below 0.05 means the lag "
+        "is statistically meaningful; P-value above 0.05 means the test does "
+        "not provide strong evidence that unemployment leads SPY at that lag."
     ),
     chart_name="granger_f_by_lag",
     chart_caption=(
-        "What this shows: UNRATE-to-SPY p-values are not significant at lags "
-        "1-5 in the generated table."
+        "What this shows: no tested monthly lag has a statistically meaningful "
+        "UNRATE-to-SPY Granger result."
     ),
     observation=(
-        "The generated Granger table shows weak UNRATE-to-SPY evidence across "
-        "lags 1-5."
+        "Across lags 1 through 12, P-values are all far above 0.05. The first "
+        "five lags have P-values around 0.75, 0.61, 0.75, 0.74, and 0.67. "
+        "That means the test does not find reliable direct forecasting power "
+        "from unemployment to SPY monthly returns."
     ),
     interpretation=(
-        "This prevents a strong causal claim. The strategy should be framed "
-        "as a searched allocation overlay, not proof that unemployment causes "
-        "future SPY returns."
+        "This weakens any claim that unemployment is a clean leading indicator "
+        "for SPY. The useful story is more modest: unemployment can confirm "
+        "where the economy sits in the cycle, while the strategy search tests "
+        "whether a delayed threshold rule can turn that confirmation into a "
+        "portfolio overlay."
     ),
-    key_message="Formal lead-lag evidence is weak; use the signal cautiously.",
+    key_message="Granger evidence is weak, so the dashboard should frame UNRATE as confirmation context rather than proven prediction.",
 )
 
 QUARTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Regime Quartile Analysis",
     method_theory=(
-        "Quartile analysis sorts months by UNRATE level and compares "
-        "subsequent SPY returns across labor-market regimes."
+        "Mechanism: quartile analysis sorts history into four groups based on "
+        "the unemployment-rate level, then compares SPY returns inside each "
+        "group. This is a basic regime test: it asks whether low, middle, and "
+        "high unemployment environments have different market outcomes."
     ),
     question="Do low and high unemployment regimes produce different SPY outcomes?",
     how_to_read=(
-        "Q1 is the lowest unemployment regime; Q4 is the highest unemployment "
-        "regime. Compare Sharpe, average return, and sample size across the "
-        "four buckets."
+        "Q1 is the lowest unemployment regime and Q4 is the highest "
+        "unemployment regime. Mean return is the average monthly SPY return "
+        "inside the bucket. Sharpe is risk-adjusted return: higher means more "
+        "return per unit of volatility. Sample size shows how many months are "
+        "in each bucket."
     ),
     chart_name="regime_stats",
     chart_caption=(
@@ -211,27 +235,36 @@ QUARTILE_BLOCK = dict(
         "sample, followed by Q3, Q2, then Q1."
     ),
     observation=(
-        "Forward SPY Sharpe rises from about 0.56 in Q1 to 0.93 in Q4."
+        "Forward SPY Sharpe rises from about 0.60 in Q1 to 0.93 in Q4. "
+        "Average monthly return also rises from about 0.78% in Q1 to about "
+        "1.25% in Q4."
     ),
     interpretation=(
-        "This is consistent with a lagging-cycle setup: by the time "
-        "unemployment is high, equity markets may already be pricing recovery "
-        "or policy support."
+        "This does not mean high unemployment is good in a simple economic "
+        "sense. It means the stock market may begin recovering while labor "
+        "data still look bad. That is exactly why unemployment is better read "
+        "as a confirmation and recovery-cycle signal than as an early warning "
+        "signal."
     ),
-    key_message="High unemployment regimes are not automatically bad for forward SPY returns.",
+    key_message="The regime result supports the recovery-confirmation hypothesis: high unemployment often appears after markets have already started looking forward.",
 )
 
 CCF_BLOCK = dict(
     chart_status="ready",
     method_name="Pre-Whitened Cross-Correlation",
     method_theory=(
-        "Pre-whitened cross-correlation filters persistence before testing "
-        "whether one series tends to move before or after the other."
+        "Mechanism: pre-whitened cross-correlation first removes persistence "
+        "from the unemployment signal, then checks whether cleaned changes in "
+        "unemployment line up before or after SPY returns. This helps avoid "
+        "mistaking slow-moving labor data for a real lead-lag relationship."
     ),
     question="At which offsets does the unemployment signal line up with SPY returns?",
     how_to_read=(
-        "Bars outside the confidence band mark unusual lead-lag correlation "
-        "after filtering autocorrelation."
+        "Lag tells where the relationship appears in time. A bar outside the "
+        "confidence band means the correlation is unusually large relative to "
+        "noise. Positive bars mean the two series move together; negative bars "
+        "mean they move opposite ways. The confidence band is similar in "
+        "spirit to a significance threshold."
     ),
     chart_name="ccf_prewhitened",
     chart_caption=(
@@ -239,28 +272,36 @@ CCF_BLOCK = dict(
         "not be read as a stable clock."
     ),
     observation=(
-        "UNRATE is highly persistent, so filtering persistence is important "
-        "before reading lead-lag bars."
+        "Most lags are inside the confidence band, but lags -4, -3, and -2 "
+        "are significant and negative, with the strongest reading near -0.23 "
+        "at lag -3."
     ),
     interpretation=(
-        "The chart supports treating the pair as a regime overlay with "
-        "variable timing rather than a mechanical forecast."
+        "The significant negative readings indicate that the timing "
+        "relationship is not a simple one-way leading signal. The result is "
+        "consistent with labor data reacting around market-cycle turning "
+        "points rather than reliably forecasting each next SPY move."
     ),
-    key_message="Labor-cycle timing is irregular.",
+    key_message="Cross-correlation says timing is irregular; unemployment helps frame the cycle, but it is not a precise market clock.",
 )
 
 LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
     method_name="Local Projections",
     method_theory=(
-        "Local projections estimate how future SPY returns respond across "
-        "multiple horizons after a change in the unemployment signal."
+        "Mechanism: local projections estimate the SPY return response at "
+        "several future horizons after a change in the unemployment signal. "
+        "Instead of one average relationship, this method asks whether the "
+        "effect appears after 1, 3, 6, or 12 months."
     ),
     question="How does SPY respond after the unemployment rate changes?",
     how_to_read=(
-        "Each point is an estimated future SPY response after a one-unit move "
-        "in the 6-month UNRATE change signal. Confidence bands show estimation "
-        "uncertainty."
+        "Each point is a coefficient, which estimates the future SPY return "
+        "change associated with a one-unit move in the unemployment-change "
+        "signal. The P-value shows whether that coefficient is statistically "
+        "meaningful. R-squared measures how much of future SPY return "
+        "variation the model explains; values near zero mean weak explanatory "
+        "power."
     ),
     chart_name="local_projections",
     chart_caption=(
@@ -268,28 +309,36 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         "signal, not the final lagged tournament rule."
     ),
     observation=(
-        "The chart helps separate raw macro relationships from the searched "
-        "allocation rule."
+        "The coefficients are positive but small across 1-, 3-, 6-, and "
+        "12-month horizons. P-values are all above 0.05, and R-squared values "
+        "are near zero."
     ),
     interpretation=(
-        "If the response varies by horizon, that supports using explicit "
-        "lead times in the tournament instead of assuming an immediate effect."
+        "The advanced test does not show a strong direct response from SPY to "
+        "the raw unemployment-change signal. This is important because it "
+        "separates the simple macro relationship from the final strategy: the "
+        "winner depends on a threshold, a 9-month lag, and portfolio rules, "
+        "not on a strong raw local-projection effect."
     ),
-    key_message="The horizon matters for UNRATE signals.",
+    key_message="Local projections do not confirm a strong standalone unemployment-change effect; the useful result comes from the delayed threshold strategy.",
 )
 
 QUANTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Quantile Regression",
     method_theory=(
-        "Quantile regression checks whether the unemployment signal matters "
-        "differently in weak, normal, and strong SPY return environments."
+        "Mechanism: quantile regression checks whether the unemployment signal "
+        "matters differently in weak, normal, and strong SPY return "
+        "environments. It is an advanced tail-risk test: the signal might be "
+        "irrelevant on average but useful in bad or very strong markets."
     ),
     question="Does UNRATE behave differently in market tails?",
     how_to_read=(
-        "Compare the signal coefficient across return quantiles. A larger "
-        "coefficient means the unemployment signal has a stronger association "
-        "with that part of the SPY return distribution."
+        "Compare the coefficient across quantiles. The 0.25 quantile describes "
+        "weaker SPY return states, 0.50 is the middle, and 0.75 is stronger "
+        "return states. The coefficient shows direction and size of the "
+        "relationship. The P-value shows whether the coefficient is "
+        "statistically meaningful."
     ),
     chart_name="quantile_coef",
     chart_caption=(
@@ -297,32 +346,40 @@ QUANTILE_BLOCK = dict(
         "strong return states."
     ),
     observation=(
-        "Tail sensitivity is important because labor stress is most relevant "
-        "around recessions and recoveries."
+        "The generated table shows the same small positive coefficient, about "
+        "0.0042, at the 0.25, 0.50, and 0.75 quantiles, with P-value around "
+        "0.27."
     ),
     interpretation=(
-        "A state-dependent result is more plausible than one constant UNRATE "
-        "effect across all markets."
+        "This does not provide strong evidence that the raw unemployment "
+        "signal behaves differently across weak, normal, and strong SPY "
+        "return states. The finding points back to the strategy layer: any "
+        "edge is more likely coming from the delayed threshold rule and the "
+        "cycle-confirmation setup than from a broad quantile effect."
     ),
-    key_message="UNRATE should be read through regimes and tails.",
+    key_message="Quantile regression is weak here; it does not show a reliable tail-specific unemployment effect.",
 )
 
 
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: UNRATE Is Useful, but Mostly as Lagging Regime Context",
     "overview": (
-        "The evidence supports a cautious labor-cycle overlay. The strategy "
-        "winner improves search-phase OOS Sharpe, but formal lead-lag evidence "
-        "is weak and the indicator is economically lagging."
+        "The evidence is organized from basic to advanced analysis. Basic "
+        "tests ask whether unemployment regimes line up with future SPY "
+        "returns. Advanced tests ask whether the relationship survives formal "
+        "lead-lag, horizon-response, and tail-risk checks. The combined result "
+        "supports a cautious cycle-confirmation overlay, not a strong causal "
+        "forecast."
     ),
     "plain_english": (
-        "This page asks whether the unemployment rate helps with SPY timing. "
-        "The answer is: partly. The best rule uses a delayed unemployment "
-        "change, so it should be treated as a regime and recovery signal, not "
-        "as an early warning system."
+        "This page first explains how each analysis works, then defines the "
+        "main components such as coefficient, confidence band, F-statistic, "
+        "P-value, R-squared, Sharpe, and quartile. After that, it states the "
+        "actual result and what the finding means for the unemployment-rate "
+        "and SPY hypothesis."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
+    "level1_labels": ["Correlation", "Granger", "Quartiles", "Cross-Correlation"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
