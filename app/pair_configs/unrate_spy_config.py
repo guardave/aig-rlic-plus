@@ -63,11 +63,11 @@ class StoryConfig:
     )
 
     NARRATIVE_SECTION_1 = """
-### The Labor-Market Hypothesis
+### The Hypothesis
 
-The unemployment rate is one of the clearest indicators of economic stress, but it usually moves late. Companies tend to cut jobs after demand has already slowed, and unemployment can keep rising after markets have started to recover.
+The unemployment rate measures the share of the labor force that is unemployed and actively looking for work. It is a clear labor-market stress indicator, but it usually moves after the economy has already started to slow. When demand weakens, companies often protect margins by slowing hiring, reducing hours, or cutting jobs. When demand starts to recover, companies usually wait for evidence that sales and cash flow are improving before hiring aggressively again.
 
-That makes the hypothesis different from a classic leading indicator. A rising unemployment signal may identify a stressed regime, but the best equity opportunity can arrive after the stress is visible and policy or market expectations have already adjusted. The selected 9-month lag supports that interpretation: the rule is not buying the first unemployment uptick; it is acting after the signal has aged.
+The hypothesis is that the unemployment rate can help confirm where the economy is in the recession-and-recovery cycle. A rising unemployment rate can confirm recession stress because it shows that weak demand has reached the labor market. A stabilizing or delayed unemployment signal can also help confirm recovery because equity markets may begin to look past the worst labor data once companies stop cutting jobs and investors expect earnings to improve. For SPY, the signal is therefore tested as a confirmation and timing overlay, not as an early warning indicator.
 
 ### Why Timing Is Difficult
 
