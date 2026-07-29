@@ -33,9 +33,10 @@ class StoryConfig:
     )
 
     ONE_SENTENCE_THESIS = (
-        "SPY timing improves in the searched sample when the 6-month change "
-        "in unemployment is filtered through a 9-month lag, but the economics "
-        "are lagging and regime-dependent."
+        "The U.S. unemployment rate works best here as a delayed confirmation "
+        "signal: when the 6-month change in unemployment has risen enough and "
+        "is viewed with a 9-month lag, it can help identify recession stress "
+        "and later recovery conditions for SPY."
     )
 
     KPI_CAPTION = (
