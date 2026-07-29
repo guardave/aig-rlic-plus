@@ -63,10 +63,6 @@ class StoryConfig:
     )
 
     NARRATIVE_SECTION_1 = """
-### Headline Findings
-
-The winning strategy is a **6-month unemployment-change rule**. It looks at the 6-month change in UNRATE, waits nine months before applying the signal, and holds SPY only when the lagged signal is above its rolling 60-month 75th percentile threshold. Out-of-sample, this rule earns a Sharpe ratio of 1.55 versus 0.99 for buy-and-hold, with maximum drawdown of -9.8% versus -23.9%.
-
 ### The Labor-Market Hypothesis
 
 The unemployment rate is one of the clearest indicators of economic stress, but it usually moves late. Companies tend to cut jobs after demand has already slowed, and unemployment can keep rising after markets have started to recover.
