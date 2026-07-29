@@ -6,7 +6,7 @@ from components.page_templates import MethodologyConfig
 
 
 class StoryConfig:
-    PAGE_TITLE = "The Story: Unemployment Rate as a Defensive SPY Timing Signal"
+    PAGE_TITLE = "Unemployment Rate and SPY"
     PAGE_SUBTITLE = (
         "U.S. unemployment rate (FRED UNRATE) x S&P 500 (SPY), monthly "
         "labor-market stress signals tested against SPY returns."
