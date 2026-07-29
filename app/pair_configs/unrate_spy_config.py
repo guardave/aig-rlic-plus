@@ -403,10 +403,10 @@ class StrategyConfig:
     )
 
     PLAIN_ENGLISH = (
-        "The rule holds SPY when the 6-month change in unemployment from nine "
-        "months earlier is above its rolling threshold. Otherwise it holds "
-        "cash. This is a lagged labor-cycle rule, not a real-time recession "
-        "forecast."
+        "After the tournament was conducted, the selected rule holds SPY when "
+        "the 6-month change in unemployment from nine months earlier is above "
+        "its rolling threshold. Otherwise it holds cash. This is a lagged "
+        "labor-cycle rule, not a real-time recession forecast."
     )
 
     DOWNLOADS = [
@@ -418,6 +418,8 @@ class StrategyConfig:
 
     SIGNAL_RULE_MD = """
 **Rule in plain English:** hold SPY when the lagged 6-month change in UNRATE is above its rolling 60-month 75th percentile threshold; otherwise hold cash.
+
+**Tournament update:** the conducted tournament scanned 294 valid combinations across seven UNRATE transforms, fixed and rolling thresholds, and monthly leads of 0, 1, 2, 3, 6, 9, and 12 months. The selected winner was `unrate_6m_chg / T_roll_p75 / P1_long_cash / L9`, meaning the strategy uses the 6-month change in unemployment, compares it with the rolling 75th percentile threshold, and applies the signal with a 9-month delay.
 
 If-then form:
 - **IF** `unrate_6m_chg` from 9 months earlier is above the rolling 75th percentile threshold -> hold SPY.
