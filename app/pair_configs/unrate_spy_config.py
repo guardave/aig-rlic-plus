@@ -8,8 +8,8 @@ from components.page_templates import MethodologyConfig
 class StoryConfig:
     PAGE_TITLE = "Unemployment Rate and SPY"
     PAGE_SUBTITLE = (
-        "U.S. unemployment rate (FRED UNRATE) x S&P 500 (SPY), monthly "
-        "labor-market stress signals tested against SPY returns."
+        "Can the U.S. unemployment rate be used to confirm a recession and "
+        "a recovery in the S&P 500 (SPY) cycle?"
     )
 
     HEADLINE_H2 = (
