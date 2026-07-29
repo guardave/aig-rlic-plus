@@ -517,9 +517,10 @@ _INDICATOR_CONSTRUCTION_MD = (
     "The raw indicator is the U.S. civilian unemployment rate, in percent. "
     "The pipeline constructs one-month, three-month, six-month, and "
     "twelve-month changes; a 60-month rolling z-score; a Sahm-style labor "
-    "stress measure; and a recession-style labor stress flag. The winning "
-    "signal is `unrate_6m_chg`, the 6-month change in unemployment, used with "
-    "a 9-month lead and a rolling 60-month 75th percentile threshold."
+    "stress measure; and a recession-style labor stress flag. The Methodology "
+    "page describes these signal transforms as current observable labor-market "
+    "features. It does not assume that the test must use data from a fixed "
+    "number of months earlier."
 )
 
 _METHODS_TABLE_MD = """
@@ -527,15 +528,15 @@ _METHODS_TABLE_MD = """
 |---|---|---|
 | Correlation analysis | Does UNRATE move linearly with future SPY returns? | Simple baseline before richer tests |
 | Regime quartiles | Do low and high unemployment regimes behave differently? | Makes the labor-cycle story interpretable |
-| Pre-whitened CCF | Where is the lead-lag relationship strongest after filtering persistence? | Reduces false lead-lag signals from autocorrelation |
-| Granger causality | Does past UNRATE information improve SPY forecasts? | Formal lead-lag check |
+| Pre-whitened CCF | Is the timing relationship stable after filtering persistence? | Reduces false timing signals from autocorrelation |
+| Granger causality | Does UNRATE information improve SPY forecasts? | Formal forecasting check |
 | Local projections | How does SPY respond over future horizons? | Shows horizon-specific effects |
 | Quantile regression | Is the effect different in weak or strong market states? | Tests tail and regime sensitivity |
 | Structural break / rolling correlation | Is the relationship stable across time? | Durability and overfit guard |
 """
 
 _TOURNAMENT_DESIGN_MD = """
-Grid: UNRATE transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x lead times. The final tournament has 294 valid strategy combinations. The winning rule is `unrate_6m_chg / T_roll_p75 / P1_long_cash / L9`.
+Grid: UNRATE transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations. The Methodology page treats unemployment as an observable macro indicator and does not build the research design around a confirmation hypothesis or a fixed "from X months earlier" testing assumption. The selected strategy details, including any implementation lag chosen by the tournament, are disclosed on the Strategy page rather than used as the premise for the Methodology.
 """
 
 _REFERENCES_MD = """
@@ -560,6 +561,9 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     plain_english=(
         "This page documents how UNRATE was turned into testable signals, "
         "how the econometric checks were run, and how the tournament selected "
-        "the final SPY allocation rule."
+        "the final SPY allocation rule. The methodology is framed as a test "
+        "of unemployment-rate information for SPY, not as a confirmation-only "
+        "hypothesis and not as a requirement to use data from a fixed number "
+        "of months earlier."
     ),
 )
