@@ -49,8 +49,8 @@ class StoryConfig:
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
         "How to read it: UNRATE is shown with SPY on the same time axis. "
-        "Recession bands and Sahm-style labor-stress shading show when the "
-        "labor market was under pressure."
+        "Recession bands show National Bureau of Economic Research recession "
+        "periods for historical context."
     )
 
     REGIME_TITLE = "What History Shows: SPY Performance by UNRATE Regime"

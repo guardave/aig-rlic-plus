@@ -98,7 +98,6 @@ def chart_hero() -> None:
     df = load_monthly()
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     add_nber_shading(fig, x_min=df.index.min(), x_max=df.index.max())
-    add_sahm_shading(fig, df)
     fig.add_trace(
         go.Scatter(
             x=df.index,
@@ -120,7 +119,6 @@ def chart_hero() -> None:
         secondary_y=True,
     )
     nber_legend(fig)
-    sahm_legend(fig)
     fig.update_layout(
         title="U.S. Unemployment Rate vs SPY",
         template="plotly_white",
@@ -131,7 +129,7 @@ def chart_hero() -> None:
     )
     fig.update_yaxes(title_text="Unemployment rate (%)", secondary_y=False)
     fig.update_yaxes(title_text="SPY price", secondary_y=True)
-    save("hero", fig, "UNRATE and SPY with NBER recessions and Sahm-style labor-stress bands.", ["data/unrate_spy_monthly_latest.parquet"])
+    save("hero", fig, "UNRATE and SPY with NBER recession bands.", ["data/unrate_spy_monthly_latest.parquet"])
 
 
 def chart_regime_stats() -> None:
