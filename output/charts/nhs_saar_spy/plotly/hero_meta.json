@@ -1,0 +1,12 @@
+{
+  "chart_name": "hero",
+  "pair_id": "nhs_saar_spy",
+  "generated_at": "2026-08-04T05:46:28.478772+00:00",
+  "generated_by": "scripts/generate_charts_nhs_saar_spy.py",
+  "caption": "New Home Sales (SAAR) and SPY with NBER recessions and home-sales contraction bands.",
+  "narrative_alignment_note": "New Home Sales (SAAR) and SPY with NBER recessions and home-sales contraction bands.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/nhs_saar_spy_monthly_latest.parquet"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "nhs_saar_spy",
+  "generated_at": "2026-08-04T05:46:39.108168+00:00",
+  "generated_by": "scripts/generate_charts_nhs_saar_spy.py",
+  "caption": "Granger p-values by lag for New Home Sales 6-month growth predicting SPY returns.",
+  "narrative_alignment_note": "Granger p-values by lag for New Home Sales 6-month growth predicting SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/projects/minions/mqr-platform-vchua1/research/projects/aig-rlic-plus/results/nhs_saar_spy/core_models_20260804/granger_causality.csv"
+  ]
+}
