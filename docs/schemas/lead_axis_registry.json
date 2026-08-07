@@ -196,6 +196,18 @@
       "class": "monthly",
       "note": "Full L0-12 free selection (Option-C cap retired 2026-07-14); winner L6 is the full-grid global max. Coherent monthly axis."
     },
+    "unrate_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "Civilian Unemployment Rate, UNRATE (FRED, monthly)",
+      "publication_lag": "~1 week after reference month",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [0],
+      "observed_winner_lead_unit": "months",
+      "class": "monthly",
+      "note": "Stakeholder-requested no-extra-lag tournament; current research artifacts are coherent on the monthly L0 axis. Publication lag remains a real-time deployment caveat."
+    },
     "wells_fargo_housing_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Wells Fargo / NAHB Housing Market Index (monthly)",

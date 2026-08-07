@@ -1,7 +1,7 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-07-17T07:59:35.106082+00:00",
+  "generated_at": "2026-08-07T07:57:52.440059+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "Granger p-values by lag for UNRATE 3-month change predicting SPY returns.",
   "narrative_alignment_note": "Granger p-values by lag for UNRATE 3-month change predicting SPY returns.",

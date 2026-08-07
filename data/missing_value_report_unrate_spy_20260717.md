@@ -14,3 +14,9 @@
 | unrate_zscore_60m     |              35 |    0.0872818  |
 | unrate_sahm           |              13 |    0.032419   |
 | unrate_recession_flag |               0 |    0          |
+| unrate_rising_2m      |               0 |    0          |
+| unrate_falling_2m     |               0 |    0          |
+| unrate_rising_3m      |               0 |    0          |
+| unrate_falling_3m     |               0 |    0          |
+| unrate_rising_4m      |               0 |    0          |
+| unrate_falling_4m     |               0 |    0          |

@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-07-17T08:00:04.878670+00:00",
+  "generated_at": "2026-08-07T07:58:26.556553+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "2022 Rate-Hike Cycle: Labor Market Stayed Resilient; gray bands are NBER recessions and pink bands are Sahm-style labor stress.",
   "narrative_alignment_note": "2022 Rate-Hike Cycle: Labor Market Stayed Resilient; gray bands are NBER recessions and pink bands are Sahm-style labor stress.",

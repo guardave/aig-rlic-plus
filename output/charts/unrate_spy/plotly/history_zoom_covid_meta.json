@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-07-17T08:00:02.616063+00:00",
+  "generated_at": "2026-08-07T07:58:24.181919+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "COVID Shock: Unemployment Spike; gray bands are NBER recessions and pink bands are Sahm-style labor stress.",
   "narrative_alignment_note": "COVID Shock: Unemployment Spike; gray bands are NBER recessions and pink bands are Sahm-style labor stress.",

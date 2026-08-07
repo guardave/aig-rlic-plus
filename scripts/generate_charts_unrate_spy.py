@@ -226,10 +226,25 @@ def chart_equity_drawdown() -> None:
 def chart_tournament() -> None:
     t = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
     valid = t[(t["valid"]) & (t["signal"] != "BENCHMARK")]
-    fig = go.Figure(go.Box(x=valid["lead_months"].astype(str), y=valid["oos_sharpe"], name="Valid strategies", marker_color=C_IND))
-    fig.update_layout(title="Tournament Sharpe Distribution by Lead", xaxis_title="Lead (months)", yaxis_title="OOS Sharpe", template="plotly_white", height=450)
-    save("tournament_sharpe_dist", fig, "Distribution of OOS Sharpe across valid tournament strategies by lead.", [str(RES / f"tournament_results_{DATE_TAG}.csv")])
-    save("tournament_scatter", fig, "Alias for tournament scatter slot.", [str(RES / f"tournament_results_{DATE_TAG}.csv")])
+    fig = go.Figure(
+        go.Box(
+            x=valid["strategy"],
+            y=valid["oos_sharpe"],
+            name="Valid no-lag strategies",
+            marker_color=C_IND,
+            boxpoints="all",
+            jitter=0.25,
+        )
+    )
+    fig.update_layout(
+        title="No-Lag Tournament Sharpe Distribution by Strategy",
+        xaxis_title="Strategy family",
+        yaxis_title="OOS Sharpe",
+        template="plotly_white",
+        height=450,
+    )
+    save("tournament_sharpe_dist", fig, "Distribution of OOS Sharpe across valid no-lag tournament strategies by strategy family.", [str(RES / f"tournament_results_{DATE_TAG}.csv")])
+    save("tournament_scatter", fig, "Alias for the dashboard's tournament slot using the no-lag strategy-family distribution.", [str(RES / f"tournament_results_{DATE_TAG}.csv")])
 
 
 def chart_rolling_correlation() -> None:
