@@ -1,0 +1,12 @@
+{
+  "chart_name": "walk_forward",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-07-17T07:59:55.049605+00:00",
+  "generated_by": "scripts/generate_charts_unrate_spy.py",
+  "caption": "Alias for the dashboard's standard walk-forward chart slot.",
+  "narrative_alignment_note": "Alias for the dashboard's standard walk-forward chart slot.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/unrate_spy/subperiod_sharpe.csv"
+  ]
+}

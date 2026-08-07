@@ -1,0 +1,12 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "nhs_saar_spy",
+  "generated_at": "2026-08-04T05:46:36.451702+00:00",
+  "generated_by": "scripts/generate_charts_nhs_saar_spy.py",
+  "caption": "Cross-correlation between New Home Sales 6-month growth and SPY returns.",
+  "narrative_alignment_note": "Cross-correlation between New Home Sales 6-month growth and SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/projects/minions/mqr-platform-vchua1/research/projects/aig-rlic-plus/results/nhs_saar_spy/core_models_20260804/ccf_prewhitened.csv"
+  ]
+}

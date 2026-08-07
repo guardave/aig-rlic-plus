@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_covid",
+  "pair_id": "nhs_saar_spy",
+  "generated_at": "2026-08-04T05:47:11.783139+00:00",
+  "generated_by": "scripts/generate_charts_nhs_saar_spy.py",
+  "caption": "COVID Shock: Home Sales Dropped Then Rebounded; gray bands are NBER recessions and pink bands are home-sales contractions.",
+  "narrative_alignment_note": "COVID Shock: Home Sales Dropped Then Rebounded; gray bands are NBER recessions and pink bands are home-sales contractions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/nhs_saar_spy_monthly_latest.parquet"
+  ]
+}

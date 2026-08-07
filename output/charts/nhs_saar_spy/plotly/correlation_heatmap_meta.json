@@ -1,0 +1,12 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "nhs_saar_spy",
+  "generated_at": "2026-08-04T05:46:33.881705+00:00",
+  "generated_by": "scripts/generate_charts_nhs_saar_spy.py",
+  "caption": "Pearson correlations between New Home Sales transforms and forward SPY returns.",
+  "narrative_alignment_note": "Pearson correlations between New Home Sales transforms and forward SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/projects/minions/mqr-platform-vchua1/research/projects/aig-rlic-plus/results/nhs_saar_spy/core_models_20260804/correlations.csv"
+  ]
+}

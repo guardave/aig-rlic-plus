@@ -1,0 +1,12 @@
+{
+  "chart_name": "equity_curves",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-07-17T07:59:41.061751+00:00",
+  "generated_by": "scripts/generate_charts_unrate_spy.py",
+  "caption": "Winner strategy equity curve compared with buy-and-hold SPY.",
+  "narrative_alignment_note": "Winner strategy equity curve compared with buy-and-hold SPY.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/unrate_spy/strategy_returns_20260717.csv"
+  ]
+}

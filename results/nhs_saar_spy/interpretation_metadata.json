@@ -1,0 +1,69 @@
+{
+  "pair_id": "nhs_saar_spy",
+  "schema_version": "1.1.0",
+  "indicator_nature": "leading",
+  "indicator_type": "macro",
+  "strategy_objective": "max_sharpe",
+  "owner_writes": {
+    "dana": [
+      "indicator_nature",
+      "indicator_type",
+      "known_stress_episodes",
+      "data_provenance"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "narrative_summary",
+      "expected_direction",
+      "mechanism",
+      "caveats"
+    ]
+  },
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-08-04T05:46:06.989208+00:00",
+  "indicator": "nhs_saar",
+  "target": "spy",
+  "expected_direction": "procyclical",
+  "observed_direction": "procyclical",
+  "direction_consistent": true,
+  "mechanism": "New home buyers commit before construction, so new-home sales lead the housing cycle and the broader expansion; stronger home-sales growth should coincide with a healthier economy and support equities.",
+  "confidence": "low",
+  "key_finding": "Best search-phase rule uses mom at L2 with OOS Sharpe 1.45 versus buy-and-hold 0.99.",
+  "caveats": [
+    "New Home Sales is volatile month to month and is revised after release.",
+    "The strategy is search-selected and needs a fresh holdout confirmation.",
+    "Housing leads the cycle, but the lead time to equities is variable and regime-dependent."
+  ],
+  "narrative_summary": "New Home Sales (SAAR) is tested as an early-cycle housing overlay for SPY: a procyclical timing signal, not a clean forecast.",
+  "known_stress_episodes": [
+    {
+      "label": "Dot-Com recession",
+      "start": "2001-03-01",
+      "end": "2001-11-30",
+      "note": "Housing held up better than equities in this episode."
+    },
+    {
+      "label": "Global Financial Crisis",
+      "start": "2007-12-01",
+      "end": "2009-06-30",
+      "note": "New Home Sales collapsed ahead of and through the crisis."
+    },
+    {
+      "label": "COVID shock",
+      "start": "2020-02-01",
+      "end": "2020-04-30",
+      "note": "Home sales dropped then rebounded sharply on low rates."
+    }
+  ],
+  "data_provenance": {
+    "source": "FRED",
+    "series_id": "HSN1F",
+    "accessed_at": "2026-08-04T05:46:06.989208+00:00"
+  }
+}

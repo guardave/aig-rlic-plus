@@ -1,0 +1,7 @@
+{
+  "pair_id": "nhs_saar_spy",
+  "winner_oos_sharpe": 1.450454,
+  "benchmark_oos_sharpe": 0.991008,
+  "oos_max_drawdown": -0.130588,
+  "bh_max_drawdown": -0.239272
+}

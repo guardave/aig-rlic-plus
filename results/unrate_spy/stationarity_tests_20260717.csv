@@ -1,0 +1,9 @@
+variable,test,statistic,p_value,lags,conclusion
+unrate,ADF,-3.030572161132782,0.03213631129622289,2,stationary
+unrate,KPSS,0.34201313095318103,0.1,11,stationary_not_rejected
+unrate_3m_chg,ADF,-4.837775769895551,4.602367218052074e-05,16,stationary
+unrate_3m_chg,KPSS,0.03972570727026314,0.1,4,stationary_not_rejected
+unrate_sahm,ADF,-4.381647634432455,0.0003198358829739074,10,stationary
+unrate_sahm,KPSS,0.11659809797786456,0.1,11,stationary_not_rejected
+spy_ret,ADF,-10.92235030707434,1.0304121621546528e-19,2,stationary
+spy_ret,KPSS,0.15222711987719573,0.1,3,stationary_not_rejected
