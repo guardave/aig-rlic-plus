@@ -8,14 +8,14 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "narrative_alignment_note": "Sweep-grid best OOS Sharpe 1.42 at L8 (indpro_accel x P2); a single spike. Buy-and-hold XLP OOS Sharpe = 0.74. Published winner sits at L11 (native tournament, OOS Sharpe 1.33).",
-  "caption": "Sweep-grid best OOS Sharpe 1.42 at L8 (indpro_accel x P2); a single spike. Buy-and-hold XLP OOS Sharpe = 0.74. Published winner sits at L11 (native tournament, OOS Sharpe 1.33).",
-  "created_at": "2026-06-27T13:16:29Z",
+  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, INDPRO) peaks at L11; deployed lead L11 = 1.33. Grey bars: best-of-any-signal envelope on the same native grid (envelope >= winner curve at every lead). Buy-and-hold XLP = 0.74. On the tournament's own grid the winner's lead L11 is at the top of a NEARLY FLAT envelope (leads differ by &lt;0.10 Sharpe) \u2014 no lead is decisively best. It is not the off-peak dip a different (exploratory) sweep grid suggested, but the flat profile means the lead choice is weakly identified, consistent with this pair's low-confidence framing.",
+  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, INDPRO) peaks at L11; deployed lead L11 = 1.33. Grey bars: best-of-any-signal envelope on the same native grid (envelope >= winner curve at every lead). Buy-and-hold XLP = 0.74. On the tournament's own grid the winner's lead L11 is at the top of a NEARLY FLAT envelope (leads differ by &lt;0.10 Sharpe) \u2014 no lead is decisively best. It is not the off-peak dip a different (exploratory) sweep grid suggested, but the flat profile means the lead choice is weakly identified, consistent with this pair's low-confidence framing.",
+  "created_at": "2026-07-11T10:16:58Z",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/indpro_xlp/lead_tournament_20260620.csv",
+    "results/indpro_xlp/lead_winner_curve_20260620.csv",
     "results/indpro_xlp/winner_summary.json"
   ],
   "generated_by": "Viz Vera \u2014 scripts/generate_lead_charts.py (VIZ-LEAD1)"

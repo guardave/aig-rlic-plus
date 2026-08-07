@@ -63,7 +63,7 @@ PAIR_ID = "busloans_spy"
 INDICATOR_NAME = "C&I Loans (BUSLOANS)"
 TARGET_NAME = "SPY"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20260612"
+DATE_TAG = "20260708"  # GH#13 re-run at full L1..L12 grid; new date per ECON-T5 §4 (tournament CSV immutability). Prior coarse-grid run: 20260612.
 COST_BPS = 5  # equity ETF per ECON-T2 / target-class table
 
 BASE_DIR = "/workspaces/aig-rlic-plus"
@@ -612,7 +612,7 @@ def stage_tournament(df):
     oos_mask = work.index >= oos_start
     spy_ret = work["spy_ret"]
 
-    leads = [1, 2, 3, 6, 12]            # L1 = real-time floor (Dana lag doc)
+    leads = list(range(1, 13))         # FULL monthly grid L1..L12 (GH#13 lead-coherence rollout); L1 = real-time floor (Dana lag doc)
     lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 
@@ -661,13 +661,26 @@ def stage_tournament(df):
                         else:
                             position = pos_bool.astype(float) * 2 - 1
                         strat_ret = position * spy_ret  # lead >= 1 ensures no lookahead
-                        is_r, oos_r = strat_ret[is_mask].dropna(), strat_ret[oos_mask].dropna()
+                        # ECON-T4 deployable-series scoring (GH#13, 2026-07-08). Score OOS on the series a
+                        # trader would ACTUALLY run: an undefined in-window position deploys as CASH (0), it
+                        # is NOT dropped. The OOS window opens ~14yr after every combo's max lead+lookback
+                        # warmup, so any in-window NaN is a degenerate-signal month — e.g. a P2 signal-
+                        # strength (or P3) rule sized off a BINARY/regime flag whose rolling range collapses
+                        # to zero during long expansions. dropna()-scoring credited such combos with an
+                        # inflated Sharpe over only their defined months (busloans contraction/P2/L11: 1.6159
+                        # on 51/100 months) while the deployable, cash-filled series earns far less (1.1013).
+                        # Cash-fill makes selection basis == deployable basis == chart basis (winner_summary,
+                        # strategy_returns, strategy-perf charts, gates all agree). Non-degenerate combos have
+                        # no in-window NaN, so fillna is a no-op for them and their metrics are unchanged.
+                        # IS stays dropna (reported only; its window spans the warmup era).
+                        is_r = strat_ret[is_mask].dropna()
+                        oos_r = strat_ret[oos_mask].fillna(0.0)
                         if len(is_r) < 60 or len(oos_r) < 24:
                             continue
                         m_is, m = ann_metrics(is_r), ann_metrics(oos_r)
-                        pos_oos = position[oos_mask]
+                        pos_oos = position[oos_mask].fillna(0.0)  # undefined = cash, for turnover/trades
                         n_trades = int((pos_oos.diff().abs() > 1e-9).sum())
-                        years = len(pos_oos.dropna()) / 12
+                        years = len(pos_oos) / 12
                         turnover = n_trades / years if years > 0 else 999
                         valid = bool(m["sharpe"] > 0.3 and turnover < 24 and len(oos_r) >= 24)
                         results.append({
@@ -1143,7 +1156,7 @@ def main():
         "cost_assumption_bps": COST_BPS,
         "total_combos": int(len(tdf) - 1),
         "valid_combos": n_valid,
-        "schema_version": "1.1.0",
+        "schema_version": "1.2.0",
         "notes": (f"Mode 1, fix260612_busloans_spy. Tournament: {len(tdf)-1} strategy combos "
                   f"(+1 benchmark, valid=False per ECON-T4), {n_valid} valid. Winner by ECON-T3 cascade "
                   f"(resolved at step {resolved_at}; {n_tied} tied at step 1). Strategy returns are gross "
@@ -1166,6 +1179,58 @@ def main():
     if not long_when_high:
         sd += " (Countercyclical orientation: low/decelerating loan growth = risk-on.)"
     winner_summary["strategy_description"] = sd
+
+    # --- ECON-T5 winner-selection provenance (selection block; schema-required v1.2.0) ---
+    valid_pop = tdf[(tdf.signal != "BENCHMARK") & tdf.valid].copy()
+    ranked = valid_pop.sort_values("oos_sharpe", ascending=False)
+    runner = ranked.iloc[1] if len(ranked) > 1 else None
+    scanned_leads = sorted(int(x) for x in tdf.loc[tdf.signal != "BENCHMARK", "lead_months"].unique())
+    raw_strategy = str(winner["strategy"])  # carries the _pro/_counter orientation suffix
+    selection = {
+        "objective": "max_oos_sharpe",
+        "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
+        "grid_scanned": {
+            "leads": scanned_leads,
+            "n_signals": int(valid_pop["signal"].nunique()),
+            "n_thresholds": int(valid_pop["threshold"].nunique()),
+            "n_strategies": int(valid_pop["strategy"].nunique()),
+            "n_valid_combos": int(n_valid),
+            "median_valid_objective": round(float(median_sharpe), 4),
+        },
+        "tie_break_step": int(resolved_at) if n_tied > 1 else 0,
+        "raw_winner_row": {
+            "signal": str(winner["signal"]),
+            "threshold": str(winner["threshold"]),
+            "strategy": raw_strategy,
+            "lead_column": "lead_months",
+            "lead_value": int(winner["lead_months"]),
+            "source_tournament_file": f"tournament_results_{DATE_TAG}.csv",
+            "source_row_index": int(winner.name),
+            "display_alias": (f"signal_code={winner_summary['signal_code']} (raw signal={winner['signal']}); "
+                              f"strategy_family={strat_family} (raw strategy={raw_strategy})"),
+        },
+        "runner_up": ({
+            "signal": str(runner["signal"]),
+            "threshold": str(runner["threshold"]),
+            "strategy": str(runner["strategy"]),
+            "lead_value": int(runner["lead_months"]),
+            "objective_value": round(float(runner["oos_sharpe"]), 4),
+        } if runner is not None else None),
+        "rationale": (
+            f"Unique maximiser of OOS Sharpe over the full monthly grid "
+            f"L{{{scanned_leads[0]}..{scanned_leads[-1]}}} ({n_valid} valid combos, median OOS Sharpe "
+            f"{float(median_sharpe):.4f}). Winner raw OOS Sharpe {float(winner['oos_sharpe']):.4f} at "
+            f"L{int(winner['lead_months'])}"
+            + (f"; the 2nd-best valid combo ({runner['signal']}/{runner['threshold']}/{runner['strategy']}/"
+               f"L{int(runner['lead_months'])}) sits at {float(runner['oos_sharpe']):.4f}. "
+               if runner is not None else ". ")
+            + (f"No ECON-T3 tie-break engaged (unique max on oos_sharpe). " if n_tied <= 1
+               else f"ECON-T3 cascade resolved a step-1 tie ({n_tied} combos tied on oos_sharpe) at step {resolved_at}. ")
+            + "Published winner == raw max-OOS-Sharpe valid row -> divergence null."
+        ),
+        "objective_runner_up_divergence": None,
+    }
+    winner_summary["selection"] = selection
 
     wpath = os.path.join(RESULTS_DIR, "winner_summary.json")
     with open(wpath, "w") as f:

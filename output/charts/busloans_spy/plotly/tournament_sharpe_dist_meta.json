@@ -9,18 +9,18 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Distribution of OOS Sharpe across the 4,396 valid strategy combos. The winner (Sharpe 1.50) is the max of 4,396 with median 0.74 \u2014 and the median sits BELOW Buy & Hold SPY (0.89). Winner selection is a tail draw from a population that mostly underperforms the benchmark; bootstrap p = 0.066 (n.s. at 5%).",
+  "caption": "Distribution of OOS Sharpe across the 10,522 valid strategy combos. The winner (Sharpe 1.50) is the max of 10,522 with median 0.75 \u2014 and the median sits BELOW Buy & Hold SPY (0.89). Winner selection is a tail draw from a population that mostly underperforms the benchmark; bootstrap p = 0.066 (n.s. at 5%).",
   "narrative_alignment_note": "VIZ-SCD1 position disclosure + B&H benchmark line per Lead dispatch; all numbers re-read from the tournament CSV at generation time.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/busloans_spy/tournament_results_20260612.csv"
+    "results/busloans_spy/tournament_results_20260708.csv"
   ],
   "reconciliation": {
-    "valid_count": 4396,
-    "median_oos_sharpe": 0.7386,
+    "valid_count": 10522,
+    "median_oos_sharpe": 0.7502,
     "winner_oos_sharpe": 1.4999,
     "bh_oos_sharpe": 0.8935
   },
-  "generated_at": "2026-06-12T09:12:43.617131+00:00",
+  "generated_at": "2026-07-08T08:49:29.161034+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)"
 }

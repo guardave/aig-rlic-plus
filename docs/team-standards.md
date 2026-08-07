@@ -23,7 +23,7 @@ Read order for every agent at SOD (see `.claude/commands/sod.md`): this file →
 | `docs/team-standards.md` | Lead | This file — cross-agent conventions |
 | `docs/sop-changelog.md` | Lead | Append-only change log |
 | `_pws/<role>-<name>/` | each agent | Project workspace per agent |
-| `~/.claude/agents/<role>-<name>/` | each agent | Global profile (cross-project) |
+| `~/.agents/profiles/<role>-<name>/` | each agent | Global profile (cross-project) |
 | `scripts/hooks/` | Lead | Harness hooks (SOD / EOD audit) |
 
 ---
@@ -157,7 +157,7 @@ Within a wave, consumers may query producers DIRECTLY for artifact semantics and
 
 ## 6. Global Agent Profile Files
 
-Per agent at `~/.claude/agents/<role>-<name>/`:
+Per agent at `~/.agents/profiles/<role>-<name>/`:
 
 | File | Purpose | Updated when |
 |------|---------|--------------|

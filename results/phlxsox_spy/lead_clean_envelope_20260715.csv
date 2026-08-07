@@ -1,0 +1,7 @@
+lead_days,best_oos_sharpe,best_signal,best_threshold,best_strategy
+1,1.5361,hmm_stress,T2_roll_p25,P2_signal_strength_counter
+5,1.3816,hmm_stress,T2_roll_p25,P2_signal_strength_counter
+21,1.4963,sox_mom12m,T2_roll_p25,P1_long_cash_pro
+63,1.57,rs_mom6m,T2_roll_p75,P1_long_cash_pro
+126,1.5022,sox_mom12m,T2_roll_p75,P1_long_cash_pro
+252,1.4179,sox_mom3m,T1_fixed_p50,P1_long_cash_counter

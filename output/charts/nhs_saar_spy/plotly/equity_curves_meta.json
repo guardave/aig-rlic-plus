@@ -1,0 +1,12 @@
+{
+  "chart_name": "equity_curves",
+  "pair_id": "nhs_saar_spy",
+  "generated_at": "2026-08-04T05:46:47.098102+00:00",
+  "generated_by": "scripts/generate_charts_nhs_saar_spy.py",
+  "caption": "Winner strategy equity curve compared with buy-and-hold SPY.",
+  "narrative_alignment_note": "Winner strategy equity curve compared with buy-and-hold SPY.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/projects/minions/mqr-platform-vchua1/research/projects/aig-rlic-plus/results/nhs_saar_spy/strategy_returns_20260804.csv"
+  ]
+}

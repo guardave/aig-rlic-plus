@@ -1,0 +1,20 @@
+{
+  "pair_id": "umcsent_xlv",
+  "indicator": "University of Michigan Consumer Sentiment",
+  "target": "Health Care Select Sector (XLV)",
+  "date": "20260711",
+  "pipeline_seconds": 21.0,
+  "stage_times": {
+    "1_data_sourcing": 3.0,
+    "2_alignment_and_derived": 0.2,
+    "3_stationarity_and_quality": 0.5,
+    "4_exploratory": 0.1,
+    "5_core_models": 7.0,
+    "6_tournament": 9.9,
+    "7_validation": 0.3
+  },
+  "monthly_rows": 325,
+  "monthly_cols": 22,
+  "tournament_combos": 3394,
+  "valid_strategies": 2502
+}

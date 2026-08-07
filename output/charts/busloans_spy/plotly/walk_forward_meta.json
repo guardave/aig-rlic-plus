@@ -13,14 +13,14 @@
   "narrative_alignment_note": "Rolling-Sharpe walk-forward view for the Strategy page Confidence tab, built from the ECON-SR1 canonical series.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/busloans_spy/strategy_returns_20260612.csv",
+    "results/busloans_spy/strategy_returns_20260708.csv",
     "results/busloans_spy/winner_summary.json"
   ],
   "reconciliation": {
     "oos_sharpe": {
-      "computed": 1.499893,
+      "computed": 1.499892,
       "reported_winner_summary": 1.4999,
-      "diff": -7e-06,
+      "diff": -8e-06,
       "tolerance": 0.01,
       "verdict": "PASS"
     },
@@ -39,6 +39,6 @@
       "verdict": "PASS"
     }
   },
-  "generated_at": "2026-06-12T09:10:31.964611+00:00",
+  "generated_at": "2026-07-08T08:58:38.806823+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_strategy_perf_charts.py (fix260611_meta_cmp, ECON-SR1 consumer)"
 }

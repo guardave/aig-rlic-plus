@@ -1,0 +1,12 @@
+{
+  "chart_name": "quantile_coef",
+  "pair_id": "nhs_saar_spy",
+  "generated_at": "2026-08-04T05:46:44.430626+00:00",
+  "generated_by": "scripts/generate_charts_nhs_saar_spy.py",
+  "caption": "New Home Sales coefficient across SPY forward-return quantiles.",
+  "narrative_alignment_note": "New Home Sales coefficient across SPY forward-return quantiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/projects/minions/mqr-platform-vchua1/research/projects/aig-rlic-plus/results/nhs_saar_spy/core_models_20260804/quantile_regression.csv"
+  ]
+}

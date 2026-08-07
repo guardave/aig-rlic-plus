@@ -9,7 +9,7 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "24-month rolling correlation between Petroleum Stocks 3-month change and SPY monthly returns, 1995\u20132026. The sign agrees with its full-sample value only 56% of the time (sign-unstable) \u2014 the relationship is not stable enough to lean on. Shaded bands mark NBER recessions.",
+  "caption": "24-month rolling correlation between Petroleum Stocks 3-month change and SPY monthly returns, 1995\u20132026. The sign agrees with its full-sample value only 50% of the time (sign-unstable) \u2014 the relationship is not stable enough to lean on. Shaded bands mark NBER recessions.",
   "narrative_alignment_note": "Stability verdict quoted from structural_break JSON, not hard-coded.",
   "disposition": "consumed",
   "source_artifacts": [
@@ -17,6 +17,6 @@
     "results/petrol_inv_spy/structural_break_petrol_inv_spy.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-17T15:05:58.096125+00:00",
+  "generated_at": "2026-07-11T09:45:06.578328+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
 }

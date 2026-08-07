@@ -13,10 +13,10 @@ Perform these steps at the start of every agent session (Lead's own and every su
 ## 2. Re-read global profile (if exists)
 
 ```
-~/.claude/agents/<role>-<name>/profile.md
-~/.claude/agents/<role>-<name>/experience.md
-~/.claude/agents/<role>-<name>/memories.md
-~/.claude/agents/<role>-<name>/last_seen   (timestamp file — used in step 5)
+~/.agents/profiles/<role>-<name>/profile.md
+~/.agents/profiles/<role>-<name>/experience.md
+~/.agents/profiles/<role>-<name>/memories.md
+~/.agents/profiles/<role>-<name>/last_seen   (timestamp file — used in step 5)
 ```
 
 If any are missing, create them after reading your PWS (see `docs/agent-sops/team-coordination.md` §New Agent Onboarding Protocol).
@@ -42,11 +42,11 @@ _pws/<role>-<name>/outstanding-work.md   (if exists)
 docs/sop-changelog.md
 ```
 
-Focus on entries since the timestamp in `~/.claude/agents/<role>-<name>/last_seen`. Every entry since that timestamp is a rule that landed while you were away — you must apply it.
+Focus on entries since the timestamp in `~/.agents/profiles/<role>-<name>/last_seen`. Every entry since that timestamp is a rule that landed while you were away — you must apply it.
 
 After reading, update `last_seen` to current date:
 ```bash
-date -u +"%Y-%m-%dT%H:%M:%SZ" > ~/.claude/agents/<role>-<name>/last_seen
+date -u +"%Y-%m-%dT%H:%M:%SZ" > ~/.agents/profiles/<role>-<name>/last_seen
 ```
 
 ## 6. Read relevant team status
@@ -64,7 +64,7 @@ Report back in 2-3 lines: your identity, the last 2-3 changelog entries you appl
 
 The global `/sod` skill is generic across all projects. This project has specific SOD requirements (team-standards.md, sop-changelog.md, last_seen file) that don't apply elsewhere. Splitting these between the global skill and project files caused "missed read" failures in the past — agents would execute the global skill without discovering the project-specific extensions. This project-local command is the single authoritative definition: when running inside aig-rlic-plus, this overrides the global `/sod`.
 
-Companion enforcement: `/home/vscode/.claude/hooks/check-agent-sod.sh` is a PreToolUse hook on the Agent tool that verifies every agent dispatch prompt contains a `## SOD Block` acknowledging this procedure. Missing SOD block → warning to Lead.
+Companion enforcement: `scripts/hooks/check-agent-sod.sh` is a PreToolUse hook on the Agent tool that verifies every agent dispatch prompt contains a `## SOD Block` acknowledging this procedure. Missing SOD block → warning to Lead.
 
 Cross-references:
 - `docs/agent-sops/team-coordination.md` §Mandatory Dispatch Template (SOD block required)

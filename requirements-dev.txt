@@ -1,0 +1,33 @@
+# Local development dependencies — deliberately NOT in requirements.txt.
+#
+# requirements.txt is the Streamlit Community Cloud deploy manifest. Everything
+# listed there is installed on Cloud; everything here is local-only, and each is
+# excluded from the manifest for a specific reason:
+#
+#   streamlit   Cloud provides the runtime itself — the deployed app has always
+#               worked without streamlit in requirements.txt. Declaring it there
+#               would pin a version against the platform's own.
+#   pyarrow     Reaches Cloud transitively (streamlit requires numpy/pandas/pyarrow),
+#               which is how the deployed app reads results/**/*.parquet today.
+#               Listed explicitly here so local parquet I/O does not depend on
+#               another package's transitive dep.
+#   kaleido     Static chart export for plotly. Used only by scripts/ (generate_charts,
+#               cloud_verify, cross_period_*) — never imported by app/, so Cloud
+#               would only carry dead weight.
+#   playwright  scripts/cloud_verify.py drives headless chromium. Browser binaries
+#               cannot be installed on Cloud, and verification only ever runs locally.
+#
+# Installed by setup.sh at container build. Unpinned, matching requirements.txt.
+#
+# These were previously hand-installed into the container and therefore lived only
+# in the container filesystem — every rebuild silently destroyed them, leaving the
+# app, the META-CMP pre-commit gates, and cloud_verify.py broken until someone
+# noticed and reinstalled by hand. Declaring them here is what stops that recurring.
+
+streamlit
+pyarrow
+kaleido
+playwright
+# Loads repo-root .env so FRED/data pipelines read the API key from there instead of a
+# hardcoded fallback. Local-only: app/ never calls FRED at runtime (reads pre-built parquet).
+python-dotenv

@@ -35,6 +35,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from dotenv import load_dotenv
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -117,7 +118,10 @@ def try_fetch_fred(series_id: str, start: str, end: str, name: str) -> pd.Series
     import urllib.parse
     import urllib.request
 
-    key = os.environ.get("FRED_API_KEY") or "952aa4d0c4b2057609fbf3ecc6954e58"
+    load_dotenv()  # repo-root .env; hardcoded fallback removed (key rotated after leak)
+    key = os.environ.get("FRED_API_KEY")
+    if not key:
+        raise SystemExit("FRED_API_KEY not set — copy .env.example to .env, or run setup.sh.")
     params = urllib.parse.urlencode({
         "series_id": series_id,
         "api_key": key,

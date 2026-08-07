@@ -8,14 +8,14 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "narrative_alignment_note": "Sweep-grid best OOS Sharpe 1.19 at L11 (umcsent_zscore x P1); a broad ridge (3 leads within 0.05). Buy-and-hold XLV OOS Sharpe = 0.72. Published winner sits at L6 (native tournament, OOS Sharpe 1.16).",
-  "caption": "Sweep-grid best OOS Sharpe 1.19 at L11 (umcsent_zscore x P1); a broad ridge (3 leads within 0.05). Buy-and-hold XLV OOS Sharpe = 0.72. Published winner sits at L6 (native tournament, OOS Sharpe 1.16).",
-  "created_at": "2026-06-27T13:16:29Z",
+  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, UMCSENT) peaks at L6; deployed lead L6 = 1.16. Grey bars: best-of-any-signal envelope on the same native grid (envelope >= winner curve at every lead). Buy-and-hold XLV = 0.72. On the tournament's own grid the winner's lead L6 is at the top of a NEARLY FLAT envelope (leads differ by &lt;0.10 Sharpe) \u2014 no lead is decisively best. It is not the off-peak dip a different (exploratory) sweep grid suggested, but the flat profile means the lead choice is weakly identified, consistent with this pair's low-confidence framing.",
+  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, UMCSENT) peaks at L6; deployed lead L6 = 1.16. Grey bars: best-of-any-signal envelope on the same native grid (envelope >= winner curve at every lead). Buy-and-hold XLV = 0.72. On the tournament's own grid the winner's lead L6 is at the top of a NEARLY FLAT envelope (leads differ by &lt;0.10 Sharpe) \u2014 no lead is decisively best. It is not the off-peak dip a different (exploratory) sweep grid suggested, but the flat profile means the lead choice is weakly identified, consistent with this pair's low-confidence framing.",
+  "created_at": "2026-07-11T16:41:45Z",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/umcsent_xlv/lead_tournament_20260620.csv",
+    "results/umcsent_xlv/lead_winner_curve_20260620.csv",
     "results/umcsent_xlv/winner_summary.json"
   ],
   "generated_by": "Viz Vera \u2014 scripts/generate_lead_charts.py (VIZ-LEAD1)"

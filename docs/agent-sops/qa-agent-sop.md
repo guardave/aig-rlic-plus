@@ -275,8 +275,8 @@ For every agent dispatched in the wave, Quincy verifies that `experience.md`, `m
 
 1. Check the PostToolUse hook log output for `⚠  META-AM` warnings (these appear inline after each Agent tool call in Lead's session). List every agent that triggered a warning.
 2. For each dispatched agent (warned or not), verify independently:
-   - `wc -l ~/.claude/agents/<role>-<name>/experience.md` — line count must have increased vs. prior wave (use `git diff HEAD~N` on the file as evidence).
-   - `wc -l ~/.claude/agents/<role>-<name>/memories.md` — same.
+   - `wc -l ~/.agents/profiles/<role>-<name>/experience.md` — line count must have increased vs. prior wave (use `git diff HEAD~N` on the file as evidence).
+   - `wc -l ~/.agents/profiles/<role>-<name>/memories.md` — same.
    - `wc -l _pws/<role>-<name>/session-notes.md` — same.
 3. Record each as PASS / PASS-with-note / FAIL with the verification command and output.
 
@@ -289,7 +289,7 @@ For every agent dispatched in the wave, Quincy verifies that `experience.md`, `m
 **Cross-references.**
 
 - **META-AM** — the rule QA-CL3 enforces. See `docs/agent-sops/team-coordination.md` §META-AM.
-- **PostToolUse hook** — `~/.claude/hooks/check-agent-eod.sh` — automated mtime audit; QA-CL3 is the independent re-verification.
+- **PostToolUse hook** — `scripts/hooks/check-agent-eod.sh` — automated mtime audit; QA-CL3 is the independent re-verification.
 - **Mandatory Dispatch Template** — `team-coordination.md` §Mandatory Dispatch Template — the `AGENT_ID:` convention and EOD block that make the hook and this check possible.
 - **GATE-31** — a QA-CL3 FAIL (subsequent occurrence) blocks acceptance the same as any other GATE-31 FAIL.
 
@@ -694,8 +694,8 @@ Lead either signs acceptance or routes blocking items back to the responsible pr
 1. What claim pattern nearly slipped through? (candidate for a new GATE-* or META-* rule)
 2. Which verification command was slowest / least reliable? (tooling gap)
 3. Which producer most often leaves gaps? (handoff-protocol training signal)
-4. Distill 1-2 lessons → `~/.claude/agents/qa-quincy/memories.md`
-5. Cross-project patterns → `~/.claude/agents/qa-quincy/experience.md`
+4. Distill 1-2 lessons → `~/.agents/profiles/qa-quincy/memories.md`
+5. Cross-project patterns → `~/.agents/profiles/qa-quincy/experience.md`
 
 ## Cross-References
 

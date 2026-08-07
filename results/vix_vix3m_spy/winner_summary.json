@@ -17,7 +17,7 @@
   "win_rate": null,
   "threshold_value": null,
   "schema_version": "1.1.0",
-  "generated_at": "2026-04-23T00:00:00Z",
+  "generated_at": "2026-07-15T10:39:13Z",
   "signal_column": "vix_vix3m_ratio_z126",
   "target_symbol": "SPY",
   "threshold_rule": "lt",
@@ -36,14 +36,16 @@
         0,
         1,
         5,
-        10,
-        21
+        21,
+        63,
+        126,
+        252
       ],
       "n_signals": 10,
       "n_thresholds": 7,
       "n_strategies": 2,
-      "n_valid_combos": 331,
-      "median_valid_objective": 0.804
+      "n_valid_combos": 469,
+      "median_valid_objective": 0.6907
     },
     "tie_break_step": 0,
     "raw_winner_row": {
@@ -52,8 +54,8 @@
       "strategy": "P1",
       "lead_column": "lead_days",
       "lead_value": 0,
-      "source_tournament_file": "tournament_results_20260314.csv",
-      "source_row_index": 210,
+      "source_tournament_file": "tournament_results_20260715.csv",
+      "source_row_index": 135,
       "display_alias": "strategy_family=P1_long_cash (raw strategy=P1)"
     },
     "runner_up": {
@@ -63,8 +65,8 @@
       "lead_value": 0,
       "objective_value": 1.1113
     },
-    "rationale": "Unique maximiser of OOS Sharpe over the committed coarse daily grid L{0,1,5,10,21} (331 valid combos, median OOS Sharpe 0.804). Winner raw OOS Sharpe 1.1295 at L0; the 2nd-best valid combo (S8_pctrank/T2_rp75/P1/L0) sits at 1.1113. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "rationale": "FREE full-grid daily selection (Lead-Grid Frequency Standard, 2026-07-15): NO cap. Winner is the global-max valid OOS Sharpe over the anchored DAILY grid {0,1,5,21,63,126,252} trading days (469 valid combos, median 0.6907; ECON-T4 deployable scoring): S3_z126/T2_rp75/P1/L0 = 1.1295. Winner is at L0 = COINCIDENT / same-day (VIX/VIX3M term-structure observed at close; real-time floor L0). Newey-West HAC t=2.98 is MARGINALLY BELOW the raised t>3.0 hurdle (Harvey-Liu-Zhu) \u2014 a LOW-CONFIDENCE coincident edge: it reproduces the committed headline and remains the global-max valid combo, but its significance is borderline after multiple-horizon testing. NO long-lead edge (L126 best=0.982 (HAC t=2.77); L252 best=0.839 (HAC t=2.26) \u2014 all below the winner and below t>3), so the grid extension surfaces only multiple-testing noise. Built from the RESTORED original raw data (data/vix_vix3m_spy_daily_20260314.parquet, deterministic ratio transforms \u2014 no model re-fit): reproduces the committed headline 1.1295 EXACTLY \u2014 a lead-AXIS rebuild (monthly\u2192daily), NOT a re-selection and NOT a data-vintage change.",
     "objective_runner_up_divergence": null
   },
-  "notes": "Backfilled 2026-04-23 from tournament_results_20260314.csv per Wave 10I.A; OOS dates reconstructed from default monthly/daily windows. Fields: signal_column=vix_vix3m_ratio_z126, threshold_rule=lt (inferred from T2_rp75 + direction=countercyclical), strategy_family=P1_long_cash, oos_n_trades=1566 (from tournament CSV oos_n column — period count, not discrete trade count). OOS window CORRECTED 2026-06-11 (ECON-SR1 audit, fix260611_meta_cmp): the Wave 10I.A 'daily default reconstruction' start of 2015-01-01 was wrong; true OOS start is 2020-01-01 per pair_pipeline_vix_vix3m_spy.py OOS_START and Methodology prose. oos_n_trades=1566 equals the 2020-01-01..2025-12-31 daily period count, confirming the corrected window. Trade-log replay over the corrected window reconciles exactly (Sharpe 1.1295 / MDD -21.15% / ann 15.31%). bh_oos_sharpe/bh_sharpe=0.7707 additively backfilled 2026-06-21 (fix260620_lead_horizon Phase 3) from the tournament_results_20260314.csv BENCHMARK row, reconciled to an independent SPY buy-and-hold OOS Sharpe recompute over 2020-01-01..2025-12-31 (n=1566, ann=252) = 0.7707; not a winner change."
+  "notes": "vix_vix3m_spy DAILY Class-A rebuild (GH#13, Lead-Grid Frequency Standard). Coincident same-day (L0) winner S3_z126/P1 on the DAILY lead axis {0,1,5,21,63,126,252} (target SPY). OOS 2020-01-01..2025-12-31. Lead-axis rebuild from restored original data (deterministic signals, no re-fit) \u2014 reproduces committed 1.1295; winner UNCHANGED. oos_n_trades=1566 is the OOS daily period count (not discrete trades)."
 }

@@ -1,0 +1,13 @@
+lead_months,oos_sharpe,is_published_winner,lead_source
+1,1.0154,False,pipeline
+2,1.6882,True,pipeline
+3,1.0272,False,pipeline
+4,0.3592,False,patched
+5,0.7127,False,patched
+6,0.5585,False,pipeline
+7,0.8564,False,patched
+8,0.5587,False,patched
+9,0.8295,False,patched
+10,0.7596,False,patched
+11,0.7973,False,patched
+12,0.7189,False,pipeline

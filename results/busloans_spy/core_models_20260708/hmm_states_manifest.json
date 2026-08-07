@@ -1,0 +1,27 @@
+{
+  "file": "hmm_states.parquet",
+  "pair_id": "busloans_spy",
+  "produced_by": "scripts/pair_pipeline_busloans_spy.py",
+  "generated_at": "2026-07-08T08:46:41Z",
+  "columns": {
+    "hmm_state": "integer state; stress = high-variance YoY-growth regime",
+    "prob_stress": "P(stress regime); higher = loan growth in high-variance regime",
+    "prob_calm": "1 - prob_stress"
+  },
+  "assertions": [
+    {
+      "description": "probabilities in [0,1]",
+      "check": "prob_stress between 0 and 1"
+    },
+    {
+      "description": "COVID drawdown era is high-variance",
+      "filter": "2020-04 to 2020-12",
+      "column": "prob_stress",
+      "check": "mean = 1.00 (computed at fit time)"
+    },
+    {
+      "description": "states sum to 1",
+      "check": "prob_stress + prob_calm == 1"
+    }
+  ]
+}

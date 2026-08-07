@@ -3,6 +3,6 @@
   "pair_id": "petrol_inv_spy",
   "skipped_by": "VIZ-CP1-G",
   "reason": "ECON-CP2 artifacts intentionally absent for this pair: regime_story=false in results/petrol_inv_spy/signal_scope.json (Evan handoff \u00a75 units note). No upstream result file exists to chart.",
-  "generated_at": "2026-06-17T15:06:11.247570+00:00",
+  "generated_at": "2026-07-11T09:45:21.448333+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
 }

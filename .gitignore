@@ -1,6 +1,8 @@
 # Environment & secrets
 .env
 .env.*
+# ...but the template carries no secrets and must be tracked (`.env.*` above matches it).
+!.env.example
 *.key
 credentials*/
 secrets*/
@@ -11,6 +13,11 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+
+# Virtualenv — never portable (bin/ shebangs hardcode an absolute host path),
+# so a committed one churns in git status on every machine. Rebuild from
+# requirements.txt instead. Untracked via `git rm -r --cached .venv`.
+.venv/
 
 # Jupyter
 .ipynb_checkpoints/
@@ -43,6 +50,14 @@ temp/
 # Exception: FOMC SEP extracted data (small, needed by viewer)
 !fomc-sep/data/**/*.parquet
 !fomc-sep/data/*.parquet
+
+# Exception: Class-A daily raw data — PINNED for reproducibility (GH#13 / issue #19).
+# These daily-traded pairs' tournaments depend on the raw daily data; it was gitignored
+# and lost via an unscoped rsync (2026-07-15). Pin each vintage explicitly (not a wildcard,
+# so a future dated refresh stays ignored until consciously re-pinned). phlxsox already tracked.
+!data/hy_ig_spy_daily_20000101_20260422.parquet
+!data/gold_copper_xli_daily_20260526.parquet
+!data/vix_vix3m_spy_daily_20260314.parquet
 
 # Claude Code scheduled-tasks transient lock
 .claude/scheduled_tasks.lock

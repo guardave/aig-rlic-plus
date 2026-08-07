@@ -49,7 +49,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart, QUARTILE_COLORS  # noqa: E402
 
 PAIR = "petrol_inv_spy"
-DATE_TAG = "20260617"
+DATE_TAG = "20260711"  # GH#13 full-grid re-selection run (was 20260617 coarse-grid)
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -210,9 +210,15 @@ def save_chart(name: str, fig: go.Figure, *, caption: str, alignment: str,
     if extra_meta:
         meta.update(extra_meta)
     (OUT / f"{name}_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
-    fig.write_image(str(OUT / f"_perceptual_check_{name}.png"),
-                    width=1100, height=600, scale=1)
-    print(f"  wrote {name}.json (+sidecar, +perceptual png)")
+    # Perceptual-check PNG is a review aid, not a portal artifact — best-effort so a
+    # missing/kaleido-broken Chrome in a minimal container never blocks JSON emission.
+    try:
+        fig.write_image(str(OUT / f"_perceptual_check_{name}.png"),
+                        width=1100, height=600, scale=1)
+        png_note = "+perceptual png"
+    except Exception as e:
+        png_note = f"(PNG skipped: {type(e).__name__})"
+    print(f"  wrote {name}.json (+sidecar) {png_note}")
 
 
 def nber_swatch(fig: go.Figure) -> None:

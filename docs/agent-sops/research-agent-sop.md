@@ -1384,7 +1384,7 @@ Before authoring any episode paragraph:
 2. Did any source turn out to be less credible than expected? Note it.
 3. Did Dana flag a recommended source as impractical? Update your source knowledge.
 4. Did Evan depart from your specification recommendation? Understand why and learn from it.
-5. Distill 1-2 key lessons and update your memories file at `~/.claude/agents/research-ray/memories.md`.
+5. Distill 1-2 key lessons and update your memories file at `~/.agents/profiles/research-ray/memories.md`.
 6. If a lesson is cross-project (not specific to this analysis), update `experience.md` too.
 
 ### End-of-Task Reflection (EOD-Lightweight)
@@ -1393,7 +1393,7 @@ Before returning your task result, complete these three lightweight steps:
 
 1. **Reflect** — In one sentence, name the key insight from this task. Focus on what was non-obvious or surprising (not just "I completed the task").
 
-2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.claude/agents/research-ray/experience.md`. Use this format:
+2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.agents/profiles/research-ray/experience.md`. Use this format:
    ```markdown
    ## YYYY-MM-DD — <short insight title>
 

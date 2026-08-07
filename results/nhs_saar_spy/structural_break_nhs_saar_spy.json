@@ -1,0 +1,5 @@
+{
+  "pair_id": "nhs_saar_spy",
+  "method": "rolling-correlation z-score proxy",
+  "max_abs_z": 2.270888128014001
+}

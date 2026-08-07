@@ -2,7 +2,7 @@
   "file": "regime_quartile_returns.csv",
   "pair_id": "busloans_spy",
   "produced_by": "scripts/pair_pipeline_busloans_spy.py",
-  "generated_at": "2026-06-12T08:53:39Z",
+  "generated_at": "2026-07-08T08:46:41Z",
   "columns": {
     "quartile": "BUSLOANS YoY growth quartile (Q1 lowest growth)",
     "n_months": "obs",

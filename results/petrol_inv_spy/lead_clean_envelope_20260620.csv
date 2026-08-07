@@ -1,0 +1,13 @@
+lead_months,best_oos_sharpe,best_signal,best_is_clean,best_clean_oos_sharpe,best_clean_signal,lead_source
+1,1.326,petrol_inv_zscore_60m,True,1.326,petrol_inv_zscore_60m,pipeline
+2,1.3948,petrol_inv_yoy_zscore_60m,True,1.3948,petrol_inv_yoy_zscore_60m,pipeline
+3,1.4539,petrol_inv_zscore_60m,True,1.4539,petrol_inv_zscore_60m,pipeline
+4,1.3025,petrol_inv_zscore_60m,True,1.3025,petrol_inv_zscore_60m,pipeline
+5,1.3555,petrol_inv_zscore_60m,True,1.3555,petrol_inv_zscore_60m,pipeline
+6,1.3322,petrol_inv_pct_yoy,True,1.3322,petrol_inv_pct_yoy,pipeline
+7,1.3037,petrol_inv_dev_trend_pct,True,1.3037,petrol_inv_dev_trend_pct,pipeline
+8,1.344,petrol_inv_pct_yoy,True,1.344,petrol_inv_pct_yoy,pipeline
+9,1.291,hmm_2state_prob_stress,True,1.291,hmm_2state_prob_stress,pipeline
+10,1.4239,petrol_inv_zscore_60m,True,1.4239,petrol_inv_zscore_60m,pipeline
+11,1.5273,petrol_inv_zscore_60m,True,1.5273,petrol_inv_zscore_60m,pipeline
+12,1.4779,petrol_inv_3m_pct,True,1.4779,petrol_inv_3m_pct,pipeline

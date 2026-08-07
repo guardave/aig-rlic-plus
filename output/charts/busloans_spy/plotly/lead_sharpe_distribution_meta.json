@@ -8,14 +8,14 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "narrative_alignment_note": "Sweep-grid best OOS Sharpe 1.50 at L5 (busloans_pct_mom x P1); a single spike. Buy-and-hold SPY OOS Sharpe = 0.89. Published winner sits at L6 (native tournament, OOS Sharpe 1.50).",
-  "caption": "Sweep-grid best OOS Sharpe 1.50 at L5 (busloans_pct_mom x P1); a single spike. Buy-and-hold SPY OOS Sharpe = 0.89. Published winner sits at L6 (native tournament, OOS Sharpe 1.50).",
-  "created_at": "2026-06-27T13:16:29Z",
+  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, C&I Loans) peaks at L6; deployed lead L6 = 1.50. Grey bars: best-of-any-signal envelope on the same native grid (envelope >= winner curve at every lead). Buy-and-hold SPY = 0.89. On the tournament's own grid the published winner sits at the envelope peak (L6): its own curve and the best-of-any-signal envelope both peak there.",
+  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, C&I Loans) peaks at L6; deployed lead L6 = 1.50. Grey bars: best-of-any-signal envelope on the same native grid (envelope >= winner curve at every lead). Buy-and-hold SPY = 0.89. On the tournament's own grid the published winner sits at the envelope peak (L6): its own curve and the best-of-any-signal envelope both peak there.",
+  "created_at": "2026-07-08T08:58:13Z",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/busloans_spy/lead_tournament_20260620.csv",
+    "results/busloans_spy/lead_winner_curve_20260620.csv",
     "results/busloans_spy/winner_summary.json"
   ],
   "generated_by": "Viz Vera \u2014 scripts/generate_lead_charts.py (VIZ-LEAD1)"

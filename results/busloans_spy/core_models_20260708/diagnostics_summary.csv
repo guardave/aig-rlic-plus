@@ -1,0 +1,5 @@
+test,statistic,p_value,interpretation
+Jarque-Bera,78.893,0.0,Non-normal — robust/HAC inference used
+Breusch-Pagan,0.795,0.3726,Homoskedastic
+Breusch-Godfrey (12),243.867,0.0,Serial correlation (overlapping fwd returns) — HAC SEs used
+RESET,0.255,0.7754,Linear form adequate

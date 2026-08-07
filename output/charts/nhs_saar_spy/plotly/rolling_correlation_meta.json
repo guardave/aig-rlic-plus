@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "nhs_saar_spy",
+  "generated_at": "2026-08-04T05:46:57.079693+00:00",
+  "generated_by": "scripts/generate_charts_nhs_saar_spy.py",
+  "caption": "Rolling 60-month correlation between New Home Sales 6-month growth and SPY returns.",
+  "narrative_alignment_note": "Rolling 60-month correlation between New Home Sales 6-month growth and SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/projects/minions/mqr-platform-vchua1/research/projects/aig-rlic-plus/results/nhs_saar_spy/rolling_correlation_nhs_saar_spy.csv"
+  ]
+}

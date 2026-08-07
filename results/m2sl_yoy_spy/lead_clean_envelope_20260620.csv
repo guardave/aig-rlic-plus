@@ -1,0 +1,13 @@
+lead_months,best_oos_sharpe,best_signal,best_is_clean,best_clean_oos_sharpe,best_clean_signal,lead_source
+1,1.1802,m2sl_yoy_accel_pct,True,1.1802,m2sl_yoy_accel_pct,pipeline
+2,1.6882,m2sl_yoy_accel_pct,True,1.6882,m2sl_yoy_accel_pct,pipeline
+3,1.0651,m2sl_yoy_accel_pct,True,1.0651,m2sl_yoy_accel_pct,pipeline
+4,1.0813,m2sl_yoy_accel_pct,True,1.0813,m2sl_yoy_accel_pct,patched
+5,1.1778,m2sl_3m_pct,True,1.1778,m2sl_3m_pct,patched
+6,1.0635,m2sl_pct_yoy,True,1.0635,m2sl_pct_yoy,pipeline
+7,1.1568,m2sl_yoy_zscore_120m,True,1.1568,m2sl_yoy_zscore_120m,patched
+8,1.1553,m2sl_6m_pct,True,1.1553,m2sl_6m_pct,patched
+9,1.0895,m2sl_yoy_accel_pct,True,1.0895,m2sl_yoy_accel_pct,patched
+10,1.1022,m2sl_yoy_accel_pct,True,1.1022,m2sl_yoy_accel_pct,patched
+11,1.1626,m2sl_yoy_accel_pct,True,1.1626,m2sl_yoy_accel_pct,patched
+12,1.2615,m2sl_3m_pct,True,1.2615,m2sl_3m_pct,pipeline

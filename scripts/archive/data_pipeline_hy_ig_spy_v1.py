@@ -18,6 +18,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from scipy import stats
+from dotenv import load_dotenv
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -55,7 +56,10 @@ def source_fred_series():
         "SOFR": "sofr",
     }
 
-    api_key = os.environ.get("FRED_API_KEY", "952aa4d0c4b2057609fbf3ecc6954e58")
+    load_dotenv()  # repo-root .env; hardcoded fallback removed (key rotated after leak)
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        raise SystemExit("FRED_API_KEY not set — copy .env.example to .env, or run setup.sh.")
     fred_data = {}
 
     # Try fredapi

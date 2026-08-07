@@ -125,7 +125,7 @@ Don't paste big briefs into the terminal — they fragment. Write a file, send a
 cat > _pws/lead-lesandro/<wave>/briefs/<role>_brief.md <<'EOF'
 [Role Name] — <work packet>
 Resolve persona via ./AGENTS.md (read ~/.claude/CLAUDE.md, ./CLAUDE.md, your SOP
-docs/agent-sops/<role>-agent-sop.md, and ~/.claude/agents/<role>/).
+docs/agent-sops/<role>-agent-sop.md, and ~/.agents/profiles/<role>-<name>/).
 Print `<ROLE> DONE` at line start when finished, or `<ROLE> BLOCKED: <reason>`.
 <the brief>
 EOF

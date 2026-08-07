@@ -9,8 +9,12 @@ Outputs structured Parquet files for each variable group.
 import os
 import pandas as pd
 from fredapi import Fred
+from dotenv import load_dotenv
 
-API_KEY = os.environ.get("FRED_API_KEY", "952aa4d0c4b2057609fbf3ecc6954e58")
+load_dotenv()  # repo-root .env; hardcoded fallback removed (key rotated after leak)
+API_KEY = os.environ.get("FRED_API_KEY")
+if not API_KEY:
+    raise SystemExit("FRED_API_KEY not set — copy .env.example to .env, or run setup.sh.")
 OUT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "fred")
 os.makedirs(OUT_DIR, exist_ok=True)
 

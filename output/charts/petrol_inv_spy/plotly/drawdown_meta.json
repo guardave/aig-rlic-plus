@@ -8,14 +8,14 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Drawdown path for the petroleum-inventory Long/Cash rule and buy-and-hold SPY. In OOS, the strategy's max drawdown is -6.3% versus -23.9% for buy-and-hold; this is the main tradeoff benefit, not higher return.",
+  "caption": "Drawdown path for the petroleum-inventory Long/Cash rule and buy-and-hold SPY. In OOS, the strategy's max drawdown is -7.6% versus -23.9% for buy-and-hold; this is the main tradeoff benefit, not higher return.",
   "narrative_alignment_note": "Drawdown computed directly from Evan's saved monthly return series.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/petrol_inv_spy/strategy_returns_20260617.csv",
+    "results/petrol_inv_spy/strategy_returns_20260711.csv",
     "results/petrol_inv_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-17T15:05:52.446168+00:00",
+  "generated_at": "2026-07-11T09:44:59.656143+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
 }

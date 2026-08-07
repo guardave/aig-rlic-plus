@@ -1,4 +1,4 @@
-# Design Note — busloans_spy (20260612)
+# Design Note — busloans_spy (20260708)
 
 ## Category & method coverage (Rule C1, credit-equity)
 All credit-equity mandatory methods produced. Deviations from the daily-pair spec, documented per Rule C1:
@@ -7,7 +7,7 @@ All credit-equity mandatory methods produced. Deviations from the daily-pair spe
 - Pre-whitened CCF run at monthly lags −20..+20 (not daily).
 - Granger is Toda-Yamamoto (VAR in levels of the stationary YoY transform with d_max=1 augmentation).
 - Transfer entropy: tercile-binned plug-in estimator, 500 permutations (dcor/pyinform not in env).
-- Stationarity: Dana's tests (stationarity_tests_20260612.csv) reviewed and CONFIRMED, not re-run.
+- Stationarity: Dana's tests (stationarity_tests_20260708.csv) reviewed and CONFIRMED, not re-run.
 
 ## Lead-lag verdict (the lagging-indicator hypothesis)
 - BUSLOANS→SPY TY-Granger significant lags: NONE
@@ -21,6 +21,6 @@ See handoff for the full verdict.
   position_t = rule(signal_(t−L)); strategy_return_t = position_t × spy_ret_t.
 - Both orientations (pro/counter) tested per the mixed direction prior.
 - CP2 skipped — `regime_story: false` in signal_scope.json.
-- Returns gross of costs; 5 bps sensitivity grid in tournament_validation_20260612/.
+- Returns gross of costs; 5 bps sensitivity grid in tournament_validation_20260708/.
 
 ## New pair — no prior version, Rule C3 regression diff not applicable.

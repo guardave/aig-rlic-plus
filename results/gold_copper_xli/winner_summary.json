@@ -16,19 +16,19 @@
   "lead_description": "Signal lead = 0 business day(s)",
   "direction": "countercyclical",
   "oos_sharpe": 1.273,
-  "oos_ann_return": 0.13449999999999998,
+  "oos_ann_return": 0.1345,
   "oos_max_drawdown": -0.0825,
   "bh_sharpe": 0.6558,
   "bh_ann_return": 0.1281,
   "bh_max_drawdown": -0.4233,
   "annual_turnover": 16.41,
-  "win_rate": 0.21455938697318008,
+  "win_rate": 0.5744,
   "oos_n_trades": 102,
   "oos_period_start": "2020-01-01",
   "oos_period_end": "2025-12-31",
   "target_symbol": "XLI",
   "schema_version": "1.1.0",
-  "generated_at": "2026-05-31T21:47:46Z",
+  "generated_at": "2026-07-15T10:24:57Z",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=252",
@@ -36,13 +36,17 @@
       "leads": [
         0,
         1,
-        5
+        5,
+        21,
+        63,
+        126,
+        252
       ],
       "n_signals": 5,
       "n_thresholds": 3,
       "n_strategies": 2,
-      "n_valid_combos": 60,
-      "median_valid_objective": 0.541
+      "n_valid_combos": 123,
+      "median_valid_objective": 0.4112
     },
     "tie_break_step": 0,
     "raw_winner_row": {
@@ -51,8 +55,8 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_days",
       "lead_value": 0,
-      "source_tournament_file": "tournament_results_20260526.csv",
-      "source_row_index": 0,
+      "source_tournament_file": "tournament_results_20260715.csv",
+      "source_row_index": 31,
       "display_alias": "signal_code=S_zscore_126d (raw signal=gold_copper_zscore_126d)"
     },
     "runner_up": {
@@ -62,8 +66,8 @@
       "lead_value": 0,
       "objective_value": 1.2546
     },
-    "rationale": "Unique maximiser of OOS Sharpe over the committed coarse daily grid L{0,1,5} (60 valid combos, median OOS Sharpe 0.541). Winner raw OOS Sharpe 1.273 at L0; the 2nd-best valid combo (gold_copper_roc_63d/T2_p50/P1_long_cash/L0) sits at 1.2546. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "rationale": "FREE full-grid daily selection (Lead-Grid Frequency Standard, 2026-07-15): NO cap. Winner is the global-max valid OOS Sharpe over the anchored DAILY grid {0,1,5,21,63,126,252} trading days (123 valid combos, median 0.4112; deployable/cash-filled scoring): gold_copper_zscore_126d/T2_p50/P1_long_cash/L0 = 1.2730. Winner is at L0 = COINCIDENT / same-day (gold/copper ratio observed at close; real-time floor L0). Newey-West HAC t=3.50 > 3.0 (Harvey-Liu-Zhu) \u2014 genuine edge. NO long-lead edge (L126 best=0.786 (HAC t=2.08); L252 best=0.383 (HAC t=1.02) \u2014 fail t>3), so the grid extension surfaces only multiple-testing noise. Built from the RESTORED original raw data (data/gold_copper_xli_daily_20260526.parquet, deterministic price-transform signals \u2014 no model re-fit): reproduces the committed headline 1.273 EXACTLY \u2014 a lead-AXIS rebuild (monthly\u2192daily), NOT a re-selection and NOT a data-vintage change.",
     "objective_runner_up_divergence": null
   },
-  "notes": "Mode 2 Phase 3 (Evan hat). Tournament: 5 signals x 3 thresholds x 2 strategies x 3 leads = 90 combos, 91 fit, 61 valid. Winner selected by OOS Sharpe."
+  "notes": "gold_copper_xli DAILY Class-A rebuild (GH#13, Lead-Grid Frequency Standard). Coincident same-day (L0) winner S_zscore_126d/P1 on the DAILY lead axis {0,1,5,21,63,126,252} (target XLI). OOS 2020-01-01..2025-12-31. Lead-axis rebuild from restored original data \u2014 reproduces committed 1.273; winner UNCHANGED."
 }

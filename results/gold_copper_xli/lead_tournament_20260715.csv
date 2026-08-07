@@ -1,0 +1,8 @@
+lead_days,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+0,23,1.273,0.6888,0.5249,0.874,gold_copper_zscore_126d,T2_p50,P1_long_cash,-0.0825
+1,19,0.8951,0.4298,0.1878,0.5808,gold_copper_roc_63d,T1_p25,P1_long_cash,-0.0838
+5,18,0.7896,0.4233,0.2157,0.5623,gold_copper_roc_63d,T1_p25,P1_long_cash,-0.1423
+21,19,0.9507,0.4721,0.3672,0.6776,gold_copper_roc_63d,T2_p50,P1_long_cash,-0.1676
+63,15,0.6646,0.2376,0.1311,0.3828,gold_copper_roc_126d,T2_p50,P1_long_cash,-0.1961
+126,16,0.7865,0.4124,0.2848,0.5827,gold_copper_roc_63d,T3_p75,P1_long_cash,-0.198
+252,13,0.3832,0.286,0.0736,0.3382,gold_copper_zscore_252d,T2_p50,P1_long_cash,-0.2187

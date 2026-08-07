@@ -8,14 +8,14 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "narrative_alignment_note": "Sweep-grid best OOS Sharpe 1.43 at L0 (sox_spy_ratio_mom_6m_pct x P1); a single spike. Buy-and-hold SPY OOS Sharpe = 0.82. Published winner is a daily-executed strategy at 63 day(s) lead (OOS Sharpe 1.57) \u2014 off this monthly comparability axis; the bars are the monthly-resampled sweep, not the deployed daily horizon.",
-  "caption": "Sweep-grid best OOS Sharpe 1.43 at L0 (sox_spy_ratio_mom_6m_pct x P1); a single spike. Buy-and-hold SPY OOS Sharpe = 0.82. Published winner is a daily-executed strategy at 63 day(s) lead (OOS Sharpe 1.57) \u2014 off this monthly comparability axis; the bars are the monthly-resampled sweep, not the deployed daily horizon.",
-  "created_at": "2026-06-27T13:16:29Z",
+  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, PHLX Semiconductor Index) on the DAILY axis; deployed lead 63d = 1.57. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.82. On the pair's OWN daily grid the winner's own curve peaks at its deployed 63d lead \u2014 a genuine ~63-trading-day lead, not a same-day co-move. Grey bars are the best any signal reaches at each lead (envelope &#8805; winner curve by construction); read the shorter-lead values to see whether the edge decays or reverses ahead of the deployed lead.",
+  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, PHLX Semiconductor Index) on the DAILY axis; deployed lead 63d = 1.57. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.82. On the pair's OWN daily grid the winner's own curve peaks at its deployed 63d lead \u2014 a genuine ~63-trading-day lead, not a same-day co-move. Grey bars are the best any signal reaches at each lead (envelope &#8805; winner curve by construction); read the shorter-lead values to see whether the edge decays or reverses ahead of the deployed lead.",
+  "created_at": "2026-07-15T10:53:04Z",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/phlxsox_spy/lead_tournament_20260620.csv",
+    "results/phlxsox_spy/lead_winner_curve_20260715.csv",
     "results/phlxsox_spy/winner_summary.json"
   ],
   "generated_by": "Viz Vera \u2014 scripts/generate_lead_charts.py (VIZ-LEAD1)"

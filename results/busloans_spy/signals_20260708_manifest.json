@@ -1,0 +1,38 @@
+{
+  "file": "signals_20260708.parquet",
+  "pair_id": "busloans_spy",
+  "produced_by": "scripts/pair_pipeline_busloans_spy.py",
+  "generated_at": "2026-07-08T08:46:41Z",
+  "columns": {
+    "busloans_pct_yoy": "tournament-eligible signal derived solely from BUSLOANS (busloans_pct_yoy)",
+    "busloans_pct_mom": "tournament-eligible signal derived solely from BUSLOANS (busloans_pct_mom)",
+    "busloans_3m_pct": "tournament-eligible signal derived solely from BUSLOANS (busloans_3m_pct)",
+    "busloans_6m_pct": "tournament-eligible signal derived solely from BUSLOANS (busloans_6m_pct)",
+    "busloans_dev_trend_pct": "tournament-eligible signal derived solely from BUSLOANS (busloans_dev_trend_pct)",
+    "busloans_zscore_60m": "tournament-eligible signal derived solely from BUSLOANS (busloans_zscore_60m)",
+    "busloans_yoy_zscore_60m": "tournament-eligible signal derived solely from BUSLOANS (busloans_yoy_zscore_60m)",
+    "busloans_accel_pct": "tournament-eligible signal derived solely from BUSLOANS (busloans_accel_pct)",
+    "busloans_contraction": "tournament-eligible signal derived solely from BUSLOANS (busloans_contraction)",
+    "hmm_2state_prob_stress": "tournament-eligible signal derived solely from BUSLOANS (hmm_2state_prob_stress)",
+    "markov_regime_2state": "tournament-eligible signal derived solely from BUSLOANS (markov_regime_2state)"
+  },
+  "assertions": [
+    {
+      "description": "COVID YoY spike present",
+      "filter": "2020-05-31",
+      "column": "busloans_pct_yoy",
+      "check": "value > 29"
+    },
+    {
+      "description": "GFC-aftermath trough",
+      "filter": "2009-01..2010-12",
+      "column": "busloans_pct_yoy",
+      "check": "min < -19"
+    },
+    {
+      "description": "HMM prob bounded",
+      "column": "hmm_2state_prob_stress",
+      "check": "values in [0,1]"
+    }
+  ]
+}

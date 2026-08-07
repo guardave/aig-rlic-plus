@@ -1,0 +1,3 @@
+null_hypothesis,trace_stat,critical_90,critical_95,critical_99,reject_at_95
+r <= 0,15.3962,16.1619,18.3985,23.1485,False
+r <= 1,5.2136,2.7055,3.8415,6.6349,True

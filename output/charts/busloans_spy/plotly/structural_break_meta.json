@@ -17,7 +17,7 @@
     "data/busloans_spy_monthly_19470131_20260531.parquet"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-12T09:12:47.107357+00:00",
+  "generated_at": "2026-07-08T08:49:33.394290+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)",
   "break_date": "2002-10-31",
   "annotation_strategy_id": "manual_override",

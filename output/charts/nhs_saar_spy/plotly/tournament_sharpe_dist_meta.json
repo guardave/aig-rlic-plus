@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "nhs_saar_spy",
+  "generated_at": "2026-08-04T05:46:52.281422+00:00",
+  "generated_by": "scripts/generate_charts_nhs_saar_spy.py",
+  "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/projects/minions/mqr-platform-vchua1/research/projects/aig-rlic-plus/results/nhs_saar_spy/tournament_results_20260804.csv"
+  ]
+}

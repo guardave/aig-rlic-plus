@@ -94,7 +94,10 @@ def fetch_fred(series_id, col_name, start=CONTEXT_START):
     """Fetch via the official FRED API (JSON). Same key convention as
     pair_data_cass_freight_spy.py."""
     import urllib.request
-    api_key = os.environ.get("FRED_API_KEY") or "952aa4d0c4b2057609fbf3ecc6954e58"
+    load_dotenv()  # repo-root .env; hardcoded fallback removed (key rotated after leak)
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        raise SystemExit("FRED_API_KEY not set — copy .env.example to .env, or run setup.sh.")
     url = (f"https://api.stlouisfed.org/fred/series/observations?"
            f"series_id={series_id}&api_key={api_key}&file_type=json"
            f"&observation_start={start}&observation_end={END_DATE}")
@@ -251,6 +254,7 @@ print(f"  Usable HMI x SPY overlap: {overlap.index.min().date()} -> {overlap.ind
 
 # Stationarity tests
 from arch.unitroot import ADF, KPSS
+from dotenv import load_dotenv
 test_cols = ["nahb_hmi", "nahb_hmi_pct_yoy", "nahb_hmi_pct_mom", "nahb_hmi_3m_pct",
              "nahb_hmi_6m_pct", "nahb_hmi_diff_12m", "nahb_hmi_diff_3m",
              "nahb_hmi_zscore_60m", "nahb_hmi_diff12_zscore_60m",
