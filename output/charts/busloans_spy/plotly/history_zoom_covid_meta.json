@@ -22,7 +22,7 @@
     "docs/schemas/history_zoom_events_registry.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-12T09:12:54.151569+00:00",
+  "generated_at": "2026-07-08T08:49:41.909961+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)",
   "annotation_strategy_id": "descending_stair",
   "events_registry_version": "1.0.0",

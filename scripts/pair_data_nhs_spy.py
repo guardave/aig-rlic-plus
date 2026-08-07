@@ -28,6 +28,7 @@ import csv
 import json
 import shutil
 import subprocess
+import sys
 import warnings
 from datetime import datetime, timezone
 from pathlib import Path
@@ -55,7 +56,10 @@ TARGET = "spy"
 DATE_TAG = "20260703"
 NOW_ISO = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-PYEXE = str(ROOT / ".venv/bin/python")
+# Same interpreter that is running this script, so subprocesses inherit the environment
+# the caller chose. Was pinned to .venv/bin/python — that venv is no longer tracked, and it
+# was never portable anyway (built for 3.12, its shebangs hardcode an absolute host path).
+PYEXE = sys.executable
 
 
 def repo_rel(path: Path | str) -> str:

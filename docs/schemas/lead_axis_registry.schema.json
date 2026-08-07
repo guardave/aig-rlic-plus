@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus/docs/schemas/lead_axis_registry.schema.json",
+  "title": "Lead-Axis Registry",
+  "description": "Per-pair frequency record mandated by the Lead-Grid Frequency Standard (docs/lead-grid-frequency-standard.md, adopted 2026-07-14). For every REGISTERED pair (one entry per app/pair_configs/*_config.py) it records the signal's native release frequency, its publication lag, the lead axis that frequency implies (Step 1 HARD RULE), and the anchored grid (Step 3). scripts/gate_lead_axis.py reads lead_axis here as the expected axis and asserts each pair's lead artifacts sit on it. lead_floor / publication_lag are REFERENCE metadata (Step 2 real-time floor) and are NOT gate-enforced.",
+  "x-owner": "evan",
+  "x-version": "1.0.0",
+  "type": "object",
+  "required": ["x-version", "x-owner", "governing_standard", "pairs"],
+  "properties": {
+    "x-version": {
+      "type": "string",
+      "description": "Semver of the registry instance (separate from this schema's x-version). Bumped whenever a pair is added, reclassified, or its axis/grid changes.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "x-owner": {
+      "type": "string",
+      "description": "Single agent accountable for the registry instance.",
+      "const": "evan"
+    },
+    "x-generated": {
+      "type": "string",
+      "description": "ISO-8601 date the instance was last regenerated."
+    },
+    "governing_standard": {
+      "type": "string",
+      "description": "Relative path to the standard this registry enforces.",
+      "const": "docs/lead-grid-frequency-standard.md"
+    },
+    "notes": {"type": "string"},
+    "axis_unit_map": {
+      "type": "object",
+      "description": "Convenience map from signal_frequency to lead_axis unit.",
+      "additionalProperties": {"type": "string"}
+    },
+    "pairs": {
+      "type": "object",
+      "description": "Map of pair_id -> frequency record. One entry per registered pair.",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z0-9_]+$": {"$ref": "#/$defs/pair_record"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "pair_record": {
+      "type": "object",
+      "required": ["signal_frequency", "lead_axis", "lead_grid"],
+      "properties": {
+        "signal_frequency": {
+          "type": "string",
+          "description": "The signal's native release/update frequency — the classification of record that sets the lead axis (Step 1).",
+          "enum": ["daily", "weekly", "monthly", "quarterly"]
+        },
+        "signal_description": {"type": "string"},
+        "publication_lag": {
+          "type": "string",
+          "description": "REFERENCE ONLY (Step 2). Human-readable release lag; not gate-enforced."
+        },
+        "real_time": {
+          "type": "boolean",
+          "description": "True for market data observed at close (real-time floor L0); false for lagged economic releases (floor L1)."
+        },
+        "lead_axis": {
+          "type": "string",
+          "description": "The axis unit implied by signal_frequency; the value the gate asserts against the artifacts.",
+          "enum": ["trading_days", "weeks", "months", "quarters"]
+        },
+        "lead_floor": {
+          "type": "integer",
+          "description": "REFERENCE ONLY (Step 2 real-time deployable floor); not gate-enforced.",
+          "minimum": 0
+        },
+        "lead_grid": {
+          "type": "array",
+          "description": "The anchored grid for this axis (Step 3).",
+          "items": {"type": "integer", "minimum": 0},
+          "minItems": 1
+        },
+        "observed_winner_lead_unit": {
+          "type": "string",
+          "description": "winner_summary.lead_unit at authoring time — an audit cross-check, not the classification of record.",
+          "enum": ["days", "weeks", "months", "quarters"]
+        },
+        "class": {"type": "string"},
+        "note": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

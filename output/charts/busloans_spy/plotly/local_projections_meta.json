@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Dual-panel LP per ECON-H4 row 'IRF with CI band (fwd + rev panels)'.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/busloans_spy/core_models_20260612/local_projections.csv"
+    "results/busloans_spy/core_models_20260708/local_projections.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-12T09:15:06.997601+00:00",
+  "generated_at": "2026-07-08T08:49:18.128085+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)"
 }

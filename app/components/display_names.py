@@ -124,7 +124,7 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "indpro_xlp": "INDPRO",
     "permit_spy": "Building Permits",
     "vix_vix3m_spy": "VIX/VIX3M",
-    "hy_ig_spy": "HY-IG Spread (v1)",
+    "hy_ig_spy": "HY-IG Credit Spread",
     "umcsent_xlv": "UMCSENT",
     "gold_copper_xli": "Gold/Copper",
     "busloans_spy": "C&I Loans",

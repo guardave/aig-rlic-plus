@@ -84,7 +84,7 @@ class StoryConfig:
         "every performance number on this page is a search-phase "
         "out-of-sample figure (window 2018-02 → 2026-05, 100 months); no "
         "holdout / final-exam test has been run yet. The winner was found "
-        "as the best of 4,396 valid combinations; bootstrap p = 0.066, not "
+        "as the best of 10,522 valid combinations; bootstrap p = 0.066, not "
         "significant at the 5% level."
     )
 
@@ -215,13 +215,13 @@ What it exploits instead is a *state* description, not a prediction. Very weak l
 
 ### What survives: a defensive overlay, honestly labelled
 
-After 6,100 strategy combinations were searched (4,396 passing validity filters), the best rule found was: **be long the S&P 500 (SPY) only when month-over-month loan growth — observed with a 6-month delay — is in the bottom quartile of its trailing 36-month range; otherwise hold cash.** In the search window (2018-02 to 2026-05) that rule produced a Sharpe ratio of 1.50 versus 0.89 for buy-and-hold, with a maximum drawdown of just −1.0% versus −23.9%.
+After 14,640 strategy combinations were searched (10,522 passing validity filters), the best rule found was: **be long the S&P 500 (SPY) only when month-over-month loan growth — observed with a 6-month delay — is in the bottom quartile of its trailing 36-month range; otherwise hold cash.** In the search window (2018-02 to 2026-05) that rule produced a Sharpe ratio of 1.50 versus 0.89 for buy-and-hold, with a maximum drawdown of just −1.0% versus −23.9%.
 
 **How this connects to the quartile chart above.** The "SPY Performance by Loan-Growth Quartile" view near the top of this page is the *descriptive* observation: historically, forward equity returns were healthiest when loan growth sat in its **weakest quartile (Q1)** — the late, post-stress stage of the cycle. The winning rule is simply that observation turned into a mechanical trigger: it puts you in the market precisely — and only — when the delayed loan-growth reading falls into that weakest-quartile bucket, and holds cash otherwise. In other words, the chart tells you *which regime was historically safe to own equities in*; the rule *automates standing in that regime and stepping aside from the rest*. The descriptive quartile finding is the hypothesis; the tournament winner is the disciplined implementation of it — with all the search-phase caveats spelled out on the Strategy page.
 
 But this finding comes with non-negotiable context, stated here rather than in a footnote:
 
-- It is the **best of 4,396** — and the **median** valid combination scored 0.74, *below* buy-and-hold's 0.89. Most things you could have tried with this indicator lose to doing nothing. The winner is the far tail of a large search.
+- It is the **best of 10,522** — and the **median** valid combination scored 0.75, *below* buy-and-hold's 0.89. Most things you could have tried with this indicator lose to doing nothing. The winner is the far tail of a large search.
 - A bootstrap re-shuffle test puts the probability of a result this good arising by chance at **6.6%** — above the 5% bar we would want before calling it real.
 - The rule looked unimpressive on pre-2018 data (in-sample Sharpe 0.35), its edge is concentrated in one episode (the COVID recovery), and it was in the market only 25% of the time.
 
@@ -672,63 +672,74 @@ LEAD_TOURNAMENT_BLOCK = dict(
     chart_status="ready",
     method_name="Lead Tournament",
     method_theory=(
-        "This block sweeps the monthly lead grid L = 0…12 and plots the best "
-        "OOS Sharpe at each lead (blue bar) against all valid combos (grey "
-        "strip); the dashed orange line is SPY buy-and-hold (Sharpe 0.89). "
-        "Read it alongside the lagging-indicator caveat: any Sharpe here comes "
-        "from a descriptive late-cycle regularity, not from forward causality."
+        "This chart is a projection of the pair's ONE native tournament (GH #13 "
+        "single-source): the orange line is the **published winner's own** OOS "
+        "Sharpe at each lead; the grey bars are the best-of-any-signal envelope "
+        "on the SAME grid; the dashed line is SPY buy-and-hold (Sharpe 0.89). "
+        "Every lead L1–L12 was scored directly by the native tournament on the "
+        "**deployable** series (undefined-position months count as cash), so all "
+        "markers are solid — nothing patched. Read it alongside the "
+        "lagging-indicator caveat: any Sharpe here is a searched result on a "
+        "backward-causal series, not evidence of forward predictive content."
     ),
     question=(
-        "Where does the traded 6-month lead sit on the sweep — and is its "
-        "Sharpe a robust ridge or a fragile artefact of a pair with no genuine "
-        "forward edge?"
+        "On the tournament's own grid, is the winner's edge a durable ridge "
+        "across nearby leads, or a single-lead spike that would vanish if the "
+        "assumed lead moved by a month — on a pair with no forward edge?"
     ),
     how_to_read=(
-        "Bars: max OOS Sharpe at each monthly lead. Strip dots: every valid "
-        "combination at that lead. A tall thin spike is a single combo; a "
-        "flat-but-wide cloud is a robust regime."
+        "Orange line + green star: the deployed winner's Sharpe by lead, peaking "
+        "at its traded L6. A broad plateau around the traded lead is robust; a "
+        "tall isolated point that collapses one lead either side is fragile. "
+        "Grey bars: the best any signal achieves at each lead (envelope ≥ the "
+        "winner curve by construction)."
     ),
     chart_name="lead_sharpe_distribution",
     chart_caption=(
-        "Best OOS Sharpe per monthly lead (blue bars) and the full "
-        "distribution (grey strip). The profile is jagged: peaks at L5 (1.50) "
-        "and L4 (1.42), and the traded **L6 (1.13) actually sits in a local "
-        "dip** between them and L7 (1.25). Combined with the null "
-        "lead-correlation result, this argues the Sharpe is regime-descriptive, "
-        "not a robust predictive ridge."
+        "The winner's own curve is a **sharp isolated spike at its traded L6 "
+        "(OOS Sharpe 1.4999)** that collapses to ~0.8 one month either side "
+        "(L5 0.80, L7 0.85). L6 is also the top of the cross-signal envelope, "
+        "but by only ~0.11 Sharpe over the next-best lead (L12 ≈ 1.39), and "
+        "every lead clears buy-and-hold (0.89). A single-lead spike on the "
+        "deployed lead, on a pair with no forward edge, is a searched-result "
+        "signature, not a robust ridge."
     ),
     observation=(
-        "Reading the monthly bars: the profile is **uneven and jagged** — "
-        "L5 (1.50) and L4 (1.42) are the tallest, L9 (1.32) and L11 (1.27) "
-        "form secondary bumps, and the traded **L6 (1.13) sits in a local dip** "
-        "between L5 (1.50) and L7 (1.25). So the traded lead is neither the "
-        "peak nor a smooth ridge point.\n\n"
-        "The published winner (`busloans_pct_mom / T2_roll_p25 / "
-        "P1_long_cash`, OOS Sharpe **1.4999**) is selected on the full "
-        "tournament rather than by lead-optimization, and its lead lands in "
-        "this dip. Given the lead-correlation null (no significant forward "
-        "content at any lead), the jagged Sharpe profile is best read as **a "
-        "descriptive late-cycle regularity surfacing unevenly across leads**, "
-        "not a stable predictive relationship. This is the honest framing the "
-        "rest of the page already adopts (the stock market moves first)."
+        "On the native tournament grid the published winner "
+        "(`busloans_pct_mom / T2_roll_p25 / P1_long_cash`, OOS Sharpe "
+        "**1.4999**) sits at **the top of the lead profile** at its traded L6 — "
+        "its own curve and the cross-signal envelope both peak there. But its "
+        "own curve is a **single isolated spike**: it collapses to **~0.8 one "
+        "month either side** (L5 0.80, L7 0.85), and the envelope's margin over "
+        "the next-best lead is only ~0.11 (L12 ≈ 1.39). So the edge lives "
+        "**almost entirely at the deployed L6**.\n\n"
+        "(An earlier version of this chart drew its bars from a separate "
+        "exploratory sweep on a different P1/P2 grid, on which the traded L6 "
+        "appeared to sit in a local dip; that was a grid artefact. On the "
+        "tournament's own grid — the one that selected the winner, now scored "
+        "on the deployable cash-filled series across the full L1–L12 — L6 is the "
+        "top of the profile, but a sharp single-lead peak.) Given the "
+        "lead-correlation null (`busloans_pct_mom` insignificant at every lead, "
+        "best |r|=0.077 at L5) and the backward-causality finding, the spike is "
+        "best read as **a descriptive late-cycle regularity that scores well in "
+        "one window**, not a robust predictive ridge."
     ),
     interpretation=(
-        "The honest summary: **the lead Sharpe profile is jagged and the "
-        "traded L6 sits in a local dip, on a pair the causality tests show has "
-        "no forward edge.** That combination is a caution flag, not a "
-        "robustness badge — there is no broad predictive ridge here, and the "
-        "lead-correlation diagnostic finds nothing significant at any lead. A "
-        "reader should treat the strategy's OOS Sharpe as riding a descriptive "
-        "late-cycle pattern that happens to score well in-window, and weight "
-        "it accordingly. Honesty over polish."
+        "The honest summary: **on the tournament's own grid the winner's L6 is "
+        "the envelope peak but a single isolated spike — collapsing to ~0.8 one "
+        "lead either side — not a durable ridge**, on a pair whose causality "
+        "runs backward and whose lead-correlation is null at every lead. That is "
+        "a caution flag, not a robustness badge. A reader should treat the "
+        "strong OOS Sharpe as a searched result that scores well in-window and "
+        "weight it as low-confidence, exactly as the rest of this page advises."
     ),
     key_message=(
-        "The lead Sharpe profile is jagged (peaks L5 1.50, L4 1.42) and the "
-        "traded **L6 (1.13) sits in a local dip** — not a robust ridge. With "
-        "the lead-correlation null (no significant forward content at any "
-        "lead), the edge is best read as descriptive late-cycle regularity, "
-        "not predictive. The winner's OOS Sharpe 1.4999 should be read with "
-        "that caveat."
+        "On the native grid the winner's lead L6 (OOS Sharpe 1.4999) is the top "
+        "of the envelope but a **sharp single-lead spike** that collapses to "
+        "~0.8 one month either side — a fragility warning, not a ridge. With the "
+        "lead-correlation null and backward causality, that Sharpe is best read "
+        "as a searched, descriptive late-cycle result, not a discovered "
+        "predictive lead."
     ),
 )
 
@@ -745,7 +756,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "five angles agree — in the direction nobody trades on.*\n\n"
         "All statistics computed on monthly data, SPY-bound sample 1993-02 "
         "→ 2026-05 (400 months), from "
-        "`results/busloans_spy/core_models_20260612/`."
+        "`results/busloans_spy/core_models_20260708/`."
     ),
     "plain_english": (
         "This section shows the statistical evidence on whether business "
@@ -762,19 +773,19 @@ EVIDENCE_METHOD_BLOCKS = {
     # at authoring time (2026-06-12) — counts exclude the header row.
     "downloads": [
         {"label": "Granger causality, both directions × 12 lags (24 rows)",
-         "path": "results/busloans_spy/core_models_20260612/granger_causality.csv"},
+         "path": "results/busloans_spy/core_models_20260708/granger_causality.csv"},
         {"label": "Granger F-statistics by lag, loans → SPY (12 rows)",
          "path": "results/busloans_spy/granger_by_lag.csv"},
         {"label": "Correlation battery, signal × horizon × metric (160 rows)",
-         "path": "results/busloans_spy/core_models_20260612/correlations.csv"},
+         "path": "results/busloans_spy/core_models_20260708/correlations.csv"},
         {"label": "Pre-whitened CCF, offsets −20..+20 (41 rows)",
-         "path": "results/busloans_spy/core_models_20260612/ccf_prewhitened.csv"},
+         "path": "results/busloans_spy/core_models_20260708/ccf_prewhitened.csv"},
         {"label": "Local projections, forward + reverse × 4 horizons (8 rows)",
-         "path": "results/busloans_spy/core_models_20260612/local_projections.csv"},
+         "path": "results/busloans_spy/core_models_20260708/local_projections.csv"},
         {"label": "Transfer entropy, both directions (2 rows)",
-         "path": "results/busloans_spy/core_models_20260612/transfer_entropy.csv"},
+         "path": "results/busloans_spy/core_models_20260708/transfer_entropy.csv"},
         {"label": "Quantile regression, 7 quantiles (7 rows)",
-         "path": "results/busloans_spy/core_models_20260612/quantile_regression.csv"},
+         "path": "results/busloans_spy/core_models_20260708/quantile_regression.csv"},
         {"label": "Regime quartile returns, Q1–Q4 (4 rows)",
          "path": "results/busloans_spy/regime_quartile_returns.csv"},
         {"label": "Sub-period Sharpe, 4 episodes (4 rows)",
@@ -794,16 +805,16 @@ EVIDENCE_METHOD_BLOCKS = {
         "The tournament asks a more pragmatic question: across every "
         "reasonable trading rule you could build from this series, does "
         "*any* of them beat simply holding the S&P 500 (SPY)?\n\n"
-        "We tested a grid of **6,100 strategy combinations** — 11 signal "
+        "We tested a grid of **14,640 strategy combinations** — 11 signal "
         "transforms × multiple threshold schemes × 3 strategy families × "
-        "2 orientations × 5 signal delays × 3 lookback windows — of which "
-        "**4,396 passed validity filters** (out-of-sample Sharpe above "
+        "2 orientations × 12 signal delays (L1–L12) × 3 lookback windows — of which "
+        "**10,522 passed validity filters** (out-of-sample Sharpe above "
         "0.3, fewer than 24 trades per year, at least 24 out-of-sample "
         "months; the buy-and-hold benchmark row is excluded from this "
         "count). The headline rule on the Strategy page is the **best of "
-        "those 4,396** — rank 1, with no ties. Position disclosure, per "
+        "those 10,522** — rank 1, with no ties. Position disclosure, per "
         "our specification-curve standard: the **median** valid "
-        "combination scored an out-of-sample Sharpe of just **0.74 — "
+        "combination scored an out-of-sample Sharpe of just **0.75 — "
         "below buy-and-hold's 0.89**. In plain English: most rules you "
         "could have built from this indicator lose to doing nothing, and "
         "the winner is the far tail of a large search. That is exactly "
@@ -829,12 +840,12 @@ class StrategyConfig:
     )
     PAGE_SUBTITLE = (
         "— and avoided nearly all of the drawdown. Found by a "
-        "4,396-combination search; no holdout test has been run yet."
+        "10,522-combination search; no holdout test has been run yet."
     )
 
     # Ray: strategy_eli5_winner (verbatim).
     PLAIN_ENGLISH = (
-        "The winning rule from a 4,396-combination search: hold the "
+        "The winning rule from a 10,522-combination search: hold the "
         "S&P 500 (SPY) only when monthly loan growth — viewed with a "
         "6-month delay — is in the weakest quarter of its past three "
         "years; otherwise hold cash. In the search window (2018–2026) it "
@@ -880,7 +891,7 @@ No formulas — three steps:
         "First, the framing: what follows describes how the backtested "
         "rule works so you can replicate and audit it — it is **not** a "
         "recommendation to trade it. This rule is a search-phase finding "
-        "(best of 4,396 tried; no holdout test yet; bootstrap p = 0.066, "
+        "(best of 10,522 tried; no holdout test yet; bootstrap p = 0.066, "
         "not significant at 5%). With that understood, the monthly "
         "routine — no code required — is:\n\n"
         "1. **Pull the loan series** — FRED series `BUSLOANS` (C&I loans "
@@ -908,17 +919,17 @@ No formulas — three steps:
     # would describe elements that don't exist (gold_copper precedent).
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: the OOS Sharpe distribution of all 4,396 valid "
+        "What this shows: the OOS Sharpe distribution of all 10,522 valid "
         "strategy combinations. The vertical line marks the winner (1.50) "
         "— the maximum of the search, not a typical result: the median "
-        "combination scored 0.74, below buy-and-hold's 0.89."
+        "combination scored 0.75, below buy-and-hold's 0.89."
     )
 
     # Ray: §fragility (5 flags) + §caveats (verbatim).
     CAVEATS_MD = """
 **Why we do not call this a validated edge** — five flags, none softened (all from `winner_summary.json` and the tournament validation set):
 
-1. **Search-position.** Best of 4,396 valid combinations; the median combination (Sharpe 0.74) *underperforms* buy-and-hold (0.89). The winner is the extreme tail of a wide search, which is precisely the condition under which lucky rules look brilliant.
+1. **Search-position.** Best of 10,522 valid combinations; the median combination (Sharpe 0.75) *underperforms* buy-and-hold (0.89). The winner is the extreme tail of a wide search, which is precisely the condition under which lucky rules look brilliant.
 2. **Bootstrap p = 0.066.** A re-shuffle test says a result this good arises by chance about 6.6% of the time — above the conventional 5% threshold. Not statistically significant.
 3. **In-sample vs out-of-sample inversion.** The rule scored Sharpe 0.35 on pre-2018 data and 1.50 after. Robust edges usually look at least decent in both windows; an OOS figure four times the IS figure suggests a favorable draw, not a stable property.
 4. **Episode concentration.** The durability check classifies the edge as `episode_concentrated`: the COVID-recovery sub-period delivered Sharpe 2.75; the 2022 episode was spent entirely in cash (Sharpe 0.00 — flat, not a loss); Dot-Com and GFC fall outside the search window entirely (insufficient data).
@@ -932,7 +943,7 @@ No formulas — three steps:
 - **Search-phase numbers only.** Selection and evaluation share the same 2018–2026 window; no holdout exam has been run. The Sharpe 1.50 headline is a candidate, not a verdict.
 - **Low exposure profile.** At 25% average exposure, results are dominated by *when the rule happened to be in* — a handful of months drive everything.
 - **Return give-up.** The rule trails buy-and-hold by 4.2 points of annual return; it is a drawdown-avoidance overlay, unsuitable as a core compounding strategy.
-- **Costs.** Returns are gross of costs; at the assumed 5 basis points per trade and 2.88 trades per year, the haircut is negligible (see `tournament_validation_20260612/transaction_costs.csv`) — cost drag is *not* one of this pair's problems.
+- **Costs.** Returns are gross of costs; at the assumed 5 basis points per trade and 2.88 trades per year, the haircut is negligible (see `tournament_validation_20260708/transaction_costs.csv`) — cost drag is *not* one of this pair's problems.
 - **No structural break flagged** (sup-F test p = 0.30), so the fragility flags above cannot be excused by a regime change in the data.
 """
 
@@ -1003,9 +1014,9 @@ _METHODS_TABLE_MD = """
 """
 
 _TOURNAMENT_DESIGN_MD = """
-Grid: 11 signals (9 data transforms + HMM stress state + Markov regime) × threshold schemes (fixed percentiles, rolling percentiles, z-score bands, zero-line) × 3 strategy families (Long/Cash, signal-strength scaling, Long/Short) × 2 orientations (procyclical/countercyclical — both tested per the mixed prior) × leads {1, 2, 3, 6, 12} months × lookbacks {36, 60, 120} months = 6,100 combinations plus a buy-and-hold benchmark row. Validity filters: OOS Sharpe > 0.3, turnover < 24/yr, ≥ 24 OOS months → 4,396 valid. Out-of-sample split per policy `v1_max36_25pct_cap120`: in-sample through 2018-01, out-of-sample 2018-02 → 2026-05 (100 of 400 SPY-bound months). Winner selected by the standard cascade, resolved at step 1 with no tie. All metrics in the tournament CSV are decimal ratios, not percentages.
+Grid: 11 signals (9 data transforms + HMM stress state + Markov regime) × threshold schemes (fixed percentiles, rolling percentiles, z-score bands, zero-line) × 3 strategy families (Long/Cash, signal-strength scaling, Long/Short) × 2 orientations (procyclical/countercyclical — both tested per the mixed prior) × leads {1, 2, …, 12} months (the full monthly grid L1–L12) × lookbacks {36, 60, 120} months = 14,640 combinations plus a buy-and-hold benchmark row. Validity filters: OOS Sharpe > 0.3, turnover < 24/yr, ≥ 24 OOS months → 10,522 valid. Out-of-sample split per policy `v1_max36_25pct_cap120`: in-sample through 2018-01, out-of-sample 2018-02 → 2026-05 (100 of 400 SPY-bound months). Winner selected by the standard cascade, resolved at step 1 with no tie. All metrics in the tournament CSV are decimal ratios, not percentages.
 
-**Reproducibility notes.** Producer script: `scripts/pair_pipeline_busloans_spy.py` — deterministic, fixed seeds; a rerun reproduces every number on this page. The canonical monthly return series for chart producers is `strategy_returns_20260612.csv` (position on row *t* is the accrual weight for month *t*, signal already lagged 6 months); its Sharpe/drawdown/return reconcile with `winner_summary.json` to within 1e-4. Stationarity tests were produced by the data stage and confirmed, not re-run, by the econometrics stage.
+**Reproducibility notes.** Producer script: `scripts/pair_pipeline_busloans_spy.py` — deterministic, fixed seeds; a rerun reproduces every number on this page. The canonical monthly return series for chart producers is `strategy_returns_20260708.csv` (position on row *t* is the accrual weight for month *t*, signal already lagged 6 months); its Sharpe/drawdown/return reconcile with `winner_summary.json` to within 1e-4. Stationarity tests were produced by the data stage and confirmed, not re-run, by the econometrics stage.
 """
 
 _REFERENCES_MD = """
@@ -1037,7 +1048,7 @@ METHODOLOGY_CONFIG = MethodologyConfig(
         "loans at US banks, back to 1947) and the S&P 500 ETF (SPY, back "
         "to 1993). We turned the loans into growth rates, ran five "
         "independent lead-lag tests (all agree: stocks lead, loans "
-        "follow), then searched 6,100 trading-rule combinations on data "
+        "follow), then searched 14,640 trading-rule combinations on data "
         "split so that rules were built on pre-2018 history and scored on "
         "2018–2026. Every number on these pages can be reproduced by one "
         "deterministic script."

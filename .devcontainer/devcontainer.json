@@ -2,25 +2,66 @@
 	"name": "AIG-RLIC+ Quant Workstation",
 	"image": "mcr.microsoft.com/devcontainers/python:3-3.14-trixie",
 	"features": {
+		// Create a container user that mirrors the HOST account (name + home dir),
+		// so bind-mounted config and absolute /home/<user>/... paths line up in and
+		// out of the container. Feature options do NOT accept ${localEnv:...}, so the
+		// three values below are hardcoded. To target a different host user (e.g.
+		// "ubuntu" on an OCI remote host), change username/userUid/userGid here AND
+		// containerUser/remoteUser below AND the /home/<user> mount targets.
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"username": "david",
+			"userUid": "1002",
+			"userGid": "1002",
+			"installZsh": false,
+			"installOhMyZsh": false,
+			"upgradePackages": false
+		},
 		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/devcontainers/features/node:1": { "version": "lts" },
 		"ghcr.io/stu-bell/devcontainer-features/claude-code:0": {},
 		"ghcr.io/rocker-org/devcontainer-features/apt-packages:1": { "packages": "tmux bubblewrap" }
 	},
 
-	// Ensure host ~/.claude/, ~/.claude.json, and ~/.codex/ exist before bind-mounting.
-	// Uses python for cross-platform compatibility (macOS, Linux, Windows/WSL2).
-	"initializeCommand": "python3 -c \"import pathlib, os; h=pathlib.Path.home(); (h/'.claude').mkdir(exist_ok=True); (h/'.claude.json').touch(exist_ok=True); (h/'.codex').mkdir(exist_ok=True)\" || python -c \"import pathlib; h=pathlib.Path.home(); (h/'.claude').mkdir(exist_ok=True); (h/'.claude.json').touch(exist_ok=True); (h/'.codex').mkdir(exist_ok=True)\"",
+	// Run as the host-mirroring user. updateRemoteUserUID (default true) also remaps
+	// the UID/GID to the local host user at build time on Linux — so ownership on the
+	// bind mounts stays correct even if the host UID isn't 1002.
+	"containerUser": "david",
+	"remoteUser": "david",
+	"updateRemoteUserUID": true,
 
-	// Bind-mount host Claude config directly into the container.
+	// Ensure every bind-mount source exists on the host before the mount runs —
+	// Docker would otherwise create a root-owned directory in its place.
+	// Uses python for cross-platform compatibility (macOS, Linux, Windows/WSL2).
+	"initializeCommand": "python3 -c \"import pathlib; h=pathlib.Path.home(); [ (h/d).mkdir(parents=True,exist_ok=True) for d in ['.claude','.codex','.agents','.oci','.config/gh','.config/tmux'] ]; (h/'.claude.json').touch(exist_ok=True); (h/'.gitconfig').touch(exist_ok=True)\" || python -c \"import pathlib; h=pathlib.Path.home(); [ (h/d).mkdir(parents=True,exist_ok=True) for d in ['.claude','.codex','.agents','.oci','.config/gh','.config/tmux'] ]; (h/'.claude.json').touch(exist_ok=True); (h/'.gitconfig').touch(exist_ok=True)\"",
+
+	// Bind-mount host config directly into the container.
 	// Changes inside the container persist to the host and vice versa.
 	//   ~/.claude/          → settings.json, memory, credentials, history, plans
 	//   ~/.claude.json      → MCP server configs, project settings
+	//   ~/.gitconfig        → git identity
 	//   ~/.codex/           → Codex credentials, config, and history
+	//   ~/.agents/          → canonical shared agent context (core, playbooks, profiles)
+	//   ~/.config/gh/       → GitHub CLI auth
+	//   ~/.config/tmux/     → tmux config
+	//
+	// DELIBERATE DEVIATION from genericDevContainer: ~/.oci is NOT mounted here.
+	// The template mounts it because it is a generic workstation template, but this
+	// project uses OCI nowhere (no reference in the tree, no `oci` CLI in the image),
+	// while ~/.oci holds two private API keys (DEFAULT + DAWO-DEV tenancies). It also
+	// matters that Codex runs here WITHOUT its own sandbox — `bwrap` cannot create a
+	// user namespace in an unprivileged container, so the skill mandates
+	// --dangerously-bypass-approvals-and-sandbox and the container itself IS the
+	// security boundary. Least privilege: do not put cloud keys inside a boundary that
+	// an unsandboxed agent loop shares. Re-add the mount only if this project gains a
+	// real OCI dependency.
 	"mounts": [
-		"source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached",
-		"source=${localEnv:HOME}/.claude.json,target=/home/vscode/.claude.json,type=bind,consistency=cached",
-		"source=${localEnv:HOME}/.codex,target=/home/vscode/.codex,type=bind,consistency=cached"
+		"source=${localEnv:HOME}/.claude,target=/home/david/.claude,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.claude.json,target=/home/david/.claude.json,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.gitconfig,target=/home/david/.gitconfig,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.codex,target=/home/david/.codex,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.agents,target=/home/david/.agents,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.config/gh,target=/home/david/.config/gh,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.config/tmux,target=/home/david/.config/tmux,type=bind,consistency=cached"
 	],
 
 	// Install Python packages + configure MCP servers & agent teams.
@@ -30,13 +71,13 @@
 
 	// Codespaces secrets → container environment
 	"containerEnv": {
-		"CODEX_HOME": "/home/vscode/.codex"
+		"CODEX_HOME": "/home/david/.codex"
 	},
 
 	"remoteEnv": {
 		"ALPHAVANTAGE_API_KEY": "${localEnv:ALPHAVANTAGE_API_KEY}",
 		"FRED_API_KEY": "${localEnv:FRED_API_KEY}",
-		"CODEX_HOME": "/home/vscode/.codex"
+		"CODEX_HOME": "/home/david/.codex"
 	},
 
 	"customizations": {

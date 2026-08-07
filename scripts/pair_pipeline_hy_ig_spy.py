@@ -58,6 +58,7 @@ from _stamp import iso_utc_now  # noqa: E402
 import numpy as np
 import pandas as pd
 from scipy import stats
+from dotenv import load_dotenv
 
 warnings.filterwarnings("ignore")
 
@@ -65,6 +66,17 @@ warnings.filterwarnings("ignore")
 # CONFIGURATION
 # ─────────────────────────────────────────────────────────────
 
+# GH#13 daily Class-A rebuild (Lead-Grid Frequency Standard, 2026-07-15):
+#   * lead grid is now the anchored DAILY set {0,1,5,21,63,126,252} trading days
+#     (see stage_tournament); OOS scoring is ECON-T4 deployable (fillna 0).
+#   * The daily-axis artifacts (DATE_TAG 20260715: daily-grid tournament, winner_summary,
+#     lead_tournament_native/winner_curve/clean_envelope, daily coherent chart) are produced
+#     by scripts/refresh_hy_ig_spy_lead_artifacts.py — a lead-AXIS rebuild that derives from
+#     the IMMUTABLE committed HMM (results/hy_ig_spy/signals_20260422.parquet, NO re-fit) +
+#     the ORIGINAL SPY from the restored raw parquet (data/hy_ig_spy_daily_20000101_20260422.parquet).
+#     It reproduces the committed headline 1.4083 EXACTLY; winner UNCHANGED (S6_hmm_stress/P2/L0).
+#   * DATE_TAG below stays 20260422 (the immutable input vintage); the new daily OUTPUTS carry
+#     20260715. A full pipeline re-run from the restored raw parquet reproduces the same winner.
 PAIR_ID        = "hy_ig_spy"
 INDICATOR_NAME = "HY-IG Credit Spread"
 TARGET_NAME    = "S&P 500 (SPY)"
@@ -141,7 +153,10 @@ def stage_data() -> pd.DataFrame:
     import yfinance as yf
     from fredapi import Fred
 
-    api_key = os.environ.get("FRED_API_KEY") or "952aa4d0c4b2057609fbf3ecc6954e58"
+    load_dotenv()  # repo-root .env; hardcoded fallback removed (key rotated after leak)
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        raise SystemExit("FRED_API_KEY not set — copy .env.example to .env, or run setup.sh.")
     fred = Fred(api_key=api_key)
     series: dict = {}
 
@@ -796,7 +811,12 @@ def stage_tournament(df: pd.DataFrame) -> pd.DataFrame:
                  if v in work.columns and work[v].notna().sum() > 200}
     print(f"  Available signals: {len(available)} of {len(signal_cols)}")
 
-    leads   = [0, 1, 5, 10, 21, 63]
+    # Anchored DAILY lead grid per docs/lead-grid-frequency-standard.md (2026-07-15):
+    # trading-day multiples {0,1,5,21,63,126,252} (day/week/month/quarter/half/year).
+    # Extends the prior native set {0,1,5,10,21,63} to 126/252 and drops the idiosyncratic
+    # 10. Real-time floor L0 (daily market data observed at close; HMM stress prob is a
+    # same-day, close-of-day read). Free full-grid selection, NO cap — the math decides.
+    leads   = [0, 1, 5, 21, 63, 126, 252]
     results = []
 
     for sig_name, sig_col in available.items():
@@ -845,8 +865,13 @@ def stage_tournament(df: pd.DataFrame) -> pd.DataFrame:
                             pos = bullish.astype(float)*2-1
 
                         strat_ret = pos.shift(1) * work["spy_ret"]
+                        # ECON-T4 deployable-series OOS scoring (GH#13): an undefined
+                        # in-window position deploys as CASH (0), not dropped — the OOS
+                        # Sharpe must reflect the series that is actually traded. IS stays
+                        # dropna (reported only). (No-op for the L0 HMM-stress winner:
+                        # positions are defined every OOS day, deployable == dropna.)
                         is_r  = strat_ret[is_mask].dropna()
-                        oos_r = strat_ret[oos_mask].dropna()
+                        oos_r = strat_ret[oos_mask].fillna(0.0)
                         if len(is_r) < 100 or len(oos_r) < 50:
                             continue
 

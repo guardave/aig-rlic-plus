@@ -1474,8 +1474,8 @@ For any required artifact (`winner_summary.json`, `signal_scope.json`, `interpre
 2. **Did input quality cause rework?** (Missing chart specs, unclear narrative, broken data paths)
 3. **Did you discover a Streamlit pattern worth reusing?** Document it
 4. **Did any upstream handoff cause friction?** Note for next team review
-5. **Distill 1-2 key lessons** and update your memories file at `~/.claude/agents/appdev-ace/memories.md`
-6. If a lesson is **cross-project**, update `~/.claude/agents/appdev-ace/experience.md` too
+5. **Distill 1-2 key lessons** and update your memories file at `~/.agents/profiles/appdev-ace/memories.md`
+6. If a lesson is **cross-project**, update `~/.agents/profiles/appdev-ace/experience.md` too
 
 ### End-of-Task Reflection (EOD-Lightweight)
 
@@ -1483,7 +1483,7 @@ Before returning your task result, complete these three lightweight steps:
 
 1. **Reflect** — In one sentence, name the key insight from this task. Focus on what was non-obvious or surprising (not just "I completed the task").
 
-2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.claude/agents/appdev-ace/experience.md`. Use this format:
+2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.agents/profiles/appdev-ace/experience.md`. Use this format:
    ```markdown
    ## YYYY-MM-DD — <short insight title>
 

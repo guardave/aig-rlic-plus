@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Coef-by-tau with CI band per ECON-H4.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/petrol_inv_spy/core_models_20260617/quantile_regression.csv"
+    "results/petrol_inv_spy/core_models_20260711/quantile_regression.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-17T15:05:47.297995+00:00",
+  "generated_at": "2026-07-11T09:44:53.316098+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
 }

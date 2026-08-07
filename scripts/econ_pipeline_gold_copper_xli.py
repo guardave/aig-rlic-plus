@@ -137,7 +137,13 @@ def stage_tournament(df):
         }
         for t_code, t_val in thresholds.items():
             for s_code in ["P1_long_cash", "P2_long_short"]:
-                for lead in [0, 1, 5]:
+                # GH#13 daily Class-A (Lead-Grid Frequency Standard 2026-07-15): anchored
+                # DAILY grid {0,1,5,21,63,126,252} trading days (was {0,1,5}). Free full-grid
+                # selection; scoring is already deployable (positions cash-filled). The daily
+                # lead apparatus + winner_summary (DATE_TAG 20260715) are produced derive-only
+                # by scripts/refresh_gold_copper_xli_lead_artifacts.py from the restored raw
+                # parquet; winner UNCHANGED (gold_copper_zscore_126d/T2_p50/P1/L0, reproduces 1.273).
+                for lead in [0, 1, 5, 21, 63, 126, 252]:
                     try:
                         # Position: 1 = long when signal <= threshold (low ratio = bullish)
                         pos = (sig <= t_val).astype(int).shift(lead).fillna(0)

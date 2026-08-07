@@ -23,6 +23,33 @@
   "assertions": [
     "lead grid is exactly L0..12",
     "best_oos_sharpe is the max over the extended grid",
-    "decision RE-RUN iff L*\u22087..12 AND best>1.4999"
-  ]
+    "decision RE-RUN iff L*\u22087..12 AND best>1.4999",
+    "[GH#13] published winner (mom/T2_roll_p25/P1_long_cash_counter/L6, OOS 1.4999) selected for risk-adjusted robustness. On the single native source its own curve peaks at L6, the cross-signal envelope peaks at L6; pipeline scored leads [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], leads [] patched by the same validated engine; winner governance clear (no lead beats it)."
+  ],
+  "lead_tournament_native_file": "busloans_spy/lead_tournament_native_20260620.csv",
+  "lead_winner_curve_file": "busloans_spy/lead_winner_curve_20260620.csv",
+  "lead_clean_envelope_file": "busloans_spy/lead_clean_envelope_20260620.csv",
+  "clean_envelope_note": "No seasonally-contaminated signals -> clean == raw envelope. Lead chart AND strategy-tournament details derive from ONE source (lead_tournament_native): every native combo scored at every lead by the coherence engine, which reproduces the pipeline tournament exactly at its original leads.",
+  "winner_curve_peak_lead": 6,
+  "coherent_envelope_L_star": 6,
+  "coherent_envelope_peak_margin": 0.1124,
+  "coherent_envelope_is_flat": false,
+  "pipeline_scored_leads": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "engine_patched_leads": [],
+  "winner_governance": "winner holds \u2014 global max across all leads 1.4999 does not exceed the frozen winner 1.4999 (ECON-T5 clear)",
+  "best_clean_oos_sharpe_at_grid": 1.4999,
+  "best_clean_oos_sharpe_at_grid_signal": "busloans_pct_mom"
 }

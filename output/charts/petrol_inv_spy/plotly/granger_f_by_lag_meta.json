@@ -12,10 +12,10 @@
   "narrative_alignment_note": "Forward direction rendered as the visually primary series; caption reconciles Granger 6-8 month cluster with L12 winner.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/petrol_inv_spy/core_models_20260617/granger_causality.csv",
+    "results/petrol_inv_spy/core_models_20260711/granger_causality.csv",
     "results/petrol_inv_spy/granger_by_lag.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-17T15:05:42.270748+00:00",
+  "generated_at": "2026-07-11T09:44:46.961458+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
 }

@@ -1,0 +1,14 @@
+lead_months,best_oos_sharpe,best_signal,best_is_clean,best_clean_oos_sharpe,best_clean_signal,lead_source
+0,0.7678,umcsent,True,0.7678,umcsent,pipeline
+1,1.0132,umcsent_dev_ma,True,1.0132,umcsent_dev_ma,pipeline
+2,0.8883,umcsent_mom,True,0.8883,umcsent_mom,pipeline
+3,0.7577,umcsent_3m_ma,True,0.7577,umcsent_3m_ma,pipeline
+4,0.8801,umcsent,True,0.8801,umcsent,pipeline
+5,1.118,umcsent_dev_ma,True,1.118,umcsent_dev_ma,pipeline
+6,1.1586,umcsent_mom,True,1.1586,umcsent_mom,pipeline
+7,0.7164,umcsent_direction,True,0.7164,umcsent_direction,pipeline
+8,0.7164,umcsent_direction,True,0.7164,umcsent_direction,pipeline
+9,0.8231,umcsent_direction,True,0.8231,umcsent_direction,pipeline
+10,1.033,umcsent_dev_ma,True,1.033,umcsent_dev_ma,pipeline
+11,0.9643,umcsent_dev_ma,True,0.9643,umcsent_dev_ma,pipeline
+12,0.9732,umcsent_direction,True,0.9732,umcsent_direction,pipeline

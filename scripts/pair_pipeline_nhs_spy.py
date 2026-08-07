@@ -79,7 +79,10 @@ EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
 MODELS_DIR = os.path.join(RESULTS_DIR, f"core_models_{DATE_TAG}")
 VALID_DIR = os.path.join(RESULTS_DIR, f"tournament_validation_{DATE_TAG}")
 SCHEMA_DIR = os.path.join(BASE_DIR, "docs", "schemas")
-PYEXE = os.path.join(BASE_DIR, ".venv", "bin", "python")
+# Same interpreter that is running this script, so subprocesses inherit the environment
+# the caller chose. Was pinned to .venv/bin/python — that venv is no longer tracked, and it
+# was never portable anyway (built for 3.12, its shebangs hardcode an absolute host path).
+PYEXE = sys.executable
 
 for d in [RESULTS_DIR, EXPLORE_DIR, MODELS_DIR, VALID_DIR]:
     os.makedirs(d, exist_ok=True)

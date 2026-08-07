@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Two-bar TE comparison per ECON-H4.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/busloans_spy/core_models_20260612/transfer_entropy.csv"
+    "results/busloans_spy/core_models_20260708/transfer_entropy.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-12T09:12:36.248715+00:00",
+  "generated_at": "2026-07-08T08:49:20.227936+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)"
 }

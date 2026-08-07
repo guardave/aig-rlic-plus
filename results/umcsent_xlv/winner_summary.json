@@ -1,6 +1,6 @@
 {
   "pair_id": "umcsent_xlv",
-  "generated_at": "2026-06-19T09:00:31Z",
+  "generated_at": "2026-07-11T16:40:04Z",
   "signal_column": "umcsent_mom",
   "signal_code": "S3_mom",
   "signal_display_name": "UMCSENT 3-month momentum",
@@ -12,7 +12,7 @@
   "strategy_family": "P1_long_cash",
   "strategy_code": "P1",
   "strategy_display_name": "Long/Cash",
-  "strategy_description": "Long XLV when the 6-month-lagged UMCSENT 3-month momentum is above its rolling z-score +1.0 threshold; otherwise cash.",
+  "strategy_description": "Long XLV when the 6-month-lagged UMCSENT 3-month momentum is gt its rolling threshold; otherwise cash.",
   "direction": "procyclical",
   "signal": "S3_mom",
   "threshold": "T3_zscore_1.0",
@@ -25,14 +25,13 @@
   "oos_ann_return": 0.079494,
   "oos_ann_vol": 0.068615,
   "oos_sortino": 1.6121,
-  "oos_calmar": 11.3449,
+  "oos_calmar": 11.3446,
   "oos_max_drawdown": -0.007007,
   "oos_n_trades": 25,
   "oos_period_start": "2019-04-30",
   "oos_period_end": "2025-12-31",
   "max_drawdown": -0.007007,
   "win_rate": 0.1605,
-  "oos_win_rate": 0.1605,
   "annual_turnover": 3.29,
   "cost_assumption_bps": 5,
   "is_n": 243,
@@ -43,7 +42,8 @@
   "bh_max_drawdown": -0.156182,
   "oos_start": "2019-04-30",
   "is_end": "2019-03-31",
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
+  "notes": "Expected relationship is procyclical. Winning threshold uses threshold is rolling (60-month mean plus 1 standard deviation); threshold_value is the latest rolling value - see winner_trade_log.csv for the full threshold path. Signal is lagged by 6 months before the rule is applied.",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
@@ -55,13 +55,19 @@
         3,
         4,
         5,
-        6
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
       ],
       "n_signals": 7,
       "n_thresholds": 13,
       "n_strategies": 3,
-      "n_valid_combos": 1339,
-      "median_valid_objective": 0.5298
+      "n_valid_combos": 2502,
+      "median_valid_objective": 0.5301
     },
     "tie_break_step": 0,
     "raw_winner_row": {
@@ -70,8 +76,9 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 6,
-      "source_tournament_file": "tournament_results_20260420.csv",
-      "source_row_index": 777
+      "source_tournament_file": "tournament_results_20260711.csv",
+      "source_row_index": 1227,
+      "display_alias": "signal_code=S3_mom; strategy=P1_long_cash"
     },
     "runner_up": {
       "signal": "S7_dev_ma",
@@ -80,8 +87,7 @@
       "lead_value": 5,
       "objective_value": 1.118
     },
-    "rationale": "Unique maximiser of OOS Sharpe over the committed coarse monthly grid L{0,1,2,3,4,5,6} (1,339 valid combos, median OOS Sharpe 0.5298). Winner raw OOS Sharpe 1.1586 at L6; the 2nd-best valid combo (S7_dev_ma/T1_fixed_p50/P1_long_cash/L5) sits at 1.118. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "rationale": "FREE full-grid selection (Lead-Grid Frequency Standard, 2026-07-14): no economic-window cap \u2014 the winner is the global max valid OOS Sharpe over the FULL L0-12 grid (2502 valid combos, median 0.5301): S3_mom/T3_zscore_1.0/P1_long_cash/L6 = 1.1586. The economically-motivated 2-5-month cross-correlation window is REFERENCE context the full-grid math CONFIRMED: the best L7-12 combo scores only 1.033 (< winner), and S6_direction \u2014 the transform with a significant L10 lead-correlation (r=0.113*) \u2014 scores at most 0.9732 across L7-12, so the long-lead direction signal is multiple-testing noise, not a tradable edge. This retires the interim Option-C L0-6 cap; the winner is UNCHANGED (L6 was already the full-grid global max). Low-confidence framing stands: isolated L6 spike on a nearly-flat envelope, backward-Granger caveat, L7-12 = noise. Published winner == full-grid raw max-OOS-Sharpe valid row -> divergence null.",
     "objective_runner_up_divergence": null
-  },
-  "notes": "Ground truth is tournament row 777. Winning threshold uses threshold is rolling (60-month mean plus 1 standard deviation); threshold_value is the latest rolling value - see winner_trade_log.csv for the full threshold path. Signal is lagged by 6 months before the rule is applied."
+  }
 }

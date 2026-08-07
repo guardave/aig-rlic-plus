@@ -4,7 +4,23 @@ Chronological record of every rule addition and modification across the AIG-RLIC
 
 Entries are listed newest-first. Each entry cites the commit hash (when available), date, scope, and summarizes what changed.
 
-**SOD read protocol (added Wave 10F):** every agent, at session start, reads this file from the top down to the first entry whose date is earlier than the timestamp in `~/.claude/agents/<role>-<name>/last_seen`. Every entry above that line is a rule added while the agent was away — apply if scope matches.
+**SOD read protocol (added Wave 10F):** every agent, at session start, reads this file from the top down to the first entry whose date is earlier than the timestamp in `~/.agents/profiles/<role>-<name>/last_seen`. Every entry above that line is a rule added while the agent was away — apply if scope matches.
+
+---
+
+## 2026-07-15 — Stale-path coherence sweep: agent profiles → `~/.agents/profiles/`, EOD hook location, retired `dawodev` preview, MCP budget
+
+**Trigger.** The `~/.agents` migration completed and `~/.claude/agents/` no longer exists, but the repo was never updated to match. Ops (Otis) fixed the **executable** half first (`88e7330a`: `scripts/hooks/check-agent-eod.sh:44` was auditing the dead path and therefore fabricating a META-AM failure on *every* dispatch; `setup.sh` step 1c was rewriting a poisoned `~/.codex/AGENTS.md` on every rebuild) and referred the SOP/docs half here. Docs-only sweep; no executable files touched.
+
+**Agent-profile path (S4).** Repointed `~/.claude/agents/<role>-<name>/` → `~/.agents/profiles/<role>-<name>/` across `team-coordination.md`, all 7 role SOPs, `team-standards.md`, `standards.md` (META-AM definition), and this file's SOD-read-protocol header. **Highest-leverage site: the Mandatory Dispatch Template in `team-coordination.md`** — its SOD block and its verbatim EOD block are what every future dispatch is copied from, so while they named the dead path they re-propagated it into every new dispatch prompt.
+
+**EOD hook location (S5).** `qa-agent-sop.md` and `team-coordination.md` said the PostToolUse hook lives at `~/.claude/hooks/check-agent-eod.sh`; it is `scripts/hooks/check-agent-eod.sh` (repo-relative, which is what `.claude/settings.json` wires). Both SOPs were stale against this changelog's own 2026-04-23 entry recording the move — the same class as the `sod.md:67` bug already fixed.
+
+**Retired preview app (S6).** `aig-rlic-plus-dawodev` is retired (2026-07-07); previews are `dev01`/`dev02`, and **no repoint function exists** on Streamlit Community Cloud — an app is bound to its branch at creation. Corrected the operational guidance in `lead-agent-sop.md` (LEAD-DOM1 + Mode-2 exit criteria) and `spec_memo_gh13_…`, both of which instructed the reader to "repoint dawodev" — an action that cannot be performed. CLAUDE.md was already correct and served as source of truth.
+
+**MCP budget (S7).** `CLAUDE.md` claimed "at or below 10 (currently 8)". Verified live count is **10 — at the cap**: the 8 project-scoped servers listed in the CLAUDE.md table (registered under the container workspace key `/workspaces/aig-rlic-plus`) **plus 2 account-level claude.ai connectors** (GDELT Cloud, Interactive Brokers) that load in every session and are invisible when counting from the table. The table was not wrong; the count omitted a whole scope. Adding a server now requires removing one.
+
+**Deliberately NOT changed (historical records — rewriting them destroys the audit trail).** `relnotes.md`, this file's prior entries, `results/**/qa_verification_*.md`, `_pws/**`. Also left three sites where the stale path *is* the record rather than an incidental pointer: `team-coordination.md:709` and `backlog.md:58` (both quote the literal `settings.json` allow-list text of the Wave 10F/BL-PERM-SUBAGENT incident) and `lead-agent-sop.md:66` (a dated 2026-06-16 Codex smoke-test recording which files Codex actually reported reading). **Rule applied: repoint a path when it names a live file; preserve it when the record is about what the path itself said.** NB `lead-agent-sop.md:66`'s validation is now expired evidence — the pointers it validated have since moved, so the `codex exec` role-resolution check is due for a re-run.
 
 ---
 

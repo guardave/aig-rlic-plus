@@ -12,6 +12,7 @@ import os, sys, json, warnings, time
 import numpy as np
 import pandas as pd
 from scipy import stats
+from dotenv import load_dotenv
 
 warnings.filterwarnings("ignore")
 
@@ -51,7 +52,10 @@ def timed(name):
 def stage_data():
     import yfinance as yf
     from fredapi import Fred
-    api_key = os.environ.get("FRED_API_KEY", "952aa4d0c4b2057609fbf3ecc6954e58")
+    load_dotenv()  # repo-root .env; hardcoded fallback removed (key rotated after leak)
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        raise SystemExit("FRED_API_KEY not set — copy .env.example to .env, or run setup.sh.")
     fred = Fred(api_key=api_key)
 
     series = {}
@@ -324,7 +328,12 @@ def stage_tournament(df):
     }
     available = {k: v for k, v in signal_cols.items() if v in work.columns and work[v].notna().sum() > 200}
 
-    leads = [0, 1, 5, 10, 21]
+    # GH#13 daily Class-A (Lead-Grid Frequency Standard 2026-07-15): anchored DAILY grid
+    # {0,1,5,21,63,126,252} trading days (was {0,1,5,10,21}). Free full-grid selection, NO cap.
+    # The daily lead apparatus + winner_summary (DATE_TAG 20260715) are produced derive-only by
+    # scripts/refresh_vix_vix3m_spy_lead_artifacts.py from the restored raw parquet; winner
+    # UNCHANGED (S3_z126/T2_rp75/P1/L0, reproduces 1.1295 — coincident, HAC t=2.98 low-confidence).
+    leads = [0, 1, 5, 21, 63, 126, 252]
     results = []
 
     for sig_name, sig_col in available.items():
@@ -364,8 +373,11 @@ def stage_tournament(df):
                             pos = bullish.astype(float) * 2 - 1
 
                         strat_ret = pos.shift(1) * work["spy_ret"]
+                        # ECON-T4 deployable OOS scoring (GH#13): undefined in-window position
+                        # deploys as CASH (0), not dropped. IS stays dropna. (No-op for the L0
+                        # winner: positions defined every OOS day, deployable == dropna.)
                         is_r = strat_ret[is_mask].dropna()
-                        oos_r = strat_ret[oos_mask].dropna()
+                        oos_r = strat_ret[oos_mask].fillna(0.0)
                         if len(is_r) < 100 or len(oos_r) < 50:
                             continue
 

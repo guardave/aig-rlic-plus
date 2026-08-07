@@ -2,6 +2,7 @@
 
 **Purpose:** everything needed to stand up this project's multi-agent Claude Code sessions on a **new server** and continue without losing state.
 **Author:** Lead Lesandro · **Date:** 2026-07-07 · **Repo tip at handoff:** `main` @ `b2da882` (17 pairs).
+**Active work branch (GH #13 rollout):** `feat260707_lead_coherence_rollout` (pushed to origin) — see §7.1 for full resume state. Switch into the devcontainer, `git checkout feat260707_lead_coherence_rollout`, and start at §7.1.
 
 ---
 
@@ -33,7 +34,7 @@
 | Item | Location (this server) | Notes |
 |---|---|---|
 | **Project auto-memory (28 files)** | `~/.claude/projects/-workspaces-aig-rlic-plus/memory/` (+ `MEMORY.md` index) | **Lives in HOME, not the repo.** Copy the whole dir or the accumulated lessons are lost (viz-correctness rules, dispatch policies, deployment gotchas, pair lessons). Highest-value non-repo asset. |
-| **Shared agent context** | CLAUDE.md expects `~/.agents/` (`core/`, `playbooks/`, `profiles/`, `knowledge/`) | On THIS server `~/.claude/agents/<role>` symlinks point to **`/home/david/.agents/profiles/`** which is **not mounted** (the symlinks are broken — global-profile reads/writes fail here). On the new server, provision a real `~/.agents/` (or fix the symlink target) so profiles resolve. Project-local SOPs in `docs/agent-sops/` are the working fallback and DO travel via git. |
+| **Shared agent context** | CLAUDE.md expects `~/.agents/` (`core/`, `playbooks/`, `profiles/`, `knowledge/`) | **RESOLVED 2026-07-15 (`07260532`).** `~/.agents` is now bind-mounted into the devcontainer (host `~/.agents` → `/home/david/.agents`), so profiles resolve directly and the old broken-symlink workaround is gone. Personas live at `~/.agents/profiles/<role>-<name>/`; `~/.claude/agents/` no longer exists. On a new server: ensure host `~/.agents/` exists (the `initializeCommand` creates it) and keep the mount in `.devcontainer/devcontainer.json`. Project-local SOPs in `docs/agent-sops/` remain the fallback and DO travel via git. |
 | **MCP servers + API keys** | `.claude/settings.json` / `.claude/settings.local.json` (+ shell env) | 8 MCP servers (fred, yahoo-finance, alpha-vantage, financial-datasets, filesystem, context7, sequential-thinking, memory). **FRED and Alpha-Vantage need API keys**; re-supply on the new server. `financial-datasets` uses mcp-remote. Keep MCP count ≤10 (context budget). |
 | **Codex CLI session** | `~/.codex/config.toml` (+ login) | `trust_level="trusted"`. Re-login on the new server; verify with `codex exec --dangerously-bypass-approvals-and-sandbox 'say hi'`. |
 | **gh CLI auth** | `~/.config/gh/hosts.yml` | Re-auth to account `guardave` (needed for `gh issue`/PR). |
@@ -60,11 +61,17 @@
 
 - **New pair = 5 phases**, each Lead-gated: Dana (data/Phase-0) → Evan (tournament/econometrics) → Vera (charts) → Ace (portal config+pages) → Ray (narrative). Freshest **monthly** template: `cass_freight_spy`; **quarterly** template: `eci_total_comp_spy`. Mirror an existing pair's artifact shapes exactly.
 - **GH #13 lead-chart pattern is native for new pairs** (winner's own Sharpe-by-lead curve foregrounded, cross-signal envelope as context) — Evan emits `lead_winner_curve` + `lead_clean_envelope` CSVs; Vera builds the coherent chart.
-- **Deployment:** production `https://aig-rlic-plus.streamlit.app` tracks `main`; the `dawodev` preview tracks the in-flight branch. **A new pair / new page / render-module change needs a REBOOT** (Manage app → Reboot app), not just a push — Streamlit discovers `app/pages/*.py` and imports render modules at process start (META-FRD file-sync lag). Verify via the Playwright iframe pattern in `scripts/cloud_verify.py` (iframe `title="streamlitApp"`, poll hydration ≤45s).
+- **Deployment:** production `https://aig-rlic-plus.streamlit.app` tracks `main`; the preview apps `aig-rlic-plus-dev01` / `aig-rlic-plus-dev02` track the in-flight branch (dawodev retired 2026-07-07; **no repoint** — a new app instance is spun up per branch). **A new pair / new page / render-module change needs a REBOOT** (Manage app → Reboot app), not just a push — Streamlit discovers `app/pages/*.py` and imports render modules at process start (META-FRD file-sync lag). Verify via the Playwright iframe pattern in `scripts/cloud_verify.py` (iframe `title="streamlitApp"`, poll hydration ≤45s).
 
 ## 6. Local state to resolve BEFORE the move (working tree)
 
-Working tree is clean of tracked changes and **origin is in sync** (nothing unpushed). `temp/*` is gitignored (probes/screenshots — scratch, correctly not migrating). **Only 3 untracked items are off-GitHub:**
+**As of the GH #13 session (2026-07-07 PM):** active branch `feat260707_lead_coherence_rollout` is pushed and in sync. ~~**DO NOT COMMIT `.venv`**~~ — **RESOLVED 2026-07-15** (commit `a6a04cec`): `.venv` is now gitignored and untracked (`git rm -r --cached .venv`, 5,583 files). Files remain on disk. Note this did **not** shrink `.git` (~398 MB) — `.venv` is still in history; reclaiming that needs a `filter-repo` rewrite plus a force-push, which is a separate decision.
+
+~~Also `requirements.txt` is missing `pyarrow`, `kaleido`, `playwright` (needed by pipelines/verify). The devcontainer provides these natively, so the env is a non-issue there.~~ — **CORRECTION, 2026-07-15.** The observation was right; the conclusion was **false and actively misleading**. The devcontainer never provided these natively. They (plus `streamlit`) had been hand-`pip install`ed into the running container, so they lived only in the container filesystem — the 2026-07-15 rebuild destroyed all four, leaving the app, the META-CMP pre-commit gates, and `cloud_verify.py` broken until they were reinstalled by hand. **Resolved:** they are now declared in `requirements-dev.txt` and installed by `setup.sh` at build (kept out of `requirements.txt`, which is the Streamlit Cloud deploy manifest — see that file's header for the per-package rationale).
+
+**Lesson:** "the devcontainer provides it" is only true of something declared in `requirements.txt`, `setup.sh`, or a devcontainer feature. Anything hand-installed into a running container is invisible to a rebuild and will vanish without warning.
+
+Original migration note (still valid): Working tree is otherwise clean of tracked changes and **origin is in sync** (nothing unpushed). `temp/*` is gitignored (probes/screenshots — scratch, correctly not migrating). **Only 3 untracked items are off-GitHub:**
 1. `docs/spec_memo_lead_horizon_granularity_20260613.pdf` (197 KB, stakeholder spec memo) — **preserve** (committed with this handoff if approved).
 2. `_pws/ops-otis/session-notes.md` (Ops Otis / SRE role PWS) — **preserve**.
 3. `_pws/lead-lesandro/lead_horizon_qa/codex_qaudit.log` (2.2 MB Codex/Ivy audit log) — **scratch**; Ivy's actual report is already committed under `_pws/audit-ivy/`. Recommend: copy manually if wanted, else drop (don't bloat the repo). **← the one open decision.**
@@ -72,8 +79,44 @@ Working tree is clean of tracked changes and **origin is in sync** (nothing unpu
 ## 7. Where to resume (open work)
 
 **Open GitHub issues:**
-- **#13** — lead-tournament peak vs published-winner lead reads as a report inconsistency on ~12/14 pairs. The fix pattern is piloted on the 3 newest pairs; **roll it out to the ~11 older pairs** + codify as an SOP rule. This is the biggest queued item.
+- **#13** — IN PROGRESS on `feat260707_lead_coherence_rollout`. **See §7.1 for the full state, design decisions, triage, and resume steps.** The rollout evolved well beyond the original "apply the pilot to 11 pairs" — it is now a single-source-of-truth refactor with a governed re-selection workflow.
 - **#4** — storytelling architecture review (pre-existing).
+
+### 7.1 GH #13 lead-coherence rollout — resume state (branch `feat260707_lead_coherence_rollout`)
+
+**The core reframe (why this grew).** The `lead_sharpe_distribution` chart drew its bars from the **exploratory sweep** (`lead_horizon_sweep.py`, contiguous L0–12, a DIFFERENT P1/P2 grid) while the **strategy-tournament details** and winner selection come from the pair's **native tournament** (`tournament_results_*.csv`, a COARSE lead set, e.g. ISM `{1,2,3,6,12}`). Two differently-computed sources side by side = a trust break. **Fix = one source of truth per pair:** extend the native tournament to the full grid with an engine that reproduces it exactly, and project BOTH the lead chart and the strategy details from that one table.
+
+**Design decisions locked with the stakeholder (do not re-litigate):**
+- **One SoT per pair at its NATIVE frequency.** Monthly pairs → monthly L0–12. Daily pairs (Class A) → daily-lead axis; **do NOT resample daily→monthly** (that creates a second tournament with a different winner than the deployed daily strategy).
+- **Always L0–12** for monthly; **include L0**, labelled *coincident* (lookahead; real-time floor is usually L1 given publication lag).
+- **Patching missing leads CAN force a winner re-selection** (completing the grid changes the selection universe). This is an **ECON-T5 event**, not a chart fix: if a patched lead beats the frozen winner, re-run natively, adjudicate via the full T3/T5 cascade (durability/bootstrap — may keep or change the winner), **propagate to every downstream artifact + narrative**, then run the consistency scan. Winner selection stays tied to the run's grid; patched leads are provenance-tagged (`pipeline` vs `patched`).
+
+**Tooling built this session (all pure pandas/numpy, NO LLM in the pipeline — portable for non-Claude devs):**
+- `scripts/refresh_lead_coherence_artifacts.py` — extends a pair's native tournament to the full grid; emits `lead_tournament_native_{date}.csv` (the SoT), `lead_winner_curve`, `lead_clean_envelope`; patches the manifest. **4 safety gates:** reconcile (winner Sharpe vs winner_summary), fidelity (per-combo vs tournament_results ≥98%), coherence (envelope ≥ winner), **governance (ECON-T5: blocks silent winner change)**. `--screen` = re-selection triage without writing. Adapters build the work frame from the signals parquet + `strategy_returns.bh_return`.
+- `scripts/generate_lead_charts.py` — shared builder now emits the **coherent chart** (winner's own curve + envelope, solid=pipeline / open=patched markers) when the artifacts exist; falls back to the sweep chart otherwise. PNG export is best-effort (won't block JSON if kaleido absent).
+- `scripts/gate_viz_lead.py` — **GATE-VIZ-LEAD** (coherence + single-source consistency enforcement).
+- `scripts/gate_consistency.py` — **GATE-CONSISTENCY** (cross-artifact winner scanner: winner is the max clean valid combo, kpis/lead-curve/narrative all agree). **Baseline: 0 hard failures / 18 pairs** — current published state is internally consistent.
+- Scope memo: `docs/spec_memo_gh13_lead_coherence_rollout_20260707.md` (original plan; partly superseded by the single-source pivot above).
+
+**Triage verdicts** (100% reconcile where a verdict is given — trustworthy):
+| Pair(s) | Verdict | Action |
+|---|---|---|
+| **ism_services_spy, m2sl_yoy_spy** | STABLE (winner is global max on full grid) | **DONE** — coherent chart + corrected narrative + both gates green (committed) |
+| **busloans_spy** | RE-SELECTS (`contraction/…/L11 = 1.6159 > 1.4999`) | **maker native re-run** + ECON-T5 adjudication + propagate |
+| **petrol_inv_spy** | RE-SELECTS (L11 `1.5273 > 1.4779`) | **maker native re-run** + propagate |
+| **umcsent_xlv** | engine can't reproduce (diff threshold template, no lookback col) | **maker native derive** |
+| **indpro_spy** | engine can't (parquet lacks S1_level/S4_dev_trend cols) | **maker native derive** for the coherent chart (winner already full-grid) |
+| **indpro_xlp** | engine can't (reconcile 0.60 vs 1.33, diff template) | **maker native derive** (winner already full-grid) |
+| **gold_copper_xli, hy_ig_spy, vix_vix3m_spy, phlxsox_spy** | Class A / T3 (daily) | daily-lead-axis presentation, separate track |
+
+**Role & topology (LEAD-DL1).** Lead Lesandro is **manager + checker — NOT the maker.** Stakeholder ruled out Lead-as-maker (⇒ Modes 2 & 5 are out). Intended topology is **Mode 3: Lead dispatches Codex makers; Lead ratifies.** The native re-runs / native-derive are **Codex maker work**; Lead ratifies each with GATE-VIZ-LEAD + GATE-CONSISTENCY + cloud-DOM verify.
+
+**Resume steps in the devcontainer:**
+1. `git checkout feat260707_lead_coherence_rollout` (env is native there — no Otis/venv concerns).
+2. **Checker:** point a preview app (dev01/dev02) at this branch, then cloud-verify the two done pairs: `python scripts/cloud_verify.py --base https://aig-rlic-plus-dev01.streamlit.app --pairs ism_services_spy,m2sl_yoy_spy`.
+3. **Manager:** draft + dispatch the Codex maker brief (via the `codex` skill, Mode 3) for **busloans, petrol** (re-selection) then **umcsent, indpro_spy, indpro_xlp** (native derive). Brief = native re-run at L0–12 → adjudicate ECON-T5 → regenerate ALL downstream + narrative → hand back. **Ratify** each via both gates + DOM before it's "done."
+4. **Class A / T3 daily** pairs: separate design (daily-lead chart + "traded daily / monthly sweep is a diagnostic" framing).
+5. Codify the pattern as an SOP rule (VIZ-LEAD + the single-source-of-truth principle) once the fleet is converted.
 
 **Candidate GH issues not yet filed** (per gh-issues-over-backlog):
 - Annotated Statistical-Methods examples bake numbers from 4 pair snapshots (hy_ig/gold_copper/indpro/phlxsox) → add periodic "example-number vs source-chart" re-verification (drift guard).

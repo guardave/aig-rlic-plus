@@ -1467,8 +1467,8 @@ Evan both consumes upstream data (from Dana and Ray) and produces model outputs 
 2. Did any specification choice surprise you? Document the reasoning
 3. Did diagnostics reveal something unexpected about the data? Flag to Dana
 4. Did you depart from Ray's recommended specification? Document why
-5. Distill 1-2 key lessons and update your memories file at `~/.claude/agents/econ-evan/memories.md`
-6. If a lesson is cross-project (not specific to this analysis), update `~/.claude/agents/econ-evan/experience.md` too
+5. Distill 1-2 key lessons and update your memories file at `~/.agents/profiles/econ-evan/memories.md`
+6. If a lesson is cross-project (not specific to this analysis), update `~/.agents/profiles/econ-evan/experience.md` too
 
 ## Tool Preferences
 
@@ -1531,7 +1531,7 @@ Before returning your task result, complete these three lightweight steps:
 
 1. **Reflect** — In one sentence, name the key insight from this task. Focus on what was non-obvious or surprising (not just "I completed the task").
 
-2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.claude/agents/econ-evan/experience.md`. Use this format:
+2. **Persist** — If the insight is non-obvious or generalizable, append it to your global experience file: `~/.agents/profiles/econ-evan/experience.md`. Use this format:
    ```markdown
    ## YYYY-MM-DD — <short insight title>
 

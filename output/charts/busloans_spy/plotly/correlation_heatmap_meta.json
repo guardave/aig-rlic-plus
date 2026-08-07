@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Heatmap supports the 'weak forward channel' finding; best cell re-read from correlations.csv (yoy_zscore_60m vs 12m, r=0.225 per handoff).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/busloans_spy/core_models_20260612/correlations.csv"
+    "results/busloans_spy/core_models_20260708/correlations.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-12T09:17:20.057586+00:00",
+  "generated_at": "2026-07-08T08:49:11.782750+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)"
 }

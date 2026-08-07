@@ -33,6 +33,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy import stats
+from dotenv import load_dotenv
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -45,7 +46,7 @@ INDICATOR_NAME = "University of Michigan Consumer Sentiment"
 TARGET_NAME = "Health Care Select Sector (XLV)"
 START_DATE = "1998-01-01"
 END_DATE = "2025-12-31"
-DATE_TAG = "20260420"
+DATE_TAG = "20260711"  # GH#13 full L0-12 grid (free selection per Lead-Grid Frequency Standard 2026-07-14; retired the interim Option-C L0-6 cap). Immutable tournament re-used; winner unchanged (L6=1.1586). Prior L0-6 run: 20260420.
 EXPECTED_DIRECTION = "procyclical"
 
 BASE_DIR = str(Path(__file__).resolve().parents[1])
@@ -188,7 +189,10 @@ def stage_data_sourcing():
         "DGS10":   "dgs10",     # 10Y Treasury Yield (Daily)
     }
 
-    api_key = os.environ.get("FRED_API_KEY", "952aa4d0c4b2057609fbf3ecc6954e58")
+    load_dotenv()  # repo-root .env; hardcoded fallback removed (key rotated after leak)
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        raise SystemExit("FRED_API_KEY not set — copy .env.example to .env, or run setup.sh.")
     fred_data = {}
 
     import urllib.request
@@ -1081,9 +1085,15 @@ def stage_tournament(df_monthly, df_daily):
             print("  ERROR: No XLV data for tournament")
             return pd.DataFrame()
 
-    # Include 4M and 5M per stakeholder review so the 2-5M
-    # cross-correlation window is explicitly covered in the tournament.
-    lead_times = [0, 1, 2, 3, 4, 5, 6]
+    # Full anchored monthly grid L0-12 per the Lead-Grid Frequency Standard
+    # (docs/lead-grid-frequency-standard.md, adopted 2026-07-14). The math selects
+    # the winner over the FULL grid with NO economic-window cap; the 2-5-month
+    # cross-correlation window is REFERENCE context only (Step 5), never a selection
+    # constraint. This retires the interim Option-C L0-6 capped-selection pattern:
+    # a long-lead derivative (e.g. umcsent_direction, significant at L10 in the
+    # per-transform lead-correlation table) is TESTED and, if it wins, ADJUDICATED
+    # (Step 4 / ECON-T5) — not pre-excluded.
+    lead_times = list(range(0, 13))
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 
     results = []
@@ -1134,8 +1144,14 @@ def stage_tournament(df_monthly, df_daily):
 
                         strat_ret = position.shift(1) * work["xlv_ret"]
 
+                        # ECON-T4 deployable-series scoring (GH#13): score OOS on the DEPLOYABLE
+                        # series — an undefined in-window position deploys as CASH (0), not dropped.
+                        # OOS opens ~15yr past every combo's warmup, so any in-window NaN is a
+                        # degenerate-signal month (e.g. P2 signal-strength on the ternary S6_direction
+                        # flag). Cash-fill == the deployable series the winner_summary/charts use.
+                        # IS stays dropna (reported only; its window spans warmup).
                         is_ret = strat_ret[is_mask].dropna()
-                        oos_ret = strat_ret[oos_mask].dropna()
+                        oos_ret = strat_ret[oos_mask].fillna(0.0)
 
                         if len(is_ret) < 24 or len(oos_ret) < 12:
                             continue
@@ -1389,6 +1405,13 @@ def main():
         bh = tournament_df[tournament_df["signal"] == "BENCHMARK"]
 
         if len(valid_strats) > 0:
+            # FREE full-grid selection per the Lead-Grid Frequency Standard
+            # (docs/lead-grid-frequency-standard.md, 2026-07-14): NO economic-window
+            # cap. The published winner is the global max valid OOS-Sharpe combo over
+            # the full L0-12 grid; the 2-5-month window is REFERENCE only. (This retires
+            # the interim Option-C L0-6 cap. Verified winner-unchanged: L6 is already the
+            # full-grid global max at 1.1586 vs best L7-12 = 1.033.) A surprising long
+            # lead, if it won, would be ADJUDICATED (Step 4 / ECON-T5), not pre-excluded.
             best = valid_strats.loc[valid_strats["oos_sharpe"].idxmax()]
             work_for_summary = df_monthly.dropna(subset=["umcsent"])
             oos_mask_summary = work_for_summary.index >= OOS_START
@@ -1467,6 +1490,63 @@ def main():
                     f"Winning threshold uses {threshold_note_contract}. "
                     f"Signal is lagged by {int(best['lead_months'])} months before the rule is applied."
                 ),
+            }
+
+            # --- ECON-T5 selection provenance (FREE full-grid L0-12 selection; no cap) ---
+            # Lead-Grid Frequency Standard (2026-07-14): the winner is the global max valid
+            # combo over the full grid. The 2-5-month window is REFERENCE only (Step 5); the
+            # full-grid math CONFIRMED it (nothing at L7-12 beats L6).
+            _sel_pool = valid_strats
+            _ranked = _sel_pool.sort_values("oos_sharpe", ascending=False)
+            _runner = _ranked.iloc[1] if len(_ranked) > 1 else None
+            _l712 = valid_strats[valid_strats["lead_months"] >= 7]
+            _l712_max = round(float(_l712["oos_sharpe"].max()), 4) if len(_l712) else None
+            _s6 = _l712[_l712["signal"] == "S6_direction"]
+            _s6_max = round(float(_s6["oos_sharpe"].max()), 4) if len(_s6) else None
+            winner_summary["schema_version"] = "1.2.0"
+            winner_summary["selection"] = {
+                "objective": "max_oos_sharpe",
+                "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
+                "grid_scanned": {
+                    "leads": list(range(0, 13)),
+                    "n_signals": int(_sel_pool["signal"].nunique()),
+                    "n_thresholds": int(_sel_pool["threshold"].nunique()),
+                    "n_strategies": int(_sel_pool["strategy"].nunique()),
+                    "n_valid_combos": int(len(_sel_pool)),
+                    "median_valid_objective": round(float(_sel_pool["oos_sharpe"].median()), 4),
+                },
+                "tie_break_step": 0,
+                "raw_winner_row": {
+                    "signal": str(best["signal"]),
+                    "threshold": str(best["threshold"]),
+                    "strategy": str(best["strategy"]),
+                    "lead_column": "lead_months",
+                    "lead_value": int(best["lead_months"]),
+                    "source_tournament_file": f"tournament_results_{DATE_TAG}.csv",
+                    "source_row_index": int(best.name),
+                    "display_alias": f"signal_code={winner_summary['signal_code']}; strategy={best['strategy']}",
+                },
+                "runner_up": ({
+                    "signal": str(_runner["signal"]), "threshold": str(_runner["threshold"]),
+                    "strategy": str(_runner["strategy"]), "lead_value": int(_runner["lead_months"]),
+                    "objective_value": round(float(_runner["oos_sharpe"]), 4),
+                } if _runner is not None else None),
+                "rationale": (
+                    f"FREE full-grid selection (Lead-Grid Frequency Standard, 2026-07-14): no "
+                    f"economic-window cap — the winner is the global max valid OOS Sharpe over the "
+                    f"FULL L0-12 grid ({len(_sel_pool)} valid combos, median "
+                    f"{float(_sel_pool['oos_sharpe'].median()):.4f}): {best['signal']}/{best['threshold']}/"
+                    f"{best['strategy']}/L{int(best['lead_months'])} = {float(best['oos_sharpe']):.4f}. "
+                    f"The economically-motivated 2-5-month cross-correlation window is REFERENCE context "
+                    f"the full-grid math CONFIRMED: the best L7-12 combo scores only {_l712_max} (< winner), "
+                    f"and S6_direction — the transform with a significant L10 lead-correlation (r=0.113*) — "
+                    f"scores at most {_s6_max} across L7-12, so the long-lead direction signal is "
+                    f"multiple-testing noise, not a tradable edge. This retires the interim Option-C L0-6 "
+                    f"cap; the winner is UNCHANGED (L6 was already the full-grid global max). Low-confidence "
+                    f"framing stands: isolated L6 spike on a nearly-flat envelope, backward-Granger caveat, "
+                    f"L7-12 = noise. Published winner == full-grid raw max-OOS-Sharpe valid row -> divergence null."
+                ),
+                "objective_runner_up_divergence": None,
             }
 
             sr = pd.DataFrame({

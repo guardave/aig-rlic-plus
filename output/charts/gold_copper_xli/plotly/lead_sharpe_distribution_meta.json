@@ -8,14 +8,14 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "narrative_alignment_note": "Sweep-grid best OOS Sharpe 1.37 at L10 (gold_copper_pctrank_504d x P1); a single spike. Buy-and-hold XLI OOS Sharpe = 0.66. Published winner is a daily-executed strategy at 0 day(s) lead (OOS Sharpe 1.27) \u2014 off this monthly comparability axis; the bars are the monthly-resampled sweep, not the deployed daily horizon.",
-  "caption": "Sweep-grid best OOS Sharpe 1.37 at L10 (gold_copper_pctrank_504d x P1); a single spike. Buy-and-hold XLI OOS Sharpe = 0.66. Published winner is a daily-executed strategy at 0 day(s) lead (OOS Sharpe 1.27) \u2014 off this monthly comparability axis; the bars are the monthly-resampled sweep, not the deployed daily horizon.",
-  "created_at": "2026-06-27T13:16:29Z",
+  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, Gold/Copper) on the DAILY axis; deployed lead 0d = 1.27. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold XLI = 0.66. On the pair's OWN daily grid the published winner sits at the envelope peak (0d) \u2014 both its own curve and the best-of-any-signal envelope peak there, and the profile decays as the signal is lagged. This is a SAME-DAY (coincident) edge \u2014 the signal and target move together the same day, not a multi-month leading indicator. Extending the grid to 126/252 trading days surfaces no long-lead edge (long leads fail a t&gt;3 hurdle) \u2014 multiple-testing noise.",
+  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, Gold/Copper) on the DAILY axis; deployed lead 0d = 1.27. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold XLI = 0.66. On the pair's OWN daily grid the published winner sits at the envelope peak (0d) \u2014 both its own curve and the best-of-any-signal envelope peak there, and the profile decays as the signal is lagged. This is a SAME-DAY (coincident) edge \u2014 the signal and target move together the same day, not a multi-month leading indicator. Extending the grid to 126/252 trading days surfaces no long-lead edge (long leads fail a t&gt;3 hurdle) \u2014 multiple-testing noise.",
+  "created_at": "2026-07-15T10:26:25Z",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/gold_copper_xli/lead_tournament_20260620.csv",
+    "results/gold_copper_xli/lead_winner_curve_20260715.csv",
     "results/gold_copper_xli/winner_summary.json"
   ],
   "generated_by": "Viz Vera \u2014 scripts/generate_lead_charts.py (VIZ-LEAD1)"

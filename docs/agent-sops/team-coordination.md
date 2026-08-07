@@ -684,8 +684,8 @@ It does **not** apply to:
 
 **Rule.** At the end of every wave closure — or every major dispatch that meaningfully touches an agent's domain — the agent **MUST** append entries to all three of:
 
-1. `~/.claude/agents/<role>-<name>/experience.md` — cross-project, timeless patterns (the wisdom that generalizes beyond this project).
-2. `~/.claude/agents/<role>-<name>/memories.md` — specific incidents and the lesson drawn from each (dated, concrete).
+1. `~/.agents/profiles/<role>-<name>/experience.md` — cross-project, timeless patterns (the wisdom that generalizes beyond this project).
+2. `~/.agents/profiles/<role>-<name>/memories.md` — specific incidents and the lesson drawn from each (dated, concrete).
 3. `_pws/<role>-<name>/session-notes.md` — project-specific session log (this project's chronology).
 
 **Required content per append (all three files).**
@@ -698,7 +698,7 @@ It does **not** apply to:
 
 **Enforcement.** QA-CL3 (active as of Wave 9C) checks that every wave closure has corresponding `experience.md` + `memories.md` + `session-notes.md` updates with META-SRV evidence. The PostToolUse hook (`scripts/hooks/check-agent-eod.sh`) audits file mtime after each Agent tool call and warns Lead if files are stale.
 
-**Sandbox-denial fallback protocol (added Wave 10F after cross-review of 2026-04-20).** If the sandbox denies the write to `~/.claude/agents/<role>-<name>/experience.md` or `memories.md` during EOD, the agent MUST:
+**Sandbox-denial fallback protocol (added Wave 10F after cross-review of 2026-04-20).** If the sandbox denies the write to `~/.agents/profiles/<role>-<name>/experience.md` or `memories.md` during EOD, the agent MUST:
 
 1. Capture the intended entry **verbatim** (with its `### Experience entry` or `### Memory entry (YYYY-MM-DD)` heading) in `_pws/<role>-<name>/session-notes.md` under a clearly-labeled section `## Memory promotion backlog — pending Lead write`.
 2. Report the denial explicitly in the dispatch return — do NOT claim success.
@@ -732,7 +732,7 @@ Session-notes fallback is **temporary capture only**, not equivalent to the glob
 AGENT_ID: <role>-<name>
 ```
 
-Example: `AGENT_ID: appdev-ace`. This is consumed by the PostToolUse hook (`~/.claude/hooks/check-agent-eod.sh`) to identify which agent's global profile to audit after the dispatch returns.
+Example: `AGENT_ID: appdev-ace`. This is consumed by the PostToolUse hook (`scripts/hooks/check-agent-eod.sh`) to identify which agent's global profile to audit after the dispatch returns.
 
 **Mandatory SOD block (added Wave 10F).** Every dispatch prompt must contain an `## SOD Block` section (typically near the top, after the task description) instructing the dispatched agent to run the project-local `/sod` procedure before starting work. Minimal acceptable form:
 
@@ -742,7 +742,7 @@ Example: `AGENT_ID: appdev-ace`. This is consumed by the PostToolUse hook (`~/.c
 Before starting this task:
 1. Read `CLAUDE.md`, `docs/agent-sops/team-coordination.md`, `docs/agent-sops/<your-role>-agent-sop.md`.
 2. Read `docs/team-standards.md` (cross-agent conventions — filenames, sidecars, palette, handoff).
-3. Read `docs/sop-changelog.md` entries since `~/.claude/agents/<role>-<name>/last_seen` (any rule added while you were away).
+3. Read `docs/sop-changelog.md` entries since `~/.agents/profiles/<role>-<name>/last_seen` (any rule added while you were away).
 4. Re-read your global profile + PWS.
 5. After reading, update `last_seen` to current UTC timestamp.
 
@@ -757,8 +757,8 @@ This block is consumed by the PreToolUse hook (`scripts/hooks/check-agent-sod.sh
 ---
 ## MANDATORY EOD — complete before returning, no exceptions
 
-1. Append to `~/.claude/agents/<role>-<name>/experience.md` — cross-project patterns learned this wave.
-2. Append to `~/.claude/agents/<role>-<name>/memories.md` — dated incident log for this wave.
+1. Append to `~/.agents/profiles/<role>-<name>/experience.md` — cross-project patterns learned this wave.
+2. Append to `~/.agents/profiles/<role>-<name>/memories.md` — dated incident log for this wave.
 3. Append to `_pws/<role>-<name>/session-notes.md` — project-specific session summary.
 4. For each file: record evidence (wc -l or git diff) per META-AM / META-SRV.
 
@@ -1508,8 +1508,8 @@ Every agent must run these two hooks when completing any task. Individual SOPs c
 1. **What went well? What was harder than expected?**
 2. **Did any handoff friction occur?** Note it for SOP improvement
 3. **Did you learn something reusable?** (data gotcha, method insight, tool trick, collaboration pattern)
-4. **Distill 1-2 key lessons** and update your memories file at `~/.claude/agents/{your-id}/memories.md`
-5. **Cross-project lessons** go to `~/.claude/agents/{your-id}/experience.md`
+4. **Distill 1-2 key lessons** and update your memories file at `~/.agents/profiles/{your-id}/memories.md`
+5. **Cross-project lessons** go to `~/.agents/profiles/{your-id}/experience.md`
 6. **If a lesson affects another agent's workflow**, message them directly — don't assume they'll discover it
 
 These hooks are not optional. They are the mechanism by which the team improves over time. Skipping them to save time is a false economy — the cost shows up as repeated mistakes and handoff friction in future tasks.
@@ -1533,8 +1533,8 @@ Each agent incorporates the best feedback into their own SOP. Ownership matters 
 
 ### Step 3: Distill and Remember
 Each agent distills key lessons into:
-- `~/.claude/agents/{agent-id}/memories.md` (gotchas, insights, commitments)
-- `~/.claude/agents/{agent-id}/experience.md` (cross-project patterns)
+- `~/.agents/profiles/{agent-id}/memories.md` (gotchas, insights, commitments)
+- `~/.agents/profiles/{agent-id}/experience.md` (cross-project patterns)
 
 ### Why This Matters
 Reading teammates' SOPs reveals handoff gaps, duplicated work, and blind spots that no amount of solo work surfaces. This is not optional — it is the single highest-leverage activity for team cohesion. Do it for every new team or whenever the team composition changes.

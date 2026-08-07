@@ -8,14 +8,14 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Cumulative growth of 1.00 for Evan's saved strategy returns and buy-and-hold returns. The OOS rule raises Sharpe (1.48 vs 0.93) but gives up annualized return (9.8% vs 15.2%). Shaded bands mark NBER recessions.",
+  "caption": "Cumulative growth of 1.00 for Evan's saved strategy returns and buy-and-hold returns. The OOS rule raises Sharpe (1.53 vs 0.93) but gives up annualized return (14.0% vs 15.2%). Shaded bands mark NBER recessions.",
   "narrative_alignment_note": "Strategy series read from strategy_returns_20260617.csv; metrics from winner_summary.json.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/petrol_inv_spy/strategy_returns_20260617.csv",
+    "results/petrol_inv_spy/strategy_returns_20260711.csv",
     "results/petrol_inv_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-17T15:05:50.735558+00:00",
+  "generated_at": "2026-07-11T09:44:57.544088+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
 }

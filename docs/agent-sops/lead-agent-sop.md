@@ -52,18 +52,32 @@ Codex participates through one of two dispatch mechanisms, in priority order:
 
 ### Persona referencing across CLIs
 
-Codex and Claude load their persona and protocol from **different locations**. The `claude` CLI auto-loads `CLAUDE.md` (project), `~/.claude/CLAUDE.md` (global protocol), and the agent profile under `~/.claude/agents/<role>-<name>/`. Codex auto-loads none of those — by its documented convention it merges `AGENTS.md` files: `$CODEX_HOME/AGENTS.md` (global, `CODEX_HOME=~/.codex`) + the repo-root `AGENTS.md` + any per-directory `AGENTS.md`, plus runtime settings from `~/.codex/config.toml`.
+Codex and Claude load their persona and protocol from **different locations**. The `claude` CLI auto-loads `CLAUDE.md` (project), `~/.claude/CLAUDE.md` (global protocol), and the agent profile under `~/.agents/profiles/<role>-<name>/`. Codex auto-loads none of those — by its documented convention it merges `AGENTS.md` files: `$CODEX_HOME/AGENTS.md` (global, `CODEX_HOME=~/.codex`) + the repo-root `AGENTS.md` + any per-directory `AGENTS.md`, plus runtime settings from `~/.codex/config.toml`.
 
 **The bridge is pointer-only — never a copy.** To keep a single source of truth and zero drift, the persona/protocol text is **never duplicated** into any Codex file. Two thin pointer files tell Codex where to read the canonical Claude-side files:
 
 1. **`~/.codex/AGENTS.md`** (global) → points to `~/.claude/CLAUDE.md`.
-2. **`AGENTS.md`** (repo root) → points to project `CLAUDE.md`, the role SOP under `docs/agent-sops/`, and the persona profile under `~/.claude/agents/<role>-<name>/`. It is a **generic role-resolver**: Codex derives its role from the dispatch brief's `[Role Name]` identity tag and loads the matching SOP + profile, so one file serves any persona Codex is asked to wear (Lead in Mode 4, makers/checkers in Modes 3/5).
+2. **`AGENTS.md`** (repo root) → points to project `CLAUDE.md`, the role SOP under `docs/agent-sops/`, and the persona profile under `~/.agents/profiles/<role>-<name>/`. It is a **generic role-resolver**: Codex derives its role from the dispatch brief's `[Role Name]` identity tag and loads the matching SOP + profile, so one file serves any persona Codex is asked to wear (Lead in Mode 4, makers/checkers in Modes 3/5).
 
 **`~/.codex/config.toml` holds Codex runtime config only** (model, approval policy, sandbox, named profiles via `--profile`). No persona, no protocol — so there is nothing in it that can drift from `CLAUDE.md`.
 
 The day a persona profile, a SOP, or the global protocol changes, Codex picks it up on its next run because the pointers resolve to the canonical files, not to copies. When wearing the Lead hat (Mode 4), Codex is bound by every Lead rule on the persona — LEAD-DL1, LEAD-QF1, LEAD-MA1, META-CPD — exactly as Lesandro-on-Claude is.
 
-**Validation.** Smoke-tested 2026-06-16 on Codex 0.140.0 (`gpt-5.5`): dispatched as `[Lead Lesandro]`, `codex exec` correctly resolved the role and reported reading the canonical files (`~/.claude/CLAUDE.md`, `./CLAUDE.md`, `docs/agent-sops/lead-agent-sop.md`, the persona profile under `~/.claude/agents/lead-lesandro/`). The pointer mechanism is confirmed working. Re-run this check (`codex exec "State your role identity and the files you loaded."`) after any change to the `AGENTS.md` pointers or `CODEX_HOME`.
+**Validation — static pointer audit, 2026-07-15. This is NOT a live role-resolution probe.**
+
+The prior entry here (smoke test 2026-06-16, Codex 0.140.0 `gpt-5.5`) is **withdrawn as expired**, not merely aged: every pointer it validated has since moved — personas `~/.claude/agents/<role>-<name>/` → `~/.agents/profiles/<role>-<name>/`; `CODEX_HOME` `/home/vscode/.codex` → `/home/david/.codex` (`07260532`); `setup.sh` step 1c fixed in `88e7330a`. It recorded Codex reading a persona path that no longer exists, so it was evidence *for a chain we no longer run*.
+
+The chain was re-walked hop by hop **by reading files only — no `codex` invocation of any kind**. All five hops resolve:
+
+1. `CODEX_HOME=/home/david/.codex` — matches `.devcontainer/devcontainer.json` (`containerEnv` + `remoteEnv`) and the live container's env. `$CODEX_HOME/AGENTS.md` exists.
+2. It points to `~/.claude/CLAUDE.md` (exists; the thin adapter, which itself points at `~/.agents/core|playbooks|profiles|knowledge` — all four present) and to `~/.agents/profiles/<role>-<name>/`.
+3. Repo `./AGENTS.md` and `./CLAUDE.md` exist. `./AGENTS.md` is the only `AGENTS.md` in the repo — no per-directory file shadows it.
+4. Every SOP `./AGENTS.md` names resolves: all 7 role SOPs, `team-coordination.md`, and `docs/team-standards.md`.
+5. `~/.agents/profiles/lead-lesandro/` exists with `profile.md`, `experience.md`, `memories.md`, `last_seen`, and `projects/aig-rlic-plus.md`.
+
+Host and container see **byte-identical** files (md5 match across the `~/.codex`, `~/.agents`, `~/.claude` bind mounts — verified, not assumed). `setup.sh:89-104` reproduces the live global pointer exactly, so a container rebuild does not regress it. `~/.codex/config.toml` carries runtime config only — no persona text that could drift. **No dead path remains in the chain**; the only one found was the previous text of this line.
+
+**Outstanding — the live probe.** This audit proves the pointers *resolve*. It does not prove Codex *reads* them, merges them in the documented order, or actually adopts the `[Role Name]` persona and its binding rules. Codex is now 0.144.4 (`~/.codex/version.json`); the single prior behavioural datapoint was 0.140.0, so it is both stale and version-mismatched. Nothing here substitutes for `codex exec "State your role identity and the files you loaded."` — run it under approval/sandbox settings the operator has authorised for that run. Re-run the live probe **and** this static audit after any change to the `AGENTS.md` pointers, `CODEX_HOME`, or the persona-profile location.
 
 ### The SOD conversation (mandatory)
 
@@ -85,7 +99,7 @@ These criteria apply to both single-maker + multi-checker modes — Mode 2 (Clau
 
 1. All four checker subagents have returned a clean report in the same iteration.
 2. GATE-CMP1 returns exit 0 (no FAIL, no WARN that the user has not explicitly accepted) at the same commit.
-3. **LEAD-DOM1 rendered-DOM verification passes against a live preview app (dawodev or local) for every affected page.** This is mandatory and is the FINAL gate — if it fails after subagent + gate PASS, Mode 2 has not exited; iterate the producer.
+3. **LEAD-DOM1 rendered-DOM verification passes against a live preview app (`dev01`/`dev02`, or local) for every affected page.** This is mandatory and is the FINAL gate — if it fails after subagent + gate PASS, Mode 2 has not exited; iterate the producer.
 
 Checker iteration count is recorded in the pair-execution-history entry as a quality signal. Rendered-DOM iteration count is recorded separately.
 
@@ -251,7 +265,7 @@ Pre-master row 2 carries the full description (FRED ticker, units, frequency, SA
 
 **The protocol:**
 
-1. When all checker-phase exit criteria are met (gate PASS, all four checkers clean, dawodev verify clean, acceptance.md ratified), Lead prepares the merge artifacts: PWS updates, relnotes entries, auto-memory writes, `pair_execution_history.md` entry. These are committed to the *feature branch*, not to main.
+1. When all checker-phase exit criteria are met (gate PASS, all four checkers clean, preview-app verify clean, acceptance.md ratified), Lead prepares the merge artifacts: PWS updates, relnotes entries, auto-memory writes, `pair_execution_history.md` entry. These are committed to the *feature branch*, not to main.
 2. Lead presents the user with a merge-readiness summary: branch name, commit count, trajectory (e.g. "round-4 PASS"), production-impact statement, and an explicit ask: *"Branch is ready to merge to main. Approve?"*
 3. The user authorises or holds. Lead waits for the explicit signal — silence, a checkmark, or a "go" are valid signals; "looks good" alone is not (it's checker-phase feedback, not merge authorisation).
 4. ONLY after authorisation does Lead execute `git checkout main && git merge --no-ff ...` and `git push origin main`.
@@ -274,7 +288,7 @@ No other exceptions. "All checks passed" / "the SOP says clean exit" / "we're at
 
 **The rule (mandatory, applies whenever a pair, page, or component change is about to be declared done):**
 
-1. Start the dev Streamlit instance (or use a live preview URL — dawodev for branch work, production for post-merge).
+1. Start the dev Streamlit instance (or use a live preview URL — a `dev01`/`dev02` preview app for branch work, production for post-merge). Confirm which branch the preview app tracks before verifying against it (see CLAUDE.md § Deployment).
 2. Drive Playwright against every affected URL. For pair pages this means at minimum: landing, story, evidence, strategy, methodology.
 3. For each URL, **assert all of**:
    - `body.innerText` includes the expected content (key numbers, key headings, indicator/target names).

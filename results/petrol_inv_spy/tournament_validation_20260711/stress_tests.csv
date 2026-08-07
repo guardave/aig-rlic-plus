@@ -1,0 +1,4 @@
+period,start,end,n_months,buy_hold_sharpe,winner_sharpe,buy_hold_return_pct,winner_return_pct
+GFC,2008-09-01,2009-06-30,10,-1.0361,0.0,-26.83,0.0
+COVID,2020-03-01,2020-06-30,4,0.5559,2.9669,6.75,19.24
+Rate_Hike_2022,2022-01-01,2023-06-30,18,-0.0458,0.0,-1.43,0.0

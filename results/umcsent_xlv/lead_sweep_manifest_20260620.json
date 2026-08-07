@@ -23,6 +23,34 @@
   "assertions": [
     "lead grid is exactly L0..12",
     "best_oos_sharpe is the max over the extended grid",
-    "decision RE-RUN iff L*\u22087..12 AND best>1.0202"
-  ]
+    "decision RE-RUN iff L*\u22087..12 AND best>1.0202",
+    "[GH#13] published winner (S3_mom/T3_zscore_1.0/P1_long_cash/L6, OOS 1.1586) on the single native source: own curve peaks at L6, cross-signal envelope peaks at L6 (top-two margin 0.0406, flat=True); all leads [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] pipeline-scored, deployable basis (all valid oos_n==96); winner governance clear (no lead beats it)."
+  ],
+  "lead_tournament_native_file": "umcsent_xlv/lead_tournament_native_20260620.csv",
+  "lead_winner_curve_file": "umcsent_xlv/lead_winner_curve_20260620.csv",
+  "lead_clean_envelope_file": "umcsent_xlv/lead_clean_envelope_20260620.csv",
+  "clean_envelope_note": "Native-derived (scripts/refresh_indpro_xlp_lead_artifacts.py) because the generic engine can't reproduce this pair (signals parquet lacks S1_level/S4_dev_trend; no lookback column, fixed-60m thresholds). Winner already selected on the full L0-12 native grid; DERIVE-ONLY. On the ECON-T4 deployable basis no re-scoring is needed: every valid combo has oos_n==full window (96), so deployable Sharpe == the published tournament Sharpe.",
+  "winner_curve_peak_lead": 6,
+  "coherent_envelope_L_star": 6,
+  "coherent_envelope_peak_margin": 0.0406,
+  "coherent_envelope_is_flat": true,
+  "pipeline_scored_leads": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "engine_patched_leads": [],
+  "winner_governance": "winner holds \u2014 global max across all leads 1.1586 does not exceed the frozen winner 1.1586 (ECON-T5 clear)",
+  "best_clean_oos_sharpe_at_grid": 1.1586,
+  "best_clean_oos_sharpe_at_grid_signal": "umcsent_mom"
 }

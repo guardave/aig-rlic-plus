@@ -1,0 +1,28 @@
+{
+  "file": "correlations.csv",
+  "pair_id": "petrol_inv_spy",
+  "produced_by": "scripts/pair_pipeline_petrol_inv_spy.py",
+  "generated_at": "2026-07-11T09:35:37Z",
+  "columns": {
+    "pair_name": "signal__forward_return",
+    "horizon_days": "21/63/126/252 equivalents",
+    "metric": "pearson/spearman/kendall/distance",
+    "value": "association statistic",
+    "p_value": "two-sided p, except distance",
+    "n_obs": "observations"
+  },
+  "assertions": [
+    {
+      "description": "correlation values bounded",
+      "check": "abs(value)<=1"
+    },
+    {
+      "description": "distance correlation nonnegative",
+      "check": "distance >= 0"
+    },
+    {
+      "description": "stationary transforms only",
+      "check": "petrol_inv_kb excluded"
+    }
+  ]
+}
