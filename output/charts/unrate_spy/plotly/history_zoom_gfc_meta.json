@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-07-17T08:00:00.179293+00:00",
+  "generated_at": "2026-08-07T07:58:21.781095+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "Global Financial Crisis: Labor Stress Confirmed the Recession; gray bands are NBER recessions and pink bands are Sahm-style labor stress.",
   "narrative_alignment_note": "Global Financial Crisis: Labor Stress Confirmed the Recession; gray bands are NBER recessions and pink bands are Sahm-style labor stress.",

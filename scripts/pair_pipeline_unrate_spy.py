@@ -101,6 +101,14 @@ def source_data() -> pd.DataFrame:
     unrate_3m_avg = df["unrate"].rolling(3, min_periods=3).mean()
     df["unrate_sahm"] = unrate_3m_avg - unrate_3m_avg.rolling(12, min_periods=12).min()
     df["unrate_recession_flag"] = (df["unrate_sahm"] >= 0.5).astype(float)
+    for months in (2, 3, 4):
+        delta = df["unrate"].diff()
+        df[f"unrate_rising_{months}m"] = (
+            delta.gt(0).rolling(months, min_periods=months).sum().eq(months).astype(float)
+        )
+        df[f"unrate_falling_{months}m"] = (
+            delta.lt(0).rolling(months, min_periods=months).sum().eq(months).astype(float)
+        )
 
     df = df.loc["1993-01-31":].copy()
     df.to_parquet(DATA_DIR / "unrate_spy_monthly_latest.parquet")
@@ -232,9 +240,43 @@ def make_position(signal: pd.Series, threshold: pd.Series | float, direction: st
     return pos.where(signal.notna() & thresh.notna())
 
 
+def make_streak_position(unrate: pd.Series, months: int) -> tuple[pd.Series, pd.Series, pd.Series]:
+    delta = unrate.diff()
+    rising = delta.gt(0).rolling(months, min_periods=months).sum().eq(months)
+    falling = delta.lt(0).rolling(months, min_periods=months).sum().eq(months)
+    trigger = pd.Series(0.0, index=unrate.index)
+    trigger[rising] = -1.0
+    trigger[falling] = 1.0
+    position = pd.Series(np.nan, index=unrate.index)
+    position[rising] = 0.0
+    position[falling] = 1.0
+    position = position.ffill().fillna(1.0)
+    threshold = pd.Series(float(months), index=unrate.index)
+    return position.where(unrate.notna()), trigger.where(unrate.notna()), threshold
+
+
+def display_name_for_signal(signal_code: str) -> str:
+    if signal_code.startswith("streak_"):
+        months = signal_code.split("_", 1)[1]
+        return f"{months}-month consecutive UNRATE direction trigger"
+    return {
+        "level": "Unemployment rate level",
+        "mom": "Monthly change in unemployment rate",
+        "chg_3m": "3-month change in unemployment rate",
+        "chg_6m": "6-month change in unemployment rate",
+        "chg_12m": "12-month change in unemployment rate",
+        "zscore_60m": "60-month unemployment z-score",
+        "sahm": "Sahm-style unemployment recession signal",
+    }[signal_code]
+
+
+def streak_months_from_threshold(threshold_code: str) -> int:
+    return int(threshold_code.replace("STREAK_", "").replace("M", ""))
+
+
 def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     oos_start = pd.Timestamp("2017-01-31")
-    leads = [0, 1, 2, 3, 6, 9, 12]
+    leads = [0]
     rows = []
     strategy_series: dict[str, pd.Series] = {}
     bh_oos = df.loc[oos_start:, "spy_ret"].dropna()
@@ -255,7 +297,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
                     n_trades = int(pos.loc[oos_start:].dropna().diff().abs().fillna(0).sum())
                     valid = len(oos) >= 60 and 0.05 <= exposure <= 0.95 and oos.std() > 0
                     metrics = ann_metrics(oos)
-                    key = f"{signal_code}|{threshold_code}|{direction}|{lead}"
+                    key = f"P1_long_cash|{signal_code}|{threshold_code}|{direction}|{lead}"
                     strategy_series[key] = rets
                     rows.append(
                         {
@@ -279,6 +321,39 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
                             "valid": bool(valid),
                         }
                     )
+
+    for months in (2, 3, 4):
+        position, trigger, threshold = make_streak_position(df["unrate"].astype(float), months)
+        rets = (position * df["spy_ret"]).dropna()
+        oos = rets.loc[oos_start:]
+        exposure = position.loc[oos_start:].dropna().mean()
+        n_trades = int(position.loc[oos_start:].dropna().diff().abs().fillna(0).sum())
+        valid = len(oos) >= 60 and 0.01 <= exposure <= 0.99 and oos.std() > 0
+        metrics = ann_metrics(oos)
+        key = f"P2_streak_trigger|streak_{months}|STREAK_{months}M|rise_sell_fall_buy|0"
+        strategy_series[key] = rets
+        rows.append(
+            {
+                "signal": f"streak_{months}",
+                "signal_column": "unrate",
+                "threshold": f"STREAK_{months}M",
+                "strategy": "P2_streak_trigger",
+                "lead_months": 0,
+                "direction": "rise_sell_fall_buy",
+                "is_sharpe": metrics["oos_sharpe"],
+                "oos_sharpe": metrics["oos_sharpe"],
+                "oos_sortino": metrics["oos_sortino"],
+                "oos_calmar": metrics["oos_calmar"],
+                "oos_ann_return": metrics["oos_ann_return"],
+                "oos_ann_vol": metrics["oos_ann_vol"],
+                "max_drawdown": metrics["max_drawdown"],
+                "win_rate": metrics["win_rate"],
+                "annual_turnover": n_trades / max(len(position.loc[oos_start:].dropna()) / 12, 1),
+                "is_n": metrics["oos_n"],
+                "oos_n": metrics["oos_n"],
+                "valid": bool(valid),
+            }
+        )
 
     rows.append(
         {
@@ -312,15 +387,20 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     winner_idx = valid["oos_sharpe"].idxmax()
     winner_row = tourn.loc[winner_idx].copy()
     winner_key = (
-        f"{winner_row['signal']}|{winner_row['threshold']}|"
+        f"{winner_row['strategy']}|{winner_row['signal']}|{winner_row['threshold']}|"
         f"{winner_row['direction']}|{int(winner_row['lead_months'])}"
     )
 
     raw = df[winner_row["signal_column"]].astype(float)
-    threshold = build_threshold(raw, str(winner_row["threshold"]))
-    signal_for_rule = raw.shift(int(winner_row["lead_months"]))
-    threshold_for_rule = threshold.shift(int(winner_row["lead_months"])) if isinstance(threshold, pd.Series) else threshold
-    position = make_position(signal_for_rule, threshold_for_rule, str(winner_row["direction"])).fillna(0.0)
+    if winner_row["strategy"] == "P2_streak_trigger":
+        streak_months = streak_months_from_threshold(str(winner_row["threshold"]))
+        position, signal_for_rule, threshold_for_rule = make_streak_position(raw, streak_months)
+        threshold = threshold_for_rule
+    else:
+        threshold = build_threshold(raw, str(winner_row["threshold"]))
+        signal_for_rule = raw.shift(int(winner_row["lead_months"]))
+        threshold_for_rule = threshold.shift(int(winner_row["lead_months"])) if isinstance(threshold, pd.Series) else threshold
+        position = make_position(signal_for_rule, threshold_for_rule, str(winner_row["direction"])).fillna(0.0)
     strategy_return = (position * df["spy_ret"]).fillna(0.0)
     benchmark_return = df["spy_ret"].fillna(0.0)
 
@@ -343,7 +423,15 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         json.dumps({"pair_id": PAIR_ID, "winner_key": winner_key, "generated_at": NOW_ISO}, indent=2) + "\n"
     )
 
-    sig_cols = list(SIGNALS.values()) + ["unrate_recession_flag"]
+    sig_cols = list(SIGNALS.values()) + [
+        "unrate_recession_flag",
+        "unrate_rising_2m",
+        "unrate_falling_2m",
+        "unrate_rising_3m",
+        "unrate_falling_3m",
+        "unrate_rising_4m",
+        "unrate_falling_4m",
+    ]
     df[sig_cols].to_parquet(RES / f"signals_{DATE_TAG}.parquet")
 
     changes = position.diff().fillna(0)
@@ -361,7 +449,10 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
                 "threshold_value": float(strategy_df.loc[strategy_df["date"] == dt, "threshold"].iloc[0]),
                 "position_before": float(position.shift(1).fillna(0).loc[dt]),
                 "position_after": float(position.loc[dt]),
-                "reason": f"{winner_row['signal']} {winner_row['direction']} rule crossed {winner_row['threshold']}",
+                "reason": (
+                    f"{winner_row['strategy']}: {winner_row['signal']} "
+                    f"{winner_row['direction']} rule crossed {winner_row['threshold']}"
+                ),
             }
         )
     pd.DataFrame(trades).to_csv(RES / "winner_trade_log.csv", index=False)
@@ -371,9 +462,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     n_trades = int(position.loc[oos_start:].dropna().diff().abs().fillna(0).sum())
     oos_metrics = ann_metrics(oos)
     bh_metrics = ann_metrics(benchmark_return.loc[oos_start:].dropna())
-    threshold_latest = (
-        float(threshold.dropna().iloc[-1]) if isinstance(threshold, pd.Series) else float(threshold)
-    )
+    threshold_latest = float(threshold.dropna().iloc[-1]) if isinstance(threshold, pd.Series) else float(threshold)
     runner = valid.drop(index=winner_idx).sort_values("oos_sharpe", ascending=False).head(1)
     runner_obj = None
     if not runner.empty:
@@ -385,32 +474,44 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
             "lead_value": int(r["lead_months"]),
             "objective_value": round(float(r["oos_sharpe"]), 6),
         }
+    if winner_row["strategy"] == "P2_streak_trigger":
+        streak_months = streak_months_from_threshold(str(winner_row["threshold"]))
+        threshold_rule = "streak"
+        threshold_note = (
+            f"STREAK_{streak_months}M means sell SPY after {streak_months} consecutive "
+            f"monthly UNRATE increases and buy SPY after {streak_months} consecutive monthly decreases."
+        )
+        strategy_code = "P2"
+        strategy_display_name = "P2 consecutive UNRATE trigger"
+        strategy_description = (
+            f"Hold SPY by default; move to cash after UNRATE rises for {streak_months} consecutive "
+            f"months; buy SPY after UNRATE falls for {streak_months} consecutive months."
+        )
+    else:
+        threshold_rule = "lte" if winner_row["direction"] == "countercyclical" else "gte"
+        threshold_note = f"{winner_row['threshold']} threshold; threshold_value is latest if rolling"
+        strategy_code = "P1"
+        strategy_display_name = "P1 long cash"
+        strategy_description = "Hold SPY when the current unemployment signal is favorable; otherwise hold cash."
+
     winner = {
         "pair_id": PAIR_ID,
         "generated_at": NOW_ISO,
         "signal_column": str(winner_row["signal_column"]),
         "signal_code": str(winner_row["signal"]),
-        "signal_display_name": {
-            "level": "Unemployment rate level",
-            "mom": "Monthly change in unemployment rate",
-            "chg_3m": "3-month change in unemployment rate",
-            "chg_6m": "6-month change in unemployment rate",
-            "chg_12m": "12-month change in unemployment rate",
-            "zscore_60m": "60-month unemployment z-score",
-            "sahm": "Sahm-style unemployment recession signal",
-        }[str(winner_row["signal"])],
+        "signal_display_name": display_name_for_signal(str(winner_row["signal"])),
         "target_symbol": TARGET_SYMBOL,
         "threshold_code": str(winner_row["threshold"]),
         "threshold_value": round(threshold_latest, 6),
-        "threshold_rule": "lte" if winner_row["direction"] == "countercyclical" else "gte",
-        "threshold_note": f"{winner_row['threshold']} threshold; threshold_value is latest if rolling",
-        "strategy_family": "P1_long_cash",
-        "strategy_code": "P1",
-        "strategy_display_name": "P1 long cash",
-        "strategy_description": "Hold SPY when the lagged unemployment signal is favorable; otherwise hold cash.",
+        "threshold_rule": threshold_rule,
+        "threshold_note": threshold_note,
+        "strategy_family": str(winner_row["strategy"]),
+        "strategy_code": strategy_code,
+        "strategy_display_name": strategy_display_name,
+        "strategy_description": strategy_description,
         "lead_value": int(winner_row["lead_months"]),
         "lead_unit": "months",
-        "lead_description": f"Signal is lagged {int(winner_row['lead_months'])} month(s) before allocation.",
+        "lead_description": "No extra tournament lag is applied; the rule uses the current month-end signal.",
         "lookback": "LB60 where rolling thresholds apply",
         "direction": str(winner_row["direction"]),
         "oos_sharpe": round(oos_metrics["oos_sharpe"], 6),
@@ -438,9 +539,9 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
             "objective_formula": "monthly mean/std*sqrt(12), OOS from 2017-01",
             "grid_scanned": {
                 "leads": leads,
-                "n_signals": len(SIGNALS),
-                "n_thresholds": int(sum(len(threshold_codes_for(s)) for s in SIGNALS)),
-                "n_strategies": 1,
+                "n_signals": len(SIGNALS) + 3,
+                "n_thresholds": int(sum(len(threshold_codes_for(s)) for s in SIGNALS) + 3),
+                "n_strategies": 2,
                 "n_valid_combos": int(valid.shape[0]),
                 "median_valid_objective": round(float(valid["oos_sharpe"].median()), 6),
             },
@@ -594,10 +695,10 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "target": "spy",
         "expected_direction": "countercyclical",
         "observed_direction": winner["direction"],
-        "direction_consistent": winner["direction"] == "countercyclical",
+        "direction_consistent": winner["direction"] in {"countercyclical", "rise_sell_fall_buy"},
         "mechanism": "A rising unemployment rate usually reflects a weakening labor market and recession risk; equity exposure should be reduced when labor stress is elevated.",
         "confidence": "low",
-        "key_finding": f"Best search-phase rule uses {winner['signal_code']} at L{winner['lead_value']} with OOS Sharpe {winner['oos_sharpe']:.2f} versus buy-and-hold {winner['bh_sharpe']:.2f}.",
+        "key_finding": f"Best search-phase rule uses {winner['signal_code']} with no extra tournament lag and OOS Sharpe {winner['oos_sharpe']:.2f} versus buy-and-hold {winner['bh_sharpe']:.2f}.",
         "caveats": [
             "UNRATE is usually lagging, so it may confirm recessions after equities have already moved.",
             "The strategy is search-selected and needs fresh holdout validation.",
@@ -632,6 +733,12 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
                     ("unrate_12m_chg", "Twelve-month change in unemployment", "x_t - x_{t-12}", "derivative", []),
                     ("unrate_zscore_60m", "Unemployment versus its five-year history", "(x - mean60)/std60", "threshold_input", []),
                     ("unrate_sahm", "Sahm-style recession signal", "3m average minus trailing 12m low", "regime_state", ["hero"]),
+                    ("unrate_rising_2m", "Two consecutive monthly increases in unemployment", "1 if x_t > x_{t-1} for 2 months, else 0", "strategy_trigger", []),
+                    ("unrate_falling_2m", "Two consecutive monthly decreases in unemployment", "1 if x_t < x_{t-1} for 2 months, else 0", "strategy_trigger", []),
+                    ("unrate_rising_3m", "Three consecutive monthly increases in unemployment", "1 if x_t > x_{t-1} for 3 months, else 0", "strategy_trigger", []),
+                    ("unrate_falling_3m", "Three consecutive monthly decreases in unemployment", "1 if x_t < x_{t-1} for 3 months, else 0", "strategy_trigger", []),
+                    ("unrate_rising_4m", "Four consecutive monthly increases in unemployment", "1 if x_t > x_{t-1} for 4 months, else 0", "strategy_trigger", []),
+                    ("unrate_falling_4m", "Four consecutive monthly decreases in unemployment", "1 if x_t < x_{t-1} for 4 months, else 0", "strategy_trigger", []),
                 ]
             ],
         },
@@ -657,7 +764,7 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "status": "found_in_search",
         "updated_at": NOW_ISO,
         "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
-        "technical_note": "Winner is selected by OOS Sharpe from the 20260717 tournament grid; UNRATE is lagging and Granger evidence is weak.",
+        "technical_note": "Winner is selected by OOS Sharpe from the 20260717 tournament grid; no extra tournament lag is applied and Granger evidence is weak.",
         "next_step": "Freeze the selected rule and run a confirmation test on future data or a reserved holdout window.",
         "owner": "evan",
     }
@@ -672,8 +779,8 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
                 "signal_name": "UNRATE release-lag robustness",
                 "proposed_by": "evan",
                 "source": "FRED",
-                "observation": "The selected rule uses a 9-month lead on the 6-month UNRATE change and reduces drawdown in the searched OOS window.",
-                "rationale": "UNRATE is lagging and published after month end, so deployment should test whether release timing and revision assumptions change the result.",
+                "observation": "The selected rule uses current month-end UNRATE information with no extra tournament lag and reduces drawdown in the searched OOS window.",
+                "rationale": "UNRATE is published after month end, so deployment should test whether release timing and revision assumptions change the result.",
                 "possible_use_case": "robustness check",
                 "caveats": "Search-selected rule; Granger evidence is weak and the live tradability assumptions are not final-exam validated.",
                 "date_filed": DATE_TAG[:4] + "-" + DATE_TAG[4:6] + "-" + DATE_TAG[6:],

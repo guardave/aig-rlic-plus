@@ -1,7 +1,7 @@
 {
   "chart_name": "hero",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-07-29T02:47:46.374375+00:00",
+  "generated_at": "2026-08-07T07:57:40.296130+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "UNRATE and SPY with NBER recession bands.",
   "narrative_alignment_note": "UNRATE and SPY with NBER recession bands.",

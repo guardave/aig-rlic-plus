@@ -1,6 +1,6 @@
 {
   "pair_id": "unrate_spy",
-  "generated_at": "2026-07-17T07:56:59.443601+00:00",
+  "generated_at": "2026-08-07T07:54:47.900278+00:00",
   "signal_column": "unrate_6m_chg",
   "signal_code": "chg_6m",
   "signal_display_name": "6-month change in unemployment rate",
@@ -12,21 +12,21 @@
   "strategy_family": "P1_long_cash",
   "strategy_code": "P1",
   "strategy_display_name": "P1 long cash",
-  "strategy_description": "Hold SPY when the lagged unemployment signal is favorable; otherwise hold cash.",
-  "lead_value": 9,
+  "strategy_description": "Hold SPY when the current unemployment signal is favorable; otherwise hold cash.",
+  "lead_value": 0,
   "lead_unit": "months",
-  "lead_description": "Signal is lagged 9 month(s) before allocation.",
+  "lead_description": "No extra tournament lag is applied; the rule uses the current month-end signal.",
   "lookback": "LB60 where rolling thresholds apply",
   "direction": "procyclical",
-  "oos_sharpe": 1.550998,
-  "oos_sortino": 2.344568,
-  "oos_calmar": 1.323626,
-  "oos_ann_return": 0.12975,
-  "oos_ann_vol": 0.081112,
-  "oos_max_drawdown": -0.098026,
-  "oos_win_rate": 0.39823,
-  "oos_n_trades": 25,
-  "annual_turnover": 2.654867,
+  "oos_sharpe": 1.112976,
+  "oos_sortino": 0.889793,
+  "oos_calmar": 0.8753,
+  "oos_ann_return": 0.118447,
+  "oos_ann_vol": 0.106041,
+  "oos_max_drawdown": -0.135321,
+  "oos_win_rate": 0.380531,
+  "oos_n_trades": 27,
+  "annual_turnover": 2.867257,
   "oos_n": 113,
   "oos_period_start": "2017-01-31",
   "oos_period_end": "2026-06-30",
@@ -34,8 +34,8 @@
   "bh_ann_return": 0.153573,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
-  "total_combos": 294,
-  "valid_combos": 294,
+  "total_combos": 45,
+  "valid_combos": 44,
   "schema_version": "1.2.0",
   "notes": "UNRATE is a lagging labor-market indicator; strategy results should be read as defensive regime context, not a clean leading forecast.",
   "selection": {
@@ -43,19 +43,13 @@
     "objective_formula": "monthly mean/std*sqrt(12), OOS from 2017-01",
     "grid_scanned": {
       "leads": [
-        0,
-        1,
-        2,
-        3,
-        6,
-        9,
-        12
+        0
       ],
-      "n_signals": 7,
-      "n_thresholds": 21,
-      "n_strategies": 1,
-      "n_valid_combos": 294,
-      "median_valid_objective": 0.750901
+      "n_signals": 10,
+      "n_thresholds": 24,
+      "n_strategies": 2,
+      "n_valid_combos": 44,
+      "median_valid_objective": 0.736463
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -63,16 +57,16 @@
       "threshold": "T_roll_p75",
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
-      "lead_value": 9,
+      "lead_value": 0,
       "source_tournament_file": "tournament_results_20260717.csv",
-      "source_row_index": 152
+      "source_row_index": 21
     },
     "runner_up": {
-      "signal": "chg_3m",
-      "threshold": "T_roll_p75",
+      "signal": "mom",
+      "threshold": "T0_zero",
       "strategy": "P1_long_cash",
-      "lead_value": 12,
-      "objective_value": 1.313404
+      "lead_value": 0,
+      "objective_value": 1.033501
     },
     "rationale": "Winner is the valid row with the highest OOS Sharpe over the published grid.",
     "objective_runner_up_divergence": null

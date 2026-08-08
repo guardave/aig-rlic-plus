@@ -13,8 +13,8 @@ class StoryConfig:
     )
 
     HEADLINE_H2 = (
-        "## Sharpe 1.55 OOS: the searched rule holds SPY after labor-market "
-        "stress has already moved through the cycle"
+        "## Sharpe 1.11 OOS: the searched no-lag rule uses current "
+        "unemployment stress as a SPY timing overlay"
     )
 
     PLAIN_ENGLISH = (
@@ -33,16 +33,16 @@ class StoryConfig:
     )
 
     ONE_SENTENCE_THESIS = (
-        "The U.S. unemployment rate works best here as a delayed confirmation "
-        "signal: when the 6-month change in unemployment has risen enough and "
-        "is viewed with a 9-month lag, it can help identify recession stress "
-        "and later recovery conditions for SPY."
+        "The U.S. unemployment rate works best here as a cycle-confirmation "
+        "signal: when the current 6-month change in unemployment is high "
+        "relative to its own history, it can help identify stress and recovery "
+        "conditions for SPY without adding a separate tournament lag."
     )
 
     KPI_CAPTION = (
-        "the search-phase OOS winner uses the 6-month change in UNRATE, a "
-        "rolling 60-month 75th percentile threshold, and a 9-month lead. It "
-        "earns Sharpe 1.55 versus 0.99 for buy-and-hold."
+        "the search-phase OOS winner uses the current 6-month change in "
+        "UNRATE and a rolling 60-month 75th percentile threshold. It earns "
+        "Sharpe 1.11 versus 0.99 for buy-and-hold."
     )
 
     HERO_TITLE = "U.S. Unemployment Rate vs the S&P 500 (SPY)"
@@ -206,7 +206,7 @@ GRANGER_BLOCK = dict(
         "This weakens any claim that unemployment is a clean leading indicator "
         "for SPY. The useful story is more modest: unemployment can confirm "
         "where the economy sits in the cycle, while the strategy search tests "
-        "whether a delayed threshold rule can turn that confirmation into a "
+        "whether a threshold rule can turn that confirmation into a "
         "portfolio overlay."
     ),
     key_message="Granger evidence is weak, so the dashboard should frame UNRATE as confirmation context rather than proven prediction.",
@@ -306,7 +306,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     chart_name="local_projections",
     chart_caption=(
         "What this shows: the local-projection results test the raw labor "
-        "signal, not the final lagged tournament rule."
+        "signal, not the final tournament rule."
     ),
     observation=(
         "The coefficients are positive but small across 1-, 3-, 6-, and "
@@ -317,10 +317,10 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         "The advanced test does not show a strong direct response from SPY to "
         "the raw unemployment-change signal. This is important because it "
         "separates the simple macro relationship from the final strategy: the "
-        "winner depends on a threshold, a 9-month lag, and portfolio rules, "
-        "not on a strong raw local-projection effect."
+        "winner depends on a threshold and portfolio rules, not on a strong "
+        "raw local-projection effect."
     ),
-    key_message="Local projections do not confirm a strong standalone unemployment-change effect; the useful result comes from the delayed threshold strategy.",
+    key_message="Local projections do not confirm a strong standalone unemployment-change effect; the useful result comes from the no-lag threshold strategy.",
 )
 
 QUANTILE_BLOCK = dict(
@@ -354,7 +354,7 @@ QUANTILE_BLOCK = dict(
         "This does not provide strong evidence that the raw unemployment "
         "signal behaves differently across weak, normal, and strong SPY "
         "return states. The finding points back to the strategy layer: any "
-        "edge is more likely coming from the delayed threshold rule and the "
+        "edge is more likely coming from the threshold rule and the "
         "cycle-confirmation setup than from a broad quantile effect."
     ),
     key_message="Quantile regression is weak here; it does not show a reliable tail-specific unemployment effect.",
@@ -383,10 +383,10 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
-        "The tournament tested 294 valid strategy combinations across seven "
-        "UNRATE transforms, fixed and rolling thresholds, and leads from 0 to "
-        "12 months. The selected winner is `unrate_6m_chg / T_roll_p75 / "
-        "P1_long_cash / L9`."
+        "The tournament tested 45 strategy combinations with no extra "
+        "tournament lag. It included seven UNRATE threshold transforms plus "
+        "2-, 3-, and 4-month consecutive rise/fall trigger rules. The selected "
+        "winner is `unrate_6m_chg / T_roll_p75 / P1_long_cash / L0`."
     ),
     "transition": (
         "**Transition:** the evidence is useful but not causal. The Strategy "
@@ -396,17 +396,18 @@ EVIDENCE_METHOD_BLOCKS = {
 
 
 class StrategyConfig:
-    PAGE_TITLE = "The Strategy: A Lagged UNRATE Long/Cash Overlay"
+    PAGE_TITLE = "The Strategy: A No-Lag UNRATE Long/Cash Overlay"
     PAGE_SUBTITLE = (
-        "A searched SPY allocation rule using the 6-month change in UNRATE, "
-        "a rolling 75th percentile threshold, and a 9-month lead."
+        "A searched SPY allocation rule using the current 6-month change in "
+        "UNRATE and a rolling 75th percentile threshold."
     )
 
     PLAIN_ENGLISH = (
         "After the tournament was conducted, the selected rule holds SPY when "
-        "the 6-month change in unemployment from nine months earlier is above "
-        "its rolling threshold. Otherwise it holds cash. This is a lagged "
-        "labor-cycle rule, not a real-time recession forecast."
+        "the current 6-month change in unemployment is above its rolling "
+        "threshold. Otherwise it holds cash. The tournament also tested a "
+        "streak strategy that sells after consecutive UNRATE increases and "
+        "buys after consecutive UNRATE decreases."
     )
 
     DOWNLOADS = [
@@ -417,19 +418,21 @@ class StrategyConfig:
     ]
 
     SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the lagged 6-month change in UNRATE is above its rolling 60-month 75th percentile threshold; otherwise hold cash.
+**Rule in plain English:** hold SPY when the current 6-month change in UNRATE is above its rolling 60-month 75th percentile threshold; otherwise hold cash.
 
-**Tournament update:** the conducted tournament scanned 294 valid combinations across seven UNRATE transforms, fixed and rolling thresholds, and monthly leads of 0, 1, 2, 3, 6, 9, and 12 months. The selected winner was `unrate_6m_chg / T_roll_p75 / P1_long_cash / L9`, meaning the strategy uses the 6-month change in unemployment, compares it with the rolling 75th percentile threshold, and applies the signal with a 9-month delay.
+**Tournament update:** the conducted tournament scanned 45 combinations with lead fixed at `L0`, so no extra tournament lag is applied. The grid included seven UNRATE threshold transforms plus a new consecutive-rise/fall strategy. The selected winner was `unrate_6m_chg / T_roll_p75 / P1_long_cash / L0`, meaning the strategy uses the current 6-month change in unemployment and compares it with the rolling 75th percentile threshold.
+
+**Streak strategy tested:** the new candidate rule holds SPY by default, sells SPY after UNRATE rises for 2, 3, or 4 consecutive months, and buys SPY after UNRATE falls for the same number of consecutive months. In the OOS window, the 3-month streak candidate reached Sharpe 0.86 and the 2-month streak candidate reached Sharpe 0.72; the 4-month streak candidate behaved like buy-and-hold with no OOS trades and was not treated as a valid active strategy.
 
 If-then form:
-- **IF** `unrate_6m_chg` from 9 months earlier is above the rolling 75th percentile threshold -> hold SPY.
+- **IF** current `unrate_6m_chg` is above the rolling 75th percentile threshold -> hold SPY.
 - **ELSE** -> hold cash.
 
-Search-phase OOS results (2017-01-31 to 2026-06-30): Sharpe 1.55 versus 0.99 buy-and-hold; annualized return 13.0% versus 15.4%; maximum drawdown -9.8% versus -23.9%; 25 OOS trades; annual turnover 2.65.
+Search-phase OOS results (2017-01-31 to 2026-06-30): Sharpe 1.11 versus 0.99 buy-and-hold; annualized return 11.8% versus 15.4%; maximum drawdown -13.5% versus -23.9%; 27 OOS trades; annual turnover 2.87.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads the U.S. unemployment rate (`UNRATE`) and converts it to month-end observations. Second, it computes the 6-month change in the unemployment rate. Third, it applies a 9-month lag before the SPY allocation is set. Finally, the lagged signal is compared with a rolling 60-month 75th percentile threshold.
+First, the data process reads the U.S. unemployment rate (`UNRATE`) and converts it to month-end observations. Second, it computes the 6-month change in the unemployment rate. Third, it compares the current 6-month change with a rolling 60-month 75th percentile threshold. The tournament does not add a separate lag to the strategy rule. Separately, the tournament also tests whether 2, 3, or 4 consecutive monthly increases in UNRATE should sell SPY and whether the same number of consecutive monthly decreases should buy SPY.
 
 OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualized out-of-sample return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of out-of-sample months with positive strategy return.
 """
@@ -439,8 +442,8 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 
 1. Read UNRATE at month end.
 2. Compute the 6-month change in UNRATE.
-3. Compare the value from 9 months earlier with its rolling 60-month 75th percentile threshold.
-4. Hold SPY when the lagged signal is above the threshold; otherwise hold cash.
+3. Compare the current value with its rolling 60-month 75th percentile threshold.
+4. Hold SPY when the current signal is above the threshold; otherwise hold cash.
 5. Recheck monthly.
 """
 
@@ -472,9 +475,9 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     SHOW_TOURNAMENT_SCATTER = True
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: OOS Sharpe distribution across valid searched "
-        "strategy combinations, with the selected rule highlighted as the "
-        "best search-phase result."
+        "What this shows: OOS Sharpe distribution across valid no-lag "
+        "strategy combinations. The grid includes threshold rules and "
+        "consecutive UNRATE rise/fall trigger rules."
     )
 
     CAVEATS_MD = """
@@ -488,7 +491,7 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 
     TRADE_LOG_EXAMPLE_MD = (
         "**A concrete example from this pair:** the broker-style log records a "
-        "BUY when the lagged 6-month UNRATE-change signal moves above its "
+        "BUY when the current 6-month UNRATE-change signal moves above its "
         "rolling 75th percentile threshold, taking exposure from 0% to 100% "
         "SPY. A SELL moves back to cash when the condition no longer holds."
     )
@@ -499,7 +502,7 @@ This describes the backtested rule so it can be audited; it is not a trading rec
         "instrument": "SPY",
         "quantity_pct": "100.0",
         "commission_bps": "5",
-        "reason": "P1_long_cash: lagged unrate_6m_chg above rolling p75; position 0% to 100%",
+        "reason": "P1_long_cash: current unrate_6m_chg above rolling p75; position 0% to 100%",
     }
 
 
@@ -536,7 +539,7 @@ _METHODS_TABLE_MD = """
 """
 
 _TOURNAMENT_DESIGN_MD = """
-Grid: UNRATE transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations. The Methodology page treats unemployment as an observable macro indicator and does not build the research design around a confirmation hypothesis or a fixed "from X months earlier" testing assumption. The selected strategy details, including any implementation lag chosen by the tournament, are disclosed on the Strategy page rather than used as the premise for the Methodology.
+Grid: UNRATE transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations, with lead fixed at `L0`. The tournament also tests a consecutive-rise/fall trigger strategy: sell SPY after UNRATE rises for 2, 3, or 4 consecutive months, and buy SPY after UNRATE falls for the same number of months. The Methodology page treats unemployment as an observable macro indicator and does not build the research design around a confirmation hypothesis or a fixed "from X months earlier" testing assumption.
 """
 
 _REFERENCES_MD = """
