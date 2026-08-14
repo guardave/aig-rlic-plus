@@ -1,0 +1,38 @@
+[
+  {
+    "metric": "OOS Sharpe (winner)",
+    "value": "1.37",
+    "unit": "ratio",
+    "delta": "+0.47 vs B&H"
+  },
+  {
+    "metric": "OOS Sharpe (buy & hold)",
+    "value": "0.91",
+    "unit": "ratio",
+    "delta": null
+  },
+  {
+    "metric": "OOS Annual Return (winner)",
+    "value": "14.2%",
+    "unit": "percent",
+    "delta": "-0.8pp vs B&H"
+  },
+  {
+    "metric": "OOS Max Drawdown (winner)",
+    "value": "-13.0%",
+    "unit": "percent",
+    "delta": "+11.0pp vs B&H"
+  },
+  {
+    "metric": "Valid strategy combos",
+    "value": "4850",
+    "unit": "count",
+    "delta": null
+  },
+  {
+    "metric": "OOS window",
+    "value": "2018-03-31 \u2192 2026-06-30",
+    "unit": "dates",
+    "delta": null
+  }
+]

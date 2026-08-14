@@ -1,0 +1,22 @@
+{
+  "chart_name": "walk_forward",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-SR1",
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Rolling 12-month annualized Sharpe of the winner strategy vs buy-and-hold SPY over the out-of-sample window; the dashed reference line marks the reported OOS Sharpe (1.37).",
+  "narrative_alignment_note": "Rolling-Sharpe walk-forward; reference line reconciles with winner_summary OOS Sharpe.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/housing_starts_spy/strategy_returns_20260814.csv",
+    "results/housing_starts_spy/winner_summary.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-08-14T02:48:23.209507+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

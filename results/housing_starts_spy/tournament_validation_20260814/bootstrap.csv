@@ -1,0 +1,6 @@
+signal,threshold,strategy,lead_months,lookback,oos_sharpe,bootstrap_p_value,significant_at_5pct
+chg_3m,T1_fixed_p50,P1_long_cash_counter,2,LB_NA,1.3728,0.1272,False
+chg_3m,T3_zscore_1.5,P3_long_short_counter,2,LB120,1.3432,0.1408,False
+mom,T3_zscore_1.5,P3_long_short_counter,3,LB60,1.3275,0.15,False
+chg_3m,T3_zscore_1.5,P3_long_short_counter,2,LB60,1.3171,0.1568,False
+mom,T3_zscore_1.5,P3_long_short_counter,3,LB36,1.2922,0.1694,False

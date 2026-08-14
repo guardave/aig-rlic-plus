@@ -1,0 +1,27 @@
+{
+  "file": "hmm_states.parquet",
+  "pair_id": "housing_starts_spy",
+  "produced_by": "scripts/pair_pipeline_housing_starts_spy.py",
+  "generated_at": "2026-08-14T02:40:17Z",
+  "columns": {
+    "hmm_state": "integer state; stress = high-variance Housing-Starts-YoY-growth regime",
+    "prob_stress": "P(stress regime); higher = Housing Starts growth in high-variance regime",
+    "prob_calm": "1 - prob_stress"
+  },
+  "assertions": [
+    {
+      "description": "probabilities in [0,1]",
+      "check": "prob_stress between 0 and 1"
+    },
+    {
+      "description": "GFC housing collapse era is high-variance",
+      "filter": "2008-01 to 2009-06",
+      "column": "prob_stress",
+      "check": "mean = 0.00 (computed at fit time)"
+    },
+    {
+      "description": "states sum to 1",
+      "check": "prob_stress + prob_calm == 1"
+    }
+  ]
+}

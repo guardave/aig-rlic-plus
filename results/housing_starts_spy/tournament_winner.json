@@ -1,0 +1,16 @@
+{
+  "pair_id": "housing_starts_spy",
+  "winner_label": "chg_3m / T1_fixed_p50 / P1_long_cash (counter) / L2 / LB_NA",
+  "winner_oos_sharpe": 1.3728,
+  "winner_max_drawdown": -0.1295,
+  "winner_oos_ann_return": 0.1418,
+  "bh_oos_sharpe": 0.9075,
+  "bh_max_drawdown": -0.2393,
+  "bh_oos_ann_return": 0.1501,
+  "delta_sharpe": 0.4653,
+  "delta_max_drawdown": 0.1098,
+  "delta_ann_return": -0.0083,
+  "beats_benchmark": true,
+  "suggested_strategy_objective": "max_sharpe",
+  "generated_at": "2026-08-14T02:40:17Z"
+}

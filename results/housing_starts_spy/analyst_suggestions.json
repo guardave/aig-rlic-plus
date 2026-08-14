@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "pair_id": "housing_starts_spy",
+  "rule": "ECON-AS",
+  "suggestions": [
+    {
+      "signal_name": "Housing Starts / Building Permits ratio",
+      "proposed_by": "evan",
+      "source": "FRED HOUST / PERMIT",
+      "observation": "Starts-to-permits ratio captures execution vs pipeline; a falling ratio (starts lagging permits) can flag construction softening before either level turns.",
+      "rationale": "Combines two housing leading indicators; the ratio may lead SPY more cleanly than either series alone by netting out common rate-driven trends.",
+      "possible_use_case": "new pair / variant",
+      "caveats": "Both series SA; ratio is well-defined but permits/starts co-move strongly.",
+      "date_filed": "2026-08-14"
+    },
+    {
+      "signal_name": "Mortgage-rate-conditioned Housing Starts signal",
+      "proposed_by": "evan",
+      "source": "FRED HOUST / MORTGAGE30US",
+      "observation": "Housing Starts response to the cycle is rate-state dependent (2022-24 shock).",
+      "rationale": "Gating the starts signal by the mortgage-rate regime may sharpen it.",
+      "possible_use_case": "signal enhancement",
+      "caveats": "Adds a second series; risk of overfitting the small OOS window.",
+      "date_filed": "2026-08-14"
+    }
+  ],
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-08-14T02:40:17Z"
+}
