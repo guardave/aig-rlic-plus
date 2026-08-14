@@ -1,0 +1,132 @@
+{
+  "pair_id": "housing_starts_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-08-14T02:40:17Z",
+  "indicator_axis": {
+    "canonical_column": "hst_level",
+    "display_name": "Housing Starts (SAAR)",
+    "derivatives": [
+      {
+        "name": "hst_level",
+        "definition": "Housing Starts, 000s SAAR (FRED HOUST). NON-STATIONARY, trend-dominated \u2014 not used as a signal",
+        "formula": "FRED HOUST",
+        "role": "raw",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hst_pct_yoy",
+        "definition": "12-month % change in Housing Starts (headline growth signal)",
+        "formula": "100*(N_t/N_{t-12}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hst_pct_mom",
+        "definition": "1-month % change in Housing Starts (valid: SA series)",
+        "formula": "100*(N_t/N_{t-1}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hst_3m_pct",
+        "definition": "3-month % change of the Housing Starts level",
+        "formula": "100*(N_t/N_{t-3}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hst_3m_pct_yoy",
+        "definition": "YoY change of 3-month moving average",
+        "formula": "100*(MA3_t/MA3_{t-12}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hst_yoy_accel_pct",
+        "definition": "month-on-month change in YoY growth (acceleration, pp)",
+        "formula": "yoy_t - yoy_{t-1}",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hst_yoy_zscore_120m",
+        "definition": "rolling 120m z-score of YoY growth",
+        "formula": "(yoy_t-mean120)/sd120",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hst_yoy_contraction_flag",
+        "definition": "1 when Housing Starts YoY growth < 0",
+        "formula": "indicator(yoy<0)",
+        "role": "regime_state",
+        "appears_in_charts": []
+      },
+      {
+        "name": "hmm_2state_prob_stress",
+        "definition": "P(high-variance regime) from 2-state HMM on YoY growth",
+        "formula": "GaussianHMM(yoy)",
+        "role": "regime_state",
+        "appears_in_charts": []
+      },
+      {
+        "name": "markov_regime_2state",
+        "definition": "P(high-variance regime) from Markov-switching regression spy_ret~yoy",
+        "formula": "MarkovRegression",
+        "role": "regime_state",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy",
+    "display_name": "SPY (S&P 500 ETF)",
+    "derivatives": [
+      {
+        "name": "spy",
+        "definition": "SPY adjusted month-end close",
+        "formula": "Yahoo Finance",
+        "role": "raw",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_ret",
+        "definition": "SPY monthly return (decimal)",
+        "formula": "P_t/P_{t-1}-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_1m",
+        "definition": "1-month forward SPY return",
+        "formula": "P_{t+1}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_3m",
+        "definition": "3-month forward SPY return",
+        "formula": "P_{t+3}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_6m",
+        "definition": "6-month forward SPY return",
+        "formula": "P_{t+6}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_12m",
+        "definition": "12-month forward SPY return",
+        "formula": "P_{t+12}/P_t-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "notes": "ECON-SD: only Housing Starts derivatives and SPY derivatives are in scope. The Housing Starts LEVEL (hst_level) is SAAR and NON-STATIONARY (trend-dominated) \u2014 excluded from the signal set. HOUST is SA at source, so MoM is a valid signal and no deseasonalisation is applied. Only stationary growth/z-score transforms are used. regime_story: false (CP2 skipped)."
+}

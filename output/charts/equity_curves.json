@@ -1,0 +1,21 @@
+{
+  "chart_name": "hmm_regime_probs",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Probability that Housing Starts YoY is in its high-variance regime (2-state HMM). The high-variance state covers 88% of months and spikes at housing turning points (GFC, COVID, 2022 rate shock). Note: the winner signal for this pair is the 3-month change (hst_3m_pct), NOT the HMM probability \u2014 the HMM is supporting context. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "HMM is backdrop context for this pair; winner is hst_3m_pct, not hmm_stress. Labelled accordingly.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/housing_starts_spy/core_models_20260814/hmm_states.parquet",
+    "results/housing_starts_spy/core_models_20260814/hmm_summary.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-08-14T02:47:57.541580+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

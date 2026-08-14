@@ -1,0 +1,21 @@
+{
+  "chart_name": "hero",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-TX1",
+    "VIZ-O1"
+  ],
+  "caption": "Housing Starts year-over-year growth (FRED HOUST, SAAR; vermillion, left axis) against the SPY price (blue, right axis), 1993\u20132026. The 2006-09 collapse (starts peaked in early 2006 and fell ~75% into 2009, leading the GFC) and the 2022-23 rate-shock contraction are the key episodes. HOUST is seasonally adjusted at source \u2014 the YoY change is shown as the primary growth signal. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Hero shows YoY growth (never the raw SAAR level) with the 0% line and the housing episodes.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/housing_starts_spy_monthly_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-08-14T02:47:29.528068+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

@@ -1,0 +1,36 @@
+{
+  "file": "signals_20260814.parquet",
+  "pair_id": "housing_starts_spy",
+  "produced_by": "scripts/pair_pipeline_housing_starts_spy.py",
+  "generated_at": "2026-08-14T02:40:17Z",
+  "columns": {
+    "hst_pct_yoy": "tournament-eligible signal derived solely from HOUST (hst_pct_yoy)",
+    "hst_pct_mom": "tournament-eligible signal derived solely from HOUST (hst_pct_mom)",
+    "hst_3m_pct_yoy": "tournament-eligible signal derived solely from HOUST (hst_3m_pct_yoy)",
+    "hst_3m_pct": "tournament-eligible signal derived solely from HOUST (hst_3m_pct)",
+    "hst_yoy_accel_pct": "tournament-eligible signal derived solely from HOUST (hst_yoy_accel_pct)",
+    "hst_yoy_zscore_120m": "tournament-eligible signal derived solely from HOUST (hst_yoy_zscore_120m)",
+    "hst_yoy_contraction_flag": "tournament-eligible signal derived solely from HOUST (hst_yoy_contraction_flag)",
+    "hmm_2state_prob_stress": "tournament-eligible signal derived solely from HOUST (hmm_2state_prob_stress)",
+    "markov_regime_2state": "tournament-eligible signal derived solely from HOUST (markov_regime_2state)"
+  },
+  "assertions": [
+    {
+      "description": "GFC housing collapse present",
+      "filter": "2008-01..2009-12",
+      "column": "hst_pct_yoy",
+      "check": "min < -20"
+    },
+    {
+      "description": "2022-23 rate-shock contraction",
+      "filter": "2022-01..2023-12",
+      "column": "hst_pct_yoy",
+      "check": "min < 0"
+    },
+    {
+      "description": "HMM prob bounded",
+      "column": "hmm_2state_prob_stress",
+      "check": "values in [0,1]"
+    }
+  ]
+}

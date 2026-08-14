@@ -96,6 +96,7 @@ permit_yoy,Building Permits YoY,real_estate,SPY,permit_yoy_spy,not_started,RE - 
 permit_yoy,Building Permits YoY,real_estate,XLE,permit_yoy_xle,not_started,RE - H Permit,H Permit YoY,RE - H Permit,104
 permit_yoy,Building Permits YoY,real_estate,XLF,permit_yoy_xlf,not_started,RE - H Permit,H Permit YoY,H Permit YoY,105
 housing_starts,Housing Starts,real_estate,XLE,housing_starts_xle,not_started,RE - H Started,,RE - H Started,106
+housing_starts,Housing Starts,real_estate,SPY,housing_starts_spy,in_progress,RE - H Started,,RE - H Started,106
 nh_sold_saar,New Home Sales (SAAR),real_estate,SPY,nhs_saar_spy,completed,RE - NH Sold,,RE - NH Sold,108
 nh_sold_saar,New Home Sales (SAAR),real_estate,XLY,nh_sold_saar_xly,not_started,RE - NH Sold,,RE - NH Sold,108
 hy_ig,HY − IG Credit Spread,credit,SPY,hy_ig_spy,not_started,HY - IG spread,,HY - IG spread,116

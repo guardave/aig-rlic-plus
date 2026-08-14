@@ -45,6 +45,8 @@ INDICATOR_NAMES: dict[str, str] = {
     "nhs_spy": "New Home Sales (NHS)",
     "nhs_saar": "New Home Sales (SAAR)",
     "nhs_saar_spy": "New Home Sales (SAAR)",
+    "housing_starts": "Housing Starts",
+    "housing_starts_spy": "Housing Starts",
     "cass_freight": "Cass Freight Index (Shipments)",
     "cass_freight_spy": "Cass Freight Index (Shipments)",
     "eci_total_comp": "Employment Cost Index (ECI, Total Compensation)",
@@ -90,6 +92,8 @@ INDICATOR_ABBREV: dict[str, str] = {
     # "New Home Sales (NHS)".
     "nhs": "NHS",
     "nhs_spy": "NHS",
+    "housing_starts": "Housing Starts",
+    "housing_starts_spy": "Housing Starts",
     # "Cass Freight" is the conventional short form; the long form
     # "Cass Freight Index (Shipments)" already embeds it, so this abbrev is
     # only used where a compact ticker-style label is wanted.
@@ -132,6 +136,7 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "t10y3m_spy": "10Y-3M Spread",
     "nhs_spy": "NHS",
     "nhs_saar_spy": "NHS (SAAR)",
+    "housing_starts_spy": "Housing Starts",
     "cass_freight_spy": "Cass Freight",
     "eci_total_comp_spy": "ECI",
     "wells_fargo_housing": "NAHB HMI",
