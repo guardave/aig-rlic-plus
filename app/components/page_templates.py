@@ -1613,6 +1613,12 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         st.markdown("### Tournament Leaderboard")
         if tourn_exists := _latest_dated_file(pair_id, "tournament_results"):
             _render_tournament_leaderboard(tourn_exists, target)
+            # Opt-in per-pair note under the leaderboard (APP-PT1: prose = config).
+            # Used e.g. to explain rows that share identical metrics because the
+            # signals are mathematically equivalent at a zero threshold (Step C #202).
+            leaderboard_note = getattr(config, "LEADERBOARD_NOTE_MD", None)
+            if leaderboard_note:
+                st.caption(leaderboard_note)
         else:
             st.warning(
                 f"Tournament results missing for `{pair_id}` — re-run the "
