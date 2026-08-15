@@ -1618,7 +1618,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
             # signals are mathematically equivalent at a zero threshold (Step C #202).
             leaderboard_note = getattr(config, "LEADERBOARD_NOTE_MD", None)
             if leaderboard_note:
-                st.caption(leaderboard_note)
+                st.info(leaderboard_note, icon="ℹ️")
         else:
             st.warning(
                 f"Tournament results missing for `{pair_id}` — re-run the "
