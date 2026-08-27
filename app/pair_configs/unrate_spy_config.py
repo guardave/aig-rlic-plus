@@ -33,10 +33,10 @@ class StoryConfig:
     )
 
     ONE_SENTENCE_THESIS = (
-        "The U.S. unemployment rate works best here as a cycle-confirmation "
-        "signal: when the current 6-month change in unemployment is high "
-        "relative to its own history, it can help identify stress and recovery "
-        "conditions for SPY without adding a separate tournament lag."
+        "This pair tests whether the U.S. unemployment rate can help confirm "
+        "recession and recovery phases for SPY: rising unemployment points to "
+        "labor-market stress, while stabilizing or falling unemployment can "
+        "support a recovery read."
     )
 
     KPI_CAPTION = (
