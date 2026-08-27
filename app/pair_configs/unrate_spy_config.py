@@ -12,10 +12,7 @@ class StoryConfig:
         "a recovery in the S&P 500 (SPY) cycle?"
     )
 
-    HEADLINE_H2 = (
-        "## Sharpe 1.11 OOS: the searched no-lag rule uses current "
-        "unemployment stress as a SPY timing overlay"
-    )
+    HEADLINE_H2 = ""
 
     PLAIN_ENGLISH = (
         "UNRATE is the U.S. civilian unemployment rate. It measures the share "
