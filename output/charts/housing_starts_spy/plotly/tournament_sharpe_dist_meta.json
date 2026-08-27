@@ -1,0 +1,26 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-SCD1",
+    "ECON-T4",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Distribution of OOS Sharpe across the 4,850 valid strategy combos. The winner (Sharpe 1.37) is the max of 4,850 with median 0.76; buy & hold (0.91) sits ABOVE the median. Winner selection is a tail draw from a large search; bootstrap p = 0.127 (NOT significant at 5%, no final exam) \u2014 treat as a hypothesis, not a validated edge.",
+  "narrative_alignment_note": "VIZ-SCD1 position disclosure + B&H line; fragility (p=0.127) stated explicitly.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/housing_starts_spy/tournament_results_20260814.csv"
+  ],
+  "reconciliation": {
+    "valid_count": 4850,
+    "median_oos_sharpe": 0.755,
+    "winner_oos_sharpe": 1.3728,
+    "bh_oos_sharpe": 0.9075
+  },
+  "generated_at": "2026-08-14T02:48:11.636700+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

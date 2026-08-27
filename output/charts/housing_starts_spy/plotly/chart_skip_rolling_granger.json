@@ -1,0 +1,8 @@
+{
+  "chart_name": "rolling_granger",
+  "pair_id": "housing_starts_spy",
+  "skipped_by": "VIZ-CP1-G",
+  "reason": "ECON-CP2 artifacts intentionally absent for this pair: regime_story=false in results/housing_starts_spy/signal_scope.json (Evan handoff). No upstream result file exists to chart.",
+  "generated_at": "2026-08-14T02:48:38.450738+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

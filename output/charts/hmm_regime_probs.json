@@ -1,0 +1,19 @@
+{
+  "chart_name": "quantile_coef",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Quantile-regression coefficient of SPY forward returns on Housing Starts YoY across return quantiles 0.05\u20130.95 with 95% CI. Significant tau values: []. The negative tilt at lower quantiles is consistent with the countercyclical signal: weak starts are associated with better downside-protected returns.",
+  "narrative_alignment_note": "Coef-by-tau with CI band; negative tilt supports countercyclical framing.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/housing_starts_spy/core_models_20260814/quantile_regression.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-08-14T02:47:54.136365+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

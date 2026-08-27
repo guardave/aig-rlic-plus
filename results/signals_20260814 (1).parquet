@@ -1,0 +1,82 @@
+{
+  "pair_id": "housing_starts_spy",
+  "schema_version": "1.1.0",
+  "indicator": "housing_starts",
+  "target": "spy",
+  "indicator_nature": "leading",
+  "indicator_type": "housing",
+  "strategy_objective": "max_sharpe",
+  "expected_direction": "procyclical",
+  "data_provenance": {
+    "source": "FRED HOUST live API; Data Master.xlsx sheet 'H Started' column 'RE - H Started' used as overlap cross-check",
+    "series_id": "HOUST",
+    "accessed_at": "2026-08-14T02:11:57Z"
+  },
+  "known_stress_episodes": [
+    {
+      "label": "Housing bubble peak & GFC collapse",
+      "start": "2005-07-01",
+      "end": "2009-06-30",
+      "note": "Housing starts peaked in early 2006 and collapsed ~75% into 2009 \u2014 a classic leading signal ahead of the GFC."
+    },
+    {
+      "label": "COVID dip and surge",
+      "start": "2020-03-01",
+      "end": "2021-12-31",
+      "note": "Starts dipped sharply then surged on low rates and a demand shift."
+    },
+    {
+      "label": "2022-24 rate shock",
+      "start": "2022-04-01",
+      "end": "2024-12-31",
+      "note": "Mortgage-rate shock cut starts materially; a strong recent regime captured in the OOS window."
+    }
+  ],
+  "related_pair_ids": [
+    "permit_spy",
+    "nhs_spy",
+    "indpro_spy"
+  ],
+  "owner_writes": {
+    "dana": [
+      "pair_id",
+      "schema_version",
+      "indicator",
+      "target",
+      "indicator_nature",
+      "indicator_type",
+      "data_provenance",
+      "known_stress_episodes",
+      "related_pair_ids"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "expected_direction",
+      "mechanism",
+      "caveats",
+      "narrative_summary"
+    ]
+  },
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-08-14T02:40:17Z",
+  "observed_direction": "countercyclical",
+  "direction_consistent": false,
+  "key_finding": "Lead-lag: Housing Starts YoY does NOT Granger-cause SPY at any lag 1-12; reverse SPY->Housing Starts significant at lags [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]. The tournament winner (Housing Starts chg_3m, P1_long_cash counter, lead 2m) is countercyclical: OOS Sharpe 1.37 vs buy-and-hold 0.91, max drawdown -13.0% vs -23.9%. Bootstrap p=0.127; durability 'conditionally_durable'; rolling-correlation 'sign_unstable'.",
+  "confidence": "low",
+  "mechanism": "Housing starts are a canonical rate-sensitive early-cycle indicator, but this pair's tradable edge is COUNTERCYCLICAL, not the procyclical prior. The searched winner goes long SPY when the 3-month change in starts is BELOW its historical median (weak/decelerating construction = risk-on), lagged 2 months. Economically this behaves like a peak-cycle mean-reversion / 'bad-news-is-good-news' rate-expectations channel (softening starts foreshadow easier policy), mirroring the INDPRO precedent where the level story inverted at extremes. Formal forward causality is absent (Housing Starts do NOT Granger-cause SPY at any lag 1-12); the reverse channel dominates (SPY leads starts at every lag 1-12), consistent with equities/financial conditions leading construction.",
+  "caveats": [
+    "Low confidence, found_in_search: no holdout final exam has been run.",
+    "Forward Granger is empty; the reverse direction (SPY->Housing Starts) is significant at ALL lags 1-12 \u2014 a coincident/lagging relationship read as a timing overlay, not a forecast.",
+    "Winner is the max of 4,850 valid searched combos with bootstrap p=0.127 (well above the 5% bar).",
+    "A structural break is flagged at 2009-03 (GFC) and the rolling signal-return correlation is sign-unstable.",
+    "Durability is only conditionally_durable \u2014 COVID is the sole evaluable OOS stress episode.",
+    "The regime quartiles are non-monotonic (hump-shaped), not a clean procyclical gradient."
+  ],
+  "narrative_summary": "Housing Starts (FRED HOUST, SAAR) vs SPY. The prior was procyclical-leading; the data says otherwise. The best searched rule is a countercyclical Long/Cash overlay \u2014 long SPY when 3-month starts growth is below its median (2-month lag) \u2014 earning search-phase OOS Sharpe 1.37 vs 0.91 buy-and-hold with a shallower drawdown (-13% vs -24%). But forward causality is absent, the reverse (market->starts) channel is pervasive, and the edge is a large-search tail with a non-significant bootstrap p. Read it as a low-confidence, search-found timing overlay awaiting a frozen-rule final exam, not evidence that housing starts forecast the S&P 500."
+}

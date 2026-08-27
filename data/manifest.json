@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-06T22:45:48Z",
+  "generated_at": "2026-08-14T02:11:57Z",
   "artifacts": [
     {
       "path": "data/hy_ig_v2_spy_daily_20260410.parquet",
@@ -345,6 +345,52 @@
       "pairs": [
         "wells_fargo_housing_spy"
       ]
+    },
+    {
+      "source": "FRED:HOUST (monthly SAAR housing starts, 000s units) + yahoo:SPY",
+      "refresh_ttl_days": 30,
+      "last_updated": "2026-08-14",
+      "pairs": [
+        "housing_starts_spy"
+      ],
+      "mixed_freq_ttl_note": "Monthly analysis panel; TTL=30 because both signal rows and target snapshots are month-end.",
+      "path": "data/housing_starts_spy_monthly_19900131_20260630.parquet",
+      "schema_ref": "data/housing_starts_spy_monthly_schema.json"
+    },
+    {
+      "source": "alias_of:data/housing_starts_spy_monthly_19900131_20260630.parquet",
+      "refresh_ttl_days": 30,
+      "last_updated": "2026-08-14",
+      "pairs": [
+        "housing_starts_spy"
+      ],
+      "mixed_freq_ttl_note": "Monthly analysis panel alias; TTL=30 because both signal rows and target snapshots are month-end.",
+      "path": "data/housing_starts_spy_monthly_latest.parquet",
+      "schema_ref": "data/housing_starts_spy_monthly_schema.json",
+      "source_master": "data/housing_starts_spy_monthly_19900131_20260630.parquet"
+    },
+    {
+      "source": "FRED:HOUST (monthly SAAR housing starts, 000s units) + yahoo:SPY",
+      "refresh_ttl_days": 1,
+      "last_updated": "2026-08-14",
+      "pairs": [
+        "housing_starts_spy"
+      ],
+      "mixed_freq_ttl_note": "Monthly Housing Starts indicator plus daily SPY market data; TTL=1 per fastest-refreshing component. The indicator itself changes monthly after the Census/HUD release.",
+      "path": "data/housing_starts_spy_daily_19930129_20260617.parquet",
+      "schema_ref": "data/housing_starts_spy_daily_schema.json"
+    },
+    {
+      "source": "alias_of:data/housing_starts_spy_daily_19930129_20260617.parquet",
+      "refresh_ttl_days": 1,
+      "last_updated": "2026-08-14",
+      "pairs": [
+        "housing_starts_spy"
+      ],
+      "mixed_freq_ttl_note": "Monthly Housing Starts indicator plus daily SPY market data; TTL=1 per fastest-refreshing component. The indicator itself changes monthly after the Census/HUD release.",
+      "path": "data/housing_starts_spy_daily_latest.parquet",
+      "schema_ref": "data/housing_starts_spy_daily_schema.json",
+      "source_master": "data/housing_starts_spy_daily_19930129_20260617.parquet"
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "pair_id": "housing_starts_spy",
+  "date": "20260814",
+  "pipeline_seconds": 105.0,
+  "stage_times": {
+    "1_load_verify": 0.1,
+    "2_signals": 4.6,
+    "3_exploratory_correlations": 0.6,
+    "4_core_models": 9.0,
+    "5_regime_quartiles": 0.0,
+    "6_tournament": 38.3,
+    "7_winner_artifacts": 0.1,
+    "8_cross_period": 51.8,
+    "9_validation": 0.3
+  },
+  "tournament_strategy_rows": 6860,
+  "valid_strategies": 4850,
+  "oos_n_months": 100,
+  "oos_start": "2018-03-31",
+  "oos_end": "2026-06-30"
+}

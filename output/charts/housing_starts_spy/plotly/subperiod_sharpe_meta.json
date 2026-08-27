@@ -1,0 +1,21 @@
+{
+  "chart_name": "subperiod_sharpe",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-CP1",
+    "VIZ-CP1.1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Winner-strategy annualized Sharpe within each canonical stress episode. Only 1 of 4 fall inside the 2018+ OOS window; the rest predate the OOS split (insufficient data). This limited episode coverage is why durability is 'conditionally_durable'.",
+  "narrative_alignment_note": "Three-state encoding; limited evaluable-episode count ties to the conditionally_durable verdict.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/housing_starts_spy/subperiod_sharpe.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-08-14T02:48:20.530725+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

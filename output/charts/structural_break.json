@@ -1,0 +1,22 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.2",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "24-month rolling correlation between Housing Starts YoY and SPY monthly returns. The sign agrees with its full-sample value 45% of the time (verdict: sign unstable). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Stability verdict from structural_break JSON.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/housing_starts_spy/rolling_correlation_housing_starts_spy.csv",
+    "results/housing_starts_spy/structural_break_housing_starts_spy.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-08-14T02:48:14.827978+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

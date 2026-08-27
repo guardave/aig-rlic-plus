@@ -1,0 +1,17 @@
+variable,test,statistic,p_value,lags,n_obs,conclusion
+hst_level,ADF,-1.4919,0.5375,3,438,Non-stationary
+hst_level,KPSS,0.4189,0.0645,12,438,Fail to reject stationarity
+hst_pct_yoy,ADF,-3.4612,0.009,12,426,Stationary at 5%
+hst_pct_yoy,KPSS,0.1299,0.4578,11,426,Fail to reject stationarity
+hst_pct_mom,ADF,-19.4267,0.0,1,437,Stationary at 5%
+hst_pct_mom,KPSS,0.1402,0.4212,13,437,Fail to reject stationarity
+hst_3m_pct,ADF,-4.4761,0.0002,12,435,Stationary at 5%
+hst_3m_pct,KPSS,0.1556,0.3735,3,435,Fail to reject stationarity
+hst_3m_pct_yoy,ADF,-2.3464,0.1574,12,424,Non-stationary
+hst_3m_pct_yoy,KPSS,0.1355,0.4374,11,424,Fail to reject stationarity
+hst_yoy_accel_pct,ADF,-8.4315,0.0,12,425,Stationary at 5%
+hst_yoy_accel_pct,KPSS,0.0965,0.603,22,425,Fail to reject stationarity
+hst_yoy_zscore_120m,ADF,-2.8675,0.0493,12,367,Stationary at 5%
+hst_yoy_zscore_120m,KPSS,0.1531,0.381,10,367,Fail to reject stationarity
+spy_ret,ADF,-10.9361,0.0,2,401,Stationary at 5%
+spy_ret,KPSS,0.1488,0.3937,3,401,Fail to reject stationarity

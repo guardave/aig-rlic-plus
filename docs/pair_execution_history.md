@@ -531,3 +531,36 @@ The initial close lumped four very different categories under one "deferred" buc
 **Pending before merge:** (1) DPS-PRE1 waiver (Lead) — no holdout run BY DESIGN; found_in_search + portal-wide disclosure is the compensating control (mirror busloans_spy DPS-PRE1 waiver). (2) **LEAD-MA1: merge to main requires explicit user authorisation** — not yet requested. (3) Not committed (user manages git).
 
 **Recommendation vs outcome:** recommended Mode 2 for a low-novelty real_estate pair with an established playbook (permit_spy); outcome validates — single-head execution preserved the NSA-handling thread from Dana → Evan → Ray → Vera → Ace without handoff drift, and the one checker finding was a mechanical display-name fix.
+
+---
+
+### 2026-08-14 — Pair housing_starts_spy (Housing Starts SAAR → SPY) — Work Mode Selection
+
+**Per LEAD-WM1.**
+
+- **Pair:** `housing_starts_spy` — indicator_id `housing_starts` = FRED `HOUST` (New Privately-Owned Housing Units Started, Total, Thousands, **Seasonally Adjusted Annual Rate**) × SPY. Analysis Brief: `docs/analysis_brief_housing_starts_spy_20260814.md` (Approved 2026-08-14). **Registration gap fixed at SOD:** `prospective_pairs.csv` carried only `housing_starts_xle`; the SPY row (`housing_starts, Housing Starts, real_estate, SPY, housing_starts_spy`) was added this wave.
+- **LEAD-DV1 finding at SOD:** `indicator_map.yaml` maps `RE - H Started` → `housing_starts`, and the housing-family note (verified vs Data Master Pre-master row 2, 2026-06-02) records "BP / RE - H Started are level (thousands, SAAR)". Confirmed against Data Master sheet `H Started` col `RE - H Started` (COL 89) = HOUST level, SAAR. This is the SA series — distinct from Building Permits (`permit`), New Home Sales NSA (`nhs`=HSN1FNSA) and SAAR (`nh_sold_saar`=HSN1F). Distinct series stay distinct per LEAD-DV1.
+- **Lead recommendation: Mode 2** (single maker + checkers). Reasoning: (a) low novelty — `real_estate`/SA-construction family with an established playbook (permit_spy Sharpe 1.45; INDPRO monthly template); (b) the one wrinkle vs nhs_spy is that HOUST is SA at source, so MoM is a valid signal and NO deseasonalisation is needed — a simplification, not a new SOP class; (c) not an external-stakeholder deliverable.
+- **User decision: Mode 2** (2026-08-14).
+
+**Pipeline plan (Mode 2, Lead wearing role hats):** Dana (HOUST fetch + SA transforms + validation) → Evan (econometrics + tournament, L0..12 per ECON-LL1, reverse-causality check) → Ray (narrative/episodes) → Vera (charts) → Ace (portal assembly). Exit: completeness gate + local DOM verify; merge requires explicit user auth (LEAD-MA1).
+
+### 2026-08-14 — Pair housing_starts_spy — Mode 2 COMPLETE (pending DPS-PRE1 waiver + merge auth)
+
+**Mode:** 2 (single maker, multiple checkers). Lead wore all role hats sequentially.
+
+**Winner:** `chg_3m / T1_fixed_p50 / P1_long_cash (counter) / L2 / LB_NA` — a Housing-Starts 3-month-change Long/Cash overlay. **OOS Sharpe 1.37 vs B&H 0.91; max DD −13.0% vs −23.9%; ann return 14.2% vs 15.0%.** Direction **COUNTERCYCLICAL** — long SPY when 3-month starts change is BELOW its median (peak-cycle mean-reversion / "bad-news-is-good-news" rate channel). The procyclical prior did NOT hold: regime quartiles are hump-shaped (Q1 0.65, Q2 1.06, Q3 0.78, Q4 0.64), strong-growth quartile worst. 6,860 combos, 4,850 valid.
+
+**Honest framing (found_in_search, low confidence):** forward Granger EMPTY (Housing Starts do not Granger-cause SPY at any lag 1-12); reverse SPY→Starts significant at ALL lags 1-12 (market leads housing); bootstrap p=0.127 (NOT significant at 5%); structural break flagged 2009-03; rolling-corr sign_unstable; durability conditionally_durable (COVID the only evaluable OOS episode). Framed throughout as a contrarian search-found timing overlay on a market-leads-housing relationship, not a validated forecaster.
+
+**Defining feature — SA handling (contrast with nhs_spy):** indicator is FRED HOUST (SAAR, seasonally adjusted at source). NO deseasonalisation applied — `hst_pct_mom` is a valid momentum signal and `hst_pct_yoy` the primary growth transform. Only the raw SAAR level is excluded (non-stationary; Dana ADF p=0.54, KPSS borderline). FRED cross-check vs Data Master `RE - H Started` level corr 0.99998.
+
+**Pipeline (Lead-as-maker):** Dana (`pair_data_housing_starts_spy.py`; all 5 schemas valid) → Evan (`pair_pipeline_housing_starts_spy.py`; 9 stages; winner_summary schema PASS, ECON-SR1 reconcile exact, ECON-T5 provenance) → Ray (`portal_narrative_housing_starts_spy_20260814.md` + interpretation_metadata Ray fields) → Vera (`generate_charts_housing_starts_spy.py`) → Ace (`housing_starts_spy_config.py` + 4 page wrappers `29_housing_starts_spy_*` + PAGE_ROUTING + display_names).
+
+**Producer bug fixed (SOP-first, META-NMF):** the shared pipeline's `strategy_description` prose keyed the long condition off `threshold_rule` alone, producing a self-contradictory "long when above … weak = risk-on" for a counter-orientation winner (surfaced here because the winner is counter; nhs_spy's was pro so it never showed). Fixed the producer to key off `long_when_high` (which folds in orientation), re-ran; identical winner reproduced, encoding recompute exact.
+
+**Checker phase (Mode-2 exit):** GATE-DPS1 completeness — config/results/main-chart checks all PASS (132+ checks). Remaining: DPS-PRE1 final-exam FAIL (expected for found_in_search — busloans/nhs precedent) and crisis-episode history-zoom charts. LEAD-DOM1 rendered-DOM verification pending.
+
+**Environment fixes (genuine gaps, applied):** installed declared-but-missing deps into `.venv` (`arch`, `hmmlearn`, `matplotlib`, `seaborn`, `openpyxl`, `xlsxwriter`) — all already in `requirements.txt`. SPY used the documented cached-close fallback (Yahoo rate-limited).
+
+**Pending before merge:** (1) DPS-PRE1 waiver (Lead) — no holdout by design; found_in_search + portal disclosure is the compensating control (mirror busloans/nhs). (2) LEAD-MA1: merge requires explicit user authorisation. (3) Not committed (user manages git).

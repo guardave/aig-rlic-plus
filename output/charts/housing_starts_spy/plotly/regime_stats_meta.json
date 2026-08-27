@@ -1,0 +1,20 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-QR1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "SPY performance by Housing Starts 3-month-change quartile (concurrent, descriptive): Sharpe and annualized return. The pattern is non-monotonic: Sharpe peaks at Q2 (1.06) rather than rising cleanly to Q4 (0.64). Q1 (weakest starts) and Q4 (strongest) both have lower Sharpe than Q2-Q3 \u2014 a hump pattern consistent with the countercyclical winning rule (long SPY when starts are below median).",
+  "narrative_alignment_note": "VIZ-QR1 dual-panel from regime_quartile_returns.csv; non-monotonic hump pattern is the honest description.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/housing_starts_spy/regime_quartile_returns.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-08-14T02:47:33.775054+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

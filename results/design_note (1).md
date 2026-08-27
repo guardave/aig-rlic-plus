@@ -1,0 +1,10 @@
+{
+  "pair_id": "housing_starts_spy",
+  "schema_version": "1.2.0",
+  "status": "found_in_search",
+  "updated_at": "2026-08-14T02:40:17Z",
+  "owner": "evan",
+  "plain_english": "What you see is the best rule we found by searching 4850 valid strategy combinations on data the models had not seen; this one came out on top (Sharpe 1.37 vs 0.91 for buy-and-hold SPY). Honesty checks: (1) the typical strategy in our search scored 0.76, so the winner may be among the luckier of many tries; (2) a re-shuffle test puts the chance of a result this good at about 12.7% (we want under 5% before calling it real); (3) durability across historical episodes is 'conditionally_durable' and the signal-market relationship is 'sign_unstable' over time. Housing Starts growth did NOT lead SPY in the formal causality test, so read this as a search result, not an independently validated forecasting signal. No fresh confirmation test (final exam) on untouched data has been run yet.",
+  "technical_note": "Tournament-OOS only (2018-03-31..2026-06-30, 100 months; ECON-OOS2 v1_max36_25pct_cap120). Winner hst_chg_3m/T1_fixed_p50/P1_long_cash/L2/LB_NA: OOS Sharpe 1.3728, bootstrap p=0.1272 vs resampled B&H, CP1-A durability conditionally_durable, rolling-corr sign_unstable, mean OOS exposure 0.47. Spec-curve: median OOS Sharpe across 4850 valid combos = 0.755 vs B&H 0.9075. Lead-lag: TY Granger forward significant lags NONE, reverse significant lags [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]. SA series (SAAR): signals are stationary growth transforms (raw level excluded). No holdout/final exam run; selection and evaluation share the same OOS window.",
+  "next_step": "Run ECON-FE1 final exam: freeze the winning rule and test once on a confirmation window the search never touched. Calibrate expectation by the bootstrap p and the Granger lead-lag verdict above."
+}

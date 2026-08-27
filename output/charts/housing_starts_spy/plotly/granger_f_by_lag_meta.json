@@ -1,0 +1,38 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-V3",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Toda-Yamamoto Granger F-statistics at lags 1\u201312, both directions. Housing Starts \u2192 SPY (vermillion, forward) does NOT clear the 5% line at any lag. SPY \u2192 Housing Starts (pale blue, reverse) is significant at all 12 lags. This reverse-only pattern suggests equities respond to the broader cycle and housing follows \u2014 treat the winning rule as a search-found counter-signal, not a validated forward forecaster.",
+  "narrative_alignment_note": "Both directions shown; forward is absent, reverse dominates at all lags \u2014 the honest countercyclical causality picture.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/housing_starts_spy/core_models_20260814/granger_causality.csv",
+    "results/housing_starts_spy/granger_by_lag.csv"
+  ],
+  "reconciliation": {
+    "forward_significant_lags": [],
+    "reverse_significant_lags": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "verdict": "no_forward_causality"
+  },
+  "generated_at": "2026-08-14T02:47:43.784097+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

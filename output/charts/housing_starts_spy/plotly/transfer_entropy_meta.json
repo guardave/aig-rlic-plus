@@ -1,0 +1,19 @@
+{
+  "chart_name": "transfer_entropy",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Transfer entropy between Housing Starts YoY and SPY returns (tercile bins, 500 permutations). Forward p = 0.51, reverse p = 0.22; consistent with the absent forward Granger result.",
+  "narrative_alignment_note": "Two-bar TE comparison; weak forward significance.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/housing_starts_spy/core_models_20260814/transfer_entropy.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-08-14T02:47:50.867720+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

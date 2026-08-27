@@ -1,0 +1,141 @@
+{
+  "pair_id": "housing_starts_spy",
+  "parquet_path": "data/housing_starts_spy_monthly_19900131_20260630.parquet",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-14T02:11:57Z",
+  "columns": {
+    "date": {
+      "dtype": "datetime64[ns]",
+      "unit": "date",
+      "display_name": "Date",
+      "direction": "neutral",
+      "description": "Monthly date index; spans 1990-01-31 through 2026-06-30."
+    },
+    "hst_level": {
+      "dtype": "float64",
+      "unit": "count",
+      "display_name": "Housing Starts (000s, SAAR)",
+      "direction": "neutral",
+      "description": "FRED HOUST level, thousands of units, Seasonally Adjusted Annual Rate. Provenance only; trend-dominated / non-stationary, not used as a signal.",
+      "source_reference": "FRED:HOUST",
+      "refresh_ttl_days": 30
+    },
+    "hst_pct_yoy": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Housing Starts YoY (%)",
+      "direction": "higher_is_better",
+      "description": "Year-over-year percent change of FRED HOUST; PRIMARY growth signal.",
+      "source_reference": "derived:FRED:HOUST pct_change(12)*100",
+      "refresh_ttl_days": 30
+    },
+    "hst_pct_mom": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Housing Starts MoM (%)",
+      "direction": "higher_is_better",
+      "description": "Month-over-month percent change of FRED HOUST; valid momentum input because the series is seasonally adjusted.",
+      "source_reference": "derived:FRED:HOUST pct_change(1)*100",
+      "refresh_ttl_days": 30
+    },
+    "hst_3m_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Housing Starts 3M Change (%)",
+      "direction": "higher_is_better",
+      "description": "Three-month percent change of the HOUST level.",
+      "source_reference": "derived:FRED:HOUST pct_change(3)*100",
+      "refresh_ttl_days": 30
+    },
+    "hst_3m_pct_yoy": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Housing Starts 3M-Avg YoY (%)",
+      "direction": "higher_is_better",
+      "description": "YoY percent change of the 3-month moving average of HOUST; smooths month-to-month noise.",
+      "source_reference": "derived:FRED:HOUST rolling(3).mean() yoy",
+      "refresh_ttl_days": 30
+    },
+    "hst_yoy_accel_pct": {
+      "dtype": "float64",
+      "unit": "pct",
+      "display_name": "Housing Starts YoY Acceleration (pp)",
+      "direction": "higher_is_better",
+      "description": "One-month change in Housing Starts YoY growth, percentage points.",
+      "source_reference": "derived:diff(hst_pct_yoy)",
+      "refresh_ttl_days": 30
+    },
+    "hst_yoy_zscore_120m": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "Housing Starts YoY 120M Z-Score",
+      "direction": "higher_is_better",
+      "description": "Rolling 120-month z-score of Housing Starts YoY growth, minimum 60 observations.",
+      "source_reference": "derived:rolling_zscore(hst_pct_yoy)",
+      "refresh_ttl_days": 30
+    },
+    "hst_yoy_contraction_flag": {
+      "dtype": "float64",
+      "unit": "none",
+      "display_name": "Housing Starts YoY Contraction Flag",
+      "direction": "lower_is_better",
+      "description": "1.0 when Housing Starts YoY growth is below 0%, marking a construction-activity contraction.",
+      "source_reference": "derived:hst_pct_yoy<0",
+      "refresh_ttl_days": 30
+    },
+    "spy": {
+      "dtype": "float64",
+      "unit": "price",
+      "display_name": "SPY Close ($)",
+      "direction": "neutral",
+      "description": "SPY adjusted close from Yahoo Finance.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_ret": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Daily Return (decimal)",
+      "direction": "neutral",
+      "description": "Simple SPY return over the monthly panel frequency.",
+      "source_reference": "yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_1m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 1M Return",
+      "direction": "neutral",
+      "description": "Forward 1-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_3m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 3M Return",
+      "direction": "neutral",
+      "description": "Forward 3-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_6m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 6M Return",
+      "direction": "neutral",
+      "description": "Forward 6-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    },
+    "spy_fwd_12m": {
+      "dtype": "float64",
+      "unit": "decimal_return",
+      "display_name": "SPY Forward 12M Return",
+      "direction": "neutral",
+      "description": "Forward 12-month SPY return, decimal.",
+      "source_reference": "derived:yahoo:SPY",
+      "refresh_ttl_days": 1
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-06T22:45:48Z",
+  "generated_at": "2026-08-14T02:11:57Z",
   "columns": [
     {
       "column_name": "date",
@@ -967,6 +967,54 @@
       "display_name": "NAHB HMI Above-50 Flag",
       "unit": "none",
       "axis_label": "Above 50 (0/1)"
+    },
+    {
+      "column_name": "hst_level",
+      "display_name": "Housing Starts (000s, SAAR)",
+      "unit": "count",
+      "axis_label": "Housing Starts (000s)"
+    },
+    {
+      "column_name": "hst_pct_yoy",
+      "display_name": "Housing Starts YoY (%)",
+      "unit": "pct",
+      "axis_label": "Housing Starts YoY (%)"
+    },
+    {
+      "column_name": "hst_pct_mom",
+      "display_name": "Housing Starts MoM (%)",
+      "unit": "pct",
+      "axis_label": "MoM (%)"
+    },
+    {
+      "column_name": "hst_3m_pct",
+      "display_name": "Housing Starts 3M Change (%)",
+      "unit": "pct",
+      "axis_label": "3M Change (%)"
+    },
+    {
+      "column_name": "hst_3m_pct_yoy",
+      "display_name": "Housing Starts 3M-Avg YoY (%)",
+      "unit": "pct",
+      "axis_label": "3M-Avg YoY (%)"
+    },
+    {
+      "column_name": "hst_yoy_accel_pct",
+      "display_name": "Housing Starts YoY Acceleration (pp)",
+      "unit": "pct",
+      "axis_label": "YoY Acceleration (pp)"
+    },
+    {
+      "column_name": "hst_yoy_zscore_120m",
+      "display_name": "Housing Starts YoY 120M Z-Score",
+      "unit": "none",
+      "axis_label": "Z-Score"
+    },
+    {
+      "column_name": "hst_yoy_contraction_flag",
+      "display_name": "Housing Starts YoY Contraction Flag",
+      "unit": "none",
+      "axis_label": "Contraction (0/1)"
     }
   ]
 }

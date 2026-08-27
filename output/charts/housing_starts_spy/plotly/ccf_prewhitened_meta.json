@@ -1,0 +1,19 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cross-correlation between pre-whitened Housing Starts YoY and SPY returns. 4 of 41 lags clear the 95% band. No forward Granger causality was found (Toda-Yamamoto), consistent with the reverse-only causality picture.",
+  "narrative_alignment_note": "CCF mirrors the weak/absent forward lead.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/housing_starts_spy/core_models_20260814/ccf_prewhitened.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-08-14T02:47:40.226464+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

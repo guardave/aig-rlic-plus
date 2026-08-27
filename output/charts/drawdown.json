@@ -1,0 +1,21 @@
+{
+  "chart_name": "equity_curves",
+  "pair_id": "housing_starts_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cumulative growth of 1.00 for Evan's saved strategy returns and buy-and-hold. The OOS rule raises Sharpe (1.37 vs 0.91) and cuts drawdown, but the bootstrap p-value (0.127) is NOT significant at 5%, forward Granger causality is absent, and this is found_in_search. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Strategy series from strategy_returns; metrics from winner_summary; fragility in title.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/housing_starts_spy/strategy_returns_20260814.csv",
+    "results/housing_starts_spy/winner_summary.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-08-14T02:48:01.057577+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_spy.py (Mode 2, housing_starts_spy)"
+}

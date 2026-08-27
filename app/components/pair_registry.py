@@ -112,6 +112,7 @@ PAGE_ROUTING = {
     "wells_fargo_housing_spy": "pages/26_wells_fargo_housing_spy",
     "unrate_spy": "pages/27_unrate_spy",
     "nhs_saar_spy": "pages/28_nhs_saar_spy",
+    "housing_starts_spy": "pages/29_housing_starts_spy",
 }
 
 
