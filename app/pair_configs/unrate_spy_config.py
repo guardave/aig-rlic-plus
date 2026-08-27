@@ -359,21 +359,34 @@ QUANTILE_BLOCK = dict(
 
 
 EVIDENCE_METHOD_BLOCKS = {
-    "title": "The Evidence: UNRATE Is Useful, but Mostly as Lagging Regime Context",
+    "title": "The Evidence: Basic and Advanced Analysis",
     "overview": (
-        "The evidence is organized from basic to advanced analysis. Basic "
-        "tests ask whether unemployment regimes line up with future SPY "
-        "returns. Advanced tests ask whether the relationship survives formal "
-        "lead-lag, horizon-response, and tail-risk checks. The combined result "
+        "The evidence is organized as a step-by-step test of the unemployment "
+        "rate and SPY relationship. First, the basic analysis checks whether "
+        "unemployment levels or changes line up with later SPY returns through "
+        "correlation, regime quartiles, and cross-correlation. Then the "
+        "advanced analysis tests whether that relationship survives stricter "
+        "methods: Granger causality, local projections, quantile regression, "
+        "rolling correlation, and structural-break checks. The combined result "
         "supports a cautious cycle-confirmation overlay, not a strong causal "
         "forecast."
     ),
     "plain_english": (
-        "This page first explains how each analysis works, then defines the "
-        "main components such as coefficient, confidence band, F-statistic, "
-        "P-value, R-squared, Sharpe, and quartile. After that, it states the "
-        "actual result and what the finding means for the unemployment-rate "
-        "and SPY hypothesis."
+        "How to read this page: each method starts with the mechanism, meaning "
+        "what the test is trying to measure and why it is used. It then "
+        "defines the main components. A coefficient shows the direction and "
+        "size of the relationship. A P-value shows whether the result is "
+        "statistically meaningful, with values below 0.05 usually treated as "
+        "stronger evidence. R-squared shows how much of SPY return variation "
+        "the model explains. An F-statistic measures whether lagged "
+        "unemployment information improves a forecasting model. A confidence "
+        "band marks the range where noise is expected, while Sharpe compares "
+        "return with volatility and quartiles split the unemployment history "
+        "into four regimes. After those definitions, each block states the "
+        "actual result, explains what is behind the result, and connects the "
+        "finding back to the hypothesis that unemployment is more useful for "
+        "confirming recession and recovery phases than for forecasting every "
+        "SPY move in advance."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "Cross-Correlation"],
