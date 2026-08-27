@@ -1,0 +1,12 @@
+{
+  "chart_name": "local_projections",
+  "pair_id": "rsxfs_spy",
+  "generated_at": "2026-08-27T09:22:10.739483+00:00",
+  "generated_by": "scripts/generate_charts_rsxfs_spy.py",
+  "caption": "Estimated SPY response across horizons to a move in retail-sales growth.",
+  "narrative_alignment_note": "Estimated SPY response across horizons to a move in retail-sales growth.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/rsxfs_spy/core_models_20260827/local_projections.csv"
+  ]
+}

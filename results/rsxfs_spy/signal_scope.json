@@ -1,0 +1,129 @@
+{
+  "pair_id": "rsxfs_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-08-27T09:16:27.833184+00:00",
+  "indicator_axis": {
+    "canonical_column": "rsxfs",
+    "display_name": "Advance Retail Sales: Retail Trade",
+    "derivatives": [
+      {
+        "name": "rsxfs",
+        "definition": "Advance retail trade sales level (nominal $, SA)",
+        "formula": "FRED RSXFS",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero"
+        ]
+      },
+      {
+        "name": "rsxfs_yoy",
+        "definition": "12-month retail-sales growth",
+        "formula": "100*(x_t/x_{t-12}-1)",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "hero",
+          "local_projections",
+          "regime_stats"
+        ]
+      },
+      {
+        "name": "rsxfs_mom",
+        "definition": "1-month retail-sales growth",
+        "formula": "100*(x_t/x_{t-1}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "rsxfs_3m",
+        "definition": "3-month retail-sales growth",
+        "formula": "100*(x_t/x_{t-3}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "rsxfs_6m",
+        "definition": "6-month retail-sales growth",
+        "formula": "100*(x_t/x_{t-6}-1)",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "rsxfs_yoy_zscore_60m",
+        "definition": "YoY growth vs its five-year history",
+        "formula": "(yoy - mean60)/std60",
+        "role": "threshold_input",
+        "appears_in_charts": []
+      },
+      {
+        "name": "rsxfs_accel",
+        "definition": "Change in YoY growth (acceleration)",
+        "formula": "yoy_t - yoy_{t-1}",
+        "role": "derivative",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy",
+    "display_name": "SPY adjusted close",
+    "derivatives": [
+      {
+        "name": "spy",
+        "definition": "SPY adjusted month-end close",
+        "formula": "month-end adjusted close",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "equity_curves"
+        ]
+      },
+      {
+        "name": "spy_ret",
+        "definition": "SPY monthly return",
+        "formula": "spy_t / spy_{t-1} - 1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_1m",
+        "definition": "One-month forward SPY return",
+        "formula": "spy_{t+1}/spy_t - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "spy_fwd_3m",
+        "definition": "Three-month forward SPY return",
+        "formula": "spy_{t+3}/spy_t - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "local_projections",
+          "quantile_coef"
+        ]
+      },
+      {
+        "name": "spy_fwd_6m",
+        "definition": "Six-month forward SPY return",
+        "formula": "spy_{t+6}/spy_t - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "spy_fwd_12m",
+        "definition": "Twelve-month forward SPY return",
+        "formula": "spy_{t+12}/spy_t - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      }
+    ]
+  },
+  "notes": "Scope limited to RSXFS-derived retail-sales growth signals and SPY returns."
+}
