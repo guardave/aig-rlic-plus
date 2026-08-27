@@ -62,9 +62,9 @@ class StoryConfig:
     NARRATIVE_SECTION_1 = """
 ### The Hypothesis
 
-The unemployment rate measures the share of the labor force that is unemployed and actively looking for work. It is a clear labor-market stress indicator, but it usually moves after the economy has already started to slow. When demand weakens, companies often protect margins by slowing hiring, reducing hours, or cutting jobs. When demand starts to recover, companies usually wait for evidence that sales and cash flow are improving before hiring aggressively again.
+The unemployment rate measures the share of the labor force that is unemployed and actively looking for work. It is a direct labor-market stress indicator. When demand slows, companies often try to protect margins by delaying hiring, cutting hours, or reducing headcount. When demand starts to recover, companies usually wait until sales, orders, and cash flow look more stable before they hire aggressively again.
 
-The hypothesis is that the unemployment rate can help confirm where the economy is in the recession-and-recovery cycle. A rising unemployment rate can confirm recession stress because it shows that weak demand has reached the labor market. A stabilizing or delayed unemployment signal can also help confirm recovery because equity markets may begin to look past the worst labor data once companies stop cutting jobs and investors expect earnings to improve. For SPY, the signal is therefore tested as a confirmation and timing overlay, not as an early warning indicator.
+The hypothesis is that the unemployment rate can help confirm recession and recovery phases for SPY. A rising unemployment rate can confirm recession stress because it shows that weaker demand has reached company staffing decisions. A stabilizing or falling unemployment rate can support a recovery read because it suggests the labor market is no longer deteriorating and companies may be moving from cost control back toward growth. For SPY, the signal is therefore tested as a confirmation and timing overlay, not as an early warning indicator.
 
 ### Why Timing Is Difficult
 
