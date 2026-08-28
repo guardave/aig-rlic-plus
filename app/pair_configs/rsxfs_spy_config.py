@@ -29,9 +29,10 @@ SPY. Every number below is sourced from results/rsxfs_spy/*:
     -23.9% for buy-and-hold) and stress-period defense, NOT the headline
     Sharpe -- read the Sharpe as volatility avoidance. Annual turnover is high
     (6.78/yr), the fingerprint of noise-driven flipping.
-  - The L9 lead is economically implausible for a coincident indicator and is
-    likely a search artifact; adjacent-lead durability is unchecked for this
-    pair.
+  - The L9 lead is a PROVEN search artifact: adjacent-lead durability (ECON-LT2)
+    FAILS -- the same rule scores 0.69 at L8 and 0.46 at L10 versus 1.36 at L9,
+    an isolated spike on a multi-peak curve, and the spike survives COVID
+    exclusion (1.27 vs buy-and-hold 0.97) -- i.e. noise-driven, not a real lead.
   - COVID 2020-21 is an extreme in-window outlier that can dominate the fit.
 
 MONTHLY conventions: leads in MONTHS (winner L9); Sharpe annualized by sqrt(12);
@@ -135,7 +136,7 @@ The prior is broadly borne out concurrently -- strong-growth quartiles carry hig
 
 ### Why This Is Not a Forecast
 
-The formal lead-lag tests are blunt. Retail-sales growth does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.47), and local projections find essentially no linear predictive content (only the 12-month horizon is marginally significant, with a trivial R^2 of 0.019). So the 9-month lead the search selected is economically implausible for a coincident indicator -- it is most likely a search artifact, and the high 6.78-per-year turnover is the fingerprint of a rule flipping on noise. This dashboard therefore treats the pair as a searched, procyclical demand overlay whose value, if any, is defensive.
+The formal lead-lag tests are blunt. Retail-sales growth does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.47), and local projections find essentially no linear predictive content (only the 12-month horizon is marginally significant, with a trivial R^2 of 0.019). So the 9-month lead the search selected is economically implausible for a coincident indicator -- and the adjacent-lead durability check confirms it is a search artifact: the same rule scores just 0.69 at L8 and 0.46 at L10 versus 1.36 at L9 (an isolated spike, not a ridge), and the high 6.78-per-year turnover is the fingerprint of a rule flipping on noise. This dashboard therefore treats the pair as a searched, procyclical demand overlay whose value, if any, is defensive.
 """
 
     HISTORY_ZOOM_EPISODES = [
@@ -389,6 +390,45 @@ QUANTILE_BLOCK = dict(
 )
 
 
+LEAD_DURABILITY_BLOCK = dict(
+    chart_status="ready",
+    method_name="Adjacent-Lead Durability (ECON-LT2)",
+    method_theory=(
+        "A genuine lead shows up as a RIDGE — the rule scores similarly at "
+        "neighbouring leads, because overlapping monthly horizons are highly "
+        "correlated (Boudoukh-Richardson-Whitelaw). An isolated one-lead SPIKE "
+        "is the fingerprint of a search artifact, not a real channel."
+    ),
+    question="Is the winner's 9-month lead a robust ridge or an isolated spike?",
+    how_to_read=(
+        "Bars are the winner rule's OOS Sharpe at every lead 0-15; the dotted "
+        "line repeats the exercise with the 2020-21 COVID window removed; the "
+        "dashed line is buy-and-hold. A ridge would keep the bars around L9 "
+        "high together."
+    ),
+    chart_name="lead_durability",
+    chart_caption=(
+        "What this shows: L9 (1.36) towers over its immediate neighbours L8 "
+        "(0.69) and L10 (0.46) — an isolated spike, not a ridge — amid a "
+        "multi-peak 'picket-fence' curve with no coherent structure."
+    ),
+    observation=(
+        "The winner rule's Sharpe collapses on both sides of L9 (L8 0.69, "
+        "L10 0.46) and the lead curve has several unrelated peaks (L9 1.36, "
+        "L11 1.11, L14 1.05). Excluding COVID, L9 stays elevated (1.27 vs "
+        "buy-and-hold 0.97), so the spike is NOISE-driven, not a COVID-rebound "
+        "effect and not a real ~9-month lead."
+    ),
+    interpretation=(
+        "The L9 winner FAILS adjacent-lead durability: it is a sampling "
+        "accident of the sparse grid, which happened to land on L9. The rule "
+        "is defensible only as a drawdown-reduction candidate, never as "
+        "evidence of a 9-month retail-to-equity lead."
+    ),
+    key_message="The 9-month lead is a proven isolated spike (L8 0.69 / L10 0.46), not a durable ridge.",
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: Retail Sales Is Procyclical Context, Not a SPY Forecast",
     "overview": (
@@ -407,8 +447,8 @@ EVIDENCE_METHOD_BLOCKS = {
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
-    "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
-    "level2_labels": ["Local Projections", "Quantile Regression"],
+    "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK, LEAD_DURABILITY_BLOCK],
+    "level2_labels": ["Local Projections", "Quantile Regression", "Lead Durability"],
     "tournament_intro": (
         "The tournament tested 252 strategy combinations (238 valid) across "
         "six retail-sales growth transforms, fixed and rolling thresholds, "

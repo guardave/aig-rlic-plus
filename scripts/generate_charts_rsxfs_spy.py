@@ -252,6 +252,44 @@ def chart_history_zoom(slug: str, title: str, start: str, end: str) -> None:
     save(f"history_zoom_{slug}", fig, f"{title}; gray bands are NBER recessions.", ["data/rsxfs_spy_monthly_latest.parquet"])
 
 
+def chart_lead_durability() -> None:
+    """Adjacent-lead durability (ECON-LT2): the winner rule's OOS Sharpe at every lead.
+    L9 is an isolated spike (L8/L10 collapse), not a ridge — the fingerprint of a
+    search artifact rather than a real ~9-month channel."""
+    from pair_pipeline_rsxfs_spy import make_position, build_threshold, ann_metrics
+    df = load_monthly()
+    raw = df["rsxfs_mom"].astype(float)
+    thr = build_threshold(raw, "T0_zero")
+    oos = pd.Timestamp("2017-01-31")
+    cov0, cov1 = pd.Timestamp("2020-02-01"), pd.Timestamp("2021-06-30")
+    leads = list(range(0, 16))
+    sh, shx = [], []
+    for L in leads:
+        rets = (make_position(raw.shift(L), thr, "procyclical") * df["spy_ret"]).dropna().loc[oos:]
+        sh.append(ann_metrics(rets)["oos_sharpe"])
+        rx = rets[(rets.index < cov0) | (rets.index > cov1)]
+        shx.append(ann_metrics(rx)["oos_sharpe"])
+    bh = ann_metrics(df["spy_ret"].loc[oos:].dropna())["oos_sharpe"]
+    colors = [C_STRAT if L == 9 else C_BENCH for L in leads]
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=leads, y=sh, name="Winner rule (full OOS)", marker_color=colors))
+    fig.add_trace(go.Scatter(x=leads, y=shx, name="Winner rule (ex-COVID)", mode="lines+markers",
+                             line=dict(color=C_IND, dash="dot")))
+    fig.add_hline(y=bh, line_dash="dash", line_color=C_LINE,
+                  annotation_text=f"Buy & hold {bh:.2f}", annotation_position="top left")
+    fig.add_annotation(x=9, y=sh[9], text="L9 winner — isolated spike<br>(L8, L10 collapse)",
+                       showarrow=True, arrowhead=2, ax=55, ay=-40, font=dict(color=C_STRAT, size=11))
+    fig.update_layout(title="Adjacent-Lead Durability: the L9 Winner Is a Spike, Not a Ridge",
+                      xaxis_title="Lead (months) applied to signal", yaxis_title="OOS Sharpe",
+                      template="plotly_white", height=440, hovermode="x unified")
+    fig.update_xaxes(dtick=1)
+    save("lead_durability", fig,
+         "Winner rule (mom / >0 / procyclical) OOS Sharpe at every lead 0-15. L9 (1.36) towers "
+         "over its neighbours L8 (0.69) and L10 (0.46) — an isolated spike amid a multi-peak curve, "
+         "surviving COVID exclusion, i.e. noise-driven, not a real ~9-month lead.",
+         ["data/rsxfs_spy_monthly_latest.parquet", "results/rsxfs_spy/tournament_results_20260827.csv"])
+
+
 def main() -> None:
     chart_hero()
     chart_regime_stats()
@@ -269,6 +307,7 @@ def main() -> None:
     chart_history_zoom("gfc", "Global Financial Crisis: Retail Sales Fell Sharply", "2006-01-31", "2010-12-31")
     chart_history_zoom("covid", "COVID Shock: Retail Collapse and Violent Rebound", "2018-01-31", "2021-12-31")
     chart_history_zoom("inflation_2022", "2022 Rate Shock: Nominal Sales Stayed High on Inflation", "2021-01-31", "2025-12-31")
+    chart_lead_durability()
     print(f"Done. Charts saved to {OUT}")
 
 

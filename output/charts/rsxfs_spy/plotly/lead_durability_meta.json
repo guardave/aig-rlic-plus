@@ -1,0 +1,13 @@
+{
+  "chart_name": "lead_durability",
+  "pair_id": "rsxfs_spy",
+  "generated_at": "2026-08-28T20:02:25.881445+00:00",
+  "generated_by": "scripts/generate_charts_rsxfs_spy.py",
+  "caption": "Winner rule (mom / >0 / procyclical) OOS Sharpe at every lead 0-15. L9 (1.36) towers over its neighbours L8 (0.69) and L10 (0.46) \u2014 an isolated spike amid a multi-peak curve, surviving COVID exclusion, i.e. noise-driven, not a real ~9-month lead.",
+  "narrative_alignment_note": "Winner rule (mom / >0 / procyclical) OOS Sharpe at every lead 0-15. L9 (1.36) towers over its neighbours L8 (0.69) and L10 (0.46) \u2014 an isolated spike amid a multi-peak curve, surviving COVID exclusion, i.e. noise-driven, not a real ~9-month lead.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/rsxfs_spy_monthly_latest.parquet",
+    "results/rsxfs_spy/tournament_results_20260827.csv"
+  ]
+}
