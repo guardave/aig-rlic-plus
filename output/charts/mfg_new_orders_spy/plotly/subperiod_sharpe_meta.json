@@ -1,0 +1,12 @@
+{
+  "chart_name": "subperiod_sharpe",
+  "pair_id": "mfg_new_orders_spy",
+  "generated_at": "2026-08-29T13:04:13.959444+00:00",
+  "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
+  "caption": "Strategy and buy-and-hold SPY Sharpe during major stress episodes.",
+  "narrative_alignment_note": "Strategy and buy-and-hold SPY Sharpe during major stress episodes.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/mfg_new_orders_spy/subperiod_sharpe.csv"
+  ]
+}

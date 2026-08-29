@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-08-29T13:00:52.478802+00:00",
+  "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
+  "caption": "Rolling correlation between SLOOS tightening and SPY returns; the sign swings through time, so the relationship needs ongoing monitoring.",
+  "narrative_alignment_note": "Rolling correlation between SLOOS tightening and SPY returns; the sign swings through time, so the relationship needs ongoing monitoring.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/sloos_ci_small_spy/rolling_correlation_sloos_ci_small_spy.csv"
+  ]
+}

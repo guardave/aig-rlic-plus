@@ -1,0 +1,75 @@
+{
+  "pair_id": "sloos_ci_small_spy",
+  "schema_version": "1.1.0",
+  "indicator_nature": "leading",
+  "indicator_type": "credit",
+  "strategy_objective": "countercyclical_protection",
+  "owner_writes": {
+    "dana": [
+      "indicator_nature",
+      "indicator_type",
+      "known_stress_episodes",
+      "data_provenance"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "narrative_summary",
+      "expected_direction",
+      "mechanism",
+      "caveats"
+    ]
+  },
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-08-29T12:47:34.946325+00:00",
+  "indicator": "sloos_ci_small",
+  "target": "spy",
+  "expected_direction": "countercyclical",
+  "observed_direction": "procyclical",
+  "direction_consistent": false,
+  "mechanism": "When banks tighten C&I lending standards to small firms, credit-dependent activity slows and recession/earnings risk rises; equity exposure should be reduced when net-tightening is high or rising. SLOOS historically leads the cycle by ~1-4 quarters.",
+  "confidence": "low",
+  "key_finding": "Best search-phase rule uses level at L3q with OOS Sharpe 1.51 versus buy-and-hold 0.89.",
+  "caveats": [
+    "Quarterly survey with a small OOS window \u2014 winner is search-selected, needs holdout validation.",
+    "SLOOS is NSA and revised; the survey is qualitative (net-% of banks), not a hard activity measure.",
+    "Credit-tightening episodes are few, so the lead estimate rests on a handful of cycles."
+  ],
+  "narrative_summary": "SLOOS C&I small-firm tightening is tested as a leading credit-stress overlay for SPY \u2014 reduce exposure when banks tighten.",
+  "known_stress_episodes": [
+    {
+      "label": "Dot-Com recession",
+      "start": "2001-03-01",
+      "end": "2001-11-30",
+      "note": "Tightening rose ahead of the downturn."
+    },
+    {
+      "label": "Global Financial Crisis",
+      "start": "2007-12-01",
+      "end": "2009-06-30",
+      "note": "Net-tightening spiked to record highs."
+    },
+    {
+      "label": "COVID shock",
+      "start": "2020-02-01",
+      "end": "2020-06-30",
+      "note": "Banks tightened sharply in 2020-Q2."
+    },
+    {
+      "label": "2022-23 tightening",
+      "start": "2022-06-01",
+      "end": "2023-12-31",
+      "note": "Post-SVB credit tightening."
+    }
+  ],
+  "data_provenance": {
+    "source": "Data Master.xlsx (Fed SLOOS)",
+    "series_id": "DRTSCIS",
+    "accessed_at": "2026-08-29T12:47:34.946325+00:00"
+  }
+}

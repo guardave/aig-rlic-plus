@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_gfc",
+  "pair_id": "mfg_new_orders_spy",
+  "generated_at": "2026-08-29T13:04:14.050993+00:00",
+  "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
+  "caption": "Global Financial Crisis: New Orders Collapsed 2008-09; gray bands are NBER recessions.",
+  "narrative_alignment_note": "Global Financial Crisis: New Orders Collapsed 2008-09; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/mfg_new_orders_spy_monthly_latest.parquet"
+  ]
+}

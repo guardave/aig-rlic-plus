@@ -1,0 +1,12 @@
+{
+  "chart_name": "subperiod_sharpe",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-08-29T13:00:52.523314+00:00",
+  "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
+  "caption": "Strategy and buy-and-hold SPY Sharpe during major credit-stress episodes; several pre-OOS episodes precede the strategy window, so the durability read rests on a handful of cycles.",
+  "narrative_alignment_note": "Strategy and buy-and-hold SPY Sharpe during major credit-stress episodes; several pre-OOS episodes precede the strategy window, so the durability read rests on a handful of cycles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/sloos_ci_small_spy/subperiod_sharpe.csv"
+  ]
+}

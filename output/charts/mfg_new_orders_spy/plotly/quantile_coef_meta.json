@@ -1,0 +1,12 @@
+{
+  "chart_name": "quantile_coef",
+  "pair_id": "mfg_new_orders_spy",
+  "generated_at": "2026-08-29T13:04:13.810275+00:00",
+  "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
+  "caption": "New-orders-growth coefficient across SPY forward-return quantiles.",
+  "narrative_alignment_note": "New-orders-growth coefficient across SPY forward-return quantiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/core_models_20260830/quantile_regression.csv"
+  ]
+}

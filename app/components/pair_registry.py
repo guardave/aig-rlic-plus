@@ -114,6 +114,8 @@ PAGE_ROUTING = {
     "nhs_saar_spy": "pages/28_nhs_saar_spy",
     "housing_starts_spy": "pages/29_housing_starts_spy",
     "rsxfs_spy": "pages/30_rsxfs_spy",
+    "sloos_ci_small_spy": "pages/31_sloos_ci_small_spy",
+    "mfg_new_orders_spy": "pages/32_mfg_new_orders_spy",
 }
 
 

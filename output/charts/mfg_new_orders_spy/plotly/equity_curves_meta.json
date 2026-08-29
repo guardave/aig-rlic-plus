@@ -1,0 +1,12 @@
+{
+  "chart_name": "equity_curves",
+  "pair_id": "mfg_new_orders_spy",
+  "generated_at": "2026-08-29T13:04:13.839551+00:00",
+  "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
+  "caption": "Winner strategy equity curve compared with buy-and-hold SPY.",
+  "narrative_alignment_note": "Winner strategy equity curve compared with buy-and-hold SPY.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/strategy_returns_20260830.csv"
+  ]
+}
