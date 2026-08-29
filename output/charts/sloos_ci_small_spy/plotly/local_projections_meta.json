@@ -1,0 +1,12 @@
+{
+  "chart_name": "local_projections",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-08-29T13:00:52.342257+00:00",
+  "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
+  "caption": "Estimated SPY response to a rise in SLOOS 4-quarter tightening change; coefficients are near zero and insignificant across horizons.",
+  "narrative_alignment_note": "Estimated SPY response to a rise in SLOOS 4-quarter tightening change; coefficients are near zero and insignificant across horizons.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/sloos_ci_small_spy/core_models_20260830/local_projections.csv"
+  ]
+}

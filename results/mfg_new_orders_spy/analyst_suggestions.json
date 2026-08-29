@@ -1,0 +1,18 @@
+{
+  "pair_id": "mfg_new_orders_spy",
+  "schema_version": "1.0.0",
+  "last_updated_at": "2026-08-29T12:54:31.159835+00:00",
+  "suggestions": [
+    {
+      "signal_name": "New-orders lead-durability & revision robustness",
+      "proposed_by": "evan",
+      "source": "FRED",
+      "observation": "The selected rule uses an L12 lead on yoy; new orders is leading, but adjacent-lead durability and the winner's direction-vs-prior should be checked.",
+      "rationale": "Advance new orders is revised and broadly coincident, so a long lead needs adjacent-lead durability and a COVID-excluded robustness check before it is trusted.",
+      "possible_use_case": "robustness check",
+      "caveats": "Search-selected rule; the long lead is likely a fitting artifact and needs final-exam validation.",
+      "date_filed": "2026-08-30"
+    }
+  ],
+  "notes": "Generated with the Manufacturers' New Orders x SPY pair pipeline."
+}

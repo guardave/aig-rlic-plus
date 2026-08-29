@@ -1,0 +1,12 @@
+{
+  "chart_name": "equity_curves",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-08-29T13:00:52.393950+00:00",
+  "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
+  "caption": "Winner strategy equity curve vs buy-and-hold SPY (found-in-search candidate; full-sample path, OOS from 2017-12).",
+  "narrative_alignment_note": "Winner strategy equity curve vs buy-and-hold SPY (found-in-search candidate; full-sample path, OOS from 2017-12).",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/sloos_ci_small_spy/strategy_returns_20260830.csv"
+  ]
+}

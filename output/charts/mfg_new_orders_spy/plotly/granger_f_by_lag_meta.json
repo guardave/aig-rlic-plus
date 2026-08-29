@@ -1,0 +1,12 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "mfg_new_orders_spy",
+  "generated_at": "2026-08-29T13:04:13.761204+00:00",
+  "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
+  "caption": "Granger p-values by lag for new-orders growth predicting SPY returns.",
+  "narrative_alignment_note": "Granger p-values by lag for new-orders growth predicting SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/core_models_20260830/granger_causality.csv"
+  ]
+}

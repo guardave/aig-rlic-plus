@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_scatter",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-08-29T13:00:52.454764+00:00",
+  "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
+  "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead; the winner (1.51) is the grid maximum, median valid 0.60 below buy-and-hold 0.89.",
+  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead; the winner (1.51) is the grid maximum, median valid 0.60 below buy-and-hold 0.89.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/sloos_ci_small_spy/tournament_results_20260830.csv"
+  ]
+}

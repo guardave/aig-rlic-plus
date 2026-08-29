@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_covid",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-08-29T13:00:52.649748+00:00",
+  "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
+  "caption": "COVID Shock: Banks Tightened Sharply in 2020-Q2; gray bands are NBER recessions.",
+  "narrative_alignment_note": "COVID Shock: Banks Tightened Sharply in 2020-Q2; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/sloos_ci_small_spy_quarterly_latest.parquet"
+  ]
+}

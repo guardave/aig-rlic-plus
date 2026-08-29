@@ -1,0 +1,12 @@
+{
+  "chart_name": "hero",
+  "pair_id": "mfg_new_orders_spy",
+  "generated_at": "2026-08-29T13:04:13.601953+00:00",
+  "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
+  "caption": "Manufacturers' new-orders level and SPY with NBER recession bands.",
+  "narrative_alignment_note": "Manufacturers' new-orders level and SPY with NBER recession bands.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/mfg_new_orders_spy_monthly_latest.parquet"
+  ]
+}

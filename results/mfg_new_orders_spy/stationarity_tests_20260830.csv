@@ -1,0 +1,13 @@
+variable,test,statistic,p_value,lags,conclusion
+mfg_new_orders,ADF,-2.3810643165919743,0.14715234085649298,6,unit_root_not_rejected
+mfg_new_orders,KPSS,2.232881685392551,0.01,11,nonstationary
+mfg_new_orders_yoy,ADF,-4.260704002887083,0.0005192073927736179,16,stationary
+mfg_new_orders_yoy,KPSS,0.13731246633100264,0.1,11,stationary_not_rejected
+mfg_new_orders_mom,ADF,-6.115583223927954,9.111652237266197e-08,5,stationary
+mfg_new_orders_mom,KPSS,0.13270516835979018,0.1,8,stationary_not_rejected
+mfg_new_orders_3m,ADF,-4.336282546581183,0.00038415622782997795,15,stationary
+mfg_new_orders_3m,KPSS,0.13413430716763033,0.1,9,stationary_not_rejected
+mfg_new_orders_yoy_zscore_60m,ADF,-4.107786499881419,0.000940216542192226,17,stationary
+mfg_new_orders_yoy_zscore_60m,KPSS,0.144946458192641,0.1,11,stationary_not_rejected
+spy_ret,ADF,-10.785927193394325,2.1943841497941584e-19,2,stationary
+spy_ret,KPSS,0.13592445998839872,0.1,3,stationary_not_rejected

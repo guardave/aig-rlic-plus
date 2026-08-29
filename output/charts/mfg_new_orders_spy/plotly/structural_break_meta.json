@@ -1,0 +1,12 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "mfg_new_orders_spy",
+  "generated_at": "2026-08-29T13:04:13.936612+00:00",
+  "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
+  "caption": "Proxy check for large changes in the new-orders/SPY relationship.",
+  "narrative_alignment_note": "Proxy check for large changes in the new-orders/SPY relationship.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/structural_break_mfg_new_orders_spy.json"
+  ]
+}
