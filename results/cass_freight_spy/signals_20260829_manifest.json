@@ -1,0 +1,33 @@
+{
+  "file": "signals_20260829.parquet",
+  "pair_id": "cass_freight_spy",
+  "produced_by": "scripts/pair_pipeline_cass_freight_spy.py",
+  "generated_at": "2026-08-29T09:18:59Z",
+  "columns": {
+    "cass_freight_pct_yoy": "tournament-eligible signal derived solely from Cass Freight (cass_freight_pct_yoy)",
+    "cass_freight_pct_mom": "tournament-eligible signal derived solely from Cass Freight (cass_freight_pct_mom)",
+    "cass_freight_3m_pct": "tournament-eligible signal derived solely from Cass Freight (cass_freight_3m_pct)",
+    "cass_freight_6m_pct": "tournament-eligible signal derived solely from Cass Freight (cass_freight_6m_pct)",
+    "cass_freight_dev_trend_pct": "tournament-eligible signal derived solely from Cass Freight (cass_freight_dev_trend_pct)",
+    "cass_freight_zscore_60m": "tournament-eligible signal derived solely from Cass Freight (cass_freight_zscore_60m)",
+    "cass_freight_yoy_zscore_60m": "tournament-eligible signal derived solely from Cass Freight (cass_freight_yoy_zscore_60m)",
+    "cass_freight_accel_pct": "tournament-eligible signal derived solely from Cass Freight (cass_freight_accel_pct)",
+    "cass_freight_contraction": "tournament-eligible signal derived solely from Cass Freight (cass_freight_contraction)",
+    "hmm_2state_prob_stress": "tournament-eligible signal derived solely from Cass Freight (hmm_2state_prob_stress)",
+    "markov_regime_2state": "tournament-eligible signal derived solely from Cass Freight (markov_regime_2state)"
+  },
+  "assertions": [
+    {
+      "description": "COVID YoY collapse present",
+      "filter": "2020-05-31",
+      "column": "cass_freight_pct_yoy",
+      "check": "value < -20"
+    },
+    {
+      "description": "2022-24 freight recession",
+      "filter": "2022-06..2024-06",
+      "column": "cass_freight_pct_yoy",
+      "check": "min < -5"
+    }
+  ]
+}

@@ -8,13 +8,13 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "SPY performance by concurrent Cass Freight YoY-growth quartile: Sharpe (left) and annualized return (right). The pattern is procyclical and near-monotonic \u2014 Q4 (strongest freight) carries the best Sharpe (1.39, 18.6% ann.) and Q1 (weakest) the worst (0.80). Descriptive, concurrent quartiles \u2014 not a tradable lagged signal.",
-  "narrative_alignment_note": "VIZ-QR1 dual-panel from regime_quartile_returns.csv; values re-read at gen time; procyclical (Q4 best) framing.",
+  "caption": "SPY performance by Cass Freight growth quartile (concurrent, descriptive): Sharpe and annualized return. The gradient is broadly procyclical \u2014 Sharpe is lowest in the weakest-freight quartile (Q1 0.34) and highest in the strongest (Q4 1.15), with a mild non-monotonicity between Q2 (1.00) and Q3 (0.88). This matches the procyclical winner (long SPY when freight is not contracting). Descriptive, not a forecast.",
+  "narrative_alignment_note": "VIZ-QR1 dual-panel from regime_quartile_returns.csv; broadly procyclical gradient with honest note on the Q2\u2013Q3 wobble.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/cass_freight_spy/regime_quartile_returns.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-05T22:29:49.908755+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+  "generated_at": "2026-08-29T09:09:57.663742+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

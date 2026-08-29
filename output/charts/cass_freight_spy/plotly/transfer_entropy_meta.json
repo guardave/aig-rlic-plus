@@ -7,13 +7,13 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Transfer entropy between Cass Freight growth and SPY returns (tercile bins, 500 permutations). Neither direction is significant at 5% (Cass Freight \u2192 SPY p = 0.06, marginal; reverse p = 0.42) \u2014 the nonlinear channel is as empty as the linear one.",
-  "narrative_alignment_note": "Two-bar TE comparison; forward p=0.06 disclosed as marginal-but-n.s.",
+  "caption": "Transfer entropy between Cass Freight YoY and SPY returns (tercile bins, 500 permutations). Forward p = 0.44, reverse p = 0.67; neither direction clears 5% \u2014 no non-linear channel rescues the indicator, consistent with the absent forward Granger result.",
+  "narrative_alignment_note": "Two-bar TE comparison; no significant flow either way.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/core_models_20260705/transfer_entropy.csv"
+    "results/cass_freight_spy/core_models_20260829/transfer_entropy.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-05T22:29:58.836169+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+  "generated_at": "2026-08-29T09:09:57.941008+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

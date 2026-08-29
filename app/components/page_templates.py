@@ -594,6 +594,20 @@ def _format_scalar(value: Any, ndp: int = 2, default: str = "N/A") -> str:
 # ---------------------------------------------------------------------------
 # STORY PAGE
 # ---------------------------------------------------------------------------
+def _dd_kpi_delta(winner: dict) -> tuple[str | None, str]:
+    """Step C #197 (Alex_UK): colour the Max Drawdown KPI delta GREEN when the
+    strategy's drawdown is shallower (less negative) than buy-and-hold, RED when
+    deeper. Returns (delta_text, delta_color) for st.metric. Falls back to the
+    prior 'vs X B&H' text when raw values are unavailable."""
+    dd = winner.get("oos_max_drawdown")
+    bh = winner.get("bh_max_drawdown")
+    if isinstance(dd, (int, float)) and isinstance(bh, (int, float)) and bh != 0:
+        gap_pp = (float(dd) - float(bh)) * 100.0  # >0 => strategy DD shallower => better
+        return f"{gap_pp:+.1f}pp vs B&H", "normal"  # 'normal' => green for positive
+    bh_fmt = _format_ratio_pct(bh)
+    return (f"vs {bh_fmt} B&H" if bh_fmt != "N/A" else None), "inverse"
+
+
 def render_story_page(pair_id: str, config: Any | None = None) -> None:
     """Render the canonical Story page for ``pair_id``.
 
@@ -772,8 +786,8 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
         {
             "label": "Max Drawdown",
             "value": max_dd,
-            "delta": f"vs {bh_dd} B&H" if bh_dd != "N/A" else None,
-            "delta_color": "inverse",
+            "delta": _dd_kpi_delta(winner)[0],
+            "delta_color": _dd_kpi_delta(winner)[1],
         },
         {
             "label": "Signal",
@@ -1446,8 +1460,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
          "delta": _headline_sharpe_delta},
         {"label": "OOS Return", "value": oos_return, "delta": "annualized"},
         {"label": "Max Drawdown", "value": max_dd,
-         "delta": f"vs {bh_dd} B&H" if bh_dd != "N/A" else None,
-         "delta_color": "inverse"},
+         "delta": _dd_kpi_delta(winner)[0],
+         "delta_color": _dd_kpi_delta(winner)[1]},
         {"label": "Turnover", "value": f"~{float(turnover):.1f}/yr" if turnover else "N/A"},
         # #158 (KS): column-tolerance fallback — some winner rows carry the
         # win rate under the sibling key `win_rate` rather than the OOS-specific

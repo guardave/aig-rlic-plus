@@ -1,0 +1,39 @@
+{
+  "pair_id": "cass_freight_spy",
+  "artifact": "strategy_returns_20260829.csv",
+  "produced_by": "scripts/pair_pipeline_cass_freight_spy.py",
+  "rule": "ECON-SR1",
+  "source": "pipeline_native_derivation (same code path as tournament evaluation)",
+  "returns_file": "/workspaces/aig-rlic-plus/data/cass_freight_spy_monthly_latest.parquet",
+  "coverage_start": "1993-02-28",
+  "coverage_end": "2026-07-31",
+  "frequency": "monthly",
+  "oos_start": "2018-04-30",
+  "oos_end": "2026-07-31",
+  "position_semantics": "position on row t = return-accrual weight for month t; signal lagged 9 month(s); strategy_return = position * bh_return",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.299862,
+      "reported_winner_summary": 1.2999,
+      "diff": -3.8e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.194477,
+      "reported_winner_summary": -0.1945,
+      "diff": 2.3e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.173975,
+      "reported_winner_summary": 0.174,
+      "diff": -2.5e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-08-29T08:40:54Z",
+  "generated_by": "Econ Evan (feat260705_cass_freight_spy)"
+}

@@ -21,9 +21,9 @@ from __future__ import annotations
 # ─── Long-form display names (canonical) ──────────────────────────────────
 
 INDICATOR_NAMES: dict[str, str] = {
-    "indpro": "Industrial Production",
-    "indpro_spy": "Industrial Production",
-    "indpro_xlp": "Industrial Production",
+    "indpro": "Industrial Production (INDPRO)",
+    "indpro_spy": "Industrial Production (INDPRO)",
+    "indpro_xlp": "Industrial Production (INDPRO)",
     "permit_spy": "Building Permits",
     "vix_vix3m_spy": "VIX/VIX3M Ratio",
     "hy_ig_spy": "HY-IG Credit Spread",

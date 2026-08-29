@@ -9,13 +9,13 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Winner-strategy annualized Sharpe within each canonical stress episode. All are marked 'outside OOS window' \u2014 the 36-month OOS (2023-06 onward) postdates dot-com, GFC, COVID and the 2015\u201316 China slowdown. This is the short-history durability caveat in visual form: no crisis stress-test is possible.",
-  "narrative_alignment_note": "Three-state encoding; all episodes insufficient_data (outside OOS).",
+  "caption": "Winner-strategy annualized Sharpe within each canonical stress episode. Only 1 of 4 (COVID) falls inside the 2018+ OOS window; dot-com, GFC and China 2015 predate the OOS split and are in-sample for the strategy (insufficient data). The full 1990+ indicator history now covers dot-com and GFC on the history-zoom charts, but the STRATEGY cannot be scored there. This limited evaluable coverage is why durability is 'conditionally_durable'.",
+  "narrative_alignment_note": "Three-state encoding; only COVID is inside the 2018+ OOS window; dot-com/GFC in-sample for the strategy despite the longer history.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/cass_freight_spy/subperiod_sharpe.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-05T22:30:12.126679+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+  "generated_at": "2026-08-29T09:09:58.812515+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

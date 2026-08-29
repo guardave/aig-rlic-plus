@@ -1,0 +1,35 @@
+{
+  "pair": "cass_freight_spy",
+  "run_date": "20260829",
+  "frozen": false,
+  "granularity": "months L1..12 tradable (L0 diagnostic-only in lead_correlation; ECON-LL1/LA1)",
+  "freq_native": "M",
+  "design_note": "Native monthly; lead L = calendar-month shift on month-end signals. L0 excluded from tradable grid (Cass ~2-week publication lag).",
+  "oos_start": "2018-04-30",
+  "is_end": "2018-03-31",
+  "input_file": "/workspaces/aig-rlic-plus/data/cass_freight_spy_monthly_latest.parquet",
+  "input_sha256": "sha256:5716acb37f4fc1f9",
+  "lead_correlation_file": "cass_freight_spy/lead_correlation_20260829.csv",
+  "lead_tournament_file": "cass_freight_spy/lead_tournament_20260829.csv",
+  "published_winner": {
+    "signal": "cass_freight_contraction",
+    "lead": 9,
+    "oos_sharpe": 1.2999
+  },
+  "L_star": 3,
+  "best_oos_sharpe_at_grid": 1.4724,
+  "gate_decision": "CHARTS-ONLY",
+  "assertions": [
+    "tradable lead grid is L1..12 (L0 non-tradable, pub-lag floor)",
+    "main tournament scans the full L1..12 grid -> published winner is the global lead max",
+    "ECON-LT1 gate: L*=3 -> CHARTS-ONLY"
+  ],
+  "short_history_caveat": "OOS <5yr -> winner is found-in-search; lead-sweep peaks are high-variance.",
+  "seasonally_contaminated_signals": [
+    "accel",
+    "level_zscore_60m",
+    "mom",
+    "mom3m",
+    "mom6m"
+  ]
+}
