@@ -1065,6 +1065,24 @@ class StrategyConfig:
         "L7 lead is a one-lead spike. No hold-out test has been run yet."
     )
 
+    # Step C #202 (KS): rows for `yoy`/`T4_zero`/L7 and `diff_12m`/`T4_zero`/L7
+    # post identical KPIs. Rendered as an st.info note under the leaderboard via
+    # the LEADERBOARD_NOTE_MD hook in render_strategy_page (reads this attribute
+    # off STRATEGY_CONFIG). Explains it is mathematically expected, not a bug.
+    LEADERBOARD_NOTE_MD = (
+        "**Why some rows share identical numbers.** A few rows show the *same* "
+        "Sharpe, return, drawdown, turnover and win rate as another row with a "
+        "different signal name — e.g. `yoy` and `diff_12m` (both at the `T4_zero` "
+        "threshold, 7-month lead), and likewise `mom3m` and `diff_3m`. This is "
+        "expected, not a data error. At a **zero** threshold, a 12-month *percentage* "
+        "change and a 12-month *point* change of the same index cross zero at exactly "
+        "the same moment — both are really asking \"is HMI above where it was 12 "
+        "months ago?\" — so they hold identical positions and post identical results. "
+        "They are the same rule under two names: they pad the raw combination count "
+        "but are not independent strategies. (Only the zero threshold does this; "
+        "percentile and z-score thresholds separate the two transforms again.)"
+    )
+
     PLAIN_ENGLISH = (
         "The best rule from a 17,856-combination "
         "monthly search: hold the S&P 500 (SPY) when the 12-month change "
