@@ -1,0 +1,13 @@
+variable,test,statistic,p_value,lags,conclusion
+rsxfs,ADF,1.578583971671643,0.9977918821476108,11,unit_root_not_rejected
+rsxfs,KPSS,2.9557698862481576,0.01,12,nonstationary
+rsxfs_yoy,ADF,-4.014447622026163,0.0013367203254898254,12,stationary
+rsxfs_yoy,KPSS,0.14079504609803925,0.1,11,stationary_not_rejected
+rsxfs_mom,ADF,-4.899662905914434,3.49270878370067e-05,9,stationary
+rsxfs_mom,KPSS,0.10010708783766399,0.1,10,stationary_not_rejected
+rsxfs_3m,ADF,-4.37088473740904,0.00033410148700065124,12,stationary
+rsxfs_3m,KPSS,0.13595709571199982,0.1,3,stationary_not_rejected
+rsxfs_yoy_zscore_60m,ADF,-3.7178898219034244,0.0038684399744417456,12,stationary
+rsxfs_yoy_zscore_60m,KPSS,0.09724038515135668,0.1,10,stationary_not_rejected
+spy_ret,ADF,-11.004120034073676,6.569370391915934e-20,2,stationary
+spy_ret,KPSS,0.1487272075320559,0.1,3,stationary_not_rejected

@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_dotcom",
+  "pair_id": "rsxfs_spy",
+  "generated_at": "2026-08-27T09:22:10.962204+00:00",
+  "generated_by": "scripts/generate_charts_rsxfs_spy.py",
+  "caption": "Dot-Com Recession: Consumer Spending Softened; gray bands are NBER recessions.",
+  "narrative_alignment_note": "Dot-Com Recession: Consumer Spending Softened; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/rsxfs_spy_monthly_latest.parquet"
+  ]
+}

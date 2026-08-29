@@ -113,6 +113,7 @@ PAGE_ROUTING = {
     "unrate_spy": "pages/27_unrate_spy",
     "nhs_saar_spy": "pages/28_nhs_saar_spy",
     "housing_starts_spy": "pages/29_housing_starts_spy",
+    "rsxfs_spy": "pages/30_rsxfs_spy",
 }
 
 

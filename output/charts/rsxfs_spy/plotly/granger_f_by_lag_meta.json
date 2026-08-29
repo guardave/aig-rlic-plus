@@ -1,0 +1,12 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "rsxfs_spy",
+  "generated_at": "2026-08-27T09:22:10.716412+00:00",
+  "generated_by": "scripts/generate_charts_rsxfs_spy.py",
+  "caption": "Granger p-values by lag for retail-sales growth predicting SPY returns.",
+  "narrative_alignment_note": "Granger p-values by lag for retail-sales growth predicting SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/rsxfs_spy/core_models_20260827/granger_causality.csv"
+  ]
+}
