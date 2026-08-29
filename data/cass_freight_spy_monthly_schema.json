@@ -1,15 +1,15 @@
 {
   "pair_id": "cass_freight_spy",
-  "parquet_path": "data/cass_freight_spy_monthly_20160131_20260531.parquet",
+  "parquet_path": "data/cass_freight_spy_monthly_19900131_20260731.parquet",
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-05T19:13:16Z",
+  "generated_at": "2026-08-29T08:39:34Z",
   "columns": {
     "date": {
       "dtype": "datetime64[ns]",
       "unit": "date",
       "display_name": "Date",
       "direction": "neutral",
-      "description": "Month-end date index (parquet index column); spans 2016-01-31 through 2026-05-31."
+      "description": "Month-end date index (parquet index column); spans 1990-01-31 through 2026-07-31."
     },
     "cass_freight_idx": {
       "dtype": "float64",

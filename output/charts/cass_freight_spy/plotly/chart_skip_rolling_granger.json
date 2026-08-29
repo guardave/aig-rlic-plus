@@ -2,7 +2,7 @@
   "chart_name": "rolling_granger",
   "pair_id": "cass_freight_spy",
   "skipped_by": "VIZ-CP1-G",
-  "reason": "ECON-CP2 artifacts intentionally absent: regime_story not set in results/cass_freight_spy/signal_scope.json. No upstream result file exists to chart.",
-  "generated_at": "2026-07-05T22:30:17.565889+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+  "reason": "ECON-CP2 artifacts intentionally absent for this pair: regime_story=false in results/cass_freight_spy/signal_scope.json (CP2 skipped). No upstream result file exists to chart.",
+  "generated_at": "2026-08-29T09:09:59.171966+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

@@ -8,14 +8,13 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "All 13,524 tournament combinations (OOS Sharpe vs annual turnover; color = max drawdown). 9,556 pass validity; Buy & Hold SPY sits at Sharpe 1.67. The published winner (green star, 2.49) is the best among seasonally-CLEAN signals \u2014 a higher raw combo exists but rests on a seasonally-contaminated NSA transform and is excluded. Short 36-month OOS: a found-in-search candidate.",
-  "narrative_alignment_note": "Tournament scatter; winner star marks the clean-selected winner, not global max.",
+  "caption": "All 16,080 tournament combinations (OOS Sharpe vs annual turnover; color = max drawdown). 11,501 pass validity; the Buy & Hold SPY diamond sits at Sharpe 0.93. The top raw scorers include seasonally-contaminated combos excluded from selection; the published winner is the best seasonally-CLEAN combo (ECON-T3 cascade).",
+  "narrative_alignment_note": "Standard tournament scatter; benchmark via signal=='BENCHMARK' (ECON-T4).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/tournament_results_20260705.csv",
-    "results/cass_freight_spy/winner_summary.json"
+    "results/cass_freight_spy/tournament_results_20260829.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-05T22:30:04.290172+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+  "generated_at": "2026-08-29T09:09:58.630789+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

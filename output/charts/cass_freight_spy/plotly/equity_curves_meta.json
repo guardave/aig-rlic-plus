@@ -3,44 +3,19 @@
   "pair_id": "cass_freight_spy",
   "palette_id": "okabe_ito_2026",
   "rules_applied": [
-    "ECON-SR1",
     "VIZ-IC1",
+    "VIZ-NBER1",
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Out-of-sample cumulative growth per dollar: winner strategy ends at 1.97 vs 1.88 for buy-and-hold SPY (2023-06-30 to 2026-05-31). Reconciled canonical strategy returns (ECON-SR1). The 36-month OOS window contains no NBER recession. Found-in-search candidate \u2014 short (<5yr) OOS.",
-  "narrative_alignment_note": "Winner-vs-B&H OOS growth; endpoints re-read from canonical series.",
+  "caption": "Cumulative growth of 1.00 for the saved strategy returns and buy-and-hold SPY. The OOS window is now 100 months (\u22488.3yr, clearing the 5-year floor); the rule raises Sharpe (1.30 vs 0.93) mostly by cutting drawdown, but the median valid combo (0.77) UNDERPERFORMS B&H, the bootstrap p (0.085) is NOT significant at 5%, forward Granger causality is absent, and this is found-in-search. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Strategy series from strategy_returns; metrics from winner_summary; fragility in title.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/strategy_returns_20260705.csv",
+    "results/cass_freight_spy/strategy_returns_20260829.csv",
     "results/cass_freight_spy/winner_summary.json"
   ],
-  "reconciliation": {
-    "oos_sharpe": {
-      "computed": 2.494379,
-      "reported_winner_summary": 2.4944,
-      "diff": -2.1e-05,
-      "tolerance": 0.01,
-      "verdict": "PASS",
-      "convention": "standard"
-    },
-    "oos_max_drawdown": {
-      "computed": -0.02406,
-      "reported_winner_summary": -0.0241,
-      "diff": 4e-05,
-      "tolerance": 0.005,
-      "verdict": "PASS",
-      "convention": "standard"
-    },
-    "oos_ann_return": {
-      "computed": 0.232022,
-      "reported_winner_summary": 0.232,
-      "diff": 2.2e-05,
-      "tolerance": 0.006,
-      "verdict": "PASS",
-      "convention": "arithmetic mean*12"
-    }
-  },
-  "generated_at": "2026-07-05T22:30:17.581793+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+  "reconciliation": null,
+  "generated_at": "2026-08-29T09:09:58.037835+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

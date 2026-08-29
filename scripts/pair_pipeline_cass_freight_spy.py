@@ -56,7 +56,7 @@ PAIR_ID = "cass_freight_spy"
 INDICATOR_NAME = "Cass Freight Index (Shipments)"
 TARGET_NAME = "SPY"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20260705"
+DATE_TAG = "20260829"
 COST_BPS = 5  # equity ETF per ECON-T2 / target-class table
 
 BASE_DIR = "/workspaces/aig-rlic-plus"
@@ -147,7 +147,8 @@ def ann_metrics(rets):
 @log_stage("1_load_verify")
 def stage_load():
     df = pd.read_parquet(DATA_PATH)
-    assert df.shape == (125, 21), f"unexpected shape {df.shape}"
+    # Step C #198: history extended 2016->1990 (Data Master splice). Panel now ~439 rows.
+    assert df.shape[1] == 21 and df.shape[0] >= 400, f"unexpected shape {df.shape}"
     # Known-episode checks (Dana's handoff): COVID freight collapse + 2022-24 recession
     assert -25.0 < df.loc["2020-05-31", "cass_freight_pct_yoy"] < -20.0, "COVID YoY collapse missing"
     assert df.loc["2022-06-30":"2024-06-30", "cass_freight_pct_yoy"].min() < -5.0, "freight recession missing"
@@ -703,20 +704,24 @@ def stage_tournament(df):
     oos_start = work.index[-oos_n]
     is_end = work.index[-(oos_n + 1)]
     oos_end = work.index[-1]
+    short_oos = oos_n < 60  # 5yr reliability floor
     print(f"  Sample (SPY-bound): {n_months} months {work.index[0].date()} -> {oos_end.date()}")
-    print(f"  OOS (v1_max36_25pct_cap120): {oos_n} months, {oos_start.date()} -> {oos_end.date()} "
-          f"(<5yr -> FOUND-IN-SEARCH; treat winner as CANDIDATE)")
+    print(f"  OOS (v1_max36_25pct_cap120): {oos_n} months ({oos_n/12:.1f}yr), {oos_start.date()} -> "
+          f"{oos_end.date()} " + ("(<5yr -> FOUND-IN-SEARCH)" if short_oos else "(>=5yr floor)"))
     split = {
         "owner": "evan", "split_policy_id": "v1_max36_25pct_cap120",
         "in_sample_end": is_end.strftime("%Y-%m-%d"), "oos_start": oos_start.strftime("%Y-%m-%d"),
         "oos_end": oos_end.strftime("%Y-%m-%d"), "sample_size_months": n_months,
         "justification": (
-            f"Policy v1_max36_25pct_cap120 on the full Cass history ({n_months} months, "
-            f"2016-01 onward; SPY covers the entire Cass window). "
-            f"min(max(36, round({n_months}*0.25)), 120) = {oos_n} months. Short-history pair: "
-            f"the {oos_n}-month (<5yr) OOS window is below the 5yr reliability floor -> any winner is "
-            f"found-in-search with an inflated/high-variance Sharpe (Dana Phase-0 flag). No structural-break "
-            f"exclusion applied (full sample retained given the already-short span)."),
+            f"Policy v1_max36_25pct_cap120 on the full Cass history ({n_months} months, 1990-01 onward "
+            f"via the Data Master splice, Step C #198; SPY bounds the aligned panel from 1993). "
+            f"min(max(36, round({n_months}*0.25)), 120) = {oos_n} months = {oos_n/12:.1f}yr OOS, "
+            f"{'below' if short_oos else 'above'} the 5yr reliability floor. "
+            + ("Short-history pair: any winner is found-in-search with an inflated/high-variance Sharpe."
+               if short_oos else
+               "After the #198 history extension the OOS window itself clears the 5yr floor; the winner is "
+               "still found-in-search (the median valid combo underperforms buy-and-hold and the L9 lead is a "
+               "likely search artifact, issue #28), but no longer for a short-OOS reason.")),
     }
     with open(os.path.join(RESULTS_DIR, "oos_split_record.json"), "w") as f:
         json.dump(split, f, indent=2)
@@ -758,7 +763,12 @@ def stage_tournament(df):
         "sampling": "exhaustive over the FULL tradable lead grid L1..L12 (no coarse subset)",
         "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
         "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 (L1 real-time floor; Cass ~2-week pub lag)",
-        "short_sample_flag": f"OOS window {oos_n} months (<5yr) — winner is found-in-search / CANDIDATE, not validated",
+        "short_sample_flag": (
+            f"OOS window {oos_n} months (<5yr) — winner is found-in-search / CANDIDATE, not validated"
+            if oos_n < 60 else
+            f"OOS window {oos_n} months ({oos_n/12:.1f}yr, clears the 5yr floor post-#198) — winner is still "
+            f"found-in-search (median valid combo underperforms buy-and-hold; L9 lead a likely artifact, #28), "
+            f"not validated"),
         "nsa_flag": "NSA source: MoM/3M/6M/level-zscore signals are seasonally contaminated; YoY-family preferred (seasonally_clean column flags each row)",
         "cost_note": "returns are gross of costs; 5bps sensitivity in tournament_validation",
         "assertions": ["top strategy oos_sharpe > bottom strategy oos_sharpe", "all oos_sharpe finite",
@@ -1341,6 +1351,10 @@ def main():
         "lead_tournament_file": f"{PAIR_ID}/lead_tournament_{DATE_TAG}.csv",
         "published_winner": {"signal": SIGNAL_COLS[winner["signal"]], "lead": int(winner["lead_months"]),
                              "oos_sharpe": round(float(winner["oos_sharpe"]), 4)},
+        # NSA-contaminated signal codes excluded from selection (complement of the
+        # seasonally-clean set); consumed by gate_consistency to validate the winner
+        # against the CLEAN combos only. Restored after the #198 re-run dropped it.
+        "seasonally_contaminated_signals": sorted(set(SIGNAL_COLS) - SEASONALLY_CLEAN),
         "L_star": L_star, "best_oos_sharpe_at_grid": round(float(best_at_grid), 4) if pd.notna(best_at_grid) else None,
         "gate_decision": gate,
         "assertions": ["tradable lead grid is L1..12 (L0 non-tradable, pub-lag floor)",

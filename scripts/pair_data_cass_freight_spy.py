@@ -52,10 +52,19 @@ np.random.seed(42)  # no sampling occurs; seed set per SOP anyway
 
 PAIR_ID = "cass_freight_spy"
 CASS_SERIES = "FRGSHPUSM649NCIS"
-START_DATE = "2016-01-01"   # full FRED Cass Freight history
-CONTEXT_START = "2014-01-01"  # context series fetched earlier, reindexed to cass idx
-END_DATE = "2026-05-31"
-DATE_TAG = "20260705"
+# Step C #198 (Alex_UK): FRED only publishes Cass from 2016-01, but the project's
+# curated Data Master.xlsx sheet 'CassFreightIndexShippments' carries the full index
+# back to 1990-01 (base Jan1990=1.0). Validated: Data Master and FRED are IDENTICAL on
+# the 2016-2025 overlap (116 months, max |diff| = 0.00000), so the long history is
+# splice-safe. The aligned panel is bounded by SPY inception (1993).
+START_DATE = "1993-01-01"     # SPY inception bounds the aligned panel
+CONTEXT_START = "1993-01-01"  # context series reindexed to cass idx
+END_DATE = "2026-07-31"
+DATE_TAG = "20260829"
+MASTER_XLSX = "/workspaces/aig-rlic-plus/data/Data Master.xlsx"
+MASTER_SHEET = "CassFreightIndexShippments"
+
+from dotenv import load_dotenv  # noqa: E402 — needed before fetch_fred runs (Step C #198 moved sourcing earlier)
 
 BASE_DIR = "/workspaces/aig-rlic-plus"
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -113,10 +122,29 @@ def fetch_yahoo(ticker, col_name):
     return s
 
 
+def read_cass_master():
+    """Step C #198: Cass Freight index 1990+ from Data Master, spliced with the
+    FRED tail for months Data Master does not yet carry (validated identical in overlap)."""
+    import openpyxl
+    wb = openpyxl.load_workbook(MASTER_XLSX, read_only=True, data_only=True)
+    ws = wb[MASTER_SHEET]
+    rows = [(r[0], r[1]) for r in ws.iter_rows(min_row=2, values_only=True)
+            if r and r[0] is not None and r[1] is not None and hasattr(r[0], "year")]
+    dm = pd.Series({pd.Timestamp(d): float(v) for d, v in rows},
+                   name="cass_freight_idx").sort_index()
+    fred = fetch_fred(CASS_SERIES, "cass_freight_idx", start="1990-01-01")
+    tail = fred[fred.index > dm.index.max()]
+    out = pd.concat([dm, tail]).sort_index()
+    out.name = "cass_freight_idx"
+    print(f"  [MASTER+FRED] cass_freight_idx: {len(out)} obs, {out.index.min().date()} to "
+          f"{out.index.max().date()} (Data Master to {dm.index.max().date()}, +{len(tail)} FRED tail)")
+    return out
+
+
 print("=" * 70)
 print("STAGE 1: SOURCING")
 print("=" * 70)
-cass = fetch_fred(CASS_SERIES, "cass_freight_idx")
+cass = read_cass_master()
 unrate = fetch_fred("UNRATE", "unrate", start=CONTEXT_START)
 dgs10 = fetch_fred("DGS10", "dgs10", start=CONTEXT_START)
 fed_funds = fetch_fred("DFF", "fed_funds", start=CONTEXT_START)

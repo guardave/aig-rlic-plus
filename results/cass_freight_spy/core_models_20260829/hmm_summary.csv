@@ -1,0 +1,3 @@
+state_label,mean_return,vol,duration_days,frequency_pct,mean_yoy_growth
+stress,0.007295,0.047863,136,31.85,4.247
+calm,0.010587,0.039704,291,68.15,-1.417

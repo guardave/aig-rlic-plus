@@ -1,0 +1,60 @@
+{
+  "file": "tournament_results_20260829.csv",
+  "pair_id": "cass_freight_spy",
+  "grid": {
+    "signals": [
+      "yoy",
+      "mom",
+      "mom3m",
+      "mom6m",
+      "dev_trend",
+      "level_zscore_60m",
+      "yoy_zscore_60m",
+      "accel",
+      "contraction",
+      "hmm_stress",
+      "markov_regime"
+    ],
+    "thresholds": "T1_fixed_p{25,50,75}, T2_roll_p{25,75}, T3_zscore_{\u00b11.0,\u00b11.5}, T4_zero (growth signals)",
+    "strategies": [
+      "P1_long_cash_{pro,counter}",
+      "P2_signal_strength_{pro,counter}",
+      "P3_long_short_{pro,counter}"
+    ],
+    "leads_months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "lookbacks": [
+      "LB24",
+      "LB36",
+      "LB60",
+      "LB_NA"
+    ]
+  },
+  "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
+  "total_strategy_rows": 16080,
+  "valid_strategy_rows": 11501,
+  "sampling": "exhaustive over the FULL tradable lead grid L1..L12 (no coarse subset)",
+  "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
+  "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 (L1 real-time floor; Cass ~2-week pub lag)",
+  "short_sample_flag": "OOS window 100 months (<5yr) \u2014 winner is found-in-search / CANDIDATE, not validated",
+  "nsa_flag": "NSA source: MoM/3M/6M/level-zscore signals are seasonally contaminated; YoY-family preferred (seasonally_clean column flags each row)",
+  "cost_note": "returns are gross of costs; 5bps sensitivity in tournament_validation",
+  "assertions": [
+    "top strategy oos_sharpe > bottom strategy oos_sharpe",
+    "all oos_sharpe finite",
+    "exactly one BENCHMARK row, valid=False"
+  ],
+  "generated_at": "2026-08-29T08:40:54Z"
+}

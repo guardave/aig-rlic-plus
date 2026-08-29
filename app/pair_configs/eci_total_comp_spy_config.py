@@ -891,7 +891,16 @@ EVIDENCE_METHOD_BLOCKS = {
         "every tested quarterly lag; ECI predicts SPY at none.*\n\n"
         "All statistics computed on QUARTERLY data, analytical sample "
         "2001-Q1 → 2026-Q1 (~101 quarters), from "
-        "`results/eci_total_comp_spy/core_models_20260706/`."
+        "`results/eci_total_comp_spy/core_models_20260706/`.\n\n"
+        "**Read this page before the Strategy page.** The Strategy page "
+        "reports an out-of-sample Sharpe of 1.60 for a searched rule — do "
+        "NOT read that as a validated predictive edge. These tests say the "
+        "indicator is LAGGING (the market leads wages), the median searched "
+        "rule (0.72) underperforms buy-and-hold (0.80), and the winner is "
+        "not statistically significant (bootstrap p = 0.12). The 1.60 is a "
+        "found-in-search CANDIDATE whose only defensible virtue is drawdown "
+        "control (-4.3% vs -23.9%); its Sharpe is best read as volatility "
+        "avoidance, not forecasting skill."
     ),
     "plain_english": (
         "This section shows the statistical evidence on whether wage growth "
@@ -941,6 +950,46 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2_labels": ["Local Projections", "Transfer Entropy",
                       "Quantile Regression", "Regime Context (HMM)",
                       "Search Distribution"],
+    # fix Step C #187 — integrated synthesis rendered AFTER the Level-2
+    # sub-tabs (page_templates method_blocks["level2_summary"]). The five+
+    # tests above read as independent silos without a closing bottom line;
+    # this states, in one paragraph, what they jointly conclude. Every claim
+    # traces to results/eci_total_comp_spy/*.
+    "level2_summary": {
+        "title": "What the evidence adds up to",
+        "body": (
+            "Put the tests side by side and they tell one consistent story. "
+            "The correlation battery and the lead view find no clean "
+            "association at any tradeable quarterly horizon (|r| < 0.2 across "
+            "leads L0–L8, sign-unstable). Toda-Yamamoto Granger is decisive "
+            "and one-directional: the S&P 500 forecasts wage growth at every "
+            "tested quarterly lag (p = 0.014/0.013/0.004/0.003), while wage "
+            "growth forecasts the market at none (smallest p = 0.50). The "
+            "pre-whitened CCF adds no lead on either side — only a "
+            "contemporaneous negative echo at offset 0 (r = -0.25). Local "
+            "projections, transfer entropy, and quantile regression each "
+            "fail to rescue a forward-looking reading, and where transfer "
+            "entropy comes closest to significance it is again the REVERSE "
+            "direction (SPY → wages, p = 0.054). The regime work shows only a "
+            "descriptive, sign-unstable concurrent pattern with a flagged "
+            "2009 structural break — and it points countercyclical, opposite "
+            "to the procyclical rule the search selected. The search "
+            "distribution then shows the median valid combo (0.72) "
+            "UNDERPERFORMS buy-and-hold (0.80). **Bottom line:** the tests "
+            "agree that ECI total compensation is a LAGGING, non-predictive "
+            "wage indicator — the market leads wages, not the reverse. The "
+            "strategy on the next page is therefore best understood as a "
+            "searched procyclical overlay on a small quarterly window whose "
+            "only defensible edge is drawdown control, not a validated "
+            "forecasting signal."
+        ),
+        "key_message": (
+            "Every test converges: ECI is lagging and non-predictive (SPY "
+            "leads wages). The next page's rule is a found-in-search "
+            "procyclical overlay whose sole edge is drawdown control — read "
+            "its Sharpe as volatility avoidance, not a forecasting edge."
+        ),
+    },
     "tournament_intro": (
         "The statistical tests above ask whether the indicator *predicts* — "
         "and answer no (the causality runs the other way). The tournament "
@@ -963,7 +1012,10 @@ EVIDENCE_METHOD_BLOCKS = {
         "moves first and wages follow. What remains is the pragmatic "
         "question the tournament answered: the next page shows the one "
         "candidate rule the search surfaced, with every fragility flag "
-        "attached."
+        "attached. Carry one guard-rail across: its 1.60 Sharpe is NOT a "
+        "validated predictive edge — it is a found-in-search candidate on a "
+        "lagging indicator whose defensible virtue is the shallow drawdown, "
+        "so read the Sharpe as volatility avoidance."
     ),
 }
 
@@ -995,7 +1047,76 @@ class StrategyConfig:
         "a risk-adjusted basis in-sample (Sharpe −0.23), and it fails the "
         "standard significance test (bootstrap p = 0.12). Read it as a "
         "candidate overlay found by search — its final exam on untouched "
-        "data has not been run."
+        "data has not been run. And read the Sharpe honestly: on a lagging "
+        "indicator with the causality running the other way, the defensible "
+        "virtue here is the shallow drawdown (-4.3% vs -23.9%), i.e. "
+        "volatility avoidance — not a forecasting edge."
+    )
+
+    # fix Step C #188 — Executive Confidence Summary panel rendered at the TOP
+    # of the Strategy Confidence tab, before the scattered supporting detail
+    # (structural-break note, tournament scatter, sub-period durability).
+    # Templated on phlxsox_spy_config.EXECUTIVE_CONFIDENCE_SUMMARY; same keys,
+    # rendered by page_templates._render_executive_confidence_summary. Every
+    # number is from results/eci_total_comp_spy/* — it restates, never
+    # oversells. The honest verdict is CANDIDATE, and the ONLY defensible
+    # virtue is drawdown control; the Sharpe is volatility avoidance, not a
+    # forecasting edge on what the tests say is a LAGGING indicator.
+    EXECUTIVE_CONFIDENCE_SUMMARY = dict(
+        status="Candidate",
+        status_detail=(
+            "A low-confidence, FOUND-IN-SEARCH candidate on an empirically "
+            "LAGGING indicator — NOT a validated, deployable predictive edge. "
+            "It has not faced a frozen-rule holdout final exam, and it is "
+            "read on a 25-QUARTER out-of-sample window (2020-Q1 → 2026-Q1)."
+        ),
+        strengths=[
+            "Shallow drawdown is the one defensible virtue: max drawdown "
+            "-4.3% vs -23.9% buy-and-hold over the OOS window. Read the "
+            "Sharpe (1.60 vs 0.80) as volatility/drawdown avoidance, not as "
+            "evidence of forecasting skill.",
+            "The winner's OWN lead-curve peaks at its published L6-quarter "
+            "(~18-month) lead rather than at a longer, staler lead, so the "
+            "lead choice is at least internally consistent — not a grid "
+            "artefact.",
+            "In-window return also cleared buy-and-hold (24.1% vs 14.5%, win "
+            "rate 88%), but on only 3 trades — the edge leans almost entirely "
+            "on being short through the 2022 bear.",
+        ],
+        risks=[
+            "The causality runs BACKWARDS. Toda-Yamamoto Granger finds "
+            "ECI → SPY significant at NO quarterly lag while SPY → ECI is "
+            "significant at every lag (1-4); the pre-whitened CCF shows no "
+            "lead on either side. There is no forward-causal mechanism behind "
+            "the rule — the indicator is lagging.",
+            "Tiny out-of-sample sample: 25 QUARTERS — a stronger small-sample "
+            "caveat than any monthly pair; the quarterly Sharpe is "
+            "high-variance and found-in-search by construction.",
+            "Selection / overfitting flags: in-sample Sharpe -0.23 vs 1.60 "
+            "OOS; the median valid combo (0.72) LOST to buy-and-hold (0.80); "
+            "bootstrap p = 0.12 (not significant at 5%).",
+            "Direction contradicts the prior (procyclical vs the "
+            "countercyclical hypothesis, `direction_consistent: false`); the "
+            "signal is regime-contaminated (KPSS reject); a structural break "
+            "is flagged (2009-Q2, sup-F 6.97, p = 0.027); rolling correlation "
+            "is sign-unstable (0.42); durability is only `conditionally_"
+            "durable` on ONE validated episode (COVID, sub-period Sharpe "
+            "0.63); no frozen-rule holdout yet.",
+        ],
+        conclusion=(
+            "In one paragraph: this long/short overlay is a low-confidence, "
+            "found-in-search CANDIDATE on a lagging indicator. Its only "
+            "defensible virtue is drawdown control (-4.3% vs -23.9%); the "
+            "1.60 Sharpe should be read as volatility avoidance, not as a "
+            "predictive edge, because every lead-lag test says the market "
+            "leads wages, not the reverse. It sits on just 25 quarterly "
+            "observations, lost money in-sample (Sharpe -0.23), is not "
+            "statistically significant (bootstrap p = 0.12), trades a "
+            "procyclical direction opposite to the pair's countercyclical "
+            "prior, and has not passed a frozen-rule holdout. Treat it as a "
+            "candidate pattern awaiting its final exam, not proof that wage "
+            "growth times the S&P 500."
+        ),
     )
 
     SIGNAL_RULE_MD = """
@@ -1058,6 +1179,25 @@ No formulas — three steps:
         "rolling points on 25 quarters, the path is noisy by construction — "
         "read it as a stability sniff-test, not confirmation."
     )
+    # fix Step C #189 — clarify the Sub-period Sharpe chart's `insufficient_
+    # data` label so it does not read as "the indicator has no history."
+    # page_templates._render_cross_period_section applies CROSS_PERIOD_CAPTIONS
+    # as a per-chart caption override (rendered bold above the chart).
+    CROSS_PERIOD_CAPTIONS = {
+        "subperiod_sharpe": (
+            "How to read it: each bar is the STRATEGY's Sharpe in a distinct "
+            "historical episode; consistent positive bars would indicate a "
+            "robust signal. Here only COVID (2020) can be scored (Sharpe "
+            "0.63). Dot-com (2000–02) and GFC (2007–09) are marked "
+            "`insufficient_data` — meaning the STRATEGY, not the indicator: "
+            "ECI data exists back to 2001 (and SPY earlier), but the "
+            "strategy's out-of-sample window only begins in 2020-Q1, so there "
+            "are too few usable strategy observations inside those earlier "
+            "episodes to compute a Sharpe. The episodes cannot be scored — "
+            "the data is not missing."
+        ),
+    }
+
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_scatter"
     TOURNAMENT_SCATTER_CAPTION = (
         "What this shows: all 2,336 tournament combinations by annual "
@@ -1078,7 +1218,7 @@ No formulas — three steps:
 5. **Direction contradicts the prior.** The pair was designed around a countercyclical wage-inflation hypothesis; the winner is PROCYCLICAL (`direction_consistent: false`), and the concurrent quartile evidence points the countercyclical way — the search picked the orientation that fit the window.
 6. **Regime-contaminated signal.** The 20-quarter z-score transform fails the KPSS stationarity check (winner stationarity class `regime_contaminated`); the 2021–23 wage surge dominates its recent distribution.
 7. **Structural break flagged; relationship sign-unstable.** Quandt-Andrews FLAGS a break at 2009-Q2 (sup-F 6.97, bootstrap p = 0.027) and rolling-correlation sign-stability is only 0.42 (`sign_unstable`).
-8. **Durability: conditionally durable on ONE episode.** Of the standard stress episodes, only COVID falls inside usable history with data (ann. Sharpe 0.63); dot-com and GFC are `insufficient_data` for the strategy. The short leg has met exactly one bear market (2022).
+8. **Durability: conditionally durable on ONE episode.** Of the standard stress episodes, only COVID can be scored (ann. Sharpe 0.63). Dot-com (2000–02) and GFC (2007–09) show as `insufficient_data` on the sub-period chart — and that label is about the STRATEGY, not the indicator. The ECI indicator itself has history back to 2001 (and SPY well before), but the strategy's out-of-sample window is 2020-Q1 onward, so those pre-2020 episodes contain too few usable STRATEGY observations to compute a Sharpe: the episodes cannot be scored, not that the data does not exist. The short leg has therefore met exactly one bear market (2022).
 
 **What this means:** the honest label is a **found-in-search CANDIDATE on a lagging indicator** — "the best rule we found by searching a small quarterly window, not a rule that has passed an independent test." The prescribed next step is a final exam: freeze this rule and test it once on an untouched window. Given the flags above and the reverse-causality verdict, expectations should be calibrated LOW.
 
@@ -1183,25 +1323,53 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "QUARTERLY data (first quarterly pair); analytical sample 2001-Q1 → "
-        "2026-Q1 (~101 quarters). Out-of-sample split per policy "
-        "v1_max36_25pct_cap120 in native quarterly units: in-sample through "
-        "2019-Q4, out-of-sample 2020-03-31 → 2026-03-31 (25 QUARTERS). "
-        "Sharpe ratios use √4 annualization; leads are in quarters "
-        "(winner L6q ≈ 18 months). SMALL-SAMPLE pair — the 25-quarter OOS "
-        "window makes any winner found-in-search, not validated."
+        "QUARTERLY data (first quarterly pair). Four distinct periods, kept "
+        "separate on purpose:\n\n"
+        "(a) **Full analytical dataset** — 2001-Q1 → 2026-Q1 (~100 "
+        "quarters); the complete span on which the lead-lag statistics are "
+        "computed. (The z-score transforms only warm up once their trailing "
+        "20-quarter window fills, ~2005-06, so early quarters exist as data "
+        "but not as usable signal.)\n\n"
+        "(b) **In-sample / model-development period** — 2001-Q1 → 2019-Q4 "
+        "(75 quarters). This is where candidate rules are BUILT and their "
+        "thresholds calibrated (e.g. the winner's fixed 75th-percentile "
+        "threshold, 0.259, is set on in-sample data). On these data the "
+        "winner's own Sharpe is NEGATIVE (-0.23).\n\n"
+        "(c) **Out-of-sample validation window** — 2020-03-31 → 2026-03-31 "
+        "(25 QUARTERS), split per policy v1_max36_25pct_cap120 in native "
+        "quarterly units. This is where every headline number is scored. "
+        "Twenty-five quarterly observations is a SMALL sample — a stronger "
+        "caveat than any monthly pair.\n\n"
+        "(d) **Research workflow: search → select → validate.** We searched "
+        "2,336 quarterly rule combinations, then SELECTED the winner by "
+        "maximizing Sharpe over the out-of-sample window (c). Because the "
+        "same 25-quarter window is used to pick the winner, it is a "
+        "selection set, not an untouched holdout — which is exactly why the "
+        "winner is labelled found-in-search / CANDIDATE, not validated. The "
+        "final validate step — freezing the rule and scoring it once on a "
+        "genuinely untouched window — has NOT yet been run.\n\n"
+        "Sharpe ratios use √4 annualization; leads are in quarters (winner "
+        "L6q ≈ 18 months)."
     ),
     plain_english=(
         "One QUARTERLY data series (the Employment Cost Index of total "
-        "worker compensation, from 2001) and the S&P 500 ETF (SPY). We "
-        "turned the wage index into growth and z-score transforms, ran "
-        "several independent lead-lag tests (they agree — and point the "
-        "other way: the market predicts wages, wages do not predict the "
-        "market), then searched 2,336 quarterly trading-rule combinations "
-        "on data split so rules were built on pre-2020 history and scored "
-        "on 2020–2026 — just 25 quarterly observations. Every number on "
-        "these pages can be reproduced by one deterministic script, and "
-        "every number is labelled a candidate because the sample is small "
-        "and the indicator is lagging."
+        "worker compensation, from 2001) and the S&P 500 ETF (SPY). It helps "
+        "to keep four things separate. First, the FULL dataset: every "
+        "quarter from 2001 to 2026, which is what the lead-lag tests use. "
+        "Second, the MODEL-DEVELOPMENT (in-sample) period, 2001 through "
+        "2019, where we build the candidate rules and set their thresholds. "
+        "Third, the OUT-OF-SAMPLE window, 2020 to 2026 — just 25 quarters — "
+        "where we score how the rules actually did. Fourth, the WORKFLOW: we "
+        "searched 2,336 quarterly rule combinations, then picked the winner "
+        "by its score on that 2020–2026 window. Because we used that same "
+        "window to choose the winner, it is a candidate found by search, not "
+        "a rule that has passed an independent final exam — that untouched "
+        "hold-out test is still to come. We turned the wage index into "
+        "growth and z-score transforms and ran several independent lead-lag "
+        "tests; they agree, and they point the other way (the market "
+        "predicts wages, not the reverse). Every number on these pages can "
+        "be reproduced by one deterministic script, and every number is "
+        "labelled a candidate because the sample is small and the indicator "
+        "is lagging."
     ),
 )

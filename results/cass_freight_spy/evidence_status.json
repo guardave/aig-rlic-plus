@@ -1,6 +1,6 @@
 {
   "pair_id": "cass_freight_spy",
-  "generated_at": "2026-07-05T19:37:32Z",
+  "generated_at": "2026-08-29T08:40:54Z",
   "generated_by": "evan",
   "blocks": {
     "correlations": "ready",
@@ -20,8 +20,8 @@
     "winner_summary": "ready"
   },
   "caveats": [
-    "OOS <5yr -> winner is a found-in-search CANDIDATE (high-variance Sharpe)",
+    "OOS is now 100 months (8.3yr) after the #198 history extension \u2014 it clears the 5yr floor; the winner is still a found-in-search CANDIDATE (median valid combo underperforms buy-and-hold; the L9 lead is a likely search artifact, issue #28)",
     "NSA source -> non-YoY signals seasonally contaminated",
-    "empirical lead-lag class: coincident_or_none"
+    "empirical lead-lag class: lagging"
   ]
 }

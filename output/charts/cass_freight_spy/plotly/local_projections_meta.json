@@ -7,13 +7,13 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Local-projection impulse responses (HAC SEs) at horizons 1/3/6/12 months, both directions. At tradable short horizons (h=1\u20136) the forward Cass Freight \u2192 SPY response is indistinguishable from zero (min p = 0.11). The h=12 forward coefficient is non-zero but reflects the same long-horizon coincident cycle seen in the 12m correlation, not a forecasting signal.",
-  "narrative_alignment_note": "Dual-panel LP; short-horizon nulls foregrounded, h=12 disclosed as cycle artifact.",
+  "caption": "Local-projection impulse responses with HAC standard errors at horizons 1/3/6/12 months, both directions. The forward direction (Cass Freight \u2192 SPY) has minimum p = 0.58; the response is indistinguishable from zero at every horizon, matching the no-forward Granger verdict.",
+  "narrative_alignment_note": "Dual-panel LP; forward weakness supports the coincident/lagging framing.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/core_models_20260705/local_projections.csv"
+    "results/cass_freight_spy/core_models_20260829/local_projections.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-05T22:29:56.982618+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+  "generated_at": "2026-08-29T09:09:57.916805+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }
