@@ -1,0 +1,12 @@
+{
+  "chart_name": "local_projections",
+  "pair_id": "umcsent_spy",
+  "generated_at": "2026-08-31T07:53:07.755970+00:00",
+  "generated_by": "scripts/generate_charts_umcsent_spy.py",
+  "caption": "Estimated SPY response across horizons to a move in expected conditions.",
+  "narrative_alignment_note": "Estimated SPY response across horizons to a move in expected conditions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/umcsent_spy/core_models_20260831/local_projections.csv"
+  ]
+}

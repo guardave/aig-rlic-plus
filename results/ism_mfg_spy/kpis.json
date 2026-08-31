@@ -1,0 +1,7 @@
+{
+  "pair_id": "ism_mfg_spy",
+  "winner_oos_sharpe": 1.298804,
+  "benchmark_oos_sharpe": 0.94719,
+  "oos_max_drawdown": -0.150358,
+  "bh_max_drawdown": -0.239272
+}

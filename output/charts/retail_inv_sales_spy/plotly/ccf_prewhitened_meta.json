@@ -1,0 +1,12 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "retail_inv_sales_spy",
+  "generated_at": "2026-08-31T07:53:50.466055+00:00",
+  "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
+  "caption": "Pre-whitened cross-correlation between the inventories-to-sales change and SPY returns.",
+  "narrative_alignment_note": "Pre-whitened cross-correlation between the inventories-to-sales change and SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/core_models_20260831/ccf_prewhitened.csv"
+  ]
+}

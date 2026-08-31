@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "import_price_spy",
+  "generated_at": "2026-08-31T07:51:33.985834+00:00",
+  "generated_by": "scripts/generate_charts_import_price_spy.py",
+  "caption": "Rolling correlation between import-price growth and SPY returns.",
+  "narrative_alignment_note": "Rolling correlation between import-price growth and SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/import_price_spy/rolling_correlation_import_price_spy.csv"
+  ]
+}

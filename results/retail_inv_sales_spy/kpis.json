@@ -1,0 +1,7 @@
+{
+  "pair_id": "retail_inv_sales_spy",
+  "winner_oos_sharpe": 1.233822,
+  "benchmark_oos_sharpe": 0.910625,
+  "oos_max_drawdown": -0.088048,
+  "bh_max_drawdown": -0.239272
+}

@@ -1,0 +1,12 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "umcsent_spy",
+  "generated_at": "2026-08-31T07:53:07.726485+00:00",
+  "generated_by": "scripts/generate_charts_umcsent_spy.py",
+  "caption": "Granger p-values by lag for expected conditions predicting SPY returns.",
+  "narrative_alignment_note": "Granger p-values by lag for expected conditions predicting SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/umcsent_spy/core_models_20260831/granger_causality.csv"
+  ]
+}

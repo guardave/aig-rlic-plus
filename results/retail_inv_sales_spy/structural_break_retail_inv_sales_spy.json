@@ -1,0 +1,5 @@
+{
+  "pair_id": "retail_inv_sales_spy",
+  "method": "rolling-correlation z-score proxy",
+  "max_abs_z": 2.322674193447357
+}

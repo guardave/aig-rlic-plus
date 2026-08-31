@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "cement_spy",
+  "generated_at": "2026-08-31T07:51:45.405830+00:00",
+  "generated_by": "scripts/generate_charts_cement_spy.py",
+  "caption": "Rolling correlation between cement growth and SPY returns.",
+  "narrative_alignment_note": "Rolling correlation between cement growth and SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/cement_spy/rolling_correlation_cement_spy.csv"
+  ]
+}

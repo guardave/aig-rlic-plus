@@ -1,0 +1,12 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "retail_inv_sales_spy",
+  "generated_at": "2026-08-31T07:53:50.400643+00:00",
+  "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
+  "caption": "SPY performance across inventories-to-sales 12-month change quartiles.",
+  "narrative_alignment_note": "SPY performance across inventories-to-sales 12-month change quartiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/retail_inv_sales_spy/regime_quartile_returns.csv"
+  ]
+}

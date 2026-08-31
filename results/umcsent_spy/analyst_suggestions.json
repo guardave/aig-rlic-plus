@@ -1,0 +1,18 @@
+{
+  "pair_id": "umcsent_spy",
+  "schema_version": "1.0.0",
+  "last_updated_at": "2026-08-31T07:33:51.454430+00:00",
+  "suggestions": [
+    {
+      "signal_name": "Lead robustness",
+      "proposed_by": "evan",
+      "source": "Data Master",
+      "observation": "The rule uses an L6 lead on chg_12m; verify adjacent-lead durability.",
+      "rationale": "Cycles in the sample are few, so the lead needs adjacent-lead durability and a cycle-count caveat.",
+      "possible_use_case": "robustness check",
+      "caveats": "Search-selected on a limited OOS; needs final-exam validation.",
+      "date_filed": "2026-08-31"
+    }
+  ],
+  "notes": "Generated with the U. Michigan Expected Business Conditions x SPY pair pipeline."
+}

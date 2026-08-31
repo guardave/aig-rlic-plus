@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_inflation_2022",
+  "pair_id": "umcsent_spy",
+  "generated_at": "2026-08-31T07:53:08.112119+00:00",
+  "generated_by": "scripts/generate_charts_umcsent_spy.py",
+  "caption": "2022 Rate Shock: Optimism Hit Lows but the Rule Lagged; gray bands are NBER recessions.",
+  "narrative_alignment_note": "2022 Rate Shock: Optimism Hit Lows but the Rule Lagged; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/umcsent_spy_monthly_latest.parquet"
+  ]
+}

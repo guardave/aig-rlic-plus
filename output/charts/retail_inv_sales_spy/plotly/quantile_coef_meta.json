@@ -1,0 +1,12 @@
+{
+  "chart_name": "quantile_coef",
+  "pair_id": "retail_inv_sales_spy",
+  "generated_at": "2026-08-31T07:53:50.536736+00:00",
+  "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
+  "caption": "Inventories-to-sales coefficient across SPY forward-return quantiles.",
+  "narrative_alignment_note": "Inventories-to-sales coefficient across SPY forward-return quantiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/core_models_20260831/quantile_regression.csv"
+  ]
+}

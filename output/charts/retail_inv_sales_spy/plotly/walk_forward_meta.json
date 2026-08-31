@@ -1,0 +1,12 @@
+{
+  "chart_name": "walk_forward",
+  "pair_id": "retail_inv_sales_spy",
+  "generated_at": "2026-08-31T07:53:50.702589+00:00",
+  "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
+  "caption": "Alias for the dashboard's standard walk-forward chart slot.",
+  "narrative_alignment_note": "Alias for the dashboard's standard walk-forward chart slot.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/retail_inv_sales_spy/subperiod_sharpe.csv"
+  ]
+}

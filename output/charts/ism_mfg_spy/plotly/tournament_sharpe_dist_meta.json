@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "ism_mfg_spy",
+  "generated_at": "2026-08-31T07:53:05.449636+00:00",
+  "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
+  "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/ism_mfg_spy/tournament_results_20260831.csv"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "cement_spy",
+  "generated_at": "2026-08-31T07:51:45.183991+00:00",
+  "generated_by": "scripts/generate_charts_cement_spy.py",
+  "caption": "Pearson correlations between cement transforms and forward SPY returns.",
+  "narrative_alignment_note": "Pearson correlations between cement transforms and forward SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/cement_spy/core_models_20260830/correlations.csv"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "cement_spy",
+  "generated_at": "2026-08-31T07:51:45.369084+00:00",
+  "generated_by": "scripts/generate_charts_cement_spy.py",
+  "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/cement_spy/tournament_results_20260830.csv"
+  ]
+}

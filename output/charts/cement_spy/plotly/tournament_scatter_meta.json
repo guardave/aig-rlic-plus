@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_scatter",
+  "pair_id": "cement_spy",
+  "generated_at": "2026-08-31T07:51:45.376981+00:00",
+  "generated_by": "scripts/generate_charts_cement_spy.py",
+  "caption": "Alias for tournament scatter slot.",
+  "narrative_alignment_note": "Alias for tournament scatter slot.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/cement_spy/tournament_results_20260830.csv"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_scatter",
+  "pair_id": "ism_mfg_spy",
+  "generated_at": "2026-08-31T07:53:05.458005+00:00",
+  "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
+  "caption": "Alias for tournament scatter slot.",
+  "narrative_alignment_note": "Alias for tournament scatter slot.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/ism_mfg_spy/tournament_results_20260831.csv"
+  ]
+}

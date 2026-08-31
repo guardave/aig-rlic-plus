@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_covid",
+  "pair_id": "umcsent_spy",
+  "generated_at": "2026-08-31T07:53:08.067377+00:00",
+  "generated_by": "scripts/generate_charts_umcsent_spy.py",
+  "caption": "COVID Shock: Expected-Conditions Plunge and Rebound; gray bands are NBER recessions.",
+  "narrative_alignment_note": "COVID Shock: Expected-Conditions Plunge and Rebound; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/umcsent_spy_monthly_latest.parquet"
+  ]
+}
