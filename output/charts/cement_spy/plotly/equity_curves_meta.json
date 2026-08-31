@@ -1,0 +1,12 @@
+{
+  "chart_name": "equity_curves",
+  "pair_id": "cement_spy",
+  "generated_at": "2026-08-31T07:51:45.319548+00:00",
+  "generated_by": "scripts/generate_charts_cement_spy.py",
+  "caption": "Winner strategy equity curve compared with buy-and-hold SPY.",
+  "narrative_alignment_note": "Winner strategy equity curve compared with buy-and-hold SPY.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/cement_spy/strategy_returns_20260830.csv"
+  ]
+}

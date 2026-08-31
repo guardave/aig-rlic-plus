@@ -1,0 +1,12 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "cc_delinquency_spy",
+  "generated_at": "2026-08-31T07:55:05.435505+00:00",
+  "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
+  "caption": "Pearson correlations between delinquency transforms and forward SPY returns at 1-, 2-, and 4-quarter horizons; associations are weak (|r| < 0.10) \u2014 level cells mildly negative, change cells mildly positive (none significant).",
+  "narrative_alignment_note": "Pearson correlations between delinquency transforms and forward SPY returns at 1-, 2-, and 4-quarter horizons; associations are weak (|r| < 0.10) \u2014 level cells mildly negative, change cells mildly positive (none significant).",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/cc_delinquency_spy/core_models_20260831/correlations.csv"
+  ]
+}

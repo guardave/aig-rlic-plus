@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_inflation_2022",
+  "pair_id": "ism_mfg_spy",
+  "generated_at": "2026-08-31T07:53:05.699103+00:00",
+  "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
+  "caption": "2022 Rate Shock: PMI Ground Lower toward 50; gray bands are NBER recessions, dotted line is PMI 50.",
+  "narrative_alignment_note": "2022 Rate Shock: PMI Ground Lower toward 50; gray bands are NBER recessions, dotted line is PMI 50.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/ism_mfg_spy_monthly_latest.parquet"
+  ]
+}

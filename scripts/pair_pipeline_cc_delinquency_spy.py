@@ -306,7 +306,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "bh_sharpe": round(bm["oos_sharpe"], 6), "bh_ann_return": round(bm["oos_ann_return"], 6), "bh_max_drawdown": round(bm["max_drawdown"], 6),
         "cost_assumption_bps": COST_BPS, "total_combos": int((tourn["signal"] != "BENCHMARK").sum()), "valid_combos": int(valid.shape[0]),
         "schema_version": "1.2.0",
-        "notes": "Credit-card delinquency is a QUARTERLY, lagging credit-stress measure; the bounded level is stationary and used directly. Quarterly OOS is small — read any winner as found-in-search.",
+        "notes": "Credit-card delinquency is a QUARTERLY, lagging credit-stress measure; The raw level is NOT stationary on this sample (ADF p~0.37; KPSS rejects); the traded winner is the quarter-on-quarter change (diff_1q), which IS stationary. Quarterly OOS is small (32q, few credit cycles) — read any winner as found-in-search.",
         "selection": {"objective": "max_oos_sharpe", "objective_formula": "quarterly mean/std*sqrt(4)",
                       "grid_scanned": {"leads": leads, "n_signals": len(SIGNALS),
                                        "n_thresholds": int(sum(len(threshold_codes_for(s)) for s in SIGNALS)),

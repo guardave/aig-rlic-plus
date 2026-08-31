@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "cc_delinquency_spy",
+  "generated_at": "2026-08-31T07:55:05.625646+00:00",
+  "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
+  "caption": "OOS Sharpe distribution across valid tournament strategies by lead; the median valid combo (0.63) UNDERPERFORMS buy-and-hold (0.87) \u2014 the winner is the right tail of its own search.",
+  "narrative_alignment_note": "OOS Sharpe distribution across valid tournament strategies by lead; the median valid combo (0.63) UNDERPERFORMS buy-and-hold (0.87) \u2014 the winner is the right tail of its own search.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cc_delinquency_spy/tournament_results_20260831.csv"
+  ]
+}

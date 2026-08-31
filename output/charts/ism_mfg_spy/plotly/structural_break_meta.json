@@ -1,0 +1,12 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "ism_mfg_spy",
+  "generated_at": "2026-08-31T07:53:05.500041+00:00",
+  "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
+  "caption": "Proxy check for large changes in the ISM PMI/SPY relationship.",
+  "narrative_alignment_note": "Proxy check for large changes in the ISM PMI/SPY relationship.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/ism_mfg_spy/structural_break_ism_mfg_spy.json"
+  ]
+}

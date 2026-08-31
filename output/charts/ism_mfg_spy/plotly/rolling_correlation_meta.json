@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "ism_mfg_spy",
+  "generated_at": "2026-08-31T07:53:05.482318+00:00",
+  "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
+  "caption": "Rolling correlation between the ISM PMI change and SPY returns.",
+  "narrative_alignment_note": "Rolling correlation between the ISM PMI change and SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/ism_mfg_spy/rolling_correlation_ism_mfg_spy.csv"
+  ]
+}

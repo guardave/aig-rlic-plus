@@ -1,0 +1,12 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "ism_mfg_spy",
+  "generated_at": "2026-08-31T07:53:05.229732+00:00",
+  "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
+  "caption": "SPY performance across ISM Manufacturing PMI quartiles.",
+  "narrative_alignment_note": "SPY performance across ISM Manufacturing PMI quartiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/ism_mfg_spy/regime_quartile_returns.csv"
+  ]
+}

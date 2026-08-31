@@ -37,7 +37,7 @@
   "total_combos": 168,
   "valid_combos": 168,
   "schema_version": "1.2.0",
-  "notes": "ISM PMI above ~50 marks expansion and risk-on conditions. Monthly level-stationary signal used directly; winner is search-selected \u2014 read as found-in-search.",
+  "notes": "ISM PMI above ~50 marks expansion and risk-on conditions. The bounded diffusion level is stationary (ADF rejects, KPSS does not); the traded winner is its 1-month change (diff_1m). Winner is search-selected \u2014 read as found-in-search.",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "monthly mean/std*sqrt(12)",

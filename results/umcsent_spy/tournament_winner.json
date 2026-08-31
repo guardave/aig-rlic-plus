@@ -37,7 +37,7 @@
   "total_combos": 168,
   "valid_combos": 168,
   "schema_version": "1.2.0",
-  "notes": "Rising expected business conditions precede stronger spending and risk-on equity conditions. Monthly level-stationary signal used directly; winner is search-selected \u2014 read as found-in-search.",
+  "notes": "Rising expected business conditions precede stronger spending and risk-on equity conditions. The bounded diffusion level is stationary; the traded winner is its 12-month change (chg_12m) at a 6-month lead. Winner is search-selected \u2014 read as found-in-search.",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "monthly mean/std*sqrt(12)",

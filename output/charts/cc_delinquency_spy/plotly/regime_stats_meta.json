@@ -1,0 +1,12 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "cc_delinquency_spy",
+  "generated_at": "2026-08-31T07:55:05.398676+00:00",
+  "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
+  "caption": "Concurrent SPY performance across credit-card delinquency-level quartiles; the highest-delinquency quartile (Q4) has the weakest Sharpe (0.50) vs 1.23 in the lowest (Q1) \u2014 consistent with the countercyclical credit prior.",
+  "narrative_alignment_note": "Concurrent SPY performance across credit-card delinquency-level quartiles; the highest-delinquency quartile (Q4) has the weakest Sharpe (0.50) vs 1.23 in the lowest (Q1) \u2014 consistent with the countercyclical credit prior.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cc_delinquency_spy/regime_quartile_returns.csv"
+  ]
+}

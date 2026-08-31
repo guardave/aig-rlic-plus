@@ -1,0 +1,12 @@
+{
+  "chart_name": "quantile_coef",
+  "pair_id": "ism_mfg_spy",
+  "generated_at": "2026-08-31T07:53:05.372116+00:00",
+  "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
+  "caption": "ISM PMI coefficient across SPY forward-return quantiles.",
+  "narrative_alignment_note": "ISM PMI coefficient across SPY forward-return quantiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/ism_mfg_spy/core_models_20260831/quantile_regression.csv"
+  ]
+}

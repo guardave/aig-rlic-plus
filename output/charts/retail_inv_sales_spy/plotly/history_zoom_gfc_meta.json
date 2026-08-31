@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_gfc",
+  "pair_id": "retail_inv_sales_spy",
+  "generated_at": "2026-08-31T07:53:50.780292+00:00",
+  "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
+  "caption": "Global Financial Crisis: Inventories-to-Sales Spiked 2008-09; gray bands are NBER recessions.",
+  "narrative_alignment_note": "Global Financial Crisis: Inventories-to-Sales Spiked 2008-09; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/retail_inv_sales_spy_monthly_latest.parquet"
+  ]
+}

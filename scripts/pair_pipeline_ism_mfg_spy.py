@@ -306,7 +306,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "bh_sharpe": round(bm["oos_sharpe"], 6), "bh_ann_return": round(bm["oos_ann_return"], 6), "bh_max_drawdown": round(bm["max_drawdown"], 6),
         "cost_assumption_bps": COST_BPS, "total_combos": int((tourn["signal"] != "BENCHMARK").sum()), "valid_combos": int(valid.shape[0]),
         "schema_version": "1.2.0",
-        "notes": "ISM PMI above ~50 marks expansion and risk-on conditions. Monthly level-stationary signal used directly; winner is search-selected — read as found-in-search.",
+        "notes": "ISM PMI above ~50 marks expansion and risk-on conditions. The bounded diffusion level is stationary (ADF rejects, KPSS does not); the traded winner is its 1-month change (diff_1m). Winner is search-selected — read as found-in-search.",
         "selection": {"objective": "max_oos_sharpe", "objective_formula": "monthly mean/std*sqrt(12)",
                       "grid_scanned": {"leads": leads, "n_signals": len(SIGNALS),
                                        "n_thresholds": int(sum(len(threshold_codes_for(s)) for s in SIGNALS)),

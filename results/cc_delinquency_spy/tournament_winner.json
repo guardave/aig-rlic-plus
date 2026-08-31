@@ -37,7 +37,7 @@
   "total_combos": 120,
   "valid_combos": 110,
   "schema_version": "1.2.0",
-  "notes": "Credit-card delinquency is a QUARTERLY, lagging credit-stress measure; the bounded level is stationary and used directly. Quarterly OOS is small \u2014 read any winner as found-in-search.",
+  "notes": "Credit-card delinquency is a QUARTERLY, lagging credit-stress measure. The raw level is NOT stationary on this sample (ADF p~0.37; KPSS rejects); the traded winner is the quarter-on-quarter change (diff_1q), which IS stationary. Quarterly OOS is small (32q, few credit cycles) \u2014 read any winner as found-in-search.",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "quarterly mean/std*sqrt(4)",

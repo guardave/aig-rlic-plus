@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_dotcom",
+  "pair_id": "umcsent_spy",
+  "generated_at": "2026-08-31T07:53:07.986516+00:00",
+  "generated_by": "scripts/generate_charts_umcsent_spy.py",
+  "caption": "Dot-Com Recession: Optimism Sagged into the 2001 Downturn; gray bands are NBER recessions.",
+  "narrative_alignment_note": "Dot-Com Recession: Optimism Sagged into the 2001 Downturn; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/umcsent_spy_monthly_latest.parquet"
+  ]
+}

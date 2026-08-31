@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_covid",
+  "pair_id": "import_price_spy",
+  "generated_at": "2026-08-31T07:51:34.157455+00:00",
+  "generated_by": "scripts/generate_charts_import_price_spy.py",
+  "caption": "COVID Shock: Import-Price Collapse and Violent Rebound; gray bands are NBER recessions.",
+  "narrative_alignment_note": "COVID Shock: Import-Price Collapse and Violent Rebound; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/import_price_spy_monthly_latest.parquet"
+  ]
+}

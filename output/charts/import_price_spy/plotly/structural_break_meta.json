@@ -1,0 +1,12 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "import_price_spy",
+  "generated_at": "2026-08-31T07:51:34.003411+00:00",
+  "generated_by": "scripts/generate_charts_import_price_spy.py",
+  "caption": "Proxy check for large changes in the import-price/SPY relationship.",
+  "narrative_alignment_note": "Proxy check for large changes in the import-price/SPY relationship.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/import_price_spy/structural_break_import_price_spy.json"
+  ]
+}

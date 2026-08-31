@@ -305,7 +305,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "bh_sharpe": round(bm["oos_sharpe"], 6), "bh_ann_return": round(bm["oos_ann_return"], 6), "bh_max_drawdown": round(bm["max_drawdown"], 6),
         "cost_assumption_bps": COST_BPS, "total_combos": int((tourn["signal"] != "BENCHMARK").sum()), "valid_combos": int(valid.shape[0]),
         "schema_version": "1.2.0",
-        "notes": "A high inventories-to-sales ratio signals weakening demand and precedes equity weakness. Monthly level-stationary signal used directly; winner is search-selected — read as found-in-search.",
+        "notes": "A high inventories-to-sales ratio signals weakening demand and precedes equity weakness. On this sample the raw level is NOT stationary (ADF does not reject a unit root; KPSS rejects stationarity) — it drifts — so the traded level signal uses a 60-month ROLLING-median threshold as an adaptive regime filter rather than a fixed cutoff. Winner is search-selected — read as found-in-search.",
         "selection": {"objective": "max_oos_sharpe", "objective_formula": "monthly mean/std*sqrt(12)",
                       "grid_scanned": {"leads": leads, "n_signals": len(SIGNALS),
                                        "n_thresholds": int(sum(len(threshold_codes_for(s)) for s in SIGNALS)),

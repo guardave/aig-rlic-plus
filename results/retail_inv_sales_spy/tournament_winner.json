@@ -37,7 +37,7 @@
   "total_combos": 168,
   "valid_combos": 168,
   "schema_version": "1.2.0",
-  "notes": "A high inventories-to-sales ratio signals weakening demand and precedes equity weakness. Monthly level-stationary signal used directly; winner is search-selected \u2014 read as found-in-search.",
+  "notes": "A high inventories-to-sales ratio signals weakening demand. On this sample the raw level is NOT stationary (ADF does not reject a unit root; KPSS rejects stationarity) \u2014 it drifts \u2014 so the traded level signal uses a 60-month ROLLING-median threshold as an adaptive regime filter rather than a fixed cutoff. Winner is search-selected \u2014 read as found-in-search.",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "monthly mean/std*sqrt(12)",

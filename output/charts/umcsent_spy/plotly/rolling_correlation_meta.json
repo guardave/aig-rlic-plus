@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "umcsent_spy",
+  "generated_at": "2026-08-31T07:53:07.897817+00:00",
+  "generated_by": "scripts/generate_charts_umcsent_spy.py",
+  "caption": "Rolling correlation between expected conditions and SPY returns.",
+  "narrative_alignment_note": "Rolling correlation between expected conditions and SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/umcsent_spy/rolling_correlation_umcsent_spy.csv"
+  ]
+}

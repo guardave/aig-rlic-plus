@@ -1,0 +1,12 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "umcsent_spy",
+  "generated_at": "2026-08-31T07:53:07.658762+00:00",
+  "generated_by": "scripts/generate_charts_umcsent_spy.py",
+  "caption": "Pearson correlations between expected-conditions transforms and forward SPY returns.",
+  "narrative_alignment_note": "Pearson correlations between expected-conditions transforms and forward SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/umcsent_spy/core_models_20260831/correlations.csv"
+  ]
+}

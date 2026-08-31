@@ -1,0 +1,12 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "import_price_spy",
+  "generated_at": "2026-08-31T07:51:33.730676+00:00",
+  "generated_by": "scripts/generate_charts_import_price_spy.py",
+  "caption": "SPY performance across import-price YoY growth quartiles.",
+  "narrative_alignment_note": "SPY performance across import-price YoY growth quartiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/import_price_spy/regime_quartile_returns.csv"
+  ]
+}

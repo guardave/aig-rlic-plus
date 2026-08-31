@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_dotcom",
+  "pair_id": "retail_inv_sales_spy",
+  "generated_at": "2026-08-31T07:53:50.743353+00:00",
+  "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
+  "caption": "Dot-Com Recession: Inventories-to-Sales Rose as Demand Softened; gray bands are NBER recessions.",
+  "narrative_alignment_note": "Dot-Com Recession: Inventories-to-Sales Rose as Demand Softened; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/retail_inv_sales_spy_monthly_latest.parquet"
+  ]
+}

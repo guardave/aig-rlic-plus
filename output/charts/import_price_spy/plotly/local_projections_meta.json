@@ -1,0 +1,12 @@
+{
+  "chart_name": "local_projections",
+  "pair_id": "import_price_spy",
+  "generated_at": "2026-08-31T07:51:33.845298+00:00",
+  "generated_by": "scripts/generate_charts_import_price_spy.py",
+  "caption": "Estimated SPY response across horizons to a move in import-price growth.",
+  "narrative_alignment_note": "Estimated SPY response across horizons to a move in import-price growth.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/import_price_spy/core_models_20260830/local_projections.csv"
+  ]
+}
