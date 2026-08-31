@@ -1,0 +1,76 @@
+{
+  "pair_id": "cement_spy",
+  "schema_version": "1.1.0",
+  "indicator_nature": "leading",
+  "indicator_type": "production",
+  "strategy_objective": "procyclical_capture",
+  "owner_writes": {
+    "dana": [
+      "indicator_nature",
+      "indicator_type",
+      "known_stress_episodes",
+      "data_provenance"
+    ],
+    "evan": [
+      "observed_direction",
+      "direction_consistent",
+      "key_finding",
+      "confidence"
+    ],
+    "ray": [
+      "strategy_objective",
+      "narrative_summary",
+      "expected_direction",
+      "mechanism",
+      "caveats"
+    ]
+  },
+  "last_updated_by": "ray",
+  "last_updated_at": "2026-08-31T07:42:35.914835+00:00",
+  "indicator": "cement",
+  "target": "spy",
+  "expected_direction": "procyclical",
+  "observed_direction": "procyclical",
+  "direction_consistent": true,
+  "mechanism": "Portland cement shipments track construction and infrastructure activity; strong or rising shipment growth marks a cyclical upswing in real investment (risk-on), while falling shipments signal a construction slowdown. Exposure is scaled toward SPY when cement-shipment growth is firm.",
+  "confidence": "low",
+  "key_finding": "Best search-phase rule uses chg_6m at L0 with OOS Sharpe 1.20 versus buy-and-hold 0.93.",
+  "caveats": [
+    "Even a leading indicator selected at a long lead can be a search artifact \u2014 check adjacent-lead durability.",
+    "The strategy is search-selected and needs fresh holdout validation.",
+    "The 2020-21 COVID collapse/rebound is an extreme in-window outlier that can dominate the fit.",
+    "Portland Cement Shipments figures are nominal."
+  ],
+  "narrative_summary": "Portland cement shipment growth is tested as a procyclical construction-activity overlay for SPY.",
+  "known_stress_episodes": [
+    {
+      "label": "Dot-Com recession",
+      "start": "2001-03-01",
+      "end": "2001-11-30",
+      "note": "Cement shipments softened with the early-2000s slowdown."
+    },
+    {
+      "label": "Global Financial Crisis",
+      "start": "2007-12-01",
+      "end": "2009-06-30",
+      "note": "Cement shipments collapsed with the housing bust 2008-09."
+    },
+    {
+      "label": "COVID shock",
+      "start": "2020-02-01",
+      "end": "2020-04-30",
+      "note": "Orders collapsed then rebounded."
+    },
+    {
+      "label": "2022 rate shock",
+      "start": "2022-01-01",
+      "end": "2022-12-31",
+      "note": "Nominal sales stayed high on inflation."
+    }
+  ],
+  "data_provenance": {
+    "source": "Data Master.xlsx",
+    "series_id": "Portland Cement Shipments (Data Master)",
+    "accessed_at": "2026-08-31T07:42:35.914835+00:00"
+  }
+}

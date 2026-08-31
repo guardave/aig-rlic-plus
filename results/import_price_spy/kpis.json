@@ -1,0 +1,7 @@
+{
+  "pair_id": "import_price_spy",
+  "winner_oos_sharpe": 1.374706,
+  "benchmark_oos_sharpe": 0.957363,
+  "oos_max_drawdown": -0.083258,
+  "bh_max_drawdown": -0.239272
+}

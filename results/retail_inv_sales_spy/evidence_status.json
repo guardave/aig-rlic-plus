@@ -1,0 +1,10 @@
+{
+  "pair_id": "retail_inv_sales_spy",
+  "schema_version": "1.2.0",
+  "status": "found_in_search",
+  "updated_at": "2026-08-31T07:34:16.920578+00:00",
+  "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
+  "technical_note": "Winner selected by OOS Sharpe from the 20260831 monthly tournament; the OOS window is limited.",
+  "next_step": "Freeze the selected rule and run a confirmation test on future data.",
+  "owner": "evan"
+}
