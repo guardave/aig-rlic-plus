@@ -278,7 +278,8 @@ def chart_regime_stats():
                   f"<sup>Q1={q['sharpe'].iloc[0]:.2f} / Q2={q['sharpe'].iloc[1]:.2f} / "
                   f"Q3={q['sharpe'].iloc[2]:.2f} / Q4={q['sharpe'].iloc[3]:.2f} — highest at "
                   f"Q4 (strong freight = risk-on); mild non-monotonicity at Q2–Q3</sup>"),
-            y=0.99, yanchor="top"),
+            ),  # #186-class fix: no y/yanchor override — let plotly auto-place the
+                # 2-line title in the top margin so the first line is not clipped
         margin=dict(t=160))
     save_chart("regime_stats", fig,
                caption=(f"SPY performance by Cass Freight growth quartile (concurrent, "
