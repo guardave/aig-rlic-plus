@@ -898,11 +898,11 @@
         },
         "showarrow": false,
         "text": "Source: results/eci_total_comp_spy/regime_quartile_returns.csv. Q1 = lowest ECI YoY growth.",
-        "x": 0,
+        "x": 0.0,
         "xanchor": "left",
         "xref": "paper",
-        "xshift": -80,
-        "y": -0.05,
+        "xshift": 6,
+        "y": -0.19,
         "yanchor": "top",
         "yref": "paper",
         "yshift": -65
@@ -910,7 +910,7 @@
     ],
     "margin": {
       "t": 110,
-      "b": 95,
+      "b": 115,
       "l": 70,
       "r": 45
     },
