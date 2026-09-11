@@ -239,46 +239,71 @@ def chart_granger() -> None:
     )
 
 
+def _ci95_halfwidth(coef, p_value):
+    """Step C #216/#217: reconstruct a 95% CI half-width from a coefficient and
+    its two-sided p-value (normal approx), since the CSVs carry coef + p but no
+    SE. |coef|/se = z_p where z_p = Φ⁻¹(1 − p/2); half = 1.96·se."""
+    from scipy.stats import norm
+    p = np.clip(np.asarray(p_value, dtype=float), 1e-6, 1 - 1e-6)
+    z_p = norm.ppf(1.0 - p / 2.0)
+    se = np.abs(np.asarray(coef, dtype=float)) / np.where(z_p == 0, np.nan, z_p)
+    return 1.96 * se
+
+
 def chart_local_projections() -> None:
     lp = pd.read_csv(CORE / "local_projections.csv")
+    half = _ci95_halfwidth(lp["coef"], lp["p_value"])
     fig = go.Figure(
-        go.Bar(x=lp["horizon"].astype(str) + "q", y=lp["coef"], marker_color=C_IND, name="Coefficient")
+        go.Bar(
+            x=lp["horizon"].astype(str) + "q", y=lp["coef"], marker_color=C_IND,
+            name="Coefficient (95% CI)",
+            error_y=dict(type="data", array=half, visible=True, thickness=1.5, color=C_LINE),
+        )
     )
     fig.add_hline(y=0, line_color=C_LINE)
     fig.update_layout(
         title="Local Projection: SPY Response to Rising SLOOS Tightening",
         xaxis_title="Forward horizon (quarters)",
-        yaxis_title="Coefficient",
+        yaxis_title="Coefficient (95% CI whiskers)",
         template="plotly_white",
         height=430,
     )
     save(
         "local_projections",
         fig,
-        "Estimated SPY response to a rise in SLOOS 4-quarter tightening change; "
-        "coefficients are near zero and insignificant across horizons.",
+        "Estimated SPY response to a rise in SLOOS 4-quarter tightening change, "
+        "with 95% confidence whiskers (reconstructed from coef + p-value). Every "
+        "interval straddles zero — coefficients are near zero and insignificant "
+        "across horizons (p = 0.33 / 0.65 / 0.45).",
         [str(CORE / "local_projections.csv")],
     )
 
 
 def chart_quantile() -> None:
     q = pd.read_csv(CORE / "quantile_regression.csv")
+    half = _ci95_halfwidth(q["coef"], q["p_value"])
     fig = go.Figure(
-        go.Scatter(x=q["quantile"], y=q["coef"], mode="lines+markers", name="Coefficient", line=dict(color=C_IND))
+        go.Scatter(
+            x=q["quantile"], y=q["coef"], mode="lines+markers",
+            name="Coefficient (95% CI)", line=dict(color=C_IND),
+            error_y=dict(type="data", array=half, visible=True, thickness=1.5, color=C_LINE),
+        )
     )
     fig.add_hline(y=0, line_color=C_LINE)
     fig.update_layout(
         title="Quantile Regression Coefficient",
         xaxis_title="SPY return quantile",
-        yaxis_title="SLOOS coefficient",
+        yaxis_title="SLOOS coefficient (95% CI whiskers)",
         template="plotly_white",
         height=430,
     )
     save(
         "quantile_coef",
         fig,
-        "SLOOS coefficient across SPY forward-return quantiles; flat and "
-        "near-zero — no state-dependent predictive content.",
+        "SLOOS coefficient across SPY forward-return quantiles, with 95% "
+        "confidence whiskers (reconstructed from coef + p-value). Flat, "
+        "near-zero, and every interval straddles zero (p ≈ 0.65) — no "
+        "state-dependent predictive content.",
         [str(CORE / "quantile_regression.csv")],
     )
 

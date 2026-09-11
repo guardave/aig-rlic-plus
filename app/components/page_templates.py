@@ -1086,10 +1086,11 @@ def _render_cross_period_section(pair_id: str, config: Any | None = None) -> Non
     st.markdown("---")
     st.markdown("### Cross-Period Consistency")
     st.markdown(
-        "These charts test whether the signal's predictive relationship holds "
-        "across different historical sub-periods. A finding that vanishes in "
-        "one era or only appears in a specific decade is fragile; one that "
-        "persists across regimes is robust."
+        "These charts test whether the signal's statistical relationship with "
+        "the target holds across different historical sub-periods (this is a "
+        "stability check, not a claim that the signal forecasts the target). A "
+        "finding that vanishes in one era or only appears in a specific decade "
+        "is fragile; one that persists across regimes is more robust."
     )
 
     # fix260526 #104: the "How to read it" caption was rendered AS
@@ -1102,8 +1103,20 @@ def _render_cross_period_section(pair_id: str, config: Any | None = None) -> Non
         ("rolling_correlation",   "Rolling Correlation",    f"How to read it: the indicator is {indicator}; the target is {target}. The chart shows the rolling correlation between the indicator signal and target returns. A flat, stable line suggests the relationship is not regime-dependent; sharp moves or sign flips mean the signal-target relationship changes across market regimes."),
         ("structural_break",      "Structural Break Test",  "How to read it: this test asks whether the relationship changes suddenly at a point in the sample. A structural break means the same model no longer fits before and after that date. The F statistic measures how large the before-versus-after change is; the p-value measures whether that change is statistically meaningful. Lower p-values indicate stronger evidence of a break. If p-values stay above 0.05, the chart does not support a clear structural-break conclusion."),
     ]
+    # Step C #223: the Strategy page's Walk-Forward block (rendered just above
+    # this section) shows WALK_FORWARD_CHART_NAME. For many pairs that chart file
+    # is byte-identical to subperiod_sharpe.json (both are the "Major Stress
+    # Episodes" bars), so rendering subperiod_sharpe here again duplicates it.
+    # Auto-skip subperiod_sharpe when it duplicates the walk-forward chart —
+    # fleet-wide, no per-pair config; pairs whose files differ keep both.
+    _wf_chart = getattr(config, "WALK_FORWARD_CHART_NAME", "walk_forward") if config else "walk_forward"
+    _wf_path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_wf_chart}.json"
     for _chart_name, _label, _caption in _cp_always:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
+        if (_chart_name == "subperiod_sharpe" and _wf_chart != "subperiod_sharpe"
+                and _wf_path.exists() and _path.exists()
+                and _wf_path.read_bytes() == _path.read_bytes()):
+            continue  # already shown above as the Walk-Forward chart
         if _path.exists():
             st.markdown(f"**{_label}**")
             st.markdown(f"**{caption_overrides.get(_chart_name, _caption)}**")
@@ -1553,8 +1566,12 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
                 f"output/charts/{pair_id}/plotly/{drawdown_chart}.json"
             ),
             caption=(
-                f"What this shows: peak-to-trough drawdown profile. "
-                f"The strategy limits drawdown to {max_dd} vs {bh_dd} buy-and-hold."
+                f"What this shows: peak-to-trough drawdown profile. The headline "
+                f"figures — strategy {max_dd} vs {bh_dd} buy-and-hold — are the "
+                f"OUT-OF-SAMPLE-window maxima. Where this chart extends before the "
+                f"OOS window it applies the rule retroactively, so those earlier "
+                f"drawdowns can be markedly deeper than the OOS headline — read the "
+                f"{max_dd} as the OOS figure, not the whole plotted path."
             ),
         )
         st.markdown("---")
@@ -1763,6 +1780,15 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str) -> None:
             return f"{x:.1f}%"
         return f"{x * 100:.1f}%"
 
+    def _lead_cell(r):
+        # Step C #220: quarterly pairs store lead_quarters, monthly pairs
+        # lead_months, daily pairs lead_days. The old code only read
+        # lead_months, so quarterly leaderboards showed "—" for every row.
+        for col, unit in (("lead_months", "M"), ("lead_quarters", "Q"), ("lead_days", "D")):
+            if col in r.index and pd.notna(r[col]):
+                return f"{int(r[col])}{unit}"
+        return "—"
+
     display_rows = []
     for rank, (_, r) in enumerate(top.iterrows(), 1):
         display_rows.append({
@@ -1770,7 +1796,7 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str) -> None:
             "Signal": r.get("signal", "—"),
             "Threshold": r.get("threshold", "—"),
             "Strategy": r.get("strategy", "—"),
-            "Lead": f"{int(r['lead_months'])}M" if "lead_months" in r.index and pd.notna(r["lead_months"]) else "—",
+            "Lead": _lead_cell(r),
             "OOS Sharpe": round(float(r["oos_sharpe"]), 2),
             "OOS Return": _to_pct(r.get("oos_ann_return")),
             "Max DD": _to_pct(r.get("max_drawdown")),
