@@ -105,8 +105,8 @@ indicators:
   # survey (percent, quarterly, NSA), NOT loan volumes. The stock of C&I loans
   # outstanding is FRED:BUSLOANS, indicator_id `busloans` (catalog I20).
   "C&I Loan":
-    indicator_id: ci_loan
-    display_name: "SLOOS C&I Lending Standards — Net % Tightening (Small Firms)"
+    indicator_id: sloos_ci_small
+    display_name: "SLOOS C&I Tightening (Small Firms)"
     category: credit
 
   "H Permit YoY":
@@ -116,8 +116,8 @@ indicators:
 
   # ── Long descriptive names — strip prefix, snake_case ─────────────────
   "G - (US10Y-US3M)":
-    indicator_id: us10y_us3m
-    display_name: 10Y−3M Treasury Spread
+    indicator_id: t10y3m
+    display_name: 10Y-3M Treasury Spread
     category: rates
 
   "G - (VIX1M/VIX3M)":
@@ -136,7 +136,7 @@ indicators:
     category: macro
 
   "G - Import $ Indx":
-    indicator_id: import_price_idx
+    indicator_id: import_price
     display_name: Import Price Index
     category: macro
 
@@ -171,7 +171,7 @@ indicators:
     category: production
 
   "Mat - Portland Cment Shipmts":
-    indicator_id: portland_cement
+    indicator_id: cement
     display_name: Portland Cement Shipments
     category: materials
 

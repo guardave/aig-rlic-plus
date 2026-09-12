@@ -26,14 +26,6 @@ sofr_us3m,SOFR − DTB3 (TED-style),credit,SPY,sofr_us3m_spy,archived_deprecated
 sofr_us3m,SOFR − DTB3 (TED-style),credit,XLP,sofr_us3m_xlp,archived_deprecated,SOFR-US3M,,SOFR-US3M,61
 tedrate,TEDRATE (FRED legacy),credit,SPY,tedrate_spy,archived_deprecated,TEDRATE,,TEDRATE,62
 tedrate,TEDRATE (FRED legacy),credit,XLP,tedrate_xlp,archived_deprecated,TEDRATE,,TEDRATE,62
-us10y_us3m,10Y−3M Treasury Spread,rates,SPY,us10y_us3m_spy,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
-us10y_us3m,10Y−3M Treasury Spread,rates,XLP,us10y_us3m_xlp,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
-us10y_us3m,10Y−3M Treasury Spread,rates,XLE,us10y_us3m_xle,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
-us10y_us3m,10Y−3M Treasury Spread,rates,XLI,us10y_us3m_xli,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
-us10y_us3m,10Y−3M Treasury Spread,rates,XLY,us10y_us3m_xly,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
-us10y_us3m,10Y−3M Treasury Spread,rates,XLK,us10y_us3m_xlk,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
-us10y_us3m,10Y−3M Treasury Spread,rates,XLF,us10y_us3m_xlf,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
-us10y_us3m,10Y−3M Treasury Spread,rates,XLV,us10y_us3m_xlv,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
 vix_vix3m,VIX 1M / 3M Ratio,volatility,SPY,vix_vix3m_spy,not_started,G - (VIX1M/VIX3M),,G - (VIX1M/VIX3M),64
 vix_vix3m,VIX 1M / 3M Ratio,volatility,XLP,vix_vix3m_xlp,not_started,G - (VIX1M/VIX3M),,G - (VIX1M/VIX3M),64
 vix_vix3m,VIX 1M / 3M Ratio,volatility,XLE,vix_vix3m_xle,not_started,G - (VIX1M/VIX3M),,G - (VIX1M/VIX3M),64
@@ -70,15 +62,10 @@ phlxsox,PHLX Semiconductor Index,technology,XLE,phlxsox_xle,not_started,PHLXSOX,
 phlxsox,PHLX Semiconductor Index,technology,XLY,phlxsox_xly,not_started,PHLXSOX,,PHLXSOX,72
 phlxsox,PHLX Semiconductor Index,technology,XLF,phlxsox_xlf,not_started,PHLXSOX,,PHLXSOX,72
 phlxsox,PHLX Semiconductor Index,technology,XLV,phlxsox_xlv,not_started,PHLXSOX,,PHLXSOX,72
-portland_cement,Portland Cement Shipments,materials,SPY,portland_cement_spy,not_started,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
-portland_cement,Portland Cement Shipments,materials,XLP,portland_cement_xlp,not_started,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
 permit,Building Permits,real_estate,SPY,permit_spy,not_started,BP,,BP,77
 permit,Building Permits,real_estate,XLP,permit_xlp,not_started,BP,,BP,77
 rsxfs,Advance Retail Sales (RSXFS),sentiment,SPY,rsxfs_spy,not_started,RSXFS,,RSXFS,81
 eci_total_comp,Employment Cost Index (total compensation),macro,SPY,eci_total_comp_spy,not_started,"G - Employmt $ Indx, total compenstn",,"G - Employmt $ Indx, total compenstn",92
-import_price_idx,Import Price Index,macro,SPY,import_price_idx_spy,not_started,G - Import $ Indx,,G - Import $ Indx,94
-import_price_idx,Import Price Index,macro,XLE,import_price_idx_xle,not_started,G - Import $ Indx,,G - Import $ Indx,94
-import_price_idx,Import Price Index,macro,XLI,import_price_idx_xli,not_started,G - Import $ Indx,,G - Import $ Indx,94
 jolts,Job Openings (JOLTS),macro,XLE,jolts_xle,not_started,G - Job Openings,,G - Job Openings,96
 jolts,Job Openings (JOLTS),macro,XLI,jolts_xli,not_started,G - Job Openings,,G - Job Openings,96
 jolts,Job Openings (JOLTS),macro,XLY,jolts_xly,not_started,G - Job Openings,,G - Job Openings,96
@@ -101,8 +88,6 @@ nh_sold_saar,New Home Sales (SAAR),real_estate,SPY,nhs_saar_spy,completed,RE - N
 nh_sold_saar,New Home Sales (SAAR),real_estate,XLY,nh_sold_saar_xly,not_started,RE - NH Sold,,RE - NH Sold,108
 hy_ig,HY − IG Credit Spread,credit,SPY,hy_ig_spy,not_started,HY - IG spread,,HY - IG spread,116
 hy_ig,HY − IG Credit Spread,credit,XLP,hy_ig_xlp,not_started,HY - IG spread,,HY - IG spread,116
-ci_loan,SLOOS C&I Lending Standards — Net % Tightening (Small Firms),credit,SPY,ci_loan_spy,not_started,C&I Loan,,C&I Loan,117
-ci_loan,SLOOS C&I Lending Standards — Net % Tightening (Small Firms),credit,XLP,ci_loan_xlp,not_started,C&I Loan,,C&I Loan,117
 busloans,Commercial & Industrial Loans,credit,SPY,busloans_spy,in_progress,,,,
 cass_freight,Cass Freight Index (shipments),production,SPY,cass_freight_spy,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122
 cass_freight,Cass Freight Index (shipments),production,XLP,cass_freight_xlp,not_started,FRGSHPUSM649NCIS,,FRGSHPUSM649NCIS,122
@@ -118,10 +103,21 @@ abi,Architecture Billings Index,real_estate,XLV,abi_xlv,not_started,RE - Arch Bi
 nhs,New Home Sales (NHS),real_estate,SPY,nhs_spy,in_progress,NHS,,NHS,126
 nhs,New Home Sales (NHS),real_estate,XLY,nhs_xly,not_started,NHS,,NHS,126
 nhs,New Home Sales (NHS),real_estate,XLF,nhs_xlf,not_started,NHS,,NHS,126
-sloos_ci_small,SLOOS C&I Tightening (Small Firms),credit,SPY,sloos_ci_small_spy,in_progress,,,,
+sloos_ci_small,SLOOS C&I Tightening (Small Firms),credit,SPY,sloos_ci_small_spy,in_progress,C&I Loan,,C&I Loan,117
 mfg_new_orders,Manufacturers' New Orders,production,SPY,mfg_new_orders_spy,in_progress,,,,
-import_price,Import Price Index,macro,SPY,import_price_spy,in_progress,,,,
-cement,Portland Cement Shipments,materials,SPY,cement_spy,in_progress,,,,
+import_price,Import Price Index,macro,SPY,import_price_spy,in_progress,G - Import $ Indx,,G - Import $ Indx,94
+cement,Portland Cement Shipments,materials,SPY,cement_spy,in_progress,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
 retail_inv_sales,Retail Inventories-to-Sales Ratio,production,SPY,retail_inv_sales_spy,in_progress,,,,
 cc_delinquency,Credit Card Delinquency Rate,credit,SPY,cc_delinquency_spy,in_progress,,,,
-t10y3m,10Y-3M Treasury Spread,rates,SPY,t10y3m_spy,in_progress,,,,
+t10y3m,10Y-3M Treasury Spread,rates,SPY,t10y3m_spy,in_progress,G - (US10Y-US3M),,G - (US10Y-US3M),63
+t10y3m,10Y-3M Treasury Spread,rates,XLP,t10y3m_xlp,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+t10y3m,10Y-3M Treasury Spread,rates,XLE,t10y3m_xle,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+t10y3m,10Y-3M Treasury Spread,rates,XLI,t10y3m_xli,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+t10y3m,10Y-3M Treasury Spread,rates,XLY,t10y3m_xly,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+t10y3m,10Y-3M Treasury Spread,rates,XLK,t10y3m_xlk,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+t10y3m,10Y-3M Treasury Spread,rates,XLF,t10y3m_xlf,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+t10y3m,10Y-3M Treasury Spread,rates,XLV,t10y3m_xlv,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
+cement,Portland Cement Shipments,materials,XLP,cement_xlp,not_started,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
+import_price,Import Price Index,macro,XLE,import_price_xle,not_started,G - Import $ Indx,,G - Import $ Indx,94
+import_price,Import Price Index,macro,XLI,import_price_xli,not_started,G - Import $ Indx,,G - Import $ Indx,94
+sloos_ci_small,SLOOS C&I Tightening (Small Firms),credit,XLP,sloos_ci_small_xlp,not_started,C&I Loan,,C&I Loan,117
