@@ -118,3 +118,10 @@ abi,Architecture Billings Index,real_estate,XLV,abi_xlv,not_started,RE - Arch Bi
 nhs,New Home Sales (NHS),real_estate,SPY,nhs_spy,in_progress,NHS,,NHS,126
 nhs,New Home Sales (NHS),real_estate,XLY,nhs_xly,not_started,NHS,,NHS,126
 nhs,New Home Sales (NHS),real_estate,XLF,nhs_xlf,not_started,NHS,,NHS,126
+sloos_ci_small,SLOOS C&I Tightening (Small Firms),credit,SPY,sloos_ci_small_spy,in_progress,,,,
+mfg_new_orders,Manufacturers' New Orders,production,SPY,mfg_new_orders_spy,in_progress,,,,
+import_price,Import Price Index,macro,SPY,import_price_spy,in_progress,,,,
+cement,Portland Cement Shipments,materials,SPY,cement_spy,in_progress,,,,
+retail_inv_sales,Retail Inventories-to-Sales Ratio,production,SPY,retail_inv_sales_spy,in_progress,,,,
+cc_delinquency,Credit Card Delinquency Rate,credit,SPY,cc_delinquency_spy,in_progress,,,,
+t10y3m,10Y-3M Treasury Spread,rates,SPY,t10y3m_spy,in_progress,,,,
