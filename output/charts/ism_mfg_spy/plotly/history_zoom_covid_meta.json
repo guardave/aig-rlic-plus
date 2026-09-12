@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-08-31T07:53:05.657956+00:00",
+  "generated_at": "2026-09-12T17:24:13.546080+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "COVID Shock: PMI Plunge and Violent Rebound; gray bands are NBER recessions, dotted line is PMI 50.",
   "narrative_alignment_note": "COVID Shock: PMI Plunge and Violent Rebound; gray bands are NBER recessions, dotted line is PMI 50.",

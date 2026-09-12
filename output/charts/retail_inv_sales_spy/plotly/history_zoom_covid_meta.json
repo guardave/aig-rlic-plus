@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-08-31T07:53:50.817704+00:00",
+  "generated_at": "2026-09-12T17:24:17.681735+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
   "caption": "COVID Shock: Inventories-to-Sales Spike and Sharp Reversal; gray bands are NBER recessions.",
   "narrative_alignment_note": "COVID Shock: Inventories-to-Sales Spike and Sharp Reversal; gray bands are NBER recessions.",

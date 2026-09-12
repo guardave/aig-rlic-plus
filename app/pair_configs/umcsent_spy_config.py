@@ -14,60 +14,70 @@ consumer sentiment.
 Unlike a nominal-dollar level, this diffusion LEVEL is bounded and mean-
 reverting, so it is STATIONARY (ADF rejects a unit root, p = 0.0002; KPSS does
 not reject stationarity). The tested signals are therefore the level itself and
-transforms of it -- level, 1-month change, 12-month change, and a 60-month
-rolling z-score -- NOT growth-rate transforms.
+transforms of it -- level, 1-month change, 12-month change (measured over a
+full year), and a 60-month rolling z-score -- NOT growth-rate transforms.
 
 HONEST FRAMING (binding). This is a found-in-search CANDIDATE, not a validated
 edge. Every number below is sourced from results/umcsent_spy/*:
-  - The tournament winner (`chg_12m` 12-month change / T0_zero zero threshold /
-    PROCYCLICAL / L6 months / P1_long_cash; OOS Sharpe 1.23 vs 0.93 B&H) is the
-    grid maximum over 168 combinations (all 168 valid). The MEDIAN valid combo
-    scores 0.671 -- it UNDERPERFORMS buy-and-hold (0.93) (winner_summary.json).
+  - CORRECTION (2026-09): an earlier version of this pair computed the
+    "12-month change" signal as a 4-month change (diff(4)) by mistake. With the
+    properly computed 12-month change (diff(12), a full year) the tournament
+    re-selected the winner as `chg_12m / T_roll_p50 / L9` at OOS Sharpe 1.43
+    (up from the buggy 1.23), and every figure below reflects the corrected
+    2026-09-12 run.
+  - The tournament winner (`chg_12m` 12-month change / T_roll_p50 60-month
+    rolling-median threshold / PROCYCLICAL / L9 months / P1_long_cash; OOS
+    Sharpe 1.43 vs 0.93 B&H) is the grid maximum over 168 combinations (all 168
+    valid). The MEDIAN valid combo scores 0.659 -- it UNDERPERFORMS buy-and-hold
+    (0.93) (winner_summary.json).
   - DIRECTION IS CONSISTENT WITH THE PRIOR. Expected-conditions optimism is
     procyclical and a LEADING indicator, and the search also selected a
-    PROCYCLICAL rule (hold SPY when the 6-month-lagged 12-month change is at or
-    above zero -- i.e. expectations higher than a year earlier).
+    PROCYCLICAL rule (hold SPY when the 9-month-lagged 12-month change is at or
+    above its 60-month rolling median -- i.e. when year-over-year expectations
+    are improving relative to their recent norm).
     `interpretation_metadata.json` records expected_direction procyclical vs
     observed_direction procyclical, direction_consistent = true, confidence =
-    low. So the direction is economically sensible; the caution is about
-    validation and lead durability, not a sign flip.
-  - The concurrent evidence is broadly procyclical too: sorting months by the
-    expected-conditions level, the strongest-optimism quartile Q4 has the best
-    concurrent SPY Sharpe (0.99) and the weaker quartiles are lower (Q1 0.61,
-    Q3 0.48), though the pattern is not perfectly monotone (Q2 0.92)
-    (regime_quartile_returns.csv). Concurrent optimism lines up with better
-    equity conditions, the same way the winner is oriented.
+    low. So the strategy orientation is economically sensible; the caution is
+    about validation and lead durability.
+  - The concurrent regime evidence does NOT corroborate a clean procyclical
+    gradient: sorting months by the expected-conditions level, the strongest-
+    optimism quartile Q4 has the LOWEST concurrent SPY Sharpe (0.67) and the
+    weakest-optimism Q1 the highest (0.86), with Q2 0.71 and Q3 0.81 -- an
+    essentially flat, non-monotone pattern (regime_quartile_returns.csv). The
+    direction claim therefore rests on the strategy orientation and the prior,
+    not on a concurrent optimism gradient -- another reason confidence is LOW.
   - No lead-lag forecast. The 12-month-change signal does NOT Granger-cause SPY
-    at any tested lag (minimum p = 0.44 at lag 5) (granger_by_lag.csv). Linear
+    at any tested lag (minimum p = 0.22 at lag 5) (granger_by_lag.csv). Linear
     correlation with forward SPY is near zero at every horizon and no cell is
     significant; the largest |r| anywhere is the level vs 6-month-forward SPY
-    (r = 0.07, p = 0.17) (core_models_20260831/correlations.csv). Local
+    (r = 0.07, p = 0.17) (core_models_20260912/correlations.csv). Local
     projections are near-null at every horizon (no coefficient significant;
-    trivial R^2) (local_projections.csv). Pre-whitened cross-correlation is
-    significant ONLY at NEGATIVE lags (SPY tends to move BEFORE expected
-    conditions) -- the reverse of a forecasting signal -- with no significant
-    lead-side bars (ccf_prewhitened.csv).
+    trivial R^2) (local_projections.csv). Pre-whitened cross-correlation clears
+    the confidence band at NO offset; what little structure exists sits on the
+    SPY-leads side (|ccf| up to ~0.10 at lag -1, at the band edge), the reverse
+    of a forecasting signal, while the optimism-leads side is uniformly small
+    (ccf_prewhitened.csv).
   - The defensible virtue is DRAWDOWN / VOLATILITY REDUCTION: OOS max drawdown
-    -8.2% vs -23.9% for buy-and-hold, at a LOWER annual return (11.5% vs 14.8%)
-    and lower volatility (9.2%) -- read the Sharpe as volatility avoidance, not
-    a return advantage. Turnover is MODERATE (3.31/yr, 27 OOS trades): the rule
-    flips a couple of times a year.
-  - LEAD DURABILITY CAVEAT. The winner uses a 6-month lead (L6) on a survey.
-    A 6-month lead on a monthly sentiment series with few cycles in the sample
+    -7.6% vs -23.9% for buy-and-hold, at an essentially MATCHED annual return
+    (14.8% vs 14.8%) and lower volatility (10.1%) -- read the Sharpe as
+    volatility/drawdown avoidance, not a return advantage. Turnover is LOW
+    (1.22/yr, 10 OOS trades): the rule flips about once a year.
+  - LEAD DURABILITY CAVEAT. The winner uses a 9-month lead (L9) on a survey.
+    A 9-month lead on a monthly sentiment series with few cycles in the sample
     needs adjacent-lead durability checking -- and the runner-up
-    (`zscore_60m / T_z_0 / L1`, 1.228) is essentially tied at a much shorter
-    1-month lead, which underlines that the exact 6-month choice is not robust
-    (analyst_suggestions.json).
+    (`chg_12m / T0_zero / L6`, 1.396) is close but at a different threshold and
+    a 6-month lead, so the exact L9 / rolling-median choice is not uniquely
+    robust (analyst_suggestions.json).
   - Status is `found_in_search` (evidence_status.json): the winner still needs
     a frozen-rule holdout / final exam.
 
-MONTHLY conventions: leads in MONTHS (winner L6); Sharpe annualized by
+MONTHLY conventions: leads in MONTHS (winner L9); Sharpe annualized by
 sqrt(12); OOS window 2017-08-31 -> 2025-09-30 (98 months). Numbers sourced from
 results/umcsent_spy/ (winner_summary.json, kpis.json, evidence_status.json,
-interpretation_metadata.json, core_models_20260831/*,
+interpretation_metadata.json, core_models_20260912/*,
 regime_quartile_returns.csv, subperiod_sharpe.csv, granger_by_lag.csv,
-stationarity_tests_20260831.csv, structural_break_umcsent_spy.json,
-tournament_results_20260831.csv).
+stationarity_tests_20260912.csv, structural_break_umcsent_spy.json,
+tournament_results_20260912.csv).
 """
 
 from __future__ import annotations
@@ -84,10 +94,10 @@ class StoryConfig:
     )
 
     HEADLINE_H2 = (
-        "## Sharpe 1.23 OOS versus 0.93 buy-and-hold, direction matches the "
+        "## Sharpe 1.43 OOS versus 0.93 buy-and-hold, direction matches the "
         "procyclical prior -- but the honest headline is the drawdown "
-        "(-8.2% vs -23.9%), and this is a found-in-search candidate on a "
-        "6-month lead that still needs a fresh holdout"
+        "(-7.6% vs -23.9%), and this is a found-in-search candidate on a "
+        "9-month lead that still needs a fresh holdout"
     )
 
     PLAIN_ENGLISH = (
@@ -98,45 +108,46 @@ class StoryConfig:
         "indicator, and the economic prior is procyclical: rising optimism "
         "signals expansion and risk-on equities. This pair tests whether that "
         "optimism can improve SPY timing. The winning rule runs the "
-        "economically sensible way -- hold SPY when optimism is improving -- "
-        "and it agrees with the concurrent regime evidence. Read the result as "
-        "a sentiment overlay and drawdown control, not as a forecast: the "
-        "formal lead-lag tests find no predictive edge, the typical rule "
-        "underperforms buy-and-hold, and the exact 6-month lead is not robust."
+        "economically sensible way -- hold SPY when year-over-year optimism is "
+        "improving relative to its recent norm -- so its direction matches the "
+        "prior. Read the result as a sentiment overlay and drawdown control, "
+        "not as a forecast: the formal lead-lag tests find no predictive edge, "
+        "the typical rule underperforms buy-and-hold, the concurrent quartile "
+        "evidence is flat, and the exact 9-month lead is not robust."
     )
 
     WHERE_THIS_FITS = (
         "This is a sentiment overlay for broad U.S. equities. It belongs in "
         "the portal as a procyclical context signal: useful for drawdown "
         "control in the searched sample, and pointed the economically sensible "
-        "way, but not a standalone forecast. Readers should treat the "
-        "concurrent, procyclical reading (more optimism = better equity "
-        "conditions) as the sensible one and treat the precise 6-month lead "
-        "with skepticism until adjacent leads and a fresh holdout confirm it."
+        "way, but not a standalone forecast. Readers should treat the direction "
+        "as sensible (it matches the procyclical prior) but treat the precise "
+        "9-month lead with skepticism until adjacent leads and a fresh holdout "
+        "confirm it."
     )
 
     ONE_SENTENCE_THESIS = (
-        "Expected-conditions optimism is procyclical with equities "
-        "CONCURRENTLY (strongest-optimism quartile has the best SPY Sharpe, "
-        "0.99) and the search's best rule -- a procyclical filter at a 6-month "
-        "lead -- matches that prior, but it does NOT lead SPY (Granger min "
-        "p = 0.44; local projections null; CCF significant only on the "
-        "SPY-leads side), so it is a drawdown-reduction candidate "
-        "(-8.2% vs -23.9% max drawdown) that is found-in-search, underperforms "
-        "buy-and-hold at the median, and rests on a 6-month lead that needs "
-        "adjacent-lead durability checking."
+        "Expected-conditions optimism is procyclical BY PRIOR and the search's "
+        "best rule -- a procyclical filter at a 9-month lead -- runs that way, "
+        "but the concurrent quartile evidence is flat and non-monotone "
+        "(strongest-optimism Q4 is the WEAKEST by Sharpe, 0.67 vs Q1 0.86) and "
+        "the signal does NOT lead SPY (Granger min p = 0.22; local projections "
+        "null; CCF clears the band at no offset), so it is a drawdown-reduction "
+        "candidate (-7.6% vs -23.9% max drawdown) that is found-in-search, "
+        "underperforms buy-and-hold at the median (0.659 vs 0.93), and rests on "
+        "a 9-month lead that needs adjacent-lead durability checking."
     )
 
     KPI_CAPTION = (
         "every performance number here is a SEARCH-PHASE, out-of-sample figure "
         "on a 98-month window (2017-08-31 -> 2025-09-30). The winner was found "
         "as the best of 168 valid combinations, and the MEDIAN valid combo "
-        "(0.671) UNDERPERFORMS buy-and-hold (0.93) -- the typical rule "
+        "(0.659) UNDERPERFORMS buy-and-hold (0.93) -- the typical rule "
         "subtracts value. The defensible number is the max drawdown "
-        "(-8.2% vs -23.9%) at a LOWER return (11.5% vs 14.8%) and lower "
-        "volatility (9.2%) -- read the Sharpe (1.23 vs 0.93) as volatility "
-        "avoidance, not stock-picking skill. Sharpe ratios use monthly "
-        "sqrt(12) annualization."
+        "(-7.6% vs -23.9%) at an essentially MATCHED return (14.8% vs 14.8%) "
+        "and lower volatility (10.1%) -- read the Sharpe (1.43 vs 0.93) as "
+        "volatility/drawdown avoidance, not stock-picking skill. Sharpe ratios "
+        "use monthly sqrt(12) annualization."
     )
 
     HERO_TITLE = "Expected Business Conditions vs the S&P 500 (SPY)"
@@ -146,37 +157,38 @@ class StoryConfig:
         "shown with SPY on the same time axis, NBER recessions shaded. Unlike a "
         "price level, this survey series is bounded and mean-reverting (it is "
         "stationary), so it oscillates rather than trending. The traded signal "
-        "is its 12-month change, not the level itself. Watch the shaded "
-        "recessions -- optimism sagged into them, as a leading sentiment gauge "
-        "typically does."
+        "is its 12-month change (the change over a full year), not the level "
+        "itself. Watch the shaded recessions -- optimism sagged into them, as a "
+        "leading sentiment gauge typically does."
     )
 
     REGIME_TITLE = "What History Shows: SPY Performance by Expected-Conditions Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
         "What this shows: months are sorted from Q1 (weakest optimism) to Q4 "
-        "(strongest), with concurrent SPY Sharpe in each. The strongest-"
-        "optimism quartile Q4 is the best (Sharpe 0.99) and the weaker "
-        "quartiles are lower (Q1 0.61, Q3 0.48), broadly PROCYCLICAL -- though "
-        "not perfectly monotone (Q2 0.92). This is the economically sensible "
-        "reading, and it runs the SAME way as the procyclical rule the "
-        "tournament selected. Descriptive and concurrent, not a tradable lead."
+        "(strongest), with concurrent SPY Sharpe in each. The pattern is "
+        "essentially FLAT and non-monotone: the strongest-optimism quartile Q4 "
+        "is actually the LOWEST (Sharpe 0.67) while the weakest-optimism Q1 is "
+        "the highest (0.86), with Q2 0.71 and Q3 0.81. So the concurrent regime "
+        "evidence does NOT corroborate a clean procyclical gradient -- one "
+        "reason confidence is LOW. Descriptive and concurrent, not a tradable "
+        "lead."
     )
 
     NARRATIVE_SECTION_1 = """
 ### Headline Findings
 
-The winning rule is a **procyclical, 6-month-lagged expected-conditions filter**. It holds SPY when the 12-month change in expected business conditions from six months earlier was at or above zero (optimism higher than a year before), and holds cash otherwise. Out-of-sample (2017-08 to 2025-09), this rule earns a Sharpe of 1.23 versus 0.93 for buy-and-hold, with a maximum drawdown of **-8.2% versus -23.9%** at an annualized return of 11.5% versus 14.8%. Read that as the honest headline: the rule's edge is a much shallower worst-case loss and lower volatility, **not** a return advantage.
+The winning rule is a **procyclical, 9-month-lagged expected-conditions filter**. It holds SPY when the 12-month change in expected business conditions from nine months earlier was at or above its 60-month rolling median (optimism improving relative to its recent norm), and holds cash otherwise. Out-of-sample (2017-08 to 2025-09), this rule earns a Sharpe of 1.43 versus 0.93 for buy-and-hold, with a maximum drawdown of **-7.6% versus -23.9%** at an essentially matched annualized return of 14.8% versus 14.8%. Read that as the honest headline: the rule's edge is a much shallower worst-case loss and lower volatility, **not** a return advantage. (Correction: an earlier version of this pair rested on a mislabeled 4-month change; with the properly computed 12-month change the winner is `chg_12m / T_roll_p50 / L9` at OOS Sharpe 1.43.)
 
 ### The Sentiment Hypothesis
 
 Expected business conditions measures how consumers expect the economy to do over the coming year -- a forward-looking sentiment reading. Because households spend and take risk on their outlook, it is a **leading** indicator, and the economic prior is that optimism is **procyclical**: rising expectations are risk-on for equities; falling expectations are an early sign demand is cooling.
 
-The concurrent evidence supports that prior: sort months by the expected-conditions level and the strongest-optimism quartile has the best concurrent SPY Sharpe (0.99), with the weaker quartiles lower. Crucially -- and unlike some other pairs in this portal -- the tournament's winning rule runs the **same** way: it buys SPY when optimism is improving. Direction is consistent with the economic prior (`direction_consistent = true`). The caution here is not a sign flip; it is validation and lead durability.
+The winning rule runs the **same** way as that prior -- it buys SPY when year-over-year optimism is improving relative to its recent norm -- so direction is consistent with the economic prior (`direction_consistent = true`). But the concurrent regime evidence does **not** corroborate a clean gradient: sorting months by the expected-conditions level, the strongest-optimism quartile Q4 has the *lowest* concurrent SPY Sharpe (0.67), not the highest, and the four quartiles are essentially flat (Q1 0.86, Q2 0.71, Q3 0.81, Q4 0.67). The caution here is not a sign flip; it is validation, a weak concurrent signal, and lead durability.
 
 ### Why This Is Not a Forecast
 
-The formal lead-lag tests are blunt. The 12-month change does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.44), forward-return correlations are near zero at every horizon (no significant cell), and local projections are essentially null. The pre-whitened cross-correlation is significant only at *negative* lags -- SPY tends to move *before* expected conditions -- the reverse of a forecasting signal. So while the winner's *direction* is sensible, its *predictive lead* is not established, and the precise 6-month lag it uses is not robust: a runner-up at a 1-month lead is essentially tied. This dashboard therefore treats the pair as a searched sentiment overlay whose value, if any, is defensive.
+The formal lead-lag tests are blunt. The 12-month change does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.22), forward-return correlations are near zero at every horizon (no significant cell), and local projections are essentially null. The pre-whitened cross-correlation clears the confidence band at no offset, and what little structure exists sits on the *SPY-leads* side -- the reverse of a forecasting signal. So while the winner's *direction* is sensible, its *predictive lead* is not established, and the precise 9-month lag it uses is not robust: a runner-up at a 6-month lead (and a zero threshold) is close behind. This dashboard therefore treats the pair as a searched sentiment overlay whose value, if any, is defensive.
 """
 
     HISTORY_ZOOM_EPISODES = [
@@ -186,61 +198,60 @@ The formal lead-lag tests are blunt. The 12-month change does **not** Granger-ca
             "narrative": (
                 "Expected conditions softened as the tech bust and 2001 "
                 "recession unfolded. The searched rule lost less than "
-                "buy-and-hold in this window (subperiod Sharpe -0.54 vs "
+                "buy-and-hold in this window (subperiod Sharpe -0.19 vs "
                 "-0.70), an early piece of its drawdown story, but still fell."
             ),
-            "caption": "Dot-Com: optimism sagged; the rule lost less than SPY (-0.54 vs -0.70).",
+            "caption": "Dot-Com: optimism sagged; the rule lost less than SPY (-0.19 vs -0.70).",
         },
         {
             "slug": "gfc",
             "title": "Global Financial Crisis",
             "narrative": (
                 "Expected conditions collapsed through 2008-09 as the outlook "
-                "darkened. The rule lost less than buy-and-hold in this window "
-                "(-0.72 vs -1.03), part of its drawdown advantage, but still "
-                "declined."
+                "darkened. Here the long 9-month lead kept the rule invested "
+                "into the decline, and it did WORSE than buy-and-hold "
+                "(-1.36 vs -1.03) -- the window where the lag hurt most."
             ),
-            "caption": "GFC: optimism collapsed 2008-09; the rule lost less than SPY (-0.72 vs -1.03).",
+            "caption": "GFC: the long lead kept it invested; the rule did worse than SPY (-1.36 vs -1.03).",
         },
         {
             "slug": "covid",
             "title": "COVID Shock",
             "narrative": (
                 "Expected conditions plunged in spring 2020 and rebounded. In "
-                "this window the rule's subperiod Sharpe was strongly positive "
-                "(2.18 vs -0.08 for SPY) -- but COVID is an extreme, exogenous "
-                "in-window outlier that can dominate the backtest fit, so read "
-                "any rule that leans on it with caution."
+                "this crash window the rule was in cash (subperiod Sharpe 0.0 "
+                "vs -0.08 for SPY), so it sidestepped the loss -- but COVID is "
+                "an extreme, exogenous in-window outlier, so read any rule that "
+                "leans on it with caution."
             ),
-            "caption": "COVID: extreme plunge and rebound, an outlier that can dominate the fit.",
+            "caption": "COVID: the rule sat in cash through the crash (0.0 vs -0.08).",
         },
         {
             "slug": "inflation_2022",
             "title": "2022 Rate Shock",
             "narrative": (
                 "Expected conditions fell to multi-decade lows in 2022 as "
-                "inflation bit, yet this is the window where the searched rule "
-                "did WORSE than buy-and-hold (subperiod Sharpe -1.00 vs -0.76). "
-                "A sentiment collapse did not translate into equity protection "
-                "here -- the key caveat that the lead is not a reliable "
-                "early-warning."
+                "inflation bit. Here the rule stepped to cash and avoided the "
+                "drawdown (subperiod Sharpe 0.0 vs -0.76 for SPY) -- a "
+                "defensive win, though it reflects being flat, not a timed "
+                "re-entry."
             ),
-            "caption": "2022: optimism hit lows but the rule did worse than SPY (-1.00 vs -0.76).",
+            "caption": "2022: the rule sat in cash and avoided the loss (0.0 vs -0.76).",
         },
     ]
 
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The stress charts show why the signal is procyclical but imperfect as a forecast. Expected conditions fell during the Dot-Com, GFC and COVID recessions, and in three of those four windows the searched rule lost less than buy-and-hold or gained -- it defended in the Dot-Com bear, the GFC and (strongly) COVID. But in the 2022 rate shock, when optimism fell to multi-decade lows, the rule did **worse** than buy-and-hold, exactly when a sentiment signal would have been most useful. The strongest honest reading is not "expected conditions predicts drawdowns"; it is that a lagged, procyclical filter happened to step to cash during several stress windows, which is where its drawdown advantage was earned -- and it missed one badly.
+The stress charts show why the signal defends unevenly and is imperfect as a forecast. Expected conditions fell during the Dot-Com, GFC and COVID recessions. The searched rule lost less than buy-and-hold in the Dot-Com bear (-0.19 vs -0.70), and it was in cash -- so it sidestepped the loss -- through both the COVID crash (0.0 vs -0.08) and the 2022 rate shock (0.0 vs -0.76). But in the GFC it did **worse** than buy-and-hold (-1.36 vs -1.03): the long 9-month lead kept it invested into the decline. The strongest honest reading is not "expected conditions predicts drawdowns"; it is that a lagged, procyclical filter happened to sit in cash during several stress windows, which is where its drawdown advantage was earned -- and in the GFC the lag worked against it.
 """
 
     TRANSITION_TEXT = (
         "The Evidence page tests whether this sentiment story survives "
-        "correlation, lead-lag, regime, and strategy checks. The direction "
-        "holds -- it is procyclical throughout -- but it does not survive as a "
-        "forecast: the value is defensive, not predictive, and the 6-month "
-        "lead is not robust."
+        "correlation, lead-lag, regime, and strategy checks. The winner's "
+        "direction matches the procyclical prior, but it does not survive as a "
+        "forecast: the value is defensive, not predictive, the concurrent "
+        "quartiles are flat, and the 9-month lead is not robust."
     )
 
 
@@ -269,7 +280,7 @@ CORRELATION_BLOCK = dict(
     ),
     observation=(
         "No transform shows a material linear association with forward SPY; "
-        "the 12-month-change cells are near zero (|r| < 0.03), and the largest "
+        "the 12-month-change cells are near zero (|r| <= 0.04), and the largest "
         "cell anywhere is the level vs 6-month-forward SPY at r = 0.07 "
         "(insignificant)."
     ),
@@ -296,12 +307,12 @@ GRANGER_BLOCK = dict(
     chart_name="granger_f_by_lag",
     chart_caption=(
         "What this shows: every lag is insignificant. The smallest p-value "
-        "across lags 1-6 is 0.44 -- the expected-conditions signal does not "
+        "across lags 1-6 is 0.22 -- the expected-conditions signal does not "
         "Granger-cause SPY returns."
     ),
     observation=(
         "Across the tested monthly lags the signal->SPY p-value never falls "
-        "below 0.44; the F-statistics are tiny. There is no formal evidence of "
+        "below 0.22; the F-statistics are tiny. There is no formal evidence of "
         "lead-lag causality."
     ),
     interpretation=(
@@ -309,7 +320,7 @@ GRANGER_BLOCK = dict(
         "searched sentiment overlay, not proof that expected conditions cause "
         "future SPY returns."
     ),
-    key_message="Formal lead-lag evidence is absent (min p = 0.44); expected conditions does not lead SPY.",
+    key_message="Formal lead-lag evidence is absent (min p = 0.22); expected conditions does not lead SPY.",
 )
 
 QUARTILE_BLOCK = dict(
@@ -326,23 +337,24 @@ QUARTILE_BLOCK = dict(
     ),
     chart_name="regime_stats",
     chart_caption=(
-        "What this shows: broadly PROCYCLICAL -- the strongest-optimism "
-        "quartile Q4 has the best concurrent SPY Sharpe (0.99) and the weaker "
-        "quartiles are lower (Q1 0.61, Q3 0.48), though not perfectly monotone "
-        "(Q2 0.92). This runs the SAME way as the procyclical winner."
+        "What this shows: the concurrent Sharpe is essentially FLAT and "
+        "non-monotone across optimism regimes -- the strongest-optimism "
+        "quartile Q4 is the LOWEST (0.67) and the weakest-optimism Q1 the "
+        "highest (0.86), with Q2 0.71 and Q3 0.81. It does NOT corroborate a "
+        "clean procyclical gradient."
     ),
     observation=(
-        "Concurrent SPY Sharpe is highest in the strongest-optimism quartile "
-        "(Q4 0.99) and lower in the weaker quartiles (Q1 0.61, Q3 0.48, "
-        "Q2 0.92) -- more optimism generally coincides with better equity "
-        "conditions."
+        "Concurrent SPY Sharpe is highest in the weakest-optimism quartile "
+        "(Q1 0.86) and lowest in the strongest (Q4 0.67), with the middle "
+        "buckets in between (Q2 0.71, Q3 0.81) -- a flat, non-monotone pattern."
     ),
     interpretation=(
-        "The concurrent pattern fits a procyclical sentiment story and agrees "
-        "with the tournament's procyclical winner. It confirms the direction "
-        "is sensible; it does not by itself establish a tradable lead."
+        "The concurrent pattern does not support a procyclical sentiment "
+        "gradient; the winner's procyclical orientation rests on the economic "
+        "prior and strategy direction, not on this evidence. It is another "
+        "reason to keep confidence LOW."
     ),
-    key_message="More optimism coincides with better SPY conditions -- procyclical, the same direction as the winner.",
+    key_message="Concurrent optimism regimes show no clean gradient -- the strongest-optimism quartile is the weakest, so this does not corroborate the procyclical reading.",
 )
 
 CCF_BLOCK = dict(
@@ -360,23 +372,24 @@ CCF_BLOCK = dict(
     ),
     chart_name="ccf_prewhitened",
     chart_caption=(
-        "What this shows: the significant bars sit ENTIRELY at negative lags "
-        "(offsets -6, -5, -1) -- SPY tends to move BEFORE expected conditions "
-        "-- with no significant lead-side (optimism-leads-SPY) bars. That is "
-        "the reverse of a forecasting signal."
+        "What this shows: no offset clears the confidence band. What little "
+        "structure exists sits on the SPY-leads (negative-lag) side (|ccf| up "
+        "to ~0.10 at lag -1, right at the band edge), while every optimism-"
+        "leads offset is small (<= 0.04). That is the reverse of a forecasting "
+        "signal."
     ),
     observation=(
-        "Correlations are significant only at negative lags (SPY leading "
-        "expected conditions, |ccf| up to ~0.13); every positive lead-side "
-        "offset is inside the confidence band and insignificant."
+        "No cross-correlation is statistically significant at any offset; the "
+        "largest values are on the SPY-leads side (|ccf| ~0.10 at lag -1, "
+        "~0.08 at lag -6) and the optimism-leads side is uniformly small."
     ),
     interpretation=(
         "There is no coherent window in which expected conditions foreshadows "
-        "SPY. If anything the causality runs the other way (markets "
-        "anticipating sentiment), which argues against an expected-conditions "
-        "forecast of SPY."
+        "SPY. If anything the (insignificant) structure runs the other way "
+        "(markets anticipating sentiment), which argues against an expected-"
+        "conditions forecast of SPY."
     ),
-    key_message="Significant correlation is on the SPY-leads side; expected conditions shows no forecasting lead over SPY.",
+    key_message="No offset is significant; the largest correlation is on the SPY-leads side, so expected conditions shows no forecasting lead over SPY.",
 )
 
 LOCAL_PROJECTIONS_BLOCK = dict(
@@ -396,7 +409,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     chart_caption=(
         "What this shows: coefficients are essentially zero across all "
         "horizons (1, 3, 6 months), none statistically significant "
-        "(p from 0.60 to 0.79), with negligible R^2."
+        "(p from 0.43 to 0.91), with negligible R^2."
     ),
     observation=(
         "Point estimates are near zero at every horizon and no coefficient is "
@@ -443,21 +456,23 @@ QUANTILE_BLOCK = dict(
 
 
 EVIDENCE_METHOD_BLOCKS = {
-    "title": "The Evidence: Expected Conditions Is Procyclical Context, Not a SPY Forecast",
+    "title": "The Evidence: Direction Matches the Procyclical Prior, but It Does Not Forecast SPY",
     "overview": (
         "The evidence supports a cautious sentiment overlay -- and nothing "
         "stronger. The strategy winner improves search-phase OOS Sharpe and "
-        "its direction is procyclical, matching the prior, but formal lead-lag "
-        "evidence is absent (Granger min p = 0.44; local projections null; CCF "
-        "significant only on the SPY-leads side), and the exact 6-month lead is "
-        "not robust (a 1-month-lead runner-up is essentially tied)."
+        "its direction is procyclical, matching the prior, but the concurrent "
+        "quartiles are flat, formal lead-lag evidence is absent (Granger min "
+        "p = 0.22; local projections null; CCF clears the band at no offset), "
+        "and the exact 9-month lead is not robust (a 6-month-lead runner-up is "
+        "close behind)."
     ),
     "plain_english": (
         "This page asks whether expected conditions helps time SPY. The answer "
-        "is: not as a forecast. Concurrent quartiles are procyclical (more "
-        "optimism = better market) and the winning rule agrees, but the causal "
-        "tests find no lead. Treat it as a defensive, procyclical overlay, not "
-        "an early-warning system, and be skeptical of the precise 6-month lag."
+        "is: not as a forecast. The winning rule's direction matches the "
+        "procyclical prior, but the concurrent quartiles are flat (the "
+        "strongest-optimism bucket is not the best) and the causal tests find "
+        "no lead. Treat it as a defensive, procyclical-by-prior overlay, not an "
+        "early-warning system, and be skeptical of the precise 9-month lag."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
@@ -468,18 +483,18 @@ EVIDENCE_METHOD_BLOCKS = {
         "across four expected-conditions transforms (level, 1-month change, "
         "12-month change, 60-month rolling z-score), fixed and rolling "
         "thresholds, a long/cash strategy, and leads from 0 to 12 months. The "
-        "selected winner is `chg_12m / T0_zero / P1_long_cash procyclical / "
-        "L6`, with OOS Sharpe 1.23. The MEDIAN valid combo scores 0.671 -- "
-        "below buy-and-hold's 0.93 -- and the runner-up (`zscore_60m / T_z_0 / "
-        "P1_long_cash / L1`, 1.228) is essentially tied but at a 1-month lead, "
-        "so the exact 6-month lead is a fragile choice rather than a robust "
-        "economic edge."
+        "selected winner is `chg_12m / T_roll_p50 / P1_long_cash procyclical / "
+        "L9`, with OOS Sharpe 1.43. The MEDIAN valid combo scores 0.659 -- "
+        "below buy-and-hold's 0.93 -- and the runner-up (`chg_12m / T0_zero / "
+        "P1_long_cash / L6`, 1.396) is close behind but at a different "
+        "threshold and a 6-month lead, so the exact 9-month lead is a fragile "
+        "choice rather than a robust economic edge."
     ),
     "transition": (
-        "**Transition:** the evidence is procyclical context that matches the "
-        "prior, not causation. The Strategy page shows the exact long/cash "
-        "rule, the drawdown advantage that is its real virtue, and the "
-        "deployment caveats -- including the lead-durability caution."
+        "**Transition:** the evidence is a procyclical-by-prior overlay that "
+        "matches the direction, not causation. The Strategy page shows the "
+        "exact long/cash rule, the drawdown advantage that is its real virtue, "
+        "and the deployment caveats -- including the lead-durability caution."
     ),
 }
 
@@ -488,40 +503,41 @@ class StrategyConfig:
     PAGE_TITLE = "The Strategy: A Procyclical, Lagged Expected-Conditions Long/Cash Overlay"
     PAGE_SUBTITLE = (
         "A searched SPY allocation rule using the 12-month change in expected "
-        "business conditions, a zero threshold, a procyclical orientation, and "
-        "a 6-month lead -- valued for drawdown reduction, not for its Sharpe, "
-        "and flagged as resting on a lead that needs durability checking."
+        "business conditions, a 60-month rolling-median threshold, a "
+        "procyclical orientation, and a 9-month lead -- valued for drawdown "
+        "reduction, not for its Sharpe, and flagged as resting on a lead that "
+        "needs durability checking."
     )
 
     PLAIN_ENGLISH = (
         "The rule holds SPY when the 12-month change in expected business "
-        "conditions from six months earlier was at or above zero (optimism "
-        "higher than a year before); otherwise it holds cash. This is a "
-        "lagged, PROCYCLICAL sentiment filter -- consistent with the prior for "
-        "a leading indicator -- not a real-time recession forecast. Judge it "
-        "by its shallower drawdown (-8.2% vs -23.9%) and lower volatility, not "
-        "by the headline Sharpe."
+        "conditions from nine months earlier was at or above its 60-month "
+        "rolling median (optimism improving relative to its recent norm); "
+        "otherwise it holds cash. This is a lagged, PROCYCLICAL sentiment "
+        "filter -- consistent with the prior for a leading indicator -- not a "
+        "real-time recession forecast. Judge it by its shallower drawdown "
+        "(-7.6% vs -23.9%) and lower volatility, not by the headline Sharpe."
     )
 
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/umcsent_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/umcsent_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/umcsent_spy/tournament_results_20260831.csv"},
-        {"label": "Stationarity tests", "path": "results/umcsent_spy/stationarity_tests_20260831.csv"},
+        {"label": "Tournament results", "path": "results/umcsent_spy/tournament_results_20260912.csv"},
+        {"label": "Stationarity tests", "path": "results/umcsent_spy/stationarity_tests_20260912.csv"},
     ]
 
     SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the 12-month change in expected business conditions, taken from six months earlier, was at or above zero (i.e. when optimism was *higher* than a year before); otherwise hold cash. This is a procyclical rule and runs the same way as the economic prior.
+**Rule in plain English:** hold SPY when the 12-month change in expected business conditions, taken from nine months earlier, was at or above its 60-month rolling median (i.e. when year-over-year optimism was *improving* relative to its recent norm); otherwise hold cash. This is a procyclical rule and runs the same way as the economic prior.
 
 If-then form:
-- **IF** `umcsent_chg_12m` from 6 months earlier is at or above zero -> hold SPY.
+- **IF** `umcsent_chg_12m` from 9 months earlier is at or above its 60-month rolling median -> hold SPY.
 - **ELSE** -> hold cash.
 
-Search-phase OOS results (2017-08-31 to 2025-09-30, 98 months): Sharpe 1.23 versus 0.93 buy-and-hold; annualized return 11.5% versus 14.8%; **maximum drawdown -8.2% versus -23.9%**; annualized volatility 9.2%; win rate 39.8%; 27 trades; annual turnover 3.31 (moderate). The drawdown and volatility reduction, not the Sharpe or return, is the defensible result.
+Search-phase OOS results (2017-08-31 to 2025-09-30, 98 months): Sharpe 1.43 versus 0.93 buy-and-hold; annualized return 14.8% versus 14.8%; **maximum drawdown -7.6% versus -23.9%**; annualized volatility 10.1%; win rate 43.9%; 10 trades; annual turnover 1.22 (low). The drawdown and volatility reduction, not the Sharpe or the (essentially matched) return, is the defensible result.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads the University of Michigan expected-change-in-business-conditions diffusion (`umcsent`) at month-end. Second, it computes the 12-month change (`umcsent_chg_12m`, the level today minus the level twelve months earlier). Third, it applies a 6-month lag before the SPY allocation is set. Finally, the lagged signal is compared with a zero threshold: when the lagged 12-month change is at or above zero, hold SPY; otherwise cash (the procyclical orientation).
+First, the data process reads the University of Michigan expected-change-in-business-conditions diffusion (`umcsent`) at month-end. Second, it computes the 12-month change (`umcsent_chg_12m`, the level today minus the level twelve months earlier -- now correctly measured over a full year). Third, it applies a 9-month lag before the SPY allocation is set. Finally, the lagged signal is compared with its 60-month rolling median: when the lagged 12-month change is at or above that rolling median, hold SPY; otherwise cash (the procyclical orientation).
 
 OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualized out-of-sample return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of out-of-sample months with positive strategy return (below half here partly because the rule holds cash for stretches).
 """
@@ -531,9 +547,9 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 
 1. Read the U. Michigan expected-conditions diffusion (`umcsent`) at month end.
 2. Compute the 12-month change (today's level minus the level twelve months earlier).
-3. Take the value from 6 months earlier and compare it with zero.
-4. Hold SPY when that lagged 12-month change was at or above zero; otherwise hold cash.
-5. Recheck monthly. Turnover is moderate (3.31/yr): the rule flips a couple of times a year.
+3. Take the value from 9 months earlier and compare it with its 60-month rolling median.
+4. Hold SPY when that lagged 12-month change was at or above its rolling median; otherwise hold cash.
+5. Recheck monthly. Turnover is low (1.22/yr): the rule flips about once a year.
 """
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -544,10 +560,11 @@ This describes the backtested rule so it can be audited; it is not a trading rec
         "What this shows: Sharpe is return per unit of volatility. The "
         "subperiod chart compares the searched rule with buy-and-hold SPY "
         "during major stress windows. The rule loses LESS in the Dot-Com bear "
-        "(-0.54 vs -0.70) and the GFC (-0.72 vs -1.03), and is strongly "
-        "positive through COVID (2.18 vs -0.08) -- but it does WORSE than "
-        "buy-and-hold in the 2022 rate shock (-1.00 vs -0.76). The stress "
-        "defense is real but not universal."
+        "(-0.19 vs -0.70) and sits in cash -- avoiding the loss -- through the "
+        "COVID crash (0.0 vs -0.08) and the 2022 rate shock (0.0 vs -0.76), but "
+        "it does WORSE than buy-and-hold in the GFC (-1.36 vs -1.03) because "
+        "the long lead kept it invested. The stress defense is real but not "
+        "universal."
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (
@@ -563,15 +580,15 @@ This describes the backtested rule so it can be audited; it is not a trading rec
             "fixed model is unlikely to describe the whole sample. A larger "
             "break statistic means the relationship shifted more materially "
             "across periods (here the max absolute rolling-correlation z-score "
-            "reaches 2.7)."
+            "reaches 3.1)."
         ),
     }
     SHOW_TOURNAMENT_SCATTER = True
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
         "What this shows: OOS Sharpe distribution across valid searched "
-        "combinations by lead. The winner (1.23) is a right-tail maximum; the "
-        "median valid combo (0.671) sits BELOW buy-and-hold (0.93), so the "
+        "combinations by lead. The winner (1.43) is a right-tail maximum; the "
+        "median valid combo (0.659) sits BELOW buy-and-hold (0.93), so the "
         "typical rule built on this indicator subtracts value."
     )
 
@@ -579,27 +596,29 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 **Main caveats:**
 
 1. The result is marked `found_in_search`; the median valid combo underperforms buy-and-hold, and the winner still needs a frozen-rule holdout confirmation before it can be called deployable. Confidence is LOW.
-2. The winner uses a 6-month lead (L6) on a monthly survey with few cycles in the sample. A 6-month lead needs adjacent-lead durability checking -- and the runner-up at a 1-month lead (`zscore_60m / T_z_0 / L1`, 1.228) is essentially tied, so the precise 6-month choice is fragile.
-3. Granger causality is insignificant at every lag (min p = 0.44), local projections are null, and the pre-whitened CCF is significant only on the SPY-leads side -- so this is not a proven causal forecast, even though the direction is sensible.
-4. The defensible virtue is drawdown and volatility reduction, not return: annualized return (11.5%) is BELOW buy-and-hold (14.8%).
-5. The stress defense is uneven: the rule did WORSE than buy-and-hold in the 2022 rate shock, exactly when the sentiment collapse would have seemed most useful.
-6. This is the University of Michigan *expected business conditions* sub-series (forward-looking), distinct from the headline consumer-sentiment index; do not conflate the two.
+2. The winner uses a 9-month lead (L9) on a monthly survey with few cycles in the sample. A 9-month lead needs adjacent-lead durability checking -- and the runner-up at a 6-month lead (`chg_12m / T0_zero / L6`, 1.396) is close behind at a different threshold, so the precise 9-month choice is fragile.
+3. Granger causality is insignificant at every lag (min p = 0.22), local projections are null, and the pre-whitened CCF clears the band at no offset (the largest values are on the SPY-leads side) -- so this is not a proven causal forecast, even though the direction is sensible.
+4. The defensible virtue is drawdown and volatility reduction, not return: the annualized return (14.8%) is essentially matched to buy-and-hold (14.8%), so read the Sharpe as volatility/drawdown avoidance.
+5. The stress defense is uneven: the rule did WORSE than buy-and-hold in the GFC (-1.36 vs -1.03) because the long lead kept it invested into the decline.
+6. Corrected pair: an earlier winner rested on a mislabeled 4-month change; with the properly computed 12-month change the winner is `chg_12m / T_roll_p50 / L9` at OOS Sharpe 1.43.
+7. This is the University of Michigan *expected business conditions* sub-series (forward-looking), distinct from the headline consumer-sentiment index; do not conflate the two.
 """
 
     TRADE_LOG_EXAMPLE_MD = (
         "**A concrete example from this pair:** the broker-style log records a "
-        "BUY when the 6-month-lagged 12-month change in expected conditions "
-        "crossed at or above zero, taking exposure from 0% to 100% SPY. A SELL "
-        "moves back to cash when the lagged 12-month change fell below zero."
+        "BUY when the 9-month-lagged 12-month change in expected conditions "
+        "crossed at or above its 60-month rolling median, taking exposure from "
+        "0% to 100% SPY. A SELL moves back to cash when the lagged 12-month "
+        "change fell below its rolling median."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
-        "trade_date": "1994-06-30",
+        "trade_date": "1996-09-30",
         "side": "BUY",
         "instrument": "SPY",
         "quantity_pct": "100.0",
         "commission_bps": "5",
-        "reason": "P1_long_cash: chg_12m procyclical rule crossed T0_zero; position 0% to 100%",
+        "reason": "P1_long_cash: chg_12m procyclical rule crossed T_roll_p50; position 0% to 100%",
     }
 
 
@@ -622,9 +641,11 @@ _INDICATOR_CONSTRUCTION_MD = (
     "root, p = 0.0002; KPSS does not reject stationarity). The pipeline "
     "constructs the level, its 1-month change, its 12-month change, and a "
     "60-month rolling z-score -- all stationary. The winning signal is "
-    "`umcsent_chg_12m`, the 12-month change, used with a 6-month lead, a zero "
-    "threshold, and a procyclical orientation (long SPY when the lagged "
-    "12-month change is at or above zero)."
+    "`umcsent_chg_12m`, the 12-month change (now correctly measured over a "
+    "full year; an earlier version mislabeled a 4-month change), used with a "
+    "9-month lead, a 60-month rolling-median threshold, and a procyclical "
+    "orientation (long SPY when the lagged 12-month change is at or above its "
+    "rolling median)."
 )
 
 _METHODS_TABLE_MD = """
@@ -640,7 +661,7 @@ _METHODS_TABLE_MD = """
 """
 
 _TOURNAMENT_DESIGN_MD = """
-Grid: expected-conditions transforms (level, 1-month change, 12-month change, 60-month rolling z-score) x fixed and rolling thresholds x a long/cash strategy x procyclical/countercyclical orientations x lead times (0-12 months). The final tournament has 168 combinations, all 168 valid. The winning rule is `umcsent_chg_12m / T0_zero / P1_long_cash procyclical / L6`, the maximum OOS Sharpe (1.23). The median valid combo (0.671) underperforms buy-and-hold (0.93), and the runner-up (`zscore_60m / T_z_0 / P1_long_cash / L1`, 1.228) is essentially tied but at a 1-month lead -- read the winner as a selection maximum whose exact 6-month lead is fragile, not a validated edge. The winner's direction is procyclical, consistent with the leading-indicator prior (`direction_consistent = true`).
+Grid: expected-conditions transforms (level, 1-month change, 12-month change, 60-month rolling z-score) x fixed and rolling thresholds x a long/cash strategy x procyclical/countercyclical orientations x lead times (0-12 months). The final tournament has 168 combinations, all 168 valid. The winning rule is `umcsent_chg_12m / T_roll_p50 / P1_long_cash procyclical / L9`, the maximum OOS Sharpe (1.43). The median valid combo (0.659) underperforms buy-and-hold (0.93), and the runner-up (`chg_12m / T0_zero / P1_long_cash / L6`, 1.396) is close behind but at a different threshold and a 6-month lead -- read the winner as a selection maximum whose exact 9-month lead is fragile, not a validated edge. The winner's direction is procyclical, consistent with the leading-indicator prior (`direction_consistent = true`).
 """
 
 _REFERENCES_MD = """
@@ -669,6 +690,6 @@ METHODOLOGY_CONFIG = MethodologyConfig(
         "how the econometric checks were run, and how the tournament selected "
         "the final SPY allocation rule -- along with the honest caveat that the "
         "selection maximum is a procyclical rule whose direction is sensible "
-        "but whose 6-month lead is fragile and not yet a validated edge."
+        "but whose 9-month lead is fragile and not yet a validated edge."
     ),
 )

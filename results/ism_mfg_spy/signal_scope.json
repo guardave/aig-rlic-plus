@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-08-31T07:33:25.741565+00:00",
+  "last_updated_at": "2026-09-12T17:21:58.551775+00:00",
   "indicator_axis": {
     "canonical_column": "ism",
     "display_name": "ISM Manufacturing PMI",

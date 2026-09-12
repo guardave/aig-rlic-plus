@@ -1,0 +1,12 @@
+{
+  "chart_name": "local_projections",
+  "pair_id": "permit_yoy_spy",
+  "generated_at": "2026-09-12T17:38:01.381125+00:00",
+  "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
+  "caption": "Estimated SPY response across horizons to a move in permit growth.",
+  "narrative_alignment_note": "Estimated SPY response across horizons to a move in permit growth.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/permit_yoy_spy/core_models_20260912/local_projections.csv"
+  ]
+}

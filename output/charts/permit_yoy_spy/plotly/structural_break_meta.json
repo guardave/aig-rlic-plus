@@ -1,0 +1,12 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "permit_yoy_spy",
+  "generated_at": "2026-09-12T17:38:01.538926+00:00",
+  "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
+  "caption": "Proxy check for large changes in the permit/SPY relationship.",
+  "narrative_alignment_note": "Proxy check for large changes in the permit/SPY relationship.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/permit_yoy_spy/structural_break_permit_yoy_spy.json"
+  ]
+}

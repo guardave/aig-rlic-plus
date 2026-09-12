@@ -1,6 +1,6 @@
 {
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-08-31T07:34:16.920578+00:00",
+  "generated_at": "2026-09-12T17:22:53.798357+00:00",
   "signal_column": "invsales_level",
   "signal_code": "level",
   "signal_display_name": "Retail Inventories-to-Sales Ratio (level)",
@@ -18,12 +18,12 @@
   "lead_description": "Signal is lagged 3 month(s) before allocation.",
   "lookback": "60m where rolling thresholds apply",
   "direction": "procyclical",
-  "oos_sharpe": 1.233822,
-  "oos_sortino": 1.342829,
-  "oos_calmar": 1.373329,
+  "oos_sharpe": 1.233823,
+  "oos_sortino": 1.342827,
+  "oos_calmar": 1.373324,
   "oos_ann_return": 0.120919,
   "oos_ann_vol": 0.096675,
-  "oos_max_drawdown": -0.088048,
+  "oos_max_drawdown": -0.088049,
   "oos_win_rate": 0.428571,
   "oos_n_trades": 16,
   "annual_turnover": 1.959184,
@@ -37,7 +37,7 @@
   "total_combos": 168,
   "valid_combos": 168,
   "schema_version": "1.2.0",
-  "notes": "A high inventories-to-sales ratio signals weakening demand. On this sample the raw level is NOT stationary (ADF does not reject a unit root; KPSS rejects stationarity) \u2014 it drifts \u2014 so the traded level signal uses a 60-month ROLLING-median threshold as an adaptive regime filter rather than a fixed cutoff. Winner is search-selected \u2014 read as found-in-search.",
+  "notes": "A high inventories-to-sales ratio signals weakening demand and precedes equity weakness. On this sample the raw level is NOT stationary (ADF does not reject a unit root; KPSS rejects stationarity) \u2014 it drifts \u2014 so the traded level signal uses a 60-month ROLLING-median threshold as an adaptive regime filter rather than a fixed cutoff. Winner is search-selected \u2014 read as found-in-search.",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "monthly mean/std*sqrt(12)",
@@ -55,7 +55,7 @@
       "n_thresholds": 12,
       "n_strategies": 1,
       "n_valid_combos": 168,
-      "median_valid_objective": 0.70066
+      "median_valid_objective": 0.692529
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -64,15 +64,15 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 3,
-      "source_tournament_file": "tournament_results_20260831.csv",
+      "source_tournament_file": "tournament_results_20260912.csv",
       "source_row_index": 24
     },
     "runner_up": {
-      "signal": "level",
-      "threshold": "T_roll_p50",
+      "signal": "chg_12m",
+      "threshold": "T_roll_p75",
       "strategy": "P1_long_cash",
-      "lead_value": 1,
-      "objective_value": 1.190512
+      "lead_value": 0,
+      "objective_value": 1.200944
     },
     "rationale": "Winner is the valid row with the highest OOS Sharpe over the published grid.",
     "objective_runner_up_divergence": null

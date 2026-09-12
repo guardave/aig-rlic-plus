@@ -1,7 +1,7 @@
 {
   "chart_name": "hero",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-08-31T07:53:05.182142+00:00",
+  "generated_at": "2026-09-12T17:24:12.783110+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "ISM Manufacturing PMI level (with the 50 line) and SPY with NBER recession bands.",
   "narrative_alignment_note": "ISM Manufacturing PMI level (with the 50 line) and SPY with NBER recession bands.",

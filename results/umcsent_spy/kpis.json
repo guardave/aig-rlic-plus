@@ -1,7 +1,7 @@
 {
   "pair_id": "umcsent_spy",
-  "winner_oos_sharpe": 1.230609,
-  "benchmark_oos_sharpe": 0.931524,
-  "oos_max_drawdown": -0.08246,
+  "winner_oos_sharpe": 1.427042,
+  "benchmark_oos_sharpe": 0.931525,
+  "oos_max_drawdown": -0.07579,
   "bh_max_drawdown": -0.239272
 }

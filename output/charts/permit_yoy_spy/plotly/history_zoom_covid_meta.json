@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_covid",
+  "pair_id": "permit_yoy_spy",
+  "generated_at": "2026-09-12T17:38:01.694497+00:00",
+  "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
+  "caption": "COVID Shock: Permit Collapse and Rapid Rebound; gray bands are NBER recessions.",
+  "narrative_alignment_note": "COVID Shock: Permit Collapse and Rapid Rebound; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/permit_yoy_spy_monthly_latest.parquet"
+  ]
+}

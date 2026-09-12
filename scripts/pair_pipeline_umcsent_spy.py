@@ -19,7 +19,7 @@ import yfinance as yf
 from statsmodels.tsa.stattools import adfuller, kpss
 
 PAIR_ID = "umcsent_spy"
-DATE_TAG = "20260831"
+DATE_TAG = "20260912"
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 REPO = Path(__file__).resolve().parents[1]
@@ -83,7 +83,7 @@ def source_data() -> pd.DataFrame:
     # Bounded / mean-reverting level is a valid stationary signal.
     df["umcsent_level"] = lvl
     df["umcsent_diff_1m"] = lvl.diff(1)             # month-on-month change
-    df["umcsent_chg_12m"] = lvl.diff(4)              # 12-month change
+    df["umcsent_chg_12m"] = lvl.diff(12)             # 12-month change
     roll_mean = lvl.rolling(60, min_periods=24).mean()
     roll_std = lvl.rolling(60, min_periods=24).std()
     df["umcsent_zscore_60m"] = (lvl - roll_mean) / roll_std

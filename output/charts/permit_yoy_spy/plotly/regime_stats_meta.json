@@ -1,0 +1,12 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "permit_yoy_spy",
+  "generated_at": "2026-09-12T17:38:01.260545+00:00",
+  "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
+  "caption": "SPY performance across building-permit YoY quartiles.",
+  "narrative_alignment_note": "SPY performance across building-permit YoY quartiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/permit_yoy_spy/regime_quartile_returns.csv"
+  ]
+}
