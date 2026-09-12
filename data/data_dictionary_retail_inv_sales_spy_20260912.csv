@@ -1,0 +1,3 @@
+Column Name,Display Name,Description,Source,Series ID,Unit,Transformation,Direction Convention,Effective Start,Known Quirks,Display Note,Refresh Freq.,Refresh Source
+invsales,Retail Inventories-to-Sales Ratio,Retail inventories-to-sales ratio,Data Master.xlsx,RETAILIRSA,Ratio,Monthly level,Higher = inventory overhang / weak demand (bearish equities),1993-01-31,"Bounded ratio ~[1.1,1.8], mean-reverting; inventory overhang precedes production cuts",A high inventories-to-sales ratio signals weakening demand and precedes equity weakness.,Monthly,Data Master
+spy,SPY adjusted close,SPDR S&P 500 ETF adjusted close,Yahoo Finance,SPY,USD,Month-end adjusted close,Higher = higher equity price,1993-01-31,ETF history begins 1993,Equity target and benchmark.,Daily,Yahoo Finance

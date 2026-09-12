@@ -1,5 +1,5 @@
 {
   "pair_id": "umcsent_spy",
   "method": "rolling-correlation z-score proxy",
-  "max_abs_z": 2.674056473456395
+  "max_abs_z": 3.110497494064209
 }

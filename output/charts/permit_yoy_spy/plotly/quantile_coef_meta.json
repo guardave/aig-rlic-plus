@@ -1,0 +1,12 @@
+{
+  "chart_name": "quantile_coef",
+  "pair_id": "permit_yoy_spy",
+  "generated_at": "2026-09-12T17:38:01.406189+00:00",
+  "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
+  "caption": "Permit-growth coefficient across SPY forward-return quantiles.",
+  "narrative_alignment_note": "Permit-growth coefficient across SPY forward-return quantiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/permit_yoy_spy/core_models_20260912/quantile_regression.csv"
+  ]
+}

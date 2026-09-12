@@ -26,7 +26,7 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-08-31T07:34:16.920578+00:00",
+  "last_updated_at": "2026-09-12T17:22:53.798357+00:00",
   "indicator": "invsales",
   "target": "spy",
   "expected_direction": "countercyclical",
@@ -70,6 +70,6 @@
   "data_provenance": {
     "source": "Data Master.xlsx (Census)",
     "series_id": "RETAILIRSA",
-    "accessed_at": "2026-08-31T07:34:16.920578+00:00"
+    "accessed_at": "2026-09-12T17:22:53.798357+00:00"
   }
 }

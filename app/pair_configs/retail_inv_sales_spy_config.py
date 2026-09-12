@@ -28,23 +28,26 @@ results/retail_inv_sales_spy/*:
     inventories) and "long when the ratio is high, lagged 3 months" is catching
     post-stress recovery rebounds -- but that is a rationalization of a
     search-selected result, NOT a validated mechanism. Treat it as a red flag.
-  - The concurrent evidence points the ORDINARY countercyclical way, opposite
-    the winner: sorting months by the 12-month CHANGE in the ratio, the
-    falling-ratio quartile Q1 (demand improving) has the BEST concurrent SPY
-    Sharpe (1.37) and the rising-ratio quartile Q4 (demand weakening) the WORST
-    (0.15) (regime_quartile_returns.csv). Rising/high ratio coincides with weak
-    equities -- exactly the prior -- so the procyclical winner runs against both
-    the prior and the concurrent data.
+  - The concurrent evidence is a WEAK, NON-MONOTONIC tilt, not a clean
+    countercyclical gradient: sorting months by the 12-month CHANGE in the ratio,
+    the extreme rising-ratio quartile Q4 (demand weakening) is the WEAKEST
+    concurrent SPY Sharpe (0.49), but the pattern does not rise monotonically as
+    the ratio falls -- Q2 is highest (1.10), with Q1 0.82 and Q3 0.59
+    (regime_quartile_returns.csv). So the concurrent data give only a soft hint
+    that a rising ratio coincides with weaker equities, not the clean
+    countercyclical gradient the prior would predict. (This 12-month-change
+    evidence was recomputed after a diff-window bug fix: the signal had been
+    mistakenly built as a 4-month change and is now a true 12-month change.)
   - No lead-lag forecast. The 12-month change in the ratio does NOT Granger-
-    cause SPY at any tested lag (minimum p = 0.32 at lag 1) (granger_by_lag.csv).
+    cause SPY at any tested lag (minimum p = 0.439 at lag 4) (granger_by_lag.csv).
     Linear correlation with forward SPY is near zero at every horizon; the only
     nominally significant cell is the 60-month z-score vs 6-month-forward SPY
-    (r = 0.11, p = 0.03), a weak positive (core_models_20260831/correlations.csv).
+    (r = 0.11, p = 0.03), a weak positive (core_models_20260912/correlations.csv).
     Local projections are near-null at every horizon (no coefficient significant;
-    trivial R^2), with a weak NEGATIVE tilt consistent with the prior but
-    insignificant (local_projections.csv). Pre-whitened cross-correlation is
-    significant only at ZERO and NEGATIVE lags (SPY tends to move before the
-    ratio), with no significant lead-side bars (ccf_prewhitened.csv).
+    trivial R^2), with coefficients close to zero and mixed in sign
+    (local_projections.csv). Pre-whitened cross-correlation is significant only
+    at NEGATIVE lags (SPY tends to move before the ratio), with no significant
+    lead-side bars (ccf_prewhitened.csv).
   - The defensible virtue is DRAWDOWN / VOLATILITY REDUCTION: OOS max drawdown
     -8.8% vs -23.9% for buy-and-hold, at a slightly LOWER annual return
     (12.1% vs 14.4%) and lower volatility (9.7%) -- read the Sharpe as
@@ -52,7 +55,7 @@ results/retail_inv_sales_spy/*:
     defensive through the GFC, COVID and 2022 stress windows
     (subperiod_sharpe.csv). Turnover is moderate (1.96/yr, 16 OOS trades).
     A stationary block bootstrap puts the winner's Sharpe at p < 0.01
-    (tournament_validation_20260831/bootstrap.csv), but that is an in-sample
+    (tournament_validation_20260912/bootstrap.csv), but that is an in-sample
     significance check, not out-of-sample validation.
   - Status is `found_in_search` (evidence_status.json): the winner still needs
     a frozen-rule holdout / final exam.
@@ -61,15 +64,15 @@ results/retail_inv_sales_spy/*:
     KPSS rejects stationarity -- the level drifts slowly across decades. That is
     precisely why the winner pairs the level with a 60-month ROLLING-median
     threshold that re-centers on recent history, not a fixed cut
-    (stationarity_tests_20260831.csv).
+    (stationarity_tests_20260912.csv).
 
 MONTHLY conventions: leads in MONTHS (winner L3); Sharpe annualized by
 sqrt(12); OOS window 2017-06-30 -> 2025-07-31 (98 months). Numbers sourced from
 results/retail_inv_sales_spy/ (winner_summary.json, kpis.json,
-evidence_status.json, interpretation_metadata.json, core_models_20260831/*,
+evidence_status.json, interpretation_metadata.json, core_models_20260912/*,
 regime_quartile_returns.csv, subperiod_sharpe.csv, granger_by_lag.csv,
-stationarity_tests_20260831.csv, structural_break_retail_inv_sales_spy.json,
-tournament_results_20260831.csv, tournament_validation_20260831/bootstrap.csv).
+stationarity_tests_20260912.csv, structural_break_retail_inv_sales_spy.json,
+tournament_results_20260912.csv, tournament_validation_20260912/bootstrap.csv).
 """
 
 from __future__ import annotations
@@ -111,16 +114,18 @@ class StoryConfig:
         "the portal as a defensive context signal: useful for drawdown control "
         "in the searched sample, but not a standalone forecast, and not evidence "
         "that the ratio leads the market. Readers wanting the economically "
-        "sensible reading should treat the concurrent, countercyclical pattern "
-        "(rising/high ratio = worse equity conditions) as the sound one, and the "
-        "procyclical 3-month winner with skepticism."
+        "sensible reading should note the concurrent evidence is only a weak, "
+        "non-monotonic tilt (the extreme rising-ratio quartile is the weakest, "
+        "but the gradient is not clean), and treat the procyclical 3-month "
+        "winner with skepticism."
     )
 
     ONE_SENTENCE_THESIS = (
-        "The inventories-to-sales ratio is countercyclical with equities "
-        "CONCURRENTLY (the falling-ratio quartile has the best SPY Sharpe, 1.37, "
-        "and the rising-ratio quartile the worst, 0.15) but does NOT lead SPY -- "
-        "Granger is insignificant at every lag (min p = 0.32) and local "
+        "The inventories-to-sales ratio shows only a WEAK, NON-MONOTONIC "
+        "concurrent tilt with equities (the extreme rising-ratio quartile has "
+        "the worst SPY Sharpe, 0.49, but the pattern is non-monotonic -- Q2 is "
+        "highest at 1.10) and does NOT lead SPY -- Granger is insignificant at "
+        "every lag (min p = 0.439) and local "
         "projections are null -- so the search's best rule, a PROCYCLICAL filter "
         "at a 3-month lead, is a drawdown-reduction candidate (-8.8% vs -23.9% "
         "max drawdown) whose direction contradicts the economic prior and is "
@@ -155,11 +160,11 @@ class StoryConfig:
         "What this shows: months are sorted by the 12-month CHANGE in the ratio, "
         "from Q1 (ratio falling fastest -- demand improving) to Q4 (ratio rising "
         "fastest -- demand weakening), with concurrent SPY Sharpe in each. The "
-        "falling-ratio quartile Q1 has the BEST concurrent SPY Sharpe (1.37) and "
-        "the rising-ratio quartile Q4 the WORST (0.15) -- broadly "
-        "COUNTERCYCLICAL concurrently (a deteriorating ratio coincides with "
-        "weaker equities). This is the economically sensible reading, and it "
-        "runs OPPOSITE to the procyclical rule the tournament selected. "
+        "extreme rising-ratio quartile Q4 is the WEAKEST (0.49), but the pattern "
+        "is NON-MONOTONIC -- Q2 is highest (1.10), with Q1 0.82 and Q3 0.59 -- so "
+        "this is a weak, non-monotonic tilt rather than a clean countercyclical "
+        "gradient. The soft hint (rising ratio = weaker equities at the extreme) "
+        "still runs OPPOSITE to the procyclical rule the tournament selected. "
         "Descriptive and concurrent, not a tradable lead."
     )
 
@@ -172,11 +177,11 @@ The winning rule is a **procyclical, 3-month-lagged inventories-to-sales filter*
 
 The retail inventories-to-sales ratio measures how much stock retailers hold relative to how fast it sells. Because a rising ratio means goods are accumulating faster than demand can clear them, it is read as a **coincident** demand-stress gauge. The economic prior is **countercyclical**: a high or rising ratio signals inventory overhang and weakening demand -- a reason to *reduce* equity exposure -- while a low or falling ratio signals healthy demand.
 
-The concurrent evidence supports that prior: sort months by the 12-month change in the ratio and the falling-ratio quartile (demand improving) has the best concurrent SPY Sharpe (1.37), the rising-ratio quartile (demand weakening) the worst (0.15). But the tournament's winning rule runs the **opposite** way -- it buys SPY when the 3-month-lagged ratio is *high*. That direction contradicts the economic prior and the concurrent data.
+The concurrent evidence gives only a weak, non-monotonic hint in that direction: sort months by the 12-month change in the ratio and the extreme rising-ratio quartile (demand weakening) is the weakest concurrent SPY Sharpe (0.49), but the pattern does not fall monotonically as the ratio rises -- Q2 is the highest (1.10), with Q1 0.82 and Q3 0.59. So the concurrent data are a soft tilt, not the clean countercyclical gradient the prior predicts. The tournament's winning rule runs the **opposite** way regardless -- it buys SPY when the 3-month-lagged ratio is *high* -- which still contradicts the economic prior. (This 12-month-change evidence was recomputed after a diff-window bug fix; the signal had been mistakenly built as a 4-month change.)
 
 ### Why This Is Not a Forecast
 
-The formal lead-lag tests are blunt. The 12-month change in the ratio does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.32), forward-return correlations are near zero at every horizon, and local projections are essentially null (a weak negative tilt, consistent with the prior, but insignificant). The pre-whitened cross-correlation is significant only at *zero and negative* lags -- SPY tends to move *before* the ratio -- the reverse of a forecasting signal. So the procyclical 3-month rule the search selected is economically implausible; it most plausibly reflects a search artifact rather than a real channel. A tempting post-hoc story -- that the ratio spikes in recessions and "buy when it is high" catches recovery rebounds -- is a rationalization of a search-selected result, not a validated mechanism. This dashboard therefore treats the pair as a searched demand-stress overlay whose value, if any, is defensive.
+The formal lead-lag tests are blunt. The 12-month change in the ratio does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.439), forward-return correlations are near zero at every horizon, and local projections are essentially null (coefficients near zero and mixed in sign, none significant). The pre-whitened cross-correlation is significant only at *negative* lags -- SPY tends to move *before* the ratio -- the reverse of a forecasting signal. So the procyclical 3-month rule the search selected is economically implausible; it most plausibly reflects a search artifact rather than a real channel. A tempting post-hoc story -- that the ratio spikes in recessions and "buy when it is high" catches recovery rebounds -- is a rationalization of a search-selected result, not a validated mechanism. This dashboard therefore treats the pair as a searched demand-stress overlay whose value, if any, is defensive.
 """
 
     HISTORY_ZOOM_EPISODES = [
@@ -230,7 +235,7 @@ The formal lead-lag tests are blunt. The 12-month change in the ratio does **not
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The stress charts show why the signal is countercyclical concurrently but imperfect as a forecast. The ratio rose in the Dot-Com and GFC downturns and spiked in COVID as sales collapsed -- but the searched rule's protection was uneven: it lost slightly less than buy-and-hold in the Dot-Com bear, was clearly defensive in the GFC (+0.30 vs -1.03 subperiod Sharpe) and COVID (+1.55 vs -0.08), and sat in cash (flat) through the 2022 rate shock while SPY fell. In 2022 the ratio stayed low because the market's problem was rates, not demand. The strongest honest reading is not "the ratio predicts drawdowns"; it is that a lagged, procyclical filter happened to step to cash during several stress windows, which is where its drawdown advantage was earned -- and that its direction still contradicts the economic prior.
+The stress charts show why the signal is at best a weak concurrent demand gauge and imperfect as a forecast. The ratio rose in the Dot-Com and GFC downturns and spiked in COVID as sales collapsed -- but the searched rule's protection was uneven: it lost slightly less than buy-and-hold in the Dot-Com bear, was clearly defensive in the GFC (+0.30 vs -1.03 subperiod Sharpe) and COVID (+1.55 vs -0.08), and sat in cash (flat) through the 2022 rate shock while SPY fell. In 2022 the ratio stayed low because the market's problem was rates, not demand. The strongest honest reading is not "the ratio predicts drawdowns"; it is that a lagged, procyclical filter happened to step to cash during several stress windows, which is where its drawdown advantage was earned -- and that its direction still contradicts the economic prior.
 """
 
     TRANSITION_TEXT = (
@@ -293,20 +298,20 @@ GRANGER_BLOCK = dict(
     chart_name="granger_f_by_lag",
     chart_caption=(
         "What this shows: every lag is insignificant. The smallest p-value "
-        "across lags 1-6 is 0.32 -- the ratio does not Granger-cause SPY "
-        "returns."
+        "across lags 1-6 is 0.439 (at lag 4) -- the ratio does not Granger-cause "
+        "SPY returns."
     ),
     observation=(
         "Across all six monthly lags the signal->SPY p-value never falls below "
-        "0.32; the F-statistics are near one. There is no formal evidence of "
-        "lead-lag causality."
+        "0.439; the F-statistics are all below one. There is no formal evidence "
+        "of lead-lag causality."
     ),
     interpretation=(
         "This rules out a causal claim. The strategy must be framed as a "
         "searched demand-stress overlay, not proof that the ratio causes future "
         "SPY returns."
     ),
-    key_message="Formal lead-lag evidence is absent (min p = 0.32); the ratio does not lead SPY.",
+    key_message="Formal lead-lag evidence is absent (min p = 0.439); the ratio does not lead SPY.",
 )
 
 QUARTILE_BLOCK = dict(
@@ -325,24 +330,26 @@ QUARTILE_BLOCK = dict(
     ),
     chart_name="regime_stats",
     chart_caption=(
-        "What this shows: broadly COUNTERCYCLICAL -- the falling-ratio quartile "
-        "Q1 has the BEST concurrent SPY Sharpe (1.37) and the rising-ratio "
-        "quartile Q4 the WORST (0.15). A deteriorating ratio coincides with "
-        "weaker equities. This runs opposite to the procyclical winner."
+        "What this shows: a WEAK, NON-MONOTONIC tilt -- the extreme rising-ratio "
+        "quartile Q4 is the WEAKEST concurrent SPY Sharpe (0.49), but Q2 is the "
+        "highest (1.10), with Q1 0.82 and Q3 0.59, so there is no clean "
+        "countercyclical gradient. The soft hint (rising ratio = weaker equities "
+        "at the extreme) still runs opposite to the procyclical winner."
     ),
     observation=(
-        "Concurrent SPY Sharpe is highest in the falling-ratio quartile (Q1 "
-        "1.37) and lowest in the rising-ratio quartile (Q4 0.15), with the "
-        "middle quartiles non-monotonic (Q2 0.56, Q3 1.03) -- a rising ratio "
-        "generally coincides with worse equity conditions."
+        "Concurrent SPY Sharpe is highest in Q2 (1.10) and lowest in the extreme "
+        "rising-ratio quartile (Q4 0.49), with Q1 0.82 and Q3 0.59 -- a "
+        "non-monotonic pattern in which only the extreme rising-ratio bucket "
+        "clearly underperforms."
     ),
     interpretation=(
-        "The concurrent pattern fits a countercyclical demand-stress story. "
-        "That makes the tournament's PROCYCLICAL winner economically "
-        "counter-intuitive and reinforces reading it as a search artifact, not "
-        "a real relationship."
+        "The concurrent pattern is a weak, non-monotonic tilt rather than a "
+        "clean countercyclical gradient, so it only softly favours the "
+        "demand-stress reading. Even so, the tournament's PROCYCLICAL winner "
+        "runs opposite the prior, reinforcing reading it as a search artifact, "
+        "not a real relationship."
     ),
-    key_message="A deteriorating ratio coincides with worse SPY conditions -- countercyclical, opposite the winner's direction.",
+    key_message="Only the extreme rising-ratio quartile clearly underperforms (0.49); the pattern is non-monotonic (Q2 highest, 1.10) -- a weak concurrent tilt, opposite the winner's direction.",
 )
 
 CCF_BLOCK = dict(
@@ -360,21 +367,21 @@ CCF_BLOCK = dict(
     ),
     chart_name="ccf_prewhitened",
     chart_caption=(
-        "What this shows: the significant bars sit at ZERO and NEGATIVE lags -- "
+        "What this shows: the significant bars sit at NEGATIVE lags -- "
         "SPY tends to move BEFORE the ratio -- with no significant lead-side "
         "(ratio-leads-SPY) bars. That is the reverse of a forecasting signal."
     ),
     observation=(
-        "Correlations are significant only at lag 0 and negative lags (SPY "
-        "leading the ratio, ccf down to -0.24 at lag -1); every positive "
-        "lead-side offset is inside the confidence band and insignificant."
+        "Correlations are significant only at negative lags (SPY leading the "
+        "ratio, ccf down to -0.18 at lag -1); lag 0 and every positive "
+        "lead-side offset are inside the confidence band and insignificant."
     ),
     interpretation=(
         "There is no coherent window in which the ratio foreshadows SPY. If "
         "anything the causality runs the other way (markets moving before the "
         "ratio), which argues against a ratio-based forecast of SPY."
     ),
-    key_message="Significant correlation is at lag 0 and on the SPY-leads side; the ratio shows no forecasting lead over SPY.",
+    key_message="Significant correlation is on the SPY-leads side (negative lags only); the ratio shows no forecasting lead over SPY.",
 )
 
 LOCAL_PROJECTIONS_BLOCK = dict(
@@ -393,19 +400,19 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     chart_name="local_projections",
     chart_caption=(
         "What this shows: coefficients are essentially zero across all horizons "
-        "(1, 3, 6 months), none statistically significant (p from 0.13 to 0.32), "
-        "with negligible R^2. The sign is weakly negative -- consistent with the "
-        "countercyclical prior, but not significant."
+        "(1, 3, 6 months), none statistically significant (p from 0.71 to 0.87), "
+        "with negligible R^2. The sign is mixed (slightly negative at 1 and 3 "
+        "months, slightly positive at 6) -- no usable signal."
     ),
     observation=(
-        "Point estimates are small and negative at every horizon (-0.04 to "
-        "-0.17) and no coefficient is significant; the explained variance is "
-        "trivial throughout."
+        "Point estimates are close to zero at every horizon (about -0.01 at 1 "
+        "and 3 months, +0.03 at 6 months) and no coefficient is significant; "
+        "the explained variance is trivial throughout."
     ),
     interpretation=(
         "There is essentially no linear predictive content at any horizon. The "
-        "weak negative tilt aligns with the prior but does not rescue a "
-        "forward-looking reading of the indicator."
+        "near-zero, mixed-sign coefficients do not rescue a forward-looking "
+        "reading of the indicator."
     ),
     key_message="Local projections are null; the ratio carries no useful linear forecast for SPY.",
 )
@@ -427,7 +434,7 @@ QUANTILE_BLOCK = dict(
     chart_name="quantile_coef",
     chart_caption=(
         "What this shows: the coefficient is small, negative, and flat across "
-        "quantiles (about -0.08, p = 0.29) -- no material tail sensitivity for "
+        "quantiles (about -0.01, p = 0.87) -- no material tail sensitivity for "
         "the inventories-to-sales signal."
     ),
     observation=(
@@ -444,19 +451,20 @@ QUANTILE_BLOCK = dict(
 
 
 EVIDENCE_METHOD_BLOCKS = {
-    "title": "The Evidence: Inventories-to-Sales Is Countercyclical Context, Not a SPY Forecast",
+    "title": "The Evidence: Inventories-to-Sales Is Weak Concurrent Context, Not a SPY Forecast",
     "overview": (
         "The evidence supports a cautious demand-stress overlay -- and nothing "
         "stronger. The strategy winner improves search-phase OOS Sharpe, but "
-        "formal lead-lag evidence is absent (Granger min p = 0.32; local "
-        "projections null; CCF significant only at lag 0 and on the SPY-leads "
-        "side), and the winner's PROCYCLICAL direction at a 3-month lead "
-        "contradicts the countercyclical, demand-stress prior."
+        "formal lead-lag evidence is absent (Granger min p = 0.439; local "
+        "projections null; CCF significant only on the SPY-leads side, at "
+        "negative lags), and the winner's PROCYCLICAL direction at a 3-month "
+        "lead contradicts the countercyclical, demand-stress prior."
     ),
     "plain_english": (
         "This page asks whether the inventories-to-sales ratio helps time SPY. "
-        "The answer is: not as a forecast. Concurrent quartiles are "
-        "countercyclical (rising ratio = worse market), but the causal tests "
+        "The answer is: not as a forecast. Concurrent quartiles show only a "
+        "weak, non-monotonic tilt (the extreme rising-ratio bucket is the "
+        "weakest, but the gradient is not clean), the causal tests "
         "find no lead, and the best rule runs the opposite way (buy when the "
         "ratio is high) at a 3-month lag. Treat it as a defensive, after-the-"
         "fact overlay, not an early-warning system."
@@ -477,7 +485,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "concentrates on short-lead level rules, not a robust economic edge."
     ),
     "transition": (
-        "**Transition:** the evidence is countercyclical context, not causation, "
+        "**Transition:** the evidence is weak concurrent context, not causation, "
         "and the winner runs against the prior. The Strategy page shows the "
         "exact long/cash rule, the drawdown advantage that is its real virtue, "
         "and the deployment caveats."
@@ -507,8 +515,8 @@ class StrategyConfig:
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/retail_inv_sales_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/retail_inv_sales_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/retail_inv_sales_spy/tournament_results_20260831.csv"},
-        {"label": "Stationarity tests", "path": "results/retail_inv_sales_spy/stationarity_tests_20260831.csv"},
+        {"label": "Tournament results", "path": "results/retail_inv_sales_spy/tournament_results_20260912.csv"},
+        {"label": "Stationarity tests", "path": "results/retail_inv_sales_spy/stationarity_tests_20260912.csv"},
     ]
 
     SIGNAL_RULE_MD = """
@@ -565,7 +573,7 @@ This describes the backtested rule so it can be audited; it is not a trading rec
             "model is unlikely to describe the whole sample. A larger break "
             "statistic means the relationship shifted more materially across "
             "periods (here the max absolute rolling-correlation z-score reaches "
-            "2.3)."
+            "2.6)."
         ),
     }
     SHOW_TOURNAMENT_SCATTER = True
@@ -580,8 +588,8 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     CAVEATS_MD = """
 **Main caveats:**
 
-1. The winner is PROCYCLICAL at a 3-month lead -- the opposite of the countercyclical prior, which says reduce equity when the ratio is high. Concurrent quartiles are countercyclical (rising ratio = worse market), so the procyclical rule is most likely a search artifact, not a real relationship.
-2. Granger causality is insignificant at every lag (min p = 0.32), local projections are null, and the pre-whitened CCF is significant only at lag 0 and on the SPY-leads side -- so this is not a proven causal forecast.
+1. The winner is PROCYCLICAL at a 3-month lead -- the opposite of the countercyclical prior, which says reduce equity when the ratio is high. Concurrent quartiles show only a weak, non-monotonic tilt (the extreme rising-ratio bucket is weakest, but the gradient is not clean), which still points the opposite way to the procyclical rule, so that rule is most likely a search artifact, not a real relationship.
+2. Granger causality is insignificant at every lag (min p = 0.439), local projections are null, and the pre-whitened CCF is significant only on the SPY-leads side (negative lags) -- so this is not a proven causal forecast.
 3. The result is marked `found_in_search`; the median valid combo underperforms buy-and-hold, and the winner still needs a frozen-rule holdout confirmation. The bootstrap p < 0.01 is an in-sample significance check, not out-of-sample validation.
 4. The defensible virtue is drawdown and volatility reduction, not return: annualized return (12.1%) is slightly BELOW buy-and-hold (14.4%).
 5. A tempting post-hoc rationale -- that the ratio spikes in recessions and "buy when high" catches recovery rebounds -- is a story fitted to a search-selected result, not a validated mechanism.
