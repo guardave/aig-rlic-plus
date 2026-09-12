@@ -32,7 +32,15 @@ HONEST FRAMING (binding).
     freight-contraction months), not directional forecasting.
   * The **L9 lead is a likely search artifact** (freight is coincident/lagging;
     issue #28 tracks the fleet-wide L9 pattern) — flag adjacent-lead durability
-    as a caution.
+    as a caution. Reviewer question (Alex, 2609): does logistics data carry a
+    genuine ~9-month lead? Reviewed against literature + our data (see Story
+    "Does freight have a real 9-month lead?"): freight DOES lead the real economy
+    (~4mo pre-2008, coincident since; ~2-3 quarters into official stats), but
+    (a) Cass is public/timely — released the 13th for the prior month — so there
+    is no delayed-publication reveal to open a 9-month gap, and (b) our tests show
+    no freight→SPY signal at 9 months (Granger p≈0.98; CCF significant only on the
+    stocks-lead side). The reviewer point is honoured but does NOT reclassify L9
+    from candidate/artifact for equity timing.
   * NSA: the Cass source is NOT seasonally adjusted, so MoM/3M/6M/level-zscore
     signals are seasonally contaminated. The winner (contraction) is on the
     seasonally-CLEAN set. The globally highest-raw combo
@@ -168,6 +176,48 @@ indicator here, not a leading one.
 economy stands right now, but not a dependable early-warning system for stocks.
 That is worth knowing on its own — but it also means any timing rule built on
 this series is reading a contemporaneous (or trailing) echo, not a forecast.
+
+### Does freight have a real 9-month lead? (a reviewer's question)
+
+A fair challenge from the desk: logistics people note that freight often *does*
+lead the wider economy, so perhaps the winner's 9-month (L9) lead is genuine, not
+a fluke. Two versions of that idea deserve to be taken seriously — and both fall
+short for *this* pair.
+
+**Version 1 — a physical/economic lead.** Freight really is a recognised cyclical
+indicator of the real economy. Before 2008 the transportation cycle led economic
+turning points by roughly *four* months; since then the relationship has weakened
+to broadly *coincident* (the Federal Reserve's own read is that Cass shipments
+rise and fall at about the same time as activity). Industry analysts also note it
+can take two to three quarters for a freight trend to surface in the *official*
+economic statistics. So "freight leads the economy by a few months — and more into
+the lagged official data" is a real thing. But leading the *economy* is not
+leading the *forward-looking stock market*, and even the generous pre-2008 figure
+(~4 months) is well short of nine.
+
+**Version 2 — an information-timing lead.** The sharper version: if the official
+number that freight foreshadows only prints two to three quarters later, and the
+market had no earlier way to know, prices would move at *publication* — making
+freight appear to lead the market by that gap (≈9 months). That mechanism is real
+in general (delayed data releases do move markets). It fails here for one concrete
+reason: **freight is not hidden information.** The Cass index is public and timely
+— released on the 13th of each month for the prior month — and the same signal is
+echoed in near-real time by rail-car counts, truck-tonnage, PMIs and retail sales.
+The market never has to wait for a lagged GDP print to learn what freight is
+doing, so there is no delayed reveal to open a nine-month gap.
+
+**And the data settles it.** If either version produced a tradable nine-month
+lead, our lead-lag tests would light up on the *freight-leads-stocks* side at nine
+months. They do not. Freight → SPY Granger causality is insignificant at *every*
+lag 1–12 (p ≈ 0.98 at the 9-month lag; min p ≈ 0.39), and the pre-whitened
+cross-correlation shows **no** significant freight-leads-SPY bar at any horizon —
+at the nine-month freight-lead point it is essentially zero and insignificant. The
+*only* significant cross-correlations run the other way (the stocks-lead side,
+about 12–16 months out): if anything, equities lead freight, not the reverse —
+exactly what you would expect from a coincident/lagging real-activity gauge. So
+the reviewer's instinct is right about freight-and-the-economy, yet the L9 winner
+is still best read as the lag that happened to fit an eight-year window: a
+found-in-search candidate for equity timing, not a genuine nine-month forecast.
 
 <!-- expander: What exactly is the Cass Freight Index? -->
 The Cass Freight Index: Shipments (FRED series `FRGSHPUSM649NCIS`) is a monthly
