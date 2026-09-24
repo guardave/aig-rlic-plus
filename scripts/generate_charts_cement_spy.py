@@ -226,8 +226,8 @@ def chart_rolling_correlation() -> None:
     rc = pd.read_csv(RES / f"rolling_correlation_{PAIR}.csv", parse_dates=["date"])
     fig = go.Figure(go.Scatter(x=rc["date"], y=rc["rolling_corr"], name="Rolling correlation", line=dict(color=C_IND)))
     fig.add_hline(y=0, line_color=C_LINE)
-    fig.update_layout(title="Rolling Correlation: Cement Growth vs SPY", yaxis_title="Correlation", template="plotly_white", height=430)
-    save("rolling_correlation", fig, "Rolling correlation between cement growth and SPY returns.", [str(RES / f"rolling_correlation_{PAIR}.csv")])
+    fig.update_layout(title="Rolling Correlation: Cement Shipment Growth vs SPY", yaxis_title="Correlation", template="plotly_white", height=430)
+    save("rolling_correlation", fig, "Rolling correlation between cement shipment growth and SPY returns; swings through time indicate whether one fixed relationship is likely to describe the whole sample.", [str(RES / f"rolling_correlation_{PAIR}.csv")])
 
 
 def chart_structural_break() -> None:
@@ -239,6 +239,7 @@ def chart_structural_break() -> None:
 
 def chart_subperiod() -> None:
     sp = pd.read_csv(RES / "subperiod_sharpe.csv")
+    sp = sp[sp["period"] != "Dot_Com"].copy()
     fig = go.Figure()
     fig.add_trace(go.Bar(x=sp["period"], y=sp["strategy_sharpe"], name="Strategy Sharpe", marker_color=C_STRAT))
     fig.add_trace(go.Bar(x=sp["period"], y=sp["buy_hold_sharpe"], name="SPY Sharpe", marker_color=C_BENCH))
@@ -274,7 +275,7 @@ def main() -> None:
     chart_structural_break()
     chart_subperiod()
     chart_history_zoom("gfc", "Global Financial Crisis: Cement Shipments Collapsed 2008-09", "2006-01-31", "2010-12-31")
-    chart_history_zoom("covid", "COVID Shock: Cement-Shipment Dip and Rebound", "2018-01-31", "2021-12-31")
+    chart_history_zoom("covid", "COVID Shock: Cement YoY Dip and Choppy Aftermath", "2018-01-31", "2021-12-31")
     chart_history_zoom("inflation_2022", "2022 Rate Shock: Nominal Cement Sales Stayed Firm on Inflation", "2021-01-31", "2025-06-30")
     print(f"Done. Charts saved to {OUT}")
 

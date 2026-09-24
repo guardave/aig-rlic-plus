@@ -156,10 +156,13 @@ class StoryConfig:
         "What this shows: months are sorted from Q1 (weakest cement-shipment "
         "growth) to Q4 (strongest), with concurrent SPY Sharpe in each. The "
         "weakest-growth quartile Q1 is the worst (Sharpe 0.33) and the "
-        "strongest Q4 the best (1.12), with a non-monotonic middle (Q2 1.06, "
-        "Q3 0.62) -- broadly PROCYCLICAL concurrently. This matches the "
-        "procyclical direction the tournament selected. Descriptive and "
-        "concurrent, not a tradable lead."
+        "strongest Q4 the best (1.12). Q2 is also strong (1.06), which means "
+        "SPY did well even when cement growth was only moderately weak-to-"
+        "middle rather than extreme. Q3 is weaker (0.62), so the middle of "
+        "the distribution is non-monotonic rather than a smooth step-up from "
+        "Q1 to Q4. The broad message is still PROCYCLICAL concurrently, and "
+        "it matches the procyclical direction the tournament selected. "
+        "Descriptive and concurrent, not a tradable lead."
     )
 
     NARRATIVE_SECTION_1 = """
@@ -194,33 +197,42 @@ The formal lead-lag tests are blunt. Cement-shipment growth does **not** Granger
             "slug": "covid",
             "title": "COVID Shock",
             "narrative": (
-                "Cement shipments dipped in spring 2020 and rebounded. The rule "
-                "sat largely defensive and lost less than buy-and-hold "
-                "(0.02 vs -0.66), but this is an extreme, exogenous in-window "
-                "outlier that can dominate the backtest fit -- read any rule "
-                "that leans on it with caution."
+                "Cement YoY growth dipped around the 2020 shock, but the plot "
+                "does not show a clean sustained rebound afterward. The series "
+                "stayed choppy and spent much of 2021 below zero, so the right "
+                "interpretation is lingering disruption rather than a simple "
+                "V-shaped cement recovery. The rule sat largely defensive and "
+                "lost less than buy-and-hold (0.02 vs -0.66), but this is an "
+                "extreme, exogenous in-window episode that can dominate the "
+                "backtest fit -- read any rule that leans on it with caution."
             ),
-            "caption": "COVID: sharp dip and rebound, an outlier that can dominate the fit.",
+            "caption": "COVID: cement YoY dipped, then stayed choppy rather than showing a clean sustained rebound.",
         },
         {
             "slug": "inflation_2022",
             "title": "2022 Rate Shock",
             "narrative": (
                 "Nominal cement sales stayed firm through 2022 because prices "
-                "were rising, even as equities de-rated. The rule stayed long "
-                "and did MUCH WORSE than buy-and-hold here (subperiod Sharpe "
-                "-1.68 vs -0.76) -- the key caveat of a nominal-dollar series: "
+                "were rising, even as equities de-rated under higher interest "
+                "rates. The rule is procyclical, so it treats firm cement "
+                "growth as a reason to hold SPY. That worked against it in "
+                "2022: it was long during several large down months early and "
+                "mid-year, then moved to cash during parts of the rebound. In "
+                "plain English, the signal captured too much of the selloff "
+                "and missed some recovery months. That is why it did much "
+                "worse than buy-and-hold here (subperiod Sharpe -1.68 vs "
+                "-0.76) -- the key caveat of a nominal-dollar series: "
                 "inflation can keep the growth signal firm while the market "
-                "falls."
+                "falls because discount rates are rising."
             ),
-            "caption": "2022: nominal sales stayed firm on inflation; the rule stayed long and underperformed SPY.",
+            "caption": "2022: nominal sales stayed firm on inflation; the rule stayed long for key drawdown months and missed parts of the rebound.",
         },
     ]
 
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The stress charts show why the signal is procyclical but imperfect as a timing tool. The rule's defense was real but uneven. In the GFC it stepped to cash and lost far less than buy-and-hold (subperiod Sharpe 0.79 vs -1.03); through COVID it stayed largely defensive and lost less (0.02 vs -0.66). But in the 2022 rate shock the nominal series stayed firm on inflation, the rule stayed long, and it did **much worse** than buy-and-hold (-1.68 vs -0.76) -- exactly when a demand signal would have been most useful. The sample starts in 2005, so there is no Dot-Com coverage. The honest reading is not "cement predicts drawdowns"; it is that a concurrent, procyclical filter helped in two goods-economy recessions and hurt badly in one inflation-driven de-rating.
+The stress charts show why the signal is procyclical but imperfect as a timing tool. The rule's defense was real but uneven. In the GFC it stepped to cash and lost far less than buy-and-hold (subperiod Sharpe 0.79 vs -1.03). Through COVID it stayed largely defensive and lost less (0.02 vs -0.66), but the cement YoY chart should not be read as a clean V-shaped rebound: after the 2020 dip, the series stayed choppy and spent much of 2021 below zero. The better interpretation is lingering construction disruption, not a smooth cement recovery. In the 2022 rate shock, the nominal series stayed firm because inflation supported dollar sales, even while higher discount rates hurt equities. The rule stayed long for important down months, then sat out parts of the rebound, so it captured too much selloff and missed some recovery. It therefore did **much worse** than buy-and-hold (-1.68 vs -0.76) -- exactly when a demand signal would have been most useful. The sample starts in 2005, so there is no Dot-Com coverage. The honest reading is not "cement predicts drawdowns"; it is that a concurrent, procyclical filter helped in some goods-economy stress periods but failed badly in an inflation-driven equity de-rating.
 """
 
     TRANSITION_TEXT = (
@@ -513,7 +525,7 @@ Search-phase OOS results (2017-01-31 to 2025-06-30, 102 months): Sharpe 1.20 ver
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads Portland Cement Shipments (nominal $) at month-end. Second, it computes the 6-month percent change in shipments (`cement_6m`). Third, it applies a zero-month lead, so the allocation uses the latest reading (a concurrent filter, not a forecast). Finally, the signal is compared with its 60-month rolling 25th percentile: when growth is at or above that threshold, hold SPY; otherwise cash (the procyclical orientation).
+First, the data process reads Portland Cement Shipments (nominal $) at month-end. Second, it computes the 6-month percent change in shipments (`cement_6m`). Third, the signal is compared with its 60-month rolling 25th percentile: when growth is at or above that threshold, hold SPY; otherwise hold cash (the procyclical orientation).
 
 OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualized out-of-sample return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year (high here -- the rule flips in and out frequently). Win Rate is the share of out-of-sample months with positive strategy return.
 """
@@ -538,16 +550,23 @@ This describes the backtested rule so it can be audited; it is not a trading rec
         "during major stress windows. The rule loses much LESS in the GFC "
         "(0.79 vs -1.03) and COVID (0.02 vs -0.66), but does MUCH WORSE than "
         "buy-and-hold in the 2022 rate shock (-1.68 vs -0.76), when nominal "
-        "cement sales stayed firm on inflation and the rule stayed long. The "
-        "Dot-Com bar is empty -- the sample starts in 2005. The stress defense "
-        "is real but uneven."
+        "cement sales stayed firm on inflation and the rule stayed long. "
+        "Dot-Com is omitted from the chart because the cement/SPY overlap "
+        "starts in 2005. The stress defense is real but uneven."
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (
-            "How to read it: the indicator is cement-shipment growth; the "
-            "target is SPY returns. The rolling correlation tests whether their "
-            "linear relationship is stable through time. Large swings mean the "
-            "relationship is unstable and the rule needs ongoing monitoring."
+            "How to read it: this chart tracks the rolling correlation between "
+            "Cement Shipment Growth and SPY returns. The correlation is weak "
+            "and changes sign, ranging from about -0.22 to +0.18, so one fixed "
+            "linear relationship may hide periods when the two move together "
+            "and periods when they move in opposite directions. A single "
+            "model therefore needs checks across different periods before "
+            "being treated as representative of the whole sample; many "
+            "crossings are close to zero and may reflect sampling noise. "
+            "This chart alone does not establish a structural break or "
+            "forecasting skill, and even stable correlation would not by "
+            "itself validate a fixed model."
         ),
         "structural_break": (
             "How to read it: the structural break proxy asks whether the "

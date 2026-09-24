@@ -76,6 +76,23 @@ def _load_target_price_overlay(pair_id: str, target_symbol: str) -> pd.Series | 
     return None
 
 
+def _load_winner_strategy_cumulative_return(pair_id: str) -> pd.Series | None:
+    """Best-effort winner strategy cumulative return from strategy_returns CSV."""
+    pair_dir = _REPO_ROOT / "results" / pair_id
+    matches = sorted(pair_dir.glob("strategy_returns_*.csv"))
+    if not matches:
+        return None
+    try:
+        df = pd.read_csv(matches[-1], parse_dates=["date"]).set_index("date")
+        if "strategy_equity" in df.columns:
+            return (df["strategy_equity"].astype(float) - 1.0) * 100.0
+        if "strategy_return" in df.columns:
+            return ((1.0 + df["strategy_return"].astype(float).fillna(0.0)).cumprod() - 1.0) * 100.0
+    except Exception:
+        return None
+    return None
+
+
 def _latest_signals_file(pair_dir: Path) -> Path | None:
     """Return the most recent ``signals_*.parquet`` under ``pair_dir``."""
     matches = sorted(glob.glob(str(pair_dir / "signals_*.parquet")))
@@ -193,6 +210,7 @@ def _render_chart(
     is_probability: bool,
     pair_id: str,
     target_symbol: str,
+    show_near_threshold_zone: bool = True,
 ):
     """Render the probability-engine time-series (APP-SE1 acceptance)."""
     series = signals_df[column].dropna()
@@ -221,7 +239,7 @@ def _render_chart(
             hoverinfo="skip",
         )
     )
-    if not is_probability:
+    if not is_probability and show_near_threshold_zone:
         # Epsilon band for continuous/z-score signals: ±0.25 around threshold.
         fig.add_hrect(
             y0=threshold - 0.25,
@@ -261,6 +279,26 @@ def _render_chart(
                 )
             )
 
+    if pair_id == "cement_spy":
+        strategy_cum_return = _load_winner_strategy_cumulative_return(pair_id)
+        if strategy_cum_return is not None:
+            aligned_strategy = strategy_cum_return.loc[
+                (strategy_cum_return.index >= series.index.min())
+                & (strategy_cum_return.index <= series.index.max())
+            ].dropna()
+            if len(aligned_strategy) > 1:
+                fig.add_trace(
+                    go.Scatter(
+                        x=aligned_strategy.index,
+                        y=aligned_strategy.values,
+                        mode="lines",
+                        name="Winner strategy cumulative return",
+                        line=dict(color="#D62728", width=1.5),
+                        yaxis="y2",
+                        hovertemplate="%{x|%Y-%m-%d}: %{y:.1f}%<extra></extra>",
+                    )
+                )
+
     # NBER recession shading when span > 5 years (APP-SE1 acceptance)
     span_years = (series.index.max() - series.index.min()).days / 365.25
     if span_years > 5:
@@ -294,7 +332,11 @@ def _render_chart(
         xaxis_title="Date",
         yaxis_title=display_name,
         yaxis2=dict(
-            title=f"{target_symbol} indexed price",
+            title=(
+                "Indexed price / cumulative return"
+                if pair_id == "cement_spy"
+                else f"{target_symbol} indexed price"
+            ),
             overlaying="y",
             side="right",
             showgrid=False,
@@ -358,6 +400,7 @@ def render_probability_engine_panel(pair_id: str) -> None:
     # "Signal Monitoring Panel" instead — what the chart actually shows is
     # the signal value vs threshold, not a probability.
     is_probability_signal = column.startswith(_PROBABILITY_PREFIXES)
+    show_near_threshold_zone = pair_id != "cement_spy"
     panel_title = (
         "Probability Engine Panel"
         if is_probability_signal
@@ -367,11 +410,16 @@ def render_probability_engine_panel(pair_id: str) -> None:
         "What this shows: how the winning signal probability evolves over "
         "time and where the decision threshold sits."
         if is_probability_signal
-        else "What this shows: how the winning signal value evolves over "
-             "time and where each decision threshold sits. The grey zone "
-             "means the signal hovers near 0, so small month-to-month moves "
-             "can flip the rule between long "
-             f"{winner.get('target_symbol', 'SPY')} and cash."
+        else (
+            "What this shows: how the winning signal value evolves over "
+            "time and where the decision threshold sits."
+            if not show_near_threshold_zone
+            else "What this shows: how the winning signal value evolves over "
+                 "time and where each decision threshold sits. The grey zone "
+                 "means the signal hovers near 0, so small month-to-month moves "
+                 "can flip the rule between long "
+                 f"{winner.get('target_symbol', 'SPY')} and cash."
+        )
     )
     st.markdown(f"### {panel_title}")
     st.caption(panel_caption)
@@ -463,6 +511,7 @@ def render_probability_engine_panel(pair_id: str) -> None:
         is_probability,
         pair_id,
         target_symbol,
+        show_near_threshold_zone=show_near_threshold_zone,
     )
 
     # APP-SE5 universal takeaway caption
