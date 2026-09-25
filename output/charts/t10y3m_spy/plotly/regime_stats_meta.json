@@ -1,7 +1,7 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "t10y3m_spy",
-  "generated_at": "2026-06-19T14:53:33.175418+00:00",
+  "generated_at": "2026-09-25T23:20:46.919411+00:00",
   "generated_by": "scripts/generate_charts_t10y3m_spy.py",
   "caption": "SPY performance by 10Y-3M spread quartile.",
   "narrative_alignment_note": "SPY performance by 10Y-3M spread quartile.",

@@ -152,6 +152,7 @@ def chart_regime_stats() -> None:
         signal_label="10Y-3M Spread",
         x_axis_title="Yield-curve spread quartile",
         axis_noun="",
+        sample_sizes=q["n_obs"].astype(int).tolist(),
     )
     fig.update_layout(title="SPY Returns by Yield-Curve Regime")
     save("regime_stats", fig, "SPY performance by 10Y-3M spread quartile.", ["results/t10y3m_spy/regime_quartile_returns.csv"])

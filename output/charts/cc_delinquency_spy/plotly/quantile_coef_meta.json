@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-08-31T07:55:05.541311+00:00",
+  "generated_at": "2026-09-25T23:22:12.338013+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Delinquency coefficient across SPY forward-return quantiles; flat and near-zero \u2014 no state-dependent predictive content.",
   "narrative_alignment_note": "Delinquency coefficient across SPY forward-return quantiles; flat and near-zero \u2014 no state-dependent predictive content.",

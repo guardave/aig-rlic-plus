@@ -27,6 +27,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
+from _ci_band import ci95_halfwidth  # noqa: E402
 
 PAIR = "ism_mfg_spy"
 DATE_TAG = "20260912"
@@ -135,6 +136,7 @@ def chart_regime_stats() -> None:
         signal_label="PMI level",
         x_axis_title="ISM Manufacturing PMI quartile",
         axis_noun="",
+        sample_sizes=q["n"].astype(int).tolist(),
     )
     fig.update_layout(title="SPY Returns by ISM Manufacturing PMI Regime")
     save("regime_stats", fig, "SPY performance across ISM Manufacturing PMI quartiles.", ["results/ism_mfg_spy/regime_quartile_returns.csv"])
@@ -188,17 +190,19 @@ def chart_granger() -> None:
 
 def chart_local_projections() -> None:
     lp = pd.read_csv(CORE / "local_projections.csv")
-    fig = go.Figure(go.Bar(x=lp["horizon"].astype(str) + "m", y=lp["coef"], marker_color=C_IND, name="Coefficient"))
+    _half = ci95_halfwidth(lp["coef"], lp["p_value"])
+    fig = go.Figure(go.Bar(x=lp["horizon"].astype(str) + "m", y=lp["coef"], marker_color=C_IND, name="Coefficient (95% CI)", error_y=dict(type="data", array=_half, visible=True, thickness=1.5, color=C_LINE)))
     fig.add_hline(y=0, line_color=C_LINE)
-    fig.update_layout(title="Local Projection: SPY Response to the ISM PMI", xaxis_title="Forward horizon", yaxis_title="Coefficient", template="plotly_white", height=430)
+    fig.update_layout(title="Local Projection: SPY Response to the ISM PMI", xaxis_title="Forward horizon", yaxis_title="Coefficient (95% CI whiskers)", template="plotly_white", height=430)
     save("local_projections", fig, "Estimated SPY response across horizons to a move in the ISM PMI.", [str(CORE / "local_projections.csv")])
 
 
 def chart_quantile() -> None:
     q = pd.read_csv(CORE / "quantile_regression.csv")
-    fig = go.Figure(go.Scatter(x=q["quantile"], y=q["coef"], mode="lines+markers", name="Coefficient", line=dict(color=C_IND)))
+    _half = ci95_halfwidth(q["coef"], q["p_value"])
+    fig = go.Figure(go.Scatter(x=q["quantile"], y=q["coef"], mode="lines+markers", name="Coefficient (95% CI)", line=dict(color=C_IND), error_y=dict(type="data", array=_half, visible=True, thickness=1.5, color=C_LINE)))
     fig.add_hline(y=0, line_color=C_LINE)
-    fig.update_layout(title="Quantile Regression Coefficient", xaxis_title="SPY return quantile", yaxis_title="ISM PMI coefficient", template="plotly_white", height=430)
+    fig.update_layout(title="Quantile Regression Coefficient", xaxis_title="SPY return quantile", yaxis_title="ISM PMI coefficient (95% CI whiskers)", template="plotly_white", height=430)
     save("quantile_coef", fig, "ISM PMI coefficient across SPY forward-return quantiles.", [str(CORE / "quantile_regression.csv")])
 
 

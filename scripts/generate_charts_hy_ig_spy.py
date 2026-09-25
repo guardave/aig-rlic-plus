@@ -291,6 +291,7 @@ def chart_regime_stats():
         signal_label="HMM Credit Regime",
         x_axis_title="HMM-Identified Regime (stress probability threshold 0.5)",
         axis_noun="",
+        sample_sizes=[int(calm_ret.shape[0]), int(stress_ret.shape[0])],
     )
     fig.update_layout(title=dict(
         text="HMM Regime Discrimination: SPY Sharpe + Return by Credit Regime"))

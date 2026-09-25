@@ -45,6 +45,7 @@ def make_dual_panel_regime_chart(
     height: int = 470,
     takeaway: str | None = "auto",
     axis_noun: str = "Quartile",
+    sample_sizes: Sequence[int] | None = None,
 ) -> go.Figure:
     """Build the VIZ-QR1 dual-panel quartile chart.
 
@@ -69,6 +70,11 @@ def make_dual_panel_regime_chart(
 
     colors = QUARTILE_COLORS[: len(quartile_labels)]
     labels = [str(l) for l in quartile_labels]
+    # Step C #242: when the caller supplies per-quartile sample sizes, show them
+    # on the x labels so a reader can tell whether a strong/weak bucket rests on
+    # enough observations (the "compare sample size" reading instruction).
+    if sample_sizes is not None and len(sample_sizes) == len(labels):
+        labels = [f"{lab}<br>n={int(n)}" for lab, n in zip(labels, sample_sizes)]
 
     suffix = f" {axis_noun}" if axis_noun else ""
     fig = make_subplots(

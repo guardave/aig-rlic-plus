@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "cement_spy",
-  "generated_at": "2026-08-31T07:51:45.289234+00:00",
+  "generated_at": "2026-09-25T23:22:12.425201+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Cement-growth coefficient across SPY forward-return quantiles.",
   "narrative_alignment_note": "Cement-growth coefficient across SPY forward-return quantiles.",

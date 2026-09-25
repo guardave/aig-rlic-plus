@@ -148,6 +148,7 @@ def chart_regime_stats() -> None:
         signal_label="SLOOS tightening",
         x_axis_title="SLOOS net-% tightening quartile",
         axis_noun="",
+        sample_sizes=q["n"].astype(int).tolist(),
     )
     fig.update_layout(title="SPY Returns by SLOOS-Tightening Regime")
     save(

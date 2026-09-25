@@ -1,10 +1,10 @@
 {
   "chart_name": "local_projections",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-08-31T07:51:33.845298+00:00",
+  "generated_at": "2026-09-25T23:13:33.170973+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
-  "caption": "Estimated SPY response across horizons to a move in import-price growth.",
-  "narrative_alignment_note": "Estimated SPY response across horizons to a move in import-price growth.",
+  "caption": "Estimated SPY response across horizons to a move in import-price growth, with 95% confidence whiskers (reconstructed from coef + p-value); intervals straddle zero.",
+  "narrative_alignment_note": "Estimated SPY response across horizons to a move in import-price growth, with 95% confidence whiskers (reconstructed from coef + p-value); intervals straddle zero.",
   "disposition": "consumed",
   "source_artifacts": [
     "/workspaces/aig-rlic-plus/results/import_price_spy/core_models_20260830/local_projections.csv"
