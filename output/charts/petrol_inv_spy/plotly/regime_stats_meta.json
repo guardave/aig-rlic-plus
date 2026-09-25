@@ -15,6 +15,6 @@
     "results/petrol_inv_spy/regime_quartile_returns.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-09-25T23:20:37.330369+00:00",
+  "generated_at": "2026-09-25T23:33:46.500782+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
 }

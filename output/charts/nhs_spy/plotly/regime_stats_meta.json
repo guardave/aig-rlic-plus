@@ -15,6 +15,6 @@
     "results/nhs_spy/regime_quartile_returns.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-09-25T23:20:32.797860+00:00",
+  "generated_at": "2026-09-25T23:33:46.413652+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
 }

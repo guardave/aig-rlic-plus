@@ -104,7 +104,12 @@ def make_dual_panel_regime_chart(
     annotations = list(fig.layout.annotations)  # keep subplot titles
     if takeaway == "auto":
         def _flat(label: str) -> str:
-            return label.replace("<br>", " ").replace(chr(10), " ").strip()
+            # Step C #242 follow-up: the x-axis label may carry an appended
+            # "<br>n=…" sample-size tag; strip it so the "Key:" takeaway reads
+            # cleanly (e.g. "Q3 (1.26)", not "Q3 n=95 (1.26)").
+            import re as _re
+            base = _re.split(r"<br>\s*n=", label)[0]
+            return base.replace("<br>", " ").replace(chr(10), " ").strip()
         best_i = max(range(len(sharpe)), key=lambda i: sharpe[i])
         worst_i = min(range(len(sharpe)), key=lambda i: sharpe[i])
         takeaway = (
