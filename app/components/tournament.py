@@ -92,6 +92,6 @@ def render_tournament_leaderboard():
 
     st.caption(
         "Ranked by out-of-sample Sharpe ratio (2018-2025). "
-        "All strategies include 5 bps round-trip transaction costs. "
+        "All strategies include 5 bps per-execution transaction costs (one-way; a round trip is ~10 bps). "
         "Bootstrap significance tested with 10,000 samples."
     )

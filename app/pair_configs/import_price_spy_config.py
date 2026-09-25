@@ -254,24 +254,29 @@ CORRELATION_BLOCK = dict(
     ),
     chart_name="correlation_heatmap",
     chart_caption=(
-        "What this shows: the association is consistently NEGATIVE and "
-        "significant -- YoY import-price growth vs 1/3/6/12-month-forward SPY "
-        "is r = -0.14, -0.26, -0.34, -0.33. Stronger imported inflation lines "
-        "up with weaker forward equities, exactly the countercyclical prior."
+        "What this shows: the WINNER signal -- YoY import-price growth -- is "
+        "negative at every forward horizon (r = -0.14, -0.26, -0.34, -0.33 at "
+        "1/3/6/12 months), consistent with the countercyclical prior. The "
+        "heatmap is NOT uniformly negative, though: some short-horizon MoM and "
+        "acceleration cells are mildly POSITIVE (about +0.03 to +0.08), so the "
+        "countercyclical read rests on the YoY row, not every transform."
     ),
     observation=(
-        "Every growth transform shows a negative correlation with forward SPY "
-        "that strengthens with horizon; the YoY-vs-6-month cell is -0.34 and "
-        "the strongest cell anywhere is the YoY z-score vs 12-month-forward SPY "
-        "at r = -0.42."
+        "The YoY row is negative at every forward horizon (-0.14/-0.26/-0.34/"
+        "-0.33 at 1/3/6/12 months) -- it peaks near 6 months and is essentially "
+        "flat from 6 to 12 (-0.34 vs -0.33), i.e. it does NOT keep strengthening "
+        "with horizon. Other transforms are mixed: short-horizon MoM/accel cells "
+        "are mildly positive (+0.03 to +0.08). The strongest single cell is the "
+        "YoY z-score vs 12-month-forward SPY at r = -0.42."
     ),
     interpretation=(
-        "The linear evidence supports a countercyclical reading: high "
-        "import-price growth precedes weaker SPY. That is directionally "
-        "consistent with the winner, though the magnitudes are modest and do "
-        "not by themselves prove a tradeable edge."
+        "The linear evidence supports a countercyclical reading for the YoY "
+        "signal: high import-price growth precedes weaker SPY. That is "
+        "directionally consistent with the winner, though the magnitudes are "
+        "modest, not uniform across transforms, and do not by themselves prove "
+        "a tradeable edge."
     ),
-    key_message="Import-price growth is negatively correlated with forward SPY at every horizon -- countercyclical, matching the winner.",
+    key_message="The winner's YoY growth is negatively correlated with forward SPY at every horizon (countercyclical); other short-horizon transforms are mixed, not all negative.",
 )
 
 GRANGER_BLOCK = dict(

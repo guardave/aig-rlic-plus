@@ -116,7 +116,9 @@ _TRADE_LOG_DISCLOSURE_MD: str = (
     "executions.** No real money was ever committed to this strategy. The "
     "trade log below is produced by replaying the winning tournament signal "
     "against historical prices, assuming a **$10,000 starting stake** and a "
-    "round-trip transaction cost of **5 basis points (0.05%)** per trade. "
+    "transaction cost of **5 basis points (0.05%) per execution** (one-way — "
+    "each BUY and each SELL is charged 5 bps, so a complete round trip costs "
+    "about 10 bps). "
     "Real-world execution would additionally face bid-ask spread, market "
     "impact, slippage, and behavioural risk — none of which are modelled "
     "here. Treat every row as a research artifact, not a statement of "
@@ -172,7 +174,7 @@ _TRADE_LOG_COLUMN_DICT_DEFAULTS: dict[str, dict[str, str]] = {
     "quantity_pct":   {"type": "float",  "meaning": "Target portfolio weight AFTER this trade, as a percentage (0–100).",                                       "example": "0.0"},
     "price":          {"type": "float",  "meaning": "Closing price of the instrument on trade_date, in USD.",                                                   "example": "294.65"},
     "notional_usd":   {"type": "float",  "meaning": "Dollar value of the resulting position (quantity_pct / 100 × $10,000 starting capital).",                  "example": "0.00"},
-    "commission_bps": {"type": "float",  "meaning": "Round-trip transaction cost applied to the trade, in basis points.",                                       "example": "5"},
+    "commission_bps": {"type": "float",  "meaning": "Transaction cost charged on THIS execution (one side), in basis points; a round trip is two executions.", "example": "5"},
     "commission_usd": {"type": "float",  "meaning": "Dollar commission charged on this trade.",                                                                 "example": "0.00"},
     "cum_pnl_pct":    {"type": "float",  "meaning": "Cumulative strategy return since inception, in percent.",                                                  "example": "52.15"},
     "reason":         {"type": "string", "meaning": "Human-readable signal value and rule that triggered the trade.",                                           "example": "HMM stress prob 1.000 crossed threshold — full risk-off"},
@@ -1113,9 +1115,14 @@ def _render_cross_period_section(pair_id: str, config: Any | None = None) -> Non
     _wf_path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_wf_chart}.json"
     for _chart_name, _label, _caption in _cp_always:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
-        if (_chart_name == "subperiod_sharpe" and _wf_chart != "subperiod_sharpe"
-                and _wf_path.exists() and _path.exists()
-                and _wf_path.read_bytes() == _path.read_bytes()):
+        # Step C #247: the Walk-Forward block already showed this exact chart when
+        # EITHER (a) WALK_FORWARD_CHART_NAME IS "subperiod_sharpe" (17 pairs point
+        # the walk-forward slot straight at it), OR (b) the walk_forward file is
+        # byte-identical to subperiod_sharpe. Skip the duplicate in both cases.
+        if _chart_name == "subperiod_sharpe" and _path.exists() and (
+            _wf_chart == "subperiod_sharpe"
+            or (_wf_path.exists() and _wf_path.read_bytes() == _path.read_bytes())
+        ):
             continue  # already shown above as the Walk-Forward chart
         if _path.exists():
             st.markdown(f"**{_label}**")
@@ -1943,7 +1950,13 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
                 type="primary",
                 key=f"tl_dl_broker_{pair_id}",
             )
-            st.caption(f"{len(broker_df):,} executions, one row per trade")
+            st.caption(
+                f"{len(broker_df):,} executions over the full reconstructed "
+                "history (since indicator inception, one row per BUY or SELL — "
+                "a round trip is two rows). The headline trade-count and "
+                "turnover figures elsewhere on this page count only the "
+                "out-of-sample window, so they are smaller than this row count."
+            )
         elif broker_err is not None:
             # L2 — malformed broker-style CSV
             st.warning(
