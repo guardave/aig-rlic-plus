@@ -7,6 +7,6 @@
     "VIZ-IC1"
   ],
   "narrative_alignment_note": "VIZ-QR1 dual-panel (Sharpe + Ann Return) by z-score quartile via scripts/_quartile_chart.py. Derived from 63d fwd-return stats: sharpe=mean/std*2, ann_return=mean*4.",
-  "generated_at": "2026-09-25T23:22:12Z",
+  "generated_at": "2026-09-25T23:33:45Z",
   "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
 }
