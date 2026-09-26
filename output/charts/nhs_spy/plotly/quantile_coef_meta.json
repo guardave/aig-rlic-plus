@@ -14,6 +14,6 @@
     "results/nhs_spy/core_models_20260703/quantile_regression.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-03T03:08:53.900423+00:00",
+  "generated_at": "2026-09-25T23:20:33.250047+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
 }

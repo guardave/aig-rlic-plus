@@ -6,8 +6,7 @@
     "VIZ-QR1",
     "VIZ-IC1"
   ],
-  "narrative_alignment_note": "VIZ-QR1 dual-panel retro-apply (2026-06-10T17:24:02Z): Annualized Sharpe + Annualized Return % side-by-side per quartile, sourced from results/gold_copper_xli/regime_quartile_returns.csv. Values: sharpe=[1.46, 0.54, 0.18, 0.57], ann_return_pct=[15.7, 9.8, 3.7, 11.7].",
-  "generated_at": "2026-06-10T17:24:02Z",
-  "generated_by": "Lead Lesandro (fix260610_xpair_general, VIZ-QR1 retro-apply)",
-  "disposition": "consumed"
+  "narrative_alignment_note": "VIZ-QR1 dual-panel (Sharpe + Ann Return) by z-score quartile via scripts/_quartile_chart.py. Derived from 63d fwd-return stats: sharpe=mean/std*2, ann_return=mean*4.",
+  "generated_at": "2026-09-25T23:33:45Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat)"
 }

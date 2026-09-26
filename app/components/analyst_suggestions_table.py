@@ -98,7 +98,7 @@ def render_analyst_suggestions(pair_id: str) -> None:
 
     st.caption(
         "What this shows: signals the team noticed during this pair's work "
-        "that are outside the HY-IG × SPY formal scope. Logged here so the "
+        "that are outside this pair's formal scope. Logged here so the "
         "observations are not lost; none of them fed into this pair's "
         "winning strategy."
     )

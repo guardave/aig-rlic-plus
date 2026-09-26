@@ -6,10 +6,10 @@
       },
       "name": "Sharpe",
       "x": [
-        "Q1<br>(Lowest wage growth)",
-        "Q2",
-        "Q3",
-        "Q4<br>(Highest wage growth)"
+        "Q1<br>(Lowest wage growth)<br>n=25",
+        "Q2<br>n=24",
+        "Q3<br>n=24",
+        "Q4<br>(Highest wage growth)<br>n=24"
       ],
       "y": {
         "dtype": "f8",
@@ -25,10 +25,10 @@
       },
       "name": "Ann Return %",
       "x": [
-        "Q1<br>(Lowest wage growth)",
-        "Q2",
-        "Q3",
-        "Q4<br>(Highest wage growth)"
+        "Q1<br>(Lowest wage growth)<br>n=25",
+        "Q2<br>n=24",
+        "Q3<br>n=24",
+        "Q4<br>(Highest wage growth)<br>n=24"
       ],
       "y": {
         "dtype": "f8",

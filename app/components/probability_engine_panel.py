@@ -211,8 +211,18 @@ def _render_chart(
     pair_id: str,
     target_symbol: str,
     show_near_threshold_zone: bool = True,
+    long_below: bool = False,
+    is_rolling: bool = False,
 ):
-    """Render the probability-engine time-series (APP-SE1 acceptance)."""
+    """Render the probability-engine time-series (APP-SE1 acceptance).
+
+    ``long_below`` (Step C #244): when True the winner is countercyclical /
+    threshold_rule lte-lt (hold long AT/BELOW the threshold), so the legend must
+    read "long at/below, cash above" — not the hard-coded "long above".
+    ``is_rolling`` (Step C #245): when True the threshold is a rolling quantile
+    (e.g. T_roll_p50) and the plotted line is its LATEST value, so label it as
+    such rather than implying a single fixed cutoff.
+    """
     series = signals_df[column].dropna()
     fig = go.Figure()
 
@@ -234,7 +244,12 @@ def _render_chart(
             x=[series.index.min(), series.index.max()],
             y=[threshold, threshold],
             mode="lines",
-            name=f"Decision threshold ({threshold:g}): long above, cash at/below",
+            name=(
+                f"Decision threshold ("
+                + (f"rolling, latest {threshold:g}" if is_rolling else f"{threshold:g}")
+                + "): "
+                + ("long at/below, cash above" if long_below else "long above, cash at/below")
+            ),
             line=dict(color="#444444", width=1.2, dash="dash"),
             hoverinfo="skip",
         )
@@ -415,10 +430,10 @@ def render_probability_engine_panel(pair_id: str) -> None:
             "time and where the decision threshold sits."
             if not show_near_threshold_zone
             else "What this shows: how the winning signal value evolves over "
-                 "time and where each decision threshold sits. The grey zone "
-                 "means the signal hovers near 0, so small month-to-month moves "
-                 "can flip the rule between long "
-                 f"{winner.get('target_symbol', 'SPY')} and cash."
+                 "time and where the decision threshold sits. The grey zone "
+                 "marks values within about ±0.25 of the decision threshold, "
+                 "where small month-to-month moves can flip the rule between "
+                 f"long {winner.get('target_symbol', 'SPY')} and cash."
         )
     )
     st.markdown(f"### {panel_title}")
@@ -503,6 +518,12 @@ def render_probability_engine_panel(pair_id: str) -> None:
     }
 
     target_symbol = winner.get("target_symbol", "SPY")
+    # Step C #244/#245: legend direction must follow the winner's actual
+    # threshold rule (lte/lt => long at/below), and a rolling threshold must be
+    # labelled as its latest value, not a fixed cutoff.
+    _rule = str(winner.get("threshold_rule", "")).lower()
+    _long_below = _rule in ("lte", "lt")
+    _is_rolling = "roll" in str(winner.get("threshold_code", "")).lower()
     _render_chart(
         signals_df,
         column,
@@ -512,6 +533,8 @@ def render_probability_engine_panel(pair_id: str) -> None:
         pair_id,
         target_symbol,
         show_near_threshold_zone=show_near_threshold_zone,
+        long_below=_long_below,
+        is_rolling=_is_rolling,
     )
 
     # APP-SE5 universal takeaway caption

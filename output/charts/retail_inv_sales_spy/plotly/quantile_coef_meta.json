@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-09-12T17:24:17.357664+00:00",
+  "generated_at": "2026-09-25T23:20:41.786570+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
   "caption": "Inventories-to-sales coefficient across SPY forward-return quantiles.",
   "narrative_alignment_note": "Inventories-to-sales coefficient across SPY forward-return quantiles.",

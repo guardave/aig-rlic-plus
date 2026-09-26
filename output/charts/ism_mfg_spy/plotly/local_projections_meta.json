@@ -1,7 +1,7 @@
 {
   "chart_name": "local_projections",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-09-12T17:24:12.978199+00:00",
+  "generated_at": "2026-09-25T23:22:12.914281+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Estimated SPY response across horizons to a move in the ISM PMI.",
   "narrative_alignment_note": "Estimated SPY response across horizons to a move in the ISM PMI.",

@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-09-12T17:24:15.332375+00:00",
+  "generated_at": "2026-09-25T23:20:48.837158+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
   "caption": "Expected-conditions coefficient across SPY forward-return quantiles.",
   "narrative_alignment_note": "Expected-conditions coefficient across SPY forward-return quantiles.",

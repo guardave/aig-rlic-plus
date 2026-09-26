@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-08-27T09:22:10.761215+00:00",
+  "generated_at": "2026-09-25T23:20:43.857791+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Retail-sales-growth coefficient across SPY forward-return quantiles.",
   "narrative_alignment_note": "Retail-sales-growth coefficient across SPY forward-return quantiles.",

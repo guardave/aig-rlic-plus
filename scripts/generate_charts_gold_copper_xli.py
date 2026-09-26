@@ -200,6 +200,7 @@ def make_quartile_returns():
         ann_return_pct=ann_return_pct,
         signal_label="Gold/Copper Z-Score",
         x_axis_title="Z-Score Quartile",
+        sample_sizes=df["count"].astype(int).tolist(),
     )
     save_chart(fig, "quartile_returns", palette_id="quartile_v1",
                rules_applied=["VIZ-QR1", "VIZ-IC1"],
