@@ -40,7 +40,10 @@ def load_monthly() -> pd.DataFrame:
 
 def save(name: str, fig: go.Figure, caption: str, sources: list[str]) -> None:
     fig.write_json(OUT / f"{name}.json")
-    fig.write_image(OUT / f"_perceptual_check_{name}.png", width=1200, height=600, scale=1)
+    try:
+        fig.write_image(OUT / f"_perceptual_check_{name}.png", width=1200, height=600, scale=1)
+    except Exception as exc:  # noqa: BLE001 - PNG is a secondary perceptual-check artifact
+        print(f"  (perceptual PNG skipped for {name}: {exc.__class__.__name__})")
     meta = {
         "chart_name": name,
         "pair_id": PAIR,
@@ -204,9 +207,25 @@ def chart_local_projections() -> None:
 
 def chart_quantile() -> None:
     q = pd.read_csv(CORE / "quantile_regression.csv")
-    _half = ci95_halfwidth(q["coef"], q["p_value"])
+    # #243: use the REAL per-quantile standard errors from QuantReg for the
+    # 95% whiskers (fall back to the coef+p reconstruction for legacy files).
+    _half = (1.96 * q["se"]).tolist() if "se" in q.columns else ci95_halfwidth(q["coef"], q["p_value"])
     fig = go.Figure(go.Scatter(x=q["quantile"], y=q["coef"], mode="lines+markers", name="Coefficient (95% CI)", line=dict(color=C_IND), error_y=dict(type="data", array=_half, visible=True, thickness=1.5, color=C_LINE)))
     fig.add_hline(y=0, line_color=C_LINE)
+    # #243: surface the cross-quantile slope-equality Wald test on the chart
+    # so a "uniform / no tail asymmetry" reading is backed by a formal test.
+    import json as _json
+    _qt_path = CORE / "quantile_equality_test.json"
+    if _qt_path.exists():
+        _qt = _json.loads(_qt_path.read_text())
+        _qp = _qt.get("p_value")
+        if _qp is not None and _qp == _qp:  # not NaN
+            _verdict = ("slopes DIFFER across quantiles (tail asymmetry)"
+                        if _qt.get("reject_equality") else
+                        "consistent with a uniform effect across quantiles")
+            fig.add_annotation(text=f"Cross-quantile slope equality (Wald): p={_qp:.3f} \u2014 {_verdict}",
+                               xref="paper", yref="paper", x=0, y=1.14, showarrow=False,
+                               font=dict(size=11), align="left")
     fig.update_layout(title="Quantile Regression Coefficient", xaxis_title="SPY return quantile", yaxis_title="New Home Sales coefficient (95% CI whiskers)", template="plotly_white", height=430)
     save("quantile_coef", fig, "New Home Sales coefficient across SPY forward-return quantiles.", [str(CORE / "quantile_regression.csv")])
 

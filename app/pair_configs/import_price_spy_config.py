@@ -432,22 +432,25 @@ QUANTILE_BLOCK = dict(
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: the coefficient is negative (about -0.003) and flat "
-        "across the tested quantiles -- a consistent inverse association with "
-        "no strong tail asymmetry."
+        "What this shows: real quantile-regression slopes (tau 0.10-0.90) are "
+        "all negative, from about -0.002 to -0.003; a formal cross-quantile "
+        "equality test does not reject a uniform slope (Wald p=0.67). The "
+        "10th-percentile (deep-selloff) tail is not individually significant."
     ),
     observation=(
-        "The estimated coefficient is negative and essentially unchanged across "
-        "the tested quantiles, consistent with the negative correlation and "
-        "local-projection results."
+        "The slope is negative and statistically significant across the "
+        "interquartile range (p<0.001 at tau=0.25/0.50/0.75) and at the upper "
+        "tail, while the 10th-percentile tail is imprecise (p=0.26). A bootstrap "
+        "Wald test of slope equality across quantiles does not reject (p=0.67)."
     ),
     interpretation=(
-        "Import-price growth's inverse relationship with SPY is broadly "
-        "uniform across the return distribution rather than concentrated in a "
-        "crash tail -- consistent countercyclical context, not a specific tail "
-        "hedge."
+        "Import-price growth's inverse relationship with SPY is broadly uniform "
+        "across the return distribution rather than concentrated in a crash tail "
+        "-- now a tested statement (Wald p=0.67), not an assumption. It is "
+        "countercyclical context, not a specific tail hedge, and the deep-loss "
+        "tail itself is too noisily estimated to claim a distinct effect."
     ),
-    key_message="Import-price growth is uniformly, mildly negative across SPY return quantiles -- no strong tail asymmetry.",
+    key_message="Import-price growth is mildly, negatively associated with SPY across return quantiles; a formal equality test finds no significant tail asymmetry (Wald p=0.67).",
 )
 
 
