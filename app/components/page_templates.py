@@ -1429,9 +1429,19 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         f"{_strategy_family} / {_lead_label}"
     )
 
+    # #244 re-open: the generic fallback must not imply a fixed cutoff when the
+    # winner threshold is a rolling quantile (a moving boundary).
+    _tcode_fb = str(winner.get('threshold_code', '')).lower()
+    if 'roll' in _tcode_fb:
+        _threshold_phrase = (
+            f"its rolling 60-month median (a moving boundary, latest "
+            f"{winner.get('threshold_value', 'its threshold')})"
+        )
+    else:
+        _threshold_phrase = f"{winner.get('threshold_value', 'its threshold')}"
     signal_rule = getattr(config, "SIGNAL_RULE_MD", None) or (
         f"**Rule in plain English:** monitor {winner.get('signal_column', 'the indicator signal')}. "
-        f"When the signal crosses {winner.get('threshold_value', 'its threshold')} "
+        f"When the signal crosses {_threshold_phrase} "
         f"({winner.get('threshold_rule', 'the comparison rule')}), apply the "
         f"{_strategy_family} rule in the {_direction} direction. Lead time: {_lead_label}."
     )
@@ -1513,7 +1523,19 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         with _col1:
             st.markdown(f"**Signal code:** `{winner.get('signal_code', 'N/A')}`")
             st.markdown(f"**Signal column:** `{winner.get('signal_column', 'N/A')}`")
-            st.markdown(f"**Threshold:** `{winner.get('threshold_rule', '')} {winner.get('threshold_value', '')}`")
+            # #244 re-open: a rolling-quantile winner uses a TIME-VARYING boundary,
+            # so showing a lone fixed number implies a fixed cutoff. Label it as the
+            # moving rolling median with its latest value.
+            _tcode = str(winner.get('threshold_code', '')).lower()
+            _trule = winner.get('threshold_rule', '')
+            _tval = winner.get('threshold_value', '')
+            if 'roll' in _tcode:
+                st.markdown(
+                    f"**Threshold:** `{_trule}` its rolling 60-month median "
+                    f"(moving boundary; latest value `{_tval}`)"
+                )
+            else:
+                st.markdown(f"**Threshold:** `{_trule} {_tval}`")
         with _col2:
             st.markdown(f"**Strategy family:** `{_strategy_family}`")
             st.markdown(f"**Direction:** `{_direction}`")

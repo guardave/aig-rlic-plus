@@ -213,15 +213,22 @@ def _render_chart(
     show_near_threshold_zone: bool = True,
     long_below: bool = False,
     is_rolling: bool = False,
+    rolling_quantile: float | None = None,
+    rolling_window: int = 60,
+    rolling_min_periods: int = 36,
 ):
     """Render the probability-engine time-series (APP-SE1 acceptance).
 
     ``long_below`` (Step C #244): when True the winner is countercyclical /
     threshold_rule lte-lt (hold long AT/BELOW the threshold), so the legend must
     read "long at/below, cash above" — not the hard-coded "long above".
-    ``is_rolling`` (Step C #245): when True the threshold is a rolling quantile
-    (e.g. T_roll_p50) and the plotted line is its LATEST value, so label it as
-    such rather than implying a single fixed cutoff.
+    ``is_rolling`` (Step C #245 re-open): when True the threshold is a rolling
+    quantile (e.g. T_roll_p50). The decision boundary is a TIME-VARYING series,
+    not a fixed cutoff — so when ``rolling_quantile`` is supplied we recompute
+    ``signal.rolling(rolling_window, min_periods=rolling_min_periods).quantile(q)``
+    (exactly the pipeline's ``build_threshold``) and plot that curve, with the
+    grey zone tracking it. Labelling it "rolling, latest X" while drawing a flat
+    line (the prior fix) was the specific defect re-opened by the reviewer.
     """
     series = signals_df[column].dropna()
     fig = go.Figure()
@@ -237,42 +244,88 @@ def _render_chart(
         )
     )
 
-    # Threshold decoration: horizontal line at discrete threshold (or epsilon
-    # band for continuous signals where thresholds are soft).
-    fig.add_trace(
-        go.Scatter(
-            x=[series.index.min(), series.index.max()],
-            y=[threshold, threshold],
-            mode="lines",
-            name=(
-                f"Decision threshold ("
-                + (f"rolling, latest {threshold:g}" if is_rolling else f"{threshold:g}")
-                + "): "
-                + ("long at/below, cash above" if long_below else "long above, cash at/below")
-            ),
-            line=dict(color="#444444", width=1.2, dash="dash"),
-            hoverinfo="skip",
+    # Threshold decoration. #245 re-open: a rolling threshold is a TIME-VARYING
+    # series, so when we can recompute it we draw the actual curve (and track the
+    # grey zone to it) instead of a flat line at the latest value.
+    roll_series = None
+    if is_rolling and rolling_quantile is not None and column in signals_df.columns:
+        roll_series = (
+            signals_df[column]
+            .rolling(rolling_window, min_periods=rolling_min_periods)
+            .quantile(rolling_quantile)
+            .reindex(series.index)
         )
-    )
-    if not is_probability and show_near_threshold_zone:
-        # Epsilon band for continuous/z-score signals: ±0.25 around threshold.
-        fig.add_hrect(
-            y0=threshold - 0.25,
-            y1=threshold + 0.25,
-            fillcolor="#BBBBBB",
-            opacity=0.15,
-            line_width=0,
-        )
+        if not roll_series.notna().any():
+            roll_series = None
+
+    if roll_series is not None:
         fig.add_trace(
             go.Scatter(
-                x=[None],
-                y=[None],
-                mode="markers",
-                marker=dict(size=12, color="rgba(187,187,187,0.35)", symbol="square"),
-                name="Grey zone: near threshold",
+                x=roll_series.index,
+                y=roll_series.values,
+                mode="lines",
+                name=(
+                    f"Decision threshold (rolling {rolling_window}m median, "
+                    f"latest {threshold:g}): "
+                    + ("long at/below, cash above" if long_below else "long above, cash at/below")
+                ),
+                line=dict(color="#444444", width=1.4, dash="dash"),
+                hovertemplate="%{x|%Y-%m-%d}: %{y:.3f}<extra>rolling threshold</extra>",
+            )
+        )
+        if not is_probability and show_near_threshold_zone:
+            # Grey zone ±0.25 that TRACKS the rolling boundary (two edge traces
+            # with a fill between them), not a flat horizontal band.
+            fig.add_trace(
+                go.Scatter(
+                    x=roll_series.index, y=(roll_series + 0.25).values,
+                    mode="lines", line=dict(width=0), hoverinfo="skip", showlegend=False,
+                )
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=roll_series.index, y=(roll_series - 0.25).values,
+                    mode="lines", line=dict(width=0), fill="tonexty",
+                    fillcolor="rgba(187,187,187,0.22)",
+                    name="Grey zone: near threshold (±0.25)", hoverinfo="skip",
+                )
+            )
+    else:
+        # Fixed-threshold path: horizontal line at the discrete threshold, with
+        # an epsilon band for continuous/z-score signals where thresholds are soft.
+        fig.add_trace(
+            go.Scatter(
+                x=[series.index.min(), series.index.max()],
+                y=[threshold, threshold],
+                mode="lines",
+                name=(
+                    f"Decision threshold ("
+                    + (f"rolling, latest {threshold:g}" if is_rolling else f"{threshold:g}")
+                    + "): "
+                    + ("long at/below, cash above" if long_below else "long above, cash at/below")
+                ),
+                line=dict(color="#444444", width=1.2, dash="dash"),
                 hoverinfo="skip",
             )
         )
+        if not is_probability and show_near_threshold_zone:
+            fig.add_hrect(
+                y0=threshold - 0.25,
+                y1=threshold + 0.25,
+                fillcolor="#BBBBBB",
+                opacity=0.15,
+                line_width=0,
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=[None],
+                    y=[None],
+                    mode="markers",
+                    marker=dict(size=12, color="rgba(187,187,187,0.35)", symbol="square"),
+                    name="Grey zone: near threshold",
+                    hoverinfo="skip",
+                )
+            )
 
     target_price = _load_target_price_overlay(pair_id, target_symbol)
     if target_price is not None:
@@ -523,7 +576,11 @@ def render_probability_engine_panel(pair_id: str) -> None:
     # labelled as its latest value, not a fixed cutoff.
     _rule = str(winner.get("threshold_rule", "")).lower()
     _long_below = _rule in ("lte", "lt")
-    _is_rolling = "roll" in str(winner.get("threshold_code", "")).lower()
+    _tc = str(winner.get("threshold_code", "")).lower()
+    _is_rolling = "roll" in _tc
+    # #245 re-open: map the rolling-quantile code to its quantile so the panel can
+    # redraw the actual time-varying boundary (matches pipeline build_threshold).
+    _roll_q = {"t_roll_p25": 0.25, "t_roll_p50": 0.50, "t_roll_p75": 0.75}.get(_tc)
     _render_chart(
         signals_df,
         column,
@@ -535,6 +592,7 @@ def render_probability_engine_panel(pair_id: str) -> None:
         show_near_threshold_zone=show_near_threshold_zone,
         long_below=_long_below,
         is_rolling=_is_rolling,
+        rolling_quantile=_roll_q,
     )
 
     # APP-SE5 universal takeaway caption
@@ -544,6 +602,12 @@ def render_probability_engine_panel(pair_id: str) -> None:
             f"The {display_name.lower()} is the live stress meter; the strategy "
             f"scales equity exposure down whenever this probability rises above "
             f"{threshold:g}."
+        )
+    elif _is_rolling:
+        takeaway = (
+            f"The signal ({display_name}) drives the strategy; position changes "
+            f"are triggered when the value crosses its rolling 60-month median "
+            f"(a moving boundary, latest value {threshold:g}) — not a fixed cutoff."
         )
     else:
         takeaway = (
