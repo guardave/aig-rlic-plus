@@ -329,18 +329,25 @@ QUANTILE_BLOCK = dict(
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: the signal can matter differently across weak and "
-        "strong return states."
+        "What this shows: real quantile-regression slopes are tail-dependent. "
+        "They are positive and significant in the lower (weak-return) tail "
+        "(+0.0016 at tau=0.10, p=0.011; +0.0009 at tau=0.25, p=0.03) and fade "
+        "toward zero at higher quantiles. A cross-quantile equality test REJECTS "
+        "a uniform slope (Wald p=0.007)."
     ),
     observation=(
-        "Tail sensitivity is relevant because housing turns are most "
-        "informative around recessions and recoveries."
+        "The home-sales signal has a state-dependent association with SPY: "
+        "significant in the lower tails and near zero in the upper quantiles. A "
+        "bootstrap Wald test rejects equality of the slopes across quantiles "
+        "(p=0.007), confirming the effect is not constant across the distribution."
     ),
     interpretation=(
-        "A state-dependent result is more plausible than one constant "
-        "home-sales effect across all markets."
+        "New Home Sales is most informative in weak-return states -- consistent "
+        "with housing turns mattering around recessions and recoveries -- rather "
+        "than carrying one constant effect across all markets. The regime/tail "
+        "reading is now backed by a formal test, not just plausibility."
     ),
-    key_message="New Home Sales should be read through regimes and tails.",
+    key_message="New Home Sales has a tail-concentrated SPY association -- significant in weak-return states and fading at higher quantiles (Wald p=0.007).",
 )
 
 

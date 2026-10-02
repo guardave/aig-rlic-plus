@@ -374,19 +374,25 @@ QUANTILE_BLOCK = dict(
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: the coefficient is close to zero across quantiles -- "
-        "no material tail sensitivity for the retail-sales signal."
+        "What this shows: real quantile-regression slopes swing from mildly "
+        "positive in the lower (deep-selloff) tail (+0.003 at tau=0.10, not "
+        "significant) to negative through the middle and upper quantiles (only "
+        "tau=0.50 is significant, p=0.05). A cross-quantile equality test does "
+        "not reject at 5% but is suggestive (Wald p=0.09)."
     ),
     observation=(
-        "The estimated coefficient is small and flat across the tested "
-        "quantiles, consistent with the near-null correlation and local "
-        "projection results."
+        "Point estimates vary across quantiles, but only the median slope is "
+        "individually significant and the bootstrap Wald test does not reject "
+        "slope equality at the 5% level (p=0.09). The evidence for tail "
+        "asymmetry is weak and inconclusive, not a clean uniform null."
     ),
     interpretation=(
-        "Retail-sales growth does not flag elevated crash risk or "
-        "exceptional upside -- there is no tail channel to trade."
+        "Retail-sales growth shows at most marginal state-dependence in its SPY "
+        "association -- suggestive but not statistically confirmed, and too small "
+        "to trade. The earlier 'flat / no tail sensitivity' claim overstated the "
+        "certainty; it rested on a bug (OLS repeated across quantiles)."
     ),
-    key_message="Retail-sales growth shows no material state-dependent effect across SPY return tails.",
+    key_message="Retail-sales growth shows only weak, inconclusive evidence of tail asymmetry (Wald p=0.09) -- not the confirmed uniform null the chart previously implied.",
 )
 
 

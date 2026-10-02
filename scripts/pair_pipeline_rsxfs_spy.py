@@ -463,13 +463,25 @@ def write_evidence(df: pd.DataFrame, tourn: pd.DataFrame, winner: dict) -> None:
     pd.DataFrame(lp_rows).to_csv(CORE / "local_projections.csv", index=False)
     pd.DataFrame(lp_rows).to_csv(CORE / "predictive_regressions.csv", index=False)
 
-    qr_rows = []
-    for qtile in [0.25, 0.5, 0.75]:
-        sub = df[[REP_SIGNAL, "spy_fwd_3m"]].dropna()
-        if len(sub) > 20:
-            slope, intercept, r, p, se = stats.linregress(sub[REP_SIGNAL], sub["spy_fwd_3m"])
-            qr_rows.append({"quantile": qtile, "coef": slope, "p_value": p})
-    pd.DataFrame(qr_rows).to_csv(CORE / "quantile_regression.csv", index=False)
+    # #243 fix: REAL quantile regression. The previous loop ran OLS
+    # (stats.linregress) and never used `qtile`, so every quantile row
+    # carried the identical slope — the chart always looked "flat across
+    # quantiles" and narratives claimed "no tail asymmetry" from an analysis
+    # that was never run. The shared helper fits statsmodels QuantReg per tau
+    # and adds a bootstrap cross-quantile equality Wald test.
+    import sys as _sys
+    _qr_sp = str(REPO / "scripts")
+    if _qr_sp not in _sys.path:
+        _sys.path.insert(0, _qr_sp)
+    from _quantile_regression import fit_quantile_regression, DEFAULT_QUANTILES
+    _qr_sub = df[[REP_SIGNAL, "spy_fwd_3m"]].dropna()
+    _qr_rows, _qr_test = fit_quantile_regression(
+        _qr_sub[REP_SIGNAL], _qr_sub["spy_fwd_3m"], DEFAULT_QUANTILES
+    )
+    pd.DataFrame(_qr_rows).to_csv(CORE / "quantile_regression.csv", index=False)
+    (CORE / "quantile_equality_test.json").write_text(
+        json.dumps(_qr_test, indent=2) + "\n"
+    )
 
     subperiods = [
         ("Dot_Com", "2000-03-31", "2002-10-31"),

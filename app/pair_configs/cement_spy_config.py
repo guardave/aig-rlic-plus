@@ -423,19 +423,25 @@ QUANTILE_BLOCK = dict(
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: the coefficient is close to zero and flat across "
-        "quantiles -- no material tail sensitivity for the cement signal."
+        "What this shows: real quantile-regression slopes are small but NOT "
+        "constant -- they drift from mildly positive in the lower (deep-selloff) "
+        "tail to mildly negative in the upper tail. A formal cross-quantile "
+        "equality test REJECTS a uniform slope (Wald p=0.004)."
     ),
     observation=(
-        "The estimated coefficient is small and essentially unchanged across "
-        "the tested quantiles, consistent with the near-null correlation and "
-        "local-projection results."
+        "No individual quantile slope is statistically significant, but a "
+        "bootstrap Wald test rejects equality of the slopes across quantiles "
+        "(p=0.004): the coefficient falls monotonically from about +0.0002 at "
+        "tau=0.10 to about -0.0001 at tau=0.90."
     ),
     interpretation=(
-        "Cement growth does not flag elevated crash risk or exceptional "
-        "upside -- there is no tail channel to trade."
+        "The cement-SPY association is state-dependent rather than flat: it is "
+        "weakly supportive in deep-selloff states and weakly adverse in strong-up "
+        "states. The individual effects are too small and imprecise to trade, but "
+        "the earlier 'flat / no tail sensitivity' claim does not hold -- it came "
+        "from a bug (OLS repeated across quantiles), and the real test rejects it."
     ),
-    key_message="Cement growth shows no material state-dependent effect across SPY return tails.",
+    key_message="Cement growth's SPY association varies across return quantiles (Wald p=0.004) -- small and untradeable, but not the uniform null the chart previously implied.",
 )
 
 

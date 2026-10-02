@@ -409,19 +409,26 @@ QUANTILE_BLOCK = dict(
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: the coefficient is close to zero and flat across "
-        "quantiles -- no material tail sensitivity for the new-orders signal."
+        "What this shows: real quantile-regression slopes are strongly tail-"
+        "dependent. In the lower (deep-selloff) tail the slope is positive and "
+        "significant (+0.0028 at tau=0.10, p=0.001); it fades to near zero in the "
+        "middle and upper quantiles. A cross-quantile equality test REJECTS a "
+        "uniform slope (Wald p<0.001)."
     ),
     observation=(
-        "The estimated coefficient is small and essentially unchanged across "
-        "the tested quantiles, consistent with the near-null correlation and "
-        "local-projection results."
+        "The effect is concentrated in the lower tail: tau=0.10 is positive and "
+        "significant (+0.0028, p=0.001) while tau=0.25-0.90 are small and "
+        "insignificant. A bootstrap Wald test strongly rejects slope equality "
+        "across quantiles (p<0.001)."
     ),
     interpretation=(
-        "New-orders growth does not flag elevated crash risk or exceptional "
-        "upside -- there is no tail channel to trade."
+        "New-orders growth matters most in deep-selloff states, where stronger "
+        "new orders coincide with less-negative forward SPY returns -- a "
+        "tail-concentrated, not uniform, relationship. The prior 'flat / no tail "
+        "sensitivity' description was an artifact of the OLS-repeated bug; the "
+        "real analysis shows clear tail asymmetry."
     ),
-    key_message="New-orders growth shows no material state-dependent effect across SPY return tails.",
+    key_message="New-orders growth has a tail-concentrated SPY association -- significant in the lower tail and near zero elsewhere (Wald p<0.001), not the uniform null previously shown.",
 )
 
 
