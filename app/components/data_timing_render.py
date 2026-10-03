@@ -124,11 +124,10 @@ def render_data_timing(key_prefix: str = "timing") -> None:
             "pushes it to the next month so it reflects reality."
         )
 
-    # Build the table from live winner leads + reference timing. Three states:
+    # Build rows grouped into the three honest states:
     #   ⚠️ look-ahead now (lead < floor); 🟡 to be re-confirmed (lead ok but grid
     #   not yet re-run under the enforced floor); ✅ safe (grid already floored).
-    rows = []
-    n_safe = n_pending = n_fix = 0
+    buckets: dict[str, list[dict]] = {"fix": [], "pending": [], "safe": []}
     for pair_id, info in sorted(_TIMING.items()):
         lead_val, lead_unit = _winner_lead(pair_id)
         if lead_val is None:
@@ -141,25 +140,17 @@ def render_data_timing(key_prefix: str = "timing") -> None:
             below = comparable and float(lead_val) < float(floor)
         except (TypeError, ValueError):
             below = False
-        if below:
-            status = "⚠️ Look-ahead — being corrected"
-            n_fix += 1
-        elif pair_id in _GRID_FLOORED:
-            status = "✅ Safe (wait already enforced)"
-            n_safe += 1
-        else:
-            status = "🟡 To be re-confirmed"
-            n_pending += 1
-        rows.append({
+        bucket = "fix" if below else ("safe" if pair_id in _GRID_FLOORED else "pending")
+        buckets[bucket].append({
             "Pair": pair_id,
             "Data source": info["source"],
             "When it's published": info["release"],
             "Frequency": info["freq"],
-            "Minimum honest wait (floor)": f"{floor} {ushort}",
+            "Min honest wait (floor)": f"{floor} {ushort}",
             "Current rule's wait (lead)": (f"{lead_val} {_UNIT_SHORT.get(lead_unit, lead_unit)}"
                                            if lead_val != "" and lead_val is not None else "—"),
-            "Status": status,
         })
+    n_fix, n_pending, n_safe = len(buckets["fix"]), len(buckets["pending"]), len(buckets["safe"])
 
     # Headline counts — three honest buckets.
     c1, c2, c3 = st.columns(3)
@@ -179,17 +170,33 @@ def render_data_timing(key_prefix: str = "timing") -> None:
     )
 
     st.markdown("### Every indicator: when it's published, and the honest wait")
-    st.dataframe(rows, use_container_width=True, hide_index=True)
-
     st.caption(
         "Floor = the shortest delay at which the data has actually been published, "
-        "so the rule could have been traded. Lead = the delay the live winning "
-        "rule uses (read from each pair's winner_summary.json). "
-        "✅ Safe = the search already refused any lead shorter than the floor. "
-        "🟡 To be re-confirmed = the current rule clears the floor, but the search "
-        "still allowed shorter leads and must be re-run to be certain the winner "
-        "holds. ⚠️ Look-ahead = the live rule trades sooner than the data exists "
-        "and is being corrected. Publication timings are compiled from the official "
-        "release calendars (ISM, BLS, U.S. Census, Federal Reserve, NAHB, "
-        "U. Michigan, EIA) and market-data conventions."
+        "so the rule could have been traded. Lead = the delay the live winning rule "
+        "uses (read from each pair's winner_summary.json). Publication timings are "
+        "compiled from the official release calendars (ISM, BLS, U.S. Census, "
+        "Federal Reserve, NAHB, U. Michigan, EIA) and market-data conventions."
     )
+
+    # Grouped, full (non-scrolling) tables — worst first so the reviewer sees the
+    # flagged pairs immediately. st.table renders every row, no scroll bar.
+    if buckets["fix"]:
+        st.markdown(
+            f"#### ⚠️ Look-ahead — being corrected ({n_fix})  \n"
+            "*The live rule trades sooner than the data is published. Being re-run now.*"
+        )
+        st.table(buckets["fix"])
+    if buckets["pending"]:
+        st.markdown(
+            f"#### 🟡 To be re-confirmed ({n_pending})  \n"
+            "*Current rule clears the floor, but the search still allowed shorter "
+            "leads — must be re-run under the enforced wait to confirm the winner holds.*"
+        )
+        st.table(buckets["pending"])
+    if buckets["safe"]:
+        st.markdown(
+            f"#### ✅ Safe — wait already enforced ({n_safe})  \n"
+            "*The search already refused any lead shorter than the floor, so the "
+            "winning rule is genuinely executable.*"
+        )
+        st.table(buckets["safe"])
