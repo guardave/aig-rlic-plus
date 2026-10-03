@@ -19,6 +19,7 @@ from components.pair_registry import (
 from components.sidebar import render_sidebar
 from components.narrative import render_glossary_sidebar
 from components.statistical_methods_render import render_statistical_methods
+from components.data_timing_render import render_data_timing
 from components.prospective_pairs import (
     build_status_pivot,
     n_universe as prospective_n_universe,
@@ -97,8 +98,8 @@ def _mdd_color(val):
 
 
 # --- Top-level tabs: Reports (existing card grid) | Status (prospective-universe matrix) ---
-reports_tab, status_tab, methods_tab = st.tabs(
-    ["Reports", "Status", "Statistical Methods"]
+reports_tab, status_tab, methods_tab, timing_tab = st.tabs(
+    ["Reports", "Status", "Statistical Methods", "Data Timing"]
 )
 
 with reports_tab:
@@ -365,6 +366,13 @@ with methods_tab:
     # render function as the standalone sidebar page (single source of truth).
     # No page chrome inside a tab — just the content.
     render_statistical_methods(key_prefix="tab")
+
+with timing_tab:
+    # Step C #255 (Alex_UK): plain-English data-timing / look-ahead explainer +
+    # a live, data-driven table of each pair's publication delay vs the honest
+    # minimum lead ("floor"). Flags any live winner that trades sooner than the
+    # data is actually published.
+    render_data_timing(key_prefix="tab")
 
 # --- Footer ---
 st.markdown("---")
