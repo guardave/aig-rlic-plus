@@ -72,6 +72,19 @@ _TIMING: dict[str, dict] = {
 
 _UNIT_SHORT = {"months": "mo", "quarters": "q", "days": "d"}
 
+# Pairs whose tournament lead grid ALREADY enforces the floor (no below-floor
+# leads searched), so their live winner was selected from an honest, executable
+# search — genuinely verified. Every other pair still has a grid that allows a
+# below-floor lead and has NOT been re-run under the enforced floor, so even when
+# its current winner happens to clear the floor, re-running could surface a
+# different winner — it is "to be re-confirmed", not yet "safe".
+# (petrol_inv keeps L0 but documents it: weekly data is available within the
+# month, so L0 is genuinely executable there.)
+_GRID_FLOORED: frozenset[str] = frozenset({
+    "busloans_spy", "cass_freight_spy", "m2sl_yoy_spy", "ism_services_spy",
+    "phlxsox_spy", "wells_fargo_housing_spy", "eci_total_comp_spy", "petrol_inv_spy",
+})
+
 
 def _winner_lead(pair_id: str):
     """Read the live winner lead (value, unit) from winner_summary.json."""
@@ -111,9 +124,11 @@ def render_data_timing(key_prefix: str = "timing") -> None:
             "pushes it to the next month so it reflects reality."
         )
 
-    # Build the table from live winner leads + reference timing.
+    # Build the table from live winner leads + reference timing. Three states:
+    #   ⚠️ look-ahead now (lead < floor); 🟡 to be re-confirmed (lead ok but grid
+    #   not yet re-run under the enforced floor); ✅ safe (grid already floored).
     rows = []
-    n_safe = n_fix = 0
+    n_safe = n_pending = n_fix = 0
     for pair_id, info in sorted(_TIMING.items()):
         lead_val, lead_unit = _winner_lead(pair_id)
         if lead_val is None:
@@ -121,18 +136,20 @@ def render_data_timing(key_prefix: str = "timing") -> None:
         floor = info["floor"]
         unit = info["unit"]
         ushort = _UNIT_SHORT.get(unit, unit)
-        # Compare only when the winner's unit matches the reference unit.
         comparable = (lead_unit or unit).startswith(unit[:3]) or lead_unit in ("", unit)
         try:
             below = comparable and float(lead_val) < float(floor)
         except (TypeError, ValueError):
             below = False
         if below:
-            status = "⚠️ Being corrected"
+            status = "⚠️ Look-ahead — being corrected"
             n_fix += 1
-        else:
-            status = "✅ Safe"
+        elif pair_id in _GRID_FLOORED:
+            status = "✅ Safe (wait already enforced)"
             n_safe += 1
+        else:
+            status = "🟡 To be re-confirmed"
+            n_pending += 1
         rows.append({
             "Pair": pair_id,
             "Data source": info["source"],
@@ -144,17 +161,22 @@ def render_data_timing(key_prefix: str = "timing") -> None:
             "Status": status,
         })
 
-    # Headline counts.
-    c1, c2 = st.columns(2)
-    c1.metric("Pairs where the live rule is safe", n_safe)
-    c2.metric("Pairs being corrected (look-ahead)", n_fix)
-    if n_fix:
-        st.info(
-            f"**{n_fix} pair(s)** currently use a signal sooner than the data is "
-            "actually published. These are being re-run with the corrected waiting "
-            "period; their winning rule may change. This check (raised by a "
-            "reviewer) is the portal's live guard against future-peeking."
-        )
+    # Headline counts — three honest buckets.
+    c1, c2, c3 = st.columns(3)
+    c1.metric("✅ Safe (wait already enforced)", n_safe)
+    c2.metric("🟡 To be re-confirmed", n_pending)
+    c3.metric("⚠️ Look-ahead — being corrected", n_fix)
+
+    st.warning(
+        f"**Only {n_safe} pair(s) are fully confirmed.** Another **{n_pending}** "
+        "currently *look* fine (their rule already waits long enough), but their "
+        "search has **not yet been re-run with the waiting period enforced** — so "
+        "the winning rule could still change once it is. A further **"
+        f"{n_fix}** use a signal **sooner than the data is published** (look-ahead) "
+        "and are being corrected now. In short: a rule is only truly safe once the "
+        "search itself was never allowed to peek — re-confirming the 🟡 group is "
+        "part of this fix (reviewer item #255)."
+    )
 
     st.markdown("### Every indicator: when it's published, and the honest wait")
     st.dataframe(rows, use_container_width=True, hide_index=True)
@@ -162,8 +184,12 @@ def render_data_timing(key_prefix: str = "timing") -> None:
     st.caption(
         "Floor = the shortest delay at which the data has actually been published, "
         "so the rule could have been traded. Lead = the delay the live winning "
-        "rule uses (read from each pair's winner_summary.json). A rule is safe "
-        "when its lead ≥ the floor. Publication timings are compiled from the "
-        "official release calendars (ISM, BLS, U.S. Census, Federal Reserve, NAHB, "
+        "rule uses (read from each pair's winner_summary.json). "
+        "✅ Safe = the search already refused any lead shorter than the floor. "
+        "🟡 To be re-confirmed = the current rule clears the floor, but the search "
+        "still allowed shorter leads and must be re-run to be certain the winner "
+        "holds. ⚠️ Look-ahead = the live rule trades sooner than the data exists "
+        "and is being corrected. Publication timings are compiled from the official "
+        "release calendars (ISM, BLS, U.S. Census, Federal Reserve, NAHB, "
         "U. Michigan, EIA) and market-data conventions."
     )
