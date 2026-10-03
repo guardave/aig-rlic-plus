@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_inflation_2022",
+  "pair_id": "mfg_new_orders_spy",
+  "generated_at": "2026-08-29T13:04:14.129201+00:00",
+  "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
+  "caption": "2022 Rate Shock: Nominal Orders Stayed High on Inflation; gray bands are NBER recessions.",
+  "narrative_alignment_note": "2022 Rate Shock: Nominal Orders Stayed High on Inflation; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/mfg_new_orders_spy_monthly_latest.parquet"
+  ]
+}

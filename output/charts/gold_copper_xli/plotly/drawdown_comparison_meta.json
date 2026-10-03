@@ -3,12 +3,9 @@
   "pair_id": "gold_copper_xli",
   "palette_id": "dd_compare_v1",
   "rules_applied": [
-    "VIZ-IC1",
-    "VIZ-BF1"
+    "VIZ-IC1"
   ],
-  "narrative_alignment_note": "Strategy vs B&H drawdown \u2014 visualizes the -8.2% strategy max DD vs deeper B&H drawdowns.",
-  "generated_at": "2026-05-26T14:11:01Z",
-  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)",
-  "disposition": "consumed",
-  "backfilled_disposition_by": "fix260601_chart_hygiene Wave 3 (2026-06-02)"
+  "narrative_alignment_note": "Strategy vs B&H drawdown over the FULL SAMPLE (2000-01-03 to 2025-12-31) \u2014 NOT the OOS window. Strategy full-sample max DD is -19.3% (Aug 2008, GFC); B&H is -62.3% (Mar 2009). The -8.2% max DD quoted in the Strategy headline and shown by the `drawdown` chart is OOS-only (2020-01-01 onward) and is annotated here for reconciliation. Both figures are correct; they measure different windows.",
+  "generated_at": "2026-07-17T13:39:04Z",
+  "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)"
 }

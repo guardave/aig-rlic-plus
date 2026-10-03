@@ -1,0 +1,3 @@
+Column Name,Display Name,Description,Source,Series ID,Unit,Transformation,Direction Convention,Effective Start,Known Quirks,Display Note,Refresh Freq.,Refresh Source
+rsxfs,Advance Retail Sales: Retail Trade,Advance monthly retail trade sales (excl. food services),FRED,RSXFS,Millions of USD,Monthly level (SA),Higher growth = stronger consumer / risk-on,1993-01-31,"Trending nominal level — model growth, not level; extreme 2020-21 COVID swings",Advance estimate; revised in subsequent Monthly Retail Trade releases.,Monthly,FRED CSV
+spy,SPY adjusted close,SPDR S&P 500 ETF adjusted close,Yahoo Finance,SPY,USD,Month-end adjusted close,Higher = higher equity price,1993-01-31,ETF history begins in 1993,Equity-market target and benchmark.,Daily,Yahoo Finance

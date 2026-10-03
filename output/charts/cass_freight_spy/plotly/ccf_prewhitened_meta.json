@@ -7,13 +7,13 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Cross-correlation between AR(12) pre-whitened Cass Freight shipment growth and SPY returns. Only 1 lag (lag -2, ccf +0.201) crosses the 95% band \u2014 a lone cell treated as noise per the econometrics handoff. No robust leading relationship; the pair is coincident-or-none.",
-  "narrative_alignment_note": "CCF mirrors Evan's 'one stray significant lag (-2)' note.",
+  "caption": "Cross-correlation between pre-whitened Cass Freight YoY and SPY returns. 3 of 37 lags clear the 95% band, at lags [-16, -14, -12] \u2014 all on the side where the market leads freight, none on the freight-leads side. No forward Granger causality was found, consistent with the coincident/lagging classification.",
+  "narrative_alignment_note": "CCF corroborates the absent forward lead; only stocks-lead bars survive.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/core_models_20260705/ccf_prewhitened.csv"
+    "results/cass_freight_spy/core_models_20260829/ccf_prewhitened.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-05T22:29:53.478945+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+  "generated_at": "2026-08-29T09:09:57.834765+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

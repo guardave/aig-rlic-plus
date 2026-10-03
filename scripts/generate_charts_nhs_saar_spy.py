@@ -17,6 +17,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
+from _ci_band import ci95_halfwidth  # noqa: E402
 
 PAIR = "nhs_saar_spy"
 DATE_TAG = "20260804"
@@ -39,7 +40,10 @@ def load_monthly() -> pd.DataFrame:
 
 def save(name: str, fig: go.Figure, caption: str, sources: list[str]) -> None:
     fig.write_json(OUT / f"{name}.json")
-    fig.write_image(OUT / f"_perceptual_check_{name}.png", width=1200, height=600, scale=1)
+    try:
+        fig.write_image(OUT / f"_perceptual_check_{name}.png", width=1200, height=600, scale=1)
+    except Exception as exc:  # noqa: BLE001 - PNG is a secondary perceptual-check artifact
+        print(f"  (perceptual PNG skipped for {name}: {exc.__class__.__name__})")
     meta = {
         "chart_name": name,
         "pair_id": PAIR,
@@ -144,6 +148,7 @@ def chart_regime_stats() -> None:
         signal_label="New Home Sales",
         x_axis_title="New Home Sales (SAAR) quartile",
         axis_noun="",
+        sample_sizes=q["n"].astype(int).tolist(),
     )
     fig.update_layout(title="SPY Returns by New Home Sales Regime")
     save("regime_stats", fig, "SPY performance across New Home Sales (SAAR) quartiles.", ["results/nhs_saar_spy/regime_quartile_returns.csv"])
@@ -193,17 +198,35 @@ def chart_granger() -> None:
 
 def chart_local_projections() -> None:
     lp = pd.read_csv(CORE / "local_projections.csv")
-    fig = go.Figure(go.Bar(x=lp["horizon"].astype(str) + "m", y=lp["coef"], marker_color=C_IND, name="Coefficient"))
+    _half = ci95_halfwidth(lp["coef"], lp["p_value"])
+    fig = go.Figure(go.Bar(x=lp["horizon"].astype(str) + "m", y=lp["coef"], marker_color=C_IND, name="Coefficient (95% CI)", error_y=dict(type="data", array=_half, visible=True, thickness=1.5, color=C_LINE)))
     fig.add_hline(y=0, line_color=C_LINE)
-    fig.update_layout(title="Local Projection: SPY Response to Rising New Home Sales", xaxis_title="Forward horizon", yaxis_title="Coefficient", template="plotly_white", height=430)
+    fig.update_layout(title="Local Projection: SPY Response to Rising New Home Sales", xaxis_title="Forward horizon", yaxis_title="Coefficient (95% CI whiskers)", template="plotly_white", height=430)
     save("local_projections", fig, "Estimated SPY response to a rise in the 6-month New Home Sales growth signal.", [str(CORE / "local_projections.csv")])
 
 
 def chart_quantile() -> None:
     q = pd.read_csv(CORE / "quantile_regression.csv")
-    fig = go.Figure(go.Scatter(x=q["quantile"], y=q["coef"], mode="lines+markers", name="Coefficient", line=dict(color=C_IND)))
+    # #243: use the REAL per-quantile standard errors from QuantReg for the
+    # 95% whiskers (fall back to the coef+p reconstruction for legacy files).
+    _half = (1.96 * q["se"]).tolist() if "se" in q.columns else ci95_halfwidth(q["coef"], q["p_value"])
+    fig = go.Figure(go.Scatter(x=q["quantile"], y=q["coef"], mode="lines+markers", name="Coefficient (95% CI)", line=dict(color=C_IND), error_y=dict(type="data", array=_half, visible=True, thickness=1.5, color=C_LINE)))
     fig.add_hline(y=0, line_color=C_LINE)
-    fig.update_layout(title="Quantile Regression Coefficient", xaxis_title="SPY return quantile", yaxis_title="New Home Sales coefficient", template="plotly_white", height=430)
+    # #243: surface the cross-quantile slope-equality Wald test on the chart
+    # so a "uniform / no tail asymmetry" reading is backed by a formal test.
+    import json as _json
+    _qt_path = CORE / "quantile_equality_test.json"
+    if _qt_path.exists():
+        _qt = _json.loads(_qt_path.read_text())
+        _qp = _qt.get("p_value")
+        if _qp is not None and _qp == _qp:  # not NaN
+            _verdict = ("slopes DIFFER across quantiles (tail asymmetry)"
+                        if _qt.get("reject_equality") else
+                        "consistent with a uniform effect across quantiles")
+            fig.add_annotation(text=f"Cross-quantile slope equality (Wald): p={_qp:.3f} \u2014 {_verdict}",
+                               xref="paper", yref="paper", x=0, y=1.14, showarrow=False,
+                               font=dict(size=11), align="left")
+    fig.update_layout(title="Quantile Regression Coefficient", xaxis_title="SPY return quantile", yaxis_title="New Home Sales coefficient (95% CI whiskers)", template="plotly_white", height=430)
     save("quantile_coef", fig, "New Home Sales coefficient across SPY forward-return quantiles.", [str(CORE / "quantile_regression.csv")])
 
 

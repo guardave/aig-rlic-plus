@@ -113,6 +113,16 @@ PAGE_ROUTING = {
     "unrate_spy": "pages/27_unrate_spy",
     "nhs_saar_spy": "pages/28_nhs_saar_spy",
     "housing_starts_spy": "pages/29_housing_starts_spy",
+    "rsxfs_spy": "pages/30_rsxfs_spy",
+    "sloos_ci_small_spy": "pages/31_sloos_ci_small_spy",
+    "mfg_new_orders_spy": "pages/32_mfg_new_orders_spy",
+    "import_price_spy": "pages/33_import_price_spy",
+    "cement_spy": "pages/34_cement_spy",
+    "ism_mfg_spy": "pages/35_ism_mfg_spy",
+    "umcsent_spy": "pages/36_umcsent_spy",
+    "retail_inv_sales_spy": "pages/37_retail_inv_sales_spy",
+    "cc_delinquency_spy": "pages/38_cc_delinquency_spy",
+    "permit_yoy_spy": "pages/39_permit_yoy_spy",
 }
 
 

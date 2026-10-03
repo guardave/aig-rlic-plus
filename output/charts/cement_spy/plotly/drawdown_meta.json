@@ -1,0 +1,12 @@
+{
+  "chart_name": "drawdown",
+  "pair_id": "cement_spy",
+  "generated_at": "2026-08-31T07:51:45.342370+00:00",
+  "generated_by": "scripts/generate_charts_cement_spy.py",
+  "caption": "Drawdown comparison for the winner strategy and SPY buy-and-hold.",
+  "narrative_alignment_note": "Drawdown comparison for the winner strategy and SPY buy-and-hold.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/cement_spy/strategy_returns_20260830.csv"
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "pair_id": "import_price_spy",
+  "method": "rolling-correlation z-score proxy",
+  "max_abs_z": 2.554290478355077
+}

@@ -265,6 +265,7 @@ def chart_regime_stats():
         ann_return_pct=(q["ann_return"] * 100).tolist(),
         signal_label="Housing Starts 3-month change",
         x_axis_title="Housing Starts 3M-change quartile (Q1=Weak, Q4=Strong)",
+        sample_sizes=q["n_months"].astype(int).tolist(),
     )
     fig.update_layout(
         title=dict(
@@ -273,7 +274,8 @@ def chart_regime_stats():
                   f"<sup>Q1={q['sharpe'].iloc[0]:.2f} / Q2={q['sharpe'].iloc[1]:.2f} / "
                   f"Q3={q['sharpe'].iloc[2]:.2f} / Q4={q['sharpe'].iloc[3]:.2f} — "
                   f"hump at Q2, consistent with countercyclical winner</sup>"),
-            y=0.99, yanchor="top"),
+            ),  # #186-class fix: no y/yanchor override — let plotly auto-place the
+                # 2-line title in the top margin so the first line is not clipped
         margin=dict(t=160))
     save_chart("regime_stats", fig,
                caption=(f"SPY performance by Housing Starts 3-month-change quartile "

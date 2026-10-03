@@ -1,0 +1,2 @@
+signal,threshold,strategy,oos_sharpe,bootstrap_p_value,significant_at_5pct
+chg_12m,T0_zero,P1_long_cash,1.230609,0.005952380952380952,True

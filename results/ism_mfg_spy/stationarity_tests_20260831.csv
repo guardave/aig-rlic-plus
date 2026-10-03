@@ -1,0 +1,11 @@
+variable,test,statistic,p_value,lags,conclusion
+ism_level,ADF,-4.880387271512707,3.8073124963524005e-05,5,stationary
+ism_level,KPSS,0.07617218387268195,0.1,11,stationary_not_rejected
+ism_diff_1m,ADF,-19.733520177508524,0.0,0,stationary
+ism_diff_1m,KPSS,0.019109582152268486,0.1,5,stationary_not_rejected
+ism_chg_12m,ADF,-5.851069175139256,3.5883255449907784e-07,17,stationary
+ism_chg_12m,KPSS,0.019074302980847002,0.1,10,stationary_not_rejected
+ism_zscore_60m,ADF,-5.702346930246289,7.624733450915076e-07,9,stationary
+ism_zscore_60m,KPSS,0.07070279714108922,0.1,11,stationary_not_rejected
+spy_ret,ADF,-10.790154651530532,2.1433842759723846e-19,2,stationary
+spy_ret,KPSS,0.14651569610469364,0.1,3,stationary_not_rejected

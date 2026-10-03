@@ -1,0 +1,12 @@
+{
+  "chart_name": "subperiod_sharpe",
+  "pair_id": "rsxfs_spy",
+  "generated_at": "2026-08-27T09:22:10.918131+00:00",
+  "generated_by": "scripts/generate_charts_rsxfs_spy.py",
+  "caption": "Strategy and buy-and-hold SPY Sharpe during major stress episodes.",
+  "narrative_alignment_note": "Strategy and buy-and-hold SPY Sharpe during major stress episodes.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/rsxfs_spy/subperiod_sharpe.csv"
+  ]
+}

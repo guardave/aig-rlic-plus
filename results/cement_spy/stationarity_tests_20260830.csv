@@ -1,0 +1,13 @@
+variable,test,statistic,p_value,lags,conclusion
+cement,ADF,-2.1652613773338034,0.21909421078483732,0,unit_root_not_rejected
+cement,KPSS,0.7869168687406584,0.01,9,nonstationary
+cement_yoy,ADF,-1.7151385113252786,0.4233300227563977,15,unit_root_not_rejected
+cement_yoy,KPSS,0.3686671667921455,0.0906607039689028,9,stationary_not_rejected
+cement_mom,ADF,-16.773292462370016,1.281710282752684e-29,0,stationary
+cement_mom,KPSS,0.16565485379665174,0.1,2,stationary_not_rejected
+cement_3m,ADF,-4.14534416989012,0.0008142307162706881,9,stationary
+cement_3m,KPSS,0.22557831790858127,0.1,6,stationary_not_rejected
+cement_yoy_zscore_60m,ADF,-4.183667567499914,0.0007021238288814929,1,stationary
+cement_yoy_zscore_60m,KPSS,0.13322643467655437,0.1,8,stationary_not_rejected
+spy_ret,ADF,-14.981364828286823,1.1608017466863618e-27,0,stationary
+spy_ret,KPSS,0.2001410282162954,0.1,2,stationary_not_rejected

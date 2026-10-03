@@ -1,0 +1,5 @@
+{
+  "pair_id": "mfg_new_orders_spy",
+  "method": "rolling-correlation z-score proxy",
+  "max_abs_z": 3.672053429399024
+}

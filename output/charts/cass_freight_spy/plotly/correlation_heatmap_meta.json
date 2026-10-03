@@ -7,13 +7,13 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Pearson correlations between Cass Freight Index (Shipments) signals and SPY forward returns at 1/3/6/12-month horizons. The only strong cell is the 12-month YoY value (r = -0.578) \u2014 a long-horizon level-of-cycle / mean-reversion effect on a coincident indicator, not a short-horizon forecasting channel. Short horizons are near zero.",
-  "narrative_alignment_note": "Heatmap supports the coincident-cycle reading; best cell (yoy vs 12m) re-read from correlations.csv at gen time.",
+  "caption": "Pearson correlations between Cass Freight signals and SPY forward returns at 1/3/6/12-month horizons. The grid is pale at every tradeable horizon \u2014 the strongest cell is only r = 0.132 (mom3m vs spy_fwd_3m). Consistent with a coincident/lagging series carrying little forward linear content.",
+  "narrative_alignment_note": "Modest/near-zero forward linear evidence; triage before formal tests.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/core_models_20260705/correlations.csv"
+    "results/cass_freight_spy/core_models_20260829/correlations.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-05T22:29:51.699442+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+  "generated_at": "2026-08-29T09:09:57.701500+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

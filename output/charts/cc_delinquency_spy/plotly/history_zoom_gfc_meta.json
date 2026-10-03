@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_gfc",
+  "pair_id": "cc_delinquency_spy",
+  "generated_at": "2026-08-31T07:55:05.787167+00:00",
+  "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
+  "caption": "Global Financial Crisis: Delinquency Spiked to Sample Highs; gray bands are NBER recessions.",
+  "narrative_alignment_note": "Global Financial Crisis: Delinquency Spiked to Sample Highs; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/cc_delinquency_spy_quarterly_latest.parquet"
+  ]
+}

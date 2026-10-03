@@ -1,0 +1,12 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "cc_delinquency_spy",
+  "generated_at": "2026-08-31T07:55:05.489685+00:00",
+  "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
+  "caption": "Granger p-values by quarterly lag for credit-card delinquency predicting SPY returns; every lag is insignificant (min p 0.33) \u2014 delinquency does not Granger-cause SPY at the tested lags.",
+  "narrative_alignment_note": "Granger p-values by quarterly lag for credit-card delinquency predicting SPY returns; every lag is insignificant (min p 0.33) \u2014 delinquency does not Granger-cause SPY at the tested lags.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cc_delinquency_spy/granger_by_lag.csv"
+  ]
+}

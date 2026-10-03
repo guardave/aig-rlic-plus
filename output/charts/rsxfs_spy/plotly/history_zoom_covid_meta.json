@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_covid",
+  "pair_id": "rsxfs_spy",
+  "generated_at": "2026-08-27T09:22:11.036477+00:00",
+  "generated_by": "scripts/generate_charts_rsxfs_spy.py",
+  "caption": "COVID Shock: Retail Collapse and Violent Rebound; gray bands are NBER recessions.",
+  "narrative_alignment_note": "COVID Shock: Retail Collapse and Violent Rebound; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/rsxfs_spy_monthly_latest.parquet"
+  ]
+}

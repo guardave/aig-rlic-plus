@@ -131,3 +131,22 @@ details summary {
     padding-left: 1rem;
     margin: 1.5rem 0;
 }
+
+/* Step C #B(b) (2609): KPI cards truncated long labels/deltas with an ellipsis
+   ("Search-phase OOS Shar…", "vs 0.96 B&H · 2017-0…"). Let st.metric labels and
+   deltas WRAP instead of clipping, so the full honest label and the B&H/date
+   delta stay readable. Fleet-wide (all KPI cards). */
+[data-testid="stMetricLabel"],
+[data-testid="stMetricLabel"] * {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.25;
+}
+[data-testid="stMetricDelta"],
+[data-testid="stMetricDelta"] * {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.2;
+}

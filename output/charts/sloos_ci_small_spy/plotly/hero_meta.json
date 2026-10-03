@@ -1,0 +1,12 @@
+{
+  "chart_name": "hero",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-08-29T13:00:52.165962+00:00",
+  "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
+  "caption": "SLOOS small-firm net-% C&I tightening and SPY with NBER recessions; tightening spikes cluster around credit crunches.",
+  "narrative_alignment_note": "SLOOS small-firm net-% C&I tightening and SPY with NBER recessions; tightening spikes cluster around credit crunches.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/sloos_ci_small_spy_quarterly_latest.parquet"
+  ]
+}

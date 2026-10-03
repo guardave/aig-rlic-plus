@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_dotcom",
+  "pair_id": "mfg_new_orders_spy",
+  "generated_at": "2026-08-29T13:04:14.013551+00:00",
+  "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
+  "caption": "Dot-Com Recession: New Orders Fell with the Capex Bust; gray bands are NBER recessions.",
+  "narrative_alignment_note": "Dot-Com Recession: New Orders Fell with the Capex Bust; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/mfg_new_orders_spy_monthly_latest.parquet"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_scatter",
+  "pair_id": "permit_yoy_spy",
+  "generated_at": "2026-09-12T17:38:01.496054+00:00",
+  "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
+  "caption": "Alias for tournament scatter slot.",
+  "narrative_alignment_note": "Alias for tournament scatter slot.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/permit_yoy_spy/tournament_results_20260912.csv"
+  ]
+}

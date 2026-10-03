@@ -1,0 +1,11 @@
+variable,test,statistic,p_value,lags,conclusion
+permit_yoy_level,ADF,-2.6616309948140575,0.0809163435268348,15,unit_root_not_rejected
+permit_yoy_level,KPSS,0.1456131910453276,0.1,11,stationary_not_rejected
+permit_yoy_diff_1m,ADF,-8.459216421853538,1.584000388128507e-13,12,stationary
+permit_yoy_diff_1m,KPSS,0.028154181076033173,0.1,12,stationary_not_rejected
+permit_yoy_chg_12m,ADF,-4.478369146962605,0.00021511491614775588,12,stationary
+permit_yoy_chg_12m,KPSS,0.04019458261105851,0.1,10,stationary_not_rejected
+permit_yoy_zscore_60m,ADF,-2.749346481388018,0.06588144616339363,15,unit_root_not_rejected
+permit_yoy_zscore_60m,KPSS,0.08161815729124942,0.1,11,stationary_not_rejected
+spy_ret,ADF,-10.78593127887619,2.194334275503558e-19,2,stationary
+spy_ret,KPSS,0.1359244197237385,0.1,3,stationary_not_rejected

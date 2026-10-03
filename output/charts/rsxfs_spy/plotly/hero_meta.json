@@ -1,0 +1,12 @@
+{
+  "chart_name": "hero",
+  "pair_id": "rsxfs_spy",
+  "generated_at": "2026-08-27T09:22:10.553717+00:00",
+  "generated_by": "scripts/generate_charts_rsxfs_spy.py",
+  "caption": "Advance retail sales level and SPY with NBER recession bands.",
+  "narrative_alignment_note": "Advance retail sales level and SPY with NBER recession bands.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/rsxfs_spy_monthly_latest.parquet"
+  ]
+}

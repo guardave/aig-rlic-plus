@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "rsxfs_spy",
+  "generated_at": "2026-08-27T09:22:10.845352+00:00",
+  "generated_by": "scripts/generate_charts_rsxfs_spy.py",
+  "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/rsxfs_spy/tournament_results_20260827.csv"
+  ]
+}

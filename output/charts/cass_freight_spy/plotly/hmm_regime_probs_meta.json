@@ -8,19 +8,14 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Probability that Cass Freight YoY growth is in its high-variance regime (2-state HMM). The high-variance state covers ~53% of the 2017\u20132026 sample and rises through the COVID freight shock (2020 mean 0.78, verified against the manifest at gen time). Shaded bands mark NBER recessions.",
-  "narrative_alignment_note": "Labels follow hmm_states_manifest.json semantics ('stress' = high-variance freight-growth regime), plain-English relabelled.",
+  "caption": "Probability that Cass Freight YoY is in its high-variance regime (2-state HMM). The high-variance state covers 32% of months and spikes at freight-cycle turning points (GFC, COVID, 2022\u201324 freight recession). The winner signal for this pair is the contraction flag, not the HMM probability \u2014 the HMM is supporting regime context. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "HMM is backdrop context; winner is the contraction flag, not hmm_stress. Labelled accordingly.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/core_models_20260705/hmm_states.parquet",
-    "results/cass_freight_spy/core_models_20260705/hmm_summary.csv"
+    "results/cass_freight_spy/core_models_20260829/hmm_states.parquet",
+    "results/cass_freight_spy/core_models_20260829/hmm_summary.csv"
   ],
-  "reconciliation": {
-    "covid_prob_stress_mean": {
-      "computed": 0.7791,
-      "manifest_expected": 0.78
-    }
-  },
-  "generated_at": "2026-07-05T22:30:02.308816+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+  "reconciliation": null,
+  "generated_at": "2026-08-29T09:09:58.000279+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

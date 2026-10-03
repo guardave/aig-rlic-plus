@@ -1,0 +1,7 @@
+{
+  "pair_id": "mfg_new_orders_spy",
+  "winner_oos_sharpe": 1.558944,
+  "benchmark_oos_sharpe": 0.957363,
+  "oos_max_drawdown": -0.061443,
+  "bh_max_drawdown": -0.239272
+}

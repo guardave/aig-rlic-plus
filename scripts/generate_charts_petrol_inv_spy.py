@@ -292,6 +292,7 @@ def chart_regime_stats():
         ann_return_pct=(q["ann_return"] * 100).tolist(),
         signal_label=f"{IND_SHORT} 3m change",
         x_axis_title=f"{IND_SHORT} 3-month change quartile",
+        sample_sizes=q["n_months"].astype(int).tolist(),
     )
     fig.update_layout(
         title=dict(

@@ -1,0 +1,12 @@
+{
+  "chart_name": "drawdown",
+  "pair_id": "rsxfs_spy",
+  "generated_at": "2026-08-27T09:22:10.811789+00:00",
+  "generated_by": "scripts/generate_charts_rsxfs_spy.py",
+  "caption": "Drawdown comparison for the winner strategy and SPY buy-and-hold.",
+  "narrative_alignment_note": "Drawdown comparison for the winner strategy and SPY buy-and-hold.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/rsxfs_spy/strategy_returns_20260827.csv"
+  ]
+}

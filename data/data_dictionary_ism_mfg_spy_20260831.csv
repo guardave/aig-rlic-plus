@@ -1,0 +1,3 @@
+Column Name,Display Name,Description,Source,Series ID,Unit,Transformation,Direction Convention,Effective Start,Known Quirks,Display Note,Refresh Freq.,Refresh Source
+ism,ISM Manufacturing PMI,ISM Manufacturing PMI diffusion index (>50 = expansion),Data Master.xlsx,NAPM,Index (diffusion),Monthly level,Higher = manufacturing expansion (bullish equities),1993-01-31,"Diffusion index bounded ~[0,100], pivots near 50, mean-reverting; classic leading indicator",ISM PMI above ~50 marks expansion and risk-on conditions.,Monthly,Data Master
+spy,SPY adjusted close,SPDR S&P 500 ETF adjusted close,Yahoo Finance,SPY,USD,Month-end adjusted close,Higher = higher equity price,1993-01-31,ETF history begins 1993,Equity target and benchmark.,Daily,Yahoo Finance

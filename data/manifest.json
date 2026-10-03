@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-08-14T02:11:57Z",
+  "generated_at": "2026-08-29T08:39:34Z",
   "artifacts": [
     {
       "path": "data/hy_ig_v2_spy_daily_20260410.parquet",
@@ -284,27 +284,6 @@
       "source_master": "data/nhs_spy_daily_19930129_20260617.parquet"
     },
     {
-      "path": "data/cass_freight_spy_monthly_20160131_20260531.parquet",
-      "source": "FRED:FRGSHPUSM649NCIS (Cass Freight Shipments, monthly index, NSA) + FRED:UNRATE/DGS10/DFF + yahoo:SPY/^VIX",
-      "refresh_ttl_days": 30,
-      "schema_ref": "data/cass_freight_spy_monthly_schema.json",
-      "last_updated": "2026-07-05",
-      "pairs": [
-        "cass_freight_spy"
-      ],
-      "mixed_freq_ttl_note": "Monthly indicator + month-end snapshots of daily market data; TTL=30 days (monthly cadence governs)."
-    },
-    {
-      "path": "data/cass_freight_spy_monthly_latest.parquet",
-      "source": "alias_of:data/cass_freight_spy_monthly_20160131_20260531.parquet",
-      "refresh_ttl_days": 30,
-      "schema_ref": "data/cass_freight_spy_monthly_schema.json",
-      "last_updated": "2026-07-05",
-      "pairs": [
-        "cass_freight_spy"
-      ]
-    },
-    {
       "path": "data/eci_total_comp_spy_quarterly_20010331_20260331.parquet",
       "source": "FRED:ECIALLCIV (Employment Cost Index Total Compensation, quarterly, SA) + FRED:UNRATE/DGS10/DFF + yahoo:SPY/^VIX",
       "refresh_ttl_days": 92,
@@ -391,6 +370,27 @@
       "path": "data/housing_starts_spy_daily_latest.parquet",
       "schema_ref": "data/housing_starts_spy_daily_schema.json",
       "source_master": "data/housing_starts_spy_daily_19930129_20260617.parquet"
+    },
+    {
+      "path": "data/cass_freight_spy_monthly_19900131_20260731.parquet",
+      "source": "FRED:FRGSHPUSM649NCIS (Cass Freight Shipments, monthly index, NSA) + FRED:UNRATE/DGS10/DFF + yahoo:SPY/^VIX",
+      "refresh_ttl_days": 30,
+      "schema_ref": "data/cass_freight_spy_monthly_schema.json",
+      "last_updated": "2026-08-29",
+      "pairs": [
+        "cass_freight_spy"
+      ],
+      "mixed_freq_ttl_note": "Monthly indicator + month-end snapshots of daily market data; TTL=30 days (monthly cadence governs)."
+    },
+    {
+      "path": "data/cass_freight_spy_monthly_latest.parquet",
+      "source": "alias_of:data/cass_freight_spy_monthly_19900131_20260731.parquet",
+      "refresh_ttl_days": 30,
+      "schema_ref": "data/cass_freight_spy_monthly_schema.json",
+      "last_updated": "2026-08-29",
+      "pairs": [
+        "cass_freight_spy"
+      ]
     }
   ]
 }

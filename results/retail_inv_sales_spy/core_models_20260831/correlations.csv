@@ -1,0 +1,13 @@
+pair_name,metric,value,p_value
+invsales_level_to_spy_fwd_1m,pearson,-0.0087355711943279,0.8634664255911586
+invsales_level_to_spy_fwd_3m,pearson,0.009846277686384245,0.8467020209745745
+invsales_level_to_spy_fwd_6m,pearson,0.031238952298669298,0.5411276961886416
+invsales_diff_1m_to_spy_fwd_1m,pearson,-0.05046278628208049,0.3208506363930781
+invsales_diff_1m_to_spy_fwd_3m,pearson,-0.07165924312757746,0.1594414883789755
+invsales_diff_1m_to_spy_fwd_6m,pearson,-0.06433649981297883,0.20841844073226432
+invsales_chg_12m_to_spy_fwd_1m,pearson,-0.0502778495551841,0.32451473554702837
+invsales_chg_12m_to_spy_fwd_3m,pearson,-0.05418147488829671,0.2895758893095607
+invsales_chg_12m_to_spy_fwd_6m,pearson,-0.07826455437755435,0.1272632093945316
+invsales_zscore_60m_to_spy_fwd_1m,pearson,0.03730132003707367,0.4762166573154614
+invsales_zscore_60m_to_spy_fwd_3m,pearson,0.0836060435485889,0.11080052507371224
+invsales_zscore_60m_to_spy_fwd_6m,pearson,0.1121060553575482,0.03298119653749607

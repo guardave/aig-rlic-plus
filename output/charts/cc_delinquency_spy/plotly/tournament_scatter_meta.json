@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_scatter",
+  "pair_id": "cc_delinquency_spy",
+  "generated_at": "2026-08-31T07:55:05.632241+00:00",
+  "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
+  "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead; the winner (1.37) is the grid maximum, median valid 0.63 below buy-and-hold 0.87.",
+  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead; the winner (1.37) is the grid maximum, median valid 0.63 below buy-and-hold 0.87.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/cc_delinquency_spy/tournament_results_20260831.csv"
+  ]
+}

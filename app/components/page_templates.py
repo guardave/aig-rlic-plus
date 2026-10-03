@@ -116,7 +116,9 @@ _TRADE_LOG_DISCLOSURE_MD: str = (
     "executions.** No real money was ever committed to this strategy. The "
     "trade log below is produced by replaying the winning tournament signal "
     "against historical prices, assuming a **$10,000 starting stake** and a "
-    "round-trip transaction cost of **5 basis points (0.05%)** per trade. "
+    "transaction cost of **5 basis points (0.05%) per execution** (one-way — "
+    "each BUY and each SELL is charged 5 bps, so a complete round trip costs "
+    "about 10 bps). "
     "Real-world execution would additionally face bid-ask spread, market "
     "impact, slippage, and behavioural risk — none of which are modelled "
     "here. Treat every row as a research artifact, not a statement of "
@@ -172,7 +174,7 @@ _TRADE_LOG_COLUMN_DICT_DEFAULTS: dict[str, dict[str, str]] = {
     "quantity_pct":   {"type": "float",  "meaning": "Target portfolio weight AFTER this trade, as a percentage (0–100).",                                       "example": "0.0"},
     "price":          {"type": "float",  "meaning": "Closing price of the instrument on trade_date, in USD.",                                                   "example": "294.65"},
     "notional_usd":   {"type": "float",  "meaning": "Dollar value of the resulting position (quantity_pct / 100 × $10,000 starting capital).",                  "example": "0.00"},
-    "commission_bps": {"type": "float",  "meaning": "Round-trip transaction cost applied to the trade, in basis points.",                                       "example": "5"},
+    "commission_bps": {"type": "float",  "meaning": "Transaction cost charged on THIS execution (one side), in basis points; a round trip is two executions.", "example": "5"},
     "commission_usd": {"type": "float",  "meaning": "Dollar commission charged on this trade.",                                                                 "example": "0.00"},
     "cum_pnl_pct":    {"type": "float",  "meaning": "Cumulative strategy return since inception, in percent.",                                                  "example": "52.15"},
     "reason":         {"type": "string", "meaning": "Human-readable signal value and rule that triggered the trade.",                                           "example": "HMM stress prob 1.000 crossed threshold — full risk-off"},
@@ -594,6 +596,20 @@ def _format_scalar(value: Any, ndp: int = 2, default: str = "N/A") -> str:
 # ---------------------------------------------------------------------------
 # STORY PAGE
 # ---------------------------------------------------------------------------
+def _dd_kpi_delta(winner: dict) -> tuple[str | None, str]:
+    """Step C #197 (Alex_UK): colour the Max Drawdown KPI delta GREEN when the
+    strategy's drawdown is shallower (less negative) than buy-and-hold, RED when
+    deeper. Returns (delta_text, delta_color) for st.metric. Falls back to the
+    prior 'vs X B&H' text when raw values are unavailable."""
+    dd = winner.get("oos_max_drawdown")
+    bh = winner.get("bh_max_drawdown")
+    if isinstance(dd, (int, float)) and isinstance(bh, (int, float)) and bh != 0:
+        gap_pp = (float(dd) - float(bh)) * 100.0  # >0 => strategy DD shallower => better
+        return f"{gap_pp:+.1f}pp vs B&H", "normal"  # 'normal' => green for positive
+    bh_fmt = _format_ratio_pct(bh)
+    return (f"vs {bh_fmt} B&H" if bh_fmt != "N/A" else None), "inverse"
+
+
 def render_story_page(pair_id: str, config: Any | None = None) -> None:
     """Render the canonical Story page for ``pair_id``.
 
@@ -772,8 +788,8 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
         {
             "label": "Max Drawdown",
             "value": max_dd,
-            "delta": f"vs {bh_dd} B&H" if bh_dd != "N/A" else None,
-            "delta_color": "inverse",
+            "delta": _dd_kpi_delta(winner)[0],
+            "delta_color": _dd_kpi_delta(winner)[1],
         },
         {
             "label": "Signal",
@@ -1072,10 +1088,11 @@ def _render_cross_period_section(pair_id: str, config: Any | None = None) -> Non
     st.markdown("---")
     st.markdown("### Cross-Period Consistency")
     st.markdown(
-        "These charts test whether the signal's predictive relationship holds "
-        "across different historical sub-periods. A finding that vanishes in "
-        "one era or only appears in a specific decade is fragile; one that "
-        "persists across regimes is robust."
+        "These charts test whether the signal's statistical relationship with "
+        "the target holds across different historical sub-periods (this is a "
+        "stability check, not a claim that the signal forecasts the target). A "
+        "finding that vanishes in one era or only appears in a specific decade "
+        "is fragile; one that persists across regimes is more robust."
     )
 
     # fix260526 #104: the "How to read it" caption was rendered AS
@@ -1088,8 +1105,25 @@ def _render_cross_period_section(pair_id: str, config: Any | None = None) -> Non
         ("rolling_correlation",   "Rolling Correlation",    f"How to read it: the indicator is {indicator}; the target is {target}. The chart shows the rolling correlation between the indicator signal and target returns. A flat, stable line suggests the relationship is not regime-dependent; sharp moves or sign flips mean the signal-target relationship changes across market regimes."),
         ("structural_break",      "Structural Break Test",  "How to read it: this test asks whether the relationship changes suddenly at a point in the sample. A structural break means the same model no longer fits before and after that date. The F statistic measures how large the before-versus-after change is; the p-value measures whether that change is statistically meaningful. Lower p-values indicate stronger evidence of a break. If p-values stay above 0.05, the chart does not support a clear structural-break conclusion."),
     ]
+    # Step C #223: the Strategy page's Walk-Forward block (rendered just above
+    # this section) shows WALK_FORWARD_CHART_NAME. For many pairs that chart file
+    # is byte-identical to subperiod_sharpe.json (both are the "Major Stress
+    # Episodes" bars), so rendering subperiod_sharpe here again duplicates it.
+    # Auto-skip subperiod_sharpe when it duplicates the walk-forward chart —
+    # fleet-wide, no per-pair config; pairs whose files differ keep both.
+    _wf_chart = getattr(config, "WALK_FORWARD_CHART_NAME", "walk_forward") if config else "walk_forward"
+    _wf_path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_wf_chart}.json"
     for _chart_name, _label, _caption in _cp_always:
         _path = _REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{_chart_name}.json"
+        # Step C #247: the Walk-Forward block already showed this exact chart when
+        # EITHER (a) WALK_FORWARD_CHART_NAME IS "subperiod_sharpe" (17 pairs point
+        # the walk-forward slot straight at it), OR (b) the walk_forward file is
+        # byte-identical to subperiod_sharpe. Skip the duplicate in both cases.
+        if _chart_name == "subperiod_sharpe" and _path.exists() and (
+            _wf_chart == "subperiod_sharpe"
+            or (_wf_path.exists() and _wf_path.read_bytes() == _path.read_bytes())
+        ):
+            continue  # already shown above as the Walk-Forward chart
         if _path.exists():
             st.markdown(f"**{_label}**")
             st.markdown(f"**{caption_overrides.get(_chart_name, _caption)}**")
@@ -1395,9 +1429,19 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         f"{_strategy_family} / {_lead_label}"
     )
 
+    # #244 re-open: the generic fallback must not imply a fixed cutoff when the
+    # winner threshold is a rolling quantile (a moving boundary).
+    _tcode_fb = str(winner.get('threshold_code', '')).lower()
+    if 'roll' in _tcode_fb:
+        _threshold_phrase = (
+            f"its rolling 60-month median (a moving boundary, latest "
+            f"{winner.get('threshold_value', 'its threshold')})"
+        )
+    else:
+        _threshold_phrase = f"{winner.get('threshold_value', 'its threshold')}"
     signal_rule = getattr(config, "SIGNAL_RULE_MD", None) or (
         f"**Rule in plain English:** monitor {winner.get('signal_column', 'the indicator signal')}. "
-        f"When the signal crosses {winner.get('threshold_value', 'its threshold')} "
+        f"When the signal crosses {_threshold_phrase} "
         f"({winner.get('threshold_rule', 'the comparison rule')}), apply the "
         f"{_strategy_family} rule in the {_direction} direction. Lead time: {_lead_label}."
     )
@@ -1446,8 +1490,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
          "delta": _headline_sharpe_delta},
         {"label": "OOS Return", "value": oos_return, "delta": "annualized"},
         {"label": "Max Drawdown", "value": max_dd,
-         "delta": f"vs {bh_dd} B&H" if bh_dd != "N/A" else None,
-         "delta_color": "inverse"},
+         "delta": _dd_kpi_delta(winner)[0],
+         "delta_color": _dd_kpi_delta(winner)[1]},
         {"label": "Turnover", "value": f"~{float(turnover):.1f}/yr" if turnover else "N/A"},
         # #158 (KS): column-tolerance fallback — some winner rows carry the
         # win rate under the sibling key `win_rate` rather than the OOS-specific
@@ -1479,7 +1523,19 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         with _col1:
             st.markdown(f"**Signal code:** `{winner.get('signal_code', 'N/A')}`")
             st.markdown(f"**Signal column:** `{winner.get('signal_column', 'N/A')}`")
-            st.markdown(f"**Threshold:** `{winner.get('threshold_rule', '')} {winner.get('threshold_value', '')}`")
+            # #244 re-open: a rolling-quantile winner uses a TIME-VARYING boundary,
+            # so showing a lone fixed number implies a fixed cutoff. Label it as the
+            # moving rolling median with its latest value.
+            _tcode = str(winner.get('threshold_code', '')).lower()
+            _trule = winner.get('threshold_rule', '')
+            _tval = winner.get('threshold_value', '')
+            if 'roll' in _tcode:
+                st.markdown(
+                    f"**Threshold:** `{_trule}` its rolling 60-month median "
+                    f"(moving boundary; latest value `{_tval}`)"
+                )
+            else:
+                st.markdown(f"**Threshold:** `{_trule} {_tval}`")
         with _col2:
             st.markdown(f"**Strategy family:** `{_strategy_family}`")
             st.markdown(f"**Direction:** `{_direction}`")
@@ -1539,8 +1595,12 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
                 f"output/charts/{pair_id}/plotly/{drawdown_chart}.json"
             ),
             caption=(
-                f"What this shows: peak-to-trough drawdown profile. "
-                f"The strategy limits drawdown to {max_dd} vs {bh_dd} buy-and-hold."
+                f"What this shows: peak-to-trough drawdown profile. The headline "
+                f"figures — strategy {max_dd} vs {bh_dd} buy-and-hold — are the "
+                f"OUT-OF-SAMPLE-window maxima. Where this chart extends before the "
+                f"OOS window it applies the rule retroactively, so those earlier "
+                f"drawdowns can be markedly deeper than the OOS headline — read the "
+                f"{max_dd} as the OOS figure, not the whole plotted path."
             ),
         )
         st.markdown("---")
@@ -1613,6 +1673,12 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         st.markdown("### Tournament Leaderboard")
         if tourn_exists := _latest_dated_file(pair_id, "tournament_results"):
             _render_tournament_leaderboard(tourn_exists, target)
+            # Opt-in per-pair note under the leaderboard (APP-PT1: prose = config).
+            # Used e.g. to explain rows that share identical metrics because the
+            # signals are mathematically equivalent at a zero threshold (Step C #202).
+            leaderboard_note = getattr(config, "LEADERBOARD_NOTE_MD", None)
+            if leaderboard_note:
+                st.info(leaderboard_note, icon="ℹ️")
         else:
             st.warning(
                 f"Tournament results missing for `{pair_id}` — re-run the "
@@ -1743,6 +1809,15 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str) -> None:
             return f"{x:.1f}%"
         return f"{x * 100:.1f}%"
 
+    def _lead_cell(r):
+        # Step C #220: quarterly pairs store lead_quarters, monthly pairs
+        # lead_months, daily pairs lead_days. The old code only read
+        # lead_months, so quarterly leaderboards showed "—" for every row.
+        for col, unit in (("lead_months", "M"), ("lead_quarters", "Q"), ("lead_days", "D")):
+            if col in r.index and pd.notna(r[col]):
+                return f"{int(r[col])}{unit}"
+        return "—"
+
     display_rows = []
     for rank, (_, r) in enumerate(top.iterrows(), 1):
         display_rows.append({
@@ -1750,7 +1825,7 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str) -> None:
             "Signal": r.get("signal", "—"),
             "Threshold": r.get("threshold", "—"),
             "Strategy": r.get("strategy", "—"),
-            "Lead": f"{int(r['lead_months'])}M" if "lead_months" in r.index and pd.notna(r["lead_months"]) else "—",
+            "Lead": _lead_cell(r),
             "OOS Sharpe": round(float(r["oos_sharpe"]), 2),
             "OOS Return": _to_pct(r.get("oos_ann_return")),
             "Max DD": _to_pct(r.get("max_drawdown")),
@@ -1897,7 +1972,13 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
                 type="primary",
                 key=f"tl_dl_broker_{pair_id}",
             )
-            st.caption(f"{len(broker_df):,} executions, one row per trade")
+            st.caption(
+                f"{len(broker_df):,} executions over the full reconstructed "
+                "history (since indicator inception, one row per BUY or SELL — "
+                "a round trip is two rows). The headline trade-count and "
+                "turnover figures elsewhere on this page count only the "
+                "out-of-sample window, so they are smaller than this row count."
+            )
         elif broker_err is not None:
             # L2 — malformed broker-style CSV
             st.warning(

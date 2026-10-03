@@ -340,50 +340,65 @@ CORRELATION_BLOCK = dict(
 
 GRANGER_BLOCK = dict(
     chart_status="ready",
-    method_name="Granger Causality (Toda-Yamamoto)",
+    method_name="Granger Causality",
     method_theory=(
         "**Granger causality** tests whether past HY-IG spread values improve forecasts "
-        "of future SPY returns beyond what SPY's own history already predicts. The "
-        "Toda-Yamamoto variant handles non-stationarity robustly, avoiding spurious "
-        "rejection caused by integrated series. We test both directions (HY-IG → SPY "
-        "and SPY → HY-IG) at lags 1-6 months to confirm whether the relationship is "
-        "asymmetric."
+        "of future SPY returns beyond what SPY's own history already predicts. The chart "
+        "below reports standard Granger F-tests in the HY-IG → SPY direction only, at "
+        "monthly lags 1-12. It does not test the reverse direction (SPY → HY-IG), so on "
+        "its own it cannot establish whether the relationship is one-sided."
     ),
     question=(
         "Does the HY-IG spread carry information about future SPY returns that is not "
-        "already priced into the SPY return series — and is the relationship directionally "
-        "one-sided, flowing from credit to equity rather than the reverse?"
+        "already priced into the SPY return series?"
+    ),
+    regime_context=(
+        "**This chart has a known defect and should not be relied on.** It aggregates SPY "
+        "to monthly frequency by taking the last trading day's return of each month "
+        "instead of compounding the month's returns. That discards almost the entire "
+        "return series and biases the test towards finding nothing. The bars therefore "
+        "understate the evidence: the absence of significance shown here is an artifact "
+        "of the aggregation, not a finding. A corrected re-run points the other way, but "
+        "it is unpublished and not yet stationarity-checked, so we state no result in "
+        "either direction until this block is rebuilt on a daily lag grid matching the "
+        "spread's daily release frequency. The rebuild is tracked as a separate issue."
     ),
     how_to_read=(
-        "The chart shows test statistics and p-values for the null hypothesis that HY-IG "
-        "spreads do NOT Granger-cause SPY returns at each lag from 1 to 6 months. Bars "
-        "below the p=0.05 dashed threshold indicate statistically significant predictive "
-        "content. Reverse-direction results are shown separately."
+        "Each bar is the Granger F-statistic for the null hypothesis that HY-IG spreads "
+        "do NOT help predict SPY returns at that lag, for lags 1 to 12 months, with the "
+        "p-value printed above it. Bars **above** the dashed line — F = 3.84, the critical "
+        "value at p=0.05 — would indicate statistically significant predictive content; "
+        "bars below it would not. Read the note above before drawing any conclusion from "
+        "the bar heights."
     ),
     chart_name="granger_f_by_lag",
     chart_caption=(
-        "What this shows: Granger causality F-statistics by lag (months) for the "
-        "HY-IG → SPY direction. Bars above the threshold confirm statistically significant "
-        "predictive content at that horizon. The reverse direction (SPY → HY-IG) is shown "
-        "for comparison."
+        "What this shows: Granger causality F-statistics by monthly lag (1-12) for the "
+        "HY-IG → SPY direction only; the reverse direction is not tested. The values shown "
+        "are affected by the aggregation defect described above and are not a reliable "
+        "basis for inference."
     ),
     observation=(
-        "HY-IG spreads Granger-cause SPY returns at lags 1-4 months (p < 0.05) using "
-        "Toda-Yamamoto tests. The reverse direction — whether SPY return history improves "
-        "spread forecasts — is not significant, confirming a one-directional information "
-        "flow from credit to equity."
+        "No conclusion should be drawn from this chart in its current form. Because of the "
+        "aggregation defect described above, neither the presence nor the absence of "
+        "Granger causality from credit to equity is established here. The Local Projections "
+        "block in Level 2 addresses the same lead-lag question on the daily horizon grid "
+        "and is not affected by this defect."
     ),
     interpretation=(
-        "The asymmetric Granger structure (credit → equity significant; equity → credit "
-        "not significant) is the statistical signature of the bond-market-as-leading-"
-        "indicator mechanism. Credit analysts process default risk information first; "
-        "equity markets follow as that risk crystallizes into earnings and valuation "
-        "revisions."
+        "The economic hypothesis this test is meant to adjudicate — that credit markets "
+        "process default risk before equity markets reprice — remains open on this "
+        "evidence. The mechanism is well established in the literature and plausible here, "
+        "but a monthly test built on a broken aggregation is not evidence for it, and we "
+        "will not cite it as such. We would rather show a test we know to be defective and "
+        "say so plainly than quietly drop it from the page or let a number stand that we "
+        "no longer trust."
     ),
     key_message=(
-        "HY-IG spreads Granger-cause SPY returns at 1-4 month lags; SPY does not "
-        "Granger-cause spreads — a one-way information flow from credit to equity, "
-        "consistent with bondholders processing default risk before equity investors reprice."
+        "This monthly Granger test is defective and reports no usable result in either "
+        "direction; it is being rebuilt on a daily lag grid. Until then, treat the "
+        "credit → equity lead-lag question on this page as addressed by the Local "
+        "Projections evidence, not by this chart."
     ),
 )
 

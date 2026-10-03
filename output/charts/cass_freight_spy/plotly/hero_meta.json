@@ -9,13 +9,13 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "caption": "Cass Freight Index (Shipments) year-over-year shipment growth (vermillion, left axis) against SPY price (blue, right axis), 2016\u20132026. Freight and equities move broadly together \u2014 the freight cycle is coincident, not leading (Granger finds no forward causality in either direction). Shaded bands mark NBER recessions.",
-  "narrative_alignment_note": "Hero frames the coincident/no-lead character established by Evan's Granger + CCF verdict; COVID value re-read at gen time.",
+  "caption": "Cass Freight year-over-year shipment growth (FRED FRGSHPUSM649NCIS, NSA; vermillion, left axis) against the SPY price (blue, right axis), 1993\u20132026. The two series broadly rise and fall together (the 2009 GFC trough and the 2022\u201324 freight recession are the key episodes) \u2014 the signature of a procyclical, coincident/lagging indicator, not a leading one. The source is not seasonally adjusted, so the year-over-year change is shown as the seasonally-robust growth signal. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Hero shows YoY growth (seasonally-robust; never the raw NSA level) with the 0% line and the two freight episodes.",
   "disposition": "consumed",
   "source_artifacts": [
-    "data/cass_freight_spy_monthly_20160131_20260531.parquet"
+    "data/cass_freight_spy_monthly_latest.parquet"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-05T22:29:47.168508+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)"
+  "generated_at": "2026-08-29T09:09:57.369065+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

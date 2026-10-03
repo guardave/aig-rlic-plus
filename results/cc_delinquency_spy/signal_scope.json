@@ -1,0 +1,107 @@
+{
+  "pair_id": "cc_delinquency_spy",
+  "schema_version": "1.0.0",
+  "owner": "evan",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-08-31T07:43:02.207472+00:00",
+  "indicator_axis": {
+    "canonical_column": "ccdelinq",
+    "display_name": "Credit Card Delinquency Rate",
+    "derivatives": [
+      {
+        "name": "ccdelinq",
+        "definition": "Credit-card delinquency rate (%)",
+        "formula": "Data Master (FRB)",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero"
+        ]
+      },
+      {
+        "name": "ccdelinq_level",
+        "definition": "Delinquency level (%)",
+        "formula": "identity",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "hero",
+          "regime_stats"
+        ]
+      },
+      {
+        "name": "ccdelinq_diff_1q",
+        "definition": "Quarter-on-quarter change",
+        "formula": "x_t - x_{t-1}",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "ccdelinq_chg_4q",
+        "definition": "4-quarter change",
+        "formula": "x_t - x_{t-4}",
+        "role": "threshold_input",
+        "appears_in_charts": [
+          "local_projections"
+        ]
+      },
+      {
+        "name": "ccdelinq_zscore_20q",
+        "definition": "Level vs 5-year history",
+        "formula": "(x-mean20q)/std20q",
+        "role": "threshold_input",
+        "appears_in_charts": []
+      }
+    ]
+  },
+  "target_axis": {
+    "canonical_column": "spy",
+    "display_name": "SPY adjusted close",
+    "derivatives": [
+      {
+        "name": "spy",
+        "definition": "SPY adjusted quarter-end close",
+        "formula": "quarter-end adjusted close",
+        "role": "raw",
+        "appears_in_charts": [
+          "hero",
+          "equity_curves"
+        ]
+      },
+      {
+        "name": "spy_ret",
+        "definition": "SPY quarterly return",
+        "formula": "spy_t/spy_{t-1}-1",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "spy_fwd_1q",
+        "definition": "1-quarter forward SPY return",
+        "formula": "spy_{t+1}/spy_t-1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      },
+      {
+        "name": "spy_fwd_2q",
+        "definition": "2-quarter forward SPY return",
+        "formula": "spy_{t+2}/spy_t-1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "local_projections",
+          "quantile_coef"
+        ]
+      },
+      {
+        "name": "spy_fwd_4q",
+        "definition": "4-quarter forward SPY return",
+        "formula": "spy_{t+4}/spy_t-1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
+      }
+    ]
+  },
+  "notes": "Scope limited to Credit Card Delinquency Rate signals and SPY returns."
+}

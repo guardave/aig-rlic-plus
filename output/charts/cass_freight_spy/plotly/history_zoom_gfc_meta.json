@@ -1,0 +1,30 @@
+{
+  "chart_name": "history_zoom_gfc",
+  "pair_id": "cass_freight_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-V1",
+    "VIZ-V2",
+    "VIZ-V12",
+    "VIZ-V13",
+    "VIZ-TS1",
+    "VIZ-DP1",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Cass Freight YoY (top, NSA, with 0% line) and SPY price (bottom) through the Global Financial Crisis window (2007-01 to 2009-12), with registry event markers. The 1990+ Data Master splice makes this episode a real chart (freight and equities move broadly together). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Dual-panel episode zoom; events from history_zoom_events_registry v1.0.0.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/cass_freight_spy_monthly_latest.parquet",
+    "docs/schemas/history_zoom_events_registry.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-08-29T09:09:58.988264+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)",
+  "annotation_strategy_id": "descending_stair",
+  "events_registry_version": "1.0.0",
+  "episode_slug": "gfc"
+}

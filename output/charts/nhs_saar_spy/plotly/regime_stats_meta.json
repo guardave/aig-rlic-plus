@@ -1,7 +1,7 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "nhs_saar_spy",
-  "generated_at": "2026-08-04T05:46:31.268252+00:00",
+  "generated_at": "2026-09-25T23:33:46.367341+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_spy.py",
   "caption": "SPY performance across New Home Sales (SAAR) quartiles.",
   "narrative_alignment_note": "SPY performance across New Home Sales (SAAR) quartiles.",

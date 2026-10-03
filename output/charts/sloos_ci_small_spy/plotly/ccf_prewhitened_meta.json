@@ -1,0 +1,12 @@
+{
+  "chart_name": "ccf_prewhitened",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-08-29T13:00:52.291480+00:00",
+  "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
+  "caption": "Pre-whitened cross-correlation between SLOOS tightening and SPY returns; the only bars breaching the band are at negative offsets (-1, -2), a mild inverse concurrent echo \u2014 not a clean predictive lead.",
+  "narrative_alignment_note": "Pre-whitened cross-correlation between SLOOS tightening and SPY returns; the only bars breaching the band are at negative offsets (-1, -2), a mild inverse concurrent echo \u2014 not a clean predictive lead.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/sloos_ci_small_spy/core_models_20260830/ccf_prewhitened.csv"
+  ]
+}

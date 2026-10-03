@@ -14,16 +14,16 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Cass Freight YoY growth (top) and SPY price (bottom) through the 2022 Inflation Shock window (2021-09 to 2023-06), with registry event markers. No NBER recession falls in this window.",
-  "narrative_alignment_note": "Dual-panel episode zoom per VIZ-V1/VIZ-ZOOM1; events from history_zoom_events_registry v1.0.0.",
+  "caption": "Cass Freight YoY (top, NSA, with 0% line) and SPY price (bottom) through the 2022 Inflation Shock window (2021-09 to 2023-06), with registry event markers. The 1990+ Data Master splice makes this episode a real chart (freight and equities move broadly together). No NBER recession falls in this window.",
+  "narrative_alignment_note": "Dual-panel episode zoom; events from history_zoom_events_registry v1.0.0.",
   "disposition": "consumed",
   "source_artifacts": [
-    "data/cass_freight_spy_monthly_20160131_20260531.parquet",
+    "data/cass_freight_spy_monthly_latest.parquet",
     "docs/schemas/history_zoom_events_registry.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-05T22:30:15.712418+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)",
+  "generated_at": "2026-08-29T09:09:59.166081+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)",
   "annotation_strategy_id": "descending_stair",
   "events_registry_version": "1.0.0",
   "episode_slug": "inflation_2022"

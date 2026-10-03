@@ -1,0 +1,12 @@
+{
+  "chart_name": "walk_forward",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-08-29T13:00:52.537555+00:00",
+  "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
+  "caption": "Sub-period Sharpe by credit-stress episode (walk-forward durability slot); the lead rests on few credit cycles.",
+  "narrative_alignment_note": "Sub-period Sharpe by credit-stress episode (walk-forward durability slot); the lead rests on few credit cycles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/sloos_ci_small_spy/subperiod_sharpe.csv"
+  ]
+}

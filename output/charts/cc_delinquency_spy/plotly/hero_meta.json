@@ -1,0 +1,12 @@
+{
+  "chart_name": "hero",
+  "pair_id": "cc_delinquency_spy",
+  "generated_at": "2026-08-31T07:55:05.349917+00:00",
+  "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
+  "caption": "Credit-card delinquency rate and SPY with NBER recessions; delinquency climbed through the 2001 and 2008 downturns and again after 2022 \u2014 a lagging credit-stress gauge.",
+  "narrative_alignment_note": "Credit-card delinquency rate and SPY with NBER recessions; delinquency climbed through the 2001 and 2008 downturns and again after 2022 \u2014 a lagging credit-stress gauge.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/cc_delinquency_spy_quarterly_latest.parquet"
+  ]
+}

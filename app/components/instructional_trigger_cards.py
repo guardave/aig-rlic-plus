@@ -482,12 +482,37 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
             # Defensive — fall back to stylised if parquet read fails.
             data_source_note = "stylised (signals parquet read failed)"
 
+    # #244 re-open: when the winner uses a rolling-quantile threshold the number
+    # above is the LATEST value of a moving boundary, not a permanent cutoff. The
+    # cards illustrate crossings at that latest level; the live rule compares the
+    # signal to the 60-month rolling median at each date.
+    _is_rolling_tc = "roll" in str(winner.get("threshold_code", "")).lower()
+    _thr_note = (
+        f"latest value of its **rolling 60-month median** (a moving boundary) = **{threshold:g}**"
+        if _is_rolling_tc
+        else f"**{threshold:g}**"
+    )
     st.caption(
         f"What this shows: Strategy family **{strategy}** "
         f"({winner.get('strategy_display_name', '')}) · "
-        f"threshold loaded from `winner_summary.json` = **{threshold:g}** · "
+        f"threshold loaded from `winner_summary.json` = {_thr_note} · "
         f"direction: {direction.replace('_', ' ')}."
     )
+    if _is_rolling_tc:
+        st.caption(
+            "Note: the decision boundary is a 60-month rolling median that moves "
+            "over time — the single number shown is only its most recent level. "
+            "The cards below illustrate a crossing at that latest level."
+        )
+    if pair_id == "cement_spy":
+        st.caption(
+            "Decisive crossing definition: because this is a monthly rule, "
+            "a BUY trigger requires the month-end cement-growth signal to move "
+            "from below the rolling threshold to at or above it. A REDUCE "
+            "trigger requires the signal to move from at or above the threshold "
+            "to below it. A value that only sits close to the threshold is a "
+            "hovering state, not a new trading trigger."
+        )
 
     cards = _card_specs_for_strategy(
         strategy, direction, threshold, signal_display, target_symbol

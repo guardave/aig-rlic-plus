@@ -272,6 +272,7 @@ def chart_regime_stats():
         ann_return_pct=(q["ann_return"] * 100).tolist(),
         signal_label=f"{RS_LONG} 6m momentum",
         x_axis_title=f"{RS_LONG} 6-month momentum quartile",
+        sample_sizes=q["n_days"].astype(int).tolist(),
     )
     fig.update_layout(
         title=dict(

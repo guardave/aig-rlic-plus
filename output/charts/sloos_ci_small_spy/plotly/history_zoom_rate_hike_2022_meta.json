@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_rate_hike_2022",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-08-29T13:00:52.690435+00:00",
+  "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
+  "caption": "2022-23 Tightening: Post-SVB Credit Squeeze; gray bands are NBER recessions.",
+  "narrative_alignment_note": "2022-23 Tightening: Post-SVB Credit Squeeze; gray bands are NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/sloos_ci_small_spy_quarterly_latest.parquet"
+  ]
+}

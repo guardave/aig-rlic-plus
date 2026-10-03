@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "rsxfs_spy",
+  "generated_at": "2026-08-27T09:22:10.876645+00:00",
+  "generated_by": "scripts/generate_charts_rsxfs_spy.py",
+  "caption": "Rolling correlation between retail-sales growth and SPY returns.",
+  "narrative_alignment_note": "Rolling correlation between retail-sales growth and SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/rsxfs_spy/rolling_correlation_rsxfs_spy.csv"
+  ]
+}

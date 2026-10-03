@@ -1,0 +1,11 @@
+variable,test,statistic,p_value,lags,conclusion
+sloos_level,ADF,-4.529996762474466,0.00017350242402037805,3,stationary
+sloos_level,KPSS,0.08762553822886347,0.1,6,stationary_not_rejected
+sloos_diff_1q,ADF,-6.286795125951572,3.681233252049802e-08,3,stationary
+sloos_diff_1q,KPSS,0.023827331638764354,0.1,1,stationary_not_rejected
+sloos_chg_4q,ADF,-3.9117061829039974,0.0019503653166918983,10,stationary
+sloos_chg_4q,KPSS,0.031935710366510675,0.1,5,stationary_not_rejected
+sloos_zscore_20q,ADF,-4.199748360647643,0.0006595467617229319,3,stationary
+sloos_zscore_20q,KPSS,0.1077297620920511,0.1,5,stationary_not_rejected
+spy_ret,ADF,-11.050467611956709,5.0952522151531764e-20,0,stationary
+spy_ret,KPSS,0.11683640171624232,0.1,2,stationary_not_rejected

@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "mfg_new_orders_spy",
+  "generated_at": "2026-08-29T13:04:13.918755+00:00",
+  "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
+  "caption": "Rolling correlation between new-orders growth and SPY returns.",
+  "narrative_alignment_note": "Rolling correlation between new-orders growth and SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/rolling_correlation_mfg_new_orders_spy.csv"
+  ]
+}

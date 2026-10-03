@@ -1,0 +1,12 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "permit_yoy_spy",
+  "generated_at": "2026-09-12T17:38:01.305536+00:00",
+  "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
+  "caption": "Pearson correlations between permit-growth transforms and forward SPY returns.",
+  "narrative_alignment_note": "Pearson correlations between permit-growth transforms and forward SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/permit_yoy_spy/core_models_20260912/correlations.csv"
+  ]
+}

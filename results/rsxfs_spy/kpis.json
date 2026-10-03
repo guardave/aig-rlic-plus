@@ -1,0 +1,7 @@
+{
+  "pair_id": "rsxfs_spy",
+  "winner_oos_sharpe": 1.360473,
+  "benchmark_oos_sharpe": 0.99021,
+  "oos_max_drawdown": -0.096145,
+  "bh_max_drawdown": -0.239272
+}

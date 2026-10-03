@@ -1,0 +1,12 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-08-29T13:00:52.262953+00:00",
+  "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
+  "caption": "Pearson correlations between SLOOS transforms and forward SPY returns at 1-, 2-, and 4-quarter horizons; associations are weak and mostly mildly negative (none significant).",
+  "narrative_alignment_note": "Pearson correlations between SLOOS transforms and forward SPY returns at 1-, 2-, and 4-quarter horizons; associations are weak and mostly mildly negative (none significant).",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/sloos_ci_small_spy/core_models_20260830/correlations.csv"
+  ]
+}

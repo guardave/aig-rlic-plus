@@ -296,18 +296,26 @@ QUANTILE_BLOCK = dict(
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: the signal can matter differently across weak and "
-        "strong return states."
+        "What this shows: real quantile-regression slopes swing widely across the "
+        "distribution -- large and negative in the lower (deep-selloff) tail "
+        "(-0.022 at tau=0.10, p=0.02), positive in the middle (+0.008 at tau=0.50, "
+        "p=0.04). But the tails are imprecisely estimated and a cross-quantile "
+        "equality test does NOT reject a uniform slope (Wald p=0.54)."
     ),
     observation=(
-        "Tail sensitivity is important because labor stress is most relevant "
-        "around recessions and recoveries."
+        "Individual quantile slopes vary in sign, but the bootstrap Wald test "
+        "does not reject slope equality across quantiles (p=0.54): the tail "
+        "estimates carry wide confidence intervals, so the apparent swings are "
+        "not statistically distinguishable from a single constant effect."
     ),
     interpretation=(
-        "A state-dependent result is more plausible than one constant UNRATE "
-        "effect across all markets."
+        "The honest reading is that UNRATE's association with SPY is imprecisely "
+        "estimated across quantiles -- the point estimates hint at state-"
+        "dependence, but the data do not confirm tail asymmetry (Wald p=0.54). "
+        "This is weaker than a plausibility argument would suggest and should not "
+        "be read as an established regime effect."
     ),
-    key_message="UNRATE should be read through regimes and tails.",
+    key_message="UNRATE's per-quantile SPY slopes swing but are imprecise; a formal test cannot confirm tail asymmetry (Wald p=0.54).",
 )
 
 

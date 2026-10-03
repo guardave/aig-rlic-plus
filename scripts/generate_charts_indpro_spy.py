@@ -96,6 +96,7 @@ def chart_regime_stats():
         ann_return_pct=regime_df["ann_return_pct"].round(1).tolist(),
         signal_label="INDPRO YoY",
         x_axis_title="IP YoY Growth Quartile (Q1=Weakest, Q4=Strongest)",
+        sample_sizes=regime_df["n_months"].astype(int).tolist(),
     )
 
     save_chart(fig, "indpro_spy_regime_stats")

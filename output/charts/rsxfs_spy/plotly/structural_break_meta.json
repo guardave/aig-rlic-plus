@@ -1,0 +1,12 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "rsxfs_spy",
+  "generated_at": "2026-08-27T09:22:10.896522+00:00",
+  "generated_by": "scripts/generate_charts_rsxfs_spy.py",
+  "caption": "Proxy check for large changes in the retail-sales/SPY relationship.",
+  "narrative_alignment_note": "Proxy check for large changes in the retail-sales/SPY relationship.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/rsxfs_spy/structural_break_rsxfs_spy.json"
+  ]
+}

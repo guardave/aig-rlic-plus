@@ -8,25 +8,23 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "caption": "Published winner's own Sharpe-by-lead curve (foreground) peaks at its deployed lead L3 = 2.49 \u2014 dev_trend, a seasonally CLEAN signal. The faded grey envelope (best-of-any-signal per lead) is taller at L2 (2.60), but that peak is mom3m, a seasonally-CONTAMINATED transform on the NSA Cass series, and is correctly excluded. Buy & Hold SPY OOS Sharpe = 1.67. Short (36-month, <5yr) OOS \u2014 found-in-search candidate.",
-  "narrative_alignment_note": "Published winner's own Sharpe-by-lead curve (foreground) peaks at its deployed lead L3 = 2.49 \u2014 dev_trend, a seasonally CLEAN signal. The faded grey envelope (best-of-any-signal per lead) is taller at L2 (2.60), but that peak is mom3m, a seasonally-CONTAMINATED transform on the NSA Cass series, and is correctly excluded. Buy & Hold SPY OOS Sharpe = 1.67. Short (36-month, <5yr) OOS \u2014 found-in-search candidate.",
+  "caption": "OOS Sharpe across the tradable monthly lead grid L1\u2013L12. Bars are the best seasonally-CLEAN combo at each lead (the population the winner is drawn from); the vermillion line traces the winner's own signal (the contraction flag). The published winner (star) sits at L9 with OOS Sharpe 1.30. The grey dotted line (best of ANY signal) peaks higher at L3 (1.47), but that peak rides a seasonally-contaminated transform (the Cass source is NSA) and is excluded. Read the uneven, adjacent-lead profile as a caution: L9 is a likely search artifact for a coincident series (issue #28).",
+  "narrative_alignment_note": "Published L9 winner is the best CLEAN combo; the taller raw bar at L3 is contaminated and excluded.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/lead_winner_curve_20260705.csv",
-    "results/cass_freight_spy/lead_tournament_20260705.csv",
-    "results/cass_freight_spy/lead_clean_envelope_20260705.csv",
+    "results/cass_freight_spy/lead_tournament_20260829.csv",
+    "results/cass_freight_spy/tournament_results_20260829.csv",
     "results/cass_freight_spy/winner_summary.json"
   ],
   "reconciliation": {
-    "winner_lead": 3,
-    "winner_curve_peak": 2.4944,
-    "envelope_peak_lead": 2,
-    "envelope_peak": 2.5998,
-    "envelope_peak_signal": "mom3m",
-    "bh_sharpe": 1.666
+    "winner_lead": 9,
+    "winner_oos_sharpe": 1.2999,
+    "raw_envelope_peak_lead": 3,
+    "raw_envelope_peak": 1.4724,
+    "bh_sharpe": 0.9336
   },
-  "generated_at": "2026-07-05T22:35:12.709685+00:00",
-  "generated_by": "Viz Vera \u2014 scratchpad/gen_cass_charts.py (feat260705_cass_freight_spy)",
+  "generated_at": "2026-08-29T09:09:57.802930+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "gh_issue": "13"

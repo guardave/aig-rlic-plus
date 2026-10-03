@@ -1,0 +1,19 @@
+variable,test,statistic,p_value,lags,conclusion
+cass_freight_idx,ADF,-3.0455,0.0309,12,Stationary at 5%
+cass_freight_idx,KPSS,0.8526,0.0055,12,Reject stationarity at 5%
+cass_freight_pct_yoy,ADF,-4.1724,0.0007,12,Stationary at 5%
+cass_freight_pct_yoy,KPSS,0.0978,0.5966,11,Fail to reject stationarity
+cass_freight_pct_mom,ADF,-5.0204,0.0,12,Stationary at 5%
+cass_freight_pct_mom,KPSS,0.0519,0.8649,8,Fail to reject stationarity
+cass_freight_3m_pct,ADF,-5.0174,0.0,10,Stationary at 5%
+cass_freight_3m_pct,KPSS,0.0465,0.8979,1,Fail to reject stationarity
+cass_freight_6m_pct,ADF,-4.4869,0.0002,12,Stationary at 5%
+cass_freight_6m_pct,KPSS,0.067,0.7709,10,Fail to reject stationarity
+cass_freight_zscore_60m,ADF,-3.2295,0.0183,12,Stationary at 5%
+cass_freight_zscore_60m,KPSS,0.4391,0.0572,11,Fail to reject stationarity
+cass_freight_yoy_zscore_60m,ADF,-4.2185,0.0006,12,Stationary at 5%
+cass_freight_yoy_zscore_60m,KPSS,0.0792,0.6969,11,Fail to reject stationarity
+cass_freight_dev_trend_pct,ADF,-4.6821,0.0001,12,Stationary at 5%
+cass_freight_dev_trend_pct,KPSS,0.0934,0.6189,10,Fail to reject stationarity
+spy_ret,ADF,-11.016,0.0,2,Stationary at 5%
+spy_ret,KPSS,0.1466,0.4009,3,Fail to reject stationarity
