@@ -12,7 +12,7 @@ with a rolling 60-month median threshold, a 2-month lead, and a procyclical
 orientation (hold SPY when home-sales momentum is above its rolling median).
 OOS Sharpe 1.45 versus 0.99 buy-and-hold, max drawdown -13.1% versus -23.9%.
 The direction comes out procyclical as expected, and Granger evidence is
-significant at short lags (1-2 months), but the rule trades often (68 OOS
+significant at lags 1-2 and again at 5-6, but the rule trades often (68 OOS
 trades, ~7.2/year turnover) and the regime quartiles are hump-shaped (Q2
 strongest, not a clean monotonic rise), so confidence is low. Values come from
 `results/nhs_saar_spy/winner_summary.json`.
@@ -214,13 +214,13 @@ GRANGER_BLOCK = dict(
     ),
     chart_name="granger_f_by_lag",
     chart_caption=(
-        "What this shows: New Home Sales-to-SPY p-values are significant at "
-        "short lags (1-2 months) in the generated table, consistent with an "
-        "early-cycle lead."
+        "What this shows: New Home Sales-to-SPY p-values are significant at short "
+        "lags (1-2 months) and again at 5-6 months in the generated table, "
+        "consistent with an early-cycle lead."
     ),
     observation=(
-        "The generated Granger table shows significant home-sales-to-SPY "
-        "evidence at lags 1-2, fading at longer lags."
+        "The generated Granger table shows significant home-sales-to-SPY evidence "
+        "at lags 1-2 and lags 5-6, fading at longer lags."
     ),
     interpretation=(
         "This supports a short-horizon lead but does not prove causality. The "

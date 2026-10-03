@@ -114,7 +114,7 @@ The one technical wrinkle that shapes everything: the Census new-home-sales seri
 
 ### The Regime Signal, Not the Raw Number
 
-The winning rule does not trade the year-over-year number directly. It trades a **regime probability**: a Hidden Markov Model (HMM) reads the home-sales growth series and estimates whether housing demand is in its calm, favourable state or its high-variance, turning-point state. The strategy holds SPY when the favourable-regime signal is on and steps to cash otherwise. In plain terms, it asks "is the housing-demand backdrop healthy right now?" and times equity exposure on that.
+The winning rule does not trade the year-over-year number directly. It trades a **regime probability**: a Hidden Markov Model (HMM) reads the home-sales growth series and estimates whether housing demand is in its normal expansion state or in an outright contraction. The strategy holds SPY when the expansion-regime probability stays above its rolling threshold and steps to cash when it breaks down. In plain terms, it asks "is the housing-demand backdrop healthy right now?" and times equity exposure on that.
 
 <!-- expander: Why is confidence low if the direction is right? -->
 The procyclical direction is clean in the descriptive quartiles, but "direction is right" and "this is a reliable forecaster" are different claims. The formal forward-causality tests (Granger, local projections) are weak: New Home Sales growth leads SPY only at a single long lag, and the winner is the best of more than five thousand searched combinations with a re-shuffle p-value above the 5% bar. So we report a genuine procyclical relationship AND a low-confidence trading rule -- on purpose, and separately.
@@ -130,7 +130,12 @@ The procyclical direction is clean in the descriptive quartiles, but "direction 
                 "across the portal's standard episode set. Read it as "
                 "contextual background, not the strongest validation case."
             ),
-            "caption": "Contextual background; a continuity confirmer, not validation.",
+            "caption": (
+                "Contextual background; a continuity confirmer, not validation. "
+                "The dashed line marks the Nasdaq peak of 10 March 2000 -- SPY's "
+                "own month-end high came five months later, so the marker is not "
+                "expected to sit on this chart's peak."
+            ),
         },
         {
             "slug": "gfc",
@@ -163,7 +168,12 @@ The procyclical direction is clean in the descriptive quartiles, but "direction 
                 "recent regime that dominates the out-of-sample window and "
                 "drives much of the strategy's drawdown avoidance."
             ),
-            "caption": "2022-23: rate shock crushed sales -- the dominant OOS regime.",
+            "caption": (
+                "2022-23: rate shock crushed sales -- the dominant OOS regime."
+                "Event markers are dated to the day while the "
+                "plotted series is month-end, so the Jan-2022 peak and Oct-2022 "
+                "low markers each sit about a month from the visible extremum."
+                ),
         },
     ]
 
@@ -384,25 +394,28 @@ HMM_BLOCK = dict(
     chart_status="ready",
     method_name="HMM Regime Map (The Winning Signal)",
     method_theory=(
-        "A Hidden Markov Model (HMM) maps the home-sales growth series into "
-        "latent regimes -- a calm, favourable state and a high-variance, "
-        "turning-point state."
+        "A Hidden Markov Model (HMM) maps the home-sales growth series into two "
+        "latent regimes: a normal expansion state, which covers about 80% of "
+        "months at roughly +9% average year-over-year growth, and a contraction "
+        "state averaging about -24% growth that captures outright housing busts."
     ),
-    question="When is housing demand in its favourable regime -- and does timing SPY on it help?",
+    question="When is housing demand in its expansion regime -- and does timing SPY on it help?",
     how_to_read=(
-        "Higher probability marks months where home-sales growth behaves "
-        "unusually (high-variance). The strategy holds SPY when the favourable "
-        "(calm) regime dominates."
+        "The line is the probability that home-sales growth is in the expansion  "
+        "regime. It sits near 1 for most of the sample and falls toward zero when "
+        "housing turns down. The strategy holds SPY while that probability stays "
+        "above its rolling threshold and steps to cash when it drops below."
     ),
     chart_name=HMM_REGIME_CHART_NAME,
     chart_caption=(
-        "What this shows: the high-variance regime probability spikes around "
-        "housing turning points (GFC, COVID, the 2022 rate shock) -- and this "
-        "regime probability IS the winning trading signal."
+        "What this shows: the expansion-regime probability holds near 1 through "
+        "expansions and collapses towards zero in the 2007-09 housing bust and part "
+        "of the 2022-23 rate shock -- and this probability IS the winning trading "
+        "signal"
     ),
     observation=(
-        "The HMM cleanly separates calm housing-demand regimes from "
-        "high-variance turning points."
+        "The HMM cleanly separates normal housing-demand expansions from outright "
+        "contractions; the regime probability is near-binary rather than gradual."
     ),
     interpretation=(
         "Unlike most pairs where the HMM is only backdrop, here the regime "
@@ -476,7 +489,7 @@ class StrategyConfig:
     )
 
     SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the New-Home-Sales high-variance-regime probability (from a 2-state Hidden Markov Model on deseasonalised year-over-year growth) is above its rolling 25th-percentile threshold (60-month window); otherwise hold cash. No signal lead (L0), because the regime probability is built from already-released data.
+**Rule in plain English:** hold SPY when the New-Home-Sales expansion-regime probability (from a 2-state Hidden Markov Model on deseasonalised year-over-year growth) is above its rolling 25th-percentile threshold (60-month window); otherwise hold cash. Because that probability sits near 1 for most of the sample, the rule is effectively "stay invested unless housing demand breaks down". No signal lead (L0), because the regime probability is built from already-released data.
 
 If-then form:
 - **IF** the regime probability is **above** its rolling 25th-percentile threshold (latest value approximately 0.0123) -> hold SPY.
@@ -486,7 +499,7 @@ Search-phase OOS results (2018-02-28 to 2026-05-31, no holdout final exam yet): 
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads the Census/Federal Reserve monthly new-home-sales release (FRED series HSN1FNSA) and computes its year-over-year growth -- this month's sales versus the same month a year ago. Because the raw series is not seasonally adjusted, the year-over-year change is what strips out the regular spring-vs-winter selling swing. Second, it fits a 2-state Hidden Markov Model to that growth series and reads off the probability of the calm, favourable regime. Third, it compares that probability against a rolling 25th-percentile threshold and converts the comparison into a SPY-or-cash position (no lead needed, since the probability is built from released data).
+First, the data process reads the Census/Federal Reserve monthly new-home-sales release (FRED series HSN1FNSA) and computes its year-over-year growth -- this month's sales versus the same month a year ago. Because the raw series is not seasonally adjusted, the year-over-year change is what strips out the regular spring-vs-winter selling swing. Second, it fits a 2-state Hidden Markov Model to that growth series and reads off the probability of the normal expansion regime. Third, it compares that probability against a rolling 25th-percentile threshold and converts the comparison into a SPY-or-cash position (no lead needed, since the probability is built from released data).
 
 This is intentionally simple. It does not forecast mortgage rates, model the Fed, or claim that housing drives stocks. It asks whether the housing-demand backdrop is in a healthy regime and times SPY on that -- and, as the Evidence page is careful to say, the formal forward-causality tests are weak.
 """
@@ -496,7 +509,7 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 
 1. Read New Home Sales (`HSN1FNSA`) from the live FRED API at the current vintage.
 2. Compute year-over-year growth (this deseasonalises the not-seasonally-adjusted series).
-3. Fit / update the 2-state Hidden Markov Model on the YoY growth series and read the high-variance-regime probability.
+3. Fit / update the 2-state Hidden Markov Model on the YoY growth series and read the expansion-regime probability.
 4. Compare that probability with its rolling 25th-percentile threshold (60-month window).
 5. Hold SPY when the signal is above the threshold; otherwise hold cash.
 
@@ -590,7 +603,7 @@ _METHODS_TABLE_MD = """
 | Local projections | What is the forward SPY response across horizons? | Horizon-by-horizon response check |
 | Quantile regression | Does the signal work differently in weak vs strong markets? | Separates tail-risk from upside-state behavior |
 | Transfer entropy | Is there nonlinear information flow, and in which direction? | Model-free nonlinear robustness check |
-| HMM / Markov regimes | Which months are favourable vs high-variance housing regimes? | Produces the winning regime signal |
+| HMM / Markov regimes | Which months are hosing expansion vs contractions? | Produces the winning regime signal |
 | Structural break / cross-period | Is the relationship stable over time? | Durability and overfit guard |
 """
 

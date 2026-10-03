@@ -1127,7 +1127,7 @@ def _write_evidence_status(winner, ws, split, n_valid, median_sharpe, boot_p, ve
         f"(2) a re-shuffle test puts the chance of a result this good at about {boot_p*100:.1f}% "
         f"(we want under 5% before calling it real); (3) durability across historical episodes is "
         f"'{verdict}' and the signal-market relationship is '{stab}' over time. "
-        + ("New Home Sales growth DID lead SPY in the formal causality test, consistent with housing being "
+        + ("New Home Sales growth lead SPY in the formal causality test, consistent with housing being "
            "an early-cycle leading indicator, " if fwd_found else
            "New Home Sales growth did NOT lead SPY in the formal causality test, ")
         + "so read this as a search result, not an independently validated forecasting signal. "

@@ -389,25 +389,28 @@ HMM_BLOCK = dict(
     chart_status="ready",
     method_name="HMM Regime Map (Backdrop)",
     method_theory=(
-        "A Hidden Markov Model (HMM) maps the starts-growth series into latent "
-        "regimes -- a calm state and a high-variance, turning-point state."
+        "A Hidden Markov Model (HMM) maps the starts-growth series into two latent "
+        "regimes -- a normal expansion state covering 88% of months at roughly "
+        "+6% average year-over-year growth, and a contraction state averaging about "
+        "-30% growth that captures outright construction busts."
     ),
-    question="When is construction activity in a high-variance regime?",
+    question="When is construction activity in its expansion regime?",
     how_to_read=(
-        "Higher probability marks months where starts growth behaves unusually "
-        "(high-variance). Here the HMM is contextual backdrop, NOT the winning "
-        "signal."
+        "The line is the probability that starts growth is in the expansion regime. "
+        "It sits near 1 for most of the sample and falls toward zero when "
+        "construction turns down. Here the HMM is contextual backdrop, NOT the "
+        "winning signal."
     ),
     chart_name=HMM_REGIME_CHART_NAME,
     chart_caption=(
-        "What this shows: the high-variance regime probability spikes around "
-        "housing turning points (GFC, COVID, the 2022 rate shock). Unlike some "
-        "pairs, this regime probability is NOT the winning trading signal -- "
-        "the winner is the simple 3-month change in starts."
+        "What this shows: the expansion-regime probability holds near 1 through "
+        "expansions and collapses toward zero around the 2007-09 housing bust and "
+        "2023. Unlike some pairs, this regime probability is NOT the winning "
+        "trading signal -- the winner is the simple 3-month change in starts."
     ),
     observation=(
-        "The HMM cleanly separates calm construction regimes from high-variance "
-        "turning points."
+        "The HMM cleanly separates normal construction expansions from outright "
+        "contractions; the regime probability is near-binary rather than gradual. "
     ),
     interpretation=(
         "The regime map is useful context for the episode story, but the "
@@ -595,7 +598,7 @@ _METHODS_TABLE_MD = """
 | Local projections | What is the forward SPY response across horizons? | Horizon-by-horizon response check |
 | Quantile regression | Does the signal work differently in weak vs strong markets? | Separates tail-risk from upside-state behavior |
 | Transfer entropy | Is there nonlinear information flow, and in which direction? | Model-free nonlinear robustness check |
-| HMM / Markov regimes | Which months are calm vs high-variance construction regimes? | Regime backdrop for the episode story |
+| HMM / Markov regimes | Which months are construction expansion vs contractions? | Regime backdrop for the episode story |
 | Structural break / cross-period | Is the relationship stable over time? | Durability and overfit guard |
 """
 
