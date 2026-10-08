@@ -123,6 +123,7 @@ PAGE_ROUTING = {
     "retail_inv_sales_spy": "pages/37_retail_inv_sales_spy",
     "cc_delinquency_spy": "pages/38_cc_delinquency_spy",
     "permit_yoy_spy": "pages/39_permit_yoy_spy",
+    "nhs_rebuilt_spy": "pages/40_nhs_rebuilt_spy",
 }
 
 

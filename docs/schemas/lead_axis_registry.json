@@ -309,6 +309,34 @@
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
    "conformed": false
   },
+  "nhs_rebuilt_spy": {
+   "signal_frequency": "monthly",
+   "signal_description": "New Home Sales (Census, monthly) -- #255 publication-lag-floored REBUILD of nhs_spy, reconstructed from the live FRED API (HSN1FNSA/HSN1F) + yfinance (NOT Dana's committed parquet); the parallel original nhs_spy is left untouched for comparison",
+   "publication_lag": "~end of M+1 (~24th, ~4 weeks)",
+   "real_time": false,
+   "lead_axis": "months",
+   "lead_floor": 2,
+   "lead_grid": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+   ],
+   "observed_winner_lead_unit": "months",
+   "class": "monthly",
+   "note": "Floored rebuild of nhs_spy. Winner deploys at L13 -- the TOP of the floored grid [2..14]; a grid-ceiling/long-lead result flagged per Step 4 for adjudication (likely fragile / multiple-testing). Axis is coherent monthly and conformed to the derived floor.",
+   "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor L2",
+   "conformed": true
+  },
   "permit_spy": {
    "signal_frequency": "monthly",
    "signal_description": "Building Permits (Census, monthly)",

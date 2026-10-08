@@ -1,0 +1,21 @@
+{
+  "pair_id": "nhs_rebuilt_spy",
+  "date": "20261008",
+  "pipeline_seconds": 87.3,
+  "stage_times": {
+    "1_load_verify": 0.0,
+    "2_signals": 1.4,
+    "3_exploratory_correlations": 0.3,
+    "4_core_models": 4.9,
+    "5_regime_quartiles": 0.0,
+    "6_tournament": 46.6,
+    "7_winner_artifacts": 0.0,
+    "8_cross_period": 31.9,
+    "9_validation": 0.3
+  },
+  "tournament_strategy_rows": 14300,
+  "valid_strategies": 9971,
+  "oos_n_months": 101,
+  "oos_start": "2018-04-30",
+  "oos_end": "2026-08-31"
+}

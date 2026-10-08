@@ -1,0 +1,21 @@
+{
+  "chart_name": "hmm_regime_probs",
+  "pair_id": "nhs_rebuilt_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Probability that New Home Sales YoY is in its high-variance regime (2-state HMM). In THIS rebuild the HMM is descriptive context, NOT the traded signal \u2014 the winner is the 13-month-lagged YoY ACCELERATION (Long/Short), not the HMM. (The original nhs_spy traded the HMM; this floored rebuild does not.) The high-variance state covers 79% of months and spikes at housing turning points (GFC, COVID, 2022 rate shock). Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Labels follow hmm_states_manifest.json semantics ('stress' = high-variance NHS-YoY-growth regime). This chart is backdrop context, NOT the winning signal in this rebuild.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/nhs_rebuilt_spy/core_models_20261008/hmm_states.parquet",
+    "results/nhs_rebuilt_spy/core_models_20261008/hmm_summary.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-10-08T21:50:49.163589+00:00",
+  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_rebuilt_spy.py (Mode 2, nhs_rebuilt_spy)"
+}

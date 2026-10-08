@@ -1,0 +1,39 @@
+{
+  "pair_id": "nhs_rebuilt_spy",
+  "artifact": "strategy_returns_20261008.csv",
+  "produced_by": "scripts/pair_pipeline_nhs_spy.py",
+  "rule": "ECON-SR1",
+  "source": "pipeline_native_derivation (same code path as tournament evaluation \u2014 not a re-derivation)",
+  "returns_file": "/workspaces/aig-rlic-plus/data/nhs_rebuilt_spy_monthly_latest.parquet",
+  "coverage_start": "1993-02-28",
+  "coverage_end": "2026-08-31",
+  "frequency": "monthly",
+  "oos_start": "2018-04-30",
+  "oos_end": "2026-08-31",
+  "position_semantics": "position on row t is the return-accrual weight for month t; the signal is lagged 13 month(s) (execution/publication lag already applied); strategy_return = position * bh_return row-wise",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 1.543937,
+      "reported_winner_summary": 1.5439,
+      "diff": 3.7e-05,
+      "tolerance": 0.01,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.129476,
+      "reported_winner_summary": -0.1295,
+      "diff": 2.4e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.239562,
+      "reported_winner_summary": 0.2396,
+      "diff": -3.8e-05,
+      "tolerance": 0.005,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-10-08T21:39:34Z",
+  "generated_by": "Econ Evan (Mode 2, nhs_spy)"
+}
