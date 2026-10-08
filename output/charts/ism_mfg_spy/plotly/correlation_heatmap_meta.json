@@ -1,12 +1,12 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-09-12T17:24:12.897708+00:00",
+  "generated_at": "2026-10-08T15:20:10.757369+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Pearson correlations between ISM PMI transforms and forward SPY returns.",
   "narrative_alignment_note": "Pearson correlations between ISM PMI transforms and forward SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/ism_mfg_spy/core_models_20260912/correlations.csv"
+    "/workspaces/aig-rlic-plus/results/ism_mfg_spy/core_models_20261008/correlations.csv"
   ]
 }

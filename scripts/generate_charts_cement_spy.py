@@ -5,11 +5,13 @@ Presentational layer only. Every series is read from the committed
 results/cement_spy artifacts or the monthly panel; no numbers are invented.
 Cement shipments is a nominal-dollar level (non-stationary) so the traded
 signals are growth transforms. Cement is a LEADING, construction-activity
-indicator whose economic prior is PROCYCLICAL; the searched winner is
-PROCYCLICAL at a zero-month lead (direction-consistent, a concurrent regime
-filter, not a forecast) -- captions frame it as found-in-search. The sample
-starts 2005, so there is no Dot-Com zoom. Only NBER recession shading is used
-(no second shading band).
+indicator whose economic prior is PROCYCLICAL; the searched winner, however,
+is COUNTERCYCLICAL (contrarian) on YoY growth at a 4-month lead -- it holds
+SPY when cement YoY growth four months earlier was very weak -- so the winner
+CONTRADICTS the procyclical prior and is read as a found-in-search candidate,
+not a validated forecast (captions flag this as a caution). The sample starts
+2005, so there is no Dot-Com zoom. Only NBER recession shading is used (no
+second shading band).
 """
 
 from __future__ import annotations
@@ -31,7 +33,7 @@ from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 from _ci_band import ci95_halfwidth  # noqa: E402
 
 PAIR = "cement_spy"
-DATE_TAG = "20260830"
+DATE_TAG = "20261008"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"

@@ -26,15 +26,15 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-08-31T07:42:35.914835+00:00",
+  "last_updated_at": "2026-10-08T14:50:05.583069+00:00",
   "indicator": "cement",
   "target": "spy",
   "expected_direction": "procyclical",
-  "observed_direction": "procyclical",
-  "direction_consistent": true,
+  "observed_direction": "countercyclical",
+  "direction_consistent": false,
   "mechanism": "Portland cement shipments track construction and infrastructure activity; strong or rising shipment growth marks a cyclical upswing in real investment (risk-on), while falling shipments signal a construction slowdown. Exposure is scaled toward SPY when cement-shipment growth is firm.",
   "confidence": "low",
-  "key_finding": "Best search-phase rule uses chg_6m at L0 with OOS Sharpe 1.20 versus buy-and-hold 0.93.",
+  "key_finding": "Best search-phase rule uses yoy at L4 with OOS Sharpe 1.25 versus buy-and-hold 0.93.",
   "caveats": [
     "Even a leading indicator selected at a long lead can be a search artifact \u2014 check adjacent-lead durability.",
     "The strategy is search-selected and needs fresh holdout validation.",
@@ -71,6 +71,6 @@
   "data_provenance": {
     "source": "Data Master.xlsx",
     "series_id": "Portland Cement Shipments (Data Master)",
-    "accessed_at": "2026-08-31T07:42:35.914835+00:00"
+    "accessed_at": "2026-10-08T14:50:05.583069+00:00"
   }
 }

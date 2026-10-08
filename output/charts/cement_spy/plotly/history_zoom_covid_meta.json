@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "cement_spy",
-  "generated_at": "2026-08-31T07:51:45.540834+00:00",
+  "generated_at": "2026-10-08T15:23:59.389648+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "COVID Shock: Cement YoY Dip and Choppy Aftermath; gray bands are NBER recessions.",
   "narrative_alignment_note": "COVID Shock: Cement YoY Dip and Choppy Aftermath; gray bands are NBER recessions.",

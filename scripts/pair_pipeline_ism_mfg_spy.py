@@ -20,7 +20,7 @@ import yfinance as yf
 from statsmodels.tsa.stattools import adfuller, kpss
 
 PAIR_ID = "ism_mfg_spy"
-DATE_TAG = "20260912"
+DATE_TAG = "20261008"  # #255 derived-floor re-run (L1 floor, shifted grid)
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 REPO = Path(__file__).resolve().parents[1]
@@ -212,7 +212,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     n = len(work)
     oos_n = int(min(max(60, round(n * 0.25)), 120))
     oos_start = work.index[-oos_n]
-    leads = [0, 1, 2, 3, 6, 9, 12]  # months
+    leads = list(range(1, 14))  # months — #255 floor L1 (ISM publishes M+1 bus.day 1); anchored 0..12 shifted +1 => 1..13 (no L0 lookahead)
     rows = []
     bh = ann_metrics(df.loc[oos_start:, "spy_ret"].dropna())
     for signal_code, col in SIGNALS.items():

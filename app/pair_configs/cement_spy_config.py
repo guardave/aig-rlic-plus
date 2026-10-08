@@ -8,50 +8,63 @@ p = 0.22; KPSS rejects stationarity), so every tested signal is a growth
 transform (MoM/3m/6m/YoY %, YoY z-score, acceleration).
 
 HONEST FRAMING (binding). This is a FOUND-IN-SEARCH candidate at LOW
-confidence, not a validated or deployable edge. Every number below is sourced
-from results/cement_spy/*:
-  - The tournament winner (`chg_6m` 6-month growth / T_roll_p25 rolling-25th-
-    percentile / PROCYCLICAL / L0 months / P1_long_cash; OOS Sharpe 1.197 vs
-    0.935 buy-and-hold) is the grid maximum over 252 combinations (all 252
-    valid). The MEDIAN valid combo scores 0.653 -- it UNDERPERFORMS buy-and-
+confidence, not a validated or deployable edge, and -- unusually -- its
+direction CONTRADICTS the economic prior. Every number below is sourced from
+results/cement_spy/*:
+  - The tournament winner (`cement_yoy` YoY growth / T_roll_p25 rolling-25th-
+    percentile / COUNTERCYCLICAL / L4 months / P1_long_cash; OOS Sharpe 1.253
+    vs 0.935 buy-and-hold) is the grid maximum over 468 combinations (all 468
+    valid). The MEDIAN valid combo scores 0.656 -- it UNDERPERFORMS buy-and-
     hold (0.935) (winner_summary.json). The typical rule built on this
     indicator subtracts value.
-  - DIRECTION AGREES WITH THE PRIOR. Cement-shipment growth is procyclical and
-    the search selected a PROCYCLICAL rule (hold SPY when 6-month growth is at
-    or above its rolling 25th percentile -- i.e. when growth is firm), at a
-    ZERO-month lead. `interpretation_metadata.json` records expected_direction
-    procyclical, observed_direction procyclical, direction_consistent = true,
-    confidence = low. This is the honest strength of the pair -- but a
-    direction-consistent, single-sample search maximum is still not a validated
-    edge.
-  - IT IS A CONCURRENT REGIME FILTER, NOT A FORECAST. The winner sits at L0:
-    it uses the LATEST 6-month cement growth to set exposure, so it makes no
-    forward-lead claim. The formal lead-lag tests confirm there is no forecast
-    to claim: cement growth does NOT Granger-cause SPY at any tested lag
-    (minimum p = 0.14 at lag 2) (granger_by_lag.csv); forward-return
-    correlations are near zero at every horizon (largest anywhere is
-    acceleration vs 1-month-forward SPY, r = 0.12, p = 0.085 -- not significant)
-    (core_models_20260830/correlations.csv); local projections are null at
+  - DIRECTION CONTRADICTS THE PRIOR (the key caution). Cement-shipment growth
+    is procyclical, but the search selected a COUNTERCYCLICAL / contrarian
+    rule: it holds SPY when cement YoY growth FOUR MONTHS EARLIER was AT OR
+    BELOW its rolling 25th percentile -- i.e. when construction activity was
+    VERY WEAK. `interpretation_metadata.json` records expected_direction
+    procyclical, observed_direction countercyclical, direction_consistent =
+    false, confidence = low. Economically this can be rationalised (deep
+    construction weakness tends to precede policy accommodation and marks a
+    cyclical trough, and the 4-month lead gives a recovery time to reach
+    equities), but a search maximum that reverses the prior is a reason for
+    caution, not a selling point.
+  - THE LEAD IS A SEARCH-SELECTED PARAMETER, NOT A VALIDATED FORECAST. The
+    winner sits at L4 (it uses cement YoY from four months earlier), so it does
+    make a nominal forward-lead claim -- but the formal lead-lag tests find no
+    predictive content to support it: cement growth does NOT Granger-cause SPY
+    at any tested lag (minimum p = 0.14 at lag 2) (granger_by_lag.csv);
+    forward-return correlations are near zero at every horizon for the winning
+    YoY signal (|r| <= 0.07), and the largest cell anywhere is acceleration vs
+    1-month-forward SPY, r = 0.12, p = 0.085 -- not significant
+    (core_models_20261008/correlations.csv); local projections are null at
     every horizon (no coefficient significant; trivial R^2)
     (local_projections.csv); and the pre-whitened cross-correlation has NO
-    significant bar at any offset, lead or lag (ccf_prewhitened.csv).
-  - The concurrent evidence is broadly procyclical: sorting months by cement
-    YoY growth, the weakest-growth quartile Q1 has the worst concurrent SPY
-    Sharpe (0.33) and the strongest quartile Q4 the best (1.12), with a
-    non-monotonic middle (Q2 1.06, Q3 0.62) (regime_quartile_returns.csv).
-  - The winner's edge over buy-and-hold is modest and mixed: OOS annualized
-    return 15.3% vs 14.6%, OOS max drawdown -20.9% vs -23.9%, OOS volatility
-    12.6%, win rate 54.9%. Turnover is HIGH (3.76/yr, 32 OOS trades): this is
-    an active in/out rule, not a set-and-forget overlay. A stationary block
-    bootstrap puts the winner's Sharpe at p = 0.004
-    (tournament_validation_20260830/bootstrap.csv), but that is an in-sample
-    significance check, not out-of-sample validation.
-  - Stress behavior is uneven. The rule stepped to cash and lost far less than
-    buy-and-hold in the GFC (subperiod Sharpe 0.79 vs -1.03) and COVID
-    (0.02 vs -0.66), but did MUCH WORSE than buy-and-hold in the 2022 rate
-    shock (-1.68 vs -0.76) (subperiod_sharpe.csv).
+    significant bar at any offset, lead or lag (ccf_prewhitened.csv). Read the
+    4-month lead as a fitted parameter, not a proven forecast horizon.
+  - The concurrent evidence is broadly PROCYCLICAL and therefore runs OPPOSITE
+    to the winner: sorting months by cement YoY growth, the weakest-growth
+    quartile Q1 has the worst concurrent SPY Sharpe (0.33) and the strongest
+    quartile Q4 the best (1.12), with a non-monotonic middle (Q2 1.06, Q3 0.62)
+    (regime_quartile_returns.csv). That the contemporaneous sort is procyclical
+    while the winning rule is a lagged contrarian bet is an internal tension to
+    disclose, not reconcile away.
+  - The winner wins on RISK, not raw return: OOS annualized return is LOWER
+    than buy-and-hold (12.1% vs 14.6%), but max drawdown is far smaller
+    (-8.3% vs -23.9%) and volatility is low (9.5%), which is why the Sharpe
+    (1.253 vs 0.935), Sortino (1.98) and Calmar (1.46) beat buy-and-hold. The
+    win rate is BELOW 50% (31.4%): it earns its edge by sitting out drawdowns,
+    not by winning most months. Turnover is moderate-to-high (3.5/yr, 30 OOS
+    trades): an active in/out rule, not a set-and-forget overlay.
+  - Stress behavior now favors the rule, because it is contrarian. It was flat
+    (in cash, subperiod Sharpe 0.0) through the GFC and COVID windows while
+    buy-and-hold fell (-1.03 and -0.66), and it did MUCH BETTER than
+    buy-and-hold in the 2022 rate shock (+0.75 vs -0.76; +9.6% vs -18.2%),
+    because firm nominal cement growth kept it in cash during the equity
+    de-rating (subperiod_sharpe.csv). Note the GFC window predates the
+    2017-start OOS sample.
   - Status is `found_in_search` (evidence_status.json): the winner still needs
-    a frozen-rule holdout / final exam.
+    a frozen-rule holdout / final exam, and the adjacent-lead durability of the
+    L4 choice should be checked (issue #28).
   - CAVEATS: the sample is SHORT, starting 2005-11 (SPY-and-cement overlap; no
     Dot-Com coverage). Cement shipments are NOT a Conference Board LEI
     component and NOT "new orders" -- they are a construction-activity series.
@@ -59,13 +72,14 @@ from results/cement_spy/*:
     stayed firm on rising prices even as equities de-rated. COVID 2020-21 is an
     extreme in-window outlier that can dominate the fit.
 
-MONTHLY conventions: leads in MONTHS (winner L0); Sharpe annualized by
-sqrt(12); OOS window 2017-01-31 -> 2025-06-30 (102 months). Numbers sourced
-from results/cement_spy/ (winner_summary.json, kpis.json, evidence_status.json,
-interpretation_metadata.json, core_models_20260830/*,
+MONTHLY conventions: leads in MONTHS (winner L4, floored grid L2-14, no
+look-ahead L0/L1); Sharpe annualized by sqrt(12); OOS window 2017-01-31 ->
+2025-06-30 (102 months). Numbers sourced from results/cement_spy/
+(winner_summary.json, kpis.json, evidence_status.json,
+interpretation_metadata.json, core_models_20261008/*,
 regime_quartile_returns.csv, subperiod_sharpe.csv, granger_by_lag.csv,
-stationarity_tests_20260830.csv, structural_break_cement_spy.json,
-tournament_results_20260830.csv, tournament_validation_20260830/bootstrap.csv).
+stationarity_tests_20261008.csv, structural_break_cement_spy.json,
+tournament_results_20261008.csv, tournament_validation_20261008/bootstrap.csv).
 """
 
 from __future__ import annotations
@@ -74,17 +88,17 @@ from components.page_templates import MethodologyConfig
 
 
 class StoryConfig:
-    PAGE_TITLE = "The Story: Cement Shipments as a Procyclical SPY Overlay"
+    PAGE_TITLE = "The Story: Cement Shipments as a Contrarian SPY Overlay"
     PAGE_SUBTITLE = (
         "Portland Cement Shipments (Data Master) x S&P 500 (SPY), monthly "
         "construction-activity growth signals tested against SPY returns."
     )
 
     HEADLINE_H2 = (
-        "## A search-phase rule with OOS Sharpe 1.20 vs 0.93 buy-and-hold -- "
-        "procyclical and direction-consistent with the prior, but found-in-"
-        "search on a short 2005-start sample, with no formal predictive edge "
-        "and a bad 2022"
+        "## A search-phase rule with OOS Sharpe 1.25 vs 0.93 buy-and-hold -- "
+        "but COUNTERCYCLICAL (it buys SPY after very weak cement growth), which "
+        "CONTRADICTS the procyclical prior, and found-in-search on a short "
+        "2005-start sample with no formal predictive edge"
     )
 
     PLAIN_ENGLISH = (
@@ -93,49 +107,58 @@ class StoryConfig:
         "cement is poured into projects that track the real-investment cycle, "
         "it is a LEADING, construction-activity indicator, and the economic "
         "prior is procyclical: firm, rising shipment growth signals an "
-        "investment upswing and risk-on equities; falling shipments signal a "
-        "construction slowdown. This pair tests whether cement-shipment growth "
-        "can improve SPY timing. Read the result as procyclical context and a "
-        "concurrent regime filter, not as a forecast: the formal lead-lag "
-        "tests find no predictive edge, and the winning rule uses the LATEST "
-        "growth reading (a zero-month lead), so it makes no advance-warning "
-        "claim. It is a grid-search candidate at LOW confidence, not a "
-        "validated or deployable edge."
+        "investment upswing and risk-on equities. The surprise here is that the "
+        "winning rule runs the OTHER way -- it is COUNTERCYCLICAL. It holds SPY "
+        "when cement year-on-year growth FOUR MONTHS EARLIER was at or below "
+        "its rolling 25th percentile (construction activity was very weak), and "
+        "otherwise sits in cash. The contrarian story is that deeply weak "
+        "construction tends to mark a cyclical trough and precede policy "
+        "support, with the 4-month lead giving a recovery time to reach stocks. "
+        "Take this as a caution flag, not a strength: it reverses the prior, "
+        "the formal lead-lag tests find no predictive edge, and it is a "
+        "grid-search candidate at LOW confidence, not a validated or deployable "
+        "edge."
     )
 
     WHERE_THIS_FITS = (
-        "This is a construction-activity overlay for broad U.S. equities. It "
-        "belongs in the portal as a procyclical context signal: the direction "
-        "agrees with the economic prior (firm cement growth = risk-on), which "
-        "is a point in its favor, but it is a concurrent regime filter on a "
-        "short sample, not an early-warning forecast and not a validated edge. "
-        "Readers should weigh the modest, mixed edge over buy-and-hold and the "
-        "found-in-search status before taking it as anything more than a "
-        "candidate."
+        "This is a construction-activity overlay for broad U.S. equities, and "
+        "it belongs in the portal with a prominent caveat: the direction the "
+        "search selected (buy SPY after very weak cement growth) CONTRADICTS "
+        "the procyclical economic prior and the procyclical concurrent "
+        "quartiles. It is a contrarian, found-in-search candidate on a short "
+        "sample, not an early-warning forecast and not a validated edge. "
+        "Readers should weigh the direction inconsistency, the sub-50% win "
+        "rate, and the fact that the rule earns its Sharpe by cutting drawdowns "
+        "(not by beating buy-and-hold on raw return) before taking it as "
+        "anything more than a candidate."
     )
 
     ONE_SENTENCE_THESIS = (
         "Cement-shipment growth is procyclical with equities CONCURRENTLY "
         "(weakest-growth quartile has the worst SPY Sharpe, 0.33; strongest "
-        "the best, 1.12) but does NOT lead SPY -- Granger is insignificant at "
-        "every lag (min p = 0.14), local projections are null, and the "
-        "pre-whitened cross-correlation has no significant bar at any offset -- "
-        "so the search's best rule, a PROCYCLICAL zero-lead long/cash filter "
-        "with OOS Sharpe 1.20 vs 0.93, is a direction-consistent but "
-        "found-in-search candidate on a short 2005-start sample, not a "
-        "validated edge."
+        "the best, 1.12) yet does NOT lead SPY in any formal test -- Granger is "
+        "insignificant at every lag (min p = 0.14), local projections are null, "
+        "and the pre-whitened cross-correlation has no significant bar at any "
+        "offset -- so the search's best rule, a COUNTERCYCLICAL 4-month-lead "
+        "long/cash filter that buys SPY after very weak cement growth with OOS "
+        "Sharpe 1.25 vs 0.93, both CONTRADICTS the procyclical prior and is "
+        "found-in-search on a short 2005-start sample, not a validated edge."
     )
 
     KPI_CAPTION = (
         "every performance number here is a SEARCH-PHASE, out-of-sample figure "
         "on a 102-month window (2017-01-31 -> 2025-06-30). The winner was found "
-        "as the best of 252 valid combinations, and the MEDIAN valid combo "
-        "(0.653) UNDERPERFORMS buy-and-hold (0.935) -- the typical rule "
-        "subtracts value. The winner's edge is modest and mixed: OOS annualized "
-        "return 15.3% vs 14.6%, max drawdown -20.9% vs -23.9%, volatility "
-        "12.6%. Turnover is HIGH (3.76/yr, 32 trades). Read the Sharpe "
-        "(1.20 vs 0.93) as a single-sample search result, not a proven edge. "
-        "Sharpe ratios use monthly sqrt(12) annualization."
+        "as the best of 468 valid combinations, and the MEDIAN valid combo "
+        "(0.656) UNDERPERFORMS buy-and-hold (0.935) -- the typical rule "
+        "subtracts value. The winner wins on RISK, not raw return: OOS "
+        "annualized return is LOWER than buy-and-hold (12.1% vs 14.6%), but max "
+        "drawdown is far smaller (-8.3% vs -23.9%) and volatility is 9.5%, so "
+        "the Sharpe (1.25 vs 0.93) beats buy-and-hold by cutting losses. The "
+        "win rate is only 31.4% -- it earns its edge by sitting out drawdowns. "
+        "Turnover is moderate-to-high (3.5/yr, 30 trades). Read the Sharpe as a "
+        "single-sample search result from a rule that CONTRADICTS the "
+        "procyclical prior, not a proven edge. Sharpe ratios use monthly "
+        "sqrt(12) annualization."
     )
 
     HERO_TITLE = "Portland Cement Shipments vs the S&P 500 (SPY)"
@@ -145,9 +168,9 @@ class StoryConfig:
         "shown with SPY on the same time axis, NBER recessions shaded. The "
         "series begins in 2005 (SPY-and-cement overlap), so there is no "
         "Dot-Com coverage. The traded signal is not the level (it is "
-        "non-stationary) but its 6-month growth. Watch the shaded recessions -- "
-        "cement shipments collapsed through the 2008-09 housing bust and dipped "
-        "in the 2020 COVID shock."
+        "non-stationary) but its year-on-year (YoY) growth. Watch the shaded "
+        "recessions -- cement shipments collapsed through the 2008-09 housing "
+        "bust and dipped in the 2020 COVID shock."
     )
 
     REGIME_TITLE = "What History Shows: SPY Performance by Cement-Growth Regime"
@@ -156,29 +179,28 @@ class StoryConfig:
         "What this shows: months are sorted from Q1 (weakest cement-shipment "
         "growth) to Q4 (strongest), with concurrent SPY Sharpe in each. The "
         "weakest-growth quartile Q1 is the worst (Sharpe 0.33) and the "
-        "strongest Q4 the best (1.12). Q2 is also strong (1.06), which means "
-        "SPY did well even when cement growth was only moderately weak-to-"
-        "middle rather than extreme. Q3 is weaker (0.62), so the middle of "
-        "the distribution is non-monotonic rather than a smooth step-up from "
-        "Q1 to Q4. The broad message is still PROCYCLICAL concurrently, and "
-        "it matches the procyclical direction the tournament selected. "
-        "Descriptive and concurrent, not a tradable lead."
+        "strongest Q4 the best (1.12). Q2 is also strong (1.06) and Q3 weaker "
+        "(0.62), so the middle is non-monotonic rather than a smooth step-up. "
+        "The contemporaneous message is PROCYCLICAL -- but note this runs "
+        "OPPOSITE to the winning rule, which is COUNTERCYCLICAL on a 4-month "
+        "lag (it buys SPY after weak growth). That tension is the pair's key "
+        "caution. Descriptive and concurrent, not a tradable lead."
     )
 
     NARRATIVE_SECTION_1 = """
 ### Headline Findings
 
-The winning rule is a **procyclical, zero-lead cement-growth filter**. It holds SPY when the latest 6-month growth in cement shipments is at or above its five-year rolling 25th percentile (i.e. when construction-activity growth is *firm*), and holds cash otherwise. Out-of-sample (2017-01 to 2025-06, 102 months), this rule earns a Sharpe of 1.20 versus 0.93 for buy-and-hold, with an annualized return of 15.3% versus 14.6% and a maximum drawdown of -20.9% versus -23.9%. The direction agrees with the economic prior, which is a genuine point in its favor -- but the edge over buy-and-hold is modest and the rule is a **found-in-search** candidate on a short sample, not a validated edge.
+The winning rule is a **countercyclical, 4-month-lead cement-growth filter**. It holds SPY when cement year-on-year growth four months earlier was at or *below* its five-year rolling 25th percentile (i.e. when construction-activity growth was *very weak*), and holds cash otherwise. Out-of-sample (2017-01 to 2025-06, 102 months), this rule earns a Sharpe of 1.25 versus 0.93 for buy-and-hold. It does so by cutting risk, not by compounding faster: its annualized return is actually *lower* than buy-and-hold (12.1% versus 14.6%), but its maximum drawdown is far smaller (-8.3% versus -23.9%) and its volatility is only 9.5%. The win rate is 31.4% -- below half -- so it wins by sitting out drawdowns, not by being right most months. The direction **contradicts** the economic prior, which is the pair's main caution, and the rule is a **found-in-search** candidate on a short sample, not a validated edge.
 
-### The Construction-Activity Hypothesis
+### The Construction-Activity Hypothesis (and why the winner reverses it)
 
-Portland cement shipments measure the flow of cement into U.S. construction and infrastructure. Because cement is poured into projects that move with the real-investment cycle, it is a **leading, construction-activity** indicator. The economic prior is that cement-shipment growth is **procyclical**: firm, rising shipments are risk-on for equities; slowing shipments are an early sign that construction and investment are cooling.
+Portland cement shipments measure the flow of cement into U.S. construction and infrastructure. Because cement is poured into projects that move with the real-investment cycle, it is a **leading, construction-activity** indicator, and the economic prior is that cement-shipment growth is **procyclical**: firm, rising shipments are risk-on for equities; slowing shipments are an early sign that construction and investment are cooling. The concurrent evidence supports that prior: sort months by cement growth and the weakest-growth quartile has the worst concurrent SPY Sharpe (0.33), while the strongest-growth quartile has the best (1.12).
 
-The concurrent evidence supports that prior: sort months by cement growth and the weakest-growth quartile has the worst concurrent SPY Sharpe (0.33), while the strongest-growth quartile has the best (1.12). The tournament's winning rule runs the **same** way -- it buys SPY when growth is firm -- and at a zero-month lead, so it is a concurrent regime filter rather than a forecast.
+The tournament's winning rule runs the **opposite** way. It is contrarian: it buys SPY precisely when cement growth four months earlier was *very weak*. The defensible economic story is that deeply weak construction tends to mark a cyclical trough and precede policy accommodation, and a 4-month lead gives the subsequent recovery time to show up in equities. But we flag this as a **caution, not a strength**: a search maximum that reverses the prior and also runs opposite to the procyclical concurrent sort deserves more skepticism, not less.
 
-### Why This Is Not a Forecast
+### Why This Is Not a Validated Forecast
 
-The formal lead-lag tests are blunt. Cement-shipment growth does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.14), forward-return correlations are near zero at every horizon (the largest cell anywhere, acceleration vs 1-month-forward SPY, is r = 0.12 and not significant at 5%), and local projections are essentially null. The pre-whitened cross-correlation has **no** significant bar at any offset -- neither a cement-leads-SPY nor a SPY-leads-cement signal. So the pair carries no proven advance-warning content; the winner earns its search-phase Sharpe as a *concurrent* procyclical filter, and this dashboard treats it as a construction-activity overlay whose status is found-in-search, not deployable.
+The winner sits at a 4-month lead, so unlike a concurrent filter it does make a nominal forward-lead claim. The formal lead-lag tests do not support it. Cement-shipment growth does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.14 at lag 2; the lag-4 p-value is 0.31), forward-return correlations are near zero at every horizon for the winning YoY signal (|r| <= 0.07; the largest cell anywhere, acceleration vs 1-month-forward SPY, is r = 0.12 and not significant at 5%), and local projections are essentially null. The pre-whitened cross-correlation has **no** significant bar at any offset. So the 4-month lead is best read as a *search-selected parameter*, not a proven forecast horizon; this dashboard treats the rule as a contrarian construction-activity overlay whose status is found-in-search, not deployable.
 """
 
     HISTORY_ZOOM_EPISODES = [
@@ -187,11 +209,13 @@ The formal lead-lag tests are blunt. Cement-shipment growth does **not** Granger
             "title": "Global Financial Crisis",
             "narrative": (
                 "Cement shipments collapsed through 2008-09 as the housing "
-                "bust seized up construction. The rule stepped to cash and lost "
-                "far less than buy-and-hold in this window (subperiod Sharpe "
-                "0.79 vs -1.03) -- its strongest stress episode."
+                "bust seized up construction. This window predates the "
+                "2017-start out-of-sample period, so the strategy curve is flat "
+                "here (subperiod Sharpe 0.0) while buy-and-hold fell sharply "
+                "(-1.03). Read it as context for how extreme the cement "
+                "collapse was, not as a traded result."
             ),
-            "caption": "GFC: cement shipments collapsed with the housing bust 2008-09; the rule lost far less than SPY.",
+            "caption": "GFC: cement shipments collapsed with the housing bust 2008-09 (pre-OOS context; strategy untraded, buy-and-hold -1.03).",
         },
         {
             "slug": "covid",
@@ -201,12 +225,13 @@ The formal lead-lag tests are blunt. Cement-shipment growth does **not** Granger
                 "does not show a clean sustained rebound afterward. The series "
                 "stayed choppy and spent much of 2021 below zero, so the right "
                 "interpretation is lingering disruption rather than a simple "
-                "V-shaped cement recovery. The rule sat largely defensive and "
-                "lost less than buy-and-hold (0.02 vs -0.66), but this is an "
-                "extreme, exogenous in-window episode that can dominate the "
-                "backtest fit -- read any rule that leans on it with caution."
+                "V-shaped cement recovery. Through this window the rule sat in "
+                "cash and was flat (subperiod Sharpe 0.0) while buy-and-hold "
+                "lost ground (-0.66). This is an extreme, exogenous in-window "
+                "episode that can dominate the backtest fit -- read any rule "
+                "that leans on it with caution."
             ),
-            "caption": "COVID: cement YoY dipped, then stayed choppy rather than showing a clean sustained rebound.",
+            "caption": "COVID: cement YoY dipped then stayed choppy; the rule sat in cash (flat) while buy-and-hold fell -0.66.",
         },
         {
             "slug": "inflation_2022",
@@ -214,33 +239,33 @@ The formal lead-lag tests are blunt. Cement-shipment growth does **not** Granger
             "narrative": (
                 "Nominal cement sales stayed firm through 2022 because prices "
                 "were rising, even as equities de-rated under higher interest "
-                "rates. The rule is procyclical, so it treats firm cement "
-                "growth as a reason to hold SPY. That worked against it in "
-                "2022: it was long during several large down months early and "
-                "mid-year, then moved to cash during parts of the rebound. In "
-                "plain English, the signal captured too much of the selloff "
-                "and missed some recovery months. That is why it did much "
-                "worse than buy-and-hold here (subperiod Sharpe -1.68 vs "
-                "-0.76) -- the key caveat of a nominal-dollar series: "
-                "inflation can keep the growth signal firm while the market "
-                "falls because discount rates are rising."
+                "rates. Because the rule is COUNTERCYCLICAL, firm cement growth "
+                "is a reason for it to be in CASH -- and that is exactly where "
+                "it sat during the 2022 selloff, so it dodged the drawdown. "
+                "That is why it did much better than buy-and-hold here "
+                "(subperiod Sharpe +0.75 vs -0.76; return +9.6% vs -18.2%). "
+                "The nominal-dollar quirk that hurt a procyclical reading -- "
+                "inflation keeping the growth signal firm while the market "
+                "falls -- happens to help the contrarian rule, which treats "
+                "firm growth as a signal to step aside."
             ),
-            "caption": "2022: nominal sales stayed firm on inflation; the rule stayed long for key drawdown months and missed parts of the rebound.",
+            "caption": "2022: nominal sales stayed firm on inflation; the countercyclical rule held cash and dodged the selloff (+0.75 vs -0.76).",
         },
     ]
 
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The stress charts show why the signal is procyclical but imperfect as a timing tool. The rule's defense was real but uneven. In the GFC it stepped to cash and lost far less than buy-and-hold (subperiod Sharpe 0.79 vs -1.03). Through COVID it stayed largely defensive and lost less (0.02 vs -0.66), but the cement YoY chart should not be read as a clean V-shaped rebound: after the 2020 dip, the series stayed choppy and spent much of 2021 below zero. The better interpretation is lingering construction disruption, not a smooth cement recovery. In the 2022 rate shock, the nominal series stayed firm because inflation supported dollar sales, even while higher discount rates hurt equities. The rule stayed long for important down months, then sat out parts of the rebound, so it captured too much selloff and missed some recovery. It therefore did **much worse** than buy-and-hold (-1.68 vs -0.76) -- exactly when a demand signal would have been most useful. The sample starts in 2005, so there is no Dot-Com coverage. The honest reading is not "cement predicts drawdowns"; it is that a concurrent, procyclical filter helped in some goods-economy stress periods but failed badly in an inflation-driven equity de-rating.
+The stress charts show how a contrarian rule behaves across episodes. Two of the windows -- the GFC and COVID -- show the strategy flat (subperiod Sharpe 0.0): the GFC predates the 2017-start out-of-sample sample, and through COVID the rule sat in cash while buy-and-hold fell (-0.66). The decisive episode is the 2022 rate shock. Nominal cement sales stayed firm because inflation supported dollar sales, even while higher discount rates hurt equities. A procyclical rule would have read firm growth as a reason to stay long and would have been punished; the countercyclical winner did the opposite, treating firm growth as a reason to be in cash, and so it sat out the drawdown and **beat** buy-and-hold (+0.75 vs -0.76; +9.6% vs -18.2%). The sample starts in 2005, so there is no Dot-Com coverage. The honest reading is not "weak cement predicts rallies"; it is that a contrarian filter which steps aside when nominal cement growth is firm happened to avoid the 2022 equity de-rating -- a favorable but single-episode outcome on a short sample, from a rule that reverses the economic prior.
 """
 
     TRANSITION_TEXT = (
         "The Evidence page tests whether this construction-activity story "
-        "survives correlation, lead-lag, regime, and strategy checks. It "
-        "survives as procyclical *context* -- the direction is consistent -- "
-        "but not as a forecast: the formal lead-lag evidence is absent, and the "
-        "winner is a concurrent, found-in-search candidate."
+        "survives correlation, lead-lag, regime, and strategy checks. The "
+        "concurrent regime sort is procyclical, but the winning rule is "
+        "countercyclical and the formal lead-lag evidence is absent -- so the "
+        "winner is a contrarian, direction-inconsistent, found-in-search "
+        "candidate, not a validated forecast."
     )
 
 
@@ -263,20 +288,21 @@ CORRELATION_BLOCK = dict(
     chart_name="correlation_heatmap",
     chart_caption=(
         "What this shows: the linear association is essentially zero at every "
-        "tradeable horizon. The largest cell anywhere is cement acceleration "
-        "vs the 1-month-forward SPY return (r = 0.12, p = 0.085) -- not "
-        "significant at 5%, and not a usable forecasting signal."
+        "tradeable horizon. The winning YoY-growth row is near zero at every "
+        "horizon (|r| <= 0.07), and the largest cell anywhere is cement "
+        "acceleration vs the 1-month-forward SPY return (r = 0.12, p = 0.085) "
+        "-- not significant at 5%, and not a usable forecasting signal."
     ),
     observation=(
         "No transform shows a material linear association with forward SPY; the "
-        "6-month-growth cells are near zero (|r| <= 0.07), and the largest cell "
-        "anywhere is acceleration vs 1-month-forward SPY at r = 0.12 "
+        "winning YoY-growth cells are near zero (|r| <= 0.07), and the largest "
+        "cell anywhere is acceleration vs 1-month-forward SPY at r = 0.12 "
         "(p = 0.085)."
     ),
     interpretation=(
         "Correlation alone does not support trading the pair as a forecast. The "
-        "more relevant question is whether a concurrent growth filter improves "
-        "portfolio behavior in the searched sample."
+        "winner's apparent 4-month lead is not backed by any linear predictive "
+        "association; it is a search-selected parameter."
     ),
     key_message="Cement growth is not a linear SPY predictor at any tradeable horizon.",
 )
@@ -296,20 +322,22 @@ GRANGER_BLOCK = dict(
     chart_name="granger_f_by_lag",
     chart_caption=(
         "What this shows: every lag is insignificant. The smallest p-value "
-        "across lags 1-12 is 0.14 (lag 2) -- cement growth does not "
-        "Granger-cause SPY returns."
+        "across lags 1-12 is 0.14 (lag 2), and the winner's own lag 4 is 0.31 "
+        "-- cement growth does not Granger-cause SPY returns."
     ),
     observation=(
         "Across all twelve monthly lags the cement->SPY p-value never falls "
-        "below 0.14; the F-statistics are small. There is no formal evidence "
-        "of lead-lag causality."
+        "below 0.14 (lag 2); at the winner's 4-month lead p = 0.31. The "
+        "F-statistics are small. There is no formal evidence of lead-lag "
+        "causality."
     ),
     interpretation=(
-        "This rules out a causal forecast claim. The strategy must be framed as "
-        "a searched, concurrent construction-activity overlay, not proof that "
-        "cement growth causes future SPY returns."
+        "This rules out a causal forecast claim, including at the winner's "
+        "4-month lead. The strategy must be framed as a searched, contrarian "
+        "construction-activity overlay, not proof that weak cement growth "
+        "causes better future SPY returns."
     ),
-    key_message="Formal lead-lag evidence is absent (min p = 0.14); cement does not lead SPY.",
+    key_message="Formal lead-lag evidence is absent (min p = 0.14, lag-4 p = 0.31); cement does not lead SPY.",
 )
 
 QUARTILE_BLOCK = dict(
@@ -326,10 +354,11 @@ QUARTILE_BLOCK = dict(
     ),
     chart_name="regime_stats",
     chart_caption=(
-        "What this shows: broadly PROCYCLICAL -- the weakest-growth quartile "
-        "Q1 has the worst concurrent SPY Sharpe (0.33) and the strongest Q4 "
-        "the best (1.12), with a non-monotonic middle (Q2 1.06, Q3 0.62). "
-        "This matches the procyclical winner's direction."
+        "What this shows: concurrently PROCYCLICAL -- the weakest-growth "
+        "quartile Q1 has the worst concurrent SPY Sharpe (0.33) and the "
+        "strongest Q4 the best (1.12), with a non-monotonic middle (Q2 1.06, "
+        "Q3 0.62). Note this runs OPPOSITE to the winning rule, which is "
+        "countercyclical on a 4-month lag."
     ),
     observation=(
         "Concurrent SPY Sharpe is lowest in the weakest-growth quartile "
@@ -338,11 +367,13 @@ QUARTILE_BLOCK = dict(
     ),
     interpretation=(
         "The concurrent pattern fits a procyclical construction-activity story "
-        "and is DIRECTION-CONSISTENT with the tournament winner. That "
-        "coherence is a point in the pair's favor, though the middle quartiles "
-        "are noisy and the effect is concurrent, not a proven lead."
+        "-- but it is DIRECTION-INCONSISTENT with the tournament winner, which "
+        "buys SPY after weak growth on a 4-month lag. That the contemporaneous "
+        "sort and the winning rule point in opposite directions is a caution: "
+        "the winner's contrarian edge is not corroborated by the concurrent "
+        "regime evidence."
     ),
-    key_message="Stronger cement growth coincides with better SPY conditions -- procyclical, matching the winner's direction.",
+    key_message="Stronger cement growth coincides with better SPY conditions -- procyclical, the OPPOSITE of the countercyclical winner's direction.",
 )
 
 CCF_BLOCK = dict(
@@ -362,7 +393,8 @@ CCF_BLOCK = dict(
     chart_caption=(
         "What this shows: NO bar is significant at any offset -- neither a "
         "cement-leads-SPY nor a SPY-leads-cement signal survives filtering for "
-        "autocorrelation. There is no coherent lead-lag echo."
+        "autocorrelation. There is no coherent lead-lag echo, including at the "
+        "winner's 4-month offset."
     ),
     observation=(
         "Every cross-correlation, lead-side and lag-side, sits inside the "
@@ -372,7 +404,8 @@ CCF_BLOCK = dict(
     interpretation=(
         "There is no window in which cement growth foreshadows SPY, and none in "
         "which SPY foreshadows cement. Consistent with the null Granger and "
-        "local-projection results, the pair carries no forecasting lead."
+        "local-projection results, the pair carries no forecasting lead to "
+        "justify the winner's 4-month lag."
     ),
     key_message="No cross-correlation is significant at any offset; the pair shows no lead-lag forecast.",
 )
@@ -403,7 +436,8 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     ),
     interpretation=(
         "There is essentially no linear predictive content at any horizon. "
-        "Nothing here rescues a forward-looking reading of the indicator."
+        "Nothing here rescues a forward-looking reading of the indicator or "
+        "the winner's 4-month lead."
     ),
     key_message="Local projections are null; cement growth carries no useful linear forecast for SPY.",
 )
@@ -446,104 +480,111 @@ QUANTILE_BLOCK = dict(
 
 
 EVIDENCE_METHOD_BLOCKS = {
-    "title": "The Evidence: Cement Is Procyclical Context, Not a SPY Forecast",
+    "title": "The Evidence: Cement Is Procyclical Context, but the Winner Is Contrarian and Not a Forecast",
     "overview": (
-        "The evidence supports a cautious, direction-consistent "
-        "construction-activity overlay -- and nothing stronger. The strategy "
-        "winner improves search-phase OOS Sharpe (1.20 vs 0.93) and its "
-        "procyclical direction agrees with both the prior and the concurrent "
-        "quartiles, but formal lead-lag evidence is absent (Granger min "
-        "p = 0.14; local projections null; CCF has no significant bar at any "
-        "offset), so it is a concurrent regime filter, not a forecast."
+        "The evidence supports, at most, a cautious contrarian overlay -- and "
+        "flags a direction inconsistency. The strategy winner improves "
+        "search-phase OOS Sharpe (1.25 vs 0.93), but its COUNTERCYCLICAL "
+        "direction (buy SPY after very weak cement growth) CONTRADICTS both the "
+        "procyclical prior and the procyclical concurrent quartiles, and the "
+        "formal lead-lag evidence is absent (Granger min p = 0.14, lag-4 "
+        "p = 0.31; local projections null; CCF has no significant bar at any "
+        "offset). The 4-month lead is a search-selected parameter, not a "
+        "validated forecast horizon."
     ),
     "plain_english": (
         "This page asks whether cement-shipment growth helps time SPY. The "
-        "answer is: as concurrent context, maybe; as a forecast, no. "
-        "Concurrent quartiles are procyclical (weak growth = worse market) and "
-        "the winning rule runs the same way -- but the causal tests find no "
-        "lead, and the winner uses the latest reading (zero lead). Treat it as "
-        "a procyclical regime overlay, not an early-warning system, and note "
-        "it is found-in-search."
+        "answer is: as a contrarian overlay, maybe, but with caveats; as a "
+        "forecast, no. The concurrent quartiles are procyclical (weak growth = "
+        "worse market), yet the winning rule runs the OPPOSITE way -- it buys "
+        "SPY four months after growth was very weak. The causal tests find no "
+        "lead. Treat it as a contrarian, direction-inconsistent candidate, not "
+        "an early-warning system, and note it is found-in-search."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
-        "The tournament tested 252 strategy combinations (all 252 valid) "
+        "The tournament tested 468 strategy combinations (all 468 valid) "
         "across six cement growth transforms, fixed and rolling thresholds, "
-        "procyclical/countercyclical orientations, and leads from 0 to 12 "
-        "months. The selected winner is `chg_6m / T_roll_p25 / P1_long_cash "
-        "procyclical / L0`, with OOS Sharpe 1.197. The MEDIAN valid combo "
-        "scores 0.653 -- below buy-and-hold's 0.935 -- and the runner-up "
-        "(`chg_6m / T0_zero / procyclical / L0`, 1.194) shares the same signal "
-        "and zero lead, so the top of the surface is a tight cluster of "
-        "concurrent 6-month-growth rules rather than a single fragile cell. "
-        "That is mildly reassuring, but the median result still shows the "
-        "typical rule subtracts value."
+        "procyclical/countercyclical orientations, and a publication-lag-"
+        "floored lead grid from 2 to 14 months (no look-ahead L0/L1). The "
+        "selected winner is `cement_yoy / T_roll_p25 / P1_long_cash "
+        "countercyclical / L4`, with OOS Sharpe 1.253. The MEDIAN valid combo "
+        "scores 0.656 -- below buy-and-hold's 0.935 -- and the runner-up "
+        "(`mom / T_roll_p25 / countercyclical / L4`, 1.182) shares the same "
+        "rolling-25th-percentile threshold, contrarian orientation and 4-month "
+        "lead, so the top of the surface is a small cluster of contrarian "
+        "rolling-threshold rules rather than a single fragile cell. That is "
+        "mildly reassuring, but the median result still shows the typical rule "
+        "subtracts value, and the winning direction reverses the prior."
     ),
     "transition": (
-        "**Transition:** the evidence is procyclical context, direction-"
-        "consistent but not causal. The Strategy page shows the exact long/cash "
-        "rule, its modest and mixed edge over buy-and-hold, the high turnover, "
-        "and the deployment caveats."
+        "**Transition:** the evidence is procyclical context but a contrarian, "
+        "direction-inconsistent winner, and it is not causal. The Strategy page "
+        "shows the exact long/cash rule, its risk-reducing (not "
+        "return-enhancing) edge over buy-and-hold, the sub-50% win rate, the "
+        "turnover, and the deployment caveats."
     ),
 }
 
 
 class StrategyConfig:
-    PAGE_TITLE = "The Strategy: A Procyclical, Zero-Lead Cement-Growth Long/Cash Overlay"
+    PAGE_TITLE = "The Strategy: A Countercyclical, 4-Month-Lead Cement-Growth Long/Cash Overlay"
     PAGE_SUBTITLE = (
-        "A searched SPY allocation rule using 6-month cement-shipment growth, "
-        "a rolling 25th-percentile threshold, a procyclical orientation, and a "
-        "zero-month lead -- direction-consistent with the prior, but "
-        "found-in-search on a short sample, active (high turnover), and mixed "
-        "in stress."
+        "A searched SPY allocation rule using YoY cement-shipment growth, a "
+        "rolling 25th-percentile threshold, a COUNTERCYCLICAL orientation, and "
+        "a 4-month lead -- it buys SPY after very weak cement growth, which "
+        "CONTRADICTS the procyclical prior; found-in-search on a short sample, "
+        "active, and risk-reducing rather than return-enhancing."
     )
 
     PLAIN_ENGLISH = (
-        "The rule holds SPY when the latest 6-month growth in cement shipments "
-        "is at or above its five-year rolling 25th percentile (i.e. when "
-        "construction-activity growth is firm); otherwise it holds cash. This "
-        "is a concurrent, PROCYCLICAL construction-activity filter -- matching "
-        "the economic prior for a leading indicator -- not a real-time "
-        "recession forecast. Judge it by its modest, mixed edge over "
-        "buy-and-hold (Sharpe 1.20 vs 0.93, return 15.3% vs 14.6%, drawdown "
-        "-20.9% vs -23.9%) and remember it is found-in-search and trades "
-        "actively (turnover 3.76/yr)."
+        "The rule holds SPY when cement year-on-year growth four months earlier "
+        "was at or BELOW its five-year rolling 25th percentile (i.e. when "
+        "construction-activity growth was very weak); otherwise it holds cash. "
+        "This is a COUNTERCYCLICAL / contrarian construction-activity filter -- "
+        "the OPPOSITE of the procyclical prior for a leading indicator -- not a "
+        "real-time recession forecast. Judge it by how it earns its edge: it "
+        "gives up some raw return (12.1% vs 14.6% buy-and-hold) in exchange for "
+        "a much smaller drawdown (-8.3% vs -23.9%) and low volatility (9.5%), "
+        "for a higher Sharpe (1.25 vs 0.93). The win rate is only 31.4% -- it "
+        "wins by avoiding drawdowns -- it is found-in-search, and it trades "
+        "actively (turnover 3.5/yr)."
     )
 
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/cement_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/cement_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/cement_spy/tournament_results_20260830.csv"},
-        {"label": "Stationarity tests", "path": "results/cement_spy/stationarity_tests_20260830.csv"},
+        {"label": "Tournament results", "path": "results/cement_spy/tournament_results_20261008.csv"},
+        {"label": "Stationarity tests", "path": "results/cement_spy/stationarity_tests_20261008.csv"},
     ]
 
     SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the latest 6-month change in cement shipments is at or above its five-year rolling 25th percentile (i.e. when construction-activity growth is *firm*); otherwise hold cash. This is a procyclical rule and matches the procyclical prior.
+**Rule in plain English:** hold SPY when cement year-on-year growth *four months ago* is at or BELOW its five-year rolling 25th percentile (i.e. when construction-activity growth was *very weak*); otherwise hold cash. This is a countercyclical / contrarian rule, and it REVERSES the procyclical prior.
 
 If-then form:
-- **IF** `cement_6m` (latest, no lead) is at or above its 60-month rolling 25th percentile -> hold SPY.
+- **IF** `cement_yoy` (lagged 4 months) is at or below its 60-month rolling 25th percentile -> hold SPY.
 - **ELSE** -> hold cash.
 
-Search-phase OOS results (2017-01-31 to 2025-06-30, 102 months): Sharpe 1.20 versus 0.93 buy-and-hold; annualized return 15.3% versus 14.6%; maximum drawdown -20.9% versus -23.9%; annualized volatility 12.6%; win rate 54.9%; 32 trades; annual turnover 3.76 (HIGH -- an active in/out rule). The edge over buy-and-hold is modest and mixed, and the result is found-in-search.
+Search-phase OOS results (2017-01-31 to 2025-06-30, 102 months): Sharpe 1.25 versus 0.93 buy-and-hold; annualized return 12.1% versus 14.6% (LOWER than buy-and-hold); maximum drawdown -8.3% versus -23.9% (much smaller); annualized volatility 9.5%; win rate 31.4% (below half -- it wins by avoiding drawdowns); 30 trades; annual turnover 3.5 (an active in/out rule). The edge over buy-and-hold is a risk-reduction edge, the direction contradicts the prior, and the result is found-in-search.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads Portland Cement Shipments (nominal $) at month-end. Second, it computes the 6-month percent change in shipments (`cement_6m`). Third, the signal is compared with its 60-month rolling 25th percentile: when growth is at or above that threshold, hold SPY; otherwise hold cash (the procyclical orientation).
+First, the data process reads Portland Cement Shipments (nominal $) at month-end. Second, it computes year-on-year growth (`cement_yoy`, the 12-month percent change). Third, that growth, *lagged four months*, is compared with its 60-month rolling 25th percentile: when the lagged growth is at or BELOW that threshold (construction was very weak four months ago), hold SPY; otherwise hold cash (the countercyclical orientation).
 
-OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualized out-of-sample return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year (high here -- the rule flips in and out frequently). Win Rate is the share of out-of-sample months with positive strategy return.
+OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualized out-of-sample return (here lower than buy-and-hold). Maximum Drawdown is the largest peak-to-trough loss (here much smaller than buy-and-hold). Turnover is how often the strategy changes exposure each year. Win Rate is the share of out-of-sample months with positive strategy return (here below half -- the edge comes from avoiding drawdowns, not from winning most months).
 """
 
     MANUAL_USE_MD = """
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
 1. Read Portland Cement Shipments at month end.
-2. Compute the 6-month percent change.
-3. Compare the latest value with its trailing 60-month rolling 25th percentile.
-4. Hold SPY when that growth is at or above the rolling 25th percentile; otherwise hold cash.
-5. Recheck monthly. Turnover is high (3.76/yr): the rule flips exposure frequently, so transaction costs matter.
+2. Compute year-on-year (12-month) percent growth.
+3. Take the value from FOUR months ago and compare it with its trailing 60-month rolling 25th percentile.
+4. Hold SPY when that lagged growth is at or BELOW the rolling 25th percentile (construction was very weak four months ago); otherwise hold cash.
+5. Recheck monthly. Turnover is 3.5/yr: the rule flips exposure several times a year, so transaction costs matter.
 """
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -553,12 +594,14 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     WALK_FORWARD_CAPTION = (
         "What this shows: Sharpe is return per unit of volatility. The "
         "subperiod chart compares the searched rule with buy-and-hold SPY "
-        "during major stress windows. The rule loses much LESS in the GFC "
-        "(0.79 vs -1.03) and COVID (0.02 vs -0.66), but does MUCH WORSE than "
-        "buy-and-hold in the 2022 rate shock (-1.68 vs -0.76), when nominal "
-        "cement sales stayed firm on inflation and the rule stayed long. "
-        "Dot-Com is omitted from the chart because the cement/SPY overlap "
-        "starts in 2005. The stress defense is real but uneven."
+        "during major stress windows. The contrarian rule was flat (in cash, "
+        "Sharpe 0.0) through the pre-OOS GFC and the COVID window while "
+        "buy-and-hold fell (-1.03 and -0.66), and it did MUCH BETTER than "
+        "buy-and-hold in the 2022 rate shock (+0.75 vs -0.76), when firm "
+        "nominal cement sales kept the contrarian rule in cash and out of the "
+        "equity de-rating. Dot-Com is omitted because the cement/SPY overlap "
+        "starts in 2005. The stress record favors the rule -- but note it rests "
+        "heavily on the single 2022 episode."
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (
@@ -586,36 +629,39 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
         "What this shows: OOS Sharpe distribution across valid searched "
-        "combinations by lead. The winner (1.20) is a right-tail maximum at "
-        "lead 0; the median valid combo (0.653) sits BELOW buy-and-hold "
-        "(0.935), so the typical rule built on this indicator subtracts value."
+        "combinations by lead (the grid is floored at lead 2 -- no look-ahead "
+        "L0/L1). The winner (1.25) is a right-tail maximum at lead 4; the "
+        "median valid combo (0.656) sits BELOW buy-and-hold (0.935), so the "
+        "typical rule built on this indicator subtracts value."
     )
 
     CAVEATS_MD = """
 **Main caveats:**
 
-1. The result is marked `found_in_search` at LOW confidence: the median valid combo (0.653) underperforms buy-and-hold (0.935), and the winner still needs a frozen-rule holdout confirmation. The bootstrap p = 0.004 is an in-sample significance check, not out-of-sample validation.
-2. This is a concurrent filter, not a forecast. Granger causality is insignificant at every lag (min p = 0.14), local projections are null, and the pre-whitened CCF has no significant bar at any offset -- there is no proven predictive lead.
-3. The edge over buy-and-hold is modest and mixed: OOS return 15.3% vs 14.6% and drawdown -20.9% vs -23.9% are improvements, but the rule did MUCH WORSE than buy-and-hold in the 2022 rate shock (-1.68 vs -0.76).
-4. Turnover is HIGH (3.76/yr, 32 OOS trades): this is an active in/out rule and transaction costs matter more than for a set-and-forget overlay.
-5. The sample is SHORT, starting 2005-11 (SPY-and-cement overlap; no Dot-Com coverage), which limits durability testing.
-6. Cement shipments are nominal: in 2022 inflation kept the growth signal firm while equities fell. COVID 2020-21 is an extreme in-window outlier that can dominate the fit. Cement is a construction-activity series -- NOT a Conference Board LEI component and NOT "new orders".
+1. The winning DIRECTION contradicts the prior. Cement is procyclical, but the search selected a COUNTERCYCLICAL rule (buy SPY after very weak cement growth), which also runs opposite to the procyclical concurrent quartiles. `interpretation_metadata.json` records direction_consistent = false, confidence = low. Treat the contrarian edge as a caution, not a selling point.
+2. The result is marked `found_in_search` at LOW confidence: the median valid combo (0.656) underperforms buy-and-hold (0.935), and the winner still needs a frozen-rule holdout confirmation. The adjacent-lead durability of the L4 choice should also be checked (issue #28).
+3. This is not a validated forecast. Granger causality is insignificant at every lag (min p = 0.14; lag-4 p = 0.31), local projections are null, and the pre-whitened CCF has no significant bar at any offset -- the 4-month lead is a search-selected parameter, not a proven forecast horizon.
+4. The edge is risk-reduction, not higher return: OOS return is LOWER than buy-and-hold (12.1% vs 14.6%); the Sharpe edge comes from a much smaller drawdown (-8.3% vs -23.9%) and low volatility (9.5%). The win rate is only 31.4% -- the rule wins by sitting out drawdowns.
+5. Turnover is moderate-to-high (3.5/yr, 30 OOS trades): this is an active in/out rule and transaction costs matter more than for a set-and-forget overlay.
+6. The sample is SHORT, starting 2005-11 (SPY-and-cement overlap; no Dot-Com coverage), and the favorable stress record leans heavily on the single 2022 episode. Cement shipments are nominal: in 2022 inflation kept the growth signal firm, which (for a contrarian rule) kept it in cash during the selloff. COVID 2020-21 is an extreme in-window outlier that can dominate the fit. Cement is a construction-activity series -- NOT a Conference Board LEI component and NOT "new orders".
 """
 
     TRADE_LOG_EXAMPLE_MD = (
         "**A concrete example from this pair:** the broker-style log records a "
-        "BUY when the latest 6-month cement growth crossed at or above its "
-        "rolling 25th-percentile threshold, taking exposure from 0% to 100% "
-        "SPY. A SELL moves back to cash when growth fell below the threshold."
+        "BUY when cement YoY growth (lagged four months) crossed at or below "
+        "its rolling 25th-percentile threshold -- i.e. when construction "
+        "activity had been very weak -- taking exposure from 0% to 100% SPY. A "
+        "SELL moves back to cash when that lagged growth rose above the "
+        "threshold."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
-        "trade_date": "2009-05-31",
+        "trade_date": "2010-02-28",
         "side": "BUY",
         "instrument": "SPY",
         "quantity_pct": "100.0",
         "commission_bps": "5",
-        "reason": "P1_long_cash: chg_6m procyclical rule crossed T_roll_p25; position 0% to 100%",
+        "reason": "P1_long_cash: cement_yoy countercyclical rule crossed T_roll_p25; position 0% to 100%",
     }
 
 
@@ -636,16 +682,17 @@ _INDICATOR_CONSTRUCTION_MD = (
     "transforms -- month-over-month, three-month, and six-month percent "
     "changes; twelve-month (YoY) growth; a 60-month rolling YoY z-score; and "
     "YoY acceleration -- all of which are stationary. The winning signal is "
-    "`cement_6m`, the six-month growth, used with a zero-month lead, a 60-month "
-    "rolling 25th-percentile threshold, and a procyclical orientation (long "
-    "SPY when growth is at or above the threshold)."
+    "`cement_yoy`, the year-on-year growth, used with a 4-month lead, a "
+    "60-month rolling 25th-percentile threshold, and a countercyclical "
+    "orientation (long SPY when the lagged growth is at or BELOW the "
+    "threshold)."
 )
 
 _METHODS_TABLE_MD = """
 | Method | Question It Answers | Why We Chose It |
 |---|---|---|
 | Correlation analysis | Does cement growth move linearly with future SPY returns? | Simple baseline before richer tests |
-| Regime quartiles | Do weak and strong construction-activity regimes behave differently? | Makes the procyclical story interpretable |
+| Regime quartiles | Do weak and strong construction-activity regimes behave differently? | Makes the procyclical/contrarian story interpretable |
 | Pre-whitened CCF | Is there any lead-lag echo after filtering persistence? | Reduces false lead-lag signals from autocorrelation |
 | Granger causality | Does past cement information improve SPY forecasts? | Formal lead-lag check |
 | Local projections | How does SPY respond over future horizons? | Shows horizon-specific effects |
@@ -654,7 +701,7 @@ _METHODS_TABLE_MD = """
 """
 
 _TOURNAMENT_DESIGN_MD = """
-Grid: cement growth transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x lead times (0-12 months). The final tournament has 252 combinations, all 252 valid. The winning rule is `cement_6m / T_roll_p25 / P1_long_cash procyclical / L0`, the maximum OOS Sharpe (1.197). The median valid combo (0.653) underperforms buy-and-hold (0.935), and the runner-up (`chg_6m / T0_zero / procyclical / L0`, 1.194) shares the winner's 6-month-growth signal and zero lead -- read the winner as the top of a tight concurrent-procyclical cluster, direction-consistent with the prior but still a selection maximum on a short sample, not a validated edge.
+Grid: cement growth transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x a publication-lag-floored lead grid (2-14 months, no look-ahead L0/L1). The final tournament has 468 combinations, all 468 valid. The winning rule is `cement_yoy / T_roll_p25 / P1_long_cash countercyclical / L4`, the maximum OOS Sharpe (1.253). The median valid combo (0.656) underperforms buy-and-hold (0.935), and the runner-up (`mom / T_roll_p25 / countercyclical / L4`, 1.182) shares the winner's rolling-25th-percentile threshold, contrarian orientation and 4-month lead -- read the winner as the top of a small contrarian rolling-threshold cluster, but one whose direction REVERSES the procyclical prior and that remains a selection maximum on a short sample, not a validated edge.
 """
 
 _REFERENCES_MD = """
@@ -681,9 +728,9 @@ METHODOLOGY_CONFIG = MethodologyConfig(
         "This page documents how Portland Cement Shipments was turned into "
         "stationary growth signals, how the econometric checks were run, and "
         "how the tournament selected the final SPY allocation rule -- along "
-        "with the honest caveat that the selection maximum, while "
-        "direction-consistent with the procyclical prior, is a concurrent "
-        "found-in-search candidate on a short sample and not yet a validated "
-        "edge."
+        "with the honest caveat that the selection maximum is a COUNTERCYCLICAL "
+        "rule whose direction CONTRADICTS the procyclical prior, is a "
+        "contrarian found-in-search candidate on a short sample, and is not yet "
+        "a validated edge."
     ),
 )

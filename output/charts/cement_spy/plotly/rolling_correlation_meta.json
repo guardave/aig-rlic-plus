@@ -1,12 +1,12 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "cement_spy",
-  "generated_at": "2026-09-24T04:15:55.144817+00:00",
+  "generated_at": "2026-10-08T15:23:59.253643+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Rolling correlation between cement shipment growth and SPY returns; swings through time indicate whether one fixed relationship is likely to describe the whole sample.",
   "narrative_alignment_note": "Rolling correlation between cement shipment growth and SPY returns; swings through time indicate whether one fixed relationship is likely to describe the whole sample.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/Users/rekkusurei/Documents/Python/AIG/RLIC-plus/aig-rlic-plus/results/cement_spy/rolling_correlation_cement_spy.csv"
+    "/workspaces/aig-rlic-plus/results/cement_spy/rolling_correlation_cement_spy.csv"
   ]
 }

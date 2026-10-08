@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "cement_spy",
-  "generated_at": "2026-08-31T07:51:45.428941+00:00",
+  "generated_at": "2026-10-08T15:23:59.275030+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Proxy check for large changes in the cement/SPY relationship.",
   "narrative_alignment_note": "Proxy check for large changes in the cement/SPY relationship.",

@@ -637,7 +637,8 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true,
+   "reconfirmed_winner": "ism_diff_1m / L4 / countercyclical / OOS Sharpe 1.507 (#255 floored re-run, DATE_TAG 20261008)"
   },
   "permit_yoy_spy": {
    "signal_frequency": "monthly",
@@ -745,7 +746,8 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true,
+   "reconfirmed_winner": "cement_yoy / L4 / countercyclical / OOS Sharpe 1.253 (#255 floored re-run, DATE_TAG 20261008)"
   },
   "mfg_new_orders_spy": {
    "signal_frequency": "monthly",

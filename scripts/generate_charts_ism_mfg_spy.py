@@ -5,10 +5,12 @@ Presentational layer only. Every series is read from the committed
 results/ism_mfg_spy artifacts or the monthly panel; no numbers are invented.
 The ISM Manufacturing PMI is a bounded, mean-reverting diffusion index
 (level-stationary), so the level is used directly and the winning signal is its
-one-month change. The PMI is a LEADING indicator and the economic prior is
-PROCYCLICAL; the searched winner is PROCYCLICAL at ZERO lead -- the direction
-matches the prior and the concurrent quartiles, but the rule is coincident, not
-a forecast. Only NBER recession shading is used (no second shading band).
+one-month change (diff_1m). The PMI is a LEADING indicator and the economic
+prior is PROCYCLICAL; the searched winner is COUNTERCYCLICAL at a 4-month lead
+(L4) with a rolling-median threshold -- it CONTRADICTS the simple procyclical
+prior (flagged as a caution, not a selling point) and is a search-found
+candidate, not a validated forecast. Only NBER recession shading is used (no
+second shading band).
 """
 
 from __future__ import annotations
@@ -30,7 +32,7 @@ from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 from _ci_band import ci95_halfwidth  # noqa: E402
 
 PAIR = "ism_mfg_spy"
-DATE_TAG = "20260912"
+DATE_TAG = "20261008"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
