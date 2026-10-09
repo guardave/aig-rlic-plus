@@ -1,0 +1,12 @@
+{
+  "chart_name": "quantile_coef",
+  "pair_id": "consumer_sentiment_spy",
+  "generated_at": "2026-10-09T22:27:14.477729+00:00",
+  "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "caption": "Consumer-sentiment coefficient across SPY forward-return quantiles.",
+  "narrative_alignment_note": "Consumer-sentiment coefficient across SPY forward-return quantiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/consumer_sentiment_spy/core_models_20261009/quantile_regression.csv"
+  ]
+}

@@ -28,6 +28,7 @@ INDICATOR_NAMES: dict[str, str] = {
     "vix_vix3m_spy": "VIX/VIX3M Ratio",
     "hy_ig_spy": "HY-IG Credit Spread",
     "umcsent_xlv": "University of Michigan Consumer Sentiment",
+    "consumer_sentiment_spy": "U. Michigan Consumer Sentiment",
     "gold_copper_xli": "Gold/Copper Ratio",
     "busloans": "Commercial & Industrial Loans",
     "busloans_spy": "Commercial & Industrial Loans",
@@ -97,6 +98,7 @@ INDICATOR_ABBREV: dict[str, str] = {
     "indpro_spy": "INDPRO",
     "indpro_xlp": "INDPRO",
     "umcsent_xlv": "UMCSENT",
+    "consumer_sentiment_spy": "UMCSENT",
     # DPS-LF1 first-mention: "Commercial & Industrial Loans (C&I Loans)".
     # "C&I Loans" is the conventional abbreviation (FRED ticker BUSLOANS is
     # a pipeline token, not a reader-facing abbreviation).
@@ -151,6 +153,7 @@ SHORT_INDICATOR_LABELS: dict[str, str] = {
     "vix_vix3m_spy": "VIX/VIX3M",
     "hy_ig_spy": "HY-IG Credit Spread",
     "umcsent_xlv": "UMCSENT",
+    "consumer_sentiment_spy": "UoM Sentiment",
     "gold_copper_xli": "Gold/Copper",
     "busloans_spy": "C&I Loans",
     "petrol_inv_spy": "Petroleum Inventories",
