@@ -1,0 +1,12 @@
+{
+  "chart_name": "rolling_correlation",
+  "pair_id": "consumer_sentiment_spy",
+  "generated_at": "2026-10-09T22:27:14.591720+00:00",
+  "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "caption": "Rolling correlation between consumer sentiment and SPY returns.",
+  "narrative_alignment_note": "Rolling correlation between consumer sentiment and SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/consumer_sentiment_spy/rolling_correlation_consumer_sentiment_spy.csv"
+  ]
+}

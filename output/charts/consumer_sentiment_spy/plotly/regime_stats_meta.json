@@ -1,0 +1,12 @@
+{
+  "chart_name": "regime_stats",
+  "pair_id": "consumer_sentiment_spy",
+  "generated_at": "2026-10-09T22:27:13.609991+00:00",
+  "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "caption": "SPY performance across consumer-sentiment level quartiles.",
+  "narrative_alignment_note": "SPY performance across consumer-sentiment level quartiles.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/consumer_sentiment_spy/regime_quartile_returns.csv"
+  ]
+}

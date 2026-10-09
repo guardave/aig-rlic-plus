@@ -1,0 +1,10 @@
+{
+  "pair_id": "consumer_sentiment_spy",
+  "schema_version": "1.2.0",
+  "status": "found_in_search",
+  "updated_at": "2026-10-09T22:26:17.404716+00:00",
+  "owner": "evan",
+  "plain_english": "What you see is the best rule found by searching a floored lead grid [1..13] of U. Michigan headline consumer sentiment against SPY. It beats buy-and-hold in the out-of-sample window, but it is search-selected and has not passed a fresh final exam. Read it alongside umcsent_xlv (same sentiment series against XLV) and umcsent_spy (the expected-business-conditions diffusion against SPY). Re-shuffle (bootstrap) p-value ~ 0.003.",
+  "technical_note": "Winner diff_1m/T_roll_p75/countercyclical/L12: OOS Sharpe 1.254 vs B&H 0.954. Selected by OOS Sharpe from the 20261009 monthly tournament on the #255-floored grid [1..13]; selection and evaluation share the same OOS window; no holdout/final exam run.",
+  "next_step": "Freeze the selected rule and run an ECON-FE1 final exam on a confirmation window the search never touched."
+}
