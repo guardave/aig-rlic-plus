@@ -1,0 +1,16 @@
+{
+  "pair_id": "housing_starts_rebuilt_spy",
+  "test": "Quandt-Andrews unknown breakpoint (sup-F, residual-bootstrap p, 300 reps)",
+  "sample_start": "1993-10-31",
+  "sample_end": "2026-08-31",
+  "n_obs": 395,
+  "trimming_pct": 0.15,
+  "break_date": "2009-03-31",
+  "f_stat": 7.7467,
+  "p_value": 0.0067,
+  "flagged": true,
+  "flag_message": "Structural break detected \u2014 interpret cross-period results with caution.",
+  "rolling_corr_sign_stability": 0.6715,
+  "rolling_corr_stability_verdict": "moderately_stable",
+  "cp2_note": "CP2 skipped \u2014 regime_story not set in signal_scope.json"
+}

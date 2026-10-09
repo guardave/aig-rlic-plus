@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "t10y3m_rebuilt_spy",
+  "generated_at": "2026-10-09T14:38:25.606677+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_rebuilt_spy.py",
+  "caption": "Distribution of search-phase OOS Sharpe across valid strategies.",
+  "narrative_alignment_note": "Distribution of search-phase OOS Sharpe across valid strategies.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/t10y3m_rebuilt_spy/tournament_results_20261008.csv"
+  ]
+}

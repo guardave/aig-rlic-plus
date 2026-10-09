@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_scatter",
+  "pair_id": "nhs_saar_rebuilt_spy",
+  "generated_at": "2026-10-09T14:43:50.698415+00:00",
+  "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
+  "caption": "Alias for tournament scatter slot.",
+  "narrative_alignment_note": "Alias for tournament scatter slot.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/nhs_saar_rebuilt_spy/tournament_results_20261008.csv"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "t10y3m_rebuilt_spy",
+  "generated_at": "2026-10-09T14:38:25.423703+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_rebuilt_spy.py",
+  "caption": "Both-direction Granger test; p-values in hover/source table determine significance.",
+  "narrative_alignment_note": "Both-direction Granger test; p-values in hover/source table determine significance.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/t10y3m_rebuilt_spy/core_models_20261008/granger_causality.csv"
+  ]
+}

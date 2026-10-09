@@ -1,0 +1,12 @@
+{
+  "chart_name": "quantile_coef",
+  "pair_id": "t10y3m_rebuilt_spy",
+  "generated_at": "2026-10-09T14:38:25.486983+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_rebuilt_spy.py",
+  "caption": "Quantile regression checks whether the curve matters more in weak or strong SPY-return tails.",
+  "narrative_alignment_note": "Quantile regression checks whether the curve matters more in weak or strong SPY-return tails.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/t10y3m_rebuilt_spy/core_models_20261008/quantile_regression.csv"
+  ]
+}

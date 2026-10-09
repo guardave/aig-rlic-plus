@@ -124,6 +124,9 @@ PAGE_ROUTING = {
     "cc_delinquency_spy": "pages/38_cc_delinquency_spy",
     "permit_yoy_spy": "pages/39_permit_yoy_spy",
     "nhs_rebuilt_spy": "pages/40_nhs_rebuilt_spy",
+    "nhs_saar_rebuilt_spy": "pages/41_nhs_saar_rebuilt_spy",
+    "housing_starts_rebuilt_spy": "pages/42_housing_starts_rebuilt_spy",
+    "t10y3m_rebuilt_spy": "pages/43_t10y3m_rebuilt_spy",
 }
 
 

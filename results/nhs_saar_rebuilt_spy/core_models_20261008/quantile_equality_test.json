@@ -1,0 +1,8 @@
+{
+  "method": "bootstrap-wald",
+  "stat": 13.974166916819414,
+  "df": 4,
+  "p_value": 0.007377962302647253,
+  "reject_equality": true,
+  "n": 395
+}

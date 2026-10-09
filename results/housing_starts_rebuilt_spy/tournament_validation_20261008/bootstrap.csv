@@ -1,0 +1,6 @@
+signal,threshold,strategy,lead_months,lookback,oos_sharpe,bootstrap_p_value,significant_at_5pct
+yoy,T4_zero,P1_long_cash_counter,8,LB_NA,1.4485,0.1058,False
+contraction,T1_fixed_p25,P1_long_cash_pro,8,LB_NA,1.4485,0.1058,False
+contraction,T1_fixed_p50,P1_long_cash_pro,8,LB_NA,1.4485,0.1058,False
+contraction,T2_roll_p25,P1_long_cash_pro,8,LB36,1.4485,0.1058,False
+contraction,T2_roll_p25,P2_signal_strength_pro,8,LB36,1.4485,0.1058,False

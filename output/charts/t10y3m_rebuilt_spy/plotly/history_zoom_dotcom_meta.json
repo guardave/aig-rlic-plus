@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_dotcom",
+  "pair_id": "t10y3m_rebuilt_spy",
+  "generated_at": "2026-10-09T14:38:25.772253+00:00",
+  "generated_by": "scripts/generate_charts_t10y3m_rebuilt_spy.py",
+  "caption": "Dot-Com Cycle: Inversion Before the 2001 Recession; pink bands show yield-curve inversion periods and gray bands show NBER recessions.",
+  "narrative_alignment_note": "Dot-Com Cycle: Inversion Before the 2001 Recession; pink bands show yield-curve inversion periods and gray bands show NBER recessions.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/t10y3m_rebuilt_spy_monthly_latest.parquet"
+  ]
+}

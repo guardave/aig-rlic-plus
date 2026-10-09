@@ -1,0 +1,11 @@
+{
+  "pair_id": "t10y3m_rebuilt_spy",
+  "generated_at": "2026-10-09T14:47:05Z",
+  "seconds": 7.22,
+  "stages": [
+    "core_models",
+    "tournament",
+    "validation",
+    "contracts"
+  ]
+}
