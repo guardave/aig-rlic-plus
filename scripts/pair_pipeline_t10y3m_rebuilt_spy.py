@@ -673,13 +673,34 @@ def write_scope_and_suggestions() -> None:
     (RESULTS_DIR / "analyst_suggestions.json").write_text(json.dumps(suggestions, indent=2) + "\n")
 
     evidence = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.2.0",
         "pair_id": PAIR_ID,
         "status": "found_in_search",
-        "confidence": "medium",
-        "generated_at": NOW_ISO,
         "updated_at": NOW_ISO,
-        "notes": "Rates-pair winner selected from tournament search; no untouched final exam yet.",
+        "owner": "evan",
+        "plain_english": (
+            "What you see is the best rule found by searching the tournament grid on the "
+            "#255 floored rebuild of t10y3m_spy (reconstructed from the live FRED T10Y3M "
+            "daily series, sampled to month-end, lead floored to L1). The rebuild re-selects "
+            "the SAME winning shape as the untouched original — the 3-month change in the "
+            "10Y-3M spread, a rolling 75th-percentile threshold, a 6-month lead — which is "
+            "the central comparison finding; a search converging on itself is reassurance, "
+            "not validation. Honesty checks: the win rate is only ~24.7% (it wins by sitting "
+            "in cash through drawdowns, not by a high hit rate), the formal lead-lag tests "
+            "are weak, and no untouched final exam has been run."
+        ),
+        "technical_note": (
+            "Tournament-OOS only. Winner t10y3m_3m_chg/T2_roll_p75/procyclical/L6: "
+            "OOS Sharpe 1.34 vs B&H 0.94, max drawdown -4.7%. Same rule shape as the "
+            "untouched original t10y3m_spy (search re-converged on an independently "
+            "reconstructed dataset). Selection and evaluation share the same OOS window; "
+            "no holdout/final exam run."
+        ),
+        "next_step": (
+            "Run ECON-FE1 final exam: freeze the winning rule and test once on a "
+            "confirmation window the search never touched. Treat as risk-cycle context, "
+            "not a standalone trading system."
+        ),
     }
     (RESULTS_DIR / "evidence_status.json").write_text(json.dumps(evidence, indent=2) + "\n")
 
