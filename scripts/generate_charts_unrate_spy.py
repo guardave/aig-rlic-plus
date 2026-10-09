@@ -20,7 +20,7 @@ from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 from _ci_band import ci95_halfwidth  # noqa: E402
 
 PAIR = "unrate_spy"
-DATE_TAG = "20260717"
+DATE_TAG = "20261008"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"

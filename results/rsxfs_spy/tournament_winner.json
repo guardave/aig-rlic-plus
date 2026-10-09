@@ -1,6 +1,6 @@
 {
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-08-27T09:16:27.833184+00:00",
+  "generated_at": "2026-10-08T23:55:59.300555+00:00",
   "signal_column": "rsxfs_mom",
   "signal_code": "mom",
   "signal_display_name": "Retail sales MoM growth",
@@ -18,24 +18,24 @@
   "lead_description": "Signal is lagged 9 month(s) before allocation.",
   "lookback": "LB60 where rolling thresholds apply",
   "direction": "procyclical",
-  "oos_sharpe": 1.360473,
-  "oos_sortino": 2.140005,
-  "oos_calmar": 1.756333,
-  "oos_ann_return": 0.168863,
-  "oos_ann_vol": 0.120633,
+  "oos_sharpe": 1.402006,
+  "oos_sortino": 2.144811,
+  "oos_calmar": 1.829487,
+  "oos_ann_return": 0.175896,
+  "oos_ann_vol": 0.121478,
   "oos_max_drawdown": -0.096145,
-  "oos_win_rate": 0.495652,
-  "oos_n_trades": 65,
-  "annual_turnover": 6.782609,
-  "oos_n": 115,
+  "oos_win_rate": 0.517241,
+  "oos_n_trades": 66,
+  "annual_turnover": 6.827586,
+  "oos_n": 116,
   "oos_period_start": "2017-01-31",
-  "oos_period_end": "2026-07-31",
-  "bh_sharpe": 0.99021,
-  "bh_ann_return": 0.151999,
+  "oos_period_end": "2026-08-31",
+  "bh_sharpe": 1.003408,
+  "bh_ann_return": 0.153747,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
-  "total_combos": 252,
-  "valid_combos": 238,
+  "total_combos": 468,
+  "valid_combos": 468,
   "schema_version": "1.2.0",
   "notes": "RSXFS is a coincident-to-slightly-leading consumer indicator; the nominal-dollar level is non-stationary so all signals are growth transforms. The 2020-21 COVID collapse/rebound is an extreme outlier in-window \u2014 read any lead/threshold that leans on it with caution.",
   "selection": {
@@ -43,19 +43,25 @@
     "objective_formula": "monthly mean/std*sqrt(12), OOS from 2017-01",
     "grid_scanned": {
       "leads": [
-        0,
         1,
         2,
         3,
+        4,
+        5,
         6,
+        7,
+        8,
         9,
-        12
+        10,
+        11,
+        12,
+        13
       ],
       "n_signals": 6,
       "n_thresholds": 18,
       "n_strategies": 1,
-      "n_valid_combos": 238,
-      "median_valid_objective": 0.711522
+      "n_valid_combos": 468,
+      "median_valid_objective": 0.722985
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -64,15 +70,15 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 9,
-      "source_tournament_file": "tournament_results_20260827.csv",
-      "source_row_index": 54
+      "source_tournament_file": "tournament_results_20261008.csv",
+      "source_row_index": 99
     },
     "runner_up": {
-      "signal": "yoy_zscore_60m",
-      "threshold": "T_z_1.0",
+      "signal": "accel",
+      "threshold": "T_roll_p25",
       "strategy": "P1_long_cash",
-      "lead_value": 12,
-      "objective_value": 1.28903
+      "lead_value": 6,
+      "objective_value": 1.330014
     },
     "rationale": "Winner is the valid row with the highest OOS Sharpe over the published grid.",
     "objective_runner_up_divergence": null

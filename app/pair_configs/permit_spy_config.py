@@ -498,20 +498,20 @@ EVIDENCE_METHOD_BLOCKS = {
         "(positive serial correlation in residuals → HAC standard errors are "
         "needed, which the LP chart already uses).\n\n"
         "**Audit trail.** The five CSVs from "
-        "`results/permit_spy/core_models_20260314/` are available as direct "
+        "`results/permit_spy/core_models_20261008/` are available as direct "
         "downloads via the *Download archived CSVs* expander immediately below."
     ),
     "downloads": [
         {"label": "Granger causality (12 lag-direction rows)",
-         "path": "results/permit_spy/core_models_20260314/granger_causality.csv"},
+         "path": "results/permit_spy/core_models_20261008/granger_causality.csv"},
         {"label": "Predictive regressions (3 signals × 4 horizons)",
-         "path": "results/permit_spy/core_models_20260314/predictive_regressions.csv"},
+         "path": "results/permit_spy/core_models_20261008/predictive_regressions.csv"},
         {"label": "Quantile regression (7 quantiles of forward SPY)",
-         "path": "results/permit_spy/core_models_20260314/quantile_regression.csv"},
+         "path": "results/permit_spy/core_models_20261008/quantile_regression.csv"},
         {"label": "Local projections — full table (4 horizons)",
-         "path": "results/permit_spy/core_models_20260314/local_projections.csv"},
+         "path": "results/permit_spy/core_models_20261008/local_projections.csv"},
         {"label": "Diagnostics summary (Jarque-Bera, Durbin-Watson)",
-         "path": "results/permit_spy/core_models_20260314/diagnostics_summary.csv"},
+         "path": "results/permit_spy/core_models_20261008/diagnostics_summary.csv"},
     ],
     "plain_english": (
         "Correlations ask 'do they move together?'. Local projections ask 'if "

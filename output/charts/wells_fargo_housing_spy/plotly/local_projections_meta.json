@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Dual-panel LP per ECON-H4 row 'IRF with CI band (fwd + rev panels)'.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/wells_fargo_housing_spy/core_models_20260706/local_projections.csv"
+    "results/wells_fargo_housing_spy/core_models_20261008/local_projections.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-09-25T23:20:53.169752+00:00",
+  "generated_at": "2026-10-09T09:28:15.859902+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
 }

@@ -1,17 +1,17 @@
 {
   "pair_id": "import_price_spy",
   "schema_version": "1.0.0",
-  "last_updated_at": "2026-08-31T07:42:08.953209+00:00",
+  "last_updated_at": "2026-10-08T23:55:13.800009+00:00",
   "suggestions": [
     {
       "signal_name": "Lead-durability & revision robustness",
       "proposed_by": "evan",
       "source": "FRED",
-      "observation": "The selected rule uses an L2 lead on yoy; the growth signal is leading, but adjacent-lead durability and the winner's direction-vs-prior should be checked.",
+      "observation": "The selected rule uses an L10 lead on chg_3m; the growth signal is leading, but adjacent-lead durability and the winner's direction-vs-prior should be checked.",
       "rationale": "The series is revised, so a long lead needs adjacent-lead durability and a COVID-excluded robustness check before it is trusted.",
       "possible_use_case": "robustness check",
       "caveats": "Search-selected rule; the long lead is likely a fitting artifact and needs final-exam validation.",
-      "date_filed": "2026-08-30"
+      "date_filed": "2026-10-08"
     }
   ],
   "notes": "Generated with the Import Price Index x SPY pair pipeline."

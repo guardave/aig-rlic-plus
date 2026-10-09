@@ -2,7 +2,7 @@
   "file": "regime_quartile_returns.csv",
   "pair_id": "ism_services_spy",
   "produced_by": "scripts/pair_pipeline_ism_services_spy.py",
-  "generated_at": "2026-06-18T10:46:37Z",
+  "generated_at": "2026-10-09T09:17:50Z",
   "columns": {
     "quartile": "ISM Services PMI level quartile (Q1 lowest PMI)",
     "n_months": "obs",

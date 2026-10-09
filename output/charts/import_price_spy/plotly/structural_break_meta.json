@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-09-25T23:13:33.343635+00:00",
+  "generated_at": "2026-10-09T09:27:43.604108+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Proxy check for large changes in the import-price/SPY relationship.",
   "narrative_alignment_note": "Proxy check for large changes in the import-price/SPY relationship.",

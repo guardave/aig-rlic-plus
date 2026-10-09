@@ -8,8 +8,10 @@ inflation/cost gauge, NOT a production or LEI indicator); the level is
 non-stationary so the traded signals are growth transforms. The economic prior
 is COUNTERCYCLICAL (rising import-price growth = imported inflation/cost
 pressure -> favor SPY when import-price growth is low/falling), and the searched
-winner is countercyclical at a 2-month lead, so the winner AGREES with the prior
--- captions say so, while keeping the found-in-search / confidence-low framing.
+winner is countercyclical (3-month growth, fixed-zero threshold, 10-month lead),
+so the winner's DIRECTION agrees with the prior -- captions say so, while keeping
+the found-in-search / confidence-low framing and flagging that the 10-month lead
+surfaced only when the lead grid was densified to a contiguous 1-13 months.
 Only NBER recession shading is used (no second shading band).
 """
 
@@ -32,7 +34,7 @@ from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 from _ci_band import ci95_halfwidth  # noqa: E402
 
 PAIR = "import_price_spy"
-DATE_TAG = "20260830"
+DATE_TAG = "20261008"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"

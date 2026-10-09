@@ -27,7 +27,7 @@ from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 from _ci_band import ci95_halfwidth  # noqa: E402
 
 PAIR = "rsxfs_spy"
-DATE_TAG = "20260827"
+DATE_TAG = "20261008"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -307,7 +307,7 @@ def chart_lead_durability() -> None:
          "Winner rule (mom / >0 / procyclical) OOS Sharpe at every lead 0-15. L9 (1.36) towers "
          "over its neighbours L8 (0.69) and L10 (0.46) — an isolated spike amid a multi-peak curve, "
          "surviving COVID exclusion, i.e. noise-driven, not a real ~9-month lead.",
-         ["data/rsxfs_spy_monthly_latest.parquet", "results/rsxfs_spy/tournament_results_20260827.csv"])
+         ["data/rsxfs_spy_monthly_latest.parquet", "results/rsxfs_spy/tournament_results_20261008.csv"])
 
 
 def main() -> None:

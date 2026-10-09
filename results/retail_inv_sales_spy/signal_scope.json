@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-09-12T17:22:53.798357+00:00",
+  "last_updated_at": "2026-10-08T23:58:00.084775+00:00",
   "indicator_axis": {
     "canonical_column": "invsales",
     "display_name": "Retail Inventories-to-Sales Ratio",

@@ -1,4 +1,4 @@
-# Design Note — m2sl_yoy_spy (20260619)
+# Design Note — m2sl_yoy_spy (20261008)
 
 ## Category & method coverage (Rule C1, macro/production)
 All macro mandatory methods produced. Deviations from the daily-pair spec, documented per Rule C1:
@@ -7,7 +7,7 @@ All macro mandatory methods produced. Deviations from the daily-pair spec, docum
 - Pre-whitened CCF run at monthly lags −20..+20 (not daily).
 - Granger is Toda-Yamamoto (VAR in levels of the stationary YoY transform with d_max=1 augmentation).
 - Transfer entropy: tercile-binned plug-in estimator, 500 permutations (dcor/pyinform not in env).
-- Stationarity: Dana's tests (stationarity_tests_20260619.csv) reviewed and CONFIRMED, not re-run.
+- Stationarity: Dana's tests (stationarity_tests_20261008.csv) reviewed and CONFIRMED, not re-run.
   M2SL LEVEL is NON-stationary (ADF p=0.99, KPSS reject) and is EXCLUDED from the signal set.
 
 ## Lead-lag verdict
@@ -28,6 +28,6 @@ SA revisions). FRED is treated as ground truth.
   position_t * spy_ret_t.
 - Both orientations (pro/counter) tested per the empirical direction prior.
 - CP2 skipped — `regime_story: false` in signal_scope.json.
-- Returns gross of costs; 5 bps sensitivity grid in tournament_validation_20260619/.
+- Returns gross of costs; 5 bps sensitivity grid in tournament_validation_20261008/.
 
 ## New pair — no prior version, Rule C3 regression diff not applicable.

@@ -1,7 +1,7 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-09-25T23:13:33.314492+00:00",
+  "generated_at": "2026-10-09T09:27:43.583932+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Rolling correlation between import-price growth and SPY returns.",
   "narrative_alignment_note": "Rolling correlation between import-price growth and SPY returns.",

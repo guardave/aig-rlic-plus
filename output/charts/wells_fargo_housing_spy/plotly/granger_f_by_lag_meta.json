@@ -12,10 +12,10 @@
   "narrative_alignment_note": "Reverse direction rendered as the visually primary series per Lead dispatch \u2014 the reverse-causality result IS the finding; all F/p values re-read from CSVs.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/wells_fargo_housing_spy/core_models_20260706/granger_causality.csv",
+    "results/wells_fargo_housing_spy/core_models_20261008/granger_causality.csv",
     "results/wells_fargo_housing_spy/granger_by_lag.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-06T23:14:54.174184+00:00",
+  "generated_at": "2026-10-09T09:28:15.801297+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
 }

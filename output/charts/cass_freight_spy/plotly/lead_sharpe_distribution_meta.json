@@ -8,22 +8,22 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "caption": "OOS Sharpe across the tradable monthly lead grid L1\u2013L12. Bars are the best seasonally-CLEAN combo at each lead (the population the winner is drawn from); the vermillion line traces the winner's own signal (the contraction flag). The published winner (star) sits at L9 with OOS Sharpe 1.30. The grey dotted line (best of ANY signal) peaks higher at L3 (1.47), but that peak rides a seasonally-contaminated transform (the Cass source is NSA) and is excluded. Read the uneven, adjacent-lead profile as a caution: L9 is a likely search artifact for a coincident series (issue #28).",
-  "narrative_alignment_note": "Published L9 winner is the best CLEAN combo; the taller raw bar at L3 is contaminated and excluded.",
+  "caption": "OOS Sharpe across the tradable monthly lead grid L1\u2013L13. Bars are the best seasonally-CLEAN combo at each lead (the population the winner is drawn from); the vermillion line traces the winner's own signal (trend deviation). The published winner (star) sits at L13 with OOS Sharpe 1.34 \u2014 at the very CEILING of the floored lead grid. The grey dotted line (best of ANY signal) peaks higher at L3 (1.47), but that peak rides a seasonally-contaminated transform (the Cass source is NSA) and is excluded. A grid-ceiling, 13-month-lead winner on a coincident series is best read as a likely search artifact requiring adjudication (issue #28).",
+  "narrative_alignment_note": "Published L13 winner is the best CLEAN combo but sits at the grid ceiling; the taller raw bar at L3 is contaminated and excluded.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/lead_tournament_20260829.csv",
-    "results/cass_freight_spy/tournament_results_20260829.csv",
+    "results/cass_freight_spy/lead_tournament_20261008.csv",
+    "results/cass_freight_spy/tournament_results_20261008.csv",
     "results/cass_freight_spy/winner_summary.json"
   ],
   "reconciliation": {
-    "winner_lead": 9,
-    "winner_oos_sharpe": 1.2999,
+    "winner_lead": 13,
+    "winner_oos_sharpe": 1.3354,
     "raw_envelope_peak_lead": 3,
     "raw_envelope_peak": 1.4724,
     "bh_sharpe": 0.9336
   },
-  "generated_at": "2026-08-29T09:09:57.802930+00:00",
+  "generated_at": "2026-10-09T09:43:20.350222+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",

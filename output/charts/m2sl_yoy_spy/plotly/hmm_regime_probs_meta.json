@@ -12,8 +12,8 @@
   "narrative_alignment_note": "Labels follow hmm_states_manifest.json semantics ('stress' = high-variance M2-YoY-growth regime), relabelled in plain English to avoid implying equity stress.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/m2sl_yoy_spy/core_models_20260619/hmm_states.parquet",
-    "results/m2sl_yoy_spy/core_models_20260619/hmm_summary.csv"
+    "results/m2sl_yoy_spy/core_models_20261008/hmm_states.parquet",
+    "results/m2sl_yoy_spy/core_models_20261008/hmm_summary.csv"
   ],
   "reconciliation": {
     "surge_prob_stress_mean": {
@@ -22,6 +22,6 @@
       "verdict": "PASS"
     }
   },
-  "generated_at": "2026-06-19T10:55:46.492686+00:00",
+  "generated_at": "2026-10-09T09:28:23.212090+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
 }

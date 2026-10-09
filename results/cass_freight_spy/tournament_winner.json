@@ -1,16 +1,16 @@
 {
   "pair_id": "cass_freight_spy",
-  "winner_label": "contraction / T3_zscore_neg_1.0 / P1_long_cash (counter) / L9 / LB36",
-  "winner_oos_sharpe": 1.2999,
+  "winner_label": "dev_trend / T2_roll_p75 / P1_long_cash (counter) / L13 / LB60",
+  "winner_oos_sharpe": 1.3354,
   "winner_max_drawdown": -0.1945,
-  "winner_oos_ann_return": 0.174,
+  "winner_oos_ann_return": 0.1773,
   "bh_oos_sharpe": 0.9336,
   "bh_max_drawdown": -0.2393,
   "bh_oos_ann_return": 0.1538,
-  "delta_sharpe": 0.3663,
+  "delta_sharpe": 0.4018,
   "delta_max_drawdown": 0.0448,
-  "delta_ann_return": 0.0202,
+  "delta_ann_return": 0.0235,
   "beats_benchmark": true,
   "suggested_strategy_objective": "max_sharpe",
-  "generated_at": "2026-08-29T08:40:54Z"
+  "generated_at": "2026-10-08T23:44:26Z"
 }

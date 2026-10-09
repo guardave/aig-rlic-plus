@@ -1,20 +1,22 @@
 {
- "chart_name": "walk_forward",
- "pair_id": "eci_total_comp_spy",
- "palette_id": "okabe_ito_2026",
- "rules_applied": [
-  "VIZ-IC1",
-  "VIZ-NBER1",
-  "VIZ-TX1",
-  "VIZ-O1"
- ],
- "caption": "Rolling 8-quarter (2-year) annualized Sharpe over the OOS window vs the reported headline 1.60; with only 18 rolling points on 25 quarters, the path is noisy by construction.",
- "narrative_alignment_note": "Quarterly grouping choice: rolling 8q window (2-year), the quarterly analogue of cass's rolling 12-month walk-forward line; keeps a time axis so VIZ-NBER1 applies.",
- "disposition": "consumed",
- "source_artifacts": [
-  "results/eci_total_comp_spy/strategy_returns_20260706.csv"
- ],
- "reconciliation": null,
- "generated_at": "2026-07-06T13:11:44.584142+00:00",
- "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+  "chart_name": "walk_forward",
+  "pair_id": "eci_total_comp_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-SR1",
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Rolling 8-quarter (2-year) annualized Sharpe of the winner strategy vs buy-and-hold SPY over the 25-quarter out-of-sample window; the dashed reference line marks the reported OOS Sharpe (1.41). With only ~18 rolling points on 25 quarters the path is noisy by construction \u2014 read it as a stability sniff-test, not confirmation; the headline is an average over a variable ride, dominated by the cash period through 2022.",
+  "narrative_alignment_note": "Rolling-Sharpe walk-forward; quarterly window; reference line reconciles with winner_summary OOS Sharpe.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/eci_total_comp_spy/strategy_returns_20261008.csv",
+    "results/eci_total_comp_spy/winner_summary.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-10-09T09:39:46.023474+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
 }

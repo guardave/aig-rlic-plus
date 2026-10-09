@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Two-bar TE comparison; no significant flow either way.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/core_models_20260829/transfer_entropy.csv"
+    "results/cass_freight_spy/core_models_20261008/transfer_entropy.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-08-29T09:09:57.941008+00:00",
+  "generated_at": "2026-10-09T09:43:20.495174+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

@@ -22,7 +22,7 @@
     "docs/schemas/history_zoom_events_registry.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-06T23:15:16.778608+00:00",
+  "generated_at": "2026-10-09T09:28:17.136204+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)",
   "annotation_strategy_id": "descending_stair",
   "events_registry_version": "1.0.0",

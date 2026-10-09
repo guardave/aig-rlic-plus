@@ -8,14 +8,14 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Cumulative growth of 1.00 for the saved strategy returns and buy-and-hold SPY. The OOS window is now 100 months (\u22488.3yr, clearing the 5-year floor); the rule raises Sharpe (1.30 vs 0.93) mostly by cutting drawdown, but the median valid combo (0.77) UNDERPERFORMS B&H, the bootstrap p (0.085) is NOT significant at 5%, forward Granger causality is absent, and this is found-in-search. Shaded bands mark NBER recessions.",
+  "caption": "Cumulative growth of 1.00 for the saved strategy returns and buy-and-hold SPY. The OOS window is now 100 months (\u22488.3yr, clearing the 5-year floor); the rule raises Sharpe (1.34 vs 0.93) mostly by cutting drawdown, but the median valid combo (0.77) UNDERPERFORMS B&H, the bootstrap p (0.085) is NOT significant at 5%, forward Granger causality is absent, and this is found-in-search. Shaded bands mark NBER recessions.",
   "narrative_alignment_note": "Strategy series from strategy_returns; metrics from winner_summary; fragility in title.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/strategy_returns_20260829.csv",
+    "results/cass_freight_spy/strategy_returns_20261008.csv",
     "results/cass_freight_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-08-29T09:09:58.037835+00:00",
+  "generated_at": "2026-10-09T09:43:20.591034+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

@@ -16,6 +16,6 @@
     "results/cass_freight_spy/subperiod_sharpe.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-08-29T09:09:58.812515+00:00",
+  "generated_at": "2026-10-09T09:43:21.443906+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

@@ -56,7 +56,7 @@ PAIR_ID = "cass_freight_spy"
 INDICATOR_NAME = "Cass Freight Index (Shipments)"
 TARGET_NAME = "SPY"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20260829"
+DATE_TAG = "20261008"
 COST_BPS = 5  # equity ETF per ECON-T2 / target-class table
 
 BASE_DIR = "/workspaces/aig-rlic-plus"
@@ -98,7 +98,7 @@ FWD_COLS = ["spy_fwd_1m", "spy_fwd_3m", "spy_fwd_6m", "spy_fwd_12m"]
 # Short-sample adaptations (vs busloans deep history)
 SIG_ELIGIBLE_MIN = 60      # min non-NaN obs for a signal to enter the tournament
 LOOKBACKS = {"LB24": 24, "LB36": 36, "LB60": 60}  # LB120 impossible with 125 obs
-LEADS = list(range(1, 13))  # L1..L12 — L1 real-time floor (Dana pub-lag), no L0
+LEADS = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
 
 
 def log_stage(name):

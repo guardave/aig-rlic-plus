@@ -66,7 +66,7 @@ PAIR_ID = "m2sl_yoy_spy"
 INDICATOR_NAME = "M2 Money Supply YoY (M2SL)"
 TARGET_NAME = "SPY"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20260619"
+DATE_TAG = "20261008"
 COST_BPS = 5  # equity ETF per ECON-T2 / target-class table
 
 BASE_DIR = "/workspaces/aig-rlic-plus"
@@ -598,7 +598,7 @@ def stage_tournament(df):
     oos_mask = work.index >= oos_start
     spy_ret = work["spy_ret"]
 
-    leads = [1, 2, 3, 6, 12]            # L1 = real-time floor (M2 H.6 ~4th-Tue publication lag); L6 centered
+    leads = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
     lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 
@@ -1120,7 +1120,7 @@ def main():
         "cost_assumption_bps": COST_BPS,
         "total_combos": int(len(tdf) - 1),
         "valid_combos": n_valid,
-        "schema_version": "1.1.0",
+        "schema_version": "1.2.0",
         "notes": "",  # filled below (needs lead-lag verdict)
     }
     sd = ("Long SPY when the lagged M2SL signal is {} its threshold; otherwise {}."
@@ -1149,6 +1149,58 @@ def main():
         f"(vs resampled B&H); in-sample Sharpe {float(winner['is_sharpe']):.2f} vs OOS "
         f"{float(winner['oos_sharpe']):.2f}; CP1 durability verdict '{verdict}'; rolling-correlation "
         f"stability '{stab}'. OOS mean position {oos_pos_mean:.2f}.")
+
+    # --- ECON-T5 winner-selection provenance (selection block; schema-required v1.2.0) ---
+    valid_pop = tdf[(tdf.signal != "BENCHMARK") & tdf.valid].copy()
+    ranked = valid_pop.sort_values("oos_sharpe", ascending=False)
+    runner = ranked.iloc[1] if len(ranked) > 1 else None
+    scanned_leads = sorted(int(x) for x in tdf.loc[tdf.signal != "BENCHMARK", "lead_months"].unique())
+    raw_strategy = str(winner["strategy"])  # carries the _pro/_counter orientation suffix
+    selection = {
+        "objective": "max_oos_sharpe",
+        "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
+        "grid_scanned": {
+            "leads": scanned_leads,
+            "n_signals": int(valid_pop["signal"].nunique()),
+            "n_thresholds": int(valid_pop["threshold"].nunique()),
+            "n_strategies": int(valid_pop["strategy"].nunique()),
+            "n_valid_combos": int(n_valid),
+            "median_valid_objective": round(float(median_sharpe), 4),
+        },
+        "tie_break_step": int(resolved_at) if n_tied > 1 else 0,
+        "raw_winner_row": {
+            "signal": str(winner["signal"]),
+            "threshold": str(winner["threshold"]),
+            "strategy": raw_strategy,
+            "lead_column": "lead_months",
+            "lead_value": int(winner["lead_months"]),
+            "source_tournament_file": f"tournament_results_{DATE_TAG}.csv",
+            "source_row_index": int(winner.name),
+            "display_alias": (f"signal_code={winner_summary['signal_code']} (raw signal={winner['signal']}); "
+                              f"strategy_family={strat_family} (raw strategy={raw_strategy})"),
+        },
+        "runner_up": ({
+            "signal": str(runner["signal"]),
+            "threshold": str(runner["threshold"]),
+            "strategy": str(runner["strategy"]),
+            "lead_value": int(runner["lead_months"]),
+            "objective_value": round(float(runner["oos_sharpe"]), 4),
+        } if runner is not None else None),
+        "rationale": (
+            f"Unique maximiser of OOS Sharpe over the full monthly grid "
+            f"L{{{scanned_leads[0]}..{scanned_leads[-1]}}} ({n_valid} valid combos, median OOS Sharpe "
+            f"{float(median_sharpe):.4f}). Winner raw OOS Sharpe {float(winner['oos_sharpe']):.4f} at "
+            f"L{int(winner['lead_months'])}"
+            + (f"; the 2nd-best valid combo ({runner['signal']}/{runner['threshold']}/{runner['strategy']}/"
+               f"L{int(runner['lead_months'])}) sits at {float(runner['oos_sharpe']):.4f}. "
+               if runner is not None else ". ")
+            + (f"No ECON-T3 tie-break engaged (unique max on oos_sharpe). " if n_tied <= 1
+               else f"ECON-T3 cascade resolved a step-1 tie ({n_tied} combos tied on oos_sharpe) at step {resolved_at}. ")
+            + "Published winner == raw max-OOS-Sharpe valid row -> divergence null."
+        ),
+        "objective_runner_up_divergence": None,
+    }
+    winner_summary["selection"] = selection
 
     wpath = os.path.join(RESULTS_DIR, "winner_summary.json")
     with open(wpath, "w") as f:

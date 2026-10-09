@@ -17,7 +17,7 @@
     "data/wells_fargo_housing_spy_monthly_latest.parquet"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-06T23:15:09.557159+00:00",
+  "generated_at": "2026-10-09T09:28:16.869820+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)",
   "break_date": "2009-03-31",
   "annotation_strategy_id": "manual_override",

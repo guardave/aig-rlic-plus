@@ -50,7 +50,7 @@ edge. Every number below is sourced from results/umcsent_spy/*:
     at any tested lag (minimum p = 0.22 at lag 5) (granger_by_lag.csv). Linear
     correlation with forward SPY is near zero at every horizon and no cell is
     significant; the largest |r| anywhere is the level vs 6-month-forward SPY
-    (r = 0.07, p = 0.17) (core_models_20260912/correlations.csv). Local
+    (r = 0.07, p = 0.17) (core_models_20261008/correlations.csv). Local
     projections are near-null at every horizon (no coefficient significant;
     trivial R^2) (local_projections.csv). Pre-whitened cross-correlation clears
     the confidence band at NO offset; what little structure exists sits on the
@@ -74,10 +74,10 @@ edge. Every number below is sourced from results/umcsent_spy/*:
 MONTHLY conventions: leads in MONTHS (winner L9); Sharpe annualized by
 sqrt(12); OOS window 2017-08-31 -> 2025-09-30 (98 months). Numbers sourced from
 results/umcsent_spy/ (winner_summary.json, kpis.json, evidence_status.json,
-interpretation_metadata.json, core_models_20260912/*,
+interpretation_metadata.json, core_models_20261008/*,
 regime_quartile_returns.csv, subperiod_sharpe.csv, granger_by_lag.csv,
-stationarity_tests_20260912.csv, structural_break_umcsent_spy.json,
-tournament_results_20260912.csv).
+stationarity_tests_20261008.csv, structural_break_umcsent_spy.json,
+tournament_results_20261008.csv).
 """
 
 from __future__ import annotations
@@ -522,8 +522,8 @@ class StrategyConfig:
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/umcsent_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/umcsent_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/umcsent_spy/tournament_results_20260912.csv"},
-        {"label": "Stationarity tests", "path": "results/umcsent_spy/stationarity_tests_20260912.csv"},
+        {"label": "Tournament results", "path": "results/umcsent_spy/tournament_results_20261008.csv"},
+        {"label": "Stationarity tests", "path": "results/umcsent_spy/stationarity_tests_20261008.csv"},
     ]
 
     SIGNAL_RULE_MD = """

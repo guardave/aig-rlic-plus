@@ -756,7 +756,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "five angles agree — in the direction nobody trades on.*\n\n"
         "All statistics computed on monthly data, SPY-bound sample 1993-02 "
         "→ 2026-05 (400 months), from "
-        "`results/busloans_spy/core_models_20260708/`."
+        "`results/busloans_spy/core_models_20261008/`."
     ),
     "plain_english": (
         "This section shows the statistical evidence on whether business "
@@ -773,19 +773,19 @@ EVIDENCE_METHOD_BLOCKS = {
     # at authoring time (2026-06-12) — counts exclude the header row.
     "downloads": [
         {"label": "Granger causality, both directions × 12 lags (24 rows)",
-         "path": "results/busloans_spy/core_models_20260708/granger_causality.csv"},
+         "path": "results/busloans_spy/core_models_20261008/granger_causality.csv"},
         {"label": "Granger F-statistics by lag, loans → SPY (12 rows)",
          "path": "results/busloans_spy/granger_by_lag.csv"},
         {"label": "Correlation battery, signal × horizon × metric (160 rows)",
-         "path": "results/busloans_spy/core_models_20260708/correlations.csv"},
+         "path": "results/busloans_spy/core_models_20261008/correlations.csv"},
         {"label": "Pre-whitened CCF, offsets −20..+20 (41 rows)",
-         "path": "results/busloans_spy/core_models_20260708/ccf_prewhitened.csv"},
+         "path": "results/busloans_spy/core_models_20261008/ccf_prewhitened.csv"},
         {"label": "Local projections, forward + reverse × 4 horizons (8 rows)",
-         "path": "results/busloans_spy/core_models_20260708/local_projections.csv"},
+         "path": "results/busloans_spy/core_models_20261008/local_projections.csv"},
         {"label": "Transfer entropy, both directions (2 rows)",
-         "path": "results/busloans_spy/core_models_20260708/transfer_entropy.csv"},
+         "path": "results/busloans_spy/core_models_20261008/transfer_entropy.csv"},
         {"label": "Quantile regression, 7 quantiles (7 rows)",
-         "path": "results/busloans_spy/core_models_20260708/quantile_regression.csv"},
+         "path": "results/busloans_spy/core_models_20261008/quantile_regression.csv"},
         {"label": "Regime quartile returns, Q1–Q4 (4 rows)",
          "path": "results/busloans_spy/regime_quartile_returns.csv"},
         {"label": "Sub-period Sharpe, 4 episodes (4 rows)",
@@ -943,7 +943,7 @@ No formulas — three steps:
 - **Search-phase numbers only.** Selection and evaluation share the same 2018–2026 window; no holdout exam has been run. The Sharpe 1.50 headline is a candidate, not a verdict.
 - **Low exposure profile.** At 25% average exposure, results are dominated by *when the rule happened to be in* — a handful of months drive everything.
 - **Return give-up.** The rule trails buy-and-hold by 4.2 points of annual return; it is a drawdown-avoidance overlay, unsuitable as a core compounding strategy.
-- **Costs.** Returns are gross of costs; at the assumed 5 basis points per trade and 2.88 trades per year, the haircut is negligible (see `tournament_validation_20260708/transaction_costs.csv`) — cost drag is *not* one of this pair's problems.
+- **Costs.** Returns are gross of costs; at the assumed 5 basis points per trade and 2.88 trades per year, the haircut is negligible (see `tournament_validation_20261008/transaction_costs.csv`) — cost drag is *not* one of this pair's problems.
 - **No structural break flagged** (sup-F test p = 0.30), so the fragility flags above cannot be excused by a regime change in the data.
 """
 
@@ -1016,7 +1016,7 @@ _METHODS_TABLE_MD = """
 _TOURNAMENT_DESIGN_MD = """
 Grid: 11 signals (9 data transforms + HMM stress state + Markov regime) × threshold schemes (fixed percentiles, rolling percentiles, z-score bands, zero-line) × 3 strategy families (Long/Cash, signal-strength scaling, Long/Short) × 2 orientations (procyclical/countercyclical — both tested per the mixed prior) × leads {1, 2, …, 12} months (the full monthly grid L1–L12) × lookbacks {36, 60, 120} months = 14,640 combinations plus a buy-and-hold benchmark row. Validity filters: OOS Sharpe > 0.3, turnover < 24/yr, ≥ 24 OOS months → 10,522 valid. Out-of-sample split per policy `v1_max36_25pct_cap120`: in-sample through 2018-01, out-of-sample 2018-02 → 2026-05 (100 of 400 SPY-bound months). Winner selected by the standard cascade, resolved at step 1 with no tie. All metrics in the tournament CSV are decimal ratios, not percentages.
 
-**Reproducibility notes.** Producer script: `scripts/pair_pipeline_busloans_spy.py` — deterministic, fixed seeds; a rerun reproduces every number on this page. The canonical monthly return series for chart producers is `strategy_returns_20260708.csv` (position on row *t* is the accrual weight for month *t*, signal already lagged 6 months); its Sharpe/drawdown/return reconcile with `winner_summary.json` to within 1e-4. Stationarity tests were produced by the data stage and confirmed, not re-run, by the econometrics stage.
+**Reproducibility notes.** Producer script: `scripts/pair_pipeline_busloans_spy.py` — deterministic, fixed seeds; a rerun reproduces every number on this page. The canonical monthly return series for chart producers is `strategy_returns_20261008.csv` (position on row *t* is the accrual weight for month *t*, signal already lagged 6 months); its Sharpe/drawdown/return reconcile with `winner_summary.json` to within 1e-4. Stationarity tests were produced by the data stage and confirmed, not re-run, by the econometrics stage.
 """
 
 _REFERENCES_MD = """

@@ -1,6 +1,6 @@
 {
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-09-12T17:22:26.301033+00:00",
+  "generated_at": "2026-10-08T23:56:48.721489+00:00",
   "signal_column": "umcsent_chg_12m",
   "signal_code": "chg_12m",
   "signal_display_name": "12-month change",
@@ -19,8 +19,8 @@
   "lookback": "60m where rolling thresholds apply",
   "direction": "procyclical",
   "oos_sharpe": 1.427042,
-  "oos_sortino": 2.32773,
-  "oos_calmar": 1.958566,
+  "oos_sortino": 2.327742,
+  "oos_calmar": 1.958568,
   "oos_ann_return": 0.148439,
   "oos_ann_vol": 0.101016,
   "oos_max_drawdown": -0.07579,
@@ -30,12 +30,12 @@
   "oos_n": 98,
   "oos_period_start": "2017-08-31",
   "oos_period_end": "2025-09-30",
-  "bh_sharpe": 0.931525,
+  "bh_sharpe": 0.931524,
   "bh_ann_return": 0.147711,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
-  "total_combos": 168,
-  "valid_combos": 168,
+  "total_combos": 312,
+  "valid_combos": 312,
   "schema_version": "1.2.0",
   "notes": "Rising expected business conditions precede stronger spending and risk-on equity conditions. The bounded diffusion level is stationary; the traded winner is its 12-month change (chg_12m) at a 6-month lead. Winner is search-selected \u2014 read as found-in-search.",
   "selection": {
@@ -43,19 +43,25 @@
     "objective_formula": "monthly mean/std*sqrt(12)",
     "grid_scanned": {
       "leads": [
-        0,
         1,
         2,
         3,
+        4,
+        5,
         6,
+        7,
+        8,
         9,
-        12
+        10,
+        11,
+        12,
+        13
       ],
       "n_signals": 4,
       "n_thresholds": 12,
       "n_strategies": 1,
-      "n_valid_combos": 168,
-      "median_valid_objective": 0.659037
+      "n_valid_combos": 312,
+      "median_valid_objective": 0.662913
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -64,15 +70,15 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 9,
-      "source_tournament_file": "tournament_results_20260912.csv",
-      "source_row_index": 110
+      "source_tournament_file": "tournament_results_20261008.csv",
+      "source_row_index": 203
     },
     "runner_up": {
       "signal": "chg_12m",
       "threshold": "T0_zero",
       "strategy": "P1_long_cash",
-      "lead_value": 6,
-      "objective_value": 1.395877
+      "lead_value": 7,
+      "objective_value": 1.406385
     },
     "rationale": "Winner is the valid row with the highest OOS Sharpe over the published grid.",
     "objective_runner_up_divergence": null

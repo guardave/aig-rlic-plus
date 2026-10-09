@@ -1,7 +1,7 @@
 """M2 Money Supply (YoY) x SPY pair configuration (Rule APP-PT1).
 
 Pair `m2sl_yoy_spy`, Mode 1. Prose is sourced from Research Ray's
-`docs/portal_narrative_m2sl_yoy_spy_20260619.md`; this file wires that prose
+`docs/portal_narrative_m2sl_yoy_spy_20261008.md`; this file wires that prose
 to the shared Streamlit templates and Vera's bare-name chart artifacts.
 
 Evidence status is `found_in_search`, so headline performance is labelled as
@@ -553,7 +553,7 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Regime quartile returns (4 rows)", "path": "results/m2sl_yoy_spy/regime_quartile_returns.csv"},
         {"label": "Subperiod Sharpe checks (4 rows)", "path": "results/m2sl_yoy_spy/subperiod_sharpe.csv"},
         {"label": "Rolling correlation", "path": "results/m2sl_yoy_spy/rolling_correlation_m2sl_yoy_spy.csv"},
-        {"label": "Stationarity tests", "path": "results/m2sl_yoy_spy/stationarity_tests_20260619.csv"},
+        {"label": "Stationarity tests", "path": "results/m2sl_yoy_spy/stationarity_tests_20261008.csv"},
     ],
     "level1": [GRANGER_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Granger Causality", "Lead Analysis", "Lead Tournament", "Level Quartiles", "Pre-Whitened CCF"],

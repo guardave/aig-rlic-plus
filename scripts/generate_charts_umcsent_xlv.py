@@ -36,7 +36,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 BASE_DIR = str(Path(__file__).resolve().parents[1])
 PAIR_ID = "umcsent_xlv"
-DATE_TAG = "20260420"
+DATE_TAG = "20261008"
 EXPECTED_DIRECTION = "procyclical"
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
@@ -97,7 +97,10 @@ def save_chart(fig, name, *, caption=None, rules=None, sources=None, alignment=N
         "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py",
     }
     Path(CHART_DIR, f"{name}_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
-    fig.write_image(os.path.join(CHART_DIR, f"_perceptual_check_{name}.png"), width=1200, height=600)
+    try:
+        fig.write_image(os.path.join(CHART_DIR, f"_perceptual_check_{name}.png"), width=1200, height=600)
+    except Exception as _exc:
+        print(f"  (perceptual PNG skipped: {_exc.__class__.__name__})")
     print(f"  Saved: {name}.json")
 
 

@@ -1,6 +1,6 @@
 {
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-08-29T12:47:34.946325+00:00",
+  "generated_at": "2026-10-08T23:59:13.553808+00:00",
   "signal_column": "sloos_level",
   "signal_code": "level",
   "signal_display_name": "SLOOS net-% tightening (level)",
@@ -19,8 +19,8 @@
   "lookback": "20q where rolling thresholds apply",
   "direction": "procyclical",
   "oos_sharpe": 1.508513,
-  "oos_sortino": 10.235615,
-  "oos_calmar": 3.537393,
+  "oos_sortino": 10.23561,
+  "oos_calmar": 3.537396,
   "oos_ann_return": 0.150936,
   "oos_ann_vol": 0.097777,
   "oos_max_drawdown": -0.042669,
@@ -30,7 +30,7 @@
   "oos_n": 32,
   "oos_period_start": "2017-12-31",
   "oos_period_end": "2025-09-30",
-  "bh_sharpe": 0.89098,
+  "bh_sharpe": 0.890978,
   "bh_ann_return": 0.147725,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
@@ -43,17 +43,17 @@
     "objective_formula": "quarterly mean/std*sqrt(4)",
     "grid_scanned": {
       "leads": [
-        0,
         1,
         2,
         3,
-        4
+        4,
+        5
       ],
       "n_signals": 4,
       "n_thresholds": 12,
       "n_strategies": 1,
       "n_valid_combos": 120,
-      "median_valid_objective": 0.600125
+      "median_valid_objective": 0.630533
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -62,15 +62,15 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_quarters",
       "lead_value": 3,
-      "source_tournament_file": "tournament_results_20260830.csv",
-      "source_row_index": 8
+      "source_tournament_file": "tournament_results_20261008.csv",
+      "source_row_index": 7
     },
     "runner_up": {
       "signal": "level",
       "threshold": "T0_zero",
       "strategy": "P1_long_cash",
       "lead_value": 2,
-      "objective_value": 1.369701
+      "objective_value": 1.3697
     },
     "rationale": "Winner is the valid row with the highest OOS Sharpe over the published grid.",
     "objective_runner_up_divergence": null

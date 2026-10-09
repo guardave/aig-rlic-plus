@@ -9,19 +9,19 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Distribution of OOS Sharpe across the 11,501 valid strategy combos. The winner (Sharpe 1.30) is the right tail; the median valid combo (0.77) sits BELOW buy & hold (0.93) \u2014 i.e. the typical rule subtracts value, so the winner is a found-in-search draw (bootstrap p = 0.085, not significant at 5%; no fresh final-exam holdout). Treat as a candidate, not a validated edge.",
+  "caption": "Distribution of OOS Sharpe across the 12,422 valid strategy combos. The winner (Sharpe 1.34) is the right tail; the median valid combo (0.77) sits BELOW buy & hold (0.93) \u2014 i.e. the typical rule subtracts value, so the winner is a found-in-search draw (bootstrap p = 0.085, not significant at 5%; no fresh final-exam holdout). Treat as a candidate, not a validated edge.",
   "narrative_alignment_note": "VIZ-SCD1 position disclosure + B&H line; median&lt;B&H stated explicitly; fragility flags in caption.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/tournament_results_20260829.csv",
+    "results/cass_freight_spy/tournament_results_20261008.csv",
     "results/cass_freight_spy/winner_summary.json"
   ],
   "reconciliation": {
-    "valid_count": 11501,
-    "median_oos_sharpe": 0.7702,
-    "winner_oos_sharpe": 1.2999,
+    "valid_count": 12422,
+    "median_oos_sharpe": 0.7723,
+    "winner_oos_sharpe": 1.3354,
     "bh_oos_sharpe": 0.9336
   },
-  "generated_at": "2026-08-29T09:09:58.708436+00:00",
+  "generated_at": "2026-10-09T09:43:21.319305+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

@@ -17,7 +17,7 @@
     "data/m2sl_yoy_spy_monthly_latest.parquet"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-19T10:55:56.822631+00:00",
+  "generated_at": "2026-10-09T09:28:24.148534+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)",
   "break_date": "2011-10-31",
   "annotation_strategy_id": "manual_override"

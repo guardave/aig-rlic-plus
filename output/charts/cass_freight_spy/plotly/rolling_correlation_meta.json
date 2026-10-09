@@ -9,7 +9,7 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "24-month rolling correlation between Cass Freight YoY and SPY monthly returns. The sign agrees with its full-sample value 76% of the time (verdict: sign stable). Shaded bands mark NBER recessions.",
+  "caption": "24-month rolling correlation between Cass Freight YoY and SPY monthly returns. The sign agrees with its full-sample value 47% of the time (verdict: sign unstable). Shaded bands mark NBER recessions.",
   "narrative_alignment_note": "Stability verdict from structural_break JSON.",
   "disposition": "consumed",
   "source_artifacts": [
@@ -17,6 +17,6 @@
     "results/cass_freight_spy/structural_break_cass_freight_spy.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-08-29T09:09:58.752457+00:00",
+  "generated_at": "2026-10-09T09:43:21.362893+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

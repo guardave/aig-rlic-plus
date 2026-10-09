@@ -8,13 +8,13 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "All 16,080 tournament combinations (OOS Sharpe vs annual turnover; color = max drawdown). 11,501 pass validity; the Buy & Hold SPY diamond sits at Sharpe 0.93. The top raw scorers include seasonally-contaminated combos excluded from selection; the published winner is the best seasonally-CLEAN combo (ECON-T3 cascade).",
+  "caption": "All 17,420 tournament combinations (OOS Sharpe vs annual turnover; color = max drawdown). 12,422 pass validity; the Buy & Hold SPY diamond sits at Sharpe 0.93. The top raw scorers include seasonally-contaminated combos excluded from selection; the published winner is the best seasonally-CLEAN combo (ECON-T3 cascade).",
   "narrative_alignment_note": "Standard tournament scatter; benchmark via signal=='BENCHMARK' (ECON-T4).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/tournament_results_20260829.csv"
+    "results/cass_freight_spy/tournament_results_20261008.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-08-29T09:09:58.630789+00:00",
+  "generated_at": "2026-10-09T09:43:21.233427+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

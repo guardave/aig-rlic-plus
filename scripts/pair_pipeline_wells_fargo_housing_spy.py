@@ -67,7 +67,7 @@ np.random.seed(42)
 PAIR_ID = "wells_fargo_housing_spy"
 INDICATOR_NAME = "NAHB/Wells Fargo Housing Market Index"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20260706"
+DATE_TAG = "20261008"
 COST_BPS = 5  # equity ETF per target-class table
 ANN = np.sqrt(12)
 PERIODS_PER_YEAR = 12
@@ -126,7 +126,7 @@ FWD_COLS = ["spy_fwd_1m", "spy_fwd_3m", "spy_fwd_6m", "spy_fwd_12m"]
 
 SIG_ELIGIBLE_MIN = 120                              # min non-NaN months
 LOOKBACKS = {"LB36": 36, "LB60": 60, "LB120": 120}  # 3/5/10yr — 394-month sample affords LB120
-LEADS = list(range(1, 13))                          # L1..L12 months (fleet convention)
+LEADS = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
 CORR_N_FLOOR = 60                                   # months
 
 ERAS = [("pre_gfc_1993_2006", "1993-01-01", "2006-12-31"),

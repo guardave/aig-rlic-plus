@@ -1,0 +1,23 @@
+{
+  "pair_id": "cass_freight_spy",
+  "date": "20261008",
+  "pipeline_seconds": 160.9,
+  "stage_times": {
+    "1_load_verify": 0.0,
+    "2_signals": 2.3,
+    "3_exploratory_correlations": 0.3,
+    "4_core_models": 4.9,
+    "4b_lead_analysis": 0.2,
+    "5_regime_quartiles": 0.0,
+    "6_tournament": 53.1,
+    "4c_lead_tournament": 52.4,
+    "7_winner_artifacts": 0.0,
+    "8_cross_period": 45.6,
+    "9_validation": 0.3
+  },
+  "tournament_strategy_rows": 17420,
+  "valid_strategies": 12422,
+  "oos_n_months": 100,
+  "oos_start": "2018-04-30",
+  "oos_end": "2026-07-31"
+}

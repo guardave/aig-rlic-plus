@@ -366,8 +366,8 @@ class StrategyConfig:
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/unrate_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/unrate_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/unrate_spy/tournament_results_20260717.csv"},
-        {"label": "Stationarity tests", "path": "results/unrate_spy/stationarity_tests_20260717.csv"},
+        {"label": "Tournament results", "path": "results/unrate_spy/tournament_results_20261008.csv"},
+        {"label": "Stationarity tests", "path": "results/unrate_spy/stationarity_tests_20261008.csv"},
     ]
 
     SIGNAL_RULE_MD = """

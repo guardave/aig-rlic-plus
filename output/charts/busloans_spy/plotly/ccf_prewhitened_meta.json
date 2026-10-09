@@ -11,9 +11,9 @@
   "narrative_alignment_note": "CCF chart mirrors Evan's 'one stray significant lag (+17)' note.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/busloans_spy/core_models_20260708/ccf_prewhitened.csv"
+    "results/busloans_spy/core_models_20261008/ccf_prewhitened.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-08T08:49:13.889900+00:00",
+  "generated_at": "2026-10-09T09:25:54.573299+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_busloans_spy.py (fix260612_busloans_spy)"
 }

@@ -8,14 +8,14 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "caption": "Pearson correlations between each Cass Freight signal lagged L months and the SPY 1-month forward return. Cells are small at nearly every lead and the few starred ones are scattered and flip sign across transforms \u2014 the signature of a coincident series with no stable predictive lead. The winner's own signal (the contraction flag) is weak across the whole row, peaking only at L9 \u2014 which is why the deployed L9 lead is best read as a likely search artifact (issue #28).",
-  "narrative_alignment_note": "Honest near-null lead view; winner signal 'contraction' peaks at L9 but weakly.",
+  "caption": "Pearson correlations between each Cass Freight signal lagged L months and the SPY 1-month forward return. Cells are small at nearly every lead and the few starred ones are scattered and flip sign across transforms \u2014 the signature of a coincident series with no stable predictive lead. The winner's own signal (trend deviation) carries no stable forward correlation at any measured lead (near-zero, slightly negative at L9\u2013L12); its deployed lead L13 sits beyond this 0\u201312 view, at the very ceiling of the floored grid \u2014 which is why L13 is best read as a likely search artifact (issue #28).",
+  "narrative_alignment_note": "Honest near-null lead view; winner signal 'trend deviation' has no stable predictive lead; L13 is the grid ceiling.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/lead_correlation_20260829.csv"
+    "results/cass_freight_spy/lead_correlation_20261008.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-08-29T09:09:57.724149+00:00",
+  "generated_at": "2026-10-09T09:43:20.262264+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)",
   "method_name": "lead_correlation_view",
   "expected_chart_type": "heatmap"

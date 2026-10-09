@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Modest/near-zero forward linear evidence; triage before formal tests.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/core_models_20260829/correlations.csv"
+    "results/cass_freight_spy/core_models_20261008/correlations.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-08-29T09:09:57.701500+00:00",
+  "generated_at": "2026-10-09T09:43:20.238584+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

@@ -1,6 +1,6 @@
 {
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-08-29T12:54:31.159835+00:00",
+  "generated_at": "2026-10-08T23:57:13.624899+00:00",
   "signal_column": "mfg_new_orders_yoy",
   "signal_code": "yoy",
   "signal_display_name": "New-orders YoY growth",
@@ -19,11 +19,11 @@
   "lookback": "LB60 where rolling thresholds apply",
   "direction": "countercyclical",
   "oos_sharpe": 1.558944,
-  "oos_sortino": 2.627536,
-  "oos_calmar": 2.255499,
+  "oos_sortino": 2.627524,
+  "oos_calmar": 2.255494,
   "oos_ann_return": 0.138586,
   "oos_ann_vol": 0.085982,
-  "oos_max_drawdown": -0.061443,
+  "oos_max_drawdown": -0.061444,
   "oos_win_rate": 0.375,
   "oos_n_trades": 7,
   "annual_turnover": 0.807692,
@@ -34,8 +34,8 @@
   "bh_ann_return": 0.148272,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
-  "total_combos": 252,
-  "valid_combos": 252,
+  "total_combos": 468,
+  "valid_combos": 468,
   "schema_version": "1.2.0",
   "notes": "Manufacturers' New Orders is a LEADING manufacturing-demand indicator (a Conference Board LEI component); the nominal-dollar level is non-stationary so all signals are growth transforms. The 2020-21 COVID collapse/rebound is an extreme outlier in-window \u2014 read any lead/threshold that leans on it with caution.",
   "selection": {
@@ -43,19 +43,25 @@
     "objective_formula": "monthly mean/std*sqrt(12), OOS from 2017-01",
     "grid_scanned": {
       "leads": [
-        0,
-        1,
         2,
         3,
+        4,
+        5,
         6,
+        7,
+        8,
         9,
-        12
+        10,
+        11,
+        12,
+        13,
+        14
       ],
       "n_signals": 6,
       "n_thresholds": 18,
       "n_strategies": 1,
-      "n_valid_combos": 252,
-      "median_valid_objective": 0.683659
+      "n_valid_combos": 468,
+      "median_valid_objective": 0.682523
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -64,15 +70,15 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 12,
-      "source_tournament_file": "tournament_results_20260830.csv",
-      "source_row_index": 34
+      "source_tournament_file": "tournament_results_20261008.csv",
+      "source_row_index": 62
     },
     "runner_up": {
-      "signal": "chg_3m",
-      "threshold": "T_roll_p50",
+      "signal": "yoy",
+      "threshold": "T0_zero",
       "strategy": "P1_long_cash",
-      "lead_value": 12,
-      "objective_value": 1.482209
+      "lead_value": 11,
+      "objective_value": 1.526451
     },
     "rationale": "Winner is the valid row with the highest OOS Sharpe over the published grid.",
     "objective_runner_up_divergence": null

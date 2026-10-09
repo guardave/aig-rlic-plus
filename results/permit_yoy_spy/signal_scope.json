@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-09-12T17:30:33.766648+00:00",
+  "last_updated_at": "2026-10-08T23:58:24.998717+00:00",
   "indicator_axis": {
     "canonical_column": "permit_yoy",
     "display_name": "Building Permits YoY",

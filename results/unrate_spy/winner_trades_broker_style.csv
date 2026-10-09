@@ -55,3 +55,5 @@ trade_date,side,instrument,quantity_pct,commission_bps,signal_value,threshold_va
 2025-09-30,SELL,SPY,100.0,5,0.0,0.19999999999999973,1.0,0.0,chg_6m procyclical rule crossed T_roll_p75
 2026-05-31,BUY,SPY,100.0,5,0.2999999999999998,0.19999999999999973,0.0,1.0,chg_6m procyclical rule crossed T_roll_p75
 2026-06-30,SELL,SPY,100.0,5,0.09999999999999964,0.12500000000000033,1.0,0.0,chg_6m procyclical rule crossed T_roll_p75
+2026-07-31,BUY,SPY,100.0,5,0.20000000000000018,0.12500000000000033,0.0,1.0,chg_6m procyclical rule crossed T_roll_p75
+2026-09-30,SELL,SPY,100.0,5,0.10000000000000053,0.19999999999999973,1.0,0.0,chg_6m procyclical rule crossed T_roll_p75

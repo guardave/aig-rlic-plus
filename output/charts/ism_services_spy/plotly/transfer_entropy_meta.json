@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Two-bar TE comparison per ECON-H4.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/ism_services_spy/core_models_20260618/transfer_entropy.csv"
+    "results/ism_services_spy/core_models_20261008/transfer_entropy.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-18T10:57:16.997971+00:00",
+  "generated_at": "2026-10-09T09:28:19.861236+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
 }

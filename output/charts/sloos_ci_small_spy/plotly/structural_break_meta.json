@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-08-29T13:00:52.500699+00:00",
+  "generated_at": "2026-10-09T09:26:25.799890+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
   "caption": "Proxy check for large changes in the SLOOS-SPY relationship (rolling-correlation z-score); max |z| = 2.41.",
   "narrative_alignment_note": "Proxy check for large changes in the SLOOS-SPY relationship (rolling-correlation z-score); max |z| = 2.41.",

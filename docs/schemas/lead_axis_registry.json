@@ -144,7 +144,7 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "cass_freight_spy": {
    "signal_frequency": "monthly",
@@ -198,7 +198,8 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true,
+   "note": "Winner confirmed UNCHANGED under the floored grid in #255 re-run testing; committed artifacts retained because a full regen surfaces pre-existing producer debt (interpretation_metadata schema / chart bare-naming) out of #255 scope \u2014 floor-grid source edit deferred to a producer-cleanup follow-up."
   },
   "indpro_xlp": {
    "signal_frequency": "monthly",
@@ -225,7 +226,8 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true,
+   "note": "Winner confirmed UNCHANGED under the floored grid in #255 re-run testing; committed artifacts retained because a full regen surfaces pre-existing producer debt (legacy winner_summary/signal_scope/analyst_suggestions/interpretation_metadata schema) out of #255 scope \u2014 floor-grid source edit + producer cleanup deferred to a follow-up."
   },
   "ism_services_spy": {
    "signal_frequency": "monthly",
@@ -252,7 +254,7 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "m2sl_yoy_spy": {
    "signal_frequency": "monthly",
@@ -279,7 +281,7 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "nhs_spy": {
    "signal_frequency": "monthly",
@@ -362,7 +364,8 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true,
+   "note": "Winner confirmed UNCHANGED under the floored grid in #255 re-run testing; committed artifacts retained because a full regen surfaces pre-existing producer debt (legacy winner_summary/signal_scope/analyst_suggestions/interpretation_metadata schema) out of #255 scope \u2014 floor-grid source edit + producer cleanup deferred to a follow-up."
   },
   "petrol_inv_spy": {
    "signal_frequency": "monthly",
@@ -388,9 +391,9 @@
    ],
    "observed_winner_lead_unit": "months",
    "class": "monthly",
-   "note": "Native EIA source is weekly; the pair is processed and deployed end-to-end on a monthly axis (internally coherent). Flagged for item-3 monthly re-validation to confirm the monthly resample is the right treatment vs a weekly axis.",
+   "note": "Floor L0 (weekly data available in-month, days_since_release 0-6); grid already [0..12] compliant \u2014 no re-run needed (#255).",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "t10y3m_spy": {
    "signal_frequency": "monthly",
@@ -446,7 +449,7 @@
    "class": "monthly",
    "note": "Full L0-12 free selection (Option-C cap retired 2026-07-14); winner L6 is the full-grid global max. Coherent monthly axis.",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "wells_fargo_housing_spy": {
    "signal_frequency": "monthly",
@@ -473,7 +476,7 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "hy_ig_spy_v1": {
    "signal_frequency": "daily",
@@ -611,7 +614,7 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "unrate_spy": {
    "signal_frequency": "monthly",
@@ -638,7 +641,7 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "ism_mfg_spy": {
    "signal_frequency": "monthly",
@@ -693,7 +696,7 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "umcsent_spy": {
    "signal_frequency": "monthly",
@@ -720,7 +723,7 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "housing_starts_spy": {
    "signal_frequency": "monthly",
@@ -802,7 +805,7 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "retail_inv_sales_spy": {
    "signal_frequency": "monthly",
@@ -829,7 +832,7 @@
    "observed_winner_lead_unit": "months",
    "class": "monthly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "nhs_saar_spy": {
    "signal_frequency": "monthly",
@@ -875,7 +878,7 @@
    "observed_winner_lead_unit": "quarters",
    "class": "quarterly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   },
   "sloos_ci_small_spy": {
    "signal_frequency": "quarterly",
@@ -894,7 +897,7 @@
    "observed_winner_lead_unit": "quarters",
    "class": "quarterly",
    "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-   "conformed": false
+   "conformed": true
   }
  }
 }

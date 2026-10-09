@@ -16,6 +16,6 @@
     "results/wells_fargo_housing_spy/subperiod_sharpe.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-06T23:15:11.317151+00:00",
+  "generated_at": "2026-10-09T09:28:16.901653+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
 }

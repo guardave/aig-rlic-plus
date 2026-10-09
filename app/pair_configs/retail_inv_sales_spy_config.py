@@ -42,7 +42,7 @@ results/retail_inv_sales_spy/*:
     cause SPY at any tested lag (minimum p = 0.439 at lag 4) (granger_by_lag.csv).
     Linear correlation with forward SPY is near zero at every horizon; the only
     nominally significant cell is the 60-month z-score vs 6-month-forward SPY
-    (r = 0.11, p = 0.03), a weak positive (core_models_20260912/correlations.csv).
+    (r = 0.11, p = 0.03), a weak positive (core_models_20261008/correlations.csv).
     Local projections are near-null at every horizon (no coefficient significant;
     trivial R^2), with coefficients close to zero and mixed in sign
     (local_projections.csv). Pre-whitened cross-correlation is significant only
@@ -55,7 +55,7 @@ results/retail_inv_sales_spy/*:
     defensive through the GFC, COVID and 2022 stress windows
     (subperiod_sharpe.csv). Turnover is moderate (1.96/yr, 16 OOS trades).
     A stationary block bootstrap puts the winner's Sharpe at p < 0.01
-    (tournament_validation_20260912/bootstrap.csv), but that is an in-sample
+    (tournament_validation_20261008/bootstrap.csv), but that is an in-sample
     significance check, not out-of-sample validation.
   - Status is `found_in_search` (evidence_status.json): the winner still needs
     a frozen-rule holdout / final exam.
@@ -64,15 +64,15 @@ results/retail_inv_sales_spy/*:
     KPSS rejects stationarity -- the level drifts slowly across decades. That is
     precisely why the winner pairs the level with a 60-month ROLLING-median
     threshold that re-centers on recent history, not a fixed cut
-    (stationarity_tests_20260912.csv).
+    (stationarity_tests_20261008.csv).
 
 MONTHLY conventions: leads in MONTHS (winner L3); Sharpe annualized by
 sqrt(12); OOS window 2017-06-30 -> 2025-07-31 (98 months). Numbers sourced from
 results/retail_inv_sales_spy/ (winner_summary.json, kpis.json,
-evidence_status.json, interpretation_metadata.json, core_models_20260912/*,
+evidence_status.json, interpretation_metadata.json, core_models_20261008/*,
 regime_quartile_returns.csv, subperiod_sharpe.csv, granger_by_lag.csv,
-stationarity_tests_20260912.csv, structural_break_retail_inv_sales_spy.json,
-tournament_results_20260912.csv, tournament_validation_20260912/bootstrap.csv).
+stationarity_tests_20261008.csv, structural_break_retail_inv_sales_spy.json,
+tournament_results_20261008.csv, tournament_validation_20261008/bootstrap.csv).
 """
 
 from __future__ import annotations
@@ -515,8 +515,8 @@ class StrategyConfig:
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/retail_inv_sales_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/retail_inv_sales_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/retail_inv_sales_spy/tournament_results_20260912.csv"},
-        {"label": "Stationarity tests", "path": "results/retail_inv_sales_spy/stationarity_tests_20260912.csv"},
+        {"label": "Tournament results", "path": "results/retail_inv_sales_spy/tournament_results_20261008.csv"},
+        {"label": "Stationarity tests", "path": "results/retail_inv_sales_spy/stationarity_tests_20261008.csv"},
     ]
 
     SIGNAL_RULE_MD = """

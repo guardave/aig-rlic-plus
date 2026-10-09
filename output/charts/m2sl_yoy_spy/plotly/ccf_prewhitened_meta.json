@@ -11,9 +11,9 @@
   "narrative_alignment_note": "CCF mirrors the absence of a forward lead.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/m2sl_yoy_spy/core_models_20260619/ccf_prewhitened.csv"
+    "results/m2sl_yoy_spy/core_models_20261008/ccf_prewhitened.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-19T10:55:38.158969+00:00",
+  "generated_at": "2026-10-09T09:28:23.041138+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
 }

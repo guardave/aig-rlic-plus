@@ -1,6 +1,6 @@
 {
   "pair_id": "wells_fargo_housing_spy",
-  "generated_at": "2026-07-06T22:58:55Z",
+  "generated_at": "2026-10-08T23:53:18Z",
   "signal_column": "nahb_hmi_diff_12m",
   "signal_code": "wells_fargo_housing_diff_12m",
   "signal_display_name": "NAHB HMI diff_12m",
@@ -34,8 +34,8 @@
   "bh_ann_return": 0.1539,
   "bh_max_drawdown": -0.2393,
   "cost_assumption_bps": 5,
-  "total_combos": 17856,
-  "valid_combos": 12980,
+  "total_combos": 19344,
+  "valid_combos": 14073,
   "schema_version": "1.1.0",
   "selection": {
     "objective": "max_oos_sharpe",
@@ -53,13 +53,14 @@
         9,
         10,
         11,
-        12
+        12,
+        13
       ],
       "n_signals": 13,
       "n_thresholds": 12,
       "n_strategies": 6,
-      "n_valid_combos": 12980,
-      "median_valid_objective": 0.7901
+      "n_valid_combos": 14073,
+      "median_valid_objective": 0.7908
     },
     "tie_break_step": 0,
     "raw_winner_row": {
@@ -68,8 +69,8 @@
       "strategy": "P1_long_cash_pro",
       "lead_column": "lead_months",
       "lead_value": 7,
-      "source_tournament_file": "tournament_results_20260706.csv",
-      "source_row_index": 9724,
+      "source_tournament_file": "tournament_results_20261008.csv",
+      "source_row_index": 10468,
       "display_alias": "signal_code=wells_fargo_housing_diff_12m (raw signal=diff_12m); strategy_family=P1_long_cash (raw strategy=P1_long_cash_pro)"
     },
     "runner_up": {
@@ -79,8 +80,8 @@
       "lead_value": 6,
       "objective_value": 1.4218
     },
-    "rationale": "Maximiser of OOS Sharpe over the full tradable MONTHLY lead grid L1..L12 (12980 valid combos; median valid OOS Sharpe 0.7901). 394-month HMI x SPY overlap gives a 98-month (~8.2yr) OOS window \u2014 ABOVE the 5-year reliability floor (a LONG sample by fleet standards), so the found-in-search caveat is materially weaker than short-history pairs, though the winner is still selected from 17856 scanned combos. ECON-LT1 gate: full grid scanned natively -> no staleness possible. Bounded-index guard: winner bounded_pct_risk=False.",
+    "rationale": "Maximiser of OOS Sharpe over the full tradable MONTHLY lead grid L1..L12 (14073 valid combos; median valid OOS Sharpe 0.7908). 394-month HMI x SPY overlap gives a 98-month (~8.2yr) OOS window \u2014 ABOVE the 5-year reliability floor (a LONG sample by fleet standards), so the found-in-search caveat is materially weaker than short-history pairs, though the winner is still selected from 19344 scanned combos. ECON-LT1 gate: full grid scanned natively -> no staleness possible. Bounded-index guard: winner bounded_pct_risk=False.",
     "objective_runner_up_divergence": null
   },
-  "notes": "Mode 1, feat260706_wells_fargo_housing_spy \u2014 MONTHLY bounded-diffusion-index pair. Tournament: 17856 strategy combos (+1 benchmark, valid=False per ECON-T4), 12980 valid, exhaustive over the full tradable lead grid L1..L12 (GH #13 native). Winner by ECON-T3 cascade (resolved at step 1; 1 tied at step 1 \u2014 integer-granularity index, ties expected). OOS = 98 months (~8.2yr, ABOVE the 5yr floor \u2014 long by fleet standards). Lead-lag verdict (empirical): HMI->SPY TY-Granger sig lags(m) [5], SPY->HMI sig lags(m) [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; pre-whitened CCF sig lead(+) lags [1, 5, 12, 13], lag(-) lags [-10, -1] -> classified 'bidirectional'. Winner's own lead-curve peaks at L7 (published L7); adjacent-lead durability: False. Robustness: winner bootstrap p=0.1272 (vs resampled B&H); IS Sharpe 0.75 vs OOS 1.43; CP1 durability 'conditionally_durable'; corr sign-stability 'sign_stable'; structural break flagged: False (2009-03-31). Static source ends 2025-10 (~9 months stale at run date). Gross of costs; sensitivity in tournament_validation_20260706/."
+  "notes": "Mode 1, feat260706_wells_fargo_housing_spy \u2014 MONTHLY bounded-diffusion-index pair. Tournament: 19344 strategy combos (+1 benchmark, valid=False per ECON-T4), 14073 valid, exhaustive over the full tradable lead grid L1..L12 (GH #13 native). Winner by ECON-T3 cascade (resolved at step 1; 1 tied at step 1 \u2014 integer-granularity index, ties expected). OOS = 98 months (~8.2yr, ABOVE the 5yr floor \u2014 long by fleet standards). Lead-lag verdict (empirical): HMI->SPY TY-Granger sig lags(m) [5], SPY->HMI sig lags(m) [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; pre-whitened CCF sig lead(+) lags [1, 5, 12, 13], lag(-) lags [-10, -1] -> classified 'bidirectional'. Winner's own lead-curve peaks at L7 (published L7); adjacent-lead durability: False. Robustness: winner bootstrap p=0.1272 (vs resampled B&H); IS Sharpe 0.75 vs OOS 1.43; CP1 durability 'conditionally_durable'; corr sign-stability 'sign_stable'; structural break flagged: False (2009-03-31). Static source ends 2025-10 (~9 months stale at run date). Gross of costs; sensitivity in tournament_validation_20261008/."
 }

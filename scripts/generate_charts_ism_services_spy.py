@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Chart generation: ISM Services PMI x SPY — Mode 3.
 
-Vera-owned producer for the ism_services_spy standard chart set (20260618).
+Vera-owned producer for the ism_services_spy standard chart set (20261008).
 Consumes Evan's ECON-H4 handoff artifacts (results/ism_services_spy/) and Dana's
 monthly dataset. The ECON-SR1 strategy-performance charts (equity_curves,
 drawdown, walk_forward) are produced by scripts/generate_strategy_perf_charts.py
@@ -50,7 +50,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart, QUARTILE_COLORS  # noqa: E402
 
 PAIR = "ism_services_spy"
-DATE_TAG = "20260618"
+DATE_TAG = "20261008"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"

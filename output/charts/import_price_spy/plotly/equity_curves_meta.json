@@ -1,12 +1,12 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-09-25T23:13:33.229373+00:00",
+  "generated_at": "2026-10-09T09:27:43.466360+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Winner strategy equity curve compared with buy-and-hold SPY.",
   "narrative_alignment_note": "Winner strategy equity curve compared with buy-and-hold SPY.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/import_price_spy/strategy_returns_20260830.csv"
+    "/workspaces/aig-rlic-plus/results/import_price_spy/strategy_returns_20261008.csv"
   ]
 }

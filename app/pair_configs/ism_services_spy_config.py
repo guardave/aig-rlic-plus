@@ -1,7 +1,7 @@
 """ISM Services PMI x SPY pair configuration (Rule APP-PT1).
 
 Pair `ism_services_spy`, Mode 3. Prose is sourced from Research Ray's
-`docs/portal_narrative_ism_services_spy_20260618.md`; this file wires that
+`docs/portal_narrative_ism_services_spy_20261008.md`; this file wires that
 prose to the shared Streamlit templates and Vera's bare-name chart artifacts.
 
 Evidence status is `found_in_search`, so headline performance is labelled as
@@ -528,7 +528,7 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Regime quartile returns (4 rows)", "path": "results/ism_services_spy/regime_quartile_returns.csv"},
         {"label": "Subperiod Sharpe checks (4 rows)", "path": "results/ism_services_spy/subperiod_sharpe.csv"},
         {"label": "Rolling correlation", "path": "results/ism_services_spy/rolling_correlation_ism_services_spy.csv"},
-        {"label": "Stationarity tests (10 rows)", "path": "results/ism_services_spy/stationarity_tests_20260618.csv"},
+        {"label": "Stationarity tests (10 rows)", "path": "results/ism_services_spy/stationarity_tests_20261008.csv"},
     ],
     "level1": [GRANGER_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Granger Causality", "Lead Analysis", "Lead Tournament", "Quartile Gradient", "Pre-Whitened CCF"],

@@ -1,33 +1,43 @@
 #!/usr/bin/env python3
 """Chart generation: Cass Freight Index (Shipments, FRGSHPUSM649NCIS) x SPY.
 
-Producer for the cass_freight_spy standard chart set (rebuilt 20260829 after the
-Step C #198 Data Master history splice extended the pair to 1990-2026). Consumes
-results/cass_freight_spy/ (winner_summary.json, tournament_results_20260829.csv,
-strategy_returns_20260829.csv, subperiod_sharpe.csv, regime_quartile_returns.csv,
-granger_by_lag.csv, core_models_20260829/*, rolling_correlation_*.csv,
-structural_break_*.json, lead_correlation_20260829.csv, lead_tournament_20260829.csv)
-plus Dana's monthly dataset. Strategy charts use the saved return series; they do
-NOT re-run strategy selection.
+Producer for the cass_freight_spy standard chart set (#255 floored-grid re-run,
+DATE_TAG 20261008; the pair history was extended to 1990-2026 by the Step C #198
+Data Master splice). Consumes results/cass_freight_spy/ (winner_summary.json,
+tournament_results_20261008.csv, strategy_returns_20261008.csv, subperiod_sharpe.csv,
+regime_quartile_returns.csv, granger_by_lag.csv, core_models_20261008/*,
+rolling_correlation_*.csv, structural_break_*.json, lead_correlation_20261008.csv,
+lead_tournament_20261008.csv) plus Dana's monthly dataset. Strategy charts use the
+saved return series; they do NOT re-run strategy selection.
 
 Framing (binding — do NOT oversell; every number sourced from results/):
-  * Winner = cass_freight_contraction (freight-recession flag) / T3_zscore_neg_1.0 /
-    P1 Long-Cash, PROCYCLICAL orientation / L9 (9-month lead) / LB36.
-    OOS Sharpe 1.30 vs B&H 0.93; ann return 17.4% vs 15.4%; max DD -19.5% vs -23.9%.
-    OOS window 2018-04-30 -> 2026-07-31 (100 months ~= 8.3 years) — now CLEARS the
-    5-year reliability floor (the old <5yr caveat is retired).
-  * Still a FOUND-IN-SEARCH CANDIDATE: median valid combo Sharpe 0.77 UNDERPERFORMS
-    B&H 0.93; winner is the right tail of a 16,080-combo search (11,501 valid);
-    bootstrap p = 0.0852 (NOT significant at 5%); IS Sharpe 0.61 vs OOS 1.30.
+  * Winner = cass_freight_dev_trend_pct (% deviation of the freight level from its
+    12-month moving average) / T2_roll_p75 (rolling 75th-pct, rule 'gt') /
+    P1 Long-Cash, COUNTERCYCLICAL orientation / L13 (13-month lead) / LB60.
+    OOS Sharpe 1.34 vs B&H 0.93; ann return 17.7% vs 15.4%; max DD -19.5% vs -23.9%;
+    win 54%, 14 OOS trades, turnover 1.68/yr, avg exposure ~76%.
+    OOS window 2018-04-30 -> 2026-07-31 (100 months ~= 8.3 years) — clears the
+    5-year reliability floor on length (per oos_split_record.json).
+  * DIRECTION FLIPPED vs the prior #255 winner. The executed rule (verified against
+    winner_trade_log.csv / winner_trades_broker_style.csv) is COUNTERCYCLICAL:
+    HOLD SPY when the 13-month-lagged trend-deviation is BELOW its rolling 75th-pct
+    threshold (freight was NOT unusually far above trend); step to CASH when it is
+    ABOVE p75 (freight was unusually strong / top-quartile above trend 13 months ago).
+    This is contrarian — opposite the naive procyclical "strong freight = risk-on"
+    prior, and opposite the CONCURRENT regime-quartile evidence (which is procyclical).
+  * FOUND-IN-SEARCH CANDIDATE: median valid combo Sharpe 0.76 UNDERPERFORMS B&H 0.93;
+    winner is the right tail of a 17,420-combo search (12,422 valid, 6,670 clean);
+    bootstrap p = 0.0852 (NOT significant at 5%); IS Sharpe 0.61 vs OOS 1.34.
+  * GRID-CEILING / LONG-LEAD winner: L13 is the TOP of the floored lead grid [1..13].
+    A grid-ceiling winner requires adjudication (Lead-Grid Standard Step 4) and is
+    flagged as likely fragile / possible multiple-testing (issue #28).
   * Causality: forward Granger NONE (Cass does NOT Granger-cause SPY; min p 0.39);
     reverse SPY->Cass significant at lags [1,2,3,5,6] -> classified 'lagging'.
-    Freight is a procyclical coincident/lagging demand overlay, NOT a forecast.
-  * L9 lead is a likely search artifact (freight is coincident; issue #28 tracks the
-    fleet-wide L9 pattern). Adjacent-lead durability is a caution.
-  * Drawdown reduction (-19.5% vs -23.9%) is the defensible virtue — read the Sharpe
-    edge as volatility avoidance (sitting out deep-contraction months).
+    Freight is a coincident/lagging demand overlay, NOT a forecast.
+  * Drawdown reduction (-19.5% vs -23.9%) is only MODESTLY better than B&H — a weaker
+    risk profile than the other #255 winners; read any edge cautiously.
   * NSA: the Cass source is NOT seasonally adjusted; MoM/3M/6M/level-zscore signals
-    are seasonally contaminated. The winner (contraction) is on the seasonally-CLEAN
+    are seasonally contaminated. The winner (dev_trend) is on the seasonally-CLEAN
     set. The globally highest raw combo (accel/L3, OOS Sharpe 1.47) is contaminated
     and excluded by design.
   * History now spans dot-com, GFC, COVID, 2022. The strategy OOS window is 2018+, so
@@ -42,7 +52,7 @@ Charts produced (output/charts/cass_freight_spy/plotly/, bare names):
     subperiod_sharpe, walk_forward, history_zoom_{dotcom,gfc,covid,inflation_2022}
     + chart_skip_{rolling_sharpe_cp,rolling_granger}.json (CP2 absent: regime_story=false).
 
-Author: Viz (rebuild). Date: 2026-08-29.
+Author: Viz. Date: 2026-10-08 (#255 floored re-run).
 """
 from __future__ import annotations
 
@@ -64,7 +74,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart, QUARTILE_COLORS  # noqa: E402
 
 PAIR = "cass_freight_spy"
-DATE_TAG = "20260829"
+DATE_TAG = "20261008"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -103,11 +113,11 @@ SRC_DATA = "data/cass_freight_spy_monthly_latest.parquet"
 YOY_COL = "cass_freight_pct_yoy"
 
 # Winner combo coordinates (winner_summary.json raw_winner_row).
-WIN_SIGNAL_RAW = "contraction"
-WIN_THRESHOLD = "T3_zscore_neg_1.0"
+WIN_SIGNAL_RAW = "dev_trend"
+WIN_THRESHOLD = "T2_roll_p75"
 WIN_STRATEGY_RAW = "P1_long_cash_counter"
-WIN_LOOKBACK = "LB36"
-WIN_LEAD = 9
+WIN_LOOKBACK = "LB60"
+WIN_LEAD = 13
 BOOT_P = 0.0852  # winner_summary.notes: winner bootstrap p=0.0852 (vs resampled B&H)
 
 
@@ -358,11 +368,11 @@ _LEAD_SIGLBL = {
     "cass_freight_pct_mom": "MoM growth",
     "cass_freight_3m_pct": "3M change",
     "cass_freight_6m_pct": "6M change",
-    "cass_freight_dev_trend_pct": "Trend deviation",
+    "cass_freight_dev_trend_pct": "Trend deviation (winner signal)",
     "cass_freight_zscore_60m": "Level z-score (60m)",
     "cass_freight_yoy_zscore_60m": "YoY z-score (60m)",
     "cass_freight_accel_pct": "Acceleration",
-    "cass_freight_contraction": "Contraction flag (winner signal)",
+    "cass_freight_contraction": "Contraction flag",
 }
 
 
@@ -401,8 +411,8 @@ def chart_correlations_lead_view():
     fig.update_layout(
         title=(f"Lead View: Cass Freight Signals (Lagged L Months) vs {TGT} 1-Month "
                f"Forward Return<br><sup>Pearson r; * p&lt;0.05. No lead carries stable "
-               f"forward content — the winner signal (contraction) peaks only at "
-               f"L{WIN_LEAD} (r ≈ +0.07)</sup>"),
+               f"forward content — the winner signal (trend deviation) is near-zero "
+               f"across all measured leads (slightly negative at L9–L12)</sup>"),
         xaxis_title="Signal lead (months; L0 contemporaneous, non-tradable)",
         yaxis_title="Cass Freight signal transform",
         template="plotly_white", height=520)
@@ -411,12 +421,14 @@ def chart_correlations_lead_view():
                         f"months and the {TGT} 1-month forward return. Cells are small at "
                         f"nearly every lead and the few starred ones are scattered and flip "
                         f"sign across transforms — the signature of a coincident series "
-                        f"with no stable predictive lead. The winner's own signal (the "
-                        f"contraction flag) is weak across the whole row, peaking only at "
-                        f"L{WIN_LEAD} — which is why the deployed L{WIN_LEAD} lead is best "
-                        f"read as a likely search artifact (issue #28)."),
-               alignment=(f"Honest near-null lead view; winner signal 'contraction' peaks "
-                          f"at L{WIN_LEAD} but weakly."),
+                        f"with no stable predictive lead. The winner's own signal (trend "
+                        f"deviation) carries no stable forward correlation at any measured "
+                        f"lead (near-zero, slightly negative at L9–L12); its deployed lead "
+                        f"L{WIN_LEAD} sits beyond this 0–12 view, at the very ceiling of the "
+                        f"floored grid — which is why L{WIN_LEAD} is best read as a likely "
+                        f"search artifact (issue #28)."),
+               alignment=(f"Honest near-null lead view; winner signal 'trend deviation' "
+                          f"has no stable predictive lead; L{WIN_LEAD} is the grid ceiling."),
                rules=["VIZ-LEAD1", "VIZ-IC1", "VIZ-TX1", "VIZ-O1"],
                sources=[f"results/{PAIR}/lead_correlation_{DATE_TAG}.csv"],
                extra_meta={"method_name": "lead_correlation_view",
@@ -454,7 +466,7 @@ def chart_lead_sharpe_distribution():
     fig.add_trace(go.Scatter(
         x=wc.index, y=wc.values, mode="lines+markers",
         line=dict(color=C_IND, width=2.2), marker=dict(size=7, color=C_IND),
-        name="Winner signal (contraction) traced across leads"))
+        name="Winner signal (trend deviation) traced across leads"))
     fig.add_trace(go.Scatter(
         x=[WIN_LEAD], y=[float(w["oos_sharpe"])], mode="markers",
         marker=dict(size=16, color=C_POS, symbol="star", line=dict(width=1, color="#000000")),
@@ -464,26 +476,29 @@ def chart_lead_sharpe_distribution():
                   annotation_position="bottom right")
     fig.update_layout(
         title=(f"Lead Sweep: OOS Sharpe by Monthly Lead — Published Winner L{WIN_LEAD} "
-               f"({w['oos_sharpe']:.2f}) Is the Best CLEAN Combo<br><sup>The taller raw bar at "
+               f"({w['oos_sharpe']:.2f}) Is the Best CLEAN Combo<br><sup>L{WIN_LEAD} is the "
+               f"CEILING of the floored grid [1..{WIN_LEAD}]; the taller raw bar at "
                f"L{raw_peak_lead} ({raw_peak:.2f}) is a seasonally-contaminated signal excluded "
-               f"by design; OOS now 100 months (≈8.3yr, clears the 5yr floor)</sup>"),
+               f"by design</sup>"),
         xaxis_title="Signal lead (months)", yaxis_title="OOS Sharpe ratio",
         template="plotly_white", height=480, margin=dict(b=150),
         legend=dict(orientation="h", yanchor="top", y=-0.18, xanchor="left", x=0))
     fig.update_xaxes(dtick=1)
     save_chart("lead_sharpe_distribution", fig,
-               caption=(f"OOS Sharpe across the tradable monthly lead grid L1–L12. Bars are "
-                        f"the best seasonally-CLEAN combo at each lead (the population the "
+               caption=(f"OOS Sharpe across the tradable monthly lead grid L1–L{WIN_LEAD}. Bars "
+                        f"are the best seasonally-CLEAN combo at each lead (the population the "
                         f"winner is drawn from); the vermillion line traces the winner's own "
-                        f"signal (the contraction flag). The published winner (star) sits at "
-                        f"L{WIN_LEAD} with OOS Sharpe {w['oos_sharpe']:.2f}. The grey dotted "
-                        f"line (best of ANY signal) peaks higher at L{raw_peak_lead} "
-                        f"({raw_peak:.2f}), but that peak rides a seasonally-contaminated "
-                        f"transform (the Cass source is NSA) and is excluded. Read the "
-                        f"uneven, adjacent-lead profile as a caution: L{WIN_LEAD} is a likely "
-                        f"search artifact for a coincident series (issue #28)."),
-               alignment=(f"Published L{WIN_LEAD} winner is the best CLEAN combo; the taller "
-                          f"raw bar at L{raw_peak_lead} is contaminated and excluded."),
+                        f"signal (trend deviation). The published winner (star) sits at "
+                        f"L{WIN_LEAD} with OOS Sharpe {w['oos_sharpe']:.2f} — at the very "
+                        f"CEILING of the floored lead grid. The grey dotted line (best of ANY "
+                        f"signal) peaks higher at L{raw_peak_lead} ({raw_peak:.2f}), but that "
+                        f"peak rides a seasonally-contaminated transform (the Cass source is "
+                        f"NSA) and is excluded. A grid-ceiling, 13-month-lead winner on a "
+                        f"coincident series is best read as a likely search artifact requiring "
+                        f"adjudication (issue #28)."),
+               alignment=(f"Published L{WIN_LEAD} winner is the best CLEAN combo but sits at the "
+                          f"grid ceiling; the taller raw bar at L{raw_peak_lead} is contaminated "
+                          f"and excluded."),
                rules=["VIZ-LEAD1", "VIZ-IC1", "VIZ-TX1", "VIZ-O1"],
                sources=[f"results/{PAIR}/lead_tournament_{DATE_TAG}.csv",
                         f"results/{PAIR}/tournament_results_{DATE_TAG}.csv",
@@ -713,9 +728,9 @@ def chart_hmm():
                         f"HMM). The high-variance state covers {stress_pct:.0f}% of months and "
                         f"spikes at freight-cycle turning points (GFC, COVID, 2022–24 "
                         f"freight recession). The winner signal for this pair is the "
-                        f"contraction flag, not the HMM probability — the HMM is supporting "
-                        f"regime context. Shaded bands mark NBER recessions."),
-               alignment=("HMM is backdrop context; winner is the contraction flag, not "
+                        f"trend-deviation signal, not the HMM probability — the HMM is "
+                        f"supporting regime context. Shaded bands mark NBER recessions."),
+               alignment=("HMM is backdrop context; winner is the trend-deviation signal, not "
                           "hmm_stress. Labelled accordingly."),
                rules=["VIZ-IC1", "VIZ-NBER1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/core_models_{DATE_TAG}/hmm_states.parquet",
@@ -738,7 +753,7 @@ def chart_equity_curves():
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=d["date"], y=d["strategy_equity"], mode="lines",
-        name=f"Cass Freight procyclical Long/Cash (Sharpe {w['oos_sharpe']:.2f})",
+        name=f"Cass Freight countercyclical Long/Cash (Sharpe {w['oos_sharpe']:.2f})",
         line=dict(color=C_IND, width=2.2)))
     fig.add_trace(go.Scatter(
         x=d["date"], y=d["bh_equity"], mode="lines",
@@ -752,11 +767,11 @@ def chart_equity_curves():
     add_nber_shading(fig, x_min=d["date"].min(), x_max=d["date"].max())
     nber_swatch(fig)
     fig.update_layout(
-        title=(f"Procyclical Overlay With a Drawdown Win: Cass Freight Rule vs Buy & Hold "
+        title=(f"Countercyclical Overlay, Modest Edge: Cass Freight Rule vs Buy & Hold "
                f"{TGT}<br><sup>OOS {w['oos_period_start']} to {w['oos_period_end']} "
                f"({w['oos_n']} months ≈ 8.3yr): {w['oos_ann_return']*100:.1f}% vs "
                f"{w['bh_ann_return']*100:.1f}% annualized; bootstrap p={BOOT_P:.3f} "
-               f"(NOT significant) — found-in-search candidate</sup>"),
+               f"(NOT significant) — found-in-search candidate at grid-ceiling lead L13</sup>"),
         xaxis_title="Date", yaxis_title="Growth of 1.00",
         template="plotly_white", height=480,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
@@ -792,19 +807,19 @@ def chart_drawdown():
     add_nber_shading(fig, x_min=d["date"].min(), x_max=d["date"].max())
     nber_swatch(fig)
     fig.update_layout(
-        title=(f"Drawdown Protection Is the Defensible Virtue: "
+        title=(f"Only a Modest Drawdown Edge: "
                f"{w['oos_max_drawdown']*100:.1f}% vs {w['bh_max_drawdown']*100:.1f}% OOS"),
         xaxis_title="Date", yaxis_title="Drawdown (%)",
         template="plotly_white", height=430,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     save_chart("drawdown", fig,
-               caption=(f"Drawdown path for the Cass Freight procyclical Long/Cash rule and "
+               caption=(f"Drawdown path for the Cass Freight countercyclical Long/Cash rule and "
                         f"buy-and-hold {TGT}. In OOS the strategy's max drawdown is "
                         f"{w['oos_max_drawdown']*100:.1f}% versus "
-                        f"{w['bh_max_drawdown']*100:.1f}% for buy-and-hold — the reduction "
-                        f"achieved by stepping to cash in deep freight contractions is the "
-                        f"rule's most defensible feature; read the Sharpe edge as volatility "
-                        f"avoidance."),
+                        f"{w['bh_max_drawdown']*100:.1f}% for buy-and-hold — a modest "
+                        f"reduction achieved by stepping to cash when freight was unusually "
+                        f"far above trend; it is only slightly better than buy-and-hold, a "
+                        f"weaker risk profile than the other #255 winners."),
                alignment="Drawdown from the saved monthly return series; frames Sharpe as vol avoidance.",
                rules=["VIZ-IC1", "VIZ-NBER1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/strategy_returns_{DATE_TAG}.csv",
@@ -920,8 +935,10 @@ def chart_rolling_correlation():
                   annotation_text="No correlation")
     add_nber_shading(fig, x_min=rc["date"].min(), x_max=rc["date"].max())
     nber_swatch(fig)
+    _verdict_title = ("Sign-Unstable" if "unstable" in sb["rolling_corr_stability_verdict"]
+                      else "Sign-Stable")
     fig.update_layout(
-        title=(f"Sign-Stable but Variable Correlation: 24-Month Rolling Correlation, "
+        title=(f"{_verdict_title}, Variable Correlation: 24-Month Rolling Correlation, "
                f"{IND_YOY} vs {TGT} Returns<br><sup>Sign agreement "
                f"{sb['rolling_corr_sign_stability']:.2f} — verdict: "
                f"{sb['rolling_corr_stability_verdict'].replace('_', '-')}</sup>"),
@@ -971,11 +988,11 @@ def chart_structural_break():
     save_chart("structural_break", fig,
                caption=(f"{IND_YOY} over the test sample ({sb['sample_start'][:7]}–"
                         f"{sb['sample_end'][:7]}, n = {sb['n_obs']}) with the Quandt-Andrews "
-                        f"candidate break date ({sb['break_date'][:7]}, at the COVID shock). "
+                        f"candidate break date ({sb['break_date'][:7]}). "
                         f"sup-F {sb['f_stat']:.2f}, bootstrap p = {sb['p_value']:.2f} "
-                        f"— {'a break is flagged' if flagged else 'no break flagged'}. "
-                        f"On a longer 1993+ sample the COVID dislocation is now detectable. "
-                        f"Shaded bands mark NBER recessions."),
+                        f"— {'a break is flagged' if flagged else 'no significant break flagged'}. "
+                        f"The sup-F peaks near the GFC but does not clear the bootstrap "
+                        f"significance bar. Shaded bands mark NBER recessions."),
                alignment="Annotation-driven; flagged state and values read from JSON.",
                rules=["VIZ-CP1.3", "VIZ-NBER1", "VIZ-IC1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/structural_break_{PAIR}.json", SRC_DATA],

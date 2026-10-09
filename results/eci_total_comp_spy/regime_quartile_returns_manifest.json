@@ -2,7 +2,7 @@
   "file": "regime_quartile_returns.csv",
   "pair_id": "eci_total_comp_spy",
   "produced_by": "scripts/pair_pipeline_eci_total_comp_spy.py",
-  "generated_at": "2026-07-06T12:58:25Z",
+  "generated_at": "2026-10-08T23:47:09Z",
   "frequency": "quarterly",
   "annualization": "Sharpe = mean/std * sqrt(4); ann_return = mean*4 (quarterly data)",
   "columns": {

@@ -1,5 +1,5 @@
 {
   "pair_id": "permit_yoy_spy",
   "method": "rolling-correlation z-score proxy",
-  "max_abs_z": 2.87295840089613
+  "max_abs_z": 2.8729582226026893
 }

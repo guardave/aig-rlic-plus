@@ -9,7 +9,7 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Cass Freight YoY over the test sample (1993-11\u20132026-07, n = 393) with the Quandt-Andrews candidate break date (2020-04, at the COVID shock). sup-F 5.11, bootstrap p = 0.08 \u2014 a break is flagged. On a longer 1993+ sample the COVID dislocation is now detectable. Shaded bands mark NBER recessions.",
+  "caption": "Cass Freight YoY over the test sample (1994-03\u20132026-07, n = 389) with the Quandt-Andrews candidate break date (2009-03). sup-F 4.79, bootstrap p = 0.12 \u2014 no significant break flagged. The sup-F peaks near the GFC but does not clear the bootstrap significance bar. Shaded bands mark NBER recessions.",
   "narrative_alignment_note": "Annotation-driven; flagged state and values read from JSON.",
   "disposition": "consumed",
   "source_artifacts": [
@@ -17,8 +17,8 @@
     "data/cass_freight_spy_monthly_latest.parquet"
   ],
   "reconciliation": null,
-  "generated_at": "2026-08-29T09:09:58.787268+00:00",
+  "generated_at": "2026-10-09T09:43:21.403986+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)",
-  "break_date": "2020-04-30",
+  "break_date": "2009-03-31",
   "annotation_strategy_id": "manual_override"
 }

@@ -1,20 +1,21 @@
 {
- "chart_name": "hmm_regime_probs",
- "pair_id": "eci_total_comp_spy",
- "palette_id": "okabe_ito_2026",
- "rules_applied": [
-  "VIZ-IC1",
-  "VIZ-NBER1",
-  "VIZ-TX1",
-  "VIZ-O1"
- ],
- "caption": "2-state HMM probability of the high-variance wage-growth regime, quarterly 2001\u20132026; the 2021\u201323 wage surge dominates the recent regime picture. Shaded bands mark NBER recessions.",
- "narrative_alignment_note": "Regime context; caption flags the winner's regime_contaminated stationarity class.",
- "disposition": "consumed",
- "source_artifacts": [
-  "results/eci_total_comp_spy/signals_20260706.parquet"
- ],
- "reconciliation": null,
- "generated_at": "2026-07-06T13:11:44.584142+00:00",
- "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+  "chart_name": "hmm_regime_probs",
+  "pair_id": "eci_total_comp_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Probability that ECI wage growth is in its high-wage-inflation regime (2-state HMM). In THIS floored re-run the HMM probability is the TRADED WINNER SIGNAL (it was supporting context before): the rule holds SPY when the 4-quarter-lagged probability is BELOW its rolling z = 1 threshold (low-stress = risk-on) and steps to CASH when above \u2014 countercyclical. The high-wage-inflation state covers 47% of quarters and peaks in the 2021\u201323 wage surge; concurrent SPY returns are better in the LOW state. An HMM-derived probability is more opaque than a raw transform \u2014 a complexity caution. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "hmm_stress IS the winner signal in the floored re-run; reframed from 'context' to 'traded signal', with the countercyclical rule and the opacity caution stated.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/eci_total_comp_spy/core_models_20261008/hmm_states.parquet",
+    "results/eci_total_comp_spy/core_models_20261008/hmm_summary.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-10-09T09:39:45.656475+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
 }

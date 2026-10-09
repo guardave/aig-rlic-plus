@@ -12,11 +12,11 @@
   "narrative_alignment_note": "Winner signal nahb_hmi_diff_12m peaks at L4 (r=+0.089); values parsed verbatim from lead_correlation CSV incl. significance stars.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/wells_fargo_housing_spy/lead_correlation_20260706.csv",
+    "results/wells_fargo_housing_spy/lead_correlation_20261008.csv",
     "results/wells_fargo_housing_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-06T23:15:20.431878+00:00",
+  "generated_at": "2026-10-09T09:28:17.245255+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)",
   "method_name": "lead_correlation_view",
   "expected_chart_type": "heatmap"

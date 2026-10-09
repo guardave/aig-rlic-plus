@@ -12,7 +12,7 @@
   "narrative_alignment_note": "REVERSE direction rendered as the visually primary series per the binding honesty mandate; forward is shown but n.s. at every lag. This is the headline reconciliation point.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/m2sl_yoy_spy/core_models_20260619/granger_causality.csv",
+    "results/m2sl_yoy_spy/core_models_20261008/granger_causality.csv",
     "results/m2sl_yoy_spy/granger_by_lag.csv"
   ],
   "reconciliation": {
@@ -27,6 +27,6 @@
     ],
     "verdict": "reverse_only"
   },
-  "generated_at": "2026-06-19T10:55:39.766389+00:00",
+  "generated_at": "2026-10-09T09:28:23.074190+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
 }

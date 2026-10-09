@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Dual-panel LP; forward weakness supports the coincident/lagging framing.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/core_models_20260829/local_projections.csv"
+    "results/cass_freight_spy/core_models_20261008/local_projections.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-09-25T23:22:12.233902+00:00",
+  "generated_at": "2026-10-09T09:43:20.471556+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

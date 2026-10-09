@@ -1,4 +1,4 @@
-# Tournament Tie Note — ism_services_spy (20260618)
+# Tournament Tie Note — ism_services_spy (20261008)
 
 Winner resolved at cascade step 5 (ECON-T3).
 

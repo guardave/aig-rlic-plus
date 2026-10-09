@@ -12,8 +12,8 @@
   "narrative_alignment_note": "Labels follow hmm_summary.csv semantics: stress is the lower-PMI regime, not proof of an equity-leading state.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/ism_services_spy/core_models_20260618/hmm_states.parquet",
-    "results/ism_services_spy/core_models_20260618/hmm_summary.csv"
+    "results/ism_services_spy/core_models_20261008/hmm_states.parquet",
+    "results/ism_services_spy/core_models_20261008/hmm_summary.csv"
   ],
   "reconciliation": {
     "gfc_prob_stress_mean": {
@@ -22,6 +22,6 @@
       "verdict": "PASS"
     }
   },
-  "generated_at": "2026-06-18T10:57:20.250023+00:00",
+  "generated_at": "2026-10-09T09:28:19.917625+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
 }

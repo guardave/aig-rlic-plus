@@ -1,19 +1,27 @@
 {
- "chart_name": "tournament_sharpe_dist",
- "pair_id": "eci_total_comp_spy",
- "palette_id": "okabe_ito_2026",
- "rules_applied": [
-  "VIZ-IC1",
-  "VIZ-TX1",
-  "VIZ-O1"
- ],
- "caption": "Distribution of OOS Sharpe across 1,268 valid combos with median (0.72), Buy & Hold (0.80) and the winner (1.60) marked \u2014 the winner is the right tail of a search, not an out-of-sample forecast.",
- "narrative_alignment_note": "Histogram framing makes the found-in-search point visually.",
- "disposition": "consumed",
- "source_artifacts": [
-  "results/eci_total_comp_spy/tournament_results_20260706.csv"
- ],
- "reconciliation": null,
- "generated_at": "2026-07-06T13:11:44.584142+00:00",
- "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+  "chart_name": "tournament_sharpe_dist",
+  "pair_id": "eci_total_comp_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-SCD1",
+    "ECON-T4",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Distribution of OOS Sharpe across the 808 valid strategy combos. The winner (Sharpe 1.41) is the right tail; the median valid combo (0.68) sits BELOW buy & hold (0.80) \u2014 the typical quarterly rule subtracts value, so the winner is a found-in-search draw (bootstrap p = 0.184, not significant at 5%; no fresh final-exam holdout). On 25 quarters, treat it as a candidate, not a validated edge.",
+  "narrative_alignment_note": "VIZ-SCD1 position disclosure + B&H line; median&lt;B&H stated explicitly; fragility flags in caption.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/eci_total_comp_spy/tournament_results_20261008.csv",
+    "results/eci_total_comp_spy/winner_summary.json"
+  ],
+  "reconciliation": {
+    "valid_count": 808,
+    "median_oos_sharpe": 0.6787,
+    "winner_oos_sharpe": 1.4089,
+    "bh_oos_sharpe": 0.8043
+  },
+  "generated_at": "2026-10-09T09:39:45.884744+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
 }

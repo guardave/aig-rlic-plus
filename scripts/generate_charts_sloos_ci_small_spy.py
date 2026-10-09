@@ -2,7 +2,7 @@
 """Chart generation for SLOOS C&I (Small Firms) net-% tightening x SPY.
 
 QUARTERLY pair. Reads data/sloos_ci_small_spy_quarterly_latest.parquet and
-results/sloos_ci_small_spy/* at DATE_TAG 20260830. Produces the same chart-name
+results/sloos_ci_small_spy/* at DATE_TAG 20261008. Produces the same chart-name
 set the config references (hero, equity_curves, drawdown, correlation_heatmap,
 ccf_prewhitened, granger_f_by_lag, local_projections, quantile_coef,
 regime_stats, rolling_correlation, structural_break, subperiod_sharpe,
@@ -34,7 +34,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 
 PAIR = "sloos_ci_small_spy"
-DATE_TAG = "20260830"
+DATE_TAG = "20261008"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"

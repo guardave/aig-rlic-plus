@@ -9,14 +9,14 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Rolling 12-month annualized Sharpe of the winner strategy vs buy-and-hold SPY over the 100-month out-of-sample window; the dashed reference line marks the reported OOS Sharpe (1.30). The rolling path swings widely around it \u2014 the headline is an average over a variable ride, not a stable level.",
+  "caption": "Rolling 12-month annualized Sharpe of the winner strategy vs buy-and-hold SPY over the 100-month out-of-sample window; the dashed reference line marks the reported OOS Sharpe (1.34). The rolling path swings widely around it \u2014 the headline is an average over a variable ride, not a stable level.",
   "narrative_alignment_note": "Rolling-Sharpe walk-forward; reference line reconciles with winner_summary OOS Sharpe.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/strategy_returns_20260829.csv",
+    "results/cass_freight_spy/strategy_returns_20261008.csv",
     "results/cass_freight_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-08-29T09:09:58.847668+00:00",
+  "generated_at": "2026-10-09T09:43:21.520448+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

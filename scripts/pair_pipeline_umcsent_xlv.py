@@ -46,7 +46,7 @@ INDICATOR_NAME = "University of Michigan Consumer Sentiment"
 TARGET_NAME = "Health Care Select Sector (XLV)"
 START_DATE = "1998-01-01"
 END_DATE = "2025-12-31"
-DATE_TAG = "20260711"  # GH#13 full L0-12 grid (free selection per Lead-Grid Frequency Standard 2026-07-14; retired the interim Option-C L0-6 cap). Immutable tournament re-used; winner unchanged (L6=1.1586). Prior L0-6 run: 20260420.
+DATE_TAG = "20261008"  # GH#13 full L0-12 grid (free selection per Lead-Grid Frequency Standard 2026-07-14; retired the interim Option-C L0-6 cap). Immutable tournament re-used; winner unchanged (L6=1.1586). Prior L0-6 run: 20260420.
 EXPECTED_DIRECTION = "procyclical"
 
 BASE_DIR = str(Path(__file__).resolve().parents[1])
@@ -1093,7 +1093,7 @@ def stage_tournament(df_monthly, df_daily):
     # a long-lead derivative (e.g. umcsent_direction, significant at L10 in the
     # per-transform lead-correlation table) is TESTED and, if it wins, ADJUDICATED
     # (Step 4 / ECON-T5) — not pre-excluded.
-    lead_times = list(range(0, 13))
+    lead_times = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 
     results = []

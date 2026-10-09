@@ -33,7 +33,7 @@ edge. Every number below is sourced from results/mfg_new_orders_spy/*:
     tested lag (minimum p = 0.44 at lag 6) (granger_by_lag.csv). Linear
     correlation with forward SPY is near zero at every horizon; the only
     nominally significant cell is MoM growth vs 1-month-forward SPY (r = 0.12,
-    p = 0.02), a weak positive (core_models_20260830/correlations.csv). Local
+    p = 0.02), a weak positive (core_models_20261008/correlations.csv). Local
     projections are near-null at every horizon (no coefficient significant;
     trivial R^2) (local_projections.csv). Pre-whitened cross-correlation is
     significant ONLY at NEGATIVE lags (SPY tends to move BEFORE new orders) --
@@ -45,7 +45,7 @@ edge. Every number below is sourced from results/mfg_new_orders_spy/*:
     volatility avoidance, not a return advantage. Turnover is LOW (0.81/yr,
     7 OOS trades): the rule sits in or out for long stretches. A stationary
     block bootstrap puts the winner's Sharpe at p = 0.004
-    (tournament_validation_20260830/bootstrap.csv), but that is an in-sample
+    (tournament_validation_20261008/bootstrap.csv), but that is an in-sample
     significance check, not out-of-sample validation.
   - Status is `found_in_search` (evidence_status.json): the winner still needs
     a frozen-rule holdout / final exam.
@@ -56,10 +56,10 @@ edge. Every number below is sourced from results/mfg_new_orders_spy/*:
 MONTHLY conventions: leads in MONTHS (winner L12); Sharpe annualized by
 sqrt(12); OOS window 2017-01-31 -> 2025-08-31 (104 months). Numbers sourced
 from results/mfg_new_orders_spy/ (winner_summary.json, kpis.json,
-evidence_status.json, interpretation_metadata.json, core_models_20260830/*,
+evidence_status.json, interpretation_metadata.json, core_models_20261008/*,
 regime_quartile_returns.csv, subperiod_sharpe.csv, granger_by_lag.csv,
-stationarity_tests_20260830.csv, structural_break_mfg_new_orders_spy.json,
-tournament_results_20260830.csv, tournament_validation_20260830/bootstrap.csv).
+stationarity_tests_20261008.csv, structural_break_mfg_new_orders_spy.json,
+tournament_results_20261008.csv, tournament_validation_20261008/bootstrap.csv).
 """
 
 from __future__ import annotations
@@ -496,8 +496,8 @@ class StrategyConfig:
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/mfg_new_orders_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/mfg_new_orders_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/mfg_new_orders_spy/tournament_results_20260830.csv"},
-        {"label": "Stationarity tests", "path": "results/mfg_new_orders_spy/stationarity_tests_20260830.csv"},
+        {"label": "Tournament results", "path": "results/mfg_new_orders_spy/tournament_results_20261008.csv"},
+        {"label": "Stationarity tests", "path": "results/mfg_new_orders_spy/stationarity_tests_20261008.csv"},
     ]
 
     SIGNAL_RULE_MD = """

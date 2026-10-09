@@ -12,8 +12,8 @@
   "narrative_alignment_note": "Labels follow hmm_states_manifest.json semantics ('stress' = builder-pessimism LEVEL regime, a deliberate level split), relabelled in plain English to avoid implying equity stress.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/wells_fargo_housing_spy/core_models_20260706/hmm_states.parquet",
-    "results/wells_fargo_housing_spy/core_models_20260706/hmm_summary.csv"
+    "results/wells_fargo_housing_spy/core_models_20261008/hmm_states.parquet",
+    "results/wells_fargo_housing_spy/core_models_20261008/hmm_summary.csv"
   ],
   "reconciliation": {
     "gfc_prob_stress_mean": {
@@ -27,6 +27,6 @@
       "verdict": "PASS"
     }
   },
-  "generated_at": "2026-07-06T23:15:01.104348+00:00",
+  "generated_at": "2026-10-09T09:28:15.945688+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
 }

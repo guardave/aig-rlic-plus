@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Chart generation: M2 Money Supply YoY (M2SL_YOY) x SPY — Mode 1 (stage 3).
 
-Vera-owned producer for the m2sl_yoy_spy standard chart set (20260619).
+Vera-owned producer for the m2sl_yoy_spy standard chart set (20261008).
 Consumes Evan's ECON-H4 artifacts (results/m2sl_yoy_spy/) + Dana's monthly
-dataset + Evan's strategy_returns_20260619.csv. Strategy charts use Evan's
+dataset + Evan's strategy_returns_20261008.csv. Strategy charts use Evan's
 saved return series; they do not re-run strategy selection.
 
 Framing (binding, per Lead dispatch + Evan handoff — DO NOT OVERSELL):
@@ -56,7 +56,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart, QUARTILE_COLORS  # noqa: E402
 
 PAIR = "m2sl_yoy_spy"
-DATE_TAG = "20260619"
+DATE_TAG = "20261008"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -667,7 +667,7 @@ def chart_equity_curves():
                         f"{w['bh_ann_return']*100:.1f}%), but the short OOS window is "
                         f"dominated by the 2020 surge and 2022 contraction. Shaded bands "
                         f"mark NBER recessions."),
-               alignment="Strategy series from strategy_returns_20260619.csv; metrics from winner_summary.json; OOS regime caveat in title.",
+               alignment="Strategy series from strategy_returns_20261008.csv; metrics from winner_summary.json; OOS regime caveat in title.",
                rules=["VIZ-IC1", "VIZ-NBER1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/strategy_returns_{DATE_TAG}.csv",
                         f"results/{PAIR}/winner_summary.json"])

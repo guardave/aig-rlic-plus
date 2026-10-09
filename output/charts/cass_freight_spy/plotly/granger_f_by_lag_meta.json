@@ -12,7 +12,7 @@
   "narrative_alignment_note": "Both directions shown; forward absent, reverse dominates \u2014 the honest lagging-indicator causality picture.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/core_models_20260829/granger_causality.csv",
+    "results/cass_freight_spy/core_models_20261008/granger_causality.csv",
     "results/cass_freight_spy/granger_by_lag.csv"
   ],
   "reconciliation": {
@@ -26,6 +26,6 @@
     ],
     "verdict": "no_forward_causality_lagging"
   },
-  "generated_at": "2026-08-29T09:09:57.867330+00:00",
+  "generated_at": "2026-10-09T09:43:20.411610+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

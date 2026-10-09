@@ -1,32 +1,21 @@
 {
- "chart_name": "drawdown",
- "pair_id": "eci_total_comp_spy",
- "palette_id": "okabe_ito_2026",
- "rules_applied": [
-  "VIZ-IC1",
-  "VIZ-NBER1",
-  "VIZ-TX1",
-  "VIZ-O1"
- ],
- "caption": "OOS-window drawdowns (cummax re-based to 2020-03-31): winner max -4.3% vs Buy & Hold -23.9%. Quarterly sampling hides intra-quarter drawdowns. Shaded bands mark NBER recessions.",
- "narrative_alignment_note": "OOS-scoped and re-based per reference_viz_drawdown_oos_window; reconciles with winner_summary oos_max_drawdown -4.27%.",
- "disposition": "consumed",
- "source_artifacts": [
-  "results/eci_total_comp_spy/strategy_returns_20260706.csv",
-  "results/eci_total_comp_spy/oos_split_record.json"
- ],
- "reconciliation": {
-  "winner_oos_sharpe_reported": 1.5952,
-  "winner_oos_sharpe_recomputed": 1.595216,
-  "winner_oos_mdd_reported": -0.0427,
-  "winner_oos_mdd_recomputed": -0.042669,
-  "bh_oos_sharpe": 0.8043,
-  "oos_window": [
-   "2020-03-31",
-   "2026-03-31"
+  "chart_name": "drawdown",
+  "pair_id": "eci_total_comp_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-IC1",
+    "VIZ-NBER1",
+    "VIZ-NS1",
+    "VIZ-O1"
   ],
-  "oos_n_quarters": 25
- },
- "generated_at": "2026-07-06T13:11:44.584142+00:00",
- "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+  "caption": "Drawdown path for the ECI countercyclical Long/Cash rule and buy-and-hold SPY. In OOS the strategy's max drawdown is -4.4% versus -23.9% for buy-and-hold \u2014 achieved by stepping to CASH (not shorting) when the lagged wage-stress probability was high. Read the Sharpe advantage as volatility / drawdown avoidance, not forecasting skill, since the indicator is lagging. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Drawdown from the saved quarterly return series; frames Sharpe as vol avoidance.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/eci_total_comp_spy/strategy_returns_20261008.csv",
+    "results/eci_total_comp_spy/winner_summary.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-10-09T09:39:45.766528+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
 }

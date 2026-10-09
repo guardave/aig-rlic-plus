@@ -30,7 +30,7 @@ from statsmodels.tsa.stattools import adfuller, grangercausalitytests, kpss
 
 
 PAIR_ID = "mfg_new_orders_spy"
-DATE_TAG = "20260830"
+DATE_TAG = "20261008"
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 REPO = Path(__file__).resolve().parents[1]
@@ -264,7 +264,7 @@ def make_position(signal: pd.Series, threshold: pd.Series | float, direction: st
 
 def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     oos_start = pd.Timestamp("2017-01-31")
-    leads = [0, 1, 2, 3, 6, 9, 12]
+    leads = list(range(2, 15))  # #255 floor L2 shifted grid [2..14] (months)
     rows = []
     bh_oos = df.loc[oos_start:, "spy_ret"].dropna()
     bh = ann_metrics(bh_oos)

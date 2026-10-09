@@ -1,6 +1,6 @@
 {
   "pair_id": "umcsent_xlv",
-  "generated_at": "2026-07-11T16:40:04Z",
+  "generated_at": "2026-10-08T23:53:16Z",
   "signal_column": "umcsent_mom",
   "signal_code": "S3_mom",
   "signal_display_name": "UMCSENT 3-month momentum",
@@ -25,7 +25,7 @@
   "oos_ann_return": 0.079494,
   "oos_ann_vol": 0.068615,
   "oos_sortino": 1.6121,
-  "oos_calmar": 11.3446,
+  "oos_calmar": 11.3448,
   "oos_max_drawdown": -0.007007,
   "oos_n_trades": 25,
   "oos_period_start": "2019-04-30",
@@ -66,8 +66,8 @@
       "n_signals": 7,
       "n_thresholds": 13,
       "n_strategies": 3,
-      "n_valid_combos": 2502,
-      "median_valid_objective": 0.5301
+      "n_valid_combos": 2523,
+      "median_valid_objective": 0.5453
     },
     "tie_break_step": 0,
     "raw_winner_row": {
@@ -76,8 +76,8 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 6,
-      "source_tournament_file": "tournament_results_20260711.csv",
-      "source_row_index": 1227,
+      "source_tournament_file": "tournament_results_20261008.csv",
+      "source_row_index": 1188,
       "display_alias": "signal_code=S3_mom; strategy=P1_long_cash"
     },
     "runner_up": {
@@ -87,7 +87,7 @@
       "lead_value": 5,
       "objective_value": 1.118
     },
-    "rationale": "FREE full-grid selection (Lead-Grid Frequency Standard, 2026-07-14): no economic-window cap \u2014 the winner is the global max valid OOS Sharpe over the FULL L0-12 grid (2502 valid combos, median 0.5301): S3_mom/T3_zscore_1.0/P1_long_cash/L6 = 1.1586. The economically-motivated 2-5-month cross-correlation window is REFERENCE context the full-grid math CONFIRMED: the best L7-12 combo scores only 1.033 (< winner), and S6_direction \u2014 the transform with a significant L10 lead-correlation (r=0.113*) \u2014 scores at most 0.9732 across L7-12, so the long-lead direction signal is multiple-testing noise, not a tradable edge. This retires the interim Option-C L0-6 cap; the winner is UNCHANGED (L6 was already the full-grid global max). Low-confidence framing stands: isolated L6 spike on a nearly-flat envelope, backward-Granger caveat, L7-12 = noise. Published winner == full-grid raw max-OOS-Sharpe valid row -> divergence null.",
+    "rationale": "FREE full-grid selection (Lead-Grid Frequency Standard, 2026-07-14): no economic-window cap \u2014 the winner is the global max valid OOS Sharpe over the FULL L0-12 grid (2523 valid combos, median 0.5453): S3_mom/T3_zscore_1.0/P1_long_cash/L6 = 1.1586. The economically-motivated 2-5-month cross-correlation window is REFERENCE context the full-grid math CONFIRMED: the best L7-12 combo scores only 1.0522 (< winner), and S6_direction \u2014 the transform with a significant L10 lead-correlation (r=0.113*) \u2014 scores at most 0.9732 across L7-12, so the long-lead direction signal is multiple-testing noise, not a tradable edge. This retires the interim Option-C L0-6 cap; the winner is UNCHANGED (L6 was already the full-grid global max). Low-confidence framing stands: isolated L6 spike on a nearly-flat envelope, backward-Granger caveat, L7-12 = noise. Published winner == full-grid raw max-OOS-Sharpe valid row -> divergence null.",
     "objective_runner_up_divergence": null
   }
 }

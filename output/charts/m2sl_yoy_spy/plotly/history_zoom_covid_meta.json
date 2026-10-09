@@ -22,7 +22,7 @@
     "docs/schemas/history_zoom_events_registry.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-19T10:56:03.408886+00:00",
+  "generated_at": "2026-10-09T09:28:24.402445+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)",
   "annotation_strategy_id": "descending_stair",
   "events_registry_version": "1.0.0",

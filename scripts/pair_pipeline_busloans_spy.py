@@ -63,7 +63,7 @@ PAIR_ID = "busloans_spy"
 INDICATOR_NAME = "C&I Loans (BUSLOANS)"
 TARGET_NAME = "SPY"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20260708"  # GH#13 re-run at full L1..L12 grid; new date per ECON-T5 §4 (tournament CSV immutability). Prior coarse-grid run: 20260612.
+DATE_TAG = "20261008"  # GH#13 re-run at full L1..L12 grid; new date per ECON-T5 §4 (tournament CSV immutability). Prior coarse-grid run: 20260612.
 COST_BPS = 5  # equity ETF per ECON-T2 / target-class table
 
 BASE_DIR = "/workspaces/aig-rlic-plus"
@@ -612,7 +612,7 @@ def stage_tournament(df):
     oos_mask = work.index >= oos_start
     spy_ret = work["spy_ret"]
 
-    leads = list(range(1, 13))         # FULL monthly grid L1..L12 (GH#13 lead-coherence rollout); L1 = real-time floor (Dana lag doc)
+    leads = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
     lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 

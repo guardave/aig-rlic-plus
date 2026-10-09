@@ -12,10 +12,10 @@
   "narrative_alignment_note": "Drawdown computed directly from Evan's saved monthly return series.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/m2sl_yoy_spy/strategy_returns_20260619.csv",
+    "results/m2sl_yoy_spy/strategy_returns_20261008.csv",
     "results/m2sl_yoy_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-19T10:55:49.768197+00:00",
+  "generated_at": "2026-10-09T09:28:23.292494+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
 }

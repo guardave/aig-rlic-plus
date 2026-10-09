@@ -49,7 +49,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart, QUARTILE_COLORS  # noqa: E402
 
 PAIR = "busloans_spy"
-DATE_TAG = "20260708"  # GH#13 full-grid re-selection run (was 20260612 coarse-grid)
+DATE_TAG = "20261008"  # GH#13 full-grid re-selection run (was 20260612 coarse-grid)
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"

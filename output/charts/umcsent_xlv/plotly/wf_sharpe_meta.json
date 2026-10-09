@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Winner-specific annual walk-forward Sharpe rebuilt from corrected strategy returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/umcsent_xlv/strategy_returns_20260420.csv",
+    "results/umcsent_xlv/strategy_returns_20261008.csv",
     "results/umcsent_xlv/winner_summary.json"
   ],
-  "generated_at": "2026-06-19T09:11:25.185636+00:00",
+  "generated_at": "2026-10-09T09:27:42.495738+00:00",
   "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
 }

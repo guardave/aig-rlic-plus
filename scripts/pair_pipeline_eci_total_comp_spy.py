@@ -70,7 +70,7 @@ np.random.seed(42)
 PAIR_ID = "eci_total_comp_spy"
 INDICATOR_NAME = "Employment Cost Index (Total Compensation)"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20260706"
+DATE_TAG = "20261008"
 COST_BPS = 5  # equity ETF per target-class table
 ANN = np.sqrt(4)   # QUARTERLY annualization factor (Sharpe); mean x4, vol x sqrt(4)
 PERIODS_PER_YEAR = 4
@@ -121,7 +121,7 @@ FWD_COLS = ["spy_fwd_1q", "spy_fwd_2q", "spy_fwd_4q"]
 
 SIG_ELIGIBLE_MIN = 60          # min non-NaN QUARTERS for tournament eligibility
 LOOKBACKS = {"LB12": 12, "LB20": 20}   # quarters (~3yr / ~5yr)
-LEADS = list(range(1, 9))      # L1..L8 QUARTERS — L1 pub-lag floor, L8 = 2yr ceiling
+LEADS = list(range(1, 6))  # #255 floor L1 shifted grid [1..5] (quarters)
 CORR_N_FLOOR = 40              # quarters
 
 

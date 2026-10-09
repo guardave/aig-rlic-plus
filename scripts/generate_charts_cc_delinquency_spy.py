@@ -2,7 +2,7 @@
 """Chart generation for Credit-Card Delinquency Rate x SPY.
 
 QUARTERLY pair. Reads data/cc_delinquency_spy_quarterly_latest.parquet and
-results/cc_delinquency_spy/* at DATE_TAG 20260831. Produces the same chart-name
+results/cc_delinquency_spy/* at DATE_TAG 20261008. Produces the same chart-name
 set the config references (hero, equity_curves, drawdown, correlation_heatmap,
 ccf_prewhitened, granger_f_by_lag, local_projections, quantile_coef,
 regime_stats, rolling_correlation, structural_break, subperiod_sharpe,
@@ -35,7 +35,7 @@ from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 from _ci_band import ci95_halfwidth  # noqa: E402
 
 PAIR = "cc_delinquency_spy"
-DATE_TAG = "20260831"
+DATE_TAG = "20261008"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"

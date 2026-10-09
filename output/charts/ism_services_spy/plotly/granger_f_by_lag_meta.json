@@ -12,10 +12,10 @@
   "narrative_alignment_note": "Reverse direction rendered as the visually primary series per Lead dispatch \u2014 the reverse-only result IS the finding.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/ism_services_spy/core_models_20260618/granger_causality.csv",
+    "results/ism_services_spy/core_models_20261008/granger_causality.csv",
     "results/ism_services_spy/granger_by_lag.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-18T10:57:13.676320+00:00",
+  "generated_at": "2026-10-09T09:28:19.796464+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
 }

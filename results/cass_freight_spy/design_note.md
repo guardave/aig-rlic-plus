@@ -1,4 +1,4 @@
-# Design Note — cass_freight_spy (20260829)
+# Design Note — cass_freight_spy (20261008)
 
 ## Category & method coverage (Rule C1, production/macro — full battery to mirror busloans_spy)
 All mandatory methods produced (correlations incl. distance, pre-whitened CCF, Toda-Yamamoto Granger both
@@ -8,7 +8,7 @@ plus ECON-LA1 Lead Analysis and ECON-LT1 Lead Tournament. Deviations from the da
 - Pre-whitened CCF at monthly lags -18..+18 (trimmed from -20..+20 given the ~125-obs sample).
 - Granger is Toda-Yamamoto (VAR in levels of YoY, d_max=1; YoY is borderline I(1) per ADF/KPSS).
 - Transfer entropy: tercile-binned plug-in estimator, 500 permutations.
-- Stationarity: Dana's tests (stationarity_tests_20260829.csv) reviewed and CONFIRMED, not re-run.
+- Stationarity: Dana's tests (stationarity_tests_20261008.csv) reviewed and CONFIRMED, not re-run.
 
 ## Short-sample adaptations (BINDING Dana Phase-0 constraints)
 - 125 monthly obs (2016-01..2026-05). OOS window is 36 months (<5yr) -> ANY winner is FOUND-IN-SEARCH,
@@ -31,10 +31,10 @@ the diagnostic lead_correlation table, explicitly flagged non-tradable.
 - SPY->Cass TY-Granger significant lags: [1, 2, 3, 5, 6]
 - Pre-whitened CCF significant lead(+) lags: NONE; lag(-) lags: [-16, -14, -12]
 - LP forward significant: False; reverse-causality flag: True
-- Classification: lagging. Winner direction (empirical): procyclical.
+- Classification: lagging. Winner direction (empirical): countercyclical.
 
 ## Tournament conventions
 - Units in tournament_results CSV are RATIOS (decimal). Lead grid L1..L12 (full tradable). Both orientations tested.
-- CP2 skipped (regime_story: false). Returns gross of costs; 5bps grid in tournament_validation_20260829/.
+- CP2 skipped (regime_story: false). Returns gross of costs; 5bps grid in tournament_validation_20261008/.
 
 ## New pair — no prior version; Rule C3 regression diff N/A.

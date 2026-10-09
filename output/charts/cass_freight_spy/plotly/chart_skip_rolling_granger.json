@@ -3,6 +3,6 @@
   "pair_id": "cass_freight_spy",
   "skipped_by": "VIZ-CP1-G",
   "reason": "ECON-CP2 artifacts intentionally absent for this pair: regime_story=false in results/cass_freight_spy/signal_scope.json (CP2 skipped). No upstream result file exists to chart.",
-  "generated_at": "2026-08-29T09:09:59.171966+00:00",
+  "generated_at": "2026-10-09T09:43:21.812650+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

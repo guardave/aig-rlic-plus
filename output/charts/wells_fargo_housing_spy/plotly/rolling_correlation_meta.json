@@ -15,9 +15,9 @@
   "source_artifacts": [
     "results/wells_fargo_housing_spy/rolling_correlation_wells_fargo_housing_spy.csv",
     "results/wells_fargo_housing_spy/structural_break_wells_fargo_housing_spy.json",
-    "results/wells_fargo_housing_spy/core_models_20260706/era_correlations.csv"
+    "results/wells_fargo_housing_spy/core_models_20261008/era_correlations.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-06T23:15:07.821433+00:00",
+  "generated_at": "2026-10-09T09:28:16.836259+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
 }

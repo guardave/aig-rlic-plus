@@ -1,0 +1,23 @@
+{
+  "pair_id": "wells_fargo_housing_spy",
+  "date": "20261008",
+  "pipeline_seconds": 113.3,
+  "stage_times": {
+    "1_load_verify": 0.0,
+    "2_signals": 2.0,
+    "3_correlations": 0.4,
+    "4_core_models": 4.9,
+    "4b_lead_analysis": 0.3,
+    "5_regime_quartiles": 0.0,
+    "6_tournament": 58.1,
+    "7_winner_artifacts": 0.0,
+    "6b_lead_tournament": 0.1,
+    "8_cross_period": 45.6,
+    "9_validation": 0.3
+  },
+  "tournament_strategy_rows": 19344,
+  "valid_strategies": 14073,
+  "oos_n_months": 98,
+  "oos_start": "2017-09-30",
+  "oos_end": "2025-10-31"
+}

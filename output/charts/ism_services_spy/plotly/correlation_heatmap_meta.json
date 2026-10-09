@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Heatmap supports the 'weak forward channel' finding; best cell is re-read from correlations.csv at generation time.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/ism_services_spy/core_models_20260618/correlations.csv"
+    "results/ism_services_spy/core_models_20261008/correlations.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-18T10:57:10.292057+00:00",
+  "generated_at": "2026-10-09T09:28:19.738733+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
 }

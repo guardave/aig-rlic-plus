@@ -23,7 +23,7 @@ from statsmodels.tsa.stattools import adfuller, grangercausalitytests, kpss
 
 
 PAIR_ID = "unrate_spy"
-DATE_TAG = "20260717"
+DATE_TAG = "20261008"
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 REPO = Path(__file__).resolve().parents[1]
@@ -234,7 +234,7 @@ def make_position(signal: pd.Series, threshold: pd.Series | float, direction: st
 
 def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     oos_start = pd.Timestamp("2017-01-31")
-    leads = [0, 1, 2, 3, 6, 9, 12]
+    leads = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
     rows = []
     strategy_series: dict[str, pd.Series] = {}
     bh_oos = df.loc[oos_start:, "spy_ret"].dropna()

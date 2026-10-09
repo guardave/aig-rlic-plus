@@ -9,9 +9,9 @@ blocks — those artifacts do not exist for this pair).
 HONEST FRAMING (binding). Every number below is verbatim from
 results/cc_delinquency_spy/* (winner_summary.json, kpis.json,
 evidence_status.json, interpretation_metadata.json,
-core_models_20260831/*, granger_by_lag.csv, regime_quartile_returns.csv,
-subperiod_sharpe.csv, tournament_validation_20260831/bootstrap.csv,
-stationarity_tests_20260831.csv, structural_break_cc_delinquency_spy.json).
+core_models_20261008/*, granger_by_lag.csv, regime_quartile_returns.csv,
+subperiod_sharpe.csv, tournament_validation_20261008/bootstrap.csv,
+stationarity_tests_20261008.csv, structural_break_cc_delinquency_spy.json).
 Do NOT oversell:
 
   - The winner (`diff_1q / T0_zero / procyclical / L4 QUARTERS`; OOS Sharpe 1.37
@@ -554,7 +554,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "does not Granger-cause SPY at any tested quarterly lag (min p 0.33), "
         "and the cross-correlation shows only a mild inverse echo.*\n\n"
         "All statistics computed on QUARTERLY data from "
-        "`results/cc_delinquency_spy/core_models_20260831/` and companion "
+        "`results/cc_delinquency_spy/core_models_20261008/` and companion "
         "artifacts.\n\n"
         "**Read this page before the Strategy page.** The Strategy page reports "
         "an out-of-sample Sharpe of 1.37 for a searched rule — do NOT read that "
@@ -581,13 +581,13 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Granger F-statistics by lag, delinquency → SPY (4 rows)",
          "path": "results/cc_delinquency_spy/granger_by_lag.csv"},
         {"label": "Correlation battery, signal × horizon (12 rows)",
-         "path": "results/cc_delinquency_spy/core_models_20260831/correlations.csv"},
+         "path": "results/cc_delinquency_spy/core_models_20261008/correlations.csv"},
         {"label": "Pre-whitened CCF, quarterly offsets −4..+4 (9 rows)",
-         "path": "results/cc_delinquency_spy/core_models_20260831/ccf_prewhitened.csv"},
+         "path": "results/cc_delinquency_spy/core_models_20261008/ccf_prewhitened.csv"},
         {"label": "Local projections, 1/2/4-quarter horizons (3 rows)",
-         "path": "results/cc_delinquency_spy/core_models_20260831/local_projections.csv"},
+         "path": "results/cc_delinquency_spy/core_models_20261008/local_projections.csv"},
         {"label": "Quantile regression, 3 quantiles (3 rows)",
-         "path": "results/cc_delinquency_spy/core_models_20260831/quantile_regression.csv"},
+         "path": "results/cc_delinquency_spy/core_models_20261008/quantile_regression.csv"},
         {"label": "Regime quartile returns, Q1–Q4 (4 rows)",
          "path": "results/cc_delinquency_spy/regime_quartile_returns.csv"},
         {"label": "Sub-period Sharpe, credit-stress episodes (4 rows)",
@@ -595,7 +595,7 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Rolling correlation (delinquency vs SPY)",
          "path": "results/cc_delinquency_spy/rolling_correlation_cc_delinquency_spy.csv"},
         {"label": "Stationarity tests (ADF/KPSS)",
-         "path": "results/cc_delinquency_spy/stationarity_tests_20260831.csv"},
+         "path": "results/cc_delinquency_spy/stationarity_tests_20261008.csv"},
     ],
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
@@ -758,9 +758,9 @@ class StrategyConfig:
         {"label": "Winner summary", "path": "results/cc_delinquency_spy/winner_summary.json"},
         {"label": "Granger causality by lag", "path": "results/cc_delinquency_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/cc_delinquency_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/cc_delinquency_spy/tournament_results_20260831.csv"},
-        {"label": "Bootstrap validation", "path": "results/cc_delinquency_spy/tournament_validation_20260831/bootstrap.csv"},
-        {"label": "Stationarity tests", "path": "results/cc_delinquency_spy/stationarity_tests_20260831.csv"},
+        {"label": "Tournament results", "path": "results/cc_delinquency_spy/tournament_results_20261008.csv"},
+        {"label": "Bootstrap validation", "path": "results/cc_delinquency_spy/tournament_validation_20261008/bootstrap.csv"},
+        {"label": "Stationarity tests", "path": "results/cc_delinquency_spy/stationarity_tests_20261008.csv"},
         {"label": "Winner trade log (broker style)", "path": "results/cc_delinquency_spy/winner_trades_broker_style.csv"},
     ]
 
@@ -850,7 +850,7 @@ No formulas — three steps:
     )
 
     CAVEATS_MD = """
-**Why we do not call this a validated edge** — flags, none softened (all from `winner_summary.json`, `evidence_status.json`, `granger_by_lag.csv`, `stationarity_tests_20260831.csv`, `structural_break_cc_delinquency_spy.json`, and `tournament_validation_20260831/bootstrap.csv`):
+**Why we do not call this a validated edge** — flags, none softened (all from `winner_summary.json`, `evidence_status.json`, `granger_by_lag.csv`, `stationarity_tests_20261008.csv`, `structural_break_cc_delinquency_spy.json`, and `tournament_validation_20261008/bootstrap.csv`):
 
 1. **Small quarterly out-of-sample sample.** The test window is **32 QUARTERS** (2017-09-30 → 2025-06-30, ~8 years). That is a handful of independent quarterly observations, on a series with only a few credit cycles. Any winner here is FOUND-IN-SEARCH by construction, and there is no untouched hold-out yet.
 2. **No forecasting lead.** Delinquency → SPY Granger causality is insignificant at every tested quarterly lag (p = 0.72/0.91/0.46/0.33, min 0.33); the pre-whitened CCF shows only a mild inverse echo at 2–4 quarter offsets, no predictive lead. The rule reads a *state*, it does not forecast.
@@ -866,7 +866,7 @@ No formulas — three steps:
 
 - **The edge is drawdown control, not return.** OOS annualized return (13.4%) is actually BELOW buy-and-hold (14.3%); the Sharpe gap comes entirely from lower volatility and a shallow drawdown (−4.9% vs −23.9%), including sitting in cash through part of the 2022 drawdown — one regime sequence.
 - **Quarterly units throughout.** Sharpe ratios use √4 annualization; with 32 observations the sampling error on a quarterly Sharpe is large even before selection effects.
-- **Costs.** Returns are gross of costs; at 5 bps per trade and 1.6x turnover/yr the haircut is small (see `tournament_validation_20260831/transaction_costs.csv`, gross Sharpe 1.367) — cost drag is not this pair's problem; the small sample, missing forecasting lead, and against-prior direction are.
+- **Costs.** Returns are gross of costs; at 5 bps per trade and 1.6x turnover/yr the haircut is small (see `tournament_validation_20261008/transaction_costs.csv`, gross Sharpe 1.367) — cost drag is not this pair's problem; the small sample, missing forecasting lead, and against-prior direction are.
 """
 
     TRADE_LOG_EXAMPLE_MD = (
@@ -929,7 +929,7 @@ _METHODS_TABLE_MD = """
 _TOURNAMENT_DESIGN_MD = """
 Grid: 4 signal transforms (quarter-on-quarter change, level, 4-quarter change, 20-quarter z-score) × threshold schemes (zero-line, rolling percentiles, z-score bands) × the long/cash strategy family × procyclical/countercyclical orientations × QUARTERLY leads {0…4} = **110 valid combinations** (of 120 scanned) plus a buy-and-hold benchmark row (valid=False per ECON-T4). Median valid OOS Sharpe 0.63 (below buy-and-hold's 0.87). The objective is max OOS Sharpe (√4 QUARTERLY annualization) over the full valid population. Out-of-sample window 2017-09-30 → 2025-06-30 (**32 QUARTERS** — a small sample; any winner is found-in-search). Winner: `diff_1q / T0_zero / P1_long_cash` (procyclical), lead L4 quarters; OOS Sharpe 1.3673, bootstrap p = 0.0 on the selected row (selection-biased — the winner is the grid maximum, so this is not independent validation). Runner-up: `diff_1q / T_roll_p75 / P1_long_cash`, L4, objective 1.259.
 
-**Reproducibility notes.** Producer script: `scripts/pair_pipeline_cc_delinquency_spy.py` — deterministic, fixed seeds. The canonical quarterly return series for chart producers is `strategy_returns_20260831.csv`; its Sharpe/drawdown/return reconcile with `winner_summary.json`. Charts are produced by `scripts/generate_charts_cc_delinquency_spy.py`.
+**Reproducibility notes.** Producer script: `scripts/pair_pipeline_cc_delinquency_spy.py` — deterministic, fixed seeds. The canonical quarterly return series for chart producers is `strategy_returns_20261008.csv`; its Sharpe/drawdown/return reconcile with `winner_summary.json`. Charts are produced by `scripts/generate_charts_cc_delinquency_spy.py`.
 """
 
 _REFERENCES_MD = """

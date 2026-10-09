@@ -1,21 +1,24 @@
 {
- "chart_name": "structural_break",
- "pair_id": "eci_total_comp_spy",
- "palette_id": "okabe_ito_2026",
- "rules_applied": [
-  "VIZ-IC1",
-  "VIZ-NBER1",
-  "VIZ-TX1",
-  "VIZ-O1"
- ],
- "caption": "ECI YoY growth with the Quandt-Andrews break date 2009-06 marked (sup-F p = 0.027, flagged): the wage-market relationship shifted after the GFC \u2014 cross-period results need caution.",
- "narrative_alignment_note": "Break IS flagged for this pair (unlike cass); title says DETECTED.",
- "disposition": "consumed",
- "source_artifacts": [
-  "results/eci_total_comp_spy/structural_break_eci_total_comp_spy.json",
-  "data/eci_total_comp_spy_quarterly_latest.parquet"
- ],
- "reconciliation": null,
- "generated_at": "2026-07-06T13:11:44.584142+00:00",
- "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+  "chart_name": "structural_break",
+  "pair_id": "eci_total_comp_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.3",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "ECI YoY wage growth over the test sample (2003-03\u20132026-03, n = 93 quarters) with the Quandt-Andrews candidate break date (2022-06). sup-F 4.03, residual-bootstrap p = 0.37 \u2014 NO significant break is flagged. Unlike the prior run (which flagged a 2009 break), this floored re-run finds no significant structural break. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Annotation-driven; flagged state and values read from JSON (now NOT flagged).",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/eci_total_comp_spy/structural_break_eci_total_comp_spy.json",
+    "data/eci_total_comp_spy_quarterly_latest.parquet"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-10-09T09:39:45.961561+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)",
+  "break_date": "2022-06-30",
+  "annotation_strategy_id": "manual_override"
 }

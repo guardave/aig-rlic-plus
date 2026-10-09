@@ -1,19 +1,21 @@
 {
- "chart_name": "subperiod_sharpe",
- "pair_id": "eci_total_comp_spy",
- "palette_id": "okabe_ito_2026",
- "rules_applied": [
-  "VIZ-IC1",
-  "VIZ-TX1",
-  "VIZ-O1"
- ],
- "caption": "Winner strategy Sharpe by canonical stress episode: only COVID (0.63) has usable data \u2014 Dot-Com, GFC and China-2015 predate the signal's 20-quarter burn-in. The headline 1.60 rests on one stress episode.",
- "narrative_alignment_note": "Insufficient-data episodes rendered as explicit grey placeholders (categorical labels), not fake zeros.",
- "disposition": "consumed",
- "source_artifacts": [
-  "results/eci_total_comp_spy/subperiod_sharpe.csv"
- ],
- "reconciliation": null,
- "generated_at": "2026-07-06T13:11:44.584142+00:00",
- "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+  "chart_name": "subperiod_sharpe",
+  "pair_id": "eci_total_comp_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-CP1",
+    "VIZ-CP1.1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "Winner-strategy annualized Sharpe within each canonical stress episode. Only 1 of 4 (COVID, Sharpe +2.48) falls inside the 2020+ OOS window; dot-com, GFC and China 2015 predate the OOS split and are in-sample for the STRATEGY (insufficient data \u2014 the episodes cannot be scored, not that the data is missing). With only one evaluable episode, durability is 'conditionally_durable' \u2014 the single biggest caveat on the edge.",
+  "narrative_alignment_note": "Three-state encoding; only COVID is inside the 2020+ OOS window; one-episode durability stated as the headline caveat.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/eci_total_comp_spy/subperiod_sharpe.csv"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-10-09T09:39:45.988702+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
 }

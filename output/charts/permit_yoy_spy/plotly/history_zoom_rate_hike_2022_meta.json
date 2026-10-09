@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_rate_hike_2022",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-09-12T17:38:01.739432+00:00",
+  "generated_at": "2026-10-09T09:26:19.760736+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "2022 Rate Shock: Higher Rates Cut Permit Growth; gray bands are NBER recessions.",
   "narrative_alignment_note": "2022 Rate Shock: Higher Rates Cut Permit Growth; gray bands are NBER recessions.",

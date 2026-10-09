@@ -1,0 +1,23 @@
+{
+  "pair_id": "eci_total_comp_spy",
+  "date": "20261008",
+  "pipeline_seconds": 20.8,
+  "stage_times": {
+    "1_load_verify": 0.0,
+    "2_signals": 1.2,
+    "3_correlations": 0.1,
+    "4_core_models": 3.8,
+    "4b_lead_analysis": 0.1,
+    "5_regime_quartiles": 0.0,
+    "6_tournament": 3.8,
+    "7_winner_artifacts": 0.0,
+    "6b_lead_tournament": 0.0,
+    "8_cross_period": 9.9,
+    "9_validation": 0.3
+  },
+  "tournament_strategy_rows": 1460,
+  "valid_strategies": 808,
+  "oos_n_quarters": 25,
+  "oos_start": "2020-03-31",
+  "oos_end": "2026-03-31"
+}

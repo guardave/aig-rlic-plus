@@ -26,7 +26,7 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-08-31T07:42:08.953209+00:00",
+  "last_updated_at": "2026-10-08T23:55:13.800009+00:00",
   "indicator": "import_price",
   "target": "spy",
   "expected_direction": "countercyclical",
@@ -34,7 +34,7 @@
   "direction_consistent": true,
   "mechanism": "The import price index measures the dollar cost of imported goods; rising import-price growth signals imported inflation and cost pressure that tightens financial conditions and weighs on equity valuations, while low or falling import-price growth is supportive. Exposure is scaled toward SPY when import-price growth is low.",
   "confidence": "low",
-  "key_finding": "Best search-phase rule uses yoy at L2 with OOS Sharpe 1.37 versus buy-and-hold 0.96.",
+  "key_finding": "Best search-phase rule uses chg_3m at L10 with OOS Sharpe 1.37 versus buy-and-hold 0.96.",
   "caveats": [
     "Even a leading indicator selected at a long lead can be a search artifact \u2014 check adjacent-lead durability.",
     "The strategy is search-selected and needs fresh holdout validation.",
@@ -71,6 +71,6 @@
   "data_provenance": {
     "source": "Data Master.xlsx (BLS Import/Export Price Indexes)",
     "series_id": "IR (BLS Import Price Index)",
-    "accessed_at": "2026-08-31T07:42:08.953209+00:00"
+    "accessed_at": "2026-10-08T23:55:13.800009+00:00"
   }
 }

@@ -1,21 +1,22 @@
 {
- "chart_name": "rolling_correlation",
- "pair_id": "eci_total_comp_spy",
- "palette_id": "okabe_ito_2026",
- "rules_applied": [
-  "VIZ-IC1",
-  "VIZ-NBER1",
-  "VIZ-TX1",
-  "VIZ-O1"
- ],
- "caption": "16-quarter rolling correlation between the ECI signal and SPY returns flips sign repeatedly (sign agreement 0.42, verdict sign_unstable). Shaded bands mark NBER recessions.",
- "narrative_alignment_note": "Sign instability re-read from the structural-break JSON; supports the do-not-oversell framing.",
- "disposition": "consumed",
- "source_artifacts": [
-  "results/eci_total_comp_spy/rolling_correlation_eci_total_comp_spy.csv",
-  "results/eci_total_comp_spy/structural_break_eci_total_comp_spy.json"
- ],
- "reconciliation": null,
- "generated_at": "2026-07-06T13:11:44.584142+00:00",
- "generated_by": "Viz Vera \u2014 scratchpad/gen_eci_charts.py (feat260705_eci_spy)"
+  "chart_name": "rolling_correlation",
+  "pair_id": "eci_total_comp_spy",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "VIZ-CP1.2",
+    "VIZ-NBER1",
+    "VIZ-IC1",
+    "VIZ-NS1",
+    "VIZ-O1"
+  ],
+  "caption": "20-quarter rolling correlation between ECI YoY wage growth and SPY quarterly returns. The sign agrees with its full-sample value 57% of the time (verdict: moderately stable) \u2014 more stable than in the prior run, though still variable, so the concurrent relationship remains descriptive. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Stability verdict quoted from structural_break JSON, not hard-coded.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/eci_total_comp_spy/rolling_correlation_eci_total_comp_spy.csv",
+    "results/eci_total_comp_spy/structural_break_eci_total_comp_spy.json"
+  ],
+  "reconciliation": null,
+  "generated_at": "2026-10-09T09:39:45.917092+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
 }

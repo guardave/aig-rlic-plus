@@ -11,9 +11,9 @@
   "narrative_alignment_note": "CCF chart mirrors Evan's 'one stray significant lag (+17)' note.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/ism_services_spy/core_models_20260618/ccf_prewhitened.csv"
+    "results/ism_services_spy/core_models_20261008/ccf_prewhitened.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-18T10:57:11.975232+00:00",
+  "generated_at": "2026-10-09T09:28:19.767358+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
 }

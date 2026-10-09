@@ -17,7 +17,7 @@
     "data/ism_services_spy_monthly_latest.parquet"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-18T10:57:27.174782+00:00",
+  "generated_at": "2026-10-09T09:28:20.501613+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)",
   "break_date": "2009-03-31",
   "annotation_strategy_id": "manual_override",

@@ -37,7 +37,7 @@ edge. Every number below is sourced from results/permit_yoy_spy/*:
     with forward SPY is near zero at every horizon; the largest cell anywhere is
     the permit-YoY level vs 6-month-forward SPY (r = 0.10, p = 0.05, borderline)
     and the WINNING signal (chg_12m) vs forward SPY is essentially zero
-    (|r| <= 0.04) (core_models_20260912/correlations.csv). Local projections are
+    (|r| <= 0.04) (core_models_20261008/correlations.csv). Local projections are
     near-null at every horizon (no coefficient significant; trivial R^2)
     (local_projections.csv). Pre-whitened cross-correlation shows NO significant
     bar at any offset from -6 to +6 months -- no coherent lead-lag echo in
@@ -53,7 +53,7 @@ edge. Every number below is sourced from results/permit_yoy_spy/*:
     window in subperiod_sharpe.csv the rule beat buy-and-hold SPY (Dot-Com
     -0.18 vs -0.70, GFC +0.14 vs -1.03, COVID +2.18 vs -0.08, 2022 rate hike
     -0.58 vs -0.76). A stationary block bootstrap puts the winner's Sharpe at
-    p = 0.00 (tournament_validation_20260912/bootstrap.csv), but that is an
+    p = 0.00 (tournament_validation_20261008/bootstrap.csv), but that is an
     in-sample significance check, not out-of-sample validation.
   - The L9 (9-month) lead is economically plausible -- permits genuinely lead
     the housing cycle -- but a 9-month lead still needs adjacent-lead durability
@@ -68,10 +68,10 @@ MONTHLY conventions: leads in MONTHS (winner L9); Sharpe annualized by sqrt(12);
 OOS window 2017-07-31 -> 2025-08-31 (98 months). Numbers sourced from
 results/permit_yoy_spy/ (winner_summary.json, kpis.json, evidence_status.json,
 interpretation_metadata.json, signal_scope.json, analyst_suggestions.json,
-core_models_20260912/*, regime_quartile_returns.csv, subperiod_sharpe.csv,
-granger_by_lag.csv, stationarity_tests_20260912.csv,
-structural_break_permit_yoy_spy.json, tournament_results_20260912.csv,
-tournament_validation_20260912/bootstrap.csv).
+core_models_20261008/*, regime_quartile_returns.csv, subperiod_sharpe.csv,
+granger_by_lag.csv, stationarity_tests_20261008.csv,
+structural_break_permit_yoy_spy.json, tournament_results_20261008.csv,
+tournament_validation_20261008/bootstrap.csv).
 """
 
 from __future__ import annotations
@@ -509,8 +509,8 @@ class StrategyConfig:
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/permit_yoy_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/permit_yoy_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/permit_yoy_spy/tournament_results_20260912.csv"},
-        {"label": "Stationarity tests", "path": "results/permit_yoy_spy/stationarity_tests_20260912.csv"},
+        {"label": "Tournament results", "path": "results/permit_yoy_spy/tournament_results_20261008.csv"},
+        {"label": "Stationarity tests", "path": "results/permit_yoy_spy/stationarity_tests_20261008.csv"},
     ]
 
     SIGNAL_RULE_MD = """

@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Significant-lag list re-read from the CSV; matches Evan's 'bidirectional' classification. Lag-sign convention verified against the pair pipeline (positive = HMI leads).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/wells_fargo_housing_spy/core_models_20260706/ccf_prewhitened.csv"
+    "results/wells_fargo_housing_spy/core_models_20261008/ccf_prewhitened.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-06T23:14:52.446940+00:00",
+  "generated_at": "2026-10-09T09:28:15.761991+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_wells_fargo_housing_spy.py (feat260706_wells_fargo_housing_spy)"
 }

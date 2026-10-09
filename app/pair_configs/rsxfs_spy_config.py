@@ -10,7 +10,7 @@ HONEST FRAMING (binding). Empirical verdict: retail-sales growth does NOT lead
 SPY. Every number below is sourced from results/rsxfs_spy/*:
   - Granger RSXFS->SPY is INSIGNIFICANT at every tested lag (minimum
     p = 0.47 at lag 4); retail-sales growth does not Granger-cause SPY returns
-    (granger_by_lag.csv / core_models_20260827/granger_causality.csv).
+    (granger_by_lag.csv / core_models_20261008/granger_causality.csv).
   - Local projections show essentially no linear predictive content:
     coefficients near zero, only the 12-month horizon is marginally
     significant (p = 0.007) with a trivial R^2 = 0.019 (local_projections.csv).
@@ -38,9 +38,9 @@ SPY. Every number below is sourced from results/rsxfs_spy/*:
 MONTHLY conventions: leads in MONTHS (winner L9); Sharpe annualized by sqrt(12);
 OOS window 2017-01-31 -> 2026-07-31 (115 months). Numbers sourced from
 results/rsxfs_spy/ (winner_summary.json, kpis.json, evidence_status.json,
-interpretation_metadata.json, core_models_20260827/*, regime_quartile_returns.csv,
-subperiod_sharpe.csv, granger_by_lag.csv, stationarity_tests_20260827.csv,
-structural_break_rsxfs_spy.json, tournament_results_20260827.csv).
+interpretation_metadata.json, core_models_20261008/*, regime_quartile_returns.csv,
+subperiod_sharpe.csv, granger_by_lag.csv, stationarity_tests_20261008.csv,
+structural_break_rsxfs_spy.json, tournament_results_20261008.csv).
 """
 
 from __future__ import annotations
@@ -493,8 +493,8 @@ class StrategyConfig:
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/rsxfs_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/rsxfs_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/rsxfs_spy/tournament_results_20260827.csv"},
-        {"label": "Stationarity tests", "path": "results/rsxfs_spy/stationarity_tests_20260827.csv"},
+        {"label": "Tournament results", "path": "results/rsxfs_spy/tournament_results_20261008.csv"},
+        {"label": "Stationarity tests", "path": "results/rsxfs_spy/stationarity_tests_20261008.csv"},
     ]
 
     SIGNAL_RULE_MD = """

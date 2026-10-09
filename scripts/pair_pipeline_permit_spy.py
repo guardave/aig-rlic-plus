@@ -23,7 +23,7 @@ START_DATE = "1990-01-01"
 END_DATE = "2025-12-31"
 IS_END = "2017-12-31"
 OOS_START = "2018-01-01"
-DATE_TAG = "20260314"
+DATE_TAG = "20261008"
 
 BASE_DIR = "/workspaces/aig-rlic-plus"
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -355,7 +355,7 @@ def stage_tournament(df):
                    "S8_accel": "permit_accel", "S9_contr": "permit_contraction"}
     available = {k: v for k, v in signal_cols.items() if v in work.columns and work[v].notna().sum() > 50}
 
-    leads = [0, 1, 2, 3, 6]
+    leads = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
     results = []
 
     for sig_name, sig_col in available.items():

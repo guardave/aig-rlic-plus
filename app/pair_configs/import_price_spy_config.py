@@ -9,65 +9,87 @@ transform (MoM/3m/6m/YoY %, YoY z-score, acceleration).
 
 HONEST FRAMING (binding). This is a found-in-search CANDIDATE, confidence LOW --
 NOT a validated, deployable edge. Every number below is sourced from
-results/import_price_spy/*:
-  - The tournament winner (`yoy` YoY growth / T_roll_p50 rolling-median /
-    COUNTERCYCLICAL / L2 months / P1_long_cash; OOS Sharpe 1.37 vs 0.96 B&H) is
-    the grid maximum over 252 combinations (all 252 valid). The MEDIAN valid
-    combo scores 0.690 -- it UNDERPERFORMS buy-and-hold (0.96)
-    (winner_summary.json). A higher OOS Sharpe than buy-and-hold over this ONE
-    104-month sample is not "beating the market"; it is a search-phase result
-    that still needs a fresh holdout (final exam).
-  - DIRECTION AGREES WITH THE PRIOR. The economic prior for an import-price
-    gauge is COUNTERCYCLICAL: rising import-price growth is imported
+results/import_price_spy/* (DATE_TAG 20261008, the #255 floored + densified
+contiguous-lead re-run):
+  - The tournament winner is now `import_price_3m` (3-month growth) / **T0_zero**
+    (a FIXED ZERO threshold, rule `lte`) / COUNTERCYCLICAL / L10 months /
+    P1_long_cash; OOS Sharpe 1.37 vs 0.96 B&H (winner_summary.json). The
+    decision line is a FIXED ZERO, not a rolling/moving boundary: hold SPY when
+    the 10-month-lagged 3-month import-price change is at or below zero (weak /
+    negative 3-month imported-inflation momentum), otherwise hold cash. It is the
+    grid maximum over 468 valid combinations (all 468 valid). The MEDIAN valid
+    combo scores 0.69 -- it UNDERPERFORMS buy-and-hold (0.96). A higher OOS
+    Sharpe than buy-and-hold over this ONE 104-month sample is not "beating the
+    market"; it is a search-phase result that still needs a fresh holdout.
+  - WINNER CHANGED from the prior re-run. The old winner (`yoy` /
+    `T_roll_p50` rolling-median / countercyclical / L2) is now the RUNNER-UP
+    (objective 1.3747) and was edged out by a RAZOR-THIN margin (winner 1.37494
+    vs runner-up 1.37471). The rolling-median / moving-boundary framing from the
+    earlier config NO LONGER DESCRIBES THE WINNER -- the winning rule's boundary
+    is a fixed zero.
+  - L10 IS A DENSIFICATION-SURFACED LONG LEAD (needs adjudication, Step 4). The
+    10-month lead emerged only once the lead grid was densified to a contiguous
+    1-13 months; the earlier sparse grid never tested a 10-month lead. A 10-month
+    lead on a coincident price gauge is economically hard to defend and is a
+    prime fitting-artifact candidate -- adjacent-lead durability must be checked
+    (analyst_suggestions.json).
+  - THE WINNER'S LEAD SITS BEYOND THE LEAD-LAG EVIDENCE. Granger causality is
+    significant only at SHORT lags (p = 0.008 at lag 1, p = 0.003 at lag 2,
+    significant through lag 5), then fades: p = 0.057 at lag 6 and p = 0.15 at
+    lag 10 (granger_by_lag.csv). The formal lead-lag content is near the 2-month
+    region, NOT at the winner's 10-month lead -- a direct honesty flag on L10.
+  - DIRECTION STILL AGREES WITH THE PRIOR. The economic prior for an
+    import-price gauge is COUNTERCYCLICAL: rising import-price growth is imported
     inflation / cost pressure that tightens financial conditions and weighs on
     equity valuations, so favor SPY when import-price growth is LOW or falling.
-    The search selected a COUNTERCYCLICAL rule (hold SPY when 2-month-lagged YoY
-    import-price growth is at or below its five-year rolling median), which is
-    the SAME direction as the prior. `interpretation_metadata.json` records
-    expected_direction countercyclical, observed_direction countercyclical,
-    direction_consistent = true, confidence = low.
-  - The supporting evidence is unusually coherent for this fleet, but it is
-    still not a deployment proof. Concurrent quartiles lean countercyclical: the
-    STRONGEST import-price-growth quartile Q4 has the WORST concurrent SPY
-    Sharpe (0.19), while the weakest-growth quartile Q1 is healthy (0.91)
-    (regime_quartile_returns.csv) -- though the pattern is non-monotone (Q3 is
-    the best, 1.26). Forward correlations are negative and significant at every
-    horizon (YoY vs 1/3/6/12-month-forward SPY: r = -0.14, -0.26, -0.34, -0.33;
-    the strongest single cell is the YoY z-score vs 12-month-forward SPY at
-    r = -0.42) (core_models_20260830/correlations.csv). Local projections are
-    negative and significant at every horizon (coef -0.0009 to -0.0086, all
-    p < 0.01, R^2 rising to ~0.11 at 6 months) (local_projections.csv).
-  - Some lead evidence exists, but it FADES fast. New import-price growth does
-    Granger-cause SPY at SHORT lags (p = 0.008 at lag 1, p = 0.003 at lag 2),
-    but the effect decays and is insignificant from lag ~6 onward (p = 0.14 at
-    lag 12) (granger_by_lag.csv). The pre-whitened cross-correlation shows
-    significant NEGATIVE bars on the lead side (import prices leading SPY, e.g.
-    ccf = -0.16 at +3 months) AND significant POSITIVE bars on the SPY-leads
-    side (-12 to -7 months) -- a two-sided pattern, not a clean one-directional
-    forecast (ccf_prewhitened.csv). This is consistent with a coincident cost
-    gauge whose growth carries a modest, short-lived negative signal for
-    forward equities.
-  - The defensible virtue is DRAWDOWN / VOLATILITY REDUCTION: OOS max drawdown
-    -8.3% vs -23.9% for buy-and-hold, at a slightly LOWER annual return (13.5%
-    vs 14.8%) and much lower volatility (9.6%). Read the Sharpe (1.37 vs 0.96)
-    as volatility avoidance, not a return advantage. Turnover is moderate
-    (1.5/yr, 13 OOS trades). A stationary block bootstrap puts the winner's
-    Sharpe at p = 0.00 (tournament_validation_20260830/bootstrap.csv), but that
-    is an in-sample significance check, not out-of-sample validation.
+    The search again selected a COUNTERCYCLICAL rule, so direction is consistent
+    with the prior (interpretation_metadata.json: expected countercyclical,
+    observed countercyclical, direction_consistent = true, confidence = low).
+  - THE WINNER'S OWN TRANSFORM IS A WEAKER SIGNAL THAN YoY. The headline
+    countercyclical evidence rests mainly on the YoY transform (negative at every
+    forward horizon: -0.14/-0.26/-0.34/-0.33 at 1/3/6/12 months;
+    core_models_20261008/correlations.csv). The winner's own 3-month transform is
+    near-zero / mildly positive at short horizons (+0.03 at 1m, -0.06 at 3m) and
+    only turns negative-significant at longer horizons (-0.19 at 6m, -0.26 at
+    12m). Read the evidence page as the broad imported-inflation story, which is
+    cleaner on YoY than on the winner's exact 3-month signal.
+  - The supporting evidence is unusually coherent in DIRECTION for this fleet,
+    but it is still not a deployment proof. Concurrent quartiles lean
+    countercyclical: the STRONGEST 3-/YoY-growth quartile Q4 has the WORST
+    concurrent SPY Sharpe (0.19), while the weakest-growth quartile Q1 is healthy
+    (0.91) (regime_quartile_returns.csv) -- though the pattern is non-monotone
+    (Q3 is the best, 1.26). Local projections are negative and significant at
+    every horizon (coef -0.0009 to -0.0086, all p < 0.01, R^2 rising to ~0.11 at
+    6 months) (core_models_20261008/local_projections.csv).
+  - #243 QUANTILE EVIDENCE (preserved). Real quantile-regression slopes
+    (tau 0.10-0.90) are all negative (about -0.002 to -0.003); a bootstrap Wald
+    test of cross-quantile slope equality does NOT reject a uniform slope
+    (p = 0.67), and the 10th-percentile deep-selloff tail is not individually
+    significant (p = 0.26). So the inverse relationship is broadly uniform across
+    the return distribution, not a distinct crash-tail hedge.
+  - The defensible virtue is DRAWDOWN / VOLATILITY REDUCTION, earned by sitting
+    in cash: OOS max drawdown -8.3% vs -23.9% for buy-and-hold, at a slightly
+    LOWER annual return (12.7% vs 14.8%) and much lower volatility (9.0%). Read
+    the Sharpe (1.37 vs 0.96) as volatility avoidance, not a return advantage.
+    The low win rate (31.7%) is consistent with a rule that spends long stretches
+    in cash. Turnover is moderate (2.1/yr, 18 OOS trades). A stationary block
+    bootstrap puts the winner's Sharpe at p ~ 0.002
+    (tournament_validation_20261008/bootstrap.csv), but that is an in-sample
+    significance check, not out-of-sample validation.
   - Status is `found_in_search` (evidence_status.json): the winner still needs a
-    frozen-rule holdout / final exam, plus an adjacent-lead durability check
+    frozen-rule holdout / final exam, plus the L10 adjacent-lead durability check
     (analyst_suggestions.json).
   - Nominal (not inflation-adjusted), revised in later BLS releases; the COVID
     2020-21 collapse/rebound is an extreme in-window outlier that can dominate
     the fit.
 
-MONTHLY conventions: leads in MONTHS (winner L2); Sharpe annualized by sqrt(12);
+MONTHLY conventions: leads in MONTHS (winner L10); Sharpe annualized by sqrt(12);
 OOS window 2017-01-31 -> 2025-08-31 (104 months). Numbers sourced from
 results/import_price_spy/ (winner_summary.json, kpis.json, evidence_status.json,
-interpretation_metadata.json, core_models_20260830/*, regime_quartile_returns.csv,
-subperiod_sharpe.csv, granger_by_lag.csv, stationarity_tests_20260830.csv,
-structural_break_import_price_spy.json, tournament_results_20260830.csv,
-tournament_validation_20260830/bootstrap.csv).
+interpretation_metadata.json, core_models_20261008/*, regime_quartile_returns.csv,
+subperiod_sharpe.csv, granger_by_lag.csv, stationarity_tests_20261008.csv,
+structural_break_import_price_spy.json, tournament_results_20261008.csv,
+tournament_validation_20261008/bootstrap.csv).
 """
 
 from __future__ import annotations
@@ -84,9 +106,10 @@ class StoryConfig:
 
     HEADLINE_H2 = (
         "## Sharpe 1.37 OOS vs 0.96 buy-and-hold on this single sample -- the "
-        "honest headline is the drawdown (-8.3% vs -23.9%), and unlike most of "
-        "the fleet the winning rule is COUNTERCYCLICAL, the SAME direction the "
-        "economics predict for an imported-inflation gauge"
+        "honest headline is the drawdown (-8.3% vs -23.9%), and the winning rule "
+        "is COUNTERCYCLICAL, the SAME direction the economics predict for an "
+        "imported-inflation gauge -- but it fires on a FIXED-ZERO line at a "
+        "10-month lead that only appeared when the grid was densified"
     )
 
     PLAIN_ENGLISH = (
@@ -97,20 +120,25 @@ class StoryConfig:
         "imported inflation and cost pressure that tightens financial "
         "conditions and weighs on equity valuations, so equities tend to do "
         "better when import-price growth is LOW or falling. This pair tests "
-        "whether that cost signal can improve SPY timing. Read the result as an "
+        "whether that cost signal can improve SPY timing. The best searched rule "
+        "holds SPY when the 3-month change in import prices, taken from ten "
+        "months earlier, was at or below zero. Read the result as an "
         "inflation-cost overlay and drawdown control, not as a precise "
-        "forecast: the supporting evidence points the right (countercyclical) "
-        "way, but it is search-selected, confidence is low, and it still needs "
-        "a fresh final exam before any claim of edge."
+        "forecast: the direction is right, but the rule is search-selected, "
+        "confidence is low, the 10-month lead only surfaced when the grid was "
+        "densified, and it still needs a fresh final exam before any claim of "
+        "edge."
     )
 
     WHERE_THIS_FITS = (
         "This is an imported-inflation overlay for broad U.S. equities. It "
         "belongs in the portal as a countercyclical context signal: useful for "
-        "drawdown control in the searched sample and, unusually for this fleet, "
-        "pointing the same way the economics predict. But it is not a validated "
-        "standalone forecast -- the median searched rule underperforms "
-        "buy-and-hold, and the winner has not passed a frozen-rule holdout."
+        "drawdown control in the searched sample and pointing the same way the "
+        "economics predict. But it is not a validated standalone forecast -- the "
+        "median searched rule underperforms buy-and-hold, the winning 10-month "
+        "lead is a densification-surfaced long lead that sits beyond where the "
+        "lead-lag evidence is significant, and the rule has not passed a "
+        "frozen-rule holdout."
     )
 
     ONE_SENTENCE_THESIS = (
@@ -118,22 +146,24 @@ class StoryConfig:
         "strongest-growth quartile has the worst concurrent SPY Sharpe (0.19), "
         "forward correlations are negative at every horizon (down to -0.34), and "
         "growth Granger-causes SPY at short lags (p = 0.003 at lag 2) -- so the "
-        "search's best rule, a countercyclical filter at a 2-month lead, is a "
-        "direction-consistent, drawdown-reducing candidate (-8.3% vs -23.9% max "
-        "drawdown) that is still found-in-search and needs holdout validation."
+        "search's best rule, a countercyclical fixed-zero filter on 3-month "
+        "import-price growth, is a direction-consistent, drawdown-reducing "
+        "candidate (-8.3% vs -23.9% max drawdown) that is still found-in-search, "
+        "fires at a questionable 10-month lead, and needs holdout validation."
     )
 
     KPI_CAPTION = (
         "every performance number here is a SEARCH-PHASE, out-of-sample figure "
         "on a 104-month window (2017-01-31 -> 2025-08-31). The winner was found "
-        "as the best of 252 valid combinations, and the MEDIAN valid combo "
-        "(0.690) UNDERPERFORMS buy-and-hold (0.96) -- the typical rule "
+        "as the best of 468 valid combinations, and the MEDIAN valid combo "
+        "(0.69) UNDERPERFORMS buy-and-hold (0.96) -- the typical rule "
         "subtracts value. The defensible number is the max drawdown (-8.3% vs "
-        "-23.9%) at a slightly LOWER return (13.5% vs 14.8%) and much lower "
-        "volatility (9.6%) -- read the Sharpe (1.37 vs 0.96) as volatility "
+        "-23.9%) at a slightly LOWER return (12.7% vs 14.8%) and much lower "
+        "volatility (9.0%) -- read the Sharpe (1.37 vs 0.96) as volatility "
         "avoidance, not stock-picking skill, and note a higher Sharpe than "
-        "buy-and-hold over one sample is not proof of a durable edge. Sharpe "
-        "ratios use monthly sqrt(12) annualization."
+        "buy-and-hold over one sample is not proof of a durable edge. The low "
+        "win rate (31.7%) reflects a rule that sits in cash for long stretches. "
+        "Sharpe ratios use monthly sqrt(12) annualization."
     )
 
     HERO_TITLE = "Import Price Index vs the S&P 500 (SPY)"
@@ -141,8 +171,9 @@ class StoryConfig:
     HERO_CAPTION = (
         "How to read it: the import-price level (nominal index, left axis) is "
         "shown with SPY on the same time axis, NBER recessions shaded. The "
-        "traded signal is not the level (it is non-stationary) but its "
-        "year-over-year growth. Watch the shaded recessions -- import prices "
+        "traded signal is not the level (it is non-stationary) but its 3-month "
+        "growth (the stress charts plot year-over-year growth, the cleaner "
+        "headline transform). Watch the shaded recessions -- import prices "
         "fell as global demand cratered in each, and spiked with imported "
         "inflation in 2021-22 as equities de-rated."
     )
@@ -162,17 +193,17 @@ class StoryConfig:
     NARRATIVE_SECTION_1 = """
 ### Headline Findings
 
-The winning rule is a **countercyclical, 2-month-lagged import-price-growth filter**. It holds SPY when year-over-year import-price growth from two months earlier was at or below its five-year rolling median, and holds cash otherwise. Out-of-sample (2017-01 to 2025-08), this rule earns a Sharpe of 1.37 versus 0.96 for buy-and-hold, with a maximum drawdown of **-8.3% versus -23.9%** at an annualized return of 13.5% versus 14.8%. Read that as the honest headline: the rule's edge is a much shallower worst-case loss and lower volatility, **not** a return advantage -- and a higher Sharpe than buy-and-hold over one sample is not the same as proof of a durable edge.
+The winning rule is a **countercyclical, 10-month-lagged import-price-growth filter with a fixed-zero decision line**. It holds SPY when the 3-month change in import prices from ten months earlier was at or below **zero** (i.e. when 3-month imported-inflation momentum was flat or negative), and holds cash otherwise. There is no rolling or moving boundary here -- the line is a fixed zero. Out-of-sample (2017-01 to 2025-08), this rule earns a Sharpe of 1.37 versus 0.96 for buy-and-hold, with a maximum drawdown of **-8.3% versus -23.9%** at an annualized return of 12.7% versus 14.8%. Read that as the honest headline: the rule's edge is a much shallower worst-case loss and lower volatility, **not** a return advantage -- and a higher Sharpe than buy-and-hold over one sample is not the same as proof of a durable edge.
 
 ### The Imported-Inflation Hypothesis
 
 The Import Price Index measures the dollar cost of imported goods. It is a **coincident price / inflation gauge** -- not a production indicator and not a Leading Economic Index component. The economic prior is that import-price growth is **countercyclical** for equities: fast-rising import prices signal imported inflation and cost pressure, which tightens financial conditions and compresses equity valuations; low or falling import-price growth is supportive.
 
-The concurrent evidence supports that prior: sort months by import-price growth and the **strongest**-growth quartile has the worst concurrent SPY Sharpe (0.19), while the weakest-growth quartile is healthy (0.91). Crucially, the tournament's winning rule runs the **same** way -- it buys SPY when growth is *low* -- and at a short 2-month lead. That direction-and-lead combination **agrees** with the economic prior, which is unusual for this fleet and a point in the pair's favor.
+The concurrent evidence supports that prior: sort months by import-price growth and the **strongest**-growth quartile has the worst concurrent SPY Sharpe (0.19), while the weakest-growth quartile is healthy (0.91). The tournament's winning rule runs the **same** way -- it buys SPY when growth is *low*. That direction **agrees** with the economic prior, which is a point in the pair's favor.
 
 ### Why It Is Still Only a Candidate
 
-The forecasting evidence is real but modest and short-lived. Import-price growth does Granger-cause SPY returns at short lags (p = 0.008 at lag 1, p = 0.003 at lag 2), but the effect **decays**: it is insignificant from about lag 6 onward (p = 0.14 at lag 12). Forward-return correlations are negative and significant at every horizon (down to -0.34), and local projections are negative and significant throughout -- all pointing the countercyclical way. But the pre-whitened cross-correlation is two-sided (significant negative bars where import prices lead SPY *and* significant positive bars where SPY leads import prices), the winner is search-selected, the median valid combo underperforms buy-and-hold, and the rule has not passed a frozen-rule holdout. This dashboard therefore treats the pair as a **direction-consistent but not-yet-validated** imported-inflation overlay whose defensible value is defensive.
+The forecasting evidence is real but modest, short-lived, and -- crucially -- it does **not** sit where the winner fires. Import-price growth Granger-causes SPY returns at short lags (p = 0.008 at lag 1, p = 0.003 at lag 2), but the effect **decays** and is insignificant from about lag 6 onward (p = 0.057 at lag 6, p = 0.15 at lag 10). The winner's **10-month lead** therefore sits well beyond the region where the lead-lag evidence is significant, and that lead only appeared once the grid was **densified** to a contiguous 1-13 months -- the earlier sparse grid never tested a 10-month lead. A 10-month lead on a coincident price gauge is economically hard to defend and is a prime fitting-artifact candidate (flagged for adjacent-lead adjudication). On top of that, the winner's own 3-month transform is a weaker forward signal than YoY, the median valid combo underperforms buy-and-hold, the new winner only edges the old rolling-median rule by a hair, and the rule has not passed a frozen-rule holdout. This dashboard therefore treats the pair as a **direction-consistent but not-yet-validated** imported-inflation overlay whose defensible value is defensive.
 """
 
     HISTORY_ZOOM_EPISODES = [
@@ -181,21 +212,22 @@ The forecasting evidence is real but modest and short-lived. Import-price growth
             "title": "Dot-Com Recession",
             "narrative": (
                 "Import prices fell as global demand cratered. The searched "
-                "rule did NOT protect here -- its subperiod Sharpe (-0.98) was "
-                "worse than buy-and-hold (-0.70) in this window."
+                "rule lost a little LESS than buy-and-hold in this window "
+                "(subperiod Sharpe -0.54 vs -0.70; return -18.8% vs -33.4%), "
+                "but both were negative -- this was not a clean defense."
             ),
-            "caption": "Dot-Com: import prices fell with global demand; the rule did not defend here.",
+            "caption": "Dot-Com: import prices fell with global demand; the rule lost somewhat less than SPY.",
         },
         {
             "slug": "gfc",
             "title": "Global Financial Crisis",
             "narrative": (
                 "Import prices collapsed through 2008-09 as the global goods "
-                "economy seized up. The rule held up far better than "
-                "buy-and-hold in this window (Sharpe 0.24 vs -1.03), part of "
-                "its drawdown story."
+                "economy seized up. The rule sat in CASH through this window "
+                "(Sharpe 0.0, flat) while buy-and-hold fell hard (Sharpe "
+                "-1.03) -- a core part of its drawdown story."
             ),
-            "caption": "GFC: import prices collapsed 2008-09; the rule lost far less than SPY.",
+            "caption": "GFC: import prices collapsed 2008-09; the rule sat in cash while SPY fell.",
         },
         {
             "slug": "covid",
@@ -224,15 +256,15 @@ The forecasting evidence is real but modest and short-lived. Import-price growth
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The stress charts show why the countercyclical channel is economically sensible but the protection is uneven. Import prices fell during the Dot-Com, GFC and COVID downturns, and spiked with imported inflation in 2021-22. The searched rule's defense was uneven: it did **worse** than buy-and-hold in the Dot-Com bear (-0.98 vs -0.70), but held up far better in the GFC (0.24 vs -1.03), scored well through the COVID outlier (2.0 vs -0.66), and sat in cash (flat) through the 2022 rate shock while SPY fell (0.0 vs -0.76). The 2022 episode is the clearest illustration of the mechanism: fast import-price growth coincided with a falling market. The strongest honest reading is not "import prices predict drawdowns"; it is that a lagged, countercyclical cost filter stepped to cash during several stress windows, which is where its drawdown advantage was earned.
+The stress charts show why the countercyclical channel is economically sensible but the protection is uneven. Import prices fell during the Dot-Com, GFC and COVID downturns, and spiked with imported inflation in 2021-22. The searched rule's defense came mostly from **stepping to cash**: it sat flat (Sharpe 0.0) through the GFC while buy-and-hold fell hard (-1.03), sat flat through the 2022 rate shock while SPY fell (0.0 vs -0.76), scored well through the COVID outlier (2.0 vs -0.66), and lost a little less than buy-and-hold in the Dot-Com bear (-0.54 vs -0.70). The 2022 episode is the clearest illustration of the mechanism: fast import-price growth coincided with a falling market. The strongest honest reading is not "import prices predict drawdowns"; it is that a lagged, countercyclical cost filter stepped to cash during several stress windows, which is where its drawdown advantage was earned.
 """
 
     TRANSITION_TEXT = (
         "The Evidence page tests whether this imported-inflation story survives "
-        "correlation, lead-lag, regime, and strategy checks. It survives better "
-        "than most -- the direction is consistent and the short-lead evidence "
-        "is real -- but the value is still defensive and not yet validated out "
-        "of sample."
+        "correlation, lead-lag, regime, and strategy checks. The direction is "
+        "consistent and the short-lead evidence is real -- but the value is "
+        "still defensive, the winner's 10-month lead sits beyond the significant "
+        "lead-lag range, and nothing here has been validated out of sample."
     )
 
 
@@ -254,29 +286,33 @@ CORRELATION_BLOCK = dict(
     ),
     chart_name="correlation_heatmap",
     chart_caption=(
-        "What this shows: the WINNER signal -- YoY import-price growth -- is "
-        "negative at every forward horizon (r = -0.14, -0.26, -0.34, -0.33 at "
-        "1/3/6/12 months), consistent with the countercyclical prior. The "
-        "heatmap is NOT uniformly negative, though: some short-horizon MoM and "
-        "acceleration cells are mildly POSITIVE (about +0.03 to +0.08), so the "
-        "countercyclical read rests on the YoY row, not every transform."
+        "What this shows: the cleanest transform -- YoY import-price growth -- "
+        "is negative at every forward horizon (r = -0.14, -0.26, -0.34, -0.33 "
+        "at 1/3/6/12 months), consistent with the countercyclical prior. The "
+        "WINNER's own transform, 3-month growth, is weaker: near-zero / mildly "
+        "positive at 1-3 months (+0.03, -0.06) and only negative-significant at "
+        "6-12 months (-0.19, -0.26). The heatmap is NOT uniformly negative -- "
+        "some short-horizon MoM/acceleration cells are mildly POSITIVE (+0.03 to "
+        "+0.08)."
     ),
     observation=(
         "The YoY row is negative at every forward horizon (-0.14/-0.26/-0.34/"
         "-0.33 at 1/3/6/12 months) -- it peaks near 6 months and is essentially "
-        "flat from 6 to 12 (-0.34 vs -0.33), i.e. it does NOT keep strengthening "
-        "with horizon. Other transforms are mixed: short-horizon MoM/accel cells "
-        "are mildly positive (+0.03 to +0.08). The strongest single cell is the "
-        "YoY z-score vs 12-month-forward SPY at r = -0.42."
+        "flat from 6 to 12 (-0.34 vs -0.33). The winner's 3-month transform is "
+        "negative-significant only at 6m (-0.19) and 12m (-0.26). Other "
+        "transforms are mixed: short-horizon MoM/accel cells are mildly positive "
+        "(+0.03 to +0.08). The strongest single cell is the YoY z-score vs "
+        "12-month-forward SPY at r = -0.42."
     ),
     interpretation=(
-        "The linear evidence supports a countercyclical reading for the YoY "
-        "signal: high import-price growth precedes weaker SPY. That is "
-        "directionally consistent with the winner, though the magnitudes are "
-        "modest, not uniform across transforms, and do not by themselves prove "
-        "a tradeable edge."
+        "The linear evidence supports a countercyclical reading, cleanest for "
+        "the YoY signal: high import-price growth precedes weaker SPY. The "
+        "winner's own 3-month transform points the same way but only at longer "
+        "horizons, so read the headline countercyclical story off YoY, not off "
+        "the exact winning signal, and note the magnitudes are modest and do "
+        "not by themselves prove a tradeable edge."
     ),
-    key_message="The winner's YoY growth is negatively correlated with forward SPY at every horizon (countercyclical); other short-horizon transforms are mixed, not all negative.",
+    key_message="YoY import-price growth is negatively correlated with forward SPY at every horizon (countercyclical); the winner's 3-month transform is weaker, negative only at 6-12 months.",
 )
 
 GRANGER_BLOCK = dict(
@@ -296,26 +332,29 @@ GRANGER_BLOCK = dict(
         "What this shows: import-price growth Granger-causes SPY at SHORT lags "
         "(p = 0.008 at lag 1, p = 0.003 at lag 2, significant through lag 5) "
         "but the effect FADES -- it is insignificant from lag ~6 onward "
-        "(p = 0.14 at lag 12)."
+        "(p = 0.057 at lag 6, p = 0.15 at lag 10). The winner's 10-month lead "
+        "sits BEYOND the significant range."
     ),
     observation=(
         "The signal_to_SPY p-value is below 0.05 for lags 1 through 5 (minimum "
-        "0.003 at lag 2, matching the winner's 2-month lead) and above 0.05 "
-        "from lag 6, decaying to 0.14 by lag 12."
+        "0.003 at lag 2) and above 0.05 from lag 6 (0.057), reaching 0.15 at "
+        "lag 10 -- the winner's lead -- and 0.14 at lag 12."
     ),
     interpretation=(
-        "There is genuine short-horizon lead-lag content -- and it peaks near "
-        "the winner's 2-month lead -- but it is not persistent. This supports a "
-        "short-lead countercyclical overlay, not a long-horizon forecast."
+        "There is genuine short-horizon lead-lag content, peaking near a "
+        "2-month lead, but it is not persistent and it does NOT extend to the "
+        "winner's 10-month lead. This is a direct caution on the winning rule: "
+        "its lead was selected by the search, not by where the formal lead-lag "
+        "evidence lives."
     ),
-    key_message="Short-lag Granger evidence is real (min p = 0.003 at lag 2) but fades by ~6 months.",
+    key_message="Short-lag Granger evidence is real (min p = 0.003 at lag 2) but fades by ~6 months and is insignificant at the winner's 10-month lead (p = 0.15).",
 )
 
 QUARTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Regime Quartile Analysis",
     method_theory=(
-        "Quartile analysis sorts months by import-price YoY growth and "
+        "Quartile analysis sorts months by import-price growth and "
         "compares concurrent SPY returns across imported-inflation regimes."
     ),
     question="Do low and high imported-inflation regimes produce different SPY outcomes?",
@@ -341,8 +380,8 @@ QUARTILE_BLOCK = dict(
     interpretation=(
         "The concurrent pattern fits a countercyclical imported-inflation "
         "story and points the SAME way as the tournament winner. That "
-        "coherence is a point in the pair's favor, unlike the fleet's many "
-        "direction-contradicting winners."
+        "direction-coherence is a point in the pair's favor, unlike the fleet's "
+        "many direction-contradicting winners."
     ),
     key_message="Higher imported inflation coincides with worse SPY conditions -- countercyclical, same direction as the winner.",
 )
@@ -370,17 +409,19 @@ CCF_BLOCK = dict(
     ),
     observation=(
         "Significant negative correlations appear at positive lags +1 to +6 "
-        "(import prices leading SPY, ccf down to ~-0.16), and significant "
+        "(import prices leading SPY, ccf down to ~-0.16 at +3), and significant "
         "positive correlations at negative lags -12 to -7 (SPY leading import "
         "prices, ccf up to ~0.16)."
     ),
     interpretation=(
         "The lead-side (import-prices-lead) bars are negative, which agrees "
-        "with the countercyclical winner; but the two-sided structure means "
-        "the lead-lag relationship is entangled with the coincident nature of "
-        "a price gauge, so treat the forecast content as modest."
+        "with the countercyclical winner; but the significant lead bars sit at "
+        "+1 to +6 months, not at the winner's 10-month lead, and the two-sided "
+        "structure means the lead-lag relationship is entangled with the "
+        "coincident nature of a price gauge, so treat the forecast content as "
+        "modest."
     ),
-    key_message="Import prices lead SPY negatively at short offsets (countercyclical), but the CCF is two-sided, not a clean forecast.",
+    key_message="Import prices lead SPY negatively at short offsets (+1 to +6 months, countercyclical), but the CCF is two-sided and does not reach the winner's 10-month lead.",
 )
 
 LOCAL_PROJECTIONS_BLOCK = dict(
@@ -405,7 +446,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     ),
     observation=(
         "Point estimates are negative and grow more negative with horizon, all "
-        "statistically significant (p from 0.008 down to 2e-11); explained "
+        "statistically significant (p from 0.008 down to 1e-10); explained "
         "variance rises from ~0.02 at 1 month to ~0.11 at 6 months."
     ),
     interpretation=(
@@ -458,43 +499,49 @@ EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: Import Prices Are Countercyclical Context, Direction-Consistent but Not Yet Validated",
     "overview": (
         "The evidence supports a countercyclical imported-inflation overlay -- "
-        "and, unusually for this fleet, points the SAME way as the winner. "
-        "Forward correlations are negative at every horizon (down to -0.34), "
+        "and, in direction, points the SAME way as the winner. Forward "
+        "correlations are negative at every horizon for YoY (down to -0.34), "
         "local projections are negative and significant, concurrent quartiles "
         "lean countercyclical (strongest-growth quartile worst), and Granger is "
-        "significant at short lags (p = 0.003 at lag 2, near the winner's L2). "
-        "But the effect fades beyond ~6 months, the median searched rule "
-        "underperforms buy-and-hold, and the winner is still found-in-search."
+        "significant at short lags (p = 0.003 at lag 2). But the effect fades "
+        "beyond ~6 months -- so it does NOT reach the winner's 10-month lead -- "
+        "the winner's own 3-month transform is weaker than YoY, the median "
+        "searched rule underperforms buy-and-hold, and the winner is still "
+        "found-in-search."
     ),
     "plain_english": (
         "This page asks whether import-price growth helps time SPY. The answer "
         "is: yes, weakly, and in the economically sensible direction. High "
         "imported inflation tends to precede weaker equities over the next few "
-        "months; the best rule runs that way at a 2-month lag. Treat it as a "
-        "direction-consistent defensive overlay that still needs a final exam, "
-        "not a precise early-warning system."
+        "months; the formal lead-lag evidence is strongest around a 2-month "
+        "lag, not the winner's 10-month lead. Treat it as a direction-"
+        "consistent defensive overlay that still needs a final exam, not a "
+        "precise early-warning system."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
-        "The tournament tested 252 strategy combinations (all 252 valid) across "
+        "The tournament tested 468 strategy combinations (all 468 valid) across "
         "six import-price growth transforms, fixed and rolling thresholds, "
-        "procyclical/countercyclical orientations, and leads from 0 to 12 "
-        "months. The selected winner is `yoy / T_roll_p50 / P1_long_cash "
-        "countercyclical / L2`, with OOS Sharpe 1.37. The MEDIAN valid combo "
-        "scores 0.690 -- below buy-and-hold's 0.96 -- and the runner-up "
-        "(`yoy / T0_zero / countercyclical / L2`, 1.321) shares the winner's "
-        "YoY signal, countercyclical direction and 2-month lead, so the search "
-        "surface concentrates on short-lead countercyclical rules -- a coherent "
-        "cluster, but still one that needs out-of-sample confirmation."
+        "procyclical/countercyclical orientations, and a densified, contiguous "
+        "grid of leads from 1 to 13 months. The selected winner is "
+        "`import_price_3m / T0_zero (fixed zero) / P1_long_cash countercyclical "
+        "/ L10`, with OOS Sharpe 1.37. The MEDIAN valid combo scores 0.69 -- "
+        "below buy-and-hold's 0.96 -- and the runner-up is the prior re-run's "
+        "winner (`yoy / T_roll_p50 rolling-median / countercyclical / L2`, "
+        "1.3747), edged out by a hair (1.37494 vs 1.37471). The winning lead "
+        "(L10) only appeared once the grid was densified to contiguous leads, "
+        "and it sits beyond the range where lead-lag evidence is significant -- "
+        "a selection maximum that needs out-of-sample confirmation."
     ),
     "transition": (
         "**Transition:** the evidence is countercyclical context that points "
-        "the same way as the winner, but it is modest and not yet validated. "
-        "The Strategy page shows the exact long/cash rule, the drawdown "
-        "advantage that is its real virtue, and the deployment caveats."
+        "the same way as the winner, but it is modest, fades beyond ~6 months, "
+        "and is not yet validated. The Strategy page shows the exact long/cash "
+        "rule, the drawdown advantage that is its real virtue, and the "
+        "deployment caveats -- including the questionable 10-month lead."
     ),
 }
 
@@ -502,42 +549,43 @@ EVIDENCE_METHOD_BLOCKS = {
 class StrategyConfig:
     PAGE_TITLE = "The Strategy: A Countercyclical, Lagged Import-Price Long/Cash Overlay"
     PAGE_SUBTITLE = (
-        "A searched SPY allocation rule using year-over-year import-price "
-        "growth, a rolling-median threshold, a countercyclical orientation, "
-        "and a 2-month lead -- valued for drawdown reduction, direction-"
-        "consistent with the imported-inflation prior, but still "
-        "found-in-search and awaiting a final exam."
+        "A searched SPY allocation rule using 3-month import-price growth, a "
+        "fixed-zero threshold, a countercyclical orientation, and a 10-month "
+        "lead -- valued for drawdown reduction, direction-consistent with the "
+        "imported-inflation prior, but still found-in-search, fired at a "
+        "densification-surfaced long lead, and awaiting a final exam."
     )
 
     PLAIN_ENGLISH = (
-        "The rule holds SPY when year-over-year import-price growth from two "
-        "months earlier was at or below its five-year rolling median; "
-        "otherwise it holds cash. This is a lagged, COUNTERCYCLICAL "
-        "imported-inflation filter -- the same direction as the economic prior "
-        "for a price gauge -- not a precise real-time recession forecast. Judge "
-        "it by its shallower drawdown (-8.3% vs -23.9%) and lower volatility, "
-        "not by the headline Sharpe."
+        "The rule holds SPY when the 3-month change in import prices from ten "
+        "months earlier was at or below ZERO; otherwise it holds cash. The "
+        "decision line is a fixed zero, not a rolling or moving boundary. This "
+        "is a lagged, COUNTERCYCLICAL imported-inflation filter -- the same "
+        "direction as the economic prior for a price gauge -- not a precise "
+        "real-time recession forecast. Judge it by its shallower drawdown "
+        "(-8.3% vs -23.9%) and lower volatility, not by the headline Sharpe, "
+        "and keep in mind the 10-month lead is long and search-selected."
     )
 
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/import_price_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/import_price_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/import_price_spy/tournament_results_20260830.csv"},
-        {"label": "Stationarity tests", "path": "results/import_price_spy/stationarity_tests_20260830.csv"},
+        {"label": "Tournament results", "path": "results/import_price_spy/tournament_results_20261008.csv"},
+        {"label": "Stationarity tests", "path": "results/import_price_spy/stationarity_tests_20261008.csv"},
     ]
 
     SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the 2-month-lagged year-over-year change in import prices was at or below its five-year rolling median (i.e. when imported-inflation growth was *low* two months earlier); otherwise hold cash. This is a countercyclical rule and it runs the same way as the imported-inflation prior.
+**Rule in plain English:** hold SPY when the 10-month-lagged 3-month change in import prices was at or below **zero** (i.e. when 3-month imported-inflation momentum was flat or negative ten months earlier); otherwise hold cash. The decision line is a fixed zero, not a rolling median. This is a countercyclical rule and it runs the same way as the imported-inflation prior.
 
 If-then form:
-- **IF** `import_price_yoy` from 2 months earlier is at or below its 60-month rolling median -> hold SPY.
+- **IF** `import_price_3m` (3-month percent change) from 10 months earlier is at or below 0 -> hold SPY.
 - **ELSE** -> hold cash.
 
-Search-phase OOS results (2017-01-31 to 2025-08-31, 104 months): Sharpe 1.37 versus 0.96 buy-and-hold; annualized return 13.5% versus 14.8%; **maximum drawdown -8.3% versus -23.9%**; annualized volatility 9.6%; win rate 30.8%; 13 trades; annual turnover 1.5. The drawdown and volatility reduction, not the Sharpe or return, is the defensible result.
+Search-phase OOS results (2017-01-31 to 2025-08-31, 104 months): Sharpe 1.37 versus 0.96 buy-and-hold; annualized return 12.7% versus 14.8%; **maximum drawdown -8.3% versus -23.9%**; annualized volatility 9.0%; win rate 31.7%; 18 trades; annual turnover 2.1. The drawdown and volatility reduction, not the Sharpe or return, is the defensible result -- and the 10-month lead is long, search-selected, and needs adjacent-lead adjudication.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads the Import Price Index (`IR`, nominal price index) at month-end. Second, it computes the year-over-year percent change in import prices (`import_price_yoy`). Third, it applies a 2-month lag before the SPY allocation is set. Finally, the lagged signal is compared with its 60-month rolling median: when the lagged growth is at or below that median, hold SPY; otherwise cash (the countercyclical orientation).
+First, the data process reads the Import Price Index (`IR`, nominal price index) at month-end. Second, it computes the 3-month percent change in import prices (`import_price_3m`). Third, it applies a 10-month lag before the SPY allocation is set. Finally, the lagged signal is compared with a fixed threshold of zero: when the lagged 3-month growth is at or below zero, hold SPY; otherwise cash (the countercyclical orientation). There is no rolling-window boundary -- the line is a constant zero.
 
 OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualized out-of-sample return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of out-of-sample months with positive strategy return (low here partly because the rule sits in cash for stretches).
 """
@@ -546,10 +594,10 @@ OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualize
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
 1. Read the Import Price Index (IR) at month end.
-2. Compute the year-over-year percent change.
-3. Take the value from 2 months earlier and compare it with its trailing 60-month rolling median.
-4. Hold SPY when that lagged growth was at or below the rolling median; otherwise hold cash.
-5. Recheck monthly. Turnover is moderate (1.5/yr): the rule changes exposure a few times a year.
+2. Compute the 3-month percent change.
+3. Take the value from 10 months earlier and compare it with zero.
+4. Hold SPY when that lagged 3-month growth was at or below zero; otherwise hold cash.
+5. Recheck monthly. Turnover is moderate (2.1/yr): the rule changes exposure a few times a year.
 """
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -559,11 +607,12 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     WALK_FORWARD_CAPTION = (
         "What this shows: Sharpe is return per unit of volatility. The "
         "subperiod chart compares the searched rule with buy-and-hold SPY "
-        "during major stress windows. The rule holds up far better in the GFC "
-        "(0.24 vs -1.03), scores well through the COVID outlier (2.0 vs -0.66), "
-        "and sits in cash (flat, Sharpe 0.0) through the 2022 rate shock while "
-        "SPY fell -- but it does WORSE than buy-and-hold in the Dot-Com bear "
-        "(-0.98 vs -0.70). The stress defense is real but uneven."
+        "during major stress windows. The rule earned its defense mostly by "
+        "sitting in cash: flat (Sharpe 0.0) through the GFC (vs -1.03) and the "
+        "2022 rate shock (vs -0.76), while scoring well through the COVID "
+        "outlier (2.0 vs -0.66) and losing a little less than buy-and-hold in "
+        "the Dot-Com bear (-0.54 vs -0.70). The stress defense is real but "
+        "comes from stepping aside, not from forecasting."
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (
@@ -585,37 +634,36 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
         "What this shows: OOS Sharpe distribution across valid searched "
-        "combinations by lead. The winner (1.37) is a right-tail maximum; the "
-        "median valid combo (0.690) sits BELOW buy-and-hold (0.96), so the "
-        "typical rule built on this indicator subtracts value."
+        "combinations by lead. The winner (1.37) is a right-tail maximum at a "
+        "10-month lead; the median valid combo (0.69) sits BELOW buy-and-hold "
+        "(0.96), so the typical rule built on this indicator subtracts value."
     )
 
     CAVEATS_MD = """
 **Main caveats:**
 
-1. The result is marked `found_in_search`: the median valid combo underperforms buy-and-hold (0.690 vs 0.96), and the winner still needs a frozen-rule holdout confirmation. The bootstrap p = 0.00 is an in-sample significance check, not out-of-sample validation.
-2. The winner is COUNTERCYCLICAL at a 2-month lead, which AGREES with the imported-inflation prior -- a point in its favor -- but adjacent-lead durability should still be checked (analyst_suggestions.json), because even a direction-consistent short lead can be a fitting artifact.
-3. The lead-lag evidence fades fast: Granger is significant only through lag ~5 (p = 0.003 at lag 2) and insignificant by lag 12, and the pre-whitened CCF is two-sided. This is a short-horizon overlay, not a long-range forecast.
-4. The defensible virtue is drawdown and volatility reduction, not return: annualized return (13.5%) is slightly BELOW buy-and-hold (14.8%).
-5. Import prices are nominal and revised in later BLS releases; the growth signal reflects imported inflation, which is exactly why it was firm in 2021-22 as equities fell.
-6. COVID 2020-21 is an extreme in-window outlier that can dominate the fit -- the rule's strong COVID subperiod Sharpe (2.0) should be read with that in mind.
+1. The result is marked `found_in_search`: the median valid combo underperforms buy-and-hold (0.69 vs 0.96), and the winner still needs a frozen-rule holdout confirmation. The bootstrap p ~ 0.002 is an in-sample significance check, not out-of-sample validation.
+2. **The 10-month lead is a densification artifact risk.** L10 surfaced only when the lead grid was densified to a contiguous 1-13 months; the earlier sparse grid never tested it. A 10-month lead on a coincident price gauge is economically hard to defend, and adjacent-lead durability must be checked (analyst_suggestions.json) before any trust.
+3. **The winner's lead sits beyond the significant lead-lag evidence.** Granger is significant only through lag ~5 (p = 0.003 at lag 2) and is insignificant by lag 6 (0.057) and at the winner's lag 10 (p = 0.15); the pre-whitened CCF's significant lead bars sit at +1 to +6 months. The formal evidence does not support a 10-month lead.
+4. The new winner only edges the prior rolling-median rule (`yoy / T_roll_p50 / L2`) by a hair (1.37494 vs 1.37471), so the search surface is nearly flat at the top -- small sample-period changes could reorder it.
+5. The defensible virtue is drawdown and volatility reduction, not return: annualized return (12.7%) is BELOW buy-and-hold (14.8%), and the low win rate (31.7%) reflects long stretches in cash.
+6. Import prices are nominal and revised in later BLS releases; the growth signal reflects imported inflation, which is exactly why it was firm in 2021-22 as equities fell. COVID 2020-21 is an extreme in-window outlier that can dominate the fit -- the rule's strong COVID subperiod Sharpe (2.0) should be read with that in mind.
 """
 
     TRADE_LOG_EXAMPLE_MD = (
         "**A concrete example from this pair:** the broker-style log records a "
-        "BUY when the 2-month-lagged year-over-year import-price growth crossed "
-        "at or below its rolling median, taking exposure from 0% to 100% SPY. "
-        "A SELL moves back to cash when the lagged growth rose above the "
-        "rolling median."
+        "BUY when the 10-month-lagged 3-month import-price change crossed at or "
+        "below zero, taking exposure from 0% to 100% SPY. A SELL moves back to "
+        "cash when the lagged 3-month growth rose above zero."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
-        "trade_date": "1997-02-28",
+        "trade_date": "1994-05-31",
         "side": "BUY",
         "instrument": "SPY",
         "quantity_pct": "100.0",
         "commission_bps": "5",
-        "reason": "P1_long_cash: yoy countercyclical rule crossed T_roll_p50; position 0% to 100%",
+        "reason": "P1_long_cash: chg_3m countercyclical rule crossed T0_zero; position 0% to 100%",
     }
 
 
@@ -635,10 +683,11 @@ _INDICATOR_CONSTRUCTION_MD = (
     "root, p = 0.70; KPSS rejects stationarity), so the pipeline constructs "
     "growth transforms -- month-over-month, three-month, six-month, and "
     "twelve-month percent changes; a 60-month rolling YoY z-score; and YoY "
-    "acceleration -- all of which are stationary. The winning signal is "
-    "`import_price_yoy`, the year-over-year growth, used with a 2-month lead, a "
-    "60-month rolling-median threshold, and a countercyclical orientation (long "
-    "SPY when lagged growth is at or below the median)."
+    "acceleration -- all of which are stationary (e.g. the 3-month change has "
+    "ADF p = 4e-6). The winning signal is `import_price_3m`, the 3-month growth, "
+    "used with a 10-month lead, a FIXED threshold of zero, and a countercyclical "
+    "orientation (long SPY when the lagged 3-month growth is at or below zero). "
+    "No rolling-window boundary is used by the winner."
 )
 
 _METHODS_TABLE_MD = """
@@ -654,7 +703,7 @@ _METHODS_TABLE_MD = """
 """
 
 _TOURNAMENT_DESIGN_MD = """
-Grid: import-price growth transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x lead times (0-12 months). The final tournament has 252 combinations, all 252 valid. The winning rule is `import_price_yoy / T_roll_p50 / P1_long_cash countercyclical / L2`, the maximum OOS Sharpe (1.37). The median valid combo (0.690) underperforms buy-and-hold (0.96), and the runner-up (`import_price_yoy / T0_zero / countercyclical / L2`, 1.321) shares the winner's YoY signal, countercyclical direction and 2-month lead -- read the winner as a selection maximum in a coherent short-lead countercyclical cluster whose direction agrees with the imported-inflation prior, but which is not yet validated out of sample.
+Grid: import-price growth transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x lead times, with the lead axis DENSIFIED to a contiguous 1-13 months. The final tournament has 468 combinations, all 468 valid. The winning rule is `import_price_3m / T0_zero (fixed zero) / P1_long_cash countercyclical / L10`, the maximum OOS Sharpe (1.37). The median valid combo (0.69) underperforms buy-and-hold (0.96). The runner-up is the prior re-run's winner (`import_price_yoy / T_roll_p50 rolling-median / countercyclical / L2`, 1.3747), edged out by a razor-thin margin (1.37494 vs 1.37471). Read the winner as a selection maximum whose direction agrees with the imported-inflation prior but whose 10-month lead only surfaced from densifying the grid, sits beyond the significant lead-lag range, and is not yet validated out of sample.
 """
 
 _REFERENCES_MD = """
@@ -682,6 +731,8 @@ METHODOLOGY_CONFIG = MethodologyConfig(
         "how the tournament selected the final SPY allocation rule -- along "
         "with the honest caveat that the selection maximum, although "
         "direction-consistent with the countercyclical imported-inflation "
-        "prior, is still found-in-search and not yet a validated edge."
+        "prior, fires at a densification-surfaced 10-month lead beyond the "
+        "significant lead-lag range and is still found-in-search, not yet a "
+        "validated edge."
     ),
 )

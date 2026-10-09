@@ -12,9 +12,9 @@
   "narrative_alignment_note": "Drawdown rebuilt from corrected canonical winner return series.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/umcsent_xlv/strategy_returns_20260420.csv",
+    "results/umcsent_xlv/strategy_returns_20261008.csv",
     "results/umcsent_xlv/winner_summary.json"
   ],
-  "generated_at": "2026-06-19T09:11:21.826926+00:00",
+  "generated_at": "2026-10-09T09:27:42.039362+00:00",
   "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
 }

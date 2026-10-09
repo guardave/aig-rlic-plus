@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Dual-panel LP per ECON-H4; forward n.s. supports reverse-only verdict.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/m2sl_yoy_spy/core_models_20260619/local_projections.csv"
+    "results/m2sl_yoy_spy/core_models_20261008/local_projections.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-09-25T23:22:13.198511+00:00",
+  "generated_at": "2026-10-09T09:28:23.124057+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
 }

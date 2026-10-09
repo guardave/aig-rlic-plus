@@ -43,10 +43,10 @@ lookahead-free). STATIC SOURCE: Data Master sheet WFHMI ends 2025-10
 
 Numbers sourced from results/wells_fargo_housing_spy/ (winner_summary.json,
 kpis.json, evidence_status.json, oos_split_record.json,
-interpretation_metadata.json, core_models_20260706/*,
+interpretation_metadata.json, core_models_20261008/*,
 structural_break_wells_fargo_housing_spy.json,
-tournament_validation_20260706/bootstrap.csv, granger_by_lag.csv,
-lead_correlation_20260706.csv, lead_winner_curve_20260706.csv,
+tournament_validation_20261008/bootstrap.csv, granger_by_lag.csv,
+lead_correlation_20261008.csv, lead_winner_curve_20261008.csv,
 regime_quartile_returns.csv, subperiod_sharpe.csv,
 winner_trades_broker_style.csv).
 
@@ -54,7 +54,7 @@ GH #13 framing: LEAD_TOURNAMENT_BLOCK["how_to_read"] carries Ray's
 plain-English framing (rendered before the lead_sharpe_distribution
 chart): the bars are a best-of-any-signal envelope (search-conditioned at
 every lead); the honest comparison is the winner's OWN curve
-(lead_winner_curve_20260706.csv), which peaks at its published L7 but
+(lead_winner_curve_20261008.csv), which peaks at its published L7 but
 collapses either side (L6 1.00 / L8 0.93) — a spike, not a ridge
 (ECON-LT2 FAIL; bootstrap p = 0.1272, n.s.).
 
@@ -482,7 +482,7 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
     ),
     observation=(
         "Reading across the rows, correlations are small everywhere "
-        "(per lead_correlation_20260706.csv the best cell on the whole "
+        "(per lead_correlation_20261008.csv the best cell on the whole "
         "13-transform × L0..L12 grid is |r| = 0.12). The traded "
         "12-month point-change (`diff_12m`) reads r = +0.084 at the "
         "winner's L7 (its best is +0.089 at L4); the raw level never "
@@ -533,7 +533,7 @@ LEAD_TOURNAMENT_BLOCK = dict(
         "all clear buy-and-hold; that uniform strength is what selection "
         "bias looks like, not evidence that every lead works. The honest "
         "comparison is the published winner's OWN signal traced across "
-        "leads (lead_winner_curve_20260706.csv): 0.79 at L1, 0.69-0.85 "
+        "leads (lead_winner_curve_20261008.csv): 0.79 at L1, 0.69-0.85 "
         "across L2-L4, 1.05 at L5, 1.00 at L6, then the published peak "
         "of 1.43 at L7 — collapsing straight back to 0.93 at L8 and "
         "decaying to 0.43-0.63 by L10-L12. The winner's own curve does "
@@ -964,7 +964,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "corroborates.*\n\n"
         "All statistics computed on MONTHLY data, analytical sample "
         "1993-02 → 2025-10 (393 months), from "
-        "`results/wells_fargo_housing_spy/core_models_20260706/`."
+        "`results/wells_fargo_housing_spy/core_models_20261008/`."
     ),
     "plain_english": (
         "This section shows the statistical evidence "
@@ -984,23 +984,23 @@ EVIDENCE_METHOD_BLOCKS = {
     # counts exclude the header row.
     "downloads": [
         {"label": "Granger causality (Toda-Yamamoto), both directions × 12 monthly lags (24 rows)",
-         "path": "results/wells_fargo_housing_spy/core_models_20260706/granger_causality.csv"},
+         "path": "results/wells_fargo_housing_spy/core_models_20261008/granger_causality.csv"},
         {"label": "Granger F-statistics by lag, HMI → SPY (12 rows)",
          "path": "results/wells_fargo_housing_spy/granger_by_lag.csv"},
         {"label": "Correlation battery, signal × horizon × metric (208 rows)",
-         "path": "results/wells_fargo_housing_spy/core_models_20260706/correlations.csv"},
+         "path": "results/wells_fargo_housing_spy/core_models_20261008/correlations.csv"},
         {"label": "Pre-whitened CCF, monthly offsets −24..+24 (49 rows)",
-         "path": "results/wells_fargo_housing_spy/core_models_20260706/ccf_prewhitened.csv"},
+         "path": "results/wells_fargo_housing_spy/core_models_20261008/ccf_prewhitened.csv"},
         {"label": "Local projections, forward + reverse × 4 monthly horizons (8 rows)",
-         "path": "results/wells_fargo_housing_spy/core_models_20260706/local_projections.csv"},
+         "path": "results/wells_fargo_housing_spy/core_models_20261008/local_projections.csv"},
         {"label": "Transfer entropy, both directions (2 rows)",
-         "path": "results/wells_fargo_housing_spy/core_models_20260706/transfer_entropy.csv"},
+         "path": "results/wells_fargo_housing_spy/core_models_20261008/transfer_entropy.csv"},
         {"label": "Quantile regression, 7 quantiles (7 rows)",
-         "path": "results/wells_fargo_housing_spy/core_models_20260706/quantile_regression.csv"},
+         "path": "results/wells_fargo_housing_spy/core_models_20261008/quantile_regression.csv"},
         {"label": "Era-battery correlations, 2 signals × 4 eras (8 rows)",
-         "path": "results/wells_fargo_housing_spy/core_models_20260706/era_correlations.csv"},
+         "path": "results/wells_fargo_housing_spy/core_models_20261008/era_correlations.csv"},
         {"label": "Lead-correlation grid, 13 transforms × leads L0..L12 months (12 rows)",
-         "path": "results/wells_fargo_housing_spy/lead_correlation_20260706.csv"},
+         "path": "results/wells_fargo_housing_spy/lead_correlation_20261008.csv"},
         {"label": "Regime quartile returns, Q1–Q4 (4 rows)",
          "path": "results/wells_fargo_housing_spy/regime_quartile_returns.csv"},
         {"label": "Sub-period Sharpe, episodes (4 rows)",
@@ -1221,7 +1221,7 @@ damage control, not a forecast.
     }
 
     CAVEATS_MD = """
-**Why we do not call this a validated edge** — flags, none softened (all from `winner_summary.json`, `evidence_status.json`, `structural_break_wells_fargo_housing_spy.json`, `lead_winner_curve_20260706.csv`, and `tournament_validation_20260706/bootstrap.csv`):
+**Why we do not call this a validated edge** — flags, none softened (all from `winner_summary.json`, `evidence_status.json`, `structural_break_wells_fargo_housing_spy.json`, `lead_winner_curve_20261008.csv`, and `tournament_validation_20261008/bootstrap.csv`):
 
 1. **The causality runs backwards.** Toda-Yamamoto Granger finds SPY → HMI significant at ALL 12 tested monthly lags and HMI → SPY at one isolated lag (5) only; transfer entropy is reverse-only (SPY→HMI p = 0.000, HMI→SPY p = 0.386); the era battery is null in all four eras since 1993. The indicator is LAGGING — the rule reads an old echo of a cycle the market already priced.
 2. **The L7 lead is a SPIKE, not a ridge.** The winner's own signal scores OOS Sharpe 1.00 at L6 and 0.93 at L8 versus 1.43 at the published L7 — adjacent-lead durability FAILS (ECON-LT2). A robust mechanism should not care whether the signal is 6, 7, or 8 months stale.
@@ -1239,7 +1239,7 @@ damage control, not a forecast.
 **Further caveats:**
 
 - **The edge is episodic.** 16 trades in 98 months; the outperformance concentrates in three stress windows (2018 vol, 2020 COVID, the 2022 rate shock) where the cash-step avoided losses — one class of episode, repeated.
-- **Costs.** Returns are gross of costs; at 5 bps per trade and 1.96 trades/yr the haircut is small (see `tournament_validation_20260706/transaction_costs.csv`) — cost drag is not this pair's problem; the lagging verdict and the lead spike are.
+- **Costs.** Returns are gross of costs; at 5 bps per trade and 1.96 trades/yr the haircut is small (see `tournament_validation_20261008/transaction_costs.csv`) — cost drag is not this pair's problem; the lagging verdict and the lead spike are.
 """
 
     TRADE_LOG_EXAMPLE_MD = (
@@ -1316,7 +1316,7 @@ _METHODS_TABLE_MD = """
 _TOURNAMENT_DESIGN_MD = """
 Grid: 13 signals (monthly HMI transforms + HMM/Markov regime states) × 12 threshold schemes (fixed percentiles, rolling percentiles, z-score bands, zero-line) × 6 strategy families × MONTHLY leads {1…12} = **17,856 combinations** plus a buy-and-hold benchmark row (valid=False per ECON-T4). Validity filters → **12,980 valid**; median valid OOS Sharpe 0.7901 (below buy-and-hold's 0.94). The source is seasonally adjusted, so no seasonal-cleanliness restriction applies; the objective is max OOS Sharpe (√12 MONTHLY annualization) over the full valid population, ties resolved by the ECON-T3 cascade (resolved at step 1; one tie at step 1 — integer-granularity index, ties expected). Full grid scanned natively over L1..L12 (GH #13: no staleness possible; ECON-LT1 pass). Out-of-sample split per policy `v1_max36_25pct_cap120` on the 393-month overlap: in-sample through 2017-08-31 (295 months, spanning the 1990s expansion, dot-com bust, the classic 2005-09 housing bust, and the QE era), out-of-sample 2017-09-30 → 2025-10-31 (**98 MONTHS ≈ 8.2 years — ABOVE the 5-year reliability floor**, spanning 2018 vol, COVID, the 2021 housing boom, the 2022 rate shock and the 2023-25 high-rate regime). Winner: `diff_12m / T2_roll_p25 / P1_long_cash` pro (procyclical), lead L7 months, LB60; OOS Sharpe 1.4291, IS Sharpe 0.75, bootstrap p = 0.1272; **adjacent-lead durability FAILS** (L6 1.00 / L8 0.93 — one-lead spike, ECON-LT2). All tournament CSV metrics are decimal ratios.
 
-**Reproducibility notes.** Producer script: `scripts/pair_pipeline_wells_fargo_housing_spy.py` — deterministic, fixed seeds. The canonical monthly return series for chart producers is `strategy_returns_20260706.csv`; its Sharpe/drawdown/return reconcile with `winner_summary.json`.
+**Reproducibility notes.** Producer script: `scripts/pair_pipeline_wells_fargo_housing_spy.py` — deterministic, fixed seeds. The canonical monthly return series for chart producers is `strategy_returns_20261008.csv`; its Sharpe/drawdown/return reconcile with `winner_summary.json`.
 """
 
 _REFERENCES_MD = """

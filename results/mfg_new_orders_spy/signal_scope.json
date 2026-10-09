@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-08-29T12:54:31.159835+00:00",
+  "last_updated_at": "2026-10-08T23:57:13.624899+00:00",
   "indicator_axis": {
     "canonical_column": "mfg_new_orders",
     "display_name": "Manufacturers' New Orders: Total Manufacturing",

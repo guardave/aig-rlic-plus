@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Weak linear evidence; best cell re-read from correlations.csv.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/m2sl_yoy_spy/core_models_20260619/correlations.csv"
+    "results/m2sl_yoy_spy/core_models_20261008/correlations.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-06-19T10:55:36.484175+00:00",
+  "generated_at": "2026-10-09T09:28:23.006030+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
 }
