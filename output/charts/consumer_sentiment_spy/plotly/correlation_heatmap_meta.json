@@ -1,0 +1,12 @@
+{
+  "chart_name": "correlation_heatmap",
+  "pair_id": "consumer_sentiment_spy",
+  "generated_at": "2026-10-09T22:27:13.647293+00:00",
+  "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "caption": "Pearson correlations between consumer-sentiment transforms and forward SPY returns.",
+  "narrative_alignment_note": "Pearson correlations between consumer-sentiment transforms and forward SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/consumer_sentiment_spy/core_models_20261009/correlations.csv"
+  ]
+}

@@ -982,6 +982,33 @@
       "note": "Floored rebuild of t10y3m_spy. Winner deploys at L6 -- INSIDE the floored grid [1..13], not at a ceiling. The search re-selected the same rule shape (chg_3m / T2_roll_p75 / P1_long_cash / L6 / LB60) as the untouched original on a separate data build. Axis is coherent monthly and conformed to the derived floor.",
       "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor L1",
       "conformed": true
+    },
+    "consumer_sentiment_spy": {
+      "signal_frequency": "monthly",
+      "signal_description": "U. Michigan headline Consumer Sentiment, UMCSENT (monthly)",
+      "publication_lag": "~2 weeks (prelim mid-month, final end-of-month)",
+      "real_time": false,
+      "lead_axis": "months",
+      "lead_floor": 1,
+      "lead_grid": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "observed_winner_lead_unit": "months",
+      "conformed": true,
+      "class": "monthly",
+      "note": "NEW pair (#headline-sentiment x SPY). #255-floored grid [1..13]; winner diff_1m/T_roll_p75/countercyclical/L12. Compare with umcsent_xlv (same series vs XLV) and umcsent_spy (expected-business-conditions vs SPY)."
     }
   }
 }

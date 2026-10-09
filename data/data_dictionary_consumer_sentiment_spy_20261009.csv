@@ -1,0 +1,3 @@
+Column Name,Display Name,Description,Source,Series ID,Unit,Transformation,Direction Convention,Effective Start,Known Quirks,Display Note,Refresh Freq.,Refresh Source
+umcsent,U. Michigan Consumer Sentiment,University of Michigan Index of Consumer Sentiment (headline),FRED,UMCSENT,Index (1966 Q1 = 100),Monthly level,Higher = more optimism (bullish equities),1993-01-31,"Headline sentiment index, range ~50-112; bounded/mean-reverting; sentiment leads spending",Rising consumer sentiment precedes stronger spending and risk-on equity conditions.,Monthly,FRED
+spy,SPY adjusted close,SPDR S&P 500 ETF adjusted close,Yahoo Finance,SPY,USD,Month-end adjusted close,Higher = higher equity price,1993-01-31,ETF history begins 1993,Equity target and benchmark.,Daily,Yahoo Finance

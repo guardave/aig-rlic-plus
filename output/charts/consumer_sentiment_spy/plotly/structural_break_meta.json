@@ -1,0 +1,12 @@
+{
+  "chart_name": "structural_break",
+  "pair_id": "consumer_sentiment_spy",
+  "generated_at": "2026-10-09T22:27:14.613882+00:00",
+  "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "caption": "Proxy check for large changes in the consumer-sentiment/SPY relationship.",
+  "narrative_alignment_note": "Proxy check for large changes in the consumer-sentiment/SPY relationship.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/consumer_sentiment_spy/structural_break_consumer_sentiment_spy.json"
+  ]
+}

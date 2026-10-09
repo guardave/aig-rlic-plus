@@ -120,6 +120,7 @@ PAGE_ROUTING = {
     "cement_spy": "pages/34_cement_spy",
     "ism_mfg_spy": "pages/35_ism_mfg_spy",
     "umcsent_spy": "pages/36_umcsent_spy",
+    "consumer_sentiment_spy": "pages/44_consumer_sentiment_spy",
     "retail_inv_sales_spy": "pages/37_retail_inv_sales_spy",
     "cc_delinquency_spy": "pages/38_cc_delinquency_spy",
     "permit_yoy_spy": "pages/39_permit_yoy_spy",

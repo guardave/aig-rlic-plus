@@ -1,0 +1,12 @@
+{
+  "chart_name": "tournament_scatter",
+  "pair_id": "consumer_sentiment_spy",
+  "generated_at": "2026-10-09T22:27:14.564790+00:00",
+  "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "caption": "Alias for tournament scatter slot.",
+  "narrative_alignment_note": "Alias for tournament scatter slot.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/workspaces/aig-rlic-plus/results/consumer_sentiment_spy/tournament_results_20261009.csv"
+  ]
+}
