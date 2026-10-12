@@ -4,11 +4,11 @@
   "last_updated_at": "2026-09-12T17:22:53.798357+00:00",
   "suggestions": [
     {
-      "signal_name": "Lead robustness",
+      "signal_name": "Timing robustness",
       "proposed_by": "evan",
       "source": "Data Master",
-      "observation": "The rule uses an L3 lead on level; verify adjacent-lead durability.",
-      "rationale": "Cycles in the sample are few, so the lead needs adjacent-lead durability and a cycle-count caveat.",
+      "observation": "The rule uses the ratio level from three months earlier; verify adjacent timing offsets.",
+      "rationale": "Cycles in the sample are few, so the timing choice needs adjacent-offset durability and a cycle-count caveat.",
       "possible_use_case": "robustness check",
       "caveats": "Search-selected on a limited OOS; needs final-exam validation.",
       "date_filed": "2026-09-12"

@@ -971,7 +971,7 @@ def _story_kpi_oos_years(winner: dict[str, Any]) -> str:
 # ---------------------------------------------------------------------------
 # EVIDENCE PAGE
 # ---------------------------------------------------------------------------
-# 8-Element Template elements (Rule RES-EP1 via SOP 3.9). Missing any
+# Seven required method-block elements (Rule RES-EP1 via SOP 3.9). Missing any
 # mandatory element is a render-time gate failure — block renders an
 # `st.error` rather than a partial method write-up.
 _EVIDENCE_REQUIRED_ELEMENTS = [
@@ -986,19 +986,19 @@ _EVIDENCE_REQUIRED_ELEMENTS = [
 
 
 def _render_method_block(content: dict, pair_id: str) -> None:
-    """Render a single 8-element method block. Inlined here (from the prior
+    """Render a method block with seven required parts. Inlined here (from the prior
     per-page copy-paste) so the template owns the canonical layout.
 
-    Canonical structure (SOP 3.9 / RES-EP1):
-      1. (opt.) "Why this matters" opener
-      2. Method heading + theory body
-      3. Question
-      4. How to read
-      5. Graph (or fallback warning)
-      6. Observation
-      7. (opt.) Deep dive
-      8. Interpretation
-      9. Key message (boxed)
+    Canonical required structure (SOP 3.9 / RES-EP1):
+      1. Method heading + theory body
+      2. Question
+      3. How to read
+      4. Graph (or fallback warning)
+      5. Observation
+      6. Interpretation
+      7. Key message (boxed)
+
+    A "Why this matters" opener and deeper dive are optional additions.
     """
     missing = [k for k in _EVIDENCE_REQUIRED_ELEMENTS if not content.get(k)]
     if missing:
@@ -1211,10 +1211,11 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     st.markdown("---")
 
     st.markdown(
-        "Each method follows the same 8-part structure: what the method is, "
-        "the question it answers, how to read the chart, what we observe, "
-        "deeper technical detail, economic interpretation, and the key "
-        "message. Read in order for the full picture, or skip to the "
+        "Each method follows the same seven-part structure: what the method is, "
+        "the question it answers, how to read the chart, the chart itself, "
+        "what the evidence shows, economic interpretation, and the key "
+        "message. Some methods also include an optional deeper dive. Read in "
+        "order for the full picture, or skip to the "
         "**Key message** lines for a quick summary."
     )
     st.markdown("---")
@@ -1424,10 +1425,14 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         _lead_label = "L0 (no additional lead)"
     else:
         _lead_label = f"L{_lead}"
-    st.markdown(
-        f"### Tournament Winner: {winner.get('signal_code', 'N/A')} / "
-        f"{_strategy_family} / {_lead_label}"
-    )
+    _winner_heading = getattr(config, "WINNER_HEADING", None)
+    if _winner_heading:
+        st.markdown(f"### {_winner_heading}")
+    else:
+        st.markdown(
+            f"### Tournament Winner: {winner.get('signal_code', 'N/A')} / "
+            f"{_strategy_family} / {_lead_label}"
+        )
 
     # #244 re-open: the generic fallback must not imply a fixed cutoff when the
     # winner threshold is a rolling quantile (a moving boundary).
@@ -1539,7 +1544,11 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         with _col2:
             st.markdown(f"**Strategy family:** `{_strategy_family}`")
             st.markdown(f"**Direction:** `{_direction}`")
-            st.markdown(f"**Lead time:** {_lead_label}")
+            _timing_summary = getattr(config, "TIMING_SUMMARY", None)
+            if _timing_summary:
+                st.markdown(f"**Timing:** {_timing_summary}")
+            else:
+                st.markdown(f"**Lead time:** {_lead_label}")
 
         st.markdown("---")
         # APP-SE1 — Probability Engine Panel
