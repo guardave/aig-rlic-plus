@@ -26,7 +26,7 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-10-09T14:27:18.145367+00:00",
+  "last_updated_at": "2026-10-15T18:09:26.343228+00:00",
   "indicator": "nhs_saar",
   "target": "spy",
   "expected_direction": "procyclical",
@@ -34,7 +34,7 @@
   "direction_consistent": true,
   "mechanism": "New home buyers commit before construction, so new-home sales lead the housing cycle and the broader expansion; stronger home-sales growth should coincide with a healthier economy and support equities.",
   "confidence": "low",
-  "key_finding": "Best search-phase rule uses chg_6m at L14 with OOS Sharpe 1.50 versus buy-and-hold 1.00.",
+  "key_finding": "IS-selected rule uses pct_6m at L13 (in-sample Sharpe 0.98) with held-out OOS Sharpe 0.92 versus buy-and-hold 1.00.",
   "caveats": [
     "New Home Sales is volatile month to month and is revised after release.",
     "The strategy is search-selected and needs a fresh holdout confirmation.",
@@ -64,6 +64,6 @@
   "data_provenance": {
     "source": "FRED",
     "series_id": "HSN1F",
-    "accessed_at": "2026-10-09T14:27:18.145367+00:00"
+    "accessed_at": "2026-10-15T18:09:26.343228+00:00"
   }
 }

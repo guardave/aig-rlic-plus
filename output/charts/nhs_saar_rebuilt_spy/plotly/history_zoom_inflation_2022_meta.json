@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-09T14:43:50.896209+00:00",
+  "generated_at": "2026-10-15T18:10:32.528439+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
   "caption": "2022 Rate-Hike Cycle: Home Sales Slowed With Higher Rates; gray bands are NBER recessions and pink bands are home-sales contractions.",
   "narrative_alignment_note": "2022 Rate-Hike Cycle: Home Sales Slowed With Higher Rates; gray bands are NBER recessions and pink bands are home-sales contractions.",
