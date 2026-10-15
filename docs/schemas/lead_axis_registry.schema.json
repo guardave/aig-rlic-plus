@@ -72,6 +72,16 @@
           "description": "REFERENCE ONLY (Step 2 real-time deployable floor); not gate-enforced.",
           "minimum": 0
         },
+        "position_shift": {
+          "type": "integer",
+          "enum": [0, 1],
+          "description": "Extra bars the strategy applies between the (lead-shifted) signal and the earned return, e.g. strat_ret = pos.shift(1) * ret => 1. Default 0. Read by scripts/gate_lead_floor.py: effective lag = min(grid) + position_shift; must equal what the code does or the gate FAILs (alignment mismatch)."
+        },
+        "lead_floor_effective": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Optional floor on the EFFECTIVE lag (min(grid) + position_shift) enforced by scripts/gate_lead_floor.py; when absent the gate compares min(grid) to lead_floor."
+        },
         "lead_grid": {
           "type": "array",
           "description": "The anchored grid for this axis (Step 3).",
@@ -84,6 +94,9 @@
           "enum": ["days", "weeks", "months", "quarters"]
         },
         "class": {"type": "string"},
+        "floor_basis": {"type": "string"},
+        "reconfirmed_winner": {"type": "string"},
+        "conformed": {"type": "boolean"},
         "note": {"type": "string"}
       },
       "additionalProperties": false

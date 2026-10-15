@@ -1,5 +1,5 @@
 {
-  "x-version": "1.1.0",
+  "x-version": "1.2.0",
   "x-owner": "evan",
   "x-generated": "2026-10-06 (#255 derived-floor re-validation; 34 pairs; shifted grids)",
   "governing_standard": "docs/lead-grid-frequency-standard.md",
@@ -53,7 +53,8 @@
       "class": "daily",
       "note": "DEBT: the canonical hy_ig failure \u2014 a monthly L0-12 sweep bolted onto a daily-traded 0-day-lead winner. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1, pilot).",
       "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "conformed": true,
+      "position_shift": 1
     },
     "vix_vix3m_spy": {
       "signal_frequency": "daily",
@@ -75,7 +76,8 @@
       "class": "daily",
       "note": "DEBT: primary lead tournament + chart on a monthly L0-12 resample axis; winner is daily 0-lead. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1).",
       "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "conformed": true,
+      "position_shift": 1
     },
     "phlxsox_spy": {
       "signal_frequency": "daily",
@@ -83,9 +85,8 @@
       "publication_lag": "none (observed at market close)",
       "real_time": true,
       "lead_axis": "trading_days",
-      "lead_floor": 0,
+      "lead_floor": 1,
       "lead_grid": [
-        0,
         1,
         5,
         21,
@@ -95,7 +96,7 @@
       ],
       "observed_winner_lead_unit": "days",
       "class": "daily",
-      "note": "DEBT: primary lead tournament + chart on a monthly L0-12 resample axis; winner is daily 63-day lead. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1).",
+      "note": "DEBT: primary lead tournament + chart on a monthly L0-12 resample axis; winner is daily 63-day lead. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1). v2 gate: floor 1, grid [1,5,21,63,126,252] matches pipeline (no L0, no extra position shift).",
       "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
       "conformed": true
     },
@@ -365,7 +366,8 @@
       "class": "monthly",
       "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
       "conformed": true,
-      "note": "Winner confirmed UNCHANGED under the floored grid in #255 re-run testing; committed artifacts retained because a full regen surfaces pre-existing producer debt (legacy winner_summary/signal_scope/analyst_suggestions/interpretation_metadata schema) out of #255 scope \u2014 floor-grid source edit + producer cleanup deferred to a follow-up."
+      "note": "Winner confirmed UNCHANGED under the floored grid in #255 re-run testing; committed artifacts retained because a full regen surfaces pre-existing producer debt (legacy winner_summary/signal_scope/analyst_suggestions/interpretation_metadata schema) out of #255 scope \u2014 floor-grid source edit + producer cleanup deferred to a follow-up.",
+      "position_shift": 1
     },
     "petrol_inv_spy": {
       "signal_frequency": "monthly",
@@ -373,7 +375,7 @@
       "publication_lag": "weekly, ~1 week (available in-month; days_since_release 0-6)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 0,
+      "lead_floor": 1,
       "lead_grid": [
         0,
         1,
@@ -391,7 +393,7 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "note": "Floor L0 (weekly data available in-month, days_since_release 0-6); grid already [0..12] compliant \u2014 no re-run needed (#255).",
+      "note": "Floor L0 (weekly data available in-month, days_since_release 0-6); grid already [0..12] compliant \u2014 no re-run needed (#255). lead_floor 1 (v2 gate, 2026-10-15): signal is the monthly mean of weekly EIA stocks; the last weekly print is released ~Wed of M+1, so L0 is lookahead. Pipeline grid [0..12] still contains L0 -> gate FAILs until the pipeline is fixed.",
       "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
       "conformed": true
     },
@@ -981,7 +983,8 @@
       "class": "monthly",
       "note": "Floored rebuild of t10y3m_spy. Winner deploys at L6 -- INSIDE the floored grid [1..13], not at a ceiling. The search re-selected the same rule shape (chg_3m / T2_roll_p75 / P1_long_cash / L6 / LB60) as the untouched original on a separate data build. Axis is coherent monthly and conformed to the derived floor.",
       "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor L1",
-      "conformed": true
+      "conformed": true,
+      "position_shift": 1
     },
     "consumer_sentiment_spy": {
       "signal_frequency": "monthly",
