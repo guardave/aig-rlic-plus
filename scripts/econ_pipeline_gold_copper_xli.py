@@ -15,7 +15,15 @@ Reads Dana's parquet, produces all ECON-H-series + ECON-DS artifacts:
 - Update interpretation_metadata.json with Evan's keys.
 
 Leaner-than-Mode-1 scope: 5 signal transforms x 3 thresholds x 2 strategies
-x 3 leads = 90 combos. Walk-forward style: IS through 2019, OOS 2020-2025.
+x 7 daily leads {0,1,5,21,63,126,252} = 210 combos. IS through 2019, OOS 2020-2025.
+
+EXECUTION ALIGNMENT (fix 2026-10-15, lookahead): the position decided from the
+signal at close t (lead-shifted by L days) is HELD over day t+1:
+strat_ret[t] = pos[t-1] * xli_ret[t]  (pos.shift(1)), matching the hy_ig_spy /
+vix_vix3m_spy daily convention. L0 = signal at close t-1 earns day-t return
+(1-day mandatory execution lag); "lead L" = L additional trading days. Before
+this fix L0 earned the SAME-day close-to-close return the signal was computed
+from (lookahead) — the published 1.273 L0 winner was invalid.
 """
 
 import os, sys, json, time, warnings, itertools
@@ -26,13 +34,14 @@ import pandas as pd
 warnings.filterwarnings("ignore")
 
 PAIR_ID = "gold_copper_xli"
-DATE_TAG = "20260526"
-BASE_DIR = "/workspaces/aig-rlic-plus"
+DATE_TAG = "20261015"  # results tag (ECON-T5: new tag, old dated files kept)
+DATA_TAG = "20260526"  # input data vintage (Dana parquet, unchanged)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
-PARQUET = os.path.join(DATA_DIR, f"{PAIR_ID}_daily_{DATE_TAG}.parquet")
+PARQUET = os.path.join(DATA_DIR, f"{PAIR_ID}_daily_{DATA_TAG}.parquet")
 INTERP = os.path.join(RESULTS_DIR, "interpretation_metadata.json")
 
 IS_END = pd.Timestamp("2019-12-31")
@@ -122,7 +131,8 @@ def stage_tournament(df):
     Strategies:
       P1 = Long/Cash (long XLI when bullish, cash otherwise)
       P2 = Long/Short (long XLI when bullish, short XLI otherwise)
-    Lead: signal observed at t, position taken at t+lead, held until exit.
+    Lead: signal observed at close t, decision position pos[t+lead]; it is held
+    over the NEXT day (strat_ret = pos.shift(1) * ret) — no same-day lookahead.
     """
     log("Stage 4: tournament")
     rows = []
@@ -140,9 +150,9 @@ def stage_tournament(df):
                 # GH#13 daily Class-A (Lead-Grid Frequency Standard 2026-07-15): anchored
                 # DAILY grid {0,1,5,21,63,126,252} trading days (was {0,1,5}). Free full-grid
                 # selection; scoring is already deployable (positions cash-filled). The daily
-                # lead apparatus + winner_summary (DATE_TAG 20260715) are produced derive-only
-                # by scripts/refresh_gold_copper_xli_lead_artifacts.py from the restored raw
-                # parquet; winner UNCHANGED (gold_copper_zscore_126d/T2_p50/P1/L0, reproduces 1.273).
+                # lead apparatus + winner_summary are produced derive-only by
+                # scripts/refresh_gold_copper_xli_lead_artifacts.py (same DATE_TAG). 2026-10-15:
+                # pos.shift(1) execution lag added — the old L0/1.273 winner was same-day lookahead.
                 for lead in [0, 1, 5, 21, 63, 126, 252]:
                     try:
                         # Position: 1 = long when signal <= threshold (low ratio = bullish)
@@ -150,7 +160,8 @@ def stage_tournament(df):
                         if s_code == "P2_long_short":
                             pos = pos * 2 - 1  # -1 / +1
                         ret = df[TARGET_RET].fillna(0)
-                        strat_ret = pos * ret
+                        # 1-day execution lag (hy_ig/vix convention): no same-day lookahead
+                        strat_ret = pos.shift(1).fillna(0) * ret
                         oos_ret = strat_ret.loc[OOS_START:OOS_END].dropna()
                         if len(oos_ret) < 200: continue
                         sharpe = (oos_ret.mean() * 252) / (oos_ret.std() * np.sqrt(252) + 1e-12)
@@ -220,7 +231,8 @@ def stage_winner(df, df_t):
     if w["strategy"] == "P2_long_short":
         pos = pos * 2 - 1
     ret = df[TARGET_RET].fillna(0)
-    strat_ret = pos * ret
+    # 1-day execution lag (hy_ig/vix convention): position decided at close t earns day t+1
+    strat_ret = pos.shift(1).fillna(0) * ret
     equity = (1 + strat_ret).cumprod()
     bh_equity = (1 + ret).cumprod()
     # APP-WS1 contract: signals parquet MUST contain a column whose name
@@ -262,7 +274,7 @@ def stage_winner(df, df_t):
         "strategy_family": w["strategy"],
         "lead_value": int(w["lead_days"]),
         "lead_unit": "days",
-        "lead_description": f"Signal lead = {int(w['lead_days'])} business day(s)",
+        "lead_description": f"Signal lead = {int(w['lead_days'])} business day(s) beyond the mandatory 1-day execution lag (position from close-t signal is held over day t+1)",
         "direction": direction,
         "oos_sharpe": float(w["oos_sharpe"]),
         "oos_ann_return": float(w["oos_ann_return"]) / 100.0,
@@ -283,9 +295,22 @@ def stage_winner(df, df_t):
         "target_symbol": "XLI",
         "schema_version": "1.1.0",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        # ECON-T5 selection provenance (schema-REQUIRED). The refresh script
+        # (refresh_gold_copper_xli_lead_artifacts.py, same DATE_TAG) enriches it.
+        "selection": {
+            "objective": "max_oos_sharpe",
+            "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=252",
+            "grid_scanned": {"leads": [0, 1, 5, 21, 63, 126, 252]},
+            "raw_winner_row": {
+                "signal": sig_col, "threshold": w["threshold"], "strategy": w["strategy"],
+                "lead_column": "lead_days", "lead_value": int(w["lead_days"]),
+                "source_tournament_file": f"tournament_results_{DATE_TAG}.csv",
+                "source_row_index": int(w.name),
+            },
+        },
         "notes": (
             f"Mode 2 Phase 3 (Evan hat). Tournament: 5 signals x 3 thresholds "
-            f"x 2 strategies x 3 leads = 90 combos, {len(df_t)} fit, "
+            f"x 2 strategies x 7 daily leads = 210 combos, {len(df_t)} fit, "
             f"{int(df_t['valid'].sum())} valid. Winner selected by OOS Sharpe."
         ),
     }

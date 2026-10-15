@@ -8,14 +8,14 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, Gold/Copper) on the DAILY axis; deployed lead 0d = 1.27. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold XLI = 0.66. On the pair's OWN daily grid the published winner sits at the envelope peak (0d) \u2014 both its own curve and the best-of-any-signal envelope peak there, and the profile decays as the signal is lagged. This is a SAME-DAY (coincident) edge \u2014 the signal and target move together the same day, not a multi-month leading indicator. Extending the grid to 126/252 trading days surfaces no long-lead edge (long leads fail a t&gt;3 hurdle) \u2014 multiple-testing noise.",
-  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, Gold/Copper) on the DAILY axis; deployed lead 0d = 1.27. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold XLI = 0.66. On the pair's OWN daily grid the published winner sits at the envelope peak (0d) \u2014 both its own curve and the best-of-any-signal envelope peak there, and the profile decays as the signal is lagged. This is a SAME-DAY (coincident) edge \u2014 the signal and target move together the same day, not a multi-month leading indicator. Extending the grid to 126/252 trading days surfaces no long-lead edge (long leads fail a t&gt;3 hurdle) \u2014 multiple-testing noise.",
-  "created_at": "2026-07-15T10:26:25Z",
+  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, Gold/Copper) on the DAILY axis; deployed lead 126d = 0.93. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold XLI = 0.66. On the pair's OWN daily grid the winner's own curve peaks at its deployed 126d lead \u2014 a genuine ~126-trading-day lead, not a same-day co-move. Grey bars are the best any signal reaches at each lead (envelope &#8805; winner curve by construction); read the shorter-lead values to see whether the edge decays or reverses ahead of the deployed lead.",
+  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, Gold/Copper) on the DAILY axis; deployed lead 126d = 0.93. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold XLI = 0.66. On the pair's OWN daily grid the winner's own curve peaks at its deployed 126d lead \u2014 a genuine ~126-trading-day lead, not a same-day co-move. Grey bars are the best any signal reaches at each lead (envelope &#8805; winner curve by construction); read the shorter-lead values to see whether the edge decays or reverses ahead of the deployed lead.",
+  "created_at": "2026-10-15T18:04:41Z",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/gold_copper_xli/lead_winner_curve_20260715.csv",
+    "results/gold_copper_xli/lead_winner_curve_20261015.csv",
     "results/gold_copper_xli/winner_summary.json"
   ],
   "generated_by": "Viz Vera \u2014 scripts/generate_lead_charts.py (VIZ-LEAD1)"

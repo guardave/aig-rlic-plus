@@ -1,0 +1,8 @@
+lead_days,oos_sharpe,is_published_winner,lead_source
+0,0.6181,False,pipeline
+1,0.5569,False,pipeline
+5,0.4476,False,pipeline
+21,0.6186,False,pipeline
+63,0.267,False,pipeline
+126,0.9262,True,pipeline
+252,0.3423,False,pipeline

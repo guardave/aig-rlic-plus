@@ -2,24 +2,27 @@
 """Daily-axis rebuild for gold_copper_xli — GH#13 daily Class-A track (pair 2/4).
 
 Mirrors the hy_ig pilot: rebuild the lead apparatus on the pair's NATIVE DAILY axis
-{0,1,5,21,63,126,252} trading days, from the RESTORED committed raw data
+{0,1,5,21,63,126,252} trading days, from the committed raw data
 (data/gold_copper_xli_daily_20260526.parquet — has all signals + xli_ret; gold_copper's
 signals are deterministic price transforms, NO HMM/regime model to re-fit). Sources the
-ORIGINAL XLI target return from that parquet (NOT a re-fetch). Reproduces the committed
-headline 1.273 EXACTLY (verified) → headline unchanged, clean (no pin, no data_vintage).
+ORIGINAL XLI target return from that parquet (NOT a re-fetch).
+
+LOOKAHEAD FIX (2026-10-15, DATE_TAG 20261015): the 20260715 build scored
+strat_ret = pos * xli_ret where pos came from the SAME close-t signal that xli_ret[t]
+(close t-1 -> close t) ends on — same-day lookahead; the published L0 / 1.273 winner
+was invalid. Now strat_ret = pos.shift(1) * xli_ret (hy_ig_spy / vix_vix3m_spy
+convention): L0 = act at close t, earn day t+1; lead L = L extra trading days.
 
 Faithful to scripts/econ_pipeline_gold_copper_xli.py::stage_tournament:
   * 5 signals × {T1_p25, T2_p50, T3_p75} IS-quantile thresholds × {P1_long_cash,
     P2_long_short} × lead. Countercyclical: long XLI when signal <= threshold (low
     gold/copper ratio = risk-on). Position is lead-shifted and cash-filled
-    (pos=(sig<=t).shift(lead).fillna(0)); strat_ret = pos * xli_ret.fillna(0).
+    (pos=(sig<=t).shift(lead).fillna(0)); strat_ret = pos.shift(1) * xli_ret.fillna(0).
   * OOS scoring is already deployable (positions cash-filled) so dropna == ECON-T4
     deployable. Free full-grid selection, NO cap.
 
-Changes vs committed 20260526: grid {0,1,5} → daily {0,1,5,21,63,126,252} (adds
-21/63/126/252). Winner (verified UNCHANGED): gold_copper_zscore_126d / T2_p50 /
-P1_long_cash / L0 = 1.273 — COINCIDENT / same-day. No long-lead edge (best long lead
-fails t>3).
+History: 20260715 extended grid {0,1,5} -> {0,1,5,21,63,126,252}; 20261015 adds the
+1-day execution lag above (winner re-selected on the corrected scoring, same objective).
 
 DAILY TEMPLATE sibling of refresh_hy_ig_spy_lead_artifacts.py.
 Run:  python3 scripts/refresh_gold_copper_xli_lead_artifacts.py
@@ -37,7 +40,7 @@ import statsmodels.api as sm
 REPO = Path(__file__).resolve().parents[1]
 PAIR = "gold_copper_xli"
 RES = REPO / "results" / PAIR
-DATE_TAG = "20260715"
+DATE_TAG = "20261015"
 SRC_TAG = "20260526"
 RAW_PARQUET = "data/gold_copper_xli_daily_20260526.parquet"
 IS_END, OOS_START, OOS_END = "2019-12-31", "2020-01-01", "2025-12-31"
@@ -56,12 +59,14 @@ def signal_code(col: str) -> str:
 
 
 def replay(df, ret, sig_col, t_val, s_code, lead):
-    """Faithful replica of econ_pipeline stage_tournament position logic."""
+    """Faithful replica of econ_pipeline stage_tournament position logic.
+    pos = decision position (signal at close t, lead-shifted); it is HELD over day t+1:
+    strat_ret = pos.shift(1) * ret  (no same-day lookahead; hy_ig/vix convention)."""
     sig = df[sig_col]
     pos = (sig <= t_val).astype(int).shift(lead).fillna(0)
     if s_code == "P2_long_short":
         pos = pos * 2 - 1
-    return pos, pos * ret
+    return pos, pos.shift(1).fillna(0) * ret
 
 
 def score(df, ret, sig_col, t_val, s_code, lead):
@@ -136,12 +141,24 @@ def main():
     print(f"  [tournament] daily grid {DAILY_LEADS}: {len(valid)} valid; bh XLI Sharpe {bench['oos_sharpe']}")
 
     winner = valid.loc[valid["oos_sharpe"].idxmax()]
-    assert (winner["signal"], winner["threshold"], winner["strategy"], int(winner["lead_days"])) == \
-        ("gold_copper_zscore_126d", "T2_p50", "P1_long_cash", 0), \
-        f"WINNER CHANGED: {winner[['signal','threshold','strategy','lead_days','oos_sharpe']].to_dict()} — STOP, escalate"
     wsig, wthr, wtval, wstrat, wlead = (winner["signal"], winner["threshold"],
                                         float(winner["threshold_value"]), winner["strategy"], int(winner["lead_days"]))
-    print(f"  [winner] {wsig}/{wthr}/{wstrat}/L{wlead} = {winner['oos_sharpe']} (UNCHANGED; reproduces 1.273)")
+    print(f"  [winner] {wsig}/{wthr}/{wstrat}/L{wlead} = {winner['oos_sharpe']}")
+    # Guard: econ_pipeline (same DATE_TAG, same objective) must have picked the same winner.
+    ws0 = json.loads((RES / "winner_summary.json").read_text())
+    assert (ws0["signal_column"], ws0["threshold_code"], ws0["strategy_family"], int(ws0["lead_value"])) == \
+        (wsig, wthr, wstrat, wlead), f"econ_pipeline winner {ws0['signal_column']} != refresh winner {wsig} — rerun econ_pipeline first"
+    # Old (pre-fix) published winner under the corrected alignment — lookahead audit.
+    old = tr[(tr["signal"] == "gold_copper_zscore_126d") & (tr["threshold"] == "T2_p50")
+                & (tr["strategy"] == "P1_long_cash") & (tr["lead_days"] == 0)]
+    old_sh = float(old["oos_sharpe"].iloc[0]) if len(old) else float("nan")
+    print(f"  [audit] old 20260715 winner zscore_126d/T2_p50/P1/L0 (1.273 with lookahead) -> {old_sh:.4f} corrected")
+    # IS Sharpe of the winner (information only; selection stays OOS-max)
+    _, _w_sr = replay(df, ret, wsig, wtval, wstrat, wlead)
+    _is = _w_sr.loc[:IS_END]
+    _is = _is.loc[df[wsig].first_valid_index():]
+    is_sh = float((_is.mean() * ANN) / (_is.std() * np.sqrt(ANN) + 1e-12))
+    print(f"  [info] winner IS Sharpe ({_is.index[0].date()}..{IS_END}) = {is_sh:.4f}")
 
     # winner replay -> strategy_returns + adjudication
     pos, strat_ret = replay(df, ret, wsig, wtval, wstrat, wlead)
@@ -252,6 +269,9 @@ def main():
         "bh_ann_return": round(float(bench["oos_ann_return"]), 4),
         "bh_max_drawdown": round(float(bench["oos_max_drawdown"]), 4),
     })
+    ws.setdefault("selection", {})
+    ws["selection"]["objective"] = "max_oos_sharpe"
+    ws["selection"]["objective_formula"] = "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=252"
     ws["selection"]["grid_scanned"] = {
         "leads": DAILY_LEADS, "n_signals": int(valid["signal"].nunique()),
         "n_thresholds": int(valid["threshold"].nunique()), "n_strategies": int(valid["strategy"].nunique()),
@@ -269,22 +289,25 @@ def main():
     }
     _ll = "; ".join(f"L{L} best={s} (HAC t={t})" for L, (s, t) in ll_t.items())
     ws["selection"]["rationale"] = (
-        f"FREE full-grid daily selection (Lead-Grid Frequency Standard, 2026-07-15): NO cap. Winner is the "
+        f"FREE full-grid daily selection (Lead-Grid Frequency Standard): NO cap. Winner is the "
         f"global-max valid OOS Sharpe over the anchored DAILY grid {{0,1,5,21,63,126,252}} trading days "
         f"({len(valid)} valid combos, median {valid['oos_sharpe'].median():.4f}; deployable/cash-filled scoring): "
-        f"{wsig}/{wthr}/{wstrat}/L{wlead} = {winner['oos_sharpe']:.4f}. Winner is at L0 = COINCIDENT / same-day "
-        f"(gold/copper ratio observed at close; real-time floor L0). Newey-West HAC t={t_hac:.2f} > 3.0 "
-        f"(Harvey-Liu-Zhu) — genuine edge. NO long-lead edge ({_ll} — fail t>3), so the grid extension surfaces "
-        f"only multiple-testing noise. Built from the RESTORED original raw data ({RAW_PARQUET}, deterministic "
-        f"price-transform signals — no model re-fit): reproduces the committed headline 1.273 EXACTLY — a "
-        f"lead-AXIS rebuild (monthly→daily), NOT a re-selection and NOT a data-vintage change."
+        f"{wsig}/{wthr}/{wstrat}/L{wlead} = {winner['oos_sharpe']:.4f}. EXECUTION ALIGNMENT (2026-10-15 lookahead "
+        f"fix): position decided from the close-t signal earns day t+1 (strat_ret = pos.shift(1)*xli_ret, hy_ig/vix "
+        f"convention); L{wlead} = {wlead} trading day(s) beyond that mandatory 1-day lag. The prior published "
+        f"winner gold_copper_zscore_126d/T2_p50/P1/L0 = 1.273 earned the same-day return its own signal was "
+        f"computed from; under correct alignment it scores {old_sh:.4f}. Winner Newey-West HAC t={t_hac:.2f} "
+        f"({'>' if t_hac > 3 else '<='} 3.0 Harvey-Liu-Zhu); long leads: {_ll}. Winner IS Sharpe (information "
+        f"only, not used for selection) = {is_sh:.4f}. Data: {RAW_PARQUET} (unchanged vintage)."
     )
     ws["selection"]["tie_break_step"] = 0
     ws["selection"]["objective_runner_up_divergence"] = None
     ws["notes"] = (
-        f"gold_copper_xli DAILY Class-A rebuild (GH#13, Lead-Grid Frequency Standard). Coincident same-day (L0) "
-        f"winner {signal_code(wsig)}/P1 on the DAILY lead axis {{0,1,5,21,63,126,252}} (target XLI). OOS "
-        f"{OOS_START}..{OOS_END}. Lead-axis rebuild from restored original data — reproduces committed 1.273; winner UNCHANGED."
+        f"gold_copper_xli DAILY Class-A (GH#13). 2026-10-15 lookahead fix: 1-day execution lag "
+        f"(pos.shift(1)) added; winner re-selected on corrected scoring: {signal_code(wsig)}/{wthr}/{wstrat}/L{wlead} "
+        f"on the DAILY lead axis {{0,1,5,21,63,126,252}} (target XLI). OOS {OOS_START}..{OOS_END}. "
+        f"Old L0 winner 1.273 was same-day lookahead (corrected {old_sh:.4f}). oos_n_trades counts position "
+        f"CHANGES (each entry or exit = 1), not round trips: {n_trades} changes ~ {(n_trades + 1) // 2} round trips in OOS."
     )
     (RES / "winner_summary.json").write_text(json.dumps(ws, indent=2) + "\n")
     print(f"  [winner_summary] oos_sharpe={ws['oos_sharpe']} bh={ws['bh_sharpe']} lead={ws['lead_value']}{ws['lead_unit']}")

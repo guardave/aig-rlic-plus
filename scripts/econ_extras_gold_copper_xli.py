@@ -24,9 +24,10 @@ import pandas as pd
 warnings.filterwarnings("ignore")
 
 PAIR_ID = "gold_copper_xli"
-DATE_TAG = "20260526"
-BASE = "/workspaces/aig-rlic-plus"
-PARQUET = os.path.join(BASE, "data", f"{PAIR_ID}_daily_{DATE_TAG}.parquet")
+DATE_TAG = "20261015"  # results tag (2026-10-15 lookahead fix)
+DATA_TAG = "20260526"  # input data vintage (unchanged)
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PARQUET = os.path.join(BASE, "data", f"{PAIR_ID}_daily_{DATA_TAG}.parquet")
 RESULTS = os.path.join(BASE, "results", PAIR_ID)
 
 IS_END = pd.Timestamp("2019-12-31")
@@ -112,8 +113,10 @@ def run_local_projections(df):
     sig = sub[SIGNAL_COL]
     ret = sub["xli_ret"]
     for h in horizons:
-        # Cumulative return over next h days
-        cum = ret.shift(-h+1).rolling(h).sum()
+        # Cumulative return over the NEXT h days, t+1..t+h (2026-10-15 fix: was
+        # shift(-h+1) = t..t+h-1, which included the same-day return the close-t
+        # signal is computed alongside — contemporaneous lookahead).
+        cum = ret.shift(-h).rolling(h).sum()
         y = cum.dropna()
         x = sig.reindex(y.index)
         X = sm.add_constant(x.values)

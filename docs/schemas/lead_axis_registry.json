@@ -29,7 +29,7 @@
    ],
    "observed_winner_lead_unit": "days",
    "class": "A_daily",
-   "note": "DEBT: primary lead tournament + lead_sharpe_distribution chart are on a monthly L0-12 resample axis; winner is daily 0-lead. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1)."
+   "note": "Daily axis rebuilt (GH#13, 20260715). 2026-10-15 lookahead fix: execution convention aligned to hy_ig_spy/vix_vix3m_spy — strat_ret = pos.shift(1) * xli_ret, so L0 = signal at close t earns day t+1 (1-day mandatory execution lag; lead L = L additional trading days). Pre-fix L0 earned the same-day return (lookahead); grid/floor unchanged."
   },
   "hy_ig_spy": {
    "signal_frequency": "daily",

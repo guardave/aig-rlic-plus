@@ -48,7 +48,7 @@
     ]
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-05-26T17:35:16Z",
+  "last_updated_at": "2026-10-15T18:03:57Z",
   "sample": {
     "start": "2000-01-01",
     "end": "2025-12-31",
@@ -60,5 +60,5 @@
   "observed_direction": "countercyclical",
   "direction_consistent": true,
   "confidence": "medium",
-  "key_finding": "gold_copper_zscore_126d <= -0.033 (strategy Long/Cash, lead 0d) yields OOS Sharpe 1.27, ann.return 13.4%, max DD -8.2%."
+  "key_finding": "gold_copper_zscore_126d <= 1.180 (strategy Long/Cash, lead 126d) yields OOS Sharpe 0.93, ann.return 15.9%, max DD -21.4%."
 }
