@@ -88,3 +88,102 @@ def test_lead_l1_does_not_match_l12():
     ws = dict(NEW_WINNER, lead_value=1, lead_unit="months")
     out = gc.check_prose("T_roll_p75 0.5045 lead L12", ws)
     assert any("lead L1 " in m for m in out)
+
+
+# ---------------------------------------------------------------------------------------------
+# v2: standalone direction / lead binding / signal identity / daily phrasings / spellings
+# ---------------------------------------------------------------------------------------------
+def _E(out):
+    return [m for m in out if m.startswith("E:")]
+
+
+def _INFO(out):
+    return [m for m in out if m.startswith("INFO:")]
+
+
+DAILY = {"pair_id": "d_spy", "signal_code": "S_zscore_126d", "signal_column": "gold_copper_zscore_126d",
+         "signal_display_name": "G/C zscore_126d", "threshold_code": "T2_p50", "direction": "countercyclical",
+         "lead_value": 21, "lead_unit": "days", "oos_sharpe": 1.2734}
+OTHERS = {"gold_copper_roc_63d": "gold_copper_roc_63d", "gold_copper_pctrank_504d": "gold_copper_pctrank_504d",
+          "S_zscore_126d": "gold_copper_zscore_126d"}
+# no triple notation anywhere: the shape most real pairs have
+FREE = ("The tournament winner uses the 126-day z-score of the gold/copper ratio at a 21-day lead "
+        "(threshold T2_p50). The countercyclical orientation means we go to cash when the ratio rises. "
+        "OOS Sharpe 1.27 versus 0.66 for buy-and-hold.")
+
+
+def test_free_prose_consistent_passes():
+    out = gc.check_prose(FREE, DAILY, OTHERS)
+    assert _E(out) == [] and _INFO(out) == []
+
+
+def test_gap1_standalone_direction_flip_fires():
+    out = gc.check_prose(FREE.replace("countercyclical", "procyclical"), DAILY, OTHERS)
+    assert any("direction" in m for m in _E(out))
+
+
+def test_gap1_direction_in_non_winner_sentence_or_contrast_is_ignored():
+    prose = FREE + " The economic prior is procyclical. Correlation confirms the procyclical hypothesis."
+    assert _E(gc.check_prose(prose, DAILY, OTHERS)) == []
+
+
+def test_gap1_direction_unstated_is_info_not_silence():
+    prose = FREE.replace("The countercyclical orientation means we go to cash when the ratio rises. ", "")
+    out = gc.check_prose(prose, DAILY, OTHERS)
+    assert _E(out) == [] and any("direction" in m and "NOT verified" in m for m in _INFO(out))
+
+
+def test_gap2_signal_swap_fires_and_alias_forms_verify():
+    swapped = FREE.replace("126-day z-score", "gold_copper_roc_63d")
+    assert any("signal" in m for m in _E(gc.check_prose(swapped, DAILY, OTHERS)))
+    # winner named by data column / display label / human form all verify
+    for form in ("gold_copper_zscore_126d", "G/C zscore_126d", "126-day z-score"):
+        prose = FREE.replace("126-day z-score", form)
+        assert _INFO(gc.check_prose(prose, DAILY, OTHERS)) == [], form
+
+
+def test_gap2_unverifiable_signal_emits_info():
+    prose = FREE.replace("the 126-day z-score of the gold/copper ratio", "a ratio rule")
+    out = gc.check_prose(prose, DAILY, OTHERS)
+    assert _E(out) == [] and any("signal" in m and "NOT verified" in m for m in _INFO(out))
+
+
+def test_gap3_lead_masking_bound_to_winner_context():
+    ws = dict(NEW_WINNER, lead_value=12, lead_unit="months")
+    stale = "T_roll_p75 0.5045 level countercyclical. The winner is L9; the L12 curve peaks elsewhere."
+    assert any("winner-describing prose states lead" in m for m in _E(gc.check_prose(stale, ws)))
+    stale2 = "T_roll_p75 0.5045 level countercyclical. L9 winner; L12 curve peak"
+    assert any("winner-describing prose states lead" in m for m in _E(gc.check_prose(stale2, ws)))
+    ok = "T_roll_p75 0.5045 level countercyclical. The winner is L12; the L9 runner-up is weaker."
+    assert _E(gc.check_prose(ok, ws)) == []
+    ws9 = dict(ws, lead_value=9)
+    assert _E(gc.check_prose("T_roll_p75 0.5045 level countercyclical. L9 winner; L12 curve peak", ws9)) == []
+
+
+@pytest.mark.parametrize("phr", ["21 trading days", "21d", "21-day", "21 days", "L21"])
+def test_gap4_daily_phrasings_recognised(phr):
+    assert gc._lead_mentioned(f"the lead is {phr} here", 21, "days")
+    out = gc.check_prose(FREE.replace("21-day lead", f"{phr} lead"), DAILY, OTHERS)
+    assert not any("lead L21" in m for m in _E(out))
+
+
+def test_gap4_daily_wrong_lead_fires():
+    out = gc.check_prose(FREE.replace("21-day", "5-day"), DAILY, OTHERS)
+    assert _E(out)
+
+
+@pytest.mark.parametrize("spelling,norm", [
+    ("pro", "procyclical"), ("procyclical", "procyclical"), ("pro_cyclical", "procyclical"),
+    ("pro-cyclical", "procyclical"), ("cc", "countercyclical"), ("countercyclical", "countercyclical"),
+    ("counter_cyclical", "countercyclical"), ("counter-cyclical", "countercyclical"),
+    ("Counter Cyclical", "countercyclical")])
+def test_gap5_direction_spellings_normalised(spelling, norm):
+    assert gc._norm_dir(spelling) == norm
+
+
+def test_gap5_counter_cyclical_in_triple_matches_winner():
+    ws = dict(NEW_WINNER, direction="counter_cyclical")
+    prose = "winner `level / T_roll_p75 / counter_cyclical / L2` 0.5045"
+    assert _E(gc.check_prose(prose, ws)) == []
+    prose_bad = "winner `level / T_roll_p75 / procyclical / L2` 0.5045"
+    assert _E(gc.check_prose(prose_bad, ws))
