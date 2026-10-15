@@ -1,0 +1,13 @@
+pair_name,metric,value,p_value
+permit_yoy_level_to_spy_fwd_1m,pearson,0.039459831165288735,0.43652621889910015
+permit_yoy_level_to_spy_fwd_3m,pearson,0.05047666718368016,0.32071737285661867
+permit_yoy_level_to_spy_fwd_6m,pearson,0.09880011782891693,0.05243236191258588
+permit_yoy_diff_1m_to_spy_fwd_1m,pearson,0.019819809070179457,0.6963947054792436
+permit_yoy_diff_1m_to_spy_fwd_3m,pearson,-0.03534348871671071,0.4875839477083939
+permit_yoy_diff_1m_to_spy_fwd_6m,pearson,-0.030539056619383734,0.5502333525994638
+permit_yoy_chg_12m_to_spy_fwd_1m,pearson,-0.02287450092609052,0.6571104508164392
+permit_yoy_chg_12m_to_spy_fwd_3m,pearson,-0.03673163184886024,0.47704027571663493
+permit_yoy_chg_12m_to_spy_fwd_6m,pearson,0.02249323446716842,0.6645809660497829
+permit_yoy_zscore_60m_to_spy_fwd_1m,pearson,0.01243911743749466,0.812019902388565
+permit_yoy_zscore_60m_to_spy_fwd_3m,pearson,0.01756715371997925,0.7376585271110717
+permit_yoy_zscore_60m_to_spy_fwd_6m,pearson,0.06662448407514011,0.20537122062347096

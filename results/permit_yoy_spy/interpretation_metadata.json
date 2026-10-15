@@ -26,7 +26,7 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-10-08T23:58:24.998717+00:00",
+  "last_updated_at": "2026-10-15T18:11:33.802375+00:00",
   "indicator": "permit_yoy",
   "target": "spy",
   "expected_direction": "procyclical",
@@ -34,7 +34,7 @@
   "direction_consistent": true,
   "mechanism": "Building permits lead construction and housing activity, one of the earliest cyclical movers. When permit growth (YoY) is positive and rising, housing and its supply chain are expanding, which is risk-on for equities; negative/falling permit growth flags a cyclical downturn. The strategy holds SPY when permit YoY is favorable (growing).",
   "confidence": "low",
-  "key_finding": "Best search-phase rule uses chg_12m at L9 with OOS Sharpe 1.31 versus buy-and-hold 0.92.",
+  "key_finding": "Best search-phase rule uses level at L10 with OOS Sharpe 0.20 versus buy-and-hold 0.92.",
   "caveats": [
     "Winner is search-selected on a single monthly sample and needs holdout validation.",
     "Level thresholds are rolling-percentile based; regime pivots can drift across decades.",
@@ -70,6 +70,6 @@
   "data_provenance": {
     "source": "Data Master.xlsx (Building Permits, H Permit sheet)",
     "series_id": "PERMIT (YoY of level)",
-    "accessed_at": "2026-10-08T23:58:24.998717+00:00"
+    "accessed_at": "2026-10-15T18:11:33.802375+00:00"
   }
 }
