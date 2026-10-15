@@ -1,0 +1,13 @@
+pair_name,metric,value,p_value
+ccdelinq_level_to_spy_fwd_1q,pearson,-0.04016742649608192,0.651300516569807
+ccdelinq_level_to_spy_fwd_2q,pearson,-0.05388704746478184,0.5457632803712485
+ccdelinq_level_to_spy_fwd_4q,pearson,-0.08812267991853898,0.3264809053005808
+ccdelinq_diff_1q_to_spy_fwd_1q,pearson,0.0437296742526966,0.6240447294431524
+ccdelinq_diff_1q_to_spy_fwd_2q,pearson,0.060338234386860236,0.5003949014350438
+ccdelinq_diff_1q_to_spy_fwd_4q,pearson,0.069669890702118,0.440086932503933
+ccdelinq_chg_4q_to_spy_fwd_1q,pearson,0.031291611509828184,0.7290263458634484
+ccdelinq_chg_4q_to_spy_fwd_2q,pearson,0.057212091919314555,0.5279411832974613
+ccdelinq_chg_4q_to_spy_fwd_4q,pearson,0.056420147682752234,0.5370648831809223
+ccdelinq_zscore_20q_to_spy_fwd_1q,pearson,0.0035462638033470603,0.9695981252815389
+ccdelinq_zscore_20q_to_spy_fwd_2q,pearson,0.018310356916058073,0.844651848117311
+ccdelinq_zscore_20q_to_spy_fwd_4q,pearson,0.07226761546450206,0.4427712239202095
