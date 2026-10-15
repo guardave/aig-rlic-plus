@@ -1,0 +1,5 @@
+row,signal,threshold,direction,lead,is_start,is_end,is_n,is_sharpe,oos_sharpe,oos_ann_return,max_drawdown,n_trades,oos_n
+floor_published,yoy,T_roll_p50,countercyclical,12,,,104,1.558944,1.558944,0.138586,-0.061444,7,104
+new_primary,yoy_zscore_60m,T_roll_p50,procyclical,7,2001-01-31,2016-12-31,192,0.952665,0.371039,0.033552,-0.222351,9,104
+new_no_common_start,yoy,T0_zero,procyclical,2,1994-03-31,2016-12-31,274,0.89269,0.562397,0.062762,-0.239272,9,104
+legacy_recomputed,yoy,T_roll_p50,countercyclical,12,2001-01-31,2016-12-31,192,0.136412,1.558946,0.138586,-0.061443,7,104
