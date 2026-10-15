@@ -17,8 +17,11 @@ HARD checks (fail the gate):
      match winner_summary.
 
 SOFT checks (report, don't fail — prose parsing is fuzzy):
-  E. the narrative config cites the winner's Sharpe (4dp or 2dp) and winner lead token;
-     absence suggests the prose may reference a stale winner.
+  E. the narrative config states the CURRENT winner: Sharpe (4dp/2dp), lead (any unit),
+     threshold code, and -- where the `sig / thr / dir / Ln` notation is used --
+     that notation must include the winner combo. Soft because prose is human-authored
+     (runner-ups / legacy comparisons are legal) and parsing is fuzzy; the artifact checks
+     A-D stay hard. Any E warning means the prose needs a human re-read before publishing.
 
 Exit non-zero if any HARD check fails for any pair.
 
@@ -67,6 +70,50 @@ def _contaminated_signals(rdir: Path) -> set:
         return set(json.loads(mans[-1].read_text()).get("seasonally_contaminated_signals") or [])
     except Exception:
         return set()
+
+
+# Winner-combo notation used in the pair prose: `signal / threshold / [strategy] direction / L<n>`
+_TRIPLE_RE = re.compile(
+    r"`?([A-Za-z][\w.]*) ?/ ?(T[\w.]*) ?/ ?(?:P\d\w* ?)?(?:\w*?_)?([A-Za-z_]*cyclical) ?/ ?L(\d+)")
+
+
+def _lead_mentioned(txt: str, n: int, unit: str) -> bool:
+    """True if the prose states lead n: `L<n>` (L4, L4q, L4Q) or `<n>-quarter`/`<n> months`."""
+    word = unit.rstrip("s")
+    return bool(re.search(rf"\bL{n}(?!\d)", txt)
+                or re.search(rf"\b{n}[- ]{word}", txt, re.I))
+
+
+def check_prose(txt: str, ws: dict) -> list[str]:
+    """Check E (soft). Structured comparison of the prose against winner_summary:
+    Sharpe, lead, threshold code, and any `sig / thr / dir / Ln` combo notation.
+    Mentions of OTHER combos (runner-up, comparisons) are legal, so a combo mismatch is only
+    reported when the prose never states the current winner combo."""
+    out: list[str] = []
+    lead = int(ws.get("lead_value", ws.get("lead_months")))
+    sharpe = float(ws["oos_sharpe"])
+    unit = ws.get("lead_unit") or "months"
+    s4, s2 = f"{sharpe:.4f}", f"{sharpe:.2f}"
+    if s4 not in txt and s2 not in txt:
+        out.append(f"E: config cites neither {s4} nor {s2} — prose may show a stale winner Sharpe")
+    if not _lead_mentioned(txt, lead, unit):
+        out.append(f"E: config does not mention winner lead L{lead} ({unit})")
+    thr = ws.get("threshold_code", "")
+    if thr and not re.search(rf"(?<![\w.]){re.escape(thr)}(?![\w.])", txt):
+        out.append(f"E: config never names winner threshold '{thr}' — prose may describe a stale rule")
+    sig = ws.get("signal_code", "")
+    triples = [(m.group(1), m.group(2), m.group(3), int(m.group(4))) for m in _TRIPLE_RE.finditer(txt)]
+    if triples:
+        dirn = (ws.get("direction") or "").replace("_", "")
+
+        def _is_winner(t):
+            return (t[1] == thr and t[3] == lead and t[2].replace("_", "") == dirn
+                    and t[0].split("_")[-1] == sig.split("_")[-1])  # tolerate pair-prefix naming
+        if not any(_is_winner(t) for t in triples):
+            seen = sorted({f"{a}/{b}/{c}/L{d}" for a, b, c, d in triples})
+            out.append(f"E: prose states combo(s) {seen[:3]} but none equals the winner "
+                       f"{sig}/{thr}/{ws.get('direction')}/L{lead}")
+    return out
 
 
 def check_pair(pair: str) -> tuple[list[str], list[str]]:
@@ -155,17 +202,10 @@ def check_pair(pair: str) -> tuple[list[str], list[str]]:
             hard.append(f"D: lead_winner_curve winner Sharpe {flagged[0]['oos_sharpe']} "
                         f"!= winner_summary {win_sharpe}")
 
-    # ── E (soft): narrative config cites current winner numbers ──
+    # ── E (soft): narrative config cites the CURRENT winner ──
     cfg = REPO / "app" / "pair_configs" / f"{pair}_config.py"
     if cfg.exists():
-        txt = cfg.read_text()
-        s4, s2 = f"{win_sharpe:.4f}", f"{win_sharpe:.2f}"
-        if s4 not in txt and s2 not in txt:
-            soft.append(f"E: config cites neither {s4} nor {s2} — prose may show a "
-                        f"stale winner Sharpe")
-        unit = (ws.get("lead_unit") or "months").rstrip("s")
-        if unit == "month" and f"L{win_lead}" not in txt:
-            soft.append(f"E: config does not mention winner lead L{win_lead}")
+        soft.extend(check_prose(cfg.read_text(), ws))
 
     return hard, soft
 
