@@ -1,32 +1,32 @@
 {
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-08T23:56:23.783895+00:00",
+  "generated_at": "2026-10-15T18:19:54.058498+00:00",
   "signal_column": "unrate_6m_chg",
   "signal_code": "chg_6m",
   "signal_display_name": "6-month change in unemployment rate",
   "target_symbol": "SPY",
   "threshold_code": "T_roll_p75",
   "threshold_value": 0.2,
-  "threshold_rule": "gte",
+  "threshold_rule": "lte",
   "threshold_note": "T_roll_p75 threshold; threshold_value is latest if rolling",
   "strategy_family": "P1_long_cash",
   "strategy_code": "P1",
   "strategy_display_name": "P1 long cash",
   "strategy_description": "Hold SPY when the lagged unemployment signal is favorable; otherwise hold cash.",
-  "lead_value": 9,
+  "lead_value": 4,
   "lead_unit": "months",
-  "lead_description": "Signal is lagged 9 month(s) before allocation.",
+  "lead_description": "Signal is lagged 4 month(s) before allocation.",
   "lookback": "LB60 where rolling thresholds apply",
-  "direction": "procyclical",
-  "oos_sharpe": 1.560004,
-  "oos_sortino": 2.336757,
-  "oos_calmar": 1.319212,
-  "oos_ann_return": 0.129317,
-  "oos_ann_vol": 0.080358,
-  "oos_max_drawdown": -0.098026,
-  "oos_win_rate": 0.405172,
-  "oos_n_trades": 27,
-  "annual_turnover": 2.793103,
+  "direction": "countercyclical",
+  "oos_sharpe": 0.808311,
+  "oos_sortino": 0.885291,
+  "oos_calmar": 0.393539,
+  "oos_ann_return": 0.094163,
+  "oos_ann_vol": 0.120679,
+  "oos_max_drawdown": -0.239272,
+  "oos_win_rate": 0.448276,
+  "oos_n_trades": 29,
+  "annual_turnover": 3.0,
   "oos_n": 116,
   "oos_period_start": "2017-01-31",
   "oos_period_end": "2026-09-30",
@@ -37,10 +37,23 @@
   "total_combos": 546,
   "valid_combos": 546,
   "schema_version": "1.2.0",
-  "notes": "UNRATE is a lagging labor-market indicator; strategy results should be read as defensive regime context, not a clean leading forecast.",
+  "notes": "UNRATE is a lagging labor-market indicator; strategy results should be read as defensive regime context, not a clean leading forecast. Winner (chg_6m) is selected by in-sample Sharpe on the common IS window (1999-12-31 to 2016-12-31) and evaluated on the held-out OOS window (from 2017-01); still a search-selected rule.",
+  "is_sharpe": 0.929409,
+  "is_n": 205,
+  "is_period_start": "1999-12-31",
+  "is_period_end": "2016-12-31",
   "selection": {
-    "objective": "max_oos_sharpe",
-    "objective_formula": "monthly mean/std*sqrt(12), OOS from 2017-01",
+    "objective": "max_is_sharpe",
+    "objective_formula": "in-sample (common window [common_is_start, OOS start 2017-01)) monthly mean/std*sqrt(12); winner evaluated on OOS window",
+    "is_window": {
+      "start": "1999-12-31",
+      "end": "2016-12-31",
+      "n": 205,
+      "common_is_start": "1999-12-31",
+      "oos_start": "2017-01-31",
+      "rule": "common_is_start = latest first-valid-return date across all grid candidates; IS metrics for every candidate computed on [common_is_start, oos_start)",
+      "bh_is_sharpe": 0.387697
+    },
     "grid_scanned": {
       "leads": [
         1,
@@ -61,7 +74,7 @@
       "n_thresholds": 21,
       "n_strategies": 1,
       "n_valid_combos": 546,
-      "median_valid_objective": 0.775006
+      "median_valid_objective": 0.29023
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -69,18 +82,36 @@
       "threshold": "T_roll_p75",
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
-      "lead_value": 9,
-      "source_tournament_file": "tournament_results_20261008.csv",
-      "source_row_index": 281
+      "lead_value": 4,
+      "source_tournament_file": "tournament_results_20261015.csv",
+      "source_row_index": 263
     },
     "runner_up": {
-      "signal": "zscore_60m",
+      "signal": "chg_12m",
       "threshold": "T_roll_p75",
       "strategy": "P1_long_cash",
-      "lead_value": 13,
-      "objective_value": 1.403639
+      "lead_value": 1,
+      "objective_value": 0.915659,
+      "oos_sharpe": 0.357886
     },
-    "rationale": "Winner is the valid row with the highest OOS Sharpe over the published grid.",
+    "rationale": "Winner is the IS-valid row with the highest IN-SAMPLE Sharpe (common IS window) over the published grid; OOS metrics are reported for that row only (no OOS look-ahead in selection).",
+    "legacy_oos_selected_row": {
+      "signal": "chg_6m",
+      "threshold": "T_roll_p75",
+      "direction": "procyclical",
+      "lead_value": 9,
+      "oos_sharpe": 1.560003,
+      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261015.csv"
+    },
+    "sensitivity_own_is_start_row": {
+      "signal": "chg_3m",
+      "threshold": "T0_zero",
+      "direction": "countercyclical",
+      "lead_value": 1,
+      "own_is_start": "1993-05-31",
+      "own_is_sharpe": 1.04736,
+      "note": "IS argmax without common-start alignment; sensitivity only"
+    },
     "objective_runner_up_divergence": null
   }
 }

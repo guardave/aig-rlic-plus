@@ -1,0 +1,5 @@
+row,signal,threshold,direction,lead,is_start,is_end,is_n,is_sharpe,oos_sharpe,oos_ann_return,max_drawdown,n_trades,oos_n
+floor_published,chg_6m,T_roll_p75,procyclical,9,,,116,1.560004,1.560004,0.129317,-0.098026,27,116
+new_primary,chg_6m,T_roll_p75,countercyclical,4,1999-12-31,2016-12-31,205,0.929409,0.808311,0.094163,-0.239272,29,116
+new_no_common_start,chg_3m,T0_zero,countercyclical,1,1993-05-31,2016-12-31,284,1.04736,0.566351,0.071469,-0.239272,22,116
+legacy_recomputed,chg_6m,T_roll_p75,procyclical,9,1999-12-31,2016-12-31,205,-0.130286,1.560003,0.129317,-0.098026,27,116

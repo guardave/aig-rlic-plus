@@ -1,7 +1,7 @@
 {
   "pair_id": "unrate_spy",
-  "winner_oos_sharpe": 1.560004,
+  "winner_oos_sharpe": 0.808311,
   "benchmark_oos_sharpe": 1.000833,
-  "oos_max_drawdown": -0.098026,
+  "oos_max_drawdown": -0.239272,
   "bh_max_drawdown": -0.239272
 }
