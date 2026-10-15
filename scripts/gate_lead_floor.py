@@ -166,6 +166,16 @@ def _retish(node) -> bool:
     return False
 
 
+CHAIN_ATTRS = ("fillna", "astype", "reindex", "dropna", "clip")
+
+
+def _core(node):
+    """Strip trailing .fillna/.astype/.reindex/.dropna/.clip calls: `pos.shift(1).fillna(0)` -> `pos.shift(1)`."""
+    while (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr in CHAIN_ATTRS):
+        node = node.func.value
+    return node
+
+
 def detect_position_shift(src: str):
     """Return (shift, line, note). shift in {0, 1, None}; None => ambiguous / undetectable.
     1: `<name>.shift(1|periods=1) * <ret>` in either order (<ret> return-like: ret, *_ret, returns, df["x_ret"]),
@@ -180,12 +190,12 @@ def detect_position_shift(src: str):
     shifted, bare = [], []
     for n in ast.walk(tree):
         if isinstance(n, ast.BinOp) and isinstance(n.op, ast.Mult):
-            for side, other in ((n.left, n.right), (n.right, n.left)):
+            for side, other in ((_core(n.left), n.right), (_core(n.right), n.left)):
                 if _is_shift(side, 1) and (_posish(side.func.value) or _retish(other)):
                     shifted.append(n.lineno)
                 elif isinstance(side, ast.Name) and (_posish(side) or side.id in lead_built) and _retish(other):
                     bare.append(n.lineno)
-                elif _posish(side) and not _is_shift(side):
+                elif _posish(side) and not isinstance(other, ast.Constant):
                     bare.append(n.lineno)
         if _is_shift(n, 1) and _is_shift(n.func.value) and not isinstance(
                 (n.func.value.args[0] if n.func.value.args else n.func.value.keywords[0].value), ast.Constant):

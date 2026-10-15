@@ -171,3 +171,15 @@ def test_lags_name_fails_safe(tmp_path):
 def test_helper_module_grid_fails_safe(tmp_path):
     assert status(make_repo(tmp_path, "x_spy", "from helpers import LEADS\nret = pos * r\n", {"x_spy": REC})) == "FAIL"
     assert status(make_repo(tmp_path / "b", "x_spy", "import helpers\nleads = helpers.LEADS\n", {"x_spy": REC})) == "FAIL"
+
+
+def test_chained_calls_after_shift_detected():
+    assert g.detect_position_shift("o = pos.shift(1).fillna(0) * ret\n")[0] == 1
+    assert g.detect_position_shift("o = ret * w.shift(1).fillna(0).astype(float)\n")[0] == 1
+    assert g.detect_position_shift("p = x.shift(1).reindex(i).clip(0, 1)\nq = p * spy_ret\no = a.shift(1).dropna() * spy_ret\n")[0] == 1
+    assert g.detect_position_shift("return pos, pos.shift(1).fillna(0) * ret\n")[0] == 1
+    assert g.detect_position_shift("sig = b.shift(lead)\no = sig.fillna(0) * ret\n")[0] == 0
+
+
+def test_scaling_pos_by_constant_is_not_a_return_use():
+    assert g.detect_position_shift("pos = pos * 2 - 1\no = pos.shift(1).fillna(0) * ret\n")[0] == 1
