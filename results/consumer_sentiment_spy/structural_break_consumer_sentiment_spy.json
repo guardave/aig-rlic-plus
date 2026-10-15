@@ -1,5 +1,5 @@
 {
   "pair_id": "consumer_sentiment_spy",
   "method": "rolling-correlation z-score proxy",
-  "max_abs_z": 2.0484984209409833
+  "max_abs_z": 2.0485059788946276
 }

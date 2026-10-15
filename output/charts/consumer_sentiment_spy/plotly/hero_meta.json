@@ -1,7 +1,7 @@
 {
   "chart_name": "hero",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-09T22:27:13.558902+00:00",
+  "generated_at": "2026-10-15T18:05:06.657194+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "Consumer-sentiment index level and SPY with NBER recession bands.",
   "narrative_alignment_note": "Consumer-sentiment index level and SPY with NBER recession bands.",

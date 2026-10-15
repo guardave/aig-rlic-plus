@@ -1,7 +1,7 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-09T22:27:14.591720+00:00",
+  "generated_at": "2026-10-15T18:05:08.268229+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "Rolling correlation between consumer sentiment and SPY returns.",
   "narrative_alignment_note": "Rolling correlation between consumer sentiment and SPY returns.",
