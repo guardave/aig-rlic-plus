@@ -26,15 +26,15 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-10-08T23:59:13.553808+00:00",
+  "last_updated_at": "2026-10-15T18:15:44.625772+00:00",
   "indicator": "sloos_ci_small",
   "target": "spy",
   "expected_direction": "countercyclical",
-  "observed_direction": "procyclical",
-  "direction_consistent": false,
+  "observed_direction": "countercyclical",
+  "direction_consistent": true,
   "mechanism": "When banks tighten C&I lending standards to small firms, credit-dependent activity slows and recession/earnings risk rises; equity exposure should be reduced when net-tightening is high or rising. SLOOS historically leads the cycle by ~1-4 quarters.",
   "confidence": "low",
-  "key_finding": "Best search-phase rule uses level at L3q with OOS Sharpe 1.51 versus buy-and-hold 0.89.",
+  "key_finding": "IS-selected rule uses level at L2q with OOS Sharpe 0.34 versus buy-and-hold 0.89.",
   "caveats": [
     "Quarterly survey with a small OOS window \u2014 winner is search-selected, needs holdout validation.",
     "SLOOS is NSA and revised; the survey is qualitative (net-% of banks), not a hard activity measure.",
@@ -70,6 +70,6 @@
   "data_provenance": {
     "source": "Data Master.xlsx (Fed SLOOS)",
     "series_id": "DRTSCIS",
-    "accessed_at": "2026-10-08T23:59:13.553808+00:00"
+    "accessed_at": "2026-10-15T18:15:44.625772+00:00"
   }
 }
