@@ -515,8 +515,8 @@ class StrategyConfig:
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/retail_inv_sales_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/retail_inv_sales_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/retail_inv_sales_spy/tournament_results_20261008.csv"},
-        {"label": "Stationarity tests", "path": "results/retail_inv_sales_spy/stationarity_tests_20261008.csv"},
+        {"label": "Tournament results", "path": "results/retail_inv_sales_spy/tournament_results_20261015.csv"},
+        {"label": "Stationarity tests", "path": "results/retail_inv_sales_spy/stationarity_tests_20261015.csv"},
     ]
 
     SIGNAL_RULE_MD = """

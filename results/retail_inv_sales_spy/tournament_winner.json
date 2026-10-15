@@ -1,6 +1,6 @@
 {
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-08T23:58:00.084775+00:00",
+  "generated_at": "2026-10-15T18:12:53.070714+00:00",
   "signal_column": "invsales_level",
   "signal_code": "level",
   "signal_display_name": "Retail Inventories-to-Sales Ratio (level)",
@@ -13,18 +13,18 @@
   "strategy_code": "P1",
   "strategy_display_name": "P1 long cash",
   "strategy_description": "Hold SPY when the lagged Retail Inventories-to-Sales Ratio signal is favorable (low/easing); else cash.",
-  "lead_value": 3,
+  "lead_value": 6,
   "lead_unit": "months",
-  "lead_description": "Signal is lagged 3 month(s) before allocation.",
+  "lead_description": "Signal is lagged 6 month(s) before allocation.",
   "lookback": "60m where rolling thresholds apply",
   "direction": "procyclical",
-  "oos_sharpe": 1.233823,
-  "oos_sortino": 1.34283,
-  "oos_calmar": 1.37333,
-  "oos_ann_return": 0.120919,
-  "oos_ann_vol": 0.096675,
-  "oos_max_drawdown": -0.088048,
-  "oos_win_rate": 0.428571,
+  "oos_sharpe": 0.732422,
+  "oos_sortino": 0.724788,
+  "oos_calmar": 0.53184,
+  "oos_ann_return": 0.080344,
+  "oos_ann_vol": 0.114759,
+  "oos_max_drawdown": -0.151068,
+  "oos_win_rate": 0.387755,
   "oos_n_trades": 16,
   "annual_turnover": 1.959184,
   "oos_n": 98,
@@ -37,10 +37,23 @@
   "total_combos": 312,
   "valid_combos": 312,
   "schema_version": "1.2.0",
-  "notes": "A high inventories-to-sales ratio signals weakening demand and precedes equity weakness. On this sample the raw level is NOT stationary (ADF does not reject a unit root; KPSS rejects stationarity) \u2014 it drifts \u2014 so the traded level signal uses a 60-month ROLLING-median threshold as an adaptive regime filter rather than a fixed cutoff. Winner is search-selected \u2014 read as found-in-search.",
+  "notes": "A high inventories-to-sales ratio signals weakening demand and precedes equity weakness. On this sample the raw level is NOT stationary (ADF does not reject a unit root; KPSS rejects stationarity) \u2014 it drifts \u2014 so level signals use 60-month ROLLING-percentile thresholds as adaptive regime filters rather than fixed cutoffs. Winner (level/T_roll_p50) is selected by in-sample Sharpe on the common IS window (1998-01-31 to 2017-05-31) and evaluated on the held-out OOS window; still a search-selected rule \u2014 read as found-in-search.",
+  "is_sharpe": 0.886476,
+  "is_n": 233,
+  "is_period_start": "1998-01-31",
+  "is_period_end": "2017-05-31",
   "selection": {
-    "objective": "max_oos_sharpe",
-    "objective_formula": "monthly mean/std*sqrt(12)",
+    "objective": "max_is_sharpe",
+    "objective_formula": "in-sample (common window [common_is_start, OOS start)) monthly mean/std*sqrt(12); winner evaluated on OOS window",
+    "is_window": {
+      "start": "1998-01-31",
+      "end": "2017-05-31",
+      "n": 233,
+      "common_is_start": "1998-01-31",
+      "oos_start": "2017-06-30",
+      "rule": "common_is_start = latest first-valid-return date across all grid candidates; IS metrics for every candidate computed on [common_is_start, oos_start)",
+      "bh_is_sharpe": 0.507873
+    },
     "grid_scanned": {
       "leads": [
         2,
@@ -61,7 +74,7 @@
       "n_thresholds": 12,
       "n_strategies": 1,
       "n_valid_combos": 312,
-      "median_valid_objective": 0.7041
+      "median_valid_objective": 0.38085
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -69,18 +82,36 @@
       "threshold": "T_roll_p50",
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
-      "lead_value": 3,
-      "source_tournament_file": "tournament_results_20261008.csv",
-      "source_row_index": 40
+      "lead_value": 6,
+      "source_tournament_file": "tournament_results_20261015.csv",
+      "source_row_index": 43
     },
     "runner_up": {
-      "signal": "diff_1m",
-      "threshold": "T_roll_p75",
+      "signal": "level",
+      "threshold": "T_roll_p25",
       "strategy": "P1_long_cash",
-      "lead_value": 14,
-      "objective_value": 1.210384
+      "lead_value": 8,
+      "objective_value": 0.74245,
+      "oos_sharpe": 0.987954
     },
-    "rationale": "Winner is the valid row with the highest OOS Sharpe over the published grid.",
+    "rationale": "Winner is the IS-valid row with the highest IN-SAMPLE Sharpe (common IS window) over the published grid; OOS metrics are reported for that row only (no OOS look-ahead in selection).",
+    "legacy_oos_selected_row": {
+      "signal": "level",
+      "threshold": "T_roll_p50",
+      "direction": "procyclical",
+      "lead_value": 3,
+      "oos_sharpe": 1.233821,
+      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261015.csv"
+    },
+    "sensitivity_own_is_start_row": {
+      "signal": "level",
+      "threshold": "T_roll_p50",
+      "direction": "procyclical",
+      "lead_value": 6,
+      "own_is_start": "1995-06-30",
+      "own_is_sharpe": 0.924704,
+      "note": "IS argmax without common-start alignment; sensitivity only"
+    },
     "objective_runner_up_divergence": null
   }
 }
