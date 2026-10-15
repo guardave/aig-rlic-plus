@@ -5,7 +5,7 @@
   "rules_applied": [
     "VIZ-IC1"
   ],
-  "narrative_alignment_note": "Strategy vs B&H drawdown over the FULL SAMPLE (2000-01-03 to 2025-12-31) \u2014 NOT the OOS window. Strategy full-sample max DD is -19.3% (Aug 2008, GFC); B&H is -62.3% (Mar 2009). The -8.2% max DD quoted in the Strategy headline and shown by the `drawdown` chart is OOS-only (2020-01-01 onward) and is annotated here for reconciliation. Both figures are correct; they measure different windows.",
-  "generated_at": "2026-07-17T13:39:04Z",
+  "narrative_alignment_note": "Strategy vs B&H drawdown over the FULL SAMPLE (2000-01-03 to 2025-12-31) \u2014 NOT the OOS window. Strategy full-sample max DD is -60.4% (Mar 2009, GFC); B&H is -62.3% (Mar 2009). The -21.4% max DD quoted in the Strategy headline and shown by the `drawdown` chart is OOS-only (2020-01-01 onward) and is annotated here for reconciliation. Both figures are correct; they measure different windows.",
+  "generated_at": "2026-10-15T18:04:34Z",
   "generated_by": "Lead Lesandro (Mode 2 maker \u2014 Vera hat ext)"
 }

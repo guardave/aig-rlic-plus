@@ -24,9 +24,10 @@ import plotly.graph_objects as go
 import plotly.io as pio
 
 PAIR_ID = "gold_copper_xli"
-DATE_TAG = "20260526"
-BASE = "/workspaces/aig-rlic-plus"
-DATA = os.path.join(BASE, "data", f"{PAIR_ID}_daily_{DATE_TAG}.parquet")
+DATE_TAG = "20261015"  # results tag (2026-10-15 lookahead fix)
+DATA_TAG = "20260526"  # input data vintage (unchanged)
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA = os.path.join(BASE, "data", f"{PAIR_ID}_daily_{DATA_TAG}.parquet")
 RESULTS = os.path.join(BASE, "results", PAIR_ID)
 OUTDIR = os.path.join(BASE, "output", "charts", PAIR_ID, "plotly")
 os.makedirs(OUTDIR, exist_ok=True)

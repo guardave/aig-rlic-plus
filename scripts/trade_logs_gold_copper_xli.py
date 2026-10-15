@@ -16,10 +16,11 @@ import numpy as np
 import pandas as pd
 
 PAIR_ID = "gold_copper_xli"
-DATE_TAG = "20260526"
-BASE = "/workspaces/aig-rlic-plus"
+DATE_TAG = "20261015"  # results tag (2026-10-15 lookahead fix)
+DATA_TAG = "20260526"  # input data vintage (unchanged)
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESULTS = os.path.join(BASE, "results", PAIR_ID)
-DATA = os.path.join(BASE, "data", f"{PAIR_ID}_daily_{DATE_TAG}.parquet")
+DATA = os.path.join(BASE, "data", f"{PAIR_ID}_daily_{DATA_TAG}.parquet")
 
 SIGNALS = os.path.join(RESULTS, f"signals_{DATE_TAG}.parquet")
 WINNER = os.path.join(RESULTS, "winner_summary.json")
@@ -34,7 +35,13 @@ def main():
     with open(WINNER) as f:
         w = json.load(f)
     pos = sig["position"].fillna(0)
-    raw_sig = sig["signal_raw"].fillna(method="ffill")
+    raw_sig = sig["signal_raw"].ffill()
+    # The position on date t was decided from the signal observed `lead` trading
+    # days earlier (pos = (sig <= thr).shift(lead)). Report THAT signal + its date,
+    # not the same-day signal (which at L>0 can look self-contradictory).
+    lead = int(w.get("lead_value", 0))
+    used_sig = raw_sig.shift(lead)
+    obs_date = pd.Series(sig.index, index=sig.index).shift(lead)
     price = raw["xli"].reindex(sig.index).ffill()
     threshold = float(w["threshold_value"])
     direction = w["direction"]
@@ -63,7 +70,9 @@ def main():
         new = float(pos.loc[dt])
         old = float(prev_pos.loc[dt])
         p = float(price.loc[dt]) if pd.notna(price.loc[dt]) else float("nan")
-        s_val = float(raw_sig.loc[dt]) if pd.notna(raw_sig.loc[dt]) else float("nan")
+        s_val = float(used_sig.loc[dt]) if pd.notna(used_sig.loc[dt]) else float("nan")
+        s_date = obs_date.loc[dt]
+        s_date_str = s_date.strftime("%Y-%m-%d") if pd.notna(s_date) else "n/a"
 
         side = "BUY" if new > old else "SELL"
         qty_pct = abs(new - old) * 100.0  # position in % scale
@@ -84,8 +93,8 @@ def main():
 
         # reason text
         reason = (
-            f"{strategy_code}/{direction}: {signal_disp} = "
-            f"{s_val:.3f} (threshold {threshold:.3f}) — "
+            f"{strategy_code}/{direction}: {signal_disp} observed {s_date_str} "
+            f"(lead {lead}d) = {s_val:.3f} (threshold {threshold:.3f}) — "
             f"position {old*100:.1f}% → {new*100:.1f}%"
         )
 
@@ -111,6 +120,8 @@ def main():
             "side": side,
             "price": round(p, 4) if not np.isnan(p) else "",
             "signal_value": round(s_val, 4) if not np.isnan(s_val) else "",
+            "signal_observed_date": s_date_str,
+            "lead_days": lead,
             "threshold": threshold,
             "cum_pnl_pct": round(cum_pnl_pct, 4),
         })

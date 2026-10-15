@@ -1,0 +1,10 @@
+variable,test,statistic,p_value,conclusion,n_obs
+gold_copper_zscore_252d,ADF,-6.104,0.0,Stationary,6411
+gold_copper_zscore_126d,ADF,-9.1972,0.0,Stationary,6512
+gold_copper_pctrank_504d,ADF,-3.1964,0.0202,Stationary,6209
+gold_copper_roc_63d,ADF,-7.7009,0.0,Stationary,6548
+gold_copper_roc_126d,ADF,-5.7307,0.0,Stationary,6485
+gold_copper_ratio,ADF,-1.6612,0.4512,Non-stationary,6611
+gold_copper_logratio,ADF,-1.8195,0.3708,Non-stationary,6611
+xli,ADF,2.513,0.9991,Non-stationary,6783
+xli_ret,ADF,-15.4824,0.0,Stationary,6782
