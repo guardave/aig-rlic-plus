@@ -9,7 +9,8 @@ winner_summary and verifies every other surface agrees.
 
 HARD checks (fail the gate):
   A. winner_summary's combo exists in tournament_results at its lead, Sharpe within tol.
-  B. winner_summary is the MAX valid OOS Sharpe on the selection grid — i.e. no valid
+  B. winner_summary is the MAX valid selection-objective value on the grid (OOS Sharpe
+     by default; IS Sharpe when selection.objective == "max_is_sharpe", GH #251) — i.e. no valid
      combo beats it (selection is internally consistent; a beating combo means a
      pending re-selection that has not propagated).
   C. kpis.json "OOS Sharpe (winner)" == winner_summary.oos_sharpe (2dp).
@@ -111,7 +112,21 @@ def check_pair(pair: str) -> tuple[list[str], list[str]]:
             # B: winner must be the max valid CLEAN combo (excluding seasonally-
             # contaminated signals, which are validly excluded from selection).
             clean = [r for r in valids if r["signal"] not in contaminated]
-            if clean:
+            # GH #251/#268: when selection.objective == max_is_sharpe the selection
+            # metric is the IN-SAMPLE Sharpe; OOS Sharpe is evaluation-only and a
+            # higher-OOS combo is expected, not a propagation failure.
+            objective = (ws.get("selection") or {}).get("objective", "max_oos_sharpe")
+            if clean and objective == "max_is_sharpe":
+                if "is_sharpe" not in ws:
+                    hard.append("B: objective max_is_sharpe but winner_summary has no is_sharpe")
+                else:
+                    win_is = float(ws["is_sharpe"])
+                    top = max(clean, key=lambda r: _f(r, "is_sharpe"))
+                    if _f(top, "is_sharpe") > win_is + SHARPE_TOL:
+                        hard.append(f"B: a valid, non-excluded combo beats the published winner on IS Sharpe "
+                                    f"— {top['signal']}/{top['threshold']}/{top['strategy']}/"
+                                    f"L{int(float(top[lk]))} = {top['is_sharpe']} > winner IS {win_is}")
+            elif clean:
                 top = max(clean, key=lambda r: _f(r, "oos_sharpe"))
                 if _f(top, "oos_sharpe") > win_sharpe + SHARPE_TOL:
                     hard.append(f"B: a valid, non-excluded combo beats the published winner "
