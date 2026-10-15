@@ -1,0 +1,839 @@
+[
+ {
+  "pair": "cc_delinquency_spy",
+  "maker": {
+   "pair": "cc_delinquency_spy",
+   "verdict": "DONE",
+   "files_changed": [
+    "scripts/pair_pipeline_cc_delinquency_spy.py",
+    "scripts/generate_charts_cc_delinquency_spy.py",
+    "app/pair_configs/cc_delinquency_spy_config.py",
+    "results/cc_delinquency_spy/winner_summary.json",
+    "results/cc_delinquency_spy/tournament_winner.json",
+    "results/cc_delinquency_spy/evidence_status.json",
+    "results/cc_delinquency_spy/interpretation_metadata.json",
+    "results/cc_delinquency_spy/analyst_suggestions.json",
+    "results/cc_delinquency_spy/signal_scope.json",
+    "results/cc_delinquency_spy/kpis.json",
+    "results/cc_delinquency_spy/granger_by_lag.csv",
+    "results/cc_delinquency_spy/regime_quartile_returns.csv",
+    "results/cc_delinquency_spy/rolling_correlation_cc_delinquency_spy.csv",
+    "results/cc_delinquency_spy/structural_break_cc_delinquency_spy.json",
+    "results/cc_delinquency_spy/subperiod_sharpe.csv",
+    "results/cc_delinquency_spy/winner_trade_log.csv",
+    "results/cc_delinquency_spy/winner_trades_broker_style.csv",
+    "results/cc_delinquency_spy/tournament_results_20261015.csv (new)",
+    "results/cc_delinquency_spy/legacy_oos_selection_20261015.csv (new)",
+    "results/cc_delinquency_spy/strategy_returns_20261015.csv + _meta.json (new)",
+    "results/cc_delinquency_spy/signals_20261015.parquet (new)",
+    "results/cc_delinquency_spy/stationarity_tests_20261015.csv (new)",
+    "results/cc_delinquency_spy/pipeline_timing_20261015.json (new)",
+    "results/cc_delinquency_spy/core_models_20261015/ (new)",
+    "results/cc_delinquency_spy/tournament_validation_20261015/ (new)",
+    "data/data_dictionary_cc_delinquency_spy_20261015.csv (new)",
+    "data/missing_value_report_cc_delinquency_spy_20261015.md (new)",
+    "data/summary_stats_cc_delinquency_spy_20261015.csv (new)",
+    "output/charts/cc_delinquency_spy/plotly/*.json (38 files regenerated)",
+    "_pws/lead-lesandro/pkg1_is_oos/cc_delinquency_spy_compare_floor.csv (new)"
+   ],
+   "new_winner": "level/T_roll_p75/countercyclical/L2",
+   "new_is_sharpe": 0.89636,
+   "new_oos_sharpe": 0.504477,
+   "new_oos_ann_return": 0.05762,
+   "new_max_dd": -0.239272,
+   "old_winner": "diff_1q/T0_zero/procyclical/L4",
+   "old_oos_sharpe": 1.367343,
+   "old_is_sharpe": 0.074306,
+   "old_is_rank": 98,
+   "bh_oos_sharpe": 0.86775,
+   "bh_is_sharpe": 0.420205,
+   "is_window": "1999-12-31 to 2017-06-30 (common IS start set by the zscore_20q x T_roll_p50 x L5 candidates: 20q z-score warm-up, then 20q rolling threshold, then 5q lead)",
+   "is_n": 71,
+   "oos_window": "2017-09-30 to 2025-06-30 (oos_start unchanged)",
+   "oos_n": 32,
+   "n_candidates": 120,
+   "n_is_valid": 110,
+   "lead_grid": "L1..L5 quarters (range(1,6), #255 floor kept; min lead 1 >= 1, no L0)",
+   "legacy_reproduces_published": true,
+   "winner_same_without_common_start": true,
+   "spearman_is_oos": -0.4,
+   "ppy_check": "scripts/pair_pipeline_cc_delinquency_spy.py:38 PERIODS_PER_YEAR = 4; ann_metrics at :153-158 uses ppy=PERIODS_PER_YEAR (sqrt(4) Sharpe :156) for both the IS and OOS metrics; turnover also divides by PERIODS_PER_YEAR",
+   "stale_narrative_lines": "The narrative in app/pair_configs/cc_delinquency_spy_config.py is built around the old diff_1q/T0_zero/procyclical/L4 winner (Sharpe 1.37, median 0.63, max OOS Sharpe objective, leads L0..L4), so effectively all of it is stale: 17-49 (docstring), 72, 86, 93, 111, 121-122, 146, 172-192, 242, 251, 272-310, 441-442, 560-577, 619-654, 679-749, 768-786, 811, 845-869, 887, 903, 910-914, 930, 961-967, 983-984. Only the dated download paths were bumped (15 lines). The chart captions in scripts/generate_charts_cc_delinquency_spy.py are also stale: line 14 (docstring 'procyclical, L4q'), 354 (median 0.63) and 362 ('winner (1.37) is the grid maximum'). These were left for the narrative pass. The prior-alignment story flips: the new winner is countercyclical, which matches the credit-stress prior, so direction_consistent is now true.",
+   "gates": "validate_all_schemas: PASS (35 pairs, 137 pass, 0 fail, 3 skip). validate_schema on cc_delinquency_spy winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions: all PASS. gate_consistency cc_delinquency_spy: OK with 0 hard failures; the expected E soft warn did not fire, so the stale config prose is NOT caught by the gate. gate_lead_axis cc_delinquency_spy: no-artifacts (expects quarters axis, but there is no lead_tournament_*.csv or lead_sharpe_distribution.json); 0 FAIL, and this is pre-existing. validate_pair_completeness --pair cc_delinquency_spy: 16 FAIL / 114 PASS. All 16 are pre-existing and identical to the HEAD baseline (checked in a throwaway worktree, now removed): DPS-PRE1 final exam not run, missing perceptual PNGs (no chromium), and the missing history_zoom_inflation_2022 episode slug.",
+   "risks": "1) The OOS evidence is weaker and the sign of IS-vs-OOS rank is reversed. The IS-selected winner's OOS Sharpe is 0.50, below buy-and-hold at 0.87 (OOS rank 67/120). The old OOS-argmax winner ranked 98/120 in IS (IS Sharpe 0.07). Spearman(is, oos) is -0.40 across all 120 candidates and -0.62 across the 110 IS-valid ones, so the OOS winner was an artifact of searching. 2) The OOS sample is small (32 quarters) and the common IS window is short (71 quarters, 1999-12 to 2017-06). The z-score-on-rolling-percentile family pushes the common start out about 3.5 years past the other signals. The winner is the same without the common start (own-start IS 0.83, n=85). 3) Legacy reproduction: OOS Sharpe 1.3673438 vs published 1.3673434, a difference of 4.4e-7, within the 1e-6 tolerance. The largest row-level drift across the grid is 1.05e-6, from the live yfinance SPY download. 4) bootstrap.csv p=0.57 is now the OOS percentile of an IS-selected winner, not a selection-bias statistic. Flagged, not changed. 5) NOT publishable: the config narrative and chart captions still describe the old winner (see stale_narrative_lines), and gate_consistency does not flag it. 6) key_finding wording changed from 'Best search-phase rule' to 'IS-selected rule'. Old 20261008 files are kept (ECON-T5). Nothing committed."
+  },
+  "verify": {
+   "pair": "cc_delinquency_spy",
+   "verdict": "CONFIRMED_WITH_ISSUES",
+   "has_blocker": false,
+   "recomputed": "I recomputed from data/cc_delinquency_spy_quarterly_latest.parquet with my own code. The IS window is 1999-12-31 to 2017-06-30 (n=71), the OOS window starts 2017-09-30 (n=32), and annualisation is sqrt(4).\n\n| Strategy | IS Sharpe (recomputed) | OOS Sharpe (recomputed) | Claimed |\n|---|---|---|---|\n| New winner, level/T_roll_p75/countercyclical/L2 | 0.89636 | 0.50448 | 0.89636 / 0.504477 |\n| Old winner, diff_1q/T0_zero/procyclical/L4 | 0.07431 | 1.36734 | 0.074306 / 1.367344 |\n| Buy-and-hold | 0.42021 | 0.86775 | 0.420205 / 0.86775 |\n\nSpearman(IS, OOS) is -0.4003 across all 120 candidates and -0.6217 across the 110 IS-valid ones, matching the claimed -0.40 and -0.62. The old winner has IS rank 98.",
+   "checks": "1. Lookahead and leakage: none found.\n- The lead grid is range(1,6), so the minimum lead is 1.\n- Signal and threshold are both shifted by the lead, and the position multiplies the same-period return with no extra shift.\n- Thresholds are trailing rolling quantiles (20q, min_periods 12) and the z-score is a trailing 20q window. Nothing uses a full-sample percentile.\n- The IS slice is [common_is_start, oos_start) and the OOS slice is >= oos_start, so they do not overlap.\n- All 120 candidates have the same is_start (1999-12-31) and the same is_end.\n- The winner is chosen by idxmax of is_sharpe among IS-valid rows. oos_valid is used only for the legacy comparison.\n\n2. Sharpe recomputation: all within 0.01, and Spearman matches (see recomputed).\n\n3. Periods per year: PERIODS_PER_YEAR = 4, and ann_metrics uses sqrt(4) for both the IS and OOS metrics.\n\n4. Winner consistency: winner_summary.json and tournament_winner.json both show level/T_roll_p75/countercyclical/L2 with is_sharpe 0.89636 and oos_sharpe 0.504477. kpis.json shows winner_oos_sharpe 0.504477 and benchmark 0.86775. evidence_status.json has status found_in_search with no old-winner references. The old winner (diff_1q/T0_zero) appears only in the legacy_oos_selected_row field of winner_summary.json and tournament_winner.json (line 91). It also appears in the signal_scope.json signal list as ccdelinq_diff_1q, which is just a signal name.\n\n5. Older dated files: `git diff --name-status HEAD` on results/cc_delinquency_spy and data, excluding 20261015, lists only the undated result files, which this change is meant to rewrite. The one exception is data/unrate_spy_monthly_latest.parquet, which belongs to another pair's concurrent work, not this pair. No 20261008 file for this pair is modified or deleted. The untracked nhs_saar_spy_20261008 data files in data/ also belong to another pair.\n\n6. Gates:\n- gate_consistency.py cc_delinquency_spy: OK, 0 hard failures.\n- validate_schema.py on winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions: all conform.\n\nI did not re-run validate_pair_completeness or validate_all_schemas, and I did not inspect the regenerated chart JSONs or the config diff.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "The config narrative (app/pair_configs/cc_delinquency_spy_config.py) and the chart captions in scripts/generate_charts_cc_delinquency_spy.py still describe the old winner (procyclical L4q, Sharpe 1.37, grid max). Gate_consistency does not catch this. The maker flagged it and it is expected, but the pair is not publishable until the narrative is rewritten."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The IS-selected winner's OOS Sharpe (0.50) is below buy-and-hold (0.87), the IS/OOS rank correlation is negative, and the OOS sample is only 32 quarters. This is a substantive weakness of the result, not a defect in the pipeline."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "bootstrap.csv p=0.57 is now the OOS percentile of an IS-selected winner rather than a selection-bias statistic. The maker flagged this and left it unchanged."
+    }
+   ]
+  }
+ },
+ {
+  "pair": "cement_spy",
+  "maker": {
+   "pair": "cement_spy",
+   "verdict": "BLOCKED",
+   "files_changed": [
+    "scripts/pair_pipeline_cement_spy.py (port applied per PORT_GUIDE, uncommitted; currently raises 'No valid tournament strategies' at runtime)"
+   ],
+   "new_winner": "NONE (0 IS-valid candidates under the guide's rules)",
+   "new_is_sharpe": 0,
+   "new_oos_sharpe": 0,
+   "old_winner": "yoy/T_roll_p25/countercyclical/L4",
+   "old_oos_sharpe": 1.252902,
+   "bh_oos_sharpe": 0.934934,
+   "lead_grid": "L2..L14 (13 leads, min lead 2 >= 1, unchanged, floored)",
+   "is_window": "common_is_start 2013-11-30 (set by yoy_zscore_60m x T_roll_p50 x L14) to 2016-12-31",
+   "is_n": 38,
+   "oos_window": "2017-01-31 to 2025-06-30",
+   "oos_n": 102,
+   "n_candidates": 468,
+   "n_is_valid": 0,
+   "ppy_check": "scripts/pair_pipeline_cement_spy.py:197 (ann_metrics sharpe = mean/std*np.sqrt(12); also :195-199 use 12) - correct for monthly. Turnover now uses PPY=12 constant (defined next to DATE_TAG).",
+   "legacy_reproduces_published": false,
+   "gates": "NOT RUN - pipeline stops at run_tournament with 0 IS-valid rows, so no new outputs exist to gate. Charts were not regenerated.",
+   "stale_narrative_lines": "Not assessed: no new winner. Config is unchanged; dated paths are still 20261008 at app/pair_configs/cement_spy_config.py:39,79,81,82,560,561.",
+   "risks": "BLOCKER: following PORT_GUIDE exactly fails for cement_spy. The cement data starts 2005-11 and oos_start is fixed at 2017-01-31. The yoy_zscore_60m x T_roll_p50 family needs about 84 months of warm-up (60m z-score, then a 60m rolling quantile with min_periods=36), plus up to a 14-month lead. That pushes the common IS start to 2013-11-30, which leaves IS n=38 < MIN_IS_N=60. Result: 0 of 468 candidates are IS-valid and the pipeline raises RuntimeError. Even on each candidate's own start, the most any candidate gets is 85 IS months.\nLead decision needed. These options were computed in scratch only and nothing was published.\n(A) Drop the yoy_zscore_60m/T_roll_p50 family, so the common start becomes 2011-01-31 (n=72) with 442 valid candidates. Winner chg_6m/T_roll_p50/procyclical/L8: IS Sharpe 1.63, OOS Sharpe 0.58, OOS return 0.067, max drawdown -0.194. Buy-and-hold Sharpe is 1.08 IS and 0.93 OOS. Spearman(IS, OOS) = 0.14. The same winner comes out without the common start.\n(B) Keep the full grid and lower MIN_IS_N to 36 (n=38). Winner yoy_zscore_60m/T_z_0/procyclical/L2: IS Sharpe 1.58, OOS Sharpe 0.77, OOS return 0.071, max drawdown -0.091. Buy-and-hold IS Sharpe is 0.97. Spearman = 0.23. The winner differs without the common start (chg_6m/T_roll_p50/pro/L8).\n(C) Move oos_start later. This conflicts with 'keep the existing oos_start'.\nEither way the old OOS winner ranks near the bottom on IS (rank 425 of 468 under A) and every IS-selected winner falls below buy-and-hold OOS (0.93).\nLegacy check: the combo reproduces (yoy/T_roll_p25/cc/L4), but OOS Sharpe is 1.2529009 against the published 1.2529024 (difference 1.5e-6, just over the 1e-6 tolerance). This is likely small yfinance SPY adjustment drift and not structural.\nCleanup done: reverted the DATE_TAG bump in the charts script and the config path bump, and deleted the orphan data/*cement_spy_20261015* files and the empty 20261015 result dirs. Only the ported pipeline remains modified. I did not write the compare_floor CSV because there is no new_primary row. Option A/B outputs are in /tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/cement_alt/. Separately, the bootstrap p-value would become an OOS percentile, not a selection-bias statistic (per the guide's note).",
+   "winner_same_without_common_start": false
+  },
+  "verify": {
+   "pair": "cement_spy",
+   "verdict": "CONFIRMED_WITH_ISSUES",
+   "has_blocker": false,
+   "recomputed": "Own code on data/cement_spy_monthly_latest.parquet (468 candidates, leads 2..14, shift(lead) on signal and threshold, sqrt(12)). Common IS start is 2013-11-30. With MIN_IS_N=60 there are 0 IS-valid candidates, matching the maker. Option A (start 2011-01-31, n=72, 442 valid): winner chg_6m/T_roll_p50/procyclical/L8, IS Sharpe 1.632, OOS Sharpe 0.580, Spearman(IS,OOS)=0.139, all within 0.01 of the maker's 1.63/0.58/0.14. Old winner yoy/T_roll_p25/countercyclical/L4: OOS Sharpe 1.2529 (published 1.252902); its IS Sharpe on the common window is 0.154. Buy-and-hold: OOS 0.9349 (n=102), IS 0.970 on the 2013-11 start (maker said 0.97 for option B). I did not recompute option B's winner (yoy_zscore_60m/T_z_0/pro/L2, OOS 0.77).",
+   "checks": "Lookahead: the diff only changes selection and metrics. Every lead is >= 2 (2..14). The signal and the trailing rolling threshold are both shifted by lead. There is no extra position shift. Thresholds are trailing (rolling 60 with min_periods 36, or a constant). The z-score is trailing 60m. IS is [common_is_start, oos_start) and OOS is >= 2017-01-31, so they don't overlap. All candidates share one common IS start. Selection uses is_sharpe only among IS-valid rows, and OOS is used only in the legacy and sensitivity side fields. PPY: ann_metrics uses sqrt(12) and 12/n for both IS and OOS, and turnover uses PPY=12. The new code raises RuntimeError at 0 IS-valid rows before any winner or JSON is written, so there is no winner or JSON consistency to check. Old files: git status shows only scripts/pair_pipeline_cement_spy.py modified. All results/cement_spy files are dated 20261008 and are unchanged, as are the data/*20261008 files. There are no orphan 20261015 files. Gates: gate_consistency.py cement_spy returns OK with 0 hard failures on the unchanged old outputs. I didn't run validate_schema, since there are no new JSONs. The maker's finding is correct: the PORT_GUIDE rule of MIN_IS_N=60 combined with the yoy_zscore_60m x T_roll_p50 warm-up leaves the common IS at n=38, so the pair is correctly escalated to the Lead.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "The maker reports the legacy OOS Sharpe as 1.2529009 against the published 1.2529024. I get 1.2529009, so the 1.5e-6 diff is confirmed. It is plausibly SPY adjusted-close drift and isn't structural. It is only a legacy-reproduction note."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The uncommitted pipeline script is unrunnable (RuntimeError) until the Lead picks option A, B or C. Don't commit it as-is. Option A gives a different winner from option B, and the winner differs without the common start under B. Every IS-selected winner is below the buy-and-hold OOS Sharpe of 0.93. The old winner's IS Sharpe is 0.15, which supports reporting the old OOS winner as selection-biased."
+    }
+   ]
+  }
+ },
+ {
+  "pair": "consumer_sentiment_spy",
+  "maker": {
+   "pair": "consumer_sentiment_spy",
+   "verdict": "DONE",
+   "files_changed": [
+    "scripts/pair_pipeline_consumer_sentiment_spy.py",
+    "scripts/generate_charts_consumer_sentiment_spy.py",
+    "app/pair_configs/consumer_sentiment_spy_config.py (lines 519-520 download paths only)",
+    "results/consumer_sentiment_spy/* (winner_summary.json, tournament_winner.json, evidence_status.json, interpretation_metadata.json, signal_scope.json, analyst_suggestions.json, kpis.json, strategy/trade logs, subperiod etc.)",
+    "results/consumer_sentiment_spy/tournament_results_20261015.csv (new)",
+    "results/consumer_sentiment_spy/legacy_oos_selection_20261015.csv (new)",
+    "results/consumer_sentiment_spy/{core_models,tournament_validation,exploratory}_20261015/ (new)",
+    "results/consumer_sentiment_spy/{strategy_returns,signals,stationarity_tests,pipeline_timing}_20261015.* (new)",
+    "data/{data_dictionary,missing_value_report,summary_stats}_consumer_sentiment_spy_20261015.* (new)",
+    "output/charts/consumer_sentiment_spy/plotly/*.json (regenerated)",
+    "_pws/lead-lesandro/pkg1_is_oos/consumer_sentiment_spy_compare_floor.csv (new)"
+   ],
+   "new_winner": "level/T_roll_p25/procyclical/L1",
+   "new_is_sharpe": 0.880885,
+   "new_oos_sharpe": 0.184184,
+   "new_oos_ann_return": 0.013329,
+   "new_max_dd": -0.261544,
+   "old_winner": "diff_1m/T_roll_p75/countercyclical/L12",
+   "old_oos_sharpe": 1.254348,
+   "old_is_sharpe": 0.506464,
+   "old_is_rank": 99,
+   "bh_oos_sharpe": 0.953759,
+   "bh_is_sharpe": 0.534951,
+   "is_window": "1997-12-31 to 2018-03-31 (common IS start set by zscore_60m/T_roll_p50/L13: 60m z-score warm-up + 60m rolling-threshold warm-up + 13m lead)",
+   "is_n": 244,
+   "oos_window": "2018-04-30 to 2026-08-31 (oos_start unchanged, 25% clamp)",
+   "oos_n": 101,
+   "n_candidates": 312,
+   "n_is_valid": 312,
+   "lead_grid": "[1..13] months, unchanged; min lead = 1 (floored, no L0)",
+   "legacy_reproduces_published": true,
+   "winner_same_without_common_start": true,
+   "spearman_is_oos": -0.2287,
+   "ppy_check": "scripts/pair_pipeline_consumer_sentiment_spy.py:51 sets PERIODS_PER_YEAR = 12; ann_metrics at :184-185 uses np.sqrt(ppy) with ppy = PERIODS_PER_YEAR. The same function computes both the IS and OOS metrics; turnover also uses PPY = PERIODS_PER_YEAR.",
+   "stale_narrative_lines": "app/pair_configs/consumer_sentiment_spy_config.py: the whole narrative still describes the old diff_1m/T_roll_p75/countercyclical/L12 winner, with Sharpe 1.25 vs 0.95, 17.9% return, -20.3% drawdown, bootstrap p=0.003, median 0.68, runner-up diff_1m/T_roll_p50/L12 1.24, direction_consistent=false and \"selected maximum OOS Sharpe\". Lines: 17-22, 31-61, 70-76 (also cite core_models_20261009), 94-95, 122-147, 168-172, 179, 183, 189, 199, 209, 220, 231, 241, 247, 285, 289, 333-353, 411, 452-487, 501, 512, 524-544, 551-554, 580-594, 612, 631-635, 654, 684. The new winner is procyclical, so direction_consistent flips to true and every 'contradicts the prior' passage is now wrong. The OOS result is also the opposite: 0.18 vs 0.95 buy-and-hold, and bootstrap p is 0.94.",
+   "gates": "validate_all_schemas: PASS (137 pass, 0 fail). validate_schema on winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions: all OK. gate_consistency consumer_sentiment_spy: 0 hard failures, plus the expected soft warning E (the config prose still cites the stale Sharpe; it does not cite 0.18). At HEAD the pair was OK, so this warning is new and expected until the narrative is rewritten. gate_lead_axis: no artifacts, 0 FAIL (same at HEAD). validate_pair_completeness --pair: 14 FAIL / 116 PASS, identical to the HEAD baseline. All 14 fails were there before: DPS-PRE1 final exam not run, plus 13 perceptual PNGs missing because there is no chromium.",
+   "risks": "1) The IS-selected winner does badly out of sample: OOS Sharpe 0.18 vs 0.95 for buy-and-hold, 1.3% annual return, max drawdown -26.2% vs about -23.9% for B&H. The plain_english text now says the rule does NOT beat buy-and-hold. Across the grid, IS and OOS Sharpe are negatively rank-correlated (Spearman -0.23). The published winner ranked 99th of 312 by IS Sharpe and 1st by OOS Sharpe, so the old result was largely OOS look-ahead. 2) Sensitivity is stable: the own-start IS argmax picks the same combo (own IS Sharpe 1.08 from 1995-01). Runner-up by IS is level/T_roll_p25/L2 (IS 0.86, OOS 0.40). 3) The legacy OOS-argmax reproduces the published combo; OOS Sharpe is 1.254349 vs 1.254348 published (difference about 5e-7). Across the grid the largest OOS difference is 2.8e-6, which is small drift in the Yahoo adjusted closes. The data still ends 2026-08-31 with oos_n 101, unchanged. 4) bootstrap.csv p-value is now 0.939. It is the OOS percentile of an IS-selected winner, not a selection-bias statistic; I flagged it and did not change it. 5) The pair is NOT publishable until the config narrative is rewritten. Beyond the PORT_GUIDE wording rules, I also edited interpretation_metadata key_finding and evidence_status plain_english in the pipeline (the old text claimed 'beats buy-and-hold'); they are now generated conditionally. 6) Nothing is committed. The baseline worktree was removed and pruned."
+  },
+  "verify": {
+   "pair": "consumer_sentiment_spy",
+   "verdict": "CONFIRMED_WITH_ISSUES",
+   "has_blocker": false,
+   "recomputed": "I recomputed everything from signals_20261015.parquet and the SPY month-end returns in the data parquet, with my own code and the dropna convention. IS window 1997-12-31 to 2018-03-31 (n=244). OOS window 2018-04-30 to 2026-08-31 (n=101). All Sharpes use sqrt(12).\n\n| Rule | IS Sharpe (mine / claimed) | OOS Sharpe (mine / claimed) |\n|---|---|---|\n| New winner, level/T_roll_p25/procyclical/L1 | 0.8809 / 0.880885 | 0.1842 / 0.184184 |\n| Old winner, diff_1m/T_roll_p75/countercyclical/L12 | 0.5065 / 0.506464 | 1.2543 / 1.254348 |\n| Buy-and-hold | 0.5350 / 0.534951 | 0.9538 / 0.953759 |\n\n- Grid match: across all 312 candidates my IS and OOS Sharpes match the CSV to 1e-16.\n- Spearman(IS, OOS) = -0.2287, matching the claim.\n- Argmax: the highest IS Sharpe among IS-valid rows (312 of 312) is the claimed new winner.",
+   "checks": "1. Lookahead/leakage: none found.\n- The lead grid is [1..13], so min lead = 1.\n- Signal and threshold are both shifted by the lead. The position is applied to same-month SPY return, so there is no extra or missing position shift.\n- Thresholds are trailing rolling quantiles (60-month window, min_periods 24). The z-score is trailing 60 months. The only fixed thresholds are constants.\n- The IS window is [common_is_start, oos_start) and the OOS window is >= oos_start, so they do not overlap.\n- The max over my recomputed first-valid dates is 1997-12-31, which is the common_is_start. Every candidate has IS n = 244.\n- Selection uses is_sharpe over rows with is_valid only. The OOS-based validity flag (oos_valid) and the OOS-Sharpe argmax feed only the legacy and sensitivity outputs.\n\n2. Recompute: matches within 1e-6 (see recomputed).\n\n3. PPY: the single ann_metrics function uses PERIODS_PER_YEAR = 12 (sqrt(12)) for both IS and OOS. Turnover also uses PPY = 12.\n\n4. Winner consistency:\n- winner_summary.json equals tournament_winner.json exactly.\n- kpis.json and evidence_status.json carry only the new numbers: OOS 0.184 vs B&H 0.954, and the matching drawdowns.\n- 'diff_1m' appears in winner_summary only in the runner-up and legacy_oos_selected_row fields.\n- 'diff_1m' appears in signal_scope only as a signal definition name.\n- interpretation_metadata and analyst_suggestions contain no old-winner strings.\n\n5. Older dated files: nothing with a 20261009 tag was modified. The modified files are the undated ones (winner_summary, kpis, evidence_status and similar) and the same-day 20261015 outputs. The only other modified path in the data/results check, data/unrate_spy_monthly_latest.parquet, belongs to a different pair.\n\n6. Gates:\n- gate_consistency: 0 hard failures. The expected soft warning E appears (config prose does not cite 0.18).\n- validate_schema: OK for winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions.\n- I did not re-run validate_all_schemas or the pair completeness check; I took those results from the maker's claims.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "app/pair_configs/consumer_sentiment_spy_config.py narrative still describes the old winner. This is expected, and gate_consistency soft warning E flags it. It must be rewritten before the pair is published."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The bootstrap p-value of 0.939 is the OOS percentile of an IS-selected winner, not a selection-bias statistic. The maker flagged this and left it unchanged. The wording used in the app should avoid presenting it as selection-bias evidence."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "strategy_returns_20261015.csv and the trade log fill NaN positions with 0 (deployable cash fill). The tournament uses dropna. The two conventions differ slightly in early-sample handling but not in IS/OOS window metrics, because both windows start after the warm-up."
+    }
+   ]
+  }
+ },
+ {
+  "pair": "import_price_spy",
+  "maker": {
+   "pair": "import_price_spy",
+   "verdict": "DONE",
+   "files_changed": [
+    "scripts/pair_pipeline_import_price_spy.py",
+    "scripts/generate_charts_import_price_spy.py",
+    "app/pair_configs/import_price_spy_config.py (lines 573-574 download paths only)",
+    "results/import_price_spy/winner_summary.json",
+    "results/import_price_spy/tournament_winner.json",
+    "results/import_price_spy/evidence_status.json",
+    "results/import_price_spy/interpretation_metadata.json",
+    "results/import_price_spy/signal_scope.json",
+    "results/import_price_spy/analyst_suggestions.json",
+    "results/import_price_spy/kpis.json",
+    "results/import_price_spy/granger_by_lag.csv",
+    "results/import_price_spy/regime_quartile_returns.csv",
+    "results/import_price_spy/rolling_correlation_import_price_spy.csv",
+    "results/import_price_spy/structural_break_import_price_spy.json",
+    "results/import_price_spy/subperiod_sharpe.csv",
+    "results/import_price_spy/winner_trade_log.csv",
+    "results/import_price_spy/winner_trades_broker_style.csv",
+    "NEW results/import_price_spy/tournament_results_20261015.csv",
+    "NEW results/import_price_spy/legacy_oos_selection_20261015.csv",
+    "NEW results/import_price_spy/strategy_returns_20261015.csv (+_meta.json)",
+    "NEW results/import_price_spy/signals_20261015.parquet",
+    "NEW results/import_price_spy/stationarity_tests_20261015.csv",
+    "NEW results/import_price_spy/pipeline_timing_20261015.json",
+    "NEW results/import_price_spy/core_models_20261015/",
+    "NEW results/import_price_spy/tournament_validation_20261015/",
+    "NEW data/data_dictionary_import_price_spy_20261015.csv",
+    "NEW data/missing_value_report_import_price_spy_20261015.md",
+    "NEW data/summary_stats_import_price_spy_20261015.csv",
+    "output/charts/import_price_spy/plotly/*.json (19 charts + meta, regenerated)",
+    "NEW _pws/lead-lesandro/pkg1_is_oos/import_price_spy_compare_floor.csv"
+   ],
+   "new_winner": "yoy_zscore_60m/T_roll_p50/countercyclical/L4",
+   "new_is_sharpe": 0.790824,
+   "new_oos_sharpe": 0.821489,
+   "new_oos_ann_return": 0.087457,
+   "new_max_dd": -0.194477,
+   "old_winner": "chg_3m/T0_zero/countercyclical/L10",
+   "old_oos_sharpe": 1.37494,
+   "old_is_sharpe": 0.315038,
+   "old_is_rank": 233,
+   "bh_oos_sharpe": 0.957364,
+   "bh_is_sharpe": 0.428302,
+   "is_window": "2000-12-31 to 2016-12-31 (common IS start 2000-12-31; it is set by yoy_zscore_60m x T_roll_p50 x L13: the 60m z-score's 36m warm-up, then the 36m rolling-p50 warm-up, then the 13-month lead)",
+   "is_n": 193,
+   "oos_window": "2017-01-31 to 2025-08-31 (fixed oos_start kept)",
+   "oos_n": 104,
+   "n_candidates": 468,
+   "n_is_valid": 468,
+   "lead_grid": "L1..L13 months (range(1,14), min lead 1, floored; unchanged from the #255 branch; pipeline line 264)",
+   "spearman_is_oos": 0.1856,
+   "winner_same_without_common_start": false,
+   "legacy_reproduces_published": true,
+   "ppy_check": "scripts/pair_pipeline_import_price_spy.py:39 PPY=12. ann_metrics (lines 195-199) used sqrt(12) and 12 hardcoded; replaced with PPY. Turnover lines 318 and 433 also use PPY. Monthly, so the values are unchanged.",
+   "stale_narrative_lines": "The whole narrative in app/pair_configs/import_price_spy_config.py still describes the old chg_3m/T0_zero/L10 winner (OOS 1.37, DD -8.3%, 12.7%, 18 trades, L10 densification, runner-up yoy/T_roll_p50/L2, 'max OOS Sharpe'). Stale lines: 12-41, 51-55, 63, 71-92, 108-112, 124-128, 138, 149-162, 174, 196, 206, 259 (subperiod Sharpes from the old winner), 266, 291-315, 335-350, 418-424, 501-544, 552-567, 578-599, 636-649, 655-666, 686-689, 706, 733-734. The core_models_/tournament_validation_/stationarity 20261008 references in the comment block (51, 63, 77, 89-92) also need a bump in the narrative pass. Only lines 573-574 (download paths) were changed.",
+   "gates": "validate_all_schemas: PASS (35 pairs, 137 pass, 0 fail, 3 skip). validate_schema on import_price_spy winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions: all OK. gate_consistency import_price_spy: 0 hard failures, 1 soft warn E (config cites neither 0.8215 nor 0.82 and does not mention L4). This is expected and is a real blocker until the narrative is rewritten. gate_lead_axis import_price_spy: 0 PASS / 0 FAIL / 1 no-artifacts. This is pre-existing and identical at HEAD (no lead_sharpe_distribution.json or lead_tournament csv). validate_pair_completeness --pair import_price_spy: overall FAIL with 14 FAIL / 0 WARN / 116 PASS. The FAIL lines are identical to the HEAD baseline (diffed in a throwaway worktree, since removed), so all are pre-existing: 13 perceptual PNGs missing (no chromium) and the 'Final exam has been run' check (status found_in_search, DPS-PRE1).",
+   "risks": "1) Legacy reproduction: the combo matches exactly (chg_3m/T0_zero/countercyclical/L10 is still the OOS argmax, oos_n 104, ann return 0.127008, DD -0.083258, 18 trades). OOS Sharpe is 1.3749427 vs published 1.3749404, a gap of 2.6e-6, which is just over the strict 1e-6 tolerance. The cause is Yahoo adjusted-close re-adjustment noise in SPY: monthly returns differ by up to 1.5e-6 between runs, and every one of the 468 rows' OOS Sharpe is within 2.6e-6. I treated this as reproduced; the Lead should confirm. 2) The new winner's OOS Sharpe (0.82) is BELOW B&H (0.96) over the same OOS window. It beats B&H in-sample (0.79 vs 0.43), with DD -0.19 and only 7 OOS trades. The old OOS-argmax winner ranks 233/468 on IS Sharpe (0.315), which is clear evidence that the old selection was OOS look-ahead. 3) The pick is sensitive to the common start. Without it, the IS argmax is accel/T0_zero/countercyclical/L5 (own IS 1994-07..2016-12, n=270, IS 0.918, OOS 0.820). The two rules have near-identical OOS but different signals. 4) IS-OOS Spearman across the grid is weak (0.19, p=5e-5). 5) The runner-up by IS is mom/T_roll_p25/L8 (IS 0.772, OOS 0.523). 6) bootstrap.csv p-value is now the OOS percentile of an IS-selected winner, not a selection-bias statistic. I flagged it and did not change it. 7) The pair is NOT publishable until the narrative pass rewrites the config prose; the interpretation_metadata key_finding is auto-generated and fine. 8) Nothing was committed, per instructions."
+  },
+  "verify": {
+   "pair": "import_price_spy",
+   "verdict": "CONFIRMED_WITH_ISSUES",
+   "has_blocker": false,
+   "recomputed": "I rebuilt the signals from data/import_price_spy_monthly_latest.parquet with my own code, using trailing-only rolling thresholds, a shift by the lead, and SPY pct_change. New winner yoy_zscore_60m/T_roll_p50/countercyclical/L4: IS 0.7908, OOS 0.8215 (n=104), against claimed 0.7908 and 0.8215. Old winner chg_3m/T0_zero/countercyclical/L10: IS 0.3150, OOS 1.3749, against claimed 0.3150 and 1.3749. Buy-and-hold: IS 0.4283, OOS 0.9574, against claimed 0.4283 and 0.9574. All match within 1e-4. The IS window is 2000-12-31 to 2016-12-31. Spearman(IS, OOS) over the 468 candidates is 0.1856 with p=5.3e-5, against claimed 0.1856. The IS argmax over the tournament CSV is row 367, which is the new winner. The runners-up are mom/T_roll_p25/countercyclical/L8 (0.772) and chg_3m/T_roll_p50/countercyclical/L7 (0.769).",
+   "checks": "1. Lookahead and leakage: the lead grid is range(1,14), so the minimum lead is 1. Signal and threshold are both shifted by the lead, with no extra position shift. Thresholds are rolling(60, min_periods=36) quantiles and the z-score uses a rolling mean and std, so all are trailing only. IS is [common_is_start, 2017-01-31) and OOS is >= 2017-01-31, so they do not overlap. The CSV shows a single common_is_start, is_start and is_end (2000-12-31 and 2016-12-31) for all 468 candidates. Winner selection uses valid[\"is_sharpe\"].idxmax() and never reads OOS. The OOS-argmax legacy row and the own-start sensitivity row are computed for reporting only.\n2. Recompute: matches the claims, as above.\n3. PPY: PPY=12 is used in ann_metrics (return, vol, Sharpe, Sortino) and in the turnover calculation. IS and OOS go through the same function, so both use sqrt(12). Monthly data.\n4. Winner consistency: winner_summary.json and tournament_winner.json are identical apart from generated_at. kpis.json shows OOS 0.821489, B&H 0.957364 and DD -0.194477. evidence_status.json is clean. interpretation_metadata, signal_scope and analyst_suggestions reference the zscore winner and not chg_3m. The old chg_3m/T0_zero/L10 winner appears only in selection.legacy_oos_selected_row of the winner JSONs, which is an intentional legacy field.\n5. Older dated files: git diff --name-status HEAD -- results/import_price_spy data, filtered with grep -v 20261015, shows no 20261008 file modified or deleted. The only changes are undated files, which are expected: winner_summary, tournament_winner, kpis, evidence_status, granger_by_lag, trade logs and similar. data/unrate_spy_monthly_latest.parquet shows as modified, but it belongs to another pair's concurrent work, not this one. The new files are all 20261015-tagged.\n6. Gates: gate_consistency import_price_spy gives 0 hard failures and 2 soft E warnings (the config does not cite 0.8215 and does not mention L4), both from the stale narrative. validate_schema reports OK on winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "The config narrative is stale and describes the old chg_3m/L10 winner. It trips the soft E warnings in gate_consistency and the pair should not be published until it is rewritten. This is the expected narrative pass."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The new winner's OOS Sharpe (0.82) is below B&H (0.96) over the same OOS window, and the IS-OOS Spearman is weak (0.19). The narrative should state this honestly."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The common IS start is 2000-12-31 but the winner's own first valid return is 2000-03-31. The common start is set by another grid candidate, so the maker's explanation that the winner combo sets it is not quite right. The max across candidates is still applied consistently to all 468."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The legacy OOS Sharpe of 1.3749427 differs from the published 1.3749404 by 2.6e-6, from Yahoo adjusted-close re-adjustment noise. It is immaterial and the combo reproduces exactly."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The bootstrap p-value semantics changed because the winner is now IS-selected. The maker flagged this and did not change it."
+    }
+   ]
+  }
+ },
+ {
+  "pair": "mfg_new_orders_spy",
+  "maker": {
+   "pair": "mfg_new_orders_spy",
+   "verdict": "DONE",
+   "files_changed": [
+    "scripts/pair_pipeline_mfg_new_orders_spy.py",
+    "scripts/generate_charts_mfg_new_orders_spy.py",
+    "app/pair_configs/mfg_new_orders_spy_config.py (lines 499-500 download paths only)",
+    "results/mfg_new_orders_spy/tournament_results_20261015.csv (new)",
+    "results/mfg_new_orders_spy/legacy_oos_selection_20261015.csv (new)",
+    "results/mfg_new_orders_spy/strategy_returns_20261015.csv + _meta.json (new)",
+    "results/mfg_new_orders_spy/signals_20261015.parquet, stationarity_tests_20261015.csv, pipeline_timing_20261015.json, core_models_20261015/, tournament_validation_20261015/ (new)",
+    "results/mfg_new_orders_spy/{winner_summary,tournament_winner,evidence_status,interpretation_metadata,signal_scope,analyst_suggestions,kpis}.json (regenerated)",
+    "results/mfg_new_orders_spy/{granger_by_lag,regime_quartile_returns,rolling_correlation_mfg_new_orders_spy,subperiod_sharpe,winner_trade_log,winner_trades_broker_style}.csv + structural_break_mfg_new_orders_spy.json (regenerated, undated by design)",
+    "data/{data_dictionary,summary_stats}_mfg_new_orders_spy_20261015.csv, data/missing_value_report_mfg_new_orders_spy_20261015.md (new)",
+    "output/charts/mfg_new_orders_spy/plotly/* (38 files regenerated)",
+    "_pws/lead-lesandro/pkg1_is_oos/mfg_new_orders_spy_compare_floor.csv (new)"
+   ],
+   "new_winner": "yoy_zscore_60m/T_roll_p50/procyclical/L7",
+   "new_is_sharpe": 0.952665,
+   "new_oos_sharpe": 0.371039,
+   "new_oos_ann_return": 0.033552,
+   "new_max_dd": -0.222351,
+   "old_winner": "yoy/T_roll_p50/countercyclical/L12",
+   "old_oos_sharpe": 1.558944,
+   "old_is_sharpe": 0.136412,
+   "old_is_rank": 359,
+   "bh_oos_sharpe": 0.957364,
+   "bh_is_sharpe": 0.431696,
+   "is_window": "2001-01-31 to 2016-12-31 (common IS start 2001-01-31, set by the yoy_zscore_60m x T_roll_p50 x L14 family: 60m z-score warm-up, then 60m rolling-median warm-up, then a 14-month shift)",
+   "is_n": 192,
+   "oos_window": "2017-01-31 to 2025-08-31 (oos_start fixed at 2017-01-31, unchanged)",
+   "oos_n": 104,
+   "n_candidates": 468,
+   "n_is_valid": 468,
+   "lead_grid": "L2..L14 months (range(2,15)), the #255 floored grid kept unchanged; the minimum lead is 2, which is at least 1",
+   "spearman_is_oos": -0.353,
+   "legacy_reproduces_published": true,
+   "winner_same_without_common_start": false,
+   "ppy_check": "scripts/pair_pipeline_mfg_new_orders_spy.py:45 adds PPY = 12. ann_metrics at lines 201-205 now uses PPY for the return exponent, sqrt(PPY) for vol, Sharpe and Sortino; these were previously hardcoded 12. Turnover in the tournament rows and in winner_summary also uses PPY. The same ann_metrics function computes both the IS and the OOS metrics.",
+   "stale_narrative_lines": "app/pair_configs/mfg_new_orders_spy_config.py: 13-16, 24, 30, 36 and 48 (core_models_/tournament_validation_20261008 refs in the docstring), 56, 59-62 (docstring refs to 20261008 files), 79-81, 106, 114, 123, 126, 151, 159, 165, 169, 221, 316, 442, 459-465, 481-482, 504, 507, 510, 514, 524, 561-563, 570, 592. All of these describe the old yoy/T_roll_p50/countercyclical/L12 winner (OOS 1.56, drawdown -6.1%, median 0.684, chg_3m runner-up, or selection by OOS Sharpe). The new winner is procyclical, which matches the procyclical prior.",
+   "gates": "validate_all_schemas.py: PASS (35 pairs, 137 pass, 0 fail, 3 skip).\nvalidate_schema.py on the mfg_new_orders_spy JSONs (winner_summary, evidence_status, signal_scope, interpretation_metadata, analyst_suggestions): all PASS.\ngate_consistency.py mfg_new_orders_spy: 0 hard failures. One expected new soft warning, E: the config cites neither 0.371 nor lead L7, because the narrative is stale. At HEAD this check was OK.\ngate_lead_axis.py mfg_new_orders_spy: 0 PASS, 0 FAIL, 1 no-artifacts. It finds no lead_tournament or lead_sharpe_distribution artifacts. This is not a failure, and it is pre-existing.\nvalidate_pair_completeness.py --pair mfg_new_orders_spy: FAIL with 14 FAIL and 116 PASS. The HEAD baseline in a throwaway worktree (since removed) gives the same 14 FAIL and 116 PASS, so all 14 are PRE-EXISTING: 1 for DPS-PRE1 (the final exam has not been run) and 13 for missing perceptual PNGs, because there is no chromium.",
+   "risks": "1) Data drift is negligible. The legacy OOS-argmax row reproduces the published combo exactly, but its OOS Sharpe is 1.558946 against 1.558944 published, which is 2e-6 and just outside the guide's 1e-6 tolerance. Max drawdown -0.061443 vs -0.061444 and B&H 0.957364 vs 0.957363 show the same drift. The cause is the live yfinance SPY adjusted close; the New Orders series from Data Master is unchanged (403 months, ending 2025-08). I treated this as reproduced.\n2) The new IS-selected winner has an OOS Sharpe of 0.37, well below B&H at 0.96, and an OOS drawdown of -22% against the old -6%. The Spearman correlation between IS and OOS Sharpe across the grid is -0.35, so the IS ranking does not carry over to OOS. The old winner ranks 359 of 468 on IS (IS Sharpe 0.14). The headline drawdown story in the narrative no longer holds.\n3) The winner changes without the common start. Using each candidate's own IS start picks yoy/T0_zero/procyclical/L2 (own-IS 0.89 from 1994-03, OOS 0.56). The IS runner-up is yoy_zscore_60m/T_z_0/procyclical/L6 (IS 0.905, OOS 0.393).\n4) All 468 candidates are IS-valid. The common window has 192 months, and every rule's exposure is within 0.05-0.95.\n5) The bootstrap.csv p-value (share of valid rows with OOS Sharpe at or above the winner's) is now the OOS percentile of an IS-selected winner, not a selection-bias statistic. I flagged it and left it unchanged.\n6) The config narrative is stale, so the pair is NOT publishable until a narrative pass is done (the gate_consistency E warning).\n7) The interpretation_metadata key_finding still says 'Best search-phase rule ... with OOS Sharpe'. This describes the result rather than how it was selected, so I left it.\n8) Undated result files (granger_by_lag, subperiod_sharpe, trade logs and others) are overwritten in place, which is what the pipeline already did. Nothing was committed."
+  },
+  "verify": {
+   "pair": "mfg_new_orders_spy",
+   "verdict": "CONFIRMED",
+   "has_blocker": false,
+   "recomputed": "I rebuilt the signals, rolling thresholds, lead shifts and positions from signals_20261015.parquet and SPY returns in data/mfg_new_orders_spy_monthly_latest.parquet. I used the common IS window 2001-01-31 to 2016-12-31 and OOS from 2017-01-31, with monthly Sharpe annualised by sqrt(12). Each result is IS Sharpe / OOS Sharpe against the maker's claim.\n\n- New winner (yoy_zscore_60m / T_roll_p50 / procyclical / L7): 0.95267 / 0.37104. Claimed 0.952665 / 0.371039. Match.\n- Old winner (yoy / T_roll_p50 / countercyclical / L12): 0.13641 / 1.55895. Claimed IS 0.136412, OOS 1.558944, IS rank 359. Match; the OOS difference is the 2e-6 SPY drift the maker disclosed.\n- Buy and hold: 0.43170 / 0.95736. Claimed 0.431696 / 0.957364. Match.\n- Spearman(IS, OOS) over the 468 candidates: -0.353. Claimed -0.353. Match.\n- argmax of is_sharpe over the 468 rows is the new winner. All 468 rows have is_valid true, one common_is_start (2001-01-31), is_n 192 and oos_n 104.",
+   "checks": "1. Lookahead and leakage: none found.\n   - The lead grid is range(2,15), so the minimum lead is 2, which is at least 1.\n   - Both signal and threshold are shifted by the lead (sig = raw.shift(lead), thresh = threshold.shift(lead)), and there is no extra position shift. spy_ret is the same-month pct_change, so the position at t uses information from t-lead.\n   - Thresholds are trailing only: rolling(60, min_periods=36) quantiles. The z-score is a trailing 60-month window. The only constant thresholds are 0 and 1.\n   - IS is [common_is_start, oos_start) and OOS is >= oos_start, so they do not overlap. common_is_start is the maximum of the candidates' first-valid-return dates, so all IS metrics start at the same date.\n   - Selection reads only is_sharpe among is_valid rows. OOS appears only in the legacy and sensitivity outputs and in the report.\n2. Recomputation: matches within 1e-5, see the recomputed field.\n3. PPY: PPY = 12 is used by ann_metrics for the return exponent, volatility, Sharpe and Sortino, and by turnover. The same function computes IS and OOS.\n4. Winner consistency:\n   - winner_summary, tournament_winner and kpis (OOS 0.371039, B&H 0.957364) all report the new winner.\n   - evidence_status contains no old-winner values.\n   - The old winner (lead 12, OOS 1.558946) appears in winner_summary and tournament_winner only inside selection.legacy_oos_selected_row, which is intentional. It also appears in the old dated strategy_returns_20261008_meta.json, which is correct.\n5. Old dated files: git diff --name-status HEAD -- results/mfg_new_orders_spy data, filtered to exclude 20261015, shows no 20261008-dated file modified. The only modified undated files are the maker's disclosed overwrites (granger_by_lag, subperiod_sharpe, trade logs and others). data/unrate_spy_monthly_latest.parquet is also modified, but that belongs to another pair's concurrent work.\n6. Gates:\n   - gate_consistency.py mfg_new_orders_spy reports 0 hard failures. Its soft warning E says the config cites neither 0.371 nor L7, which is the expected stale narrative.\n   - validate_schema.py passes for winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "The config narrative is stale (gate_consistency soft warning E), as the maker flagged. This is expected and not a blocker, but the pair is not publishable until a narrative pass is done."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The legacy OOS Sharpe of 1.558946 against 1.558944 published, and the matching max-drawdown and B&H differences, are about 2e-6 of live yfinance drift, just outside the 1e-6 guide tolerance. The maker disclosed this and it has no effect on the selection."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The undated results files are overwritten in place, as the pipeline already did. The new winner's OOS Sharpe of 0.37 is well below B&H at 0.96, and Spearman(IS, OOS) is -0.35, so the IS ranking does not carry over to OOS. These are findings about the result, not defects in the code."
+    }
+   ]
+  }
+ },
+ {
+  "pair": "nhs_saar_rebuilt_spy",
+  "maker": {
+   "pair": "nhs_saar_rebuilt_spy",
+   "verdict": "DONE",
+   "files_changed": [
+    "/workspaces/aig-rlic-plus/scripts/pair_pipeline_nhs_saar_rebuilt_spy.py",
+    "/workspaces/aig-rlic-plus/scripts/generate_charts_nhs_saar_rebuilt_spy.py",
+    "/workspaces/aig-rlic-plus/app/pair_configs/nhs_saar_rebuilt_spy_config.py (lines 524-525 only: tournament_results/stationarity_tests -> 20261015)",
+    "/workspaces/aig-rlic-plus/results/nhs_saar_rebuilt_spy/{winner_summary,tournament_winner,evidence_status,interpretation_metadata,signal_scope,analyst_suggestions,kpis}.json + undated CSVs (regenerated)",
+    "/workspaces/aig-rlic-plus/results/nhs_saar_rebuilt_spy/*_20261015* (new: tournament_results, legacy_oos_selection, strategy_returns(+meta), signals parquet, stationarity_tests, pipeline_timing, core_models_20261015/, tournament_validation_20261015/)",
+    "/workspaces/aig-rlic-plus/data/{summary_stats,missing_value_report,data_dictionary}_nhs_saar_spy_20261015.* (new)",
+    "/workspaces/aig-rlic-plus/output/charts/nhs_saar_rebuilt_spy/plotly/*.json (regenerated, 38 files)",
+    "/workspaces/aig-rlic-plus/_pws/lead-lesandro/pkg1_is_oos/nhs_saar_rebuilt_spy_compare_floor.csv (new)"
+   ],
+   "new_winner": "pct_6m/T_roll_p50/procyclical/L13",
+   "new_is_sharpe": 0.981748,
+   "new_oos_sharpe": 0.919459,
+   "new_oos_ann_return": 0.099954,
+   "new_max_dd": -0.196238,
+   "old_winner": "chg_6m/T_roll_p25/procyclical/L14",
+   "old_is_sharpe": 0.723715,
+   "old_oos_sharpe": 1.499392,
+   "old_is_rank": 27,
+   "bh_is_sharpe": 0.367466,
+   "bh_oos_sharpe": 1.003407,
+   "is_window": "2000-01-31 to 2016-12-31 (common IS start 2000-01-31, set by zscore_60m/T_roll_p25/L14 \u2014 60m z-score warm-up (min 36) stacked on a 36m rolling-quantile warm-up plus the L14 shift)",
+   "is_n": 204,
+   "oos_window": "2017-01-31 to 2026-08-31 (fixed oos_start 2017-01-31 kept)",
+   "oos_n": 116,
+   "n_candidates": 468,
+   "n_is_valid": 468,
+   "lead_grid": "L2..L14 (list(range(2,15)), #255 floor L2, kept unchanged; min lead = 2 >= 1, no L0)",
+   "spearman_is_oos": 0.47,
+   "legacy_reproduces_published": false,
+   "winner_same_without_common_start": false,
+   "ppy_check": "scripts/pair_pipeline_nhs_saar_rebuilt_spy.py:42 defines PPY = 12. ann_metrics at lines 191-195 annualises with PPY: ann_return uses **(PPY/n), and ann_vol, sharpe and sortino use sqrt(PPY). The same ann_metrics is used for both IS and OOS. Turnover (tournament rows and winner annual_turnover) now divides by PPY instead of the hardcoded /12. The pair is monthly, so the values are unchanged.",
+   "stale_narrative_lines": "I did not rewrite anything in app/pair_configs/nhs_saar_rebuilt_spy_config.py. Every line below still describes the old chg_6m/T_roll_p25/L14 winner with OOS Sharpe 1.50, drawdown -9.8%, 18 trades, 'selected by max OOS Sharpe', bootstrap p 0.002 or the DATE_TAG 20261008: 11, 15, 19-29, 43-44, 64-65, 85-86, 97-103, 115-118, 125-128, 135-140, 151, 169, 175, 179, 183, 186, 242, 247, 296, 307, 312, 320, 326-328, 387, 389, 459-473, 484-492, 506-516, 532, 535, 537, 539, 543. The gate_consistency E soft warn confirms this ('config cites neither 0.9195 nor 0.92', 'does not mention winner lead L13'). The pair is not publishable until the narrative is rewritten.",
+   "gates": "validate_all_schemas.py: PASS (35 pairs, pass=137, fail=0, skip=3; the 3 skips are other pairs with absent analyst_suggestions). validate_schema.py on nhs_saar_rebuilt_spy winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions: all 5 OK. gate_consistency.py nhs_saar_rebuilt_spy: 0 hard failures, so check A (winner vs tournament row) and the IS branch of check B pass. There is 1 new soft warn E: the config prose cites a stale Sharpe and does not mention L13. This was expected and blocks publishing until the narrative is rewritten. HEAD baseline was OK. gate_lead_axis.py nhs_saar_rebuilt_spy: 0 PASS / 0 FAIL / 1 no-artifacts (no lead_sharpe_distribution.json and no lead_tournament csv). The HEAD baseline gives the same result, so this predates the port. validate_pair_completeness.py --pair nhs_saar_rebuilt_spy: 14 FAIL / 0 WARN / 116 PASS, identical to the HEAD baseline in a scratch worktree (since removed). All 14 failures predate the port: DPS-PRE1 final exam not run (status found_in_search) and 13 perceptual PNGs missing because there is no chromium (the RuntimeError skips). The port introduced no new failures.",
+   "risks": "1) Legacy acceptance check misses the strict tolerance, though only by float noise. The recomputed legacy row picks the same combo as published (chg_6m/T_roll_p25/procyclical/L14, same oos_n 116, same 18 trades), but its OOS Sharpe is 1.499394 vs the published 1.499392 (diff about 1.8e-6, over the 1e-6 tolerance). Across all 468 rows the largest OOS Sharpe difference vs tournament_results_20261008.csv is 3.7e-6. The pipeline re-pulls FRED HSN1F and yfinance SPY live on every run, so this is consistent with tiny float drift in the SPY adjusted closes (input parquet is untracked, so not compared directly). I judged it immaterial and finished the port, so legacy_reproduces_published is reported as false for the strict test. Lead should confirm this is acceptable.\n2) Winner flip. The new IS-selected winner (pct_6m/T_roll_p50/procyclical/L13) has OOS Sharpe 0.92, below buy-and-hold at 1.00. Its OOS drawdown is -0.196 and it makes 35 trades. The old winner ranks 27th of 468 by IS Sharpe (0.72). The new winner ranks 106th by OOS Sharpe.\n3) L13 is the second-highest lead in the [2..14] grid, still beyond the Granger window that was tested to 12. The grid-ceiling / long-lead adjudication flag still applies.\n4) Every candidate is IS-valid (468 of 468): exposure stays within 0.05-0.95 and n=204 >= 60, so the validity filter does no work.\n5) Without the common start, a different rule wins: yoy/T0_zero/procyclical/L14 with own-start IS Sharpe 1.12 from 1995-03 and OOS 0.85. The selection is therefore sensitive to IS start alignment. The runner-up by IS is chg_6m/T_roll_p75/procyclical/L14 (IS 0.968, OOS 0.945).\n6) bootstrap.csv p-value (now 0.226, not significant) has become the OOS percentile of an IS-selected winner rather than a selection-bias statistic. Flagged, not changed.\n7) The pipeline also overwrites undated files as before (winner_trade_log.csv, regime/subperiod CSVs and the untracked data/nhs_saar_rebuilt_spy_monthly_latest.parquet).\n8) Nothing was committed."
+  },
+  "verify": {
+   "pair": "nhs_saar_rebuilt_spy",
+   "verdict": "CONFIRMED_WITH_ISSUES",
+   "has_blocker": false,
+   "recomputed": "Independent recompute from raw hsn1f and spy in the data parquet, monthly, sqrt(12), common IS window 2000-01-31 to 2016-12-31 and OOS from 2017-01-31. New winner pct_6m/T_roll_p50/procyclical/L13: IS 0.98175, OOS 0.91946 (claimed 0.981748 / 0.919459). Old winner chg_6m/T_roll_p25/procyclical/L14: IS 0.72372, OOS 1.49939 (claimed 0.723715 / 1.499394; the published 1.499392 differs by about 2e-6). Buy-and-hold: IS 0.36747, OOS 1.00341 (matches). Spearman(IS,OOS) over 468 candidates = 0.4701 (claimed 0.47). The argmax of is_sharpe is row 141, which is the new winner. All 468 rows are valid. The recompute gives the first-return dates of the two winners as 1997-07 and 1997-08, both earlier than the 2000-01 common start.",
+   "checks": "Lookahead/leakage: none found. Leads are L2..L14 (min 2). The signal and the rolling-quantile threshold are both shifted by lead, with no extra position shift. Thresholds are trailing only (rolling 60 with min_periods 36); there is no full-sample percentile. The z-score signal uses a trailing 60-month window. Split boundary: IS is [common_is_start, 2017-01-31) and OOS is >= 2017-01-31. All is_end values are before 2017. common_is_start is a single value (2000-01-31) for every row. It is the maximum first-valid-return date across the grid, so it depends only on warm-up, not on performance. Selection reads only is_sharpe among is_valid rows; OOS is not read. PPY: PPY=12 is used for ann_return, vol, Sharpe and Sortino in the shared ann_metrics, which serves both IS and OOS. Turnover now divides by PPY, so the values are unchanged. Winner consistency: winner_summary.json and tournament_winner.json agree on pct_6m/T_roll_p50/L13, is_sharpe 0.981748, oos_sharpe 0.919459 and objective max_is_sharpe. kpis.json has winner_oos_sharpe 0.919459 and benchmark 1.003407. The old winner appears only in the legacy_oos_selected_row sensitivity field and legacy_oos_selection_20261015.csv. The runner-up (chg_6m/T_roll_p75/L14) is labelled with IS objective_value 0.968341 and also carries its oos_sharpe. Older dated files: git diff --name-status HEAD for results/nhs_saar_rebuilt_spy and data, excluding 20261015, shows only modified undated files. These are the winner, kpis, evidence and other JSONs, plus regime, subperiod and trade-log CSVs. The one data change is data/unrate_spy_monthly_latest.parquet, which belongs to another pair. No 20261008 or other dated file was modified or deleted. The only config change is the two download paths, now pointing to 20261015. Gates: gate_consistency reports 0 hard failures and only the expected soft warn E (stale prose cites neither 0.9195 nor L13). validate_schema.py returns OK for winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "Stale narrative in app/pair_configs/nhs_saar_rebuilt_spy_config.py still describes the old chg_6m/L14 winner with OOS Sharpe 1.50. This is expected, and it blocks publishing until the narrative is rewritten."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The legacy OOS Sharpe recompute is 1.499394 vs the published 1.499392 (about 2e-6). The cause is SPY adjusted-close drift from the live re-pull, so legacy_reproduces_published=false is a strict-tolerance artefact, not a logic error."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The new winner has OOS Sharpe 0.92, below buy-and-hold at 1.00. Its lead L13 is beyond the Granger window tested to 12, and the winner is sensitive to the common-start alignment: without it, yoy/T0_zero/L14 would win. The bootstrap p-value now measures the OOS percentile of an IS-selected winner. All of this is flagged by the maker and is a judgment item for Lead, not an error."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The pipeline overwrites undated artefacts (winner_trade_log.csv, regime and subperiod CSVs, and the untracked monthly parquet), as it did before."
+    }
+   ]
+  }
+ },
+ {
+  "pair": "permit_yoy_spy",
+  "maker": {
+   "pair": "permit_yoy_spy",
+   "verdict": "DONE",
+   "files_changed": [
+    "scripts/pair_pipeline_permit_yoy_spy.py",
+    "scripts/generate_charts_permit_yoy_spy.py",
+    "app/pair_configs/permit_yoy_spy_config.py (lines 512-513 download paths only)",
+    "results/permit_yoy_spy/* (winner_summary.json, tournament_winner.json, evidence_status.json, interpretation_metadata.json, signal_scope.json, analyst_suggestions.json, kpis.json, trade logs, evidence CSVs regenerated; new *_20261015 files incl. tournament_results_20261015.csv, legacy_oos_selection_20261015.csv, strategy_returns_20261015.csv, core_models_20261015/, tournament_validation_20261015/, stationarity_tests_20261015.csv, signals_20261015.parquet, pipeline_timing_20261015.json)",
+    "output/charts/permit_yoy_spy/plotly/* (regenerated)",
+    "data/summary_stats_permit_yoy_spy_20261015.csv, data/data_dictionary_permit_yoy_spy_20261015.csv, data/missing_value_report_permit_yoy_spy_20261015.md (new)",
+    "_pws/lead-lesandro/pkg1_is_oos/permit_yoy_spy_compare_floor.csv (new)"
+   ],
+   "new_winner": "level/T_roll_p75/procyclical/L10",
+   "new_is_sharpe": 0.940919,
+   "new_oos_sharpe": 0.201389,
+   "new_oos_ann_return": 0.013123,
+   "new_max_dd": -0.201616,
+   "old_winner": "chg_12m/T_roll_p50/procyclical/L9",
+   "old_oos_sharpe": 1.306114,
+   "old_is_sharpe": 0.523625,
+   "old_is_rank": 85,
+   "bh_oos_sharpe": 0.921205,
+   "bh_is_sharpe": 0.514305,
+   "is_window": "1997-12-31 to 2017-06-30 (common IS start set by zscore_60m x T_roll_p50 x L13, the 60m z-score plus the 24-month rolling-threshold warm-up plus the 13-month lead)",
+   "is_n": 235,
+   "oos_window": "2017-07-31 to 2025-08-31 (oos_start unchanged, 25% clamp)",
+   "oos_n": 98,
+   "n_candidates": 312,
+   "n_is_valid": 312,
+   "lead_grid": "L1..L13 months (range(1,14)); min lead 1 >= 1, already floored, unchanged",
+   "spearman_is_oos": -0.4,
+   "legacy_reproduces_published": true,
+   "winner_same_without_common_start": false,
+   "ppy_check": "scripts/pair_pipeline_permit_yoy_spy.py:41 PERIODS_PER_YEAR = 12; used in ann_metrics at :156 (ppy = PERIODS_PER_YEAR) and :159 (sharpe = mean/std*sqrt(ppy)). The same ann_metrics computes both the IS and OOS metrics.",
+   "stale_narrative_lines": "app/pair_configs/permit_yoy_spy_config.py: all of these still describe chg_12m/T_roll_p50/L9 with OOS Sharpe 1.31, return 13.0%, drawdown -8.1%, 29 trades and turnover 3.55, or call the winner OOS-selected: 15-30, 39, 54-62 (bootstrap p and the runner-up 1.171), 67, 91-93, 108, 127-144, 174, 268, 273, 449, 472-477, 492-505, 517-538, 550, 573-575, 582-587, 592, 604, 627-628. Line 646 has a lead grid (0,1,2,3,6,9,12) that was already stale before this port. Lines 56 and 74 cite 20261008 bootstrap and core_models paths inside the prose. I did not edit these because they are narrative.",
+   "gates": "validate_all_schemas: PASS (35 pairs, 137 pass, 0 fail; all permit_yoy_spy JSONs PASS). validate_schema on winner_summary, evidence_status, signal_scope, interpretation_metadata, analyst_suggestions: all OK. gate_consistency permit_yoy_spy: 0 hard failures; new expected soft warn E (config cites neither 0.2014 nor 0.20, and does not mention L10) because the narrative still describes the old winner. HEAD baseline was [OK]. gate_lead_axis permit_yoy_spy: 0 PASS / 0 FAIL / 1 no-artifacts (no lead_sharpe_distribution.json or lead_tournament csv); identical at HEAD, so this was already there. validate_pair_completeness --pair permit_yoy_spy: FAIL 16 FAIL / 0 WARN / 114 PASS; the FAIL lines are byte-identical to the HEAD baseline (inflation_2022 episode chart and perceptual PNGs missing), so these were already there and nothing new failed. Perceptual-PNG RuntimeError skips (no chromium) were already there too.",
+   "risks": "1) The OOS result is much worse. The IS-selected winner's OOS Sharpe is 0.20, against 0.92 for buy-and-hold and 1.31 for the old winner. IS rank is 1 but OOS rank is 294 of 312. Across the grid, Spearman(IS, OOS) is -0.40, so IS performance predicts OOS performance negatively for this pair. 2) Removing the common start changes the winner to level/T0_zero/procyclical/L13 (own IS from 1994-02, IS 0.97, OOS 0.70), so the selection depends on the IS start date. The runner-up by IS is level/T0_zero/L7 (IS 0.93, OOS 0.52). 3) The legacy combo reproduces: OOS 1.3061146 against 1.3061137 in the 20261008 tournament row, a difference of 9.7e-7, just under the 1e-6 tolerance. The largest drift across the grid is 3.4e-6, from yfinance re-adjusting SPY prices, so a later rerun could go past 1e-6. 4) bootstrap.csv p is now the OOS percentile of an IS-selected winner, not a selection-bias statistic. Flagged, not changed. 5) The config narrative is stale throughout (see the line list), so the pair is NOT publishable until a separate narrative pass. 6) The chart caption on the tournament_sharpe_dist chart still says 'Distribution of OOS Sharpe' (the code at generate_charts:226 still plots OOS Sharpe, so the caption is accurate). The key_finding in interpretation_metadata reports the winner's OOS Sharpe and is still accurate. Nothing committed."
+  },
+  "verify": {
+   "pair": "permit_yoy_spy",
+   "verdict": "CONFIRMED_WITH_ISSUES",
+   "has_blocker": false,
+   "recomputed": "I recomputed from data/permit_yoy_spy_monthly_latest.parquet with my own code. The common IS window is 1997-12-31 to 2017-06-30 (n=235) and OOS starts 2017-07-31. New winner level/T_roll_p75/procyclical/L10: IS 0.9409, OOS 0.2014, which matches the claim. Old winner chg_12m/T_roll_p50/procyclical/L9: IS 0.5236, OOS 1.3061, which matches. Buy-and-hold: IS 0.5143, OOS 0.9212, which matches. Across all 312 candidates the maximum IS difference vs the tournament CSV is 9e-17 and the maximum OOS difference is 2e-16. Spearman(IS,OOS) = -0.400, which matches the claim.",
+   "checks": "1. No lookahead found. The lead grid is range(1,14), so the minimum lead is 1. The signal is shifted by `lead` and the threshold is shifted by `lead`, with no extra position shift. Thresholds are trailing only (rolling 60 with min_periods=24, and 0/1.0 constants). The z-score is a trailing rolling 60 as well. Selection reads only is_sharpe, and OOS appears only in the legacy and sensitivity outputs. Every candidate has IS start 1997-12-31 (a single unique is_start across the CSV). IS is below oos_start (2017-07-31) and OOS is at or above it, so there is no overlap. The split boundary is correct.\n2. Winner = argmax is_sharpe among the 312 IS-valid rows, which is level/T_roll_p75/procyclical/L10, matching the winner JSON.\n3. PPY: ann_metrics uses sqrt(12) for IS and OOS alike. The one function computes both, so the IS and OOS annualisation is the same.\n4. winner_summary.json and tournament_winner.json are identical. kpis.json has winner_oos_sharpe 0.201389 and benchmark 0.921205, both consistent. The old winner appears only in the legacy fields (selection.legacy_oos_selected_row, legacy_oos_selection CSV). evidence_status.json has no old-winner mention. Both winner_summary and tournament_winner still contain the strings 'chg_12m' and '1.306', but only in those intentional legacy/sensitivity or runner-up fields. signal_scope.json also contains 'chg_12m', which is probably just the signal listing. I did not grep further to confirm that.\n5. Old dated files are untouched. `git diff --name-status HEAD -- results/permit_yoy_spy data | grep -v 20261015` shows only modified undated files. No 20261008 files appear as modified or deleted, and the 20261008 files are not touched. The undated modified files are the expected regenerated outputs. The modified data/unrate_spy_monthly_latest.parquet belongs to another pair, not this one.\n6. gate_consistency permit_yoy_spy: 0 hard failures, plus the expected soft warning E twice because the config narrative is stale. validate_schema returns OK for winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "The config narrative is stale throughout and still describes the old winner. This is expected, and the maker flagged it. The soft gate warning E (config cites neither 0.2014 nor 0.20, and omits L10) is the visible effect. The pair is not publishable until a narrative pass."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The IS-selected winner is a poor out-of-sample result. Its OOS Sharpe is 0.20 against 0.92 for buy-and-hold. Its OOS rank is 294 of 312, and Spearman(IS,OOS) is -0.40. The selection also depends on the IS start. Without the common start, the winner is level/T0_zero/procyclical/L13 (own-start IS 0.97, OOS 0.70). This is correctly disclosed in the winner JSON and the legacy CSV, so it is a finding rather than a defect."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "bootstrap.csv p is now the OOS percentile of an IS-selected winner, not a selection-bias statistic, as the maker flagged. The legacy combo reproduces at 9.7e-7, close to the 1e-6 tolerance, because yfinance re-adjusts SPY prices, so a later rerun could drift past it. Neither affects the numbers."
+    }
+   ]
+  }
+ },
+ {
+  "pair": "retail_inv_sales_spy",
+  "maker": {
+   "pair": "retail_inv_sales_spy",
+   "verdict": "DONE",
+   "files_changed": [
+    "/workspaces/aig-rlic-plus/scripts/pair_pipeline_retail_inv_sales_spy.py",
+    "/workspaces/aig-rlic-plus/scripts/generate_charts_retail_inv_sales_spy.py",
+    "/workspaces/aig-rlic-plus/app/pair_configs/retail_inv_sales_spy_config.py (download paths L518-519 only)",
+    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/tournament_results_20261015.csv (new)",
+    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/legacy_oos_selection_20261015.csv (new)",
+    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/{strategy_returns_20261015.csv,strategy_returns_20261015_meta.json,signals_20261015.parquet,stationarity_tests_20261015.csv,pipeline_timing_20261015.json,core_models_20261015/,tournament_validation_20261015/} (new)",
+    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/{winner_summary.json,tournament_winner.json,evidence_status.json,interpretation_metadata.json,signal_scope.json,analyst_suggestions.json,kpis.json,winner_trade_log.csv,winner_trades_broker_style.csv,subperiod_sharpe.csv,granger_by_lag.csv,regime_quartile_returns.csv,rolling_correlation_retail_inv_sales_spy.csv,structural_break_retail_inv_sales_spy.json} (regenerated undated)",
+    "/workspaces/aig-rlic-plus/data/{data_dictionary,summary_stats}_retail_inv_sales_spy_20261015.csv, missing_value_report_retail_inv_sales_spy_20261015.md (new)",
+    "/workspaces/aig-rlic-plus/output/charts/retail_inv_sales_spy/plotly/* (regenerated)",
+    "/workspaces/aig-rlic-plus/_pws/lead-lesandro/pkg1_is_oos/retail_inv_sales_spy_compare_floor.csv (new)"
+   ],
+   "new_winner": "level/T_roll_p50/procyclical/L6",
+   "new_is_sharpe": 0.886476,
+   "new_oos_sharpe": 0.732422,
+   "new_oos_ann_return": 0.080344,
+   "new_max_dd": -0.151068,
+   "old_winner": "level/T_roll_p50/procyclical/L3",
+   "old_oos_sharpe": 1.233823,
+   "old_is_sharpe": 0.576693,
+   "old_is_rank": 27,
+   "bh_oos_sharpe": 0.910625,
+   "bh_is_sharpe": 0.507873,
+   "is_window": "1998-01-31 to 2017-05-31 (common_is_start 1998-01-31, set by zscore_60m x T_roll_p50 x L14: the 60m z-score warm-up plus a 24m-min rolling threshold plus the max lead)",
+   "is_n": 233,
+   "oos_window": "2017-06-30 to 2025-07-31 (oos_start unchanged, 25%-clamp lineage)",
+   "oos_n": 98,
+   "n_candidates": 312,
+   "n_is_valid": 312,
+   "lead_grid": "L2..L14 months (list(range(2,15)), the #255 floor, kept unchanged; min lead 2 >= 1, no L0)",
+   "spearman_is_oos": 0.2947,
+   "winner_same_without_common_start": true,
+   "legacy_reproduces_published": true,
+   "ppy_check": "scripts/pair_pipeline_retail_inv_sales_spy.py:37 PERIODS_PER_YEAR = 12; :151 ppy = PERIODS_PER_YEAR inside ann_metrics, which computes both the IS and OOS metrics (sqrt(12)); turnover also uses PERIODS_PER_YEAR",
+   "stale_narrative_lines": "app/pair_configs/retail_inv_sales_spy_config.py: docstring 16-19 (L3, OOS 1.23 vs 0.91 'grid maximum'), 51-58 (DD/return/bootstrap figures for the L3 rule, plus a 20261008 bootstrap path), 45/67/72/75 (core_models_/stationarity_/tournament_results_/tournament_validation_20261008 paths in prose), 69 (winner L3); page text 92 ('Sharpe 1.23 OOS' headline), 130 (3-month lead, -8.8% vs -23.9%), 139/142 (1.23 vs 0.91), 174 (procyclical 3-month rule, Sharpe 1.23, DD -8.8%, return 12.1%), 180 and 184 (3-month-lagged rule), 194/205/238 (subperiod Sharpes of the old winner), 457 ('improves search-phase OOS Sharpe'). The new winner's OOS Sharpe 0.73 is BELOW B&H 0.91, so the headline framing has to flip.",
+   "gates": "validate_all_schemas: PASS (35 pairs, 137 pass, 0 fail, 3 skip). validate_schema on retail_inv_sales_spy winner_summary/evidence_status/signal_scope/interpretation_metadata/analyst_suggestions: all OK. gate_consistency retail_inv_sales_spy: 0 hard fails; expected soft WARN E (config does not cite 0.73 / L6, so the narrative is stale; this blocks publishing until the narrative is rewritten). gate_lead_axis retail_inv_sales_spy: 0 PASS / 0 FAIL / 1 no-artifacts (no lead_sharpe_distribution.json or lead_tournament csv). This is PRE-EXISTING and identical at the HEAD baseline. validate_pair_completeness --pair retail_inv_sales_spy: 14 FAIL / 116 PASS. All 14 are perceptual-check PNGs (no chromium), and the FAIL list is identical to the HEAD baseline worktree, so all are PRE-EXISTING. No new failures.",
+   "risks": "1) Legacy acceptance: the legacy OOS-argmax row reproduces the published combo exactly (level/T_roll_p50/pro/L3). Its OOS Sharpe is 1.2338211 vs published 1.2338226 in the tournament row (1.233823 in winner_summary). The gap of about 1.5e-6 is just over the 1e-6 tolerance. Cause: yfinance auto_adjust float drift in SPY returns (max abs monthly return diff 1.49e-6 vs strategy_returns_20261008; max OOS-Sharpe diff across all 312 rows 5.7e-6; ranking unchanged). I judged this immaterial and did not stop; the Lead should confirm. 2) The IS-selected winner (OOS 0.73) underperforms B&H OOS (0.91) and is OOS-rank 143/312. The old L3 winner ranks 27th by IS Sharpe (0.58). Spearman(IS, OOS) is only 0.29. 3) Every one of the 312 candidates is IS-valid (exposure band never binds on 233 months). The common-start and own-start selections agree (L6, own-start IS 0.92 from 1995-06). 4) Runner-up by IS: level/T_roll_p25/L8 (IS 0.74, OOS 0.99). 5) bootstrap.csv p-value (valid.oos_sharpe >= winner.oos_sharpe) is now the OOS percentile of an IS-selected winner, not a selection-bias statistic. Flagged, not changed. 6) interpretation_metadata key_finding still says 'Best search-phase rule ... with OOS Sharpe' (unchanged, as in the pilot). Notes no longer hardcode 'rolling-median'. 7) The narrative is not rewritten, so the pair is not publishable until the narrative pass. Nothing was committed."
+  },
+  "verify": {
+   "pair": "retail_inv_sales_spy",
+   "verdict": "CONFIRMED",
+   "has_blocker": false,
+   "recomputed": "I rebuilt all 312 candidates from data/retail_inv_sales_spy_monthly_latest.parquet with my own code. The common IS start is 1998-01-31 and the OOS start is 2017-06-30. New winner level/T_roll_p50/procyclical/L6: IS 0.8865, OOS 0.7324 (claimed 0.886476 / 0.732422). Old winner L3: IS 0.5767, OOS 1.2338 (claimed 0.576693 / 1.233823). B&H: IS 0.5079, OOS 0.9106 (claimed 0.507873 / 0.910625). Spearman(IS, OOS) = 0.2947 (claimed 0.2947). The IS argmax is L6. All figures are within 0.01.",
+   "checks": "Lookahead/leakage: none found. Leads are range(2,15), so the minimum is 2. The signal and the threshold are both shifted by the lead, with no extra position shift. Thresholds are trailing rolling quantiles and the z-score is a trailing 60m window. IS is [common_is_start, oos_start) and OOS is >= oos_start, so they do not overlap. All candidates share the same IS start. Selection uses valid.is_sharpe.idxmax(), and OOS is not read for selection. The OOS-valid pool is used only for the legacy comparison.\nSplit boundary: IS ends 2017-05-31, OOS starts 2017-06-30.\nPPY: PERIODS_PER_YEAR=12, and ann_metrics uses it for both IS and OOS (sqrt(12)).\nWinner consistency: winner_summary.json and tournament_winner.json both show level/T_roll_p50/L6, OOS 0.732422, IS 0.886476 and objective max_is_sharpe. kpis.json shows OOS 0.732422, B&H 0.910625 and DD -0.151068, and matches. The old L3 winner appears only in the legacy_oos_selected_row field and in legacy_oos_selection_20261015.csv.\nOld dated files: no dated 20260831 or 20261008 file is modified. The diff shows only the undated artifacts as modified, which is expected. data/unrate_spy_monthly_latest.parquet is another agent's file.\nGates: gate_consistency reports 0 hard fails, with only the expected soft WARN E (stale narrative). validate_schema returned OK on winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "The legacy OOS Sharpe is 1.2338211 against the published 1.233823. The gap is about 1.5e-6, from yfinance float drift. It is immaterial and the ranking is unchanged."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The config narrative is stale (L3, OOS 1.23, and the old 20261008 paths). The gate shows soft WARN E, and the pair is not publishable until the narrative is rewritten."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The bootstrap p-value now measures the OOS percentile of an IS-selected winner, not selection bias. The maker flagged this. The new winner's OOS Sharpe of 0.73 is below B&H's 0.91, so the headline has to flip."
+    }
+   ]
+  }
+ },
+ {
+  "pair": "rsxfs_spy",
+  "maker": {
+   "pair": "rsxfs_spy",
+   "verdict": "DONE",
+   "files_changed": [
+    "scripts/pair_pipeline_rsxfs_spy.py",
+    "scripts/generate_charts_rsxfs_spy.py",
+    "app/pair_configs/rsxfs_spy_config.py (lines 496-497 download paths only)",
+    "results/rsxfs_spy/* (winner_summary.json, tournament_winner.json, evidence_status.json, interpretation_metadata.json, analyst_suggestions.json, signal_scope.json, kpis.json, granger_by_lag.csv, regime_quartile_returns.csv, rolling_correlation_rsxfs_spy.csv, structural_break_rsxfs_spy.json, subperiod_sharpe.csv, winner_trade_log.csv, winner_trades_broker_style.csv; NEW tournament_results_20261015.csv, legacy_oos_selection_20261015.csv, strategy_returns_20261015.csv(+_meta.json), signals_20261015.parquet, stationarity_tests_20261015.csv, pipeline_timing_20261015.json, core_models_20261015/, tournament_validation_20261015/)",
+    "data/data_dictionary_rsxfs_spy_20261015.csv, data/missing_value_report_rsxfs_spy_20261015.md, data/summary_stats_rsxfs_spy_20261015.csv (new)",
+    "output/charts/rsxfs_spy/plotly/* (regenerated)",
+    "_pws/lead-lesandro/pkg1_is_oos/rsxfs_spy_compare_floor.csv (new)"
+   ],
+   "new_winner": "yoy/T_roll_p25/procyclical/L3",
+   "new_is_sharpe": 0.903982,
+   "new_oos_sharpe": 0.728598,
+   "new_oos_ann_return": 0.097709,
+   "new_max_dd": -0.239272,
+   "old_winner": "mom/T0_zero/procyclical/L9",
+   "old_oos_sharpe": 1.402006,
+   "old_is_sharpe": 0.51534,
+   "old_is_rank": 108,
+   "bh_oos_sharpe": 0.996397,
+   "bh_is_sharpe": 0.428302,
+   "is_window": "2000-12-31 to 2016-12-31 (common IS start set by yoy_zscore_60m x T_roll_p50 x L13, both directions: 60m z-score warm-up + 60m rolling-quantile warm-up + 13m lead)",
+   "is_n": 193,
+   "oos_window": "2017-01-31 to 2026-09-30 (fixed oos_start kept)",
+   "oos_n": 117,
+   "n_candidates": 468,
+   "n_is_valid": 468,
+   "lead_grid": "L1..L13 months (range(1,14)); min lead = 1 (floored, no L0), unchanged",
+   "spearman_is_oos": -0.17,
+   "winner_same_without_common_start": false,
+   "legacy_reproduces_published": false,
+   "ppy_check": "scripts/pair_pipeline_rsxfs_spy.py:184-188 ann_metrics (used for IS, own-start and OOS) annualises with 12 / sqrt(12), which is correct for monthly; added PPY=12 at line 254, used for turnover at lines 309 and 419",
+   "stale_narrative_lines": "app/pair_configs/rsxfs_spy_config.py still describes the old mom/T0_zero/L9 winner (and already cited a stale 1.36 Sharpe before this port): docstring 13, 20-21, 28, 32-33, 38, 41-43; 60, 88-89, 99, 110, 129, 139, 408-434 (lead_durability block), 443, 462-463, 480-489, 501-513, 565, 575, 586, 604-607, 624, 649. Also scripts/generate_charts_rsxfs_spy.py:275-310 chart_lead_durability is hard-coded to the old rule (rsxfs_mom, T0_zero, procyclical, L9 highlight, 'L9 Winner Is a Spike' title and caption). It still renders, but now shows the legacy rule rather than the winner, and needs rework in the narrative pass.",
+   "gates": "validate_all_schemas: PASS (35 pairs, 137 pass, 0 fail, 3 skip). validate_schema on rsxfs_spy winner_summary, tournament_winner, evidence_status, signal_scope, interpretation_metadata, analyst_suggestions: all OK. gate_consistency rsxfs_spy: 0 hard fails; soft warn E (config prose does not cite 0.7286/0.73 or lead L3). This is expected until the narrative is rewritten and blocks publishing. HEAD also had an E warn because the config cited 1.36, not 1.40. gate_lead_axis rsxfs_spy: no-artifacts (no lead_tournament / lead_sharpe_distribution), same as HEAD, so pre-existing, not a fail. validate_pair_completeness --pair rsxfs_spy: FAIL 14 / PASS 124, with FAIL lines identical to the HEAD baseline (pre-existing: 'Final exam has been run' plus 13 perceptual PNGs skipped for lack of chromium). No new fails.",
+   "risks": "1) DATA DRIFT on the legacy acceptance check. The legacy OOS-argmax recomputation gives the same combo (mom/T0_zero/pro/L9) but OOS Sharpe 1.391771 vs published 1.402006, n=117 vs 116. Cause, diagnosed: the live FRED/yfinance pull added Sep-2026 (sample now ends 2026-09-30), and Census revised RSXFS for 2025-08..2026-08. Truncating to the published end (2026-08-31) reproduces 1.402007, matching published to about 1.4e-6, the same SPY adjusted-close noise seen in other pairs. All six signal columns are byte-identical before 2017, so the IS selection (window ends 2016-12-31) cannot be affected by the drift. Only the OOS metrics carry the extra month. I proceeded instead of stopping; Lead should confirm this is acceptable or ask for a pinned sample end. 2) The IS-selected winner underperforms buy-and-hold OOS (Sharpe 0.73 vs 1.00, max DD -23.9%, the same as B&H). The old 'drawdown defence' story (-9.6%) no longer holds. 3) Spearman(IS, OOS) across the grid is -0.17, so IS rank carries no OOS information here. Runner-up yoy/T_roll_p25/pro/L1 (IS 0.902, OOS 0.613) is nearly tied with the winner on IS. 4) The own-start sensitivity winner differs: mom/T_roll_p50/pro/L3 (own-IS 0.879 from 1996-04, OOS 0.486). 5) All 468 candidates are IS-valid and OOS-valid, so the validity filter does not bind. 6) bootstrap.csv p-value is now the OOS percentile of an IS-selected winner, not a selection-bias statistic (flagged, not changed). 7) The narrative and the lead_durability chart are stale (see stale_narrative_lines); the pair is not publishable until the narrative pass is done. 8) data/rsxfs_spy_monthly_latest.parquet (undated, untracked/ignored) was overwritten by the live pull. Nothing was committed. A HEAD worktree was used for the baseline and has been removed."
+  },
+  "verify": {
+   "pair": "rsxfs_spy",
+   "verdict": "CONFIRMED_WITH_ISSUES",
+   "has_blocker": false,
+   "recomputed": "I recomputed everything from data/rsxfs_spy_monthly_latest.parquet with my own code. New winner yoy/T_roll_p25/procyclical/L3: IS 0.9040, OOS 0.7286 (n=117). Claimed 0.903982 and 0.728598. Old winner mom/T0_zero/pro/L9: IS 0.5153, OOS 1.3918 (n=117). Claimed IS 0.5153 and a published OOS of 1.402. The 1.3918 matches the maker's disclosed legacy recompute, which carries the Sep-2026 extra month and the revised RSXFS data. Buy-and-hold: IS 0.4283, OOS 0.9964, matching the claim. I recomputed all 468 grid rows; the largest difference from the CSV is about 1e-16 for both IS and OOS. Spearman(IS,OOS) = -0.1697, matching the claim of -0.17.",
+   "checks": "1. Lookahead and leakage: no lookahead found.\n- Leads are range(1,14) with no L0.\n- Signal and threshold are both shifted by the lead.\n- Rolling quantiles and z-scores are trailing (rolling 60, min_periods 36).\n- The position is applied to the same-month SPY return after the shift, with no extra or missing shift.\n- IS uses index < 2017-01-31 and OOS uses index >= 2017-01-31, so they do not overlap.\n- All 468 candidates have is_start 2000-12-31 and is_n 193. My own recompute shows the latest candidate start is also 2000-12-31, so the common start is correct.\n- Selection reads only is_sharpe among IS-valid rows (is_valid). The legacy OOS argmax and the own-start argmax are written to side files and sensitivity fields only.\n\n2. Recompute: matches within 1e-6 (see above).\n\n3. PPY: ann_metrics uses sqrt(12) and 12/n for Sharpe, vol and annual return, and it is applied to IS, own-start and OOS alike. Turnover uses PPY=12.\n\n4. Winner consistency: argmax is_sharpe over the grid gives yoy/T_roll_p25/L3, which equals the winner. winner_summary.json and tournament_winner.json agree on signal, threshold, lead, IS, OOS and B&H. kpis.json has only the OOS Sharpe 0.7286 and the B&H Sharpe 0.9964, which is consistent. The old mom/L9 rule appears only in tournament_winner's legacy_oos_selected_row and sensitivity_own_is_start_row and in legacy_oos_selection_20261015.csv. signal_scope.json mentions rsxfs_mom only as a signal column.\n\n5. Old dated files: git diff --name-status HEAD -- results/rsxfs_spy data, filtered to exclude 20261015, lists only the undated rolling files. These are the expected winner and metadata outputs. All 20261008 files are untouched. data/unrate_spy_monthly_latest.parquet also shows as modified, but it belongs to another pair's concurrent work and is out of scope. Output charts show 40 modified files.\n\n6. Gates:\n- gate_consistency rsxfs_spy: 0 hard failures, plus two soft E warnings (config prose does not cite 0.7286 and does not mention L3). These are expected stale-narrative warnings.\n- validate_schema passed (OK) on winner_summary, tournament_winner, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "Stale narrative in app/pair_configs/rsxfs_spy_config.py and the hard-coded L9 chart_lead_durability in scripts/generate_charts_rsxfs_spy.py. The maker flagged both and the task treats them as expected. gate_consistency soft warn E fires until the narrative is rewritten, and the pair should not be published before that."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "Data drift: the legacy OOS Sharpe is now 1.3918 (n=117) against the published 1.4020 (n=116) because of the Sep-2026 extra month and revised RSXFS data. Pre-2017 signals are unaffected, so IS selection is unaffected. The Lead should decide whether to pin the sample end."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The IS-selected winner underperforms B&H out of sample (Sharpe 0.73 vs 1.00), and the grid has negative IS/OOS rank correlation (-0.17). The maker disclosed this."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The bootstrap.csv p-value semantics changed because the winner is now IS-selected. The maker flagged it and did not change it."
+    }
+   ]
+  }
+ },
+ {
+  "pair": "sloos_ci_small_spy",
+  "maker": {
+   "pair": "sloos_ci_small_spy",
+   "verdict": "DONE",
+   "files_changed": [
+    "/workspaces/aig-rlic-plus/scripts/pair_pipeline_sloos_ci_small_spy.py",
+    "/workspaces/aig-rlic-plus/scripts/generate_charts_sloos_ci_small_spy.py",
+    "/workspaces/aig-rlic-plus/app/pair_configs/sloos_ci_small_spy_config.py",
+    "/workspaces/aig-rlic-plus/results/sloos_ci_small_spy/ (winner_summary.json, tournament_winner.json, evidence_status.json, interpretation_metadata.json, analyst_suggestions.json, signal_scope.json, kpis.json, granger_by_lag.csv, regime_quartile_returns.csv, subperiod_sharpe.csv, rolling_correlation_*.csv, structural_break_*.json, winner_trade_log.csv, winner_trades_broker_style.csv; new: tournament_results_20261015.csv, legacy_oos_selection_20261015.csv, strategy_returns_20261015.csv(+_meta), signals_20261015.parquet, stationarity_tests_20261015.csv, pipeline_timing_20261015.json, core_models_20261015/, tournament_validation_20261015/)",
+    "/workspaces/aig-rlic-plus/output/charts/sloos_ci_small_spy/plotly/*.json (38 chart+meta JSONs regenerated)",
+    "/workspaces/aig-rlic-plus/data/data_dictionary_sloos_ci_small_spy_20261015.csv",
+    "/workspaces/aig-rlic-plus/data/missing_value_report_sloos_ci_small_spy_20261015.md",
+    "/workspaces/aig-rlic-plus/data/summary_stats_sloos_ci_small_spy_20261015.csv",
+    "/workspaces/aig-rlic-plus/data/sloos_ci_small_spy_quarterly_latest.parquet (undated, overwritten)",
+    "/workspaces/aig-rlic-plus/_pws/lead-lesandro/pkg1_is_oos/sloos_ci_small_spy_compare_floor.csv"
+   ],
+   "new_winner": "level/T_roll_p75/countercyclical/L2",
+   "new_is_sharpe": 0.897474,
+   "new_oos_sharpe": 0.338945,
+   "new_oos_ann_return": 0.039977,
+   "new_max_dd": -0.253635,
+   "old_winner": "level/T0_zero/procyclical/L3",
+   "old_oos_sharpe": 1.508513,
+   "old_is_sharpe": 0.078067,
+   "old_is_rank": 85,
+   "bh_oos_sharpe": 0.890979,
+   "bh_is_sharpe": 0.432354,
+   "is_window": "1999-12-31 to 2017-09-30 (common_is_start 1999-12-31, set by the zscore_20q x T_roll_p50 x L5 family: 20q z-score warm-up of 12q, then a 12q rolling-threshold warm-up, then a 5q lead)",
+   "is_n": 72,
+   "oos_window": "2017-12-31 to 2025-09-30 (oos_start unchanged, 25%-clamp lineage K=20 CAP=40)",
+   "oos_n": 32,
+   "n_candidates": 120,
+   "n_is_valid": 120,
+   "lead_grid": "L1..L5 quarters (range(1,6)). Already floored, min lead 1, unchanged; all 120 candidates have is_n=72, which is at least MIN_IS_N=20",
+   "legacy_reproduces_published": true,
+   "winner_same_without_common_start": false,
+   "spearman_is_oos": -0.529,
+   "ppy_check": "scripts/pair_pipeline_sloos_ci_small_spy.py:160-163. ann_metrics sets ppy = PERIODS_PER_YEAR (=4, line 45) and uses sqrt(4) for Sharpe and vol. The same function computes the IS, own-start and OOS metrics. Turnover divides by PERIODS_PER_YEAR.",
+   "gates": "validate_all_schemas: PASS (35 pairs, 137 pass, 0 fail, 3 skip). validate_schema on the sloos winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions: all 5 OK. gate_consistency sloos_ci_small_spy: OK, 0 hard failures. The expected E soft warn did NOT fire, even though the config prose still cites OOS Sharpe 1.51 (see risks). gate_lead_axis sloos_ci_small_spy: no artifacts (no lead_tournament CSV and no lead_sharpe_distribution chart). This was already the case before the port, not a FAIL. validate_pair_completeness: 16 FAIL, 0 WARN, 114 PASS. The fail list matches the HEAD baseline (scratch worktree, now removed) line for line, so all 16 are pre-existing and none is new. They are: DPS-PRE1 final exam not run (found_in_search); 9 perceptual PNGs (no chromium); 6 DPS-EP1 history_zoom inflation_2022 / zoom PNG items.",
+   "risks": "1) The narrative in app/pair_configs/sloos_ci_small_spy_config.py is stale and must be rewritten before publish. The direction story flips: the new winner is COUNTERCYCLICAL, which matches the prior, so every 'procyclical contradicts the prior' passage is now wrong. The OOS-median 0.60 has also been replaced by an IS-median objective. Stale lines: 16-18, 29-30, 38, 62, 78, 98, 108-109, 135, 162-165, 182, 230, 239, 259-261, 272, 277, 295-300, 428, 565-571, 583, 624-637, 648-660, 684-695, 709-711, 732-735, 749-754, 773, 779, 781, 789, 791, 808, 816, 857-860, 869, 879, 899 (trade reason: '>= 0 vs T0_zero'), 926 ('L0..L4' was already stale before this port), 977-983 ('maximizing OOS Sharpe' / L3q), 999. I only bumped the dated paths (14 refs, 20261008 to 20261015). 2) gate_consistency E did not flag that the prose still cites 1.51/0.89, so the gate cannot be relied on to catch the stale narrative here. 3) The IS-selected winner does badly OOS: Sharpe 0.34 vs B&H 0.89, ann return 4.0%, max DD -25.4%. Its OOS rank is 103 of 120. Spearman(IS, OOS) is -0.53, so IS rank tends to reverse OOS. The own-start sensitivity picks a different rule, level/T0_zero/countercyclical/L2 (own IS 1.01 from 1993-09, OOS 0.20), so the winner is not robust to the common-start choice. 4) bootstrap.csv p=0.85 is now the OOS percentile of an IS-selected winner, not a selection-bias statistic. I flagged it and did not change it. 5) Small SPY drift from the live yfinance pull changed granger_by_lag.csv slightly. The legacy row still reproduces the published OOS Sharpe 1.508513 to 1e-6. 6) Nothing committed (per instructions)."
+  },
+  "verify": {
+   "pair": "sloos_ci_small_spy",
+   "verdict": "CONFIRMED_WITH_ISSUES",
+   "has_blocker": false,
+   "recomputed": "I recomputed every number from data/sloos_ci_small_spy_quarterly_latest.parquet with my own code, using the dropna convention. The new winner is level/T_roll_p75/countercyclical/L2. Its IS Sharpe is 0.8975 (claimed 0.897474) and its OOS Sharpe is 0.3389 (claimed 0.338945). The old winner is level/T0_zero/procyclical/L3. Its IS Sharpe is 0.0781 (claimed 0.078067), its OOS Sharpe is 1.5085 (claimed 1.508513), and its IS rank is 85. Buy-and-hold has IS Sharpe 0.4324 and OOS Sharpe 0.8910, matching the claims. Across all 120 candidates the maximum absolute difference from the tournament CSV is under 1e-15 for both IS and OOS Sharpe. Spearman(IS, OOS) is -0.5294, matching the claimed -0.529. The common IS start is 1999-12-31. The OOS start is 2017-12-31 (32 quarters). The IS block has 72 quarters, ending 2017-09-30.",
+   "checks": "1. Lookahead and leakage: no issues found.\n- Every lead is in range(1,6), so the minimum is 1. Both the signal and the threshold are shifted by the same lead.\n- The position series is built from the lagged signal and lagged threshold, and returns are position times spy_ret with no extra shift.\n- Thresholds are trailing only. Rolling quantiles use a 20-quarter window with min_periods=12, and the zscore uses rolling mean and std. The thresholds T0_zero, T_z_0 and T_z_1.0 are constants.\n- The IS window is [common_is_start, oos_start) and the OOS window is >= oos_start, so they do not overlap.\n- common_is_start is the latest first-valid-return date across all 120 candidates, and every candidate has is_n=72.\n- The winner is chosen with idxmax of is_sharpe over IS-valid rows. OOS is not read during selection. oos_valid is only used for the legacy comparison row.\n- One pre-existing note: SLOOS release lag is not modelled beyond the 1-quarter minimum lead. This is not new.\n2. Independent recompute: see the recomputed field. Everything is within 0.01.\n3. PPY: ann_metrics uses sqrt(PERIODS_PER_YEAR=4) for Sharpe and vol. The same function computes IS, own-start, OOS and B&H metrics. My recompute used sqrt(4) throughout and matched.\n4. Winner consistency: my argmax of IS Sharpe matches the claimed winner. winner_summary.json and tournament_winner.json are identical. kpis.json carries OOS 0.338945 and B&H 0.890979. evidence_status.json describes IS selection. interpretation_metadata key_finding says L2q with OOS Sharpe 0.34. The old winner T0_zero/procyclical/L3 appears only in the legacy and sensitivity fields of selection (legacy_oos_selected_row and sensitivity_own_is_start_row) and in the old 20261008 meta file.\n5. Older dated files: git diff --name-status HEAD on the sloos paths shows only modified undated files (winner_summary, tournament_winner, kpis, evidence_status, interpretation_metadata, analyst_suggestions, signal_scope, granger, regime, subperiod, rolling_correlation, structural_break, trade logs). No 20261008 file is modified, deleted or overwritten. The 20261015 files are new untracked files. The undated data parquet shows no diff versus HEAD in git.\n6. Gates:\n- gate_consistency sloos_ci_small_spy: OK, 0 hard failures.\n- validate_schema with explicit --schema and --instance on winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions: all 5 OK.\n- validate_all_schemas: pass=137, fail=0, skip=3.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "The config narrative in app/pair_configs/sloos_ci_small_spy_config.py is stale. It still cites OOS Sharpe 1.51 and a procyclical direction story. The maker flagged this and the lead said it is expected. It must be rewritten before publish."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "gate_consistency does not flag the stale prose citing 1.51 or 0.89. The expected E soft warning did not fire, so the gate cannot be relied on to catch this narrative."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The IS-selected winner is weak out of sample: OOS Sharpe 0.34 against B&H 0.89, and OOS rank 103 of 120. Spearman(IS, OOS) is -0.53. The own-start sensitivity picks a different rule (level/T0_zero/countercyclical/L2), so the winner depends on the common-start choice. This is a finding, not a defect."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "bootstrap.csv p=0.85 is now the OOS percentile of an IS-selected winner, not a selection-bias statistic. The maker flagged it and left it unchanged."
+    }
+   ]
+  }
+ },
+ {
+  "pair": "umcsent_spy",
+  "maker": {
+   "pair": "umcsent_spy",
+   "verdict": "DONE",
+   "files_changed": [
+    "scripts/pair_pipeline_umcsent_spy.py",
+    "scripts/generate_charts_umcsent_spy.py",
+    "app/pair_configs/umcsent_spy_config.py (lines 525-526 dated paths only)",
+    "results/umcsent_spy/winner_summary.json",
+    "results/umcsent_spy/tournament_winner.json",
+    "results/umcsent_spy/evidence_status.json",
+    "results/umcsent_spy/interpretation_metadata.json",
+    "results/umcsent_spy/signal_scope.json",
+    "results/umcsent_spy/analyst_suggestions.json",
+    "results/umcsent_spy/kpis.json",
+    "results/umcsent_spy/winner_trade_log.csv",
+    "results/umcsent_spy/winner_trades_broker_style.csv",
+    "results/umcsent_spy/granger_by_lag.csv",
+    "results/umcsent_spy/regime_quartile_returns.csv",
+    "results/umcsent_spy/rolling_correlation_umcsent_spy.csv",
+    "results/umcsent_spy/structural_break_umcsent_spy.json",
+    "results/umcsent_spy/subperiod_sharpe.csv",
+    "NEW results/umcsent_spy/tournament_results_20261015.csv",
+    "NEW results/umcsent_spy/legacy_oos_selection_20261015.csv",
+    "NEW results/umcsent_spy/stationarity_tests_20261015.csv",
+    "NEW results/umcsent_spy/strategy_returns_20261015.csv (+_meta.json)",
+    "NEW results/umcsent_spy/signals_20261015.parquet",
+    "NEW results/umcsent_spy/pipeline_timing_20261015.json",
+    "NEW results/umcsent_spy/core_models_20261015/",
+    "NEW results/umcsent_spy/tournament_validation_20261015/",
+    "NEW data/{data_dictionary,summary_stats}_umcsent_spy_20261015.csv, data/missing_value_report_umcsent_spy_20261015.md",
+    "output/charts/umcsent_spy/plotly/*.json (19 charts + meta regenerated)",
+    "NEW _pws/lead-lesandro/pkg1_is_oos/umcsent_spy_compare_floor.csv"
+   ],
+   "new_winner": "chg_12m/T_roll_p50/countercyclical/L4",
+   "new_is_sharpe": 0.958286,
+   "new_oos_sharpe": 0.385332,
+   "new_oos_ann_return": 0.036493,
+   "new_max_dd": -0.239272,
+   "old_winner": "chg_12m/T_roll_p50/procyclical/L9",
+   "old_oos_sharpe": 1.427042,
+   "old_is_sharpe": 0.186475,
+   "old_is_rank": 257,
+   "bh_oos_sharpe": 0.931524,
+   "bh_is_sharpe": 0.520098,
+   "is_window": "1997-12-31 to 2017-07-31 (common IS start set by zscore_60m x T_roll_p50 x L13, both directions)",
+   "is_n": 236,
+   "oos_window": "2017-08-31 to 2025-09-30 (oos_start unchanged, 25%-clamp lineage)",
+   "oos_n": 98,
+   "n_candidates": 312,
+   "n_is_valid": 312,
+   "lead_grid": "lead_months 1..13 (min lead 1, floor kept; no L0)",
+   "spearman_is_oos": -0.3216,
+   "legacy_reproduces_published": true,
+   "winner_same_without_common_start": true,
+   "ppy_check": "scripts/pair_pipeline_umcsent_spy.py:37 PERIODS_PER_YEAR = 12; ann_metrics at :144-160 uses ppy = PERIODS_PER_YEAR (sqrt(12)) for both IS and OOS; turnover uses PPY = PERIODS_PER_YEAR inside run_tournament",
+   "stale_narrative_lines": "app/pair_configs/umcsent_spy_config.py, all still describe the old procyclical L9 winner at 1.43 Sharpe, median 0.659, drawdown -7.6%, 168 combos, direction_consistent=true: 25-39, 61-62, 65-69, 74, 77-80 (core_models_20261008 cites), 97-100, 108-138, 145-149, 181, 187, 191, 201-254 (stress-window subperiod numbers), 340-357, 462-494, 505-519, 530-536, 589-603, 609, 621, 644-646, 655, 664, 690-693. Also scripts/generate_charts_umcsent_spy.py:10 docstring ('PROCYCLICAL at a 6-month lead'), a comment only.",
+   "gates": "validate_all_schemas: PASS (137 pass / 0 fail / 3 skip across 35 pairs; all umcsent_spy files PASS). validate_schema on umcsent_spy winner_summary, evidence_status, signal_scope, interpretation_metadata, analyst_suggestions: all OK. gate_consistency umcsent_spy: 0 hard failures, but a soft WARN on check E (config cites neither 0.3853 nor 0.39, and does not mention L4). This warning is new and expected: the narrative is stale until it is rewritten. gate_lead_axis umcsent_spy: no artifacts (0 PASS, 0 FAIL), same as HEAD. validate_pair_completeness --pair umcsent_spy: FAIL 14 / WARN 0 / PASS 116, the same fail list as the HEAD baseline. All 14 fails were already there: DPS-PRE1 final exam not run, plus 13 perceptual PNGs missing because chromium is not installed. No new fails.",
+   "risks": "1) The winner flipped direction. The new IS-selected winner is COUNTERCYCLICAL (chg_12m/T_roll_p50/L4), which goes against the procyclical economic prior. interpretation_metadata now has direction_consistent=false. Out of sample it trails buy-and-hold: OOS Sharpe 0.39 vs 0.93, annual return 3.6%, max drawdown -23.9%. Its OOS rank is 276 of 312. 2) IS and OOS disagree across the grid: Spearman(IS, OOS) is -0.32. The old OOS winner ranks 257 of 312 on IS Sharpe (0.19). The published 1.43 Sharpe was a selection artifact of OOS-argmax. 3) The config narrative is wholly stale (procyclical L9, 1.43, drawdown story, direction_consistent=true, stress-window numbers). Per the PORT_GUIDE, the pair is NOT publishable until the narrative pass is done; the gate_consistency E soft warn blocks a cloud push. 4) bootstrap.csv p=0.88 is now the OOS percentile of an IS-selected winner, not a selection-bias statistic. Flagged, not changed. 5) SPY is re-downloaded live from Yahoo. Legacy reproduction matched the published OOS Sharpe within about 3e-7 (1.427042669 vs 1.427042392 in tournament_results_20261008). The largest grid-wide OOS drift is 4e-6. 6) Runner-up by IS is chg_12m/T_roll_p50/L1 (IS 0.89, OOS 0.42). The sensitivity run without the common start picks the same winner (own-start IS 1.00 from 1996-04). 7) All 312 candidates pass IS validity, so the validity filter does not bind. Nothing was committed. The scratch baseline worktree was removed."
+  },
+  "verify": {
+   "pair": "umcsent_spy",
+   "verdict": "CONFIRMED",
+   "has_blocker": false,
+   "recomputed": "I recomputed all 312 candidates from data/umcsent_spy_monthly_latest.parquet, with my own code and sqrt(12) annualisation. The common IS start is 1997-12-31, OOS starts 2017-08-31, IS n=236 and OOS n=98. Per-candidate IS and OOS Sharpe match the tournament CSV to within 2e-16.\n- New winner (chg_12m / T_roll_p50 / countercyclical / L4): IS 0.9583 and OOS 0.3853, claimed 0.958286 and 0.385332.\n- Old winner (chg_12m / T_roll_p50 / procyclical / L9): IS 0.1865 and OOS 1.4270, claimed 0.186475 and 1.427042.\n- Buy-and-hold: IS 0.5201 and OOS 0.9315, claimed 0.520098 and 0.931524.\n- Spearman(IS, OOS) is -0.3216, claimed -0.3216.\n- All 312 candidates are IS-valid.\n- The top three by IS Sharpe are L4 at 0.958, L1 at 0.893 and chg_12m/T0_zero/countercyclical/L4 at 0.852. Maker's runner-up claim (L1, IS 0.89) holds.",
+   "checks": "- Lookahead and leakage: no problems found.\n  - The lead grid is 1..13 months, so the minimum lead is 1.\n  - Signal and threshold are both shifted by the lead, with no extra position shift.\n  - Rolling percentile and 60-month z-score thresholds are trailing only. The only fixed thresholds are 0.0 and 1.0 on the z-score.\n  - IS is [common_is_start, oos_start) and OOS is >= oos_start, so they do not overlap.\n  - Every candidate's IS block starts at the same common_is_start.\n  - The winner comes from is_sharpe.idxmax() over IS-valid rows only. The OOS-valid filter is used only for the legacy row.\n- Annualisation: ann_metrics uses sqrt(PERIODS_PER_YEAR=12) for both IS and OOS, and turnover uses the same constant.\n- Winner consistency: winner_summary.json and tournament_winner.json agree (chg_12m / T_roll_p50 / countercyclical / L4, IS 0.958286, OOS 0.385332, BH OOS 0.931524). kpis.json carries 0.385332 and 0.931524. evidence_status.json is found_in_search with an updated technical note. interpretation_metadata has direction_consistent=false. The old L9 winner appears in winner_summary.json only at lines 102-103, in the selection legacy and runner-up block, which is intentional.\n- Old dated files: nothing changed vs HEAD in the 20260831 and 20261008 files. The undated files that show as modified are the expected winner and KPI files. data/unrate_spy_monthly_latest.parquet shows as modified, but that belongs to another pair.\n- Gates: gate_consistency umcsent_spy gives 0 hard failures and one soft warn on check E (stale narrative, expected). All five umcsent_spy JSONs (winner_summary, evidence_status, signal_scope, interpretation_metadata, analyst_suggestions) pass validate_schema. I did not re-run validate_all_schemas or validate_pair_completeness.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "app/pair_configs/umcsent_spy_config.py narrative still describes the old procyclical L9 winner at 1.43 Sharpe. This is stale as the maker disclosed, and it blocks the cloud push until the narrative pass is done (gate_consistency soft warn E)."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The winner flipped to countercyclical and trails buy-and-hold out of sample (0.39 vs 0.93). The bootstrap p=0.88 is now the OOS percentile of an IS-selected winner, not a selection-bias statistic, as the maker already flagged."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "oos_start is derived from a live Yahoo SPY download, so a re-run on newer data would shift the split. This is a reproducibility note only."
+    }
+   ]
+  }
+ },
+ {
+  "pair": "unrate_spy",
+  "maker": {
+   "pair": "unrate_spy",
+   "verdict": "DONE",
+   "files_changed": [
+    "/workspaces/aig-rlic-plus/scripts/pair_pipeline_unrate_spy.py",
+    "/workspaces/aig-rlic-plus/scripts/generate_charts_unrate_spy.py",
+    "/workspaces/aig-rlic-plus/app/pair_configs/unrate_spy_config.py (lines 369-370 download paths only)",
+    "/workspaces/aig-rlic-plus/results/unrate_spy/tournament_results_20261015.csv (new)",
+    "/workspaces/aig-rlic-plus/results/unrate_spy/legacy_oos_selection_20261015.csv (new)",
+    "/workspaces/aig-rlic-plus/results/unrate_spy/strategy_returns_20261015.csv + _meta.json, signals_20261015.parquet, stationarity_tests_20261015.csv, pipeline_timing_20261015.json, core_models_20261015/, tournament_validation_20261015/ (new)",
+    "/workspaces/aig-rlic-plus/results/unrate_spy/{winner_summary,tournament_winner,evidence_status,interpretation_metadata,analyst_suggestions,signal_scope,kpis}.json and undated CSVs (regenerated)",
+    "/workspaces/aig-rlic-plus/data/unrate_spy_monthly_latest.parquet, data/*unrate_spy_20261015* (new)",
+    "/workspaces/aig-rlic-plus/output/charts/unrate_spy/plotly/* (regenerated)",
+    "/workspaces/aig-rlic-plus/_pws/lead-lesandro/pkg1_is_oos/unrate_spy_compare_floor.csv (new)"
+   ],
+   "new_winner": "chg_6m/T_roll_p75/countercyclical/L4",
+   "new_is_sharpe": 0.929409,
+   "new_oos_sharpe": 0.808311,
+   "new_oos_ann_return": 0.094163,
+   "new_max_dd": -0.239272,
+   "old_winner": "chg_6m/T_roll_p75/procyclical/L9",
+   "old_oos_sharpe": 1.560004,
+   "old_is_sharpe": -0.130286,
+   "old_is_rank": 467,
+   "bh_oos_sharpe": 1.000833,
+   "bh_is_sharpe": 0.387697,
+   "is_window": "1999-12-31 to 2016-12-31 (common IS start 1999-12-31, oos_start 2017-01-31 kept). The common start is set by zscore_60m x T_roll_p75/T_roll_p90 x L13 countercyclical: the 36-month z-score warm-up from the 1993 SPY start, plus a 36-month rolling-quantile warm-up, plus the 13-month lead.",
+   "is_n": 205,
+   "oos_window": "2017-01-31 to 2026-09-30",
+   "oos_n": 116,
+   "n_candidates": 546,
+   "n_is_valid": 546,
+   "lead_grid": "L1..L13 months (range(1,14), #255 floor kept; min lead = 1 >= 1, no L0)",
+   "spearman_is_oos": -0.1847,
+   "legacy_reproduces_published": true,
+   "winner_same_without_common_start": false,
+   "ppy_check": "The unrate_spy pipeline has PPY = 12 (monthly). ann_metrics uses np.sqrt(12) and the exponent 12/len at scripts/pair_pipeline_unrate_spy.py:166-170, and that one function computes both IS and OOS metrics. A PPY=12 constant is set at :238. Turnover uses / PPY in the tournament rows and in winner_summary annual_turnover.",
+   "stale_narrative_lines": "app/pair_configs/unrate_spy_config.py: 36-37, 42-43, 67, 73, 326, 343, 355-356, 360, 374, 377, 380, 384, 393-394, 411, 427, 443, 473-474, 490. These lines still describe chg_6m with a 9-month lead, procyclical \"above threshold -> hold SPY\", OOS Sharpe 1.55 vs 0.99, max drawdown -9.8%, and \"OOS winner\". The new winner is countercyclical (hold SPY when the signal is at or below the threshold) at L4, so the rule wording at 374/377/443 is now inverted. The gate_consistency E soft warning confirms this. The pair is not publishable until the narrative is rewritten.",
+   "gates": "validate_all_schemas: PASS (35 pairs, 137 pass, 0 fail, 3 skip; all unrate_spy files PASS). validate_schema on winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions: all OK. gate_consistency unrate_spy: 0 hard failures, plus the expected E soft warning (config cites neither 0.81 nor L4; the narrative is stale). gate_lead_axis unrate_spy: no artifacts (no lead_sharpe_distribution.json or lead_tournament CSV). This is PRE-EXISTING: the HEAD baseline gives the same result. validate_pair_completeness --pair unrate_spy: FAIL, 1 fail and 129 pass. The one fail is DPS-PRE1 (final exam not run, status found_in_search). It is PRE-EXISTING: the HEAD baseline also gives 1 FAIL / 129 PASS, so nothing new. The baseline worktree was removed.",
+   "risks": "1) The data is pulled live from FRED and Yahoo. The legacy row reproduces the published combo exactly, but its OOS Sharpe is 1.5600028 against 1.5600036 published (difference 8.3e-7, inside 1e-6). Across the whole grid the largest OOS Sharpe drift is 2.5e-6, from float noise in Yahoo adjusted closes. 2) The published winner chg_6m/p75/procyclical/L9 had OOS rank 1 but IS rank 467 of 546, with IS Sharpe -0.13. The new IS winner has OOS Sharpe 0.81, below buy-and-hold's 1.00 OOS, with the same max drawdown as buy-and-hold (-0.239). It still beats buy-and-hold in-sample (0.93 vs 0.39). 3) Spearman(IS, OOS) is -0.18: IS rank carries no OOS information for this lagging indicator. 4) Without the common start the winner changes to chg_3m/T0_zero/countercyclical/L1 (own-start IS Sharpe 1.05, OOS 0.57), so selection is sensitive to the window. 5) All 546 candidates are IS-valid, so the validity filter does not bind. 6) Expected new direction: countercyclical now matches expected_direction, so direction_consistent flips to true. 7) The bootstrap.csv p-value is now the OOS percentile of an IS-selected winner, not a selection-bias statistic. Flagged, not changed. 8) I also changed one string the guide did not list: the hardcoded analyst_suggestions observation, which said \"9-month lead on the 6-month change\". It is now an f-string built from the winner fields. 9) Nothing is committed, as instructed. The narrative pass is required before any cloud push."
+  },
+  "verify": {
+   "pair": "unrate_spy",
+   "verdict": "CONFIRMED_WITH_ISSUES",
+   "has_blocker": false,
+   "recomputed": "I recomputed everything from data/unrate_spy_monthly_latest.parquet with my own code, using dropna returns and sqrt(12). New winner chg_6m/T_roll_p75/countercyclical/L4: IS Sharpe 0.9294 (claimed 0.929409), OOS Sharpe 0.8083 (claimed 0.808311). Old winner chg_6m/p75/procyclical/L9: IS -0.1303 (claimed -0.130286), OOS 1.5600 (claimed 1.560004). Buy-and-hold: IS 0.3877 (claimed 0.387697), OOS 1.0008 (claimed 1.000833). IS n = 205 and OOS n = 116. I also recomputed IS and OOS Sharpe for all 546 grid rows, and the largest difference from the tournament CSV is 2e-16. Spearman(IS, OOS) = -0.1847, which matches the claim.",
+   "checks": "1) Lookahead and leakage: no leakage found.\n- Leads are range(1,14), so the minimum is 1.\n- The signal and any rolling threshold are both shifted by the lead (sig = signal.shift(lead), thresh = threshold.shift(lead)), and there is no extra position shift.\n- Rolling thresholds use .rolling(60, min_periods=36), which is trailing only.\n- The z-score is a trailing 60-month window. The fixed thresholds are constants.\n- common_is_start is the latest first-valid-return date across all candidates, which is 1999-12-31. Every candidate's is_start equals it (0 mismatches).\n- IS is [1999-12-31, 2017-01-31) and OOS is [2017-01-31, end]. There is no overlap, and the maximum is_end is 2016-12-31.\n- Selection uses is_sharpe among IS-valid rows (wi = valid[\"is_sharpe\"].idxmax()) and never reads OOS. The legacy OOS selection is written only to a side CSV and a \"legacy\" field.\n2) The recompute is in the field above.\n3) PPY: ann_metrics uses sqrt(12) and the 12/n exponent for both IS and OOS, because the same function computes both. Turnover divides by PPY = 12.\n4) Winner consistency: argmax is_sharpe over the tournament CSV gives chg_6m/T_roll_p75/countercyclical/L4. This matches winner_summary.json and tournament_winner.json, which carry the same fields (L4, OOS 0.808311, direction countercyclical, bh_sharpe 1.000833). kpis.json has winner_oos_sharpe 0.808311 and a matching drawdown. evidence_status.json has the new technical_note and the 20261015 tag. The old winner appears only in the legacy and sensitivity fields and in legacy_oos_selection_20261015.csv.\n5) No dated 20261008 file for unrate_spy is modified. `git status` shows no changes to the 20261008 files, and the dated 20261015 files are new. Only the undated files were regenerated, which is expected.\n6) gate_consistency unrate_spy: 0 hard failures. It gives two soft E warnings, one saying the config cites neither 0.81 nor 0.8083 and one saying the config does not mention L4, both from the stale narrative. validate_schema OK on winner_summary, evidence_status, signal_scope, interpretation_metadata and analyst_suggestions. I did not re-run validate_all_schemas, validate_pair_completeness or the HEAD baseline; I take the maker's report that the one completeness fail (DPS-PRE1) was already there before this change.",
+   "issues": [
+    {
+     "severity": "cosmetic",
+     "detail": "The config narrative is stale. The wording at lines 374/377/443 is inverted relative to the countercyclical L4 winner, and the pair is not publishable until the narrative is rewritten. This is expected and the maker flagged it."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "threshold_value in winner_summary.json is the latest rolling value (0.2), which is not meaningful as a fixed threshold. This is the existing convention and the file says so in threshold_note."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The new winner has OOS Sharpe 0.81 against buy-and-hold's 1.00, and the same max drawdown as buy-and-hold (-0.239). Selection is also sensitive to the window: without the common start the pick changes to chg_3m/T0_zero/countercyclical/L1. The maker disclosed this. It is a substantive caveat, not a defect in the numbers."
+    },
+    {
+     "severity": "cosmetic",
+     "detail": "The bootstrap.csv p-value is now the OOS percentile of an IS-selected winner. The maker flagged this and left it unchanged."
+    }
+   ]
+  }
+ }
+]
