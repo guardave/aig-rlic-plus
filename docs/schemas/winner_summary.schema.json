@@ -130,9 +130,9 @@
       "properties": {
         "objective": {
           "type": "string",
-          "enum": ["max_oos_sharpe", "max_oos_sortino", "max_oos_calmar", "robustness_ridge"],
-          "description": "The single scalar maximised over the valid strategy population (ECON-T4: BENCHMARK excluded). Default/historical = `max_oos_sharpe` (all 12 audited pairs). `composite_*` documented objectives are admitted via a separately-versioned schema bump.",
-          "pattern": "^(max_oos_sharpe|max_oos_sortino|max_oos_calmar|robustness_ridge|composite_[a-z0-9_]+)$"
+          "enum": ["max_oos_sharpe", "max_oos_sortino", "max_oos_calmar", "robustness_ridge", "max_is_sharpe"],
+          "description": "The single scalar maximised over the valid strategy population (ECON-T4: BENCHMARK excluded). Default/historical = `max_oos_sharpe` (all 12 audited pairs). `composite_*` documented objectives are admitted via a separately-versioned schema bump. `max_is_sharpe` (GH #251/#268): winner = argmax IN-SAMPLE Sharpe (dates < OOS start) among IS-valid rows; OOS metrics are evaluation-only.",
+          "pattern": "^(max_oos_sharpe|max_oos_sortino|max_oos_calmar|robustness_ridge|max_is_sharpe|composite_[a-z0-9_]+)$"
         },
         "objective_formula": {
           "type": "string",

@@ -20,7 +20,7 @@ import yfinance as yf
 from statsmodels.tsa.stattools import adfuller, kpss
 
 PAIR_ID = "ism_mfg_spy"
-DATE_TAG = "20260912"
+DATE_TAG = "20261015"
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 REPO = Path(__file__).resolve().parents[1]
@@ -215,6 +215,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     leads = [0, 1, 2, 3, 6, 9, 12]  # months
     rows = []
     bh = ann_metrics(df.loc[oos_start:, "spy_ret"].dropna())
+    bh_is = ann_metrics(work.loc[work.index < oos_start, "spy_ret"].dropna())
     for signal_code, col in SIGNALS.items():
         raw = df[col].astype(float)
         for tcode in threshold_codes_for(signal_code):
@@ -225,29 +226,53 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
                     thr = threshold.shift(lead) if isinstance(threshold, pd.Series) else threshold
                     pos = make_position(sig, thr, direction)
                     rets = (pos * df["spy_ret"]).dropna()
-                    oos = rets.loc[oos_start:]
-                    exposure = pos.loc[oos_start:].dropna().mean()
-                    n_trades = int(pos.loc[oos_start:].dropna().diff().abs().fillna(0).sum())
-                    valid = len(oos) >= 20 and 0.05 <= exposure <= 0.95 and oos.std() > 0
+                    # GH #251/#268: real IS/OOS split. IS = dates < oos_start (selection window);
+                    # OOS = dates >= oos_start (evaluation window). Same returns series for both.
+                    is_rets = rets.loc[rets.index < oos_start]
+                    oos = rets.loc[rets.index >= oos_start]
+                    pos_is = pos.loc[pos.index < oos_start].dropna()
+                    pos_oos = pos.loc[pos.index >= oos_start].dropna()
+                    is_exposure = pos_is.mean() if len(pos_is) else np.nan
+                    exposure = pos_oos.mean() if len(pos_oos) else np.nan
+                    n_trades = int(pos_oos.diff().abs().fillna(0).sum())
+                    is_valid = bool(len(is_rets) >= 60 and 0.05 <= is_exposure <= 0.95 and is_rets.std() > 0)
+                    oos_valid = bool(len(oos) >= 20 and 0.05 <= exposure <= 0.95 and oos.std() > 0)  # info only
+                    mi = ann_metrics(is_rets)
                     m = ann_metrics(oos)
                     rows.append({"signal": signal_code, "signal_column": col, "threshold": tcode,
                                  "strategy": "P1_long_cash", "lead_months": lead, "direction": direction,
-                                 "is_sharpe": m["oos_sharpe"], "oos_sharpe": m["oos_sharpe"], "oos_sortino": m["oos_sortino"],
+                                 "is_sharpe": mi["oos_sharpe"], "is_ann_return": mi["oos_ann_return"],
+                                 "is_max_drawdown": mi["max_drawdown"], "is_exposure": is_exposure,
+                                 "oos_sharpe": m["oos_sharpe"], "oos_sortino": m["oos_sortino"],
                                  "oos_calmar": m["oos_calmar"], "oos_ann_return": m["oos_ann_return"], "oos_ann_vol": m["oos_ann_vol"],
-                                 "max_drawdown": m["max_drawdown"], "win_rate": m["win_rate"],
-                                 "annual_turnover": n_trades / max(len(pos.loc[oos_start:].dropna()) / PERIODS_PER_YEAR, 1),
-                                 "is_n": m["oos_n"], "oos_n": m["oos_n"], "valid": bool(valid)})
+                                 "max_drawdown": m["max_drawdown"], "win_rate": m["win_rate"], "n_trades": n_trades,
+                                 "annual_turnover": n_trades / max(len(pos_oos) / PERIODS_PER_YEAR, 1),
+                                 "is_n": mi["oos_n"], "oos_n": m["oos_n"], "is_valid": is_valid, "oos_valid": oos_valid,
+                                 "valid": is_valid})  # selection validity = IS only
     rows.append({"signal": "BENCHMARK", "signal_column": "spy", "threshold": "BUY_HOLD", "strategy": "BUY_HOLD",
-                 "lead_months": 0, "direction": "benchmark", "is_sharpe": bh["oos_sharpe"], "oos_sharpe": bh["oos_sharpe"],
+                 "lead_months": 0, "direction": "benchmark", "is_sharpe": bh_is["oos_sharpe"], "is_ann_return": bh_is["oos_ann_return"],
+                 "is_max_drawdown": bh_is["max_drawdown"], "is_exposure": 1.0, "oos_sharpe": bh["oos_sharpe"],
                  "oos_sortino": bh["oos_sortino"], "oos_calmar": bh["oos_calmar"], "oos_ann_return": bh["oos_ann_return"],
-                 "oos_ann_vol": bh["oos_ann_vol"], "max_drawdown": bh["max_drawdown"], "win_rate": bh["win_rate"],
-                 "annual_turnover": 0.0, "is_n": bh["oos_n"], "oos_n": bh["oos_n"], "valid": False})
+                 "oos_ann_vol": bh["oos_ann_vol"], "max_drawdown": bh["max_drawdown"], "win_rate": bh["win_rate"], "n_trades": 0,
+                 "annual_turnover": 0.0, "is_n": bh_is["oos_n"], "oos_n": bh["oos_n"], "is_valid": False, "oos_valid": False,
+                 "valid": False})
     tourn = pd.DataFrame(rows)
-    tourn.to_csv(RES / f"tournament_results_{DATE_TAG}.csv", index=False)
     valid = tourn[(tourn["valid"]) & (tourn["signal"] != "BENCHMARK")]
     if valid.empty:
         raise RuntimeError("No valid tournament strategies")
-    wi = valid["oos_sharpe"].idxmax()
+    # PRIMARY selection: argmax IN-SAMPLE Sharpe among IS-valid rows (OOS never consulted).
+    wi = valid["is_sharpe"].idxmax()
+    # LEGACY comparison only (old look-ahead behaviour): argmax OOS Sharpe among OOS-valid rows.
+    legacy_pool = tourn[(tourn["oos_valid"]) & (tourn["signal"] != "BENCHMARK")]
+    li = legacy_pool["oos_sharpe"].idxmax()
+    tourn["is_rank"] = tourn["is_sharpe"].where(tourn["signal"] != "BENCHMARK").rank(ascending=False, method="min")
+    tourn["oos_rank"] = tourn["oos_sharpe"].where(tourn["signal"] != "BENCHMARK").rank(ascending=False, method="min")
+    tourn.to_csv(RES / f"tournament_results_{DATE_TAG}.csv", index=False)
+    side_cols = ["signal", "threshold", "direction", "lead_months", "is_sharpe", "oos_sharpe", "oos_ann_return",
+                 "max_drawdown", "n_trades", "is_n", "oos_n", "is_rank", "oos_rank"]
+    side = pd.DataFrame([dict(role="primary_is_selected", **tourn.loc[wi, side_cols].to_dict()),
+                         dict(role="legacy_oos_selected", **tourn.loc[li, side_cols].to_dict())])
+    side.to_csv(RES / f"legacy_oos_selection_{DATE_TAG}.csv", index=False)
     wr = tourn.loc[wi].copy()
     winner_key = f"{wr['signal']}|{wr['threshold']}|{wr['direction']}|{int(wr['lead_months'])}"
 
@@ -280,13 +305,16 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     n_trades = int(position.loc[oos_start:].dropna().diff().abs().fillna(0).sum())
     om = ann_metrics(oos)
     bm = ann_metrics(bench_ret.loc[oos_start:].dropna())
+    _raw_rets = (make_position(sig_for_rule, thr_for_rule, str(wr["direction"])) * df["spy_ret"]).dropna()
+    _is_idx = _raw_rets.index[_raw_rets.index < oos_start]   # winner's actual IS sample (after warm-up)
     thr_latest = float(threshold.dropna().iloc[-1]) if isinstance(threshold, pd.Series) else float(threshold)
-    runner = valid.drop(index=wi).sort_values("oos_sharpe", ascending=False).head(1)
+    runner = valid.drop(index=wi).sort_values("is_sharpe", ascending=False).head(1)
     runner_obj = None
     if not runner.empty:
         r = runner.iloc[0]
         runner_obj = {"signal": str(r["signal"]), "threshold": str(r["threshold"]), "strategy": str(r["strategy"]),
-                      "lead_value": int(r["lead_months"]), "objective_value": round(float(r["oos_sharpe"]), 6)}
+                      "lead_value": int(r["lead_months"]), "objective_value": round(float(r["is_sharpe"]), 6),
+                      "oos_sharpe": round(float(r["oos_sharpe"]), 6)}
     winner = {
         "pair_id": PAIR_ID, "generated_at": NOW_ISO, "signal_column": str(wr["signal_column"]),
         "signal_code": str(wr["signal"]), "signal_display_name": SIGNAL_DISPLAY[str(wr["signal"])],
@@ -306,17 +334,23 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "bh_sharpe": round(bm["oos_sharpe"], 6), "bh_ann_return": round(bm["oos_ann_return"], 6), "bh_max_drawdown": round(bm["max_drawdown"], 6),
         "cost_assumption_bps": COST_BPS, "total_combos": int((tourn["signal"] != "BENCHMARK").sum()), "valid_combos": int(valid.shape[0]),
         "schema_version": "1.2.0",
-        "notes": "ISM PMI above ~50 marks expansion and risk-on conditions. The bounded diffusion level is stationary (ADF rejects, KPSS does not); the traded winner is its 1-month change (diff_1m). Winner is search-selected — read as found-in-search.",
-        "selection": {"objective": "max_oos_sharpe", "objective_formula": "monthly mean/std*sqrt(12)",
+        "notes": f"ISM PMI above ~50 marks expansion and risk-on conditions. The bounded diffusion level is stationary (ADF rejects, KPSS does not). Winner ({wr['signal']}) is selected by in-sample Sharpe (pre-{oos_start.date().isoformat()}) and evaluated on the held-out OOS window; still a search-selected rule.",
+        "is_sharpe": round(float(wr["is_sharpe"]), 6), "is_n": int(wr["is_n"]),
+        "is_period_start": _is_idx[0].date().isoformat(), "is_period_end": _is_idx[-1].date().isoformat(),
+        "selection": {"objective": "max_is_sharpe", "objective_formula": "in-sample (dates < OOS start) monthly mean/std*sqrt(12); winner evaluated on OOS window",
                       "grid_scanned": {"leads": leads, "n_signals": len(SIGNALS),
                                        "n_thresholds": int(sum(len(threshold_codes_for(s)) for s in SIGNALS)),
                                        "n_strategies": 1, "n_valid_combos": int(valid.shape[0]),
-                                       "median_valid_objective": round(float(valid["oos_sharpe"].median()), 6)},
+                                       "median_valid_objective": round(float(valid["is_sharpe"].median()), 6)},
                       "tie_break_step": None,
                       "raw_winner_row": {"signal": str(wr["signal"]), "threshold": str(wr["threshold"]), "strategy": str(wr["strategy"]),
                                          "lead_column": "lead_months", "lead_value": int(wr["lead_months"]),
                                          "source_tournament_file": f"tournament_results_{DATE_TAG}.csv", "source_row_index": int(wi)},
-                      "runner_up": runner_obj, "rationale": "Winner is the valid row with the highest OOS Sharpe over the published grid.",
+                      "runner_up": runner_obj, "rationale": "Winner is the IS-valid row with the highest IN-SAMPLE Sharpe over the published grid; OOS metrics are reported for that row only (no OOS look-ahead in selection).",
+                      "legacy_oos_selected_row": {"signal": str(tourn.loc[li, "signal"]), "threshold": str(tourn.loc[li, "threshold"]),
+                                                  "direction": str(tourn.loc[li, "direction"]), "lead_value": int(tourn.loc[li, "lead_months"]),
+                                                  "oos_sharpe": round(float(tourn.loc[li, "oos_sharpe"]), 6),
+                                                  "note": f"Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_{DATE_TAG}.csv"},
                       "objective_runner_up_divergence": None}}
     (RES / "winner_summary.json").write_text(json.dumps(winner, indent=2) + "\n")
     (RES / "tournament_winner.json").write_text(json.dumps(winner, indent=2) + "\n")
@@ -447,7 +481,7 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "benchmark_oos_sharpe": winner["bh_sharpe"], "oos_max_drawdown": winner["oos_max_drawdown"], "bh_max_drawdown": winner["bh_max_drawdown"]}, indent=2) + "\n")
     (RES / "evidence_status.json").write_text(json.dumps({"pair_id": PAIR_ID, "schema_version": "1.2.0", "status": "found_in_search",
         "updated_at": NOW_ISO, "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
-        "technical_note": f"Winner selected by OOS Sharpe from the {DATE_TAG} monthly tournament; the OOS window is limited.",
+        "technical_note": f"Winner selected by in-sample Sharpe (pre-OOS window) from the {DATE_TAG} monthly tournament and evaluated on the held-out OOS window; the OOS window is limited.",
         "next_step": "Freeze the selected rule and run a confirmation test on future data.", "owner": "evan"}, indent=2) + "\n")
     (RES / f"pipeline_timing_{DATE_TAG}.json").write_text(json.dumps({"pair_id": PAIR_ID, "elapsed_seconds": elapsed, "generated_at": NOW_ISO}, indent=2) + "\n")
     (RES / "analyst_suggestions.json").write_text(json.dumps({"pair_id": PAIR_ID, "schema_version": "1.0.0", "last_updated_at": NOW_ISO,

@@ -1,0 +1,3 @@
+role,signal,threshold,direction,lead_months,is_sharpe,oos_sharpe,oos_ann_return,max_drawdown,n_trades,is_n,oos_n,is_rank,oos_rank
+primary_is_selected,level,T_roll_p25,procyclical,0,0.9380037575741409,0.7516455084278046,0.08522889060792394,-0.20316287496775665,14,273,98,1.0,67.0
+legacy_oos_selected,chg_12m,T0_zero,procyclical,0,0.6293761656031613,1.4438204803233743,0.1268201949054648,-0.06277437221362936,10,284,98,40.0,1.0
