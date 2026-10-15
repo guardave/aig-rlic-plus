@@ -1,7 +1,7 @@
 {
   "pair_id": "cement_spy",
-  "winner_oos_sharpe": 1.252902,
+  "winner_oos_sharpe": 0.580481,
   "benchmark_oos_sharpe": 0.934934,
-  "oos_max_drawdown": -0.083258,
+  "oos_max_drawdown": -0.194477,
   "bh_max_drawdown": -0.239272
 }

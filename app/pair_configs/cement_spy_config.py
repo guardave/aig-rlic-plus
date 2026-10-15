@@ -557,8 +557,8 @@ class StrategyConfig:
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/cement_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/cement_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/cement_spy/tournament_results_20261008.csv"},
-        {"label": "Stationarity tests", "path": "results/cement_spy/stationarity_tests_20261008.csv"},
+        {"label": "Tournament results", "path": "results/cement_spy/tournament_results_20261015.csv"},
+        {"label": "Stationarity tests", "path": "results/cement_spy/stationarity_tests_20261015.csv"},
     ]
 
     SIGNAL_RULE_MD = """
