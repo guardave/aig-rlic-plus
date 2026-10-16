@@ -125,6 +125,14 @@ def _validate_signal(
     if not pd.api.types.is_numeric_dtype(series):
         return False, f"Signal column `{column}` is not numeric (dtype={series.dtype})."
 
+    # Constant series (e.g. an all-1 flag, a flat probability) carry no information and can
+    # trivially "reach" any stress level - reject before the plausibility check.
+    if series.nunique() < 2:
+        return False, (
+            f"Signal column `{column}` is constant (value {float(series.iloc[0]):g}); "
+            "a constant series cannot be a valid signal panel."
+        )
+
     # Bounds check — probability-type signals must lie in [0, 1]
     is_probability = column.startswith(_PROBABILITY_PREFIXES) or "_prob_" in column
     if is_probability:
@@ -188,7 +196,10 @@ def _validate_signal(
             # A probability can never exceed 1, so a winner threshold >= 1 (e.g. eci_total_comp_spy's
             # rolling mean+1sd boundary, latest value 1.0) can never be "exceeded". For the
             # plausibility check only, fall back to the majority-regime level 0.5 in that case.
-            if sliced.max() > _plausibility_level:
+            # When the fallback level is used (threshold >= 1) the series must also leave the
+            # high regime somewhere, otherwise a saturated probability would pass.
+            _saturated = threshold >= 1.0 and not (float(series.min()) < _plausibility_level)
+            if sliced.max() > _plausibility_level and not _saturated:
                 stress_hit = True
                 break
         elif _is_binary_flag:

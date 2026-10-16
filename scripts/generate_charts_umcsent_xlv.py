@@ -488,7 +488,7 @@ def chart_equity_curves():
     strat_cum = (1 + oos["strategy_return"].fillna(0)).cumprod()
     fig.add_trace(go.Scatter(
         x=strat_cum.index, y=strat_cum.values,
-        name="Winner: UMCSENT 3M momentum, z>1.0, 6M lead",
+        name="Winner: UMCSENT 1M momentum, z>1.0, 6M lead",
         line=dict(color=C_STRATEGY, width=2),
     ))
     add_nber_bands(fig)
@@ -508,7 +508,7 @@ def chart_equity_curves():
         fig,
         "equity_curves",
         caption=(
-            "Corrected winner uses UMCSENT 3-month momentum with a rolling z-score > 1.0 "
+            "Corrected winner uses UMCSENT 1-month momentum with a rolling z-score > 1.0 "
             f"threshold and 6-month lead; OOS Sharpe {winner['oos_sharpe']:.2f}, "
             f"annual return {winner['oos_ann_return']:.2%}. Shaded bands mark NBER recessions."
         ),
@@ -548,7 +548,7 @@ def chart_drawdown():
 
     fig.add_trace(go.Scatter(
         x=strat_dd.index, y=strat_dd.values * 100,
-        name="Winner: UMCSENT 3M momentum, z>1.0, 6M lead",
+        name="Winner: UMCSENT 1M momentum, z>1.0, 6M lead",
         fill="tozeroy",
         fillcolor=C_DD_FILL,
         line=dict(color=C_STRATEGY, width=2),
@@ -604,7 +604,7 @@ def chart_rolling_sharpe():
     strat_sharpe = (strat_roll.mean() / strat_roll.std()) * np.sqrt(12)
     fig.add_trace(go.Scatter(
         x=strat_sharpe.index, y=strat_sharpe.values,
-        name="Winner: UMCSENT 3M momentum, z>1.0, 6M lead",
+        name="Winner: UMCSENT 1M momentum, z>1.0, 6M lead",
         line=dict(color=C_STRATEGY, width=2),
     ))
     add_nber_bands(fig)

@@ -47,7 +47,7 @@ pages:
         title: "Fragility and Method Sensitivity"
     expanders: []
   strategy:
-    headline: "The corrected winner is UMCSENT 3-month momentum, rolling z-score > +1.0, 6-month lead"
+    headline: "The corrected winner is UMCSENT 1-month momentum, rolling z-score > +1.0, 6-month lead"
     sections:
       - id: strategy_rule
         anchor: strategy-rule
@@ -77,7 +77,7 @@ pages:
 
 ### Sharpe 1.16 over 2019-2025 OOS -- consumer-sentiment momentum as a 6-month XLV timing signal
 
-The corrected UMCSENT x XLV finding is not about the level of consumer confidence or its year-over-year change. It is about **University of Michigan Consumer Sentiment (UMCSENT) -- a monthly survey of household confidence -- 3-month momentum**, meaning the change in the sentiment index over the prior three months.
+The corrected UMCSENT x XLV finding is not about the level of consumer confidence or its year-over-year change. It is about **University of Michigan Consumer Sentiment (UMCSENT) -- a monthly survey of household confidence -- 1-month momentum**, meaning the change in the sentiment index over the prior three months.
 
 The working hypothesis is procyclical: when household confidence is improving quickly, Health Care Select Sector SPDR Fund (XLV) tends to do better over the next several months. The corrected winner acts on that hypothesis with a 6-month lead, so the rule uses sentiment momentum observed six months earlier rather than the current month's reading.
 
@@ -103,7 +103,7 @@ Out-of-sample (OOS) -- tested on data not used to pick the rule -- performance f
 
 ### Fragility and Method Sensitivity
 
-The strongest result is the strategy result, not a broad claim that every UMCSENT transformation predicts XLV. The winner uses one specific transformed signal: UMCSENT 3-month momentum (`S3_mom` / `umcsent_mom`). Other signal definitions can tell a weaker or different story.
+The strongest result is the strategy result, not a broad claim that every UMCSENT transformation predicts XLV. The winner uses one specific transformed signal: UMCSENT 1-month momentum (`S3_mom` / `umcsent_mom`). Other signal definitions can tell a weaker or different story.
 
 The indicator-level tests should remain visible because they discipline the interpretation. If the portal presents the winner without the noisy evidence context, readers may infer more certainty than the evidence supports.
 
@@ -115,13 +115,13 @@ The corrected tournament winner is:
 
 | Field | Corrected value |
 |---|---|
-| Signal | UMCSENT 3-month momentum (`S3_mom` / `umcsent_mom`) |
+| Signal | UMCSENT 1-month momentum (`S3_mom` / `umcsent_mom`) |
 | Threshold | rolling z-score > +1.0 |
 | Lead | 6 months |
 | Strategy | P1 Long/Cash |
 | Target | XLV |
 
-Z-score -- how many standard deviations a value is above or below its recent average -- is the threshold language here. The rule goes long XLV when the 6-month-lagged UMCSENT 3-month momentum is more than one standard deviation above its rolling average; otherwise it sits in cash.
+Z-score -- how many standard deviations a value is above or below its recent average -- is the threshold language here. The rule goes long XLV when the 6-month-lagged UMCSENT 1-month momentum is more than one standard deviation above its rolling average; otherwise it sits in cash.
 
 ### Corrected Performance
 
@@ -152,7 +152,7 @@ Turnover of 3.29 per year is not extreme, but implementation costs still matter.
 
 ### Scope of This Refresh
 
-This refresh corrects the winner-specific narrative only. It states the corrected UMCSENT 3-month momentum / rolling z-score > +1.0 winner and the corrected performance numbers: Sharpe 1.16, OOS annual return +7.95%, max drawdown -0.7%, and Calmar 11.3.
+This refresh corrects the winner-specific narrative only. It states the corrected UMCSENT 1-month momentum / rolling z-score > +1.0 winner and the corrected performance numbers: Sharpe 1.16, OOS annual return +7.95%, max drawdown -0.7%, and Calmar 11.3.
 
 The broader indicator-level evidence was not rerun for this handoff. It remains valid as previously produced and should be referenced as context, not rewritten as if it were newly estimated.
 

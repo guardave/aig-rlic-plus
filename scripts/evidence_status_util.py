@@ -10,8 +10,9 @@ validated" banner on those four pairs while every pre-commit gate stayed green.
 
 ``to_v12`` converts a legacy dict WITHOUT inventing anything: the disposition stays
 ``found_in_search`` (what the old files said and what the app already defaulted to), and every
-legacy fact (caveats, notes, pipeline-block manifest, confidence label) is preserved in
-``technical_note``. ``plain_english`` is left unset so the app uses its canonical copy for the status.
+legacy fact (caveats, notes, pipeline-block names and statuses verbatim, confidence label,
+generated_at when it differs from updated_at) is preserved in ``technical_note``. No sentence is
+added that is not in the source. ``plain_english`` is left unset so the app uses its canonical copy for the status.
 
 CLI (artifact-level regeneration without re-running any pipeline):
     python3 scripts/evidence_status_util.py results/<pair>/evidence_status.json [...]
@@ -33,9 +34,8 @@ def to_v12(ev: dict[str, Any], owner: str = "evan") -> dict[str, Any]:
     parts: list[str] = []
     blocks = ev.get("blocks")
     if isinstance(blocks, dict) and blocks:
-        n_ready = sum(1 for v in blocks.values() if v == "ready")
-        parts.append(f"Pipeline blocks: {n_ready}/{len(blocks)} ready"
-                     + "".join(f"; {k}={v}" for k, v in blocks.items() if v != "ready") + ".")
+        # Block names and their statuses are kept verbatim (no collapsing into counts).
+        parts.append("Pipeline blocks: " + "; ".join(f"{k}={v}" for k, v in blocks.items()) + ".")
     caveats = ev.get("caveats")
     if caveats:
         parts.append("Caveats: " + "; ".join(str(c) for c in caveats) + ".")
@@ -43,7 +43,8 @@ def to_v12(ev: dict[str, Any], owner: str = "evan") -> dict[str, Any]:
         parts.append(str(ev["notes"]).strip())
     if ev.get("confidence"):
         parts.append(f"Producer confidence label: {ev['confidence']}.")
-    parts.append("Selection and evaluation share the same OOS window; no holdout/final exam has been run.")
+    if ev.get("generated_at") and ev.get("generated_at") != ev.get("updated_at"):
+        parts.append(f"Generated at: {ev['generated_at']}.")
     out: dict[str, Any] = {
         "pair_id": ev["pair_id"],
         "schema_version": SCHEMA_VERSION,
