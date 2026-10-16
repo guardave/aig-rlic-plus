@@ -16,6 +16,6 @@
     "results/eci_total_comp_spy/subperiod_sharpe.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:39:45.988702+00:00",
+  "generated_at": "2026-10-16T18:42:43.074174+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
 }

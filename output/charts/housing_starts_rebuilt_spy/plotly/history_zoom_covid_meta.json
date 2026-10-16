@@ -22,7 +22,7 @@
     "docs/schemas/history_zoom_events_registry.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T14:39:08.843246+00:00",
+  "generated_at": "2026-10-16T18:42:46.329912+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_rebuilt_spy.py (Mode 2, housing_starts_rebuilt_spy)",
   "annotation_strategy_id": "descending_stair",
   "events_registry_version": "1.0.0",

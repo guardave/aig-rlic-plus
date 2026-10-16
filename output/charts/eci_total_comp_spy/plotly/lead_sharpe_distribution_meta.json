@@ -8,12 +8,12 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "caption": "OOS Sharpe across the floored quarterly lead grid L1\u2013L5. Bars are the best valid combo at each lead; the vermillion line traces the winner's own signal (the HMM wage-stress probability). The published winner (star) sits at L4q with OOS Sharpe 1.41 and is the grid maximum. Unlike the old look-ahead-tainted winner (which was negative at short leads), this signal's curve is POSITIVE at every scanned lead and peaks at L4q \u2014 internally consistent. But the grid is short (only L1\u2013L5), every point is search-conditioned on a 25-quarter window, and the causality tests say the indicator is lagging \u2014 treat the ridge as descriptive, not a forecasting edge.",
+  "caption": "OOS Sharpe across the floored quarterly lead grid L2\u2013L5. Bars are the best valid combo at each lead; the vermillion line traces the winner's own signal (the HMM wage-stress probability). The published winner (star) sits at L4q with OOS Sharpe 1.41 and is the grid maximum. Unlike the old look-ahead-tainted winner (which was negative at short leads), this signal's curve is POSITIVE at every scanned lead and peaks at L4q \u2014 internally consistent. But the grid is short (only L2\u2013L5), every point is search-conditioned on a 25-quarter window, and the causality tests say the indicator is lagging \u2014 treat the ridge as descriptive, not a forecasting edge.",
   "narrative_alignment_note": "Published L4q winner is the grid maximum and its own lead-curve peaks there; honest note that the grid is short and search-conditioned.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/eci_total_comp_spy/lead_tournament_20261008.csv",
-    "results/eci_total_comp_spy/lead_winner_curve_20261008.csv",
+    "results/eci_total_comp_spy/lead_tournament_20261016.csv",
+    "results/eci_total_comp_spy/lead_winner_curve_20261016.csv",
     "results/eci_total_comp_spy/winner_summary.json"
   ],
   "reconciliation": {
@@ -21,7 +21,7 @@
     "winner_oos_sharpe": 1.4089,
     "bh_sharpe": 0.8043
   },
-  "generated_at": "2026-10-09T09:39:45.690863+00:00",
+  "generated_at": "2026-10-16T18:42:42.766140+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",

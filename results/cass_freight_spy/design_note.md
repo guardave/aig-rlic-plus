@@ -1,4 +1,4 @@
-# Design Note — cass_freight_spy (20261008)
+# Design Note — cass_freight_spy (20261016)
 
 ## Category & method coverage (Rule C1, production/macro — full battery to mirror busloans_spy)
 All mandatory methods produced (correlations incl. distance, pre-whitened CCF, Toda-Yamamoto Granger both
@@ -8,7 +8,7 @@ plus ECON-LA1 Lead Analysis and ECON-LT1 Lead Tournament. Deviations from the da
 - Pre-whitened CCF at monthly lags -18..+18 (trimmed from -20..+20 given the ~125-obs sample).
 - Granger is Toda-Yamamoto (VAR in levels of YoY, d_max=1; YoY is borderline I(1) per ADF/KPSS).
 - Transfer entropy: tercile-binned plug-in estimator, 500 permutations.
-- Stationarity: Dana's tests (stationarity_tests_20261008.csv) reviewed and CONFIRMED, not re-run.
+- Stationarity: Dana's tests (stationarity_tests_20261016.csv) reviewed and CONFIRMED, not re-run.
 
 ## Short-sample adaptations (BINDING Dana Phase-0 constraints)
 - 125 monthly obs (2016-01..2026-05). OOS window is 36 months (<5yr) -> ANY winner is FOUND-IN-SEARCH,
@@ -23,7 +23,7 @@ seasonally-clean; each tournament row carries a `seasonally_clean` flag and the 
 in winner_summary. A seasonally-contaminated winner is NOT allowed to ship silently — flagged hard.
 
 ## Publication lag / no-lookahead
-Cass publishes ~mid-month for the prior month. Tradable lead grid FLOORS at L1 (no L0). L0 appears only in
+Cass publishes ~mid-month for the prior month. Tradable lead grid FLOORS at L2 (strict floor; no L0/L1). L0 appears only in
 the diagnostic lead_correlation table, explicitly flagged non-tradable.
 
 ## Lead-lag verdict (empirical — determined by Granger/CCF/LP, NOT the prior)
@@ -34,7 +34,7 @@ the diagnostic lead_correlation table, explicitly flagged non-tradable.
 - Classification: lagging. Winner direction (empirical): countercyclical.
 
 ## Tournament conventions
-- Units in tournament_results CSV are RATIOS (decimal). Lead grid L1..L12 (full tradable). Both orientations tested.
-- CP2 skipped (regime_story: false). Returns gross of costs; 5bps grid in tournament_validation_20261008/.
+- Units in tournament_results CSV are RATIOS (decimal). Lead grid L2..L13 (full tradable). Both orientations tested.
+- CP2 skipped (regime_story: false). Returns gross of costs; 5bps grid in tournament_validation_20261016/.
 
 ## New pair — no prior version; Rule C3 regression diff N/A.

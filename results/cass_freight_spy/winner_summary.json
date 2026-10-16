@@ -1,6 +1,6 @@
 {
   "pair_id": "cass_freight_spy",
-  "generated_at": "2026-10-08T23:44:26Z",
+  "generated_at": "2026-10-16T18:30:13Z",
   "signal_column": "cass_freight_dev_trend_pct",
   "signal_code": "cass_freight_dev_trend",
   "signal_display_name": "Cass Freight dev_trend",
@@ -15,7 +15,7 @@
   "strategy_description": "Long SPY when the lagged Cass Freight signal is above its threshold; otherwise cash. (Countercyclical orientation: low/decelerating freight = risk-on.)",
   "lead_value": 13,
   "lead_unit": "months",
-  "lead_description": "Signal lead = 13 month(s); L1 is the real-time floor given Cass's ~2-week publication lag",
+  "lead_description": "Signal lead = 13 month(s); L2 is the strict floor given Cass's ~2-week publication lag (public only during M+1)",
   "lookback": "LB60",
   "direction": "countercyclical",
   "oos_sharpe": 1.3354,
@@ -34,15 +34,14 @@
   "bh_ann_return": 0.1538,
   "bh_max_drawdown": -0.2393,
   "cost_assumption_bps": 5,
-  "total_combos": 17420,
-  "valid_combos": 12422,
+  "total_combos": 16080,
+  "valid_combos": 11441,
   "schema_version": "1.1.0",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(12), maximised over the valid population but with a SEASONAL-ROBUSTNESS constraint (seasonally-CLEAN signals only) applied per Dana's NSA Phase-0 gate; the raw-max override is disclosed in objective_runner_up_divergence (ECON-T5 \u00a73)",
     "grid_scanned": {
       "leads": [
-        1,
         2,
         3,
         4,
@@ -59,7 +58,7 @@
       "n_signals": 11,
       "n_thresholds": 22,
       "n_strategies": 6,
-      "n_valid_combos": 6670,
+      "n_valid_combos": 6124,
       "median_valid_objective": 0.7639
     },
     "tie_break_step": 0,
@@ -69,8 +68,8 @@
       "strategy": "P1_long_cash_counter",
       "lead_column": "lead_months",
       "lead_value": 13,
-      "source_tournament_file": "tournament_results_20261008.csv",
-      "source_row_index": 7979,
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 7363,
       "display_alias": "signal_code=cass_freight_dev_trend (raw signal=dev_trend); strategy_family=P1_long_cash (raw strategy=P1_long_cash_counter)"
     },
     "runner_up": {
@@ -80,8 +79,8 @@
       "lead_value": 13,
       "objective_value": 1.3345
     },
-    "rationale": "Maximiser of OOS Sharpe among SEASONALLY-CLEAN signals over the full tradable monthly lead grid L1..L12 (6670 clean valid combos of 12422 total valid; median clean OOS Sharpe 0.7639). Objective is restricted to clean signals because the Cass series is NSA (Dana Phase-0 binding constraint) \u2014 see objective_runner_up_divergence. ECON-LT1 gate: L*=3, CHARTS-ONLY. SHORT-HISTORY CAVEAT: OOS <5yr -> CANDIDATE (found-in-search), not a validated edge; Granger/CCF find no forward causality.",
+    "rationale": "Maximiser of OOS Sharpe among SEASONALLY-CLEAN signals over the full tradable monthly lead grid L2..L13 (6124 clean valid combos of 11441 total valid; median clean OOS Sharpe 0.7639). Objective is restricted to clean signals because the Cass series is NSA (Dana Phase-0 binding constraint) \u2014 see objective_runner_up_divergence. ECON-LT1 gate: L*=3, CHARTS-ONLY. SHORT-HISTORY CAVEAT: OOS <5yr -> CANDIDATE (found-in-search), not a validated edge; Granger/CCF find no forward causality.",
     "objective_runner_up_divergence": "The globally highest-raw-OOS-Sharpe valid combo was NOT published. That row (accel/T2_roll_p25/P3_long_short_pro/L3/LB36, OOS Sharpe 1.4724) is built on a SEASONALLY-CONTAMINATED signal (the Cass series is NOT seasonally adjusted, so MoM/3M/6M/level-zscore transforms carry a seasonal component that inflates in-window fit). The published winner is the max-OOS-Sharpe combo among SEASONALLY-CLEAN signals (YoY-family / 12M-MA-derived / regime), OOS Sharpe 1.3354 \u2014 a \u0394 of only -0.137. Preferring the clean signal is sound because a seasonally-driven edge is not a genuine goods-cycle signal and would not generalise out of its seasonal alignment; the criterion is a binding Phase-0 data-quality constraint (Dana), not an ex-post rationalisation. NOTE: on this ~36-month (<5yr) OOS both combos are found-in-search CANDIDATES; Granger/CCF find NO forward causality (see notes), so this divergence is between two artifacts, not two validated edges."
   },
-  "notes": "Mode 1, feat260705_cass_freight_spy. Tournament: 17420 strategy combos (+1 benchmark, valid=False per ECON-T4), 12422 valid, full tradable lead grid L1..L12. Winner by ECON-T3 cascade (resolved at step 1; 1 tied at step 1). SHORT-HISTORY / FOUND-IN-SEARCH: OOS window is 100 months (<5yr) on a ~10yr NSA series -> the winner is a CANDIDATE, not a validated edge; OOS Sharpe is inflated/high-variance. NSA seasonality: winner seasonally_clean=True Lead-lag verdict (empirical): Cass->SPY TY-Granger sig lags NONE, SPY->Cass sig lags [1, 2, 3, 5, 6]; pre-whitened CCF sig lead(+) lags NONE, lag(-) lags [-16, -14, -12] -> classified 'lagging'. Robustness: winner bootstrap p=0.0852 (vs resampled B&H); IS Sharpe 0.61 vs OOS 1.34; CP1 durability 'conditionally_durable'; corr sign-stability 'sign_unstable'. Gross of costs; 5bps sensitivity in tournament_validation_20261008/."
+  "notes": "Mode 1, feat260705_cass_freight_spy. Tournament: 16080 strategy combos (+1 benchmark, valid=False per ECON-T4), 11441 valid, full tradable lead grid L2..L13. Winner by ECON-T3 cascade (resolved at step 1; 1 tied at step 1). SHORT-HISTORY / FOUND-IN-SEARCH: OOS window is 100 months (<5yr) on a ~10yr NSA series -> the winner is a CANDIDATE, not a validated edge; OOS Sharpe is inflated/high-variance. NSA seasonality: winner seasonally_clean=True Lead-lag verdict (empirical): Cass->SPY TY-Granger sig lags NONE, SPY->Cass sig lags [1, 2, 3, 5, 6]; pre-whitened CCF sig lead(+) lags NONE, lag(-) lags [-16, -14, -12] -> classified 'lagging'. Robustness: winner bootstrap p=0.0852 (vs resampled B&H); IS Sharpe 0.61 vs OOS 1.34; CP1 durability 'conditionally_durable'; corr sign-stability 'sign_unstable'. Gross of costs; 5bps sensitivity in tournament_validation_20261016/."
 }

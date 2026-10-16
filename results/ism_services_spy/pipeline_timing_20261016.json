@@ -1,0 +1,21 @@
+{
+  "pair_id": "ism_services_spy",
+  "date": "20261016",
+  "pipeline_seconds": 76.7,
+  "stage_times": {
+    "1_load_verify": 0.0,
+    "2_signals": 1.9,
+    "3_exploratory_correlations": 0.2,
+    "4_core_models": 5.1,
+    "5_regime_quartiles": 0.0,
+    "6_tournament": 40.4,
+    "7_winner_artifacts": 0.1,
+    "8_cross_period": 26.7,
+    "9_validation": 0.3
+  },
+  "tournament_strategy_rows": 11712,
+  "valid_strategies": 8021,
+  "oos_n_months": 85,
+  "oos_start": "2018-10-31",
+  "oos_end": "2025-10-31"
+}

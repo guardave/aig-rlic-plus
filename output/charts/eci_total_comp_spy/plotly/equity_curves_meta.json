@@ -12,10 +12,10 @@
   "narrative_alignment_note": "Strategy series from strategy_returns; metrics from winner_summary; Sharpe-drop + fragility in title.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/eci_total_comp_spy/strategy_returns_20261008.csv",
+    "results/eci_total_comp_spy/strategy_returns_20261016.csv",
     "results/eci_total_comp_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:39:45.729609+00:00",
+  "generated_at": "2026-10-16T18:42:42.809744+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
 }

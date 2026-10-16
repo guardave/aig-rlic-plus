@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-08T23:42:49Z",
+  "last_updated_at": "2026-10-16T18:28:30Z",
   "indicator_axis": {
     "canonical_column": "busloans_usd",
     "display_name": "C&I Loans Outstanding (BUSLOANS)",

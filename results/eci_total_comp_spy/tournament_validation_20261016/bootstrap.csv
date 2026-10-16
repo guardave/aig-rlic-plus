@@ -1,0 +1,6 @@
+signal,threshold,strategy,lead_quarters,lookback,oos_sharpe,bootstrap_p_value,significant_at_5pct
+hmm_stress,T3_zscore_1.0,P1_long_cash_counter,4,LB12,1.4089,0.184,False
+hmm_stress,T3_zscore_1.0,P1_long_cash_counter,5,LB12,1.3627,0.2018,False
+growth_2q,T3_zscore_1.0,P1_long_cash_counter,5,LB12,1.3003,0.2304,False
+accel,T1_fixed_p25,P1_long_cash_pro,4,LB_NA,1.2378,0.2634,False
+yoy_zscore_20q,T3_zscore_1.0,P3_long_short_counter,2,LB12,1.229,0.2674,False

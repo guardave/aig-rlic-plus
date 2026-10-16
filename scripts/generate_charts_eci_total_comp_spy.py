@@ -63,7 +63,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import QUARTILE_COLORS  # noqa: E402
 
 PAIR = "eci_total_comp_spy"
-DATE_TAG = "20261008"
+DATE_TAG = "20261016"  # pkg9 strict-floor rerun (was 20261008)
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"

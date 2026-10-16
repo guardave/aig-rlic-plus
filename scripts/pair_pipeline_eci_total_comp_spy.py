@@ -17,8 +17,8 @@ Economic hypothesis (stated up front, per SOP):
 QUARTERLY conventions (first quarterly pair — deliberate template adaptations):
   * Annualization factor: sqrt(4) for Sharpe, x4 for mean return / variance-based vol
     (quarterly frequency; stated explicitly in every manifest).
-  * Lead grid L in QUARTERS, floor L1 (BLS releases quarter Q ~1 month after quarter end,
-    so the quarter-Q print is first tradable in Q+1). Grid L1..L8 (2 years): wage-inflation
+  * Lead grid L in QUARTERS, strict floor L2 (BLS releases quarter Q ~1 month after quarter end,
+    i.e. during Q+1, so it can first drive the window opening at the end of Q+1). Grid L2..L5 (pkg9 truncation of L1..L5): wage-inflation
     -> Fed-policy -> equity transmission is plausibly 1-8 quarters; deeper leads on 101 obs
     destroy effective sample (L8 already costs 8 obs) with no economic rationale.
   * Rolling windows in quarter counts: lookbacks LB12 (~3yr) / LB20 (~5yr).
@@ -70,12 +70,12 @@ np.random.seed(42)
 PAIR_ID = "eci_total_comp_spy"
 INDICATOR_NAME = "Employment Cost Index (Total Compensation)"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20261008"
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (2026-10-16): grid truncated from the bottom to the strict floor, top not extended; prior run 20261008 (L1..L5 quarters).
 COST_BPS = 5  # equity ETF per target-class table
 ANN = np.sqrt(4)   # QUARTERLY annualization factor (Sharpe); mean x4, vol x sqrt(4)
 PERIODS_PER_YEAR = 4
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root (was hardcoded /workspaces/aig-rlic-plus; pkg9 runs from a worktree)
 DATA_PATH = os.path.join(BASE_DIR, "data", "eci_total_comp_spy_quarterly_latest.parquet")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 MODELS_DIR = os.path.join(RESULTS_DIR, f"core_models_{DATE_TAG}")
@@ -121,7 +121,7 @@ FWD_COLS = ["spy_fwd_1q", "spy_fwd_2q", "spy_fwd_4q"]
 
 SIG_ELIGIBLE_MIN = 60          # min non-NaN QUARTERS for tournament eligibility
 LOOKBACKS = {"LB12": 12, "LB20": 20}   # quarters (~3yr / ~5yr)
-LEADS = list(range(1, 6))  # #255 floor L1 shifted grid [1..5] (quarters)
+LEADS = list(range(2, 6))  # strict floor E2 (ECI ~30 d after quarter-end): sub-floor L1 truncated, top not extended (pkg9, protocol D2)
 CORR_N_FLOOR = 40              # quarters
 
 
@@ -575,7 +575,7 @@ def stage_core_models(df):
 def stage_lead_analysis(df):
     """ECON-LA1 quarterly adaptation: per-transform Pearson r vs 1-QUARTER-fwd return
     at leads L0..L8 QUARTERS. L0 is diagnostic-only (BLS ~1-month pub lag -> the
-    quarter-Q print is first tradable in Q+1). Tradable grid = L1..L8."""
+    quarter-Q print is public only during Q+1, strict floor L2). Tradable grid = L2..L5."""
     fwd1 = df["spy_fwd_1q"]
     transforms = [c for k, c in SIGNAL_COLS.items() if c in df.columns and not c.startswith(("hmm", "markov"))]
     rows = []
@@ -770,9 +770,9 @@ def stage_tournament(df):
                  "leads_quarters": LEADS, "lookbacks": list(LOOKBACKS.keys()) + ["LB_NA"],
                  "sparse_grid_rationale": "101 quarterly obs — Dana Phase-0: no dense grids; P2 signal-strength and z-score +/-1.5 variants dropped; zero-cross restricted to sign-meaningful signals (wage growth never negative)"},
         "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
-        "lead_column_note": "lead_quarters (QUARTERS, not months) — quarterly adaptation of the ECON-LL1 monthly standard; L1=~3 months, L8=~24 months",
+        "lead_column_note": "lead_quarters (QUARTERS, not months) — quarterly adaptation of the ECON-LL1 monthly standard; L2=~6 months, L5=~15 months",
         "total_strategy_rows": len(strat_pop), "valid_strategy_rows": n_valid,
-        "sampling": "exhaustive over the full tradable lead grid L1..L8 quarters (no coarse subset)",
+        "sampling": "exhaustive over the full tradable lead grid L2..L5 quarters (no coarse subset)",
         "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
         "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 quarter (BLS releases quarter Q ~1 month after quarter end -> Q print first tradable in Q+1)",
         "small_sample_flag": f"OOS window {int(oos_mask.sum())} QUARTERS — few OOS points; winner is found-in-search / CANDIDATE, not validated (stronger caveat than monthly pairs)",
@@ -818,7 +818,7 @@ def stage_lead_tournament(df, split, tdf, winner):
         best_at_grid = float(star_row.best_oos_sharpe)
     else:
         L_star, best_at_grid = -1, np.nan
-    # Full L1..L8 grid is scanned by the main tournament -> published winner is already
+    # Full L2..L5 grid is scanned by the main tournament -> published winner is already
     # the global lead max; ECON-LT1 gate informational (no staleness possible).
     gate = "CHARTS-ONLY (full grid scanned natively)"
     print(f"  [ECON-LT1] lead_tournament -> {lt_path}; L*={L_star} best OOS Sharpe {best_at_grid} -> {gate}")
@@ -1217,10 +1217,10 @@ def main():
         "runner_up": (None if runner is None else
                       {"signal": runner["signal"], "threshold": runner["threshold"], "strategy": runner["strategy"],
                        "lead_value": int(runner["lead_quarters"]), "objective_value": round(float(runner["oos_sharpe"]), 4)}),
-        "rationale": (f"Maximiser of OOS Sharpe over the full tradable QUARTERLY lead grid L1..L8 "
+        "rationale": (f"Maximiser of OOS Sharpe over the full tradable QUARTERLY lead grid L2..L5 "
                       f"({len(all_valid)} valid combos; median valid OOS Sharpe "
                       f"{round(float(all_valid['oos_sharpe'].median()),4)}). FIRST QUARTERLY PAIR: leads in quarters "
-                      f"(L1=~3M pub-lag floor, L8=2yr), Sharpe annualized by sqrt(4). ECON-LT1 gate: full grid scanned "
+                      f"(L2 = strict pub-lag floor, L5 = 15 months), Sharpe annualized by sqrt(4). ECON-LT1 gate: full grid scanned "
                       f"natively -> no staleness possible. SMALL-SAMPLE CAVEAT (STRONG): OOS = "
                       f"{int(winner['oos_n'])} QUARTERS only -> the winner is found-in-search / CANDIDATE, never a "
                       f"validated edge; the caveat is stronger than any monthly pair to date."),
@@ -1247,7 +1247,7 @@ def main():
         "strategy_description": "",
         "lead_value": int(winner["lead_quarters"]), "lead_unit": "quarters",
         "lead_description": (f"Signal lead = {int(winner['lead_quarters'])} QUARTER(S) (~{int(winner['lead_quarters'])*3} months); "
-                             f"L1 is the real-time floor (BLS releases quarter Q's ECI ~1 month after quarter end)"),
+                             f"L2 is the strict floor (BLS releases quarter Q's ECI ~1 month after quarter end, during Q+1)"),
         "lookback": winner["lookback"], "direction": direction,
         "oos_sharpe": round(float(winner["oos_sharpe"]), 4), "oos_sortino": round(float(winner["oos_sortino"]), 4),
         "oos_calmar": round(float(winner["oos_calmar"]), 4), "oos_ann_return": round(float(winner["oos_ann_return"]), 4),
@@ -1261,7 +1261,7 @@ def main():
         "selection": selection,
         "notes": (f"Mode 1, feat260705_eci_spy — FIRST QUARTERLY PAIR (annualization sqrt(4); leads/lookbacks/oos_n in "
                   f"QUARTERS). Tournament: {len(tdf)-1} strategy combos (+1 benchmark, valid=False per ECON-T4), "
-                  f"{n_valid} valid, sparse grid over full tradable lead grid L1..L8 quarters. Winner by ECON-T3 "
+                  f"{n_valid} valid, sparse grid over full tradable lead grid L2..L5 quarters. Winner by ECON-T3 "
                   f"cascade (resolved at step {resolved_at}; {n_tied} tied at step 1). "
                   f"SMALL-SAMPLE / FOUND-IN-SEARCH (STRONG): OOS window is {int(winner['oos_n'])} QUARTERS "
                   f"-> the winner is a CANDIDATE, not a validated edge; OOS Sharpe is high-variance. "
@@ -1403,7 +1403,7 @@ def main():
         input_sha = "sha256:" + hashlib.sha256(f.read()).hexdigest()[:16]
     lead_manifest = {
         "pair": PAIR_ID, "run_date": DATE_TAG, "frozen": False,
-        "granularity": "QUARTERS L1..8 tradable (L0 diagnostic-only in lead_correlation; quarterly adaptation of ECON-LL1)",
+        "granularity": "QUARTERS L2..5 tradable (L0/L1 diagnostic-only in lead_correlation; quarterly adaptation of ECON-LL1)",
         "freq_native": "Q",
         "design_note": ("FIRST QUARTERLY pair; lead L = quarter shift on quarter-end signals. L0 excluded from the "
                         "tradable grid (BLS ~1-month publication lag: quarter Q's print is first tradable in Q+1). "
@@ -1419,8 +1419,8 @@ def main():
         "winner_curve_peak_lead": peak_lead,
         "L_star": L_star, "best_oos_sharpe_at_grid": round(float(best_at_grid), 4) if pd.notna(best_at_grid) else None,
         "gate_decision": gate,
-        "assertions": ["tradable lead grid is L1..8 QUARTERS (L0 non-tradable, pub-lag floor)",
-                       "main tournament scans the full L1..8 grid -> published winner is the global lead max",
+        "assertions": ["tradable lead grid is L2..5 QUARTERS (L0/L1 non-tradable, strict pub-lag floor)",
+                       "main tournament scans the full L2..5 grid -> published winner is the global lead max",
                        f"ECON-LT1 gate: L*={L_star} -> {gate}"],
         "small_sample_caveat": f"OOS = {int(winner['oos_n'])} quarters -> winner is found-in-search; lead-sweep peaks are high-variance."}
     with open(os.path.join(RESULTS_DIR, f"lead_sweep_manifest_{DATE_TAG}.json"), "w") as f:
@@ -1437,7 +1437,7 @@ def main():
 
 ## Quarterly conventions (stated explicitly — first quarterly pair)
 - **Annualization: Sharpe = mean/std x sqrt(4); ann_return = mean x 4; ann_vol = std x sqrt(4).**
-- Lead grid **L1..L8 in QUARTERS** (L1 = pub-lag floor, BLS releases ~1 month after quarter end;
+- Lead grid **L2..L5 in QUARTERS** (L2 = strict pub-lag floor, BLS releases ~1 month after quarter end;
   L8 = 2yr ceiling — wage->Fed->equity transmission has no rationale beyond ~2yr and deeper leads
   eat the 101-obs sample). Tournament CSV lead column is `lead_quarters` (NOT lead_months).
 - Lookbacks LB12 (~3yr) / LB20 (~5yr) quarters. Correlation horizons spy_fwd_1q/2q/4q.

@@ -1,0 +1,9 @@
+direction,lag,f_statistic,p_value,significant
+indicator_to_target,1,0.1997,0.656,False
+target_to_indicator,1,6.3509,0.0135,True
+indicator_to_target,2,0.4268,0.654,False
+target_to_indicator,2,4.5503,0.0132,True
+indicator_to_target,3,0.7275,0.5384,False
+target_to_indicator,3,4.8434,0.0037,True
+indicator_to_target,4,0.8384,0.5048,False
+target_to_indicator,4,4.3864,0.0029,True

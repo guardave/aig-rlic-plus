@@ -1,6 +1,6 @@
 {
   "pair_id": "m2sl_yoy_spy",
-  "generated_at": "2026-10-09T09:19:14Z",
+  "generated_at": "2026-10-16T18:36:24Z",
   "signal_column": "m2sl_yoy_accel_pct",
   "signal_code": "m2sl_accel",
   "signal_display_name": "M2SL accel",
@@ -15,7 +15,7 @@
   "strategy_description": "Long SPY when the lagged M2SL signal is above its threshold; otherwise cash. (Procyclical orientation: strong money growth = risk-on, consistent with the liquidity channel.)",
   "lead_value": 2,
   "lead_unit": "months",
-  "lead_description": "Signal lead = 2 month(s); L1 is the real-time floor given the ~4th-Tuesday H.6 publication lag for the prior month",
+  "lead_description": "Signal lead = 2 month(s); L2 is the strict floor given the ~4th-Tuesday H.6 publication lag for the prior month",
   "lookback": "LB_NA",
   "direction": "procyclical",
   "oos_sharpe": 1.6882,
@@ -34,16 +34,15 @@
   "bh_ann_return": 0.1486,
   "bh_max_drawdown": -0.2393,
   "cost_assumption_bps": 5,
-  "total_combos": 12272,
-  "valid_combos": 8772,
+  "total_combos": 11328,
+  "valid_combos": 8109,
   "schema_version": "1.2.0",
-  "notes": "Mode 3, pair260619_m2sl_yoy_spy. Tournament: 12272 strategy combos (+1 benchmark, valid=False per ECON-T4), 8772 valid. Winner by ECON-T3 cascade (resolved at step 1; 1 tied at step 1). Strategy returns are gross of transaction costs; 5 bps sensitivity in tournament_validation_20261008/. M2 is a revised series (FRED M2SL current vintage; Data Master snapshot is ~0.5% stale). Lead-lag: Toda-Yamamoto Granger M2SL->SPY significant at lags NONE; SPY->M2SL significant at lags [1, 2, 3, 4, 5, 8]. Robustness caveats: winner bootstrap p = 0.025 (vs resampled B&H); in-sample Sharpe 0.36 vs OOS 1.69; CP1 durability verdict 'conditionally_durable'; rolling-correlation stability 'moderately_stable'. OOS mean position 0.48.",
+  "notes": "Mode 3, pair260619_m2sl_yoy_spy. Tournament: 11328 strategy combos (+1 benchmark, valid=False per ECON-T4), 8109 valid. Winner by ECON-T3 cascade (resolved at step 1; 1 tied at step 1). Strategy returns are gross of transaction costs; 5 bps sensitivity in tournament_validation_20261016/. M2 is a revised series (FRED M2SL current vintage; Data Master snapshot is ~0.5% stale). Lead-lag: Toda-Yamamoto Granger M2SL->SPY significant at lags NONE; SPY->M2SL significant at lags [1, 2, 3, 4, 5, 8]. Robustness caveats: winner bootstrap p = 0.025 (vs resampled B&H); in-sample Sharpe 0.36 vs OOS 1.69; CP1 durability verdict 'conditionally_durable'; rolling-correlation stability 'moderately_stable'. OOS mean position 0.48.",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
     "grid_scanned": {
       "leads": [
-        1,
         2,
         3,
         4,
@@ -60,8 +59,8 @@
       "n_signals": 8,
       "n_thresholds": 10,
       "n_strategies": 6,
-      "n_valid_combos": 8772,
-      "median_valid_objective": 0.7144
+      "n_valid_combos": 8109,
+      "median_valid_objective": 0.7161
     },
     "tie_break_step": 0,
     "raw_winner_row": {
@@ -70,8 +69,8 @@
       "strategy": "P1_long_cash_pro",
       "lead_column": "lead_months",
       "lead_value": 2,
-      "source_tournament_file": "tournament_results_20261008.csv",
-      "source_row_index": 6576,
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 5956,
       "display_alias": "signal_code=m2sl_accel (raw signal=accel); strategy_family=P1_long_cash (raw strategy=P1_long_cash_pro)"
     },
     "runner_up": {
@@ -81,7 +80,7 @@
       "lead_value": 2,
       "objective_value": 1.6517
     },
-    "rationale": "Unique maximiser of OOS Sharpe over the full monthly grid L{1..13} (8772 valid combos, median OOS Sharpe 0.7144). Winner raw OOS Sharpe 1.6882 at L2; the 2nd-best valid combo (accel/T2_roll_p75/P1_long_cash_pro/L2) sits at 1.6517. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "rationale": "Unique maximiser of OOS Sharpe over the full monthly grid L{2..13} (8109 valid combos, median OOS Sharpe 0.7161). Winner raw OOS Sharpe 1.6882 at L2; the 2nd-best valid combo (accel/T2_roll_p75/P1_long_cash_pro/L2) sits at 1.6517. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
     "objective_runner_up_divergence": null
   }
 }

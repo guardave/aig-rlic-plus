@@ -1,0 +1,21 @@
+{
+  "pair_id": "housing_starts_rebuilt_spy",
+  "date": "20261016",
+  "pipeline_seconds": 87.5,
+  "stage_times": {
+    "1_load_verify": 0.0,
+    "2_signals": 1.5,
+    "3_exploratory_correlations": 0.3,
+    "4_core_models": 5.0,
+    "5_regime_quartiles": 0.0,
+    "6_tournament": 43.3,
+    "7_winner_artifacts": 0.1,
+    "8_cross_period": 35.3,
+    "9_validation": 0.3
+  },
+  "tournament_strategy_rows": 13200,
+  "valid_strategies": 9597,
+  "oos_n_months": 101,
+  "oos_start": "2018-04-30",
+  "oos_end": "2026-08-31"
+}

@@ -1,6 +1,6 @@
 {
   "pair_id": "busloans_spy",
-  "generated_at": "2026-10-08T23:42:49Z",
+  "generated_at": "2026-10-16T18:28:30Z",
   "signal_column": "busloans_pct_mom",
   "signal_code": "busloans_mom",
   "signal_display_name": "BUSLOANS mom",
@@ -15,7 +15,7 @@
   "strategy_description": "Long SPY when the lagged BUSLOANS signal is above its threshold; otherwise cash. (Countercyclical orientation: low/decelerating loan growth = risk-on.)",
   "lead_value": 6,
   "lead_unit": "months",
-  "lead_description": "Signal lead = 6 month(s); L1 is the real-time floor given the ~2-3 week H.8 publication lag",
+  "lead_description": "Signal lead = 6 month(s); L2 is the strict floor given the ~12-day H.8 publication lag (the reading is public only during M+1)",
   "lookback": "LB36",
   "direction": "countercyclical",
   "oos_sharpe": 1.4999,
@@ -34,16 +34,15 @@
   "bh_ann_return": 0.1482,
   "bh_max_drawdown": -0.2393,
   "cost_assumption_bps": 5,
-  "total_combos": 15860,
-  "valid_combos": 11391,
+  "total_combos": 14640,
+  "valid_combos": 10515,
   "schema_version": "1.2.0",
-  "notes": "Mode 1, fix260612_busloans_spy. Tournament: 15860 strategy combos (+1 benchmark, valid=False per ECON-T4), 11391 valid. Winner by ECON-T3 cascade (resolved at step 1; 1 tied at step 1). Strategy returns are gross of transaction costs; 5 bps sensitivity in tournament_validation_20261008/. BUSLOANS is a LAGGING indicator (Conference Board lagging-index component); Toda-Yamamoto Granger finds NO forward causality (BUSLOANS->SPY n.s. at all lags 1-12) and STRONG reverse causality (SPY->BUSLOANS significant at every lag) \u2014 this pair is primarily confirmatory, and the strategy edge should be read with corresponding caution. Robustness caveats: winner bootstrap p = 0.066 (NOT significant at 5% vs resampled B&H); in-sample Sharpe 0.35 vs OOS 1.50 (IS/OOS inconsistency suggests a favorable OOS draw); CP1 durability verdict 'episode_concentrated'; rolling-correlation stability 'sign_unstable'. OOS exposure is sparse (mean position 0.25) \u2014 most of the DD advantage comes from being in cash.",
+  "notes": "Mode 1, fix260612_busloans_spy. Tournament: 14640 strategy combos (+1 benchmark, valid=False per ECON-T4), 10515 valid. Winner by ECON-T3 cascade (resolved at step 1; 1 tied at step 1). Strategy returns are gross of transaction costs; 5 bps sensitivity in tournament_validation_20261016/. BUSLOANS is a LAGGING indicator (Conference Board lagging-index component); Toda-Yamamoto Granger finds NO forward causality (BUSLOANS->SPY n.s. at all lags 1-12) and STRONG reverse causality (SPY->BUSLOANS significant at every lag) \u2014 this pair is primarily confirmatory, and the strategy edge should be read with corresponding caution. Robustness caveats: winner bootstrap p = 0.066 (NOT significant at 5% vs resampled B&H); in-sample Sharpe 0.35 vs OOS 1.50 (IS/OOS inconsistency suggests a favorable OOS draw); CP1 durability verdict 'episode_concentrated'; rolling-correlation stability 'sign_unstable'. OOS exposure is sparse (mean position 0.25) \u2014 most of the DD advantage comes from being in cash.",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
     "grid_scanned": {
       "leads": [
-        1,
         2,
         3,
         4,
@@ -60,8 +59,8 @@
       "n_signals": 10,
       "n_thresholds": 10,
       "n_strategies": 6,
-      "n_valid_combos": 11391,
-      "median_valid_objective": 0.7524
+      "n_valid_combos": 10515,
+      "median_valid_objective": 0.756
     },
     "tie_break_step": 0,
     "raw_winner_row": {
@@ -70,8 +69,8 @@
       "strategy": "P1_long_cash_counter",
       "lead_column": "lead_months",
       "lead_value": 6,
-      "source_tournament_file": "tournament_results_20261008.csv",
-      "source_row_index": 2249,
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 2001,
       "display_alias": "signal_code=busloans_mom (raw signal=mom); strategy_family=P1_long_cash (raw strategy=P1_long_cash_counter)"
     },
     "runner_up": {
@@ -81,7 +80,7 @@
       "lead_value": 6,
       "objective_value": 1.4767
     },
-    "rationale": "Unique maximiser of OOS Sharpe over the full monthly grid L{1..13} (11391 valid combos, median OOS Sharpe 0.7524). Winner raw OOS Sharpe 1.4999 at L6; the 2nd-best valid combo (accel/T2_roll_p75/P3_long_short_counter/L6) sits at 1.4767. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "rationale": "Unique maximiser of OOS Sharpe over the full monthly grid L{2..13} (10515 valid combos, median OOS Sharpe 0.7560). Winner raw OOS Sharpe 1.4999 at L6; the 2nd-best valid combo (accel/T2_roll_p75/P3_long_short_counter/L6) sits at 1.4767. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
     "objective_runner_up_divergence": null
   }
 }

@@ -1,0 +1,3 @@
+state_label,mean_return,vol,duration_days,frequency_pct,mean_yoy_growth
+high_wage_inflation,0.016212,0.073269,2898,47.42,3.725
+low_wage_inflation,0.034844,0.085964,3213,52.58,2.235

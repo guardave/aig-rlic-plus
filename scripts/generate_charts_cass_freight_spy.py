@@ -2,12 +2,12 @@
 """Chart generation: Cass Freight Index (Shipments, FRGSHPUSM649NCIS) x SPY.
 
 Producer for the cass_freight_spy standard chart set (#255 floored-grid re-run,
-DATE_TAG 20261008; the pair history was extended to 1990-2026 by the Step C #198
+DATE_TAG 20261016; the pair history was extended to 1990-2026 by the Step C #198
 Data Master splice). Consumes results/cass_freight_spy/ (winner_summary.json,
-tournament_results_20261008.csv, strategy_returns_20261008.csv, subperiod_sharpe.csv,
-regime_quartile_returns.csv, granger_by_lag.csv, core_models_20261008/*,
-rolling_correlation_*.csv, structural_break_*.json, lead_correlation_20261008.csv,
-lead_tournament_20261008.csv) plus Dana's monthly dataset. Strategy charts use the
+tournament_results_20261016.csv, strategy_returns_20261016.csv, subperiod_sharpe.csv,
+regime_quartile_returns.csv, granger_by_lag.csv, core_models_20261016/*,
+rolling_correlation_*.csv, structural_break_*.json, lead_correlation_20261016.csv,
+lead_tournament_20261016.csv) plus Dana's monthly dataset. Strategy charts use the
 saved return series; they do NOT re-run strategy selection.
 
 Framing (binding — do NOT oversell; every number sourced from results/):
@@ -74,7 +74,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart, QUARTILE_COLORS  # noqa: E402
 
 PAIR = "cass_freight_spy"
-DATE_TAG = "20261008"
+DATE_TAG = "20261016"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"

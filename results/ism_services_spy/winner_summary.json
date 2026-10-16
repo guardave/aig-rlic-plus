@@ -1,6 +1,6 @@
 {
   "pair_id": "ism_services_spy",
-  "generated_at": "2026-10-09T09:17:50Z",
+  "generated_at": "2026-10-16T18:35:04Z",
   "signal_column": "ism_services_gap_50",
   "signal_code": "ism_services_gap_50",
   "signal_display_name": "ISM Services gap_50",
@@ -15,7 +15,7 @@
   "strategy_description": "Long SPY when the lagged ISM Services signal is below its threshold; otherwise cash. (Countercyclical orientation: weak PMI/gap = risk-on after lag.)",
   "lead_value": 3,
   "lead_unit": "months",
-  "lead_description": "Signal lead = 3 month(s); L1 is the monthly real-time floor because prior-month PMI is released early in the following month",
+  "lead_description": "Signal lead = 3 month(s); L2 is the strict monthly floor because prior-month PMI is released on business day 3 of the following month",
   "lookback": "LB120",
   "direction": "countercyclical",
   "oos_sharpe": 1.5377,
@@ -34,16 +34,15 @@
   "bh_ann_return": 0.1512,
   "bh_max_drawdown": -0.2393,
   "cost_assumption_bps": 5,
-  "total_combos": 12688,
-  "valid_combos": 8696,
+  "total_combos": 11712,
+  "valid_combos": 8021,
   "schema_version": "1.2.0",
-  "notes": "Mode 3, feat_ism_services_spy. Tournament: 12688 strategy combos (+1 benchmark, valid=False per ECON-T4), 8696 valid. Winner by ECON-T3 cascade (resolved at step 5; 2 tied at step 1). Strategy returns are gross of transaction costs; 5 bps sensitivity in tournament_validation_20261008/. ISM Services PMI behaves as a coincident/sentiment survey in this sample: Toda-Yamamoto Granger finds NO monthly forward causality (ISM Services->SPY n.s. at all lags 1-12) and STRONG reverse causality (SPY->ISM Services significant at every lag). Robustness caveats: winner bootstrap p = 0.073 (NOT significant at 5% vs resampled B&H); in-sample Sharpe -0.11 vs OOS 1.54 (IS/OOS inconsistency suggests a favorable OOS draw); CP1 durability verdict 'episode_concentrated'; rolling-correlation stability 'moderately_stable'. OOS exposure is sparse (mean position 0.27) \u2014 most of the DD advantage comes from being in cash.",
+  "notes": "Mode 3, feat_ism_services_spy. Tournament: 11712 strategy combos (+1 benchmark, valid=False per ECON-T4), 8021 valid. Winner by ECON-T3 cascade (resolved at step 5; 2 tied at step 1). Strategy returns are gross of transaction costs; 5 bps sensitivity in tournament_validation_20261016/. ISM Services PMI behaves as a coincident/sentiment survey in this sample: Toda-Yamamoto Granger finds NO monthly forward causality (ISM Services->SPY n.s. at all lags 1-12) and STRONG reverse causality (SPY->ISM Services significant at every lag). Robustness caveats: winner bootstrap p = 0.073 (NOT significant at 5% vs resampled B&H); in-sample Sharpe -0.11 vs OOS 1.54 (IS/OOS inconsistency suggests a favorable OOS draw); CP1 durability verdict 'episode_concentrated'; rolling-correlation stability 'moderately_stable'. OOS exposure is sparse (mean position 0.27) \u2014 most of the DD advantage comes from being in cash.",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
     "grid_scanned": {
       "leads": [
-        1,
         2,
         3,
         4,
@@ -60,8 +59,8 @@
       "n_signals": 8,
       "n_thresholds": 10,
       "n_strategies": 6,
-      "n_valid_combos": 8696,
-      "median_valid_objective": 0.7761
+      "n_valid_combos": 8021,
+      "median_valid_objective": 0.776
     },
     "tie_break_step": 5,
     "raw_winner_row": {
@@ -70,8 +69,8 @@
       "strategy": "P1_long_cash_pro",
       "lead_column": "lead_months",
       "lead_value": 3,
-      "source_tournament_file": "tournament_results_20261008.csv",
-      "source_row_index": 1914,
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 1670,
       "display_alias": "signal_code=ism_services_gap_50 (raw signal=gap_50); strategy_family=P1_long_cash (raw strategy=P1_long_cash_pro)"
     },
     "runner_up": {
@@ -81,7 +80,7 @@
       "lead_value": 3,
       "objective_value": 1.5377
     },
-    "rationale": "Unique maximiser of OOS Sharpe over the full monthly grid L{1..13} (8696 valid combos, median OOS Sharpe 0.7761). Winner raw OOS Sharpe 1.5377 at L3; the 2nd-best valid combo (level/T3_zscore_neg_1.0/P1_long_cash_pro/L3) sits at 1.5377. ECON-T3 cascade resolved a step-1 tie (2 combos tied on oos_sharpe) at step 5. Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "rationale": "Unique maximiser of OOS Sharpe over the full monthly grid L{2..13} (8021 valid combos, median OOS Sharpe 0.7760). Winner raw OOS Sharpe 1.5377 at L3; the 2nd-best valid combo (level/T3_zscore_neg_1.0/P1_long_cash_pro/L3) sits at 1.5377. ECON-T3 cascade resolved a step-1 tie (2 combos tied on oos_sharpe) at step 5. Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
     "objective_runner_up_divergence": null
   }
 }

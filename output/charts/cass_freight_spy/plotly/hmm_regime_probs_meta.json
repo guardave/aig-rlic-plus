@@ -12,10 +12,10 @@
   "narrative_alignment_note": "HMM is backdrop context; winner is the trend-deviation signal, not hmm_stress. Labelled accordingly.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/core_models_20261008/hmm_states.parquet",
-    "results/cass_freight_spy/core_models_20261008/hmm_summary.csv"
+    "results/cass_freight_spy/core_models_20261016/hmm_states.parquet",
+    "results/cass_freight_spy/core_models_20261016/hmm_summary.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:43:20.554529+00:00",
+  "generated_at": "2026-10-16T18:42:40.185656+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

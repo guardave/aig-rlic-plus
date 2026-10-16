@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Two-bar TE comparison; reverse-only significance reinforces the Granger verdict.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/m2sl_yoy_spy/core_models_20261008/transfer_entropy.csv"
+    "results/m2sl_yoy_spy/core_models_20261016/transfer_entropy.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:28:23.146929+00:00",
+  "generated_at": "2026-10-16T18:43:17.137843+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
 }

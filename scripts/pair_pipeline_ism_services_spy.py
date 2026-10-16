@@ -30,7 +30,7 @@ Provenance: ISM Services PMI is NOT on FRED; source is project Data Master.xlsx,
 sheet ISM PMI, column "CDis, CSta - ISM Services PMI", vintage through Oct 2025.
 
 Lag convention: monthly month-end PMI is not tradable until the following
-release, so monthly tournament lead grid starts at L1 and sweeps around L6.
+release (3rd business day of M+1), so the strict floor is L2 and the monthly tournament lead grid is L2..L13.
 Lead semantics: position at month t = rule(signal_{t-L}); strategy_return_t =
 position_t * spy_ret_t. Daily L0 is feasible only on the carried LVCF daily file.
 
@@ -60,10 +60,10 @@ PAIR_ID = "ism_services_spy"
 INDICATOR_NAME = "ISM Services PMI"
 TARGET_NAME = "SPY"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20261008"
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (2026-10-16): grid truncated from the bottom to the strict floor, top not extended; prior run 20261008 (L1..L13).
 COST_BPS = 5  # equity ETF per ECON-T2 / target-class table
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root (was hardcoded /workspaces/aig-rlic-plus; pkg9 runs from a worktree)
 DATA_PATH = os.path.join(BASE_DIR, "data", "ism_services_spy_monthly_latest.parquet")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
@@ -621,7 +621,7 @@ def stage_tournament(df):
     oos_mask = work.index >= oos_start
     spy_ret = work["spy_ret"]
 
-    leads = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
+    leads = list(range(2, 14))  # strict floor E2 (ISM services business day 3 of M+1): sub-floor L1 truncated, top not extended (pkg9, protocol D2)
     lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 
@@ -729,7 +729,7 @@ def stage_tournament(df):
         "total_strategy_rows": len(strat_pop), "valid_strategy_rows": n_valid,
         "sampling": "exhaustive (no stratified sampling; grid within budget)",
         "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
-        "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 (L1 real-time floor per Dana lag doc)",
+        "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 2 (strict floor L2: PMI for M is released on business day 3 of M+1)",
         "cost_note": "returns are gross of costs; 5bps sensitivity in tournament_validation",
         "assertions": [
             "top strategy oos_sharpe > bottom strategy oos_sharpe",
@@ -1131,7 +1131,7 @@ def main():
         "strategy_description": "",  # filled below
         "lead_value": int(winner["lead_months"]),
         "lead_unit": "months",
-        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L1 is the monthly real-time floor because prior-month PMI is released early in the following month",
+        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L2 is the strict monthly floor because prior-month PMI is released on business day 3 of the following month",
         "lookback": winner["lookback"],
         "direction": direction,
         "oos_sharpe": round(float(winner["oos_sharpe"]), 4),
@@ -1379,9 +1379,9 @@ See handoff for the full verdict.
 
 ## Tournament conventions
 - Units in tournament_results CSV are RATIOS (decimal), not percent — documented in the CSV manifest.
-- Monthly lead grid starts at L1 (real-time floor: prior-month PMI publishes early in the following month). Lead semantics:
+- Monthly lead grid starts at L2 (strict floor: prior-month PMI publishes on business day 3 of the following month). Lead semantics:
   position_t = rule(signal_(t−L)); strategy_return_t = position_t × spy_ret_t.
-- Daily LVCF data has release lag baked in; daily L0 on the carried value is feasible, but this monthly tournament uses L1+.
+- Daily LVCF data has release lag baked in; daily L0 on the carried value is feasible, but this monthly tournament uses L2+.
 - Both orientations (pro/counter) tested per the mixed direction prior.
 - CP2 skipped — `regime_story: false` in signal_scope.json.
 - Returns gross of costs; 5 bps sensitivity grid in tournament_validation_{DATE_TAG}/.

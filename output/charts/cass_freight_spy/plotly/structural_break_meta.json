@@ -17,7 +17,7 @@
     "data/cass_freight_spy_monthly_latest.parquet"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:43:21.403986+00:00",
+  "generated_at": "2026-10-16T18:42:40.978521+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)",
   "break_date": "2009-03-31",
   "annotation_strategy_id": "manual_override"
