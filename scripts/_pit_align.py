@@ -203,13 +203,33 @@ def vintage_asof(vint: pd.DataFrame, date, freq: str = "M") -> pd.Series:
     return s[~s.index.duplicated(keep="last")]
 
 
+def after_close_rule(series_id: str, meta: Path | str = CALENDAR.with_name("release_calendar_meta.json")):
+    """The calendar's after-close rule for a series: False, True (always after the 16:00 ET close) or a date
+    string = after the close for releases before that date (e.g. M2SL until 2021-02-23)."""
+    import json
+    rule = json.loads(Path(meta).read_text()).get("after_close", {}).get(series_id)
+    if not rule:
+        return False
+    return rule.get("before_close_from") or True
+
+
+def visible_on(date, after_close=False) -> pd.Timestamp:
+    """Vintage date whose contents are visible at the close of `date`: `date` itself, or the previous trading day
+    when the series is published after the 16:00 ET close (Lead decision Q3)."""
+    d = pd.Timestamp(date)
+    if after_close is True or (isinstance(after_close, str) and d < pd.Timestamp(after_close)):
+        return TRADING_DAY.rollback(d - pd.Timedelta(days=1))
+    return d
+
+
 def realtime_apply(vint: pd.DataFrame, index: pd.DatetimeIndex, lead: int, fn, position_shift: int = 0,
-                   freq: str = "M") -> pd.DataFrame:
+                   freq: str = "M", after_close=False) -> pd.DataFrame:
     """Track (b) as-of alignment. For each row u: take the vintage published at the row's window open, compute
     fn(vintage) (a Series/DataFrame on the vintage's period-end stamps, e.g. signal and rolling threshold), and
     return its row for the latest period present in that vintage at or before the nominal reading index[u - lead].
     Rows whose window opens before the first vintage, or with no reading, are NaN. Never uses a value published
-    after the window opens."""
+    after the window opens. after_close (False | True | 'YYYY-MM-DD', see after_close_rule): a vintage posted
+    after the 16:00 ET close on the window-open date is not used (QA2 M-1)."""
     idx = pd.DatetimeIndex(index)
     opn = window_open(idx, position_shift)
     first = vint.realtime_start.min()
@@ -218,7 +238,7 @@ def realtime_apply(vint: pd.DataFrame, index: pd.DatetimeIndex, lead: int, fn, p
         o = opn.iloc[u]
         if pd.isna(o) or o < first or u - lead < 0:
             continue
-        v = vintage_asof(vint, o, freq)
+        v = vintage_asof(vint, visible_on(o, after_close), freq)
         full = pd.date_range(v.index.min(), v.index.max(), freq="QE" if freq == "Q" else "ME")
         out = fn(v.reindex(full))
         out = out.to_frame() if isinstance(out, pd.Series) else out

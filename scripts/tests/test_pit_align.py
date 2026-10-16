@@ -225,3 +225,18 @@ def test_calendar_after_close_fallback_and_verified_rows():
         i.available_date_harsh)
     # never-published months stay unavailable
     assert pd.isna(row("UNRATE", "2025-10-01").first_release)
+
+
+def test_realtime_apply_after_close_vintage_not_visible_on_its_posting_date():
+    """QA2 M-1: an H.8-style 16:15 ET posting on the window-open date is not usable at that close."""
+    idx = pd.DatetimeIndex(["2024-01-31", "2024-02-29", "2024-03-29"])
+    # Jan value first posted Thu 2024-02-29 (= the window-open close of row 2024-03-29) at 16:15 ET
+    v = vint_table([("2023-12-31", "2024-01-12", None, 1.0), ("2024-01-31", "2024-02-29", None, 2.0)])
+    same_day = pa.realtime_apply(v, idx, 1, lambda s: s.rename("x"))["x"]
+    after = pa.realtime_apply(v, idx, 1, lambda s: s.rename("x"), after_close=True)["x"]
+    assert same_day.loc["2024-03-29"] == 2.0 and after.loc["2024-03-29"] == 1.0
+    # a dated rule switches off from its date (M2SL: before-close releases from 2021-02-23)
+    assert pa.visible_on("2024-02-29", "2021-02-23") == pd.Timestamp("2024-02-29")
+    assert pa.visible_on("2005-02-10", "2021-02-23") == pd.Timestamp("2005-02-09")
+    assert pa.after_close_rule("BUSLOANS") is True and pa.after_close_rule("M2SL") == "2021-02-23"
+    assert pa.after_close_rule("UNRATE") is False

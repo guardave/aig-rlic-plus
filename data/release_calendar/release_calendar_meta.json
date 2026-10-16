@@ -3,7 +3,14 @@
   "calendar_start": "1985-01-01",
   "convention": "first_release = date the reading is first public; available_date = first_release, or the next trading day when the release is after the 16:00 ET close (AFTER_CLOSE series, USGS files stamped >= 16:00 ET). A reading is usable for a window opening at the close of day d iff available_date <= d. Fallback rows use the max observed lag excluding documented shutdown windows and batch-posting artefacts (default); *_harsh columns use the shutdown-inclusive max (sensitivity).",
   "after_close": {
-    "BUSLOANS": "Fed H.8, 16:15 ET"
+    "BUSLOANS": {
+      "release_time": "Fed H.8, Fridays 16:15 ET",
+      "before_close_from": null
+    },
+    "M2SL": {
+      "release_time": "Fed H.6, 16:30 ET (weekly, documented 2000-2005) until the monthly 13:00 ET release from 2021-02-23",
+      "before_close_from": "2021-02-23"
+    }
   },
   "shutdown_reference_windows": [
     [
@@ -33,6 +40,7 @@
       "freq": "M",
       "release_time_et": "08:30",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "2010-03-01",
       "first_own_measured_ref": "2010-03-01",
       "last_ref": "2026-09-01",
@@ -58,6 +66,7 @@
       "freq": "M",
       "release_time_et": "08:30",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "2001-06-01",
       "first_own_measured_ref": "2001-06-01",
       "last_ref": "2026-09-01",
@@ -81,6 +90,7 @@
       "freq": "M",
       "release_time_et": "09:15",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "1985-01-01",
       "first_own_measured_ref": "1985-01-01",
       "last_ref": "2026-09-01",
@@ -104,6 +114,7 @@
       "freq": "M",
       "release_time_et": "08:00/08:30",
       "after_close": null,
+      "after_close_until": null,
       "sibling": {
         "series": "HOUST",
         "overlap_periods": 325,
@@ -133,6 +144,7 @@
       "freq": "M",
       "release_time_et": "08:00/08:30",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "1985-01-01",
       "first_own_measured_ref": "1985-01-01",
       "last_ref": "2026-08-01",
@@ -157,7 +169,8 @@
     "M2SL": {
       "freq": "M",
       "release_time_et": "13:00",
-      "after_close": null,
+      "after_close": "Fed H.6, 16:30 ET (weekly, documented 2000-2005) until the monthly 13:00 ET release from 2021-02-23",
+      "after_close_until": "2021-02-23",
       "first_dated_ref": "1985-01-01",
       "first_own_measured_ref": "1985-01-01",
       "last_ref": "2026-08-01",
@@ -175,12 +188,13 @@
       "n_fallback": 0,
       "data_holes": [],
       "no_release_recorded": [],
-      "n_after_close_rows": 0
+      "n_after_close_rows": 433
     },
     "FRGSHPUSM649NCIS": {
       "freq": "M",
       "release_time_et": "unknown (FRED posting date used)",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "2013-06-01",
       "first_own_measured_ref": "2013-06-01",
       "last_ref": "2026-09-01",
@@ -210,7 +224,8 @@
     "BUSLOANS": {
       "freq": "M",
       "release_time_et": "16:15 (H.8, after the close)",
-      "after_close": "Fed H.8, 16:15 ET",
+      "after_close": "Fed H.8, Fridays 16:15 ET",
+      "after_close_until": null,
       "first_dated_ref": "1996-12-01",
       "first_own_measured_ref": "1996-12-01",
       "last_ref": "2026-09-01",
@@ -234,6 +249,7 @@
       "freq": "Q",
       "release_time_et": "unknown (FRED posting date used)",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "2011-04-01",
       "first_own_measured_ref": "2011-04-01",
       "last_ref": "2026-04-01",
@@ -257,6 +273,7 @@
       "freq": "Q",
       "release_time_et": "08:30",
       "after_close": null,
+      "after_close_until": null,
       "sibling": {
         "series": "ECIWAG",
         "overlap_periods": 52,
@@ -286,6 +303,7 @@
       "freq": "Q",
       "release_time_et": "14:00",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "2010-07-01",
       "first_own_measured_ref": "2010-07-01",
       "last_ref": "2026-07-01",
@@ -309,6 +327,7 @@
       "freq": "M",
       "release_time_et": "10:00",
       "after_close": null,
+      "after_close_until": null,
       "publisher_check": {
         "n_dates": 19,
         "n_compared": 19,
@@ -345,6 +364,7 @@
       "freq": "M",
       "release_time_et": "08:30",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "1985-01-01",
       "first_own_measured_ref": "1985-01-01",
       "last_ref": "2026-09-01",
@@ -370,6 +390,7 @@
       "freq": "M",
       "release_time_et": "10:00",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "2011-05-01",
       "first_own_measured_ref": "2011-05-01",
       "last_ref": "2026-08-01",
@@ -396,6 +417,7 @@
       "freq": "M",
       "release_time_et": "10:00",
       "after_close": null,
+      "after_close_until": null,
       "sibling": {
         "series": "BUSINV",
         "overlap_periods": 160,
@@ -425,6 +447,7 @@
       "freq": "M",
       "release_time_et": "10:00",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "1999-07-01",
       "first_own_measured_ref": "1999-07-01",
       "last_ref": "2026-08-01",
@@ -448,6 +471,7 @@
       "freq": "M",
       "release_time_et": "10:00",
       "after_close": null,
+      "after_close_until": null,
       "sibling": {
         "series": "HSN1F",
         "overlap_periods": 184,
@@ -477,6 +501,7 @@
       "freq": "M",
       "release_time_et": "08:30",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "1997-02-01",
       "first_own_measured_ref": "1997-02-01",
       "last_ref": "2026-08-01",
@@ -500,6 +525,7 @@
       "freq": "Q",
       "release_time_et": "unknown (FRED posting date used)",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "2011-04-01",
       "first_own_measured_ref": "2011-04-01",
       "last_ref": "2026-04-01",
@@ -523,6 +549,7 @@
       "freq": "Q",
       "release_time_et": "14:00",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "2010-07-01",
       "first_own_measured_ref": "2010-07-01",
       "last_ref": "2026-07-01",
@@ -546,6 +573,7 @@
       "freq": "M",
       "release_time_et": "10:30",
       "after_close": null,
+      "after_close_until": null,
       "publisher_check": {
         "n_dates": 270,
         "n_compared": 270,
@@ -594,6 +622,7 @@
       "freq": "M",
       "release_time_et": "10:00",
       "after_close": null,
+      "after_close_until": null,
       "publisher_check": {
         "n_dates": 25,
         "n_compared": 25,
@@ -632,6 +661,7 @@
       "freq": "M",
       "release_time_et": "10:00",
       "after_close": null,
+      "after_close_until": null,
       "publisher_check": {
         "n_dates": 28,
         "n_compared": 28,
@@ -669,6 +699,7 @@
       "freq": "M",
       "release_time_et": "10:00",
       "after_close": null,
+      "after_close_until": null,
       "publisher_check": {
         "n_dates": 25,
         "n_compared": 25,
@@ -728,6 +759,7 @@
       "freq": "M",
       "release_time_et": "FRED next business day",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "1985-01-01",
       "first_own_measured_ref": null,
       "last_ref": "2026-09-01",
@@ -751,6 +783,7 @@
       "freq": "M",
       "release_time_et": "file timestamp (UTC date used)",
       "after_close": null,
+      "after_close_until": null,
       "first_dated_ref": "2021-09-01",
       "first_own_measured_ref": "2021-09-01",
       "last_ref": "2026-06-01",

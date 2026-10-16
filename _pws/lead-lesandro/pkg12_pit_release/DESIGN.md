@@ -12,6 +12,7 @@ A reading for reference period M may drive a return window only if it was public
 
 `available_date` is the first-release date, except when the release is **after the 16:00 ET close**: then it is the next trading day (Lead decision Q3). After-close releases are:
 - BUSLOANS (Fed H.8, 16:15 ET);
+- M2SL (Fed H.6) before 2021-02-23. H.6 was a weekly 16:30 ET release (federalreserve.gov/releases/h6/20001116; QA also found 16:30 in the 2002-05 archives). From the first monthly release on 2021-02-23 it is published at 13:00 ET (federalreserve.gov/releases/h6/20210223 and the current H.6 page). The switch date in between is not documented, so the earlier period is treated as after the close, which is conservative;
 - any USGS file stamped at or after 16:00 ET.
 
 Documented release times for all series are in `release_calendar_meta.json`. Where the time is unknown, the date convention applies: Cass, DRCCLACBN and DRCCLACBS use FRED posting dates, which already lag the publisher.
@@ -125,7 +126,7 @@ Q6-Q8 are with the user. They are not acted on.
 | Value of M used | First print (ALFRED `output_type=4`, or the publisher's first release) | Value of M as published at the window open, i.e. the latest revision on or before that date |
 | Floor / availability | M's first-release date (the release calendar) | Presence in the vintage at the window open: a period is in vintage `t` only after its first release, and its value changes only on revision dates |
 | Transforms and thresholds | Computed on the first-print series. Note that yoy of first prints mixes vintages (M's first print vs M−12's first print) | Computed **inside one vintage** (signal and rolling threshold from the series as known at `t`), which is exactly what a live trader sees |
-| Helper | `pit_shift(sig, L, load_release(...))` on a first-print panel | `realtime_apply(load_vintages(sid), index, L, fn)`; `vintage_asof(vint, t)` gives "value as known at t" |
+| Helper | `pit_shift(sig, L, load_release(...))` on a first-print panel | `realtime_apply(load_vintages(sid), index, L, fn, after_close=after_close_rule(sid))` (an after-close vintage is visible from the next trading day); `vintage_asof(vint, t)` gives "value as known at t" |
 | Data | Small: one value per period | ALFRED vintage history (`data/release_calendar/vintages/`, 19 series, 644 KB). Non-FRED sources need their own archives (ISM, NAHB, UMich components, USGS, EIA) or stay on track (a) with publisher first prints |
 | Coverage | Back to the first vintage. Earlier periods only have first-vintage (already revised) values | Same: rows before the first vintage cannot be real-time (IR 2010, RETAILIRSA 2013, HSN1FNSA 2011, DRCCLACBN 2011, Cass 2013, …) |
 

@@ -71,6 +71,8 @@ The published Sharpe columns reproduce the committed `strategy_returns` exactly:
 
 ## D8 — revised values paired with first-release timing
 
+*Re-run 2026-10-17 (QA2 M-1): the real-time track no longer sees an after-close vintage on its posting date. BUSLOANS (H.8, 16:15 ET) moves from 0.98 to 1.00 OOS; M2SL (H.6 at 16:30 ET until the monthly 13:00 ET release from 2021-02-23) is unchanged. No other pair is after-close.*
+
 **Flag.** Every macro pair's published winner uses **revised (near-latest-vintage) values with first-release timing**. That is 29 of 35 pairs; only the 6 market-data pairs are exempt (gold_copper, vix_vix3m, phlxsox, t10y3m, t10y3m_rebuilt, and hy_ig, whose ICE OAS revisions cannot be measured). Sources and vintages are in DESIGN §8 and `VINTAGE_SOURCE.csv`.
 
 **Quantified where feasible** (`src/vintage_gap.py` → `VINTAGE_GAP.csv`; read-only, winner only). A pair counts as feasible when:
@@ -88,7 +90,7 @@ N − Ĉ is zero wherever the per-period gate found no breach. The exceptions ar
 
 | Pair | Series | R window (IS/OOS rows) | R vs N positions agree | IS Sharpe Ĉ → R (revision) | OOS Sharpe Ĉ → R (revision) | Track F IS / OOS | Objective; top-2 margin |
 |---|---|---|---|---|---|---|---|
-| busloans_spy | BUSLOANS | 1998-08..2026-05 (234/100) | 89% | 0.20 → 0.11 (−0.09) | **1.50 → 0.98 (−0.52)** | 0.36 / 0.54 | OOS; 0.023 |
+| busloans_spy | BUSLOANS | 1998-08..2026-05 (234/100) | 88% | 0.20 → 0.10 (-0.10) | **1.50 → 1.00 (-0.50)** | 0.36 / 0.54 | OOS; 0.023 |
 | m2sl_yoy_spy | M2SL | 1998-04..2026-04 (237/100) | 88% | 0.22 → 0.22 (0.00) | **1.69 → 1.22 (−0.47)** | 0.16 / 1.08 | OOS; 0.036 |
 | indpro_spy | INDPRO | 1995-06..2025-12 (271/96) | 87% | 0.67 → 0.56 (−0.10) | **1.23 → 1.02 (−0.21)** | 0.48 / 0.47 | OOS; 0.000 |
 | indpro_xlp | INDPRO | 2004-01..2025-12 (180/84) | 86% | **0.96 → 0.60 (−0.36)** | 1.33 → 1.33 (0.00) | 0.71 / 0.81 | OOS; 0.090 |
@@ -103,8 +105,8 @@ N − Ĉ is zero wherever the per-period gate found no breach. The exceptions ar
 | cass_freight_spy, cc_delinquency_spy, nhs_rebuilt_spy, sloos_ci_small_spy, umcsent_xlv | Cass, DRCCLACBN, HSN1FNSA, DRTSCILM, UMCSENT | from 2011-13 (Cass, cc, nhs_rebuilt, sloos) or 2004 (umcsent_xlv) | 100% | no change | no change | = | — |
 
 **Reading.**
-- **Revisions matter more than release timing.** For 11 of 17 quantified winners, real-time vintages flip 2-14% of positions and move Sharpe by 0.04-0.52, versus ≤ 0.03 for timing alone on the same pairs (0.06 for unrate, which is the dropped-row artifact).
-- **The largest hits are OOS-selected winners.** busloans OOS −0.52 (margin 0.023) and m2sl −0.47 (0.036): their published OOS edge over B&H (0.89-0.90) shrinks to about +0.09 for busloans and +0.32 for m2sl. indpro_spy is −0.21 with a zero margin (a tie).
+- **Revisions matter more than release timing.** For 11 of 17 quantified winners, real-time vintages flip 2-14% of positions and move Sharpe by 0.04-0.50, versus ≤ 0.03 for timing alone on the same pairs (0.06 for unrate, which is the dropped-row artifact).
+- **The largest hits are OOS-selected winners.** busloans OOS −0.50 (margin 0.023) and m2sl −0.47 (0.036): their published OOS edge over B&H (0.89-0.90) shrinks to about +0.11 for busloans and +0.32 for m2sl. indpro_spy is −0.21 with a zero margin (a tie).
 - **IS-selected winners:** unrate IS −0.31 against a 0.025 margin, so the winner is very likely to change under track (b). mfg_new_orders −0.14 (0.048) and permit_yoy −0.04 (0.010) are at risk. retail, rsxfs and nhs_saar_rebuilt move by less than their margins or upward.
 - **Not uniformly downward.** retail OOS +0.31, mfg OOS +0.17 and rsxfs +0.12 gain. These are signal-noise strategies, and revisions re-shuffle which months are flagged.
 - **Track (a), first prints, is not a safe default.** It is often the worst of the three (busloans OOS 0.54, indpro_spy 0.47) because yoy and threshold windows built from first prints mix vintages. That supports track (b).

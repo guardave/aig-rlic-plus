@@ -12,7 +12,8 @@ For every live pair whose winner is a FRED series with ALFRED vintages:
   N  timing only    : the panel's own (latest-vintage) values, each reading used only once it is present in the
                       ALFRED vintage at the window open (as-of availability). N - Ĉ = the timing effect, R - N = the pure revision effect.
   R  real-time      : at each rebalance, the vintage AS KNOWN when the return window opens (ALFRED rows with
-                      realtime_start <= open <= realtime_end). The rule (transform, rolling threshold) is computed on
+                      realtime_start <= open <= realtime_end; for after-close series (BUSLOANS H.8; M2SL H.6 before
+                      2021-02-23) the vintage of the previous trading day). The rule (transform, rolling threshold) is computed on
                       that vintage and the latest reading present in it at or before the nominal lead is used
                       (presence in a vintage = released). This is track (b): revised values floored on the date the
                       value became available.
@@ -204,6 +205,8 @@ def run(pair):
     v = load_vint(sid)
     v["period"] = v.date.dt.to_period(freq)
     first_vintage = v.realtime_start.min()
+    ac_rule = pa.after_close_rule(sid)
+    row["after_close_rule"] = str(ac_rule)
     # N uses the pipeline's own panel values (its vintage), so N - Ĉ is timing only
     panel_vals = pd.Series(raw.to_numpy(), index=raw.index.to_period(freq))
     panel_vals = panel_vals[~panel_vals.index.duplicated(keep="last")]
@@ -214,7 +217,8 @@ def run(pair):
     for t, o in opens.items():
         if pd.isna(o) or o < first_vintage:
             continue
-        vv = v[(v.realtime_start <= o) & (v.realtime_end >= o)]
+        ov = pa.visible_on(o, ac_rule)  # after-close postings are visible from the next trading day (QA2 M-1)
+        vv = v[(v.realtime_start <= ov) & (v.realtime_end >= ov)]
         lv0 = pd.Series(vv.value.values, index=vv.period.values).sort_index()
         lv0 = lv0[~lv0.index.duplicated(keep="last")]
         full = pd.period_range(lv0.index.min(), lv0.index.max(), freq=freq)

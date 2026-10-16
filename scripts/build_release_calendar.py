@@ -49,7 +49,16 @@ PUBLISHER_DATES = OUT_DIR / "publisher_release_dates.csv"
 PUBLISHER_MAP = {"ISM_MFG": "ISM_MFG", "ISM_SERVICES": "ISM_SERVICES", "NAHB_HMI": "NAHB_HMI",
                  "EIA_WPSR": "EIA_WPSR_WTTSTUS1", "UMICH_FINAL": "UMCSENT"}
 # series released after the 16:00 ET close: usable from the NEXT trading day's close (Lead decision Q3)
-AFTER_CLOSE = {"BUSLOANS": "Fed H.8, 16:15 ET"}
+# series -> (documented release time, date from which releases are BEFORE the close, or None = always after)
+AFTER_CLOSE = {
+    "BUSLOANS": ("Fed H.8, Fridays 16:15 ET", None),
+    # H.6 was a weekly Thursday 16:30 ET release (federalreserve.gov/releases/h6/20001116; QA found 16:30 in the
+    # 2002-05 archives); since the first monthly release on 2021-02-23 it is published at 13:00 ET
+    # (federalreserve.gov/releases/h6/20210223, current H.6 page). The switch date in between is not documented,
+    # so releases before 2021-02-23 are conservatively treated as after the close.
+    "M2SL": ("Fed H.6, 16:30 ET (weekly, documented 2000-2005) until the monthly 13:00 ET release from 2021-02-23",
+             "2021-02-23"),
+}
 CAL_START = pd.Timestamp("1985-01-01")
 BUILD_DATE = pd.Timestamp("2026-10-16")  # releases after this date are not in the calendar
 
@@ -212,7 +221,8 @@ def build(raw: pd.DataFrame):
             src = g[["first_release", "basis", "after_close"]].copy()
             src["after_close"] = src["after_close"].fillna(False).astype(bool)
         info = {"freq": "Q" if q else "M", "release_time_et": RELEASE_TIME_ET.get(sid),
-                "after_close": AFTER_CLOSE.get(sid)}
+                "after_close": AFTER_CLOSE.get(sid, (None, None))[0],
+                "after_close_until": AFTER_CLOSE.get(sid, (None, None))[1]}
         sib = SIBLINGS.get(sid)
         if sib and sib in measured:
             ov = src.index.intersection(measured[sib].index)
@@ -287,7 +297,10 @@ def build(raw: pd.DataFrame):
         info["n_fallback"] = int(pre.sum())
         info["data_holes"] = [str(x.date()) for x in cal.index[hole]]
         info["no_release_recorded"] = [str(x.date()) for x in cal.index[never]]
-        ac = cal["after_close"].fillna(False).astype(bool) | (sid in AFTER_CLOSE)
+        ac = cal["after_close"].fillna(False).astype(bool)
+        if sid in AFTER_CLOSE:
+            until = AFTER_CLOSE[sid][1]
+            ac |= cal["first_release"].notna() & (True if until is None else cal["first_release"] < pd.Timestamp(until))
         info["n_after_close_rows"] = int((ac & cal.first_release.notna()).sum())
         for col, src_col in (("available_date", "first_release"), ("available_date_harsh", "first_release_harsh")):
             cal[col] = cal[src_col]
@@ -320,7 +333,7 @@ def main(argv):
                        ">= 16:00 ET). A reading is usable for a window opening at the close of day d iff available_date <= d. "
                        "Fallback rows use the max observed lag excluding documented shutdown windows and batch-posting "
                        "artefacts (default); *_harsh columns use the shutdown-inclusive max (sensitivity).",
-         "after_close": AFTER_CLOSE, "shutdown_reference_windows": SHUTDOWN_REF,
+         "after_close": {k: {"release_time": v[0], "before_close_from": v[1]} for k, v in AFTER_CLOSE.items()}, "shutdown_reference_windows": SHUTDOWN_REF,
          "daily_rules": {"BAMLH0A0HYM2": "value dated t posted by FRED on the next business day",
                          "T10Y3M": "value dated t posted by FRED on the next business day",
                          "market_close": "gold/copper, VIX/VIX3M, SOX/SPY observed at the close of t: usable from t's close for the t -> t+1 return"},
