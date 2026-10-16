@@ -510,7 +510,11 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     st.caption(
         f"What this shows: Strategy family **{strategy}** "
         f"({winner.get('strategy_display_name', '')}) · "
-        f"threshold loaded from `winner_summary.json` = {_thr_note} · "
+        + (f"threshold loaded from `winner_summary.json` = {_thr_note} · "
+           if _th["source"] != "derived" else
+           f"`winner_summary.json` records no numeric threshold; recomputed from the signals file "
+           f"using the documented rolling definition = {_thr_note} · ")
+        +
         f"direction: {direction.replace('_', ' ')}."
     )
     if _is_rolling_tc:
