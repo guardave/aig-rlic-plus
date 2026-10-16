@@ -275,10 +275,13 @@ def main() -> int:
     # Carry-over orphans: existing rows with a non-default status that the
     # derivation did NOT reproduce (e.g. busloans_spy — built ad-hoc, never
     # matrix-Done-Y). Never silently dropped (DATA-D1). Emitted verbatim.
+    # Also hand-added rows with no matrix provenance (blank source_csv_rows), whatever their status, e.g. an
+    # originally intended indicator recorded as not yet tested (pkg12 Q8).
     carried_over: list[dict] = [
         existing[pid]
         for pid, st in existing_status.items()
-        if pid not in derived_rows and st and st not in DEFAULT_STATUSES
+        if pid not in derived_rows and ((st and st not in DEFAULT_STATUSES)
+                                        or not (existing[pid].get("source_csv_rows") or "").strip())
     ]
     carried_rows: "OrderedDict[str, list]" = OrderedDict(
         (row.get("pair_id"), [row.get(c, "") for c in cols]) for row in carried_over
@@ -307,7 +310,7 @@ def main() -> int:
     print(f"  rows: {n_total} ({len(accum)} derived + {len(carried_over)} carried-over)")
     if carried_over:
         for row in carried_over:
-            print(f"  carried-over (non-default status, not matrix-derived): "
+            print(f"  carried-over (not matrix-derived: non-default status or hand-added): "
                   f"{row.get('pair_id')} [{row.get('status')}]")
     print(f"  archived_deprecated: {n_dep}")
     print(f"  indicators with aliases (>=2 CSV tickers ever map here): {indicators_with_aliases}")

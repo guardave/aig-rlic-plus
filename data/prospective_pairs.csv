@@ -73,11 +73,11 @@ jolts,Job Openings (JOLTS),macro,XLK,jolts_xlk,not_started,G - Job Openings,,G -
 jolts,Job Openings (JOLTS),macro,XLF,jolts_xlf,not_started,G - Job Openings,,G - Job Openings,96
 m2sl_yoy,M2 Money Supply YoY,macro,SPY,m2sl_yoy_spy,in_progress,M2SL_YOY,,M2SL_YOY,98
 unrate,Unemployment Rate,macro,SPY,unrate_spy,not_started,G - UNRATE,,G - UNRATE,100
-mfg_new_orders,Manufacturers' New Orders,production,XLE,mfg_new_orders_xle,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
-mfg_new_orders,Manufacturers' New Orders,production,XLI,mfg_new_orders_xli,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
-mfg_new_orders,Manufacturers' New Orders,production,XLY,mfg_new_orders_xly,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
-mfg_new_orders,Manufacturers' New Orders,production,XLK,mfg_new_orders_xlk,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
-mfg_new_orders,Manufacturers' New Orders,production,XLF,mfg_new_orders_xlf,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
+mfg_new_orders,Core Capital Goods Orders (NEWORDER),production,XLE,mfg_new_orders_xle,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
+mfg_new_orders,Core Capital Goods Orders (NEWORDER),production,XLI,mfg_new_orders_xli,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
+mfg_new_orders,Core Capital Goods Orders (NEWORDER),production,XLY,mfg_new_orders_xly,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
+mfg_new_orders,Core Capital Goods Orders (NEWORDER),production,XLK,mfg_new_orders_xlk,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
+mfg_new_orders,Core Capital Goods Orders (NEWORDER),production,XLF,mfg_new_orders_xlf,not_started,"Ind, Mat - Manufturs' New Orders",,"Ind, Mat - Manufturs' New Orders",102
 mfg_new_orders_yoy,Manufacturers' New Orders YoY,production,XLI,mfg_new_orders_yoy_xli,not_started,"Ind, Mat - Manufturs' New Orders, YoY",,"Ind, Mat - Manufturs' New Orders, YoY",103
 permit_yoy,Building Permits YoY,real_estate,SPY,permit_yoy_spy,not_started,RE - H Permit,H Permit YoY,RE - H Permit,104
 permit_yoy,Building Permits YoY,real_estate,XLE,permit_yoy_xle,not_started,RE - H Permit,H Permit YoY,RE - H Permit,104
@@ -103,12 +103,15 @@ abi,Architecture Billings Index,real_estate,XLV,abi_xlv,not_started,RE - Arch Bi
 nhs,New Home Sales (NHS),real_estate,SPY,nhs_spy,in_progress,NHS,,NHS,126
 nhs,New Home Sales (NHS),real_estate,XLY,nhs_xly,not_started,NHS,,NHS,126
 nhs,New Home Sales (NHS),real_estate,XLF,nhs_xlf,not_started,NHS,,NHS,126
-sloos_ci_small,SLOOS C&I Tightening (Small Firms),credit,SPY,sloos_ci_small_spy,in_progress,C&I Loan,,C&I Loan,117
+sloos_ci_small,SLOOS C&I Tightening (Large & Middle-Market Firms),credit,SPY,sloos_ci_small_spy,in_progress,C&I Loan,,C&I Loan,117
+sloos_ci_small_firms,"SLOOS C&I Tightening (Small Firms, DRTSCIS)",credit,SPY,sloos_ci_small_firms_spy,not_started,,,,
 mfg_new_orders,Manufacturers' New Orders,production,SPY,mfg_new_orders_spy,in_progress,,,,
+mfg_new_orders_total,Manufacturers' New Orders: Total Manufacturing (AMTMNO),production,SPY,mfg_new_orders_total_spy,not_started,,,,
 import_price,Import Price Index,macro,SPY,import_price_spy,in_progress,G - Import $ Indx,,G - Import $ Indx,94
 cement,Portland Cement Shipments,materials,SPY,cement_spy,in_progress,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
 retail_inv_sales,Retail Inventories-to-Sales Ratio,production,SPY,retail_inv_sales_spy,in_progress,,,,
-cc_delinquency,Credit Card Delinquency Rate,credit,SPY,cc_delinquency_spy,in_progress,,,,
+cc_delinquency,"Credit Card Delinquency Rate (NSA, DRCCLACBN)",credit,SPY,cc_delinquency_spy,in_progress,,,,
+cc_delinquency_sa,"Credit Card Delinquency Rate (SA, DRCCLACBS)",credit,SPY,cc_delinquency_sa_spy,not_started,,,,
 t10y3m,10Y-3M Treasury Spread,rates,SPY,t10y3m_spy,in_progress,G - (US10Y-US3M),,G - (US10Y-US3M),63
 t10y3m,10Y-3M Treasury Spread,rates,XLP,t10y3m_xlp,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
 t10y3m,10Y-3M Treasury Spread,rates,XLE,t10y3m_xle,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
@@ -120,4 +123,4 @@ t10y3m,10Y-3M Treasury Spread,rates,XLV,t10y3m_xlv,not_started,G - (US10Y-US3M),
 cement,Portland Cement Shipments,materials,XLP,cement_xlp,not_started,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
 import_price,Import Price Index,macro,XLE,import_price_xle,not_started,G - Import $ Indx,,G - Import $ Indx,94
 import_price,Import Price Index,macro,XLI,import_price_xli,not_started,G - Import $ Indx,,G - Import $ Indx,94
-sloos_ci_small,SLOOS C&I Tightening (Small Firms),credit,XLP,sloos_ci_small_xlp,not_started,C&I Loan,,C&I Loan,117
+sloos_ci_small,SLOOS C&I Tightening (Large & Middle-Market Firms),credit,XLP,sloos_ci_small_xlp,not_started,C&I Loan,,C&I Loan,117

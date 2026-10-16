@@ -926,8 +926,8 @@
     },
     "mfg_new_orders_spy": {
       "signal_frequency": "monthly",
-      "signal_description": "Census Manufacturers' New Orders, M3 (monthly)",
-      "publication_lag": "Census M3 full report, ~5 weeks after month-end, early M+2 (ALFRED median 34 d, p90 40 d)",
+      "signal_description": "Core capital goods orders: manufacturers' new orders, nondefense capital goods excluding aircraft (FRED NEWORDER, monthly)",
+      "publication_lag": "Census advance durable-goods report, ~26 days after month-end (NEWORDER ALFRED median 26 d, p90 28 d); revised in the full M3 report",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 3,
@@ -947,13 +947,14 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 3 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 3 = 3 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09 (AMTMNO, Census M3 full report); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 2..14 -> 3..14.",
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 3 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 3 = 3 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09 (AMTMNO, Census M3 full report); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 2..14 -> 3..14. pkg12: the data is NEWORDER (advance report, earlier than AMTMNO), so E3 is conservative for it; floor unchanged.",
       "conformed": true,
       "position_shift": 0,
       "lead_floor_effective": 3,
       "release_calendar_series": "NEWORDER",
       "alignment": "fixed_lag",
-      "value_vintage": "revised_alfred"
+      "value_vintage": "revised_alfred",
+      "note": "OUTSTANDING (pkg12 Q8): the data is NEWORDER (core capital goods orders); the originally intended indicator AMTMNO (manufacturers' new orders, total manufacturing) is not yet tested."
     },
     "retail_inv_sales_spy": {
       "signal_frequency": "monthly",
@@ -1053,7 +1054,7 @@
     },
     "cc_delinquency_spy": {
       "signal_frequency": "quarterly",
-      "signal_description": "Fed Credit-Card Delinquency, DRCCLACBS (quarterly)",
+      "signal_description": "Fed credit-card delinquency rate, not seasonally adjusted, DRCCLACBN (quarterly)",
       "publication_lag": "Federal Reserve, ~7 weeks after quarter-end (ALFRED 48-56 d, median 51 d, p90 55 d; one 76-d shutdown outlier); released in the following quarter",
       "real_time": false,
       "lead_axis": "quarters",
@@ -1072,11 +1073,12 @@
       "lead_floor_effective": 2,
       "release_calendar_series": "DRCCLACBN",
       "alignment": "fixed_lag",
-      "value_vintage": "revised_alfred"
+      "value_vintage": "revised_alfred",
+      "note": "OUTSTANDING (pkg12 Q8): the data is DRCCLACBN (not seasonally adjusted); the originally intended indicator DRCCLACBS (seasonally adjusted) is not yet tested."
     },
     "sloos_ci_small_spy": {
       "signal_frequency": "quarterly",
-      "signal_description": "Fed Senior Loan Officer Survey, C&I small firms (quarterly)",
+      "signal_description": "Fed Senior Loan Officer Survey, C&I tightening to large and middle-market firms, DRTSCILM (quarterly)",
       "publication_lag": "Fed SLOOS, published early Feb/May/Aug/Nov, i.e. inside the quarter it is stamped to (ALFRED median -56 d vs quarter-end)",
       "real_time": false,
       "lead_axis": "quarters",
@@ -1090,13 +1092,14 @@
       ],
       "observed_winner_lead_unit": "quarters",
       "class": "quarterly",
-      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 1 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09 (DRTSCIS); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 1 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09 (DRTSCIS); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged. pkg12: the data is DRTSCILM, released with DRTSCIS in the same survey (identical dates).",
       "conformed": true,
       "position_shift": 0,
       "lead_floor_effective": 1,
       "release_calendar_series": "DRTSCILM",
       "alignment": "fixed_lag",
-      "value_vintage": "revised_alfred"
+      "value_vintage": "revised_alfred",
+      "note": "OUTSTANDING (pkg12 Q8): the data is DRTSCILM (large and middle-market firms); the originally intended indicator DRTSCIS (small firms) is not yet tested."
     },
     "t10y3m_rebuilt_spy": {
       "signal_frequency": "monthly",
