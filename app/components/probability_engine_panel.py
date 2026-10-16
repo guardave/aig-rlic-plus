@@ -36,7 +36,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from components.rolling_threshold import latest_rolling_value, rolling_pct_spec
+from components.rolling_threshold import latest_rolling_value, rolling_pct_spec, rolling_quantile_spec
 from components.schema_check import SchemaValidationError, validate_or_die, validate_soft
 
 
@@ -173,6 +173,8 @@ def _validate_signal(
             return w["start"], w["end"]
         return w[0], w[1]
 
+    _plausibility_level = threshold if 0.0 <= threshold < 1.0 else 0.5
+    _is_binary_flag = bool(series.isin([0, 1]).all())
     stress_hit = False
     for _w in stress_windows:
         win_start, win_end = _to_window(_w)
@@ -183,7 +185,16 @@ def _validate_signal(
         if sliced.empty:
             continue
         if is_probability:
-            if sliced.max() > threshold:
+            # A probability can never exceed 1, so a winner threshold >= 1 (e.g. eci_total_comp_spy's
+            # rolling mean+1sd boundary, latest value 1.0) can never be "exceeded". For the
+            # plausibility check only, fall back to the majority-regime level 0.5 in that case.
+            if sliced.max() > _plausibility_level:
+                stress_hit = True
+                break
+        elif _is_binary_flag:
+            # A 0/1 indicator flag (e.g. hst_yoy_contraction_flag) cannot have |value| > 1; its
+            # "stress extreme" is simply being switched on (== 1) inside the stress window.
+            if sliced.max() >= 1.0:
                 stress_hit = True
                 break
         else:
@@ -581,17 +592,29 @@ def render_probability_engine_panel(pair_id: str) -> None:
     _long_below = _rule in ("lte", "lt")
     _tc = str(winner.get("threshold_code", "")).lower()
     _is_rolling = "roll" in _tc
-    # #245 re-open: map the rolling-quantile code to its quantile so the panel can
-    # redraw the actual time-varying boundary (matches pipeline build_threshold).
-    _roll_q = {"t_roll_p25": 0.25, "t_roll_p50": 0.50, "t_roll_p75": 0.75}.get(_tc)
+    # #245 re-open: a period rolling quantile (T_roll_p25/p50/p75, T2_roll_p*) is redrawn as the actual
+    # time-varying boundary, using the window recorded in the pair's artifacts (rolling_threshold.py)
+    # - never an assumed 60-month median. Unknown window -> flat latest-value line, neutral label.
+    _roll_q = None
     _roll_kw = {}
     _threshold_known = _tv is not None
-    # Daily trailing-percentile thresholds (T2_rp<NN>, e.g. hy_ig_spy 504d, vix_vix3m_spy 252d): the
-    # rule compares the LEAD-SHIFTED signal with its own trailing percentile. The window comes from
-    # the pair's winner artifacts (rolling_threshold.py), never from an assumption; if the artifacts
-    # do not record it we use neutral wording and draw no boundary rather than a wrong one.
-    _spec = rolling_pct_spec(winner)
-    _lead_days = winner.get("lead_value") if str(winner.get("lead_unit", "")).startswith("day") else None
+    _qspec = rolling_quantile_spec(winner)
+    if _qspec:
+        _is_rolling = True
+        _roll_kw = dict(rolling_label=_qspec["label"])
+        if _qspec["window"] and (_tc.startswith("t_roll_p") or _tv is None):
+            _roll_q = _qspec["quantile"]
+            _roll_kw.update(rolling_window=_qspec["window"], rolling_min_periods=_qspec["min_periods"])
+    # Trailing-percentile thresholds (daily T2_rp<NN>, e.g. hy_ig_spy 504d, vix_vix3m_spy 252d; or a
+    # T2_roll winner whose summary records no number, e.g. indpro_spy): the rule compares the
+    # LEAD-SHIFTED signal with its own trailing percentile. The window comes from the pair's winner
+    # artifacts, never from an assumption; if the artifacts do not record it we use neutral wording
+    # and draw no boundary rather than a wrong one.
+    _spec = rolling_pct_spec(winner) or (_qspec if _tv is None else None)
+    _lead_n = winner.get("lead_value")
+    _lead_n = _lead_n if isinstance(_lead_n, int) and not isinstance(_lead_n, bool) else None
+    _lead_unit_txt = {"days": "trading days", "months": "months", "quarters": "quarters"}.get(
+        str(winner.get("lead_unit", "")).lower(), "periods")
     if _spec:
         _is_rolling = True
         _roll_kw = dict(rolling_label=_spec["label"])
@@ -600,13 +623,13 @@ def render_probability_engine_panel(pair_id: str) -> None:
             _roll_q = _spec["quantile"]
             _roll_kw.update(rolling_window=_spec["window"], rolling_min_periods=_spec["min_periods"])
             if not _threshold_known and _raw_col is not None:
-                _lv = latest_rolling_value(_raw_col, _spec, _lead_days if isinstance(_lead_days, int) else None)
+                _lv = latest_rolling_value(_raw_col, _spec, _lead_n)
                 if _lv is not None:
                     threshold, _threshold_known = _lv, True
-        if isinstance(_lead_days, int) and _lead_days > 0 and _raw_col is not None:
+        if isinstance(_lead_n, int) and _lead_n > 0 and _raw_col is not None:
             signals_df = signals_df.copy()
-            signals_df[column] = signals_df[column].shift(_lead_days)
-            display_name = f"{display_name} (lagged {_lead_days} trading days)"
+            signals_df[column] = signals_df[column].shift(_lead_n)
+            display_name = f"{display_name} (lagged {_lead_n} {_lead_unit_txt})"
     _render_chart(
         signals_df,
         column,
@@ -635,7 +658,7 @@ def render_probability_engine_panel(pair_id: str) -> None:
         takeaway = (
             f"The signal ({display_name}) drives the strategy; position changes "
             f"are triggered when the value crosses its "
-            f"{_roll_kw.get('rolling_label', 'rolling 60-month median')} "
+            f"{_roll_kw.get('rolling_label', 'rolling threshold (window not recorded)')} "
             + (f"(a moving boundary, latest value {threshold:g}) — not a fixed cutoff."
                if _threshold_known else "(a moving boundary) — not a fixed cutoff.")
         )

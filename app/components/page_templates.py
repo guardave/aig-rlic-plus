@@ -61,6 +61,7 @@ from components.narrative import (
     render_transition,
 )
 from components.position_adjustment_panel import render_position_adjustment_panel
+from components.rolling_threshold import resolve_threshold
 from components.probability_engine_panel import render_probability_engine_panel
 from components.pair_registry import get_page_prefix
 from components.sidebar import render_sidebar
@@ -1473,11 +1474,17 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
 
     # #244 re-open: the generic fallback must not imply a fixed cutoff when the
     # winner threshold is a rolling quantile (a moving boundary).
+    # The statistic and window come from the pair's own artifacts (rolling_threshold.py), never an
+    # assumed "60-month median"; a missing number stays neutral rather than printing "None".
     _tcode_fb = str(winner.get('threshold_code', '')).lower()
-    if 'roll' in _tcode_fb:
+    _th_fb = resolve_threshold(pair_id, winner)
+    if 'roll' in _tcode_fb or _th_fb["spec"] is not None:
+        _fb_label = _th_fb["label"] or "rolling threshold (window not recorded)"
+        _fb_val = (winner.get('threshold_value', 'its threshold') if _th_fb["source"] == "recorded"
+                   else (f"{_th_fb['value']:g}" if _th_fb["value"] is not None else None))
         _threshold_phrase = (
-            f"its rolling 60-month median (a moving boundary, latest "
-            f"{winner.get('threshold_value', 'its threshold')})"
+            f"its {_fb_label} (a moving boundary, latest {_fb_val})" if _fb_val is not None
+            else f"its {_fb_label} (a moving boundary; no numeric latest value is recorded)"
         )
     else:
         _threshold_phrase = f"{winner.get('threshold_value', 'its threshold')}"
@@ -1567,16 +1574,21 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
             # #244 re-open: a rolling-quantile winner uses a TIME-VARYING boundary,
             # so showing a lone fixed number implies a fixed cutoff. Label it as the
             # moving rolling median with its latest value.
-            _tcode = str(winner.get('threshold_code', '')).lower()
             _trule = winner.get('threshold_rule', '')
-            _tval = winner.get('threshold_value', '')
-            if 'roll' in _tcode:
-                st.markdown(
-                    f"**Threshold:** `{_trule}` its rolling 60-month median "
-                    f"(moving boundary; latest value `{_tval}`)"
-                )
+            _th = resolve_threshold(pair_id, winner)
+            if _th["spec"] is not None or 'roll' in str(winner.get('threshold_code', '')).lower():
+                _tl = _th["label"] or "rolling threshold (window not recorded)"
+                if _th["source"] == "recorded":
+                    _tv_txt = f"latest value `{_th['raw']}`"
+                elif _th["value"] is not None:
+                    _tv_txt = f"latest value `{_th['value']:g}`"
+                else:
+                    _tv_txt = "no numeric latest value is recorded"
+                st.markdown(f"**Threshold:** `{_trule}` its {_tl} (moving boundary; {_tv_txt})")
+            elif winner.get('threshold_value') not in (None, ''):
+                st.markdown(f"**Threshold:** `{_trule} {winner.get('threshold_value')}`")
             else:
-                st.markdown(f"**Threshold:** `{_trule} {_tval}`")
+                st.markdown(f"**Threshold:** `{_trule}` (no numeric value recorded)")
         with _col2:
             st.markdown(f"**Strategy family:** `{_strategy_family}`")
             st.markdown(f"**Direction:** `{_direction}`")
@@ -1850,6 +1862,12 @@ def _locate_winner_row(tdf: pd.DataFrame, winner: dict | None) -> Any:
     return best if gap.loc[best] <= 0.01 else None
 
 
+# The validity rule differs by pair (e.g. OOS Sharpe > 0 vs > 0.3, turnover and minimum-OOS-length
+# filters) and is not recorded in any artifact, so the caption states only what is true for all of
+# them: "valid" is the pair pipeline's own `valid` flag in the tournament file.
+_VALID_RULE_TXT = "(the pair pipeline's own validity filters, the tournament file's `valid` flag)"
+
+
 def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str | None = None) -> None:
     """Render the tournament leaderboard + benchmark footnote from a CSV file.
 
@@ -1917,6 +1935,16 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
                 return f"{int(r[col])}{unit}"
         return "—"
 
+    # Lookback variants of the same signal/threshold/strategy/lead can tie or look identical; show the
+    # lookback (rolling-window length, in the pair's period unit) whenever the shown rows differ on it.
+    _show_lb = "lookback" in top.columns and top["lookback"].dropna().nunique() > 1
+
+    def _lookback_cell(r):
+        v = str(r.get("lookback", ""))
+        if v in ("LB_NA", "nan", ""):
+            return "n/a"
+        return v[2:] if v.startswith("LB") and v[2:].isdigit() else v
+
     display_rows = []
     for idx, r in top.iterrows():
         rk = int(rank_of[idx]) if idx in rank_of.index else None
@@ -1929,6 +1957,7 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
             "Threshold": r.get("threshold", "—"),
             "Strategy": r.get("strategy", "—"),
             "Lead": _lead_cell(r),
+            **({"Lookback": _lookback_cell(r)} if _show_lb else {}),
             **({"IS Sharpe": round(float(r["is_sharpe"]), 2)} if _is_sel else {}),
             "OOS Sharpe": round(float(r["oos_sharpe"]), 2),
             "OOS Return": _to_pct(r.get("oos_ann_return")),
@@ -1945,6 +1974,7 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
             "Threshold": "—",
             "Strategy": "Benchmark",
             "Lead": "—",
+            **({"Lookback": "—"} if _show_lb else {}),
             **({"IS Sharpe": round(float(b["is_sharpe"]), 2)} if _is_sel and pd.notna(b.get("is_sharpe")) else
                ({"IS Sharpe": None} if _is_sel else {})),
             "OOS Sharpe": round(float(b["oos_sharpe"]), 2),
@@ -1963,10 +1993,10 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
         },
     )
     if objective_known:
-        valid_txt = ("(in-sample validity filters)" if _is_sel else "(OOS Sharpe > 0)")
+        valid_txt = ("(in-sample validity filters)" if _is_sel else _VALID_RULE_TXT)
         rank_txt = f"ranked by {rank_label}, this pair's selection objective"
     else:
-        valid_txt = "(OOS Sharpe > 0)"
+        valid_txt = _VALID_RULE_TXT
         rank_txt = "ranked by OOS Sharpe (this pair's selection objective is not a single ranking column)"
     win_txt = ""
     if win_idx is not None:
@@ -1978,6 +2008,7 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
         f"**{((tdf['signal'] != 'BENCHMARK').sum() if 'signal' in tdf.columns else len(tdf)):,} combinations tested** | "
         f"**{len(valid):,} valid** {valid_txt}; {rank_txt}."
         + (" OOS Sharpe is shown for evaluation only." if _is_sel else "")
+        + (" Lookback = rolling-window length in the pair's period unit (n/a = none)." if _show_lb else "")
         + win_txt
     )
 
