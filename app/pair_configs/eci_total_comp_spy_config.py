@@ -1,78 +1,35 @@
 """Employment Cost Index (Total Compensation) × SPY pair configuration (Rule APP-PT1).
 
-The fleet's FIRST QUARTERLY pair (branch feat260705_eci_spy). Narrative
-rewritten for the #255 floored-grid re-run (DATE_TAG 20261008); every cited
-number verified against the results artifacts listed below.
-Do NOT oversell: the lagging / reverse-causality finding is still the headline.
+Quarterly pair. Narrative rewritten for the 20261016 run (causal regime port + in-sample
+selection, branch fix261016_hmm_port_eci_nhs). Every number below is read from the
+results artifacts listed at the end of this docstring.
 
-THE WINNER CHANGED in the #255 floored re-run:
-  - OLD (20260706): yoy_zscore_20q / T1_fixed_p75 / P3_long_short /
-    PROCYCLICAL / L6 quarters — OOS Sharpe 1.60 (on a look-ahead-tainted grid).
-  - NEW (20261008): hmm_stress (hmm_2state_prob_stress) / T3_zscore_1.0
-    (rolling, LB12) / P1_long_cash / COUNTERCYCLICAL / L4 quarters — OOS
-    Sharpe 1.41 vs B&H 0.80; ann ret 16.7% vs 14.5%; max DD −4.4% vs −23.9%;
-    win rate 56%; 3 OOS trades.
+What changed on 2026-10-16:
+  - The 20261008 winner (hmm_stress / T3_zscore_1.0 / LB12 / P1_long_cash counter / L4
+    quarters, OOS Sharpe 1.41, HAC t 3.04) traded a 2-state HMM probability that was fit on
+    the full sample and read with forward-backward smoothing, so each quarter's value used
+    later quarters (look-ahead). It was also selected by OOS Sharpe.
+  - Causal rule (scripts/_regime_causal.py): fit on in-sample rows only, forward filter.
+    A traded fit needs >= 100 in-sample rows; ECI has 72 in-sample quarters, so the HMM and
+    Markov-switching signals are not in the 20261016 tournament. The same superseded rule
+    on a causal diagnostic HMM (72 quarters, not traded) scores OOS Sharpe 1.03 (HAC t 2.42).
+  - Selection is now by in-sample Sharpe on the common IS window 2008-12-31..2019-12-31
+    (45 quarters). Winner: growth_2q (eci_total_comp_pct_2q) / T1_fixed_p50 /
+    P1_long_cash counter / L2 quarters. IS Sharpe 1.19 (B&H 0.79); OOS Sharpe 0.70
+    (B&H 0.80), HAC t 1.33; OOS annualized return 4.3% vs 14.5%; max drawdown 0.0% vs
+    −23.9%; long SPY in 3 of 25 OOS quarters, cash since 2021-Q3.
 
-HONEST FRAMING (binding). Empirical verdict for this pair is UNCHANGED:
-**LAGGING — wages follow equities, not the reverse**:
-  - Toda-Yamamoto Granger: SPY→ECI significant at ALL tested quarterly lags
-    (1..4; p = 0.0135/0.0132/0.0037/0.0029); ECI→SPY significant at NONE
-    (smallest p = 0.5048). Pre-whitened CCF: the only significant offset is
-    lag 0 (r = −0.251, contemporaneous); nothing on either lead side →
-    classified `lagging` (interpretation_metadata.key_finding).
+Lead-lag evidence is unchanged (same data, same code): Toda-Yamamoto Granger SPY→ECI
+significant at lags 1-4 (p = 0.0135/0.0132/0.0037/0.0029), ECI→SPY at none (smallest
+p = 0.5048); pre-whitened CCF significant only at offset 0 (r = −0.251).
 
-The NEW winner is a FOUND-IN-SEARCH **CANDIDATE**. Binding cautions:
-  - **OOS Sharpe DROPPED** vs the old winner (1.60 → 1.41): the floored
-    grid's best *executable* rule is weaker than the previous
-    look-ahead-tainted one. State this plainly.
-  - **Found-in-search / small sample**: 25-QUARTER OOS window (caveat
-    STRONGER than any monthly pair); bootstrap p = 0.184 (NOT significant at
-    5%, and WORSE than the old winner's 0.12); median valid combo 0.68 <
-    B&H 0.80; no frozen-rule holdout. (One mild improvement vs the old
-    winner: IS Sharpe is now +0.50, was −0.23.)
-  - **Opaque signal**: the traded signal is a DERIVED 2-state HMM
-    wage-stress probability — more complex/opaque than a raw transform.
-  - **Direction flipped** procyclical → COUNTERCYCLICAL. Honest nuance: the
-    new countercyclical direction is now CONSISTENT with the pair's
-    countercyclical prior (interpretation_metadata.direction_consistent =
-    true) — an improvement on the old winner, which contradicted it. But the
-    indicator is still empirically LAGGING, so there is NO forward-causal
-    mechanism behind the rule; it is a regime-timing overlay, not a forecast.
-  - **Durability: conditionally_durable on ONE episode** (COVID, sub-period
-    Sharpe 2.48). The OOS edge rests almost entirely on sitting in CASH
-    through the 2022 bear (and the COVID-Q1 crash).
-  - Two prior-run flags have CLEARED in the floored re-run and the narrative
-    reflects that honestly: the structural break is now NOT flagged
-    (candidate break 2022-Q2, sup-F 4.03, bootstrap p = 0.37) and the
-    rolling correlation is `moderately_stable` (sign-stability 0.57); the
-    winner's own stationarity class is `borderline_persistent`.
-
-QUARTERLY conventions (first quarterly pair — make units explicit
-EVERYWHERE): leads are in QUARTERS (L4q ≈ 12 months); Sharpe annualized by
-√4; OOS window = 25 quarters (2020-03-31 → 2026-03-31); floored tradable lead
-grid L1..L5 quarters (L1 = ~1-quarter BLS publication-lag floor).
-
-Numbers sourced from results/eci_total_comp_spy/ (winner_summary.json,
-kpis.json, evidence_status.json, oos_split_record.json,
-interpretation_metadata.json, core_models_20261008/*,
-structural_break_eci_total_comp_spy.json, tournament_validation_20261008/
-bootstrap.csv, lead_correlation_20261008.csv, lead_winner_curve_20261008.csv,
+Numbers sourced from results/eci_total_comp_spy/ (winner_summary.json, kpis.json,
+evidence_status.json, oos_split_record.json, hmm_lookahead_audit_20261016.json,
+legacy_oos_selection_20261016.csv, core_models_20261016/*,
+structural_break_eci_total_comp_spy.json, subperiod_sharpe.csv,
+tournament_results_20261016.csv, tournament_validation_20261016/*,
+lead_winner_curve_20261016.csv, lead_correlation_20261016.csv,
 regime_quartile_returns.csv, winner_trades_broker_style.csv).
-
-GH #13 framing: LEAD_TOURNAMENT_BLOCK["how_to_read"] carries the
-plain-English framing (rendered before the lead_sharpe_distribution chart):
-the bars are a best-any-signal envelope (search-conditioned at every lead);
-the winner's own lead-curve is POSITIVE across the whole floored grid and
-peaks at its published L4q — internally consistent, but still
-search-conditioned on 25 quarters.
-
-Winner-rule direction (resolved against winner_trades_broker_style.csv):
-LONG SPY (100%) when the 4-quarter-lagged HMM high-wage-inflation-stress
-probability is BELOW its rolling z = 1.0 threshold (LB12) — low wage-stress
-regime = risk-on; otherwise CASH (0%). Long/CASH (P1), quarterly rebalance —
-COUNTERCYCLICAL, e.g. 2021-12-31 SELL→cash (lagged stress prob 0.011 >
-threshold 0.005, position 100% → 0%, stepping aside for the 2022 bear) and
-2023-12-31 BUY→long (0.000 < 1.035, 0% → 100%, back long end-2023).
 """
 
 from __future__ import annotations
@@ -92,60 +49,51 @@ class StoryConfig:
         "pair: all leads and windows are in QUARTERS."
     )
 
-    # Honest lagging/reversal framing (Ray); metrics read from
-    # winner_summary.json / granger_by_lag.csv, not hand-typed.
+    # Metrics read from winner_summary.json / granger_by_lag.csv, not hand-typed.
     HEADLINE_H2 = (
-        "## The causality tests run BACKWARDS: the stock market predicts "
-        "wage growth at every tested quarterly lag, while wage growth "
-        "predicts the market at none. The search's best *executable* rule "
-        "(OOS Sharpe 1.41 vs 0.80 buy-and-hold) sits on a 25-QUARTER window "
-        "with bootstrap p = 0.18 (n.s.) — a found-in-search CANDIDATE on a "
-        "lagging indicator, and its Sharpe is lower than the earlier "
-        "look-ahead-tainted rule (1.60) it replaced."
+        "## The causality tests run from the stock market to wages: SPY "
+        "predicts ECI wage growth at every tested quarterly lag, and ECI "
+        "predicts SPY at none. The rule with the best in-sample Sharpe scores "
+        "an out-of-sample Sharpe of 0.70 against 0.80 for buy-and-hold over "
+        "25 quarters."
     )
 
     PLAIN_ENGLISH = (
         "The Employment Cost Index (ECI) measures how fast total worker "
-        "compensation — wages plus benefits — is growing in the US. The "
-        "intuitive hope is that wage inflation warns about the stock market "
-        "(wage pressure → Fed tightening → equity trouble). We tested that "
-        "every way we know how, and the answer is the reverse: the S&P 500 "
-        "(SPY) helps predict wage growth one to four quarters ahead, while "
-        "wage growth predicts the market at no tested lag. Wages are a "
-        "**lagging** indicator here — they follow the cycle the market has "
-        "already priced. A strategy search still surfaced a high-scoring "
-        "quarterly rule, but on a 25-quarter test window, without forward "
-        "causality behind it, and short of statistical significance — so we "
-        "present it as a candidate with its warning labels attached."
+        "compensation (wages plus benefits) is growing in the US. One "
+        "hypothesis is that wage inflation warns about the stock market "
+        "(wage pressure → Fed tightening → equity trouble). The tests find "
+        "the reverse direction: the S&P 500 (SPY) helps predict wage growth "
+        "one to four quarters ahead, while wage growth predicts the market "
+        "at no tested lag. A search over 1,180 quarterly rules picked the one "
+        "with the best in-sample record; over the 2020–2026 test window it "
+        "earned a Sharpe ratio of 0.70 versus 0.80 for holding SPY, mostly by "
+        "sitting in cash."
     )
 
     WHERE_THIS_FITS = (
-        "This page is about a *lagging* indicator — the most honest verdict "
-        "in the catalog so far, because the information flows the wrong way "
-        "for forecasting. Knowing that wage growth trails equities is "
-        "useful macro knowledge (it is why the Fed watches ECI and markets "
-        "front-run the Fed), but investors wanting advance warning should "
-        "look to leading measures (e.g. the HY-IG credit spread pair) "
-        "rather than labor-cost data."
+        "This page covers a *lagging* indicator: the information flows from "
+        "the market to wages. Knowing that wage growth trails equities is "
+        "macro context (it is one reason the Fed watches ECI and markets "
+        "move ahead of the Fed). For advance warning, the catalog's leading "
+        "measures are the relevant comparison, not labor-cost data."
     )
 
     ONE_SENTENCE_THESIS = (
-        "Wage growth (ECI total compensation) LAGS the stock market — "
-        "SPY Granger-causes ECI at every tested quarterly lag and ECI "
-        "Granger-causes SPY at none — and the search's best quarterly rule "
-        "(a countercyclical long/cash HMM-regime overlay; OOS Sharpe 1.41 "
-        "vs 0.80 buy-and-hold on 25 quarters) is a found-in-search "
-        "candidate, not a validated edge (bootstrap p = 0.18, n.s.)."
+        "Wage growth (ECI total compensation) lags the stock market — SPY "
+        "Granger-causes ECI at every tested quarterly lag and ECI "
+        "Granger-causes SPY at none — and the in-sample-selected quarterly "
+        "rule (long SPY when 2-quarter wage growth, lagged two quarters, is "
+        "at or below its in-sample median; cash otherwise) has an "
+        "out-of-sample Sharpe of 0.70 versus 0.80 for buy-and-hold."
     )
 
     KPI_CAPTION = (
-        "every performance number on this page is a SEARCH-PHASE, "
-        "out-of-sample figure on a 25-QUARTER window (2020-03-31 → "
-        "2026-03-31) — a small quarterly sample whose caveat is STRONGER "
-        "than any monthly pair to date. The winner was found as the best of "
-        "808 valid combinations; bootstrap p = 0.18, not significant at "
-        "5%; the indicator itself is empirically LAGGING. Sharpe ratios use "
-        "quarterly √4 annualization. Treat it as a candidate, not a verdict."
+        "the rule was chosen by its in-sample Sharpe (2008-12-31 → "
+        "2019-12-31, 45 quarters) and every out-of-sample number is scored "
+        "on 2020-03-31 → 2026-03-31 (25 quarters). Over that window the rule "
+        "held SPY in 3 quarters and cash in 22. Sharpe ratios use quarterly "
+        "√4 annualization."
     )
 
     HERO_TITLE = "ECI Total-Compensation Growth vs the S&P 500 (SPY)"
@@ -164,11 +112,10 @@ class StoryConfig:
         "What this shows: concurrent S&P 500 (SPY) performance in each "
         "quartile of ECI YoY wage growth, from slowest (Q1) to fastest "
         "(Q4) — annualized Sharpe and return. Returns have been better when "
-        "wage growth was SLOW (Q1 Sharpe 1.17) than fast (Q4 0.67, Q3 "
-        "−0.15) — a mildly countercyclical concurrent pattern. Descriptive "
-        "and concurrent, not a tradable lead; note that the published winner "
-        "now trades the SAME (countercyclical) orientation — long when "
-        "wage-inflation stress is low, cash when high — at a 4-quarter lag."
+        "wage growth was slow (Q1 Sharpe 1.17) than fast (Q4 0.67, Q3 "
+        "−0.15). This sort is concurrent and descriptive, not a tradable "
+        "lead. The selected rule has the same orientation (long when lagged "
+        "wage growth is low, cash when high) at a 2-quarter lag."
     )
 
     NARRATIVE_SECTION_1 = """
@@ -213,11 +160,11 @@ one-quarter lag (L1).
 ### The first quarterly pair — small samples, explicit units
 
 This is the portal's first QUARTERLY pair, and the units matter. Leads are
-in quarters (the winner's L4 lead ≈ 12 months); Sharpe ratios are annualized
+in quarters (the selected rule's L2 lead ≈ 6 months); Sharpe ratios are annualized
 by √4; and the out-of-sample window is just **25 quarterly observations**
 (2020-Q1 → 2026-Q1). Twenty-five data points is a small sample — smaller in
-effective terms than any monthly pair to date — so every performance number
-on these pages carries a found-in-search candidate label.
+effective terms than any monthly pair to date — so every out-of-sample
+number on these pages has wide sampling error.
 """
 
     # Three history-zoom charts exist for this pair (gfc, covid,
@@ -279,77 +226,53 @@ on these pages carries a found-in-search candidate label.
     ]
 
     NARRATIVE_SECTION_2 = """
-### "Lagging" — so how can there be a timing strategy at all?
+### "Lagging" — what does a timing rule on this indicator measure?
 
-The fair question first. The Evidence page shows the information flows from
-the market to wages, not the reverse. The rule on the Strategy page does not
-contradict that — it does not claim to forecast. What the search found is a
-*regime-timing* overlay: the strategy steps out of the S&P 500 (SPY) into
-cash when a model-inferred wage-inflation-stress state (read a year old) is
-elevated, and holds SPY otherwise. In the 2020–2026 window that split
-happened to sort the data well — chiefly because it sat in cash through the
-2022 bear. Because the indicator is lagging and the window is only 25
-quarters, we treat the result as a candidate pattern awaiting a frozen-rule
-hold-out exam — not a discovered predictive edge.
+The Evidence page shows the information flowing from the market to wages.
+A timing rule built on ECI therefore does not forecast through a wage →
+equity channel; it can only sort periods by an old reading of wage growth.
 
-### What the search surfaced: a countercyclical long/cash candidate, honestly labelled
+### What the search selected
 
-Across **1,460 strategy combinations** (808 passing validity filters) on the
-floored quarterly lead grid L1..L5, the best rule was: be LONG the S&P 500
-(SPY) when a **2-state Hidden Markov Model's high-wage-inflation-stress
-probability** — read as it stood **four quarters (~12 months) ago** — sits
-BELOW its rolling threshold, and hold **CASH** otherwise. That is a
-**countercyclical** long/cash overlay (low wage-inflation stress = risk-on;
-high stress = step aside). In the 25-quarter search window it scored an OOS
-Sharpe of **1.41** versus 0.80 for buy-and-hold, with a 16.7% annualized
-return versus 14.5% and a maximum drawdown of **−4.4% versus −23.9%** — the
-drawdown gap is the whole story, earned by sitting in cash through 2022.
+We scored **1,180 quarterly rule combinations** (8 ECI transforms, fixed
+percentile, zero-line and rolling z-score thresholds, long/cash and
+long/short, leads of 1 to 5 quarters); **1,080 passed the in-sample
+validity checks**. The rule was chosen by the highest **in-sample**
+Sharpe on 2008-12-31 → 2019-12-31 (45 quarters), before any
+out-of-sample result was looked at:
 
-This finding comes with non-negotiable context, stated here rather than in a
-footnote:
+- **Rule:** hold the S&P 500 (SPY) when ECI 2-quarter growth, as it stood
+  **two quarters (~6 months) earlier**, is at or below **1.315%** (its
+  in-sample median); otherwise hold cash. Countercyclical.
+- **In-sample:** Sharpe **1.19** versus 0.79 for buy-and-hold.
+- **Out-of-sample (2020-03-31 → 2026-03-31, 25 quarters):** Sharpe
+  **0.70** versus **0.80** for buy-and-hold (HAC t 1.33); annualized
+  return **4.3%** versus 14.5%; maximum drawdown **0.0%** versus −23.9%.
+  The rule was long SPY in 3 of the 25 quarters (2020-Q4 to 2021-Q2) and
+  has been in cash since 2021-Q3, because lagged 2-quarter wage growth has
+  stayed above 1.315%.
 
-- **The Sharpe DROPPED versus the prior winner.** The earlier run reported
-  1.60, but that rule rode a look-ahead-tainted grid. The floored grid's
-  best *executable* rule scores 1.41 — lower, and the honest number.
-- **Small quarterly sample.** The out-of-sample test is 25 QUARTERS — a
-  handful of independent observations; Sharpe ratios this unstable are
-  routinely over-optimistic. Any winner here is FOUND-IN-SEARCH by
-  construction.
-- **The causality runs backwards.** Every lead-lag test says the market
-  leads wages; there is no forecasting mechanism behind the rule. It is a
-  regime-timing overlay, not a forecast.
-- **Not significant.** Bootstrap p = 0.18 — above the 5% bar, and worse
-  than the old winner's 0.12.
-- **An opaque signal.** The traded signal is a derived HMM regime
-  probability, not a transparent raw transform — harder to audit and more
-  prone to overfitting a short window.
-- **The edge rests on one episode.** Only three trades occur out-of-sample;
-  the outperformance is essentially "in cash through the 2022 bear (and the
-  COVID-Q1 crash)." Durability is `conditionally_durable`.
-- **Direction now matches the prior — a genuine improvement.** The rule is
-  countercyclical, which is CONSISTENT with the pair's countercyclical
-  wage-inflation hypothesis (`direction_consistent: true`); the earlier
-  procyclical winner contradicted it. The concurrent quartile evidence
-  (slow wage growth = better returns) points the same way. In-sample Sharpe
-  is now mildly positive (+0.50, versus −0.23 before), and the floored run
-  no longer flags a structural break (candidate break 2022-Q2, p = 0.37)
-  and reads the rolling correlation as `moderately_stable`.
+### Correction to the earlier version of this page
 
-**What this means:** treat this as *"a candidate pattern found by search on
-a lagging indicator, awaiting its final exam"* — now better-behaved than the
-prior winner on direction and stability, but with a LOWER, still-insignificant
-Sharpe and an opaque signal, so expectations for a frozen-rule hold-out test
-should still be calibrated low.
+This page previously reported a rule on a Hidden Markov Model (HMM)
+"wage-stress probability" with an out-of-sample Sharpe of **1.41**. That
+probability was estimated on the whole 2001–2026 sample and smoothed with
+later data, so each quarter's value used information from after that
+quarter (look-ahead), and the rule was picked by its out-of-sample score.
+Rebuilt without look-ahead, the HMM can only be fitted on the 72
+in-sample quarters, below the 100-observation minimum we require for a
+traded regime signal, so it is no longer in the search. As a diagnostic
+only, the same rule on an in-sample-fitted, forward-filtered HMM scores
+**1.03** (`hmm_lookahead_audit_20261016.json`).
 
 ### What this means for investors
 
-- **Do not use wage growth as an early-warning signal for stocks** — the
-  tests find it lagging; if anything, the market warns about wages.
-- **Do not over-weight the headline Sharpe** — 25 quarterly observations,
-  bootstrap p = 0.18, a Sharpe that fell versus the prior run, and an edge
-  that rests on one episode (cash through 2022).
-- **ECI remains first-rate macro context** — for reading Fed pressure and
-  the wage-price dynamic — just not a forecasting input for equities.
+- The lead-lag tests find wage growth **lagging** equities.
+- The selected rule's out-of-sample Sharpe (0.70) is below buy-and-hold
+  (0.80), its return is about a third of buy-and-hold's, and its
+  out-of-sample record rests on 3 invested quarters.
+- ECI remains useful macro context for reading Fed pressure and the
+  wage-price dynamic.
 """
 
     TRANSITION_TEXT = (
@@ -399,20 +322,19 @@ CORRELATION_BLOCK = dict(
     ),
     chart_name=CORRELATION_CHART_NAME,
     chart_caption=(
-        "What this shows: correlations between ECI "
-        "transforms and forward S&P 500 (SPY) returns across quarterly "
-        "horizons. The grid is weak throughout; the few standout cells are "
-        "regime-state distance correlations (~0.35) and a negative "
-        "HMM-stress vs 4-quarter-forward cell (Pearson −0.26, p = 0.011) — "
-        "modest, long-horizon, and descriptive."
+        "What this shows: Pearson correlations between eight ECI transforms "
+        "and forward S&P 500 (SPY) returns at 1-, 2- and 4-quarter "
+        "horizons. Every cell lies between −0.19 and +0.06; none of the 72 "
+        "Pearson/Spearman/Kendall tests is significant at 5%."
     ),
     observation=(
-        "No transform shows a strong linear association with forward SPY at "
-        "any quarterly horizon. The largest cells are distance correlations "
-        "of coarse regime states (~0.35, no p-value under the distance "
-        "metric) and a mild negative Pearson between the HMM wage-stress "
-        "state and 4-quarter-forward returns (−0.26, p = 0.011) on ~93 "
-        "overlapping quarterly observations."
+        "No transform shows a significant linear association with forward "
+        "SPY at any quarterly horizon. The largest Pearson cell is "
+        "quarter-on-quarter growth vs 4-quarter-forward returns (−0.19, "
+        "p = 0.070, n = 96); the largest distance correlation is 0.27 "
+        "(2-quarter growth vs 4-quarter-forward). The regime-model rows "
+        "shown in an earlier version were built from look-ahead regime "
+        "probabilities and have been removed."
     ),
     deep_dive_title="Why treat the heatmap as triage rather than proof?",
     deep_dive_content=(
@@ -422,10 +344,9 @@ CORRELATION_BLOCK = dict(
         "triage; the formal tests below carry the inferential weight."
     ),
     interpretation=(
-        "The tradeable-horizon cells are weak, and the "
-        "few that stand out are slow regime-state associations — consistent "
-        "with a lagging labor-cost gauge, not a forecaster of equity "
-        "returns."
+        "The tradeable-horizon cells are weak and none is significant, "
+        "consistent with a lagging labor-cost gauge rather than a forecaster "
+        "of equity returns."
     ),
     key_message=(
         "At every tradeable quarterly horizon the raw association between "
@@ -470,21 +391,16 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
         "(|r| < 0.2; none starred). The raw YoY z-score transform "
         "`eci_total_comp_yoy_zscore_20q`, for example, is slightly negative "
         "at short leads (L1 −0.093), drifts positive with distance, and "
-        "peaks only at L8 (r = 0.177) — weak, and the sign flip across the "
-        "row is itself a fragility warning. (The published winner does not "
-        "trade any of these raw transforms; it trades a model-derived HMM "
-        "wage-stress probability, shown on the Regime chart.) **There is no "
-        "lead at which a raw wage-growth transform cleanly predicts "
-        "next-quarter SPY.**"
+        "peaks only at L8 (r = 0.177); the sign changes along the row. The "
+        "selected rule's signal, 2-quarter growth, is −0.072 at L2. **No "
+        "lead gives a raw wage-growth transform a significant correlation "
+        "with next-quarter SPY.**"
     ),
     interpretation=(
-        "This is an **honest near-null result**, and "
-        "stating it is the point. **In plain English:** wage growth follows "
-        "the economy and the market rather than leading them, so you cannot "
-        "reliably trade SPY by lagging a raw wage signal. The strategy on "
-        "the next page rides a short-window regime-timing regularity, not a "
-        "linear predictive lead, and the lead view makes that limitation "
-        "explicit."
+        "A near-null result. **In plain English:** wage growth follows the "
+        "economy and the market rather than leading them, and lagging a raw "
+        "wage signal does not produce a significant linear relationship "
+        "with next-quarter SPY at any lead from 0 to 8 quarters."
     ),
     key_message=(
         "No lead works cleanly: the raw wage-growth transforms are weak and "
@@ -498,65 +414,45 @@ LEAD_TOURNAMENT_BLOCK = dict(
     chart_status="ready",
     method_name="Lead Tournament",
     method_theory=(
-        "This block sweeps the QUARTERLY lead grid L = 1…8 and plots the "
-        "best OOS Sharpe at each lead against all valid combos; the "
-        "reference line is SPY buy-and-hold (Sharpe 0.80, √4 quarterly "
-        "annualization). Read it alongside the lagging verdict: any Sharpe "
-        "here comes from a 25-quarter descriptive regularity, not from "
-        "forward causality."
+        "This block evaluates the selected rule at every lead of the floored "
+        "QUARTERLY grid L = 1…5 and shows, for context, the best OOS Sharpe "
+        "of any IS-valid combo at each lead. The rule and its lead were "
+        "chosen by in-sample Sharpe; the reference line is SPY buy-and-hold "
+        "(OOS Sharpe 0.80, √4 quarterly annualization)."
     ),
     question=(
-        "Where does the traded 4-quarter (~12-month) lead sit on the sweep — "
-        "and is its Sharpe a robust ridge or a fragile artefact of a small "
-        "quarterly sample with the causality running backwards?"
+        "How does the selected rule's Sharpe change if the 2-quarter lead is "
+        "moved to 1, 3, 4 or 5 quarters?"
     ),
     how_to_read=(
-        "Bars: max OOS Sharpe at each quarterly lead on the floored grid "
-        "(L1..L5). The line traces the published winner's OWN signal (the "
-        "HMM wage-stress probability) across leads.\n\n"
-        "Unlike the prior (look-ahead-tainted) winner, whose own curve was "
-        "NEGATIVE at short leads, this winner's curve is POSITIVE at every "
-        "scanned lead (L1 0.86, L2 0.85, L3 0.85) and rises to its published "
-        "L4 peak (1.41), easing to L5 (1.36). We publish L4 because that is "
-        "where the winner's own curve genuinely peaks AND it is the grid "
-        "maximum — internally consistent, no staleness. But the grid is "
-        "short (only L1..L5), every point is search-conditioned on a "
-        "25-quarter window, and the indicator is LAGGING, so read the ridge "
-        "as a descriptive, search-conditioned pattern — not evidence of a "
-        "forecasting mechanism."
+        "Dotted line: the selected rule's in-sample Sharpe at each lead "
+        "(L1 0.93, L2 1.19, L3 1.12, L4 0.88, L5 1.02). Solid line: its OOS "
+        "Sharpe at each lead (L1 0.70, L2 0.70, L3 −0.07, L4 0.68, L5 0.43). "
+        "Bars: the best OOS Sharpe of any IS-valid combo at that lead; they "
+        "are chosen after seeing OOS results, so they are context, not a "
+        "selection."
     ),
     chart_name="lead_sharpe_distribution",
     chart_caption=(
-        "Best OOS Sharpe per quarterly lead (bars, floored "
-        "grid L1–L5) with the winner's own signal curve. The published "
-        "winner sits at L4 quarters (1.41, ≈12 months) and is the grid "
-        "maximum; the winner's own curve is positive at every scanned lead. "
-        "On a 25-quarter window with the causality running SPY→ECI, read any "
-        "Sharpe here as search-conditioned and descriptive."
+        "The selected rule's in-sample and OOS Sharpe across the floored "
+        "quarterly grid L1–L5, with the per-lead best OOS Sharpe of any "
+        "IS-valid combo as bars. The rule was selected at L2 by in-sample "
+        "Sharpe (1.19); its OOS Sharpe at L2 is 0.70 vs 0.80 buy-and-hold."
     ),
     observation=(
-        "The published winner (`hmm_stress / T3_zscore_1.0 / "
-        "P1_long_cash` counter, L4 quarters, OOS Sharpe 1.41) is the grid "
-        "maximum, and the winner's own lead-curve peaks at the published L4 "
-        "(no staleness). The curve is positive across the whole floored grid "
-        "— cleaner than the prior winner's negative-at-short-leads shape — "
-        "but combined with the lead-correlation near-null and the lagging "
-        "verdict, it still reads as a small-sample descriptive regularity, "
-        "not a stable predictive ridge."
+        "In-sample, L2 is the highest point of the rule's lead curve (1.19). "
+        "Out-of-sample, L1 and L2 are almost equal (0.70), L3 is negative "
+        "(−0.07) and L5 is 0.43; no lead of this rule beats buy-and-hold "
+        "out-of-sample."
     ),
     interpretation=(
-        "The honest summary: on 25 quarterly "
-        "observations, with the causality tests pointing the other way, the "
-        "traded L4q Sharpe should be read as riding a search-conditioned, "
-        "short-window pattern — weight it accordingly. The internally "
-        "consistent lead choice is a point in its favour; the short grid and "
-        "reverse causality are not. Honesty over polish."
+        "The out-of-sample result moves by 0.77 Sharpe between adjacent "
+        "leads (L2 0.70 to L3 −0.07), which on 25 quarters reflects how few "
+        "invested quarters drive the number."
     ),
     key_message=(
-        "The published L4-quarter winner (1.41) tops a sweep whose every "
-        "point is search-conditioned; its own signal curve is positive "
-        "across the floored grid. On a 25-quarter window with reverse "
-        "causality, treat the edge as descriptive, not predictive."
+        "Selected at L2 by in-sample Sharpe (1.19); OOS 0.70 against 0.80 "
+        "buy-and-hold; no lead of this rule beats buy-and-hold out of sample."
     ),
 )
 
@@ -811,68 +707,60 @@ REGIME_BLOCK = dict(
     method_name="Regime Context (HMM and Quartiles)",
     method_theory=(
         "A two-state Hidden Markov Model (HMM — a statistical model that "
-        "infers unobserved \"high\" vs \"low\" wage-inflation regimes from "
-        "the data's behavior) fitted to the ECI series, plus a simple sort "
-        "of history into quartiles of concurrent wage growth with SPY "
-        "performance in each."
+        "infers unobserved \"high\" vs \"low\" wage-inflation states from "
+        "the data) on ECI year-over-year growth, fitted on the 72 in-sample "
+        "quarters only and read with a forward filter (each quarter's value "
+        "uses data up to that quarter), plus a sort of history into "
+        "quartiles of concurrent wage growth with SPY performance in each. "
+        "The HMM is a diagnostic: it is not a tournament signal, because a "
+        "traded regime signal needs at least 100 in-sample observations."
     ),
     question=(
-        "Even without prediction, do states of the wage cycle coincide with "
-        "systematically different stock-market environments?"
+        "Do states of the wage cycle coincide with different stock-market "
+        "environments?"
     ),
     how_to_read=(
-        "The HMM panel shades periods by inferred regime probability over "
-        "time; the quartile chart on the Story page shows concurrent SPY "
-        "Sharpe/return in four bars, sorted from slowest (Q1) to fastest "
-        "(Q4) wage growth."
+        "The HMM panel shows the filtered probability of the high-wage-"
+        "inflation state over time; the vertical line marks the start of the "
+        "out-of-sample window, after which the model parameters are frozen. "
+        "The quartile chart on the Story page shows concurrent SPY "
+        "Sharpe/return in four bars, from slowest (Q1) to fastest (Q4) wage "
+        "growth."
     ),
     chart_name=HMM_REGIME_CHART_NAME,
     chart_caption=(
-        "What this shows: HMM-inferred wage-inflation "
-        "regime probability over time, NBER recessions shaded. The "
-        "high-wage-inflation state covers ~47% of the sample (notably the "
-        "2021–23 surge); SPY returns have been better in the LOW-wage-"
-        "inflation state."
+        "What this shows: in-sample-fitted, forward-filtered HMM probability "
+        "of the high-wage-inflation state, NBER recessions shaded. The high "
+        "state covers 63% of quarters (mean YoY 3.5%) and the low state 37% "
+        "(mean YoY 2.0%); the probability rounds to 1.00 in every quarter "
+        "from 2021-Q2 to 2023-Q4."
     ),
     observation=(
-        "The HMM separates a low-wage-inflation state (mean YoY ≈ 2.2%, "
-        "~53% of quarters) from a high state (≈ 3.7%, ~47%). Concurrent SPY "
-        "performance is better in the low state, and the quartile sort "
-        "agrees: Q1 (slowest wage growth) Sharpe 1.17 vs Q4 0.67 and Q3 "
-        "−0.15 — a mildly countercyclical CONCURRENT pattern. This now AGREES "
-        "with the tournament winner, which trades this very HMM stress "
-        "probability COUNTERCYCLICALLY (long when stress is low, cash when "
-        "high) at a 4-quarter lag — the earlier procyclical winner that "
-        "contradicted this pattern is gone."
+        "Mean concurrent quarterly SPY return is 1.9% in the high state and "
+        "3.8% in the low state. The quartile sort points the same way: Q1 "
+        "(slowest wage growth) Sharpe 1.17 vs Q4 0.67 and Q3 −0.15. Both "
+        "are concurrent, not lagged. An earlier version of this chart showed "
+        "a full-sample, smoothed HMM (a 47% / 53% split) that used later "
+        "data at each point; it has been replaced."
     ),
     deep_dive_title="How stable is the relationship over time?",
     deep_dive_content=(
-        "Only moderately. The rolling 20-quarter correlation still varies "
-        "but agrees with its full-sample sign 57% of the time (verdict "
-        "`moderately_stable` in `structural_break_eci_total_comp_spy.json`), "
-        "and the Quandt-Andrews test does NOT flag a structural break "
-        "(candidate break 2022-Q2, sup-F 4.03, bootstrap p = 0.37). These "
-        "are both improvements on the prior run (which read `sign_unstable` "
-        "and flagged a 2009 break). Cross-period results should still be "
-        "read as descriptive; note that the raw 20-quarter z-score "
-        "transforms remain flagged regime-contaminated (KPSS reject), but "
-        "the winner trades the HMM regime probability "
-        "(`borderline_persistent`), not those z-scores."
+        "The 16-quarter rolling correlation between the selected signal "
+        "(lagged two quarters) and next-quarter SPY agrees with its "
+        "full-sample sign in 52% of windows (verdict `moderately_stable` in "
+        "`structural_break_eci_total_comp_spy.json`). The Quandt-Andrews "
+        "test does not flag a structural break (candidate 2020-Q2, sup-F "
+        "3.32, bootstrap p = 0.38)."
     ),
     interpretation=(
-        "The constructive reading of a lagging series: "
-        "wage-inflation states describe distinct macro environments, the "
-        "concurrent pattern is moderately stable with no flagged break, and "
-        "it now points the SAME way as the strategy the search picked "
-        "(countercyclical). Descriptive and conditional, but better-behaved "
-        "than the prior run — still not a forward forecast."
+        "Wage-inflation states coincide with different concurrent equity "
+        "returns (slow wage growth, better returns). This is descriptive; "
+        "it is not a forecast."
     ),
     key_message=(
-        "Wage-inflation states have coincided with different equity "
-        "environments (slow wage growth = better returns); the relationship "
-        "is moderately stable with no flagged structural break, and the "
-        "strategy search now trades this pattern in the consistent "
-        "(countercyclical) direction."
+        "Slow-wage-growth periods have coincided with better concurrent "
+        "equity returns; the regime model is shown as a causal diagnostic "
+        "and is not traded."
     ),
 )
 
@@ -881,45 +769,40 @@ TOURNAMENT_DIST_BLOCK = dict(
     chart_status="ready",
     method_name="Search Distribution",
     method_theory=(
-        "The distribution of out-of-sample Sharpe ratios across all 808 "
-        "valid strategy combinations in the quarterly tournament — the "
-        "context that shows how far the published winner sits into the "
-        "right tail of its own search."
+        "The distribution of out-of-sample Sharpe ratios across all 1,080 "
+        "IS-valid combinations in the quarterly tournament, with the "
+        "in-sample-selected rule marked."
     ),
     question=(
-        "Is the winner's Sharpe typical of what this indicator supports — "
-        "or the extreme right tail of a search over thousands of variants?"
+        "Where does the selected rule's OOS Sharpe sit among all the rules "
+        "the search could have picked?"
     ),
     how_to_read=(
-        "Histogram of OOS Sharpe across valid combos; vertical markers show "
-        "the median valid combo (0.68), buy-and-hold (0.80), and the "
-        "published winner (1.41). All figures use quarterly √4 "
-        "annualization on the 25-quarter OOS window."
+        "Histogram of OOS Sharpe across IS-valid combos; vertical markers "
+        "show the median (0.40), buy-and-hold (0.80) and the selected rule "
+        "(0.70). All figures use quarterly √4 annualization on the "
+        "25-quarter OOS window."
     ),
     chart_name=TOURNAMENT_DIST_CHART_NAME,
     chart_caption=(
-        "Distribution of OOS Sharpe across 808 valid "
-        "combos with median (0.68), buy-and-hold (0.80) and the winner "
-        "(1.41) marked — the winner is the right tail of a search, not an "
-        "out-of-sample forecast."
+        "Distribution of OOS Sharpe across 1,080 IS-valid combos with the "
+        "median (0.40), buy-and-hold (0.80) and the selected rule (0.70) "
+        "marked; 127 combos have a higher OOS Sharpe than buy-and-hold."
     ),
     observation=(
-        "The median valid combination (0.68) UNDERPERFORMS buy-and-hold "
-        "(0.80): the typical rule built on this indicator subtracts value. "
-        "The published winner (1.41) is the extreme of the distribution, "
-        "and its bootstrap p-value against resampled buy-and-hold is 0.18 — "
-        "not significant at 5%."
+        "The median IS-valid combination (0.40) is below buy-and-hold "
+        "(0.80). The selected rule (0.70) is at the 73rd percentile. The "
+        "rank correlation between in-sample and OOS Sharpe across the grid "
+        "is 0.52."
     ),
     interpretation=(
-        "When the median strategy loses to buy-and-hold "
-        "and only the search maximum looks good, the correct prior is that "
-        "the maximum is selection effect. This is the best-of-N disclosure "
-        "rendered as a picture."
+        "Most rules built on this indicator scored below buy-and-hold in the "
+        "test window, and the rule chosen in-sample did too."
     ),
     key_message=(
-        "The typical ECI-based rule underperforms buy-and-hold; the "
-        "published winner is the right tail of an 808-combination search "
-        "(bootstrap p = 0.18, n.s.)."
+        "The typical ECI-based rule underperforms buy-and-hold out of "
+        "sample; the in-sample-selected rule sits at the 73rd percentile "
+        "(0.70 vs 0.80)."
     ),
 )
 
@@ -931,59 +814,48 @@ EVIDENCE_METHOD_BLOCKS = {
     "overview": (
         "*One question, attacked several independent ways: does wage-"
         "inflation momentum carry information about future S&P 500 (SPY) "
-        "returns — or does the market move first? Methods that agree from "
-        "different angles are far more convincing than any single test. "
-        "Here they converge on a directional answer: SPY predicts ECI at "
-        "every tested quarterly lag; ECI predicts SPY at none.*\n\n"
+        "returns — or does the market move first? SPY predicts ECI at every "
+        "tested quarterly lag; ECI predicts SPY at none.*\n\n"
         "All statistics computed on QUARTERLY data, analytical sample "
         "2001-Q1 → 2026-Q1 (~101 quarters), from "
-        "`results/eci_total_comp_spy/core_models_20261008/`.\n\n"
-        "**Read this page before the Strategy page.** The Strategy page "
-        "reports an out-of-sample Sharpe of 1.41 for a searched rule — do "
-        "NOT read that as a validated predictive edge. These tests say the "
-        "indicator is LAGGING (the market leads wages), the median searched "
-        "rule (0.68) underperforms buy-and-hold (0.80), and the winner is "
-        "not statistically significant (bootstrap p = 0.18). The 1.41 is a "
-        "found-in-search CANDIDATE whose only defensible virtue is drawdown "
-        "control (-4.4% vs -23.9%); its Sharpe is best read as volatility "
-        "avoidance, not forecasting skill."
+        "`results/eci_total_comp_spy/core_models_20261016/`.\n\n"
+        "The Strategy page reports the rule with the best in-sample Sharpe: "
+        "its out-of-sample Sharpe is 0.70 against 0.80 for buy-and-hold, and "
+        "the median rule in the search scores 0.40."
     ),
     "plain_english": (
         "This section shows the statistical evidence on whether wage growth "
         "predicts the stock market. The lead-lag tests — correlation, "
         "Granger causality, pre-whitened cross-correlation, local "
-        "projections, and transfer entropy — converge on a reversal: the "
-        "S&P 500 (SPY) helps predict wage growth one to four quarters "
-        "ahead, while wage growth predicts the market at no tested lag. "
-        "Wages are a lagging indicator. The concurrent regularity that "
-        "remains (slow wage growth coinciding with better equity "
-        "conditions) is descriptive and moderately stable, and — notably — "
-        "now points the SAME way as the countercyclical rule the strategy "
-        "search on the next page selected."
+        "projections, and transfer entropy — point the same way: the "
+        "S&P 500 (SPY) helps predict wage growth one to four quarters ahead, "
+        "while wage growth predicts the market at no tested lag. Wages are a "
+        "lagging indicator. Slow wage growth has coincided with better "
+        "concurrent equity returns, which is descriptive, not predictive."
     ),
-    # Row counts VERIFIED against the 20261008 artifacts; counts exclude the header row.
+    # Row counts VERIFIED against the 20261016 artifacts; counts exclude the header row.
     "downloads": [
         {"label": "Granger causality (Toda-Yamamoto), both directions × 4 quarterly lags (8 rows)",
-         "path": "results/eci_total_comp_spy/core_models_20261008/granger_causality.csv"},
+         "path": "results/eci_total_comp_spy/core_models_20261016/granger_causality.csv"},
         {"label": "Granger F-statistics by lag, ECI → SPY (4 rows)",
          "path": "results/eci_total_comp_spy/granger_by_lag.csv"},
-        {"label": "Correlation battery, signal × horizon × metric (120 rows)",
-         "path": "results/eci_total_comp_spy/core_models_20261008/correlations.csv"},
+        {"label": "Correlation battery, signal × horizon × metric (96 rows)",
+         "path": "results/eci_total_comp_spy/core_models_20261016/correlations.csv"},
         {"label": "Pre-whitened CCF, quarterly offsets −8..+8 (17 rows)",
-         "path": "results/eci_total_comp_spy/core_models_20261008/ccf_prewhitened.csv"},
+         "path": "results/eci_total_comp_spy/core_models_20261016/ccf_prewhitened.csv"},
         {"label": "Local projections, forward + reverse × 3 quarterly horizons (6 rows)",
-         "path": "results/eci_total_comp_spy/core_models_20261008/local_projections.csv"},
+         "path": "results/eci_total_comp_spy/core_models_20261016/local_projections.csv"},
         {"label": "Transfer entropy, both directions (2 rows)",
-         "path": "results/eci_total_comp_spy/core_models_20261008/transfer_entropy.csv"},
+         "path": "results/eci_total_comp_spy/core_models_20261016/transfer_entropy.csv"},
         {"label": "Quantile regression, 7 quantiles (7 rows)",
-         "path": "results/eci_total_comp_spy/core_models_20261008/quantile_regression.csv"},
+         "path": "results/eci_total_comp_spy/core_models_20261016/quantile_regression.csv"},
         {"label": "Lead-correlation grid, 8 transforms × leads L0..L8 quarters (8 rows)",
-         "path": "results/eci_total_comp_spy/lead_correlation_20261008.csv"},
+         "path": "results/eci_total_comp_spy/lead_correlation_20261016.csv"},
         {"label": "Regime quartile returns, Q1–Q4 (4 rows)",
          "path": "results/eci_total_comp_spy/regime_quartile_returns.csv"},
         {"label": "Sub-period Sharpe, episodes (4 rows)",
          "path": "results/eci_total_comp_spy/subperiod_sharpe.csv"},
-        {"label": "Rolling 20-quarter correlation (64 rows)",
+        {"label": "Rolling 16-quarter correlation, selected signal vs next-quarter SPY (81 rows)",
          "path": "results/eci_total_comp_spy/rolling_correlation_eci_total_comp_spy.csv"},
     ],
     "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK,
@@ -1003,237 +875,164 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2_summary": {
         "title": "What the evidence adds up to",
         "body": (
-            "Put the tests side by side and they tell one consistent story. "
-            "The correlation battery and the lead view find no clean "
-            "association at any tradeable quarterly horizon (|r| < 0.2 across "
-            "leads L0–L8). Toda-Yamamoto Granger is decisive "
-            "and one-directional: the S&P 500 forecasts wage growth at every "
-            "tested quarterly lag (p = 0.014/0.013/0.004/0.003), while wage "
-            "growth forecasts the market at none (smallest p = 0.50). The "
-            "pre-whitened CCF adds no lead on either side — only a "
-            "contemporaneous negative echo at offset 0 (r = -0.25). Local "
-            "projections, transfer entropy, and quantile regression each "
-            "fail to rescue a forward-looking reading, and where transfer "
-            "entropy carries any flow it is the REVERSE "
-            "direction (SPY → wages, p = 0.16, still insignificant). The "
-            "regime work shows a descriptive, moderately stable concurrent "
-            "pattern with NO flagged structural break — and it points "
-            "countercyclical, the SAME direction as the rule the search "
-            "selected. The search distribution then shows the median valid "
-            "combo (0.68) UNDERPERFORMS buy-and-hold (0.80). **Bottom line:** "
-            "the tests agree that ECI total compensation is a LAGGING, "
-            "non-predictive wage indicator — the market leads wages, not the "
-            "reverse. The strategy on the next page is therefore best "
-            "understood as a searched countercyclical regime-timing overlay "
-            "on a small quarterly window whose only defensible edge is "
-            "drawdown control, not a validated forecasting signal."
+            "The correlation battery and the lead view find no significant "
+            "association at any quarterly horizon or lead (|r| < 0.2 across "
+            "L0–L8). Toda-Yamamoto Granger is one-directional: the S&P 500 "
+            "forecasts wage growth at every tested quarterly lag "
+            "(p = 0.014/0.013/0.004/0.003), while wage growth forecasts the "
+            "market at none (smallest p = 0.50). The pre-whitened CCF finds "
+            "no lead on either side — only a contemporaneous negative echo at "
+            "offset 0 (r = −0.25). Local projections, transfer entropy and "
+            "quantile regression find no forward effect; transfer entropy is "
+            "insignificant both ways (SPY → wages p = 0.16, wages → SPY "
+            "p = 0.26). The regime work shows slow wage growth coinciding "
+            "with better concurrent returns, with no flagged structural "
+            "break. In the search, the median IS-valid rule (0.40) scores "
+            "below buy-and-hold (0.80). **Bottom line:** the tests classify "
+            "ECI total compensation as a lagging wage indicator — the market "
+            "leads wages."
         ),
         "key_message": (
-            "Every test converges: ECI is lagging and non-predictive (SPY "
-            "leads wages). The next page's rule is a found-in-search "
-            "countercyclical overlay whose sole edge is drawdown control — "
-            "read its Sharpe as volatility avoidance, not a forecasting edge."
+            "The tests converge: ECI is lagging (SPY leads wages). The next "
+            "page's in-sample-selected rule scores 0.70 out of sample "
+            "against 0.80 for buy-and-hold."
         ),
     },
     "tournament_intro": (
-        "The statistical tests above ask whether the indicator *predicts* — "
-        "and answer no (the causality runs the other way). The tournament "
-        "asks a more pragmatic question: across every reasonable QUARTERLY "
-        "trading rule you could build from this series, does *any* of them "
-        "beat simply holding the S&P 500 (SPY)?\n\n"
-        "We tested a grid of **1,460 strategy combinations** — 10 signal "
-        "transforms × 8 threshold schemes × 4 strategy families × the floored "
-        "quarterly lead grid L1..L5 — of which **808 passed validity "
-        "filters** (the buy-and-hold benchmark row is excluded from this "
-        "count). The median valid combination scored an OOS Sharpe of 0.68, "
-        "BELOW buy-and-hold's 0.80. The headline rule on the Strategy page is "
-        "the search maximum (1.41) on a 25-QUARTER out-of-sample window, with "
-        "bootstrap p = 0.18. In plain English: on a small quarterly sample, "
-        "with the causality running backwards, the winner is a candidate "
-        "found in search — not a validated edge."
+        "The statistical tests above ask whether the indicator *predicts*. "
+        "The tournament asks a practical question: across a grid of "
+        "QUARTERLY trading rules built from this series, which rule had the "
+        "best in-sample record, and how did it do afterwards?\n\n"
+        "We tested **1,180 strategy combinations** — 8 signal transforms × "
+        "threshold schemes × 4 strategy families × the floored quarterly "
+        "lead grid L1..L5 — of which **1,080 passed in-sample validity "
+        "checks** (the buy-and-hold benchmark row is excluded from this "
+        "count). The winner was chosen by in-sample Sharpe on 2008-12-31 → "
+        "2019-12-31 and scored on 2020-03-31 → 2026-03-31: OOS Sharpe 0.70 "
+        "versus 0.80 for buy-and-hold. The median IS-valid combination "
+        "scored 0.40."
     ),
     "transition": (
-        "**Transition:** the lead-lag verdict is lagging — the market "
-        "moves first and wages follow. What remains is the pragmatic "
-        "question the tournament answered: the next page shows the one "
-        "candidate rule the search surfaced, with every fragility flag "
-        "attached. Carry one guard-rail across: its 1.41 Sharpe is NOT a "
-        "validated predictive edge — it is a found-in-search candidate on a "
-        "lagging indicator whose defensible virtue is the shallow drawdown, "
-        "so read the Sharpe as volatility avoidance."
+        "**Transition:** the lead-lag verdict is lagging — the market moves "
+        "first and wages follow. The next page shows the rule the search "
+        "selected in-sample and its out-of-sample record against "
+        "buy-and-hold."
     ),
 }
-
 
 # =========================================================================
 # STRATEGY PAGE
 # =========================================================================
 class StrategyConfig:
     PAGE_TITLE = (
-        "The Strategy: A Countercyclical Long/Cash Overlay Found on 25 Quarters"
+        "The Strategy: An In-Sample-Selected Wage-Growth Rule for SPY"
     )
     PAGE_SUBTITLE = (
-        "— the search maximum on a LAGGING indicator with the causality "
-        "running the other way: a 25-quarter (quarterly) candidate, "
-        "bootstrap p = 0.18, OOS Sharpe (1.41) LOWER than the prior "
-        "look-ahead-tainted rule (1.60). No hold-out test has been run yet."
+        "1,180 quarterly rule combinations were scored. The one with the best "
+        "in-sample Sharpe is reported here, with its out-of-sample record "
+        "against buy-and-hold."
+    )
+
+    STATISTICAL_FRAMING_BANNER = (
+        "Correction (2026-10-16). This page previously reported hmm_stress / "
+        "T3_zscore_1.0 / Long/Cash / L4 quarters with an OOS Sharpe of 1.41 "
+        "(HAC t 3.04). That result relied on HMM probabilities fitted on the "
+        "full sample and smoothed with future data (look-ahead), and the rule "
+        "was picked by its OOS score. Rebuilt without look-ahead and with "
+        "in-sample selection, the winner below has an OOS Sharpe of 0.70 "
+        "against 0.80 for SPY buy-and-hold."
     )
 
     PLAIN_ENGLISH = (
-        "The best rule from a 1,460-combination quarterly search: hold the "
-        "S&P 500 (SPY) when a model-inferred wage-inflation-stress "
-        "probability (a 2-state Hidden Markov Model read on ECI) — viewed "
-        "with a 4-QUARTER (~12-month) delay — sits BELOW its rolling "
-        "threshold (low wage-inflation stress = risk-on), and move to CASH "
-        "when it sits above. That is a COUNTERCYCLICAL long/cash overlay. In "
-        "the 25-quarter search window (2020–2026) it scored a Sharpe ratio of "
-        "1.41 versus 0.80 for buy-and-hold, with a 16.7% annualized return "
-        "versus 14.5% and a −4.4% maximum drawdown versus −23.9%. Be honest "
-        "about what this is: the window is 25 quarterly observations; the "
-        "causality tests say the market leads wages (not the reverse), so "
-        "there is no forecasting mechanism; it fails the standard "
-        "significance test (bootstrap p = 0.18); and its OOS Sharpe is LOWER "
-        "than the earlier (look-ahead-tainted) winner it replaced (1.60 → "
-        "1.41). The one defensible virtue is the shallow drawdown "
-        "(−4.4% vs −23.9%), earned by sitting in CASH through the 2022 bear — "
-        "i.e. volatility avoidance, not a forecasting edge. Two things did "
-        "improve versus the prior winner: the direction is now consistent "
-        "with the countercyclical prior, and the in-sample Sharpe is mildly "
-        "positive (+0.50, was −0.23). Read it as a candidate overlay found by "
-        "search — its final exam on untouched data has not been run."
+        "The rule moves between SPY and cash once a quarter. It holds SPY "
+        "when ECI 2-quarter wage growth, as it stood two quarters earlier, "
+        "is at or below 1.315% (its in-sample median), and holds cash "
+        "otherwise. It was chosen because it had the highest in-sample "
+        "Sharpe (1.19 vs 0.79 for buy-and-hold, 2008–2019). Out of sample "
+        "(2020-03-31 → 2026-03-31, 25 quarters) it scored a Sharpe of 0.70 "
+        "versus 0.80 for buy-and-hold, an annualized return of 4.3% versus "
+        "14.5%, and no drawdown versus −23.9%. It was invested in 3 of the "
+        "25 quarters and has been in cash since 2021-Q3."
     )
 
-    # fix Step C #188 — Executive Confidence Summary panel rendered at the TOP
-    # of the Strategy Confidence tab, before the scattered supporting detail
-    # (structural-break note, tournament scatter, sub-period durability).
-    # Templated on phlxsox_spy_config.EXECUTIVE_CONFIDENCE_SUMMARY; same keys,
-    # rendered by page_templates._render_executive_confidence_summary. Every
-    # number is from results/eci_total_comp_spy/* — it restates, never
-    # oversells. The honest verdict is CANDIDATE, and the ONLY defensible
-    # virtue is drawdown control; the Sharpe is volatility avoidance, not a
-    # forecasting edge on what the tests say is a LAGGING indicator.
     EXECUTIVE_CONFIDENCE_SUMMARY = dict(
         status="Candidate",
         status_detail=(
-            "A low-confidence, FOUND-IN-SEARCH candidate on an empirically "
-            "LAGGING indicator — NOT a validated, deployable predictive edge. "
-            "It has not faced a frozen-rule holdout final exam, and it is "
-            "read on a 25-QUARTER out-of-sample window (2020-Q1 → 2026-Q1)."
+            "Selected by in-sample Sharpe from a 1,180-rule quarterly search "
+            "and scored on a 25-quarter out-of-sample window (2020-Q1 → "
+            "2026-Q1). No frozen-rule confirmation test has been run."
         ),
         strengths=[
-            "Shallow drawdown is the one defensible virtue: max drawdown "
-            "-4.4% vs -23.9% buy-and-hold over the OOS window, earned by "
-            "sitting in CASH (not shorting) through the 2022 bear. Read the "
-            "Sharpe (1.41 vs 0.80) as volatility/drawdown avoidance, not as "
-            "evidence of forecasting skill.",
-            "Better-behaved than the prior winner: the direction is now "
-            "COUNTERCYCLICAL and CONSISTENT with the pair's prior "
-            "(`direction_consistent: true`); the in-sample Sharpe is mildly "
-            "POSITIVE (+0.50, was -0.23); no structural break is flagged "
-            "(candidate break 2022-Q2, p = 0.37); and the rolling correlation "
-            "is `moderately_stable` (sign-stability 0.57).",
-            "The winner's OWN lead-curve is positive across the whole floored "
-            "grid and peaks at its published L4-quarter (~12-month) lead, so "
-            "the lead choice is internally consistent — not a grid artefact.",
-            "In-window return also cleared buy-and-hold (16.7% vs 14.5%, win "
-            "rate 56%), but on only 3 trades — the edge leans almost entirely "
-            "on being in cash through the 2022 bear (and the COVID-Q1 crash).",
+            "Selection used in-sample data only (2008-12-31 → 2019-12-31): "
+            "IS Sharpe 1.19 vs 0.79 for buy-and-hold, IS HAC t 4.84.",
+            "Out of sample the rule had no drawdown (0.0% vs −23.9% for "
+            "buy-and-hold); it was in cash for 22 of 25 quarters, including "
+            "2022.",
+            "Costs are negligible at 0.32 trades per year (OOS Sharpe 0.67 "
+            "at 50 bps per trade, `transaction_costs.csv`).",
         ],
         risks=[
-            "The causality runs BACKWARDS. Toda-Yamamoto Granger finds "
-            "ECI → SPY significant at NO quarterly lag while SPY → ECI is "
-            "significant at every lag (1-4); the pre-whitened CCF shows no "
-            "lead on either side. There is no forward-causal mechanism behind "
-            "the rule — the indicator is lagging; this is a regime-timing "
-            "overlay, not a forecast.",
-            "The OOS Sharpe DROPPED versus the prior winner (1.60 → 1.41): "
-            "the floored grid's best executable rule is weaker than the "
-            "earlier look-ahead-tainted one.",
-            "Tiny out-of-sample sample: 25 QUARTERS — a stronger small-sample "
-            "caveat than any monthly pair; the quarterly Sharpe is "
-            "high-variance and found-in-search by construction.",
-            "Selection / overfitting flags: the median valid combo (0.68) "
-            "LOST to buy-and-hold (0.80); bootstrap p = 0.184 (not significant "
-            "at 5%, and WORSE than the old winner's 0.12); no frozen-rule "
-            "holdout yet.",
-            "The traded signal is a DERIVED 2-state HMM wage-stress "
-            "probability — more opaque and harder to audit than a raw "
-            "transform. Durability is only `conditionally_durable` on ONE "
-            "evaluable episode (COVID, sub-period Sharpe 2.48).",
+            "Out of sample the rule's Sharpe (0.70) is below buy-and-hold "
+            "(0.80) and its annualized return (4.3%) is below buy-and-hold "
+            "(14.5%); OOS HAC t 1.33 (p = 0.18).",
+            "The OOS record rests on 3 invested quarters (2020-Q4 to "
+            "2021-Q2); moving the lead from 2 to 3 quarters changes the OOS "
+            "Sharpe from 0.70 to −0.07.",
+            "The causality runs from the market to wages: Toda-Yamamoto "
+            "Granger finds ECI → SPY significant at no quarterly lag and "
+            "SPY → ECI significant at lags 1–4.",
+            "1,080 distinct rules were compared; the expected maximum |z| "
+            "under no skill is about 3.31, against the winner's in-sample "
+            "HAC t of 4.84.",
         ],
         conclusion=(
-            "In one paragraph: this countercyclical long/cash overlay is a "
-            "low-confidence, found-in-search CANDIDATE on a lagging indicator. "
-            "Its only defensible virtue is drawdown control (-4.4% vs -23.9%), "
-            "earned by sitting in cash through 2022; the 1.41 Sharpe should be "
-            "read as volatility avoidance, not as a predictive edge, because "
-            "every lead-lag test says the market leads wages, not the reverse. "
-            "It sits on just 25 quarterly observations, its OOS Sharpe is "
-            "LOWER than the prior look-ahead-tainted winner (1.60 → 1.41), it "
-            "is not statistically significant (bootstrap p = 0.184), it trades "
-            "an opaque HMM regime signal, and it has not passed a frozen-rule "
-            "holdout. It is nonetheless better-behaved than the old winner — "
-            "direction now consistent with the prior, in-sample Sharpe mildly "
-            "positive, no flagged break. Treat it as a candidate pattern "
-            "awaiting its final exam, not proof that wage growth times the "
-            "S&P 500."
+            "The in-sample-selected rule (lagged 2-quarter wage growth at or "
+            "below its in-sample median → long SPY, otherwise cash) earned an "
+            "OOS Sharpe of 0.70 against 0.80 for buy-and-hold over 25 "
+            "quarters, with a 4.3% annualized return against 14.5% and no "
+            "drawdown against −23.9%. The previously published 1.41 relied on "
+            "a look-ahead HMM signal and is withdrawn."
         ),
     )
 
     SIGNAL_RULE_MD = """
-**Rule:** Hold the S&P 500 (SPY) **when the 4-QUARTER-lagged ECI wage-stress signal (`hmm_2state_prob_stress` — the probability, from a 2-state Hidden Markov Model fitted to ECI, that wage growth is in its high-inflation-stress state) is BELOW its rolling threshold (a z-score of +1.0 over a 12-quarter lookback). When it is above, hold CASH.** This is a **countercyclical** orientation: low/decelerating wage-inflation stress = risk-on, high stress = step aside to cash. It is **CONSISTENT with the countercyclical wage-inflation prior** the pair was designed to test (`direction_consistent: true` in `interpretation_metadata.json`) — an improvement on the prior run's procyclical winner, which contradicted it. (Family: Long/Cash P1; signal `hmm_stress`, rolling z-score threshold T3_zscore_1.0, lead L4 QUARTERS ≈ 12 months, 12-quarter lookback (LB12) — per `winner_summary.json`; `direction: countercyclical`, confirmed against the broker-style trade log.)
+**Rule:** each quarter, take ECI 2-quarter compensation growth (`eci_total_comp_pct_2q`, the % change of the Employment Cost Index over two quarters) **as it stood two quarters earlier** (lead L2 ≈ 6 months). If it is **at or below 1.315%** — the median of the lagged series over the in-sample quarters (threshold T1_fixed_p50, fixed) — hold **100% SPY**; otherwise hold **cash**. Countercyclical orientation: slower wage growth = invested. (Family: Long/Cash P1; per `winner_summary.json`.)
 
 If-then form (evaluated once per quarter):
-- **IF** the 4-quarter-old HMM wage-stress probability is BELOW its rolling z = 1.0 threshold → **LONG SPY (100% invested)**.
+- **IF** 2-quarter ECI growth from two quarters ago ≤ 1.315% → **LONG SPY (100% invested)**.
 - **ELSE** → **CASH (0% invested)**.
 
-Search-phase results (2020-03-31 → 2026-03-31, 25 QUARTERS — **small sample, no hold-out test yet**; Sharpe annualized by √4): OOS Sharpe 1.41 vs 0.80 buy-and-hold; annualized return 16.7% vs 14.5%; maximum drawdown −4.4% vs −23.9%; 3 trades in the OOS window (turnover 0.48/yr); quarterly win rate 56%.
+Selection: highest in-sample Sharpe among 1,080 IS-valid rules on 2008-12-31 → 2019-12-31 (45 quarters): 1.19 vs 0.79 for buy-and-hold.
 
-**Read this as a candidate, not a validated edge.** The window is 25 quarterly observations, the indicator is empirically LAGGING (the market predicts wages, not the reverse), the result is not statistically significant (bootstrap p = 0.18), and the OOS Sharpe is LOWER than the prior look-ahead-tainted winner (1.60 → 1.41). The signal is a derived, opaque HMM regime probability. This pair's `strategy_objective` (per `interpretation_metadata.json`) is **max_sharpe**; note that as a long/CASH rule its OOS edge came almost entirely from being in cash through the 2022 bear (and the COVID-Q1 crash) — one episode, in one window. (Two honest pluses versus the old winner: the direction is now consistent with the prior, and the in-sample Sharpe is mildly positive, +0.50.)
+Out-of-sample (2020-03-31 → 2026-03-31, 25 quarters; Sharpe annualized by √4): Sharpe 0.70 vs 0.80 buy-and-hold (HAC t 1.33); annualized return 4.3% vs 14.5%; maximum drawdown 0.0% vs −23.9%; 2 trades (turnover 0.32/yr); long in 3 quarters (2020-Q4, 2021-Q1, 2021-Q2), cash since 2021-Q3.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = """
 No formulas — three steps:
 
-**What changes in the world:** employers' total compensation costs — wages plus benefits — accelerate or decelerate with the labor cycle. The BLS's Employment Cost Index measures that growth each QUARTER (released ~1 month after quarter end), and a 2-state Hidden Markov Model infers whether wage growth is in a "calm" low-inflation state or a "stressed" high-inflation state.
+**What changes in the world:** employers' total compensation costs — wages plus benefits — accelerate or decelerate with the labor cycle. The BLS Employment Cost Index measures them each QUARTER (released ~1 month after quarter end).
 
-**What the signal measures:** each quarter, the rule takes the model's estimated *probability that wage growth is in its high-inflation-stress state*, as that reading stood **four quarters (~12 months) ago** (the delay is not a publication-lag necessity; it is the lead the tournament scored best, which on a lagging indicator is itself a caution). It then compares that stale probability to a rolling threshold — a z-score of +1.0 computed over a trailing 12-quarter window.
+**What the signal measures:** the percentage change in the index over the last two quarters, read as it stood **two quarters (~6 months) ago**. The two-quarter delay is the lead with the highest in-sample Sharpe for this rule in a grid of 1 to 5 quarters.
 
-**What decision it drives:** below the threshold (wage-inflation stress was unusually LOW a year ago) → be LONG the market; above it (stress was unusually high) → step to CASH. Because the causality tests find the market leads wages, this is best understood as a countercyclical *regime-timing* overlay that happened to sort the 2020–2026 window well (chiefly by sidestepping 2022) — not a forecast of where stocks are going.
+**What decision it drives:** if that reading is at or below 1.315% (the in-sample median) → be LONG SPY; above it → CASH. The Evidence page finds that the market leads wages, so the rule sorts quarters by an old wage reading rather than forecasting through a wage → equity channel.
 """
 
     MANUAL_USE_MD = (
-        "First, the framing: what follows describes how the backtested rule "
-        "works so you can replicate and audit it — it is **not** a "
-        "recommendation to trade it. This rule is a small-sample search-"
-        "phase candidate (best of 808 valid; 25-QUARTER OOS; no hold-out "
-        "test yet; bootstrap p = 0.18, not significant at 5%; OOS Sharpe "
-        "LOWER than the prior run; a derived, opaque HMM signal; empirically "
-        "LAGGING indicator). With that understood, the quarterly routine — "
-        "which does require fitting a 2-state HMM — is:\n\n"
+        "This describes how the backtested rule works so you can replicate "
+        "and audit it; it is not a recommendation to trade it. Out of sample "
+        "it scored a Sharpe of 0.70 against 0.80 for buy-and-hold. The "
+        "quarterly routine is:\n\n"
         "1. **Pull the wage series** — FRED series `ECIALLCIV` (Employment "
         "Cost Index: Total compensation: All Civilian, SA; published ~1 "
         "month after each quarter ends).\n"
-        "2. **Fit a 2-state Hidden Markov Model** — to the ECI wage-growth "
-        "series, and read off each quarter's probability of being in the "
-        "high-wage-inflation-stress state (`hmm_2state_prob_stress`). This "
-        "is the opaque part — it is a fitted model, not a one-line "
-        "transform.\n"
-        "3. **Standardize the probability** — express it as a rolling "
-        "z-score against its own trailing 12-quarter window.\n"
-        "4. **Apply the 4-quarter delay** — the reading the rule acts on "
-        "this quarter is the z-scored probability from four quarters "
-        "(~12 months) ago.\n"
-        "5. **Compare to the threshold** — is that delayed z-score above "
-        "+1.0? See `winner_trade_log.csv` for the full signal/threshold "
-        "path.\n"
-        "6. **Take the position** — below the threshold (low stress) → LONG "
-        "SPY (100%); above (high stress) → CASH (0%). Re-evaluate once a "
-        "QUARTER.\n\n"
-        "Remember the warning labels: 25-quarter window, lagging indicator "
-        "(the causality runs the other way), not statistically significant, "
-        "a Sharpe that fell versus the prior run, an opaque HMM signal — and "
-        "an edge that has only been \"tested\" by one bear market (2022)."
+        "2. **Compute 2-quarter growth** — 100 × (index this quarter / index "
+        "two quarters earlier − 1).\n"
+        "3. **Apply the 2-quarter delay** — the reading the rule acts on this "
+        "quarter is the 2-quarter growth from two quarters ago.\n"
+        "4. **Compare to the threshold** — is it at or below 1.315%? See "
+        "`winner_trade_log.csv` for the full signal path.\n"
+        "5. **Take the position** — at or below → LONG SPY (100%); above → "
+        "CASH (0%). Re-evaluate once a QUARTER."
     )
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -1241,86 +1040,69 @@ No formulas — three steps:
     WALK_FORWARD_CHART_NAME = "walk_forward"
     WALK_FORWARD_CAPTION = (
         "What this shows: rolling 8-quarter (2-year) annualized Sharpe over "
-        "the OOS window versus the reported headline 1.41. With only ~18 "
-        "rolling points on 25 quarters, the path is noisy by construction — "
-        "read it as a stability sniff-test, not confirmation."
+        "the OOS window versus the reported 0.70. Windows in which the rule "
+        "was in cash throughout have no defined Sharpe and are left blank."
     )
-    # fix Step C #189 — clarify the Sub-period Sharpe chart's `insufficient_
-    # data` label so it does not read as "the indicator has no history."
-    # page_templates._render_cross_period_section applies CROSS_PERIOD_CAPTIONS
-    # as a per-chart caption override (rendered bold above the chart).
     CROSS_PERIOD_CAPTIONS = {
         "subperiod_sharpe": (
             "How to read it: each bar is the STRATEGY's Sharpe in a distinct "
-            "historical episode; consistent positive bars would indicate a "
-            "robust signal. Here only COVID (2020) can be scored (Sharpe "
-            "2.48). Dot-com (2000–02) and GFC (2007–09) are marked "
-            "`insufficient_data` — meaning the STRATEGY, not the indicator: "
-            "ECI data exists back to 2001 (and SPY earlier), but the "
-            "strategy's out-of-sample window only begins in 2020-Q1, so there "
-            "are too few usable strategy observations inside those earlier "
-            "episodes to compute a Sharpe. The episodes cannot be scored — "
-            "the data is not missing."
+            "historical episode. Only COVID (2020) falls inside the OOS "
+            "window (Sharpe 1.00; the rule was invested in one of its four "
+            "quarters). Dot-com (2000–02), GFC (2007–09) and China 2015 are "
+            "marked `insufficient_data` because they predate the strategy's "
+            "out-of-sample window (2020-Q1 onward); the ECI and SPY data "
+            "exist for those years."
         ),
     }
 
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_scatter"
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: all 1,460 tournament combinations by annual "
-        "turnover vs OOS Sharpe (quarterly √4 annualization); the star "
-        "marks the published winner (1.41), the diamond buy-and-hold "
-        "(0.80). Search-conditioned on a 25-quarter window, bootstrap "
-        "p = 0.18 — the winner is the right tail of its own search, and "
-        "the median valid combo (0.68) sits BELOW buy-and-hold."
+        "What this shows: the 1,080 IS-valid combinations by in-sample Sharpe "
+        "(the selection objective) and OOS Sharpe; the star marks the "
+        "selected rule (IS 1.19, OOS 0.70), dashed lines buy-and-hold "
+        "(IS 0.79, OOS 0.80). Spearman rank correlation between IS and OOS "
+        "Sharpe: 0.52."
     )
 
     CAVEATS_MD = """
-**Why we do not call this a validated edge** — flags, none softened (all from `winner_summary.json`, `evidence_status.json`, `structural_break_eci_total_comp_spy.json`, and `tournament_validation_20261008/bootstrap.csv`):
+**Limitations** (from `winner_summary.json`, `hmm_lookahead_audit_20261016.json`, `structural_break_eci_total_comp_spy.json` and `tournament_validation_20261016/`):
 
-1. **Small quarterly out-of-sample sample.** The test window is **25 QUARTERS** (2020-03-31 → 2026-03-31). That is a handful of independent quarterly observations — a caveat STRONGER than any monthly pair to date. Any winner here is FOUND-IN-SEARCH by construction.
-2. **The causality runs backwards.** Toda-Yamamoto Granger finds SPY → ECI significant at ALL tested quarterly lags and ECI → SPY at NONE; the pre-whitened CCF finds no lead on either side. The indicator is LAGGING — the rule is reading an old echo of a cycle the market already priced; it is a regime-timing overlay, not a forecast.
-3. **Not statistically significant.** Bootstrap p = **0.18** versus resampled buy-and-hold — above the 5% threshold, and WORSE than the prior winner's 0.12.
-4. **The OOS Sharpe DROPPED versus the prior winner.** The earlier run reported 1.60 on a look-ahead-tainted grid; the floored grid's best *executable* rule scores **1.41** — lower, and the honest number. (One mild offset: in-sample Sharpe is now **+0.50**, versus −0.23 before.)
-5. **An opaque, derived signal.** The traded signal is a 2-state HMM wage-stress probability, not a transparent raw transform — harder to audit and more prone to overfitting a short window. (On the plus side, its stationarity class is `borderline_persistent`, better than the prior winner's `regime_contaminated`.)
-6. **Direction now consistent — an improvement, not a flag.** The winner is COUNTERCYCLICAL (`direction_consistent: true`), consistent with the pair's countercyclical wage-inflation hypothesis and with the concurrent quartile evidence. This resolves the prior run's contradiction (its procyclical winner was `direction_consistent: false`).
-7. **No structural break flagged; relationship moderately stable.** Quandt-Andrews does NOT flag a break (candidate break 2022-Q2, sup-F 4.03, bootstrap p = 0.37) and rolling-correlation sign-stability is 0.57 (`moderately_stable`) — both improvements on the prior run's flagged 2009 break and `sign_unstable` 0.42.
-8. **Durability: conditionally durable on ONE episode.** Of the standard stress episodes, only COVID can be scored (ann. Sharpe 2.48). Dot-com (2000–02) and GFC (2007–09) show as `insufficient_data` on the sub-period chart — and that label is about the STRATEGY, not the indicator. The ECI indicator itself has history back to 2001 (and SPY well before), but the strategy's out-of-sample window is 2020-Q1 onward, so those pre-2020 episodes contain too few usable STRATEGY observations to compute a Sharpe: the episodes cannot be scored, not that the data does not exist. The rule has therefore met exactly one bear market (2022), which it sat out in cash.
+1. **Below buy-and-hold out of sample.** OOS Sharpe 0.70 vs 0.80; annualized return 4.3% vs 14.5%; OOS HAC t 1.33 (p = 0.18).
+2. **Few invested quarters.** The rule was long SPY in 3 of the 25 OOS quarters and has been in cash since 2021-Q3. Its OOS Sharpe is computed mostly on zero-return cash quarters; moving the lead from 2 to 3 quarters gives −0.07.
+3. **Small quarterly sample.** The OOS window is 25 quarters (2020-03-31 → 2026-03-31) and the common in-sample window 45 quarters (2008-12-31 → 2019-12-31).
+4. **Selection.** 1,180 combinations were scored (1,080 IS-valid). The expected maximum |z| among 1,080 unrelated rules with no skill is about 3.31. Across the grid, in-sample and OOS Sharpe have a rank correlation of 0.52; the median IS-valid rule scores 0.40 out of sample.
+5. **The causality runs from the market to wages.** Toda-Yamamoto Granger finds SPY → ECI significant at lags 1–4 and ECI → SPY at none; the pre-whitened CCF finds no lead on either side.
+6. **Regime signals withdrawn.** The earlier winner (HMM wage-stress probability, OOS Sharpe 1.41) used a full-sample, smoothed HMM. A causal HMM cannot be fitted to the 100-observation minimum on 72 in-sample quarters, so regime signals are not in this search. The same old rule on a 72-quarter causal diagnostic HMM scores 1.03.
+7. **Stability.** No structural break is flagged (candidate 2020-Q2, sup-F 3.32, bootstrap p = 0.38); rolling-correlation sign agreement 0.52 (`moderately_stable`). Only the COVID episode falls inside the OOS window.
 
-**What this means:** the honest label is a **found-in-search CANDIDATE on a lagging indicator** — "the best rule we found by searching a small quarterly window, not a rule that has passed an independent test." It is better-behaved than the prior winner (direction now consistent, in-sample Sharpe positive, no flagged break), but its OOS Sharpe is LOWER, still insignificant, and the signal is opaque. The prescribed next step is a final exam: freeze this rule and test it once on an untouched window. Given the flags above and the reverse-causality verdict, expectations should be calibrated LOW.
+**Further notes:**
 
-**Further caveats:**
-
-- **The edge is concentrated.** Only 3 trades occur in the OOS window; the headline outperformance rests almost entirely on being in cash through the 2022 bear (and the COVID-Q1 crash) and long through the recoveries — one regime sequence.
-- **Quarterly units throughout.** Sharpe ratios use √4 annualization; with 25 observations the sampling error on a quarterly Sharpe is large even before selection effects.
-- **Costs.** Returns are gross of costs; at 5 bps per trade and 0.48 trades/yr the haircut is negligible (see `tournament_validation_20261008/transaction_costs.csv`) — cost drag is not this pair's problem; the small sample and reverse causality are.
+- **Lead floor.** The lead grid starts at one quarter (registry floor L1). ECI is released about one month after quarter end, so at L1 the first month of each holding quarter would precede the release; the selected L2 rule is not affected.
+- **Quarterly units throughout.** Sharpe ratios use √4 annualization.
+- **Costs.** Returns are gross of costs; at 50 bps per trade the OOS Sharpe is 0.67 (`tournament_validation_20261016/transaction_costs.csv`).
 """
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**A concrete example from this pair:** on **2021-12-31** the "
-        "broker-style log records a SELL to CASH — the 4-quarter-lagged HMM "
-        "wage-stress probability (0.011) had risen above its rolling "
-        "threshold (0.005), moving the position from 100% long to 0% (cash) "
-        "just before the 2022 bear. The strategy then sat in cash through all "
-        "of 2022. The matching BUY appears on **2023-12-31**, when the "
-        "delayed reading (0.000) fell back below the threshold (1.035) and the "
-        "strategy returned to 100% long. Both rows are in the broker-style "
-        "CSV — and both illustrate the point: the countercyclical rule "
-        "stepped aside while lagged wage-inflation stress was elevated, which "
-        "happened to line up with the 2022–23 regime sequence."
+        "**A concrete example from this pair:** the broker-style log records "
+        "a BUY dated **2020-12-31** — the 2-quarter ECI growth read two "
+        "quarters earlier (1.296%) was at or below the 1.315% threshold, so "
+        "the position for that quarter moved from 0% to 100% SPY. The "
+        "matching SELL is dated **2021-09-30**, when the delayed reading "
+        "(1.627%) was above the threshold; the rule has held cash since. "
+        "Each row's date is the end of the quarter the position applies to."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
-        "trade_date": "2021-12-31",
+        "trade_date": "2021-09-30",
         "side": "SELL",
         "instrument": "SPY",
         "quantity_pct": "0.0",
         "commission_bps": "5",
         "reason": (
-            "lagged hmm_stress 0.011 above rolling threshold 0.005 — "
-            "position 100% → 0% (to cash)"
+            "growth_2q (eci_total_comp_pct_2q) = 1.627 vs threshold 1.315 — "
+            "position 100% → 0%"
         ),
     }
-
 
 STRATEGY_CONFIG = StrategyConfig()
 
@@ -1341,17 +1123,15 @@ _INDICATOR_CONSTRUCTION_MD = (
     "The raw ECI level is non-stationary, so analysis runs on quarterly "
     "transforms: quarter-over-quarter, 2-quarter, and year-over-year % "
     "growth; % deviation from an 8-quarter (~2-year) moving average; "
-    "20-quarter (~5-year) rolling z-scores of level and YoY growth; growth "
-    "acceleration; and HMM/Markov regime states. The winning signal is the "
-    "**2-state HMM high-wage-inflation-stress probability** "
-    "(`hmm_2state_prob_stress`), whose stationarity class is "
-    "`borderline_persistent`. Note that the raw 20-quarter z-scores are "
-    "flagged **regime-contaminated** (KPSS reject — the 2021–23 wage surge "
-    "dominates their recent distribution), but the winner trades the HMM "
-    "regime probability, not those z-scores. The BLS publication lag "
-    "(~1 month after quarter end) makes a 1-QUARTER signal delay the "
-    "real-time floor; the floored tradeable lead grid runs L1..L5 QUARTERS "
-    "(L0 appears only as a non-tradable diagnostic)."
+    "20-quarter (~5-year) rolling z-scores of level and YoY growth; and "
+    "growth acceleration. The selected signal is **2-quarter growth** "
+    "(`eci_total_comp_pct_2q`), stationarity class `borderline_persistent`. "
+    "The raw 20-quarter z-scores are flagged **regime-contaminated** (KPSS "
+    "reject). Regime-model signals (HMM, Markov-switching) are not in the "
+    "tournament: fitted causally on in-sample quarters only, they would rest "
+    "on 72 observations, below the 100-observation minimum for a traded "
+    "regime signal. The BLS publication lag is ~1 month after quarter end; "
+    "the tradeable lead grid runs L1..L5 QUARTERS (registry floor L1)."
 )
 
 _METHODS_TABLE_MD = """
@@ -1363,14 +1143,20 @@ _METHODS_TABLE_MD = """
 | Local projections (HAC errors) | Where is SPY h quarters after a wage-growth move? | Horizon-by-horizon honesty; robust to overlapping returns |
 | Transfer entropy (500 permutations) | Any non-linear information flow? | Model-free check the linear tests can't provide (low power at ~96 obs — directional check only) |
 | Quantile regression | Does the signal at least predict tail risk? | Cyclical signals sometimes work at the left tail only |
-| Two-state HMM + quartile sorts | Do wage-inflation states coincide with distinct market environments? | The descriptive/regime reading appropriate to a lagging series |
-| Structural break (Quandt-Andrews sup-F, bootstrap) + rolling correlation | Did the relationship change mid-sample? | No break flagged (candidate 2022-Q2, p = 0.37); rolling-correlation sign-stability 0.57 (moderately stable) |
+| Two-state HMM (in-sample fit, forward filter; diagnostic) + quartile sorts | Do wage-inflation states coincide with distinct market environments? | The descriptive/regime reading appropriate to a lagging series |
+| Structural break (Quandt-Andrews sup-F, bootstrap) + rolling correlation | Did the relationship change mid-sample? | No break flagged (candidate 2020-Q2, p = 0.38); rolling-correlation sign agreement 0.52 (moderately stable) |
 """
 
 _TOURNAMENT_DESIGN_MD = """
-Grid: 10 signals (quarterly data transforms + HMM/Markov regime states) × 8 threshold schemes (fixed percentiles, rolling percentiles, z-score bands, zero-line) × 4 strategy families × the floored QUARTERLY lead grid {1…5} = **1,460 combinations** plus a buy-and-hold benchmark row (valid=False per ECON-T4). Validity filters → **808 valid**; median valid OOS Sharpe 0.6788 (below buy-and-hold's 0.80). Because the source is seasonally adjusted, no seasonal-cleanliness restriction applies; the objective is max OOS Sharpe (√4 QUARTERLY annualization) over the full valid population, ties resolved by the ECON-T3 cascade (resolved at step 1). Out-of-sample split per policy `v1_max36_25pct_cap120` applied in native quarterly units: in-sample through 2019-Q4 (75 quarters), out-of-sample 2020-03-31 → 2026-03-31 (**25 QUARTERS** — a small sample; any winner is found-in-search). Winner: `hmm_stress / T3_zscore_1.0 / P1_long_cash` (countercyclical), lead L4 quarters, lookback LB12; OOS Sharpe 1.4089, IS Sharpe +0.4968, bootstrap p = 0.184. Note the winner's OOS Sharpe is LOWER than the prior look-ahead-tainted run's 1.5952 — the floored grid's best executable rule is weaker but honest. All tournament CSV metrics are decimal ratios.
+Grid: 8 signals (quarterly ECI transforms) × threshold schemes (in-sample fixed percentiles 25/50/75, zero-line for sign-meaningful signals, rolling z-score ±1.0 over 12 or 20 quarters) × 4 strategy families (long/cash and long/short, each pro- and countercyclical) × the floored QUARTERLY lead grid {1…5} = **1,180 combinations** plus a buy-and-hold benchmark row (valid=False per ECON-T4).
 
-**Reproducibility notes.** Producer script: `scripts/pair_pipeline_eci_total_comp_spy.py` — deterministic, fixed seeds (DATE_TAG 20261008). Charts are (re)generated by `scripts/generate_charts_eci_total_comp_spy.py`. The canonical quarterly return series for chart producers is `strategy_returns_20261008.csv`; its Sharpe/drawdown/return reconcile with `winner_summary.json`. Stationarity tests were produced by the data stage and confirmed, not re-run, by the econometrics stage.
+**Selection (2026-10-16).** Validity uses in-sample data only: at least 20 in-sample quarters, in-sample exposure between 5% and 95%, turnover below 6 position changes per year → **1,080 IS-valid**. The winner is the IS-valid row with the highest in-sample Sharpe on the common window 2008-12-31 → 2019-12-31 (45 quarters; the start is set by the latest-starting signal, the 20-quarter YoY z-score at lead 5); ties are broken by in-sample return, drawdown and trade count. Out-of-sample metrics are reported for that row only. Out-of-sample split per policy `v1_max36_25pct_cap120` in native quarterly units: 2020-03-31 → 2026-03-31 (25 QUARTERS).
+
+Winner: `growth_2q / T1_fixed_p50 / P1_long_cash` (countercyclical), lead L2 quarters; IS Sharpe 1.19 (B&H 0.79), OOS Sharpe 0.70 (B&H 0.80). For comparison only: the highest OOS Sharpe on this grid is growth_2q / T3_zscore_1.0 / LB12 / long-cash countercyclical / L5 (1.30), which ranks 164th in-sample (`legacy_oos_selection_20261016.csv`).
+
+**Regime signals.** The HMM and Markov-switching probabilities are produced by `scripts/_regime_causal.py` (in-sample fit, in-sample standardisation, forward filter, no target return in the likelihood). Both require at least 100 in-sample rows for a traded signal; ECI has 72, so neither enters the grid. The 20261008 winner used a full-sample, smoothed HMM (look-ahead) and was selected by OOS Sharpe; its replay and the causal diagnostic are in `hmm_lookahead_audit_20261016.json`.
+
+**Reproducibility notes.** Producer script: `scripts/pair_pipeline_eci_total_comp_spy.py` — deterministic, fixed seeds (DATE_TAG 20261016). Charts are (re)generated by `scripts/generate_charts_eci_total_comp_spy.py`. The canonical quarterly return series for chart producers is `strategy_returns_20261016.csv`; its Sharpe/drawdown/return reconcile with `winner_summary.json`. All tournament CSV metrics are decimal ratios.
 """
 
 _REFERENCES_MD = """
@@ -1390,55 +1176,35 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "QUARTERLY data (first quarterly pair). Four distinct periods, kept "
-        "separate on purpose:\n\n"
+        "QUARTERLY data. Four distinct periods, kept separate on purpose:\n\n"
         "(a) **Full analytical dataset** — 2001-Q1 → 2026-Q1 (~100 "
-        "quarters); the complete span on which the lead-lag statistics are "
-        "computed. (The z-score transforms only warm up once their trailing "
-        "20-quarter window fills, ~2005-06, so early quarters exist as data "
-        "but not as usable signal.)\n\n"
-        "(b) **In-sample / model-development period** — 2001-Q1 → 2019-Q4 "
-        "(75 quarters). This is where candidate rules are BUILT and their "
-        "thresholds calibrated (e.g. the winner's rolling z = 1.0 threshold "
-        "and 12-quarter lookback are set on in-sample data). On these data the "
-        "winner's own Sharpe is mildly POSITIVE (+0.50) — an improvement on "
-        "the prior run's winner, which was negative (-0.23) in-sample.\n\n"
-        "(c) **Out-of-sample validation window** — 2020-03-31 → 2026-03-31 "
-        "(25 QUARTERS), split per policy v1_max36_25pct_cap120 in native "
-        "quarterly units. This is where every headline number is scored. "
-        "Twenty-five quarterly observations is a SMALL sample — a stronger "
-        "caveat than any monthly pair.\n\n"
-        "(d) **Research workflow: search → select → validate.** We searched "
-        "1,460 quarterly rule combinations, then SELECTED the winner by "
-        "maximizing Sharpe over the out-of-sample window (c). Because the "
-        "same 25-quarter window is used to pick the winner, it is a "
-        "selection set, not an untouched holdout — which is exactly why the "
-        "winner is labelled found-in-search / CANDIDATE, not validated. The "
-        "final validate step — freezing the rule and scoring it once on a "
-        "genuinely untouched window — has NOT yet been run.\n\n"
+        "quarters); the span on which the lead-lag statistics are computed.\n\n"
+        "(b) **In-sample / model-development period** — up to 2019-Q4. "
+        "Thresholds (e.g. the winner's 1.315% in-sample median) are set on "
+        "these quarters, and rules are compared on the common in-sample "
+        "window 2008-12-31 → 2019-12-31 (45 quarters), where every candidate "
+        "has a defined signal. The winner's in-sample Sharpe there is 1.19 "
+        "(buy-and-hold 0.79).\n\n"
+        "(c) **Out-of-sample window** — 2020-03-31 → 2026-03-31 (25 "
+        "QUARTERS), split per policy v1_max36_25pct_cap120 in native "
+        "quarterly units. Every headline performance number is scored here.\n\n"
+        "(d) **Research workflow: search → select → evaluate.** We searched "
+        "1,180 quarterly rule combinations, SELECTED the winner by in-sample "
+        "Sharpe (window b), then scored it once on window (c). A frozen-rule "
+        "test on quarters released after this run has not yet been done.\n\n"
         "Sharpe ratios use √4 annualization; leads are in quarters (winner "
-        "L4q ≈ 12 months)."
+        "L2 ≈ 6 months)."
     ),
     plain_english=(
         "One QUARTERLY data series (the Employment Cost Index of total "
-        "worker compensation, from 2001) and the S&P 500 ETF (SPY). It helps "
-        "to keep four things separate. First, the FULL dataset: every "
-        "quarter from 2001 to 2026, which is what the lead-lag tests use. "
-        "Second, the MODEL-DEVELOPMENT (in-sample) period, 2001 through "
-        "2019, where we build the candidate rules and set their thresholds. "
-        "Third, the OUT-OF-SAMPLE window, 2020 to 2026 — just 25 quarters — "
-        "where we score how the rules actually did. Fourth, the WORKFLOW: we "
-        "searched 1,460 quarterly rule combinations, then picked the winner "
-        "by its score on that 2020–2026 window. Because we used that same "
-        "window to choose the winner, it is a candidate found by search, not "
-        "a rule that has passed an independent final exam — that untouched "
-        "hold-out test is still to come. We turned the wage index into "
-        "growth, z-score, and HMM-regime transforms and ran several "
-        "independent lead-lag tests; they agree, and they point the other "
-        "way (the market predicts wages, not the reverse). Every number on "
-        "these pages can "
-        "be reproduced by one deterministic script, and every number is "
-        "labelled a candidate because the sample is small and the indicator "
-        "is lagging."
+        "worker compensation, from 2001) and the S&P 500 ETF (SPY). Four "
+        "things are kept separate: the FULL dataset (2001–2026) used by the "
+        "lead-lag tests; the IN-SAMPLE period up to 2019, where rules are "
+        "built and compared; the OUT-OF-SAMPLE window, 2020 to 2026 (25 "
+        "quarters), where the chosen rule is scored; and the WORKFLOW: we "
+        "searched 1,180 rule combinations and picked the one with the best "
+        "in-sample record before looking at 2020–2026. The lead-lag tests "
+        "agree that the market predicts wages, not the reverse. Every number "
+        "on these pages is produced by one deterministic script."
     ),
 )
