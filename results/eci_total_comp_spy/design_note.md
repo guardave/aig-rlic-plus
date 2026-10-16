@@ -195,3 +195,31 @@ the 2021-23 wage surge + the 2022 tightening bear — exactly the episodes the c
 - CP2 skipped (regime_story: false). Returns gross of costs; cost grid in tournament_validation_20261008/.
 
 ## New pair — no prior version; Rule C3 regression diff N/A.
+
+---
+
+# Phase 1 addendum — causal regime port + IS selection (Evan, 20261016)
+
+## What changed
+- **Look-ahead removed.** The 20261008 winner (hmm_stress/T3_zscore_1.0/LB12/P1_long_cash_counter/L4q, OOS Sharpe 1.4089) traded a
+  2-state HMM probability fit on the FULL sample and read with forward-backward SMOOTHING (`predict_proba`), so each
+  quarter's value used later quarters. The Markov-switching signal also put `spy_ret` in its likelihood.
+- **Causal rule (scripts/_regime_causal.py):** fit on IS rows only, IS-only standardisation, forward-filtered
+  probabilities, no target return in the likelihood. A traded fit needs >= 100 IS rows; ECI has 72 IS quarters, so
+  `hmm_stress` and `markov_regime` are **excluded from the tournament** (core_models_20261016/regime_models.json).
+- A diagnostic causal HMM (IS-only, 72 quarters, override `min_is_rows=40`, NOT traded) is kept for the Evidence
+  chart and the audit. The superseded rule on it scores OOS Sharpe 1.0300
+  (HAC t 2.42) vs 1.4089 (HAC t 3.04) on the smoothed column
+  (hmm_lookahead_audit_20261016.json).
+- **Selection:** argmax IS Sharpe on the common IS window 2008-12-31..2019-12-31 (45
+  quarters; start set by yoy_zscore_20q/T3_zscore_1.0/LB20/L5, yoy_zscore_20q/T3_zscore_neg_1.0/LB20/L5); eligibility before alignment, MIN_IS_N=20; validity uses IS
+  rows only (exposure 0.05-0.95, turnover < 6/yr). The old validity rule (OOS Sharpe > 0.3) is kept only as
+  `oos_valid` for the legacy comparison.
+- Warm-up rows (lagged signal or rolling threshold undefined) are now NaN instead of cash/short.
+
+## Result
+- Winner: growth_2q / T1_fixed_p50 / LB_NA / P1_long_cash_counter / L2q.
+- IS Sharpe 1.1900 (B&H 0.7936); OOS Sharpe 0.6959
+  (B&H 0.8043), OOS HAC t 1.33 (p 0.184), 25 OOS quarters.
+- Grid 1180 combos, 1080 IS-valid, 1080 distinct position series; Spearman(IS, OOS) 0.520.
+- Lead-lag (empirical): ECI->SPY TY-Granger sig lags NONE; SPY->ECI [1, 2, 3, 4] -> lagging.

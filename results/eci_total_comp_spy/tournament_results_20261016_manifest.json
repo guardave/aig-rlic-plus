@@ -1,0 +1,54 @@
+{
+  "file": "tournament_results_20261016.csv",
+  "pair_id": "eci_total_comp_spy",
+  "frequency": "QUARTERLY",
+  "annualization": "Sharpe = mean/std*sqrt(4); ann_return = mean*4; ann_vol = std*sqrt(4)",
+  "grid": {
+    "signals": [
+      "accel",
+      "dev_trend",
+      "growth_2q",
+      "level_zscore_20q",
+      "qoq",
+      "yoy",
+      "yoy_accel",
+      "yoy_zscore_20q"
+    ],
+    "thresholds": "T1_fixed_p{25,50,75} (IS percentiles), T4_zero (accel/yoy_accel/dev_trend), T3_zscore_{+1.0,-1.0} x {LB12,LB20}",
+    "strategies": [
+      "P1_long_cash_{pro,counter}",
+      "P3_long_short_{pro,counter}"
+    ],
+    "leads_quarters": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "lookbacks": [
+      "LB12",
+      "LB20",
+      "LB_NA"
+    ],
+    "regime_signals": "hmm_stress and markov_regime EXCLUDED: a causal (IS-only) fit needs >= 100 IS rows; ECI has 72 IS quarters (core_models/regime_models.json)"
+  },
+  "selection": "argmax IS Sharpe on the common IS window [common_is_start, oos_start); OOS never consulted (is_valid/valid). oos_valid = pre-#251 OOS rule, comparison only",
+  "validity": "IS window only: eligible (own IS n >= 20), is_n >= 20, IS exposure in [0.05, 0.95] (P3: share of quarters long), IS std > 0, IS turnover < 6/yr",
+  "warmup": "positions are NaN (not traded, excluded from IS metrics) until the lagged signal and its rolling threshold are defined; OOS scored deployable (fillna 0)",
+  "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
+  "lead_column_note": "lead_quarters (QUARTERS)",
+  "total_strategy_rows": 1180,
+  "valid_strategy_rows": 1080,
+  "common_is_start": "2008-12-31",
+  "common_is_start_set_by": [
+    "yoy_zscore_20q/T3_zscore_1.0/LB20/L5",
+    "yoy_zscore_20q/T3_zscore_neg_1.0/LB20/L5"
+  ],
+  "spearman_is_vs_oos": 0.5205,
+  "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
+  "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 quarter",
+  "small_sample_flag": "OOS window 25 QUARTERS",
+  "cost_note": "returns are gross of costs; cost sensitivity in tournament_validation",
+  "generated_at": "2026-10-16T22:04:23Z"
+}

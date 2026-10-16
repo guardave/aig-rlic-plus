@@ -1,16 +1,16 @@
 {
   "pair_id": "eci_total_comp_spy",
   "test": "Quandt-Andrews unknown breakpoint (sup-F, residual-bootstrap p, 300 reps; quarterly)",
-  "sample_start": "2003-03-31",
+  "sample_start": "2002-03-31",
   "sample_end": "2026-03-31",
-  "n_obs": 93,
+  "n_obs": 97,
   "trimming_pct": 0.15,
-  "break_date": "2022-06-30",
-  "f_stat": 4.0341,
-  "p_value": 0.37,
+  "break_date": "2020-06-30",
+  "f_stat": 3.3203,
+  "p_value": 0.3833,
   "flagged": false,
   "flag_message": null,
-  "rolling_corr_sign_stability": 0.5714,
+  "rolling_corr_sign_stability": 0.5185,
   "rolling_corr_stability_verdict": "moderately_stable",
   "cp2_note": "CP2 skipped \u2014 regime_story not set in signal_scope.json"
 }

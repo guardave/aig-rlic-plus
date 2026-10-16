@@ -1,0 +1,35 @@
+{
+  "pair": "eci_total_comp_spy",
+  "run_date": "20261016",
+  "frozen": false,
+  "granularity": "QUARTERS L1..5 tradable (L0..8 diagnostic in lead_correlation; quarterly adaptation of ECON-LL1)",
+  "freq_native": "Q",
+  "design_note": "Quarterly pair; lead L = quarter shift on quarter-end signals. Registry floor L1, grid L1..L5 (#255). Winner selected by IS Sharpe; lead summaries are context.",
+  "oos_start": "2020-03-31",
+  "is_end": "2019-12-31",
+  "input_file": "data/eci_total_comp_spy_quarterly_latest.parquet",
+  "input_sha256": "sha256:4c12964544b62383",
+  "lead_correlation_file": "eci_total_comp_spy/lead_correlation_20261016.csv",
+  "lead_tournament_file": "eci_total_comp_spy/lead_tournament_20261016.csv",
+  "lead_winner_curve_file": "eci_total_comp_spy/lead_winner_curve_20261016.csv",
+  "lead_clean_envelope_file": "eci_total_comp_spy/lead_clean_envelope_20261016.csv",
+  "clean_envelope_note": "SA source: all signals admissible -> envelope and clean envelope COINCIDE by construction",
+  "published_winner": {
+    "signal": "eci_total_comp_pct_2q",
+    "lead": 2,
+    "lead_unit": "quarters",
+    "oos_sharpe": 0.6959,
+    "is_sharpe": 1.19,
+    "selection": "max_is_sharpe"
+  },
+  "winner_curve_peak_lead": 1,
+  "L_star": 5,
+  "best_oos_sharpe_at_grid": 1.3003,
+  "gate_decision": "CHARTS-ONLY (full grid scanned natively; winner selected by IS Sharpe)",
+  "assertions": [
+    "tradable lead grid is L1..5 QUARTERS (registry floor L1)",
+    "main tournament scans the full L1..5 grid; winner = IS-Sharpe argmax",
+    "ECON-LT1: OOS-best lead L*=5 (context only) -> CHARTS-ONLY (full grid scanned natively; winner selected by IS Sharpe)"
+  ],
+  "small_sample_caveat": "OOS = 25 quarters -> winner is found-in-search; lead-sweep peaks are high-variance."
+}
