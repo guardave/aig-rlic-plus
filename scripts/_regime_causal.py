@@ -164,7 +164,9 @@ def fit_hmm_causal(X: pd.DataFrame, oos_start, *, n_states: int = 2, label_featu
                    both fit and filter (their output is NaN).
     oos_start      first OOS date; rows with index < oos_start form the estimation sample.
     label_feature  feature whose in-sample state mean orders the states (default: first column).
-    label          "max" -> report the state with the highest mean of label_feature; "min" -> lowest.
+    label          "max" -> report the state with the highest mean of label_feature; "min" -> lowest;
+                   "max_variance" / "min_variance" -> order and pick states by the in-sample
+                   variance of label_feature instead of its mean.
     seeds          EM restarts; the fit with the highest in-sample log-likelihood is kept
                    (ties -> earliest seed), so the result is deterministic.
     min_is_rows    minimum in-sample rows (default 50 * n_states). Lower it only for a
@@ -200,18 +202,23 @@ def fit_hmm_causal(X: pd.DataFrame, oos_start, *, n_states: int = 2, label_featu
 
     feat = label_feature if label_feature is not None else X.columns[0]
     j = list(X.columns).index(feat)
-    order = np.argsort(best.means_[:, j], kind="stable")      # ascending by label feature
     covars = best.covars_                                      # full form for full/diag/tied
+    if label.endswith("variance"):
+        key = np.array([np.atleast_2d(covars[k])[j, j] for k in range(n_states)])
+    else:
+        key = best.means_[:, j]
+    order = np.argsort(key, kind="stable")                     # ascending by the labelling key
     log_lik = _gaussian_loglik(Xs, best.means_, covars)
     filt = forward_filter(log_lik, best.startprob_, best.transmat_)[:, order]
 
     cols = [f"state_{i}" for i in range(n_states)]
     probs = pd.DataFrame(filt, index=Xc.index, columns=cols).reindex(X.index)
-    lab = cols[-1] if label == "max" else cols[0]
+    lab = cols[-1] if label.startswith("max") else cols[0]
     params = {
         "seed": int(best_seed), "seeds_tried": [int(s) for s in seeds],
         "features": list(map(str, X.columns)), "label_feature": str(feat), "label": label,
         "standardize_mean_is": [float(x) for x in mu], "standardize_std_is": [float(x) for x in sd],
+        "label_key_sorted": [float(v) for v in key[order]],
         "means": best.means_[order].tolist(), "startprob": best.startprob_[order].tolist(),
         "transmat": best.transmat_[np.ix_(order, order)].tolist(),
         "covariance_type": covariance_type,
