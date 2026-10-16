@@ -1706,6 +1706,10 @@ def main():
                              f"evaluated on the held-out OOS window {split['oos_start']}..{split['oos_end']} "
                              f"({int(winner['oos_n'])} quarters): OOS Sharpe {float(winner['oos_sharpe']):.2f} vs B&H "
                              f"{float(bh['oos_sharpe']):.2f}, HAC t {t_oos:.2f}. No frozen-rule confirmation test has been run."),
+          "plain_english": (f"This is the rule with the highest in-sample Sharpe among {n_valid} valid combinations, "
+                            f"scored once on the {int(winner['oos_n'])}-quarter out-of-sample window: Sharpe "
+                            f"{float(winner['oos_sharpe']):.2f} versus {float(bh['oos_sharpe']):.2f} for buy-and-hold. "
+                            "It has not been tested on data released after it was chosen."),
           "next_step": "Freeze the rule and evaluate it on quarters released after the freeze date.",
           "owner": "evan"}
     with open(os.path.join(RESULTS_DIR, "evidence_status.json"), "w") as f:

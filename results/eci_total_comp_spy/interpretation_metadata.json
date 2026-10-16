@@ -57,7 +57,7 @@
     ]
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-16T22:50:26Z",
+  "last_updated_at": "2026-10-16T22:55:49Z",
   "observed_direction": "countercyclical",
   "direction_consistent": true,
   "key_finding": "Lead-lag verdict (empirical, QUARTERLY): ECI total compensation is 'lagging' vs SPY. Toda-Yamamoto Granger ECI->SPY significant lags(q) NONE; SPY->ECI significant lags(q) [1, 2, 3, 4]; pre-whitened CCF significant lead(+) lags NONE, lag(-) NONE. Tournament winner (growth_2q/T1_fixed_p50/P1_long_cash counter/L2q/LB_NA, selected by IS Sharpe) is countercyclical: IS Sharpe 1.19 vs B&H 0.79; OOS Sharpe 0.70 vs B&H 0.80 (sqrt(4) annualization), OOS HAC t 1.33 on 25 quarters. HMM/Markov-switching regime signals are not traded (causal fit needs >= 100 IS rows; 72 available).",

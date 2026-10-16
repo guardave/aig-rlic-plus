@@ -2,7 +2,7 @@
   "file": "regime_quartile_returns.csv",
   "pair_id": "nhs_spy",
   "produced_by": "scripts/pair_pipeline_nhs_spy.py",
-  "generated_at": "2026-10-16T22:50:58Z",
+  "generated_at": "2026-10-16T22:56:24Z",
   "columns": {
     "quartile": "NHS YoY growth quartile (Q1 lowest growth)",
     "n_months": "obs",

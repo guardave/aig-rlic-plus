@@ -2,8 +2,9 @@
   "pair_id": "eci_total_comp_spy",
   "schema_version": "1.0.0",
   "status": "found_in_search",
-  "updated_at": "2026-10-16T22:50:26Z",
+  "updated_at": "2026-10-16T22:55:49Z",
   "technical_note": "Winner selected by in-sample Sharpe (common pre-OOS window 2008-12-31..2019-12-31) from the 20261016 quarterly tournament (1080 IS-valid combos) and evaluated on the held-out OOS window 2020-03-31..2026-03-31 (25 quarters): OOS Sharpe 0.70 vs B&H 0.80, HAC t 1.33. No frozen-rule confirmation test has been run.",
+  "plain_english": "This is the rule with the highest in-sample Sharpe among 1080 valid combinations, scored once on the 25-quarter out-of-sample window: Sharpe 0.70 versus 0.80 for buy-and-hold. It has not been tested on data released after it was chosen.",
   "next_step": "Freeze the rule and evaluate it on quarters released after the freeze date.",
   "owner": "evan"
 }

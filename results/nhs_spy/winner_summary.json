@@ -1,6 +1,6 @@
 {
   "pair_id": "nhs_spy",
-  "generated_at": "2026-10-16T22:50:58Z",
+  "generated_at": "2026-10-16T22:56:24Z",
   "signal_column": "nhs_yoy_contraction_flag",
   "signal_code": "nhs_contraction",
   "signal_display_name": "New Home Sales YoY contraction flag",

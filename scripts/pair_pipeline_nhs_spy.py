@@ -1264,6 +1264,10 @@ def _write_evidence_status(ws, split, n_valid, is_window, t_oos):
             f"from the {DATE_TAG} monthly tournament ({n_valid} IS-valid combos) and evaluated on the held-out OOS "
             f"window {split['oos_start']}..{split['oos_end']} ({ws['oos_n']} months): OOS Sharpe {ws['oos_sharpe']:.2f} "
             f"vs B&H {ws['bh_sharpe']:.2f}, HAC t {t_oos:.2f}. No frozen-rule confirmation test has been run."),
+        "plain_english": (f"This is the rule with the highest in-sample Sharpe among {n_valid} valid combinations, "
+                          f"scored once on the {ws['oos_n']}-month out-of-sample window: Sharpe {ws['oos_sharpe']:.2f} "
+                          f"versus {ws['bh_sharpe']:.2f} for buy-and-hold. It has not been tested on data released "
+                          "after it was chosen."),
         "next_step": "Freeze the rule and evaluate it on months released after the freeze date.",
     }
     with open(os.path.join(RESULTS_DIR, "evidence_status.json"), "w") as f:

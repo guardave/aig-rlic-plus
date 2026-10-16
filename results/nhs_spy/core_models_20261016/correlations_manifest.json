@@ -2,7 +2,7 @@
   "file": "correlations.csv",
   "pair_id": "nhs_spy",
   "produced_by": "scripts/pair_pipeline_nhs_spy.py",
-  "generated_at": "2026-10-16T22:50:58Z",
+  "generated_at": "2026-10-16T22:56:24Z",
   "columns": {
     "pair_name": "signal_code__forward-return-column",
     "horizon_days": "forward horizon in trading days (monthly*21)",

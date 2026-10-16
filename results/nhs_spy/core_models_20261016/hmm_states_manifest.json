@@ -2,7 +2,7 @@
   "file": "hmm_states.parquet",
   "pair_id": "nhs_spy",
   "produced_by": "scripts/pair_pipeline_nhs_spy.py",
-  "generated_at": "2026-10-16T22:50:58Z",
+  "generated_at": "2026-10-16T22:56:24Z",
   "columns": {
     "hmm_state": "1 if filtered prob_stress > 0.5 else 0 (stress = higher-variance NHS-YoY state)",
     "prob_stress": "forward-filtered P(stress | NHS YoY up to t); params fit on IS months only",
