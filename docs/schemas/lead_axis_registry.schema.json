@@ -4,9 +4,14 @@
   "title": "Lead-Axis Registry",
   "description": "Per-pair frequency record mandated by the Lead-Grid Frequency Standard (docs/lead-grid-frequency-standard.md, adopted 2026-07-14). For every REGISTERED pair (one entry per app/pair_configs/*_config.py) it records the signal's native release frequency, its publication lag, the lead axis that frequency implies (Step 1 HARD RULE), and the anchored grid (Step 3). scripts/gate_lead_axis.py reads lead_axis here as the expected axis and asserts each pair's lead artifacts sit on it. lead_floor / lead_floor_effective / position_shift are enforced by scripts/gate_lead_floor.py (strict floor on the effective lag, standard Step 2 amended 2026-10-16); publication_lag is human-readable reference text.",
   "x-owner": "evan",
-  "x-version": "1.1.0",
+  "x-version": "1.2.0",
   "type": "object",
-  "required": ["x-version", "x-owner", "governing_standard", "pairs"],
+  "required": [
+    "x-version",
+    "x-owner",
+    "governing_standard",
+    "pairs"
+  ],
   "properties": {
     "x-version": {
       "type": "string",
@@ -27,18 +32,24 @@
       "description": "Relative path to the standard this registry enforces.",
       "const": "docs/lead-grid-frequency-standard.md"
     },
-    "notes": {"type": "string"},
+    "notes": {
+      "type": "string"
+    },
     "axis_unit_map": {
       "type": "object",
       "description": "Convenience map from signal_frequency to lead_axis unit.",
-      "additionalProperties": {"type": "string"}
+      "additionalProperties": {
+        "type": "string"
+      }
     },
     "pairs": {
       "type": "object",
       "description": "Map of pair_id -> frequency record. One entry per registered pair.",
       "minProperties": 1,
       "patternProperties": {
-        "^[a-z0-9_]+$": {"$ref": "#/$defs/pair_record"}
+        "^[a-z0-9_]+$": {
+          "$ref": "#/$defs/pair_record"
+        }
       },
       "additionalProperties": false
     }
@@ -46,14 +57,25 @@
   "$defs": {
     "pair_record": {
       "type": "object",
-      "required": ["signal_frequency", "lead_axis", "lead_grid"],
+      "required": [
+        "signal_frequency",
+        "lead_axis",
+        "lead_grid"
+      ],
       "properties": {
         "signal_frequency": {
           "type": "string",
-          "description": "The signal's native release/update frequency — the classification of record that sets the lead axis (Step 1).",
-          "enum": ["daily", "weekly", "monthly", "quarterly"]
+          "description": "The signal's native release/update frequency \u2014 the classification of record that sets the lead axis (Step 1).",
+          "enum": [
+            "daily",
+            "weekly",
+            "monthly",
+            "quarterly"
+          ]
         },
-        "signal_description": {"type": "string"},
+        "signal_description": {
+          "type": "string"
+        },
         "publication_lag": {
           "type": "string",
           "description": "Human-readable release lag with its evidence (e.g. ALFRED first-vintage median/p90 days after period-end). Reference text; the enforced value is lead_floor_effective."
@@ -65,7 +87,12 @@
         "lead_axis": {
           "type": "string",
           "description": "The axis unit implied by signal_frequency; the value the gate asserts against the artifacts.",
-          "enum": ["trading_days", "weeks", "months", "quarters"]
+          "enum": [
+            "trading_days",
+            "weeks",
+            "months",
+            "quarters"
+          ]
         },
         "lead_floor": {
           "type": "integer",
@@ -74,7 +101,10 @@
         },
         "position_shift": {
           "type": "integer",
-          "enum": [0, 1],
+          "enum": [
+            0,
+            1
+          ],
           "description": "Extra bars the strategy applies between the (lead-shifted) signal and the earned return, e.g. strat_ret = pos.shift(1) * ret => 1. Default 0. Read by scripts/gate_lead_floor.py: effective lag = min(grid) + position_shift; must equal what the code does or the gate FAILs (alignment mismatch)."
         },
         "lead_floor_effective": {
@@ -82,22 +112,53 @@
           "minimum": 0,
           "description": "STRICT floor on the EFFECTIVE lag (lead + position_shift): the smallest E with first_release(M) <= period_end(M+E-1) on observed release dates (standard Step 2, amended 2026-10-16). Every grid lead and the published winner lead must satisfy lead + position_shift >= this value (scripts/gate_lead_floor.py). When absent the gate uses lead_floor + position_shift."
         },
+        "release_calendar_series": {
+          "type": "string",
+          "pattern": "^([A-Z0-9_]+|rule:market_close|rule:next_business_day)$",
+          "description": "Release-calendar key of the signal's source: a series_id in data/release_calendar/release_calendar.csv (first-release date per reference period; built by scripts/build_release_calendar.py), or rule:market_close (observed at the close of t, usable for the t -> t+1 return) / rule:next_business_day (value dated t posted the next business day). Read by scripts/gate_lead_floor.py --mode per-period and scripts/_pit_align.py."
+        },
+        "alignment": {
+          "type": "string",
+          "enum": [
+            "fixed_lag",
+            "pit_asof"
+          ],
+          "description": "How the pipeline aligns the signal to the return: fixed_lag = signal.shift(lead) (the per-period gate counts backtest periods whose reading was not yet released); pit_asof = scripts/_pit_align.pit_shift (latest reading released before the return window opens; 0 breaches by construction, the gate checks the call is present). Default fixed_lag."
+        },
         "lead_grid": {
           "type": "array",
           "description": "The anchored grid for this axis (Step 3).",
-          "items": {"type": "integer", "minimum": 0},
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
           "minItems": 1
         },
         "observed_winner_lead_unit": {
           "type": "string",
-          "description": "winner_summary.lead_unit at authoring time — an audit cross-check, not the classification of record.",
-          "enum": ["days", "weeks", "months", "quarters"]
+          "description": "winner_summary.lead_unit at authoring time \u2014 an audit cross-check, not the classification of record.",
+          "enum": [
+            "days",
+            "weeks",
+            "months",
+            "quarters"
+          ]
         },
-        "class": {"type": "string"},
-        "floor_basis": {"type": "string"},
-        "reconfirmed_winner": {"type": "string"},
-        "conformed": {"type": "boolean"},
-        "note": {"type": "string"}
+        "class": {
+          "type": "string"
+        },
+        "floor_basis": {
+          "type": "string"
+        },
+        "reconfirmed_winner": {
+          "type": "string"
+        },
+        "conformed": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": "string"
+        }
       },
       "additionalProperties": false
     }

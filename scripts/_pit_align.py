@@ -67,7 +67,9 @@ def load_release(series_id: str, index: pd.DatetimeIndex, path: Path | str = CAL
     freq = "Q" if (c.ref_date.diff().dropna().dt.days > 80).all() else "M"
     by_period = pd.Series(c.first_release.values, index=c.period_end.dt.to_period(freq))
     idx = pd.DatetimeIndex(index)
-    return pd.Series(by_period.reindex(idx.to_period(freq)).values, index=idx, name=f"release_{series_id}")
+    out = pd.Series(by_period.reindex(idx.to_period(freq)).values, index=idx, name=f"release_{series_id}")
+    out.attrs["first_period_end"] = c.period_end.min()  # readings stamped before this do not exist in the series
+    return out
 
 
 def rule_release(index: pd.DatetimeIndex, business_days: int = 1) -> pd.Series:
@@ -129,10 +131,14 @@ def pit_shift(obj, lead: int, release: pd.Series, position_shift: int = 0, max_e
 
 
 def breaches(index: pd.DatetimeIndex, lead: int, release: pd.Series, position_shift: int = 0,
-             start=None, end=None) -> pd.DataFrame:
+             start=None, end=None, data_start=None) -> pd.DataFrame:
     """Rows where the FIXED-lag rule (reading index[u - lead]) uses a reading not public when the window opens,
-    restricted to rows u whose return row (u + position_shift) lies in [start, end]. Columns: row stamp, nominal
-    reading stamp, its release, window open, days_early (release - open, > 0), as-of lag."""
+    restricted to rows u whose return row (u + position_shift) lies in [start, end]. Rows whose nominal reading is
+    stamped before `data_start` (default release.attrs["first_period_end"]: the series does not exist yet, so the
+    pipeline has no signal and no position) are not breaches. Columns: return row, nominal reading stamp, its
+    release (NaT = never released), window open, days_early (release - open, > 0), as-of lag."""
+    if data_start is None:
+        data_start = getattr(release, "attrs", {}).get("first_period_end")
     idx = pd.DatetimeIndex(index)
     rel = pd.Series(release).reindex(idx)
     opn = window_open(idx, position_shift)
@@ -144,6 +150,8 @@ def breaches(index: pd.DatetimeIndex, lead: int, release: pd.Series, position_sh
         m &= ret_row >= pd.Timestamp(start)
     if end is not None:
         m &= ret_row <= pd.Timestamp(end)
+    if data_start is not None:
+        m &= nominal >= pd.Timestamp(data_start)
     bad = m & (nom_rel.isna() | (nom_rel > opn))
     lags = asof_lags(idx, lead, release, position_shift)
     out = pd.DataFrame({"return_row": ret_row[bad], "reading": nominal[bad], "release": nom_rel[bad],

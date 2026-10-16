@@ -141,5 +141,8 @@ def test_load_release_from_committed_calendar():
     assert rel.iloc[1] == pd.Timestamp("2025-11-20") and pd.isna(rel.iloc[2])  # Oct-2025 never released
     q = pa.load_release("DRCCLACBS", pd.DatetimeIndex(["2026-06-30"]))
     assert q.iloc[0] == pd.Timestamp("2026-08-25")
+    # readings stamped before the series exists are not breaches (the pipeline has no signal there)
+    eci = pd.date_range("2000-03-31", "2002-12-31", freq="QE")
+    assert pa.breaches(eci, 2, pa.load_release("ECIALLCIV", eci)).empty
     with pytest.raises(KeyError):
         pa.load_release("NOPE", idx)

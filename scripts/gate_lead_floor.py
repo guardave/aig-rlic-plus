@@ -37,7 +37,20 @@ For every LIVE pair (has app/pages/<n>_<pair>_<section>.py):
                   lead_quarters) + position_shift < lead_floor_effective -> FAIL.
 No pair names are special-cased.
 
-Usage:  python scripts/gate_lead_floor.py [--json OUT.json] [--strict] [--repo DIR] [pair ...]
+  7. MODE         --mode per-period (default; pkg12 point-in-time rule): the registry-floor comparisons in 2/5/6
+                  (sub-floor grid leads, sub-floor winner) are replaced by a per-period count. For every grid lead
+                  and the winner, with the detected (else registry) position shift, count the backtest periods
+                  (latest results/<pair>/strategy_returns_*.csv, else winner_trade_log.csv dates) in which the
+                  fixed-lag rule uses a reading of registry `release_calendar_series` whose first release
+                  (data/release_calendar/release_calendar.csv; `rule:market_close` = observed at the close,
+                  `rule:next_business_day` = posted the next business day) is after the close that opens the return
+                  window. FAIL on any breaching period. Registry `alignment: pit_asof` + a `pit_shift(` call in a
+                  canonical script => as-of alignment (scripts/_pit_align.py), 0 breaches by construction.
+                  --mode floor: the 2026-10-16 fixed effective-lag floor (lead + shift >= lead_floor_effective).
+                  Structural checks (grid parse/consistency, registry grid, shift alignment, effective lag >= 1)
+                  run in both modes.
+
+Usage:  python scripts/gate_lead_floor.py [--mode per-period|floor] [--json OUT.json] [--strict] [--repo DIR] [pair ...]
 Exit non-zero on any FAIL. NOT wired into pre-commit (fails on known debt).
 """
 from __future__ import annotations
@@ -248,7 +261,7 @@ def winner_lead(repo: Path, pair: str):
     return None, None, "no lead field"
 
 
-def check_pair(repo: Path, pair: str, rec: dict | None) -> dict:
+def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period") -> dict:
     res = {"pair": pair, "status": "PASS", "reasons": [], "floor": None, "grids": [], "winner_lead": None}
     fails, warns = [], []
     if rec is None:
@@ -270,7 +283,7 @@ def check_pair(repo: Path, pair: str, rec: dict | None) -> dict:
     elif isinstance(floor_eff, int) and isinstance(floor, int) and floor + reg_shift != floor_eff:
         fails.append(f"registry inconsistent: lead_floor {floor} + position_shift {reg_shift} != lead_floor_effective {floor_eff}")
     res["floor_effective"] = floor_eff
-    if isinstance(floor_eff, int) and reg_grid:
+    if mode == "floor" and isinstance(floor_eff, int) and reg_grid:
         below = [g for g in reg_grid if g + reg_shift < floor_eff]
         if below:
             fails.append(f"registry lead_grid has sub-floor leads {below} (lead + shift {reg_shift} < floor E{floor_eff})")
@@ -319,7 +332,7 @@ def check_pair(repo: Path, pair: str, rec: dict | None) -> dict:
     for rel, det, dline, dnote, gmin in file_grids:
         shift = det if det is not None else reg_shift
         eff = gmin + shift
-        if isinstance(floor_eff, int):
+        if mode == "floor" and isinstance(floor_eff, int):
             for l, n, g, r in defs:
                 sub = [x for x in g if r == rel and x + shift < floor_eff]
                 if sub:
@@ -339,41 +352,141 @@ def check_pair(repo: Path, pair: str, rec: dict | None) -> dict:
     res["winner_lead"] = wl
     if wl is None:
         warns.append(f"winner lead unavailable: {wdetail}")
-    elif isinstance(floor_eff, int) and wl + reg_shift < floor_eff:
+    elif mode == "floor" and isinstance(floor_eff, int) and wl + reg_shift < floor_eff:
         fails.append(f"published winner {wk}={wl} + shift {reg_shift} = effective lag {wl + reg_shift} < strict floor E{floor_eff} ({wdetail})")
+    pp_txt = ""
+    if mode == "per-period":
+        shifts = {det for _, det, _, _, _ in file_grids if det is not None}
+        shift = shifts.pop() if len(shifts) == 1 else reg_shift
+        leads = sorted({x for _, _, g, _ in defs for x in g} | ({wl} if wl is not None else set()))
+        pf, pw, res["per_period"] = per_period_check(repo, pair, rec, leads, shift, wl, files, canon)
+        fails += pf
+        warns += pw
+        pp_txt = "; " + res["per_period"].get("summary", "") if res.get("per_period") else ""
     res["reasons"] = fails + warns
     res["status"] = "FAIL" if fails else ("WARN" if warns else "PASS")
     if res["status"] == "PASS":
         g0 = sorted(uniq)[0] if uniq else None
         gtxt = f"L{g0[0]}..L{g0[-1]} (n={len(g0)})" if g0 else "n/a"
-        res["reasons"] = [f"floor E{floor_eff} (L{floor}+shift {reg_shift}); grid {gtxt}; winner L{wl}; files {len(file_grids)}"]
+        res["reasons"] = [f"floor E{floor_eff} (L{floor}+shift {reg_shift}); grid {gtxt}; winner L{wl}; files {len(file_grids)}{pp_txt}"]
     res["where"] = where
     return res
 
 
-def run(repo: Path, requested: list[str]) -> list[dict]:
+PIT_CALL = re.compile(r"\bpit_shift\s*\(")
+RULES = {"rule:market_close": 0, "rule:next_business_day": 1}
+FREQ = {"months": "ME", "quarters": "QE", "trading_days": "B"}
+
+
+def backtest_sample(repo: Path, pair: str):
+    """(start, end, source) of the pair's backtest return rows: latest results/<pair>/strategy_returns_*.csv,
+    else winner_trade_log.csv entry/exit dates. (None, None, why) when neither exists."""
+    import pandas as pd
+    d = repo / "results" / pair
+    for f in sorted(d.glob("strategy_returns_*.csv"), reverse=True):
+        if "_meta" in f.name:
+            continue
+        try:
+            x = pd.read_csv(f, usecols=[0], parse_dates=[0]).iloc[:, 0].dropna()
+        except Exception:
+            continue
+        if len(x):
+            return x.min(), x.max(), str(f.relative_to(repo))
+    f = d / "winner_trade_log.csv"
+    if f.exists():
+        x = pd.read_csv(f)
+        cols = [c for c in ("entry_date", "exit_date") if c in x]
+        if cols:
+            v = pd.to_datetime(pd.concat([x[c] for c in cols]), errors="coerce").dropna()
+            if len(v):
+                return v.min(), v.max(), str(f.relative_to(repo))
+    return None, None, "no strategy_returns_*.csv or winner_trade_log.csv"
+
+
+def per_period_check(repo: Path, pair: str, rec: dict, leads: list, shift: int, wl, files, canon):
+    """Point-in-time check (standard Step 2, pkg12): count the backtest periods in which a FIXED lag L uses a
+    reading whose first release (data/release_calendar/release_calendar.csv) is after the return window opens.
+    Zero breaching periods are required for every grid lead and the winner, unless the registry declares
+    alignment 'pit_asof' AND the pair's canonical scripts call _pit_align.pit_shift (as-of alignment never uses an
+    unreleased reading, by construction)."""
+    import pandas as pd
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import _pit_align as pa
+    fails, warns = [], []
+    info = {"series": rec.get("release_calendar_series"), "alignment": rec.get("alignment", "fixed_lag"),
+            "position_shift": shift, "by_lead": {}}
+    series = info["series"]
+    if not series:
+        return ["per-period: registry has no release_calendar_series (calendar series id or rule:...)"], [], info
+    if info["alignment"] == "pit_asof":
+        callers = [str(f.relative_to(repo)) for f in files if f in canon and PIT_CALL.search(f.read_text())]
+        if callers:
+            info["summary"] = f"per-period: as-of aligned ({', '.join(callers)}), 0 breaches by construction"
+            return [], [], info
+        return ["per-period: registry alignment 'pit_asof' but no pit_shift( call in the canonical scripts"], [], info
+    start, end, src = backtest_sample(repo, pair)
+    info["sample_source"] = src
+    if start is None:
+        return [], [f"per-period: backtest sample unknown ({src}); breaches not counted"], info
+    freq = FREQ.get(rec.get("lead_axis"), "ME")
+    pad = (max(leads) if leads else 0) + pa.MAX_EXTRA + 2
+    if freq == "B":
+        idx = pd.date_range(start - pd.Timedelta(days=int(pad * 1.6) + 10), end, freq=pa.TRADING_DAY)
+    else:
+        off = pd.offsets.MonthEnd(pad) if freq == "ME" else pd.offsets.QuarterEnd(pad)
+        idx = pd.date_range(start - off, end, freq=freq)
+    if series in RULES:
+        rel = pa.rule_release(idx, RULES[series])
+    else:
+        try:
+            rel = pa.load_release(series, idx, repo / "data" / "release_calendar" / "release_calendar.csv")
+        except (KeyError, FileNotFoundError) as e:
+            return [f"per-period: release calendar unavailable for {series!r} ({type(e).__name__})"], [], info
+    info.update(sample=f"{start.date()}..{end.date()}")
+    bad = []
+    for L in leads:
+        b = pa.breaches(idx, L, rel, shift, start=start, end=end)
+        info["by_lead"][L] = {"n": int(len(b)), "return_rows": [str(x.date()) for x in b.return_row]}
+        if len(b):
+            bad.append(L)
+            first = ", ".join(str(x.date()) for x in b.return_row[:4]) + (", ..." if len(b) > 4 else "")
+            who = "winner " if L == wl else ""
+            nr = int(b.release.isna().sum())
+            early = f"max {int(b.days_early.max())} d early" if b.days_early.notna().any() else ""
+            fails.append(f"per-period: {who}L{L} + shift {shift} uses an unreleased {series} reading in {len(b)} "
+                         f"backtest period(s) ({first}); " + "; ".join(x for x in (early, f"{nr} never released" if nr else "") if x))
+    info["summary"] = (f"per-period: 0 breaching periods for leads {leads} ({series}, {info['sample']})" if not bad
+                       else f"per-period: breaches at leads {bad}")
+    return fails, warns, info
+
+
+def run(repo: Path, requested: list[str], mode: str = "per-period") -> list[dict]:
+    if mode not in ("per-period", "floor"):
+        raise ValueError(f"mode must be 'per-period' or 'floor' ({mode!r})")
     reg = json.loads((repo / "docs" / "schemas" / "lead_axis_registry.json").read_text()).get("pairs", {})
     pairs = requested or live_pairs(repo)
-    return [check_pair(repo, p, reg.get(p)) for p in pairs]
+    return [check_pair(repo, p, reg.get(p), mode) for p in pairs]
 
 
 def main(argv: list[str]) -> int:
-    repo, out_json, req, strict = REPO, None, [], False
+    repo, out_json, req, strict, mode = REPO, None, [], False, "per-period"
     it = iter(argv)
     for a in it:
         if a == "--json":
             out_json = next(it)
+        elif a == "--mode":
+            mode = next(it)
         elif a == "--strict":
             strict = True
         elif a == "--repo":
             repo = Path(next(it)).resolve()
         elif not a.startswith("-"):
             req.append(a)
-    results = run(repo, req)
+    results = run(repo, req, mode)
     for r in results:
         print(f"{r['status']} {r['pair']}: " + " | ".join(r["reasons"]))
     c = {s: sum(r["status"] == s for r in results) for s in ("PASS", "FAIL", "WARN")}
-    print(f"\nGATE-LEAD-FLOOR: {c['PASS']} PASS, {c['FAIL']} FAIL, {c['WARN']} WARN across {len(results)} live pair(s)"
+    print(f"\nGATE-LEAD-FLOOR [{mode}]: {c['PASS']} PASS, {c['FAIL']} FAIL, {c['WARN']} WARN across {len(results)} live pair(s)"
           + (f"  [{c['WARN']} WARN = unverified, exit 0 unless --strict]" if c["WARN"] else ""))
     if out_json:
         Path(out_json).write_text(json.dumps({"summary": c, "pairs": results}, indent=2))
