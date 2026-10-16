@@ -924,7 +924,7 @@
       "conformed": true,
       "position_shift": 0,
       "lead_floor_effective": 3,
-      "release_calendar_series": "AMTMNO",
+      "release_calendar_series": "NEWORDER",
       "alignment": "fixed_lag"
     },
     "retail_inv_sales_spy": {
@@ -1039,7 +1039,7 @@
       "conformed": true,
       "position_shift": 0,
       "lead_floor_effective": 2,
-      "release_calendar_series": "DRCCLACBS",
+      "release_calendar_series": "DRCCLACBN",
       "alignment": "fixed_lag"
     },
     "sloos_ci_small_spy": {
@@ -1062,7 +1062,7 @@
       "conformed": true,
       "position_shift": 0,
       "lead_floor_effective": 1,
-      "release_calendar_series": "DRTSCIS",
+      "release_calendar_series": "DRTSCILM",
       "alignment": "fixed_lag"
     },
     "t10y3m_rebuilt_spy": {

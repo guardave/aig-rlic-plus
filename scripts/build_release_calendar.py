@@ -40,9 +40,12 @@ CEMENT_DATES = OUT_DIR / "usgs_cement_publication_dates.txt"
 CAL_START = pd.Timestamp("1985-01-01")
 BUILD_DATE = pd.Timestamp("2026-10-16")  # releases after this date are not in the calendar
 
-QUARTERLY = {"DRCCLACBS", "ECIALLCIV", "DRTSCIS", "ECIWAG"}
+QUARTERLY = {"DRCCLACBS", "ECIALLCIV", "DRTSCIS", "ECIWAG", "DRCCLACBN", "DRTSCILM"}
 FRED = ["IR", "RSXFS", "INDPRO", "PERMIT", "HOUST", "M2SL", "FRGSHPUSM649NCIS", "BUSLOANS", "DRCCLACBS",
-        "ECIALLCIV", "DRTSCIS", "UMCSENT", "UNRATE", "AMTMNO", "RETAILIRSA", "HSN1F", "HSN1FNSA"]
+        "ECIALLCIV", "DRTSCIS", "UMCSENT", "UNRATE", "AMTMNO", "RETAILIRSA", "HSN1F", "HSN1FNSA",
+        # the series the pipelines actually load (pkg12 vintage check): Data Master 'mfg new orders' = NEWORDER
+        # (advance durable-goods report), cc delinquency = DRCCLACBN (NSA), SLOOS 'C&I small' column = DRTSCILM
+        "NEWORDER", "DRCCLACBN", "DRTSCILM"]
 # target -> sibling released in the same press release (New Residential Construction / Sales, MTIS, ECI)
 SIBLINGS = {"PERMIT": "HOUST", "HSN1FNSA": "HSN1F", "RETAILIRSA": "BUSINV", "ECIALLCIV": "ECIWAG"}
 SIBLING_MIN_AGREEMENT = 0.90
@@ -50,7 +53,8 @@ SIBLING_MIN_AGREEMENT = 0.90
 SERIES_START = {"IR": "1982-09", "RSXFS": "1992-01", "INDPRO": "1919-01", "PERMIT": "1960-01", "HOUST": "1959-01",
                 "M2SL": "1959-01", "FRGSHPUSM649NCIS": "1990-01", "BUSLOANS": "1947-01", "DRCCLACBS": "1991-01",
                 "ECIALLCIV": "2001-01", "DRTSCIS": "1990-04", "UMCSENT": "1952-11", "UNRATE": "1948-01",
-                "AMTMNO": "1992-02", "RETAILIRSA": "1992-01", "HSN1F": "1963-01", "HSN1FNSA": "1963-01",
+                "AMTMNO": "1992-02", "RETAILIRSA": "1992-01", "NEWORDER": "1992-02", "DRCCLACBN": "1985-01",
+                "DRTSCILM": "1990-04", "HSN1F": "1963-01", "HSN1FNSA": "1963-01",
                 "ISM_MFG": "1948-01", "ISM_SERVICES": "1997-07", "NAHB_HMI": "1985-01",
                 "EIA_WPSR_WTTSTUS1": "1985-01", "USGS_CEMENT_MIS": "1998-01", "T10Y3M_ME": "1982-01"}
 # documented release time (ET); informational: the calendar is date-resolution and a reading released on the
@@ -58,7 +62,8 @@ SERIES_START = {"IR": "1982-09", "RSXFS": "1992-01", "INDPRO": "1919-01", "PERMI
 RELEASE_TIME_ET = {"IR": "08:30", "RSXFS": "08:30", "INDPRO": "09:15", "PERMIT": "08:00/08:30", "HOUST": "08:00/08:30",
                    "M2SL": "13:00", "FRGSHPUSM649NCIS": "unknown (FRED posting date used)", "BUSLOANS": "16:15 (H.8, after the close)",
                    "DRCCLACBS": "unknown (FRED posting date used)", "ECIALLCIV": "08:30", "DRTSCIS": "14:00",
-                   "UMCSENT": "10:00", "UNRATE": "08:30", "AMTMNO": "10:00", "RETAILIRSA": "10:00", "HSN1F": "10:00",
+                   "UMCSENT": "10:00", "UNRATE": "08:30", "AMTMNO": "10:00", "RETAILIRSA": "10:00", "NEWORDER": "08:30",
+                   "DRCCLACBN": "unknown (FRED posting date used)", "DRTSCILM": "14:00", "HSN1F": "10:00",
                    "HSN1FNSA": "10:00", "ISM_MFG": "10:00", "ISM_SERVICES": "10:00", "NAHB_HMI": "10:00",
                    "EIA_WPSR_WTTSTUS1": "10:30", "USGS_CEMENT_MIS": "file timestamp (UTC date used)",
                    "T10Y3M_ME": "FRED next business day"}
