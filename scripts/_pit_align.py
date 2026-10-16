@@ -52,20 +52,22 @@ def last_trading_day(ts: pd.DatetimeIndex) -> pd.DatetimeIndex:
 
 @lru_cache(maxsize=4)
 def _calendar(path: str) -> pd.DataFrame:
-    cal = pd.read_csv(path, parse_dates=["ref_date", "period_end", "first_release"])
-    return cal
+    return pd.read_csv(path, parse_dates=["ref_date", "period_end", "first_release"])
 
 
-def load_release(series_id: str, index: pd.DatetimeIndex, path: Path | str = CALENDAR) -> pd.Series:
-    """First-release date for each stamp of `index`, matched on the reference period that contains the stamp
-    (monthly or quarterly per the calendar). NaT where the calendar has no date (no release recorded, before the
-    calendar starts or after its last period): such readings are treated as never available."""
+def load_release(series_id: str, index: pd.DatetimeIndex, path: Path | str = CALENDAR, harsh: bool = False) -> pd.Series:
+    """Availability date for each stamp of `index`, matched on the reference period that contains the stamp
+    (monthly or quarterly per the calendar): the calendar's available_date (first release, moved to the next trading
+    day for after-close releases); harsh=True uses the shutdown-inclusive fallback variant (sensitivity). NaT where
+    the calendar has no date (never published, before the calendar starts or after its last period): such readings
+    are treated as never available."""
     cal = _calendar(str(path))
     c = cal[cal.series_id == series_id]
     if c.empty:
         raise KeyError(f"series {series_id!r} not in {path}")
+    col = ("available_date_harsh" if harsh else "available_date") if "available_date" in c else "first_release"
     freq = "Q" if (c.ref_date.diff().dropna().dt.days > 80).all() else "M"
-    by_period = pd.Series(c.first_release.values, index=c.period_end.dt.to_period(freq))
+    by_period = pd.Series(pd.to_datetime(c[col]).values, index=c.period_end.dt.to_period(freq))
     idx = pd.DatetimeIndex(index)
     out = pd.Series(by_period.reindex(idx.to_period(freq)).values, index=idx, name=f"release_{series_id}")
     out.attrs["first_period_end"] = c.period_end.min()  # readings stamped before this do not exist in the series

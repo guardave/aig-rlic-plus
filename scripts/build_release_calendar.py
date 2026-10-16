@@ -11,11 +11,16 @@ Sources, in order of preference (the `basis` column says which one each row uses
   usgs_file_date              Last-Modified of the USGS "Cement in <month>" Mineral Industry Survey PDF.
   rule_next_business_day      daily market series sampled at month-end (T10Y3M): FRED posts the value the next
                               business day.
-  fallback_max_observed_lag   period before any measured history: period_end + the series' MAX observed lag
-                              (conservative; includes shutdown backlogs). Never a measured date.
-  no_release_recorded         reference period inside the dated history with no release in the source (IR / UNRATE
-                              2025-10: shutdown, not in ALFRED; cement 2023-11: no USGS file date in the pkg9 pull);
-                              first_release is blank and the period is treated as never available.
+  publisher_verified          actual release date from a publisher / news archive (publisher_release_dates.csv, with
+                              source URL); overrides the rule or ALFRED date and validates the rules (meta).
+  fallback_max_lag_excl_shutdown:<n>d  period before any dated history: period_end + the series' max observed lag
+                              EXCLUDING documented shutdown windows and batch releases (Lead decision Q1). The
+                              shutdown-inclusive variant is in first_release_harsh / available_date_harsh (sensitivity).
+  fallback_data_hole:<n>d     a hole in our source pull (cement 2023-11: S3 403), dated like a fallback row.
+  no_release_recorded         reference period inside the dated history that was never published (IR / UNRATE 2025-10:
+                              shutdown; FRED shows "."); first_release blank, treated as never available.
+available_date = first_release, or the next trading day for releases after the 16:00 ET close (AFTER_CLOSE; USGS files
+stamped >= 16:00 ET). This is the column the helper and the gate use.
 
 Usage:  python scripts/build_release_calendar.py [--refresh]
   --refresh  re-pull ALFRED into data/release_calendar/alfred_initial_release.csv (needs FRED_API_KEY / .env);
@@ -34,9 +39,17 @@ from pandas.tseries.holiday import USFederalHolidayCalendar
 from pandas.tseries.offsets import CustomBusinessDay
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 OUT_DIR = REPO / "data" / "release_calendar"
 RAW = OUT_DIR / "alfred_initial_release.csv"
 CEMENT_DATES = OUT_DIR / "usgs_cement_publication_dates.txt"
+# actual release dates gathered from publisher / news archives (one row per reference period, with source URL);
+# they override rule outputs and ALFRED posting dates, and validate the publisher rules
+PUBLISHER_DATES = OUT_DIR / "publisher_release_dates.csv"
+PUBLISHER_MAP = {"ISM_MFG": "ISM_MFG", "ISM_SERVICES": "ISM_SERVICES", "NAHB_HMI": "NAHB_HMI",
+                 "EIA_WPSR": "EIA_WPSR_WTTSTUS1", "UMICH_FINAL": "UMCSENT"}
+# series released after the 16:00 ET close: usable from the NEXT trading day's close (Lead decision Q3)
+AFTER_CLOSE = {"BUSLOANS": "Fed H.8, 16:15 ET"}
 CAL_START = pd.Timestamp("1985-01-01")
 BUILD_DATE = pd.Timestamp("2026-10-16")  # releases after this date are not in the calendar
 
@@ -121,24 +134,31 @@ def nth_bday(month_start: pd.Timestamp, n: int) -> pd.Timestamp:
 def calendar_rules() -> pd.DataFrame:
     """Publisher-schedule series (not on FRED). Holiday-aware; dates are rule outputs, not measurements."""
     rows = []
-    for sid, basis in (("ISM_MFG", "publisher_calendar:ISM business day 1 of M+1"),
-                       ("ISM_SERVICES", "publisher_calendar:ISM business day 3 of M+1"),
-                       ("NAHB_HMI", "publisher_calendar:NAHB/Wells Fargo HMI ~business day 11 of M"),
-                       ("EIA_WPSR_WTTSTUS1", "publisher_calendar:EIA WPSR, last week-ending Friday of M released the following Wednesday (Thursday after a Mon-Wed holiday)"),
+    for sid, basis in (("ISM_MFG", "publisher_calendar:ISM business day 1 of M+1 (January: day 2)"),
+                       ("ISM_SERVICES", "publisher_calendar:ISM business day 3 of M+1 (January: day 4)"),
+                       ("NAHB_HMI", "publisher_calendar:NAHB/Wells Fargo HMI business day 14 of M (conservative bound)"),
+                       ("EIA_WPSR_WTTSTUS1", "publisher_calendar:EIA WPSR, last week-ending Friday of M released the following Wednesday (Thursday after a Mon-Wed holiday; Friday in the New Year week)"),
                        ("T10Y3M_ME", "rule_next_business_day")):
         for m in periods(sid, pd.Timestamp("2026-09-01")):
             nxt = m + pd.offsets.MonthBegin(1)
+            # rules tightened against the publisher_release_dates sample (pkg12 QA LOW-9) so that no verified
+            # release date is later than the rule date (meta: rule_validation)
             if sid == "ISM_MFG":
-                rel = nth_bday(nxt, 1)
+                rel = nth_bday(nxt, 2 if nxt.month == 1 else 1)
             elif sid == "ISM_SERVICES":
-                rel = nth_bday(nxt, 3)
+                rel = nth_bday(nxt, 4 if nxt.month == 1 else 3)
             elif sid == "NAHB_HMI":
-                rel = nth_bday(m, 11)
+                rel = nth_bday(m, 14)
             elif sid == "EIA_WPSR_WTTSTUS1":
                 last_fri = pd.date_range(m, m + pd.offsets.MonthEnd(0), freq="W-FRI")[-1]
                 wed = last_fri + pd.Timedelta(days=5)
-                hol = USFederalHolidayCalendar().holidays(last_fri + pd.Timedelta(days=3), wed)
-                rel = wed + pd.Timedelta(days=1) if len(hol) else wed
+                hol = USFederalHolidayCalendar().holidays(last_fri + pd.Timedelta(days=3), wed + pd.Timedelta(days=2))
+                if any(h.month == 1 and h.day == 1 for h in hol):
+                    rel = wed + pd.Timedelta(days=2)
+                elif any(h <= wed for h in hol):
+                    rel = wed + pd.Timedelta(days=1)
+                else:
+                    rel = wed
             else:  # month-end sample of a daily FRED series: last business day of M, posted next business day
                 last_bd = pd.date_range(m, m + pd.offsets.MonthEnd(0), freq=BDAY)[-1]
                 rel = last_bd + BDAY
@@ -152,9 +172,19 @@ def cement_rows() -> pd.DataFrame:
     for line in CEMENT_DATES.read_text().splitlines():
         if line.strip():
             ym, lm = line.strip().split("|")
-            rows.append(("USGS_CEMENT_MIS", pd.Timestamp(ym + "-01"),
-                         pd.Timestamp(pd.to_datetime(lm, utc=True).date()), "usgs_file_date"))
-    return pd.DataFrame(rows, columns=["series_id", "ref_date", "first_release", "basis"])
+            et = pd.to_datetime(lm, utc=True).tz_convert("America/New_York")
+            rows.append(("USGS_CEMENT_MIS", pd.Timestamp(ym + "-01"), pd.Timestamp(et.date()), "usgs_file_date",
+                         et.hour >= 16))
+    return pd.DataFrame(rows, columns=["series_id", "ref_date", "first_release", "basis", "after_close"])
+
+
+def publisher_rows() -> pd.DataFrame:
+    p = pd.read_csv(PUBLISHER_DATES)
+    p = p[~p.note.fillna("").str.contains("AMBIGUOUS|UNVERIFIED|SCHEDULED", case=False)]
+    p = p.assign(series_id=p.series.map(PUBLISHER_MAP), ref_date=pd.to_datetime(p.ref_period + "-01"),
+                 first_release=pd.to_datetime(p.release_date))
+    p = p[p.first_release <= BUILD_DATE].drop_duplicates(["series_id", "ref_date"], keep="first")
+    return p[["series_id", "ref_date", "first_release", "source_url"]]
 
 
 def in_shutdown(ref: pd.Timestamp) -> bool:
@@ -162,19 +192,27 @@ def in_shutdown(ref: pd.Timestamp) -> bool:
 
 
 def build(raw: pd.DataFrame):
+    from _pit_align import TRADING_DAY  # NYSE approximation (federal holidays - Columbus/Veterans + Good Friday)
+
+    def next_trading_day(d):
+        return d + TRADING_DAY
+
     raw = raw.assign(ref_date=pd.to_datetime(raw.ref_date), first_release=pd.to_datetime(raw.first_release))
     measured = {sid: g.set_index("ref_date")["first_release"] for sid, g in raw.groupby("series_id")}
     out, meta = [], {}
-    other = pd.concat([calendar_rules(), cement_rows()], ignore_index=True)
-    for sid in FRED + sorted(other.series_id.unique()):
+    rules_cement = pd.concat([calendar_rules(), cement_rows()], ignore_index=True)
+    pub = publisher_rows()
+    for sid in FRED + sorted(rules_cement.series_id.unique()):
         q = sid in QUARTERLY
         if sid in measured:
-            own = measured[sid]
-            src = pd.DataFrame({"first_release": own, "basis": "alfred_first_vintage"})
+            src = pd.DataFrame({"first_release": measured[sid], "basis": "alfred_first_vintage"})
+            src["after_close"] = False
         else:
-            g = other[other.series_id == sid].set_index("ref_date")
-            src = g[["first_release", "basis"]]
-        info = {"freq": "Q" if q else "M", "release_time_et": RELEASE_TIME_ET.get(sid)}
+            g = rules_cement[rules_cement.series_id == sid].set_index("ref_date")
+            src = g[["first_release", "basis", "after_close"]].copy()
+            src["after_close"] = src["after_close"].fillna(False).astype(bool)
+        info = {"freq": "Q" if q else "M", "release_time_et": RELEASE_TIME_ET.get(sid),
+                "after_close": AFTER_CLOSE.get(sid)}
         sib = SIBLINGS.get(sid)
         if sib and sib in measured:
             ov = src.index.intersection(measured[sib].index)
@@ -183,44 +221,87 @@ def build(raw: pd.DataFrame):
                                "used": agree >= SIBLING_MIN_AGREEMENT}
             if agree >= SIBLING_MIN_AGREEMENT:
                 pre = measured[sib][measured[sib].index < src.index.min()]
-                src = pd.concat([pd.DataFrame({"first_release": pre, "basis": f"alfred_sibling:{sib}"}), src])
+                src = pd.concat([pd.DataFrame({"first_release": pre, "basis": f"alfred_sibling:{sib}",
+                                               "after_close": False}), src])
+        # publisher-verified dates: validate the rule / ALFRED date, then override it
+        pv = pub[pub.series_id == sid].set_index("ref_date")
+        if len(pv):
+            ov = pv.index.intersection(src.index)
+            diff = (src.loc[ov, "first_release"] - pv.loc[ov, "first_release"]).dt.days
+            info["publisher_check"] = {"n_dates": int(len(pv)), "n_compared": int(len(ov)),
+                                       "n_same": int((diff == 0).sum()),
+                                       "n_calendar_earlier_than_actual": int((diff < 0).sum()),
+                                       "n_calendar_later_than_actual": int((diff > 0).sum()),
+                                       "max_calendar_early_d": int(-diff.min()) if len(diff) and diff.min() < 0 else 0,
+                                       "max_calendar_late_d": int(diff.max()) if len(diff) and diff.max() > 0 else 0,
+                                       "corrected": [str(k.date()) for k in diff.index[diff != 0]],
+                                       "source_file": str(PUBLISHER_DATES.relative_to(REPO))}
+            add = pd.DataFrame({"first_release": pv.first_release, "basis": "publisher_verified",
+                                "after_close": False})
+            src = pd.concat([src.drop(index=ov), add]).sort_index()
         last = src.index.max()
         idx = periods(sid, last)
         cal = pd.DataFrame(index=idx)
         cal.index.name = "ref_date"
         cal["period_end"] = [period_end(r, q) for r in idx]
         cal = cal.join(src)
-        lag = (cal.first_release - cal.period_end).dt.days
-        meas = cal.basis.notna()
-        first_meas = cal.index[meas].min()
+        cal["note"] = ""
+        dated = cal.basis.notna()
+        first_dated = cal.index[dated].min()
         b = cal.basis.fillna("")
+        lag = (cal.first_release - cal.period_end).dt.days
+        # batch releases outside the documented shutdown windows (one ALFRED date first-releasing >= 2 periods:
+        # FRED posting artefacts, e.g. UMCSENT 2018-03 posted with 2018-04 though UMich released it 2018-03-29, or
+        # catch-up releases): kept as dated rows (conservative), flagged, excluded from the fallback statistic
+        am = b == "alfred_first_vintage"
+        batch = cal[am].groupby("first_release").first_release.transform("size") >= 2
+        anomalies = [r for r in batch.index[batch] if not in_shutdown(r)]
+        cal.loc[anomalies, "note"] = "batch_release (>=2 periods first dated on one day outside shutdown windows; excluded from the fallback lag)"
+        stat_rows = [r for r in cal.index[dated] if not in_shutdown(r) and r not in anomalies]
+        stat_lag = lag.loc[stat_rows]
         own = b.isin(["alfred_first_vintage", "usgs_file_date"])
         rule = b.str.startswith("publisher_calendar") | (b == "rule_next_business_day")
-        own_lag = lag[meas]  # own + sibling measured lags: the fallback max is taken over both
-        excl = own_lag[[not in_shutdown(r) for r in own_lag.index]]
-        max_lag = int(own_lag.max())
-        info.update(first_dated_ref=str(first_meas.date()),
+        lag_all = lag[dated]
+        fb = int(stat_lag.max()) if len(stat_lag) else int(lag_all.max())
+        fb_harsh = int(lag_all.max())
+        info.update(first_dated_ref=str(first_dated.date()),
                     first_own_measured_ref=str(cal.index[own].min().date()) if own.any() else None,
-                    last_ref=str(last.date()), n_measured=int(own.sum()), n_sibling=int(b.str.startswith("alfred_sibling").sum()),
-                    n_rule=int(rule.sum()),
-                    lag_median_d=float(own_lag.median()), lag_p90_d=float(own_lag.quantile(.9)), lag_max_d=max_lag,
-                    lag_max_excl_shutdown_d=int(excl.max()) if len(excl) else None,
-                    lag_max_first60_d=int(own_lag.iloc[:60].max()))
-        pre = ~meas & (cal.index < first_meas)
-        gap = ~meas & (cal.index > first_meas)
-        cal.loc[pre, "first_release"] = cal.loc[pre, "period_end"] + pd.Timedelta(days=max_lag)
-        cal.loc[pre, "basis"] = f"fallback_max_observed_lag:{max_lag}d"
-        cal.loc[gap, "basis"] = "no_release_recorded"
+                    last_ref=str(last.date()), n_measured=int(own.sum()),
+                    n_sibling=int(b.str.startswith("alfred_sibling").sum()), n_rule=int(rule.sum()),
+                    n_publisher_verified=int((b == "publisher_verified").sum()),
+                    lag_median_d=float(lag_all.median()), lag_p90_d=float(lag_all.quantile(.9)), lag_max_d=fb_harsh,
+                    fallback_lag_d=fb, fallback_lag_harsh_d=fb_harsh,
+                    lag_max_first60_d=int(lag_all.iloc[:60].max()),
+                    batch_release_rows=[str(r.date()) for r in anomalies])
+        pre = ~dated & (cal.index < first_dated)
+        gap = ~dated & (cal.index > first_dated)
+        hole = gap & (sid == "USGS_CEMENT_MIS")  # S3 403: a data hole in our pull, not a non-publication
+        never = gap & ~hole  # FRED "." (IR / UNRATE 2025-10: not published)
+        cal["first_release_harsh"] = cal["first_release"]
+        for m_, tag in ((pre, "fallback_max_lag_excl_shutdown"), (hole, "fallback_data_hole")):
+            cal.loc[m_, "first_release"] = cal.loc[m_, "period_end"] + pd.Timedelta(days=fb)
+            cal.loc[m_, "first_release_harsh"] = cal.loc[m_, "period_end"] + pd.Timedelta(days=fb_harsh)
+            cal.loc[m_, "basis"] = f"{tag}:{fb}d"
+            cal.loc[m_, "after_close"] = False
+        cal.loc[never, "basis"] = "no_release_recorded"
         info["n_fallback"] = int(pre.sum())
-        info["no_release_recorded"] = [str(x.date()) for x in cal.index[gap]]
+        info["data_holes"] = [str(x.date()) for x in cal.index[hole]]
+        info["no_release_recorded"] = [str(x.date()) for x in cal.index[never]]
+        ac = cal["after_close"].fillna(False).astype(bool) | (sid in AFTER_CLOSE)
+        info["n_after_close_rows"] = int((ac & cal.first_release.notna()).sum())
+        for col, src_col in (("available_date", "first_release"), ("available_date_harsh", "first_release_harsh")):
+            cal[col] = cal[src_col]
+            sel = ac & cal[src_col].notna()
+            cal.loc[sel, col] = [next_trading_day(d) for d in cal.loc[sel, src_col]]
         cal["lag_days"] = (cal.first_release - cal.period_end).dt.days
         cal["series_id"] = sid
         out.append(cal.reset_index())
         meta[sid] = info
     cal = pd.concat(out, ignore_index=True)
-    cal = cal[["series_id", "ref_date", "period_end", "first_release", "lag_days", "basis"]]
-    for c in ("ref_date", "period_end", "first_release"):
-        cal[c] = cal[c].dt.strftime("%Y-%m-%d")
+    cal = cal[["series_id", "ref_date", "period_end", "first_release", "available_date", "lag_days", "basis",
+               "first_release_harsh", "available_date_harsh", "note"]]
+    for c in ("ref_date", "period_end", "first_release", "available_date", "first_release_harsh", "available_date_harsh"):
+        cal[c] = pd.to_datetime(cal[c]).dt.strftime("%Y-%m-%d")
     cal["lag_days"] = cal["lag_days"].astype("Int64")
     return cal, meta
 
@@ -234,16 +315,21 @@ def main(argv):
     cal.to_csv(OUT_DIR / "release_calendar.csv", index=False)
     (OUT_DIR / "release_calendar_meta.json").write_text(json.dumps(
         {"built_through": str(BUILD_DATE.date()), "calendar_start": str(CAL_START.date()),
-         "convention": "first_release is the date the reading is first public; a reading released on the window-open "
-                       "date counts as available (date resolution, standard Step 2)",
+         "convention": "first_release = date the reading is first public; available_date = first_release, or the next "
+                       "trading day when the release is after the 16:00 ET close (AFTER_CLOSE series, USGS files stamped "
+                       ">= 16:00 ET). A reading is usable for a window opening at the close of day d iff available_date <= d. "
+                       "Fallback rows use the max observed lag excluding documented shutdown windows and batch-posting "
+                       "artefacts (default); *_harsh columns use the shutdown-inclusive max (sensitivity).",
+         "after_close": AFTER_CLOSE, "shutdown_reference_windows": SHUTDOWN_REF,
          "daily_rules": {"BAMLH0A0HYM2": "value dated t posted by FRED on the next business day",
                          "T10Y3M": "value dated t posted by FRED on the next business day",
                          "market_close": "gold/copper, VIX/VIX3M, SOX/SPY observed at the close of t: usable from t's close for the t -> t+1 return"},
          "series": meta}, indent=2))
     for sid, m in meta.items():
         print(f"{sid:18s} {m['freq']} measured {m['n_measured']:4d} (from {m['first_own_measured_ref']}) sibling {m['n_sibling']:3d} "
-              f"rule {m['n_rule']:3d} fallback {m['n_fallback']:3d}  lag med/p90/max {m['lag_median_d']:.0f}/{m['lag_p90_d']:.0f}/{m['lag_max_d']}"
-              f"  no_release {m['no_release_recorded']}"
+              f"rule {m['n_rule']:3d} verified {m['n_publisher_verified']:3d} fallback {m['n_fallback']:3d} at {m['fallback_lag_d']}d "
+              f"(harsh {m['fallback_lag_harsh_d']}d)  holes {m['data_holes']} no_release {m['no_release_recorded']} "
+              f"batch {m['batch_release_rows']}" + (f" check {m['publisher_check']['n_compared']}/{m['publisher_check']['n_calendar_earlier_than_actual']} early" if 'publisher_check' in m else "")
               + (f"  sibling {m['sibling']['series']} agree {m['sibling']['same_date_share']}" if 'sibling' in m else ""))
     return 0
 

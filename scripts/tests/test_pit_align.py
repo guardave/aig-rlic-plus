@@ -203,3 +203,25 @@ def test_realtime_apply_rolling_inputs_come_from_one_vintage():
     out = pa.realtime_apply(v, ME, 1, lambda s: s.rolling(3).mean().rename("m"))["m"]
     assert (out.loc[:"2021-05-31"].dropna() == 1.0).all()
     assert (out.loc["2021-07-31":].dropna() == 2.0).all()
+
+
+def test_calendar_after_close_fallback_and_verified_rows():
+    cal = pd.read_csv(pa.CALENDAR)
+    row = lambda s, r: cal[(cal.series_id == s) & (cal.ref_date == r)].iloc[0]  # noqa: E731
+    # Q3: H.8 is released 16:15 ET (Friday) -> usable from the next trading day's close (Monday)
+    b = row("BUSLOANS", "2024-01-01")
+    assert b.first_release == "2024-02-09" and b.available_date == "2024-02-12"
+    assert pa.load_release("BUSLOANS", pd.DatetimeIndex(["2024-01-31"])).iloc[0] == pd.Timestamp("2024-02-12")
+    # MED-4: the cement 2023-11 S3 hole is a flagged fallback row, not "never released"
+    c = row("USGS_CEMENT_MIS", "2023-11-01")
+    assert c.basis.startswith("fallback_data_hole") and isinstance(c.first_release, str)
+    # MED-5: UMich released final March 2018 on 2018-03-29 (ALFRED posted it 2018-04-27)
+    u = row("UMCSENT", "2018-03-01")
+    assert u.basis == "publisher_verified" and u.first_release == "2018-03-29"
+    # Q1: default fallback excludes shutdown windows; the harsh column keeps the shutdown-inclusive max
+    i = row("IR", "2005-01-01")
+    assert i.basis.startswith("fallback_max_lag_excl_shutdown") and i.first_release < i.first_release_harsh
+    assert pa.load_release("IR", pd.DatetimeIndex(["2005-01-31"]), harsh=True).iloc[0] == pd.Timestamp(
+        i.available_date_harsh)
+    # never-published months stay unavailable
+    assert pd.isna(row("UNRATE", "2025-10-01").first_release)
