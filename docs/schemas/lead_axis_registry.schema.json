@@ -4,7 +4,7 @@
   "title": "Lead-Axis Registry",
   "description": "Per-pair frequency record mandated by the Lead-Grid Frequency Standard (docs/lead-grid-frequency-standard.md, adopted 2026-07-14). For every REGISTERED pair (one entry per app/pair_configs/*_config.py) it records the signal's native release frequency, its publication lag, the lead axis that frequency implies (Step 1 HARD RULE), and the anchored grid (Step 3). scripts/gate_lead_axis.py reads lead_axis here as the expected axis and asserts each pair's lead artifacts sit on it. lead_floor / lead_floor_effective / position_shift are enforced by scripts/gate_lead_floor.py (strict floor on the effective lag, standard Step 2 amended 2026-10-16); publication_lag is human-readable reference text.",
   "x-owner": "evan",
-  "x-version": "1.2.0",
+  "x-version": "1.3.0",
   "type": "object",
   "required": [
     "x-version",
@@ -124,6 +124,15 @@
             "pit_asof"
           ],
           "description": "How the pipeline aligns the signal to the return: fixed_lag = signal.shift(lead) (the per-period gate counts backtest periods whose reading was not yet released); pit_asof = scripts/_pit_align.pit_shift (latest reading released before the return window opens; 0 breaches by construction, the gate checks the call is present). Default fixed_lag."
+        },
+        "value_vintage": {
+          "type": "string",
+          "enum": [
+            "revised_no_archive",
+            "revised_alfred",
+            "unrevised_market"
+          ],
+          "description": "Vintage of the signal VALUES the pipeline uses (pkg12 D8 / Q7). revised_no_archive: latest revised values from a source with no vintage archive (ISM, NAHB, UMich expected business conditions, USGS cement, EIA WTTSTUS1; Data Master snapshots), so first-release or real-time values cannot be reconstructed - disclosed; scripts/snapshot_revised_sources.py archives them going forward. revised_alfred: latest revised FRED values; real-time vintages exist in ALFRED (track b). unrevised_market: market prices / yields, not revised."
         },
         "lead_grid": {
           "type": "array",

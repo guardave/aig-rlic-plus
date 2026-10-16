@@ -131,4 +131,11 @@ Q6-Q8 are with the user. They are not acted on.
 
 Latest-vintage values *with their correct floor*, i.e. the most recent revision date of each value, are not a usable third track: for most of history that floor is a 2025-26 revision date, so nothing before it could be traded.
 
+**Q7 decision (2026-10-17): no-archive sources are disclosed as revised.** The registry field `value_vintage` takes one of three values for every live pair:
+- `revised_no_archive`: the 6 Data Master sources (ism_mfg, ism_services, wells_fargo_housing, umcsent_spy, cement, petrol_inv).
+- `revised_alfred`: 23 FRED/ALFRED pairs.
+- `unrevised_market`: 6 market-data pairs.
+
+For the no-archive pairs, every backtest number uses today's revised values on first-release timing. A real-time or first-print version cannot be rebuilt, so the D8 gap is unknown and the lookahead is disclosed, not corrected. `scripts/snapshot_revised_sources.py` (run monthly by hand, see `data/release_calendar/snapshots/README.md`) archives their values from 2026-10-16 on. It checks against the pipelines' panels 100% for the five with a local panel; EIA was checked against its loader only.
+
 **Recommendation.** Use track (b) for every FRED/ALFRED series. For pre-vintage history, either start the backtest at the first vintage or accept track (a)'s first-vintage values with a disclosed flag (open question **Q6**). Non-FRED sources (ISM, NAHB, UMich components, USGS, EIA) go to track (a) where publisher first prints can be archived. Otherwise they are disclosed as "revised values, timing-only PIT" (**Q7**). Track (b) changes signal values and rolling thresholds, so it needs full reruns. The winner rule stays as it is and D9 is not applied.
