@@ -160,3 +160,14 @@ def test_ms_refuses_target_return(data):
         rc.fit_ms_causal(X["spread_change"].rename("spy_ret"), OOS)
     with pytest.raises(ValueError):
         rc.fit_hmm_causal(X.rename(columns={"vix": "spy_ret"}), OOS)
+
+
+def test_min_is_rows_guard_and_override(data):
+    X, _ = data
+    short = X.iloc[:120]                                    # 80 IS rows before 2010-05-01 (< 50*2)
+    with pytest.raises(ValueError, match="too few in-sample rows"):
+        rc.fit_hmm_causal(short, "2010-05-01", label_feature="spread_change")
+    r = rc.fit_hmm_causal(short, "2010-05-01", label_feature="spread_change", min_is_rows=40)
+    assert r.n_fit < 100 and r.prob.notna().all()
+    with pytest.raises(ValueError, match="too few in-sample rows"):
+        rc.fit_ms_causal(short["spread_change"], "2010-05-01")

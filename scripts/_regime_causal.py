@@ -157,7 +157,7 @@ def _check_no_target(names: Iterable[str], allow_target: bool) -> None:
 def fit_hmm_causal(X: pd.DataFrame, oos_start, *, n_states: int = 2, label_feature: str | None = None,
                    label: str = "max", covariance_type: str = "full", n_iter: int = 200,
                    seeds: Sequence[int] = (42,), standardize: bool = True,
-                   allow_target: bool = False) -> CausalRegime:
+                   allow_target: bool = False, min_is_rows: int | None = None) -> CausalRegime:
     """Fit a GaussianHMM on in-sample rows only and return forward-filtered probabilities.
 
     X              DataFrame of features (DatetimeIndex). Rows with any NaN are excluded from
@@ -167,6 +167,8 @@ def fit_hmm_causal(X: pd.DataFrame, oos_start, *, n_states: int = 2, label_featu
     label          "max" -> report the state with the highest mean of label_feature; "min" -> lowest.
     seeds          EM restarts; the fit with the highest in-sample log-likelihood is kept
                    (ties -> earliest seed), so the result is deterministic.
+    min_is_rows    minimum in-sample rows (default 50 * n_states). Lower it only for a
+                   descriptive / diagnostic fit that is NOT traded, and say so where it is used.
     """
     from hmmlearn.hmm import GaussianHMM
 
@@ -175,7 +177,7 @@ def fit_hmm_causal(X: pd.DataFrame, oos_start, *, n_states: int = 2, label_featu
     _check_no_target(X.columns, allow_target)
     Xc = X.dropna()
     ism = _is_mask(Xc.index, oos_start)
-    if ism.sum() < 50 * n_states:
+    if ism.sum() < (50 * n_states if min_is_rows is None else min_is_rows):
         raise ValueError(f"too few in-sample rows to fit HMM ({ism.sum()})")
     vals = Xc.values.astype(float)
     if standardize:
@@ -226,7 +228,7 @@ def fit_hmm_causal(X: pd.DataFrame, oos_start, *, n_states: int = 2, label_featu
 
 def fit_ms_causal(y: pd.Series, oos_start, *, k_regimes: int = 2, exog: pd.DataFrame | None = None,
                   switching_variance: bool = True, label: str = "max_variance", maxiter: int = 200,
-                  allow_target: bool = False) -> CausalRegime:
+                  allow_target: bool = False, min_is_rows: int | None = None) -> CausalRegime:
     """MarkovRegression fit on in-sample rows only; Hamilton-filtered probabilities on all rows.
 
     y      regime-model dependent variable (the INDICATOR, e.g. daily spread change) — never the
@@ -238,6 +240,8 @@ def fit_ms_causal(y: pd.Series, oos_start, *, k_regimes: int = 2, exog: pd.DataF
     The filtered probability P(S_t | y_1..y_t) is computed by statsmodels' Hamilton filter
     (``model.filter(params)``) on the full-sample model with the parameters frozen at the
     in-sample MLE; it never runs the Kim smoother.
+
+    min_is_rows  minimum in-sample rows (default 100); lower it only for a non-traded diagnostic.
     """
     import statsmodels.api as sm
     from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
@@ -247,7 +251,7 @@ def fit_ms_causal(y: pd.Series, oos_start, *, k_regimes: int = 2, exog: pd.DataF
     data = y.to_frame("y") if exog is None else pd.concat([y.rename("y"), exog], axis=1)
     data = data.dropna()
     ism = _is_mask(data.index, oos_start)
-    if ism.sum() < 100:
+    if ism.sum() < (100 if min_is_rows is None else min_is_rows):
         raise ValueError(f"too few in-sample rows to fit MS ({ism.sum()})")
     ex_all = None if exog is None else sm.add_constant(data[list(exog.columns)])
     mod_is = MarkovRegression(data["y"][ism].values, k_regimes=k_regimes,
