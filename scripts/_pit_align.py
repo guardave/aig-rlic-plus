@@ -174,3 +174,53 @@ def breaches(index: pd.DatetimeIndex, lead: int, release: pd.Series, position_sh
     out["days_early"] = (out.release - out.window_open).dt.days
     out["asof_lag"] = lags[bad]
     return out
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Track (b): real-time vintages. A REVISED value of period M is only known from the date of that revision, so
+# latest-vintage values with first-release timing are themselves a lookahead (pkg12 D8). These helpers give the
+# value "as known at date t" from ALFRED vintage histories (data/release_calendar/vintages/<SID>.csv.gz).
+VINTAGES = REPO / "data" / "release_calendar" / "vintages"
+
+
+def load_vintages(series_id: str, path: Path | str | None = None) -> pd.DataFrame:
+    """ALFRED rows (date, realtime_start, realtime_end, value); realtime_end 9999-12-31 -> 2262-01-01."""
+    v = pd.read_csv(Path(path) if path else VINTAGES / f"{series_id}.csv.gz", parse_dates=["date", "realtime_start"])
+    v["realtime_end"] = pd.to_datetime(v["realtime_end"].astype(str).replace("9999-12-31", "2262-01-01"))
+    v["value"] = v["value"].astype(float)
+    return v
+
+
+def vintage_asof(vint: pd.DataFrame, date, freq: str = "M") -> pd.Series:
+    """The series as published on `date`: rows with realtime_start <= date <= realtime_end, stamped at period end.
+    A period absent from it was not yet released on that date."""
+    d = pd.Timestamp(date)
+    x = vint[(vint.realtime_start <= d) & (vint.realtime_end >= d)]
+    idx = x["date"].dt.to_period(freq).dt.to_timestamp(how="end").dt.normalize()
+    s = pd.Series(x["value"].to_numpy(), index=pd.DatetimeIndex(idx)).sort_index()
+    return s[~s.index.duplicated(keep="last")]
+
+
+def realtime_apply(vint: pd.DataFrame, index: pd.DatetimeIndex, lead: int, fn, position_shift: int = 0,
+                   freq: str = "M") -> pd.DataFrame:
+    """Track (b) as-of alignment. For each row u: take the vintage published at the row's window open, compute
+    fn(vintage) (a Series/DataFrame on the vintage's period-end stamps, e.g. signal and rolling threshold), and
+    return its row for the latest period present in that vintage at or before the nominal reading index[u - lead].
+    Rows whose window opens before the first vintage, or with no reading, are NaN. Never uses a value published
+    after the window opens."""
+    idx = pd.DatetimeIndex(index)
+    opn = window_open(idx, position_shift)
+    first = vint.realtime_start.min()
+    rows = {}
+    for u, t in enumerate(idx):
+        o = opn.iloc[u]
+        if pd.isna(o) or o < first or u - lead < 0:
+            continue
+        v = vintage_asof(vint, o, freq)
+        full = pd.date_range(v.index.min(), v.index.max(), freq="QE" if freq == "Q" else "ME")
+        out = fn(v.reindex(full))
+        out = out.to_frame() if isinstance(out, pd.Series) else out
+        ok = out.index[(out.index <= idx[u - lead]) & out.index.isin(v.index)]
+        if len(ok):
+            rows[t] = out.loc[ok.max()]
+    return pd.DataFrame(rows).T.reindex(idx)

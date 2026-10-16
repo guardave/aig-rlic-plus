@@ -155,3 +155,51 @@ def test_load_release_from_committed_calendar():
     assert pa.breaches(eci, 2, pa.load_release("ECIALLCIV", eci)).empty
     with pytest.raises(KeyError):
         pa.load_release("NOPE", idx)
+
+
+def vint_table(rows):
+    """rows: (period_end, realtime_start, realtime_end or None, value)."""
+    return pd.DataFrame({"date": [pd.Timestamp(p) - pd.offsets.MonthBegin(1) for p, *_ in rows],
+                         "realtime_start": [pd.Timestamp(r) for _, r, _, _ in rows],
+                         "realtime_end": [pd.Timestamp(e or "2262-01-01") for _, _, e, _ in rows],
+                         "value": [float(x) for *_, x in rows]})
+
+
+def test_realtime_apply_uses_the_value_known_when_the_window_opens():
+    # Jan reading first printed 100 on Feb-15, revised to 130 on Mar-20
+    rows = [("2020-01-31", "2020-02-15", "2020-03-19", 100), ("2020-01-31", "2020-03-20", None, 130),
+            ("2020-02-29", "2020-03-16", None, 200), ("2020-03-31", "2020-04-15", None, 300),
+            ("2020-04-30", "2020-05-15", None, 400)]
+    v = vint_table(rows)
+    idx = pd.date_range("2020-01-31", "2020-05-31", freq="ME")
+    out = pa.realtime_apply(v, idx, 2, lambda s: s.rename("x"))["x"]
+    # window opening 2020-02-28 (row 2020-03): Jan known as 100 (first print) -> the revised 130 is not used yet
+    assert out.loc["2020-03-31"] == 100
+    # window opening 2020-03-31 (row 2020-04): nominal Feb (released Mar-16) -> 200; Jan now 130 in the vintage
+    assert out.loc["2020-04-30"] == 200
+    assert pa.vintage_asof(v, "2020-03-31").loc["2020-01-31"] == 130
+    # latest-vintage values with first-release timing would have used 130 in row 2020-03: the D8 lookahead
+    latest = pa.vintage_asof(v, "2026-01-01")
+    assert latest.loc["2020-01-31"] == 130
+
+
+def test_realtime_apply_matches_pit_shift_without_revisions():
+    rel = mid_month_release(ME)
+    vals = pd.Series(np.arange(len(ME), dtype=float), index=ME)
+    v = vint_table([(str(t.date()), str(rel[t].date()), None, vals[t]) for t in ME])
+    out = pa.realtime_apply(v, ME, 2, lambda s: s.rename("x"))["x"]
+    ref = pa.pit_shift(vals, 2, rel)
+    ok = out.notna()
+    assert ok.sum() > 15 and (out[ok] == ref[ok]).all()
+
+
+def test_realtime_apply_rolling_inputs_come_from_one_vintage():
+    rows = [(str(t.date()), str((t + pd.Timedelta(days=10)).date()), None, 1.0) for t in ME]
+    v = vint_table(rows)
+    # a later benchmark revision rewrites the whole history to 2.0 from 2021-06-01: earlier rows must not see it
+    v.loc[:, "realtime_end"] = pd.Timestamp("2021-05-31")
+    rev = vint_table([(str(t.date()), "2021-06-01", None, 2.0) for t in ME if t < pd.Timestamp("2021-05-01")])
+    v = pd.concat([v, rev], ignore_index=True)
+    out = pa.realtime_apply(v, ME, 1, lambda s: s.rolling(3).mean().rename("m"))["m"]
+    assert (out.loc[:"2021-05-31"].dropna() == 1.0).all()
+    assert (out.loc["2021-07-31":].dropna() == 2.0).all()
