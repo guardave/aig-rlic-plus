@@ -378,9 +378,10 @@ RULES = {"rule:market_close": 0, "rule:next_business_day": 1}
 FREQ = {"months": "ME", "quarters": "QE", "trading_days": "B"}
 
 
-def backtest_sample(repo: Path, pair: str):
+def backtest_sample(repo: Path, pair: str, rows: bool = False):
     """(start, end, source) of the pair's backtest return rows: latest results/<pair>/strategy_returns_*.csv,
-    else winner_trade_log.csv entry/exit dates. (None, None, why) when neither exists."""
+    else winner_trade_log.csv entry/exit dates. (None, None, why) when neither exists. rows=True appends the
+    strategy_returns row stamps (the pipeline's own index: a dropped month stays dropped) or None."""
     import pandas as pd
     d = repo / "results" / pair
     for f in sorted(d.glob("strategy_returns_*.csv"), reverse=True):
@@ -391,7 +392,7 @@ def backtest_sample(repo: Path, pair: str):
         except Exception:
             continue
         if len(x):
-            return x.min(), x.max(), str(f.relative_to(repo))
+            return (x.min(), x.max(), str(f.relative_to(repo))) + ((pd.DatetimeIndex(x),) if rows else ())
     f = d / "winner_trade_log.csv"
     if f.exists():
         x = pd.read_csv(f)
@@ -399,8 +400,8 @@ def backtest_sample(repo: Path, pair: str):
         if cols:
             v = pd.to_datetime(pd.concat([x[c] for c in cols]), errors="coerce").dropna()
             if len(v):
-                return v.min(), v.max(), str(f.relative_to(repo))
-    return None, None, "no strategy_returns_*.csv or winner_trade_log.csv"
+                return (v.min(), v.max(), str(f.relative_to(repo))) + ((None,) if rows else ())
+    return (None, None, "no strategy_returns_*.csv or winner_trade_log.csv") + ((None,) if rows else ())
 
 
 def per_period_check(repo: Path, pair: str, rec: dict, leads: list, shift: int, wl, files, canon):
@@ -424,7 +425,7 @@ def per_period_check(repo: Path, pair: str, rec: dict, leads: list, shift: int, 
             info["summary"] = f"per-period: as-of aligned ({', '.join(callers)}), 0 breaches by construction"
             return [], [], info
         return ["per-period: registry alignment 'pit_asof' but no pit_shift( call in the canonical scripts"], [], info
-    start, end, src = backtest_sample(repo, pair)
+    start, end, src, own = backtest_sample(repo, pair, rows=True)
     info["sample_source"] = src
     if start is None:
         return [], [f"per-period: backtest sample unknown ({src}); breaches not counted"], info
@@ -435,6 +436,8 @@ def per_period_check(repo: Path, pair: str, rec: dict, leads: list, shift: int, 
     else:
         off = pd.offsets.MonthEnd(pad) if freq == "ME" else pd.offsets.QuarterEnd(pad)
         idx = pd.date_range(start - off, end, freq=freq)
+    if own is not None:  # the pipeline's own rows (lags are row counts), regular padding before the sample
+        idx = idx[idx < own[0]].append(own) if freq != "B" else own
     if series in RULES:
         rel = pa.rule_release(idx, RULES[series])
     else:

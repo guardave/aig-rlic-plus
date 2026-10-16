@@ -72,17 +72,32 @@ def load_release(series_id: str, index: pd.DatetimeIndex, path: Path | str = CAL
     return out
 
 
-def rule_release(index: pd.DatetimeIndex, business_days: int = 1) -> pd.Series:
-    """Release dates for a daily series posted `business_days` after the stamp (0 = observed at the close)."""
+def is_daily(index: pd.DatetimeIndex) -> bool:
+    """A trading-day index (median spacing <= 4 days): its stamps ARE the closes, no calendar roll-back."""
     idx = pd.DatetimeIndex(index)
-    rel = idx if business_days == 0 else pd.DatetimeIndex([t + business_days * TRADING_DAY for t in idx])
+    return len(idx) > 2 and pd.Series(idx).diff().dt.days.median() <= 4
+
+
+def rule_release(index: pd.DatetimeIndex, business_days: int = 1) -> pd.Series:
+    """Release dates for a series posted `business_days` trading days after the stamp (0 = observed at the close).
+    On a trading-day index the next trading day is the next row of the index (the pipeline's own calendar)."""
+    idx = pd.DatetimeIndex(index)
+    if business_days == 0:
+        rel = idx
+    elif is_daily(idx):
+        n = business_days
+        tail = [idx[-1] + (k + 1) * TRADING_DAY for k in range(n)]
+        rel = idx[n:].append(pd.DatetimeIndex(tail))
+    else:
+        rel = pd.DatetimeIndex([t + business_days * TRADING_DAY for t in idx])
     return pd.Series(rel, index=idx, name="release_rule")
 
 
 def window_open(index: pd.DatetimeIndex, position_shift: int = 0) -> pd.Series:
-    """Window-open date of the return earned by a position computed at row u: close of index[u + shift - 1]."""
+    """Window-open date of the return earned by a position computed at row u: close of index[u + shift - 1]
+    (period-end stamps rolled back to the last trading day; a trading-day index is used as is)."""
     idx = pd.DatetimeIndex(index)
-    closes = pd.Series(last_trading_day(idx), index=idx)
+    closes = pd.Series(idx if is_daily(idx) else last_trading_day(idx), index=idx)
     return closes.shift(1 - position_shift)
 
 

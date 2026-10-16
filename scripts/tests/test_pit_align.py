@@ -134,6 +134,15 @@ def test_daily_rule_release_next_business_day():
     assert pa.breaches(idx, 1, pa.rule_release(idx, 0)).empty  # market close data: E1 fine
 
 
+def test_daily_index_is_its_own_trading_calendar():
+    # a pipeline trading day that the NYSE approximation calls a holiday (e.g. a 2025 Columbus Day row is fine,
+    # but rows on federal holidays / special closures must not be rolled back to an earlier close)
+    idx = pd.DatetimeIndex(["2024-06-18", "2024-06-19", "2024-06-20", "2024-06-21"])  # 06-19 Juneteenth
+    assert pa.window_open(idx).iloc[2] == pd.Timestamp("2024-06-19")
+    assert pa.breaches(idx, 1, pa.rule_release(idx, 0)).empty
+    assert pa.breaches(idx, 1, pa.rule_release(idx, 1), position_shift=1).empty
+
+
 def test_load_release_from_committed_calendar():
     idx = pd.DatetimeIndex(["2018-11-30", "2025-09-30", "2025-10-31", "2026-03-31"])
     rel = pa.load_release("UNRATE", idx)

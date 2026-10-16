@@ -385,3 +385,13 @@ def test_cli_mode_flag(tmp_path):
     r = pp_repo(tmp_path, PP_OK, PP_REC, delayed={"2019-09": "2020-01-09"})
     assert g.main(["--repo", str(r), "x_spy"]) == 1
     assert g.main(["--repo", str(r), "--mode", "floor", "x_spy"]) == 0
+
+
+def test_per_period_follows_the_pipeline_rows(tmp_path):
+    # a pipeline that dropped the 2019-10 row: its L2 is "two rows back", so the late 2019-09 release is not hit
+    r = pp_repo(tmp_path, PP_OK, PP_REC, delayed={"2019-09": "2019-11-20"})
+    assert "2019-11-30" in pp(r)[1]
+    f = r / "results" / "x_spy" / "strategy_returns_20261016.csv"
+    d = pd.read_csv(f)
+    d[d.date != "2019-10-31"].to_csv(f, index=False)
+    assert pp(r)[0] == "PASS"
