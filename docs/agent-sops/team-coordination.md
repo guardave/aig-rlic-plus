@@ -1333,7 +1333,7 @@ The following terms are reserved and must not be used interchangeably:
 
 | Gate | Script | Catches |
 |---|---|---|
-| **T1.1 Schema** | `scripts/validate_all_schemas.py` | Every registered pair's canonical results JSONs (`winner_summary`, `signal_scope`, `analyst_suggestions`, `interpretation_metadata`) validate against `docs/schemas/`. File present but non-conformant = FAIL. Presence checks remain GATE-DPS1's job. |
+| **T1.1 Schema** | `scripts/validate_all_schemas.py` | Every registered pair's canonical results JSONs (`winner_summary`, `signal_scope`, `analyst_suggestions`, `interpretation_metadata`, `evidence_status`) validate against `docs/schemas/`. File present but non-conformant = FAIL. Presence checks remain GATE-DPS1's job. |
 | **T1.2 Smoke** | `app/_smoke_tests/smoke_loader.py --all` | Chart-name resolution failures across every registered pair. |
 | **T1.3 Filename lint** | `scripts/lint_filename_convention.py` | Legacy `<pair_id>_`-prefixed chart JSONs under registered pairs' chart dirs (VIZ-NM1 / team-standards §2.1). |
 | **T2 Chart manifest** | `scripts/lint_chart_completeness.py` | Every chart referenced by a pair_config exists on disk (reuses GATE-DPS1's chart-artifact internals; do not duplicate). |
