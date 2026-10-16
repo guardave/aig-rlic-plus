@@ -253,12 +253,16 @@ def chart_regime_stats():
     sig_df = _load_signals()
 
     prob_col = "hmm_2state_prob_stress"
-    stress = (sig_df[prob_col] > 0.5).reindex(df.index, method="ffill")
+    # A day with an undefined stress probability (the first day: no filtered estimate exists)
+    # is neither calm nor stress; `NaN > 0.5` is False and would count it as calm.
+    prob = sig_df[prob_col].reindex(df.index, method="ffill")
+    stress = prob > 0.5
+    calm = (prob <= 0.5) & prob.notna()
 
     spy_ret = df["spy_ret"] if "spy_ret" in df.columns else df["spy"].pct_change()
 
-    calm_ret = spy_ret[stress == False].dropna()
-    stress_ret = spy_ret[stress == True].dropna()
+    calm_ret = spy_ret[calm].dropna()
+    stress_ret = spy_ret[stress].dropna()
 
     def stats(r):
         ann_ret = r.mean() * 252
@@ -546,7 +550,7 @@ def chart_hmm_regime_probs():
     _add_recessions(fig, sig_df.index.min(), sig_df.index.max())
 
     fig.update_layout(
-        title=dict(text=f"Causal HMM Stress Probability (IS-fit, forward-filtered) and SPY: {(sig_df[prob_col] > 0.5).mean()*100:.0f}% of Days Above 0.5"),
+        title=dict(text=f"Causal HMM Stress Probability (IS-fit, forward-filtered) and SPY: {(sig_df[prob_col].dropna() > 0.5).mean()*100:.0f}% of Days Above 0.5"),
         template=TEMPLATE, hovermode="x unified", height=500,
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         margin=dict(r=180, b=80),
@@ -1011,10 +1015,9 @@ def chart_returns_by_regime():
 
     spy_ret = df["spy_ret"] if "spy_ret" in df.columns else df["spy"].pct_change()
     prob_col = "hmm_2state_prob_stress"
-    stress = (sig_df[prob_col] > 0.5).reindex(df.index, method="ffill").dropna()
-
-    calm_r   = spy_ret[stress == False].dropna() * 100
-    stress_r = spy_ret[stress == True].dropna() * 100
+    prob = sig_df[prob_col].reindex(df.index, method="ffill")
+    calm_r   = spy_ret[(prob <= 0.5) & prob.notna()].dropna() * 100
+    stress_r = spy_ret[prob > 0.5].dropna() * 100
 
     fig = go.Figure()
     fig.add_trace(go.Violin(

@@ -87,7 +87,7 @@ record. The Methodology page is the technical appendix.
     REGIME_CAPTION = (
         "What this shows: same-day SPY performance when a 2-state HMM (fit on 2000-2019 data "
         "only, forward-filtered) puts the stress probability at or below 0.5 (calm, "
-        "Sharpe 1.35, 13.9% a year) versus above 0.5 (stress, Sharpe 0.15, 3.8% a year). "
+        "Sharpe 1.38, 14.1% a year) versus above 0.5 (stress, Sharpe 0.15, 3.8% a year). "
         "These are concurrent returns: the chart describes the regimes, it is not a "
         "forecast. As a trading signal the same probability did not beat buy-and-hold "
         "out of sample (Evidence page, HMM block)."
@@ -408,7 +408,7 @@ HMM_BLOCK = dict(
     ),
     observation=(
         "Same-day SPY performance differs sharply between the regimes (Story page): Sharpe "
-        "1.35 in the calm state and 0.15 in the stress state. As a trading signal, the best "
+        "1.38 in the calm state and 0.15 in the stress state. As a trading signal, the best "
         "in-sample-valid HMM rule (P2 sizing, 5-day lead) has an in-sample Sharpe of 0.60 "
         "and an out-of-sample Sharpe of 0.41. The previously published HMM rule (P2, L0) "
         "scores 0.56 at L0 and 0.45 at the L1 floor when computed causally, against 1.41 "
@@ -422,7 +422,7 @@ HMM_BLOCK = dict(
         "smoothed series contained information about returns that had not yet happened."
     ),
     key_message=(
-        "The causal HMM stress probability separates same-day regimes (Sharpe 1.35 vs 0.15), "
+        "The causal HMM stress probability separates same-day regimes (Sharpe 1.38 vs 0.15), "
         "but as a traded signal its out-of-sample Sharpe is 0.41-0.56, below SPY's 0.81. The "
         "earlier 1.41 depended on look-ahead smoothing."
     ),
