@@ -1,57 +1,73 @@
 # pkg12 — Point-in-time impact scan (read-only)
 
-Econ Evan, 2026-10-16. Produced by `src/impact_scan.py`; per-pair data in `IMPACT.csv`, every breaching winner period in `IMPACT_breaches.csv`. No pipeline was rerun and no published file was changed. Winner-selection rules are left exactly as each pair publishes them, and D9 (lead plateau) is not applied.
+Econ Evan, 2026-10-16. Re-run 2026-10-17 after the QA fixes and Lead decisions:
+- fallback = max lag excluding shutdown windows (Q1);
+- after-close releases count from the next trading day (Q3);
+- verified publisher dates;
+- cement 2023-11 data hole now a fallback row (MED-4);
+- NEWORDER / DRCCLACBN / DRTSCILM.
+
+Produced by `src/impact_scan.py`, with per-pair data in `IMPACT.csv` and every breaching winner period in `IMPACT_breaches.csv`. Nothing was rerun and no published result changed. Winner rules are left as each pair publishes them, and D9 is not applied.
 
 ## Bottom line
 
-- **15 of 35 live pairs are clean.** No period breaches at any searched lead, so as-of alignment gives bit-identical tournaments and no rerun is needed: busloans, cc_delinquency, eci, hy_ig, ism_mfg, ism_services, m2sl, mfg_new_orders, petrol, phlxsox, sloos, t10y3m_rebuilt, unrate, vix_vix3m, wells_fargo.
-- **6 published winners breach.** Their as-of Sharpe, with positions recomputed for the winner only:
+- **16 of 35 live pairs are clean.** No backtest period breaches at any searched lead, so as-of alignment gives bit-identical tournaments and there is no rerun on timing grounds: busloans, cc_delinquency, eci, hy_ig, import_price, ism_mfg, ism_services, m2sl, mfg_new_orders, petrol, phlxsox, sloos, t10y3m_rebuilt, unrate, vix_vix3m, wells_fargo. import_price is clean under the default fallback: IR's non-shutdown max lag is 19 d. D8 (below) still applies to these pairs.
+- **5 published winners breach.** The table gives their as-of Sharpe, with positions recomputed for the winner only. Every number is shown under both fallbacks: default (shutdown-excluded) / harsh (shutdown-inclusive).
 
-| Pair | Winner (L+shift) | Breaching periods (measured / fallback / other) | IS Sharpe (published → as-of) | OOS Sharpe (published → as-of) | B&H OOS | Objective; top-2 margin | Winner likely to change? |
+| Pair | Winner (L+shift) | Breaching periods: total (measured / sibling / fallback) | IS Sharpe published → as-of (default / harsh) | OOS Sharpe published → as-of (default / harsh) | B&H OOS | Objective; top-2 margin | Winner likely to change? |
 |---|---|---|---|---|---|---|---|
-| gold_copper_xli | L0+0 (daily) | all 6,782 rows (same bar) | 1.009 → 0.491 (pre-OOS) | **1.273 → 0.430** | 0.656 | OOS; 0.018 | **Yes.** Known pkg4 L0 lookahead |
-| nhs_spy | L0+0 | 400 (181 / 77 / 142 sibling) | 0.808 → 0.712 | **1.485 → 0.930** | 0.894 | OOS; 0.024 | **Yes.** Known L0 legacy |
-| nhs_saar_spy | L2+0 | 100 (20 / 80) | 0.278 → 0.372 | **1.450 → 1.328** | 0.991 | OOS; **0.003** | **Likely** (the drop is 40× the margin) |
-| consumer_sentiment_spy | L1+0 | 109 (41 / 68) | 0.881 → 0.872 | 0.184 → 0.160 | 0.954 | IS; 0.023 | Unlikely on its own number (−0.008 < margin); runners-up at L1 also move |
-| housing_starts_spy | L2+0 | 12 (12 / 0) | 0.456 → 0.488 | 1.373 → 1.379 | 0.908 | OOS; 0.030 | Unlikely (+0.006) |
-| cement_spy | L8+0 | 1 (cement 2023-11: no USGS file date measurable) | 1.632 → 1.632 | 0.580 → 0.580 | 0.935 | IS; 0.163 | No (no position changes) |
+| gold_copper_xli | L0+0 (daily) | all 6,782 rows (same bar) | 1.009 → 0.491 / 0.491 (pre-OOS) | **1.273 → 0.430 / 0.430** | 0.656 | OOS; 0.018 | **Yes.** Known pkg4 L0 lookahead |
+| nhs_spy | L0+0 | 400 (181 / 142 / 77) | 0.808 → 0.726 / 0.712 | **1.485 → 0.930 / 0.930** | 0.894 | OOS; 0.024 | **Yes.** Known L0 legacy |
+| nhs_saar_spy | L2+0 | 100 (20 / 0 / 80) | **0.278 → 0.220 / 0.372** | **1.450 → 1.328 / 1.328** | 0.991 | OOS; **0.003** | **Likely** (OOS drop is 40× the margin) |
+| consumer_sentiment_spy | L1+0 | 108 (40 / 0 / 68) | 0.881 → 0.872 / 0.872 | 0.184 → 0.160 / 0.160 | 0.954 | IS; 0.023 | Unlikely on its own number (−0.009 < margin); the L1 runners-up also move |
+| housing_starts_spy | L2+0 | 12 (12 / 0 / 0) | 0.456 → 0.488 / 0.488 | 1.373 → 1.379 / 1.379 | 0.908 | OOS; 0.030 | Unlikely (+0.006) |
 
-The "published" columns reproduce the committed `strategy_returns` exactly: every published OOS Sharpe, and every published IS Sharpe where one exists. The fallback sensitivity (max lag excluding shutdown windows) changes none of the six winner numbers.
+**Materially affected by magnitude:** gold_copper, nhs_spy and nhs_saar_spy (QA's reading, confirmed). consumer_sentiment and housing_starts_spy move by ≤ 0.03.
 
-- **14 pairs breach only at non-winner grid leads.** Their winners are clean, but the tournament scored the breaching leads with some unreleased readings. Only a rerun shows whether an as-of-corrected breaching lead overtakes the winner. Counts below are per lead, over the backtest rows: m = measured (ALFRED / USGS), s = sibling, r = rule, f = fallback.
+**The fallback choice matters for one winner number.** nhs_saar_spy IS is 0.220 under the default fallback and 0.372 under the harsh one. Every other winner number is identical under both fallbacks, and every OOS number is identical. The previous version's claim that the sensitivity "changes none of the winner numbers" was false (QA MED-6) and has been removed.
 
-| Pair | Searched-grid breaches | Driven by |
-|---|---|---|
-| housing_starts_rebuilt_spy | L2:12 L3:4 L4:1 (all m) | 1995-96, 2013, 2018-19, 2025-26 shutdowns |
-| permit_yoy_spy | L2:5 (m3/s2) | same |
-| permit_spy (no strategy_returns CSV) | L1+1:7 L2+1:1 | same |
-| nhs_rebuilt_spy / nhs_saar_rebuilt_spy | L2:100/101 L3:86/87 L4:82/83 (m12-21, rest f) | HSN1F pre-1999 fallback (105 d); measured: shutdowns and 1999-2001 late prints |
-| rsxfs_spy | L2:112 (m9/f103) | RSXFS pre-2001-06 fallback (56 d) |
-| retail_inv_sales_spy | L3:51 (m3/f48) | RETAILIRSA pre-1996-10 fallback (86 d) |
-| cass_freight_spy | L2:250 (m4/f246) | Cass pre-2013-06 fallback (49 d) |
-| umcsent_spy | L1:109 (m41/f68) L2:1 (f) | UMCSENT first vintages 1-4 d after month-end (1998-2008; 2018-03 +27 d) |
-| indpro_spy / indpro_xlp | L0+1:432/336 L1+1:2 L2+1:1 (m) | legacy grid incl. L0 with shift 1 = E1; 2025 shutdown |
-| t10y3m_spy | L0+1:395 (r) | legacy L0 with shift 1 = E1 on a next-day series |
-| umcsent_xlv | L0+1:40 (m) | stale second grid 0..12 in code |
-| import_price_spy | L2:208 L3:209 (all f) | **Fallback only** (IR has no vintages before 2010-03); clean with any fallback ≤ 28 d (the non-shutdown max is 19 d) |
-| cement_spy (grid) | L5:196 L6:197 (f), L7-L14: the 1 unmeasured month | **Fallback only** (pre-2021-09 at 165 d) |
+**Cement is no longer in the list.** Its only winner breach was the 2023-11 S3 hole, which is now a flagged fallback row (MED-4). Its winner L8 is clean.
 
-## Which pairs need a full rerun
+**UMCSENT dates (MED-5).** ALFRED's first-vintage dates for UMCSENT agree with UMich's own final-release dates on 28 of 29 months checked against press/news archives (`data/release_calendar/publisher_release_dates.csv`, 2006–2025). The exception is 2018-03: ALFRED shows 2018-04-27, but UMich released it on 2018-03-29. That month is now `publisher_verified` and is excluded from the fallback statistic. The 40 measured consumer_sentiment breaches are therefore genuine finals released 1–4 days after month-end, e.g. March 2016 on 2016-04-01. The 68 fallback breaches cover 1993-01 → 1998-07, before UMCSENT has ALFRED vintages. They are dated at period end + 4 d, the non-shutdown max, so they assume early finals were never later than recent ones. That is an assumption, not a measurement.
 
-- **Rerun, winner affected:** gold_copper_xli, nhs_spy, nhs_saar_spy, consumer_sentiment_spy, housing_starts_spy. Of these, gold_copper, nhs_spy, nhs_saar_spy and housing_starts_spy are legacy or pkg4 pairs already slated for retirement or rebuild, and their rebuilt siblings exist (nhs_saar_rebuilt, housing_starts_rebuilt).
-- **Rerun, grid-only breaches on dated releases:** housing_starts_rebuilt, permit_yoy, permit_spy, nhs_rebuilt, nhs_saar_rebuilt, rsxfs, retail_inv_sales, cass_freight, umcsent_spy, indpro_spy, indpro_xlp, t10y3m_spy, umcsent_xlv. For the last four, part of the breach is the legacy sub-floor grid already flagged by the floor gate.
-- **Conditional on the fallback decision (Q1):** import_price_spy and cement_spy. They are clean under any non-shutdown fallback for IR; cement L5 still breaches at 126 d.
-- **No rerun on timing grounds:** the 15 clean pairs above. D8 below still applies to them. mfg_new_orders is clean once it is timed on the series its panel actually holds (NEWORDER, advance durable-goods report, median 26 d), not AMTMNO.
+The published Sharpe columns reproduce the committed `strategy_returns` exactly: every published OOS Sharpe, and the IS Sharpe wherever one is published.
 
-Expected size: the monthly breaches are a few shutdown months in a 30-year sample, plus pre-vintage fallback rows. For the winners measured here, the as-of effect is ≤ 0.01 Sharpe whenever the breach is a handful of measured periods (housing_starts, consumer_sentiment). It is large only when the lag is structural (L0 same-bar: gold_copper, nhs_spy) or concentrated (nhs_saar_spy, with 80 fallback periods).
+- **13 pairs breach only at non-winner grid leads.** Their winners are clean, but the tournament scored the breaching leads with some unreleased readings. Only a rerun shows whether an as-of-corrected breaching lead overtakes the winner. Counts are over backtest rows: m = measured (ALFRED / USGS / publisher-verified), s = sibling, r = rule, f = fallback. The harsh column is the shutdown-inclusive sensitivity.
+
+| Pair | Searched-grid breaches (default) | Harsh fallback | Driven by |
+|---|---|---|---|
+| housing_starts_rebuilt_spy | L2:12 L3:4 L4:1 (all m) | same | 1995-96, 2013, 2018-19, 2025-26 shutdowns |
+| permit_yoy_spy | L2:5 (m3/s2) | same | same |
+| permit_spy (no strategy_returns CSV: trade-log range, WARN) | L1+1:7 L2+1:1 | same | same |
+| nhs_rebuilt_spy | L2:100 (m12/s9/f79) L3:6 L4:1 | L2:100 L3:86 L4:82 | HSN1F pre-1999-07 fallback (37 d default, 105 d harsh) plus shutdowns |
+| nhs_saar_rebuilt_spy | L2:101 (m21/f80) L3:6 L4:1 | L2:101 L3:87 L4:83 | same |
+| cass_freight_spy | L2:156 (m4/f152) | L2:250 | Cass pre-2013-06 fallback (31 d default, 49 d harsh) |
+| rsxfs_spy | L2:9 (all m) | L2:112 | measured shutdown months; the harsh fallback adds 103 |
+| retail_inv_sales_spy | L3:3 (all m) | L3:51 | same pattern |
+| umcsent_spy | L1:108 (m40/f68) | same | UMich finals 1-4 d after month-end (see MED-5 above) |
+| indpro_spy / indpro_xlp | L0+1:432/336, L1+1:2, L2+1:1 (m) | same | legacy grid incl. L0 with shift 1 (E1), plus the 2025 shutdown |
+| t10y3m_spy | L0+1:395 (r) | same | legacy L0 with shift 1 = E1 on a next-day series |
+| umcsent_xlv | L0+1:39 (m) | same | stale second grid 0..12 in the code |
+| cement_spy (grid) | L5:196 (f) | same | **Fallback only**: pre-2021-09 rows at 126 d default (165 d harsh); conditional on Q1 |
+
+## Which pairs need a full rerun (timing)
+
+- **Rerun, winner affected:** gold_copper_xli, nhs_spy, nhs_saar_spy, consumer_sentiment_spy, housing_starts_spy. gold_copper, nhs_spy, nhs_saar_spy and housing_starts_spy are legacy / pkg4 pairs with rebuilt siblings.
+- **Rerun, grid-only breaches on dated releases:** housing_starts_rebuilt, permit_yoy, permit_spy, nhs_rebuilt, nhs_saar_rebuilt, cass_freight, rsxfs, retail_inv_sales, umcsent_spy, indpro_spy, indpro_xlp, t10y3m_spy, umcsent_xlv.
+- **Conditional on the fallback (fallback-only breaches):** cement_spy (L5).
+- **Not on timing grounds:** the 16 clean pairs above. Under D8 track (b), reruns are needed anyway (section below).
+- **Rerun item, pre-existing:** unrate_spy and nhs_saar_spy drop the 2025-10 row before shifting. That creates a two-month return row and a lead one month longer across the gap. Reindex to the full period index in the rerun.
 
 ## Method and caveats
 
-- **Breach:** the fixed lag at return row t uses reading t−E, where E = L + the code-detected position shift, and that reading's first release is after the close that opens row t's window. Rows are the pipeline's own `strategy_returns` rows. `unrate_spy` and `nhs_saar_spy` drop the 2025-10 row, which removes the never-published reading from their own index (see DESIGN §3).
-- **As-of positions without a rerun:** committed traded position at row t−(k_t−E), where k_t comes from `_pit_align.asof_lags`. This is exact for stateless rules whose inputs at a row use data up to that row (signal and rolling threshold lagged together). It is not exact for path-dependent sizing (none among these winners as far as I can see), or where the committed positions themselves leak (the HMM smoothed-probability lookahead in nhs_spy and eci is out of scope here).
-- **Not measurable:** permit_spy has no strategy_returns CSV, so its breaches are counted on the trade-log date range and there is no Sharpe. The cement 2023-11 publication date is missing (S3 403). UMCSENT ALFRED dates are FRED posting dates (upper bound). ISM, NAHB and EIA dates are calendar rules.
-- **Selection objective:** 14 pairs are IS-selected and 21 OOS-selected as currently published (`selection.objective` in winner_summary). The brief says "argmax IS Sharpe"; I used each pair's own published objective for the margin column and did not re-select anything.
-- The **runner-up margin** is only a heuristic. Every breaching combo moves too, so "winner changes" is a judgement, not a measurement, until the rerun.
+- **Breach:** the fixed lag at return row t uses reading t−E, where E = L + the code-detected position shift, and that reading's `available_date` is after the close that opens row t's window. Rows are the pipeline's own `strategy_returns` rows.
+- **As-of positions without a rerun:** the committed traded position at row t−(k_t−E). This is exact for stateless rules (signal and rolling threshold lagged together). It is not exact for path-dependent sizing, or for HMM winners whose committed positions themselves leak (nhs_spy, eci).
+- **Not measurable:**
+  - permit_spy has no strategy_returns CSV, so breaches are counted on its trade-log range and there is no Sharpe.
+  - ISM, NAHB and EIA outside the 381 verified dates are rule outputs. The rules are tightened so that no verified date is later than the rule date; the only exceptions are EIA 2012-11 (Hurricane Sandy) and 2018-12 (national day of mourning), and both are overridden by their verified dates.
+  - Fallback rows are assumptions by construction.
+- **Selection objective:** 14 pairs are IS-selected and 21 OOS-selected as published. The Lead's Q4 decision moves Phase B reruns to IS argmax on the common IS start; nothing is re-selected here.
+- The **runner-up margin** is only a heuristic. Every breaching combo moves too.
 
 ## D8 — revised values paired with first-release timing
 

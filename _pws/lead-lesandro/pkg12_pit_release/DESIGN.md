@@ -1,14 +1,20 @@
 # pkg12 — Point-in-time release floor: design (Phase A)
 
-Econ Evan, 2026-10-16. Branch `feat261016_pit_release`. Design, data, and an impact scan only. No pair has been rerun and no published result has changed.
+Econ Evan, 2026-10-16; revised 2026-10-17 for the QA findings and Lead decisions Q1-Q5. Branch `feat261016_pit_release`. Design, data, and an impact scan only. No pair has been rerun and no published result has changed.
 
 ## 1. Rule
 
 A reading for reference period M may drive a return window only if it was public when that window opened. The check is made **period by period**, against the reading's actual first-release date:
 
-> the reading stamped M is available to the window that opens at close `c` iff `first_release(M) <= date(c)`
+> the reading stamped M is available to the window that opens at close `c` iff `available_date(M) <= date(c)`
 
-`c` is the close of the previous rebalance row. A month-end or quarter-end stamp is rolled back to the last trading day. On a trading-day index the stamp is used as is. The calendar has date resolution, so a release on the window-open date counts as available, which is the existing Step 2 convention (open question Q3).
+`c` is the close of the previous rebalance row. A month-end or quarter-end stamp is rolled back to the last trading day. On a trading-day index the stamp is used as is.
+
+`available_date` is the first-release date, except when the release is **after the 16:00 ET close**: then it is the next trading day (Lead decision Q3). After-close releases are:
+- BUSLOANS (Fed H.8, 16:15 ET);
+- any USGS file stamped at or after 16:00 ET.
+
+Documented release times for all series are in `release_calendar_meta.json`. Where the time is unknown, the date convention applies: Cass, DRCCLACBN and DRCCLACBS use FRED posting dates, which already lag the publisher.
 
 This replaces the fixed effective lag E\* chosen at the p90 of 2018-2026. That rule left 2-10 % of periods trading before the reading was released.
 
@@ -20,11 +26,19 @@ The calendar is built by `scripts/build_release_calendar.py`. The default run is
 |---|---|
 | `alfred_first_vintage` | ALFRED `output_type=4` (initial release only). A reference period already present in the series' first vintage is not returned, so ALFRED never fabricates a pre-vintage date |
 | `alfred_sibling:<SID>` | First vintage of a series in the **same press release**. Used only before the target's own vintages begin, and only if the dates agree on ≥ 90 % of the overlap. PERMIT←HOUST 99.4 %, HSN1FNSA←HSN1F 100 %, RETAILIRSA←BUSINV 100 %, ECIALLCIV←ECIWAG 100 % |
-| `publisher_calendar:<rule>` | ISM bd1/bd3 of M+1, NAHB about bd11 of M, EIA WPSR the Wednesday after the last Friday (Thursday after a holiday). US federal holidays are applied. These are **rule outputs, not measurements** |
+| `publisher_verified` | Actual release date from a publisher or news archive, with its source URL (`publisher_release_dates.csv`, 381 rows: ISM mfg 25, ISM services 30, NAHB 26, EIA WPSR 270, UMich final 30). It overrides the rule or ALFRED date |
+| `publisher_calendar:<rule>` | Rule outputs, not measurements, with US federal holidays applied. They were tightened against the verified sample (QA LOW-9) so that no verified date falls after its rule date: ISM bd1 of M+1 (bd2 in January), ISM services bd3 (bd4 in January), NAHB bd14 of M, EIA WPSR the Wednesday after the last Friday (Thursday after a Mon-Wed holiday, Friday in the New Year week). The only verified dates later than the rule are EIA 2012-11 (Hurricane Sandy) and 2018-12 (national day of mourning), and both are overridden by their verified dates. Per-series counts are under `publisher_check` in the meta file |
 | `usgs_file_date` | S3 Last-Modified of the USGS "Cement in <month>" PDF (2021-09 → 2026-06, from the pkg9 pull) |
 | `rule_next_business_day` | T10Y3M sampled at month-end: FRED posts it the next business day |
-| `fallback_max_observed_lag:<n>d` | No measured date exists. The row uses period end + the series' **maximum** observed lag, shutdowns included, which is conservative |
-| `no_release_recorded` | A gap inside the dated history: IR and UNRATE 2025-10 (shutdown, not in ALFRED) and cement 2023-11 (PDF returns 403). Treated as never available |
+| `fallback_max_lag_excl_shutdown:<n>d` | No dated history yet (before the first vintage). The date is period end + the series' max observed lag **excluding documented shutdown windows and batch-release rows** (Lead decision Q1). The shutdown-inclusive variant is in `first_release_harsh` / `available_date_harsh` (`load_release(..., harsh=True)`) as the reported sensitivity |
+| `fallback_data_hole:<n>d` | A hole in our source pull, dated like a fallback row: cement 2023-11, where the S3 PDF returns 403 (QA MED-4) |
+| `no_release_recorded` | Never published: IR and UNRATE 2025-10 (shutdown; FRED shows "."). Treated as never available |
+
+Rows flagged `batch_release` in `note` are dated rows where one ALFRED date first-releases ≥ 2 periods outside the shutdown windows; examples are Cass postings and HOUST 2013-11. They are kept, as a conservative choice, but excluded from the fallback statistic.
+
+**Calendar semantics (QA LOW-8).**
+- **Non-monotone boundary.** `first_release` is not monotone in the reference period at a fallback boundary, nor at the cement 2023-11 hole. A fallback row can be dated after the first measured release of a later period: IR 2010-02 falls after 2010-03, and cement 2023-11 falls after 2023-12. This is deliberate and conservative: the helper's as-of rule picks the latest *available* reading, so an out-of-order date only makes that reading usable later.
+- **DRTSCIS / DRTSCILM negative lags.** The SLOOS survey is stamped by FRED at the start of the quarter in which it is conducted. For example, the January 2025 survey is 2025Q1, released early February. Its `period_end` is therefore the end of that quarter, and the release (about −56 d) falls inside it. The pipelines stamp the reading at the same quarter end and first trade it at the window opening there. This is consistent and not a labelling bug, so `period_end` is unchanged. The negative lag only means the survey is public before its stamp.
 
 Daily data are handled by rules, not table rows. Market closes (gold/copper, VIX, SOX) use `rule:market_close`. ICE OAS uses `rule:next_business_day`. The registry key is `release_calendar_series`.
 
@@ -44,12 +58,21 @@ pos = rule(lagged.signal, lagged.threshold)                   # then pos * ret, 
 - **position_shift.** `pit_shift(..., position_shift=s)` covers pipelines that keep an extra `pos.shift(1)`: availability is judged at the window the shifted position actually trades. New code should drop the extra shift and use the lead directly (E = L). Registry semantics stay as they are: `lead_floor_effective` = E\*.
 - **Monthly / quarterly** (month-end / quarter-end rows, close-to-close returns): the window opens at the previous row's last trading day. **Daily** (trading-day rows): the previous row is the open, and rule releases advance by index rows. That is the pipeline's own calendar, so a session the NYSE approximation calls a holiday is not mis-rolled.
 - **Rows, not months.** Lags count pipeline rows. `unrate_spy` and `nhs_saar_spy` drop the 2025-10 row, which creates a two-month return row and a one-month-longer lead across the gap. Pipelines should reindex to the complete period index (NaN rows) before shifting. The gate and the impact scan follow each pipeline's actual rows.
-- **The grid floor stays.** Grids keep starting at the registry floor E\* (p90-derived). Below it, as-of would fall back in most periods and produce near-duplicates of L+1, which only enlarges the multiple-testing surface. As-of handles the residual periods; the floor keeps the search space honest.
+- **The grid floor stays (Lead decision Q2).** Grids keep starting at the registry floor E\* (p90-derived), truncated only and never extended. Below it, as-of would fall back in most periods and produce near-duplicates of L+1, which only enlarges the multiple-testing surface. As-of handles the residual periods; the floor keeps the search space honest.
 - **Live use** follows the same rule: trade on the latest released reading.
 
 ## 4. Gate
 
-`scripts/gate_lead_floor.py` now runs `--mode per-period` by default. For every traded grid lead and the published winner, using the detected shift, it counts backtest periods (the pipeline's own `strategy_returns` rows) in which the fixed lag uses an unreleased reading. Any breaching period FAILs. A registry entry with `alignment: pit_asof` plus a `pit_shift(` call passes by construction. `--mode floor` keeps the 2026-10-16 effective-lag check, and the structural checks run in both modes.
+`scripts/gate_lead_floor.py` runs `--mode per-period` by default. That mode runs every check from floor mode, registry floor included, **plus**:
+- **Breach count.** For every traded grid lead and the published winner, using the detected shift, it counts the backtest periods (the pipeline's own `strategy_returns` rows) in which the fixed lag uses a reading whose `available_date` is after the window opens. Any breaching period FAILs.
+- **Series identity.** The registry series must be the one the pair loads: either value-matched in `data/release_calendar/pipeline_series_identity.csv`, or named in its scripts or data dictionary. A mismatch FAILs; a mislabelled sibling name WARNs.
+- **Missing sample.** A missing returns CSV is a counted WARN.
+
+**Traded lead loops are found by what they do, not by their names (QA HIGH-2).** A loop counts if it shifts by its variable, positionally or with `periods=`, and either has a lead-ish name or multiplies by a return series. Iterables given by name are resolved through the file's assignments or at the function call sites.
+
+**`alignment: pit_asof` passes only on a real AST `pit_shift(...)` call (QA HIGH-1).** The call's lead argument must be the traded loop variable, and its result must be read afterwards; comments, strings, dead calls and constant leads do not count.
+
+`--mode floor` keeps the 2026-10-16 effective-lag check.
 
 ## 5. Alternatives rejected
 
@@ -61,18 +84,21 @@ pos = rule(lagged.signal, lagged.threshold)                   # then pos * ret, 
 
 ## 6. Assumptions and limits
 
-- ALFRED `realtime_start` is the **FRED posting date**, an upper bound on public availability. Some UMCSENT dates fall 1-4 days after month-end before 2008, and 2018-03 is +27 d, which looks like a posting artifact. These dates are conservative, not wrong.
-- Publisher-rule series (ISM, NAHB, EIA) are not verified against archived release calendars before 2018.
-- Fallback rows dominate the pre-vintage history of IR (to 2010-02), Cass (to 2013-05), HSN1F (to 1999-06), cement (to 2021-08), UMCSENT (to 1998-07), BUSLOANS (to 1996-11), DRCCLACBS (to 2011Q1) and DRTSCIS (to 2010Q2). The max-lag fallback is deliberately harsh. `IMPACT.md` reports a sensitivity with the max lag excluding shutdown windows.
+- ALFRED `realtime_start` is the **FRED posting date**, an upper bound on public availability.
+  - For UMCSENT it matched UMich's own final-release date on 28 of 29 months checked (2006-2025). The exception is 2018-03, which ALFRED shows 27 d late; it is now `publisher_verified` at 2018-03-29.
+  - So the 1-4 d post-month-end finals are genuine (for example March 2016, released 2016-04-01).
+- Publisher-rule series (ISM, NAHB, EIA) are checked against 25-270 verified dates each (2004-2026), with the rules made conservative as described in §2. Unverified rule rows remain rule outputs.
+- Fallback rows still dominate the pre-vintage history of IR (to 2010-02), Cass (to 2013-05), HSN1F (to 1999-06), cement (to 2021-08), UMCSENT (to 1998-07), BUSLOANS (to 1996-11), DRCCLACBN (to 2011Q1) and DRTSCILM (to 2010Q2). The default is the shutdown-excluded max (Q1), and `IMPACT.md` reports the shutdown-inclusive variant for IS and OOS.
 - The cement file dates are S3 timestamps; a re-upload would overstate the lag, which is conservative.
 
 ## 7. Open questions for the Lead
 
-- **Q1 Fallback strength.** Max observed lag, shutdowns included, is what the brief suggested. It alone makes import_price (L2/L3) and cement (L5/L6) FAIL, and it drives most of the HSN1F, RSXFS, RETAILIRSA and Cass grid breaches. Alternatives: max excluding documented shutdowns (shipped as the sensitivity), or the max of the earliest 60 measured periods.
-- **Q2 Grid floor.** Should the grid still start at the p90 floor E\* with as-of handling the residual periods (recommended), or at the per-period max?
-- **Q3 Same-day releases.** A release on the window-open date counts as available. BUSLOANS (H.8, 4:15 pm ET) is released after the close; the calendar has no time-of-day, and the per-series release times are recorded in the meta file. Adopt "release before 16:00 ET" instead?
-- **Q4 Which objective.** Use the selection objective each pair publishes (14 IS / 21 OOS) for the reruns, or move all of them to IS argmax as the brief states?
-- **Q5 Vintages (D8).** See §8: choose track (a) first-release or track (b) real-time vintages per pair. The time-of-day convention (Q3) applies to both.
+- **Q1 Fallback — DECIDED (Lead, 2026-10-17):** the max observed lag excluding documented shutdown windows is the default. The shutdown-inclusive variant is reported as a sensitivity. Implemented in commit d2cefe78.
+- **Q2 Grid floor — DECIDED:** grids start at the p90 floor E\* (truncate only, never extend), and as-of alignment handles the residual periods.
+- **Q3 After-close releases — DECIDED:** a release after the 16:00 ET close is available on the next trading day. This applies to BUSLOANS (H.8, 16:15) and to USGS files stamped at or after 16:00 ET. Implemented as `available_date`.
+- **Q4 Objective — DECIDED:** Phase B reruns use IS selection (argmax IS Sharpe on the common IS start), together with the PORT_GUIDE port, so each pair is rerun once. Phase B does not start until QA has verified Phase A.
+- **Q5 Vintages (D8) — DECIDED by the user:** two tracks, see §8.
+Q6-Q8 are with the user. They are not acted on.
 - **Q6 Pre-vintage history under track (b).** Truncate the backtest to the first ALFRED vintage, or splice first-vintage values with a flag?
 - **Q7 Non-ALFRED sources** (ISM, NAHB, UMich expected business conditions, USGS cement, EIA). Archive first prints (track a), or disclose them as revised?
 - **Q8 Mislabelled sources.** sloos_ci_small trades large/middle-market firms (DRTSCILM), mfg_new_orders trades core capex orders (NEWORDER), and cc_delinquency is NSA. Rename the pairs, or switch the data?

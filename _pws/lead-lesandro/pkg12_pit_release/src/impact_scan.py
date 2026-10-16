@@ -14,8 +14,9 @@ Method
     data up to that row; rows whose source row precedes the CSV are cash (counted).
   * Sharpe = mean / std * sqrt(12 | 4 | 252) on the published IS / OOS windows (IS = rows before OOS start when the
     winner file has no IS window). Reproduction of the published OOS Sharpe is checked and reported.
-  * Sensitivity: the same with fallback rows re-dated at the series' max lag EXCLUDING documented shutdown windows
-    (release_calendar_meta.json lag_max_excl_shutdown_d) instead of the plain max.
+  * Default fallback (Lead Q1): max observed lag EXCLUDING documented shutdown windows; availability uses the
+    calendar's available_date (after-close releases count from the next trading day, Lead Q3).
+  * Sensitivity (*_harsh): fallback rows at the shutdown-INCLUSIVE max lag; IS and OOS reported for both.
 """
 from __future__ import annotations
 
@@ -55,18 +56,8 @@ def basis_of(series, stamps):
 
 
 def release_alt(series, idx):
-    """Release dates with fallback rows re-dated at max lag excluding shutdown windows (sensitivity)."""
-    rel = pa.load_release(series, idx)
-    alt = META[series].get("lag_max_excl_shutdown_d")
-    b = basis_of(series, idx)
-    fb = b.str.startswith("fallback").to_numpy()
-    if alt is None or not fb.any():
-        return rel
-    pe = idx.to_period("Q" if META[series]["freq"] == "Q" else "M").to_timestamp(how="end").normalize()
-    rel2 = rel.copy()
-    rel2[fb] = pe[fb] + pd.Timedelta(days=int(alt))
-    rel2.attrs = rel.attrs
-    return rel2
+    """Sensitivity: fallback rows at the shutdown-INCLUSIVE max lag (calendar *_harsh columns)."""
+    return pa.load_release(series, idx, harsh=True)
 
 
 def winner_lead(w):
@@ -119,7 +110,7 @@ def scan(pair):
     E = L + s
     start = idx[0]
     out = []
-    pats = {"measured": "^(?:alfred_first|usgs_file)", "sibling": "^alfred_sibling",
+    pats = {"measured": "^(?:alfred_first|usgs_file|publisher_verified)", "sibling": "^alfred_sibling",
             "rule": "^(?:publisher_calendar|rule)", "fallback": "^fallback", "no_release": "^no_release"}
 
     def count(lead, alt=False):
@@ -151,7 +142,7 @@ def scan(pair):
             row["winner_breaches"] = len(b)
             for kk, pat in pats.items():
                 row[f"winner_breaches_{kk}"] = int(b.basis.str.contains(pat).sum()) if len(b) else 0
-            row["winner_breaches_alt_fallback"] = len(count(lead + s, alt=True))
+            row["winner_breaches_harsh_fallback"] = len(count(lead + s, alt=True))
             row["winner_breach_dates"] = ("ALL rows" if len(b) >= len(idx) - 1 else
                                           ";".join(str(x.date()) for x in b.return_row))
             row["winner_max_days_early"] = float(b.days_early.max()) if len(b) and b.days_early.notna().any() else np.nan
@@ -163,7 +154,7 @@ def scan(pair):
                           release=str(x.release.date()) if pd.notna(x.release) else "", window_open=str(x.window_open.date()),
                           days_early=x.days_early, asof_lag=x.asof_lag, basis=x.basis) for x in b.itertuples()]
     row["grid_breaches"] = " ".join(per_lead)  # m=measured s=sibling r=rule f=fallback n=no release
-    row["grid_breaches_alt_fallback"] = " ".join(per_lead_alt)
+    row["grid_breaches_harsh_fallback"] = " ".join(per_lead_alt)
     row["n_grid_leads_breaching"] = sum(1 for x in per_lead if int(x[1:x.index(":")]) in grid)
     nonfb = kinds_any - {"fallback"}
     row["needs_rerun"] = ("yes: winner breaches" if row["winner_breaches"] else
@@ -191,7 +182,7 @@ def scan(pair):
     row.update(is_sharpe_published=w.get("is_sharpe"), oos_sharpe_published=w.get("oos_sharpe"),
                is_sharpe_repro=sharpe(strat[isw], ann), oos_sharpe_repro=sharpe(strat[oosw], ann),
                bh_oos_sharpe=sharpe(bh[oosw], ann))
-    for tag, rl in (("pit", None), ("pit_alt", "alt")):
+    for tag, rl in (("pit", None), ("pit_harsh", "alt")):
         if axis == "trading_days":
             r_full = rel
         else:
@@ -230,13 +221,13 @@ def main():
     df = pd.DataFrame(rows)
     df.to_csv(OUT / "IMPACT.csv", index=False, float_format="%.4f")
     pd.DataFrame(br).to_csv(OUT / "IMPACT_breaches.csv", index=False)
-    cols = ["pair", "effective_lag", "winner_breaches", "winner_breaches_fallback", "winner_breaches_alt_fallback",
+    cols = ["pair", "effective_lag", "winner_breaches", "winner_breaches_fallback", "winner_breaches_harsh_fallback",
             "rows_changed_is_pit", "rows_changed_oos_pit", "oos_sharpe_published", "oos_sharpe_repro",
-            "is_sharpe_repro", "is_sharpe_pit", "oos_sharpe_pit", "oos_sharpe_pit_alt", "d_objective",
+            "is_sharpe_repro", "is_sharpe_pit", "oos_sharpe_pit", "is_sharpe_pit_harsh", "oos_sharpe_pit_harsh", "d_objective",
             "objective_margin_top2", "needs_rerun"]
     pd.set_option("display.width", 300)
     print(df[[c for c in cols if c in df]].to_string(index=False, float_format=lambda x: f"{x:.3f}"))
-    print(df[["pair", "searched_grid", "grid_breaches", "grid_breaches_alt_fallback"]].to_string(index=False))
+    print(df[["pair", "searched_grid", "grid_breaches", "grid_breaches_harsh_fallback"]].to_string(index=False))
 
 
 if __name__ == "__main__":
