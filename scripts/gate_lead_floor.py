@@ -19,8 +19,12 @@ For every LIVE pair (has app/pages/<n>_<pair>_<section>.py):
                   other scripts/*<pair>*.py that DEFINES a traded grid. A grid definition is an
                   assignment to leads/LEADS/lead_times/lead_grid/lead_range/lead_list/lead_values
                   (optionally prefixed DAILY_/MONTHLY_/...), a dict entry "leads"/"lead_grid"/...,
-                  or `for lead* in [literal grid]:` whose body calls `.shift(<loop var>)`
-                  (diagnostic loops such as `for L in range(0,13)` are ignored). Literal lists /
+                  or any traded lead loop: `for <var> in <grid>:` whose body shifts by the loop variable
+                  (`.shift(var)` or `.shift(periods=var)`) and either the variable is lead-named or the body
+                  multiplies by a return series (pos * ret). A loop over a NAME is resolved through the
+                  file's assignments, or, for a function parameter, at every call site (`f(df, LEADS)`, or
+                  `f(df, [L])` inside `for L in <grid>`); unresolvable => unparseable FAIL. Diagnostic loops
+                  (shift by the variable, no position * return, not lead-named) are ignored. Literal lists /
                   range() / list(range()) / sorted(set) go through a restricted AST evaluator.
                   Plain name references (`"leads": leads`) carry no new grid and are ignored.
   4. SHIFT        per scanned file, detect an EXTRA position shift: `pos.shift(1) * ret` or
@@ -37,15 +41,20 @@ For every LIVE pair (has app/pages/<n>_<pair>_<section>.py):
                   lead_quarters) + position_shift < lead_floor_effective -> FAIL.
 No pair names are special-cased.
 
-  7. MODE         --mode per-period (default; pkg12 point-in-time rule): the registry-floor comparisons in 2/5/6
-                  (sub-floor grid leads, sub-floor winner) are replaced by a per-period count. For every grid lead
+  7. MODE         --mode per-period (default; pkg12 point-in-time rule): every check above (registry floor
+                  included: grids start at the p90 floor E*, Lead decision Q2) PLUS a per-period count. For every grid lead
                   and the winner, with the detected (else registry) position shift, count the backtest periods
                   (latest results/<pair>/strategy_returns_*.csv, else winner_trade_log.csv dates) in which the
                   fixed-lag rule uses a reading of registry `release_calendar_series` whose first release
                   (data/release_calendar/release_calendar.csv; `rule:market_close` = observed at the close,
                   `rule:next_business_day` = posted the next business day) is after the close that opens the return
-                  window. FAIL on any breaching period. Registry `alignment: pit_asof` + a `pit_shift(` call in a
-                  canonical script => as-of alignment (scripts/_pit_align.py), 0 breaches by construction.
+                  window (available_date: next trading day for after-close releases). FAIL on any breaching
+                  period. The registry series must be what the pair loads: value-matched in
+                  data/release_calendar/pipeline_series_identity.csv, or named in its scripts / data dictionary
+                  (else FAIL; a mislabelled sibling name => WARN). No strategy_returns CSV => trade-log dates +
+                  WARN, nothing => WARN (counted; --strict exits 1). Registry `alignment: pit_asof` passes only
+                  with a real AST pit_shift(...) call whose lead argument is the traded lead-loop variable and
+                  whose result is read later (scripts/_pit_align.py): 0 breaches by construction.
                   --mode floor: the 2026-10-16 fixed effective-lag floor (lead + shift >= lead_floor_effective).
                   Structural checks (grid parse/consistency, registry grid, shift alignment, effective lag >= 1)
                   run in both modes.
@@ -100,12 +109,37 @@ def _ev(node: ast.AST, env: dict):
     raise Unevaluable
 
 
+def _shift_var(call) -> str | None:
+    """Name passed to `.shift(<name>)` or `.shift(periods=<name>)`, else None."""
+    if not (isinstance(call, ast.Call) and isinstance(call.func, ast.Attribute) and call.func.attr == "shift"):
+        return None
+    arg = call.args[0] if call.args else next((k.value for k in call.keywords if k.arg == "periods"), None)
+    return arg.id if isinstance(arg, ast.Name) else None
+
+
+def is_traded_shift_loop(loop: ast.For) -> bool:
+    """A loop whose body shifts by the loop variable (positional or periods=) AND either the variable is lead-named
+    or the body multiplies something by a return series (pos * ret): the traded lead loop, whatever its name.
+    Diagnostic loops (CCF / Granger: shift by the variable, no position * return) stay ignored."""
+    var = loop.target.id
+    body = [c for b in loop.body for c in ast.walk(b)]
+    if not any(_shift_var(c) == var for c in body):
+        return False
+    if LOOP_VAR.match(var):
+        return True
+    return any(isinstance(c, ast.BinOp) and isinstance(c.op, ast.Mult) and (_retish(_core(c.left)) or _retish(_core(c.right)))
+               for c in body)
+
+
 def extract_grids(src: str):
     """Return (defs, warns, derived): defs = [(line, name, grid)]; warns = [(line, name)] unparseable
     definitions; derived = [(line, name)] grids computed from data (`.unique()`, df[...]), which are views
     of an already-run tournament and cannot be evaluated statically."""
     tree = ast.parse(src)
     defs, warns, derived, env = [], [], [], {}
+    funcs = [f for f in ast.walk(tree) if isinstance(f, (ast.FunctionDef, ast.AsyncFunctionDef))]
+    env_at: dict = {}  # call-site args resolve against the env collected over the whole file
+    all_fors = [f for f in ast.walk(tree) if isinstance(f, ast.For)]
 
     def handle(name, value, line, in_dict=False):
         if isinstance(value, ast.Name):  # pure reference, carries no new grid
@@ -125,14 +159,10 @@ def extract_grids(src: str):
 
     nodes = sorted((n for n in ast.walk(tree) if isinstance(n, (ast.Assign, ast.AnnAssign, ast.Dict, ast.For))),
                    key=lambda n: (n.lineno, getattr(n, "col_offset", 0)))
+    pending = []
     for n in nodes:
         if isinstance(n, ast.For):
-            if isinstance(n.target, ast.Name) and LOOP_VAR.match(n.target.id) and not isinstance(n.iter, ast.Name):
-                uses = any(isinstance(c, ast.Call) and isinstance(c.func, ast.Attribute) and c.func.attr == "shift"
-                           and c.args and isinstance(c.args[0], ast.Name) and c.args[0].id == n.target.id
-                           for b in n.body for c in ast.walk(b))
-                if uses:
-                    handle(f"for {n.target.id}", n.iter, n.lineno)
+            pending.append(n)
             continue
         if isinstance(n, ast.Dict):
             for k, v in zip(n.keys, n.values):
@@ -150,6 +180,44 @@ def extract_grids(src: str):
                     env[t.id] = _ev(n.value, env)
                 except (Unevaluable, TypeError):
                     env.pop(t.id, None)
+    for n in pending:  # loops last: names they iterate over may be assigned later in the file
+        if isinstance(n.target, ast.Name) and is_traded_shift_loop(n):
+            if isinstance(n.iter, ast.Name):  # `for lead in horizons:` -> resolve the iterable by name
+                nm = n.iter.id
+                fn = next((f for f in funcs if f.lineno <= n.lineno <= f.end_lineno
+                           and nm in [x.arg for x in f.args.args + f.args.kwonlyargs]), None)
+                if fn is not None:  # a function parameter: resolve the grid at every call site
+                    pos = [x.arg for x in fn.args.args].index(nm) if nm in [x.arg for x in fn.args.args] else None
+                    for c in (c for c in ast.walk(tree) if isinstance(c, ast.Call) and (
+                            (isinstance(c.func, ast.Name) and c.func.id == fn.name)
+                            or (isinstance(c.func, ast.Attribute) and c.func.attr == fn.name))):
+                        arg = (c.args[pos] if pos is not None and pos < len(c.args)
+                               else next((k.value for k in c.keywords if k.arg == nm), None))
+                        if arg is None:
+                            continue
+                        try:
+                            g = _ev(arg, env_at.get(c.lineno, env))
+                        except (Unevaluable, TypeError):
+                            g = None
+                            # `f(..., [L])` inside `for L in <grid>:` -> the grid is that loop's iterable
+                            if isinstance(arg, (ast.List, ast.Tuple)) and len(arg.elts) == 1 and isinstance(arg.elts[0], ast.Name):
+                                outer = [f for f in all_fors if isinstance(f.target, ast.Name)
+                                         and f.target.id == arg.elts[0].id and f.lineno <= c.lineno <= f.end_lineno]
+                                if outer:
+                                    try:
+                                        g = _ev(outer[-1].iter, env)
+                                    except (Unevaluable, TypeError):
+                                        g = None
+                        if g is None:
+                            warns.append((c.lineno, f"{fn.name}({nm}=...) -> for {n.target.id}"))
+                        else:
+                            defs.append((c.lineno, f"{fn.name}({nm}=...) -> for {n.target.id}", [int(x) for x in g]))
+                elif nm in env:
+                    defs.append((n.lineno, f"for {n.target.id} in {nm}", list(env[nm])))
+                elif not any(x == nm for _, x in derived):
+                    warns.append((n.lineno, f"for {n.target.id} in {nm}"))
+            else:
+                handle(f"for {n.target.id}", n.iter, n.lineno)
     return defs, warns, derived
 
 
@@ -283,7 +351,7 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
     elif isinstance(floor_eff, int) and isinstance(floor, int) and floor + reg_shift != floor_eff:
         fails.append(f"registry inconsistent: lead_floor {floor} + position_shift {reg_shift} != lead_floor_effective {floor_eff}")
     res["floor_effective"] = floor_eff
-    if mode == "floor" and isinstance(floor_eff, int) and reg_grid:
+    if isinstance(floor_eff, int) and reg_grid:
         below = [g for g in reg_grid if g + reg_shift < floor_eff]
         if below:
             fails.append(f"registry lead_grid has sub-floor leads {below} (lead + shift {reg_shift} < floor E{floor_eff})")
@@ -332,7 +400,7 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
     for rel, det, dline, dnote, gmin in file_grids:
         shift = det if det is not None else reg_shift
         eff = gmin + shift
-        if mode == "floor" and isinstance(floor_eff, int):
+        if isinstance(floor_eff, int):
             for l, n, g, r in defs:
                 sub = [x for x in g if r == rel and x + shift < floor_eff]
                 if sub:
@@ -352,7 +420,7 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
     res["winner_lead"] = wl
     if wl is None:
         warns.append(f"winner lead unavailable: {wdetail}")
-    elif mode == "floor" and isinstance(floor_eff, int) and wl + reg_shift < floor_eff:
+    elif isinstance(floor_eff, int) and wl + reg_shift < floor_eff:
         fails.append(f"published winner {wk}={wl} + shift {reg_shift} = effective lag {wl + reg_shift} < strict floor E{floor_eff} ({wdetail})")
     pp_txt = ""
     if mode == "per-period":
@@ -373,7 +441,36 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
     return res
 
 
-PIT_CALL = re.compile(r"\bpit_shift\s*\(")
+def pit_shift_used(src: str) -> tuple[bool, str]:
+    """True when the script makes a REAL pit_shift(...) call (AST, so comments/strings do not count) whose lead
+    argument is the variable of a traded lead loop (or a loop over the grid), whose result is assigned and later
+    read. Returns (ok, why)."""
+    try:
+        tree = ast.parse(src)
+    except SyntaxError:
+        return False, "syntax error"
+    loops = {n.target.id for n in ast.walk(tree) if isinstance(n, ast.For) and isinstance(n.target, ast.Name)
+             and (is_traded_shift_loop(n) or LOOP_VAR.match(n.target.id))}
+    calls = []
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Assign) and isinstance(n.value, ast.Call):
+            f = n.value.func
+            name = f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else None
+            if name == "pit_shift":
+                calls.append(n)
+    if not calls:
+        return False, "no pit_shift(...) call in code (comments and strings do not count)"
+    loads = [(x.id, x.lineno) for x in ast.walk(tree) if isinstance(x, ast.Name) and isinstance(x.ctx, ast.Load)]
+    for a in calls:
+        c = a.value
+        lead = c.args[1] if len(c.args) > 1 else next((k.value for k in c.keywords if k.arg == "lead"), None)
+        if not (isinstance(lead, ast.Name) and lead.id in loops):
+            continue
+        targets = {t.id for t in a.targets if isinstance(t, ast.Name)} | {
+            e.id for t in a.targets if isinstance(t, (ast.Tuple, ast.List)) for e in t.elts if isinstance(e, ast.Name)}
+        if any(nm in targets and ln > a.lineno for nm, ln in loads):
+            return True, f"pit_shift at line {a.lineno}"
+    return False, "pit_shift(...) present but not driven by the lead-loop variable or its result is never used"
 RULES = {"rule:market_close": 0, "rule:next_business_day": 1}
 FREQ = {"months": "ME", "quarters": "QE", "trading_days": "B"}
 
@@ -404,6 +501,40 @@ def backtest_sample(repo: Path, pair: str, rows: bool = False):
     return (None, None, "no strategy_returns_*.csv or winner_trade_log.csv") + ((None,) if rows else ())
 
 
+SERIES_ALIASES = {"T10Y3M_ME": ["T10Y3M"], "EIA_WPSR_WTTSTUS1": ["WTTSTUS1"], "ISM_MFG": ["ISM"],
+                  "ISM_SERVICES": ["ISM"], "NAHB_HMI": ["NAHB", "HMI"], "USGS_CEMENT_MIS": ["cement", "Cement"]}
+
+
+IDENTITY = Path("data") / "release_calendar" / "pipeline_series_identity.csv"
+# a value-matched series that code / data dictionaries commonly mislabel as a sibling of the same release
+ALT_LABELS = {"DRCCLACBN": ["DRCCLACBS"], "DRTSCILM": ["DRTSCIS"], "NEWORDER": ["AMTMNO"]}
+
+
+def verified_series(repo: Path, pair: str):
+    """Series the pair's data panel was value-matched to (pipeline_series_identity.csv, match_share 1.0), or None."""
+    p = repo / IDENTITY
+    if not p.exists():
+        return None
+    import csv
+    for r in csv.DictReader(p.open()):
+        if r["pair"] == pair and float(r["match_share"]) >= 1.0:
+            return r["series"]
+    return None
+
+
+def series_loaded(repo: Path, pair: str, series: str, files) -> tuple[bool, list]:
+    """Is the registry's release_calendar_series what the pair loads? Either the panel was value-matched to it
+    (pipeline_series_identity.csv), or the series id (or a documented alias for non-FRED sources) appears as a word
+    in the pair's scripts or its committed data dictionary."""
+    if verified_series(repo, pair) == series:
+        return True, [f"{IDENTITY} (value-matched)"]
+    toks = [series] + SERIES_ALIASES.get(series, [])
+    srcs = list(files) + sorted((repo / "data").glob(f"data_dictionary_{pair}_*.csv"))
+    pat = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(map(re.escape, toks)) + r")(?![A-Za-z0-9])")
+    hits = [str(f.relative_to(repo)) for f in srcs if f.exists() and pat.search(f.read_text(errors="ignore"))]
+    return bool(hits), hits
+
+
 def per_period_check(repo: Path, pair: str, rec: dict, leads: list, shift: int, wl, files, canon):
     """Point-in-time check (standard Step 2, pkg12): count the backtest periods in which a FIXED lag L uses a
     reading whose first release (data/release_calendar/release_calendar.csv) is after the return window opens.
@@ -419,14 +550,37 @@ def per_period_check(repo: Path, pair: str, rec: dict, leads: list, shift: int, 
     series = info["series"]
     if not series:
         return ["per-period: registry has no release_calendar_series (calendar series id or rule:...)"], [], info
+    if series not in RULES:
+        ok, hits = series_loaded(repo, pair, series, files)
+        info["series_referenced_in"] = hits
+        vs = verified_series(repo, pair)
+        if vs is not None and vs != series:
+            fails.append(f"per-period: release_calendar_series {series} but the pair's panel values match {vs} "
+                         f"({IDENTITY}): fix the registry mapping")
+        elif vs is not None:  # value-matched: flag scripts / data dictionaries that name another calendar series
+            cal_ids = {r.split(",", 1)[0] for r in (repo / "data/release_calendar/release_calendar.csv").read_text().splitlines()[1:]}
+            text = " ".join(f.read_text(errors="ignore") for f in list(files) + sorted(
+                (repo / "data").glob(f"data_dictionary_{pair}_*.csv")) if f.exists())
+            other = sorted({t for t in re.findall(r"(?<![A-Za-z0-9])[A-Z][A-Z0-9_]{3,}(?![A-Za-z0-9])", text)
+                            if t in cal_ids and t in ALT_LABELS.get(vs, [])})
+            if other:
+                warns.append(f"per-period: scripts / data dictionary name {other} but the panel values are {vs} "
+                             f"({IDENTITY}); relabel the source")
+        if not ok:
+            fails.append(f"per-period: release_calendar_series {series} is not referenced by the pair's scripts or data "
+                         "dictionary: the pipeline may load a different series (fix the registry mapping)")
     if info["alignment"] == "pit_asof":
-        callers = [str(f.relative_to(repo)) for f in files if f in canon and PIT_CALL.search(f.read_text())]
+        checks = {str(f.relative_to(repo)): pit_shift_used(f.read_text()) for f in files if f in canon}
+        callers = [f"{k} ({why})" for k, (ok, why) in checks.items() if ok]
         if callers:
             info["summary"] = f"per-period: as-of aligned ({', '.join(callers)}), 0 breaches by construction"
             return [], [], info
-        return ["per-period: registry alignment 'pit_asof' but no pit_shift( call in the canonical scripts"], [], info
+        return ["per-period: registry alignment 'pit_asof' but no verified pit_shift call: "
+                + "; ".join(f"{k}: {why}" for k, (_, why) in checks.items())], [], info
     start, end, src, own = backtest_sample(repo, pair, rows=True)
     info["sample_source"] = src
+    if start is not None and own is None:
+        warns.append(f"per-period: no strategy_returns CSV; breaches counted on the {src} date range")
     if start is None:
         return [], [f"per-period: backtest sample unknown ({src}); breaches not counted"], info
     freq = FREQ.get(rec.get("lead_axis"), "ME")

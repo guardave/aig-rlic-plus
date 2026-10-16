@@ -279,6 +279,7 @@ def pp_repo(tmp, src, rec, winner_lead=2, delayed=None, sample=("2018-01-31", "2
             rel = pd.Timestamp(delayed[m.strftime("%Y-%m")])
         rows.append(("XS", m.date(), (m + pd.offsets.MonthEnd(0)).date(), rel.date(), 0, "alfred_first_vintage"))
     (r / "data" / "release_calendar").mkdir(parents=True)
+    (r / "data" / "data_dictionary_x_spy_20261016.csv").write_text("Column Name,Series ID\nx,XS\n")
     pd.DataFrame(rows, columns=["series_id", "ref_date", "period_end", "first_release", "lag_days", "basis"]).to_csv(
         r / "data" / "release_calendar" / "release_calendar.csv", index=False)
     if returns:
@@ -341,15 +342,66 @@ def test_per_period_never_released_reading_fails(tmp_path):
     assert st == "FAIL" and "never released" in why
 
 
+PIT_REAL = ("leads = list(range(2, 14))\nfor lead in leads:\n"
+            "    x = pit_shift(df[['s', 't']], lead, rel)\n    pos = rule(x)\n    ret = pos * r\n")
+
+
 def test_per_period_pit_asof_alignment_passes_only_with_helper_call(tmp_path):
     rec = {**PP_REC, "alignment": "pit_asof"}
-    src = PP_OK + "sig = pit_shift(df[['s', 't']], lead, rel)\n"
-    r = pp_repo(tmp_path / "a", src, rec, delayed={"2019-09": "2020-01-09"})
+    r = pp_repo(tmp_path / "a", PIT_REAL, rec, delayed={"2019-09": "2020-01-09"})
     st, why, _ = pp(r)
     assert st == "PASS" and "as-of aligned" in why
     r2 = pp_repo(tmp_path / "b", PP_OK, rec, delayed={"2019-09": "2020-01-09"})
     st, why, _ = pp(r2)
-    assert st == "FAIL" and "no pit_shift( call" in why
+    assert st == "FAIL" and "no verified pit_shift call" in why
+
+
+def test_pit_asof_comment_or_string_does_not_count(tmp_path):
+    """QA HIGH-1: a `pit_shift(` in a comment or a string must not pass."""
+    rec = {**PP_REC, "alignment": "pit_asof"}
+    for k, extra in enumerate(("# pit_shift( is on the roadmap\n", "NOTE = 'pit_shift(sig, lead, rel)'\n")):
+        r = pp_repo(tmp_path / str(k), extra + PP_OK, rec, delayed={"2019-09": "2020-01-09"})
+        st, why, _ = pp(r)
+        assert st == "FAIL" and "no verified pit_shift call" in why
+
+
+def test_pit_asof_dead_or_unbound_call_does_not_count(tmp_path):
+    rec = {**PP_REC, "alignment": "pit_asof"}
+    dead = PP_OK + "for lead in leads:\n    unused = pit_shift(df, lead, rel)\n    pos = s.shift(lead)\n    ret = pos * r\n"
+    const = PP_OK + "x = pit_shift(df, 2, rel)\npos = rule(x)\n"
+    for k, src in enumerate((dead, const)):
+        st, why, _ = pp(pp_repo(tmp_path / str(k), src, rec, delayed={"2019-09": "2020-01-09"}))
+        assert st == "FAIL" and "not driven by the lead-loop variable" in why
+
+
+def test_decoy_grid_with_real_loop_over_other_name_fails(tmp_path):
+    """QA HIGH-2(a): the traded loop iterates `horizons` (0..13) while an unused decoy `leads` is floored."""
+    src = ("leads = list(range(2, 14))\nhorizons = list(range(0, 14))\n"
+           "for lead in horizons:\n    sig = s.shift(lead)\n    ret = pos * r\n")
+    for mode in ("per-period", "floor"):
+        st, why, _ = pp(pp_repo(tmp_path / mode, src, PP_REC), mode=mode)
+        assert st == "FAIL" and "for lead in horizons" in why and "sub-floor leads [0, 1]" in why
+
+
+def test_decoy_grid_with_keyword_shift_fails(tmp_path):
+    """QA HIGH-2(b): the loop shifts with `.shift(periods=lead)` and is not lead-named."""
+    src = ("leads = list(range(2, 14))\n"
+           "for h in range(0, 14):\n    sig = s.shift(periods=h)\n    strat_ret = pos * spy_ret\n")
+    for mode in ("per-period", "floor"):
+        st, why, _ = pp(pp_repo(tmp_path / mode, src, PP_REC), mode=mode)
+        assert st == "FAIL" and "for h" in why
+
+
+def test_grid_passed_to_function_is_resolved_at_call_site(tmp_path):
+    src = ("LEADS = list(range(0, 14))\ndef run(df, leads):\n    for lead in leads:\n        sig = s.shift(lead)\n"
+           "        ret = pos * r\nrun(df, LEADS)\n")
+    st, why, _ = pp(pp_repo(tmp_path, src, PP_REC))
+    assert st == "FAIL" and "run(leads=...)" in why
+
+
+def test_diagnostic_shift_loop_is_ignored(tmp_path):
+    src = PP_OK + "for L in range(0, 13):\n    c = x.shift(L).corr(y)\n"
+    assert pp(pp_repo(tmp_path, src, PP_REC))[0] == "PASS"
 
 
 def test_per_period_missing_calendar_series_fails(tmp_path):
@@ -395,3 +447,63 @@ def test_per_period_follows_the_pipeline_rows(tmp_path):
     d = pd.read_csv(f)
     d[d.date != "2019-10-31"].to_csv(f, index=False)
     assert pp(r)[0] == "PASS"
+
+
+def test_per_period_series_must_be_what_the_pair_loads(tmp_path):
+    """QA MED-3: the registry series must be referenced by the pair (or value-matched in the identity file)."""
+    r = pp_repo(tmp_path / "a", PP_OK, PP_REC)
+    (r / "data" / "data_dictionary_x_spy_20261016.csv").write_text("Column Name,Series ID\nx,OTHER\n")
+    st, why, _ = pp(r)
+    assert st == "FAIL" and "not referenced by the pair's scripts" in why
+    # value-matched identity overrides a missing / wrong label, and a mismatching identity FAILs
+    (r / "data" / "release_calendar" / "pipeline_series_identity.csv").write_text("pair,series,match_share\nx_spy,XS,1.0\n")
+    assert pp(r)[0] == "PASS"
+    (r / "data" / "release_calendar" / "pipeline_series_identity.csv").write_text("pair,series,match_share\nx_spy,YS,1.0\n")
+    st, why, _ = pp(r)
+    assert st == "FAIL" and "panel values match YS" in why
+
+
+# ---- LOW-7: the structural checks hold in the default (per-period) mode too ----
+def test_default_mode_l0_contemporaneous_fails(tmp_path):
+    src = "leads = [0, 2, 3]\nret = pos * r\n"
+    st, why, _ = pp(pp_repo(tmp_path, src, {**PP_REC, "lead_grid": [0, 2, 3]}))
+    assert st == "FAIL" and "effective lag 0 < 1" in why
+
+
+def test_default_mode_inconsistent_grids_fail(tmp_path):
+    src = PP_OK + "meta = {'leads': list(range(0, 13))}\n"
+    st, why, _ = pp(pp_repo(tmp_path, src, PP_REC))
+    assert st == "FAIL" and "inconsistent" in why
+
+
+def test_default_mode_grid_differs_from_registry_fails(tmp_path):
+    src = "leads = list(range(3, 14))\nret = pos * r\n"
+    st, why, _ = pp(pp_repo(tmp_path, src, PP_REC))
+    assert st == "FAIL" and "!= registry lead_grid" in why
+
+
+def test_default_mode_alignment_mismatch_fails(tmp_path):
+    src = "leads = list(range(2, 14))\nret = pos.shift(1) * r\n"
+    st, why, _ = pp(pp_repo(tmp_path, src, PP_REC))
+    assert st == "FAIL" and "alignment mismatch" in why
+
+
+def test_default_mode_unparseable_grid_fails(tmp_path):
+    src = "import numpy as np\nleads = np.arange(2, 14)\nret = pos * r\n"
+    st, why, _ = pp(pp_repo(tmp_path, src, PP_REC))
+    assert st == "FAIL" and "unparseable" in why
+
+
+def test_default_mode_still_enforces_registry_floor(tmp_path):
+    # sub-floor lead with zero observed breaches (releases are early here) still FAILs on the registry floor
+    rec = {**PP_REC, "lead_floor": 2, "lead_floor_effective": 2, "lead_grid": [1, 2, 3]}
+    st, why, _ = pp(pp_repo(tmp_path, "leads = [1, 2, 3]\nret = pos * r\n", rec, winner_lead=2))
+    assert st == "FAIL" and "sub-floor" in why
+
+
+def test_default_mode_missing_returns_warns_and_counts(tmp_path, capsys):
+    r = pp_repo(tmp_path, PP_OK, PP_REC, returns=False)
+    assert g.main(["--repo", str(r), "x_spy"]) == 0
+    out = capsys.readouterr().out
+    assert "WARN x_spy" in out and "1 WARN" in out
+    assert g.main(["--repo", str(r), "--strict", "x_spy"]) == 1
