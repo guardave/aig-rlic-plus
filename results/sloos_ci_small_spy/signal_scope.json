@@ -6,11 +6,11 @@
   "last_updated_at": "2026-10-15T18:15:44.625772+00:00",
   "indicator_axis": {
     "canonical_column": "sloos_ci_small",
-    "display_name": "SLOOS C&I Tightening \u2014 Small Firms",
+    "display_name": "SLOOS C&I Tightening \u2014 Large & Middle-Market Firms (DRTSCILM)",
     "derivatives": [
       {
         "name": "sloos_ci_small",
-        "definition": "Net-% of banks tightening C&I standards to small firms",
+        "definition": "Net-% of banks tightening C&I standards to large and middle-market firms (FRED DRTSCILM)",
         "formula": "Fed SLOOS (Data Master)",
         "role": "raw",
         "appears_in_charts": [
@@ -103,5 +103,5 @@
       }
     ]
   },
-  "notes": "Scope limited to SLOOS C&I small-firm tightening signals and SPY returns."
+  "notes": "Scope limited to SLOOS C&I tightening (large and middle-market firms, DRTSCILM) signals and SPY returns."
 }

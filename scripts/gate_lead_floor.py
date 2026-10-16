@@ -51,7 +51,7 @@ No pair names are special-cased.
                   window (available_date: next trading day for after-close releases). FAIL on any breaching
                   period. The registry series must be what the pair loads: value-matched in
                   data/release_calendar/pipeline_series_identity.csv, or named in its scripts / data dictionary
-                  (else FAIL; a mislabelled sibling name => WARN). No strategy_returns CSV => trade-log dates +
+                  (else FAIL; a sibling id in the current data dictionary => WARN). No strategy_returns CSV => trade-log dates +
                   WARN, nothing => WARN (counted; --strict exits 1). Registry `alignment: pit_asof` passes only
                   with a real AST pit_shift(...) call whose lead argument is the traded lead-loop variable and
                   whose result is read later (scripts/_pit_align.py): 0 breaches by construction.
@@ -559,12 +559,12 @@ def per_period_check(repo: Path, pair: str, rec: dict, leads: list, shift: int, 
                          f"({IDENTITY}): fix the registry mapping")
         elif vs is not None:  # value-matched: flag scripts / data dictionaries that name another calendar series
             cal_ids = {r.split(",", 1)[0] for r in (repo / "data/release_calendar/release_calendar.csv").read_text().splitlines()[1:]}
-            text = " ".join(f.read_text(errors="ignore") for f in list(files) + sorted(
-                (repo / "data").glob(f"data_dictionary_{pair}_*.csv")) if f.exists())
+            dd = sorted((repo / "data").glob(f"data_dictionary_{pair}_*.csv"))[-1:]  # the current data dictionary
+            text = " ".join(f.read_text(errors="ignore") for f in dd)
             other = sorted({t for t in re.findall(r"(?<![A-Za-z0-9])[A-Z][A-Z0-9_]{3,}(?![A-Za-z0-9])", text)
                             if t in cal_ids and t in ALT_LABELS.get(vs, [])})
             if other:
-                warns.append(f"per-period: scripts / data dictionary name {other} but the panel values are {vs} "
+                warns.append(f"per-period: the current data dictionary names {other} but the panel values are {vs} "
                              f"({IDENTITY}); relabel the source")
         if not ok:
             fails.append(f"per-period: release_calendar_series {series} is not referenced by the pair's scripts or data "

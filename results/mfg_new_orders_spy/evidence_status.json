@@ -4,7 +4,7 @@
   "status": "found_in_search",
   "updated_at": "2026-10-16T18:27:05.820219+00:00",
   "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
-  "technical_note": "Winner selected by in-sample Sharpe (common pre-OOS window) from the 20261016 tournament grid and evaluated on the held-out OOS window; Manufacturers' new orders is a leading indicator, but the winning lead should be durability-checked (see the L-pattern, issue #28).",
+  "technical_note": "Winner selected by in-sample Sharpe (common pre-OOS window) from the 20261016 tournament grid and evaluated on the held-out OOS window; core capital goods orders (NEWORDER) is a leading indicator, but the winning lead should be durability-checked (see the L-pattern, issue #28).",
   "next_step": "Freeze the selected rule and run a confirmation test on future data or a reserved holdout window.",
   "owner": "evan"
 }

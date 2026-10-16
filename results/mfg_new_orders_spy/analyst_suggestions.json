@@ -4,15 +4,15 @@
   "last_updated_at": "2026-10-16T18:27:05.820219+00:00",
   "suggestions": [
     {
-      "signal_name": "New-orders lead-durability & revision robustness",
+      "signal_name": "Core-capex-orders lead-durability & revision robustness",
       "proposed_by": "evan",
       "source": "FRED",
-      "observation": "The selected rule uses an L7 lead on yoy_zscore_60m; new orders is leading, but adjacent-lead durability and the winner's direction-vs-prior should be checked.",
-      "rationale": "Advance new orders is revised and broadly coincident, so a long lead needs adjacent-lead durability and a COVID-excluded robustness check before it is trusted.",
+      "observation": "The selected rule uses an L7 lead on yoy_zscore_60m; core capex orders are leading, but adjacent-lead durability and the winner's direction-vs-prior should be checked.",
+      "rationale": "Advance core capex orders are revised and broadly coincident, so a long lead needs adjacent-lead durability and a COVID-excluded robustness check before it is trusted.",
       "possible_use_case": "robustness check",
       "caveats": "Search-selected rule; the long lead is likely a fitting artifact and needs final-exam validation.",
       "date_filed": "2026-10-16"
     }
   ],
-  "notes": "Generated with the Manufacturers' New Orders x SPY pair pipeline."
+  "notes": "Generated with the core capital goods orders (NEWORDER) x SPY pair pipeline."
 }

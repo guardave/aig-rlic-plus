@@ -38,7 +38,8 @@
   "caveats": [
     "Quarterly survey with a small OOS window \u2014 winner is search-selected, needs holdout validation.",
     "Delinquency is lagging; leads should be read with care.",
-    "Few distinct stress cycles in the sample."
+    "Few distinct stress cycles in the sample.",
+    "Series is DRCCLACBN, NOT seasonally adjusted: its within-year seasonal pattern (typically higher in Q1, lower around Q2/Q3) can affect level-vs-rolling-percentile signals."
   ],
   "narrative_summary": "Credit-card delinquency is tested as a countercyclical household-credit-stress overlay for SPY \u2014 reduce exposure when delinquency is high.",
   "known_stress_episodes": [
@@ -69,7 +70,7 @@
   ],
   "data_provenance": {
     "source": "Data Master.xlsx (FRB)",
-    "series_id": "DRCCLACBS",
+    "series_id": "DRCCLACBN",
     "accessed_at": "2026-10-16T18:28:54.349386+00:00"
   }
 }

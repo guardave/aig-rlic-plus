@@ -2,7 +2,7 @@
 """Pair pipeline: Credit Card Delinquency Rate x SPY.
 
 QUARTERLY pipeline. The indicator is the delinquency rate on credit-card loans (percent of
-balances 30+ days past due), from Data Master.xlsx. Bounded, mean-reverting — the LEVEL is
+balances 30+ days past due; FRED DRCCLACBN, NOT seasonally adjusted), from Data Master.xlsx. Bounded, mean-reverting — the LEVEL is
 stationary and used directly. Economic prior: a HIGH/rising delinquency rate signals household
 credit stress that accompanies/anticipates recessions → COUNTERCYCLICAL (reduce SPY when
 delinquencies are high/rising). Delinquency is a LAGGING credit indicator. Quarterly grid, sqrt(4).
@@ -101,12 +101,12 @@ def source_data() -> pd.DataFrame:
 
     data_dict = pd.DataFrame([
         {"Column Name": "ccdelinq", "Display Name": "Credit Card Delinquency Rate",
-         "Description": "Delinquency rate on credit-card loans (% of balances 30+ days past due)",
-         "Source": "Data Master.xlsx", "Series ID": "DRCCLACBS", "Unit": "Percent",
+         "Description": "Delinquency rate on credit-card loans (% of balances 30+ days past due), not seasonally adjusted",
+         "Source": "Data Master.xlsx", "Series ID": "DRCCLACBN", "Unit": "Percent",
          "Transformation": "Quarterly level (NSA)",
          "Direction Convention": "Higher = more household credit stress (bearish equities)",
          "Effective Start": str(df["ccdelinq"].first_valid_index().date()),
-         "Known Quirks": "Bounded rate ~[1.5,7]%, mean-reverting; lagging-to-coincident credit measure",
+         "Known Quirks": "Bounded rate ~[1.5,7]%, mean-reverting; lagging-to-coincident credit measure; NOT seasonally adjusted (FRED DRCCLACBN) - seasonal pattern, typically higher in Q1",
          "Display Note": "Rising credit-card delinquency accompanies household stress and equity weakness.",
          "Refresh Freq.": "Quarterly", "Refresh Source": "Data Master"},
         {"Column Name": "spy", "Display Name": "SPY adjusted close",
@@ -215,7 +215,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     n = len(work)
     oos_n = int(min(max(20, round(n * 0.25)), 40))
     oos_start = work.index[-oos_n]
-    leads = list(range(2, 6))  # quarters; strict floor E2 (DRCCLACBS ~51 d after quarter-end): sub-floor L1 truncated, top not extended (pkg9, protocol D2)
+    leads = list(range(2, 6))  # quarters; strict floor E2 (DRCCLACBN ~51 d after quarter-end): sub-floor L1 truncated, top not extended (pkg9, protocol D2)
     # GH #251/#268 + common IS start (Lead decision 2026-10-15):
     #   pass 1 builds every candidate's return stream; common_is_start = the LATEST
     #   first-valid-return date across the grid (rolling-threshold warm-ups and lead
@@ -494,10 +494,10 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "confidence": "low",
         "key_finding": f"IS-selected rule uses {winner['signal_code']} at L{winner['lead_value']}q with OOS Sharpe "
                        f"{winner['oos_sharpe']:.2f} versus buy-and-hold {winner['bh_sharpe']:.2f}.",
-        "caveats": ["Quarterly survey with a small OOS window — winner is search-selected, needs holdout validation.", "Delinquency is lagging; leads should be read with care.", "Few distinct stress cycles in the sample."],
+        "caveats": ["Quarterly survey with a small OOS window — winner is search-selected, needs holdout validation.", "Delinquency is lagging; leads should be read with care.", "Few distinct stress cycles in the sample.", "Series is DRCCLACBN, NOT seasonally adjusted: its within-year seasonal pattern (typically higher in Q1, lower around Q2/Q3) can affect level-vs-rolling-percentile signals."],
         "narrative_summary": "Credit-card delinquency is tested as a countercyclical household-credit-stress overlay for SPY — reduce exposure when delinquency is high.",
         "known_stress_episodes": [{"label": "Dot-Com recession", "start": "2001-03-01", "end": "2001-11-30", "note": "NBER recession."}, {"label": "Global Financial Crisis", "start": "2007-12-01", "end": "2009-06-30", "note": "Delinquencies spiked."}, {"label": "COVID shock", "start": "2020-02-01", "end": "2020-04-30", "note": "NBER recession."}, {"label": "2022 drawdown", "start": "2022-01-01", "end": "2022-12-31", "note": "Rate-hike bear market."}],
-        "data_provenance": {"source": "Data Master.xlsx (FRB)", "series_id": "DRCCLACBS", "accessed_at": NOW_ISO}}
+        "data_provenance": {"source": "Data Master.xlsx (FRB)", "series_id": "DRCCLACBN", "accessed_at": NOW_ISO}}
     (RES / "interpretation_metadata.json").write_text(json.dumps(interp, indent=2) + "\n")
     signal_scope = {
         "pair_id": PAIR_ID, "schema_version": "1.0.0", "owner": "evan", "last_updated_by": "evan", "last_updated_at": NOW_ISO,

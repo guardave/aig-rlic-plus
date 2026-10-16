@@ -37,7 +37,7 @@
   "total_combos": 120,
   "valid_combos": 120,
   "schema_version": "1.2.0",
-  "notes": "SLOOS C&I small-firm net-% tightening is a QUARTERLY credit survey that historically leads equity weakness by 1-4 quarters. Net-% is bounded/mean-reverting. Winner (level) is selected by in-sample Sharpe on the common IS window (1999-12-31 to 2017-09-30, 72q) and evaluated on the held-out OOS window (32q); still a search-selected rule.",
+  "notes": "SLOOS C&I net-% tightening for large and middle-market firms (DRTSCILM) is a QUARTERLY credit survey that historically leads equity weakness by 1-4 quarters. Net-% is bounded/mean-reverting. Winner (level) is selected by in-sample Sharpe on the common IS window (1999-12-31 to 2017-09-30, 72q) and evaluated on the held-out OOS window (32q); still a search-selected rule.",
   "is_sharpe": 0.897474,
   "is_n": 72,
   "is_period_start": "1999-12-31",

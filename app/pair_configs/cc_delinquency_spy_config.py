@@ -60,8 +60,8 @@ from components.page_templates import MethodologyConfig
 class StoryConfig:
     PAGE_TITLE = "The Story: A Credit-Stress Overlay Whose Winner Runs the Wrong Way"
     PAGE_SUBTITLE = (
-        "Credit-Card Delinquency Rate (FRB series DRCCLACBS, % of balances "
-        "30+ days past due) × S&P 500 (SPY). QUARTERLY, analytical sample "
+        "Credit-Card Delinquency Rate (not seasonally adjusted, FRB series "
+        "DRCCLACBN, % of balances 30+ days past due) × S&P 500 (SPY). QUARTERLY, analytical sample "
         "1993-Q1 → 2025-Q2 (~130 quarters). A LAGGING CREDIT indicator: all "
         "leads and windows are in QUARTERS."
     )
@@ -150,7 +150,7 @@ class StoryConfig:
     NARRATIVE_SECTION_1 = """
 ### Credit-card delinquency: a lagging credit-stress gauge, tested honestly
 
-The credit-card delinquency rate (FRB series `DRCCLACBS`) is the percentage of
+The credit-card delinquency rate (not seasonally adjusted, FRB series `DRCCLACBN`) is the percentage of
 credit-card loan balances at commercial banks that are at least 30 days past
 due. It is one of the cleanest quarterly reads on household financial stress:
 when families fall behind on cards, their balance sheets are already strained.
@@ -179,10 +179,16 @@ search artifact / small-sample fragility, not evidence that rising delinquency
 is bullish.
 
 <!-- expander: What exactly is the credit-card delinquency series? -->
-The delinquency rate on credit-card loans (FRED/FRB series `DRCCLACBS`) is the
+The delinquency rate on credit-card loans (FRED/FRB series `DRCCLACBN`) is the
 ratio of credit-card balances 30+ days past due to total credit-card balances at
-all commercial banks, expressed as a percentage. It is quarterly, seasonally
-adjusted, and can be revised. It is a LAGGING credit measure: households fall
+all commercial banks, expressed as a percentage. It is quarterly, **not
+seasonally adjusted (NSA)**, published in the Federal Reserve's charge-off and
+delinquency release roughly seven weeks after quarter end, and can be revised.
+Because it is NSA, the series carries a within-year seasonal pattern
+(delinquencies typically run higher in Q1 and lower around Q2/Q3); signals built
+on the level relative to a rolling 20-quarter percentile, or on short changes,
+can be partly driven by that seasonality rather than by credit stress alone —
+treat this as a caveat on every result on these pages. It is a LAGGING credit measure: households fall
 behind after their finances deteriorate, so the rate tends to peak during or
 after recessions, not before them. Higher readings mean more household distress.
 <!-- /expander -->
@@ -779,7 +785,7 @@ Search-phase results (2017-09-30 → 2025-06-30, 32 QUARTERS — **small sample,
     HOW_SIGNAL_IS_GENERATED_MD = """
 No formulas — three steps:
 
-**What changes in the world:** households fall further behind on their credit-card payments, so the delinquency rate (share of balances 30+ days past due) rises; or they catch up, and it falls. The Federal Reserve reports this quarterly (series `DRCCLACBS`), with a lag and subject to revision.
+**What changes in the world:** households fall further behind on their credit-card payments, so the delinquency rate (share of balances 30+ days past due) rises; or they catch up, and it falls. The Federal Reserve reports this quarterly (series `DRCCLACBN`, not seasonally adjusted), with a lag and subject to revision.
 
 **What the signal measures:** each quarter, the rule takes the quarter-on-quarter CHANGE in the delinquency rate as it stood **four quarters (~1 year) ago** and asks which side of zero it sits on (rising vs falling). The raw level is persistent and tests non-stationary over this sample, so the CHANGE is used — it is stationary (ADF p < 0.001).
 
@@ -794,8 +800,9 @@ No formulas — three steps:
         "forecasting lead, Granger min p 0.33; median valid combo LOSES to "
         "buy-and-hold; direction contradicts the countercyclical prior). With "
         "that understood, the quarterly routine — no code required — is:\n\n"
-        "1. **Pull the credit series** — FRB/FRED series `DRCCLACBS` "
-        "(delinquency rate on credit-card loans, all commercial banks; "
+        "1. **Pull the credit series** — FRB/FRED series `DRCCLACBN` "
+        "(delinquency rate on credit-card loans, all commercial banks, not "
+        "seasonally adjusted; "
         "released quarterly, with a lag).\n"
         "2. **Compute the quarter-on-quarter change** — this quarter's level "
         "minus last quarter's (the level itself tests non-stationary, so the "
@@ -897,10 +904,10 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = """
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator | Data Master.xlsx (Federal Reserve / FRED) | `DRCCLACBS` (Delinquency rate on credit-card loans, all commercial banks, %) | **Quarterly** (1993-Q1 → 2025-Q2, ~130 quarters) |
+| Indicator | Data Master.xlsx (Federal Reserve / FRED) | `DRCCLACBN` (Delinquency rate on credit-card loans, all commercial banks, %, not seasonally adjusted) | **Quarterly** (1993-Q1 → 2025-Q2, ~130 quarters) |
 | Target | Yahoo Finance | SPY (SPDR S&P 500 ETF, dividend-adjusted, quarter-end) | Quarterly (quarter-end) |
 
-QUARTERLY credit pair. The delinquency series is native quarterly and lagging (households fall behind after their finances deteriorate). The raw LEVEL tests non-stationary over this sample (ADF p 0.37; KPSS rejects), so the traded transform is the quarter-on-quarter CHANGE (diff_1q), which is stationary (ADF p < 0.001; KPSS not rejected).
+QUARTERLY credit pair. The delinquency series is native quarterly, not seasonally adjusted (NSA), and lagging (households fall behind after their finances deteriorate). Being NSA, it has a within-year seasonal pattern (typically higher in Q1, lower around Q2/Q3) that can affect level-vs-rolling-percentile and short-change signals; no seasonal adjustment is applied in this pipeline. The raw LEVEL tests non-stationary over this sample (ADF p 0.37; KPSS rejects), so the traded transform is the quarter-on-quarter CHANGE (diff_1q), which is stationary (ADF p < 0.001; KPSS not rejected).
 """
 
 _INDICATOR_CONSTRUCTION_MD = (
@@ -934,7 +941,7 @@ Grid: 4 signal transforms (quarter-on-quarter change, level, 4-quarter change, 2
 
 _REFERENCES_MD = """
 1. Board of Governors of the Federal Reserve System, *Charge-Off and Delinquency Rates on Loans and Leases at Commercial Banks* — methodology for the credit-card delinquency series.
-2. Federal Reserve Economic Data (FRED), series `DRCCLACBS`, Delinquency Rate on Credit Card Loans, All Commercial Banks.
+2. Federal Reserve Economic Data (FRED), series `DRCCLACBN`, Delinquency Rate on Credit Card Loans, All Commercial Banks, Not Seasonally Adjusted.
 3. Yahoo Finance, SPY adjusted price history.
 4. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods." *Econometrica*, 37(3), 424–438.
 5. Mian, A. & Sufi, A. (2010). "Household Leverage and the Recession of 2007–09." *IMF Economic Review*, 58(1), 74–117.
