@@ -1,9 +1,9 @@
 {
-  "x-version": "1.2.0",
+  "x-version": "1.3.0",
   "x-owner": "evan",
-  "x-generated": "2026-10-06 (#255 derived-floor re-validation; 34 pairs; shifted grids)",
+  "x-generated": "2026-10-16 (strict lead floor on the effective lag; release-lag evidence from ALFRED first vintages; sub-floor leads truncated from the bottom)",
   "governing_standard": "docs/lead-grid-frequency-standard.md",
-  "notes": "Per-pair frequency record mandated by the Lead-Grid Frequency Standard (adopted 2026-07-14) \u00a7 'Enforcement'. For every REGISTERED pair (one entry per app/pair_configs/*_config.py) this records the SIGNAL's native release frequency, its publication lag, the lead axis that frequency implies (Step 1 HARD RULE), and the anchored grid (Step 3). scripts/gate_lead_axis.py asserts each pair's lead artifacts (lead tournament CSV, lead_sharpe_distribution chart, lead_correlation) sit on the axis recorded here. The load-bearing check: a DAILY-signal pair must NOT carry a MONTHLY-axis lead chart (the hy_ig class of error). signal_frequency is the classification of record; observed_winner_lead_unit is the winner_summary.lead_unit at authoring time, kept as an audit cross-check. lead_floor / publication_lag are REFERENCE metadata (Step 2 real-time floor) and are NOT gate-enforced \u2014 the gate checks AXIS ONLY, never selection windows/caps/floors. Archived pairs (*_archived) and superseded versions (hy_ig_spy_v1) are intentionally excluded: not registered, not deployed. DEBT FLAG: the 4 daily Class-A pairs currently carry a MONTHLY-axis lead tournament + chart (a monthly L0-12 resample bolted onto a daily-traded winner); they are recorded here as 'daily' and are EXPECTED to FAIL the gate until rebuilt on the daily axis (rollout item 1). t10y3m_spy and petrol_inv_spy derive from higher-frequency native sources but are processed and deployed end-to-end on a monthly axis; they are recorded as 'monthly' (internally coherent) and flagged for the item-3 monthly re-validation.",
+  "notes": "Per-pair frequency record mandated by the Lead-Grid Frequency Standard (adopted 2026-07-14) \u00a7 'Enforcement'. For every REGISTERED pair (one entry per app/pair_configs/*_config.py) this records the SIGNAL's native release frequency, its publication lag, the lead axis that frequency implies (Step 1 HARD RULE), and the anchored grid (Step 3). scripts/gate_lead_axis.py asserts each pair's lead artifacts (lead tournament CSV, lead_sharpe_distribution chart, lead_correlation) sit on the axis recorded here. The load-bearing check: a DAILY-signal pair must NOT carry a MONTHLY-axis lead chart (the hy_ig class of error). signal_frequency is the classification of record; observed_winner_lead_unit is the winner_summary.lead_unit at authoring time, kept as an audit cross-check. lead_floor / publication_lag are REFERENCE metadata for scripts/gate_lead_axis.py (axis only). Since 2026-10-16 the floors ARE enforced by scripts/gate_lead_floor.py: lead_floor_effective is the strict floor on the effective lag (lead + position_shift) and lead_floor = lead_floor_effective - position_shift. Archived pairs (*_archived) and superseded versions (hy_ig_spy_v1) are intentionally excluded: not registered, not deployed. DEBT FLAG: the 4 daily Class-A pairs currently carry a MONTHLY-axis lead tournament + chart (a monthly L0-12 resample bolted onto a daily-traded winner); they are recorded here as 'daily' and are EXPECTED to FAIL the gate until rebuilt on the daily axis (rollout item 1). t10y3m_spy and petrol_inv_spy derive from higher-frequency native sources but are processed and deployed end-to-end on a monthly axis; they are recorded as 'monthly' (internally coherent) and flagged for the item-3 monthly re-validation.",
   "axis_unit_map": {
     "daily": "trading_days",
     "weekly": "weeks",
@@ -30,8 +30,10 @@
       "observed_winner_lead_unit": "days",
       "class": "daily",
       "note": "DEBT: primary lead tournament + lead_sharpe_distribution chart are on a monthly L0-12 resample axis; winner is daily 0-lead. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1).",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (real-time market data observed at the close: the close of day t can only drive the t -> t+1 return). Target encoding = L0 + pos.shift(1), the fix on branch fix261015_gold_copper_l0_lookahead (pkg4); on this branch the pipeline still trades L0 with no extra shift, so gate_lead_floor FAILs (alignment mismatch + effective lag 0) until pkg4 lands. Evidence: _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "conformed": true,
+      "position_shift": 1,
+      "lead_floor_effective": 1
     },
     "hy_ig_spy": {
       "signal_frequency": "daily",
@@ -51,7 +53,7 @@
       "observed_winner_lead_unit": "days",
       "class": "daily",
       "note": "Daily-axis lead tournament (lead_days) since 2026-07-15. 2026-10-16: floored at L1 + position shift 1 for the OAS publication lag; L0 removed from the traded grid. HMM/MS regime signals are IS-fit and forward-filtered (scripts/_regime_causal.py).",
-      "floor_basis": "OAS publication lag of ~1 trading day: effective lag = min(grid) + position_shift = 1 + 1 = 2 trading days (signal dated t-2 sets the position that earns the t-1 -> t return). Grid = standard daily points {0,1,5,21,63,126,252} that are >= the L1 floor (fix261016_hmm_causal).",
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 2 - position_shift 1. Evidence: ICE BofA OAS: FRED posts the value dated t on the next business day (ALFRED daily realtime_start is stamped at the observation date, so not usable here); registry decision fix261016_hmm_causal; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
       "conformed": true,
       "position_shift": 1,
       "lead_floor_effective": 2
@@ -75,9 +77,10 @@
       "observed_winner_lead_unit": "days",
       "class": "daily",
       "note": "DEBT: primary lead tournament + chart on a monthly L0-12 resample axis; winner is daily 0-lead. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1).",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 0 = 1 - position_shift 1. Evidence: real-time market prices observed at the close (no publication lag); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
       "conformed": true,
-      "position_shift": 1
+      "position_shift": 1,
+      "lead_floor_effective": 1
     },
     "phlxsox_spy": {
       "signal_frequency": "daily",
@@ -97,18 +100,19 @@
       "observed_winner_lead_unit": "days",
       "class": "daily",
       "note": "DEBT: primary lead tournament + chart on a monthly L0-12 resample axis; winner is daily 63-day lead. EXPECTED gate FAIL until rebuilt on the daily axis (rollout item 1). v2 gate: floor 1, grid [1,5,21,63,126,252] matches pipeline (no L0, no extra position shift).",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 1 - position_shift 0. Evidence: real-time market prices observed at the close (no publication lag); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 1
     },
     "eci_total_comp_spy": {
       "signal_frequency": "quarterly",
       "signal_description": "Employment Cost Index, total compensation (BLS, quarterly)",
-      "publication_lag": "~1 month after quarter end",
+      "publication_lag": "BLS, ~1 month after quarter-end (ALFRED median 30.5 d, p90 31 d); released in the following quarter",
       "real_time": false,
       "lead_axis": "quarters",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -117,18 +121,19 @@
       "observed_winner_lead_unit": "quarters",
       "class": "quarterly",
       "note": "Grid extended to L0-8 (beyond the L0-4 default) with rationale per Step 3; coherent quarters axis end-to-end.",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": false
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..5 -> 2..5.",
+      "conformed": false,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "busloans_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Commercial & industrial loans, BUSLOANS (FRED, monthly)",
-      "publication_lag": "~2-3 weeks",
+      "publication_lag": "Fed H.8, ~12 days after month-end (ALFRED median 12 d, p90 15 d); released in M+1",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -144,18 +149,19 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "cass_freight_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Cass Freight Index \u2014 shipments (monthly)",
-      "publication_lag": "~2 weeks",
+      "publication_lag": "Cass Information Systems, ~2 weeks after month-end (ALFRED median 14 d, p90 18 d); released in M+1",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -171,13 +177,15 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": false
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
+      "conformed": false,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "indpro_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Industrial Production Index, INDPRO (FRED, monthly)",
-      "publication_lag": "~mid of month M+1 (~2-3 weeks)",
+      "publication_lag": "Federal Reserve G.17, ~mid of M+1 (ALFRED median 16 d, p90 18 d)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 1,
@@ -198,14 +206,16 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 2 - position_shift 1. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
       "conformed": true,
-      "note": "Winner confirmed UNCHANGED under the floored grid in #255 re-run testing; committed artifacts retained because a full regen surfaces pre-existing producer debt (interpretation_metadata schema / chart bare-naming) out of #255 scope \u2014 floor-grid source edit deferred to a producer-cleanup follow-up."
+      "note": "Winner confirmed UNCHANGED under the floored grid in #255 re-run testing; committed artifacts retained because a full regen surfaces pre-existing producer debt (interpretation_metadata schema / chart bare-naming) out of #255 scope \u2014 floor-grid source edit deferred to a producer-cleanup follow-up.",
+      "position_shift": 1,
+      "lead_floor_effective": 2
     },
     "indpro_xlp": {
       "signal_frequency": "monthly",
       "signal_description": "Industrial Production Index, INDPRO (FRED, monthly)",
-      "publication_lag": "~mid of month M+1 (~2-3 weeks)",
+      "publication_lag": "Federal Reserve G.17, ~mid of M+1 (ALFRED median 16 d, p90 18 d)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 1,
@@ -226,19 +236,20 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 2 - position_shift 1. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
       "conformed": true,
-      "note": "Winner confirmed UNCHANGED under the floored grid in #255 re-run testing; committed artifacts retained because a full regen surfaces pre-existing producer debt (legacy winner_summary/signal_scope/analyst_suggestions/interpretation_metadata schema) out of #255 scope \u2014 floor-grid source edit + producer cleanup deferred to a follow-up."
+      "note": "Winner confirmed UNCHANGED under the floored grid in #255 re-run testing; committed artifacts retained because a full regen surfaces pre-existing producer debt (legacy winner_summary/signal_scope/analyst_suggestions/interpretation_metadata schema) out of #255 scope \u2014 floor-grid source edit + producer cleanup deferred to a follow-up.",
+      "position_shift": 1,
+      "lead_floor_effective": 2
     },
     "ism_services_spy": {
       "signal_frequency": "monthly",
       "signal_description": "ISM Services PMI (monthly)",
-      "publication_lag": "~3rd business day of month M+1",
+      "publication_lag": "ISM, 3rd business day of M+1 (3-5 calendar days after month-end)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -254,18 +265,19 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ISM Report On Business calendar: 3rd business day of M+1 (not on FRED); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "m2sl_yoy_spy": {
       "signal_frequency": "monthly",
       "signal_description": "M2 money stock YoY, M2SL (FRED, monthly)",
-      "publication_lag": "~4th week of month M+1",
+      "publication_lag": "Fed H.6, 4th week of M+1 (ALFRED median 23 d, p90 28 d; thinnest E2 margin in the fleet)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -281,13 +293,15 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "nhs_spy": {
       "signal_frequency": "monthly",
       "signal_description": "New Home Sales (Census, monthly)",
-      "publication_lag": "~end of month M+1 (~24th, ~4 weeks)",
+      "publication_lag": "Census, ~24th-26th of M+1 (ALFRED median 25 d, p90 29 d)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 2,
@@ -309,13 +323,15 @@
       "observed_winner_lead_unit": "months",
       "class": "monthly",
       "note": "Winner deploys at L0 (coincident); flagged per Step 2 as coincident/lookahead, not the real-time-deployable lead. Axis is coherent monthly.",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": false
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "conformed": false,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "nhs_rebuilt_spy": {
       "signal_frequency": "monthly",
       "signal_description": "New Home Sales (Census, monthly) -- #255 publication-lag-floored REBUILD of nhs_spy, reconstructed from the live FRED API (HSN1FNSA/HSN1F) + yfinance (NOT Dana's committed parquet); the parallel original nhs_spy is left untouched for comparison",
-      "publication_lag": "~end of M+1 (~24th, ~4 weeks)",
+      "publication_lag": "Census, ~24th-26th of M+1 (ALFRED median 25 d, p90 29 d)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 2,
@@ -337,13 +353,15 @@
       "observed_winner_lead_unit": "months",
       "class": "monthly",
       "note": "Floored rebuild of nhs_spy. Winner deploys at L13 -- the TOP of the floored grid [2..14]; a grid-ceiling/long-lead result flagged per Step 4 for adjudication (likely fragile / multiple-testing). Axis is coherent monthly and conformed to the derived floor.",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor L2",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "permit_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Building Permits (Census, monthly)",
-      "publication_lag": "~mid of month M+1 (~17th)",
+      "publication_lag": "Census/HUD, ~17th-19th of M+1 (ALFRED median 18 d, p90 21 d)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 1,
@@ -364,21 +382,20 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 2 - position_shift 1. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
       "conformed": true,
       "note": "Winner confirmed UNCHANGED under the floored grid in #255 re-run testing; committed artifacts retained because a full regen surfaces pre-existing producer debt (legacy winner_summary/signal_scope/analyst_suggestions/interpretation_metadata schema) out of #255 scope \u2014 floor-grid source edit + producer cleanup deferred to a follow-up.",
-      "position_shift": 1
+      "position_shift": 1,
+      "lead_floor_effective": 2
     },
     "petrol_inv_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Petroleum & crude inventories (monthly-aligned)",
-      "publication_lag": "weekly, ~1 week (available in-month; days_since_release 0-6)",
+      "publication_lag": "EIA weekly, released the Wednesday after the week-ending Friday; the month's last print lands 0-5 days into M+1 (median 2 d, p90 5 d)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        0,
-        1,
         2,
         3,
         4,
@@ -394,13 +411,15 @@
       "observed_winner_lead_unit": "months",
       "class": "monthly",
       "note": "Floor L0 (weekly data available in-month, days_since_release 0-6); grid already [0..12] compliant \u2014 no re-run needed (#255). lead_floor 1 (v2 gate, 2026-10-15): signal is the monthly mean of weekly EIA stocks; the last weekly print is released ~Wed of M+1, so L0 is lookahead. Pipeline grid [0..12] still contains L0 -> gate FAILs until the pipeline is fixed.",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: EIA Weekly Petroleum Status Report calendar (Wednesday after the week-ending Friday; WTTSTUS1 not on FRED); monthly signal = calendar-month mean of weekly stocks, so the last weekly print of M is released 0-5 d into M+1; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 0..12 -> 2..12.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "t10y3m_spy": {
       "signal_frequency": "monthly",
       "signal_description": "10Y-3M Treasury term spread, T10Y3M (monthly-aligned)",
-      "publication_lag": "~none on native daily; monthly sample floors L1",
+      "publication_lag": "Treasury daily par curve posted after the close; FRED next business day (sampled at month-end)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 1,
@@ -422,16 +441,18 @@
       "observed_winner_lead_unit": "months",
       "class": "monthly",
       "note": "Native Treasury-yield source is daily; the pair is processed and deployed end-to-end on a monthly axis (internally coherent). Flagged for item-3 monthly re-validation to confirm the monthly axis vs a daily-signal treatment.",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": false
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 2 - position_shift 1. Evidence: Treasury par yield curve posted after the close; FRED T10Y3M posts the value on the next business day (ALFRED daily realtime_start stamped at the observation date, not usable); conservative E2 consistent with hy_ig_spy and ism_mfg_spy; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "conformed": false,
+      "position_shift": 1,
+      "lead_floor_effective": 2
     },
     "umcsent_xlv": {
       "signal_frequency": "monthly",
       "signal_description": "U. Michigan Consumer Sentiment, UMCSENT (monthly)",
-      "publication_lag": "~2 weeks (prelim mid-month, final month-end)",
+      "publication_lag": "U. Michigan, preliminary mid-month and final at or before the end of the survey month (ALFRED median -3.5 d, p90 0 d)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 0,
       "lead_grid": [
         1,
         2,
@@ -450,13 +471,15 @@
       "observed_winner_lead_unit": "months",
       "class": "monthly",
       "note": "Full L0-12 free selection (Option-C cap retired 2026-07-14); winner L6 is the full-grid global max. Coherent monthly axis.",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 0 = 1 - position_shift 1. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "conformed": true,
+      "position_shift": 1,
+      "lead_floor_effective": 1
     },
     "wells_fargo_housing_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Wells Fargo / NAHB Housing Market Index (monthly)",
-      "publication_lag": "~mid of month M (released in-month)",
+      "publication_lag": "NAHB, ~mid-month of the survey month itself (released ~2 weeks before month-end)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 1,
@@ -477,8 +500,10 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 1 - position_shift 0. Evidence: NAHB/Wells Fargo HMI release calendar: ~mid-month of the survey month itself (~11th business day; not on FRED); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 1
     },
     "hy_ig_spy_v1": {
       "signal_frequency": "daily",
@@ -567,12 +592,11 @@
     "import_price_spy": {
       "signal_frequency": "monthly",
       "signal_description": "BLS Import Price Index growth (monthly)",
-      "publication_lag": "~mid of month M+1 (~2 weeks)",
+      "publication_lag": "BLS, ~mid of M+1 (ALFRED median 15 d, p90 17 d)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -588,18 +612,19 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": false
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
+      "conformed": false,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "rsxfs_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Census Retail Sales ex food services (monthly)",
-      "publication_lag": "~mid of month M+1 (~2 weeks)",
+      "publication_lag": "Census advance retail sales, ~mid of M+1 (ALFRED median 16 d, p90 18 d)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -615,18 +640,19 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "unrate_spy": {
       "signal_frequency": "monthly",
       "signal_description": "BLS Unemployment Rate / Employment Situation (monthly)",
-      "publication_lag": "1st Friday of month M+1 (~1 week)",
+      "publication_lag": "BLS Employment Situation, 1st Friday of M+1 (ALFRED median 5 d, p90 8 d)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -642,18 +668,19 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "ism_mfg_spy": {
       "signal_frequency": "monthly",
       "signal_description": "ISM Manufacturing PMI (monthly)",
-      "publication_lag": "1st business day of month M+1",
+      "publication_lag": "ISM, 1st business day of M+1 (1-3 calendar days after month-end)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -669,19 +696,20 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ISM Report On Business calendar: 1st business day of M+1 (not on FRED); stakeholder chose E2 over E1 + 1-day execution delay (2026-10-16); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
       "conformed": true,
-      "reconfirmed_winner": "ism_diff_1m / L4 / countercyclical / OOS Sharpe 1.507 (#255 floored re-run, DATE_TAG 20261008)"
+      "reconfirmed_winner": "ism_diff_1m / L4 / countercyclical / OOS Sharpe 1.507 (#255 floored re-run, DATE_TAG 20261008)",
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "permit_yoy_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Census Building Permits YoY (monthly)",
-      "publication_lag": "~mid of month M+1 (~17th)",
+      "publication_lag": "Census/HUD, ~17th-19th of M+1 (ALFRED median 18 d, p90 21 d)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -697,13 +725,15 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "umcsent_spy": {
       "signal_frequency": "monthly",
       "signal_description": "U. Michigan Consumer Sentiment (monthly)",
-      "publication_lag": "~2 weeks (prelim mid-month, final month-end)",
+      "publication_lag": "U. Michigan survey, preliminary mid-month and final at or before the end of the survey month (ALFRED UMCSENT median -3.5 d, p90 0 d)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 1,
@@ -724,18 +754,19 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 1 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09 (UMCSENT as calendar proxy: the expected-business-conditions component is published with the same survey release); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 1
     },
     "housing_starts_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Census Housing Starts (monthly)",
-      "publication_lag": "~mid of month M+1 (~17th)",
+      "publication_lag": "Census/HUD, ~17th-19th of M+1 (ALFRED median 18 d, p90 21 d)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -751,18 +782,19 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": false
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
+      "conformed": false,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "housing_starts_rebuilt_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Census/HUD Housing Starts (monthly) -- #255 publication-lag-floored REBUILD of housing_starts_spy, reconstructed from the live FRED API (HOUST) + yfinance SPY (NOT the original committed dataset); the parallel original housing_starts_spy is left untouched for comparison",
-      "publication_lag": "~mid of M+1 (~17th)",
+      "publication_lag": "Census/HUD, ~17th-19th of M+1 (ALFRED median 18 d, p90 21 d)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -779,20 +811,19 @@
       "observed_winner_lead_unit": "months",
       "class": "monthly",
       "note": "Floored rebuild of housing_starts_spy. Winner deploys at L8 (interior of the floored grid [1..13]); a binary YoY-contraction flag, long/cash, with NO forward Granger causality and bootstrap p=0.106 -- found_in_search, low confidence.",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor L1",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "cement_spy": {
       "signal_frequency": "monthly",
       "signal_description": "USGS Portland Cement shipments (monthly)",
-      "publication_lag": "~6-8 weeks (late M+1 / M+2)",
+      "publication_lag": "USGS monthly cement survey, ~2-3 months after month-end (median 72 d, p90 122 d; 55-91 d before the 2025 shutdown, 95-165 d since 2025-07)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 2,
+      "lead_floor": 5,
       "lead_grid": [
-        2,
-        3,
-        4,
         5,
         6,
         7,
@@ -806,19 +837,20 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 5 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 5 = 5 - position_shift 0. Evidence: USGS Mineral Industry Surveys 'Cement in <month>' PDF publication (S3 Last-Modified) dates, 2021-09..2026-06; S&P Global confirms Apr-2025 data published 2025-07-24; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 2..14 -> 5..14.",
       "conformed": true,
-      "reconfirmed_winner": "cement_yoy / L4 / countercyclical / OOS Sharpe 1.253 (#255 floored re-run, DATE_TAG 20261008)"
+      "reconfirmed_winner": "cement_yoy / L4 / countercyclical / OOS Sharpe 1.253 (#255 floored re-run, DATE_TAG 20261008)",
+      "position_shift": 0,
+      "lead_floor_effective": 5
     },
     "mfg_new_orders_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Census Manufacturers' New Orders, M3 (monthly)",
-      "publication_lag": "~5 weeks (early M+2)",
+      "publication_lag": "Census M3 full report, ~5 weeks after month-end, early M+2 (ALFRED median 34 d, p90 40 d)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 2,
+      "lead_floor": 3,
       "lead_grid": [
-        2,
         3,
         4,
         5,
@@ -834,18 +866,19 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 3 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 3 = 3 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09 (AMTMNO, Census M3 full report); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 2..14 -> 3..14.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 3
     },
     "retail_inv_sales_spy": {
       "signal_frequency": "monthly",
       "signal_description": "Census Retail Inventories/Sales, MTIS (monthly)",
-      "publication_lag": "~6 weeks (mid M+2)",
+      "publication_lag": "Census MTIS, ~6-7 weeks after month-end, mid M+2 (ALFRED median 46 d, p90 49 d)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 2,
+      "lead_floor": 3,
       "lead_grid": [
-        2,
         3,
         4,
         5,
@@ -861,13 +894,15 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 3 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 3 = 3 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09 (RETAILIRSA, Census MTIS); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 2..14 -> 3..14.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 3
     },
     "nhs_saar_spy": {
       "signal_frequency": "monthly",
       "signal_description": "New Home Sales SAAR, Census HSN1F (monthly)",
-      "publication_lag": "~end of month M+1 (~24th, ~4 weeks)",
+      "publication_lag": "Census, ~24th-26th of M+1 (ALFRED median 25 d, p90 29 d)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 2,
@@ -888,13 +923,15 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": false
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "conformed": false,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "nhs_saar_rebuilt_spy": {
       "signal_frequency": "monthly",
       "signal_description": "New Home Sales SAAR, Census HSN1F (monthly) -- #255 publication-lag-floored REBUILD of nhs_saar_spy, reconstructed from the live FRED API (HSN1F) + yfinance SPY on 2026-10-08 (NOT Dana's committed parquet); the parallel original nhs_saar_spy is left untouched for comparison. Winner deploys at L14 -- the TOP of the floored grid [2..14]; a grid-ceiling/long-lead result flagged per Step 4 for adjudication (likely fragile / multiple-testing), reinforced by the 14-month lead sitting beyond the 12-month Granger window where forward significance (lags 1-2, 5-7) actually appears.",
-      "publication_lag": "~end of month M+1 (~24th, ~4 weeks)",
+      "publication_lag": "Census, ~24th-26th of M+1 (ALFRED median 25 d, p90 29 d)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 2,
@@ -916,18 +953,19 @@
       "observed_winner_lead_unit": "months",
       "class": "monthly",
       "note": "Floored rebuild of nhs_saar_spy. Winner deploys at L14 -- the TOP of the floored grid [2..14]; a grid-ceiling/long-lead result flagged per Step 4 for adjudication (likely fragile / multiple-testing). Axis is coherent monthly and conformed to the derived floor.",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor L2",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "cc_delinquency_spy": {
       "signal_frequency": "quarterly",
       "signal_description": "Fed Credit-Card Delinquency, DRCCLACBS (quarterly)",
-      "publication_lag": "~2.5 months after quarter end",
+      "publication_lag": "Federal Reserve, ~7 weeks after quarter-end (ALFRED 48-56 d, median 51 d, p90 55 d; one 76-d shutdown outlier); released in the following quarter",
       "real_time": false,
       "lead_axis": "quarters",
-      "lead_floor": 1,
+      "lead_floor": 2,
       "lead_grid": [
-        1,
         2,
         3,
         4,
@@ -935,13 +973,15 @@
       ],
       "observed_winner_lead_unit": "quarters",
       "class": "quarterly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..5 -> 2..5.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 2
     },
     "sloos_ci_small_spy": {
       "signal_frequency": "quarterly",
       "signal_description": "Fed Senior Loan Officer Survey, C&I small firms (quarterly)",
-      "publication_lag": "~5 weeks (early next quarter)",
+      "publication_lag": "Fed SLOOS, published early Feb/May/Aug/Nov, i.e. inside the quarter it is stamped to (ALFRED median -56 d vs quarter-end)",
       "real_time": false,
       "lead_axis": "quarters",
       "lead_floor": 1,
@@ -954,13 +994,15 @@
       ],
       "observed_winner_lead_unit": "quarters",
       "class": "quarterly",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor",
-      "conformed": true
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 1 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09 (DRTSCIS); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "conformed": true,
+      "position_shift": 0,
+      "lead_floor_effective": 1
     },
     "t10y3m_rebuilt_spy": {
       "signal_frequency": "monthly",
       "signal_description": "10Y-3M Treasury term spread, T10Y3M -- #255 publication-lag-floored REBUILD of t10y3m_spy, reconstructed from the live FRED API (T10Y3M, a daily series sampled to month-end) + yfinance SPY (NOT the original pair committed parquet); the parallel original t10y3m_spy is left untouched for comparison. Kept on the original pair canonical MONTHLY axis (a deliberate, comparable choice; a daily-signal treatment would be a different pair).",
-      "publication_lag": "~1-day (daily FRED series, sampled to month-end)",
+      "publication_lag": "Treasury daily par curve posted after the close; FRED next business day (sampled at month-end)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 1,
@@ -982,14 +1024,15 @@
       "observed_winner_lead_unit": "months",
       "class": "monthly",
       "note": "Floored rebuild of t10y3m_spy. Winner deploys at L6 -- INSIDE the floored grid [1..13], not at a ceiling. The search re-selected the same rule shape (chg_3m / T2_roll_p75 / P1_long_cash / L6 / LB60) as the untouched original on a separate data build. Axis is coherent monthly and conformed to the derived floor.",
-      "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = anchored 0..H shifted by floor L1",
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 2 - position_shift 1. Evidence: Treasury par yield curve posted after the close; FRED T10Y3M posts the value on the next business day (ALFRED daily realtime_start stamped at the observation date, not usable); conservative E2 consistent with hy_ig_spy and ism_mfg_spy; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
       "conformed": true,
-      "position_shift": 1
+      "position_shift": 1,
+      "lead_floor_effective": 2
     },
     "consumer_sentiment_spy": {
       "signal_frequency": "monthly",
       "signal_description": "U. Michigan headline Consumer Sentiment, UMCSENT (monthly)",
-      "publication_lag": "~2 weeks (prelim mid-month, final end-of-month)",
+      "publication_lag": "U. Michigan, preliminary mid-month and final at or before the end of the survey month (ALFRED median -3.5 d, p90 0 d)",
       "real_time": false,
       "lead_axis": "months",
       "lead_floor": 1,
@@ -1011,7 +1054,10 @@
       "observed_winner_lead_unit": "months",
       "conformed": true,
       "class": "monthly",
-      "note": "NEW pair (#headline-sentiment x SPY). #255-floored grid [1..13]; winner diff_1m/T_roll_p75/countercyclical/L12. Compare with umcsent_xlv (same series vs XLV) and umcsent_spy (expected-business-conditions vs SPY)."
+      "note": "NEW pair (#headline-sentiment x SPY). #255-floored grid [1..13]; winner diff_1m/T_roll_p75/countercyclical/L12. Compare with umcsent_xlv (same series vs XLV) and umcsent_spy (expected-business-conditions vs SPY).",
+      "position_shift": 0,
+      "lead_floor_effective": 1,
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 1 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged."
     }
   }
 }

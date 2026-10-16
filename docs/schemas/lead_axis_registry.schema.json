@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aig-rlic-plus/docs/schemas/lead_axis_registry.schema.json",
   "title": "Lead-Axis Registry",
-  "description": "Per-pair frequency record mandated by the Lead-Grid Frequency Standard (docs/lead-grid-frequency-standard.md, adopted 2026-07-14). For every REGISTERED pair (one entry per app/pair_configs/*_config.py) it records the signal's native release frequency, its publication lag, the lead axis that frequency implies (Step 1 HARD RULE), and the anchored grid (Step 3). scripts/gate_lead_axis.py reads lead_axis here as the expected axis and asserts each pair's lead artifacts sit on it. lead_floor / publication_lag are REFERENCE metadata (Step 2 real-time floor) and are NOT gate-enforced.",
+  "description": "Per-pair frequency record mandated by the Lead-Grid Frequency Standard (docs/lead-grid-frequency-standard.md, adopted 2026-07-14). For every REGISTERED pair (one entry per app/pair_configs/*_config.py) it records the signal's native release frequency, its publication lag, the lead axis that frequency implies (Step 1 HARD RULE), and the anchored grid (Step 3). scripts/gate_lead_axis.py reads lead_axis here as the expected axis and asserts each pair's lead artifacts sit on it. lead_floor / lead_floor_effective / position_shift are enforced by scripts/gate_lead_floor.py (strict floor on the effective lag, standard Step 2 amended 2026-10-16); publication_lag is human-readable reference text.",
   "x-owner": "evan",
-  "x-version": "1.0.0",
+  "x-version": "1.1.0",
   "type": "object",
   "required": ["x-version", "x-owner", "governing_standard", "pairs"],
   "properties": {
@@ -56,7 +56,7 @@
         "signal_description": {"type": "string"},
         "publication_lag": {
           "type": "string",
-          "description": "REFERENCE ONLY (Step 2). Human-readable release lag; not gate-enforced."
+          "description": "Human-readable release lag with its evidence (e.g. ALFRED first-vintage median/p90 days after period-end). Reference text; the enforced value is lead_floor_effective."
         },
         "real_time": {
           "type": "boolean",
@@ -69,7 +69,7 @@
         },
         "lead_floor": {
           "type": "integer",
-          "description": "REFERENCE ONLY (Step 2 real-time deployable floor); not gate-enforced.",
+          "description": "Smallest admissible grid lead = lead_floor_effective - position_shift (Step 2, amended 2026-10-16). Enforced by scripts/gate_lead_floor.py.",
           "minimum": 0
         },
         "position_shift": {
@@ -80,7 +80,7 @@
         "lead_floor_effective": {
           "type": "integer",
           "minimum": 0,
-          "description": "Optional floor on the EFFECTIVE lag (min(grid) + position_shift) enforced by scripts/gate_lead_floor.py; when absent the gate compares min(grid) to lead_floor."
+          "description": "STRICT floor on the EFFECTIVE lag (lead + position_shift): the smallest E with first_release(M) <= period_end(M+E-1) on observed release dates (standard Step 2, amended 2026-10-16). Every grid lead and the published winner lead must satisfy lead + position_shift >= this value (scripts/gate_lead_floor.py). When absent the gate uses lead_floor + position_shift."
         },
         "lead_grid": {
           "type": "array",
