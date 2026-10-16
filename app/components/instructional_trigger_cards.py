@@ -486,9 +486,12 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     # above is the LATEST value of a moving boundary, not a permanent cutoff. The
     # cards illustrate crossings at that latest level; the live rule compares the
     # signal to the 60-month rolling median at each date.
-    _is_rolling_tc = "roll" in str(winner.get("threshold_code", "")).lower()
+    _tc_low = str(winner.get("threshold_code", "")).lower()
+    _is_rolling_tc = "roll" in _tc_low or _tc_low.startswith("t2_rp")
+    _roll_desc = (f"trailing 504-day {_tc_low[5:]}th percentile" if _tc_low.startswith("t2_rp")
+                  else "rolling 60-month median")
     _thr_note = (
-        f"latest value of its **rolling 60-month median** (a moving boundary) = **{threshold:g}**"
+        f"latest value of its **{_roll_desc}** (a moving boundary) = **{threshold:g}**"
         if _is_rolling_tc
         else f"**{threshold:g}**"
     )
@@ -500,9 +503,11 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     )
     if _is_rolling_tc:
         st.caption(
-            "Note: the decision boundary is a 60-month rolling median that moves "
+            f"Note: the decision boundary is a {_roll_desc} that moves "
             "over time — the single number shown is only its most recent level. "
             "The cards below illustrate a crossing at that latest level."
+            + (f" The rule reads the signal {winner.get('lead_value')} trading days back."
+               if str(winner.get("lead_unit", "")).startswith("day") and winner.get("lead_value") else "")
         )
     if pair_id == "cement_spy":
         st.caption(

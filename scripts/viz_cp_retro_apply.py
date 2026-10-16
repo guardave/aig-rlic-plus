@@ -21,7 +21,7 @@ from _chart_layout import apply_caption_layout  # noqa: E402
 warnings.filterwarnings("ignore")
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-BASE = Path("/workspaces/aig-rlic-plus")
+BASE = Path(__file__).resolve().parents[1]
 
 
 def load_episodes(pair_id: str) -> list:
@@ -296,6 +296,9 @@ def build_structural_break(
     # Text annotation for test result
     p_str = f"p={p_val:.3f}" if p_val is not None else "p=N/A"
     annot_text = f"Quandt-Andrews test: F={f_stat:.2f}, {p_str}"
+    _cv = sb.get("critical_values_f_form")
+    if p_val is None and _cv:  # sup-F test without an asymptotic p-value: show the 5% critical value
+        annot_text = f"Quandt-Andrews sup-F={f_stat:.2f} at {sb['breakpoint_date']}; 5% critical value {_cv['5%']:.2f}"
 
     fig.update_layout(
         title=dict(
@@ -538,7 +541,8 @@ CHART_NAMES = [
 
 results_table = []
 
-for pair_id in PAIRS:
+_ONLY = [a for a in sys.argv[1:] if not a.startswith("-")]  # optional pair filter
+for pair_id in (_ONLY or PAIRS):
     res_dir = RESULTS / pair_id
     out_dir = CHARTS / pair_id / "plotly"
     row = {"pair": pair_id}

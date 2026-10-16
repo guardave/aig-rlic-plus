@@ -6,11 +6,12 @@
     "VIZ-V8",
     "VIZ-V11",
     "VIZ-NM1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-O1"
   ],
-  "narrative_alignment_note": "Monotonic return degradation Q1\u2192Q4 confirms that spread level is a strong regime discriminator for SPY returns.",
-  "created_at": "2026-04-22T10:50:45Z",
+  "disposition": "consumed",
+  "narrative_alignment_note": "Forward 1m Q4-Q1 -0.32 pp (t -0.40); 3m -1.18 pp (t -0.59); not monotonic.",
+  "created_at": "2026-10-16T16:47:19Z",
   "method_name": "Quartile Returns",
-  "expected_chart_type": "bar",
-  "disposition": "consumed"
+  "expected_chart_type": "bar"
 }

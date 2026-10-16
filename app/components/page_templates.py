@@ -596,6 +596,16 @@ def _format_scalar(value: Any, ndp: int = 2, default: str = "N/A") -> str:
 # ---------------------------------------------------------------------------
 # STORY PAGE
 # ---------------------------------------------------------------------------
+def _sharpe_kpi_delta(winner: dict) -> tuple[str | None, str]:
+    """Signed Sharpe gap vs buy-and-hold for the KPI delta, so st.metric shows a red down arrow
+    when the strategy is BELOW buy-and-hold (the previous text-only "vs X B&H" delta always
+    rendered as a green up arrow). Falls back to the text form when values are missing."""
+    s, b = winner.get("oos_sharpe"), winner.get("bh_sharpe")
+    if isinstance(s, (int, float)) and isinstance(b, (int, float)):
+        return f"{float(s) - float(b):+.2f} vs B&H {float(b):.2f}", "normal"
+    return (f"vs {_format_scalar(b)} B&H" if b is not None else None), "off"
+
+
 def _dd_kpi_delta(winner: dict) -> tuple[str | None, str]:
     """Step C #197 (Alex_UK): colour the Max Drawdown KPI delta GREEN when the
     strategy's drawdown is shallower (less negative) than buy-and-hold, RED when
@@ -644,7 +654,7 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     _apply_page_config(f"{pair_display} Story | AIG-RLIC+", "📖")
 
     # ------ 3. Sidebar + glossary ------
-    render_sidebar()
+    render_sidebar(pair_id)
     render_glossary_sidebar()
 
     # ------ 2. Breadcrumb ------
@@ -713,7 +723,7 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     st.markdown(
         f"{_key_metrics_header}\n\n"
         f"- **Sharpe ratio: {oos_sharpe}** (vs {bh_sharpe} buy-and-hold {target})\n"
-        f"- **Annualized return: {oos_return}** with risk-adjusted exposure\n"
+        f"- **Annualized return: {oos_return}** (vs {_format_ratio_pct(winner.get('bh_ann_return'), signed=True)} buy-and-hold {target})\n"
         f"- **Max drawdown: {max_dd}** (vs {bh_dd} buy-and-hold {target})"
     )
     st.markdown("---")
@@ -778,7 +788,8 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
         {
             "label": _headline_sharpe_label,
             "value": oos_sharpe,
-            "delta": f"vs {bh_sharpe} B&H" if bh_sharpe != "N/A" else None,
+            "delta": _sharpe_kpi_delta(winner)[0],
+            "delta_color": _sharpe_kpi_delta(winner)[1],
         },
         {
             "label": "OOS Return",
@@ -1182,7 +1193,7 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     _, target, pair_display = _indicator_target_display(pair_id, interp)
 
     _apply_page_config(f"{pair_display} Evidence | AIG-RLIC+", "🔬")
-    render_sidebar()
+    render_sidebar(pair_id)
     render_glossary_sidebar()
     render_breadcrumb("Evidence", pair_id)
 
@@ -1368,7 +1379,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     _, target, pair_display = _indicator_target_display(pair_id, interp)
 
     _apply_page_config(f"{pair_display} Strategy | AIG-RLIC+", "🎯")
-    render_sidebar()
+    render_sidebar(pair_id)
     render_glossary_sidebar()
     render_breadcrumb("Strategy", pair_id)
 
@@ -1470,9 +1481,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     _kpi_routing = _evidence_status_kpi_routing(pair_id)
     if _kpi_routing is None:
         _headline_sharpe_label = "OOS Sharpe"
-        _headline_sharpe_delta = (
-            f"vs {bh_sharpe} B&H" if bh_sharpe != "N/A" else None
-        )
+        _headline_sharpe_delta = _sharpe_kpi_delta(winner)[0]
     else:
         _headline_sharpe_label = _kpi_routing["headline_label"]
         # Window-labelling rule: the Strategy KPI row carries no period
@@ -1487,7 +1496,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
 
     kpi_row([
         {"label": _headline_sharpe_label, "value": oos_sharpe,
-         "delta": _headline_sharpe_delta},
+         "delta": _headline_sharpe_delta,
+         "delta_color": _sharpe_kpi_delta(winner)[1] if _kpi_routing is None else "off"},
         {"label": "OOS Return", "value": oos_return, "delta": "annualized"},
         {"label": "Max Drawdown", "value": max_dd,
          "delta": _dd_kpi_delta(winner)[0],
@@ -1797,7 +1807,11 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str) -> None:
         st.info("No valid tournament strategies to display.")
         return
 
-    top = valid.nlargest(10, "oos_sharpe").copy()
+    # GH #251/#268: when the tournament carries in-sample metrics, the winner was selected on
+    # IS Sharpe, so the leaderboard ranks by IS Sharpe (and shows both); ranking by OOS Sharpe
+    # would present an OOS-argmax list the selection never used.
+    _is_sel = "is_sharpe" in valid.columns and valid["is_sharpe"].notna().any()
+    top = valid.nlargest(10, "is_sharpe" if _is_sel else "oos_sharpe").copy()
 
     # Normalise drawdown / return units for display.
     def _to_pct(v: Any) -> str:
@@ -1826,6 +1840,7 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str) -> None:
             "Threshold": r.get("threshold", "—"),
             "Strategy": r.get("strategy", "—"),
             "Lead": _lead_cell(r),
+            **({"IS Sharpe": round(float(r["is_sharpe"]), 2)} if _is_sel else {}),
             "OOS Sharpe": round(float(r["oos_sharpe"]), 2),
             "OOS Return": _to_pct(r.get("oos_ann_return")),
             "Max DD": _to_pct(r.get("max_drawdown")),
@@ -1841,6 +1856,8 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str) -> None:
             "Threshold": "—",
             "Strategy": "Benchmark",
             "Lead": "—",
+            **({"IS Sharpe": round(float(b["is_sharpe"]), 2)} if _is_sel and pd.notna(b.get("is_sharpe")) else
+               ({"IS Sharpe": None} if _is_sel else {})),
             "OOS Sharpe": round(float(b["oos_sharpe"]), 2),
             "OOS Return": _to_pct(b.get("oos_ann_return")),
             "Max DD": _to_pct(b.get("max_drawdown")),
@@ -1858,7 +1875,9 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str) -> None:
     )
     st.caption(
         f"**{((tdf['signal'] != 'BENCHMARK').sum() if 'signal' in tdf.columns else len(tdf)):,} combinations tested** | "
-        f"**{len(valid):,} valid** (OOS Sharpe > 0)."
+        + (f"**{len(valid):,} valid** (in-sample validity filters); ranked by in-sample Sharpe, "
+           "the selection objective — OOS Sharpe is shown for evaluation only."
+           if _is_sel else f"**{len(valid):,} valid** (OOS Sharpe > 0).")
     )
 
 
@@ -2068,7 +2087,7 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
     _, _, pair_display = _indicator_target_display(pair_id, interp)
 
     _apply_page_config(f"{pair_display} Methodology | AIG-RLIC+", "📐")
-    render_sidebar()
+    render_sidebar(pair_id)
     render_glossary_sidebar()
     render_breadcrumb("Methodology", pair_id)
 

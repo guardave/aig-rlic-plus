@@ -6,11 +6,12 @@
     "VIZ-V8",
     "VIZ-V11",
     "VIZ-NM1",
-    "VIZ-IC1"
+    "VIZ-IC1",
+    "VIZ-O1"
   ],
-  "narrative_alignment_note": "Episode zoom (COVID 2019-2021) shows spread lead/lag relationship with SPY drawdown.",
-  "created_at": "2026-04-22T10:50:44Z",
+  "disposition": "consumed",
+  "narrative_alignment_note": "Episode zoom (COVID 2019-2021): HY-IG spread and SPY price over the episode window.",
+  "created_at": "2026-10-16T16:47:16Z",
   "method_name": "History Zoom",
-  "expected_chart_type": "dual_panel_line",
-  "disposition": "consumed"
+  "expected_chart_type": "dual_panel_line"
 }

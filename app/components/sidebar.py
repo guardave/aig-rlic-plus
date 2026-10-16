@@ -65,8 +65,24 @@ def _build_findings() -> list[dict]:
     return findings
 
 
-def render_sidebar():
-    """Render the sidebar with dashboard link and finding selector."""
+def _data_through(pair_id: str | None) -> str:
+    """Last date of the pair's data (winner_summary.oos_period_end); generic text off-pair."""
+    if pair_id:
+        import json
+        from pathlib import Path
+        p = Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json"
+        try:
+            end = json.loads(p.read_text()).get("oos_period_end")
+            if end:
+                return f"Data through {end}"
+        except Exception:
+            pass
+    return "Data end dates vary by pair"
+
+
+def render_sidebar(pair_id: str | None = None):
+    """Render the sidebar with dashboard link and finding selector.
+    ``pair_id`` (optional) sets the "Data through" line from that pair's winner_summary."""
     findings = _build_findings()
 
     with st.sidebar:
@@ -109,7 +125,7 @@ def render_sidebar():
         n_done = prospective_n_completed(completed_ids)
         st.markdown(
             f'<p style="font-size: 0.8rem; color: #999;">'
-            f"Data through 2025-12-31<br>"
+            f"{_data_through(pair_id)}<br>"
             f"{n_done} of {n_total} priority pairs analyzed"
             f"</p>",
             unsafe_allow_html=True,

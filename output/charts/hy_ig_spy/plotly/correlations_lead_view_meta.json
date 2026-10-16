@@ -8,14 +8,14 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "narrative_alignment_note": "Winner signal hmm_2state_prob_stress peaks at L6 (r=-0.137). NOTE: this is a DAILY-executed pair; the monthly L0..L12 axis is a resampled comparability view (the native diagnostic is daily), not the execution horizon.",
-  "caption": "Winner signal hmm_2state_prob_stress peaks at L6 (r=-0.137). NOTE: this is a DAILY-executed pair; the monthly L0..L12 axis is a resampled comparability view (the native diagnostic is daily), not the execution horizon.",
-  "created_at": "2026-07-15T10:26:25Z",
+  "narrative_alignment_note": "Winner signal hy_ig_roc_63d: largest |r| at 5 trading days (r=+0.019).",
+  "caption": "Winner signal hy_ig_roc_63d: largest |r| at 5 trading days (r=+0.019).",
+  "created_at": "2026-10-16T16:47:21Z",
   "method_name": "lead_correlation_view",
   "expected_chart_type": "heatmap",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/hy_ig_spy/lead_correlation_monthly_axis_20260620.csv"
+    "results/hy_ig_spy/lead_correlation_20261016.csv"
   ],
   "generated_by": "Viz Vera \u2014 scripts/generate_lead_charts.py (VIZ-LEAD1)"
 }

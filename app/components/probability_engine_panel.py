@@ -216,6 +216,7 @@ def _render_chart(
     rolling_quantile: float | None = None,
     rolling_window: int = 60,
     rolling_min_periods: int = 36,
+    rolling_label: str | None = None,
 ):
     """Render the probability-engine time-series (APP-SE1 acceptance).
 
@@ -265,7 +266,7 @@ def _render_chart(
                 y=roll_series.values,
                 mode="lines",
                 name=(
-                    f"Decision threshold (rolling {rolling_window}m median, "
+                    f"Decision threshold ({rolling_label or f'rolling {rolling_window}m median'}, "
                     f"latest {threshold:g}): "
                     + ("long at/below, cash above" if long_below else "long above, cash at/below")
                 ),
@@ -581,6 +582,21 @@ def render_probability_engine_panel(pair_id: str) -> None:
     # #245 re-open: map the rolling-quantile code to its quantile so the panel can
     # redraw the actual time-varying boundary (matches pipeline build_threshold).
     _roll_q = {"t_roll_p25": 0.25, "t_roll_p50": 0.50, "t_roll_p75": 0.75}.get(_tc)
+    _roll_kw = {}
+    # Daily trailing-504d percentile thresholds (e.g. hy_ig_spy T2_rp75): the rule compares the
+    # LEAD-SHIFTED signal with its own trailing 504-trading-day percentile, so draw exactly that.
+    import re as _re
+    _m_rp = _re.fullmatch(r"t2_rp(\d+)", _tc)
+    _lead_days = winner.get("lead_value") if str(winner.get("lead_unit", "")).startswith("day") else None
+    if _m_rp:
+        _is_rolling = True
+        _roll_q = int(_m_rp.group(1)) / 100
+        _roll_kw = dict(rolling_window=504, rolling_min_periods=400,
+                        rolling_label=f"trailing 504-day {_m_rp.group(1)}th percentile")
+        if isinstance(_lead_days, int) and _lead_days > 0 and column in signals_df.columns:
+            signals_df = signals_df.copy()
+            signals_df[column] = signals_df[column].shift(_lead_days)
+            display_name = f"{display_name} (lagged {_lead_days} trading days)"
     _render_chart(
         signals_df,
         column,
@@ -593,6 +609,7 @@ def render_probability_engine_panel(pair_id: str) -> None:
         long_below=_long_below,
         is_rolling=_is_rolling,
         rolling_quantile=_roll_q,
+        **_roll_kw,
     )
 
     # APP-SE5 universal takeaway caption
@@ -606,7 +623,8 @@ def render_probability_engine_panel(pair_id: str) -> None:
     elif _is_rolling:
         takeaway = (
             f"The signal ({display_name}) drives the strategy; position changes "
-            f"are triggered when the value crosses its rolling 60-month median "
+            f"are triggered when the value crosses its "
+            f"{_roll_kw.get('rolling_label', 'rolling 60-month median')} "
             f"(a moving boundary, latest value {threshold:g}) — not a fixed cutoff."
         )
     else:

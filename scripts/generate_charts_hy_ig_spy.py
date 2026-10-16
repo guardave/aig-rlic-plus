@@ -2,7 +2,7 @@
 """
 Chart Generation: HY-IG Credit Spread (fresh) -> S&P 500 (SPY)
 ===============================================================
-Pair ID: hy_ig_spy  (Wave 10G.4D — Sample-parity 22-chart suite)
+Pair ID: hy_ig_spy  (Wave 10G.4D 22-chart suite; 2026-10-16 rebuild reads RUN_TAG 20261016 artifacts)
 
 Produces 22 Plotly JSON charts + 22 _meta.json sidecars, all with
 bare filenames per VIZ-NM1 (no pair_id prefix in filename).
@@ -31,7 +31,8 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 # ── Paths ────────────────────────────────────────────────────────────────
-BASE_DIR   = "/workspaces/aig-rlic-plus"
+BASE_DIR   = str(Path(__file__).resolve().parents[1])
+RUN_TAG    = "20261016"   # results vintage consumed (fix261016_hmm_causal)
 PAIR_ID    = "hy_ig_spy"
 DATA_DIR   = os.path.join(BASE_DIR, "data")
 RESULTS    = os.path.join(BASE_DIR, "results", PAIR_ID)
@@ -95,9 +96,9 @@ def _load_master():
     )
 
 def _load_signals():
-    return pd.read_parquet(
-        os.path.join(RESULTS, "signals_20260422.parquet")
-    )
+    """Latest committed signals parquet (causal HMM/MS since 20261016)."""
+    return pd.read_parquet(os.path.join(RESULTS, f"signals_{RUN_TAG}.parquet"))
+
 
 def _load_winner():
     with open(os.path.join(RESULTS, "winner_summary.json")) as f:
@@ -111,21 +112,22 @@ def _drawdown(cum):
     return (cum / peak - 1)
 
 def _build_winner_curve(df, oos_start):
-    sig_df = _load_signals()
-    oos = df[df.index >= oos_start].copy()
-    spy_ret = oos["spy_ret"] if "spy_ret" in oos.columns else oos["spy"].pct_change()
-    prob_col = "hmm_2state_prob_stress"
-    if prob_col not in sig_df.columns:
-        hmm_cols = [c for c in sig_df.columns if "hmm" in c.lower()]
-        prob_col = hmm_cols[0] if hmm_cols else None
-    if prob_col is None:
-        return oos.index, spy_ret * 0, spy_ret
-    stress_prob = sig_df.loc[oos.index.intersection(sig_df.index), prob_col].reindex(oos.index)
-    position = (1 - stress_prob).clip(0, 1).shift(1)
-    strat_ret = position * spy_ret
-    return oos.index, strat_ret.fillna(0), spy_ret.fillna(0)
+    """ECON-SR1: read the canonical winner series (no re-derivation)."""
+    sr = pd.read_csv(os.path.join(RESULTS, f"strategy_returns_{RUN_TAG}.csv"), parse_dates=["date"]).set_index("date")
+    sr = sr[sr.index >= oos_start]
+    return sr.index, sr["strategy_return"].fillna(0), sr["bh_return"].fillna(0)
 
-# ── Helpers ───────────────────────────────────────────────────────────────
+
+def _winner_label():
+    w = _load_winner()
+    return f"{w['signal_code']}/{w['threshold_code']}/{w['strategy_code']}/L{w['lead_value']}"
+
+
+def _sh(r):
+    r = pd.Series(r).dropna()
+    return float(r.mean() / r.std() * np.sqrt(252)) if r.std() > 0 else float("nan")
+
+
 def _add_recessions(fig, idx_min, idx_max, row=None, col=None):
     """Add NBER recession shading. For multi-panel, pass row/col."""
     for s, e in RECESSIONS:
@@ -232,16 +234,16 @@ def chart_hero():
         )
 
     fig.update_layout(
-        title=dict(text="Credit Stress Predicts Equity Drawdowns: 25 Years of HY-IG vs SPY"),
+        title=dict(text="HY-IG Credit Spread (inverted axis) and SPY Price, 2000-2026"),
         template=TEMPLATE, hovermode="x unified", height=520,
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         margin=dict(r=180, b=80),
     )
     fig.update_yaxes(title_text="HY-IG OAS Spread (%)", secondary_y=False, autorange="reversed")
     fig.update_yaxes(title_text="SPY Price ($)", secondary_y=True)
-    _note(fig, "Source: ICE BofA OAS via FRED; SPY via Yahoo Finance. Gray bands = NBER recessions.")
+    _note(fig, "Source: ICE BofA HY OAS minus US Corporate OAS (FRED BAMLH0A0HYM2 - BAMLC0A0CM); SPY via Yahoo Finance. Gray = NBER recessions.")
     _save_chart(fig, "hero",
-                narrative_note="Full 25-year context establishes the counter-cyclical link: spread spikes (2001, 2008, 2020) precede equity drawdowns.",
+                narrative_note="Descriptive history of the HY-IG OAS spread (inverted left axis) and SPY price, 2000-2026.",
                 expected_chart_type="dual_axis_line")
 
 
@@ -264,7 +266,7 @@ def chart_regime_stats():
         sharpe = ann_ret / ann_vol if ann_vol > 0 else 0
         return ann_ret * 100, ann_vol * 100, sharpe
 
-    regimes = ["Calm (stress prob ≤ 0.5)", "Stress (stress prob > 0.5)"]
+    regimes = ["Calm (filtered stress prob ≤ 0.5)", "Stress (filtered stress prob > 0.5)"]
     ann_rets = []
     ann_vols = []
     sharpes = []
@@ -294,11 +296,11 @@ def chart_regime_stats():
         sample_sizes=[int(calm_ret.shape[0]), int(stress_ret.shape[0])],
     )
     fig.update_layout(title=dict(
-        text="HMM Regime Discrimination: SPY Sharpe + Return by Credit Regime"))
+        text="Same-Day SPY Sharpe and Return by Causal HMM Credit Regime (2000-2026)"))
 
-    _note(fig, "HMM 2-state model identifies calm vs stress regimes from HY-IG spread dynamics. Left panel: annualized Sharpe per regime; right panel: annualized return.")
+    _note(fig, "2-state HMM on [daily spread change, VIX], fit on 2000-2019-09 only, forward-filtered. Same-day (concurrent) returns: descriptive, not a forecast.")
     _save_chart(fig, "regime_stats",
-                narrative_note="Winner signal (HMM stress prob > 0.5) divides regimes with strong return + Sharpe differential, validating the trading strategy. VIZ-QR1 dual-panel.",
+                narrative_note="Concurrent SPY Sharpe/return in the causal HMM calm vs stress states (descriptive). VIZ-QR1 dual-panel.",
                 method_name="HMM 2-State",
                 expected_chart_type="bar")
 
@@ -366,7 +368,7 @@ def _chart_history_zoom(name, start_str, end_str, title, episode_label):
     fig.update_yaxes(title_text="SPY Price ($)", row=2, col=1)
     _note(fig, f"Zoom: {episode_label}. Source: FRED / Yahoo Finance. Gray = NBER recession.")
     _save_chart(fig, name,
-                narrative_note=f"Episode zoom ({episode_label}) shows spread lead/lag relationship with SPY drawdown.",
+                narrative_note=f"Episode zoom ({episode_label}): HY-IG spread and SPY price over the episode window.",
                 method_name="History Zoom",
                 expected_chart_type="dual_panel_line")
 
@@ -374,7 +376,7 @@ def _chart_history_zoom(name, start_str, end_str, title, episode_label):
 def chart_history_zoom_dotcom():
     _chart_history_zoom(
         "history_zoom_dotcom", "2000-01-01", "2002-12-31",
-        "Dot-Com Bust: HY-IG Spread Widened Months Before SPY Bottomed (2000-2002)",
+        "Dot-Com Bust (2000-2002): HY-IG Spread and SPY",
         "Dot-Com 2000-2002",
     )
 
@@ -382,7 +384,7 @@ def chart_history_zoom_dotcom():
 def chart_history_zoom_gfc():
     _chart_history_zoom(
         "history_zoom_gfc", "2007-01-01", "2009-12-31",
-        "GFC: Credit Spreads Peaked at 2,000 bps as SPY Fell 57% (2007-2009)",
+        "Global Financial Crisis (2007-2009): HY-IG Spread and SPY",
         "GFC 2007-2009",
     )
 
@@ -390,7 +392,7 @@ def chart_history_zoom_gfc():
 def chart_history_zoom_covid():
     _chart_history_zoom(
         "history_zoom_covid", "2019-06-01", "2021-06-30",
-        "COVID Crash: HMM Correctly Signaled Stress; Strategy Avoided 30% Drawdown (2019-2021)",
+        "COVID Shock (2019-2021): HY-IG Spread and SPY",
         "COVID 2019-2021",
     )
 
@@ -400,13 +402,13 @@ def chart_history_zoom_covid():
 # ════════════════════════════════════════════════════════════════════════
 
 def chart_correlations():
-    """Rolling 252d correlation: HY-IG spread vs SPY returns."""
+    """Rolling 252d correlation: HY-IG spread LEVEL vs SPY same-day daily return (descriptive)."""
     df = _load_master()
-
     spy_ret = df["spy_ret"] if "spy_ret" in df.columns else df["spy"].pct_change()
     spread  = df["hy_ig_spread_pct"]
-
     rolling_corr = spread.rolling(252).corr(spy_ret)
+    rc = rolling_corr.dropna()
+    share_neg = float((rc < 0).mean() * 100)
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(
@@ -416,107 +418,79 @@ def chart_correlations():
         fill="tozeroy", fillcolor="rgba(213,94,0,0.10)",
     ))
     fig.add_hline(y=0, line_dash="dash", line_color=C_NEUTRAL, line_width=0.8)
-
     _add_recessions(fig, df.index.min(), df.index.max())
-
     fig.update_layout(
-        title=dict(text="HY-IG Spread Negatively Correlated with SPY Returns — Persistently Since 2008"),
+        title=dict(text="Rolling 252-Day Correlation: HY-IG Spread Level vs Same-Day SPY Return"),
         xaxis_title="Date",
         yaxis_title="Rolling 252-Day Correlation",
         template=TEMPLATE, height=450, margin=dict(r=180, b=80),
     )
-    _note(fig, "252-day rolling Pearson r between HY-IG spread (bps) and SPY daily returns. Gray = NBER recessions.")
+    _note(fig, f"Same-day (not forward) Pearson r between the spread level (pp) and SPY daily returns; negative on {share_neg:.0f}% of days. Gray = NBER recessions.")
     _save_chart(fig, "correlations",
-                narrative_note="Negative rolling correlation confirms that spread widening precedes equity weakness, especially post-2008.",
+                narrative_note=f"Descriptive same-day correlation of spread level with SPY daily return; negative on {share_neg:.0f}% of rolling windows.",
                 method_name="Rolling Correlation",
                 expected_chart_type="line")
 
 
 def chart_ccf():
-    """Pre-whitened cross-correlation function: HY-IG spread vs SPY returns, lags ±20 days."""
+    """CCF of daily spread CHANGE vs SPY daily return, lags -20..+20 trading days.
+    Returns are not differenced (they are already close to white noise); differencing them
+    induces an MA(1) artefact, which the earlier version of this chart did."""
     df = _load_master()
-    spy_ret = df["spy_ret"].dropna() if "spy_ret" in df.columns else df["spy"].pct_change().dropna()
-    spread  = df["hy_ig_spread_pct"].dropna()
-
-    # Align
-    common = spread.index.intersection(spy_ret.index)
-    s = spread.loc[common].values
-    r = spy_ret.loc[common].values
-
-    # Pre-whiten: take first difference (removes autocorrelation)
-    ds = np.diff(s)
-    dr = np.diff(r)
-
+    d = pd.DataFrame({"ds": df["hy_ig_spread_pct"].diff(), "r": df["spy"].pct_change()}).dropna()
     lags = list(range(-20, 21))
-    ccf_vals = []
-    n = len(ds)
-    for lag in lags:
-        if lag == 0:
-            c = np.corrcoef(ds, dr)[0, 1]
-        elif lag > 0:
-            c = np.corrcoef(ds[lag:], dr[:-lag])[0, 1]
-        else:
-            c = np.corrcoef(ds[:lag], dr[-lag:])[0, 1]
-        ccf_vals.append(c)
-
+    vals = []
+    for k in lags:   # k<0: spread change k days EARLIER vs today's return (spread leads)
+        vals.append(d["ds"].shift(-k).corr(d["r"]))
+    n = len(d)
     sig_band = 1.96 / np.sqrt(n)
-    colors = [C_INDICATOR if v < 0 else C_TARGET for v in ccf_vals]
-
+    colors = [C_INDICATOR if v < 0 else C_TARGET for v in vals]
+    k0 = vals[lags.index(0)]
+    lead_sig = [(k, v) for k, v in zip(lags, vals) if k < 0 and abs(v) > sig_band]
     fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=lags, y=ccf_vals,
-        marker_color=colors,
-        name="Cross-Correlation",
-    ))
+    fig.add_trace(go.Bar(x=lags, y=vals, marker_color=colors, name="Cross-Correlation"))
     fig.add_hline(y=sig_band, line_dash="dash", line_color=C_NEUTRAL, line_width=1,
-                  annotation_text=f"±95% CI ({sig_band:.3f})", annotation_font_size=9)
+                  annotation_text=f"\u00b195% band ({sig_band:.3f})", annotation_font_size=9)
     fig.add_hline(y=-sig_band, line_dash="dash", line_color=C_NEUTRAL, line_width=1)
     fig.add_hline(y=0, line_color="black", line_width=0.5)
-
     fig.update_layout(
-        title=dict(text="Negative Contemporaneous Cross-Correlation: Spread Widening Hits SPY Same Day"),
-        xaxis_title="Lag (days, negative = spread leads SPY)",
+        title=dict(text=f"Cross-Correlation: Daily Spread Change vs SPY Daily Return (lag 0 r = {k0:+.3f})"),
+        xaxis_title="Lag (trading days; negative = spread change precedes the SPY return)",
         yaxis_title="Cross-Correlation",
         template=TEMPLATE, height=450, showlegend=False, margin=dict(r=180, b=80),
     )
-    _note(fig, "Pre-whitened CCF (first-difference both series). Dashed lines = ±95% significance bands.")
+    _note(fig, f"Daily spread change (pp) vs SPY daily return, {n} days. {len(lead_sig)} of 20 negative lags outside the iid \u00b195% band.")
     _save_chart(fig, "ccf",
-                narrative_note="CCF at lag 0 is strongly negative; some lead at lags -1 to -5 suggests spread widening precedes next-day SPY weakness.",
-                method_name="Pre-whitened CCF",
+                narrative_note=f"Lag-0 r={k0:+.3f}; {len(lead_sig)} of 20 spread-leads lags outside the iid 95% band.",
+                method_name="Cross-correlation (daily changes)",
                 expected_chart_type="bar")
 
 
 def chart_granger_f_by_lag():
-    """Granger F-statistic by lag 1-12 months with significance threshold."""
+    """Granger F by monthly lag 1-12 (monthly spread change -> compounded monthly SPY return),
+    with the per-lag 5% F critical value."""
+    from scipy.stats import f as fdist
     gdf = pd.read_csv(os.path.join(RESULTS, "granger_by_lag.csv"))
-
-    sig_threshold = 3.84  # F crit ~p=0.05
-
-    bar_colors = [C_INDICATOR if row["p_value"] < 0.05 else C_NEUTRAL
-                  for _, row in gdf.iterrows()]
-
+    crit = [fdist.ppf(0.95, int(r.df_num), int(r.df_den)) for r in gdf.itertuples()]
+    bar_colors = [C_INDICATOR if p < 0.05 else C_NEUTRAL for p in gdf["p_value"]]
+    n_sig = int((gdf["p_value"] < 0.05).sum())
     fig = go.Figure()
     fig.add_trace(go.Bar(
-        x=gdf["lag"], y=gdf["f_statistic"],
-        marker_color=bar_colors,
-        name="Granger F-stat",
-        text=[f"p={row['p_value']:.3f}" for _, row in gdf.iterrows()],
-        textposition="outside", textfont=dict(size=9),
+        x=gdf["lag"], y=gdf["f_statistic"], marker_color=bar_colors, name="Granger F-stat",
+        text=[f"p={p:.3f}" for p in gdf["p_value"]], textposition="outside", textfont=dict(size=9),
     ))
-    fig.add_hline(y=sig_threshold, line_dash="dash", line_color=C_SECONDARY if hasattr(go, '_') else "#D55E00",
-                  line_width=1.5,
-                  annotation_text="p=0.05 threshold",
-                  annotation_font_size=9)
-
+    fig.add_trace(go.Scatter(x=gdf["lag"], y=crit, mode="lines+markers", name="5% critical F (per lag)",
+                             line=dict(color=C_BENCHMARK, dash="dash", width=1.5), marker=dict(size=5)))
     fig.update_layout(
-        title=dict(text="Granger Causality: HY-IG Spread Predicts SPY (Monthly, Lags 1-12)"),
+        title=dict(text=f"Granger F-Test, Monthly Spread Change \u2192 SPY Monthly Return: p<0.05 at {n_sig} of 12 Lags"),
         xaxis_title="Lag (months)",
         yaxis_title="Granger F-Statistic",
-        template=TEMPLATE, height=450, showlegend=False, margin=dict(r=180, b=80),
+        template=TEMPLATE, height=450, showlegend=True, margin=dict(r=180, b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
-    _note(fig, "Granger causality test: HY-IG spread → SPY monthly returns. Vermillion bars = significant at p<0.05.")
+    _note(fig, "Month-end spread change vs compounded monthly SPY return (2000-2026). Homoskedastic F-test. Vermillion = p<0.05.")
     _save_chart(fig, "granger_f_by_lag",
-                narrative_note="Granger F-stats by lag identify at which monthly horizons spread provides predictive content for SPY.",
+                narrative_note=f"Monthly Granger test (spread change -> SPY return): p<0.05 at {n_sig} of 12 lags.",
                 method_name="Granger Causality",
                 expected_chart_type="bar")
 
@@ -567,56 +541,47 @@ def chart_hmm_regime_probs():
 
     # 0.5 threshold
     fig.add_hline(y=0.5, line_dash="dash", line_color=C_NEUTRAL, line_width=1,
-                  annotation_text="0.5 threshold (winner)", annotation_font_size=9)
+                  annotation_text="0.5", annotation_font_size=9)
 
     _add_recessions(fig, sig_df.index.min(), sig_df.index.max())
 
     fig.update_layout(
-        title=dict(text="HMM Stress Probability > 0.5 Correctly Flags Every Major Drawdown"),
+        title=dict(text=f"Causal HMM Stress Probability (IS-fit, forward-filtered) and SPY: {(sig_df[prob_col] > 0.5).mean()*100:.0f}% of Days Above 0.5"),
         template=TEMPLATE, hovermode="x unified", height=500,
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         margin=dict(r=180, b=80),
     )
     fig.update_yaxes(title_text="P(Stress State)", range=[0, 1.05], secondary_y=False)
     fig.update_yaxes(title_text="SPY Price ($)", secondary_y=True)
-    _note(fig, "2-state Gaussian HMM. Pink shading = P(stress) > 0.5. Gray = NBER recessions.")
+    _note(fig, "2-state Gaussian HMM fit on 2000-01..2019-09 only; P(stress_t | data to t). Pink = P > 0.5. Gray = NBER recessions.")
     _save_chart(fig, "hmm_regime_probs",
-                narrative_note="HMM stress probability visually aligns with known market stress episodes, validating the winning signal.",
+                narrative_note="Causal (filtered) HMM stress probability over 2000-2026; IS-fit params; no smoothing.",
                 method_name="HMM 2-State",
                 expected_chart_type="line")
 
 
 def chart_regime_quartile_returns():
-    """SPY annualized return/vol/Sharpe by spread quartile."""
+    """SPY NEXT-MONTH annualised return by month-end spread quartile (forward test)."""
     rdf = pd.read_csv(os.path.join(RESULTS, "regime_quartile_returns.csv"))
-
-    # Multiply decimals → pct
+    ft = pd.read_csv(os.path.join(RESULTS, f"regime_quartile_forward_tests_{RUN_TAG}.csv")).set_index("horizon_months")
     rdf["ann_return_pct"] = rdf["ann_return"] * 100
-    rdf["ann_vol_pct"]    = rdf["ann_vol"] * 100
-
-    bar_text = [
-        f"{row['ann_return_pct']:.1f}%<br>Sharpe {row['sharpe']:.2f}"
-        for _, row in rdf.iterrows()
-    ]
-
+    bar_text = [f"{row['ann_return_pct']:.1f}%<br>Sharpe {row['sharpe']:.2f}" for _, row in rdf.iterrows()]
     fig = go.Figure()
     fig.add_trace(go.Bar(
-        x=rdf["quartile"],
-        y=rdf["ann_return_pct"],
-        marker_color=C_Q[:len(rdf)],
-        text=bar_text, textposition="outside", textfont=dict(size=11),
-        name="Ann. Return (%)",
+        x=[f"{q}<br>({lo:.2f}-{hi:.2f} pp)" for q, lo, hi in zip(rdf["quartile"], rdf["spread_low"], rdf["spread_high"])],
+        y=rdf["ann_return_pct"], marker_color=C_Q[:len(rdf)],
+        text=bar_text, textposition="outside", textfont=dict(size=11), name="Ann. next-month return (%)",
     ))
-
+    r1, r3 = ft.loc[1], ft.loc[3]
     fig.update_layout(
-        title=dict(text="Spread Quartile Anatomy: Q1 (Tight) = +18.7% Ann.; Q4 (Wide) = -10.2%"),
-        xaxis_title="HY-IG Spread Quartile (Q1 = Tight/Calm, Q4 = Wide/Stress)",
-        yaxis_title="Annualized SPY Return (%)",
+        title=dict(text=f"SPY Next-Month Return by HY-IG Spread Quartile: Q4-Q1 = {r1.q4_minus_q1*100:+.2f} pp/month (HAC t {r1.q4_minus_q1_hac_t:.2f})"),
+        xaxis_title="Month-end HY-IG spread quartile (Q1 = tightest, Q4 = widest)",
+        yaxis_title="Annualized next-month SPY return (%)",
         template=TEMPLATE, height=450, showlegend=False, margin=dict(r=180, b=80),
     )
-    _note(fig, "Q1=tightest spreads (bullish); Q4=widest spreads (bearish). Monthly data. Sharpe shown on bars.")
+    _note(fig, f"Forward test, {int(r1.n_months)} months. 3-month: Q4-Q1 {r3.q4_minus_q1*100:+.2f} pp, HAC t {r3.q4_minus_q1_hac_t:.2f}. Not monotonic.")
     _save_chart(fig, "regime_quartile_returns",
-                narrative_note="Monotonic return degradation Q1→Q4 confirms that spread level is a strong regime discriminator for SPY returns.",
+                narrative_note=f"Forward 1m Q4-Q1 {r1.q4_minus_q1*100:+.2f} pp (t {r1.q4_minus_q1_hac_t:.2f}); 3m {r3.q4_minus_q1*100:+.2f} pp (t {r3.q4_minus_q1_hac_t:.2f}); not monotonic.",
                 method_name="Quartile Returns",
                 expected_chart_type="bar")
 
@@ -687,116 +652,71 @@ def chart_transfer_entropy():
     ))
 
     fig.update_layout(
-        title=dict(text="Information Flow is Predominantly HY-IG → SPY (Credit Leads Equity)"),
+        title=dict(text=f"Proxy Information Flow (Rolling 504d): Mean HY-IG\u2192SPY {te_df['HY_to_SPY'].mean():.4f} vs SPY\u2192HY-IG {te_df['SPY_to_HY'].mean():.4f}"),
         xaxis_title="Date",
         yaxis_title="Transfer Entropy Proxy (rolling 504d)",
         template=TEMPLATE, height=450,
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         margin=dict(r=180, b=80),
     )
-    _note(fig, "Proxy TE via conditional correlation difference. Higher = more directional information flow.")
+    _note(fig, "Not a true transfer entropy: squared-correlation difference on quintile ranks (lag 1 day). No significance test.")
     _save_chart(fig, "transfer_entropy",
-                narrative_note="HY-IG → SPY information flow consistently exceeds reverse direction, supporting the predictive framework.",
+                narrative_note="Proxy (squared-correlation difference) of lagged information flow in both directions; no significance test.",
                 method_name="Transfer Entropy",
                 expected_chart_type="line")
 
 
 def chart_local_projections():
-    """Impulse response of SPY returns to HY-IG spread shock, h=1..20 days."""
-    lp = pd.read_csv(os.path.join(RESULTS, "core_models_20260422", "local_projections.csv"))
-
+    """Local projections: spread level -> SPY forward return at 5/21/63 trading days (HAC, maxlags >= h-1)."""
+    lp = pd.read_csv(os.path.join(RESULTS, f"core_models_{RUN_TAG}", "local_projections.csv"))
     fig = go.Figure()
-
-    # CI band
     fig.add_trace(go.Scatter(
         x=list(lp["horizon_days"]) + list(lp["horizon_days"][::-1]),
         y=list(lp["ci_upper"]) + list(lp["ci_lower"][::-1]),
-        fill="toself", fillcolor="rgba(0,114,178,0.15)",
-        line=dict(color="rgba(0,0,0,0)"),
-        name="95% CI",
+        fill="toself", fillcolor="rgba(0,114,178,0.15)", line=dict(color="rgba(0,0,0,0)"), name="95% CI (HAC)",
     ))
-
-    # Point estimates
-    fig.add_trace(go.Scatter(
-        x=lp["horizon_days"], y=lp["coef"],
-        mode="lines+markers",
-        line=dict(color=C_TARGET, width=2.5),
-        marker=dict(size=10),
-        name="Coefficient",
-    ))
-
-    # Significant horizons
+    fig.add_trace(go.Scatter(x=lp["horizon_days"], y=lp["coef"], mode="lines+markers",
+                             line=dict(color=C_TARGET, width=2.5), marker=dict(size=10), name="Coefficient"))
     sig = lp[lp["p_value"] < 0.05]
     if len(sig) > 0:
-        fig.add_trace(go.Scatter(
-            x=sig["horizon_days"], y=sig["coef"],
-            mode="markers",
-            marker=dict(size=14, color=C_INDICATOR, symbol="star"),
-            name="Significant (p < 0.05)",
-        ))
-
+        fig.add_trace(go.Scatter(x=sig["horizon_days"], y=sig["coef"], mode="markers",
+                                 marker=dict(size=14, color=C_INDICATOR, symbol="star"), name="p < 0.05"))
     fig.add_hline(y=0, line_dash="dash", line_color="gray", line_width=0.7)
-
     fig.update_layout(
-        title=dict(text="Credit Spread Impact on SPY Builds Over Weeks: Significant at 63 Days"),
+        title=dict(text=f"Local Projections, Spread Level \u2192 SPY Forward Return: p<0.05 at {len(sig)} of {len(lp)} Horizons"),
         xaxis_title="Forecast Horizon (trading days)",
-        yaxis_title="Coefficient (HAC-robust SE)",
+        yaxis_title="Coefficient (return per pp of spread)",
         template=TEMPLATE, height=450, margin=dict(r=180, b=80),
     )
-    _note(fig, "Local projections: HY-IG spread → SPY forward returns. Newey-West HAC SE. Stars = p<0.05.")
+    _note(fig, "Controls: VIX, 10y-3m. Newey-West HAC SE with maxlags = max(0.75 n^(1/3), h-1). Overlapping windows.")
     _save_chart(fig, "local_projections",
-                narrative_note="LP impulse response shows effect intensifies at longer horizons (63d), consistent with credit-to-equity transmission lag.",
+                narrative_note=", ".join(f"h={r.horizon_days}d t={r.t_stat:.2f} p={r.p_value:.3f}" for r in lp.itertuples()),
                 method_name="Local Projections",
                 expected_chart_type="line")
 
 
 def chart_quantile_regression():
-    """Slope of SPY return on HY-IG spread at Q10, Q25, Q50, Q75, Q90."""
-    qr = pd.read_csv(os.path.join(RESULTS, "core_models_20260422", "quantile_regression.csv"))
-
+    """Quantile regression slope of the 21-day forward SPY return on the spread level."""
+    qr = pd.read_csv(os.path.join(RESULTS, f"core_models_{RUN_TAG}", "quantile_regression.csv"))
     fig = go.Figure()
-
-    # CI band
     fig.add_trace(go.Scatter(
         x=list(qr["quantile"]) + list(qr["quantile"][::-1]),
         y=list(qr["ci_upper"]) + list(qr["ci_lower"][::-1]),
-        fill="toself", fillcolor="rgba(0,114,178,0.15)",
-        line=dict(color="rgba(0,0,0,0)"),
-        name="95% CI",
+        fill="toself", fillcolor="rgba(0,114,178,0.15)", line=dict(color="rgba(0,0,0,0)"), name="95% CI",
     ))
-
-    fig.add_trace(go.Scatter(
-        x=qr["quantile"], y=qr["coef"],
-        mode="lines+markers",
-        line=dict(color=C_TARGET, width=2.5),
-        marker=dict(size=10),
-        name="QR Coefficient",
-    ))
-
-    # Tail quantiles highlight
-    tails = qr[qr["quantile"].isin([0.05, 0.10, 0.90, 0.95])]
-    if len(tails) > 0:
-        fig.add_trace(go.Scatter(
-            x=tails["quantile"], y=tails["coef"],
-            mode="markers",
-            marker=dict(size=14, color=C_INDICATOR, symbol="diamond"),
-            name="Tail Quantiles",
-        ))
-
+    fig.add_trace(go.Scatter(x=qr["quantile"], y=qr["coef"], mode="lines+markers",
+                             line=dict(color=C_TARGET, width=2.5), marker=dict(size=10), name="QR Coefficient"))
     fig.add_hline(y=0, line_dash="dash", line_color="gray", line_width=0.7)
-    fig.add_vrect(x0=0.0, x1=0.15, fillcolor="rgba(213,94,0,0.08)",
-                  layer="below", line_width=0,
-                  annotation_text="Left tail", annotation_font_size=9)
-
+    lo, hi = qr.loc[qr["quantile"] == 0.05, "coef"].iloc[0], qr.loc[qr["quantile"] == 0.95, "coef"].iloc[0]
     fig.update_layout(
-        title=dict(text="Credit Spreads Hit Worst Outcomes Hardest: V-Shape Quantile Pattern"),
-        xaxis_title="Return Quantile (0.05 = worst drawdowns, 0.95 = best rallies)",
-        yaxis_title="QR Coefficient (% return per % spread)",
+        title=dict(text=f"Quantile Regression: Slope {lo:+.4f} at q05, {hi:+.4f} at q95 (Spread Widens the Distribution)"),
+        xaxis_title="Quantile of the 21-day forward SPY return",
+        yaxis_title="Coefficient (return per pp of spread)",
         template=TEMPLATE, height=450, margin=dict(r=180, b=80),
     )
-    _note(fig, "Quantile regression of HY-IG spread on SPY 63d forward return. Diamonds = tail quantiles.")
+    _note(fig, "Quantile regression of the SPY 21-trading-day forward return on the HY-IG spread level, daily 2000-2026.")
     _save_chart(fig, "quantile_regression",
-                narrative_note="V-shape confirms spread's asymmetric effect: hurts left tail (drawdowns) more than it helps right tail.",
+                narrative_note=f"Slopes roughly symmetric around zero: q05 {lo:+.4f}, q95 {hi:+.4f}; wider spreads widen both tails.",
                 method_name="Quantile Regression",
                 expected_chart_type="line")
 
@@ -806,171 +726,106 @@ def chart_quantile_regression():
 # ════════════════════════════════════════════════════════════════════════
 
 def chart_equity_curves():
-    """Winner strategy vs buy-and-hold SPY equity curves (OOS period)."""
+    """Winner vs buy-and-hold SPY, OOS growth of $1 (canonical strategy_returns series)."""
     df = _load_master()
     oos_start = _oos_start()
     _, strat_ret, spy_ret = _build_winner_curve(df, oos_start)
-
-    bh_cum    = (1 + spy_ret).cumprod()
-    strat_cum = (1 + strat_ret).cumprod()
-
+    w = _load_winner()
+    bh_cum, strat_cum = (1 + spy_ret).cumprod(), (1 + strat_ret).cumprod()
     fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=strat_cum.index, y=strat_cum.values,
-        name="Winner: HMM-P2 (OOS Sharpe 1.41)",
-        line=dict(color=C_TERTIARY, width=2.5),
-    ))
-    fig.add_trace(go.Scatter(
-        x=bh_cum.index, y=bh_cum.values,
-        name=f"Buy & Hold SPY (Sharpe 0.81)",
-        line=dict(color=C_BENCHMARK, width=2, dash="dash"),
-    ))
-
+    fig.add_trace(go.Scatter(x=strat_cum.index, y=strat_cum.values,
+                             name=f"Winner {_winner_label()} (Sharpe {w['oos_sharpe']:.2f})",
+                             line=dict(color=C_TERTIARY, width=2.5)))
+    fig.add_trace(go.Scatter(x=bh_cum.index, y=bh_cum.values, name=f"Buy & Hold SPY (Sharpe {w['bh_sharpe']:.2f})",
+                             line=dict(color=C_BENCHMARK, width=2, dash="dash")))
     _add_recessions(fig, bh_cum.index.min(), bh_cum.index.max())
-
     fig.update_layout(
-        title=dict(text=f"HMM Signal Beats Buy-and-Hold: OOS Sharpe 1.41 vs 0.81 (from {oos_start})"),
-        xaxis_title="Date",
-        yaxis_title="Growth of $1",
-        template=TEMPLATE, height=480,
-        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
-        margin=dict(r=180, b=80),
+        title=dict(text=f"OOS Growth of $1: Winner Sharpe {w['oos_sharpe']:.2f} vs SPY Buy-and-Hold {w['bh_sharpe']:.2f} (from {oos_start})"),
+        xaxis_title="Date", yaxis_title="Growth of $1", template=TEMPLATE, height=480,
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"), margin=dict(r=180, b=80),
     )
-    _note(fig, "OOS period 2019-10-01 to 2026-04-22. Signal: hmm_2state_prob_stress. Strategy: P2 (signal strength). 5bps cost assumed.")
+    _note(fig, f"OOS {oos_start} to {w['oos_period_end']}. Rule selected on in-sample Sharpe. Gross of costs.")
     _save_chart(fig, "equity_curves",
-                narrative_note="Winner equity curve (green) vs B&H (grey-blue benchmark_trace) demonstrates OOS alpha generation.",
-                method_name="Strategy Backtest",
-                expected_chart_type="line")
+                narrative_note=f"OOS growth of $1: winner {strat_cum.iloc[-1]:.2f}, SPY {bh_cum.iloc[-1]:.2f}.",
+                method_name="Strategy Backtest", expected_chart_type="line")
 
 
 def chart_drawdown():
-    """Winner strategy max drawdown chart."""
+    """Winner OOS drawdown."""
     df = _load_master()
     oos_start = _oos_start()
     _, strat_ret, _ = _build_winner_curve(df, oos_start)
-
-    strat_cum = (1 + strat_ret).cumprod()
-    strat_dd  = _drawdown(strat_cum) * 100
-
+    strat_dd = _drawdown((1 + strat_ret).cumprod()) * 100
     fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=strat_dd.index, y=strat_dd.values,
-        fill="tozeroy",
-        fillcolor="rgba(213,94,0,0.35)",
-        line=dict(color=C_INDICATOR, width=1.5),
-        name=f"Drawdown (max {strat_dd.min():.1f}%)",
-    ))
-
+    fig.add_trace(go.Scatter(x=strat_dd.index, y=strat_dd.values, fill="tozeroy",
+                             fillcolor="rgba(213,94,0,0.35)", line=dict(color=C_INDICATOR, width=1.5),
+                             name=f"Drawdown (max {strat_dd.min():.1f}%)"))
     worst_idx = strat_dd.idxmin()
-    fig.add_annotation(
-        x=worst_idx, y=strat_dd.min(),
-        text=f"MDD: {strat_dd.min():.1f}%",
-        showarrow=True, arrowhead=2, ax=40, ay=-20,
-        font=dict(size=10, color=C_INDICATOR),
-    )
-
+    fig.add_annotation(x=worst_idx, y=strat_dd.min(), text=f"MDD: {strat_dd.min():.1f}%",
+                       showarrow=True, arrowhead=2, ax=40, ay=-20, font=dict(size=10, color=C_INDICATOR))
     fig.update_layout(
-        title=dict(text=f"Winner Strategy Max Drawdown: {strat_dd.min():.1f}% (OOS, HMM-P2)"),
-        xaxis_title="Date",
-        yaxis_title="Drawdown from Peak (%)",
+        title=dict(text=f"Winner OOS Drawdown: Max {strat_dd.min():.1f}% ({worst_idx.date()})"),
+        xaxis_title="Date", yaxis_title="Drawdown from Peak (%)",
         template=TEMPLATE, height=400, showlegend=True, margin=dict(r=180, b=80),
     )
-    _note(fig, "OOS drawdown for HMM stress probability P2 strategy. Fill = drawdown_fill palette role.")
-    _save_chart(fig, "drawdown",
-                narrative_note="Shallow max drawdown (-8.5%) demonstrates the HMM signal's risk management effectiveness in OOS period.",
-                method_name="Drawdown Analysis",
-                expected_chart_type="area")
+    _note(fig, f"OOS drawdown of the winner {_winner_label()} (canonical strategy_returns series).")
+    _save_chart(fig, "drawdown", narrative_note=f"Winner OOS max drawdown {strat_dd.min():.1f}%.",
+                method_name="Drawdown Analysis", expected_chart_type="area")
 
 
 def chart_drawdown_comparison():
-    """Winner vs B&H drawdown overlay."""
+    """Winner vs B&H OOS drawdown overlay."""
     df = _load_master()
     oos_start = _oos_start()
     _, strat_ret, spy_ret = _build_winner_curve(df, oos_start)
-
-    bh_cum    = (1 + spy_ret).cumprod()
-    strat_cum = (1 + strat_ret).cumprod()
-    bh_dd     = _drawdown(bh_cum) * 100
-    strat_dd  = _drawdown(strat_cum) * 100
-
+    bh_dd = _drawdown((1 + spy_ret).cumprod()) * 100
+    strat_dd = _drawdown((1 + strat_ret).cumprod()) * 100
     fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=bh_dd.index, y=bh_dd.values,
-        fill="tozeroy", fillcolor="rgba(108,122,137,0.20)",
-        line=dict(color=C_BENCHMARK, width=1.5),
-        name=f"Buy & Hold (max {bh_dd.min():.1f}%)",
-    ))
-    fig.add_trace(go.Scatter(
-        x=strat_dd.index, y=strat_dd.values,
-        fill="tozeroy", fillcolor="rgba(0,158,115,0.15)",
-        line=dict(color=C_TERTIARY, width=1.5),
-        name=f"Winner HMM-P2 (max {strat_dd.min():.1f}%)",
-    ))
-
-    # Annotate worst points
-    bh_worst = bh_dd.idxmin()
-    fig.add_annotation(x=bh_worst, y=bh_dd.min(),
-                       text=f"B&H: {bh_dd.min():.1f}%",
-                       showarrow=True, arrowhead=2, ax=40, ay=-20,
-                       font=dict(size=9, color=C_BENCHMARK))
-
-    strat_worst = strat_dd.idxmin()
-    fig.add_annotation(x=strat_worst, y=strat_dd.min(),
-                       text=f"Strategy: {strat_dd.min():.1f}%",
-                       showarrow=True, arrowhead=2, ax=-50, ay=-20,
-                       font=dict(size=9, color=C_TERTIARY))
-
+    fig.add_trace(go.Scatter(x=bh_dd.index, y=bh_dd.values, fill="tozeroy", fillcolor="rgba(108,122,137,0.20)",
+                             line=dict(color=C_BENCHMARK, width=1.5), name=f"Buy & Hold (max {bh_dd.min():.1f}%)"))
+    fig.add_trace(go.Scatter(x=strat_dd.index, y=strat_dd.values, fill="tozeroy", fillcolor="rgba(0,158,115,0.15)",
+                             line=dict(color=C_TERTIARY, width=1.5), name=f"Winner (max {strat_dd.min():.1f}%)"))
     fig.update_layout(
-        title=dict(text=f"HMM Strategy Limits Drawdowns: {strat_dd.min():.0f}% vs {bh_dd.min():.0f}% B&H"),
-        xaxis_title="Date",
-        yaxis_title="Drawdown from Peak (%)",
-        template=TEMPLATE, height=450,
-        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
-        margin=dict(r=180, b=80),
+        title=dict(text=f"OOS Drawdowns: Winner {strat_dd.min():.1f}% vs SPY Buy-and-Hold {bh_dd.min():.1f}%"),
+        xaxis_title="Date", yaxis_title="Drawdown from Peak (%)", template=TEMPLATE, height=450,
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"), margin=dict(r=180, b=80),
     )
-    _note(fig, "OOS period 2019-10-01 → 2026-04-22. B&H in benchmark_trace (#6C7A89). Strategy in tertiary (#009E73).")
+    _note(fig, f"OOS {oos_start} to 2026-04-22. Winner {_winner_label()}.")
     _save_chart(fig, "drawdown_comparison",
-                narrative_note="Direct drawdown comparison shows HMM strategy avoids majority of B&H drawdowns, particularly COVID-2020 episode.",
-                method_name="Drawdown Comparison",
-                expected_chart_type="area")
+                narrative_note=f"OOS max drawdown: winner {strat_dd.min():.1f}%, SPY {bh_dd.min():.1f}%.",
+                method_name="Drawdown Comparison", expected_chart_type="area")
 
 
 def chart_walk_forward():
-    """Rolling OOS Sharpe by year (walk-forward validation)."""
-    wf = pd.read_csv(os.path.join(RESULTS, "tournament_validation_20260422", "walk_forward.csv"))
-    # Filter winner only (rank==1)
-    winner_wf = wf[wf["rank"] == 1].copy()
-    winner_wf = winner_wf.sort_values("test_year")
-
-    bh_sharpe = 0.81
-
-    colors = [C_TERTIARY if v > bh_sharpe else C_INDICATOR for v in winner_wf["oos_sharpe"]]
-
+    """Calendar-year Sharpe of the winner rule vs SPY's Sharpe in the same year."""
+    wf = pd.read_csv(os.path.join(RESULTS, f"tournament_validation_{RUN_TAG}", "walk_forward.csv"))
+    w = wf[wf["rank"] == 1].sort_values("test_year")
+    oos = w[w["is_oos_year"]]
+    n_pos = int((w["oos_sharpe"] > 0).sum())
+    n_beat = int((w["oos_sharpe"] > w["bh_sharpe"]).sum())
+    n_pos_o = int((oos["oos_sharpe"] > 0).sum())
+    n_beat_o = int((oos["oos_sharpe"] > oos["bh_sharpe"]).sum())
+    colors = [C_TERTIARY if a > b else C_INDICATOR for a, b in zip(w["oos_sharpe"], w["bh_sharpe"])]
     fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=winner_wf["test_year"].astype(str),
-        y=winner_wf["oos_sharpe"],
-        marker_color=colors,
-        name="Annual OOS Sharpe",
-        text=[f"{v:.2f}" for v in winner_wf["oos_sharpe"]],
-        textposition="outside", textfont=dict(size=9),
-    ))
-    fig.add_hline(y=bh_sharpe, line_dash="dash", line_color=C_BENCHMARK, line_width=1.5,
-                  annotation_text=f"B&H Sharpe {bh_sharpe:.2f}",
-                  annotation_font_size=9, annotation_font_color=C_BENCHMARK)
+    fig.add_trace(go.Bar(x=w["test_year"].astype(str), y=w["oos_sharpe"], marker_color=colors,
+                         name="Winner rule, calendar-year Sharpe",
+                         text=[f"{v:.2f}" for v in w["oos_sharpe"]], textposition="outside", textfont=dict(size=9)))
+    fig.add_trace(go.Scatter(x=w["test_year"].astype(str), y=w["bh_sharpe"], mode="markers", name="SPY same year",
+                             marker=dict(symbol="line-ew-open", size=18, color=C_BENCHMARK, line=dict(width=3))))
+    yrs = list(w["test_year"])
+    if 2020 in yrs:
+        fig.add_vline(x=yrs.index(2020) - 0.5, line_dash="dot", line_color=C_NEUTRAL, line_width=1,
+                      annotation_text="OOS years", annotation_font_size=9)
     fig.add_hline(y=0, line_color="black", line_width=0.5)
-
     fig.update_layout(
-        title=dict(text="Walk-Forward OOS Sharpe: Positive in 14/17 Years; Strategy Robust"),
-        xaxis_title="Test Year",
-        yaxis_title="OOS Sharpe Ratio",
-        template=TEMPLATE, height=480, showlegend=False, margin=dict(r=180, b=80),
+        title=dict(text=f"Calendar-Year Sharpe: Positive {n_pos}/{len(w)} Years, Above SPY {n_beat}/{len(w)}; OOS Years {n_pos_o}/{len(oos)} and {n_beat_o}/{len(oos)}"),
+        xaxis_title="Calendar Year", yaxis_title="Sharpe Ratio", template=TEMPLATE, height=480, showlegend=True,
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"), margin=dict(r=180, b=80),
     )
-    _note(fig, "Walk-forward: train on prior years, test each calendar year OOS. Green = beats B&H Sharpe.")
+    _note(fig, "Green = above SPY that year. Years before 2019-10 are in-sample (the rule was selected on them).")
     _save_chart(fig, "walk_forward",
-                narrative_note="Annual Sharpe bars show consistent outperformance in most years, with expected weakness in 2020 (COVID rapid recovery).",
-                method_name="Walk-Forward Validation",
-                expected_chart_type="bar")
+                narrative_note=f"Positive {n_pos}/{len(w)} years, above SPY {n_beat}/{len(w)}; OOS years 2020-2026: positive {n_pos_o}/{len(oos)}, above SPY {n_beat_o}/{len(oos)}.",
+                method_name="Walk-Forward Validation", expected_chart_type="bar")
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -978,95 +833,65 @@ def chart_walk_forward():
 # ════════════════════════════════════════════════════════════════════════
 
 def chart_tournament_scatter():
-    """Scatter of tournament combos: x=ann_return, y=oos_sharpe, color=strategy, highlight winner."""
-    tdf = pd.read_csv(os.path.join(RESULTS, "tournament_results_20260422.csv"))
-    winner = _load_winner()
-
+    """IS Sharpe (selection objective) vs OOS Sharpe for every IS-valid combo."""
+    tdf = pd.read_csv(os.path.join(RESULTS, f"tournament_results_{RUN_TAG}.csv"))
+    w = _load_winner()
     valid = tdf[(tdf["valid"]) & (tdf["signal"] != "BENCHMARK")].copy()
-
-    # Color by strategy family
-    strategies = valid["strategy"].unique()
-    strat_color_map = {s: C_CAT[i % len(C_CAT)] for i, s in enumerate(strategies)}
-
+    bh = tdf[tdf["signal"] == "BENCHMARK"].iloc[0]
+    rho = valid[["is_sharpe", "oos_sharpe"]].corr(method="spearman").iloc[0, 1]
     fig = go.Figure()
-
-    for strat in strategies:
+    for i, strat in enumerate(sorted(valid["strategy"].unique())):
         sub = valid[valid["strategy"] == strat]
         fig.add_trace(go.Scatter(
-            x=sub["oos_ann_return"] * 100,
-            y=sub["oos_sharpe"],
-            mode="markers",
-            marker=dict(size=5, color=strat_color_map[strat], opacity=0.6),
-            name=strat,
-            text=[f"{row['signal']}/{row['threshold']}" for _, row in sub.iterrows()],
-            hovertemplate="%{text}<br>Return: %{x:.1f}%<br>Sharpe: %{y:.2f}<extra></extra>",
-        ))
-
-    # Highlight winner
-    fig.add_trace(go.Scatter(
-        x=[winner["oos_ann_return"] * 100],
-        y=[winner["oos_sharpe"]],
-        mode="markers",
-        marker=dict(size=18, color=C_TERTIARY, symbol="star", line=dict(color="black", width=1)),
-        name=f"Winner (Sharpe {winner['oos_sharpe']:.2f})",
-    ))
-
+            x=sub["is_sharpe"], y=sub["oos_sharpe"], mode="markers",
+            marker=dict(size=5, color=C_CAT[i % len(C_CAT)], opacity=0.55), name=strat,
+            text=[f"{r.signal}/{r.threshold}/L{r.lead_days}" for r in sub.itertuples()],
+            hovertemplate="%{text}<br>IS Sharpe: %{x:.2f}<br>OOS Sharpe: %{y:.2f}<extra></extra>"))
+    fig.add_trace(go.Scatter(x=[w["is_sharpe"]], y=[w["oos_sharpe"]], mode="markers",
+                             marker=dict(size=18, color=C_TERTIARY, symbol="star", line=dict(color="black", width=1)),
+                             name=f"Winner (IS {w['is_sharpe']:.2f}, OOS {w['oos_sharpe']:.2f})"))
+    fig.add_hline(y=float(bh["oos_sharpe"]), line_dash="dash", line_color=C_BENCHMARK, line_width=1.2,
+                  annotation_text=f"SPY OOS {bh['oos_sharpe']:.2f}", annotation_font_size=9)
+    fig.add_vline(x=float(bh["is_sharpe"]), line_dash="dot", line_color=C_BENCHMARK, line_width=1.2,
+                  annotation_text=f"SPY IS {bh['is_sharpe']:.2f}", annotation_font_size=9)
     fig.update_layout(
-        title=dict(text=f"Tournament: {len(valid)} Valid Combos — Winner Sharpe {winner['oos_sharpe']:.2f} (HMM-P2)"),
-        xaxis_title="OOS Annualized Return (%)",
-        yaxis_title="OOS Sharpe Ratio",
+        title=dict(text=f"Tournament: {len(valid)} IS-Valid Combos, In-Sample vs Out-of-Sample Sharpe (Spearman {rho:.2f})"),
+        xaxis_title="In-sample Sharpe (selection objective)", yaxis_title="OOS Sharpe",
         template=TEMPLATE, height=500,
-        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
-        margin=dict(r=180, b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"), margin=dict(r=180, b=80),
     )
-    _note(fig, "5D tournament. Each point = one signal/threshold/strategy/lead combo. Star = winner.")
+    _note(fig, f"Source: tournament_results_{RUN_TAG}.csv. Winner = highest IS Sharpe. P2 rows repeat across threshold labels.")
     _save_chart(fig, "tournament_scatter",
-                narrative_note="Tournament scatter shows winner sits at frontier of Sharpe, validating 5D tournament selection protocol.",
-                method_name="5D Tournament",
-                expected_chart_type="scatter")
+                narrative_note=f"{len(valid)} IS-valid combos; Spearman(IS, OOS) {rho:.2f}; winner IS {w['is_sharpe']:.2f} / OOS {w['oos_sharpe']:.2f}.",
+                method_name="5D Tournament", expected_chart_type="scatter")
 
 
 def chart_tournament_sharpe_dist():
-    """Histogram of OOS Sharpe across tournament with winner marker."""
-    tdf = pd.read_csv(os.path.join(RESULTS, "tournament_results_20260422.csv"))
-    winner = _load_winner()
-
+    """Histogram of OOS Sharpe across IS-valid combos, with the IS-selected winner and SPY."""
+    tdf = pd.read_csv(os.path.join(RESULTS, f"tournament_results_{RUN_TAG}.csv"))
+    w = _load_winner()
     valid = tdf[(tdf["valid"]) & (tdf["signal"] != "BENCHMARK")]
-    bh    = tdf[tdf["signal"] == "BENCHMARK"]
-
+    bh_sharpe = float(tdf[tdf["signal"] == "BENCHMARK"].iloc[0]["oos_sharpe"])
     fig = go.Figure()
-    fig.add_trace(go.Histogram(
-        x=valid["oos_sharpe"], nbinsx=50,
-        marker_color=C_TARGET, opacity=0.7,
-        name=f"Valid ({len(valid)})",
-    ))
-
-    fig.add_vline(x=winner["oos_sharpe"], line_color=C_TERTIARY, line_width=2.5,
-                  annotation_text=f"Winner: {winner['oos_sharpe']:.2f}",
-                  annotation_font_size=10, annotation_font_color=C_TERTIARY,
-                  annotation_position="top right")
-
-    if len(bh) > 0:
-        bh_sharpe = bh.iloc[0]["oos_sharpe"]
-        fig.add_vline(x=bh_sharpe, line_color=C_BENCHMARK, line_width=2, line_dash="dash",
-                      annotation_text=f"B&H: {bh_sharpe:.2f}",
-                      annotation_font_size=10, annotation_font_color=C_BENCHMARK,
-                      annotation_position="top left")
-
-    n_at_or_above = int((valid["oos_sharpe"] >= winner["oos_sharpe"]).sum())
-    pct_above = n_at_or_above / len(valid) * 100
-
+    fig.add_trace(go.Histogram(x=valid["oos_sharpe"], nbinsx=50, marker_color=C_TARGET, opacity=0.7,
+                               name=f"IS-valid combos ({len(valid)})"))
+    fig.add_vline(x=w["oos_sharpe"], line_color=C_TERTIARY, line_width=2.5,
+                  annotation_text=f"Winner: {w['oos_sharpe']:.2f}", annotation_font_size=10,
+                  annotation_font_color=C_TERTIARY, annotation_position="top right")
+    fig.add_vline(x=bh_sharpe, line_color=C_BENCHMARK, line_width=2, line_dash="dash",
+                  annotation_text=f"SPY: {bh_sharpe:.2f}", annotation_font_size=10,
+                  annotation_font_color=C_BENCHMARK, annotation_position="top left")
+    pct_below = float((valid["oos_sharpe"] < w["oos_sharpe"]).mean() * 100)
+    pct_above_bh = float((valid["oos_sharpe"] > bh_sharpe).mean() * 100)
     fig.update_layout(
-        title=dict(text=f"Winner Is Top {n_at_or_above} of {len(valid)} Valid Strategies ({pct_above:.1f}% at or above)"),
-        xaxis_title="Out-of-Sample Sharpe Ratio",
-        yaxis_title="Count",
+        title=dict(text=f"OOS Sharpe of {len(valid)} IS-Valid Combos: Winner at {pct_below:.0f}th Percentile; {pct_above_bh:.0f}% Above SPY"),
+        xaxis_title="Out-of-Sample Sharpe Ratio", yaxis_title="Count",
         template=TEMPLATE, height=450, barmode="overlay", margin=dict(r=180, b=80),
     )
-    _note(fig, f"5D tournament: {len(tdf)} total combos, {len(valid)} pass validity filters. B&H dashed line = benchmark_trace.")
+    _note(fig, f"{len(tdf) - 1} combos scanned, {len(valid)} IS-valid. Median OOS Sharpe {valid['oos_sharpe'].median():.2f}.")
     _save_chart(fig, "tournament_sharpe_dist",
-                narrative_note="Sharpe distribution shows winner well into right tail, confirming selection rigor beyond data-mining.",
-                method_name="5D Tournament",
-                expected_chart_type="histogram")
+                narrative_note=f"Winner OOS {w['oos_sharpe']:.2f} sits at the {pct_below:.0f}th percentile of IS-valid combos; {pct_above_bh:.0f}% of combos exceed SPY {bh_sharpe:.2f}.",
+                method_name="5D Tournament", expected_chart_type="histogram")
 
 
 def chart_spread_history_annotated():
@@ -1120,7 +945,7 @@ def chart_spread_history_annotated():
         )
 
     fig.update_layout(
-        title=dict(text="25-Year HY-IG Credit Spread History: Every Crisis Visible in the Spread"),
+        title=dict(text="HY-IG Credit Spread History with Selected Events, 2000-2026"),
         template=TEMPLATE, hovermode="x unified", height=540,
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         margin=dict(r=180, b=80),
@@ -1129,7 +954,7 @@ def chart_spread_history_annotated():
     fig.update_yaxes(title_text="SPY Price ($)", secondary_y=True)
     _note(fig, "Source: ICE BofA OAS via FRED; SPY via Yahoo Finance. Gray = NBER recessions. Events from Ray's timeline.")
     _save_chart(fig, "spread_history_annotated",
-                narrative_note="Full-history annotated spread chart establishes narrative: every major crisis shows up as a spread spike before or concurrent with SPY decline.",
+                narrative_note="Annotated HY-IG spread history (descriptive).",
                 method_name="Spread History",
                 expected_chart_type="dual_axis_line")
 
@@ -1164,7 +989,7 @@ def chart_quartile_returns():
     ))
 
     fig.update_layout(
-        title=dict(text="Spread Quartile Returns: Monotone Return Decline, Rising Vol — Q1 Best, Q4 Worst"),
+        title=dict(text="SPY Next-Month Return and Volatility by Month-End HY-IG Spread Quartile"),
         xaxis_title="HY-IG Spread Quartile",
         yaxis=dict(title="Annualized Return (%)", side="left"),
         yaxis2=dict(title="Annualized Vol (%)", side="right", overlaying="y"),
@@ -1172,9 +997,9 @@ def chart_quartile_returns():
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         margin=dict(r=180, b=80),
     )
-    _note(fig, "Q1=tightest spread; Q4=widest. Returns bars (left axis), Vol scatter (right axis, dashed).")
+    _note(fig, "Forward (next-month) returns. Q1=tightest spread; Q4=widest. Bars: return (left); dashed: vol (right).")
     _save_chart(fig, "quartile_returns",
-                narrative_note="Quartile return chart (without HMM conditioning) validates the raw spread level as a regime signal.",
+                narrative_note="Next-month SPY return/vol by month-end spread quartile (forward test).",
                 method_name="Quartile Returns (raw)",
                 expected_chart_type="bar")
 
@@ -1194,7 +1019,7 @@ def chart_returns_by_regime():
     fig = go.Figure()
     fig.add_trace(go.Violin(
         y=calm_r.values,
-        name="Calm (stress ≤ 0.5)",
+        name="Calm (filtered prob ≤ 0.5)",
         box_visible=True,
         meanline_visible=True,
         fillcolor=f"rgba(0,158,115,0.3)",
@@ -1202,7 +1027,7 @@ def chart_returns_by_regime():
     ))
     fig.add_trace(go.Violin(
         y=stress_r.values,
-        name="Stress (prob > 0.5)",
+        name="Stress (filtered prob > 0.5)",
         box_visible=True,
         meanline_visible=True,
         fillcolor=f"rgba(213,94,0,0.3)",
@@ -1210,23 +1035,23 @@ def chart_returns_by_regime():
     ))
 
     fig.update_layout(
-        title=dict(text="Return Distribution by HMM Regime: Stress Regime Has Fat Left Tail"),
+        title=dict(text="Same-Day SPY Daily Returns by Causal HMM Regime"),
         xaxis_title="HMM Regime",
         yaxis_title="Daily SPY Return (%)",
         template=TEMPLATE, height=480, violinmode="group",
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         margin=dict(r=180, b=80),
     )
-    _note(fig, "Violin plots: daily SPY returns split by HMM stress probability. Wider distribution in stress regime.")
+    _note(fig, "Daily SPY returns split by the same-day filtered HMM stress probability (concurrent, descriptive).")
     _save_chart(fig, "returns_by_regime",
-                narrative_note="Violin distributions confirm stress regime has heavier left tail and lower mean — justifies signal-based position reduction.",
+                narrative_note="Concurrent daily SPY return distributions in the causal HMM calm vs stress states.",
                 method_name="HMM Regime Distribution",
                 expected_chart_type="violin")
 
 
 def chart_correlation_heatmap():
     """Cross-asset correlation heatmap (HY-IG derived signals vs SPY forward returns)."""
-    cdf = pd.read_csv(os.path.join(RESULTS, "exploratory_20260422", "correlations.csv"))
+    cdf = pd.read_csv(os.path.join(RESULTS, f"exploratory_{RUN_TAG}", "correlations.csv"))
 
     pivot = cdf.pivot_table(index="signal", columns="horizon", values="correlation", aggfunc="first")
 
@@ -1249,14 +1074,14 @@ def chart_correlation_heatmap():
     ))
 
     fig.update_layout(
-        title=dict(text="Signal × Horizon Correlation Heatmap: Red = Spread Widening Predicts Lower Returns"),
+        title=dict(text="Pearson r: HY-IG Signals vs SPY Forward Returns by Horizon"),
         xaxis_title="SPY Forward Return Horizon",
         yaxis_title="HY-IG Derived Signal",
         template=TEMPLATE, height=650, margin=dict(r=180, l=200, b=80),
     )
-    _note(fig, "Pearson correlations (daily data 2000-2026). Red = negative (spread up → returns down).")
+    _note(fig, "Daily data 2000-2026; overlapping forward windows. Blue = negative, red = positive (RdBu_r).")
     _save_chart(fig, "correlation_heatmap",
-                narrative_note="Heatmap shows which signals and horizons have strongest predictive correlations with SPY forward returns.",
+                narrative_note="Pearson r of HY-IG signals vs SPY forward returns (overlapping windows; iid p-values overstate significance).",
                 method_name="Correlation Analysis",
                 expected_chart_type="heatmap")
 

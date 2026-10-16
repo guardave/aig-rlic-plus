@@ -10,8 +10,8 @@
     "VIZ-O1"
   ],
   "disposition": "consumed",
-  "narrative_alignment_note": "V-shape confirms spread's asymmetric effect: hurts left tail (drawdowns) more than it helps right tail.",
-  "created_at": "2026-09-25T23:22:12Z",
+  "narrative_alignment_note": "Slopes roughly symmetric around zero: q05 -0.0117, q95 +0.0118; wider spreads widen both tails.",
+  "created_at": "2026-10-16T16:47:20Z",
   "method_name": "Quantile Regression",
   "expected_chart_type": "line"
 }
