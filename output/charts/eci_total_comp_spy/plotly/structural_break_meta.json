@@ -17,7 +17,7 @@
     "data/eci_total_comp_spy_quarterly_latest.parquet"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-16T22:15:31.328020+00:00",
+  "generated_at": "2026-10-16T22:29:53.549367+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (causal HMM port + IS selection, 20261016)",
   "break_date": "2020-06-30",
   "annotation_strategy_id": "manual_override"

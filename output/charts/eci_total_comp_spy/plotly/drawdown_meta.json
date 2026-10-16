@@ -16,6 +16,6 @@
     "results/eci_total_comp_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-16T22:15:31.068076+00:00",
+  "generated_at": "2026-10-16T22:29:34.846486+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (causal HMM port + IS selection, 20261016)"
 }

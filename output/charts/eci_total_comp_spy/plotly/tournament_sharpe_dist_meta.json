@@ -22,6 +22,6 @@
     "winner_oos_sharpe": 0.6959,
     "bh_oos_sharpe": 0.8043
   },
-  "generated_at": "2026-10-16T22:15:31.246263+00:00",
+  "generated_at": "2026-10-16T22:29:42.379846+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (causal HMM port + IS selection, 20261016)"
 }

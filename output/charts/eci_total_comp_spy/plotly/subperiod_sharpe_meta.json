@@ -16,6 +16,6 @@
     "results/eci_total_comp_spy/subperiod_sharpe.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-16T22:15:31.362339+00:00",
+  "generated_at": "2026-10-16T22:29:59.478918+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (causal HMM port + IS selection, 20261016)"
 }
