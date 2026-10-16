@@ -8,12 +8,12 @@
     "VIZ-O1"
   ],
   "caption": "Transfer entropy between ECI YoY wage growth and SPY returns (tercile bins, 500 permutations). Forward (wages \u2192 SPY) p = 0.26; reverse (SPY \u2192 wages) p = 0.16. Neither clears 5% \u2014 no non-linear channel rescues a forward reading, consistent with the absent forward Granger result (the indicator is lagging). On ~97 quarterly observations transfer entropy has low power, so read it as a directional check only.",
-  "narrative_alignment_note": "Two-bar TE comparison; neither direction significant on the new run.",
+  "narrative_alignment_note": "Two-bar TE comparison; p-values read from transfer_entropy.csv.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/eci_total_comp_spy/core_models_20261008/transfer_entropy.csv"
+    "results/eci_total_comp_spy/core_models_20261016/transfer_entropy.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:39:45.398193+00:00",
-  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
+  "generated_at": "2026-10-16T22:15:30.824604+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (causal HMM port + IS selection, 20261016)"
 }

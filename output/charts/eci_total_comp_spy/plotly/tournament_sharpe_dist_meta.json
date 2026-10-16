@@ -9,19 +9,19 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Distribution of OOS Sharpe across the 808 valid strategy combos. The winner (Sharpe 1.41) is the right tail; the median valid combo (0.68) sits BELOW buy & hold (0.80) \u2014 the typical quarterly rule subtracts value, so the winner is a found-in-search draw (bootstrap p = 0.184, not significant at 5%; no fresh final-exam holdout). On 25 quarters, treat it as a candidate, not a validated edge.",
-  "narrative_alignment_note": "VIZ-SCD1 position disclosure + B&H line; median&lt;B&H stated explicitly; fragility flags in caption.",
+  "caption": "Distribution of OOS Sharpe across the 1,080 IS-valid combinations. The selected rule (chosen by in-sample Sharpe, before looking at OOS) scores 0.70, the 73th percentile of the distribution. Median 0.40; buy & hold 0.80; 127 of 1,080 combos have a higher OOS Sharpe than buy & hold.",
+  "narrative_alignment_note": "VIZ-SCD1 position disclosure + B&H line; percentile computed from the CSV.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/eci_total_comp_spy/tournament_results_20261008.csv",
+    "results/eci_total_comp_spy/tournament_results_20261016.csv",
     "results/eci_total_comp_spy/winner_summary.json"
   ],
   "reconciliation": {
-    "valid_count": 808,
-    "median_oos_sharpe": 0.6787,
-    "winner_oos_sharpe": 1.4089,
+    "valid_count": 1080,
+    "median_oos_sharpe": 0.404,
+    "winner_oos_sharpe": 0.6959,
     "bh_oos_sharpe": 0.8043
   },
-  "generated_at": "2026-10-09T09:39:45.884744+00:00",
-  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
+  "generated_at": "2026-10-16T22:15:31.246263+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (causal HMM port + IS selection, 20261016)"
 }

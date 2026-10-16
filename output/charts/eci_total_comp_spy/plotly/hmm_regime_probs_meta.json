@@ -8,14 +8,15 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Probability that ECI wage growth is in its high-wage-inflation regime (2-state HMM). In THIS floored re-run the HMM probability is the TRADED WINNER SIGNAL (it was supporting context before): the rule holds SPY when the 4-quarter-lagged probability is BELOW its rolling z = 1 threshold (low-stress = risk-on) and steps to CASH when above \u2014 countercyclical. The high-wage-inflation state covers 47% of quarters and peaks in the 2021\u201323 wage surge; concurrent SPY returns are better in the LOW state. An HMM-derived probability is more opaque than a raw transform \u2014 a complexity caution. Shaded bands mark NBER recessions.",
-  "narrative_alignment_note": "hmm_stress IS the winner signal in the floored re-run; reframed from 'context' to 'traded signal', with the countercyclical rule and the opacity caution stated.",
+  "caption": "Probability that ECI wage growth is in its high-wage-inflation state from a 2-state HMM. The model is fit on the 72 in-sample quarters only and each quarter's value uses data up to that quarter (forward filter). This series is NOT in the tournament: a traded regime signal needs at least 100 in-sample observations and ECI has 72. The high state covers 63% of quarters. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Causal diagnostic HMM (IS-only fit, forward filter); stated as not traded.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/eci_total_comp_spy/core_models_20261008/hmm_states.parquet",
-    "results/eci_total_comp_spy/core_models_20261008/hmm_summary.csv"
+    "results/eci_total_comp_spy/core_models_20261016/hmm_states.parquet",
+    "results/eci_total_comp_spy/core_models_20261016/hmm_summary.csv",
+    "results/eci_total_comp_spy/core_models_20261016/regime_models.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:39:45.656475+00:00",
-  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
+  "generated_at": "2026-10-16T22:15:30.939552+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (causal HMM port + IS selection, 20261016)"
 }
