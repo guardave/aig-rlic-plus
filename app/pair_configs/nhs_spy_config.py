@@ -1,23 +1,24 @@
 """New Home Sales (NSA) x SPY pair configuration (Rule APP-PT1).
 
-Pair `nhs_spy`, Mode 2. Prose is sourced from Research Ray's
-`docs/portal_narrative_nhs_spy_20260703.md`; this file wires that prose to the
-shared Streamlit templates and Vera's bare-name chart artifacts.
+Pair `nhs_spy`. Narrative rewritten for the 20261016 run (causal regime port + in-sample
+selection, branch fix261016_hmm_port_eci_nhs). Every number below is read from
+results/nhs_spy/ (winner_summary.json, hmm_lookahead_audit_20261016.json,
+tournament_results_20261016.csv, legacy_oos_selection_20261016.csv,
+tournament_validation_20261016/*, structural_break_nhs_spy.json, subperiod_sharpe.csv,
+core_models_20261016/*, regime_quartile_returns.csv, granger_by_lag.csv).
 
-Evidence status is `found_in_search`, so headline performance is labelled
-"Search-phase OOS Sharpe (no holdout final exam yet)" by the template.
-Headline values come from `results/nhs_spy/winner_summary.json`.
-
-Framing (procyclical, low-confidence): New Home Sales is an early-cycle housing
-leading indicator. The regime quartiles are cleanly monotonic (Q1 weak -> Q4
-strong Sharpe rises), so the procyclical prior holds — unlike the money-supply
-and industrial-production pairs where the level story inverted. BUT forward
-Granger causality is weak (NHS->SPY significant only at lag 11; reverse
-SPY->NHS at lags 1-2), the winner is the max of 5,297 valid combos with a
-non-significant bootstrap p (0.071), and IS Sharpe (0.81) is far below OOS
-(1.49). The winning signal is a 2-state HMM regime probability on the
-deseasonalised YoY growth, NOT the raw NSA level. The indicator is NSA — every
-signal is YoY/STL-deseasonalised.
+What changed on 2026-10-16:
+  - The 20260703 winner (hmm_stress / T2_roll_p25 / LB60 / P1_long_cash pro / L0, OOS Sharpe
+    1.49, HAC t 4.53) traded a 2-state HMM probability fit on the full sample and read with
+    forward-backward smoothing (look-ahead), at lead L0, below the L2 publication-lag floor,
+    and was selected by OOS Sharpe. Same rule on the causal HMM: 1.36 at L0, 0.85 at L2.
+  - Regime models are now fit on in-sample months only and read with a forward filter
+    (scripts/_regime_causal.py). The lead grid is [2, 3, 6, 9, 12].
+  - Winner by in-sample Sharpe (common IS window 2002-11-30..2018-01-31): contraction /
+    P2_signal_strength counter / L9 / LB36. On the 0/1 contraction flag this is long SPY when
+    NHS YoY growth nine months earlier was not negative and cash when it was; its OOS positions
+    equal the long/cash version of the rule. IS Sharpe 1.46 (B&H 0.79); OOS Sharpe 0.93
+    (B&H 0.89), annualized return 11.9% vs 14.8%, max drawdown -13.5% vs -23.9%.
 """
 
 from __future__ import annotations
@@ -34,49 +35,45 @@ class StoryConfig:
     )
 
     HEADLINE_H2 = (
-        "## Sharpe 1.49 OOS, drawdown -8.3%: a housing-regime timing overlay -- "
-        "procyclical as expected, but forward causality is weak and confidence "
-        "is low"
+        "## The in-sample-selected rule — hold SPY unless New Home Sales growth was "
+        "negative nine months earlier — has an out-of-sample Sharpe of 0.93 against "
+        "0.89 for buy-and-hold, with a smaller drawdown (−13.5% vs −23.9%) and a lower "
+        "return (11.9% vs 14.8% a year)"
     )
 
     PLAIN_ENGLISH = (
         "New Home Sales is an early-cycle housing indicator: buyers commit "
         "before construction, so sales lead starts, permits, and the jobs and "
         "spending they drive. The natural prior is procyclical -- stronger "
-        "home-sales demand should coincide with better equities -- and here the "
-        "direction comes out as expected (the regime quartiles rise cleanly "
-        "from weak to strong growth). The searched winner trades a housing-"
-        "regime probability (a Hidden Markov Model reading of whether demand is "
-        "in its healthy state), holding SPY when the backdrop is favourable and "
-        "cash otherwise. It improves risk-adjusted return and drawdown, but the "
-        "formal forward-causality tests are weak, so treat the edge as a "
-        "search-found timing overlay, not a forecast."
+        "home-sales demand should coincide with better equities -- and the "
+        "descriptive quartiles rise from weak to strong growth. A search over "
+        "5,500 monthly rules picked the one with the best record before 2018: "
+        "hold SPY unless home-sales growth was negative nine months earlier. "
+        "From 2018 to mid-2026 it earned a Sharpe ratio of 0.93 versus 0.89 for "
+        "holding SPY, with a smaller drawdown and a lower return."
     )
 
     WHERE_THIS_FITS = (
         "This is a housing leading-indicator signal tested against broad U.S. "
-        "equities. The honest reading: the procyclical direction is genuine and "
-        "clean in the descriptive quartiles, but the tradable rule is a "
-        "searched regime overlay whose out-of-sample edge is concentrated in a "
-        "short, episode-heavy window. It is suggestive that housing demand "
-        "tracks the equity cycle -- not proof that New Home Sales forecasts the "
-        "S&P 500."
+        "equities. The procyclical direction is clear in the descriptive "
+        "quartiles; the formal forward-causality tests are weak (one long lag). "
+        "The tradable rule is a long/cash overlay that steps out of SPY after "
+        "home-sales contractions."
     )
 
     ONE_SENTENCE_THESIS = (
-        "The winning New-Home-Sales regime rule improves risk-adjusted return "
-        "and drawdown and confirms the procyclical prior in the quartiles, but "
-        "forward causality is weak, the winner is a large-search tail with a "
-        "non-significant bootstrap p-value, and it should be treated as a "
-        "low-confidence searched candidate awaiting a final exam."
+        "Stronger New Home Sales growth coincides with better equity returns, "
+        "and the in-sample-selected rule (cash when home-sales growth was "
+        "negative nine months earlier) scores an out-of-sample Sharpe of 0.93 "
+        "versus 0.89 for buy-and-hold, while forward Granger causality is "
+        "significant only at a single 11-month lag."
     )
 
     KPI_CAPTION = (
-        "the headline Sharpe is search-phase out-of-sample, not a final holdout "
-        "result. The winner was selected from 5,297 valid strategy "
-        "combinations, with bootstrap p=0.071 (above the 5% bar) and low "
-        "confidence -- and forward Granger causality is significant only at a "
-        "single long lag."
+        "the rule was chosen by its in-sample Sharpe (2002-11-30 to "
+        "2018-01-31) from 5,344 valid combinations, then scored once on "
+        "2018-02-28 to 2026-05-31 (100 months). No frozen-rule final exam has "
+        "been run."
     )
 
     HERO_TITLE = "New-Home-Sales YoY Growth vs the S&P 500 (SPY)"
@@ -86,8 +83,8 @@ class StoryConfig:
         "the regular spring-vs-winter selling swing, since the raw Census "
         "series is not seasonally adjusted) is shown against SPY on a shared "
         "time axis, with the 0% line marked and the 2008-09 collapse and "
-        "2022-23 rate-shock contraction annotated. The winning rule trades a "
-        "regime probability derived from this growth series, not the raw level."
+        "2022-23 rate-shock contraction annotated. The selected rule trades the "
+        "sign of this growth series (negative = contraction), not the raw level."
     )
 
     REGIME_TITLE = "What History Shows: SPY Performance by New-Home-Sales Growth Quartile"
@@ -104,20 +101,24 @@ class StoryConfig:
     NARRATIVE_SECTION_1 = """
 ### Headline Findings
 
-Out-of-sample (OOS) -- tested on data not used to pick the rule -- the winning rule earns a Sharpe ratio -- return per unit of volatility -- of 1.49 versus 0.89 for buy-and-hold (staying invested in SPY throughout). Its maximum drawdown -- the largest peak-to-trough loss -- improves to -8.3% from -23.9%, and annualized return is slightly higher, 15.9% versus 14.8%.
+The rule was selected by its in-sample record (2002-11-30 to 2018-01-31) and then tested once on data not used to pick it (out-of-sample, OOS: 2018-02-28 to 2026-05-31). OOS, it earns a Sharpe ratio -- return per unit of volatility -- of 0.93 versus 0.89 for buy-and-hold (staying invested in SPY throughout). Its maximum drawdown -- the largest peak-to-trough loss -- is -13.5% versus -23.9%, and its annualized return is lower, 11.9% versus 14.8%; it was invested 62% of the time.
 
-New Home Sales is a classic early-cycle housing indicator: buyers commit before construction begins, so sales sit one step ahead of housing starts, permits, and the employment and consumption they drive. The natural prior is **procyclical** -- stronger home-sales demand should coincide with a healthier economy and better equities -- and, unlike several macro pairs in this portal, the direction here comes out the way the prior expects.
+New Home Sales is a classic early-cycle housing indicator: buyers commit before construction begins, so sales sit one step ahead of housing starts, permits, and the employment and consumption they drive. The natural prior is **procyclical** -- stronger home-sales demand should coincide with a healthier economy and better equities -- and the descriptive quartiles point that way.
 
 ### A Seasonally-Raw Series, Read Year-over-Year
 
 The one technical wrinkle that shapes everything: the Census new-home-sales series (FRED `HSN1FNSA`) is **not seasonally adjusted**. Raw sales swing predictably every year -- a spring selling-season peak, a winter trough -- so the raw level and its month-to-month change are dominated by the calendar, not the cycle. Every signal on this page is therefore **deseasonalised**: the headline transform is year-over-year growth (this month versus the same month a year earlier), which cancels a fixed seasonal, backed by a statistically seasonally-adjusted (STL) alternative. We never trade or chart the raw level as a signal.
 
-### The Regime Signal, Not the Raw Number
+### The Selected Rule
 
-The winning rule does not trade the year-over-year number directly. It trades a **regime probability**: a Hidden Markov Model (HMM) reads the home-sales growth series and estimates whether housing demand is in its normal expansion state or in an outright contraction. The strategy holds SPY when the expansion-regime probability stays above its rolling threshold and steps to cash when it breaks down. In plain terms, it asks "is the housing-demand backdrop healthy right now?" and times equity exposure on that.
+The rule reads one fact: was New Home Sales year-over-year growth **negative** (a contraction) nine months earlier? If not, it holds SPY; if so, it holds cash. In the 2018-2026 test window that put it in cash for 38 of 100 months, including most of 2022-23.
 
-<!-- expander: Why is confidence low if the direction is right? -->
-The procyclical direction is clean in the descriptive quartiles, but "direction is right" and "this is a reliable forecaster" are different claims. The formal forward-causality tests (Granger, local projections) are weak: New Home Sales growth leads SPY only at a single long lag, and the winner is the best of more than five thousand searched combinations with a re-shuffle p-value above the 5% bar. So we report a genuine procyclical relationship AND a low-confidence trading rule -- on purpose, and separately.
+### Correction to the earlier version of this page
+
+This page previously reported a rule on a Hidden Markov Model (HMM) regime probability with an OOS Sharpe of **1.49**. That probability was estimated on the whole sample and smoothed with later data, so each month's value used information from after that month (look-ahead); the rule also used the current month's reading (lead 0), although Census publishes each month's figure near the end of the following month; and it was picked by its OOS score. With the HMM fitted on in-sample months only and read forward, the same rule scores **1.36** at lead 0 and **0.85** at the earliest tradable lead (2 months) (`hmm_lookahead_audit_20261016.json`).
+
+<!-- expander: Why is the forward evidence called weak? -->
+The procyclical direction is clear in the descriptive quartiles, but "the direction is right" and "this forecasts the market" are different claims. The formal forward-causality tests are weak: New Home Sales growth Granger-causes SPY only at a single long lag (11 months), while SPY leads home sales at short lags (1, 2).
 <!-- /expander -->
 """
 
@@ -164,9 +165,9 @@ The procyclical direction is clean in the descriptive quartiles, but "direction 
             "title": "2022 Rates Shock",
             "narrative": (
                 "During the 2022-23 mortgage-rate shock, New Home Sales "
-                "contracted sharply as 30-year rates jumped -- the strong, "
-                "recent regime that dominates the out-of-sample window and "
-                "drives much of the strategy's drawdown avoidance."
+                "contracted sharply as 30-year rates jumped. The selected "
+                "rule, which steps to cash after home-sales contractions, was "
+                "in cash for most of 2022-23."
             ),
             "caption": (
                 "2022-23: rate shock crushed sales -- the dominant OOS regime."
@@ -273,9 +274,8 @@ GRANGER_BLOCK = dict(
         "housing) is significant at short lags."
     ),
     interpretation=(
-        "Forward causality is weak and long-horizon. This is the central "
-        "reason confidence is low despite the strong headline Sharpe and the "
-        "clean procyclical quartiles."
+        "Forward causality is weak and long-horizon, alongside clean "
+        "procyclical quartiles."
     ),
     key_message="Forward causality is weak (a single long lag); confidence stays low.",
 )
@@ -392,40 +392,43 @@ TRANSFER_ENTROPY_BLOCK = dict(
 
 HMM_BLOCK = dict(
     chart_status="ready",
-    method_name="HMM Regime Map (The Winning Signal)",
+    method_name="HMM Regime Map",
     method_theory=(
         "A Hidden Markov Model (HMM) maps the home-sales growth series into two "
-        "latent regimes: a normal expansion state, which covers about 80% of "
-        "months at roughly +9% average year-over-year growth, and a contraction "
-        "state averaging about -24% growth that captures outright housing busts."
+        "latent states. It is fit on in-sample months only (1991-2018) and "
+        "read with a forward filter, so each month's probability uses data up "
+        "to that month. The state labelled 'stress' in the data files (the one "
+        "with the slightly higher in-sample variance) is in fact the normal "
+        "state: about 80% of months at roughly +8.8% average year-over-year "
+        "growth; the other state averages about -23.5% and captures housing "
+        "busts."
     ),
-    question="When is housing demand in its expansion regime -- and does timing SPY on it help?",
+    question="When is housing demand in its normal state -- and does timing SPY on it help?",
     how_to_read=(
-        "The line is the probability that home-sales growth is in the expansion  "
-        "regime. It sits near 1 for most of the sample and falls toward zero when "
-        "housing turns down. The strategy holds SPY while that probability stays "
-        "above its rolling threshold and steps to cash when it drops below."
+        "The line is the forward-filtered probability of the normal (labelled "
+        "'stress') state. It sits near 1 for most of the sample and falls "
+        "toward zero when housing turns down. The vertical line marks the start "
+        "of the out-of-sample window, after which the model is frozen."
     ),
     chart_name=HMM_REGIME_CHART_NAME,
     chart_caption=(
-        "What this shows: the expansion-regime probability holds near 1 through "
-        "expansions and collapses towards zero in the 2007-09 housing bust and part "
-        "of the 2022-23 rate shock -- and this probability IS the winning trading "
-        "signal"
+        "What this shows: the in-sample-fitted, forward-filtered probability "
+        "of the normal housing state; it falls toward zero in the 2007-09 "
+        "housing bust and in 2022-23."
     ),
     observation=(
-        "The HMM cleanly separates normal housing-demand expansions from outright "
-        "contractions; the regime probability is near-binary rather than gradual."
+        "The HMM separates normal housing-demand months from outright "
+        "contractions; the probability is close to 0 or 1 most of the time. "
+        "Rules built on it are in the tournament; the best one ranks 31st by "
+        "in-sample Sharpe (1.35) and scores 0.65 out of sample."
     ),
     interpretation=(
-        "Unlike most pairs where the HMM is only backdrop, here the regime "
-        "probability is the winning signal. It still does not rescue the "
-        "statistical fragility -- the forward causality is weak and the winner "
-        "is search-selected."
+        "The earlier winner traded this probability, estimated with look-ahead "
+        "(full sample, smoothed) and read at lead 0. Built causally and read at "
+        "the 2-month floor, the same rule scores 0.85 out of sample."
     ),
-    key_message="The HMM regime probability IS the winner -- but fragility remains.",
+    key_message="The causal HMM probability is a tournament signal but not the winner.",
 )
-
 
 EVIDENCE_METHOD_BLOCKS = {
     "title": "Evidence: a clean procyclical direction, but weak forward causality",
@@ -436,14 +439,14 @@ EVIDENCE_METHOD_BLOCKS = {
         "New Home Sales growth Granger-causes SPY only at a single long lag "
         "(11 months), while SPY leads home sales at short lags (1, 2). "
         "Supporting checks (local projections, transfer entropy, quantile "
-        "regression) corroborate the weak-forward, regime-driven reading."
+        "regression) are consistent with a weak forward relationship."
     ),
     "plain_english": (
         "This section asks whether New Home Sales really helps predict future "
         "SPY performance. The direction is right and clean in the descriptive "
-        "sort, but the formal lead-lag tests are weak, so the strong headline "
-        "Sharpe is treated as a low-confidence searched result driven by a "
-        "regime signal."
+        "sort, and the formal lead-lag tests are weak. The Strategy page shows "
+        "the rule selected in-sample and its out-of-sample record against "
+        "buy-and-hold."
     ),
     "downloads": [
         {"label": "Granger F-statistics by lag (12 rows)", "path": "results/nhs_spy/granger_by_lag.csv"},
@@ -453,67 +456,83 @@ EVIDENCE_METHOD_BLOCKS = {
         {"label": "Stationarity tests", "path": "results/nhs_spy/stationarity_tests_20260703.csv"},
     ],
     "level1": [QUARTILE_BLOCK, GRANGER_BLOCK, HMM_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Growth Quartiles", "Granger Causality", "HMM Regimes (Winner)", "Pre-Whitened CCF"],
+    "level1_labels": ["Growth Quartiles", "Granger Causality", "HMM Regimes", "Pre-Whitened CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK, TRANSFER_ENTROPY_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression", "Transfer Entropy"],
     "tournament_intro": (
-        "The tournament tested 7,700 benchmark-excluded strategy combinations, "
-        "of which 5,297 passed validity filters. The winning rule is the best "
-        "of that valid searched set, so its Sharpe advantage must be read with "
-        "the search-position warning attached."
+        "The tournament tested 5,500 benchmark-excluded strategy combinations "
+        "on the lead grid 2, 3, 6, 9 and 12 months; 5,344 passed the in-sample "
+        "validity checks. The winner is the valid rule with the highest "
+        "in-sample Sharpe (2002-11-30 to 2018-01-31); its out-of-sample Sharpe "
+        "is 0.93 against 0.89 for buy-and-hold, at the 89th percentile of all "
+        "valid rules (median 0.63)."
     ),
     "transition": (
         "**Transition:** the direction is procyclical and clean, but forward "
-        "causality is weak. The strategy page shows what the rule actually is: "
-        "a search-found Long/Cash housing-regime overlay whose drawdown win is "
-        "concentrated in a short, episode-heavy OOS window."
+        "causality is weak. The strategy page shows the in-sample-selected "
+        "rule: a long/cash overlay that steps out of SPY after home-sales "
+        "contractions."
     ),
 }
 
-
 class StrategyConfig:
-    PAGE_TITLE = "The Strategy: A Housing-Regime Long/Cash Overlay"
+    PAGE_TITLE = "The Strategy: An In-Sample-Selected Housing-Contraction Rule for SPY"
     PAGE_SUBTITLE = (
-        "A searched timing overlay: better Sharpe, drawdown, and return than "
-        "buy-and-hold in the OOS window -- procyclical as expected, but weak "
-        "forward causality, found_in_search, and low statistical confidence."
+        "5,500 rule combinations were scored. The one with the best in-sample "
+        "Sharpe is reported here, with its out-of-sample record against "
+        "buy-and-hold."
+    )
+
+    STATISTICAL_FRAMING_BANNER = (
+        "Correction (2026-10-16). This page previously reported hmm_stress / "
+        "T2_roll_p25 / Long/Cash / L0 with an OOS Sharpe of 1.49 (HAC t 4.53). "
+        "That result relied on HMM probabilities fitted on the full sample and "
+        "smoothed with future data (look-ahead), used a lead of 0 months although "
+        "each month's figure is published near the end of the next month, and the "
+        "rule was picked by its OOS score. Rebuilt without look-ahead, with a "
+        "2-month lead floor and in-sample selection, the winner below has an OOS "
+        "Sharpe of 0.93 against 0.89 for SPY buy-and-hold."
     )
 
     PLAIN_ENGLISH = (
-        "The rule is simple: when the New-Home-Sales favourable-regime signal "
-        "(a Hidden Markov Model reading of deseasonalised year-over-year "
-        "growth) is on, hold SPY; otherwise hold cash. It improved Sharpe and "
-        "roughly thirded the drawdown in the search-phase OOS window, but the "
-        "forward-causality tests are weak, so this is a timing overlay, not a "
-        "forecast."
+        "The rule moves between SPY and cash once a month. It holds SPY unless "
+        "New Home Sales year-over-year growth, as it stood nine months earlier, "
+        "was negative; then it holds cash. It was chosen because it had the "
+        "highest in-sample Sharpe (1.46 vs 0.79 for buy-and-hold, 2002-2018). "
+        "Out of sample (2018-02-28 to 2026-05-31, 100 months) it scored a Sharpe "
+        "of 0.93 versus 0.89, an annualized return of 11.9% versus 14.8%, and a "
+        "maximum drawdown of -13.5% versus -23.9%."
     )
 
     SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the New-Home-Sales expansion-regime probability (from a 2-state Hidden Markov Model on deseasonalised year-over-year growth) is above its rolling 25th-percentile threshold (60-month window); otherwise hold cash. Because that probability sits near 1 for most of the sample, the rule is effectively "stay invested unless housing demand breaks down". No signal lead (L0), because the regime probability is built from already-released data.
+**Rule in plain English:** each month, look at the New Home Sales year-over-year contraction flag (`nhs_yoy_contraction_flag`: 1 when YoY growth is below 0) **as it stood nine months earlier** (lead L9). If the flag was 0, hold **100% SPY**; if it was 1, hold **cash**. Countercyclical orientation on the flag (contraction = cash).
+
+Tournament form: `contraction / P2_signal_strength (counter) / L9 / LB36`. Signal-strength sizing scales exposure by the flag's position in its trailing 36-month min-max range; on a 0/1 flag that is 100% or 0%, and when the flag did not change over the trailing 36 months the size is undefined (held as cash). The threshold label `T2_roll_p25` is not used by this sizing rule. Over the OOS window the positions are identical to the long/cash version of the rule (`T1_fixed_p25`, OOS Sharpe 0.93). In-sample, the sizing rule is undefined for 10 months (2009-09 to 2010-06) that the long/cash version holds in cash; excluding them gives the IS Sharpe of 1.46 versus 1.42 for the long/cash version.
 
 If-then form:
-- **IF** the regime probability is **above** its rolling 25th-percentile threshold (latest value approximately 0.0123) -> hold SPY.
+- **IF** NHS YoY growth nine months ago was **not negative** -> hold SPY.
 - **ELSE** -> hold cash.
 
-Search-phase OOS results (2018-02-28 to 2026-05-31, no holdout final exam yet): Sharpe 1.49 vs 0.89 buy-and-hold; annualized return 15.9% vs 14.8%; maximum drawdown -8.3% vs -23.9%; 10 OOS position changes; annual turnover 1.2; OOS win rate 48%.
+Selection: highest in-sample Sharpe among 5,344 IS-valid rules on 2002-11-30 to 2018-01-31: 1.46 vs 0.79 for buy-and-hold.
+
+Out-of-sample (2018-02-28 to 2026-05-31, 100 months): Sharpe 0.93 vs 0.89 buy-and-hold (HAC t of the mean return 3.26); annualized return 11.9% vs 14.8%; maximum drawdown -13.5% vs -23.9%; 20 position changes (2.4 per year); invested 62% of months.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads the Census/Federal Reserve monthly new-home-sales release (FRED series HSN1FNSA) and computes its year-over-year growth -- this month's sales versus the same month a year ago. Because the raw series is not seasonally adjusted, the year-over-year change is what strips out the regular spring-vs-winter selling swing. Second, it fits a 2-state Hidden Markov Model to that growth series and reads off the probability of the normal expansion regime. Third, it compares that probability against a rolling 25th-percentile threshold and converts the comparison into a SPY-or-cash position (no lead needed, since the probability is built from released data).
+First, the data process reads the Census monthly new-home-sales release (FRED series HSN1FNSA) and computes its year-over-year growth -- this month's sales versus the same month a year ago. Because the raw series is not seasonally adjusted, the year-over-year change is what strips out the regular spring-vs-winter selling swing. Second, it marks a contraction when that growth is below zero. Third, it applies a nine-month delay (each month's figure is published near the end of the following month; nine months is the lead with the highest in-sample Sharpe on the grid 2, 3, 6, 9, 12) and holds SPY unless the delayed reading shows a contraction.
 
-This is intentionally simple. It does not forecast mortgage rates, model the Fed, or claim that housing drives stocks. It asks whether the housing-demand backdrop is in a healthy regime and times SPY on that -- and, as the Evidence page is careful to say, the formal forward-causality tests are weak.
+It does not forecast mortgage rates, model the Fed, or claim that housing drives stocks. The Evidence page finds the formal forward-causality tests weak.
 """
 
     MANUAL_USE_MD = """
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
-1. Read New Home Sales (`HSN1FNSA`) from the live FRED API at the current vintage.
+1. Read New Home Sales (`HSN1FNSA`) from FRED.
 2. Compute year-over-year growth (this deseasonalises the not-seasonally-adjusted series).
-3. Fit / update the 2-state Hidden Markov Model on the YoY growth series and read the expansion-regime probability.
-4. Compare that probability with its rolling 25th-percentile threshold (60-month window).
-5. Hold SPY when the signal is above the threshold; otherwise hold cash.
+3. Look up the growth figure for the month nine months before the current month.
+4. If it is negative, hold cash; otherwise hold SPY. Re-evaluate monthly.
 
-The warning label is central: this is `found_in_search`, not confirmed by a holdout final exam, and forward Granger causality is significant only at a single long lag.
+The pair's `evidence_status` is `found_in_search`: the rule has not been tested on data released after it was frozen.
 """
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -522,49 +541,49 @@ The warning label is central: this is `found_in_search`, not confirmed by a hold
     WALK_FORWARD_CHART_NAME = "subperiod_sharpe"
     WALK_FORWARD_CAPTION = (
         "What this shows: strategy Sharpe by stress episode. Only COVID 2020 "
-        "falls inside the 2018-onward OOS window and is evaluable; the "
-        "Dot-Com, GFC, and China 2015 episodes predate the OOS split and are "
-        "marked insufficient data -- which is why durability is only "
-        "conditionally durable."
+        "falls inside the 2018-onward OOS window (Sharpe 1.07); the Dot-Com, "
+        "GFC and China 2015 episodes predate the OOS split and are marked "
+        "insufficient data."
     )
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: the OOS Sharpe distribution across 5,297 valid "
-        "searched combinations, with buy-and-hold above the median. The "
-        "winner's 1.49 Sharpe is the maximum of the search, not a typical "
-        "result -- and its bootstrap p-value (0.071) is above the 5% bar."
+        "What this shows: the OOS Sharpe distribution across 5,344 IS-valid "
+        "combinations. The rule selected in-sample scores 0.93, the 89th "
+        "percentile; the median is 0.63 and buy-and-hold 0.89; 852 combinations "
+        "have a higher OOS Sharpe than buy-and-hold."
     )
 
     CAVEATS_MD = """
-**Why confidence is low (despite the right direction):**
+**Limitations** (from `winner_summary.json`, `hmm_lookahead_audit_20261016.json`, `structural_break_nhs_spy.json` and `tournament_validation_20261016/`):
 
-1. Forward causality is weak: Toda-Yamamoto Granger finds New Home Sales YoY leads SPY only at a single long lag (11 months), while SPY leads home sales at short lags (1, 2). A robust leading indicator would clear the line across a band of horizons.
-2. The winner came from 5,297 valid searched combinations; its bootstrap p-value is 0.071 -- **above the 5% bar**, so it does not clear conventional significance.
-3. The rule is marked `found_in_search` -- it has NOT been confirmed on an untouched final-exam window. In-sample Sharpe is 0.81 versus OOS 1.49, a large gap.
-4. Durability is only `conditionally_durable`: the OOS window (2018-2026) is short and dominated by the 2022-23 rate shock; COVID is the only evaluable stress episode.
-5. The winning signal is a regime probability, not the raw home-sales number; the raw NSA level and STL level are non-stationary and excluded from the signal set.
+1. **Margin over buy-and-hold.** OOS Sharpe 0.93 vs 0.89; annualized return 11.9% vs 14.8%. The Sharpe gap comes from lower volatility and drawdown (-13.5% vs -23.9%), not higher return. Bootstrap share of resampled buy-and-hold Sharpes at or above 0.93: 0.47.
+2. **Selection.** 5,500 combinations were scored (5,344 IS-valid, about 3,974 distinct position series); the expected maximum |z| among that many unrelated rules with no skill is about 3.66. Across the grid, IS and OOS Sharpe have a rank correlation of 0.69.
+3. **Sizing-rule artefact.** The winner's IS Sharpe (1.46) excludes 10 months in which its sizing is undefined; the long/cash version with identical OOS positions has IS Sharpe 1.42.
+4. **Forward causality is weak.** Toda-Yamamoto Granger finds NHS YoY leads SPY only at lag 11; SPY leads home sales at lags 1 and 2.
+5. **Durability.** Only COVID falls inside the OOS window (episode Sharpe 1.07). No structural break is flagged (candidate 2009-03, sup-F 2.58, bootstrap p = 0.53).
+6. **Earlier winner withdrawn.** The 1.49 HMM rule used look-ahead regime probabilities and a lead below the 2-month publication floor; causal and floored, it scores 0.85.
+7. **Input data.** The tournament uses the indicator transforms as published in July 2026 (`signals_20260703.parquet`); later FRED revisions (2026-04/05) are not included. The STL-adjusted signals (`sa_mom`, `sa_3m`) come from a full-sample seasonal decomposition.
 
-**What this means:** use the page as evidence for a genuine procyclical housing relationship AND a low-confidence, search-found timing overlay -- not as proof that New Home Sales forecasts the S&P 500.
+**Costs.** Returns are gross of costs; at 50 bps per trade the OOS Sharpe is 0.84 (`tournament_validation_20261016/transaction_costs.csv`).
 """
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**A concrete example from this pair:** the broker-style log records a "
-        "BUY when the New-Home-Sales favourable-regime probability crosses back "
-        "above its rolling threshold, moving from 0% to 100% SPY exposure, and "
-        "a SELL back to cash when the regime signal falls below the threshold. "
-        "Over the OOS window the rule made 10 such position changes -- a low-"
-        "turnover overlay."
+        "**A concrete example from this pair:** the broker-style log records "
+        "a SELL to cash dated 2022-03-31, when the contraction flag read nine "
+        "months earlier turned on; apart from one invested month (2022-11) the "
+        "rule stayed in cash until a BUY dated 2024-01-31. Each row's date is the end of the month the "
+        "position applies to. Over the OOS window the rule made 20 position "
+        "changes."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
-        "trade_date": "2020-05-31",
-        "side": "BUY",
+        "trade_date": "2022-03-31",
+        "side": "SELL",
         "instrument": "SPY",
-        "quantity_pct": "100.0",
+        "quantity_pct": "0.0",
         "commission_bps": "5",
-        "reason": "P1_long_cash: NHS favourable-regime prob > rolling p25; position 0% to 100%",
+        "reason": "P2_signal_strength_counter: contraction flag (lagged 9 months) = 1 — position 100% → 0%",
     }
-
 
 STRATEGY_CONFIG = StrategyConfig()
 
@@ -572,7 +591,7 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = """
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator | Census / Federal Reserve via live FRED API (current vintage) | `HSN1FNSA` New One-Family Houses Sold (thousands, NOT seasonally adjusted) | Monthly |
+| Indicator | Census via FRED (vintage of the July 2026 data pull; transforms as published in `signals_20260703.parquet`) | `HSN1FNSA` New One-Family Houses Sold (thousands, NOT seasonally adjusted) | Monthly |
 | Target | Yahoo Finance | SPY adjusted close / returns | Daily and monthly |
 """
 
@@ -582,16 +601,15 @@ _INDICATOR_CONSTRUCTION_MD = (
     "are EXCLUDED as signals. Signals are deseasonalised: year-over-year growth "
     "(the primary transform; a 12-month difference cancels the fixed seasonal), "
     "its acceleration and 3-month-average variant, a statistically seasonally-"
-    "adjusted (STL) level and its month-over-month and 3-month growth, and a "
-    "rolling z-score of YoY growth. Both the raw level and the STL level are "
-    "non-stationary (augmented Dickey-Fuller does not reject a unit root) and "
-    "are excluded from the signal set. The winning signal is a 2-state Hidden "
-    "Markov Model regime probability fitted on YoY growth, evaluated against a "
-    "rolling 25th-percentile threshold with no lead (L0). The daily panel "
-    "carries the latest released monthly value forward from the Census release "
-    "date (approximately the fourth Tuesday of the following month), so the "
-    "strategy does not use future information. New home sales are heavily "
-    "revised; the live FRED API is treated as ground truth."
+    "adjusted (STL) level and its month-over-month and 3-month growth, a "
+    "rolling z-score of YoY growth, a 0/1 contraction flag (YoY < 0), and two "
+    "regime probabilities (HMM and Markov-switching on YoY growth, fit on "
+    "in-sample months only and read with a forward filter). The STL "
+    "decomposition is computed on the full sample, so the STL-based signals "
+    "use later data. The selected signal is the contraction flag at a "
+    "nine-month lead. Census publishes each month's figure near the end of the "
+    "following month, so the lead floor is 2 months; the tradable grid is 2, "
+    "3, 6, 9 and 12 months."
 )
 
 _METHODS_TABLE_MD = """
@@ -603,14 +621,18 @@ _METHODS_TABLE_MD = """
 | Local projections | What is the forward SPY response across horizons? | Horizon-by-horizon response check |
 | Quantile regression | Does the signal work differently in weak vs strong markets? | Separates tail-risk from upside-state behavior |
 | Transfer entropy | Is there nonlinear information flow, and in which direction? | Model-free nonlinear robustness check |
-| HMM / Markov regimes | Which months are hosing expansion vs contractions? | Produces the winning regime signal |
+| HMM / Markov regimes (in-sample fit, forward filter) | Which months are housing expansions vs contractions? | Regime-probability signals for the tournament |
 | Structural break / cross-period | Is the relationship stable over time? | Durability and overfit guard |
 """
 
 _TOURNAMENT_DESIGN_MD = """
-Grid: New-Home-Sales transforms x threshold rules x strategy families x orientations x monthly leads (L0-12) x lookbacks. The final tournament file has 7,700 benchmark-excluded strategy combinations plus one BENCHMARK row. Of those, 5,297 strategy combinations pass validity filters and are eligible for winner selection. The winning rule is `hmm_stress / T2_roll_p25 / P1_long_cash (pro) / L0 / LB60`.
+Grid: New-Home-Sales transforms (9 signals) x threshold rules x strategy families (long/cash, signal-strength sizing, long/short) x orientations x monthly leads {2, 3, 6, 9, 12} x lookbacks. The legacy grid's leads 0 and 1 are removed: Census publishes each month's figure near the end of the following month. The tournament file has 5,500 benchmark-excluded strategy combinations plus one BENCHMARK row.
 
-All headline performance on the portal is search-phase OOS, not a holdout final exam. This distinction is binding for the pair because `results/nhs_spy/evidence_status.json` marks the pair `found_in_search`. Forward Granger causality is significant only at a single long lag, reinforcing the low-confidence label.
+**Selection (2026-10-16).** Validity uses in-sample data only (at least 60 in-sample months, in-sample exposure 5%-95%, turnover below 24 changes per year): 5,344 combinations pass. The winner is the valid row with the highest in-sample Sharpe on the common window 2002-11-30 to 2018-01-31 (the start is set by the latest-starting signal, the 120-month YoY z-score at lead 12); ties are broken by in-sample return, drawdown, trade count, then name. Winner: `contraction / T2_roll_p25 / P2_signal_strength (counter) / L9 / LB36`. For comparison only, the highest OOS Sharpe on this grid is sa_3m / T2_roll_p75 / long-short countercyclical / L2 / LB60 (1.30), ranked 3,501st in-sample (`legacy_oos_selection_20261016.csv`).
+
+**Regime signals and input.** HMM and Markov-switching probabilities come from `scripts/_regime_causal.py` (in-sample fit, forward filter, no SPY return in the likelihood). The 20260703 winner and its causal replay are in `hmm_lookahead_audit_20261016.json`. The input frame uses the indicator transforms as published in `signals_20260703.parquet` with SPY re-pulled from Yahoo (monthly returns within 1.6e-6 of the July file).
+
+`results/nhs_spy/evidence_status.json` marks the pair `found_in_search`: no frozen-rule final exam has been run.
 """
 
 _REFERENCES_MD = """
@@ -631,17 +653,18 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "Out-of-sample window 2018-02-28 to 2026-05-31, 100 monthly "
-        "observations; in-sample ends before the 2018 split. Total tournament "
-        "count is 7,700 benchmark-excluded strategy combinations; 5,297 are "
-        "valid. Evidence status: found_in_search."
+        "In-sample comparison window 2002-11-30 to 2018-01-31 (the selection "
+        "objective is in-sample Sharpe; regime models are fit on 1991-2018); "
+        "out-of-sample window 2018-02-28 to 2026-05-31, 100 monthly "
+        "observations, scored once after selection. 5,500 benchmark-excluded "
+        "combinations, 5,344 IS-valid. Evidence status: found_in_search."
     ),
     plain_english=(
         "This page explains the data, transformations, econometric tests, and "
-        "tournament design behind the New Home Sales analysis. The most "
-        "important points: the indicator is not seasonally adjusted (so every "
-        "signal is deseasonalised via year-over-year growth or STL), the "
-        "procyclical direction is clean in the quartiles, but forward causality "
-        "is weak and the winning rule still needs a frozen-rule holdout test."
+        "tournament design behind the New Home Sales analysis. The indicator is "
+        "not seasonally adjusted (so every signal is deseasonalised via "
+        "year-over-year growth or STL) and forward causality is weak. The "
+        "winning rule (countercyclical on the contraction flag: cash after a "
+        "contraction) was picked on pre-2018 data and then scored on 2018-2026."
     ),
 )
