@@ -1520,15 +1520,20 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         _oos_start = (winner.get("oos_period_start") or "")[:7]
         _oos_end = (winner.get("oos_period_end") or "")[:7]
         _window = f"{_oos_start}–{_oos_end}" if _oos_start and _oos_end else "OOS window"
-        _headline_sharpe_delta = (
-            f"vs {bh_sharpe} B&H · {_window}" if bh_sharpe != "N/A" else _window
-        )
+        # signed gap (as on the Story page) so a below-B&H Sharpe shows a red down arrow
+        _signed, _signed_color = _sharpe_kpi_delta(winner)
+        if _signed_color == "normal":
+            _headline_sharpe_delta = f"{_signed} · {_window}"
+        else:
+            _headline_sharpe_delta = (
+                f"vs {bh_sharpe} B&H · {_window}" if bh_sharpe != "N/A" else _window
+            )
         _render_kpi_routing_disclosure(pair_id, _kpi_routing)
 
     kpi_row([
         {"label": _headline_sharpe_label, "value": oos_sharpe,
          "delta": _headline_sharpe_delta,
-         "delta_color": _sharpe_kpi_delta(winner)[1] if _kpi_routing is None else "off"},
+         "delta_color": _sharpe_kpi_delta(winner)[1]},
         {"label": "OOS Return", "value": oos_return, "delta": "annualized"},
         {"label": "Max Drawdown", "value": max_dd,
          "delta": _dd_kpi_delta(winner)[0],
