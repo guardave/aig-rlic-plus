@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-07-03T03:22:26Z",
+  "last_updated_at": "2026-10-16T22:34:09Z",
   "indicator_axis": {
     "canonical_column": "nhs_nsa",
     "display_name": "New Home Sales (NSA)",
@@ -73,15 +73,15 @@
       },
       {
         "name": "hmm_2state_prob_stress",
-        "definition": "P(high-variance regime) from 2-state HMM on YoY growth",
-        "formula": "GaussianHMM(yoy)",
+        "definition": "forward-filtered P(high-variance state) from a 2-state HMM on YoY growth, fit on IS months only",
+        "formula": "GaussianHMM(yoy), IS-only fit, forward filter (scripts/_regime_causal.py)",
         "role": "regime_state",
         "appears_in_charts": []
       },
       {
         "name": "markov_regime_2state",
-        "definition": "P(high-variance regime) from Markov-switching regression spy_ret~yoy",
-        "formula": "MarkovRegression",
+        "definition": "Hamilton-filtered P(high-variance regime) from a 2-regime switching-variance model of YoY growth, fit on IS months only",
+        "formula": "MarkovRegression(yoy), IS-only fit, filter (scripts/_regime_causal.py)",
         "role": "regime_state",
         "appears_in_charts": []
       }

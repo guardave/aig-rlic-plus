@@ -461,6 +461,16 @@
       "added_at": "2026-10-08",
       "first_pair": "housing_starts_rebuilt_spy",
       "notes": "Housing Starts (SAAR) growth transform; tested both procyclical and countercyclical in the tournament."
+    },
+    {
+      "signal_code": "nhs_contraction",
+      "display_name": "NHS contraction (New Home Sales (NSA))",
+      "parquet_column_pattern": "nhs_yoy_contraction_flag",
+      "description": "Binary flag: 1 when NHS YoY growth < 0 (housing-demand contraction).",
+      "source_method": "transform",
+      "added_at": "2026-10-16",
+      "first_pair": "nhs_spy",
+      "notes": "New Home Sales (NSA) growth transform; tested both procyclical and countercyclical in the tournament."
     }
   ]
 }

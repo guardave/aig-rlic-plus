@@ -1,16 +1,16 @@
 {
   "pair_id": "nhs_spy",
-  "winner_label": "hmm_stress / T2_roll_p25 / P1_long_cash (pro) / L0 / LB60",
-  "winner_oos_sharpe": 1.4851,
-  "winner_max_drawdown": -0.0833,
-  "winner_oos_ann_return": 0.159,
+  "winner_label": "contraction / T2_roll_p25 / P2_signal_strength (counter) / L9 / LB36",
+  "winner_oos_sharpe": 0.9318,
+  "winner_max_drawdown": -0.1353,
+  "winner_oos_ann_return": 0.1187,
   "bh_oos_sharpe": 0.8935,
   "bh_max_drawdown": -0.2393,
   "bh_oos_ann_return": 0.1482,
-  "delta_sharpe": 0.5916,
-  "delta_max_drawdown": 0.156,
-  "delta_ann_return": 0.0108,
+  "delta_sharpe": 0.0384,
+  "delta_max_drawdown": 0.104,
+  "delta_ann_return": -0.0294,
   "beats_benchmark": true,
-  "suggested_strategy_objective": "max_sharpe",
-  "generated_at": "2026-07-03T03:22:26Z"
+  "suggested_strategy_objective": "min_mdd",
+  "generated_at": "2026-10-16T22:34:09Z"
 }

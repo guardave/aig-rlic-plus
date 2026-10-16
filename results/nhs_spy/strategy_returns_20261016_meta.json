@@ -1,0 +1,39 @@
+{
+  "pair_id": "nhs_spy",
+  "artifact": "strategy_returns_20261016.csv",
+  "produced_by": "scripts/pair_pipeline_nhs_spy.py",
+  "rule": "ECON-SR1",
+  "source": "pipeline_native_derivation (same replay() as the tournament)",
+  "returns_file": "data/nhs_spy_monthly_latest.parquet",
+  "coverage_start": "1993-02-28",
+  "coverage_end": "2026-05-31",
+  "frequency": "monthly",
+  "oos_start": "2018-02-28",
+  "oos_end": "2026-05-31",
+  "position_semantics": "position on row t is the return-accrual weight for month t; the signal is lagged 9 month(s); strategy_return = position * bh_return row-wise; warm-up rows (signal or threshold undefined) written as 0",
+  "reconciliation": {
+    "oos_sharpe": {
+      "computed": 0.931838,
+      "reported_winner_summary": 0.931838,
+      "diff": -0.0,
+      "tolerance": 1e-05,
+      "verdict": "PASS"
+    },
+    "oos_max_drawdown": {
+      "computed": -0.135321,
+      "reported_winner_summary": -0.135321,
+      "diff": -0.0,
+      "tolerance": 1e-05,
+      "verdict": "PASS"
+    },
+    "oos_ann_return": {
+      "computed": 0.118747,
+      "reported_winner_summary": 0.118747,
+      "diff": 0.0,
+      "tolerance": 1e-05,
+      "verdict": "PASS"
+    }
+  },
+  "generated_at": "2026-10-16T22:34:09Z",
+  "generated_by": "Econ Evan (fix261016_hmm_port_eci_nhs)"
+}

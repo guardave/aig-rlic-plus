@@ -35,10 +35,16 @@ reviewed and CONFIRMED here, NOT re-run. nhs_nsa and nhs_sa LEVELS are
 NON-stationary and are NOT used as signals; all signals are stationary
 growth/transform series.
 
-Lag convention (binding): Census new-home-sales publishes ~4th Tuesday for the
-prior month -> L1 is the real-time floor. Tournament lead grid centers L6 and
-sweeps L1..12. Lead semantics: position at month t is a function of the signal
-observed at month t-L; strategy_return_t = position_t * spy_ret_t.
+Lag convention (binding): Census publishes month M near the end of M+1, so the month-M
+value can only drive returns from M+2 on: registry floor L2 (#255 / strict floor). The
+legacy grid [0,1,2,3,6,9,12] is truncated at the bottom to [2,3,6,9,12]. Lead semantics:
+position at month t is a function of the signal observed at month t-L;
+strategy_return_t = position_t * spy_ret_t.
+
+2026-10-16 (fix261016_hmm_port_eci_nhs): regime signals are IS-fit and forward-filtered
+(scripts/_regime_causal.py); the winner is selected by in-sample Sharpe on the common IS
+window (PORT_GUIDE); the 20260703 smoothed-HMM L0 winner is replayed in
+hmm_lookahead_audit_20261016.json.
 
 Author: Econ Evan (Econometrics Agent) — Lead wearing role hat (Mode 2)
 Date: 2026-07-03
@@ -67,7 +73,9 @@ PAIR_ID = "nhs_spy"
 INDICATOR_NAME = "New Home Sales (NSA)"
 TARGET_NAME = "SPY"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20260703"
+DATE_TAG = "20261016"
+PREV_TAG = "20260703"   # previously published run (smoothed full-sample HMM winner); immutable
+STAT_TAG = "20260703"   # Dana's stationarity tests (data stage, not re-run)
 COST_BPS = 5  # equity ETF per ECON-T2 / target-class table
 
 BASE_DIR = subprocess.run(
@@ -106,6 +114,15 @@ SIGNAL_COLS = {
 }
 
 FWD_COLS = ["spy_fwd_1m", "spy_fwd_3m", "spy_fwd_6m", "spy_fwd_12m"]
+ZERO_CROSS = {"yoy", "yoy_accel", "yoy_3m", "sa_mom", "sa_3m"}
+# #255 / strict-floor registry floor L2 (Census publishes month M near the end of M+1): the
+# legacy grid [0,1,2,3,6,9,12] is truncated at the bottom, never extended at the top.
+LEADS = [2, 3, 6, 9, 12]
+LOOKBACKS = {"LB36": 36, "LB60": 60, "LB120": 120}
+STRATEGIES = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
+MIN_IS_N = 60                  # monthly IS minimum (PORT_GUIDE)
+MAX_TURNOVER = 24              # position changes per year
+REGIME_SEEDS = (42, 0, 1, 2, 3)
 
 
 def log_stage(name):
@@ -176,80 +193,67 @@ def stage_load():
 # STAGE 2: DERIVED REGIME SIGNALS (HMM + Markov-switching)
 # ===================================================================
 @log_stage("2_signals")
-def stage_signals(df):
-    import statsmodels.api as sm
-    from hmmlearn.hmm import GaussianHMM
-    from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
+def stage_signals(df, oos_start):
+    """Regime signals, causal (scripts/_regime_causal.py): IS-only fit, IS-only standardisation,
+    forward-filtered P(state_t | x_1..x_t); the target return is not in any likelihood.
+    HMM: 2 states on NHS YoY growth, stress = higher in-sample-variance state (the old key).
+    Markov-switching: 2 regimes with switching variance on NHS YoY growth itself (the old model
+    regressed spy_ret on yoy); stress = higher-variance regime."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _regime_causal import fit_hmm_causal, fit_ms_causal
 
-    yoy = df["nhs_pct_yoy"].dropna()
+    yoy = df["nhs_pct_yoy"]
+    regime_log = {"oos_start": str(pd.Timestamp(oos_start).date()), "models": {}}
 
-    # --- HMM 2-state on YoY growth ---
-    X = yoy.values.reshape(-1, 1)
-    hmm = GaussianHMM(n_components=2, covariance_type="full", n_iter=500, random_state=42)
-    hmm.fit(X)
-    probs = hmm.predict_proba(X)
-    variances = [hmm.covars_[i].ravel()[0] for i in range(2)]
-    stress_state = int(np.argmax(variances))
-    prob_stress = pd.Series(probs[:, stress_state], index=yoy.index, name="hmm_2state_prob_stress")
+    r = fit_hmm_causal(yoy.to_frame(), oos_start, n_states=2, label_feature=yoy.name,
+                       label="max_variance", seeds=REGIME_SEEDS)
+    prob_stress = r.prob.reindex(df.index)
     df["hmm_2state_prob_stress"] = prob_stress
+    regime_log["models"]["hmm_2state_prob_stress"] = {"status": "traded", **r.summary()}
+    CTX["hmm_fit"] = r.summary()
 
-    hmm_states = pd.DataFrame({
-        "hmm_state": pd.Series(hmm.predict(X), index=yoy.index),
-        "prob_stress": prob_stress,
-        "prob_calm": 1 - prob_stress,
-    })
+    p = prob_stress.dropna()
+    hmm_states = pd.DataFrame({"hmm_state": (p > 0.5).astype(int), "prob_stress": p, "prob_calm": 1 - p})
     hmm_states.to_parquet(os.path.join(MODELS_DIR, "hmm_states.parquet"))
-
     summ = []
     spy = df["spy_ret"]
-    for lbl, mask in [("stress", hmm_states["hmm_state"] == stress_state),
-                      ("calm", hmm_states["hmm_state"] != stress_state)]:
+    for lbl, mask in [("stress", hmm_states["hmm_state"] == 1), ("calm", hmm_states["hmm_state"] == 0)]:
         idx = hmm_states.index[mask]
         rets = spy.reindex(idx).dropna()
         sub = yoy.reindex(idx)
-        summ.append({
-            "state_label": lbl,
-            "mean_return": round(rets.mean(), 6) if len(rets) else np.nan,
-            "vol": round(rets.std(), 6) if len(rets) else np.nan,
-            "duration_days": int(mask.sum()),
-            "frequency_pct": round(mask.mean() * 100, 2),
-            "mean_yoy_growth": round(sub.mean(), 3),
-        })
+        summ.append({"state_label": lbl,
+                     "mean_return": round(rets.mean(), 6) if len(rets) else np.nan,
+                     "vol": round(rets.std(), 6) if len(rets) else np.nan,
+                     "duration_days": int(mask.sum()),
+                     "frequency_pct": round(mask.mean() * 100, 2),
+                     "mean_yoy_growth": round(sub.mean(), 3)})
     pd.DataFrame(summ).to_csv(os.path.join(MODELS_DIR, "hmm_summary.csv"), index=False)
-
     gfc_p = prob_stress.loc["2008-01-31":"2009-06-30"].mean()
-    print(f"  HMM stress prob mean 2008-01..2009-06 (GFC): {gfc_p:.2f} (housing collapse is high-variance)")
-
+    print(f"  Causal HMM (IS n={r.n_fit}, {r.fit_start.date()}..{r.fit_end.date()}): "
+          f"filtered stress prob mean 2008-01..2009-06 = {gfc_p:.2f}")
     write_manifest(os.path.join(MODELS_DIR, "hmm_states.parquet"),
-                   {"hmm_state": "integer state; stress = high-variance NHS-YoY-growth regime",
-                    "prob_stress": "P(stress regime); higher = NHS growth in high-variance regime",
+                   {"hmm_state": "1 if filtered prob_stress > 0.5 else 0 (stress = higher-variance NHS-YoY state)",
+                    "prob_stress": "forward-filtered P(stress | NHS YoY up to t); params fit on IS months only",
                     "prob_calm": "1 - prob_stress"},
                    [{"description": "probabilities in [0,1]", "check": "prob_stress between 0 and 1"},
-                    {"description": "GFC housing collapse era is high-variance", "filter": "2008-01 to 2009-06",
+                    {"description": "GFC housing collapse era", "filter": "2008-01 to 2009-06",
                      "column": "prob_stress", "check": f"mean = {gfc_p:.2f} (computed at fit time)"},
-                    {"description": "states sum to 1", "check": "prob_stress + prob_calm == 1"}])
+                    {"description": "states sum to 1", "check": "prob_stress + prob_calm == 1"}],
+                   extra={"fit": r.summary()})
 
-    # --- Markov-switching regression: spy_ret ~ yoy, 2 regimes ---
-    ms_data = pd.concat([df["spy_ret"], yoy], axis=1).dropna()
     try:
-        ms = MarkovRegression(ms_data["spy_ret"], k_regimes=2,
-                              exog=sm.add_constant(ms_data["nhs_pct_yoy"]),
-                              switching_variance=True)
-        ms_fit = ms.fit(maxiter=500, disp=False)
-        smp = ms_fit.smoothed_marginal_probabilities
-        sig2 = [ms_fit.params[f"sigma2[{i}]"] for i in range(2)]
-        ms_stress = int(np.argmax(sig2))
-        df["markov_regime_2state"] = smp[ms_stress].reindex(df.index)
-        pd.DataFrame({"regime_stress_prob": smp[ms_stress], "regime_calm_prob": smp[1 - ms_stress]}
+        ms = fit_ms_causal(yoy, oos_start, k_regimes=2, switching_variance=True, label="max_variance")
+        df["markov_regime_2state"] = ms.prob.reindex(df.index)
+        pd.DataFrame({"regime_stress_prob": ms.prob, "regime_calm_prob": 1 - ms.prob}
                      ).to_csv(os.path.join(MODELS_DIR, "markov_regime_probs_2state.csv"))
-        pd.DataFrame({"parameter": ms_fit.params.index, "value": ms_fit.params.values,
-                      "se": ms_fit.bse.values}).to_csv(
-            os.path.join(MODELS_DIR, "markov_switching_2state.csv"), index=False)
-        print("  Markov-switching 2-state converged")
+        regime_log["models"]["markov_regime_2state"] = {"status": "traded", **ms.summary()}
+        print(f"  Causal Markov-switching on NHS YoY (IS n={ms.n_fit})")
     except Exception as e:
+        regime_log["models"]["markov_regime_2state"] = {"status": "excluded_from_tournament", "reason": repr(e)}
         print(f"  Markov-switching failed: {e} — signal excluded from tournament")
+    with open(os.path.join(MODELS_DIR, "regime_models.json"), "w") as f:
+        json.dump(regime_log, f, indent=2, default=str)
 
-    # --- Persist ALL tournament-eligible signals ---
     sig_cols = [c for c in SIGNAL_COLS.values() if c in df.columns]
     sig_path = os.path.join(RESULTS_DIR, f"signals_{DATE_TAG}.parquet")
     df[sig_cols].to_parquet(sig_path)
@@ -261,7 +265,10 @@ def stage_signals(df):
                     {"description": "2022-23 rate-shock contraction", "filter": "2022-01..2023-12",
                      "column": "nhs_pct_yoy", "check": "min < 0"},
                     {"description": "HMM prob bounded", "column": "hmm_2state_prob_stress",
-                     "check": "values in [0,1]"}])
+                     "check": "values in [0,1]"}],
+                   extra={"regime_signals": regime_log["models"],
+                          "input_note": ("indicator transforms equal results/nhs_spy/signals_20260703.parquet; see "
+                                         "_pws/lead-lesandro/pkg13_hmm_port/nhs_frozen_input.py")})
     return df
 
 
@@ -573,261 +580,333 @@ def stage_quartiles(df):
 # ===================================================================
 # STAGE 6: TOURNAMENT (5-D) + ECON-T3/T4/OOS1/OOS2
 # ===================================================================
-@log_stage("6_tournament")
-def stage_tournament(df):
-    work = df.dropna(subset=["spy_ret"]).copy()
-    n_months = len(work)
-    oos_n = int(min(max(36, round(n_months * 0.25)), 120))
-    oos_start = work.index[-oos_n]
-    is_end = work.index[-(oos_n + 1)]
-    oos_end = work.index[-1]
-    print(f"  Sample (SPY-bound): {n_months} months {work.index[0].date()} -> {oos_end.date()}")
-    print(f"  OOS (v1_max36_25pct_cap120): {oos_n} months, {oos_start.date()} -> {oos_end.date()}")
-
-    split = {
-        "owner": "evan",
-        "split_policy_id": "v1_max36_25pct_cap120",
-        "in_sample_end": is_end.strftime("%Y-%m-%d"),
-        "oos_start": oos_start.strftime("%Y-%m-%d"),
-        "oos_end": oos_end.strftime("%Y-%m-%d"),
-        "sample_size_months": n_months,
-        "justification": (
-            f"Policy v1_max36_25pct_cap120 on the SPY-availability-bound sample "
-            f"({n_months} months, 1993 onward; HSN1FNSA history extends to 1963 but the "
-            f"tournament requires target returns). min(max(36, round({n_months}*0.25)), 120) = {oos_n} "
-            f"months. No structural-break exclusion applied."),
-    }
-    with open(os.path.join(RESULTS_DIR, "oos_split_record.json"), "w") as f:
-        json.dump(split, f, indent=2)
-
-    is_mask = work.index <= is_end
-    oos_mask = work.index >= oos_start
-    spy_ret = work["spy_ret"]
-
-    leads = [0, 1, 2, 3, 6, 9, 12]      # L1 = real-time floor (Census ~4th-Tue publication lag); L6 centered; ECON-LL1 monthly grid
-    lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
-    strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
-
-    results = []
-    for code, col in SIGNAL_COLS.items():
-        if col not in work.columns or work[col].notna().sum() < 120:
-            continue
-        base_sig = work[col]
-        for lead in leads:
-            sig = base_sig.shift(lead)
-            thr_static = {}
-            is_sig = sig[is_mask].dropna()
-            if len(is_sig) > 60:
-                for pct in [25, 50, 75]:
-                    thr_static[(f"T1_fixed_p{pct}", "LB_NA")] = is_sig.quantile(pct / 100)
-            if code in ["yoy", "yoy_accel", "yoy_3m", "sa_mom", "sa_3m"]:
-                thr_static[("T4_zero", "LB_NA")] = 0.0
-            thr_roll = {}
-            for lb_name, lb in lookbacks.items():
-                minp = max(int(lb * 0.6), 24)
-                roll = sig.rolling(lb, min_periods=minp)
-                for pct in [25, 75]:
-                    thr_roll[(f"T2_roll_p{pct}", lb_name)] = roll.quantile(pct / 100)
-                rm, rs = roll.mean(), roll.std()
-                for k in [1.0, 1.5]:
-                    thr_roll[(f"T3_zscore_{k}", lb_name)] = rm + k * rs
-                    thr_roll[(f"T3_zscore_neg_{k}", lb_name)] = rm - k * rs
-
-            for (thr_name, lb_name), thr in {**thr_static, **thr_roll}.items():
-                above = sig < thr if "neg_" in thr_name else sig > thr
-                for strat in strategies:
-                    for orientation in ["pro", "counter"]:
-                        pos_bool = ~above if orientation == "counter" else above
-                        if strat == "P1_long_cash":
-                            position = pos_bool.astype(float)
-                        elif strat == "P2_signal_strength":
-                            if lb_name == "LB_NA":
-                                continue
-                            lb = lookbacks[lb_name]
-                            roll = sig.rolling(lb, min_periods=max(int(lb * 0.6), 24))
-                            rng = (roll.max() - roll.min()).replace(0, np.nan)
-                            raw = ((sig - roll.min()) / rng).clip(0, 1)
-                            position = 1 - raw if orientation == "counter" else raw
-                        else:
-                            position = pos_bool.astype(float) * 2 - 1
-                        strat_ret = position * spy_ret  # lead >= 0; shift already applied to signal
-                        is_r, oos_r = strat_ret[is_mask].dropna(), strat_ret[oos_mask].dropna()
-                        if len(is_r) < 60 or len(oos_r) < 24:
-                            continue
-                        m_is, m = ann_metrics(is_r), ann_metrics(oos_r)
-                        pos_oos = position[oos_mask]
-                        n_trades = int((pos_oos.diff().abs() > 1e-9).sum())
-                        years = len(pos_oos.dropna()) / 12
-                        turnover = n_trades / years if years > 0 else 999
-                        valid = bool(m["sharpe"] > 0.3 and turnover < 24 and len(oos_r) >= 24)
-                        results.append({
-                            "signal": code, "threshold": thr_name, "strategy": f"{strat}_{orientation}",
-                            "lead_months": lead, "lookback": lb_name,
-                            "is_sharpe": round(m_is["sharpe"], 4),
-                            "oos_sharpe": round(m["sharpe"], 4),
-                            "oos_sortino": round(m["sortino"], 4), "oos_calmar": round(m["calmar"], 4),
-                            "oos_ann_return": round(m["ann_return"], 4),
-                            "oos_ann_vol": round(m["ann_vol"], 4),
-                            "max_drawdown": round(m["max_dd"], 4),
-                            "win_rate": round(m["win_rate"], 4), "n_trades": n_trades,
-                            "annual_turnover": round(turnover, 2),
-                            "oos_n": len(oos_r), "valid": valid,
-                        })
-
-    bh_oos = spy_ret[oos_mask].dropna()
-    bh_is = spy_ret[is_mask].dropna()
-    mb, mbi = ann_metrics(bh_oos), ann_metrics(bh_is)
-    results.append({
-        "signal": "BENCHMARK", "threshold": "BUY_HOLD", "strategy": "P0_buy_and_hold",
-        "lead_months": 0, "lookback": "LB_NA",
-        "is_sharpe": round(mbi["sharpe"], 4), "oos_sharpe": round(mb["sharpe"], 4),
-        "oos_sortino": round(mb["sortino"], 4), "oos_calmar": round(mb["calmar"], 4),
-        "oos_ann_return": round(mb["ann_return"], 4), "oos_ann_vol": round(mb["ann_vol"], 4),
-        "max_drawdown": round(mb["max_dd"], 4), "win_rate": round(mb["win_rate"], 4),
-        "n_trades": 0, "annual_turnover": 0.0, "oos_n": len(bh_oos), "valid": False,
-    })
-
-    tdf = pd.DataFrame(results)
-    assert (tdf["signal"] == "BENCHMARK").sum() == 1, "exactly one benchmark row required (ECON-T4)"
-    tpath = os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv")
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from _tournament_io import write_tournament  # ECON-T5 §4 immutability guard
-    write_tournament(tdf, tpath)
-
-    strat_pop = tdf[tdf.signal != "BENCHMARK"]
-    n_valid = int(strat_pop["valid"].sum())
-    print(f"  Combos evaluated: {len(strat_pop)} strategies + 1 benchmark; valid: {n_valid}")
-    print(f"  B&H OOS Sharpe {mb['sharpe']:.3f}, maxDD {mb['max_dd']:.3f}, ann ret {mb['ann_return']:.3f}")
-
-    manifest = {
-        "file": os.path.basename(tpath), "pair_id": PAIR_ID,
-        "grid": {"signals": [k for k, v in SIGNAL_COLS.items() if v in work.columns],
-                 "thresholds": "T1_fixed_p{25,50,75}, T2_roll_p{25,75}, T3_zscore_{±1.0,±1.5}, T4_zero (growth signals)",
-                 "strategies": [s + "_{pro,counter}" for s in strategies],
-                 "leads_months": leads, "lookbacks": list(lookbacks.keys()) + ["LB_NA"]},
-        "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
-        "total_strategy_rows": len(strat_pop), "valid_strategy_rows": n_valid,
-        "sampling": "exhaustive (no stratified sampling; grid within budget)",
-        "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
-        "execution_lag": "position_t = rule(signal_{t-lead}); L1 real-time floor (Census new-home-sales ~4th-Tue publication lag); L6 centered",
-        "cost_note": "returns are gross of costs; 5bps sensitivity in tournament_validation",
-        "assertions": [
-            "top strategy oos_sharpe > bottom strategy oos_sharpe",
-            "all oos_sharpe finite",
-            "exactly one BENCHMARK row, valid=False",
-        ],
-        "generated_at": NOW_ISO,
-    }
-    with open(os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}_manifest.json"), "w") as f:
-        json.dump(manifest, f, indent=2)
-
-    return tdf, split
+CTX = {}
 
 
-# ===================================================================
-# STAGE 7 helpers: winner selection + series derivation
-# ===================================================================
-def select_winner(tdf):
-    cand = tdf[(tdf.signal != "BENCHMARK") & tdf.valid].copy()
-    if len(cand) == 0:
-        raise RuntimeError("no valid strategies — escalate to Lead")
-    cascade = [("oos_sharpe", False), ("oos_ann_return", False),
-               ("abs_dd", True), ("n_trades", False), ("signal", True)]
-    cand["abs_dd"] = cand["max_drawdown"].abs()
-    pool = cand
-    resolved_at = 1
-    tie_pool_step1 = None
-    for i, (colname, ascending) in enumerate(cascade, start=1):
-        best_val = pool[colname].min() if ascending else pool[colname].max()
-        nxt = pool[pool[colname] == best_val]
-        if i == 1:
-            tie_pool_step1 = nxt.copy()
-        if len(nxt) == 1:
-            resolved_at = i
-            pool = nxt
-            break
-        pool = nxt
-        resolved_at = i
-    winner = pool.iloc[0]
-    return winner, resolved_at, tie_pool_step1, cand
+def compute_split(df):
+    """ECON-OOS2 policy v1_max36_25pct_cap120 on the SPY-bound sample (unchanged rule).
+    Computed before the regime models so they can be fit on IS rows only."""
+    work = df.dropna(subset=["spy_ret"])
+    n = len(work)
+    oos_n = int(min(max(36, round(n * 0.25)), 120))
+    return {"n": n, "oos_n": oos_n, "oos_start": work.index[-oos_n],
+            "is_end": work.index[-(oos_n + 1)], "oos_end": work.index[-1]}
 
 
-def _thr_series(sig, thr_name, lb_name, is_mask):
-    lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
-    if thr_name.startswith("T1_fixed_p"):
-        pct = int(thr_name.split("p")[-1])
-        return sig[is_mask].dropna().quantile(pct / 100)
-    if thr_name == "T4_zero":
-        return 0.0
-    if thr_name.startswith("T2_roll_p"):
-        lb = lookbacks[lb_name]
-        return sig.rolling(lb, min_periods=max(int(lb * 0.6), 24)).quantile(int(thr_name.split("p")[-1]) / 100)
-    if thr_name.startswith("T3_zscore"):
-        lb = lookbacks[lb_name]
+def hac_t_mean(r, horizon=1):
+    """HAC (Newey-West) t-stat of the mean; maxlags = max(floor(4*(n/100)^(2/9)), horizon-1)."""
+    import statsmodels.api as sm
+    y = pd.Series(r).dropna().values
+    nw = max(int(np.floor(4 * (len(y) / 100) ** (2 / 9))), horizon - 1)
+    m = sm.OLS(y, np.ones((len(y), 1))).fit(cov_type="HAC", cov_kwds={"maxlags": nw})
+    return float(m.tvalues[0]), float(m.pvalues[0]), nw
+
+
+def thresholds_for(code, sig, is_mask):
+    """Threshold set for one lead-shifted signal (unchanged grid): IS percentiles {25,50,75}
+    (IS rows only), zero-line for growth signals, rolling p25/p75 and z +/-1.0/1.5 at
+    LB36/LB60/LB120."""
+    out = {}
+    is_sig = sig[is_mask].dropna()
+    if len(is_sig) > 60:
+        for pct in [25, 50, 75]:
+            out[(f"T1_fixed_p{pct}", "LB_NA")] = is_sig.quantile(pct / 100)
+    if code in ZERO_CROSS:
+        out[("T4_zero", "LB_NA")] = 0.0
+    for lb_name, lb in LOOKBACKS.items():
         roll = sig.rolling(lb, min_periods=max(int(lb * 0.6), 24))
-        k = float(thr_name.split("_")[-1])
-        return roll.mean() - k * roll.std() if "neg_" in thr_name else roll.mean() + k * roll.std()
-    raise ValueError(thr_name)
+        for pct in [25, 75]:
+            out[(f"T2_roll_p{pct}", lb_name)] = roll.quantile(pct / 100)
+        rm, rs = roll.mean(), roll.std()
+        for k in [1.0, 1.5]:
+            out[(f"T3_zscore_{k}", lb_name)] = rm + k * rs
+            out[(f"T3_zscore_neg_{k}", lb_name)] = rm - k * rs
+    return out
 
 
-def _position_from(sig, thr, thr_name, strat, orientation, lb_name):
-    lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
-    above = sig < thr if "neg_" in thr_name else sig > thr
-    pos_bool = ~above if orientation == "counter" else above
-    if strat == "P1_long_cash":
-        return pos_bool.astype(float)
+def build_position(sig, thr_name, thr, strategy, lb_name):
+    """Position on row t (accrues spy_ret of month t). NaN while the lagged signal or its
+    rolling threshold is undefined; earlier code traded those rows as cash/short because NaN
+    comparisons evaluate to False. P2 sizes by the signal's place in its trailing min-max range
+    (the threshold label is not used)."""
+    strat, orientation = strategy.rsplit("_", 1)
     if strat == "P2_signal_strength":
-        lb = lookbacks[lb_name]
+        lb = LOOKBACKS[lb_name]
         roll = sig.rolling(lb, min_periods=max(int(lb * 0.6), 24))
         rng = (roll.max() - roll.min()).replace(0, np.nan)
         raw = ((sig - roll.min()) / rng).clip(0, 1)
         return 1 - raw if orientation == "counter" else raw
-    return pos_bool.astype(float) * 2 - 1
+    above = sig < thr if "neg_" in thr_name else sig > thr
+    defined = sig.notna() & (thr.notna() if isinstance(thr, pd.Series) else True)
+    pos_bool = ~above if orientation == "counter" else above
+    pos = pos_bool.astype(float) if strat == "P1_long_cash" else pos_bool.astype(float) * 2 - 1
+    return pos.where(defined)
 
 
-def derive_winner_series(df, winner, split):
+def replay(work, code, thr_name, lb_name, strategy, lead, is_mask):
+    sig = work[SIGNAL_COLS[code]].shift(lead)
+    thr = thresholds_for(code, sig, is_mask)[(thr_name, lb_name)]
+    pos = build_position(sig, thr_name, thr, strategy, lb_name)
+    return pos, pos * work["spy_ret"], sig, thr
+
+
+def _trades(pos, mask):
+    p = pos[mask].dropna()
+    n = int((p.diff().abs() > 1e-9).sum())
+    years = len(p) / 12
+    return n, (n / years if years > 0 else np.nan)
+
+
+def _exposure(pos, strategy):
+    p = pos.dropna()
+    if not len(p):
+        return np.nan
+    return float((p > 0).mean()) if strategy.startswith("P3") else float(p.mean())
+
+
+def run_grid(df, split, leads=LEADS):
+    """Full grid with IS selection (PORT_GUIDE blocks 1-3, eligibility before alignment).
+    Pure: returns (tourn, selection-context); writes nothing."""
     work = df.dropna(subset=["spy_ret"]).copy()
-    is_mask = work.index <= split["in_sample_end"]
-    sig = work[SIGNAL_COLS[winner["signal"]]].shift(int(winner["lead_months"]))
-    thr = _thr_series(sig, winner["threshold"], winner["lookback"], is_mask)
-    strat, orientation = winner["strategy"].rsplit("_", 1)
-    position = _position_from(sig, thr, winner["threshold"], strat, orientation, winner["lookback"])
-    return position, work["spy_ret"], sig, thr
+    oos_start, oos_end, is_end = split["oos_start"], split["oos_end"], split["is_end"]
+    is_full = work.index <= is_end
+    oos_mask = (work.index >= oos_start) & (work.index <= oos_end)
+    spy_ret = work["spy_ret"]
+    strategies = [f"{s}_{o}" for s in STRATEGIES for o in ["pro", "counter"]]
+    avail = {k: v for k, v in SIGNAL_COLS.items() if v in work.columns and work[v].notna().sum() >= 120}
+
+    cands = []
+    for code, col in avail.items():
+        for lead in leads:
+            sig = work[col].shift(lead)
+            p2_cache = {}
+            for (thr_name, lb_name), thr in thresholds_for(code, sig, is_full).items():
+                for strategy in strategies:
+                    if strategy.startswith("P2"):
+                        if lb_name == "LB_NA":
+                            continue
+                        key = (lb_name, strategy)
+                        if key not in p2_cache:
+                            p2_cache[key] = build_position(sig, thr_name, thr, strategy, lb_name)
+                        pos = p2_cache[key]
+                    else:
+                        pos = build_position(sig, thr_name, thr, strategy, lb_name)
+                    cands.append((code, thr_name, lb_name, strategy, lead, pos, pos * spy_ret))
+
+    def _first(rets):
+        r = rets.dropna()
+        return r.index.min() if len(r) else pd.NaT
+
+    def _own_is_n(rets):
+        return int(((rets.index < oos_start) & rets.notna()).sum())
+
+    eligible = [_own_is_n(c[6]) >= MIN_IS_N for c in cands]
+    if not any(eligible):
+        raise RuntimeError("No IS-eligible candidate")
+    common_is_start = max(_first(c[6]) for c, ok in zip(cands, eligible) if ok)
+    is_mask = (work.index >= common_is_start) & (work.index < oos_start)
+    driver = sorted({f"{c[0]}/{c[1]}/{c[2]}/L{c[4]}" for c, ok in zip(cands, eligible)
+                     if ok and _first(c[6]) == common_is_start})[:3]
+    bh_is = ann_metrics(spy_ret[is_mask])
+    bh = ann_metrics(spy_ret[oos_mask])
+
+    rows = []
+    for (code, thr_name, lb_name, strategy, lead, pos, rets), elig in zip(cands, eligible):
+        is_r = rets[is_mask].dropna()
+        own_start = _first(rets)
+        own_mask = (work.index >= own_start) & (work.index < oos_start) if pd.notna(own_start) else is_mask & False
+        own_r = rets[own_mask].dropna()
+        oos_r = rets[oos_mask].fillna(0.0)                      # ECON-T4 deployable OOS
+        mi, mo, m = ann_metrics(is_r), ann_metrics(own_r), ann_metrics(oos_r)
+        is_tr, is_to = _trades(pos, is_mask)
+        oos_tr, oos_to = _trades(pos, oos_mask)
+        is_expo = _exposure(pos[is_mask], strategy)
+        own_expo = _exposure(pos[own_mask], strategy)
+        is_valid = bool(elig and len(is_r) >= MIN_IS_N and is_expo == is_expo and 0.05 <= is_expo <= 0.95
+                        and is_r.std() > 0 and is_to < MAX_TURNOVER)
+        own_valid = bool(len(own_r) >= MIN_IS_N and own_expo == own_expo and 0.05 <= own_expo <= 0.95
+                         and own_r.std() > 0)
+        # pre-#251 rule, comparison only: OOS Sharpe > 0.3, OOS turnover < 24, >= 24 OOS months
+        legacy_valid = bool(m["sharpe"] > 0.3 and oos_to < MAX_TURNOVER and len(oos_r) >= 24)
+        rows.append({
+            "signal": code, "threshold": thr_name, "strategy": strategy, "lead_months": lead, "lookback": lb_name,
+            "direction": ("procyclical" if (strategy.endswith("_pro") != ("neg_" in thr_name)) else "countercyclical"),
+            "is_sharpe": round(mi["sharpe"], 6), "is_ann_return": round(mi["ann_return"], 6),
+            "is_max_drawdown": round(mi["max_dd"], 6), "is_exposure": round(is_expo, 4) if is_expo == is_expo else np.nan,
+            "is_n_trades": is_tr, "is_annual_turnover": round(is_to, 3) if is_to == is_to else np.nan,
+            "is_start": is_r.index.min().date().isoformat() if len(is_r) else None,
+            "is_end": is_r.index.max().date().isoformat() if len(is_r) else None,
+            "common_is_start": common_is_start.date().isoformat(),
+            "own_is_start": own_r.index.min().date().isoformat() if len(own_r) else None,
+            "own_is_sharpe": round(mo["sharpe"], 6), "own_is_n": mo["n"], "own_is_valid": own_valid,
+            "oos_sharpe": round(m["sharpe"], 6), "oos_sortino": round(m["sortino"], 6),
+            "oos_calmar": round(m["calmar"], 6), "oos_ann_return": round(m["ann_return"], 6),
+            "oos_ann_vol": round(m["ann_vol"], 6), "max_drawdown": round(m["max_dd"], 6),
+            "win_rate": round(m["win_rate"], 4), "n_trades": oos_tr,
+            "annual_turnover": round(oos_to, 3) if oos_to == oos_to else np.nan,
+            "is_n": mi["n"], "oos_n": m["n"], "is_eligible": bool(elig),
+            "is_ineligible_reason": "" if elig else f"insufficient IS history: n_own={_own_is_n(rets)} < MIN_IS_N={MIN_IS_N}",
+            "is_valid": is_valid, "oos_valid": legacy_valid, "valid": is_valid})
+    rows.append({
+        "signal": "BENCHMARK", "threshold": "BUY_HOLD", "strategy": "P0_buy_and_hold", "lead_months": 0,
+        "lookback": "LB_NA", "direction": "benchmark", "is_sharpe": round(bh_is["sharpe"], 6),
+        "is_ann_return": round(bh_is["ann_return"], 6), "is_max_drawdown": round(bh_is["max_dd"], 6),
+        "is_exposure": 1.0, "is_n_trades": 0, "is_annual_turnover": 0.0,
+        "is_start": common_is_start.date().isoformat(), "is_end": work.index[is_mask][-1].date().isoformat(),
+        "common_is_start": common_is_start.date().isoformat(), "own_is_start": None, "own_is_sharpe": np.nan,
+        "own_is_n": 0, "own_is_valid": False, "oos_sharpe": round(bh["sharpe"], 6),
+        "oos_sortino": round(bh["sortino"], 6), "oos_calmar": round(bh["calmar"], 6),
+        "oos_ann_return": round(bh["ann_return"], 6), "oos_ann_vol": round(bh["ann_vol"], 6),
+        "max_drawdown": round(bh["max_dd"], 6), "win_rate": round(bh["win_rate"], 4), "n_trades": 0,
+        "annual_turnover": 0.0, "is_n": bh_is["n"], "oos_n": bh["n"], "is_eligible": False,
+        "is_ineligible_reason": "benchmark", "is_valid": False, "oos_valid": False, "valid": False})
+    tourn = pd.DataFrame(rows)
+    assert (tourn["signal"] == "BENCHMARK").sum() == 1, "exactly one benchmark row required (ECON-T4)"
+
+    nb = tourn["signal"] != "BENCHMARK"
+    valid = tourn[tourn["valid"] & nb]
+    if valid.empty:
+        raise RuntimeError("No valid tournament strategies")
+    keys = ["is_sharpe", "is_ann_return", "is_max_drawdown", "is_n_trades", "signal", "threshold",
+            "strategy", "lookback", "lead_months"]
+    asc = [False, False, False, True, True, True, True, True, True]
+    ranked = valid.sort_values(keys, ascending=asc, kind="mergesort")
+    wi = ranked.index[0]
+    tied, tie_step = valid, 5
+    for step, k in enumerate(["is_sharpe", "is_ann_return", "is_max_drawdown", "is_n_trades"], 1):
+        tied = tied[(tied[k] - tourn.loc[wi, k]).abs() <= 1e-9]
+        if len(tied) == 1:
+            tie_step = step
+            break
+    own_pool = tourn[tourn["own_is_valid"] & nb]
+    oi = own_pool.sort_values(["own_is_sharpe", "signal", "threshold"], ascending=[False, True, True],
+                              kind="mergesort").index[0]
+    legacy_pool = tourn[tourn["oos_valid"] & nb]
+    li = (legacy_pool.sort_values(["oos_sharpe", "oos_ann_return", "signal", "threshold"],
+                                  ascending=[False, False, True, True], kind="mergesort").index[0]
+          if len(legacy_pool) else None)
+    tourn["is_rank"] = tourn["is_sharpe"].where(nb & tourn["valid"]).rank(ascending=False, method="min")
+    tourn["oos_rank"] = tourn["oos_sharpe"].where(nb & tourn["valid"]).rank(ascending=False, method="min")
+    distinct = valid.drop_duplicates(["signal", "strategy", "lead_months", "lookback", "is_sharpe", "oos_sharpe"])
+    sp = stats.spearmanr(valid["is_sharpe"], valid["oos_sharpe"]).correlation
+    sel = dict(wi=wi, oi=oi, li=li, tie_step=tie_step, tied=tied, common_is_start=common_is_start,
+               n_cands=len(cands), n_eligible=int(sum(eligible)), n_inel=int(len(cands) - sum(eligible)),
+               bh_is=bh_is, bh=bh, n_distinct=len(distinct), spearman=float(sp), driver=driver,
+               ranked=ranked)
+    return tourn, sel
+
+
+@log_stage("6_tournament")
+def stage_tournament(df, sp):
+    oos_n, n_months = sp["oos_n"], sp["n"]
+    oos_start, is_end, oos_end = sp["oos_start"], sp["is_end"], sp["oos_end"]
+    work = df.dropna(subset=["spy_ret"])
+    print(f"  Sample (SPY-bound): {n_months} months {work.index[0].date()} -> {oos_end.date()}")
+    print(f"  OOS (v1_max36_25pct_cap120): {oos_n} months, {oos_start.date()} -> {oos_end.date()}")
+    split = {
+        "owner": "evan", "split_policy_id": "v1_max36_25pct_cap120",
+        "in_sample_end": is_end.strftime("%Y-%m-%d"), "oos_start": oos_start.strftime("%Y-%m-%d"),
+        "oos_end": oos_end.strftime("%Y-%m-%d"), "sample_size_months": n_months,
+        "justification": (
+            f"Policy v1_max36_25pct_cap120 on the SPY-availability-bound sample "
+            f"({n_months} months, 1993 onward; HSN1FNSA history extends to 1963 but the "
+            f"tournament requires target returns). min(max(36, round({n_months}*0.25)), 120) = {oos_n} "
+            f"months. Regime models (HMM, Markov-switching) are fit on IS rows only. "
+            f"No structural-break exclusion applied."),
+    }
+    with open(os.path.join(RESULTS_DIR, "oos_split_record.json"), "w") as f:
+        json.dump(split, f, indent=2)
+
+    tdf, sel = run_grid(df, {"oos_start": oos_start, "oos_end": oos_end, "is_end": is_end})
+    CTX["selection"] = sel
+    tpath = os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv")
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _tournament_io import write_tournament  # ECON-T5 §4 immutability guard
+    write_tournament(tdf, tpath)
+    side_cols = ["signal", "threshold", "strategy", "lookback", "direction", "lead_months", "is_start", "is_end",
+                 "is_n", "is_sharpe", "own_is_start", "own_is_n", "own_is_sharpe", "oos_sharpe", "oos_ann_return",
+                 "max_drawdown", "n_trades", "oos_n", "is_rank", "oos_rank"]
+    side = [dict(role="primary_is_selected_common_start", **tdf.loc[sel["wi"], side_cols].to_dict()),
+            dict(role="sensitivity_is_selected_own_start", **tdf.loc[sel["oi"], side_cols].to_dict())]
+    if sel["li"] is not None:
+        side.append(dict(role="legacy_oos_selected", **tdf.loc[sel["li"], side_cols].to_dict()))
+    pd.DataFrame(side).to_csv(os.path.join(RESULTS_DIR, f"legacy_oos_selection_{DATE_TAG}.csv"), index=False)
+
+    strat_pop = tdf[tdf.signal != "BENCHMARK"]
+    n_valid = int(strat_pop["valid"].sum())
+    w = tdf.loc[sel["wi"]]
+    print(f"  common IS start {sel['common_is_start'].date()} (set by {sel['driver']}); {sel['n_inel']} ineligible")
+    print(f"  Combos: {len(strat_pop)} + 1 benchmark; IS-valid {n_valid} ({sel['n_distinct']} distinct series)")
+    print(f"  WINNER (IS argmax): {w.signal}/{w.threshold}/{w.strategy}/L{w.lead_months}/{w.lookback} "
+          f"IS {w.is_sharpe:.4f} OOS {w.oos_sharpe:.4f} (B&H IS {sel['bh_is']['sharpe']:.4f} OOS {sel['bh']['sharpe']:.4f}); "
+          f"tie step {sel['tie_step']}")
+    if sel["li"] is not None:
+        lw = tdf.loc[sel["li"]]
+        print(f"  legacy OOS-argmax on this grid: {lw.signal}/{lw.threshold}/{lw.strategy}/L{lw.lead_months}/"
+              f"{lw.lookback} OOS {lw.oos_sharpe:.4f}")
+    print(f"  Spearman(IS, OOS) over IS-valid = {sel['spearman']:.3f}")
+
+    manifest = {
+        "file": os.path.basename(tpath), "pair_id": PAIR_ID,
+        "grid": {"signals": sorted(strat_pop["signal"].unique().tolist()),
+                 "thresholds": "T1_fixed_p{25,50,75} (IS percentiles), T2_roll_p{25,75}, T3_zscore_{±1.0,±1.5}, T4_zero (growth signals)",
+                 "strategies": [s + "_{pro,counter}" for s in STRATEGIES],
+                 "leads_months": LEADS, "lookbacks": list(LOOKBACKS.keys()) + ["LB_NA"]},
+        "selection": "argmax IS Sharpe on the common IS window [common_is_start, oos_start); OOS never consulted (is_valid/valid). oos_valid = pre-#251 OOS rule, comparison only",
+        "validity": f"IS window only: eligible (own IS n >= {MIN_IS_N}), is_n >= {MIN_IS_N}, IS exposure in [0.05, 0.95] (P3: share of months long), IS std > 0, IS turnover < {MAX_TURNOVER}/yr",
+        "warmup": "positions are NaN (not traded, excluded from IS metrics) until the lagged signal and its rolling threshold are defined; OOS scored deployable (fillna 0)",
+        "regime_signals": "hmm_stress / markov_regime: IS-only fit, forward-filtered (scripts/_regime_causal.py); core_models/regime_models.json",
+        "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
+        "total_strategy_rows": len(strat_pop), "valid_strategy_rows": n_valid,
+        "common_is_start": sel["common_is_start"].date().isoformat(), "common_is_start_set_by": sel["driver"],
+        "spearman_is_vs_oos": round(sel["spearman"], 4),
+        "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
+        "execution_lag": "position_t = rule(signal_{t-lead}); registry lead floor L2 (Census publishes month M near the end of M+1); grid bottom truncated to the floor",
+        "cost_note": "returns are gross of costs; 5bps sensitivity in tournament_validation",
+        "generated_at": NOW_ISO,
+    }
+    with open(os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}_manifest.json"), "w") as f:
+        json.dump(manifest, f, indent=2)
+    return tdf, split
 
 
 # ===================================================================
-# STAGE 7: WINNER SELECTION + artifacts (trade logs, strategy returns)
+# STAGE 7: WINNER (IS-selected) + artifacts (trade logs, strategy returns)
 # ===================================================================
 @log_stage("7_winner_artifacts")
 def stage_winner(df, tdf, split):
-    winner, resolved_at, tie_pool, cand = select_winner(tdf)
+    sel = CTX["selection"]
+    winner = tdf.loc[sel["wi"]]
+    cand = tdf[(tdf.signal != "BENCHMARK") & tdf.valid]
     n_valid = len(cand)
-    median_sharpe = float(cand["oos_sharpe"].median())
-    n_tied = int((cand["oos_sharpe"] == winner["oos_sharpe"]).sum())
+    median_sharpe = float(cand["is_sharpe"].median())
+    resolved_at = sel["tie_step"]
+    n_tied = int((cand["is_sharpe"] - winner["is_sharpe"]).abs().le(1e-9).sum())
     print(f"  Winner: {winner['signal']}/{winner['threshold']}/{winner['strategy']}/L{winner['lead_months']}/{winner['lookback']}")
-    print(f"  OOS Sharpe {winner['oos_sharpe']} | ties at step1: {n_tied} | cascade resolved at step {resolved_at}")
+    print(f"  IS Sharpe {winner['is_sharpe']} | OOS Sharpe {winner['oos_sharpe']} | tie step {resolved_at}")
 
     if resolved_at > 1:
-        lines = [f"# Tournament Tie Note — {PAIR_ID} ({DATE_TAG})", "",
-                 f"Winner resolved at cascade step {resolved_at} (ECON-T3).", "",
-                 "## Candidates tied at step 1 (oos_sharpe)", "",
-                 tie_pool[["signal", "threshold", "strategy", "lead_months", "lookback",
-                           "oos_sharpe", "oos_ann_return", "max_drawdown", "n_trades"]].to_markdown(index=False),
-                 "", "Interpretation: candidates are near-equivalent on the primary objective; "
-                 "the selected winner is preferred on the documented tie-break dimension."]
+        lines = [f"# Tournament Tie Note - {PAIR_ID} ({DATE_TAG})", "",
+                 f"Winner resolved at IS cascade step {resolved_at} (is_sharpe, is_ann_return, is_max_drawdown, "
+                 "is_n_trades, then names).", "",
+                 cand[(cand["is_sharpe"] - winner["is_sharpe"]).abs() <= 1e-9][
+                     ["signal", "threshold", "strategy", "lead_months", "lookback", "is_sharpe",
+                      "is_ann_return", "is_max_drawdown", "is_n_trades", "oos_sharpe"]].to_markdown(index=False)]
         with open(os.path.join(RESULTS_DIR, "tournament_tie_note.md"), "w") as f:
             f.write("\n".join(lines))
-        print("  Tie note written (cascade fired beyond step 1)")
 
-    position, spy_ret, sig_lagged, thr = derive_winner_series(df, winner, split)
+    work = df.dropna(subset=["spy_ret"])
+    is_full = work.index <= split["in_sample_end"]
+    position, strat_ret, sig_lagged, thr = replay(work, winner["signal"], winner["threshold"], winner["lookback"],
+                                                 winner["strategy"], int(winner["lead_months"]), is_full)
+    spy_ret = work["spy_ret"]
     oos_mask = (spy_ret.index >= split["oos_start"]) & (spy_ret.index <= split["oos_end"])
-    strat_ret = (position * spy_ret)
-    m = ann_metrics(strat_ret[oos_mask])
+    m = ann_metrics(strat_ret[oos_mask].fillna(0.0))
     rec = {}
     for key, computed, reported, tol in [
-            ("oos_sharpe", m["sharpe"], float(winner["oos_sharpe"]), 0.01),
-            ("oos_max_drawdown", m["max_dd"], float(winner["max_drawdown"]), 0.005),
-            ("oos_ann_return", m["ann_return"], float(winner["oos_ann_return"]), 0.005)]:
+            ("oos_sharpe", m["sharpe"], float(winner["oos_sharpe"]), 1e-5),
+            ("oos_max_drawdown", m["max_dd"], float(winner["max_drawdown"]), 1e-5),
+            ("oos_ann_return", m["ann_return"], float(winner["oos_ann_return"]), 1e-5)]:
         diff = computed - reported
         rec[key] = {"computed": round(float(computed), 6), "reported_tournament": reported,
                     "diff": round(float(diff), 6), "tolerance": tol,
@@ -835,73 +914,61 @@ def stage_winner(df, tdf, split):
     assert all(v["verdict"] == "PASS" for v in rec.values()), f"ECON-SR1 reconciliation FAILED: {rec}"
     print("  ECON-SR1 reconciliation: PASS on all three headline metrics")
 
-    sr = pd.DataFrame({
-        "date": spy_ret.index.strftime("%Y-%m-%d"),
-        "position": position.reindex(spy_ret.index).fillna(0.0).values,
-        "strategy_return": strat_ret.reindex(spy_ret.index).fillna(0.0).values,
-        "bh_return": spy_ret.values,
-    })
+    pos_f = position.reindex(spy_ret.index).fillna(0.0)
+    sr_f = strat_ret.reindex(spy_ret.index).fillna(0.0)
+    sr = pd.DataFrame({"date": spy_ret.index.strftime("%Y-%m-%d"), "position": pos_f.values,
+                       "strategy_return": sr_f.values, "bh_return": spy_ret.values})
     sr_path = os.path.join(RESULTS_DIR, f"strategy_returns_{DATE_TAG}.csv")
     sr.to_csv(sr_path, index=False)
     sr_meta = {
         "pair_id": PAIR_ID, "artifact": os.path.basename(sr_path),
         "produced_by": "scripts/pair_pipeline_nhs_spy.py", "rule": "ECON-SR1",
-        "source": "pipeline_native_derivation (same code path as tournament evaluation — not a re-derivation)",
-        "returns_file": DATA_PATH,
+        "source": "pipeline_native_derivation (same replay() as the tournament)",
+        "returns_file": os.path.relpath(DATA_PATH, BASE_DIR),
         "coverage_start": str(spy_ret.index[0].date()), "coverage_end": str(spy_ret.index[-1].date()),
-        "frequency": "monthly",
-        "oos_start": split["oos_start"], "oos_end": split["oos_end"],
+        "frequency": "monthly", "oos_start": split["oos_start"], "oos_end": split["oos_end"],
         "position_semantics": ("position on row t is the return-accrual weight for month t; the "
-                               f"signal is lagged {int(winner['lead_months'])} month(s) (execution/publication "
-                               "lag already applied); strategy_return = position * bh_return row-wise"),
+                               f"signal is lagged {int(winner['lead_months'])} month(s); strategy_return = "
+                               "position * bh_return row-wise; warm-up rows (signal or threshold undefined) written as 0"),
         "reconciliation": {k: {"computed": v["computed"], "reported_winner_summary": v["reported_tournament"],
                                "diff": v["diff"], "tolerance": v["tolerance"], "verdict": v["verdict"]}
                            for k, v in rec.items()},
-        "generated_at": NOW_ISO, "generated_by": "Econ Evan (Mode 2, nhs_spy)",
+        "generated_at": NOW_ISO, "generated_by": "Econ Evan (fix261016_hmm_port_eci_nhs)",
     }
     with open(os.path.join(RESULTS_DIR, f"strategy_returns_{DATE_TAG}_meta.json"), "w") as f:
         json.dump(sr_meta, f, indent=2)
-    print(f"  Strategy returns -> {sr_path}")
 
-    # --- winner_trade_log.csv (internal monthly position log) ---
     log = pd.DataFrame({
         "date": spy_ret.index.strftime("%Y-%m-%d"),
         "signal_value": sig_lagged.reindex(spy_ret.index).round(4),
-        "threshold": (thr.reindex(spy_ret.index).round(4) if isinstance(thr, pd.Series)
-                      else np.round(thr, 4)),
-        "position": position.reindex(spy_ret.index).fillna(0.0),
-        "spy_return": spy_ret.round(6),
-        "strategy_return": strat_ret.reindex(spy_ret.index).fillna(0.0).round(6),
-    })
+        "threshold": (thr.reindex(spy_ret.index).round(4) if isinstance(thr, pd.Series) else np.round(thr, 4)),
+        "position": pos_f, "spy_return": spy_ret.round(6), "strategy_return": sr_f.round(6)})
     log["cumulative_return"] = ((1 + log["strategy_return"]).cumprod() - 1).round(6)
     log_path = os.path.join(RESULTS_DIR, "winner_trade_log.csv")
     log.to_csv(log_path, index=False)
 
-    # --- broker-style trade log (Rule C4) ---
     spy_px = df["spy"].reindex(spy_ret.index)
-    broker_rows, cum = [], (1 + strat_ret.reindex(spy_ret.index).fillna(0.0)).cumprod()
+    broker_rows, cum = [], (1 + sr_f).cumprod()
     prev = 0.0
     capital = 10000.0
     sig_disp = f"{winner['signal']} ({SIGNAL_COLS[winner['signal']]})"
-    pos_series = position.reindex(spy_ret.index).fillna(0.0)
     for dt in spy_ret.index:
-        p = float(pos_series.loc[dt])
+        p = float(pos_f.loc[dt])
         if abs(p - prev) > 1e-9:
             side = "BUY" if p > prev else "SELL"
-            qty = abs(p) * 100
             notional = abs(p - prev) * capital
             sv = sig_lagged.loc[dt] if dt in sig_lagged.index else np.nan
             th = thr.loc[dt] if isinstance(thr, pd.Series) else thr
             broker_rows.append({
                 "trade_date": dt.strftime("%Y-%m-%d"), "side": side, "instrument": TARGET_SYMBOL,
-                "quantity_pct": round(qty, 1),
+                "quantity_pct": round(abs(p) * 100, 1),
                 "price": round(float(spy_px.loc[dt]), 4) if pd.notna(spy_px.loc[dt]) else np.nan,
                 "notional_usd": round(notional, 2), "commission_bps": COST_BPS,
                 "commission_usd": round(notional * COST_BPS / 10000, 2),
                 "cum_pnl_pct": round((cum.loc[dt] - 1) * 100, 4),
-                "reason": (f"{winner['strategy']}: {sig_disp} = "
-                           f"{sv:.3f} vs threshold {th:.3f} — position {prev*100:.0f}% → {p*100:.0f}%"
-                           if pd.notna(sv) else "position change"),
+                "reason": (f"{winner['strategy']}: {sig_disp} = {sv:.3f} vs threshold {th:.3f} — "
+                           f"position {prev*100:.0f}% → {p*100:.0f}%"
+                           if pd.notna(sv) and pd.notna(th) else "position change"),
             })
             prev = p
     broker_path = os.path.join(RESULTS_DIR, "winner_trades_broker_style.csv")
@@ -912,8 +979,74 @@ def stage_winner(df, tdf, split):
                 f"threshold {winner['threshold']}, lead L{winner['lead_months']}, {winner['lookback']}.\n")
         pd.DataFrame(broker_rows).to_csv(f, index=False)
     print(f"  Trade logs -> {log_path} ({len(log)} rows), broker-style ({len(broker_rows)} events)")
+    CTX["winner_series"] = dict(position=position, strat_ret=strat_ret, work=work)
+    return winner, rec, n_valid, median_sharpe, n_tied, resolved_at, pos_f, sr_f, sig_lagged, thr
 
-    return winner, rec, n_valid, median_sharpe, n_tied, resolved_at, position, strat_ret, sig_lagged, thr
+
+# ===================================================================
+# STAGE 7b: LOOK-AHEAD AUDIT (superseded smoothed-HMM rule vs causal)
+# ===================================================================
+@log_stage("7b_lookahead_audit")
+def stage_lookahead_audit(df, split):
+    """Score the PREVIOUSLY PUBLISHED rule (hmm_stress / T2_roll_p25 / LB60 / P1_long_cash_pro / L0)
+    on (a) the committed smoothed full-sample HMM column (signals_{PREV_TAG}.parquet, immutable,
+    not re-fitted) with the old warm-up semantics, which must reproduce the published OOS Sharpe,
+    and (b) this run's causal HMM column, at L0 (as published, below the L2 floor) and at the
+    floor L2."""
+    prev_ws = json.load(open(os.path.join(RESULTS_DIR, "winner_summary.json")))
+    prev_sel = prev_ws.get("selection", {})
+    if prev_sel.get("objective") == "max_is_sharpe":           # rerun on an already-ported tree
+        prev = prev_sel["previously_published"]
+    else:
+        rw = prev_sel["raw_winner_row"]
+        prev = {"signal": rw["signal"], "threshold": rw["threshold"], "strategy": rw["strategy"],
+                "lead_months": int(rw["lead_value"]), "lookback": prev_ws["lookback"],
+                "oos_sharpe": float(prev_ws["oos_sharpe"]), "source": f"winner_summary.json ({PREV_TAG})"}
+    work = df.dropna(subset=["spy_ret"]).copy()
+    old = pd.read_parquet(os.path.join(RESULTS_DIR, f"signals_{PREV_TAG}.parquet"))["hmm_2state_prob_stress"]
+    work["smoothed_fullsample"] = old.reindex(work.index)
+    work["causal_filtered"] = work["hmm_2state_prob_stress"]
+    is_full = work.index <= split["in_sample_end"]
+    oos = (work.index >= split["oos_start"]) & (work.index <= split["oos_end"])
+
+    def score(col, lead):
+        sig = work[col].shift(lead)
+        thr = thresholds_for("hmm_stress", sig, is_full)[(prev["threshold"], prev["lookback"])]
+        above = sig < thr if "neg_" in prev["threshold"] else sig > thr   # pre-port semantics (NaN -> False)
+        pos = (~above).astype(float) if prev["strategy"].endswith("counter") else above.astype(float)
+        if not prev["strategy"].startswith("P1"):
+            raise NotImplementedError(prev["strategy"])
+        r = (pos * work["spy_ret"])[oos].fillna(0.0)
+        a = ann_metrics(r)
+        t, p, nw = hac_t_mean(r)
+        return {"oos_sharpe": round(a["sharpe"], 6), "oos_ann_return": round(a["ann_return"], 6),
+                "oos_max_drawdown": round(a["max_dd"], 6), "hac_t": round(t, 3), "hac_p": round(p, 4),
+                "hac_maxlags": nw, "oos_exposure": round(float(pos[oos].mean()), 4)}
+
+    rows = []
+    for col in ["smoothed_fullsample", "causal_filtered"]:
+        for lead in sorted({int(prev["lead_months"]), min(LEADS)}):
+            rows.append({"probabilities": col, "lead_months": lead, **score(col, lead)})
+    rep = next(r for r in rows if r["probabilities"] == "smoothed_fullsample" and r["lead_months"] == int(prev["lead_months"]))
+    reproduced = abs(rep["oos_sharpe"] - float(prev["oos_sharpe"])) < 1e-4
+    assert reproduced, f"old smoothed replay {rep['oos_sharpe']} != published {prev['oos_sharpe']} (data drift)"
+    bh = ann_metrics(work["spy_ret"][oos])
+    out = {"rule": (f"{prev['signal']} / {prev['threshold']} / {prev['lookback']} / {prev['strategy']} / "
+                    f"L{prev['lead_months']}; strat_ret = position_t * spy_ret_t"),
+           "previously_published": prev, "oos_window": [split["oos_start"], split["oos_end"]],
+           "published_reproduced_from_committed_smoothed_column": bool(reproduced),
+           "reproduction_note": ("published value is rounded to 4 d.p.; replay matches to < 1e-4 (monthly SPY returns "
+                                 "re-pulled from yfinance differ from the 20260703 file by <= 1.6e-6)"),
+           "causal_fit": CTX.get("hmm_fit"),
+           "rows": rows, "bh_oos_sharpe": round(bh["sharpe"], 6)}
+    d = (work["smoothed_fullsample"] - work["causal_filtered"])[oos]
+    out["corr_smoothed_minus_filtered_vs_same_month_spy_ret_oos"] = round(float(d.corr(work["spy_ret"][oos])), 4)
+    with open(os.path.join(RESULTS_DIR, f"hmm_lookahead_audit_{DATE_TAG}.json"), "w") as f:
+        json.dump(out, f, indent=2, default=str)
+    for r in rows:
+        print(f"  {r['probabilities']:20s} L{r['lead_months']}: OOS Sharpe {r['oos_sharpe']:.4f}  HAC t {r['hac_t']:.2f}")
+    CTX["audit"] = out
+    return out
 
 
 # ===================================================================
@@ -1021,7 +1154,11 @@ def stage_cross_period(df, winner, split, position, strat_ret, sig_lagged):
 def stage_validation(df, tdf, split, strat_ret):
     spy_oos = df["spy_ret"][(df.index >= split["oos_start"]) & (df.index <= split["oos_end"])].dropna()
     cand = tdf[(tdf.signal != "BENCHMARK") & tdf.valid]
-    top5 = cand.nlargest(5, "oos_sharpe")
+    # winner + next four DISTINCT IS-ranked candidates (no OOS ranking)
+    wi = CTX["selection"]["wi"]
+    distinct = CTX["selection"]["ranked"].drop_duplicates(["signal", "strategy", "lead_months", "lookback",
+                                                           "is_sharpe", "oos_sharpe"])
+    top5 = pd.concat([tdf.loc[[wi]], distinct.drop(index=wi, errors="ignore").head(4)])
     rng = np.random.default_rng(42)
     boot = np.zeros(5000)
     for b in range(5000):
@@ -1029,8 +1166,10 @@ def stage_validation(df, tdf, split, strat_ret):
         boot[b] = (s.mean() / s.std()) * np.sqrt(12) if s.std() > 0 else 0
     rows = [{"signal": r.signal, "threshold": r.threshold, "strategy": r.strategy,
              "lead_months": r.lead_months, "lookback": r.lookback, "oos_sharpe": r.oos_sharpe,
+             "is_sharpe": r.is_sharpe,
              "bootstrap_p_value": round(float((boot >= r.oos_sharpe).mean()), 4),
-             "significant_at_5pct": bool((boot >= r.oos_sharpe).mean() < 0.05)}
+             "significant_at_5pct": bool((boot >= r.oos_sharpe).mean() < 0.05),
+             "note": "share of iid-resampled B&H OOS Sharpes >= this row's OOS Sharpe; not a selection-bias test"}
             for r in top5.itertuples()]
     pd.DataFrame(rows).to_csv(os.path.join(VALID_DIR, "bootstrap.csv"), index=False)
 
@@ -1069,17 +1208,16 @@ def _recompute_oos_from_winner_summary(df, ws, split):
     umcsent-precedent guardrail: must reproduce headline within +/-0.03."""
     work = df.dropna(subset=["spy_ret"]).copy()
     is_mask = work.index <= split["in_sample_end"]
-    col = ws["signal_column"]
-    sig = work[col].shift(int(ws["lead_value"]))
-    thr = _thr_series(sig, ws["threshold_code"], ws["lookback"], is_mask)
-    long_when_high = ws["direction"] == "procyclical"
-    rule_is_gt = ws["threshold_rule"] == "gt"
-    orientation = "pro" if (long_when_high == rule_is_gt) else "counter"
+    code = next(k for k, v in SIGNAL_COLS.items() if v == ws["signal_column"])
     strat = ws["strategy_family"]
-    position = _position_from(sig, thr, ws["threshold_code"], strat, orientation, ws["lookback"])
-    strat_ret = position * work["spy_ret"]
+    if strat == "P2_signal_strength":
+        orientation = "pro" if ws["direction"] == "procyclical" else "counter"
+    else:   # threshold_rule is the long-entry relation: gt/lt -> pro, lte/gte -> counter
+        orientation = "pro" if ws["threshold_rule"] in ("gt", "lt") else "counter"
+    _, strat_ret, _, _ = replay(work, code, ws["threshold_code"], ws["lookback"], f"{strat}_{orientation}",
+                                int(ws["lead_value"]), is_mask)
     oos_mask = (strat_ret.index >= split["oos_start"]) & (strat_ret.index <= split["oos_end"])
-    m = ann_metrics(strat_ret[oos_mask])
+    m = ann_metrics(strat_ret[oos_mask].fillna(0.0))
     return {"oos_sharpe": m["sharpe"], "oos_ann_return": m["ann_return"], "oos_max_drawdown": m["max_dd"]}
 
 
@@ -1116,39 +1254,16 @@ def _ensure_signal_code_registered(sig_code, winner, parquet_col):
     print(f"  signal_code registry: APPENDED {sig_code} (ECON-DS3 append-only)")
 
 
-def _write_evidence_status(winner, ws, split, n_valid, median_sharpe, boot_p, verdict, stab,
-                           fwd_sig_lags, rev_sig_lags, oos_pos_mean):
-    fwd_found = bool(fwd_sig_lags)
-    plain = (
-        f"What you see is the best rule we found by searching {n_valid} valid strategy combinations on "
-        f"data the models had not seen; this one came out on top (Sharpe {ws['oos_sharpe']:.2f} vs "
-        f"{ws['bh_sharpe']:.2f} for buy-and-hold SPY). Honesty checks: (1) the typical strategy in our "
-        f"search scored {median_sharpe:.2f}, so the winner may be among the luckier of many tries; "
-        f"(2) a re-shuffle test puts the chance of a result this good at about {boot_p*100:.1f}% "
-        f"(we want under 5% before calling it real); (3) durability across historical episodes is "
-        f"'{verdict}' and the signal-market relationship is '{stab}' over time. "
-        + ("New Home Sales growth lead SPY in the formal causality test, consistent with housing being "
-           "an early-cycle leading indicator, " if fwd_found else
-           "New Home Sales growth did NOT lead SPY in the formal causality test, ")
-        + "so read this as a search result, not an independently validated forecasting signal. "
-          "No fresh confirmation test (final exam) on untouched data has been run yet.")
-    tech = (
-        f"Tournament-OOS only ({split['oos_start']}..{split['oos_end']}, {ws['oos_n']} months; "
-        f"ECON-OOS2 v1_max36_25pct_cap120). Winner {ws['signal_code']}/{ws['threshold_code']}/"
-        f"{ws['strategy_family']}/L{ws['lead_value']}/{ws['lookback']}: OOS Sharpe {ws['oos_sharpe']}, "
-        f"bootstrap p={boot_p} vs resampled B&H, CP1-A durability {verdict}, rolling-corr {stab}, "
-        f"mean OOS exposure {oos_pos_mean:.2f}. Spec-curve: median OOS Sharpe across {n_valid} valid "
-        f"combos = {median_sharpe:.3f} vs B&H {ws['bh_sharpe']}. Lead-lag: TY Granger forward "
-        f"significant lags {fwd_sig_lags or 'NONE'}, reverse significant lags {rev_sig_lags or 'NONE'}. "
-        f"NSA series: signals are YoY/STL-deseasonalised (raw level excluded). "
-        f"No holdout/final exam run; selection and evaluation share the same OOS window.")
+def _write_evidence_status(ws, split, n_valid, is_window, t_oos):
     es = {
         "pair_id": PAIR_ID, "schema_version": "1.2.0", "status": "found_in_search",
         "updated_at": NOW_ISO, "owner": "evan",
-        "plain_english": plain, "technical_note": tech,
-        "next_step": ("Run ECON-FE1 final exam: freeze the winning rule and test once on a confirmation "
-                      "window the search never touched. Calibrate expectation by the bootstrap p and the "
-                      "Granger lead-lag verdict above."),
+        "technical_note": (
+            f"Winner selected by in-sample Sharpe (common pre-OOS window {is_window['start']}..{is_window['end']}) "
+            f"from the {DATE_TAG} monthly tournament ({n_valid} IS-valid combos) and evaluated on the held-out OOS "
+            f"window {split['oos_start']}..{split['oos_end']} ({ws['oos_n']} months): OOS Sharpe {ws['oos_sharpe']:.2f} "
+            f"vs B&H {ws['bh_sharpe']:.2f}, HAC t {t_oos:.2f}. No frozen-rule confirmation test has been run."),
+        "next_step": "Freeze the rule and evaluate it on months released after the freeze date.",
     }
     with open(os.path.join(RESULTS_DIR, "evidence_status.json"), "w") as f:
         json.dump(es, f, indent=2)
@@ -1160,27 +1275,33 @@ def _write_evidence_status(winner, ws, split, n_valid, median_sharpe, boot_p, ve
 def main():
     t0 = time.time()
     df = stage_load()
-    df = stage_signals(df)
+    sp = compute_split(df)
+    df = stage_signals(df, sp["oos_start"])
     corr_df = stage_correlations(df)
     ccf_df, ty_df, lp_df, reg_df, rev_flag = stage_core_models(df)
     qdf = stage_quartiles(df)
-    tdf, split = stage_tournament(df)
+    tdf, split = stage_tournament(df, sp)
     (winner, rec, n_valid, median_sharpe, n_tied, resolved_at,
      position, strat_ret, sig_lagged, thr) = stage_winner(df, tdf, split)
+    audit = stage_lookahead_audit(df, split)
     verdict, stab, sb, full_r = stage_cross_period(df, winner, split, position, strat_ret, sig_lagged)
     boot_rows = stage_validation(df, tdf, split, strat_ret)
     winner_boot_p = boot_rows[0]["bootstrap_p_value"] if boot_rows else np.nan
 
     bh = tdf[tdf.signal == "BENCHMARK"].iloc[0]
+    sel = CTX["selection"]
+    wi, oi, li = sel["wi"], sel["oi"], sel["li"]
 
     orientation = winner["strategy"].rsplit("_", 1)[1]
     neg_thr = "neg_" in winner["threshold"]
     long_when_high = (orientation == "pro") != neg_thr
     direction = "procyclical" if long_when_high else "countercyclical"
+    strat_family = winner["strategy"].rsplit("_", 1)[0]
 
     thr_value = float(thr.dropna().iloc[-1]) if isinstance(thr, pd.Series) else float(thr)
-    thr_rule = "lt" if neg_thr else "gt"
-    strat_family = winner["strategy"].rsplit("_", 1)[0]
+    # long-entry relation of the (lagged) signal to its threshold (schema: entry = signal satisfies relation)
+    thr_rule = {(False, "pro"): "gt", (False, "counter"): "lte",
+                (True, "pro"): "lt", (True, "counter"): "gte"}[(neg_thr, orientation)]
 
     if winner["signal"].startswith(("hmm", "markov")):
         sig_code = {"hmm_stress": "hmm_stress", "markov_regime": "markov_regime"}[winner["signal"]]
@@ -1195,10 +1316,48 @@ def main():
         "sa_3m": "New Home Sales SA 3-month growth",
         "yoy_zscore_120m": "New Home Sales YoY z-score",
         "contraction": "New Home Sales YoY contraction flag",
-        "hmm_stress": "New Home Sales housing-regime probability",
-        "markov_regime": "New Home Sales Markov-regime probability",
+        "hmm_stress": "New Home Sales HMM stress probability (causal)",
+        "markov_regime": "New Home Sales Markov-regime probability (causal)",
     }
     signal_display_name = _SIGNAL_DISPLAY.get(winner["signal"], f"New Home Sales {winner['signal']}")
+
+    oos_r = strat_ret[(strat_ret.index >= split["oos_start"]) & (strat_ret.index <= split["oos_end"])]
+    t_oos, p_oos, nw_oos = hac_t_mean(oos_r)
+    ws_meta = CTX["winner_series"]
+    is_r = ws_meta["strat_ret"][(ws_meta["work"].index >= sel["common_is_start"]) &
+                                (ws_meta["work"].index < pd.Timestamp(split["oos_start"]))].dropna()
+    t_is, p_is, nw_is = hac_t_mean(is_r)
+    from scipy.stats import norm
+    exp_max_z = float(norm.ppf(1 - 0.5 / max(sel["n_distinct"], 1)))
+    cand_all = tdf[(tdf.signal != "BENCHMARK") & tdf.valid]
+
+    is_window = {"start": str(winner["is_start"]), "end": str(winner["is_end"]), "n": int(winner["is_n"]),
+                 "common_is_start": sel["common_is_start"].date().isoformat(), "oos_start": split["oos_start"],
+                 "min_is_n": MIN_IS_N, "n_candidates": sel["n_cands"], "n_eligible": sel["n_eligible"],
+                 "n_ineligible_short_history": sel["n_inel"], "common_start_set_by": sel["driver"],
+                 "rule": (f"eligibility before alignment: a candidate is IS-eligible only if its own first valid return "
+                          f"leaves >= {MIN_IS_N} IS months; common_is_start = latest first-valid-return date among "
+                          "eligible candidates; IS metrics for every candidate computed on [common_is_start, oos_start)"),
+                 "validity": (f"IS window only: is_n >= {MIN_IS_N}, IS exposure in [0.05, 0.95] (P3: share of months "
+                              f"long), IS std > 0, IS turnover < {MAX_TURNOVER}/yr; OOS never consulted"),
+                 "bh_is_sharpe": round(float(sel["bh_is"]["sharpe"]), 6)}
+
+    def _ro(r):
+        return None if r is None else {
+            "signal": str(r["signal"]), "threshold": str(r["threshold"]), "strategy": str(r["strategy"]),
+            "lead_value": int(r["lead_months"]), "objective_value": round(float(r["is_sharpe"]), 6),
+            "oos_sharpe": round(float(r["oos_sharpe"]), 6)}
+
+    ranked = sel["ranked"]
+    runner = ranked.drop(index=wi).iloc[0] if len(ranked) > 1 else None
+    distinct_rank = ranked.drop_duplicates(["signal", "strategy", "lead_months", "lookback", "is_sharpe", "oos_sharpe"])
+    runner_d = distinct_rank.drop(index=wi, errors="ignore")
+    runner_d = runner_d.iloc[0] if len(runner_d) else None
+    prev = audit["previously_published"]
+    rep_rows = {(r["probabilities"], r["lead_months"]): r for r in audit["rows"]}
+    prev_l = int(prev["lead_months"])
+    floor_l = min(LEADS)
+    tourn_file = f"tournament_results_{DATE_TAG}.csv"
 
     winner_summary = {
         "pair_id": PAIR_ID,
@@ -1210,9 +1369,10 @@ def main():
         "threshold_code": winner["threshold"],
         "threshold_value": round(thr_value, 4),
         "threshold_rule": thr_rule,
-        "threshold_note": ("threshold is rolling (window per lookback); threshold_value is the latest "
-                           "rolling value — see winner_trade_log.csv for the full threshold path"
-                           if isinstance(thr, pd.Series) else "static threshold (IS-calibrated)"),
+        "threshold_note": ("threshold is rolling (window per lookback, in months); threshold_value is its latest "
+                           "value — see winner_trade_log.csv for the full threshold path"
+                           if isinstance(thr, pd.Series) else
+                           "static threshold: percentile of the lead-shifted signal over the IS months"),
         "strategy_family": strat_family,
         "strategy_code": strat_family.split("_")[0],
         "strategy_display_name": {"P1_long_cash": "Long/Cash", "P2_signal_strength": "Signal-strength sizing",
@@ -1220,7 +1380,8 @@ def main():
         "strategy_description": "",
         "lead_value": int(winner["lead_months"]),
         "lead_unit": "months",
-        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L1 is the real-time floor given the ~4th-Tuesday Census publication lag for the prior month",
+        "lead_description": (f"Signal lead = {int(winner['lead_months'])} month(s); registry floor L{floor_l} "
+                             "(Census publishes month M near the end of M+1)"),
         "lookback": winner["lookback"],
         "direction": direction,
         "oos_sharpe": round(float(winner["oos_sharpe"]), 4),
@@ -1235,9 +1396,13 @@ def main():
         "oos_n": int(winner["oos_n"]),
         "oos_period_start": split["oos_start"],
         "oos_period_end": split["oos_end"],
+        "oos_hac_t": round(t_oos, 3),
+        "is_sharpe": round(float(winner["is_sharpe"]), 6), "is_n": int(winner["is_n"]),
+        "is_period_start": is_window["start"], "is_period_end": is_window["end"],
         "bh_sharpe": round(float(bh["oos_sharpe"]), 4),
         "bh_ann_return": round(float(bh["oos_ann_return"]), 4),
         "bh_max_drawdown": round(float(bh["max_drawdown"]), 4),
+        "bh_is_sharpe": round(float(sel["bh_is"]["sharpe"]), 4),
         "cost_assumption_bps": COST_BPS,
         "total_combos": int(len(tdf) - 1),
         "valid_combos": n_valid,
@@ -1245,63 +1410,82 @@ def main():
         "notes": "",
         "selection": {},
     }
-    sd = ("Long SPY when the lagged New Home Sales signal is {} its threshold; otherwise {}."
-          .format("below" if thr_rule == "lt" else "above",
-                  "cash" if strat_family == "P1_long_cash" else
-                  ("short SPY" if strat_family == "P3_long_short" else "scale by signal strength")))
-    if not long_when_high:
-        sd += " (Countercyclical orientation: weak/decelerating home sales = risk-on.)"
-    else:
-        sd += " (Procyclical orientation: strong home-sales growth = risk-on, consistent with housing as a leading indicator.)"
+    sd = ("Long SPY when the {}-month-lagged {} is {} its threshold; otherwise {}."
+          .format(int(winner["lead_months"]), signal_display_name,
+                  {"gt": "above", "gte": "at or above", "lt": "below", "lte": "at or below"}[thr_rule],
+                  "cash" if strat_family == "P1_long_cash" else "short SPY")
+          if strat_family != "P2_signal_strength" else
+          ("SPY exposure (0-100%) scales with the {}-month-lagged {}'s position in its trailing {} min-max range{}."
+           .format(int(winner["lead_months"]), signal_display_name, winner["lookback"],
+                   " (inverted)" if orientation == "counter" else "")))
+    sd += (" (Countercyclical orientation: weak/decelerating home sales = risk-on.)" if not long_when_high else
+           " (Procyclical orientation: strong home-sales growth = risk-on.)")
     winner_summary["strategy_description"] = sd
 
-    # ECON-T5 selection provenance block
-    cand_all = tdf[(tdf.signal != "BENCHMARK") & tdf.valid].copy()
-    cand_sorted = cand_all.sort_values(["oos_sharpe", "oos_ann_return"], ascending=False)
-    runner = cand_sorted.iloc[1] if len(cand_sorted) > 1 else cand_sorted.iloc[0]
-    # locate the winner's row index in the on-disk tournament CSV
-    tourn_file = f"tournament_results_{DATE_TAG}.csv"
-    win_mask = ((tdf["signal"] == winner["signal"]) & (tdf["threshold"] == winner["threshold"]) &
-                (tdf["strategy"] == winner["strategy"]) & (tdf["lead_months"] == winner["lead_months"]) &
-                (tdf["lookback"] == winner["lookback"]))
-    win_row_idx = int(tdf.index[win_mask][0])
-    n_signals = int(tdf.loc[tdf.signal != "BENCHMARK", "signal"].nunique())
-    n_thresholds = int(tdf.loc[tdf.signal != "BENCHMARK", "threshold"].nunique())
-    n_strategies = int(tdf.loc[tdf.signal != "BENCHMARK", "strategy"].nunique())
     winner_summary["selection"] = {
-        "objective": "max_oos_sharpe",
-        "objective_formula": "argmax OOS Sharpe over valid combos, ECON-T3 cascade tie-break (oos_sharpe -> oos_ann_return -> min|DD| -> n_trades -> signal)",
+        "objective": "max_is_sharpe",
+        "objective_formula": ("in-sample (common window [common_is_start, OOS start)) monthly mean/std*sqrt(12) of "
+                              "position_t*spy_ret_t; winner evaluated on the OOS window with ECON-T4 deployable scoring (fillna 0)"),
+        "is_window": is_window,
         "grid_scanned": {
-            "leads": sorted({int(x) for x in tdf["lead_months"].unique()}),
-            "n_signals": n_signals,
-            "n_thresholds": n_thresholds,
-            "n_strategies": n_strategies,
+            "leads": LEADS,
+            "n_signals": int(tdf.loc[tdf.signal != "BENCHMARK", "signal"].nunique()),
+            "n_thresholds": int(tdf.loc[tdf.signal != "BENCHMARK", "threshold"].nunique()),
+            "n_strategies": int(tdf.loc[tdf.signal != "BENCHMARK", "strategy"].nunique()),
+            "n_combos": int(len(tdf) - 1),
             "n_valid_combos": int(n_valid),
-            "median_valid_objective": round(float(cand_all["oos_sharpe"].median()), 4),
+            "n_distinct_position_series": int(sel["n_distinct"]),
+            "median_valid_objective": round(float(cand_all["is_sharpe"].median()), 6),
+            "spearman_is_vs_oos": round(sel["spearman"], 4),
         },
         "tie_break_step": int(resolved_at),
         "raw_winner_row": {
-            "signal": str(winner["signal"]),
-            "threshold": str(winner["threshold"]),
-            "strategy": str(winner["strategy"]),
-            "lead_column": "lead_months",
+            "signal": str(winner["signal"]), "threshold": str(winner["threshold"]),
+            "strategy": str(winner["strategy"]), "lead_column": "lead_months",
             "lead_value": int(winner["lead_months"]),
-            "source_tournament_file": f"results/{PAIR_ID}/{tourn_file}",
-            "source_row_index": win_row_idx,
+            "source_tournament_file": tourn_file, "source_row_index": int(wi),
             "display_alias": (f"{winner['signal']}/{winner['threshold']}/{winner['strategy']}/"
                               f"L{int(winner['lead_months'])}/{winner['lookback']}"),
         },
-        "runner_up": {
-            "signal": str(runner["signal"]),
-            "threshold": str(runner["threshold"]),
-            "strategy": str(runner["strategy"]),
-            "lead_value": int(runner["lead_months"]),
-            "objective_value": round(float(runner["oos_sharpe"]), 4),
-        },
-        "rationale": (f"Winner is the max-OOS-Sharpe valid combo ({n_valid} valid of {len(tdf)-1}); "
-                      f"cascade resolved at step {resolved_at} with {n_tied} tied at step 1."),
+        "runner_up": _ro(runner),
+        "runner_up_distinct_series": _ro(runner_d),
+        "rationale": (f"Winner is the IS-valid row with the highest IN-SAMPLE Sharpe (common IS window) over the "
+                      f"floored monthly grid L{floor_l}..L{max(LEADS)}; OOS metrics are reported for that row only (no OOS "
+                      "look-ahead in selection). Regime signals (HMM, Markov-switching) are IS-fit and "
+                      "forward-filtered (scripts/_regime_causal.py)."),
+        "legacy_oos_selected_row": (None if li is None else {
+            "signal": str(tdf.loc[li, "signal"]), "threshold": str(tdf.loc[li, "threshold"]),
+            "strategy": str(tdf.loc[li, "strategy"]), "direction": str(tdf.loc[li, "direction"]),
+            "lead_value": int(tdf.loc[li, "lead_months"]), "oos_sharpe": round(float(tdf.loc[li, "oos_sharpe"]), 6),
+            "note": f"OOS-argmax on this grid (pre-GH#251 rule), comparison only; see legacy_oos_selection_{DATE_TAG}.csv"}),
+        "sensitivity_own_is_start_row": {
+            "signal": str(tdf.loc[oi, "signal"]), "threshold": str(tdf.loc[oi, "threshold"]),
+            "strategy": str(tdf.loc[oi, "strategy"]), "direction": str(tdf.loc[oi, "direction"]),
+            "lead_value": int(tdf.loc[oi, "lead_months"]), "own_is_start": str(tdf.loc[oi, "own_is_start"]),
+            "own_is_sharpe": round(float(tdf.loc[oi, "own_is_sharpe"]), 6),
+            "oos_sharpe": round(float(tdf.loc[oi, "oos_sharpe"]), 6),
+            "note": "IS argmax without common-start alignment; sensitivity only"},
+        "previously_published": {
+            **{k: prev[k] for k in ("signal", "threshold", "strategy", "lead_months", "lookback", "oos_sharpe")},
+            "combo": f"{prev['signal']}/{prev['threshold']}/{prev['lookback']}/{prev['strategy']}/L{prev_l}",
+            "hac_t": rep_rows[("smoothed_fullsample", prev_l)]["hac_t"],
+            "causal_same_rule_oos_sharpe": rep_rows[("causal_filtered", prev_l)]["oos_sharpe"],
+            "causal_same_rule_hac_t": rep_rows[("causal_filtered", prev_l)]["hac_t"],
+            "causal_same_rule_at_floor_oos_sharpe": rep_rows[("causal_filtered", floor_l)]["oos_sharpe"],
+            "floor_lead": floor_l,
+            "source": prev.get("source", f"winner_summary.json ({PREV_TAG})"),
+            "status": ("superseded: relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead), "
+                       "a lead (L0) below the publication-lag floor, and selection by OOS Sharpe"),
+            "audit_file": f"hmm_lookahead_audit_{DATE_TAG}.json"},
+        "inference": {"oos_hac_t": round(t_oos, 3), "oos_hac_p": round(p_oos, 4), "oos_hac_maxlags": nw_oos,
+                      "is_hac_t": round(t_is, 3), "is_hac_maxlags": nw_is,
+                      "n_distinct_candidates": int(sel["n_distinct"]),
+                      "expected_max_abs_z_under_null": round(exp_max_z, 2),
+                      "note": "expected max |z| = Phi^-1(1 - 0.5/N) over N distinct position series (two-sided, independence approximation)"},
         "objective_runner_up_divergence": None,
     }
+    assert abs(float(winner["is_sharpe"]) - float(cand_all["is_sharpe"].max())) <= 1e-9, \
+        "winner must be the IS-valid population max"
 
     fwd_sig_lags = list(ty_df[(ty_df.direction == "indicator_to_target") & ty_df.significant].lag)
     rev_sig_lags = list(ty_df[(ty_df.direction == "target_to_indicator") & ty_df.significant].lag)
@@ -1309,16 +1493,20 @@ def main():
     granger_verdict = (
         f"Toda-Yamamoto Granger NHS->SPY significant at lags {fwd_sig_lags or 'NONE'}; "
         f"SPY->NHS significant at lags {rev_sig_lags or 'NONE'}.")
+    pp = winner_summary["selection"]["previously_published"]
     winner_summary["notes"] = (
-        f"Mode 2, nhs_spy. Tournament: {len(tdf)-1} strategy combos "
-        f"(+1 benchmark, valid=False per ECON-T4), {n_valid} valid. Winner by ECON-T3 cascade "
-        f"(resolved at step {resolved_at}; {n_tied} tied at step 1). Strategy returns are gross "
-        f"of transaction costs; {COST_BPS} bps sensitivity in tournament_validation_{DATE_TAG}/. "
-        f"NHS is NSA (FRED HSN1FNSA); signals are YoY/STL-deseasonalised, raw level excluded. "
-        f"Lead-lag: {granger_verdict} Robustness caveats: winner bootstrap p = {winner_boot_p:.3f} "
-        f"(vs resampled B&H); in-sample Sharpe {float(winner['is_sharpe']):.2f} vs OOS "
-        f"{float(winner['oos_sharpe']):.2f}; CP1 durability verdict '{verdict}'; rolling-correlation "
-        f"stability '{stab}'. OOS mean position {oos_pos_mean:.2f}.")
+        f"{DATE_TAG} rerun: tournament of {len(tdf)-1} strategy combos (+1 benchmark), {n_valid} IS-valid, "
+        f"floored lead grid {LEADS}. Winner selected by in-sample Sharpe on the common IS window "
+        f"{is_window['start']}..{is_window['end']} ({is_window['n']} months) and evaluated on the held-out OOS "
+        f"window {split['oos_start']}..{split['oos_end']} ({int(winner['oos_n'])} months): IS Sharpe "
+        f"{float(winner['is_sharpe']):.2f} (B&H {sel['bh_is']['sharpe']:.2f}), OOS Sharpe "
+        f"{float(winner['oos_sharpe']):.2f} (B&H {float(bh['oos_sharpe']):.2f}), OOS HAC t {t_oos:.2f}. "
+        f"Regime signals are IS-fit and forward-filtered. The previously published winner ({pp['combo']}, OOS "
+        f"Sharpe {float(prev['oos_sharpe']):.2f}) used full-sample smoothed HMM probabilities at L0; the same rule on "
+        f"the causal HMM scores {pp['causal_same_rule_oos_sharpe']:.2f} at L0 and "
+        f"{pp['causal_same_rule_at_floor_oos_sharpe']:.2f} at L{floor_l} (hmm_lookahead_audit_{DATE_TAG}.json). "
+        f"Input: indicator transforms as published in signals_{PREV_TAG}.parquet. Gross of costs; "
+        f"{COST_BPS} bps sensitivity in tournament_validation_{DATE_TAG}/. Lead-lag: {granger_verdict}")
 
     wpath = os.path.join(RESULTS_DIR, "winner_summary.json")
     with open(wpath, "w") as f:
@@ -1357,11 +1545,11 @@ def main():
     interp["key_finding"] = (
         f"Lead-lag: New Home Sales YoY {'Granger-causes SPY at lags ' + str(fwd_sig_lags) if fwd_found else 'does NOT Granger-cause SPY at any lag 1-12'}; "
         f"reverse SPY->NHS significant at lags {rev_sig_lags or 'NONE'}. "
-        f"The tournament winner (NHS {winner['signal']}, {strat_family} {orientation}, "
-        f"lead {winner['lead_months']}m) is {direction}: OOS Sharpe "
-        f"{winner_summary['oos_sharpe']:.2f} vs buy-and-hold {winner_summary['bh_sharpe']:.2f}, max drawdown "
-        f"{winner_summary['oos_max_drawdown']*100:.1f}% vs {winner_summary['bh_max_drawdown']*100:.1f}%. "
-        f"Bootstrap p={winner_boot_p:.3f}; durability '{verdict}'; rolling-correlation '{stab}'.")
+        f"The IS-selected tournament winner (NHS {winner['signal']}, {winner['threshold']}, {strat_family} "
+        f"{orientation}, lead {winner['lead_months']}m) is {direction}: IS Sharpe {float(winner['is_sharpe']):.2f} vs "
+        f"buy-and-hold {sel['bh_is']['sharpe']:.2f}; OOS Sharpe {winner_summary['oos_sharpe']:.2f} vs "
+        f"{winner_summary['bh_sharpe']:.2f}, OOS HAC t {t_oos:.2f}, max drawdown "
+        f"{winner_summary['oos_max_drawdown']*100:.1f}% vs {winner_summary['bh_max_drawdown']*100:.1f}%.")
     if fwd_found and verdict in ("durable",) and winner_boot_p < 0.05:
         interp["confidence"] = "medium"
     else:
@@ -1410,8 +1598,8 @@ def main():
             ("nhs_sa_3m_pct", "3-month % change of STL SA level", "100*(SA_t/SA_{t-3}-1)", "derivative"),
             ("nhs_yoy_zscore_120m", "rolling 120m z-score of YoY growth", "(yoy_t-mean120)/sd120", "derivative"),
             ("nhs_yoy_contraction_flag", "1 when NHS YoY growth < 0", "indicator(yoy<0)", "regime_state"),
-            ("hmm_2state_prob_stress", "P(high-variance regime) from 2-state HMM on YoY growth", "GaussianHMM(yoy)", "regime_state"),
-            ("markov_regime_2state", "P(high-variance regime) from Markov-switching regression spy_ret~yoy", "MarkovRegression", "regime_state"),
+            ("hmm_2state_prob_stress", "forward-filtered P(high-variance state) from a 2-state HMM on YoY growth, fit on IS months only", "GaussianHMM(yoy), IS-only fit, forward filter (scripts/_regime_causal.py)", "regime_state"),
+            ("markov_regime_2state", "Hamilton-filtered P(high-variance regime) from a 2-regime switching-variance model of YoY growth, fit on IS months only", "MarkovRegression(yoy), IS-only fit, filter (scripts/_regime_causal.py)", "regime_state"),
         ]]
     tgt_der = [
         {"name": c, "definition": d, "formula": s, "role": r, "appears_in_charts": []}
@@ -1448,17 +1636,17 @@ def main():
     kpis = [
         {"metric": "OOS Sharpe (winner)", "value": f"{winner_summary['oos_sharpe']:.2f}", "unit": "ratio", "delta": f"{tw['delta_sharpe']:+.2f} vs B&H"},
         {"metric": "OOS Sharpe (buy & hold)", "value": f"{winner_summary['bh_sharpe']:.2f}", "unit": "ratio", "delta": None},
+        {"metric": "IS Sharpe (winner, selection objective)", "value": f"{float(winner['is_sharpe']):.2f}", "unit": "ratio", "delta": f"{float(winner['is_sharpe']) - sel['bh_is']['sharpe']:+.2f} vs B&H"},
         {"metric": "OOS Annual Return (winner)", "value": f"{winner_summary['oos_ann_return']*100:.1f}%", "unit": "percent", "delta": f"{tw['delta_ann_return']*100:+.1f}pp vs B&H"},
         {"metric": "OOS Max Drawdown (winner)", "value": f"{winner_summary['oos_max_drawdown']*100:.1f}%", "unit": "percent", "delta": f"{tw['delta_max_drawdown']*100:+.1f}pp vs B&H"},
-        {"metric": "Valid strategy combos", "value": f"{n_valid}", "unit": "count", "delta": None},
+        {"metric": "IS-valid strategy combos", "value": f"{n_valid}", "unit": "count", "delta": None},
         {"metric": "OOS window", "value": f"{split['oos_start']} → {split['oos_end']}", "unit": "dates", "delta": None},
     ]
     with open(os.path.join(RESULTS_DIR, "kpis.json"), "w") as f:
         json.dump(kpis, f, indent=2)
 
     # evidence_status.json
-    _write_evidence_status(winner, winner_summary, split, n_valid, median_sharpe,
-                           winner_boot_p, verdict, stab, fwd_sig_lags, rev_sig_lags, oos_pos_mean)
+    _write_evidence_status(winner_summary, split, n_valid, is_window, t_oos)
 
     # design_note.md
     design = f"""# Design Note — {PAIR_ID} ({DATE_TAG})
@@ -1470,7 +1658,7 @@ All macro/activity mandatory methods produced. Deviations from the daily-pair sp
 - Pre-whitened CCF run at monthly lags −20..+20 (not daily).
 - Granger is Toda-Yamamoto (VAR in levels of the stationary YoY transform with d_max=1 augmentation).
 - Transfer entropy: tercile-binned plug-in estimator, 500 permutations.
-- Stationarity: Dana's tests (stationarity_tests_{DATE_TAG}.csv) reviewed and CONFIRMED, not re-run.
+- Stationarity: Dana's tests (stationarity_tests_{STAT_TAG}.csv) reviewed and CONFIRMED, not re-run.
   NHS LEVEL (nhs_nsa) and STL LEVEL (nhs_sa) are NON-stationary and are EXCLUDED from the signal set.
 
 ## NSA / seasonality handling (defining feature)
@@ -1484,19 +1672,38 @@ YoY series. Raw level and raw MoM are intentionally excluded as seasonal-dominat
 - Reverse-causality LP flag: {rev_flag}
 
 ## Data provenance
-Source = FRED HSN1FNSA live API (1963-01 -> 2026-05). Data Master HAJKE_Month column NHS used as an
-overlap cross-check (level corr 0.9998). SPY sourced from Yahoo (cached-close fallback used when the
-live API was rate-limited; identical adjusted-close series).
+Source = FRED HSN1FNSA (1963-01 -> 2026-05) via Dana's data stage. The original input parquet is
+gitignored and was rebuilt for the {DATE_TAG} run with the indicator transforms exactly as published in
+signals_{PREV_TAG}.parquet and SPY re-pulled from Yahoo (monthly returns within 1.6e-6 of the {PREV_TAG}
+file); see _pws/lead-lesandro/pkg13_hmm_port/nhs_frozen_input.py. A fresh live pull differs: FRED
+revised 2026-04/05, and the STL seasonal adjustment behind nhs_sa_* is a full-sample (two-sided)
+decomposition, so its values change when months are added.
+
+## Regime models ({DATE_TAG})
+HMM (2 states, NHS YoY, stress = higher-variance state) and Markov-switching (2 regimes, switching
+variance, on NHS YoY itself; the old model put spy_ret in the likelihood) are fit on IS months only and
+read with a forward filter (scripts/_regime_causal.py). The {PREV_TAG} winner used full-sample
+forward-backward smoothed HMM probabilities; replay and causal comparison in
+hmm_lookahead_audit_{DATE_TAG}.json.
+
+## Selection ({DATE_TAG})
+argmax IS Sharpe on the common IS window {is_window['start']}..{is_window['end']} ({is_window['n']} months;
+start set by {', '.join(sel['driver'])}); eligibility before alignment, MIN_IS_N={MIN_IS_N}; validity uses
+IS rows only. Winner {winner['signal']}/{winner['threshold']}/{winner['lookback']}/{winner['strategy']}/L{int(winner['lead_months'])}:
+IS Sharpe {float(winner['is_sharpe']):.4f} (B&H {sel['bh_is']['sharpe']:.4f}); OOS Sharpe {float(winner['oos_sharpe']):.4f}
+(B&H {float(bh['oos_sharpe']):.4f}), HAC t {t_oos:.2f}. {len(tdf)-1} combos, {n_valid} IS-valid,
+Spearman(IS, OOS) {sel['spearman']:.3f}.
 
 ## Tournament conventions
 - Units in tournament_results CSV are RATIOS (decimal), not percent.
-- Lead grid [0,1,2,3,6,9,12] (ECON-LL1 monthly); L1 real-time floor (Census ~4th-Tuesday publication);
-  L6 centered. position_t = rule(signal_(t-L)); strategy_return_t = position_t * spy_ret_t.
+- Lead grid {LEADS}: the legacy ECON-LL1 grid [0,1,2,3,6,9,12] truncated at the registry floor L2
+  (Census publishes month M near the end of M+1). position_t = rule(signal_(t-L));
+  strategy_return_t = position_t * spy_ret_t.
 - Both orientations (pro/counter) tested per the empirical direction prior.
 - CP2 skipped — `regime_story: false` in signal_scope.json.
 - Returns gross of costs; 5 bps sensitivity grid in tournament_validation_{DATE_TAG}/.
 
-## New pair — no prior version, Rule C3 regression diff not applicable.
+## Previous version: {PREV_TAG} (OOS-selected, L0 smoothed-HMM winner); superseded.
 """
     with open(os.path.join(RESULTS_DIR, "design_note.md"), "w") as f:
         f.write(design)
@@ -1541,8 +1748,10 @@ Pair: {PAIR_ID} (New Home Sales NSA -> SPY), Mode 2.
 
 Winner: {tw['winner_label']}
   OOS Sharpe {winner_summary['oos_sharpe']} vs B&H {winner_summary['bh_sharpe']} | DD {winner_summary['oos_max_drawdown']} vs {winner_summary['bh_max_drawdown']} | ann ret {winner_summary['oos_ann_return']} vs {winner_summary['bh_ann_return']}
-  Direction: {direction} | valid combos {n_valid}/{len(tdf)-1} | cascade step {resolved_at} | ties@1 {n_tied}
+  Selected by IS Sharpe {float(winner['is_sharpe']):.4f} (B&H {sel['bh_is']['sharpe']:.4f}) on {is_window['start']}..{is_window['end']}
+  Direction: {direction} | IS-valid combos {n_valid}/{len(tdf)-1} | tie step {resolved_at}
   Bootstrap p={winner_boot_p:.3f} | durability '{verdict}' | rolling-corr '{stab}' | break flagged {sb['flagged']} ({sb['break_date']})
+  Superseded: {pp['combo']} OOS {float(prev['oos_sharpe']):.4f} (smoothed HMM); causal same rule L0 {pp['causal_same_rule_oos_sharpe']:.4f}, L{floor_l} {pp['causal_same_rule_at_floor_oos_sharpe']:.4f}
 
 Lead-lag: {granger_verdict} Reverse-LP flag: {rev_flag}.
 
@@ -1564,7 +1773,7 @@ evidence_status = found_in_search (no final exam yet). Ray to set strategy_objec
     print("\n" + "=" * 70)
     print("  PIPELINE COMPLETE — HANDOFF NUMBERS (DPS-SCD1)")
     print("=" * 70)
-    print(f"  Strategy combos: {len(tdf)-1} | valid: {n_valid} | median OOS Sharpe (valid): {median_sharpe:.3f}")
+    print(f"  Strategy combos: {len(tdf)-1} | IS-valid: {n_valid} | median IS Sharpe (valid): {median_sharpe:.3f}")
     print(f"  Winner: {tw['winner_label']}")
     print(f"  OOS Sharpe {winner_summary['oos_sharpe']} vs B&H {winner_summary['bh_sharpe']} | "
           f"DD {winner_summary['oos_max_drawdown']} vs {winner_summary['bh_max_drawdown']} | "
