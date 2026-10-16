@@ -300,7 +300,7 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "note": "2026-10-16 (fix261016_hmm_port_eci_nhs): the pipeline's legacy grid [0,1,2,3,6,9,12] is truncated at the bottom to the L2 floor, [2,3,6,9,12] (never extended at the top; the 2..14 anchored grid belongs to the nhs_rebuilt_spy rebuild). The 20260703 L0 smoothed-HMM winner is superseded; the IS-selected winner is L9. Axis is coherent monthly.",
+      "note": "2026-10-16 (fix261016_hmm_port_eci_nhs): frozen grid truncated at the floor per the strict-floor decision; never extended. Legacy grid [0,1,2,3,6,9,12] -> [2,3,6,9,12] ( the 2..14 anchored grid belongs to the nhs_rebuilt_spy rebuild). The 20260703 L0 smoothed-HMM winner is superseded; the IS-selected winner is L9. Axis is coherent monthly.",
       "floor_basis": "derived per release calendar (Step 2, amended 2026-10-06); grid = legacy grid truncated at the floor",
       "conformed": true
     },
