@@ -7,15 +7,7 @@
     "lead_months": 0,
     "lookback": "LB60",
     "oos_sharpe": 1.4851,
-    "combo": "hmm_stress/T2_roll_p25/LB60/P1_long_cash_pro/L0",
-    "hac_t": 4.527,
-    "causal_same_rule_oos_sharpe": 1.363024,
-    "causal_same_rule_hac_t": 4.151,
-    "causal_same_rule_at_floor_oos_sharpe": 0.85498,
-    "floor_lead": 2,
-    "source": "winner_summary.json (20260703)",
-    "status": "superseded: relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead), a lead (L0) below the publication-lag floor, and selection by OOS Sharpe",
-    "audit_file": "hmm_lookahead_audit_20261016.json"
+    "source": "winner_summary.json (20260703)"
   },
   "oos_window": [
     "2018-02-28",

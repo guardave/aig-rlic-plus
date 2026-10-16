@@ -2,7 +2,7 @@
   "pair_id": "nhs_spy",
   "schema_version": "1.2.0",
   "status": "found_in_search",
-  "updated_at": "2026-10-16T22:34:09Z",
+  "updated_at": "2026-10-16T22:50:58Z",
   "owner": "evan",
   "technical_note": "Winner selected by in-sample Sharpe (common pre-OOS window 2002-11-30..2018-01-31) from the 20261016 monthly tournament (5344 IS-valid combos) and evaluated on the held-out OOS window 2018-02-28..2026-05-31 (100 months): OOS Sharpe 0.93 vs B&H 0.89, HAC t 3.26. No frozen-rule confirmation test has been run.",
   "next_step": "Freeze the rule and evaluate it on months released after the freeze date."

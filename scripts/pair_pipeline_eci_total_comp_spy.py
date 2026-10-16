@@ -1111,7 +1111,8 @@ def stage_lookahead_audit(df, split, hmm_diag):
     prev_ws = json.load(open(os.path.join(RESULTS_DIR, "winner_summary.json")))
     prev_sel = prev_ws.get("selection", {})
     if prev_sel.get("objective") == "max_is_sharpe":           # rerun on an already-ported tree
-        prev = prev_sel["previously_published"]
+        prev = {k: prev_sel["previously_published"][k]
+                for k in ("signal", "threshold", "strategy", "lead_quarters", "lookback", "oos_sharpe", "source")}
     else:
         rw = prev_sel["raw_winner_row"]
         prev = {"signal": rw["signal"], "threshold": rw["threshold"], "strategy": rw["strategy"],
@@ -1640,6 +1641,10 @@ def main():
     # design_note.md — APPEND Phase-1 sections to Dana's Phase-0 note (preserve her content)
     with open(os.path.join(RESULTS_DIR, "design_note.md")) as f:
         dana_note = f.read().rstrip()
+    # idempotent rerun: drop this DATE_TAG's addendum if it is already there
+    marker = f"\n\n---\n\n# Phase 1 addendum — causal regime port + IS selection (Evan, {DATE_TAG})"
+    if marker in dana_note:
+        dana_note = dana_note[:dana_note.index(marker)].rstrip()
     pp = selection["previously_published"]
     phase1 = f"""
 

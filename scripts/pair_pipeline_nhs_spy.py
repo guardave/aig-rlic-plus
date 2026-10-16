@@ -996,7 +996,8 @@ def stage_lookahead_audit(df, split):
     prev_ws = json.load(open(os.path.join(RESULTS_DIR, "winner_summary.json")))
     prev_sel = prev_ws.get("selection", {})
     if prev_sel.get("objective") == "max_is_sharpe":           # rerun on an already-ported tree
-        prev = prev_sel["previously_published"]
+        prev = {k: prev_sel["previously_published"][k]
+                for k in ("signal", "threshold", "strategy", "lead_months", "lookback", "oos_sharpe", "source")}
     else:
         rw = prev_sel["raw_winner_row"]
         prev = {"signal": rw["signal"], "threshold": rw["threshold"], "strategy": rw["strategy"],

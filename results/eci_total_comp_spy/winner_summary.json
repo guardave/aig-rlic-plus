@@ -1,6 +1,6 @@
 {
   "pair_id": "eci_total_comp_spy",
-  "generated_at": "2026-10-16T22:04:23Z",
+  "generated_at": "2026-10-16T22:50:26Z",
   "signal_column": "eci_total_comp_pct_2q",
   "signal_code": "eci_total_comp_2q",
   "signal_display_name": "ECI 2-quarter growth",

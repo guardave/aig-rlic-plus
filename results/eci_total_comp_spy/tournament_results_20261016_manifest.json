@@ -50,5 +50,5 @@
   "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 quarter",
   "small_sample_flag": "OOS window 25 QUARTERS",
   "cost_note": "returns are gross of costs; cost sensitivity in tournament_validation",
-  "generated_at": "2026-10-16T22:04:23Z"
+  "generated_at": "2026-10-16T22:50:26Z"
 }
