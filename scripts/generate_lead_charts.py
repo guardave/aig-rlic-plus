@@ -53,7 +53,7 @@ DOT = "#999999"
 
 LEADS = [f"L{i}" for i in range(13)]
 
-FROZEN = {"hy_ig_v2_spy"}  # retired Sample — never regenerate
+FROZEN: set[str] = set()  # (Sample hy_ig_v2_spy was archived 2026-06-20; list kept as a guard hook)
 
 # Clean indicator labels keyed by pair stem (the part before the target suffix).
 # Backstop only — Ace's SHORT_INDICATOR_LABELS registry (keyed by full pair_id)

@@ -37,20 +37,8 @@ BASE_DIR = "/workspaces/aig-rlic-plus"
 CHART_GLOB = os.path.join(BASE_DIR, "output", "charts", "*", "plotly", "*_meta.json")
 
 # (pair_id, file_stem) → desired exploratory payload
-#   Orphans in the Sample pair (hy_ig_v2_spy) that have no page slot.
+#   (Sample pair hy_ig_v2_spy orphans removed: pair archived 2026-06-20.)
 EXPLORATORY_ORPHANS: dict[tuple[str, str], dict[str, Any]] = {
-    ("hy_ig_v2_spy", "hero_spread_vs_spy"): {
-        "disposition": "suggested",
-        "exploratory": True,
-    },
-    ("hy_ig_v2_spy", "spread_history_annotated"): {
-        "disposition": "suggested",
-        "exploratory": True,
-    },
-    ("hy_ig_v2_spy", "tournament_sharpe_dist"): {
-        "disposition": "suggested",
-        "exploratory": True,
-    },
 }
 
 

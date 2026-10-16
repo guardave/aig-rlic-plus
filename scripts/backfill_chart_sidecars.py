@@ -59,7 +59,7 @@ from _stamp import iso_utc_now  # noqa: E402
 EMIT_TARGETS = ("indpro_spy", "permit_spy", "vix_vix3m_spy")
 PATCH_TARGETS = (
     "indpro_spy", "indpro_xlp", "umcsent_xlv",
-    "hy_ig_v2_spy", "hy_ig_spy",
+    "hy_ig_spy",
     "permit_spy", "vix_vix3m_spy",
     "gold_copper_xli",
 )
@@ -68,7 +68,7 @@ PATCH_TARGETS = (
 # Chart-type inference. Maps known bare chart names to the expected
 # Plotly chart type that VIZ-O1 sidecars record. The values match those
 # already present in canonical sidecars elsewhere in tree (hy_ig_spy,
-# hy_ig_v2_spy, etc.).
+# etc.).
 _CHART_TYPE_HINTS = {
     "hero": "dual_axis_line",
     "regime_stats": "bar",

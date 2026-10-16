@@ -48,17 +48,6 @@ PAIRS = [
         vix_countercyclical=False,
     ),
     dict(
-        pair_id="hy_ig_v2_spy",
-        data_file="data/hy_ig_v2_spy_daily_20260410.parquet",
-        signal_col="hmm_2state_prob_stress",
-        target_col="spy_ret",
-        freq="daily",
-        oos_start="2018-01-01",
-        lead_days=0,
-        hmm_signal=True,
-        vix_countercyclical=False,
-    ),
-    dict(
         pair_id="indpro_spy",
         data_file="data/indpro_spy_monthly_19900101_20251231.parquet",
         signal_col="indpro_mom3m",

@@ -47,7 +47,6 @@ GENERATED_AT = "2026-04-24"
 PAIRS = [
     "dff_ted_spy",
     "hy_ig_spy",
-    "hy_ig_v2_spy",
     "indpro_spy",
     "indpro_xlp",
     "permit_spy",
