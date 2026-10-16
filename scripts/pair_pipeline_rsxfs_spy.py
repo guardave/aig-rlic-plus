@@ -29,7 +29,7 @@ from statsmodels.tsa.stattools import adfuller, grangercausalitytests, kpss
 
 
 PAIR_ID = "rsxfs_spy"
-DATE_TAG = "20261015"  # GH #251/#268 IS-selected winner (common IS start) on #255 L1-floor grid
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (grid truncated from the bottom); IS-selected winner (GH #251/#268, common IS start)
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 REPO = Path(__file__).resolve().parents[1]
@@ -250,7 +250,7 @@ def make_position(signal: pd.Series, threshold: pd.Series | float, direction: st
 
 def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     oos_start = pd.Timestamp("2017-01-31")
-    leads = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
+    leads = list(range(2, 14))  # strict floor E2 (RSXFS ~16 d after month-end): sub-floor L1 truncated, top not extended (pkg9, protocol D2)
     PPY = 12          # monthly periods per year (ann_metrics uses sqrt(12) / 12 to match)
     MIN_IS_N = 60     # IS-valid minimum observations (monthly)
     MIN_OOS_N = 60    # legacy OOS-valid minimum (kept as-is; info only)

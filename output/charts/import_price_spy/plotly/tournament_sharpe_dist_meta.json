@@ -1,12 +1,12 @@
 {
   "chart_name": "tournament_sharpe_dist",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-15T18:06:41.126070+00:00",
+  "generated_at": "2026-10-16T18:30:30.734478+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
   "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/import_price_spy/tournament_results_20261015.csv"
+    "/workspaces/aig-rlic-plus/results/import_price_spy/tournament_results_20261016.csv"
   ]
 }

@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-15T18:06:41.383715+00:00",
+  "generated_at": "2026-10-16T18:30:31.011422+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "2022 Rate Shock: Imported Inflation Spiked as SPY De-Rated; gray bands are NBER recessions.",
   "narrative_alignment_note": "2022 Rate Shock: Imported Inflation Spiked as SPY De-Rated; gray bands are NBER recessions.",

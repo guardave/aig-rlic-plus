@@ -1,12 +1,12 @@
 {
   "chart_name": "tournament_sharpe_dist",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-15T18:12:17.314618+00:00",
+  "generated_at": "2026-10-16T18:30:33.615446+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
   "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/permit_yoy_spy/tournament_results_20261015.csv"
+    "/workspaces/aig-rlic-plus/results/permit_yoy_spy/tournament_results_20261016.csv"
   ]
 }

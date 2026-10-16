@@ -1,12 +1,12 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-15T18:09:16.701433+00:00",
+  "generated_at": "2026-10-16T18:30:44.998313+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
   "caption": "Pearson correlations between new-orders transforms and forward SPY returns.",
   "narrative_alignment_note": "Pearson correlations between new-orders transforms and forward SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/core_models_20261015/correlations.csv"
+    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/core_models_20261016/correlations.csv"
   ]
 }

@@ -1,6 +1,6 @@
 {
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-15T18:15:00.023605+00:00",
+  "generated_at": "2026-10-16T18:22:37.530227+00:00",
   "signal_column": "rsxfs_yoy",
   "signal_code": "yoy",
   "signal_display_name": "Retail sales YoY growth",
@@ -34,8 +34,8 @@
   "bh_ann_return": 0.151948,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
-  "total_combos": 468,
-  "valid_combos": 468,
+  "total_combos": 432,
+  "valid_combos": 432,
   "schema_version": "1.2.0",
   "notes": "RSXFS is a coincident-to-slightly-leading consumer indicator; the nominal-dollar level is non-stationary so all signals are growth transforms. Winner (yoy) is selected by in-sample Sharpe on the common IS window (2000-12-31 to 2016-12-31) and evaluated on the held-out OOS window (from 2017-01); still a search-selected rule. The 2020-21 COVID collapse/rebound sits in the OOS window \u2014 read any lead/threshold that leans on it with caution.",
   "is_sharpe": 0.903982,
@@ -56,7 +56,6 @@
     },
     "grid_scanned": {
       "leads": [
-        1,
         2,
         3,
         4,
@@ -73,8 +72,8 @@
       "n_signals": 6,
       "n_thresholds": 18,
       "n_strategies": 1,
-      "n_valid_combos": 468,
-      "median_valid_objective": 0.317118
+      "n_valid_combos": 432,
+      "median_valid_objective": 0.320076
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -83,16 +82,16 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 3,
-      "source_tournament_file": "tournament_results_20261015.csv",
-      "source_row_index": 41
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 37
     },
     "runner_up": {
-      "signal": "yoy",
+      "signal": "chg_6m",
       "threshold": "T_roll_p25",
       "strategy": "P1_long_cash",
-      "lead_value": 1,
-      "objective_value": 0.902424,
-      "oos_sharpe": 0.612979
+      "lead_value": 5,
+      "objective_value": 0.859063,
+      "oos_sharpe": 0.769091
     },
     "rationale": "Winner is the IS-valid row with the highest IN-SAMPLE Sharpe (common IS window) over the published grid; OOS metrics are reported for that row only (no OOS look-ahead in selection).",
     "legacy_oos_selected_row": {
@@ -101,7 +100,7 @@
       "direction": "procyclical",
       "lead_value": 9,
       "oos_sharpe": 1.391771,
-      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261015.csv"
+      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261016.csv"
     },
     "sensitivity_own_is_start_row": {
       "signal": "mom",

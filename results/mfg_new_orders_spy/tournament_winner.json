@@ -1,6 +1,6 @@
 {
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-15T18:08:06.764099+00:00",
+  "generated_at": "2026-10-16T18:27:05.820219+00:00",
   "signal_column": "mfg_new_orders_yoy_zscore_60m",
   "signal_code": "yoy_zscore_60m",
   "signal_display_name": "New-orders YoY growth 60-month z-score",
@@ -34,8 +34,8 @@
   "bh_ann_return": 0.148272,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
-  "total_combos": 468,
-  "valid_combos": 468,
+  "total_combos": 432,
+  "valid_combos": 432,
   "schema_version": "1.2.0",
   "notes": "Manufacturers' New Orders is a LEADING manufacturing-demand indicator (a Conference Board LEI component); the nominal-dollar level is non-stationary so all signals are growth transforms. The 2020-21 COVID collapse/rebound is an extreme outlier in-window \u2014 read any lead/threshold that leans on it with caution. Winner (yoy_zscore_60m) is selected by in-sample Sharpe on the common IS window (2001-01-31 to 2016-12-31) and evaluated on the held-out OOS window (from 2017-01); still a search-selected rule.",
   "is_sharpe": 0.952665,
@@ -56,7 +56,6 @@
     },
     "grid_scanned": {
       "leads": [
-        2,
         3,
         4,
         5,
@@ -73,8 +72,8 @@
       "n_signals": 6,
       "n_thresholds": 18,
       "n_strategies": 1,
-      "n_valid_combos": 468,
-      "median_valid_objective": 0.318093
+      "n_valid_combos": 432,
+      "median_valid_objective": 0.318289
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -83,8 +82,8 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 7,
-      "source_tournament_file": "tournament_results_20261015.csv",
-      "source_row_index": 382
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 352
     },
     "runner_up": {
       "signal": "yoy_zscore_60m",
@@ -101,15 +100,15 @@
       "direction": "countercyclical",
       "lead_value": 12,
       "oos_sharpe": 1.558946,
-      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261015.csv"
+      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261016.csv"
     },
     "sensitivity_own_is_start_row": {
-      "signal": "yoy",
-      "threshold": "T0_zero",
+      "signal": "yoy_zscore_60m",
+      "threshold": "T_z_0",
       "direction": "procyclical",
-      "lead_value": 2,
-      "own_is_start": "1994-03-31",
-      "own_is_sharpe": 0.89269,
+      "lead_value": 3,
+      "own_is_start": "1997-03-31",
+      "own_is_sharpe": 0.875449,
       "note": "IS argmax without common-start alignment; sensitivity only"
     },
     "objective_runner_up_divergence": null

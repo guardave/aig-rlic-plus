@@ -1,7 +1,7 @@
 {
   "chart_name": "hero",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-15T18:06:40.098615+00:00",
+  "generated_at": "2026-10-16T18:30:28.698047+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Import Price Index level and SPY with NBER recession bands.",
   "narrative_alignment_note": "Import Price Index level and SPY with NBER recession bands.",

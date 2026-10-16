@@ -1,6 +1,6 @@
 {
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-15T18:32:28.798529+00:00",
+  "generated_at": "2026-10-16T18:26:20.256704+00:00",
   "signal_column": "cement_6m",
   "signal_code": "chg_6m",
   "signal_display_name": "6-month growth",
@@ -34,8 +34,8 @@
   "bh_ann_return": 0.145568,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
-  "total_combos": 468,
-  "valid_combos": 442,
+  "total_combos": 360,
+  "valid_combos": 340,
   "schema_version": "1.2.0",
   "notes": "Portland Cement Shipments is a construction-activity indicator; the nominal-dollar level is non-stationary so all signals are growth transforms. Winner (chg_6m) is selected by in-sample Sharpe on the common IS window (2011-01-31 to 2016-12-31) and evaluated on the held-out OOS window (from 2017-01); still a search-selected rule \u2014 read as found-in-search.",
   "is_sharpe": 1.632153,
@@ -53,16 +53,13 @@
       "oos_start": "2017-01-31",
       "rule": "eligibility before alignment: a candidate is IS-eligible only if its own first-valid-return date leaves >= MIN_IS_N=60 IS obs before oos_start; common_is_start = latest first-valid-return date among ELIGIBLE candidates; IS metrics computed on [common_is_start, oos_start)",
       "min_is_n": 60,
-      "n_candidates": 468,
-      "n_eligible": 442,
-      "n_ineligible_short_history": 26,
+      "n_candidates": 360,
+      "n_eligible": 340,
+      "n_ineligible_short_history": 20,
       "bh_is_sharpe": 1.080534
     },
     "grid_scanned": {
       "leads": [
-        2,
-        3,
-        4,
         5,
         6,
         7,
@@ -77,8 +74,8 @@
       "n_signals": 6,
       "n_thresholds": 18,
       "n_strategies": 1,
-      "n_valid_combos": 442,
-      "median_valid_objective": 0.76643
+      "n_valid_combos": 340,
+      "median_valid_objective": 0.762886
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -87,8 +84,8 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 8,
-      "source_tournament_file": "tournament_results_20261015.csv",
-      "source_row_index": 305
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 233
     },
     "runner_up": {
       "signal": "chg_6m",
@@ -100,12 +97,12 @@
     },
     "rationale": "Winner is the IS-valid row with the highest IN-SAMPLE Sharpe (common IS window) over the published grid; OOS metrics are reported for that row only (no OOS look-ahead in selection).",
     "legacy_oos_selected_row": {
-      "signal": "yoy",
-      "threshold": "T_roll_p25",
+      "signal": "mom",
+      "threshold": "T_roll_p50",
       "direction": "countercyclical",
-      "lead_value": 4,
-      "oos_sharpe": 1.252901,
-      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261015.csv"
+      "lead_value": 11,
+      "oos_sharpe": 1.160493,
+      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261016.csv"
     },
     "sensitivity_own_is_start_row": {
       "signal": "chg_6m",

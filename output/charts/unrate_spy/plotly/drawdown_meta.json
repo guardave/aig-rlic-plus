@@ -1,12 +1,12 @@
 {
   "chart_name": "drawdown",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-15T18:20:42.776933+00:00",
+  "generated_at": "2026-10-16T18:30:24.386578+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "Drawdown comparison for the winner strategy and SPY buy-and-hold.",
   "narrative_alignment_note": "Drawdown comparison for the winner strategy and SPY buy-and-hold.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/unrate_spy/strategy_returns_20261015.csv"
+    "/workspaces/aig-rlic-plus/results/unrate_spy/strategy_returns_20261016.csv"
   ]
 }

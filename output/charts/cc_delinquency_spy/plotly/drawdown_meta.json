@@ -1,12 +1,12 @@
 {
   "chart_name": "drawdown",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-15T18:02:23.659957+00:00",
+  "generated_at": "2026-10-16T18:30:40.224661+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Drawdown comparison; the shallower drawdown (OOS -4.9% vs -23.9%) is the strategy's one defensible virtue \u2014 read the Sharpe as volatility avoidance, not forecasting (OOS return 13.4% is below B&H 14.3%).",
   "narrative_alignment_note": "Drawdown comparison; the shallower drawdown (OOS -4.9% vs -23.9%) is the strategy's one defensible virtue \u2014 read the Sharpe as volatility avoidance, not forecasting (OOS return 13.4% is below B&H 14.3%).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cc_delinquency_spy/strategy_returns_20261015.csv"
+    "results/cc_delinquency_spy/strategy_returns_20261016.csv"
   ]
 }

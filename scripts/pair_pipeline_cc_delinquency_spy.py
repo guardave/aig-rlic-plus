@@ -20,7 +20,7 @@ import yfinance as yf
 from statsmodels.tsa.stattools import adfuller, kpss
 
 PAIR_ID = "cc_delinquency_spy"
-DATE_TAG = "20261015"  # GH #251/#268 IS-selected winner (common IS start) on #255 L1-floor grid
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (grid truncated from the bottom); IS-selected winner (GH #251/#268, common IS start)
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 REPO = Path(__file__).resolve().parents[1]
@@ -215,7 +215,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     n = len(work)
     oos_n = int(min(max(20, round(n * 0.25)), 40))
     oos_start = work.index[-oos_n]
-    leads = list(range(1, 6))  # #255 floor L1 shifted grid [1..5] (quarters)
+    leads = list(range(2, 6))  # quarters; strict floor E2 (DRCCLACBS ~51 d after quarter-end): sub-floor L1 truncated, top not extended (pkg9, protocol D2)
     # GH #251/#268 + common IS start (Lead decision 2026-10-15):
     #   pass 1 builds every candidate's return stream; common_is_start = the LATEST
     #   first-valid-return date across the grid (rolling-threshold warm-ups and lead

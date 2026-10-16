@@ -1,12 +1,12 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-15T18:20:41.830419+00:00",
+  "generated_at": "2026-10-16T18:30:23.413048+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "Pearson correlations between UNRATE transforms and forward SPY returns.",
   "narrative_alignment_note": "Pearson correlations between UNRATE transforms and forward SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/unrate_spy/core_models_20261015/correlations.csv"
+    "/workspaces/aig-rlic-plus/results/unrate_spy/core_models_20261016/correlations.csv"
   ]
 }

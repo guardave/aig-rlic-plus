@@ -1,6 +1,6 @@
 {
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-15T18:12:53.070714+00:00",
+  "generated_at": "2026-10-16T18:27:53.094449+00:00",
   "signal_column": "invsales_level",
   "signal_code": "level",
   "signal_display_name": "Retail Inventories-to-Sales Ratio (level)",
@@ -34,8 +34,8 @@
   "bh_ann_return": 0.143697,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
-  "total_combos": 312,
-  "valid_combos": 312,
+  "total_combos": 288,
+  "valid_combos": 288,
   "schema_version": "1.2.0",
   "notes": "A high inventories-to-sales ratio signals weakening demand and precedes equity weakness. On this sample the raw level is NOT stationary (ADF does not reject a unit root; KPSS rejects stationarity) \u2014 it drifts \u2014 so level signals use 60-month ROLLING-percentile thresholds as adaptive regime filters rather than fixed cutoffs. Winner (level/T_roll_p50) is selected by in-sample Sharpe on the common IS window (1998-01-31 to 2017-05-31) and evaluated on the held-out OOS window; still a search-selected rule \u2014 read as found-in-search.",
   "is_sharpe": 0.886476,
@@ -56,7 +56,6 @@
     },
     "grid_scanned": {
       "leads": [
-        2,
         3,
         4,
         5,
@@ -73,8 +72,8 @@
       "n_signals": 4,
       "n_thresholds": 12,
       "n_strategies": 1,
-      "n_valid_combos": 312,
-      "median_valid_objective": 0.38085
+      "n_valid_combos": 288,
+      "median_valid_objective": 0.37906
     },
     "tie_break_step": null,
     "raw_winner_row": {
@@ -83,8 +82,8 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 6,
-      "source_tournament_file": "tournament_results_20261015.csv",
-      "source_row_index": 43
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 39
     },
     "runner_up": {
       "signal": "level",
@@ -101,7 +100,7 @@
       "direction": "procyclical",
       "lead_value": 3,
       "oos_sharpe": 1.233821,
-      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261015.csv"
+      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261016.csv"
     },
     "sensitivity_own_is_start_row": {
       "signal": "level",

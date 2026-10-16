@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-15T18:16:12.971612+00:00",
+  "generated_at": "2026-10-16T18:30:21.074103+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Proxy check for large changes in the retail-sales/SPY relationship.",
   "narrative_alignment_note": "Proxy check for large changes in the retail-sales/SPY relationship.",

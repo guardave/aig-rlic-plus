@@ -30,7 +30,7 @@ from statsmodels.tsa.stattools import adfuller, grangercausalitytests, kpss
 
 
 PAIR_ID = "mfg_new_orders_spy"
-DATE_TAG = "20261015"  # GH #251/#268 IS-selected winner (common IS start) on #255 L2-floor grid
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (grid truncated from the bottom); IS-selected winner (GH #251/#268, common IS start)
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 REPO = Path(__file__).resolve().parents[1]
@@ -267,7 +267,7 @@ def make_position(signal: pd.Series, threshold: pd.Series | float, direction: st
 
 def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     oos_start = pd.Timestamp("2017-01-31")
-    leads = list(range(2, 15))  # #255 floor L2 shifted grid [2..14] (months)
+    leads = list(range(3, 15))  # strict floor E3 (Census M3 full report ~34 d after month-end): sub-floor L2 truncated, top not extended (pkg9, protocol D2)
     # GH #251/#268 + common IS start (Lead decision 2026-10-15):
     #   pass 1 builds every candidate's return stream; common_is_start = the LATEST
     #   first-valid-return date across the grid (rolling-threshold warm-ups and lead

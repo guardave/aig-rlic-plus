@@ -1,7 +1,7 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-15T18:16:11.888683+00:00",
+  "generated_at": "2026-10-16T18:30:19.825526+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "SPY performance across retail-sales YoY growth quartiles.",
   "narrative_alignment_note": "SPY performance across retail-sales YoY growth quartiles.",
