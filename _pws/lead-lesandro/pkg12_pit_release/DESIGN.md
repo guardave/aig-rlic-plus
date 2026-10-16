@@ -57,19 +57,52 @@ pos = rule(lagged.signal, lagged.threshold)                   # then pos * ret, 
 2. **Go to cash, or drop breaching periods.** This creates a position artifact that clusters in shutdown windows (2013, 2019, 2025-26), changes n_IS / n_OOS, and is not what a live trader would do.
 3. **Rebalance on release dates (daily returns from each release).** This is the most exact option, but it changes return construction and the rebalance calendar of 35 pipelines and breaks comparability with every published monthly result. Worth considering for new pairs, too large for this fix.
 4. **Keep p90 with disclosure.** Rejected by the stakeholder decision (point-in-time).
-5. **Real-time vintages (values as first published).** Out of scope. This package fixes **timing** only. Pipelines still use current-vintage (revised) values; that is a separate, larger lookahead (open question Q5).
+5. **Keep latest-vintage values with first-release timing.** Rejected under D8, see §8: a revised value is not known on the first-release date.
 
 ## 6. Assumptions and limits
 
 - ALFRED `realtime_start` is the **FRED posting date**, an upper bound on public availability. Some UMCSENT dates fall 1-4 days after month-end before 2008, and 2018-03 is +27 d, which looks like a posting artifact. These dates are conservative, not wrong.
 - Publisher-rule series (ISM, NAHB, EIA) are not verified against archived release calendars before 2018.
-- Fallback rows dominate the pre-vintage history of IR (to 2010-02), Cass (to 2013-05), AMTMNO (to 2011-04), HSN1F (to 1999-06), cement (to 2021-08), UMCSENT (to 1998-07), BUSLOANS (to 1996-11), DRCCLACBS (to 2011Q1) and DRTSCIS (to 2010Q2). The max-lag fallback is deliberately harsh. `IMPACT.md` reports a sensitivity with the max lag excluding shutdown windows.
+- Fallback rows dominate the pre-vintage history of IR (to 2010-02), Cass (to 2013-05), HSN1F (to 1999-06), cement (to 2021-08), UMCSENT (to 1998-07), BUSLOANS (to 1996-11), DRCCLACBS (to 2011Q1) and DRTSCIS (to 2010Q2). The max-lag fallback is deliberately harsh. `IMPACT.md` reports a sensitivity with the max lag excluding shutdown windows.
 - The cement file dates are S3 timestamps; a re-upload would overstate the lag, which is conservative.
 
 ## 7. Open questions for the Lead
 
-- **Q1 Fallback strength.** Max observed lag, shutdowns included, is what the brief suggested. It alone makes import_price (L2/L3) and cement (L5/L6) FAIL, and it drives most of the HSN1F, RSXFS, AMTMNO, RETAILIRSA and Cass grid breaches. Alternatives: max excluding documented shutdowns (shipped as the sensitivity), or the max of the earliest 60 measured periods.
+- **Q1 Fallback strength.** Max observed lag, shutdowns included, is what the brief suggested. It alone makes import_price (L2/L3) and cement (L5/L6) FAIL, and it drives most of the HSN1F, RSXFS, RETAILIRSA and Cass grid breaches. Alternatives: max excluding documented shutdowns (shipped as the sensitivity), or the max of the earliest 60 measured periods.
 - **Q2 Grid floor.** Should the grid still start at the p90 floor E\* with as-of handling the residual periods (recommended), or at the per-period max?
 - **Q3 Same-day releases.** A release on the window-open date counts as available. BUSLOANS (H.8, 4:15 pm ET) is released after the close; the calendar has no time-of-day, and the per-series release times are recorded in the meta file. Adopt "release before 16:00 ET" instead?
 - **Q4 Which objective.** Use the selection objective each pair publishes (14 IS / 21 OOS) for the reruns, or move all of them to IS argmax as the brief states?
-- **Q5 Vintages.** Timing is now point-in-time, but the values are still current vintage (revised). Should real-time vintage values become a Phase C?
+- **Q5 Vintages (D8).** See §8: choose track (a) first-release or track (b) real-time vintages per pair. The time-of-day convention (Q3) applies to both.
+- **Q6 Pre-vintage history under track (b).** Truncate the backtest to the first ALFRED vintage, or splice first-vintage values with a flag?
+- **Q7 Non-ALFRED sources** (ISM, NAHB, UMich expected business conditions, USGS cement, EIA). Archive first prints (track a), or disclose them as revised?
+- **Q8 Mislabelled sources.** sloos_ci_small trades large/middle-market firms (DRTSCILM), mfg_new_orders trades core capex orders (NEWORDER), and cc_delinquency is NSA. Rename the pairs, or switch the data?
+
+## 8. Data vintages (D8): revised values are a different signal with a different floor
+
+**Where the values come from today.** Every macro pipeline uses **revised, near-latest-vintage** values. None uses first prints or real-time vintages. Each FRED-backed panel's raw column was matched against every ALFRED vintage (`src/vintage_id.py` → `VINTAGE_SOURCE.csv`): all 19 match exactly one vintage dated 2025-09 → 2026-10 (100% of overlapping periods). They match first prints on 0–99% of periods; the 99% (Cass) is because Cass is barely revised.
+
+| Pair(s) | Load path (code) | Series actually loaded | Vintage of the committed panel |
+|---|---|---|---|
+| unrate, rsxfs, nhs_saar_rebuilt, nhs_saar, housing_starts, nhs_spy | FRED `fredgraph.csv` at run time | UNRATE, RSXFS, HSN1F, HOUST, HSN1FNSA | latest at run (unrate 2026-10-02, rsxfs 2026-10-15, nhs_saar_rebuilt 2026-09-24) |
+| indpro_spy/xlp, permit_spy, umcsent_xlv, consumer_sentiment, busloans, cass, eci, m2sl, housing_starts_rebuilt, nhs_rebuilt | fredapi / FRED API (no realtime params), some spliced with Data Master | INDPRO, PERMIT, UMCSENT, BUSLOANS, FRGSHPUSM649NCIS, ECIALLCIV, M2SL, HOUST, HSN1FNSA | latest at run (busloans 2026-06-26, m2sl 2026-06-23, others 2026-08 → 2026-10) |
+| import_price, permit_yoy, retail_inv_sales, mfg_new_orders, cc_delinquency, sloos_ci_small | `Data Master.xlsx` snapshot | IR, PERMIT, RETAILIRSA, **NEWORDER** (not AMTMNO), **DRCCLACBN** (NSA, not DRCCLACBS), **DRTSCILM** (large/middle-market firms, not the small-firm DRTSCIS the pair name implies) | snapshot vintage 2025-09-03 → 2026-08-25 |
+| ism_mfg, ism_services, wells_fargo_housing, umcsent_spy, cement, petrol_inv | `Data Master.xlsx` (not on FRED/ALFRED) | ISM PMIs, NAHB HMI, UMich expected business conditions, USGS cement, EIA WTTSTUS1 | snapshot of unknown date; ISM and NAHB re-estimate seasonal factors every year, cement is revised in later surveys, UMich prelim → final |
+| gold_copper, vix_vix3m, phlxsox | yfinance (market closes) | — | not revised |
+| t10y3m, t10y3m_rebuilt, hy_ig | Data Master / fredapi daily | T10Y3M, ICE BofA OAS | Treasury yields are not revised; ICE OAS is current-only on FRED (revisions possible, not measurable) |
+
+**The lookahead.** The value of M that the pipeline holds is the one published at the series' latest revision, often a 2025-26 benchmark or seasonal re-estimation. Using it at M's first-release date credits the strategy with information published years later.
+
+**Two tracks** (pick one per pair; both use the same lead grid and gate):
+
+| | (a) First-release values | (b) Real-time vintages (recommended) |
+|---|---|---|
+| Value of M used | First print (ALFRED `output_type=4`, or the publisher's first release) | Value of M as published at the window open, i.e. the latest revision on or before that date |
+| Floor / availability | M's first-release date (the release calendar) | Presence in the vintage at the window open: a period is in vintage `t` only after its first release, and its value changes only on revision dates |
+| Transforms and thresholds | Computed on the first-print series. Note that yoy of first prints mixes vintages (M's first print vs M−12's first print) | Computed **inside one vintage** (signal and rolling threshold from the series as known at `t`), which is exactly what a live trader sees |
+| Helper | `pit_shift(sig, L, load_release(...))` on a first-print panel | `realtime_apply(load_vintages(sid), index, L, fn)`; `vintage_asof(vint, t)` gives "value as known at t" |
+| Data | Small: one value per period | ALFRED vintage history (`data/release_calendar/vintages/`, 19 series, 644 KB). Non-FRED sources need their own archives (ISM, NAHB, UMich components, USGS, EIA) or stay on track (a) with publisher first prints |
+| Coverage | Back to the first vintage. Earlier periods only have first-vintage (already revised) values | Same: rows before the first vintage cannot be real-time (IR 2010, RETAILIRSA 2013, HSN1FNSA 2011, DRCCLACBN 2011, Cass 2013, …) |
+
+Latest-vintage values *with their correct floor*, i.e. the most recent revision date of each value, are not a usable third track: for most of history that floor is a 2025-26 revision date, so nothing before it could be traded.
+
+**Recommendation.** Use track (b) for every FRED/ALFRED series. For pre-vintage history, either start the backtest at the first vintage or accept track (a)'s first-vintage values with a disclosed flag (open question **Q6**). Non-FRED sources (ISM, NAHB, UMich components, USGS, EIA) go to track (a) where publisher first prints can be archived. Otherwise they are disclosed as "revised values, timing-only PIT" (**Q7**). Track (b) changes signal values and rolling thresholds, so it needs full reruns. The winner rule stays as it is and D9 is not applied.
