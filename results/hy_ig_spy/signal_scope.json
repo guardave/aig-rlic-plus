@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-04-22T10:42:16Z",
+  "last_updated_at": "2026-10-16T16:47:00Z",
   "indicator_axis": {
     "canonical_column": "hy_ig_spread_pct",
     "display_name": "HY-IG Credit Spread (%)",
@@ -126,8 +126,8 @@
       },
       {
         "name": "hmm_2state_prob_stress",
-        "definition": "HMM 2-state model: probability of being in the stress regime (defined by high spread_change \u00d7 high VIX).",
-        "formula": "GaussianHMM(n_components=2, features=[spread_change, vix], random_state=42)",
+        "definition": "Causal 2-state HMM stress probability: GaussianHMM on [daily HY-IG spread change, VIX], fit on in-sample data only (to 2019-09-30) with in-sample standardisation; forward-filtered P(stress_t | data up to t). Stress = state with the higher in-sample mean spread change.",
+        "formula": "scripts/_regime_causal.fit_hmm_causal(features=[spread_change, vix], oos_start=2019-10-01, seeds=(42,0,1,2,3))",
         "role": "regime_state",
         "appears_in_charts": [
           "hmm_regime_overlay"
@@ -135,8 +135,8 @@
       },
       {
         "name": "ms_2state_stress_prob",
-        "definition": "Markov-Switching regression: smoothed probability of the high-variance (stress) regime.",
-        "formula": "MarkovRegression(spy_ret ~ hy_ig_spread, k_regimes=2, switching_variance=True)",
+        "definition": "Causal Markov-switching probability of the high-variance regime of daily HY-IG spread changes (SPY returns not in the likelihood); in-sample fit, Hamilton-filtered.",
+        "formula": "scripts/_regime_causal.fit_ms_causal(spread_change, oos_start=2019-10-01, k_regimes=2, switching_variance=True)",
         "role": "regime_state",
         "appears_in_charts": [
           "hmm_regime_overlay"
@@ -215,5 +215,5 @@
       }
     ]
   },
-  "notes": "Scope-disciplined per ECON-SD. All 16 indicator derivatives are hy_ig_spread_pct-derived or credit-regime signals. Off-scope cross-market signals (yield curve, bank/small-cap ratio, NFCI momentum) are reported in analyst_suggestions.json."
+  "notes": "Scope-disciplined per ECON-SD. All 16 indicator derivatives (incl. hmm_2state_prob_calm in the signals parquet) are hy_ig_spread_pct-derived or credit-regime signals. Off-scope cross-market signals (yield curve, bank/small-cap ratio, NFCI momentum) are reported in analyst_suggestions.json."
 }

@@ -1,0 +1,11 @@
+direction,lag,f_stat,p_value,spread_transform
+HY_IG->SPY,1,4.178,0.041,daily change
+HY_IG->SPY,2,4.3894,0.0124,daily change
+HY_IG->SPY,3,3.4924,0.015,daily change
+HY_IG->SPY,4,3.0517,0.0159,daily change
+HY_IG->SPY,5,2.7753,0.0165,daily change
+SPY->HY_IG,1,166.5192,0.0,daily change
+SPY->HY_IG,2,108.7213,0.0,daily change
+SPY->HY_IG,3,74.8825,0.0,daily change
+SPY->HY_IG,4,58.2242,0.0,daily change
+SPY->HY_IG,5,48.2302,0.0,daily change

@@ -123,14 +123,14 @@ PAIRS = {
         oos_start="2019-01-31"),
     "hy_ig_spy": dict(
         data_file="data/hy_ig_spy_daily_20000101_20260422.parquet",
-        extra_signal_file="results/hy_ig_spy/signals_20260422.parquet",
+        extra_signal_file="results/hy_ig_spy/signals_20261016.parquet",  # causal HMM/MS (fix261016)
         extra_signal_cols=["hmm_2state_prob_stress","ms_2state_stress_prob"],
         target_price="spy", freq="D",
         signals=["hy_ig_spread_pct","hy_ig_zscore_252d","hy_ig_zscore_504d",
                  "hy_ig_pctrank_504d","hy_ig_roc_21d","hy_ig_roc_63d",
                  "hy_ig_mom_21d","hy_ig_mom_63d","hy_ig_acceleration",
                  "hmm_2state_prob_stress"],
-        winner_signal="hmm_2state_prob_stress", winner_lead=0, winner_sharpe=1.4083,
+        winner_signal="hy_ig_roc_63d", winner_lead=252, winner_sharpe=0.3442,
         oos_start="2019-10-01"),
     "umcsent_xlv": dict(
         data_file="data/umcsent_xlv_monthly_19980101_20251231.parquet",

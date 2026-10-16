@@ -1,9 +1,15 @@
 {
-  "test": "rolling_r2_qlr_proxy",
-  "breakpoint_date": "2007-07-30",
-  "max_f_stat": 0.026326,
-  "p_value": 0.768544,
-  "conclusion": "Rolling R\u00b2 jump of 0.0263 detected near 2007-07-30; potential structural break \u2014 verify with Chow test",
+  "test": "QLR sup-Wald (HAC, q=2, 15% trim, monthly candidates)",
+  "breakpoint_date": "2019-01-01",
+  "max_f_stat": 4.37,
+  "p_value": null,
+  "critical_values_f_form": {
+    "10%": 5.0,
+    "5%": 5.86,
+    "1%": 7.78
+  },
+  "conclusion": "sup-F 4.37 at 2019-01-01 does not exceed the 5% critical value 5.86",
+  "regression": "spy_ret_t on winner signal lagged lead+1 days",
   "trim_pct": 0.15,
-  "n_obs": 6860
+  "n_obs": 6547
 }
