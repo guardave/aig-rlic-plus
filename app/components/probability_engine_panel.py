@@ -36,6 +36,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from components.rolling_threshold import latest_rolling_value, rolling_pct_spec
 from components.schema_check import SchemaValidationError, validate_or_die, validate_soft
 
 
@@ -217,6 +218,7 @@ def _render_chart(
     rolling_window: int = 60,
     rolling_min_periods: int = 36,
     rolling_label: str | None = None,
+    threshold_known: bool = True,
 ):
     """Render the probability-engine time-series (APP-SE1 acceptance).
 
@@ -291,7 +293,7 @@ def _render_chart(
                     name="Grey zone: near threshold (±0.25)", hoverinfo="skip",
                 )
             )
-    else:
+    elif threshold_known:
         # Fixed-threshold path: horizontal line at the discrete threshold, with
         # an epsilon band for continuous/z-score signals where thresholds are soft.
         fig.add_trace(
@@ -583,17 +585,25 @@ def render_probability_engine_panel(pair_id: str) -> None:
     # redraw the actual time-varying boundary (matches pipeline build_threshold).
     _roll_q = {"t_roll_p25": 0.25, "t_roll_p50": 0.50, "t_roll_p75": 0.75}.get(_tc)
     _roll_kw = {}
-    # Daily trailing-504d percentile thresholds (e.g. hy_ig_spy T2_rp75): the rule compares the
-    # LEAD-SHIFTED signal with its own trailing 504-trading-day percentile, so draw exactly that.
-    import re as _re
-    _m_rp = _re.fullmatch(r"t2_rp(\d+)", _tc)
+    _threshold_known = _tv is not None
+    # Daily trailing-percentile thresholds (T2_rp<NN>, e.g. hy_ig_spy 504d, vix_vix3m_spy 252d): the
+    # rule compares the LEAD-SHIFTED signal with its own trailing percentile. The window comes from
+    # the pair's winner artifacts (rolling_threshold.py), never from an assumption; if the artifacts
+    # do not record it we use neutral wording and draw no boundary rather than a wrong one.
+    _spec = rolling_pct_spec(winner)
     _lead_days = winner.get("lead_value") if str(winner.get("lead_unit", "")).startswith("day") else None
-    if _m_rp:
+    if _spec:
         _is_rolling = True
-        _roll_q = int(_m_rp.group(1)) / 100
-        _roll_kw = dict(rolling_window=504, rolling_min_periods=400,
-                        rolling_label=f"trailing 504-day {_m_rp.group(1)}th percentile")
-        if isinstance(_lead_days, int) and _lead_days > 0 and column in signals_df.columns:
+        _roll_kw = dict(rolling_label=_spec["label"])
+        _raw_col = signals_df[column] if column in signals_df.columns else None
+        if _spec["window"]:
+            _roll_q = _spec["quantile"]
+            _roll_kw.update(rolling_window=_spec["window"], rolling_min_periods=_spec["min_periods"])
+            if not _threshold_known and _raw_col is not None:
+                _lv = latest_rolling_value(_raw_col, _spec, _lead_days if isinstance(_lead_days, int) else None)
+                if _lv is not None:
+                    threshold, _threshold_known = _lv, True
+        if isinstance(_lead_days, int) and _lead_days > 0 and _raw_col is not None:
             signals_df = signals_df.copy()
             signals_df[column] = signals_df[column].shift(_lead_days)
             display_name = f"{display_name} (lagged {_lead_days} trading days)"
@@ -609,6 +619,7 @@ def render_probability_engine_panel(pair_id: str) -> None:
         long_below=_long_below,
         is_rolling=_is_rolling,
         rolling_quantile=_roll_q,
+        threshold_known=_threshold_known,
         **_roll_kw,
     )
 
@@ -625,7 +636,8 @@ def render_probability_engine_panel(pair_id: str) -> None:
             f"The signal ({display_name}) drives the strategy; position changes "
             f"are triggered when the value crosses its "
             f"{_roll_kw.get('rolling_label', 'rolling 60-month median')} "
-            f"(a moving boundary, latest value {threshold:g}) — not a fixed cutoff."
+            + (f"(a moving boundary, latest value {threshold:g}) — not a fixed cutoff."
+               if _threshold_known else "(a moving boundary) — not a fixed cutoff.")
         )
     else:
         takeaway = (

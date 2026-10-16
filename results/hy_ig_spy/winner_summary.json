@@ -7,6 +7,8 @@
   "signal_display_name": "HY-IG 63-Day Rate of Change",
   "target_symbol": "SPY",
   "threshold_value": 3.3929,
+  "threshold_window_days": 504,
+  "threshold_min_periods": 400,
   "threshold_rule": "lt",
   "threshold_code": "T2_rp75",
   "threshold_display_name": "75th pct (rolling 504d)",

@@ -53,6 +53,16 @@
       "type": ["number", "null"],
       "description": "Numeric threshold used by the winning strategy rule. Units depend on `signal_column` semantics (probability in [0,1] for HMM signals; z-score units for z-score signals; etc.). Pair with `threshold_rule` to form the complete decision rule. `null` is tolerated for legacy pairs whose producers did not emit a numeric threshold (see backlog BL-THRESHOLD-VALUE-SCHEMA for producer-side backfill); consumers must render a user-visible fallback per Ace's Defense-2 coerce (commit 5f2e50d)."
     },
+    "threshold_window_days": {
+      "type": ["integer", "null"],
+      "minimum": 2,
+      "description": "Trailing window (trading days) of a rolling-percentile threshold (`T2_rp*` codes), i.e. the N in `signal.rolling(N, min_periods=threshold_min_periods).quantile(q)`. Optional; when absent the app derives it from `threshold_note`/`threshold_display_name` and otherwise shows neutral wording, never a guessed window."
+    },
+    "threshold_min_periods": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "description": "`min_periods` of the rolling-percentile threshold (see `threshold_window_days`). Optional."
+    },
     "threshold_rule": {
       "type": "string",
       "enum": ["gt", "lt", "gte", "lte", "crosses_up", "crosses_down"],

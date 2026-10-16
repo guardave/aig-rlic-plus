@@ -18,11 +18,16 @@ prefix — graceful, not pretty.
 
 from __future__ import annotations
 
+import functools
+import json
 import os
+from pathlib import Path
 
 import streamlit as st
 
 from components.pair_registry import load_pair_registry
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
 from components.display_names import resolve_short_indicator
 from components.prospective_pairs import (
     n_universe as prospective_n_universe,
@@ -65,18 +70,34 @@ def _build_findings() -> list[dict]:
     return findings
 
 
+@functools.lru_cache(maxsize=None)
+def _oos_end(pair_id: str) -> str | None:
+    p = _REPO_ROOT / "results" / pair_id / "winner_summary.json"
+    try:
+        end = json.loads(p.read_text()).get("oos_period_end")
+    except Exception:
+        return None
+    return str(end)[:10] if end else None
+
+
+@functools.lru_cache(maxsize=1)
+def _oos_end_range_all() -> tuple[str, str] | None:
+    """(earliest, latest) ``oos_period_end`` over the live (non-archived) pairs' winner_summary."""
+    ends = [e for d in (_REPO_ROOT / "results").glob("*/winner_summary.json")
+            if not d.parent.name.endswith("_archived") and (e := _oos_end(d.parent.name))]
+    return (min(ends), max(ends)) if ends else None
+
+
 def _data_through(pair_id: str | None) -> str:
-    """Last date of the pair's data (winner_summary.oos_period_end); generic text off-pair."""
+    """Pair pages: that pair's own data end. Non-pair pages (home, methods): the range of data ends
+    across the live pairs (the old hard-coded single date was stale and wrong for most pairs)."""
     if pair_id:
-        import json
-        from pathlib import Path
-        p = Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json"
-        try:
-            end = json.loads(p.read_text()).get("oos_period_end")
-            if end:
-                return f"Data through {end}"
-        except Exception:
-            pass
+        end = _oos_end(pair_id)
+        if end:
+            return f"Data through {end}"
+    rng = _oos_end_range_all()
+    if rng:
+        return f"Data end dates vary by pair ({rng[0]} to {rng[1]})"
     return "Data end dates vary by pair"
 
 

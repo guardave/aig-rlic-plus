@@ -33,6 +33,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from components.rolling_threshold import latest_rolling_value, rolling_pct_spec
+
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -447,10 +449,24 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     # default only fires when the key is absent, so we must catch the cast error
     # and emit an APP-SEV1 L2 fallback banner instead of crashing the page.
     _raw_threshold = winner.get("threshold_value", 0.5)
+    _spec = rolling_pct_spec(winner)
+    _lead_d = winner.get("lead_value") if str(winner.get("lead_unit", "")).startswith("day") else None
+    _lead_d = _lead_d if isinstance(_lead_d, int) and _lead_d > 0 else None
+    if _raw_threshold is None and _spec and _spec["window"]:
+        # Rolling-percentile winner whose summary carries no numeric threshold: use the LATEST value
+        # of its documented rolling boundary (recomputed from the signals parquet), not a default.
+        _sp = _latest_signals_file(pair_dir)
+        try:
+            _raw_threshold = latest_rolling_value(
+                pd.read_parquet(_sp)[winner["signal_column"]], _spec, _lead_d) if _sp else None
+        except Exception:
+            _raw_threshold = None
+    _thr_unknown = False
     try:
         threshold = float(_raw_threshold)
     except (TypeError, ValueError):
         threshold = 0.5
+        _thr_unknown = True
         st.info(
             "Trigger thresholds shown use a default heuristic (0.5) — this "
             "pair's `winner_summary.json.threshold_value` is on a legacy "
@@ -487,11 +503,12 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     # cards illustrate crossings at that latest level; the live rule compares the
     # signal to the 60-month rolling median at each date.
     _tc_low = str(winner.get("threshold_code", "")).lower()
-    _is_rolling_tc = "roll" in _tc_low or _tc_low.startswith("t2_rp")
-    _roll_desc = (f"trailing 504-day {_tc_low[5:]}th percentile" if _tc_low.startswith("t2_rp")
-                  else "rolling 60-month median")
+    _is_rolling_tc = "roll" in _tc_low or _spec is not None
+    _roll_desc = _spec["label"] if _spec else "rolling 60-month median"
     _thr_note = (
-        f"latest value of its **{_roll_desc}** (a moving boundary) = **{threshold:g}**"
+        f"its **{_roll_desc}** (a moving boundary; no numeric latest value is recorded)"
+        if _is_rolling_tc and _thr_unknown and _spec is not None
+        else f"latest value of its **{_roll_desc}** (a moving boundary) = **{threshold:g}**"
         if _is_rolling_tc
         else f"**{threshold:g}**"
     )

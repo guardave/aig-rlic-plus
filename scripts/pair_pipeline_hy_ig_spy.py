@@ -1237,6 +1237,7 @@ def stage_winner_artifacts(tourn: pd.DataFrame, vinfo: dict):
         "signal_column": sig_col, "signal_code": sig_name, "signal_display_name": SIGNAL_DISPLAY[sig_name],
         "target_symbol": "SPY",
         "threshold_value": tval, "threshold_rule": trule, "threshold_code": tname,
+        **({"threshold_window_days": 504, "threshold_min_periods": 400} if tname.startswith("T2_rp") else {}),
         "threshold_display_name": THRESHOLD_DISPLAY.get(tname, tname),
         "threshold_note": ("P2 does not use the threshold: position = 1 - (signal - min504)/(max504 - min504); "
                            "the label is the tie-break pick among identical P2 rows" if strat == "P2" else

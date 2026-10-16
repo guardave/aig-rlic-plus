@@ -20,6 +20,8 @@
   "generated_at": "2026-07-15T10:39:13Z",
   "signal_column": "vix_vix3m_ratio_z126",
   "target_symbol": "SPY",
+  "threshold_window_days": 252,
+  "threshold_min_periods": 200,
   "threshold_rule": "lt",
   "strategy_family": "P1_long_cash",
   "oos_max_drawdown": -0.2115,
