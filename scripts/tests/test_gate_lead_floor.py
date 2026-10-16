@@ -183,3 +183,79 @@ def test_chained_calls_after_shift_detected():
 
 def test_scaling_pos_by_constant_is_not_a_return_use():
     assert g.detect_position_shift("pos = pos * 2 - 1\no = pos.shift(1).fillna(0) * ret\n")[0] == 1
+
+
+# --- strict floor on the effective lag (standard Step 2, amended 2026-10-16) -----------------------
+
+# Mid-month release (e.g. retail sales ~16 d after month-end): the reading for M is public in M+1, so the
+# first return window it may drive opens at end(M+1): strict floor E2.
+MID_MONTH = {"lead_floor": 2, "position_shift": 0, "lead_floor_effective": 2, "lead_grid": list(range(2, 14))}
+
+
+def test_mid_month_release_l1_grid_fails(tmp_path):
+    r = make_repo(tmp_path, "x_spy", "leads = list(range(1, 14))\nret = pos * spy_ret\n", {"x_spy": MID_MONTH}, winner_lead=3)
+    st, why = reasons(r)
+    assert st == "FAIL" and "sub-floor leads [1]" in why and "E2" in why
+
+
+def test_mid_month_release_truncated_grid_passes(tmp_path):
+    r = make_repo(tmp_path, "x_spy", "leads = list(range(2, 14))\nret = pos * spy_ret\n", {"x_spy": MID_MONTH}, winner_lead=3)
+    assert status(r) == "PASS"
+
+
+def test_mid_month_release_winner_at_l1_fails(tmp_path):
+    r = make_repo(tmp_path, "x_spy", "leads = list(range(2, 14))\nret = pos * spy_ret\n", {"x_spy": MID_MONTH}, winner_lead=1)
+    st, why = reasons(r)
+    assert st == "FAIL" and "effective lag 1 < strict floor E2" in why
+
+
+def test_mid_month_release_met_by_position_shift(tmp_path):
+    # L1 + pos.shift(1) = effective lag 2: the same strict floor is met through the shift.
+    rec = {"lead_floor": 1, "position_shift": 1, "lead_floor_effective": 2, "lead_grid": list(range(1, 14))}
+    src = "leads = list(range(1, 14))\nret = pos.shift(1) * spy_ret\n"
+    assert status(make_repo(tmp_path, "x_spy", src, {"x_spy": rec}, winner_lead=1)) == "PASS"
+
+
+# Quarterly series released ~7 weeks after quarter-end (credit-card delinquency, ~51 d): the window that
+# opens at the quarter-end of Q is ~51 d before publication, so the strict floor is E2 (quarters).
+QUARTERLY_7WK = {"lead_floor": 2, "position_shift": 0, "lead_floor_effective": 2, "lead_grid": [2, 3, 4, 5]}
+
+
+def test_quarterly_seven_week_lag_l1_fails(tmp_path):
+    r = make_repo(tmp_path, "x_spy", "leads = list(range(1, 6))\nret = pos * spy_ret\n", {"x_spy": QUARTERLY_7WK}, winner_lead=2)
+    st, why = reasons(r)
+    assert st == "FAIL" and "sub-floor leads [1]" in why
+
+
+def test_quarterly_seven_week_lag_floored_passes(tmp_path):
+    r = make_repo(tmp_path, "x_spy", "leads = list(range(2, 6))\nret = pos * spy_ret\n", {"x_spy": QUARTERLY_7WK}, winner_lead=2)
+    assert status(r) == "PASS"
+
+
+def test_every_grid_lead_checked_not_only_declared_min(tmp_path):
+    # a grid that lists a sub-floor lead out of order is still caught
+    r = make_repo(tmp_path, "x_spy", "leads = [3, 2, 1]\nret = pos * spy_ret\n",
+                  {"x_spy": dict(MID_MONTH, lead_grid=[3, 2, 1])}, winner_lead=3)
+    st, why = reasons(r)
+    assert st == "FAIL" and "sub-floor leads [1]" in why
+
+
+def test_registry_inconsistent_floor_fields_fail(tmp_path):
+    rec = {"lead_floor": 1, "position_shift": 0, "lead_floor_effective": 2, "lead_grid": list(range(2, 14))}
+    r = make_repo(tmp_path, "x_spy", "leads = list(range(2, 14))\nret = pos * spy_ret\n", {"x_spy": rec}, winner_lead=3)
+    st, why = reasons(r)
+    assert st == "FAIL" and "registry inconsistent" in why
+
+
+def test_registry_grid_below_floor_fails(tmp_path):
+    rec = {"lead_floor": 2, "position_shift": 0, "lead_floor_effective": 2, "lead_grid": list(range(1, 14))}
+    r = make_repo(tmp_path, "x_spy", "leads = list(range(1, 14))\nret = pos * spy_ret\n", {"x_spy": rec}, winner_lead=3)
+    st, why = reasons(r)
+    assert st == "FAIL" and "registry lead_grid has sub-floor leads [1]" in why
+
+
+def test_effective_floor_defaults_to_floor_plus_shift(tmp_path):
+    rec = {"lead_floor": 1, "position_shift": 1, "lead_grid": list(range(1, 14))}  # => E2
+    src = "leads = list(range(1, 14))\nret = pos.shift(1) * spy_ret\n"
+    res = g.run(make_repo(tmp_path, "x_spy", src, {"x_spy": rec}, winner_lead=1), ["x_spy"])[0]
+    assert res["status"] == "PASS" and res["floor_effective"] == 2

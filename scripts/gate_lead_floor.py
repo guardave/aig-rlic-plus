@@ -8,8 +8,12 @@ UNIT; this gate checks the lead VALUES actually scanned/published.
 
 For every LIVE pair (has app/pages/<n>_<pair>_<section>.py):
   1. REGISTERED   pair must be in the registry (else FAIL).
-  2. FLOOR/GRID   registry `lead_floor`, `lead_grid`, optional `position_shift` (0|1, default 0)
-                  and optional `lead_floor_effective`.
+  2. FLOOR/GRID   registry `lead_floor`, `lead_grid`, `position_shift` (0|1, default 0) and
+                  `lead_floor_effective` = the STRICT floor on the effective lag E = lead + position_shift
+                  (standard Step 2, amended 2026-10-16: the reading for period M may only drive a
+                  position whose return window starts after the reading is public). When
+                  `lead_floor_effective` is absent it is taken as lead_floor + position_shift; when
+                  present it must equal lead_floor + position_shift (else FAIL "registry inconsistent").
   3. SCAN         statically parse every strategy script of the pair: scripts/pair_pipeline_<pair>.py,
                   scripts/econ_pipeline_<pair>.py, scripts/refresh_<pair>_lead_artifacts.py and any
                   other scripts/*<pair>*.py that DEFINES a traded grid. A grid definition is an
@@ -25,11 +29,12 @@ For every LIVE pair (has app/pages/<n>_<pair>_<section>.py):
                   `position_shift` => FAIL ("alignment mismatch").
   5. RULES (all FAIL):  no grid found in any scanned file; unparseable grid / syntax error;
                   disagreeing duplicate grids; pipeline grid != registry lead_grid;
-                  effective lag = min(grid)+position_shift  <  `lead_floor_effective` (if present)
-                  else min(grid) < lead_floor; and ALWAYS effective lag < 1 (L0 with no extra
-                  shift trades the same bar whose return it earns = contemporaneous lookahead).
+                  ANY scanned grid lead L with L + position_shift < lead_floor_effective (so
+                  min(grid) + position_shift >= floor; the sub-floor leads are listed); any registry
+                  lead_grid entry below the floor on the same basis; and ALWAYS effective lag < 1
+                  (L0 with no extra shift trades the same bar whose return it earns).
   6. WINNER       results/<pair>/winner_summary.json lead_value (or lead_months/lead_days/
-                  lead_quarters) < floor -> FAIL.
+                  lead_quarters) + position_shift < lead_floor_effective -> FAIL.
 No pair names are special-cased.
 
 Usage:  python scripts/gate_lead_floor.py [--json OUT.json] [--strict] [--repo DIR] [pair ...]
@@ -256,10 +261,19 @@ def check_pair(repo: Path, pair: str, rec: dict | None) -> dict:
     if not isinstance(floor, int):
         fails.append(f"registry has no integer lead_floor ({floor!r})")
     reg_shift = rec.get("position_shift", 0)
-    floor_eff = rec.get("lead_floor_effective")
     if reg_shift not in (0, 1):
         fails.append(f"registry position_shift must be 0|1 ({reg_shift!r})")
         reg_shift = 0
+    floor_eff = rec.get("lead_floor_effective")
+    if floor_eff is None and isinstance(floor, int):
+        floor_eff = floor + reg_shift  # strict floor on the effective lag
+    elif isinstance(floor_eff, int) and isinstance(floor, int) and floor + reg_shift != floor_eff:
+        fails.append(f"registry inconsistent: lead_floor {floor} + position_shift {reg_shift} != lead_floor_effective {floor_eff}")
+    res["floor_effective"] = floor_eff
+    if isinstance(floor_eff, int) and reg_grid:
+        below = [g for g in reg_grid if g + reg_shift < floor_eff]
+        if below:
+            fails.append(f"registry lead_grid has sub-floor leads {below} (lead + shift {reg_shift} < floor E{floor_eff})")
     files = scan_files(repo, pair)
     canon = {repo / "scripts" / f"{k}_{pair}{suf}.py" for k, suf in (("pair_pipeline", ""), ("econ_pipeline", ""))}
     canon.add(repo / "scripts" / f"refresh_{pair}_lead_artifacts.py")
@@ -285,7 +299,7 @@ def check_pair(repo: Path, pair: str, rec: dict | None) -> dict:
         defs += [(l, n, g, rel) for l, n, g in fd]
         file_grids.append((rel, det, dline, dnote, min(min(g) for _, _, g in fd)))
         if det is None and reg_shift == 1:
-            need = max(floor_eff if floor_eff is not None else (floor if isinstance(floor, int) else 0), 1)
+            need = max(floor_eff if isinstance(floor_eff, int) else 0, 1)
             gm = min(min(g) for _, _, g in fd)
             if gm < need:
                 fails.append(f"registry position_shift=1 is needed (min grid L{gm} < required lag {need}) but the code shift "
@@ -305,15 +319,13 @@ def check_pair(repo: Path, pair: str, rec: dict | None) -> dict:
     for rel, det, dline, dnote, gmin in file_grids:
         shift = det if det is not None else reg_shift
         eff = gmin + shift
-        if isinstance(floor, int):
-            if floor_eff is not None:
-                if eff < floor_eff:
-                    fails.append(f"effective lag {eff} (min grid L{gmin}+shift {shift}) < lead_floor_effective {floor_eff} ({rel})")
-                    where = rel
-            elif gmin < floor:
-                ln = next(l for l, n, g, r in defs if r == rel and min(g) == gmin)
-                fails.append(f"grid min L{gmin} < floor L{floor} ({rel}:{ln})")
-                where = f"{rel}:{ln}"
+        if isinstance(floor_eff, int):
+            for l, n, g, r in defs:
+                sub = [x for x in g if r == rel and x + shift < floor_eff]
+                if sub:
+                    fails.append(f"sub-floor leads {sub} in {n} ({rel}:{l}): effective lag L+shift {shift} = "
+                                 f"{min(sub) + shift} < strict floor E{floor_eff} (min grid + shift must be >= floor)")
+                    where = f"{rel}:{l}"
         if eff < 1:
             ln = next(l for l, n, g, r in defs if r == rel and min(g) == gmin)
             fails.append(f"effective lag {eff} < 1: L{gmin} with no extra position shift trades the same bar it earns (contemporaneous lookahead) ({rel}:{ln})")
@@ -327,16 +339,14 @@ def check_pair(repo: Path, pair: str, rec: dict | None) -> dict:
     res["winner_lead"] = wl
     if wl is None:
         warns.append(f"winner lead unavailable: {wdetail}")
-    elif floor_eff is not None and wl + reg_shift < floor_eff:
-        fails.append(f"published winner {wk}={wl}+shift {reg_shift} < lead_floor_effective {floor_eff} ({wdetail})")
-    elif floor_eff is None and isinstance(floor, int) and wl < floor:
-        fails.append(f"published winner {wk}={wl} < floor L{floor} ({wdetail})")
+    elif isinstance(floor_eff, int) and wl + reg_shift < floor_eff:
+        fails.append(f"published winner {wk}={wl} + shift {reg_shift} = effective lag {wl + reg_shift} < strict floor E{floor_eff} ({wdetail})")
     res["reasons"] = fails + warns
     res["status"] = "FAIL" if fails else ("WARN" if warns else "PASS")
     if res["status"] == "PASS":
         g0 = sorted(uniq)[0] if uniq else None
         gtxt = f"L{g0[0]}..L{g0[-1]} (n={len(g0)})" if g0 else "n/a"
-        res["reasons"] = [f"floor L{floor}; shift {reg_shift}; grid {gtxt}; winner L{wl}; files {len(file_grids)}"]
+        res["reasons"] = [f"floor E{floor_eff} (L{floor}+shift {reg_shift}); grid {gtxt}; winner L{wl}; files {len(file_grids)}"]
     res["where"] = where
     return res
 
