@@ -1,0 +1,359 @@
+{
+ "n_live_pairs": 35,
+ "n_indicators": 26,
+ "pairs": [
+  {
+   "pair": "gold_copper_xli",
+   "indicator": "gold_copper",
+   "file": "tournament_results_20261015.csv",
+   "m": 210,
+   "s": 105,
+   "t": 35
+  },
+  {
+   "pair": "hy_ig_spy",
+   "indicator": "hy_ig",
+   "file": "tournament_results_20261016.csv",
+   "m": 2178,
+   "s": 726,
+   "t": 90
+  },
+  {
+   "pair": "vix_vix3m_spy",
+   "indicator": "vix_ratio",
+   "file": "tournament_results_20260715.csv",
+   "m": 1281,
+   "s": 427,
+   "t": 70
+  },
+  {
+   "pair": "phlxsox_spy",
+   "indicator": "sox_spy",
+   "file": "tournament_results_20260715.csv",
+   "m": 8112,
+   "s": 2868,
+   "t": 264
+  },
+  {
+   "pair": "eci_total_comp_spy",
+   "indicator": "ECIALLCIV",
+   "file": "tournament_results_20261016.csv",
+   "m": 1180,
+   "s": 590,
+   "t": 120
+  },
+  {
+   "pair": "busloans_spy",
+   "indicator": "BUSLOANS",
+   "file": "tournament_results_20261016.csv",
+   "m": 14640,
+   "s": 5160,
+   "t": 480
+  },
+  {
+   "pair": "cass_freight_spy",
+   "indicator": "FRGSHPUSM649NCIS",
+   "file": "tournament_results_20261016.csv",
+   "m": 16080,
+   "s": 5664,
+   "t": 528
+  },
+  {
+   "pair": "indpro_spy",
+   "indicator": "INDPRO",
+   "file": "tournament_results_20260620.csv",
+   "m": 4329,
+   "s": 1443,
+   "t": 117
+  },
+  {
+   "pair": "indpro_xlp",
+   "indicator": "INDPRO",
+   "file": "tournament_results_20260620.csv",
+   "m": 8658,
+   "s": 2886,
+   "t": 117
+  },
+  {
+   "pair": "ism_services_spy",
+   "indicator": "ISM_SERVICES",
+   "file": "tournament_results_20261016.csv",
+   "m": 11712,
+   "s": 4128,
+   "t": 384
+  },
+  {
+   "pair": "m2sl_yoy_spy",
+   "indicator": "M2SL",
+   "file": "tournament_results_20261016.csv",
+   "m": 11328,
+   "s": 4152,
+   "t": 384
+  },
+  {
+   "pair": "nhs_spy",
+   "indicator": "new_home_sales",
+   "file": "tournament_results_20261016.csv",
+   "m": 5500,
+   "s": 1940,
+   "t": 180
+  },
+  {
+   "pair": "nhs_rebuilt_spy",
+   "indicator": "new_home_sales",
+   "file": "tournament_results_20261008.csv",
+   "m": 14300,
+   "s": 5044,
+   "t": 468
+  },
+  {
+   "pair": "permit_spy",
+   "indicator": "PERMIT",
+   "file": "tournament_results_20260314.csv",
+   "m": 855,
+   "s": 285,
+   "t": 45
+  },
+  {
+   "pair": "petrol_inv_spy",
+   "indicator": "EIA_WPSR_WTTSTUS1",
+   "file": "tournament_results_20261016.csv",
+   "m": 13552,
+   "s": 4796,
+   "t": 440
+  },
+  {
+   "pair": "t10y3m_spy",
+   "indicator": "T10Y3M_ME",
+   "file": "tournament_results_20260620.csv",
+   "m": 1008,
+   "s": 336,
+   "t": 56
+  },
+  {
+   "pair": "umcsent_xlv",
+   "indicator": "UMCSENT",
+   "file": "tournament_results_20261008.csv",
+   "m": 3393,
+   "s": 1131,
+   "t": 91
+  },
+  {
+   "pair": "wells_fargo_housing_spy",
+   "indicator": "NAHB_HMI",
+   "file": "tournament_results_20261008.csv",
+   "m": 19344,
+   "s": 6864,
+   "t": 637
+  },
+  {
+   "pair": "import_price_spy",
+   "indicator": "IR",
+   "file": "tournament_results_20261016.csv",
+   "m": 432,
+   "s": 432,
+   "t": 72
+  },
+  {
+   "pair": "rsxfs_spy",
+   "indicator": "RSXFS",
+   "file": "tournament_results_20261016.csv",
+   "m": 432,
+   "s": 432,
+   "t": 72
+  },
+  {
+   "pair": "unrate_spy",
+   "indicator": "UNRATE",
+   "file": "tournament_results_20261016.csv",
+   "m": 504,
+   "s": 504,
+   "t": 84
+  },
+  {
+   "pair": "ism_mfg_spy",
+   "indicator": "ISM_MFG",
+   "file": "tournament_results_20261016.csv",
+   "m": 288,
+   "s": 288,
+   "t": 48
+  },
+  {
+   "pair": "permit_yoy_spy",
+   "indicator": "PERMIT",
+   "file": "tournament_results_20261016.csv",
+   "m": 288,
+   "s": 288,
+   "t": 48
+  },
+  {
+   "pair": "umcsent_spy",
+   "indicator": "UMCSENT",
+   "file": "tournament_results_20261015.csv",
+   "m": 312,
+   "s": 312,
+   "t": 52
+  },
+  {
+   "pair": "housing_starts_spy",
+   "indicator": "HOUST",
+   "file": "tournament_results_20260814.csv",
+   "m": 6860,
+   "s": 2422,
+   "t": 224
+  },
+  {
+   "pair": "housing_starts_rebuilt_spy",
+   "indicator": "HOUST",
+   "file": "tournament_results_20261016.csv",
+   "m": 13200,
+   "s": 4656,
+   "t": 432
+  },
+  {
+   "pair": "cement_spy",
+   "indicator": "USGS_CEMENT_MIS",
+   "file": "tournament_results_20261016.csv",
+   "m": 360,
+   "s": 360,
+   "t": 60
+  },
+  {
+   "pair": "mfg_new_orders_spy",
+   "indicator": "NEWORDER",
+   "file": "tournament_results_20261016.csv",
+   "m": 432,
+   "s": 432,
+   "t": 72
+  },
+  {
+   "pair": "retail_inv_sales_spy",
+   "indicator": "RETAILIRSA",
+   "file": "tournament_results_20261016.csv",
+   "m": 288,
+   "s": 288,
+   "t": 48
+  },
+  {
+   "pair": "nhs_saar_spy",
+   "indicator": "new_home_sales",
+   "file": "tournament_results_20260804.csv",
+   "m": 252,
+   "s": 252,
+   "t": 42
+  },
+  {
+   "pair": "nhs_saar_rebuilt_spy",
+   "indicator": "new_home_sales",
+   "file": "tournament_results_20261015.csv",
+   "m": 468,
+   "s": 468,
+   "t": 78
+  },
+  {
+   "pair": "cc_delinquency_spy",
+   "indicator": "DRCCLACBN",
+   "file": "tournament_results_20261016.csv",
+   "m": 96,
+   "s": 96,
+   "t": 16
+  },
+  {
+   "pair": "sloos_ci_small_spy",
+   "indicator": "DRTSCILM",
+   "file": "tournament_results_20261015.csv",
+   "m": 120,
+   "s": 120,
+   "t": 20
+  },
+  {
+   "pair": "t10y3m_rebuilt_spy",
+   "indicator": "T10Y3M_ME",
+   "file": "tournament_results_20261008.csv",
+   "m": 1872,
+   "s": 624,
+   "t": 104
+  },
+  {
+   "pair": "consumer_sentiment_spy",
+   "indicator": "UMCSENT",
+   "file": "tournament_results_20261015.csv",
+   "m": 312,
+   "s": 312,
+   "t": 52
+  }
+ ],
+ "per_pair_m": {
+  "median": 1180.0,
+  "mean": 4690.742857142857,
+  "sum": 164176
+ },
+ "upper_bound_merge_sum": {
+  "k2": {
+   "subsets": 325,
+   "BOOL_unate": 3394361624.0,
+   "BOOL_all_extra_nonunate": 848590406.0,
+   "SEQ": 20366169744.0,
+   "REPAR": 65567977816199.0,
+   "COMP": 454686102.0,
+   "DIVC": 101041356.0,
+   "SIZE": 1015331343.0,
+   "total_per_asset_alignment": 65593309406368.0,
+   "total_x20assets_x3alignments": 3935598564382080.0,
+   "total_without_REPAR_per_asset_alignment": 25331590169.0
+  },
+  "k3": {
+   "subsets": 2600,
+   "BOOL_unate": 259328504689110.0,
+   "BOOL_all_extra_nonunate": 525860578952917.5,
+   "SEQ": 6223884112538640.0,
+   "REPAR": 4.0353114310573e+21,
+   "COMP": 781937766756.0,
+   "DIVC": 0.0,
+   "SIZE": 52064250677760.0,
+   "total_per_asset_alignment": 4.0353179671161057e+21,
+   "total_x20assets_x3alignments": 2.4211907802696633e+23,
+   "total_without_REPAR_per_asset_alignment": 6536058805682176.0
+  }
+ },
+ "lower_bound_merge_max": {
+  "k2": {
+   "subsets": 325,
+   "BOOL_unate": 2584739930.0,
+   "BOOL_all_extra_nonunate": 646184982.5,
+   "SEQ": 15508439580.0,
+   "REPAR": 44130449544599.0,
+   "COMP": 336148110.0,
+   "DIVC": 74699580.0,
+   "SIZE": 761795184.0,
+   "total_per_asset_alignment": 44149715366983.0,
+   "total_x20assets_x3alignments": 2648982922018980.0,
+   "total_without_REPAR_per_asset_alignment": 19265822384.0
+  },
+  "k3": {
+   "subsets": 2600,
+   "BOOL_unate": 172518455119815.0,
+   "BOOL_all_extra_nonunate": 349829089548513.75,
+   "SEQ": 4140442922875560.0,
+   "REPAR": 2.017947249639337e+21,
+   "COMP": 497088509904.0,
+   "DIVC": 0.0,
+   "SIZE": 34115377112784.0,
+   "total_per_asset_alignment": 2.0179515972131805e+21,
+   "total_x20assets_x3alignments": 1.2107709583279083e+23,
+   "total_without_REPAR_per_asset_alignment": 4347573843525632.0
+  }
+ },
+ "approx_median_grid": {
+  "k2": 452530000.0,
+  "k3": 4271883200000.0
+ },
+ "approx_mean_grid": {
+  "k2": 7150997279.346939,
+  "k3": 268347915276357.25
+ },
+ "frozen_members_unate_per_asset_alignment": {
+  "k2": 17225,
+  "k3": 702000
+ }
+}
