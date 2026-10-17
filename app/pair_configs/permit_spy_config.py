@@ -485,7 +485,7 @@ Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}):
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = f"""
-First, at each month end the process takes building permits (`PERMIT`) as they were published on that date (the figures visible when the month's return window opens). Second, inside that vintage it computes the {_low(W.signal_display)} and its threshold. Third, it uses the reading from {W.lead_word} months earlier, and the position is applied to the following month's return. Finally, {_FINAL_STEP}.
+First, at each month end the process takes building permits (`PERMIT`) as they were published on that date (the figures visible when the month's return window opens). Second, inside that vintage it computes the {_low(W.signal_display)} and {'its trailing 60-month range' if _IS_P2 else 'its threshold'}. Third, it uses the reading from {W.lead_word} months earlier, and the position is applied to the following month's return. Finally, {_FINAL_STEP}.
 
 OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of test-period months with positive strategy return.
 """
