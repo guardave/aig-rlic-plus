@@ -178,6 +178,10 @@ APP_TL1_PREVIEW_CAPTION = "executions, one row per trade"
 # DOM extraction
 # ---------------------------------------------------------------------------
 
+# Preflights read the checkout this script lives in (a worktree run must not count the main checkout's
+# files: GATE-27 counted main's PNGs when run from a worktree).
+_REPO_ROOT = str(__import__("pathlib").Path(__file__).resolve().parents[1])
+
 def _sanitize_label(label: str) -> str:
     """Convert a tab label into a safe filename fragment (lowercase, underscored)."""
     label = label.strip()
@@ -514,7 +518,7 @@ def check_landing(text):
 # Main
 # ---------------------------------------------------------------------------
 
-def gate29_parquet_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+def gate29_parquet_preflight(pairs, project_root=None):
     """GATE-29 pre-flight: assert signals_*.parquet is committed in git for every pair.
 
     Wave 10I.C root-cause fix: smoke_loader.py only tests chart JSON loading; it
@@ -530,6 +534,7 @@ def gate29_parquet_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
 
     Returns: list of failure dicts (empty = all pairs pass).
     """
+    project_root = project_root or _REPO_ROOT
     import subprocess
     failures = []
     for pair_id in pairs:
@@ -558,7 +563,7 @@ def gate29_parquet_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     return failures
 
 
-def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+def gate_dp1_dual_panel_preflight(pairs, project_root=None):
     """GATE-DP1 (Wave 10K, 2026-04-24): Dual-Panel Trace Visibility Check.
 
     For every history_zoom_*.json chart committed under
@@ -579,6 +584,7 @@ def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus
 
     Returns: list of failure dicts (empty = all charts pass).
     """
+    project_root = project_root or _REPO_ROOT
     import glob as _glob
     failures = []
     for pair_id in pairs:
@@ -637,7 +643,7 @@ def gate_dp1_dual_panel_preflight(pairs, project_root="/workspaces/aig-rlic-plus
     return failures
 
 
-def gate_viz_nber2_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+def gate_viz_nber2_preflight(pairs, project_root=None):
     """GATE-VIZ-NBER2 (Wave 10K, 2026-04-24): Episode-window-aware NBER shading check.
 
     Pure JSON preflight — no browser needed.  Runs alongside GATE-DP1.
@@ -681,6 +687,7 @@ def gate_viz_nber2_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
       failures : GATE-VIZ-NBER2 FAIL items (missing shading in recession window)
       warnings : GATE-VIZ-NBER2 WARN items (spurious shading in non-recession window)
     """
+    project_root = project_root or _REPO_ROOT
     import glob as _glob
     from datetime import date
 
@@ -784,7 +791,7 @@ def gate_viz_nber2_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
     return failures, warnings
 
 
-def gate27_perceptual_png_preflight(pairs, project_root="/workspaces/aig-rlic-plus"):
+def gate27_perceptual_png_preflight(pairs, project_root=None):
     """GATE-27 extension (D4, Wave 10J): assert perceptual-check PNGs are committed.
 
     For every pair, Vera is required to commit a kaleido-rendered PNG at
@@ -798,6 +805,7 @@ def gate27_perceptual_png_preflight(pairs, project_root="/workspaces/aig-rlic-pl
 
     Returns: list of failure dicts (empty = all pairs have ≥1 PNG committed).
     """
+    project_root = project_root or _REPO_ROOT
     import subprocess
     failures_out = []
     for pair_id in pairs:
