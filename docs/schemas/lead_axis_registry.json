@@ -726,7 +726,7 @@
       "position_shift": 0,
       "lead_floor_effective": 2,
       "release_calendar_series": "UNRATE",
-      "alignment": "fixed_lag",
+      "alignment": "pit_asof",
       "value_vintage": "revised_alfred",
       "track_policy": "compute_twice"
     },

@@ -1,8 +1,55 @@
-"""UNRATE x SPY pair configuration (Rule APP-PT1)."""
+"""UNRATE x SPY pair configuration (Rule APP-PT1).
+
+Phase B: every result number is rendered from the structured winner fields (results/unrate_spy/winner_summary.json
+`winner_fields`, via components.winner_fields) or from the evidence CSVs; none is typed here
+(scripts/gate_structured_prose.py). MAIN = as known at the time (real-time UNRATE vintages);
+COMPARISON = as revised today (hindsight).
+"""
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
+import pandas as pd
+
 from components.page_templates import MethodologyConfig
+from components.winner_fields import load
+
+W = load("unrate_spy")
+_RES = Path(__file__).resolve().parents[2] / "results" / "unrate_spy"
+_WS = json.loads((_RES / "winner_summary.json").read_text())
+_TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+_Q = pd.read_csv(_RES / "regime_quartile_returns.csv").set_index("quartile")["sharpe"].to_dict()
+_QR = pd.read_csv(_RES / f"core_models_{_TAG}" / "quantile_regression.csv").set_index("quantile")["coef"].to_dict()
+_QT = json.loads((_RES / f"core_models_{_TAG}" / "quantile_equality_test.json").read_text())
+_G_MIN_P = float(pd.read_csv(_RES / "granger_by_lag.csv")["p_value"].min())
+
+THRESHOLD_TEXT = {
+    "T_roll_p75": "its rolling 60-month 75th percentile", "T_roll_p90": "its rolling 60-month 90th percentile",
+    "T_roll_p25": "its rolling 60-month 25th percentile", "T0_zero": "zero", "T_z_1.0": "a z-score of 1.0",
+    "T_sahm_0.5": "the Sahm-rule level of 0.5",
+}
+SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
+
+
+def _low(text: str) -> str:
+    """Sentence-case a display name inside a sentence (proper nouns such as Sahm keep their capital)."""
+    return text if text.startswith("Sahm") else text[:1].lower() + text[1:]
+
+
+def _rule(prefix: str = "") -> str:
+    """Plain-English rule of a track's winner, from its structured fields."""
+    g = lambda n: getattr(W, prefix + n)  # noqa: E731
+    return (f"hold SPY when the {_low(g('signal_display'))} from {g('lead_word')} months earlier is "
+            f"{SIDE.get(W.value(prefix + 'direction'), g('direction'))} {THRESHOLD_TEXT.get(g('threshold_code'), g('threshold_code'))}; "
+            "otherwise hold cash")
+
+
+_RULE = _rule()
+_RULE_REVISED = _rule("comparison_")
+_SAME_RULE = W.value("signal_code") == W.value("comparison_signal_code") and W.value("lead") == W.value("comparison_lead") \
+    and W.value("threshold_code") == W.value("comparison_threshold_code")
 
 
 class StoryConfig:
@@ -13,8 +60,8 @@ class StoryConfig:
     )
 
     HEADLINE_H2 = (
-        "## Sharpe 1.55 OOS: the searched rule holds SPY after labor-market "
-        "stress has already moved through the cycle"
+        f"## Test-period Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, "
+        "using unemployment data as known at the time"
     )
 
     PLAIN_ENGLISH = (
@@ -23,7 +70,8 @@ class StoryConfig:
         "This pair tests whether unemployment level and change signals can "
         "improve SPY timing. Because unemployment is usually lagging, the "
         "result should be read as regime context, not as an early recession "
-        "alarm."
+        "alarm. The headline uses the unemployment figures that were published "
+        "at each date, not today's revised figures."
     )
 
     WHERE_THIS_FITS = (
@@ -33,15 +81,14 @@ class StoryConfig:
     )
 
     ONE_SENTENCE_THESIS = (
-        "SPY timing improves in the searched sample when the 6-month change "
-        "in unemployment is filtered through a 9-month lag, but the economics "
-        "are lagging and regime-dependent."
+        f"On data as known at the time, the rule selected on the training period is to {_RULE}; in the "
+        f"test period it scored Sharpe {W.oos_sharpe} against {W.bh_oos_sharpe} for buy-and-hold."
     )
 
     KPI_CAPTION = (
-        "the search-phase OOS winner uses the 6-month change in UNRATE, a "
-        "rolling 60-month 75th percentile threshold, and a 9-month lead. It "
-        "earns Sharpe 1.55 versus 0.99 for buy-and-hold."
+        f"Winner selected on training data ({W.is_start} to {W.is_end}) by {W.selection_objective}: "
+        f"{W.signal_display}, {W.threshold_code}, lead {W.lead_text}. Test-period Sharpe {W.oos_sharpe} versus "
+        f"{W.bh_oos_sharpe} for buy-and-hold ({W.oos_start} to {W.oos_end})."
     )
 
     HERO_TITLE = "U.S. Unemployment Rate vs the S&P 500 (SPY)"
@@ -57,24 +104,28 @@ class StoryConfig:
     REGIME_CAPTION = (
         "What this shows: months are sorted from Q1, the lowest unemployment "
         "regime, to Q4, the highest unemployment regime. In this sample, "
-        "higher UNRATE quartiles have higher forward SPY Sharpe, which fits "
+        "higher UNRATE quartiles have higher same-month SPY Sharpe, which fits "
         "a lagging-cycle or recovery setup more than a clean warning signal."
     )
 
-    NARRATIVE_SECTION_1 = """
+    NARRATIVE_SECTION_1 = f"""
 ### Headline Findings
 
-The winning strategy is a **6-month unemployment-change rule**. It looks at the 6-month change in UNRATE, waits nine months before applying the signal, and holds SPY only when the lagged signal is above its rolling 60-month 75th percentile threshold. Out-of-sample, this rule earns a Sharpe ratio of 1.55 versus 0.99 for buy-and-hold, with maximum drawdown of -9.8% versus -23.9%.
+This result uses data as known at the time, covering {W.is_start} to {W.oos_end}: every month the rule reads the unemployment rate as it was published then, not today's revised figures.
+
+The winning rule is a **{_low(W.signal_display)} rule**. It reads that signal from {W.lead_word} months earlier and holds SPY only when it is {SIDE.get(W.value("direction"), W.direction)} {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}; otherwise it holds cash. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations. In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
+
+On today's revised data (hindsight, for comparison only) the selected rule is to {_RULE_REVISED}; its test-period Sharpe is {W.comparison_oos_sharpe}.
 
 ### The Labor-Market Hypothesis
 
 The unemployment rate is one of the clearest indicators of economic stress, but it usually moves late. Companies tend to cut jobs after demand has already slowed, and unemployment can keep rising after markets have started to recover.
 
-That makes the hypothesis different from a classic leading indicator. A rising unemployment signal may identify a stressed regime, but the best equity opportunity can arrive after the stress is visible and policy or market expectations have already adjusted. The selected 9-month lag supports that interpretation: the rule is not buying the first unemployment uptick; it is acting after the signal has aged.
+That makes the hypothesis different from a classic leading indicator. A rising unemployment signal may identify a stressed regime, but the best equity opportunity can arrive after the stress is visible and policy or market expectations have already adjusted.
 
 ### Why Timing Is Difficult
 
-UNRATE can stay elevated while SPY rallies. It can also rise sharply during recessions, when equity risk is still high. This dashboard therefore treats the pair as a searched labor-cycle overlay. The result is useful because the backtest found a smoother long/cash path, but the economics should not be overstated as direct causality.
+UNRATE can stay elevated while SPY rallies. It can also rise sharply during recessions, when equity risk is still high. This dashboard therefore treats the pair as a searched labor-cycle overlay; the economics should not be overstated as direct causality.
 """
 
     HISTORY_ZOOM_EPISODES = [
@@ -180,12 +231,10 @@ GRANGER_BLOCK = dict(
     ),
     chart_name="granger_f_by_lag",
     chart_caption=(
-        "What this shows: UNRATE-to-SPY p-values are not significant at lags "
-        "1-5 in the generated table."
+        f"What this shows: the smallest UNRATE-to-SPY Granger p-value across lags 1-12 is {_G_MIN_P:.2f}."
     ),
     observation=(
-        "The generated Granger table shows weak UNRATE-to-SPY evidence across "
-        "lags 1-5."
+        f"The Granger table shows no UNRATE-to-SPY lag with p below {_G_MIN_P:.2f}."
     ),
     interpretation=(
         "This prevents a strong causal claim. The strategy should be framed "
@@ -210,11 +259,12 @@ QUARTILE_BLOCK = dict(
     ),
     chart_name="regime_stats",
     chart_caption=(
-        "What this shows: Q4 has the highest forward SPY Sharpe in this "
-        "sample, followed by Q3, Q2, then Q1."
+        f"What this shows: concurrent SPY Sharpe by unemployment quartile, from {_Q['Q1']:.2f} in Q1 (lowest "
+        f"unemployment) to {_Q['Q4']:.2f} in Q4 (highest)."
     ),
     observation=(
-        "Forward SPY Sharpe rises from about 0.56 in Q1 to 0.93 in Q4."
+        f"SPY Sharpe in the same months rises from {_Q['Q1']:.2f} in Q1 to {_Q['Q4']:.2f} in Q4 "
+        f"(Q2 {_Q['Q2']:.2f}, Q3 {_Q['Q3']:.2f})."
     ),
     interpretation=(
         "This is consistent with a lagging-cycle setup: by the time "
@@ -262,7 +312,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     question="How does SPY respond after the unemployment rate changes?",
     how_to_read=(
         "Each point is an estimated future SPY response after a one-unit move "
-        "in the 6-month UNRATE change signal. Confidence bands show estimation "
+        "in the 3-month UNRATE change signal. Confidence bands show estimation "
         "uncertainty."
     ),
     chart_name="local_projections",
@@ -296,51 +346,44 @@ QUANTILE_BLOCK = dict(
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: real quantile-regression slopes swing widely across the "
-        "distribution -- large and negative in the lower (deep-selloff) tail "
-        "(-0.022 at tau=0.10, p=0.02), positive in the middle (+0.008 at tau=0.50, "
-        "p=0.04). But the tails are imprecisely estimated and a cross-quantile "
-        "equality test does NOT reject a uniform slope (Wald p=0.54)."
+        f"What this shows: quantile-regression slopes of 3-month forward SPY returns on the 3-month UNRATE change: "
+        f"{_QR[0.1]:+.3f} at tau=0.10 and {_QR[0.5]:+.3f} at tau=0.50; a cross-quantile equality test does "
+        f"{'not ' if not _QT['reject_equality'] else ''}reject a uniform slope (Wald p={_QT['p_value']:.2f})."
     ),
     observation=(
-        "Individual quantile slopes vary in sign, but the bootstrap Wald test "
-        "does not reject slope equality across quantiles (p=0.54): the tail "
-        "estimates carry wide confidence intervals, so the apparent swings are "
-        "not statistically distinguishable from a single constant effect."
+        f"Individual quantile slopes vary in sign, and the bootstrap Wald test "
+        f"{'does not reject' if not _QT['reject_equality'] else 'rejects'} slope equality across quantiles "
+        f"(p={_QT['p_value']:.2f}); the tail estimates carry wide confidence intervals."
     ),
     interpretation=(
-        "The honest reading is that UNRATE's association with SPY is imprecisely "
-        "estimated across quantiles -- the point estimates hint at state-"
-        "dependence, but the data do not confirm tail asymmetry (Wald p=0.54). "
-        "This is weaker than a plausibility argument would suggest and should not "
-        "be read as an established regime effect."
+        "The point estimates hint at state-dependence, but tail asymmetry is only established if the equality "
+        "test rejects; read the slopes as imprecise."
     ),
-    key_message="UNRATE's per-quantile SPY slopes swing but are imprecise; a formal test cannot confirm tail asymmetry (Wald p=0.54).",
+    key_message=f"UNRATE's per-quantile SPY slopes are imprecise (cross-quantile equality Wald p={_QT['p_value']:.2f}).",
 )
 
 
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: UNRATE Is Useful, but Mostly as Lagging Regime Context",
     "overview": (
-        "The evidence supports a cautious labor-cycle overlay. The strategy "
-        "winner improves search-phase OOS Sharpe, but formal lead-lag evidence "
-        "is weak and the indicator is economically lagging."
+        "The evidence supports a cautious labor-cycle overlay at most. Formal lead-lag evidence is weak and the "
+        f"indicator is economically lagging; the selected rule's test-period Sharpe is {W.oos_sharpe} versus "
+        f"{W.bh_oos_sharpe} for buy-and-hold on data as known at the time."
     ),
     "plain_english": (
         "This page asks whether the unemployment rate helps with SPY timing. "
-        "The answer is: partly. The best rule uses a delayed unemployment "
-        "change, so it should be treated as a regime and recovery signal, not "
-        "as an early warning system."
+        "The selected rule uses a delayed unemployment signal, so it should be "
+        "treated as a regime and recovery signal, not as an early warning system."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
-        "The tournament tested 294 valid strategy combinations across seven "
-        "UNRATE transforms, fixed and rolling thresholds, and leads from 0 to "
-        "12 months. The selected winner is `unrate_6m_chg / T_roll_p75 / "
-        "P1_long_cash / L9`."
+        f"The tournament tested {W.n_candidates} strategy combinations ({W.n_valid} valid on the training period) "
+        "across seven UNRATE transforms, fixed and rolling thresholds, both orientations and the lead grid "
+        f"L2-L13 months, on data as known at the time. The selected winner is `{W.signal_code} / {W.threshold_code} / "
+        f"{W.strategy_family} / L{W.lead}`, chosen on the training period by {W.selection_objective}."
     ),
     "transition": (
         "**Transition:** the evidence is useful but not causal. The Strategy "
@@ -352,47 +395,46 @@ EVIDENCE_METHOD_BLOCKS = {
 class StrategyConfig:
     PAGE_TITLE = "The Strategy: A Lagged UNRATE Long/Cash Overlay"
     PAGE_SUBTITLE = (
-        "A searched SPY allocation rule using the 6-month change in UNRATE, "
-        "a rolling 75th percentile threshold, and a 9-month lead."
+        f"A searched SPY allocation rule: {_low(W.signal_display)}, {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)} "
+        f"threshold, lead {W.lead_text}, on unemployment data as known at the time."
     )
 
     PLAIN_ENGLISH = (
-        "The rule holds SPY when the 6-month change in unemployment from nine "
-        "months earlier is above its rolling threshold. Otherwise it holds "
-        "cash. This is a lagged labor-cycle rule, not a real-time recession "
-        "forecast."
+        f"The rule is to {_RULE}. This is a lagged labor-cycle rule, not a real-time recession forecast."
     )
 
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/unrate_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/unrate_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/unrate_spy/tournament_results_20261016.csv"},
-        {"label": "Stationarity tests", "path": "results/unrate_spy/stationarity_tests_20261016.csv"},
+        {"label": "Tournament results (as known at the time)", "path": f"results/unrate_spy/tournament_results_{_TAG}.csv"},
+        {"label": "Tournament results (as revised today, hindsight)",
+         "path": f"results/unrate_spy/hindsight_tournament_results_{_TAG}.csv"},
+        {"label": "Stationarity tests", "path": f"results/unrate_spy/stationarity_tests_{_TAG}.csv"},
     ]
 
-    SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the lagged 6-month change in UNRATE is above its rolling 60-month 75th percentile threshold; otherwise hold cash.
+    SIGNAL_RULE_MD = f"""
+**Rule in plain English:** {_RULE}.
 
 If-then form:
-- **IF** `unrate_6m_chg` from 9 months earlier is above the rolling 75th percentile threshold -> hold SPY.
+- **IF** `{W.signal_code}` from {W.lead_word} months earlier is {SIDE.get(W.value("direction"), W.direction)} {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)} -> hold SPY.
 - **ELSE** -> hold cash.
 
-Search-phase OOS results (2017-01-31 to 2026-06-30): Sharpe 1.55 versus 0.99 buy-and-hold; annualized return 13.0% versus 15.4%; maximum drawdown -9.8% versus -23.9%; 25 OOS trades; annual turnover 2.65.
+Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} test-period trades; annual turnover {W.annual_turnover}.
 """
 
-    HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads the U.S. unemployment rate (`UNRATE`) and converts it to month-end observations. Second, it computes the 6-month change in the unemployment rate. Third, it applies a 9-month lag before the SPY allocation is set. Finally, the lagged signal is compared with a rolling 60-month 75th percentile threshold.
+    HOW_SIGNAL_IS_GENERATED_MD = f"""
+First, at each month end the process takes the unemployment rate (`UNRATE`) as it was published on that date (the ALFRED vintage visible when the month's return window opens). Second, inside that vintage it computes the {_low(W.signal_display)} and its threshold. Third, it uses the reading from {W.lead_word} months earlier. Finally, the reading is compared with {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}.
 
-OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualized out-of-sample return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of out-of-sample months with positive strategy return.
+OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of test-period months with positive strategy return.
 """
 
-    MANUAL_USE_MD = """
+    MANUAL_USE_MD = f"""
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
-1. Read UNRATE at month end.
-2. Compute the 6-month change in UNRATE.
-3. Compare the value from 9 months earlier with its rolling 60-month 75th percentile threshold.
-4. Hold SPY when the lagged signal is above the threshold; otherwise hold cash.
+1. At month end, read UNRATE as currently published.
+2. Compute the {_low(W.signal_display)} from that published series.
+3. Take its value from {W.lead_word} months earlier and compare it with {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}.
+4. Hold SPY when the reading is {SIDE.get(W.value("direction"), W.direction)} the threshold; otherwise hold cash.
 5. Recheck monthly.
 """
 
@@ -403,12 +445,11 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     WALK_FORWARD_CAPTION = (
         "What this shows: Sharpe is return per unit of volatility. The "
         "subperiod chart compares the searched rule with buy-and-hold SPY "
-        "during major stress windows. The rule reduces damage in several "
-        "periods, but it is not designed to make every crisis profitable."
+        "during major stress windows. It is not designed to make every crisis profitable."
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (
-            "How to read it: the indicator is the 6-month change in the U.S. "
+            "How to read it: the indicator is the 3-month change in the U.S. "
             "unemployment rate; the target is SPY returns. The rolling "
             "correlation tests whether their linear relationship is stable "
             "through time. Large swings mean the strategy needs rolling "
@@ -424,24 +465,24 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     SHOW_TOURNAMENT_SCATTER = True
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: OOS Sharpe distribution across valid searched "
-        "strategy combinations, with the selected rule highlighted as the "
-        "best search-phase result."
+        "What this shows: test-period Sharpe distribution across valid searched strategy combinations by lead "
+        "(data as known at the time). The winner is chosen on the training period, not on this test-period score."
     )
 
-    CAVEATS_MD = """
+    CAVEATS_MD = f"""
 **Main caveats:**
 
 1. UNRATE is lagging; it often confirms stress after markets have already moved.
 2. Granger causality is weak in the generated test results, so this is not a proven causal forecast.
 3. The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
-4. SPY price sourcing can fall back to an existing local monthly panel if the live Yahoo Finance call is rate-limited.
+4. The headline uses unemployment data as known at the time (ALFRED vintages). On today's revised data the selected rule {'is the same' if _SAME_RULE else 'is different'} (test-period Sharpe {W.comparison_oos_sharpe}, hindsight).
+5. The unemployment rate for October 2025 was never published (federal shutdown); the rule uses the latest published reading in that month.
 """
 
     TRADE_LOG_EXAMPLE_MD = (
         "**A concrete example from this pair:** the broker-style log records a "
-        "BUY when the lagged 6-month UNRATE-change signal moves above its "
-        "rolling 75th percentile threshold, taking exposure from 0% to 100% "
+        f"BUY when the {_low(W.signal_display)} reading moves {SIDE.get(W.value('direction'), W.direction)} "
+        f"{THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}, taking exposure from 0% to 100% "
         "SPY. A SELL moves back to cash when the condition no longer holds."
     )
 
@@ -451,7 +492,7 @@ This describes the backtested rule so it can be audited; it is not a trading rec
         "instrument": "SPY",
         "quantity_pct": "100.0",
         "commission_bps": "5",
-        "reason": "P1_long_cash: lagged unrate_6m_chg above rolling p75; position 0% to 100%",
+        "reason": f"{W.strategy_family}: {W.signal_code} {SIDE.get(W.value('direction'), W.direction)} {W.threshold_code}; position 0% to 100%",
     }
 
 
@@ -461,17 +502,20 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = """
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator | FRED | `UNRATE`, civilian unemployment rate | Monthly |
-| Target | Yahoo Finance or local SPY monthly fallback panel | SPY adjusted close / monthly returns | Monthly |
+| Indicator (as known at the time) | ALFRED (FRED vintages, pinned in data/release_calendar/vintages/UNRATE.csv.gz) | `UNRATE`, civilian unemployment rate, every published vintage | Monthly |
+| Indicator (as revised today) | FRED (latest vintage of the same file) | `UNRATE` | Monthly |
+| Release dates | data/release_calendar/release_calendar.csv | first publication date per month | Monthly |
+| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
 """
 
 _INDICATOR_CONSTRUCTION_MD = (
     "The raw indicator is the U.S. civilian unemployment rate, in percent. "
     "The pipeline constructs one-month, three-month, six-month, and "
-    "twelve-month changes; a 60-month rolling z-score; a Sahm-style labor "
-    "stress measure; and a recession-style labor stress flag. The winning "
-    "signal is `unrate_6m_chg`, the 6-month change in unemployment, used with "
-    "a 9-month lead and a rolling 60-month 75th percentile threshold."
+    "twelve-month changes; a 60-month rolling z-score; and a Sahm-style labor "
+    "stress measure. On the as-known-at-the-time track every signal and rolling threshold is recomputed inside "
+    "the vintage published when each month's return window opens. "
+    f"The winning signal is `{W.signal_code}` ({_low(W.signal_display)}), used with a lead of {W.lead_text} and "
+    f"{THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)} as threshold."
 )
 
 _METHODS_TABLE_MD = """
@@ -484,18 +528,27 @@ _METHODS_TABLE_MD = """
 | Local projections | How does SPY respond over future horizons? | Shows horizon-specific effects |
 | Quantile regression | Is the effect different in weak or strong market states? | Tests tail and regime sensitivity |
 | Structural break / rolling correlation | Is the relationship stable across time? | Durability and overfit guard |
+| Lead-plateau selection (D9) | Is the chosen lead part of a stable range rather than an isolated peak? | Guards against picking a lucky single lead |
+| Chance check (null tournament) | How does the winner compare with contests run on scrambled signals? | Measures how much selection alone can produce |
+| Paired block bootstrap | How uncertain is the Sharpe difference versus buy-and-hold? | Interval for the headline comparison |
 """
 
-_TOURNAMENT_DESIGN_MD = """
-Grid: UNRATE transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x lead times. The final tournament has 294 valid strategy combinations. The winning rule is `unrate_6m_chg / T_roll_p75 / P1_long_cash / L9`.
+_TOURNAMENT_DESIGN_MD = f"""
+Grid: UNRATE transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x leads L2-L13 months ({W.n_candidates} combinations, {W.n_distinct} distinct position series). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
+
+- As known at the time (headline): `{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe}, test-period Sharpe {W.oos_sharpe}. The single highest training Sharpe on this track (lead L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is an isolated-peak sensitivity row, not the selection rule.
+- As revised today (hindsight): `{W.comparison_signal_code} / {W.comparison_threshold_code} / L{W.comparison_lead}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.
+- Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
+- Chance check: across {W.null_draws} contests run on circularly shifted unemployment data, the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores.
 """
 
 _REFERENCES_MD = """
-1. Federal Reserve Economic Data (FRED), `UNRATE`, Civilian Unemployment Rate.
+1. Federal Reserve Bank of St. Louis, ALFRED / FRED `UNRATE`, Civilian Unemployment Rate (all vintages).
 2. Yahoo Finance, SPY adjusted price history.
 3. Sahm, C. (2019). "Direct Stimulus Payments to Individuals."
 4. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods."
 5. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections."
+6. Politis, D. N., and Romano, J. P. (1994). "The Stationary Bootstrap."
 """
 
 METHODOLOGY_CONFIG = MethodologyConfig(
@@ -505,13 +558,13 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "Monthly sample from 1993-01-31 to 2026-06-30, with out-of-sample "
-        "window 2017-01-31 to 2026-06-30. SPY history limits the usable "
-        "sample even though UNRATE begins earlier."
+        f"Monthly sample; training period {W.is_start} to {W.is_end} and test period {W.oos_start} to "
+        f"{W.oos_end} on data as known at the time. SPY history limits the usable sample even though UNRATE "
+        "begins earlier."
     ),
     plain_english=(
         "This page documents how UNRATE was turned into testable signals, "
         "how the econometric checks were run, and how the tournament selected "
-        "the final SPY allocation rule."
+        "the final SPY allocation rule on each data track."
     ),
 )

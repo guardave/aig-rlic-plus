@@ -1,0 +1,13 @@
+{
+  "chart_name": "lead_plateau",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-10-17T12:13:20.040964+00:00",
+  "generated_by": "scripts/harness/charts.py",
+  "caption": "The winner L5 sits in a stable range L4-L6.",
+  "narrative_alignment_note": "The winner L5 sits in a stable range L4-L6.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/unrate_spy/lead_curve_20261017.csv",
+    "results/unrate_spy/hindsight_lead_curve_20261017.csv"
+  ]
+}

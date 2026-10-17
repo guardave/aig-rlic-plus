@@ -20,7 +20,7 @@ from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 from _ci_band import ci95_halfwidth  # noqa: E402
 
 PAIR = "unrate_spy"
-DATE_TAG = "20261016"
+DATE_TAG = "20261017"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -233,10 +233,10 @@ def chart_quantile() -> None:
 def chart_equity_drawdown() -> None:
     strat = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv", parse_dates=["date"]).set_index("date")
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=strat.index, y=strat["strategy_equity"], name="Winner strategy", line=dict(color=C_STRAT, width=2)))
+    fig.add_trace(go.Scatter(x=strat.index, y=strat["strategy_equity"], name="Winner strategy (as known at the time)", line=dict(color=C_STRAT, width=2)))
     fig.add_trace(go.Scatter(x=strat.index, y=strat["benchmark_equity"], name="Buy-and-hold SPY", line=dict(color=C_BENCH, width=2, dash="dash")))
     fig.update_layout(title="Equity Curve: UNRATE Strategy vs SPY", yaxis_title="Growth of $1", template="plotly_white", height=460)
-    save("equity_curves", fig, "Winner strategy equity curve compared with buy-and-hold SPY.", [str(RES / f"strategy_returns_{DATE_TAG}.csv")])
+    save("equity_curves", fig, "Winner strategy (as known at the time: real-time UNRATE vintages) equity curve compared with buy-and-hold SPY.", [str(RES / f"strategy_returns_{DATE_TAG}.csv")])
 
     dd = pd.DataFrame(index=strat.index)
     dd["strategy"] = strat["strategy_equity"] / strat["strategy_equity"].cummax() - 1
@@ -245,7 +245,7 @@ def chart_equity_drawdown() -> None:
     fig2.add_trace(go.Scatter(x=dd.index, y=dd["strategy"] * 100, name="Winner strategy", line=dict(color=C_STRAT, width=2)))
     fig2.add_trace(go.Scatter(x=dd.index, y=dd["benchmark"] * 100, name="Buy-and-hold SPY", line=dict(color=C_BENCH, width=2, dash="dash")))
     fig2.update_layout(title="Drawdown Comparison", yaxis_title="Drawdown (%)", template="plotly_white", height=430)
-    save("drawdown", fig2, "Drawdown comparison for the winner strategy and SPY buy-and-hold.", [str(RES / f"strategy_returns_{DATE_TAG}.csv")])
+    save("drawdown", fig2, "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold.", [str(RES / f"strategy_returns_{DATE_TAG}.csv")])
 
 
 def chart_tournament() -> None:
@@ -253,7 +253,7 @@ def chart_tournament() -> None:
     valid = t[(t["valid"]) & (t["signal"] != "BENCHMARK")]
     fig = go.Figure(go.Box(x=valid["lead_months"].astype(str), y=valid["oos_sharpe"], name="Valid strategies", marker_color=C_IND))
     fig.update_layout(title="Tournament Sharpe Distribution by Lead", xaxis_title="Lead (months)", yaxis_title="OOS Sharpe", template="plotly_white", height=450)
-    save("tournament_sharpe_dist", fig, "Distribution of OOS Sharpe across valid tournament strategies by lead.", [str(RES / f"tournament_results_{DATE_TAG}.csv")])
+    save("tournament_sharpe_dist", fig, "Distribution of OOS Sharpe across valid tournament strategies by lead (as known at the time; the winner is chosen on training data, not on this OOS score).", [str(RES / f"tournament_results_{DATE_TAG}.csv")])
     save("tournament_scatter", fig, "Alias for tournament scatter slot.", [str(RES / f"tournament_results_{DATE_TAG}.csv")])
 
 

@@ -94,9 +94,9 @@ def target_return(index: pd.DatetimeIndex):
 
 
 def legacy_panel() -> tuple[pd.DataFrame, pd.Series]:
-    """The published pipeline's own panel (data/unrate_spy_monthly_latest.parquet, tracked) and its returns."""
-    from harness.data import REPO
-    df = pd.read_parquet(REPO / "data" / "unrate_spy_monthly_latest.parquet")
+    """The published 20261016 pipeline's own panel (pinned copy of data/unrate_spy_monthly_latest.parquet as it
+    was then: 1993-2026 without the unpublished 2025-10 row) and its returns."""
+    df = load_pinned("unrate_spy_monthly_legacy_20261016.csv")
     return df[["unrate"]], df["spy_ret"]
 
 

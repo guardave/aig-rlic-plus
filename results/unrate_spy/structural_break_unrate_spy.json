@@ -1,5 +1,5 @@
 {
   "pair_id": "unrate_spy",
   "method": "rolling-correlation z-score proxy",
-  "max_abs_z": 3.5823099708876325
+  "max_abs_z": 3.6095795050135764
 }

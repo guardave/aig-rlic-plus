@@ -1,0 +1,13 @@
+{
+  "chart_name": "chance_check",
+  "pair_id": "unrate_spy",
+  "generated_at": "2026-10-17T12:13:20.068799+00:00",
+  "generated_by": "scripts/harness/charts.py",
+  "caption": "Real winner ranks at the 100th percentile of 100 scrambled-signal contests.",
+  "narrative_alignment_note": "Real winner ranks at the 100th percentile of 100 scrambled-signal contests.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/unrate_spy/null_tournament_20261017.csv",
+    "results/unrate_spy/track_summary.json"
+  ]
+}

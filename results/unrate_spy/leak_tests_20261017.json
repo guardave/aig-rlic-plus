@@ -1,0 +1,361 @@
+{
+  "pair_id": "unrate_spy",
+  "tag": "20261017",
+  "replay": {
+    "pair_id": "unrate_spy",
+    "legacy_tag": "20261016",
+    "n_rows_harness": 504,
+    "n_rows_published": 504,
+    "tolerance": 1e-06,
+    "columns": {
+      "is_sharpe": {
+        "max_abs_diff": 1.3322676295501878e-15,
+        "pass": true
+      },
+      "oos_sharpe": {
+        "max_abs_diff": 2.55351295663786e-15,
+        "pass": true
+      },
+      "is_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "oos_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "is_exposure": {
+        "max_abs_diff": 8.326672684688674e-17,
+        "pass": true
+      },
+      "n_trades": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      }
+    },
+    "same_candidate_rows_in_order": true,
+    "valid_flags_equal": true,
+    "common_is_start_equal": true,
+    "winner": {
+      "harness": "chg_6m|T_roll_p75|P1|countercyclical|4",
+      "published": "chg_6m|T_roll_p75|countercyclical|4",
+      "match": true
+    },
+    "strategy_return": {
+      "rows": 404,
+      "max_abs_diff": 9.71445146547012e-17,
+      "pass": true
+    },
+    "pass": true
+  },
+  "tracks": {
+    "main": {
+      "candidate": "sahm|T_roll_p75|P1|countercyclical|5",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2017-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 289,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 289,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2021-11-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 347,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 347,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2025-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2001-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 97,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 97,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2009-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 193,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 193,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    },
+    "comparison": {
+      "candidate": "sahm|T_roll_p75|P1|countercyclical|7",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2017-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 289,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 289,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2021-11-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 347,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 347,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2025-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2001-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 97,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 97,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2009-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 193,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 193,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    }
+  },
+  "null": {
+    "main": {
+      "n_draws": 100,
+      "method": "circular shift of the raw input (revised/market) or vintage block (real-time); same selection rule; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 0.97,
+      "p_is": 0.03,
+      "selection_stat_percentile": 1.0,
+      "p_selection_stat": 0.0,
+      "winner_oos_percentile": 0.18,
+      "p_oos": 0.82,
+      "null_is_max_p5_p50_p95": [
+        0.8275,
+        0.9474,
+        1.0916
+      ],
+      "null_winner_oos_median": 0.6792,
+      "edge_share": 0.15,
+      "edge_share_uniform": 0.1667,
+      "edge_share_bound": 0.2785,
+      "edge_flag": false,
+      "timing_sharpe_mean": -0.0157,
+      "timing_sharpe_sd": 0.2142,
+      "r71_pass": true,
+      "null_scores_hist": {
+        "bins": [
+          0.6691,
+          0.6845,
+          0.6999,
+          0.7153,
+          0.7307,
+          0.7462,
+          0.7616,
+          0.777,
+          0.7924,
+          0.8078,
+          0.8232,
+          0.8386,
+          0.854,
+          0.8694,
+          0.8848,
+          0.9002,
+          0.9156,
+          0.931,
+          0.9464,
+          0.9618,
+          0.9772
+        ],
+        "counts": [
+          2,
+          5,
+          6,
+          3,
+          8,
+          3,
+          1,
+          5,
+          14,
+          1,
+          4,
+          8,
+          4,
+          11,
+          4,
+          2,
+          8,
+          2,
+          4,
+          5
+        ]
+      }
+    },
+    "comparison": {
+      "n_draws": 100,
+      "method": "circular shift of the raw input (revised/market) or vintage block (real-time); same selection rule; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 0.93,
+      "p_is": 0.07,
+      "selection_stat_percentile": 0.92,
+      "p_selection_stat": 0.08,
+      "winner_oos_percentile": 0.06,
+      "p_oos": 0.94,
+      "null_is_max_p5_p50_p95": [
+        0.8479,
+        0.9895,
+        1.1374
+      ],
+      "null_winner_oos_median": 0.8892,
+      "edge_share": 0.21,
+      "edge_share_uniform": 0.1667,
+      "edge_share_bound": 0.2785,
+      "edge_flag": false,
+      "timing_sharpe_mean": 0.1218,
+      "timing_sharpe_sd": 0.1765,
+      "r71_pass": false,
+      "null_scores_hist": {
+        "bins": [
+          0.6845,
+          0.7048,
+          0.725,
+          0.7453,
+          0.7655,
+          0.7857,
+          0.806,
+          0.8262,
+          0.8465,
+          0.8667,
+          0.887,
+          0.9072,
+          0.9274,
+          0.9477,
+          0.9679,
+          0.9882,
+          1.0084,
+          1.0287,
+          1.0489,
+          1.0691,
+          1.0894
+        ],
+        "counts": [
+          1,
+          2,
+          0,
+          9,
+          6,
+          12,
+          3,
+          6,
+          18,
+          5,
+          2,
+          11,
+          4,
+          6,
+          7,
+          4,
+          0,
+          0,
+          3,
+          1
+        ]
+      }
+    }
+  }
+}
