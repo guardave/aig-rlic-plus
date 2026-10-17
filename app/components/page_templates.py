@@ -66,6 +66,7 @@ from components.probability_engine_panel import render_probability_engine_panel
 from components.pair_registry import get_page_prefix
 from components.sidebar import render_sidebar
 from components.signal_universe_table import render_signal_universe
+from components import two_track  # Phase B two-track display; renders only when track_summary.json exists
 
 
 # ---------------------------------------------------------------------------
@@ -1331,6 +1332,13 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     # Rolling Granger caption in the pre-relocation block; that caption is
     # carried into _render_cross_period_section.
 
+    # ------ Phase B: lead robustness + chance check (design sections 6, 8) ------
+    _ts = two_track.load_track_summary(pair_id)
+    if _ts:
+        st.markdown("---")
+        two_track.render_lead_plateau(pair_id, _ts, _load_winner_summary(pair_id) or {})
+        two_track.render_chance_check(pair_id, _ts)
+
     # ------ Tournament pointer ------
     st.markdown("---")
     st.markdown("### The Combinatorial Tournament")
@@ -1448,6 +1456,10 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     st.markdown(
         f"*{getattr(config, 'PAGE_SUBTITLE', 'We tested many combinations to find the most robust timing rule.')}*"
     )
+    # Phase B two-track display (design section 2): data-basis strip under the title, driven by track_state.
+    _ts = two_track.load_track_summary(pair_id)
+    if _ts:
+        two_track.render_data_basis_strip(_ts)
     st.markdown("---")
 
     # ------ 6b. Statistical framing banner (fix260703 #183) ------
@@ -1501,6 +1513,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     )
     with st.container(border=True):
         st.markdown(signal_rule)
+    if _ts:
+        two_track.render_chips(_ts, winner)
 
     how_signal = getattr(config, "HOW_SIGNAL_IS_GENERATED_MD", None)
     if how_signal:
@@ -1542,6 +1556,11 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
             )
         _render_kpi_routing_disclosure(pair_id, _kpi_routing)
 
+    if _ts:   # design section 3: the headline is MAIN, labelled with its data basis
+        _headline_sharpe_label = {"both": "Test-period Sharpe (as known at the time)",
+                                  "single_market": "Test-period Sharpe (market data)",
+                                  "single_no_archive": "Test-period Sharpe (as revised today)"}.get(
+                                      _ts["track_state"], _headline_sharpe_label)
     kpi_row([
         {"label": _headline_sharpe_label, "value": oos_sharpe,
          "delta": _headline_sharpe_delta,
@@ -1563,6 +1582,9 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
              winner.get('oos_win_rate') if winner.get('oos_win_rate') is not None
              else winner.get('win_rate'))},
     ])
+    if _ts:
+        two_track.render_kpi_caption(_ts, winner)
+        two_track.render_vs_buy_hold(_ts, winner)
     st.markdown("---")
 
     strategy_downloads = getattr(config, "DOWNLOADS", [])
@@ -1671,6 +1693,9 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
                 f"{max_dd} as the OOS figure, not the whole plotted path."
             ),
         )
+        if _ts:
+            st.markdown("---")
+            two_track.render_cross_eval_table(pair_id, _ts, winner)
         st.markdown("---")
         st.markdown("### Trading History")
         # APP-TL1 (Wave 10H.2): dual-CSV, fixed-order narrative block.
@@ -1687,6 +1712,11 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         _exec_conf = getattr(config, "EXECUTIVE_CONFIDENCE_SUMMARY", None)
         if _exec_conf:
             _render_executive_confidence_summary(_exec_conf)
+            if _ts:
+                two_track.render_badge_note(_ts)
+            st.markdown("---")
+        if _ts:
+            two_track.render_chance_check(pair_id, _ts)
             st.markdown("---")
 
         st.markdown(f"### {getattr(config, 'WALK_FORWARD_TITLE', 'Walk-Forward Rolling Sharpe')}")
@@ -1845,6 +1875,7 @@ def _render_executive_confidence_summary(summary: dict) -> None:
 # Selection objective (winner_summary.selection.objective) -> (tournament column, label).
 _OBJECTIVE_COLUMNS = {
     "max_is_sharpe": ("is_sharpe", "in-sample Sharpe"),
+    "max_is_sharpe_lead_plateau_w3": ("is_sharpe", "in-sample Sharpe (stable lead range)"),
     "max_oos_sharpe": ("oos_sharpe", "OOS Sharpe"),
     "max_oos_sortino": ("oos_sortino", "OOS Sortino"),
     "max_oos_calmar": ("oos_calmar", "OOS Calmar"),
