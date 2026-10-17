@@ -4,7 +4,7 @@
   "title": "Lead-Axis Registry",
   "description": "Per-pair frequency record mandated by the Lead-Grid Frequency Standard (docs/lead-grid-frequency-standard.md, adopted 2026-07-14). For every REGISTERED pair (one entry per app/pair_configs/*_config.py) it records the signal's native release frequency, its publication lag, the lead axis that frequency implies (Step 1 HARD RULE), and the anchored grid (Step 3). scripts/gate_lead_axis.py reads lead_axis here as the expected axis and asserts each pair's lead artifacts sit on it. lead_floor / lead_floor_effective / position_shift are enforced by scripts/gate_lead_floor.py (strict floor on the effective lag, standard Step 2 amended 2026-10-16); publication_lag is human-readable reference text.",
   "x-owner": "evan",
-  "x-version": "1.3.0",
+  "x-version": "1.4.0",
   "type": "object",
   "required": [
     "x-version",
@@ -124,6 +124,15 @@
             "pit_asof"
           ],
           "description": "How the pipeline aligns the signal to the return: fixed_lag = signal.shift(lead) (the per-period gate counts backtest periods whose reading was not yet released); pit_asof = scripts/_pit_align.pit_shift (latest reading released before the return window opens; 0 breaches by construction, the gate checks the call is present). Default fixed_lag."
+        },
+        "track_policy": {
+          "type": "string",
+          "enum": [
+            "compute_twice",
+            "single_revised_no_archive",
+            "single_market"
+          ],
+          "description": "Phase B (harness) track policy. compute_twice: MAIN = real-time ALFRED vintages ('As known at the time'), COMPARISON = revised values ('As revised today (hindsight)'); single_revised_no_archive: one track on revised values (no vintage archive); single_market: one track on unrevised market data. Present only for pairs rebuilt on scripts/harness; must agree with the pair spec and winner_summary.track_policy."
         },
         "value_vintage": {
           "type": "string",

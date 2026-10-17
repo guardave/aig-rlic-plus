@@ -1,7 +1,7 @@
 {
-  "x-version": "1.5.0",
+  "x-version": "1.6.0",
   "x-owner": "evan",
-  "x-generated": "2026-10-17 (pkg12 Q7: value_vintage per live pair)",
+  "x-generated": "2026-10-17 (Phase B B0: track_policy for the harness pilots)",
   "governing_standard": "docs/lead-grid-frequency-standard.md",
   "notes": "Per-pair frequency record mandated by the Lead-Grid Frequency Standard (adopted 2026-07-14) \u00a7 'Enforcement'. For every REGISTERED pair (one entry per app/pair_configs/*_config.py) this records the SIGNAL's native release frequency, its publication lag, the lead axis that frequency implies (Step 1 HARD RULE), and the anchored grid (Step 3). scripts/gate_lead_axis.py asserts each pair's lead artifacts (lead tournament CSV, lead_sharpe_distribution chart, lead_correlation) sit on the axis recorded here. The load-bearing check: a DAILY-signal pair must NOT carry a MONTHLY-axis lead chart (the hy_ig class of error). signal_frequency is the classification of record; observed_winner_lead_unit is the winner_summary.lead_unit at authoring time, kept as an audit cross-check. lead_floor / publication_lag are REFERENCE metadata for scripts/gate_lead_axis.py (axis only). Since 2026-10-16 the floors ARE enforced by scripts/gate_lead_floor.py: lead_floor_effective is the strict floor on the effective lag (lead + position_shift) and lead_floor = lead_floor_effective - position_shift. Archived pairs (*_archived) and superseded versions (hy_ig_spy_v1) are intentionally excluded: not registered, not deployed. DEBT FLAG: the 4 daily Class-A pairs currently carry a MONTHLY-axis lead tournament + chart (a monthly L0-12 resample bolted onto a daily-traded winner); they are recorded here as 'daily' and are EXPECTED to FAIL the gate until rebuilt on the daily axis (rollout item 1). t10y3m_spy and petrol_inv_spy derive from higher-frequency native sources but are processed and deployed end-to-end on a monthly axis; they are recorded as 'monthly' (internally coherent) and flagged for the item-3 monthly re-validation. Since 2026-10-16 (pkg12) each live pair also records release_calendar_series (series id in data/release_calendar/release_calendar.csv, or rule:market_close / rule:next_business_day for daily data) and alignment (fixed_lag | pit_asof); scripts/gate_lead_floor.py --mode per-period (default) counts backtest periods in which a fixed lag uses a reading not yet released; --mode floor keeps the fixed effective-lag check.",
   "axis_unit_map": {
@@ -62,7 +62,8 @@
       "lead_floor_effective": 2,
       "release_calendar_series": "rule:next_business_day",
       "alignment": "fixed_lag",
-      "value_vintage": "unrevised_market"
+      "value_vintage": "unrevised_market",
+      "track_policy": "single_market"
     },
     "vix_vix3m_spy": {
       "signal_frequency": "daily",
@@ -726,7 +727,8 @@
       "lead_floor_effective": 2,
       "release_calendar_series": "UNRATE",
       "alignment": "fixed_lag",
-      "value_vintage": "revised_alfred"
+      "value_vintage": "revised_alfred",
+      "track_policy": "compute_twice"
     },
     "ism_mfg_spy": {
       "signal_frequency": "monthly",
@@ -1066,6 +1068,7 @@
       "release_calendar_series": "DRCCLACBN",
       "alignment": "fixed_lag",
       "value_vintage": "revised_alfred",
+      "track_policy": "compute_twice",
       "note": "OUTSTANDING (pkg12 Q8): the data is DRCCLACBN (not seasonally adjusted); the originally intended indicator DRCCLACBS (seasonally adjusted) is not yet tested."
     },
     "sloos_ci_small_spy": {
