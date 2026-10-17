@@ -37,9 +37,12 @@ def field(value, text: str) -> dict:
 
 
 def previous_fields(pub: dict, lead_unit: str) -> dict:
-    """The previously published rule (replayed through the harness), for correction banners."""
+    """The previously published rule (replayed through the harness, or declared by a not-replayable pair with its
+    selection label), for correction banners."""
     lead = int(pub["lead"])
+    sel = pub.get("selection") or "published (replayed through the harness)"
     return {"previous_rule": field(pub["key"], f"{pub['signal']} / {pub['threshold']} / L{lead}"),
+            "previous_selection": field(sel, sel),
             "previous_lead": field(lead, str(lead)), "previous_lead_text": field(lead, unit_text(lead, lead_unit)),
             "previous_oos_sharpe": field(pub["oos_sharpe"], _num(pub["oos_sharpe"])),
             "previous_is_sharpe": field(pub["is_sharpe"], _num(pub["is_sharpe"])),

@@ -39,8 +39,40 @@ def load_pair(pair_id: str):
 
 
 # ---------------------------------------------------------------------------------------------------- replay
+LEGACY_FILES = ("tournament_results_{tag}.csv", "legacy_oos_selection_{tag}.csv", "strategy_returns_{tag}.csv")
+
+
+def not_replayable(mod) -> dict:
+    """Checklist 1 for a pair whose published rule cannot be replayed through the harness (the pair declares
+    LEGACY_REPLAY = None, e.g. an OOS-selected legacy tournament without a strategy_returns file). The report states
+    the missing files, the published rule and how it was selected, the definitional differences, and the pair's
+    verbatim legacy-code reproduction. Acceptance 4.1 passes only when that reproduction exists and its gaps are
+    explained in writing (a 'gaps' text)."""
+    spec = mod.SPEC
+    tag = mod.LEGACY_TAG
+    rdir = REPO / "results" / spec.pair_id
+    missing = [f.format(tag=tag) for f in LEGACY_FILES if not (rdir / f.format(tag=tag)).exists()]
+    repro_fn = getattr(mod, "legacy_reproduction", None)
+    repro = repro_fn() if callable(repro_fn) else None
+    pub = dict(getattr(mod, "LEGACY_PUBLISHED", {}) or {})
+    if pub:
+        pub.setdefault("selection", "published (OOS-selected, legacy method)")
+        pub.setdefault("is_sharpe", None)
+        pub.setdefault("tag", tag)
+    documented = bool(repro and str(repro.get("gaps", "")).strip())
+    return {"pair_id": spec.pair_id, "legacy_tag": tag, "status": "not_replayable", "pass": None,
+            "reason": getattr(mod, "LEGACY_REPLAY_REASON", ""), "missing_files": missing,
+            "published": pub or None, "definitional_differences": list(getattr(mod, "LEGACY_DIFFERENCES", [])),
+            "legacy_reproduction": repro,
+            "acceptance_4_1": {"pass": bool(documented and pub),
+                               "rule": "not replayable + documented legacy-code reproduction (gaps explained)"}}
+
+
 def replay_legacy(mod, tol: float = 1e-6) -> dict:
-    """Checklist 1: replay the published rule through the harness and compare with the committed artifacts."""
+    """Checklist 1: replay the published rule through the harness and compare with the committed artifacts.
+    A pair that declares LEGACY_REPLAY = None gets the not_replayable report instead (see not_replayable)."""
+    if hasattr(mod, "LEGACY_REPLAY") and mod.LEGACY_REPLAY is None:
+        return not_replayable(mod)
     spec = getattr(mod, "LEGACY_SPEC", mod.SPEC)
     panel, ret = mod.legacy_panel()
     res = run_tournament(spec, legacy_inputs(spec, panel, ret.to_numpy(float)), legacy=True)
@@ -172,7 +204,12 @@ def run_pair(pair_id: str, tag: str, K: int = 100, write: bool = True, leak: boo
     out = {"pair_id": pair_id, "tag": tag}
     log(f"[{pair_id}] legacy replay")
     out["replay"] = replay_legacy(mod)
-    log(f"  replay pass={out['replay']['pass']}  strategy_return max diff {out['replay']['strategy_return']['max_abs_diff']:.2e}")
+    if out["replay"].get("status") == "not_replayable":
+        log(f"  replay: not replayable ({', '.join(out['replay']['missing_files']) or 'declared'}); "
+            f"acceptance 4.1 via legacy reproduction pass={out['replay']['acceptance_4_1']['pass']}")
+    else:
+        log(f"  replay pass={out['replay']['pass']}  strategy_return max diff "
+            f"{out['replay']['strategy_return']['max_abs_diff']:.2e}")
     tracks = build_tracks(mod)
     results: dict[str, TrackResult | None] = {}
     nulls: dict[str, pd.DataFrame | None] = {}
@@ -484,6 +521,8 @@ def main(argv=None) -> int:
     if a.replay_only:
         rep = replay_legacy(load_pair(a.pair_id))
         print(json.dumps(rep, indent=2, default=str))
+        if rep.get("status") == "not_replayable":
+            return 0 if rep["acceptance_4_1"]["pass"] else 1
         return 0 if rep["pass"] else 1
     run_pair(a.pair_id, a.tag, a.K, write=not a.no_write)
     return 0
