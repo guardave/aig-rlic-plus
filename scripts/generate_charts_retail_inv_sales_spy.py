@@ -160,16 +160,6 @@ def chart_correlation_heatmap() -> None:
     save("correlation_heatmap", fig, "Pearson correlations between inventories-to-sales transforms and forward SPY returns.", [str(CORE / "correlations.csv")])
 
 
-def chart_ccf() -> None:
-    ccf = pd.read_csv(CORE / "ccf_prewhitened.csv")
-    colors = np.where(ccf["significant"], C_IND, C_BENCH)
-    fig = go.Figure(go.Bar(x=ccf["lag"], y=ccf["ccf"], marker_color=colors, name="CCF"))
-    fig.add_hline(y=ccf["upper_ci"].iloc[0], line_dash="dash", line_color=C_LINE)
-    fig.add_hline(y=ccf["lower_ci"].iloc[0], line_dash="dash", line_color=C_LINE)
-    fig.update_layout(title="Cross-Correlation: Inventories-to-Sales vs SPY Return", xaxis_title="Lag (months): +lead = ratio leads, -lag = SPY leads", yaxis_title="Correlation", template="plotly_white", height=430)
-    save("ccf_prewhitened", fig, "Pre-whitened cross-correlation between the inventories-to-sales change and SPY returns.", [str(CORE / "ccf_prewhitened.csv")])
-
-
 def chart_granger() -> None:
     gr = pd.read_csv(CORE / "granger_causality.csv")
     fig = go.Figure()
@@ -267,7 +257,6 @@ def main() -> None:
     chart_hero()
     chart_regime_stats()
     chart_correlation_heatmap()
-    chart_ccf()
     chart_granger()
     chart_local_projections()
     chart_quantile()

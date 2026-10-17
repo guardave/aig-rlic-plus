@@ -34,7 +34,7 @@
   "direction_consistent": false,
   "mechanism": "The retail inventories-to-sales ratio rises when inventories accumulate faster than sales \u2014 a sign of weakening demand that typically precedes production cuts and equity weakness. A low/falling ratio signals healthy demand. The strategy reduces equity exposure when the ratio is high.",
   "confidence": "low",
-  "key_finding": "Best search-phase rule uses level at L6 with OOS Sharpe 0.73 versus buy-and-hold 0.91.",
+  "key_finding": "Best search-phase rule uses level from 6 months earlier with OOS Sharpe 0.73 versus buy-and-hold 0.91.",
   "caveats": [
     "Winner is search-selected on a single monthly sample and needs holdout validation.",
     "Level thresholds are rolling-percentile based; regime pivots can drift across decades.",

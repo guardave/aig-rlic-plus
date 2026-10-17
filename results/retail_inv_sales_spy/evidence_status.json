@@ -3,8 +3,8 @@
   "schema_version": "1.2.0",
   "status": "found_in_search",
   "updated_at": "2026-10-16T18:27:53.094449+00:00",
-  "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
-  "technical_note": "Winner selected by in-sample Sharpe (common pre-OOS window) from the 20261016 monthly tournament and evaluated on the held-out OOS window; the OOS window is limited.",
-  "next_step": "Freeze the selected rule and run a confirmation test on future data.",
+  "plain_english": "The winning rule was selected for the highest in-sample Sharpe. Lower drawdown than buy-and-hold in the held-out window is an observed secondary outcome, not the selection criterion. Neither the Sharpe result nor the lower drawdown has been tested on data released after the rule was chosen.",
+  "technical_note": "Winner selected by in-sample Sharpe (common pre-OOS window) from the 20261016 monthly tournament and evaluated on the held-out OOS window, which was not used for selection; the OOS window is limited, and drawdown was not a selection criterion.",
+  "next_step": "Freeze the selected rule and predefine confirmation criteria, then assess both Sharpe and drawdown on an independent holdout not used to select the rule.",
   "owner": "evan"
 }

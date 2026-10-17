@@ -355,9 +355,9 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "threshold_rule": "lte" if wr["direction"] == "countercyclical" else "gte",
         "threshold_note": f"{wr['threshold']} threshold; latest if rolling", "strategy_family": "P1_long_cash",
         "strategy_code": "P1", "strategy_display_name": "P1 long cash",
-        "strategy_description": "Hold SPY when the lagged Retail Inventories-to-Sales Ratio signal is favorable (low/easing); else cash.",
+        "strategy_description": f"Use the ratio from {int(wr['lead_months'])} months earlier; hold SPY when it is at or above its rolling five-year median, otherwise hold cash.",
         "lead_value": int(wr["lead_months"]), "lead_unit": "months",
-        "lead_description": f"Signal is lagged {int(wr['lead_months'])} month(s) before allocation.",
+        "lead_description": f"Uses the ratio from {int(wr['lead_months'])} months earlier at each monthly decision date.",
         "lookback": "60m where rolling thresholds apply", "direction": str(wr["direction"]),
         "oos_sharpe": round(om["oos_sharpe"], 6), "oos_sortino": round(om["oos_sortino"], 6), "oos_calmar": round(om["oos_calmar"], 6),
         "oos_ann_return": round(om["oos_ann_return"], 6), "oos_ann_vol": round(om["oos_ann_vol"], 6),
@@ -425,21 +425,54 @@ def write_evidence(df: pd.DataFrame, tourn: pd.DataFrame, winner: dict) -> None:
             granger_rows.append({"lag": lag, "f_stat": f, "p_value": p, "direction": "signal_to_SPY"})
     pd.DataFrame(granger_rows).to_csv(CORE / "granger_causality.csv", index=False)
     pd.DataFrame(granger_rows).to_csv(RES / "granger_by_lag.csv", index=False)
-    ccf_rows = []
-    x, y = df[REP_SIGNAL], df["spy_ret"]
-    for lag in range(-6, 7):
-        sub = pd.concat([x.shift(lag), y], axis=1).dropna()
-        c = sub.iloc[:, 0].corr(sub.iloc[:, 1]) if len(sub) > 24 else np.nan
-        ci = 1.96 / np.sqrt(max(len(sub), 1))
-        ccf_rows.append({"lag": lag, "ccf": c, "upper_ci": ci, "lower_ci": -ci, "significant": abs(c) > ci if pd.notna(c) else False})
-    pd.DataFrame(ccf_rows).to_csv(CORE / "ccf_prewhitened.csv", index=False)
-    q = pd.qcut(df[REP_SIGNAL].dropna(), 4, labels=["Q1", "Q2", "Q3", "Q4"])
+    # Build quartiles on the common descriptive sample so the count audit is
+    # explicit. qcut uses right-closed intervals: observations tied exactly at
+    # an internal boundary stay together in the lower bucket. Because the
+    # indicator is published to two decimals, boundary ties can make bucket
+    # sizes unequal even though the cut points are sample quartiles.
+    regime_sample = df[[REP_SIGNAL, "spy_ret"]].dropna()
+    q, q_bins = pd.qcut(
+        regime_sample[REP_SIGNAL],
+        4,
+        labels=["Q1", "Q2", "Q3", "Q4"],
+        retbins=True,
+    )
     q_rows = []
     for lab in ["Q1", "Q2", "Q3", "Q4"]:
-        rets = df.loc[q[q == lab].index, "spy_ret"].dropna()
+        rets = regime_sample.loc[q[q == lab].index, "spy_ret"]
         m = ann_metrics(rets)
         q_rows.append({"quartile": lab, "mean_return": rets.mean(), "sharpe": m["oos_sharpe"], "n": len(rets)})
+    assigned_n = sum(row["n"] for row in q_rows)
+    if q.isna().any() or assigned_n != len(regime_sample):
+        raise RuntimeError(
+            "Regime quartile assignment failed completeness check: "
+            f"eligible={len(regime_sample)}, assigned={assigned_n}, "
+            f"unassigned={int(q.isna().sum())}"
+        )
     pd.DataFrame(q_rows).to_csv(RES / "regime_quartile_returns.csv", index=False)
+    quartile_meta = {
+        "pair_id": PAIR_ID,
+        "signal": REP_SIGNAL,
+        "construction": "pandas.qcut(signal, 4), right-closed intervals",
+        "sample_start": regime_sample.index.min().date().isoformat(),
+        "sample_end": regime_sample.index.max().date().isoformat(),
+        "eligible_observations": int(len(regime_sample)),
+        "boundaries": [float(value) for value in q_bins],
+        "boundary_tie_counts": {
+            str(float(value)): int(regime_sample[REP_SIGNAL].eq(value).sum())
+            for value in q_bins[1:-1]
+        },
+        "bucket_counts": {row["quartile"]: int(row["n"]) for row in q_rows},
+        "unassigned_observations": int(q.isna().sum()),
+        "assignment_rule": (
+            "Q1 includes the sample minimum and first quartile boundary; "
+            "Q2-Q4 are open on the left and closed on the right. Boundary ties "
+            "remain together in the lower bucket."
+        ),
+    }
+    (RES / "regime_quartile_metadata.json").write_text(
+        json.dumps(quartile_meta, indent=2) + "\n"
+    )
     rcorr = []
     for dt in df.index:
         w = df.loc[:dt, [REP_SIGNAL, "spy_ret"]].tail(24).dropna()
@@ -482,6 +515,33 @@ def write_evidence(df: pd.DataFrame, tourn: pd.DataFrame, winner: dict) -> None:
                    "tx_cost_bps": COST_BPS, "gross_sharpe": winner["oos_sharpe"]}]).to_csv(VALID / "transaction_costs.csv", index=False)
 
 
+def write_evidence_status() -> None:
+    """Write the search-status explanation without regenerating model outputs."""
+    evidence_status = {
+        "pair_id": PAIR_ID,
+        "schema_version": "1.2.0",
+        "status": "found_in_search",
+        "updated_at": NOW_ISO,
+        "plain_english": (
+            "The winning rule was selected for the highest in-sample Sharpe. Lower drawdown than "
+            "buy-and-hold in the held-out window is an observed secondary outcome, not the selection "
+            "criterion. Neither the Sharpe result nor the lower drawdown has been tested on data "
+            "released after the rule was chosen."
+        ),
+        "technical_note": (
+            f"Winner selected by in-sample Sharpe (common pre-OOS window) from the {DATE_TAG} monthly "
+            "tournament and evaluated on the held-out OOS window, which was not used for selection; "
+            "the OOS window is limited, and drawdown was not a selection criterion."
+        ),
+        "next_step": (
+            "Freeze the selected rule and predefine confirmation criteria, then assess both "
+            "Sharpe and drawdown on an independent holdout not used to select the rule."
+        ),
+        "owner": "evan",
+    }
+    (RES / "evidence_status.json").write_text(json.dumps(evidence_status, indent=2) + "\n")
+
+
 def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
     interp = {
         "pair_id": PAIR_ID, "schema_version": "1.1.0", "indicator_nature": "coincident", "indicator_type": "production",
@@ -494,7 +554,7 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "direction_consistent": winner["direction"] == "countercyclical",
         "mechanism": "The retail inventories-to-sales ratio rises when inventories accumulate faster than sales — a sign of weakening demand that typically precedes production cuts and equity weakness. A low/falling ratio signals healthy demand. The strategy reduces equity exposure when the ratio is high.",
         "confidence": "low",
-        "key_finding": f"Best search-phase rule uses {winner['signal_code']} at L{winner['lead_value']} with OOS Sharpe "
+        "key_finding": f"Best search-phase rule uses {winner['signal_code']} from {winner['lead_value']} months earlier with OOS Sharpe "
                        f"{winner['oos_sharpe']:.2f} versus buy-and-hold {winner['bh_sharpe']:.2f}.",
         "caveats": ["Winner is search-selected on a single monthly sample and needs holdout validation.", "Level thresholds are rolling-percentile based; regime pivots can drift across decades.", "Lead estimates rest on a limited number of cycles in the sample."],
         "narrative_summary": "Retail inventories-to-sales ratio is tested as a countercyclical demand-stress overlay for SPY — reduce exposure when the ratio is high.",
@@ -520,15 +580,12 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
     (RES / "signal_scope.json").write_text(json.dumps(signal_scope, indent=2) + "\n")
     (RES / "kpis.json").write_text(json.dumps({"pair_id": PAIR_ID, "winner_oos_sharpe": winner["oos_sharpe"],
         "benchmark_oos_sharpe": winner["bh_sharpe"], "oos_max_drawdown": winner["oos_max_drawdown"], "bh_max_drawdown": winner["bh_max_drawdown"]}, indent=2) + "\n")
-    (RES / "evidence_status.json").write_text(json.dumps({"pair_id": PAIR_ID, "schema_version": "1.2.0", "status": "found_in_search",
-        "updated_at": NOW_ISO, "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
-        "technical_note": f"Winner selected by in-sample Sharpe (common pre-OOS window) from the {DATE_TAG} monthly tournament and evaluated on the held-out OOS window; the OOS window is limited.",
-        "next_step": "Freeze the selected rule and run a confirmation test on future data.", "owner": "evan"}, indent=2) + "\n")
+    write_evidence_status()
     (RES / f"pipeline_timing_{DATE_TAG}.json").write_text(json.dumps({"pair_id": PAIR_ID, "elapsed_seconds": elapsed, "generated_at": NOW_ISO}, indent=2) + "\n")
     (RES / "analyst_suggestions.json").write_text(json.dumps({"pair_id": PAIR_ID, "schema_version": "1.0.0", "last_updated_at": NOW_ISO,
-        "suggestions": [{"signal_name": "Lead robustness", "proposed_by": "evan", "source": "Data Master",
-            "observation": f"The rule uses an L{winner['lead_value']} lead on {winner['signal_code']}; verify adjacent-lead durability.",
-            "rationale": "Cycles in the sample are few, so the lead needs adjacent-lead durability and a cycle-count caveat.",
+        "suggestions": [{"signal_name": "Timing robustness", "proposed_by": "evan", "source": "Data Master",
+            "observation": f"The rule uses {winner['signal_code']} from {winner['lead_value']} months earlier; verify adjacent timing offsets.",
+            "rationale": "Cycles in the sample are few, so the timing choice needs adjacent-offset durability and a cycle-count caveat.",
             "possible_use_case": "robustness check", "caveats": "Search-selected on a limited OOS; needs final-exam validation.",
             "date_filed": DATE_TAG[:4] + "-" + DATE_TAG[4:6] + "-" + DATE_TAG[6:]}], "notes": "Generated with the Retail Inventories-to-Sales Ratio x SPY pair pipeline."}, indent=2) + "\n")
 

@@ -226,6 +226,7 @@ def _card_specs_for_strategy(
     threshold: float,
     signal_display: str,
     target_symbol: str,
+    pair_id: str | None = None,
 ) -> list[dict]:
     """Return the list of card specs for the given strategy family.
 
@@ -235,6 +236,32 @@ def _card_specs_for_strategy(
 
     if strategy == "P1":
         # Binary Long/Cash
+        if pair_id == "retail_inv_sales_spy":
+            return [
+                dict(
+                    title=f"TARGET: 100% {target_symbol}",
+                    sparkline_direction="up",
+                    action_text=(
+                        f"At each monthly decision date, if the **{signal_display}** "
+                        "value from three months earlier is at or above its "
+                        "contemporaneous "
+                        "60-month rolling median → set the target allocation to "
+                        f"**100% {target_symbol}**."
+                    ),
+                    key_suffix="target_long",
+                ),
+                dict(
+                    title="EXIT TO CASH",
+                    sparkline_direction="down",
+                    action_text=(
+                        f"At each monthly decision date, if the **{signal_display}** "
+                        "value from three months earlier is below its contemporaneous "
+                        "60-month rolling median → set the target allocation to "
+                        "**100% cash**."
+                    ),
+                    key_suffix="exit_cash",
+                ),
+            ]
         if is_counter:
             cards = [
                 dict(
@@ -517,7 +544,15 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
         +
         f"direction: {direction.replace('_', ' ')}."
     )
-    if _is_rolling_tc:
+    if _is_rolling_tc and pair_id == "retail_inv_sales_spy":
+        st.caption(
+            "At every monthly decision date, compare the ratio level from three "
+            "months earlier with the rolling median calculated for that date. The rule "
+            "then sets a fresh binary target of 100% SPY or 100% cash. There is "
+            "no hover zone, persistence rule, hysteresis, or partial position; "
+            "the prior month's allocation does not alter the comparison."
+        )
+    elif _is_rolling_tc:
         st.caption(
             f"Note: the decision boundary is a {_roll_desc} that moves "
             "over time — the single number shown is only its most recent level. "
@@ -536,7 +571,7 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
         )
 
     cards = _card_specs_for_strategy(
-        strategy, direction, threshold, signal_display, target_symbol
+        strategy, direction, threshold, signal_display, target_symbol, pair_id
     )
     columns = st.columns(len(cards))
     for col, card in zip(columns, cards):
