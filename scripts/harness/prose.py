@@ -36,6 +36,16 @@ def field(value, text: str) -> dict:
     return {"value": value, "text": text}
 
 
+def previous_fields(pub: dict, lead_unit: str) -> dict:
+    """The previously published rule (replayed through the harness), for correction banners."""
+    lead = int(pub["lead"])
+    return {"previous_rule": field(pub["key"], f"{pub['signal']} / {pub['threshold']} / L{lead}"),
+            "previous_lead": field(lead, str(lead)), "previous_lead_text": field(lead, unit_text(lead, lead_unit)),
+            "previous_oos_sharpe": field(pub["oos_sharpe"], _num(pub["oos_sharpe"])),
+            "previous_is_sharpe": field(pub["is_sharpe"], _num(pub["is_sharpe"])),
+            "previous_tag": field(pub["tag"], f"{pub['tag'][:4]}-{pub['tag'][4:6]}-{pub['tag'][6:]}")}
+
+
 def cross_fields(ce: dict) -> dict:
     """Cross-evaluation fields: each track's winner scored on the other track (like-for-like)."""
     out = {}

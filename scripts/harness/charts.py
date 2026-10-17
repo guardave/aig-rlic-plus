@@ -117,8 +117,12 @@ def chance_check(pair: str, tag: str) -> str | None:
     fig.add_vline(x=q95, line_color=C_TEXT, line_width=1, line_dash="dot", annotation_text="95th",
                   annotation_position="bottom right")
     k = int(nd["selection_stat"].notna().sum())
-    cap = (f"Real winner ranks at the {ordinal(round(pct * 100))} percentile of {k:,} scrambled-signal contests."
-           if pct is not None else "Chance check not yet run for this pair.")
+    if pct is None:
+        cap = "Chance check not yet run for this pair."
+    elif pct >= 1:
+        cap = f"Real winner scores above all {k:,} scrambled-signal contests."
+    else:
+        cap = f"Real winner ranks at the {ordinal(round(pct * 100))} percentile of {k:,} scrambled-signal contests."
     fig.update_layout(template="plotly_white", height=380, title="Chance check: real winner vs scrambled signals",
                       xaxis_title="Best score in a contest (training-period Sharpe, stable lead range)",
                       yaxis_title="Number of contests", showlegend=False)

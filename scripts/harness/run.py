@@ -74,6 +74,10 @@ def replay_legacy(mod, tol: float = 1e-6) -> dict:
                      "match": bool(wrow["signal"] == p["signal"] and wrow["threshold"] == p["threshold"]
                                    and wrow["direction"] == p["direction"] and int(wrow["lead"]) == int(p[spec.lead_col])
                                    and ("strategy" not in p or wrow["strategy"] == p["strategy"]))}
+    rep["published"] = {"key": wrow["key"], "signal": str(wrow["signal"]), "threshold": str(wrow["threshold"]),
+                        "strategy": str(wrow["strategy"]), "direction": str(wrow["direction"]), "lead": int(wrow["lead"]),
+                        "is_sharpe": float(wrow["is_sharpe"]), "oos_sharpe": float(wrow["oos_sharpe"]),
+                        "tag": tag, "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"}
     sr = pd.read_csv(rdir / f"strategy_returns_{tag}.csv")
     d = np.abs(res.deployable_returns(w) - sr["strategy_return"].to_numpy(float))
     rep["strategy_return"] = {"rows": int(len(sr)), "max_abs_diff": float(d.max()), "pass": bool(d.max() <= tol)}
@@ -233,6 +237,7 @@ def winner_summary(mod, tag: str, out: dict, extra: dict) -> dict:
             "threshold_code": w["threshold"], "threshold_value": w["threshold_value"],
             "threshold_rule": w["threshold_rule"],
             "threshold_note": f"{w['threshold']} threshold; threshold_value is the value in force at the last row",
+            **({"lookback": extra["lookback"]} if extra.get("lookback") else {}),
             "strategy_family": w["strategy_family"], "strategy_code": w["strategy"],
             "strategy_display_name": {"P1": "P1 long cash", "P2": "P2 signal strength", "P3": "P3 long short"}[w["strategy"]],
             "strategy_description": extra.get("strategy_description", ""),
@@ -277,6 +282,7 @@ def winner_summary(mod, tag: str, out: dict, extra: dict) -> dict:
                 "raw_is_argmax": main["raw_argmax"],
                 "rationale": "Winner selected on IS data only by the D9 lead-plateau rule; OOS reported for it only.",
                 "inference": {"oos_sharpe_diff_vs_bh_bootstrap": main.get("vs_buy_hold"), "hac": main.get("hac")},
+                "previously_published": [out["replay"]["published"]] if out["replay"].get("published") else [],
             },
         })
     else:
@@ -290,6 +296,8 @@ def winner_summary(mod, tag: str, out: dict, extra: dict) -> dict:
         wf.update(prose.build(comp, prefix="comparison_"))
         wf.update(prose.cross_fields(out["cross_eval"]))
     wf["track_state"] = prose.field(track_state(spec, main), track_state(spec, main))
+    if out["replay"].get("published"):
+        wf.update(prose.previous_fields(out["replay"]["published"], spec.lead_unit))
     ws["winner_fields"] = wf
     return A.jsonable(ws)
 

@@ -106,8 +106,11 @@ def fields_from_summary(ws: dict) -> dict:
     f.setdefault("runner_up_oos_sharpe", ru.get("oos_sharpe"))
     f.setdefault("runner_up_lead", ru.get("lead_value"))
     leg = sel.get("legacy_oos_selected_row") or {}
-    f["_legacy_oos_sharpe"] = leg.get("oos_sharpe")
-    f["_legacy_lead"] = leg.get("lead_value")
+    prev = [p for p in (sel.get("previously_published") or []) if isinstance(p, dict)]
+    f["_legacy_oos_sharpe"] = [x for x in [leg.get("oos_sharpe")] + [p.get("oos_sharpe") for p in prev]
+                               + [p.get("is_sharpe") for p in prev] + [p.get("hac_t") for p in prev]
+                               if isinstance(x, (int, float))]
+    f["_legacy_lead"] = [x for x in [leg.get("lead_value")] + [p.get("lead") for p in prev] if isinstance(x, (int, float))]
     ce = ws.get("cross_eval") or {}
     for k in ("main_winner_on_revised", "revised_winner_on_main"):
         if isinstance(ce.get(k), dict):
@@ -119,10 +122,10 @@ def fields_from_summary(ws: dict) -> dict:
 def _sharpe_values(f: dict, legacy: bool) -> list[float]:
     keys = [k for k in f if ("sharpe" in k or k in ("plateau_score", "ci_low", "ci_high", "sharpe_gap", "p_diff_le_0")
                              or k.startswith(("comparison_ci", "comparison_plateau", "comparison_sharpe")) or
-                             k.startswith("_ce_")) and not k.startswith("_legacy")]
+                             k.startswith("_ce_")) and not k.startswith(("_legacy", "previous_"))]
     vals = [f[k] for k in keys if isinstance(f[k], (int, float)) and not isinstance(f[k], bool)]
-    if legacy and isinstance(f.get("_legacy_oos_sharpe"), (int, float)):
-        vals.append(f["_legacy_oos_sharpe"])
+    if legacy:
+        vals += list(f.get("_legacy_oos_sharpe") or [])
     return vals
 
 
@@ -133,7 +136,7 @@ def _lead_values(f: dict, sent: str) -> set[int]:
     if RAW_LABEL.search(sent):
         out |= {f.get("raw_argmax_lead"), f.get("comparison_raw_argmax_lead")}
     if LEGACY_LABEL.search(sent):
-        out.add(f.get("_legacy_lead"))
+        out |= set(f.get("_legacy_lead") or [])
     if re.search(r"runner[- ]up", sent, re.I):
         out.add(f.get("runner_up_lead"))
     return {int(x) for x in out if isinstance(x, (int, float)) and not isinstance(x, bool)}

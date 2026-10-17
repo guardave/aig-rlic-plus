@@ -48,8 +48,8 @@ def test_missing_field_placeholder_fails(tmp_path):
 
 def test_sentence_rules():
     f = {"oos_sharpe": 0.81, "bh_oos_sharpe": 1.0, "is_sharpe": 0.93, "lead": 6, "_lead_unit": "months",
-         "n_valid": 504, "n_candidates": 504, "_objective": "max_is_sharpe_lead_plateau_w3", "_legacy_oos_sharpe": 1.55,
-         "_legacy_lead": 9, "plateau_leads": [5, 6, 7]}
+         "n_valid": 504, "n_candidates": 504, "_objective": "max_is_sharpe_lead_plateau_w3", "_legacy_oos_sharpe": [1.55],
+         "_legacy_lead": [9], "plateau_leads": [5, 6, 7]}
     ok = ("The rule earns an OOS Sharpe of 0.81 versus 1.00 for buy-and-hold. "
           "It uses the reading from six months earlier. The plateau spans leads 5 to 7 (a 5-month lag also scores well). "
           "Concurrent quartile Sharpe 0.49 is descriptive. The previously published rule (OOS 1.55, 9-month lag) is superseded. "
