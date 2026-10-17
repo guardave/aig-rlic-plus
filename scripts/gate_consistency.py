@@ -12,7 +12,9 @@ HARD checks (fail the gate):
   B. winner_summary is the MAX valid selection-objective value on the grid (OOS Sharpe
      by default; IS Sharpe when selection.objective == "max_is_sharpe", GH #251) — i.e. no valid
      combo beats it (selection is internally consistent; a beating combo means a
-     pending re-selection that has not propagated).
+     pending re-selection that has not propagated). For the Phase B D9 objective
+     (max_is_sharpe_lead_plateau_w3) the plateau selection is recomputed from the CSV and must
+     return the published winner and window.
   C. kpis.json "OOS Sharpe (winner)" == winner_summary.oos_sharpe (2dp).
   D. lead_winner_curve (if present): the is_published_winner row's lead + Sharpe
      match winner_summary.
@@ -257,6 +259,32 @@ def check_prose(txt: str, ws: dict, other_signals: dict | None = None) -> list[s
     return out
 
 
+def _check_plateau_winner(tr_path: Path, ws: dict, lk: str) -> list[str]:
+    """B for the D9 objective: recompute the lead-plateau selection from the tournament CSV (scripts/harness/
+    selection.py) and require the published winner to be the recomputed one."""
+    import pandas as pd
+    sys.path.insert(0, str(REPO / "scripts"))
+    from harness.selection import plateau_select
+    t = pd.read_csv(tr_path)
+    t = t[t["signal"] != "BENCHMARK"].rename(columns={lk: "lead"}).reset_index(drop=True)
+    for c in ("valid", "is_eligible"):
+        t[c] = t[c].astype(str).str.lower() == "true"
+    t["threshold"] = t["threshold"].astype(str)
+    sel = plateau_select(t)
+    if sel is None:
+        return ["B: objective max_is_sharpe_lead_plateau_w3 but no valid candidate in the tournament CSV"]
+    w = t.loc[sel["winner"]]
+    raw = ws.get("selection", {}).get("raw_winner_row", {})
+    if (str(w["signal"]), str(w["threshold"]), int(w["lead"])) != (str(raw.get("signal")), str(raw.get("threshold")),
+                                                                  int(raw.get("lead_value", -1))):
+        return [f"B: D9 plateau recompute selects {w['signal']}/{w['threshold']}/{w['strategy']}/L{int(w['lead'])} "
+                f"(window {sel['window_leads']}), published winner is {raw.get('signal')}/{raw.get('threshold')}/"
+                f"L{raw.get('lead_value')}"]
+    if list(ws.get("selection", {}).get("window_leads") or []) != sel["window_leads"]:
+        return [f"B: published plateau {ws['selection'].get('window_leads')} != recomputed {sel['window_leads']}"]
+    return []
+
+
 def check_pair(pair: str) -> tuple[list[str], list[str]]:
     """(hard_failures, soft_warnings)."""
     rdir = REPO / "results" / pair
@@ -304,7 +332,9 @@ def check_pair(pair: str) -> tuple[list[str], list[str]]:
             # metric is the IN-SAMPLE Sharpe; OOS Sharpe is evaluation-only and a
             # higher-OOS combo is expected, not a propagation failure.
             objective = (ws.get("selection") or {}).get("objective", "max_oos_sharpe")
-            if clean and objective == "max_is_sharpe":
+            if clean and objective == "max_is_sharpe_lead_plateau_w3":
+                hard.extend(_check_plateau_winner(tr_files[-1], ws, lk))
+            elif clean and objective == "max_is_sharpe":
                 if "is_sharpe" not in ws:
                     hard.append("B: objective max_is_sharpe but winner_summary has no is_sharpe")
                 else:
@@ -362,7 +392,11 @@ def check_pair(pair: str) -> tuple[list[str], list[str]]:
     # ── E (soft): narrative config cites the CURRENT winner ──
     cfg = REPO / "app" / "pair_configs" / f"{pair}_config.py"
     if cfg.exists():
-        soft.extend(check_prose(cfg.read_text(), ws, other_sigs))
+        src = cfg.read_text()
+        if "winner_fields" in src:   # Phase B config: prose is rendered from structured fields, check the rendered text
+            from gate_structured_prose import config_prose
+            src = "\n\n".join(t for _, t in config_prose(cfg))
+        soft.extend(check_prose(src, ws, other_sigs))
 
     return hard, soft
 

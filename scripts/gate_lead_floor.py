@@ -59,6 +59,15 @@ No pair names are special-cased.
                   Structural checks (grid parse/consistency, registry grid, shift alignment, effective lag >= 1)
                   run in both modes.
 
+  8. HARNESS      Phase B pairs declare their grid in scripts/pair_spec_<pair>.py as `SPEC = PairSpec(leads=...,
+                  position_shift=..., release_series=...)` and their pipeline calls scripts/harness/run.py
+                  `run_pair(...)`. The PairSpec keywords are then the grid definition and the code position shift
+                  (checked against the registry like any grid), release_series must equal the registry
+                  release_calendar_series, and registry `alignment: pit_asof` is satisfied by the harness (as-of
+                  `align.lag_asof` = _pit_align.pit_shift on the revised / market track; ALFRED vintages visible at the
+                  window open on the real-time track; both unit-tested in scripts/tests/test_harness.py). A spec
+                  without a pipeline that calls run_pair is ignored (WARN): the pipeline's own grid stays authoritative.
+
 KNOWN LIMITATIONS (static AST check; documented, not chased - QA3 F-2 / F-3):
   * A declared grid that is also iterated by a harmless diagnostic shift loop counts as "used", so a decoy grid
     plus a traded loop built with a non-.shift form (np.roll, comprehension, functools.partial, index offsets,
@@ -441,6 +450,43 @@ def winner_lead(repo: Path, pair: str):
     return None, None, "no lead field"
 
 
+def harness_spec(repo: Path, pair: str) -> dict | None:
+    """The PairSpec(...) keywords of scripts/pair_spec_<pair>.py (Phase B harness), or None."""
+    f = repo / "scripts" / f"pair_spec_{pair}.py"
+    if not f.exists():
+        return None
+    tree = ast.parse(f.read_text())
+    env = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            try:
+                env[node.targets[0].id] = _ev(node.value, env)
+            except Unevaluable:
+                if isinstance(node.value, ast.Constant):
+                    env[node.targets[0].id] = node.value.value
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and getattr(node.func, "id", getattr(node.func, "attr", None)) == "PairSpec":
+            kw = {k.arg: k.value for k in node.keywords}
+            out = {"file": str(f.relative_to(repo)), "line": node.lineno}
+            try:
+                out["leads"] = _ev(kw["leads"], env) if "leads" in kw else None
+            except Unevaluable:
+                out["leads"] = "unparseable"
+            ps = kw.get("position_shift")
+            out["position_shift"] = ps.value if isinstance(ps, ast.Constant) else None
+            rs = kw.get("release_series")
+            out["release_series"] = (rs.value if isinstance(rs, ast.Constant) else
+                                     env.get(rs.id) if isinstance(rs, ast.Name) else None)
+            return out
+    return None
+
+
+def calls_run_pair(src: str) -> bool:
+    """True when the source calls the harness runner (run_pair(...))."""
+    return any(isinstance(n, ast.Call) and getattr(n.func, "id", getattr(n.func, "attr", None)) == "run_pair"
+               for n in ast.walk(ast.parse(src)))
+
+
 def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period") -> dict:
     res = {"pair": pair, "status": "PASS", "reasons": [], "floor": None, "grids": [], "winner_lead": None}
     fails, warns = [], []
@@ -502,6 +548,28 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
         elif det != reg_shift:
             fails.append(f"alignment mismatch: code position shift={det} ({rel}:{dline}) != registry position_shift={reg_shift}")
             where = f"{rel}:{dline}"
+    hs = harness_spec(repo, pair)
+    res["harness"] = None
+    if hs is not None:
+        runner = [str(f.relative_to(repo)) for f in files if f in canon and calls_run_pair(f.read_text())]
+        res["harness"] = dict(hs, runner=runner)
+        if not runner:   # not wired yet: the pipeline's own grid stays authoritative, the spec is ignored
+            warns.append(f"{hs['file']} declares a PairSpec but no canonical pipeline calls run_pair(): spec ignored")
+            hs = None
+            res["harness"] = None
+    if hs is not None:
+        if hs["leads"] == "unparseable" or not hs["leads"]:
+            fails.append(f"unparseable grid 'PairSpec.leads' ({hs['file']}:{hs['line']})")
+        else:
+            defs.append((hs["line"], "PairSpec.leads", list(hs["leads"]), hs["file"]))
+            det = hs["position_shift"] if hs["position_shift"] in (0, 1) else None
+            file_grids.append((hs["file"], det, hs["line"], "PairSpec.position_shift", min(hs["leads"])))
+            if det is not None and det != reg_shift:
+                fails.append(f"alignment mismatch: PairSpec position_shift={det} ({hs['file']}:{hs['line']}) != "
+                             f"registry position_shift={reg_shift}")
+        if hs["release_series"] != rec.get("release_calendar_series"):
+            fails.append(f"PairSpec release_series {hs['release_series']!r} != registry release_calendar_series "
+                         f"{rec.get('release_calendar_series')!r} ({hs['file']}:{hs['line']})")
     declared_all, iterated_all, loop_defs = set(), set(), [d for d in defs if d[1].startswith("for ") or "->" in d[1]]
     for f in files:
         try:
@@ -510,7 +578,7 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
             continue
         declared_all |= dcl
         iterated_all |= itr
-    if defs and declared_all and not loop_defs and not (declared_all & iterated_all):
+    if defs and declared_all and not loop_defs and not (declared_all & iterated_all) and hs is None:
         fails.append(f"declared lead grid {sorted(declared_all)} is not iterated by any detected lead loop "
                      "(.shift(v) / .shift(periods=v) / pit_shift(x, v) / a function shifting by v): the grid "
                      "actually traded cannot be verified")
@@ -551,7 +619,8 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
         shifts = {det for _, det, _, _, _ in file_grids if det is not None}
         shift = shifts.pop() if len(shifts) == 1 else reg_shift
         leads = sorted({x for _, _, g, _ in defs for x in g} | ({wl} if wl is not None else set()))
-        pf, pw, res["per_period"] = per_period_check(repo, pair, rec, leads, shift, wl, files, canon)
+        harness_ok = bool(res.get("harness") and res["harness"]["runner"])
+        pf, pw, res["per_period"] = per_period_check(repo, pair, rec, leads, shift, wl, files, canon, harness_ok)
         fails += pf
         warns += pw
         pp_txt = "; " + res["per_period"].get("summary", "") if res.get("per_period") else ""
@@ -706,7 +775,8 @@ def series_loaded(repo: Path, pair: str, series: str, files) -> tuple[bool, list
     return bool(hits), hits
 
 
-def per_period_check(repo: Path, pair: str, rec: dict, leads: list, shift: int, wl, files, canon):
+def per_period_check(repo: Path, pair: str, rec: dict, leads: list, shift: int, wl, files, canon,
+                     harness: bool = False):
     """Point-in-time check (standard Step 2, pkg12): count the backtest periods in which a FIXED lag L uses a
     reading whose first release (data/release_calendar/release_calendar.csv) is after the return window opens.
     Zero breaching periods are required for every grid lead and the winner, unless the registry declares
@@ -740,6 +810,10 @@ def per_period_check(repo: Path, pair: str, rec: dict, leads: list, shift: int, 
         if not ok:
             fails.append(f"per-period: release_calendar_series {series} is not referenced by the pair's scripts or data "
                          "dictionary: the pipeline may load a different series (fix the registry mapping)")
+    if info["alignment"] == "pit_asof" and harness:
+        info["summary"] = ("per-period: as-of aligned by scripts/harness (revised/market: align.lag_asof = pit_shift; "
+                           "real-time: vintages visible at the window open), 0 breaches by construction")
+        return fails, warns, info
     if info["alignment"] == "pit_asof":
         checks = {str(f.relative_to(repo)): pit_shift_used(f.read_text(), series) for f in files if f in canon}
         callers = [f"{k} ({why})" for k, (ok, why) in checks.items() if ok]

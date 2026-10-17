@@ -572,3 +572,48 @@ def test_grid_passed_as_parameter_default_is_resolved(tmp_path):
     assert st == "PASS", why
     bad = src.replace("LEADS = list(range(2, 14))", "LEADS = list(range(0, 14))")
     assert "sub-floor leads [0, 1]" in pp(pp_repo(tmp_path / "bad", bad, {**PP_REC}, raw=True))[1]
+
+
+# ---------------------------------------------------------------------------------------------- Phase B harness
+SPEC_SRC = ("from harness.spec import PairSpec\nSERIES = 'UNRATE'\n"
+            "SPEC = PairSpec(pair_id='x_spy', freq='M', lead_unit='months', leads={leads}, oos_start='2017-01-31', "
+            "min_is_n=60, position_shift={ps}, track_policy='compute_twice', release_series={rs}, level_columns=['x'], "
+            "features=None, signals={{}}, rules=None)\n")
+RUNNER = "from harness.run import run_pair\n\ndef main():\n    run_pair('x_spy', '20261017')\n"
+HREC = {"lead_floor": 2, "lead_grid": list(range(2, 14)), "position_shift": 0, "release_calendar_series": "UNRATE",
+        "alignment": "pit_asof"}
+
+
+def harness_repo(tmp, leads="list(range(2, 14))", ps=0, rs="SERIES", runner=RUNNER):
+    r = make_repo(tmp, "x_spy", runner, {"x_spy": HREC}, winner_lead=4, raw=True)
+    (r / "scripts" / "pair_spec_x_spy.py").write_text(SPEC_SRC.format(leads=leads, ps=ps, rs=rs))
+    return r
+
+
+def test_harness_spec_is_the_grid_and_satisfies_pit_asof(tmp_path):
+    r = harness_repo(tmp_path)
+    res = g.run(r, ["x_spy"], mode="per-period")[0]
+    assert res["status"] == "PASS", res["reasons"]
+    assert res["harness"]["leads"] == list(range(2, 14)) and res["harness"]["runner"]
+    assert "harness" in res["per_period"]["summary"]
+
+
+def test_harness_sub_floor_grid_fails(tmp_path):
+    r = harness_repo(tmp_path, leads="[1, 2, 3]")
+    st, why = reasons(r)
+    assert st == "FAIL" and "sub-floor" in why
+
+
+def test_harness_position_shift_and_series_must_match_registry(tmp_path):
+    st, why = reasons(harness_repo(tmp_path, ps=1))
+    assert st == "FAIL" and "PairSpec position_shift=1" in why
+    r2 = harness_repo(tmp_path / "b", rs="'PAYEMS'")
+    st2, why2 = reasons(r2)
+    assert st2 == "FAIL" and "release_series" in why2
+
+
+def test_spec_without_runner_is_ignored(tmp_path):
+    r = harness_repo(tmp_path, runner="x = 1\n")
+    res = g.run(r, ["x_spy"], mode="floor")[0]
+    assert res["status"] == "FAIL" and "no lead-grid definition" in " ".join(res["reasons"])
+    assert "spec ignored" in " ".join(res["reasons"])
