@@ -353,7 +353,7 @@ def test_per_period_never_released_reading_fails(tmp_path):
     assert st == "FAIL" and "never released" in why
 
 
-PIT_REAL = ("leads = list(range(2, 14))\nfor lead in leads:\n"
+PIT_REAL = ("leads = list(range(2, 14))\nrel = load_release('XS', df.index)\nfor lead in leads:\n"
             "    x = pit_shift(df[['s', 't']], lead, rel)\n    pos = rule(x)\n    ret = pos * r\n")
 
 
@@ -382,7 +382,7 @@ def test_pit_asof_dead_or_unbound_call_does_not_count(tmp_path):
     const = PP_OK + "x = pit_shift(df, 2, rel)\npos = rule(x)\n"
     for k, src in enumerate((dead, const)):
         st, why, _ = pp(pp_repo(tmp_path / str(k), src, rec, delayed={"2019-09": "2020-01-09"}))
-        assert st == "FAIL" and "not driven by the lead-loop variable" in why
+        assert st == "FAIL" and ("not driven by the lead-loop variable" in why or "plain .shift(lead)" in why)
 
 
 def test_decoy_grid_with_real_loop_over_other_name_fails(tmp_path):
@@ -532,3 +532,22 @@ def test_declared_grid_that_no_loop_iterates_fails(tmp_path):
     ok = ("leads = list(range(2, 14))\ndef replay(w, col, lead):\n    return w[col].shift(lead)\n"
           "for lead in leads:\n    replay(work, 'x', lead)\nret = pos * r\n")
     assert pp(pp_repo(tmp_path / "ok", ok, PP_REC, raw=True))[0] == "PASS"
+
+
+def test_pit_asof_result_must_reach_positions_with_the_registry_series(tmp_path):
+    """QA2 L-1: overwrite by a plain shift, a dead branch, the wrong release series or an unknown one all FAIL."""
+    rec = {**PP_REC, "alignment": "pit_asof"}
+    head = "leads = list(range(2, 14))\nrel = load_release('XS', df.index)\nfor lead in leads:\n"
+    bad = {
+        "overwrite": head + "    x = pit_shift(df, lead, rel)\n    x = df.shift(lead)\n    pos = rule(x)\n    ret = pos * r\n",
+        "dead": head + "    if False:\n        x = pit_shift(df, lead, rel)\n    pos = rule(x)\n    ret = pos * r\n",
+        "wrong_series": PIT_REAL.replace("load_release('XS'", "load_release('INDPRO'"),
+        "stamps": PIT_REAL.replace("rel = load_release('XS', df.index)", "rel = df.index.to_series()"),
+    }
+    for k, src in bad.items():
+        st, why, _ = pp(pp_repo(tmp_path / k, src, rec, delayed={"2019-09": "2020-01-09"}))
+        assert st == "FAIL", k
+    assert "plain .shift(lead)" in pp(pp_repo(tmp_path / "o2", bad["overwrite"], rec))[1]
+    assert "dead branch" in pp(pp_repo(tmp_path / "d2", bad["dead"], rec))[1]
+    assert "release series INDPRO" in pp(pp_repo(tmp_path / "w2", bad["wrong_series"], rec))[1]
+    assert pp(pp_repo(tmp_path / "ok", PIT_REAL, rec, delayed={"2019-09": "2020-01-09"}))[0] == "PASS"

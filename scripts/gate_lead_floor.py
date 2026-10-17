@@ -531,36 +531,84 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
     return res
 
 
-def pit_shift_used(src: str) -> tuple[bool, str]:
-    """True when the script makes a REAL pit_shift(...) call (AST, so comments/strings do not count) whose lead
-    argument is the variable of a traded lead loop (or a loop over the grid), whose result is assigned and later
-    read. Returns (ok, why)."""
+def _release_series(tree, rel) -> str | None:
+    """Which release series the pit_shift `release` argument comes from: load_release("SID", ...) -> "SID",
+    rule_release(idx, 0|1) -> "rule:market_close" | "rule:next_business_day"; None when not statically known."""
+    node = rel
+    if isinstance(rel, ast.Name):  # follow the (last) assignment of that name
+        assigns = [n for n in ast.walk(tree) if isinstance(n, ast.Assign)
+                   and any(isinstance(t, ast.Name) and t.id == rel.id for t in n.targets)]
+        if len(assigns) != 1:
+            return None
+        node = assigns[0].value
+    if not isinstance(node, ast.Call):
+        return None
+    f = node.func
+    name = f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else None
+    if name == "load_release" and node.args and isinstance(node.args[0], ast.Constant):
+        return str(node.args[0].value)
+    if name == "rule_release":
+        bd = node.args[1] if len(node.args) > 1 else next((k.value for k in node.keywords if k.arg == "business_days"), None)
+        bd = 1 if bd is None else (bd.value if isinstance(bd, ast.Constant) else None)
+        return {0: "rule:market_close", 1: "rule:next_business_day"}.get(bd)
+    return None
+
+
+def pit_shift_used(src: str, series: str | None = None) -> tuple[bool, str]:
+    """True when the script makes a REAL pit_shift(...) call (AST: comments/strings do not count) that
+      * takes the traded lead-loop variable as its lead argument,
+      * is not inside a dead branch (`if False:` / `if 0:`),
+      * has its result read later, and its loop contains no plain `.shift(<lead var>)` (which would bypass or
+        overwrite the as-of alignment, QA2 L-1),
+      * uses the registry's release series (load_release("<series>", ...) or the matching rule_release).
+    Returns (ok, why)."""
     try:
         tree = ast.parse(src)
     except SyntaxError:
         return False, "syntax error"
-    loops = {n.target.id for n in ast.walk(tree) if isinstance(n, ast.For) and isinstance(n.target, ast.Name)
-             and (is_traded_shift_loop(n) or LOOP_VAR.match(n.target.id))}
-    calls = []
-    for n in ast.walk(tree):
-        if isinstance(n, ast.Assign) and isinstance(n.value, ast.Call):
-            f = n.value.func
-            name = f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else None
-            if name == "pit_shift":
-                calls.append(n)
+    parents = {c: p for p in ast.walk(tree) for c in ast.iter_child_nodes(p)}
+
+    def ancestors(n):
+        while n in parents:
+            n = parents[n]
+            yield n
+
+    calls = [n for n in ast.walk(tree) if isinstance(n, ast.Assign) and isinstance(n.value, ast.Call) and (
+                 (isinstance(n.value.func, ast.Name) and n.value.func.id == "pit_shift")
+                 or (isinstance(n.value.func, ast.Attribute) and n.value.func.attr == "pit_shift"))]
     if not calls:
         return False, "no pit_shift(...) call in code (comments and strings do not count)"
     loads = [(x.id, x.lineno) for x in ast.walk(tree) if isinstance(x, ast.Name) and isinstance(x.ctx, ast.Load)]
+    why = "pit_shift(...) present but not driven by the lead-loop variable or its result is never used"
     for a in calls:
         c = a.value
         lead = c.args[1] if len(c.args) > 1 else next((k.value for k in c.keywords if k.arg == "lead"), None)
-        if not (isinstance(lead, ast.Name) and lead.id in loops):
+        loop = next((n for n in ancestors(a) if isinstance(n, ast.For) and isinstance(n.target, ast.Name)
+                     and isinstance(lead, ast.Name) and n.target.id == lead.id), None)
+        if loop is None:
+            continue
+        if any(isinstance(n, ast.If) and isinstance(n.test, ast.Constant) and not n.test.value for n in ancestors(a)):
+            why = f"pit_shift at line {a.lineno} is in a dead branch"
+            continue
+        if any(_shift_var(x) == lead.id for x in ast.walk(loop)):
+            why = (f"the lead loop at line {loop.lineno} also applies a plain .shift({lead.id}): the as-of alignment "
+                   "is bypassed or overwritten")
             continue
         targets = {t.id for t in a.targets if isinstance(t, ast.Name)} | {
             e.id for t in a.targets if isinstance(t, (ast.Tuple, ast.List)) for e in t.elts if isinstance(e, ast.Name)}
-        if any(nm in targets and ln > a.lineno for nm, ln in loads):
-            return True, f"pit_shift at line {a.lineno}"
-    return False, "pit_shift(...) present but not driven by the lead-loop variable or its result is never used"
+        if not any(nm in targets and ln > a.lineno for nm, ln in loads):
+            why = f"pit_shift result at line {a.lineno} is never read"
+            continue
+        rel = c.args[2] if len(c.args) > 2 else next((k.value for k in c.keywords if k.arg == "release"), None)
+        got = _release_series(tree, rel) if rel is not None else None
+        if series is not None and got != series:
+            why = (f"pit_shift at line {a.lineno} uses release series {got or 'not statically known'}, registry "
+                   f"release_calendar_series is {series}")
+            continue
+        return True, f"pit_shift at line {a.lineno}"
+    return False, why
+
+
 RULES = {"rule:market_close": 0, "rule:next_business_day": 1}
 FREQ = {"months": "ME", "quarters": "QE", "trading_days": "B"}
 
@@ -660,7 +708,7 @@ def per_period_check(repo: Path, pair: str, rec: dict, leads: list, shift: int, 
             fails.append(f"per-period: release_calendar_series {series} is not referenced by the pair's scripts or data "
                          "dictionary: the pipeline may load a different series (fix the registry mapping)")
     if info["alignment"] == "pit_asof":
-        checks = {str(f.relative_to(repo)): pit_shift_used(f.read_text()) for f in files if f in canon}
+        checks = {str(f.relative_to(repo)): pit_shift_used(f.read_text(), series) for f in files if f in canon}
         callers = [f"{k} ({why})" for k, (ok, why) in checks.items() if ok]
         if callers:
             info["summary"] = f"per-period: as-of aligned ({', '.join(callers)}), 0 breaches by construction"
