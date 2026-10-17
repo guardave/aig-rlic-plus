@@ -1,7 +1,7 @@
 {
   "chart_name": "tournament_sharpe_dist",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T13:23:07.176314+00:00",
+  "generated_at": "2026-10-17T14:30:53.722729+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead (as known at the time; the winner is chosen on training data, not on this OOS score).",
   "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead (as known at the time; the winner is chosen on training data, not on this OOS score).",

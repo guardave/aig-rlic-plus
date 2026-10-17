@@ -1,7 +1,7 @@
 {
   "pair_id": "cc_delinquency_spy",
   "schema_version": "1.0.0",
-  "last_updated_at": "2026-10-17T13:08:30.238622+00:00",
+  "last_updated_at": "2026-10-17T14:10:45.167647+00:00",
   "suggestions": [
     {
       "signal_name": "Lead robustness",
