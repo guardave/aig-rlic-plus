@@ -349,7 +349,7 @@ with status_tab:
         f"### Prospective-pair universe — {n_completed_count} of {n_universe_total} completed"
     )
     st.caption(
-        "Rows = indicators in the source `docs/Indicator x Target.csv` matrix. "
+        "Rows = indicators in the source `docs/Indicator x Target.csv` matrix plus hand-added candidates. "
         "Columns = 9 sector-ETF targets. ✅ = completed analysis, "
         "🚫 = archived/deprecated, · = in universe but not started, blank = not in universe. "
         "When an indicator appears under multiple CSV names, the additional names are shown "
