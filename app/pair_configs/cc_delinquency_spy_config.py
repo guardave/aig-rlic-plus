@@ -448,8 +448,7 @@ class StrategyConfig:
         conclusion=(
             f"This long/cash overlay is a found-in-search candidate: rule {W.signal_code} / {W.threshold_code} / "
             f"L{W.lead}, test-period Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe}, on a short as-known-at-the-time "
-            "history with no forecasting lead in the formal tests. Suggestion from the as-known-at-the-time result; "
-            "you judge."
+            "history with no forecasting lead in the formal tests."
         ),
     )
 

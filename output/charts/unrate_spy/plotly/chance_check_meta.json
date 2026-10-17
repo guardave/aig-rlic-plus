@@ -1,7 +1,7 @@
 {
   "chart_name": "chance_check",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T12:48:39.280293+00:00",
+  "generated_at": "2026-10-17T13:28:52.033151+00:00",
   "generated_by": "scripts/harness/charts.py",
   "caption": "Real winner scores above all 100 scrambled-signal contests.",
   "narrative_alignment_note": "Real winner scores above all 100 scrambled-signal contests.",

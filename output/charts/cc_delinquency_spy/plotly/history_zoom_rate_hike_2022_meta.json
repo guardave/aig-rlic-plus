@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_rate_hike_2022",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T12:32:33.231142+00:00",
+  "generated_at": "2026-10-17T13:23:09.954988+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "2022-24 Delinquency Upturn: Post-Pandemic Normalization; gray bands are NBER recessions.",
   "narrative_alignment_note": "2022-24 Delinquency Upturn: Post-Pandemic Normalization; gray bands are NBER recessions.",

@@ -1,7 +1,7 @@
 {
   "chart_name": "tournament_scatter",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T12:10:44.868528+00:00",
+  "generated_at": "2026-10-17T13:23:07.183427+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "Alias for tournament scatter slot.",
   "narrative_alignment_note": "Alias for tournament scatter slot.",

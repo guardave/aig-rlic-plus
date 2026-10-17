@@ -1,7 +1,7 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T12:10:43.959867+00:00",
+  "generated_at": "2026-10-17T13:23:06.258080+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "Pearson correlations between UNRATE transforms and forward SPY returns.",
   "narrative_alignment_note": "Pearson correlations between UNRATE transforms and forward SPY returns.",
