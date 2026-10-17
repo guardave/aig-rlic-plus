@@ -119,6 +119,20 @@ def _ev(node: ast.AST, env: dict):
     raise Unevaluable
 
 
+def _param_default(fn, name):
+    """Default value node of parameter `name` of function `fn`, or None."""
+    args = fn.args.args
+    defaults = fn.args.defaults
+    offset = len(args) - len(defaults)
+    for i, a in enumerate(args):
+        if a.arg == name and i >= offset:
+            return defaults[i - offset]
+    for a, d in zip(fn.args.kwonlyargs, fn.args.kw_defaults):
+        if a.arg == name:
+            return d
+    return None
+
+
 def _shift_var(call) -> str | None:
     """Name passed to `.shift(<name>)` or `.shift(periods=<name>)`, else None."""
     if not (isinstance(call, ast.Call) and isinstance(call.func, ast.Attribute) and call.func.attr == "shift"):
@@ -209,6 +223,9 @@ def grid_usage(src: str) -> tuple[set, set]:
             params = [a.arg for a in f.args.args]
             for prm in params:
                 if prm in iterated:
+                    dflt = _param_default(f, prm)
+                    if isinstance(dflt, ast.Name):
+                        iterated.add(dflt.id)
                     for c in ast.walk(tree):
                         if isinstance(c, ast.Call) and ((isinstance(c.func, ast.Name) and c.func.id == f.name) or
                                                         (isinstance(c.func, ast.Attribute) and c.func.attr == f.name)):
@@ -274,32 +291,39 @@ def extract_grids(src: str):
                 nm = n.iter.id
                 fn = next((f for f in funcs if f.lineno <= n.lineno <= f.end_lineno
                            and nm in [x.arg for x in f.args.args + f.args.kwonlyargs]), None)
-                if fn is not None:  # a function parameter: resolve the grid at every call site
+                if fn is not None:  # a function parameter: resolve the grid at every call site (or its default)
                     pos = [x.arg for x in fn.args.args].index(nm) if nm in [x.arg for x in fn.args.args] else None
-                    for c in (c for c in ast.walk(tree) if isinstance(c, ast.Call) and (
-                            (isinstance(c.func, ast.Name) and c.func.id == fn.name)
-                            or (isinstance(c.func, ast.Attribute) and c.func.attr == fn.name))):
-                        arg = (c.args[pos] if pos is not None and pos < len(c.args)
-                               else next((k.value for k in c.keywords if k.arg == nm), None))
+                    default = _param_default(fn, nm)
+                    sites = [c for c in ast.walk(tree) if isinstance(c, ast.Call) and (
+                        (isinstance(c.func, ast.Name) and c.func.id == fn.name)
+                        or (isinstance(c.func, ast.Attribute) and c.func.attr == fn.name))]
+                    if not sites and default is not None:
+                        sites = [None]
+                    for c in sites:
+                        arg = None if c is None else (c.args[pos] if pos is not None and pos < len(c.args)
+                                                      else next((k.value for k in c.keywords if k.arg == nm), None))
+                        if arg is None:
+                            arg = default
                         if arg is None:
                             continue
+                        lineno = fn.lineno if c is None else c.lineno
                         try:
-                            g = _ev(arg, env_at.get(c.lineno, env))
+                            g = _ev(arg, env)
                         except (Unevaluable, TypeError):
                             g = None
                             # `f(..., [L])` inside `for L in <grid>:` -> the grid is that loop's iterable
                             if isinstance(arg, (ast.List, ast.Tuple)) and len(arg.elts) == 1 and isinstance(arg.elts[0], ast.Name):
                                 outer = [f for f in all_fors if isinstance(f.target, ast.Name)
-                                         and f.target.id == arg.elts[0].id and f.lineno <= c.lineno <= f.end_lineno]
+                                         and f.target.id == arg.elts[0].id and f.lineno <= lineno <= f.end_lineno]
                                 if outer:
                                     try:
                                         g = _ev(outer[-1].iter, env)
                                     except (Unevaluable, TypeError):
                                         g = None
                         if g is None:
-                            warns.append((c.lineno, f"{fn.name}({nm}=...) -> for {n.target.id}"))
+                            warns.append((lineno, f"{fn.name}({nm}=...) -> for {n.target.id}"))
                         else:
-                            defs.append((c.lineno, f"{fn.name}({nm}=...) -> for {n.target.id}", [int(x) for x in g]))
+                            defs.append((lineno, f"{fn.name}({nm}=...) -> for {n.target.id}", [int(x) for x in g]))
                 elif nm in env:
                     defs.append((n.lineno, f"for {n.target.id} in {nm}", list(env[nm])))
                 elif not any(x == nm for _, x in derived):

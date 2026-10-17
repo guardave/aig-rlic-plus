@@ -562,3 +562,13 @@ def test_pit_asof_release_assigned_in_two_branches_resolves(tmp_path):
     diff = two.replace("load_release('XS', idx)", "load_release('INDPRO', idx)")
     st, why, _ = pp(pp_repo(tmp_path / "diff", diff, rec))
     assert st == "FAIL" and "not statically known" in why
+
+
+def test_grid_passed_as_parameter_default_is_resolved(tmp_path):
+    """def run_grid(df, leads=LEADS): for lead in leads: ... called as run_grid(df) (nhs_spy pattern)."""
+    src = ("LEADS = list(range(2, 14))\ndef run_grid(df, leads=LEADS):\n    for lead in leads:\n"
+           "        sig = s.shift(lead)\n        ret = pos * r\nrun_grid(df)\n")
+    st, why, res = pp(pp_repo(tmp_path / "ok", src, PP_REC, raw=True))
+    assert st == "PASS", why
+    bad = src.replace("LEADS = list(range(2, 14))", "LEADS = list(range(0, 14))")
+    assert "sub-floor leads [0, 1]" in pp(pp_repo(tmp_path / "bad", bad, {**PP_REC}, raw=True))[1]
