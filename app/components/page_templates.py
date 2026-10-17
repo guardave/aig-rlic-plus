@@ -1533,7 +1533,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     kpi_row([
         {"label": _headline_sharpe_label, "value": oos_sharpe,
          "delta": _headline_sharpe_delta,
-         "delta_color": _sharpe_kpi_delta(winner)[1]},
+         # found_in_search / unconfirmed: keep the signed gap but no green/red judgement colour
+         "delta_color": _sharpe_kpi_delta(winner)[1] if _kpi_routing is None else "off"},
         {"label": "OOS Return", "value": oos_return, "delta": "annualized"},
         {"label": "Max Drawdown", "value": max_dd,
          "delta": _dd_kpi_delta(winner)[0],
