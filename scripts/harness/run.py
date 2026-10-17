@@ -288,6 +288,8 @@ def winner_summary(mod, tag: str, out: dict, extra: dict) -> dict:
     wf = prose.build(main) if main else {}
     if comp is not None:
         wf.update(prose.build(comp, prefix="comparison_"))
+        wf.update(prose.cross_fields(out["cross_eval"]))
+    wf["track_state"] = prose.field(track_state(spec, main), track_state(spec, main))
     ws["winner_fields"] = wf
     return A.jsonable(ws)
 
@@ -383,6 +385,10 @@ def write_outputs(mod, tag: str, out: dict, extra: dict) -> None:
     A.write_json(rdir / "tournament_winner.json", ws)
     ts = track_summary(mod, out, ws)
     A.write_json(rdir / "track_summary.json", ts, "track_summary")
+    from harness import charts
+    if out["records"]["main"] and out["records"]["main"].get("eligible"):
+        charts.lead_plateau(spec.pair_id, tag, spec.lead_unit)
+        charts.chance_check(spec.pair_id, tag)
     A.write_json(rdir / f"leak_tests_{tag}.json", A.jsonable({"pair_id": spec.pair_id, "tag": tag,
                                                               "replay": out["replay"], "tracks": out["leaks"],
                                                               "null": {r: (out["records"][r] or {}).get("null_tournament")

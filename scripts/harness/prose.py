@@ -36,6 +36,17 @@ def field(value, text: str) -> dict:
     return {"value": value, "text": text}
 
 
+def cross_fields(ce: dict) -> dict:
+    """Cross-evaluation fields: each track's winner scored on the other track (like-for-like)."""
+    out = {}
+    for k, name in (("main_winner_on_revised", "ce_main_on_revised"), ("revised_winner_on_main", "ce_revised_on_main")):
+        r = (ce or {}).get(k)
+        if isinstance(r, dict):
+            out[f"{name}_is_sharpe"] = field(r["is_sharpe"], _num(r["is_sharpe"]))
+            out[f"{name}_oos_sharpe"] = field(r["oos_sharpe"], _num(r["oos_sharpe"]))
+    return out
+
+
 def build(rec: dict, prefix: str = "") -> dict:
     """Fields of one track record (artifacts.track_record). `prefix` namespaces the comparison track."""
     p = prefix
@@ -79,6 +90,9 @@ def build(rec: dict, prefix: str = "") -> dict:
         "selection_objective": field(rec["objective"], OBJECTIVE_TEXT[rec["objective"]]),
         "plateau_leads": field(rec["plateau"]["leads"], ", ".join(str(x) for x in rec["plateau"]["leads"])),
         "plateau_score": field(rec["plateau"]["score"], _num(rec["plateau"]["score"])),
+        "plateau_range": field(rec["plateau"]["leads"], f"L{min(rec['plateau']['leads'])}-L{max(rec['plateau']['leads'])}"),
+        "annual_turnover": field(w["annual_turnover"], _num(w["annual_turnover"])),
+        "oos_exposure": field(w["oos_exposure"], _pct(w["oos_exposure"], 0)),
         "raw_argmax_lead": field(rec["raw_argmax"]["lead"], str(rec["raw_argmax"]["lead"])),
         "raw_argmax_is_sharpe": field(rec["raw_argmax"]["is_sharpe"], _num(rec["raw_argmax"]["is_sharpe"])),
     }
