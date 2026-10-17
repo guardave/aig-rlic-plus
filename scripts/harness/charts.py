@@ -32,6 +32,10 @@ def _save(pair: str, name: str, fig: go.Figure, caption: str, sources: list[str]
             "generated_by": "scripts/harness/charts.py", "caption": caption, "narrative_alignment_note": caption,
             "disposition": "consumed", "source_artifacts": sources}
     (out / f"{name}_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
+    try:                                    # perceptual-check PNG (GATE-27); kaleido needs a Chromium (BROWSER_PATH)
+        fig.write_image(out / f"_perceptual_check_{name}.png", width=1200, height=600)
+    except Exception as e:                  # noqa: BLE001 - no renderer: say so, never write an empty file
+        print(f"  (perceptual PNG skipped for {name}: {type(e).__name__})")
     return out / f"{name}.json"
 
 

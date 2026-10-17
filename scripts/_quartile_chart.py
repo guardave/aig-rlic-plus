@@ -128,7 +128,9 @@ def make_dual_panel_regime_chart(
         template="plotly_white",
         height=height,
         showlegend=False,
-        margin=dict(t=110),
+        margin=dict(t=160),
+        # the chart title (set by callers) sits above the "Key:" line at paper y=1.18, not on top of it
+        title=dict(y=0.98, yanchor="top"),
         annotations=annotations,
     )
     fig.update_xaxes(title_text=x_axis_title)
