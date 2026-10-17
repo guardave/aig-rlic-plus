@@ -47,6 +47,10 @@ class WinnerFields:
         f = self._fields.get(name)
         return FieldText(f["text"], name) if f else f"[missing: {name}]"
 
+    def text(self, name: str):
+        """Display text of a field by name (e.g. a prefixed comparison-track field), same as W.<name>."""
+        return self.__getattr__(name)
+
     def value(self, name: str):
         f = self._fields.get(name)
         return None if f is None else f["value"]

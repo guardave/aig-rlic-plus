@@ -500,19 +500,44 @@ def numeric_literals(cfg_path: Path) -> list[str]:
 APPROVED_DEF_ATTRS = {"_DATA_SOURCES_MD", "_METHODS_TABLE_MD", "_GRID_TABLE_MD", "_INDICATOR_CONSTRUCTION_MD"}
 
 
+FORBIDDEN_CALLS = {"getattr", "setattr", "__import__", "eval", "exec", "compile", "vars", "globals", "locals",
+                   "import_module", "reload"}
+
+
 def provenance_api(cfg_path: Path) -> list[str]:
-    """PROVENANCE-API (hard, schema-1.3 pairs; Codex L2v2 F1 / F10): a config may not mint tags or definitions
-    itself. No private name of components.provenance (P._tag, P._PNum, ...), no direct DefText; definition_text()
-    only as the value of an approved methodology block, definitions() only for a *_TEXT dict."""
+    """PROVENANCE-API (hard, schema-1.3 pairs; Codex L2v2 F1 / F10, L2v3 N1): a config may not mint tags or
+    definitions itself. The ONLY allowed import of the module is `from components import provenance as P`; any
+    other form (import components.provenance, from components.provenance import ...), any dynamic access
+    (getattr / importlib / __import__ / eval / exec / vars / globals / sys.modules), any private name on P, and
+    DefText are hard failures; definition_text() only as the value of an approved methodology block,
+    definitions() only for a *_TEXT dict."""
     tree = ast.parse(cfg_path.read_text())
-    aliases = {a.asname or a.name for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module == "components"
-               for a in n.names if a.name == "provenance"}
-    out = []
+    aliases, out = set(), []
     for n in ast.walk(tree):
-        if isinstance(n, ast.ImportFrom) and n.module == "components.provenance":
-            bad = [a.name for a in n.names if a.name.startswith("_") or a.name == "DefText"]
-            if bad:
-                out.append(f"PROVENANCE-API (line {n.lineno}): imports {bad} from components.provenance")
+        if isinstance(n, ast.ImportFrom) and n.module == "components":
+            for a in n.names:
+                if a.name == "provenance":
+                    if a.asname != "P":
+                        out.append(f"PROVENANCE-API (line {n.lineno}): import provenance only as "
+                                   "`from components import provenance as P`")
+                    aliases.add(a.asname or a.name)
+        elif isinstance(n, ast.ImportFrom) and (n.module or "").startswith("components.provenance"):
+            out.append(f"PROVENANCE-API (line {n.lineno}): `from components.provenance import ...` is not allowed")
+        elif isinstance(n, ast.Import):
+            for a in n.names:
+                if a.name.startswith("components.provenance") or a.name in ("importlib", "builtins"):
+                    out.append(f"PROVENANCE-API (line {n.lineno}): `import {a.name}` is not allowed in a config")
+        elif isinstance(n, ast.ImportFrom) and n.module in ("importlib", "builtins"):
+            out.append(f"PROVENANCE-API (line {n.lineno}): `from {n.module} import ...` is not allowed in a config")
+        elif isinstance(n, ast.Call):
+            fn = n.func.id if isinstance(n.func, ast.Name) else getattr(n.func, "attr", "")
+            if fn in FORBIDDEN_CALLS:
+                out.append(f"PROVENANCE-API (line {n.lineno}): dynamic access `{fn}(...)` is not allowed in a config")
+        elif isinstance(n, ast.Attribute) and n.attr in ("modules", "__dict__", "__globals__") :
+            out.append(f"PROVENANCE-API (line {n.lineno}): `.{n.attr}` is not allowed in a config")
+        elif isinstance(n, ast.Name) and n.id == "DefText":
+            out.append(f"PROVENANCE-API (line {n.lineno}): DefText is not allowed in a config")
+    for n in ast.walk(tree):
         if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id in aliases \
                 and (n.attr.startswith("_") or n.attr == "DefText"):
             out.append(f"PROVENANCE-API (line {n.lineno}): {n.value.id}.{n.attr} (configs never mint tags)")

@@ -35,6 +35,16 @@ authored text only in the config attributes their `paths` name (GLOBAL_OK except
 an approved definition (a *_TEXT dict value or an approved methodology block); the marked config module is fully
 discarded after a render. Shared-template values loaded through schema_check.validate_or_die are tagged too.
 
+v4 after Codex L2v3 (N1-N5): the only allowed import is `from components import provenance as P` (any other form or
+dynamic access fails PROVENANCE-API; a forged tag can in any case only show the value its source evaluates to);
+every artifact leaf has a declared kind (docs/gates/provenance_units.json) and x100 / '%' display / annualisation
+/ +-1 are allowed only on matching kinds and the pair's own frequency; every visible Plotly string is checked;
+definition text and categorical winner-field labels may show only numbers the pair spec / pipeline / manifest /
+registry declare; winner-field reconciliation is sign-sensitive. N6 (disclosed residual): shared-template text is
+still value-matched (coincidence printed per pair, the value-matched blocks listed), but numbers on headline /
+confidence surfaces (KPI metrics, vs buy-and-hold facts, chance check, revised-data caption) must be tagged
+(HEADLINE findings otherwise).
+
 Usage:
   python scripts/gate_number_provenance.py [pair ...]         # default: every pair with winner_summary 1.3.x
   python scripts/gate_number_provenance.py --text FILE --pair P  # v1 value check of a text file (diagnostic)
@@ -338,55 +348,43 @@ def _page_file(pair: str, section: str) -> Path | None:
     return hits[0] if hits else None
 
 
-CHART_SCOPE = ("chart titles, axis titles, annotations, legend title, trace names and text labels are checked; "
-               "hover text / hovertemplates and plotted data values are NOT (disclosed gap)")
+CHART_SCOPE = ("every visible Plotly string is checked (titles, axis / colorbar titles, tick text, annotations, "
+               "shape labels, legend, trace names, text / texttemplate labels, hover text / hovertemplates, "
+               "category labels); raw numeric data arrays (the plotted values themselves) are NOT (disclosed gap)")
+VISIBLE_KEYS = {"text", "texttemplate", "hovertext", "hovertemplate", "ticktext", "name", "label", "title",
+                "prefix", "suffix"}
+_PLACEHOLDER = re.compile(r"%\{[^}]*\}|<extra>.*?</extra>", re.S)
+_ISO = re.compile(r"^\d{4}-\d{2}-\d{2}(?:[T ][\d:.]+)?$")
 
 
 def _chart_texts(spec: str) -> list[str]:
-    """Visible text of a Plotly figure (Codex L2v2 F3): see CHART_SCOPE."""
+    """Every visible string of a Plotly figure (Codex L2v2 F3, L2v3 N3): see CHART_SCOPE. Format placeholders
+    (%{y:.2f}) are removed; category values of x / y / z arrays are included (ISO timestamps are data)."""
     try:
         fig = json.loads(spec)
     except (TypeError, ValueError):
         return []
-    out = []
-    lay = fig.get("layout") or {}
+    out: list[str] = []
 
-    def title(o):
-        t = (o or {}).get("title")
-        return t.get("text") if isinstance(t, dict) else t
-    for k, v in lay.items():
-        if k == "title" or k.startswith(("xaxis", "yaxis")) or k == "legend":
-            t = title(lay) if k == "title" else title(v)
-            if isinstance(t, str):
-                out.append(t)
-    for a in lay.get("annotations") or []:
-        if isinstance(a, dict) and isinstance(a.get("text"), str):
-            out.append(a["text"])
-    for tr in fig.get("data") or []:
-        if isinstance(tr.get("name"), str):
-            out.append(tr["name"])
-        t = tr.get("text")
-        if isinstance(t, str):
-            out.append(t)
-        elif isinstance(t, list):
-            # a bar / point label that shows the value it is attached to (its own y, or x for horizontal bars)
-            # is a label of plotted data, not a separate claim; anything else is checked like other chart text
-            ys = tr.get("x") if tr.get("orientation") == "h" else tr.get("y")
-            for i, x in enumerate(t):
-                if not isinstance(x, (str, int, float)):
-                    continue
-                own = ys[i] if isinstance(ys, list) and i < len(ys) else None
-                if not _labels_value(str(x), own):
-                    out.append(str(x))
+    def walk(o, key=None):
+        if isinstance(o, dict):
+            for k, v in o.items():
+                if k in VISIBLE_KEYS or k in ("x", "y", "z", "labels"):
+                    walk(v, k)
+                elif isinstance(v, (dict, list)):
+                    walk(v, k)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v, key)
+        elif isinstance(o, str) and key is not None:
+            if key in ("x", "y", "z") and _ISO.match(o):
+                return
+            if key in VISIBLE_KEYS or key in ("x", "y", "z", "labels"):
+                t = _PLACEHOLDER.sub(" ", o).strip()
+                if t:
+                    out.append(t)
+    walk(fig)
     return out
-
-
-def _labels_value(label: str, own) -> bool:
-    toks = _numbers(label)
-    if len(toks) != 1 or not isinstance(own, (int, float)):
-        return False
-    (x, d, _pct), _ = toks[0]
-    return abs(float(own) - x) <= 0.5 * 10 ** -d + 1e-9
 
 
 def _texts(node, out: list):
@@ -398,7 +396,7 @@ def _texts(node, out: list):
             _texts(c, out)
     typ = getattr(node, "type", None)
     if typ == "metric":
-        out.append(("prose", f"{node.label}: {node.value} {getattr(node, 'delta', '') or ''}"))
+        out.append(("metric", f"{node.label}: {node.value} {getattr(node, 'delta', '') or ''}"))
         return
     if typ in ("table", "dataframe", "arrow_data_frame"):
         try:
@@ -597,7 +595,52 @@ def _numbers(text: str):
     return [(_value(m.group(0)), m.group(0)) for m in NUM.finditer(body) if _value(m.group(0))]
 
 
-def reconcile_field(name: str, fields: dict) -> str | None:
+_SPEC_POOL: dict[str, set] = {}
+
+
+def spec_numbers(pair: str) -> set[float]:
+    """Numbers the pair DECLARES outside its config (Codex L2v3 N4): every numeric literal and every number inside
+    a string literal of scripts/pair_spec_<pair>.py and scripts/pair_pipeline_<pair>.py (windows, thresholds,
+    quantiles, lags, display names such as '60-month z-score'), the candidates manifest and the registry entry.
+    Definition text and categorical field labels may show only these numbers (a percentile 'p75' / '75th' also
+    matches 0.75)."""
+    if pair in _SPEC_POOL:
+        return _SPEC_POOL[pair]
+    import ast as _ast
+    nums: set[float] = set()
+    for f in (REPO / "scripts" / f"pair_spec_{pair}.py", REPO / "scripts" / f"pair_pipeline_{pair}.py"):
+        if not f.exists():
+            continue
+        for n in _ast.walk(_ast.parse(f.read_text())):
+            if isinstance(n, _ast.Constant):
+                if isinstance(n.value, (int, float)) and not isinstance(n.value, bool):
+                    nums.add(float(n.value))
+                elif isinstance(n.value, str):
+                    nums |= {float(x) for x in re.findall(r"\d+(?:\.\d+)?", n.value)}
+    extra: list = []
+    try:
+        _walk(json.loads((RESULTS / pair / f"candidates_manifest_{load_tag(pair)}.json").read_text()), extra, [])
+    except (OSError, KeyError, ValueError):
+        pass
+    try:
+        _walk(json.loads(REGISTRY.read_text())["pairs"][pair], extra, [])
+    except (OSError, KeyError):
+        pass
+    nums |= {float(x) for x in extra}
+    nums |= {round(x * 100, 6) for x in list(nums) if 0 < x < 1}          # p75 / 75th percentile <-> 0.75
+    _SPEC_POOL[pair] = nums
+    return nums
+
+
+def _declared(tok: str, pair: str | None) -> bool:
+    val = _value(tok)
+    if val is None or pair is None:
+        return False
+    x = abs(val[0])
+    return any(abs(x - v) < 1e-9 for v in spec_numbers(pair))
+
+
+def reconcile_field(name: str, fields: dict, pair: str | None = None) -> str | None:
     """winner_fields text vs value (Codex L2v2 F6): every number the text shows must be the value (x 100 for a
     percent, any element of a list value, a digit run of a string value); a number word must equal the value."""
     f = fields.get(name)
@@ -612,9 +655,11 @@ def reconcile_field(name: str, fields: dict) -> str | None:
     elif isinstance(val, list) and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in val):
         vals = [float(x) for x in val]
     elif isinstance(val, str):
+        # a categorical field (code / display label): each number in the text must be in the value itself or be
+        # a number the pair spec / pipeline declares (the '60' of a '60-month z-score' label; Codex L2v3 note)
         digits = re.findall(r"\d+", val)
         bad = [t for (_, t) in toks if re.sub(r"\D", "", t.split(".")[0]) not in digits
-               and not any(re.sub(r"\D", "", t) in d for d in digits)]
+               and not any(re.sub(r"\D", "", t) in d for d in digits) and not _declared(t, pair)]
         return f"field {name}: text {text!r} shows {bad} not in its value {val!r}" if bad and not DATE.fullmatch(val) \
             else None
     else:
@@ -624,9 +669,9 @@ def reconcile_field(name: str, fields: dict) -> str | None:
         if w and float(word_value(w)) not in vals:
             return f"field {name}: text {text!r} (= {word_value(w)}) != value {val!r}"
         return None
-    for (x, d, pct), t in toks:
+    for (x, d, pct), t in toks:                 # sign-sensitive (Codex L2v3 N5)
         tol = 0.5 * 10 ** -d + 1e-9
-        if not any(abs(abs((v * 100) if pct else v) - abs(x)) <= tol for v in vals):
+        if not any(abs(((v * 100) if pct else v) - x) <= tol for v in vals):
             return f"field {name}: text {text!r} shows {t} but its value is {val!r}"
     return None
 
@@ -640,12 +685,18 @@ def verify_sentinel(src: str, unit: str, shown: str, fields: dict, pair: str | N
     except Exception as e:                              # noqa: BLE001 - an unresolvable source is a finding
         return f"source {src!r} does not resolve ({type(e).__name__}: {e})"
     if src.startswith("wf:"):
-        r = reconcile_field(src[3:], fields)
+        r = reconcile_field(src[3:], fields, pair)
         if r:
             return r
         return None if val == shown else f"text {shown!r} != {src} {val!r}"
     if isinstance(val, str):
         return None if val == shown else f"text {shown!r} != {src} {val!r}"
+    try:
+        kind = P.kind_of(src, pair)
+    except Exception as e:                              # noqa: BLE001 - invalid unit arithmetic is a finding
+        return f"source {src!r} is not unit-correct ({e})"
+    if unit == "pct" and kind not in P.RATIO_KINDS:
+        return f"shows {shown!r} as a percent but {src} is a {kind} (only ratios may be shown x 100)"
     toks = _numbers(shown.replace("−", "-"))
     if not toks:
         return None if not re.search(r"\d", shown) else f"shows {shown!r} for numeric {src}"
@@ -661,8 +712,17 @@ def verify_sentinel(src: str, unit: str, shown: str, fields: dict, pair: str | N
     return None if abs(target - x) <= tol else f"shows {shown!r} but {src} = {target:.6g} ({unit})"
 
 
+# Headline / confidence surfaces whose numbers must be TAGGED even in shared-template text (Lead ruling on L2v3
+# N6): KPI metrics for Sharpe / return / drawdown / win rate, the vs-buy-and-hold facts, the chance check, the
+# revised-data caption and the executive summary lines.
+HEADLINE = re.compile(r"^(?:[^\n:]*(?:Sharpe|Return|Drawdown|Win Rate)[^\n:]*:)|The test-period Sharpe difference|"
+                      r"Test-period Sharpe was below|Winner on revised data|scrambled-signal contests|"
+                      r"Contests: \d|\*\*Chance check\.\*\*|Annual return was")
+
+
 def check_tagged(text: str, pool: dict, entries: list[dict], fields: dict, where: str,
-                 pair: str | None = None, approved: set | None = None) -> tuple[list[str], dict]:
+                 pair: str | None = None, approved: set | None = None,
+                 headline: bool = False) -> tuple[list[str], dict]:
     """Layer 2 v2 on one rendered block. Authored numbers must sit in a verified sentinel, an approved definition
     span or a path-bound allowlist span; template text keeps the value-matching fallback (sign-sensitive for
     explicitly signed tokens). Returns (findings, counters)."""
@@ -685,9 +745,20 @@ def check_tagged(text: str, pool: dict, entries: list[dict], fields: dict, where
             if any(s <= m.start() < e for s, e in spans):
                 continue
             spans.append(m.span())
-            digits = [kinds[i] for i in range(m.start(), m.end()) if body[i].isalnum()] or kinds[m.start():m.end()]
+            span_ix = range(m.start(), m.end())
+            has_digit = any(body[i].isdigit() for i in span_ix)
+            digits = [kinds[i] for i in span_ix if (body[i].isdigit() if has_digit else body[i].isalnum())] \
+                or kinds[m.start():m.end()]
             k = set(digits)
-            if k <= {"value"} or "definition" in k and k <= {"definition", "value"}:
+            if k <= {"value"}:
+                continue
+            if "definition" in k and k <= {"definition", "value"}:
+                # definition text may show only numbers the pair declares outside its config (Codex L2v3 N4)
+                if rx is DATE or _declared(m.group(1) if rx is ORDINAL else m.group(0), pair) or \
+                        (rx is WORD and pair is not None and float(word_value(m)) in spec_numbers(pair)):
+                    continue
+                out.append(f"DEFINITION {where}: definition number {m.group(0)!r} is not a parameter the pair "
+                           f"spec / pipeline declares — \"{_ctx(body, m)}\"")
                 continue
             if rx is WORD and m.group("small") and m.group("small").lower() in ("one", "zero") \
                     and not UNIT_AFTER.match(body, m.end()):
@@ -702,8 +773,13 @@ def check_tagged(text: str, pool: dict, entries: list[dict], fields: dict, where
             if kind == "authored":
                 out.append(f"UNTAGGED {where}{f' [{path}]' if path else ''}: authored number {m.group(0)!r} is not "
                            f"from a field or artifact — \"{_ctx(body, m)}\"")
+            elif headline and rx in (NUM, ORDINAL) and not (re.fullmatch(r"(?:19|20)\d\d", m.group(0))):
+                out.append(f"HEADLINE {where}: untagged template number {m.group(0)!r} on a headline surface — "
+                           f"\"{_ctx(body, m)}\"")
             elif not _resolve_token(m, rx, pool, body):
                 out.append(f"UNRESOLVED {where}: template number {m.group(0)!r} — \"{_ctx(body, m)}\"")
+            else:
+                cnt.setdefault("template_blocks", set()).add(body.strip()[:70].replace("\n", " "))
     return out, cnt
 
 
@@ -781,6 +857,7 @@ def check_pair(pair: str, pages: dict | None = None) -> tuple[list[str], dict]:
     fields = json.loads((RESULTS / pair / "winner_summary.json").read_text()).get("winner_fields") or {}
     approved = _APPROVED.get(pair)
     findings, tot = [], {"authored_tokens": 0, "template_tokens": 0, "tagged_values": 0}
+    blocks_seen: set[str] = set()
     for sec, blocks in pages.items():
         for kind, b in blocks:
             if b.startswith("RENDER-EXCEPTION"):
@@ -790,12 +867,14 @@ def check_pair(pair: str, pages: dict | None = None) -> tuple[list[str], dict]:
                 tpool = tpool or load_table_pool(pair, pool)
                 f, c = check_tagged(b, tpool, entries, fields, f"{pair}/{sec} [{kind}]", pair, approved)
             else:
-                f, c = check_tagged(b, pool, entries, fields, f"{pair}/{sec}", pair, approved)
+                head = bool(HEADLINE.search(parse_markers(b)[0]))
+                f, c = check_tagged(b, pool, entries, fields, f"{pair}/{sec}", pair, approved, head)
             findings += f
             for k in tot:
                 tot[k] += c[k]
+            blocks_seen.update(f"{sec}: {x}" for x in c.get("template_blocks", ()))
     stats = {"tokens_pool": len(pool["nums"]), "coincidence_template": round(coincidence(pool), 3),
-             "files": pool["files"], **tot}
+             "files": pool["files"], "template_blocks": sorted(blocks_seen), **tot}
     return findings, stats
 
 
@@ -818,6 +897,11 @@ def main(argv=None) -> int:
               f"template tokens (value-matched; coincidence {st['coincidence_template']:.1%})")
         for x in f:
             print("     ", x[:260])
+        if st.get("template_blocks"):
+            print(f"      template text value-matched (disclosed residual, coincidence "
+                  f"{st['coincidence_template']:.1%}): {len(st['template_blocks'])} block(s)")
+            for b in st["template_blocks"]:
+                print("        -", b[:110])
         hard += len(f)
     print(f"\nGATE-NUMBER-PROVENANCE: {hard} unresolved number(s). Charts: {CHART_SCOPE}.")
     return 1 if hard else 0

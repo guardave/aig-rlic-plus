@@ -62,6 +62,7 @@ from components.narrative import (
     render_transition,
 )
 from components.position_adjustment_panel import render_position_adjustment_panel
+from components.provenance import artifact as _artifact
 from components.rolling_threshold import resolve_threshold
 from components.probability_engine_panel import render_probability_engine_panel
 from components.pair_registry import get_page_prefix
@@ -269,7 +270,7 @@ def _load_winner_summary(pair_id: str) -> dict[str, Any] | None:
         return None
     try:
         with open(path) as f:
-            data = json.load(f)
+            data = _artifact(json.load(f), path)       # provenance sentinels in gate mode only
     except json.JSONDecodeError as exc:
         st.error(
             f"**winner_summary.json for `{pair_id}` is not valid JSON** "
@@ -463,7 +464,7 @@ def _load_interpretation_metadata(pair_id: str) -> dict[str, Any]:
         return {}
     try:
         with open(path) as f:
-            return json.load(f)
+            return _artifact(json.load(f), path)
     except json.JSONDecodeError:
         return {}
 
@@ -581,15 +582,18 @@ def _format_ratio_pct(value: Any, signed: bool = False, ndp: int = 1) -> str:
 
     Returns ``"N/A"`` if value is None or non-numeric. Mirrors META-UC
     (Wave 8B) unit-form conventions."""
-    try:
-        v = float(value)
-    except (TypeError, ValueError):
-        return "N/A"
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            return "N/A"
     fmt = f"{{:+.{ndp}%}}" if signed else f"{{:.{ndp}%}}"
-    return fmt.format(v)
+    return fmt.format(value)          # no float() on a number: keeps its provenance tag in gate mode
 
 
 def _format_scalar(value: Any, ndp: int = 2, default: str = "N/A") -> str:
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return f"{value:.{ndp}f}"     # keeps the provenance tag of an artifact value in gate mode
     try:
         return f"{float(value):.{ndp}f}"
     except (TypeError, ValueError):
@@ -606,7 +610,7 @@ def _benchmark_metric(pair_id: str, winner: dict, winner_key: str, tourn_col: st
     try:
         v = winner.get(winner_key)
         if v is not None:
-            return float(v)
+            return v if isinstance(v, (int, float)) and not isinstance(v, bool) else float(v)   # keep the tag
     except (TypeError, ValueError):
         pass
     path = _latest_dated_file(pair_id, "tournament_results")
@@ -634,7 +638,7 @@ def _sharpe_kpi_delta(winner: dict) -> tuple[str | None, str]:
     rendered as a green up arrow). Falls back to the text form when values are missing."""
     s, b = winner.get("oos_sharpe"), winner.get("bh_sharpe")
     if isinstance(s, (int, float)) and isinstance(b, (int, float)):
-        return f"{float(s) - float(b):+.2f} vs B&H {float(b):.2f}", "normal"
+        return f"{s - b:+.2f} vs B&H {b:.2f}", "normal"
     return (f"vs {_format_scalar(b)} B&H" if b is not None else None), "off"
 
 
@@ -646,7 +650,7 @@ def _dd_kpi_delta(winner: dict) -> tuple[str | None, str]:
     dd = winner.get("oos_max_drawdown")
     bh = winner.get("bh_max_drawdown")
     if isinstance(dd, (int, float)) and isinstance(bh, (int, float)) and bh != 0:
-        gap_pp = (float(dd) - float(bh)) * 100.0  # >0 => strategy DD shallower => better
+        gap_pp = (dd - bh) * 100  # >0 => strategy DD shallower => better (tagged arithmetic in gate mode)
         return f"{gap_pp:+.1f}pp vs B&H", "normal"  # 'normal' => green for positive
     bh_fmt = _format_ratio_pct(bh)
     return (f"vs {bh_fmt} B&H" if bh_fmt != "N/A" else None), "inverse"
@@ -1581,7 +1585,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         {"label": "Max Drawdown", "value": max_dd,
          "delta": _dd_kpi_delta(winner)[0],
          "delta_color": _dd_kpi_delta(winner)[1]},
-        {"label": "Turnover", "value": f"~{float(turnover):.1f}/yr" if turnover else "N/A"},
+        {"label": "Turnover", "value": f"~{turnover:.1f}/yr" if turnover else "N/A"},
         # #158 (KS): column-tolerance fallback — some winner rows carry the
         # win rate under the sibling key `win_rate` rather than the OOS-specific
         # `oos_win_rate` (e.g. gold_copper_xli). Prefer oos_win_rate when present
@@ -1589,7 +1593,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         # metric shows the real value instead of N/A. No fabrication — only the
         # value already in the winner row is used.
         {"label": "Win Rate",
-         "value": (lambda _wr: f"{float(_wr):.0%}" if _wr is not None else "N/A")(
+         "value": (lambda _wr: f"{_wr:.0%}" if _wr is not None else "N/A")(
              winner.get('oos_win_rate') if winner.get('oos_win_rate') is not None
              else winner.get('win_rate'))},
     ])
@@ -1962,7 +1966,8 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
     winner = None
     if pair_id:
         try:
-            winner = json.loads((_REPO_ROOT / "results" / pair_id / "winner_summary.json").read_text())
+            _wp = _REPO_ROOT / "results" / pair_id / "winner_summary.json"
+            winner = _artifact(json.loads(_wp.read_text()), _wp)
         except Exception:
             winner = None
     objective = ((winner or {}).get("selection") or {}).get("objective")

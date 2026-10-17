@@ -386,6 +386,78 @@ def _art(ref: str, pair: str | None):
     return o
 
 
+UNITS = Path(__file__).resolve().parents[2] / "docs" / "gates" / "provenance_units.json"
+_UNIT_RULES: list | None = None
+RATIO_KINDS = {"ratio", "period_return"}
+
+
+def leaf_kind(leaf: str) -> str:
+    """Declared kind of an artifact leaf (docs/gates/provenance_units.json; Codex L2v3 N2)."""
+    global _UNIT_RULES
+    if _UNIT_RULES is None:
+        _UNIT_RULES = [(re.compile(r["pattern"]), r["kind"]) for r in json.loads(UNITS.read_text())["rules"]]
+    for rx, kind in _UNIT_RULES:
+        if rx.search(leaf):
+            return kind
+    return "unknown"
+
+
+def _ppy(pair: str | None):
+    if not pair:
+        return None
+    try:
+        for f in sorted((RESULTS / pair).glob("candidates_manifest_*.json")):
+            return float(json.loads(f.read_text()).get("ppy"))
+    except (OSError, ValueError, TypeError):
+        return None
+    return None
+
+
+def kind_of(src: str, pair: str | None = None) -> str:
+    """Kind of a source expression, enforcing unit-correct arithmetic: x100 only on a ratio or a per-period
+    return (-> 'percent'); x periods-per-year only on a per-period return at the pair's own frequency
+    (-> 'ratio'); /100 only on a percent; +/-1 only on a count or lead; a sum / difference only of two
+    leaves of the same kind. SourceError otherwise."""
+    m = re.fullmatch(r"(\w+)\((.*)\)", src, re.S)
+    if src.startswith(("art:", "reg:")):
+        return leaf_kind(src)
+    if src.startswith("wf:"):
+        return "field"
+    if src.startswith("const:"):
+        return "const"
+    if not m:
+        raise SourceError(f"bad source expression {src!r}")
+    fn, args = m.group(1), _split_args(m.group(2))
+    if fn in ("neg", "abs"):
+        return kind_of(args[0], pair)
+    if fn in ("len", "count"):
+        return "count"
+    if fn in ("min", "max", "maxabs"):
+        return leaf_kind(f"{args[0]}/{_unesc(args[1])}")
+    if fn in ("key", "prefix"):
+        return "label"
+    if fn in ("mul", "div", "add", "sub"):
+        ka, kb = kind_of(args[0], pair), kind_of(args[1], pair)
+        if "const" not in (ka, kb):
+            if ka != kb:
+                raise SourceError(f"{fn} of a {ka} and a {kb} in {src!r}")
+            return ka
+        c = float(args[1][6:] if kb == "const" else args[0][6:])
+        k = ka if kb == "const" else kb
+        if fn in ("add", "sub"):
+            if c == 1 and k in ("count", "lead"):
+                return k
+            raise SourceError(f"{fn} of {c:g} on a {k} in {src!r}")
+        if c == 100 and fn == "mul" and k in RATIO_KINDS:
+            return "percent"
+        if c in (0.01,) and fn == "mul" and k == "percent" or c == 100 and fn == "div" and k == "percent":
+            return "ratio"
+        if c in (12.0, 4.0, 52.0, 252.0) and fn == "mul" and k == "period_return" and c == _ppy(pair):
+            return "ratio"
+        raise SourceError(f"{fn} by {c:g} is not a valid unit operation on a {k} in {src!r}")
+    return "unknown"
+
+
 def _has_leaf(src: str) -> bool:
     return bool(re.search(r"(?:^|[(,])(?:art|wf|reg):", src))
 

@@ -1,0 +1,20 @@
+{
+  "description": "Declared kind of every artifact leaf a page may format (Codex L2v3 N2). The number-provenance gate allows x100 / a '%' display only on ratio kinds, annualisation (x periods per year) only on a per-period return at the pair's own frequency (candidates manifest ppy), and +/-1 only on counts / leads. A leaf matching no rule has kind 'unknown': it may be shown as is (or negated / differenced with a leaf of the same kind) but never scaled. The first matching rule wins; patterns are searched in the source path (file#key/path).",
+  "rules": [
+    {"pattern": "(?:^|/)(?:ann_return|ann_vol|max_dd|max_drawdown|oos_ann_return|oos_ann_vol|oos_max_drawdown|bh_ann_return|bh_max_drawdown|win_rate|oos_win_rate|exposure|oos_exposure|is_exposure)(?:/|$)", "kind": "ratio", "why": "fractions of capital or of time (0.152 = 15.2%)"},
+    {"pattern": "#/vs_buy_hold/(?:ann_return|ann_vol|max_dd)/", "kind": "ratio", "why": "strategy / B&H return, volatility and drawdown fractions"},
+    {"pattern": "(?:winner_percentile|selection_stat_percentile|is_max_percentile|winner_oos_percentile|_percentile)(?:/|$)", "kind": "ratio", "why": "share of null contests below the statistic"},
+    {"pattern": "(?:_share|share)(?:/|$)", "kind": "ratio", "why": "share of windows / days"},
+    {"pattern": "exposure_bounds/\\d", "kind": "ratio", "why": "IS exposure bounds as fractions"},
+    {"pattern": "quartile_next_month_ann_return/Q\\d|quartile_concurrent_ann_return", "kind": "ratio", "why": "annualised returns (already annualised by the pipeline)"},
+    {"pattern": "spy_drawdown/|/drawdown(?:/|$)", "kind": "ratio", "why": "drawdown fractions"},
+    {"pattern": "hmm_regime_(?:calm|stress)/ann_return", "kind": "ratio", "why": "annualised regime return (pipeline)"},
+    {"pattern": "r\\d+/(?:mean_Q\\d|q4_minus_q1)$", "kind": "period_return", "why": "mean next-period return by quartile (per period)"},
+    {"pattern": "r\\d+/mean_return$", "kind": "period_return", "why": "mean per-period return"},
+    {"pattern": "(?:pct_stress_days|pct_is|pct_oos)(?:/|$)", "kind": "ratio", "why": "shares of days"},
+    {"pattern": "(?:sharpe|sortino|calmar)(?:/|$|_)", "kind": "sharpe", "why": "Sharpe-type ratios (never x100)"},
+    {"pattern": "(?:p_value|pvalue|p_is|p_oos|p_diff_le_0|p_selection_stat)(?:/|$)", "kind": "stat", "why": "probabilities reported as p-values (shown as is)"},
+    {"pattern": "(?:lead|lead_value|lead_days|lead_grid/\\d|leads/\\d|window_leads/\\d)(?:/|$)", "kind": "lead", "why": "lead in the pair's period unit"},
+    {"pattern": "(?:n_\\w+|_n|is_n|oos_n|n|n_months|n_draws|count|rows)(?:/|$)", "kind": "count", "why": "counts"}
+  ]
+}

@@ -88,7 +88,7 @@ def test_parse_markers_and_source_evaluation():
     os.environ["AIG_PROVENANCE_GATE"] = "1"
     try:
         ws = P.json_file(g.RESULTS / PAIR / "winner_summary.json")
-        text = (f"{P.A0}StoryConfig.X{P.AP}Sharpe {ws['oos_sharpe']:.2f} vs {ws['bh_sharpe'] * 100:.0f} and "
+        text = (f"{P.A0}StoryConfig.X{P.AP}Sharpe {ws['oos_sharpe']:.2f} vs {ws['bh_ann_return'] * 100:.0f} and "
                 f"{ws['oos_max_drawdown']:.1%} and 0.77.{P.A1}")
     finally:
         os.environ.pop("AIG_PROVENANCE_GATE")
@@ -264,12 +264,12 @@ def test_l2v2_f6_winner_field_text_is_reconciled_with_value():
 
 
 def test_l2v2_f7_every_number_and_the_declared_unit_are_checked():
-    src = f"art:{PAIR}/winner_summary.json#/oos_sharpe"
-    x = _ws()["oos_sharpe"]
-    assert g.verify_sentinel(src, "raw", f"{x:.2f} and 987.65", {}, PAIR)          # extra number in the span
+    src = f"art:{PAIR}/winner_summary.json#/oos_ann_return"          # a ratio: may be shown as a percent
+    x = _ws()["oos_ann_return"]
+    assert g.verify_sentinel(src, "raw", f"{x:.4f} and 987.65", {}, PAIR)          # extra number in the span
     assert g.verify_sentinel(src, "raw", f"{x * 100:.0f}%", {}, PAIR)               # raw value shown as x100
     assert g.verify_sentinel(src, "pct", f"{x * 100:.0f}%", {}, PAIR) is None       # declared percent
-    assert g.verify_sentinel(src, "pct", f"{x:.2f}", {}, PAIR)                      # declared percent, raw shown
+    assert g.verify_sentinel(src, "pct", f"{x:.4f}", {}, PAIR)                      # declared percent, raw shown
 
 
 @pytest.mark.parametrize("body", ["It returned seventy percent.", "It returned zero percent.",
@@ -307,3 +307,84 @@ def test_l2v2_f11_markers_never_leak_into_a_later_normal_render():
     import sys as _s
     assert f"pair_configs.{PAIR}_config" not in _s.modules
     assert not hasattr(_s.modules.get("pair_configs"), f"{PAIR}_config")
+
+
+# --------------------------------------------------------------------- Codex L2v3 review: every repro FAILs (v4)
+def test_l2v3_n1_any_other_import_or_dynamic_access_of_provenance_fails(tmp_path):
+    import gate_structured_prose as L1
+    cases = {
+        "import_module_alias": "import components.provenance as sneaky\nX = sneaky._tag('0.43', 'wf:oos_sharpe')\n",
+        "from_import": "from components.provenance import json_file\n",
+        "getattr": "from components import provenance as P\nX = getattr(P, '_tag')('0.43', 'wf:oos_sharpe')\n",
+        "importlib": "import importlib\nM = importlib.import_module('components.provenance')\n",
+        "dunder_import": "M = __import__('components.provenance')\n",
+        "other_alias": "from components import provenance as Q\n",
+        "sys_modules": "import sys\nM = sys.modules['components.provenance']\n",
+    }
+    for name, code in cases.items():
+        cfg = tmp_path / f"{name}_config.py"
+        cfg.write_text(code)
+        assert L1.provenance_api(cfg), name
+
+
+def test_l2v3_n2_unit_operations_need_a_matching_declared_kind():
+    from components import provenance as P
+    ws = f"art:{PAIR}/winner_summary.json#"
+    with pytest.raises(P.SourceError):                              # a lead shown x100 ("500")
+        P.kind_of(f"mul({ws}/lead_value,const:100)", PAIR)
+    assert g.verify_sentinel(f"mul({ws}/lead_value,const:100)", "raw", "500", {}, PAIR)
+    with pytest.raises(P.SourceError):                              # a Sharpe annualised
+        P.kind_of(f"mul({ws}/oos_sharpe,const:12)", PAIR)
+    with pytest.raises(P.SourceError):                              # a Sharpe shown x100
+        P.kind_of(f"mul({ws}/oos_sharpe,const:100)", PAIR)
+    assert g.verify_sentinel(f"{ws}/oos_sharpe", "pct", "43%", {}, PAIR)   # percent display of a non-ratio
+    assert P.kind_of(f"mul({ws}/oos_ann_return,const:100)", PAIR) == "percent"
+    with pytest.raises(P.SourceError):                              # wrong-frequency annualisation (unrate: 12)
+        P.kind_of(f"mul(art:{PAIR}/regime_quartile_returns.csv#r0/mean_return,const:252)", PAIR)
+    assert P.kind_of(f"mul(art:{PAIR}/regime_quartile_returns.csv#r0/mean_return,const:12)", PAIR) == "ratio"
+
+
+def test_l2v3_n3_every_visible_plotly_string_is_checked():
+    import json
+    spec = json.dumps({"data": [{"name": "clean", "y": [987.65], "text": ["987.65"],
+                                 "texttemplate": "Stale %{y:.2f}; fixed 876.54", "hovertext": ["Hover 765.43"],
+                                 "hovertemplate": "Hover fixed 654.32<extra></extra>",
+                                 "marker": {"colorbar": {"title": {"text": "Bar 432.10"}}}}],
+                       "layout": {"xaxis": {"tickvals": [1], "ticktext": ["Tick 543.21"]},
+                                  "shapes": [{"label": {"text": "Shape 321.09"}}]}})
+    texts = g._chart_texts(spec)
+    for n in ("987.65", "876.54", "765.43", "654.32", "543.21", "432.10", "321.09"):
+        assert any(n in t for t in texts), (n, texts)
+        assert any(x.startswith("UNRESOLVED") for t in texts if n in t for x in _check(t)), n
+
+
+def test_l2v3_n4_definitions_must_use_numbers_the_spec_or_pipeline_declares():
+    from components import provenance as P
+    bad = _authored(f"Threshold {P.D0}Stale result 987.65 percent{P.D1}")
+    assert any(x.startswith("DEFINITION") and "987.65" in x for x in _check(bad, approved={"Stale result 987.65 percent"}))
+    ok = _authored(f"Threshold {P.D0}its rolling 60-month 75th percentile{P.D1}")
+    assert not [x for x in _check(ok, approved={"its rolling 60-month 75th percentile"}) if "60" in x or "75" in x]
+
+
+def test_l2v3_n5_winner_field_reconcile_is_sign_sensitive():
+    fields = {"metric": {"value": 1.23, "text": "-1.23"}, "dd": {"value": -0.239, "text": "23.9%"}}
+    assert g.reconcile_field("metric", fields, PAIR)
+    assert g.verify_sentinel("wf:metric", "raw", "-1.23", fields, PAIR)
+    assert g.reconcile_field("dd", fields, PAIR)
+    assert g.reconcile_field("dd", {"dd": {"value": -0.239, "text": "-23.9%"}}, PAIR) is None
+
+
+def test_signal_display_digits_reconcile_against_the_spec_not_blindly():
+    fields = {"signal_display": {"value": "zscore_60m", "text": "60-month unemployment z-score"},
+              "stale_display": {"value": "zscore_60m", "text": "987-month unemployment z-score"}}
+    assert g.reconcile_field("signal_display", fields, PAIR) is None          # 60 is declared by the unrate spec
+    assert g.reconcile_field("stale_display", fields, PAIR)                   # 987 is not
+
+
+def test_headline_numbers_must_be_tagged_even_in_template_text():
+    x = _ws()["oos_sharpe"]
+    f, _ = g.check_tagged(f"The test-period Sharpe difference is {x:+.2f} (95% interval -0.95 to -0.28).",
+                          g.load_pool(PAIR), g._allow_entries(), {}, "t", PAIR, None, headline=True)
+    assert any(t.startswith("HEADLINE") for t in f)
+    findings, stats = g.check_pair(PAIR, g.render_pages(PAIR, sections=("strategy",)))
+    assert findings == [] and stats["template_blocks"]                          # residual blocks are listed
