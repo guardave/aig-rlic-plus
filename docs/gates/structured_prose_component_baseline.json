@@ -1,0 +1,100 @@
+{
+  "description": "Pair-specific branches / pair-id literals in app/components existing when the structured-prose gate was added (Phase B, plan 2a). Debt to pay down; the gate fails only on entries not listed here. Matching is by file + code snippet, not line number.",
+  "violations": [
+    {
+      "file": "app/components/execution_panel.py",
+      "line": 66,
+      "snippet": "pair_id == 'hy_ig_spy_v1'"
+    },
+    {
+      "file": "app/components/execution_panel.py",
+      "line": 66,
+      "snippet": "'hy_ig_spy_v1'"
+    },
+    {
+      "file": "app/components/instructional_trigger_cards.py",
+      "line": 563,
+      "snippet": "pair_id == 'cement_spy'"
+    },
+    {
+      "file": "app/components/instructional_trigger_cards.py",
+      "line": 239,
+      "snippet": "pair_id == 'retail_inv_sales_spy'"
+    },
+    {
+      "file": "app/components/instructional_trigger_cards.py",
+      "line": 563,
+      "snippet": "'cement_spy'"
+    },
+    {
+      "file": "app/components/instructional_trigger_cards.py",
+      "line": 239,
+      "snippet": "'retail_inv_sales_spy'"
+    },
+    {
+      "file": "app/components/pair_registry.py",
+      "line": 167,
+      "snippet": "pair_dir.endswith('_v1')"
+    },
+    {
+      "file": "app/components/pair_registry.py",
+      "line": 167,
+      "snippet": "pair_dir.endswith('_archived')"
+    },
+    {
+      "file": "app/components/position_adjustment_panel.py",
+      "line": 254,
+      "snippet": "pair_id == 't10y3m_spy'"
+    },
+    {
+      "file": "app/components/position_adjustment_panel.py",
+      "line": 254,
+      "snippet": "'t10y3m_spy'"
+    },
+    {
+      "file": "app/components/probability_engine_panel.py",
+      "line": 375,
+      "snippet": "pair_id == 'cement_spy'"
+    },
+    {
+      "file": "app/components/probability_engine_panel.py",
+      "line": 496,
+      "snippet": "pair_id != 'cement_spy'"
+    },
+    {
+      "file": "app/components/probability_engine_panel.py",
+      "line": 375,
+      "snippet": "'cement_spy'"
+    },
+    {
+      "file": "app/components/statistical_methods.py",
+      "line": 111,
+      "snippet": "'hy_ig_spy'"
+    },
+    {
+      "file": "app/components/statistical_methods.py",
+      "line": 276,
+      "snippet": "'phlxsox_spy'"
+    },
+    {
+      "file": "app/components/statistical_methods.py",
+      "line": 330,
+      "snippet": "'gold_copper_xli'"
+    },
+    {
+      "file": "app/components/statistical_methods.py",
+      "line": 637,
+      "snippet": "'indpro_spy'"
+    },
+    {
+      "file": "app/components/trade_history.py",
+      "line": 122,
+      "snippet": "'vix' in pair_id"
+    },
+    {
+      "file": "app/components/trade_history.py",
+      "line": 122,
+      "snippet": "'ted' in pair_id"
+    }
+  ]
+}

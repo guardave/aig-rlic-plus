@@ -1,0 +1,27 @@
+"""Fixture: retail_inv_sales_spy prose rewritten from structured winner fields (gate must PASS, hard mode)."""
+import json
+from pathlib import Path
+
+from components.winner_fields import WinnerFields
+
+W = WinnerFields("retail_inv_sales_spy", json.loads(Path(__file__).with_name("winner_summary.json").read_text())["winner_fields"])
+
+
+class StoryConfig:
+    HEADLINE_H2 = (
+        f"## Selected on {W.selection_objective}: out-of-sample Sharpe {W.oos_sharpe} versus "
+        f"{W.bh_oos_sharpe} for buy-and-hold"
+    )
+    KPI_CAPTION = (
+        f"The winner is the best of {W.n_valid} valid combinations on in-sample data; the median valid combination "
+        f"scores an in-sample Sharpe of {W.median_valid_is_sharpe}. Out of sample it records Sharpe {W.oos_sharpe} "
+        f"versus {W.bh_oos_sharpe}, maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}."
+    )
+
+
+class StrategyConfig:
+    PLAIN_ENGLISH = (
+        f"The rule holds SPY when the inventories-to-sales ratio from {W.lead_word} months earlier was at or above "
+        "its five-year rolling median, and holds cash otherwise."
+    )
+    WINNER_HEADING = f"Tournament Winner: Ratio Level vs Rolling Five-Year Median / P1 Long/Cash / L{W.lead}"
