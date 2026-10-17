@@ -66,6 +66,14 @@ EVASIONS = {
     "stale_drawdown": ('maximum drawdown {W.oos_max_drawdown} versus', 'maximum drawdown -12.0% versus'),
     "stale_return": ('"its 5-year rolling median, and holds cash otherwise."',
                      '"its 5-year rolling median, and holds cash otherwise. Its annual return was 9.4%."'),
+    # QA_VERIFY_B0r allowlist loopholes: a percentile result outside threshold definitions, a bare 0% / 100%
+    "ordinal_percentile_result": ('"its 5-year rolling median, and holds cash otherwise."',
+                                  '"its 5-year rolling median, and holds cash otherwise. Its score ranks at the 97th '
+                                  'percentile of the scrambled contests."'),
+    "bare_full_percent": ('"its 5-year rolling median, and holds cash otherwise."',
+                          '"its 5-year rolling median, and holds cash otherwise. It was right 100% of the time."'),
+    "bare_zero_percent": ('"its 5-year rolling median, and holds cash otherwise."',
+                          '"its 5-year rolling median, and holds cash otherwise. Drawdown was 0% in the test period."'),
     "verdict_word": ('"its 5-year rolling median, and holds cash otherwise."',
                      '"its 5-year rolling median, and holds cash otherwise. This is not a validated edge."'),
 }
@@ -162,6 +170,8 @@ def _pct(v, nd=1):
 
 
 _SHARE = _pct(W.value("oos_sharpe"), 0)
+THRESHOLD_TEXT = {"T_roll_p75": "its rolling 60-month 75th percentile"}
+_RULE = "hold 100% SPY when the reading is below the threshold; otherwise exposure from 100% to 0%."
 _POS = W.value("oos_sharpe") > 0
 ''')
     assert findings(d, hard=True) == []
