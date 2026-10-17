@@ -1,6 +1,6 @@
 {
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T14:10:14.304996+00:00",
+  "generated_at": "2026-10-17T15:31:51.608092+00:00",
   "schema_version": "1.3.0",
   "target_symbol": "SPY",
   "track_policy": "compute_twice",
@@ -122,7 +122,7 @@
       "lead": 6,
       "is_sharpe": 1.09742,
       "oos_sharpe": 0.619483,
-      "note": "isolated-peak sensitivity; not the selection rule"
+      "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
     },
     "rationale": "Winner selected on IS data only by the D9 lead-plateau rule; OOS reported for it only.",
     "inference": {
@@ -283,7 +283,7 @@
         "lead": 6,
         "is_sharpe": 1.09742,
         "oos_sharpe": 0.619483,
-        "note": "isolated-peak sensitivity; not the selection rule"
+        "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
       },
       "runner_up": {
         "signal": "chg_12m",
@@ -370,6 +370,7 @@
         "timing_sharpe_se_bandwidth": 6,
         "timing_sharpe_effective_draws": 43.4,
         "r71_tolerance": 0.1,
+        "timing_sharpe_mean_all_valid_candidates": 0.0,
         "r71_pass": false,
         "null_scores_hist": {
           "bins": [
@@ -417,6 +418,15 @@
             0,
             1
           ]
+        },
+        "r71_diagnosis": {
+          "timing_mean_selected_winner": 0.1232,
+          "timing_mean_all_valid_candidates": 0.0,
+          "timing_mean_selected_winner_returns_permuted": -0.0043,
+          "returns_permuted_se": 0.0528,
+          "returns_permuted_draws": 30,
+          "selection_effect": true,
+          "reading": "Selected winners average a timing Sharpe of 0.1232 in the null; all valid candidates average 0.0; with the returns permuted the selected winners average -0.0043 (SE 0.053). The bias appears only after in-sample selection on the real return path (a selection effect), not in unselected candidates or without the return path. The leak tests are reported separately."
         }
       }
     },
@@ -519,7 +529,7 @@
         "lead": 8,
         "is_sharpe": 1.120969,
         "oos_sharpe": 0.475449,
-        "note": "isolated-peak sensitivity; not the selection rule"
+        "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
       },
       "runner_up": {
         "signal": "sahm",
@@ -606,6 +616,7 @@
         "timing_sharpe_se_bandwidth": 6,
         "timing_sharpe_effective_draws": 43.7,
         "r71_tolerance": 0.1,
+        "timing_sharpe_mean_all_valid_candidates": 0.0005,
         "r71_pass": false,
         "null_scores_hist": {
           "bins": [
@@ -653,6 +664,15 @@
             0,
             1
           ]
+        },
+        "r71_diagnosis": {
+          "timing_mean_selected_winner": 0.1244,
+          "timing_mean_all_valid_candidates": 0.0005,
+          "timing_mean_selected_winner_returns_permuted": 0.0014,
+          "returns_permuted_se": 0.054,
+          "returns_permuted_draws": 30,
+          "selection_effect": true,
+          "reading": "Selected winners average a timing Sharpe of 0.1244 in the null; all valid candidates average 0.0005; with the returns permuted the selected winners average 0.0014 (SE 0.054). The bias appears only after in-sample selection on the real return path (a selection effect), not in unselected candidates or without the return path. The leak tests are reported separately."
         }
       }
     }
@@ -846,6 +866,18 @@
       "value": 1.09742,
       "text": "1.10"
     },
+    "raw_argmax_rule": {
+      "value": "chg_12m|T_roll_p75|P1|countercyclical|6",
+      "text": "chg_12m / T_roll_p75 / P1"
+    },
+    "raw_argmax_position": {
+      "value": true,
+      "text": "inside the stable lead range"
+    },
+    "raw_argmax_is_winner": {
+      "value": false,
+      "text": "a different rule from the winner"
+    },
     "ci_low": {
       "value": -0.9478,
       "text": "-0.95"
@@ -1033,6 +1065,18 @@
     "comparison_raw_argmax_is_sharpe": {
       "value": 1.120969,
       "text": "1.12"
+    },
+    "comparison_raw_argmax_rule": {
+      "value": "chg_6m|T_roll_p75|P1|countercyclical|8",
+      "text": "chg_6m / T_roll_p75 / P1"
+    },
+    "comparison_raw_argmax_position": {
+      "value": false,
+      "text": "outside the stable lead range"
+    },
+    "comparison_raw_argmax_is_winner": {
+      "value": false,
+      "text": "a different rule from the winner"
     },
     "comparison_ci_low": {
       "value": -0.7077,

@@ -256,6 +256,7 @@
       "timing_sharpe_se_bandwidth": 6,
       "timing_sharpe_effective_draws": 43.4,
       "r71_tolerance": 0.1,
+      "timing_sharpe_mean_all_valid_candidates": 0.0,
       "r71_pass": false,
       "null_scores_hist": {
         "bins": [
@@ -303,6 +304,15 @@
           0,
           1
         ]
+      },
+      "r71_diagnosis": {
+        "timing_mean_selected_winner": 0.1232,
+        "timing_mean_all_valid_candidates": 0.0,
+        "timing_mean_selected_winner_returns_permuted": -0.0043,
+        "returns_permuted_se": 0.0528,
+        "returns_permuted_draws": 30,
+        "selection_effect": true,
+        "reading": "Selected winners average a timing Sharpe of 0.1232 in the null; all valid candidates average 0.0; with the returns permuted the selected winners average -0.0043 (SE 0.053). The bias appears only after in-sample selection on the real return path (a selection effect), not in unselected candidates or without the return path. The leak tests are reported separately."
       }
     },
     "comparison": {
@@ -334,6 +344,7 @@
       "timing_sharpe_se_bandwidth": 6,
       "timing_sharpe_effective_draws": 43.7,
       "r71_tolerance": 0.1,
+      "timing_sharpe_mean_all_valid_candidates": 0.0005,
       "r71_pass": false,
       "null_scores_hist": {
         "bins": [
@@ -381,6 +392,15 @@
           0,
           1
         ]
+      },
+      "r71_diagnosis": {
+        "timing_mean_selected_winner": 0.1244,
+        "timing_mean_all_valid_candidates": 0.0005,
+        "timing_mean_selected_winner_returns_permuted": 0.0014,
+        "returns_permuted_se": 0.054,
+        "returns_permuted_draws": 30,
+        "selection_effect": true,
+        "reading": "Selected winners average a timing Sharpe of 0.1244 in the null; all valid candidates average 0.0005; with the returns permuted the selected winners average 0.0014 (SE 0.054). The bias appears only after in-sample selection on the real return path (a selection effect), not in unselected candidates or without the return path. The leak tests are reported separately."
       }
     }
   }

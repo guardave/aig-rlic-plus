@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T14:30:53.639871+00:00",
+  "generated_at": "2026-10-17T15:32:28.513283+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "UNRATE coefficient across SPY forward-return quantiles.",
   "narrative_alignment_note": "UNRATE coefficient across SPY forward-return quantiles.",

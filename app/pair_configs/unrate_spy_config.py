@@ -14,7 +14,7 @@ from pathlib import Path
 import pandas as pd
 
 from components.page_templates import MethodologyConfig
-from components.winner_fields import load
+from components.winner_fields import lead_grid, load
 
 W = load("unrate_spy")
 _RES = Path(__file__).resolve().parents[2] / "results" / "unrate_spy"
@@ -24,6 +24,28 @@ _Q = pd.read_csv(_RES / "regime_quartile_returns.csv").set_index("quartile")["sh
 _QR = pd.read_csv(_RES / f"core_models_{_TAG}" / "quantile_regression.csv").set_index("quantile")["coef"].to_dict()
 _QT = json.loads((_RES / f"core_models_{_TAG}" / "quantile_equality_test.json").read_text())
 _G_MIN_P = float(pd.read_csv(_RES / "granger_by_lag.csv")["p_value"].min())
+_TS = json.loads((_RES / "track_summary.json").read_text())
+_NT = _TS.get("null_tournament") or {}
+_MAN = json.loads((_RES / f"candidates_manifest_{_TAG}.json").read_text())
+_GRID = lead_grid("unrate_spy")
+_GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
+
+
+def _r71_caveat() -> str:
+    """Chance-check calibration disclosure (R7.1), rendered from the null diagnosis in track_summary.json."""
+    fails = [(lbl, d) for lbl, ok, d in (("as known at the time", _NT.get("r71_pass"), _NT.get("r71_diagnosis")),
+                                         ("as revised today", _NT.get("revised_r71_pass"), _NT.get("revised_r71_diagnosis")))
+             if ok is False]
+    if not fails:
+        return ""
+    body = " ".join(f"On data {lbl}: {d['reading']}" if d else f"On data {lbl}: no diagnosis recorded."
+                    for lbl, d in fails)
+    return ("6. **Chance-check calibration.** The scrambled contests should show no timing skill on average "
+            "(the R7.1 check); here they do not meet it. " + body + " The chance-check percentile therefore compares "
+            "the winner against a null that carries the same selection effect.\n")
+
+
+_R71_CAVEAT = _r71_caveat()
 
 THRESHOLD_TEXT = {
     "T_roll_p75": "its rolling 60-month 75th percentile", "T_roll_p90": "its rolling 60-month 90th percentile",
@@ -134,8 +156,8 @@ UNRATE can stay elevated while SPY rallies. It can also rise sharply during rece
             "title": "Dot-Com Crash",
             "narrative": (
                 "UNRATE rose after the equity bear market had already begun. "
-                "This episode shows why labor data can confirm stress rather "
-                "than warn before the first market move."
+                "This episode shows why labor data can register stress after "
+                "the first market move rather than warn before it."
             ),
             "caption": "Dot-Com: labor stress followed the market break.",
         },
@@ -174,7 +196,7 @@ UNRATE can stay elevated while SPY rallies. It can also rise sharply during rece
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The stress charts show why the signal is useful but imperfect. UNRATE confirms recessions and labor stress clearly, but it often arrives after markets have moved. The strongest reading is not "unemployment predicts every drawdown"; it is that labor-market regimes can help size equity exposure after stress has become visible.
+The stress charts show why the signal is useful but imperfect. UNRATE registers recessions and labor stress clearly, but it often moves after markets have moved. The strongest reading is not "unemployment predicts every drawdown"; it is that labor-market regimes can help size equity exposure after stress has become visible.
 """
 
     TRANSITION_TEXT = (
@@ -366,7 +388,7 @@ QUANTILE_BLOCK = dict(
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: UNRATE Is Useful, but Mostly as Lagging Regime Context",
     "overview": (
-        "The evidence supports a cautious labor-cycle overlay at most. Formal lead-lag evidence is weak and the "
+        "The tests below describe a labor-cycle overlay, not a forecast. Formal lead-lag evidence is weak and the "
         f"indicator is economically lagging; the selected rule's test-period Sharpe is {W.oos_sharpe} versus "
         f"{W.bh_oos_sharpe} for buy-and-hold on data as known at the time."
     ),
@@ -381,8 +403,8 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
         f"The tournament tested {W.n_candidates} strategy combinations ({W.n_valid} valid on the training period) "
-        "across seven UNRATE transforms, fixed and rolling thresholds, both orientations and the lead grid "
-        f"L2-L13 months, on data as known at the time. The selected winner is `{W.signal_code} / {W.threshold_code} / "
+        f"across {len(_MAN['signals'])} UNRATE transforms, fixed and rolling thresholds, both orientations and the lead grid "
+        f"{_GRID_RANGE} months, on data as known at the time. The selected winner is `{W.signal_code} / {W.threshold_code} / "
         f"{W.strategy_family} / L{W.lead}`, chosen on the training period by {W.selection_objective}."
     ),
     "transition": (
@@ -411,6 +433,36 @@ class StrategyConfig:
         f"The rule is to {_RULE}. This is a lagged labor-cycle rule, not a real-time recession forecast."
     )
 
+    # Status and badge rule come from track_summary.json (components.two_track.badge_status); this text states
+    # facts only.
+    EXECUTIVE_CONFIDENCE_SUMMARY = dict(
+        status="",
+        status_detail=(
+            "Selected on the training period from unemployment data as known at the time; it has not faced a "
+            "frozen-rule hold-out test."
+        ),
+        strengths=[
+            f"Point-in-time unemployment figures give a training period of {W.is_n} months ({W.is_start} to "
+            f"{W.is_end}).",
+            f"The chosen lead sits in a stable lead range ({W.plateau_range}).",
+        ],
+        risks=[
+            f"No forecasting mechanism in the formal tests: smallest Granger p-value {_G_MIN_P:.2f}.",
+            f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to "
+            f"{W.ci_high}.",
+            f"Chance check: the winner's stable-range score ranks at the {W.null_percentile} point of {W.null_draws} "
+            "scrambled contests" + (", and the scrambled contests do not meet the R7.1 calibration check (see the "
+                                    "caveats)." if _NT.get("r71_pass") is False else "."),
+            f"The rule selected on revised data {'is the same' if _SAME_RULE else 'differs'} (hindsight test-period "
+            f"Sharpe {W.comparison_oos_sharpe}).",
+        ],
+        conclusion=(
+            f"Rule {W.signal_code} / {W.threshold_code} / L{W.lead}: test-period Sharpe {W.oos_sharpe} versus "
+            f"{W.bh_oos_sharpe} for buy-and-hold ({W.oos_start} to {W.oos_end}), maximum drawdown "
+            f"{W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}, on unemployment data as known at the time."
+        ),
+    )
+
     DOWNLOADS = [
         {"label": "Granger causality by lag", "path": "results/unrate_spy/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": "results/unrate_spy/regime_quartile_returns.csv"},
@@ -431,7 +483,7 @@ Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}):
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = f"""
-First, at each month end the process takes the unemployment rate (`UNRATE`) as it was published on that date (the ALFRED vintage visible when the month's return window opens). Second, inside that vintage it computes the {_low(W.signal_display)} and its threshold. Third, it uses the reading from {W.lead_word} months earlier. Finally, the reading is compared with {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}.
+First, at each month end the process takes the unemployment rate (`UNRATE`) as it was published on that date (the published figures visible when the month's return window opens). Second, inside that vintage it computes the {_low(W.signal_display)} and its threshold. Third, it uses the reading from {W.lead_word} months earlier. Finally, the reading is compared with {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}.
 
 OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of test-period months with positive strategy return.
 """
@@ -480,11 +532,12 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     CAVEATS_MD = f"""
 **Main caveats:**
 
-1. UNRATE is lagging; it often confirms stress after markets have already moved.
+1. UNRATE is lagging; it often registers stress after markets have already moved.
 2. Granger causality is weak in the generated test results, so this is not a proven causal forecast.
 3. The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
-4. The headline uses unemployment data as known at the time (ALFRED vintages). On today's revised data the selected rule {'is the same' if _SAME_RULE else 'is different'} (test-period Sharpe {W.comparison_oos_sharpe}, hindsight).
+4. The headline uses unemployment data as known at the time. On today's revised data the selected rule {'is the same' if _SAME_RULE else 'is different'} (test-period Sharpe {W.comparison_oos_sharpe}, hindsight).
 5. The unemployment rate for October 2025 was never published (federal shutdown); the rule uses the latest published reading in that month.
+{_R71_CAVEAT}
 """
 
     TRADE_LOG_EXAMPLE_MD = (
@@ -518,9 +571,9 @@ _DATA_SOURCES_MD = """
 
 _INDICATOR_CONSTRUCTION_MD = (
     "The raw indicator is the U.S. civilian unemployment rate, in percent. "
-    "The pipeline constructs one-month, three-month, six-month, and "
-    "twelve-month changes; a 60-month rolling z-score; and a Sahm-style labor "
-    "stress measure. On the as-known-at-the-time track every signal and rolling threshold is recomputed inside "
+    "The pipeline constructs the month-on-month change and multi-month changes (signal codes "
+    f"{', '.join(f'`{c}`' for c in _MAN['signals'] if c.startswith('chg_'))}); a 60-month rolling z-score; and a "
+    "Sahm-style labor stress measure. On the as-known-at-the-time track every signal and rolling threshold is recomputed inside "
     "the vintage published when each month's return window opens. "
     f"The winning signal is `{W.signal_code}` ({_low(W.signal_display)}), used with a lead of {W.lead_text} and "
     f"{THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)} as threshold."
@@ -542,9 +595,9 @@ _METHODS_TABLE_MD = """
 """
 
 _TOURNAMENT_DESIGN_MD = f"""
-Grid: UNRATE transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x leads L2-L13 months ({W.n_candidates} combinations, {W.n_distinct} distinct position series). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
+Grid: UNRATE transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x leads {_GRID_RANGE} months ({W.n_candidates} combinations, {W.n_distinct} distinct position series). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
 
-- As known at the time (headline): `{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe}, test-period Sharpe {W.oos_sharpe}. The single highest training Sharpe on this track (lead L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is an isolated-peak sensitivity row, not the selection rule.
+- As known at the time (headline): `{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe}, test-period Sharpe {W.oos_sharpe}. The single highest training Sharpe on this track ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.
 - As revised today (hindsight): `{W.comparison_signal_code} / {W.comparison_threshold_code} / L{W.comparison_lead}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.
 - Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
 - Chance check: across {W.null_draws} contests run on circularly shifted unemployment data, the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores.
