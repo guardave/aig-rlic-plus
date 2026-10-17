@@ -1,7 +1,9 @@
 # Taxonomy of indicator combinations (組合拳)
 
-Phase 1 drafting document, branch `research261017_indicator_combos`, 2026-10-17. Author: Research Ray.
-No backtests were run. The correlations quoted come from the descriptive panel in
+Phase 1 drafting document (revision 2), branch `research261017_indicator_combos`, 2026-10-17. Author: Research
+Ray. No backtests were run. Revision 2 aligns the examples with the registered ledger (`registry/hypotheses.yaml`):
+textbook sign rules instead of fleet-winner rules, the standard 0.50 pp Sahm trigger, interaction tests for R2,
+and the deduplication of operators used in `COMBINATORICS.md` § 1. The correlations quoted come from the descriptive panel in
 `data/effective_dimensionality.json` (script `scripts/pit_panel_inspect.py`).
 
 ## Executive summary
@@ -24,9 +26,9 @@ No backtests were run. The correlations quoted come from the descriptive panel i
 
 | Term | Meaning in this project |
 |------|-------------------------|
-| Indicator | One published series (e.g. `PERMIT`, `ISM_MFG`, HY OAS). 29 are in the descriptive panel, and 26 distinct underlying series feed the 35 live single-indicator pairs. |
+| Indicator | One published series (e.g. `PERMIT`, `ISM_MFG`, HY OAS). 29 are in the descriptive panel; 26 distinct indicators (27 release-calendar series ids, new home sales SA/NSA counted once) feed the 35 live single-indicator pairs. |
 | Transform | The derived reading used as a signal: level, m/m, 3m/6m change, YoY, YoY acceleration, z-score over 60m/126d/252d, deviation from trend, contraction flag. The fleet uses about 8–15 per series. |
-| Single rule | (transform, threshold, direction, lead, position rule P1/P2/P3). This is the unit the single-indicator tournaments select. 29 pairs searched about **144,000** such configurations in total (median 1,008 per pair; `results/*/winner_summary.json` `total_combos`). |
+| Single rule | (transform, threshold, direction, lead, position rule P1/P2/P3). This is the unit the single-indicator tournaments select. The 35 live pairs' published tournament grids hold **164,176** rules (median 1,180, mean 4,691 per pair; `results/*/tournament_results_*.csv`). |
 | State | The output of a single rule at a date: bull / bear (binary), or a continuous score in [−1, 1] (P2-style strength). |
 | Combination | A function that maps the states (or raw readings) of k ≥ 2 indicators to one position or one classification. |
 
@@ -62,7 +64,7 @@ No backtests were run. The correlations quoted come from the descriptive panel i
   2012). A fast market regime variable (VIX term structure, HY–IG spread) can tell a slow macro signal *when* to
   matter.
 - **Our examples.**
-  - ISM manufacturing 1m diff (`ism_mfg_spy`) applied only when VIX/VIX3M > 1 (backwardation) or HY–IG z > 1.
+  - New orders YoY sign applied with an HY–IG stress regime (HY–IG above its expanding 80th percentile), D1-04.
   - Yield-curve signal conditioned on the credit regime.
   - Causal HMM / Markov-switching stress probabilities (`scripts/_regime_causal.py`, IS-frozen, filtered) as the
     regime variable.
@@ -72,7 +74,12 @@ No backtests were run. The correlations quoted come from the descriptive panel i
 - **Failure mode.** Regimes are rare (stress is roughly 10–20% of months), so per-regime estimates rest on a handful
   of episodes, often 3–5 recessions. Smoothed regime probabilities leak the future (project memory: 14/17 HMM/MS
   pipelines did this). Only *filtered*, IS-frozen probabilities are admissible.
-- **Natural metric.** The conditional return spread (regime on vs off), max drawdown and CVaR inside stress.
+- **Natural metric.** The signal × regime **interaction** coefficient in a predictive regression, with HAC and
+  block-bootstrap inference and a minimum number of regime episodes. A difference of conditional spreads is not a
+  test of state dependence. Overlay CVaR inside stress is secondary.
+- **Equivalence.** For binary long/cash states, "act on B only in A's stress regime" is the same position series as
+  "A AND B". A filter is a distinct operator only when B's rule changes by regime (regime-specific re-tuning, the
+  most expensive operator in `COMBINATORICS.md` § 2).
 
 ### R3 — Composite (z-average, factor, diffusion score)
 
@@ -85,9 +92,9 @@ No backtests were run. The correlations quoted come from the descriptive panel i
   individually weak equity-premium predictors gives stable out-of-sample gains, where the individual predictors
   fail (Welch & Goyal 2008).
 - **Our examples.**
-  - Equal-weight composite of one representative per correlation cluster (§ 4 of `COMBINATORICS.md`).
+  - Equal-weight composite of one point-in-time representative per frozen block (8 blocks, `COMBINATORICS.md` § 3.4).
   - Housing composite (houst, permit, nhs, nahb, cement).
-  - Real-time PC1 of the 10 long-history ALFRED series (it explains 41% of variance on the real-time track).
+  - Real-time PC1 of the strict point-in-time panel (35% of variance on strict-PIT-14).
 - **DoF added.** Equal weight with prior signs: only the membership and one threshold. Estimated weights add
   k − 1 parameters per re-estimation. PCA adds a rotation, a sign convention and the number of factors.
 - **Failure mode.** Mixing very different release lags into one number hides staleness. A composite dominated by
@@ -107,7 +114,7 @@ No backtests were run. The correlations quoted come from the descriptive panel i
   On the way up the order roughly reverses: the curve steepens, then orders recover, then employment.
 - **Our examples.**
   - SLOOS tightening or HY OAS widening → ISM manufacturing < 50 within 3–9 months.
-  - Permits YoY < 0 → UNRATE 6m change > 0.2pp (a Sahm-type rise).
+  - Permits YoY < 0 → Sahm gap ≥ 0.30 pp within 12 months (labelled variant; the standard Sahm rule is 0.50 pp), D1-13.
   - Recovery: curve steepening + new orders rising → re-enter.
 - **DoF added.** The window w, the order, and the gap per link. A 3-link chain with 6 window choices per link
   already has 216 timing variants.
@@ -180,7 +187,7 @@ No backtests were run. The correlations quoted come from the descriptive panel i
 | Staleness flag | Record each member's age in days at t. Pre-register whether a member older than X days is dropped, carried or down-weighted. Cement (72-day median, up to 165 days since 2025-07) and retail inventories/sales (45 days) need this. |
 | Common-start rule | The combination starts at the latest PIT start among its members. The coverage table (`data/coverage_and_lags.csv`) gives each start. Pre-register whether a late member enters when available (unbalanced) or the whole combination waits (balanced). |
 | Frozen members | In "cheap" families each member keeps its published single-indicator rule, which is frozen. In "re-search" families member rules are re-selected inside the training fold only. The two families are never mixed in one test. |
-| Real-time vs revised | ALFRED series use vintages (track b) where available. ISM, NAHB, UMich expectations, cement and EIA have no archive and are revised-only, which is disclosed per question. Revision gaps can be large: real-time vs revised correlation is 0.90 for NEWORDER YoY, 0.93 for INDPRO YoY and 0.94 for new home sales YoY (`realtime_vs_revised` in the JSON). |
+| Real-time vs revised | ALFRED series use vintages (track b) where available. ISM, NAHB, UMich expectations, cement and EIA have no archive: historically they exist only as "revised-as-of" (today's values delayed to the release date), which is **not** point-in-time, so any question that uses them historically is exploratory. They become point-in-time from their prospective snapshots (first 2026-10-16). Revision gaps can be large: real-time vs revised correlation is 0.90 for NEWORDER YoY, 0.93 for INDPRO YoY and 0.94 for new home sales YoY (`realtime_vs_revised` in the JSON). |
 | Mixed frequency | Daily market members are sampled at the rebalance close (HY/IG OAS at t−1 business day, posted next day). Quarterly members (SLOOS, card delinquency, ECI) are carried forward as-of. A daily-rebalanced combination re-evaluates monthly members only on their release dates. |
 
 ## 4. Mapping roles to use cases and metrics
@@ -217,7 +224,7 @@ No backtests were run. The correlations quoted come from the descriptive panel i
   - Novy-Marx (2015/2016), "Testing strategies based on multiple signals": combining signals that were each
     selected in-sample inflates t-statistics far beyond the single-signal case. This is directly relevant to
     building combinations from fleet winners.
-  - Sahm (2019): the unemployment-rise rule.
+  - Sahm (2019): the unemployment-rise rule (3-month average UNRATE at least 0.50 pp above its low of the previous 12 months).
   - Faber (2007): 10-month moving-average timing (a trend baseline).
 - **Consensus.** Combining forecasts tends to help mostly by reducing variance, not by finding new signals.
   Individual macro predictors of equity returns are weak and unstable out of sample.
