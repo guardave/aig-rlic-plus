@@ -1715,7 +1715,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         # EXECUTIVE_CONFIDENCE_SUMMARY; absent → no-op.
         _exec_conf = getattr(config, "EXECUTIVE_CONFIDENCE_SUMMARY", None)
         if _exec_conf and _ts:   # design 7b: the badge is driven by the MAIN (as-known-at-the-time) result only
-            _exec_conf = dict(_exec_conf, status=two_track.badge_status(_ts) or "No status")
+            _exec_conf = dict(_exec_conf, status=two_track.badge_status(_ts) or "No status",
+                              chance_fact=two_track.chance_fact(_ts))
         if _exec_conf:
             _render_executive_confidence_summary(_exec_conf)
             if _ts:
@@ -1865,6 +1866,9 @@ def _render_executive_confidence_summary(summary: dict) -> None:
             st.markdown("**Remaining risks**")
             for item in summary.get("risks", []) or []:
                 st.markdown(f"- {item}")
+
+        if summary.get("chance_fact"):
+            st.markdown(f"**Chance check.** {summary['chance_fact'][:1].upper() + summary['chance_fact'][1:]}")
 
         conclusion = summary.get("conclusion")
         if conclusion:

@@ -310,6 +310,22 @@ def badge_status(ts: dict) -> str | None:
     return "Candidate" if lo > 0 else ("Reject" if hi < 0 else "Watchlist")
 
 
+def chance_fact(ts: dict) -> str | None:
+    """Neutral one-line chance-check fact for the Executive Confidence Summary (same place on every pair; it
+    is neither a strength nor a risk). None when the null has not been run."""
+    nt = ts.get("null_tournament")
+    if not nt or nt.get("winner_percentile") is None:
+        return None
+    pos = (f"is above all {nt['n_draws']:,}" if nt["winner_percentile"] >= 1 else
+           f"ranks at the {_ordinal(round(nt['winner_percentile'] * 100))} percentile of {nt['n_draws']:,}")
+    p = nt.get("p_selection_stat")
+    out = (f"the winner's stable-range score {pos} scrambled-signal contests"
+           + (f" (share of contests scoring at least as high: {p:.2f})" if p is not None else "") + ".")
+    if nt.get("r71_pass") is False:
+        out += " The scrambled contests do not meet the R7.1 calibration check (see the caveats)."
+    return out
+
+
 BADGE_RULE = ("Badge rule (as-known-at-the-time result only): Candidate when the 95% interval of the test-period "
               "Sharpe difference versus buy-and-hold is above zero, Watchlist when it contains zero, Reject when it "
               "is below zero.")

@@ -450,9 +450,6 @@ class StrategyConfig:
             f"No forecasting mechanism in the formal tests: smallest Granger p-value {_G_MIN_P:.2f}.",
             f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to "
             f"{W.ci_high}.",
-            f"Chance check: the winner's stable-range score ranks at the {W.null_percentile} point of {W.null_draws} "
-            "scrambled contests" + (", and the scrambled contests do not meet the R7.1 calibration check (see the "
-                                    "caveats)." if _NT.get("r71_pass") is False else "."),
             f"The rule selected on revised data {'is the same' if _SAME_RULE else 'differs'} (hindsight test-period "
             f"Sharpe {W.comparison_oos_sharpe}).",
         ],

@@ -842,8 +842,6 @@ class StrategyConfig:
         strengths=[
             f"Long daily history: training period {W.is_start} to {W.is_end}.",
             f"The chosen lead sits in a stable lead range ({W.plateau_range}).",
-            f"Chance check: the winner's stable-range score ranks at the {W.null_percentile} point of {W.null_draws} "
-            "scrambled contests.",
         ],
         risks=[
             f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to "
