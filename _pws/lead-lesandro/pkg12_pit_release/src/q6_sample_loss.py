@@ -9,7 +9,7 @@ Per live pair:
     IS window); otherwise IS = strategy_returns rows before the published OOS start (flagged 'derived').
   * truncated: the first return row whose window opens on/after the first ALFRED vintage (as of then a real-time
     vintage exists, and it carries the full history, so rolling windows need no extra warm-up). IS / OOS ends unchanged.
-  * eligibility: IS rows on the (truncated) common IS window >= 60 monthly / 20 quarterly (the pipelines' MIN_IS_N).
+  * eligibility: IS rows on the (truncated) common IS window >= 60 monthly / 20 quarterly (the protocol's IS eligibility rule).
   * NBER recessions (1990-07..1991-03, 2001-03..2001-11, 2007-12..2009-06, 2020-02..2020-04) inside the current IS
     that the truncated IS loses (fully or partly).
 Market-data pairs and no-archive sources (Q7) are not truncated.

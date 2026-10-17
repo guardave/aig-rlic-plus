@@ -12,7 +12,7 @@ Econ Evan, 2026-10-17. Script: `src/q6_sample_loss.py`. Data: `Q6_SAMPLE_LOSS.cs
 ## Method
 - **Truncated start:** the first return row whose window opens on or after the first ALFRED vintage. The vintage on that date carries the series' full history, so rolling thresholds need no extra warm-up. IS and OOS ends are unchanged.
 - **Current IS:** the published common IS window for the IS-selected pairs. For the others (marked `*`), IS is the `strategy_returns` rows before the published OOS start, because those pairs do not publish an IS window.
-- **Eligibility:** IS rows on the truncated common IS window must be at least 60 (monthly) or 20 (quarterly), the pipelines' MIN_IS_N.
+- **Eligibility:** IS rows on the truncated common IS window must be at least 60 (monthly) or 20 (quarterly): the protocol's IS eligibility rule (n ≥ 60 monthly / 20 quarterly; not every pipeline encodes it as a constant).
 - **Recessions:** NBER recessions 1990-07..1991-03, 2001-03..2001-11, 2007-12..2009-06 and 2020-02..2020-04. A recession counts as lost if it was inside the current IS and the truncated IS no longer contains it, fully or in part.
 - **OOS:** OOS rows are unchanged for every pair, because every first vintage precedes 2017.
 
