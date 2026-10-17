@@ -1,0 +1,77 @@
+hid,status_registered,family,family_tests,asset,endpoint,common_start,evaluable_window,months,years,recessions,recessions_in_VD_2020,spy_drawdowns_15pct,sma_exit_episodes,min_events_registered,margin,mde_80pct,mde_method,label
+D1-02.H1,confirmatory,F-REC,7,NBER recession months,lexicographic_recession,1982-01,1987-01..2025-09,465,38.8,4,1,5,22,6,0.5,,no MDE method for lexicographic_recession (event-limited or not computed),no MDE method; event-limited
+D1-02.H2,exploratory,F-REC,7,NBER recession months,lexicographic_recession,1982-01,1987-01..2025-09,465,38.8,4,1,5,22,6,2.0,,no MDE method for lexicographic_recession (event-limited or not computed),no MDE method; event-limited
+D1-13.H1,exploratory,F-REC,7,NBER recession months,lexicographic_recession,1999-08,2004-08..2025-09,254,21.2,2,1,3,16,6,2.0,,no MDE method for lexicographic_recession (event-limited or not computed),no MDE method; event-limited
+D1-27.H1,confirmatory,F-REC,7,NBER recession within 12 months,brier_skill,2000-01,2005-01..2025-04,244,20.3,2,1,3,15,6,0.1,,no MDE method for brier_skill (event-limited or not computed),no MDE method; event-limited
+D1-27.H2,confirmatory,F-REC,7,NBER recession within 12 months,brier_skill,1982-01,1987-01..2025-09,465,38.8,4,1,5,22,6,0.1,,no MDE method for brier_skill (event-limited or not computed),no MDE method; event-limited
+D1-27.H3,confirmatory,F-REC,7,NBER recession within 12 months,brier_skill,2000-01,2005-01..2025-04,244,20.3,2,1,3,15,6,0.1,,no MDE method for brier_skill (event-limited or not computed),no MDE method; event-limited
+D1-23.H1,exploratory,F-REC,7,SPY,cvar_overlay,2006-01,2011-01..2025-09,177,14.8,1,1,3,12,3,0.15,0.275,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin
+D1-04.H1,exploratory,F-STATE,6,SPY,interaction,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,5,0.5,1.97,"binary regime share 0.2, iid",underpowered; regime episodes not counted
+D1-04.H2,exploratory,F-STATE,6,SPY,interaction,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,5,0.5,1.97,"binary regime share 0.2, iid",underpowered; regime episodes not counted
+D1-17.H1,exploratory,F-STATE,6,SPY,interaction,2007-01,2012-01..2025-12,168,14.0,1,1,2,11,5,1.5,7.29,"binary regime share 0.2, iid",underpowered; regime episodes not counted
+D1-06.H1,exploratory,F-STATE,6,SPY,interaction,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,5,0.5,1.97,"binary regime share 0.2, iid",underpowered; regime episodes not counted
+D1-30.H1,exploratory,F-STATE,6,SPY,log_score,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,5,0.02,,no MDE method for log_score (event-limited or not computed),no MDE method; regime episodes not counted
+D1-30.H2,exploratory,F-STATE,6,SPY,log_score,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,5,0.02,,no MDE method for log_score (event-limited or not computed),no MDE method; regime episodes not counted
+D1-05.H1,confirmatory,F-TC,4,SPY,interaction,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,5,0.25,0.79,"continuous product, 1 s.d. x 1 s.d., iid",underpowered; regime episodes not counted
+D1-05.H2,exploratory,F-TC,4,SPY,interaction,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,5,0.5,1.97,"binary regime share 0.2, iid",underpowered; regime episodes not counted
+D1-05.H3,exploratory,F-TC,4,10-year Treasury return proxy from DGS10 (G6),interaction,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,5,0.1,0.79,"continuous product, 1 s.d. x 1 s.d., iid",underpowered; regime episodes not counted
+D1-05.H4,exploratory,F-TC,4,10-year Treasury return proxy from DGS10 (G6),interaction,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,5,0.2,1.97,"binary regime share 0.2, iid",underpowered; regime episodes not counted
+D1-28.H1,confirmatory,F-FCI,2,SPY,cvar_overlay,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,3,0.15,,blocked,blocked (G15)
+D1-28.H2,confirmatory,F-FCI,2,SPY,cvar_overlay,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,3,0.1,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered
+D1-01.H1,confirmatory,F-RISKOFF,8,SPY,cvar_overlay,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,3,0.15,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin
+D1-01.H2,confirmatory,F-RISKOFF,8,SPY,cvar_overlay,2010-04,2015-04..2026-08,137,11.4,1,1,2,12,3,0.15,0.3,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin; event-limited
+D1-12.H1,exploratory,F-RISKOFF,8,SPY,cvar_overlay,2010-04,2015-04..2026-08,137,11.4,1,1,2,12,3,0.15,0.325,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered; event-limited
+D1-12.H2,exploratory,F-RISKOFF,8,SPY,cvar_overlay,2010-04,2015-04..2026-08,137,11.4,1,1,2,12,3,0.15,0.325,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered; event-limited
+D1-12.H3,exploratory,F-RISKOFF,8,SPY,cvar_overlay,2010-04,2015-04..2026-08,137,11.4,1,1,2,12,3,0.15,0.3,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin; event-limited
+D1-12.H4,exploratory,F-RISKOFF,8,SPY,cvar_overlay,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,3,0.15,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin
+D1-12.H5,exploratory,F-RISKOFF,8,SPY,cvar_overlay,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,3,0.15,0.225,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin
+D1-12.H6,exploratory,F-RISKOFF,8,SPY,cvar_overlay,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,3,0.15,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin
+D1-14.H1,exploratory,F-REENTRY,1,SPY,missed_rally,2000-01,2005-01..2025-04,244,20.3,2,1,3,15,5,0.25,,no MDE method for missed_rally (event-limited or not computed),no MDE method
+D1-08.H01,exploratory,F-COMP,20,SPY,cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.15,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin
+D1-08.H02,exploratory,F-COMP,20,XLK (total return),cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.15,,blocked,blocked (G17)
+D1-08.H03,exploratory,F-COMP,20,XLF (total return),cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.15,,blocked,blocked (G17)
+D1-08.H04,exploratory,F-COMP,20,XLV (total return),cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.15,,blocked,blocked (G17)
+D1-08.H05,exploratory,F-COMP,20,XLE (total return),cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.15,,blocked,blocked (G17)
+D1-08.H06,exploratory,F-COMP,20,XLY (total return),cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.15,,blocked,blocked (G17)
+D1-08.H07,exploratory,F-COMP,20,XLI (total return),cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.15,,blocked,blocked (G17)
+D1-08.H08,exploratory,F-COMP,20,XLU (total return),cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.15,,blocked,blocked (G17)
+D1-08.H09,exploratory,F-COMP,20,XLP (total return),cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.15,,blocked,blocked (G17)
+D1-08.H10,exploratory,F-COMP,20,XLB (total return),cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.15,,blocked,blocked (G17)
+D1-10.H1,exploratory,F-COMP,20,SPY,cvar_overlay,2001-01,2006-01..2025-04,232,19.3,2,1,3,15,3,0.1,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered
+D1-10.H2,exploratory,F-COMP,20,SPY,cvar_overlay,2001-01,2006-01..2025-04,232,19.3,2,1,3,15,3,0.1,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered
+D1-10.H3,exploratory,F-COMP,20,SPY,cvar_overlay,2001-01,2006-01..2025-04,232,19.3,2,1,3,15,3,0.1,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered
+D1-19.H1,exploratory,F-COMP,20,SPY,cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.15,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin
+D1-19.H2,exploratory,F-COMP,20,SPY,cvar_overlay,2001-01,2006-01..2026-08,248,20.7,2,1,3,16,3,0.15,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin
+D1-20.H1,exploratory,F-COMP,20,SPY,cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.1,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered
+D1-24.H1,exploratory,F-COMP,20,SPY,cvar_overlay,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,0.1,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered
+D1-29.H1,exploratory,F-COMP,20,SPY,cvar_overlay,2011-05,2016-05..2026-08,124,10.3,1,1,2,10,3,0.1,0.325,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered; event-limited
+D1-29.H2,exploratory,F-COMP,20,SPY,cvar_overlay,2011-05,2016-05..2026-08,124,10.3,1,1,2,10,3,0.1,0.325,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered; event-limited
+D2-05.H1,exploratory,F-COMP,20,SPY,plateau_k,2001-01,2006-01..2026-03,243,20.2,2,1,3,16,3,4.0,,no MDE method for plateau_k (event-limited or not computed),no MDE method
+D1-07.H1,exploratory,F-SECT,8,"defensive (XLV, XLP, XLU) minus cyclical (XLI, XLY, XLB, XLF), total return",information_ratio,1985-02,1990-02..2026-06,437,36.4,4,1,5,23,3,0.3,,blocked,blocked (G17)
+D1-07.H2,exploratory,F-SECT,8,XLU - SPY (total return),information_ratio,1985-02,1990-02..2026-06,437,36.4,4,1,5,23,3,0.3,,blocked,blocked (G17)
+D1-07.H3,exploratory,F-SECT,8,XLI - SPY (total return),information_ratio,1985-02,1990-02..2026-06,437,36.4,4,1,5,23,3,0.3,,blocked,blocked (G17)
+D1-18.H1,exploratory,F-SECT,8,XLK - SPY (total return),information_ratio,1995-05,2000-05..2026-06,314,26.2,3,1,4,19,3,0.3,,blocked,blocked (G17)
+D1-18.H2,exploratory,F-SECT,8,QQQ - SPY (total return),information_ratio,1995-05,2000-05..2026-06,314,26.2,3,1,4,19,3,0.3,,blocked,blocked (G17)
+D1-21.H1,exploratory,F-SECT,8,XLV - SPY (total return),information_ratio,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,3,0.2,,blocked,blocked (G17)
+D1-21.H2,exploratory,F-SECT,8,XLP - SPY (total return),information_ratio,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,3,0.2,,blocked,blocked (G17)
+D1-21.H3,exploratory,F-SECT,8,XLU - SPY (total return),information_ratio,1997-12,2002-12..2026-08,285,23.8,2,1,3,17,3,0.2,,blocked,blocked (G17)
+D1-03.H1,exploratory,F-HOUS,14,SPY,false_exit_rate,1999-08,2004-08..2026-08,265,22.1,2,1,3,17,3,0.3,,no MDE method for false_exit_rate (event-limited or not computed),no MDE method
+D1-03.H2,exploratory,F-HOUS,14,SPY,false_exit_rate,1999-08,2004-08..2026-08,265,22.1,2,1,3,17,3,0.3,,no MDE method for false_exit_rate (event-limited or not computed),no MDE method
+D1-11.H1,exploratory,F-HOUS,14,SPY,cvar_overlay,1999-08,2004-08..2026-08,265,22.1,2,1,3,17,3,0.15,0.225,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin
+D1-11.H2,exploratory,F-HOUS,14,XHB - SPY (total return),information_ratio,1999-08,2004-08..2026-08,265,22.1,2,1,3,17,3,0.2,,blocked,blocked (G17)
+D1-11.H3,exploratory,F-HOUS,14,XLB - SPY (total return),information_ratio,1999-08,2004-08..2026-08,265,22.1,2,1,3,17,3,0.2,,blocked,blocked (G17)
+D1-11.H4,exploratory,F-HOUS,14,XLY - SPY (total return),information_ratio,1999-08,2004-08..2026-08,265,22.1,2,1,3,17,3,0.2,,blocked,blocked (G17)
+D1-11.H5,exploratory,F-HOUS,14,SPY,cvar_overlay,2007-04,2012-04..2026-08,173,14.4,1,1,2,12,3,0.15,0.275,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin; event-limited
+D1-11.H6,exploratory,F-HOUS,14,XHB - SPY (total return),information_ratio,2007-04,2012-04..2026-08,173,14.4,1,1,2,12,3,0.2,,blocked,blocked (G17)
+D1-11.H7,exploratory,F-HOUS,14,XLB - SPY (total return),information_ratio,2007-04,2012-04..2026-08,173,14.4,1,1,2,12,3,0.2,,blocked,blocked (G17)
+D1-11.H8,exploratory,F-HOUS,14,XLY - SPY (total return),information_ratio,2007-04,2012-04..2026-08,173,14.4,1,1,2,12,3,0.2,,blocked,blocked (G17)
+D2-06.H1,exploratory,F-HOUS,14,SPY,cvar_overlay,1999-08,2004-08..2026-08,265,22.1,2,1,3,17,3,0.1,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered
+D2-06.H2,exploratory,F-HOUS,14,SPY,cvar_overlay,1993-02,1998-02..2026-08,343,28.6,3,1,5,21,3,0.1,0.225,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered
+D2-06.H3,exploratory,F-HOUS,14,SPY,cvar_overlay,2000-01,2005-01..2026-03,255,21.2,2,1,3,16,3,0.1,0.25,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered
+D2-06.H4,exploratory,F-HOUS,14,SPY,cvar_overlay,1998-07,2003-07..2026-08,278,23.2,2,1,3,17,3,0.1,0.225,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",underpowered
+D1-16.H1,exploratory,F-DIV,2,SPY,forward_return_diff,2001-06,2006-06..2026-03,238,19.8,2,1,3,16,4,2.0,12.25,"state share 0.2, non-overlapping",underpowered; regime episodes not counted
+D1-16.H2,exploratory,F-DIV,2,XLY - XLP (total return),forward_return_diff,2001-06,2006-06..2026-03,238,19.8,2,1,3,16,4,2.0,,blocked,blocked (G17)
+D1-09.H1,exploratory,F-FLEET,3,NBER recession within 12 months,brier_skill,1997-12,2002-12..2025-09,274,22.8,2,1,3,16,4,0.1,,no MDE method for brier_skill (event-limited or not computed),no MDE method; event-limited
+D1-09.H2,exploratory,F-FLEET,3,SPY,cvar_overlay,1997-12,2002-12..2026-08,285,23.8,2,1,3,17,3,0.15,0.225,"Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)",MDE <= 2x margin
+D2-12.H1,exploratory,F-FLEET,3,SPY,capture_share,2001-01,2006-01..2026-08,248,20.7,2,1,3,16,3,0.8,,no MDE method for capture_share (event-limited or not computed),no MDE method
+D2-04.H1,exploratory,F-SPACE,1,none,pr_difference,2001-08,2006-08..2026-09,242,20.2,2,1,3,16,3,-0.5,,no MDE method for pr_difference (event-limited or not computed),no MDE method; event-limited

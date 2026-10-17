@@ -1,0 +1,170 @@
+{
+ "status": "Exploratory (descriptive)",
+ "registry": "frozen d780845f",
+ "assumptions": {
+  "sigma_pp_month": 4.5,
+  "burn_in_months": 60,
+  "power": 0.8,
+  "alpha_two_sided": 0.05,
+  "multiplicity": "not included in MDE; family test counts listed per row"
+ },
+ "n_hypotheses": 76,
+ "label_counts": {
+  "blocked (G17)": 24,
+  "MDE <= 2x margin": 10,
+  "underpowered": 10,
+  "underpowered; regime episodes not counted": 9,
+  "no MDE method; event-limited": 8,
+  "no MDE method": 5,
+  "underpowered; event-limited": 4,
+  "MDE <= 2x margin; event-limited": 3,
+  "no MDE method; regime episodes not counted": 2,
+  "blocked (G15)": 1
+ },
+ "by_family": {
+  "F-COMP": {
+   "MDE <= 2x margin": 3,
+   "MDE <= 2x margin; event-limited": 0,
+   "blocked (G15)": 0,
+   "blocked (G17)": 9,
+   "no MDE method": 1,
+   "no MDE method; event-limited": 0,
+   "no MDE method; regime episodes not counted": 0,
+   "underpowered": 5,
+   "underpowered; event-limited": 2,
+   "underpowered; regime episodes not counted": 0
+  },
+  "F-DIV": {
+   "MDE <= 2x margin": 0,
+   "MDE <= 2x margin; event-limited": 0,
+   "blocked (G15)": 0,
+   "blocked (G17)": 1,
+   "no MDE method": 0,
+   "no MDE method; event-limited": 0,
+   "no MDE method; regime episodes not counted": 0,
+   "underpowered": 0,
+   "underpowered; event-limited": 0,
+   "underpowered; regime episodes not counted": 1
+  },
+  "F-FCI": {
+   "MDE <= 2x margin": 0,
+   "MDE <= 2x margin; event-limited": 0,
+   "blocked (G15)": 1,
+   "blocked (G17)": 0,
+   "no MDE method": 0,
+   "no MDE method; event-limited": 0,
+   "no MDE method; regime episodes not counted": 0,
+   "underpowered": 1,
+   "underpowered; event-limited": 0,
+   "underpowered; regime episodes not counted": 0
+  },
+  "F-FLEET": {
+   "MDE <= 2x margin": 1,
+   "MDE <= 2x margin; event-limited": 0,
+   "blocked (G15)": 0,
+   "blocked (G17)": 0,
+   "no MDE method": 1,
+   "no MDE method; event-limited": 1,
+   "no MDE method; regime episodes not counted": 0,
+   "underpowered": 0,
+   "underpowered; event-limited": 0,
+   "underpowered; regime episodes not counted": 0
+  },
+  "F-HOUS": {
+   "MDE <= 2x margin": 1,
+   "MDE <= 2x margin; event-limited": 1,
+   "blocked (G15)": 0,
+   "blocked (G17)": 6,
+   "no MDE method": 2,
+   "no MDE method; event-limited": 0,
+   "no MDE method; regime episodes not counted": 0,
+   "underpowered": 4,
+   "underpowered; event-limited": 0,
+   "underpowered; regime episodes not counted": 0
+  },
+  "F-REC": {
+   "MDE <= 2x margin": 1,
+   "MDE <= 2x margin; event-limited": 0,
+   "blocked (G15)": 0,
+   "blocked (G17)": 0,
+   "no MDE method": 0,
+   "no MDE method; event-limited": 6,
+   "no MDE method; regime episodes not counted": 0,
+   "underpowered": 0,
+   "underpowered; event-limited": 0,
+   "underpowered; regime episodes not counted": 0
+  },
+  "F-REENTRY": {
+   "MDE <= 2x margin": 0,
+   "MDE <= 2x margin; event-limited": 0,
+   "blocked (G15)": 0,
+   "blocked (G17)": 0,
+   "no MDE method": 1,
+   "no MDE method; event-limited": 0,
+   "no MDE method; regime episodes not counted": 0,
+   "underpowered": 0,
+   "underpowered; event-limited": 0,
+   "underpowered; regime episodes not counted": 0
+  },
+  "F-RISKOFF": {
+   "MDE <= 2x margin": 4,
+   "MDE <= 2x margin; event-limited": 2,
+   "blocked (G15)": 0,
+   "blocked (G17)": 0,
+   "no MDE method": 0,
+   "no MDE method; event-limited": 0,
+   "no MDE method; regime episodes not counted": 0,
+   "underpowered": 0,
+   "underpowered; event-limited": 2,
+   "underpowered; regime episodes not counted": 0
+  },
+  "F-SECT": {
+   "MDE <= 2x margin": 0,
+   "MDE <= 2x margin; event-limited": 0,
+   "blocked (G15)": 0,
+   "blocked (G17)": 8,
+   "no MDE method": 0,
+   "no MDE method; event-limited": 0,
+   "no MDE method; regime episodes not counted": 0,
+   "underpowered": 0,
+   "underpowered; event-limited": 0,
+   "underpowered; regime episodes not counted": 0
+  },
+  "F-SPACE": {
+   "MDE <= 2x margin": 0,
+   "MDE <= 2x margin; event-limited": 0,
+   "blocked (G15)": 0,
+   "blocked (G17)": 0,
+   "no MDE method": 0,
+   "no MDE method; event-limited": 1,
+   "no MDE method; regime episodes not counted": 0,
+   "underpowered": 0,
+   "underpowered; event-limited": 0,
+   "underpowered; regime episodes not counted": 0
+  },
+  "F-STATE": {
+   "MDE <= 2x margin": 0,
+   "MDE <= 2x margin; event-limited": 0,
+   "blocked (G15)": 0,
+   "blocked (G17)": 0,
+   "no MDE method": 0,
+   "no MDE method; event-limited": 0,
+   "no MDE method; regime episodes not counted": 2,
+   "underpowered": 0,
+   "underpowered; event-limited": 0,
+   "underpowered; regime episodes not counted": 4
+  },
+  "F-TC": {
+   "MDE <= 2x margin": 0,
+   "MDE <= 2x margin; event-limited": 0,
+   "blocked (G15)": 0,
+   "blocked (G17)": 0,
+   "no MDE method": 0,
+   "no MDE method; event-limited": 0,
+   "no MDE method; regime episodes not counted": 0,
+   "underpowered": 0,
+   "underpowered; event-limited": 0,
+   "underpowered; regime episodes not counted": 4
+  }
+ }
+}
