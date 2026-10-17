@@ -184,8 +184,8 @@ ratio of credit-card balances 30+ days past due to total credit-card balances at
 all commercial banks, expressed as a percentage. It is quarterly, **not
 seasonally adjusted (NSA)**, published in the Federal Reserve's charge-off and
 delinquency release roughly seven weeks after quarter end, and can be revised.
-Because it is NSA, the series carries a within-year seasonal pattern
-(delinquencies typically run higher in Q1 and lower around Q2/Q3); signals built
+Because it is NSA, the series carries
+quarterly seasonal swings of up to ~0.15 pp vs the seasonally adjusted series (DRCCLACBS); signals built
 on the level relative to a rolling 20-quarter percentile, or on short changes,
 can be partly driven by that seasonality rather than by credit stress alone —
 treat this as a caveat on every result on these pages. It is a LAGGING credit measure: households fall
@@ -907,7 +907,7 @@ _DATA_SOURCES_MD = """
 | Indicator | Data Master.xlsx (Federal Reserve / FRED) | `DRCCLACBN` (Delinquency rate on credit-card loans, all commercial banks, %, not seasonally adjusted) | **Quarterly** (1993-Q1 → 2025-Q2, ~130 quarters) |
 | Target | Yahoo Finance | SPY (SPDR S&P 500 ETF, dividend-adjusted, quarter-end) | Quarterly (quarter-end) |
 
-QUARTERLY credit pair. The delinquency series is native quarterly, not seasonally adjusted (NSA), and lagging (households fall behind after their finances deteriorate). Being NSA, it has a within-year seasonal pattern (typically higher in Q1, lower around Q2/Q3) that can affect level-vs-rolling-percentile and short-change signals; no seasonal adjustment is applied in this pipeline. The raw LEVEL tests non-stationary over this sample (ADF p 0.37; KPSS rejects), so the traded transform is the quarter-on-quarter CHANGE (diff_1q), which is stationary (ADF p < 0.001; KPSS not rejected).
+QUARTERLY credit pair. The delinquency series is native quarterly, not seasonally adjusted (NSA), and lagging (households fall behind after their finances deteriorate). Being NSA, it has quarterly seasonal swings of up to ~0.15 pp vs the seasonally adjusted series (DRCCLACBS), which can affect level-vs-rolling-percentile and short-change signals; no seasonal adjustment is applied in this pipeline. The raw LEVEL tests non-stationary over this sample (ADF p 0.37; KPSS rejects), so the traded transform is the quarter-on-quarter CHANGE (diff_1q), which is stationary (ADF p < 0.001; KPSS not rejected).
 """
 
 _INDICATOR_CONSTRUCTION_MD = (
