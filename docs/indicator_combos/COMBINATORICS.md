@@ -1,230 +1,247 @@
-# How many variations? The combination space, raw and effective
+# How many variations? The combination space, raw and effective (revision 2)
 
-Phase 1 drafting document, branch `research261017_indicator_combos`, 2026-10-17. Author: Research Ray.
-The numbers in § 3 come from `scripts/pit_panel_inspect.py`, which writes to `data/effective_dimensionality.json`,
-`data/coverage_and_lags.csv` and `data/spearman_*.csv`. The run is descriptive only: no asset returns were read
-and no backtests were run.
+Branch `research261017_indicator_combos`, 2026-10-17. Author: Research Ray. This is a counting and descriptive
+document. No returns were read and no backtests were run.
+
+Scripts and outputs:
+
+| Script | Output |
+|--------|--------|
+| `scripts/combinatorics_exact.py` | `data/combinatorics_exact.json` |
+| `scripts/pit_panel_inspect.py` | `data/effective_dimensionality.json`, `data/panel_*.csv`, `data/spearman_*.csv`, `data/coverage_and_lags.csv` |
+
+Revision 2 replaces three things from revision 1. They were wrong or overstated, as the QA and Codex reviews found:
+- the median-grid approximation for the raw count;
+- the "5–8 dimensions" average across different estimands;
+- the pre/post-2008 claim.
 
 ## Executive summary
 
-- **Raw count.** Re-searching every member rule, two-indicator combinations alone span about **8 × 10^11**
-  configurations, and three-indicator combinations about **4 × 10^16**. Even with every member frozen at its
-  published single-indicator rule, about **8 × 10^5** pairs and **4 × 10^7** triples remain.
-  - These counts cover 26 series, 41 (k = 2) or 267 (k = 3) operator structures, 20 target assets and 3 alignment
-    variants.
-- **Effective count.** The 29 indicators carry roughly **5–8 independent dimensions** in their point-in-time level
-  readings.
-  - **Parallel analysis:** 3–5 factors above noise.
-  - **Participation ratio:** 4.2–5.6.
-  - **Entropy effective rank:** 5.8–9.1.
-  - **Clusters:** 7–10 at |ρ| ≥ 0.5.
-  - On short-horizon (3-month) changes the count rises to about 9–13, but those changes are noisier and not
-    necessarily more informative.
-- **Working answer.** The economically distinct menu is about **7 blocks**. With one representative per block that
-  gives 21 block-pairs and 35 block-triples, and about **860 pair configurations per asset per alignment** across
-  all operators. That is about 9 orders of magnitude fewer than the raw count, and it is the size of family a
-  multiple-testing correction can survive.
-- **Dimensionality is not constant.**
-  - **Before 2008:** about 3.5 by participation ratio and 2 by parallel analysis.
-  - **From 2008:** about 5.2 by participation ratio and 5 by parallel analysis.
-  - When the cycle turns the indicators move together, and diversification from combining is smallest exactly when
-    it is wanted most (question D2-04 tests this).
-- **Common sample shrinks fast.**
-  - **All 29 indicators complete-case:** only 2017-02 → 2025-12 (107 months), which is almost exactly the
-    already-viewed out-of-sample (OOS) window.
-  - **Core 23:** 2001-08 → 2026-03 (296 months).
-  - **Strict real-time with ALFRED vintages for all 16 vintage series:** only from 2013-06 (160 months).
+- **Raw count (exact, § 2).** These are sums over every subset of members of the products of their published grid
+  sizes, per operator, after removing duplicate operators.
+  - Two-indicator combinations: **2 × 10^10 to 3 × 10^10** configurations per target asset and alignment.
+  - If a filter is allowed to re-tune its second member separately in each regime, the count rises to **4 × 10^13
+    to 7 × 10^13**.
+  - Across 20 assets and 3 alignments: about **1.2 × 10^12 to 1.5 × 10^12** (or 2.6 × 10^15 to 3.9 × 10^15).
+  - Three-indicator combinations reach about **10^15 to 10^21** per asset and alignment.
+- **Frozen members.** With each member frozen at its published rule, about **17,000 two-indicator and 700,000
+  three-indicator** configurations remain per asset and alignment.
+  - With one representative per frozen block (8 blocks): **1,484** and **15,120**.
+  - The registered question bank tests **76 hypotheses**.
+- **Effective dimensionality, primary estimand.**
+  - The primary estimand is the participation ratio of the strict point-in-time panel: 10 ALFRED vintage series
+    plus 4 unrevised market series, 2001-08 → 2026-05, 298 months.
+  - Result: **PR = 5.5, 90% block-bootstrap interval 3.8–6.4.**
+  - Independent series with the same serial correlation would give PR ≥ 10.2 (5th percentile of the null), so the
+    panel is far more concentrated than chance.
+- **Sensitivity.**
+  - Parallel analysis with serial-dependence-preserving nulls keeps only **2 factors** (stationary bootstrap) or
+    **1** (phase randomisation).
+  - Σ min(λ, 1) = 8.0.
+  - Clusters at |ρ| ≥ 0.5: 8.
+  - Plain reading: there are **one or two strong common factors and about 4–6 effective dimensions in total**.
+    The "5–8 independent dimensions" of revision 1 was generous.
+- **Power.** At 80% power the minimum detectable Sharpe gap over 8 years is **0.49–0.86** when the strategy's
+  returns correlate 0.8–0.9 with its comparator. Over a 3-year forward window it is **0.80–2.14**. Serial
+  correlation and multiplicity raise these further (§ 4).
 
-## 1. Dimensions of the space
+## 1. Dimensions and the member universe
 
-| # | Dimension | Values used for the count | Source |
-|---|-----------|---------------------------|--------|
-| 1 | Indicator series | 26 distinct series behind the 35 live pairs (29 in the descriptive panel) | `docs/schemas/lead_axis_registry.json` |
-| 2 | Member rule (transform × threshold × lead × direction × position rule) | Fleet median **1,008** candidates per pair (min 96, max 19,344; 144,098 over 29 pairs) | `results/*/winner_summary.json` `total_combos` |
-| 3 | Number of members k | 2, 3 (4+ shown for scale) | — |
-| 4 | Role / operator structure (see `TAXONOMY.md`) | k = 2: **41**; k = 3: **267**; k = 4: 5,260 | Formula below |
-| 5 | Target asset | 20: SPY, 9 original sector SPDRs (XLK XLF XLV XLE XLY XLI XLU XLP XLB, live since 1998-12), their 9 relatives vs SPY, 1 cyclical − defensive basket | `data/Data Master.xlsx` sheet `etf_prices` |
-| 6 | Alignment / rebalance | 3: month-end as-of, release-date event, daily as-of | `TAXONOMY.md` § 3 |
-| 7 | Use case (metric) | 5 (U1–U5). This multiplies the number of *tests*, not configurations. | `TAXONOMY.md` § 4 |
+| Dimension | Values | Source |
+|-----------|--------|--------|
+| Indicators (members) | **26** distinct indicators behind the 35 live pairs. They map to 27 release-calendar series ids; new home sales SA and NSA are counted once | `lead_axis_registry.json` (39 entries = 35 live + 3 archived + 1 superseded) |
+| Member grid per indicator | From each pair's latest published tournament CSV, buy-and-hold rows removed: rules m_i, binary states s_i, readings t_i (definitions in the script header). An indicator with several pairs: upper bound = sum of its pairs' grids, lower bound = largest single grid | 35 CSVs; 164,176 rules in total; per-pair median 1,180, mean 4,691 |
+| Operators | See the table below, with applicability and deduplication | `TAXONOMY.md` |
+| Target assets | 20: SPY, 9 sector SPDRs, their 9 relatives vs SPY, and the cyclical − defensive basket | `etf_prices` (price-only: G17) |
+| Alignment | 3: month-end as-of; release-date event; daily as-of | `TAXONOMY.md` § 3 |
 
-**Operator structures for k members** (w = 6 window choices per sequencing link, 3 regime definitions, 3 sizing
-maps, 3 composite weightings × 3 thresholds):
+**Operators, applicability and deduplication** (k = number of members):
 
-| Role | Count formula | k = 2 | k = 3 |
-|------|---------------|------:|------:|
-| R1 confirmation (k-of-n) | k | 2 | 3 |
-| R2 filter (which member is the regime × 3 regime definitions) | 3k | 6 | 9 |
-| R3 composite (3 weightings × 3 thresholds) | 9 | 9 | 9 |
-| R4 sequencing (orderings × windows per link) | k! · w^(k−1) | 12 | 216 |
-| R5 divergence (member pairs × 2 measures × 3 thresholds) | 6 · C(k,2) | 6 | 18 |
-| R6 direction/sizing split (which sets direction × 3 maps) | 3k | 6 | 9 |
-| R7 diffusion (3 thresholds; k ≥ 3) | 3 | — | 3 |
-| **Total** | | **41** | **267** |
+| Operator | Covers | Count per subset S | Applicability / deduplication |
+|----------|--------|--------------------|-------------------------------|
+| BOOL | R1 confirmation, R2 plain filter, R5 binary divergence, R7 diffusion | (unate Boolean functions on all k inputs) × Π s_i / 2^k → **2 Π s** (k = 2), **9 Π s** (k = 3). Admitting non-unate functions such as XOR adds 0.5 Π s (k = 2) or 18.25 Π s (k = 3) | The grids hold both directions, so functions that differ only by negated inputs coincide. A plain filter equals an AND, and unweighted diffusion equals k-of-n, so neither adds a separate count |
+| SEQ | R4 sequencing | k! · 6^(k−1) · Π s | Events are not symmetric under negation |
+| REPAR | R2 with regime-specific rules | k = 2: Σ_r (s_r / 2) · m_b (m_b − 1) | Negating the regime gives the same partition, hence the factor 1/2 |
+| COMP | R3 composite | 27 · Π t (3 weightings × 3 thresholds × 3 position rules) | Acts on readings, not rules |
+| DIVC | R5 continuous gap | 6 · t_a t_b | k = 2 only |
+| SIZE | R6 direction/size | 3 · Σ_j t_j · dir_j | Sizing member j; the direction comes from the other members |
 
-Sequencing dominates as k grows: 216 of the 267 structures at k = 3, and 5,184 of the 5,260 at k = 4. This is
-the strongest argument for pre-registering chain orders from economic theory rather than searching them.
+Each total is Σ_S Π x_i, computed exactly as an elementary symmetric polynomial.
 
-## 2. Raw counts
+## 2. Exact counts
+
+**Per target asset and per alignment:**
+
+| Operator | k = 2, lower | k = 2, upper | k = 3, lower | k = 3, upper |
+|----------|------:|------:|------:|------:|
+| BOOL (unate) | 2.6 × 10^9 | 3.4 × 10^9 | 1.7 × 10^14 | 2.6 × 10^14 |
+| SEQ | 1.6 × 10^10 | 2.0 × 10^10 | 4.1 × 10^15 | 6.2 × 10^15 |
+| COMP | 3.4 × 10^8 | 4.6 × 10^8 | 5.0 × 10^11 | 7.8 × 10^11 |
+| DIVC | 7.5 × 10^7 | 1.0 × 10^8 | — | — |
+| SIZE | 7.6 × 10^8 | 1.0 × 10^9 | 3.4 × 10^13 | 5.2 × 10^13 |
+| **Total without REPAR** | **1.9 × 10^10** | **2.5 × 10^10** | **4.4 × 10^15** | **6.5 × 10^15** |
+| REPAR (regime-specific re-tuning) | 4.4 × 10^13 | 6.6 × 10^13 | 2.0 × 10^21 | 4.0 × 10^21 |
+| **Total with REPAR** | **4.4 × 10^13** | **6.6 × 10^13** | **2.0 × 10^21** | **4.0 × 10^21** |
+
+- **Grand total.** Multiply by 60 (20 assets × 3 alignments). For k = 2 this gives 1.2–1.5 × 10^12 without
+  REPAR, or 2.6–3.9 × 10^15 with it.
+- **Sequencing dominates** the count once regime re-tuning is excluded. Regime re-tuning dominates everything,
+  because every regime doubles a member's parameter space.
+
+**Comparison with simple approximations** (k = 2 / k = 3, one rule pair per subset, no operators):
+
+| Approximation | k = 2 | k = 3 |
+|---------------|------:|------:|
+| Median grid: C(26,k) × 1,180^k | 4.5 × 10^8 | 4.3 × 10^12 |
+| Mean grid: C(26,k) × 4,691^k | 7.2 × 10^9 | 2.7 × 10^14 |
+
+The median-grid figure that revision 1 used understated the space by more than an order of magnitude. Grid sizes
+are very skewed (96 to 19,344 rules per pair), and Π m_i is driven by the large grids.
+
+**Smaller families** (per asset and alignment):
 
 | Family | Definition | k = 2 | k = 3 |
 |--------|------------|------:|------:|
-| Full re-search | C(26,k) × 1,008^k × structures × 20 assets × 3 alignments | 8.1 × 10^11 | 4.3 × 10^16 |
-| Frozen members | Each member = its published winner rule; only membership, operator, asset and alignment vary | 8.0 × 10^5 | 4.2 × 10^7 |
-| Block representatives (7 blocks), frozen | C(7,k) × structures × 20 × 3 | 51,660 | 560,700 |
-| Block representatives, SPY only, one alignment | C(7,k) × structures | **861** | 9,345 |
-| Pre-registered question bank | About 37 questions × 2–6 pre-declared variants each | — | **~100–200 tests in total** |
+| Frozen members | One published rule per indicator; operators BOOL 2/9, SEQ 12/216, COMP 27, DIVC 6 (k = 2), SIZE 6/18 | 17,225 | 702,000 |
+| Frozen block representatives (8 blocks, § 3.4) | C(8,k) × 53 or × 270 | 1,484 | 15,120 |
+| Registered bank | — | **76 hypotheses** in total (`registry/families.yaml`) | |
 
-Subset counts for reference: C(26,k) = 325 / 2,600 / 14,950 / 65,780 for k = 2…5, and C(7,k) = 21 / 35 / 35 / 21.
+## 3. Effective dimensionality
 
-**Reading the table.**
-- The fleet's single-indicator search already used about 1.4 × 10^5 configurations, and the published winners are
-  the best of each.
-- Combining winners re-uses those selections, so a combination built from winners inherits the selection bias of
-  all its members.
-- Novy-Marx (2015/2016) shows that this "multiple-signal" bias grows quickly with k. A frozen-member combination
-  must therefore be tested against a null that **re-runs the member selection** inside each null draw, not
-  against a null that takes the members as given.
+### 3.1 Pre-specified design (revision 2)
 
-## 3. Effective dimensionality from point-in-time data
-
-### 3.1 Method
-
-1. **Panel.** At the close of the last trading day of each month (1985-01 → 2026-09), take each indicator's latest
-   reading with `available_date ≤ t` from `data/release_calendar/release_calendar.csv` (revised values, "revised
-   as-of" track).
-   - The 16 ALFRED series are also built on the **real-time** track: the vintage visible at t, with the transform
-     recomputed inside that vintage.
-   - Market series are unrevised. The HY/IG OAS uses the value from t−1 business day (FRED posts it the next day).
-2. **Transforms.** One standard transform per indicator, chosen *before* looking at correlations:
-   - YoY % for activity, housing, money and credit volumes, import prices and gold/copper (log-ratio change),
-   - a 12-month (4-quarter) difference for UNRATE, retail inventories/sales and card delinquency,
-   - the level for surveys, SLOOS, spreads and the VIX ratio.
-   These are *not* the fleet winners' transforms (see the limits below).
-3. **Statistics** on the standardised complete-case panel:
-   - eigenvalues of the correlation matrix,
-   - the number of PCs needed for 80% / 90% of variance,
-   - the Kaiser count (λ > 1),
-   - Horn (1965) parallel analysis (200 column-wise permutations, seed 20261017, 95th percentile),
-   - the participation ratio (Σλ)²/Σλ²,
-   - the entropy effective rank exp(−Σ p log p),
-   - Nyholt (2004) and Li & Ji (2005) M_eff,
-   - average-linkage clustering on 1 − |Spearman ρ| cut at |ρ| = 0.7 and 0.5.
-4. **Robustness variants:** 3-month changes of the same readings; sub-periods before and from 2008; the
-   real-time track.
+- **Primary panel: strict-PIT-14.** It contains only series that are point-in-time:
+  - ALFRED vintages, with the transform recomputed inside each vintage: INDPRO YoY, UNRATE 12-month change, RSXFS
+    YoY, UMCSENT, HOUST YoY, PERMIT YoY, new home sales YoY, M2 YoY, BUSLOANS YoY, NEWORDER YoY;
+  - unrevised market series: T10Y3M, HY–IG OAS, gold/copper log-ratio YoY, SOX/SPY YoY.
+  - This membership was frozen in the script before it was run. Note that SOX/SPY is built from SPY prices.
+- **Primary estimand.** The participation ratio PR = (Σλ)² / Σλ² of the Pearson correlation matrix of the
+  standardised readings.
+  - Its 90% interval comes from a moving-block bootstrap: rows resampled jointly in 24-month blocks, 2000 draws.
+  - PR is a continuous "effective number of equally important dimensions". It equals the number of variables when
+    they are independent, and 1 when they are perfectly collinear.
+- **Sensitivity analyses** (none of them is an estimate of the same quantity; they are not averaged):
+  - parallel analysis under two serial-dependence-preserving nulls, each with every column made independent and
+    2000 draws: a per-column stationary bootstrap (mean block 24 months) and per-column phase randomisation;
+  - the entropy effective rank;
+  - M_eff = Σ min(λ, 1);
+  - the published Li & Ji (2005) formula;
+  - hierarchical clusters;
+  - the same statistics on the revised-as-of panels (not point-in-time) and on 3-month changes.
+- **The Li & Ji formula.** Li & Ji (2005) define M_eff = Σ [I(λ ≥ 1) + (λ − ⌊λ⌋)]. Revision 1 implemented exactly
+  this, giving 13.0 for revised core 23.
+  - This formula is not monotone in λ. An eigenvalue of 1.9 counts 1.9, but one of 2.0 counts 1.0.
+  - Following the Codex review, revision 2 reports Σ min(λ, 1) as the M_eff figure (10.45 for core 23) and keeps
+    the published value for reference. Both are sensitivity measures only.
 
 ### 3.2 Results
 
-| Variant | Months (window) | Vars | PCs 80% | PCs 90% | Kaiser | Parallel analysis | Participation ratio | Entropy rank | Li–Ji M_eff | Clusters at 0.5 |
-|---------|-----------------|-----:|--------:|--------:|-------:|---------:|-------:|-------:|-------:|-------:|
-| Revised as-of, core 23 | 296 (2001-08 → 2026-03) | 23 | 6 | 10 | 6 | **5** | **5.6** | 9.1 | 13 | **10** |
-| Revised as-of, all 29 | 107 (2017-02 → 2025-12) | 29 | 6 | 9 | 6 | 3 | 4.8 | 7.9 | 13 | 7 |
-| Core 23, 3-month changes | 293 (2001-11 → 2026-03) | 23 | 10 | 14 | 7 | 5 | 8.6 | 13.3 | 16 | 21 |
-| Core 23, before 2008 | 77 (2001-08 → 2007-12) | 23 | 4 | 6 | 5 | 2 | 3.5 | 5.6 | 9 | — |
-| Core 23, from 2008 | 219 (2008-01 → 2026-03) | 23 | 6 | 9 | 5 | 5 | 5.2 | 8.4 | 12 | — |
-| Real-time ALFRED, 10 long-history series | 304 (2001-06 → 2026-09) | 10 | 4 | 6 | 3 | 2 | 4.2 | 5.8 | 6 | — |
-| Real-time ALFRED, all 16 | 160 (2013-06 → 2026-09) | 16 | 4 | 7 | 4 | 3 | 4.2 | 6.4 | 9 | — |
+| Panel | Track | Months | Vars | **PR [90% CI]** | Null PR, 5th percentile | PA (stationary block) | PA (phase) | Entropy rank | Σ min(λ,1) | Li–Ji (published) |
+|-------|-------|-------:|-----:|------|------:|---:|---:|------:|------:|------:|
+| **strict-PIT-14** (primary) | vintage + market | 298 (2001-08 → 2026-05) | 14 | **5.52 [3.75, 6.35]** | 10.2 | 2 | 1 | 7.81 | 7.97 | 10.0 |
+| strict-PIT-14, 3-month changes | vintage + market | 295 | 14 | 6.38 [4.93, 9.08] | 12.6 | 2 | 2 | 9.17 | 9.03 | 11.0 |
+| real-time, 10 long-history series | vintage | 304 (2001-06 → 2026-09) | 10 | 4.23 [3.05, 4.99] | 7.9 | 2 | 2 | 5.76 | 5.80 | 6.0 |
+| real-time, all 16 | vintage | 160 (2013-06 → 2026-09) | 16 | 4.18 [2.99, 5.08] | 9.8 | 2 | 2 | 6.40 | 7.08 | 9.0 |
+| revised-as-of core 23 (not PIT) | revised | 296 (2001-08 → 2026-03) | 23 | 5.59 [3.91, 6.61] | 14.2 | 3 | 2 | 9.11 | 10.45 | 13.0 |
+| revised-as-of all 29 (not PIT) | revised | 107 (2017-02 → 2025-12) | 29 | 4.77 [3.41, 5.20] | 11.0 | 2 | 2 | 7.92 | 10.57 | 13.0 |
+| revised core 23, 3-month changes | revised | 293 | 23 | 8.58 [6.63, 11.02] | 19.3 | 3 | 3 | 13.25 | 13.67 | 16.0 |
 
-- **Core 23** leaves out ECI, the VIX ratio, Cass, retail inventories/sales, cement and ISM services, to keep a
-  2001+ sample.
-- **The 10 long-history series** are indpro, unrate, rsxfs, umcsent, houst, permit, nhs, m2, busloans and neworder.
-- **First eigenvalue.** It takes 35% of variance (core 23) and 42% (real-time 16): one dominant cycle factor
-  plus a few secondary ones.
+**Reading the table.**
+- On the primary panel the first eigenvalue is 4.86 (35% of the variance) and the second is 2.21 (cumulative 51%).
+- Only these two factors stand clear of serially-dependent noise.
+- The participation ratio says the variance is spread roughly as if over 5–6 equal dimensions, with an interval of
+  about 4 to 6.
+- The all-29 panel exists only inside the viewed OOS window.
+- The revision-1 split before and after 2008 has been withdrawn:
+  - its windows had very different lengths (77 vs 219 months), so the comparison was confounded by sample size;
+  - the pre-2008 window was an expansion, not a downturn.
+  - D2-04 now asks the question properly, with equal-length rolling windows and an interval.
 
-### 3.3 The blocks (core 23, |ρ| ≥ 0.5, average linkage)
+### 3.3 Clusters (sensitivity only)
 
-| Cluster | Members | Economic label |
-|---------|---------|----------------|
-| C1 | indpro, unrate, rsxfs, neworder, amtmno, import_px, cc_delinq, sloos | Real activity, labour and bank credit standards (the cycle factor) |
-| C2 | houst, permit, nhs | Housing activity |
-| C3 | t10y3m, hy_oas, hy_ig | Rates and credit market pricing |
-| C4 | umcsent, nahb | Household and builder sentiment |
-| C5 | ism_mfg, gold_copper | Manufacturing survey and commodity cyclicality (ρ = −0.70 at the pairwise level) |
-| singletons | m2, busloans, umich_exp, crude_inv, sox_spy | Money, bank lending volume, business-condition expectations, energy inventories, equity internals |
+- **Strict-PIT-14, |ρ| ≥ 0.5, average linkage.** Eight clusters:
+  - {RSXFS, NEWORDER, gold/copper}
+  - {HOUST, PERMIT, new home sales}
+  - {INDPRO, UNRATE}
+  - {T10Y3M, HY–IG}
+  - {UMCSENT}, {M2}, {BUSLOANS} and {SOX/SPY} on their own.
+- **Revised core 23.** 10 clusters at 0.5 and 18 at 0.7.
+- **Caution.** Cluster counts depend on the cut and the linkage. They are not an estimate of dimensionality.
 
-**Most redundant pairs** (pairwise Spearman, ≥ 60 overlapping months):
+### 3.4 Frozen block membership (used by the question bank)
 
-| Pair | ρ |
-|------|--:|
-| hy_oas – hy_ig | 0.99 |
-| houst – permit | 0.82 |
-| neworder – amtmno | 0.80 |
-| amtmno – import_px | 0.77 |
-| cass – ism_mfg | 0.74 |
-| ism_mfg – ism_svc | 0.73 |
-| unrate – sloos | 0.71 |
-| indpro – neworder | 0.70 |
-| permit – nhs | 0.65 |
-| houst – nhs | 0.61 |
+The table below was frozen on 2026-10-17. It merges economic priors with the observed clusters, so any historical
+test that relies on it is **exploratory**. It holds 8 blocks and covers all 29 panel indicators.
 
-New home sales is noticeably less redundant with starts and permits than starts and permits are with each other.
+| Block | Members | Point-in-time representative |
+|-------|---------|------------------------------|
+| B1 Activity & labour | INDPRO, UNRATE, RSXFS, NEWORDER, AMTMNO, import prices (IR), Cass freight, retail inventories/sales, ECI | INDPRO YoY (vintage) |
+| B2 Housing | HOUST, PERMIT, new home sales, NAHB, cement | PERMIT YoY (vintage) |
+| B3 Market credit & curve | HY OAS, HY–IG OAS, T10Y3M | HY–IG OAS (market) |
+| B4 Bank credit | SLOOS, card delinquency, BUSLOANS | BUSLOANS YoY (vintage; SLOOS vintages only from 2010) |
+| B5 Sentiment | UMCSENT, UMich expected business conditions | UMCSENT (vintage) |
+| B6 Manufacturing surveys, commodities & energy | ISM manufacturing, ISM services, gold/copper, EIA crude inventories | gold/copper YoY (market; ISM is revised-only historically) |
+| B7 Money | M2 | M2 YoY (vintage) |
+| B8 Market risk & internals | VIX / VIX3M, SOX/SPY | VIX level (market, 1990+) |
 
-**Proposed working blocks for the question bank** (empirical clusters merged with economic priors; 7 to 8 blocks):
+## 4. Power: minimum detectable Sharpe gap
 
-- **B1 activity & labour:** INDPRO, UNRATE, RSXFS, NEWORDER/AMTMNO, import prices, Cass, inventories/sales.
-- **B2 housing:** HOUST, PERMIT, HSN1F, NAHB, cement.
-- **B3 market credit & curve:** HY OAS, HY–IG, T10Y3M.
-- **B4 bank credit:** SLOOS, card delinquency, BUSLOANS.
-- **B5 sentiment:** UMCSENT, UMich expectations.
-- **B6 manufacturing surveys & commodity:** ISM manufacturing, ISM services, gold/copper.
-- **B7 money:** M2.
-- **B8 market risk & internals:** VIX/VIX3M, SOX/SPY.
-- **Energy (crude inventories)** sits on its own and is weak a priori; it is kept as a "placebo-like" block.
+The variance of the difference between two Sharpe ratios is (Jobson–Korkie, with Memmel's 2003 correction; iid,
+annualised Sharpe, T in years):
 
-B4 is split from B1 on economic grounds even though SLOOS clusters with activity empirically. The real question is
-whether credit *leads* activity (sequencing, D1-12), and that question needs them separate.
+Var(SR₁ − SR₂) ≈ [2(1 − ρ) + ½(SR₁² + SR₂² − 2·SR₁·SR₂·ρ²)] / T
 
-### 3.4 What this means for "how many variations"
+The minimum detectable effect is MDE = (z₁₋α/2m + z₀.₈) · √(VIF · Var), where:
+- the test is two-sided at 5% with 80% power;
+- m is the number of tests in the family (Bonferroni-equivalent);
+- VIF inflates the variance for serial correlation.
 
-- On level readings, about **5–8** genuinely independent indicator dimensions exist, depending on the statistic.
-  - Parallel analysis is the most conservative (2–5).
-  - The entropy rank and Li–Ji count are the most generous (6–13).
-- A combination search that treats 26 series as 26 independent ideas over-counts the idea space by roughly 3–5×.
-  It under-counts the *trial* space, because member rules, operators and assets multiply on top.
-- For multiple-testing corrections the relevant number is the effective count of **strategy-return streams**,
-  which is not yet measured (question D2-03). Indicator-level dimensionality gives a lower bound on idea diversity,
-  not the trial count for a deflated Sharpe ratio.
+The tables assume equal Sharpe ratios for the two strategies, SR = 0.5 / 1.0.
 
-## 4. Power: what difference can the samples detect?
+**Table 4a.** m = 1, VIF = 1. Each cell gives SR = 0.5 / SR = 1.0.
 
-The standard error of a Sharpe-ratio difference between two strategies whose returns correlate at ρ is roughly
-√(2(1 − ρ)/T) per year of data (Jobson–Korkie / Memmel approximation, Sharpe ratios near 0.5–1). Two standard
-errors give the smallest annualised Sharpe gap distinguishable from zero at about 5% (two-sided, 50% power):
+| Years | ρ = 0.5 | ρ = 0.7 | ρ = 0.8 | ρ = 0.9 |
+|------:|--------:|--------:|--------:|--------:|
+| 3 (forward V-C after 3 years) | 1.76 / 2.14 | 1.38 / 1.70 | 1.13 / 1.41 | 0.80 / 1.01 |
+| 8 (≈ the viewed OOS window) | 1.08 / 1.31 | 0.84 / 1.04 | **0.69 / 0.86** | **0.49 / 0.62** |
+| 16 | 0.76 / 0.93 | 0.60 / 0.74 | 0.49 / 0.61 | 0.35 / 0.44 |
+| 25 | 0.61 / 0.74 | 0.48 / 0.59 | 0.39 / 0.49 | 0.28 / 0.35 |
 
-| Years of data | ρ = 0.5 | ρ = 0.8 | ρ = 0.9 |
-|---------------|--------:|--------:|--------:|
-| 8 (≈ the existing OOS window) | 0.71 | 0.45 | 0.32 |
-| 10 | 0.63 | 0.40 | 0.28 |
-| 16 (≈ the fleet IS window, or real-time all-16 from 2013) | 0.50 | 0.32 | 0.22 |
-| 25 (2001 → 2026) | 0.40 | 0.25 | 0.18 |
+**Table 4b.** ρ = 0.8, SR = 0.5, VIF = 1.5 (moderate serial correlation in monthly overlay returns), by family size m.
 
-- A combination and its best single member usually correlate at 0.8–0.9.
-- On the existing roughly 8-year OOS window, a gain under about 0.3–0.45 Sharpe is therefore indistinguishable
-  from noise *before* any multiple-testing correction.
-- This is why the question bank leans on tail metrics, on the long backward holdout and on breadth across assets,
-  rather than on OOS Sharpe alone.
+| m | 3 years | 8 years | 16 years | 25 years |
+|--:|--------:|--------:|---------:|---------:|
+| 1 | 1.39 | 0.85 | 0.60 | 0.48 |
+| 10 | 1.81 | 1.11 | 0.78 | 0.63 |
+| 50 | 2.05 | 1.25 | 0.89 | 0.71 |
 
-## 5. Limits of this estimate
+- Without the Sharpe-level term, the 8-year MDE would be 0.63 at ρ = 0.8 and 0.44 at ρ = 0.9 (the figures in the
+  Codex review).
+- Fat tails, negative skew and lower correlations (an overlay against buy-and-hold often correlates only 0.5–0.7)
+  push the MDE higher still.
+- **Consequences.**
+  - A Sharpe gain is very hard to establish on any window we have.
+  - The bank's primary endpoints are therefore tail (CVaR), event and calibration measures with explicit margins.
+  - D2-09 labels hypotheses whose MDE exceeds twice their margin as "underpowered" in advance, without dropping
+    them.
+  - The forward window V-C will usually be inconclusive for several years. V-S is what makes confirmatory
+    recession questions decidable.
 
-1. **Persistence.** Level readings are highly autocorrelated (YoY and 12-month differences overlap by construction).
-   The effective number of independent months is far below the count of months, which makes the eigenvalues less
-   stable than the tables suggest. Parallel analysis by column permutation ignores autocorrelation and is
-   therefore *too generous* to noise eigenvalues. A block-permutation version is a Phase 2 item.
-2. **Complete-case selection.** The all-29 panel exists only for 2017-02 → 2025-12, inside the already-viewed OOS
-   window. The core-23 numbers are preferred for that reason.
-3. **Transform choice.** Changes give a higher dimension than levels (8.6 vs 5.6 participation ratio). The fleet
-   winners use a mix of levels, changes, z-scores and flags, so their effective dimension lies somewhere between
-   the two. It should be measured on the actual winner states (D2-03).
-4. **Linear vs threshold.** Correlation of continuous readings is not correlation of binary bull/bear states. Two
-   series with ρ = 0.6 can produce states that agree 90% of the time, or 60%.
-5. **Revised vs real-time.** Most rows rely on revised data with release-date masking. The real-time track (10–16
-   series) gives similar or lower dimension (4.2 participation ratio). Revisions add noise that slightly reduces
-   measured correlation.
-6. **Coverage holes.**
-   - The latest Cass vintage starts in 2016, so the revised Cass track starts in 2017. Older Cass vintages go back
-     to 1990 and could be spliced.
-   - Market series in the local parquets start in 2000. FRED holds T10Y3M from 1982 and the ICE BofA OAS from
-     1996–97.
-   - The VIX3M series starts in 2007.
-7. **Indicator dimension ≠ predictive dimension.** Two independent indicators may carry the same (or no)
-   information about returns. The effective dimension of *return-relevant* information is the quantity D2-11
-   proposes to estimate. It is likely lower than the indicator dimension.
+## 5. Limits
+
+1. **Persistence.** YoY and 12-month-difference readings overlap by construction. The block bootstrap (24-month
+   blocks) and the serial-dependence-preserving nulls address this, but block length is a choice. The intervals
+   are approximate.
+2. **Indicator dimension is not predictive dimension.** These numbers describe co-movement among readings. They do
+   not describe how much information the readings hold about returns, which is what D2-11 asks.
+3. **Standard transforms, not the winners' rules.** Binary bull/bear states can agree more or less often than the
+   continuous readings correlate. D2-03 measures the winners' streams once G4 is done.
+4. **Grid-based counts depend on published grids.** Grids differ across pipelines (96 to 19,344 rules per pair).
+   Merging pairs of the same indicator gives bounds, not a single number. Equivalent position series produced by
+   different rules (e.g. thresholds never crossed) are not removed, so the counts are upper bounds on *distinct*
+   position series.
+5. **Coverage.**
+   - The latest Cass vintage starts in 2016.
+   - Market series in the local files start in 2000; FRED extends them.
+   - VIX3M starts in 2007.
+   - Revised-only sources are excluded from the primary panel by design.
