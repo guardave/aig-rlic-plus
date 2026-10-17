@@ -167,7 +167,7 @@ indicators:
 
   "Ind, Mat - Manufturs' New Orders, YoY":
     indicator_id: mfg_new_orders_yoy
-    display_name: Manufacturers' New Orders YoY
+    display_name: "Core Capital Goods Orders (NEWORDER) YoY"
     category: production
 
   "Mat - Portland Cment Shipmts":
