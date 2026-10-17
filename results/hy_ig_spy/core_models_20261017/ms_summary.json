@@ -1,0 +1,21 @@
+{
+  "model": "MarkovRegression(daily HY-IG spread change ~ switching const, switching variance), k=2",
+  "probability": "Hamilton-filtered P(high-variance regime_t | data up to t) with IS-frozen params",
+  "dependent": "spread_change (SPY returns are NOT in the likelihood)",
+  "fit_window": [
+    "2000-01-05",
+    "2019-09-30"
+  ],
+  "n_fit": 5149,
+  "params_is": {
+    "p[0->0]": 0.978595,
+    "p[1->0]": 0.077539,
+    "const[0]": -0.003118,
+    "const[1]": 0.010489,
+    "sigma2[0]": 0.002587,
+    "sigma2[1]": 0.025527
+  },
+  "pct_high_var_days": 19.34,
+  "pct_high_var_days_oos": 21.44,
+  "loglik_is": 6403.92
+}

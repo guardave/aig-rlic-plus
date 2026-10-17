@@ -32,7 +32,14 @@ SMOOTHED probabilities (predict_proba): look-ahead. This version:
   * Lead-axis artifacts (previously scripts/refresh_hy_ig_spy_lead_artifacts.py, retired)
     and the ECON-SR1 / SR3 / CP1 sidecars are produced here from the canonical series.
 
-Run:  python3 scripts/pair_pipeline_hy_ig_spy.py      (~1-2 min; deterministic)
+Phase B (DATE_TAG 20261017): the tournament runs on scripts/harness (spec scripts/pair_spec_hy_ig_spy.py),
+single "market" track (OAS is not revised): point-in-time as-of alignment (next-business-day release), D9 lead-plateau
+selection on IS with deployable scoring, P2 declared once per signal (it ignores the threshold), null tournament
+K=100 with the regime models re-fitted per draw, paired block bootstrap vs buy-and-hold, leak tests. The published
+20261016 rule is replayed through the harness first (scripts/harness/run.py replay_legacy). Validation replays use
+the same harness alignment; the HMM look-ahead audit keeps the old fixed-shift replay of the superseded rule.
+
+Run:  python3 scripts/pair_pipeline_hy_ig_spy.py      (~25-40 min: K=100 null with regime re-fits; deterministic)
 Author: Econ Evan. SOP: docs/agent-sops/econometrics-agent-sop.md
 """
 
@@ -42,6 +49,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _stamp import iso_utc_now  # noqa: E402
 from _regime_causal import fit_hmm_causal, fit_ms_causal  # noqa: E402
+import pair_spec_hy_ig_spy as spec_mod  # noqa: E402
+from harness.align import lag_asof, release_for  # noqa: E402
+from harness.candidates import P2_THRESHOLD, Candidate, reading_frame  # noqa: E402
+from harness.positions import position_matrix, strategy_returns  # noqa: E402
+from harness.run import run_pair  # noqa: E402
 
 import numpy as np
 import pandas as pd
@@ -58,7 +70,7 @@ INDICATOR_NAME = "HY-IG Credit Spread"
 TARGET_NAME    = "S&P 500 (SPY)"
 START_DATE     = "2000-01-01"
 END_DATE       = "2026-04-22"
-DATE_TAG       = "20261016"   # output vintage (this rebuild)
+DATE_TAG       = "20261017"   # output vintage (Phase B B0 pilot on the harness)
 DATA_TAG       = "20260422"   # input data vintage (committed parquet)
 
 # OOS window — ECON-OOS2: span = min(max(36, round(316*0.25)), 120) = 79 months.
@@ -755,10 +767,33 @@ def build_position(sig_l: pd.Series, tname: str, strat: str, is_index_mask) -> p
 
 
 def replay(work: pd.DataFrame, sig_col: str, tname: str, strat: str, lead: int):
-    """(pos, strat_ret) on the FULL series; callers slice afterwards (no warm-up truncation)."""
+    """LEGACY fixed-shift replay, kept ONLY for the look-ahead audit of the superseded smoothed-HMM rule
+    (stage_lookahead_audit). Everything traded or published goes through harness_replay."""
     sig_l = work[sig_col].shift(lead) if lead > 0 else work[sig_col]
     pos = build_position(sig_l, tname, strat, work.index <= IS_END)
     return pos, pos.shift(1) * work["spy_ret"]
+
+
+_H: dict = {}
+
+
+def harness_replay(sig_name: str, tname: str, strat: str, lead: int):
+    """(pos, strat_ret) of one rule on the harness market track: reading frame of the pair spec, as-of shifted
+    with the next-business-day release (any lead, incl. the decay test's extra delays), position rule of the
+    harness, pos.shift(1) * spy_ret."""
+    work = CTX["work"]
+    if "frame" not in _H:
+        lv = spec_mod.revised_levels()
+        _H["frame"] = reading_frame(spec_mod.SPEC, lv)
+        _H["rel"] = release_for(spec_mod.SPEC.release_series, _H["frame"].index)
+        _H["lag"] = {}
+    if lead not in _H["lag"]:
+        _H["lag"][lead] = lag_asof(_H["frame"], lead, _H["rel"], spec_mod.SPEC.position_shift).reindex(work.index)
+    cand = Candidate(sig_name, P2_THRESHOLD if strat == "P2" else tname, strat, "countercyclical", lead)
+    pos = position_matrix(spec_mod.SPEC, _H["lag"][lead], [cand], np.asarray(work.index < OOS_START))[:, 0]
+    ret = work["spy_ret"].to_numpy(float)
+    sr = strategy_returns(pos[:, None], ret, spec_mod.SPEC.position_shift)[:, 0]
+    return pd.Series(pos, index=work.index), pd.Series(sr, index=work.index)
 
 
 def _exposure(pos: pd.Series, strat: str) -> float:
@@ -770,160 +805,36 @@ def _exposure(pos: pd.Series, strat: str) -> float:
 
 @timed("6_tournament")
 def stage_tournament(df: pd.DataFrame) -> pd.DataFrame:
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from _tournament_io import write_tournament  # ECON-T5 §4 immutability guard
-
+    """Harness tournament (Phase B): replay of the published rule, market track, D9 selection, null K=100,
+    bootstrap, leak tests and the shared artifacts (winner_summary 1.3.0, tournament / strategy-returns /
+    lead-curve / null files, track_summary, charts)."""
+    out = run_pair(PAIR_ID, DATE_TAG, K=100, extra={
+        "target_symbol": "SPY", "cost_bps": 5,
+        "strategy_description": "Countercyclical rule on the lagged HY-IG spread signal (see strategy_family).",
+        "notes": "Single track: ICE BofA OAS is market data and is not revised. Winner selected on in-sample data by "
+                 "the lead-plateau rule (D9); OOS evaluation only."})
+    res = out["results"]["main"]
     sig_df = pd.read_parquet(os.path.join(SIGNALS_DIR, f"signals_{DATE_TAG}.parquet"))
     work = df.copy()
     for col in ["hmm_2state_prob_stress", "ms_2state_stress_prob"]:
         work[col] = sig_df[col].reindex(work.index)
     work = work.dropna(subset=["spy_ret"])
-    oos_start = pd.Timestamp(OOS_START)
-    oos_mask = work.index >= oos_start
-    available = {k: v for k, v in SIGNAL_COLS.items() if v in work.columns and work[v].notna().sum() > 200}
-    print(f"  Available signals: {len(available)} of {len(SIGNAL_COLS)}; leads {LEADS}")
-
-    # pass 1: candidates (positions on the full series)
-    cands = []
-    for sig_name, sig_col in available.items():
-        for lead in LEADS:
-            p2_cache = None
-            for tname in threshold_codes_for(sig_name):
-                for strat in ["P1", "P2", "P3"]:
-                    if strat == "P2" and p2_cache is not None:
-                        pos, rets = p2_cache
-                    else:
-                        pos, rets = replay(work, sig_col, tname, strat, lead)
-                        if strat == "P2":
-                            p2_cache = (pos, rets)
-                    cands.append((sig_name, sig_col, tname, strat, lead, pos, rets))
-
-    def _first(rets):
-        r = rets.dropna()
-        return r.index.min() if len(r) else pd.NaT
-
-    def _own_is_n(rets):
-        return int(((rets.index < oos_start) & rets.notna()).sum())
-
-    eligible = [_own_is_n(c[6]) >= MIN_IS_N for c in cands]
-    n_inel = int(len(cands) - sum(eligible))
-    if not any(eligible):
-        raise RuntimeError("No IS-eligible candidate")
-    common_is_start = max(_first(c[6]) for c, ok in zip(cands, eligible) if ok)
-    is_mask_c = (work.index >= common_is_start) & (work.index < oos_start)
-    driver = [f"{c[0]}/{c[2]}/{c[3]}/L{c[4]}" for c, ok in zip(cands, eligible)
-              if ok and _first(c[6]) == common_is_start][:3]
-    print(f"  common IS start {common_is_start.date()} (set by e.g. {driver}); "
-          f"{n_inel} ineligible (own IS n < {MIN_IS_N})")
-
-    bh_is = ann_metrics(work.loc[is_mask_c, "spy_ret"])
-    bh = ann_metrics(work.loc[oos_mask, "spy_ret"])
-
-    rows = []
-    for (sig_name, sig_col, tname, strat, lead, pos, rets), elig in zip(cands, eligible):
-        is_r = rets[is_mask_c].dropna()
-        own_start = _first(rets)
-        own_mask = (work.index >= own_start) & (work.index < oos_start) if pd.notna(own_start) else is_mask_c & False
-        own_r = rets[own_mask].dropna()
-        oos_r = rets[oos_mask].fillna(0.0)                       # ECON-T4 deployable OOS
-        mi, mo, m = ann_metrics(is_r), ann_metrics(own_r), ann_metrics(oos_r)
-        is_tr, is_to = trade_stats(pos, is_mask_c)
-        oos_tr, oos_to = trade_stats(pos, oos_mask)
-        full_tr, full_to = trade_stats(pos, np.ones(len(pos), dtype=bool))
-        is_expo = _exposure(pos[is_mask_c], strat)
-        own_expo = _exposure(pos[own_mask], strat)
-        oos_expo = _exposure(pos[oos_mask], strat)
-        is_valid = bool(elig and len(is_r) >= MIN_IS_N and 0.05 <= is_expo <= 0.95
-                        and is_r.std() > 0 and is_to < 24 and is_tr >= 10)
-        own_valid = bool(len(own_r) >= MIN_IS_N and own_expo == own_expo and 0.05 <= own_expo <= 0.95
-                         and own_r.std() > 0)
-        legacy_valid = bool(m["sharpe"] == m["sharpe"] and m["sharpe"] > 0 and full_to < 24 and full_tr >= 10)
-        rows.append({
-            "signal": sig_name, "signal_column": sig_col, "threshold": tname, "strategy": strat,
-            "lead_days": lead, "direction": "countercyclical",
-            "is_sharpe": round(mi["sharpe"], 6), "is_ann_return": round(mi["ann_return"], 6),
-            "is_max_drawdown": round(mi["max_drawdown"], 6), "is_exposure": round(is_expo, 4),
-            "is_n_trades": is_tr, "is_annual_turnover": round(is_to, 3),
-            "is_start": is_r.index.min().date().isoformat() if len(is_r) else None,
-            "is_end": is_r.index.max().date().isoformat() if len(is_r) else None,
-            "common_is_start": common_is_start.date().isoformat(),
-            "own_is_start": own_r.index.min().date().isoformat() if len(own_r) else None,
-            "own_is_sharpe": round(mo["sharpe"], 6), "own_is_n": mo["n"], "own_is_valid": own_valid,
-            "oos_sharpe": round(m["sharpe"], 6), "oos_sortino": round(m["sortino"], 6),
-            "oos_calmar": round(m["calmar"], 6), "oos_ann_return": round(m["ann_return"], 6),
-            "oos_ann_vol": round(m["ann_vol"], 6), "max_drawdown": round(m["max_drawdown"], 6),
-            "win_rate": round(m["win_rate"], 4), "oos_exposure": round(oos_expo, 4),
-            "n_trades": oos_tr, "annual_turnover": round(oos_to, 3),
-            "n_trades_full": full_tr, "annual_turnover_full": round(full_to, 3),
-            "is_n": mi["n"], "oos_n": m["n"], "is_eligible": bool(elig),
-            "is_ineligible_reason": "" if elig else f"insufficient IS history: n_own={_own_is_n(rets)} < MIN_IS_N={MIN_IS_N}",
-            "is_valid": is_valid, "oos_valid": legacy_valid, "valid": is_valid,
-        })
-    rows.append({
-        "signal": "BENCHMARK", "signal_column": "spy", "threshold": "BUY_HOLD", "strategy": "BH", "lead_days": 0,
-        "direction": "benchmark", "is_sharpe": round(bh_is["sharpe"], 6), "is_ann_return": round(bh_is["ann_return"], 6),
-        "is_max_drawdown": round(bh_is["max_drawdown"], 6), "is_exposure": 1.0, "is_n_trades": 0,
-        "is_annual_turnover": 0.0, "is_start": common_is_start.date().isoformat(),
-        "is_end": work.index[is_mask_c][-1].date().isoformat(), "common_is_start": common_is_start.date().isoformat(),
-        "own_is_start": None, "own_is_sharpe": np.nan, "own_is_n": 0, "own_is_valid": False,
-        "oos_sharpe": round(bh["sharpe"], 6), "oos_sortino": round(bh["sortino"], 6), "oos_calmar": round(bh["calmar"], 6),
-        "oos_ann_return": round(bh["ann_return"], 6), "oos_ann_vol": round(bh["ann_vol"], 6),
-        "max_drawdown": round(bh["max_drawdown"], 6), "win_rate": round(bh["win_rate"], 4), "oos_exposure": 1.0,
-        "n_trades": 0, "annual_turnover": 0.0, "n_trades_full": 0, "annual_turnover_full": 0.0,
-        "is_n": bh_is["n"], "oos_n": bh["n"], "is_eligible": False, "is_ineligible_reason": "benchmark",
-        "is_valid": False, "oos_valid": False, "valid": False})
-    tourn = pd.DataFrame(rows)
-    assert (tourn["signal"] == "BENCHMARK").sum() == 1   # ECON-T4
-
+    assert work.index.equals(res.index), "pipeline panel and harness index differ"
+    tourn = pd.read_csv(os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv"))
+    for c in ("valid", "is_eligible"):
+        tourn[c] = tourn[c].astype(str).str.lower() == "true"
+    wi = int(res.selection["winner"])
     valid = tourn[tourn["valid"] & (tourn["signal"] != "BENCHMARK")]
-    if valid.empty:
-        raise RuntimeError("No valid tournament strategies")
-    # ECON-T3 cascade on the IS objective (explicit, not pandas-order dependent)
-    keys = ["is_sharpe", "is_ann_return", "is_max_drawdown", "is_n_trades", "signal", "threshold", "strategy", "lead_days"]
-    asc = [False, False, False, False, True, True, True, True]
-    ranked = valid.sort_values(keys, ascending=asc, kind="mergesort")
-    wi = ranked.index[0]
-    tied = valid
-    tie_step = None
-    for step, k in enumerate(["is_sharpe", "is_ann_return", "is_max_drawdown", "is_n_trades"], 1):
-        tied = tied[(tied[k] - tourn.loc[wi, k]).abs() <= 1e-9]
-        if len(tied) == 1:
-            tie_step = step
-            break
-    if tie_step is None:
-        tie_step = 5
-    own_pool = tourn[(tourn["own_is_valid"]) & (tourn["signal"] != "BENCHMARK")]
-    oi = own_pool["own_is_sharpe"].idxmax()
-    legacy_pool = tourn[(tourn["oos_valid"]) & (tourn["signal"] != "BENCHMARK")]
-    li = legacy_pool.sort_values(["oos_sharpe", "oos_ann_return", "signal", "threshold"],
-                                 ascending=[False, False, True, True], kind="mergesort").index[0]
-    nb = tourn["signal"] != "BENCHMARK"
-    tourn["is_rank"] = tourn["is_sharpe"].where(nb & tourn["valid"]).rank(ascending=False, method="min")
-    tourn["oos_rank"] = tourn["oos_sharpe"].where(nb & tourn["valid"]).rank(ascending=False, method="min")
-    write_tournament(tourn, os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv"))
-    side_cols = ["signal", "threshold", "strategy", "direction", "lead_days", "is_start", "is_end", "is_n", "is_sharpe",
-                 "own_is_start", "own_is_n", "own_is_sharpe", "oos_sharpe", "oos_ann_return", "max_drawdown",
-                 "n_trades", "oos_n", "is_rank", "oos_rank"]
-    pd.DataFrame([dict(role="primary_is_selected_common_start", **tourn.loc[wi, side_cols].to_dict()),
-                  dict(role="sensitivity_is_selected_own_start", **tourn.loc[oi, side_cols].to_dict()),
-                  dict(role="legacy_oos_selected", **tourn.loc[li, side_cols].to_dict())]
-                 ).to_csv(os.path.join(RESULTS_DIR, f"legacy_oos_selection_{DATE_TAG}.csv"), index=False)
-
-    # distinct position series (P2 ignores the threshold -> identical rows across thresholds)
-    distinct = valid.drop_duplicates(["signal", "strategy", "lead_days", "is_sharpe", "oos_sharpe"])
-    sp = stats.spearmanr(valid["is_sharpe"], valid["oos_sharpe"]).correlation
-    CTX["selection"] = dict(wi=wi, oi=oi, li=li, tie_step=tie_step, tied_rows=list(tied.index) if tie_step == 5 else [],
-                            common_is_start=common_is_start, n_cands=len(cands), n_eligible=int(sum(eligible)),
-                            n_inel=n_inel, bh_is=bh_is, bh=bh, n_distinct=len(distinct),
-                            spearman=float(sp), driver=driver)
-    w = tourn.loc[wi]
-    print(f"  Tournament: {len(cands)} combos, {len(valid)} IS-valid ({len(distinct)} distinct position series)")
-    print(f"  WINNER (IS argmax): {w.signal}/{w.threshold}/{w.strategy}/L{w.lead_days}  IS {w.is_sharpe:.4f}  "
-          f"OOS {w.oos_sharpe:.4f}  (B&H IS {bh_is['sharpe']:.4f} OOS {bh['sharpe']:.4f}); tie step {tie_step}")
-    lw = tourn.loc[li]
-    print(f"  legacy OOS-argmax: {lw.signal}/{lw.threshold}/{lw.strategy}/L{lw.lead_days} OOS {lw.oos_sharpe:.4f}")
-    print(f"  Spearman(IS, OOS) over IS-valid = {sp:.3f}")
     CTX["work"] = work
+    CTX["out"] = out
+    CTX["selection"] = dict(wi=wi, common_is_start=res.common_is_start, n_cands=len(res.cands),
+                            n_eligible=int(res.table["is_eligible"].sum()),
+                            n_inel=int((~res.table["is_eligible"]).sum()), bh_is=res.bh_is, bh=res.bh_oos,
+                            n_distinct=res.n_distinct,
+                            spearman=float(stats.spearmanr(valid["is_sharpe"], valid["oos_sharpe"]).correlation))
+    w = tourn.loc[wi]
+    print(f"  WINNER (D9 plateau {res.selection['window_leads']}): {w.signal}/{w.threshold}/{w.strategy}/L{w.lead_days} "
+          f"IS {w.is_sharpe:.4f} OOS {w.oos_sharpe:.4f} (B&H OOS {res.bh_oos['sharpe']:.4f})")
     return tourn
 
 
@@ -950,7 +861,7 @@ def stage_validation(tourn: pd.DataFrame) -> dict:
         sig_name, tname, strat, lead = row["signal"], row["threshold"], row["strategy"], int(row["lead_days"])
         sig_col = SIGNAL_COLS[sig_name]
         tag = dict(rank=rank, signal=sig_name, threshold=tname, strategy=strat, lead_days=lead)
-        pos, sr = replay(work, sig_col, tname, strat, lead)
+        pos, sr = harness_replay(sig_name, tname, strat, lead)
 
         # 1. Walk-forward (5y train / 1y test). T1 thresholds re-estimated on each train window;
         #    other rules have no fitted parameter. NOTE: regime signals (S6/S7) use IS-fitted
@@ -996,7 +907,7 @@ def stage_validation(tourn: pd.DataFrame) -> dict:
 
         # 4. Signal decay: extra execution delay on top of the traded lead
         for delay in [0, 1, 2, 3, 5]:
-            _, dr = replay(work, sig_col, tname, strat, lead + delay)
+            _, dr = harness_replay(sig_name, tname, strat, lead + delay)
             all_decay.append({**tag, "execution_delay": delay,
                               "oos_sharpe": round(ann_metrics(dr[oos_mask].fillna(0.0))["sharpe"], 4)})
 
@@ -1129,172 +1040,55 @@ def _episodes():
 
 @timed("9_winner_artifacts")
 def stage_winner_artifacts(tourn: pd.DataFrame, vinfo: dict):
+    """Pair-specific additions to the harness winner_summary (1.3.0) and the hy_ig sidecars (trade logs,
+    rolling Sharpe / correlation, sub-periods, structural break, rolling Granger, signal distribution), all from
+    the harness winner series (pos, pos.shift(1) * spy_ret)."""
     work = CTX["work"]
     S = CTX["selection"]
-    wi, oi, li = S["wi"], S["oi"], S["li"]
+    res = CTX["out"]["results"]["main"]
+    wi = S["wi"]
     w = tourn.loc[wi]
-    bm = tourn[tourn["signal"] == "BENCHMARK"].iloc[0]
     sig_name, tname, strat, lead = w["signal"], w["threshold"], w["strategy"], int(w["lead_days"])
     sig_col = SIGNAL_COLS[sig_name]
     oos_mask = work.index >= OOS_START
     now_iso = iso_utc_now()
-
-    pos, sr = replay(work, sig_col, tname, strat, lead)
+    pos = pd.Series(res.positions[:, wi], index=work.index)
+    sr = pd.Series(res.returns[:, wi], index=work.index)
+    hp, hs = harness_replay(sig_name, tname, strat, lead)
+    assert np.allclose(hs.fillna(0), sr.fillna(0), atol=1e-12), "harness_replay != harness tournament series"
     oos_r = sr[oos_mask].fillna(0.0)
     m = ann_metrics(oos_r)
-    assert abs(m["sharpe"] - float(w["oos_sharpe"])) < 1e-6, "winner replay != tournament row"
     t_oos, p_oos, nw_oos = hac_t_mean(oos_r)
-    is_r = sr[(work.index >= S["common_is_start"]) & (work.index < OOS_START)].dropna()
-    t_is, p_is, nw_is = hac_t_mean(is_r)
-    n_distinct = S["n_distinct"]
-    exp_max_z = float(stats.norm.ppf(1 - 0.5 / max(n_distinct, 1)))
-    tval, trule = _threshold_value(tname, sig_col, work, lead)
-    valid = tourn[tourn["valid"] & (tourn["signal"] != "BENCHMARK")]
-    runner = valid.drop(index=wi).sort_values(["is_sharpe", "signal", "threshold"], ascending=[False, True, True]).head(1)
-    runner_d = valid.drop(index=wi)
-    runner_d = runner_d[~((runner_d["signal"] == sig_name) & (runner_d["strategy"] == strat)
-                          & (runner_d["lead_days"] == lead) & ((runner_d["is_sharpe"] - w["is_sharpe"]).abs() < 1e-12))]
-    runner_d = runner_d.sort_values(["is_sharpe", "signal", "threshold"], ascending=[False, True, True]).head(1)
-
-    def _row(r):
-        return {"signal": str(r["signal"]), "threshold": str(r["threshold"]), "strategy": str(r["strategy"]),
-                "lead_value": int(r["lead_days"]), "objective_value": round(float(r["is_sharpe"]), 6),
-                "oos_sharpe": round(float(r["oos_sharpe"]), 6)}
-
-    is_window = {"start": str(w["is_start"]), "end": str(w["is_end"]), "n": int(w["is_n"]),
-                 "common_is_start": S["common_is_start"].date().isoformat(), "oos_start": OOS_START,
-                 "min_is_n": MIN_IS_N, "n_candidates": S["n_cands"], "n_eligible": S["n_eligible"],
-                 "n_ineligible_short_history": S["n_inel"],
-                 "common_start_set_by": S["driver"],
-                 "rule": ("eligibility before alignment: a candidate is IS-eligible only if its own first valid return "
-                          f"leaves >= {MIN_IS_N} IS observations; common_is_start = latest first-valid-return date among "
-                          "eligible candidates; IS metrics for every candidate computed on [common_is_start, oos_start)"),
-                 "validity": ("IS window only: is_n >= MIN_IS_N, IS exposure in [0.05, 0.95] (P3: share of days long), "
-                              "IS std > 0, IS annual turnover < 24, IS trades >= 10; OOS never consulted"),
-                 "bh_is_sharpe": round(float(S["bh_is"]["sharpe"]), 6)}
-    selection = {
-        "objective": "max_is_sharpe",
-        "objective_formula": ("in-sample (common window [common_is_start, OOS start)) daily mean/std*sqrt(252) of "
-                              "pos.shift(1)*spy_ret; winner evaluated on the OOS window with ECON-T4 deployable scoring (fillna 0)"),
-        "is_window": is_window,
-        "grid_scanned": {"leads": LEADS, "n_signals": int(valid["signal"].nunique()),
-                         "n_thresholds": int(valid["threshold"].nunique()), "n_strategies": int(valid["strategy"].nunique()),
-                         "n_combos": int(S["n_cands"]), "n_valid_combos": int(len(valid)),
-                         "n_distinct_position_series": int(n_distinct),
-                         "median_valid_objective": round(float(valid["is_sharpe"].median()), 6),
-                         "spearman_is_vs_oos": round(S["spearman"], 4)},
-        "tie_break_step": S["tie_step"],
-        "raw_winner_row": {"signal": sig_name, "threshold": tname, "strategy": strat, "lead_column": "lead_days",
-                           "lead_value": lead, "source_tournament_file": f"tournament_results_{DATE_TAG}.csv",
-                           "source_row_index": int(wi),
-                           "display_alias": f"strategy_family={STRATEGY_FAMILY[strat]} (raw strategy={strat})"},
-        "runner_up": _row(runner.iloc[0]) if len(runner) else None,
-        "runner_up_distinct_series": _row(runner_d.iloc[0]) if len(runner_d) else None,
-        "rationale": ("Winner is the IS-valid row with the highest IN-SAMPLE Sharpe (common IS window) over the published "
-                      "floored daily grid; OOS metrics are reported for that row only (no OOS look-ahead in selection). "
-                      "Regime signals (S6 HMM, S7 Markov-switching) are IS-fit and forward-filtered (scripts/_regime_causal.py)."),
-        "legacy_oos_selected_row": {"signal": str(tourn.loc[li, "signal"]), "threshold": str(tourn.loc[li, "threshold"]),
-                                    "strategy": str(tourn.loc[li, "strategy"]), "direction": "countercyclical",
-                                    "lead_value": int(tourn.loc[li, "lead_days"]),
-                                    "oos_sharpe": round(float(tourn.loc[li, "oos_sharpe"]), 6),
-                                    "note": f"OOS-argmax on this grid (pre-GH#251 rule), comparison only; see legacy_oos_selection_{DATE_TAG}.csv"},
-        "sensitivity_own_is_start_row": {"signal": str(tourn.loc[oi, "signal"]), "threshold": str(tourn.loc[oi, "threshold"]),
-                                         "strategy": str(tourn.loc[oi, "strategy"]), "direction": "countercyclical",
-                                         "lead_value": int(tourn.loc[oi, "lead_days"]),
-                                         "own_is_start": str(tourn.loc[oi, "own_is_start"]),
-                                         "own_is_sharpe": round(float(tourn.loc[oi, "own_is_sharpe"]), 6),
-                                         "oos_sharpe": round(float(tourn.loc[oi, "oos_sharpe"]), 6),
-                                         "note": "IS argmax without common-start alignment; sensitivity only"},
-        "previously_published": {"combo": "S6_hmm_stress/T4_hmm_0.5/P2/L0", "oos_sharpe": 1.4083, "hac_t": 3.80,
-                                 "source": "winner_summary.json 2026-07-15 (tournament_results_20260715.csv)",
-                                 "status": "superseded: relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead) and an L0 grid below the OAS publication lag",
-                                 "audit_file": f"hmm_lookahead_audit_{DATE_TAG}.json"},
-        "inference": {"oos_hac_t": round(t_oos, 3), "oos_hac_p": round(p_oos, 4), "oos_hac_maxlags": nw_oos,
-                      "is_hac_t": round(t_is, 3), "is_hac_maxlags": nw_is,
-                      "n_distinct_candidates": int(n_distinct),
-                      "expected_max_abs_z_under_null": round(exp_max_z, 2),
-                      "note": "expected max |z| = Phi^-1(1 - 0.5/N) over N distinct position series (two-sided, independence approximation)"},
-        "objective_runner_up_divergence": None,
-    }
-    if S["tie_step"] and S["tie_step"] > 1:
-        tied = tourn.loc[S["tied_rows"]] if S["tied_rows"] else tourn.loc[[wi]]
-        note = [f"# Tournament tie note — {PAIR_ID} ({DATE_TAG})", "",
-                f"Resolved at ECON-T3 step {S['tie_step']} (IS objective cascade: is_sharpe, is_ann_return, "
-                "is_max_drawdown, is_n_trades, then lexicographic signal/threshold/strategy/lead).", "",
-                "| signal | threshold | strategy | lead_days | is_sharpe | oos_sharpe |", "|---|---|---|---|---|---|"]
-        for _, r in tied.iterrows():
-            note.append(f"| {r.signal} | {r.threshold} | {r.strategy} | {r.lead_days} | {r.is_sharpe:.6f} | {r.oos_sharpe:.6f} |")
-        note += ["", ("The tied rows are the same position series: strategy P2 sizes on the signal's trailing 504-day "
-                      "min-max range and does not use the threshold, so every threshold label produces identical "
-                      "positions. The lexicographic step picks a label; the traded rule is the same.")]
-        Path(RESULTS_DIR, "tournament_tie_note.md").write_text("\n".join(note) + "\n")
-
+    ws_path = Path(RESULTS_DIR, "winner_summary.json")
+    ws = json.loads(ws_path.read_text())
     n_tr_oos, to_oos = trade_stats(pos, oos_mask)
     n_tr_full, to_full = trade_stats(pos, np.ones(len(pos), dtype=bool))
-    beats = "above" if m["sharpe"] > float(bm["oos_sharpe"]) else "below"
-    winner_summary = {
-        "pair_id": PAIR_ID, "generated_at": now_iso, "schema_version": "1.2.0",
-        "signal_column": sig_col, "signal_code": sig_name, "signal_display_name": SIGNAL_DISPLAY[sig_name],
-        "target_symbol": "SPY",
-        "threshold_value": tval, "threshold_rule": trule, "threshold_code": tname,
-        **({"threshold_window_days": 504, "threshold_min_periods": 400} if tname.startswith("T2_rp") else {}),
-        "threshold_display_name": THRESHOLD_DISPLAY.get(tname, tname),
-        "threshold_note": ("P2 does not use the threshold: position = 1 - (signal - min504)/(max504 - min504); "
-                           "the label is the tie-break pick among identical P2 rows" if strat == "P2" else
-                           (f"Moving boundary: trailing-504-day {tname.split('rp')[1]}th percentile of the lead-shifted "
-                            f"signal; threshold_value is its latest value ({OOS_END})" if tname.startswith("T2_rp") else None)),
-        "strategy_family": STRATEGY_FAMILY[strat], "strategy_code": strat,
+    ws.update({
+        "threshold_display_name": THRESHOLD_DISPLAY.get(tname, tname) if strat != "P2" else "not used by P2 sizing",
+        **({"threshold_window_days": 504, "threshold_min_periods": 400} if str(tname).startswith("T2_rp") else {}),
         "strategy_display_name": STRATEGY_DISPLAY[strat], "strategy_description": STRATEGY_DESC[strat],
-        "direction": "countercyclical",
-        "lead_value": lead, "lead_unit": "days",
+        "signal_display_name": SIGNAL_DISPLAY[sig_name],
         "lead_description": f"{lead} trading day(s) signal lead + 1-day execution lag = {lead + 1} trading days effective",
-        "oos_sharpe": round(m["sharpe"], 4), "oos_sortino": round(m["sortino"], 4), "oos_calmar": round(m["calmar"], 4),
-        "oos_ann_return": round(m["ann_return"], 6), "oos_ann_vol": round(m["ann_vol"], 6),
-        "oos_max_drawdown": round(m["max_drawdown"], 6), "oos_win_rate": round(m["win_rate"], 4),
-        "win_rate": round(float((oos_r[oos_r != 0] > 0).mean()), 4),
-        "oos_n_trades": n_tr_oos, "oos_annual_turnover": round(to_oos, 2),
-        "annual_turnover": round(to_oos, 2),
+        "oos_hac_t": round(t_oos, 3), "oos_annual_turnover": round(to_oos, 2),
         "full_sample_n_trades": n_tr_full, "full_sample_annual_turnover": round(to_full, 2),
-        "oos_n": int(m["n"]), "oos_period_start": OOS_START, "oos_period_end": OOS_END,
-        "oos_hac_t": round(t_oos, 3),
-        "is_sharpe": round(float(w["is_sharpe"]), 6), "is_n": int(w["is_n"]),
-        "is_period_start": is_window["start"], "is_period_end": is_window["end"],
-        "bh_sharpe": round(float(bm["oos_sharpe"]), 4), "bh_ann_return": round(float(bm["oos_ann_return"]), 6),
-        "bh_max_drawdown": round(float(bm["max_drawdown"]), 6), "bh_is_sharpe": round(float(bm["is_sharpe"]), 4),
-        "cost_assumption_bps": 5.0,
-        "total_combos": int(S["n_cands"]), "valid_combos": int(len(valid)),
+        "bh_is_sharpe": round(float(S["bh_is"]["sharpe"]), 4),
         "max_acceptable_delay_days": vinfo["max_delay_positive"],
         "max_delay_beating_bh_days": vinfo["max_delay_beating_bh"],
-        "breakeven_cost_bps": float(vinfo["breakeven_bps"]),
-        "risk_category": "credit_spread",
-        "notes": (f"Winner {sig_name}/{tname}/{strat}/L{lead} selected by in-sample Sharpe on the common IS window "
-                  f"{is_window['start']}..{is_window['end']} (IS Sharpe {float(w['is_sharpe']):.4f}; SPY {float(bm['is_sharpe']):.4f}) "
-                  f"and evaluated on the held-out OOS window {OOS_START}..{OOS_END}: OOS Sharpe {m['sharpe']:.4f} "
-                  f"vs SPY buy-and-hold {float(bm['oos_sharpe']):.4f} ({beats}). Grid floored at L1 (OAS publication lag). "
-                  f"Supersedes S6_hmm_stress/T4_hmm_0.5/P2/L0 (1.4083), which used smoothed full-sample HMM probabilities."),
-        "selection": selection,
-    }
-    with open(os.path.join(RESULTS_DIR, "winner_summary.json"), "w") as f:
-        json.dump(winner_summary, f, indent=2)
-        f.write("\n")
-    print(f"  winner_summary.json: {sig_name}/{tname}/{strat}/L{lead} IS {w['is_sharpe']:.4f} OOS {m['sharpe']:.4f} "
-          f"HAC t {t_oos:.2f}; B&H {bm['oos_sharpe']:.4f}")
-
-    tournament_winner = {
-        "pair_id": PAIR_ID, "generated_at": now_iso, "winner_signal": sig_name, "winner_threshold": tname,
-        "winner_strategy": strat, "lead_days": lead, "selection_objective": "max_is_sharpe",
-        "is_sharpe": round(float(w["is_sharpe"]), 4), "oos_sharpe": round(m["sharpe"], 4),
-        "oos_ann_return": round(m["ann_return"], 6), "oos_max_drawdown": round(m["max_drawdown"], 6),
-        "oos_n_trades": n_tr_oos, "oos_period_start": OOS_START, "oos_period_end": OOS_END,
-        "bh_sharpe": round(float(bm["oos_sharpe"]), 4), "bh_ann_return": round(float(bm["oos_ann_return"]), 6),
-        "bh_max_drawdown": round(float(bm["max_drawdown"]), 6),
-        "delta_sharpe": round(m["sharpe"] - float(bm["oos_sharpe"]), 4),
-        "delta_ann_return": round(m["ann_return"] - float(bm["oos_ann_return"]), 6),
-        "delta_mdd": round(m["max_drawdown"] - float(bm["max_drawdown"]), 6),
-        "source_tournament_file": f"tournament_results_{DATE_TAG}.csv",
-    }
-    with open(os.path.join(RESULTS_DIR, "tournament_winner.json"), "w") as f:
-        json.dump(tournament_winner, f, indent=2)
+        "breakeven_cost_bps": float(vinfo["breakeven_bps"]), "risk_category": "credit_spread",
+    })
+    ws["selection"]["previously_published"] = [
+        {"combo": "S6_hmm_stress/T4_hmm_0.5/P2/L0", "oos_sharpe": 1.4083, "hac_t": 3.80,
+         "source": "winner_summary.json 2026-07-15 (tournament_results_20260715.csv)",
+         "status": "superseded: full-sample smoothed HMM probabilities (look-ahead) and an L0 grid below the OAS "
+                   "publication lag", "audit_file": f"hmm_lookahead_audit_{DATE_TAG}.json"},
+        {"combo": "S4b_roc_63d/T2_rp75/P1/L252", "oos_sharpe": 0.3442, "source": "tournament_results_20261016.csv",
+         "status": "superseded: raw IS argmax at the top grid edge (isolated peak); Phase B selects on the D9 lead "
+                   "plateau with deployable scoring"},
+    ]
+    from harness.artifacts import write_json
+    write_json(ws_path, ws, "winner_summary")
+    write_json(Path(RESULTS_DIR, "tournament_winner.json"), ws)
+    CTX["winner"] = dict(row=w, pos=pos, sr=sr, m=m, t_oos=t_oos, ws=ws)
 
     oos_record = {
         "pair_id": PAIR_ID, "owner": "evan", "split_policy_id": "v1_max36_25pct_cap120",
@@ -1302,29 +1096,23 @@ def stage_winner_artifacts(tourn: pd.DataFrame, vinfo: dict):
         "sample_size_months": 316, "oos_span_months": 79,
         "justification": ("Total sample 2000-01-03 to 2026-04-22 ~ 316 months. ECON-OOS2 formula: span = "
                           "min(max(36, round(316x0.25)), 120) = 79 months. OOS window 2019-10-01 to 2026-04-22. "
-                          "The dot-com bust (2000-02) and the GFC (2007-09) are in-sample; the COVID shock (2020) and "
-                          "the 2022 rate shock are out-of-sample. Regime models (HMM, Markov-switching) and fixed "
-                          "thresholds are estimated on in-sample data only; the tournament winner is selected on "
-                          f"in-sample Sharpe over the common IS window starting {is_window['common_is_start']}."),
+                          "Regime models and IS-quantile thresholds are estimated on in-sample data only; the winner "
+                          "is selected on in-sample data (D9 lead plateau) over the common IS window starting "
+                          f"{S['common_is_start'].date().isoformat()}."),
         "generated_at": now_iso,
     }
     with open(os.path.join(RESULTS_DIR, "oos_split_record.json"), "w") as f:
         json.dump(oos_record, f, indent=2)
-
-    # ── canonical daily series (ECON-SR1) ──
-    sr_df = pd.DataFrame({"date": work.index.strftime("%Y-%m-%d"), "position": pos.values,
-                          "strategy_return": sr.fillna(0.0).values, "bh_return": work["spy_ret"].values,
-                          "sample": np.where(oos_mask, "OOS", "IS")})
-    sr_df.to_csv(os.path.join(RESULTS_DIR, f"strategy_returns_{DATE_TAG}.csv"), index=False)
-    chk = ann_metrics(sr_df.loc[oos_mask, "strategy_return"])["sharpe"]
-    print(f"  [ECON-SR1] strategy_returns OOS Sharpe {chk:.4f} vs winner {m['sharpe']:.4f} -> "
-          f"{'RECONCILES' if abs(chk - m['sharpe']) <= 0.01 else 'MISMATCH'}")
 
     # ── trade logs (full sample, each trade tagged IS/OOS) ──
     pc = pos.dropna()
     chg = pc.diff().fillna(pc.iloc[0])
     entries = chg[chg.abs() > 0.05].index
     cum = (1 + sr.fillna(0)).cumprod()
+    lagged_sig = _H["lag"][lead]
+    from harness.candidates import x_col
+    xname = spec_mod.SPEC.rules(sig_name)[tname].x_name if strat != "P2" else "raw"
+    sig_l = lagged_sig[x_col(sig_name, xname)] if x_col(sig_name, xname) in lagged_sig else work[sig_col].shift(lead)
     trades, broker = [], []
     for i, ed in enumerate(entries):
         xd = entries[i + 1] if i + 1 < len(entries) else work.index[-1]
@@ -1339,21 +1127,21 @@ def stage_winner_artifacts(tourn: pd.DataFrame, vinfo: dict):
                        "direction": side, "qty_pct": round(ep * 100, 2), "notional_usd": round(ep * 10_000.0, 2),  # $10,000 stake (Strategy page text)
                        "price_entry": round(float(work.loc[ed, "spy"]), 2), "holding_days": (xd - ed).days,
                        "trade_return_pct": round(tr * 100, 2), "signal_code": sig_name, "threshold_code": tname,
-                       "strategy_code": strat, "signal_value": round(float(work.loc[ed, sig_col]) if lead == 0 else
-                                                                      float(work[sig_col].shift(lead).loc[ed]), 6),
+                       "strategy_code": strat, "signal_value": round(float(sig_l.loc[ed]), 6) if pd.notna(sig_l.loc[ed]) else None,
                        "sample": smp})
     pd.DataFrame(trades).to_csv(os.path.join(RESULTS_DIR, "winner_trade_log.csv"), index=False)
     pd.DataFrame(broker).to_csv(os.path.join(RESULTS_DIR, "winner_trades_broker_style.csv"), index=False)
     print(f"  trade logs: {len(trades)} position changes (OOS {sum(t['sample']=='OOS' for t in trades)})")
 
     # ── ECON-SR3 / CP1 sidecars from the canonical series ──
-    strat_ret = pd.Series(sr_df["strategy_return"].values, index=work.index)
+    strat_ret = sr.fillna(0.0)
     rs = (strat_ret.rolling(504, min_periods=252).mean() / strat_ret.rolling(504, min_periods=252).std()) * np.sqrt(ANN)
     rs = rs[pos.notna().cumsum() > 252].dropna()
     pd.DataFrame({"date": rs.index.strftime("%Y-%m-%d"), "rolling_sharpe_24m": rs.values}).to_csv(
         os.path.join(RESULTS_DIR, f"rolling_sharpe_{PAIR_ID}.csv"), index=False)
     sub_rows = []
-    for ep in _episodes() + [{"label": "Full IS (common window)", "start": is_window["common_is_start"], "end": IS_END},
+    cis = S["common_is_start"].date().isoformat()
+    for ep in _episodes() + [{"label": "Full IS (common window)", "start": cis, "end": IS_END},
                              {"label": "Full OOS", "start": OOS_START, "end": OOS_END}]:
         pm = (work.index >= ep["start"]) & (work.index <= ep["end"]) & pos.shift(1).notna().values
         a = ann_metrics(strat_ret[pm])
@@ -1366,18 +1154,19 @@ def stage_winner_artifacts(tourn: pd.DataFrame, vinfo: dict):
                          "bh_sharpe": (round(ann_metrics(work.loc[pm, "spy_ret"])["sharpe"], 4)
                                        if a["n"] >= 126 else np.nan)})
     pd.DataFrame(sub_rows).to_csv(os.path.join(RESULTS_DIR, "subperiod_sharpe.csv"), index=False)
-    sig_lag = (work[sig_col].shift(lead + 1)).rename("sig")
-    rc = sig_lag.rolling(504, min_periods=252).corr(work["spy_ret"]).dropna()
+    sig_lag1 = sig_l.shift(1).rename("sig")
+    rc = sig_lag1.rolling(504, min_periods=252).corr(work["spy_ret"]).dropna()
     pd.DataFrame({"date": rc.index.strftime("%Y-%m-%d"), "rolling_corr_24m": rc.values}).to_csv(
         os.path.join(RESULTS_DIR, f"rolling_correlation_{PAIR_ID}.csv"), index=False)
-    _structural_break(work, sig_lag)
+    _structural_break(work, sig_lag1)
     _rolling_granger(work, sig_col)
+    tval = ws.get("threshold_value")
     sd = pd.DataFrame({"date": work.index.strftime("%Y-%m-%d"), "signal_value": work[sig_col].values,
-                       "signal_value_lagged": work[sig_col].shift(lead).values,
+                       "signal_value_lagged": sig_l.values,
                        "sample": np.where(oos_mask, "OOS", "IS"), "threshold": tval, "position": pos.values})
     sd.to_csv(os.path.join(RESULTS_DIR, f"signal_dist_{PAIR_ID}.csv"), index=False)
-    CTX["winner"] = dict(row=w, pos=pos, sr=sr, m=m, t_oos=t_oos, t_is=t_is, ws=winner_summary)
-    return winner_summary
+    print(f"  winner_summary extras: {sig_name}/{tname}/{strat}/L{lead} OOS {m['sharpe']:.4f} HAC t {t_oos:.2f}")
+    return ws
 
 
 def _structural_break(work, sig_lag):
@@ -1521,7 +1310,7 @@ def stage_metadata():
     meta["observed_direction"] = ws["direction"]
     meta["direction_consistent"] = ws["direction"] == meta.get("expected_direction", "countercyclical")
     meta["key_finding"] = (
-        f"In-sample-selected winner {ws['signal_code']}/{ws['threshold_code']}/{ws['strategy_code']}/L{ws['lead_value']} "
+        f"Winner selected on in-sample data (D9 lead plateau {ws['selection']['window_leads']}) {ws['signal_code']}/{ws['threshold_code']}/{ws['strategy_code']}/L{ws['lead_value']} "
         f"(lead {ws['lead_value']} trading day(s) + 1-day execution lag): IS Sharpe {ws['is_sharpe']:.2f} "
         f"(SPY {ws['bh_is_sharpe']:.2f}), OOS Sharpe {ws['oos_sharpe']:.2f} vs SPY buy-and-hold {ws['bh_sharpe']:.2f}. "
         f"Spread level vs 63-day forward SPY return: coef {lvl.loc['spy_fwd_63d','coef']:.4f}, "
@@ -1678,14 +1467,15 @@ def stage_metadata():
     w = CTX["winner"]
     handoff = f"""# Evan handoff: {PAIR_ID} ({DATE_TAG}) — causal regime rebuild
 
-- Winner (IS argmax, common IS window {ws['is_period_start']}..{ws['is_period_end']}): **{ws['signal_code']} / {ws['threshold_code']} / {ws['strategy_code']} / L{ws['lead_value']}** (trading days; +1 execution day)
+- Winner (D9 lead plateau on IS, common IS window {ws['is_period_start']}..{ws['is_period_end']}): **{ws['signal_code']} / {ws['threshold_code']} / {ws['strategy_code']} / L{ws['lead_value']}** (trading days; +1 execution day)
 - IS Sharpe {ws['is_sharpe']:.4f} (SPY IS {ws['bh_is_sharpe']:.4f}); OOS Sharpe {ws['oos_sharpe']:.4f} (HAC t {ws['oos_hac_t']:.2f}) vs SPY B&H {ws['bh_sharpe']:.4f}
 - OOS ann. return {ws['oos_ann_return']*100:.1f}%, max DD {ws['oos_max_drawdown']*100:.1f}%; OOS trades {ws['oos_n_trades']} ({ws['oos_annual_turnover']}/yr); full-sample trades {ws['full_sample_n_trades']} ({ws['full_sample_annual_turnover']}/yr)
 - Grid: leads {LEADS}; {ws['total_combos']} combos, {ws['valid_combos']} IS-valid ({ws['selection']['grid_scanned']['n_distinct_position_series']} distinct position series)
-- Legacy OOS-argmax (comparison only): {ws['selection']['legacy_oos_selected_row']}
+- Raw IS argmax (isolated-peak sensitivity, not the selection rule): {ws['selection']['raw_is_argmax']['key']} IS {ws['selection']['raw_is_argmax']['is_sharpe']}
+- Stable lead range (D9 plateau): {ws['selection']['window_leads']}
 - Previously published S6_hmm_stress/T4_hmm_0.5/P2/L0 1.4083 (HAC t 3.80) relied on smoothed full-sample HMM probabilities: see hmm_lookahead_audit_{DATE_TAG}.json
 
-Files: tournament_results_{DATE_TAG}.csv, legacy_oos_selection_{DATE_TAG}.csv, signals_{DATE_TAG}.parquet,
+Files: tournament_results_{DATE_TAG}.csv, null_tournament_{DATE_TAG}.csv, lead_curve_{DATE_TAG}.csv, track_summary.json, signals_{DATE_TAG}.parquet,
 strategy_returns_{DATE_TAG}.csv, lead_*_{DATE_TAG}.csv, core_models_{DATE_TAG}/, exploratory_{DATE_TAG}/,
 tournament_validation_{DATE_TAG}/, regime_quartile_forward_tests_{DATE_TAG}.csv, hmm_lookahead_audit_{DATE_TAG}.json.
 Generated: {now_iso}

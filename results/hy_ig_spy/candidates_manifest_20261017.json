@@ -1,0 +1,566 @@
+{
+  "pair_id": "hy_ig_spy",
+  "signals": {
+    "S1_spread_level": "hy_ig_spread_pct",
+    "S2a_zscore_252d": "hy_ig_zscore_252d",
+    "S2b_zscore_504d": "hy_ig_zscore_504d",
+    "S3a_pctrank_504d": "hy_ig_pctrank_504d",
+    "S3b_pctrank_1260d": "hy_ig_pctrank_1260d",
+    "S4a_roc_21d": "hy_ig_roc_21d",
+    "S4b_roc_63d": "hy_ig_roc_63d",
+    "S4c_roc_126d": "hy_ig_roc_126d",
+    "S5_ccc_bb_spread": "ccc_bb_spread_pct",
+    "S6_hmm_stress": "hmm_2state_prob_stress",
+    "S7_ms_stress": "ms_2state_stress_prob",
+    "S10_mom_21d": "hy_ig_mom_21d",
+    "S11_mom_63d": "hy_ig_mom_63d",
+    "S12_mom_252d": "hy_ig_mom_252d",
+    "S13_acceleration": "hy_ig_acceleration"
+  },
+  "rules": {
+    "S1_spread_level": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S2a_zscore_252d": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S2b_zscore_504d": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S3a_pctrank_504d": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S3b_pctrank_1260d": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S4a_roc_21d": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S4b_roc_63d": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S4c_roc_126d": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S5_ccc_bb_spread": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S6_hmm_stress": {
+      "T4_hmm_0.5": {
+        "variable": "raw",
+        "threshold": 0.5
+      },
+      "T4_hmm_0.7": {
+        "variable": "raw",
+        "threshold": 0.7
+      }
+    },
+    "S7_ms_stress": {
+      "T5_ms_0.5": {
+        "variable": "raw",
+        "threshold": 0.5
+      },
+      "T5_ms_0.7": {
+        "variable": "raw",
+        "threshold": 0.7
+      }
+    },
+    "S10_mom_21d": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S11_mom_63d": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S12_mom_252d": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    },
+    "S13_acceleration": {
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T1_p85": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.85)"
+      },
+      "T1_p95": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.95)"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp85": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp95": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_z1.5": {
+        "variable": "z504",
+        "threshold": 1.5
+      },
+      "T3_z2.0": {
+        "variable": "z504",
+        "threshold": 2.0
+      },
+      "T3_z2.5": {
+        "variable": "z504",
+        "threshold": 2.5
+      }
+    }
+  },
+  "strategies": [
+    "P1",
+    "P2",
+    "P3"
+  ],
+  "directions": [
+    "countercyclical"
+  ],
+  "leads": [
+    1,
+    5,
+    21,
+    63,
+    126,
+    252
+  ],
+  "lead_unit": "days",
+  "binary_signals": [],
+  "min_is_n": 1260,
+  "ppy": 252,
+  "oos_start": "2019-10-01",
+  "exposure_bounds": [
+    0.05,
+    0.95
+  ],
+  "max_is_turnover": 24,
+  "min_is_trades": 10,
+  "position_shift": 1,
+  "n_candidates": 1542,
+  "candidates_sha256": "408b249c19bc388f7fecc7410ae2cc8281f8935cad6ebb6bef4a3bbb6aa85130"
+}

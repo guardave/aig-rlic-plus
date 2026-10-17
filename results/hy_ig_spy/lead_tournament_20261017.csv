@@ -1,0 +1,7 @@
+lead_days,n_valid,best_oos_sharpe,median_oos_sharpe,p25_oos_sharpe,p75_oos_sharpe,best_is_sharpe,median_is_sharpe,is_best_signal,is_best_threshold,is_best_strategy,is_best_oos_sharpe,best_signal,best_threshold,best_strategy,best_max_dd
+1,227,1.1804,0.7265,0.4695,0.8588,0.9159,0.5404,S2a_zscore_252d,T1_p75,P1,0.9655,S12_mom_252d,-,P2,-0.102101
+5,227,1.1653,0.618,0.3614,0.7892,0.8705,0.5022,S3a_pctrank_504d,T1_p75,P1,0.5068,S2a_zscore_252d,T2_rp95,P1,-0.236756
+21,227,0.9641,0.4952,0.2928,0.6137,0.939,0.5256,S3a_pctrank_504d,T1_p75,P1,0.3344,S13_acceleration,-,P2,-0.118786
+63,227,0.9632,0.7414,0.6315,0.8061,0.8316,0.5218,S1_spread_level,T2_rp85,P1,0.6925,S5_ccc_bb_spread,T3_z1.5,P1,-0.2301
+126,227,0.8795,0.6969,0.5606,0.7799,0.9172,0.4666,S3b_pctrank_1260d,T2_rp75,P1,0.3637,S3a_pctrank_504d,T1_p95,P3,-0.337173
+252,219,0.9529,0.5976,0.4402,0.7153,0.962,0.5365,S4b_roc_63d,T2_rp75,P1,0.3442,S3a_pctrank_504d,T3_z1.5,P1,-0.244964

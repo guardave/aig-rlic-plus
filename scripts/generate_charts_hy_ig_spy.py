@@ -32,7 +32,7 @@ from plotly.subplots import make_subplots
 
 # ── Paths ────────────────────────────────────────────────────────────────
 BASE_DIR   = str(Path(__file__).resolve().parents[1])
-RUN_TAG    = "20261016"   # results vintage consumed (fix261016_hmm_causal)
+RUN_TAG    = "20261017"   # results vintage consumed (Phase B harness pilot)
 PAIR_ID    = "hy_ig_spy"
 DATA_DIR   = os.path.join(BASE_DIR, "data")
 RESULTS    = os.path.join(BASE_DIR, "results", PAIR_ID)
@@ -115,7 +115,7 @@ def _build_winner_curve(df, oos_start):
     """ECON-SR1: read the canonical winner series (no re-derivation)."""
     sr = pd.read_csv(os.path.join(RESULTS, f"strategy_returns_{RUN_TAG}.csv"), parse_dates=["date"]).set_index("date")
     sr = sr[sr.index >= oos_start]
-    return sr.index, sr["strategy_return"].fillna(0), sr["bh_return"].fillna(0)
+    return sr.index, sr["strategy_return"].fillna(0), sr["benchmark_return"].fillna(0)
 
 
 def _winner_label():
@@ -864,7 +864,7 @@ def chart_tournament_scatter():
         template=TEMPLATE, height=500,
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"), margin=dict(r=180, b=80),
     )
-    _note(fig, f"Source: tournament_results_{RUN_TAG}.csv. Winner = highest IS Sharpe. P2 rows repeat across threshold labels.")
+    _note(fig, f"Source: tournament_results_{RUN_TAG}.csv. Winner = stable lead range rule on in-sample data (D9). P2 is declared once per signal and lead.")
     _save_chart(fig, "tournament_scatter",
                 narrative_note=f"{len(valid)} IS-valid combos; Spearman(IS, OOS) {rho:.2f}; winner IS {w['is_sharpe']:.2f} / OOS {w['oos_sharpe']:.2f}.",
                 method_name="5D Tournament", expected_chart_type="scatter")

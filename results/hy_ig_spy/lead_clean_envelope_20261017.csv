@@ -1,0 +1,7 @@
+lead_days,best_oos_sharpe,best_signal,best_threshold,best_strategy,is_best_signal,is_best_strategy,is_best_is_sharpe,is_best_oos_sharpe,note
+1,1.1804,S12_mom_252d,-,P2,S2a_zscore_252d,P1,0.9159,0.9655,best_oos_sharpe is an OOS-argmax (selection-biased context); is_best_* is the IS-selected row
+5,1.1653,S2a_zscore_252d,T2_rp95,P1,S3a_pctrank_504d,P1,0.8705,0.5068,best_oos_sharpe is an OOS-argmax (selection-biased context); is_best_* is the IS-selected row
+21,0.9641,S13_acceleration,-,P2,S3a_pctrank_504d,P1,0.939,0.3344,best_oos_sharpe is an OOS-argmax (selection-biased context); is_best_* is the IS-selected row
+63,0.9632,S5_ccc_bb_spread,T3_z1.5,P1,S1_spread_level,P1,0.8316,0.6925,best_oos_sharpe is an OOS-argmax (selection-biased context); is_best_* is the IS-selected row
+126,0.8795,S3a_pctrank_504d,T1_p95,P3,S3b_pctrank_1260d,P1,0.9172,0.3637,best_oos_sharpe is an OOS-argmax (selection-biased context); is_best_* is the IS-selected row
+252,0.9529,S3a_pctrank_504d,T3_z1.5,P1,S4b_roc_63d,P1,0.962,0.3442,best_oos_sharpe is an OOS-argmax (selection-biased context); is_best_* is the IS-selected row

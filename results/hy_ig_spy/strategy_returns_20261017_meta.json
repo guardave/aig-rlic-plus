@@ -1,0 +1,14 @@
+{
+  "pair_id": "hy_ig_spy",
+  "track": "market",
+  "role": "main",
+  "winner_key": "S1_spread_level|T2_rp75|P1|countercyclical|21",
+  "generated_at": "2026-10-17T13:22:39.362874+00:00",
+  "vintage_policy": {
+    "alignment": "pit_asof",
+    "release_series": "rule:next_business_day",
+    "harsh": false
+  },
+  "calendar_sha256": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+  "vintage_file_sha256": null
+}

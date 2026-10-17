@@ -1,24 +1,75 @@
-"""HY-IG × SPY pair configuration (Rule APP-PT1).
+"""HY-IG x SPY pair configuration (Rule APP-PT1).
 
-Pair-specific narrative content for the Story / Evidence / Strategy /
-Methodology templates. Only content that cannot be derived from the
-producer JSON / CSV artifacts lives here.
-
-Content provenance:
-  - Original prose by Research Ray (Wave 10G.4B); rewritten 2026-10-16
-    (branch fix261016_hmm_causal) so that every number matches the
-    DATE_TAG 20261016 artifacts in results/hy_ig_spy/.
-
-Pair ID: hy_ig_spy
-Winner (selected on in-sample Sharpe): S4b_roc_63d / T2_rp75 / P1 / L252
-IS Sharpe 0.96 (SPY 0.52) | OOS Sharpe 0.3442 (SPY 0.8129) | OOS MDD -33.7%
-Superseded: S6_hmm_stress / T4_hmm_0.5 / P2 / L0, OOS Sharpe 1.4083 — relied on
-full-sample, forward-backward smoothed HMM probabilities (look-ahead).
+Pair-specific narrative content for the Story / Evidence / Strategy / Methodology templates.
+Phase B: every result number about the winner is rendered from the structured winner fields
+(results/hy_ig_spy/winner_summary.json `winner_fields`, via components.winner_fields) or read from the
+pipeline's CSV / JSON artifacts at import; none is typed here (scripts/gate_structured_prose.py).
+Single track: ICE BofA OAS is market data and is not revised.
 """
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
+import pandas as pd
+
 from components.page_templates import MethodologyConfig
+from components.winner_fields import load
+
+W = load("hy_ig_spy")
+_RES = Path(__file__).resolve().parents[2] / "results" / "hy_ig_spy"
+_WS = json.loads((_RES / "winner_summary.json").read_text())
+_TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+_T = pd.read_csv(_RES / f"tournament_results_{_TAG}.csv")
+_T = _T[_T["signal"] != "BENCHMARK"]
+_TV = _T[_T["valid"].astype(str).str.lower() == "true"]
+_HMM = _TV[_TV["signal"] == "S6_hmm_stress"].sort_values("is_sharpe", ascending=False).head(1)
+_AUD = {(r["probabilities"], r["lead_days"]): r for r in json.loads((_RES / f"hmm_lookahead_audit_{_TAG}.json").read_text())["rows"]}
+_LC = pd.read_csv(_RES / f"lead_correlation_{_TAG}.csv").set_index("transform")
+_WC = pd.read_csv(_RES / f"lead_winner_curve_{_TAG}.csv")
+_SUB = pd.read_csv(_RES / "subperiod_sharpe.csv").set_index("period_name")
+_COST = pd.read_csv(_RES / f"tournament_validation_{_TAG}" / "transaction_costs.csv")
+_COST = _COST[_COST["rank"] == 1].set_index("tx_cost_bps")["net_sharpe_approx"]
+_WF = pd.read_csv(_RES / f"tournament_validation_{_TAG}" / "walk_forward.csv")
+_WF = _WF[_WF["rank"] == 1]
+_SB = json.loads((_RES / "structural_break_hy_ig_spy.json").read_text())
+_RSH = pd.read_csv(_RES / "rolling_sharpe_hy_ig_spy.csv")["rolling_sharpe_24m"]
+_RCO = pd.read_csv(_RES / "rolling_correlation_hy_ig_spy.csv")["rolling_corr_24m"]
+_RGR = pd.read_csv(_RES / "rolling_granger_hy_ig_spy.csv")["p_value_24m"]
+_SIGCOL = _WS["signal_column"]
+_HP = pd.read_parquet(_RES / f"signals_{_TAG}.parquet")["hmm_2state_prob_stress"]
+_SPY = pd.read_parquet(Path(__file__).resolve().parents[2] / "data" / "hy_ig_spy_daily_20000101_20260422.parquet")["spy_ret"]
+_HP = _HP.reindex(_SPY.index, method="ffill")
+
+
+def _regime(mask):
+    r = _SPY[mask].dropna()
+    return (r.mean() * 252) / (r.std() * 252 ** 0.5), r.mean() * 252
+
+
+_CALM = _regime((_HP <= 0.5) & _HP.notna())
+_STRESS = _regime(_HP > 0.5)
+_LCW = _LC.loc[_SIGCOL] if _SIGCOL in _LC.index else None
+_LEADS = [1, 5, 21, 63, 126, 252]
+
+
+def _f(v, nd=2):
+    return "n/a" if v is None or pd.isna(v) else f"{float(v):.{nd}f}"
+
+
+THRESHOLD_TEXT = {
+    "T2_rp75": "the 75th percentile of its own trailing 504 trading days", "T2_rp85": "the 85th percentile of its own trailing 504 trading days",
+    "T2_rp95": "the 95th percentile of its own trailing 504 trading days", "T1_p75": "its in-sample 75th percentile",
+    "T1_p85": "its in-sample 85th percentile", "T1_p95": "its in-sample 95th percentile",
+    "T3_z1.5": "a trailing 504-day z-score of 1.5", "T3_z2.0": "a trailing 504-day z-score of 2.0",
+    "T3_z2.5": "a trailing 504-day z-score of 2.5", "T4_hmm_0.5": "0.5", "T4_hmm_0.7": "0.7", "T5_ms_0.5": "0.5",
+    "T5_ms_0.7": "0.7", "-": "its trailing 504-day range (sizing; no threshold)",
+}
+_THR = THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)
+_SIG = (W.signal_display if W.signal_display[:2].isupper() else W.signal_display[:1].lower() + W.signal_display[1:])
+_RULE = (f"each day, take the {_SIG} as it stood {W.lead_text} earlier and compare it with {_THR}; hold 100% SPY "
+         "when it is below, otherwise hold cash")
 
 
 # =========================================================================
@@ -64,12 +115,10 @@ record. The Methodology page is the technical appendix.
     )
 
     KPI_CAPTION = (
-        "The tournament winner was selected on in-sample Sharpe (2006-05-02 to 2019-09-30): "
-        "S4b_roc_63d / T2_rp75 / P1 / L252, a countercyclical long/cash rule on the 63-day "
-        "percent change of the spread, read 252 trading days back. Out of sample "
-        "(2019-10-01 to 2026-04-22) it earned a Sharpe of 0.34 against 0.81 for SPY "
-        "buy-and-hold. The previously published 1.41 (S6_hmm_stress, L0) relied on "
-        "smoothed full-sample HMM probabilities, which use future data."
+        f"Winner selected on in-sample data ({W.is_start} to {W.is_end}) by {W.selection_objective}: "
+        f"{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}, stable lead range "
+        f"{W.plateau_range}. Out of sample ({W.oos_start} to {W.oos_end}) its Sharpe is {W.oos_sharpe} against "
+        f"{W.bh_oos_sharpe} for SPY buy-and-hold."
     )
 
     HERO_TITLE = "26 Years of the HY-IG Credit Spread and SPY"
@@ -86,8 +135,8 @@ record. The Methodology page is the technical appendix.
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
         "What this shows: same-day SPY performance when a 2-state HMM (fit on 2000-2019 data "
-        "only, forward-filtered) puts the stress probability at or below 0.5 (calm, "
-        "Sharpe 1.38, 14.1% a year) versus above 0.5 (stress, Sharpe 0.15, 3.8% a year). "
+        f"only, forward-filtered) puts the stress probability at or below 0.5 (calm, regime Sharpe {_CALM[0]:.2f}, "
+        f"{_CALM[1] * 100:.1f}% a year) versus above 0.5 (stress, regime Sharpe {_STRESS[0]:.2f}, {_STRESS[1] * 100:.1f}% a year). "
         "These are concurrent returns: the chart describes the regimes, it is not a "
         "forecast. As a trading signal the same probability did not beat buy-and-hold "
         "out of sample (Evidence page, HMM block)."
@@ -142,33 +191,22 @@ SPY returns.
   (homoskedastic F-test).
 - **Next-month return by spread quartile:** lower in the widest-spread quartile, but the
   differences are not statistically significant and not monotonic.
-- **Tradable rule:** the rule with the best in-sample Sharpe earned 0.34 out of sample
-  versus 0.81 for SPY buy-and-hold.
 """
+    NARRATIVE_SECTION_1 += (
+        f"- **Tradable rule:** the rule selected on in-sample data (stable lead range {W.plateau_range}) has an "
+        f"out-of-sample Sharpe of {W.oos_sharpe} versus {W.bh_oos_sharpe} for SPY buy-and-hold.\n"
+    )
 
-    NARRATIVE_SECTION_2 = """
+    NARRATIVE_SECTION_2 = f"""
 ### Nuance and Limits
 
-**The previously published result relied on look-ahead.** Until 2026-10-16 this page
-reported a winner built on an HMM stress probability (S6_hmm_stress, L0) with an
-out-of-sample Sharpe of 1.41 (HAC t 3.80). That probability came from a model fitted on
-the full 2000-2026 sample with forward-backward smoothing, so the value on each day used
-later data. Rebuilt causally (fitted on in-sample data only, forward-filtered), the same
-rule scores 0.56 at L0 and 0.45 at the L1 floor, against 0.81 for SPY buy-and-hold
-(file `hmm_lookahead_audit_20261016.json`).
+**Corrections.** This page previously reported a winner built on an HMM stress probability (S6_hmm_stress, L0) with an out-of-sample Sharpe of {_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])} (HAC t {_f(_AUD[('smoothed_fullsample', 0)]['hac_t'])}). That probability came from a model fitted on the full 2000-2026 sample with forward-backward smoothing, so the value on each day used later data; rebuilt causally, the same rule scores {_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} at L0 and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} at the L1 floor (file `hmm_lookahead_audit_{_TAG}.json`). The page then reported the rule {W.previous_rule} (out-of-sample Sharpe {W.previous_oos_sharpe}, published {W.previous_tag}), which was the single highest in-sample Sharpe in the grid, at the top edge of the lead grid; it was superseded on 2026-10-17 by the stable-lead-range selection.
 
-**Publication lag.** ICE BofA OAS values appear on FRED about one business day after
-their value date. Every traded rule therefore reads the spread at least one day back,
-then trades the next day, so the effective lag is at least two trading days.
+**Publication lag.** ICE BofA OAS values appear on FRED about one business day after their value date. Every traded rule therefore reads the spread at least one day back, then trades the next day, so the effective lag is at least two trading days.
 
-**2022.** SPY fell 24.5% between 2022-01-03 and 2022-10-12, during the fastest Federal
-Reserve tightening in 40 years. Over the same window the HY-IG spread rose from 2.08 to
-a peak of 4.32 percentage points. In calendar 2022 the selected rule's Sharpe was -0.79
-(SPY -0.70), with the same -24.5% drawdown.
+**2022.** SPY fell 24.5% between 2022-01-03 and 2022-10-12, during the fastest Federal Reserve tightening in 40 years. Over the same window the HY-IG spread rose from 2.08 to a peak of 4.32 percentage points. In the 2022 sub-period the selected rule's Sharpe was {_f(_SUB.loc['2022 Rates Shock', 'sharpe'])} (SPY {_f(_SUB.loc['2022 Rates Shock', 'bh_sharpe'])}).
 
-**Selection.** The winner is the best of 1,990 in-sample-valid rules (1,354 distinct
-position series). The best in-sample Sharpe from that many candidates overstates what a
-rule can be expected to deliver; the out-of-sample Sharpe of 0.34 is the relevant number.
+**Selection.** The winner comes from {W.n_valid} in-sample-valid rules ({W.n_distinct} distinct position series). The best in-sample Sharpe from that many candidates overstates what a rule can be expected to deliver; across {W.null_draws} contests run on time-shifted spread data, the winner's stable-range score ranks at the {W.null_percentile} point.
 """
 
     SCOPE_NOTE = (
@@ -209,9 +247,8 @@ rule can be expected to deliver; the out-of-sample Sharpe of 0.34 is the relevan
                 "to 2.90 by the end of July and 3.10 by the end of August 2007, months before SPY "
                 "peaked on 2007-10-09. SPY then fell 55.2% to its 2009-03-09 trough, while the "
                 "spread peaked at 15.31 on 2008-12-15. In this episode the spread moved before "
-                "the equity peak. The selected rule was in-sample here, so its GFC result "
-                "(Sharpe 0.20, max drawdown -17.8% from 2007-07 to 2009-03, against -0.75 and "
-                "-55.2% for SPY) is part of the data it was chosen on."
+                "the equity peak. This episode is in-sample: the selected rule was chosen on data "
+                "that include it (its sub-period result is on the Strategy page)."
             ),
             "caption": (
                 "The spread rose from 1.47 (June 2007) to 3.10 (August 2007) before the SPY peak "
@@ -226,13 +263,11 @@ rule can be expected to deliver; the out-of-sample Sharpe of 0.34 is the relevan
                 "2.39 percentage points (2020-01-20) to 6.86 on 2020-03-23, the same day as the "
                 "SPY low, then eased to about 4.9 by the end of May after the Federal Reserve's "
                 "corporate-credit facilities. The spread and SPY moved together rather than one "
-                "leading the other. This episode is out-of-sample for the selected rule, which "
-                "reads the spread 252 trading days back. It held SPY from 2020-01-30 to "
-                "2020-04-29, so its drawdown matched buy-and-hold (-33.7%)."
+                "leading the other. This episode is out-of-sample for the selected rule (its "
+                "sub-period result is on the Strategy page)."
             ),
             "caption": (
-                "Spread and SPY moved together: both extremes fell on 2020-03-23. The selected "
-                "rule was fully invested through the fall."
+                "Spread and SPY moved together: both extremes fell on 2020-03-23."
             ),
         },
     ]
@@ -346,8 +381,8 @@ CCF_BLOCK = dict(
         "Do spread changes come before SPY moves, after them, or on the same day?"
     ),
     how_to_read=(
-        "Negative lags (e.g. -5) pair the spread change 5 days earlier with today's SPY "
-        "return (spread first). Positive lags pair today's spread change with the SPY "
+        "Negative lags (e.g. -5) pair today's SPY return with the spread change at lag -5 "
+        "(spread first). Positive lags pair today's spread change with the SPY "
         "return k days earlier (SPY first). The dashed lines are iid ±95% bands."
     ),
     chart_name="ccf",
@@ -407,12 +442,14 @@ HMM_BLOCK = dict(
         "Probability above 0.5 on 45% of days."
     ),
     observation=(
-        "Same-day SPY performance differs sharply between the regimes (Story page): Sharpe "
-        "1.38 in the calm state and 0.15 in the stress state. As a trading signal, the best "
-        "in-sample-valid HMM rule (P2 sizing, 5-day lead) has an in-sample Sharpe of 0.60 "
-        "and an out-of-sample Sharpe of 0.41. The previously published HMM rule (P2, L0) "
-        "scores 0.56 at L0 and 0.45 at the L1 floor when computed causally, against 1.41 "
-        "with the smoothed full-sample probabilities."
+        f"Same-day SPY performance differs sharply between the regimes (Story page): regime Sharpe {_CALM[0]:.2f} "
+        f"in the calm state and {_STRESS[0]:.2f} in the stress state. As a trading signal, the best "
+        f"in-sample-valid HMM rule ({_HMM['strategy'].iloc[0]}, {int(_HMM['lead_days'].iloc[0])}-day lead) has an "
+        f"in-sample Sharpe of {_f(_HMM['is_sharpe'].iloc[0])} and an out-of-sample Sharpe of "
+        f"{_f(_HMM['oos_sharpe'].iloc[0])}. The previously published HMM rule (P2, L0) scores "
+        f"{_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} at L0 and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} "
+        "at the L1 floor when computed causally, against "
+        f"{_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])} with the smoothed full-sample probabilities."
     ),
     interpretation=(
         "The HMM describes the regimes well on the same day, but a causal reading of it "
@@ -422,9 +459,9 @@ HMM_BLOCK = dict(
         "smoothed series contained information about returns that had not yet happened."
     ),
     key_message=(
-        "The causal HMM stress probability separates same-day regimes (Sharpe 1.38 vs 0.15), "
-        "but as a traded signal its out-of-sample Sharpe is 0.41-0.56, below SPY's 0.81. The "
-        "earlier 1.41 depended on look-ahead smoothing."
+        f"The causal HMM stress probability separates same-day regimes (regime Sharpe {_CALM[0]:.2f} vs {_STRESS[0]:.2f}), "
+        f"but as a traded signal its best in-sample rule has an out-of-sample Sharpe of {_f(_HMM['oos_sharpe'].iloc[0])} "
+        f"against SPY's {W.bh_oos_sharpe}. The earlier published HMM result depended on look-ahead smoothing."
     ),
 )
 
@@ -619,14 +656,12 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
     ),
     chart_name="correlations_lead_view",
     chart_caption=(
-        "Pearson r between each signal lagged L trading days and SPY's next-day return. All "
-        "|r| < 0.04; two cells reach iid significance: ms_2state_stress_prob at 5 days "
-        "(+0.037) and hy_ig_mom_21d at 63 days (-0.031)."
+        "Pearson r between each signal lagged L trading days and SPY's next-day return. Stars mark iid p < 0.05."
     ),
     observation=(
-        "Every daily lead correlation is below 0.04 in absolute value. The winner's signal "
-        "(hy_ig_roc_63d) has its largest |r| at 5 days (+0.019) and -0.003 at 21 days; it is "
-        "not significant at any lead, including its traded 252-day lead (+0.005)."
+        f"The winner's signal ({_SIGCOL}) has r "
+        + (", ".join(f"{_LCW[f'L{L}']} at {L} days" for L in _LEADS) if _LCW is not None else "n/a")
+        + "."
     ),
     interpretation=(
         "At a daily frequency the spread signals carry very little linear information about "
@@ -634,8 +669,8 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
         "from position rules (thresholds, sizing) rather than a linear lead relationship."
     ),
     key_message=(
-        "On the daily lead grid (1 to 252 trading days) no spread signal correlates with "
-        "SPY's next-day return by more than |r| = 0.04."
+        "On the daily lead grid (1 to 252 trading days) the spread signals' linear correlation with SPY's "
+        "next-day return is small."
     ),
 )
 
@@ -643,46 +678,38 @@ LEAD_TOURNAMENT_BLOCK = dict(
     chart_status="ready",
     method_name="Lead Tournament",
     method_theory=(
-        "The orange line takes the winning rule (S4b_roc_63d / T2_rp75 / P1) and shows its "
-        "out-of-sample Sharpe at each lead in the daily grid {1, 5, 21, 63, 126, 252} "
-        "trading days. The winner was chosen on IN-SAMPLE Sharpe. The grey bars show the "
-        "highest out-of-sample Sharpe that any in-sample-valid rule reached at each lead. "
-        "That is an out-of-sample maximum, so it is biased upward. The dashed line is SPY "
-        "buy-and-hold (0.81)."
+        f"The orange line takes the winning rule ({W.signal_code} / {W.threshold_code} / {W.strategy_family}) "
+        "and shows its out-of-sample Sharpe at each lead in the daily grid {1, 5, 21, 63, 126, 252} trading days. "
+        "The winner was chosen on IN-SAMPLE data. The grey bars show the highest out-of-sample Sharpe that any "
+        "in-sample-valid rule reached at each lead; that is an out-of-sample maximum, so it is biased upward."
     ),
     question=(
-        "How does the selected rule perform out of sample at each lead, and how does that "
-        "compare with buy-and-hold?"
+        "How does the selected rule perform out of sample at each lead, and how does that compare with "
+        "buy-and-hold?"
     ),
     how_to_read=(
-        "Orange line and star: the winning rule's out-of-sample Sharpe by lead, with the star "
-        "at its traded 252-day lead. Grey bars: the best out-of-sample Sharpe at each lead "
-        "(selection-biased context). Dashed: SPY buy-and-hold."
+        "Orange line and star: the winning rule's out-of-sample Sharpe by lead, with the star at its traded lead. "
+        "Grey bars: the best out-of-sample Sharpe at each lead (selection-biased context). Dashed: SPY "
+        "buy-and-hold. The stable-lead-range chart below the tabs shows the in-sample scores used for selection."
     ),
     chart_name="lead_sharpe_distribution",
     chart_caption=(
-        "The winning rule's OOS Sharpe by lead: 1d 0.77, 5d 0.61, 21d 0.68, 63d 0.71, "
-        "126d 0.69, 252d 0.34 (traded). Its in-sample Sharpe is highest at 252d (0.96). "
-        "SPY buy-and-hold: 0.81."
+        "The winning rule's out-of-sample Sharpe by lead: "
+        + ", ".join(f"{int(r.lead_days)}d {_f(r.oos_sharpe)}" for r in _WC.itertuples())
+        + f" (traded L{W.lead}). SPY buy-and-hold: {W.bh_oos_sharpe}."
     ),
     observation=(
-        "The winner, S4b_roc_63d / T2_rp75 / P1 at L252, was selected because its in-sample "
-        "Sharpe (0.96, 2006-05 to 2019-09) was the highest in the grid. Out of sample its "
-        "Sharpe is 0.34. The same rule at other leads scores 0.61 to 0.77 out of sample, "
-        "and no lead reaches SPY's 0.81. The highest out-of-sample Sharpe at any lead, "
-        "1.18 (S12_mom_252d / T1_p75 / P2 at L1), came from a rule ranked 38th in-sample; "
-        "it is shown for comparison and was not selectable without looking at out-of-sample "
-        "data."
+        f"The winner, {W.signal_code} / {W.threshold_code} / {W.strategy_family} at L{W.lead}, was selected on "
+        f"in-sample data: its stable lead range {W.plateau_range} has the best lowest in-sample Sharpe in the grid. "
+        f"Its out-of-sample Sharpe is {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold."
     ),
     interpretation=(
-        "In-sample rank carried little information about out-of-sample rank in this grid "
-        "(Spearman 0.25 across 1,990 rules). The rule that looked best in 2006-2019 was "
-        "among the weakest after 2019 (rank 1,781 of 1,990 on OOS Sharpe)."
+        "In-sample rank carries limited information about out-of-sample rank in this grid "
+        f"(Spearman {_WS['tracks']['main']['spearman_is_oos']} across the in-sample-valid rules)."
     ),
     key_message=(
-        "The in-sample winner S4b_roc_63d / T2_rp75 / P1 at L252 (countercyclical) has an "
-        "out-of-sample Sharpe of 0.34 against 0.81 for SPY buy-and-hold; at no lead in the "
-        "grid does the same rule reach buy-and-hold."
+        f"The selected rule {W.signal_code} / {W.threshold_code} / {W.strategy_family} at L{W.lead} has an "
+        f"out-of-sample Sharpe of {W.oos_sharpe} against {W.bh_oos_sharpe} for SPY buy-and-hold."
     ),
 )
 
@@ -698,22 +725,22 @@ EVIDENCE_METHOD_BLOCKS = {
         "not find a significant effect.*"
     ),
     "downloads": [
-        {"label": "Granger causality, daily, both directions (10 rows)",
-         "path": "results/hy_ig_spy/core_models_20261016/granger_causality.csv"},
-        {"label": "Predictive regressions, HAC (60 signal-horizon rows)",
-         "path": "results/hy_ig_spy/core_models_20261016/predictive_regressions.csv"},
+        {"label": "Granger causality, daily, both directions",
+         "path": f"results/hy_ig_spy/core_models_{_TAG}/granger_causality.csv"},
+        {"label": "Predictive regressions, HAC",
+         "path": f"results/hy_ig_spy/core_models_{_TAG}/predictive_regressions.csv"},
         {"label": "Quantile regression (7 quantiles of 21-day forward SPY)",
-         "path": "results/hy_ig_spy/core_models_20261016/quantile_regression.csv"},
+         "path": f"results/hy_ig_spy/core_models_{_TAG}/quantile_regression.csv"},
         {"label": "Local projections, HAC (3 horizons)",
-         "path": "results/hy_ig_spy/core_models_20261016/local_projections.csv"},
+         "path": f"results/hy_ig_spy/core_models_{_TAG}/local_projections.csv"},
         {"label": "Regime quartile forward tests (1/3/6 months)",
-         "path": "results/hy_ig_spy/regime_quartile_forward_tests_20261016.csv"},
-        {"label": "Diagnostics summary (2 rows)",
-         "path": "results/hy_ig_spy/core_models_20261016/diagnostics_summary.csv"},
+         "path": f"results/hy_ig_spy/regime_quartile_forward_tests_{_TAG}.csv"},
+        {"label": "Diagnostics summary",
+         "path": f"results/hy_ig_spy/core_models_{_TAG}/diagnostics_summary.csv"},
         {"label": "HMM 2-state summary (causal fit; JSON body)",
-         "path": "results/hy_ig_spy/core_models_20261016/hmm_summary.csv"},
+         "path": f"results/hy_ig_spy/core_models_{_TAG}/hmm_summary.csv"},
         {"label": "HMM look-ahead audit (smoothed vs causal, same rule)",
-         "path": "results/hy_ig_spy/hmm_lookahead_audit_20261016.json"},
+         "path": f"results/hy_ig_spy/hmm_lookahead_audit_{_TAG}.json"},
     ],
     "plain_english": (
         "This section runs several statistical tests on one question: does the HY-IG credit "
@@ -737,17 +764,18 @@ EVIDENCE_METHOD_BLOCKS = {
         "Quantile Regression",
     ],
     "tournament_intro": (
-        "The tournament combined 15 signals (spread level, z-scores, percentile ranks, rates "
-        "of change, momentum, acceleration, the CCC-BB spread, and causal HMM and "
-        "Markov-switching stress probabilities) with 13 threshold labels, 3 strategies "
-        "(Long/Cash, Signal-Strength, Long/Short) and 6 leads {1, 5, 21, 63, 126, 252} trading "
-        "days: 2,178 combinations. 1,990 passed the in-sample validity filters, forming "
-        "1,354 distinct position series. The winner was the rule with the highest IN-SAMPLE "
-        "Sharpe over 2006-05-02 to 2019-09-30: **S4b_roc_63d / T2_rp75 / P1 / L252** "
-        "(countercyclical), with in-sample Sharpe 0.96 against 0.52 for SPY. On the held-out "
-        "2019-10-01 to 2026-04-22 window it scored an OOS Sharpe of 0.34, against 0.81 for "
-        "SPY buy-and-hold. The median out-of-sample Sharpe across the 1,990 valid rules was "
-        "0.68, and 23% of them exceeded SPY."
+        "The tournament combined 15 signals (spread level, z-scores, percentile ranks, rates of change, momentum, "
+        "acceleration, the CCC-BB spread, and causal HMM and Markov-switching stress probabilities) with their "
+        "threshold labels, 3 strategies (Long/Cash, Signal-Strength, Long/Short; Signal-Strength ignores the "
+        "threshold and is declared once per signal) and 6 leads {1, 5, 21, 63, 126, 252} trading days: "
+        f"{W.n_candidates} combinations, {W.n_valid} in-sample-valid ({W.n_distinct} distinct position series). Each "
+        "window of three neighbouring leads was scored by its lowest in-sample Sharpe; the winner is the highest "
+        f"in-sample Sharpe inside the best window: **{W.signal_code} / {W.threshold_code} / {W.strategy_family} / "
+        f"L{W.lead}** (stable lead range {W.plateau_range}), in-sample Sharpe {W.is_sharpe} against {W.bh_is_sharpe} "
+        f"for SPY over {W.is_start} to {W.is_end}. On the held-out {W.oos_start} to {W.oos_end} window it scored "
+        f"{W.oos_sharpe}, against {W.bh_oos_sharpe} for SPY buy-and-hold. The single highest in-sample Sharpe in the "
+        f"grid (lead L{W.raw_argmax_lead}, {W.raw_argmax_is_sharpe}) is an isolated-peak sensitivity row, not the "
+        "selection rule."
     ),
     "transition": (
         "**Transition:** the tests show a strong same-day link and weak forward "
@@ -763,60 +791,51 @@ EVIDENCE_METHOD_BLOCKS = {
 class StrategyConfig:
     """Strategy-page content object (passed to `render_strategy_page`)."""
 
-    PAGE_TITLE = "The Strategy: An In-Sample-Selected Credit-Spread Rule for SPY"
+    PAGE_TITLE = "The Strategy: A Credit-Spread Rule for SPY, Selected on In-Sample Data"
     PAGE_SUBTITLE = (
-        "2,178 rule combinations were scored. The one with the best in-sample Sharpe is "
-        "reported here, with its out-of-sample record against buy-and-hold."
+        f"{W.n_candidates} rule combinations were scored. The rule selected on in-sample data by the stable-lead-range "
+        "rule is reported here, with its out-of-sample record against buy-and-hold."
     )
 
     STATISTICAL_FRAMING_BANNER = (
-        "Correction (2026-10-16). This page previously reported S6_hmm_stress / T4_hmm_0.5 / "
-        "P2 / L0 with an OOS Sharpe of 1.41 (HAC t 3.80). That result relied on HMM "
-        "probabilities fitted on the full sample and smoothed with future data (look-ahead), "
-        "and on a same-day read of OAS data that is published about one day late. Rebuilt "
-        "without look-ahead, with a lead floor and in-sample selection, the winner below has "
-        "an OOS Sharpe of 0.34 against 0.81 for SPY buy-and-hold."
+        f"Correction (2026-10-17). This page previously reported the rule {W.previous_rule} (out-of-sample Sharpe "
+        f"{W.previous_oos_sharpe}, published {W.previous_tag}), the single highest in-sample Sharpe in the grid at "
+        "the top edge of the lead grid. It now reports the rule selected by the stable-lead-range rule. Before "
+        "2026-10-16 the page reported an HMM rule whose result relied on look-ahead smoothing (see the caveats)."
     )
 
     PLAIN_ENGLISH = (
-        "The rule moves between SPY and cash. It holds SPY when the spread's 63-day percent "
-        "change, as it stood a year earlier, was below its usual range, and holds cash "
-        "otherwise. This section explains the rule, its numbers and its limitations."
+        f"The rule moves between SPY and cash: {_RULE}. This section explains the rule, its numbers and its "
+        "limitations."
     )
 
     SIGNAL_RULE_MD = (
-        "**Strategy Rule in Plain English:** each day, take the 63-day percent change of the "
-        "HY-IG spread (hy_ig_roc_63d) as it stood **252 trading days earlier**. Compare it "
-        "with the 75th percentile of the same lagged series over the trailing 504 trading "
-        "days (threshold T2_rp75, a moving boundary). If it is below that percentile, hold "
-        "**100% SPY**; otherwise hold **cash**. The position takes effect from the next "
-        "day's close, so the signal is 253 trading days old when it starts earning. "
-        "Countercyclical orientation: a high recent spread increase means cash."
+        f"**Strategy Rule in Plain English:** {_RULE}. The position takes effect from the next day's close "
+        f"(signal lead {W.lead_text} plus a one-day execution lag). Countercyclical orientation: a high reading "
+        "means cash. "
+        f"Test-period record ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} "
+        f"buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown "
+        f"{W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} position changes."
     )
 
     HOW_SIGNAL_IS_GENERATED_MD = (
-        "The HY-IG spread is ICE BofA US High Yield OAS minus ICE BofA US Corporate OAS (FRED "
-        "BAMLH0A0HYM2 and BAMLC0A0CM), in percentage points, on business days. The signal "
-        "hy_ig_roc_63d is the percent change of that spread over 63 trading days. The rule "
-        "lags it 252 trading days and compares it with its own trailing 504-day 75th "
-        "percentile. It rebalances daily: the position changed 110 times in the "
-        "out-of-sample window (16.2 changes a year) and 288 times over the full sample "
-        "(11.8 a year). The rule fits no model; the percentile is recomputed each day from "
-        "trailing data."
+        "The HY-IG spread is ICE BofA US High Yield OAS minus ICE BofA US Corporate OAS (FRED BAMLH0A0HYM2 and "
+        f"BAMLC0A0CM), in percentage points, on business days. The signal is the {_SIG}. The rule reads it "
+        f"{W.lead_text} back (the value is published about one business day after its date) and compares it with "
+        f"{_THR}. It rebalances daily: {W.oos_n_trades} position changes in the out-of-sample window. The rule fits "
+        "no model; any rolling statistic is recomputed each day from trailing data."
     )
 
     MANUAL_USE_MD = (
         "If you want to follow this rule with minimal code:\n\n"
-        "1. **Pull HY and IG OAS from FRED** (BAMLH0A0HYM2 and BAMLC0A0CM), daily. They "
-        "post about one business day after the value date.\n"
+        "1. **Pull HY and IG OAS from FRED** (BAMLH0A0HYM2 and BAMLC0A0CM), daily. They post about one business "
+        "day after the value date.\n"
         "2. **Compute the spread**: HY OAS minus IG OAS (percentage points).\n"
-        "3. **Compute the 63-day percent change** of the spread.\n"
-        "4. **Take the value from 252 trading days ago**, and the 75th percentile of that "
-        "lagged series over the last 504 trading days.\n"
-        "5. **Hold SPY** if the lagged value is below the percentile; **hold cash** "
-        "otherwise. Apply the change at the next close.\n"
-        "6. **Expect the documented record**: OOS Sharpe 0.34 vs 0.81 for SPY, and the same "
-        "-33.7% maximum drawdown as SPY over 2019-10 to 2026-04."
+        f"3. **Compute the signal**: the {_SIG}.\n"
+        f"4. **Take its value from {W.lead_text} ago** and compare it with {_THR}.\n"
+        "5. **Hold SPY** if it is below; **hold cash** otherwise. Apply the change at the next close.\n"
+        f"6. **Expect the documented record**: out-of-sample Sharpe {W.oos_sharpe} vs {W.bh_oos_sharpe} for SPY over "
+        f"{W.oos_start} to {W.oos_end}."
     )
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -826,91 +845,71 @@ class StrategyConfig:
 
     WALK_FORWARD_TITLE = "Calendar-Year Sharpe of the Winning Rule vs SPY"
     WALK_FORWARD_CAPTION = (
-        "What this shows: the rule's Sharpe in each calendar year 2005-2026 (bars) next to "
-        "SPY's Sharpe in the same year (markers). Positive in 19 of 22 years and above SPY in "
-        "10 of 22. In the out-of-sample years 2020-2026 it is positive in 6 of 7 and above "
-        "SPY in 0 of 7. Years before 2019-10 are in-sample: the rule was selected on them."
+        f"What this shows: the rule's Sharpe in each calendar year {int(_WF['test_year'].min())}-{int(_WF['test_year'].max())} "
+        "(bars) next to SPY's Sharpe in the same year (markers). Positive in "
+        f"{int((_WF['oos_sharpe'] > 0).sum())} of {len(_WF)} years and above SPY in "
+        f"{int((_WF['oos_sharpe'] > _WF['bh_sharpe']).sum())} of {len(_WF)}. Years before 2019-10 are in-sample: the "
+        "rule was selected on them."
     )
 
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: each point is one in-sample-valid rule, plotted by in-sample Sharpe "
-        "(x, the selection objective) and out-of-sample Sharpe (y). The star is the winner "
-        "(IS 0.96, OOS 0.34). Dotted and dashed lines mark SPY's in-sample (0.52) and "
-        "out-of-sample (0.81) Sharpe. Spearman rank correlation of IS vs OOS: 0.25."
+        "What this shows: each point is one in-sample-valid rule, plotted by in-sample Sharpe (x) and out-of-sample "
+        f"Sharpe (y). The star is the winner (in-sample {W.is_sharpe}, out-of-sample {W.oos_sharpe}). Spearman rank "
+        f"correlation of in-sample vs out-of-sample: {_WS['tracks']['main']['spearman_is_oos']}."
     )
 
     LEADERBOARD_NOTE_MD = (
-        "Rows ranked by in-sample Sharpe. Strategy P2 sizes on the signal's trailing 504-day "
-        "range and ignores the threshold, so P2 rows that differ only in the threshold label "
-        "are the same position series (1,990 valid rows, 1,354 distinct series)."
+        "Rows ranked by in-sample Sharpe. Strategy P2 sizes on the signal's trailing 504-day range and ignores the "
+        f"threshold, so it is declared once per signal and lead ({W.n_valid} valid rows, {W.n_distinct} distinct "
+        "series)."
     )
 
     CROSS_PERIOD_CAPTIONS = {
         "subperiod_sharpe": (
-            "How to read it: the rule's Sharpe in each stress episode and in the full in-sample "
-            "and out-of-sample windows. GFC 0.55 (SPY -0.53); COVID 2020 0.09 (SPY 0.69); 2022 "
-            "-0.79 (SPY -0.70); full IS 0.96 (SPY 0.52); full OOS 0.34 (SPY 0.81). The "
-            "dot-com window is blank because the rule's position starts in 2002-09."
+            "How to read it: the rule's Sharpe in each stress episode and in the full in-sample and out-of-sample "
+            "windows, next to SPY's: "
+            + "; ".join(f"{k} {_f(r.sharpe)} (SPY {_f(r.bh_sharpe)})" for k, r in _SUB.iterrows() if pd.notna(r.sharpe))
+            + ". Blank episodes are before the rule's first position."
         ),
         "rolling_sharpe_cp": (
-            "How to read it: 504-trading-day rolling Sharpe of the rule's daily returns. It is "
-            "positive in 95% of windows since 2003-09, and ranges from -0.69 to 2.69."
+            f"How to read it: 504-trading-day rolling Sharpe of the rule's daily returns. It is positive in "
+            f"{(_RSH > 0).mean() * 100:.0f}% of windows and ranges from {_f(_RSH.min())} to {_f(_RSH.max())}."
         ),
         "rolling_granger": (
-            "How to read it: rolling 504-day Granger test, winner signal (hy_ig_roc_63d) → SPY "
-            "daily return, lags 1-3, every 5 trading days; the F shown is the largest of the three "
-            "lags, so read the p-value line. p < 0.05 in 20% of windows."
+            "How to read it: rolling 504-day Granger test, winner signal -> SPY daily return, lags 1-3, every 5 "
+            "trading days; the F shown is the largest of the three lags, so read the p-value line. p < 0.05 in "
+            f"{(_RGR < 0.05).mean() * 100:.0f}% of windows."
         ),
         "rolling_correlation": (
-            "How to read it: rolling 504-day correlation between the winner signal (lagged "
-            "253 trading days) and SPY's daily return. It ranges from -0.095 to +0.092 and is "
-            "negative in 55% of windows. For this countercyclical rule the expected sign is "
-            "negative."
+            "How to read it: rolling 504-day correlation between the winner signal (lagged by its lead plus one "
+            f"execution day) and SPY's daily return. It ranges from {_RCO.min():+.3f} to {_RCO.max():+.3f} and is "
+            f"negative in {(_RCO < 0).mean() * 100:.0f}% of windows. For this countercyclical rule the expected sign "
+            "is negative."
         ),
         "structural_break": (
-            "How to read it: Quandt likelihood-ratio (sup-F) test for a break in the "
-            "regression of SPY daily returns on the lagged winner signal (HAC, 15% trimming). "
-            "sup-F 4.37 at 2019-01-01, below the 5% critical value of 5.86, so no break is "
-            "detected."
+            "How to read it: Quandt likelihood-ratio (sup-F) test for a break in the regression of SPY daily returns "
+            f"on the lagged winner signal (HAC, 15% trimming). {_SB['conclusion']}."
         ),
     }
 
-    CAVEATS_MD = """
+    CAVEATS_MD = f"""
 **Important Caveats**
 
-1. **Simulated, not executed.** All performance statistics are hypothetical, from rules applied
-   to historical data. Returns are gross of costs. At 5 bps per unit of position change the OOS
-   Sharpe falls from 0.34 to 0.30; at 20 bps to 0.17; at 50 bps to -0.10.
+1. **Simulated, not executed.** All performance statistics are hypothetical, from rules applied to historical data. Returns are gross of costs. At 5 bps per unit of position change the out-of-sample Sharpe is {W.oos_sharpe_net_5bp} (higher cost levels: `tournament_validation_{_TAG}/transaction_costs.csv`).
 
-2. **Superseded result.** The 1.41 OOS Sharpe previously shown for S6_hmm_stress / P2 / L0
-   relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead). Its causal
-   rebuild scores 0.56 at L0 and 0.45 at the L1 lead floor.
+2. **Superseded results.** The earlier HMM rule (S6_hmm_stress / P2 / L0, previously published out-of-sample Sharpe {_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])}) relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead); its causal rebuild scores {_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} at L0 and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} at the L1 lead floor. The rule previously published on {W.previous_tag} ({W.previous_rule}, out-of-sample Sharpe {W.previous_oos_sharpe}) was an isolated top-edge peak.
 
-3. **Selection.** The winner is the best in-sample Sharpe among 1,990 valid rules (1,354
-   distinct position series). Its OOS HAC t-statistic is 1.01 (p = 0.31). Under a no-skill
-   null, the largest |z| expected from that many candidates is about 3.4.
+3. **Selection.** The winner comes from {W.n_valid} valid rules ({W.n_distinct} distinct position series). The test-period Sharpe difference versus buy-and-hold is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}); across {W.null_draws} contests on time-shifted spread data its stable-range score ranks at the {W.null_percentile} point.
 
-4. **Long signal lag.** The rule acts on information that is a year old (252 trading days
-   plus one execution day). The in-sample Sharpe varies sharply across neighbouring leads
-   (0.43 to 0.96), which is consistent with a selection effect.
+4. **Lead robustness.** The stable lead range is {W.plateau_range}; the single highest in-sample Sharpe in the grid (L{W.raw_argmax_lead}, {W.raw_argmax_is_sharpe}) was not chosen.
 
-5. **Drawdown.** Over the OOS window the rule's maximum drawdown (-33.7%) equals SPY's. The
-   rule was fully invested through the 2020-02-19 to 2020-03-23 decline.
-
-6. **OAS publication lag.** ICE BofA OAS post on FRED about one business day after the value
-   date. The traded grid starts at a 1-day lead, plus a 1-day execution lag.
+5. **OAS publication lag.** ICE BofA OAS post on FRED about one business day after the value date. The shortest lead in the traded grid is one trading day, and positions take effect after a further execution day.
 """
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**Concrete example — COVID 2020.** Trade `trade_id=181` in "
-        "`winner_trades_broker_style.csv` opened a **Long** position (100% SPY) on "
-        "**2020-01-30** at an SPY price of **$299.46**. On that day the signal (the spread's "
-        "63-day percent change as of a year earlier) was 2.16, below its trailing 75th "
-        "percentile. The position was held until **2020-04-29** and returned **-9.99%** over "
-        "the trade, through the full February-March decline. The next row (`trade_id=182`) "
-        "moved to cash on 2020-04-29, when the lagged signal read 5.71. This is why the "
-        "rule's OOS maximum drawdown (-33.7%) equals buy-and-hold's: a 252-day-old spread "
-        "reading could not respond to the 2020 shock."
+        "**Reading the trade log.** Each row of `winner_trades_broker_style.csv` is one position change: the entry "
+        "date, the side (Long or Cash), the SPY price, how long the position was held and the signal value on the "
+        "entry date. Rows are tagged IS or OOS."
     )
 
 
@@ -946,8 +945,8 @@ _INDICATOR_CONSTRUCTION_MD = (
     "Gaussian HMM on [daily spread change, VIX], and a 2-state Markov-switching model of "
     "the daily spread change. Both are fitted on in-sample data only (to 2019-09-30) and "
     "forward-filtered, so the value on day t uses data up to t only "
-    "(scripts/_regime_causal.py). The winning signal, hy_ig_roc_63d, is the 63-trading-day "
-    "percent change of the spread. The authoritative list of derivatives is rendered from "
+    "(scripts/_regime_causal.py). "
+    f"The winning signal is `{W.signal_code}` ({_SIG}). The authoritative list of derivatives is rendered from "
     "`signal_scope.json` in the Signal Universe section below."
 )
 
@@ -966,22 +965,17 @@ _METHODS_TABLE_MD = """
 | Quantile Regression | Effect across the 21-day forward return distribution | Quantiles 5%-95% |
 """
 
-_TOURNAMENT_DESIGN_MD = """
+_TOURNAMENT_DESIGN_MD = f"""
 | Dimension | Values |
 |:----------|:-------|
 | **Signals (15)** | spread level; z-score 252d/504d; percentile rank 504d/1260d; % change 21d/63d/126d; change 21d/63d/252d; acceleration; CCC-BB spread; causal HMM stress prob (S6); causal Markov-switching prob (S7) |
 | **Thresholds (13 labels)** | T1 in-sample percentile p75/p85/p95; T2 rolling-504d percentile rp75/rp85/rp95; T3 rolling-504d z-score 1.5/2.0/2.5; T4/T5 probability 0.5/0.7 (S6/S7 only) |
-| **Strategies (3)** | Long/Cash (P1), Signal-Strength sizing on the trailing-504d range (P2; ignores the threshold), Long/Short (P3) |
+| **Strategies (3)** | Long/Cash (P1), Signal-Strength sizing on the trailing-504d range (P2; ignores the threshold, declared once per signal and lead), Long/Short (P3) |
 | **Lead times (trading days)** | 1, 5, 21, 63, 126, 252, the standard daily grid floored at 1 for the OAS publication lag; plus a 1-day execution lag |
-| **Orientation** | Countercyclical (high signal → reduce SPY exposure) |
-| **Selection** | Highest in-sample Sharpe on the common window 2006-05-02 → 2019-09-30 among in-sample-valid rules (≥1,260 IS days, IS exposure 5-95%, IS turnover < 24/yr, ≥10 IS trades) |
+| **Orientation** | Countercyclical (high signal -> reduce SPY exposure) |
+| **Selection** | Stable lead range (D9): each window of three neighbouring leads scored by its lowest in-sample Sharpe on the common window, winner = highest in-sample Sharpe inside the best window, among in-sample-valid rules (>= 1,260 IS days, IS exposure 5-95%, IS turnover < 24/yr, >= 10 IS trades; undefined positions held as cash) |
 
-2,178 combinations, 1,990 in-sample-valid (1,354 distinct position series). Winner:
-**S4b_roc_63d / T2_rp75 / P1 / L252**, IS Sharpe 0.96 (SPY 0.52). OOS (2019-10-01 → 2026-04-22,
-1,712 days): Sharpe 0.34 (HAC t 1.01) vs SPY 0.81, annual return 6.2% vs 16.1%, maximum
-drawdown -33.7% for both. For comparison only: the out-of-sample argmax of the same grid is
-S12_mom_252d / T1_p75 / P2 / L1 at 1.18, a rule ranked 38th in-sample (see
-`legacy_oos_selection_20261016.csv`).
+{W.n_candidates} combinations, {W.n_valid} in-sample-valid ({W.n_distinct} distinct position series). Winner: **{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}**, stable lead range {W.plateau_range}, in-sample Sharpe {W.is_sharpe} (SPY {W.bh_is_sharpe}). Out of sample ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} vs SPY {W.bh_oos_sharpe}, annual return {W.oos_ann_return} vs {W.bh_oos_ann_return}, maximum drawdown {W.oos_max_drawdown} vs {W.bh_oos_max_drawdown}. Isolated-peak sensitivity row (not the selection rule): L{W.raw_argmax_lead}, in-sample Sharpe {W.raw_argmax_is_sharpe}.
 """
 
 _REFERENCES_MD = """
@@ -1016,12 +1010,11 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "Data run from 2000-01-03 to 2026-04-22 (business days). The OOS window follows the "
-        "ECON-OOS2 formula: 79 months (2019-10-01 → 2026-04-22). In-sample selection uses the "
-        "common window 2006-05-02 → 2019-09-30, which starts when the longest-warm-up "
-        "candidate (1260-day percentile rank, 252-day lead, P2 sizing) has its first return. "
-        "The dot-com bust and the GFC are in-sample; COVID 2020 and the 2022 rate shock are "
-        "out-of-sample. Regime models are fitted on data up to 2019-09-30 only."
+        "Data run from 2000-01-03 to 2026-04-22 (business days). The OOS window follows the ECON-OOS2 formula: "
+        f"79 months ({W.oos_start} -> {W.oos_end}). In-sample selection uses the common window {W.is_start} -> "
+        f"{W.is_end}, which starts when the longest-warm-up eligible candidate has its first return. The dot-com bust "
+        "and the GFC are in-sample; COVID 2020 and the 2022 rate shock are out-of-sample. Regime models are fitted on "
+        "data up to 2019-09-30 only."
     ),
     plain_english=(
         "This section covers the technical decisions — data sources, sample period, "

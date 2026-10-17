@@ -7,6 +7,6 @@
   "oos_end": "2026-04-22",
   "sample_size_months": 316,
   "oos_span_months": 79,
-  "justification": "Total sample 2000-01-03 to 2026-04-22 ~ 316 months. ECON-OOS2 formula: span = min(max(36, round(316x0.25)), 120) = 79 months. OOS window 2019-10-01 to 2026-04-22. The dot-com bust (2000-02) and the GFC (2007-09) are in-sample; the COVID shock (2020) and the 2022 rate shock are out-of-sample. Regime models (HMM, Markov-switching) and fixed thresholds are estimated on in-sample data only; the tournament winner is selected on in-sample Sharpe over the common IS window starting 2006-05-02.",
-  "generated_at": "2026-10-16T16:46:52Z"
+  "justification": "Total sample 2000-01-03 to 2026-04-22 ~ 316 months. ECON-OOS2 formula: span = min(max(36, round(316x0.25)), 120) = 79 months. OOS window 2019-10-01 to 2026-04-22. Regime models and IS-quantile thresholds are estimated on in-sample data only; the winner is selected on in-sample data (D9 lead plateau) over the common IS window starting 2006-05-02.",
+  "generated_at": "2026-10-17T13:22:49Z"
 }

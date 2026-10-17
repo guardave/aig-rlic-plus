@@ -11,7 +11,7 @@
   ],
   "disposition": "consumed",
   "narrative_alignment_note": "Concurrent daily SPY return distributions in the causal HMM calm vs stress states.",
-  "created_at": "2026-10-16T17:28:35Z",
+  "created_at": "2026-10-17T13:23:04Z",
   "method_name": "HMM Regime Distribution",
   "expected_chart_type": "violin"
 }

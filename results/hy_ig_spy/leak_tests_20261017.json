@@ -1,0 +1,230 @@
+{
+  "pair_id": "hy_ig_spy",
+  "tag": "20261017",
+  "replay": {
+    "pair_id": "hy_ig_spy",
+    "legacy_tag": "20261016",
+    "n_rows_harness": 2178,
+    "n_rows_published": 2178,
+    "tolerance": 1e-06,
+    "columns": {
+      "is_sharpe": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "oos_sharpe": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "is_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "oos_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "is_exposure": {
+        "max_abs_diff": 4.922086827463534e-05,
+        "pass": true
+      },
+      "n_trades": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "is_n_trades": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "is_annual_turnover": {
+        "max_abs_diff": 0.0004947169714926147,
+        "pass": true
+      }
+    },
+    "same_candidate_rows_in_order": true,
+    "valid_flags_equal": true,
+    "common_is_start_equal": true,
+    "winner": {
+      "harness": "S4b_roc_63d|T2_rp75|P1|countercyclical|252",
+      "published": "S4b_roc_63d|T2_rp75|countercyclical|252",
+      "match": true
+    },
+    "published": {
+      "key": "S4b_roc_63d|T2_rp75|P1|countercyclical|252",
+      "signal": "S4b_roc_63d",
+      "threshold": "T2_rp75",
+      "strategy": "P1",
+      "direction": "countercyclical",
+      "lead": 252,
+      "is_sharpe": 0.961997,
+      "oos_sharpe": 0.344228,
+      "tag": "20261016",
+      "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
+    },
+    "strategy_return": {
+      "rows": 6862,
+      "max_abs_diff": 9.996344030316351e-17,
+      "pass": true
+    },
+    "pass": true
+  },
+  "tracks": {
+    "main": {
+      "candidate": "S1_spread_level|T2_rp75|P1|countercyclical|21",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2019-10-01",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 5151,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 5151,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2023-01-11",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 6007,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 6007,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2025-05-05",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 6610,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 6610,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2006-08-02",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 1717,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 1717,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2013-03-01",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 3434,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 3434,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    },
+    "comparison": null
+  },
+  "null": {
+    "main": {
+      "n_draws": 100,
+      "method": "circular shift of the raw input (revised/market) or vintage block (real-time); same selection rule; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 0.68,
+      "p_is": 0.32,
+      "selection_stat_percentile": 0.82,
+      "p_selection_stat": 0.18,
+      "winner_oos_percentile": 0.0,
+      "p_oos": 1.0,
+      "null_is_max_p5_p50_p95": [
+        0.6795,
+        0.8776,
+        1.0641
+      ],
+      "null_winner_oos_median": 0.7159,
+      "edge_share": 0.26,
+      "edge_share_uniform": 0.3333,
+      "edge_share_bound": 0.4748,
+      "edge_flag": false,
+      "timing_sharpe_mean": -0.0157,
+      "timing_sharpe_sd": 0.3078,
+      "r71_pass": true,
+      "null_scores_hist": {
+        "bins": [
+          0.4803,
+          0.5047,
+          0.529,
+          0.5533,
+          0.5776,
+          0.602,
+          0.6263,
+          0.6506,
+          0.6749,
+          0.6993,
+          0.7236,
+          0.7479,
+          0.7722,
+          0.7966,
+          0.8209,
+          0.8452,
+          0.8695,
+          0.8939,
+          0.9182,
+          0.9425,
+          0.9668
+        ],
+        "counts": [
+          5,
+          0,
+          8,
+          2,
+          8,
+          8,
+          4,
+          2,
+          7,
+          8,
+          5,
+          8,
+          10,
+          4,
+          3,
+          9,
+          0,
+          3,
+          4,
+          2
+        ]
+      }
+    },
+    "comparison": null
+  }
+}

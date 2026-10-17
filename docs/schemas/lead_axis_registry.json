@@ -61,7 +61,7 @@
       "position_shift": 1,
       "lead_floor_effective": 2,
       "release_calendar_series": "rule:next_business_day",
-      "alignment": "fixed_lag",
+      "alignment": "pit_asof",
       "value_vintage": "unrevised_market",
       "track_policy": "single_market"
     },

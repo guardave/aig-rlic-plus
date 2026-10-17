@@ -1,62 +1,51 @@
 {
   "pair_id": "hy_ig_spy",
-  "generated_at": "2026-10-16T16:46:52Z",
-  "schema_version": "1.2.0",
-  "signal_column": "hy_ig_roc_63d",
-  "signal_code": "S4b_roc_63d",
-  "signal_display_name": "HY-IG 63-Day Rate of Change",
+  "generated_at": "2026-10-17T13:22:39.372578+00:00",
+  "schema_version": "1.3.0",
   "target_symbol": "SPY",
-  "threshold_value": 3.3929,
-  "threshold_window_days": 504,
-  "threshold_min_periods": 400,
-  "threshold_rule": "lt",
+  "track_policy": "single_market",
+  "main_eligible": true,
+  "cost_assumption_bps": 5,
+  "signal_column": "hy_ig_spread_pct",
+  "signal_code": "S1_spread_level",
+  "signal_display_name": "HY-IG Spread Level",
   "threshold_code": "T2_rp75",
-  "threshold_display_name": "75th pct (rolling 504d)",
-  "threshold_note": "Moving boundary: trailing-504-day 75th percentile of the lead-shifted signal; threshold_value is its latest value (2026-04-22)",
+  "threshold_value": 2.28,
+  "threshold_rule": "lt",
+  "threshold_note": "T2_rp75 threshold; threshold_value is the value in force at the last row",
   "strategy_family": "P1_long_cash",
   "strategy_code": "P1",
   "strategy_display_name": "Long/Cash",
   "strategy_description": "Hold SPY when the signal is below its threshold; hold cash otherwise.",
-  "direction": "countercyclical",
-  "lead_value": 252,
+  "lead_value": 21,
   "lead_unit": "days",
-  "lead_description": "252 trading day(s) signal lead + 1-day execution lag = 253 trading days effective",
-  "oos_sharpe": 0.3442,
-  "oos_sortino": 0.3346,
-  "oos_calmar": 0.1853,
-  "oos_ann_return": 0.062485,
-  "oos_ann_vol": 0.181521,
-  "oos_max_drawdown": -0.337173,
-  "oos_win_rate": 0.3651,
-  "win_rate": 0.5521,
-  "oos_n_trades": 110,
-  "oos_annual_turnover": 16.19,
-  "annual_turnover": 16.19,
-  "full_sample_n_trades": 288,
-  "full_sample_annual_turnover": 11.8,
+  "lead_description": "21 trading day(s) signal lead + 1-day execution lag = 22 trading days effective",
+  "direction": "countercyclical",
+  "oos_sharpe": 0.312307,
+  "oos_sortino": 0.22766,
+  "oos_calmar": 0.104173,
+  "oos_ann_return": 0.038547,
+  "oos_ann_vol": 0.164843,
+  "oos_max_drawdown": -0.370024,
+  "oos_win_rate": 0.398364,
+  "oos_n_trades": 56,
+  "annual_turnover": 8.242991,
   "oos_n": 1712,
   "oos_period_start": "2019-10-01",
   "oos_period_end": "2026-04-22",
-  "oos_hac_t": 1.013,
-  "is_sharpe": 0.961997,
+  "bh_sharpe": 0.81286,
+  "bh_ann_return": 0.151595,
+  "bh_max_drawdown": -0.337173,
+  "is_sharpe": 0.920678,
   "is_n": 3500,
   "is_period_start": "2006-05-02",
   "is_period_end": "2019-09-30",
-  "bh_sharpe": 0.8129,
-  "bh_ann_return": 0.160798,
-  "bh_max_drawdown": -0.337173,
-  "bh_is_sharpe": 0.515,
-  "cost_assumption_bps": 5.0,
-  "total_combos": 2178,
-  "valid_combos": 1990,
-  "max_acceptable_delay_days": 5,
-  "max_delay_beating_bh_days": null,
-  "breakeven_cost_bps": 20.0,
-  "risk_category": "credit_spread",
-  "notes": "Winner S4b_roc_63d/T2_rp75/P1/L252 selected by in-sample Sharpe on the common IS window 2006-05-02..2019-09-30 (IS Sharpe 0.9620; SPY 0.5150) and evaluated on the held-out OOS window 2019-10-01..2026-04-22: OOS Sharpe 0.3442 vs SPY buy-and-hold 0.8129 (below). Grid floored at L1 (OAS publication lag). Supersedes S6_hmm_stress/T4_hmm_0.5/P2/L0 (1.4083), which used smoothed full-sample HMM probabilities.",
+  "total_combos": 1542,
+  "valid_combos": 1354,
+  "notes": "Single track: ICE BofA OAS is market data and is not revised. Winner selected on in-sample data by the lead-plateau rule (D9); OOS evaluation only.",
   "selection": {
-    "objective": "max_is_sharpe",
-    "objective_formula": "in-sample (common window [common_is_start, OOS start)) daily mean/std*sqrt(252) of pos.shift(1)*spy_ret; winner evaluated on the OOS window with ECON-T4 deployable scoring (fillna 0)",
+    "objective": "max_is_sharpe_lead_plateau_w3",
+    "objective_formula": "D9: min IS Sharpe over 3 adjacent grid leads (edge-clamped); best window = plateau; winner = highest raw IS Sharpe inside it. IS = deployable returns on [common_is_start, oos_start); OOS never consulted",
     "is_window": {
       "start": "2006-05-02",
       "end": "2019-09-30",
@@ -64,16 +53,9 @@
       "common_is_start": "2006-05-02",
       "oos_start": "2019-10-01",
       "min_is_n": 1260,
-      "n_candidates": 2178,
-      "n_eligible": 2178,
-      "n_ineligible_short_history": 0,
-      "common_start_set_by": [
-        "S3b_pctrank_1260d/T1_p75/P2/L252",
-        "S3b_pctrank_1260d/T1_p85/P2/L252",
-        "S3b_pctrank_1260d/T1_p95/P2/L252"
-      ],
-      "rule": "eligibility before alignment: a candidate is IS-eligible only if its own first valid return leaves >= 1260 IS observations; common_is_start = latest first-valid-return date among eligible candidates; IS metrics for every candidate computed on [common_is_start, oos_start)",
-      "validity": "IS window only: is_n >= MIN_IS_N, IS exposure in [0.05, 0.95] (P3: share of days long), IS std > 0, IS annual turnover < 24, IS trades >= 10; OOS never consulted",
+      "n_candidates": 1542,
+      "n_eligible": 1542,
+      "rule": "R3.3 eligibility before alignment; common_is_start = latest first-valid return among eligible candidates",
       "bh_is_sharpe": 0.515
     },
     "grid_scanned": {
@@ -86,80 +68,564 @@
         252
       ],
       "n_signals": 15,
-      "n_thresholds": 13,
+      "n_thresholds": 14,
       "n_strategies": 3,
-      "n_combos": 2178,
-      "n_valid_combos": 1990,
+      "n_combos": 1542,
+      "n_valid_combos": 1354,
       "n_distinct_position_series": 1354,
-      "median_valid_objective": 0.553906,
-      "spearman_is_vs_oos": 0.2523
+      "median_valid_objective": 0.5125970993383675
     },
-    "tie_break_step": 1,
+    "tie_break_step": null,
     "raw_winner_row": {
-      "signal": "S4b_roc_63d",
+      "signal": "S1_spread_level",
       "threshold": "T2_rp75",
       "strategy": "P1",
       "lead_column": "lead_days",
-      "lead_value": 252,
-      "source_tournament_file": "tournament_results_20261016.csv",
-      "source_row_index": 1116,
-      "display_alias": "strategy_family=P1_long_cash (raw strategy=P1)"
+      "lead_value": 21,
+      "source_tournament_file": "tournament_results_20261017.csv",
+      "source_row_index": 45
     },
     "runner_up": {
-      "signal": "S3a_pctrank_504d",
-      "threshold": "T1_p75",
+      "signal": "S4b_roc_63d",
+      "threshold": "T2_rp75",
       "strategy": "P1",
-      "lead_value": 21,
-      "objective_value": 0.939002,
-      "oos_sharpe": 0.334389
+      "lead_value": 252,
+      "objective_value": 0.961997,
+      "oos_sharpe": 0.344228
     },
-    "runner_up_distinct_series": {
-      "signal": "S3a_pctrank_504d",
-      "threshold": "T1_p75",
-      "strategy": "P1",
-      "lead_value": 21,
-      "objective_value": 0.939002,
-      "oos_sharpe": 0.334389
-    },
-    "rationale": "Winner is the IS-valid row with the highest IN-SAMPLE Sharpe (common IS window) over the published floored daily grid; OOS metrics are reported for that row only (no OOS look-ahead in selection). Regime signals (S6 HMM, S7 Markov-switching) are IS-fit and forward-filtered (scripts/_regime_causal.py).",
-    "legacy_oos_selected_row": {
-      "signal": "S12_mom_252d",
-      "threshold": "T1_p75",
-      "strategy": "P2",
-      "direction": "countercyclical",
-      "lead_value": 1,
-      "oos_sharpe": 1.180364,
-      "note": "OOS-argmax on this grid (pre-GH#251 rule), comparison only; see legacy_oos_selection_20261016.csv"
-    },
-    "sensitivity_own_is_start_row": {
+    "window_leads": [
+      1,
+      5,
+      21
+    ],
+    "J": 0.845035,
+    "raw_is_argmax": {
+      "key": "S4b_roc_63d|T2_rp75|P1|countercyclical|252",
       "signal": "S4b_roc_63d",
       "threshold": "T2_rp75",
       "strategy": "P1",
       "direction": "countercyclical",
-      "lead_value": 252,
-      "own_is_start": "2002-09-30",
-      "own_is_sharpe": 0.980354,
+      "lead": 252,
+      "is_sharpe": 0.961997,
       "oos_sharpe": 0.344228,
-      "note": "IS argmax without common-start alignment; sensitivity only"
+      "note": "isolated-peak sensitivity; not the selection rule"
     },
-    "previously_published": {
-      "combo": "S6_hmm_stress/T4_hmm_0.5/P2/L0",
-      "oos_sharpe": 1.4083,
-      "hac_t": 3.8,
-      "source": "winner_summary.json 2026-07-15 (tournament_results_20260715.csv)",
-      "status": "superseded: relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead) and an L0 grid below the OAS publication lag",
-      "audit_file": "hmm_lookahead_audit_20261016.json"
-    },
+    "rationale": "Winner selected on IS data only by the D9 lead-plateau rule; OOS reported for it only.",
     "inference": {
-      "oos_hac_t": 1.013,
-      "oos_hac_p": 0.3112,
-      "oos_hac_maxlags": 8,
-      "is_hac_t": 4.34,
-      "is_hac_maxlags": 11,
-      "n_distinct_candidates": 1354,
-      "expected_max_abs_z_under_null": 3.37,
-      "note": "expected max |z| = Phi^-1(1 - 0.5/N) over N distinct position series (two-sided, independence approximation)"
+      "oos_sharpe_diff_vs_bh_bootstrap": {
+        "observed": -0.5007,
+        "mean": -0.4901,
+        "ci_95": [
+          -0.8806,
+          -0.0969
+        ],
+        "p_diff_le_0": 0.9902,
+        "block_length": 21,
+        "draws": 5000,
+        "seed": 42,
+        "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
+        "sharpe_diff": -0.5007,
+        "ann_return": {
+          "strat": 0.038547,
+          "bh": 0.151595
+        },
+        "ann_vol": {
+          "strat": 0.164843,
+          "bh": 0.197818
+        },
+        "max_dd": {
+          "strat": -0.370024,
+          "bh": -0.337173
+        }
+      },
+      "hac": {
+        "oos_strategy_mean": {
+          "t": 0.8714,
+          "p_value": 0.3835,
+          "nw_lag": 7,
+          "n": 1712
+        },
+        "oos_excess_mean": {
+          "t": -2.9618,
+          "p_value": 0.0031,
+          "nw_lag": 7,
+          "n": 1712
+        }
+      }
     },
-    "objective_runner_up_divergence": null
-  }
+    "previously_published": [
+      {
+        "combo": "S6_hmm_stress/T4_hmm_0.5/P2/L0",
+        "oos_sharpe": 1.4083,
+        "hac_t": 3.8,
+        "source": "winner_summary.json 2026-07-15 (tournament_results_20260715.csv)",
+        "status": "superseded: full-sample smoothed HMM probabilities (look-ahead) and an L0 grid below the OAS publication lag",
+        "audit_file": "hmm_lookahead_audit_20261017.json"
+      },
+      {
+        "combo": "S4b_roc_63d/T2_rp75/P1/L252",
+        "oos_sharpe": 0.3442,
+        "source": "tournament_results_20261016.csv",
+        "status": "superseded: raw IS argmax at the top grid edge (isolated peak); Phase B selects on the D9 lead plateau with deployable scoring"
+      }
+    ]
+  },
+  "tracks": {
+    "main": {
+      "track": "market",
+      "lead_unit": "days",
+      "lead_column": "lead_days",
+      "n_candidates": 1542,
+      "n_eligible": 1542,
+      "n_valid": 1354,
+      "n_distinct": 1354,
+      "sample": {
+        "alignment": "pit_asof",
+        "release_series": "rule:next_business_day",
+        "harsh": false
+      },
+      "eligible": true,
+      "winner": {
+        "key": "S1_spread_level|T2_rp75|P1|countercyclical|21",
+        "signal": "S1_spread_level",
+        "signal_column": "hy_ig_spread_pct",
+        "signal_display": "HY-IG Spread Level",
+        "threshold": "T2_rp75",
+        "threshold_value": 2.28,
+        "threshold_rule": "lt",
+        "direction": "countercyclical",
+        "strategy": "P1",
+        "strategy_family": "P1_long_cash",
+        "lead": 21,
+        "is_sharpe": 0.920678,
+        "oos_sharpe": 0.312307,
+        "oos_sortino": 0.22766,
+        "oos_calmar": 0.104173,
+        "oos_ann_return": 0.038547,
+        "oos_ann_vol": 0.164843,
+        "oos_max_drawdown": -0.370024,
+        "oos_win_rate": 0.398364,
+        "oos_n_trades": 56,
+        "annual_turnover": 8.242991,
+        "oos_exposure": 0.754089,
+        "source_row_index": 45,
+        "oos_sharpe_net_5bp": 0.287226
+      },
+      "bh_is": {
+        "sharpe": 0.515,
+        "sortino": 0.52439,
+        "calmar": 0.148881,
+        "ann_return": 0.082167,
+        "ann_vol": 0.187444,
+        "max_drawdown": -0.551894,
+        "win_rate": 0.530286,
+        "n": 3500.0
+      },
+      "bh_oos": {
+        "sharpe": 0.81286,
+        "sortino": 0.922611,
+        "calmar": 0.449606,
+        "ann_return": 0.151595,
+        "ann_vol": 0.197818,
+        "max_drawdown": -0.337173,
+        "win_rate": 0.533294,
+        "n": 1712.0
+      },
+      "is_window": [
+        "2006-05-02",
+        "2019-09-30"
+      ],
+      "oos_window": [
+        "2019-10-01",
+        "2026-04-22"
+      ],
+      "is_n": 3500,
+      "oos_n": 1712,
+      "objective": "max_is_sharpe_lead_plateau_w3",
+      "plateau": {
+        "leads": [
+          1,
+          5,
+          21
+        ],
+        "score": 0.845035,
+        "winner_lead": 21,
+        "global_max_lead": 21,
+        "global_max_inside_plateau": true,
+        "grid_edge": false,
+        "single_window_grid": false,
+        "family": {
+          "signal": "S1_spread_level",
+          "threshold": "T2_rp75",
+          "strategy": "P1",
+          "direction": "countercyclical"
+        }
+      },
+      "raw_argmax": {
+        "key": "S4b_roc_63d|T2_rp75|P1|countercyclical|252",
+        "signal": "S4b_roc_63d",
+        "threshold": "T2_rp75",
+        "strategy": "P1",
+        "direction": "countercyclical",
+        "lead": 252,
+        "is_sharpe": 0.961997,
+        "oos_sharpe": 0.344228,
+        "note": "isolated-peak sensitivity; not the selection rule"
+      },
+      "runner_up": {
+        "signal": "S4b_roc_63d",
+        "threshold": "T2_rp75",
+        "strategy": "P1",
+        "lead_value": 252,
+        "objective_value": 0.961997,
+        "oos_sharpe": 0.344228
+      },
+      "spearman_is_oos": 0.2745,
+      "vs_buy_hold": {
+        "observed": -0.5007,
+        "mean": -0.4901,
+        "ci_95": [
+          -0.8806,
+          -0.0969
+        ],
+        "p_diff_le_0": 0.9902,
+        "block_length": 21,
+        "draws": 5000,
+        "seed": 42,
+        "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
+        "sharpe_diff": -0.5007,
+        "ann_return": {
+          "strat": 0.038547,
+          "bh": 0.151595
+        },
+        "ann_vol": {
+          "strat": 0.164843,
+          "bh": 0.197818
+        },
+        "max_dd": {
+          "strat": -0.370024,
+          "bh": -0.337173
+        }
+      },
+      "hac": {
+        "oos_strategy_mean": {
+          "t": 0.8714,
+          "p_value": 0.3835,
+          "nw_lag": 7,
+          "n": 1712
+        },
+        "oos_excess_mean": {
+          "t": -2.9618,
+          "p_value": 0.0031,
+          "nw_lag": 7,
+          "n": 1712
+        }
+      },
+      "null_tournament": {
+        "n_draws": 100,
+        "method": "circular shift of the raw input (revised/market) or vintage block (real-time); same selection rule; R7.1",
+        "seed_base": 20261016,
+        "is_max_percentile": 0.68,
+        "p_is": 0.32,
+        "selection_stat_percentile": 0.82,
+        "p_selection_stat": 0.18,
+        "winner_oos_percentile": 0.0,
+        "p_oos": 1.0,
+        "null_is_max_p5_p50_p95": [
+          0.6795,
+          0.8776,
+          1.0641
+        ],
+        "null_winner_oos_median": 0.7159,
+        "edge_share": 0.26,
+        "edge_share_uniform": 0.3333,
+        "edge_share_bound": 0.4748,
+        "edge_flag": false,
+        "timing_sharpe_mean": -0.0157,
+        "timing_sharpe_sd": 0.3078,
+        "r71_pass": true,
+        "null_scores_hist": {
+          "bins": [
+            0.4803,
+            0.5047,
+            0.529,
+            0.5533,
+            0.5776,
+            0.602,
+            0.6263,
+            0.6506,
+            0.6749,
+            0.6993,
+            0.7236,
+            0.7479,
+            0.7722,
+            0.7966,
+            0.8209,
+            0.8452,
+            0.8695,
+            0.8939,
+            0.9182,
+            0.9425,
+            0.9668
+          ],
+          "counts": [
+            5,
+            0,
+            8,
+            2,
+            8,
+            8,
+            4,
+            2,
+            7,
+            8,
+            5,
+            8,
+            10,
+            4,
+            3,
+            9,
+            0,
+            3,
+            4,
+            2
+          ]
+        }
+      }
+    },
+    "comparison": null
+  },
+  "cross_eval": {
+    "not_scorable_reason": "single track"
+  },
+  "winner_fields": {
+    "eligible": {
+      "value": true,
+      "text": "eligible"
+    },
+    "track_label": {
+      "value": "market",
+      "text": "Market data (not revised)"
+    },
+    "signal_code": {
+      "value": "S1_spread_level",
+      "text": "S1_spread_level"
+    },
+    "signal_display": {
+      "value": "S1_spread_level",
+      "text": "HY-IG Spread Level"
+    },
+    "threshold_code": {
+      "value": "T2_rp75",
+      "text": "T2_rp75"
+    },
+    "threshold_value": {
+      "value": 2.28,
+      "text": "2.28"
+    },
+    "direction": {
+      "value": "countercyclical",
+      "text": "countercyclical"
+    },
+    "strategy_family": {
+      "value": "P1_long_cash",
+      "text": "P1_long_cash"
+    },
+    "lead": {
+      "value": 21,
+      "text": "21"
+    },
+    "lead_text": {
+      "value": 21,
+      "text": "21 trading days"
+    },
+    "lead_word": {
+      "value": 21,
+      "text": "21"
+    },
+    "is_sharpe": {
+      "value": 0.920678,
+      "text": "0.92"
+    },
+    "oos_sharpe": {
+      "value": 0.312307,
+      "text": "0.31"
+    },
+    "oos_ann_return": {
+      "value": 0.038547,
+      "text": "3.9%"
+    },
+    "oos_sharpe_net_5bp": {
+      "value": 0.287226,
+      "text": "0.29"
+    },
+    "oos_max_drawdown": {
+      "value": -0.370024,
+      "text": "-37.0%"
+    },
+    "oos_n_trades": {
+      "value": 56,
+      "text": "56"
+    },
+    "bh_is_sharpe": {
+      "value": 0.515,
+      "text": "0.52"
+    },
+    "bh_oos_sharpe": {
+      "value": 0.81286,
+      "text": "0.81"
+    },
+    "bh_oos_ann_return": {
+      "value": 0.151595,
+      "text": "15.2%"
+    },
+    "bh_oos_max_drawdown": {
+      "value": -0.337173,
+      "text": "-33.7%"
+    },
+    "sharpe_gap": {
+      "value": -0.500553,
+      "text": "-0.50"
+    },
+    "is_start": {
+      "value": "2006-05-02",
+      "text": "2006-05-02"
+    },
+    "is_end": {
+      "value": "2019-09-30",
+      "text": "2019-09-30"
+    },
+    "oos_start": {
+      "value": "2019-10-01",
+      "text": "2019-10-01"
+    },
+    "oos_end": {
+      "value": "2026-04-22",
+      "text": "2026-04-22"
+    },
+    "is_n": {
+      "value": 3500,
+      "text": "3500"
+    },
+    "oos_n": {
+      "value": 1712,
+      "text": "1712"
+    },
+    "n_candidates": {
+      "value": 1542,
+      "text": "1542"
+    },
+    "n_valid": {
+      "value": 1354,
+      "text": "1354"
+    },
+    "n_distinct": {
+      "value": 1354,
+      "text": "1354"
+    },
+    "selection_objective": {
+      "value": "max_is_sharpe_lead_plateau_w3",
+      "text": "the highest in-sample Sharpe ratio on a plateau of three neighbouring leads"
+    },
+    "plateau_leads": {
+      "value": [
+        1,
+        5,
+        21
+      ],
+      "text": "1, 5, 21"
+    },
+    "plateau_score": {
+      "value": 0.845035,
+      "text": "0.85"
+    },
+    "plateau_range": {
+      "value": [
+        1,
+        5,
+        21
+      ],
+      "text": "L1-L21"
+    },
+    "annual_turnover": {
+      "value": 8.242991,
+      "text": "8.24"
+    },
+    "oos_exposure": {
+      "value": 0.754089,
+      "text": "75%"
+    },
+    "raw_argmax_lead": {
+      "value": 252,
+      "text": "252"
+    },
+    "raw_argmax_is_sharpe": {
+      "value": 0.961997,
+      "text": "0.96"
+    },
+    "ci_low": {
+      "value": -0.8806,
+      "text": "-0.88"
+    },
+    "ci_high": {
+      "value": -0.0969,
+      "text": "-0.10"
+    },
+    "p_diff_le_0": {
+      "value": 0.9902,
+      "text": "0.99"
+    },
+    "null_percentile": {
+      "value": 0.82,
+      "text": "82%"
+    },
+    "null_p_is": {
+      "value": 0.32,
+      "text": "0.32"
+    },
+    "null_draws": {
+      "value": 100,
+      "text": "100"
+    },
+    "track_state": {
+      "value": "single_market",
+      "text": "single_market"
+    },
+    "previous_rule": {
+      "value": "S4b_roc_63d|T2_rp75|P1|countercyclical|252",
+      "text": "S4b_roc_63d / T2_rp75 / L252"
+    },
+    "previous_lead": {
+      "value": 252,
+      "text": "252"
+    },
+    "previous_lead_text": {
+      "value": 252,
+      "text": "252 trading days"
+    },
+    "previous_oos_sharpe": {
+      "value": 0.344228,
+      "text": "0.34"
+    },
+    "previous_is_sharpe": {
+      "value": 0.961997,
+      "text": "0.96"
+    },
+    "previous_tag": {
+      "value": "20261016",
+      "text": "2026-10-16"
+    }
+  },
+  "threshold_display_name": "75th pct (rolling 504d)",
+  "threshold_window_days": 504,
+  "threshold_min_periods": 400,
+  "oos_hac_t": 0.87,
+  "oos_annual_turnover": 8.24,
+  "full_sample_n_trades": 124,
+  "full_sample_annual_turnover": 4.85,
+  "bh_is_sharpe": 0.515,
+  "max_acceptable_delay_days": 5,
+  "max_delay_beating_bh_days": null,
+  "breakeven_cost_bps": 50.0,
+  "risk_category": "credit_spread"
 }

@@ -1,0 +1,4 @@
+horizon_months,n_months,mean_Q1,mean_Q2,mean_Q3,mean_Q4,q4_minus_q1,q4_minus_q1_hac_t,q4_minus_q1_p,joint_wald_p,monotonic_decreasing,hac_maxlags,note
+1,315,0.006558,0.01103,0.009395,0.003391,-0.003167,-0.402,0.6879,0.7125,False,1,quartile breakpoints from the full-sample distribution of month-end spreads (descriptive bins)
+3,313,0.021905,0.033683,0.024102,0.010057,-0.011848,-0.592,0.5539,0.56,False,2,quartile breakpoints from the full-sample distribution of month-end spreads (descriptive bins)
+6,310,0.044097,0.06613,0.046919,0.027634,-0.016463,-0.435,0.6637,0.4773,False,5,quartile breakpoints from the full-sample distribution of month-end spreads (descriptive bins)

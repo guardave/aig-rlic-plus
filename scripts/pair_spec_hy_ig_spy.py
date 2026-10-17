@@ -125,8 +125,9 @@ def target_prices() -> pd.Series:
 
 
 def revised_levels() -> pd.DataFrame:
-    """Market data (not revised): the pinned daily panel's raw OAS and VIX columns."""
-    return _panel()[LEVEL_COLUMNS]
+    """Market data (not revised): the pinned daily panel's raw OAS and VIX columns, every row (rolling windows warm
+    up from the first observation, as in the published pipeline)."""
+    return pd.read_parquet(INPUT_PARQUET)[LEVEL_COLUMNS]
 
 
 def rebalance_index() -> pd.DatetimeIndex:

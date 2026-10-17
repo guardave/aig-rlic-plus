@@ -11,7 +11,7 @@
   ],
   "disposition": "consumed",
   "narrative_alignment_note": "Slopes roughly symmetric around zero: q05 -0.0117, q95 +0.0118; wider spreads widen both tails.",
-  "created_at": "2026-10-16T16:47:20Z",
+  "created_at": "2026-10-17T13:23:03Z",
   "method_name": "Quantile Regression",
   "expected_chart_type": "line"
 }

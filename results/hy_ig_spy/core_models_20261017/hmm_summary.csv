@@ -1,0 +1,44 @@
+{
+  "n_states": 2,
+  "model": "GaussianHMM(full cov) on [daily spread change, VIX], IS-standardised",
+  "probability": "forward-filtered P(stress_t | data up to t); NOT forward-backward smoothed",
+  "fit_window": [
+    "2000-01-05",
+    "2019-09-30"
+  ],
+  "n_fit": 5149,
+  "stress_state": "state with the higher in-sample mean daily spread change",
+  "mean_stress_prob": 0.45,
+  "pct_stress_days": 45.14,
+  "pct_stress_days_is": 43.48,
+  "pct_stress_days_oos": 50.12,
+  "state_means_standardised": [
+    [
+      -0.029685999584932427,
+      -0.6178946892805613
+    ],
+    [
+      0.04005269325434439,
+      0.8336706460713981
+    ]
+  ],
+  "transmat": [
+    [
+      0.9906642618520409,
+      0.009335738147959094
+    ],
+    [
+      0.013047469069265719,
+      0.9869525309307343
+    ]
+  ],
+  "seed_selected": 1,
+  "seeds_tried": [
+    42,
+    0,
+    1,
+    2,
+    3
+  ],
+  "loglik_is": -10366.94
+}
