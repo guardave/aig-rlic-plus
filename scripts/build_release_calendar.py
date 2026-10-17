@@ -150,8 +150,10 @@ def calendar_rules() -> pd.DataFrame:
                        ("T10Y3M_ME", "rule_next_business_day")):
         for m in periods(sid, pd.Timestamp("2026-09-01")):
             nxt = m + pd.offsets.MonthBegin(1)
-            # rules tightened against the publisher_release_dates sample (pkg12 QA LOW-9) so that no verified
-            # release date is later than the rule date (meta: rule_validation)
+            # rules tightened against the publisher_release_dates sample (pkg12 QA LOW-9): a verified release date
+            # is later than the rule date only for two one-off EIA delays (week of 2012-10-26 released 2012-11-01,
+            # Hurricane Sandy; week of 2018-11-30 released 2018-12-06, national day of mourning), both overridden
+            # by their verified rows. Unverified rule rows can hide similar one-off delays (meta: publisher_check)
             if sid == "ISM_MFG":
                 rel = nth_bday(nxt, 2 if nxt.month == 1 else 1)
             elif sid == "ISM_SERVICES":

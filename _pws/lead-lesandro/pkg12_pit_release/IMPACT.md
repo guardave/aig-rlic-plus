@@ -64,7 +64,7 @@ The published Sharpe columns reproduce the committed `strategy_returns` exactly:
 - **As-of positions without a rerun:** the committed traded position at row t−(k_t−E). This is exact for stateless rules (signal and rolling threshold lagged together). It is not exact for path-dependent sizing, or for HMM winners whose committed positions themselves leak (nhs_spy, eci).
 - **Not measurable:**
   - permit_spy has no strategy_returns CSV, so breaches are counted on its trade-log range and there is no Sharpe.
-  - ISM, NAHB and EIA outside the 381 verified dates are rule outputs. The rules are tightened so that no verified date is later than the rule date; the only exceptions are EIA 2012-11 (Hurricane Sandy) and 2018-12 (national day of mourning), and both are overridden by their verified dates.
+  - ISM, NAHB and EIA outside the 381 verified dates are rule outputs. The rules are tightened against the verified dates, and the rule date is on or after the actual release for every verified date except two one-off EIA delays: the report for the week ending 2012-10-26 (rule 2012-10-31, actual 2012-11-01, Hurricane Sandy) and for the week ending 2018-11-30 (rule 2018-12-05, actual 2018-12-06, national day of mourning). Both rows use their verified dates. The 231 unverified EIA rule rows could hide similar one-off one-day delays (QA2 L-2).
   - Fallback rows are assumptions by construction.
 - **Selection objective:** 14 pairs are IS-selected and 21 OOS-selected as published. The Lead's Q4 decision moves Phase B reruns to IS argmax on the common IS start; nothing is re-selected here.
 - The **runner-up margin** is only a heuristic. Every breaching combo moves too.
