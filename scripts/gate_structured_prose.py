@@ -117,6 +117,12 @@ def fields_from_summary(ws: dict) -> dict:
         if isinstance(ce.get(k), dict):
             f[f"_ce_{k}_is"] = ce[k].get("is_sharpe")
             f[f"_ce_{k}_oos"] = ce[k].get("oos_sharpe")
+    # null-tournament diagnostics (timing Sharpes of scrambled contests) are artifact facts the R7.1 caveat cites
+    for role, rec in (ws.get("tracks") or {}).items():
+        dg = ((rec or {}).get("null_tournament") or {}).get("r71_diagnosis") or {}
+        for k, v in dg.items():
+            if k.startswith("timing_mean") and isinstance(v, (int, float)):
+                f[f"_null_{role}_{k}_sharpe"] = v
     return f
 
 
@@ -266,28 +272,165 @@ def config_prose(cfg_path: Path) -> list[tuple[str, str]]:
     return out
 
 
-def handtyped(cfg_path: Path, f: dict) -> list[str]:
-    """HANDTYPED: result numbers typed as literals in a migrated config's source (formatted fields are masked)."""
-    tree = ast.parse(cfg_path.read_text())
+ALLOWLIST = REPO / "docs" / "gates" / "structured_prose_allowlist.json"
+NUM_TOKEN = re.compile(r"(?<![A-Za-z0-9])(?:(?<![\w%-])[-+\u2212])?\d+(?:[.,]\d+)*%?")
+NUM_WORD = re.compile(r"\b(two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|"
+                      r"sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|"
+                      r"hundred|thousand|dozen|half|quarter of|third of)\b", re.I)
+EXTRA_LEAD = [
+    r"\b(?:prior|previous|preceding|last|earlier)\s+(?:calendar\s+)?(?:month|quarter|day|year|week)(?:'s)?\b",
+    r"\bdelayed by\b", r"\b(?:a|one)\s+(?:calendar\s+)?(?:month|quarter|year|week|day)\s+(?:earlier|before|ago|back|later|lag)\b",
+    r"\bone[- ](?:month|quarter|year|week|day|trading[- ]day)\b", r"(?<![\w-])L\d+\b",
+]
+EXTRA_OBJECTIVE = [r"\b(?:chosen|selected|picked)\s+(?:for|on|by)\s+(?:its\s+|their\s+|the\s+)?(?:best\s+|highest\s+)?"
+                   r"(?:out[- ]of[- ]sample|OOS|test[- ]period)"]
+EXTRA_COUNT = r"\b(?:rules|combinations|combos|candidates|strategies|position series|signals tested)\b"
+BANNED = [r"\bvalidated edge\b", r"\bverdict\b", r"\bfails?\b(?! to)", r"\bat most\b", r"\bconfirms?\b",
+          r"\bbeats?\b", r"\bpromising\b"]
+
+
+def _authored_segments(tree) -> list[tuple[str, int, str]]:
+    """(dotted attribute path, line, authored text) for every string literal of a config module. Formatted
+    values of f-strings are masked as \u27e8F\u27e9 (they are rendered from fields / artifacts); docstrings, dict
+    keys, format specs and identifier-like strings (no whitespace: chart names, paths, codes) are skipped."""
     out = []
-    for node in ast.walk(tree):
+
+    def text_of(node):
         if isinstance(node, ast.JoinedStr):
-            text = "".join(v.value if isinstance(v, ast.Constant) else "⟨F⟩" for v in node.values)
-        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
-            text = node.value
-        else:
+            return "".join(v.value if isinstance(v, ast.Constant) else "\u27e8F\u27e9" for v in node.values)
+        return node.value
+
+    def visit(node, path):
+        if isinstance(node, (ast.JoinedStr,)) or (isinstance(node, ast.Constant) and isinstance(node.value, str)):
+            t = text_of(node)
+            if re.search(r"\s", t):
+                out.append((path, node.lineno, t))
+            return
+        if isinstance(node, ast.Dict):
+            for k, v in zip(node.keys, node.values):
+                kk = k.value if isinstance(k, ast.Constant) else "?"
+                visit(v, f"{path}[{kk}]")
+            return
+        if isinstance(node, ast.Call):
+            for a in node.args:
+                visit(a, path)
+            for kw in node.keywords:
+                visit(kw.value, f"{path}.{kw.arg}" if path else str(kw.arg))
+            return
+        if isinstance(node, ast.FormattedValue):
+            return
+        for child in ast.iter_child_nodes(node):
+            visit(child, path)
+
+    def body(stmts, prefix):
+        for i, st in enumerate(stmts):
+            if isinstance(st, ast.Expr) and isinstance(getattr(st, "value", None), ast.Constant) and i == 0:
+                continue   # docstring
+            if isinstance(st, ast.ClassDef):
+                body(st.body, f"{prefix}{st.name}.")
+            elif isinstance(st, ast.FunctionDef):
+                body(st.body, f"{prefix}{st.name}.")
+            elif isinstance(st, (ast.Assign, ast.AugAssign, ast.AnnAssign)):
+                tgt = st.targets[0] if isinstance(st, ast.Assign) else st.target
+                name = getattr(tgt, "id", getattr(tgt, "attr", "?"))
+                visit(st.value, f"{prefix}{name}")
+            else:
+                visit(st, prefix.rstrip("."))
+    body(tree.body, "")
+    return out
+
+
+def _allowed(token_span, sentence, path, entries) -> bool:
+    from fnmatch import fnmatch
+    s0, s1 = token_span
+    for e in entries:
+        if not any(fnmatch(path, g) for g in e["paths"]):
             continue
-        for s in sentences(text):
-            if re.search(r"sharpe", s, re.I) and not EVIDENCE_EXEMPT.search(s) and re.search(SHARPE_NUM, s):
-                out.append(f"HANDTYPED line {node.lineno}: Sharpe number typed in the source — \"{s[:140]}\"")
-            if not EVIDENCE_EXEMPT.search(s):
-                for pat in LEAD_PATTERNS:
-                    for m in re.finditer(pat, s, re.I):
-                        if _to_int(m.group("n")) is not None:
-                            out.append(f"HANDTYPED line {node.lineno}: lead typed in the source \"{m.group(0)}\"")
-            for m in re.finditer(COUNT_PATTERN, s, re.I):
-                out.append(f"HANDTYPED line {node.lineno}: candidate count typed in the source \"{m.group(0)}\"")
+        if e.get("deny_if_sentence") and re.search(e["deny_if_sentence"], sentence, re.I):
+            continue
+        for m in re.finditer(e["regex"], sentence, re.I):
+            if m.start() <= s0 and m.end() >= s1:
+                return True
+    return False
+
+
+def structural(cfg_path: Path) -> list[str]:
+    """STRUCTURAL (hard, schema-1.3 pairs): authored config text contains no numeric token, number word, lead /
+    objective / count phrase or banned verdict word outside docs/gates/structured_prose_allowlist.json."""
+    entries = json.loads(ALLOWLIST.read_text())["entries"]
+    out = []
+    for path, line, text in _authored_segments(ast.parse(cfg_path.read_text())):
+        for sent in sentences(text):
+            hits = [("number", m) for m in NUM_TOKEN.finditer(sent)] + [("number word", m) for m in NUM_WORD.finditer(sent)]
+            for kind, m in hits:
+                if not _allowed(m.span(), sent, path, entries):
+                    out.append(f"STRUCTURAL {path} (line {line}): {kind} \"{m.group(0)}\" typed in authored text — "
+                               f"\"{sent[:140]}\"")
+            for pat in LEAD_PATTERNS + EXTRA_LEAD:
+                for m in re.finditer(pat, sent, re.I if "L\\d" not in pat else 0):
+                    if "\u27e8F\u27e9" in m.group(0):
+                        continue
+                    if not _allowed(m.span(), sent, path, [e for e in entries if e["id"] in
+                                                            ("spec_descriptions", "references", "release_and_execution_rule")]):
+                        out.append(f"STRUCTURAL {path} (line {line}): lead phrase \"{m.group(0)}\" — \"{sent[:140]}\"")
+            for pat in OOS_OBJECTIVE + EXTRA_OBJECTIVE:
+                m = re.search(pat, sent, re.I)
+                if m and not LEGACY_LABEL.search(sent):
+                    out.append(f"STRUCTURAL {path} (line {line}): objective phrase \"{m.group(0)}\" — \"{sent[:140]}\"")
+            for m in re.finditer(r"(?:\d[\d,]*|\b(?:" + NUM_WORD.pattern[3:-3] + r"))[\w -]{0,20}?" + EXTRA_COUNT, sent, re.I):
+                out.append(f"STRUCTURAL {path} (line {line}): count phrase \"{m.group(0)}\" — \"{sent[:140]}\"")
+            for pat in BANNED:
+                m = re.search(pat, sent, re.I)
+                if m:
+                    out.append(f"STRUCTURAL {path} (line {line}): verdict word \"{m.group(0)}\" — \"{sent[:140]}\"")
     return sorted(set(out))
+
+
+def swapped(text: str, f: dict, where: str) -> list[str]:
+    """SWAPPED: in 'X versus Y for buy-and-hold', Y must be a buy-and-hold field and X must not be one (unless
+    the two values are equal)."""
+    bh = [v for k, v in f.items() if k.lstrip("_").replace("comparison_", "").startswith("bh_") and isinstance(v, (int, float))]
+    out = []
+    pat = (r"(" + SHARPE_NUM + r"|[-+\u2212]?\d+\.\d%)\s+(?:versus|vs\.?|against)\s+(" + SHARPE_NUM +
+           r"|[-+\u2212]?\d+\.\d%)\s+(?:for\s+)?(?:SPY\s+)?(?:buy-and-hold|B&H)")
+    for s in sentences(text):
+        for m in re.finditer(pat, s, re.I):
+            x, y = m.group(1), m.group(2)
+
+            def val(t):
+                return float(t.replace("\u2212", "-").rstrip("%")) / (100 if t.endswith("%") else 1)
+
+            def is_bh(t):
+                v, d = val(t), (len(t.rstrip("%").split(".")[1]) + (2 if t.endswith("%") else 0))
+                return any(abs(v - b) <= 0.5 * 10 ** -d + 1e-9 for b in bh)
+            if not is_bh(y) or (is_bh(x) and abs(val(x) - val(y)) > 1e-9):
+                out.append(f"SWAPPED {where}: \"{m.group(0)}\" — strategy and buy-and-hold values do not match their fields")
+    return out
+
+
+_PAIR_PH = re.compile(r"\{W\.(\w+)\}\s*(?:\w+\s+){0,3}?(?:versus|vs\.?|against)\s+(?:\w+\s+){0,3}?\{W\.(\w+)\}", re.I)
+
+
+def _is_bh_field(name: str) -> bool:
+    return name.replace("comparison_", "").startswith("bh_")
+
+
+def swapped_placeholders(cfg_path: Path) -> list[str]:
+    """SWAPPED (structural): in authored 'X versus Y' with both sides winner-field placeholders, a buy-and-hold
+    field may not stand before a strategy field. Catches swaps the rendered-text check cannot see when the
+    sentence does not name buy-and-hold."""
+    out = []
+    for node in ast.walk(ast.parse(cfg_path.read_text())):
+        if not isinstance(node, ast.JoinedStr):
+            continue
+        txt = "".join(v.value if isinstance(v, ast.Constant) else "{" + ast.unparse(v.value) + "}"
+                      for v in node.values)
+        for m in _PAIR_PH.finditer(txt):
+            a, b = m.group(1), m.group(2)
+            if _is_bh_field(a) and not _is_bh_field(b):
+                out.append(f"SWAPPED (line {node.lineno}): \"{m.group(0)}\" — a buy-and-hold field stands before "
+                           "the strategy field it is compared with")
+    return out
 
 
 def check_pair_files(cfg: Path, ws_path: Path, hard: bool) -> list[str]:
@@ -296,8 +439,12 @@ def check_pair_files(cfg: Path, ws_path: Path, hard: bool) -> list[str]:
     findings = []
     for where, text in config_prose(cfg):
         findings += check_text(text, f, where)
+        if hard:
+            findings += swapped(text, f, where)
+            findings += [x for x in (f"VERDICT {where}: \"{m.group(0)}\"" for pat in BANNED
+                                     for m in [re.search(pat, text, re.I)] if m)]
     if hard:
-        findings += handtyped(cfg, f)
+        findings += structural(cfg) + swapped_placeholders(cfg)
     return findings
 
 

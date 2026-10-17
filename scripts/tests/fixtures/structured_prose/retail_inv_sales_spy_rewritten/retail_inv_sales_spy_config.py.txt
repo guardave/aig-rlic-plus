@@ -22,6 +22,6 @@ class StoryConfig:
 class StrategyConfig:
     PLAIN_ENGLISH = (
         f"The rule holds SPY when the inventories-to-sales ratio from {W.lead_word} months earlier was at or above "
-        "its five-year rolling median, and holds cash otherwise."
+        "its 5-year rolling median, and holds cash otherwise."
     )
-    WINNER_HEADING = f"Tournament Winner: Ratio Level vs Rolling Five-Year Median / P1 Long/Cash / L{W.lead}"
+    WINNER_HEADING = f"Tournament Winner: Ratio Level vs Rolling 5-Year Median / P1 Long/Cash / L{W.lead}"

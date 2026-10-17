@@ -1,0 +1,157 @@
+{
+  "description": "Allowlist of the structural layer of scripts/gate_structured_prose.py (Phase B harness pairs, winner_summary 1.3). Authored config text may contain no numeric token, number word, lead / objective / count phrase, except where an entry below covers the token: the entry's regex must match a span that contains the token, inside an attribute path matching `paths` (fnmatch on the dotted path, e.g. StoryConfig.HERO_CAPTION, METHODOLOGY_CONFIG.methods_table_md). Every result value (Sharpe, return, drawdown, lead, count, windows, percentiles of the null) must come from a winner_fields placeholder or an artifact read at render time. Each entry states why its numbers are not results.",
+  "entries": [
+    {
+      "id": "method_window",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\b\\d+(?:/\\d+)*(?:\\.\\d+)?(?:[- ]|-to-)(?:month|quarter|day|trading[- ]day|business[- ]day|week|year)s?(?:[- ][A-Za-z&-]+){0,2}?(?:[- ](?:change|chg|rolling|z-score|history|horizon|window|median|average|percentile|forward|momentum|percent change|% change|rate of change|range|rank|low|high|period|blocks?|minimum|maximum|sum|lookback|warm-up|return|returns|overlapping|realized|volatility|correlation|Granger|test|z-scores|changes|percentile ranks|% changes|equivalent))",
+      "why": "Transform / window / horizon definitions of the pair spec (e.g. '60-month rolling', '3-month change', '21-day forward return'); they define signals, not results. Leads use a different phrase class (earlier / lagged / lead), which stays banned."
+    },
+    {
+      "id": "trailing_window",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\b(?:trailing|rolling|over the last|over the trailing|its own trailing|of its own trailing|previous)\\s+\\d+(?:,\\d{3})?\\s+(?:trading days|business days|days|months|quarters|weeks|years)\\b",
+      "why": "Rolling-window lengths of the declared thresholds and transforms (spec constants)."
+    },
+    {
+      "id": "ordinal_percentile",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\b\\d{1,2}(?:st|nd|rd|th)(?: or \\d{1,2}(?:st|nd|rd|th))? percentiles?\\b|\\b\\d{1,2}(?:st|nd|rd|th) pct\\b",
+      "why": "Threshold definitions (the declared percentile of a rolling or in-sample threshold)."
+    },
+    {
+      "id": "calendar",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\b(?:19|20)\\d{2}(?:-\\d{2}){0,2}\\b(?:\\s*(?:-|–|to|→|->)\\s*(?:19|20)\\d{2}(?:-\\d{2}){0,2}\\b)?",
+      "deny_if_sentence": "test[- ]period|out[- ]of[- ]sample|\\bOOS\\b|in[- ]sample window|training period|held-out",
+      "why": "Calendar references to historical events, publication dates and methodology-change dates. Denied in sentences about result windows (test / training / OOS), whose dates come from winner_fields."
+    },
+    {
+      "id": "identifiers",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\bR\\d+(?:\\.\\d+)+\\b|\\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_.]*\\d[A-Za-z0-9_.]*\\b|\\b[A-Z][A-Z0-9]*\\d[A-Z0-9]*\\b|\\b(?:[STP]\\d{1,2}[a-z]?|T\\d_\\w+|rp\\d{2}|p\\d{2})\\b",
+      "why": "Series ids (BAMLH0A0HYM2, DGS10, VIX3M), column / signal / threshold codes (hy_ig_roc_63d, T_roll_p75, S6, T1, P2) and strategy family names. Leads (L<n>) are not identifiers and stay banned. Methodology rule ids (R7.1) are rule names, not values."
+    },
+    {
+      "id": "statistical_conventions",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\bp\\s*[<=>]\\s*0\\.0[15]\\b|\\b0\\.05 line\\b|±?\\b95% (?:bands?|interval|confidence)|square root of 4|√4|\\b5 bps?\\b|\\b5 basis points\\b|\\bq\\s*=\\s*2\\b|\\b15% trimming\\b|\\bk\\s*=\\s*2\\b|2-state|2-regime|\\b0\\.5\\b(?= \\((?:calm|stress))|(?:at or below|above) 0\\.5\\b|probability (?:threshold )?0\\.5\\b|\\b5% critical value\\b|\\b95% (?:HAC )?(?:confidence )?interval\\b",
+      "why": "Conventions of the methods (significance level, interval level, quarterly annualization, the 5 bp cost assumption, model sizes, regime probability cut-off 0.5) that do not describe the pair's result."
+    },
+    {
+      "id": "spec_descriptions",
+      "paths": [
+        "THRESHOLD_TEXT*",
+        "SIGNAL_TEXT*"
+      ],
+      "regex": ".+",
+      "why": "Plain-language descriptions of the declared signal and threshold codes; they mirror the pair spec (scripts/pair_spec_<pair>.py), not results."
+    },
+    {
+      "id": "methodology_definitions",
+      "paths": [
+        "METHODOLOGY_CONFIG.methods_table_md",
+        "METHODOLOGY_CONFIG.data_sources_table_md",
+        "_METHODS_TABLE_MD",
+        "_DATA_SOURCES_MD"
+      ],
+      "regex": "\\d+(?:[.,/]\\d+)*%?",
+      "why": "Methods and data-source tables: model specifications (lags, horizons, quantiles, HAC rule) and source frequencies. Numeric tokens only; lead / objective / count phrases are still checked there."
+    },
+    {
+      "id": "references",
+      "paths": [
+        "*REFERENCES*",
+        "*references_md"
+      ],
+      "regex": ".+",
+      "why": "Bibliographic citations (years, volumes, pages)."
+    },
+    {
+      "id": "list_numbering",
+      "paths": [
+        "*"
+      ],
+      "regex": "^\\s*\\d{1,2}\\.\\s*$|^\\s*\\d{1,2}\\.\\s",
+      "why": "Markdown ordered-list markers."
+    },
+    {
+      "id": "names",
+      "paths": [
+        "*"
+      ],
+      "regex": "S&P 500|COVID-19|\\bPair \\d+\\b|\\bQ[1-4]\\b|\\bChannel \\d\\b|\\b10y-(?:3m|2y)\\b",
+      "why": "Proper names (index, disease) and quartile labels Q1-Q4."
+    },
+    {
+      "id": "position_sizes",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\b(?:0|100)%(?:\\s*(?:to|-|→)\\s*100%)?(?:\\s+(?:SPY|invested|cash))?|\\$10,000",
+      "why": "Position sizes of the long/cash family (0% or 100% SPY) and the trade log's notional stake: rule definitions."
+    },
+    {
+      "id": "method_specs",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\blags?\\s+\\d+\\s*(?:-|–|to)\\s*\\d+|\\blags? of \\d+ to \\d+|\\btau\\s*=\\s*0\\.\\d+|\\boffsets?\\s+[-−]?\\d+\\s*(?:\\.\\.|to|-)\\s*\\+?\\d+|\\b\\d+(?:,\\s*\\d+)*,?\\s+and\\s+\\d+\\s+(?:quarters|months|days|trading days)\\b|\\b\\d+\\s+(?:signal transforms|transforms|buckets|quartiles|regimes|states|signals|strategies \\(|leads \\{)|\\{\\d+(?:,\\s*\\d+)*\\}|\\b\\d+-quarter delinquency change|\\bat \\d+(?:,\\s*\\d+)* and \\d+ days\\b|\\blags?\\s+[-+−]?\\d+(?:\\s*(?:-|–|to|and)\\s*[-+−]?\\d+)?|\\bmax\\(0\\.75\\s*·?\\s*n\\^\\(1/3\\),\\s*h-1\\)|\\bh\\s*-\\s*1\\b|\\bh\\s*=\\s*\\d+d?\\b|\\bevery \\d+ trading days\\b",
+      "why": "Specifications of the evidence methods and the declared grid (Granger / CCF lags, regression quantiles, horizon lists, number of transforms or buckets, the lead set as declared in the registry); they define methods, not results."
+    },
+    {
+      "id": "structure_words",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\b(?:two|three|four|five|six|seven|eight|nine|ten|twelve|fifteen)\\s+(?:data tracks|tracks|buckets|quartiles|signal transforms|transforms|neighbouring leads|neighbouring grid leads|adjacent leads|steps|regimes|states|legs|channels|pages|tiers|signals|methods|tests|strategies|threshold schemes|equal-count quartiles|quartile means|regime probabilities|lags)\\b|\\b(?:one|two)\\s+(?:track|data views?|views?|series|directions?|legs?)\\b",
+      "why": "Counts of page / method structure (pages, tracks, quartile buckets, transforms in the declared grid, the D9 window of three leads), not result counts."
+    },
+    {
+      "id": "release_and_execution_rule",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\babout one business day after (?:the|its) (?:value )?date\\b|\\bone[- ](?:trading[- ])?day execution lag\\b|\\ba further execution day\\b|\\bat least one (?:trading )?day back\\b|\\beffective lag is at least two trading days\\b|\\bshortest lead in the traded grid is one trading day\\b",
+      "why": "The publication rule and execution lag recorded in the lead-axis registry (release_calendar_series rule:next_business_day, position_shift 1, lead_floor_effective 2); not results."
+    },
+    {
+      "id": "declared_grid_sizes",
+      "paths": [
+        "_TOURNAMENT_DESIGN_MD",
+        "METHODOLOGY_CONFIG.tournament_design_md"
+      ],
+      "regex": "\\*\\*[A-Za-z ]+ \\(\\d+(?: labels)?\\)\\*\\*",
+      "why": "Sizes of the declared candidate manifest (number of signals, threshold labels, strategies) in the design table header cells; candidates_manifest_<tag>.json records them."
+    },
+    {
+      "id": "declared_manifest_table",
+      "paths": [
+        "_GRID_TABLE_MD",
+        "*grid_table*"
+      ],
+      "regex": "[-+−]?\\d+(?:[.,/]\\d+)*%?",
+      "why": "The declared candidate-manifest table (signals, threshold labels and their parameters, strategies, lead grid, validity constants); it is the pre-declared search space of candidates_manifest_<tag>.json, not a result. Lead / objective / count phrases are still checked."
+    },
+    {
+      "id": "series_definition",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\b(?:at least )?30\\+? days past due\\b",
+      "why": "FRB definition of the delinquency series DRCCLACBN (balances 30 or more days past due); a fixed series definition, not a result."
+    }
+  ]
+}

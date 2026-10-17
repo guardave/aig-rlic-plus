@@ -1,6 +1,8 @@
 """Tests for scripts/gate_structured_prose.py (Phase B structured-prose hard gate, plan section 4 item 7)."""
 import shutil
 import sys
+
+import pytest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -35,7 +37,50 @@ def test_hand_typed_number_fails_hard_mode(tmp_path):
     cfg = d / "retail_inv_sales_spy_config.py.txt"
     cfg.write_text(cfg.read_text().replace('out-of-sample Sharpe {W.oos_sharpe} versus "', 'out-of-sample Sharpe 0.73 versus "'))
     res = findings(d, hard=True)
-    assert res and all(r.startswith("HANDTYPED") for r in res)
+    assert res and all(r.startswith(("HANDTYPED", "STRUCTURAL")) for r in res)
+    assert any(r.startswith("STRUCTURAL") and '"0.73"' in r for r in res)
+
+
+# QA_VERIFY_B0 M3: realistic stale prose the regex-only gate missed. Each is edited into the rewritten (passing)
+# fixture; every one must FAIL in hard mode (old -> new replacement in the config text).
+_PE = '"The rule holds SPY when the inventories-to-sales ratio from {W.lead_word} months earlier was at or above "'
+EVASIONS = {
+    "sharpe_one_decimal": ('out-of-sample Sharpe {W.oos_sharpe} versus "', 'out-of-sample Sharpe 0.7 versus "'),
+    "number_words": (_PE, _PE.replace("{W.lead_word}", "six")),
+    "no_sharpe_word": ('"its 5-year rolling median, and holds cash otherwise."',
+                       '"its 5-year rolling median, and holds cash otherwise. It returned 0.73 against 0.92 for SPY."'),
+    "swapped_strategy_bh": ('f"scores an in-sample Sharpe of {W.median_valid_is_sharpe}. Out of sample it records Sharpe '
+                            '{W.oos_sharpe} "\n        f"versus {W.bh_oos_sharpe},',
+                            'f"scores an in-sample Sharpe of {W.median_valid_is_sharpe}. Out of sample it records Sharpe '
+                            '{W.bh_oos_sharpe} "\n        f"versus {W.oos_sharpe},'),
+    "prior_months_reading": ('"its 5-year rolling median, and holds cash otherwise."',
+                             '"its 5-year rolling median, and holds cash otherwise. It acts on the prior month\'s reading."'),
+    "delayed_one_calendar_quarter": ('"its 5-year rolling median, and holds cash otherwise."',
+                                     '"its 5-year rolling median, and holds cash otherwise. The signal is delayed by one '
+                                     'calendar quarter."'),
+    "chosen_for_oos_performance": ('"its 5-year rolling median, and holds cash otherwise."',
+                                   '"its 5-year rolling median, and holds cash otherwise. It was chosen for out-of-sample '
+                                   'performance."'),
+    "count_168_rules": ('"its 5-year rolling median, and holds cash otherwise."',
+                        '"its 5-year rolling median, and holds cash otherwise. It is the best of 168 rules."'),
+    "stale_drawdown": ('maximum drawdown {W.oos_max_drawdown} versus', 'maximum drawdown -12.0% versus'),
+    "stale_return": ('"its 5-year rolling median, and holds cash otherwise."',
+                     '"its 5-year rolling median, and holds cash otherwise. Its annual return was 9.4%."'),
+    "verdict_word": ('"its 5-year rolling median, and holds cash otherwise."',
+                     '"its 5-year rolling median, and holds cash otherwise. This is not a validated edge."'),
+}
+
+
+@pytest.mark.parametrize("name", sorted(EVASIONS))
+def test_qa_evasion_fixture_fails_hard_mode(tmp_path, name):
+    old, new = EVASIONS[name]
+    d = tmp_path / name
+    shutil.copytree(REWRITTEN, d)
+    cfg = d / "retail_inv_sales_spy_config.py.txt"
+    text = cfg.read_text()
+    assert text.count(old) == 1, name
+    cfg.write_text(text.replace(old, new))
+    assert findings(d, hard=True), name
 
 
 def test_missing_field_placeholder_fails(tmp_path):
