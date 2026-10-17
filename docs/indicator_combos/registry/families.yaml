@@ -1,100 +1,122 @@
-# Hypothesis families for the indicator-combination study (rev2, 2026-10-17). DRAFT: nothing is registered until
-# the user approves and the commit hash of this file is recorded as the registration.
+# Hypothesis families, revision 3 (2026-10-17). DRAFT until the user approves and the hash is recorded.
 #
-# Counting rule: every registered hypothesis is ONE pre-specified configuration (members, transform, threshold,
-# operator, lead, asset, horizon) with ONE primary endpoint. Grids, extra assets, extra horizons and variant
-# thresholds are separate hypotheses and are counted. Secondary metrics are descriptive and never decide a
-# verdict. Diagnostics may not influence which registered hypotheses are tested (D1-15, D2-09 rules in
-# QUESTION_BANK.md section 0).
-#
-# Correction scope: the family's hypotheses evaluated on the SAME dataset. Confirmatory hypotheses are evaluated
-# on V-C / V-S; exploratory ones only on historical data (V-A, V-B) and the viewed window (V-D, descriptive), and
-# reach V-C only through a new registration.
-# n_total / n_confirmatory are checked by scripts/gate_combo_registry.py against hypotheses.yaml.
+# Counting rule: every hypothesis object in hypotheses.yaml is ONE pre-specified configuration with ONE primary
+# endpoint; grid variants, assets, horizons and variant thresholds are separate hypotheses.
+# Correction scope: the family's hypotheses evaluated on the SAME dataset. Confirmatory hypotheses
+# (discovery-informed prospective confirmations) are evaluated on V-C / V-S; exploratory ones on historical data.
+# method is one of: romano_wolf | holm | hansen_spa | deflated_sharpe | single_test | none.
+# "none" is allowed only where the family has no hypotheses of that kind (checked by the gate, rule R15).
 
 families:
   F-REC:
     name: Recession classification (real-time)
-    correction_confirmatory: >-
-      Holm over the family's confirmatory hypotheses, using episode-level exact (permutation-over-episodes)
-      p-values for lexicographic endpoints and a block-bootstrap Diebold-Mariano p-value on the Brier-score
-      difference for probabilistic endpoints; FWER 0.05.
-    correction_exploratory: Holm over all family hypotheses on the historical LORO evaluation (reported, no claims).
     n_total: 7
-    n_confirmatory: 6
-  F-STATE:
-    name: State dependence of macro signals (signal x regime interactions)
-    correction_confirmatory: >-
-      Single confirmatory hypothesis (D1-04): HAC (Newey-West, lag 6) t and stationary-bootstrap p (mean block 6,
-      2000 draws) on the interaction coefficient; both must be <= 0.05.
-    correction_exploratory: Romano-Wolf stepdown (stationary bootstrap, 2000 draws) over all 6 hypotheses on V-A.
-    n_total: 6
-    n_confirmatory: 1
+    n_confirmatory: 4
+    correction_confirmatory:
+      method: holm
+      detail: >-
+        Holm over the 4 confirmatory hypotheses (D1-02.H1, D1-27.H1-H3) at FWER 0.05, using the exact McNemar
+        p-value (D1-02.H1) and the block-bootstrap Diebold-Mariano p-value on Brier differences (D1-27).
+    correction_exploratory:
+      method: holm
+      detail: Holm over all 7 hypotheses on the historical LORO evaluation (reported, no claims).
   F-TC:
     name: Term spread x credit spread
-    correction_confirmatory: Romano-Wolf stepdown (stationary bootstrap, mean block 6, 2000 draws) over the 2 SPY hypotheses.
-    correction_exploratory: Romano-Wolf over all 4 hypotheses on V-A and V-B.
     n_total: 4
-    n_confirmatory: 2
+    n_confirmatory: 1
+    correction_confirmatory:
+      method: single_test
+      detail: One confirmatory hypothesis (D1-05.H1); HAC (Newey-West lag 6) and stationary-bootstrap p both <= 0.05.
+    correction_exploratory:
+      method: romano_wolf
+      detail: Romano-Wolf stepdown (stationary bootstrap, mean block 6, 2000 draws) over all 4 hypotheses on V-A and V-B.
   F-FCI:
     name: Point-in-time financial-conditions index
-    correction_confirmatory: Romano-Wolf stepdown (stationary bootstrap, mean block 6, 2000 draws) over 2 hypotheses.
-    correction_exploratory: Same procedure on V-A / V-B (supporting).
     n_total: 2
     n_confirmatory: 2
+    correction_confirmatory:
+      method: romano_wolf
+      detail: Romano-Wolf stepdown (stationary bootstrap, mean block 6, 2000 draws) over the 2 hypotheses.
+    correction_exploratory:
+      method: romano_wolf
+      detail: Same procedure on V-A / V-B (supporting).
   F-RISKOFF:
     name: Risk-off confirmation and credit-to-activity chains
-    correction_confirmatory: Romano-Wolf stepdown over the 2 confirmatory D1-01 hypotheses.
-    correction_exploratory: Romano-Wolf over all 8 hypotheses on V-A.
     n_total: 8
     n_confirmatory: 2
+    correction_confirmatory:
+      method: romano_wolf
+      detail: Romano-Wolf stepdown over the 2 confirmatory D1-01 hypotheses.
+    correction_exploratory:
+      method: romano_wolf
+      detail: Romano-Wolf over all 8 hypotheses on V-A.
+  F-STATE:
+    name: State dependence of macro signals (signal x regime interactions)
+    n_total: 6
+    n_confirmatory: 0
+    correction_confirmatory:
+      method: none
+      detail: No confirmatory hypothesis since revision 3 (the 80th-percentile regime cut is a convention).
+    correction_exploratory:
+      method: romano_wolf
+      detail: Romano-Wolf stepdown (stationary bootstrap, 2000 draws) over all 6 hypotheses on V-A.
   F-REENTRY:
     name: Re-entry timing after risk-off
-    correction_confirmatory: Single hypothesis; episode-level sign test plus block-bootstrap p on the mean missed-rally cost difference.
-    correction_exploratory: n/a
     n_total: 1
-    n_confirmatory: 1
+    n_confirmatory: 0
+    correction_confirmatory:
+      method: none
+      detail: No confirmatory hypothesis since revision 3 (vote thresholds are conventions).
+    correction_exploratory:
+      method: single_test
+      detail: One hypothesis; episode-level exact sign test.
   F-COMP:
     name: Block-representative composites, weighting, sizing and updating
-    correction_confirmatory: none (no confirmatory hypothesis in this family yet)
-    correction_exploratory: >-
-      Romano-Wolf stepdown over all 20 hypotheses on V-A; Hansen SPA for "best of family beats B2a"; deflated Sharpe
-      with N = the number of configurations actually fitted inside D1-10 / D1-29 (weightings, factor counts).
     n_total: 20
     n_confirmatory: 0
+    correction_confirmatory:
+      method: none
+      detail: No confirmatory hypothesis.
+    correction_exploratory:
+      method: romano_wolf
+      detail: >-
+        Romano-Wolf stepdown over all 20 hypotheses on V-A; Hansen SPA for "best of family beats B2a"; deflated
+        Sharpe with N = configurations actually fitted inside D1-10 / D1-29.
   F-SECT:
     name: Sector rotation and relative returns
-    correction_confirmatory: none
-    correction_exploratory: Romano-Wolf over all 8 hypotheses on V-A (total-return series required, gap G17).
     n_total: 8
     n_confirmatory: 0
+    correction_confirmatory: {method: none, detail: No confirmatory hypothesis.}
+    correction_exploratory:
+      method: romano_wolf
+      detail: Romano-Wolf over all 8 hypotheses on V-A (total-return series required, G17).
   F-HOUS:
     name: Housing block redundancy and composites
-    correction_confirmatory: none
-    correction_exploratory: Romano-Wolf over all 14 hypotheses on V-A.
     n_total: 14
     n_confirmatory: 0
+    correction_confirmatory: {method: none, detail: No confirmatory hypothesis.}
+    correction_exploratory: {method: romano_wolf, detail: Romano-Wolf over all 14 hypotheses on V-A.}
   F-DIV:
     name: Soft vs hard data divergence
-    correction_confirmatory: none
-    correction_exploratory: Romano-Wolf over 2 hypotheses on V-A.
     n_total: 2
     n_confirmatory: 0
+    correction_confirmatory: {method: none, detail: No confirmatory hypothesis.}
+    correction_exploratory: {method: romano_wolf, detail: Romano-Wolf over 2 hypotheses on V-A.}
   F-FLEET:
     name: Frozen fleet winners (diffusion, cheap family, return-stream dependence)
-    correction_confirmatory: none
-    correction_exploratory: N3 re-selection null is mandatory; Holm over 3 hypotheses.
     n_total: 3
     n_confirmatory: 0
+    correction_confirmatory: {method: none, detail: No confirmatory hypothesis.}
+    correction_exploratory: {method: holm, detail: "N3 re-selection null mandatory; Holm over 3 hypotheses."}
   F-REV:
     name: Revision and alignment robustness (reported for every finalist, selects nothing)
-    correction_confirmatory: none
-    correction_exploratory: none (descriptive)
     n_total: 0
     n_confirmatory: 0
+    correction_confirmatory: {method: none, detail: Descriptive only.}
+    correction_exploratory: {method: none, detail: Descriptive only.}
   F-SPACE:
     name: Size and dimensionality of the combination space; power budget
-    correction_confirmatory: none
-    correction_exploratory: Single hypothesis (D2-04) with a block-bootstrap interval; the rest are estimates with intervals.
     n_total: 1
     n_confirmatory: 0
+    correction_confirmatory: {method: none, detail: No confirmatory hypothesis.}
+    correction_exploratory: {method: single_test, detail: "One hypothesis (D2-04) with a block-bootstrap interval."}

@@ -59,8 +59,12 @@ fi
 
 # --- Conditional: combo-registry gate when staged paths touch docs/indicator_combos/ --
 # (branch research261017_indicator_combos only; this branch never merges to main)
+# The gate reads the STAGED blobs (--staged). `git commit --no-verify` bypasses every gate in this hook.
 if echo "${STAGED}" | grep -qE '^docs/indicator_combos/'; then
-    run_gate "T3   combo registry (gate_combo_registry)"  python3 docs/indicator_combos/scripts/gate_combo_registry.py
+    run_gate "T3   combo registry (gate_combo_registry --staged)"  python3 docs/indicator_combos/scripts/gate_combo_registry.py --staged
+    if echo "${STAGED}" | grep -qE '^docs/indicator_combos/(scripts|tests)/'; then
+        run_gate "T3b  combo gate mutation tests (pytest)"  python3 -m pytest -q -p no:cacheprovider docs/indicator_combos/tests
+    fi
 else
     echo "[SKIP] T3   combo registry (no staged paths under docs/indicator_combos/)"
 fi

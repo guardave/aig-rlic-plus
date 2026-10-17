@@ -1,595 +1,823 @@
-# Machine-readable question / hypothesis ledger (rev2, 2026-10-17). Source of truth for COMPLIANCE.md and for
-# the per-question fields in QUESTION_BANK.md. Validated by docs/indicator_combos/scripts/gate_combo_registry.py
-# (pre-commit, whenever docs/indicator_combos/ is staged). DRAFT until the user approves and the hash is recorded.
+# Machine-readable question / hypothesis ledger, revision 3 (2026-10-17).
+# Source of truth for COMPLIANCE.md and registry/compliance.csv. Schema: registry/schema.json. Gate:
+# scripts/gate_combo_registry.py (pre-commit on this branch, reads the STAGED files; bypassed by `git commit
+# --no-verify` and inactive unless `git config core.hooksPath scripts/hooks`). DRAFT until the user approves and
+# the hash is recorded.
 #
-# status:  confirmatory  = verdict decided ONLY on V-C (frozen forward) and/or V-S (sequestered international);
-#                          members strictly point-in-time (ALFRED vintages, unrevised market data, or prospective
-#                          snapshots); textbook rules with no parameter chosen from data; not shaped by the viewed
-#                          OOS, by full-sample correlations or by turning-point diagnostics.
-#          exploratory   = historical evidence only (V-A, V-B supporting; V-D descriptive); generates hypotheses
-#                          for a later, separate registration.
-#          descriptive   = an estimate with an interval; selects nothing.
-# tracks:  vintage (ALFRED real-time), market (unrevised), revised (today's values delayed to release date; NOT
-#          point-in-time), snapshot_forward (no-archive source, point-in-time only from the 2026-10 snapshots),
-#          label (ex-post NBER dates), derived (built from other members), fleet (published fleet winner rule).
-# Validation codes and baseline / null codes: QUESTION_BANK.md section 0.
+# Hypothesis status (a field on every hypothesis, never inferred):
+#   confirmatory = a DISCOVERY-INFORMED PROSPECTIVE CONFIRMATION: the designer had seen post-1997 history and the
+#                  fleet's single-indicator results, so the design is not snooping-free; the protection is that
+#                  the verdict is read only on data nobody had seen at freeze time (V-C forward, V-S sequestered).
+#                  Every rule parameter must be "citation" (a published source fixes it) or "natural" (zero /
+#                  sign threshold, year-over-year change, level, equal weights, expanding window, published rule).
+#   exploratory  = anything else; historical evidence only; reaches V-C only through a new registration.
+# Parameter source_type: citation | natural | convention (round number chosen by us) | data_chosen.
+# Pass-rule margins (e.g. "CVaR down >= 15%") are decision thresholds, not rule parameters; they are fixed here.
+# Member tracks: vintage (ALFRED file must exist), market (unrevised; gate whitelist), snapshot_forward,
+# revised (today's values delayed to release date: NOT point-in-time), label, derived, fleet.
 
 templates:
-  u1: &u1
-    primary_endpoint: Relative reduction in monthly CVaR(5%) of the overlay vs each comparator (B2a and B3)
-    pass_rule: >-
-      CVaR reduction >= 15% vs BOTH B2a and B3 (intersection-union), family-adjusted one-sided p <= 0.05
-      (stationary block bootstrap, mean block 6, 2000 draws); guardrail: annualised return shortfall vs B1 <= 2.0 pp
+  bl_u1: &bl_u1
+    B1: "yes: buy-and-hold of the target"
+    B2a: "yes: best single member, chosen on the training folds by the same procedure"
+    B3: "yes: equal-weight expanding-z composite of the members, prior signs, threshold 0"
+    B4: "yes: 10-month SMA overlay (Faber 2007)"
+  bl_u2: &bl_u2
+    B1: "yes: static weight equal to the strategy's average exposure"
+    B2a: "yes: best single member on the training folds"
+    B3: "yes: equal-weight composite"
+    B4: "yes: 10% volatility target"
+  bl_u3: &bl_u3
+    B1: "yes: equal-weight 9 sectors"
+    B2a: "yes: best single member on the training folds"
+    B3: "yes: equal-weight composite"
+    B4: "yes: 12-month relative momentum"
+  bl_u4: &bl_u4
+    B1: "yes: constant base-rate classifier"
+    B2a: "yes: best single member on the training folds"
+    B3: "yes: equal-weight z composite mapped to a flag (> 0) or a one-parameter probit"
+    B4: "yes: S&P 500 below its 10-month SMA as a recession flag (needs G5 before 1993)"
+  bl_na: &bl_na
+    B1: "n/a: descriptive estimate, no strategy claim"
+    B2a: "n/a: descriptive estimate, no strategy claim"
+    B3: "n/a: descriptive estimate, no strategy claim"
+    B4: "n/a: descriptive estimate, no strategy claim"
+  cvar1: &cvar1
+    type: cvar_overlay
+    statistic: relative reduction in monthly CVaR(5%) of the overlay vs each comparator
+    comparator: B2a and B3 (intersection-union)
+    params: {return_horizon_months: 1}
+  pr_cvar: &pr_cvar
+    margin: 0.15
+    margin_unit: relative CVaR reduction vs both comparators
+    test: stationary_bootstrap
+    alpha: 0.05
+    guardrail: annualised return shortfall vs B1 <= 2.0 pp
+  ev_dd: &ev_dd
     min_events: 3
-    event_def: distinct SPY drawdowns >= 15% (monthly closes) inside the evaluation window; fewer = inconclusive
-  u4lex: &u4lex
-    primary_endpoint: >-
-      Lexicographic, episode-level: L1 recall (held-out recessions flagged between NBER peak - 12 m and peak + 6 m);
-      L2 false-alarm episodes per decade; L3 median signal date relative to the NBER peak
-    pass_rule: >-
-      L1 recall non-inferior to the comparator (no held-out recession missed that the comparator caught); L2
-      false-alarm episodes per decade <= comparator + 0.0; L3 median signal >= 2 months earlier than the comparator.
-      All three required; exact (Clopper-Pearson) intervals reported for recall
-    min_events: 6
-    event_def: >-
-      recessions with every member observable in real time for the 24 months before the peak, 2020 excluded (V-D);
-      V-S needs >= 8 country-recessions; fewer = inconclusive
-  interaction: &interaction
-    primary_endpoint: >-
-      Interaction coefficient d in r(t+1) = a + b*s(t) + c*g(t) + d*s(t)*g(t), s = signal (+1 bull / -1 bear),
-      g = regime dummy; monthly SPY excess return
-    pass_rule: >-
-      d has the registered sign, |d| >= 0.50 pp per month, HAC (Newey-West lag 6) p <= 0.05 AND stationary-bootstrap
-      p <= 0.05 (family-adjusted); a fold with no regime episode contributes to a, b only
+    event_def: distinct target drawdowns >= 15% (monthly closes) in the evaluation window; fewer = inconclusive
+  inter1: &inter1
+    type: interaction
+    statistic: d in r(t+1) = a + b*s(t) + c*g(t) + d*s(t)*g(t), monthly excess return
+    comparator: additive model
+    params: {return_horizon_months: 1}
+  pr_inter: &pr_inter
+    margin: 0.50
+    margin_unit: pp per month, registered sign
+    test: hac_and_stationary_bootstrap
+    alpha: 0.05
+    guardrail: a fold with no regime episode contributes to a and b only
+  ev_reg: &ev_reg
     min_events: 5
-    event_def: distinct regime episodes (runs of g = 1 separated by >= 3 months) in the evaluation window
+    event_def: distinct regime episodes (runs separated by >= 3 months)
 
 questions:
-# ---------------------------------------------------------------- F-REC
+# ===================================================================== F-REC
 - id: D1-02
   direction: 1
   family: F-REC
-  title: Prior curve inversion lets a lower, earlier labour trigger work
   status: confirmatory
+  title: Does requiring a prior curve inversion cut the false alarms of a labour trigger?
   use_case: U4
-  members: ["T10Y3M inverted at any month-end in the last 12 months|regime / early warning|market",
-            "Sahm gap (3m avg UNRATE minus min of prior 12 months' 3m avg)|trigger|vintage"]
-  assets: NBER recession months (label)
-  combination: R1 confirmation with an R4 window
-  label_horizon_months: 0
-  purge_months: 0
-  <<: *u4lex
-  comparator: Standard Sahm rule (gap >= 0.50 pp) alone; curve-alone reported
-  baselines:
-    B1: "yes: constant base-rate classifier (never signals)"
-    B2a: "yes: Sahm 0.50 alone and curve alone"
-    B3: "yes: equal-weight z of (-curve, Sahm gap) > 0"
-    B4: "yes: S&P 500 below its 10-month SMA as a recession flag (needs G5 before 1993)"
-  null_design: N1 joint panel shift (episode-preserving) and N2 random labour-style member
+  members:
+    curve: {series: T10Y3M, track: market, role: "inverted (< 0) at any month-end in the last 12 months"}
+    sahm: {series: UNRATE, track: vintage, role: "Sahm gap (3m avg minus min of prior 12 months' 3m avg)"}
+    nber: {series: NBER, track: label, role: recession label (ex post)}
+  baselines: *bl_u4
+  null_design: N1 joint panel shift (episode-preserving); N2 random labour-style member
   validation: {primary: "V-S; V-C", supporting: "LORO over historical recessions (V-A + V-B, frozen)", descriptive: "V-D (2020)"}
-  correction: family F-REC
-  n_hypotheses: 2
-  hypotheses: ["curve AND Sahm gap >= 0.30 pp (labelled variant)", "curve AND Sahm gap >= 0.50 pp"]
   uses_fleet_winners: false
   influenced_by: [none]
-  feasibility: "M: historical LORO has 3 usable recessions (1990, 2001, 2008) until G13 (Philadelphia Fed RTDSM) adds 1969-1982"
+  provenance:
+    label: discovery-informed prospective confirmation
+    designer_knowledge: Designed 2026-10-17 knowing post-1980 US recessions and the curve and Sahm literature; no project return series was read for this question.
+    frozen: "2026-10-17 (rev3)"
+  feasibility: "M: historical LORO has 3 usable recessions (1990, 2001, 2008) until G13 adds 1969-1982"
   priority: P1
-  rank: 3
+  rank: 6
+  hypotheses:
+  - hid: D1-02.H1
+    status: confirmatory
+    family: F-REC
+    asset: NBER recession months
+    members: [curve, sahm, nber]
+    rule: "curve inverted in the last 12 months AND Sahm gap >= 0.50 pp"
+    parameters:
+    - {name: curve_threshold_pp, value: 0.0, source_type: citation, source: "Estrella & Mishkin (1998); Estrella & Trubin (2006): 10y-3m inversion"}
+    - {name: curve_lookback_months, value: 12, source_type: citation, source: "Estrella & Mishkin (1998): 4-quarter forecast horizon"}
+    - {name: sahm_threshold_pp, value: 0.50, source_type: citation, source: "Sahm (2019)"}
+    endpoint:
+      type: lexicographic_recession
+      statistic: "L1 recall; L2 false-alarm episodes; L3 median signal date vs NBER peak"
+      comparator: curve alone
+      params: {recall_window_pre_peak_months: 12, recall_window_post_peak_months: 6}
+    label_horizon_months: 12
+    purge_months: 12
+    pass_rule:
+      margin: 0.5
+      margin_unit: "L2: false-alarm episodes reduced by >= 50% vs curve alone"
+      test: exact_mcnemar
+      alpha: 0.05
+      guardrail: "L1: no held-out recession missed that the comparator caught and Clopper-Pearson 95% lower bound of recall >= 0.5; L3: median signal <= NBER peak + 6 months"
+    min_events: 6
+    event_def: recessions (V-S >= 8 country-recessions) plus discordant false-alarm episodes >= 5; fewer = inconclusive
+  - hid: D1-02.H2
+    status: exploratory
+    family: F-REC
+    asset: NBER recession months
+    members: [curve, sahm, nber]
+    rule: "curve inverted in the last 12 months AND Sahm gap >= 0.30 pp (labelled variant)"
+    parameters:
+    - {name: curve_threshold_pp, value: 0.0, source_type: citation, source: "Estrella & Mishkin (1998)"}
+    - {name: curve_lookback_months, value: 12, source_type: citation, source: "Estrella & Mishkin (1998)"}
+    - {name: sahm_threshold_pp, value: 0.30, source_type: convention, source: "our lower trigger; the published rule is 0.50"}
+    endpoint:
+      type: lexicographic_recession
+      statistic: "L3 median signal date vs NBER peak, subject to L1 and L2 non-inferiority"
+      comparator: Sahm rule at 0.50 pp alone
+      params: {recall_window_pre_peak_months: 12, recall_window_post_peak_months: 6, comparator_sahm_threshold_pp: 0.50}
+    label_horizon_months: 12
+    purge_months: 12
+    pass_rule:
+      margin: 2
+      margin_unit: "months earlier (median) than the 0.50 rule"
+      test: exact_sign_test
+      alpha: 0.05
+      guardrail: "L1 recall non-inferior; L2 false alarms <= comparator (exact McNemar not rejecting at 0.05)"
+    min_events: 6
+    event_def: recessions with all members observable in real time for 24 months before the peak
+# ---------------------------------------------------------------------
 - id: D1-13
   direction: 1
   family: F-REC
-  title: Housing then labour (permits fall, then unemployment rises)
-  status: confirmatory
+  status: exploratory
+  title: Permits fall, then unemployment rises
   use_case: U4
-  members: ["PERMIT YoY < 0|first link|vintage", "Sahm gap >= 0.30 pp within 12 months after the first link|second link|vintage"]
-  assets: NBER recession months (label)
-  combination: R4 sequencing (one window, 12 months)
-  label_horizon_months: 0
-  purge_months: 0
-  <<: *u4lex
-  comparator: Standard Sahm rule (0.50 pp) alone
-  baselines:
-    B1: "yes: constant base-rate classifier"
-    B2a: "yes: Sahm 0.50 alone; permits alone"
-    B3: "yes: equal-weight z of (-permit YoY, Sahm gap) > 0"
-    B4: "yes: S&P 500 below its 10-month SMA"
+  members:
+    permit: {series: PERMIT, track: vintage, role: first link (YoY < 0)}
+    sahm: {series: UNRATE, track: vintage, role: second link (Sahm gap)}
+    nber: {series: NBER, track: label, role: recession label}
+  baselines: *bl_u4
   null_design: N1 joint panel shift; N2 random first-link member from another block
-  validation: {primary: "V-S; V-C", supporting: "LORO (PERMIT vintages from 1999: 2001, 2008 only)", descriptive: "V-D"}
-  correction: family F-REC
-  n_hypotheses: 1
-  hypotheses: ["permits YoY<0 then Sahm>=0.30 within 12 m"]
+  validation: {primary: "LORO (V-A + V-B)", supporting: "V-S when acquired", descriptive: "V-D"}
   uses_fleet_winners: false
   influenced_by: [none]
-  feasibility: "M: only 2 historical PIT recessions; V-S carries the test"
+  provenance: {label: exploratory, designer_knowledge: "Leamer (2007) ordering; 0.30 pp trigger and 12-month window are our conventions", frozen: "2026-10-17 (rev3)"}
+  feasibility: "M: PERMIT vintages from 1999 give only 2001 and 2008"
   priority: P2
   rank: null
+  hypotheses:
+  - hid: D1-13.H1
+    status: exploratory
+    family: F-REC
+    asset: NBER recession months
+    members: [permit, sahm, nber]
+    rule: "permits YoY < 0, then Sahm gap >= 0.30 pp within 12 months"
+    parameters:
+    - {name: permit_yoy_threshold, value: 0.0, source_type: natural, source: zero threshold on YoY change}
+    - {name: chain_window_months, value: 12, source_type: convention, source: our choice}
+    - {name: sahm_threshold_pp, value: 0.30, source_type: convention, source: "our lower trigger; the published rule is 0.50"}
+    endpoint:
+      type: lexicographic_recession
+      statistic: "L3 median signal date vs NBER peak, subject to L1 and L2 non-inferiority"
+      comparator: Sahm rule at 0.50 pp alone
+      params: {recall_window_pre_peak_months: 12, recall_window_post_peak_months: 6, comparator_sahm_threshold_pp: 0.50}
+    label_horizon_months: 12
+    purge_months: 12
+    pass_rule: {margin: 2, margin_unit: months earlier than the 0.50 rule, test: exact_sign_test, alpha: 0.05, guardrail: L1 and L2 non-inferior}
+    min_events: 6
+    event_def: recessions with all members observable in real time
+# ---------------------------------------------------------------------
 - id: D1-27
   direction: 1
   family: F-REC
-  title: Real-time recession-probability horse race (added from cross-model review, Codex Q1)
   status: confirmatory
+  title: Real-time recession-probability horse race (Codex Q1)
   use_case: U4
-  members: ["T10Y3M (monthly average GS10 - TB3MS before 1982)|core predictor|market",
-            "credit spread: HY-IG OAS; Moody's Baa - Aaa before 1997|added predictor|market",
-            "Sahm gap, continuous (the standard Sahm rule triggers at 0.50 pp)|added predictor|vintage", "PERMIT YoY|added predictor|vintage"]
-  assets: NBER recession within the next 12 months (label)
-  combination: R3 estimated composite (expanding-window probit)
-  label_horizon_months: 12
-  purge_months: 12
-  primary_endpoint: Brier skill score (BSS) of the 12-month-ahead recession probability vs the term-spread-only probit
-  pass_rule: >-
-    BSS >= 0.10 AND log score better in >= 70% of held-out recession episodes; calibration guardrail: reliability
-    slope in [0.7, 1.3]; family-adjusted p <= 0.05 (block-bootstrap Diebold-Mariano on the Brier difference)
-  min_events: 6
-  event_def: recessions in the evaluation data with all members observable in real time (V-S >= 8)
-  comparator: Term-spread-only probit (Estrella & Mishkin 1998)
-  baselines:
-    B1: "yes: constant base-rate probability"
-    B2a: "yes: best single-predictor probit chosen on the training folds"
-    B3: "yes: equal-weight z-score composite mapped by a one-parameter probit"
-    B4: "yes: probit on the S&P 500 10-month-SMA flag"
+  members:
+    term: {series: T10Y3M, track: market, role: "core predictor (GS10 - TB3MS monthly before 1982)"}
+    credit: {series: HY_IG_OAS, track: market, role: "added predictor (Moody's Baa - Aaa before 1997)"}
+    sahm: {series: UNRATE, track: vintage, role: added predictor (Sahm gap, continuous)}
+    permit: {series: PERMIT, track: vintage, role: added predictor (YoY)}
+    nber: {series: NBER, track: label, role: recession within 12 months}
+  baselines: *bl_u4
   null_design: N1 joint panel shift; N2 random added predictor
   validation: {primary: "V-S; V-C", supporting: "LORO over historical recessions (expanding fits, frozen)", descriptive: "V-D"}
-  correction: family F-REC
-  n_hypotheses: 3
-  hypotheses: ["term + credit", "term + Sahm gap", "term + credit + Sahm gap + permits"]
   uses_fleet_winners: false
   influenced_by: [none]
-  feasibility: "M: market and vintage members exist; G13, G14, G16 widen the event count"
+  provenance:
+    label: discovery-informed prospective confirmation
+    designer_knowledge: "Predictor set from the literature (term: Estrella & Mishkin 1998; credit: Gilchrist & Zakrajsek 2012; labour: Sahm 2019; housing: Leamer 2007); the credit-proxy splice at 1997 is a data-availability choice, disclosed"
+    frozen: "2026-10-17 (rev3)"
+  feasibility: "M: G13, G14, G16 widen the event count"
   priority: P1
   rank: 2
+  hypotheses:
+  - hid: D1-27.H1
+    status: confirmatory
+    family: F-REC
+    asset: NBER recession within 12 months
+    members: [term, credit, nber]
+    rule: expanding-window probit, term + credit
+    parameters: &d127p
+    - {name: forecast_horizon_months, value: 12, source_type: citation, source: "Estrella & Mishkin (1998)"}
+    - {name: predictors_in_levels, value: 1, source_type: natural, source: levels / YoY / published Sahm gap, no thresholds}
+    - {name: estimation_window, value: expanding, source_type: natural, source: expanding real-time estimation}
+    endpoint: &d127e
+      type: brier_skill
+      statistic: Brier skill score vs the term-spread-only probit
+      comparator: term-only probit
+      params: {forecast_horizon_months: 12}
+    label_horizon_months: 12
+    purge_months: 12
+    pass_rule: &d127r
+      margin: 0.10
+      margin_unit: Brier skill score
+      test: diebold_mariano_block_bootstrap
+      alpha: 0.05
+      guardrail: "log score better in >= 70% of held-out recessions; reliability slope in [0.7, 1.3]"
+    min_events: 6
+    event_def: recessions in the evaluation data (V-S >= 8)
+  - hid: D1-27.H2
+    status: confirmatory
+    family: F-REC
+    asset: NBER recession within 12 months
+    members: [term, sahm, nber]
+    rule: expanding-window probit, term + Sahm gap
+    parameters: *d127p
+    endpoint: *d127e
+    label_horizon_months: 12
+    purge_months: 12
+    pass_rule: *d127r
+    min_events: 6
+    event_def: recessions in the evaluation data (V-S >= 8)
+  - hid: D1-27.H3
+    status: confirmatory
+    family: F-REC
+    asset: NBER recession within 12 months
+    members: [term, credit, sahm, permit, nber]
+    rule: expanding-window probit, term + credit + Sahm gap + permits YoY
+    parameters: *d127p
+    endpoint: *d127e
+    label_horizon_months: 12
+    purge_months: 12
+    pass_rule: *d127r
+    min_events: 6
+    event_def: recessions in the evaluation data (V-S >= 8)
+# ---------------------------------------------------------------------
 - id: D1-23
   direction: 1
   family: F-REC
-  title: Recession probability as an equity overlay (w = 1 - P)
   status: exploratory
+  title: Recession probability as an equity overlay (w = 1 - P)
   use_case: U1
-  members: ["D1-27 full model probability|sizing|derived"]
-  assets: SPY
-  combination: R3 + R6 sizing
-  label_horizon_months: 12
-  purge_months: 12
-  <<: *u1
-  comparator: D1-02 binary overlay, B2a, B3
-  baselines:
-    B1: "yes: buy-and-hold SPY"
-    B2a: "yes: term-only probit overlay"
-    B3: "yes: equal-weight z composite overlay"
-    B4: "yes: 10-month SMA overlay"
+  members:
+    prob: {series: DERIVED, track: derived, role: D1-27.H3 probability}
+  baselines: *bl_u1
   null_design: N1 joint panel shift
   validation: {primary: "V-A", supporting: "V-B (needs G5)", descriptive: "V-D"}
-  correction: family F-REC (exploratory)
-  n_hypotheses: 1
-  hypotheses: ["w = 1 - P(recession) on SPY"]
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance: {label: exploratory, designer_knowledge: secondary translation of D1-27, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
-# ---------------------------------------------------------------- F-STATE
+  hypotheses:
+  - hid: D1-23.H1
+    status: exploratory
+    family: F-REC
+    asset: SPY
+    members: [prob]
+    rule: w = 1 - P(recession within 12 months)
+    parameters: [{name: sizing_map, value: linear, source_type: natural, source: "w = 1 - P"}]
+    endpoint: {type: cvar_overlay, statistic: relative CVaR(5%) reduction, comparator: "D1-02 binary overlay, B2a, B3", params: {return_horizon_months: 1, model_label_horizon_months: 12}}
+    label_horizon_months: 12
+    purge_months: 12
+    pass_rule: *pr_cvar
+    <<: *ev_dd
+# ===================================================================== F-STATE
 - id: D1-04
   direction: 1
   family: F-STATE
+  status: exploratory
   title: Do new orders matter more when credit is stressed?
-  status: confirmatory
   use_case: U1
-  members: ["NEWORDER YoY sign (bull if > 0)|signal|vintage",
-            "HY-IG OAS above its expanding-window 80th percentile|regime|market",
-            "ISM manufacturing 1m change sign (variant)|signal|snapshot_forward"]
-  assets: SPY
-  combination: R2 filter tested as a signal x regime interaction
-  label_horizon_months: 1
-  purge_months: 1
-  <<: *interaction
-  comparator: Unconditional signal (b only)
-  baselines:
-    B1: "yes: buy-and-hold SPY (overlay form reported)"
-    B2a: "yes: NEWORDER rule unconditional"
-    B3: "yes: equal-weight z of (orders, -credit) overlay"
-    B4: "yes: 10-month SMA overlay"
+  members:
+    orders: {series: NEWORDER, track: vintage, role: "signal: YoY sign"}
+    stress: {series: HY_IG_OAS, track: market, role: "regime: above its expanding 80th percentile"}
+    ism: {series: ISM_MFG, track: revised, role: "variant signal: 1m change sign"}
+  baselines: *bl_u1
   null_design: N1 joint panel shift; N2 random regime of equal frequency
-  validation: {primary: "V-C; V-S where credit spreads exist", supporting: "V-A", descriptive: "V-D"}
-  correction: family F-STATE
-  n_hypotheses: 2
-  hypotheses: ["NEWORDER x HY-IG stress (confirmatory)", "ISM x HY-IG stress (exploratory: ISM historically revised-only)"]
+  validation: {primary: "V-A", supporting: "V-B for NEWORDER from 1997 (none before)", descriptive: "V-D"}
   uses_fleet_winners: false
   influenced_by: [none]
-  feasibility: "H, but V-C needs >= 5 stress episodes, likely many years"
+  provenance: {label: exploratory, designer_knowledge: "the 80th-percentile stress cut is our convention (rev3 demotion)", frozen: "2026-10-17 (rev3)"}
+  feasibility: H
   priority: P1
-  rank: 5
+  rank: 7
+  hypotheses:
+  - hid: D1-04.H1
+    status: exploratory
+    family: F-STATE
+    asset: SPY
+    members: [orders, stress]
+    rule: NEWORDER YoY sign x 1{HY-IG OAS > expanding 80th percentile}
+    parameters:
+    - {name: signal_threshold, value: 0.0, source_type: natural, source: YoY sign}
+    - {name: stress_percentile, value: 0.80, source_type: convention, source: our choice}
+    endpoint: *inter1
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: *pr_inter
+    <<: *ev_reg
+  - hid: D1-04.H2
+    status: exploratory
+    family: F-STATE
+    asset: SPY
+    members: [ism, stress]
+    rule: ISM 1m change sign x the same stress regime
+    parameters:
+    - {name: signal_threshold, value: 0.0, source_type: natural, source: sign}
+    - {name: stress_percentile, value: 0.80, source_type: convention, source: our choice}
+    endpoint: *inter1
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: *pr_inter
+    <<: *ev_reg
+# ---------------------------------------------------------------------
 - id: D1-17
   direction: 1
   family: F-STATE
-  title: Market stress vs slow macro, false alarm or early warning
   status: exploratory
+  title: Market stress without macro weakness, false alarm or early warning?
   use_case: U5
-  members: ["market stress: HY-IG z(252d) > 1 or VIX/VIX3M >= 1|regime|market",
-            "macro weak: ISM < 50 or UNRATE 6m change > 0|signal|revised"]
-  assets: SPY
-  combination: R5 divergence tested as an interaction
-  label_horizon_months: 3
-  purge_months: 3
-  primary_endpoint: Interaction d on next-3-month SPY return (market-stress x macro-weak)
-  pass_rule: >-
-    d < 0 with |d| >= 1.5 pp per quarter, HAC (lag 6) and stationary-bootstrap p <= 0.05 (family-adjusted)
-  min_events: 5
-  event_def: distinct market-stress episodes
-  comparator: Market-stress-only rule
-  baselines:
-    B1: "yes: buy-and-hold"
-    B2a: "yes: market-stress rule alone"
-    B3: "yes: equal-weight market + macro composite"
-    B4: "yes: 10-month SMA"
+  members:
+    hyig: {series: HY_IG_OAS, track: market, role: "stress if z(252d) > 1"}
+    vix: {series: VIX3M, track: market, role: "stress if VIX/VIX3M >= 1"}
+    ism: {series: ISM_MFG, track: revised, role: "macro weak if < 50"}
+    unrate: {series: UNRATE, track: revised, role: "macro weak if 6m change > 0"}
+  baselines: *bl_u1
   null_design: N1; N2 random macro member
   validation: {primary: "V-A", supporting: "none (VIX3M from 2007)", descriptive: "V-D"}
-  correction: family F-STATE (exploratory)
-  n_hypotheses: 1
-  hypotheses: ["stress x macro-weak, 3-month horizon"]
   uses_fleet_winners: false
   influenced_by: [viewed_oos]
+  provenance: {label: exploratory, designer_knowledge: VIX-ratio window lies inside the viewed OOS, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
+  hypotheses:
+  - hid: D1-17.H1
+    status: exploratory
+    family: F-STATE
+    asset: SPY
+    members: [hyig, vix, ism, unrate]
+    rule: market-stress x macro-weak interaction, 3-month horizon
+    parameters: [{name: stress_z, value: 1.0, source_type: convention, source: our choice}]
+    endpoint: {type: interaction, statistic: d on next-3-month SPY return, comparator: market-stress-only, params: {return_horizon_months: 3}}
+    label_horizon_months: 3
+    purge_months: 3
+    pass_rule: {margin: 1.5, margin_unit: "pp per quarter, sign d < 0", test: hac_and_stationary_bootstrap, alpha: 0.05}
+    <<: *ev_reg
+# ---------------------------------------------------------------------
 - id: D1-06
   direction: 1
   family: F-STATE
-  title: Monetary regime and the M2 signal
   status: exploratory
+  title: Monetary regime and the M2 signal
   use_case: U2
-  members: ["M2 YoY acceleration sign|signal|vintage", "fed funds 12m change > 0|regime|market"]
-  assets: SPY
-  combination: R2 as interaction
-  label_horizon_months: 1
-  purge_months: 1
-  <<: *interaction
-  comparator: M2 signal unconditional
-  baselines:
-    B1: "yes: static 0.75 equity weight"
-    B2a: "yes: M2 rule alone"
-    B3: "yes: equal-weight z composite"
-    B4: "yes: 10% volatility target"
-  null_design: N1; N3 (the question was prompted by the fleet M2 winner's viewed OOS result)
+  members:
+    m2: {series: M2SL, track: vintage, role: "signal: YoY acceleration sign"}
+    ff: {series: FEDFUNDS, track: market, role: "regime: 12m change > 0"}
+  baselines: *bl_u2
+  null_design: N1; N3 (prompted by the fleet M2 winner's viewed OOS result)
   validation: {primary: "V-A", supporting: "V-B (vintages from 1980)", descriptive: "V-D"}
-  correction: family F-STATE (exploratory)
-  n_hypotheses: 1
-  hypotheses: ["M2 accel x tightening regime"]
   uses_fleet_winners: false
   influenced_by: [viewed_oos]
+  provenance: {label: exploratory, designer_knowledge: prompted by a viewed fleet result, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
+  hypotheses:
+  - hid: D1-06.H1
+    status: exploratory
+    family: F-STATE
+    asset: SPY
+    members: [m2, ff]
+    rule: M2 YoY acceleration sign x tightening regime
+    parameters: [{name: regime_threshold, value: 0.0, source_type: natural, source: sign of 12m change}]
+    endpoint: *inter1
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: *pr_inter
+    <<: *ev_reg
+# ---------------------------------------------------------------------
 - id: D1-30
   direction: 1
   family: F-STATE
-  title: Filtered Markov switching with term/credit-driven transitions (added from Codex Q5)
   status: exploratory
+  title: Filtered Markov switching with term- and credit-driven transitions (Codex Q5)
   use_case: U1
-  members: ["2-regime MS model of SPY excess returns, IS-frozen, filtered probabilities|regime|derived",
-            "T10Y3M and HY-IG in the transition probabilities|transition drivers|market"]
-  assets: SPY
-  combination: R2 (model-based regime)
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: Out-of-fold mean log predictive density gain per month vs the fixed-transition MS model
-  pass_rule: >-
-    gain >= 0.02 nats per month vs fixed-transition MS AND vs the D1-04 linear interaction model;
-    block-bootstrap p <= 0.05 (family-adjusted)
-  min_events: 5
-  event_def: distinct high-volatility regime episodes (filtered P > 0.5 for >= 2 months)
-  comparator: Fixed-transition MS; linear interaction
-  baselines:
-    B1: "yes: buy-and-hold overlay form"
-    B2a: "yes: fixed-transition MS (single-model best)"
-    B3: "yes: equal-weight term/credit stress dummy"
-    B4: "yes: 10-month SMA"
-  null_design: N1 (regime refit inside each draw, harness regime.py)
-  validation: {primary: "V-A", supporting: "V-B (Baa-Aaa credit proxy, G16)", descriptive: "V-D"}
-  correction: family F-STATE (exploratory)
-  n_hypotheses: 2
-  hypotheses: ["TVTP vs fixed MS", "TVTP vs linear interaction"]
+  members:
+    ms: {series: DERIVED, track: derived, role: 2-regime MS model of SPY excess returns, IS-frozen, filtered}
+    term: {series: T10Y3M, track: market, role: transition driver}
+    credit: {series: HY_IG_OAS, track: market, role: transition driver}
+  baselines: *bl_u1
+  null_design: N1 (regime refit inside each draw)
+  validation: {primary: "V-A", supporting: "V-B (Baa - Aaa proxy, G16)", descriptive: "V-D"}
   uses_fleet_winners: false
   influenced_by: [none]
-  feasibility: "M: compute and few regime switches"
+  provenance: {label: exploratory, designer_knowledge: model class from Hamilton (1989) / Filardo (1994) TVTP, frozen: "2026-10-17 (rev3)"}
+  feasibility: "M: compute; few regime switches"
   priority: P3
   rank: null
-# ---------------------------------------------------------------- F-TC
+  hypotheses:
+  - hid: D1-30.H1
+    status: exploratory
+    family: F-STATE
+    asset: SPY
+    members: [ms, term, credit]
+    rule: TVTP-MS vs fixed-transition MS
+    parameters: [{name: n_regimes, value: 2, source_type: citation, source: "Hamilton (1989)"}]
+    endpoint: &d130e {type: log_score, statistic: out-of-fold mean log predictive density gain per month, comparator: fixed-transition MS, params: {return_horizon_months: 1}}
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: &d130r {margin: 0.02, margin_unit: nats per month, test: stationary_bootstrap, alpha: 0.05}
+    min_events: 5
+    event_def: distinct high-volatility regime episodes
+  - hid: D1-30.H2
+    status: exploratory
+    family: F-STATE
+    asset: SPY
+    members: [ms, term, credit]
+    rule: TVTP-MS vs the D1-04-style linear interaction
+    parameters: [{name: n_regimes, value: 2, source_type: citation, source: "Hamilton (1989)"}]
+    endpoint: {type: log_score, statistic: out-of-fold mean log predictive density gain per month, comparator: linear interaction model, params: {return_horizon_months: 1}}
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: *d130r
+    min_events: 5
+    event_def: distinct high-volatility regime episodes
+# ===================================================================== F-TC
 - id: D1-05
   direction: 1
   family: F-TC
-  title: Do term and credit spreads carry complementary information? (absorbs Codex Q2)
   status: confirmatory
+  title: Do term and credit spreads carry complementary information? (absorbs Codex Q2)
   use_case: U1
-  members: ["T10Y3M|signal|market", "HY-IG OAS 6m change (Baa-Aaa before 1997)|regime|market"]
-  assets: SPY (confirmatory); 10-year Treasury return proxy (exploratory, G6)
-  combination: R2 as interaction, plus a joint-distress state
-  label_horizon_months: 1
-  purge_months: 1
-  <<: *interaction
-  comparator: Additive model (b, c only)
-  baselines:
-    B1: "yes: buy-and-hold"
-    B2a: "yes: best of term-only / credit-only, chosen on training folds"
-    B3: "yes: equal-weight z of (-T10Y3M, HY-IG 6m change) overlay"
-    B4: "yes: 10-month SMA"
+  members:
+    term: {series: T10Y3M, track: market, role: signal (level)}
+    credit: {series: HY_IG_OAS, track: market, role: "regime / signal (level; Baa - Aaa before 1997)"}
+  baselines: *bl_u1
   null_design: N1 joint shift of both spreads; N2 random second market member
-  validation: {primary: "V-C", supporting: "V-A; V-B (Baa-Aaa proxy)", descriptive: "V-D"}
-  correction: family F-TC
-  n_hypotheses: 4
-  hypotheses: ["SPY: linear term x credit interaction (d < 0) [confirmatory]",
-               "SPY: joint distress dummy 1{T10Y3M<0.5}*1{credit widening} beyond additive dummies [confirmatory]",
-               "Treasury proxy: linear interaction [exploratory]", "Treasury proxy: joint distress [exploratory]"]
+  validation: {primary: "V-C", supporting: "V-A; V-B (Baa - Aaa proxy)", descriptive: "V-D"}
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance:
+    label: discovery-informed prospective confirmation
+    designer_knowledge: "Revision 1 framed this around the viewed fleet t10y3m rule; revision 3 keeps as confirmatory only the parameter-free level x level interaction"
+    frozen: "2026-10-17 (rev3)"
   feasibility: H
   priority: P1
-  rank: 4
-# ---------------------------------------------------------------- F-FCI
+  rank: 3
+  hypotheses:
+  - hid: D1-05.H1
+    status: confirmatory
+    family: F-TC
+    asset: SPY
+    members: [term, credit]
+    rule: linear interaction of T10Y3M level and HY-IG OAS level (both standardised on expanding windows)
+    parameters:
+    - {name: transforms, value: levels, source_type: citation, source: "Estrella & Mishkin (1998) term level; Gilchrist & Zakrajsek (2012) spread level"}
+    - {name: standardisation, value: expanding, source_type: natural, source: expanding z-score}
+    endpoint: {type: interaction, statistic: "coefficient on term x credit in r(t+1) = a + b*term + c*credit + d*term*credit", comparator: additive model, params: {return_horizon_months: 1}}
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: {margin: 0.25, margin_unit: "pp per month per 1-s.d. x 1-s.d., sign d < 0 (flat curve with wide spreads worse)", test: hac_and_stationary_bootstrap, alpha: 0.05}
+    <<: *ev_reg
+  - hid: D1-05.H2
+    status: exploratory
+    family: F-TC
+    asset: SPY
+    members: [term, credit]
+    rule: joint distress dummy 1{T10Y3M < 0.5 pp} x 1{HY-IG 6m change > 0} beyond additive dummies
+    parameters:
+    - {name: curve_flat_pp, value: 0.5, source_type: convention, source: our choice}
+    - {name: credit_change_months, value: 6, source_type: convention, source: our choice}
+    endpoint: *inter1
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: *pr_inter
+    <<: *ev_reg
+  - hid: D1-05.H3
+    status: exploratory
+    family: F-TC
+    asset: 10-year Treasury return proxy from DGS10 (G6)
+    members: [term, credit]
+    rule: linear level x level interaction
+    parameters: [{name: transforms, value: levels, source_type: citation, source: "Estrella & Mishkin (1998); Gilchrist & Zakrajsek (2012)"}]
+    endpoint: {type: interaction, statistic: "coefficient on term x credit for next-month Treasury proxy excess return", comparator: additive model, params: {return_horizon_months: 1}}
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: {margin: 0.10, margin_unit: "pp per month per 1-s.d. x 1-s.d., sign d > 0 (flight to quality)", test: hac_and_stationary_bootstrap, alpha: 0.05}
+    <<: *ev_reg
+  - hid: D1-05.H4
+    status: exploratory
+    family: F-TC
+    asset: 10-year Treasury return proxy from DGS10 (G6)
+    members: [term, credit]
+    rule: joint distress dummy on Treasury proxy returns
+    parameters:
+    - {name: curve_flat_pp, value: 0.5, source_type: convention, source: our choice}
+    - {name: credit_change_months, value: 6, source_type: convention, source: our choice}
+    endpoint: {type: interaction, statistic: joint-distress coefficient on next-month Treasury proxy excess return, comparator: additive dummies, params: {return_horizon_months: 1}}
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: {margin: 0.20, margin_unit: "pp per month, sign > 0", test: hac_and_stationary_bootstrap, alpha: 0.05}
+    <<: *ev_reg
+# ===================================================================== F-FCI
 - id: D1-28
   direction: 1
   family: F-FCI
-  title: Point-in-time financial-conditions index vs a published FCI (added from Codex Q3)
   status: confirmatory
+  title: Point-in-time financial-conditions index vs a published FCI (Codex Q3)
   use_case: U1
-  members: ["T10Y3M|rates|market", "HY-IG OAS (Baa-Aaa before 1997)|credit|market", "VIX|volatility|market",
-            "share of S&P 500 sectors above their 10-month SMA|breadth|market"]
-  assets: SPY
-  combination: R3 composite
-  label_horizon_months: 1
-  purge_months: 1
-  <<: *u1
-  comparator: Chicago Fed NFCI as published (ALFRED vintages, G15) and B3
-  baselines:
-    B1: "yes: buy-and-hold"
-    B2a: "yes: best single member overlay on training folds"
-    B3: "yes: the equal-weight PIT FCI itself is B3 for the PCA-weighted hypothesis"
-    B4: "yes: 10-month SMA"
+  members:
+    term: {series: T10Y3M, track: market, role: rates}
+    credit: {series: HY_IG_OAS, track: market, role: "credit (Baa - Aaa before 1997)"}
+    vol: {series: VIX, track: market, role: volatility}
+    breadth: {series: SPX_SECTOR_INDICES, track: market, role: share of S&P 500 sectors above their 10-month SMA}
+    nfci: {series: NFCI, track: vintage, pending_gap: G15, role: "published benchmark (ALFRED vintages, to be pulled: G15)"}
+  baselines: *bl_u1
   null_design: N1 joint panel shift
-  validation: {primary: "V-C", supporting: "V-A; V-B (VIX 1990+, breadth 1989+, Baa-Aaa)", descriptive: "V-D"}
-  correction: family F-FCI
-  n_hypotheses: 2
-  hypotheses: ["equal-weight PIT FCI overlay vs NFCI-vintage overlay", "real-time PCA-weighted FCI vs equal-weight PIT FCI"]
+  validation: {primary: "V-C", supporting: "V-A; V-B (VIX 1990+, breadth 1989+, Baa - Aaa)", descriptive: "V-D"}
   uses_fleet_winners: false
   influenced_by: [none]
-  feasibility: "M: G15 (NFCI vintages)"
+  provenance:
+    label: discovery-informed prospective confirmation
+    designer_knowledge: "Member set follows standard FCI construction (rates, credit, volatility, equity); no project return series read"
+    frozen: "2026-10-17 (rev3)"
+  feasibility: "M: needs G15 (NFCI vintages; the gate accepts the missing file only while pending_gap is set)"
   priority: P1
-  rank: 6
-# ---------------------------------------------------------------- F-RISKOFF
+  rank: 4
+  hypotheses:
+  - hid: D1-28.H1
+    status: confirmatory
+    family: F-FCI
+    asset: SPY
+    members: [term, credit, vol, breadth, nfci]
+    rule: equal-weight expanding-z PIT FCI overlay (exit when FCI > 0) vs the same overlay on the as-published NFCI
+    parameters:
+    - {name: weights, value: equal, source_type: citation, source: "Timmermann (2006): equal-weight combination"}
+    - {name: breadth_sma_months, value: 10, source_type: citation, source: "Faber (2007)"}
+    - {name: overlay_threshold, value: 0.0, source_type: natural, source: z-composite sign}
+    endpoint: {type: cvar_overlay, statistic: relative reduction in monthly CVaR(5%), comparator: NFCI-vintage overlay and B3, params: {return_horizon_months: 1}}
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: *pr_cvar
+    <<: *ev_dd
+  - hid: D1-28.H2
+    status: confirmatory
+    family: F-FCI
+    asset: SPY
+    members: [term, credit, vol, breadth]
+    rule: real-time PC1-weighted FCI overlay vs the equal-weight PIT FCI overlay
+    parameters:
+    - {name: weights, value: real-time PC1, source_type: citation, source: "Stock & Watson (2002)"}
+    - {name: overlay_threshold, value: 0.0, source_type: natural, source: factor sign}
+    endpoint: {type: cvar_overlay, statistic: relative reduction in monthly CVaR(5%), comparator: equal-weight PIT FCI overlay, params: {return_horizon_months: 1}}
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: {margin: 0.10, margin_unit: relative CVaR reduction, test: stationary_bootstrap, alpha: 0.05, guardrail: return shortfall vs B1 <= 2.0 pp}
+    <<: *ev_dd
+# ===================================================================== F-RISKOFF
 - id: D1-01
   direction: 1
   family: F-RISKOFF
-  title: Housing contraction confirmed by credit widening
   status: confirmatory
+  title: Housing contraction confirmed by credit
   use_case: U1
-  members: ["PERMIT YoY < 0|cycle lead|vintage", "HY-IG OAS 6m change > 0|confirmation|market",
-            "SLOOS net tightening > 0 (variant)|confirmation|vintage"]
-  assets: SPY
-  combination: R1 AND (2-of-2)
-  label_horizon_months: 1
-  purge_months: 1
-  <<: *u1
-  comparator: B2a, B3
-  baselines:
-    B1: "yes: buy-and-hold SPY"
-    B2a: "yes: each member alone, best chosen on training folds"
-    B3: "yes: equal-weight z composite of the two members"
-    B4: "yes: 10-month SMA"
+  members:
+    permit: {series: PERMIT, track: vintage, role: cycle lead (YoY < 0)}
+    hyig: {series: HY_IG_OAS, track: market, role: confirmation (YoY change > 0)}
+    sloos: {series: DRTSCILM, track: vintage, role: "confirmation variant (net tightening > 0; vintages from 2010)"}
+  baselines: *bl_u1
   null_design: N1 joint panel shift; N2 random members from other blocks
   validation: {primary: "V-C", supporting: "V-A (2000-2016)", descriptive: "V-D"}
-  correction: family F-RISKOFF
-  n_hypotheses: 2
-  hypotheses: ["permits AND HY-IG widening", "permits AND SLOOS tightening"]
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance:
+    label: discovery-informed prospective confirmation
+    designer_knowledge: "Revision 1 used a z > 1 cut and a 6-month change; revision 3 uses zero thresholds on year-over-year changes and on SLOOS net tightening only"
+    frozen: "2026-10-17 (rev3)"
   feasibility: H
   priority: P1
-  rank: 8
+  rank: 5
+  hypotheses:
+  - hid: D1-01.H1
+    status: confirmatory
+    family: F-RISKOFF
+    asset: SPY
+    members: [permit, hyig]
+    rule: cash when permits YoY < 0 AND HY-IG OAS YoY change > 0
+    parameters:
+    - {name: permit_yoy_threshold, value: 0.0, source_type: natural, source: zero threshold on YoY}
+    - {name: credit_yoy_change_threshold, value: 0.0, source_type: natural, source: zero threshold on YoY change}
+    endpoint: *cvar1
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: *pr_cvar
+    <<: *ev_dd
+  - hid: D1-01.H2
+    status: confirmatory
+    family: F-RISKOFF
+    asset: SPY
+    members: [permit, sloos]
+    rule: cash when permits YoY < 0 AND SLOOS net tightening > 0
+    parameters:
+    - {name: permit_yoy_threshold, value: 0.0, source_type: natural, source: zero threshold on YoY}
+    - {name: sloos_threshold, value: 0.0, source_type: citation, source: "Lown & Morgan (2006): net percentage tightening; zero = no net change"}
+    endpoint: *cvar1
+    label_horizon_months: 1
+    purge_months: 1
+    pass_rule: *pr_cvar
+    <<: *ev_dd
+# ---------------------------------------------------------------------
 - id: D1-12
   direction: 1
   family: F-RISKOFF
-  title: Credit then manufacturing chain
   status: exploratory
+  title: Credit, then manufacturing
   use_case: U1
-  members: ["SLOOS net tightening > 20 (a priori threshold, no published source: flagged ad hoc) or HY OAS 6m widening|first link|vintage / market",
-            "ISM manufacturing < 50 within w months|second link|revised"]
-  assets: SPY
-  combination: R4 sequencing (order fixed by theory; registered regardless of D1-15)
-  label_horizon_months: 1
-  purge_months: 1
-  <<: *u1
-  comparator: each link alone; simultaneous AND
-  baselines:
-    B1: "yes: buy-and-hold"
-    B2a: "yes: each link alone"
-    B3: "yes: simultaneous AND / equal-weight composite"
-    B4: "yes: 10-month SMA"
+  members:
+    sloos: {series: DRTSCILM, track: revised, role: "first link: net tightening > 20 (ad hoc)"}
+    hy: {series: HY_OAS, track: market, role: "first link: 6m widening"}
+    ism: {series: ISM_MFG, track: revised, role: "second link: < 50 within w months"}
+  baselines: *bl_u1
   null_design: N1; N2 random order of links
-  validation: {primary: "V-A", supporting: "V-B (revised ISM: exploratory only)", descriptive: "V-D"}
-  correction: family F-RISKOFF (exploratory)
-  n_hypotheses: 6
-  hypotheses: ["SLOOS->ISM w3", "SLOOS->ISM w6", "SLOOS->ISM w9", "HY->ISM w3", "HY->ISM w6", "HY->ISM w9"]
+  validation: {primary: "V-A", supporting: "V-B (revised ISM; exploratory)", descriptive: "V-D"}
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance: {label: exploratory, designer_knowledge: "order from theory; registered regardless of D1-15", frozen: "2026-10-17 (rev3)"}
   feasibility: M
   priority: P2
   rank: null
-# ---------------------------------------------------------------- F-REENTRY
+  hypotheses:
+  - {hid: D1-12.H1, status: exploratory, family: F-RISKOFF, asset: SPY, members: [sloos, ism], rule: "SLOOS -> ISM, w = 3", parameters: [{name: w, value: 3, source_type: convention, source: grid}], endpoint: *cvar1, label_horizon_months: 1, purge_months: 1, pass_rule: *pr_cvar, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-12.H2, status: exploratory, family: F-RISKOFF, asset: SPY, members: [sloos, ism], rule: "SLOOS -> ISM, w = 6", parameters: [{name: w, value: 6, source_type: convention, source: grid}], endpoint: *cvar1, label_horizon_months: 1, purge_months: 1, pass_rule: *pr_cvar, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-12.H3, status: exploratory, family: F-RISKOFF, asset: SPY, members: [sloos, ism], rule: "SLOOS -> ISM, w = 9", parameters: [{name: w, value: 9, source_type: convention, source: grid}], endpoint: *cvar1, label_horizon_months: 1, purge_months: 1, pass_rule: *pr_cvar, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-12.H4, status: exploratory, family: F-RISKOFF, asset: SPY, members: [hy, ism], rule: "HY -> ISM, w = 3", parameters: [{name: w, value: 3, source_type: convention, source: grid}], endpoint: *cvar1, label_horizon_months: 1, purge_months: 1, pass_rule: *pr_cvar, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-12.H5, status: exploratory, family: F-RISKOFF, asset: SPY, members: [hy, ism], rule: "HY -> ISM, w = 6", parameters: [{name: w, value: 6, source_type: convention, source: grid}], endpoint: *cvar1, label_horizon_months: 1, purge_months: 1, pass_rule: *pr_cvar, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-12.H6, status: exploratory, family: F-RISKOFF, asset: SPY, members: [hy, ism], rule: "HY -> ISM, w = 9", parameters: [{name: w, value: 9, source_type: convention, source: grid}], endpoint: *cvar1, label_horizon_months: 1, purge_months: 1, pass_rule: *pr_cvar, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+# ===================================================================== F-REENTRY
 - id: D1-14
   direction: 1
   family: F-REENTRY
+  status: exploratory
   title: Re-entry after a risk-off exit by a 2-of-3 early-cycle vote
-  status: confirmatory
   use_case: U5
-  members: ["T10Y3M 3m change > +0.50 pp|re-entry vote|market", "NEWORDER YoY rising 2 consecutive releases|re-entry vote|vintage",
-            "HY-IG OAS 63-day change < 0|re-entry vote|market", "exit rule fixed: SPY below 10-month SMA|exit|market"]
-  assets: SPY
-  combination: R4 staged exit / re-entry with R1 vote
-  label_horizon_months: 12
-  purge_months: 12
-  primary_endpoint: Missed-rally cost = SPY return between the episode trough and re-entry, averaged over episodes
-  pass_rule: >-
-    mean missed-rally cost reduced by >= 25% vs B4 re-entry AND lower in >= 2/3 of episodes; episode-level
-    sign test plus block-bootstrap p <= 0.05; guardrail: re-entry before the trough in <= 1/3 of episodes
-  min_events: 4
-  event_def: completed exit/re-entry episodes of the fixed exit rule
-  comparator: B4 (re-enter when SPY closes back above its 10-month SMA)
-  baselines:
-    B1: "yes: buy-and-hold"
-    B2a: "yes: re-entry on the best single vote member (training folds)"
-    B3: "yes: re-entry when the equal-weight z of the three members > 0"
-    B4: "yes: 10-month SMA re-entry (primary comparator)"
+  members:
+    term: {series: T10Y3M, track: market, role: "vote: 3m change > +0.50 pp"}
+    orders: {series: NEWORDER, track: vintage, role: "vote: YoY rising 2 consecutive releases"}
+    credit: {series: HY_IG_OAS, track: market, role: "vote: 63-day change < 0"}
+    exit: {series: SPY, track: market, role: "exit: below 10-month SMA (fixed)"}
+  baselines: *bl_u1
   null_design: N2 random re-entry dates matched in count; N1
-  validation: {primary: "V-C; V-S", supporting: "V-A (2002-03, 2009); V-B (1982, 1991; needs G5)", descriptive: "V-D (2020, 2022-23)"}
-  correction: family F-REENTRY
-  n_hypotheses: 1
-  hypotheses: ["2-of-3 vote re-entry vs SMA re-entry"]
+  validation: {primary: "V-A", supporting: "V-B (1982, 1991; needs G5); V-S when acquired", descriptive: "V-D (2020, 2022-23)"}
   uses_fleet_winners: false
   influenced_by: [none]
-  feasibility: "M: few episodes; V-C may stay inconclusive for years"
+  provenance: {label: exploratory, designer_knowledge: "three vote thresholds are conventions (rev3 demotion); only the SMA exit is cited (Faber 2007)", frozen: "2026-10-17 (rev3)"}
+  feasibility: "M: few episodes"
   priority: P1
-  rank: 7
-# ---------------------------------------------------------------- F-COMP
+  rank: 8
+  hypotheses:
+  - hid: D1-14.H1
+    status: exploratory
+    family: F-REENTRY
+    asset: SPY
+    members: [term, orders, credit, exit]
+    rule: re-enter on a 2-of-3 vote; exit fixed at the 10-month SMA
+    parameters:
+    - {name: term_change_pp, value: 0.5, source_type: convention, source: our choice}
+    - {name: orders_consecutive, value: 2, source_type: convention, source: our choice}
+    - {name: credit_window_days, value: 63, source_type: convention, source: our choice}
+    - {name: exit_sma_months, value: 10, source_type: citation, source: "Faber (2007)"}
+    endpoint: {type: missed_rally, statistic: mean SPY return between episode trough and re-entry, comparator: B4 SMA re-entry, params: {measure_window_months: 12}}
+    label_horizon_months: 12
+    purge_months: 12
+    pass_rule: {margin: 0.25, margin_unit: relative reduction in missed-rally cost, test: exact_sign_test, alpha: 0.05, guardrail: "lower in >= 2/3 of episodes; re-entry before the trough in <= 1/3"}
+    min_events: 5
+    event_def: completed exit / re-entry episodes of the fixed exit rule
+# ===================================================================== F-COMP
 - id: D1-08
   direction: 1
   family: F-COMP
-  title: Equal-weight composite of the 8 frozen block representatives vs the best single
   status: exploratory
+  title: Equal-weight composite of the 8 frozen block representatives vs the best single
   use_case: U1
-  members: ["B1 INDPRO YoY|rep|vintage", "B2 PERMIT YoY|rep|vintage", "B3 HY-IG OAS|rep|market", "B4 BUSLOANS YoY|rep|vintage",
-            "B5 UMCSENT|rep|vintage", "B6 gold/copper YoY|rep|market", "B7 M2 YoY|rep|vintage", "B8 VIX|rep|market"]
-  assets: SPY; 9 sector ETFs (total-return series required, G17)
-  combination: R3 composite
-  label_horizon_months: 1
-  purge_months: 1
-  <<: *u1
-  comparator: B2a (and the composite is itself B3)
+  members: &reps
+    b1: {series: INDPRO, track: vintage, role: B1 rep (YoY)}
+    b2: {series: PERMIT, track: vintage, role: B2 rep (YoY)}
+    b3: {series: HY_IG_OAS, track: market, role: B3 rep}
+    b4: {series: BUSLOANS, track: vintage, role: B4 rep (YoY)}
+    b5: {series: UMCSENT, track: vintage, role: B5 rep}
+    b6: {series: GOLD_COPPER, track: market, role: B6 rep (YoY)}
+    b7: {series: M2SL, track: vintage, role: B7 rep (YoY)}
+    b8: {series: VIX, track: market, role: B8 rep}
   baselines:
-    B1: "yes: buy-and-hold"
-    B2a: "yes: best single representative chosen on training folds"
+    B1: "yes: buy-and-hold of the target"
+    B2a: "yes: best single representative on the training folds"
     B3: "n/a: the tested composite IS the naive equal-weight composite"
-    B4: "yes: 10-month SMA"
+    B4: "yes: 10-month SMA overlay"
   null_design: N1; N2 random representatives within the same blocks
   validation: {primary: "V-A", supporting: "V-B (reps with pre-1997 data only)", descriptive: "V-D"}
-  correction: family F-COMP
-  n_hypotheses: 10
-  hypotheses: ["SPY", "XLK", "XLF", "XLV", "XLE", "XLY", "XLI", "XLU", "XLP", "XLB"]
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
-  feasibility: H
+  provenance: {label: exploratory, designer_knowledge: blocks informed by full-sample correlations, frozen: "2026-10-17 (rev3)"}
+  feasibility: "H (sector rows need G17)"
   priority: P1
   rank: 9
+  hypotheses:
+  - {hid: D1-08.H01, status: exploratory, family: F-COMP, asset: SPY, members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: equal-weight composite < 0 -> cash, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: &d108e {type: cvar_overlay, statistic: relative CVaR(5%) reduction, comparator: B2a, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: &d108r {margin: 0.15, margin_unit: relative CVaR reduction vs B2a, test: romano_wolf_stationary_bootstrap, alpha: 0.05}, min_events: 3, event_def: "target drawdowns >= 15%"}
+  - {hid: D1-08.H02, status: exploratory, family: F-COMP, asset: XLK (total return), members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: same composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d108e, label_horizon_months: 1, purge_months: 1, pass_rule: *d108r, min_events: 3, event_def: "target drawdowns >= 15%"}
+  - {hid: D1-08.H03, status: exploratory, family: F-COMP, asset: XLF (total return), members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: same composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d108e, label_horizon_months: 1, purge_months: 1, pass_rule: *d108r, min_events: 3, event_def: "target drawdowns >= 15%"}
+  - {hid: D1-08.H04, status: exploratory, family: F-COMP, asset: XLV (total return), members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: same composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d108e, label_horizon_months: 1, purge_months: 1, pass_rule: *d108r, min_events: 3, event_def: "target drawdowns >= 15%"}
+  - {hid: D1-08.H05, status: exploratory, family: F-COMP, asset: XLE (total return), members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: same composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d108e, label_horizon_months: 1, purge_months: 1, pass_rule: *d108r, min_events: 3, event_def: "target drawdowns >= 15%"}
+  - {hid: D1-08.H06, status: exploratory, family: F-COMP, asset: XLY (total return), members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: same composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d108e, label_horizon_months: 1, purge_months: 1, pass_rule: *d108r, min_events: 3, event_def: "target drawdowns >= 15%"}
+  - {hid: D1-08.H07, status: exploratory, family: F-COMP, asset: XLI (total return), members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: same composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d108e, label_horizon_months: 1, purge_months: 1, pass_rule: *d108r, min_events: 3, event_def: "target drawdowns >= 15%"}
+  - {hid: D1-08.H08, status: exploratory, family: F-COMP, asset: XLU (total return), members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: same composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d108e, label_horizon_months: 1, purge_months: 1, pass_rule: *d108r, min_events: 3, event_def: "target drawdowns >= 15%"}
+  - {hid: D1-08.H09, status: exploratory, family: F-COMP, asset: XLP (total return), members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: same composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d108e, label_horizon_months: 1, purge_months: 1, pass_rule: *d108r, min_events: 3, event_def: "target drawdowns >= 15%"}
+  - {hid: D1-08.H10, status: exploratory, family: F-COMP, asset: XLB (total return), members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: same composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d108e, label_horizon_months: 1, purge_months: 1, pass_rule: *d108r, min_events: 3, event_def: "target drawdowns >= 15%"}
+# ---------------------------------------------------------------------
 - id: D1-10
   direction: 1
   family: F-COMP
-  title: Do estimated weights beat equal weights?
   status: exploratory
+  title: Do estimated weights beat equal weights?
   use_case: U2
-  members: ["the 8 D1-08 representatives|composite members|vintage / market"]
-  assets: SPY
-  combination: R3 estimated vs fixed weights
-  label_horizon_months: 12
-  purge_months: 12
-  primary_endpoint: Relative CVaR(5%) reduction at matched average equity weight vs the equal-weight composite
-  pass_rule: >-
-    CVaR reduction >= 10% vs B3 with Romano-Wolf p <= 0.05 and deflated Sharpe >= 0.95 using N = configurations
-    fitted; guardrail: return shortfall vs static weight <= 1.0 pp
-  min_events: 3
-  event_def: SPY drawdowns >= 15%
-  comparator: B3
-  baselines:
-    B1: "yes: static 0.75 equity weight"
-    B2a: "yes: best single representative"
-    B3: "yes: fixed equal weights (primary comparator)"
-    B4: "yes: 10% volatility target"
+  members: *reps
+  baselines: *bl_u2
   null_design: N1
   validation: {primary: "V-A (nested: weights fitted on inner folds only)", supporting: "PBO by CSCV", descriptive: "V-D"}
-  correction: family F-COMP
-  n_hypotheses: 3
-  hypotheses: ["ridge logit on 12m drawdown events", "real-time PC1", "inverse variance"]
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
+  provenance: {label: exploratory, designer_knowledge: blocks informed by full-sample correlations, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P2
   rank: null
+  hypotheses:
+  - {hid: D1-10.H1, status: exploratory, family: F-COMP, asset: SPY, members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: ridge logit on 12m drawdown events, parameters: [{name: ridge_penalty, value: inner-fold CV, source_type: data_chosen, source: inner folds}], endpoint: &d110e {type: cvar_overlay, statistic: relative CVaR(5%) reduction at matched average exposure, comparator: B3 equal weights, params: {return_horizon_months: 12}}, label_horizon_months: 12, purge_months: 12, pass_rule: &d110r {margin: 0.10, margin_unit: relative CVaR reduction vs B3, test: romano_wolf_stationary_bootstrap, alpha: 0.05, guardrail: "deflated Sharpe >= 0.95 with N = configurations fitted"}, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-10.H2, status: exploratory, family: F-COMP, asset: SPY, members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: real-time PC1 weights, parameters: [{name: weights, value: real-time PC1, source_type: citation, source: "Stock & Watson (2002)"}], endpoint: *d110e, label_horizon_months: 12, purge_months: 12, pass_rule: *d110r, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-10.H3, status: exploratory, family: F-COMP, asset: SPY, members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: inverse-variance weights, parameters: [{name: weights, value: inverse variance, source_type: natural, source: inverse variance}], endpoint: *d110e, label_horizon_months: 12, purge_months: 12, pass_rule: *d110r, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+# ---------------------------------------------------------------------
 - id: D1-19
   direction: 1
   family: F-COMP
-  title: Composite sets the direction, market risk sets the size
   status: exploratory
+  title: Composite sets the direction, market risk sets the size
   use_case: U2
-  members: ["sign of the D1-08 composite|direction|derived", "VIX level or SPY 21-day realised volatility|size|market"]
-  assets: SPY
-  combination: R6 direction vs sizing split
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: Relative CVaR(5%) reduction vs direction-only, at matched average exposure
-  pass_rule: >-
-    CVaR reduction >= 15% vs direction-only AND >= 10% vs a pure 10% volatility target; Romano-Wolf p <= 0.05;
-    guardrail: Sharpe not lower than direction-only by more than 0.05
-  min_events: 3
-  event_def: SPY drawdowns >= 15%
-  comparator: direction-only; sizing-only; 10% volatility target
-  baselines:
-    B1: "yes: buy-and-hold"
-    B2a: "yes: best single representative as direction"
-    B3: "yes: direction-only equal-weight composite"
-    B4: "yes: 10% volatility target"
+  members:
+    dir: {series: DERIVED, track: derived, role: sign of the D1-08 composite}
+    vix: {series: VIX, track: market, role: size}
+    rv: {series: SPY, track: market, role: size (21-day realised volatility)}
+  baselines: *bl_u2
   null_design: N1 on the direction member (sizing uses data to t only, checked by harness leak.py)
   validation: {primary: "V-A", supporting: "none", descriptive: "V-D"}
-  correction: family F-COMP
-  n_hypotheses: 2
-  hypotheses: ["VIX sizing", "realised-volatility sizing"]
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
+  provenance: {label: exploratory, designer_knowledge: direction from the correlation-informed composite, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P2
   rank: null
+  hypotheses:
+  - {hid: D1-19.H1, status: exploratory, family: F-COMP, asset: SPY, members: [dir, vix], rule: "w = direction x clip(10% / VIX-implied vol, 0.25, 1)", parameters: [{name: vol_target, value: 0.10, source_type: convention, source: our choice}], endpoint: &d119e {type: cvar_overlay, statistic: relative CVaR(5%) reduction vs direction-only at matched exposure, comparator: direction-only and 10% vol target, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: &d119r {margin: 0.15, margin_unit: "vs direction-only (and >= 10% vs vol target)", test: romano_wolf_stationary_bootstrap, alpha: 0.05, guardrail: Sharpe not lower than direction-only by > 0.05}, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-19.H2, status: exploratory, family: F-COMP, asset: SPY, members: [dir, rv], rule: "w = direction x clip(10% / realised vol, 0.25, 1)", parameters: [{name: vol_target, value: 0.10, source_type: convention, source: our choice}], endpoint: *d119e, label_horizon_months: 1, purge_months: 1, pass_rule: *d119r, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+# ---------------------------------------------------------------------
 - id: D1-20
   direction: 1
   family: F-COMP
-  title: Conviction sizing by vote count
   status: exploratory
+  title: Conviction sizing by vote count
   use_case: U2
-  members: ["the 8 representatives' bull/bear states|votes|vintage / market"]
-  assets: SPY
-  combination: R6 with R7 sizing
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: Relative CVaR(5%) reduction vs the binary majority rule at matched average exposure
-  pass_rule: "CVaR reduction >= 10% vs majority, Romano-Wolf p <= 0.05; guardrail: return shortfall <= 1.0 pp"
-  min_events: 3
-  event_def: SPY drawdowns >= 15%
-  comparator: binary majority vote
-  baselines:
-    B1: "yes: static weight"
-    B2a: "yes: best single representative"
-    B3: "yes: binary majority (primary comparator)"
-    B4: "yes: 10% volatility target"
+  members: *reps
+  baselines: *bl_u2
   null_design: N1
   validation: {primary: "V-A", supporting: "none", descriptive: "V-D"}
-  correction: family F-COMP
-  n_hypotheses: 1
-  hypotheses: ["vote-share sizing"]
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
+  provenance: {label: exploratory, designer_knowledge: correlation-informed blocks, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
+  hypotheses:
+  - {hid: D1-20.H1, status: exploratory, family: F-COMP, asset: SPY, members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: weight = share of bullish representatives, parameters: [{name: sizing, value: vote share, source_type: natural, source: linear}], endpoint: {type: cvar_overlay, statistic: relative CVaR(5%) reduction vs binary majority at matched exposure, comparator: B3 majority vote, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: {margin: 0.10, margin_unit: relative CVaR reduction, test: romano_wolf_stationary_bootstrap, alpha: 0.05, guardrail: return shortfall <= 1.0 pp}, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+# ---------------------------------------------------------------------
 - id: D1-24
   direction: 1
   family: F-COMP
-  title: Daily as-of updating of a monthly composite
   status: exploratory
+  title: Daily as-of updating of the monthly composite
   use_case: U1
-  members: ["the D1-08 composite, members updated on their release dates|composite|vintage / market"]
-  assets: SPY
-  combination: R3, alignment variant daily as-of
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: Relative CVaR(5%) reduction of daily-updated vs month-end composite after 10 bp per trade
-  pass_rule: "CVaR reduction >= 10%, Romano-Wolf p <= 0.05; guardrail: turnover <= 3x month-end"
-  min_events: 3
-  event_def: SPY drawdowns >= 15%
-  comparator: month-end composite
+  members: *reps
   baselines:
     B1: "yes: buy-and-hold"
     B2a: "yes: best single representative, daily"
@@ -597,63 +825,45 @@ questions:
     B4: "yes: daily 200-day SMA"
   null_design: N1
   validation: {primary: "V-A", supporting: "none", descriptive: "V-D"}
-  correction: family F-COMP
-  n_hypotheses: 1
-  hypotheses: ["daily vs month-end"]
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
-  feasibility: "M: the harness is single-frequency per pair"
+  provenance: {label: exploratory, designer_knowledge: correlation-informed blocks, frozen: "2026-10-17 (rev3)"}
+  feasibility: "M: harness is single-frequency per pair"
   priority: P3
   rank: null
+  hypotheses:
+  - {hid: D1-24.H1, status: exploratory, family: F-COMP, asset: SPY, members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: composite updated on each member's release date, parameters: [{name: cost_bp, value: 10, source_type: convention, source: our choice}], endpoint: {type: cvar_overlay, statistic: relative CVaR(5%) reduction after 10 bp per trade, comparator: month-end composite, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: {margin: 0.10, margin_unit: relative CVaR reduction, test: romano_wolf_stationary_bootstrap, alpha: 0.05, guardrail: turnover <= 3x month-end}, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+# ---------------------------------------------------------------------
 - id: D1-29
   direction: 1
   family: F-COMP
-  title: Ragged-edge mixed-frequency dynamic factor vs PCA vs equal weights (added from Codex Q4)
   status: exploratory
+  title: Ragged-edge mixed-frequency dynamic factor vs PCA vs equal weights (Codex Q4)
   use_case: U1
-  members: ["the 8 representatives plus quarterly SLOOS and card delinquency|factor indicators|vintage / market"]
-  assets: SPY
-  combination: R3 (Kalman-filtered single factor, missing latest releases handled)
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: Relative CVaR(5%) reduction of the DFM-factor overlay vs comparator
-  pass_rule: >-
-    CVaR reduction >= 10% vs equal weights AND vs real-time PCA; Romano-Wolf p <= 0.05; deflated Sharpe >= 0.95
-    with N = factor specifications fitted
-  min_events: 3
-  event_def: SPY drawdowns >= 15%
-  comparator: B3; real-time PC1
-  baselines:
-    B1: "yes: buy-and-hold"
-    B2a: "yes: best single representative"
-    B3: "yes: equal-weight composite"
-    B4: "yes: 10-month SMA"
+  members:
+    reps: {series: DERIVED, track: derived, role: the 8 representatives}
+    sloos: {series: DRTSCILM, track: vintage, role: quarterly factor indicator}
+    ccd: {series: DRCCLACBN, track: vintage, role: quarterly factor indicator}
+  baselines: *bl_u1
   null_design: N1 (factor refit inside each draw)
   validation: {primary: "V-A (nested)", supporting: "V-B", descriptive: "V-D"}
-  correction: family F-COMP
-  n_hypotheses: 2
-  hypotheses: ["DFM vs equal weights", "DFM vs real-time PCA"]
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
+  provenance: {label: exploratory, designer_knowledge: correlation-informed blocks, frozen: "2026-10-17 (rev3)"}
   feasibility: "M: statsmodels DynamicFactorMQ"
   priority: P2
   rank: null
+  hypotheses:
+  - {hid: D1-29.H1, status: exploratory, family: F-COMP, asset: SPY, members: [reps, sloos, ccd], rule: DFM factor overlay vs equal weights, parameters: [{name: n_factors, value: 1, source_type: natural, source: single common factor}], endpoint: &d129e {type: cvar_overlay, statistic: relative CVaR(5%) reduction, comparator: B3 equal weights, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: &d129r {margin: 0.10, margin_unit: relative CVaR reduction, test: romano_wolf_stationary_bootstrap, alpha: 0.05, guardrail: "deflated Sharpe >= 0.95 with N = specifications fitted"}, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-29.H2, status: exploratory, family: F-COMP, asset: SPY, members: [reps, sloos, ccd], rule: DFM factor overlay vs real-time PCA, parameters: [{name: n_factors, value: 1, source_type: natural, source: single common factor}], endpoint: {type: cvar_overlay, statistic: relative CVaR(5%) reduction, comparator: real-time PC1 overlay, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: *d129r, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+# ---------------------------------------------------------------------
 - id: D2-05
   direction: 2
   family: F-COMP
-  title: Marginal value of the k-th representative
   status: exploratory
+  title: Marginal value of the k-th representative
   use_case: U1
-  members: ["representatives added in a frozen economic order: B3, B1, B2, B4, B6, B5, B7, B8|composite|vintage / market"]
-  assets: SPY
-  combination: R3, k = 1..8
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: Plateau k* = first k after which adding the next representative improves out-of-fold CVaR(5%) by < 2% (relative)
-  pass_rule: Hypothesis k* <= 4; supported if the 90% block-bootstrap interval of k* lies within [1, 4]
-  min_events: 3
-  event_def: SPY drawdowns >= 15%
-  comparator: k = 1 and 100 random orders
+  members: *reps
   baselines:
     B1: "yes: buy-and-hold"
     B2a: "yes: k = 1"
@@ -661,187 +871,138 @@ questions:
     B4: "yes: 10-month SMA"
   null_design: N2 random orders (100)
   validation: {primary: "V-A", supporting: "V-B", descriptive: "V-D"}
-  correction: family F-COMP
-  n_hypotheses: 1
-  hypotheses: ["k* <= 4"]
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
+  provenance: {label: exploratory, designer_knowledge: "frozen economic order B3, B1, B2, B4, B6, B5, B7, B8", frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P2
   rank: null
+  hypotheses:
+  - {hid: D2-05.H1, status: exploratory, family: F-COMP, asset: SPY, members: [b1, b2, b3, b4, b5, b6, b7, b8], rule: "plateau k* <= 4", parameters: [{name: plateau_gain, value: 0.02, source_type: convention, source: our choice}], endpoint: {type: plateau_k, statistic: "first k after which the next representative improves out-of-fold CVaR(5%) by < 2%", comparator: 100 random orders, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: {margin: 4, margin_unit: "k* upper 90% interval bound <= 4", test: block_bootstrap_interval, interval_level: 0.90}, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+# ---------------------------------------------------------------------
 - id: D2-07
   direction: 2
   family: F-COMP
-  title: Members or operator, which matters more?
   status: descriptive
+  title: Members or operator, which matters more?
   use_case: planning
-  members: ["8 representatives, all 28 pairs x 5 operators|grid|vintage / market"]
-  assets: SPY
-  combination: all roles
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: ANOVA share of the U1 endpoint explained by operator vs by member pair (inner folds only)
-  pass_rule: "Decision rule: if the operator share >= 0.5, Phase 3 searches operators before members; else the reverse"
-  min_events: 0
-  event_def: "n/a: variance decomposition"
-  comparator: "n/a"
-  baselines:
-    B1: "n/a: descriptive decomposition, no strategy claim"
-    B2a: "n/a: descriptive"
-    B3: "n/a: descriptive"
-    B4: "n/a: descriptive"
-  null_design: none (selects nothing; inner folds only)
+  members: *reps
+  baselines: *bl_na
+  null_design: none (inner folds only; selects nothing)
   validation: {primary: "V-A inner folds", supporting: "none", descriptive: "none"}
-  correction: none (selects nothing)
-  n_hypotheses: 0
-  hypotheses: []
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
+  provenance: {label: descriptive, designer_knowledge: grid of 28 pairs x 5 operators, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
-# ---------------------------------------------------------------- F-SECT
+  estimand: {statistic: ANOVA share of the U1 endpoint explained by operator vs member pair, interval: block bootstrap 90%, decision_rule: "operator share >= 0.5 -> Phase 3 searches operators before members", label_horizon_months: 1, purge_months: 1}
+  hypotheses: []
+# ===================================================================== F-SECT
 - id: D1-07
   direction: 1
   family: F-SECT
-  title: Late-cycle regime and defensive vs cyclical sectors (D1-22 merged here as the family summary)
   status: exploratory
+  title: Late-cycle regime and defensive vs cyclical sectors (D1-22 merged here)
   use_case: U3
-  members: ["T10Y3M < 0.5 pp|regime|market", "ISM manufacturing 3m change < 0|regime|revised"]
-  assets: defensive (XLV, XLP, XLU) minus cyclical (XLI, XLY, XLB, XLF) basket; XLU, XLI single
-  combination: R2 regime defined by R1
-  label_horizon_months: 3
-  purge_months: 3
-  primary_endpoint: Information ratio of the 3-month relative return conditional on the regime
-  pass_rule: IR >= 0.30 with Romano-Wolf p <= 0.05; total-return series only
-  min_events: 3
-  event_def: distinct late-cycle regime episodes
-  comparator: unconditional relative return; each condition alone
-  baselines:
-    B1: "yes: equal-weight all 9 sectors"
-    B2a: "yes: each condition alone"
-    B3: "yes: equal-weight z of the two conditions"
-    B4: "yes: 12-month relative momentum"
+  members:
+    term: {series: T10Y3M, track: market, role: "regime: < 0.5 pp"}
+    ism: {series: ISM_MFG, track: revised, role: "regime: 3m change < 0"}
+  baselines: *bl_u3
   null_design: N2 random regime of equal frequency
-  validation: {primary: "V-A (1999-2016)", supporting: "none: pre-1999 sector indices omit dividends", descriptive: "V-D"}
-  correction: family F-SECT
-  n_hypotheses: 3
-  hypotheses: ["basket spread", "XLU - SPY", "XLI - SPY"]
+  validation: {primary: "V-A (1999-2016)", supporting: "none: pre-1999 sector indices are price-only", descriptive: "V-D"}
   uses_fleet_winners: false
   influenced_by: [none]
-  feasibility: "M: needs total-return sector series (G17)"
+  provenance: {label: exploratory, designer_knowledge: revised ISM, frozen: "2026-10-17 (rev3)"}
+  feasibility: "M: needs G17"
   priority: P2
   rank: null
+  hypotheses:
+  - {hid: D1-07.H1, status: exploratory, family: F-SECT, asset: "defensive (XLV, XLP, XLU) minus cyclical (XLI, XLY, XLB, XLF), total return", members: [term, ism], rule: late-cycle regime, parameters: [{name: curve_flat_pp, value: 0.5, source_type: convention, source: our choice}], endpoint: &d107e {type: information_ratio, statistic: IR of the 3-month relative return conditional on the regime, comparator: unconditional relative return, params: {return_horizon_months: 3}}, label_horizon_months: 3, purge_months: 3, pass_rule: &d107r {margin: 0.30, margin_unit: information ratio, test: romano_wolf_stationary_bootstrap, alpha: 0.05}, min_events: 3, event_def: distinct late-cycle episodes}
+  - {hid: D1-07.H2, status: exploratory, family: F-SECT, asset: XLU - SPY (total return), members: [term, ism], rule: late-cycle regime, parameters: [{name: curve_flat_pp, value: 0.5, source_type: convention, source: our choice}], endpoint: *d107e, label_horizon_months: 3, purge_months: 3, pass_rule: *d107r, min_events: 3, event_def: distinct late-cycle episodes}
+  - {hid: D1-07.H3, status: exploratory, family: F-SECT, asset: XLI - SPY (total return), members: [term, ism], rule: late-cycle regime, parameters: [{name: curve_flat_pp, value: 0.5, source_type: convention, source: our choice}], endpoint: *d107e, label_horizon_months: 3, purge_months: 3, pass_rule: *d107r, min_events: 3, event_def: distinct late-cycle episodes}
+# ---------------------------------------------------------------------
 - id: D1-18
   direction: 1
   family: F-SECT
-  title: Equity internals vs manufacturing for tech relative returns
   status: exploratory
+  title: Equity internals vs manufacturing for tech
   use_case: U3
-  members: ["SOX/SPY 6m momentum > 0|market internals|market", "ISM manufacturing 3m change < 0|macro|revised"]
-  assets: XLK - SPY; QQQ - SPY
-  combination: R5 divergence
-  label_horizon_months: 3
-  purge_months: 3
-  primary_endpoint: IR of the 3-month relative return in divergence vs agreement states
-  pass_rule: IR difference >= 0.30, Romano-Wolf p <= 0.05
-  min_events: 3
-  event_def: distinct divergence episodes
-  comparator: agreement states
-  baselines:
-    B1: "yes: equal-weight sectors"
-    B2a: "yes: SOX/SPY alone"
-    B3: "yes: equal-weight z of both"
-    B4: "yes: 12-month relative momentum"
+  members:
+    sox: {series: SOX_SPY, track: market, role: 6m momentum > 0}
+    ism: {series: ISM_MFG, track: revised, role: 3m change < 0}
+  baselines: *bl_u3
   null_design: N2
   validation: {primary: "V-A", supporting: "none", descriptive: "V-D"}
-  correction: family F-SECT
-  n_hypotheses: 2
-  hypotheses: ["XLK - SPY", "QQQ - SPY"]
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance: {label: exploratory, designer_knowledge: revised ISM, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
+  hypotheses:
+  - {hid: D1-18.H1, status: exploratory, family: F-SECT, asset: XLK - SPY (total return), members: [sox, ism], rule: divergence vs agreement, parameters: [{name: momentum_months, value: 6, source_type: convention, source: our choice}], endpoint: &d118e {type: information_ratio, statistic: IR difference of 3-month relative return, divergence vs agreement, comparator: agreement states, params: {return_horizon_months: 3}}, label_horizon_months: 3, purge_months: 3, pass_rule: &d118r {margin: 0.30, margin_unit: IR difference, test: romano_wolf_stationary_bootstrap, alpha: 0.05}, min_events: 3, event_def: distinct divergence episodes}
+  - {hid: D1-18.H2, status: exploratory, family: F-SECT, asset: QQQ - SPY (total return), members: [sox, ism], rule: divergence vs agreement, parameters: [{name: momentum_months, value: 6, source_type: convention, source: our choice}], endpoint: *d118e, label_horizon_months: 3, purge_months: 3, pass_rule: *d118r, min_events: 3, event_def: distinct divergence episodes}
+# ---------------------------------------------------------------------
 - id: D1-21
   direction: 1
   family: F-SECT
-  title: A second indicator for the existing defensive-sector pairs
   status: exploratory
+  title: A second indicator for the existing defensive-sector pairs
   use_case: U3
-  members: ["fleet rules umcsent_xlv, indpro_xlp|direction|fleet", "HY-IG z > 1 or T10Y3M < 0.5 pp|filter|market"]
-  assets: XLV - SPY; XLP - SPY; XLU - SPY
-  combination: R2
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: IR of the relative return with filter vs without
-  pass_rule: IR gain >= 0.20, Romano-Wolf p <= 0.05, N3 re-selection null passed
-  min_events: 3
-  event_def: distinct filter episodes
-  comparator: the fleet pair re-selected in-fold
-  baselines:
-    B1: "yes: equal-weight sectors"
-    B2a: "yes: single pair re-selected in-fold"
-    B3: "yes: equal-weight z composite"
-    B4: "yes: 12-month relative momentum"
+  members:
+    fleet: {series: FLEET, track: fleet, role: "umcsent_xlv / indpro_xlp rules"}
+    hyig: {series: HY_IG_OAS, track: market, role: filter}
+    term: {series: T10Y3M, track: market, role: filter}
+  baselines: *bl_u3
   null_design: N3 re-selection null (members are fleet winners)
   validation: {primary: "V-A", supporting: "none", descriptive: "V-D"}
-  correction: family F-SECT
-  n_hypotheses: 3
-  hypotheses: ["XLV", "XLP", "XLU"]
   uses_fleet_winners: true
   influenced_by: [viewed_oos]
+  provenance: {label: exploratory, designer_knowledge: fleet winners selected with the OOS visible, frozen: "2026-10-17 (rev3)"}
   feasibility: M
   priority: P3
   rank: null
-# ---------------------------------------------------------------- F-HOUS
+  hypotheses:
+  - {hid: D1-21.H1, status: exploratory, family: F-SECT, asset: XLV - SPY (total return), members: [fleet, hyig], rule: fleet rule + credit filter, parameters: [{name: filter_z, value: 1.0, source_type: convention, source: our choice}], endpoint: &d121e {type: information_ratio, statistic: IR gain with filter vs without, comparator: fleet pair re-selected in-fold, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: &d121r {margin: 0.20, margin_unit: IR gain, test: romano_wolf_stationary_bootstrap, alpha: 0.05, guardrail: N3 passed}, min_events: 3, event_def: distinct filter episodes}
+  - {hid: D1-21.H2, status: exploratory, family: F-SECT, asset: XLP - SPY (total return), members: [fleet, hyig], rule: fleet rule + credit filter, parameters: [{name: filter_z, value: 1.0, source_type: convention, source: our choice}], endpoint: *d121e, label_horizon_months: 1, purge_months: 1, pass_rule: *d121r, min_events: 3, event_def: distinct filter episodes}
+  - {hid: D1-21.H3, status: exploratory, family: F-SECT, asset: XLU - SPY (total return), members: [fleet, term], rule: fleet rule + curve filter, parameters: [{name: curve_flat_pp, value: 0.5, source_type: convention, source: our choice}], endpoint: *d121e, label_horizon_months: 1, purge_months: 1, pass_rule: *d121r, min_events: 3, event_def: distinct filter episodes}
+# ===================================================================== F-HOUS
 - id: D1-03
   direction: 1
   family: F-HOUS
-  title: k-of-3 within the housing block
   status: exploratory
+  title: k-of-3 within housing
   use_case: U1
-  members: ["HOUST YoY < 0|vote|vintage", "PERMIT YoY < 0|vote|vintage", "new home sales YoY < 0|vote|vintage"]
-  assets: SPY
-  combination: R1 k-of-n
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: False-exit episodes per decade at non-inferior CVaR(5%)
-  pass_rule: false exits reduced by >= 30% vs best single flag, CVaR not worse by > 5%; Romano-Wolf p <= 0.05
-  min_events: 3
-  event_def: SPY drawdowns >= 15%
-  comparator: best single housing flag
-  baselines:
-    B1: "yes: buy-and-hold"
-    B2a: "yes: best single flag"
-    B3: "yes: housing z-average"
-    B4: "yes: 10-month SMA"
+  members:
+    houst: {series: HOUST, track: vintage, role: vote}
+    permit: {series: PERMIT, track: vintage, role: vote}
+    nhs: {series: HSN1F, track: vintage, role: vote}
+  baselines: *bl_u1
   null_design: N2 random 3-of-block from other blocks
-  validation: {primary: "V-A", supporting: "none (permit / NHS vintages from 1999)", descriptive: "V-D"}
-  correction: family F-HOUS
-  n_hypotheses: 2
-  hypotheses: ["2-of-3", "3-of-3"]
+  validation: {primary: "V-A", supporting: "none (vintages from 1999)", descriptive: "V-D"}
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
+  provenance: {label: exploratory, designer_knowledge: housing redundancy seen in full-sample correlations, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
+  hypotheses:
+  - {hid: D1-03.H1, status: exploratory, family: F-HOUS, asset: SPY, members: [houst, permit, nhs], rule: 2-of-3 YoY < 0, parameters: [{name: k, value: 2, source_type: natural, source: majority}], endpoint: &d103e {type: false_exit_rate, statistic: false-exit episodes per decade at non-inferior CVaR(5%), comparator: best single flag, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: &d103r {margin: 0.30, margin_unit: relative reduction in false exits, test: romano_wolf_stationary_bootstrap, alpha: 0.05, guardrail: CVaR not worse by > 5%}, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-03.H2, status: exploratory, family: F-HOUS, asset: SPY, members: [houst, permit, nhs], rule: 3-of-3 YoY < 0, parameters: [{name: k, value: 3, source_type: natural, source: unanimity}], endpoint: *d103e, label_horizon_months: 1, purge_months: 1, pass_rule: *d103r, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+# ---------------------------------------------------------------------
 - id: D1-11
   direction: 1
   family: F-HOUS
-  title: Housing composite vs single housing indicators
   status: exploratory
+  title: Housing composite vs single housing indicators
   use_case: U1
-  members: ["HOUST, PERMIT, new home sales YoY|composite|vintage", "NAHB level, cement YoY|composite (5-member variant)|revised"]
-  assets: SPY (U1); XHB, XLB, XLY relative (U3)
-  combination: R3 within one block
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: SPY rows - CVaR(5%) reduction vs best single; sector rows - relative-return IR gain
-  pass_rule: CVaR reduction >= 15% (SPY) or IR gain >= 0.20 (sectors), Romano-Wolf p <= 0.05
-  min_events: 3
-  event_def: SPY drawdowns >= 15%
-  comparator: best single housing indicator
+  members:
+    houst: {series: HOUST, track: vintage, role: composite}
+    permit: {series: PERMIT, track: vintage, role: composite}
+    nhs: {series: HSN1F, track: vintage, role: composite}
+    nahb: {series: NAHB_HMI, track: revised, role: composite (5-member)}
+    cement: {series: USGS_CEMENT_MIS, track: revised, role: composite (5-member)}
   baselines:
     B1: "yes: buy-and-hold / equal-weight sectors"
     B2a: "yes: best single housing indicator"
@@ -849,451 +1010,300 @@ questions:
     B4: "yes: 10-month SMA / 12-month relative momentum"
   null_design: N2
   validation: {primary: "V-A", supporting: "none", descriptive: "V-D"}
-  correction: family F-HOUS
-  n_hypotheses: 8
-  hypotheses: ["3-member SPY", "3-member XHB", "3-member XLB", "3-member XLY", "5-member SPY", "5-member XHB", "5-member XLB", "5-member XLY"]
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
+  provenance: {label: exploratory, designer_knowledge: housing redundancy seen in full-sample correlations, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P2
   rank: null
+  hypotheses:
+  - {hid: D1-11.H1, status: exploratory, family: F-HOUS, asset: SPY, members: [houst, permit, nhs], rule: 3-member composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: &d111c {type: cvar_overlay, statistic: relative CVaR(5%) reduction vs best single, comparator: B2a, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: &d111cr {margin: 0.15, margin_unit: relative CVaR reduction, test: romano_wolf_stationary_bootstrap, alpha: 0.05}, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-11.H2, status: exploratory, family: F-HOUS, asset: XHB - SPY (total return), members: [houst, permit, nhs], rule: 3-member composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: &d111i {type: information_ratio, statistic: IR gain vs best single, comparator: B2a, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: &d111ir {margin: 0.20, margin_unit: IR gain, test: romano_wolf_stationary_bootstrap, alpha: 0.05}, min_events: 3, event_def: distinct housing-contraction episodes}
+  - {hid: D1-11.H3, status: exploratory, family: F-HOUS, asset: XLB - SPY (total return), members: [houst, permit, nhs], rule: 3-member composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d111i, label_horizon_months: 1, purge_months: 1, pass_rule: *d111ir, min_events: 3, event_def: distinct housing-contraction episodes}
+  - {hid: D1-11.H4, status: exploratory, family: F-HOUS, asset: XLY - SPY (total return), members: [houst, permit, nhs], rule: 3-member composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d111i, label_horizon_months: 1, purge_months: 1, pass_rule: *d111ir, min_events: 3, event_def: distinct housing-contraction episodes}
+  - {hid: D1-11.H5, status: exploratory, family: F-HOUS, asset: SPY, members: [houst, permit, nhs, nahb, cement], rule: 5-member composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d111c, label_horizon_months: 1, purge_months: 1, pass_rule: *d111cr, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D1-11.H6, status: exploratory, family: F-HOUS, asset: XHB - SPY (total return), members: [houst, permit, nhs, nahb, cement], rule: 5-member composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d111i, label_horizon_months: 1, purge_months: 1, pass_rule: *d111ir, min_events: 3, event_def: distinct housing-contraction episodes}
+  - {hid: D1-11.H7, status: exploratory, family: F-HOUS, asset: XLB - SPY (total return), members: [houst, permit, nhs, nahb, cement], rule: 5-member composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d111i, label_horizon_months: 1, purge_months: 1, pass_rule: *d111ir, min_events: 3, event_def: distinct housing-contraction episodes}
+  - {hid: D1-11.H8, status: exploratory, family: F-HOUS, asset: XLY - SPY (total return), members: [houst, permit, nhs, nahb, cement], rule: 5-member composite, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d111i, label_horizon_months: 1, purge_months: 1, pass_rule: *d111ir, min_events: 3, event_def: distinct housing-contraction episodes}
+# ---------------------------------------------------------------------
 - id: D2-06
   direction: 2
   family: F-HOUS
-  title: Does a second member of a block add anything?
   status: exploratory
+  title: Does a second member of a block add anything?
   use_case: U1
-  members: ["best member + second member within housing, activity, market credit, sentiment blocks|block pair|vintage / market"]
-  assets: SPY
-  combination: R3 / R1 within a block
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: Incremental out-of-fold CVaR(5%) reduction from the second member
-  pass_rule: reduction >= 10% with Romano-Wolf p <= 0.05; selection stability (same best member in >= 4 of 5 folds) reported
-  min_events: 3
-  event_def: SPY drawdowns >= 15%
-  comparator: best member alone
-  baselines:
-    B1: "yes: buy-and-hold"
-    B2a: "yes: best member alone (primary)"
-    B3: "yes: block z-average"
-    B4: "yes: 10-month SMA"
+  members:
+    housing: {series: PERMIT, track: vintage, role: housing block pair (+ HOUST)}
+    activity: {series: INDPRO, track: vintage, role: activity block pair (+ RSXFS)}
+    credit: {series: HY_IG_OAS, track: market, role: market-credit block pair (+ T10Y3M)}
+    sentiment: {series: UMCSENT, track: vintage, role: sentiment block (+ UMich expectations, revised)}
+  baselines: *bl_u1
   null_design: N2
   validation: {primary: "V-A", supporting: "none", descriptive: "V-D"}
-  correction: family F-HOUS
-  n_hypotheses: 4
-  hypotheses: ["housing", "activity", "market credit", "sentiment"]
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
+  provenance: {label: exploratory, designer_knowledge: block pairs from correlations, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P2
   rank: null
-# ---------------------------------------------------------------- F-DIV
+  hypotheses:
+  - {hid: D2-06.H1, status: exploratory, family: F-HOUS, asset: SPY, members: [housing], rule: best housing member + second, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: &d206e {type: cvar_overlay, statistic: incremental out-of-fold CVaR(5%) reduction from the second member, comparator: best member alone, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: &d206r {margin: 0.10, margin_unit: relative CVaR reduction, test: romano_wolf_stationary_bootstrap, alpha: 0.05}, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D2-06.H2, status: exploratory, family: F-HOUS, asset: SPY, members: [activity], rule: best activity member + second, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d206e, label_horizon_months: 1, purge_months: 1, pass_rule: *d206r, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D2-06.H3, status: exploratory, family: F-HOUS, asset: SPY, members: [credit], rule: best market-credit member + second, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d206e, label_horizon_months: 1, purge_months: 1, pass_rule: *d206r, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+  - {hid: D2-06.H4, status: exploratory, family: F-HOUS, asset: SPY, members: [sentiment], rule: best sentiment member + second, parameters: [{name: weights, value: equal, source_type: natural, source: equal weights}], endpoint: *d206e, label_horizon_months: 1, purge_months: 1, pass_rule: *d206r, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+# ===================================================================== F-DIV
 - id: D1-16
   direction: 1
   family: F-DIV
-  title: Soft vs hard data divergence
   status: exploratory
+  title: Soft vs hard data divergence
   use_case: U3
-  members: ["soft: UMCSENT|survey|vintage", "hard: RSXFS YoY and INDPRO YoY|activity|vintage"]
-  assets: SPY; XLY - XLP
-  combination: R5 divergence
-  label_horizon_months: 6
-  purge_months: 6
-  primary_endpoint: Forward 6-month return difference, divergence state vs agreement state
-  pass_rule: difference >= 2.0 pp per half-year, Romano-Wolf p <= 0.05
-  min_events: 4
-  event_def: divergence episodes (|z gap| > 1 for >= 2 months)
-  comparator: agreement states
-  baselines:
-    B1: "yes: buy-and-hold / equal-weight"
-    B2a: "yes: soft alone, hard alone"
-    B3: "yes: soft + hard average"
-    B4: "yes: 10-month SMA / relative momentum"
-  null_design: N2 independently shifted members (divergence by chance)
+  members:
+    soft: {series: UMCSENT, track: vintage, role: survey}
+    rs: {series: RSXFS, track: vintage, role: hard (YoY)}
+    ip: {series: INDPRO, track: vintage, role: hard (YoY)}
+  baselines: *bl_u3
+  null_design: N2 independently shifted members
   validation: {primary: "V-A", supporting: "none (UMCSENT vintages start 1998)", descriptive: "V-D"}
-  correction: family F-DIV
-  n_hypotheses: 2
-  hypotheses: ["SPY", "XLY - XLP"]
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance: {label: exploratory, designer_knowledge: "|z gap| > 1 is a convention", frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
-# ---------------------------------------------------------------- F-FLEET
+  hypotheses:
+  - {hid: D1-16.H1, status: exploratory, family: F-DIV, asset: SPY, members: [soft, rs, ip], rule: "|z(soft) - z(hard)| > 1 for >= 2 months", parameters: [{name: gap_z, value: 1.0, source_type: convention, source: our choice}], endpoint: &d116e {type: forward_return_diff, statistic: forward 6-month return, divergence minus agreement, comparator: agreement states, params: {return_horizon_months: 6}}, label_horizon_months: 6, purge_months: 6, pass_rule: &d116r {margin: 2.0, margin_unit: pp per half-year, test: romano_wolf_stationary_bootstrap, alpha: 0.05}, min_events: 4, event_def: divergence episodes}
+  - {hid: D1-16.H2, status: exploratory, family: F-DIV, asset: XLY - XLP (total return), members: [soft, rs, ip], rule: same divergence, parameters: [{name: gap_z, value: 1.0, source_type: convention, source: our choice}], endpoint: *d116e, label_horizon_months: 6, purge_months: 6, pass_rule: *d116r, min_events: 4, event_def: divergence episodes}
+# ===================================================================== F-FLEET
 - id: D1-09
   direction: 1
   family: F-FLEET
-  title: Diffusion index of the frozen fleet rules
   status: exploratory
+  title: Diffusion index of the frozen fleet rules
   use_case: U4
-  members: ["share of fleet rules (one per indicator, cluster-weighted) in risk-off state|breadth|fleet"]
-  assets: NBER label; SPY overlay
-  combination: R7 diffusion
-  label_horizon_months: 12
-  purge_months: 12
-  primary_endpoint: Brier skill score for recession-within-12-months vs the best single fleet rule
-  pass_rule: BSS >= 0.10 after the N3 re-selection null (p <= 0.05)
-  min_events: 4
-  event_def: recessions with >= 50% of members available
-  comparator: best single fleet rule
-  baselines:
-    B1: "yes: base-rate classifier"
-    B2a: "yes: best single fleet rule (re-selected inside N3 draws)"
-    B3: "yes: unweighted vote share"
-    B4: "yes: SMA flag"
+  members:
+    fleet: {series: FLEET, track: fleet, role: one rule per indicator, cluster-weighted}
+    nber: {series: NBER, track: label, role: recession label}
+  baselines: *bl_u4
   null_design: N3 mandatory
   validation: {primary: "V-B (members with long history)", supporting: "LORO", descriptive: "V-D"}
-  correction: family F-FLEET
-  n_hypotheses: 2
-  hypotheses: ["recession BSS", "SPY overlay CVaR (U1 template)"]
   uses_fleet_winners: true
   influenced_by: [viewed_oos]
-  feasibility: "M: needs consolidated positions (G4)"
+  provenance: {label: exploratory, designer_knowledge: fleet winners selected with the OOS visible, frozen: "2026-10-17 (rev3)"}
+  feasibility: "M: needs G4"
   priority: P2
   rank: null
+  hypotheses:
+  - {hid: D1-09.H1, status: exploratory, family: F-FLEET, asset: NBER recession within 12 months, members: [fleet, nber], rule: cluster-weighted risk-off share, parameters: [{name: weights, value: one vote per block, source_type: natural, source: equal block weights}], endpoint: {type: brier_skill, statistic: BSS vs best single fleet rule, comparator: best single fleet rule, params: {forecast_horizon_months: 12}}, label_horizon_months: 12, purge_months: 12, pass_rule: {margin: 0.10, margin_unit: BSS, test: diebold_mariano_block_bootstrap, alpha: 0.05, guardrail: N3 passed}, min_events: 4, event_def: recessions with >= 50% of members available}
+  - {hid: D1-09.H2, status: exploratory, family: F-FLEET, asset: SPY, members: [fleet], rule: "exposure = 1 - share", parameters: [{name: weights, value: one vote per block, source_type: natural, source: equal block weights}], endpoint: *cvar1, label_horizon_months: 1, purge_months: 1, pass_rule: *pr_cvar, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+# ---------------------------------------------------------------------
 - id: D2-03
   direction: 2
   family: F-FLEET
-  title: Dependence among the fleet winners' return streams
   status: descriptive
+  title: Dependence among the fleet winners' return streams
   use_case: planning
-  members: ["35 live pairs' positions and returns|streams|fleet"]
-  assets: SPY, XLI, XLP, XLV
-  combination: "n/a"
-  label_horizon_months: 0
-  purge_months: 0
-  primary_endpoint: Participation ratio of the return-correlation matrix, with a 90% block-bootstrap interval
-  pass_rule: "Decision rule: used only as an input to the DSR of fleet-member families (F-FLEET, D1-21); not a global denominator"
-  min_events: 0
-  event_def: "n/a: estimate"
-  comparator: "n/a"
-  baselines:
-    B1: "n/a: estimate, no strategy claim"
-    B2a: "n/a: estimate"
-    B3: "n/a: estimate"
-    B4: "n/a: estimate"
+  members:
+    fleet: {series: FLEET, track: fleet, role: 35 live pairs' positions and returns}
+  baselines: *bl_na
   null_design: none (estimate with interval)
   validation: {primary: "common PIT window", supporting: "none", descriptive: "none"}
-  correction: none
-  n_hypotheses: 0
-  hypotheses: []
   uses_fleet_winners: true
   influenced_by: [viewed_oos]
+  provenance: {label: descriptive, designer_knowledge: fleet streams, frozen: "2026-10-17 (rev3)"}
   feasibility: "M: G4"
   priority: P2
   rank: null
+  estimand: {statistic: participation ratio of the fleet return-correlation matrix, interval: block bootstrap 90%, decision_rule: "input to the deflated Sharpe of fleet-member families only (F-FLEET, D1-21); not a global denominator", label_horizon_months: 0, purge_months: 0}
+  hypotheses: []
 - id: D2-12
   direction: 2
   family: F-FLEET
-  title: Do frozen fleet winners capture most of the benefit of a full re-search?
   status: exploratory
+  title: Do frozen fleet winners capture most of the benefit of a full re-search?
   use_case: U1
-  members: ["block representatives as frozen fleet rules vs re-searched in-fold|members|fleet"]
-  assets: SPY
-  combination: R1 / R3
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: Share of the re-search family's CVaR(5%) improvement captured by the frozen family
-  pass_rule: share >= 0.80 with 90% interval lower bound >= 0.5, after N3
-  min_events: 3
-  event_def: SPY drawdowns >= 15%
-  comparator: re-search family
-  baselines:
-    B1: "yes: buy-and-hold"
-    B2a: "yes: best single"
-    B3: "yes: equal-weight composite"
-    B4: "yes: 10-month SMA"
+  members:
+    fleet: {series: FLEET, track: fleet, role: block representatives as frozen fleet rules}
+    reps: {series: DERIVED, track: derived, role: the same blocks re-searched in-fold}
+  baselines: *bl_u1
   null_design: N3
   validation: {primary: "V-B", supporting: "none", descriptive: "V-D"}
-  correction: family F-FLEET
-  n_hypotheses: 1
-  hypotheses: ["capture share >= 0.8"]
   uses_fleet_winners: true
   influenced_by: [viewed_oos]
+  provenance: {label: exploratory, designer_knowledge: fleet winners selected with the OOS visible, frozen: "2026-10-17 (rev3)"}
   feasibility: M
   priority: P3
   rank: null
-# ---------------------------------------------------------------- F-REV
+  hypotheses:
+  - {hid: D2-12.H1, status: exploratory, family: F-FLEET, asset: SPY, members: [fleet, reps], rule: frozen vs re-searched family, parameters: [{name: share_threshold, value: 0.8, source_type: convention, source: our choice}], endpoint: {type: capture_share, statistic: share of the re-search family's CVaR improvement captured by the frozen family, comparator: re-search family, params: {return_horizon_months: 1}}, label_horizon_months: 1, purge_months: 1, pass_rule: {margin: 0.80, margin_unit: share, test: block_bootstrap_interval, interval_level: 0.90, guardrail: lower bound >= 0.5}, min_events: 3, event_def: "SPY drawdowns >= 15%"}
+# ===================================================================== F-REV
 - id: D1-25
   direction: 1
   family: F-REV
-  title: Real-time vs revised gap for every finalist
   status: descriptive
+  title: Real-time vs revised gap for every finalist
   use_case: all
-  members: ["ALFRED members of each finalist|all|vintage vs revised"]
-  assets: as in each finalist
-  combination: any
-  label_horizon_months: 0
-  purge_months: 0
-  primary_endpoint: Primary-endpoint gap (revised-as-of minus vintage) per finalist, with block-bootstrap interval
-  pass_rule: "Decision rule: a finalist whose gap exceeds 50% of its own effect is flagged revision-dependent"
-  min_events: 0
-  event_def: "n/a"
-  comparator: single members' gaps
-  baselines:
-    B1: "n/a: robustness report on finalists"
-    B2a: "n/a: robustness report"
-    B3: "n/a: robustness report"
-    B4: "n/a: robustness report"
+  members:
+    fin: {series: DERIVED, track: derived, role: ALFRED members of each finalist, vintage vs revised}
+  baselines: *bl_na
   null_design: none (selects nothing)
   validation: {primary: "same design as each finalist", supporting: "none", descriptive: "none"}
-  correction: none
-  n_hypotheses: 0
-  hypotheses: []
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance: {label: descriptive, designer_knowledge: robustness, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P2
   rank: null
+  estimand: {statistic: "primary-endpoint gap (revised-as-of minus vintage) per finalist", interval: block bootstrap 90%, decision_rule: "gap > 50% of the finalist's own effect -> flagged revision-dependent", label_horizon_months: 0, purge_months: 0}
+  hypotheses: []
 - id: D2-10
   direction: 2
   family: F-REV
-  title: Alignment variants and the sign of results
   status: descriptive
+  title: Alignment variants and the sign of results
   use_case: all
-  members: ["each finalist under month-end / release-date / daily as-of, fallback / harsh dates|all|vintage / market"]
-  assets: as in each finalist
-  combination: any
-  label_horizon_months: 0
-  purge_months: 0
-  primary_endpoint: Number of alignment variants (of 6) in which the finalist's primary endpoint keeps its sign
-  pass_rule: "Decision rule: a finalist that changes sign in >= 2 of 6 variants is flagged alignment-fragile"
-  min_events: 0
-  event_def: "n/a"
-  comparator: "n/a"
-  baselines:
-    B1: "n/a: robustness report"
-    B2a: "n/a: robustness report"
-    B3: "n/a: robustness report"
-    B4: "n/a: robustness report"
+  members:
+    fin: {series: DERIVED, track: derived, role: each finalist under 6 alignment variants}
+  baselines: *bl_na
   null_design: none
   validation: {primary: "same design as each finalist", supporting: "none", descriptive: "none"}
-  correction: none
-  n_hypotheses: 0
-  hypotheses: []
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance: {label: descriptive, designer_knowledge: robustness, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
-# ---------------------------------------------------------------- F-SPACE
+  estimand: {statistic: number of alignment variants (of 6) keeping the endpoint's sign, interval: none (count), decision_rule: "sign change in >= 2 of 6 -> flagged alignment-fragile", label_horizon_months: 0, purge_months: 0}
+  hypotheses: []
+# ===================================================================== F-SPACE
 - id: D1-15
   direction: 1
   family: F-SPACE
-  title: Stability of the lead order across cycles (diagnostic; gates nothing)
   status: descriptive
+  title: Stability of the lead order across cycles (diagnostic; gates nothing)
   use_case: process
-  members: ["all 29 panel indicators, vintage where available|all|vintage / market / revised"]
-  assets: none
-  combination: diagnostic for R4
-  label_horizon_months: 0
-  purge_months: 0
-  primary_endpoint: Kendall's W of indicator lead ranks across the 1990, 2001 and 2008 cycles (Bry-Boschan dating)
-  pass_rule: "Reported with a permutation interval only. It does NOT decide which registered chains (D1-12, D1-13, D1-14) are tested"
-  min_events: 3
-  event_def: cycles with every ranked indicator observable
-  comparator: random-order permutation
-  baselines:
-    B1: "n/a: diagnostic"
-    B2a: "n/a: diagnostic"
-    B3: "n/a: diagnostic"
-    B4: "n/a: diagnostic"
+  members:
+    all: {series: DERIVED, track: derived, role: 29 panel indicators, vintage where available}
+  baselines: *bl_na
   null_design: permutation of lead ranks
   validation: {primary: "historical panel (descriptive)", supporting: "none", descriptive: "none"}
-  correction: none
-  n_hypotheses: 0
-  hypotheses: []
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance: {label: descriptive, designer_knowledge: diagnostic, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
+  estimand: {statistic: "Kendall's W of lead ranks across 1990, 2001, 2008 (Bry-Boschan)", interval: permutation 90%, decision_rule: "reported only; does NOT decide which registered chains (D1-12, D1-13, D1-14) are tested", label_horizon_months: 0, purge_months: 0}
+  hypotheses: []
 - id: D2-01
   direction: 2
   family: F-SPACE
-  title: Raw size of the combination space
   status: descriptive
+  title: Raw size of the combination space
   use_case: planning
-  members: ["35 live pairs' published grids, 26 indicators|all|n/a"]
-  assets: 20 targets
-  combination: all roles
-  label_horizon_months: 0
-  purge_months: 0
-  primary_endpoint: Exact count sum over subsets of products of member grid sizes, by operator (COMBINATORICS.md section 2)
-  pass_rule: "Answered: recompute whenever the registry or a tournament grid changes; report any count that moves by > 10%"
-  min_events: 0
-  event_def: "n/a"
-  comparator: "n/a"
-  baselines:
-    B1: "n/a: count"
-    B2a: "n/a: count"
-    B3: "n/a: count"
-    B4: "n/a: count"
+  members:
+    grids: {series: FLEET, track: fleet, role: 35 live pairs' published grids}
+  baselines: *bl_na
   null_design: none
   validation: {primary: "n/a", supporting: "none", descriptive: "none"}
-  correction: none
-  n_hypotheses: 0
-  hypotheses: []
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance: {label: descriptive, designer_knowledge: counting, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
+  estimand: {statistic: "exact sum over subsets of products of member grid sizes, by operator", interval: "lower / upper merge bounds", decision_rule: "recompute when a grid changes; report counts moving > 10%", label_horizon_months: 0, purge_months: 0}
+  hypotheses: []
 - id: D2-02
   direction: 2
   family: F-SPACE
-  title: Effective dimensionality of the point-in-time indicator panel
   status: descriptive
+  title: Effective dimensionality of the point-in-time indicator panel
   use_case: planning
-  members: ["strict-PIT 14 (primary); revised-as-of panels (sensitivity)|all|vintage / market"]
-  assets: none
-  combination: "n/a"
-  label_horizon_months: 0
-  purge_months: 0
-  primary_endpoint: Participation ratio of the strict-PIT-14 correlation matrix with 90% moving-block bootstrap interval
-  pass_rule: "Answered in draft: 5.5 [3.8, 6.4]; refresh after G4 on winners' states"
-  min_events: 0
-  event_def: "n/a"
-  comparator: serial-dependence-preserving nulls
-  baselines:
-    B1: "n/a: estimate"
-    B2a: "n/a: estimate"
-    B3: "n/a: estimate"
-    B4: "n/a: estimate"
+  members:
+    panel: {series: DERIVED, track: derived, role: strict-PIT 14 (10 vintage + 4 market)}
+  baselines: *bl_na
   null_design: stationary-bootstrap and phase-randomised nulls (2000 draws)
   validation: {primary: "n/a", supporting: "none", descriptive: "none"}
-  correction: none
-  n_hypotheses: 0
-  hypotheses: []
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance: {label: descriptive, designer_knowledge: estimate, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P3
   rank: null
+  estimand: {statistic: participation ratio of the strict-PIT-14 correlation matrix, interval: "moving-block bootstrap 90% (blocks 12-48: 3.6-6.4)", decision_rule: "answered in draft: 5.5 [3.8, 6.4]", label_horizon_months: 0, purge_months: 0}
+  hypotheses: []
 - id: D2-04
   direction: 2
   family: F-SPACE
-  title: Is dimensionality lower around recessions?
   status: exploratory
+  title: Is dimensionality lower around recessions?
   use_case: planning
-  members: ["strict-PIT 14, rolling 60-month windows|all|vintage / market"]
-  assets: none
-  combination: "n/a"
-  label_horizon_months: 0
-  purge_months: 0
-  primary_endpoint: Difference in rolling participation ratio, windows overlapping an NBER recession minus other windows, at equal window length
-  pass_rule: difference <= -0.5 with the 90% block-bootstrap interval excluding 0; otherwise no claim
-  min_events: 3
-  event_def: recessions in the strict-PIT window (2001, 2008; 2020 excluded)
-  comparator: non-recession windows
-  baselines:
-    B1: "n/a: estimate"
-    B2a: "n/a: estimate"
-    B3: "n/a: estimate"
-    B4: "n/a: estimate"
+  members:
+    panel: {series: DERIVED, track: derived, role: strict-PIT 14, rolling 60-month windows}
+  baselines: *bl_na
   null_design: block bootstrap of window labels
   validation: {primary: "strict-PIT window", supporting: "none", descriptive: "none"}
-  correction: family F-SPACE
-  n_hypotheses: 1
-  hypotheses: ["recession windows lower PR"]
   uses_fleet_winners: false
   influenced_by: [none]
-  feasibility: "H, but only 2 recessions: expect an inconclusive answer"
+  provenance: {label: exploratory, designer_knowledge: rev1 claim withdrawn, frozen: "2026-10-17 (rev3)"}
+  feasibility: "H, but only 2 recessions: expect inconclusive"
   priority: P3
   rank: null
+  hypotheses:
+  - {hid: D2-04.H1, status: exploratory, family: F-SPACE, asset: none, members: [panel], rule: rolling PR in recession-overlapping windows minus other windows, parameters: [{name: window_months, value: 60, source_type: convention, source: our choice}], endpoint: {type: pr_difference, statistic: rolling PR difference, comparator: non-recession windows, params: {window_overlap_months: 0}}, label_horizon_months: 0, purge_months: 0, pass_rule: {margin: -0.5, margin_unit: "PR difference <= -0.5, 90% interval excluding 0", test: block_bootstrap_interval, interval_level: 0.90}, min_events: 3, event_def: "recessions in the window (2001, 2008; 2020 excluded)"}
 - id: D2-08
   direction: 2
   family: F-SPACE
-  title: How wide can a search be before it is mostly overfit?
   status: descriptive
+  title: How wide can a search be before it is mostly overfit?
   use_case: planning
-  members: ["8 representatives, nested grids of 10 / 100 / 1,000 / 10,000 configurations|all|vintage / market"]
-  assets: SPY
-  combination: all roles
-  label_horizon_months: 1
-  purge_months: 1
-  primary_endpoint: Probability of backtest overfitting (CSCV, 16 blocks) by search breadth
-  pass_rule: "Decision rule: Phase 3 search budget = largest breadth with PBO <= 0.25"
-  min_events: 0
-  event_def: "n/a"
-  comparator: breadth 10
-  baselines:
-    B1: "n/a: overfitting diagnostic"
-    B2a: "n/a: overfitting diagnostic"
-    B3: "n/a: overfitting diagnostic"
-    B4: "n/a: overfitting diagnostic"
+  members: *reps
+  baselines: *bl_na
   null_design: CSCV combinatorial splits
   validation: {primary: "V-A only", supporting: "none", descriptive: "none"}
-  correction: none (it is the overfitting study)
-  n_hypotheses: 0
-  hypotheses: []
   uses_fleet_winners: false
   influenced_by: [full_sample_corr]
+  provenance: {label: descriptive, designer_knowledge: overfitting study, frozen: "2026-10-17 (rev3)"}
   feasibility: "M: compute"
   priority: P1
   rank: 10
+  estimand: {statistic: "PBO (CSCV, 16 blocks) by search breadth 10 / 100 / 1,000 / 10,000", interval: CSCV distribution, decision_rule: "Phase 3 budget = largest breadth with PBO <= 0.25", label_horizon_months: 1, purge_months: 1}
+  hypotheses: []
 - id: D2-09
   direction: 2
   family: F-SPACE
-  title: Common-sample and power budget for every registered hypothesis
   status: descriptive
+  title: Common-sample and power budget for every registered hypothesis
   use_case: planning
-  members: ["all registered hypotheses|all|n/a"]
-  assets: all
-  combination: "n/a"
-  label_horizon_months: 0
-  purge_months: 0
-  primary_endpoint: Minimum detectable effect at 80% power, two-sided 5%, with Memmel Sharpe term, serial correlation and family multiplicity, per hypothesis and design
-  pass_rule: >-
-    Decision rule, fixed now: a hypothesis whose MDE on its primary design exceeds 2x its registered margin is
-    labelled "underpowered" in advance; it is still run and reported, never dropped
-  min_events: 0
-  event_def: "n/a"
-  comparator: "n/a"
-  baselines:
-    B1: "n/a: power calculation"
-    B2a: "n/a: power calculation"
-    B3: "n/a: power calculation"
-    B4: "n/a: power calculation"
+  members:
+    all: {series: DERIVED, track: derived, role: all registered hypotheses}
+  baselines: *bl_na
   null_design: none
   validation: {primary: "n/a", supporting: "none", descriptive: "none"}
-  correction: none
-  n_hypotheses: 0
-  hypotheses: []
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance: {label: descriptive, designer_knowledge: power calculation, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P1
   rank: 1
+  estimand: {statistic: "MDE at 80% power per hypothesis and design (Sharpe: Memmel; CVaR: Monte Carlo; interaction: analytic; episodes: exact)", interval: none (calculation), decision_rule: "MDE > 2x the registered margin -> labelled underpowered in advance; never dropped", label_horizon_months: 0, purge_months: 0}
+  hypotheses: []
 - id: D2-11
   direction: 2
   family: F-SPACE
-  title: Is the useful combination the same across assets?
   status: descriptive
+  title: Is the useful combination the same across assets?
   use_case: planning
-  members: ["8 representatives' predictive slopes|all|vintage / market"]
-  assets: SPY, 9 sectors (total return), gold, HYG (2007+), Treasury proxy (G6)
-  combination: "n/a"
-  label_horizon_months: 3
-  purge_months: 3
-  primary_endpoint: Participation ratio of the (assets x indicators) slope matrix, 90% block-bootstrap interval
-  pass_rule: "Decision rule: if the upper bound <= 2, Phase 3 uses one overlay design for all assets"
-  min_events: 0
-  event_def: "n/a"
-  comparator: N1 null slopes
-  baselines:
-    B1: "n/a: estimate"
-    B2a: "n/a: estimate"
-    B3: "n/a: estimate"
-    B4: "n/a: estimate"
+  members: *reps
+  baselines: *bl_na
   null_design: N1
   validation: {primary: "V-A in-sample folds only", supporting: "none", descriptive: "none"}
-  correction: none
-  n_hypotheses: 0
-  hypotheses: []
   uses_fleet_winners: false
   influenced_by: [none]
+  provenance: {label: descriptive, designer_knowledge: estimate, frozen: "2026-10-17 (rev3)"}
   feasibility: H
   priority: P2
   rank: null
+  estimand: {statistic: "participation ratio of the (assets x indicators) slope matrix; assets SPY, 9 sectors (total return), gold, Treasury proxy (G6)", interval: block bootstrap 90%, decision_rule: "upper bound <= 2 -> one overlay design for all assets", label_horizon_months: 3, purge_months: 3}
+  hypotheses: []

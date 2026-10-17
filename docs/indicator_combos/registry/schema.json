@@ -1,0 +1,539 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "indicator_combos/registry/schema.json",
+ "title": "Indicator-combination hypothesis ledger (revision 3)",
+ "type": "object",
+ "required": [
+  "hypotheses",
+  "families"
+ ],
+ "properties": {
+  "families": {
+   "type": "object",
+   "required": [
+    "families"
+   ],
+   "properties": {
+    "families": {
+     "type": "object",
+     "minProperties": 1,
+     "additionalProperties": {
+      "type": "object",
+      "required": [
+       "name",
+       "n_total",
+       "n_confirmatory",
+       "correction_confirmatory",
+       "correction_exploratory"
+      ],
+      "properties": {
+       "name": {
+        "type": "string",
+        "minLength": 3
+       },
+       "n_total": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "n_confirmatory": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "correction_confirmatory": {
+        "$ref": "#/$defs/correction"
+       },
+       "correction_exploratory": {
+        "$ref": "#/$defs/correction"
+       }
+      }
+     }
+    }
+   }
+  },
+  "hypotheses": {
+   "type": "object",
+   "required": [
+    "questions"
+   ],
+   "properties": {
+    "questions": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/question"
+     }
+    }
+   }
+  }
+ },
+ "$defs": {
+  "correction": {
+   "type": "object",
+   "required": [
+    "method",
+    "detail"
+   ],
+   "properties": {
+    "method": {
+     "enum": [
+      "romano_wolf",
+      "holm",
+      "hansen_spa",
+      "deflated_sharpe",
+      "single_test",
+      "none"
+     ]
+    },
+    "detail": {
+     "type": "string",
+     "minLength": 5
+    }
+   }
+  },
+  "baseline": {
+   "type": "string",
+   "pattern": "^(yes: .{3,}|n/a: .{5,})$"
+  },
+  "member": {
+   "type": "object",
+   "required": [
+    "series",
+    "track",
+    "role"
+   ],
+   "properties": {
+    "series": {
+     "type": "string",
+     "minLength": 2
+    },
+    "track": {
+     "enum": [
+      "vintage",
+      "market",
+      "snapshot_forward",
+      "revised",
+      "label",
+      "derived",
+      "fleet"
+     ]
+    },
+    "role": {
+     "type": "string",
+     "minLength": 2
+    },
+    "pending_gap": {
+     "type": "string",
+     "pattern": "^G[0-9]+$"
+    }
+   }
+  },
+  "parameter": {
+   "type": "object",
+   "required": [
+    "name",
+    "value",
+    "source_type",
+    "source"
+   ],
+   "properties": {
+    "name": {
+     "type": "string",
+     "minLength": 1
+    },
+    "source_type": {
+     "enum": [
+      "citation",
+      "natural",
+      "convention",
+      "data_chosen"
+     ]
+    },
+    "source": {
+     "type": "string",
+     "minLength": 3
+    }
+   }
+  },
+  "pass_rule": {
+   "type": "object",
+   "required": [
+    "margin",
+    "margin_unit",
+    "test"
+   ],
+   "properties": {
+    "margin": {
+     "type": "number"
+    },
+    "margin_unit": {
+     "type": "string",
+     "minLength": 3
+    },
+    "test": {
+     "enum": [
+      "stationary_bootstrap",
+      "romano_wolf_stationary_bootstrap",
+      "hac_and_stationary_bootstrap",
+      "exact_sign_test",
+      "exact_mcnemar",
+      "diebold_mariano_block_bootstrap",
+      "block_bootstrap_interval",
+      "clopper_pearson_interval"
+     ]
+    },
+    "alpha": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "maximum": 0.1
+    },
+    "interval_level": {
+     "type": "number",
+     "minimum": 0.8,
+     "maximum": 0.99
+    },
+    "guardrail": {
+     "type": "string"
+    }
+   },
+   "oneOf": [
+    {
+     "required": [
+      "alpha"
+     ]
+    },
+    {
+     "required": [
+      "interval_level"
+     ]
+    }
+   ]
+  },
+  "endpoint": {
+   "type": "object",
+   "required": [
+    "type",
+    "statistic",
+    "comparator",
+    "params"
+   ],
+   "properties": {
+    "type": {
+     "enum": [
+      "cvar_overlay",
+      "lexicographic_recession",
+      "brier_skill",
+      "interaction",
+      "information_ratio",
+      "forward_return_diff",
+      "missed_rally",
+      "log_score",
+      "plateau_k",
+      "capture_share",
+      "false_exit_rate",
+      "pr_difference"
+     ]
+    },
+    "statistic": {
+     "type": "string",
+     "minLength": 5
+    },
+    "comparator": {
+     "type": "string",
+     "minLength": 2
+    },
+    "params": {
+     "type": "object"
+    }
+   }
+  },
+  "hypothesis": {
+   "type": "object",
+   "required": [
+    "hid",
+    "status",
+    "family",
+    "asset",
+    "members",
+    "rule",
+    "parameters",
+    "endpoint",
+    "label_horizon_months",
+    "purge_months",
+    "pass_rule",
+    "min_events",
+    "event_def"
+   ],
+   "properties": {
+    "hid": {
+     "type": "string",
+     "pattern": "^D[12]-[0-9]{2}\\.H[0-9]{1,2}$"
+    },
+    "status": {
+     "enum": [
+      "confirmatory",
+      "exploratory"
+     ]
+    },
+    "family": {
+     "type": "string",
+     "pattern": "^F-[A-Z]+$"
+    },
+    "asset": {
+     "type": "string",
+     "minLength": 2
+    },
+    "members": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "string"
+     }
+    },
+    "rule": {
+     "type": "string",
+     "minLength": 3
+    },
+    "parameters": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/parameter"
+     }
+    },
+    "endpoint": {
+     "$ref": "#/$defs/endpoint"
+    },
+    "label_horizon_months": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "purge_months": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "pass_rule": {
+     "$ref": "#/$defs/pass_rule"
+    },
+    "min_events": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "event_def": {
+     "type": "string",
+     "minLength": 3
+    }
+   }
+  },
+  "question": {
+   "type": "object",
+   "required": [
+    "id",
+    "direction",
+    "family",
+    "status",
+    "title",
+    "use_case",
+    "members",
+    "baselines",
+    "null_design",
+    "validation",
+    "uses_fleet_winners",
+    "influenced_by",
+    "provenance",
+    "feasibility",
+    "priority",
+    "rank",
+    "hypotheses"
+   ],
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^D[12]-[0-9]{2}$"
+    },
+    "direction": {
+     "enum": [
+      1,
+      2
+     ]
+    },
+    "family": {
+     "type": "string",
+     "pattern": "^F-[A-Z]+$"
+    },
+    "status": {
+     "enum": [
+      "confirmatory",
+      "exploratory",
+      "descriptive"
+     ]
+    },
+    "title": {
+     "type": "string",
+     "minLength": 5
+    },
+    "use_case": {
+     "enum": [
+      "U1",
+      "U2",
+      "U3",
+      "U4",
+      "U5",
+      "planning",
+      "process",
+      "all"
+     ]
+    },
+    "members": {
+     "type": "object",
+     "minProperties": 1,
+     "additionalProperties": {
+      "$ref": "#/$defs/member"
+     }
+    },
+    "baselines": {
+     "type": "object",
+     "required": [
+      "B1",
+      "B2a",
+      "B3",
+      "B4"
+     ],
+     "properties": {
+      "B1": {
+       "$ref": "#/$defs/baseline"
+      },
+      "B2a": {
+       "$ref": "#/$defs/baseline"
+      },
+      "B3": {
+       "$ref": "#/$defs/baseline"
+      },
+      "B4": {
+       "$ref": "#/$defs/baseline"
+      }
+     }
+    },
+    "null_design": {
+     "type": "string",
+     "minLength": 2
+    },
+    "validation": {
+     "type": "object",
+     "required": [
+      "primary",
+      "supporting",
+      "descriptive"
+     ],
+     "properties": {
+      "primary": {
+       "type": "string",
+       "minLength": 2
+      },
+      "supporting": {
+       "type": "string"
+      },
+      "descriptive": {
+       "type": "string"
+      }
+     }
+    },
+    "uses_fleet_winners": {
+     "type": "boolean"
+    },
+    "influenced_by": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "enum": [
+       "none",
+       "viewed_oos",
+       "full_sample_corr",
+       "d1_15"
+      ]
+     }
+    },
+    "provenance": {
+     "type": "object",
+     "required": [
+      "label",
+      "designer_knowledge",
+      "frozen"
+     ],
+     "properties": {
+      "label": {
+       "enum": [
+        "discovery-informed prospective confirmation",
+        "exploratory",
+        "descriptive"
+       ]
+      },
+      "designer_knowledge": {
+       "type": "string",
+       "minLength": 5
+      },
+      "frozen": {
+       "type": "string",
+       "minLength": 4
+      }
+     }
+    },
+    "feasibility": {
+     "type": "string",
+     "minLength": 1
+    },
+    "priority": {
+     "enum": [
+      "P1",
+      "P2",
+      "P3"
+     ]
+    },
+    "rank": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 1,
+     "maximum": 10
+    },
+    "estimand": {
+     "type": "object",
+     "required": [
+      "statistic",
+      "interval",
+      "decision_rule",
+      "label_horizon_months",
+      "purge_months"
+     ],
+     "properties": {
+      "statistic": {
+       "type": "string",
+       "minLength": 5
+      },
+      "interval": {
+       "type": "string"
+      },
+      "decision_rule": {
+       "type": "string",
+       "minLength": 5
+      },
+      "label_horizon_months": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "purge_months": {
+       "type": "integer",
+       "minimum": 0
+      }
+     }
+    },
+    "hypotheses": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/hypothesis"
+     }
+    }
+   }
+  }
+ }
+}
