@@ -75,7 +75,8 @@ def run_tournament(spec: PairSpec, ti: TrackInputs, legacy: bool = False, full_t
     for j, c in enumerate(cands):
         by_lead.setdefault(c.lead, []).append(j)
     for lead, cols in by_lead.items():
-        P[:, cols] = position_matrix(spec, ti.lagged[lead], [cands[j] for j in cols], pre_oos)
+        P[:, cols] = position_matrix(spec, ti.lagged[lead], [cands[j] for j in cols], pre_oos,
+                                     L.is_quantile if legacy else "expanding")
     R = strategy_returns(P, ti.ret, spec.position_shift)
 
     first = M.first_valid(R)
@@ -109,10 +110,13 @@ def run_tournament(spec: PairSpec, ti: TrackInputs, legacy: bool = False, full_t
                "is_sharpe": float(is_sh[j]), "is_exposure": expo, "is_n_trades": tr, "is_annual_turnover": to,
                "is_n": int(is_n[j]), "oos_sharpe": float(oos_sh[j]), "oos_n": int(oos_n[j]),
                "is_eligible": bool(eligible[j]), "valid": ok, "key": c.key}
+        # ECON-T3 tie-break fields are computed in every run, null draws included (Codex B0 LOW)
+        ri = Xi[:, j]
+        pi = M.perf(ri, spec.ppy, ann)
+        rec.update({"is_ann_return": pi["ann_return"], "is_max_drawdown": pi["max_drawdown"]})
         if full_table:
-            ri = Xi[:, j]
             ro = Xo[:, j]
-            pi, po = M.perf(ri, spec.ppy, ann), M.perf(ro, spec.ppy, ann)
+            po = M.perf(ro, spec.ppy, ann)
             isr = np.flatnonzero(is_mask)[~np.isnan(ri)] if is_sc == "dropna" else np.flatnonzero(is_mask)
             own = (rows >= first[j]) & pre_oos
             Xw = M.window(R[:, [j]], own, is_sc)[:, 0]
@@ -121,7 +125,6 @@ def run_tournament(spec: PairSpec, ti: TrackInputs, legacy: bool = False, full_t
             own_ok = bool(pw["n"] >= spec.min_is_n and lo <= M.exposure(pos, own, c.strategy) <= hi
                           and np.nanstd(Xw) > 0)
             rec.update({
-                "is_ann_return": pi["ann_return"], "is_max_drawdown": pi["max_drawdown"],
                 "is_start": _date(idx, isr[0] if len(isr) else None), "is_end": _date(idx, isr[-1] if len(isr) else None),
                 "common_is_start": _date(idx, cs_row), "own_is_start": _date(idx, int(first[j])),
                 "own_is_sharpe": pw["sharpe"], "own_is_n": pw["n"], "own_is_valid": own_ok,

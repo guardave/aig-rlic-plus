@@ -3,8 +3,8 @@
 Truncation: rebuild the track from data available up to a cut c (revised: rows <= c; real-time: the vintage
 panel as published by c) and require the candidate's position on every row <= c to equal the full run.
 Perturbation: replace every reading after c (and every vintage published after c) by noise and require the
-same. Cuts before the OOS start may differ only for IS-frozen objects (regime fits, IS-quantile thresholds);
-those candidates are reported as exempt at IS cuts.
+same. Cuts before the OOS start may differ only for IS-frozen objects (regime fits); those candidates are
+reported as exempt at IS cuts. IS-quantile thresholds are expanding in-sample and are tested like any rule.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import pandas as pd
 from .candidates import Candidate
 from .engine import TrackInputs
 from .positions import position_matrix
-from .spec import ISQuantile, PairSpec
+from .spec import PairSpec
 
 
 def candidate_positions(spec: PairSpec, ti: TrackInputs, cand: Candidate) -> pd.Series:
@@ -25,12 +25,9 @@ def candidate_positions(spec: PairSpec, ti: TrackInputs, cand: Candidate) -> pd.
 
 
 def is_frozen(spec: PairSpec, cand: Candidate) -> bool:
-    """True when the rule uses an object fitted on the IS window (regime fit or IS-quantile threshold)."""
-    if spec.signals[cand.signal] in spec.regime_columns:
-        return True
-    if cand.strategy != "P2":
-        return isinstance(spec.rules(cand.signal)[cand.threshold].thr, ISQuantile)
-    return False
+    """True when the rule uses an object fitted on the whole IS window (IS-frozen regime fit). IS-quantile
+    thresholds are expanding in-sample (Codex B0 fix), so they are truncation-invariant and not exempt."""
+    return spec.signals[cand.signal] in spec.regime_columns
 
 
 def cuts(index: pd.DatetimeIndex, oos_start: str, ppy: int) -> dict[str, pd.Timestamp]:

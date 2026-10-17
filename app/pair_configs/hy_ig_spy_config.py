@@ -60,8 +60,8 @@ def _f(v, nd=2):
 
 THRESHOLD_TEXT = {
     "T2_rp75": "the 75th percentile of its own trailing 504 trading days", "T2_rp85": "the 85th percentile of its own trailing 504 trading days",
-    "T2_rp95": "the 95th percentile of its own trailing 504 trading days", "T1_p75": "its in-sample 75th percentile",
-    "T1_p85": "its in-sample 85th percentile", "T1_p95": "its in-sample 95th percentile",
+    "T2_rp95": "the 95th percentile of its own trailing 504 trading days", "T1_p75": "its 75th percentile over the in-sample readings before each day (frozen at the in-sample end)",
+    "T1_p85": "its 85th percentile over the in-sample readings before each day (frozen at the in-sample end)", "T1_p95": "its 95th percentile over the in-sample readings before each day (frozen at the in-sample end)",
     "T3_z1.5": "a trailing 504-day z-score of 1.5", "T3_z2.0": "a trailing 504-day z-score of 2.0",
     "T3_z2.5": "a trailing 504-day z-score of 2.5", "T4_hmm_0.5": "0.5", "T4_hmm_0.7": "0.7", "T5_ms_0.5": "0.5",
     "T5_ms_0.7": "0.7", "-": "its trailing 504-day range (sizing; no threshold)",
@@ -969,7 +969,7 @@ _TOURNAMENT_DESIGN_MD = f"""
 | Dimension | Values |
 |:----------|:-------|
 | **Signals (15)** | spread level; z-score 252d/504d; percentile rank 504d/1260d; % change 21d/63d/126d; change 21d/63d/252d; acceleration; CCC-BB spread; causal HMM stress prob (S6); causal Markov-switching prob (S7) |
-| **Thresholds (13 labels)** | T1 in-sample percentile p75/p85/p95; T2 rolling-504d percentile rp75/rp85/rp95; T3 rolling-504d z-score 1.5/2.0/2.5; T4/T5 probability 0.5/0.7 (S6/S7 only) |
+| **Thresholds (13 labels)** | T1 in-sample percentile p75/p85/p95 (expanding over the in-sample readings before each day, 400-day warm-up, frozen at the in-sample end); T2 rolling-504d percentile rp75/rp85/rp95; T3 rolling-504d z-score 1.5/2.0/2.5; T4/T5 probability 0.5/0.7 (S6/S7 only) |
 | **Strategies (3)** | Long/Cash (P1), Signal-Strength sizing on the trailing-504d range (P2; ignores the threshold, declared once per signal and lead), Long/Short (P3) |
 | **Lead times (trading days)** | 1, 5, 21, 63, 126, 252, the standard daily grid floored at 1 for the OAS publication lag; plus a 1-day execution lag |
 | **Orientation** | Countercyclical (high signal -> reduce SPY exposure) |

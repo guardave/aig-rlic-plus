@@ -13,9 +13,15 @@ DIRECTIONS = ("countercyclical", "procyclical")
 
 @dataclass(frozen=True)
 class ISQuantile:
-    """Threshold resolved AFTER lagging: quantile `q` of the lagged rule variable over the in-sample rows
-    (index < OOS start). It is a constant fitted on IS data only, so it never sees the OOS window."""
+    """Threshold calibrated on the in-sample rows, resolved AFTER lagging (positions.is_quantile_threshold).
+
+    In-sample rows: EXPANDING quantile `q` of the lagged rule variable over the IS rows strictly before the row
+    (each IS month uses only readings known before it), NaN until `min_periods` readings exist (the family's
+    warm-up; the position is then undefined = cash). OOS rows: frozen at the quantile over all IS rows.
+    Legacy replay (Legacy.is_quantile="full") reproduces the pre-Phase-B fit: one quantile over all IS rows
+    applied to every row, which let early IS months use later IS readings (Codex B0 HIGH, fleet-wide item)."""
     q: float
+    min_periods: int = 1
 
 
 @dataclass(frozen=True)
@@ -41,6 +47,7 @@ class Legacy:
     p2_per_threshold: bool = False    # True: P2 rows repeated per threshold (pre-dedupe manifests)
     ann_return: str = "geometric"     # geometric (CAGR) | arithmetic (mean * ppy)
     round_table: int | None = None    # decimals the legacy table was rounded to BEFORE selection
+    is_quantile: str = "full"         # how the legacy pipeline fitted ISQuantile thresholds (full | expanding)
 
 
 @dataclass

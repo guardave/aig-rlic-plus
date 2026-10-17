@@ -62,9 +62,8 @@ def winner_series(res: TrackResult, idx) -> pd.DataFrame:
             rule = spec.rules(c.signal)[c.threshold]
             sig = lag[x_col(c.signal, rule.x_name)].to_numpy(float)
             if isinstance(rule.thr, ISQuantile):
-                xi = sig[~res.oos_mask]
-                xi = xi[~np.isnan(xi)]
-                thr = np.full(len(sig), np.quantile(xi, rule.thr.q) if len(xi) else np.nan)
+                from .positions import is_quantile_threshold
+                thr = is_quantile_threshold(sig, ~res.oos_mask, rule.thr)
             elif callable(rule.thr):
                 thr = lag[thr_col(c.signal, c.threshold)].to_numpy(float)
             else:
@@ -141,7 +140,7 @@ def track_record(res: TrackResult, signal_display: dict, null_summary: dict | No
                        "strategy": raw["strategy"], "direction": raw["direction"], "lead": int(raw["lead"]),
                        "is_sharpe": _r(raw["is_sharpe"]), "oos_sharpe": _r(raw["oos_sharpe"]),
                        "note": "isolated-peak sensitivity; not the selection rule"},
-        "runner_up": _runner_up(tab, w),
+        "runner_up": _runner_up(tab, res.selection.get("runner_up")),
         "spearman_is_oos": _r(tab.loc[tab["valid"], ["is_sharpe", "oos_sharpe"]].corr("spearman").iloc[0, 1], 4)
         if tab["valid"].sum() > 2 else None,
     })
@@ -163,13 +162,15 @@ def track_record(res: TrackResult, signal_display: dict, null_summary: dict | No
     return rec
 
 
-def _runner_up(tab: pd.DataFrame, w) -> dict | None:
-    v = tab[tab["valid"]].drop(index=w)
-    if v.empty:
+def _runner_up(tab: pd.DataFrame, ru: dict | None) -> dict | None:
+    """Second-best D9 plateau winner (winner of the next-ranked window whose winner differs); objective_value is
+    that window's plateau score J, like the winner's selection.J."""
+    if not ru:
         return None
-    r = v.sort_values(["is_sharpe", "signal", "threshold"], ascending=[False, True, True]).iloc[0]
+    r = tab.loc[ru["index"]]
     return {"signal": r["signal"], "threshold": r["threshold"], "strategy": r["strategy"], "lead_value": int(r["lead"]),
-            "objective_value": _r(r["is_sharpe"]), "oos_sharpe": _r(r["oos_sharpe"])}
+            "objective": "plateau_score_J", "objective_value": _r(ru["score"]), "window_leads": ru["window_leads"],
+            "is_sharpe": _r(r["is_sharpe"]), "oos_sharpe": _r(r["oos_sharpe"])}
 
 
 def tournament_frame(res: TrackResult) -> pd.DataFrame:

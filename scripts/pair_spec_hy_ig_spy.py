@@ -88,7 +88,9 @@ def rules(signal: str) -> dict[str, Rule]:
         return {f"T4_hmm_{t}": Rule("raw", None, t) for t in (0.5, 0.7)}
     if signal == "S7_ms_stress":
         return {f"T5_ms_{t}": Rule("raw", None, t) for t in (0.5, 0.7)}
-    out = {f"T1_p{p}": Rule("raw", None, ISQuantile(p / 100)) for p in (75, 85, 95)}
+    # T1: in-sample percentile, expanding over the IS readings before each row (warm-up 400 = the min_periods
+    # of the pair's 504-day rolling families), frozen at the IS end out of sample (spec.ISQuantile).
+    out = {f"T1_p{p}": Rule("raw", None, ISQuantile(p / 100, min_periods=400)) for p in (75, 85, 95)}
     out.update({f"T2_rp{p}": Rule("raw", None, _roll_q(p / 100)) for p in (75, 85, 95)})
     out.update({f"T3_z{z}": Rule("z504", _z504, z) for z in (1.5, 2.0, 2.5)})
     return out
