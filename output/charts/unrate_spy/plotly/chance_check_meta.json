@@ -1,7 +1,7 @@
 {
   "chart_name": "chance_check",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T17:17:04.687180+00:00",
+  "generated_at": "2026-10-17T18:09:38.957639+00:00",
   "generated_by": "scripts/harness/charts.py",
   "caption": "The real winner's plateau score ranks at the 40th percentile of 100 scrambled-signal contests.",
   "narrative_alignment_note": "The real winner's plateau score ranks at the 40th percentile of 100 scrambled-signal contests.",

@@ -53,6 +53,7 @@ import pair_spec_hy_ig_spy as spec_mod  # noqa: E402
 from harness.align import lag_asof, release_for  # noqa: E402
 from harness.candidates import P2_THRESHOLD, Candidate, reading_frame  # noqa: E402
 from harness.positions import position_matrix, strategy_returns  # noqa: E402
+from harness.evidence import write_evidence_facts  # noqa: E402
 from harness.run import run_pair  # noqa: E402
 
 import numpy as np
@@ -1568,6 +1569,51 @@ Generated: {now_iso}
 # MAIN
 # ─────────────────────────────────────────────────────────────
 
+NARRATIVE_SOURCES = [f"hmm_lookahead_audit_{DATE_TAG}.json", f"lead_correlation_{DATE_TAG}.csv",
+                     f"lead_winner_curve_{DATE_TAG}.csv", "subperiod_sharpe.csv",
+                     f"tournament_validation_{DATE_TAG}/transaction_costs.csv",
+                     f"tournament_validation_{DATE_TAG}/walk_forward.csv", "structural_break_hy_ig_spy.json",
+                     f"core_models_{DATE_TAG}/local_projections.csv", f"core_models_{DATE_TAG}/quantile_regression.csv",
+                     f"regime_quartile_forward_tests_{DATE_TAG}.csv"]
+
+
+def stage_narrative_provenance():
+    """evidence_facts_<tag>.json 'sources' (the small evidence tables the prose cites) and 'derived' facts the
+    prose states that come from large files (tournament table, daily rolling series, daily regime split);
+    read back by the config (scripts/gate_number_provenance.py)."""
+    import pandas as _pd
+    res = Path(RESULTS_DIR)
+    spy = _pd.read_parquet(os.path.join(BASE_DIR, "data", f"hy_ig_spy_daily_20000101_{DATA_TAG}.parquet"))["spy_ret"]
+    hp = _pd.read_parquet(res / f"signals_{DATE_TAG}.parquet")["hmm_2state_prob_stress"].reindex(spy.index, method="ffill")
+
+    def regime(mask):
+        r = spy[mask].dropna()
+        return {"sharpe": round(float(r.mean() * 252 / (r.std() * 252 ** 0.5)), 4), "ann_return": round(float(r.mean() * 252), 4)}
+    t = _pd.read_csv(res / f"tournament_results_{DATE_TAG}.csv")
+    t = t[(t["signal"] == "S6_hmm_stress") & (t["valid"].astype(str).str.lower() == "true")]
+    best = t.sort_values("is_sharpe", ascending=False).iloc[0]
+    rsh = _pd.read_csv(res / "rolling_sharpe_hy_ig_spy.csv")["rolling_sharpe_24m"].dropna()
+    rco = _pd.read_csv(res / "rolling_correlation_hy_ig_spy.csv")["rolling_corr_24m"].dropna()
+    rgr = _pd.read_csv(res / "rolling_granger_hy_ig_spy.csv")["p_value_24m"].dropna()
+    derived = {
+        "history_years": int(DATE_TAG[:4]) - int(spy.index[0].year),
+        "hmm_regime_threshold": 0.5,
+        "hmm_regime_calm": regime((hp <= 0.5) & hp.notna()), "hmm_regime_stress": regime(hp > 0.5),
+        "best_hmm_rule": {"strategy": best["strategy"], "lead_days": int(best["lead_days"]),
+                          "is_sharpe": round(float(best["is_sharpe"]), 4), "oos_sharpe": round(float(best["oos_sharpe"]), 4)},
+        "rolling_sharpe": {"pos_share": round(float((rsh > 0).mean()), 4), "min": round(float(rsh.min()), 4),
+                           "max": round(float(rsh.max()), 4)},
+        "rolling_correlation": {"neg_share": round(float((rco < 0).mean()), 4), "min": round(float(rco.min()), 4),
+                                "max": round(float(rco.max()), 4)},
+        "rolling_granger": {"sig_share": round(float((rgr < 0.05).mean()), 4)},
+    }
+    ft = _pd.read_csv(res / f"regime_quartile_forward_tests_{DATE_TAG}.csv").set_index("horizon_months")
+    derived["quartile_next_month_ann_return"] = {q: round(float(ft.loc[1, f"mean_{q}"] * 12), 6)
+                                                 for q in ("Q1", "Q2", "Q3", "Q4")}
+    write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived=derived)
+    print("  narrative provenance: evidence_facts sources + derived written")
+
+
 def main():
     t0_total = time.time()
     print(f"\n{'='*60}\n  {INDICATOR_NAME} -> {TARGET_NAME}  |  {PAIR_ID}  |  {DATE_TAG}\n{'='*60}")
@@ -1584,6 +1630,7 @@ def main():
     stage_winner_artifacts(tourn, vinfo)
     stage_lead_artifacts(tourn)
     stage_evidence_facts(df)
+    stage_narrative_provenance()
     stage_metadata()
     elapsed = time.time() - t0_total
     with open(os.path.join(RESULTS_DIR, f"pipeline_timing_{DATE_TAG}.json"), "w") as f:

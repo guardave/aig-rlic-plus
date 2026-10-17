@@ -1,7 +1,7 @@
 {
   "chart_name": "drawdown",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T17:17:29.788057+00:00",
+  "generated_at": "2026-10-17T18:10:07.820648+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold.",
   "narrative_alignment_note": "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold.",

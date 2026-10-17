@@ -1,0 +1,14 @@
+{
+  "pair_id": "cc_delinquency_spy",
+  "date_tag": "20261017",
+  "sources": [
+    "core_models_20261017/ccf_prewhitened.csv",
+    "core_models_20261017/correlations.csv",
+    "core_models_20261017/local_projections.csv",
+    "core_models_20261017/quantile_equality_test.json",
+    "granger_by_lag.csv",
+    "regime_quartile_returns.csv",
+    "stationarity_tests_20261017.csv",
+    "structural_break_cc_delinquency_spy.json"
+  ]
+}

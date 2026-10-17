@@ -12,8 +12,10 @@ The RAW indicator is shifted and the whole pipeline is rebuilt for every draw (C
       are rebuilt per draw. At large offsets the wrapped (missing) part can cover the whole in-sample window
       of the early vintages, so the admissible set is restricted UP FRONT to offsets that leave a usable
       training window (some candidate meets the R3.3 eligibility rule; max_usable_offset, found by binary
-      search because usability is monotone in k); offsets are then drawn from that set. n_draws counts draws
-      with a winner; n_draws_without_winner is reported (expected 0).
+      search because usability is monotone in k); offsets are then drawn from that set. An offset can still
+      be eligible yet have no VALID rule (exposure / turnover filters): that draw records no winner and is
+      excluded; n_draws counts draws with a winner, the percentiles are computed from them, and
+      n_admissible_offsets / n_draws_without_winner are reported (cc MAIN: 56 admissible, 55 with a winner).
 Offsets: DISTINCT admissible values in [m, n - m], m = max(36 months in native periods, 20% of n), drawn without
 replacement (seed 20261016); all of them when there are at most K. R7.1 is calibrated for the dependence between
 neighbouring offsets: the SE of the mean timing Sharpe is a Bartlett (Newey-West) long-run SE over the draws

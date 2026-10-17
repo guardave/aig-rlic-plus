@@ -27,6 +27,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 import pair_spec_cc_delinquency_spy as spec_mod  # noqa: E402
 from harness.artifacts import trade_log, winner_series  # noqa: E402
+from harness.evidence import write_evidence_facts  # noqa: E402
 from harness.run import run_pair  # noqa: E402
 
 PAIR_ID = "cc_delinquency_spy"
@@ -286,6 +287,17 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
             "date_filed": DATE_TAG[:4] + "-" + DATE_TAG[4:6] + "-" + DATE_TAG[6:]}], "notes": "Generated with the Credit Card Delinquency Rate x SPY pair pipeline."}, indent=2) + "\n")
 
 
+NARRATIVE_SOURCES = ["regime_quartile_returns.csv", "granger_by_lag.csv", f"stationarity_tests_{DATE_TAG}.csv",
+                     "structural_break_cc_delinquency_spy.json", f"core_models_{DATE_TAG}/correlations.csv",
+                     f"core_models_{DATE_TAG}/ccf_prewhitened.csv", f"core_models_{DATE_TAG}/local_projections.csv",
+                     f"core_models_{DATE_TAG}/quantile_equality_test.json"]
+
+
+def write_narrative_provenance() -> None:
+    """evidence_facts_<tag>.json: the evidence tables the page prose cites (scripts/gate_number_provenance.py)."""
+    write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES)
+
+
 def main() -> None:
     t0 = time.time()
     for path in (RES, CORE, VALID):
@@ -295,6 +307,7 @@ def main() -> None:
     tourn, winner, _ = run_tournament()
     write_evidence(df, tourn, winner)
     write_metadata(df, winner, time.time() - t0)
+    write_narrative_provenance()
     print(f"Done. Results saved to {RES}")
 
 

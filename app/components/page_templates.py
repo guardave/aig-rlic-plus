@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import glob
 import json
+import re
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -2156,8 +2157,19 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
     # Merge pair-specific overrides on top of canonical defaults.
     col_overrides: dict[str, str] = getattr(config, "TRADE_LOG_COLUMN_EXAMPLES", {}) or {}
     table_lines = ["| Column | Type | Meaning | Example |", "|---|---|---|---|"]
+    _first = broker_df.iloc[0] if broker_df is not None and len(broker_df) else None
     for col_name, row in _TRADE_LOG_COLUMN_DICT_DEFAULTS.items():
-        example_val = col_overrides.get(col_name, row.get("example", ""))
+        # Example values come from the pair's own trade log when it has the column (an illustrative number
+        # must never be a made-up one); otherwise the config override; otherwise the default only when it
+        # carries no number.
+        if _first is not None and col_name in _first.index:
+            example_val = str(_first[col_name])
+        elif col_name in col_overrides:
+            example_val = col_overrides[col_name]
+        elif not re.search(r"\d", row.get("example", "")) or col_name == "trade_date":
+            example_val = row.get("example", "")
+        else:
+            example_val = "(not in this pair's log)"
         table_lines.append(
             f"| `{col_name}` | {row.get('type', '')} | "
             f"{row.get('meaning', '')} | {example_val} |"

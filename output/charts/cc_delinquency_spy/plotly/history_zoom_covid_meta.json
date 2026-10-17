@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T17:17:32.595397+00:00",
+  "generated_at": "2026-10-17T18:10:11.393637+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "COVID Shock: Support Programs Kept Delinquency Subdued; gray bands are NBER recessions.",
   "narrative_alignment_note": "COVID Shock: Support Programs Kept Delinquency Subdued; gray bands are NBER recessions.",

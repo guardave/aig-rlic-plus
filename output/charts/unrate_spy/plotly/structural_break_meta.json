@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T17:17:29.871485+00:00",
+  "generated_at": "2026-10-17T18:10:07.960277+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "Proxy check for large changes in the UNRATE-SPY relationship.",
   "narrative_alignment_note": "Proxy check for large changes in the UNRATE-SPY relationship.",

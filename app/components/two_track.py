@@ -270,7 +270,8 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
                                 "The real winner's plateau score (the statistic the scrambled contests are compared on) "
                                 f"ranks at the {_ordinal(round(nt['winner_percentile'] * 100))} percentile of "
                                 f"{nt['n_draws']:,} scrambled-signal contests")
-                               + " (the indicator shifted in time against the returns, same selection rule)."))
+                               + " (the indicator shifted in time against the returns, same selection rule)."
+                               + draws_note(nt)))
 
 
 def render_lead_plateau(pair_id: str, ts: dict, ws: dict) -> None:
@@ -310,6 +311,18 @@ def badge_status(ts: dict) -> str | None:
     return "Candidate" if lo > 0 else ("Reject" if hi < 0 else "Watchlist")
 
 
+def draws_note(nt: dict) -> str:
+    """' N admissible, M with a winner; percentile from M.' when some contests produced no valid rule."""
+    nw = nt.get("n_draws_without_winner") or 0
+    if not nw:
+        return ""
+    adm = nt.get("n_admissible_offsets")
+    run = nt["n_draws"] + nw
+    head = f"{adm:,} admissible" if adm == run else f"{run:,} run ({adm:,} admissible)"
+    return (f" Contests: {head}, {nt['n_draws']:,} with a winner ({nw:,} without a valid rule, excluded);"
+            f" percentile from {nt['n_draws']:,}.")
+
+
 def chance_fact(ts: dict) -> str | None:
     """Neutral one-line chance-check fact for the Executive Confidence Summary (same place on every pair; it
     is neither a strength nor a risk). None when the null has not been run."""
@@ -320,7 +333,8 @@ def chance_fact(ts: dict) -> str | None:
            f"ranks at the {_ordinal(round(nt['winner_percentile'] * 100))} percentile of {nt['n_draws']:,}")
     p = nt.get("p_selection_stat")
     out = (f"the winner's stable-range score {pos} scrambled-signal contests"
-           + (f" (share of contests scoring at least as high: {p:.2f})" if p is not None else "") + ".")
+           + (f" (share of contests scoring at least as high: {p:.2f})" if p is not None else "") + "."
+           + draws_note(nt))
     if nt.get("r71_pass") is False:
         out += " The scrambled contests do not meet the R7.1 calibration check (see the caveats)."
     return out

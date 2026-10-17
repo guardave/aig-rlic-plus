@@ -1,7 +1,7 @@
 {
   "pair_id": "cc_delinquency_spy",
   "schema_version": "1.0.0",
-  "generated_at": "2026-10-17T16:58:00.866295+00:00",
+  "generated_at": "2026-10-17T17:47:13.902812+00:00",
   "track_state": "both",
   "track_policy": "compute_twice",
   "main": {
@@ -178,6 +178,8 @@
     "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
     "r71_pass": true,
     "edge_flag": false,
+    "n_admissible_offsets": 56,
+    "n_draws_without_winner": 1,
     "revised_winner_percentile": 0.1059,
     "revised_r71_pass": true
   },

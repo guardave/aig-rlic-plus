@@ -123,5 +123,54 @@
       "covid": -0.337,
       "rates_2022": -0.245
     }
+  },
+  "sources": [
+    "core_models_20261017/local_projections.csv",
+    "core_models_20261017/quantile_regression.csv",
+    "hmm_lookahead_audit_20261017.json",
+    "lead_correlation_20261017.csv",
+    "lead_winner_curve_20261017.csv",
+    "regime_quartile_forward_tests_20261017.csv",
+    "structural_break_hy_ig_spy.json",
+    "subperiod_sharpe.csv",
+    "tournament_validation_20261017/transaction_costs.csv",
+    "tournament_validation_20261017/walk_forward.csv"
+  ],
+  "derived": {
+    "history_years": 26,
+    "hmm_regime_threshold": 0.5,
+    "hmm_regime_calm": {
+      "sharpe": 1.3801,
+      "ann_return": 0.1412
+    },
+    "hmm_regime_stress": {
+      "sharpe": 0.1457,
+      "ann_return": 0.0377
+    },
+    "best_hmm_rule": {
+      "strategy": "P2",
+      "lead_days": 5,
+      "is_sharpe": 0.5982,
+      "oos_sharpe": 0.4091
+    },
+    "rolling_sharpe": {
+      "pos_share": 0.9239,
+      "min": -0.6556,
+      "max": 2.3922
+    },
+    "rolling_correlation": {
+      "neg_share": 0.2728,
+      "min": -0.1055,
+      "max": 0.11
+    },
+    "rolling_granger": {
+      "sig_share": 0.1959
+    },
+    "quartile_next_month_ann_return": {
+      "Q1": 0.078696,
+      "Q2": 0.13236,
+      "Q3": 0.11274,
+      "Q4": 0.040692
+    }
   }
 }

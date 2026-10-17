@@ -405,7 +405,9 @@ def track_summary(mod, out: dict, ws: dict) -> dict:
         nt = {"n_draws": n["n_draws"], "winner_percentile": n["selection_stat_percentile"],
               "p_selection_stat": n["p_selection_stat"], "is_max_percentile": n["is_max_percentile"],
               "winner_oos_percentile": n["winner_oos_percentile"], "null_scores_hist": n["null_scores_hist"],
-              "method": n["method"], "r71_pass": n["r71_pass"], "edge_flag": n["edge_flag"]}
+              "method": n["method"], "r71_pass": n["r71_pass"], "edge_flag": n["edge_flag"],
+              "n_admissible_offsets": n.get("n_admissible_offsets"),
+              "n_draws_without_winner": n.get("n_draws_without_winner", 0)}
         if n.get("r71_diagnosis"):
             nt["r71_diagnosis"] = n["r71_diagnosis"]
         if comp and comp.get("null_tournament"):

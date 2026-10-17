@@ -21,10 +21,6 @@ W = load("hy_ig_spy")
 _RES = Path(__file__).resolve().parents[2] / "results" / "hy_ig_spy"
 _WS = json.loads((_RES / "winner_summary.json").read_text())
 _TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
-_T = pd.read_csv(_RES / f"tournament_results_{_TAG}.csv")
-_T = _T[_T["signal"] != "BENCHMARK"]
-_TV = _T[_T["valid"].astype(str).str.lower() == "true"]
-_HMM = _TV[_TV["signal"] == "S6_hmm_stress"].sort_values("is_sharpe", ascending=False).iloc[:1]
 _AUD = {(r["probabilities"], r["lead_days"]): r for r in json.loads((_RES / f"hmm_lookahead_audit_{_TAG}.json").read_text())["rows"]}
 _LC = pd.read_csv(_RES / f"lead_correlation_{_TAG}.csv").set_index("transform")
 _WC = pd.read_csv(_RES / f"lead_winner_curve_{_TAG}.csv")
@@ -34,9 +30,6 @@ _COST = _COST[_COST["rank"] == 1].set_index("tx_cost_bps")["net_sharpe_approx"]
 _WF = pd.read_csv(_RES / f"tournament_validation_{_TAG}" / "walk_forward.csv")
 _WF = _WF[_WF["rank"] == 1]
 _SB = json.loads((_RES / "structural_break_hy_ig_spy.json").read_text())
-_RSH = pd.read_csv(_RES / "rolling_sharpe_hy_ig_spy.csv")["rolling_sharpe_24m"]
-_RCO = pd.read_csv(_RES / "rolling_correlation_hy_ig_spy.csv")["rolling_corr_24m"]
-_RGR = pd.read_csv(_RES / "rolling_granger_hy_ig_spy.csv")["p_value_24m"]
 _SIGCOL = _WS["signal_column"]
 _EF = json.loads((_RES / f"evidence_facts_{_TAG}.json").read_text())
 _H = _EF["history"]
@@ -56,20 +49,17 @@ def _pct(v, nd=1):
     return f"{abs(v) * 100:.{nd}f}%"
 
 
+_D = _EF["derived"]                      # facts from large files, computed by the pipeline
+_HB = _D["best_hmm_rule"]
+
+
 def _yrs():
-    return f"{int(_TAG[:4]) - _SPY.index[0].year}"
-_HP = pd.read_parquet(_RES / f"signals_{_TAG}.parquet")["hmm_2state_prob_stress"]
-_SPY = pd.read_parquet(Path(__file__).resolve().parents[2] / "data" / "hy_ig_spy_daily_20000101_20260422.parquet")["spy_ret"]
-_HP = _HP.reindex(_SPY.index, method="ffill")
+    return f"{_D['history_years']}"
 
 
-def _regime(mask):
-    r = _SPY[mask].dropna()
-    return (r.mean() * _PPY) / (r.std() * _PPY ** 0.5), r.mean() * _PPY
-
-
-_CALM = _regime((_HP <= 0.5) & _HP.notna())
-_STRESS = _regime(_HP > 0.5)
+_CALM = (_D["hmm_regime_calm"]["sharpe"], _D["hmm_regime_calm"]["ann_return"])
+_STRESS = (_D["hmm_regime_stress"]["sharpe"], _D["hmm_regime_stress"]["ann_return"])
+_RSH, _RCO, _RGR = _D["rolling_sharpe"], _D["rolling_correlation"], _D["rolling_granger"]
 _LCW = _LC.loc[_SIGCOL] if _SIGCOL in _LC.index else None
 _LEADS = _GRID
 
@@ -310,10 +300,6 @@ _SC = _EF["static_corr_level_fwd"]
 _TE = _EF["transfer_entropy_proxy_mean"]
 
 
-def _ann(m):
-    return f"{m * 12 * 100:.1f}%"
-
-
 CORRELATION_BLOCK = dict(
     chart_status="ready",
     method_name="Correlation Analysis",
@@ -466,9 +452,9 @@ HMM_BLOCK = dict(
     observation=(
         f"Same-day SPY performance differs sharply between the regimes (Story page): regime Sharpe {_CALM[0]:.2f} "
         f"in the calm state and {_STRESS[0]:.2f} in the stress state. As a trading signal, the best "
-        f"in-sample-valid HMM rule ({_HMM['strategy'].iloc[0]}, lead L{int(_HMM['lead_days'].iloc[0])}) has an "
-        f"in-sample Sharpe of {_f(_HMM['is_sharpe'].iloc[0])} and an out-of-sample Sharpe of "
-        f"{_f(_HMM['oos_sharpe'].iloc[0])}. The previously published HMM rule scores "
+        f"in-sample-valid HMM rule ({_HB['strategy']}, lead L{_HB['lead_days']}) has an "
+        f"in-sample Sharpe of {_f(_HB['is_sharpe'])} and an out-of-sample Sharpe of "
+        f"{_f(_HB['oos_sharpe'])}. The previously published HMM rule scores "
         f"{_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} as published and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} "
         f"at the lowest grid lead when computed causally, against {_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])} "
         "with the smoothed full-sample probabilities."
@@ -483,7 +469,7 @@ HMM_BLOCK = dict(
     key_message=(
         f"The causal HMM stress probability separates same-day regimes (regime Sharpe {_CALM[0]:.2f} vs "
         f"{_STRESS[0]:.2f}), but as a traded signal its best in-sample rule has an out-of-sample Sharpe of "
-        f"{_f(_HMM['oos_sharpe'].iloc[0])} against SPY's {W.bh_oos_sharpe}. The previously published HMM result "
+        f"{_f(_HB['oos_sharpe'])} against SPY's {W.bh_oos_sharpe}. The previously published HMM result "
         "depended on look-ahead smoothing."
     ),
 )
@@ -516,13 +502,13 @@ REGIME_QUARTILE_BLOCK = dict(
     chart_name="regime_quartile_returns",
     chart_caption=(
         f"SPY next-month return by month-end spread quartile, {int(_FT.loc[1, 'n_months'])} months. Annualised: "
-        f"Q1 {_ann(_FT.loc[1, 'mean_Q1'])}, Q2 {_ann(_FT.loc[1, 'mean_Q2'])}, Q3 {_ann(_FT.loc[1, 'mean_Q3'])}, "
-        f"Q4 {_ann(_FT.loc[1, 'mean_Q4'])}. Q4-Q1 = {_FT.loc[1, 'q4_minus_q1'] * 100:+.2f} pp per month (HAC t "
+        f"Q1 {_pct(_D['quartile_next_month_ann_return']['Q1'])}, Q2 {_pct(_D['quartile_next_month_ann_return']['Q2'])}, Q3 {_pct(_D['quartile_next_month_ann_return']['Q3'])}, "
+        f"Q4 {_pct(_D['quartile_next_month_ann_return']['Q4'])}. Q4-Q1 = {_FT.loc[1, 'q4_minus_q1'] * 100:+.2f} pp per month (HAC t "
         f"{_FT.loc[1, 'q4_minus_q1_hac_t']:.2f})."
     ),
     observation=(
-        f"Annualised next-month SPY returns are {_ann(_FT.loc[1, 'mean_Q1'])} (Q1), {_ann(_FT.loc[1, 'mean_Q2'])} (Q2), "
-        f"{_ann(_FT.loc[1, 'mean_Q3'])} (Q3) and {_ann(_FT.loc[1, 'mean_Q4'])} (Q4). The Q4-Q1 difference is "
+        f"Annualised next-month SPY returns are {_pct(_D['quartile_next_month_ann_return']['Q1'])} (Q1), {_pct(_D['quartile_next_month_ann_return']['Q2'])} (Q2), "
+        f"{_pct(_D['quartile_next_month_ann_return']['Q3'])} (Q3) and {_pct(_D['quartile_next_month_ann_return']['Q4'])} (Q4). The Q4-Q1 difference is "
         + "; ".join(f"{_FT.loc[h, 'q4_minus_q1'] * 100:+.2f} pp (HAC t {_FT.loc[h, 'q4_minus_q1_hac_t']:.2f}) at "
                     f"{h} month(s)" for h in _FT.index)
         + ". The joint tests of equal means have p = "
@@ -535,8 +521,8 @@ REGIME_QUARTILE_BLOCK = dict(
         "test does not show a reliable gradient."
     ),
     key_message=(
-        f"SPY returns after wide-spread months are lower on average (Q4 {_ann(_FT.loc[1, 'mean_Q4'])} vs Q1 "
-        f"{_ann(_FT.loc[1, 'mean_Q1'])} annualised, next month), but the difference is not significant (HAC t "
+        f"SPY returns after wide-spread months are lower on average (Q4 {_pct(_D['quartile_next_month_ann_return']['Q4'])} vs Q1 "
+        f"{_pct(_D['quartile_next_month_ann_return']['Q1'])} annualised, next month), but the difference is not significant (HAC t "
         f"{_FT.loc[1, 'q4_minus_q1_hac_t']:.2f}) and the quartiles are not monotonic."
     ),
 )
@@ -922,17 +908,17 @@ class StrategyConfig:
         ),
         "rolling_sharpe_cp": (
             f"How to read it: 504-trading-day rolling Sharpe of the rule's daily returns. It is positive in "
-            f"{(_RSH > 0).mean() * 100:.0f}% of windows and ranges from {_f(_RSH.min())} to {_f(_RSH.max())}."
+            f"{_RSH['pos_share'] * 100:.0f}% of windows and ranges from {_f(_RSH['min'])} to {_f(_RSH['max'])}."
         ),
         "rolling_granger": (
             "How to read it: rolling 504-day Granger test, winner signal -> SPY daily return, lags 1-3, every 5 "
             "trading days; the F shown is the largest of the three lags, so read the p-value line. p < 0.05 in "
-            f"{(_RGR < 0.05).mean() * 100:.0f}% of windows."
+            f"{_RGR['sig_share'] * 100:.0f}% of windows."
         ),
         "rolling_correlation": (
             "How to read it: rolling 504-day correlation between the winner signal (lagged by its lead plus one "
-            f"execution day) and SPY's daily return. It ranges from {_RCO.min():+.3f} to {_RCO.max():+.3f} and is "
-            f"negative in {(_RCO < 0).mean() * 100:.0f}% of windows. For this countercyclical rule the expected sign "
+            f"execution day) and SPY's daily return. It ranges from {_RCO['min']:+.3f} to {_RCO['max']:+.3f} and is "
+            f"negative in {_RCO['neg_share'] * 100:.0f}% of windows. For this countercyclical rule the expected sign "
             "is negative."
         ),
         "structural_break": (
