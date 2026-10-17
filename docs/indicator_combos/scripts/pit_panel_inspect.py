@@ -23,7 +23,9 @@ Dimensionality (pre-specified in COMBINATORICS.md section 3):
                      with a 90% moving-block bootstrap interval (rows resampled jointly, block 24 months, 2000 draws).
   sensitivity      : parallel analysis under two serial-dependence-preserving nulls (independent per-column
                      stationary bootstrap, mean block 24; independent per-column phase randomisation), 2000 draws
-                     each; entropy effective rank; M_eff = sum min(lam, 1); the published Li & Ji (2005) formula;
+                     each; entropy effective rank; Li & Ji (2005) M_eff (published formula, reported as the
+                     M_eff figure); an ad hoc capped-eigenvalue sum, sum min(lam, 1) (NOT an M_eff estimator);
+                     PR interval under block lengths 12 / 24 / 36 / 48 months;
                      hierarchical clusters at |rho| >= 0.5 / 0.7; the same statistics on the revised-as-of panels.
 
 Run from the repo root:  python docs/indicator_combos/scripts/pit_panel_inspect.py
@@ -230,6 +232,18 @@ def _pa(lam: np.ndarray, null: np.ndarray) -> int:
     return int(below[0]) if len(below) else len(lam)
 
 
+def pr_block_ci(Z: np.ndarray, block: int, n_draws: int, rng) -> list[float]:
+    """90% moving-block bootstrap interval of PR (rows resampled jointly)."""
+    n = len(Z)
+    nb = int(np.ceil(n / block))
+    prs = []
+    for _ in range(n_draws):
+        starts = rng.integers(0, n - block + 1, nb)
+        idx = np.concatenate([np.arange(s, s + block) for s in starts])[:n]
+        prs.append(_pr(_eig(Z[idx])))
+    return [round(float(np.percentile(prs, 5)), 2), round(float(np.percentile(prs, 95)), 2)]
+
+
 def eff_dim(X: pd.DataFrame, n_draws: int = N_DRAWS, full: bool = True) -> dict:
     Z = ((X - X.mean()) / X.std(ddof=1)).values
     n, M = Z.shape
@@ -242,8 +256,8 @@ def eff_dim(X: pd.DataFrame, n_draws: int = N_DRAWS, full: bool = True) -> dict:
         "cum_share": [round(float(x), 3) for x in share],
         "participation_ratio": round(_pr(lam), 2),
         "entropy_eff_rank": round(float(np.exp(-np.sum(p * np.log(p)))), 2),
-        "meff_min1": round(float(np.minimum(lam, 1).sum()), 2),
-        "meff_li_ji_2005_published": round(float(np.sum((lam >= 1) + (lam - np.floor(lam)))), 2),
+        "meff_li_ji_2005": round(float(np.sum((lam >= 1) + (lam - np.floor(lam)))), 2),
+        "capped_eigenvalue_sum_adhoc": round(float(np.minimum(lam, 1).sum()), 2),
         "kaiser_gt1": int(np.sum(lam > 1)),
         "pcs_80pct": int(np.searchsorted(share, 0.80) + 1),
     }
@@ -251,13 +265,7 @@ def eff_dim(X: pd.DataFrame, n_draws: int = N_DRAWS, full: bool = True) -> dict:
         return out
     rng = np.random.default_rng(SEED)
     # 90% moving-block bootstrap interval for PR (rows resampled jointly, keeps cross-correlation)
-    nb = int(np.ceil(n / BLOCK))
-    prs = []
-    for _ in range(n_draws):
-        starts = rng.integers(0, n - BLOCK + 1, nb)
-        idx = np.concatenate([np.arange(s, s + BLOCK) for s in starts])[:n]
-        prs.append(_pr(_eig(Z[idx])))
-    out["pr_block_boot_90ci"] = [round(float(np.percentile(prs, 5)), 2), round(float(np.percentile(prs, 95)), 2)]
+    out["pr_block_boot_90ci"] = pr_block_ci(Z, BLOCK, n_draws, rng)
     # parallel analysis under serial-dependence-preserving nulls (columns made independent)
     sb = np.array([_eig(np.column_stack([_stationary_bootstrap(Z[:, j], rng, BLOCK) for j in range(M)]))
                    for _ in range(n_draws)])
@@ -316,7 +324,7 @@ def main():
         cov[col] = [meta.get(SPEC[k][4], {}).get(key) if SPEC[k][4] else None for k in cov.index]
     cov.to_csv(OUT / "coverage_and_lags.csv")
 
-    summary = {"generated": "2026-10-17 (rev2)", "seed": SEED, "end": str(END.date()), "block_months": BLOCK,
+    summary = {"generated": "2026-10-17 (rev3)", "seed": SEED, "end": str(END.date()), "block_months": BLOCK,
                "primary_estimand": "participation_ratio on strict_pit14 with 90% moving-block bootstrap interval"}
     # PRIMARY: strict point-in-time panel (real-time vintages + unrevised market series)
     strict = rt[STRICT_PIT[:10]].join(rev[STRICT_PIT[10:]])
@@ -326,6 +334,10 @@ def main():
     summary["strict_pit14"]["vars"] = STRICT_PIT
     summary["strict_pit14"]["clusters_rho0.5"] = clusters(Xs, 0.5)
     summary["strict_pit14"]["clusters_rho0.7"] = clusters(Xs, 0.7)
+    Zs = ((Xs - Xs.mean()) / Xs.std(ddof=1)).values
+    rng_b = np.random.default_rng(SEED + 1)
+    summary["strict_pit14"]["pr_ci_by_block_length"] = {str(b): pr_block_ci(Zs, b, N_DRAWS, rng_b)
+                                                         for b in (12, 24, 36, 48)}
     Xs.corr(method="spearman").round(2).to_csv(OUT / "spearman_strict_pit14.csv")
     # SENSITIVITY: real-time ALFRED only; revised-as-of panels (not point-in-time); 3-month changes
     summary["realtime_long10"] = eff_dim(rt[STRICT_PIT[:10]].dropna())
