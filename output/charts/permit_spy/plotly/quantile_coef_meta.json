@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-17T19:36:56.734036+00:00",
+  "generated_at": "2026-10-17T22:39:18.540096+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Permit year-over-year growth coefficient across 3-month forward SPY return quantiles.",
   "narrative_alignment_note": "Permit year-over-year growth coefficient across 3-month forward SPY return quantiles.",

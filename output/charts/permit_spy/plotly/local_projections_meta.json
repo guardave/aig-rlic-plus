@@ -1,7 +1,7 @@
 {
   "chart_name": "local_projections",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-17T19:36:56.708869+00:00",
+  "generated_at": "2026-10-17T22:39:12.156930+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Estimated forward SPY return per percentage point of year-over-year permit growth.",
   "narrative_alignment_note": "Estimated forward SPY return per percentage point of year-over-year permit growth.",

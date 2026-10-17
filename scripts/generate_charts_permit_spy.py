@@ -90,7 +90,9 @@ def add_contraction_shading(fig: go.Figure, df: pd.DataFrame) -> None:
     starts = stress.index[stress & ~stress.shift(1, fill_value=False)]
     ends = stress.index[stress & ~stress.shift(-1, fill_value=False)]
     for start, end in zip(starts, ends):
-        fig.add_vrect(x0=start, x1=end, fillcolor="rgba(204,121,167,0.18)", line_width=0, layer="below")
+        # add_shape with xref/yref: add_vrect silently adds nothing on make_subplots(secondary_y) figures
+        fig.add_shape(type="rect", xref="x", yref="paper", x0=start.strftime("%Y-%m-%d"), x1=end.strftime("%Y-%m-%d"), y0=0, y1=1,
+                      fillcolor="rgba(204,121,167,0.22)", line_width=0, layer="below")
 
 
 def chart_hero() -> None:
@@ -145,7 +147,7 @@ def chart_regime_stats() -> None:
         axis_noun="",
         sample_sizes=q["n"].astype(int).tolist(),
     )
-    fig.update_layout(title="SPY Returns by Building-Permit Growth Regime")
+    fig.update_layout(title=dict(text="SPY Returns by Building-Permit Growth Regime", y=0.98), margin=dict(t=150))
     save("regime_stats", fig, "SPY performance in the same month across quartiles of year-over-year building-permit growth.", ["results/permit_spy/regime_quartile_returns.csv"])
 
 
@@ -221,7 +223,8 @@ def chart_quantile() -> None:
             fig.add_annotation(text=f"Cross-quantile slope equality (Wald): p={_qp:.3f} \u2014 {_verdict}",
                                xref="paper", yref="paper", x=0, y=1.14, showarrow=False,
                                font=dict(size=11), align="left")
-    fig.update_layout(title="Quantile Regression Coefficient", xaxis_title="SPY return quantile", yaxis_title="Permit YoY coefficient (95% CI whiskers)", template="plotly_white", height=430)
+    fig.update_layout(margin=dict(t=110), title=dict(text="Quantile Regression Coefficient", y=0.97),
+                      xaxis_title="SPY return quantile", yaxis_title="Permit YoY coefficient (95% CI whiskers)", template="plotly_white", height=430)
     save("quantile_coef", fig, "Permit year-over-year growth coefficient across 3-month forward SPY return quantiles.", [str(CORE / "quantile_regression.csv")])
 
 

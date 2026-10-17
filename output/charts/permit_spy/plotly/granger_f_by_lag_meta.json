@@ -1,7 +1,7 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-17T19:36:55.948548+00:00",
+  "generated_at": "2026-10-17T22:39:03.278925+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Granger p-values by lag for year-over-year permit growth predicting SPY returns.",
   "narrative_alignment_note": "Granger p-values by lag for year-over-year permit growth predicting SPY returns.",

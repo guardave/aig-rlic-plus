@@ -1,7 +1,7 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-17T19:36:55.923260+00:00",
+  "generated_at": "2026-10-17T22:38:57.281901+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Cross-correlation between the monthly change in year-over-year permit growth and SPY returns.",
   "narrative_alignment_note": "Cross-correlation between the monthly change in year-over-year permit growth and SPY returns.",
