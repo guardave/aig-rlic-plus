@@ -1,7 +1,7 @@
 {
   "pair_id": "cc_delinquency_spy",
-  "winner_oos_sharpe": 0.504477,
-  "benchmark_oos_sharpe": 0.86775,
-  "oos_max_drawdown": -0.239272,
+  "winner_oos_sharpe": 0.84968,
+  "benchmark_oos_sharpe": 0.927185,
+  "oos_max_drawdown": -0.194477,
   "bh_max_drawdown": -0.239272
 }

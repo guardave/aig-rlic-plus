@@ -26,20 +26,20 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-10-16T18:28:54.349386+00:00",
+  "last_updated_at": "2026-10-17T12:28:09.920314+00:00",
   "indicator": "ccdelinq",
   "target": "spy",
   "expected_direction": "countercyclical",
-  "observed_direction": "countercyclical",
-  "direction_consistent": true,
+  "observed_direction": "procyclical",
+  "direction_consistent": false,
   "mechanism": "Rising credit-card delinquency reflects deteriorating household balance sheets and precedes/accompanies consumption slowdowns and recessions; equity exposure should be reduced when delinquency is high or rising. Delinquency is a lagging-to-coincident credit-stress measure.",
   "confidence": "low",
-  "key_finding": "IS-selected rule uses level at L2q with OOS Sharpe 0.50 versus buy-and-hold 0.87.",
+  "key_finding": "As known at the time (real-time DRCCLACBN vintages from 2011-05-24), the rule selected on in-sample data uses chg_4q at L2q with OOS Sharpe 0.85 versus buy-and-hold 0.93.",
   "caveats": [
     "Quarterly survey with a small OOS window \u2014 winner is search-selected, needs holdout validation.",
     "Delinquency is lagging; leads should be read with care.",
-    "Few distinct stress cycles in the sample.",
-    "Series is DRCCLACBN, NOT seasonally adjusted: its quarterly seasonal swings of up to ~0.15 pp vs the seasonally adjusted series (DRCCLACBS) can affect level-vs-rolling-percentile signals."
+    "Few distinct stress cycles in the sample; the real-time (as known at the time) archive starts in 2011, so the training period is short.",
+    "Series is DRCCLACBN, NOT seasonally adjusted: its quarterly seasonal swings of up to ~0.15 pp vs the seasonally adjusted series can affect level-vs-rolling-percentile signals."
   ],
   "narrative_summary": "Credit-card delinquency is tested as a countercyclical household-credit-stress overlay for SPY \u2014 reduce exposure when delinquency is high.",
   "known_stress_episodes": [
@@ -69,8 +69,8 @@
     }
   ],
   "data_provenance": {
-    "source": "Data Master.xlsx (FRB)",
+    "source": "FRB via ALFRED (pinned vintages data/release_calendar/vintages/DRCCLACBN.csv.gz)",
     "series_id": "DRCCLACBN",
-    "accessed_at": "2026-10-16T18:28:54.349386+00:00"
+    "accessed_at": "2026-10-17T12:28:09.920314+00:00"
   }
 }

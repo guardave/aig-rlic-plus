@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_dotcom",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-16T18:30:40.406574+00:00",
+  "generated_at": "2026-10-17T12:32:33.117539+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Dot-Com Recession: Delinquency Drifted Higher Through the Downturn; gray bands are NBER recessions.",
   "narrative_alignment_note": "Dot-Com Recession: Delinquency Drifted Higher Through the Downturn; gray bands are NBER recessions.",

@@ -1,12 +1,12 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-16T18:30:39.257442+00:00",
+  "generated_at": "2026-10-17T12:32:32.161461+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
-  "caption": "Pre-whitened cross-correlation between credit-card delinquency and SPY returns; the only bars breaching the band are at negative offsets (-2, -3, -4), a mild inverse echo consistent with the countercyclical prior \u2014 not a clean predictive lead.",
-  "narrative_alignment_note": "Pre-whitened cross-correlation between credit-card delinquency and SPY returns; the only bars breaching the band are at negative offsets (-2, -3, -4), a mild inverse echo consistent with the countercyclical prior \u2014 not a clean predictive lead.",
+  "caption": "Pre-whitened cross-correlation between credit-card delinquency and SPY returns; offsets outside the band: -4, -3, -2.",
+  "narrative_alignment_note": "Pre-whitened cross-correlation between credit-card delinquency and SPY returns; offsets outside the band: -4, -3, -2.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/cc_delinquency_spy/core_models_20261016/ccf_prewhitened.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_harness/results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv"
   ]
 }

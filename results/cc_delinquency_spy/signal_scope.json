@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-16T18:28:54.349386+00:00",
+  "last_updated_at": "2026-10-17T12:28:09.920314+00:00",
   "indicator_axis": {
     "canonical_column": "ccdelinq",
     "display_name": "Credit Card Delinquency Rate",

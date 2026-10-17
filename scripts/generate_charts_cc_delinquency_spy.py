@@ -35,7 +35,7 @@ from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 from _ci_band import ci95_halfwidth  # noqa: E402
 
 PAIR = "cc_delinquency_spy"
-DATE_TAG = "20261016"
+DATE_TAG = "20261017"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -49,7 +49,7 @@ C_BENCH = "#6C7A89"   # buy-and-hold benchmark
 C_LINE = "#4D4D4D"
 C_STRESS = "#CC79A7"
 
-BH_SHARPE = 0.86775
+BH_SHARPE = float(json.loads((REPO / "results" / "cc_delinquency_spy" / "winner_summary.json").read_text())["bh_sharpe"])
 
 
 def load_quarterly() -> pd.DataFrame:
@@ -138,18 +138,19 @@ def chart_hero() -> None:
 
 def chart_regime_stats() -> None:
     q = pd.read_csv(RES / "regime_quartile_returns.csv")
+    # quartiles of the 4-quarter CHANGE in delinquency (pipeline REP_SIGNAL = ccdelinq_chg_4q), not the level
     labels = [
-        "Q1<br>Lowest delinquency",
+        "Q1<br>Fastest fall",
         "Q2",
         "Q3",
-        "Q4<br>Highest delinquency",
+        "Q4<br>Fastest rise",
     ]
     fig = make_dual_panel_regime_chart(
         labels,
         q["sharpe"].astype(float).tolist(),
         (q["mean_return"].astype(float) * 4 * 100).tolist(),
-        signal_label="Delinquency level",
-        x_axis_title="Credit-card delinquency-level quartile",
+        signal_label="4-quarter change in delinquency",
+        x_axis_title="Quartile of the 4-quarter change in credit-card delinquency",
         axis_noun="",
         sample_sizes=q["n"].astype(int).tolist(),
     )
@@ -157,10 +158,8 @@ def chart_regime_stats() -> None:
     save(
         "regime_stats",
         fig,
-        "Concurrent SPY performance across credit-card delinquency-level "
-        "quartiles; the highest-delinquency quartile (Q4) has the weakest "
-        "Sharpe (0.50) vs 1.23 in the lowest (Q1) — consistent with the "
-        "countercyclical credit prior.",
+        "Concurrent SPY performance across quartiles of the 4-quarter change in credit-card delinquency: "
+        f"Sharpe {q['sharpe'].iloc[0]:.2f} in Q1 (fastest fall) and {q['sharpe'].iloc[3]:.2f} in Q4 (fastest rise).",
         [f"results/{PAIR}/regime_quartile_returns.csv"],
     )
 
@@ -191,10 +190,8 @@ def chart_correlation_heatmap() -> None:
     save(
         "correlation_heatmap",
         fig,
-        "Pearson correlations between delinquency transforms and forward SPY "
-        "returns at 1-, 2-, and 4-quarter horizons; associations are weak "
-        "(|r| < 0.10) — level cells mildly negative, change cells mildly "
-        "positive (none significant).",
+        "Pearson correlations between delinquency transforms and forward SPY returns at 1-, 2-, and 4-quarter "
+        f"horizons; largest |r| {sub['value'].abs().max():.2f}, smallest p {sub['p_value'].min():.2f}.",
         [str(CORE / "correlations.csv")],
     )
 
@@ -215,10 +212,8 @@ def chart_ccf() -> None:
     save(
         "ccf_prewhitened",
         fig,
-        "Pre-whitened cross-correlation between credit-card delinquency and SPY "
-        "returns; the only bars breaching the band are at negative offsets "
-        "(-2, -3, -4), a mild inverse echo consistent with the countercyclical "
-        "prior — not a clean predictive lead.",
+        "Pre-whitened cross-correlation between credit-card delinquency and SPY returns; offsets outside the "
+        f"band: {', '.join(str(int(x)) for x in ccf.loc[ccf['significant'], 'lag']) or 'none'}.",
         [str(CORE / "ccf_prewhitened.csv")],
     )
 
@@ -239,9 +234,8 @@ def chart_granger() -> None:
     save(
         "granger_f_by_lag",
         fig,
-        "Granger p-values by quarterly lag for credit-card delinquency "
-        "predicting SPY returns; every lag is insignificant (min p 0.33) — "
-        "delinquency does not Granger-cause SPY at the tested lags.",
+        "Granger p-values by quarterly lag for credit-card delinquency predicting SPY returns; smallest p "
+        f"{gr['p_value'].min():.2f}.",
         [f"results/{PAIR}/granger_by_lag.csv"],
     )
 
@@ -283,19 +277,21 @@ def chart_quantile() -> None:
         template="plotly_white",
         height=430,
     )
+    qt = json.loads((CORE / "quantile_equality_test.json").read_text())
     save(
         "quantile_coef",
         fig,
-        "Delinquency coefficient across SPY forward-return quantiles; flat and "
-        "near-zero — no state-dependent predictive content.",
-        [str(CORE / "quantile_regression.csv")],
+        "Delinquency (4-quarter change) coefficient across 2-quarter forward SPY return quantiles (real "
+        f"quantile regression); cross-quantile equality Wald p={qt['p_value']:.2f}"
+        f"{' (equality rejected)' if qt['reject_equality'] else ' (equality not rejected)'}.",
+        [str(CORE / "quantile_regression.csv"), str(CORE / "quantile_equality_test.json")],
     )
 
 
 def chart_equity_drawdown() -> None:
     strat = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv", parse_dates=["date"]).set_index("date")
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=strat.index, y=strat["strategy_equity"], name="Winner strategy", line=dict(color=C_STRAT, width=2)))
+    fig.add_trace(go.Scatter(x=strat.index, y=strat["strategy_equity"], name="Winner strategy (as known at the time)", line=dict(color=C_STRAT, width=2)))
     fig.add_trace(go.Scatter(x=strat.index, y=strat["benchmark_equity"], name="Buy-and-hold SPY", line=dict(color=C_BENCH, width=2, dash="dash")))
     fig.update_layout(
         title="Equity Curve: Delinquency Strategy vs SPY",
@@ -306,8 +302,8 @@ def chart_equity_drawdown() -> None:
     save(
         "equity_curves",
         fig,
-        "Winner strategy equity curve vs buy-and-hold SPY (found-in-search "
-        "candidate; full-sample path, OOS from 2017-09).",
+        "Winner strategy (as known at the time: real-time delinquency vintages, from 2011) equity curve vs "
+        "buy-and-hold SPY; found-in-search candidate, OOS from 2017-09.",
         [f"results/{PAIR}/strategy_returns_{DATE_TAG}.csv"],
     )
 
@@ -339,7 +335,7 @@ def chart_tournament() -> None:
     fig = go.Figure(
         go.Box(x=valid["lead_quarters"].astype(str), y=valid["oos_sharpe"], name="Valid strategies", marker_color=C_IND)
     )
-    fig.add_hline(y=BH_SHARPE, line_dash="dash", line_color=C_BENCH, annotation_text="Buy-and-hold 0.87")
+    fig.add_hline(y=BH_SHARPE, line_dash="dash", line_color=C_BENCH, annotation_text=f"Buy-and-hold {BH_SHARPE:.2f}")
     fig.update_layout(
         title="Tournament Sharpe Distribution by Lead",
         xaxis_title="Lead (quarters)",
@@ -350,17 +346,16 @@ def chart_tournament() -> None:
     save(
         "tournament_sharpe_dist",
         fig,
-        "OOS Sharpe distribution across valid tournament strategies by lead; "
-        "the median valid combo (0.63) UNDERPERFORMS buy-and-hold (0.87) — the "
-        "winner is the right tail of its own search.",
+        "Test-period Sharpe distribution across valid strategies by lead (data as known at the time); median "
+        f"{valid['oos_sharpe'].median():.2f} vs buy-and-hold {BH_SHARPE:.2f}. The winner is chosen on the training "
+        "period, not on this score.",
         [f"results/{PAIR}/tournament_results_{DATE_TAG}.csv"],
     )
     save(
         "tournament_scatter",
         fig,
-        "Distribution of OOS Sharpe across valid tournament strategies by lead; "
-        "the winner (1.37) is the grid maximum, median valid 0.63 below "
-        "buy-and-hold 0.87.",
+        "Test-period Sharpe distribution across valid strategies by lead (data as known at the time); median "
+        f"{valid['oos_sharpe'].median():.2f} vs buy-and-hold {BH_SHARPE:.2f}.",
         [f"results/{PAIR}/tournament_results_{DATE_TAG}.csv"],
     )
 

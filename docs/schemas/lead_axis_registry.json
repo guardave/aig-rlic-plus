@@ -1066,7 +1066,7 @@
       "position_shift": 0,
       "lead_floor_effective": 2,
       "release_calendar_series": "DRCCLACBN",
-      "alignment": "fixed_lag",
+      "alignment": "pit_asof",
       "value_vintage": "revised_alfred",
       "track_policy": "compute_twice",
       "note": "OUTSTANDING (pkg12 Q8): the data is DRCCLACBN (not seasonally adjusted); the originally intended indicator DRCCLACBS (seasonally adjusted) is not yet tested."
