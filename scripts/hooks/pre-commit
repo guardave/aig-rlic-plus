@@ -57,6 +57,14 @@ else
     echo "[SKIP] T1.2 loader smoke --all (no staged paths under app/ or output/charts/)"
 fi
 
+# --- Conditional: combo-registry gate when staged paths touch docs/indicator_combos/ --
+# (branch research261017_indicator_combos only; this branch never merges to main)
+if echo "${STAGED}" | grep -qE '^docs/indicator_combos/'; then
+    run_gate "T3   combo registry (gate_combo_registry)"  python3 docs/indicator_combos/scripts/gate_combo_registry.py
+else
+    echo "[SKIP] T3   combo registry (no staged paths under docs/indicator_combos/)"
+fi
+
 # --- Verdict ----------------------------------------------------------------
 if [ $OVERALL_RC -ne 0 ]; then
     echo ""
