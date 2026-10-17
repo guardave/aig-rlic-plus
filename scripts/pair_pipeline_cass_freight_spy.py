@@ -17,7 +17,7 @@ BINDING Phase-0 constraints (Dana handoff — honesty-critical):
     any winner is FOUND-IN-SEARCH, Sharpe inflated/high-variance. Treated as a
     CANDIDATE, never a validated edge; stated explicitly in provenance + notes.
   * Publication lag: Cass publishes ~mid-month for the prior month (~2-week lag) ->
-    the tradable tournament lead grid FLOORS AT L1 (no L0). L0 appears only in the
+    the tradable tournament lead grid FLOORS AT L2 (strict floor, 2026-10-16; no L0/L1). L0 appears only in the
     diagnostic Lead-Analysis correlation table, flagged non-tradable.
   * NSA source: MoM/3M/6M momentum and the level z-score are seasonally contaminated;
     the YoY family (_pct_yoy, _yoy_zscore_60m) and 12M-MA are the seasonality-robust
@@ -56,10 +56,10 @@ PAIR_ID = "cass_freight_spy"
 INDICATOR_NAME = "Cass Freight Index (Shipments)"
 TARGET_NAME = "SPY"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20261008"
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (2026-10-16): grid truncated from the bottom to the strict floor, top not extended; prior run 20261008 (L1..L13).
 COST_BPS = 5  # equity ETF per ECON-T2 / target-class table
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root (was hardcoded /workspaces/aig-rlic-plus; pkg9 runs from a worktree)
 DATA_PATH = os.path.join(BASE_DIR, "data", "cass_freight_spy_monthly_latest.parquet")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
@@ -98,7 +98,7 @@ FWD_COLS = ["spy_fwd_1m", "spy_fwd_3m", "spy_fwd_6m", "spy_fwd_12m"]
 # Short-sample adaptations (vs busloans deep history)
 SIG_ELIGIBLE_MIN = 60      # min non-NaN obs for a signal to enter the tournament
 LOOKBACKS = {"LB24": 24, "LB36": 36, "LB60": 60}  # LB120 impossible with 125 obs
-LEADS = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
+LEADS = list(range(2, 14))  # strict floor E2 (Cass ~14 d after month-end): sub-floor L1 truncated, top not extended (pkg9, protocol D2)
 
 
 def log_stage(name):
@@ -520,9 +520,9 @@ def stage_core_models(df):
 @log_stage("4b_lead_analysis")
 def stage_lead_analysis(df, split=None):
     """ECON-LA1: per-transform Pearson r vs 1M-fwd return at leads. ECON-LL1 says
-    L0..12; Cass floors tradability at L1, so L0 is emitted in the correlation table
+    L0..12; Cass floors tradability at L2, so L0/L1 are emitted in the correlation table
     as a DIAGNOSTIC (contemporaneous) column, flagged non-tradable. The Lead
-    Tournament (tradable) runs L1..L12 only."""
+    Tournament (tradable) runs L2..L13 only."""
     fwd1 = df["spy_fwd_1m"]
     transforms = [c for k, c in SIGNAL_COLS.items() if c in df.columns and not c.startswith(("hmm", "markov"))]
     rows = []
@@ -552,11 +552,11 @@ def stage_lead_analysis(df, split=None):
 
 @log_stage("4c_lead_tournament")
 def stage_lead_tournament(df, split, run_lead_grid):
-    """ECON-LT1: best tradable OOS Sharpe per lead L1..L12 + distribution. Feeds the
+    """ECON-LT1: best tradable OOS Sharpe per lead L2..L13 + distribution. Feeds the
     conditional re-run gate. Uses the SAME tournament engine (run_lead_grid) restricted
     to a single lead. Returns L_star and gate decision."""
     rows = []
-    for L in LEADS:  # L1..L12 (tradable; L0 excluded — pub-lag floor)
+    for L in LEADS:  # L2..L13 (tradable; L0/L1 excluded — strict pub-lag floor)
         sub = run_lead_grid(df, split, [L])
         cand = sub[(sub.signal != "BENCHMARK") & sub.valid]
         if len(cand) == 0:
@@ -583,11 +583,11 @@ def stage_lead_tournament(df, split, run_lead_grid):
     else:
         L_star, best_at_grid = -1, np.nan
     # ECON-LT1 gate: L* in {7..12} -> extended grid produced a better winner; else charts-only.
-    # NB: full grid is L1..L12 (no L0/coarse subset), so the winner is already selected over
+    # NB: full grid is L2..L13 (no L0/L1/coarse subset), so the winner is already selected over
     # the complete tradable lead grid — the gate is informational here (no re-run needed).
     gate = "CHARTS-ONLY" if L_star <= 6 else "REVIEW-L7_12"
     print(f"  [ECON-LT1] lead_tournament -> {lt_path}; L*={L_star} best OOS Sharpe {best_at_grid} -> gate {gate}")
-    print("  [ECON-LT1] Note: main tournament already scans the FULL L1..L12 grid, so the "
+    print("  [ECON-LT1] Note: main tournament already scans the FULL L2..L13 grid, so the "
           "published winner is the global max over all tradable leads (no coarse-subset staleness).")
     return lt, lt_path, L_star, best_at_grid, gate
 
@@ -760,9 +760,9 @@ def stage_tournament(df):
                  "leads_months": LEADS, "lookbacks": list(LOOKBACKS.keys()) + ["LB_NA"]},
         "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
         "total_strategy_rows": len(strat_pop), "valid_strategy_rows": n_valid,
-        "sampling": "exhaustive over the FULL tradable lead grid L1..L12 (no coarse subset)",
+        "sampling": "exhaustive over the FULL tradable lead grid L2..L13 (no coarse subset)",
         "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
-        "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 (L1 real-time floor; Cass ~2-week pub lag)",
+        "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 2 (strict floor L2; Cass ~2-week pub lag, the reading is public only during M+1)",
         "short_sample_flag": (
             f"OOS window {oos_n} months (<5yr) — winner is found-in-search / CANDIDATE, not validated"
             if oos_n < 60 else
@@ -1175,7 +1175,7 @@ def main():
                       {"signal": runner["signal"], "threshold": runner["threshold"], "strategy": runner["strategy"],
                        "lead_value": int(runner["lead_months"]), "objective_value": round(float(runner["oos_sharpe"]), 4)}),
         "rationale": (f"Maximiser of OOS Sharpe among SEASONALLY-CLEAN signals over the full tradable monthly lead grid "
-                      f"L1..L12 ({len(clean_pop)} clean valid combos of {len(all_valid)} total valid; median clean OOS "
+                      f"L2..L13 ({len(clean_pop)} clean valid combos of {len(all_valid)} total valid; median clean OOS "
                       f"Sharpe {round(float(clean_pop['oos_sharpe'].median()),4)}). Objective is restricted to clean "
                       f"signals because the Cass series is NSA (Dana Phase-0 binding constraint) — see "
                       f"objective_runner_up_divergence. ECON-LT1 gate: L*={L_star}, {gate}. SHORT-HISTORY CAVEAT: OOS "
@@ -1201,7 +1201,7 @@ def main():
                                   "P3_long_short": "Long/Short"}[strat_family],
         "strategy_description": "",
         "lead_value": int(winner["lead_months"]), "lead_unit": "months",
-        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L1 is the real-time floor given Cass's ~2-week publication lag",
+        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L2 is the strict floor given Cass's ~2-week publication lag (public only during M+1)",
         "lookback": winner["lookback"], "direction": direction,
         "oos_sharpe": round(float(winner["oos_sharpe"]), 4), "oos_sortino": round(float(winner["oos_sortino"]), 4),
         "oos_calmar": round(float(winner["oos_calmar"]), 4), "oos_ann_return": round(float(winner["oos_ann_return"]), 4),
@@ -1214,7 +1214,7 @@ def main():
         "total_combos": int(len(tdf) - 1), "valid_combos": n_valid, "schema_version": "1.1.0",
         "selection": selection,
         "notes": (f"Mode 1, feat260705_cass_freight_spy. Tournament: {len(tdf)-1} strategy combos (+1 benchmark, "
-                  f"valid=False per ECON-T4), {n_valid} valid, full tradable lead grid L1..L12. Winner by ECON-T3 "
+                  f"valid=False per ECON-T4), {n_valid} valid, full tradable lead grid L2..L13. Winner by ECON-T3 "
                   f"cascade (resolved at step {resolved_at}; {n_tied} tied at step 1). "
                   f"SHORT-HISTORY / FOUND-IN-SEARCH: OOS window is {int(winner['oos_n'])} months (<5yr) on a ~10yr "
                   f"NSA series -> the winner is a CANDIDATE, not a validated edge; OOS Sharpe is inflated/high-variance. "
@@ -1344,7 +1344,7 @@ def main():
         input_sha = "sha256:" + hashlib.sha256(f.read()).hexdigest()[:16]
     lead_manifest = {
         "pair": PAIR_ID, "run_date": DATE_TAG, "frozen": False,
-        "granularity": "months L1..12 tradable (L0 diagnostic-only in lead_correlation; ECON-LL1/LA1)",
+        "granularity": "months L2..13 tradable (L0/L1 diagnostic-only in lead_correlation; ECON-LL1/LA1)",
         "freq_native": "M", "design_note": "Native monthly; lead L = calendar-month shift on month-end signals. L0 excluded from tradable grid (Cass ~2-week publication lag).",
         "oos_start": split["oos_start"], "is_end": split["in_sample_end"], "input_file": DATA_PATH,
         "input_sha256": input_sha, "lead_correlation_file": f"{PAIR_ID}/lead_correlation_{DATE_TAG}.csv",
@@ -1357,8 +1357,8 @@ def main():
         "seasonally_contaminated_signals": sorted(set(SIGNAL_COLS) - SEASONALLY_CLEAN),
         "L_star": L_star, "best_oos_sharpe_at_grid": round(float(best_at_grid), 4) if pd.notna(best_at_grid) else None,
         "gate_decision": gate,
-        "assertions": ["tradable lead grid is L1..12 (L0 non-tradable, pub-lag floor)",
-                       "main tournament scans the full L1..12 grid -> published winner is the global lead max",
+        "assertions": ["tradable lead grid is L2..13 (L0/L1 non-tradable, strict pub-lag floor)",
+                       "main tournament scans the full L2..13 grid -> published winner is the global lead max",
                        f"ECON-LT1 gate: L*={L_star} -> {gate}"],
         "short_history_caveat": "OOS <5yr -> winner is found-in-search; lead-sweep peaks are high-variance."}
     with open(os.path.join(RESULTS_DIR, f"lead_sweep_manifest_{DATE_TAG}.json"), "w") as f:
@@ -1390,7 +1390,7 @@ seasonally-clean; each tournament row carries a `seasonally_clean` flag and the 
 in winner_summary. A seasonally-contaminated winner is NOT allowed to ship silently — flagged hard.
 
 ## Publication lag / no-lookahead
-Cass publishes ~mid-month for the prior month. Tradable lead grid FLOORS at L1 (no L0). L0 appears only in
+Cass publishes ~mid-month for the prior month. Tradable lead grid FLOORS at L2 (strict floor; no L0/L1). L0 appears only in
 the diagnostic lead_correlation table, explicitly flagged non-tradable.
 
 ## Lead-lag verdict (empirical — determined by Granger/CCF/LP, NOT the prior)
@@ -1401,7 +1401,7 @@ the diagnostic lead_correlation table, explicitly flagged non-tradable.
 - Classification: {leadlag}. Winner direction (empirical): {direction}.
 
 ## Tournament conventions
-- Units in tournament_results CSV are RATIOS (decimal). Lead grid L1..L12 (full tradable). Both orientations tested.
+- Units in tournament_results CSV are RATIOS (decimal). Lead grid L2..L13 (full tradable). Both orientations tested.
 - CP2 skipped (regime_story: false). Returns gross of costs; 5bps grid in tournament_validation_{DATE_TAG}/.
 
 ## New pair — no prior version; Rule C3 regression diff N/A.

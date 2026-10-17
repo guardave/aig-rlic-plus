@@ -1,4 +1,4 @@
-# Design Note — petrol_inv_spy (20260711)
+# Design Note — petrol_inv_spy (20261016)
 
 ## Economic hypotheses
 H1 counter-cyclical demand signal: rising/high petroleum inventories can indicate weak fuel demand and lower forward SPY. H1b supply-glut benign: inventory builds may reflect supply rather than demand. H0: petroleum stocks do not predict SPY.
@@ -10,10 +10,10 @@ WTTSTUS1 is an EIA petroleum-stocks series sourced from project `data/Data Maste
 Dana's stationarity artifact `results/petrol_inv_spy/stationarity_tests_20260617.csv` was reviewed and confirmed, not re-run. Levels are nonstationary; the tournament and models use stationary transforms only. Indicator type is macro / cross-asset, so this run includes correlation battery with distance correlation, pre-whitened CCF, Toda-Yamamoto Granger both directions, local projections, quantile regression, HMM regime detection, quartile returns, structural break, and validation sensitivity.
 
 ## Lag convention
-Daily LVCF may use L0 because carried values are already public after release. Monthly L0 is treated as feasible because the month-end panel is built from documented public weekly releases; L1/L2/L3/L6/L12 are also tested. This convention is explicit to avoid lookahead ambiguity.
+Daily LVCF may use L0 because carried values are already public after release. The monthly signal is the calendar-month mean of weekly stocks; the last weekly print of month M is released 0-5 days into M+1, so the monthly tournament starts at the strict floor L2 (grid L2..L12; standard Step 2 amended 2026-10-16).
 
 ## Lead-lag verdict
 Indicator -> SPY Granger significant lags: [6, 7, 8]. SPY -> indicator Granger significant lags: none. Reverse direction is therefore reported directly for Ray rather than suppressed.
 
 ## Tournament and evidence status
-Benchmark row has `signal == "BENCHMARK"` and `valid == False` per ECON-T4. Winner signal column `petrol_inv_zscore_60m` exists in `signals_20260711.parquet`. Evidence status is `found_in_search`; no independent final exam has been run.
+Benchmark row has `signal == "BENCHMARK"` and `valid == False` per ECON-T4. Winner signal column `petrol_inv_zscore_60m` exists in `signals_20261016.parquet`. Evidence status is `found_in_search`; no independent final exam has been run.

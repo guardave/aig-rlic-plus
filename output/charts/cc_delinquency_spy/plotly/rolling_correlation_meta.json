@@ -1,7 +1,7 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-15T18:02:23.733714+00:00",
+  "generated_at": "2026-10-16T18:30:40.301478+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Rolling correlation between credit-card delinquency and SPY returns; the sign swings through time, so the relationship needs ongoing monitoring.",
   "narrative_alignment_note": "Rolling correlation between credit-card delinquency and SPY returns; the sign swings through time, so the relationship needs ongoing monitoring.",

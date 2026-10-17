@@ -12,10 +12,10 @@
   "narrative_alignment_note": "hmm_stress IS the winner signal in the floored re-run; reframed from 'context' to 'traded signal', with the countercyclical rule and the opacity caution stated.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/eci_total_comp_spy/core_models_20261008/hmm_states.parquet",
-    "results/eci_total_comp_spy/core_models_20261008/hmm_summary.csv"
+    "results/eci_total_comp_spy/core_models_20261016/hmm_states.parquet",
+    "results/eci_total_comp_spy/core_models_20261016/hmm_summary.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:39:45.656475+00:00",
+  "generated_at": "2026-10-16T18:42:42.730561+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
 }

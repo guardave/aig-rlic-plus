@@ -8,13 +8,13 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "All 12,272 tournament combinations (OOS Sharpe vs annual turnover; color = max drawdown). 8,772 pass validity; the Buy & Hold SPY diamond sits at Sharpe 0.90. Winner identified by the ECON-T3 cascade; see the distribution chart for position disclosure.",
+  "caption": "All 11,328 tournament combinations (OOS Sharpe vs annual turnover; color = max drawdown). 8,109 pass validity; the Buy & Hold SPY diamond sits at Sharpe 0.90. Winner identified by the ECON-T3 cascade; see the distribution chart for position disclosure.",
   "narrative_alignment_note": "Standard tournament scatter; benchmark via signal=='BENCHMARK' (ECON-T4).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/m2sl_yoy_spy/tournament_results_20261008.csv"
+    "results/m2sl_yoy_spy/tournament_results_20261016.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:28:23.997058+00:00",
+  "generated_at": "2026-10-16T18:43:17.694110+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_m2sl_yoy_spy.py (pair260619_m2sl_yoy_spy)"
 }

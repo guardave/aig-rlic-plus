@@ -49,7 +49,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart, QUARTILE_COLORS  # noqa: E402
 
 PAIR = "petrol_inv_spy"
-DATE_TAG = "20260711"  # GH#13 full-grid re-selection run (was 20260617 coarse-grid)
+DATE_TAG = "20261016"  # pkg9 strict-floor rerun, grid L2..L12 (was 20260711 L0..L12; 20260617 coarse-grid)
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -657,7 +657,7 @@ def chart_equity_curves():
                         f"up annualized return ({w['oos_ann_return']*100:.1f}% vs "
                         f"{w['bh_ann_return']*100:.1f}%). Shaded bands mark NBER "
                         f"recessions."),
-               alignment="Strategy series read from strategy_returns_20260617.csv; metrics from winner_summary.json.",
+               alignment="Strategy series read from strategy_returns_20261016.csv; metrics from winner_summary.json.",
                rules=["VIZ-IC1", "VIZ-NBER1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/strategy_returns_{DATE_TAG}.csv",
                         f"results/{PAIR}/winner_summary.json"])

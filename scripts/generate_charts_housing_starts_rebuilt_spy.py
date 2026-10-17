@@ -2,7 +2,7 @@
 """Chart generation: Housing Starts (rebuilt, floored, SAAR HOUST) x SPY — Mode 2 (Vera hat).
 
 Vera-owned producer for the housing_starts_rebuilt_spy standard chart set
-(20261008). `housing_starts_rebuilt_spy` is the #255 publication-lag-floored
+(20261016). `housing_starts_rebuilt_spy` is the #255 publication-lag-floored
 REBUILD of the existing `housing_starts_spy` pair. The data was reconstructed
 from the live FRED API (HOUST) + yfinance SPY on 2026-10-08. The parallel
 original `housing_starts_spy` pair (built by Vichua4b, data via Dana's pipeline)
@@ -10,7 +10,7 @@ is left COMPLETELY UNTOUCHED for side-by-side comparison (pre-floor original vs
 floored rebuild).
 
 Consumes Evan's artifacts (results/housing_starts_rebuilt_spy/) + the rebuilt
-monthly dataset + Evan's strategy_returns_20261008.csv. Strategy charts use
+monthly dataset + Evan's strategy_returns_20261016.csv. Strategy charts use
 Evan's saved return series; they do not re-run strategy selection.
 
 Framing (binding, per Evan handoff — DO NOT OVERSELL):
@@ -62,7 +62,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart, QUARTILE_COLORS  # noqa: E402
 
 PAIR = "housing_starts_rebuilt_spy"
-DATE_TAG = "20261008"
+DATE_TAG = "20261016"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"

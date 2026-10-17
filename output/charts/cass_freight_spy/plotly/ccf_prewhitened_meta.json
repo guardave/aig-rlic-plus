@@ -11,9 +11,9 @@
   "narrative_alignment_note": "CCF corroborates the absent forward lead; only stocks-lead bars survive.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/core_models_20261008/ccf_prewhitened.csv"
+    "results/cass_freight_spy/core_models_20261016/ccf_prewhitened.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:43:20.380579+00:00",
+  "generated_at": "2026-10-16T18:42:40.017461+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

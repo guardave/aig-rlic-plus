@@ -17,6 +17,6 @@
     "results/eci_total_comp_spy/structural_break_eci_total_comp_spy.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:39:45.917092+00:00",
+  "generated_at": "2026-10-16T18:42:42.999361+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
 }

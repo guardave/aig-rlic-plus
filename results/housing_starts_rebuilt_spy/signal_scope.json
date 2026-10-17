@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-09T14:32:06Z",
+  "last_updated_at": "2026-10-16T18:33:35Z",
   "indicator_axis": {
     "canonical_column": "hst_level",
     "display_name": "Housing Starts (SAAR)",

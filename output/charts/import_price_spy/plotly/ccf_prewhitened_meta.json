@@ -1,12 +1,12 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-15T18:06:40.225206+00:00",
+  "generated_at": "2026-10-16T18:30:28.904125+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Pre-whitened cross-correlation between import-price growth and SPY returns.",
   "narrative_alignment_note": "Pre-whitened cross-correlation between import-price growth and SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/import_price_spy/core_models_20261015/ccf_prewhitened.csv"
+    "/workspaces/aig-rlic-plus/results/import_price_spy/core_models_20261016/ccf_prewhitened.csv"
   ]
 }

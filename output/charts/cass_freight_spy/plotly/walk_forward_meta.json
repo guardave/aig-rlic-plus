@@ -13,10 +13,10 @@
   "narrative_alignment_note": "Rolling-Sharpe walk-forward; reference line reconciles with winner_summary OOS Sharpe.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/strategy_returns_20261008.csv",
+    "results/cass_freight_spy/strategy_returns_20261016.csv",
     "results/cass_freight_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:43:21.520448+00:00",
+  "generated_at": "2026-10-16T18:42:41.041430+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)"
 }

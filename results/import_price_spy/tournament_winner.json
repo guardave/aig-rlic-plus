@@ -1,6 +1,6 @@
 {
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-15T18:05:02.335846+00:00",
+  "generated_at": "2026-10-16T18:23:49.430313+00:00",
   "signal_column": "import_price_yoy_zscore_60m",
   "signal_code": "yoy_zscore_60m",
   "signal_display_name": "YoY growth 60-month z-score",
@@ -34,8 +34,8 @@
   "bh_ann_return": 0.148272,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
-  "total_combos": 468,
-  "valid_combos": 468,
+  "total_combos": 432,
+  "valid_combos": 432,
   "schema_version": "1.2.0",
   "notes": "Import Price Index is a nominal price index; the level is non-stationary so all signals are growth transforms (YoY etc.). Winner (yoy_zscore_60m) is selected by in-sample Sharpe on the common IS window (2000-12-31 to 2016-12-31) and evaluated on the held-out OOS window; still a search-selected rule \u2014 read any lead/threshold as found-in-search.",
   "is_sharpe": 0.790824,
@@ -56,7 +56,6 @@
     },
     "grid_scanned": {
       "leads": [
-        1,
         2,
         3,
         4,
@@ -73,7 +72,7 @@
       "n_signals": 6,
       "n_thresholds": 18,
       "n_strategies": 1,
-      "n_valid_combos": 468,
+      "n_valid_combos": 432,
       "median_valid_objective": 0.312188
     },
     "tie_break_step": null,
@@ -83,8 +82,8 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 4,
-      "source_tournament_file": "tournament_results_20261015.csv",
-      "source_row_index": 367
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 338
     },
     "runner_up": {
       "signal": "mom",
@@ -101,7 +100,7 @@
       "direction": "countercyclical",
       "lead_value": 10,
       "oos_sharpe": 1.374943,
-      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261015.csv"
+      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261016.csv"
     },
     "sensitivity_own_is_start_row": {
       "signal": "accel",

@@ -32,7 +32,7 @@
   "expected_direction": "countercyclical",
   "observed_direction": "countercyclical",
   "direction_consistent": true,
-  "mechanism": "When banks tighten C&I lending standards to small firms, credit-dependent activity slows and recession/earnings risk rises; equity exposure should be reduced when net-tightening is high or rising. SLOOS historically leads the cycle by ~1-4 quarters.",
+  "mechanism": "When banks tighten C&I lending standards to large and middle-market firms (FRED DRTSCILM), credit-dependent activity slows and recession/earnings risk rises; equity exposure should be reduced when net-tightening is high or rising. SLOOS historically leads the cycle by ~1-4 quarters.",
   "confidence": "low",
   "key_finding": "IS-selected rule uses level at L2q with OOS Sharpe 0.34 versus buy-and-hold 0.89.",
   "caveats": [
@@ -40,7 +40,7 @@
     "SLOOS is NSA and revised; the survey is qualitative (net-% of banks), not a hard activity measure.",
     "Credit-tightening episodes are few, so the lead estimate rests on a handful of cycles."
   ],
-  "narrative_summary": "SLOOS C&I small-firm tightening is tested as a leading credit-stress overlay for SPY \u2014 reduce exposure when banks tighten.",
+  "narrative_summary": "SLOOS C&I tightening for large and middle-market firms (DRTSCILM) is tested as a leading credit-stress overlay for SPY \u2014 reduce exposure when banks tighten.",
   "known_stress_episodes": [
     {
       "label": "Dot-Com recession",
@@ -69,7 +69,7 @@
   ],
   "data_provenance": {
     "source": "Data Master.xlsx (Fed SLOOS)",
-    "series_id": "DRTSCIS",
+    "series_id": "DRTSCILM",
     "accessed_at": "2026-10-15T18:15:44.625772+00:00"
   }
 }

@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
-"""Pair pipeline: Manufacturers' New Orders (YoY) x SPY.
+"""Pair pipeline: Core Capital Goods Orders (YoY) x SPY.
 
 Compact monthly pipeline for the portal's standard pair contract, modelled on
-pair_pipeline_rsxfs_spy.py. Manufacturers' New Orders is a TRENDING nominal-dollar level
-(total manufacturing, from Data Master), so — a trending nominal series —
-the tradable signals are GROWTH transforms (YoY / MoM / 3-6m % change,
-z-scored / accelerated), never the level itself. Economic prior: new-orders
-growth is procyclical with equities (strong factory demand → risk-on). New orders is a
-classic LEADING indicator (a Conference Board LEI component).
+pair_pipeline_rsxfs_spy.py. The indicator is FRED NEWORDER -- Manufacturers' New
+Orders: Nondefense Capital Goods Excluding Aircraft ("core capital goods orders",
+nominal $ millions, SA; Data Master column "Ind, Mat - Manufturs' New Orders").
+It is NOT Census M3 total manufacturing new orders (FRED AMTMNO); the
+`mfg_new_orders*` column names are legacy labels. NEWORDER is first printed in
+the Census advance durable-goods report (~26 days after month-end) and revised
+in the full M3 report. It is a TRENDING nominal-dollar level, so the tradable
+signals are GROWTH transforms (YoY / MoM / 3-6m % change, z-scored /
+accelerated), never the level itself. Economic prior: core capex orders growth
+is procyclical with equities (strong business equipment demand → risk-on).
+Core capital goods orders is a LEADING indicator of business investment (a
+Conference Board LEI component).
 
-Stage 1: source Manufacturers' New Orders from Data Master + SPY month-end, build the
+Stage 1: source core capital goods orders (NEWORDER) from Data Master + SPY month-end, build the
 growth-signal panel, run stationarity tests, and write the data artifacts.
 Tournament / evidence / metadata stages are appended next.
 """
@@ -30,7 +36,7 @@ from statsmodels.tsa.stattools import adfuller, grangercausalitytests, kpss
 
 
 PAIR_ID = "mfg_new_orders_spy"
-DATE_TAG = "20261015"  # GH #251/#268 IS-selected winner (common IS start) on #255 L2-floor grid
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (grid truncated from the bottom); IS-selected winner (GH #251/#268, common IS start)
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 REPO = Path(__file__).resolve().parents[1]
@@ -89,20 +95,21 @@ def _read_spy_monthly() -> tuple[pd.Series, str]:
 
 
 def read_neworders_master() -> pd.Series:
-    """Manufacturers' New Orders level (nominal $ millions, monthly) from Data Master."""
+    """Core capital goods orders (FRED NEWORDER: nondefense capital goods ex aircraft) level
+    (nominal $ millions, SA, monthly) from Data Master."""
     import openpyxl
     wb = openpyxl.load_workbook(str(DATA_DIR / "Data Master.xlsx"), read_only=True, data_only=True)
     ws = wb["NewOrders"]  # cols: date | level | YoY
     rows = [(r[0], r[1]) for r in ws.iter_rows(min_row=2, values_only=True)
             if r and r[0] is not None and r[1] is not None and hasattr(r[0], "year")]
     s = pd.Series({pd.Timestamp(d): float(v) for d, v in rows}, name="mfg_new_orders").sort_index().resample("ME").last()
-    print(f"  [MASTER] Manufacturers' New Orders: {len(s.dropna())} mo, "
+    print(f"  [MASTER] Core capital goods orders (NEWORDER): {len(s.dropna())} mo, "
           f"{s.dropna().index.min().date()} to {s.dropna().index.max().date()}")
     return s
 
 
 def source_data() -> pd.DataFrame:
-    print("Sourcing Manufacturers' New Orders (Data Master) and SPY month-end prices")
+    print("Sourcing core capital goods orders (NEWORDER, Data Master) and SPY month-end prices")
     mfg = read_neworders_master()
     spy, spy_source = _read_spy_monthly()
 
@@ -133,16 +140,16 @@ def source_data() -> pd.DataFrame:
         [
             {
                 "Column Name": "mfg_new_orders",
-                "Display Name": "Manufacturers' New Orders: Total Manufacturing",
-                "Description": "Manufacturers' new orders, total manufacturing (nominal $)",
-                "Source": "Data Master.xlsx (Census M3 / FRED NEWORDER)",
+                "Display Name": "Core Capital Goods Orders (Nondefense Capital Goods ex Aircraft)",
+                "Description": "Manufacturers' new orders: nondefense capital goods excluding aircraft (core capital goods orders; nominal $)",
+                "Source": "Data Master.xlsx (Census advance durable goods / M3, FRED NEWORDER)",
                 "Series ID": "NEWORDER (Data Master)",
                 "Unit": "Millions of USD",
                 "Transformation": "Monthly level (SA)",
-                "Direction Convention": "Higher growth = stronger manufacturing demand / risk-on",
+                "Direction Convention": "Higher growth = stronger business equipment demand / risk-on",
                 "Effective Start": str(df["mfg_new_orders"].first_valid_index().date()),
                 "Known Quirks": "Trending nominal level — model growth, not level; extreme 2020-21 COVID swings",
-                "Display Note": "Nominal (not inflation-adjusted); revised in later Census M3 releases.",
+                "Display Note": "Nominal (not inflation-adjusted); first printed in the Census advance durable-goods report (~26 days after month-end), revised in the full M3 report.",
                 "Refresh Freq.": "Monthly",
                 "Refresh Source": "Data Master",
             },
@@ -211,7 +218,7 @@ def ann_metrics(rets: pd.Series) -> dict[str, float]:
             "max_drawdown": float(max_dd), "win_rate": float((rets > 0).mean()), "oos_n": int(len(rets))}
 
 
-# New-orders GROWTH signals only (the level is non-stationary — never traded).
+# Core-capex-orders (NEWORDER) GROWTH signals only (the level is non-stationary — never traded).
 SIGNALS = {
     "yoy": "mfg_new_orders_yoy",
     "mom": "mfg_new_orders_mom",
@@ -222,12 +229,12 @@ SIGNALS = {
 }
 
 SIGNAL_DISPLAY = {
-    "yoy": "New-orders YoY growth",
-    "mom": "New-orders MoM growth",
-    "chg_3m": "New-orders 3-month growth",
-    "chg_6m": "New-orders 6-month growth",
-    "yoy_zscore_60m": "New-orders YoY growth 60-month z-score",
-    "accel": "New-orders growth acceleration (ΔYoY)",
+    "yoy": "Core capex orders YoY growth",
+    "mom": "Core capex orders MoM growth",
+    "chg_3m": "Core capex orders 3-month growth",
+    "chg_6m": "Core capex orders 6-month growth",
+    "yoy_zscore_60m": "Core capex orders YoY growth 60-month z-score",
+    "accel": "Core capex orders growth acceleration (ΔYoY)",
 }
 
 
@@ -260,14 +267,14 @@ def make_position(signal: pd.Series, threshold: pd.Series | float, direction: st
         thresh = pd.Series(float(threshold), index=signal.index)
     if direction == "countercyclical":
         pos = (signal <= thresh).astype(float)
-    else:  # procyclical: long when new-orders growth is strong (prior)
+    else:  # procyclical: long when core capex orders growth is strong (prior)
         pos = (signal >= thresh).astype(float)
     return pos.where(signal.notna() & thresh.notna())
 
 
 def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     oos_start = pd.Timestamp("2017-01-31")
-    leads = list(range(2, 15))  # #255 floor L2 shifted grid [2..14] (months)
+    leads = list(range(3, 15))  # strict floor E3 (pkg9; set when the source was assumed to be the M3 full report ~34 d after month-end -- NEWORDER's first print is the advance durable-goods report ~26 d after month-end; floor left unchanged here): sub-floor L2 truncated, top not extended (pkg9, protocol D2)
     # GH #251/#268 + common IS start (Lead decision 2026-10-15):
     #   pass 1 builds every candidate's return stream; common_is_start = the LATEST
     #   first-valid-return date across the grid (rolling-threshold warm-ups and lead
@@ -420,7 +427,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "threshold_rule": "lte" if winner_row["direction"] == "countercyclical" else "gte",
         "threshold_note": f"{winner_row['threshold']} threshold; threshold_value is latest if rolling",
         "strategy_family": "P1_long_cash", "strategy_code": "P1", "strategy_display_name": "P1 long cash",
-        "strategy_description": "Hold SPY when the lagged new-orders growth signal is favorable; otherwise hold cash.",
+        "strategy_description": "Hold SPY when the lagged core capex orders growth signal is favorable; otherwise hold cash.",
         "lead_value": int(winner_row["lead_months"]), "lead_unit": "months",
         "lead_description": f"Signal is lagged {int(winner_row['lead_months'])} month(s) before allocation.",
         "lookback": "LB60 where rolling thresholds apply", "direction": str(winner_row["direction"]),
@@ -434,7 +441,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "bh_max_drawdown": round(bh_metrics["max_drawdown"], 6), "cost_assumption_bps": COST_BPS,
         "total_combos": int((tourn["signal"] != "BENCHMARK").sum()), "valid_combos": int(valid.shape[0]),
         "schema_version": "1.2.0",
-        "notes": "Manufacturers' New Orders is a LEADING manufacturing-demand indicator (a Conference Board LEI component); the nominal-dollar level is "
+        "notes": "Core capital goods orders (FRED NEWORDER: nondefense capital goods excluding aircraft) is a LEADING business-investment-demand indicator (a Conference Board LEI component); the nominal-dollar level is "
                  "non-stationary so all signals are growth transforms. The 2020-21 COVID collapse/rebound is an "
                  f"extreme outlier in-window — read any lead/threshold that leans on it with caution. Winner ({winner_row['signal']}) is "
                  f"selected by in-sample Sharpe on the common IS window ({is_window['start']} to {is_window['end']}) and evaluated "
@@ -605,9 +612,9 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "indicator": "mfg_new_orders", "target": "spy",
         "expected_direction": "procyclical", "observed_direction": winner["direction"],
         "direction_consistent": winner["direction"] == "procyclical",
-        "mechanism": "Manufacturers' new-orders growth reflects business demand for goods and forward production plans; strong "
+        "mechanism": "Core capital goods orders growth reflects business demand for equipment and forward capex plans; strong "
                      "rising orders are risk-on for equities and slowing orders are an early demand-softening "
-                     "signal. Exposure is scaled toward SPY when new-orders growth is firm.",
+                     "signal. Exposure is scaled toward SPY when core capex orders growth is firm.",
         "confidence": "low",
         "key_finding": f"Best search-phase rule uses {winner['signal_code']} at L{winner['lead_value']} with OOS "
                        f"Sharpe {winner['oos_sharpe']:.2f} versus buy-and-hold {winner['bh_sharpe']:.2f}.",
@@ -615,17 +622,17 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
             "Even a leading indicator selected at a long lead can be a search artifact — check adjacent-lead durability.",
             "The strategy is search-selected and needs fresh holdout validation.",
             "The 2020-21 COVID collapse/rebound is an extreme in-window outlier that can dominate the fit.",
-            "New-orders figures are nominal and revised in later Census M3 releases.",
+            "Core capex orders are nominal; first printed in the Census advance durable-goods report (~26 days after month-end) and revised in the full M3 report.",
         ],
-        "narrative_summary": "Manufacturers' new-orders growth is tested as a procyclical / leading factory-demand overlay for SPY, not as a "
+        "narrative_summary": "Core capital goods orders (NEWORDER) growth is tested as a procyclical / leading capex-demand overlay for SPY, not as a "
                              "clean leading indicator.",
         "known_stress_episodes": [
-            {"label": "Dot-Com recession", "start": "2001-03-01", "end": "2001-11-30", "note": "New orders fell with the tech capex bust."},
-            {"label": "Global Financial Crisis", "start": "2007-12-01", "end": "2009-06-30", "note": "New orders collapsed 2008-09."},
-            {"label": "COVID shock", "start": "2020-02-01", "end": "2020-04-30", "note": "Orders collapsed then rebounded."},
-            {"label": "2022 rate shock", "start": "2022-01-01", "end": "2022-12-31", "note": "Nominal sales stayed high on inflation."},
+            {"label": "Dot-Com recession", "start": "2001-03-01", "end": "2001-11-30", "note": "Core capex orders fell with the tech capex bust."},
+            {"label": "Global Financial Crisis", "start": "2007-12-01", "end": "2009-06-30", "note": "Core capex orders collapsed 2008-09."},
+            {"label": "COVID shock", "start": "2020-02-01", "end": "2020-04-30", "note": "Core capex orders plunged then rebounded."},
+            {"label": "2022 rate shock", "start": "2022-01-01", "end": "2022-12-31", "note": "Nominal core capex orders stayed high, helped by inflation."},
         ],
-        "data_provenance": {"source": "Data Master.xlsx (Census M3 / FRED NEWORDER)", "series_id": "NEWORDER", "accessed_at": NOW_ISO},
+        "data_provenance": {"source": "Data Master.xlsx (Census advance durable goods / M3, FRED NEWORDER: nondefense capital goods excluding aircraft)", "series_id": "NEWORDER", "accessed_at": NOW_ISO},
     }
     (RES / "interpretation_metadata.json").write_text(json.dumps(interp, indent=2) + "\n")
 
@@ -634,15 +641,15 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "last_updated_by": "evan", "last_updated_at": NOW_ISO,
         "indicator_axis": {
             "canonical_column": "mfg_new_orders",
-            "display_name": "Manufacturers' New Orders: Total Manufacturing",
+            "display_name": "Core Capital Goods Orders (Nondefense Capital Goods ex Aircraft)",
             "derivatives": [
                 {"name": col, "definition": desc, "formula": formula, "role": role, "appears_in_charts": charts}
                 for col, desc, formula, role, charts in [
-                    ("mfg_new_orders", "Manufacturers' new orders level (nominal $, SA)", "Data Master NEWORDER", "raw", ["hero"]),
-                    ("mfg_new_orders_yoy", "12-month new-orders growth", "100*(x_t/x_{t-12}-1)", "threshold_input", ["hero", "local_projections", "regime_stats"]),
-                    ("mfg_new_orders_mom", "1-month new-orders growth", "100*(x_t/x_{t-1}-1)", "derivative", []),
-                    ("mfg_new_orders_3m", "3-month new-orders growth", "100*(x_t/x_{t-3}-1)", "derivative", []),
-                    ("mfg_new_orders_6m", "6-month new-orders growth", "100*(x_t/x_{t-6}-1)", "derivative", []),
+                    ("mfg_new_orders", "Core capital goods orders level (nondefense capital goods ex aircraft; nominal $, SA)", "Data Master NEWORDER", "raw", ["hero"]),
+                    ("mfg_new_orders_yoy", "12-month core capex orders growth", "100*(x_t/x_{t-12}-1)", "threshold_input", ["hero", "local_projections", "regime_stats"]),
+                    ("mfg_new_orders_mom", "1-month core capex orders growth", "100*(x_t/x_{t-1}-1)", "derivative", []),
+                    ("mfg_new_orders_3m", "3-month core capex orders growth", "100*(x_t/x_{t-3}-1)", "derivative", []),
+                    ("mfg_new_orders_6m", "6-month core capex orders growth", "100*(x_t/x_{t-6}-1)", "derivative", []),
                     ("mfg_new_orders_yoy_zscore_60m", "YoY growth vs its five-year history", "(yoy - mean60)/std60", "threshold_input", []),
                     ("mfg_new_orders_accel", "Change in YoY growth (acceleration)", "yoy_t - yoy_{t-1}", "derivative", []),
                 ]
@@ -660,7 +667,7 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
                 {"name": "spy_fwd_12m", "definition": "Twelve-month forward SPY return", "formula": "spy_{t+12}/spy_t - 1", "role": "derivative", "appears_in_charts": ["correlation_heatmap"]},
             ],
         },
-        "notes": "Scope limited to Manufacturers' new-orders growth signals and SPY returns.",
+        "notes": "Scope limited to core capital goods orders (NEWORDER) growth signals and SPY returns.",
     }
     (RES / "signal_scope.json").write_text(json.dumps(signal_scope, indent=2) + "\n")
     (RES / "kpis.json").write_text(json.dumps({"pair_id": PAIR_ID, "winner_oos_sharpe": winner["oos_sharpe"],
@@ -669,7 +676,7 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
     evidence_status = {
         "pair_id": PAIR_ID, "schema_version": "1.2.0", "status": "found_in_search", "updated_at": NOW_ISO,
         "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
-        "technical_note": f"Winner selected by in-sample Sharpe (common pre-OOS window) from the {DATE_TAG} tournament grid and evaluated on the held-out OOS window; Manufacturers' new orders is a leading "
+        "technical_note": f"Winner selected by in-sample Sharpe (common pre-OOS window) from the {DATE_TAG} tournament grid and evaluated on the held-out OOS window; core capital goods orders (NEWORDER) is a leading "
                           "indicator, but the winning lead should be durability-checked (see the L-pattern, issue #28).",
         "next_step": "Freeze the selected rule and run a confirmation test on future data or a reserved holdout window.",
         "owner": "evan",
@@ -679,17 +686,17 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
     analyst_suggestions = {
         "pair_id": PAIR_ID, "schema_version": "1.0.0", "last_updated_at": NOW_ISO,
         "suggestions": [{
-            "signal_name": "New-orders lead-durability & revision robustness",
+            "signal_name": "Core-capex-orders lead-durability & revision robustness",
             "proposed_by": "evan", "source": "FRED",
-            "observation": f"The selected rule uses an L{winner['lead_value']} lead on {winner['signal_code']}; new orders "
-                           "is leading, but adjacent-lead durability and the winner's direction-vs-prior should be checked.",
-            "rationale": "Advance new orders is revised and broadly coincident, so a long lead needs adjacent-lead "
+            "observation": f"The selected rule uses an L{winner['lead_value']} lead on {winner['signal_code']}; core capex orders "
+                           "are leading, but adjacent-lead durability and the winner's direction-vs-prior should be checked.",
+            "rationale": "Advance core capex orders are revised and broadly coincident, so a long lead needs adjacent-lead "
                          "durability and a COVID-excluded robustness check before it is trusted.",
             "possible_use_case": "robustness check",
             "caveats": "Search-selected rule; the long lead is likely a fitting artifact and needs final-exam validation.",
             "date_filed": DATE_TAG[:4] + "-" + DATE_TAG[4:6] + "-" + DATE_TAG[6:],
         }],
-        "notes": "Generated with the Manufacturers' New Orders x SPY pair pipeline.",
+        "notes": "Generated with the core capital goods orders (NEWORDER) x SPY pair pipeline.",
     }
     (RES / "analyst_suggestions.json").write_text(json.dumps(analyst_suggestions, indent=2) + "\n")
 

@@ -1,12 +1,12 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-15T18:09:16.757617+00:00",
+  "generated_at": "2026-10-16T18:30:45.063375+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
-  "caption": "Granger p-values by lag for new-orders growth predicting SPY returns.",
-  "narrative_alignment_note": "Granger p-values by lag for new-orders growth predicting SPY returns.",
+  "caption": "Granger p-values by lag for core capex orders growth predicting SPY returns.",
+  "narrative_alignment_note": "Granger p-values by lag for core capex orders growth predicting SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/core_models_20261015/granger_causality.csv"
+    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/core_models_20261016/granger_causality.csv"
   ]
 }

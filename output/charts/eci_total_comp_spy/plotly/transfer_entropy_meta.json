@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Two-bar TE comparison; neither direction significant on the new run.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/eci_total_comp_spy/core_models_20261008/transfer_entropy.csv"
+    "results/eci_total_comp_spy/core_models_20261016/transfer_entropy.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:39:45.398193+00:00",
+  "generated_at": "2026-10-16T18:42:42.472182+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)"
 }

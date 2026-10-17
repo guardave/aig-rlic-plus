@@ -1,0 +1,6 @@
+signal,threshold,strategy,lead_months,lookback,oos_sharpe,bootstrap_p_value,significant_at_5pct
+level,T3_zscore_neg_1.0,P1_long_cash_pro,3,LB120,1.5377,0.0726,False
+gap_50,T3_zscore_neg_1.0,P1_long_cash_pro,3,LB120,1.5377,0.0726,False
+level_zscore_60m,T1_fixed_p50,P1_long_cash_counter,13,LB_NA,1.4713,0.0946,False
+level,T2_roll_p25,P2_signal_strength_counter,13,LB120,1.4709,0.095,False
+level,T2_roll_p75,P2_signal_strength_counter,13,LB120,1.4709,0.095,False

@@ -37,8 +37,8 @@ CONFIRMED here, NOT re-run. hst_level is NON-stationary and NOT used as a signal
 all signals are stationary growth/transform series.
 
 Lag convention (binding): Census/HUD New Residential Construction publishes ~17th
-for the prior month -> L1 is the real-time floor. Tournament lead grid centers L6
-and sweeps L0..12. Lead semantics: position at month t is a function of the signal
+for the prior month -> strict floor L2 (standard Step 2, amended 2026-10-16). Tournament lead grid
+sweeps L2..13. Lead semantics: position at month t is a function of the signal
 observed at month t-L; strategy_return_t = position_t * spy_ret_t.
 
 Author: Econ Evan (Econometrics Agent) — Lead wearing role hat (Mode 2)
@@ -68,7 +68,7 @@ PAIR_ID = "housing_starts_rebuilt_spy"
 INDICATOR_NAME = "Housing Starts (SAAR)"
 TARGET_NAME = "SPY"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20261008"  # #255 floored rebuild
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (2026-10-16): grid truncated from the bottom to the strict floor, top not extended; prior run 20261008 (L1..L13).
 COST_BPS = 5  # equity ETF per ECON-T2 / target-class table
 
 BASE_DIR = subprocess.run(
@@ -602,7 +602,7 @@ def stage_tournament(df):
     oos_mask = work.index >= oos_start
     spy_ret = work["spy_ret"]
 
-    leads = list(range(1, 14))  # #255 floor L1 shifted [1..13]
+    leads = list(range(2, 14))  # strict floor E2 (HOUST ~18 d after month-end): sub-floor L1 truncated, top not extended (pkg9, protocol D2)
     lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 
@@ -707,7 +707,7 @@ def stage_tournament(df):
         "total_strategy_rows": len(strat_pop), "valid_strategy_rows": n_valid,
         "sampling": "exhaustive (no stratified sampling; grid within budget)",
         "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
-        "execution_lag": "position_t = rule(signal_{t-lead}); L1 real-time floor (Census/HUD housing-starts ~17th publication lag); L6 centered",
+        "execution_lag": "position_t = rule(signal_{t-lead}); L2 strict floor (Census/HUD housing-starts ~17th-of-M+1 publication lag)",
         "cost_note": "returns are gross of costs; 5bps sensitivity in tournament_validation",
         "assertions": [
             "top strategy oos_sharpe > bottom strategy oos_sharpe",
@@ -1218,7 +1218,7 @@ def main():
         "strategy_description": "",
         "lead_value": int(winner["lead_months"]),
         "lead_unit": "months",
-        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L1 is the real-time floor given the ~17th-of-month Census/HUD publication lag for the prior month",
+        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L2 is the strict floor given the ~17th-of-month Census/HUD publication lag for the prior month",
         "lookback": winner["lookback"],
         "direction": direction,
         "oos_sharpe": round(float(winner["oos_sharpe"]), 4),
@@ -1493,7 +1493,7 @@ when the live API was rate-limited; identical adjusted-close series).
 
 ## Tournament conventions
 - Units in tournament_results CSV are RATIOS (decimal), not percent.
-- Lead grid [0,1,2,3,6,9,12] (ECON-LL1 monthly); L1 real-time floor (Census/HUD ~17th publication);
+- Lead grid L2..L13 (ECON-LL1 monthly); L2 strict floor (Census/HUD ~17th-of-M+1 publication);
   L6 centered. position_t = rule(signal_(t-L)); strategy_return_t = position_t * spy_ret_t.
 - Both orientations (pro/counter) tested per the empirical direction prior.
 - CP2 skipped — `regime_story: false` in signal_scope.json.

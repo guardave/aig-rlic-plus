@@ -2,7 +2,7 @@
   "file": "regime_quartile_returns.csv",
   "pair_id": "housing_starts_rebuilt_spy",
   "produced_by": "scripts/pair_pipeline_housing_starts_spy.py",
-  "generated_at": "2026-10-09T14:32:06Z",
+  "generated_at": "2026-10-16T18:33:35Z",
   "columns": {
     "quartile": "Housing Starts YoY growth quartile (Q1 lowest growth)",
     "n_months": "obs",

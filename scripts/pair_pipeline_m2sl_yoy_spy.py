@@ -35,10 +35,10 @@ here, NOT re-run (SOP: confirm, don't duplicate). M2SL LEVEL is NON-stationary
 and is NOT used as a signal; all signals are stationary growth/transform series.
 
 Lag convention (binding, per brief): M2 (H.6) publishes ~4th Tuesday for the
-prior month -> L1 is the real-time floor. Tournament lead grid centers L6 and
-sweeps the standard grid starting at L1. Lead semantics: position at month t is
+prior month -> strict floor L2 (standard Step 2, amended 2026-10-16). Tournament lead grid
+sweeps L2..L13. Lead semantics: position at month t is
 a function of the signal observed at month t-L; strategy_return_t =
-position_t * spy_ret_t. With L>=1 there is no lookahead.
+position_t * spy_ret_t. With L>=2 there is no lookahead.
 
 Author: Econ Evan (Econometrics Agent)
 Date: 2026-06-19
@@ -66,10 +66,10 @@ PAIR_ID = "m2sl_yoy_spy"
 INDICATOR_NAME = "M2 Money Supply YoY (M2SL)"
 TARGET_NAME = "SPY"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20261008"
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (2026-10-16): grid truncated from the bottom to the strict floor, top not extended; prior run 20261008 (L1..L13).
 COST_BPS = 5  # equity ETF per ECON-T2 / target-class table
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root (was hardcoded /workspaces/aig-rlic-plus; pkg9 runs from a worktree)
 DATA_PATH = os.path.join(BASE_DIR, "data", "m2sl_yoy_spy_monthly_latest.parquet")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
@@ -598,7 +598,7 @@ def stage_tournament(df):
     oos_mask = work.index >= oos_start
     spy_ret = work["spy_ret"]
 
-    leads = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
+    leads = list(range(2, 14))  # strict floor E2 (H.6 ~23 d after month-end): sub-floor L1 truncated, top not extended (pkg9, protocol D2)
     lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 
@@ -703,7 +703,7 @@ def stage_tournament(df):
         "total_strategy_rows": len(strat_pop), "valid_strategy_rows": n_valid,
         "sampling": "exhaustive (no stratified sampling; grid within budget)",
         "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
-        "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 (L1 real-time floor per M2 H.6 publication lag; L6 centered)",
+        "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 2 (strict floor L2 per M2 H.6 publication lag)",
         "cost_note": "returns are gross of costs; 5bps sensitivity in tournament_validation",
         "assertions": [
             "top strategy oos_sharpe > bottom strategy oos_sharpe",
@@ -1099,7 +1099,7 @@ def main():
         "strategy_description": "",
         "lead_value": int(winner["lead_months"]),
         "lead_unit": "months",
-        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L1 is the real-time floor given the ~4th-Tuesday H.6 publication lag for the prior month",
+        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L2 is the strict floor given the ~4th-Tuesday H.6 publication lag for the prior month",
         "lookback": winner["lookback"],
         "direction": direction,
         "oos_sharpe": round(float(winner["oos_sharpe"]), 4),
@@ -1375,7 +1375,7 @@ SA revisions). FRED is treated as ground truth.
 
 ## Tournament conventions
 - Units in tournament_results CSV are RATIOS (decimal), not percent — documented in the CSV manifest.
-- Lead grid [1, 2, 3, 6, 12] starts at L1 (real-time floor: M2 H.6 publishes ~4th Tuesday for the
+- Lead grid L2..L13 starts at L2 (strict floor: M2 H.6 publishes ~4th Tuesday for the
   prior month) and centers L6. Lead semantics: position_t = rule(signal_(t-L)); strategy_return_t =
   position_t * spy_ret_t.
 - Both orientations (pro/counter) tested per the empirical direction prior.

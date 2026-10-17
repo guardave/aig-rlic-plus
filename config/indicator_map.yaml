@@ -106,7 +106,7 @@ indicators:
   # outstanding is FRED:BUSLOANS, indicator_id `busloans` (catalog I20).
   "C&I Loan":
     indicator_id: sloos_ci_small
-    display_name: "SLOOS C&I Tightening (Small Firms)"
+    display_name: "SLOOS C&I Tightening (Large & Middle-Market Firms)"
     category: credit
 
   "H Permit YoY":
@@ -162,12 +162,12 @@ indicators:
 
   "Ind, Mat - Manufturs' New Orders":
     indicator_id: mfg_new_orders
-    display_name: Manufacturers' New Orders
+    display_name: "Core Capital Goods Orders (NEWORDER)"
     category: production
 
   "Ind, Mat - Manufturs' New Orders, YoY":
     indicator_id: mfg_new_orders_yoy
-    display_name: Manufacturers' New Orders YoY
+    display_name: "Core Capital Goods Orders (NEWORDER) YoY"
     category: production
 
   "Mat - Portland Cment Shipmts":

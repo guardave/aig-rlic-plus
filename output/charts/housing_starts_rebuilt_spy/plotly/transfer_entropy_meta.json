@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Two-bar TE comparison; weak forward significance.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/housing_starts_rebuilt_spy/core_models_20261008/transfer_entropy.csv"
+    "results/housing_starts_rebuilt_spy/core_models_20261016/transfer_entropy.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T14:39:07.386193+00:00",
+  "generated_at": "2026-10-16T18:42:45.257451+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_rebuilt_spy.py (Mode 2, housing_starts_rebuilt_spy)"
 }

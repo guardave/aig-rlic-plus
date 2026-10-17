@@ -12,8 +12,8 @@
   "narrative_alignment_note": "Published L13 winner is the best CLEAN combo but sits at the grid ceiling; the taller raw bar at L3 is contaminated and excluded.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cass_freight_spy/lead_tournament_20261008.csv",
-    "results/cass_freight_spy/tournament_results_20261008.csv",
+    "results/cass_freight_spy/lead_tournament_20261016.csv",
+    "results/cass_freight_spy/tournament_results_20261016.csv",
     "results/cass_freight_spy/winner_summary.json"
   ],
   "reconciliation": {
@@ -23,7 +23,7 @@
     "raw_envelope_peak": 1.4724,
     "bh_sharpe": 0.9336
   },
-  "generated_at": "2026-10-09T09:43:20.350222+00:00",
+  "generated_at": "2026-10-16T18:42:39.983152+00:00",
   "generated_by": "Viz \u2014 scripts/generate_charts_cass_freight_spy.py (cass_freight_spy rebuild)",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",

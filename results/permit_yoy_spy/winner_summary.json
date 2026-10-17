@@ -1,6 +1,6 @@
 {
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-15T18:11:33.802375+00:00",
+  "generated_at": "2026-10-16T18:24:52.076276+00:00",
   "signal_column": "permit_yoy_level",
   "signal_code": "level",
   "signal_display_name": "Building Permits YoY (level)",
@@ -34,8 +34,8 @@
   "bh_ann_return": 0.145654,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
-  "total_combos": 312,
-  "valid_combos": 312,
+  "total_combos": 288,
+  "valid_combos": 288,
   "schema_version": "1.2.0",
   "notes": "Building Permits YoY is a zero-centred growth rate (>0 = permits growing vs a year ago). Permits are a classic leading indicator (LEI component). Signals and thresholds are built on the YoY series. Winner (level) is selected by in-sample Sharpe on the common IS window (1997-12-31 to 2017-06-30) and evaluated on the held-out OOS window; still a search-selected rule.",
   "is_sharpe": 0.940919,
@@ -56,7 +56,6 @@
     },
     "grid_scanned": {
       "leads": [
-        1,
         2,
         3,
         4,
@@ -73,7 +72,7 @@
       "n_signals": 4,
       "n_thresholds": 12,
       "n_strategies": 1,
-      "n_valid_combos": 312,
+      "n_valid_combos": 288,
       "median_valid_objective": 0.366215
     },
     "tie_break_step": null,
@@ -83,8 +82,8 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_months",
       "lead_value": 10,
-      "source_tournament_file": "tournament_results_20261015.csv",
-      "source_row_index": 74
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 68
     },
     "runner_up": {
       "signal": "level",
@@ -101,7 +100,7 @@
       "direction": "procyclical",
       "lead_value": 9,
       "oos_sharpe": 1.306115,
-      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261015.csv"
+      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261016.csv"
     },
     "sensitivity_own_is_start_row": {
       "signal": "level",

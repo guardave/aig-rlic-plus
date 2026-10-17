@@ -4,17 +4,16 @@ Pair-specific narrative content for the Story / Evidence / Strategy /
 Methodology templates. Only content that cannot be derived from the
 producer JSON / CSV artifacts lives here.
 
-Content provenance (Wave 10G.4E):
-  - All narrative prose authored by Research Ray (Wave 10G.4B, commit 1561370).
-  - Ace transliterates verbatim from:
-      docs/research/hy_ig_spy_narrative_prose_20260422.md (primary)
-      docs/portal_narrative_hy_ig_spy_20260422.md (supplementary)
-  - APP-PT1 supplement compliance: Ace renders structure; Ray owns text.
-  - RES-NR1 check: all instrument references verified — target_symbol = SPY.
+Content provenance:
+  - Original prose by Research Ray (Wave 10G.4B); rewritten 2026-10-16
+    (branch fix261016_hmm_causal) so that every number matches the
+    DATE_TAG 20261016 artifacts in results/hy_ig_spy/.
 
 Pair ID: hy_ig_spy
-Winner: S6_hmm_stress / T4_hmm_0.5 / P2 / L0
-OOS Sharpe: 1.41 | OOS MDD: -8.5% | OOS Return: 11.7% ann.
+Winner (selected on in-sample Sharpe): S4b_roc_63d / T2_rp75 / P1 / L252
+IS Sharpe 0.96 (SPY 0.52) | OOS Sharpe 0.3442 (SPY 0.8129) | OOS MDD -33.7%
+Superseded: S6_hmm_stress / T4_hmm_0.5 / P2 / L0, OOS Sharpe 1.4083 — relied on
+full-sample, forward-backward smoothed HMM probabilities (look-ahead).
 """
 
 from __future__ import annotations
@@ -28,188 +27,161 @@ from components.page_templates import MethodologyConfig
 class StoryConfig:
     """Story-page content object (passed to `render_story_page`)."""
 
-    PAGE_TITLE = "The Story: When Credit Markets Signal, Equity Markets Follow"
+    PAGE_TITLE = "The Story: HY-IG Credit Spreads and SPY"
     PAGE_SUBTITLE = (
-        "Does the high-yield credit spread carry advance warning for SPY investors?"
+        "Does the high-yield minus investment-grade credit spread carry information about "
+        "SPY returns that a rule could trade?"
     )
 
     HEADLINE_H2 = (
-        "## Credit spreads as a leading equity risk signal — OOS Sharpe vs SPY buy-and-hold"
+        "## HY-IG credit spread → SPY: the out-of-sample record against buy-and-hold"
     )
 
     PLAIN_ENGLISH = (
-        "When companies borrow money, lenders charge higher rates to riskier companies. "
-        "The gap between those rates — the credit spread — acts like a stress gauge for "
-        "the financial system. When the gap widens, investors are worried about company "
-        "defaults. This research asks whether watching that stress gauge can help "
-        "investors in SPY, the S&P 500 ETF, protect their portfolio before the damage arrives."
+        "When companies borrow money, lenders charge riskier companies higher rates. "
+        "The gap between the rates paid by high-yield (riskier) and investment-grade "
+        "(safer) borrowers is the HY-IG credit spread. It rises when investors worry "
+        "about defaults. This study asks whether that gap, observed daily, helps an "
+        "SPY (S&P 500 ETF) investor time exposure, and reports the result as measured, "
+        "including where it falls short of simply holding SPY."
     )
 
     WHERE_THIS_FITS = """This is a **single indicator-target analysis**: does the HY-IG credit spread carry
-advance information about SPY returns? The portal contains dozens of such pair
-studies. Here the lens is fixed on corporate credit stress as a predictor of
-broad US equity performance measured via SPY.
+information about SPY returns? The portal contains dozens of such pair studies. Here the
+lens is fixed on corporate credit spreads and broad US equity returns measured via SPY.
 
-**How to navigate the four pages.** The Story page explains the economic mechanism —
-why bond spreads and equity prices are related at all. The Evidence page presents
-eight statistical tests. The Strategy page describes the actionable trading rule
-and its honest track record. The Methodology page is the technical appendix for
-practitioners who want to reproduce or challenge the work.
+**How to navigate the four pages.** The Story page explains the economic hypothesis and
+the historical episodes. The Evidence page presents the statistical tests and what each
+one found. The Strategy page describes the selected trading rule and its out-of-sample
+record. The Methodology page is the technical appendix.
 """
 
     ONE_SENTENCE_THESIS = (
-        "The HY-IG credit spread — the yield premium that risky corporate borrowers pay "
-        "relative to safer peers — reflects real-time aggregate default risk, and when that "
-        "risk rises sharply, it has historically preceded broad equity market declines "
-        "measured by SPY."
+        "The hypothesis tested here: the HY-IG credit spread reflects aggregate default risk, "
+        "and rising credit stress is followed by weaker SPY returns (a countercyclical "
+        "relationship); the evidence on this page measures how much of that a daily rule "
+        "could have used out of sample."
     )
 
     KPI_CAPTION = (
-        "The tournament winner uses the HMM stress probability as the signal "
-        "(S6_hmm_stress), scaling SPY exposure proportionally to credit stress. "
-        "The countercyclical orientation means exposure falls when credit markets "
-        "signal deterioration — the defensive positioning trade."
+        "The tournament winner was selected on in-sample Sharpe (2006-05-02 to 2019-09-30): "
+        "S4b_roc_63d / T2_rp75 / P1 / L252, a countercyclical long/cash rule on the 63-day "
+        "percent change of the spread, read 252 trading days back. Out of sample "
+        "(2019-10-01 to 2026-04-22) it earned a Sharpe of 0.34 against 0.81 for SPY "
+        "buy-and-hold. The previously published 1.41 (S6_hmm_stress, L0) relied on "
+        "smoothed full-sample HMM probabilities, which use future data."
     )
 
-    HERO_TITLE = "25 Years of HY-IG Credit Stress vs. SPY Equity Performance"
+    HERO_TITLE = "26 Years of the HY-IG Credit Spread and SPY"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
-        "How to read it: dual-axis view — HY-IG spread (left axis, orange) and "
-        "SPY price (right axis, blue) on a common time axis. Shaded bands mark "
-        "NBER recessions. Notice how spread spikes typically precede or coincide "
-        "with SPY drawdown episodes — the credit-leads-equity pattern."
+        "How to read it: HY-IG spread (left axis, inverted, orange) and SPY price (right "
+        "axis, blue), 2000-01-03 to 2026-04-22. Shaded bands mark NBER recessions. The "
+        "spread's highest peaks (8.5 pp in 2002, 15.3 in 2008, 6.9 in 2020) fell inside the "
+        "three largest SPY drawdowns. The 2016 energy-sector peak (6.7) came with a much "
+        "smaller SPY decline."
     )
 
-    REGIME_TITLE = "What History Shows: SPY Returns by HMM Credit Regime"
+    REGIME_TITLE = "SPY Returns in Calm and Stress Regimes of a Causal HMM"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "What this shows: SPY performance in the HMM-identified calm and "
-        "stress regimes — annualized Sharpe (left panel) and annualized "
-        "return (right panel). Calm periods (low credit stress) generate the "
-        "bulk of SPY's long-run performance (Sharpe 1.68 / 18.1% return); "
-        "stress periods concentrate drawdown risk (-0.19 / -5.2%). The gap "
-        "between regimes — on both measures — is the statistical foundation "
-        "for the winning signal."
+        "What this shows: same-day SPY performance when a 2-state HMM (fit on 2000-2019 data "
+        "only, forward-filtered) puts the stress probability at or below 0.5 (calm, "
+        "Sharpe 1.38, 14.1% a year) versus above 0.5 (stress, Sharpe 0.15, 3.8% a year). "
+        "These are concurrent returns: the chart describes the regimes, it is not a "
+        "forecast. As a trading signal the same probability did not beat buy-and-hold "
+        "out of sample (Evidence page, HMM block)."
     )
 
     NARRATIVE_SECTION_1 = """
-### Why SPY Investors Should Watch Corporate Bond Spreads
+### Why SPY Investors Watch Corporate Bond Spreads
 
-SPY investors are sometimes surprised to learn that the corporate bond market is,
-in important ways, more informationally efficient about economic risk than the equity
-market. The intuition is not obvious — stocks are more liquid, more watched, and more
-immediately accessible to retail investors. Yet academic research going back to Gertler
-and Lown (1999) and Gilchrist and Zakrajšek (2012) demonstrates that credit spreads
-carry orthogonal information about future economic conditions that equity prices do not
-immediately absorb.
+Academic work going back to Gertler and Lown (1999) and Gilchrist and Zakrajšek (2012)
+finds that credit spreads carry information about future economic conditions. Bondholders
+and equity holders look at the same companies through different lenses. Equity holders
+own the upside; bondholders care mainly about being repaid. When credit investors demand
+a higher spread, they are pricing a higher probability of corporate distress.
 
-Why? Because bondholders and equity holders look at the same company through very
-different lenses. Equity holders are optimists by construction — they hold a call option
-on company value and benefit from upside. Bondholders are creditors who care primarily
-about the downside: can this company pay me back? When institutional credit analysts,
-who spend their careers pricing default risk, begin demanding higher spreads, they are
-saying something specific and quantitative: the probability of widespread corporate
-distress has risen. That signal travels slowly into equity prices because equity investors
-tend to attribute spread widening to "technical factors" or "illiquidity" until the damage
-is undeniable.
+The HY-IG spread used here is the option-adjusted spread of the ICE BofA US High Yield
+Index minus that of the ICE BofA US Corporate (investment-grade) Index (FRED
+BAMLH0A0HYM2 minus BAMLC0A0CM). Both legs are option-adjusted spreads over Treasuries,
+so the difference isolates the extra compensation for high-yield credit risk.
 
-The HY-IG spread — the difference in option-adjusted yields between the ICE BofA US High
-Yield Index and the ICE BofA US Investment Grade Corporate Index — is one of the cleanest
-single-number summaries of this aggregate credit sentiment. High-yield issuers (rated BB
-and below) represent the portion of the corporate universe most vulnerable to economic
-downturns; investment-grade issuers (rated BBB and above) are the most resilient. The
-spread between them isolates pure credit-cycle risk, stripped of duration effects, because
-both series are measured as option-adjusted spreads against comparable Treasuries.
+### The Hypothesised Channels
 
-### The Signal Mechanism
+The literature proposes three channels from wider spreads to weaker SPY returns. They
+are hypotheses that this pair's tests then check.
 
-The pathway from spread widening to SPY weakness runs through three reinforcing channels
-that operate at different speeds:
+**Channel 1: Credit-cycle tightening (months).** Wider spreads accompany tighter lending
+terms, lower investment and weaker earnings expectations across the S&P 500. **What this
+would mean for an SPY holder:** a sustained widening would be followed by weaker returns
+over the next several months.
 
-**Channel 1: Credit-Cycle Tightening (3-12 months).** Rising corporate bond spreads are
-a leading indicator of bank lending standards. When spreads widen, banks and institutional
-lenders simultaneously tighten credit terms across the economy — raising hurdle rates,
-reducing credit lines, increasing covenant restrictions. This credit tightening reduces
-corporate investment, slows hiring, and compresses earnings expectations across the entire
-S&P 500 universe, not just HY-rated companies. SPY, as an index of 500 large-cap US
-companies, is sensitive to this aggregate earnings trajectory. **What this means for an SPY
-holder:** this is the slowest-burning of the three channels, and the one that gives the most
-lead time. A sustained widening in spreads is an early hint that the earnings backdrop for
-the whole index is about to soften — often months before it shows up in reported profits or
-the price of SPY. For a long-term holder, a persistently widening spread is a cue to review
-downside protection (trimming exposure, raising cash, or hedging) while there is still time
-to act, rather than waiting for the earnings disappointment to arrive.
+**Channel 2: Risk appetite (days to weeks).** Multi-asset allocators cut credit and
+equity risk together, so spread widening and SPY selling arrive close together.
+**What this would mean for an SPY holder:** the two series move on the same days, which
+leaves little time to react.
 
-**Channel 2: Risk-Appetite Signal (days to weeks).** Large institutional portfolios are
-cross-asset allocators. When their credit teams signal that HY risk/reward has
-deteriorated, the same risk committee that cuts HY exposure frequently also trims equity
-risk. This portfolio-level de-risking creates correlated selling pressure across credit
-and equities that can appear almost simultaneous at weekly resolution but is initiated in
-the credit department first. **What this means for an SPY holder:** this channel is fast —
-it plays out in days to weeks, not months — so it offers little time to react and is better
-understood as an explanation for *why* sharp spread moves and SPY sell-offs so often arrive
-together. The practical takeaway is not to trade every wiggle but to respect that a sudden,
-broad widening in spreads reflects big allocators actively pulling risk; fighting that flow
-by adding equity exposure into it has historically been the wrong side of the trade.
+**Channel 3: Financial conditions (1-6 months).** Credit spreads are a large component
+of financial-conditions indices. Tighter conditions weigh on both expected earnings and
+valuation multiples. **What this would mean for an SPY holder:** returns would be weaker
+for some months after conditions tighten.
 
-**Channel 3: Financial Conditions Transmission (1-6 months).** The Federal Reserve
-Financial Conditions Index (NFCI) and similar composite measures incorporate credit
-spreads as one of their largest components. When spreads widen materially, financial
-conditions tighten in a way that is forward-looking for economic growth — and therefore
-forward-looking for SPY earnings and multiples simultaneously. **What this means for an SPY
-holder:** tightening financial conditions squeeze SPY from *both* directions at once — lower
-expected earnings (the numerator) and a higher discount rate that compresses valuation
-multiples (the denominator). That double hit is why credit-driven downturns can be
-particularly hard on the index. For an investor, a material, sustained tightening in
-financial conditions — with widening spreads as its most watchable single ingredient — is a
-signal that the environment has turned less friendly for equities broadly, warranting a more
-defensive posture over the following one-to-six months rather than a reach for dips.
+The combined hypothesis is **countercyclical**: rising HY-IG spreads go with weaker
+SPY returns.
 
-The combined prediction is **countercyclical**: rising HY-IG spreads → deteriorating
-financial conditions → weaker forward SPY returns.
+### What This Pair's Data Show
+
+- **Same day:** strong. The daily spread change and the same-day SPY return have a
+  correlation of -0.44.
+- **Forward, at daily to quarterly horizons:** weak. Predictive regressions of SPY
+  forward returns on the spread level are insignificant at 1 to 126 trading days with
+  overlap-robust (HAC) errors, and the local projections are insignificant at 5, 21 and
+  63 days.
+- **Monthly Granger test:** rejects "no predictive content" at lags of 3 to 12 months
+  (homoskedastic F-test).
+- **Next-month return by spread quartile:** lower in the widest-spread quartile, but the
+  differences are not statistically significant and not monotonic.
+- **Tradable rule:** the rule with the best in-sample Sharpe earned 0.34 out of sample
+  versus 0.81 for SPY buy-and-hold.
 """
 
     NARRATIVE_SECTION_2 = """
 ### Nuance and Limits
 
-No signal is a crystal ball. Honest limitations for the HY-IG → SPY relationship:
+**The previously published result relied on look-ahead.** Until 2026-10-16 this page
+reported a winner built on an HMM stress probability (S6_hmm_stress, L0) with an
+out-of-sample Sharpe of 1.41 (HAC t 3.80). That probability came from a model fitted on
+the full 2000-2026 sample with forward-backward smoothing, so the value on each day used
+later data. Rebuilt causally (fitted on in-sample data only, forward-filtered), the same
+rule scores 0.56 at L0 and 0.45 at the L1 floor, against 0.81 for SPY buy-and-hold
+(file `hmm_lookahead_audit_20261016.json`).
 
-**The 2022 interest-rate exception.** The 2022 SPY drawdown (-25%) was driven primarily
-by the Federal Reserve's fastest rate-hiking cycle in 40 years, not by a credit
-deterioration cycle. HY-IG spreads did widen (from roughly 310 bps to 580 bps), but the
-widening was moderate relative to the magnitude of the equity decline — because the driver
-was rate repricing, not default-risk repricing. An investor relying solely on the HY-IG
-signal would have reduced SPY exposure but not fully avoided the decline. This is a real
-limitation: pure rate-shock bear markets are the blind spot for this signal.
+**Publication lag.** ICE BofA OAS values appear on FRED about one business day after
+their value date. Every traded rule therefore reads the spread at least one day back,
+then trades the next day, so the effective lag is at least two trading days.
 
-**Short-horizon noise.** The HY-IG spread is measured daily but its predictive content
-for SPY is most reliable at 1-month to 12-month horizons. Short-term spread moves are
-heavily influenced by ETF fund flows, technical factors, and market microstructure noise
-that does not translate into fundamental SPY repricing.
+**2022.** SPY fell 24.5% between 2022-01-03 and 2022-10-12, during the fastest Federal
+Reserve tightening in 40 years. Over the same window the HY-IG spread rose from 2.08 to
+a peak of 4.32 percentage points. In calendar 2022 the selected rule's Sharpe was -0.79
+(SPY -0.70), with the same -24.5% drawdown.
 
-**Structural break risk.** The post-GFC era of near-zero rates (2010-2021) compressed
-credit spreads to historically tight levels for prolonged periods. This compression may
-have blunted the signal's discriminatory power during that era. Examine the regime-
-conditional results on the Evidence page to assess this.
-
-**Feedback risk in stress regimes.** During acute crises (GFC 2008-09, COVID 2020),
-spread widening and equity declines reinforce each other at high frequency — the signal
-becomes coincident rather than leading. The historical episode section illustrates where
-the lead holds and where the gap collapses.
+**Selection.** The winner is the best of 1,990 in-sample-valid rules (1,354 distinct
+position series). The best in-sample Sharpe from that many candidates overstates what a
+rule can be expected to deliver; the out-of-sample Sharpe of 0.34 is the relevant number.
 """
 
     SCOPE_NOTE = (
         "This page pack analyzes only the HY-IG spread → SPY relationship. SPY also responds to "
-        "interest-rate cycles, earnings momentum, valuation multiples, and macro surprises — but "
-        "each of those has its own separate analysis in the portal. Here the lens stays on credit "
-        "spreads as the single predictor. The portal's separate Yield Curve × SPY analysis covers "
-        "the rate-cycle blind spot."
+        "interest-rate cycles, earnings momentum, valuation multiples, and macro surprises — each "
+        "has its own separate analysis in the portal. The portal's separate Yield Curve × SPY "
+        "analysis covers the rate cycle."
     )
 
     TRANSITION_TEXT = (
-        "Economic logic and academic research both point toward the HY-IG spread as an early-"
-        "warning signal for SPY weakness. Eight statistical tests translate that logic into "
-        "empirical evidence."
+        "The economic hypotheses point to a countercyclical link. The Evidence page tests it "
+        "with correlation, lead-lag, Granger, regime, quantile and local-projection methods, "
+        "and reports what each test found."
     )
 
     HISTORY_ZOOM_EPISODES = [
@@ -217,62 +189,50 @@ the lead holds and where the gap collapses.
             "slug": "dotcom",
             "title": "The Dot-Com Crash (2000-2002)",
             "narrative": (
-                "The Dot-Com bust began as an equity-sector phenomenon concentrated in technology "
-                "and telecommunications, but the credit channel caught it early. Telecom companies "
-                "had issued enormous volumes of high-yield debt to finance network buildouts through "
-                "1999-2000; as capital markets closed and revenue projections collapsed, their bonds "
-                "began repricing months before the NASDAQ peak. By late 2000, HY-IG spreads had "
-                "widened meaningfully, signaling credit deterioration that would eventually hit the "
-                "broader S&P 500 as corporate capital spending fell sharply. SPY declined approximately "
-                "49% from peak to trough across 2000-2002. An investor watching HY-IG spreads as an "
-                "early filter would have had a several-month warning window before the bulk of the "
-                "SPY damage accumulated."
+                "SPY (adjusted) fell 47.5% from its 2000-03-24 peak to its 2002-10-09 trough. "
+                "The HY-IG spread was already 3.52 percentage points on 2000-01-03. It widened "
+                "through 2000, reaching 6.97 by year-end, and peaked at 8.50 on 2002-10-09, the "
+                "same day as the SPY trough. Telecom and technology issuers that had financed "
+                "network build-outs with high-yield debt were at the centre of the credit "
+                "deterioration."
             ),
             "caption": (
-                "HY-IG spread widening in late 2000 preceded the worst of the SPY decline in 2001-2002 "
-                "— the credit deterioration signaled corporate sector stress months before the equity "
-                "market fully repriced it."
+                "The spread widened through 2000 while SPY was falling, and peaked on the day of "
+                "the SPY low (2002-10-09)."
             ),
         },
         {
             "slug": "gfc",
             "title": "The Global Financial Crisis (2007-2009)",
             "narrative": (
-                "The GFC is the clearest demonstration of the HY-IG spread's leading-indicator "
-                "properties for SPY. The spread began widening in the summer of 2007 — roughly five "
-                "months before SPY reached its October 2007 all-time high. The initial widening "
-                "reflected stress in subprime mortgage-linked corporate credit structures. By the "
-                "time SPY peaked, spreads had already moved from approximately 250 basis points to "
-                "over 500 basis points. SPY then declined 57% to its March 2009 trough, while spreads "
-                "ultimately reached 2,000+ basis points. The HY-IG signal provided not just directional "
-                "warning but severity indication: the 8x spread widening was unprecedented and "
-                "corresponded to a genuine systemic crisis, not a garden-variety slowdown."
+                "The HY-IG spread reached a low of 1.47 percentage points on 2007-06-01. It rose "
+                "to 2.90 by the end of July and 3.10 by the end of August 2007, months before SPY "
+                "peaked on 2007-10-09. SPY then fell 55.2% to its 2009-03-09 trough, while the "
+                "spread peaked at 15.31 on 2008-12-15. In this episode the spread moved before "
+                "the equity peak. The selected rule was in-sample here, so its GFC result "
+                "(Sharpe 0.20, max drawdown -17.8% from 2007-07 to 2009-03, against -0.75 and "
+                "-55.2% for SPY) is part of the data it was chosen on."
             ),
             "caption": (
-                "HY-IG spreads began widening ~5 months before SPY peaked in October 2007 — the widest "
-                "lead of any major historical episode and the clearest demonstration of credit-leads-equity "
-                "dynamics."
+                "The spread rose from 1.47 (June 2007) to 3.10 (August 2007) before the SPY peak "
+                "on 2007-10-09, and peaked at 15.31 in December 2008."
             ),
         },
         {
             "slug": "covid",
             "title": "The COVID Shock (2020)",
             "narrative": (
-                "The COVID episode illustrates both the power and the limits of the signal. The initial "
-                "SPY collapse in February-March 2020 was extraordinarily rapid — SPY fell 34% in "
-                "approximately 33 calendar days. HY-IG spreads widened in rough simultaneity with the "
-                "equity decline rather than providing the multi-month lead seen in 2007. By late March "
-                "2020, spreads had reached approximately 1,100 basis points. However, the Fed's March 23 "
-                "announcement of corporate bond purchase programs directly compressed spreads within weeks. "
-                "By mid-May 2020, spreads had retraced to approximately 500 basis points even as SPY "
-                "recovered. The episode demonstrates that pandemic shocks can compress the leading-indicator "
-                "window to near-zero, and that extraordinary monetary intervention can reverse credit "
-                "deterioration on a timeline that makes mechanical strategy design difficult."
+                "SPY fell 33.7% between 2020-02-19 and 2020-03-23. The HY-IG spread rose from "
+                "2.39 percentage points (2020-01-20) to 6.86 on 2020-03-23, the same day as the "
+                "SPY low, then eased to about 4.9 by the end of May after the Federal Reserve's "
+                "corporate-credit facilities. The spread and SPY moved together rather than one "
+                "leading the other. This episode is out-of-sample for the selected rule, which "
+                "reads the spread 252 trading days back. It held SPY from 2020-01-30 to "
+                "2020-04-29, so its drawdown matched buy-and-hold (-33.7%)."
             ),
             "caption": (
-                "COVID spread widening was coincident with the SPY collapse in Feb-Mar 2020, not leading "
-                "— the fastest bear market in modern history gave little time for any early-warning "
-                "mechanism. Fed intervention reversed spreads sharply by May."
+                "Spread and SPY moved together: both extremes fell on 2020-03-23. The selected "
+                "rule was fully invested through the fall."
             ),
         },
     ]
@@ -288,52 +248,40 @@ CORRELATION_BLOCK = dict(
     chart_status="ready",
     method_name="Correlation Analysis",
     method_theory=(
-        "A **Pearson correlation** measures the linear co-movement between two variables "
-        "on a -1 to +1 scale. We compute rolling correlations at multiple forward horizons "
-        "(1M, 3M, 6M, 12M SPY returns) and static point-in-time correlations for each "
-        "HY-IG signal variant — level, z-score, rate-of-change, and momentum. A rolling "
-        "correlation view shows how the relationship has evolved over time and across "
-        "market regimes."
+        "A **Pearson correlation** measures linear co-movement on a -1 to +1 scale. The chart "
+        "shows a rolling 252-day correlation between the spread LEVEL and the SAME-DAY SPY "
+        "return. The downloadable table adds static correlations of each spread signal with "
+        "SPY forward returns at 1 to 252 trading days."
     ),
     question=(
-        "Is there a statistically meaningful linear relationship between the HY-IG spread "
-        "and future SPY returns — and which signal variant and forward horizon carries "
-        "the most information?"
+        "How do the spread and SPY returns co-move, and do spread signals correlate with "
+        "future SPY returns?"
     ),
     how_to_read=(
-        "The correlation chart shows rolling 12-month and 36-month Pearson correlations "
-        "between the HY-IG spread and SPY forward monthly return. Negative values (below "
-        "the zero line) confirm the countercyclical hypothesis: wider spreads coincide "
-        "with lower subsequent SPY returns. The dashed vertical line marks the start of "
-        "the out-of-sample period."
+        "Values below zero mean that a higher spread coincides with lower same-day SPY "
+        "returns. Gray bands are NBER recessions. Forward-return correlations use "
+        "overlapping windows, so their iid p-values overstate significance."
     ),
     chart_name="correlations",
     chart_caption=(
-        "What this shows: rolling Pearson correlation between the HY-IG spread and SPY "
-        "forward monthly return. Negative values confirm the countercyclical pattern — "
-        "wider credit spreads are associated with weaker subsequent SPY performance. "
-        "The relationship is regime-dependent, strengthening during credit cycles."
+        "Rolling 252-day Pearson correlation between the spread level and same-day SPY daily "
+        "returns. It is negative in 58% of windows."
     ),
     observation=(
-        "Rolling correlations for the HY-IG spread against SPY forward returns are "
-        "predominantly negative across the full sample, particularly at 3-month and "
-        "6-month forward horizons. The relationship is strongest during stress regimes "
-        "and weakest during the compressed-spread period of 2014-2019. The point-in-time "
-        "correlation across the full sample is negative and statistically significant "
-        "(p < 0.01), confirming the countercyclical direction."
+        "The rolling same-day correlation is negative in 58% of windows and changes sign over "
+        "time. Static correlations of the spread level with SPY forward returns are small: "
+        "-0.033 at 63 trading days, +0.024 at 126 and +0.070 at 252. These are iid p-values "
+        "on overlapping windows, which are not reliable."
     ),
     interpretation=(
-        "Correlation analysis confirms a real countercyclical link between HY-IG spread "
-        "levels and SPY forward returns. The relationship is most pronounced at the 3-6 "
-        "month forward horizon and for normalized signal variants (z-score). The rolling "
-        "correlation view shows the relationship is regime-dependent — it strengthens "
-        "during credit cycles and weakens during rate-driven or idiosyncratic market "
-        "episodes."
+        "The level of the spread has little linear relationship with future SPY returns at "
+        "the horizons tested. The sign at 252 days is positive, the opposite of the "
+        "countercyclical hypothesis. The strongest co-movement is same-day (see the "
+        "cross-correlation block)."
     ),
     key_message=(
-        "The HY-IG spread shows a statistically significant negative correlation with "
-        "SPY forward returns at 3-6 month horizons: wider credit spreads are associated "
-        "with weaker subsequent SPY performance — the countercyclical early-warning pattern."
+        "Spread-level correlations with SPY forward returns are small (|r| ≤ 0.07) and change "
+        "sign across horizons; the clear relationship is same-day, not forward."
     ),
 )
 
@@ -342,112 +290,87 @@ GRANGER_BLOCK = dict(
     chart_status="ready",
     method_name="Granger Causality",
     method_theory=(
-        "**Granger causality** tests whether past HY-IG spread values improve forecasts "
-        "of future SPY returns beyond what SPY's own history already predicts. The chart "
-        "below reports standard Granger F-tests in the HY-IG → SPY direction only, at "
-        "monthly lags 1-12. It does not test the reverse direction (SPY → HY-IG), so on "
-        "its own it cannot establish whether the relationship is one-sided."
+        "**Granger causality** tests whether past values of one series improve forecasts of "
+        "another beyond its own past. The chart tests month-end changes in the HY-IG spread "
+        "against the compounded monthly SPY return, at lags 1-12 months. The spread enters "
+        "as a monthly change because its level is highly persistent. The downloadable daily "
+        "table tests both directions on daily spread changes and SPY returns, at lags 1-5 "
+        "days."
     ),
     question=(
-        "Does the HY-IG spread carry information about future SPY returns that is not "
-        "already priced into the SPY return series?"
-    ),
-    regime_context=(
-        "**This chart has a known defect and should not be relied on.** It aggregates SPY "
-        "to monthly frequency by taking the last trading day's return of each month "
-        "instead of compounding the month's returns. That discards almost the entire "
-        "return series and biases the test towards finding nothing. The bars therefore "
-        "understate the evidence: the absence of significance shown here is an artifact "
-        "of the aggregation, not a finding. A corrected re-run points the other way, but "
-        "it is unpublished and not yet stationarity-checked, so we state no result in "
-        "either direction until this block is rebuilt on a daily lag grid matching the "
-        "spread's daily release frequency. The rebuild is tracked as a separate issue."
+        "Do past spread changes help predict SPY returns beyond SPY's own history, and does "
+        "the reverse also hold?"
     ),
     how_to_read=(
-        "Each bar is the Granger F-statistic for the null hypothesis that HY-IG spreads "
-        "do NOT help predict SPY returns at that lag, for lags 1 to 12 months, with the "
-        "p-value printed above it. Bars **above** the dashed line — F = 3.84, the critical "
-        "value at p=0.05 — would indicate statistically significant predictive content; "
-        "bars below it would not. Read the note above before drawing any conclusion from "
-        "the bar heights."
+        "Each bar is the F-statistic at that lag, with its p-value. The dashed line is the 5% "
+        "critical value for that lag, which falls as the lag count rises. Vermillion bars "
+        "have p < 0.05. These are homoskedastic F-tests; monthly equity returns are "
+        "heteroskedastic, so the p-values are approximate."
     ),
     chart_name="granger_f_by_lag",
     chart_caption=(
-        "What this shows: Granger causality F-statistics by monthly lag (1-12) for the "
-        "HY-IG → SPY direction only; the reverse direction is not tested. The values shown "
-        "are affected by the aggregation defect described above and are not a reliable "
-        "basis for inference."
+        "Monthly Granger F-tests, spread change → SPY monthly return, 315 months. p < 0.05 at "
+        "10 of 12 lags (lags 3-12); lags 1 and 2 are not significant (p = 0.59 and 0.56)."
     ),
     observation=(
-        "No conclusion should be drawn from this chart in its current form. Because of the "
-        "aggregation defect described above, neither the presence nor the absence of "
-        "Granger causality from credit to equity is established here. The Local Projections "
-        "block in Level 2 addresses the same lead-lag question on the daily horizon grid "
-        "and is not affected by this defect."
+        "Monthly: lagged spread changes add predictive content for SPY monthly returns at lags "
+        "3 to 12 (p from 0.0007 to 0.0064). Daily: the test rejects in both directions, but "
+        "much more strongly from SPY to the spread (F = 166.5 at lag 1) than from the spread "
+        "to SPY (F = 4.18, p = 0.041)."
     ),
     interpretation=(
-        "The economic hypothesis this test is meant to adjudicate — that credit markets "
-        "process default risk before equity markets reprice — remains open on this "
-        "evidence. The mechanism is well established in the literature and plausible here, "
-        "but a monthly test built on a broken aggregation is not evidence for it, and we "
-        "will not cite it as such. We would rather show a test we know to be defective and "
-        "say so plainly than quietly drop it from the page or let a number stand that we "
-        "no longer trust."
+        "At a monthly frequency the test is consistent with the credit-cycle channel: spread "
+        "changes carry some information about SPY returns several months later. At a daily "
+        "frequency the feedback runs mainly from equities to credit. Neither is causal "
+        "identification. The forward-return regressions and local projections, which use "
+        "overlap-robust errors, do not find a significant effect of the spread level."
     ),
     key_message=(
-        "This monthly Granger test is defective and reports no usable result in either "
-        "direction; it is being rebuilt on a daily lag grid. Until then, treat the "
-        "credit → equity lead-lag question on this page as addressed by the Local "
-        "Projections evidence, not by this chart."
+        "Monthly spread changes Granger-cause SPY monthly returns at lags 3-12 (p < 0.01). "
+        "Daily, SPY returns predict spread changes far more strongly than the reverse."
     ),
 )
 
 
 CCF_BLOCK = dict(
     chart_status="ready",
-    method_name="Pre-Whitened Cross-Correlation Function (CCF)",
+    method_name="Cross-Correlation Function (daily changes)",
     method_theory=(
-        "The **pre-whitened CCF** first fits ARMA models to each series separately to "
-        "remove autocorrelation structure, then computes cross-correlations of the "
-        "residuals at lags -12 to +12 months. Pre-whitening ensures that observed "
-        "cross-correlations reflect genuine lead-lag information transfer, not shared "
-        "persistence in both series (a common spurious correlation source in financial "
-        "time series)."
+        "The **cross-correlation function** correlates the daily change in the HY-IG spread "
+        "with the SPY daily return at lags of -20 to +20 trading days. SPY returns are close "
+        "to serially uncorrelated, so they are used as they are; the spread is differenced "
+        "because its level is persistent. (An earlier version differenced the returns too, "
+        "which creates an artificial negative lag-1 pattern.)"
     ),
     question=(
-        "At what lag does the HY-IG spread carry the most information about SPY returns "
-        "— and does the lead-lag structure confirm that credit moves first?"
+        "Do spread changes come before SPY moves, after them, or on the same day?"
     ),
     how_to_read=(
-        "Bars at negative lags (e.g., lag -3) mean the HY-IG spread at month T-3 is "
-        "correlated with SPY return at month T: the spread leads by 3 months. Bars "
-        "outside the 95% confidence bands (dashed lines) are statistically significant. "
-        "A cluster of significant bars at negative lags confirms the spread as a leading "
-        "indicator for SPY."
+        "Negative lags (e.g. -5) pair the spread change 5 days earlier with today's SPY "
+        "return (spread first). Positive lags pair today's spread change with the SPY "
+        "return k days earlier (SPY first). The dashed lines are iid ±95% bands."
     ),
     chart_name="ccf",
     chart_caption=(
-        "What this shows: pre-whitened cross-correlation function between the HY-IG "
-        "spread and SPY monthly returns at lags -12 to +12 months. Significant bars at "
-        "negative lags confirm the credit-leads-equity timing structure."
+        "Daily spread change vs SPY daily return, lags -20 to +20 trading days. Lag 0: r = "
+        "-0.444. SPY-first lags +1 and +2: -0.215 and -0.090. Spread-first lags outside the "
+        "band: -1 (+0.061), -6 (+0.026), -13 (+0.029)."
     ),
     observation=(
-        "The pre-whitened CCF shows significant negative correlations at lags -1 through "
-        "-4 months, with peak predictive content at approximately lag -2 months. The "
-        "contemporaneous correlation (lag 0) is also negative and significant, consistent "
-        "with credit stress and equity weakness co-occurring during acute crises. The "
-        "positive-lag region shows no significant bars."
+        "The dominant correlation is same-day (r = -0.444). The next largest are at lags +1 "
+        "and +2 (-0.215, -0.090), where the SPY return comes first and the spread widens "
+        "afterwards. Three spread-first lags fall outside the iid band, all small and "
+        "positive (+0.026 to +0.061)."
     ),
     interpretation=(
-        "The CCF's negative-lag cluster confirms the credit-leads-equity timing structure "
-        "at 1-4 month horizons. The absence of significant positive-lag bars rules out a "
-        "reverse causality interpretation (equity weakness causing spread widening as the "
-        "primary channel)."
+        "At a daily frequency the spread does not lead SPY. The relationship is same-day, "
+        "with the spread catching up to equity moves over the following one to two days. "
+        "That matches the daily Granger result and the publication lag: by the time the OAS "
+        "value is published, the same-day co-movement has already happened."
     ),
     key_message=(
-        "The HY-IG spread leads SPY returns by 1-4 months in the pre-whitened CCF, with "
-        "the strongest predictive content at lag -2 months — consistent with credit-market "
-        "participants pricing default risk 2 months before equity markets fully reprice."
+        "Daily spread changes and SPY returns move together on the same day (r = -0.44); "
+        "spread widening tends to follow SPY declines by 1-2 days rather than precede them."
     ),
 )
 
@@ -456,55 +379,52 @@ HMM_BLOCK = dict(
     chart_status="ready",
     method_name="Hidden Markov Model (HMM) Regime Analysis",
     method_theory=(
-        "A **Hidden Markov Model** identifies latent market regimes — distinct states of "
-        "the world that generate different statistical behavior — from observed spread data "
-        "alone. We fit a 2-state HMM (calm and stress states) to the HY-IG spread series. "
-        "The model outputs a daily probability of being in the stress state, which serves "
-        "as the winning tournament signal. The HMM aggregates level, trend, and volatility "
-        "information into a single calibrated probability."
+        "A 2-state Gaussian **Hidden Markov Model** is fitted to two daily features: the "
+        "change in the HY-IG spread and the VIX level. It is estimated on in-sample data only "
+        "(2000-01-05 to 2019-09-30), standardised with in-sample means and standard "
+        "deviations. The stress probability on each day is the forward-filtered probability "
+        "given data up to that day. The stress state is the one with the higher in-sample "
+        "mean spread change. The probability enters the tournament as signal S6_hmm_stress."
     ),
     question=(
-        "Do HMM-identified credit regimes discriminate meaningfully between periods of "
-        "strong and weak SPY performance — that is, does the stress/calm classification "
-        "reliably separate the good months from the bad months for SPY?"
+        "Do the HMM regimes separate good and bad SPY periods, and is the stress probability "
+        "a useful trading signal once it is computed without future data?"
     ),
     how_to_read=(
-        "The chart overlays HMM stress probability (shaded area, right axis) on SPY "
-        "price (line, left axis). Periods where the shaded area is above 0.5 are HMM "
-        "stress regimes. Key historical events are annotated. Look for whether high-stress "
-        "periods align with SPY weakness."
+        "The shaded area is the stress probability (left axis) and the line is SPY (right "
+        "axis). Pink bands mark days with probability above 0.5. Gray bands are NBER "
+        "recessions."
     ),
     regime_context=(
-        "HMM stress periods (probability > 0.5) account for approximately 25-30% of the "
-        "historical sample yet contain the majority of SPY's largest drawdowns. The stress "
-        "probability is the tournament's winning signal — it earns its classification as "
-        "the most predictive because it concentrates forward return discrimination into a "
-        "single interpretable number."
+        "The filtered stress probability is above 0.5 on 45.1% of days (43.5% in-sample, "
+        "50.1% out-of-sample). The superseded version of this signal was a full-sample, "
+        "forward-backward smoothed probability. On 2020-02-21 it read 0.085, while the "
+        "causal filter read 0.001; both read 1.00 on 2020-02-24."
     ),
     chart_name="hmm_regime_probs",
     chart_caption=(
-        "What this shows: HMM stress probability overlaid on SPY price, with major crisis "
-        "episodes annotated. Stress probability > 0.5 flags the regimes historically "
-        "associated with SPY drawdowns."
+        "Causal HMM stress probability (fit 2000-01 to 2019-09, forward-filtered) and SPY. "
+        "Probability above 0.5 on 45% of days."
     ),
     observation=(
-        "HMM stress periods align closely with the major SPY drawdown episodes: GFC "
-        "2008-09, flash crash 2010, European sovereign crisis 2011, COVID 2020, and "
-        "portions of 2022. Transition into the stress state typically precedes peak SPY "
-        "drawdown by 1-3 months. The stress state covers a minority of calendar time but "
-        "accounts for the majority of SPY's tail-risk events."
+        "Same-day SPY performance differs sharply between the regimes (Story page): Sharpe "
+        "1.38 in the calm state and 0.15 in the stress state. As a trading signal, the best "
+        "in-sample-valid HMM rule (P2 sizing, 5-day lead) has an in-sample Sharpe of 0.60 "
+        "and an out-of-sample Sharpe of 0.41. The previously published HMM rule (P2, L0) "
+        "scores 0.56 at L0 and 0.45 at the L1 floor when computed causally, against 1.41 "
+        "with the smoothed full-sample probabilities."
     ),
     interpretation=(
-        "The HMM stress probability is the best single-number summary of whether credit "
-        "markets are currently in a deterioration regime that has historically preceded "
-        "equity weakness. Its value as a signal is not prediction of the exact timing of "
-        "SPY decline — it is identification of the regimes where the risk-reward of holding "
-        "full SPY exposure is demonstrably worse."
+        "The HMM describes the regimes well on the same day, but a causal reading of it "
+        "does not beat SPY buy-and-hold out of sample. Most of the earlier 1.41 came from "
+        "smoothing. In the out-of-sample window, the gap between the smoothed and filtered "
+        "probabilities is correlated with the next day's SPY return (r = -0.087), so the "
+        "smoothed series contained information about returns that had not yet happened."
     ),
     key_message=(
-        "HMM stress periods account for the majority of SPY's historical drawdown events "
-        "despite covering only ~25-30% of calendar time — the stress probability is a "
-        "genuine regime discriminator, not just a lagging descriptor of current market pain."
+        "The causal HMM stress probability separates same-day regimes (Sharpe 1.38 vs 0.15), "
+        "but as a traded signal its out-of-sample Sharpe is 0.41-0.56, below SPY's 0.81. The "
+        "earlier 1.41 depended on look-ahead smoothing."
     ),
 )
 
@@ -513,155 +433,130 @@ REGIME_QUARTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Regime Quartile Returns Analysis",
     method_theory=(
-        "Rather than relying on a fitted model to define regimes, this analysis divides "
-        "the HY-IG spread distribution into four equal-frequency quartiles (Q1 = tightest "
-        "spreads / least stress, Q4 = widest spreads / most stress) and computes SPY "
-        "forward return distributions within each quartile. This model-free approach "
-        "provides a transparent, assumption-light check on the HMM's regime assignments."
+        "Month-end HY-IG spreads are split into four equal-count quartiles (Q1 = tightest, "
+        "Q4 = widest). The test then measures SPY's return over the **next** 1, 3 and 6 "
+        "months after each month-end, so it is a forward test. The Q4 minus Q1 difference "
+        "and a joint test that all four quartile means are equal use HAC standard errors. "
+        "Quartile breakpoints come from the full-sample distribution: they are descriptive "
+        "bins, not a trading rule."
     ),
     question=(
-        "Is there a monotonic gradient from wide spreads to narrow spreads in SPY forward "
-        "returns — and does it hold across the full distribution, not just at extremes?"
+        "Are SPY's subsequent returns lower after wide-spread months than after tight-spread "
+        "months, and is the pattern monotonic?"
     ),
     how_to_read=(
-        "The bar chart shows average annualized SPY forward return (or Sharpe ratio) for "
-        "each of the four HY-IG spread quartiles. A clear downward-sloping pattern from "
-        "Q1 (left, tightest spreads) to Q4 (right, widest spreads) confirms the "
-        "countercyclical gradient."
+        "Bars show annualised next-month SPY returns per quartile (labelled with each "
+        "quartile's spread range in percentage points) and the Sharpe ratio. The title gives "
+        "the Q4-Q1 difference per month and its HAC t-statistic."
     ),
     regime_context=(
-        "The Q4 vs Q1 Sharpe differential — the performance gap between the tightest and "
-        "widest spread quartiles — is the primary diagnostic for regime discrimination "
-        "strength. A large differential indicates the signal is doing genuine separatory "
-        "work across the full distribution, not just at crisis extremes."
+        "The same quartiles look very different on a same-day basis: daily SPY returns run "
+        "at 17.1% a year in Q1 and -1.5% a year in Q4. That concurrent gradient reflects "
+        "spreads widening while equities fall. It is not a forecast, which is why this block "
+        "uses forward returns."
     ),
     chart_name="regime_quartile_returns",
     chart_caption=(
-        "What this shows: average annualized SPY forward return by HY-IG spread quartile. "
-        "Q1 = tightest spreads (best SPY forward returns), Q4 = widest spreads (worst "
-        "SPY forward returns). A monotone downward gradient confirms the countercyclical "
-        "relationship is distributional."
+        "SPY next-month return by month-end spread quartile, 315 months. Annualised: Q1 7.9%, "
+        "Q2 13.2%, Q3 11.3%, Q4 4.1%. Q4-Q1 = -0.32 pp per month (HAC t -0.40)."
     ),
     observation=(
-        "A clear monotonic gradient is confirmed: Q1 (lowest spread quartile) corresponds "
-        "to the highest average SPY forward returns at 3-month horizons; Q4 (highest spread "
-        "quartile) corresponds to the lowest or negative average forward SPY returns. The "
-        "gradient is statistically significant at 3-month and 6-month horizons."
+        "Annualised next-month SPY returns are 7.9% (Q1), 13.2% (Q2), 11.3% (Q3) and 4.1% (Q4). "
+        "The Q4-Q1 difference is -0.32 pp a month (HAC t -0.40) at 1 month, -1.18 pp (t -0.59) "
+        "at 3 months and -1.65 pp (t -0.44) at 6 months. The joint test of equal means has "
+        "p = 0.71, 0.56 and 0.48. The pattern is not monotonic at any horizon."
     ),
     interpretation=(
-        "The quartile gradient confirms the countercyclical relationship holds across the "
-        "full HY-IG spread distribution, not just during extreme stress events. This "
-        "distributional robustness supports the use of the signal as a continuous "
-        "position-sizing input rather than a binary threshold switch."
+        "After the widest-spread months SPY's next-month return was lowest on average. The "
+        "difference from the tightest quartile is small relative to its uncertainty, and "
+        "Q1 is not the best quartile. The forward test does not show a reliable gradient."
     ),
     key_message=(
-        "SPY forward returns decline monotonically from Q1 to Q4 of the HY-IG spread "
-        "distribution at 3-month horizons — the countercyclical relationship is "
-        "distributional, not just crisis-episode-driven."
+        "SPY returns after wide-spread months are lower on average (Q4 4.1% vs Q1 7.9% "
+        "annualised, next month), but the difference is not significant (HAC t -0.40) and "
+        "the quartiles are not monotonic."
     ),
 )
 
 
 TRANSFER_ENTROPY_BLOCK = dict(
     chart_status="ready",
-    method_name="Transfer Entropy (Nonlinear Information Flow)",
+    method_name="Information Flow (transfer-entropy proxy)",
     method_theory=(
-        "**Transfer entropy** quantifies how much knowing the history of the HY-IG spread "
-        "reduces uncertainty about future SPY returns, measured in bits. Unlike Granger "
-        "causality, transfer entropy makes no linearity assumption — it detects any "
-        "directional information flow, including threshold effects and nonlinear "
-        "dependencies that standard regression models miss."
+        "The chart is a **proxy**, not a full transfer-entropy estimate. Both series are "
+        "converted to quintile ranks. Over rolling 504-day windows, stepped monthly, it "
+        "measures how much the lagged other series adds to the squared correlation with "
+        "today's value, beyond the series' own lag (lag 1 day), in each direction. It "
+        "reports no bits and runs no surrogate or significance test."
     ),
     question=(
-        "Does information flow from the HY-IG spread to SPY returns in a way that is "
-        "robust to nonlinear dynamics — confirming the relationship is not an artifact "
-        "of the linear-model assumption?"
+        "In the proxy measure, is lagged information flow larger from the spread to SPY or "
+        "from SPY to the spread?"
     ),
     how_to_read=(
-        "The chart compares transfer entropy from HY-IG to SPY (forward direction) against "
-        "transfer entropy from SPY to HY-IG (reverse direction). Higher forward values "
-        "indicate more information flowing from credit to equity. The asymmetry ratio "
-        "(forward / reverse) quantifies directional dominance."
-    ),
-    regime_context=(
-        "Transfer entropy from HY-IG to SPY is elevated specifically during historical "
-        "stress periods (GFC, COVID, energy crisis 2015-16), suggesting the nonlinear "
-        "information channel is most active when markets are under strain — exactly when "
-        "early warning matters most for SPY risk management."
+        "Orange: spread → SPY. Blue dashed: SPY → spread. Higher values mean the lagged "
+        "series adds more to the squared correlation. Values are small, and without a "
+        "significance test the lines are descriptive."
     ),
     chart_name="transfer_entropy",
     chart_caption=(
-        "What this shows: rolling transfer entropy from HY-IG to SPY (orange) vs. "
-        "from SPY to HY-IG (blue). The forward direction consistently dominates — "
-        "credit markets transmit information to equities, not the reverse."
+        "Transfer-entropy proxy over rolling 504-day windows: mean 0.0011 for spread → SPY "
+        "and 0.0001 for SPY → spread. No significance test."
     ),
     observation=(
-        "Transfer entropy from HY-IG spreads to SPY returns is positive and exceeds the "
-        "surrogate-data baseline at 95% confidence across multiple lag specifications. "
-        "The reverse direction is substantially lower, confirming asymmetric nonlinear "
-        "information flow from credit to equity."
+        "Over the sample the proxy averages 0.0011 from the spread to SPY and 0.0001 in the "
+        "other direction. Both are small (squared-correlation increments near zero) and the "
+        "series is noisy across windows."
     ),
     interpretation=(
-        "The nonlinear information channel from HY-IG to SPY is real and directional. "
-        "The regime-conditional concentration of transfer entropy during stress periods "
-        "means the signal is not merely a smooth linear predictor — it activates most "
-        "strongly during the high-uncertainty regimes where investors most need early warning."
+        "The proxy shows a slightly larger one-day-lagged increment from the spread to SPY "
+        "than the reverse. It runs on quintile ranks and does not test significance, so it "
+        "adds little beyond the Granger and cross-correlation results."
     ),
     key_message=(
-        "Transfer entropy from HY-IG to SPY is statistically significant and asymmetric, "
-        "confirming that the credit-to-equity information flow is robust to nonlinear "
-        "dynamics and is most informative precisely during market stress regimes."
+        "A rank-based transfer-entropy proxy is small in both directions (0.0011 vs 0.0001) "
+        "and has no significance test; read it as descriptive."
     ),
 )
 
 
 LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
-    method_name="Local Projections (Jordà Impulse Responses)",
+    method_name="Local Projections (Jordà)",
     method_theory=(
-        "**Local projections** (Jordà, 2005) estimate how SPY returns evolve over horizons "
-        "h = 1, 2, ..., 12 months following a one-standard-deviation shock in the HY-IG "
-        "spread, without imposing the parameter restrictions of a structural VAR model. "
-        "Each horizon is estimated as a separate regression with heteroskedasticity-robust "
-        "standard errors, making the inference robust to model specification error."
+        "**Local projections** (Jordà, 2005) regress the SPY forward return over h trading "
+        "days on today's spread level, with the VIX and the 10y-3m Treasury spread as "
+        "controls. Horizons are h = 5, 21 and 63 trading days. Forward windows overlap, so "
+        "standard errors are Newey-West HAC with maxlags = max(0.75·n^(1/3), h-1): 14, 20 "
+        "and 62."
     ),
     question=(
-        "What is the full dynamic path of SPY returns after a credit spread widening shock "
-        "— how large is the peak impact, at what horizon does it occur, and how long does "
-        "the effect persist?"
+        "After controlling for VIX and the yield curve, does a higher spread level predict "
+        "lower SPY returns over the next week, month or quarter?"
     ),
     how_to_read=(
-        "The chart shows the impulse response function — point estimate and 90%/95% "
-        "confidence bands — of SPY cumulative returns at horizons 1-12 months following "
-        "a one-standard-deviation HY-IG spread increase. Confidence bands that exclude "
-        "zero at a given horizon confirm statistical significance. The shape of the path "
-        "reveals whether the effect is immediate, delayed, or persistent."
+        "The line is the coefficient (return per percentage point of spread) at each "
+        "horizon. The band is the 95% HAC confidence interval. A band that excludes zero "
+        "would indicate significance."
     ),
     chart_name="local_projections",
     chart_caption=(
-        "What this shows: impulse response of SPY cumulative returns to a one-standard-"
-        "deviation HY-IG spread widening shock, at horizons 1-12 months. Bands show "
-        "90%/95% confidence intervals with HAC standard errors."
+        "Local projections of SPY forward returns on the spread level (controls: VIX, 10y-3m), "
+        "HAC maxlags ≥ h-1. h = 5d: t -0.99; 21d: t -1.37; 63d: t -1.35. None significant."
     ),
     observation=(
-        "A one-standard-deviation increase in the HY-IG spread produces a statistically "
-        "significant negative impact on SPY cumulative returns beginning at horizon 2 months "
-        "and persisting through horizons 6-9 months. The peak negative impact occurs at "
-        "approximately horizon 4-5 months. The response decays gradually rather than "
-        "reversing sharply."
+        "The coefficients are negative at all three horizons, -0.0008 (5 days), -0.0032 "
+        "(21 days) and -0.0083 (63 days) per percentage point, with p = 0.32, 0.17 and 0.18. "
+        "The earlier reading of a significant 63-day effect (p = 0.038) used a HAC lag of 14 "
+        "for 63-day overlapping returns. With the lag set to 62, it is not significant."
     ),
     interpretation=(
-        "The delayed-peak, gradual-decay pattern of the impulse response is consistent "
-        "with credit-cycle transmission through the real economy — banks tighten lending, "
-        "investment falls, earnings revisions follow — rather than an instantaneous "
-        "risk-appetite shock. This 4-5 month peak lag is the econometric foundation for "
-        "the tournament's winning lag parameters."
+        "The point estimates have the countercyclical sign, but the data do not distinguish "
+        "them from zero once the overlap in forward returns is accounted for."
     ),
     key_message=(
-        "A one-standard-deviation HY-IG spread widening produces peak SPY underperformance "
-        "at horizon 4-5 months with effects persisting to 9 months — consistent with "
-        "credit-cycle transmission and supporting 3-6 month lag parameters in the "
-        "signal design."
+        "The spread level's effect on SPY forward returns is negative but not statistically "
+        "significant at 5, 21 or 63 trading days (HAC t between -0.99 and -1.37)."
     ),
 )
 
@@ -670,47 +565,37 @@ QUANTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Quantile Regression",
     method_theory=(
-        "**Quantile regression** estimates the relationship between the HY-IG spread and "
-        "SPY returns at different points in the SPY return distribution — not just the "
-        "conditional mean. By fitting the model at quantiles 10%, 25%, 50%, 75%, and 90%, "
-        "we assess whether spread widening primarily affects the downside tail (the regime "
-        "most critical for risk management) or symmetrically shifts the entire distribution."
+        "**Quantile regression** estimates the slope of the SPY 21-trading-day forward return "
+        "on the spread level at quantiles 5% to 95% of the return distribution. The aim is to "
+        "see whether the spread shifts the whole distribution, or mainly one tail."
     ),
     question=(
-        "Does the HY-IG spread have asymmetric predictive power — stronger in the left "
-        "tail of SPY returns than in the right tail — which would confirm it as a risk-"
-        "management tool rather than a symmetric alpha signal?"
+        "Does a wider spread mainly lower the worst outcomes, or does it widen the "
+        "distribution in both directions?"
     ),
     how_to_read=(
-        "The chart shows quantile regression coefficients (y-axis) across quantiles "
-        "10%-90% of the forward SPY return distribution (x-axis). A steeper negative "
-        "slope on the left (10th-25th percentile) than on the right (75th-90th percentile) "
-        "indicates asymmetric downside concentration. Confidence intervals that exclude "
-        "zero confirm statistical significance."
+        "Each point is the slope at that quantile; the band is its 95% interval. Negative "
+        "slopes in the low quantiles and positive slopes in the high quantiles of similar "
+        "size mean the spread widens the distribution symmetrically."
     ),
     chart_name="quantile_regression",
     chart_caption=(
-        "What this shows: quantile regression coefficients for the HY-IG spread across "
-        "SPY return quantiles 10%-90%. Left-tail concentration (most negative coefficients "
-        "at Q10-Q25) confirms asymmetric downside predictive power."
+        "Quantile slopes of the 21-day forward SPY return on the spread level: q05 -0.0117, "
+        "q25 -0.0050, q50 +0.0003 (p = 0.27), q75 +0.0047, q95 +0.0118."
     ),
     observation=(
-        "The quantile regression confirms asymmetric impact: the coefficient on the HY-IG "
-        "spread is most negative and most statistically significant at the 10th and 25th "
-        "percentiles of the forward SPY return distribution. At the 75th and 90th "
-        "percentiles, the coefficient is closer to zero and less precisely estimated."
+        "The slopes are close to mirror images: -0.0117 at the 5th percentile and +0.0118 at "
+        "the 95th, -0.0091 at the 10th and +0.0084 at the 90th. The median slope is about "
+        "zero (+0.0003, p = 0.27). Every slope except the median is significant."
     ),
     interpretation=(
-        "The asymmetric left-tail concentration confirms the HY-IG → SPY relationship is "
-        "fundamentally a risk-management signal rather than a symmetric return predictor. "
-        "Wide credit spreads make the bad outcomes worse (or more likely) without "
-        "symmetrically improving the best outcomes. This is exactly the property an "
-        "investor wants in a drawdown-avoidance overlay."
+        "A wider spread goes with a wider spread of 21-day SPY outcomes in both directions, "
+        "a volatility effect, rather than a lower median or a mainly left-tail effect. The "
+        "data do not show an asymmetric downside effect."
     ),
     key_message=(
-        "The HY-IG spread's predictive power is concentrated in the left tail of the SPY "
-        "return distribution (10th-25th percentile) — confirming it as a drawdown-avoidance "
-        "signal, not a symmetric alpha generator, and validating the min_mdd strategy objective."
+        "Wider HY-IG spreads widen the 21-day SPY return distribution about equally in both "
+        "tails (q05 -0.0117, q95 +0.0118); the median effect is near zero."
     ),
 )
 
@@ -719,61 +604,38 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
     chart_status="ready",
     method_name="Lead Analysis",
     method_theory=(
-        "This pair trades **daily**, but for cross-pair comparability the lead "
-        "grid here is **monthly-resampled**: the signal is shifted L = 0…12 "
-        "calendar months and correlated against SPY's 1-month forward return. "
-        "**State this honestly:** the production rule executes daily at a "
-        "same-day (L0) lead; this monthly grid is a comparability diagnostic, "
-        "not the traded latency. The winning signal is an HMM stress "
-        "probability (a regime classifier), so the question is: on a monthly "
-        "view, how far ahead does credit-stress information lead equities?"
+        "Each spread signal is lagged L trading days, for L in the traded grid {1, 5, 21, 63, "
+        "126, 252}, and correlated with SPY's next-day return. The grid starts at 1 because "
+        "ICE BofA OAS values are published about one business day late. The axis is the "
+        "pair's native daily axis."
     ),
     question=(
-        "On a monthly-resampled grid, where does the HMM stress signal's "
-        "predictive content for SPY peak — and how does that sit beside the "
-        "traded same-day (L0) daily rule?"
+        "At which daily lead, if any, do the spread signals correlate with SPY's next-day "
+        "return?"
     ),
     how_to_read=(
-        "Rows are HY-IG signal variants; columns are signal lead in MONTHS "
-        "(L0 = contemporaneous, L12 = 12 months ago). Forward horizon fixed at "
-        "1 month. Cell shading is Pearson r (linear co-movement, -1 to +1) "
-        "against `spy_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01."
+        "Rows are signal transforms; columns are leads in trading days. Cell colour and text "
+        "show Pearson r. Stars mark iid p < 0.05 (*) and p < 0.01 (**)."
     ),
     chart_name="correlations_lead_view",
     chart_caption=(
-        "Pearson correlations between **signal lagged L months** and **SPY "
-        "1-month forward return**. The traded signal "
-        "`hmm_2state_prob_stress` peaks at **L6 (r=−0.137, p<0.05)** on this "
-        "monthly grid — counter-cyclical, as expected (more stress six months "
-        "earlier precedes weaker SPY). The traded daily rule itself uses a "
-        "same-day (L0) lead; see Lead Tournament for why L0 is the winner."
+        "Pearson r between each signal lagged L trading days and SPY's next-day return. All "
+        "|r| < 0.04; two cells reach iid significance: ms_2state_stress_prob at 5 days "
+        "(+0.037) and hy_ig_mom_21d at 63 days (-0.031)."
     ),
     observation=(
-        "On the monthly grid the HMM stress probability is near-zero at most "
-        "leads (L0 −0.007, L2 +0.021, L5 +0.040) and reaches one significant "
-        "cell at **L6 (r=−0.137, p<0.05)**. This is a slow, monthly echo of "
-        "credit-stress regimes. It does NOT describe the fast mechanism the "
-        "daily rule trades — the HMM flips to its stress state and the rule "
-        "de-risks within days, a same-day dynamic the monthly resampling "
-        "cannot represent."
+        "Every daily lead correlation is below 0.04 in absolute value. The winner's signal "
+        "(hy_ig_roc_63d) has its largest |r| at 5 days (+0.019) and -0.003 at 21 days; it is "
+        "not significant at any lead, including its traded 252-day lead (+0.005)."
     ),
     interpretation=(
-        "An honest divergence on the correlation diagnostic: the monthly "
-        "lead-correlation places the HMM signal's linear peak at L6, while the "
-        "traded rule reads the signal same-day (L0). The two are not "
-        "competing — they measure different clocks. **In plain English:** when "
-        "the credit market flips into a stress regime, equities tend to fall "
-        "fast (the traded daily edge); on a slower monthly view that same "
-        "stress also leaves a fainter footprint about six months out. The "
-        "monthly L6 result is corroborating context, not a reason to lag the "
-        "daily rule."
+        "At a daily frequency the spread signals carry very little linear information about "
+        "the next day's SPY return at any lead in the grid. Any trading value has to come "
+        "from position rules (thresholds, sizing) rather than a linear lead relationship."
     ),
     key_message=(
-        "On a monthly-resampled grid the HMM stress signal peaks at **L6 "
-        "(r=−0.137, p<0.05)** — a slow counter-cyclical echo. This is a "
-        "comparability diagnostic; the published rule trades DAILY at a "
-        "same-day (L0) lead, de-risking within days of a regime flip, which "
-        "the monthly grid cannot capture."
+        "On the daily lead grid (1 to 252 trading days) no spread signal correlates with "
+        "SPY's next-day return by more than |r| = 0.04."
     ),
 )
 
@@ -781,77 +643,46 @@ LEAD_TOURNAMENT_BLOCK = dict(
     chart_status="ready",
     method_name="Lead Tournament",
     method_theory=(
-        "This chart plots the published winner's OWN OOS Sharpe at each lead on "
-        "the pair's NATIVE DAILY axis — trading days {0, 1, 5, 21, 63, 126, "
-        "252} — against the best-of-any-signal envelope on the same grid; the "
-        "dashed line is SPY buy-and-hold (Sharpe 0.81). Per the Lead-Grid "
-        "Frequency Standard (2026-07-15) the axis unit equals the signal's "
-        "native daily release, so a daily-executed pair is scored on a daily "
-        "lead axis — NOT the monthly resample this block used to show. The "
-        "winner reads the HMM stress probability same-day (L0), with a "
-        "real-time floor of L0 (a close-of-day market read)."
+        "The orange line takes the winning rule (S4b_roc_63d / T2_rp75 / P1) and shows its "
+        "out-of-sample Sharpe at each lead in the daily grid {1, 5, 21, 63, 126, 252} "
+        "trading days. The winner was chosen on IN-SAMPLE Sharpe. The grey bars show the "
+        "highest out-of-sample Sharpe that any in-sample-valid rule reached at each lead. "
+        "That is an out-of-sample maximum, so it is biased upward. The dashed line is SPY "
+        "buy-and-hold (0.81)."
     ),
     question=(
-        "Is the edge genuinely SAME-DAY (coincident), and does lagging the "
-        "signal by days-to-a-year reveal any real leading edge — or just "
-        "multiple-testing noise?"
+        "How does the selected rule perform out of sample at each lead, and how does that "
+        "compare with buy-and-hold?"
     ),
     how_to_read=(
-        "Orange line + star: the deployed winner's OOS Sharpe at each daily "
-        "lead, peaking at its traded 0-day lead. Grey bars: the best any "
-        "signal achieves at each lead (envelope ≥ the winner curve by "
-        "construction). A profile that decays as the signal is lagged means "
-        "the edge is contemporaneous, not predictive."
+        "Orange line and star: the winning rule's out-of-sample Sharpe by lead, with the star "
+        "at its traded 252-day lead. Grey bars: the best out-of-sample Sharpe at each lead "
+        "(selection-biased context). Dashed: SPY buy-and-hold."
     ),
     chart_name="lead_sharpe_distribution",
     chart_caption=(
-        "The winner's own curve on the DAILY axis **peaks at its traded 0-day "
-        "(same-day) lead (OOS Sharpe 1.4083)** and decays monotonically as the "
-        "signal is lagged (1.12 at 1d, 0.73 at 5d, ~0.41–0.54 from 63d out) — "
-        "a coincident edge, not a lead. The best-of-any-signal envelope also "
-        "peaks at 0d (1.41) and the extension to 126/252 trading days finds no "
-        "long-lead edge (best ~0.88–0.95, both **failing a t>3 hurdle**). "
-        "Sharpe stays above buy-and-hold (0.81) across the grid."
+        "The winning rule's OOS Sharpe by lead: 1d 0.77, 5d 0.61, 21d 0.68, 63d 0.71, "
+        "126d 0.69, 252d 0.34 (traded). Its in-sample Sharpe is highest at 252d (0.96). "
+        "SPY buy-and-hold: 0.81."
     ),
     observation=(
-        "On the native daily grid the published winner "
-        "(`hmm_2state_prob_stress / P2_signal_strength`, OOS Sharpe "
-        "**1.4083**) is a **same-day (0-day lead) coincident edge**: its own "
-        "curve is highest at 0d (1.41) and falls off as the signal is lagged "
-        "(1d 1.12, 5d 0.73, 21d 0.48, 63d 0.41), recovering only weakly by "
-        "252d (0.54). That monotone-ish decay is the signature of a "
-        "contemporaneous relationship — when the credit market flips into its "
-        "stress regime, equities move the SAME day; there is nothing to lag.\n\n"
-        "The free full-grid daily selection (no cap) extends to 126/252 "
-        "trading days precisely to test for a slow leading edge, and finds "
-        "none: the best combo at 126d/252d scores ~0.88/0.95 and **both fail "
-        "the raised t>3 significance hurdle** (HAC t≈2.6/2.9), so the long-lead "
-        "region is multiple-testing noise — exactly what the literature "
-        "predicts for credit→equity, a coincident/short-horizon transmission. "
-        "(The winning threshold label T4_hmm_0.5 is vestigial: P2 sizes on "
-        "continuous signal strength and ignores the threshold — T4_hmm_0.5 and "
-        "T4_hmm_0.7 bind to identical positions.)"
+        "The winner, S4b_roc_63d / T2_rp75 / P1 at L252, was selected because its in-sample "
+        "Sharpe (0.96, 2006-05 to 2019-09) was the highest in the grid. Out of sample its "
+        "Sharpe is 0.34. The same rule at other leads scores 0.61 to 0.77 out of sample, "
+        "and no lead reaches SPY's 0.81. The highest out-of-sample Sharpe at any lead, "
+        "1.18 (S12_mom_252d / T1_p75 / P2 at L1), came from a rule ranked 38th in-sample; "
+        "it is shown for comparison and was not selectable without looking at out-of-sample "
+        "data."
     ),
     interpretation=(
-        "The honest summary: **this is a coincident, same-day edge, not a "
-        "leading indicator.** The earlier narrative called it a '1-to-12-month' "
-        "signal off a monthly-resampled axis; on the correct daily axis the "
-        "risk-adjusted profile peaks at 0-day lead and decays with lag, and the "
-        "full daily grid out to a year surfaces no durable long-lead edge (the "
-        "126/252-day candidates fail t>3). The winner survives its own hurdle "
-        "(HAC t=3.80>3) as a genuine same-day de-risking rule. Read it as a "
-        "fast credit-stress-to-equity co-move the daily rule trades "
-        "contemporaneously — the monthly L6 correlation echo (left tab) is a "
-        "slower, secondary linear footprint on a different clock, not a "
-        "competing recommendation."
+        "In-sample rank carried little information about out-of-sample rank in this grid "
+        "(Spearman 0.25 across 1,990 rules). The rule that looked best in 2006-2019 was "
+        "among the weakest after 2019 (rank 1,781 of 1,990 on OOS Sharpe)."
     ),
     key_message=(
-        "On its native daily axis the winner is a **same-day (0-day lead) "
-        "coincident edge** (OOS Sharpe 1.4083, HAC t=3.80>3): the curve peaks "
-        "at 0d and decays as the signal is lagged, and the full daily grid out "
-        "to 252 trading days finds no leading edge (126/252d candidates fail "
-        "t>3). Credit stress and equities move together — the daily rule "
-        "de-risks the same day, it does not forecast months ahead."
+        "The in-sample winner S4b_roc_63d / T2_rp75 / P1 at L252 (countercyclical) has an "
+        "out-of-sample Sharpe of 0.34 against 0.81 for SPY buy-and-hold; at no lead in the "
+        "grid does the same rule reach buy-and-hold."
     ),
 )
 
@@ -859,34 +690,38 @@ LEAD_TOURNAMENT_BLOCK = dict(
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
-        "*We subjected 25+ years of monthly credit spread data to multiple complementary "
-        "statistical methods. Each is designed to test a different aspect of the "
-        "HY-IG → SPY relationship. All converge on the same direction: countercyclical "
-        "— rising credit spreads are bearish for SPY, tightening spreads are bullish.*"
+        "*The HY-IG spread and SPY are tested with correlation, lead-lag, Granger, regime, "
+        "quantile and local-projection methods on daily data from 2000-01-03 to 2026-04-22 "
+        "(monthly aggregates where stated). The tests agree on a strong same-day "
+        "relationship. They disagree on forward predictability: the monthly Granger test "
+        "finds some, while the overlap-robust regressions and the quartile forward test do "
+        "not find a significant effect.*"
     ),
     "downloads": [
-        {"label": "Granger causality (5 lag-direction rows)",
-         "path": "results/hy_ig_spy/core_models_20260422/granger_causality.csv"},
-        {"label": "Predictive regressions (60 signal-horizon rows)",
-         "path": "results/hy_ig_spy/core_models_20260422/predictive_regressions.csv"},
-        {"label": "Quantile regression (7 quantiles of forward SPY)",
-         "path": "results/hy_ig_spy/core_models_20260422/quantile_regression.csv"},
-        {"label": "Local projections (3 horizons)",
-         "path": "results/hy_ig_spy/core_models_20260422/local_projections.csv"},
+        {"label": "Granger causality, daily, both directions (10 rows)",
+         "path": "results/hy_ig_spy/core_models_20261016/granger_causality.csv"},
+        {"label": "Predictive regressions, HAC (60 signal-horizon rows)",
+         "path": "results/hy_ig_spy/core_models_20261016/predictive_regressions.csv"},
+        {"label": "Quantile regression (7 quantiles of 21-day forward SPY)",
+         "path": "results/hy_ig_spy/core_models_20261016/quantile_regression.csv"},
+        {"label": "Local projections, HAC (3 horizons)",
+         "path": "results/hy_ig_spy/core_models_20261016/local_projections.csv"},
+        {"label": "Regime quartile forward tests (1/3/6 months)",
+         "path": "results/hy_ig_spy/regime_quartile_forward_tests_20261016.csv"},
         {"label": "Diagnostics summary (2 rows)",
-         "path": "results/hy_ig_spy/core_models_20260422/diagnostics_summary.csv"},
-        {"label": "HMM 2-state summary (regime parameters; 15 rows)",
-         "path": "results/hy_ig_spy/core_models_20260422/hmm_summary.csv"},
+         "path": "results/hy_ig_spy/core_models_20261016/diagnostics_summary.csv"},
+        {"label": "HMM 2-state summary (causal fit; JSON body)",
+         "path": "results/hy_ig_spy/core_models_20261016/hmm_summary.csv"},
+        {"label": "HMM look-ahead audit (smoothed vs causal, same rule)",
+         "path": "results/hy_ig_spy/hmm_lookahead_audit_20261016.json"},
     ],
     "plain_english": (
-        "This section presents eight statistical tests of the same core question: does "
-        "the HY-IG credit spread carry useful information about future SPY returns? The "
-        "tests range from simple correlation to nonlinear information-flow measures. No "
-        "single test is definitive, but their convergence builds a rigorous, multi-angle "
-        "case."
+        "This section runs several statistical tests on one question: does the HY-IG credit "
+        "spread carry useful information about future SPY returns? Each block states what the "
+        "test found, including where the result is weak or not significant."
     ),
     "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK, CCF_BLOCK],
-    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Granger Causality", "Pre-Whitened CCF"],
+    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Granger Causality", "Cross-Correlation"],
     "level2": [
         HMM_BLOCK,
         REGIME_QUARTILE_BLOCK,
@@ -897,29 +732,27 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2_labels": [
         "HMM Regime Analysis",
         "Regime Quartile Returns",
-        "Transfer Entropy",
+        "Transfer Entropy (proxy)",
         "Local Projections",
         "Quantile Regression",
     ],
     "tournament_intro": (
-        "We tested combinations of signals (HY-IG level, z-score, rate-of-change, "
-        "momentum, and HMM stress probability), thresholds (including HMM 0.5 cutoff), "
-        "strategies (Signal-Strength, Long/Cash, Long/Short), and lead times (L0). "
-        "These were ranked by out-of-sample Sharpe ratio over 2019-2026 — "
-        "2,166 specifications run, of which 2,036 passed validity filters. "
-        "The winning combination: **HMM stress probability (S6_hmm_stress), "
-        "threshold T4_hmm_0.5, Signal-Strength strategy (P2), L0 lead**, "
-        "producing OOS Sharpe 1.41 vs 0.81 buy-and-hold SPY. That 1.41 is "
-        "the **maximum of the 2,036 valid combinations** (one other "
-        "combination ties it exactly; the deterministic tie-break cascade "
-        "selected this one) — not a typical result: the median valid "
-        "combination scored 0.72."
+        "The tournament combined 15 signals (spread level, z-scores, percentile ranks, rates "
+        "of change, momentum, acceleration, the CCC-BB spread, and causal HMM and "
+        "Markov-switching stress probabilities) with 13 threshold labels, 3 strategies "
+        "(Long/Cash, Signal-Strength, Long/Short) and 6 leads {1, 5, 21, 63, 126, 252} trading "
+        "days: 2,178 combinations. 1,990 passed the in-sample validity filters, forming "
+        "1,354 distinct position series. The winner was the rule with the highest IN-SAMPLE "
+        "Sharpe over 2006-05-02 to 2019-09-30: **S4b_roc_63d / T2_rp75 / P1 / L252** "
+        "(countercyclical), with in-sample Sharpe 0.96 against 0.52 for SPY. On the held-out "
+        "2019-10-01 to 2026-04-22 window it scored an OOS Sharpe of 0.34, against 0.81 for "
+        "SPY buy-and-hold. The median out-of-sample Sharpe across the 1,990 valid rules was "
+        "0.68, and 23% of them exceeded SPY."
     ),
     "transition": (
-        "**Transition:** Multiple statistical methods confirm the countercyclical "
-        "relationship: rising HY-IG credit spreads signal forward SPY weakness. "
-        "Now: what does the winning strategy actually do, and how has it performed "
-        "out-of-sample?"
+        "**Transition:** the tests show a strong same-day link and weak forward "
+        "predictability. Next: what the selected rule does and how it performed out of "
+        "sample."
     ),
 }
 
@@ -930,51 +763,60 @@ EVIDENCE_METHOD_BLOCKS = {
 class StrategyConfig:
     """Strategy-page content object (passed to `render_strategy_page`)."""
 
-    PAGE_TITLE = "The Strategy: Translating Credit Signals into SPY Positioning"
+    PAGE_TITLE = "The Strategy: An In-Sample-Selected Credit-Spread Rule for SPY"
     PAGE_SUBTITLE = (
-        "We tested hundreds of strategy combinations to find the most robust way "
-        "to time SPY exposure using the HY-IG credit spread signal."
+        "2,178 rule combinations were scored. The one with the best in-sample Sharpe is "
+        "reported here, with its out-of-sample record against buy-and-hold."
+    )
+
+    STATISTICAL_FRAMING_BANNER = (
+        "Correction (2026-10-16). This page previously reported S6_hmm_stress / T4_hmm_0.5 / "
+        "P2 / L0 with an OOS Sharpe of 1.41 (HAC t 3.80). That result relied on HMM "
+        "probabilities fitted on the full sample and smoothed with future data (look-ahead), "
+        "and on a same-day read of OAS data that is published about one day late. Rebuilt "
+        "without look-ahead, with a lead floor and in-sample selection, the winner below has "
+        "an OOS Sharpe of 0.34 against 0.81 for SPY buy-and-hold."
     )
 
     PLAIN_ENGLISH = (
-        "The strategy uses the credit spread signal to scale SPY exposure up or down. "
-        "When credit stress is high, position size falls; when credit conditions are calm, "
-        "full exposure is restored. This section explains what the strategy does, what "
-        "the numbers look like, and where honest limitations lie."
+        "The rule moves between SPY and cash. It holds SPY when the spread's 63-day percent "
+        "change, as it stood a year earlier, was below its usual range, and holds cash "
+        "otherwise. This section explains the rule, its numbers and its limitations."
     )
 
     SIGNAL_RULE_MD = (
-        "**Strategy Rule in Plain English:** Monitor the HMM stress probability derived "
-        "from the HY-IG credit spread. When the stress probability exceeds the 0.5 "
-        "threshold (credit market signaling stress regime), **scale down SPY exposure** "
-        "proportionally to the probability level. When stress probability falls below "
-        "0.5 (calm regime), **restore full SPY exposure**. The HMM is updated monthly "
-        "using available spread history."
+        "**Strategy Rule in Plain English:** each day, take the 63-day percent change of the "
+        "HY-IG spread (hy_ig_roc_63d) as it stood **252 trading days earlier**. Compare it "
+        "with the 75th percentile of the same lagged series over the trailing 504 trading "
+        "days (threshold T2_rp75, a moving boundary). If it is below that percentile, hold "
+        "**100% SPY**; otherwise hold **cash**. The position takes effect from the next "
+        "day's close, so the signal is 253 trading days old when it starts earning. "
+        "Countercyclical orientation: a high recent spread increase means cash."
     )
 
     HOW_SIGNAL_IS_GENERATED_MD = (
-        "Each day, the HY-IG spread (difference between ICE BofA HY OAS and IG OAS) "
-        "is computed from FRED series BAMLH0A0HYM2EY and BAMLC0A0CMEY. A 2-state "
-        "Hidden Markov Model (HMM) fitted to the daily spread history produces a "
-        "continuous probability of being in the 'stress' vs 'calm' state. This "
-        "probability (hmm_2state_prob_stress) is the tournament-winning signal "
-        "(S6_hmm_stress). The signal operates at L0 — no additional lead lag beyond "
-        "the HMM's own probabilistic smoothing. Monthly portfolio positions are "
-        "rebalanced at each month-end based on the end-of-month stress probability."
+        "The HY-IG spread is ICE BofA US High Yield OAS minus ICE BofA US Corporate OAS (FRED "
+        "BAMLH0A0HYM2 and BAMLC0A0CM), in percentage points, on business days. The signal "
+        "hy_ig_roc_63d is the percent change of that spread over 63 trading days. The rule "
+        "lags it 252 trading days and compares it with its own trailing 504-day 75th "
+        "percentile. It rebalances daily: the position changed 110 times in the "
+        "out-of-sample window (16.2 changes a year) and 288 times over the full sample "
+        "(11.8 a year). The rule fits no model; the percentile is recomputed each day from "
+        "trailing data."
     )
 
     MANUAL_USE_MD = (
-        "If you want to use this signal with minimal code:\n\n"
-        "1. **Pull HY and IG OAS from FRED** (BAMLH0A0HYM2EY and BAMLC0A0CMEY) "
-        "at month-end.\n"
-        "2. **Compute the spread**: HY OAS minus IG OAS in percentage points.\n"
-        "3. **Run a 2-state HMM** on the full spread history using hmmlearn (or "
-        "similar). The higher-mean state is 'stress'; the lower-mean state is 'calm'.\n"
-        "4. **Read the current stress probability** from the final observation.\n"
-        "5. **Scale SPY position**: full weight when probability < 0.5; scaled "
-        "proportionally when probability ≥ 0.5. The model re-estimates monthly.\n"
-        "6. **Re-estimate monthly** — HMM parameters should be refreshed annually "
-        "or after major structural breaks."
+        "If you want to follow this rule with minimal code:\n\n"
+        "1. **Pull HY and IG OAS from FRED** (BAMLH0A0HYM2 and BAMLC0A0CM), daily. They "
+        "post about one business day after the value date.\n"
+        "2. **Compute the spread**: HY OAS minus IG OAS (percentage points).\n"
+        "3. **Compute the 63-day percent change** of the spread.\n"
+        "4. **Take the value from 252 trading days ago**, and the 75th percentile of that "
+        "lagged series over the last 504 trading days.\n"
+        "5. **Hold SPY** if the lagged value is below the percentile; **hold cash** "
+        "otherwise. Apply the change at the next close.\n"
+        "6. **Expect the documented record**: OOS Sharpe 0.34 vs 0.81 for SPY, and the same "
+        "-33.7% maximum drawdown as SPY over 2019-10 to 2026-04."
     )
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -982,54 +824,93 @@ class StrategyConfig:
     WALK_FORWARD_CHART_NAME = "walk_forward"
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_scatter"
 
+    WALK_FORWARD_TITLE = "Calendar-Year Sharpe of the Winning Rule vs SPY"
+    WALK_FORWARD_CAPTION = (
+        "What this shows: the rule's Sharpe in each calendar year 2005-2026 (bars) next to "
+        "SPY's Sharpe in the same year (markers). Positive in 19 of 22 years and above SPY in "
+        "10 of 22. In the out-of-sample years 2020-2026 it is positive in 6 of 7 and above "
+        "SPY in 0 of 7. Years before 2019-10 are in-sample: the rule was selected on them."
+    )
+
+    TOURNAMENT_SCATTER_CAPTION = (
+        "What this shows: each point is one in-sample-valid rule, plotted by in-sample Sharpe "
+        "(x, the selection objective) and out-of-sample Sharpe (y). The star is the winner "
+        "(IS 0.96, OOS 0.34). Dotted and dashed lines mark SPY's in-sample (0.52) and "
+        "out-of-sample (0.81) Sharpe. Spearman rank correlation of IS vs OOS: 0.25."
+    )
+
+    LEADERBOARD_NOTE_MD = (
+        "Rows ranked by in-sample Sharpe. Strategy P2 sizes on the signal's trailing 504-day "
+        "range and ignores the threshold, so P2 rows that differ only in the threshold label "
+        "are the same position series (1,990 valid rows, 1,354 distinct series)."
+    )
+
+    CROSS_PERIOD_CAPTIONS = {
+        "subperiod_sharpe": (
+            "How to read it: the rule's Sharpe in each stress episode and in the full in-sample "
+            "and out-of-sample windows. GFC 0.55 (SPY -0.53); COVID 2020 0.09 (SPY 0.69); 2022 "
+            "-0.79 (SPY -0.70); full IS 0.96 (SPY 0.52); full OOS 0.34 (SPY 0.81). The "
+            "dot-com window is blank because the rule's position starts in 2002-09."
+        ),
+        "rolling_sharpe_cp": (
+            "How to read it: 504-trading-day rolling Sharpe of the rule's daily returns. It is "
+            "positive in 95% of windows since 2003-09, and ranges from -0.69 to 2.69."
+        ),
+        "rolling_granger": (
+            "How to read it: rolling 504-day Granger test, winner signal (hy_ig_roc_63d) → SPY "
+            "daily return, lags 1-3, every 5 trading days; the F shown is the largest of the three "
+            "lags, so read the p-value line. p < 0.05 in 20% of windows."
+        ),
+        "rolling_correlation": (
+            "How to read it: rolling 504-day correlation between the winner signal (lagged "
+            "253 trading days) and SPY's daily return. It ranges from -0.095 to +0.092 and is "
+            "negative in 55% of windows. For this countercyclical rule the expected sign is "
+            "negative."
+        ),
+        "structural_break": (
+            "How to read it: Quandt likelihood-ratio (sup-F) test for a break in the "
+            "regression of SPY daily returns on the lagged winner signal (HAC, 15% trimming). "
+            "sup-F 4.37 at 2019-01-01, below the 5% critical value of 5.86, so no break is "
+            "detected."
+        ),
+    }
+
     CAVEATS_MD = """
 **Important Caveats**
 
-1. **Simulated, not executed.** All performance statistics in this portal are hypothetical —
-   they reflect rules applied to historical data, not actual trades with real capital. Real
-   execution involves market impact, bid-ask spreads, and behavioral execution risk.
-   Execution costs are estimated at 5 basis points per trade; your actual costs depend on
-   account size and trading infrastructure.
+1. **Simulated, not executed.** All performance statistics are hypothetical, from rules applied
+   to historical data. Returns are gross of costs. At 5 bps per unit of position change the OOS
+   Sharpe falls from 0.34 to 0.30; at 20 bps to 0.17; at 50 bps to -0.10.
 
-2. **In-sample HMM fitting.** The winning signal (HMM stress probability) is derived from
-   a model fitted on in-sample data. Practitioners implementing this signal in live markets
-   should re-estimate the HMM parameters periodically (annually or after major structural
-   breaks) to prevent regime definitions from becoming stale.
+2. **Superseded result.** The 1.41 OOS Sharpe previously shown for S6_hmm_stress / P2 / L0
+   relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead). Its causal
+   rebuild scores 0.56 at L0 and 0.45 at the L1 lead floor.
 
-3. **The 2022 rate-shock blind spot is real.** The 2022 SPY drawdown was driven primarily
-   by the Federal Reserve's fastest rate-hiking cycle in 40 years, not by credit
-   deterioration. The HY-IG signal provided partial warning but underestimated severity.
-   Investors using this signal in isolation should pair it with a duration/rate-cycle signal
-   to cover that blind spot.
+3. **Selection.** The winner is the best in-sample Sharpe among 1,990 valid rules (1,354
+   distinct position series). Its OOS HAC t-statistic is 1.01 (p = 0.31). Under a no-skill
+   null, the largest |z| expected from that many candidates is about 3.4.
 
-4. **Short OOS period caveat.** Shorter OOS periods inflate apparent Sharpe ratios because
-   they contain fewer complete market cycles. Readers should weight the longest available
-   OOS window and be skeptical of Sharpe ratios derived from fewer than 5 full years of
-   OOS data.
+4. **Long signal lag.** The rule acts on information that is a year old (252 trading days
+   plus one execution day). The in-sample Sharpe varies sharply across neighbouring leads
+   (0.43 to 0.96), which is consistent with a selection effect.
 
-5. **Primary value proposition: drawdown reduction.** The HY-IG signal is countercyclical:
-   it tends to reduce exposure precisely during the quarters when SPY buy-and-hold investors
-   suffer the largest losses. The cost is some return drag during portions of the year when
-   spreads are elevated but the market continues to advance — a cost that is unavoidable for
-   any rule-based risk-management system.
+5. **Drawdown.** Over the OOS window the rule's maximum drawdown (-33.7%) equals SPY's. The
+   rule was fully invested through the 2020-02-19 to 2020-03-23 decline.
+
+6. **OAS publication lag.** ICE BofA OAS post on FRED about one business day after the value
+   date. The traded grid starts at a 1-day lead, plus a 1-day execution lag.
 """
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**Concrete example — COVID 2020.** In the last week of February "
-        "2020, as credit markets woke up to the pandemic, the HY-IG "
-        "HMM stress probability jumped from near-calm (around **0.09**) "
-        "to a full-stress reading of **1.00** within a handful of "
-        "sessions. In the broker-style log this shows up as a rapid "
-        "de-risking sequence ending on **2020-02-24** with a SELL that "
-        "takes the target SPY weight from **91.5% down to 0%** (all "
-        "cash) at an SPY price of **$294.65** (row `trade_id=282` in "
-        "`winner_trades_broker_style.csv`). The strategy then sat in "
-        "cash for roughly a year while the HMM remained in the stress "
-        "state. That single transition is what kept the strategy's "
-        "maximum drawdown around **-8.5%** over the OOS window, versus "
-        "roughly **-34%** for buy-and-hold SPY through the same "
-        "period — the countercyclical scale-down is the engine of the "
-        "1.41 OOS Sharpe."
+        "**Concrete example — COVID 2020.** Trade `trade_id=181` in "
+        "`winner_trades_broker_style.csv` opened a **Long** position (100% SPY) on "
+        "**2020-01-30** at an SPY price of **$299.46**. On that day the signal (the spread's "
+        "63-day percent change as of a year earlier) was 2.16, below its trailing 75th "
+        "percentile. The position was held until **2020-04-29** and returned **-9.99%** over "
+        "the trade, through the full February-March decline. The next row (`trade_id=182`) "
+        "moved to cash on 2020-04-29, when the lagged signal read 5.71. This is why the "
+        "rule's OOS maximum drawdown (-33.7%) equals buy-and-hold's: a 252-day-old spread "
+        "reading could not respond to the 2020 shock."
     )
 
 
@@ -1042,56 +923,65 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = """
 | Category | Source | Series | Frequency |
 |:---------|:-------|:-------|:----------|
-| **HY-IG Spread (HY leg)** | FRED | BAMLH0A0HYM2EY | Daily |
-| **HY-IG Spread (IG leg)** | FRED | BAMLC0A0CMEY | Daily |
-| **SPY (Target)** | Yahoo Finance | SPY | Daily → Monthly |
-| **S&P 500 (benchmark)** | Yahoo Finance | SPY | Daily → Monthly |
-| **NBER Recession Dates** | FRED / NBER | USREC | Monthly |
-| **Fed Funds Rate** | FRED | DFF | Daily → Monthly |
-| **VIX** | Yahoo Finance | ^VIX | Daily → Monthly |
+| **HY-IG Spread (HY leg)** | FRED (ICE BofA US High Yield Index OAS) | BAMLH0A0HYM2 | Daily (business days; ~1-day publication lag) |
+| **HY-IG Spread (IG leg)** | FRED (ICE BofA US Corporate Index OAS) | BAMLC0A0CM | Daily (business days; ~1-day publication lag) |
+| **SPY (Target)** | Yahoo Finance | SPY adjusted close | Daily |
+| **VIX (HMM feature, LP control)** | Yahoo Finance | ^VIX | Daily |
+| **10y-3m Treasury spread (LP control)** | FRED | DGS10 - DTB3 | Daily |
+| **NBER Recession Dates (chart shading)** | FRED / NBER | USREC | Monthly |
 
-*Scope discipline.* Only the HY-IG spread and SPY are in-scope primary signals.
-Controls (VIX, DFF, UNRATE) are used only in regression controls, not as trading signals.
+*Scope discipline.* Only HY-IG spread derivatives (and the causal regime probabilities built
+from the spread and VIX) are trading signals. VIX and the 10y-3m spread enter only as the HMM
+feature and as regression controls. Pre-2023 OAS history is spliced from the archived v1 data
+(see `interpretation_metadata.json` caveats).
 """
 
 _INDICATOR_CONSTRUCTION_MD = (
-    "The primary indicator is the HY-IG credit spread, constructed daily as the difference "
-    "between the ICE BofA US High Yield Index Option-Adjusted Spread (FRED: BAMLH0A0HYM2EY) "
-    "and the ICE BofA US Investment Grade Corporate Index Option-Adjusted Spread (FRED: "
-    "BAMLC0A0CMEY). From this raw series we derive: the level, z-score against a rolling "
-    "window, rate-of-change (1M, 3M), momentum (3M, 6M), and HMM stress probability "
-    "(2-state Hidden Markov Model fitted to daily spread history). The authoritative list "
-    "of in-scope derivatives is rendered from `signal_scope.json` in the Signal Universe "
-    "section below. The winning signal (hmm_2state_prob_stress) aggregates level, trend, "
-    "and volatility information into a single calibrated probability of being in the "
-    "credit stress regime."
+    "The primary indicator is the HY-IG credit spread, built daily as the ICE BofA US High "
+    "Yield Index option-adjusted spread (FRED: BAMLH0A0HYM2) minus the ICE BofA US Corporate "
+    "Index option-adjusted spread (FRED: BAMLC0A0CM), in percentage points. From it the "
+    "pipeline derives the level, 252/504-day rolling z-scores, 504/1260-day percentile ranks, "
+    "21/63/126-day percent changes, 21/63/252-day changes, an acceleration term and the "
+    "CCC-BB quality spread. It also builds two causal regime probabilities: a 2-state "
+    "Gaussian HMM on [daily spread change, VIX], and a 2-state Markov-switching model of "
+    "the daily spread change. Both are fitted on in-sample data only (to 2019-09-30) and "
+    "forward-filtered, so the value on day t uses data up to t only "
+    "(scripts/_regime_causal.py). The winning signal, hy_ig_roc_63d, is the 63-trading-day "
+    "percent change of the spread. The authoritative list of derivatives is rendered from "
+    "`signal_scope.json` in the Signal Universe section below."
 )
 
 _METHODS_TABLE_MD = """
-| Method | Question It Answers | Why We Chose It |
-|:-------|:--------------------|:----------------|
-| Pearson / Rolling Correlation | Linear co-movement at multiple horizons | Baseline linearity test; rolling view reveals regime dependence |
-| Granger Causality (Toda-Yamamoto) | One-directional predictive content, robust to non-stationarity | Tests asymmetric credit-leads-equity hypothesis |
-| Pre-Whitened CCF | Lead-lag timing structure after removing autocorrelation | Identifies the peak predictive lag without spurious persistence |
-| Hidden Markov Model (2-state) | Latent regime identification from spread data alone | Tournament winner; aggregates signal into interpretable probability |
-| Regime Quartile Returns | Model-free gradient across spread distribution | Assumption-light cross-check on HMM regime assignments |
-| Transfer Entropy | Nonlinear directional information flow | Detects threshold effects and nonlinear channels Granger misses |
-| Local Projections (Jordà) | Full dynamic path of SPY response to spread shock | Robust impulse response without VAR parameter restrictions |
-| Quantile Regression | Asymmetric predictive power across SPY return distribution | Confirms left-tail (downside) concentration — risk management signal |
+| Method | Question It Answers | Specification |
+|:-------|:--------------------|:--------------|
+| Pearson / Rolling Correlation | Same-day and forward co-movement | Rolling 252d same-day; static vs 1-252d forward returns (iid p-values, overlapping) |
+| Granger Causality | Do lagged spread changes help forecast SPY (and vice versa)? | Monthly: month-end spread change → compounded monthly SPY return, lags 1-12 (F-test). Daily: both directions, lags 1-5 |
+| Cross-Correlation Function | Same-day vs lead/lag timing | Daily spread change vs SPY daily return, lags ±20 trading days |
+| Hidden Markov Model (2-state) | Latent credit regimes | GaussianHMM on [spread change, VIX]; in-sample fit to 2019-09; forward-filtered probabilities |
+| Markov-switching model | High-variance regime of spread changes | 2-regime switching mean/variance on daily spread change; in-sample fit; Hamilton-filtered |
+| Regime Quartile Returns | Forward SPY return after tight vs wide spreads | Month-end spread quartiles vs next 1/3/6-month SPY return; HAC tests |
+| Transfer-entropy proxy | Lagged information flow, both directions | Squared-correlation increment on quintile ranks, rolling 504d; no significance test |
+| Local Projections (Jordà) | Spread level → SPY forward return at 5/21/63 days | Controls VIX, 10y-3m; HAC maxlags = max(0.75 n^(1/3), h-1) |
+| Predictive regressions | 12 signals × 5 horizons | OLS with HAC maxlags = max(0.75 n^(1/3), h-1) |
+| Quantile Regression | Effect across the 21-day forward return distribution | Quantiles 5%-95% |
 """
 
 _TOURNAMENT_DESIGN_MD = """
 | Dimension | Values |
 |:----------|:-------|
-| **Signals (6)** | HY-IG level, z-score, 1M rate-of-change, 3M momentum, 6M momentum, HMM stress probability (S6_hmm_stress) |
-| **Threshold methods** | HMM 0.5 cutoff (T4_hmm_0.5), rolling percentile (p25/p50/p75), rolling z-score (±1.0/±1.5) |
-| **Strategies (3)** | Signal-Strength (P2), Long/Cash (P1), Long/Short (P3) |
-| **Lead times** | L0 (winning combination) |
-| **Orientation** | Countercyclical (wide spreads → reduce SPY exposure) |
+| **Signals (15)** | spread level; z-score 252d/504d; percentile rank 504d/1260d; % change 21d/63d/126d; change 21d/63d/252d; acceleration; CCC-BB spread; causal HMM stress prob (S6); causal Markov-switching prob (S7) |
+| **Thresholds (13 labels)** | T1 in-sample percentile p75/p85/p95; T2 rolling-504d percentile rp75/rp85/rp95; T3 rolling-504d z-score 1.5/2.0/2.5; T4/T5 probability 0.5/0.7 (S6/S7 only) |
+| **Strategies (3)** | Long/Cash (P1), Signal-Strength sizing on the trailing-504d range (P2; ignores the threshold), Long/Short (P3) |
+| **Lead times (trading days)** | 1, 5, 21, 63, 126, 252, the standard daily grid floored at 1 for the OAS publication lag; plus a 1-day execution lag |
+| **Orientation** | Countercyclical (high signal → reduce SPY exposure) |
+| **Selection** | Highest in-sample Sharpe on the common window 2006-05-02 → 2019-09-30 among in-sample-valid rules (≥1,260 IS days, IS exposure 5-95%, IS turnover < 24/yr, ≥10 IS trades) |
 
-The tournament tested all valid combinations and ranked by out-of-sample Sharpe ratio
-over 2019-10-01 → 2026-04-22 (79 months). Winner: S6_hmm_stress / T4_hmm_0.5 / P2 / L0,
-OOS Sharpe 1.41 vs B&H 0.81.
+2,178 combinations, 1,990 in-sample-valid (1,354 distinct position series). Winner:
+**S4b_roc_63d / T2_rp75 / P1 / L252**, IS Sharpe 0.96 (SPY 0.52). OOS (2019-10-01 → 2026-04-22,
+1,712 days): Sharpe 0.34 (HAC t 1.01) vs SPY 0.81, annual return 6.2% vs 16.1%, maximum
+drawdown -33.7% for both. For comparison only: the out-of-sample argmax of the same grid is
+S12_mom_252d / T1_p75 / P2 / L1 at 1.18, a rule ranked 38th in-sample (see
+`legacy_oos_selection_20261016.csv`).
 """
 
 _REFERENCES_MD = """
@@ -1110,6 +1000,10 @@ _REFERENCES_MD = """
 #### Impulse Response and Local Projections
 - Jordà, Ò. (2005). Estimation and inference of impulse responses by local projections. *American Economic Review*, 95(1), 161–182.
 
+#### Inference and Structural Breaks
+- Newey, W. K., & West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. *Econometrica*, 55(3), 703–708.
+- Andrews, D. W. K. (1993). Tests for parameter instability and structural change with unknown change point. *Econometrica*, 61(4), 821–856.
+
 #### Quantile Methods
 - Koenker, R., & Bassett, G. (1978). Regression quantiles. *Econometrica*, 46(1), 33–50.
 - Adrian, T., Boyarchenko, N., & Giannone, D. (2019). Vulnerable growth. *American Economic Review*, 109(4), 1263–1289.
@@ -1122,11 +1016,12 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "OOS window determined by ECON-OOS2 formula: 79 months "
-        "(2019-10-01 → 2026-04-22). HY-IG spread data available from "
-        "approximately 1997; full sample used from 1997-01 onward. "
-        "OAS data before 2000 is thinner in the underlying constituent "
-        "universe — results are robust to truncating the pre-2000 period."
+        "Data run from 2000-01-03 to 2026-04-22 (business days). The OOS window follows the "
+        "ECON-OOS2 formula: 79 months (2019-10-01 → 2026-04-22). In-sample selection uses the "
+        "common window 2006-05-02 → 2019-09-30, which starts when the longest-warm-up "
+        "candidate (1260-day percentile rank, 252-day lead, P2 sizing) has its first return. "
+        "The dot-com bust and the GFC are in-sample; COVID 2020 and the 2022 rate shock are "
+        "out-of-sample. Regime models are fitted on data up to 2019-09-30 only."
     ),
     plain_english=(
         "This section covers the technical decisions — data sources, sample period, "

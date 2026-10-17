@@ -106,6 +106,48 @@ def latest_dated(pair, stem):
     return cand[-1]
 
 
+# Daily pairs whose correlation heatmap is drawn on the NATIVE daily axis (canonical
+# lead_correlation_YYYYMMDD.csv, columns L<days>) instead of the monthly-resampled
+# comparability file (fix261016_hmm_causal: no monthly L0-12 chart on a daily pair).
+DAILY_NATIVE_CORR = {"hy_ig_spy"}
+
+
+def build_corr_chart_daily(pair, ind, tgt, w):
+    path, date = latest_dated(pair, "lead_correlation")
+    rows = read_rows(path)
+    leads = [k for k in rows[0] if re.fullmatch(r"L\d+", k)]
+    transforms = [r["transform"] for r in rows]
+    z, text = [], []
+    for r in rows:
+        vals = [parse_cell(r[L]) for L in leads]
+        z.append([v for v, _ in vals])
+        text.append([f"{v:+.3f}{st}" for v, st in vals])
+    col = w.get("signal_column")
+    wrow = next((r for r in rows if r["transform"] == col), None)
+    cap = ""
+    if wrow is not None:
+        cap = (f"Winner signal {col}: largest |r| at {wrow['best_lead']} trading days "
+               f"(r={float(wrow['best_r']):+.3f}).")
+    zabs = max(0.05, max(abs(v) for row in z for v in row if v == v))
+    xlab = [f"{L[1:]}d" for L in leads]
+    fig = go.Figure(go.Heatmap(
+        z=z, x=xlab, y=transforms, text=text, texttemplate="%{text}", textfont={"size": 9},
+        colorscale="RdBu_r", zmid=0, zmin=-zabs, zmax=zabs, colorbar={"title": "Pearson r"},
+        hovertemplate="signal=%{y}<br>lead=%{x}<br>r=%{text}<extra></extra>"))
+    title = (f"Lead-Lag Correlation: {ind} Signal (lagged L trading days) vs {tgt} Next-Day Return"
+             f"<br><sub>Daily axis, traded grid {', '.join(xlab)}. * p<0.05, ** p<0.01 (iid). {cap}</sub>")
+    fig.update_layout(
+        title={"text": title, "font": {"size": 14}},
+        xaxis={"title": {"text": "Lead (trading days) applied to signal", "standoff": 16}, "side": "bottom",
+               "type": "category"},
+        yaxis={"title": {"text": "Signal transform"}, "autorange": "reversed"},
+        template="plotly_white", margin={"l": 170, "r": 80, "t": 110, "b": 95},
+        annotations=[{"text": f"Source: {path.name} (signal lagged L days vs SPY return from t to t+1).",
+                      "showarrow": False, "xref": "paper", "yref": "paper", "x": 0, "y": -0.22,
+                      "yanchor": "top", "font": {"size": 10, "color": "#666"}, "align": "left"}])
+    return fig, cap, str(path.relative_to(ROOT))
+
+
 def corr_csv(pair):
     """Resolve the correlation CSV + date for the monthly L0..L12 heatmap.
     Daily pairs MUST use the month-end-resampled `lead_correlation_monthly_axis_*`
@@ -398,7 +440,12 @@ def build_coherent_sharpe_chart_daily(pair, ind, tgt, bh, w, wc_path, env_path):
     env_peak = leads[max(range(len(envv)), key=lambda i: envv[i])]
 
     coincident = win_lead == 0
-    if coincident and curve_peak == win_lead == env_peak:
+    is_selected = (w.get("selection") or {}).get("objective") == "max_is_sharpe"
+    if is_selected:
+        frame = (f"The winner was selected on IN-SAMPLE Sharpe; the orange line shows the same rule's "
+                 f"OUT-OF-SAMPLE Sharpe at each daily lead (highest at {_lab(curve_peak)}). Grey bars: the "
+                 f"highest OOS Sharpe any combo reached at each lead (an OOS-argmax, shown for context).")
+    elif coincident and curve_peak == win_lead == env_peak:
         # 0-day winner whose curve + envelope both peak at 0d and decay with lag:
         # a genuinely SAME-DAY (coincident) edge with no leading content.
         frame = (f"On the pair's OWN daily grid the published winner sits at the envelope "
@@ -443,6 +490,11 @@ def build_coherent_sharpe_chart_daily(pair, ind, tgt, bh, w, wc_path, env_path):
     title = (f"Lead vs OOS Sharpe — winner on the native DAILY grid: {ind} -> {tgt}"
              f"<br><sub>Orange: the PUBLISHED winner's OWN OOS Sharpe by daily lead (trading days). "
              f"Grey bars: best-of-any-signal envelope, same source. Dashed: {tgt} buy-and-hold. {frame}</sub>")
+    if is_selected:  # short, wrapped subtitle (the long frame overflowed the chart width)
+        title = (f"Lead vs OOS Sharpe — winner on the native DAILY grid: {ind} -> {tgt}"
+                 f"<br><sub>Orange: the winning rule's OOS Sharpe at each daily lead (rule selected on IN-SAMPLE Sharpe)."
+                 f"<br>Grey: best OOS Sharpe of any IS-valid rule at that lead (OOS-argmax, context). "
+                 f"Dashed: {tgt} buy-and-hold.</sub>")
     fig.update_layout(
         title={"text": title, "font": {"size": 14}},
         xaxis={"title": {"text": "Lead (trading days) applied to signal", "standoff": 18},
@@ -631,7 +683,8 @@ def run(pair):
     d = ROOT / f"output/charts/{pair}/plotly"
     d.mkdir(parents=True, exist_ok=True)
 
-    f1, c1, src1 = build_corr_chart(pair, ind, tgt, w)
+    f1, c1, src1 = (build_corr_chart_daily(pair, ind, tgt, w) if pair in DAILY_NATIVE_CORR
+                    else build_corr_chart(pair, ind, tgt, w))
     (d / "correlations_lead_view.json").write_text(pio.to_json(f1))
     write_meta(pair, "correlations_lead_view", "lead_correlation_view", "heatmap", c1,
                ["VIZ-LEAD1", "VIZ-IC1", "VIZ-TX1", "VIZ-O1"], [src1])

@@ -3,14 +3,14 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-15T18:08:06.764099+00:00",
+  "last_updated_at": "2026-10-16T18:27:05.820219+00:00",
   "indicator_axis": {
     "canonical_column": "mfg_new_orders",
-    "display_name": "Manufacturers' New Orders: Total Manufacturing",
+    "display_name": "Core Capital Goods Orders (Nondefense Capital Goods ex Aircraft)",
     "derivatives": [
       {
         "name": "mfg_new_orders",
-        "definition": "Manufacturers' new orders level (nominal $, SA)",
+        "definition": "Core capital goods orders level (nondefense capital goods ex aircraft; nominal $, SA)",
         "formula": "Data Master NEWORDER",
         "role": "raw",
         "appears_in_charts": [
@@ -19,7 +19,7 @@
       },
       {
         "name": "mfg_new_orders_yoy",
-        "definition": "12-month new-orders growth",
+        "definition": "12-month core capex orders growth",
         "formula": "100*(x_t/x_{t-12}-1)",
         "role": "threshold_input",
         "appears_in_charts": [
@@ -30,21 +30,21 @@
       },
       {
         "name": "mfg_new_orders_mom",
-        "definition": "1-month new-orders growth",
+        "definition": "1-month core capex orders growth",
         "formula": "100*(x_t/x_{t-1}-1)",
         "role": "derivative",
         "appears_in_charts": []
       },
       {
         "name": "mfg_new_orders_3m",
-        "definition": "3-month new-orders growth",
+        "definition": "3-month core capex orders growth",
         "formula": "100*(x_t/x_{t-3}-1)",
         "role": "derivative",
         "appears_in_charts": []
       },
       {
         "name": "mfg_new_orders_6m",
-        "definition": "6-month new-orders growth",
+        "definition": "6-month core capex orders growth",
         "formula": "100*(x_t/x_{t-6}-1)",
         "role": "derivative",
         "appears_in_charts": []
@@ -125,5 +125,5 @@
       }
     ]
   },
-  "notes": "Scope limited to Manufacturers' new-orders growth signals and SPY returns."
+  "notes": "Scope limited to core capital goods orders (NEWORDER) growth signals and SPY returns."
 }

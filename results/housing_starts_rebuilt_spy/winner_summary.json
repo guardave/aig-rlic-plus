@@ -1,6 +1,6 @@
 {
   "pair_id": "housing_starts_rebuilt_spy",
-  "generated_at": "2026-10-09T14:32:06Z",
+  "generated_at": "2026-10-16T18:33:35Z",
   "signal_column": "hst_yoy_contraction_flag",
   "signal_code": "hst_contraction",
   "signal_display_name": "Housing Starts YoY contraction flag",
@@ -15,7 +15,7 @@
   "strategy_description": "Long SPY when the lagged Housing Starts signal is above its threshold; otherwise cash. (Procyclical orientation: strong housing-starts growth = risk-on, consistent with housing as a leading indicator.)",
   "lead_value": 8,
   "lead_unit": "months",
-  "lead_description": "Signal lead = 8 month(s); L1 is the real-time floor given the ~17th-of-month Census/HUD publication lag for the prior month",
+  "lead_description": "Signal lead = 8 month(s); L2 is the strict floor given the ~17th-of-month Census/HUD publication lag for the prior month",
   "lookback": "LB_NA",
   "direction": "procyclical",
   "oos_sharpe": 1.4485,
@@ -34,17 +34,16 @@
   "bh_ann_return": 0.1563,
   "bh_max_drawdown": -0.2393,
   "cost_assumption_bps": 5,
-  "total_combos": 14300,
-  "valid_combos": 10378,
+  "total_combos": 13200,
+  "valid_combos": 9597,
   "schema_version": "1.2.0",
-  "notes": "Mode 2, housing_starts_spy. Tournament: 14300 strategy combos (+1 benchmark, valid=False per ECON-T4), 10378 valid. Winner by ECON-T3 cascade (resolved at step 5; 25 tied at step 1). Strategy returns are gross of transaction costs; 5 bps sensitivity in tournament_validation_20261008/. Housing Starts is SA (FRED HOUST, SAAR); signals are stationary growth transforms, raw level excluded. Lead-lag: Toda-Yamamoto Granger Housing Starts->SPY significant at lags NONE; SPY->Housing Starts significant at lags [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]. Robustness caveats: winner bootstrap p = 0.106 (vs resampled B&H); in-sample Sharpe 0.23 vs OOS 1.45; CP1 durability verdict 'conditionally_durable'; rolling-correlation stability 'moderately_stable'. OOS mean position 0.46.",
+  "notes": "Mode 2, housing_starts_spy. Tournament: 13200 strategy combos (+1 benchmark, valid=False per ECON-T4), 9597 valid. Winner by ECON-T3 cascade (resolved at step 5; 25 tied at step 1). Strategy returns are gross of transaction costs; 5 bps sensitivity in tournament_validation_20261016/. Housing Starts is SA (FRED HOUST, SAAR); signals are stationary growth transforms, raw level excluded. Lead-lag: Toda-Yamamoto Granger Housing Starts->SPY significant at lags NONE; SPY->Housing Starts significant at lags [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]. Robustness caveats: winner bootstrap p = 0.106 (vs resampled B&H); in-sample Sharpe 0.23 vs OOS 1.45; CP1 durability verdict 'conditionally_durable'; rolling-correlation stability 'moderately_stable'. OOS mean position 0.46.",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "argmax OOS Sharpe over valid combos, ECON-T3 cascade tie-break (oos_sharpe -> oos_ann_return -> min|DD| -> n_trades -> signal)",
     "grid_scanned": {
       "leads": [
         0,
-        1,
         2,
         3,
         4,
@@ -61,7 +60,7 @@
       "n_signals": 9,
       "n_thresholds": 10,
       "n_strategies": 6,
-      "n_valid_combos": 10378,
+      "n_valid_combos": 9597,
       "median_valid_objective": 0.7802
     },
     "tie_break_step": 5,
@@ -71,8 +70,8 @@
       "strategy": "P1_long_cash_pro",
       "lead_column": "lead_months",
       "lead_value": 8,
-      "source_tournament_file": "results/housing_starts_rebuilt_spy/tournament_results_20261008.csv",
-      "source_row_index": 10460,
+      "source_tournament_file": "results/housing_starts_rebuilt_spy/tournament_results_20261016.csv",
+      "source_row_index": 9600,
       "display_alias": "contraction/T1_fixed_p25/P1_long_cash_pro/L8/LB_NA"
     },
     "runner_up": {
@@ -82,7 +81,7 @@
       "lead_value": 8,
       "objective_value": 1.4485
     },
-    "rationale": "Winner is the max-OOS-Sharpe valid combo (10378 valid of 14300); cascade resolved at step 5 with 25 tied at step 1.",
+    "rationale": "Winner is the max-OOS-Sharpe valid combo (9597 valid of 13200); cascade resolved at step 5 with 25 tied at step 1.",
     "objective_runner_up_divergence": null
   }
 }

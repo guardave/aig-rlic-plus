@@ -3,8 +3,8 @@
   "pair_id": "sloos_ci_small_spy",
   "generated_at": "2026-10-15T18:16:21.030408+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "caption": "SLOOS small-firm net-% C&I tightening and SPY with NBER recessions; tightening spikes cluster around credit crunches.",
-  "narrative_alignment_note": "SLOOS small-firm net-% C&I tightening and SPY with NBER recessions; tightening spikes cluster around credit crunches.",
+  "caption": "SLOOS net-% C&I tightening for large and middle-market firms (DRTSCILM) and SPY with NBER recessions; tightening spikes cluster around credit crunches.",
+  "narrative_alignment_note": "SLOOS net-% C&I tightening for large and middle-market firms (DRTSCILM) and SPY with NBER recessions; tightening spikes cluster around credit crunches.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/sloos_ci_small_spy_quarterly_latest.parquet"

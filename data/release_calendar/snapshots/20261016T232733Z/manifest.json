@@ -1,0 +1,61 @@
+{
+  "snapshot_utc": "2026-10-16T23:27:33+00:00",
+  "source_file": "data/Data Master.xlsx",
+  "source_sha256": "ca7c7aefbdd142c648b02a59472cd145818ad60f34ef3e8bb9ad781d6ee691a9",
+  "sources": {
+    "ISM_MFG": {
+      "sheet": "ISM Manufacturing PMI",
+      "column": "1",
+      "pair_loader": "scripts/pair_pipeline_ism_mfg_spy.py read_master",
+      "n_obs": 934,
+      "first": "1948-01-01",
+      "last": "2025-10-01",
+      "vs_previous": ""
+    },
+    "ISM_SERVICES": {
+      "sheet": "ISM PMI",
+      "column": "CDis, CSta - ISM Services PMI",
+      "pair_loader": "scripts/pair_data_ism_services_spy.py read_ism_services",
+      "n_obs": 340,
+      "first": "1997-07-31",
+      "last": "2025-10-31",
+      "vs_previous": ""
+    },
+    "NAHB_HMI": {
+      "sheet": "WFHMI",
+      "column": "RE - Wells Fargo H Indx",
+      "pair_loader": "scripts/pair_data_wells_fargo_housing_spy.py fetch_master_hmi",
+      "n_obs": 490,
+      "first": "1985-01-01",
+      "last": "2025-10-01",
+      "vs_previous": ""
+    },
+    "UMICH_EXP_BUS_COND": {
+      "sheet": "UoM_ExptdChgBinesCyle",
+      "column": "1",
+      "pair_loader": "scripts/pair_pipeline_umcsent_spy.py read_master",
+      "n_obs": 573,
+      "first": "1978-01-01",
+      "last": "2025-09-01",
+      "vs_previous": ""
+    },
+    "USGS_CEMENT": {
+      "sheet": "Portland Cement",
+      "column": "1",
+      "pair_loader": "scripts/pair_pipeline_cement_spy.py read_neworders_master",
+      "n_obs": 236,
+      "first": "2005-11-30",
+      "last": "2025-06-30",
+      "vs_previous": ""
+    },
+    "EIA_WTTSTUS1": {
+      "sheet": "WTTSTUS1",
+      "column": "WTTSTUS1",
+      "pair_loader": "scripts/pair_data_petrol_inv_spy.py read_data_master_wttstus1",
+      "n_obs": 1866,
+      "first": "1990-01-05",
+      "last": "2025-10-03",
+      "vs_previous": ""
+    }
+  }
+}

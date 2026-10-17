@@ -1,0 +1,4 @@
+role,signal,threshold,strategy,direction,lead_days,is_start,is_end,is_n,is_sharpe,own_is_start,own_is_n,own_is_sharpe,oos_sharpe,oos_ann_return,max_drawdown,n_trades,oos_n,is_rank,oos_rank
+primary_is_selected_common_start,S4b_roc_63d,T2_rp75,P1,countercyclical,252,2006-05-02,2019-09-30,3500,0.961997,2002-09-30,4436,0.980354,0.344228,0.062485,-0.337173,110,1712,1.0,1781.0
+sensitivity_is_selected_own_start,S4b_roc_63d,T2_rp75,P1,countercyclical,252,2006-05-02,2019-09-30,3500,0.961997,2002-09-30,4436,0.980354,0.344228,0.062485,-0.337173,110,1712,1.0,1781.0
+legacy_oos_selected,S12_mom_252d,T1_p75,P2,countercyclical,1,2006-05-02,2019-09-30,3500,0.848976,2002-07-04,4498,0.716024,1.180364,0.094439,-0.102101,165,1712,38.0,1.0

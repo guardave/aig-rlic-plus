@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Dual-panel LP per ECON-H4 row 'IRF with CI band (fwd + rev panels)'.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/petrol_inv_spy/core_models_20260711/local_projections.csv"
+    "results/petrol_inv_spy/core_models_20261016/local_projections.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-09-25T23:20:37.655944+00:00",
+  "generated_at": "2026-10-16T18:42:53.103151+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_petrol_inv_spy.py (mode3_petrol_inv_spy)"
 }

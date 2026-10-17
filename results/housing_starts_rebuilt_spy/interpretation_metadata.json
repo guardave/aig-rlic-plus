@@ -64,7 +64,7 @@
     ]
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-09T14:32:06Z",
+  "last_updated_at": "2026-10-16T18:33:35Z",
   "observed_direction": "procyclical",
   "direction_consistent": true,
   "key_finding": "Lead-lag: Housing Starts YoY does NOT Granger-cause SPY at any lag 1-12; reverse SPY->Housing Starts significant at lags [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]. The tournament winner (Housing Starts contraction, P1_long_cash pro, lead 8m) is procyclical: OOS Sharpe 1.45 vs buy-and-hold 0.95, max drawdown -8.3% vs -23.9%. Bootstrap p=0.106; durability 'conditionally_durable'; rolling-correlation 'moderately_stable'.",

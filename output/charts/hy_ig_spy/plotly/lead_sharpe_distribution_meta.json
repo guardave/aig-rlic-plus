@@ -8,14 +8,14 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, HY-IG Credit Spread) on the DAILY axis; deployed lead 0d = 1.41. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.81. On the pair's OWN daily grid the published winner sits at the envelope peak (0d) \u2014 both its own curve and the best-of-any-signal envelope peak there, and the profile decays as the signal is lagged. This is a SAME-DAY (coincident) edge \u2014 the signal and target move together the same day, not a multi-month leading indicator. Extending the grid to 126/252 trading days surfaces no long-lead edge (long leads fail a t&gt;3 hurdle) \u2014 multiple-testing noise.",
-  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, HY-IG Credit Spread) on the DAILY axis; deployed lead 0d = 1.41. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.81. On the pair's OWN daily grid the published winner sits at the envelope peak (0d) \u2014 both its own curve and the best-of-any-signal envelope peak there, and the profile decays as the signal is lagged. This is a SAME-DAY (coincident) edge \u2014 the signal and target move together the same day, not a multi-month leading indicator. Extending the grid to 126/252 trading days surfaces no long-lead edge (long leads fail a t&gt;3 hurdle) \u2014 multiple-testing noise.",
-  "created_at": "2026-07-15T10:26:25Z",
+  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, HY-IG Credit Spread) on the DAILY axis; deployed lead 252d = 0.34. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.81. The winner was selected on IN-SAMPLE Sharpe; the orange line shows the same rule's OUT-OF-SAMPLE Sharpe at each daily lead (highest at 1d). Grey bars: the highest OOS Sharpe any combo reached at each lead (an OOS-argmax, shown for context).",
+  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, HY-IG Credit Spread) on the DAILY axis; deployed lead 252d = 0.34. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.81. The winner was selected on IN-SAMPLE Sharpe; the orange line shows the same rule's OUT-OF-SAMPLE Sharpe at each daily lead (highest at 1d). Grey bars: the highest OOS Sharpe any combo reached at each lead (an OOS-argmax, shown for context).",
+  "created_at": "2026-10-16T16:47:21Z",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/hy_ig_spy/lead_winner_curve_20260715.csv",
+    "results/hy_ig_spy/lead_winner_curve_20261016.csv",
     "results/hy_ig_spy/winner_summary.json"
   ],
   "generated_by": "Viz Vera \u2014 scripts/generate_lead_charts.py (VIZ-LEAD1)"

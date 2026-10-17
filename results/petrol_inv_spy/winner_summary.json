@@ -1,6 +1,6 @@
 {
   "pair_id": "petrol_inv_spy",
-  "generated_at": "2026-07-11T09:35:37Z",
+  "generated_at": "2026-10-16T18:41:01Z",
   "signal_column": "petrol_inv_zscore_60m",
   "signal_code": "petrol_level_z60",
   "signal_display_name": "petrol level z60",
@@ -15,7 +15,7 @@
   "strategy_description": "Long SPY when lagged petroleum inventory signal is above threshold; otherwise cash.",
   "lead_value": 11,
   "lead_unit": "months",
-  "lead_description": "L0 monthly is feasible under Dana's release-lag convention; daily LVCF uses only public carried-forward values.",
+  "lead_description": "Signal lead = 11 month(s); L2 is the strict floor because the month's last weekly EIA print is released 0-5 days into the following month.",
   "lookback": "LB36",
   "direction": "procyclical",
   "oos_sharpe": 1.5273,
@@ -34,17 +34,15 @@
   "bh_ann_return": 0.1518,
   "bh_max_drawdown": -0.2393,
   "cost_assumption_bps": 5,
-  "total_combos": 16016,
-  "valid_combos": 10991,
+  "total_combos": 13552,
+  "valid_combos": 9286,
   "schema_version": "1.2.0",
-  "notes": "Mode-3 Codex maker. Tournament: 16016 strategy rows plus one benchmark valid=False; 10991 valid. Winner selected by ECON-T3 at step 1; 1 tied at Sharpe step. Bootstrap p=0.0813; CP1 durability=conditionally_durable; rolling correlation=moderately_stable. Petroleum inventories are coincident physical stocks, so reverse-causality evidence is reported rather than suppressed.",
+  "notes": "Mode-3 Codex maker. Tournament: 13552 strategy rows plus one benchmark valid=False; 9286 valid. Winner selected by ECON-T3 at step 1; 1 tied at Sharpe step. Bootstrap p=0.0813; CP1 durability=conditionally_durable; rolling correlation=moderately_stable. Petroleum inventories are coincident physical stocks, so reverse-causality evidence is reported rather than suppressed.",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
     "grid_scanned": {
       "leads": [
-        0,
-        1,
         2,
         3,
         4,
@@ -60,8 +58,8 @@
       "n_signals": 10,
       "n_thresholds": 10,
       "n_strategies": 6,
-      "n_valid_combos": 10991,
-      "median_valid_objective": 0.7982
+      "n_valid_combos": 9286,
+      "median_valid_objective": 0.8029
     },
     "tie_break_step": 0,
     "raw_winner_row": {
@@ -70,8 +68,8 @@
       "strategy": "P1_long_cash_pro",
       "lead_column": "lead_months",
       "lead_value": 11,
-      "source_tournament_file": "tournament_results_20260711.csv",
-      "source_row_index": 9440,
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 7952,
       "display_alias": "signal_code=petrol_level_z60; strategy_family=P1_long_cash (raw strategy=P1_long_cash_pro)"
     },
     "runner_up": {
@@ -81,7 +79,7 @@
       "lead_value": 11,
       "objective_value": 1.5244
     },
-    "rationale": "Unique maximiser of OOS Sharpe over the full monthly grid L{0..12} (10991 valid combos, median OOS Sharpe 0.7982), scored on the deployable cash-filled series (ECON-T4). Winner raw OOS Sharpe 1.5273 at L11; the 2nd-best valid combo (petrol_6m/T3_zscore_1.0/P1_long_cash_pro/L11) sits at 1.5244. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
+    "rationale": "Unique maximiser of OOS Sharpe over the full monthly grid L{2..12} (9286 valid combos, median OOS Sharpe 0.8029), scored on the deployable cash-filled series (ECON-T4). Winner raw OOS Sharpe 1.5273 at L11; the 2nd-best valid combo (petrol_6m/T3_zscore_1.0/P1_long_cash_pro/L11) sits at 1.5244. No ECON-T3 tie-break engaged (unique max on oos_sharpe). Published winner == raw max-OOS-Sharpe valid row -> divergence null.",
     "objective_runner_up_divergence": null
   }
 }

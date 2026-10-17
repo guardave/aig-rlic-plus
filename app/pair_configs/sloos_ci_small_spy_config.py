@@ -1,4 +1,8 @@
-"""SLOOS C&I Lending Standards (Small Firms, net-% tightening) × SPY config (Rule APP-PT1).
+"""SLOOS C&I Lending Standards (Large & Middle-Market Firms, DRTSCILM, net-% tightening) × SPY config (Rule APP-PT1).
+
+SERIES NOTE: despite the "small" in the pair_id / column name (kept for URL and
+file stability), the data is FRED DRTSCILM (large and middle-market firms), not
+the small-firm series DRTSCIS — verified against ALFRED vintages.
 
 QUARTERLY pair, page-31 prefix. Templated on the quarterly archetype
 (eci_total_comp_spy_config.py): explicit quarterly units everywhere,
@@ -52,7 +56,7 @@ class StoryConfig:
     PAGE_TITLE = "The Story: A Credit-Tightening Overlay Whose Winner Runs the Wrong Way"
     PAGE_SUBTITLE = (
         "Fed Senior Loan Officer Survey (SLOOS) — net % of banks tightening "
-        "C&I standards to SMALL firms (series DRTSCIS, NSA) × S&P 500 (SPY). "
+        "C&I standards to LARGE and MIDDLE-MARKET firms (series DRTSCILM, NSA) × S&P 500 (SPY). "
         "QUARTERLY, analytical sample 1993-Q1 → 2025-Q3 (~131 quarters). A "
         "leading CREDIT indicator: all leads and windows are in QUARTERS."
     )
@@ -69,8 +73,8 @@ class StoryConfig:
         "The Fed's Senior Loan Officer Opinion Survey (SLOOS) asks banks each "
         "quarter whether they are tightening or easing the credit standards "
         "they apply to business (C&I) loans. This pair uses the net percentage "
-        "tightening toward SMALL firms — the borrowers most exposed to a credit "
-        "squeeze. The economic prior is countercyclical: when banks tighten, "
+        "tightening toward LARGE and MIDDLE-MARKET firms (FRED DRTSCILM) — the "
+        "core of bank business lending. The economic prior is countercyclical: when banks tighten, "
         "credit-dependent activity slows and recession risk rises, so you would "
         "want LESS equity, not more. We tested that, and the honest result is "
         "two-sided. The concurrent evidence supports the prior — the quarters "
@@ -85,14 +89,14 @@ class StoryConfig:
     WHERE_THIS_FITS = (
         "This is a leading CREDIT-STRESS context overlay for broad U.S. "
         "equities. It belongs in the portal as macro context — rising "
-        "small-firm tightening has historically preceded credit crunches — "
+        "C&I tightening has historically preceded credit crunches — "
         "not as a validated timing signal. The formal tests do not find SLOOS "
         "Granger-causing SPY, so use it to read the credit cycle, not to time "
         "the market."
     )
 
     ONE_SENTENCE_THESIS = (
-        "Small-firm credit tightening is a leading credit-stress gauge whose "
+        "C&I credit tightening (large & middle-market firms) is a leading credit-stress gauge whose "
         "concurrent evidence is countercyclical (most-tightening quarters have "
         "the weakest SPY Sharpe), yet the search's best QUARTERLY rule is a "
         "procyclical 3-quarter-lag candidate (OOS Sharpe 1.51 vs 0.89) on a "
@@ -111,11 +115,11 @@ class StoryConfig:
         "candidate, not a verdict."
     )
 
-    HERO_TITLE = "SLOOS C&I Tightening (Small Firms) vs the S&P 500 (SPY)"
+    HERO_TITLE = "SLOOS C&I Tightening (Large & Middle-Market Firms) vs the S&P 500 (SPY)"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
         "How to read it: dual-axis view — net % of banks tightening C&I "
-        "standards to small firms (quarterly) and the S&P 500 (SPY) on a "
+        "standards to large and middle-market firms (DRTSCILM, quarterly) and the S&P 500 (SPY) on a "
         "common time axis, NBER recessions shaded. Watch the spikes: "
         "net-tightening surged into every recession (2001, 2008, 2020) — the "
         "visual signature of a leading credit-stress gauge."
@@ -138,13 +142,17 @@ class StoryConfig:
     )
 
     NARRATIVE_SECTION_1 = """
-### Small-firm credit tightening: a leading credit-stress gauge, tested honestly
+### C&I credit tightening (large & middle-market firms): a leading credit-stress gauge, tested honestly
 
 The Fed's Senior Loan Officer Opinion Survey (SLOOS) is the cleanest quarterly
 read on whether bank credit is loosening or tightening. This pair uses the net
-percentage of banks tightening C&I lending standards toward SMALL firms — the
-borrowers with the fewest alternatives to a bank loan, and therefore the first
-to feel a credit squeeze. Because the series is a bounded, mean-reverting net
+percentage of banks tightening C&I lending standards toward LARGE and
+MIDDLE-MARKET firms (FRED `DRTSCILM`) — the bulk of bank business lending. These
+borrowers have more alternatives to a bank loan (bond and syndicated-loan
+markets) than small firms do, so this series reads the broad bank credit
+cycle rather than the most bank-dependent corner of it; the classic
+"small firms feel the squeeze first" argument is NOT what this series tests.
+Because the series is a bounded, mean-reverting net
 percentage, its level is stationary and is used directly (ADF p < 0.001).
 
 The economic prior is **countercyclical**: when banks pull back, credit-
@@ -162,16 +170,16 @@ countercyclical reading.
 The best rule on the 32-quarter out-of-sample window is *procyclical* — long SPY
 when the 3-quarter-lagged SLOOS level is on the NET-TIGHTENING side of zero
 (≥ 0), cash when it is easing (< 0). That is the counter-intuitive part: the rule
-buys equities precisely when small-firm credit was tightening three quarters
+buys equities precisely when C&I credit was tightening three quarters
 earlier — the opposite of the countercyclical prior. We flag that contradiction rather than paper over it (see the
 Strategy page); on a small quarterly sample it is most plausibly a search
 artifact / small-sample fragility, not evidence that tightening is bullish.
 
-<!-- expander: What exactly is the SLOOS small-firm C&I series? -->
+<!-- expander: What exactly is the SLOOS large & middle-market C&I series? -->
 The Senior Loan Officer Opinion Survey on Bank Lending Practices (FRED series
-`DRTSCIS`) reports the NET percentage of domestic banks reporting tighter
-standards on commercial & industrial loans to small firms (firms with under
-$50 million in annual sales). It is quarterly, NOT seasonally adjusted, and is
+`DRTSCILM`) reports the NET percentage of domestic banks reporting tighter
+standards on commercial & industrial loans to large and middle-market firms
+(firms with annual sales of $50 million or more). It is quarterly, NOT seasonally adjusted, and is
 qualitative (a diffusion index of banker sentiment, not a hard activity
 measure). Positive readings mean net tightening; negative mean net easing. The
 survey is released a few weeks after each quarter's reference period.
@@ -192,7 +200,7 @@ found-in-search candidate label.
             "slug": "dotcom",
             "title": "Dot-Com Recession (2001)",
             "narrative": (
-                "Net-tightening toward small firms rose sharply ahead of the "
+                "Net C&I tightening toward large and middle-market firms rose sharply ahead of the "
                 "2001 downturn, an early credit-stress warning consistent with "
                 "the leading-indicator reading. The market weakened as credit "
                 "conditions deteriorated."
@@ -290,7 +298,7 @@ exam"* — expectations for a frozen-rule hold-out test should be calibrated low
 ### What this means for investors
 
 - **Read SLOOS as credit-cycle context, not a market-timing signal** — rising
-  small-firm tightening is a genuine credit-stress warning, but the tests do
+  C&I tightening (large & middle-market firms) is a genuine credit-stress warning, but the tests do
   not find it forecasting SPY.
 - **Do not read the winner as "tightening is bullish."** Its procyclical
   direction contradicts the prior and the concurrent evidence; it is most
@@ -331,7 +339,7 @@ CORRELATION_BLOCK = dict(
         "z-score) and forward SPY returns at 1-, 2-, and 4-quarter horizons."
     ),
     question=(
-        "Is there any raw statistical association between small-firm credit "
+        "Is there any raw statistical association between C&I credit "
         "tightening today and stock returns over the coming quarters?"
     ),
     how_to_read=(
@@ -551,8 +559,8 @@ QUANTILE_BLOCK = dict(
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: A Countercyclical Concurrent Signal With No Forecasting Lead",
     "overview": (
-        "*One question, attacked several independent ways: does small-firm "
-        "credit tightening carry information about FUTURE S&P 500 (SPY) "
+        "*One question, attacked several independent ways: does C&I "
+        "credit tightening (large & middle-market firms) carry information about FUTURE S&P 500 (SPY) "
         "returns? The tests converge on: not as a forecast. The concurrent "
         "relationship is countercyclical (most tightening → worst SPY), but "
         "SLOOS does not Granger-cause SPY at any tested quarterly lag "
@@ -572,7 +580,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "Sharpe as volatility avoidance, not forecasting skill."
     ),
     "plain_english": (
-        "This page asks whether small-firm credit tightening helps forecast "
+        "This page asks whether C&I credit tightening (large & middle-market firms) helps forecast "
         "the stock market. The answer is: not as a forecast. When we sort "
         "quarters by how much banks were tightening, the most-tightening "
         "quarters had the WORST concurrent equity performance — the "
@@ -680,7 +688,7 @@ class StrategyConfig:
         "The best rule from a 120-combination quarterly search: hold the S&P "
         "500 (SPY) when the SLOOS tightening level — viewed with a 3-QUARTER "
         "(~9-month) delay — is on the NET-TIGHTENING side of its zero threshold "
-        "(≥ 0), and hold CASH otherwise (i.e. it buys equities when small-firm "
+        "(≥ 0), and hold CASH otherwise (i.e. it buys equities when C&I "
         "credit was tightening three quarters earlier — the counter-intuitive, "
         "against-prior part). In the 32-quarter search window (2017-Q4 → "
         "2025-Q3) it scored a Sharpe of 1.51 versus 0.89 for buy-and-hold, "
@@ -770,7 +778,7 @@ class StrategyConfig:
     ]
 
     SIGNAL_RULE_MD = """
-**Rule:** Hold the S&P 500 (SPY) **when the 3-QUARTER-lagged SLOOS net-% tightening level (small firms) is on the NET-TIGHTENING side of its zero threshold — i.e. the lagged level is ≥ 0 (`gte 0.0`); otherwise hold CASH.** Counter-intuitively, the rule is long equities precisely when small-firm credit was TIGHTENING three quarters earlier. This is a **procyclical** orientation (in the search's sense of long-when-the-signal-is-high); because high SLOOS means tightening, it **contradicts the countercyclical credit-crunch prior** the pair was designed to test (`direction_consistent: false` in `interpretation_metadata.json`) — flagged, not smoothed over. (Family: P1 long/cash; signal `level`, threshold T0_zero (gte), lead L3 QUARTERS ≈ 9 months — per `winner_summary.json`; `direction: procyclical`.)
+**Rule:** Hold the S&P 500 (SPY) **when the 3-QUARTER-lagged SLOOS net-% tightening level (large & middle-market firms, DRTSCILM) is on the NET-TIGHTENING side of its zero threshold — i.e. the lagged level is ≥ 0 (`gte 0.0`); otherwise hold CASH.** Counter-intuitively, the rule is long equities precisely when C&I credit was TIGHTENING three quarters earlier. This is a **procyclical** orientation (in the search's sense of long-when-the-signal-is-high); because high SLOOS means tightening, it **contradicts the countercyclical credit-crunch prior** the pair was designed to test (`direction_consistent: false` in `interpretation_metadata.json`) — flagged, not smoothed over. (Family: P1 long/cash; signal `level`, threshold T0_zero (gte), lead L3 QUARTERS ≈ 9 months — per `winner_summary.json`; `direction: procyclical`.)
 
 If-then form (evaluated once per quarter):
 - **IF** the 3-quarter-old SLOOS tightening level is ≥ 0 (net-tightening side of the zero threshold) → **HOLD SPY (100% invested)**.
@@ -784,7 +792,7 @@ Search-phase results (2017-12-31 → 2025-09-30, 32 QUARTERS — **small sample,
     HOW_SIGNAL_IS_GENERATED_MD = """
 No formulas — three steps:
 
-**What changes in the world:** banks tighten or ease the credit standards they apply to small-firm business (C&I) loans. The Fed's quarterly SLOOS captures that as a NET percentage tightening (released a few weeks after each quarter's reference period).
+**What changes in the world:** banks tighten or ease the credit standards they apply to business (C&I) loans to large and middle-market firms. The Fed's quarterly SLOOS captures that as a NET percentage tightening (released a few weeks after each quarter's reference period).
 
 **What the signal measures:** each quarter, the rule takes the SLOOS net-% tightening LEVEL as it stood **three quarters (~9 months) ago** and asks which side of zero it sits on (net easing < 0 vs net tightening ≥ 0). The level is bounded and mean-reverting, so it is used directly (it is stationary — ADF p < 0.001).
 
@@ -799,8 +807,8 @@ No formulas — three steps:
         "no forecasting lead, Granger min p 0.23; median valid combo LOSES to "
         "buy-and-hold; direction contradicts the countercyclical prior). With "
         "that understood, the quarterly routine — no code required — is:\n\n"
-        "1. **Pull the credit series** — FRED series `DRTSCIS` (SLOOS net % of "
-        "banks tightening C&I standards to small firms; released a few weeks "
+        "1. **Pull the credit series** — FRED series `DRTSCILM` (SLOOS net % of "
+        "banks tightening C&I standards to large and middle-market firms; released a few weeks "
         "after each quarter).\n"
         "2. **Read the level** — the net-% tightening value itself (no "
         "transform; the level is stationary and used directly).\n"
@@ -909,7 +917,7 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = """
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator | FRED — Federal Reserve SLOOS | `DRTSCIS` (Net % of banks tightening C&I standards to SMALL firms, NSA) | **Quarterly** (1993-Q1 → 2025-Q3, ~131 quarters) |
+| Indicator | FRED — Federal Reserve SLOOS | `DRTSCILM` (Net % of banks tightening C&I standards to LARGE and MIDDLE-MARKET firms, NSA) | **Quarterly** (1993-Q1 → 2025-Q3, ~131 quarters) |
 | Target | Yahoo Finance | SPY (SPDR S&P 500 ETF, dividend-adjusted, quarter-end) | Quarterly (quarter-end) |
 
 QUARTERLY credit-survey pair. The series is native quarterly and NOT seasonally adjusted (a diffusion index of banker sentiment, not a hard activity measure). Because net-% is bounded and mean-reverting, the LEVEL is stationary (ADF p < 0.001; KPSS not rejected) and is used directly — no differencing required for the traded transform.
@@ -917,7 +925,7 @@ QUARTERLY credit-survey pair. The series is native quarterly and NOT seasonally 
 
 _INDICATOR_CONSTRUCTION_MD = (
     "The raw indicator is the SLOOS net percentage of banks tightening C&I "
-    "standards to small firms. Because the net-% level is bounded and "
+    "standards to large and middle-market firms (FRED DRTSCILM). Because the net-% level is bounded and "
     "mean-reverting it is stationary and used directly (the winning signal is "
     "`level`). The pipeline also constructs a 1-quarter change, a 4-quarter "
     "change, and a 20-quarter rolling z-score as alternative signal transforms "
@@ -946,7 +954,7 @@ Grid: 4 signal transforms (level, 1-quarter change, 4-quarter change, 20-quarter
 
 _REFERENCES_MD = """
 1. Board of Governors of the Federal Reserve System, *Senior Loan Officer Opinion Survey on Bank Lending Practices* (SLOOS) — methodology and net-percentage construction.
-2. Federal Reserve Economic Data (FRED), series `DRTSCIS`, Net Percentage of Domestic Banks Tightening Standards for C&I Loans to Small Firms.
+2. Federal Reserve Economic Data (FRED), series `DRTSCILM`, Net Percentage of Domestic Banks Tightening Standards for Commercial and Industrial Loans to Large and Middle-Market Firms.
 3. Yahoo Finance, SPY adjusted price history.
 4. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods." *Econometrica*, 37(3), 424–438.
 5. Lown, C. & Morgan, D. P. (2006). "The Credit Cycle and the Business Cycle: New Findings Using the Loan Officer Opinion Survey." *Journal of Money, Credit and Banking*, 38(6), 1575–1597.
@@ -984,7 +992,7 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     ),
     plain_english=(
         "One QUARTERLY credit-survey series (the Fed's SLOOS net-% of banks "
-        "tightening loan standards to small firms, from 1993) and the S&P 500 "
+        "tightening loan standards to large and middle-market firms, from 1993) and the S&P 500 "
         "ETF (SPY). Keep three things separate. First, the FULL dataset: every "
         "quarter from 1993 to 2025, which is what the lead-lag tests use. "
         "Second, the OUT-OF-SAMPLE window, 2017 to 2025 — just 32 quarters — "

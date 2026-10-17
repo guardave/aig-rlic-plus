@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Pair pipeline: SLOOS C&I Lending Standards — Net % Tightening (Small Firms) x SPY.
+"""Pair pipeline: SLOOS C&I Lending Standards — Net % Tightening (Large & Middle-Market Firms, FRED DRTSCILM) x SPY.
 
 QUARTERLY pipeline (Fed Senior Loan Officer Opinion Survey). The indicator is the NET
-PERCENT of domestic banks tightening C&I loan standards to SMALL firms — a bounded,
+PERCENT of domestic banks tightening C&I loan standards to LARGE and MIDDLE-MARKET firms
+(FRED DRTSCILM; verified against ALFRED vintages — NOT the small-firm series DRTSCIS,
+despite the "small" in the pair_id / column name, which is kept for stability) — a bounded,
 mean-reverting diffusion-style series (not a trending level), sourced from the project's
 Data Master.xlsx 'C&I Loan' sheet (LEAD-DV1: that column is the SLOOS tightening survey,
 NOT loan volumes — the C&I loan STOCK is FRED:BUSLOANS, a separate pair). Quarterly, NSA.
@@ -49,7 +51,7 @@ MIN_OOS_N = 20
 
 
 def read_sloos_master() -> pd.Series:
-    """SLOOS net-% tightening (small firms), quarterly, from Data Master."""
+    """SLOOS net-% tightening (large & middle-market firms, DRTSCILM), quarterly, from Data Master."""
     import openpyxl
     wb = openpyxl.load_workbook(MASTER_XLSX, read_only=True, data_only=True)
     ws = wb[MASTER_SHEET]
@@ -57,7 +59,7 @@ def read_sloos_master() -> pd.Series:
             if r and r[0] is not None and r[1] is not None and hasattr(r[0], "year")]
     s = pd.Series({pd.Timestamp(d): float(v) for d, v in rows}, name="sloos_ci_small").sort_index()
     s = s.resample("QE").last()
-    print(f"  [MASTER] SLOOS C&I small-firm tightening: {len(s.dropna())} q, "
+    print(f"  [MASTER] SLOOS C&I large/middle-market tightening (DRTSCILM): {len(s.dropna())} q, "
           f"{s.dropna().index.min().date()} to {s.dropna().index.max().date()}")
     return s
 
@@ -107,9 +109,9 @@ def source_data() -> pd.DataFrame:
     missing.to_markdown(DATA_DIR / f"missing_value_report_sloos_ci_small_spy_{DATE_TAG}.md")
 
     data_dict = pd.DataFrame([
-        {"Column Name": "sloos_ci_small", "Display Name": "SLOOS C&I Tightening — Small Firms",
-         "Description": "Net % of domestic banks tightening C&I loan standards to small firms",
-         "Source": "Data Master.xlsx (Fed SLOOS)", "Series ID": "DRTSCIS (SLOOS)", "Unit": "Net percent",
+        {"Column Name": "sloos_ci_small", "Display Name": "SLOOS C&I Tightening — Large & Middle-Market Firms",
+         "Description": "Net % of domestic banks tightening C&I loan standards to large and middle-market firms",
+         "Source": "Data Master.xlsx (Fed SLOOS)", "Series ID": "DRTSCILM (SLOOS)", "Unit": "Net percent",
          "Transformation": "Quarterly level (NSA)",
          "Direction Convention": "Higher = tighter credit / higher macro stress (bearish equities)",
          "Effective Start": str(df["sloos_ci_small"].first_valid_index().date()),
@@ -374,7 +376,7 @@ def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "bh_sharpe": round(bm["oos_sharpe"], 6), "bh_ann_return": round(bm["oos_ann_return"], 6), "bh_max_drawdown": round(bm["max_drawdown"], 6),
         "cost_assumption_bps": COST_BPS, "total_combos": int((tourn["signal"] != "BENCHMARK").sum()), "valid_combos": int(valid.shape[0]),
         "schema_version": "1.2.0",
-        "notes": f"SLOOS C&I small-firm net-% tightening is a QUARTERLY credit survey that historically leads equity "
+        "notes": f"SLOOS C&I net-% tightening for large and middle-market firms (DRTSCILM) is a QUARTERLY credit survey that historically leads equity "
                  f"weakness by 1-4 quarters. Net-% is bounded/mean-reverting. Winner ({wr['signal']}) is selected by "
                  f"in-sample Sharpe on the common IS window ({is_window['start']} to {is_window['end']}, {int(wr['is_n'])}q) "
                  f"and evaluated on the held-out OOS window ({int(len(oos))}q); still a search-selected rule.",
@@ -500,7 +502,7 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "last_updated_by": "ray", "last_updated_at": NOW_ISO, "indicator": "sloos_ci_small", "target": "spy",
         "expected_direction": "countercyclical", "observed_direction": winner["direction"],
         "direction_consistent": winner["direction"] == "countercyclical",
-        "mechanism": "When banks tighten C&I lending standards to small firms, credit-dependent activity slows and "
+        "mechanism": "When banks tighten C&I lending standards to large and middle-market firms (FRED DRTSCILM), credit-dependent activity slows and "
                      "recession/earnings risk rises; equity exposure should be reduced when net-tightening is high or rising. "
                      "SLOOS historically leads the cycle by ~1-4 quarters.",
         "confidence": "low",
@@ -509,20 +511,20 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "caveats": ["Quarterly survey with a small OOS window — winner is search-selected, needs holdout validation.",
                     "SLOOS is NSA and revised; the survey is qualitative (net-% of banks), not a hard activity measure.",
                     "Credit-tightening episodes are few, so the lead estimate rests on a handful of cycles."],
-        "narrative_summary": "SLOOS C&I small-firm tightening is tested as a leading credit-stress overlay for SPY — reduce "
+        "narrative_summary": "SLOOS C&I tightening for large and middle-market firms (DRTSCILM) is tested as a leading credit-stress overlay for SPY — reduce "
                              "exposure when banks tighten.",
         "known_stress_episodes": [
             {"label": "Dot-Com recession", "start": "2001-03-01", "end": "2001-11-30", "note": "Tightening rose ahead of the downturn."},
             {"label": "Global Financial Crisis", "start": "2007-12-01", "end": "2009-06-30", "note": "Net-tightening spiked to record highs."},
             {"label": "COVID shock", "start": "2020-02-01", "end": "2020-06-30", "note": "Banks tightened sharply in 2020-Q2."},
             {"label": "2022-23 tightening", "start": "2022-06-01", "end": "2023-12-31", "note": "Post-SVB credit tightening."}],
-        "data_provenance": {"source": "Data Master.xlsx (Fed SLOOS)", "series_id": "DRTSCIS", "accessed_at": NOW_ISO}}
+        "data_provenance": {"source": "Data Master.xlsx (Fed SLOOS)", "series_id": "DRTSCILM", "accessed_at": NOW_ISO}}
     (RES / "interpretation_metadata.json").write_text(json.dumps(interp, indent=2) + "\n")
     signal_scope = {
         "pair_id": PAIR_ID, "schema_version": "1.0.0", "owner": "evan", "last_updated_by": "evan", "last_updated_at": NOW_ISO,
-        "indicator_axis": {"canonical_column": "sloos_ci_small", "display_name": "SLOOS C&I Tightening — Small Firms",
+        "indicator_axis": {"canonical_column": "sloos_ci_small", "display_name": "SLOOS C&I Tightening — Large & Middle-Market Firms (DRTSCILM)",
             "derivatives": [{"name": c, "definition": d, "formula": f, "role": r, "appears_in_charts": ch} for c, d, f, r, ch in [
-                ("sloos_ci_small", "Net-% of banks tightening C&I standards to small firms", "Fed SLOOS (Data Master)", "raw", ["hero"]),
+                ("sloos_ci_small", "Net-% of banks tightening C&I standards to large and middle-market firms (FRED DRTSCILM)", "Fed SLOOS (Data Master)", "raw", ["hero"]),
                 ("sloos_level", "Tightening level (net %)", "identity", "threshold_input", ["hero", "regime_stats"]),
                 ("sloos_diff_1q", "Quarter-on-quarter change", "x_t - x_{t-1}", "derivative", []),
                 ("sloos_chg_4q", "4-quarter change", "x_t - x_{t-4}", "threshold_input", ["local_projections"]),
@@ -533,7 +535,7 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
                 {"name": "spy_fwd_1q", "definition": "1-quarter forward SPY return", "formula": "spy_{t+1}/spy_t-1", "role": "derivative", "appears_in_charts": ["correlation_heatmap"]},
                 {"name": "spy_fwd_2q", "definition": "2-quarter forward SPY return", "formula": "spy_{t+2}/spy_t-1", "role": "derivative", "appears_in_charts": ["local_projections", "quantile_coef"]},
                 {"name": "spy_fwd_4q", "definition": "4-quarter forward SPY return", "formula": "spy_{t+4}/spy_t-1", "role": "derivative", "appears_in_charts": ["correlation_heatmap"]}]},
-        "notes": "Scope limited to SLOOS C&I small-firm tightening signals and SPY returns."}
+        "notes": "Scope limited to SLOOS C&I tightening (large and middle-market firms, DRTSCILM) signals and SPY returns."}
     (RES / "signal_scope.json").write_text(json.dumps(signal_scope, indent=2) + "\n")
     (RES / "kpis.json").write_text(json.dumps({"pair_id": PAIR_ID, "winner_oos_sharpe": winner["oos_sharpe"],
         "benchmark_oos_sharpe": winner["bh_sharpe"], "oos_max_drawdown": winner["oos_max_drawdown"], "bh_max_drawdown": winner["bh_max_drawdown"]}, indent=2) + "\n")

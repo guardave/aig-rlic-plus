@@ -13,11 +13,13 @@ H1b supply-glut benign: inventory builds are supply-driven and carry no equity
 signal.
 H0 petroleum stocks do not predict SPY.
 
-Lag convention: the daily LVCF panel already carries only values public after
-release_date, with days_since_release 0-6. Monthly month-end values are treated
-as feasible at L0 because the release lag is documented and the month-end panel
-uses the public weekly observations available inside the month. The tournament
-still tests L0/L1/L2/L3/L6/L12 and states the convention in design_note.md.
+Lag convention (strict floor, standard Step 2 amended 2026-10-16): the monthly
+signal is the calendar-month MEAN of weekly stocks, and the last weekly print of
+month M (week ending the last Friday of M) is released the following Wednesday,
+0-5 days into M+1. The reading for M is therefore public only during M+1 and can
+first drive the return window that opens at the end of M+1: strict floor L2. The
+tournament grid is L2..L12 (L0/L1 truncated from the bottom, top not extended).
+The daily LVCF panel already carries only values public after release_date.
 """
 
 from __future__ import annotations
@@ -39,10 +41,10 @@ np.random.seed(42)
 
 PAIR_ID = "petrol_inv_spy"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20260711"  # GH#13 full-grid re-run; new date per ECON-T5 §4 (tournament CSV immutability). Prior coarse-grid run: 20260617.
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun: grid truncated from the bottom to L2 (was L0..L12, run 20260711); top not extended.
 COST_BPS = 5
 
-ROOT = Path("/workspaces/aig-rlic-plus")
+ROOT = Path(__file__).resolve().parents[1]  # repo root (was hardcoded /workspaces/aig-rlic-plus)
 MONTHLY_PATH = ROOT / "data/petrol_inv_spy_monthly_latest.parquet"
 DAILY_PATH = ROOT / "data/petrol_inv_spy_daily_latest.parquet"
 RESULTS = ROOT / "results" / PAIR_ID
@@ -445,14 +447,14 @@ def tournament(df: pd.DataFrame):
         "oos_start": str(oos_start.date()),
         "oos_end": str(oos_end.date()),
         "sample_size_months": n,
-        "justification": f"Policy v1_max36_25pct_cap120 on SPY-bound monthly sample ({n} months). min(max(36, round({n}*0.25)), 120) = {oos_n} months. Month-end L0 is allowed because the petroleum LVCF release lag is documented; daily panel confirms days_since_release 0-6.",
+        "justification": f"Policy v1_max36_25pct_cap120 on SPY-bound monthly sample ({n} months). min(max(36, round({n}*0.25)), 120) = {oos_n} months. Traded leads start at the strict floor L2 (the month's last weekly print is released 0-5 days into M+1).",
     }
     write_json(RESULTS / "oos_split_record.json", split)
 
     is_mask = work.index <= is_end
     oos_mask = work.index >= oos_start
     lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
-    leads = list(range(0, 13))  # FULL monthly grid L0..L12 (GH#13 lead-coherence rollout); L0 = coincident (release-lag convention)
+    leads = list(range(2, 13))  # strict floor E2 (last weekly print of M released 0-5 d into M+1): L0/L1 truncated, top not extended (pkg9, protocol D2)
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
     rows = []
     for code, col in SIGNALS.items():
@@ -535,7 +537,7 @@ def tournament(df: pd.DataFrame):
             "valid_strategy_rows": valid_count,
             "sampling": "exhaustive",
             "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
-            "execution_lag": "monthly L0 permitted by release-lag convention; L1/L2/L3/L6/L12 also tested",
+            "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 2 (strict floor: the last weekly print of M is released 0-5 days into M+1)",
             "cost_note": "gross returns; 5 bps sensitivity in validation folder",
             "assertions": ["exactly one BENCHMARK row", "BENCHMARK valid=False", "all valid counts exclude benchmark"],
             "generated_at": NOW,
@@ -762,7 +764,7 @@ def write_final_artifacts(df, daily, tdf, split, winner, resolved, tie_pool, can
         "strategy_description": f"Long SPY when lagged petroleum inventory signal is {'below' if threshold_rule == 'lt' else 'above'} threshold; otherwise {'cash' if family == 'P1_long_cash' else 'scaled exposure' if family == 'P2_signal_strength' else 'short SPY'}.",
         "lead_value": int(winner["lead_months"]),
         "lead_unit": "months",
-        "lead_description": "L0 monthly is feasible under Dana's release-lag convention; daily LVCF uses only public carried-forward values.",
+        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L2 is the strict floor because the month's last weekly EIA print is released 0-5 days into the following month.",
         "lookback": winner["lookback"],
         "direction": direction,
         "oos_sharpe": round(float(winner["oos_sharpe"]), 4),
@@ -934,7 +936,7 @@ WTTSTUS1 is an EIA petroleum-stocks series sourced from project `data/Data Maste
 Dana's stationarity artifact `results/petrol_inv_spy/stationarity_tests_20260617.csv` was reviewed and confirmed, not re-run. Levels are nonstationary; the tournament and models use stationary transforms only. Indicator type is macro / cross-asset, so this run includes correlation battery with distance correlation, pre-whitened CCF, Toda-Yamamoto Granger both directions, local projections, quantile regression, HMM regime detection, quartile returns, structural break, and validation sensitivity.
 
 ## Lag convention
-Daily LVCF may use L0 because carried values are already public after release. Monthly L0 is treated as feasible because the month-end panel is built from documented public weekly releases; L1/L2/L3/L6/L12 are also tested. This convention is explicit to avoid lookahead ambiguity.
+Daily LVCF may use L0 because carried values are already public after release. The monthly signal is the calendar-month mean of weekly stocks; the last weekly print of month M is released 0-5 days into M+1, so the monthly tournament starts at the strict floor L2 (grid L2..L12; standard Step 2 amended 2026-10-16).
 
 ## Lead-lag verdict
 Indicator -> SPY Granger significant lags: {fwd_lags or 'none'}. SPY -> indicator Granger significant lags: {rev_lags or 'none'}. Reverse direction is therefore reported directly for Ray rather than suppressed.

@@ -12,10 +12,10 @@
   "narrative_alignment_note": "Strategy series from strategy_returns; metrics from winner_summary; fragility in title.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/housing_starts_rebuilt_spy/strategy_returns_20261008.csv",
+    "results/housing_starts_rebuilt_spy/strategy_returns_20261016.csv",
     "results/housing_starts_rebuilt_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T14:39:07.519929+00:00",
+  "generated_at": "2026-10-16T18:42:45.355969+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_housing_starts_rebuilt_spy.py (Mode 2, housing_starts_rebuilt_spy)"
 }

@@ -1,6 +1,6 @@
 {
   "pair_id": "eci_total_comp_spy",
-  "generated_at": "2026-10-08T23:47:09Z",
+  "generated_at": "2026-10-16T18:33:11Z",
   "signal_column": "hmm_2state_prob_stress",
   "signal_code": "hmm_stress",
   "signal_display_name": "ECI Total Compensation hmm_stress",
@@ -15,7 +15,7 @@
   "strategy_description": "Long SPY when the lagged ECI wage signal is above its threshold; otherwise cash. (Countercyclical orientation: low/decelerating wage inflation = risk-on.) Rebalanced QUARTERLY (first quarterly pair).",
   "lead_value": 4,
   "lead_unit": "quarters",
-  "lead_description": "Signal lead = 4 QUARTER(S) (~12 months); L1 is the real-time floor (BLS releases quarter Q's ECI ~1 month after quarter end)",
+  "lead_description": "Signal lead = 4 QUARTER(S) (~12 months); L2 is the strict floor (BLS releases quarter Q's ECI ~1 month after quarter end, during Q+1)",
   "lookback": "LB12",
   "direction": "countercyclical",
   "oos_sharpe": 1.4089,
@@ -34,15 +34,14 @@
   "bh_ann_return": 0.145,
   "bh_max_drawdown": -0.2393,
   "cost_assumption_bps": 5,
-  "total_combos": 1460,
-  "valid_combos": 808,
+  "total_combos": 1168,
+  "valid_combos": 648,
   "schema_version": "1.1.0",
   "selection": {
     "objective": "max_oos_sharpe",
     "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(4) \u2014 QUARTERLY annualization \u2014 maximised over the full valid strategy population (SA source: no seasonal-cleanliness restriction; ECON-T4 benchmark excluded); ties resolved by the ECON-T3 cascade",
     "grid_scanned": {
       "leads": [
-        1,
         2,
         3,
         4,
@@ -51,8 +50,8 @@
       "n_signals": 10,
       "n_thresholds": 8,
       "n_strategies": 4,
-      "n_valid_combos": 808,
-      "median_valid_objective": 0.6787
+      "n_valid_combos": 648,
+      "median_valid_objective": 0.6909
     },
     "tie_break_step": 0,
     "raw_winner_row": {
@@ -61,8 +60,8 @@
       "strategy": "P1_long_cash_counter",
       "lead_column": "lead_quarters",
       "lead_value": 4,
-      "source_tournament_file": "tournament_results_20261008.csv",
-      "source_row_index": 1277,
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 1013,
       "display_alias": "signal_code=hmm_stress (raw signal=hmm_stress); strategy_family=P1_long_cash (raw strategy=P1_long_cash_counter)"
     },
     "runner_up": {
@@ -72,8 +71,8 @@
       "lead_value": 5,
       "objective_value": 1.3627
     },
-    "rationale": "Maximiser of OOS Sharpe over the full tradable QUARTERLY lead grid L1..L8 (808 valid combos; median valid OOS Sharpe 0.6787). FIRST QUARTERLY PAIR: leads in quarters (L1=~3M pub-lag floor, L8=2yr), Sharpe annualized by sqrt(4). ECON-LT1 gate: full grid scanned natively -> no staleness possible. SMALL-SAMPLE CAVEAT (STRONG): OOS = 25 QUARTERS only -> the winner is found-in-search / CANDIDATE, never a validated edge; the caveat is stronger than any monthly pair to date.",
+    "rationale": "Maximiser of OOS Sharpe over the full tradable QUARTERLY lead grid L2..L5 (648 valid combos; median valid OOS Sharpe 0.6909). FIRST QUARTERLY PAIR: leads in quarters (L2 = strict pub-lag floor, L5 = 15 months), Sharpe annualized by sqrt(4). ECON-LT1 gate: full grid scanned natively -> no staleness possible. SMALL-SAMPLE CAVEAT (STRONG): OOS = 25 QUARTERS only -> the winner is found-in-search / CANDIDATE, never a validated edge; the caveat is stronger than any monthly pair to date.",
     "objective_runner_up_divergence": null
   },
-  "notes": "Mode 1, feat260705_eci_spy \u2014 FIRST QUARTERLY PAIR (annualization sqrt(4); leads/lookbacks/oos_n in QUARTERS). Tournament: 1460 strategy combos (+1 benchmark, valid=False per ECON-T4), 808 valid, sparse grid over full tradable lead grid L1..L8 quarters. Winner by ECON-T3 cascade (resolved at step 1; 1 tied at step 1). SMALL-SAMPLE / FOUND-IN-SEARCH (STRONG): OOS window is 25 QUARTERS -> the winner is a CANDIDATE, not a validated edge; OOS Sharpe is high-variance. Winner stationarity class: borderline_persistent. Lead-lag verdict (empirical): ECI->SPY TY-Granger sig lags(q) NONE, SPY->ECI sig lags(q) [1, 2, 3, 4]; pre-whitened CCF sig lead(+) lags NONE, lag(-) lags NONE -> classified 'lagging'. Winner's own lead-curve peaks at L4q (published L4q). Robustness: winner bootstrap p=0.184 (vs resampled B&H); IS Sharpe 0.50 vs OOS 1.41; CP1 durability 'conditionally_durable'; corr sign-stability 'moderately_stable'. Gross of costs; sensitivity in tournament_validation_20261008/."
+  "notes": "Mode 1, feat260705_eci_spy \u2014 FIRST QUARTERLY PAIR (annualization sqrt(4); leads/lookbacks/oos_n in QUARTERS). Tournament: 1168 strategy combos (+1 benchmark, valid=False per ECON-T4), 648 valid, sparse grid over full tradable lead grid L2..L5 quarters. Winner by ECON-T3 cascade (resolved at step 1; 1 tied at step 1). SMALL-SAMPLE / FOUND-IN-SEARCH (STRONG): OOS window is 25 QUARTERS -> the winner is a CANDIDATE, not a validated edge; OOS Sharpe is high-variance. Winner stationarity class: borderline_persistent. Lead-lag verdict (empirical): ECI->SPY TY-Granger sig lags(q) NONE, SPY->ECI sig lags(q) [1, 2, 3, 4]; pre-whitened CCF sig lead(+) lags NONE, lag(-) lags NONE -> classified 'lagging'. Winner's own lead-curve peaks at L4q (published L4q). Robustness: winner bootstrap p=0.184 (vs resampled B&H); IS Sharpe 0.50 vs OOS 1.41; CP1 durability 'conditionally_durable'; corr sign-stability 'moderately_stable'. Gross of costs; sensitivity in tournament_validation_20261016/."
 }

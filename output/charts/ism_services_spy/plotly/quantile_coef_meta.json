@@ -11,9 +11,9 @@
   "narrative_alignment_note": "Coef-by-tau with CI band per ECON-H4.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/ism_services_spy/core_models_20261008/quantile_regression.csv"
+    "results/ism_services_spy/core_models_20261016/quantile_regression.csv"
   ],
   "reconciliation": null,
-  "generated_at": "2026-10-09T09:28:19.884895+00:00",
+  "generated_at": "2026-10-16T18:43:14.064740+00:00",
   "generated_by": "Viz Vera \u2014 scripts/generate_charts_ism_services_spy.py (mode3_ism_services_spy)"
 }

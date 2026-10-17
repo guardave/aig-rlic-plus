@@ -1,6 +1,6 @@
 {
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-15T18:01:18.689028+00:00",
+  "generated_at": "2026-10-16T18:28:54.349386+00:00",
   "signal_column": "ccdelinq_level",
   "signal_code": "level",
   "signal_display_name": "Credit-card delinquency rate (level)",
@@ -34,10 +34,10 @@
   "bh_ann_return": 0.142733,
   "bh_max_drawdown": -0.239272,
   "cost_assumption_bps": 5,
-  "total_combos": 120,
-  "valid_combos": 110,
+  "total_combos": 96,
+  "valid_combos": 88,
   "schema_version": "1.2.0",
-  "notes": "Credit-card delinquency is a QUARTERLY, lagging credit-stress measure; the raw level is NOT stationary on this sample (ADF/KPSS, see stationarity_tests_20261015.csv). Winner (level) is selected by in-sample Sharpe on the common IS window (1999-12-31 to 2017-06-30, 71q) and evaluated on the held-out OOS window (32q, few credit cycles); still a search-selected rule.",
+  "notes": "Credit-card delinquency is a QUARTERLY, lagging credit-stress measure; the raw level is NOT stationary on this sample (ADF/KPSS, see stationarity_tests_20261016.csv). Winner (level) is selected by in-sample Sharpe on the common IS window (1999-12-31 to 2017-06-30, 71q) and evaluated on the held-out OOS window (32q, few credit cycles); still a search-selected rule.",
   "is_sharpe": 0.89636,
   "is_n": 71,
   "is_period_start": "1999-12-31",
@@ -56,7 +56,6 @@
     },
     "grid_scanned": {
       "leads": [
-        1,
         2,
         3,
         4,
@@ -65,7 +64,7 @@
       "n_signals": 4,
       "n_thresholds": 12,
       "n_strategies": 1,
-      "n_valid_combos": 110,
+      "n_valid_combos": 88,
       "median_valid_objective": 0.280125
     },
     "tie_break_step": null,
@@ -75,8 +74,8 @@
       "strategy": "P1_long_cash",
       "lead_column": "lead_quarters",
       "lead_value": 2,
-      "source_tournament_file": "tournament_results_20261015.csv",
-      "source_row_index": 21
+      "source_tournament_file": "tournament_results_20261016.csv",
+      "source_row_index": 16
     },
     "runner_up": {
       "signal": "zscore_20q",
@@ -93,7 +92,7 @@
       "direction": "procyclical",
       "lead_value": 4,
       "oos_sharpe": 1.367344,
-      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261015.csv"
+      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261016.csv"
     },
     "sensitivity_own_is_start_row": {
       "signal": "level",

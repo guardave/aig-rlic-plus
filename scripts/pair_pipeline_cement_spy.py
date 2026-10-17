@@ -24,7 +24,7 @@ from statsmodels.tsa.stattools import adfuller, grangercausalitytests, kpss
 
 
 PAIR_ID = "cement_spy"
-DATE_TAG = "20261015"  # GH #251/#268 IS-selected winner (common IS start) on #255 L2-floor grid
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (grid truncated from the bottom); IS-selected winner (GH #251/#268, common IS start)
 PPY = 12  # monthly periods per year (annualisation + turnover)
 MIN_IS_N = 60  # IS-valid min obs (monthly)
 MIN_OOS_N = 60  # OOS-valid min obs (legacy/info only; unchanged from pre-port)
@@ -261,7 +261,7 @@ def make_position(signal: pd.Series, threshold: pd.Series | float, direction: st
 
 def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     oos_start = pd.Timestamp("2017-01-31")
-    leads = list(range(2, 15))  # #255 floor L2 (USGS cement ~6-8wk, late M+1/M+2); anchored 0..12 shifted +2 => 2..14 (no L0/L1 lookahead)
+    leads = list(range(5, 15))  # strict floor E5 (USGS cement survey 55-165 d after month-end): sub-floor L2-L4 truncated, top not extended (pkg9, protocol D2)
     # GH #251/#268 + common IS start (Lead decision 2026-10-15):
     #   pass 1 builds every candidate's return stream; common_is_start = the LATEST
     #   first-valid-return date across the grid (rolling-threshold warm-ups and lead

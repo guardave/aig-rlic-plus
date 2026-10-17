@@ -10,7 +10,7 @@ Single source of truth: every row is read from the **Lead-Axis Registry**
 (`docs/schemas/lead_axis_registry.json`), the per-pair record mandated by the
 Lead-Grid Frequency Standard (`docs/lead-grid-frequency-standard.md`). The
 registry holds each pair's data source, publication lag, derived real-time floor
-(Step 2, amended 2026-10-06), the floor-shifted lead grid, and whether its live
+(Step 2, strict rule amended 2026-10-16), the floored lead grid, and whether its live
 winner has been re-selected under that floored grid (``conformed``). The live
 winner lead is read from ``results/<pair>/winner_summary.json`` so the status
 stays correct after any re-run. Nothing about timing is hard-coded here.
@@ -63,17 +63,18 @@ def render_data_timing(key_prefix: str = "timing") -> None:
         "**How we prevent it.** Every signal is held back by a waiting period "
         "(we call it the **lead**) that is *at least* as long as the real "
         "publication delay — the **floor**. The floor is derived per source from "
-        "its actual release calendar, and it **shifts the whole search window** "
-        "rather than cutting the short end, so every pair still tests the same "
-        "set of economic horizons (see the Lead-Grid Frequency Standard)."
+        "its actual release dates: a reading may only drive a position whose "
+        "return window starts **after** the reading is public. Leads below the "
+        "floor are never traded (see the Lead-Grid Frequency Standard)."
     )
     with st.expander("A one-line example"):
         st.markdown(
             "The ISM factory survey for **March** comes out on the **1st business "
-            "day of April**. So at the end of March you do *not* have it yet — "
-            "the earliest you can act on March's reading is April. A rule that "
-            "traded on March's survey *within March* would be cheating; the floor "
-            "pushes the whole window out by one month so it reflects reality."
+            "day of April**. So at the end of March you do *not* have it yet, and "
+            "a position set at the end of March would earn April's return on a "
+            "number nobody had. The first month-end at which March's reading is in "
+            "hand is the end of April, so it can first drive **May's** return — "
+            "a lead of 2 months, which is ISM's floor."
         )
 
     reg = _load_registry()
@@ -114,7 +115,7 @@ def render_data_timing(key_prefix: str = "timing") -> None:
         f"**Only {n_safe} pair(s) are confirmed.** Another **{n_pending}** "
         "currently *look* fine (their rule already waits past the floor), but "
         "their search has **not yet been re-run with the floor enforced and the "
-        "window shifted** — so the winning rule could still change once it is. A "
+        "sub-floor leads removed** — so the winning rule could still change once it is. A "
         f"further **{n_fix}** use a signal **sooner than the data is published** "
         "(look-ahead) and are being corrected now. A rule is only truly safe once "
         "the search itself was never allowed to peek — re-confirming the 🟡 group "
@@ -127,7 +128,7 @@ def render_data_timing(key_prefix: str = "timing") -> None:
         "derived per source from its release calendar and recorded in the "
         "Lead-Axis Registry. Lead = the delay the live winning rule uses (from "
         "winner_summary.json). Status reflects whether the winner has been "
-        "re-selected under the floor-shifted grid."
+        "re-selected under the floored grid."
     )
 
     if buckets["fix"]:
@@ -140,7 +141,7 @@ def render_data_timing(key_prefix: str = "timing") -> None:
         st.markdown(
             f"#### 🟡 To be re-confirmed ({n_pending})  \n"
             "*Current rule clears the floor, but the search must be re-run with the "
-            "floor enforced and the window shifted to confirm the winner holds.*"
+            "floor enforced to confirm the winner holds.*"
         )
         st.table(buckets["pending"])
     if buckets["safe"]:

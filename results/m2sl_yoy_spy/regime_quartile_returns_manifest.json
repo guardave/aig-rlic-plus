@@ -2,7 +2,7 @@
   "file": "regime_quartile_returns.csv",
   "pair_id": "m2sl_yoy_spy",
   "produced_by": "scripts/pair_pipeline_m2sl_yoy_spy.py",
-  "generated_at": "2026-10-09T09:19:14Z",
+  "generated_at": "2026-10-16T18:36:24Z",
   "columns": {
     "quartile": "M2SL YoY growth quartile (Q1 lowest growth)",
     "n_months": "obs",

@@ -31,10 +31,10 @@ Dana (results/busloans_spy/stationarity_tests_20260612.csv) — reviewed and
 confirmed here, NOT re-run (SOP: confirm, don't duplicate).
 
 Lag convention (binding, per Dana's handoff): BUSLOANS monthly aggregate is
-available ~2-3 weeks after month-end -> L1 is the real-time floor. Tournament
-lead grid starts at L1. Lead semantics: position at month t is a function of
+available ~2-3 weeks after month-end (ALFRED median 12 d) -> strict floor L2 (standard Step 2,
+amended 2026-10-16: the return window must open after release). Tournament lead grid starts at L2. Lead semantics: position at month t is a function of
 the signal observed at month t-L; strategy_return_t = position_t * spy_ret_t.
-With L>=1 there is no lookahead (the L1 case assumes execution at the END of
+With L>=2 there is no lookahead (the L2 case assumes execution at the END of
 the month in which the prior month's value was published — feasible).
 
 Author: Econ Evan (Econometrics Agent)
@@ -63,10 +63,10 @@ PAIR_ID = "busloans_spy"
 INDICATOR_NAME = "C&I Loans (BUSLOANS)"
 TARGET_NAME = "SPY"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20261008"  # GH#13 re-run at full L1..L12 grid; new date per ECON-T5 §4 (tournament CSV immutability). Prior coarse-grid run: 20260612.
+DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (2026-10-16): grid truncated from the bottom to the strict floor, top not extended; prior run 20261008 (L1..L13).
 COST_BPS = 5  # equity ETF per ECON-T2 / target-class table
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root (was hardcoded /workspaces/aig-rlic-plus; pkg9 runs from a worktree)
 DATA_PATH = os.path.join(BASE_DIR, "data", "busloans_spy_monthly_19470131_20260531.parquet")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
@@ -612,7 +612,7 @@ def stage_tournament(df):
     oos_mask = work.index >= oos_start
     spy_ret = work["spy_ret"]
 
-    leads = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
+    leads = list(range(2, 14))  # strict floor E2 (H.8 ~12 d after month-end): sub-floor L1 truncated, top not extended (pkg9, protocol D2)
     lookbacks = {"LB36": 36, "LB60": 60, "LB120": 120}
     strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
 
@@ -733,7 +733,7 @@ def stage_tournament(df):
         "total_strategy_rows": len(strat_pop), "valid_strategy_rows": n_valid,
         "sampling": "exhaustive (no stratified sampling; grid within budget)",
         "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
-        "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 (L1 real-time floor per Dana lag doc)",
+        "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 2 (strict floor L2: H.8 released ~12 d after month-end, so the reading can first drive the window opening at end of M+1)",
         "cost_note": "returns are gross of costs; 5bps sensitivity in tournament_validation",
         "assertions": [
             "top strategy oos_sharpe > bottom strategy oos_sharpe",
@@ -1135,7 +1135,7 @@ def main():
         "strategy_description": "",  # filled below
         "lead_value": int(winner["lead_months"]),
         "lead_unit": "months",
-        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L1 is the real-time floor given the ~2-3 week H.8 publication lag",
+        "lead_description": f"Signal lead = {int(winner['lead_months'])} month(s); L2 is the strict floor given the ~12-day H.8 publication lag (the reading is public only during M+1)",
         "lookback": winner["lookback"],
         "direction": direction,
         "oos_sharpe": round(float(winner["oos_sharpe"]), 4),
@@ -1388,7 +1388,7 @@ See handoff for the full verdict.
 
 ## Tournament conventions
 - Units in tournament_results CSV are RATIOS (decimal), not percent — documented in the CSV manifest.
-- Lead grid starts at L1 (real-time floor per Dana's H.8 publication-lag doc). Lead semantics:
+- Lead grid starts at L2 (strict floor: H.8 publishes ~12 d after month-end; standard Step 2 amended 2026-10-16). Lead semantics:
   position_t = rule(signal_(t−L)); strategy_return_t = position_t × spy_ret_t.
 - Both orientations (pro/counter) tested per the mixed direction prior.
 - CP2 skipped — `regime_story: false` in signal_scope.json.

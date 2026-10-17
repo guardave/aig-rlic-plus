@@ -1,0 +1,51 @@
+{
+  "rule": "S6_hmm_stress / P2 (trailing-504d min-max sizing) / countercyclical, strat_ret = pos.shift(1) * spy_ret",
+  "oos_window": [
+    "2019-10-01",
+    "2026-04-22"
+  ],
+  "rows": [
+    {
+      "probabilities": "smoothed_fullsample",
+      "lead_days": 0,
+      "effective_lag_days": 1,
+      "oos_sharpe": 1.4083,
+      "oos_ann_return": 0.117208,
+      "oos_max_drawdown": -0.084985,
+      "hac_t": 3.798,
+      "hac_maxlags": 8
+    },
+    {
+      "probabilities": "smoothed_fullsample",
+      "lead_days": 1,
+      "effective_lag_days": 2,
+      "oos_sharpe": 1.1169,
+      "oos_ann_return": 0.096139,
+      "oos_max_drawdown": -0.088752,
+      "hac_t": 2.92,
+      "hac_maxlags": 8
+    },
+    {
+      "probabilities": "causal_filtered",
+      "lead_days": 0,
+      "effective_lag_days": 1,
+      "oos_sharpe": 0.5552,
+      "oos_ann_return": 0.042219,
+      "oos_max_drawdown": -0.121487,
+      "hac_t": 1.443,
+      "hac_maxlags": 8
+    },
+    {
+      "probabilities": "causal_filtered",
+      "lead_days": 1,
+      "effective_lag_days": 2,
+      "oos_sharpe": 0.4539,
+      "oos_ann_return": 0.03583,
+      "oos_max_drawdown": -0.160038,
+      "hac_t": 1.177,
+      "hac_maxlags": 8
+    }
+  ],
+  "corr_smoothed_minus_filtered_vs_next_day_spy_ret_oos": -0.087,
+  "bh_oos_sharpe": 0.8129
+}
