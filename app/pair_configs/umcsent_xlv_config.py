@@ -86,7 +86,7 @@ SIGNAL_TEXT = P.definitions({
 
 
 def _sig(prefix: str = "") -> str:
-    return SIGNAL_TEXT.get(W.value(prefix + "signal_code"), getattr(W, prefix + "signal_code"))
+    return SIGNAL_TEXT.get(W.value(prefix + "signal_code"), W.text(prefix + "signal_code"))
 
 
 def _low(text: str) -> str:
@@ -95,7 +95,7 @@ def _low(text: str) -> str:
 
 def _rule(prefix: str = "") -> str:
     """Plain-English rule of a track's winner, from its structured fields."""
-    g = lambda n: getattr(W, prefix + n)  # noqa: E731
+    g = lambda n: W.text(prefix + n)  # noqa: E731
     fam = str(W.value(prefix + "strategy_family") or "")[:2]
     sig = f"the {_sig(prefix)} from {g('lead_word')} months earlier"
     thr = THRESHOLD_TEXT.get(g("threshold_code"), g("threshold_code"))
