@@ -1,0 +1,30 @@
+,block,freq,transform,track_available,first_revised_asof,first_realtime,release_lag_median_d,release_lag_p90_d,release_dates_measured_from,n_fallback_rows
+indpro,activity,M,yoy,realtime+revised,1985-02-28,1985-01-31,16.0,17.0,1985-01-01,0.0
+unrate,labour,M,d12,realtime+revised,1985-02-28,1985-01-31,5.0,8.0,1985-01-01,0.0
+rsxfs,consumer,M,yoy,realtime+revised,1993-02-26,2001-06-29,14.0,16.69999999999999,2001-06-01,113.0
+umcsent,sentiment,M,lvl,realtime+revised,1985-02-28,1998-07-31,-3.0,1.0,1998-08-01,163.0
+houst,housing,M,yoy,realtime+revised,1985-02-28,1985-01-31,18.0,20.0,1985-01-01,0.0
+permit,housing,M,yoy,realtime+revised,1985-02-28,1999-08-31,18.0,20.0,1999-08-01,0.0
+nhs,housing,M,yoy,realtime+revised,1985-03-29,1999-07-30,25.0,29.0,1999-07-01,174.0
+m2,money_credit,M,yoy,realtime+revised,1985-02-28,1985-01-31,14.0,23.0,1985-01-01,0.0
+busloans,money_credit,M,yoy,realtime+revised,1985-02-28,1996-12-31,12.0,15.0,1996-12-01,143.0
+neworder,activity,M,yoy,realtime+revised,1993-04-30,1997-03-31,26.0,28.0,1997-02-01,60.0
+amtmno,activity,M,yoy,realtime+revised,1993-04-30,2011-06-30,34.0,37.0,2011-05-01,231.0
+import_px,prices,M,yoy,realtime+revised,1985-10-31,2010-03-31,14.0,16.0,2010-03-01,302.0
+cass,activity,M,yoy,realtime+revised,2017-02-28,2013-06-28,14.0,19.099999999999994,2013-06-01,281.0
+inv_sales,consumer,M,d12,realtime+revised,1993-03-31,2013-06-28,45.0,47.0,2013-05-01,57.0
+cc_delinq,money_credit,Q,d12,realtime+revised,1992-06-30,2011-05-31,50.0,54.0,2011-04-01,105.0
+sloos,money_credit,Q,lvl,realtime+revised,1990-05-31,2010-04-30,-56.0,-52.4,2010-07-01,81.0
+eci,prices,Q,yoy,revised,2002-04-30,,30.0,31.0,2013-07-01,0.0
+ism_mfg,activity,M,lvl,revised (no archive),1985-02-28,,1.0,3.0,,0.0
+ism_svc,activity,M,lvl,revised (no archive),1997-08-29,,5.0,6.0,,0.0
+nahb,housing,M,lvl,revised (no archive),1985-01-31,,-11.0,-9.0,,0.0
+umich_exp,sentiment,M,lvl,revised (no archive),1985-02-28,,-3.0,1.0,1998-08-01,163.0
+cement,housing,M,yoy,revised (no archive),2007-04-30,,72.0,122.39999999999999,2021-09-01,284.0
+crude_inv,energy,W,yoy,revised (no archive),1991-01-31,,2.0,5.0,,0.0
+t10y3m,rates,D,lvl,market (unrevised),2000-01-31,,,,,
+hy_oas,credit_mkt,D,lvl,market (unrevised),2000-01-31,,,,,
+hy_ig,credit_mkt,D,lvl,market (unrevised),2000-01-31,,,,,
+vix_ratio,vol,D,lvl,market (unrevised),2007-01-31,,,,,
+gold_copper,commodity,D,yoy,market (unrevised),2001-08-31,,,,,
+sox_spy,equity_internal,M,yoy,market (unrevised),1995-05-31,,,,,

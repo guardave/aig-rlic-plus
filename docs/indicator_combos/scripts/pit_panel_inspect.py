@@ -1,0 +1,291 @@
+"""Phase 1 descriptive inspection for the indicator-combination study (DRAFTING ONLY: no returns, no backtests).
+
+Builds a month-end panel of indicator readings AS KNOWN AT THE CLOSE of the last trading day of each month, then
+reports sample overlaps, release lags, correlations and an effective-dimensionality estimate.
+
+Two tracks (same transforms):
+  revised  : latest revised values, but a reading only enters once its first-release date has passed
+             (data/release_calendar/release_calendar.csv available_date). Long sample; carries revision lookahead.
+  realtime : the ALFRED vintage visible at the close of t (scripts/_pit_align.vintage_asof); the transform is
+             recomputed inside that vintage. Only for the 19 series with vintage files, from their first vintage.
+Market series (T10Y3M, HY/IG OAS, VIX/VIX3M, gold/copper, SOX/SPY) are unrevised; they are sampled at t
+(HY/IG OAS at t-1 business day, FRED posts next day). No-archive sources (ISM, NAHB, UMich expectations, USGS
+cement, EIA crude stocks) exist only on the revised track (snapshot 20261016T232733Z).
+
+No asset returns are read. Seed fixed for the parallel-analysis draws.
+
+Run from the repo root:  python docs/indicator_combos/scripts/pit_panel_inspect.py
+Outputs: docs/indicator_combos/data/*.csv|json
+"""
+from __future__ import annotations
+
+import json
+import os
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+REPO = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO / "scripts"))
+from _pit_align import TRADING_DAY, load_vintages, vintage_asof  # noqa: E402
+
+OUT = REPO / "docs" / "indicator_combos" / "data"
+CAL = pd.read_csv(REPO / "data/release_calendar/release_calendar.csv", parse_dates=["period_end", "available_date"])
+SNAP = REPO / "data/release_calendar/snapshots/20261016T232733Z"
+SEED = 20261017
+END = pd.Timestamp("2026-09-30")
+
+# indicator -> (source, series id, freq, transform, calendar id, economic block)
+#   transform: yoy = 12m (4q) % change; d12 = 12m (4q) difference; lvl = level
+SPEC = {
+    "indpro":     ("alfred", "INDPRO", "M", "yoy", "INDPRO", "activity"),
+    "unrate":     ("alfred", "UNRATE", "M", "d12", "UNRATE", "labour"),
+    "rsxfs":      ("alfred", "RSXFS", "M", "yoy", "RSXFS", "consumer"),
+    "umcsent":    ("alfred", "UMCSENT", "M", "lvl", "UMCSENT", "sentiment"),
+    "houst":      ("alfred", "HOUST", "M", "yoy", "HOUST", "housing"),
+    "permit":     ("alfred", "PERMIT", "M", "yoy", "PERMIT", "housing"),
+    "nhs":        ("alfred", "HSN1F", "M", "yoy", "HSN1F", "housing"),
+    "m2":         ("alfred", "M2SL", "M", "yoy", "M2SL", "money_credit"),
+    "busloans":   ("alfred", "BUSLOANS", "M", "yoy", "BUSLOANS", "money_credit"),
+    "neworder":   ("alfred", "NEWORDER", "M", "yoy", "NEWORDER", "activity"),
+    "amtmno":     ("alfred", "AMTMNO", "M", "yoy", "AMTMNO", "activity"),
+    "import_px":  ("alfred", "IR", "M", "yoy", "IR", "prices"),
+    "cass":       ("alfred", "FRGSHPUSM649NCIS", "M", "yoy", "FRGSHPUSM649NCIS", "activity"),
+    "inv_sales":  ("alfred", "RETAILIRSA", "M", "d12", "RETAILIRSA", "consumer"),
+    "cc_delinq":  ("alfred", "DRCCLACBN", "Q", "d12", "DRCCLACBN", "money_credit"),
+    "sloos":      ("alfred", "DRTSCILM", "Q", "lvl", "DRTSCILM", "money_credit"),
+    "eci":        ("fred", "ECIALLCIV", "Q", "yoy", "ECIALLCIV", "prices"),
+    "ism_mfg":    ("snap", "ISM_MFG", "M", "lvl", "ISM_MFG", "activity"),
+    "ism_svc":    ("snap", "ISM_SERVICES", "M", "lvl", "ISM_SERVICES", "activity"),
+    "nahb":       ("snap", "NAHB_HMI", "M", "lvl", "NAHB_HMI", "housing"),
+    "umich_exp":  ("snap", "UMICH_EXP_BUS_COND", "M", "lvl", "UMCSENT", "sentiment"),
+    "cement":     ("snap", "USGS_CEMENT", "M", "yoy", "USGS_CEMENT_MIS", "housing"),
+    "crude_inv":  ("snap", "EIA_WTTSTUS1", "W", "yoy", "EIA_WPSR_WTTSTUS1", "energy"),
+    "t10y3m":     ("mkt", "t10y3m", "D", "lvl", None, "rates"),
+    "hy_oas":     ("mkt", "hy_oas", "D", "lvl", None, "credit_mkt"),
+    "hy_ig":      ("mkt", "hy_ig", "D", "lvl", None, "credit_mkt"),
+    "vix_ratio":  ("mkt", "vix_ratio", "D", "lvl", None, "vol"),
+    "gold_copper": ("mkt", "gold_copper", "D", "yoy", None, "commodity"),
+    "sox_spy":    ("mkt", "sox_spy", "M", "yoy", None, "equity_internal"),
+}
+
+
+def month_closes(start="1985-01-31", end=END) -> pd.DatetimeIndex:
+    me = pd.date_range(start, end, freq="ME")
+    return pd.DatetimeIndex([t if TRADING_DAY.is_on_offset(t) else TRADING_DAY.rollback(t) for t in me])
+
+
+def transform(s: pd.Series, how: str, freq: str) -> pd.Series:
+    k = {"M": 12, "Q": 4}[freq]
+    if how == "yoy":
+        return 100 * (s / s.shift(k) - 1)
+    if how == "d12":
+        return s - s.shift(k)
+    return s
+
+
+def avail(cal_id: str) -> pd.Series:
+    c = CAL[CAL.series_id == cal_id]
+    return pd.Series(c.available_date.values, index=c.period_end.values)
+
+
+def latest_revised(src: str, sid: str) -> pd.Series:
+    if src == "alfred":
+        v = load_vintages(sid)
+        cur = v[v.realtime_end >= pd.Timestamp("2262-01-01")]
+        idx = cur["date"].dt.to_period("Q" if SPEC_FREQ[sid] == "Q" else "M").dt.to_timestamp(how="end").dt.normalize()
+        return pd.Series(cur.value.values, index=pd.DatetimeIndex(idx)).sort_index()
+    if src == "fred":
+        from fredapi import Fred
+        s = Fred(api_key=os.environ["FRED_API_KEY"]).get_series(sid)
+        s.index = pd.DatetimeIndex(s.index).to_period("Q").to_timestamp(how="end").normalize()
+        return s.astype(float)
+    s = pd.read_csv(SNAP / f"{sid}.csv", parse_dates=["ref_date"]).set_index("ref_date")["value"].astype(float)
+    if sid == "EIA_WTTSTUS1":  # weekly: last reading of each month
+        s = s.resample("ME").last()
+    else:
+        s.index = s.index.to_period("M").to_timestamp(how="end").normalize()
+    return s
+
+
+SPEC_FREQ = {v[1]: v[2] for v in SPEC.values()}
+
+
+def revised_panel(closes: pd.DatetimeIndex) -> pd.DataFrame:
+    cols = {}
+    for name, (src, sid, freq, how, cal_id, _) in SPEC.items():
+        if src == "mkt":
+            continue
+        tf = transform(latest_revised(src, sid), how, "Q" if freq == "Q" else "M")
+        av = avail(cal_id)
+        av.index = pd.DatetimeIndex(av.index).normalize()
+        a = av.reindex(tf.index)
+        known = pd.DataFrame({"v": tf.values, "a": a.values}, index=tf.index).dropna()
+        vals = []
+        for t in closes:
+            k = known[known.a <= t]
+            vals.append(k.v.iloc[-1] if len(k) and (t - k.index[-1]).days < 200 else np.nan)
+        cols[name] = vals
+    return pd.DataFrame(cols, index=closes)
+
+
+def realtime_panel(closes: pd.DatetimeIndex) -> pd.DataFrame:
+    cols = {}
+    for name, (src, sid, freq, how, _, _) in SPEC.items():
+        if src != "alfred":
+            continue
+        v = load_vintages(sid)
+        first = v.realtime_start.min()
+        vals = []
+        for t in closes:
+            if t < first:
+                vals.append(np.nan)
+                continue
+            s = vintage_asof(v, t, freq)
+            full = pd.date_range(s.index.min(), s.index.max(), freq="QE" if freq == "Q" else "ME")
+            tf = transform(s.reindex(full), how, freq).dropna()
+            vals.append(tf.iloc[-1] if len(tf) and (t - tf.index[-1]).days < 200 else np.nan)
+        cols[name] = vals
+        print(f"  realtime {name}: from {first.date()}", flush=True)
+    return pd.DataFrame(cols, index=closes)
+
+
+def market_panel(closes: pd.DatetimeIndex) -> pd.DataFrame:
+    hy = pd.read_parquet(REPO / "data/hy_ig_spy_daily_20000101_20260422.parquet")
+    gc = pd.read_parquet(REPO / "data/gold_copper_xli_daily_20260526.parquet")
+    vx = pd.read_parquet(REPO / "data/vix_vix3m_spy_daily_20260314.parquet")
+    sx = pd.read_parquet(REPO / "data/phlxsox_spy_monthly_latest.parquet")
+    d = pd.DataFrame(index=closes)
+
+    def at(s, lag_days=0):
+        s = s.dropna()
+        s.index = pd.DatetimeIndex(s.index)
+        s = s[s.index <= s.index.max()]
+        return s.shift(lag_days).reindex(closes, method="ffill", limit=5) if lag_days else s.reindex(closes, method="ffill", limit=5)
+
+    d["t10y3m"] = at(hy["dgs10"] - hy["dtb3"], 1)
+    d["hy_oas"] = at(hy["hy_oas"], 1)
+    d["hy_ig"] = at(hy["hy_oas"] - hy["ig_oas"], 1)
+    d["vix_ratio"] = at(vx["vix"] / vx["vix3m"])
+    lr = np.log(gc["gold"] / gc["copper"]).dropna()
+    d["gold_copper"] = at(100 * (lr - lr.shift(252)))
+    r = sx["sox_spy_ratio"]
+    d["sox_spy"] = (100 * (r / r.shift(12) - 1)).reindex(closes.to_period("M").to_timestamp(how="end").normalize()).values
+    return d
+
+
+def eff_dim(X: pd.DataFrame, n_draws: int = 200) -> dict:
+    Z = (X - X.mean()) / X.std(ddof=1)
+    C = np.corrcoef(Z.values.T)
+    lam = np.sort(np.linalg.eigvalsh(C))[::-1]
+    M = len(lam)
+    share = np.cumsum(lam) / lam.sum()
+    p = lam / lam.sum()
+    rng = np.random.default_rng(SEED)
+    null = []
+    for _ in range(n_draws):  # Horn parallel analysis: each column independently permuted
+        P = np.column_stack([rng.permutation(Z.values[:, j]) for j in range(M)])
+        null.append(np.sort(np.linalg.eigvalsh(np.corrcoef(P.T)))[::-1])
+    null95 = np.percentile(np.array(null), 95, axis=0)
+    li_ji = float(np.sum((lam >= 1).astype(float) + (lam - np.floor(lam))))
+    return {
+        "n_obs": int(len(X)), "n_vars": M, "start": str(X.index.min().date()), "end": str(X.index.max().date()),
+        "eigenvalues": [round(float(x), 3) for x in lam],
+        "cum_share": [round(float(x), 3) for x in share],
+        "pcs_80pct": int(np.searchsorted(share, 0.80) + 1),
+        "pcs_90pct": int(np.searchsorted(share, 0.90) + 1),
+        "kaiser_gt1": int(np.sum(lam > 1)),
+        "parallel_analysis": int(np.argmax(lam < null95)) if np.any(lam < null95) else M,
+        "participation_ratio": round(float(lam.sum() ** 2 / np.sum(lam ** 2)), 2),
+        "entropy_eff_rank": round(float(np.exp(-np.sum(p * np.log(p)))), 2),
+        "meff_nyholt": round(float(1 + (M - 1) * (1 - np.var(lam, ddof=1) / M)), 2),
+        "meff_li_ji": round(li_ji, 2),
+    }
+
+
+def clusters(X: pd.DataFrame, cut_rho: float) -> list[list[str]]:
+    from scipy.cluster.hierarchy import fcluster, linkage
+    from scipy.spatial.distance import squareform
+    R = X.corr(method="spearman").abs().values
+    D = 1 - R
+    np.fill_diagonal(D, 0)
+    Lk = linkage(squareform(D, checks=False), method="average")
+    lab = fcluster(Lk, t=1 - cut_rho, criterion="distance")
+    groups = {}
+    for c, l in zip(X.columns, lab):
+        groups.setdefault(int(l), []).append(c)
+    return sorted(groups.values(), key=len, reverse=True)
+
+
+def main():
+    OUT.mkdir(parents=True, exist_ok=True)
+    closes = month_closes()
+    print("revised panel ...", flush=True)
+    rev = revised_panel(closes).join(market_panel(closes))
+    print("realtime panel ...", flush=True)
+    rt = realtime_panel(closes)
+    rev.to_csv(OUT / "panel_revised_asof_monthly.csv", float_format="%.5g")
+    rt.to_csv(OUT / "panel_realtime_alfred_monthly.csv", float_format="%.5g")
+
+    # coverage: first month with a reading, per track
+    cov = pd.DataFrame({
+        "block": {k: v[5] for k, v in SPEC.items()},
+        "freq": {k: v[2] for k, v in SPEC.items()},
+        "transform": {k: v[3] for k, v in SPEC.items()},
+        "track_available": {k: {"alfred": "realtime+revised", "fred": "revised", "snap": "revised (no archive)",
+                                "mkt": "market (unrevised)"}[v[0]] for k, v in SPEC.items()},
+        "first_revised_asof": {c: (str(rev[c].first_valid_index().date()) if rev[c].notna().any() else "") for c in rev},
+        "first_realtime": {c: str(rt[c].first_valid_index().date()) for c in rt},
+    })
+    # measured lags (calendar meta: ALFRED / publisher dates, fallback rows excluded); market series: 0-1 day
+    meta = json.loads((REPO / "data/release_calendar/release_calendar_meta.json").read_text())["series"]
+    for col, key in (("release_lag_median_d", "lag_median_d"), ("release_lag_p90_d", "lag_p90_d"),
+                     ("release_dates_measured_from", "first_own_measured_ref"), ("n_fallback_rows", "n_fallback")):
+        cov[col] = [meta.get(SPEC[k][4], {}).get(key) if SPEC[k][4] else None for k in cov.index]
+    cov.to_csv(OUT / "coverage_and_lags.csv")
+
+    summary = {"generated": "2026-10-17", "seed": SEED, "end": str(END.date())}
+    # 1) broad set on the revised-as-of track, complete case
+    core = [c for c in rev if c not in ("eci", "vix_ratio", "cass", "inv_sales", "cement", "ism_svc")]
+    for label, cols in {"revised_all29": list(rev.columns), "revised_core23": core}.items():
+        X = rev[cols].dropna()
+        summary[label] = eff_dim(X)
+        summary[label]["clusters_rho0.7"] = clusters(X, 0.7)
+        summary[label]["clusters_rho0.5"] = clusters(X, 0.5)
+        X.corr(method="spearman").round(2).to_csv(OUT / f"spearman_{label}.csv")
+    # 2) 3-month changes of the same readings (signal-like, less persistence)
+    X3 = rev[core].diff(3).dropna()
+    summary["revised_core23_chg3m"] = eff_dim(X3)
+    summary["revised_core23_chg3m"]["clusters_rho0.5"] = clusters(X3, 0.5)
+    # 3) sub-period stability
+    Xc = rev[core].dropna()
+    for lab, sl in {"pre2008": slice(None, "2007-12-31"), "post2008": slice("2008-01-01", None)}.items():
+        summary[f"revised_core23_{lab}"] = eff_dim(Xc.loc[sl])
+    # 4) real-time ALFRED track: longest-history subset and full subset
+    rt_long = [c for c in rt if rt[c].first_valid_index() <= pd.Timestamp("2001-12-31")]
+    summary["realtime_long"] = eff_dim(rt[rt_long].dropna())
+    summary["realtime_long"]["vars"] = rt_long
+    summary["realtime_all16"] = eff_dim(rt.dropna())
+    # 5) revision gap: realtime vs revised correlation per series, common months
+    gap = {}
+    for c in rt:
+        j = pd.concat([rt[c], rev[c]], axis=1).dropna()
+        if len(j) > 24:
+            gap[c] = {"n": int(len(j)), "corr_rt_vs_revised": round(float(j.corr().iloc[0, 1]), 3),
+                      "mean_abs_diff": round(float((j.iloc[:, 0] - j.iloc[:, 1]).abs().mean()), 3)}
+    summary["realtime_vs_revised"] = gap
+    # top correlated pairs (revised_all29, pairwise)
+    R = rev.corr(method="spearman", min_periods=60)
+    pairs = [(a, b, R.loc[a, b]) for i, a in enumerate(R) for b in R.columns[i + 1:] if pd.notna(R.loc[a, b])]
+    pairs.sort(key=lambda x: -abs(x[2]))
+    summary["top_abs_pairs"] = [[a, b, round(float(r), 2)] for a, b, r in pairs[:25]]
+    R.round(2).to_csv(OUT / "spearman_revised_pairwise.csv")
+    (OUT / "effective_dimensionality.json").write_text(json.dumps(summary, indent=1))
+    print(json.dumps({k: (v if not isinstance(v, dict) else {kk: vv for kk, vv in v.items() if kk not in
+                      ("eigenvalues", "cum_share")}) for k, v in summary.items()}, indent=1)[:9000])
+
+
+if __name__ == "__main__":
+    main()

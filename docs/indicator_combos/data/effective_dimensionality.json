@@ -1,0 +1,927 @@
+{
+ "generated": "2026-10-17",
+ "seed": 20261017,
+ "end": "2026-09-30",
+ "revised_all29": {
+  "n_obs": 107,
+  "n_vars": 29,
+  "start": "2017-02-28",
+  "end": "2025-12-31",
+  "eigenvalues": [
+   11.043,
+   6.192,
+   2.659,
+   1.669,
+   1.455,
+   1.417,
+   0.857,
+   0.696,
+   0.587,
+   0.46,
+   0.357,
+   0.273,
+   0.259,
+   0.189,
+   0.154,
+   0.129,
+   0.117,
+   0.099,
+   0.082,
+   0.073,
+   0.049,
+   0.044,
+   0.037,
+   0.03,
+   0.022,
+   0.02,
+   0.018,
+   0.009,
+   0.005
+  ],
+  "cum_share": [
+   0.381,
+   0.594,
+   0.686,
+   0.744,
+   0.794,
+   0.843,
+   0.872,
+   0.896,
+   0.916,
+   0.932,
+   0.945,
+   0.954,
+   0.963,
+   0.969,
+   0.975,
+   0.979,
+   0.983,
+   0.987,
+   0.989,
+   0.992,
+   0.994,
+   0.995,
+   0.996,
+   0.997,
+   0.998,
+   0.999,
+   1.0,
+   1.0,
+   1.0
+  ],
+  "pcs_80pct": 6,
+  "pcs_90pct": 9,
+  "kaiser_gt1": 6,
+  "parallel_analysis": 3,
+  "participation_ratio": 4.77,
+  "entropy_eff_rank": 7.92,
+  "meff_nyholt": 23.92,
+  "meff_li_ji": 13.0,
+  "clusters_rho0.7": [
+   [
+    "indpro",
+    "neworder",
+    "amtmno",
+    "import_px"
+   ],
+   [
+    "rsxfs",
+    "ism_mfg",
+    "ism_svc",
+    "t10y3m"
+   ],
+   [
+    "m2",
+    "inv_sales",
+    "nahb"
+   ],
+   [
+    "busloans",
+    "hy_oas",
+    "hy_ig"
+   ],
+   [
+    "unrate",
+    "crude_inv"
+   ],
+   [
+    "umcsent",
+    "eci"
+   ],
+   [
+    "cass",
+    "gold_copper"
+   ],
+   [
+    "houst"
+   ],
+   [
+    "permit"
+   ],
+   [
+    "nhs"
+   ],
+   [
+    "cc_delinq"
+   ],
+   [
+    "sloos"
+   ],
+   [
+    "umich_exp"
+   ],
+   [
+    "cement"
+   ],
+   [
+    "vix_ratio"
+   ],
+   [
+    "sox_spy"
+   ]
+  ],
+  "clusters_rho0.5": [
+   [
+    "rsxfs",
+    "houst",
+    "permit",
+    "m2",
+    "inv_sales",
+    "cc_delinq",
+    "ism_mfg",
+    "ism_svc",
+    "nahb",
+    "t10y3m"
+   ],
+   [
+    "indpro",
+    "unrate",
+    "neworder",
+    "amtmno",
+    "import_px",
+    "cass",
+    "sloos",
+    "crude_inv",
+    "gold_copper"
+   ],
+   [
+    "umcsent",
+    "eci",
+    "umich_exp"
+   ],
+   [
+    "busloans",
+    "hy_oas",
+    "hy_ig"
+   ],
+   [
+    "nhs",
+    "sox_spy"
+   ],
+   [
+    "cement"
+   ],
+   [
+    "vix_ratio"
+   ]
+  ]
+ },
+ "revised_core23": {
+  "n_obs": 296,
+  "n_vars": 23,
+  "start": "2001-08-31",
+  "end": "2026-03-31",
+  "eigenvalues": [
+   8.104,
+   3.919,
+   2.376,
+   1.529,
+   1.407,
+   1.219,
+   0.95,
+   0.599,
+   0.451,
+   0.415,
+   0.359,
+   0.279,
+   0.245,
+   0.217,
+   0.194,
+   0.179,
+   0.129,
+   0.108,
+   0.104,
+   0.091,
+   0.068,
+   0.053,
+   0.005
+  ],
+  "cum_share": [
+   0.352,
+   0.523,
+   0.626,
+   0.693,
+   0.754,
+   0.807,
+   0.848,
+   0.874,
+   0.894,
+   0.912,
+   0.927,
+   0.939,
+   0.95,
+   0.96,
+   0.968,
+   0.976,
+   0.981,
+   0.986,
+   0.991,
+   0.995,
+   0.998,
+   1.0,
+   1.0
+  ],
+  "pcs_80pct": 6,
+  "pcs_90pct": 10,
+  "kaiser_gt1": 6,
+  "parallel_analysis": 5,
+  "participation_ratio": 5.59,
+  "entropy_eff_rank": 9.11,
+  "meff_nyholt": 19.89,
+  "meff_li_ji": 13.0,
+  "clusters_rho0.7": [
+   [
+    "neworder",
+    "amtmno",
+    "import_px"
+   ],
+   [
+    "indpro",
+    "sloos"
+   ],
+   [
+    "houst",
+    "permit"
+   ],
+   [
+    "hy_oas",
+    "hy_ig"
+   ],
+   [
+    "unrate"
+   ],
+   [
+    "rsxfs"
+   ],
+   [
+    "umcsent"
+   ],
+   [
+    "nhs"
+   ],
+   [
+    "m2"
+   ],
+   [
+    "busloans"
+   ],
+   [
+    "cc_delinq"
+   ],
+   [
+    "ism_mfg"
+   ],
+   [
+    "nahb"
+   ],
+   [
+    "umich_exp"
+   ],
+   [
+    "crude_inv"
+   ],
+   [
+    "t10y3m"
+   ],
+   [
+    "gold_copper"
+   ],
+   [
+    "sox_spy"
+   ]
+  ],
+  "clusters_rho0.5": [
+   [
+    "indpro",
+    "unrate",
+    "rsxfs",
+    "neworder",
+    "amtmno",
+    "import_px",
+    "cc_delinq",
+    "sloos"
+   ],
+   [
+    "houst",
+    "permit",
+    "nhs"
+   ],
+   [
+    "t10y3m",
+    "hy_oas",
+    "hy_ig"
+   ],
+   [
+    "umcsent",
+    "nahb"
+   ],
+   [
+    "ism_mfg",
+    "gold_copper"
+   ],
+   [
+    "m2"
+   ],
+   [
+    "busloans"
+   ],
+   [
+    "umich_exp"
+   ],
+   [
+    "crude_inv"
+   ],
+   [
+    "sox_spy"
+   ]
+  ]
+ },
+ "revised_core23_chg3m": {
+  "n_obs": 293,
+  "n_vars": 23,
+  "start": "2001-11-30",
+  "end": "2026-03-31",
+  "eigenvalues": [
+   6.144,
+   3.148,
+   1.899,
+   1.517,
+   1.322,
+   1.215,
+   1.089,
+   0.841,
+   0.801,
+   0.692,
+   0.624,
+   0.514,
+   0.501,
+   0.463,
+   0.437,
+   0.386,
+   0.361,
+   0.34,
+   0.237,
+   0.201,
+   0.139,
+   0.115,
+   0.013
+  ],
+  "cum_share": [
+   0.267,
+   0.404,
+   0.487,
+   0.552,
+   0.61,
+   0.663,
+   0.71,
+   0.747,
+   0.782,
+   0.812,
+   0.839,
+   0.861,
+   0.883,
+   0.903,
+   0.922,
+   0.939,
+   0.955,
+   0.969,
+   0.98,
+   0.988,
+   0.994,
+   0.999,
+   1.0
+  ],
+  "pcs_80pct": 10,
+  "pcs_90pct": 14,
+  "kaiser_gt1": 7,
+  "parallel_analysis": 5,
+  "participation_ratio": 8.58,
+  "entropy_eff_rank": 13.25,
+  "meff_nyholt": 21.32,
+  "meff_li_ji": 16.0,
+  "clusters_rho0.5": [
+   [
+    "umcsent",
+    "umich_exp"
+   ],
+   [
+    "hy_oas",
+    "hy_ig"
+   ],
+   [
+    "indpro"
+   ],
+   [
+    "unrate"
+   ],
+   [
+    "rsxfs"
+   ],
+   [
+    "houst"
+   ],
+   [
+    "permit"
+   ],
+   [
+    "nhs"
+   ],
+   [
+    "m2"
+   ],
+   [
+    "busloans"
+   ],
+   [
+    "neworder"
+   ],
+   [
+    "amtmno"
+   ],
+   [
+    "import_px"
+   ],
+   [
+    "cc_delinq"
+   ],
+   [
+    "sloos"
+   ],
+   [
+    "ism_mfg"
+   ],
+   [
+    "nahb"
+   ],
+   [
+    "crude_inv"
+   ],
+   [
+    "t10y3m"
+   ],
+   [
+    "gold_copper"
+   ],
+   [
+    "sox_spy"
+   ]
+  ]
+ },
+ "revised_core23_pre2008": {
+  "n_obs": 77,
+  "n_vars": 23,
+  "start": "2001-08-31",
+  "end": "2007-12-31",
+  "eigenvalues": [
+   10.334,
+   6.169,
+   1.793,
+   1.067,
+   1.01,
+   0.565,
+   0.365,
+   0.302,
+   0.249,
+   0.201,
+   0.175,
+   0.157,
+   0.132,
+   0.102,
+   0.086,
+   0.069,
+   0.063,
+   0.053,
+   0.039,
+   0.031,
+   0.027,
+   0.01,
+   0.001
+  ],
+  "cum_share": [
+   0.449,
+   0.718,
+   0.795,
+   0.842,
+   0.886,
+   0.91,
+   0.926,
+   0.939,
+   0.95,
+   0.959,
+   0.967,
+   0.973,
+   0.979,
+   0.984,
+   0.987,
+   0.99,
+   0.993,
+   0.995,
+   0.997,
+   0.998,
+   1.0,
+   1.0,
+   1.0
+  ],
+  "pcs_80pct": 4,
+  "pcs_90pct": 6,
+  "kaiser_gt1": 5,
+  "parallel_analysis": 2,
+  "participation_ratio": 3.5,
+  "entropy_eff_rank": 5.58,
+  "meff_nyholt": 17.44,
+  "meff_li_ji": 9.0
+ },
+ "revised_core23_post2008": {
+  "n_obs": 219,
+  "n_vars": 23,
+  "start": "2008-01-31",
+  "end": "2026-03-31",
+  "eigenvalues": [
+   8.468,
+   4.029,
+   2.377,
+   1.802,
+   1.523,
+   0.971,
+   0.731,
+   0.612,
+   0.451,
+   0.423,
+   0.307,
+   0.267,
+   0.229,
+   0.163,
+   0.146,
+   0.112,
+   0.1,
+   0.075,
+   0.068,
+   0.056,
+   0.047,
+   0.039,
+   0.003
+  ],
+  "cum_share": [
+   0.368,
+   0.543,
+   0.647,
+   0.725,
+   0.791,
+   0.833,
+   0.865,
+   0.892,
+   0.912,
+   0.93,
+   0.943,
+   0.955,
+   0.965,
+   0.972,
+   0.978,
+   0.983,
+   0.987,
+   0.991,
+   0.994,
+   0.996,
+   0.998,
+   1.0,
+   1.0
+  ],
+  "pcs_80pct": 6,
+  "pcs_90pct": 9,
+  "kaiser_gt1": 5,
+  "parallel_analysis": 5,
+  "participation_ratio": 5.2,
+  "entropy_eff_rank": 8.37,
+  "meff_nyholt": 19.58,
+  "meff_li_ji": 12.0
+ },
+ "realtime_long": {
+  "n_obs": 304,
+  "n_vars": 10,
+  "start": "2001-06-29",
+  "end": "2026-09-30",
+  "eigenvalues": [
+   4.064,
+   2.022,
+   1.11,
+   0.984,
+   0.697,
+   0.486,
+   0.282,
+   0.158,
+   0.123,
+   0.073
+  ],
+  "cum_share": [
+   0.406,
+   0.609,
+   0.72,
+   0.818,
+   0.888,
+   0.936,
+   0.965,
+   0.98,
+   0.993,
+   1.0
+  ],
+  "pcs_80pct": 4,
+  "pcs_90pct": 6,
+  "kaiser_gt1": 3,
+  "parallel_analysis": 2,
+  "participation_ratio": 4.23,
+  "entropy_eff_rank": 5.76,
+  "meff_nyholt": 8.63,
+  "meff_li_ji": 6.0,
+  "vars": [
+   "indpro",
+   "unrate",
+   "rsxfs",
+   "umcsent",
+   "houst",
+   "permit",
+   "nhs",
+   "m2",
+   "busloans",
+   "neworder"
+  ]
+ },
+ "realtime_all16": {
+  "n_obs": 160,
+  "n_vars": 16,
+  "start": "2013-06-28",
+  "end": "2026-09-30",
+  "eigenvalues": [
+   6.714,
+   3.105,
+   1.992,
+   1.11,
+   0.739,
+   0.582,
+   0.409,
+   0.347,
+   0.267,
+   0.235,
+   0.157,
+   0.124,
+   0.087,
+   0.054,
+   0.052,
+   0.026
+  ],
+  "cum_share": [
+   0.42,
+   0.614,
+   0.738,
+   0.808,
+   0.854,
+   0.89,
+   0.916,
+   0.937,
+   0.954,
+   0.969,
+   0.979,
+   0.986,
+   0.992,
+   0.995,
+   0.998,
+   1.0
+  ],
+  "pcs_80pct": 4,
+  "pcs_90pct": 7,
+  "kaiser_gt1": 4,
+  "parallel_analysis": 3,
+  "participation_ratio": 4.18,
+  "entropy_eff_rank": 6.4,
+  "meff_nyholt": 13.17,
+  "meff_li_ji": 9.0
+ },
+ "realtime_vs_revised": {
+  "indpro": {
+   "n": 500,
+   "corr_rt_vs_revised": 0.928,
+   "mean_abs_diff": 1.243
+  },
+  "unrate": {
+   "n": 500,
+   "corr_rt_vs_revised": 0.999,
+   "mean_abs_diff": 0.048
+  },
+  "rsxfs": {
+   "n": 304,
+   "corr_rt_vs_revised": 0.988,
+   "mean_abs_diff": 0.8
+  },
+  "umcsent": {
+   "n": 339,
+   "corr_rt_vs_revised": 1.0,
+   "mean_abs_diff": 0.01
+  },
+  "houst": {
+   "n": 500,
+   "corr_rt_vs_revised": 0.987,
+   "mean_abs_diff": 2.106
+  },
+  "permit": {
+   "n": 326,
+   "corr_rt_vs_revised": 0.993,
+   "mean_abs_diff": 2.162
+  },
+  "nhs": {
+   "n": 327,
+   "corr_rt_vs_revised": 0.938,
+   "mean_abs_diff": 4.982
+  },
+  "m2": {
+   "n": 500,
+   "corr_rt_vs_revised": 0.996,
+   "mean_abs_diff": 0.291
+  },
+  "busloans": {
+   "n": 358,
+   "corr_rt_vs_revised": 0.994,
+   "mean_abs_diff": 0.661
+  },
+  "neworder": {
+   "n": 355,
+   "corr_rt_vs_revised": 0.899,
+   "mean_abs_diff": 3.33
+  },
+  "amtmno": {
+   "n": 184,
+   "corr_rt_vs_revised": 0.98,
+   "mean_abs_diff": 1.567
+  },
+  "import_px": {
+   "n": 199,
+   "corr_rt_vs_revised": 0.999,
+   "mean_abs_diff": 0.216
+  },
+  "cass": {
+   "n": 116,
+   "corr_rt_vs_revised": 0.999,
+   "mean_abs_diff": 0.037
+  },
+  "inv_sales": {
+   "n": 160,
+   "corr_rt_vs_revised": 0.981,
+   "mean_abs_diff": 0.015
+  },
+  "cc_delinq": {
+   "n": 185,
+   "corr_rt_vs_revised": 1.0,
+   "mean_abs_diff": 0.002
+  },
+  "sloos": {
+   "n": 198,
+   "corr_rt_vs_revised": 1.0,
+   "mean_abs_diff": 0.008
+  }
+ },
+ "top_abs_pairs": [
+  [
+   "hy_oas",
+   "hy_ig",
+   0.99
+  ],
+  [
+   "houst",
+   "permit",
+   0.82
+  ],
+  [
+   "neworder",
+   "amtmno",
+   0.8
+  ],
+  [
+   "amtmno",
+   "import_px",
+   0.77
+  ],
+  [
+   "cass",
+   "ism_mfg",
+   0.74
+  ],
+  [
+   "ism_mfg",
+   "ism_svc",
+   0.73
+  ],
+  [
+   "cass",
+   "gold_copper",
+   -0.71
+  ],
+  [
+   "unrate",
+   "sloos",
+   0.71
+  ],
+  [
+   "indpro",
+   "neworder",
+   0.7
+  ],
+  [
+   "cass",
+   "ism_svc",
+   0.7
+  ],
+  [
+   "ism_mfg",
+   "gold_copper",
+   -0.7
+  ],
+  [
+   "import_px",
+   "cass",
+   0.67
+  ],
+  [
+   "rsxfs",
+   "neworder",
+   0.66
+  ],
+  [
+   "permit",
+   "nhs",
+   0.65
+  ],
+  [
+   "amtmno",
+   "cass",
+   0.64
+  ],
+  [
+   "neworder",
+   "cass",
+   0.63
+  ],
+  [
+   "sloos",
+   "ism_mfg",
+   -0.63
+  ],
+  [
+   "indpro",
+   "amtmno",
+   0.62
+  ],
+  [
+   "neworder",
+   "import_px",
+   0.62
+  ],
+  [
+   "rsxfs",
+   "cass",
+   0.61
+  ],
+  [
+   "houst",
+   "nhs",
+   0.61
+  ],
+  [
+   "unrate",
+   "cass",
+   -0.61
+  ],
+  [
+   "sloos",
+   "ism_svc",
+   -0.6
+  ],
+  [
+   "indpro",
+   "rsxfs",
+   0.6
+  ],
+  [
+   "ism_svc",
+   "nahb",
+   0.6
+  ]
+ ]
+}
