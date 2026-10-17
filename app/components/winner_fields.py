@@ -48,3 +48,13 @@ def load(pair_id: str) -> WinnerFields:
     except (OSError, json.JSONDecodeError):
         ws = {}
     return WinnerFields(pair_id, ws.get("winner_fields") or {})
+
+
+@lru_cache(maxsize=None)
+def lead_grid(pair_id: str) -> list[int]:
+    """The pair's declared lead grid (docs/schemas/lead_axis_registry.json), for prose that names the grid."""
+    reg = Path(__file__).resolve().parents[2] / "docs" / "schemas" / "lead_axis_registry.json"
+    try:
+        return list(json.loads(reg.read_text())["pairs"][pair_id]["lead_grid"])
+    except (OSError, KeyError, json.JSONDecodeError):
+        return []

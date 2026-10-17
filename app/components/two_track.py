@@ -232,7 +232,7 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
         if not isinstance(r, dict):
             return [rule(rec), label, "Not scorable: the rule is not in this track's candidate set", "", "", "", ""]
         tr = _tourn_row(pair_id, prefix, tag, rec["winner"]["key"]) or {}
-        note = "" if r.get("valid") else " (fails the training validity filters here)"
+        note = "" if r.get("valid") else " (did not meet the training validity filters on this data)"
         return [rule(rec), label, _num(r["is_sharpe"]) + note, _num(r["oos_sharpe"]), _num(rec["bh_oos"]["sharpe"]),
                 f"{r['window']['is_start'][:7]} to {r['window']['oos_end'][:7]}", _pct(tr.get("max_drawdown"))]
 
@@ -264,10 +264,12 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
         return
     load_plotly_chart("chance_check", pair_id=pair_id,
                       fallback_text="Chance check not yet run for this pair.",
-                      caption=((f"Real winner scores above all {nt['n_draws']:,} scrambled-signal contests"
+                      caption=(("The real winner's plateau score (the statistic the scrambled contests are compared on) "
+                                f"is above all {nt['n_draws']:,} scrambled-signal contests"
                                 if nt["winner_percentile"] >= 1 else
-                                f"Real winner ranks at the {_ordinal(round(nt['winner_percentile'] * 100))} percentile "
-                                f"of {nt['n_draws']:,} scrambled-signal contests")
+                                "The real winner's plateau score (the statistic the scrambled contests are compared on) "
+                                f"ranks at the {_ordinal(round(nt['winner_percentile'] * 100))} percentile of "
+                                f"{nt['n_draws']:,} scrambled-signal contests")
                                + " (the indicator shifted in time against the returns, same selection rule)."))
 
 
@@ -279,10 +281,38 @@ def render_lead_plateau(pair_id: str, ts: dict, ws: dict) -> None:
         st.caption("No as-known-at-the-time scores exist for this pair, so no winner is marked.")
         return
     leads, wl, gl = plat["leads"], plat["winner_lead"], plat.get("global_max_lead")
-    cap = f"The winner L{wl} sits in a stable range L{min(leads)}-L{max(leads)}."
+    cap = f"The winner L{wl} sits in a stable range L{min(leads)}-L{max(leads)}"
+    if leads != list(range(min(leads), max(leads) + 1)):
+        cap += f" (adjacent grid points {', '.join(str(x) for x in leads)} {_lead_unit(ws)})"
+    cap += "."
     if gl is not None and not plat.get("global_max_inside_plateau"):
         cap += f" The highest single point, L{gl}, was not chosen because its neighbours score lower."
     load_plotly_chart("lead_plateau", pair_id=pair_id, fallback_text="Lead chart pending.", caption=cap)
+
+
+HEADLINE_LABEL = {"both": "Test-period Sharpe (as known at the time)", "single_market": "Test-period Sharpe (market data)",
+                  "single_no_archive": "Test-period Sharpe (as revised today)"}
+
+
+def headline_label(ts: dict, default: str) -> str:
+    """KPI label of the MAIN test-period Sharpe (Story and Strategy pages)."""
+    return HEADLINE_LABEL.get(ts["track_state"], default)
+
+
+def badge_status(ts: dict) -> str | None:
+    """Candidate / Watchlist / Reject suggestion from the MAIN result only (design 7b): the 95% interval of the
+    test-period Sharpe difference vs buy-and-hold is above zero -> Candidate, contains zero -> Watchlist, below
+    zero -> Reject. None when MAIN has no winner."""
+    vb = ts.get("vs_buy_hold")
+    if ts["track_state"] == "rt_insufficient" or not vb:
+        return None
+    lo, hi = vb["ci_95"]
+    return "Candidate" if lo > 0 else ("Reject" if hi < 0 else "Watchlist")
+
+
+BADGE_RULE = ("Badge rule (as-known-at-the-time result only): Candidate when the 95% interval of the test-period "
+              "Sharpe difference versus buy-and-hold is above zero, Watchlist when it contains zero, Reject when it "
+              "is below zero.")
 
 
 def render_badge_note(ts: dict) -> None:
@@ -290,4 +320,4 @@ def render_badge_note(ts: dict) -> None:
     if ts["track_state"] == "rt_insufficient":
         st.caption("No status: no winner on data as known at the time.")
     else:
-        st.caption("Suggestion from the as-known-at-the-time result; you judge.")
+        st.caption("Suggestion from the as-known-at-the-time result; you judge. " + BADGE_RULE)

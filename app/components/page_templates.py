@@ -745,6 +745,10 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     # APP-PLB1 / DPS-FE2: route the headline-KPI label by evidence_status.
     # routing is None when the artifact is absent → legacy path, unchanged.
     _kpi_routing = _evidence_status_kpi_routing(pair_id)
+    _ts_story = two_track.load_track_summary(pair_id)
+    if _kpi_routing is not None and _ts_story:   # Phase B pairs: the label names the data basis (test period)
+        _kpi_routing = dict(_kpi_routing, headline_label=two_track.headline_label(
+            _ts_story, _kpi_routing["headline_label"]))
     if _kpi_routing is None:
         _key_metrics_header = f"**Key metrics (out-of-sample {oos_range_label}):**"
     else:
@@ -1710,6 +1714,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         # paragraph executive conclusion. Config-driven via
         # EXECUTIVE_CONFIDENCE_SUMMARY; absent → no-op.
         _exec_conf = getattr(config, "EXECUTIVE_CONFIDENCE_SUMMARY", None)
+        if _exec_conf and _ts:   # design 7b: the badge is driven by the MAIN (as-known-at-the-time) result only
+            _exec_conf = dict(_exec_conf, status=two_track.badge_status(_ts) or "No status")
         if _exec_conf:
             _render_executive_confidence_summary(_exec_conf)
             if _ts:
@@ -1839,7 +1845,7 @@ def _render_executive_confidence_summary(summary: dict) -> None:
         st.markdown("### Executive Confidence Summary")
 
         _status_lower = status.lower()
-        _badge = f"**Candidate status: {status}**" if status else ""
+        _badge = f"**Status: {status}**" if status else ""
         _line = f"{_badge}"
         if status_detail:
             _line = f"{_badge} — {status_detail}" if _badge else status_detail
@@ -1866,9 +1872,9 @@ def _render_executive_confidence_summary(summary: dict) -> None:
             st.markdown(conclusion)
 
     st.caption(
-        "What this shows: an at-a-glance confidence verdict for this "
-        "candidate strategy. The detailed charts and tables below are the "
-        "evidence behind it."
+        "What this shows: an at-a-glance summary for this strategy. "
+        "The detailed charts and tables below are the evidence "
+        "behind it."
     )
 
 
