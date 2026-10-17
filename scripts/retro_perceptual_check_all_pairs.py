@@ -24,7 +24,6 @@ PAIRS = [
     "umcsent_xlv",
     "vix_vix3m_spy",
     "hy_ig_spy",
-    "hy_ig_v2_spy",
 ]
 
 CHARTS_BASE = "output/charts"
