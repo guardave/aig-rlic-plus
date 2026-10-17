@@ -79,7 +79,7 @@ correlations) come from `data/coverage_and_lags.csv` and `data/effective_dimensi
 | Code | Design | Window | When usable |
 |------|--------|--------|-------------|
 | **V-A** | **Nested, purged walk-forward CV inside the fleet IS.** Outer: expanding window, 5 blocked test folds over about 1998→2016. Inner: selection only within each outer training span. 12-month purge plus 12-month embargo around each test fold (López de Prado 2018) | About 1998 → 2016 | Default for every question |
-| **V-B** | **Backward holdout, never used by the fleet.** Fleet IS starts about 1997–2002 (`is_period_start`). | 1980/85 → 1997 | Members with long history: real-time INDPRO, UNRATE, HOUST, M2SL (ALFRED from 1980); revised ISM, NAHB; T10Y3M from FRED. Needs an S&P 500 total-return proxy and Fama–French industry portfolios as sector proxies (gap: `DATA_TOOL_INVENTORY.md`) |
+| **V-B** | **Backward holdout, never used by the fleet.** Fleet IS starts about 1997–2002 (`is_period_start`). | 1980/85 → 1997 | Members with long history: real-time INDPRO, UNRATE, HOUST, M2SL (ALFRED from 1980); revised ISM, NAHB; T10Y3M from FRED. Needs an S&P 500 total-return proxy before 1993 (gap G5 in `DATA_TOOL_INVENTORY.md`). Sectors: S&P 500 GICS sector price indices exist from 1989-09 in `etf_prices` (price only); Fama–French industry portfolios are needed for before 1989 |
 | **V-C** | **Forward paper-trade.** Freeze the spec (hash), record live positions monthly from 2026-11, evaluate at 12/24/36 months | 2026-11 → | Every pre-registered finalist; low power, acknowledged |
 | V-D | Existing fleet OOS (about 2017 → 2026) | — | **Descriptive only**, never for selection; flagged as viewed many times |
 
@@ -238,7 +238,7 @@ The start dates are the first month-end reading on the revised-as-of / real-time
 - **Combination type.** R2 regime + R1 definition.
 - **Metric and baselines.** Relative return, IR, sign hit rate; B1 (equal-weight all 9 sectors), B2a, B3. B4 here
   is the relative-momentum rule (12-month relative return).
-- **Data / PIT.** Sectors from 1999 (12-month warm-up for momentum); V-B needs Fama–French industry proxies.
+- **Data / PIT.** Sectors from 1999 (12-month warm-up for momentum); 1989–1998 via the S&P 500 sector price indices in `etf_prices` (no dividends).
 - **MT / validation.** 3 tests (basket, two single-sector checks); V-A over 1999–2016; N2.
 - **Feasibility.** M. Sector data are in `etf_prices`, but no sector pipeline exists yet.
 - **Priority.** P2. Sector rotation over the cycle has weak support in the literature (e.g. Stangl, Jacobsen &
@@ -766,7 +766,7 @@ N4. The P1 subset alone is about 23 tests.
 
 1. **The forward window (V-C).** Can we start a frozen paper-trade from 2026-11? It is the only truly unseen
    period, but it gives little power for 2–3 years.
-2. **The backward holdout (V-B).** May we add an S&P 500 total-return series and Fama–French industry portfolios
+2. **The backward holdout (V-B).** May we add an S&P 500 total-return series (pre-1993) and Fama–French industry portfolios (pre-1989)
    for 1980–1998? They are not ETFs, but they are the only way to test on a window the fleet never touched.
 3. **Bonds as an asset.** Should U2 tilt between equities and Treasuries (needs a Treasury ETF / index series), or
    between equities and T-bills only?
