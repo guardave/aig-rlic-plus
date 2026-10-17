@@ -1067,7 +1067,7 @@ No formulas — three steps:
     CAVEATS_MD = """
 **Limitations** (from `winner_summary.json`, `hmm_lookahead_audit_20261016.json`, `structural_break_eci_total_comp_spy.json` and `tournament_validation_20261016/`):
 
-1. **Below buy-and-hold out of sample.** OOS Sharpe 0.70 vs 0.80; annualized return 4.3% vs 14.5%; OOS HAC t 1.33 (p = 0.18).
+1. **Below buy-and-hold out of sample.** OOS Sharpe 0.70 vs 0.80; annualized return 4.3% vs 14.5%; OOS HAC t 1.33 (p = 0.18). Paired 2-quarter block bootstrap of the Sharpe difference: 95% interval [-1.70, +0.75]. Sortino and Calmar are n/a: no losing quarter in the OOS window (the rule was in cash in every down quarter).
 2. **Few invested quarters.** The rule was long SPY in 3 of the 25 OOS quarters and has been in cash since 2021-Q3. Its OOS Sharpe is computed mostly on zero-return cash quarters; moving the lead from 2 to 3 quarters gives −0.07.
 3. **Small quarterly sample.** The OOS window is 25 quarters (2020-03-31 → 2026-03-31) and the common in-sample window 45 quarters (2008-12-31 → 2019-12-31).
 4. **Selection.** 1,180 combinations were scored (1,080 IS-valid). The expected maximum |z| among 1,080 unrelated rules with no skill is about 3.31. Across the grid, in-sample and OOS Sharpe have a rank correlation of 0.52; the median IS-valid rule scores 0.40 out of sample.

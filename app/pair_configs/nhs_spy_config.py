@@ -491,7 +491,10 @@ class StrategyConfig:
         "each month's figure is published near the end of the next month, and the "
         "rule was picked by its OOS score. Rebuilt without look-ahead, with a "
         "2-month lead floor and in-sample selection, the winner below has an OOS "
-        "Sharpe of 0.93 against 0.89 for SPY buy-and-hold."
+        "Sharpe of 0.93 against 0.89 for SPY buy-and-hold; the paired block-bootstrap "
+        "95% interval of the difference is [-0.37, +0.45], so the two are not "
+        "statistically distinguishable. Its annualized return is 11.9% against 14.8%, "
+        "with lower volatility (12.7% vs 16.6%) and drawdown (-13.5% vs -23.9%)."
     )
 
     PLAIN_ENGLISH = (
@@ -556,7 +559,7 @@ The pair's `evidence_status` is `found_in_search`: the rule has not been tested 
     CAVEATS_MD = """
 **Limitations** (from `winner_summary.json`, `hmm_lookahead_audit_20261016.json`, `structural_break_nhs_spy.json` and `tournament_validation_20261016/`):
 
-1. **Margin over buy-and-hold.** OOS Sharpe 0.93 vs 0.89; annualized return 11.9% vs 14.8%. The Sharpe gap comes from lower volatility and drawdown (-13.5% vs -23.9%), not higher return. Bootstrap share of resampled buy-and-hold Sharpes at or above 0.93: 0.47.
+1. **Margin over buy-and-hold.** OOS Sharpe 0.93 vs 0.89. Paired 6-month block bootstrap of the Sharpe difference (5,000 draws): mean +0.03, 95% interval [-0.37, +0.45], P(difference <= 0) = 0.43 — not statistically distinguishable (`winner_summary.json` selection.inference). Annualized return 11.9% vs 14.8%; the Sharpe gap comes from lower volatility (12.7% vs 16.6%) and drawdown (-13.5% vs -23.9%), not higher return.
 2. **Selection.** 5,500 combinations were scored (5,344 IS-valid, about 3,974 distinct position series); the expected maximum |z| among that many unrelated rules with no skill is about 3.66. Across the grid, IS and OOS Sharpe have a rank correlation of 0.69.
 3. **Sizing-rule artefact.** The winner's IS Sharpe (1.46) excludes 10 months in which its sizing is undefined; the long/cash version with identical OOS positions has IS Sharpe 1.42.
 4. **Forward causality is weak.** Toda-Yamamoto Granger finds NHS YoY leads SPY only at lag 11; SPY leads home sales at lags 1 and 2.
