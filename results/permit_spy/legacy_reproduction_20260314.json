@@ -1,0 +1,127 @@
+{
+  "pair_id": "permit_spy",
+  "legacy_tag": "20260314",
+  "code": "scripts/legacy_repro/permit_spy.py (legacy stage_derived + stage_tournament verbatim, git c64a609a)",
+  "panel": "data/phaseB_inputs/permit_spy_monthly_legacy_20260314.csv",
+  "panel_note": "PERMIT = ALFRED vintage as of 2026-03-14 (the published run's date); SPY = the legacy pipeline's own yfinance month-end adjusted closes (2026-10-08 pull)",
+  "published_file": "results/permit_spy/tournament_results_20260314.csv",
+  "lead_grid": [
+    0,
+    1,
+    2,
+    3,
+    6
+  ],
+  "rows_published": 855,
+  "rows_reproduced": 855,
+  "rows_only_published": 0,
+  "rows_only_reproduced": 0,
+  "columns": {
+    "oos_sharpe": {
+      "max_abs_diff": 0.0001,
+      "n_rows_beyond_published_precision": 0,
+      "n_rows_last_digit": 2,
+      "published_precision": 0.0001
+    },
+    "oos_ann_return": {
+      "max_abs_diff": 0.01,
+      "n_rows_beyond_published_precision": 0,
+      "n_rows_last_digit": 1,
+      "published_precision": 0.01
+    },
+    "max_drawdown": {
+      "max_abs_diff": 0.01,
+      "n_rows_beyond_published_precision": 0,
+      "n_rows_last_digit": 3,
+      "published_precision": 0.01
+    },
+    "annual_turnover": {
+      "max_abs_diff": 0.0,
+      "n_rows_beyond_published_precision": 0,
+      "n_rows_last_digit": 0,
+      "published_precision": 0.01
+    },
+    "oos_n": {
+      "max_abs_diff": 0.0,
+      "n_rows_beyond_published_precision": 0,
+      "n_rows_last_digit": 0,
+      "published_precision": 0
+    }
+  },
+  "oos_sharpe_rows_differing": 2,
+  "oos_sharpe_rounding_ties": 2,
+  "valid_flag_mismatches": 0,
+  "n_valid_published": 674,
+  "n_valid_reproduced": 674,
+  "bh_oos_sharpe": {
+    "published": 0.8998,
+    "reproduced": 0.8998
+  },
+  "published_rule": {
+    "key": "S3_mom|T1_p25|P3|6",
+    "published": {
+      "oos_sharpe": 1.4454,
+      "oos_ann_return": 22.66,
+      "max_drawdown": -19.42,
+      "annual_turnover": 9.06,
+      "oos_n": 96.0
+    },
+    "reproduced": {
+      "oos_sharpe": 1.4454,
+      "oos_ann_return": 22.66,
+      "max_drawdown": -19.42,
+      "annual_turnover": 9.06,
+      "oos_n": 96.0
+    },
+    "oos_sharpe_unrounded": 1.4453997960745224
+  },
+  "reproduced_oos_selected_winner": {
+    "signal": "S3_mom",
+    "threshold": "T1_p25",
+    "strategy": "P3",
+    "lead": 6,
+    "oos_sharpe": 1.4454,
+    "n_valid": 674
+  },
+  "published_rule_reproduces": true,
+  "floor_grid_check": {
+    "lead_grid": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "winner": {
+      "signal": "S3_mom",
+      "threshold": "T1_p25",
+      "strategy": "P3",
+      "lead": 6,
+      "oos_sharpe": 1.4454,
+      "n_valid": 1745
+    },
+    "note": "legacy code on the #255 floored grid L1..13 (registry note: winner unchanged); never published"
+  },
+  "sensitivity": [
+    {
+      "panel": "2026-10-08 FRED PERMIT + 2026-10-08 yfinance SPY (data/permit_spy_monthly_20261008.parquet)",
+      "result": "same 856 rows; 757 OOS Sharpe values differ beyond 4 dp (max 0.43), 17 valid flags differ; OOS-selected winner still S3_mom/T1_p25/P3/L6 at 1.3796",
+      "cause": "PERMIT revisions between 2026-03-14 and 2026-10-08 (annual seasonal-factor revision)"
+    },
+    {
+      "panel": "PERMIT vintage 2026-03-14 + SPY pinned 2026-10-17 (data/phaseB_inputs/spy_month_end_20261017.csv)",
+      "result": "644 OOS Sharpe values differ beyond 4 dp (max 0.018), valid flags equal; winner S3_mom/T1_p25/P3/L6 at 1.4387",
+      "cause": "dividend-adjustment drift between yfinance pulls"
+    }
+  ],
+  "exact_at_published_precision": true,
+  "gaps": "2 OOS Sharpe values differ from the published 4-dp value by 1e-4; all 2 are rounding ties (the unrounded reproduced value lies within 1e-4 of the published value); 1 annual-return and 3 drawdown values differ by one unit in the second decimal (percent). Both are consistent with tiny float differences in the adjusted SPY closes. The published panel itself (data/permit_spy_monthly_20260314.parquet) was never committed, so the PERMIT values are the ALFRED vintage of the publication date and the SPY closes are a later pull of the same yfinance series; with these the published table reproduces at its printed precision. IS Sharpe was never published (the legacy table has OOS columns only), so no IS value can be compared."
+}
