@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>指標組合研究概要</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1d2330; --muted: #5b6474; --line: #d9dde4; --accent: #1f5c99; --soft: #f3f6fa;
+  --warn: #8a4b00; --warn-bg: #fff6e8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181f; --fg: #e6e9ef; --muted: #a3abb9; --line: #2f3643; --accent: #7fb2e5; --soft: #1c222c;
+    --warn: #f0b867; --warn-bg: #2a2216;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181f; --fg: #e6e9ef; --muted: #a3abb9; --line: #2f3643; --accent: #7fb2e5; --soft: #1c222c;
+  --warn: #f0b867; --warn-bg: #2a2216;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: "Noto Sans CJK TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "WenQuanYi Zen Hei", sans-serif;
+  font-size: 15px; line-height: 1.75;
+}
+main { max-width: 860px; margin: 0 auto; padding: 32px 16px 48px; }
+h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: 0.02em; }
+.sub { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+h2 { font-size: 19px; margin: 32px 0 10px; padding-bottom: 4px; border-bottom: 2px solid var(--accent); color: var(--accent); }
+h3 { font-size: 16px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+.box { background: var(--soft); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin: 12px 0; }
+.warn { background: var(--warn-bg); border-left: 4px solid var(--warn); padding: 10px 14px; margin: 12px 0; }
+table { width: 100%; border-collapse: collapse; margin: 10px 0 14px; font-size: 14px; }
+th, td { border: 1px solid var(--line); padding: 6px 8px; vertical-align: top; text-align: left; }
+th { background: var(--soft); font-weight: 600; }
+td:nth-child(2), td.num { white-space: nowrap; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.big { font-size: 22px; font-weight: 700; color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } table { font-size: 13px; } }
+ol, ul { padding-left: 22px; margin: 6px 0; }
+li { margin: 3px 0; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; }
+.foot { color: var(--muted); font-size: 12px; margin-top: 32px; border-top: 1px solid var(--line); padding-top: 10px; }
+@media print { main { padding-top: 0; } h2 { break-after: avoid; } table, .box { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main>
+
+<h1>經濟及市場指標「組合拳」研究：第一階段概要</h1>
+<div class="sub">研究分支 <code>research261017_indicator_combos</code> ・ 2026 年 10 月 17 日 ・ 撰寫：Research Ray<br>
+本階段只擬定研究問題，未進行任何回測或策略搜尋。</div>
+
+<div class="box">
+<strong>重點摘要</strong>
+<ul>
+<li><strong>研究問題。</strong>本階段共擬定 37 條研究問題，其中方向一（組合用途）25 條，方向二（變化數量）12 條。每條問題均列明用途、各指標的角色、比較基準、驗證方法及「純屬巧合」檢驗。</li>
+<li><strong>理論上的組合數目。</strong>組合的理論數目極大：只計兩個指標的組合，已約有 8×10<sup>11</sup> 種設定。</li>
+<li><strong>實際獨立的資訊。</strong>29 個指標實際只含約 5 至 8 個互相獨立的資訊維度，可歸納為約 7 個「指標板塊」。按板塊組合，每項資產兩兩組合約為 860 種設定，可以控制。</li>
+<li><strong>最大風險。</strong>最大的風險是多重檢定：試得愈多，愈容易「找到」純屬運氣的組合。現有的樣本外期間（約 2017 至 2026 年）已被單指標研究反覆使用，不宜再用作篩選依據。</li>
+<li><strong>建議。</strong>先做兩項基礎量度和一項低自由度測試，並在結果出來之前把問題預先登記。兩項基礎量度是有效獨立策略數目和樣本長度與檢定力；低自由度測試是「各板塊等權綜合指標」對比「最佳單一指標」。</li>
+</ul>
+</div>
+
+<h2>一、研究目的</h2>
+<p>現時平台上每一個研究組合只用一個指標（例如新屋銷售、信貸息差、採購經理指數），預測一項資產（多數為 SPY）的回報。實際投資中，從業者很少只看一個指標，而會同時參考多個角色不同的指標：有的負責確認，有的負責判斷市況，有的負責決定倉位大小。</p>
+<p>本研究要回答：把不同指標組合使用，能否得出切合實際用途、經得起嚴格檢驗的見解、工具或流程？</p>
+<p>研究遵守以下原則：</p>
+<ul>
+<li><strong>只用當時已公佈的數據。</strong>每個數值以其首次公佈日期為準，修訂前的版本採用 ALFRED 歷史存檔，杜絕「事後先知」。</li>
+<li><strong>每條問題都與三個基準比較。</strong>三個基準是買入持有、最佳單一指標及簡單等權綜合指標。</li>
+<li><strong>每條問題都附有「純屬巧合」檢驗。</strong></li>
+<li><strong>如實呈現結果，由閣下判斷。</strong>無效的結果亦會照實報告。</li>
+</ul>
+
+<h2>二、兩大研究方向</h2>
+<div class="grid2">
+<div class="box">
+<h3>方向一：組合有何用？（25 條）</h3>
+<p>按指標所擔當的「角色」分類：</p>
+<ul>
+<li><strong>確認</strong>：兩個訊號同時出現才行動。</li>
+<li><strong>過濾／市況條件</strong>：例如宏觀數據只在市場受壓時才有效。</li>
+<li><strong>綜合指數</strong>：多個指標標準化後平均。</li>
+<li><strong>先後次序</strong>：例如信貸收緊 → 製造業轉弱 → 盈利下滑。</li>
+<li><strong>背馳</strong>：例如軟數據與硬數據走勢相反。</li>
+<li><strong>方向與倉位分工</strong>：宏觀定方向，市場波動定倉位。</li>
+<li><strong>廣度</strong>：轉弱指標所佔比例。</li>
+</ul>
+<p>對應五種用途：避險減倉、股票比重調整、行業輪動、衰退判斷、重新入市時機。每種用途各有合適的量度，例如最大跌幅、尾部損失（CVaR）、衰退期命中率、相對回報，不單看夏普比率。</p>
+</div>
+<div class="box">
+<h3>方向二：組合拳有多少變化？（12 條）</h3>
+<p>從兩方面回答：</p>
+<ol>
+<li><strong>理論數目。</strong>按指標、轉換方法、門檻、領先期、組合方式、資產等各維度相乘。</li>
+<li><strong>有效數目。</strong>指標之間高度相關，例如新屋開工與建築許可的相關係數達 0.82，因此真正互相獨立的資訊遠少於指標數目。</li>
+</ol>
+<p>方向二亦研究以下問題：</p>
+<ul>
+<li>加入第幾個指標後效益見頂；</li>
+<li>搜尋範圍擴大到甚麼程度會變成以過度擬合為主；</li>
+<li>經濟轉差時，指標是否同步，令分散效益消失。</li>
+</ul>
+</div>
+</div>
+
+<h2>三、十項優先研究問題</h2>
+<table>
+<thead><tr><th>次序</th><th>編號</th><th>問題（簡述）</th><th>用途</th><th>優先原因</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td>D2-03</td><td>現有 29 個單指標策略中，實際有多少條互相獨立的策略回報？</td><td>檢定基礎</td><td>所有多重檢定校正的分母</td></tr>
+<tr><td class="num">2</td><td>D2-09</td><td>各組合在只用當時數據下的共同樣本有多長？可偵測的最小改善幅度是多少？</td><td>把關</td><td>及早剔除無法作答的問題</td></tr>
+<tr><td class="num">3</td><td>D1-15</td><td>各指標在 1990、2001、2008、2020 年周期中的領先次序是否穩定？</td><td>次序類前提</td><td>成本低；決定「先後次序」類問題是否值得做</td></tr>
+<tr><td class="num">4</td><td>D1-08</td><td>每個板塊選一個代表、等權綜合，能否勝過最佳單一指標？</td><td>避險減倉</td><td>毋須調參，最直接檢驗「組合是否有用」</td></tr>
+<tr><td class="num">5</td><td>D1-04</td><td>宏觀訊號（採購經理指數、新訂單）是否只在市場受壓時才有效？</td><td>避險減倉</td><td>檢驗「市況依存」這一核心假設</td></tr>
+<tr><td class="num">6</td><td>D1-02</td><td>孳息曲線倒掛加失業率上升，能否更準確判斷衰退？</td><td>衰退判斷</td><td>文獻支持強，即時數據歷史長</td></tr>
+<tr><td class="num">7</td><td>D1-19</td><td>宏觀定方向、市場波動定倉位，能否降低尾部損失？</td><td>比重調整</td><td>貼近實務；分清波動效應與宏觀效應</td></tr>
+<tr><td class="num">8</td><td>D2-05</td><td>逐一加入板塊代表，效益在第幾個指標見頂？</td><td>避險減倉</td><td>回答「用多少個指標才足夠」</td></tr>
+<tr><td class="num">9</td><td>D2-08</td><td>搜尋範圍擴大到多少種設定時，過度擬合機率超過一半？</td><td>檢定基礎</td><td>訂出可承受的搜尋規模</td></tr>
+<tr><td class="num">10</td><td>D1-14</td><td>避險出場後，以多個早周期訊號投票決定重新入市，能否減少錯失反彈？</td><td>入市時機</td><td>現有避險策略最弱的一環</td></tr>
+</tbody>
+</table>
+<p>另有 D1-09「全體單指標訊號的轉弱比例（廣度指數）」，可先作描述性工具，成本低且直觀。</p>
+
+<h2>四、「組合拳有多少種變化？」</h2>
+<table>
+<thead><tr><th>計算口徑</th><th>兩個指標</th><th>三個指標</th></tr></thead>
+<tbody>
+<tr><td>全面重新搜尋：每個成員的設定都重新選取</td><td class="num">約 8×10<sup>11</sup></td><td class="num">約 4×10<sup>16</sup></td></tr>
+<tr><td>成員固定為現有單指標最佳設定，只變更組合方式、資產及對齊方法</td><td class="num">約 8×10<sup>5</sup></td><td class="num">約 4×10<sup>7</sup></td></tr>
+<tr><td>按 7 個板塊各取一個代表，只計 SPY 及一種對齊方法</td><td class="num"><span class="big">861</span></td><td class="num">9,345</td></tr>
+<tr><td>本研究預先登記的問題</td><td colspan="2">37 條問題，合共約 85 項檢定</td></tr>
+</tbody>
+</table>
+<p><strong>有效維度。</strong>以只用當時數據的月度面板量度（2001 至 2026 年，23 個指標），得出以下結果：</p>
+<ul>
+<li>平行分析：5 個因子；</li>
+<li>參與比：5.6；</li>
+<li>相關係數 0.5 以上的群組：10 個。</li>
+</ul>
+<p>只用 ALFRED 即時版本的 10 個長歷史指標，有效維度約為 4 至 6。綜合而言，<strong>29 個指標約含 5 至 8 個獨立維度</strong>，可歸納為約 7 個板塊：</p>
+<ul>
+<li>實體活動及就業</li>
+<li>房屋</li>
+<li>市場信貸及孳息曲線</li>
+<li>銀行信貸</li>
+<li>消費者信心</li>
+<li>製造業調查及商品</li>
+<li>貨幣供應</li>
+</ul>
+<p>另有市場波動及半導體相對強弱一組。</p>
+<div class="warn"><strong>需要留意。</strong>有效維度並非固定不變：2008 年前約為 3.5，2008 年後約為 5.2（均以參與比計）。經濟轉差時各指標傾向同步，組合的分散效益正好在最需要時減弱。</div>
+
+<h2>五、主要風險</h2>
+<ol>
+<li><strong>多重檢定與過度擬合。</strong>單指標研究已試過約 14.4 萬種設定，組合會令數目急增。以已選出的「最佳」單指標再作組合，會把各成員的選擇偏差疊加（Novy-Marx 2016）。對策有三：預先登記問題；以整個指標面板同步平移作為巧合檢驗；在每次檢驗中重新進行成員篩選；並作家族式多重檢定校正。</li>
+<li><strong>樣本已被反覆使用。</strong>現有樣本外期間（約 2017 至 2026 年）不再作篩選用途。改用以下三種驗證方法：
+  <ul>
+  <li>在樣本內期間進行嵌套、清除重疊的滾動交叉驗證；</li>
+  <li>以單指標研究從未使用的 1980 至 1997 年作「向後保留期」；</li>
+  <li>由 2026 年 11 月起凍結設定，作前瞻模擬記錄。</li>
+  </ul></li>
+<li><strong>共同樣本急劇縮短。</strong>29 個指標全部齊備只限 2017 年 2 月至 2025 年 12 月，共 107 個月，正好落在已用過的樣本外期間。16 個指標全部採用即時版本，則只能由 2013 年起計。因此每條問題均只選用起始較早的指標子集。</li>
+<li><strong>檢定力有限。</strong>組合與其最佳成員的回報相關度通常達 0.8 至 0.9。以約 8 年數據計，夏普比率改善少於約 0.3 至 0.45 時，與雜訊無從分辨。因此本研究着重尾部風險量度、較長的向後保留期及跨資產的一致性。</li>
+<li><strong>數據限制。</strong>
+  <ul>
+  <li>採購經理指數、NAHB 指數、水泥及原油庫存沒有修訂前存檔，只能使用修訂後數值。</li>
+  <li>發佈時差不一：NAHB 早於月底約 11 日公佈，水泥則延遲 72 日以上。</li>
+  <li>月度、季度與日度數據須按實際公佈日對齊。</li>
+  <li>部分單指標最佳設定仍屬暫定，有待 Phase B 重建。</li>
+  </ul></li>
+</ol>
+
+<h2>六、建議下一步</h2>
+<ol>
+<li><strong>預先登記。</strong>由閣下審閱並確認問題清單及優先次序後，把首批問題（優先級 1，約 23 項檢定）逐條寫成規格檔並提交版本記錄，作為預先登記。</li>
+<li><strong>基礎工作。</strong>需完成以下四項：
+  <ul>
+  <li>整合 29 個單指標策略的持倉序列，計算有效獨立策略數目；</li>
+  <li>補建多重檢定工具，包括 Romano–Wolf 逐步檢定、Hansen SPA、經通縮調整的夏普比率及過度擬合機率；</li>
+  <li>把現有單指標框架擴展至多成員；</li>
+  <li>把巧合檢驗擴展至整個指標面板。</li>
+  </ul></li>
+<li><strong>補充數據。</strong>需補充 1993 年前的 S&amp;P 500 總回報、1989 年前的行業組合，以及 FRED 上較長歷史的息差和孳息曲線數據。</li>
+<li><strong>首批檢驗。</strong>上述完成後，才進行首批檢驗：D1-15、D1-08、D1-04、D1-02、D1-19。結果將如實報告，包括無效結果。</li>
+</ol>
+
+<h2>七、待閣下決定的事項</h2>
+<ol>
+<li>可否由 2026 年 11 月起凍結設定，作前瞻模擬記錄？這是唯一真正未見過的期間，但首兩三年的檢定力偏低。</li>
+<li>可否加入 1993 年前的 S&amp;P 500 總回報及 1989 年前的行業組合數據，以啟用 1980 至 1997 年的向後保留期？</li>
+<li>「股票比重調整」用途應以股票對國庫券，還是股票對國債？後者需補充國債回報數據。</li>
+<li>以現有單指標最佳設定作組合成員時，應等待 Phase B 完成，還是以基準版本 3d735ec7 凍結使用？</li>
+<li>全部 37 條問題應作一個檢定家族一併校正，還是先以優先級 1 的子集單獨成族？</li>
+</ol>
+
+<div class="foot">
+詳細文件位於分支 <code>research261017_indicator_combos</code> 的 <code>docs/indicator_combos/</code>：
+<code>QUESTION_BANK.md</code>（37 條問題）、<code>TAXONOMY.md</code>（組合角色分類）、<code>COMBINATORICS.md</code>（變化數量及有效維度）、
+<code>DATA_TOOL_INVENTORY.md</code>（數據及工具盤點）。描述性數據由 <code>scripts/pit_panel_inspect.py</code> 生成。
+</div>
+
+</main>
+</body>
+</html>
