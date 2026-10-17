@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-17T22:27:35.757214+00:00",
+  "last_updated_at": "2026-10-17T23:31:08.484237+00:00",
   "indicator_axis": {
     "canonical_column": "umcsent",
     "display_name": "University of Michigan Consumer Sentiment",

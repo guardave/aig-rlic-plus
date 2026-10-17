@@ -391,7 +391,9 @@ def stage_core_models(df_monthly):
             y = valid[horizon]
 
             try:
-                model = sm.OLS(y, X).fit(cov_type="HC3")
+                h = int(horizon.split("_")[-1].rstrip("m"))     # overlapping h-month returns: HAC, maxlags >= h-1
+                lags = max(int(0.75 * len(valid) ** (1 / 3)), h - 1)
+                model = sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": lags})
                 reg_results.append({
                     "signal": signal, "horizon": horizon,
                     "coef": round(model.params.iloc[1], 6),
@@ -432,7 +434,7 @@ def stage_core_models(df_monthly):
             X = sm.add_constant(valid[X_cols])
             y = valid[horizon_col]
 
-            nw_lags = int(0.75 * len(valid) ** (1 / 3))
+            nw_lags = max(int(0.75 * len(valid) ** (1 / 3)), h - 1)  # overlapping h-month returns
             model = sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": nw_lags})
 
             lp_results.append({
@@ -474,7 +476,7 @@ def stage_core_models(df_monthly):
                 X = sm.add_constant(valid[["umcsent_yoy", "umcsent_low", "interact"]])
                 y = valid[horizon_col]
 
-                nw_lags = int(0.75 * len(valid) ** (1 / 3))
+                nw_lags = max(int(0.75 * len(valid) ** (1 / 3)), h - 1)  # overlapping h-month returns
                 model = sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": nw_lags})
 
                 regime_lp_results.append({
@@ -724,6 +726,68 @@ def stage_core_models(df_monthly):
 
 
 # ===================================================================
+# ROLLING STABILITY (descriptive, revised panel)
+# ===================================================================
+
+@log_stage("5b_rolling_stability")
+def stage_rolling_stability(df: pd.DataFrame) -> None:
+    """24-month rolling correlation and rolling Granger F of the year-over-year change in UMCSENT and the XLV
+    monthly return, and a Quandt-Andrews sup-F test (15% trimming) for a break in xlv_ret_t = a + b *
+    umcsent_yoy_{t-1}, with a residual-bootstrap p-value under the no-break null (499 draws, seed 42).
+    Replaces the fleet retro-apply files of the published run (legacy panel, old winner's lead)."""
+    import statsmodels.api as sm
+    from statsmodels.tsa.stattools import grangercausalitytests
+    d = df[["umcsent_yoy", "xlv_ret"]].dropna()
+    rc = d["umcsent_yoy"].rolling(24, min_periods=12).corr(d["xlv_ret"]).dropna()
+    pd.DataFrame({"date": rc.index.strftime("%Y-%m-%d"), "rolling_corr_24m": rc.values}).to_csv(
+        RES / f"rolling_correlation_{PAIR_ID}.csv", index=False)
+    rows = []
+    for i in range(24, len(d) + 1):
+        sub = d.iloc[i - 24:i]
+        try:
+            g = grangercausalitytests(sub[["xlv_ret", "umcsent_yoy"]], maxlag=3, verbose=False)
+            f = [g[k][0]["ssr_ftest"][0] for k in (1, 2, 3)]
+            j = int(np.argmax(f))
+            rows.append({"date": sub.index[-1].strftime("%Y-%m-%d"), "granger_f_24m": f[j],
+                         "p_value_24m": g[j + 1][0]["ssr_ftest"][1], "best_lag": j + 1})
+        except Exception:
+            continue
+    pd.DataFrame(rows).to_csv(RES / f"rolling_granger_{PAIR_ID}.csv", index=False)
+
+    z = pd.concat([d["xlv_ret"].rename("y"), d["umcsent_yoy"].shift(1).rename("x")], axis=1).dropna()
+    y, X = z["y"].to_numpy(), sm.add_constant(z["x"].to_numpy())
+    n, k = len(y), X.shape[1]
+    lo, hi = int(0.15 * n), int(0.85 * n)
+
+    def sup_f(yv):
+        ssr0 = float(((yv - X @ np.linalg.lstsq(X, yv, rcond=None)[0]) ** 2).sum())
+        best, at = -np.inf, lo
+        for t in range(lo, hi):
+            s = 0.0
+            for a, b in ((0, t), (t, n)):
+                beta = np.linalg.lstsq(X[a:b], yv[a:b], rcond=None)[0]
+                s += float(((yv[a:b] - X[a:b] @ beta) ** 2).sum())
+            fs = ((ssr0 - s) / k) / (s / (n - 2 * k))
+            if fs > best:
+                best, at = fs, t
+        return best, at
+
+    f_obs, t_obs = sup_f(y)
+    beta0 = np.linalg.lstsq(X, y, rcond=None)[0]
+    resid = y - X @ beta0
+    rng = np.random.default_rng(42)
+    draws = [sup_f(X @ beta0 + rng.choice(resid, size=n, replace=True))[0] for _ in range(499)]
+    p = float((1 + sum(f >= f_obs for f in draws)) / (1 + len(draws)))
+    out = {"pair_id": PAIR_ID, "test": "quandt_andrews_sup_f", "model": "xlv_ret_t ~ umcsent_yoy_{t-1}",
+           "trim_pct": 0.15, "n_obs": int(n), "sup_f": round(float(f_obs), 4),
+           "breakpoint_date": z.index[t_obs].strftime("%Y-%m-%d"), "p_value": round(p, 4),
+           "p_value_method": "residual bootstrap under the no-break null, 499 draws, seed 42",
+           "sample": [z.index[0].strftime("%Y-%m-%d"), z.index[-1].strftime("%Y-%m-%d")]}
+    (RES / f"structural_break_{PAIR_ID}.json").write_text(json.dumps(out, indent=2) + "\n")
+    print(f"  sup-F {f_obs:.2f} at {out['breakpoint_date']}, bootstrap p {p:.3f}")
+
+
+# ===================================================================
 # TOURNAMENT (harness)
 # ===================================================================
 
@@ -882,6 +946,12 @@ def write_narrative_provenance(df: pd.DataFrame) -> None:
     rk = v["is_sharpe"].rank(ascending=False, method="min")
     sel = v.index[v["selected"].astype(bool)]
     derived["winner_is_rank_among_valid"] = int(rk.loc[sel[0]]) if len(sel) else None
+    # XLV pin splice (legacy closes through 2025-11, Yahoo from 2025-12): adjusted-close basis check
+    sc = json.loads((Path(DATA_DIR) / "phaseB_inputs" / "xlv_splice_check_20261017.json").read_text())
+    derived["xlv_splice_close_ratio_max_abs_dev"] = max(abs(sc["close_ratio_yahoo_over_legacy_min"] - 1),
+                                                         abs(sc["close_ratio_max"] - 1))
+    derived["xlv_splice_overlap_return_max_abs_diff"] = sc["monthly_return_max_abs_diff_overlap"]
+    derived["xlv_splice_join_month_return_abs_diff"] = sc["join_month_abs_diff"]
     gc = pd.read_csv(Path(MODELS_DIR) / "granger_causality.csv")
     if len(gc):
         for d, k in (("UMCSENT->XLV", "granger_min_p_umcsent_to_xlv"), ("XLV->UMCSENT", "granger_min_p_xlv_to_umcsent")):
@@ -899,6 +969,7 @@ def main() -> None:
     stage_stationarity_and_quality(df)
     stage_exploratory(df)
     model_results = stage_core_models(df)
+    stage_rolling_stability(df)
     _tourn, winner, _out = run_tournament()
     stage_validation(winner)
     write_metadata(model_results, winner, time.time() - t0)

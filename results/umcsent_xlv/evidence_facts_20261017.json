@@ -18,6 +18,9 @@
     "granger_min_p_xlv_to_umcsent": 0.001,
     "trade_log_rows": 326,
     "position_log_rows": 326,
-    "winner_is_rank_among_valid": 34
+    "winner_is_rank_among_valid": 34,
+    "xlv_splice_close_ratio_max_abs_dev": 7.680112559249608e-07,
+    "xlv_splice_overlap_return_max_abs_diff": 1.1349560729012609e-06,
+    "xlv_splice_join_month_return_abs_diff": 0.0
   }
 }

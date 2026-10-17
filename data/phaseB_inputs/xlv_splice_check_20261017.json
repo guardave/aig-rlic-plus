@@ -1,0 +1,19 @@
+{
+  "overlap": "1998-12..2025-11",
+  "close_ratio_yahoo_over_legacy_min": 0.9999992641724074,
+  "close_ratio_max": 1.000000768011256,
+  "monthly_return_max_abs_diff_overlap": 1.1349560729012609e-06,
+  "join_month_2025_12_return_spliced": -0.01389655912158505,
+  "join_month_2025_12_return_yahoo_only": -0.01389655912158505,
+  "join_month_abs_diff": 0.0,
+  "legacy_2025_12_return_dec30_close": -0.008290838166728043,
+  "dividends_2025_06_to_2026_10": {
+    "2025-06-23": 0.63,
+    "2025-09-22": 0.625,
+    "2025-12-22": 0.657,
+    "2026-03-23": 0.595,
+    "2026-06-22": 0.656,
+    "2026-09-21": 0.642
+  },
+  "note": "Same adjusted-close basis: legacy (yfinance auto_adjust, downloaded 2026-10-08) and Yahoo re-download (2026-10-17) agree within 1e-6 on every month-end close 1998-12..2025-11; no XLV ex-dividend date falls between the two downloads, so the dividend adjustment factors are identical and the join month return differs only by the splice ratio."
+}
