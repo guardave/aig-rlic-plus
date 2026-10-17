@@ -119,6 +119,9 @@ def realtime_frames(vint: pd.DataFrame, index: pd.DatetimeIndex, leads: Iterable
             k = present_idx.searchsorted(nominal, "right") - 1
             if k >= 0:
                 rows[L][t] = f.loc[present_idx[k]]
+    if cols is None:   # no vintage visible on any row (e.g. a truncation before the archive starts)
+        stub = pd.Series(np.nan, index=pd.date_range("2000-01-31", periods=3, freq="QE" if freq == "Q" else "ME"))
+        cols = frame_fn(stub).columns
     for L in leads:
         df = pd.DataFrame(rows[L]).T if rows[L] else pd.DataFrame(columns=cols)
         out[L] = df.reindex(idx).astype(float)

@@ -278,3 +278,12 @@ def test_published_rule_replays_to_1e6(pair):
     rep = replay_legacy(load_pair(pair))
     assert rep["pass"], rep
     assert rep["strategy_return"]["max_abs_diff"] <= 1e-6
+
+
+def test_realtime_frames_keep_columns_when_no_vintage_is_visible():
+    spec = make_spec(leads=[1])
+    lv, _ = toy_data()
+    vint = pd.DataFrame({"date": [lv.index[-1].replace(day=1)], "realtime_start": [pd.Timestamp("2030-01-15")],
+                         "realtime_end": [pd.Timestamp("2262-01-01")], "value": [1.0]})
+    f = align.realtime_frames(vint, lv.index[:24], [1], lambda v: reading_frame(spec, v.rename("x").to_frame()))[1]
+    assert "x|lvl|raw" in f.columns and f.isna().all(axis=None)
