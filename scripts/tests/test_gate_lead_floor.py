@@ -7,7 +7,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import gate_lead_floor as g  # noqa: E402
 
 
-def make_repo(tmp, pair, pipeline_src, registry_pairs, winner_lead=1, extra=None):
+def use_grids(src):
+    """Fixture pipelines declare a grid and must also iterate it (QA2 M-2 guard): append a plain shift loop over
+    every declared grid name (loop var not lead-named and no pos*ret, so it adds no grid definition itself)."""
+    import re
+    names = [m.group(1) for m in re.finditer(r"^([A-Za-z_]+)\s*=", src, re.M) if g.GRID_NAME.match(m.group(1))]
+    return src + "".join(f"for _v in {n}:\n    _ = _x.shift(_v)\n" for n in names)
+
+
+def make_repo(tmp, pair, pipeline_src, registry_pairs, winner_lead=1, extra=None, raw=False):
+    if not raw:
+        pipeline_src = use_grids(pipeline_src)
+        extra = {k: use_grids(v) for k, v in (extra or {}).items()}
     (tmp / "app" / "pages").mkdir(parents=True)
     (tmp / "app" / "pages" / f"1_{pair}_story.py").write_text("")
     (tmp / "scripts").mkdir()
@@ -266,11 +277,11 @@ import pandas as pd  # noqa: E402
 
 
 def pp_repo(tmp, src, rec, winner_lead=2, delayed=None, sample=("2018-01-31", "2020-12-31"), returns=True,
-            freq="ME"):
+            freq="ME", raw=False):
     """Synthetic repo with a release calendar for series XS: reading M released on the 15th of M+1; `delayed`
     maps a reference month 'YYYY-MM' to a later release date (shutdown backlog)."""
     rec = {"lead_axis": "months", "release_calendar_series": "XS", "alignment": "fixed_lag", **rec}
-    r = make_repo(tmp, "x_spy", src, {"x_spy": rec}, winner_lead=winner_lead)
+    r = make_repo(tmp, "x_spy", src, {"x_spy": rec}, winner_lead=winner_lead, raw=raw)
     months = pd.date_range("2015-01-01", "2021-06-01", freq="MS")
     rows = []
     for m in months:
@@ -507,3 +518,17 @@ def test_default_mode_missing_returns_warns_and_counts(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "WARN x_spy" in out and "1 WARN" in out
     assert g.main(["--repo", str(r), "--strict", "x_spy"]) == 1
+
+
+def test_declared_grid_that_no_loop_iterates_fails(tmp_path):
+    """QA2 M-2: a declared (floored) grid that no detected lead loop iterates is a decoy: the traded grid is unknown."""
+    for k, real in enumerate(("from functools import partial\nf = partial(lambda d, h: d.shift(h))\n"
+                              "outs = [f(df, h) for h in range(0, 14)]\nret = pos * r\n",
+                              "outs = {h: df.rolling(1).mean().shift(h + 0) for h in range(0, 14)}\nret = pos * r\n")):
+        src = "leads = list(range(2, 14))\n" + real
+        st, why, _ = pp(pp_repo(tmp_path / str(k), src, PP_REC, raw=True))
+        assert st == "FAIL" and "not iterated by any detected lead loop" in why
+    # the same grid iterated through a function that shifts by its parameter is fine (hy_ig_spy pattern)
+    ok = ("leads = list(range(2, 14))\ndef replay(w, col, lead):\n    return w[col].shift(lead)\n"
+          "for lead in leads:\n    replay(work, 'x', lead)\nret = pos * r\n")
+    assert pp(pp_repo(tmp_path / "ok", ok, PP_REC, raw=True))[0] == "PASS"

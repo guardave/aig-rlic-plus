@@ -117,18 +117,96 @@ def _shift_var(call) -> str | None:
     return arg.id if isinstance(arg, ast.Name) else None
 
 
-def is_traded_shift_loop(loop: ast.For) -> bool:
-    """A loop whose body shifts by the loop variable (positional or periods=) AND either the variable is lead-named
-    or the body multiplies something by a return series (pos * ret): the traded lead loop, whatever its name.
+def _is_pit_call_with(call, var) -> bool:
+    if not (isinstance(call, ast.Call)):
+        return False
+    f = call.func
+    name = f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else None
+    if name != "pit_shift":
+        return False
+    lead = call.args[1] if len(call.args) > 1 else next((k.value for k in call.keywords if k.arg == "lead"), None)
+    return isinstance(lead, ast.Name) and lead.id == var
+
+
+def shifting_functions(tree) -> dict:
+    """Functions of the file that shift by one of their parameters: name -> {param positions, param names}."""
+    out = {}
+    for f in ast.walk(tree):
+        if isinstance(f, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            params = [a.arg for a in f.args.args]
+            used = {v for c in ast.walk(f) for v in [_shift_var(c)] if v} | {
+                p for c in ast.walk(f) for p in params if _is_pit_call_with(c, p)}
+            hit = [p for p in params if p in used]
+            if hit:
+                out[f.name] = {"pos": {params.index(p) for p in hit}, "names": set(hit)}
+    return out
+
+
+def is_traded_shift_loop(loop: ast.For, shifters: dict | None = None) -> bool:
+    """A loop whose body shifts by the loop variable (`.shift(v)`, `.shift(periods=v)`, `pit_shift(x, v, ...)`, or
+    passing v to a function of the file that shifts by that parameter) AND either the variable is lead-named or
+    the body multiplies something by a return series (pos * ret): the traded lead loop, whatever its name.
     Diagnostic loops (CCF / Granger: shift by the variable, no position * return) stay ignored."""
     var = loop.target.id
     body = [c for b in loop.body for c in ast.walk(b)]
-    if not any(_shift_var(c) == var for c in body):
+
+    def via_function(c):
+        if not (isinstance(c, ast.Call) and shifters):
+            return False
+        nm = c.func.id if isinstance(c.func, ast.Name) else c.func.attr if isinstance(c.func, ast.Attribute) else None
+        sf = shifters.get(nm)
+        if not sf:
+            return False
+        return any(isinstance(a, ast.Name) and a.id == var and i in sf["pos"] for i, a in enumerate(c.args)) or any(
+            k.arg in sf["names"] and isinstance(k.value, ast.Name) and k.value.id == var for k in c.keywords)
+
+    if not any(_shift_var(c) == var or _is_pit_call_with(c, var) or via_function(c) for c in body):
         return False
     if LOOP_VAR.match(var):
         return True
     return any(isinstance(c, ast.BinOp) and isinstance(c.op, ast.Mult) and (_retish(_core(c.left)) or _retish(_core(c.right)))
                for c in body)
+
+
+def grid_usage(src: str) -> tuple[set, set]:
+    """(declared, iterated): names assigned a lead grid (`leads = ...`), and names iterated by a loop whose body
+    shifts by the loop variable directly, via pit_shift, or by passing it to a function of the file that shifts
+    by that parameter (QA2 M-2: a declared grid that nothing iterates is a decoy)."""
+    tree = ast.parse(src)
+    declared = {t.id for n in ast.walk(tree) if isinstance(n, (ast.Assign, ast.AnnAssign))
+                for t in (n.targets if isinstance(n, ast.Assign) else [n.target])
+                if isinstance(t, ast.Name) and GRID_NAME.match(t.id)}
+    shifters = shifting_functions(tree)
+    iterated = set()
+    for n in ast.walk(tree):
+        if isinstance(n, ast.For) and isinstance(n.target, ast.Name) and isinstance(n.iter, ast.Name):
+            var = n.target.id
+            body = [c for b in n.body for c in ast.walk(b)]
+
+            def via(c):
+                if not isinstance(c, ast.Call):
+                    return False
+                nm = c.func.id if isinstance(c.func, ast.Name) else c.func.attr if isinstance(c.func, ast.Attribute) else None
+                sf = shifters.get(nm)
+                return bool(sf) and (any(isinstance(a, ast.Name) and a.id == var and i in sf["pos"] for i, a in enumerate(c.args))
+                                     or any(k.arg in sf["names"] and isinstance(k.value, ast.Name) and k.value.id == var
+                                            for k in c.keywords))
+            if any(_shift_var(c) == var or _is_pit_call_with(c, var) or via(c) for c in body):
+                iterated.add(n.iter.id)
+    # a function parameter iterated by such a loop counts at its call sites: f(df, LEADS) -> LEADS is iterated
+    for f in ast.walk(tree):
+        if isinstance(f, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            params = [a.arg for a in f.args.args]
+            for prm in params:
+                if prm in iterated:
+                    for c in ast.walk(tree):
+                        if isinstance(c, ast.Call) and ((isinstance(c.func, ast.Name) and c.func.id == f.name) or
+                                                        (isinstance(c.func, ast.Attribute) and c.func.attr == f.name)):
+                            i = params.index(prm)
+                            arg = c.args[i] if i < len(c.args) else next((k.value for k in c.keywords if k.arg == prm), None)
+                            if isinstance(arg, ast.Name):
+                                iterated.add(arg.id)
+    return declared, iterated
 
 
 def extract_grids(src: str):
@@ -390,6 +468,18 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
         elif det != reg_shift:
             fails.append(f"alignment mismatch: code position shift={det} ({rel}:{dline}) != registry position_shift={reg_shift}")
             where = f"{rel}:{dline}"
+    declared_all, iterated_all, loop_defs = set(), set(), [d for d in defs if d[1].startswith("for ") or "->" in d[1]]
+    for f in files:
+        try:
+            dcl, itr = grid_usage(f.read_text())
+        except SyntaxError:
+            continue
+        declared_all |= dcl
+        iterated_all |= itr
+    if defs and declared_all and not loop_defs and not (declared_all & iterated_all):
+        fails.append(f"declared lead grid {sorted(declared_all)} is not iterated by any detected lead loop "
+                     "(.shift(v) / .shift(periods=v) / pit_shift(x, v) / a function shifting by v): the grid "
+                     "actually traded cannot be verified")
     if not defs and not any("unparseable" in x for x in fails):
         fails.append("no lead-grid definition found in any scanned script ("
                      + (", ".join(str(f.relative_to(repo)) for f in files) or f"no scripts/*{pair}*.py exist") + ")")
