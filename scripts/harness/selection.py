@@ -66,7 +66,7 @@ def plateau_select(table: pd.DataFrame) -> dict | None:
     in place. Returns the winner index, plateau window and audit fields, or None when nothing is valid."""
     fam_cols = ["signal", "threshold", "strategy", "direction"]
     jcol: dict = {}
-    best = None   # (score, raw_in_window, -order, family_key, window_leads, rows)
+    wins = []     # (score, raw_in_window, -order, family_key, window_leads, valid rows)
     order = 0
     for fam, g in table[table["is_eligible"]].groupby(fam_cols, sort=False):
         g = g.sort_values("lead")
@@ -80,24 +80,32 @@ def plateau_select(table: pd.DataFrame) -> dict | None:
             w = list(w)
             if not val[w].any():
                 continue
-            score = float(s[w].min())
-            raw_in = float(s[w][val[w]].max())
-            cand = (score, raw_in, -order)
-            if best is None or cand > best[0]:
-                best = (cand, fam, [int(x) for x in g["lead"].to_numpy()[w]], idx[w][val[w]])
+            wins.append((float(s[w].min()), float(s[w][val[w]].max()), -order, fam,
+                         [int(x) for x in g["lead"].to_numpy()[w]], idx[w][val[w]]))
             order += 1
     table["plateau_j"] = pd.Series(jcol, dtype=float).reindex(table.index)
-    if best is None:
+    if not wins:
         return None
-    (score, _raw, _o), fam, wleads, rows = best
-    sub = table.loc[rows]
-    keys = [k for k in TIE_KEYS if k in sub]
-    asc = [False] * len(keys) + [True]
-    winner = sub.sort_values(keys + ["lead"], ascending=asc, kind="mergesort").index[0]
+    wins.sort(key=lambda t: (t[0], t[1], t[2]), reverse=True)
+
+    def window_winner(rows):
+        sub = table.loc[rows]
+        keys = [k for k in TIE_KEYS if k in sub]
+        return sub.sort_values(keys + ["lead"], ascending=[False] * len(keys) + [True], kind="mergesort").index[0]
+
+    score, _raw, _o, fam, wleads, rows = wins[0]
+    winner = window_winner(rows)
+    runner = None   # second-best D9 plateau winner: the next-ranked window whose winner is a different candidate
+    for t in wins[1:]:
+        cand = window_winner(t[5])
+        if cand != winner:
+            runner = {"index": cand, "score": t[0], "window_leads": t[4]}
+            break
     famrows = table[(table[fam_cols] == pd.Series(dict(zip(fam_cols, fam)))).all(axis=1) & table["is_eligible"]]
     fam_valid = famrows[famrows["valid"]]
     gmax = fam_valid["is_sharpe"].idxmax() if len(fam_valid) else winner
     return {"winner": winner, "family": dict(zip(fam_cols, fam)), "window_leads": wleads, "score": score,
+            "runner_up": runner,
             "family_max_lead": int(table.loc[gmax, "lead"]),
             "family_max_inside_window": int(table.loc[gmax, "lead"]) in wleads,
             "grid_edge": int(table.loc[winner, "lead"]) in (int(famrows["lead"].min()), int(famrows["lead"].max())),

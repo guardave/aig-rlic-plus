@@ -102,7 +102,8 @@ def fields_from_summary(ws: dict) -> dict:
     grid = sel.get("grid_scanned") or {}
     f.setdefault("median_valid_is_sharpe", grid.get("median_valid_objective"))
     ru = sel.get("runner_up") or {}
-    f.setdefault("runner_up_is_sharpe", ru.get("objective_value"))
+    f.setdefault("runner_up_is_sharpe", ru.get("is_sharpe", ru.get("objective_value")))
+    f.setdefault("runner_up_plateau_score", ru.get("objective_value") if ru.get("objective") == "plateau_score_J" else None)
     f.setdefault("runner_up_oos_sharpe", ru.get("oos_sharpe"))
     f.setdefault("runner_up_lead", ru.get("lead_value"))
     leg = sel.get("legacy_oos_selected_row") or {}

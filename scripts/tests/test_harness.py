@@ -190,13 +190,53 @@ def test_selection_never_consults_oos_returns():
 
 
 # ------------------------------------------------------------------------------------------- null / inference
-def test_null_offsets_reproducible_and_bounded():
+def test_null_offsets_reproducible_bounded_and_distinct():
     o1 = null.offsets(400, 12, 50)
     assert o1 == null.offsets(400, 12, 50)
     m = max(36, 80)
-    assert min(o1) >= m and max(o1) <= 400 - m
+    assert min(o1) >= m and max(o1) <= 400 - m and len(set(o1)) == 50
+    assert sorted(null.offsets(130, 4, 100)) == list(range(26, 105))       # fewer admissible than K: all of them
     with pytest.raises(ValueError):
         null.offsets(60, 12, 5)
+
+
+def test_dependent_se_exceeds_iid_se_for_smooth_draws():
+    offs = np.arange(100, 200)
+    x = np.sin(offs / 15.0)                       # neighbouring offsets give similar statistics
+    se, bw = null.dependent_se(x, offs, 12)
+    assert bw >= 12 and se > x.std(ddof=1) / np.sqrt(len(x))
+
+
+def test_shift_vintage_values_keeps_release_structure():
+    grid = pd.date_range("2000-01-31", periods=12, freq="ME")
+    latest = pd.Series(np.arange(12.0) + 100, index=grid)
+    v = pd.Series(np.arange(8.0), index=grid[:8])          # an early vintage: 8 periods published
+    out = null.shift_vintage_values(v, 2, grid, latest)
+    assert list(out.index) == list(grid[:8])                # same periods present
+    assert out.iloc[2] == 0.0 and out.iloc[7] == 5.0        # period d gets the vintage's period d - 2
+    assert out.iloc[0] == 110.0 and out.iloc[1] == 111.0    # wrap: periods not in the vintage use latest values
+
+
+def test_is_quantile_threshold_is_expanding_and_lagged():
+    from harness.positions import is_quantile_threshold
+    x = np.arange(20.0)
+    is_rows = np.arange(20) < 15
+    thr = is_quantile_threshold(x, is_rows, ISQuantile(0.5, min_periods=3))
+    assert np.isnan(thr[:3]).all() and thr[3] == 1.0               # rows 0-2 known before row 3
+    x2 = x.copy(); x2[10] = 1e6                                    # a later IS reading changes no earlier threshold
+    thr2 = is_quantile_threshold(x2, is_rows, ISQuantile(0.5, min_periods=3))
+    assert np.allclose(thr[:11], thr2[:11], equal_nan=True)
+    assert (thr[15:] == np.quantile(x[:15], 0.5)).all()            # OOS frozen at the IS end
+    full = is_quantile_threshold(x, is_rows, ISQuantile(0.5), mode="full")
+    assert (full == np.quantile(x[:15], 0.5)).all()
+
+
+def test_runner_up_is_second_plateau_winner():
+    t = _table({"a": [0.5, 0.9, 0.8, 0.85], "b": [0.6, 0.7, 0.65, 0.1]})
+    sel = selection.plateau_select(t)
+    ru = sel["runner_up"]
+    assert t.loc[sel["winner"], "signal"] == "a" and ru is not None and ru["index"] != sel["winner"]
+    assert ru["score"] <= sel["score"]
 
 
 def test_roll_span_only_moves_the_span():
@@ -223,6 +263,8 @@ def test_bootstrap_deterministic_shape_and_nw_lag():
     r1 = inference.paired_block_bootstrap_sharpe_diff(s, b, 6, 12, draws=500)
     r2 = inference.paired_block_bootstrap_sharpe_diff(s, b, 6, 12, draws=500)
     assert r1 == r2 and r1["ci_95"][0] <= r1["mean"] <= r1["ci_95"][1] and r1["draws"] == 500
+    sh = lambda x: x.mean() / x.std(ddof=1) * np.sqrt(12)  # noqa: E731  same estimator as reported Sharpes
+    assert r1["observed"] == round(sh(s) - sh(b), 4)
     assert inference.nw_lag(100) == 4 and inference.nw_lag(1000) == int(np.floor(4 * 10 ** (2 / 9)))
 
 

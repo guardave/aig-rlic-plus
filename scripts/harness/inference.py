@@ -7,13 +7,15 @@ import numpy as np
 def paired_block_bootstrap_sharpe_diff(strat, bh, block, ppy, draws=5000, seed=42):
     """Paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H): the same resampled blocks are
     applied to both series, so their dependence is kept. Returns observed, mean, 95% CI and P(diff <= 0).
-    (Moved unchanged from pair_pipeline_nhs_spy.py, pkg13.)"""
+    Adapted from pair_pipeline_nhs_spy.py (pkg13); the Sharpe uses the sample SD (ddof=1), the same estimator
+    as every reported Sharpe (Codex B0: the pkg13 version used ddof=0)."""
     s, b = np.asarray(strat, float), np.asarray(bh, float)
     n = len(s)
     rng = np.random.default_rng(seed)
 
     def _sh(x):
-        return x.mean() / x.std() * np.sqrt(ppy) if x.std() > 0 else np.nan
+        sd = x.std(ddof=1)
+        return x.mean() / sd * np.sqrt(ppy) if sd > 0 else np.nan
 
     d = []
     for _ in range(draws):
