@@ -97,3 +97,61 @@ def test_parse_markers_and_source_evaluation():
         assert g.verify_sentinel(src, shown, _ws()["winner_fields"]) is None
     f, c = g.check_tagged(text, g.load_pool(PAIR), [], {}, "t")
     assert c["tagged_values"] == 2 and any("0.77" in x for x in f)
+
+
+# ----------------------------------------------------------------------------------------- regression record
+# Codex B0f evasions (ported from v1): each snippet builds a number in code; layer 1 cannot see it. Under v2 every
+# one must FAIL as an UNTAGGED authored number when it reaches a page (one render, all injected).
+_DOC = '''def _f():
+    """Out-of-sample Sharpe 7.77 versus buy-and-hold."""
+TEXT = _f.__doc__'''
+B0F_EVASIONS = {
+    "number_parsed_from_dict_text": ('_X = {"s": "Sharpe 7.77"}\nTEXT = "The rule scored " + _X["s"].split()[1] + "."',
+                                     "7.77"),
+    "rendered_docstring": (_DOC, "7.77"),
+    "imported_constant": ("from math import pi\nTEXT = f'Out-of-sample Sharpe {pi:.2f}.'", "3.14"),
+    "subscript_context": ("TEXT = f'Out-of-sample Sharpe {[2.72, 0][0]}.'", "2.72"),
+    "precision_helper_arg": ("def _pct(v, nd=1):\n    return f'{v * 100:.{nd}f}%'\nTEXT = 'Annual return ' + _pct(0.613)",
+                             "61.3%"),
+    "comparison_constant": ("TEXT = f'Sharpe {(0.5 > 0) * 5.13:.2f}.'", "5.13"),
+    "unit_conversion": ("TEXT = f'Annual return {0.0425 * 12 * 100:.1f}%.'", "51.0%"),
+}
+
+
+def _b0f_texts():
+    out = {}
+    for name, (code, num) in B0F_EVASIONS.items():
+        ns: dict = {}
+        exec(code, ns)
+        out[name] = (ns["TEXT"], num)
+    return out
+
+
+@pytest.mark.parametrize("name", sorted(B0F_EVASIONS))
+def test_codex_b0f_evasions_fail_layer2_v2(name):
+    text, num = _b0f_texts()[name]
+
+    def inject(mod):
+        mod.STORY_CONFIG.PLAIN_ENGLISH = mod.STORY_CONFIG.PLAIN_ENGLISH + " " + text
+    bad, _ = g.check_pair(PAIR, g.render_pages(PAIR, sections=("story",), prepare=inject))
+    assert any(b.startswith("UNTAGGED") and repr(num) in b for b in bad), (name, bad[:6])
+
+
+def test_resolution_rules_template_fallback():
+    """v1 value matching, still used for shared-template text."""
+    pool = g.load_pool(PAIR)
+    ws = _ws()
+    assert g.check_text(f"Test-period Sharpe {ws['oos_sharpe']:.2f}.", pool, [], "t") == []
+    assert g.check_text(f"Drawdown {ws['oos_max_drawdown'] * 100:.1f}%.", pool, [], "t") == []
+    assert g.check_text(f"Window {ws['oos_period_start']} to {ws['oos_period_end']}.", pool, [], "t") == []
+    assert g.check_text("It was right 97.3% of the time.", pool, [], "t")
+    assert g.check_text("The rule waits nineteen months.", pool, [], "t")
+    assert g.check_text("It ranks at the 82nd percentile.", pool, [], "t")
+
+
+def test_injected_stale_prose_fails_end_to_end_v2():
+    """The v1 end-to-end case (stale Sharpe 7.77 appended to the live config) under v2."""
+    def inject(mod):
+        mod.STORY_CONFIG.PLAIN_ENGLISH = mod.STORY_CONFIG.PLAIN_ENGLISH + " Its test-period Sharpe was 7.77."
+    bad, _ = g.check_pair(PAIR, g.render_pages(PAIR, sections=("story",), prepare=inject))
+    assert any(b.startswith("UNTAGGED") and "'7.77'" in b for b in bad), bad[:3]
